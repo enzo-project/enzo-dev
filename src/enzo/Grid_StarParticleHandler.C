@@ -241,7 +241,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                           float *mu, float *metal, int *ctype,
                           int *np, FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up,
                           float *vp, float *wp, float *mp, float *tdp, 
-                          float *tcp, float *metalf, int *type);
+                          float *tcp, float *metalf, int *type, int *pindex);
 
 extern "C" void FORTRAN_NAME(star_maker_h2reg)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
@@ -648,7 +648,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Convert the species densities into fractional densities (i.e. divide
      by total baryonic density).  At the end we will multiply by the new
      density so that species fractions are maintained. */
- 
+
+ /* AJE TO DO Will need to add code here for chemical tracers */
+
   for (field = 0; field < NumberOfBaryonFields; field++)
     if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
 	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity)
@@ -666,6 +668,59 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
 	    BaryonField[field][index] /= BaryonField[DensNum][index];
 	}
+
+  /* If using Individual Stars AND chemical tracers, repeat above for tracer fields */
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals >= 2){
+    int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
+
+    if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
+                                        FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
+      ENZO_FAIL("Failure in Identifying Chemical tracer species fields.");
+    }
+
+    // now loop over fields
+
+    if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+        for(j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+          index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
+            BaryonField[ CINum][index] /= BaryonField[DensNum][index];
+            BaryonField[ NINum][index] /= BaryonField[DensNum][index];
+            BaryonField[ OINum][index] /= BaryonField[DensNum][index];
+            BaryonField[MgINum][index] /= BaryonField[DensNum][index];
+            BaryonField[SiINum][index] /= BaryonField[DensNum][index];
+            BaryonField[FeINum][index] /= BaryonField[DensNum][index];
+          }
+        }
+      } // k
+    } // if alpha
+    if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+        for(j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+          index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
+            BaryonField[BaINum][index] /= BaryonField[DensNum][index];
+            BaryonField[LaINum][index] /= BaryonField[DensNum][index];
+            BaryonField[ YINum][index] /= BaryonField[DensNum][index];
+          }
+        }
+      } // k
+
+    }// s process
+    if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+        for(j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+          index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
+            BaryonField[EuINum][index] /= BaryonField[DensNum][index];
+          }
+        }
+      } // k
+
+    }// r process
+
+  } // end IS and Multi metals
 
   /* If creating primordial stars, make a total H2 density field */
 
@@ -762,6 +817,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     int NumberOfNewParticlesSoFar = 0;
     int NumberOfNewParticles = 0;
  
+
 #ifdef STAR1
     //    if (StarParticleCreation == 1) {
     if (0) {
@@ -998,7 +1054,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     
       // comments
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
-
+ 
+      //
+      int *pcell_index = new int[MaximumNumberOfNewParticles];
 
       // convert overdensity threshold
       if (level == MaximumRefinementLevel)
@@ -1016,7 +1074,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
                                  &NumberOfNewParticles, tg->ParticlePosition[0], tg->ParticlePosition[1],
                                  tg->ParticlePosition[2], tg->ParticleVelocity[0], tg->ParticleVelocity[1],
                                  tg->ParticleVelocity[2], tg->ParticleMass, tg->ParticleAttribute[1],
-                                 tg->ParticleAttribute[0], tg->ParticleAttribute[2], tg->ParticleType) == FAIL){
+                                 tg->ParticleAttribute[0], tg->ParticleAttribute[2], tg->ParticleType,
+                                 pcell_index) == FAIL){
           ENZO_FAIL("Error in individual_star_maker.\n");
         } // check work
 
@@ -1025,7 +1084,41 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
         // for each star in an array, loop over newly formed particles and indeces and tag them here
         // can even just to the 1D index... way better than having to pass many fields.
 
+        /* Check to see if we've made stars, if we have, do the chemical tagging */
+        if(NumberOfNewParticles > NumberOfNewParticlesSoFar && TestProblemData.MultiMetals >=2){
+          int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
+          if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
+                                                 FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
+          ENZO_FAIL("Failure in Identifying Chemical tracer species fields.");
+          }
+
+/* AJE TO DO : DO NOT HARD CODE THE PARTICLE ATTRIBUTE NUMBERS... NEED TO LOOK THEM UP FROM FUNCTION */
+/* Actually, maybe hard coding is O.K......... */
+          for (int starnum = NumberOfNewParticlesSoFar; starnum < NumberOfNewParticles; starnum++){
+            if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+              tg->ParticleAttribute[ 3][starnum] = BaryonField[ CINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 4][starnum] = BaryonField[ NINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 5][starnum] = BaryonField[ OINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 6][starnum] = BaryonField[MgINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 7][starnum] = BaryonField[SiINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 8][starnum] = BaryonField[FeINum][pcell_index[starnum]];
+            }
+            if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+              tg->ParticleAttribute[ 9][starnum] = BaryonField[ YINum][pcell_index[starnum]];
+              tg->ParticleAttribute[10][starnum] = BaryonField[BaINum][pcell_index[starnum]];
+              tg->ParticleAttribute[11][starnum] = BaryonField[LaINum][pcell_index[starnum]];
+            }
+            if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+              tg->ParticleAttribute[12][starnum] = BaryonField[EuINum][pcell_index[starnum]];
+            }
+
+          }// loop over particles
+        } // if make new, assign chemical tages
+
       } // if max ref
+
+
+      delete [] pcell_index;
 
     } // INDIVIDUAL_STAR
 
@@ -1953,6 +2046,61 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       }
     }
   }
+
+  /* Undo the density normalization and return from fractional to absolute dens
+     for the chemical tracer fields (if used)                                   */
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals >= 2){
+    int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
+
+    if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
+                                        FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
+      ENZO_FAIL("Failure in Identifying Chemical tracer species fields.");
+    }
+
+    // now loop over fields
+
+    if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+        for(j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+          index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
+            BaryonField[ CINum][index] *= BaryonField[DensNum][index];
+            BaryonField[ NINum][index] *= BaryonField[DensNum][index];
+            BaryonField[ OINum][index] *= BaryonField[DensNum][index];
+            BaryonField[MgINum][index] *= BaryonField[DensNum][index];
+            BaryonField[SiINum][index] *= BaryonField[DensNum][index];
+            BaryonField[FeINum][index] *= BaryonField[DensNum][index];
+          }
+        }
+      } // k
+    } // if alpha
+    if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+        for(j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+          index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
+            BaryonField[BaINum][index] *= BaryonField[DensNum][index];
+            BaryonField[LaINum][index] *= BaryonField[DensNum][index];
+            BaryonField[ YINum][index] *= BaryonField[DensNum][index];
+          }
+        }
+      } // k
+
+    }// s process
+    if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+        for(j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+          index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
+            BaryonField[EuINum][index] *= BaryonField[DensNum][index];
+          }
+        }
+      } // k
+
+    }// r process
+
+  } // end IS and Multi metals
+
  
   /* Clean up. */
  

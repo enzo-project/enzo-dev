@@ -44,7 +44,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                           float *mu, float *metal, int *ctype,
                           int *np, FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up,
                           float *vp, float *wp, float *mp, float *tdp, float *tcp,
-                          float *metalf, int *type)
+                          float *metalf, int *type, int *pindex)
 
  // since I would need to read in all of the chemical tracer fields in the above
  // what I can do in StarParticleHandler is check which (if any) field is defined
@@ -333,8 +333,9 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
                 type[istar] = (*ctype);
 //                type[istar] = 2;
-                tcp[istar]  = *t;
-                tdp[istar]  = tdyn;
+                tcp[istar]    = *t;
+                tdp[istar]    = tdyn;
+                pindex[istar] = index;
                 // mass in code units:
                 mp[istar] = mp[istar] * msolar / m1;
 
