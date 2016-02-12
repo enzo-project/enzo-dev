@@ -456,15 +456,22 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
     }
 
+  for (int counter = 0; counter < ii; counter++){ // need to convert mass to M / dx^3
+    mp[counter] = mp[counter] / ((*dx)*(*dx)*(*dx)); // code units / cell volume
+  }
+
+/*
     for (int counter = 0; counter < ii; counter++){
       if(mp[counter]*m1/msolar > IndividualStarIMFUpperMassCutoff){
-        printf("individual_star_maker: problem lies in function m = %"FSYM"\n",mp[counter]);
+        printf("individual_star_maker: mass too bigproblem lies in function m = %"FSYM"\n",mp[counter]);
       } else if (mp[counter] * m1 / msolar < 0.1){
-        printf("individual_star_maker: there is a units misunderstanding");
+        printf("individual_star_maker: there is a units misunderstanding\n");
+      } else if (mp[counter] * m1 / msolar < IndividualStarIMFLowerMassCutoff){
+        printf("individual_star_maker: toot small mass %"FSYM" %"FSYM" %"FSYM"\n",mp[counter], mp[counter]*m1, mp[counter]*m1/msolar);
       }
 
     }
-
+*/
 
 
     *np = ii;
@@ -499,8 +506,12 @@ float SampleIMF(void)
 
   IndividualStarIMFCalls++;
 
-  if ( m > IndividualStarIMFUpperMassCutoff){
+  if ( m > IndividualStarIMFUpperMassCutoff || m < IndividualStarIMFLowerMassCutoff){
     printf("individual_star_maker: IMF sampling not working m %"FSYM" %"FSYM"\n",m, IndividualStarIMFUpperMassCutoff);
+  }
+
+  if (IndividualStarIMFUpperMassCutoff != 100.0 || IndividualStarIMFLowerMassCutoff != 1.0){
+    printf("individual_star_maker: Bounds are wrong!!!!\n");
   }
 
   return m;
