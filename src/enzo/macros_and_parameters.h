@@ -68,7 +68,8 @@
 #ifdef WINDS 
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
 #else
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
+//#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES 14 // AJE may need to do something different 
 #endif
 
 #define MAX_TIME_ACTIONS                   10
@@ -504,6 +505,14 @@ typedef int            HDF5_hid_t;
 
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
+
+/* AJE Chemistry tracer checker */
+
+#define MULTIMETALS_ALPHA    2
+#define MULTIMETALS_SPROCESS 3
+#define MULTIMETALS_RPROCESS 4
+
+#define MULTIMETALS_METHOD(A) (TestProblemData.MultiMetals >> (A) & 1) // bitwise
 
 /* Feedback modes */
 

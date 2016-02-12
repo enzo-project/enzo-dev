@@ -464,6 +464,7 @@ OBJS_CONFIG_LIB = \
 	Grid_IdentifyColourFields.o \
 	Grid_HydroShockTubesInitializeGrid.o \
 	Grid_IdentifyShockSpeciesFields.o \
+        Grid_IdentifyChemicalTracerSpeciesFields.o \
 	Grid_IdentifyGloverSpeciesFields.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \

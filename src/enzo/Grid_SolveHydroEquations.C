@@ -193,6 +193,37 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
     if (Galaxy2ColourNum != -1) colnum[NumberOfColours++] = Galaxy2ColourNum;
 
+    /* Add Chemical tracer species as color fields */
+    if(TestProblemData.MultiMetals >= 2){
+      int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
+
+      if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
+                                             FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
+         ENZO_FAIL("Error in IdentifyChemicalTracerSpeciesFields.");
+      }
+
+      if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+        colnum[NumberOfColours++] =  CINum;
+        colnum[NumberOfColours++] =  NINum;
+        colnum[NumberOfColours++] =  OINum;
+        colnum[NumberOfColours++] = MgINum;
+        colnum[NumberOfColours++] = SiINum;
+        colnum[NumberOfColours++] = FeINum;
+      }
+
+      if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+        colnum[NumberOfColours++] = YINum;
+        colnum[NumberOfColours++] = BaINum;
+        colnum[NumberOfColours++] = LaINum;
+      }
+
+      if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+        colnum[NumberOfColours++] = EuINum;
+      }
+
+
+    } // end chemical tracer colour fields
+
 
     /* Add Simon Glover's chemistry species as color fields */
 
