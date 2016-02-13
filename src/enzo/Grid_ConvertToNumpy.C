@@ -40,8 +40,13 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
       {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
        "particle_jet_y", "particle_jet_z", "typeia_fraction"};
 #else
-    char *ParticleAttributeLabel[] = 
-      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+//    char *ParticleAttributeLabel[] = 
+//      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+  const char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
+       "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
+       "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
+
 #endif
 
     this->DebugCheck("Converting to NumPy arrays");
@@ -180,7 +185,81 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 	       (PyObject*) dataset);
 	    Py_DECREF(dataset);
 
-	  }
+            /* chemical tracers */
+            if(TestProblemData.MultiMetals >= 2){
+
+              if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                        1, dims, ENPY_BFLOAT, ParticleAttribute[4];
+                PyDict_SetItemString(grid_data, "CI_fraction",
+                  (PyObject*) dataset);
+                Py_DECREF(dataset);
+
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                        1, dims, ENPY_BFLOAT, ParticleAttribute[5];
+                PyDict_SetItemString(grid_data, "NI_fraction",
+                  (PyObject*) dataset);
+                Py_DECREF(dataset);
+
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                        1, dims, ENPY_BFLOAT, ParticleAttribute[6];
+                PyDict_SetItemString(grid_data, "OI_fraction",
+                  (PyObject*) dataset);
+                Py_DECREF(dataset);
+
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                        1, dims, ENPY_BFLOAT, ParticleAttribute[7];
+                PyDict_SetItemString(grid_data, "MgI_fraction",
+                  (PyObject*) dataset);
+                Py_DECREF(dataset);
+
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                        1, dims, ENPY_BFLOAT, ParticleAttribute[8];
+                PyDict_SetItemString(grid_data, "SiI_fraction",
+                  (PyObject*) dataset);
+                Py_DECREF(dataset);
+
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                        1, dims, ENPY_BFLOAT, ParticleAttribute[9];
+                PyDict_SetItemString(grid_data, "FeI_fraction",
+                  (PyObject*) dataset);
+                Py_DECREF(dataset);
+
+
+
+
+              }
+
+              if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                        1, dims, ENPY_BFLOAT, ParticleAttribute[10];
+                PyDict_SetItemString(grid_data, "YI_fraction",
+                  (PyObject*) dataset);
+                Py_DECREF(dataset);
+
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                        1, dims, ENPY_BFLOAT, ParticleAttribute[11];
+                PyDict_SetItemString(grid_data, "BaI_fraction",
+                  (PyObject*) dataset);
+                Py_DECREF(dataset);
+
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                        1, dims, ENPY_BFLOAT, ParticleAttribute[12];
+                PyDict_SetItemString(grid_data, "LaI_fraction",
+                  (PyObject*) dataset);
+                Py_DECREF(dataset);
+              }
+
+              if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                        1, dims, ENPY_BFLOAT, ParticleAttribute[13];
+                PyDict_SetItemString(grid_data, "EuI_fraction",
+                  (PyObject*) dataset);
+                Py_DECREF(dataset);
+
+              }
+
+	  } // end check multimetals
 
         }
 

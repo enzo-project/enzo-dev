@@ -83,8 +83,13 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
       {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
        "particle_jet_y", "particle_jet_z", "typeia_fraction"};
 #else
-    char *ParticleAttributeLabel[] = 
-      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+//    char *ParticleAttributeLabel[] = 
+//      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+  const char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
+       "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
+       "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
+
 #endif
 
 #ifdef USE_HDF4

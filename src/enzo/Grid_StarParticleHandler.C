@@ -1096,20 +1096,20 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 /* Actually, maybe hard coding is O.K......... */
           for (int starnum = NumberOfNewParticlesSoFar; starnum < NumberOfNewParticles; starnum++){
             if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-              tg->ParticleAttribute[ 3][starnum] = BaryonField[ CINum][pcell_index[starnum]];
-              tg->ParticleAttribute[ 4][starnum] = BaryonField[ NINum][pcell_index[starnum]];
-              tg->ParticleAttribute[ 5][starnum] = BaryonField[ OINum][pcell_index[starnum]];
-              tg->ParticleAttribute[ 6][starnum] = BaryonField[MgINum][pcell_index[starnum]];
-              tg->ParticleAttribute[ 7][starnum] = BaryonField[SiINum][pcell_index[starnum]];
-              tg->ParticleAttribute[ 8][starnum] = BaryonField[FeINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 4][starnum] = BaryonField[ CINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 5][starnum] = BaryonField[ NINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 6][starnum] = BaryonField[ OINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 7][starnum] = BaryonField[MgINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 8][starnum] = BaryonField[SiINum][pcell_index[starnum]];
+              tg->ParticleAttribute[ 9][starnum] = BaryonField[FeINum][pcell_index[starnum]];
             }
             if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-              tg->ParticleAttribute[ 9][starnum] = BaryonField[ YINum][pcell_index[starnum]];
-              tg->ParticleAttribute[10][starnum] = BaryonField[BaINum][pcell_index[starnum]];
-              tg->ParticleAttribute[11][starnum] = BaryonField[LaINum][pcell_index[starnum]];
+              tg->ParticleAttribute[10][starnum] = BaryonField[ YINum][pcell_index[starnum]];
+              tg->ParticleAttribute[11][starnum] = BaryonField[BaINum][pcell_index[starnum]];
+              tg->ParticleAttribute[12][starnum] = BaryonField[LaINum][pcell_index[starnum]];
             }
             if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-              tg->ParticleAttribute[12][starnum] = BaryonField[EuINum][pcell_index[starnum]];
+              tg->ParticleAttribute[13][starnum] = BaryonField[EuINum][pcell_index[starnum]];
             }
 
           }// loop over particles
