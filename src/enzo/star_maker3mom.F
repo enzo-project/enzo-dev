@@ -350,6 +350,7 @@ c-----------------------------------------------------------------------
        implicit none
 #include "fortran_types.def"
 c-----------------------------------------------------------------------
+#define NO_FORTRAN_DEBUG
 c
 c  Arguments
 c
@@ -422,12 +423,15 @@ c
             if (exptime_in .ge. 0._RKIND) then
 c              convert explosion time to code units
                exptime = exptime_in * 1.e6_RKIND * 3.15e7_RKIND / t1  
+#ifdef FORTRAN_DEBUG
+               write(6,*) 'mform, minitial = ',mform,minitial
+               write(6,*) 'exptime,t,tcp,tdp = ',exptime,t,tcp(n),tdp(n)
+#endif
                if (tdp(n) .eq. 0._RKIND
      &              .or. abs(t-tcp(n)) .lt. exptime) goto 10
                tdp(n) = 0._RKIND
                minitial = mp(n)
                mform = mp(n)
-               write(6,*) 'mform, minitial = ',mform,minitial
                goto 5
             endif
 
@@ -437,7 +441,9 @@ c     which should have formed during this timestel dt using the integral
 c     form of the Cen & Ostriker formula.
 
             xv1 = (t      - tcp(n))/tdp(n)
+#ifdef FORTRAN_DEBUG
             write(6,*) t,tcp(n),tdp(n),xv1
+#endif
             if (xv1 .lt. 0._RKIND) goto 10
             if (xv1 .gt. 12._RKIND) goto 10 ! t-tcp >> tdp so ignore
             xv2 = (t + dt - tcp(n))/tdp(n)
@@ -637,26 +643,35 @@ c
                R_resolve = dx*x1/pc
                if (R_PDS .gt. 4.5*R_resolve) then
                   kinf = 0._RKIND
+#ifdef FORTRAN_DEBUG
                   write(6,*) 'Sedov phase resolved:',Zsol,num_d,
      &                 energy_51,R_PDS,R_resolve, realmass
+#endif
                else                  
                   kinf = 3.97133e-6_RKIND * (d_ave/mH) 
      &                 * (R_resolve**(-2._RKIND)) 
      &                 * (R_PDS**7._RKIND) * (t_PDS**(-2._RKIND)) 
      &                 * (energy_51**(-1._RKIND))
 
-                  if (kinf .le. tiny) then 
-                     kinf = 0._RKIND
-                  endif
+#ifdef FORTRAN_DEBUG
                   write(6,*) 'Sedov phase not resolved:',kinf,Zsol,
      &                 num_d, d_ave, 
      &                 energy_51,t_PDS,R_PDS,R_resolve
+#endif
                   
                endif
- 
-               
-      
             endif
+c
+c     Check kinf.  If it is too small, set it to 0
+c
+            if (kinf .le. 1e-10_RKIND) then 
+#ifdef FORTRAN_DEBUG
+               write(6,*) 'kinf = ',kinf
+               write(6,*) 'kinf too small!  Setting to 0'
+#endif
+               kinf = 0._RKIND
+            endif
+
 c
 c     Finished computing kinf; now compute the amount of thermal energy
 c     that needs to be added to each cell
@@ -741,11 +756,15 @@ c
                call sum_abc(u, v, w, d, ge, u1, v1, w1, d1, 
      &              nx, ny, nz, iface, jface, kface, ic, jc, kc,
      &              asum, bsum, csum)
+#ifdef FORTRAN_DEBUG
                write(6,*) 'abc1',asum, bsum, csum, kinf
+#endif
                asum = asum - (kin_energy_before + kinf*energy)
+#ifdef FORTRAN_DEBUG
 c               write(6,*) 'kin_energy_before,kinf*energy,energy:',
 c     &              kin_energy_before,kinf*energy,energy
                write(6,*) 'abc2',asum, bsum, csum
+#endif
 c
 c           Calculate momentum contribution
 c
@@ -761,10 +780,12 @@ c
                mom_per_cell = 0._RKIND
             endif
 c           
+#ifdef FORTRAN_DEBUG
             write(6,*) 'mass_per_cell:',mass_per_cell
             write(6,*) 'mom_per_cell:',mom_per_cell
             write(6,*) 'thermal_energy_per_cell:',
      &           thermal_energy_per_cell
+#endif
 c
 c           Now add mass and momentum, using three-point CIC
 c           Note that if the te field is being used, it is 
@@ -784,14 +805,14 @@ c
      &           iface, jface, kface, ic, jc, kc,
      &           mass_after, kin_energy_after, idual, imethod)
 c
-            write(6,*) 'energy (b,a,preda):',energy_before,energy_after, 
-     &           energy_before + energy,energy,
-     &           abs(energy_after-energy_before -energy)/energy
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'energy:',energy
             write(6,*) 'mass (b,a,preda):', mass_before, mass_after, 
      &           mass_before + mform*m_eject,mform*m_eject
             write(6,*) 'kinetic energy (b,a,preda):',kin_energy_before,
      &           kin_energy_after, kin_energy_before + kinf*energy, 
      &           kinf
+#endif
 c
 c           Error checks to see if the kinetic energy added in the particle frame
 c           matches the values set by the input parameters
