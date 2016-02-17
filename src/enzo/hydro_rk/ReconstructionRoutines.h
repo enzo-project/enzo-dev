@@ -128,7 +128,7 @@ inline float minmod(float a, float b, float c)
   }
   return r1;*/
   //return sign(a)*Min(fabs(a), fabs(b), fabs(c));
-  return 0.25*(sign(a)+sign(b))*fabs((sign(a)+sign(c)))*Min(fabs(a), fabs(b), fabs(c));
+  return 0.25*(sign(a)+sign(b))*ABS((sign(a)+sign(c)))*Min(fabs(a), fabs(b), fabs(c));
 }
 
 inline int same_sign(float a, float b, float c)

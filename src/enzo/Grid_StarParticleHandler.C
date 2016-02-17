@@ -1218,7 +1218,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
     //    if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
     //if (level == MaximumRefinementLevel)     printf("   Max Refinement\n"); 
-    if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel || BigStarFormation > 0) {
+    if ((STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) || BigStarFormation > 0) {
       /* Set the density threshold by using the mass in a cell which
 	 would have caused another refinement. */
  
@@ -1239,11 +1239,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
 	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
 	/*printf("Grid_StarParticleHandler l479 - just made nx_jet etc.\n");*/
+#ifdef WINDS
 	if (StellarWindFeedback) {
 	  nx_jet = ParticleAttribute[3];
 	  ny_jet = ParticleAttribute[4];
 	  nz_jet = ParticleAttribute[5];
 	}
+#endif
 	//printf("      test line\n");
 	if (star_maker9(GridDimension, GridDimension+1, GridDimension+2, &size, 
 			BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum],
@@ -1277,11 +1279,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
 	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
 	/*printf("Grid_StarParticleHandler l479 - just made nx_jet etc.\n");*/
+#ifdef WINDS
 	if (StellarWindFeedback) {
 	  nx_jet = ParticleAttribute[3];
 	  ny_jet = ParticleAttribute[4];
 	  nz_jet = ParticleAttribute[5];
 	}
+#endif
 	//printf("      test line\n");
 	if (star_maker8(GridDimension, GridDimension+1, GridDimension+2, &size, 
 			BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum],

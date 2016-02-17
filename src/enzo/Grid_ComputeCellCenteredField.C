@@ -87,7 +87,7 @@ int grid::ComputeCellCenteredField(int Num)
 	   InterpolatedField[Num][VCGRIDINDEX(i,j+1,0)] + 
 	   InterpolatedField[Num][VCGRIDINDEX(i+1,j+1,0)]);
 
-  if (GridRank == 3) 
+  if (GridRank == 3) {
 #ifdef TRANSFER
     if (SubgridMarker == NULL) {
 #endif
@@ -138,6 +138,7 @@ int grid::ComputeCellCenteredField(int Num)
 	} // ENDFOR j
       
     } // ENDELSE subgrid marker
+  }
 #endif /* TRANSFER */
   
   return SUCCESS;

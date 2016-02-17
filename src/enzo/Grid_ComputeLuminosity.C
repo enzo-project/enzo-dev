@@ -161,15 +161,16 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
       MetalNum = 0;
     }
   }
-  if (MetalCooling == CEN_METAL_COOLING)
-    if (MetalNum != 1)
+  if (MetalCooling == CEN_METAL_COOLING) {
+    if (MetalNum != 1) {
       MetalCoolingType = CEN_METAL_COOLING;
-    else {
+    } else {
       fprintf(stderr, 
 	      "Warning: No metal field found.  Turning OFF MetalCooling.\n");
       MetalCooling = FALSE;
       MetalNum = 0;
     }
+  }
 
   if (MetalCooling == CLOUDY_METAL_COOLING) {
     fprintf(stderr, 

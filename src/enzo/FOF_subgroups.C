@@ -137,7 +137,7 @@ void find_subgroups(FOFData &D)
 	ss = head_attach;
 	do {
 	  D.Head[ss] = head;
-	} while(ss = D.Next[ss]);
+	} while((ss = D.Next[ss]));
       }
 	  
       D.Head[D.Index[i]]   = head;

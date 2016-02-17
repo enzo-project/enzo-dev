@@ -846,7 +846,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
   vrot=sqrt(-drcyl*LengthUnits*(FtotR-FdPdR));
 
-  if ((denuse == densicm)) vrot = 0.0;
+  if (denuse == densicm) vrot = 0.0;
 
   return (vrot/VelocityUnits); //code units
 

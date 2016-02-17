@@ -142,12 +142,15 @@ int grid::InterpolateFieldValues(grid *ParentGrid
         if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
           SecondOrderBFlag[field] = 2;   //  no positivity for velocity
       }
-    if (HydroMethod == Zeus_Hydro)
-      for (field = 0; field < NumberOfBaryonFields; field++)
-        if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
+    if (HydroMethod == Zeus_Hydro) {
+      for (field = 0; field < NumberOfBaryonFields; field++) {
+        if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3) {
           SecondOrderBFlag[field] = FieldType[field] - Velocity1 + 1;
-        else
+        } else {
           SecondOrderBFlag[field] = 0;
+        }
+      }
+    }
 
     /* Compute the start and end indicies (in this grid units) of this grid
        within it's parent */

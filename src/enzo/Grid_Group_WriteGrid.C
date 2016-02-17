@@ -101,6 +101,8 @@ int WriteDataset(hid_t WriteLoc, float * data_buffer, io_type * tmp_buffer,
   h5_status = H5Dclose(dset_id);
   if (log_fptr) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
   if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+
+  return SUCCESS;
   
 }
 

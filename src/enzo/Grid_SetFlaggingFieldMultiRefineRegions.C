@@ -229,7 +229,7 @@ int grid::SetFlaggingFieldMultiRefineRegions(int level)
 	     break;
 
 	   default:
-	     if (fabs(MultiRefineRegionGeometry[region]) < 0) 
+	     if (ABS(MultiRefineRegionGeometry[region]) < 0) 
 	       ENZO_FAIL("MultiRefineRegionGeometry undefined");
 	       
 	   } // end switch

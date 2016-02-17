@@ -730,16 +730,19 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
 	    if (dens1 > density) {
 	      density = dens1;
-	      if (SphereType[sphere] != 7 && SphereType[sphere] != 9)
-		if (temp1 == InitialTemperature) {
-		  if (SphereConstantPressure[sphere] == TRUE) {
-		    temperature = SphereTemperature[sphere] * (SphereDensity[sphere] / dens1);
-		  } else {
-		    temperature = SphereTemperature[sphere];
-		  }
-		} else {
-		  temperature = temp1;
-		}
+	      if (SphereType[sphere] != 7 && SphereType[sphere] != 9) {
+            if (temp1 == InitialTemperature) {
+              if (SphereConstantPressure[sphere] == TRUE) {
+                temperature = SphereTemperature[sphere] * 
+                  (SphereDensity[sphere] / dens1);
+              } else {
+                temperature = SphereTemperature[sphere];
+              }
+            } else {
+              temperature = temp1;
+            }
+          }
+
 	      sigma = sigma1;
 	      if (SphereType[sphere] != 6 &&
 		  SphereType[sphere] != 10 &&

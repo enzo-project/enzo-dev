@@ -870,7 +870,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   
   // If using StarParticles, set the number to zero 
   // (assuming it hasn't already been set)
-  if (NumberOfStarParticles == NULL)
+  if (NumberOfStarParticles != 0)
     if (StarParticleCreation || StarParticleFeedback)
       NumberOfStarParticles = 0;
   

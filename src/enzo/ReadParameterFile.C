@@ -1712,7 +1712,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     for (k = -StarFeedbackDistRadius;k <= StarFeedbackDistRadius;k++) {
       for (j = -StarFeedbackDistRadius;j <= StarFeedbackDistRadius;j++) {
 	for (i = -StarFeedbackDistRadius;i <= StarFeedbackDistRadius;i++) {
-	  cell_step = fabs(k) + fabs(j) + fabs(i);
+	  cell_step = ABS(k) + ABS(j) + ABS(i);
 	  if (cell_step <= StarFeedbackDistCellStep) {
 	    StarFeedbackDistTotalCells++;
 	  }
