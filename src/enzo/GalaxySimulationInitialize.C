@@ -491,7 +491,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
      DataLabel[count++] = MgIName;
      DataLabel[count++] = SiIName;
      DataLabel[count++] = FeIName;
-     printf("AJE alpha names added to data label\n");
    }
    if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
      DataLabel[count++] =  YIName;
@@ -502,7 +501,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
      DataLabel[count++] = EuIName;
    }
 
-   printf("AJE after CIName\n");
  }
 
  for (i = 0; i < count; i++)

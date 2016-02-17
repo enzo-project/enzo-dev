@@ -94,7 +94,6 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
     odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (*d1);
 
-    printf("individual_star_maker: about to loop over grid cells\n");
     ii = 0; index_presf = 0;
     for (k = *ibuff; k < *nz - *ibuff; k++){
       for (j = *ibuff; j < *ny - *ibuff; j++){
@@ -139,7 +138,6 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
             jeansmass = pi / (6.0 * sqrt(d[index]*(*d1)) *
                             POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
 
-//break individual_star_maker.C:131
             if (jeansmass <= bmass){
 
               //
@@ -147,9 +145,6 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               mass_to_stars  = star_fraction * bmass;
               mass_available = StarMakerMassEfficiency * bmass;
               mass_to_stars  = min(mass_to_stars, mass_available);
-//              printf("individual_star_maker: SFM %"FSYM" dt %"FSYM" tdyn %"FSYM"\n",StarMakerMassEfficiency, *dt, tdyn);
-//              printf("individual_star_maker: sf %"FSYM" m2s %"FSYM" ma %"FSYM" sfb %"FSYM"\n", star_fraction, mass_to_stars, mass_available, star_fraction * bmass);
-//break individual_star_maker.C:144
               // if mass_to_stars greater than available mass, convert
               // all of available mass into stars
               // Frankly this is very unlikely to occur...
@@ -162,7 +157,6 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                   mass_to_stars  -= mp[ii]; // reduce available mass
                   ii++;
                 }
-//                printf("individual_star_maker: mass available n m %"FSYM"  %"FSYM"\n",ii,sum_mass);
               }
 
               if (mass_to_stars > IndividualStarIMFUpperMassCutoff){
@@ -172,7 +166,6 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                   mass_to_stars -= mp[ii];
                   ii++;
                 }
-//                printf("individual_star_maker: nUpper mass cutoff n m %"FSYM"  %"FSYM"\n",ii,sum_mass);
               }
 
               if (mass_to_stars > IndividualStarIMFLowerMassCutoff){
@@ -193,7 +186,6 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                       ii++;
                     }
                 }
-//                printf("individual_star_maker: lower mass cutoff  %"FSYM"  %"FSYM"\n",ii,sum_mass);
               }
 
               // now we are in the Goldbaum et. al. 2015 regime (star_maker_ssn.F)
@@ -207,16 +199,9 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                   sum_mass += mp[ii];
                   ii++;
                 }
-//                printf("individual_star_maker: star_mass %"FSYM" pstar  %"FSYM" rnum  %"FSYM"\n",star_mass, pstar, rnum);
               }
 
-//              printf("individual_star_maker: mass_available %"FSYM"\n",mass_available);
-//             printf("individual_star_maker: ii %"ISYM"  mass_to_stars %"FSYM"\n",ii,mass_to_stars);
-//              printf("individual_star_maker: sum_mass %"FSYM"\n",sum_mass);
-//              printf("individual_star_maker: bmass %"FSYM"\n",bmass);
-//break individual_star_maker.C:198
-/*
-              // -------------- create star particles --------------
+/*              // -------------- create star particles --------------
               while ( ii < *nmax &&
                       // change below condition
                       sum_mass < star_fraction * bmass) {
@@ -326,13 +311,11 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
               // now assign particle properties
               px = 0.0; py = 0.0; pz =0.0; // initialize momentum counters
- //             printf("individual_star_maker: index_presf and ii %"ISYM"    %"ISYM"\n",index_presf,ii);
               for (istar = index_presf; istar < ii; istar++){
 
                 // need to make a new particle property thats the stellar lifetime
 
                 type[istar] = (*ctype);
-//                type[istar] = 2;
                 tcp[istar]    = *t;
                 tdp[istar]    = tdyn;
                 pindex[istar] = index;
@@ -436,11 +419,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 //              for(istar = index_presf; istar < ii; istar++){
 //                mp[istar] = mp[istar] * msolar / m1;
 //              }
-
-//            printf("Done assigning star properties. Exiting jeans if\n");
             } // if jeans mass unstable
-
-//            printf("Done with density threshold loop. ii %"ISYM"\n",ii);
           } // resolution and density
 
 

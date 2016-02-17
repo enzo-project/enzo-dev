@@ -1093,7 +1093,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 /* AJE TO DO : DO NOT HARD CODE THE PARTICLE ATTRIBUTE NUMBERS... NEED TO LOOK THEM UP FROM FUNCTION */
 /* Actually, maybe hard coding is O.K......... */
           for (int starnum = NumberOfNewParticlesSoFar; starnum < NumberOfNewParticles; starnum++){
-            printf("AJE Before assigning chemical tracer density fractions\n");
             if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
               tg->ParticleAttribute[ 4][starnum] = BaryonField[ CINum][pcell_index[starnum]];
               tg->ParticleAttribute[ 5][starnum] = BaryonField[ NINum][pcell_index[starnum]];
@@ -1114,7 +1113,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           }// loop over particles
           
         } // if make new, assign chemical tages
-        printf("AJE Deleting index pointer\n");
         delete [] pcell_index;
       } // if max ref
 

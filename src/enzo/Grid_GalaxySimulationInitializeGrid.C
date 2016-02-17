@@ -186,11 +186,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 
   /* AJE Add chemical tracer here */
-  printf("AJE GALSIM: before multi metals\n");
-  printf("AJE %"ISYM" %"ISYM"\n",MULTIMETALS_METHOD(MULTIMETALS_ALPHA), TestProblemData.MultiMetals);
   if(TestProblemData.MultiMetals >= 2){
     if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-      printf("AJE before starting alpha\n");
       FieldType[ CINum = NumberOfBaryonFields++] =  CIDensity;
       FieldType[ NINum = NumberOfBaryonFields++] =  NIDensity;
       FieldType[ OINum = NumberOfBaryonFields++] =  OIDensity;
@@ -206,7 +203,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
     if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
       FieldType[EuINum = NumberOfBaryonFields++] = EuIDensity;
     }
-    printf("set alpha\n");
   } // done setting multimetals
 
  /* Return if this doesn't concern us. */
