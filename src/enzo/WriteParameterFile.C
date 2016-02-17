@@ -389,9 +389,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
         } else {
           fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n", dim, DensityUnits);
         }
-        if (strstr(DataLabel[dim], "velocity") != NULL) {
-          fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GOUTSYM"\n", dim, VelocityUnits);
-        }
+      }
+      if (strstr(DataLabel[dim], "velocity") != NULL) {
+        fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GOUTSYM"\n", dim, VelocityUnits);
       }
     }
   }
