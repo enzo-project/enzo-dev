@@ -182,26 +182,22 @@ int EnzoProblemType::InitializeUniformGrid(
       tg->FieldType[ExtraField[1] = tg->NumberOfBaryonFields++] = ExtraType1;
     }
 
-    if(TestProblemData.MultiMetals == 2 || TestProblemData.MultiMetals == 5 ||
-       TestProblemData.MultiMetals == 6 || TestProblemData.MultiMetals == 9   ){
+    if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
 
       tg->FieldType[ CINum = tg->NumberOfBaryonFields++] = CIDensity;
       tg->FieldType[ NINum = tg->NumberOfBaryonFields++] = NIDensity;
       tg->FieldType[ OINum = tg->NumberOfBaryonFields++] = OIDensity;
       tg->FieldType[MgINum = tg->NumberOfBaryonFields++] = MgIDensity;
       tg->FieldType[SiINum = tg->NumberOfBaryonFields++] = SiDensity;
-      tg->FieldType[FeINum = tg->NumberOfBaryonFields++] = FeIDesity;
+      tg->FieldType[FeINum = tg->NumberOfBaryonFields++] = FeIDensity;
 
     }
-    if(TestProblemData.MultiMetals == 3 || TestProblemData.MultiMetals == 5 ||
-       TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+    if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
       tg->FieldType[YINum  = tg->NumberOfBaryonFields++] =  YIDensity;
       tg->FieldType[BaINum = tg->NumberOfBaryonFields++] = BaIDensity;
       tg->FieldType[LaINum = tg->NumberOfBaryonFeilds++] = LaIDensity;
-        
      }
-    if(TestProblemData.MultiMetals == 4 || TestProblemData.MultiMetals == 6 ||
-        TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+    if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
       tg->FieldType[EuINum = tg->NumberOfBaryonFields++] = EuIDensity;
      }
   }
@@ -379,13 +375,11 @@ int EnzoProblemType::InitializeUniformGrid(
       tg->BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction* UniformDensity;
 
       if(TestProblemData.MultiMetals == 1){
-      tg->BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
-      tg->BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
+        tg->BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
+        tg->BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
       }
 
-      if(TestProblemData.MultiMetals == 2 || TestProblemData.MultiMetals == 5 ||
-         TestProblemData.MultiMetals == 6 || TestProblemData.MultiMetals == 9   ){
-
+      if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
         tg->BaryonField[ CINum][i] = TestProblemData.CI_Fraction* UniformDensity;
         tg->BaryonField[ NINum][i] = TestProblemData.NI_Fraction* UniformDensity;
         tg->BaryonField[ OINum][i] = TestProblemData.OI_Fraction* UniformDensity;
@@ -393,21 +387,14 @@ int EnzoProblemType::InitializeUniformGrid(
         tg->BaryonField[SiINum][i] = TestProblemData.SiI_Fraction* UniformDensity;
         tg->BaryonField[FeINum][i] = TestProblemData.FeI_Fraction* UniformDensity;
       }
-      if(TestProblemData.MultiMetals == 3 || TestProblemData.MultiMetals == 5 ||
-         TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+      if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
         tg->BaryonField[ YINum][i] = TestProblemData.YI_Fraction* UniformDensity;
         tg->BaryonField[BaINum][i] = TestProblemData.BaI_Fraction* UniformDensity;
         tg->BaryonField[LaINum][i] = TestProblemData.LaI_Fraction* UniformDensity;
       }
-     if(TestProblemData.MultiMetals == 4 || TestProblemData.MultiMetals == 6 ||
-        TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+      if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
         tg->BaryonField[EuINum][i] = TestProblemData.EuI_Fraction* UniformDensity;
       }
-
-
-
-
-
 
     } // if(TestProblemData.UseMetallicityField)
 

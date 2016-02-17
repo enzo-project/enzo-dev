@@ -180,7 +180,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     if (MetalNum != -1) {
       colnum[NumberOfColours++] = MetalNum;
-      if (MultiMetals || TestProblemData.MultiMetals) {
+      if ((MultiMetals || TestProblemData.MultiMetals == 1 ) && TestProblemData.MultiMetals < 2) {
 	colnum[NumberOfColours++] = MetalNum+1; //ExtraType0
 	colnum[NumberOfColours++] = MetalNum+2; //ExtraType1
       }

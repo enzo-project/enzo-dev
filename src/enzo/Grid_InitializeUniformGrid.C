@@ -133,8 +133,8 @@ int grid::InitializeUniformGrid(float UniformDensity,
 //    if( (MM==2) || (MM==5) || (MM==6) || (MM==9) ){
     if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
       FieldType[CINum  = NumberOfBaryonFields++] =  CIDensity;
-      FieldType[NINum  = NumberOfBaryonFields++] =  OIDensity;
-      FieldType[OINum  = NumberOfBaryonFields++] =  NIDensity;
+      FieldType[NINum  = NumberOfBaryonFields++] =  NIDensity;
+      FieldType[OINum  = NumberOfBaryonFields++] =  OIDensity;
       FieldType[MgINum = NumberOfBaryonFields++] = MgIDensity;
       FieldType[SiINum = NumberOfBaryonFields++] = SiIDensity;
       FieldType[FeINum = NumberOfBaryonFields++] = FeIDensity;
@@ -336,8 +336,8 @@ int grid::InitializeUniformGrid(float UniformDensity,
       //if( (MM==2) || (MM==5) || (MM==6) || (MM==9)){ 
       if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
         BaryonField[ CINum][i] = TestProblemData.CI_Fraction* UniformDensity;
-        BaryonField[ NINum][i] = TestProblemData.OI_Fraction* UniformDensity;
-        BaryonField[ OINum][i] = TestProblemData.NI_Fraction* UniformDensity;
+        BaryonField[ NINum][i] = TestProblemData.NI_Fraction* UniformDensity;
+        BaryonField[ OINum][i] = TestProblemData.OI_Fraction* UniformDensity;
         BaryonField[MgINum][i] = TestProblemData.MgI_Fraction* UniformDensity;
         BaryonField[SiINum][i] = TestProblemData.SiI_Fraction* UniformDensity;
         BaryonField[FeINum][i] = TestProblemData.FeI_Fraction* UniformDensity;

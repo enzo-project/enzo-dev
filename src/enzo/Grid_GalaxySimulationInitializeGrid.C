@@ -84,6 +84,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float DMConcentration,
 					 float DiskTemperature,
 					 float InitialTemperature,
+                                         float DiskMetallicity,
 					 float UniformDensity,
 					 int   GasHalo,
 					 float GasHaloScaleRadius,
@@ -94,15 +95,18 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float GalaxySimulationInflowTime,
 					 float GalaxySimulationInflowDensity,
 					 int level,
-					 float GalaxySimulationCR )
+					 float GalaxySimulationCR,
+                                         float GalaxySimulationInitialCIFraction )
 {
  /* declarations */
 
   int dim, i, j, k, m, field, disk, size, MetalNum, MetalIaNum, vel;
- int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-   DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
- float DiskDensity, DiskVelocityMag;
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+      DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
+  float DiskDensity, DiskVelocityMag;
   int CRNum, DensNum;
+
+  int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
 
   /* global-scope variables for disk potential functions (would be better if not global) */
 
@@ -110,15 +114,15 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   gScaleHeightz = ScaleHeightz;
   densicm = UniformDensity;
   MgasScale = GasMass;
-	Ticm = InitialTemperature;
+  Ticm = InitialTemperature;
   Picm = kboltz*UniformDensity*Ticm/(0.6*mh);
   TruncRadius = GalaxyTruncationRadius;
   SmoothRadius = TruncRadius*.02/.026;
   SmoothLength = TruncRadius - SmoothRadius;
 
-	GalaxySimulationGasHalo = GasHalo;
-	GalaxySimulationGasHaloScaleRadius = GasHaloScaleRadius;
-	GalaxySimulationGasHaloDensity = GasHaloDensity;
+  GalaxySimulationGasHalo = GasHalo;
+  GalaxySimulationGasHaloScaleRadius = GasHaloScaleRadius;
+  GalaxySimulationGasHaloDensity = GasHaloDensity;
 
   /* create fields */
 
@@ -169,9 +173,38 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   }
 
   if (UseMetallicityField)
-    FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
+    FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
+
+  if (TestProblemData.UseMetallicityField)
+    FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
+
   if (StarMakerTypeIaSNe)
     FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
+
+
+  /* AJE Add chemical tracer here */
+  printf("AJE GALSIM: before multi metals\n");
+  printf("AJE %"ISYM" %"ISYM"\n",MULTIMETALS_METHOD(MULTIMETALS_ALPHA), TestProblemData.MultiMetals);
+  if(TestProblemData.MultiMetals >= 2){
+    if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+      printf("AJE before starting alpha\n");
+      FieldType[ CINum = NumberOfBaryonFields++] =  CIDensity;
+      FieldType[ NINum = NumberOfBaryonFields++] =  NIDensity;
+      FieldType[ OINum = NumberOfBaryonFields++] =  OIDensity;
+      FieldType[MgINum = NumberOfBaryonFields++] = MgIDensity;
+      FieldType[SiINum = NumberOfBaryonFields++] = SiIDensity;
+      FieldType[FeINum = NumberOfBaryonFields++] = FeIDensity;
+    }
+    if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+      FieldType[ YINum = NumberOfBaryonFields++] =  YIDensity;
+      FieldType[BaINum = NumberOfBaryonFields++] = BaIDensity;
+      FieldType[LaINum = NumberOfBaryonFields++] = LaIDensity;
+    }
+    if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+      FieldType[EuINum = NumberOfBaryonFields++] = EuIDensity;
+    }
+    printf("set alpha\n");
+  } // done setting multimetals
 
  /* Return if this doesn't concern us. */
 
@@ -198,12 +231,12 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   } // end get units error if  
  } // end units if/else
 
-	/* correct background density if it's not given in code units */
-	if( UniformDensity < 1.0E-10 ){
-		UniformDensity /= DensityUnits;
-		if( debug && MyProcessorNumber == ROOT_PROCESSOR ) 
-			fprintf(stdout,"Converting GalaxySimulationUniformDensity = %"GSYM" from CGS to code units\n",UniformDensity);
-	} // end uniform density if
+ /* correct background density if it's not given in code units */
+ if( UniformDensity < 1.0E-10 ){
+   UniformDensity /= DensityUnits;
+   if( debug && MyProcessorNumber == ROOT_PROCESSOR ) 
+     fprintf(stdout,"Converting GalaxySimulationUniformDensity = %"GSYM" from CGS to code units\n",UniformDensity);
+ } // end uniform density if
 
  /* Set up inflow */
  if (GalaxySimulationInflowTime > 0.0){
@@ -226,9 +259,38 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  /* set metals to small value */
 
-  if (UseMetallicityField)
+  if (UseMetallicityField){
     for (i = 0; i < size; i++)
       BaryonField[MetalNum][i] = 1.0e-10;
+  }
+
+  if (TestProblemData.UseMetallicityField){
+    for (i = 0; i < size; i ++)
+      BaryonField[MetalNum][i] = tiny_number;
+  }
+
+ /* set chemical tracers to small density */
+        /* For now, init halo chemical tracers density to zero */
+ if (TestProblemData.MultiMetals >=2){
+   for (i = 0; i < size; i++){
+     if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+       BaryonField[ CINum][i] = UniformDensity * tiny_number;
+       BaryonField[ NINum][i] = UniformDensity * tiny_number;
+       BaryonField[ OINum][i] = UniformDensity * tiny_number;
+       BaryonField[MgINum][i] = UniformDensity * tiny_number;
+       BaryonField[SiINum][i] = UniformDensity * tiny_number;
+       BaryonField[FeINum][i] = UniformDensity * tiny_number;
+     } 
+     if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+       BaryonField[ YINum][i] = UniformDensity * tiny_number;
+       BaryonField[BaINum][i] = UniformDensity * tiny_number;
+       BaryonField[LaINum][i] = UniformDensity * tiny_number;
+     }
+     if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+       BaryonField[EuINum][i] = UniformDensity * tiny_number;
+     }
+   }
+ } // end chemical tracer value set
 
  /* Loop over the mesh. */
 
@@ -335,7 +397,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	      dens1 = 0.0;
 	      break;
 	    }
-		  
+
 	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0) 
 
 	    if (PointSourceGravity > 0 )
@@ -377,10 +439,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    if (dim == 0 || dim == 3)
 	      Velocity[2] = DiskVelocityMag*(AngularMomentum[0]*xhat[1] -
 					     AngularMomentum[1]*xhat[0]);
-	    
 	  } // end: loop over dims
 
-	   	    
 	    /* If the density is larger than the background (or the previous
 	       disk), then set the velocity. */
 
@@ -393,14 +453,35 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	      temperature = init_temp;
 	    if( UseMetallicityField ) // This should be converted to a general color field at some point - this obviously breaks metallicity feature
 	      BaryonField[MetalNum][n] = density;
-	  }
+            if(TestProblemData.UseMetallicityField){
+              BaryonField[MetalNum][n] = density * DiskMetallicity;
+            }
+            // set chemical tracers in the disk
+            if (TestProblemData.MultiMetals >=2){
+              if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+                BaryonField[ CINum][n] = density * TestProblemData.CI_Fraction;//
+                BaryonField[ NINum][n] = density * TestProblemData.NI_Fraction;
+                BaryonField[ OINum][n] = density * TestProblemData.OI_Fraction;
+                BaryonField[MgINum][n] = density * TestProblemData.MgI_Fraction;
+                BaryonField[SiINum][n] = density * TestProblemData.SiI_Fraction;
+                BaryonField[FeINum][n] = density * TestProblemData.FeI_Fraction;
+              }
+              if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+                BaryonField[ YINum][n] = density * TestProblemData.YI_Fraction;
+                BaryonField[BaINum][n] = density * TestProblemData.BaI_Fraction;
+                BaryonField[LaINum][n] = density * TestProblemData.LaI_Fraction;
+              }
+              if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+                BaryonField[EuINum][n] = density * TestProblemData.EuI_Fraction;
+              }
+            } // end chemical tracer value set
 
+          }
 	} // end: if (r < DiskRadius)
-	
 	/* Set density. */
 
-	BaryonField[0][n] = density;
-	
+	BaryonField[DensNum][n] = density;
+
 	if (StarMakerTypeIaSNe)
 	  for (i = 0; i < size; i++)
 	    BaryonField[MetalIaNum][i] = 1.0e-10;

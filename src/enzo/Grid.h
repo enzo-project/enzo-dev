@@ -2198,6 +2198,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float DMConcentration,
 				     float DiskTemperature,
 				     float InitialTemperature,
+                                     float DiskMetallicity,
 				     float UniformDensity,
 				     int   GasHalo,
 				     float GasHaloScaleRadius,
@@ -2208,7 +2209,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float GalaxySimulationInflowTime,
 				     float GalaxySimulationInflowDensity,
 				     int level,
-				     float GalaxySimulationCR = 0.0 );
+				     float GalaxySimulationCR = 0.0,
+                                     float GalaxySimulationInitialCIFraction = 0.0);
 
   /* Free expansion test */
   int FreeExpansionInitializeGrid(int FreeExpansionFullBox,

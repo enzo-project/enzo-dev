@@ -59,7 +59,21 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel3Name    = "z-velocity";
   char *CRName      = "CREnergyDensity";
   char *MetalName   = "Metal_Density";
+  char *MetallicityName = "Metallicity";
   char *MetalIaName = "MetalSNIa_Density";
+
+  /* Chemical Tracers */
+  char *CIName  = "CI_Density";
+  char *NIName  = "NI_Density";
+  char *OIName  = "OI_Density";
+  char *MgIName = "MgI_Density";
+  char *SiIName = "SiI_Density";
+  char *FeIName = "FeI_Density";
+
+  char *YIName  = "YI_Density";
+  char *BaIName = "BaI_Density";
+  char *LaIName = "LaI_Density";
+  char *EuIName = "EuI_Density";
 
   /* declarations */
 
@@ -106,6 +120,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ZeroBField[3] = {0.0, 0.0, 0.0};
 
+  /* Chemical tracers */
+  float GalaxySimulationInitialDiskMetallicity;
+
   /* Default Values */
 
   GalaxySimulationRefineAtStart      = TRUE;
@@ -125,6 +142,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationGasHaloDensity     = 1.8e-27; // cgs
   GalaxySimulationInflowTime         = -1;
   GalaxySimulationInflowDensity      = 0;
+
+  /* Chemical tracer defaults in SetDefaultGlobalValues.C; set to tiny_number */
+
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     GalaxySimulationDiskPosition[dim] = 0.5*(DomainLeftEdge[dim] +
 					     DomainRightEdge[dim]);
@@ -136,6 +156,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationCR = .01;
   GalaxySimulationUniformCR = .01;
 
+
+  GalaxySimulationInitialDiskMetallicity = tiny_number;
   /* read input from file */
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
@@ -191,13 +213,46 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationAngularMomentum[0],
 		  &GalaxySimulationAngularMomentum[1],
 		  &GalaxySimulationAngularMomentum[2]);
-    
+  
+
+    ret += sscanf(line, "GalaxySimulationMultiMetals = %"ISYM, &TestProblemData.MultiMetals);
+
+
+    /* Read in chemical tracer IC's */
+    ret += sscanf(line, "GalaxySimulationInitialCIFraction = %"FSYM,
+                        &TestProblemData.CI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialNIFraction = %"FSYM,
+                        &TestProblemData.NI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialOIFraction = %"FSYM,
+                        &TestProblemData.OI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialMgIFraction = %"FSYM,
+                        &TestProblemData.MgI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialSiIFraction = %"FSYM,
+                        &TestProblemData.SiI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialFeIFraction = %"FSYM,
+                        &TestProblemData.FeI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialYIFraction = %"FSYM,
+                        &TestProblemData.YI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialBaIFraction = %"FSYM,
+                        &TestProblemData.BaI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialLaIFraction = %"FSYM,
+                        &TestProblemData.LaI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialEuIFraction = %"FSYM,
+                        &TestProblemData.EuI_Fraction);
+
+    ret += sscanf(line, "TestProblemUseMetallicityField = %"ISYM,
+                        &TestProblemData.UseMetallicityField);
+
+    ret += sscanf(line, "GalaxySimulationInitialDiskMetallicity = %"FSYM,
+                        &GalaxySimulationInitialDiskMetallicity);
+
     /* if the line is suspicious, issue a warning */
     if (ret == 0 && strstr(line, "=") && strstr(line, "GalaxySimulation") 
 	&& line[0] != '#' && !strstr(line,"RPSWind") && !strstr(line,"PreWind"))
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
 
   } // end input from parameter file
+
 
   /* fix wind values wrt units */
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits,
@@ -231,7 +286,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationDiskScaleHeightR,
 						       GalaxySimulationTruncationRadius, 
 						       GalaxySimulationDarkMatterConcentrationParameter,
-						       GalaxySimulationDiskTemperature, 
+						       GalaxySimulationDiskTemperature,
+                                                       GalaxySimulationInitialDiskMetallicity,
 						       GalaxySimulationInitialTemperature,
 						       GalaxySimulationUniformDensity,
 						       GalaxySimulationGasHalo,
@@ -242,7 +298,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationUseMetallicityField,
 						       GalaxySimulationInflowTime,
 						       GalaxySimulationInflowDensity,0,
-						       GalaxySimulationCR )
+						       GalaxySimulationCR)
 	      == FAIL) {
       ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
   }// end subgrid if
@@ -291,6 +347,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationDarkMatterConcentrationParameter,
 						       GalaxySimulationDiskTemperature, 
 						       GalaxySimulationInitialTemperature,
+                                                       GalaxySimulationInitialDiskMetallicity,
 						       GalaxySimulationUniformDensity,
 						       GalaxySimulationGasHalo,
 						       GalaxySimulationGasHaloScaleRadius,
@@ -300,7 +357,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationUseMetallicityField,
 						       GalaxySimulationInflowTime,
 						       GalaxySimulationInflowDensity,level,
-						       GalaxySimulationCR )
+						       GalaxySimulationCR)
 	      == FAIL) {
 	    ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
 	}// end subgrid if
@@ -344,7 +401,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     InflowValue[4] = GalaxySimulationRPSWindVelocity[2];
     if (GalaxySimulationUseMetallicityField)
       InflowValue[5] = 1.0e-10;
-  
+
     if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
 						Dummy) == FAIL) {
       fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
@@ -382,10 +439,41 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    DataLabel[count++] = Vel3Name;
  if(CRModel)
    DataLabel[count++] = CRName;
+
  if (GalaxySimulationUseMetallicityField)
    DataLabel[count++] = MetalName;
+
+ if (TestProblemData.UseMetallicityField){
+   DataLabel[count++] = MetallicityName;
+ }
+
  if (StarMakerTypeIaSNe)
    DataLabel[count++] = MetalIaName;
+
+ /* Chemical tracer set ups */
+ if (TestProblemData.MultiMetals >= 2){
+
+
+   if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+     DataLabel[count++] =  CIName;
+     DataLabel[count++] =  NIName;
+     DataLabel[count++] =  OIName;
+     DataLabel[count++] = MgIName;
+     DataLabel[count++] = SiIName;
+     DataLabel[count++] = FeIName;
+     printf("AJE alpha names added to data label\n");
+   }
+   if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+     DataLabel[count++] =  YIName;
+     DataLabel[count++] = BaIName;
+     DataLabel[count++] = LaIName;
+   }
+   if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+     DataLabel[count++] = EuIName;
+   }
+
+   printf("AJE after CIName\n");
+ }
 
  for (i = 0; i < count; i++)
    DataUnits[i] = NULL;
@@ -435,6 +523,37 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	   GalaxySimulationInflowTime);
    fprintf(Outfptr, "GalaxySimulationInflowDensity = %"GOUTSYM"\n",
 	   GalaxySimulationInflowDensity);
+
+   /* Output chemical tracers */
+   fprintf(Outfptr, "GalaxySimulationInitialCIFraction = %"GOUTSYM"\n",
+           TestProblemData.CI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialNIFraction = %"GOUTSYM"\n",
+           TestProblemData.NI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialOIFraction = %"GOUTSYM"\n",
+           TestProblemData.OI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialMgIFraction = %"GOUTSYM"\n",
+           TestProblemData.MgI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialSiIFraction = %"GOUTSYM"\n",
+           TestProblemData.SiI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialFeIFraction = %"GOUTSYM"\n",
+           TestProblemData.FeI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialYIFraction = %"GOUTSYM"\n",
+           TestProblemData.YI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialBaIFraction = %"GOUTSYM"\n",
+           TestProblemData.BaI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialLaIFraction = %"GOUTSYM"\n",
+           TestProblemData.LaI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialEuIFraction = %"GOUTSYM"\n",
+           TestProblemData.EuI_Fraction);
+ 
+   fprintf(Outfptr, "TestProblemUseMetallicityField = %"ISYM"\n",
+           TestProblemData.UseMetallicityField);
+   fprintf(Outfptr, "GalaxySimulationMultiMetals = %"ISYM"\n",
+           TestProblemData.MultiMetals);
+
+   fprintf(Outfptr, "GalaxySimulationInitialDiskMetallicity = %"GOUTSYM"\n",
+           GalaxySimulationInitialDiskMetallicity);
+
    fprintf(Outfptr, "GalaxySimulationDiskPosition = ");
    WriteListOfFloats(Outfptr, MetaData.TopGridRank, GalaxySimulationDiskPosition);
    fprintf(Outfptr, "GalaxySimulationAngularMomentum = ");

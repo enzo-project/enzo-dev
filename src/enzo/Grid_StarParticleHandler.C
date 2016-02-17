@@ -674,7 +674,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
 
     if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
-                                        FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
+                                           FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
       ENZO_FAIL("Failure in Identifying Chemical tracer species fields.");
     }
 
@@ -1055,12 +1055,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       // comments
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
  
-      //
-      int *pcell_index = new int[MaximumNumberOfNewParticles];
-
       // convert overdensity threshold
       if (level == MaximumRefinementLevel)
       {
+        int *pcell_index = new int[MaximumNumberOfNewParticles];
 
         // lets try and form stars
         if(individual_star_maker(GridDimension, GridDimension+1, GridDimension+2,
@@ -1095,6 +1093,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 /* AJE TO DO : DO NOT HARD CODE THE PARTICLE ATTRIBUTE NUMBERS... NEED TO LOOK THEM UP FROM FUNCTION */
 /* Actually, maybe hard coding is O.K......... */
           for (int starnum = NumberOfNewParticlesSoFar; starnum < NumberOfNewParticles; starnum++){
+            printf("AJE Before assigning chemical tracer density fractions\n");
             if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
               tg->ParticleAttribute[ 4][starnum] = BaryonField[ CINum][pcell_index[starnum]];
               tg->ParticleAttribute[ 5][starnum] = BaryonField[ NINum][pcell_index[starnum]];
@@ -1113,12 +1112,12 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
             }
 
           }// loop over particles
+          
         } // if make new, assign chemical tages
-
+        printf("AJE Deleting index pointer\n");
+        delete [] pcell_index;
       } // if max ref
 
-
-      delete [] pcell_index;
 
     } // INDIVIDUAL_STAR
 
@@ -1621,6 +1620,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticleVelocity[0], ParticleVelocity[1],
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
+
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
  
   } // end: if NORMAL_STAR
