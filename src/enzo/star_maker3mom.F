@@ -521,8 +521,10 @@ c
      &          yfc .gt. ystart+dx*ny-fbuff*dx .or.
      &          zfc .lt. zstart+fbuff*dx .or. 
      &          zfc .gt. zstart+dx*nz-fbuff*dx) then
+#ifdef FORTRAN_DEBUG
                write(6,*) 'warning1: star feedback zone shifted',
      &              xfc,yfc,zfc, xstart, ystart, zstart,fbuff
+#endif
 c               
 	       xfcshift = xfc
 	       yfcshift = yfc 
@@ -540,9 +542,11 @@ c
 	       yfcshift = yfcshift - yfc 
 	       zfcshift	= zfcshift - zfc
 c
+#ifdef FORTRAN_DEBUG
 	       write(6,*) 'warning2: star feedback zone shifted',
      &              xfc,yfc,zfc,dx,xfcshift,yfcshift,zfcshift, 
      &		    nx, ny,nz
+#endif
             endif
 c
 c           If using zeus, then velocities are face-centered so shift
