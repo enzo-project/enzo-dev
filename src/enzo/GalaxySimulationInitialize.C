@@ -121,7 +121,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   float ZeroBField[3] = {0.0, 0.0, 0.0};
 
   /* Chemical tracers */
-  float GalaxySimulationInitialDiskMetallicity;
+  float GalaxySimulationInitialDiskMetallicity, GalaxySimulationInitialHaloMetallicity;
 
   /* Default Values */
 
@@ -158,6 +158,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
 
   GalaxySimulationInitialDiskMetallicity = tiny_number;
+  GalaxySimulationInitialHaloMetallicity = tiny_number;
   /* read input from file */
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
@@ -240,11 +241,38 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "GalaxySimulationInitialEuIFraction = %"FSYM,
                         &TestProblemData.EuI_Fraction);
 
+
+    /* Initial Chemical tracer values for halo */
+    ret += sscanf(line, "GalaxySimulationInitialCIFractionHalo = %"FSYM,
+                        &TestProblemData.CI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialNIFractionHalo = %"FSYM,
+                        &TestProblemData.NI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialOIFractionHalo = %"FSYM,
+                        &TestProblemData.OI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialMgIFractionHalo = %"FSYM,
+                        &TestProblemData.MgI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialSiIFractionHalo = %"FSYM,
+                        &TestProblemData.SiI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialFeIFractionHalo = %"FSYM,
+                        &TestProblemData.FeI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialYIFractionHalo = %"FSYM,
+                        &TestProblemData.YI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialBaIFractionHalo = %"FSYM,
+                        &TestProblemData.BaI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialLaIFractionHalo = %"FSYM,
+                        &TestProblemData.LaI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialEuIFractionHalo = %"FSYM,
+                        &TestProblemData.EuI_Fraction_2);
+
+
     ret += sscanf(line, "TestProblemUseMetallicityField = %"ISYM,
                         &TestProblemData.UseMetallicityField);
 
     ret += sscanf(line, "GalaxySimulationInitialDiskMetallicity = %"FSYM,
                         &GalaxySimulationInitialDiskMetallicity);
+
+    ret += sscanf(line, "GalaxySimulationInitialHaloMetallicity = %"FSYM,
+                        &GalaxySimulationInitialHaloMetallicity);
 
     /* if the line is suspicious, issue a warning */
     if (ret == 0 && strstr(line, "=") && strstr(line, "GalaxySimulation") 
@@ -288,6 +316,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationDarkMatterConcentrationParameter,
 						       GalaxySimulationDiskTemperature,
                                                        GalaxySimulationInitialDiskMetallicity,
+                                                       GalaxySimulationInitialHaloMetallicity,
 						       GalaxySimulationInitialTemperature,
 						       GalaxySimulationUniformDensity,
 						       GalaxySimulationGasHalo,
@@ -348,6 +377,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationDiskTemperature, 
 						       GalaxySimulationInitialTemperature,
                                                        GalaxySimulationInitialDiskMetallicity,
+                                                       GalaxySimulationInitialHaloMetallicity,
 						       GalaxySimulationUniformDensity,
 						       GalaxySimulationGasHalo,
 						       GalaxySimulationGasHaloScaleRadius,
@@ -545,6 +575,30 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
            TestProblemData.LaI_Fraction);
    fprintf(Outfptr, "GalaxySimulationInitialEuIFraction = %"GOUTSYM"\n",
            TestProblemData.EuI_Fraction);
+
+   fprintf(Outfptr, "GalaxySimulationInitialCIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.CI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialNIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.NI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialOIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.OI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialMgIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.MgI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialSiIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.SiI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialFeIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.FeI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialYIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.YI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialBaIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.BaI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialLaIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.LaI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialEuIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.EuI_Fraction_2);
+ 
+
+
  
    fprintf(Outfptr, "TestProblemUseMetallicityField = %"ISYM"\n",
            TestProblemData.UseMetallicityField);
@@ -553,6 +607,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
    fprintf(Outfptr, "GalaxySimulationInitialDiskMetallicity = %"GOUTSYM"\n",
            GalaxySimulationInitialDiskMetallicity);
+
+   fprintf(Outfptr, "GalaxySimulationInitialHaloMetallicity = %"GOUTSYM"\n",
+           GalaxySimulationInitialHaloMetallicity);
 
    fprintf(Outfptr, "GalaxySimulationDiskPosition = ");
    WriteListOfFloats(Outfptr, MetaData.TopGridRank, GalaxySimulationDiskPosition);

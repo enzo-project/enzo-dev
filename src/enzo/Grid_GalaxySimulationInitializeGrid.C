@@ -85,6 +85,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float DiskTemperature,
 					 float InitialTemperature,
                                          float DiskMetallicity,
+                                         float HaloMetallicity,
 					 float UniformDensity,
 					 int   GasHalo,
 					 float GasHaloScaleRadius,
@@ -108,6 +109,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
   int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
 
+
+  bool CurrentlyInHalo = TRUE;
   /* global-scope variables for disk potential functions (would be better if not global) */
 
   gScaleHeightR = ScaleHeightR;
@@ -302,7 +305,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  for (k = 0; k < GridDimension[2]; k++)
    for (j = 0; j < GridDimension[1]; j++)
      for (i = 0; i < GridDimension[0]; i++, n++) {
-
+        CurrentlyInHalo = TRUE;
 	/* Compute position */
 
 	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
@@ -475,12 +478,37 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
                 BaryonField[EuINum][n] = density * TestProblemData.EuI_Fraction;
               }
             } // end chemical tracer value set
-
+            CurrentlyInHalo = FALSE;
           }
 	} // end: if (r < DiskRadius)
 	/* Set density. */
 
 	BaryonField[DensNum][n] = density;
+
+        if(CurrentlyInHalo && TestProblemData.UseMetallicityField){
+          BaryonField[MetalNum][n] = density * HaloMetallicity;
+        }
+
+        if (CurrentlyInHalo && TestProblemData.MultiMetals >=2){
+          if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+            BaryonField[ CINum][n] = density * TestProblemData.CI_Fraction_2;//
+            BaryonField[ NINum][n] = density * TestProblemData.NI_Fraction_2;
+            BaryonField[ OINum][n] = density * TestProblemData.OI_Fraction_2;
+            BaryonField[MgINum][n] = density * TestProblemData.MgI_Fraction_2;
+            BaryonField[SiINum][n] = density * TestProblemData.SiI_Fraction_2;
+            BaryonField[FeINum][n] = density * TestProblemData.FeI_Fraction_2;
+          }
+          if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+            BaryonField[ YINum][n] = density * TestProblemData.YI_Fraction_2;
+            BaryonField[BaINum][n] = density * TestProblemData.BaI_Fraction_2;
+            BaryonField[LaINum][n] = density * TestProblemData.LaI_Fraction_2;
+          }
+          if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+            BaryonField[EuINum][n] = density * TestProblemData.EuI_Fraction_2;
+          }
+        } // end chemical tracer value set
+
+
 
 	if (StarMakerTypeIaSNe)
 	  for (i = 0; i < size; i++)

@@ -863,6 +863,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.BaI_Fraction = tiny_number;
   TestProblemData.LaI_Fraction = tiny_number;
   TestProblemData.EuI_Fraction = tiny_number;
+  // same for second set of chemical tracers:
+  TestProblemData.CI_Fraction_2 = tiny_number;
+  TestProblemData.NI_Fraction_2 = tiny_number;
+  TestProblemData.OI_Fraction_2 = tiny_number;
+  TestProblemData.MgI_Fraction_2 = tiny_number;
+  TestProblemData.SiI_Fraction_2 = tiny_number;
+  TestProblemData.FeI_Fraction_2 = tiny_number;
+  TestProblemData.YI_Fraction_2  = tiny_number;
+  TestProblemData.LaI_Fraction_2 = tiny_number;
+  TestProblemData.BaI_Fraction_2 = tiny_number;
+  TestProblemData.EuI_Fraction_2 = tiny_number;
+
 
   TestProblemData.GloverChemistryModel = 0;
   // This is for the gas in the surrounding medium, for the blast wave problem.

@@ -73,6 +73,20 @@ struct TestProblemDataType
   float LaI_Fraction;
   float EuI_Fraction;
 
+  /* AJE */
+  // allow for a second set of initial chemical tracer values
+  // initial idea is first set for galaxy disk, second for halo
+  float  CI_Fraction_2;
+  float  NI_Fraction_2;
+  float  OI_Fraction_2;
+  float MgI_Fraction_2;
+  float SiI_Fraction_2;
+  float FeI_Fraction_2;
+  float  YI_Fraction_2;
+  float LaI_Fraction_2;
+  float BaI_Fraction_2;
+  float EuI_Fraction_2;
+
   /* simon glover chemistry+cooling */
   int GloverChemistryModel;
   
