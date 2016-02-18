@@ -109,8 +109,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
   int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
 
+  float CI_Fraction, NI_Fraction, OI_Fraction, MgI_Fraction, SiI_Fraction, FeI_Fraction,
+        YI_Fraction, LaI_Fraction, BaI_Fraction, EuI_Fraction, metal_fraction;
 
-  bool CurrentlyInHalo = TRUE;
   /* global-scope variables for disk potential functions (would be better if not global) */
 
   gScaleHeightR = ScaleHeightR;
@@ -301,7 +302,22 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  for (k = 0; k < GridDimension[2]; k++)
    for (j = 0; j < GridDimension[1]; j++)
      for (i = 0; i < GridDimension[0]; i++, n++) {
-        CurrentlyInHalo = TRUE;
+ 
+        /* Set default tracer fraction */
+        metal_fraction = HaloMetallicity;
+         CI_Fraction = TestProblemData.CI_Fraction_2;
+         NI_Fraction = TestProblemData.NI_Fraction_2;
+         OI_Fraction = TestProblemData.OI_Fraction_2;
+        MgI_Fraction = TestProblemData.MgI_Fraction_2;
+        SiI_Fraction = TestProblemData.SiI_Fraction_2;
+        FeI_Fraction = TestProblemData.FeI_Fraction_2;
+
+         YI_Fraction = TestProblemData.YI_Fraction_2;
+        BaI_Fraction = TestProblemData.BaI_Fraction_2;
+        LaI_Fraction = TestProblemData.LaI_Fraction_2;
+
+        EuI_Fraction = TestProblemData.EuI_Fraction_2;
+
 	/* Compute position */
 
 	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
@@ -310,8 +326,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	if (GridRank > 2)
 	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
 
-	for (dim = 0; dim < MAX_DIMENSION; dim++)
+	for (dim = 0; dim < MAX_DIMENSION; dim++){
 	  Velocity[dim] = 0;
+        }
 
 	/* Find distance from center. */
 
@@ -324,7 +341,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	temperature = temp1 = init_temp = HaloGasTemperature(r);
 
 	if (r < DiskRadius) {
-
 	  FLOAT xpos, ypos, zpos, zheight, drad; 
 	  float CellMass;
 	  FLOAT xhat[3];
@@ -452,55 +468,46 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	      temperature = init_temp;
 	    if( UseMetallicityField ) // This should be converted to a general color field at some point - this obviously breaks metallicity feature
 	      BaryonField[MetalNum][n] = density;
-            if(TestProblemData.UseMetallicityField){
-              BaryonField[MetalNum][n] = density * DiskMetallicity;
-            }
+            
+            metal_fraction = DiskMetallicity;
             // set chemical tracers in the disk
-            if (TestProblemData.MultiMetals >=2){
-              if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-                BaryonField[ CINum][n] = density * TestProblemData.CI_Fraction;//
-                BaryonField[ NINum][n] = density * TestProblemData.NI_Fraction;
-                BaryonField[ OINum][n] = density * TestProblemData.OI_Fraction;
-                BaryonField[MgINum][n] = density * TestProblemData.MgI_Fraction;
-                BaryonField[SiINum][n] = density * TestProblemData.SiI_Fraction;
-                BaryonField[FeINum][n] = density * TestProblemData.FeI_Fraction;
-              }
-              if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-                BaryonField[ YINum][n] = density * TestProblemData.YI_Fraction;
-                BaryonField[BaINum][n] = density * TestProblemData.BaI_Fraction;
-                BaryonField[LaINum][n] = density * TestProblemData.LaI_Fraction;
-              }
-              if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-                BaryonField[EuINum][n] = density * TestProblemData.EuI_Fraction;
-              }
-            } // end chemical tracer value set
-            CurrentlyInHalo = FALSE;
+             CI_Fraction = TestProblemData.CI_Fraction;
+             NI_Fraction = TestProblemData.NI_Fraction;
+             OI_Fraction = TestProblemData.OI_Fraction;
+            MgI_Fraction = TestProblemData.MgI_Fraction;
+            SiI_Fraction = TestProblemData.SiI_Fraction;
+            FeI_Fraction = TestProblemData.FeI_Fraction;
+             YI_Fraction = TestProblemData.YI_Fraction;
+            LaI_Fraction = TestProblemData.LaI_Fraction;
+            BaI_Fraction = TestProblemData.BaI_Fraction;
+            EuI_Fraction = TestProblemData.EuI_Fraction;
           }
 	} // end: if (r < DiskRadius)
+
 	/* Set density. */
 
 	BaryonField[DensNum][n] = density;
 
-        if(CurrentlyInHalo && TestProblemData.UseMetallicityField){
-          BaryonField[MetalNum][n] = density * HaloMetallicity;
+        if(TestProblemData.UseMetallicityField){
+          BaryonField[MetalNum][n] = density * metal_fraction;
         }
 
-        if (CurrentlyInHalo && TestProblemData.MultiMetals >=2){
+        if (TestProblemData.MultiMetals >=2){
           if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-            BaryonField[ CINum][n] = density * TestProblemData.CI_Fraction_2;//
-            BaryonField[ NINum][n] = density * TestProblemData.NI_Fraction_2;
-            BaryonField[ OINum][n] = density * TestProblemData.OI_Fraction_2;
-            BaryonField[MgINum][n] = density * TestProblemData.MgI_Fraction_2;
-            BaryonField[SiINum][n] = density * TestProblemData.SiI_Fraction_2;
-            BaryonField[FeINum][n] = density * TestProblemData.FeI_Fraction_2;
+            BaryonField[ CINum][n] = density *  CI_Fraction;//
+            BaryonField[ NINum][n] = density *  NI_Fraction;
+            BaryonField[ OINum][n] = density *  OI_Fraction;
+            BaryonField[MgINum][n] = density * MgI_Fraction;
+            BaryonField[SiINum][n] = density * SiI_Fraction;
+            BaryonField[FeINum][n] = density * FeI_Fraction;
           }
           if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-            BaryonField[ YINum][n] = density * TestProblemData.YI_Fraction_2;
-            BaryonField[BaINum][n] = density * TestProblemData.BaI_Fraction_2;
-            BaryonField[LaINum][n] = density * TestProblemData.LaI_Fraction_2;
+            BaryonField[ YINum][n] = density *  YI_Fraction;
+            BaryonField[BaINum][n] = density * BaI_Fraction;
+            BaryonField[LaINum][n] = density * LaI_Fraction;
           }
           if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-            BaryonField[EuINum][n] = density * TestProblemData.EuI_Fraction_2;
+            BaryonField[EuINum][n] = density * EuI_Fraction;
           }
         } // end chemical tracer value set
 
