@@ -243,6 +243,13 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                           float *vp, float *wp, float *mp, float *tdp, 
                           float *tcp, float *metalf, int *type, int *pindex);
 
+/*
+int individual_star_feedback(int *nx, int *ny, int *nz, float *d,
+                             float *u, float *v, float *w, float *dx,
+                             FLOAT *current_time, float *d1, float *x1,
+                             float *v1, float *t1, FLOAT *xstart, FLOAT *ystart,
+                             FLOAT *zstart, float *ibuff, grid *tg, int *np);
+*/
 extern "C" void FORTRAN_NAME(star_maker_h2reg)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
                 float *cooltime,
@@ -875,7 +882,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     if (STARMAKE_METHOD(UNIGRID_STAR)) {
 
       //---- UNIGRID ALGORITHM (NO JEANS MASS)
-      
+
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
       FORTRAN_NAME(star_maker3)(
@@ -1504,30 +1511,30 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	float B2 = Bx*Bx + By*By + Bz*Bz;
 	BaryonField[TENum][n] += 0.5*B2/den;
       }
- 
+
 
     /* Move any new particles into their new homes. */
- 
+
     if (NumberOfNewParticles > 0) {
- 
+
       if (debug)
 	printf("Grid_StarParticleHandler: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
- 
+
       /* Set the particle numbers.  The correct indices will be assigned in 
-	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
- 
+         CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
+
       for (i = 0; i < NumberOfNewParticles; i++)
  	tg->ParticleNumber[i] = INT_UNDEFINED;
- 
+
       /* Move Particles into this grid (set cell size) using the fake grid. */
- 
+
       tg->NumberOfParticles = NumberOfNewParticles;
       for (dim = 0; dim < GridRank; dim++) {
 	tg->CellWidth[dim] = new FLOAT[1];
 	tg->CellWidth[dim][0] = CellWidth[dim][0];
       }
       this->MoveAllParticles(1, &tg);
- 
+
     } // end: if (NumberOfNewParticles > 0)
 
     /* Clean up and keep it quiet. */
@@ -1535,7 +1542,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     delete tg; // temporary grid
 
     //    if (debug) printf("StarParticle: end\n");
- 
+
   }
 #ifdef EMISSIVITY
     if (StarMakerEmissivityField > 0) {
@@ -1992,6 +1999,21 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
           ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+
+  }
+
+  if (STARFEED_METHOD(INDIVIDUAL_STAR)) {
+
+    printf("Startinf feedback for individual star\n");
+    if(individual_star_feedback(GridDimension, GridDimension+1, GridDimension+2,
+                                &CellWidthTemp,
+                                &Time, &DensityUnits, &LengthUnits, &VelocityUnits,
+                                &TimeUnits, CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2],
+                                &GhostZones, &NumberOfParticles, ParticleMass, ParticlePosition,
+                                ParticleVelocity, ParticleAttribute) == FAIL){
+      ENZO_FAIL("Failure in individual star feedback\n");
+    }
+    printf("Finished feedback for individual star\n");
 
   }
 

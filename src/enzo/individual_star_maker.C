@@ -14,6 +14,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "phys_constants.h"
+//#include "StarParticleData.h"
 
 
 
@@ -25,6 +26,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 float SampleIMF(void);
 
 float GaussianRandomVariable(void);
+
+float compute_lifetime(float *mp);
 
 unsigned_long_int mt_random(void);
 
@@ -529,3 +532,189 @@ float GaussianRandomVariable(void){
 
 }
 
+
+/*int individual_star_feedback(int *nx, int *ny, int *nz,
+                             float *d, float *u, float *v, float *w,
+                             float *dx, FLOAT *current_time,
+                             float *d1, float *x1, float *v1, float *t1,
+                             FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
+                             float *ibuff,
+                             grid *tg, int *np){*/
+
+int grid::individual_star_feedback(int *nx, int *ny, int *nz,
+                                   float *dx,
+                                   FLOAT *current_time, float *d1, float *x1,
+                                   float *v1, float *t1, FLOAT *xstart, FLOAT *ystart,
+                                   FLOAT *zstart, int *ibuff, int *np,
+                                   float *ParticleMass, FLOAT *ParticlePosition[],
+                                   float *ParticleVelocity[], float *ParticleAttribute[]){
+
+// This is going to be fun.
+// To Do:
+//   - Compute t - t_creation for all particles
+//     and compare against t_lifetime
+//   - If t - t_creation < t_lifetime
+//   - 
+//   1) Eject mass and energy
+//      -
+
+// ParticleAttribute 0 = creation time
+//                   1 = dynamical time
+
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
+
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+      DINum, DIINum, HDINum;
+
+  int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
+
+
+  this->DebugCheck("StarParticleHandler");
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+  }
+  if (CRModel)
+    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+      ENZO_FAIL("Cannot Find Cosmic Rays");
+
+
+
+  float mp, particle_age, lifetime, distmass, energy, dratio;
+  const double msolar = 1.989e33;                 // solar mass in cgs
+  double m1 = (*d1)*(*x1)*(*x1)*(*x1);            // code mass units
+  double e1 = m1 * (*x1) * (*x1) / (*t1) * (*t1); // code energy units
+
+  int ip, jp, kp, index; // particle location
+
+  printf("IF Feedback about to loop over particles %"ISYM"\n",(*np));
+
+  // loop over all star particles
+  for(int i = 0; i < (*np); i++){
+
+    // where is the particle?
+    ip = int ( (ParticlePosition[0][i] - (*xstart)) /(*dx));
+    jp = int ( (ParticlePosition[1][i] - (*ystart))/(*dx));
+    kp = int ( (ParticlePosition[2][i] - (*zstart))/(*dx));
+
+    mp = ParticleMass[i] * (*dx); // mass in code units
+    mp = mp * (m1) / msolar ; // Msun
+ 
+    // warning if outside current grid
+    if( ip < 0 || ip > (*nx) || jp < 0 || jp > (*ny) || kp < 0 || kp > (*nz)){
+      printf("Warning: star particle is outside of grid\n");
+      return FAIL;
+    }
+
+    // Modify position if too close to grid boundary
+    // If too close, pretends particles are at a new position, which
+    // is the to closest they can be to grid without causing
+    // feedback require MPI calls. Does not actually move particle
+    if (StarFeedbackDistRadius > 0){
+      ip = fmax( (*ibuff) + StarFeedbackDistRadius,
+
+               fmin( (*nx) - (*ibuff) - StarFeedbackDistRadius, ip) );
+      jp = fmax( (*ibuff) + StarFeedbackDistRadius,
+               fmin( (*ny) - (*ibuff) - StarFeedbackDistRadius, jp) );
+      kp = fmax( (*ibuff) + StarFeedbackDistRadius,
+               fmin( (*nz) - (*ibuff) - StarFeedbackDistRadius, kp) );
+    }
+
+    particle_age = abs((*current_time) - ParticleAttribute[0][i]);
+    lifetime     = compute_lifetime( &mp ) / (*t1);
+
+    printf("Before particle is too young check\n");
+    // if true, do stellar winds
+//    if(particle_age < lifetime){
+      // do stellar winds and radiation here
+//    }
+
+    printf("AJE before particle age check\n");
+    // Now do end-of-life feedback, but only for massive stars
+    if(particle_age >= lifetime){
+      printf("AJE making feedback happen. Exploding star.\n");
+
+      if(mp < IndividualStarTypeIIMassCutoff){
+        ParticleMass[i] = 0.0; // delete star and do nothing
+      } else if (IndividualStarTypeIIMassCutoff <= mp &&
+                 mp < IndividualStarPSNMassCutoff){
+
+        // mass and energy to distribute over local cells
+        distmass = ParticleMass[i] / StarFeedbackDistTotalCells;
+        energy   = IndividualStarTypeIIEnergy / e1 / StarFeedbackDistTotalCells;
+        printf("AJE TYpe II SN. Looping over cells\n");
+        // add energy to surroundings
+        for(int kc = kp - StarFeedbackDistRadius; kc <= kp + StarFeedbackDistRadius; kc++){
+          int cellstep = abs(kc - kp);
+          for(int jc = jp - StarFeedbackDistRadius; jc <= jp + StarFeedbackDistRadius; jc++){
+            cellstep += abs(jc - jp);
+            for(int ic = ip - StarFeedbackDistRadius; ic <= ip + StarFeedbackDistRadius; ic++){
+              cellstep += abs(ic - ip);
+              index = ic + (jc + kc * (*ny)) * (*nx);
+
+              if (cellstep <= StarFeedbackDistCellStep){ // not sure
+                dratio    = 1.0 / (BaryonField[DensNum][index] + distmass);
+                BaryonField[TENum][index] = (BaryonField[TENum][index]*BaryonField[DensNum][index] + energy) * dratio;
+
+                if(DualEnergyFormalism){
+                  BaryonField[GENum][index] = ((BaryonField[GENum][index] * BaryonField[DensNum][index]) + energy) * dratio;
+                }
+
+
+                // now do metal feedback and chemical yields
+                // here
+
+                // do mass and momentum feedback
+                BaryonField[Vel1Num][index] = BaryonField[Vel1Num][index] * BaryonField[DensNum][index] +
+                           distmass * ParticleVelocity[0][i];
+                BaryonField[Vel2Num][index] = BaryonField[Vel2Num][index] * BaryonField[DensNum][index] +
+                           distmass * ParticleVelocity[1][i];
+                BaryonField[Vel3Num][index] = BaryonField[Vel3Num][index] * BaryonField[DensNum][index] +
+                           distmass * ParticleVelocity[2][i];
+
+                // add mass to cells and convert vels to des again
+                BaryonField[DensNum][index] += + distmass;
+                BaryonField[Vel1Num][index] /= BaryonField[DensNum][index];
+                BaryonField[Vel2Num][index] /= BaryonField[DensNum][index];
+                BaryonField[Vel3Num][index] /= BaryonField[DensNum][index];
+
+                if (HydroMethod != 2 && DualEnergyFormalism){
+                  BaryonField[TENum][index] = 0.5 * (BaryonField[Vel1Num][index]*BaryonField[Vel1Num][index] + 
+                                                     BaryonField[Vel2Num][index]*BaryonField[Vel2Num][index] +
+                                                     BaryonField[Vel3Num][index]*BaryonField[Vel3Num][index])
+                                                   + BaryonField[GENum][index];
+                }
+              } // end if distribute
+
+
+            } // i dist
+          } // j dist
+        }// k dist
+
+
+        // particle is now dead
+      } // end if Type II SN
+
+      // kill particle
+      ParticleMass[i] = 0.0;
+    } // end end of life feedback
+
+
+  } // loop over particles
+
+  return SUCCESS;
+}
+
+//
+// Function to compute star lifetime based on age
+// and metallicity. Input mass in Msun.
+// Age in cgs
+float compute_lifetime(float *mp){
+
+  const double msolar = 1.989e33;
+  const double myr    = 3.1536e13;
+
+  float age = 10*myr;
+
+  return age;
+}
