@@ -1068,6 +1068,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarKroupaAlpha3);
     ret += sscanf(line, "IndividualStarMassFraction =%"FSYM,
                         &IndividualStarMassFraction);
+    ret += sscanf(line, "IndividualStarTypeIIMassCutoff =%"FSYM,
+                        &IndividualStarTypeIIMassCutoff);
+    ret += sscanf(line, "IndividualStarPSNMassCutoff =%"FSYM,
+                        &IndividualStarPSNMassCutoff);
+    ret += sscanf(line, "IndividualStarTypeIIEnergy =%"FSYM,
+                        &IndividualStarTypeIIEnergy);
+
 
     /* Read Movie Dump parameters */
 
@@ -1724,7 +1731,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* Set some star feedback parameters. */
 
-  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR)) && 
+  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR) || 
+       STARFEED_METHOD(INDIVIDUAL_STAR)) && 
       (StarFeedbackDistRadius > 0)) {
 
     // Calculate number of cells in the shape over which to distribute feedback.

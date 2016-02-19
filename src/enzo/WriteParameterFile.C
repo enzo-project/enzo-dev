@@ -1041,7 +1041,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarKroupaAlpha1 = %"FSYM"\n", IndividualStarKroupaAlpha1);
   fprintf(fptr, "IndividualStarKroupaAlpha2 = %"FSYM"\n", IndividualStarKroupaAlpha2);
   fprintf(fptr, "IndividualStarKroupaAlpha3 = %"FSYM"\n", IndividualStarKroupaAlpha3);
-  fprintf(fptr, "IndividualStarMassFraction = %"FSYM"\n\n", IndividualStarMassFraction);
+  fprintf(fptr, "IndividualStarMassFraction = %"FSYM"\n", IndividualStarMassFraction);
+  fprintf(fptr, "IndividualStarTypeIIEnergy = %"FSYM"\n", IndividualStarTypeIIEnergy);
+  fprintf(fptr, "IndividualStarTypeIIMassCutoff = %"FSYM"\n", IndividualStarTypeIIMassCutoff);
+  fprintf(fptr, "IndividualStarPSNMassCutoff = %"FSYM"\n\n", IndividualStarPSNMassCutoff);
+
 
   /* Most Stanford additions: */
 
