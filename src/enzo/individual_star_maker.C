@@ -579,9 +579,19 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
       ENZO_FAIL("Cannot Find Cosmic Rays");
 
 
+  if(TestProblemData.MultiMetals >=2){
+
+    if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
+                                           FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
+      ENZO_FAIL("Error in IdentifyChemicalTracerSpeciesFields.");
+    }
+
+  }
+
 
   float mp, particle_age, lifetime, distmass, energy, dratio;
   const double msolar = 1.989e33;                 // solar mass in cgs
+  const double speed_of_light = 2.99792458e10 ;
   double m1 = (*d1)*(*x1)*(*x1)*(*x1);            // code mass units
   double e1 = m1 * (*x1) * (*x1) / (*t1) * (*t1); // code energy units
 
@@ -593,13 +603,13 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
   for(int i = 0; i < (*np); i++){
 
     // where is the particle?
-    ip = int ( (ParticlePosition[0][i] - (*xstart)) /(*dx));
-    jp = int ( (ParticlePosition[1][i] - (*ystart))/(*dx));
-    kp = int ( (ParticlePosition[2][i] - (*zstart))/(*dx));
+    ip = int ( (ParticlePosition[0][i] - (*xstart)) / (*dx));
+    jp = int ( (ParticlePosition[1][i] - (*ystart)) / (*dx));
+    kp = int ( (ParticlePosition[2][i] - (*zstart)) / (*dx));
 
-    mp = ParticleMass[i] * (*dx); // mass in code units
+    mp = ParticleMass[i] * (*dx) * (*dx) * (*dx); // mass in code units
     mp = mp * (m1) / msolar ; // Msun
- 
+
     // warning if outside current grid
     if( ip < 0 || ip > (*nx) || jp < 0 || jp > (*ny) || kp < 0 || kp > (*nz)){
       printf("Warning: star particle is outside of grid\n");
@@ -620,37 +630,41 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                fmin( (*nz) - (*ibuff) - StarFeedbackDistRadius, kp) );
     }
 
-    particle_age = abs((*current_time) - ParticleAttribute[0][i]);
+    particle_age = abs( (*current_time) - ParticleAttribute[0][i] );
     lifetime     = compute_lifetime( &mp ) / (*t1);
 
-    printf("Before particle is too young check\n");
     // if true, do stellar winds
-//    if(particle_age < lifetime){
+//    if(abs(*current_time / lifetime) < 1.0){
       // do stellar winds and radiation here
 //    }
 
-    printf("AJE before particle age check\n");
+//    printf("AJE before particle age check\n");
     // Now do end-of-life feedback, but only for massive stars
-    if(particle_age >= lifetime){
-      printf("AJE making feedback happen. Exploding star.\n");
+//    if(abs( *current_time / (ParticleAttribute[0][i] + lifetime) >= 1.0){
+    if( particle_age > lifetime ){
 
       if(mp < IndividualStarTypeIIMassCutoff){
+
         ParticleMass[i] = 0.0; // delete star and do nothing
+
       } else if (IndividualStarTypeIIMassCutoff <= mp &&
                  mp < IndividualStarPSNMassCutoff){
 
         // mass and energy to distribute over local cells
-        distmass = ParticleMass[i] / StarFeedbackDistTotalCells;
-        energy   = IndividualStarTypeIIEnergy / e1 / StarFeedbackDistTotalCells;
-        printf("AJE TYpe II SN. Looping over cells\n");
+        distmass = StarMassEjectionFraction * ParticleMass[i] / ((float) StarFeedbackDistTotalCells);
+        energy   = ParticleMass[i] * StarEnergyToThermalFeedback * 
+                   (speed_of_light*speed_of_light/((*v1)*(*v1))) / ((float) StarFeedbackDistTotalCells);
+
+//        energy   = IndividualStarTypeIIEnergy / e1 / ( (float) StarFeedbackDistTotalCells);
         // add energy to surroundings
         for(int kc = kp - StarFeedbackDistRadius; kc <= kp + StarFeedbackDistRadius; kc++){
-          int cellstep = abs(kc - kp);
+          int stepk = abs(kc - kp);
           for(int jc = jp - StarFeedbackDistRadius; jc <= jp + StarFeedbackDistRadius; jc++){
-            cellstep += abs(jc - jp);
+            int stepj = stepk + abs(jc - jp);
             for(int ic = ip - StarFeedbackDistRadius; ic <= ip + StarFeedbackDistRadius; ic++){
-              cellstep += abs(ic - ip);
+              int cellstep = stepj + abs(ic - ip);
               index = ic + (jc + kc * (*ny)) * (*nx);
+
 
               if (cellstep <= StarFeedbackDistCellStep){ // not sure
                 dratio    = 1.0 / (BaryonField[DensNum][index] + distmass);
@@ -663,6 +677,15 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
                 // now do metal feedback and chemical yields
                 // here
+                // if(TestProblemData.UseMetallicityField){
+                //
+                //  if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA){
+                //
+                //    }
+                //  BaryonField[CINum][index] = BaryonField[CINum][index] * 1.01;
+                //  BaryonField[NINum][index] = BaryonField[NINum][index] * 1.05;
+                //  BaryonField[OINum][index] = BaryonField[OINum][index] * 0.9;
+                //}
 
                 // do mass and momentum feedback
                 BaryonField[Vel1Num][index] = BaryonField[Vel1Num][index] * BaryonField[DensNum][index] +
@@ -673,7 +696,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                            distmass * ParticleVelocity[2][i];
 
                 // add mass to cells and convert vels to des again
-                BaryonField[DensNum][index] += + distmass;
+                BaryonField[DensNum][index] += distmass;
                 BaryonField[Vel1Num][index] /= BaryonField[DensNum][index];
                 BaryonField[Vel2Num][index] /= BaryonField[DensNum][index];
                 BaryonField[Vel3Num][index] /= BaryonField[DensNum][index];
@@ -684,6 +707,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                                                      BaryonField[Vel3Num][index]*BaryonField[Vel3Num][index])
                                                    + BaryonField[GENum][index];
                 }
+
               } // end if distribute
 
 
@@ -714,7 +738,7 @@ float compute_lifetime(float *mp){
   const double msolar = 1.989e33;
   const double myr    = 3.1536e13;
 
-  float age = 10*myr;
+  float age = 2.0 * myr;
 
   return age;
 }
