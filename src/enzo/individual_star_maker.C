@@ -73,6 +73,8 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
   const int max_random = (1<<16);
 
+  int form_method = -1; // tracker for debugging purposes
+
 
   if ((*dt) == 0.0){
     printf("DT EQUAL TO ZERO\N");
@@ -151,10 +153,13 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               // if mass_to_stars greater than available mass, convert
               // all of available mass into stars
               // Frankly this is very unlikely to occur...
+              // Tests as of 2/22/16 show NO SF here for at least the first 10^5 stars
               if(mass_to_stars >= mass_available){
                 mass_to_stars = mass_available;
                 while( ii < *nmax && mass_to_stars > IndividualStarIMFUpperMassCutoff){
                   mp[ii] = SampleIMF();
+
+                  metalf[ii] = -1.0;
 
                   sum_mass       += mp[ii]; // counter for total star mass formed this cell
                   mass_to_stars  -= mp[ii]; // reduce available mass
@@ -162,15 +167,36 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                 }
               }
 
+              // Tests (as of 2/22/16) show NO SF here for at least the first 10^5 stars
               if (mass_to_stars > IndividualStarIMFUpperMassCutoff){
                 while (ii < *nmax && mass_to_stars > IndividualStarIMFUpperMassCutoff){
                   mp[ii] = SampleIMF();
+                  metalf[ii] = -2.0;
                   sum_mass      += mp[ii];
                   mass_to_stars -= mp[ii];
                   ii++;
                 }
               }
 
+              if(mass_to_stars > IndividualStarIMFLowerMassCutoff){
+                while( ii < *nmax && mass_to_stars > IndividualStarIMFLowerMassCutoff){
+
+                  mp[ii]         = SampleIMF();
+                  metalf[ii]     = -6.0;
+                  sum_mass      += mp[ii];
+                  mass_to_stars -= mp[ii];
+
+                  ii++;
+
+                  if (mass_to_stars < 0.0){
+                    mass_to_stars = 0.0;
+                  }
+                }
+                // maybe put a catch statement here to break if ii > *nmax??
+
+              }
+
+/*  Try a more stochastic method (see above) without a cutoff in allowed stars
               if (mass_to_stars > IndividualStarIMFLowerMassCutoff){
                 while (ii < *nmax && mass_to_stars > IndividualStarIMFLowerMassCutoff){
                     //mp[ii] = SampleIMF();
@@ -179,25 +205,32 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
                     if (star_mass <= mass_to_stars){
                       mp[ii] = star_mass;
+                      metalf[ii] = -3.0;
                       sum_mass      += mp[ii];
                       mass_to_stars -= mp[ii];
                       ii++;
                     } else if (abs(star_mass - mass_to_stars) < 0.1*IndividualStarIMFLowerMassCutoff){
                       mp[ii] = mass_to_stars;
+                      metalf[ii] = -4.0;
                       sum_mass      += mp[ii];
                       mass_to_stars -= mp[ii];
                       ii++;
                     }
                 }
               }
+*/
+
+
+
 
               // now we are in the Goldbaum et. al. 2015 regime (star_maker_ssn.F)
               // random sample from IMF, calculate probability of that star forming
-              if (mass_to_stars < IndividualStarIMFLowerMassCutoff && mass_to_stars > 0.0){
+              if (mass_to_stars < IndividualStarIMFLowerMassCutoff && mass_to_stars > tiny_number){
                 star_mass = SampleIMF();
                 pstar     = mass_to_stars / star_mass;
                 rnum =  (float) (random() % max_random) / (float) (max_random);
                 if (rnum < pstar){
+                  metalf[ii] = -5.0;
                   mp[ii] = star_mass;
                   sum_mass += mp[ii];
                   ii++;
@@ -371,13 +404,13 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                 // this is where code would go to assign
                 // chemical tags to all of the particles 
                 // depending on whether or not multimetals is ON
-                if (TestProblemData.UseMetallicityField == 1){
-                  metalf[istar] = metal[index];
+//                if (TestProblemData.UseMetallicityField == 1){
+//                  metalf[istar] = metal[index];
                   // if statements here for tagging with individual metal fields
                   // will go here
-                } else{
-                  metalf[istar] = 0.0;
-                }
+//                } else{
+//                  metalf[istar] = 0.0;
+//                }
 
 
 
