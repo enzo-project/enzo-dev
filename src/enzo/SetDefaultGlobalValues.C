@@ -354,6 +354,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityStellarBulgeR           = 4.0E-4;      // Mpc
   DiskGravityDarkMatterR             = 2.3E-2;      // Mpc
   DiskGravityDarkMatterDensity       = 3.81323E-25; // CGS
+  DiskGravityDarkMatterMassInterior  = 0.0;         // CGS - Only used when above is -1
+  DiskGravityDarkMatterMassInteriorR = 0.0;         // Mpc - Only used in conjuction with above
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off

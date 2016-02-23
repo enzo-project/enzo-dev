@@ -37,6 +37,7 @@
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
 
+
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
@@ -79,6 +80,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   char  line[MAX_LINE_LENGTH];
   int   dim, ret, level, disk, i;
+
+  const double pi = 3.14159265358979323846;
 
   /* make sure it is 3D */
   
@@ -302,6 +305,15 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if( DiskGravity > 0 ){
     for( i = 0 ; i < MAX_DIMENSION ; i++ )
       DiskGravityAngularMomentum[i] = GalaxySimulationAngularMomentum[i];
+
+
+    // set central density if DM mass given
+    if( DiskGravityDarkMatterDensity < 0){
+      float xtemp = DiskGravityDarkMatterMassInteriorR / DiskGravityDarkMatterR; // convenience for below
+      DiskGravityDarkMatterDensity = DiskGravityDarkMatterMassInterior / 
+                                     ( (2.0 * POW(DiskGravityDarkMatterR,3.0) ) *
+                                       (0.5 * log(1.0 + xtemp*xtemp) + log(1.0 + xtemp) - atan(xtemp)));
+    }
   } // end DiskGravity if
 
   /* set up grid */

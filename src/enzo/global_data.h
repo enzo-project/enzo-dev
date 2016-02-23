@@ -282,6 +282,8 @@ EXTERN float DiskGravityStellarBulgeMass;
 EXTERN float DiskGravityStellarBulgeR;
 EXTERN float DiskGravityDarkMatterR;
 EXTERN float DiskGravityDarkMatterDensity;
+EXTERN float DiskGravityDarkMatterMassInterior;
+EXTERN float DiskGravityDarkMatterMassInteriorR;
 
 /* SelfGravity (TRUE or FALSE) */
 
