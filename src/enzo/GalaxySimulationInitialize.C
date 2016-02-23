@@ -81,7 +81,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char  line[MAX_LINE_LENGTH];
   int   dim, ret, level, disk, i;
 
-  const double pi = 3.14159265358979323846;
+  const double pi     = 3.14159265358979323846;
+  const double msolar = 1.9891E33;
 
   /* make sure it is 3D */
   
@@ -310,7 +311,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     // set central density if DM mass given
     if( DiskGravityDarkMatterDensity < 0){
       float xtemp = DiskGravityDarkMatterMassInteriorR / DiskGravityDarkMatterR; // convenience for below
-      DiskGravityDarkMatterDensity = DiskGravityDarkMatterMassInterior / 
+      DiskGravityDarkMatterDensity = DiskGravityDarkMatterMassInterior*msolar /
                                      ( (2.0 * POW(DiskGravityDarkMatterR,3.0) ) *
                                        (0.5 * log(1.0 + xtemp*xtemp) + log(1.0 + xtemp) - atan(xtemp)));
     }
