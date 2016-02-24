@@ -607,10 +607,11 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                                        Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
-  if (CRModel)
+
+  if (CRModel){
     if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
       ENZO_FAIL("Cannot Find Cosmic Rays");
-
+  }
 
   if(TestProblemData.MultiMetals >=2){
 
@@ -671,9 +672,6 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
       // do stellar winds and radiation here
 //    }
 
-//    printf("AJE before particle age check\n");
-    // Now do end-of-life feedback, but only for massive stars
-//    if(abs( *current_time / (ParticleAttribute[0][i] + lifetime) >= 1.0){
     if( particle_age > lifetime ){
 
       if(mp < IndividualStarTypeIIMassCutoff){
@@ -701,12 +699,31 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
               if (cellstep <= StarFeedbackDistCellStep){ // not sure
                 dratio    = 1.0 / (BaryonField[DensNum][index] + distmass);
-                BaryonField[TENum][index] = (BaryonField[TENum][index]*BaryonField[DensNum][index] + energy) * dratio;
+                
+// add CR here:
+                if( CRModel ){
+                  BaryonField[TENum][index] =
+                     (BaryonField[TENum][index]*BaryonField[DensNum][index] +
+                                                     energy*(1.0-CRFeedback)) * dratio;
 
-                if(DualEnergyFormalism){
-                  BaryonField[GENum][index] = ((BaryonField[GENum][index] * BaryonField[DensNum][index]) + energy) * dratio;
-                }
+                  if(DualEnergyFormalism){
+                    BaryonField[GENum][index] =
+                      ((BaryonField[GENum][index] * BaryonField[DensNum][index]) +
+                                                     energy*(1.0-CRFeedback)) * dratio;
+                  }
 
+
+                  BaryonField[CRNum][index] += energy*CRFeedback; // add CR
+                } else{
+                  BaryonField[TENum][index] =
+                     (BaryonField[TENum][index]*BaryonField[DensNum][index] + energy) * dratio;
+
+                  if(DualEnergyFormalism){
+                    BaryonField[GENum][index] =
+                        ((BaryonField[GENum][index] * BaryonField[DensNum][index]) +
+                                                                               energy) * dratio;
+                  }
+                } // end CR
 
                 // now do metal feedback and chemical yields
                 // here
