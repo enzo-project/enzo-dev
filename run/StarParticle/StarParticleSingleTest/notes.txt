@@ -1,0 +1,15 @@
+StarParticleSingleTest
+----------------------
+
+This test places a single star particle in the center of a box with uniform
+gas density and thermal energy.  The gas is initially at rest.  The particle 
+will then produce feedback according to the method set for 
+StarParticleFeedback.  
+
+By default, the star particle produces feedback with method 14, kinetic 
+feedback.  An inital timestep is set to account for the large bulk velocities 
+created by the feedback event in the first timestep.  
+
+The particle is also set to be at rest by default, but it can be given a motion
+relative to the gas with the parameter TestStarParticleStarVelocity = vx vy vz, 
+where vx, vy and vz have units of km/s.
