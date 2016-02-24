@@ -157,7 +157,7 @@ The parameters below are considered in ``StarParticleCreation`` method
     value between 0.0 and 1.0, this is the constant fraction of energy injected in kinetic 
     form.  If set to -1, then a variable kinetic fraction is used that depends on local
     gas density, metallicity and resolution.  See Simpson et al. 2015
-    for details. Default 0.0
+    for details. Note, some failures may occur in -1 mode.  Default 0.0
 ``StarMakerExplosionDelayTime`` (external)
     Only valid for ``StarParticleFeedback`` method = 14.  If set to a positive value, energy,
     metals and mass from the particle are injected in a single timestep that is delayed from
