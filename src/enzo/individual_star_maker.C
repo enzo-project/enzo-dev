@@ -351,12 +351,13 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
                 // need to make a new particle property thats the stellar lifetime
 
-                type[istar] = (*ctype);
+                type[istar]   = -(*ctype);
                 tcp[istar]    = *t;
-                tdp[istar]    = tdyn;
                 pindex[istar] = index;
                 // mass in code units:
-                mp[istar] = mp[istar] * msolar / m1;
+                mp[istar]  = mp[istar] * msolar;
+                tdp[istar] = compute_lifetime( mp[istar] );
+                mp[istar]  = mp[istar] / m1; 
 
                 // give the star particle a position chosen at random over
                 // the grid cell size .... random() function different 
