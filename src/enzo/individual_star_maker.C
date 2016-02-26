@@ -785,9 +785,8 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 // Age in cgs
 float compute_lifetime(float *mp){
 
-  const double msolar    = 1.989e33;
   const double myr       = 3.1536e13;
-  const double tau_solar = 10.0E9   ; // lifetime of 1 solar mass star, seconds
+  const double tau_solar = myr * 1.0E4   ; // lifetime of 1 solar mass star, seconds
 
   float tau;
 
