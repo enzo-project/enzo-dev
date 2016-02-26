@@ -355,9 +355,8 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                 tcp[istar]    = *t;
                 pindex[istar] = index;
                 // mass in code units:
-                mp[istar]  = mp[istar] * msolar;
-                tdp[istar] = compute_lifetime( mp[istar] );
-                mp[istar]  = mp[istar] / m1; 
+                tdp[istar] = compute_lifetime( &mp[istar] ) / (*t1);
+                mp[istar]  = mp[istar] * msolar / m1; 
 
                 // give the star particle a position chosen at random over
                 // the grid cell size .... random() function different 
