@@ -6,6 +6,7 @@
 /  date:       May, 1998
 /  modified1:  Elizabeth Tasker, Feb, 2004
 /  modified1:  Elizabeth Tasker, Oct, 2006 (tidied up)
+/  modified3:  Andrew Emerick, Feb, 2016 (multispecies and chemical tracers)
 /
 /  PURPOSE:
 /
@@ -102,12 +103,17 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  /* declarations */
 
   int dim, i, j, k, m, field, disk, size, MetalNum, MetalIaNum, vel;
+
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
+
   float DiskDensity, DiskVelocityMag;
   int CRNum, DensNum;
 
   int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
+
+  float H_Fraction, HII_Fraction, HeII_Fraction, HeIII_Fraction, HM_Fraction,
+        H2I_Fraction, H2II_Fraction, D_to_H_ratio;
 
   float CI_Fraction, NI_Fraction, OI_Fraction, MgI_Fraction, SiI_Fraction, FeI_Fraction,
         YI_Fraction, LaI_Fraction, BaI_Fraction, EuI_Fraction, metal_fraction;
@@ -269,6 +275,43 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
       BaryonField[MetalNum][i] = tiny_number;
   }
 
+ if (MultiSpecies){
+   // set set background to primordial and 100% ionized (only HII and HeIII)
+   for( i = 0; i < size; i++){
+     BaryonField[HIINum][i]   = UniformDensity * 0.75;
+     BaryonField[HeIINum][i]  = UniformDensity * tiny_number;
+     BaryonField[HeIIINum][i] = UniformDensity * 0.25;
+     BaryonField[HeINum][i]   = 0.25 * UniformDensity -
+                                BaryonField[HeIINum][i] - BaryonField[HeIIINum][i];
+     if(MultiSpecies > 1){
+       BaryonField[HMNum][i]  = tiny_number * BaryonField[HIINum][i];
+       BaryonField[H2INum][i] = tiny_number * UniformDensity * 0.75;
+       BaryonField[H2IINum][i] = tiny_number * 2.0 * BaryonField[HIINum][i];
+     }
+
+     BaryonField[HINum][i] = 0.75 *UniformDensity - BaryonField[HIINum][i];
+
+     if( MultiSpecies > 1){
+       BaryonField[HINum][i] -= (BaryonField[HMNum][i] + BaryonField[H2IINum][i] +
+                                 BaryonField[H2INum][i]);
+     }
+
+     // Electron density: sum up ionized species
+     BaryonField[DeNum][i] = BaryonField[HIINum][i] + 0.25 * BaryonField[HeIINum][i] +
+                                                      0.50 * BaryonField[HeIIINum][i];
+     if (MultiSpecies > 1){
+       BaryonField[DeNum][i] += 0.5*BaryonField[H2IINum][i] - BaryonField[HMNum][i];
+     }
+
+     if (MultiSpecies > 2){
+       BaryonField[DINum ][i] = tiny_number * BaryonField[HINum][i];
+       BaryonField[DIINum][i] = tiny_number * BaryonField[HIINum][i];
+       BaryonField[HDINum][i] = 0.75 * tiny_number * BaryonField[H2INum][i];
+     }
+
+   }// loop over cells
+ } // Multispecies
+
  /* set chemical tracers to small density */
         /* For now, init halo chemical tracers density to zero */
  if (TestProblemData.MultiMetals >=2){
@@ -302,21 +345,32 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  for (k = 0; k < GridDimension[2]; k++)
    for (j = 0; j < GridDimension[1]; j++)
      for (i = 0; i < GridDimension[0]; i++, n++) {
- 
+
+        /* Set default abundances */
+            H_Fraction = TestProblemData.HydrogenFractionByMass;
+          HII_Fraction = TestProblemData.HII_Fraction;
+         HeII_Fraction = TestProblemData.HeII_Fraction;
+        HeIII_Fraction = TestProblemData.HeIII_Fraction;
+           HM_Fraction = TestProblemData.HM_Fraction;
+          H2I_Fraction = TestProblemData.H2I_Fraction;
+         H2II_Fraction = TestProblemData.H2II_Fraction;
+        D_to_H_ratio   = TestProblemData.DeuteriumToHydrogenRatio;
+
+
         /* Set default tracer fraction */
         metal_fraction = HaloMetallicity;
-         CI_Fraction = TestProblemData.CI_Fraction_2;
-         NI_Fraction = TestProblemData.NI_Fraction_2;
-         OI_Fraction = TestProblemData.OI_Fraction_2;
-        MgI_Fraction = TestProblemData.MgI_Fraction_2;
-        SiI_Fraction = TestProblemData.SiI_Fraction_2;
-        FeI_Fraction = TestProblemData.FeI_Fraction_2;
+         CI_Fraction   = TestProblemData.CI_Fraction_2;
+         NI_Fraction   = TestProblemData.NI_Fraction_2;
+         OI_Fraction   = TestProblemData.OI_Fraction_2;
+        MgI_Fraction   = TestProblemData.MgI_Fraction_2;
+        SiI_Fraction   = TestProblemData.SiI_Fraction_2;
+        FeI_Fraction   = TestProblemData.FeI_Fraction_2;
 
-         YI_Fraction = TestProblemData.YI_Fraction_2;
-        BaI_Fraction = TestProblemData.BaI_Fraction_2;
-        LaI_Fraction = TestProblemData.LaI_Fraction_2;
+         YI_Fraction   = TestProblemData.YI_Fraction_2;
+        BaI_Fraction   = TestProblemData.BaI_Fraction_2;
+        LaI_Fraction   = TestProblemData.LaI_Fraction_2;
 
-        EuI_Fraction = TestProblemData.EuI_Fraction_2;
+        EuI_Fraction   = TestProblemData.EuI_Fraction_2;
 
 	/* Compute position */
 
@@ -468,8 +522,18 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	      temperature = init_temp;
 	    if( UseMetallicityField ) // This should be converted to a general color field at some point - this obviously breaks metallicity feature
 	      BaryonField[MetalNum][n] = density;
-            
+
             metal_fraction = DiskMetallicity;
+
+            H_Fraction = TestProblemData.InnerHydrogenFractionByMass;
+            HII_Fraction = TestProblemData.HII_Fraction_Inner;
+            HeII_Fraction = TestProblemData.HeII_Fraction_Inner;
+            HeIII_Fraction = TestProblemData.HeIII_Fraction_Inner;
+            HM_Fraction = TestProblemData.HM_Fraction_Inner;
+            H2I_Fraction = TestProblemData.H2I_Fraction_Inner;
+            H2II_Fraction = TestProblemData.H2II_Fraction_Inner;
+            D_to_H_ratio   = TestProblemData.InnerDeuteriumToHydrogenRatio;
+
             // set chemical tracers in the disk
              CI_Fraction = TestProblemData.CI_Fraction;
              NI_Fraction = TestProblemData.NI_Fraction;
@@ -491,6 +555,45 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
         if(TestProblemData.UseMetallicityField){
           BaryonField[MetalNum][n] = density * metal_fraction;
         }
+
+        if (MultiSpecies) {
+          BaryonField[HIINum ][n] = HII_Fraction * H_Fraction * BaryonField[DensNum][n];
+          BaryonField[HeIINum][n] = HeII_Fraction * BaryonField[DensNum][n] *
+                                             (1.0 - H_Fraction);
+          BaryonField[HeIIINum][n] = HeIII_Fraction * BaryonField[DensNum][n] *
+                                             (1.0 - H_Fraction);
+          // neutral is He fraction - ionized
+          BaryonField[HeINum][n]   = (1.0 - H_Fraction)*BaryonField[DensNum][n] -
+                 BaryonField[HeIINum][n] - BaryonField[HeIIINum][n];
+
+          if(MultiSpecies > 1){
+            BaryonField[HMNum][n] = HM_Fraction * BaryonField[HIINum][n];
+            BaryonField[H2INum][n] = H2I_Fraction * BaryonField[DensNum][n] * H_Fraction;
+            // copy from RotatingSphere... why factor of 2 ? AJE 2/22/16
+            BaryonField[H2IINum][n] = H2II_Fraction * 2.0 * BaryonField[HIINum][n];
+          }
+
+          BaryonField[HINum][n] = H_Fraction*BaryonField[DensNum][n] -
+                                                       BaryonField[HIINum][n];
+          if(MultiSpecies > 1){
+            BaryonField[HINum][n] -= (BaryonField[HMNum][n] + BaryonField[H2IINum][n] +
+                                      BaryonField[H2INum][n]);
+          }
+
+          /// AJE finish coding not done
+          BaryonField[DeNum][n] = BaryonField[HIINum][n] + 0.25*BaryonField[HeIINum][n] +
+                                   0.5*BaryonField[HeIIINum][n];
+          if (MultiSpecies > 1){
+            BaryonField[DeNum][n] += 0.5 * BaryonField[H2IINum][n] - BaryonField[HMNum][n];
+          }
+
+          if(MultiSpecies > 2){
+            BaryonField[DINum ][n] = D_to_H_ratio * BaryonField[HINum][n];
+            BaryonField[DIINum][n] = D_to_H_ratio * BaryonField[HIINum][n];
+            BaryonField[HDINum][n] = 0.75 * D_to_H_ratio * BaryonField[H2INum][n];
+          }
+        } // end multispecies
+
 
         if (TestProblemData.MultiMetals >=2){
           if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
