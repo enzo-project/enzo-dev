@@ -65,6 +65,18 @@ int Star::SetFeedbackFlag(FLOAT Time)
   abs_type = ABS(this->type);
   switch (abs_type) {
 
+  case IndividualStar:
+    if (Time > this->BirthTime + this->LifeTime){ // endpoint
+      if (this->Mass > IndividualStarTypeIIMassCutoff){
+        this->FeedbackFlag = NO_FEEDBACK;
+      }
+    } else if (this->Mass > IndividualStarRadiationMassCutoff){
+      this->FeedbackFlag = MAIN_SEQUENCE;
+    } else{
+      this->FeedbackFlag = NO_FEEDBACK;
+    }
+    break;
+
   case PopIII:
     if (this->type < 0) // birth
       this->FeedbackFlag = FORMATION;
@@ -82,7 +94,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
   case SimpleSource:
     if (this->type < 0) // birth
       this->FeedbackFlag = FORMATION;
-    
+
   case PopII:
     AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
     if (this->type > 0)

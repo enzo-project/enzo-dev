@@ -77,6 +77,28 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       for (i = 0; i < nbins; i++) Q[i] = 0.0;
     }
     break;
+  
+  case IndividualStar: // need to know what to put in
+    nbins = 3;
+
+    E[0] = 28.0;
+    E[1] = 30.0;
+    E[2] = 58.0;
+
+    if (_mass > 9 && _mass <= 500) {
+      Q[0] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);
+      Q[1] = pow(10.0, 42.51 + 5.69*x  - 1.01*x2);
+      Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
+    } else if (_mass > 5 && _mass <= 9) {
+      Q[0] = pow(10.0, 39.29 + 8.55*x);
+      Q[1] = pow(10.0, 29.24 + 18.49*x);
+      Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
+    } // ENDELSE
+    else {
+      for (i = 0; i < nbins; i++) Q[i] = 0.0;
+    }
+    break;
+
 
     /* Average energy from Schaerer (2003) */
 

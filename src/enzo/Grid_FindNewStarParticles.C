@@ -43,6 +43,7 @@ int grid::FindNewStarParticles(int level)
 	ParticleType[i] == -PARTICLE_TYPE_CLUSTER ||
 	ParticleType[i] == -PARTICLE_TYPE_COLOR_STAR ||
 	ParticleType[i] == -PARTICLE_TYPE_SIMPLE_SOURCE ||
+        ParticleType[i] == -PARTICLE_TYPE_INDIVIDUAL_STAR ||
 	ABS(ParticleType[i]) == PARTICLE_TYPE_MBH ||
 	(StarParticleRadiativeFeedback == TRUE &&
 	 ParticleType[i] == PARTICLE_TYPE_STAR)) {

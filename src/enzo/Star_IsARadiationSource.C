@@ -45,8 +45,9 @@ bool Star::IsARadiationSource(FLOAT Time)
   rules[0] = (FeedbackFlag == NO_FEEDBACK || 
 	      FeedbackFlag == CONT_SUPERNOVA ||
 	      FeedbackFlag == MBH_THERMAL ||
-	      FeedbackFlag == MBH_JETS);
-  
+	      FeedbackFlag == MBH_JETS    ||
+              FeedbackFlag == MAIN_SEQUENCE);
+
   // Living
   rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime && type > 0);
 
@@ -63,6 +64,8 @@ bool Star::IsARadiationSource(FLOAT Time)
 
   for (i = 0; i < NumberOfRules; i++)
     result &= rules[i];
+
+
 
   delete [] rules;
 

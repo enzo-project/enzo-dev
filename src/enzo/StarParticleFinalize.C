@@ -140,7 +140,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //      printf("AddedFeedback[%d] = %d\n", count, AddedFeedback[count]);
 //     ThisStar->PrintInfo();
 //    } 
-    if (AddedFeedback[count]) {
+    // AJE 2/26/16 - HACK warning... not sure about this
+    if (AddedFeedback[count] || ThisStar->ReturnType() == -IndividualStar) {
       ThisStar->ActivateNewStar(TimeNow, Timestep);
       if (ThisStar->ReturnType() == PopIII && PopIIIOutputOnFeedback == TRUE)
 	OutputNow = TRUE;

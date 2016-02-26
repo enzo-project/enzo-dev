@@ -52,6 +52,9 @@ void Star::ActivateNewStar(FLOAT Time, float Timestep)
     case PopIII_CF:
       type = StarType;
       break;
+    case IndividualStar:
+      type = StarType;
+      break;
     case BlackHole:
       // nothing to do
       break;

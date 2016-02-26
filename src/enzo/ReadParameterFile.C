@@ -1076,6 +1076,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarPSNMassCutoff);
     ret += sscanf(line, "IndividualStarTypeIIEnergy =%"FSYM,
                         &IndividualStarTypeIIEnergy);
+    ret += sscanf(line, "IndividualStarRadiationMassCutoff =%"FSYM,
+                        &IndividualStarRadiationMassCutoff);
 
 
     /* Read Movie Dump parameters */

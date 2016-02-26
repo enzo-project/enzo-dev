@@ -291,6 +291,7 @@ const star_type
   NormalStar = PARTICLE_TYPE_STAR,
   SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
+  IndividualStar = PARTICLE_TYPE_INDIVIDUAL_STAR,
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
   MBH = PARTICLE_TYPE_MBH;
 
