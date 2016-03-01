@@ -76,10 +76,10 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
   GridPointer[0]->ReturnGridInfo(&Rank, Dims, Left, Right); // need rank
   Enzo_Dims_create(NumberOfGrids, Rank, LayoutTemp);
 
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    Layout[dim] = 0;
   for (dim = 0; dim < Rank; dim++)
     Layout[Rank-1-dim] = LayoutTemp[dim];
-  for (dim = Rank; dim < MAX_DIMENSION; dim++)
-    Layout[Rank-1-dim] = 0;
 
   /* For unequal splits of the topgrid, we need the start indices of
      the partitions.  It's easier to recalculate than to search for
