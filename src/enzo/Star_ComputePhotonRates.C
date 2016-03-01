@@ -78,7 +78,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     }
     break;
   
-  case IndividualStar: // need to know what to put in
+  case IndividualStar:
+    // AJE 2/27: Rates below are copy of above and are wrong
+    //           for Pop I stars
     nbins = 3;
 
     E[0] = 28.0;

@@ -122,13 +122,13 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   StarParticleDeath(LevelArray, level, AllStars);
 
-  /* 
+  /*
      If the new particles are above a specified mass threshold,
      "activate" them.  Then check for any stellar deaths.
 
      Sync all star and normal particles that are stored in the grids
      to the global list (AllStars) so these changes are reflected
-     there. 
+     there.
   */
 
   int count = 0;
@@ -139,7 +139,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //    if (debug) {
 //      printf("AddedFeedback[%d] = %d\n", count, AddedFeedback[count]);
 //     ThisStar->PrintInfo();
-//    } 
+//    }
     // AJE 2/26/16 - HACK warning... not sure about this
     if (AddedFeedback[count] || ThisStar->ReturnType() == -IndividualStar) {
       ThisStar->ActivateNewStar(TimeNow, Timestep);
@@ -190,5 +190,4 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   LCAPERF_STOP("StarParticleFinalize");
   return SUCCESS;
-
 }

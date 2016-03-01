@@ -66,14 +66,19 @@ int Star::SetFeedbackFlag(FLOAT Time)
   switch (abs_type) {
 
   case IndividualStar:
+    // Feedback for these are handled differently than rest of particley
+    // types in this scheme. Set to INDIVIDUAL_STAR to make distinct
+    // AJE: 2/29/16 TO DO: make this jive with rest of code. Reduce to
+    //                     no if statements if they end up being useless
+    //                     as they currently are
     if (Time > this->BirthTime + this->LifeTime){ // endpoint
       if (this->Mass > IndividualStarTypeIIMassCutoff){
-        this->FeedbackFlag = NO_FEEDBACK;
+        this->FeedbackFlag = INDIVIDUAL_STAR;
       }
-    } else if (this->Mass > IndividualStarRadiationMassCutoff){
-      this->FeedbackFlag = MAIN_SEQUENCE;
+    } else if (this->Mass > IndividualStarRadiationMinimumMass){
+      this->FeedbackFlag = INDIVIDUAL_STAR;
     } else{
-      this->FeedbackFlag = NO_FEEDBACK;
+      this->FeedbackFlag = INDIVIDUAL_STAR;
     }
     break;
 

@@ -705,21 +705,20 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerColdGasTemperature = 1e4;
 
   // AJE Individual Star
-  IndividualStarIMFUpperMassCutoff  = 100.0;
-  IndividualStarIMFLowerMassCutoff  =   1.0;
-  IndividualStarVelocityDispersion  =   1.0; //km.s
+  IndividualStarIMFUpperMassCutoff  = 100.0;        // Solar masses
+  IndividualStarIMFLowerMassCutoff  =   1.0;        // Solar masses
+  IndividualStarVelocityDispersion  =   1.0;        // km/s
   IndividualStarIMFSeed             = INT_UNDEFINED;
-  IndividualStarIMF                 = 0;
+  IndividualStarIMF                 = 0;            // 0: salpeter, 1: kroupa, 2: chabrier
   IndividualStarIMFCalls            = 0;
   IndividualStarSalpeterSlope       = 2.5;
   IndividualStarKroupaAlpha1        = 0.3;
   IndividualStarKroupaAlpha2        = 1.3;
   IndividualStarKroupaAlpha3        = 2.3;
   IndividualStarMassFraction        = 0.5;
-  IndividualStarTypeIIMassCutoff    = 8.0;
-  IndividualStarPSNMassCutoff       = 40.0;
-  IndividualStarTypeIIEnergy        = 1.0E51;
-  IndividualStarRadiationMassCutoff = 8.0;
+  IndividualStarTypeIIMassCutoff    = 8.0;          // Solar masses
+  IndividualStarPSNMassCutoff       = 40.0;         // Solar masses
+  IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
