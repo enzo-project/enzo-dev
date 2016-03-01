@@ -14,9 +14,6 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "phys_constants.h"
-//#include "StarParticleData.h"
-
-
 
 /* function prototypes */
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -31,12 +28,6 @@ float compute_lifetime(float *mp);
 
 unsigned_long_int mt_random(void);
 
-
-
-
-// need to initialize random!!!
-
-
 int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                           float *d, float *dm, float *temp, float *u,
                           float *v, float *w,  float *dt,
@@ -47,16 +38,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                           float *mu, float *metal, int *ctype,
                           int *np, FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up,
                           float *vp, float *wp, float *mp, float *tdp, float *tcp,
-                          float *metalf, int *type, int *pindex)
-
- // since I would need to read in all of the chemical tracer fields in the above
- // what I can do in StarParticleHandler is check which (if any) field is defined
- // and then if it exists, pass the field
- // if it doesn't exist then just pass a zero value array of size equal to the grid size...
- // not sure how to do this completely though.
-
-
-{
+                          float *metalf, int *type, int *pindex){
 
   const double msolar = 1.989e33;
   const double sndspdC = 1.3095e8;
@@ -81,88 +63,71 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
     return FAIL;
   }
 
-  // check jeans length refinement
-  //if (*jlrefine > 0){
-  //  jlsquared = ((double)((*gamma) * 3.14159621 * 1.38e-16 / 6.673e-08)/
-  //      ((double)(*d1) * 1.673e-24)) / (POW(*x1,2) / (*mu) / POW((*jlrefine),2);
-  //}
 
-  /* Loop over grid and apply star formation criteria
-     Create a star particle if it matches all of the criteria */
-
-    // 3D -> 1D index adjacent cells
+    // 3D -> 1D index
     xo = 1;
     yo = *nx;
     zo = (*nx) * (*ny);
 
     min_temp = 1.0E5; // set conditional based on cooling and metals present
 
+    // over density threshold in code units
     odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (*d1);
 
+    // loop over all cells, check condition, form stars stochastically
     ii = 0; index_presf = 0;
     for (k = *ibuff; k < *nz - *ibuff; k++){
       for (j = *ibuff; j < *ny - *ibuff; j++){
-//        index = (k * (*ny) + j) * (*nx) + (*ibuff);
         for (i = *ibuff; i < *nx - *ibuff; i++){
           index = i + (j + k * (*ny)) * (*nx);
 
           bmass = (d[index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
 
           // perform the following easy checks for SF before proceeding
-          // 1) Are we in the highest resolution region? (yes if this is called)
-          // 2) Is density greater than the density threshold?
-          // 3) Is temperature < the minimum temperature?
-          // 4) Do not allow star formation if minimum star particle mass is
+          // 1) Is density greater than the density threshold?
+          // 2) Is temperature < the minimum temperature?
+          // 3) Do not allow star formation if minimum star particle mass is
           //    above some fraction of cell mass. This is very unlikely to occur
           //    in intended use case:
           //    (i.e. baryon mass likely always going to be > ~10 solar masses)
 
-//break individual_star_maker.C:106
           sum_mass = 0.0; index_presf = ii;
           if ( d[index]      > odthreshold
               && temp[index] <= min_temp
               && IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
               && 0.5*bmass > IndividualStarIMFUpperMassCutoff){
 
-            // 5) only check if above true. Divergence
-            //if (*imethod == 2) {
-            //  div = u[index + xo] - u[index] +
-            //        v[index + yo] - v[index] +
-            //        w[index + zo] - w[index];
-            //} else{
-            //  div = u[index + xo] - u[index - xo] +
-            //        v[index + yo] - v[index - yo] +
-            //       w[index + zo] - w[index - zo];
 
-            //} // divergence calculation
-
-            // now that the above is done, compute some values
-            dtot = ( d[index] + dm[index] ) * (*d1); // total density
+            // star formation may be possible
+            // compute values and check jeans mass unstable
+            dtot = ( d[index] + dm[index] ) * (*d1);                 // total density
             tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (*t1); // in code units
-            isosndsp2 = sndspdC * temp[index] ; // not sure
+            isosndsp2 = sndspdC * temp[index] ;
             jeansmass = pi / (6.0 * sqrt(d[index]*(*d1)) *
                             POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
 
             if (jeansmass <= bmass){
 
-              //
+              // calculate mass in cell that can be converted to stars in timestep
+              // generally this should be small (comparable to or less than the lower mass
+              // cutoff of the IMF)
+
               star_fraction  = min(StarMakerMassEfficiency*(*dt)/tdyn, 1.0);
               mass_to_stars  = star_fraction * bmass;
               mass_available = StarMakerMassEfficiency * bmass;
               mass_to_stars  = min(mass_to_stars, mass_available);
-              // if mass_to_stars greater than available mass, convert
+
+              // If mass_to_stars greater than available mass, convert
               // all of available mass into stars
               // Frankly this is very unlikely to occur...
-              // Tests as of 2/22/16 show NO SF here for at least the first 10^5 stars
+              // Tests as of 2/22/16 show NO SF here for at least 10^5 stars in a LMC dwarf galaxy
               if(mass_to_stars >= mass_available){
                 mass_to_stars = mass_available;
                 while( ii < *nmax && mass_to_stars > IndividualStarIMFUpperMassCutoff){
-                  mp[ii] = SampleIMF();
-
-                  metalf[ii] = -1.0;
-
-                  sum_mass       += mp[ii]; // counter for total star mass formed this cell
-                  mass_to_stars  -= mp[ii]; // reduce available mass
+                  mp[ii]          = SampleIMF();
+                  metalf[ii]      = metal[ii];
+                  sum_mass       += mp[ii];     // counter for mass formed in this cell
+                  mass_to_stars  -= mp[ii];     // reduce available mass
                   ii++;
                 }
               }
@@ -170,61 +135,34 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               // Tests (as of 2/22/16) show NO SF here for at least the first 10^5 stars
               if (mass_to_stars > IndividualStarIMFUpperMassCutoff){
                 while (ii < *nmax && mass_to_stars > IndividualStarIMFUpperMassCutoff){
-                  mp[ii] = SampleIMF();
-                  metalf[ii] = -2.0;
+                  mp[ii]         = SampleIMF();
+                  metalf[ii]     = metal[ii];
                   sum_mass      += mp[ii];
                   mass_to_stars -= mp[ii];
                   ii++;
                 }
               }
 
+
+
+              // If mass is above IMF lower limit, star formation will happen.
+              // Just form stars randomly over IMF until mass dips below lower cutoff
               if(mass_to_stars > IndividualStarIMFLowerMassCutoff){
                 while( ii < *nmax && mass_to_stars > IndividualStarIMFLowerMassCutoff){
-
                   mp[ii]         = SampleIMF();
-                  metalf[ii]     = -6.0;
+                  metalf[ii]     = metal[ii];
                   sum_mass      += mp[ii];
                   mass_to_stars -= mp[ii];
-
                   ii++;
 
                   if (mass_to_stars < 0.0){
                     mass_to_stars = 0.0;
                   }
                 }
-                // maybe put a catch statement here to break if ii > *nmax??
-
               }
-
-/*  Try a more stochastic method (see above) without a cutoff in allowed stars
-              if (mass_to_stars > IndividualStarIMFLowerMassCutoff){
-                while (ii < *nmax && mass_to_stars > IndividualStarIMFLowerMassCutoff){
-                    //mp[ii] = SampleIMF();
-                    star_mass = SampleIMF();
-                    // accept if star mass doesn't exceed available
-
-                    if (star_mass <= mass_to_stars){
-                      mp[ii] = star_mass;
-                      metalf[ii] = -3.0;
-                      sum_mass      += mp[ii];
-                      mass_to_stars -= mp[ii];
-                      ii++;
-                    } else if (abs(star_mass - mass_to_stars) < 0.1*IndividualStarIMFLowerMassCutoff){
-                      mp[ii] = mass_to_stars;
-                      metalf[ii] = -4.0;
-                      sum_mass      += mp[ii];
-                      mass_to_stars -= mp[ii];
-                      ii++;
-                    }
-                }
-              }
-*/
-
-
-
 
               // now we are in the Goldbaum et. al. 2015 regime (star_maker_ssn.F)
-              // random sample from IMF, calculate probability of that star forming
+              // Calculate probability of star forming and form stars stochastically
               if (mass_to_stars < IndividualStarIMFLowerMassCutoff && mass_to_stars > tiny_number){
                 star_mass = SampleIMF();
                 pstar     = mass_to_stars / star_mass;
@@ -237,38 +175,8 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                 }
               }
 
-/*              // -------------- create star particles --------------
-              while ( ii < *nmax &&
-                      // change below condition
-                      sum_mass < star_fraction * bmass) {
-
-                // here, make a call to IMF to sample the stellar mass
-                mp[ii] = SampleIMF();
-
-                if (mp[ii] < 2){
-                  tdp[ii] = POW(mp[ii], -3.0) ; //Msun**4.0 / Lsun
-                }else if (mp[ii] < 20){
-                  tdp[ii] = 0.666667 * POW(mp[ii],-2.5); // Msun**3.5 / Lsun
-
-                }else if (mp[ii] > 20){ // UNITS !!!!!!
-                  tdp[ii] = 3.125e-4 ; // M_sun / L_sun
-                }
-
-                type[ii] = -(*ctype);
-                tcp[ii]  = *t; // time of creation
-
-                if (ii >= *nmax) {
-                   fprintf(stdout, "individual_star_maker: Reached max new star particle$
-                   return FAIL;
-                 }
-
-                star_mass += mp[ii];
-                ii++;
-              } // loop over particles done
-*/
-
               // prepare for assigning star properties by computing the local
-              // gas velocity properties
+              // gas velocity properties (this is for velocity assignment)
               // 2 = Zeus .. otherwise PPM
               // copied from pop3_maker.F
               if (*imethod == 2){
@@ -283,7 +191,6 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                       ( d[index] + d[index-xo] + d[index+xo] +
                         d[index-yo] + d[index+yo] +
                         d[index-zo] + d[index+zo] ); //
-                //below copied from above... check for typos
                 vmean = (
                          0.5 * (v[index   ] + v[index+xo])*d[index] +
                          0.5 * (v[index-xo] + v[index   ])*d[index-xo] +
@@ -307,7 +214,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                           d[index-yo] + d[index+yo] +
                           d[index-zo] + d[index+zo] ); // 
               }
-              else{
+              else{ // PPM case
                 umean = (u[index]*d[index] +
                               u[index-xo]*d[index-xo] +
                               u[index+xo]*d[index+xo] +
@@ -342,29 +249,19 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               } // imethod velocity computation
 
 
-
-
-
-              // now assign particle properties
+              // now assign particle properties, loop over every star
               px = 0.0; py = 0.0; pz =0.0; // initialize momentum counters
               for (istar = index_presf; istar < ii; istar++){
 
-                // need to make a new particle property thats the stellar lifetime
-
-                type[istar]   = -(*ctype);
-                tcp[istar]    = *t;
-                pindex[istar] = index;
-                // mass in code units:
-                tdp[istar] = compute_lifetime( &mp[istar] ) / (*t1);
-                mp[istar]  = mp[istar] * msolar / m1; 
+                type[istar]   = -(*ctype);   // negative is a "new" star
+                tcp[istar]    = *t;          // formation tim
+                pindex[istar] = index;       // hack for chemistry - TO DO is deal with this w/o hack
+                tdp[istar] = compute_lifetime( &mp[istar] ) / (*t1); // lifetime
+                mp[istar]  = mp[istar] * msolar / m1;                // mass
 
                 // give the star particle a position chosen at random over
-                // the grid cell size .... random() function different 
+                // the grid cell size .... random() function different
                 // than mt_random to keep repeatability of IMF draws
-
-                // note to self... there is a bug in the .C star maker methods
-                // from the fortran due to the fact that they star at 0 and 1 in 
-                // index increments resepctively
 
                 rnum =  (float) (random() % max_random) / (float) (max_random);
                 xp[istar] = (*dx) * rnum + *xstart + ((float) i + 0.5)*(*dx);
@@ -372,14 +269,6 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                 yp[istar] = (*dx) * rnum + *ystart + ((float) j + 0.5)*(*dx);
                 rnum =  (float) (random() % max_random) / (float) (max_random);
                 zp[istar] = (*dx) * rnum + *zstart + ((float) k + 0.5)*(*dx);
-                // upper.. from star_maker9 ... i think below should be i + 0.5 etc... 
-                //xp[ii] = *xstart + ((float) i - 0.5)*(*dx);
-                //yp[ii] = *ystart + ((float) j - 0.5)*(*dx);
-                //zp[ii] = *zstart + ((float) k - 0.5)*(*dx);
-
-                //
-                // need to handle units... GRV returns mean of zero, std of 1
-                //
 
                 // assume velocity dispersion is isotropic in each velocity component. Multiply disp by
                 // sqrt(1/3) to get disp in each component... taking above velocities as the mean
@@ -429,32 +318,26 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               py_excess = vmean * sum_mass + py;
               pz_excess = wmean * sum_mass + pz;
 
-              // remove momentum evenly from each star
-              if ( abs(px_excess) > 1.0e-12) {
+              // remove or add momentum evenly from each star if needed
+              if ( abs(px_excess) > tiny_number) {
                 for (istar = index_presf; istar < ii; istar++){
-//                  up[istar] += (-1.0 * px_excess) * (mp[istar] / sum_mass);
                   up[istar] += (-1.0 * px_excess) / (mp[istar] * (float) (ii-index_presf));
                 }
               }
-              if ( abs(py_excess) > 1.0e-12){
+              if ( abs(py_excess) > tiny_number){
                 for (istar = index_presf; istar < ii; istar++){
                   vp[istar] = (-1.0 * py_excess) / (mp[istar] * (float) (ii-index_presf));
                 }
               }
-              if ( abs(pz_excess) > 1.0E-12){
+              if ( abs(pz_excess) > tiny_number){
                 for (istar = index_presf; istar < ii; istar++){
                   wp[istar] = (-1.0 * pz_excess) / (mp[istar] * (float) (ii-index_presf));
                 }
               }
-              // done with modifying momentum of stars
 
               // now remove mass from grid
               d[index] = (bmass*msolar/m1 - sum_mass) / ((*dx)*(*dx)*(*dx)) ;
 
-
-//              for(istar = index_presf; istar < ii; istar++){
-//                mp[istar] = mp[istar] * msolar / m1;
-//              }
             } // if jeans mass unstable
           } // resolution and density
 
@@ -472,31 +355,18 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
     }
 
-  for (int counter = 0; counter < ii; counter++){ // need to convert mass to M / dx^3
+  // star masses are recorded as densities (mass / cell volume)
+  for (int counter = 0; counter < ii; counter++){
     mp[counter] = mp[counter] / ((*dx)*(*dx)*(*dx)); // code units / cell volume
   }
 
-/*
-    for (int counter = 0; counter < ii; counter++){
-      if(mp[counter]*m1/msolar > IndividualStarIMFUpperMassCutoff){
-        printf("individual_star_maker: mass too bigproblem lies in function m = %"FSYM"\n",mp[counter]);
-      } else if (mp[counter] * m1 / msolar < 0.1){
-        printf("individual_star_maker: there is a units misunderstanding\n");
-      } else if (mp[counter] * m1 / msolar < IndividualStarIMFLowerMassCutoff){
-        printf("individual_star_maker: toot small mass %"FSYM" %"FSYM" %"FSYM"\n",mp[counter], mp[counter]*m1, mp[counter]*m1/msolar);
-      }
+  *np = ii - 1; // number of stars formed : AJE 2/29 check if this is a bug with the -1
 
-    }
-*/
-
-
-    *np = ii;
-    return SUCCESS;
+  return SUCCESS;
 }
 
 
-float SampleIMF(void)
-{
+float SampleIMF(void){
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
   float x = (float) (random_int%max_random) / (float) (max_random);
@@ -533,14 +403,6 @@ float SampleIMF(void)
   return m;
 }
 
-// maybe need a new overloaded function of the above to
-// rescale for a new maximum mass???? Not trivial if
-// IMF is a broken power law
-
-
-// put feedback here
-
-
 float GaussianRandomVariable(void){
  // returns gaussian random variable y1
 
@@ -565,15 +427,6 @@ float GaussianRandomVariable(void){
 
 }
 
-
-/*int individual_star_feedback(int *nx, int *ny, int *nz,
-                             float *d, float *u, float *v, float *w,
-                             float *dx, FLOAT *current_time,
-                             float *d1, float *x1, float *v1, float *t1,
-                             FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
-                             float *ibuff,
-                             grid *tg, int *np){*/
-
 int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                                    float *dx,
                                    FLOAT *current_time, float *d1, float *x1,
@@ -581,18 +434,6 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                                    FLOAT *zstart, int *ibuff, int *np,
                                    float *ParticleMass, FLOAT *ParticlePosition[],
                                    float *ParticleVelocity[], float *ParticleAttribute[]){
-
-// This is going to be fun.
-// To Do:
-//   - Compute t - t_creation for all particles
-//     and compare against t_lifetime
-//   - If t - t_creation < t_lifetime
-//   - 
-//   1) Eject mass and energy
-//      -
-
-// ParticleAttribute 0 = creation time
-//                   1 = dynamical time
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
 
