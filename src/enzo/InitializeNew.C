@@ -305,6 +305,20 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       NumberOfParticleAttributes = 3;
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
       if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
+
+      if (TestProblemData.MultiMetals){
+        NumberOfParticleAttributes ++; // counter offset to get names right
+                                         // this is a hack and a waste of memory
+        if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+          NumberOfParticleAttributes += 6; // index 4 - 9
+        }
+        if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+          NumberOfParticleAttributes += 3; // index 10 - 12
+        }
+        if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+          NumberOfParticleAttributes += 1; // index 13
+        }
+      }
     } else {
       NumberOfParticleAttributes = 0;
     }
