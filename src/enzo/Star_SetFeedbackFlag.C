@@ -73,12 +73,12 @@ int Star::SetFeedbackFlag(FLOAT Time)
     //                     as they currently are
     if (Time > this->BirthTime + this->LifeTime){ // endpoint
       if (this->Mass > IndividualStarTypeIIMassCutoff){
-        this->FeedbackFlag = INDIVIDUAL_STAR;
+        this->FeedbackFlag = FEEDBACK_INDIVIDUAL_STAR;
       }
     } else if (this->Mass > IndividualStarRadiationMinimumMass){
-      this->FeedbackFlag = INDIVIDUAL_STAR;
+      this->FeedbackFlag = FEEDBACK_INDIVIDUAL_STAR;
     } else{
-      this->FeedbackFlag = INDIVIDUAL_STAR;
+      this->FeedbackFlag = FEEDBACK_INDIVIDUAL_STAR;
     }
     break;
 

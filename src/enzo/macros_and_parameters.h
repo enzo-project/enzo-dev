@@ -527,7 +527,7 @@ typedef int            HDF5_hid_t;
 #define MBH_THERMAL 7
 #define MBH_JETS 8
 #define COLOR_FIELD 9
-#define INDIVIDUAL_STAR 10
+#define FEEDBACK_INDIVIDUAL_STAR 10
 
 /* Sink particle accretion modes */
 

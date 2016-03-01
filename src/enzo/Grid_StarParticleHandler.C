@@ -230,26 +230,6 @@ extern "C" void FORTRAN_NAME(star_maker_ssn)(int *nx, int *ny, int *nz,
     int *imetalSNIa, float *metalSNIa, float *metalfSNIa,
     int *imetalSNII, float *metalSNII, float *metalfSNII, float *mfcell);
 
-// AE 2/19
-int individual_star_maker(int *nx, int *ny, int *nz, int *size,
-                          float *d, float *dm, float *temp, float *u,
-                          float *v, float *w, float *dt,
-                          float *dx, FLOAT *t, float *z, int *procnum,
-                          float *d1, float *x1, float *v1, float *t1,
-                          int *nmax, FLOAT *xstart, FLOAT *ystart,
-                          FLOAT *zstart, int *ibuff, int *imethod,
-                          float *mu, float *metal, int *ctype,
-                          int *np, FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up,
-                          float *vp, float *wp, float *mp, float *tdp, 
-                          float *tcp, float *metalf, int *type, int *pindex);
-
-/*
-int individual_star_feedback(int *nx, int *ny, int *nz, float *d,
-                             float *u, float *v, float *w, float *dx,
-                             FLOAT *current_time, float *d1, float *x1,
-                             float *v1, float *t1, FLOAT *xstart, FLOAT *ystart,
-                             FLOAT *zstart, float *ibuff, grid *tg, int *np);
-*/
 extern "C" void FORTRAN_NAME(star_maker_h2reg)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
                 float *cooltime,
@@ -1058,73 +1038,29 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     }
 
     if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
-    
-      // comments
-      NumberOfNewParticlesSoFar = NumberOfNewParticles;
- 
-      // convert overdensity threshold
-      if (level == MaximumRefinementLevel)
-      {
-        int *pcell_index = new int[MaximumNumberOfNewParticles];
 
+      // Makes individual stars stochastically via IMF sampling and
+      // chemically tags particles based on local environment with MultiMetals on
+      NumberOfNewParticlesSoFar = NumberOfNewParticles; 
+
+      // Only attempt if on max refiment level
+      if (level == MaximumRefinementLevel){
         // lets try and form stars
         if(individual_star_maker(GridDimension, GridDimension+1, GridDimension+2,
-                                 &size, BaryonField[DensNum], dmfield, temperature,
-                                 BaryonField[Vel1Num], BaryonField[Vel2Num],
-                                 BaryonField[Vel3Num], &dtFixed, &CellWidthTemp, &Time,
-                                 &zred, &MyProcessorNumber, &DensityUnits, &LengthUnits,
+                                 &size, dmfield, temperature,
+                                 &dtFixed, &CellWidthTemp, &Time,
+                                 &MyProcessorNumber, &DensityUnits, &LengthUnits,
                                  &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles,
                                  CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
                                  &HydroMethod, &Mu, MetalPointer, &IndividualStarType,
-                                 &NumberOfNewParticles, tg->ParticlePosition[0], tg->ParticlePosition[1],
-                                 tg->ParticlePosition[2], tg->ParticleVelocity[0], tg->ParticleVelocity[1],
-                                 tg->ParticleVelocity[2], tg->ParticleMass, tg->ParticleAttribute[1],
-                                 tg->ParticleAttribute[0], tg->ParticleAttribute[2], tg->ParticleType,
-                                 pcell_index) == FAIL){
+                                 &NumberOfNewParticles, tg->ParticleMass, tg->ParticleType,
+                                 tg->ParticlePosition, tg->ParticleVelocity, tg->ParticleAttribute) == FAIL){
           ENZO_FAIL("Error in individual_star_maker.\n");
-        } // check work
+        } // end call to function 
 
-        // might be able to handle metal tagging here... rather than
-        // have to pass alll metal fields to the above function, have above save indeces
-        // for each star in an array, loop over newly formed particles and indeces and tag them here
-        // can even just to the 1D index... way better than having to pass many fields.
+      } // check refinement level
 
-        /* Check to see if we've made stars, if we have, do the chemical tagging */
-        if(NumberOfNewParticles > NumberOfNewParticlesSoFar && TestProblemData.MultiMetals >=2){
-          int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
-          if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
-                                                 FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
-          ENZO_FAIL("Failure in Identifying Chemical tracer species fields.");
-          }
-
-/* AJE TO DO : DO NOT HARD CODE THE PARTICLE ATTRIBUTE NUMBERS... NEED TO LOOK THEM UP FROM FUNCTION */
-/* Actually, maybe hard coding is O.K......... */
-          for (int starnum = NumberOfNewParticlesSoFar; starnum < NumberOfNewParticles; starnum++){
-            if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-              tg->ParticleAttribute[ 4][starnum] = BaryonField[ CINum][pcell_index[starnum]];
-              tg->ParticleAttribute[ 5][starnum] = BaryonField[ NINum][pcell_index[starnum]];
-              tg->ParticleAttribute[ 6][starnum] = BaryonField[ OINum][pcell_index[starnum]];
-              tg->ParticleAttribute[ 7][starnum] = BaryonField[MgINum][pcell_index[starnum]];
-              tg->ParticleAttribute[ 8][starnum] = BaryonField[SiINum][pcell_index[starnum]];
-              tg->ParticleAttribute[ 9][starnum] = BaryonField[FeINum][pcell_index[starnum]];
-            }
-            if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-              tg->ParticleAttribute[10][starnum] = BaryonField[ YINum][pcell_index[starnum]];
-              tg->ParticleAttribute[11][starnum] = BaryonField[BaINum][pcell_index[starnum]];
-              tg->ParticleAttribute[12][starnum] = BaryonField[LaINum][pcell_index[starnum]];
-            }
-            if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-              tg->ParticleAttribute[13][starnum] = BaryonField[EuINum][pcell_index[starnum]];
-            }
-
-          }// loop over particles
-          
-        } // if make new, assign chemical tages
-        delete [] pcell_index;
-      } // if max ref
-
-
-    } // INDIVIDUAL_STAR
+    } // END INDIVIDUAL_STAR
 
     if (STARMAKE_METHOD(SINGLE_SUPERNOVA)) {
 

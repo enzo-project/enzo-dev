@@ -2186,7 +2186,17 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                      float GasDensity,
                                      float GasTemperature);
 
-  /* AJE FEEDBACK */
+  /* AJE Individual star formation and feedback */
+  int individual_star_maker(   int *nx, int *ny, int *nz, int *size,
+                               float *dm, float *temp, float *dt, float *dx,
+                               FLOAT *t, int *procnum, float *d1,
+                               float *x1, float *v1, float *t1, int *nmax,
+                               FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
+                               int *ibuff, int *imethod, float *mu, float *metal,
+                               int *ctype, int *np, float *ParticleMass,
+                               int *ParticleType, FLOAT *ParticlePosition[],
+                               float *ParticleVelocity[], float *ParticleAttribute[]);
+
   int individual_star_feedback(int *nx, int *ny, int *nz,
                                float *dx, FLOAT *current_time,
                                float *d1, float *x1, float *v1, float *t1,

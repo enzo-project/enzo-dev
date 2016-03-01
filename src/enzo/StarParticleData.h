@@ -142,7 +142,7 @@ SPEXTERN float IndividualStarKroupaAlpha3;
 SPEXTERN float IndividualStarMassFraction;
 SPEXTERN float IndividualStarTypeIIMassCutoff;
 SPEXTERN float IndividualStarPSNMassCutoff;
-SPEXTERN float IndividualStarRadiationMassCutoff;
+SPEXTERN float IndividualStarRadiationMinimumMass;
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;

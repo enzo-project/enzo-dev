@@ -1,3 +1,20 @@
+/****************************************************************************
+/
+/ STAR FORMATION AND FEEDBACK ALGORITHMS FOR INDIVIDUAL STARS
+/
+/ written by: Andrew Emerick
+/ date:       February, 2016
+/ modified1:
+/
+/ Controls star formation for individual stars as sampled from an IMF. Stars
+/ are formed stochastically following an adaptation of Goldbaum et. al. 2015
+/ as in star_maker_ssn.F
+/ First use case of these particles is to tie to galaxy scale chemodynamics.
+/ Particle creation tags these stars with local chemical abundances and feedback
+/ is tied to yield tables to deposit elements in the ISM.
+*****************************************************************************/
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -19,26 +36,22 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, double *MassUnits, FLOAT Time);
-
 float SampleIMF(void);
-
 float GaussianRandomVariable(void);
-
 float compute_lifetime(float *mp);
-
 unsigned_long_int mt_random(void);
 
-int individual_star_maker(int *nx, int *ny, int *nz, int *size,
-                          float *d, float *dm, float *temp, float *u,
-                          float *v, float *w,  float *dt,
-                          float *dx, FLOAT *t, float *z, int *procnum,
-                          float *d1, float *x1, float *v1, float *t1,
-                          int *nmax, FLOAT *xstart, FLOAT *ystart,
-                          FLOAT *zstart, int *ibuff, int *imethod,
-                          float *mu, float *metal, int *ctype,
-                          int *np, FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up,
-                          float *vp, float *wp, float *mp, float *tdp, float *tcp,
-                          float *metalf, int *type, int *pindex){
+
+int grid::individual_star_maker(int *nx, int *ny, int *nz, int *size,
+                                float *dm, float *temp, float *dt,
+                                float *dx, FLOAT *t, int *procnum,
+                                float *d1, float *x1, float *v1, float *t1,
+                                int *nmax, FLOAT *xstart, FLOAT *ystart,
+                                FLOAT *zstart, int *ibuff, int *imethod,
+                                float *mu, float *metal, int *ctype,
+                                int *np, float *ParticleMass,
+                                int *ParticleType, FLOAT *ParticlePosition[],
+                                float *ParticleVelocity[], float *ParticleAttribute[]){
 
   const double msolar = 1.989e33;
   const double sndspdC = 1.3095e8;
@@ -63,6 +76,27 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
     return FAIL;
   }
 
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
+
+  int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
+
+  this->DebugCheck("StarParticleHandler");
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+  }
+
+  if(TestProblemData.MultiMetals >= 2){
+    if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
+                                           FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
+      ENZO_FAIL("Failure in identifying chemical tracer species fields.");
+    }
+  }
+
+  // Particle attributes hard coded for chemical tagging numbers. This is NOT IDEAL
+  // AJE : TO DO is to address this issue with a lookup method like the above for baryon fields
+  //       this may necessitate adding a new ParticleAttribute like array to stars specifically
+  //       for chemical tagging
 
     // 3D -> 1D index
     xo = 1;
@@ -81,7 +115,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
         for (i = *ibuff; i < *nx - *ibuff; i++){
           index = i + (j + k * (*ny)) * (*nx);
 
-          bmass = (d[index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
+          bmass = (BaryonField[DensNum][index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
 
           // perform the following easy checks for SF before proceeding
           // 1) Is density greater than the density threshold?
@@ -92,7 +126,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
           //    (i.e. baryon mass likely always going to be > ~10 solar masses)
 
           sum_mass = 0.0; index_presf = ii;
-          if ( d[index]      > odthreshold
+          if (   BaryonField[DensNum][index]      > odthreshold
               && temp[index] <= min_temp
               && IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
               && 0.5*bmass > IndividualStarIMFUpperMassCutoff){
@@ -100,10 +134,10 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
             // star formation may be possible
             // compute values and check jeans mass unstable
-            dtot = ( d[index] + dm[index] ) * (*d1);                 // total density
-            tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (*t1); // in code units
+            dtot = ( BaryonField[DensNum][index] + dm[index] ) * (*d1);         // total density
+            tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (*t1);            // in code units
             isosndsp2 = sndspdC * temp[index] ;
-            jeansmass = pi / (6.0 * sqrt(d[index]*(*d1)) *
+            jeansmass = pi / (6.0 * sqrt(BaryonField[DensNum][index]*(*d1)) *
                             POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
 
             if (jeansmass <= bmass){
@@ -124,10 +158,9 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               if(mass_to_stars >= mass_available){
                 mass_to_stars = mass_available;
                 while( ii < *nmax && mass_to_stars > IndividualStarIMFUpperMassCutoff){
-                  mp[ii]          = SampleIMF();
-                  metalf[ii]      = metal[ii];
-                  sum_mass       += mp[ii];     // counter for mass formed in this cell
-                  mass_to_stars  -= mp[ii];     // reduce available mass
+                  ParticleMass[ii] = SampleIMF();
+                  sum_mass        += ParticleMass[ii]; // counter for mass formed in this cell
+                  mass_to_stars   -= ParticleMass[ii]; // reduce available mass
                   ii++;
                 }
               }
@@ -135,24 +168,20 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               // Tests (as of 2/22/16) show NO SF here for at least the first 10^5 stars
               if (mass_to_stars > IndividualStarIMFUpperMassCutoff){
                 while (ii < *nmax && mass_to_stars > IndividualStarIMFUpperMassCutoff){
-                  mp[ii]         = SampleIMF();
-                  metalf[ii]     = metal[ii];
-                  sum_mass      += mp[ii];
-                  mass_to_stars -= mp[ii];
+                  ParticleMass[ii]  = SampleIMF();
+                  sum_mass         += ParticleMass[ii];
+                  mass_to_stars    -= ParticleMass[ii];
                   ii++;
                 }
               }
-
-
 
               // If mass is above IMF lower limit, star formation will happen.
               // Just form stars randomly over IMF until mass dips below lower cutoff
               if(mass_to_stars > IndividualStarIMFLowerMassCutoff){
                 while( ii < *nmax && mass_to_stars > IndividualStarIMFLowerMassCutoff){
-                  mp[ii]         = SampleIMF();
-                  metalf[ii]     = metal[ii];
-                  sum_mass      += mp[ii];
-                  mass_to_stars -= mp[ii];
+                  ParticleMass[ii]  = SampleIMF();
+                  sum_mass         += ParticleMass[ii];
+                  mass_to_stars    -= ParticleMass[ii];
                   ii++;
 
                   if (mass_to_stars < 0.0){
@@ -168,9 +197,8 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                 pstar     = mass_to_stars / star_mass;
                 rnum =  (float) (random() % max_random) / (float) (max_random);
                 if (rnum < pstar){
-                  metalf[ii] = -5.0;
-                  mp[ii] = star_mass;
-                  sum_mass += mp[ii];
+                  ParticleMass[ii]  = star_mass;
+                  sum_mass         += ParticleMass[ii];
                   ii++;
                 }
               }
@@ -181,71 +209,71 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               // copied from pop3_maker.F
               if (*imethod == 2){
                 umean = (
-                       0.5 * (u[index   ] + u[index+xo])*d[index] +
-                       0.5 * (u[index-xo] + u[index   ])*d[index-xo] +
-                       0.5 * (u[index+xo] + u[index + xo + xo])*d[index+xo] +
-                       0.5 * (u[index+yo] + u[index + xo + yo])*d[index+yo] +
-                       0.5 * (u[index-yo] + u[index + xo - yo])*d[index-yo] +
-                       0.5 * (u[index+zo] + u[index + xo + zo])*d[index+zo] +
-                       0.5 * (u[index-zo] + u[index + xo - zo])*d[index-zo]) /
-                      ( d[index] + d[index-xo] + d[index+xo] +
-                        d[index-yo] + d[index+yo] +
-                        d[index-zo] + d[index+zo] ); //
+                       0.5 * (BaryonField[Vel1Num][index   ] + BaryonField[Vel1Num][index+xo])*BaryonField[DensNum][index] +
+                       0.5 * (BaryonField[Vel1Num][index-xo] + BaryonField[Vel1Num][index   ])*BaryonField[DensNum][index-xo] +
+                       0.5 * (BaryonField[Vel1Num][index+xo] + BaryonField[Vel1Num][index + xo + xo])*BaryonField[DensNum][index+xo] +
+                       0.5 * (BaryonField[Vel1Num][index+yo] + BaryonField[Vel1Num][index + xo + yo])*BaryonField[DensNum][index+yo] +
+                       0.5 * (BaryonField[Vel1Num][index-yo] + BaryonField[Vel1Num][index + xo - yo])*BaryonField[DensNum][index-yo] +
+                       0.5 * (BaryonField[Vel1Num][index+zo] + BaryonField[Vel1Num][index + xo + zo])*BaryonField[DensNum][index+zo] +
+                       0.5 * (BaryonField[Vel1Num][index-zo] + BaryonField[Vel1Num][index + xo - zo])*BaryonField[DensNum][index-zo]) /
+                      ( BaryonField[DensNum][index] + BaryonField[DensNum][index-xo] + BaryonField[DensNum][index+xo] +
+                        BaryonField[DensNum][index-yo] + BaryonField[DensNum][index+yo] +
+                        BaryonField[DensNum][index-zo] + BaryonField[DensNum][index+zo] ); //
                 vmean = (
-                         0.5 * (v[index   ] + v[index+xo])*d[index] +
-                         0.5 * (v[index-xo] + v[index   ])*d[index-xo] +
-                         0.5 * (v[index+xo] + v[index + xo + xo])*d[index+xo] +
-                         0.5 * (v[index+yo] + v[index + xo + yo])*d[index+yo] +
-                         0.5 * (v[index-yo] + v[index + xo - yo])*d[index-yo] +
-                         0.5 * (v[index+zo] + v[index + xo + zo])*d[index+zo] +
-                         0.5 * (v[index-zo] + v[index + xo - zo])*d[index-zo]) /
-                        ( d[index] + d[index-xo] + d[index+xo] +
-                         d[index-yo] + d[index+yo] +
-                          d[index-zo] + d[index+zo] ); // 
+                         0.5 * (BaryonField[Vel2Num][index   ] + BaryonField[Vel2Num][index+xo])*BaryonField[DensNum][index] +
+                         0.5 * (BaryonField[Vel2Num][index-xo] + BaryonField[Vel2Num][index   ])*BaryonField[DensNum][index-xo] +
+                         0.5 * (BaryonField[Vel2Num][index+xo] + BaryonField[Vel2Num][index + xo + xo])*BaryonField[DensNum][index+xo] +
+                         0.5 * (BaryonField[Vel2Num][index+yo] + BaryonField[Vel2Num][index + xo + yo])*BaryonField[DensNum][index+yo] +
+                         0.5 * (BaryonField[Vel2Num][index-yo] + BaryonField[Vel2Num][index + xo - yo])*BaryonField[DensNum][index-yo] +
+                         0.5 * (BaryonField[Vel2Num][index+zo] + BaryonField[Vel2Num][index + xo + zo])*BaryonField[DensNum][index+zo] +
+                         0.5 * (BaryonField[Vel2Num][index-zo] + BaryonField[Vel2Num][index + xo - zo])*BaryonField[DensNum][index-zo]) /
+                        ( BaryonField[DensNum][index] + BaryonField[DensNum][index-xo] + BaryonField[DensNum][index+xo] +
+                         BaryonField[DensNum][index-yo] + BaryonField[DensNum][index+yo] +
+                          BaryonField[DensNum][index-zo] + BaryonField[DensNum][index+zo] ); // 
                 wmean = (
-                         0.5 * (w[index   ] + w[index+xo])*d[index] +
-                         0.5 * (w[index-xo] + w[index   ])*d[index-xo] +
-                         0.5 * (w[index+xo] + w[index + xo + xo])*d[index+xo] +
-                         0.5 * (w[index+yo] + w[index + xo + yo])*d[index+yo] +
-                         0.5 * (w[index-yo] + w[index + xo - yo])*d[index-yo] +
-                         0.5 * (w[index+zo] + w[index + xo + zo])*d[index+zo] +
-                         0.5 * (w[index-zo] + w[index + xo - zo])*d[index-zo]) /
-                        ( d[index] + d[index-xo] + d[index+xo] +
-                          d[index-yo] + d[index+yo] +
-                          d[index-zo] + d[index+zo] ); // 
+                         0.5 * (BaryonField[Vel3Num][index   ] + BaryonField[Vel3Num][index+xo])*BaryonField[DensNum][index] +
+                         0.5 * (BaryonField[Vel3Num][index-xo] + BaryonField[Vel3Num][index   ])*BaryonField[DensNum][index-xo] +
+                         0.5 * (BaryonField[Vel3Num][index+xo] + BaryonField[Vel3Num][index + xo + xo])*BaryonField[DensNum][index+xo] +
+                         0.5 * (BaryonField[Vel3Num][index+yo] + BaryonField[Vel3Num][index + xo + yo])*BaryonField[DensNum][index+yo] +
+                         0.5 * (BaryonField[Vel3Num][index-yo] + BaryonField[Vel3Num][index + xo - yo])*BaryonField[DensNum][index-yo] +
+                         0.5 * (BaryonField[Vel3Num][index+zo] + BaryonField[Vel3Num][index + xo + zo])*BaryonField[DensNum][index+zo] +
+                         0.5 * (BaryonField[Vel3Num][index-zo] + BaryonField[Vel3Num][index + xo - zo])*BaryonField[DensNum][index-zo]) /
+                        ( BaryonField[DensNum][index] + BaryonField[DensNum][index-xo] + BaryonField[DensNum][index+xo] +
+                          BaryonField[DensNum][index-yo] + BaryonField[DensNum][index+yo] +
+                          BaryonField[DensNum][index-zo] + BaryonField[DensNum][index+zo] ); // 
               }
               else{ // PPM case
-                umean = (u[index]*d[index] +
-                              u[index-xo]*d[index-xo] +
-                              u[index+xo]*d[index+xo] +
-                              u[index-yo]*d[index-yo] +
-                              u[index+yo]*d[index+yo] +
-                              u[index+zo]*d[index+zo] +
-                              u[index-zo]*d[index-zo] ) /
-                              (d[index] + d[index-xo] + d[index+xo] +
-                               d[index-yo] + d[index+yo] +
-                               d[index-zo] + d[index+zo]);
-                vmean = (v[index]*d[index] +
-                              v[index-xo]*d[index-xo] +
-                              v[index+xo]*d[index+xo] +
-                              v[index-yo]*d[index-yo] +
-                              v[index+yo]*d[index+yo] +
-                              v[index+zo]*d[index+zo] +
-                              v[index-zo]*d[index-zo] ) /
-                              (d[index] + d[index-xo] + d[index+xo] +
-                               d[index-yo] + d[index+yo] +
-                               d[index-zo] + d[index+zo]);
+                umean = (BaryonField[Vel1Num][index]*BaryonField[DensNum][index] +
+                              BaryonField[Vel1Num][index-xo]*BaryonField[DensNum][index-xo] +
+                              BaryonField[Vel1Num][index+xo]*BaryonField[DensNum][index+xo] +
+                              BaryonField[Vel1Num][index-yo]*BaryonField[DensNum][index-yo] +
+                              BaryonField[Vel1Num][index+yo]*BaryonField[DensNum][index+yo] +
+                              BaryonField[Vel1Num][index+zo]*BaryonField[DensNum][index+zo] +
+                              BaryonField[Vel1Num][index-zo]*BaryonField[DensNum][index-zo] ) /
+                              (BaryonField[DensNum][index] + BaryonField[DensNum][index-xo] + BaryonField[DensNum][index+xo] +
+                               BaryonField[DensNum][index-yo] + BaryonField[DensNum][index+yo] +
+                               BaryonField[DensNum][index-zo] + BaryonField[DensNum][index+zo]);
+                vmean = (BaryonField[Vel2Num][index]*BaryonField[DensNum][index] +
+                              BaryonField[Vel2Num][index-xo]*BaryonField[DensNum][index-xo] +
+                              BaryonField[Vel2Num][index+xo]*BaryonField[DensNum][index+xo] +
+                              BaryonField[Vel2Num][index-yo]*BaryonField[DensNum][index-yo] +
+                              BaryonField[Vel2Num][index+yo]*BaryonField[DensNum][index+yo] +
+                              BaryonField[Vel2Num][index+zo]*BaryonField[DensNum][index+zo] +
+                              BaryonField[Vel2Num][index-zo]*BaryonField[DensNum][index-zo] ) /
+                              (BaryonField[DensNum][index] + BaryonField[DensNum][index-xo] + BaryonField[DensNum][index+xo] +
+                               BaryonField[DensNum][index-yo] + BaryonField[DensNum][index+yo] +
+                               BaryonField[DensNum][index-zo] + BaryonField[DensNum][index+zo]);
 
-                wmean = (w[index]*d[index] +
-                              w[index-xo]*d[index-xo] +
-                              w[index+xo]*d[index+xo] +
-                              w[index-yo]*d[index-yo] +
-                              w[index+yo]*d[index+yo] +
-                              w[index+zo]*d[index+zo] +
-                              w[index-zo]*d[index-zo] ) /
-                              (d[index] + d[index-xo] + d[index+xo] +
-                               d[index-yo] + d[index+yo] +
-                               d[index-zo] + d[index+zo]);
+                wmean = (BaryonField[Vel3Num][index]*BaryonField[DensNum][index] +
+                              BaryonField[Vel3Num][index-xo]*BaryonField[DensNum][index-xo] +
+                              BaryonField[Vel3Num][index+xo]*BaryonField[DensNum][index+xo] +
+                              BaryonField[Vel3Num][index-yo]*BaryonField[DensNum][index-yo] +
+                              BaryonField[Vel3Num][index+yo]*BaryonField[DensNum][index+yo] +
+                              BaryonField[Vel3Num][index+zo]*BaryonField[DensNum][index+zo] +
+                              BaryonField[Vel3Num][index-zo]*BaryonField[DensNum][index-zo] ) /
+                              (BaryonField[DensNum][index] + BaryonField[DensNum][index-xo] + BaryonField[DensNum][index+xo] +
+                               BaryonField[DensNum][index-yo] + BaryonField[DensNum][index+yo] +
+                               BaryonField[DensNum][index-zo] + BaryonField[DensNum][index+zo]);
               } // imethod velocity computation
 
 
@@ -253,55 +281,62 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               px = 0.0; py = 0.0; pz =0.0; // initialize momentum counters
               for (istar = index_presf; istar < ii; istar++){
 
-                type[istar]   = -(*ctype);   // negative is a "new" star
-                tcp[istar]    = *t;          // formation tim
-                pindex[istar] = index;       // hack for chemistry - TO DO is deal with this w/o hack
-                tdp[istar] = compute_lifetime( &mp[istar] ) / (*t1); // lifetime
-                mp[istar]  = mp[istar] * msolar / m1;                // mass
+                ParticleType[istar]            = -(*ctype);   // negative is a "new" star
+                ParticleAttribute[0][istar]    = *t;          // formation tim
+                ParticleAttribute[1][istar]    = compute_lifetime( &ParticleMass[istar] ) / (*t1); // lifetime
+                ParticleMass[istar]            = ParticleMass[istar] * msolar / m1;                // mass
 
-                // give the star particle a position chosen at random over
-                // the grid cell size .... random() function different
-                // than mt_random to keep repeatability of IMF draws
+                // give the star particle a position chosen at random
+                // within the cell ( so they are not all at cell center )
 
                 rnum =  (float) (random() % max_random) / (float) (max_random);
-                xp[istar] = (*dx) * rnum + *xstart + ((float) i + 0.5)*(*dx);
+                ParticlePosition[0][istar] = (*dx) * rnum + *xstart + ((float) i + 0.5)*(*dx);
                 rnum =  (float) (random() % max_random) / (float) (max_random);
-                yp[istar] = (*dx) * rnum + *ystart + ((float) j + 0.5)*(*dx);
+                ParticlePosition[1][istar] = (*dx) * rnum + *ystart + ((float) j + 0.5)*(*dx);
                 rnum =  (float) (random() % max_random) / (float) (max_random);
-                zp[istar] = (*dx) * rnum + *zstart + ((float) k + 0.5)*(*dx);
+                ParticlePosition[2][istar] = (*dx) * rnum + *zstart + ((float) k + 0.5)*(*dx);
 
                 // assume velocity dispersion is isotropic in each velocity component. Multiply disp by
                 // sqrt(1/3) to get disp in each component... taking above velocities as the mean
                 rnum  =  (float) (random() % max_random) / (float) (max_random);
                 rsign = rnum>0.5 ? 1:-1;
-                up[istar] = umean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(*t1)/(*x1);
+                ParticleVelocity[0][istar] = umean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(*t1)/(*x1);
 
                 rnum  =  (float) (random() % max_random) / (float) (max_random);
                 rsign = rnum>0.5 ? 1:-1;
-                vp[istar] = vmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0e5*(*t1)/(*x1);
+                ParticleVelocity[1][istar] = vmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0e5*(*t1)/(*x1);
 
                 rnum  =  (float) (random() % max_random) / (float) (max_random);
                 rsign = rnum>0.5 ? 1:-1;
-                wp[istar] = wmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(*t1)/(*x1);
+                ParticleVelocity[2][istar] = wmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(*t1)/(*x1);
 
                 // ENSURE MOMENTUM CONSERVATION!!!!!
                 // make running total of momentum in each direction
-                px += up[istar]*mp[istar];
-                py += vp[istar]*mp[istar];
-                pz += wp[istar]*mp[istar];
+                px += ParticleVelocity[0][istar]*ParticleMass[istar];
+                py += ParticleVelocity[1][istar]*ParticleMass[istar];
+                pz += ParticleVelocity[2][istar]*ParticleMass[istar];
 
                 // this is where code would go to assign
-                // chemical tags to all of the particles 
+                // chemical tags to all of the particles
                 // depending on whether or not multimetals is ON
-//                if (TestProblemData.UseMetallicityField == 1){
-//                  metalf[istar] = metal[index];
-                  // if statements here for tagging with individual metal fields
-                  // will go here
-//                } else{
-//                  metalf[istar] = 0.0;
-//                }
-
-
+                if(TestProblemData.MultiMetals >= 2){
+                  if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+                    ParticleAttribute[ 4][istar] = BaryonField[ CINum][index];
+                    ParticleAttribute[ 5][istar] = BaryonField[ NINum][index];
+                    ParticleAttribute[ 6][istar] = BaryonField[ OINum][index];
+                    ParticleAttribute[ 7][istar] = BaryonField[MgINum][index];
+                    ParticleAttribute[ 8][istar] = BaryonField[SiINum][index];
+                    ParticleAttribute[ 9][istar] = BaryonField[FeINum][index];
+                  }
+                  if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+                    ParticleAttribute[10][istar] = BaryonField[ YINum][index];
+                    ParticleAttribute[11][istar] = BaryonField[BaINum][index];
+                    ParticleAttribute[12][istar] = BaryonField[LaINum][index];
+                  }
+                  if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+                    ParticleAttribute[13][istar] = BaryonField[EuINum][index];
+                  }
+                } // end multi metals
 
               } // end while loop for assigning particle properties
               // ---------------------------------------------------
@@ -321,22 +356,22 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               // remove or add momentum evenly from each star if needed
               if ( abs(px_excess) > tiny_number) {
                 for (istar = index_presf; istar < ii; istar++){
-                  up[istar] += (-1.0 * px_excess) / (mp[istar] * (float) (ii-index_presf));
+                  ParticleVelocity[0][istar] += (-1.0 * px_excess) / (ParticleMass[istar] * (float) (ii-index_presf));
                 }
               }
               if ( abs(py_excess) > tiny_number){
                 for (istar = index_presf; istar < ii; istar++){
-                  vp[istar] = (-1.0 * py_excess) / (mp[istar] * (float) (ii-index_presf));
+                  ParticleVelocity[1][istar] = (-1.0 * py_excess) / (ParticleMass[istar] * (float) (ii-index_presf));
                 }
               }
               if ( abs(pz_excess) > tiny_number){
                 for (istar = index_presf; istar < ii; istar++){
-                  wp[istar] = (-1.0 * pz_excess) / (mp[istar] * (float) (ii-index_presf));
+                  ParticleVelocity[2][istar] = (-1.0 * pz_excess) / (ParticleMass[istar] * (float) (ii-index_presf));
                 }
               }
 
               // now remove mass from grid
-              d[index] = (bmass*msolar/m1 - sum_mass) / ((*dx)*(*dx)*(*dx)) ;
+              BaryonField[DensNum][index] = (bmass*msolar/m1 - sum_mass) / ((*dx)*(*dx)*(*dx)) ;
 
             } // if jeans mass unstable
           } // resolution and density
@@ -357,7 +392,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
   // star masses are recorded as densities (mass / cell volume)
   for (int counter = 0; counter < ii; counter++){
-    mp[counter] = mp[counter] / ((*dx)*(*dx)*(*dx)); // code units / cell volume
+    ParticleMass[counter] = ParticleMass[counter] / ((*dx)*(*dx)*(*dx)); // code units / cell volume
   }
 
   *np = ii - 1; // number of stars formed : AJE 2/29 check if this is a bug with the -1
@@ -527,7 +562,6 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
         energy   = ParticleMass[i] * StarEnergyToThermalFeedback * 
                    (speed_of_light*speed_of_light/((*v1)*(*v1))) / ((float) StarFeedbackDistTotalCells);
 
-//        energy   = IndividualStarTypeIIEnergy / e1 / ( (float) StarFeedbackDistTotalCells);
         // add energy to surroundings
         for(int kc = kp - StarFeedbackDistRadius; kc <= kp + StarFeedbackDistRadius; kc++){
           int stepk = abs(kc - kp);
