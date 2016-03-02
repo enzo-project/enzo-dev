@@ -463,7 +463,7 @@ float GaussianRandomVariable(void){
 }
 
 int grid::individual_star_feedback(int *nx, int *ny, int *nz,
-                                   float *dx,
+                                   float *dx, float *dt,
                                    FLOAT *current_time, float *d1, float *x1,
                                    float *v1, float *t1, FLOAT *xstart, FLOAT *ystart,
                                    FLOAT *zstart, int *ibuff, int *np,
@@ -507,6 +507,10 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
   int ip, jp, kp, index; // particle location
 
+  bool do_stellar_winds, go_supernova;
+  float stellar_wind_time_fraction;
+
+
   printf("IF Feedback about to loop over particles %"ISYM"\n",(*np));
 
   // loop over all star particles
@@ -543,24 +547,47 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
     particle_age = abs( (*current_time) - ParticleAttribute[0][i] );
     lifetime     = compute_lifetime( &mp ) / (*t1);
 
-    // if true, do stellar winds
-//    if(abs(*current_time / lifetime) < 1.0){
-      // do stellar winds and radiation here
-//    }
+    do_stellar_winds           = false;
+    go_supernova               = false;
+    stellar_wind_time_fraction = 0.0;
+    if( particle_age + *dt < lifetime && IndividualStarStellarWinds) {
+      do_stellar_winds           = true;
+      stellar_wind_time_fraction = 1.0; // winds for whole time step
+    } else if (particle_age < lifetime && IndividualStarStellarWinds){ // do winds AND explosion
+      do_stellar_winds = true;
+      stellar_wind_time_fraction = (lifetime - particle_age) / (*dt);
+      go_supernova = true;
+    } else if ( mp >= IndividualStarTypeIIMassCutoff ){
+      go_supernova = true;
+    } else {                 // star is at end of life AND not massive enough for supernova
+      ParticleMass[i] = 0.0; // do nothing
+    }
 
-    if( particle_age > lifetime ){
 
-      if(mp < IndividualStarTypeIIMassCutoff){
+    distmass = 0.0; energy = 0.0;
+    if(do_stellar_winds || go_supernova){
 
-        ParticleMass[i] = 0.0; // delete star and do nothing
+        // AJE 3/2/16
+        // Stellar winds do nothing at the moment
+        if(do_stellar_winds){ // isotropic winds
+          float mdot; // something for mass loss rate
+          float edot;
+          edot = 0.0; mdot = 0.0;
 
-      } else if (IndividualStarTypeIIMassCutoff <= mp &&
-                 mp < IndividualStarPSNMassCutoff){
+          distmass += mdot * (*dt); // need to interpolate and integrate
+          energy   += edot * (*dt);
 
-        // mass and energy to distribute over local cells
-        distmass = StarMassEjectionFraction * ParticleMass[i] / ((float) StarFeedbackDistTotalCells);
-        energy   = ParticleMass[i] * StarEnergyToThermalFeedback * 
-                   (speed_of_light*speed_of_light/((*v1)*(*v1))) / ((float) StarFeedbackDistTotalCells);
+          ParticleMass[i] -= distmass/((*dx)*(*dx)*(*dx)); // remove mass from particle (UNITS)
+        }
+
+        if(go_supernova){
+          // mass and energy to distribute over local cells
+          distmass += StarMassEjectionFraction * ParticleMass[i] / ((float) StarFeedbackDistTotalCells);
+          energy   += ParticleMass[i] * StarEnergyToThermalFeedback * 
+                       (speed_of_light*speed_of_light/((*v1)*(*v1))) / ((float) StarFeedbackDistTotalCells);
+
+          ParticleMass[i] = 0.0;
+        }
 
         // add energy to surroundings
         for(int kc = kp - StarFeedbackDistRadius; kc <= kp + StarFeedbackDistRadius; kc++){
@@ -574,8 +601,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
               if (cellstep <= StarFeedbackDistCellStep){ // not sure
                 dratio    = 1.0 / (BaryonField[DensNum][index] + distmass);
-                
-// add CR here:
+
                 if( CRModel ){
                   BaryonField[TENum][index] =
                      (BaryonField[TENum][index]*BaryonField[DensNum][index] +
@@ -640,13 +666,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
           } // j dist
         }// k dist
 
-
-        // particle is now dead
-      } // end if Type II SN
-
-      // kill particle
-      ParticleMass[i] = 0.0;
-    } // end end of life feedback
+    } // if do feedback
 
 
   } // loop over particles

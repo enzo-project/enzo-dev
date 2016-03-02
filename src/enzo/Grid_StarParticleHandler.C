@@ -1942,7 +1942,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
     printf("Startinf feedback for individual star\n");
     if(individual_star_feedback(GridDimension, GridDimension+1, GridDimension+2,
-                                &CellWidthTemp,
+                                &CellWidthTemp, &dtFixed,
                                 &Time, &DensityUnits, &LengthUnits, &VelocityUnits,
                                 &TimeUnits, CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2],
                                 &GhostZones, &NumberOfParticles, ParticleMass, ParticlePosition,

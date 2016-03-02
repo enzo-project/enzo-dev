@@ -2198,7 +2198,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                float *ParticleVelocity[], float *ParticleAttribute[]);
 
   int individual_star_feedback(int *nx, int *ny, int *nz,
-                               float *dx, FLOAT *current_time,
+                               float *dx, FLOAT *current_time, float *dt,
                                float *d1, float *x1, float *v1, float *t1,
                                FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
                                int   *ibuff, int *np, float *ParticleMass,

@@ -719,6 +719,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarTypeIIMassCutoff    = 8.0;          // Solar masses
   IndividualStarPSNMassCutoff       = 40.0;         // Solar masses
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
+  IndividualStarStellarWinds        = 0;
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
