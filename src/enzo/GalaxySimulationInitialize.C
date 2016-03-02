@@ -73,9 +73,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *DIIName      = "DII_Density";
   char *HDIName      = "HDI_Density";
 
-  char *MetalName   = "Metal_Density";
+  char *MetalName       = "Metal_Density";
   char *MetallicityName = "Metallicity";
-  char *MetalIaName = "MetalSNIa_Density";
+  char *MetalIaName     = "MetalSNIa_Density";
 
   /* Chemical Tracers */
   char *CIName  = "CI_Density";
@@ -100,7 +100,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   const double mpc    = 3.086E24;
 
   /* make sure it is 3D */
-  
+
   if (MetaData.TopGridRank != 3) {
     ENZO_VFAIL("Cannot do GalaxySimulation in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
   }
@@ -256,10 +256,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationAngularMomentum[0],
 		  &GalaxySimulationAngularMomentum[1],
 		  &GalaxySimulationAngularMomentum[2]);
-  
 
-    ret += sscanf(line, "GalaxySimulationMultiMetals = %"ISYM, &TestProblemData.MultiMetals);
-
+    ret += sscanf(line, "GalaxySimulationMultiMetals = %"ISYM, 
+                        &TestProblemData.MultiMetals);
 
     /* Initial abundances for the galaxy disk */
     ret += sscanf(line, "GalaxySimulationHydrogenFractionByMass = %"FSYM,
@@ -595,7 +594,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
  /* Chemical tracer set ups */
  if (TestProblemData.MultiMetals >= 2){
-
 
    if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
      DataLabel[count++] =  CIName;

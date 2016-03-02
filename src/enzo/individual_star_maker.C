@@ -42,16 +42,43 @@ float compute_lifetime(float *mp);
 unsigned_long_int mt_random(void);
 
 
-int grid::individual_star_maker(int *nx, int *ny, int *nz, int *size,
+int grid::individual_star_maker(int *nx, int *ny, int *nz,
                                 float *dm, float *temp, float *dt,
                                 float *dx, FLOAT *t, int *procnum,
                                 float *d1, float *x1, float *v1, float *t1,
                                 int *nmax, FLOAT *xstart, FLOAT *ystart,
-                                FLOAT *zstart, int *ibuff, int *imethod,
+                                FLOAT *zstart, int *ibuff,
                                 float *mu, float *metal, int *ctype,
                                 int *np, float *ParticleMass,
                                 int *ParticleType, FLOAT *ParticlePosition[],
                                 float *ParticleVelocity[], float *ParticleAttribute[]){
+/*-----------------------------------------------------------------------------
+  INPUTS:
+    nx, ny, nz  - dimensions of field arrays
+    dm          - dark matter density field (computed in Grid_StarParticleHandler)
+    temp        - temperature field (computed in Grid_StarParticleHandler)
+    dt          - current timestep (code units)
+    dx          - zone size (code units)
+    t           - current time (code units)
+    procnum     - Processor number for output information
+    d1,x1,v1,t1 - conversion factors from code units to cgs
+    nmax        - Maximum allowed number of stars that can form on a single grid
+    x/y/z start - starting position of grid origin (first index)
+    ibuff       - ghost zone buffer size
+    mu          - global Mean Molecular weight of gas
+    metal       - metallicity field
+    ctype       - number for desired particle type assignment
+
+  OUTPUTS: SUCCESS or FAIL
+    Creates star particle and updates all particle arrays
+    modifies baryon fields during star formation
+    np - number of particles created
+    ParticleMass - particle masses on grid
+    ParticleType - particle types on grid
+    ParticlePosition - particle positions on grid
+    ParticleVelocity - particle velocities
+    ParticleAttribute - particle attributes
+-----------------------------------------------------------------------------*/
 
   const double msolar = 1.989e33;
   const double sndspdC = 1.3095e8;
@@ -207,7 +234,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz, int *size,
               // gas velocity properties (this is for velocity assignment)
               // 2 = Zeus .. otherwise PPM
               // copied from pop3_maker.F
-              if (*imethod == 2){
+              if (HydroMethod == 2){
                 umean = (
                        0.5 * (BaryonField[Vel1Num][index   ] + BaryonField[Vel1Num][index+xo])*BaryonField[DensNum][index] +
                        0.5 * (BaryonField[Vel1Num][index-xo] + BaryonField[Vel1Num][index   ])*BaryonField[DensNum][index-xo] +
@@ -400,7 +427,19 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz, int *size,
   return SUCCESS;
 }
 
+/*-----------------------------------------------------------------------------
+  SampleIMF
 
+  Samples the tabulated initial mass function a la cumulative probablity density
+  as created in StarParticleIndividual_IMFInitialize.
+
+  INPUTS -
+    None
+
+  OUTPUTS -
+    Mass of randomly selected star in solar masses
+
+-----------------------------------------------------------------------------*/
 float SampleIMF(void){
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
@@ -438,6 +477,12 @@ float SampleIMF(void){
   return m;
 }
 
+/*-----------------------------------------------------------------------------
+ GaussianRandomVariable
+
+ Returns a random variable selected over a Gaussian distribution with mean
+ of zero and varince of unity using the Box-Muller transform
+-----------------------------------------------------------------------------*/
 float GaussianRandomVariable(void){
  // returns gaussian random variable y1
 
@@ -459,7 +504,6 @@ float GaussianRandomVariable(void){
   y2 = x2 * w;
 
   return y1;
-
 }
 
 int grid::individual_star_feedback(int *nx, int *ny, int *nz,
@@ -469,6 +513,26 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                                    FLOAT *zstart, int *ibuff, int *np,
                                    float *ParticleMass, FLOAT *ParticlePosition[],
                                    float *ParticleVelocity[], float *ParticleAttribute[]){
+/*-----------------------------------------------------------------------------
+  Handles the feedback for the indivual stars formed. This includes mechanical
+  feedback from stellar winds, supernovae, and (if enabled) chemical yield 
+  deposition.
+
+  INPUTS
+    nx, ny, nz   - size of grid in each dimension
+    dx           - current grid size (code units)
+    dt           - current timestep  (code units)
+    current_time - time (code units)
+    d1,x1,v1,t1  - conversion between code units and cgs
+    x/y/z start  - start position of grid in each dimension
+    ibuff        - size of ghost zones in each dimension
+    np           - number of particles to loop over
+    ParticleMass -
+    ParticlePosition -
+    ParticleVelocity -
+    ParticleAttribute -
+-----------------------------------------------------------------------------*/
+
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
 
@@ -509,9 +573,6 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
   bool do_stellar_winds, go_supernova;
   float stellar_wind_time_fraction;
-
-
-  printf("IF Feedback about to loop over particles %"ISYM"\n",(*np));
 
   // loop over all star particles
   for(int i = 0; i < (*np); i++){

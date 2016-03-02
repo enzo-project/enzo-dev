@@ -1047,12 +1047,12 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       if (level == MaximumRefinementLevel){
         // lets try and form stars
         if(individual_star_maker(GridDimension, GridDimension+1, GridDimension+2,
-                                 &size, dmfield, temperature,
+                                 dmfield, temperature,
                                  &dtFixed, &CellWidthTemp, &Time,
                                  &MyProcessorNumber, &DensityUnits, &LengthUnits,
                                  &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles,
                                  CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
-                                 &HydroMethod, &Mu, MetalPointer, &IndividualStarType,
+                                 &Mu, MetalPointer, &IndividualStarType,
                                  &NumberOfNewParticles, tg->ParticleMass, tg->ParticleType,
                                  tg->ParticlePosition, tg->ParticleVelocity, tg->ParticleAttribute) == FAIL){
           ENZO_FAIL("Error in individual_star_maker.\n");
