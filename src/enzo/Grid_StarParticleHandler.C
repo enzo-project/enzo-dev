@@ -1940,7 +1940,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   if (STARFEED_METHOD(INDIVIDUAL_STAR)) {
 
-    printf("Startinf feedback for individual star\n");
     if(individual_star_feedback(GridDimension, GridDimension+1, GridDimension+2,
                                 &CellWidthTemp, &dtFixed,
                                 &Time, &DensityUnits, &LengthUnits, &VelocityUnits,
@@ -1949,7 +1948,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
                                 ParticleVelocity, ParticleAttribute) == FAIL){
       ENZO_FAIL("Failure in individual star feedback\n");
     }
-    printf("Finished feedback for individual star\n");
 
   }
 
