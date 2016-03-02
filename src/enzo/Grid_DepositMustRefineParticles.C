@@ -121,7 +121,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       }
   }
 
-  if(debug)
+  if (debug1)
     printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
 	   level,NumberOfFlaggedCells);
 
