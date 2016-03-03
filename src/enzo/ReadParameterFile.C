@@ -900,6 +900,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
      ret += sscanf(line, "GalaxySimulationPreWindVelocity = %"PSYM" %"PSYM" %"PSYM,
          GalaxySimulationPreWindVelocity,GalaxySimulationPreWindVelocity+1,GalaxySimulationPreWindVelocity+2);
  
+    /* Read chemical evolution test parameters */
+    ret += sscanf(line, "ChemicalEvolutionTestStarPosition = %"PSYM" %"PSYM" %"PSYM,
+                       ChemicalEvolutionTestStarPosition, ChemicalEvolutionTestStarPosition+1, ChemicalEvolutionTestStarPosition+2);
+    ret += sscanf(line, "ChemicalEvolutionTestStarMass = %"FSYM,
+                       &ChemicalEvolutionTestStarMass);
+    ret += sscanf(line, "ChemicalEvolutionTestStarMetallicity = %"FSYM,
+                       &ChemicalEvolutionTestStarMetallicity);
+
     /* Read star particle parameters. */
 
     ret += sscanf(line, "StarMakerTypeIaSNe = %"ISYM,
@@ -1340,6 +1348,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "OneZoneFreefall")) ret++;
     if (strstr(line, "ShearingBox")) ret++;
     if (strstr(line, "PoissonSolverTest")) ret++;
+    if (strstr(line, "ChemicalEvolutionTest") && !strstr(line,"ChemicalEvolutionTestStar") ) ret++;
     /* 7.22.10 - CBH: Added 5 following lines to avoid runtime warnings from 
     extra params previously added to code (but not read_params) by others.*/
     if (strstr(line, "Cloudy")              ) ret++;

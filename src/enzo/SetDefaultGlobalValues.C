@@ -721,6 +721,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
   IndividualStarStellarWinds        = 0;
 
+  // chemical evolution test star
+  ChemicalEvolutionTestStarMass        = 20.0   ; // solar masses
+  ChemicalEvolutionTestStarMetallicity = 0.0001 ;
+  ChemicalEvolutionTestStarFormed      = FALSE  ;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    ChemicalEvolutionTestStarPosition[dim] = 0.5; // code units - center of box
+  }
+
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
   LastSupernovaTime                = FLOAT_UNDEFINED;

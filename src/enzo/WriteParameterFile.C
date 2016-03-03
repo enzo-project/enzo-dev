@@ -1046,8 +1046,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarMassFraction = %"FSYM"\n", IndividualStarMassFraction);
   fprintf(fptr, "IndividualStarTypeIIMassCutoff = %"FSYM"\n", IndividualStarTypeIIMassCutoff);
   fprintf(fptr, "IndividualStarPSNMassCutoff = %"FSYM"\n", IndividualStarPSNMassCutoff);
-  fprintf(fptr, "IndividualStarRadiationMinimumMass = %"FSYM"\n\n", IndividualStarRadiationMinimumMass);
+  fprintf(fptr, "IndividualStarRadiationMinimumMass = %"FSYM"\n", IndividualStarRadiationMinimumMass);
+  fprintf(fptr, "IndividualStarStellarWinds = %"ISYM"\n\n", IndividualStarStellarWinds);
 
+  fprintf(fptr, "ChemicalEvolutionTestStarPosition = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarPosition);
+  fprintf(fptr, "ChemicalEvolutionTestStarMass = %"FSYM"\n", ChemicalEvolutionTestStarMass);
+  fprintf(fptr, "ChemicalEvolutionTestStarMetallicity = %"FSYM"\n\n", ChemicalEvolutionTestStarMetallicity);
 
   /* Most Stanford additions: */
 

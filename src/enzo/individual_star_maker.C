@@ -120,6 +120,58 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
     }
   }
 
+  if (ProblemType == 260){ // place a star by hand and exit
+
+    if(ChemicalEvolutionTestStarFormed){ // only do this once, on first timestep
+      return SUCCESS;
+    } else{
+      // deposit the star by hand
+
+      ParticleMass[0] = ChemicalEvolutionTestStarMass * msolar / m1 / ((*dx)*(*dx)*(*dx));
+      ParticleType[0] = -(*ctype);
+      ParticleAttribute[0][0] = *t;
+      ParticleAttribute[1][0] = compute_lifetime( &ChemicalEvolutionTestStarMass ) / (*t1);
+      ParticleAttribute[2][0] = ChemicalEvolutionTestStarMetallicity;
+
+      ParticlePosition[0][0] = ChemicalEvolutionTestStarPosition[0];
+      ParticlePosition[1][0] = ChemicalEvolutionTestStarPosition[1];
+      ParticlePosition[2][0] = ChemicalEvolutionTestStarPosition[2];
+
+      ParticleVelocity[0][0] = 0.0; ParticleVelocity[1][0] = 0.0; ParticleVelocity[2][0] = 0.0;
+
+      // find grid cell and assign chemical tags
+      int ip, jp, kp, n;
+      ip = int ( (ParticlePosition[0][0] - (*xstart)) / (*dx));
+      jp = int ( (ParticlePosition[1][0] - (*ystart)) / (*dx));
+      kp = int ( (ParticlePosition[2][0] - (*zstart)) / (*dx));
+
+      n  = ip + (jp + kp * (*ny)) * (*nx);
+
+      if(TestProblemData.MultiMetals >= 2){
+        if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+          ParticleAttribute[ 4][0] = BaryonField[ CINum][n] / BaryonField[DensNum][n];
+          ParticleAttribute[ 5][0] = BaryonField[ NINum][n] / BaryonField[DensNum][n];
+          ParticleAttribute[ 6][0] = BaryonField[ OINum][n] / BaryonField[DensNum][n];
+          ParticleAttribute[ 7][0] = BaryonField[MgINum][n] / BaryonField[DensNum][n];
+          ParticleAttribute[ 8][0] = BaryonField[SiINum][n] / BaryonField[DensNum][n];
+          ParticleAttribute[ 9][0] = BaryonField[FeINum][n] / BaryonField[DensNum][n];
+        }
+        if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+          ParticleAttribute[10][0] = BaryonField[ YINum][n] / BaryonField[DensNum][n];
+          ParticleAttribute[11][0] = BaryonField[BaINum][n] / BaryonField[DensNum][n];
+          ParticleAttribute[12][0] = BaryonField[LaINum][n] / BaryonField[DensNum][n];
+        }
+        if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+          ParticleAttribute[13][0] = BaryonField[EuINum][n] / BaryonField[DensNum][n];
+        }
+      } // if multimetals
+
+      *np = 1;
+      ChemicalEvolutionTestStarFormed = TRUE;
+      return SUCCESS;
+    }
+  }
+
   // Particle attributes hard coded for chemical tagging numbers. This is NOT IDEAL
   // AJE : TO DO is to address this issue with a lookup method like the above for baryon fields
   //       this may necessitate adding a new ParticleAttribute like array to stars specifically
@@ -346,22 +398,23 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 // this is where code would go to assign
                 // chemical tags to all of the particles
                 // depending on whether or not multimetals is ON
+                // Tags give fraction of star by mass of given chemical species
                 if(TestProblemData.MultiMetals >= 2){
                   if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-                    ParticleAttribute[ 4][istar] = BaryonField[ CINum][index];
-                    ParticleAttribute[ 5][istar] = BaryonField[ NINum][index];
-                    ParticleAttribute[ 6][istar] = BaryonField[ OINum][index];
-                    ParticleAttribute[ 7][istar] = BaryonField[MgINum][index];
-                    ParticleAttribute[ 8][istar] = BaryonField[SiINum][index];
-                    ParticleAttribute[ 9][istar] = BaryonField[FeINum][index];
+                    ParticleAttribute[ 4][istar] = BaryonField[ CINum][index] / BaryonField[DensNum][index];
+                    ParticleAttribute[ 5][istar] = BaryonField[ NINum][index] / BaryonField[DensNum][index];
+                    ParticleAttribute[ 6][istar] = BaryonField[ OINum][index] / BaryonField[DensNum][index];
+                    ParticleAttribute[ 7][istar] = BaryonField[MgINum][index] / BaryonField[DensNum][index];
+                    ParticleAttribute[ 8][istar] = BaryonField[SiINum][index] / BaryonField[DensNum][index];
+                    ParticleAttribute[ 9][istar] = BaryonField[FeINum][index] / BaryonField[DensNum][index];
                   }
                   if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-                    ParticleAttribute[10][istar] = BaryonField[ YINum][index];
-                    ParticleAttribute[11][istar] = BaryonField[BaINum][index];
-                    ParticleAttribute[12][istar] = BaryonField[LaINum][index];
+                    ParticleAttribute[10][istar] = BaryonField[ YINum][index] / BaryonField[DensNum][index];
+                    ParticleAttribute[11][istar] = BaryonField[BaINum][index] / BaryonField[DensNum][index];
+                    ParticleAttribute[12][istar] = BaryonField[LaINum][index] / BaryonField[DensNum][index];
                   }
                   if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-                    ParticleAttribute[13][istar] = BaryonField[EuINum][index];
+                    ParticleAttribute[13][istar] = BaryonField[EuINum][index] / BaryonField[DensNum][index];
                   }
                 } // end multi metals
 
@@ -422,7 +475,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
     ParticleMass[counter] = ParticleMass[counter] / ((*dx)*(*dx)*(*dx)); // code units / cell volume
   }
 
-  *np = ii - 1; // number of stars formed : AJE 2/29 check if this is a bug with the -1
+  *np = ii; // number of stars formed : AJE 2/29 check if this is a bug with the -1
 
   return SUCCESS;
 }
