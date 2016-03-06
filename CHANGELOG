@@ -4,39 +4,80 @@
 
 _Release date - 3-10-2016
 
-  * New Feature: 
-  * New Feature: 
-  * New Feature: 
-  * New Feature: 
-  * New Feature: 
-  * New Feature: 
-  * New Feature: 
-  * New Feature: 
-  * New Feature: 
-  * New Feature: 
-  * New Feature: 
-  * New Feature: 
+  * New Feature: AGORA isolated galaxy problem and related feedback
+	routines (PR #253, PR #295)
+  * New Feature: Grackle 2.0 support (PR #260)
+  * New Feature: Support for several new test problems for MHD (PR #244,
+	PR #299)
+  * New Feature: Implementation of stochastic forcing in turbulence
+	problems (PR #251)
+  * New Feature: Refinement by metal mass (PR #288)
+  * New Feature: Must Refine particles (PR #309)
+  * New Feature: New 2D test problems for hydro and MHD (PR #305)
+  * New Feature: Power-of-2 memory allocation (enhances memory
+	performance)  (PR #297)
+  * New Feature: Cosmic ray pressure/diffusion/injection (PR #300)
+  * New Feature: Simpson et al. Kinetic stellar feedback (PR #277)
+  * Enhancement: HDF5 hierarchy output no longer default due to code slowdown
+	(PR #245)
+  * Enhancement: New Stampede makefiles (intel and gnu compilers) (PR
+	#246)
+  * Enhancement: Ignore grid hydro parameters on restart - use global
+	values (PR #250)
+  * Enhancement: FLD solver speedup and scaling improvement (PR #254, PR #264)
+  * Enhancement: RNG streams now reproducible in parallel (PR #262)
+  * Enhancement: Updated default value of solar metallicity to be
+	consistent with Cloudy (PR #272)
+  * Enhancement: Minor performance improvements (PR #273)
+  * Enhancement: hydro_rk solver speedups (PR #286)
+  * Enhancement: Misc. small fixes/updates from John Wise regarding star
+	particles and sink particles (PR #287)
+  * Enhancement: Updates to Enzo's inline FOF halo finder (PR #283)
+  * Enhancement: Can now calculate dust temperature from command line (PR #282)
+  * Enhancement: Ray tracing has several optimizations and new features,
+	most of which promote speed and/or stability
+	(PR #294)
+  * Enhancement: Enzo native chemistry solver updated with timestep
+	limiter, H2 self-shielding, non-cosmological redshift (PR #289)
+  * Enhancement: CollapseTest and PhotonTest updated for correctness and
+	flexibility (PR #298)
+  * Enhancement: Pop III star star cluster formation and feedback
+	improvements and new features (PR #293)
+  * Enhancement: UniformGravity support in MUSCL (PR #310)
+  * Enhancement: UngridTranspose=2 is now default (PR #313)
+  * Enhancement: GalaxySimulation enhancements (PR #300)
+  * Enhancement: MHD CT cosmology update (PR #318)
+  * Bugfix: Misc. MHD bug fixes and cleanup (PR #243, PR #257, PR #265, PR
+	#269, PR #271, PR #278)
+  * Bugfix: Makefile updates and fixes (PR #256, PR #285, PR #301, PR #302)
+  * Bugfix: Typo in TurbulenceSimulation (PR #248)
+  * Bugfix: Doc cleanup (PR #252, PR #259, PR #263, PR #267)
+  * Bugfix: Fixed "output cooling time only" and "output smoothed dm field
+	only" options (PR #255)
+  * Bugfix: Fixed MaximumGravityRefinementLevel to work with SiblingList
+	(PR #238)
+  * Bugfix: CommunicationLoadBalanceGrids fix for MinProc (PR #258)
+  * Bugfix: Small stability/reproducibility fixes (PR #261, PR #266, PR #275)
+  * Bugfix: Removed excessive unnecessary code warnings (PR #268)
+  * Bugfix: Added missing input file in CoolingTest_Grackle (PR #279)
+  * Bugfix: Fix to Grid::CheckForExternalReflections doing right side
+	incorrectly (PR #274)
+  * Bugfix: Enzo-performance module hang in parallel (PR #296)
+  * Bugfix: MUSCL pressure support for EOS=0 corrected (PR #281)
+  * Bugfix: Color density floor to PPM reconstruction (PR #284)
+  * Bugfix: ReadParameterFile memory leak (PR #306)
+  * Bugfix: StochasticForcing works with all solvers (PR #308)
+  * Bugfix: Compilation problem with new-problem-types-yes (PR #307)
+  * Bugfix: WriteParameterFile doesn't write correct TimeActionTime (PR #312)
+  * Bugfix: LoadBalancing when all grids have equal work (PR #311)
+  * Bugfix: Flux correction for metal fields (PR #314)
+  * Bugfix: Minor bugs in gFLDSplit and gFLDProblem solvers (PR #317)
+  * Bugfix: mismatched new/delete in Grid_ProjectSolutionToParentGrid (PR #319)
+  * Bugfix: float/double mismatches (PR #320)
+  * Bugfix: compiler warnings found with -Werror (PR #321)
+  * Bugfix: 2D simulation segfault (PR #322)
+  * Bugfix: Enhancing compilibility w/photon-no (PR #323)
 
-  * Enhancement: 
-  * Enhancement: 
-  * Enhancement: 
-  * Enhancement: 
-  * Enhancement: 
-  * Enhancement: 
-  * Enhancement: 
-  * Enhancement: 
-
-  * Bugfix: 
-  * Bugfix: 
-  * Bugfix: 
-  * Bugfix: 
-  * Bugfix: 
-  * Bugfix: 
-  * Bugfix: 
-  * Bugfix: 
-  * Bugfix: 
-  * Bugfix: 
-  * Bugfix: 
 
 == Version 2.4 ==
 _Release date - 8-8-2014
