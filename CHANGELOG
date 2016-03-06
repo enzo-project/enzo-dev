@@ -4,8 +4,8 @@
 
 _Release date - 3-10-2016
 
-  * New Feature: AGORA isolated galaxy problem and related feedback
-	routines (PR #253, PR #295)
+  * New Feature: AGORA isolated galaxy problem and related Goldbaum,
+	Forbes & Krumholz feedback routines (PR #253, PR #295)
   * New Feature: Grackle 2.0 support (PR #260)
   * New Feature: Support for several new test problems for MHD (PR #244,
 	PR #299)
