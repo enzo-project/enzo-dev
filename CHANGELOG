@@ -77,7 +77,7 @@ _Release date - 3-10-2016
   * Bugfix: compiler warnings found with -Werror (PR #321)
   * Bugfix: 2D simulation segfault (PR #322)
   * Bugfix: Enhancing compilibility w/photon-no (PR #323)
-
+  * Bugfix: Checking of cosmic ray fluid parameteters upon startup (PR #325)
 
 == Version 2.4 ==
 _Release date - 8-8-2014
