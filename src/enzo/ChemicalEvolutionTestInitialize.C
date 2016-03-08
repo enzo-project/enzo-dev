@@ -101,7 +101,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
         GasTemperature = 1.0E4,
         GasMetallicity = tiny_number;
 
-  int   ChemicalEvolutionTestRefineAtStart  = 1;
+  int   ChemicalEvolutionTestRefineAtStart  = 1,
+        ChemicalEvolutionTestUseMetals      = 1;
 
   /* MultiSpecies parameters. Ionized, primordial gas */
   TestProblemData.HydrogenFractionByMass   = 0.75;
@@ -131,6 +132,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
     ret += sscanf(line, "ChemicalEvolutionTestMultiMetals = %"ISYM,
                         &TestProblemData.MultiMetals);
+    ret += sscanf(line, "ChemicalEvolutionTestUseMetals = %"ISYM,
+                        &ChemicalEvolutionTestUseMetals);
 
     ret += sscanf(line, "ChemicalEvolutionTestHFraction = %"FSYM,
                         &TestProblemData.HydrogenFractionByMass);
@@ -178,6 +181,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     }
   }
 
+  TestProblemData.MultiSpecies = MultiSpecies;
+  TestProblemData.UseMetallicityField = ChemicalEvolutionTestUseMetals;
   /* check units */
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
 
@@ -242,6 +247,12 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
       LevelHierarchyEntry *TempGrid = LevelArray[level+1];
 
       while (TempGrid != NULL) {
+        TempGrid->GridData->InitializeUniformGrid(GasDensity,
+                                                  uniform_total_energy,
+                                                  uniform_total_energy,
+                                                  uniform_velocity,
+                                                  uniform_B_field);
+
         TempGrid->GridData->ChemicalEvolutionTestInitializeGrid(GasDensity,
                                                                 GasTemperature,
                                                                 GasMetallicity);
@@ -281,52 +292,52 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     DataLabel[count++] = CRName;
   
   /* handle the multispecies things */
-  if (TestProblemData.MultiSpecies || MultiSpecies) {
-    DataLabel[i++] = ElectronName;
-    DataLabel[i++] = HIName;
-    DataLabel[i++] = HIIName;
-    DataLabel[i++] = HeIName;
-    DataLabel[i++] = HeIIName;
-    DataLabel[i++] = HeIIIName;
-    if (TestProblemData.MultiSpecies > 1 || MultiSpecies > 1){
-      DataLabel[i++] = HMName;
-      DataLabel[i++] = H2IName;
-      DataLabel[i++] = H2IIName;
+  if (TestProblemData.MultiSpecies) {
+    DataLabel[count++] = ElectronName;
+    DataLabel[count++] = HIName;
+    DataLabel[count++] = HIIName;
+    DataLabel[count++] = HeIName;
+    DataLabel[count++] = HeIIName;
+    DataLabel[count++] = HeIIIName;
+    if (TestProblemData.MultiSpecies > 1){
+      DataLabel[count++] = HMName;
+      DataLabel[count++] = H2IName;
+      DataLabel[count++] = H2IIName;
     }
-    if (TestProblemData.MultiSpecies > 2 || MultiSpecies > 1){
-      DataLabel[i++] = DIName;
-      DataLabel[i++] = DIIName;
-      DataLabel[i++] = HDIName;
+    if (TestProblemData.MultiSpecies > 2){
+      DataLabel[count++] = DIName;
+      DataLabel[count++] = DIIName;
+      DataLabel[count++] = HDIName;
     }
   }
 
   /* Metallicity and Metals */
   if (TestProblemData.UseMetallicityField){
-    DataLabel[i++] = MetalName;
+    DataLabel[count++] = MetalName;
 
     if(TestProblemData.MultiMetals >=2){
 
       if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-        DataLabel[i++] = CIName;
-        DataLabel[i++] = OIName;
-        DataLabel[i++] = NIName;
-        DataLabel[i++] = MgIName;
-        DataLabel[i++] = SiIName;
-        DataLabel[i++] = FeIName;
+        DataLabel[count++] = CIName;
+        DataLabel[count++] = NIName;
+        DataLabel[count++] = OIName;
+        DataLabel[count++] = MgIName;
+        DataLabel[count++] = SiIName;
+        DataLabel[count++] = FeIName;
       }
       if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-        DataLabel[i++] = YIName;
-        DataLabel[i++] = BaIName;
-        DataLabel[i++] = LaIName;
+        DataLabel[count++] = YIName;
+        DataLabel[count++] = BaIName;
+        DataLabel[count++] = LaIName;
       }
       if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-        DataLabel[i++] = EuIName;
+        DataLabel[count++] = EuIName;
       }
     }
   }
 
  // fill in remaining slots
- for(int j=0; j < i; j++) DataUnits[j] = NULL;
+ for(int j=0; j < count; j++) DataUnits[j] = NULL;
 
  /* Write Parameters to parameter output file */
  if (MyProcessorNumber == ROOT_PROCESSOR) {
@@ -337,6 +348,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
    fprintf(Outfptr, "ChemicalEvolutionTestRefineAtStart = %"ISYM"\n", ChemicalEvolutionTestRefineAtStart);
 
    fprintf(Outfptr, "ChemicalEvolutionTestMultiMetals = %"ISYM"\n", TestProblemData.MultiMetals);
+   fprintf(Outfptr, "CHemicalEvolutionTestUseMetals = %"ISYM"\n", ChemicalEvolutionTestUseMetals);
 
    fprintf(Outfptr, "ChemicalEvolutionTestHydryogenFractionByMass = %"FSYM"\n", TestProblemData.HydrogenFractionByMass);
    fprintf(Outfptr, "ChemicalEvolutionTestHIIFraction = %"FSYM"\n", TestProblemData.HII_Fraction );

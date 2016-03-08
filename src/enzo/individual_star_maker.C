@@ -39,6 +39,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 float SampleIMF(void);
 float GaussianRandomVariable(void);
 float compute_lifetime(float *mp);
+float compute_SN1a_probability(float *mprog, float *t1);
 unsigned_long_int mt_random(void);
 
 
@@ -122,11 +123,24 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
   if (ProblemType == 260){ // place a star by hand and exit
 
-    if(ChemicalEvolutionTestStarFormed){ // only do this once, on first timestep
+    // Only form on first call of individual_star_maker
+    if(ChemicalEvolutionTestStarFormed){
       return SUCCESS;
-    } else{
-      // deposit the star by hand
+    } else {
+      FLOAT xx, yy, zz;
+      xx = ChemicalEvolutionTestStarPosition[0];
+      yy = ChemicalEvolutionTestStarPosition[1];
+      zz = ChemicalEvolutionTestStarPosition[2];
 
+      // make sure particle position is on this grid / processor
+      if( !( (xx > (*xstart) + (*ibuff)*(*dx)) && (xx < *xstart + (*ibuff + *nx)*(*dx))) ||
+          !( (yy > (*ystart) + (*ibuff)*(*dx)) && (yy < *ystart + (*ibuff + *ny)*(*dx))) ||
+          !( (zz > (*zstart) + (*ibuff)*(*dx)) && (zz < *zstart + (*ibuff + *nz)*(*dx))) ) {
+        printf("P(%"ISYM") individual_star_maker: Particle not on this grid. Leaving\n", *procnum);
+        return SUCCESS;
+      }
+
+      // deposit the star by hand
       ParticleMass[0] = ChemicalEvolutionTestStarMass * msolar / m1 / ((*dx)*(*dx)*(*dx));
       ParticleType[0] = -(*ctype);
       ParticleAttribute[0][0] = *t;
@@ -168,9 +182,10 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
       *np = 1;
       ChemicalEvolutionTestStarFormed = TRUE;
+      printf("individual_star_maker: Formed star ChemicalEvolutionTest of mass %"FSYM" and metallicity %"FSYM".\n", ParticleMass[0]*((*dx)*(*dx)*(*dx))*m1/msolar, ParticleAttribute[2]); 
       return SUCCESS;
     }
-  }
+  } // end ChemicalEvolutionTest ProblemType check
 
   // Particle attributes hard coded for chemical tagging numbers. This is NOT IDEAL
   // AJE : TO DO is to address this issue with a lookup method like the above for baryon fields
@@ -622,10 +637,15 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
   double m1 = (*d1)*(*x1)*(*x1)*(*x1);            // code mass units
   double e1 = m1 * (*x1) * (*x1) / (*t1) * (*t1); // code energy units
 
+  const int max_random = (1<<16);
+
   int ip, jp, kp, index; // particle location
 
-  bool do_stellar_winds, go_supernova;
+  int do_stellar_winds, go_supernova;
   float stellar_wind_time_fraction;
+
+  int IndividualStar   = PARTICLE_TYPE_INDIVIDUAL_STAR,
+      IndividualStarWD = PARTICLE_TYPE_INDIVIDUAL_STAR_WD; // convenience
 
   // loop over all star particles
   for(int i = 0; i < (*np); i++){
@@ -659,24 +679,59 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
     }
 
     particle_age = abs( (*current_time) - ParticleAttribute[0][i] );
-    lifetime     = compute_lifetime( &mp ) / (*t1);
+    lifetime     = ParticleAttribute[1][i];
 
-    do_stellar_winds           = false;
-    go_supernova               = false;
+    do_stellar_winds           = FALSE;
+    go_supernova               = FALSE;
     stellar_wind_time_fraction = 0.0;
-    if( particle_age + *dt < lifetime && IndividualStarStellarWinds) {
-      do_stellar_winds           = true;
-      stellar_wind_time_fraction = 1.0; // winds for whole time step
-    } else if (particle_age < lifetime && IndividualStarStellarWinds){ // do winds AND explosion
-      do_stellar_winds = true;
-      stellar_wind_time_fraction = (lifetime - particle_age) / (*dt);
-      go_supernova = true;
-    } else if ( mp >= IndividualStarTypeIIMassCutoff ){
-      go_supernova = true;
-    } else {                 // star is at end of life AND not massive enough for supernova
-      ParticleMass[i] = 0.0; // do nothing
-    }
+    /* woa these are bad if statements .. not fixed as of 3/6/16 */
+    // if stellar winds
+    if(ParticleType[i] == IndividualStar){
+      if(IndividualStarStellarWinds){
+        if (particle_age + *dt < lifetime){
+          do_stellar_winds = TRUE;
+          stellar_wind_time_fraction = 1.0;
+        } else if (particle_age < lifetime){
+          do_stellar_winds = FALSE;
+          stellar_wind_time_fraction = (lifetime - particle_age) / (*dt);
+        }
+      // else leave as false - no winds
+      }
 
+      if ( mp >= IndividualStarTypeIIMassCutoff && particle_age + (*dt) > lifetime){
+        go_supernova = TRUE;
+
+      } else if (particle_age + (*dt) > lifetime){ // just kill silently
+        ParticleMass[i] = 0.0;
+      }
+
+      if ( mp >= IndividualStarType1aMinimumMass && mp <= IndividualStarType1aMaximumMass
+           && particle_age + (*dt) > lifetime && IndividualStarUseType1aSN){
+
+        ParticleAttribute[3][i] = ParticleMass[i]; // very bad / gross hack
+        ParticleMass[i] = 1.0 / msolar * m1 / ((*dx)*(*dx)*(*dx)); // make 1 Msun WD for now
+        //compute_final_mass( &mp ) / msolar * m1 / ((*dx)*(*dx)*(*dx));
+        ParticleType[i] = IndividualStarWD;
+      }
+
+    } else if (ParticleType[i] == IndividualStarWD){
+
+      float formation_time = ParticleAttribute[0][i] +
+                             ParticleAttribute[1][i];
+
+      float M_proj = ParticleAttribute[3][i]; // very bad hack, see above
+      float PSN1a;
+      int   rnum;
+
+      PSN1a  = compute_SN1a_probability( &M_proj, t1); // units of t^((beta)) / s
+      PSN1a *= POW( (*current_time) - formation_time, -IndividualStarDTDSlope) * (*dt);
+
+      rnum =  (float) (random() % max_random) / (float) (max_random);
+
+      if (rnum < PSN1a){
+        go_supernova = TRUE;
+      }
+    } // end type check
 
     distmass = 0.0; energy = 0.0;
     if(do_stellar_winds || go_supernova){
@@ -804,4 +859,83 @@ float compute_lifetime(float *mp){
   tau = tau_solar * POW( *mp, -2.5);
 
   return tau;
+}
+
+// calculates probability of WD going SN as a 1a
+// by normalizing a DTD appropriately and computing
+// SF mass required to get a star of mass equal to the WD's projenitor (MS) mass
+float compute_SN1a_probability(float *mprog, float *t1){
+
+ float msf, IMF_norm, DTD_norm;
+ float probability;
+
+ const float hubble_time = 4.382E17; // need to allow for cosmology units AJE TO DO
+                                     // currently assumes H_o = 70.4
+
+ // compute star formation mass. This requires knowing the IMF
+ // and integrating the IMF. Integral is computed analytically for each 
+ // IMF case
+
+ switch( IndividualStarIMF ) {
+
+   case 0: // Salpeter
+     IMF_norm = 1.0 / POW(*mprog, IndividualStarSalpeterSlope);
+
+     // integrate IMF from lower mass limit to upper mass limit
+     msf = IMF_norm * (POW(IndividualStarIMFUpperMassCutoff,IndividualStarSalpeterSlope + 2) -
+                       POW(IndividualStarIMFLowerMassCutoff,IndividualStarSalpeterSlope + 2))/
+                      (IndividualStarSalpeterSlope + 2.0);
+     break;
+   case 1: // Chabrier 2003
+
+     float m_a, m_b;
+     m_a = IndividualStarIMFLowerMassCutoff;
+     m_b = IndividualStarIMFUpperMassCutoff; // convenience - will get optimized out
+
+     IMF_norm = 1.0 / ( 0.158 * exp( -0.5 * POW(log10(*mprog)-log10(0.08),2.0)/
+                                            POW(0.69,2))); 
+
+     msf  = 0.158 * exp( -0.5 * POW(log10(m_b) - log10(0.08),2.0)/
+                                   POW(0.69,2.0)) *
+           -1.0*(log10(m_b)-log10(0.08))*exp(m_b)/(POW(0.69,2)*log(10.0));
+
+     msf -= 0.158 * exp( -0.5 * POW(log10(m_a) - log10(0.08),2.0)/ POW(0.69,2)) *
+            (-1.0)*(log10(m_a) - log10(0.08))*exp(m_a)/(POW(0.69,2)*log(10.0));
+
+     break;
+   case 2: // Kroupa
+     if (*mprog < 0.08){ IMF_norm  = 1.0 / POW(*mprog, IndividualStarKroupaAlpha1);}
+     else if (*mprog < 0.5){ IMF_norm = 1.0 / POW(*mprog, IndividualStarKroupaAlpha2);}
+     else{ IMF_norm = 1.0 / POW(*mprog, IndividualStarKroupaAlpha3);}
+
+     msf =            (POW(IndividualStarIMFUpperMassCutoff,IndividualStarKroupaAlpha3 + 2) -
+                       POW(0.5, IndividualStarKroupaAlpha3 + 2.0))/
+                      (IndividualStarKroupaAlpha3 + 2.0);
+
+     msf +=           (POW(0.50, IndividualStarKroupaAlpha2 + 2) -
+                       POW(0.08, IndividualStarKroupaAlpha2 + 2))/
+                      (IndividualStarKroupaAlpha2 + 2.0);
+
+     msf +=           (POW(0.08, IndividualStarKroupaAlpha1+2) -
+                       POW(IndividualStarIMFLowerMassCutoff, IndividualStarKroupaAlpha1 + 2))/
+                      (IndividualStarKroupaAlpha1 + 2.0);
+
+     msf *= IMF_norm;
+
+     break;
+
+   default:
+     printf("WARNING IMF TYPE NOT KNOWN IN SN1A PROBABILITY COMPUTATION\n");
+     msf = 0.0;
+     break;
+ } // end switch
+
+ // now compute the normalized delay time distribution
+ DTD_norm = (-1.0 * IndividualStarDTDSlope + 1.0) /
+            (POW(hubble_time/(*t1),-1.0*IndividualStarDTDSlope + 1.0)) *
+            (IndividualStarNSN1a);
+
+ probability = DTD_norm * msf;
+
+ return probability;
 }

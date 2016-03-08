@@ -66,12 +66,13 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
     MetallicityField = TRUE;
   } else {
     MetalNum = 0;
+    printf("ChemicalEvolutionTest: Metallicity Field not found.\n");
   }
+
 
   int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
 
-  if (TestProblemData.MultiMetals > 2){
-
+  if (TestProblemData.MultiMetals >= 2){
     if (IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum, FeINum,
                                             YINum, BaINum, LaINum, EuINum) == FAIL){
       ENZO_FAIL("Error in grid->IdentifyChemicalTracerSpeciesFields");
