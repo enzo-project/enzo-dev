@@ -263,17 +263,26 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    if (BaryonField[field] == NULL)
      BaryonField[field] = new float[size];
 
+ // background density and temperature
+ for( i = 0; i < size; i++){
+   BaryonField[DensNum][i] = UniformDensity;
+   BaryonField[1][i]       = InitialTemperature/TemperatureUnits / ((Gamma-1.0)*mu);
+   if(DualEnergyFormalism){
+     BaryonField[2][i] = BaryonField[1][i];
+   }
+ }
+
  /* set metals to small value */
 
-  if (UseMetallicityField){
-    for (i = 0; i < size; i++)
-      BaryonField[MetalNum][i] = 1.0e-10;
-  }
+ if (UseMetallicityField){
+   for (i = 0; i < size; i++)
+     BaryonField[MetalNum][i] = tiny_number;
+ }
 
-  if (TestProblemData.UseMetallicityField){
-    for (i = 0; i < size; i ++)
-      BaryonField[MetalNum][i] = tiny_number;
-  }
+ if (TestProblemData.UseMetallicityField){
+   for (i = 0; i < size; i ++)
+     BaryonField[MetalNum][i] = tiny_number;
+ }
 
  if (MultiSpecies){
    // set set background to primordial and 100% ionized (only HII and HeIII)
@@ -342,314 +351,321 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  FLOAT r, x, y = 0, z = 0;
  int n = 0;
 
- for (k = 0; k < GridDimension[2]; k++)
-   for (j = 0; j < GridDimension[1]; j++)
+ for (k = 0; k < GridDimension[2]; k++) {
+   for (j = 0; j < GridDimension[1]; j++) {
      for (i = 0; i < GridDimension[0]; i++, n++) {
 
-        /* Set default abundances */
-            H_Fraction = TestProblemData.HydrogenFractionByMass;
-          HII_Fraction = TestProblemData.HII_Fraction;
-         HeII_Fraction = TestProblemData.HeII_Fraction;
-        HeIII_Fraction = TestProblemData.HeIII_Fraction;
-           HM_Fraction = TestProblemData.HM_Fraction;
-          H2I_Fraction = TestProblemData.H2I_Fraction;
-         H2II_Fraction = TestProblemData.H2II_Fraction;
-        D_to_H_ratio   = TestProblemData.DeuteriumToHydrogenRatio;
+       /* Set default abundances */
+       H_Fraction     = TestProblemData.HydrogenFractionByMass;
+       HII_Fraction   = TestProblemData.HII_Fraction;
+       HeII_Fraction  = TestProblemData.HeII_Fraction;
+       HeIII_Fraction = TestProblemData.HeIII_Fraction;
+       HM_Fraction    = TestProblemData.HM_Fraction;
+       H2I_Fraction   = TestProblemData.H2I_Fraction;
+       H2II_Fraction  = TestProblemData.H2II_Fraction;
+       D_to_H_ratio   = TestProblemData.DeuteriumToHydrogenRatio;
 
 
-        /* Set default tracer fraction */
-        metal_fraction = HaloMetallicity;
-         CI_Fraction   = TestProblemData.CI_Fraction_2;
-         NI_Fraction   = TestProblemData.NI_Fraction_2;
-         OI_Fraction   = TestProblemData.OI_Fraction_2;
-        MgI_Fraction   = TestProblemData.MgI_Fraction_2;
-        SiI_Fraction   = TestProblemData.SiI_Fraction_2;
-        FeI_Fraction   = TestProblemData.FeI_Fraction_2;
+       /* Set default tracer fraction */
+       metal_fraction = HaloMetallicity;
+       CI_Fraction    = TestProblemData.CI_Fraction_2;
+       NI_Fraction    = TestProblemData.NI_Fraction_2;
+       OI_Fraction    = TestProblemData.OI_Fraction_2;
+       MgI_Fraction   = TestProblemData.MgI_Fraction_2;
+       SiI_Fraction   = TestProblemData.SiI_Fraction_2;
+       FeI_Fraction   = TestProblemData.FeI_Fraction_2;
 
-         YI_Fraction   = TestProblemData.YI_Fraction_2;
-        BaI_Fraction   = TestProblemData.BaI_Fraction_2;
-        LaI_Fraction   = TestProblemData.LaI_Fraction_2;
+       YI_Fraction    = TestProblemData.YI_Fraction_2;
+       BaI_Fraction   = TestProblemData.BaI_Fraction_2;
+       LaI_Fraction   = TestProblemData.LaI_Fraction_2;
+       EuI_Fraction   = TestProblemData.EuI_Fraction_2;
 
-        EuI_Fraction   = TestProblemData.EuI_Fraction_2;
+       /* Compute position of current cell */
+       x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+       if (GridRank > 1)
+         y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+       if (GridRank > 2)
+         z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
 
-	/* Compute position */
+       for (dim = 0; dim < MAX_DIMENSION; dim++){
+         Velocity[dim] = 0;
+       }
 
-	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-	if (GridRank > 1)
-	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-	if (GridRank > 2)
-	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+       /* Find distance from center. */
 
-	for (dim = 0; dim < MAX_DIMENSION; dim++){
-	  Velocity[dim] = 0;
-        }
+       r = sqrt(POW(fabs(x-DiskPosition[0]), 2) +
+                POW(fabs(y-DiskPosition[1]), 2) +
+                POW(fabs(z-DiskPosition[2]), 2) );
+       r = max(r, 0.1*CellWidth[0][0]);           // make sure r is non-zero
 
-	/* Find distance from center. */
+       density = HaloGasDensity(r)/DensityUnits;
+       temperature = temp1 = init_temp = HaloGasTemperature(r);
 
-	r = sqrt(POW(fabs(x-DiskPosition[0]), 2) +
-		 POW(fabs(y-DiskPosition[1]), 2) +
-		 POW(fabs(z-DiskPosition[2]), 2) );
-	r = max(r, 0.1*CellWidth[0][0]);
+       if (r < DiskRadius) {
+         FLOAT xpos, ypos, zpos, zheight, drad;
+         float CellMass;
+         FLOAT xhat[3];
+         FLOAT yhat[3];
 
-	density = HaloGasDensity(r)/DensityUnits;
-	temperature = temp1 = init_temp = HaloGasTemperature(r);
+         /* Loop over dims if using Zeus (since vel's face-centered). */
 
-	if (r < DiskRadius) {
-	  FLOAT xpos, ypos, zpos, zheight, drad; 
-	  float CellMass;
-	  FLOAT xhat[3];
-	  FLOAT yhat[3];
+         for (dim = 0; dim < 1+(HydroMethod == Zeus_Hydro ? GridRank : 0); dim++) {
 
-	  /* Loop over dims if using Zeus (since vel's face-centered). */
+           /* Compute position. */
+           xpos = x-DiskPosition[0] - (dim == 1 ? 0.5*CellWidth[0][0] : 0.0);
+           ypos = y-DiskPosition[1] - (dim == 2 ? 0.5*CellWidth[1][0] : 0.0);
+           zpos = z-DiskPosition[2] - (dim == 3 ? 0.5*CellWidth[2][0] : 0.0);
 
-	  for (dim = 0; dim < 1+(HydroMethod == Zeus_Hydro ? GridRank : 0);
-	       dim++) {
+	   /* Compute z and r_perp (AngularMomentum is angular momentum 
+	      and must have unit length). */    
 
-	    /* Compute position. */
+	   /* magnitude of z = r.L in L direction */
+           zheight = AngularMomentum[0]*xpos +
+	             AngularMomentum[1]*ypos +
+	             AngularMomentum[2]*zpos;
 
-	    xpos = x-DiskPosition[0] - 
-	      (dim == 1 ? 0.5*CellWidth[0][0] : 0.0);
-	    ypos = y-DiskPosition[1] -
-	      (dim == 2 ? 0.5*CellWidth[1][0] : 0.0);
-	    zpos = z-DiskPosition[2] -
-	      (dim == 3 ? 0.5*CellWidth[2][0] : 0.0);
-	    
-	    /* Compute z and r_perp (AngularMomentum is angular momentum 
-	       and must have unit length). */    
+	   /* position in plane of disk */
+	   xhat[0] = xpos - zheight*AngularMomentum[0];
+	   xhat[1] = ypos - zheight*AngularMomentum[1];
+	   xhat[2] = zpos - zheight*AngularMomentum[2];
+	   drad = sqrt(xhat[0]*xhat[0] + xhat[1]*xhat[1] + xhat[2]*xhat[2]);
+	   drcyl = drad;
 
-	    /* magnitude of z = r.L in L direction */
+	   /* Normalize the vector r_perp = unit vector pointing along plane of disk */
 
-	    zheight = AngularMomentum[0]*xpos + 
-	              AngularMomentum[1]*ypos +
-	              AngularMomentum[2]*zpos;
+	   xhat[0] = xhat[0]/drad;
+	   xhat[1] = xhat[1]/drad;
+	   xhat[2] = xhat[2]/drad;
 
-	    /* position in plane of disk */
+	   /* Find another vector perpendicular to r_perp and AngularMomentum */
 
-	    xhat[0] = xpos - zheight*AngularMomentum[0];
-	    xhat[1] = ypos - zheight*AngularMomentum[1];
-	    xhat[2] = zpos - zheight*AngularMomentum[2];
-	    drad = sqrt(xhat[0]*xhat[0] + xhat[1]*xhat[1] + xhat[2]*xhat[2]);
-	    drcyl = drad;
+	   yhat[0] = AngularMomentum[1]*xhat[2] - AngularMomentum[2]*xhat[1];
+	   yhat[1] = AngularMomentum[2]*xhat[0] - AngularMomentum[0]*xhat[2];
+	   yhat[2] = AngularMomentum[0]*xhat[1] - AngularMomentum[1]*xhat[0];
 
-	    /* Normalize the vector r_perp = unit vector pointing along plane of disk */
+	   /* generate rotation matrix */
+	   FLOAT inv[3][3];
 
-	    xhat[0] = xhat[0]/drad;
-	    xhat[1] = xhat[1]/drad;
-	    xhat[2] = xhat[2]/drad;
+	   // matrix of basis vectors in coordinate system defined by the galaxy
+	   inv[0][0] = xhat[0]; inv[0][1] = yhat[0]; inv[0][2] = AngularMomentum[0];
+	   inv[1][0] = xhat[1]; inv[1][1] = yhat[1]; inv[1][2] = AngularMomentum[1];
+	   inv[2][0] = xhat[2]; inv[2][1] = yhat[2]; inv[2][2] = AngularMomentum[2];
+	   // Matrix is orthogonal by construction so inverse = transpose
 
-	    /* Find another vector perpendicular to r_perp and AngularMomentum */
+	   for (int ii=0; ii<3; ii++){
+	     for (int jj=i+1; jj<3; jj++){
+               FLOAT temp;
+               temp        = inv[ii][jj];
+               inv[ii][jj] = inv[jj][ii];
+               inv[jj][ii] = temp;
+	     }
+           }
 
-	    yhat[0] = AngularMomentum[1]*xhat[2] - AngularMomentum[2]*xhat[1];
-	    yhat[1] = AngularMomentum[2]*xhat[0] - AngularMomentum[0]*xhat[2];
-	    yhat[2] = AngularMomentum[0]*xhat[1] - AngularMomentum[1]*xhat[0];
+           /* If we are outside the disk proper, leave loop */
+	   if( fabs(drcyl*LengthUnits/Mpc) > TruncRadius ){
+	     dens1 = 0.0;
+	     break;
+	   }
 
-	    /* generate rotation matrix */
-	    FLOAT inv[3][3],temp;
-	    int i,j;
-	    
-	    // matrix of basis vectors in coordinate system defined by the galaxy
-	    inv[0][0] = xhat[0]; inv[0][1] = yhat[0]; inv[0][2] = AngularMomentum[0];
-	    inv[1][0] = xhat[1]; inv[1][1] = yhat[1]; inv[1][2] = AngularMomentum[1];
-	    inv[2][0] = xhat[2]; inv[2][1] = yhat[2]; inv[2][2] = AngularMomentum[2];
-	    
-	    // Matrix is orthogonal by construction so inverse = transpose
+	   DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0) 
 
-	    for (i=0;i<3;i++)
-	      for (j=i+1;j<3;j++)
-		{
-		  temp = inv[i][j];
-		  inv[i][j] = inv[j][i];
-		  inv[j][i] = temp;
-		}
+	   if (PointSourceGravity > 0 ){
+	     DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor,
+                                      GalaxyMass, ScaleHeightR, ScaleHeightz,
+                                      DMConcentration, Time);
+           } else if( DiskGravity > 0 ){
+	     CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits,
+                                   ypos*LengthUnits, zpos*LengthUnits, inv,
+				   DiskDensity*DensityUnits, ScaleHeightR*Mpc,
+                                   ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
 
-	    if( fabs(drcyl*LengthUnits/Mpc) > TruncRadius ){
-	      dens1 = 0.0;
-	      break;
-	    }
+	     dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
 
-	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0) 
+	     DiskVelocityMag = DiskPotentialCircularVelocity(CellWidth[0][0], zheight*LengthUnits,
+                                                             dens1, temp1);
+	   }
 
-	    if (PointSourceGravity > 0 )
-	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
-	    else if( DiskGravity > 0 ){
-	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv,
-				    DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
+	   if (PointSourceGravity*DiskGravity != FALSE ){
+	     ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
+           }
 
-	      dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
+	   if (dim == 0) {
+	     CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits,
+                                   ypos*LengthUnits, zpos*LengthUnits, inv,
+				   DiskDensity*DensityUnits,ScaleHeightR*Mpc,
+                                   ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
 
-	      DiskVelocityMag = DiskPotentialCircularVelocity(CellWidth[0][0], zheight*LengthUnits, dens1, temp1);
-	    }
-	    if (PointSourceGravity*DiskGravity != FALSE ) 
-	      ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
+	     dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
+	   }
 
-	    if (dim == 0) {
-	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv, 
-				    DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
-	      dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
-	    }
+	   /* If we're above the disk, then exit. */
+	   if (dens1 < density){
+	     break;
+           }
 
-	    /* If we're above the disk, then exit. */
+	   /* Compute velocity magnitude (divided by drad). 
+	      This assumes PointSourceGravityPosition and Disk center 
+	      are the same. */
 
-	    if (dens1 < density)
-	      break;
+	   /* Compute velocty: L x r_perp. */
 
-	    /* Compute velocity magnitude (divided by drad). 
-	       This assumes PointSourceGravityPosition and Disk center 
-	       are the same. */
+	   if (dim == 0 || dim == 1)
+	     Velocity[0] = DiskVelocityMag*(AngularMomentum[1]*xhat[2] -
+					    AngularMomentum[2]*xhat[1]);
+	   if (dim == 0 || dim == 2)
+	     Velocity[1] = DiskVelocityMag*(AngularMomentum[2]*xhat[0] -
+					    AngularMomentum[0]*xhat[2]);
+	   if (dim == 0 || dim == 3)
+	     Velocity[2] = DiskVelocityMag*(AngularMomentum[0]*xhat[1] -
+					    AngularMomentum[1]*xhat[0]);
+	 } // end: loop over dims
 
-	    /* Compute velocty: L x r_perp. */
+	 /* If the density is larger than the background (or the previous
+	    disk), then set the velocity and disk properties */
 
-	    if (dim == 0 || dim == 1)
-	      Velocity[0] = DiskVelocityMag*(AngularMomentum[1]*xhat[2] -
-					     AngularMomentum[2]*xhat[1]);
-	    if (dim == 0 || dim == 2)
-	      Velocity[1] = DiskVelocityMag*(AngularMomentum[2]*xhat[0] -
-					     AngularMomentum[0]*xhat[2]);
-	    if (dim == 0 || dim == 3)
-	      Velocity[2] = DiskVelocityMag*(AngularMomentum[0]*xhat[1] -
-					     AngularMomentum[1]*xhat[0]);
-	  } // end: loop over dims
+	 if (dens1 > density && fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
 
-	    /* If the density is larger than the background (or the previous
-	       disk), then set the velocity. */
+	   density = dens1;
+	   if (temp1 == init_temp)
+	     temp1 = DiskTemperature;
+	   temperature = temp1;
+	   if( temperature > 1.0e7 )
+	     temperature = init_temp;
+	   if( UseMetallicityField ) // This should be converted to a general color field at some point - this obviously breaks metallicity feature
+	     BaryonField[MetalNum][n] = density;
 
-	  if (dens1 > density && fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
-	    density = dens1;
-	    if (temp1 == init_temp)
-	      temp1 = DiskTemperature;
-	    temperature = temp1;
-	    if( temperature > 1.0e7 )
-	      temperature = init_temp;
-	    if( UseMetallicityField ) // This should be converted to a general color field at some point - this obviously breaks metallicity feature
-	      BaryonField[MetalNum][n] = density;
+           metal_fraction = DiskMetallicity;
 
-            metal_fraction = DiskMetallicity;
+           H_Fraction = TestProblemData.InnerHydrogenFractionByMass;
+           HII_Fraction = TestProblemData.HII_Fraction_Inner;
+           HeII_Fraction = TestProblemData.HeII_Fraction_Inner;
+           HeIII_Fraction = TestProblemData.HeIII_Fraction_Inner;
+           HM_Fraction = TestProblemData.HM_Fraction_Inner;
+           H2I_Fraction = TestProblemData.H2I_Fraction_Inner;
+           H2II_Fraction = TestProblemData.H2II_Fraction_Inner;
+           D_to_H_ratio   = TestProblemData.InnerDeuteriumToHydrogenRatio;
 
-            H_Fraction = TestProblemData.InnerHydrogenFractionByMass;
-            HII_Fraction = TestProblemData.HII_Fraction_Inner;
-            HeII_Fraction = TestProblemData.HeII_Fraction_Inner;
-            HeIII_Fraction = TestProblemData.HeIII_Fraction_Inner;
-            HM_Fraction = TestProblemData.HM_Fraction_Inner;
-            H2I_Fraction = TestProblemData.H2I_Fraction_Inner;
-            H2II_Fraction = TestProblemData.H2II_Fraction_Inner;
-            D_to_H_ratio   = TestProblemData.InnerDeuteriumToHydrogenRatio;
+           // set chemical tracers in the disk
+           CI_Fraction = TestProblemData.CI_Fraction;
+           NI_Fraction = TestProblemData.NI_Fraction;
+           OI_Fraction = TestProblemData.OI_Fraction;
+           MgI_Fraction = TestProblemData.MgI_Fraction;
+           SiI_Fraction = TestProblemData.SiI_Fraction;
+           FeI_Fraction = TestProblemData.FeI_Fraction;
+           YI_Fraction = TestProblemData.YI_Fraction;
+           LaI_Fraction = TestProblemData.LaI_Fraction;
+           BaI_Fraction = TestProblemData.BaI_Fraction;
+           EuI_Fraction = TestProblemData.EuI_Fraction;
+         }
+       } // end: if (r < DiskRadius)
 
-            // set chemical tracers in the disk
-             CI_Fraction = TestProblemData.CI_Fraction;
-             NI_Fraction = TestProblemData.NI_Fraction;
-             OI_Fraction = TestProblemData.OI_Fraction;
-            MgI_Fraction = TestProblemData.MgI_Fraction;
-            SiI_Fraction = TestProblemData.SiI_Fraction;
-            FeI_Fraction = TestProblemData.FeI_Fraction;
-             YI_Fraction = TestProblemData.YI_Fraction;
-            LaI_Fraction = TestProblemData.LaI_Fraction;
-            BaI_Fraction = TestProblemData.BaI_Fraction;
-            EuI_Fraction = TestProblemData.EuI_Fraction;
-          }
-	} // end: if (r < DiskRadius)
+       /* Set density. */
 
-	/* Set density. */
+       BaryonField[DensNum][n] = density;
 
-	BaryonField[DensNum][n] = density;
+       if(TestProblemData.UseMetallicityField){
+         BaryonField[MetalNum][n] = density * metal_fraction;
+       }
 
-        if(TestProblemData.UseMetallicityField){
-          BaryonField[MetalNum][n] = density * metal_fraction;
-        }
+       if (MultiSpecies) {
+         BaryonField[HIINum ][n] = HII_Fraction * H_Fraction * BaryonField[DensNum][n];
+         BaryonField[HeIINum][n] = HeII_Fraction * BaryonField[DensNum][n] *
+                                            (1.0 - H_Fraction);
+         BaryonField[HeIIINum][n] = HeIII_Fraction * BaryonField[DensNum][n] *
+                                            (1.0 - H_Fraction);
+         // neutral is He fraction - ionized
+         BaryonField[HeINum][n]   = (1.0 - H_Fraction)*BaryonField[DensNum][n] -
+                                    BaryonField[HeIINum][n] - BaryonField[HeIIINum][n];
 
-        if (MultiSpecies) {
-          BaryonField[HIINum ][n] = HII_Fraction * H_Fraction * BaryonField[DensNum][n];
-          BaryonField[HeIINum][n] = HeII_Fraction * BaryonField[DensNum][n] *
-                                             (1.0 - H_Fraction);
-          BaryonField[HeIIINum][n] = HeIII_Fraction * BaryonField[DensNum][n] *
-                                             (1.0 - H_Fraction);
-          // neutral is He fraction - ionized
-          BaryonField[HeINum][n]   = (1.0 - H_Fraction)*BaryonField[DensNum][n] -
-                 BaryonField[HeIINum][n] - BaryonField[HeIIINum][n];
+         if(MultiSpecies > 1){
+           BaryonField[HMNum][n] = HM_Fraction * BaryonField[HIINum][n];
+           BaryonField[H2INum][n] = H2I_Fraction * BaryonField[DensNum][n] * H_Fraction;
+           // copy from RotatingSphere... why factor of 2 ? AJE 2/22/16
+           BaryonField[H2IINum][n] = H2II_Fraction * 2.0 * BaryonField[HIINum][n];
+         }
 
-          if(MultiSpecies > 1){
-            BaryonField[HMNum][n] = HM_Fraction * BaryonField[HIINum][n];
-            BaryonField[H2INum][n] = H2I_Fraction * BaryonField[DensNum][n] * H_Fraction;
-            // copy from RotatingSphere... why factor of 2 ? AJE 2/22/16
-            BaryonField[H2IINum][n] = H2II_Fraction * 2.0 * BaryonField[HIINum][n];
-          }
-
-          BaryonField[HINum][n] = H_Fraction*BaryonField[DensNum][n] -
+         BaryonField[HINum][n] = H_Fraction*BaryonField[DensNum][n] -
                                                        BaryonField[HIINum][n];
-          if(MultiSpecies > 1){
-            BaryonField[HINum][n] -= (BaryonField[HMNum][n] + BaryonField[H2IINum][n] +
-                                      BaryonField[H2INum][n]);
-          }
+         if(MultiSpecies > 1){
+           BaryonField[HINum][n] -= (BaryonField[HMNum][n] + BaryonField[H2IINum][n] +
+                                     BaryonField[H2INum][n]);
+         }
 
-          /// AJE finish coding not done
-          BaryonField[DeNum][n] = BaryonField[HIINum][n] + 0.25*BaryonField[HeIINum][n] +
-                                   0.5*BaryonField[HeIIINum][n];
-          if (MultiSpecies > 1){
-            BaryonField[DeNum][n] += 0.5 * BaryonField[H2IINum][n] - BaryonField[HMNum][n];
-          }
+         /// AJE finish coding not done
+         BaryonField[DeNum][n] = BaryonField[HIINum][n] + 0.25*BaryonField[HeIINum][n] +
+                                  0.5*BaryonField[HeIIINum][n];
+         if (MultiSpecies > 1){
+           BaryonField[DeNum][n] += 0.5 * BaryonField[H2IINum][n] - BaryonField[HMNum][n];
+         }
 
-          if(MultiSpecies > 2){
-            BaryonField[DINum ][n] = D_to_H_ratio * BaryonField[HINum][n];
-            BaryonField[DIINum][n] = D_to_H_ratio * BaryonField[HIINum][n];
-            BaryonField[HDINum][n] = 0.75 * D_to_H_ratio * BaryonField[H2INum][n];
-          }
-        } // end multispecies
-
-
-        if (TestProblemData.MultiMetals >=2){
-          if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-            BaryonField[ CINum][n] = density *  CI_Fraction;//
-            BaryonField[ NINum][n] = density *  NI_Fraction;
-            BaryonField[ OINum][n] = density *  OI_Fraction;
-            BaryonField[MgINum][n] = density * MgI_Fraction;
-            BaryonField[SiINum][n] = density * SiI_Fraction;
-            BaryonField[FeINum][n] = density * FeI_Fraction;
-          }
-          if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-            BaryonField[ YINum][n] = density *  YI_Fraction;
-            BaryonField[BaINum][n] = density * BaI_Fraction;
-            BaryonField[LaINum][n] = density * LaI_Fraction;
-          }
-          if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-            BaryonField[EuINum][n] = density * EuI_Fraction;
-          }
-        } // end chemical tracer value set
+         if(MultiSpecies > 2){
+           BaryonField[DINum ][n] = D_to_H_ratio * BaryonField[HINum][n];
+           BaryonField[DIINum][n] = D_to_H_ratio * BaryonField[HIINum][n];
+           BaryonField[HDINum][n] = 0.75 * D_to_H_ratio * BaryonField[H2INum][n];
+         }
+       } // end multispecies
 
 
+       if (TestProblemData.MultiMetals >=2){
+         if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+           BaryonField[ CINum][n] = density *  CI_Fraction;//
+           BaryonField[ NINum][n] = density *  NI_Fraction;
+           BaryonField[ OINum][n] = density *  OI_Fraction;
+           BaryonField[MgINum][n] = density * MgI_Fraction;
+           BaryonField[SiINum][n] = density * SiI_Fraction;
+           BaryonField[FeINum][n] = density * FeI_Fraction;
+         }
+         if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
+           BaryonField[ YINum][n] = density *  YI_Fraction;
+           BaryonField[BaINum][n] = density * BaI_Fraction;
+           BaryonField[LaINum][n] = density * LaI_Fraction;
+         }
+         if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
+           BaryonField[EuINum][n] = density * EuI_Fraction;
+         }
+       } // end chemical tracer value set
 
-	if (StarMakerTypeIaSNe)
+
+
+       if (StarMakerTypeIaSNe){
 	  for (i = 0; i < size; i++)
 	    BaryonField[MetalIaNum][i] = 1.0e-10;
+       }
 
-	/* Set Velocities. */
+       /* Set Velocities. */
 
-	for (dim = 0; dim < GridRank; dim++)
-	  BaryonField[vel+dim][n] = Velocity[dim] + UniformVelocity[dim];
+       for (dim = 0; dim < GridRank; dim++){
+         BaryonField[vel+dim][n] = Velocity[dim] + UniformVelocity[dim];
+       }
 
-	/* Set energy (thermal and then total if necessary). */
+       /* Set energy (thermal and then total if necessary). */
 
-	BaryonField[1][n] = temperature/TemperatureUnits/
-                           ((Gamma-1.0)*mu);
+       BaryonField[1][n] = temperature/TemperatureUnits/((Gamma-1.0)*mu);
 
-	if (DualEnergyFormalism)
-	  BaryonField[2][n] = BaryonField[1][n];
-	
-	if (HydroMethod != Zeus_Hydro)
-	  for (dim = 0; dim < GridRank; dim++)
-	    BaryonField[1][n] += 0.5*POW(BaryonField[vel+dim][n], 2);
+       if (DualEnergyFormalism){
+         BaryonField[2][n] = BaryonField[1][n];
+       }
 
-	if (BaryonField[1][n] <= 0.0)
+       if (HydroMethod != Zeus_Hydro){
+         for (dim = 0; dim < GridRank; dim++){
+	   BaryonField[1][n] += 0.5*POW(BaryonField[vel+dim][n], 2);
+         }
+       }
+
+       if (BaryonField[1][n] <= 0.0){
 	  printf("G_GSIC: negative or zero energy  n = %"ISYM"  temp = %"FSYM"   e = %"FSYM"\n",
 		 n, temperature, BaryonField[1][n]);
+       }
 
-     if( CRModel )
-       BaryonField[CRNum][n] = BaryonField[DensNum][n] * GalaxySimulationCR;
+       if (CRModel){
+         BaryonField[CRNum][n] = BaryonField[DensNum][n] * GalaxySimulationCR;
+       }
 
-
-
-     } // end loop over grid
+     }
+   }
+ } // end loop over grid
 
  return SUCCESS;
-
 }
 
 
@@ -791,25 +807,25 @@ double DiskPotentialDarkMatterMass(FLOAT R){
  *	for potential in Mori & Burkert 2000, consistent with eq
  *
  *		rho = rho0 * r0**3 / ( (r + r0)*(r**2 + r0**2 ) )
- *			
+ *
  *	Parameters:
  *	-----------
  *		R - Spherical radius (code units)
  *
  * 	Returns: Mass, in grams
  */
-	FLOAT R0 = DiskGravityDarkMatterR*Mpc,x=R/R0*LengthUnits;
-	double M0 = pi*DiskGravityDarkMatterDensity*R0*R0*R0;
+ FLOAT  R0 = DiskGravityDarkMatterR*Mpc, x=R/R0*LengthUnits;
+ double M0 = pi*DiskGravityDarkMatterDensity*R0*R0*R0;
 
-	return M0*(-2.0*atan(x)+2.0*log(1+x)+log(1.0+x*x));
+ return M0*(-2.0*atan(x)+2.0*log(1+x)+log(1.0+x*x));
 } // end DiskPotentialDarkMatterMass
 
 
 float HaloGasTemperature(FLOAT R){
 /*
  *	computes halo temperature, assuming gas particles follow
- *	KE = 1/2 PE assuming DM potential given in 
- *	DiskPotentialDarkMatterMass() above. 
+ *	KE = 1/2 PE assuming DM potential given in
+ *	DiskPotentialDarkMatterMass() above.
  *
  *	Parameters:
  *	-----------
@@ -817,9 +833,10 @@ float HaloGasTemperature(FLOAT R){
  *
  *	Returns: Temperature, Kelvin
  */
-	if(GalaxySimulationGasHalo)
-		return GravConst*DiskPotentialDarkMatterMass(R)*0.6*mh/(3.0*kboltz*R*LengthUnits);
-	return Ticm;
+  if(GalaxySimulationGasHalo){
+    return GravConst*DiskPotentialDarkMatterMass(R)*0.6*mh/(3.0*kboltz*R*LengthUnits);
+  }
+  return Ticm;
 }
 
 
@@ -859,14 +876,15 @@ float HaloGasDensity(FLOAT R){
  *
  * 	Returns: density, grams/cm^3
  */
-	if(GalaxySimulationGasHalo){
-		double T0,haloDensity;
-		T0 = HaloGasTemperature(GalaxySimulationGasHaloScaleRadius*Mpc/LengthUnits);
-		haloDensity = GalaxySimulationGasHaloDensity*(T0/HaloGasTemperature(R));
-		haloDensity /= pow((R*LengthUnits/GalaxySimulationGasHaloScaleRadius/Mpc),3);
-		return min(haloDensity,GalaxySimulationGasHaloDensity);
-	}
-	return densicm;
+ if(GalaxySimulationGasHalo){
+   double T0,haloDensity;
+   T0 = HaloGasTemperature(GalaxySimulationGasHaloScaleRadius*Mpc/LengthUnits);
+   haloDensity = GalaxySimulationGasHaloDensity*(T0/HaloGasTemperature(R));
+   haloDensity /= pow((R*LengthUnits/GalaxySimulationGasHaloScaleRadius/Mpc),3);
+   return min(haloDensity,GalaxySimulationGasHaloDensity);
+ }
+
+ return densicm;
 } // end HaloGasDensity
 
 
