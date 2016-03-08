@@ -32,7 +32,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 			    Star *AllStars);
 int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		   Star *AllStars);
+		   int level, Star *AllStars);
 
 int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *&AllStars,
@@ -51,8 +51,7 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 
   /* Only prepare if this is a restart or we're on the finest level */
 
-  if ((GridTime+dt > PhotonTime && LevelArray[level+1] == NULL)
-      || MetaData->FirstTimestepAfterRestart) {
+  if (GridTime+dt > PhotonTime && LevelArray[level+1] == NULL) {
 
     /* Determine the photon timestep */
 
@@ -70,10 +69,8 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
      EvolvePhotons to populate the grids with the proper rates. */
 
   if (MetaData->FirstTimestepAfterRestart == TRUE) {
-    if (RestartPhotons(MetaData, LevelArray, AllStars) == FAIL) {
+    if (RestartPhotons(MetaData, LevelArray, level, AllStars) == FAIL)
       ENZO_FAIL("Error in RestartPhotons.\n");
-
-    }
 
     /* With the radiation field in place, we recalculate the timestep
        if requested */

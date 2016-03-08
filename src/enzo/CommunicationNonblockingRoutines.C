@@ -125,7 +125,7 @@ int KeepTransportingInitialize(char* &kt_global, bool initial_call)
 				       KeepTransMessageMaxIndex);
       }
       if (DEBUG)
-	printf("P%d: Sending KT=%d to P%d\n", MyProcessorNumber, 
+	printf("P%"ISYM": Sending KT=%"ISYM" to P%"ISYM"\n", MyProcessorNumber, 
 	       kt_global[MyProcessorNumber], proc);
       CommunicationBufferedSend(kt_global+MyProcessorNumber, 1, MPI_CHAR, proc,
 				MPI_KEEPTRANSPORTING_TAG, MPI_COMM_WORLD, 1);
@@ -228,7 +228,7 @@ int CommunicationNumberOfPhotonSends(int *nPhoton, int size)
       NumberOfMessages = nPhoton[proc] / size;
       if (nPhoton[proc] % size > 0) NumberOfMessages++;
       if (DEBUG)
-	printf("CRP[%d]: Sending %d messages, %d photons to P%d\n", MyProcessorNumber,
+	printf("CRP[%"ISYM"]: Sending %"ISYM" messages, %"ISYM" photons to P%"ISYM"\n", MyProcessorNumber,
 	       NumberOfMessages, nPhoton[proc], proc);
       CommunicationBufferedSend(&NumberOfMessages, 1, MPI_INT, proc,
 				MPI_NPHOTON_TAG, MPI_COMM_WORLD, sizeof(Eint32));
@@ -251,7 +251,7 @@ int PostPhotonReceives(Eint32 index, Eint32 proc, int size, MPI_Datatype type)
   for (i = 0; i < NumberOfMessages; i++) {
     if (DEBUG)
       printf("CTPh[P%"ISYM"]: Receiving photons from P%"ISYM" "
-	     "(message %"ISYM", %"ISYM"/%"ISYM", index %d)\n", 
+	     "(message %"ISYM", %"ISYM"/%"ISYM", index %"ISYM")\n", 
 	     MyProcessorNumber, proc, i, i+1, NumberOfMessages,
 	     PH_CommunicationReceiveIndex);
     ReceiveBuffer = new GroupPhotonList[size];
@@ -307,7 +307,7 @@ int CommunicationFindOpenRequest(MPI_Request *requests, Eint32 last_free,
       i++;
       i = i % nrequests;
       if (count++ > MAX_PH_RECEIVE_BUFFERS)
-	ENZO_VFAIL("Exceeded number (%d) of comm. buffers MAX_PH_RECEIVE_BUFFERS :: %d %d %d %x", count, last_free, i, nrequests, requests[i]);
+	ENZO_VFAIL("Exceeded number (%"ISYM") of comm. buffers MAX_PH_RECEIVE_BUFFERS :: %"ISYM" %"ISYM" %"ISYM" %x", count, last_free, i, nrequests, requests[i]);
     }
   } // ENDWHILE
 
@@ -346,7 +346,7 @@ int InitializePhotonReceive(int max_size, bool local_transport,
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
 
   if (DEBUG && NumberOfReceives > 0)
-    printf("P%d: Received %d header messages, Index/MaxIndex = %d/%d.\n", 
+    printf("P%"ISYM": Received %"ISYM" header messages, Index/MaxIndex = %"ISYM"/%"ISYM".\n", 
 	   MyProcessorNumber, NumberOfReceives, PhotonMessageIndex, 
 	   PhotonMessageMaxIndex);
 
@@ -360,7 +360,7 @@ int InitializePhotonReceive(int max_size, bool local_transport,
     RecvProc = PH_ListOfStatuses[i].MPI_SOURCE;
 
     if (DEBUG)
-      printf("P%d: Processing header message %d (null=%d) from P%d.\n", 
+      printf("P%"ISYM": Processing header message %"ISYM" (null=%"ISYM") from P%"ISYM".\n", 
 	     MyProcessorNumber, index, 
 	     (PhotonMessageRequest[index] == MPI_REQUEST_NULL),
 	     RecvProc);
@@ -407,7 +407,7 @@ int KeepTransportingSend(int keep_transporting)
   for (proc = 0; proc < NumberOfProcessors; proc++)
     if (proc != MyProcessorNumber) {
       if (DEBUG)
-	printf("P%d: Sending KT=%d to P%d\n", MyProcessorNumber,
+	printf("P%"ISYM": Sending KT=%"ISYM" to P%"ISYM"\n", MyProcessorNumber,
 	       value, proc);
       CommunicationBufferedSend(&value, 1, MPI_CHAR, proc,
 				MPI_KEEPTRANSPORTING_TAG,
@@ -429,7 +429,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
   MPI_Status status;
 
 //  if (DEBUG)
-//    printf("P%d: keep_transporting(before) = %d, KTMaxIndex = %d\n", 
+//    printf("P%"ISYM": keep_transporting(before) = %"ISYM", KTMaxIndex = %"ISYM"\n", 
 //	   MyProcessorNumber, keep_transporting, KeepTransMessageMaxIndex);
 
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
@@ -441,7 +441,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
 
   if (DEBUG && NumberOfReceives > 0)
-    printf("P%d: Received %d KT messages, Index/MaxIndex = %d/%d.\n", 
+    printf("P%"ISYM": Received %"ISYM" KT messages, Index/MaxIndex = %"ISYM"/%"ISYM".\n", 
 	   MyProcessorNumber, NumberOfReceives, KeepTransMessageIndex, 
 	   KeepTransMessageMaxIndex);
 
@@ -468,7 +468,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
       next_kt = 2;
 
     if (DEBUG)
-      printf("P%d: Primary KT receive, P%d, = %d\n",
+      printf("P%"ISYM": Primary KT receive, P%"ISYM", = %"ISYM"\n",
 	     MyProcessorNumber, RecvProc,
 	     KeepTransMessageBuffer[KeepTransMessageIndex]);
 
@@ -510,7 +510,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
 	  next_kt = 2;
 
 	if (DEBUG)
-	  printf("P%d: Secondary KT receive, P%d, Recv %d, = %d\n",
+	  printf("P%"ISYM": Secondary KT receive, P%"ISYM", Recv %"ISYM", = %"ISYM"\n",
 		 MyProcessorNumber, RecvProc, second_recv,
 		 KeepTransMessageBuffer[KeepTransMessageIndex]);
 	second_recv++;
@@ -531,7 +531,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
       kt_global[RecvProc] = TRANSPORT;
 
     if (DEBUG)
-      printf("P%d: Setting kt_global[%d] = %d.  %d secondary receives\n", 
+      printf("P%"ISYM": Setting kt_global[%"ISYM"] = %"ISYM".  %"ISYM" secondary receives\n", 
 	     MyProcessorNumber, RecvProc, kt_global[RecvProc], second_recv);
 
   } // ENDFOR i (receives)
@@ -552,7 +552,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
     keep_transporting = 1;
 
   if (DEBUG && NumberOfReceives > 0)
-    printf("P%d: keep_transporting = %d/%d, kt_global = %d %d %d %d %d %d %d %d\n",
+    printf("P%"ISYM": keep_transporting = %"ISYM"/%"ISYM", kt_global = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
 	   MyProcessorNumber, value, keep_transporting, kt_global[0],
 	   kt_global[1], kt_global[2], kt_global[3], kt_global[4], 
 	   kt_global[5], kt_global[6], kt_global[7]);
@@ -572,17 +572,17 @@ void CommunicationCheckForErrors(int NumberOfStatuses, MPI_Status *statuses,
   for (i = 0; i < NumberOfStatuses; i++)
     if (statuses[i].MPI_ERROR != 0) {
       MPI_Get_count(statuses+i, MPI_BYTE, &datasize);
-      fprintf(stderr, "MPI Error %d processor %"ISYM"\n",
+      fprintf(stderr, "MPI Error %"ISYM" processor %"ISYM"\n",
 	      statuses[i].MPI_ERROR, MyProcessorNumber);
-      fprintf(stderr, "\t MPI_TAG = %d, MPI_SOURCE = %d, datasize = %d bytes\n",
+      fprintf(stderr, "\t MPI_TAG = %"ISYM", MPI_SOURCE = %"ISYM", datasize = %"ISYM" bytes\n",
 	      statuses[i].MPI_TAG, statuses[i].MPI_SOURCE, datasize);
       if (msg != NULL)
-	fprintf(stderr, "P%d: error occurred at %s\n", MyProcessorNumber, msg);
+	fprintf(stderr, "P%"ISYM": error occurred at %s\n", MyProcessorNumber, msg);
       MPI_Error_class(statuses[i].MPI_ERROR, &error_class);
       MPI_Error_string(error_class, error_string, &length);
-      fprintf(stderr, "P%d: %s\n", MyProcessorNumber, error_string);
+      fprintf(stderr, "P%"ISYM": %s\n", MyProcessorNumber, error_string);
       MPI_Error_string(statuses[i].MPI_ERROR, error_string, &length);
-      fprintf(stderr, "P%d: %s\n", MyProcessorNumber, error_string);
+      fprintf(stderr, "P%"ISYM": %s\n", MyProcessorNumber, error_string);
       ENZO_FAIL("MPI communication error!");
 
     } // ENDIF MPI_ERROR

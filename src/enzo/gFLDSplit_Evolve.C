@@ -265,13 +265,13 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
       float NiMax = UMaxVals[2];
       float NiTyp = UTypVals[2];
       if (Nchem > 1) {
-	NiMax = max(NiMax, UMaxVals[3]);
-	NiTyp = max(NiTyp, UTypVals[3]);
-	NiMax = max(NiMax, UMaxVals[4]);
-	NiTyp = max(NiTyp, UTypVals[4]);
+        NiMax = max(NiMax, UMaxVals[3]);
+        NiTyp = max(NiTyp, UTypVals[3]);
+        NiMax = max(NiMax, UMaxVals[4]);
+        NiTyp = max(NiTyp, UTypVals[4]);
       }
       if ((NiMax - NiTyp) > ScaleCorrTol*NiMax)
-	NiScaleCorr = NiMax;
+       NiScaleCorr = NiMax;
     }
   }
 
@@ -319,8 +319,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
       }
       dt = tnew - told;
       if (debug) 
-	printf("\n subcycled rad %"ISYM": dt=%7.1e, t=%7.1e (hydro dt=%7.1e, t=%7.1e)\n",
-	       radstep,dt,tnew,dthydro,end_time);
+       printf("\n subcycled rad %"ISYM": dt=%7.1e, t=%7.1e (hydro dt=%7.1e, t=%7.1e)\n",
+        radstep,dt,tnew,dthydro,end_time);
       
       // take a radiation step
       recompute_step = this->RadStep(ThisGrid, eta_set);
@@ -328,9 +328,9 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
       // if the radiation step was unsuccessful, back-track to previous 
       // step and pull back on dtrad
       if (recompute_step) {
-	dtrad = max(dtrad*0.5, mindt);
-	tnew = told;
-	radstop = 0;
+       dtrad = max(dtrad*0.5, mindt);
+       tnew = told;
+       radstop = 0;
       }
 
     }
@@ -358,45 +358,44 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
       tchem = told;
       chemstop = 0;
       for (chemstep=0; chemstep<=maxchemsub*2; chemstep++) {
-	
-	// update tchem
-	thisdt = min(dtchem, dt);             // do not exceed radiation dt
-	thisdt = max(thisdt, dt/maxchemsub);  // set max subcycle count wrt radiation
-	tchem += thisdt;                      // update chemistry time
-	if ((tchem - tnew)/tnew > -1.0e-14) { // do not exceed radiation time
-	  thisdt = tnew - (tchem - thisdt);   // get max time step
-	  tchem = tnew;                       // set updated time
-	  chemstop = 1;
-	}
-	if (debug) 
-	  printf("   subcycled chem %"ISYM": dt=%7.1e, t=%7.1e (rad dt=%7.1e, t=%7.1e)\n",
-		 chemstep,thisdt,tchem,dt,tnew);
+      	// update tchem
+        thisdt = min(dtchem, dt);             // do not exceed radiation dt
+        thisdt = max(thisdt, dt/maxchemsub);  // set max subcycle count wrt radiation
+        tchem += thisdt;                      // update chemistry time
+        if ((tchem - tnew)/tnew > -1.0e-14) { // do not exceed radiation time
+          thisdt = tnew - (tchem - thisdt);   // get max time step
+          tchem = tnew;                       // set updated time
+          chemstop = 1;
+        }
+        if (debug) 
+          printf("   subcycled chem %"ISYM": dt=%7.1e, t=%7.1e (rad dt=%7.1e, t=%7.1e)\n",
+            chemstep,thisdt,tchem,dt,tnew);
 
-	//   take a chemistry step
-	if (this->ChemStep(ThisGrid, thisdt, tchem) != SUCCESS)
-	  ENZO_FAIL("gFLDSplit Evolve: Error in ChemStep routine");
-	
-	// update chemistry time step size based on changes to chem+energy
-	//   (limit growth at each cycle)
-	dtchem2 = this->ComputeTimeStep(U0,sol,1);
-	dtchem = min(dtchem2, 2.0*dtchem);
-	
-	//   Zero out fluid energy correction fields
-	for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
-	  sol_ec[i] = 0.0;
-	for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
-	  FluidEnergyCorrection[i] = 0.0;
-	
-	//   Update Enzo chemistry arrays with new values
-	if (Nchem > 0)  
-	  U0->copy_component(sol, 2);  // HI
-	if (Nchem > 1) {
-	  U0->copy_component(sol, 3);  // HeI
-	  U0->copy_component(sol, 4);  // HeII
-	}
+        //   take a chemistry step
+        if (this->ChemStep(ThisGrid, thisdt, tchem) != SUCCESS)
+          ENZO_FAIL("gFLDSplit Evolve: Error in ChemStep routine");
 
-	// break out of time-stepping loop if we've reached the end
-	if (chemstop)  break;
+        // update chemistry time step size based on changes to chem+energy
+        //   (limit growth at each cycle)
+        dtchem2 = this->ComputeTimeStep(U0,sol,1);
+        dtchem = min(dtchem2, 2.0*dtchem);
+
+        //   Zero out fluid energy correction fields
+        for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
+          sol_ec[i] = 0.0;
+        for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
+          FluidEnergyCorrection[i] = 0.0;
+
+        //   Update Enzo chemistry arrays with new values
+        if (Nchem > 0)  
+          U0->copy_component(sol, 2);  // HI
+        if (Nchem > 1) {
+	        U0->copy_component(sol, 3);  // HeI
+	        U0->copy_component(sol, 4);  // HeII
+        }
+
+        // break out of time-stepping loop if we've reached the end
+        if (chemstop)  break;
 	
       }  // end of chemistry subcycling
       
@@ -453,9 +452,9 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
 
   // update scaling factors to account for new values
   if (StartAutoScale && autoScale) {
-    ErScale *= ErScaleCorr;
-    ecScale *= ecScaleCorr;
-    NiScale *= NiScaleCorr;
+    ErScale *= max(ErScaleCorr, 1.0);
+    ecScale *= max(ecScaleCorr, 1.0);
+    NiScale *= max(NiScaleCorr, 1.0);
   }
 
   //   Update dependent chemical species densities (ne, nHII, nHeIII) 
@@ -667,7 +666,7 @@ int gFLDSplit::ChemBounds(HierarchyEntry *ThisGrid)
       // update HeI, HeII as appropriate fractions of 'true' density
       nHeI[i]   *= rho[i]*(1.0-HFrac)/rhochem;
       nHeII[i]  *= rho[i]*(1.0-HFrac)/rhochem;
-      nHeIII[i] *= max(0.0, rho[i]*(1.0-HFrac) - nHeI[i] - nHeII[i]);
+      nHeIII[i] = max(0.0, rho[i]*(1.0-HFrac) - nHeI[i] - nHeII[i]);
     }
   }
 
@@ -746,42 +745,6 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
   if ((srcMax - srcNorm) > ScaleCorrTol*srcMax)  
     StartAutoScale = true;
 
-  // Multigrid solver: for periodic dims, only coarsen until grid no longer divisible by 2
-  Eint32 max_levels, level=-1;
-  int Ndir;
-  if (BdryType[0][0] == 0) {
-    level = 0;
-    Ndir = GlobDims[0];
-    while ( Ndir%2 == 0 ) {
-      level++;
-      Ndir /= 2;
-    }
-  }
-  max_levels = level;
-  if (rank > 1) {
-    if (BdryType[1][0] == 0) {
-      level = 0;
-      Ndir = GlobDims[1];
-      while ( Ndir%2 == 0 ) {
-	level++;
-	Ndir /= 2;
-      }
-    }
-    max_levels = min(level,max_levels);
-  }
-  if (rank > 2) {
-    if (BdryType[2][0] == 0) {
-      level = 0;
-      Ndir = GlobDims[2];
-      while ( Ndir%2 == 0 ) {
-	level++;
-	Ndir /= 2;
-      }
-    }
-    max_levels = min(level,max_levels);
-  }
-  
-  
   //   enforce boundary conditions on current time step vector
   if (this->EnforceBoundary(U0) != SUCCESS) 
     ENZO_FAIL("gFLDSplit_RadStep: EnforceBoundary failure!!");
@@ -801,9 +764,6 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
     
 #ifdef USE_HYPRE
   
-  HYPRE_StructSolver solver;            // HYPRE solver structure
-  HYPRE_StructSolver preconditioner;    // HYPRE preconditioner structure
-  
   // set up and solve radiation equation
   float *RadiationEnergy = U0->GetData(0);    // old radiation energy array
   float *Eg_new = sol->GetData(0);    // updated radiation energy array
@@ -811,6 +771,20 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
   if (this->SetupSystem(matentries, rhsentries, &rhsnorm, RadiationEnergy, Eg_new, 
 			OpacityE, Temperature, Temperature0, RadSrc) != SUCCESS) 
     ENZO_FAIL("gFLDSplit_RadStep: Error in SetupSystem routine");
+  
+  // skip solve if ||rhs|| < sol_tolerance  (i.e. old solution is fine)
+  if (rhsnorm < sol_tolerance) {
+    if (debug) {
+      printf(" ----------------------------------------------------------------------\n");
+      printf("   no solve required: |rhs| = %.1e  <  tol = %.1e\n", rhsnorm, sol_tolerance);
+      printf(" ======================================================================\n\n");
+    }
+    // rescale dt, told, tnew, adot back to normalized values
+    dt   /= TimeUnits;
+    told /= TimeUnits;
+    tnew /= TimeUnits;
+    return 0;
+  }
   
   // assemble matrix
   Eint32 entries[7] = {0, 1, 2, 3, 4, 5, 6};   // matrix stencil entries
@@ -851,6 +825,8 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
 
   // set up the solver and preconditioner [PFMG]
   //    create the solver & preconditioner
+  HYPRE_StructSolver solver;            // HYPRE solver structure
+  HYPRE_StructSolver preconditioner;    // HYPRE preconditioner structure
   switch (Krylov_method) {
   case 0:   // PCG
     HYPRE_StructPCGCreate(MPI_COMM_WORLD, &solver);
@@ -864,6 +840,41 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
   }
   HYPRE_StructPFMGCreate(MPI_COMM_WORLD, &preconditioner);
   
+  // Multigrid solver: for periodic dims, only coarsen until grid no longer divisible by 2
+  Eint32 max_levels, level=-1;
+  int Ndir;
+  if (BdryType[0][0] == 0) {
+    level = 0;
+    Ndir = GlobDims[0];
+    while ( Ndir%2 == 0 ) {
+      level++;
+      Ndir /= 2;
+    }
+  }
+  max_levels = level;
+  if (rank > 1) {
+    if (BdryType[1][0] == 0) {
+      level = 0;
+      Ndir = GlobDims[1];
+      while ( Ndir%2 == 0 ) {
+	level++;
+	Ndir /= 2;
+      }
+    }
+    max_levels = min(level,max_levels);
+  }
+  if (rank > 2) {
+    if (BdryType[2][0] == 0) {
+      level = 0;
+      Ndir = GlobDims[2];
+      while ( Ndir%2 == 0 ) {
+	level++;
+	Ndir /= 2;
+      }
+    }
+    max_levels = min(level,max_levels);
+  }
+
   //    set preconditioner options
   if (max_levels > -1) 
     HYPRE_StructPFMGSetMaxLevels(preconditioner, max_levels);

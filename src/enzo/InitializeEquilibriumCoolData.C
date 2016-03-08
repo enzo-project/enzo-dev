@@ -136,15 +136,18 @@ int InitializeEquilibriumCoolData(FLOAT Time)
 
 
   /* Output cooling rate in code units. */
- 
-  fptr = fopen("cool_rates.out", "w");
-  for (index = 0; index < CoolData.NumberOfTemperatureBins; index++)
-    fprintf(fptr, "%"GSYM" %"GSYM"\n", log10(CoolData.TemperatureStart) +
-	   (log10(CoolData.TemperatureEnd)-
-	    log10(CoolData.TemperatureStart)) * float(index)/
-	   float(CoolData.NumberOfTemperatureBins-1),
-	   CoolData.EquilibriumRate[index]);
-  fclose(fptr);
+
+  if( MyProcessorNumber == ROOT_PROCESSOR ){
+    fptr = fopen("cool_rates.out", "w");
+    for (index = 0; index < CoolData.NumberOfTemperatureBins; index++)
+      fprintf(fptr, "%"GSYM" %"GSYM"\n", log10(CoolData.TemperatureStart) +
+       (log10(CoolData.TemperatureEnd)-
+        log10(CoolData.TemperatureStart)) * float(index)/
+       float(CoolData.NumberOfTemperatureBins-1),
+       CoolData.EquilibriumRate[index]);
+    fclose(fptr);
+  } // end rootgrid if
+
   }else if( RadiativeCoolingModel == 3){
       CoolData.NumberOfTemperatureBins = 2;
       CoolData.EquilibriumRate = new float[CoolData.NumberOfTemperatureBins];

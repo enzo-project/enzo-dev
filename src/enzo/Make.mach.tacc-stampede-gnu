@@ -1,0 +1,155 @@
+#=======================================================================
+#
+# FILE:        Make.mach.tacc-stampede-gnu
+#
+# DESCRIPTION: GNU compiler suite on Stampede
+#
+# AUTHOR:      Robert Harkness/Alexei Kritsuk
+# AUTHOR2:     Stephen Skory (7 Oct 2008)
+# AUTHOR3:     Gabriel Altay (18 Sept 2014)
+# AUTHOR4:     Cameron Hummels (18 Sept 2014)
+#
+# DATE:        2014-09-18
+#
+# To use this makefile, you need to update your environment. Either
+# execute the following statements on the command line, or put them 
+# in a startup script. 
+#   module load gcc
+#   module load hdf5
+#   module load mvapich2
+#
+# To actually run the enzo executable you will need to update your 
+# LD_LIBRARY_PATH variable to include $TACC_HDF5_DIR/lib, for example, 
+#   export LD_LIBRARY_PATH=$TACC_HDF5_DIR/lib:$LD_LIBRARY_PATH
+#   
+# If you wish to use HYPRE (required by the FLD solver), you will need 
+# to build a local copy as (currently) the stampede hypre module is not 
+# available with the gnu compiler collection.  Once built, indicate the path 
+# to the install by setting the variable LOCAL_HYPRE_INSTALL below 
+#
+# If you wish to use the Grackle library you will need to build 
+# a local copy and edit the line below that sets LOCAL_GRACKLE_INSTALL
+#   
+# Addionally, you should ensure that you're using the same HDF5
+# utilities that you're linking against.
+#
+#=======================================================================
+
+MACH_TEXT  = TACC Stampede GNU
+MACH_VALID = 1
+MACH_FILE  = Make.mach.tacc-stampede-gnu
+
+MACHINE_NOTES = "MACHINE_NOTES for Stampede-gcc at UT-Austin/TACC: \
+	The HDF5 library directory should be added to the LD_LIBRARY_PATH \
+	using a command like, \
+	(export LD_LIBRARY_PATH=$TACC_HDF5_DIR/lib:$LD_LIBRARY_PATH) \
+	The following modules are needed to compile enzo here with \
+	this machine file: gcc hdf5 mvapich2 \
+	(module load gcc) \
+        (module load hdf5) \
+        (module load mvapich2). \
+	Note that the hypre module (required by the FLD solver) is not \
+	available with the gnu compilers on stampede.  To use hypre you \
+	will have to build a local copy and edit LOCAL_HYPRE_INSTALL \
+	to indicate its location. \
+	If you wish to use the Grackle library you will need to build \
+	a local copy (with the gnu compiler) and edit the value of \
+	LOCAL_GRACKLE_INSTALL in this machine file. "
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_MPI_INSTALL     =
+LOCAL_HDF4_INSTALL    = 
+LOCAL_HYPRE_INSTALL   = 
+LOCAL_ACML_INSTALL    = 
+LOCAL_HDF5_INSTALL    = $(TACC_HDF5_DIR)
+LOCAL_GRACKLE_INSTALL = 
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = cpp
+
+# With MPI
+
+MACH_CC_MPI    = mpicc
+MACH_CXX_MPI   = mpicxx -DMPICH_IGNORE_CXX_SEEK
+MACH_FC_MPI    = mpif90
+MACH_F90_MPI   = mpif90
+MACH_LD_MPI    = mpif90
+
+# Without MPI
+
+MACH_CC_NOMPI  = gcc # C compiler when not using MPI
+MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
+MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = gfortran # Linker when not using MPI
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional 
+MACH_CFLAGS   = 
+MACH_CXXFLAGS =
+MACH_FFLAGS   = -fno-second-underscore -ffixed-line-length-132
+MACH_F90FLAGS = -fno-second-underscore
+MACH_LDFLAGS  = -lstdc++ -lc
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g
+MACH_OPT_DEBUG       = -g 
+MACH_OPT_HIGH        = -O2  
+MACH_OPT_AGGRESSIVE  = -O3 
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI     = 
+LOCAL_INCLUDES_HDF5    = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HYPRE   = -I$(LOCAL_HYPRE_INSTALL)/include
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_GRACKLE = $(LOCAL_INCLUDES_GRACKLE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+#
+# make sure to "load module hdf5" before compiling
+#
+#
+
+LOCAL_LIBS_MPI    = 
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
+LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
+LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+
+LOCAL_LIBS_MACH   = -lm
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)

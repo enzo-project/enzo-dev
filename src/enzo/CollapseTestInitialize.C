@@ -38,6 +38,13 @@ void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
 
+static float CollapseTestInitialFractionHII   = 1.2e-5;
+static float CollapseTestInitialFractionHeII  = 1.0e-14;
+static float CollapseTestInitialFractionHeIII = 1.0e-17;
+static float CollapseTestInitialFractionHM    = 2.0e-9;
+static float CollapseTestInitialFractionH2I   = 2.0e-20;
+static float CollapseTestInitialFractionH2II  = 3.0e-14;
+
 int CollapseTestInitialize(FILE *fptr, FILE *Outfptr, 
 			  HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
@@ -47,7 +54,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *Vel1Name = "x-velocity";
   const char *Vel2Name = "y-velocity";
   const char *Vel3Name = "z-velocity";
-  const char *ColourName = "colour";
+  const char *ColourName = "SN_Colour";
   const char *ElectronName = "Electron_Density";
   const char *HIName    = "HI_Density";
   const char *HIIName   = "HII_Density";
@@ -88,7 +95,11 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     CollapseTestSphereAng1[MAX_SPHERES],
     CollapseTestSphereAng2[MAX_SPHERES],
     CollapseTestSphereMetallicity[MAX_SPHERES],
-    CollapseTestSphereSmoothRadius[MAX_SPHERES];
+    CollapseTestSphereSmoothRadius[MAX_SPHERES],
+    CollapseTestSphereHIIFraction[MAX_SPHERES],
+    CollapseTestSphereHeIIFraction[MAX_SPHERES],
+    CollapseTestSphereHeIIIFraction[MAX_SPHERES],
+    CollapseTestSphereH2IFraction[MAX_SPHERES];
   int CollapseTestSphereNumShells[MAX_SPHERES],
     CollapseTestSphereInitialLevel[MAX_SPHERES],
     CollapseTestSphereType[MAX_SPHERES],
@@ -111,8 +122,12 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     CollapseTestSphereAng2[sphere] = 0;
     CollapseTestSphereNumShells[sphere] = 1;
     CollapseTestSphereSmoothRadius[sphere] = 1.2;
-    CollapseTestSphereMetallicity[sphere] = 0;
+    CollapseTestSphereMetallicity[sphere] = tiny_number;
     CollapseTestSphereInitialLevel[sphere] = 0;
+    CollapseTestSphereHIIFraction[sphere] = CollapseTestInitialFractionHII;
+    CollapseTestSphereHeIIFraction[sphere] = CollapseTestInitialFractionHeII;
+    CollapseTestSphereHeIIIFraction[sphere] = CollapseTestInitialFractionHeIII;
+    CollapseTestSphereH2IFraction[sphere] = CollapseTestInitialFractionH2I;
 
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       CollapseTestSpherePosition[sphere][dim] = 0.5*(DomainLeftEdge[dim] +
@@ -214,6 +229,31 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     if (sscanf(line, "CollapseTestSphereSmoothRadius[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "CollapseTestSphereSmoothRadius[%"FSYM"] = %"FSYM, &sphere,
 		    &CollapseTestSphereSmoothRadius[sphere]);
+    if (sscanf(line, "CollapseTestSphereHIIFraction[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "CollapseTestSphereHIIFraction[%"ISYM"] = %"FSYM, &sphere,
+                    &CollapseTestSphereHIIFraction[sphere]);
+    if (sscanf(line, "CollapseTestSphereHeIIFraction[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "CollapseTestSphereHeIIFraction[%"ISYM"] = %"FSYM, &sphere,
+                    &CollapseTestSphereHeIIFraction[sphere]);
+    if (sscanf(line, "CollapseTestSphereHeIIIFraction[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "CollapseTestSphereHeIIIFraction[%"ISYM"] = %"FSYM, &sphere,
+                    &CollapseTestSphereHeIIIFraction[sphere]);
+    if (sscanf(line, "CollapseTestSphereH2IFraction[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "CollapseTestSphereH2IFraction[%"ISYM"] = %"FSYM, &sphere,
+                    &CollapseTestSphereH2IFraction[sphere]);
+
+    ret += sscanf(line, "CollapseTestInitialFractionHII = %"FSYM,
+		  &CollapseTestInitialFractionHII);
+    ret += sscanf(line, "CollapseTestInitialFractionHeII = %"FSYM,
+		  &CollapseTestInitialFractionHeII);
+    ret += sscanf(line, "CollapseTestInitialFractionHeIII = %"FSYM,
+		  &CollapseTestInitialFractionHeIII);
+    ret += sscanf(line, "CollapseTestInitialFractionHM = %"FSYM,
+		  &CollapseTestInitialFractionHM);
+    ret += sscanf(line, "CollapseTestInitialFractionH2I = %"FSYM,
+		  &CollapseTestInitialFractionH2I);
+    ret += sscanf(line, "CollapseTestInitialFractionH2II = %"FSYM,
+		  &CollapseTestInitialFractionH2II);
 
     /* if the line is suspicious, issue a warning */
 
@@ -236,11 +276,16 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
              CollapseTestSphereAng2, CollapseTestSphereNumShells,
 	     CollapseTestSphereType, CollapseTestSphereConstantPressure,
 	     CollapseTestSphereSmoothSurface, CollapseTestSphereSmoothRadius, 
+	     CollapseTestSphereHIIFraction, CollapseTestSphereHeIIFraction,
+	     CollapseTestSphereHeIIIFraction, CollapseTestSphereH2IFraction,
 	     CollapseTestUseParticles, CollapseTestParticleMeanDensity,
              CollapseTestUniformVelocity, CollapseTestUseColour,
 	     CollapseTestUseMetals,
              CollapseTestInitialTemperature, CollapseTestInitialDensity,
-	     0) == FAIL) {
+	     0,
+	     CollapseTestInitialFractionHII, CollapseTestInitialFractionHeII,
+	     CollapseTestInitialFractionHeIII, CollapseTestInitialFractionHM,
+	     CollapseTestInitialFractionH2I, CollapseTestInitialFractionH2II) == FAIL) {
     ENZO_FAIL("Error in CollapseTestInitializeGrid.");
   }
 
@@ -341,11 +386,16 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		  CollapseTestSphereAng2, CollapseTestSphereNumShells,
 		  CollapseTestSphereType, CollapseTestSphereConstantPressure,
 		  CollapseTestSphereSmoothSurface, CollapseTestSphereSmoothRadius, 
+		  CollapseTestSphereHIIFraction, CollapseTestSphereHeIIFraction,
+		  CollapseTestSphereHeIIIFraction, CollapseTestSphereH2IFraction,
 		  CollapseTestUseParticles, CollapseTestParticleMeanDensity,
 		  CollapseTestUniformVelocity, CollapseTestUseColour,
 		  CollapseTestUseMetals,
 		  CollapseTestInitialTemperature, CollapseTestInitialDensity,
-		  lev-1) == FAIL) {
+		  lev-1,
+		  CollapseTestInitialFractionHII, CollapseTestInitialFractionHeII,
+		  CollapseTestInitialFractionHeIII, CollapseTestInitialFractionHM,
+		  CollapseTestInitialFractionH2I, CollapseTestInitialFractionH2II) == FAIL) {
 		ENZO_FAIL("Error in CollapseTestInitializeGrid.");
 	      }
 	      
@@ -385,11 +435,16 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		 CollapseTestSphereAng2, CollapseTestSphereNumShells,
 		 CollapseTestSphereType, CollapseTestSphereConstantPressure,
 		 CollapseTestSphereSmoothSurface, CollapseTestSphereSmoothRadius, 
+		 CollapseTestSphereHIIFraction, CollapseTestSphereHeIIFraction,
+		 CollapseTestSphereHeIIIFraction, CollapseTestSphereH2IFraction,
 		 CollapseTestUseParticles, CollapseTestParticleMeanDensity,
 		 CollapseTestUniformVelocity, CollapseTestUseColour,
 		 CollapseTestUseMetals,
 		 CollapseTestInitialTemperature, CollapseTestInitialDensity,
-		 level+1) == FAIL) {
+		 level+1,
+		 CollapseTestInitialFractionHII, CollapseTestInitialFractionHeII,
+		 CollapseTestInitialFractionHeIII, CollapseTestInitialFractionHM,
+		 CollapseTestInitialFractionH2I, CollapseTestInitialFractionH2II) == FAIL) {
 	    ENZO_FAIL("Error in CollapseTestInitializeGrid.");
 	  }
 	  Temp = Temp->NextGridThisLevel;
@@ -505,6 +560,14 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 	      CollapseTestSphereSmoothSurface[sphere]);
       fprintf(Outfptr, "CollapseTestSphereSmoothRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      CollapseTestSphereSmoothRadius[sphere]);
+      fprintf(Outfptr, "CollapseTestSphereHIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
+	      CollapseTestSphereHIIFraction[sphere]);
+      fprintf(Outfptr, "CollapseTestSphereHeIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
+	      CollapseTestSphereHeIIFraction[sphere]);
+      fprintf(Outfptr, "CollapseTestSphereHeIIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
+	      CollapseTestSphereHeIIIFraction[sphere]);
+      fprintf(Outfptr, "CollapseTestSphereH2IFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
+	      CollapseTestSphereH2IFraction[sphere]);
     }
   }
 

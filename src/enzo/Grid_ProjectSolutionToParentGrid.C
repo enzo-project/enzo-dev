@@ -134,7 +134,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
       ParentSize *= ParentDim[dim];
     }
     for (field = 0; field < NumberOfBaryonFields; field++) {
-      delete ParentGrid.BaryonField[field];
+      delete [] ParentGrid.BaryonField[field];
       ParentGrid.BaryonField[field] = new float[ParentSize];
     }
   }
@@ -145,9 +145,9 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   if (ProcessorNumber == MyProcessorNumber)
     for (field = 0; field < NumberOfBaryonFields; field++){
       // Do not zero out fields that won't be projected to parent.
-      if (FieldTypeNoInterpolate(FieldType[field]) == TRUE){
-	continue;
-      }
+      if (FieldType[field] != RaySegments)
+	if (FieldTypeNoInterpolate(FieldType[field]) == TRUE)
+	  continue;
       for (k = ParentStartIndex[2]; k <= ParentEndIndex[2]; k++)
 	for (j = ParentStartIndex[1]; j <= ParentEndIndex[1]; j++) {
 	  pindex = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
@@ -208,8 +208,8 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	  
           if(ParentGrid.ProcessorNumber != MyProcessorNumber ){
             if(ParentGrid.ElectricField[field] != NULL ){
-              fprintf(stderr,"ProjectSolution: ElectricField not null where it should be.\n");
-              fprintf(stderr,"Find out why, and where.\n");
+//             fprintf(stderr,"ProjectSolution: ElectricField not null where it should be.\n");
+//             fprintf(stderr,"Find out why, and where.\n");
               delete [] ParentGrid.ElectricField[field];
             }
 	    ParentGrid.ElectricField[field]=new float[ MHDeParentSize[field] ];
@@ -436,7 +436,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	      ParentGrid.BaryonField[Vel3Num][i1] *
 	      ParentGrid.BaryonField[Vel3Num][i1];
 
-	if (HydroMethod == MHD_RK) {
+	if ( UseMHD ) {
 	  float B2;
 	  i1 = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
 	  for (i = ParentStartIndex[0]; i <= ParentEndIndex[0]; i++, i1++) {
@@ -448,14 +448,6 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	  }
 	}
 
-        if(UseMHDCT==TRUE){
-	  i1 = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
-          for(i = ParentStartIndex[0];i <= ParentEndIndex[0];i++,i1++){
-            ParentGrid.BaryonField[TENum][i1]+=0.5*(pow(ParentGrid.CenteredB[0][i1],2)+pow(ParentGrid.CenteredB[1][i1],2)
-						    +pow(ParentGrid.CenteredB[2][i1],2))/ParentGrid.BaryonField[DensNum][i1];
-          }
-	}
-		
       } // end: loop over faces
  
   /* Clean up the fake ParentGrid. */

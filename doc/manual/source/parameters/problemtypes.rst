@@ -47,6 +47,7 @@ Problem Type Description and Parameter List
 40 	     :ref:`supernovarestart_param`
 50 	     :ref:`photontest_param`
 51	     Photon Test Restart
+59       :ref:`stochastic_forcing_param`
 60 	     :ref:`turbulence_param` 
 61 	     :ref:`protostellar_param` 
 62 	     :ref:`coolingtest_param`
@@ -70,6 +71,7 @@ Problem Type Description and Parameter List
 208          :ref:`agndisk_param`
 209	     MHD 1D Waves
 210	     MHD Decaying Random Magnetic Fields
+250	     :ref:`cr_shocktube_param`
 300          :ref:`poissonsolver_param`
 400          :ref:`rhdtest1_param`
 401          :ref:`rhdtest2_param`
@@ -742,6 +744,24 @@ Collapse Test (27)
 
 ``CollapseTestInitialTemperature`` (external)
     Initial gas temperature. Default: 1000 K. Units: degrees Kelvin
+``CollapseTestInitialFractionHII`` (external)
+    Initial HII fraction in the domain except for the spheres.
+    Default: 1.2e-5
+``CollapseTestInitialFractionHeII`` (external)
+    Initial HeII fraction in the domain except for the spheres.
+    Default: 1e-14
+``CollapseTestInitialFractionHeIII`` (external)
+    Initial HeIII fraction in the domain except for the spheres.
+    Default: 1e-17
+``CollapseTestInitialFractionHM`` (external)
+    Initial H- fraction in the domain except for the spheres.
+    Default: 2e-9
+``CollapseTestInitialFractionH2I`` (external)
+    Initial H2I fraction in the domain except for the spheres.
+    Default: 2e-20
+``CollapseTestInitialFractionH2II`` (external)
+    Initial H2II fraction in the domain except for the spheres.
+    Default: 3e-14
 ``CollapseTestNumberOfSpheres`` (external)
     Number of spheres to collapse; must be <= ``MAX_SPHERES=10`` (see
     ``Grid.h`` for definition). Default: 1
@@ -813,6 +833,18 @@ Collapse Test (27)
 ``CollapseTestSmoothRadius`` (external)
     The outer radius of the smoothed interface.  This parameter is in
     units of the sphere radius.  Default: 1.2
+``CollapseTestSphereHIIFraction`` (external)
+    Initial HII fraction of the sphere.  Default: 1.2e-5
+``CollapseTestSphereHeIIFraction`` (external)
+    Initial HeII fraction of the sphere.  Default: 1e-14
+``CollapseTestSphereHeIIIFraction`` (external)
+    Initial HeIII fraction of the sphere.  Default: 1e-17
+``CollapseTestSphereHMFraction`` (external)
+    Initial H- fraction of the sphere.  Default: 2e-9
+``CollapseTestSphereH2IFraction`` (external)
+    Initial H2I fraction of the sphere.  Default: 2e-20
+``CollapseTestSphereH2IIFraction`` (external)
+    Initial H2II fraction of the sphere.  Default: 3e-14
 ``CollapseTestSphereInitialLevel`` (external)
     Failed experiment to try to force refinement to a specified level.
     Not working. Default: 0.
@@ -963,7 +995,7 @@ Cosmology Simulation (30)
 ``CosmologySimulationOmegaCDMNow`` (external)
     This is the contribution of CDM to the energy density at the
     current epoch (z=0), relative to the value required to marginally
-    close the universe. Typical value 0.94. Default: 0.0 (no dark
+    close the universe. Typical value 0.24. Default: 0.0 (no dark
     matter)
 ``CosmologySimulationManuallySetParticleMassRatio`` (external)
     This binary flag (0 - off, 1 - on) allows the user to manually set
@@ -1041,6 +1073,49 @@ Isolated Galaxy Evolution (31)
     Unit vector that defines the angular momentum vector of the galaxy
     (in other words, this and the center position define the plane of
     the galaxy). This _MUST_ be set! Default: (0.0, 0.0, 0.0)
+``GalaxySimulationRPSWind`` (external)
+    This flag turns on the ram pressure stripped (RPS) wind in the
+    GalaxySimulation problem and sets the mode.  0 = off, 1 = on with
+    simple constant wind values, 2 = on with RPS values set from a
+    file with the name ICMinflow_data.in.  For the file input case,
+    the file should consist of a set of lines with each line
+    specifying a 6 columns consisting of time, wind density, wind
+    temperature, wind x/y/z velocity.  All units in the file are
+    assumed to be CGS and wind values are applied at the time
+    indicated to the corner of the box, with linear interpolation
+    between key frames.  See Salem et al. (2015) for a worked example.
+    Default: 0
+``GalaxySimulationRPSWindShockSpeed`` (external)
+    This is speed of the RPS driven shock (which differs from the
+    wind velocity), to be used to determine where and when to apply
+    the appropriate wind boundary condition on the boundary.  Code units.
+    Default: 0.0
+``GalaxySimulationRPSWindDelay`` (external)
+    This is a delay (in code units) for the RPS wind to be applied
+    (for example to give time for the galaxy to relax).
+    Default: 0.0
+``GalaxySimulationRPSWindDensity`` (external)
+    For case 1, this is the density of the RPS wind, in code units.
+    Default: 1.0
+``GalaxySimulationRPSWindtotalEnergy`` (external)
+    For case 1, this is the total energy of the RPS wind, in code units.
+    Default: 1.0
+``GalaxySimulationRPSWindPressure`` (external)
+    For case 1, this is the pressutre of the RPS wind (unused).
+    Default: 1.0
+``GalaxySimulationRPSWindVelocity`` (external)
+    For case 1, This is the wind velocity (code units)
+    Default: 0 0 0
+``GalaxySimulationRPSWindPreWindDensity`` (external)
+    This is the density applied to the boundary before the wind arrives.
+    Default: 1.0
+``GalaxySimulationRPSWindPreWindTotalEnergy`` (external)
+    This is the total energy applied to the boundary before the wind arrives.
+    Default: 1.0
+``GalaxySimulationRPSWindPreWindVelocity`` (external)
+    This is the velocity vector applied to the boundary before the
+    wind arrives.
+    Default:
 
 .. _shearingbox_param:
 
@@ -1151,6 +1226,66 @@ Photon Test (50)
     Sets the initial ionized fraction of H2. Default: 3e-14
 ``PhotonTestOmegaBaryonNow`` (obsolete)
     Default: 0.05.
+``PhotonTestDensityFilename`` (external)
+    Filename of an external density field in HDF5 format.  The file
+    should only have one dataset. Default: (undefined)
+``PhotonTestHIIFractionFilename`` (external)
+    Filename of an external HII fraction field in its own HDF5 format.
+    The file should only have one dataset.  Default: (undefined)
+``PhotonTestHeIIFractionFilename`` (external)
+    Filename of an external HeII fraction field in its own HDF5 format.
+    The file should only have one dataset.  Default: (undefined)
+``PhotonTestHeIIIFractionFilename`` (external)
+    Filename of an external HeIII fraction field in its own HDF5 format.
+    The file should only have one dataset.  Default: (undefined)
+``PhotonTestTemperatureFilename`` (external)
+    Filename of an external temperature field in its own HDF5 format.
+    The file should only have one dataset.  Default: (undefined)
+
+.. _stochastic_forcing_param:
+
+Turbulence Simulation with Stochastic Forcing (59)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Typical quasi-isothermal "turbulence-in-a-box" problem with non-static driving field.
+    For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
+    http://dx.doi.org/10.1051/0004-6361:200809967
+
+    3D simulations with MUSCL hydro and MHD solver are tested.
+    PPM, ZEUS and MHDCT unsupported at this time.
+
+    Remember that in addition to the problem specific parameters below 
+    UseDrivingField = 1 has to be turned on!
+
+
+``DrivenFlowProfile`` (external)
+    Shape of forcing power spectrum (1: delta peak, 2: band, 3: parabolic window).
+
+``DrivenFlowAlpha`` (external)
+    Ratio of domain length to integral length for each dimension (L = X/alpha).
+
+``DrivenFlowBandWidth`` (external)
+    Determines band width of the forcing spectrum relative to alpha (maximal value = 1).
+
+``DrivenFlowMach`` (external)
+    Characteristic velocity scale for each dimension (charcteristic force per unit mass F = V*V/L).
+
+``DrivenFlowAutoCorrl`` (external)
+    Determines autocorrelation time of the stochastic force in units of the integral time scale T = L/V.
+
+``DrivenFlowWeight`` (external)
+    Determines weight of solenoidal relative to dilatational modes (1 = purely solenoidal, 0 = purely dilatational).
+
+``DrivenFlowSeed`` (external)
+    Seed of random number generator.
+
+``DrivenFlowDensity`` (external)
+    Initial uniform density.
+
+``DrivenFlowPressure`` (external)
+    Initial uniform pressure.
+
+``DrivenFlowMagField`` (external)
+    Initial uniform magnetic field (x-direction)
 
 .. _turbulence_param:
 
@@ -1436,6 +1571,10 @@ Cluster Cooling Flow (108)
 2D MHD Test (201)
 ~~~~~~~~~~~~~~~~~
 
+This problem type sets up many common 2D hydro and MHD problem types.
+Many of them can be run also without MHD despite the name. Which problem is done is controled by
+MHD2DProblemType which can vary from 0 to 16 so far.
+
 ``RefineAtStart`` (external)
     Boolean flag. Default: TRUE
 ``LowerVelocityX``, ``UpperVelocityX`` (external)
@@ -1452,6 +1591,7 @@ Cluster Cooling Flow (108)
     Initial magnetic field y-direction. Default: 0 (for both)
 ``MHD2DProblemType`` (external)
     Default: 0
+    0: Raleigh-Taylor, 1: MHD rotor (Toth 2000, JCompPhys 161, 605.), 2: MHD blast wave (Gardiner and Stone 2005, JCompPhys. 205, 509), 3: MHD Kelvin-Helmholtz (Gardiner & Stone 2005), 4: Another MHD Kelvin Helmholtz, 5: Shock-vortex interaction (Rault, Chiavassa & Donat, 2003, J. Scientific Computing, 19, 1.), 6: Sedov-Taylor Blast Wave (Fryxell et al. 2000, ApJS, 131, 273), 7: Cylindrical Sedov-Taylor Blast Wave (Fryxell et al. 2000), 8: Like MHD2DProblemType = 5 but with a small perturbation upstream of the shock to test odd even coupling of Reimann Solvers, 9: Smoothed Kelvin Helnholtz problem (Robertson, Kravtsov, Gnedin, Abel & Rudd 2010, MNRAS, 401), 10: A modified Raleigh-Taylor problem, 11: Uniform density with sinusoidal shear velocity (Compare to rpSPH tests in Abel 2012), 12: Experimental test, 13: Exploratory blob test, 14: Wengen 2 test to study colliding flows with very soft equations of state, 15: Another experiment with B-fields, 16: A validated non-linear Kelvin Helmholtz test (Lecoanet, McCourt, Quataert, Burns, Vasil, Oishi, Brown, Stone, & O’Leary 2015 preprint)
 ``RampWidth`` (external)
     Default: 0.05
 ``UserColour`` (external)
@@ -1574,6 +1714,34 @@ AGN Disk (207)
     Initial height of the disk. Default: 1
 
 .. _poissonsolver_param:
+.. _shocktube_param:
+
+CR Shock Tube (250: unigrid and AMR)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Very similar to normal shock tube (see problem 1) but includes CR
+    component.  See Salem, Bryan & Hummels (2014) for discussion.
+
+    In addition the regular shock tube parameters, we add:
+
+``HydroShockTubesLeftCREnDensity``, ``HydroShockTubesRightCREnDensity`` (external)
+    The initial CR energy density on the left and right sides.
+    Default: 1.0 for each value.
+``HydroShockTubesCenterDensity``, ``HydroShockTubesCenterPressure``,
+``HydroShockTubesCenterVelocityX``,
+``HydroShockTubesCenterVelocityY``,
+``HydroShockTubesCenterVelocityZ``,
+``HydroShockTubesCenterCREnDensity`` (external)
+    In addition to setting a shock tube with two constant regions,
+    this version also allows for three constant region, 
+    with a Center region in addition to the Left and Right regions.
+    Finally, there are two special cases -- if
+    HydroShockTubesCenterCREnDensity is set to 123.4, then the central
+    region will be set to a ramp between the left and right regions,
+    and if HydroShockTubesCenterCREnDensity is set to 567.8, then a
+    gaussian CR energy density is initialized (these problems were set
+    up to test the CR diffusion).
+
 
 Poisson Solver Test (300)
 ~~~~~~~~~~~~~~~~~~~~~~~~~

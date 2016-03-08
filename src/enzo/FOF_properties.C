@@ -19,7 +19,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
 {
   int i,k,dim, irvir, len4;
   double s[3], sv[3], L[3], delx[3], delv[3], vrms, spin, mvir, rvir, del;
-  double mtot, mstars, menc, rho, factor, rho200, r3;
+  double mtot, mtot0, mstars, menc, rho, factor, rho178, r3, e2;
   float *radius;
   int *pindex;
   
@@ -60,15 +60,61 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
     pcmv[k] = sv[k];
   }
 
+  mtot0 = mtot;
+  pindex = new int[len];
+  radius = new float[len];
+
+  /* Search for iterative center of mass, decreasing sphere radius by
+     5% in each step */
+
+  int ninside = len;
+  float rmax;
+  bool first = true;
+  while (ninside > 2) {
+    for (i = 0; i < len; i++) {
+      radius[i] = 0;
+      for (dim = 0; dim < 3; dim++) {
+	del = FOF_periodic(p[i].Pos[dim] - pcm[dim], D.BoxSize);
+	radius[i] += del*del;
+      }
+      radius[i] = sqrt(radius[i]);
+    }
+    indexx(len, radius-1, pindex-1);
+    for (i = 0; i < len; i++)
+      pindex[i]--;
+    // Search for particle with r ~ 0.95*(previous search radius)
+    ninside = len;
+    if (!first) {
+      rmax *= 0.95;
+      while (radius[pindex[ninside-1]] > rmax)
+	ninside--;
+    } else {
+      rmax = radius[pindex[ninside-1]];
+    }
+    // Re-calculate center of mass
+    mtot = 0.0;
+    for (dim = 0; dim < 3; dim++)
+      pcm[dim] = 0;
+    for (i = 0; i < ninside; i++) {
+      for (dim = 0; dim < 3; dim++) {
+	pcm[dim] += p[pindex[i]].Mass * 
+	  FOF_periodic(p[pindex[i]].Pos[dim] - p[0].Pos[dim], D.BoxSize);
+      }
+      mtot += p[pindex[i]].Mass;
+    }
+    for (dim = 0; dim < 3; dim++) {
+      pcm[dim] /= mtot;
+      pcm[dim] = FOF_periodic_wrap(pcm[dim] + p[0].Pos[dim], D.BoxSize);
+    }
+    first = false;
+  } // ENDWHILE (ninside > 2)
+
   /* For groups, find the virial radius (r200) and calculate virial mass */
 
-  // Sort by radius and search for an enclosed density of 200 times
+  // Sort by radius and search for an enclosed density of 18*pi^2 times
   // the critical density.  Search outside-in.
 
-  pindex = new int[len];
-
   if (!subgroup) {
-    radius = new float[len];
     for (i = 0; i < len; i++) {
       radius[i] = 0;
       for (dim = 0; dim < 3; dim++) {
@@ -84,18 +130,21 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
       pindex[i]--;
 
     // Convert to Msun from 1e10 Msun and pre-compute the (4PI/3)
-    // factor.  Rho will be in units of Msun / kpc^3, as is rho_crit.
-    // Radius is comoving.
-    factor = 1e10 / (4*M_PI/3.0);
-    rho200 = 200 * D.RhoCritical0;
+    // factor and comoving factors.  Rho will be in units of Msun /
+    // kpc^3, as is rho_crit.
+    e2 = D.OmegaLambda + D.Omega * pow(D.Time, -3.0);
+    // 1/a^3 factor converts comoving radius to proper.
+    factor = 1e10 / (4*M_PI/3.0) * pow(D.Time, -3.0);
+    rho178 = 178.0 * D.RhoCritical0 * e2;
     len4 = len/4;
 
+    mtot = mtot0;
     menc = mtot;
     for (i = len-1; i >= 0; i--) {
       menc -= p[pindex[i]].Mass;
       r3 = radius[pindex[i]] * radius[pindex[i]] * radius[pindex[i]];
       rho = factor * menc / max(r3, tiny_number);
-      if (rho > rho200) 
+      if (rho > rho178) 
 	break;
     }
 
@@ -156,8 +205,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
   ang_mom = sqrt(ang_mom);
   spin = SpinUnits * ang_mom * vrms / mvir;
 
-  if (!subgroup)
-    delete [] radius;
+  delete [] radius;
   delete [] pindex;
 
   *pmtot   = mtot;

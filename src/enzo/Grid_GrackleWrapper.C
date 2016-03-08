@@ -13,10 +13,7 @@
 /
 ************************************************************************/
 
-#include <stdio.h>
-#include <stdio.h>
-#include <math.h>
-#include "ErrorExceptions.h"
+#include "preincludes.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -39,7 +36,7 @@ int grid::GrackleWrapper()
 {
 
 #ifdef USE_GRACKLE
-  if (!grackle_chemistry.use_grackle)
+  if (grackle_data.use_grackle == FALSE)
     return SUCCESS;
 
   if (ProcessorNumber != MyProcessorNumber)
@@ -56,6 +53,16 @@ int grid::GrackleWrapper()
   int size = 1;
   for (int dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
+
+  Eint32 *g_grid_dimension, *g_grid_start, *g_grid_end;
+  g_grid_dimension = new Eint32[GridRank];
+  g_grid_start = new Eint32[GridRank];
+  g_grid_end = new Eint32[GridRank];
+  for (i = 0; i < GridRank; i++) {
+    g_grid_dimension[i] = (Eint32) GridDimension[i];
+    g_grid_start[i] = (Eint32) GridStartIndex[i];
+    g_grid_end[i] = (Eint32) GridEndIndex[i];
+  }
  
   /* Find fields: density, total energy, velocity1-3. */
  
@@ -101,12 +108,13 @@ int grid::GrackleWrapper()
 
   /* Update units. */
 
-  grackle_units.comoving_coordinates = ComovingCoordinates;
-  grackle_units.density_units        = DensityUnits;
-  grackle_units.length_units         = LengthUnits;
-  grackle_units.time_units           = TimeUnits;
-  grackle_units.velocity_units       = VelocityUnits;
-  grackle_units.a_units              = aUnits;
+  code_units grackle_units;
+  grackle_units.comoving_coordinates = (Eint32) ComovingCoordinates;
+  grackle_units.density_units        = (double) DensityUnits;
+  grackle_units.length_units         = (double) LengthUnits;
+  grackle_units.time_units           = (double) TimeUnits;
+  grackle_units.velocity_units       = (double) VelocityUnits;
+  grackle_units.a_units              = (double) aUnits;
 
   /* Metal cooling codes. */
  
@@ -148,7 +156,7 @@ int grid::GrackleWrapper()
  
   int temp_thermal = FALSE;
   float *thermal_energy;
-  if (HydroMethod == MHD_RK){
+  if ( UseMHD ){
     iBx = FindField(Bfield1, FieldType, NumberOfBaryonFields);
     iBy = FindField(Bfield2, FieldType, NumberOfBaryonFields);
     iBz = FindField(Bfield3, FieldType, NumberOfBaryonFields);  
@@ -171,7 +179,7 @@ int grid::GrackleWrapper()
       if(GridRank > 2)
         thermal_energy[i] -= 0.5 * POW(BaryonField[Vel3Num][i], 2.0);
 
-      if(HydroMethod == MHD_RK) {
+      if( UseMHD ) {
         thermal_energy[i] -= 0.5 * (POW(BaryonField[iBx][i], 2.0) + 
                                     POW(BaryonField[iBy][i], 2.0) + 
                                     POW(BaryonField[iBz][i], 2.0)) / 
@@ -182,10 +190,10 @@ int grid::GrackleWrapper()
 
   /* Call the chemistry solver. */
 
-  if (solve_chemistry(grackle_chemistry, grackle_units,
-                      afloat, dtFixed,
-                      GridRank, GridDimension,
-                      GridStartIndex, GridEndIndex,
+  if (solve_chemistry(&grackle_units,
+                      (double) afloat, (double) dtFixed,
+                      (Eint32) GridRank, g_grid_dimension,
+                      g_grid_start, g_grid_end,
                       density, thermal_energy,
                       velocity1, velocity2, velocity3,
                       BaryonField[HINum],   BaryonField[HIINum], 
@@ -210,7 +218,7 @@ int grid::GrackleWrapper()
       if(GridRank > 2)
         BaryonField[TENum][i] += 0.5 * POW(BaryonField[Vel3Num][i], 2.0);
 
-      if(HydroMethod == MHD_RK) {
+      if( UseMHD ) {
         BaryonField[TENum][i] += 0.5 * (POW(BaryonField[iBx][i], 2.0) + 
                                         POW(BaryonField[iBy][i], 2.0) + 
                                         POW(BaryonField[iBz][i], 2.0)) / 
@@ -225,6 +233,9 @@ int grid::GrackleWrapper()
   }
 
   delete [] TotalMetals;
+  delete [] g_grid_dimension;
+  delete [] g_grid_start;
+  delete [] g_grid_end;
 
   LCAPERF_STOP("grid_GrackleWrapper");
 

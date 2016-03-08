@@ -135,7 +135,7 @@ int grid::CommunicationSendSubgridMarker(grid *ToGrid, int ToProcessor)
 
       SubgridMarker = new grid*[size];
       for (i = 0; i < size; i++)
-	SubgridMarker[i] = (grid*) buffer[i];
+        SubgridMarker[i] = (grid*) (long) buffer[i];
       
       delete [] buffer;
 

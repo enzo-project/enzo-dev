@@ -11,7 +11,9 @@ Background Radiation Parameters
     is to be used. Except for ``RadiationFieldType`` = 9, which should
     be used with ``MultiSpecies`` = 2, UV backgrounds can currently
     only be used with ``MultiSpecies`` = 1 (i.e. no molecular H
-    support). The following values are used. Default: 0
+    support). The following values are used.  For field type 15, see
+    Table 3 in `Haardt & Madau (2012)
+    <http://adsabs.harvard.edu/abs/2012ApJ...746..125H />`_. Default: 0
 
    ::
   
@@ -25,7 +27,7 @@ Background Radiation Parameters
      10 - Internally computed radiation field using the algorithm of Cen & Ostriker
      11 - Same as previous, but with very, very simple optical shielding fudge
      12 - Haardt & Madau spectrum with q_alpha = 1.57
-     15 - Haardt & Madau 2012.  See Table 3 in '2012ApJ...746..125H <http://adsabs.harvard.edu/abs/2012ApJ...746..125H />'_
+     15 - Haardt & Madau 2012.
 
 ``RadiationFieldLevelRecompute`` (external)
     This integer parameter is used only if the previous parameter is
@@ -45,11 +47,16 @@ Background Radiation Parameters
 ``RadiationShield`` (external)
     This parameter specifies whether the user wants to employ
     approximate radiative-shielding. This parameter will be
-    automatically turned on when RadiationFieldType is set to 11. See
-    ``calc_photo_rates.src``. Default: 0
+    automatically turned on when RadiationFieldType is set to 11. When
+    set to 1, it calculates shielding for H/He. See
+    ``calc_photo_rates.src`` for more details.  When set to 2, it
+    shields only H2 with the Sobolev-like approximation from
+    Wolcott-Green et al. (2011).  Default: 0
 ``RadiationFieldRedshift`` (external)
     This parameter specifies the redshift at which the radiation field
-    is calculated.  Default: 0
+    is calculated.  If a UV radiation background is used in a
+    non-cosmological simulation, this needs to be defined.  Default:
+    (undefined)
 ``RadiationRedshiftOn`` (external) 
     The redshift at which the UV 
     background turns on. Default: 7.0.
@@ -120,6 +127,16 @@ Radiative Transfer (Ray Tracing) Parameters
     Once photons are past this radius, they can no longer split. In
     units of kpc. If this value is negative (by default), photons can
     always split. Default: ``FLOAT_UNDEFINED``.
+``RadiativeTransferHubbleTimeFraction`` (external)
+    Photon packages are deleted when its associated photo-ionization
+    timescale, considering the limit when all photons are absorbed in
+    one cell, drops below a fraction (this parameter) of a Hubble
+    time.  This parameter can be safely set to 0.01 when ray merging
+    is used.  Default: 0.1
+``RadiativeTransferFluxBackgroundLimit`` (external)
+    When the flux of a photon package drops below a fraction (this
+    parameter) of the background radiation field, the ray is deleted.
+    Only used with ray merging.  Default: 0.01
 ``RadiativeTransferPhotonEscapeRadius`` (external)
     The number of photons that pass this distance from its source are
     summed into the global variable ``EscapedPhotonCount[]``. This variable
@@ -144,6 +161,11 @@ Radiative Transfer (Ray Tracing) Parameters
     Limits the radiative transfer timestep to a minimum value that is
     determined by the cell width at the finest level divided by this
     velocity. Units are in km/s. Default: 100.
+``RadiativeTransferTimestepVelocityLevel`` (external)
+    Limit the ray tracing timestep by a sound crossing time (see
+    ``RadiativeTransferTimestepVelocityLimit``) across a
+    cell on the level specified with this parameter.  Not used if
+    equal to INT_UNDEFINED (-99999).  Default: INT_UNDEFINED
 ``RadiativeTransferHIIRestrictedTimestep`` (external)
     Adaptive ray tracing timesteps will be restricted by a maximum change of 10% in neutral fraction if this parameter is set to 1.  If set to 2, then the incident flux can change by a maximum of 0.5 between cells.  See Wise & Abel (2011) in Sections 3.4.1 and 3.4.4 for more details.  Default: 0
 ``RadiativeTransferAdaptiveTimestep`` (external)

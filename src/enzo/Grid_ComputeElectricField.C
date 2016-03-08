@@ -137,6 +137,7 @@ inline void SSSe(float * BsL, float * BsR, float WindDirection){
 
 }
 
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int grid::ComputeElectricField(float dT, float ** Fluxes){  
 
   //loop variables.
@@ -151,6 +152,18 @@ int grid::ComputeElectricField(float dT, float ** Fluxes){
   
   //inverse timestep.
   float dTi = 1.0/dT;
+
+  //Expansion factor at t^{n+1/2}
+  //dB/dt - 1/a curl(E) = 0
+  //provided B = B_{half comoving} = B_{comoving} * sqrt(a)
+  // E_{half comoving} = (VxB_{comoving})*sqrt{a}
+  // thus 1/sqrt{a} for both a terms
+  FLOAT aNpHalf=1.0, dadtNpHalf=0.0, inv_sqrt_aNpHalf=1.0;
+  if(ComovingCoordinates==1 ){
+      CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &aNpHalf, &dadtNpHalf);
+      inv_sqrt_aNpHalf = 1./sqrt(aNpHalf); //For converting to Half-Comoving
+  }
+
   // Cell Centered Offsets.  Used for cell centered quantities as well as fluxes.
   int Dc[3][2] =       
     {{GridDimension[0],GridDimension[0]*GridDimension[1]}, 
@@ -190,15 +203,13 @@ int grid::ComputeElectricField(float dT, float ** Fluxes){
     ElectricEnd[dim] = GridDimension[dim]-2;
   }
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
-  }
-  float * Bc[3] = {CenteredB[0], CenteredB[1],CenteredB[2]};
-  float * Bf[3] = {MagneticField[0], MagneticField[1], MagneticField[2]};
-  float * Vel[3] = {BaryonField[ Vel1Num ], BaryonField[ Vel2Num ], BaryonField[ Vel3Num ] };
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
+  IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+                             TENum, B1Num, B2Num, B3Num);
+
+  float *Bc[3] = {BaryonField[B1Num], BaryonField[B2Num], BaryonField[B3Num]};
+  float *Bf[3] = {MagneticField[0], MagneticField[1], MagneticField[2]};
+  float *Vel[3] = {BaryonField[ Vel1Num ], BaryonField[ Vel2Num ], BaryonField[ Vel3Num ] };
 #define Ec(index) (Bc[ dimY ][index]*Vel[ dimZ ][index] - Bc[ dimZ ][index]*Vel[ dimY ][index] )
   
    
@@ -367,7 +378,7 @@ int grid::ComputeElectricField(float dT, float ** Fluxes){
        // attached to the electric field, its  here for AMR concerns.
        // (the flux correction)
        
-       ElectricField[dimX][Edex] *= dT; // * 1/a
+       ElectricField[dimX][Edex] *= dT*inv_sqrt_aNpHalf;
 
      }//dim
    }//i,j,k

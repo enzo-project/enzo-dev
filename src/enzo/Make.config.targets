@@ -212,6 +212,11 @@ help-config:
 	@echo
 	@echo "      gmake grackle-yes"
 	@echo "      gmake grackle-no"
+	@echo
+	@echo "   Set whether to compile with grid/particle arrays allocated in sizes of powers of 2"
+	@echo
+	@echo "      gmake log2alloc-yes"
+	@echo "      gmake log2alloc-no"
 
 #-----------------------------------------------------------------------
 
@@ -280,6 +285,7 @@ show-config:
 	@echo "   CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : $(CONFIG_GRAVITY_4S)"
 	@echo "   CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : $(CONFIG_ENZO_PERFORMANCE)"
 	@echo "   CONFIG_GRACKLE  [grackle-{yes,no}]                        : $(CONFIG_GRACKLE)"
+	@echo "   CONFIG_LOG2ALLOC  [log2alloc-{yes,no}]                    : $(CONFIG_LOG2ALLOC)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -934,6 +940,23 @@ CONFIG_GRACKLE-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_GRACKLE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_GRACKLE; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_LOG2ALLOC = log2alloc-yes log2alloc-no
+.PHONY: $(VALID_LOG2ALLOC)
+
+log2alloc-yes: CONFIG_LOG2ALLOC-yes
+log2alloc-no: CONFIG_LOG2ALLOC-no
+log2alloc-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LOG2ALLOC)]\n\n"
+CONFIG_LOG2ALLOC-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_LOG2ALLOC $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_LOG2ALLOC = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LOG2ALLOC; \
 	echo
 
 

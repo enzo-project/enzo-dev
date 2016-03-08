@@ -53,12 +53,12 @@ int cons_plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq
     for (int i = 0; i < ActiveSize+1; i++) {
       iprim = i + NumberOfGhostZones - 1;
       // density
-      dv[0][i] = sign(dv[0][i])*min(abs(dv[0][i]), prim[0][iprim]/2);
+      dv[0][i] = sign(dv[0][i])*min(fabs(dv[0][i]), prim[0][iprim]/2);
       // pressure
-      dv[1][i] = sign(dv[1][i])*min(abs(dv[1][i]), prim[1][iprim]/(1.+Gamma));
+      dv[1][i] = sign(dv[1][i])*min(fabs(dv[1][i]), prim[1][iprim]/(1.+Gamma));
       // velocities
       for (int field = 2; field < 5; field++) 
-	dv[field][i] = sign(dv[field][i])*min(abs(dv[field][i]), 2./prim[9][iprim]) ;
+	dv[field][i] = sign(dv[field][i])*min(fabs(dv[field][i]), 2./prim[9][iprim]) ;
     }
 
 

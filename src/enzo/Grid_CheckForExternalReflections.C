@@ -61,6 +61,7 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 	GridLeftOffset[dim] < GhostZones)
 
       for (field = 0; field < NumberOfBaryonFields; field++) {
+	if (FieldType[field] == RaySegments) continue;
 	Sign = 1;
 
 	switch(dim) {
@@ -122,6 +123,7 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 	GridRightOffset[dim] < GhostZones)
 
       for (field = 0; field < NumberOfBaryonFields; field++) {
+	if (FieldType[field] == RaySegments) continue;
 	Sign = 1;
 
 	switch(dim) {
@@ -133,9 +135,10 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 	  for (i = 0; i < GridDimension[0]-GridEndIndex[0]-1-GridRightOffset[0]; i++)
 	    for (j = 0; j < GridDimension[1]; j++)
 	      for (k = 0; k < GridDimension[2]; k++) {
-		index = BaryonField[field] + i + GridEndIndex[0]+1 + 
-		        j*GridDimension[0] + k*GridDimension[1]*GridDimension[0];
-		*index = Sign*(*(index - (2*i + 1)));
+		index = BaryonField[field] + GridDimension[0] - 1 - i
+		        + j*GridDimension[0]
+		        + k*GridDimension[1]*GridDimension[0];
+		*index = Sign*(*(index - 2 * (GridDimension[0] - 1 - GridEndIndex[0] - i) + 1));
 	      }
 	  break;
 
@@ -146,9 +149,14 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 	  for (j = 0; j < GridDimension[1]-GridEndIndex[1]-1-GridRightOffset[1]; j++)
 	    for (i = 0; i < GridDimension[0]; i++)
 	      for (k = 0; k < GridDimension[2]; k++) {
-		index = BaryonField[field] + i + (j + GridEndIndex[1]+1)*GridDimension[0] +
-		  k*GridDimension[1]*GridDimension[0];
-		*index = Sign*(*(index - (2*j + 1)*GridDimension[0]));
+		index = BaryonField[field] + i
+		  + (GridDimension[1] - 1 - j)*GridDimension[0]
+		  + k*GridDimension[1]*GridDimension[0];
+		*index = Sign*(
+		  *(index - (
+		    2 * (GridDimension[1] - 1 - GridEndIndex[1] - j) + 1
+		  ) * GridDimension[0])
+		);
 	      }
 	  break;
 
@@ -159,9 +167,16 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 	  for (k = 0; k < GridDimension[2]-GridEndIndex[2]-1-GridRightOffset[2]; k++)
 	    for (i = 0; i < GridDimension[0]; i++)
 	      for (j = 0; j < GridDimension[1]; j++) {
-		index = BaryonField[field] + i + j*GridDimension[0] +
-		  (k + GridEndIndex[2]+1)*GridDimension[1]*GridDimension[0];
-		*index = Sign*(*(index - (2*k + 1)*GridDimension[0]*GridDimension[1]));
+		index = BaryonField[field] + i
+		  + j*GridDimension[0]
+		  + (
+		    GridDimension[2] - 1 - k
+		  ) * GridDimension[1] * GridDimension[0];
+		*index = Sign*(
+		  *(index - (
+		    2 * (GridDimension[2] - 1 - GridEndIndex[2] - k) + 1
+		  ) * GridDimension[0] * GridDimension[1])
+		);
 	      }	  
 	  break;
 

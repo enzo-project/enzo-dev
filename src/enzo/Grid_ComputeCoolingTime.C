@@ -14,11 +14,8 @@
 ************************************************************************/
  
 // Compute the cooling time
- 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include "ErrorExceptions.h"
+
+#include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -56,13 +53,13 @@ int GadgetCoolingTime(float *d, float *e, float *ge,
 extern "C" void FORTRAN_NAME(cool_multi_time)(
 	float *d, float *e, float *ge, float *u, float *v, float *w, float *de,
 	float *HI, float *HII, float *HeI, float *HeII, float *HeIII,
-	float *cooltime,
+	float *cooltime, int *coolonly,
 	int *in, int *jn, int *kn, int *nratec, int *iexpand,
 	hydro_method *imethod,
         int *idual, int *ispecies, int *imetal, int *imcool, int *idust, int *idim,
 	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *ih2co,
 	int *ipiht, int *igammah,
-	float *dt, float *aye, float *temstart, float *temend,
+	float *dt, float *aye, float *redshift, float *temstart, float *temend,
 	float *utem, float *uxyz, float *uaye, float *urho, float *utim,
 	float *eta1, float *eta2, float *gamma, float *z_solar,
 	float *ceHIa, float *ceHeIa, float *ceHeIIa, float *ciHIa, float *ciHeIa,
@@ -93,7 +90,7 @@ extern "C" void FORTRAN_NAME(cool_time)(
 	float *fh, float *utem, float *urho, 
 	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha, float *mu);
  
-int grid::ComputeCoolingTime(float *cooling_time)
+int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 {
  
   /* Return if this doesn't concern us. */
@@ -201,20 +198,31 @@ int grid::ComputeCoolingTime(float *cooling_time)
   } // ENDELSE both metal types
  
 #ifdef USE_GRACKLE
-  if (grackle_chemistry.use_grackle) {
+  if (grackle_data.use_grackle == TRUE) {
+
+    Eint32 *g_grid_dimension, *g_grid_start, *g_grid_end;
+    g_grid_dimension = new Eint32[GridRank];
+    g_grid_start = new Eint32[GridRank];
+    g_grid_end = new Eint32[GridRank];
+    for (i = 0; i < GridRank; i++) {
+      g_grid_dimension[i] = (Eint32) GridDimension[i];
+      g_grid_start[i] = (Eint32) GridStartIndex[i];
+      g_grid_end[i] = (Eint32) GridEndIndex[i];
+    }
 
     /* Update units. */
 
-    grackle_units.comoving_coordinates = ComovingCoordinates;
-    grackle_units.density_units        = DensityUnits;
-    grackle_units.length_units         = LengthUnits;
-    grackle_units.time_units           = TimeUnits;
-    grackle_units.velocity_units       = VelocityUnits;
-    grackle_units.a_units              = aUnits;
+    code_units grackle_units;
+    grackle_units.comoving_coordinates = (Eint32) ComovingCoordinates;
+    grackle_units.density_units        = (double) DensityUnits;
+    grackle_units.length_units         = (double) LengthUnits;
+    grackle_units.time_units           = (double) TimeUnits;
+    grackle_units.velocity_units       = (double) VelocityUnits;
+    grackle_units.a_units              = (double) aUnits;
 
     int temp_thermal = FALSE;
     float *thermal_energy;
-    if (HydroMethod == MHD_RK){
+    if ( UseMHD ){
       iBx = FindField(Bfield1, FieldType, NumberOfBaryonFields);
       iBy = FindField(Bfield2, FieldType, NumberOfBaryonFields);
       iBz = FindField(Bfield3, FieldType, NumberOfBaryonFields);  
@@ -237,7 +245,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
         if(GridRank > 2)
           thermal_energy[i] -= 0.5 * POW(BaryonField[Vel3Num][i], 2.0);
 
-        if(HydroMethod == MHD_RK) {
+        if( UseMHD ) {
           thermal_energy[i] -= 0.5 * (POW(BaryonField[iBx][i], 2.0) + 
                                       POW(BaryonField[iBy][i], 2.0) + 
                                       POW(BaryonField[iBz][i], 2.0)) / 
@@ -246,10 +254,10 @@ int grid::ComputeCoolingTime(float *cooling_time)
       } // for (int i = 0; i < size; i++)
     }
 
-    if (calculate_cooling_time(grackle_chemistry, grackle_units,
-                               afloat,
-                               GridRank, GridDimension,
-                               GridStartIndex, GridEndIndex,
+    if (calculate_cooling_time(&grackle_units,
+                               (double) afloat,
+                               (Eint32) GridRank, g_grid_dimension,
+                               g_grid_start, g_grid_end,
                                density, thermal_energy,
                                velocity1, velocity2, velocity3,
                                BaryonField[HINum],   BaryonField[HIINum], 
@@ -262,11 +270,18 @@ int grid::ComputeCoolingTime(float *cooling_time)
       ENZO_FAIL("Error in Grackle calculate_cooling_time.\n");
     }
 
+    for (i = 0; i < size; i++) {
+      cooling_time[i] = fabs(cooling_time[i]);
+    }
+
     if (temp_thermal == TRUE) {
       delete [] thermal_energy;
     }
 
     delete [] TotalMetals;
+    delete [] g_grid_dimension;
+    delete [] g_grid_start;
+    delete [] g_grid_end;
 
     return SUCCESS;
   }
@@ -337,7 +352,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
        density, totalenergy, gasenergy, velocity1, velocity2, velocity3,
        BaryonField[DeNum], BaryonField[HINum], BaryonField[HIINum],
        BaryonField[HeINum], BaryonField[HeIINum], BaryonField[HeIIINum],
-       cooling_time,
+       cooling_time, &CoolingTimeOnly,
        GridDimension, GridDimension+1, GridDimension+2,
        &CoolData.NumberOfTemperatureBins, &ComovingCoordinates,
        &HydroMethod,
@@ -346,8 +361,8 @@ int grid::ComputeCoolingTime(float *cooling_time)
        &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2,
        GridEndIndex, GridEndIndex+1, GridEndIndex+2,
        &CoolData.ih2co, &CoolData.ipiht, &PhotoelectricHeating,
-       &dtFixed, &afloat, &CoolData.TemperatureStart,
-       &CoolData.TemperatureEnd,
+       &dtFixed, &afloat, &RadiationFieldRedshift,
+       &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
        &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
        &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
        &CoolData.SolarMetalFractionByMass,

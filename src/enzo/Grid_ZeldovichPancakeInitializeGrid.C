@@ -63,18 +63,21 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
   FieldType[NumberOfBaryonFields++] = Density;
   int vel = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = Velocity1;
-  if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+  if (MaxVelocityIndex>1){
     FieldType[NumberOfBaryonFields++] = Velocity2;
-  if (GridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+  }
+  if (MaxVelocityIndex > 2)
     FieldType[NumberOfBaryonFields++] = Velocity3;
   int iTE = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
   if (DualEnergyFormalism)
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
-  if (HydroMethod == MHD_RK) {
+  if (UseMHD) {
     FieldType[NumberOfBaryonFields++] = Bfield1;
     FieldType[NumberOfBaryonFields++] = Bfield2;
     FieldType[NumberOfBaryonFields++] = Bfield3;
+  }
+  if (HydroMethod == MHD_RK) {
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
 
@@ -103,8 +106,7 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
   /* Allocate space for the fields. */
  
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    BaryonField[field] = new float[size];
+  this->AllocateGrids();
  
   /* Find the stride between zones along the pancake direction. */
  
@@ -169,27 +171,34 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
     if (HydroMethod == Zeus_Hydro) xEulerian -= 0.5; // only approximate
     BaryonField[vel][i]     = AmplitudeVel * sin(kx*xEulerian);
-    if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    if ( MaxVelocityIndex > 1)
       BaryonField[vel+1][i] = AmplitudeVel * sin(kx*xEulerian);
-    if (GridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    if ( MaxVelocityIndex > 2)
       BaryonField[vel+2][i] = AmplitudeVel * sin(kx*xEulerian);
 
-    if (HydroMethod == MHD_RK) {
+    if ( UseMHD ) {
       BaryonField[iBx  ][i] = ZeldovichPancakeInitialUniformBField[0];
       BaryonField[iBy  ][i] = ZeldovichPancakeInitialUniformBField[1];
       BaryonField[iBz  ][i] = ZeldovichPancakeInitialUniformBField[2];
-      BaryonField[iPhi ][i] = 0.0;
       BaryonField[ietot][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
 				    BaryonField[iBy][i] * BaryonField[iBy][i]+
 				    BaryonField[iBz][i] * BaryonField[iBz][i])/
 	BaryonField[iden][i];
+    }
+    if ( UseMHDCT ){
+        MagneticField[0][i] = ZeldovichPancakeInitialUniformBField[0];
+        MagneticField[1][i] = ZeldovichPancakeInitialUniformBField[1];
+        MagneticField[2][i] = ZeldovichPancakeInitialUniformBField[2];
+    }
+    if (HydroMethod == MHD_RK) {
+      BaryonField[iPhi ][i] = 0.0;
     }
   }
  
 
   /* set transverse velocities (i.e. erase any incorrectly set velocities). */
  
-  for (field = vel; field < vel+((HydroMethod == MHD_RK  || (HydroMethod == HD_RK) ) ? 3 : GridRank); field++)
+  for (field = vel; field < vel+MaxVelocityIndex; field++)
     if (field != ZeldovichPancakeDirection+vel)
       for (i = 0; i < size; i++)
 	BaryonField[field][i] = 0.0;

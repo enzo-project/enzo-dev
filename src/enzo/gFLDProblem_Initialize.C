@@ -354,7 +354,7 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   }
 
   // check that AnalyticChem is enabled for this Model
-  if ((AnalyticChem) && ((Model != 1) && (Model != 4) || (Nchem == 0))) {
+  if ((AnalyticChem) && (((Model != 1) && (Model != 4)) || (Nchem == 0))) {
     AnalyticChem = 0;  // disable AnalyticChem for this problem
   }
 

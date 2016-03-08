@@ -197,7 +197,7 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
       //  fprintf(stderr, "Size of ParticleMoveList %"ISYM"\n", Count);
       stat = MPI_Type_contiguous(PCount, MPI_BYTE, &ParticleDataType);
       stat |= MPI_Type_commit(&ParticleDataType);
-      if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+      if (stat != MPI_SUCCESS) ENZO_FAIL("");
       FirstTimeCalled = FALSE;
     }
 

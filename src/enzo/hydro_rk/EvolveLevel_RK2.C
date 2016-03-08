@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <unistd.h>
+#include "EnzoTiming.h"
 #include "performance.h"
 #include "EnzoTiming.h"
 #include "ErrorExceptions.h"
@@ -47,7 +48,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars,
-			 int TotalStarParticleCountPrevious[]);
+			 int TotalStarParticleCountPrevious[], int &OutputNow);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
 int ComputeDednerWaveSpeeds(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[], 
@@ -85,8 +86,7 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-			SiblingGridList SiblingList[],
-			int level, TopGridData *MetaData, FLOAT When);
+			int level, TopGridData *MetaData, FLOAT When, SiblingGridList **SiblingGridListStorage);
 int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 			    SiblingGridList SiblingList[],
 			    int level, TopGridData *MetaData,
@@ -118,7 +118,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
                           ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
 #endif
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
-			  int level, ExternalBoundary *Exterior
+			  int level, ExternalBoundary *Exterior, int OutputNow
 #ifdef TRANSFER
 			  , ImplicitProblemABC *ImplicitSolver
 #endif
@@ -191,6 +191,8 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
 static float norm = 0.0;            //AK
 static float TopGridTimeStep = 0.0; //AK
 
+int ComputeStochasticForcing(TopGridData *MetaData,HierarchyEntry *Grids[], int NumberOfGrids);
+
 static int StaticSiblingListInitialized = 0;
 
 #ifdef STATIC_SIBLING_LIST
@@ -209,7 +211,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		    ImplicitProblemABC *ImplicitSolver,
 #endif
-		    FLOAT dt0)
+		    FLOAT dt0, SiblingGridList *SiblingGridListStorage[] 
+        )
 {
 
   float dtGrid;
@@ -217,6 +220,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int cycle = 0, counter = 0, grid1, subgrid, iLevel;
   HierarchyEntry *NextGrid;
   double time1 = ReturnWallTime();
+  int OutputNow = FALSE;
 
   char level_name[MAX_LINE_LENGTH];
   sprintf(level_name, "Level_%02"ISYM, level);
@@ -244,6 +248,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
   CreateSiblingList(Grids, NumberOfGrids, SiblingList, StaticLevelZero, 
 		    MetaData, level);
+  SiblingGridListStorage[level] = SiblingList;
 
   /* On the top grid, adjust the refine region so that only the finest
      particles are included.  We don't want the more massive particles
@@ -266,7 +271,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Count the number of colours in the first grid (to define NColor) */
 
   Grids[0]->GridData->SetNumberOfColours();
-  //  fprintf(stdout, "EvolveLevel_RK2: NColor = %"ISYM", NSpecies = %"ISYM"\n", NColor, NSpecies); 
+  if (debug)
+  	fprintf(stdout, "EvolveLevel_RK2: NColor = %"ISYM", NSpecies = %"ISYM"\n", NColor, NSpecies); 
 
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
@@ -338,7 +344,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //    RK2SecondStepBaryonDeposit = 1;  
     if (SelfGravity) {
 #ifdef FAST_SIB
-      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+      PrepareDensityField(LevelArray,  level, MetaData, When,SiblingGridListStorage );
 #else   // !FAST_SIB
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
@@ -347,6 +353,22 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
+
+
+   /* Compute stochastic force field via FFT from the specturm. */
+
+   if (DrivenFlowProfile) {
+     if (MyProcessorNumber == ROOT_PROCESSOR)
+         if (debug) printf("Level %"ISYM": computing stochastic force field on %"ISYM" grids...\n",
+             level,NumberOfGrids);
+     if (ComputeStochasticForcing(MetaData, Grids, NumberOfGrids)
+         == FAIL) {
+       fprintf(stderr, "Error in ComputeStochasticForcing.\n");
+       return FAIL;
+     }
+     if (MyProcessorNumber == ROOT_PROCESSOR)
+         if (debug) printf("finished\n");
+   }
 
     /* Solve the radiative transfer */
 
@@ -420,7 +442,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
       When = 0.5;
 #ifdef FAST_SIB
-      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+      PrepareDensityField(LevelArray,  level, MetaData, When, SiblingGridListStorage);
 #else  
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
@@ -523,7 +545,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Finalize (accretion, feedback, etc.) star particles */
  
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			 level, AllStars, TotalStarParticleCountPrevious);
+			 level, AllStars, TotalStarParticleCountPrevious, OutputNow);
 
     if (UseDivergenceCleaning != 0){
 
@@ -544,7 +566,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
 #endif
 
-    OutputFromEvolveLevel(LevelArray, MetaData, level, Exterior
+    OutputFromEvolveLevel(LevelArray, MetaData, level, Exterior, OutputNow
 #ifdef TRANSFER
 			  , ImplicitSolver
 #endif
@@ -570,7 +592,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 			  ImplicitSolver, 
 #endif
-			  dt0) 
+			  dt0, SiblingGridListStorage) 
 	  == FAIL) {
 	fprintf(stderr, "Error in EvolveLevel_RK2 (%"ISYM").\n", level);
 	ENZO_FAIL("");
@@ -630,7 +652,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       When = 0.5;
  
 #ifdef FAST_SIB
-      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+      PrepareDensityField(LevelArray,  level, MetaData, When, SiblingGridListStorage);
 #else   // !FAST_SIB
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
@@ -674,7 +696,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
     TIMER_SET_NGRIDS(level, NumberOfGrids);
 
-
     cycle++;
     LevelCycleCount[level]++;
 
@@ -703,6 +724,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       delete [] SiblingList[grid1].GridList;
     delete [] SiblingList;
   }
+  SiblingGridListStorage[level] = NULL;
 
   return SUCCESS;
 

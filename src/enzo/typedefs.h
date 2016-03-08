@@ -18,10 +18,6 @@
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
 
-#ifdef USE_GRACKLE
-#include <grackle.h>
-#endif
-
 /* These are the different types of baryon fields. */
 
 #ifdef SMALL_INTS
@@ -35,6 +31,7 @@ typedef int enum_type;
 typedef int staggering;
 typedef int fieldtype;
 typedef int mhd_ct_method;
+typedef int forcing_type;
 #endif
 
 #ifdef LARGE_INTS
@@ -48,6 +45,7 @@ typedef long_int enum_type;
 typedef long_int staggering;
 typedef long_int fieldtype;
 typedef int mhd_ct_method;
+typedef long_int forcing_type;
 #endif
 
 const field_type 
@@ -165,11 +163,15 @@ const field_type
   /* Number of ray segments for ray tracing load balancing */
   RaySegments     = 94,
 
-/* Metals from Type Ia SNe */
+  /* Metals from Type Ia SNe */
   MetalSNIaDensity = 95,
+  MetalSNIIDensity = 96,
 
-  FieldUndefined  = 96;
-   
+  /* Cosmic Ray Energy Density */
+  CRDensity = 97,
+
+  FieldUndefined  = 98;
+
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 		 Velocity1, Velocity2, Velocity3, 
@@ -183,7 +185,14 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 
 #define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3)) ? FALSE : TRUE)
 #define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
-#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential)) ? TRUE : FALSE)
+#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments)) ? TRUE : FALSE)
+
+/* Different stochastic forcing types */
+const forcing_type
+  None       = 0,
+  Peak       = 1,
+  Parabolic  = 2,
+  Band       = 3;
 
 /* These are the different types of fluid boundary conditions. */
 
@@ -269,6 +278,7 @@ const fieldtype SCALAR = 1, VECTOR = 3;
 const star_type
   PopIII = PARTICLE_TYPE_SINGLE_STAR,
   PopII = PARTICLE_TYPE_CLUSTER,
+  NormalStar = PARTICLE_TYPE_STAR,
   SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII

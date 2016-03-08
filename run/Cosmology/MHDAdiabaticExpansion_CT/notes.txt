@@ -1,0 +1,14 @@
+
+Adiabatic expansion test for MHD, using Athena CT.
+
+This test differs from the PPM Adiabatic Expansion by the increased initial
+temperature.  The extremely low floor on the PPM version makes it a poor test,
+since the thermal expansion is dominated by the temperature floor, rather than
+physical integration. 
+
+This test is not entirely uniform for two reasons.  
+First is self gravity (actually off in this version) which causes issues at the
+corners of the domain as well as subgrid boundary.
+The second is the time-interpolation in the boundary for the subgrid, which
+causes slight acceleration due to slightly different expansion of the fluid in
+the boundary of the subgrid relative to the "ideal" solution.

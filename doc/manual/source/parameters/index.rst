@@ -53,6 +53,7 @@ This list includes parameters for the Enzo 2.3 release.
    cosmology.rst
    bhform.rst   
    shocks.rst   
+   cosmicrays.rst   
    conduction.rst
    analysis.rst 
    other.rst    

@@ -143,14 +143,16 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
         if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
           SecondOrderBFlag[field] = 2;   //  no positivity for velocity
       }
-    if (HydroMethod == Zeus_Hydro)
-      for (field = 0; field < NumberOfBaryonFields; field++)
+    if (HydroMethod == Zeus_Hydro) {
+      for (field = 0; field < NumberOfBaryonFields; field++) {
         if ( (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3 ) ||
-             (FieldType[field] >= Acceleration0 && FieldType[field] <= Acceleration2 ) ){
+             (FieldType[field] >= Acceleration0 && FieldType[field] <= Acceleration2 ) ) {
           SecondOrderBFlag[field] = FieldType[field] - Velocity1 + 1;
-          }else{
+        } else {
           SecondOrderBFlag[field] = 0;
-          }
+        }
+      }
+    }
 
  
     /* Compute coefficient factors for linear interpolation in time.
@@ -371,8 +373,10 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       // Set FieldInterpolationMethod to be FirstOrderA for 
       // fields that shouldn't be interpolated.'
       FieldInterpolationMethod = InterpolationMethod;
-      if (FieldTypeNoInterpolate(FieldType[field]) == TRUE)
-        FieldInterpolationMethod = FirstOrderA; 
+      if (FieldTypeNoInterpolate(FieldType[field]) == TRUE) {
+        FieldInterpolationMethod = FirstOrderA;
+	if (FieldType[field] == RaySegments) continue;
+      }
  
       /* Interpolating from the ParentTemp field to a Temporary field.  This
 	 is done for the entire current grid, not just it's boundaries.
@@ -635,11 +639,11 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 			   +(j)*MHDChildTempDims[field][0]
 			   +(k)*MHDChildTempDims[field][0]*MHDChildTempDims[field][1]);
 	      
-	      if(  MHDChildTemp[field][tempindex] !=  MHDChildTemp[field][tempindex] ){
-
-		fprintf(stderr,"Error: Bad Child Temp. %"ISYM" (%"ISYM",%"ISYM",%"ISYM")\n",
-			field,i,j,k);
-	      }
+//      if(  MHDChildTemp[field][tempindex] !=  MHDChildTemp[field][tempindex] ){
+//
+//	fprintf(stderr,"Error: Bad Child Temp. %"ISYM" (%"ISYM",%"ISYM",%"ISYM")\n",
+//		field,i,j,k);
+//      }
 
 	    }//i,j,k
       

@@ -85,6 +85,26 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
   return SUCCESS;
 }
 
+int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
+             int &Vel1Num, int &Vel2Num,
+             int &Vel3Num, int &TENum, int &CRNum )
+{
+
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
+
+  CRNum = 0;
+
+  /* Find Cosmic Rays, if possible */
+
+  if(CRModel)
+    if ((CRNum = FindField(CRDensity, BoundaryFieldType,
+           NumberOfBaryonFields)) < 0) {
+      ENZO_FAIL("Cannot Find Cosmic Rays");
+    }
+
+  return SUCCESS;
+}
+
 
 int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
 						 int &Vel2Num, int &Vel3Num, int &TENum,
@@ -137,7 +157,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &
           ENZO_FAIL("Cannot find Velocity3.");
       }
 
-  if (HydroMethod != MHD_RK) {
+  if (!UseMHD) {
     return SUCCESS;
   }
 
@@ -155,8 +175,10 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &
         ENZO_FAIL("Cannot find Bfield3.");
   }
 
-  if ((PhiNum = FindField(PhiField, BoundaryFieldType, NumberOfBaryonFields)) < 0) {
-        ENZO_FAIL("Cannot find Phi field.");
+  if( HydroMethod == MHD_RK ){
+      if ((PhiNum = FindField(PhiField, BoundaryFieldType, NumberOfBaryonFields)) < 0) {
+            ENZO_FAIL("Cannot find Phi field.");
+      }
   }
 
   return SUCCESS;

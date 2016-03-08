@@ -47,6 +47,13 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
     if (Exterior->SetShockPoolBoundary(Time) == FAIL) {
       ENZO_FAIL("Error in exterior->SetShockPoolBoundary.\n");
     }
+
+  /* For Galaxy Sim w/ ICM Wind, compute the new inflow boundary conditions. */
+
+  if (ProblemType == 31)
+    if (Exterior->SetGalaxySimulationBoundary(Time) == FAIL) {
+      ENZO_FAIL("Error in exterior->SetGalaxySimulationBoundary.\n");
+    }
  
   /* For the DoubleMach problem, set the bew inflow boundary conditions. */
  
@@ -128,22 +135,6 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
 				       MagneticField[2],Bfield3) == FAIL)
 	ENZO_FAIL("Error in Exterior->SetMagneticBoundary, B3.");
 
-      //centeredB is set using FieldType == VelocityX since the FieldType array is 
-      //compared against.  This will be irrelevant when CenteredB gets stored in BaryonField.
-      if( Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
-					GridStartIndex, GridEndIndex,
-					CenteredB[0], Velocity1) == FAIL)
-	ENZO_FAIL("Error: Something's wrong with the CenteredB[0] boundary.");
-      
-      if( Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
-					GridStartIndex, GridEndIndex,
-					CenteredB[1], Velocity2) == FAIL)
-	ENZO_FAIL("Error: Something's wrong with the CenteredB[1] boundary.");
-
-      if( Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
-					GridStartIndex, GridEndIndex,
-					CenteredB[2], Velocity3) == FAIL)
-	ENZO_FAIL("Error: Something's wrong with the CenteredB[2] boundary.");
  
     }// if(UseMHDCT)
 

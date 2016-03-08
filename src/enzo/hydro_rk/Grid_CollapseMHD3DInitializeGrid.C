@@ -81,10 +81,12 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     FieldType[NumberOfBaryonFields++] = Bfield1;
     FieldType[NumberOfBaryonFields++] = Bfield2;
     FieldType[NumberOfBaryonFields++] = Bfield3;
+  }
+  if( HydroMethod == MHD_RK ){
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
 
@@ -161,16 +163,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     }
   }
 
-  int count=0;
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-      for (i=0;i<size;i++)
-	BaryonField[field][i] = 0.;
-      count++;
-    }
-  }
-  printf("Allocated %"ISYM" Baryonfields\n", count);
+  this->AllocateGrids(); 
 
   printf("rho_sphere=%"GSYM", cs_sphere=%"GSYM", rho_medium=%"GSYM", p_medium=%"GSYM"\n",
 	 rho_sphere[0], cs_sphere[0], rho_medium, p_medium);
@@ -494,12 +487,19 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	if (DualEnergyFormalism) {
 	  BaryonField[ieint][n] = eint;
 	}
-	if (HydroMethod == MHD_RK) {
+	if (UseMHD) {
 	  BaryonField[iBx ][n] = Bx;
 	  BaryonField[iBy ][n] = By;
 	  BaryonField[iBz ][n] = Bz;
+    }
+    if( HydroMethod == MHD_RK ){
 	  BaryonField[iPhi][n] = 0.0;
 	}
+    if( UseMHDCT ){
+        MagneticField[0][n] = Bx;
+        MagneticField[1][n] = By;
+        MagneticField[2][n] = Bz;
+    }
 	BaryonField[NumberOfBaryonFields-1][n] = 0.;
       } // end loop over grid
     }
@@ -565,7 +565,6 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     }    
 
   }
-
 
 
 

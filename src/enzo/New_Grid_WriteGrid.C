@@ -362,7 +362,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     }
 
     if (BAnyl==1){
-
+      if (HydroMethod == MHD_RK) {
       float *curl_x, *curl_y, *curl_z, *div;
 
         this->ComputeVectorAnalysisFields(Bfield1, Bfield2, Bfield3,
@@ -386,7 +386,41 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
           delete [] curl_x;
           delete [] curl_y;
         }
+      } else if (UseMHDCT) {
+        fprintf(stdout, "Outputting DivB\n");
+        float *DivB = NULL;
+        this->MHD_Diagnose("WriteGrid", DivB);
+        float max_div_b = 0.0;
+        for ( i=0;i<size;i++ ){
+          if ( DivB[i] > max_div_b ) max_div_b = DivB[i];
+        }
+        fprintf(stdout, "max(DivB) = %10.5e\n", max_div_b);
+        if(CopyOnlyActive == TRUE) {
+          this->write_dataset(GridRank, OutDims, "DivB",
+                              group_id, file_type_id, (VOIDP) DivB,
+                              TRUE, temp);
+        } else {
+          this->write_dataset(GridRank, FullOutDims, "DivB",
+                              group_id, file_type_id, (VOIDP) DivB,
+                              FALSE);
+        }
+
+        delete [] DivB;
+      }
     }
+
+		/* If requested, write the External Acceleration field */
+    if (WriteExternalAccel==1){
+				this->ComputeAccelerationFieldExternal();
+        this->write_dataset(GridRank, OutDims, "External_Acceleration_x",
+            group_id, file_type_id, (VOIDP) AccelerationField[0], TRUE, temp);
+        if (GridRank==3){
+          this->write_dataset(GridRank, OutDims, "External_Acceleration_y",
+              group_id, file_type_id, (VOIDP) AccelerationField[1], TRUE, temp);
+          this->write_dataset(GridRank, OutDims, "External_Acceleration_z",
+              group_id, file_type_id, (VOIDP) AccelerationField[2], TRUE, temp);
+        }
+    } // end if for write external acceleration field
 
    
 
@@ -425,17 +459,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
 
     if( UseMHDCT ){
-      for(field=0;field<nBfields;field++){
-        if(CopyOnlyActive == TRUE) {
-          this->write_dataset(GridRank, OutDims, MHDcLabel[field],
-                              group_id, file_type_id, (VOIDP) CenteredB[field],
-                              TRUE, temp);
-        } else {
-          this->write_dataset(GridRank, FullOutDims, MHDcLabel[field],
-                              group_id, file_type_id, (VOIDP) CenteredB[field],
-                              FALSE);
-        }
-      }
 
       hsize_t MHDOutDims[3];
       int MHDActive[3]; 
@@ -487,7 +510,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
           this->write_dataset(GridRank, MHDOutDims, MHDeLabel[field],
                             group_id, file_type_id, (VOIDP) ElectricField[field],
                             TRUE, MHDtmp, MHDWriteStartIndex, MHDWriteEndIndex, 
-                            MHDActive, MagneticDims[field]);
+                            MHDActive, ElectricDims[field]);
           if( AvgElectricField[field] != NULL ){
             char name[30];
             sprintf(name, "AvgElec%d",field);
@@ -504,7 +527,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     /* If requested, compute and output the dust temperature field 
        as well since its such a pain to compute after the fact. */
  
-    if (OutputDustTemperature) {
+    if (OutputDustTemperature != FALSE) {
  
       /* Get temperature field if we do not already have it. */
 
@@ -919,6 +942,8 @@ int grid::WriteAllFluxes(hid_t grid_node)
   H5Gclose(subgrid_group);
   H5Gclose(fluxes_node);
 
+  return SUCCESS;
+
 }
 
 int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
@@ -984,4 +1009,7 @@ int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
 
     H5Gclose(axis_group);
   }
+
+  return SUCCESS;
+
 }

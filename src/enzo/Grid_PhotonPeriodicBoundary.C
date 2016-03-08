@@ -63,9 +63,6 @@ int grid::PhotonPeriodicBoundary(int &cindex, FLOAT *r, int *g, FLOAT *s,
      photons will remain in the same grid.  This only happens when a
      grid fills the whole domain in one dimension. */
 
-  MoveToGrid = SubgridMarker[cindex];
-  PP->Radius += PFLOAT_EPSILON;
-
   for (dim = 0; dim < 3; dim++)
     if (r[dim] < DomainLeftEdge[dim]) {
       PP->SourcePosition[dim] += DomainWidth[dim];
@@ -80,6 +77,7 @@ int grid::PhotonPeriodicBoundary(int &cindex, FLOAT *r, int *g, FLOAT *s,
     }
 
   cindex = GRIDINDEX_NOGHOST(g[0], g[1], g[2]);
+  MoveToGrid = SubgridMarker[cindex];
 
   return TRUE;
 

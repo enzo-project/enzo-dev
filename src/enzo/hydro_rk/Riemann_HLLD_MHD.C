@@ -166,11 +166,11 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     sam = vx_l - cf_l;
     sap = vx_l + cf_l;
       
-    if ((abs(S_M - vx_l) <= BFLOAT_EPSILON) and 
-        (abs(By_l) <= BFLOAT_EPSILON) and 
-        (abs(Bz_l) <= BFLOAT_EPSILON) and 
+    if ((fabs(S_M - vx_l) <= BFLOAT_EPSILON) and 
+        (fabs(By_l) <= BFLOAT_EPSILON) and 
+        (fabs(Bz_l) <= BFLOAT_EPSILON) and 
         (Bx*Bx >= Gamma * p_l) and
-        ((abs(S_l - sam) <= BFLOAT_EPSILON) or (abs(S_l - sap) <= BFLOAT_EPSILON)) ) {
+        ((fabs(S_l - sam) <= BFLOAT_EPSILON) or (fabs(S_l - sap) <= BFLOAT_EPSILON)) ) {
       vy_ls = vy_l;
       vz_ls = vz_l;
       By_ls = By_l;
@@ -187,11 +187,11 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     sam = vx_r - cf_r;
     sap = vx_r + cf_r;
       
-    if ((abs(S_M - vx_r) <= BFLOAT_EPSILON) and 
-        (abs(By_r) <= BFLOAT_EPSILON) and 
-        (abs(Bz_r) <= BFLOAT_EPSILON) and 
+    if ((fabs(S_M - vx_r) <= BFLOAT_EPSILON) and 
+        (fabs(By_r) <= BFLOAT_EPSILON) and 
+        (fabs(Bz_r) <= BFLOAT_EPSILON) and 
         (Bx*Bx >= Gamma * p_r) and
-        ((abs(S_r - sam) <= BFLOAT_EPSILON) or (abs(S_r - sap) <= BFLOAT_EPSILON)) ) {
+        ((fabs(S_r - sam) <= BFLOAT_EPSILON) or (fabs(S_r - sap) <= BFLOAT_EPSILON)) ) {
       vy_rs = vy_r;
       vz_rs = vz_r;
       By_rs = By_r;

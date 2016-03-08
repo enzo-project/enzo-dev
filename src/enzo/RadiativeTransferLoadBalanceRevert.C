@@ -43,6 +43,9 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGrids)
 {
 
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+
   int i, index, level, temp_proc, ori_proc, nph, GridsMoved, TotalNumberOfGrids;
 
   /* Send RadiationPresent fields */

@@ -61,7 +61,11 @@ grid::grid()
     AccelerationField[i]             = NULL;
     GravitatingMassFieldDimension[i] = 0;
     RandomForcingField[i]            = NULL;
+    PhaseFctMultEven[i]              = NULL; // WS
+    PhaseFctMultOdd[i]               = NULL; // WS
   }
+  PhaseFctInitEven = NULL; // WS
+  PhaseFctInitOdd  = NULL; // WS
  
   ParticleAcceleration[MAX_DIMENSION]      = NULL;
  
@@ -140,6 +144,7 @@ grid::grid()
   PhotonPackages->ipix            = 0;         
   PhotonPackages->level           = 0;        
 
+  sfSeed                          = 0;
   ID                              = 0;
   HasRadiation                    = FALSE;
   SubgridMarker                   = NULL;
@@ -167,14 +172,11 @@ grid::grid()
 
   for(i=0;i<3;i++){
     MagneticField[i] = NULL;
-    CenteredB[i]     = NULL;
     ElectricField[i] = NULL;
     AvgElectricField[i] = NULL;
     OldMagneticField[i] = NULL;
     OldElectricField[i] = NULL;
-    OldCenteredB[i] = NULL;
     MHDParentTemp[i] = NULL;
-
   }
   dtParent = -1;
 

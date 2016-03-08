@@ -153,7 +153,7 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     B2 = 0.0;
     for (dim = 0; dim < MetaData.TopGridRank; dim++)
       B2 += FreeExpansionBField[dim] * FreeExpansionBField[dim];
-    FreeExpansionTotalEnergy + 0.5 * B2 / FreeExpansionDensity;
+    FreeExpansionTotalEnergy += 0.5 * B2 / FreeExpansionDensity;
   }
 
   

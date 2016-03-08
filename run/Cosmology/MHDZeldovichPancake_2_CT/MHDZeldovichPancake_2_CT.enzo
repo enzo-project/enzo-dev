@@ -1,0 +1,61 @@
+#
+# AMR PROBLEM DEFINITION FILE: Zeldovich Pancake (one grid version)
+#
+#
+#  define problem
+#
+ProblemType                = 20      // Zeldovich pancake
+TopGridRank                = 1
+TopGridDimensions          = 1024
+SelfGravity                = 1       // gravity on
+TopGridGravityBoundary     = 0       // Periodic BC for gravity
+LeftFaceBoundaryCondition  = 3       // same for fluid
+RightFaceBoundaryCondition = 3
+#
+#  problem parameters
+#
+ZeldovichPancakeCentralOffset    = 0
+ZeldovichPancakeCollapseRedshift = 1
+ZeldovichPancakeInitialUniformBField = 0 1.e-4 0 # in proper Gauss 
+#
+#  define cosmology parameters
+#
+ComovingCoordinates        = 1       // Expansion ON
+CosmologyHubbleConstantNow = 0.5
+CosmologyComovingBoxSize   = 64.0    // 64 Mpc/h
+CosmologyOmegaMatterNow    = 1
+CosmologyOmegaLambdaNow    = 0
+CosmologyMaxExpansionRate  = 0.003    //
+CosmologyInitialRedshift   = 20      // start at z=20
+CosmologyFinalRedshift     = 0
+GravitationalConstant      = 1       // this must be true for cosmology
+#
+#  set I/O and stop/start parameters
+#
+dtDataDump             = 100.0    // dump at beginning and end
+#CycleSkipDataDump = 1
+#
+#  set hydro parameters
+#
+NumberOfGhostZones     = 5
+HydroMethod            = 6
+Gamma                  = 1.6667
+CourantSafetyNumber    = 0.2
+PPMDiffusionParameter  = 0       // diffusion off
+DualEnergyFormalism    = 0      // use total & internal energy
+ConservativeReconstruction = 0
+ReconstructionMethod   = 0
+RiemannSolver          = 1
+Theta_Limiter          = 1.1
+Mu = 0.6
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 1
+MaximumRefinementLevel    = 0
+RefineBy                  = 2
+#
+#  set some global parameters
+#
+#Debug1 = 1
+#SmallT  =  1e-20

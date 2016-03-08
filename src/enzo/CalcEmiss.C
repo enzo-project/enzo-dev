@@ -153,7 +153,7 @@ int CalcEmiss(int *nx, int *ny, int *nz,
 	     Skip star formation and emissivity update if too 
 	     little mass is formed 
 	  */
-	  if (mform/d[i,j,k] >= 1.0e-10) {
+	  if (mform/d[i + *nx * (k * *ny + j)] >= 1.0e-10) {
 	    //printf("if loop 4\n");
 
 	    /* Subtract ejected mass from particle (due to winds, supernovae) */

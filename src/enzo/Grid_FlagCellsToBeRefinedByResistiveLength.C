@@ -62,12 +62,6 @@ int grid::FlagCellsToBeRefinedByResistiveLength()
     Bz = BaryonField[iBz];
   }
 
-  if (UseMHDCT) {
-    Bx = CenteredB[0];
-    By = CenteredB[1];
-    Bz = CenteredB[2];
-  }
-
       
   for (int k = GridStartIndex[2]; k < GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j < GridEndIndex[1]; j++) {

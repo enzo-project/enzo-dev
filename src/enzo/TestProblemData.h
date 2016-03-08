@@ -8,6 +8,8 @@ struct TestProblemDataType
 {
 
   float HydrogenFractionByMass;
+  float HeliumFractionByMass;
+  float MetalFractionByMass;
   float DeuteriumToHydrogenRatio;
 
   /* multispecies */
@@ -53,6 +55,7 @@ struct TestProblemDataType
   int UseMetallicityField;
   float MetallicityField_Fraction;
   float MetallicitySNIaField_Fraction;
+  float MetallicitySNIIField_Fraction;
   float MetallicityNormalization;
 
   float InitialMetalMass;
@@ -113,6 +116,12 @@ struct TestProblemDataType
   float MaximumTemperature;
   int ResetEnergies;
 
+  /* Cosmic Ray Fields */
+  int CRModel;
+  int CRDiffusion;
+  float CRkappa;
+  float CRgamma;
+  
   /* Shock Fields */
   int ShockMethod;
   int StorePreShockFields;

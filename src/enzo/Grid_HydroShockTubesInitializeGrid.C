@@ -24,20 +24,32 @@ int grid::HydroShockTubesInitializeGrid(float x0,
 					)
 {  
 
-  int MachNum, PSTempNum, PSDenNum;
+  int DensNum = -1;
+  int Vel1Num = -1;
+  int Vel2Num = -1;
+  int Vel3Num = -1;
+  int TENum = -1;
+  int IENum = -1;
+  int MachNum = -1;
+  int PSTempNum = -1;
+  int PSDenNum = -1;
 
   NumberOfBaryonFields = 0;
-  FieldType[NumberOfBaryonFields++] = Density;
-  FieldType[NumberOfBaryonFields++] = Velocity1;
-  FieldType[NumberOfBaryonFields++] = Velocity2;
-  FieldType[NumberOfBaryonFields++] = Velocity3;
-  FieldType[NumberOfBaryonFields++] = TotalEnergy;
+  FieldType[DensNum = NumberOfBaryonFields++] = Density;
+  FieldType[Vel1Num = NumberOfBaryonFields++] = Velocity1;
+  if (GridRank > 1 || HydroMethod > 2) {
+    FieldType[Vel2Num = NumberOfBaryonFields++] = Velocity2;
+    if (GridRank > 2 || HydroMethod > 2) {
+      FieldType[Vel3Num = NumberOfBaryonFields++] = Velocity3;
+    }
+  }
+  FieldType[TENum = NumberOfBaryonFields++] = TotalEnergy;
   if (DualEnergyFormalism) {
-    FieldType[NumberOfBaryonFields++] = InternalEnergy;
+    FieldType[IENum = NumberOfBaryonFields++] = InternalEnergy;
   }
 
   if(ShockMethod){
-    FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
+    FieldType[MachNum = NumberOfBaryonFields++] = Mach;
     if(StorePreShockFields){
       FieldType[PSTempNum = NumberOfBaryonFields++] = PreShockTemperature;
       FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
@@ -78,22 +90,30 @@ int grid::HydroShockTubesInitializeGrid(float x0,
     index = GRIDINDEX_NOGHOST(i,j,k); 
 
     if (x <= x0) {
-      BaryonField[iden ][index] = rhol;
-      BaryonField[ivx  ][index] = vxl;
-      BaryonField[ivy  ][index] = vyl;
-      BaryonField[ivz  ][index] = vzl;
-      BaryonField[ietot][index] = etotl;
+      BaryonField[DensNum][index] = rhol;
+      BaryonField[Vel1Num][index] = vxl;
+      if (Vel2Num > -1) {
+        BaryonField[Vel2Num][index] = vyl;
+      }
+      if (Vel3Num > -1) {
+        BaryonField[Vel3Num][index] = vzl;
+      }
+      BaryonField[TENum][index] = etotl;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][index] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
+	BaryonField[IENum][index] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
       }
     } else {
-      BaryonField[iden ][index] = rhor;
-      BaryonField[ivx  ][index] = vxr;
-      BaryonField[ivy  ][index] = vyr;
-      BaryonField[ivz  ][index] = vzr;
-      BaryonField[ietot][index] = etotr;
+      BaryonField[DensNum][index] = rhor;
+      BaryonField[Vel1Num][index] = vxr;
+      if (Vel2Num > -1) {
+        BaryonField[Vel2Num][index] = vyr;
+      }
+      if (Vel3Num > -1) {
+        BaryonField[Vel3Num][index] = vzr;
+      }
+      BaryonField[TENum][index] = etotr;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][index] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
+	BaryonField[IENum][index] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
       }
     }
 
@@ -124,21 +144,33 @@ int grid::HydroShockTubesInitializeGrid(float x0, float x1,
 					)
 {  
 
-  int MachNum, PSTempNum, PSDenNum;
+  int DensNum = -1;
+  int Vel1Num = -1;
+  int Vel2Num = -1;
+  int Vel3Num = -1;
+  int TENum = -1;
+  int IENum = -1;
+  int MachNum = -1;
+  int PSTempNum = -1;
+  int PSDenNum = -1;
 
   NumberOfBaryonFields = 0;
-  FieldType[NumberOfBaryonFields++] = Density;
-  FieldType[NumberOfBaryonFields++] = Velocity1;
-  FieldType[NumberOfBaryonFields++] = Velocity2;
-  FieldType[NumberOfBaryonFields++] = Velocity3;
-  FieldType[NumberOfBaryonFields++] = TotalEnergy;
+  FieldType[DensNum = NumberOfBaryonFields++] = Density;
+  FieldType[Vel1Num = NumberOfBaryonFields++] = Velocity1;
+  if (GridRank > 1 || HydroMethod > 2) {
+    FieldType[Vel2Num = NumberOfBaryonFields++] = Velocity2;
+    if (GridRank > 2 || HydroMethod > 2) {
+      FieldType[Vel3Num = NumberOfBaryonFields++] = Velocity3;
+    }
+  }
+  FieldType[TENum = NumberOfBaryonFields++] = TotalEnergy;
   if (DualEnergyFormalism) {
-    FieldType[NumberOfBaryonFields++] = InternalEnergy;
+    FieldType[IENum = NumberOfBaryonFields++] = InternalEnergy;
   }
 
-  if(ShockMethod){
-    FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
-    if(StorePreShockFields){
+  if (ShockMethod) {
+    FieldType[MachNum = NumberOfBaryonFields++] = Mach;
+    if (StorePreShockFields) {
       FieldType[PSTempNum = NumberOfBaryonFields++] = PreShockTemperature;
       FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
     }
@@ -179,32 +211,43 @@ int grid::HydroShockTubesInitializeGrid(float x0, float x1,
     index = GRIDINDEX_NOGHOST(i,j,k);
 
     if (x <= x0) {
-      BaryonField[iden ][index] = rhol;
-      BaryonField[ivx  ][index] = vxl;
-      BaryonField[ivy  ][index] = vyl;
-      BaryonField[ivz  ][index] = vzl;
-      BaryonField[ietot][index] = etotl;
+      BaryonField[DensNum][index] = rhol;
+      BaryonField[Vel1Num][index] = vxl;
+      if (Vel2Num > -1) {
+        BaryonField[Vel2Num][index] = vyl;
+      }
+      if (Vel3Num > -1) {
+        BaryonField[Vel3Num][index] = vzl;
+      }
+      BaryonField[TENum][index] = etotl;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][index] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
+	BaryonField[IENum][index] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
       }
     } else if (x <= x1) {
-      BaryonField[iden ][index] = rhoc;
-      BaryonField[ivx  ][index] = vxc;
-      BaryonField[ivy  ][index] = vyc;
-      BaryonField[ivz  ][index] = vzc;
-      BaryonField[ietot][index] = etotc;
-      if (DualEnergyFormalism) {
-	BaryonField[ieint][index] = etotc - 0.5*(vxc*vxc+vyc*vyc+vzc*vzc);
+      BaryonField[DensNum][index] = rhoc;
+      BaryonField[Vel1Num][index] = vxc;
+      if (Vel2Num > -1) {
+        BaryonField[Vel2Num][index] = vyc;
       }
-    }
-    else {
-      BaryonField[iden ][index] = rhor;
-      BaryonField[ivx  ][index] = vxr;
-      BaryonField[ivy  ][index] = vyr;
-      BaryonField[ivz  ][index] = vzr;
-      BaryonField[ietot][index] = etotr;
+      if (Vel3Num > -1) {
+        BaryonField[Vel3Num][index] = vzc;
+      }
+      BaryonField[TENum][index] = etotc;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][index] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
+	BaryonField[IENum][index] = etotc - 0.5*(vxc*vxc+vyc*vyc+vzc*vzc);
+      }
+    } else {
+      BaryonField[DensNum][index] = rhor;
+      BaryonField[Vel1Num][index] = vxr;
+      if (Vel2Num > -1) {
+        BaryonField[Vel2Num][index] = vyr;
+      }
+      if (Vel3Num > -1) {
+        BaryonField[Vel3Num][index] = vzr;
+      }
+      BaryonField[TENum][index] = etotr;
+      if (DualEnergyFormalism) {
+	BaryonField[IENum][index] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
       }
     }
 

@@ -75,23 +75,19 @@ int Star::SubtractAccretedMassFromCell(void)
   /* Find Metallicity or SNColour field and set flag. */
 
   int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-    MetalIaNum;
+    MetalIaNum, MetalIINum;
   int MetallicityField = FALSE;
 
-  if (CurrentGrid->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
-					Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
+  if (CurrentGrid->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, 
+              MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-
-  MetalNum = max(MetalNum, SNColourNum);
-  MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
-
 
   /* Now let's start working! */
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     size *= CurrentGrid->GridDimension[dim];
-    igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
-      CurrentGrid->CellWidth[0][0];
+    igrid[dim] = (int) ((pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
+			CurrentGrid->CellWidth[0][0]);
   }
 
   index = 
@@ -133,11 +129,12 @@ int Star::SubtractAccretedMassFromCell(void)
   //CurrentGrid->BaryonField[Vel1Num][index] = (densgrid*ugrid - drho*ugrid) / (densgrid - drho);
   //                                         = ugrid;  //velocity of the grids will be unchanged! 
 
-  /*
-  fprintf(stdout, "star::SubtractAccretedMass:  DeltaMass = %e, OldDensity =%e, NewDensity =%e, factor =%e\n", 
-	  this->DeltaMass, OldDensity, NewDensity, factor); 
-  fprintf(stdout, "star::SubtractAccretedMass:  vel_p[1] = %g -> %g\n", usink, vel[1]); 
-  */
+
+//  fprintf(stdout, "star::SubtractAccretedMass[%d]:  DeltaMass = %e, OldDensity =%e, NewDensity =%e, factor =%e\n", 
+//	  this->Identifier, this->DeltaMass, OldDensity, NewDensity, factor); 
+//  fprintf(stdout, "star::SubtractAccretedMass[%d]:  vel_p[1] = %g -> %g\n", 
+//	  this->Identifier, vsink, vel[1]); 
+
 
   /* Update species and colour fields */
 
@@ -161,11 +158,13 @@ int Star::SubtractAccretedMassFromCell(void)
     CurrentGrid->BaryonField[HDINum][index] *= factor;
   }
 
-  if (MetallicityField == TRUE)
+  if (MetalNum >= 0)
     CurrentGrid->BaryonField[MetalNum][index] *= factor;
-
+  if (MetalIaNum >= 0)
+    CurrentGrid->BaryonField[MetalIaNum][index] *= factor;
+  if (SNColourNum >= 0)
+    CurrentGrid->BaryonField[SNColourNum][index] *= factor;
   if (MBHColourNum > 0)
-
     CurrentGrid->BaryonField[MBHColourNum][index] *= factor;    
 
   return SUCCESS;

@@ -258,20 +258,20 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
   
   /* set up the root grid */
 
-  if (MaximumRefinementLevel > 0 && startWithSubgrids)
+  if (MaximumRefinementLevel > 0 && startWithSubgrids) {
     if (Subgrid[0]->GridData->ProjectSolutionToParentGrid(*(TopGrid.GridData))
 	== FAIL) {
             ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
     }
-
-  else
+  } else {
     if (TopGrid.GridData->ProtostellarCollapseInitializeGrid(
-                          ProtostellarCollapseCoreDensity,
-			  ProtostellarCollapseCoreEnergy,
-			  ProtostellarCollapseCoreRadius,
-			  ProtostellarCollapseAngularVelocity) == FAIL) {
-            ENZO_FAIL("Error in ProtostellarCollapseInitializeGrid.");
+            ProtostellarCollapseCoreDensity,
+            ProtostellarCollapseCoreEnergy,
+            ProtostellarCollapseCoreRadius,
+            ProtostellarCollapseAngularVelocity) == FAIL) {
+      ENZO_FAIL("Error in ProtostellarCollapseInitializeGrid.");
     }
+  }
 
   /* set up field names and units */
 

@@ -75,7 +75,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
   /* Check if there's we're refining by particle mass or must-refine
      particles. */
 
-  int method, ParticleMassMethod;
+  int method, ParticleMassMethod, MustRefineMethod = INT_UNDEFINED;
   bool ParticleFlaggingOn = false;
 
   for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
@@ -83,6 +83,8 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 			   CellFlaggingMethod[method] == 8);
     if (CellFlaggingMethod[method] == 4)
       ParticleMassMethod = method;
+    if (CellFlaggingMethod[method] == 8)
+      MustRefineMethod = method;
   }
 
   if (!ParticleFlaggingOn) {
@@ -104,7 +106,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
       // most of the time.
       if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
 	if (Temp->GridData->SetParticleMassFlaggingField
-	    (Zero, Zero, level, ParticleMassMethod) == FAIL) {
+	    (Zero, Zero, level, ParticleMassMethod, MustRefineMethod) == FAIL) {
 	  ENZO_FAIL("Error in grid->SetParticleMassFlaggingField(send).\n");
 	}
 
@@ -135,7 +137,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
       Count = sizeof_twoint;
       stat = MPI_Type_contiguous(Count, DataTypeByte, &MPI_TwoInt);
       stat |= MPI_Type_commit(&MPI_TwoInt);
-      if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+      if (stat != MPI_SUCCESS) ENZO_FAIL("");
       FirstTimeCalled = FALSE;
     }
 
@@ -216,7 +218,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 
     stat = MPI_Alltoall(NumberOfSends, 1, DataTypeInt,
 			RecvListCount, 1, DataTypeInt, MPI_COMM_WORLD);
-    if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+    if (stat != MPI_SUCCESS) ENZO_FAIL("");
 
     TotalNumberOfRecv = 0;
     for (proc = 0; proc < NumberOfProcessors; proc++) {
@@ -254,7 +256,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 			   MPI_TwoInt,
 			 SharedList, MPI_RecvListCount, MPI_RecvListDisplacements,
 			   MPI_TwoInt, MPI_COMM_WORLD);
-    if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+    if (stat != MPI_SUCCESS) ENZO_FAIL("");
 
 #ifdef TIMING
     t1 = ReturnWallTime();
@@ -342,8 +344,8 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 	      for (i = 0; i < nSends; i++)
 		SendProcs[i] = SharedList[count-i-1].proc;
 	      if (Grids[grid1]->GridData->SetParticleMassFlaggingField
-		  (StartProc, EndProc, level, ParticleMassMethod, SendProcs,
-		   nSends) == FAIL) {
+		  (StartProc, EndProc, level, ParticleMassMethod,
+		   MustRefineMethod, SendProcs, nSends) == FAIL) {
 		ENZO_FAIL("Error in grid->SetParticleMassFlaggingField"
 			"(receive).\n");
 	      }
@@ -357,7 +359,8 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 	CommunicationDirection = COMMUNICATION_SEND;
 	for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
 	  if (Grids[grid1]->GridData->SetParticleMassFlaggingField
-	      (StartProc, EndProc, level, ParticleMassMethod) == FAIL) {
+	      (StartProc, EndProc, level, ParticleMassMethod,
+	       MustRefineMethod) == FAIL) {
 	    ENZO_FAIL("Error in grid->SetParticleMassFlaggingField(send).\n");
 	  }
 

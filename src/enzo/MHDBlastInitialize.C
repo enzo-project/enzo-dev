@@ -131,14 +131,16 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     DataLabel[i++] = Vel3Name;
     DataUnits[j++] = NULL;
   if( UseMHD ){
-    DataUnits[i] = NULL;
     DataLabel[i++] = BxName;
-    DataUnits[i] = NULL;
+    DataUnits[j++] = NULL;
     DataLabel[i++] = ByName;
-    DataUnits[i] = NULL;
+    DataUnits[j++] = NULL;
     DataLabel[i++] = BzName;
-    DataUnits[i] = NULL;
+    DataUnits[j++] = NULL;
+  }
+  if( HydroMethod == MHD_RK ){
     DataLabel[i++] = PhiName;
+    DataUnits[j++] = NULL;
   }
 
 
@@ -153,13 +155,10 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     DataUnits[j++] = NULL;
   }
   
+  if ( UseMHDCT ){
   MHDLabel[0] = "BxF";
   MHDLabel[1] = "ByF";
   MHDLabel[2] = "BzF";
-  
-  MHDcLabel[0] = "Bx";
-  MHDcLabel[1] = "By";
-  MHDcLabel[2] = "Bz";
   
   MHDeLabel[0] = "Ex";
   MHDeLabel[1] = "Ey";
@@ -172,6 +171,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   MHDeUnits[0] = "None";
   MHDeUnits[1] = "None";
   MHDeUnits[2] = "None";
+  }
   
 
   // General control variable

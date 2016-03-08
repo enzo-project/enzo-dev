@@ -3,7 +3,7 @@
 
 !     set this if you want to log star particle info in a file (one per
 !     processor)
-#define STAR_LOG
+#define NO_STAR_LOG
 
 c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
@@ -267,9 +267,9 @@ c      print *,'starlog_filename = ',starlog_filename
 
 
       if (StochasticStarFormation .eq. 1) then 
-c     Initialize random number generator once  
+c     Initialize random number generator once using the MPI rank
          if (ran1_init .eq. 0) then
-            call random_seed()
+            call init_random_seed(procnum)
             ran1_init = 1
          endif
       endif

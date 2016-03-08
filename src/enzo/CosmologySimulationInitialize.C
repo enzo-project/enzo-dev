@@ -42,6 +42,7 @@
  
 // Function prototypes
  
+void MHDCTSetupFieldLabels();
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
@@ -108,6 +109,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
+  char *CRName   = "CREnergyDensity";
   char *ElectronName = "Electron_Density";
   char *HIName    = "HI_Density";
   char *HIIName   = "HII_Density";
@@ -402,6 +404,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     Mu = 0.6;
   }
 
+  // Copy Omega_DM to a global variable
+  OmegaDarkMatterNow = CosmologySimulationOmegaCDMNow;
+  
   // If temperature is left unset, set it assuming that T=550 K at z=200
  
   if (CosmologySimulationInitialTemperature == FLOAT_UNDEFINED)
@@ -418,6 +423,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
+    if (CosmologySimulationInitialUniformBField[dim] != 0.0 && HydroMethod != 4 && HydroMethod != 6)
+        ENZO_FAIL("UniformBField requested with a non-MHD solver. Please use one of the MHD solvers");
     CosmologySimulationInitialUniformBField[dim] /= MagneticUnits;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       printf("magnetic field: dim %"ISYM", %"FSYM" %"ESYM" \n", dim, MagneticUnits, 
@@ -668,6 +675,22 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       ) == FAIL) {
       ENZO_FAIL("Error in grid->CosmologySimulationInitializeGrid.\n");
     }
+
+    // Initialize MustRefine particles if MustRefineParticlesCreateParticles is set.
+
+    if (ParallelRootGridIO != TRUE && MustRefineParticlesCreateParticles == 1) {
+      if (MustRefineParticlesRefineToLevel != -1){
+	if (MustRefineParticlesRightEdge[0] != 0.0 ||
+	    MustRefineParticlesRightEdge[1] != 0.0 ||
+	    MustRefineParticlesRightEdge[2] != 0.0)
+	  GridsList[gridnum]->GridData->MustRefineParticlesFlagInRegion();
+	if (MustRefineParticlesRightEdge[0] == 0.0 &&
+	    MustRefineParticlesRightEdge[1] == 0.0 &&
+	    MustRefineParticlesRightEdge[2] == 0.0)
+	  GridsList[gridnum]->GridData->MustRefineParticlesFlagFromList();
+      }
+    }
+
  
     // Set boundary conditions if necessary
  
@@ -701,23 +724,28 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   i = 0;
   DataLabel[i++] = DensName;
   DataLabel[i++] = Vel1Name;
-  if (MetaData.TopGridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+  if (MaxVelocityIndex > 1)
     DataLabel[i++] = Vel2Name;
-  if (MetaData.TopGridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+  if (MaxVelocityIndex > 2)
     DataLabel[i++] = Vel3Name;
   DataLabel[i++] = TEName;
+	if(CRModel)
+    DataLabel[i++] = CRName;
   if (DualEnergyFormalism)
     DataLabel[i++] = GEName;
-  if (HydroMethod == MHD_RK) {
+  if (UseMHD) {
     DataLabel[i++] = BxName;
     DataLabel[i++] = ByName;
     DataLabel[i++] = BzName;
+  }
+  if( HydroMethod == MHD_RK ){
     DataLabel[i++] = PhiName;
     if(UseDivergenceCleaning){
       DataLabel[i++] = Phi_pName;
       DataLabel[i++] = DebugName;
     }
   }
+  MHDCTSetupFieldLabels();
   /*
   DataLabel[i++] = DensName;
   DataLabel[i++] = TEName;
@@ -793,10 +821,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     DataUnits[j] = NULL;
  
   if ( UseMHDCT ){
-      MHDcLabel[0] = "Bx";
-      MHDcLabel[1] = "By";
-      MHDcLabel[2] = "Bz";
-
       MHDLabel[0] = "BxF";
       MHDLabel[1] = "ByF";
       MHDLabel[2] = "BzF";
@@ -1066,6 +1090,22 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
       ENZO_FAIL("Error in grid->CosmologySimulationInitializeGrid.\n");
     }
  
+    //Initialize MustRefine particles if MustRefineParticlesCreateParticles is set.
+     
+      if (MustRefineParticlesCreateParticles == 1) {
+      if (MustRefineParticlesRefineToLevel != -1){
+	if (MustRefineParticlesRightEdge[0] != 0.0 ||
+	    MustRefineParticlesRightEdge[1] != 0.0 ||
+	    MustRefineParticlesRightEdge[2] != 0.0)
+	  Temp->GridData->MustRefineParticlesFlagInRegion();
+	if (MustRefineParticlesRightEdge[0] == 0.0 &&
+	    MustRefineParticlesRightEdge[1] == 0.0 &&
+	    MustRefineParticlesRightEdge[2] == 0.0)
+	  Temp->GridData->MustRefineParticlesFlagFromList();
+      }
+    }
+
+
     Temp = Temp->NextGridThisLevel;
   }
 

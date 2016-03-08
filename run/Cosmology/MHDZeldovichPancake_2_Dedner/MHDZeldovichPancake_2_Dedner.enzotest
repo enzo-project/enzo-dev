@@ -1,0 +1,12 @@
+name = 'MHDZeldovichPancake_2_Dedner'
+nprocs = 1
+runtime = 'short'
+hydro = True
+gravity = True
+cosmology = True
+dimensionality = 1
+author = 'Collins'
+max_time_minutes = 1
+fullsuite = True
+pushsuite = True
+quicksuite = True

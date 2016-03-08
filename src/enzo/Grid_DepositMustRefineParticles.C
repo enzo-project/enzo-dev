@@ -24,6 +24,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "CosmologyParameters.h"
+
  
 /* function prototypes */
  
@@ -31,10 +33,11 @@ extern "C" void PFORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, float *partmass, int *ndim, int *npositions,
                         int *itype, int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
-		       	int *imatch1, int *imatch2, float *minmassmust, int *buffersize);
+			int *imatch1, int *imatch2, float *minmassmust, int *buffersize,
+			float *unipartmass);
  
  
-int grid::DepositMustRefineParticles(int pmethod, int level)
+int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField)
 {
   /* declarations */
   //printf("grid::DepositMustRefineParticles called \n");
@@ -84,12 +87,17 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
   ParticleTypeToMatch1 = PARTICLE_TYPE_MUST_REFINE;
   ParticleTypeToMatch2 = PARTICLE_TYPE_MBH;
  
+  float UniformParticleMass = 0.0;
+  if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3)
+    UniformParticleMass = OmegaDarkMatterNow / OmegaMatterNow;
+
   PFORTRAN_NAME(cic_flag)(
 	   ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], ParticleMass,
 	   &GridRank, &NumberOfParticles, ParticleType, FlaggingField,
 	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
 	   &CellSize, &ParticleTypeToMatch1, &ParticleTypeToMatch2, 
-	   &MustRefineParticlesMinimumMass, &ParticleBufferSize);
+	   &MustRefineParticlesMinimumMass, &ParticleBufferSize,
+			  &UniformParticleMass);
 
   /* Increase particle mass flagging field for definite refinement */
 
@@ -98,13 +106,24 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
     POW(RefineBy, level * MinimumMassForRefinementLevelExponent[pmethod]);
   if (ProblemType == 28)
     MustRefineMass = 0;
+
+  /* Special case on level == MustRefineParticlesRefineToLevel when we
+     restrict the additional AMR to regions with must-refine
+     particles, and don't use the particle mass field. */
   
   int NumberOfFlaggedCells = 0;
-  for (i = 0; i < size; i++)
-    if (FlaggingField[i]) {
-      ParticleMassFlaggingField[i] = MustRefineMass;
-      NumberOfFlaggedCells++;
-    }
+  if (!(ProblemType == 30 && MustRefineParticlesCreateParticles == 3 &&
+	level == MustRefineParticlesRefineToLevel)) {
+    for (i = 0; i < size; i++)
+      if (FlaggingField[i]) {
+	ParticleMassFlaggingField[i] = MustRefineMass;
+	NumberOfFlaggedCells++;
+      }
+  }
+
+  if (debug1)
+    printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
+	   level,NumberOfFlaggedCells);
 
   /* If refining region before supernova, change particle type back to
      its original value. */
@@ -114,8 +133,10 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
 
   /* Clean up */
 
-  delete [] FlaggingField;
-  FlaggingField = NULL;
+  if (!KeepFlaggingField) {
+    delete [] FlaggingField;
+    FlaggingField = NULL;
+  }
 
   return NumberOfFlaggedCells;
  

@@ -71,12 +71,12 @@ int RadiativeTransferInitialize(char *ParameterFile,
   int NumberOfObsoleteFields;
   int ObsoleteFields[MAX_NUMBER_OF_BARYON_FIELDS];
 
-  if (RadiativeTransfer == FALSE && RadiativeTransferFLD == FALSE &&
+  if (RadiativeTransfer == FALSE && RadiativeTransferFLD == FALSE &&  
       StarParticleFeedback == 0) {
 
     /* Check for radiation fields and delete them */
 
-    NumberOfObsoleteFields = 7;
+    NumberOfObsoleteFields = 8;
     ObsoleteFields[0] = kphHI;
     ObsoleteFields[1] = PhotoGamma;
     ObsoleteFields[2] = kphHeI;
@@ -84,6 +84,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ObsoleteFields[4] = gammaHeI;
     ObsoleteFields[5] = gammaHeII;
     ObsoleteFields[6] = kdissH2I;
+    ObsoleteFields[7] = RaySegments;
 
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)

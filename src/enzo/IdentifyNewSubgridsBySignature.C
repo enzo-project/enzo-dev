@@ -56,7 +56,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
     /* Iterate on this grid until it is acceptable. */
 
     while (Subgrid->AcceptableSubgrid() == FALSE) {
- 
+
       /* Loop over the dimensions (longest to shortest), compute the
 	 1D signatures and then look for zeros in them.  */
  
@@ -98,8 +98,9 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 	      SubgridList[index] = NewSubgrid;
 	    else
 	      SubgridList[NumberOfSubgrids++] = NewSubgrid;
+
 	  }
- 
+	  
 	  break; // break out of the loop over dimensions
 	}
 	
@@ -108,38 +109,58 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
       /* If we couldn't partition by simple zeros then try the 2nd deriv. */
  
       if (NumberOfNewGrids <= 1) {
- 
-	/* Now Compute the zero crossings in the second derivaties of all the
-	   signatures. */
- 
+
 	int MaxZeroCrossingStrength = -1, StrongestDim = -1, TempInt;
+
+	/* First check large axis ratio and split on that if necessary */
 	
-	//	for (i = 0; i < MAX_DIMENSION; i++) {
-	for (i = 0; i < 1; i++) {
-	
-	  if ((dim = Subgrid->ReturnNthLongestDimension(i)) < 0)
-	    break;
-	
-	  if (Subgrid->ComputeSecondDerivative(dim, TempInt,
-					       &GridEnds[dim*2]) == FAIL) {
-	   ENZO_FAIL("Error in ProtoSubgrid->ComputeSecondDerivative.\n");
-	  }
-	
-	  if (TempInt > MaxZeroCrossingStrength) {
-	    StrongestDim = dim;
-	    MaxZeroCrossingStrength = TempInt;
-	  }
-	
-	} // end: for (i = 0; i < MAX_DIMENSION; i++)
-	
-	/* Error check. */
-	
-	if (StrongestDim < 0) {
-	  ENZO_FAIL("Error in IdentifyNewSubgridsBySignature.");
-	}
-	
-	/* Create new subgrids (two). */
+	dim = Subgrid->ReturnNthLongestDimension(0);
+	Subgrid->LargeAxisRatioCheck(StrongestDim, GridEnds, CriticalGridRatio);
+
+	if (StrongestDim == -1) {
  
+	  /* Now Compute the zero crossings in the second derivaties of all the
+	     signatures. */
+ 	
+	  //	for (i = 0; i < MAX_DIMENSION; i++) {
+	  for (i = 0; i < 1; i++) {
+	
+	    if ((dim = Subgrid->ReturnNthLongestDimension(i)) < 0)
+	      break;
+	
+	    if (Subgrid->ComputeSecondDerivative(dim, TempInt,
+						 &GridEnds[dim*2]) == FAIL) {
+	      ENZO_FAIL("Error in ProtoSubgrid->ComputeSecondDerivative.\n");
+	    }
+
+	    int MinimumNewGridWidth;
+	    MinimumNewGridWidth = min(GridEnds[dim*2][1]-GridEnds[dim*2][0],
+				      GridEnds[dim*2+1][1]-GridEnds[dim*2+1][0]);
+	    
+	    if (TempInt > MaxZeroCrossingStrength and MinimumNewGridWidth > MinimumSubgridEdge) {
+	      StrongestDim = dim;
+	      MaxZeroCrossingStrength = TempInt;
+	    }
+	
+	  } // end: for (i = 0; i < MAX_DIMENSION; i++)
+	
+	  /* If no inflection point splitting creates grids sufficiently thick,
+	   split the grid in half along the long axis. */
+
+	  if (StrongestDim < 0)
+	    Subgrid->LargeAxisRatioCheck(StrongestDim, GridEnds, 0.0);
+
+	  /* Error check. */
+
+	  if (StrongestDim < 0) {
+	    ENZO_FAIL("Error in IdentifyNewSubgridsBySignature.");
+	  }
+
+	} // end: if (StrongestDim == -1)
+
+
+	/* Create new subgrids (two). */
+
 	SubgridList[index] = new ProtoSubgrid;
 	SubgridList[NumberOfSubgrids++] = new ProtoSubgrid;
 	Subgrid->CopyToNewSubgrid(StrongestDim, GridEnds[StrongestDim*2][0],
@@ -149,12 +170,13 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 				  GridEnds[StrongestDim*2+1][1],
 				  SubgridList[NumberOfSubgrids-1]);
 
-	/*	if (debug)
-	  printf("Breaking by zero-crossing. dim=%"ISYM"  break=%"ISYM"-%"ISYM"/%"ISYM"-%"ISYM"\n",
-		 StrongestDim,
-		 GridEnds[StrongestDim*2][0], GridEnds[StrongestDim*2][1],
-		 GridEnds[StrongestDim*2+1][0], GridEnds[StrongestDim*2+1][1]);
-		 */
+	
+	//if (debug)
+	  //	printf("Breaking by zero-crossing. dim=%"ISYM"  break=%"ISYM"-%"ISYM"/%"ISYM"-%"ISYM"\n\n",
+	  //   StrongestDim,
+	  //   GridEnds[StrongestDim*2][0], GridEnds[StrongestDim*2][1],
+	  //   GridEnds[StrongestDim*2+1][0], GridEnds[StrongestDim*2+1][1]);
+	
 
       }
  

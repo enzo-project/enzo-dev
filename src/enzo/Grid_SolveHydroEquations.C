@@ -172,10 +172,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* Add "real" colour fields (metallicity, etc.) as colour variables. */
 
     int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-      MetalIaNum; 
+      MetalIaNum, MetalIINum; 
 
-    if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
-				   Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
+    if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum,
+                MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
       ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
     if (MetalNum != -1) {
@@ -187,6 +187,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     }
 
     if (MetalIaNum       != -1) colnum[NumberOfColours++] = MetalIaNum;
+    if (MetalIINum       != -1) colnum[NumberOfColours++] = MetalIINum;
     if (SNColourNum      != -1) colnum[NumberOfColours++] = SNColourNum;
     if (MBHColourNum     != -1) colnum[NumberOfColours++] = MBHColourNum;
     if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
@@ -258,7 +259,16 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     } // if(TestProblemData.GloverChemistryModel)
 
 
-    /* Add shock/cosmic ray variables as a colour variable. */
+    /* Add Cosmic Ray Energy Density as a colour variable. */
+    if(CRModel){
+      int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRNum;
+      if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                       Vel3Num, TENum, CRNum ) == FAIL )
+        ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+      colnum[NumberOfColours++] = CRNum;
+    } // end CR if
+
+    /* Add shock variables as a colour variable. */
 
     if(ShockMethod){
       int MachNum, PSTempNum,PSDenNum;
@@ -401,7 +411,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* Prepare Gravity. */
 
     int GravityOn = 0, FloatSize = sizeof(float);
-    if (SelfGravity || UniformGravity || PointSourceGravity || ExternalGravity)
+    if (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity || ExternalGravity )
       GravityOn = 1;
 #ifdef TRANSFER
     if (RadiationPressure)
@@ -487,7 +497,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
                         fprintf(stderr, "Warning: No CT method used with MHD_Li.\n");
                 break;
             }
-        MHD_Curl( CurlStart,CurlEnd, 1);
+        MHD_UpdateMagneticField(level, NULL, TRUE);
         CenterMagneticField();
 
         MHDCT_ConvertEnergyToSpecificS();
@@ -556,12 +566,63 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
   /* If we're supposed to be outputting on Density, we need to update
      the current maximum value of that Density. */
 
-    if(OutputOnDensity == 1){
+    if (OutputOnDensity == 1 || 
+        StopFirstTimeAtDensity > 0. || 
+        StopFirstTimeAtMetalEnrichedDensity > 0.) {
       int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
-      for(i = 0; i < size; i++)
+
+      int MetalNum = 0, SNColourNum = 0;
+      int MetalFieldPresent = FALSE;
+      float *MetalPointer;
+      float *TotalMetals = NULL;
+
+      if (StopFirstTimeAtMetalEnrichedDensity > 0.) {
+
+        // First see if there's a metal field (so we can conserve species in
+        // the solver)
+        MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields);
+        SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
+        MetalFieldPresent = (MetalNum != -1 || SNColourNum != -1);
+
+        // Double check if there's a metal field when we have metal cooling
+        if (MetalFieldPresent == FALSE) {
+          ENZO_FAIL("StopFirstTimeAtMetalEnrichedDensity is set, but no metal field is present.\n");
+        }
+
+        /* If both metal fields (Pop I/II and III) exist, create a field
+           that contains their sum */
+
+        if (MetalNum != -1 && SNColourNum != -1) {
+          TotalMetals = new float[size];
+          for (int i = 0; i < size; i++)
+            TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
+          MetalPointer = TotalMetals;
+        } // ENDIF both metal types
+        else {
+          if (MetalNum != -1)
+            MetalPointer = BaryonField[MetalNum];
+          else if (SNColourNum != -1)
+            MetalPointer = BaryonField[SNColourNum];
+        } // ENDELSE both metal types
+ 
+      }
+
+      for (i = 0; i < size; i++) {
+
         CurrentMaximumDensity =
             max(BaryonField[DensNum][i], CurrentMaximumDensity);
-    }
+
+        if (StopFirstTimeAtMetalEnrichedDensity > 0. &&
+            (MetalPointer[i] / BaryonField[DensNum][i]) > EnrichedMetalFraction) {
+          CurrentMaximumMetalEnrichedDensity = 
+            max(BaryonField[DensNum][i], CurrentMaximumMetalEnrichedDensity);
+        }
+
+      }
+
+      delete [] TotalMetals;
+
+    } // end: if (OutputOnDensity == 1 || ...
 
   }  // end: if (NumberOfBaryonFields > 0)
 

@@ -4,7 +4,6 @@ StopCycle = 2000
 #ExtraOutputs = 80 1 2 3 4 5 6 
 ProblemType            = 103
 NumberOfGhostZones = 5
-MHDCTUseSpecificEnergy = 0
 # the things
 
 #Refinement options:

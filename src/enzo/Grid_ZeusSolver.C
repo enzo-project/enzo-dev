@@ -83,14 +83,18 @@ int Zeus_zTransport(float *d, float *e, float *u, float *v, float *w,
 		    int Vel1Num, int Vel2Num, int Vel3Num, float *BaryonField[],
 		    int NumberOfColours, int colnum[]);
 
-int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, 
+int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float *cr, 
 	       int in, int jn, int kn, int rank, int igamfield,
 	       int is, int ie, int js, int je, int ks, int ke, 
 	       float C1, float C2, int ipresfree,
 	       float *gamma, float dt, float pmin, float dx[], float dy[], float dz[],
 	       int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
-	       int bottom, float minsupecoef);
+	       int bottom, float minsupecoef, int CRModel, float CRgamma);
 
+int GetUnits (float *DensityUnits, float *LengthUnits,
+         float *TemperatureUnits, float *TimeUnits,
+         float *VelocityUnits, double *MassUnits, FLOAT Time);
+int FindField(int field, int farray[], int numfields);
 
 int grid::ZeusSolver(float *gamma, int igamfield, int nhy, 
 		     float dx[], float dy[], float dz[], 
@@ -103,9 +107,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   /*  Locals */
 
   int i, ie, is, j, je, js, k, ks, ke, n, ixyz, ret;
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum;
   float pmin;
-  float *d, *e, *u, *v, *w;
+  float *d, *e, *u, *v, *w, *cr, *m;
 
   /* Error Check */
 
@@ -123,7 +127,13 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
      Create zero fields for velocity2-3 for low-dimension runs because solver
      assumes they exist. */
 
-  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum );
+  if (CRModel) {
+    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+      ENZO_FAIL("Cannot Find Cosmic Rays");
+    cr = BaryonField[CRNum];
+  }
+  
   d = BaryonField[DensNum];
   e = BaryonField[TENum];
   u = BaryonField[Vel1Num];
@@ -183,7 +193,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 		 
   /*   1) Add source terms */
 
-  if (ZeusSource(d, e, u, v, w, p, 
+  if (ZeusSource(d, e, u, v, w, p, cr, 
 		 GridDimension[0], GridDimension[1], GridDimension[2],
 		 GridRank, igamfield,
 		 is, ie, js, je, ks, ke, 
@@ -192,7 +202,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 		 gamma, dtFixed, pmin, dx, dy, dz,
 		 gravity, AccelerationField[0], AccelerationField[1],
 		 AccelerationField[2],
-		 bottom, minsupecoef) == FAIL) {
+		 bottom, minsupecoef, CRModel, CRgamma) == FAIL) {
     fprintf(stderr, "P(%"ISYM"): Error in ZeusSource on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
 	    nhy, dtFixed);
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
@@ -200,6 +210,21 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   }
 
   /* Error check */
+  
+  float CRcs = 0.0;
+  if (CRmaxSoundSpeed != 0.0){
+		  // Get system of units
+    float CRsound,DensityUnits,LengthUnits,TemperatureUnits,
+          TimeUnits,VelocityUnits,Time;
+    double MassUnits;
+    if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+		 &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+      ENZO_FAIL("Error in GetUnits.");
+    }
+
+    CRsound = CRmaxSoundSpeed/VelocityUnits; 
+    CRcs = (CRgamma-1.0)/(CRsound*CRsound);
+  }
 
   for (i = 0; i < size; i++) {
     if (fabs(u[i]) > dx[0]/dtFixed ||
@@ -209,7 +234,15 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 	      u[i],v[i],w[i],d[i],e[i], dx[0], dtFixed);
       ENZO_FAIL("Velocity too fast! (post-call)\n");
     }
-  }
+  
+    /* -- density/TE floor for CR model -- */
+
+    if ( CRModel ){
+      if ( CRdensFloor != 0.0 && d[i] < CRdensFloor ) d[i] = CRdensFloor;
+      if ( CRcs        != 0.0 && d[i] < CRcs*cr[i]  ) d[i] = CRcs*cr[i];   // Limits sound-speed 
+      if ( e[i] < tiny_number*1e-5                  ) e[i] = tiny_number*1e-5;
+    } // end cr model if
+  } // end i for
 
   /*  2) Transport step */
 

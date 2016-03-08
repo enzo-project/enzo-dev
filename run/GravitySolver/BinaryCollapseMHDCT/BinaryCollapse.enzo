@@ -1,0 +1,94 @@
+#
+# AMR PROBLEM DEFINITION FILE: Binary Collapse
+#
+# Boss and Bodenheimer (1979)
+# Rotating 1 solar mass uniform cloud with temperature = 10K
+# and an m=2 perturbation on it and isothermal EOS collapses. 
+# 
+# Can be run with or without magnetic fields.
+# HydroMethod == 0 gives PPM, non-magnetic
+# HydroMethod == 3 gives MUSCL-RK, non-magnetic
+# HydroMethod == 4 gives MUCSL-RK, magnetic
+# HydroMethod == 6 gives MHDCT, magnetic.
+# Setting InitialBField != 0 and HydroMethod == 4 or 6 will give an initial magnetic field along \hat{z}
+#
+# This version sets up MHDCT fields with HydroMethod == 6
+#
+ProblemType                = 202      // Collapse test
+TopGridRank                = 3
+TopGridDimensions          = 32 32 32
+SelfGravity                = 1       // 
+TopGridGravityBoundary     = 1       //
+UnigridTranspose           = 0
+LeftFaceBoundaryCondition  = 3 3 3   // periodic
+RightFaceBoundaryCondition = 3 3 3
+PotentialIterations = 1
+#
+# problem parameters
+#
+RefineAtStart   = 1
+NumberOfSpheres = 1
+#
+SphereType[0]       = 0
+SphereRadius[0]     = 1.e-1
+SphereDensity[0]    = 1.44e-17
+#SpherePressure[0]   = 5.95e-07
+SphereSoundVelocity[0]   = 2.04e4
+Mu                       = 2.
+MediumDensity	    = 1.e-19
+MediumPressure      = 5.95e-09  # 
+SpherePosition[0]   = 0.5 0.5 0.5
+SphereAngVel[0]    = 0.0
+UniformVelocity     = 0.0 0.0 0.0 //0.6 0.6 0.6
+InitialBField      = 1e-8
+#0.001
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 0.05
+CycleSkipDataDump      = 160
+#dtDataDump             = 0.001
+DataDumpName           = data
+OutputFirstTimeAtLevel = 4
+OutputTemperature      = 1
+#
+#  set hydro parameters
+#
+Gamma                       = 1.001
+PPMDiffusionParameter       = 0       // diffusion off
+DualEnergyFormalism         = 1       // use total & internal energy
+InterpolationMethod         = 4       // FirstOrderA
+CourantSafetyNumber         = 0.3
+RadiativeCooling            = 0
+MultiSpecies                = 0
+FluxCorrection              = 0
+ConservativeInterpolation   = 1
+HydroMethod                 = 6
+NumberOfGhostZones          = 5
+RiemannSolver               = 1
+EOStype                     = 0
+Initialdt                   = 1e-6
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // dynamic hierarchy
+MaximumRefinementLevel    = 1
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 2 6   // use baryon mass for refinement 
+RefineByJeansLengthSafetyFactor = 8
+MinimumEfficiency         = 0.3  // fraction efficiency
+#MinimumOverDensityForRefinement = 0.1 // times the initial density
+MinimumMassForRefinementLevelExponent = -0.3
+# control the initial refinment with the max mass per cell (in grams)
+MinimumMassForRefinement  = 1.989e30
+MinimumEnergyRatioForRefinement = 0.4 // min Egas/Etot for shock refinement
+#RefineRegionLeftEdge            = 0.1 0.1 0.1
+#RefineRegionRightEdge           = 0.9 0.9 0.9
+NumberOfBufferZones = 2
+#
+#  set some global parameters
+#
+UsePhysicalUnit = 1
+LengthUnits = 3.2e17
+DensityUnits = 1.e-19
+GreensFunctionMaxNumber   = 10   // # of greens function at any one time

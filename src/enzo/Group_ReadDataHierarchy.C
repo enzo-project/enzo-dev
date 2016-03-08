@@ -46,10 +46,11 @@ extern std::map<HierarchyEntry *, int> OriginalTaskID;
 static int ReadDataGridCounter = 0;
 
 
-int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int GridID,
-			    HierarchyEntry *ParentGrid, hid_t file_id,
-			    int NumberOfRootGrids, int *RootGridProcessors,
-			    bool ReadParticlesOnly, FILE *log_fptr)
+int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid,
+                            TopGridData &MetaData, int GridID,
+                            HierarchyEntry *ParentGrid, hid_t file_id,
+                            int NumberOfRootGrids, int *RootGridProcessors,
+                            bool ReadParticlesOnly, FILE *log_fptr)
 {
  
   int TestGridID, NextGridThisLevelID, NextGridNextLevelID;
@@ -126,14 +127,17 @@ int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, in
 
   /* If requested, reset the grid processors. */
 
-  if (ResetLoadBalancing) 
-    if (GridID <= NumberOfRootGrids)
-      if (LoadBalancing == 2 && PreviousMaxTask < NumberOfProcessors-1)
-	Task = (GridID-1) * NumberOfProcessors / (PreviousMaxTask+1);
-      else
-	Task = (GridID-1) % NumberOfProcessors;
-    else
+  if (ResetLoadBalancing) {
+    if (GridID <= NumberOfRootGrids) {
+      if (LoadBalancing == 2 && PreviousMaxTask < NumberOfProcessors-1) {
+        Task = (GridID-1) * NumberOfProcessors / (PreviousMaxTask+1);
+      } else {
+        Task = (GridID-1) % NumberOfProcessors;
+      } 
+    } else {
       Task = ParentGrid->GridData->ReturnProcessorNumber();
+    }
+  }
 
   // Assign tasks in a round-robin fashion if we're increasing the
   // processor count, but processors are grouped together
@@ -143,13 +147,15 @@ int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, in
 
   // If provided load balancing of root grids based on subgrids, use
   // these instead.
-  if (LoadBalancing > 1 && RootGridProcessors != NULL)
-    if (GridID <= NumberOfRootGrids)
+  if (LoadBalancing > 1 && RootGridProcessors != NULL) {
+    if (GridID <= NumberOfRootGrids) {
       Task = RootGridProcessors[GridID-1];
-    else if (StaticRefineRegionLevel[0] == INT_UNDEFINED)
+    } else if (StaticRefineRegionLevel[0] == INT_UNDEFINED) {
       // Load the child on the same processor as its parent only if
       // it's not a zoom-in calculation
       Task = ParentGrid->GridData->ReturnProcessorNumber();
+    }
+  }
   
   Grid->GridData->SetProcessorNumber(Task);
 
@@ -214,6 +220,12 @@ int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, in
     }
   }
  
+  /* Initialize grid hydrodynamics parameters */
+  Grid->GridData->SetHydroParameters(MetaData.CourantSafetyNumber,
+                                     MetaData.PPMFlatteningParameter,
+                                     MetaData.PPMDiffusionParameter,
+                                     MetaData.PPMSteepeningParameter);
+
   /* Read RandomForcingFields for the grid(s) on level 0. //AK */
  
   if (RandomForcing && ParentGrid == NULL && extract != TRUE 
@@ -241,9 +253,10 @@ int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, in
  
   if (NextGridThisLevelID != 0) {
     Grid->NextGridThisLevel = new HierarchyEntry;
-    if (Group_ReadDataHierarchy(fptr, Hfile_id, Grid->NextGridThisLevel, NextGridThisLevelID,
-				ParentGrid, file_id, NumberOfRootGrids,
-				RootGridProcessors, ReadParticlesOnly, log_fptr) == FAIL)
+    if (Group_ReadDataHierarchy(fptr, Hfile_id, Grid->NextGridThisLevel,
+                                MetaData, NextGridThisLevelID, ParentGrid,
+                                file_id, NumberOfRootGrids, RootGridProcessors,
+                                ReadParticlesOnly, log_fptr) == FAIL)
       ENZO_FAIL("Error in Group_ReadDataHierarchy(1).");
   }
 
@@ -266,10 +279,10 @@ int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, in
  
   if (NextGridNextLevelID != 0) {
     Grid->NextGridNextLevel = new HierarchyEntry;
-    if (Group_ReadDataHierarchy(fptr, Hfile_id, Grid->NextGridNextLevel, NextGridNextLevelID, 
-
-				Grid, file_id, NumberOfRootGrids, 
-				RootGridProcessors, ReadParticlesOnly, log_fptr) == FAIL)
+    if (Group_ReadDataHierarchy(fptr, Hfile_id, Grid->NextGridNextLevel,
+                                MetaData, NextGridNextLevelID, Grid, file_id,
+                                NumberOfRootGrids, RootGridProcessors,
+                                ReadParticlesOnly, log_fptr) == FAIL)
       ENZO_FAIL("Error in Group_ReadDataHierarchy(2).");
   }
  

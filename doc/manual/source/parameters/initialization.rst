@@ -53,8 +53,10 @@ Initialization Parameters
     conditions. Default: 0 (FALSE). See also ``ParallelRootGridIO`` in :ref:`io_parameters`.
 ``UnigridTranspose`` (external)
     This parameter governs the fast FFT bookkeeping for Unigrid runs.
-    Does not work with isolated gravity. Default: 0 (FALSE). See also
-    ``Unigrid`` above.
+    Does not work with isolated gravity.  Option 0 is the slowest of
+    the methods.  Option 1 is an aggressive version that is
+    memory-intensive.  Option 2 tries to conserve memory at the
+    expense of performance.  See also ``Unigrid`` above.  Default: 2.
 ``MaximumTopGridTimeStep`` (external)
     This parameter limits the maximum timestep on the root grid.  Default: huge_number.
 ``ShearingVelocityDirection`` (external)

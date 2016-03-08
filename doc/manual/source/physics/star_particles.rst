@@ -400,6 +400,81 @@ star maker, so don't set StarParticleFeedback = 2048. Instead the user
 should select one of the feedback schemes associated with the other
 star makers (StarParticleFeedback = 4 comes to mind).
 
+Method 14: Kinetic Feedback
+-------------------------------------------------------
+Select this method by setting ``StarParticleCreation = 16384`` and
+``StarParticleFeedback = 16384``.
+
+*Source: star_maker3mom.F*
+
+This method combines stochastic Cen & Ostriker star formation (method 1) with a 
+method for injecting both kinetic and thermal feedback energy into the grid.  
+
+The star formation method is identical to method 1, which supplements the star 
+formation perscripton of Cen & Ostriker (1992) with a stochastic star formation 
+recipe.  Like method 1, there is no Jeans instability check, however, unlike 
+method 1, the particle velocity is set to the gas velocity.
+
+The star feedback method is described fully in `Simpson et al. (2015) 
+<http://adsabs.harvard.edu/abs/2014arXiv1410.3822S>`_ (S15).  Feedback energy, 
+mass and metals are injected into a 3x3x3 CIC stencil cloud that is centered on 
+the particle position and mapped onto the physical grid.  The outer 26 cells of 
+the cloud stencil impart kinetic energy to the physical grid.  The amount of 
+momentum injected into each cell is computed assuming a fixed budget of kinetic 
+energy and the direction of the injected momentum is taken to point radially 
+away from the star particle.
+
+.. figure:: CIC_momentum.png
+   :align: center
+   :width: 50 %
+   :alt: CIC stencil overlap with the physical grid.  The direction of imparted momentum is indicated with arrows.  [Figure 1 S15]
+
+CIC stencil overlap with the physical grid.  The direction of imparted momentum is indicated with arrows.  [Figure 1 S15]
+
+As with methods 0 and 1, the total amount of feedback energy injected into the 
+grid in a given timestep is 
+
+* M\ :sub:`form` * c\ :sup:`2` * ``StarEnergyToThermalFeedback``
+
+This energy is divided between thermal and kinetic energies.  This is despite 
+the name of ``StarEnergyToThermalFeedback``, which would indicate that it is 
+just thermal energy.  This name was kept for consistency with other star 
+makers.
+
+If ``StarMakerExplosionDelayTime`` is negative, M\ :sub:`form` is computed 
+as it is for star maker methods 0 and 1 as described above.  If 
+``StarMakerExplosionDelayTime >= 0.0`` then M\ :sub:`form` is the initial 
+star particle mass.  In this case, all energy, mass and metals are injected 
+in a single timestep that is delayed from the formation time of the star 
+particle creation by the value of ``StarMakerExplosionDelayTime``, which 
+is assumed to be in units of Myrs.  When the feedback is done in a discrete 
+explosion, the star particle field called ``dynamical_time`` is instead used 
+as a binary flag that indicates wheter the particle has done its feedback 
+or not (it is set to 1 pre-explosion and 0 once the explosion has been done).  
+When ``StarMakerExplosionDelayTime < 0.0``, ``dynamical_time`` has its 
+usual meaning.
+
+The amount of energy that takes kinetic form is fixed to be
+
+* M\ :sub:`form` * c\ :sup:`2` * ``StarEnergyToThermalFeedback`` * f\ :sub:`kin`
+
+If ``StarFeedbackKineticFraction`` is between 0.0 and 1.0, f\ :sub:`kin` = 
+``StarFeedbackKineticFraction``.  If ``StarFeedbackKineticFraction < 0.0``, 
+then f\ :sub:`kin` is variable and depends on the gas density, metallicity and 
+resolution surrounding the star particle at the time of the injection.  
+Equations (16), (17) and (18) in S15 describe how this variable fraction 
+is computed.
+
+The injection of mass and metals is distributed evenly over the CIC stencil 
+cloud and is done in proportion to M\ :sub:`form` as described in method 0.  
+The same parameters that control the mass and yield of ejected material are 
+the same (i.e. ``StarMassEjectionFraction`` and ``StarMetalYield``). 
+
+The discrete explosion mode and the variable kinetic energy injection mode 
+are intended for use with low mass star particles which produce energy 
+equivalent to only one or a few supernovae.
+
+
 Restarting a Simulation With Star Formation or Feedback
 -------------------------------------------------------
 

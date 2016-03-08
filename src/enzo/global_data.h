@@ -187,6 +187,11 @@ EXTERN float TimestepSafetyVelocity;
 
 EXTERN int FluxCorrection;
 
+/* Cooling time timestep limit. */
+
+EXTERN int UseCoolingTimestep;
+EXTERN float CoolingTimestepSafetyFactor;
+
 /* This specifies the interpolation method (see typedefs.h). */
 
 EXTERN interpolation_type InterpolationMethod;
@@ -211,6 +216,10 @@ EXTERN int MinimumSubgridEdge;
 /* This is the maximum allowable size for a new subgrid (>=2000) */
 
 EXTERN int MaximumSubgridSize;
+
+/* This is the maximum allowed ratio for a new subgrid */
+
+EXTERN float CriticalGridRatio;
 
 /* The number of zones that will be refined around each flagged zone. */
 
@@ -261,6 +270,18 @@ EXTERN int PointSourceGravity;
 EXTERN FLOAT PointSourceGravityPosition[MAX_DIMENSION];
 EXTERN float PointSourceGravityConstant;
 EXTERN float PointSourceGravityCoreRadius;
+
+/* disk gravity */
+EXTERN int DiskGravity;
+EXTERN FLOAT DiskGravityPosition[MAX_DIMENSION],
+             DiskGravityAngularMomentum[MAX_DIMENSION];
+EXTERN float DiskGravityStellarDiskMass;
+EXTERN float DiskGravityStellarDiskScaleHeightR;
+EXTERN float DiskGravityStellarDiskScaleHeightz;
+EXTERN float DiskGravityStellarBulgeMass;
+EXTERN float DiskGravityStellarBulgeR;
+EXTERN float DiskGravityDarkMatterR;
+EXTERN float DiskGravityDarkMatterDensity;
 
 /* SelfGravity (TRUE or FALSE) */
 
@@ -365,11 +386,16 @@ EXTERN FLOAT   RandomForcingEdot;
 EXTERN FLOAT   RandomForcingMachNumber;  //#####
 EXTERN fpos_t  BaryonFileNamePosition;
 
-#ifdef USE_GRACKLE
-/* Grackle chemistry and cooling. */
-EXTERN code_units grackle_units;
-EXTERN chemistry_data grackle_chemistry;
-#endif
+/* StochasticForcing variables */
+
+EXTERN forcing_type DrivenFlowProfile;
+EXTERN int DrivenFlowAlpha[MAX_DIMENSION];
+EXTERN int DrivenFlowSeed;
+EXTERN float DrivenFlowWeight;
+EXTERN float DrivenFlowBandWidth[MAX_DIMENSION];
+EXTERN float DrivenFlowAutoCorrl[MAX_DIMENSION];
+EXTERN float DrivenFlowVelocity[MAX_DIMENSION];
+EXTERN float DrivenFlowDomainLength[MAX_DIMENSION];
 
 /* Multi-species rate equation flag and associated data. */
 
@@ -387,6 +413,28 @@ EXTERN int GloverOpticalDepth; // 0: opticaly thin, 1: single-cell
 /* Multi-element metallicity field flag and count. */
 
 EXTERN int MultiMetals;
+
+/* Cosmic Ray Model
+ * 0: Off - default
+ * 1: On, (two fluid model)
+ */
+EXTERN int CRModel;
+/* Cosmic Ray Diffusion
+ * 0: Off - default
+ * 1: On, CRkappa is constant across grid
+ */
+EXTERN int CRDiffusion;
+/* Cosmic Ray Feedback
+ *    0.0 -- No CR feedback
+ *    1.0 -- All feedback into CR field
+ */
+EXTERN float CRFeedback;
+EXTERN float CRkappa;
+EXTERN float CRCourantSafetyNumber;
+EXTERN float CRdensFloor;
+EXTERN float CRmaxSoundSpeed;
+EXTERN float CRgamma;
+EXTERN float CosmologySimulationUniformCR; // FIXME
 
 /* Shock Finding Method
  * 0: Off - default
@@ -496,6 +544,10 @@ EXTERN float StartDensityOutputs;
 EXTERN float CurrentDensityOutput;
 EXTERN float CurrentMaximumDensity;
 EXTERN float IncrementDensityOutput;
+EXTERN float StopFirstTimeAtDensity;
+EXTERN float StopFirstTimeAtMetalEnrichedDensity;
+EXTERN float CurrentMaximumMetalEnrichedDensity;
+EXTERN float EnrichedMetalFraction;
 
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonTopGridSkip;
@@ -567,6 +619,17 @@ EXTERN int   MustRefineParticlesRefineToLevelAutoAdjust;
 
 EXTERN float MustRefineParticlesMinimumMass;
 
+/* For CellFlaggingMethod = 8,
+   region in which particles are flagged as MustRefine particles */
+
+EXTERN FLOAT MustRefineParticlesLeftEdge[MAX_DIMENSION], 
+             MustRefineParticlesRightEdge[MAX_DIMENSION];
+
+/* For CellFlaggingMethod = 8,
+   binary switch that allows must refine particles to be created by the 
+   routines MustRefineParticlesFlagFromList or MustRefineParticlesFlagInRegion*/
+EXTERN int MustRefineParticlesCreateParticles;
+
 /* For CellFlaggingMethod = 9,   
    The minimum shear (roughly, dv accross two zones) required for 
    refinement.    */
@@ -610,6 +673,7 @@ EXTERN int   ComovingCoordinates;
 
 EXTERN int   StarParticleCreation;
 EXTERN int   StarParticleFeedback;
+EXTERN int   StarParticleRadiativeFeedback;
 EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
@@ -940,6 +1004,7 @@ EXTERN int ShearingBoundaryDirection;
 EXTERN int ShearingVelocityDirection;
 EXTERN int ShearingOtherDirection;
 EXTERN int UseMHD;
+EXTERN int MaxVelocityIndex;
 EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 = vortex wave ; 3 = stratified
 
@@ -973,6 +1038,9 @@ EXTERN int OutputWhenJetsHaveNotEjected;
 
 EXTERN int VelAnyl;
 EXTERN int BAnyl;
+
+/* Write Out External Acceleration Field */
+EXTERN int WriteExternalAccel;
 
 /* Gas drag */
 EXTERN int UseGasDrag;
@@ -1012,7 +1080,6 @@ EXTERN float ClusterSMBHAccretionTime;  // Used only when CalculateGasMass=2
 EXTERN int ClusterSMBHJetDim;  // Jet dimension
 EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed)*c^2
 
-EXTERN int MHDCT_debug_flag;
 EXTERN int MHDCTSlopeLimiter;
 EXTERN int MHDCTDualEnergyMethod;
 EXTERN int MHDCTPowellSource;
@@ -1032,7 +1099,6 @@ EXTERN int MHD_ProjectE;// Should always be TRUE for the evoloution
 EXTERN int UseMHDCT;
 EXTERN int EquationOfState;
 EXTERN char *MHDLabel[3];
-EXTERN char *MHDcLabel[3];
 EXTERN char *MHDUnits[3];
 EXTERN char *MHDeLabel[3];
 EXTERN char *MHDeUnits[3];
@@ -1045,4 +1111,23 @@ EXTERN int CorrectParentBoundaryFlux;
 /* For EnzoTiming Behavior */
 EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
 
+/* For the galaxy simulation boundary method */
+EXTERN int GalaxySimulationRPSWind;
+/* GalaxySimulationRPSWind
+ *   0 - OFF 
+ *   1 - Simple Shock w/ angle and delay 
+ *   2 - Lookup table of density and velocity
+ */
+EXTERN float GalaxySimulationRPSWindShockSpeed;
+EXTERN float GalaxySimulationRPSWindDelay;
+
+EXTERN float GalaxySimulationRPSWindDensity;
+EXTERN float GalaxySimulationRPSWindTotalEnergy;
+EXTERN float GalaxySimulationRPSWindVelocity[MAX_DIMENSION];
+EXTERN float GalaxySimulationRPSWindPressure;
+
+EXTERN float GalaxySimulationPreWindDensity;
+EXTERN float GalaxySimulationPreWindTotalEnergy; 
+EXTERN float GalaxySimulationPreWindVelocity[MAX_DIMENSION];
+ 
 #endif

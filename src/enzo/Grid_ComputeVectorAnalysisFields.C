@@ -110,4 +110,6 @@ int grid::ComputeVectorAnalysisFields(
     }
   }
 
+  return SUCCESS;
+
 }

@@ -107,7 +107,7 @@ General
     3                                  [reserved]
     4                                  [reserved]
     6                     6            MUSCL-Hancock (Non Runge-Kutta) 
-    ===================== ============ ====================
+    ===================== ============ ===================
 
     Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
 ``ConservativeReconstruction`` (external; only if ``HydroMethod`` is 3 or 4)
@@ -140,6 +140,15 @@ General
     approximately 0.01-0.02 to keep star particles from flying all over
     the place. Otherwise, this does not need to be set, and in any case
     should never be set to a value greater than 1.0. Default: 1.0.
+``UseCoolingTimestep`` (external)
+    This parameter will limit the timestep on each level by some fraction
+    of the minimum cooling time on the level, where this fraction is
+    set by ``CoolingTimestepSafetyFactor``.  In most cases, this will
+    substantially decrease the timesteps, depending on the local
+    cooling time, and thus increase the run time of any
+    simulation. Default: OFF
+``CoolingTimestepSafetyFactor`` (external)
+    Described in ``UseCoolingTime``.  Default: 0.1
 ``DualEnergyFormalism`` (external)
     The dual energy formalism is needed to make total energy schemes
     such as PPM DE and PPM LR stable and accurate in the
@@ -205,7 +214,7 @@ Magnetohydrodynamics (CT) Parameters
     CT Method   Description  
     ========== ==========================================================================
     0           None (only for debugging)
-    1           Balsara Spicer 2001, first order average
+    1           Balsara and Spicer 1999. First order average.
     2           Gardiner and Stone 2005. Second order Lax-Friedrichs type reconstruction.
                 Uses ``CT_AthenaDissipation`` flag.
     3           Gardiner and Stone 2005.  Second order reconstruction using

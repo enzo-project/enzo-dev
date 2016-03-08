@@ -126,6 +126,7 @@ OBJS_CONFIG_LIB = \
         CreateSmoothedDarkMatterFields.o \
         CreateSUBlingList.o \
         CreateFluxes.o \
+        CRShockTubesInitialize.o \
         InitializeFluxes.o \
         DeleteFluxes.o \
         DeleteSUBlingList.o \
@@ -166,6 +167,7 @@ OBJS_CONFIG_LIB = \
         ExternalBoundary_SetExternalBoundaryIO.o \
         ExternalBoundary_SetExternalBoundaryParticles.o \
         ExternalBoundary_SetShockPoolBoundary.o \
+        ExternalBoundary_SetGalaxySimulationBoundary.o \
         ExternalBoundary_SetWavePoolBoundary.o \
         ExternalBoundary_SetWengenCollidingFlowBoundary.o \
         ExternalBoundary_WriteExternalBoundary.o \
@@ -355,6 +357,8 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeCellCenteredField.o \
 	Grid_ComputeConductionTimeStep.o \
 	Grid_ComputeCoolingTime.o \
+        Grid_ComputeCRDiffusion.o \
+        Grid_ComputeCRDiffusionTimeStep.o \
 	Grid_ComputeDustTemperatureField.o \
 	Grid_ComputeElementalDensity.o \
 	Grid_ComputeEnergy.o \
@@ -394,6 +398,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CreateChildParticles.o \
 	Grid_CreateFieldArray.o \
 	Grid_CreateParticleTypeGrouping.o \
+	Grid_CRShockTubesInitializeGrid.o \
 	Grid_DebugCheck.o \
 	Grid_DeleteAllButParticles.o \
 	Grid_DeleteAllFields.o \
@@ -424,7 +429,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByTotalJeansLength.o \
 	Grid_FlagCellsToBeRefinedByMass.o \
 	Grid_FlagCellsToBeRefinedByMetallicity.o \
-	Grid_FlagCellsToBeRefinedByMustRefineParticles.o \
+	Grid_FlagCellsToBeRefinedByMetalMass.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o \
 	Grid_FlagCellsToBeRefinedByResistiveLength.o \
 	Grid_FlagCellsToBeRefinedByShear.o \
@@ -488,6 +493,8 @@ OBJS_CONFIG_LIB = \
 	Grid_MoveSubgridParticles.o \
 	Grid_MoveSubgridStars.o \
 	Grid_MultiSpeciesHandler.o \
+	Grid_MustRefineParticlesFlagFromList.o \
+        Grid_MustRefineParticlesFlagInRegion.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
 	Grid_OneZoneFreefallTestInitializeGrid.o \
@@ -572,6 +579,7 @@ OBJS_CONFIG_LIB = \
         Grid_TestGravitySphereCheckResults.o \
         Grid_TestGravitySphereInitializeGrid.o \
         Grid_TestOrbitInitializeGrid.o \
+	Grid_TestStarParticleInitializeGrid.o \
         Grid_TracerParticleCreateParticles.o \
         Grid_TracerParticleOutputData.o \
         Grid_TracerParticleSetVelocity.o \
@@ -630,6 +638,7 @@ OBJS_CONFIG_LIB = \
         InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
 	InitialLoadBalanceRootGrids.o \
+    init_random_seed.o \
 	interp1d.o \
 	interp2d.o \
 	interp3d.o \
@@ -681,6 +690,7 @@ OBJS_CONFIG_LIB = \
 	OneZoneFreefallTestInitialize.o \
         OutputAsParticleData.o \
 	OutputCoolingTimeOnly.o \
+	OutputDustTemperatureOnly.o \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
 	OutputPotentialFieldOnly.o \
@@ -707,6 +717,7 @@ OBJS_CONFIG_LIB = \
         ProblemType_CollapsingCoolingCloud.o \
 	ProblemType_ExplodingCloud.o \
 	ProblemType_MagneticReconnection.o \
+        ProblemType_AgoraRestart.o \
         ProcMap.o \
         project.o \
         projectbool.o \
@@ -724,6 +735,7 @@ OBJS_CONFIG_LIB = \
         ProtoSubgrid_CopyFlaggedZonesFromGrid.o \
         ProtoSubgrid_CopyToNewSubgrid.o \
         ProtoSubgrid_FindGridsByZeroSignature.o \
+        ProtoSubgrid_LargeAxisRatioCheck.o \
         ProtoSubgrid_ReturnNthLongestDimension.o \
         ProtoSubgrid_ShrinkToMinimumSize.o \
 	PutSinkRestartInitialize.o \
@@ -816,6 +828,7 @@ OBJS_CONFIG_LIB = \
 	Star_AssignFinalMassFromIMF.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
+        Star_CalculateMassLoss.o \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \
@@ -832,13 +845,16 @@ OBJS_CONFIG_LIB = \
 	star_feedback_pn_snia.o \
         star_maker1.o \
         star_maker2.o \
+	star_maker3mom.o \
         star_maker3.o \
         star_maker4.o \
 	star_maker5.o \
         star_maker7.o \
 	star_maker8.o \
 	star_maker9.o \
+	star_maker10.o \
 	star_maker_h2reg.o \
+    star_maker_ssn.o \
 	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
@@ -848,6 +864,7 @@ OBJS_CONFIG_LIB = \
         TestGravitySphereCheckResults.o \
         TestGravitySphereInitialize.o \
         TestOrbitInitialize.o \
+	TestStarParticleInitialize.o \
         TracerParticleCreation.o \
 	TransposeRegionOverlap.o \
         tscint1d.o \
@@ -912,7 +929,6 @@ OBJS_CONFIG_LIB = \
     	Grid_ClearAvgElectricField.o\
     	ExternalBoundary_SetMagneticBoundary.o\
    	 mhd_dt.o\
-    	 Grid_SolveMHDEquations.o \
     	 Grid_MHD_UpdateMagneticField.o\
     	 Grid_MHDOrszagTangInitGrid.o \
     	 Grid_MHD_SetupDims.o \
@@ -934,7 +950,20 @@ OBJS_CONFIG_LIB = \
     	 Grid_MHD_CID.o\
     	 Grid_MHD_ProlongAllocate.o\
     	 mhd_interpolate.o\
-    	 Grid_MHD_SendOldFineGrids.o
+    	 Grid_MHD_SendOldFineGrids.o\
+   StochasticForcing_CommunicationBroadcastFlags.o \
+   StochasticForcing_CommunicationBroadcastSpectrum.o \
+   StochasticForcing_constructor.o \
+   StochasticForcing_destructor.o \
+   StochasticForcing_Evolve.o \
+   StochasticForcing_Init.o \
+   StochasticForcing_GaussDeviate.o \
+   StochasticForcing_ReadAndWrite.o \
+   ComputeStochasticForcing.o \
+   Grid_FTStochasticForcing.o \
+   DrivenFlowInitialize.o \
+   Grid_DrivenFlowInitializeGrid.o \
+   Grid_Phases.o 
 
 
 #-----------------------------------------------------------------------
@@ -957,9 +986,12 @@ POBJS_CONFIG_LIB = \
 	FindSuperSourceByPosition.o \
 	FLDCorrectForImpulses.o \
 	Grid_AddH2Dissociation.o \
+	Grid_AddH2DissociationFromSources.o \
+	Grid_AddH2DissociationFromTree.o \
 	Grid_AddRadiationImpulse.o \
 	Grid_AddRadiationPressureAcceleration.o \
 	Grid_AllocateInterpolatedRadiation.o \
+	Grid_CheckSubgridMarker.o \
 	Grid_CommunicationSendPhotonPackages.o \
 	Grid_CommunicationSendSubgridMarker.o \
         Grid_ComputePhotonTimestep.o \

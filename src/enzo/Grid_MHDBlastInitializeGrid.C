@@ -323,6 +323,8 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       FieldType[NumberOfBaryonFields++] = Bfield1;
       FieldType[NumberOfBaryonFields++] = Bfield2;
       FieldType[NumberOfBaryonFields++] = Bfield3;
+    }
+    if( HydroMethod == MHD_RK ){
       FieldType[NumberOfBaryonFields++] = PhiField;
     }
     if(DualEnergyFormalism) FieldType[NumberOfBaryonFields++] = InternalEnergy;
@@ -386,10 +388,9 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 
   //Variable names.
   int Eeng, Eden, Ev[3], Egas, BxNum = 0, ByNum = 1, BzNum = 2;
-
-  if (this->IdentifyPhysicalQuantities(Eden, Egas, Ev[0], Ev[1], 
-                       Ev[2], Eeng, BxNum, ByNum, BzNum) == FAIL) 
-    ENZO_FAIL("MHDBlastInitializeGrid: Error in IdentifyPhysicalQuantities.");
+  int max_velocity_index = 3; //( (UseMHD || UseMHDCT ) ) ? 3 : GridRank;
+  this->IdentifyPhysicalQuantities(Eden, Egas, Ev[0], Ev[1], Ev[2], 
+                                   Eeng, BxNum, ByNum, BzNum);
   
   //For characteristic advection.  Right[field][wave]
   //8x = Square Wave.
@@ -404,7 +405,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   //6 right fast
   float Right[7][7], Pos, Amp, InitialPressure;
 
-  int B2num=1, B3num= 2, wave = 1, Map[7];
+  int B2num=1, B3num= 2, wave = 1, Map[8];
   for( i=0; i<7; i++)
     for( j=0; j<7; j++)
       Right[i][j] = 10*i+j;
@@ -457,15 +458,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
     fprintf(stderr,"EigenVector: B2 %"ISYM" B3 %"ISYM" \n", B2num, B3num);
   }
 
-  //Some juggles for MHD rectfication
-  if( UseMHDCT ){
-    BaryonField[NumberOfBaryonFields]   = CenteredB[0];
-    BaryonField[NumberOfBaryonFields+1] = CenteredB[1];
-    BaryonField[NumberOfBaryonFields+2] = CenteredB[2];
-    BxNum = NumberOfBaryonFields;
-    ByNum = NumberOfBaryonFields+1;
-    BzNum = NumberOfBaryonFields+2;
-  }
   //
   //Set up BaryonField and Centered Magnetic fields.
   //Add perturbation if necessary.
@@ -624,10 +616,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 
 	  Xp = (float) (i-GridStartIndex[0])/GridDimension[0] *(GridRightEdge[0]-GridLeftEdge[0]) 
 	    + GridLeftEdge[0] + 0.5*CellWidth[0][i];
-	  Yp = (float) (j-GridStartIndex[1])/GridDimension[1] *(GridRightEdge[1]-GridLeftEdge[1])
-	    + GridLeftEdge[1] + 0.5*CellWidth[1][j];
-	  Zp = (float) (k-GridStartIndex[2])/GridDimension[2] *(GridRightEdge[2]-GridLeftEdge[2])
-	    + GridLeftEdge[2] + 0.5*CellWidth[2][k];
 	  
 	  BaryonField[ Ev[1] ][index] += PerturbAmplitude*sin(2*pi*Xp / PerturbWavelength[1]);
 	  break;
@@ -657,20 +645,22 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 
 	  //characteristic advection
 
-	  Xp = (float) (i-GridStartIndex[0])/(GridDimension[0]-2*NumberOfGhostZones)
-	    *(GridRightEdge[0]-GridLeftEdge[0]) + GridLeftEdge[0] + 0.5*CellWidth[0][i];
-	  Yp = (float) (j-GridStartIndex[1])/(GridDimension[1]-2*NumberOfGhostZones)
-	    *(GridRightEdge[1]-GridLeftEdge[1]) + GridLeftEdge[1] + 0.5*CellWidth[1][i];
-	  Zp = (float) (k-GridStartIndex[2])/(GridDimension[2]-2*NumberOfGhostZones)
-	    *(GridRightEdge[2]-GridLeftEdge[2]) + GridLeftEdge[2] + 0.5*CellWidth[2][i];
-
-
-	  Pos = ( InitStyle == 1 ) ? Xp : ( InitStyle == 2 ) ? Yp : ( InitStyle == 3)? Zp : 0;
+    if ( InitStyle == 1 ){
+      Pos = (float) (i-GridStartIndex[0])/(GridDimension[0]-2*NumberOfGhostZones)
+        *(GridRightEdge[0]-GridLeftEdge[0]) + GridLeftEdge[0] + 0.5*CellWidth[0][i];
+    }else if(InitStyle == 2 && GridRank > 1){
+      Pos = (float) (j-GridStartIndex[1])/(GridDimension[1]-2*NumberOfGhostZones)
+        *(GridRightEdge[1]-GridLeftEdge[1]) + GridLeftEdge[1] + 0.5*CellWidth[1][i];
+    }else if (InitStyle == 3 && GridRank > 2){
+      Pos = (float) (k-GridStartIndex[2])/(GridDimension[2]-2*NumberOfGhostZones)
+        *(GridRightEdge[2]-GridLeftEdge[2]) + GridLeftEdge[2] + 0.5*CellWidth[2][i];
+    }
 	  Amp = sin(2*pi* Pos);
 	  
 	  //Make the velocity into momentum
 	  for(field=0;field<3;field++)
 	    BaryonField[ Ev[field] ][index] *= BaryonField[ Eden ][index];
+    BaryonField[ Eeng ][index] *= BaryonField[Eden][index];
 	  
 	  
 	  for(field=0;field<NumberOfBaryonFields;field++){
@@ -686,6 +676,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  //Make the momentum into velocity 
 	  for(field=0;field<3;field++)
 	    BaryonField[ Ev[field] ][index] /= BaryonField[ Eden ][index];
+    BaryonField[ Eeng ][index] /= BaryonField[Eden][index];
 
 	  break;
     
@@ -700,10 +691,13 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	    Amp = 1- fraction * 2;
 	    
 	    //Make the velocity into momentum
-	    for(field=0;field<3;field++)
+	    for(field=0;field<max_velocity_index;field++)
 	      BaryonField[ Ev[field] ][index] *= BaryonField[ Eden ][index];
+      BaryonField[ Eeng ][index] *= BaryonField[Eden][index];
 	    
 	    for(field=0; field< NumberOfBaryonFields; field++){
+            if( FieldType[field] > Velocity3 || FieldType[field] == InternalEnergy )
+                continue;
 	      BaryonField[field][index] +=  Amp*PerturbAmplitude*Right[ Map[field] ][wave];
 	      
 	    }
@@ -713,8 +707,9 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       }
 	    
 	    //Make the momentum  into velocity
-	    for(field=0;field<3;field++)
+	    for(field=0;field<max_velocity_index;field++)
 	      BaryonField[ Ev[field] ][index] /= BaryonField[ Eden ][index];
+      BaryonField[ Eeng ][index] /= BaryonField[Eden][index];
 	    
 	    break;
         
@@ -809,16 +804,17 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	      
 	      //characteristic advection
 	    
-	      Xp = (float) (i-GridStartIndex[0])/(GridDimension[0]-2*NumberOfGhostZones)
-		*(GridRightEdge[0]-GridLeftEdge[0]) + GridLeftEdge[0] + 0.5*CellWidth[0][i];
-	      Yp = (float) (j-GridStartIndex[1])/(GridDimension[1]-2*NumberOfGhostZones)
-		*(GridRightEdge[1]-GridLeftEdge[1]) + GridLeftEdge[1] + 0.5*CellWidth[1][i];
-	      Zp = (float) (k-GridStartIndex[2])/(GridDimension[2]-2*NumberOfGhostZones)
-	      *(GridRightEdge[2]-GridLeftEdge[2]) + GridLeftEdge[2] + 0.5*CellWidth[2][i];
-	      
-	      
-	      Pos = ( InitStyle == 1 ) ? Xp : ( InitStyle == 2 ) ? Yp : ( InitStyle == 3)? Zp : 0;
-	      Amp = sin(2*pi*Pos);
+        if ( InitStyle == 1 ){
+          Pos = (float) (i-GridStartIndex[0])/(GridDimension[0]-2*NumberOfGhostZones)
+            *(GridRightEdge[0]-GridLeftEdge[0]) + GridLeftEdge[0] + 0.5*CellWidth[0][i];
+        }else if(InitStyle == 2 && GridRank > 1){
+          Pos = (float) (j-GridStartIndex[1])/(GridDimension[1]-2*NumberOfGhostZones)
+            *(GridRightEdge[1]-GridLeftEdge[1]) + GridLeftEdge[1] + 0.5*CellWidth[1][i];
+        }else if (InitStyle == 3 && GridRank > 2){
+          Pos = (float) (k-GridStartIndex[2])/(GridDimension[2]-2*NumberOfGhostZones)
+            *(GridRightEdge[2]-GridLeftEdge[2]) + GridLeftEdge[2] + 0.5*CellWidth[2][i];
+        }
+        Amp = sin(2*pi* Pos);
 	      //Amp = (which == 0)?-1:1;
 	      
 	      
@@ -854,6 +850,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
     }//field
   
   int index_periodic, k1, j1, i1, do_periodic;
+  if ( UseMHDCT )
   for(field=0;field<3;field++)
     for( k=0;k<ElectricDims[field][2];k++)
       for( j=0;j<ElectricDims[field][1];j++)
@@ -892,7 +889,8 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       this->MHD_Curl(GridStartIndex, GridEndIndex, 0);
       CenterMagneticField();
   }
-  MHD_Diagnose("Post Initialize Grid");
+  float *DivB=NULL;
+  MHD_Diagnose("Post Initialize Grid", DivB);
 
   if(DualEnergyFormalism )
     for(index=0;index<size;index++)
@@ -905,11 +903,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
              BaryonField[ByNum][index]*BaryonField[ByNum][index] +
              BaryonField[BzNum][index]*BaryonField[BzNum][index])/BaryonField[ Eden ][index];
     
-  if( UseMHDCT ){
-    BaryonField[NumberOfBaryonFields]   = NULL;
-    BaryonField[NumberOfBaryonFields+1] = NULL;
-    BaryonField[NumberOfBaryonFields+2] = NULL;
-  }
   return SUCCESS;
   
 }

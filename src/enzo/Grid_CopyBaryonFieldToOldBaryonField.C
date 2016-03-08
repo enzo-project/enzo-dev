@@ -64,7 +64,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
 
     /* Create OldBaryonField if necessary. */
  
-    if ((OldBaryonField[field] == NULL))
+    if (OldBaryonField[field] == NULL)
       OldBaryonField[field] = new float[size];
  
     /* Copy. */
@@ -88,16 +88,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
 	OldMagneticField[field][i] = MagneticField[field][i];
       }
 
-      if(CenteredB[field] == NULL)
-	ENZO_FAIL("CenteredB missing in CopyBaryonFieldToOldBaryonField");
       
-      if(OldCenteredB[field] == NULL) {
-	OldCenteredB[field] = new float[size];
-      }
-      
-      for(i=0;i<size;i++){
-	OldCenteredB[field][i] = CenteredB[field][i];
-      }
 
     }//for(field < 3;)
   }//end if(UseMHDCT)
@@ -109,7 +100,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
   // Mod from Brian O'Shea, 8th August 2006
   // In case there are no baryon fields
 
-  if( (SelfGravity || UniformGravity || PointSourceGravity) && (NumberOfBaryonFields > 0) ) {
+  if( (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity ) && (NumberOfBaryonFields > 0) ) {
 
     for(field = 0; field < GridRank; field++) {
 
