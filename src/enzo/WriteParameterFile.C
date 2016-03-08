@@ -1045,9 +1045,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarKroupaAlpha3 = %"FSYM"\n", IndividualStarKroupaAlpha3);
   fprintf(fptr, "IndividualStarMassFraction = %"FSYM"\n", IndividualStarMassFraction);
   fprintf(fptr, "IndividualStarTypeIIMassCutoff = %"FSYM"\n", IndividualStarTypeIIMassCutoff);
+  fprintf(fptr, "IndividualStarType1aMinimumMass = %"FSYM"\n", IndividualStarType1aMinimumMass);
+  fprintf(fptr, "IndividualStarType1aMaximumMass = %"FSYM"\n", IndividualStarType1aMaximumMass);
   fprintf(fptr, "IndividualStarPSNMassCutoff = %"FSYM"\n", IndividualStarPSNMassCutoff);
   fprintf(fptr, "IndividualStarRadiationMinimumMass = %"FSYM"\n", IndividualStarRadiationMinimumMass);
-  fprintf(fptr, "IndividualStarStellarWinds = %"ISYM"\n\n", IndividualStarStellarWinds);
+  fprintf(fptr, "IndividualStarStellarWinds = %"ISYM"\n", IndividualStarStellarWinds);
+  fprintf(fptr, "IndividualStarUseType1aSN = %"ISYM"\n", IndividualStarUseType1aSN);
+  fprintf(fptr, "IndividualStarDTDSlope = %"FSYM"\n", IndividualStarDTDSlope);
+  fprintf(fptr, "IndividualStarNSN1a = %"FSYM"\n", IndividualStarNSN1a);
+  fprintf(fptr, "IndividualStarFollowStellarYields = %"ISYM"\n\n", IndividualStarFollowStellarYields);
 
   fprintf(fptr, "ChemicalEvolutionTestStarPosition = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarPosition);

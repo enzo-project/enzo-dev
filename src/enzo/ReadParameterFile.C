@@ -1068,24 +1068,36 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarIMFCalls);
     ret += sscanf(line, "IndividualStarIMF = %"ISYM,
                         &IndividualStarIMF);
-    ret += sscanf(line, "IndividualStarSalpeterSlope =%"FSYM,
+    ret += sscanf(line, "IndividualStarSalpeterSlope = %"FSYM,
                         &IndividualStarSalpeterSlope);
-    ret += sscanf(line, "IndividualStarKroupaAlpha1 =%"FSYM,
+    ret += sscanf(line, "IndividualStarKroupaAlpha1 = %"FSYM,
                         &IndividualStarKroupaAlpha1);
-    ret += sscanf(line, "IndividualStarKroupaAlpha2 =%"FSYM,
+    ret += sscanf(line, "IndividualStarKroupaAlpha2 = %"FSYM,
                         &IndividualStarKroupaAlpha2);
-    ret += sscanf(line, "IndividualStarKroupaAlpha3 =%"FSYM,
+    ret += sscanf(line, "IndividualStarKroupaAlpha3 = %"FSYM,
                         &IndividualStarKroupaAlpha3);
-    ret += sscanf(line, "IndividualStarMassFraction =%"FSYM,
+    ret += sscanf(line, "IndividualStarMassFraction = %"FSYM,
                         &IndividualStarMassFraction);
-    ret += sscanf(line, "IndividualStarTypeIIMassCutoff =%"FSYM,
+    ret += sscanf(line, "IndividualStarTypeIIMassCutoff = %"FSYM,
                         &IndividualStarTypeIIMassCutoff);
-    ret += sscanf(line, "IndividualStarPSNMassCutoff =%"FSYM,
+    ret += sscanf(line, "IndividualStarPSNMassCutoff = %"FSYM,
                         &IndividualStarPSNMassCutoff);
-    ret += sscanf(line, "IndividualStarRadiationMinimumMass =%"FSYM,
+    ret += sscanf(line, "IndividualStarRadiationMinimumMass = %"FSYM,
                         &IndividualStarRadiationMinimumMass);
-    ret += sscanf(line, "IndividualStarStellarWinds =%"ISYM,
+    ret += sscanf(line, "IndividualStarStellarWinds = %"ISYM,
                         &IndividualStarStellarWinds);
+    ret += sscanf(line, "IndividualStarFollowStellarYields = %"ISYM,
+                        &IndividualStarFollowStellarYields);
+    ret += sscanf(line, "IndividualStarType1aMinimumMass = %"FSYM,
+                        &IndividualStarType1aMinimumMass);
+    ret += sscanf(line, "IndividualStarType1aMaximumMass = %"FSYM,
+                        &IndividualStarType1aMaximumMass);
+    ret += sscanf(line, "IndividualStarDTDSlope = %"FSYM,
+                        &IndividualStarDTDSlope);
+    ret += sscanf(line, "IndividualStarNSN1a = %"FSYM,
+                        &IndividualStarNSN1a);
+    ret += sscanf(line, "IndividualStarUseType1aSN = %"ISYM,
+                        &IndividualStarUseType1aSN);
 
     /* Read Movie Dump parameters */
 
