@@ -1044,7 +1044,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       NumberOfNewParticlesSoFar = NumberOfNewParticles; 
 
       // Only attempt if on max refiment level
-      if (level == MaximumRefinementLevel){
+      if (level == MaximumRefinementLevel || ProblemType == 260){
         // lets try and form stars
         if(individual_star_maker(GridDimension, GridDimension+1, GridDimension+2,
                                  dmfield, temperature,
