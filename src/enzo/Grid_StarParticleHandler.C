@@ -2001,61 +2001,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     }
   }
 
-  /* Undo the density normalization and return from fractional to absolute dens
-     for the chemical tracer fields (if used)                                   */
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals >= 2){
-    int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
-
-    if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
-                                        FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
-      ENZO_FAIL("Failure in Identifying Chemical tracer species fields.");
-    }
-
-    // now loop over fields
-
-    if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
-        for(j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
-          index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
-          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
-            BaryonField[ CINum][index] *= BaryonField[DensNum][index];
-            BaryonField[ NINum][index] *= BaryonField[DensNum][index];
-            BaryonField[ OINum][index] *= BaryonField[DensNum][index];
-            BaryonField[MgINum][index] *= BaryonField[DensNum][index];
-            BaryonField[SiINum][index] *= BaryonField[DensNum][index];
-            BaryonField[FeINum][index] *= BaryonField[DensNum][index];
-          }
-        }
-      } // k
-    } // if alpha
-    if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
-        for(j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
-          index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
-          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
-            BaryonField[BaINum][index] *= BaryonField[DensNum][index];
-            BaryonField[LaINum][index] *= BaryonField[DensNum][index];
-            BaryonField[ YINum][index] *= BaryonField[DensNum][index];
-          }
-        }
-      } // k
-
-    }// s process
-    if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
-        for(j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
-          index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
-          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
-            BaryonField[EuINum][index] *= BaryonField[DensNum][index];
-          }
-        }
-      } // k
-
-    }// r process
-
-  } // end IS and Multi metals
-
- 
   /* Clean up. */
  
   delete [] h2field;
