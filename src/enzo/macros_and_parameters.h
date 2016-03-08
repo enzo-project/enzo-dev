@@ -463,7 +463,7 @@ typedef int            HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 12
+#define NUM_PARTICLE_TYPES 13
 
 #define PARTICLE_TYPE_RESET         -1
 #define PARTICLE_TYPE_GAS            0
@@ -478,6 +478,7 @@ typedef int            HDF5_hid_t;
 #define PARTICLE_TYPE_COLOR_STAR     9
 #define PARTICLE_TYPE_SIMPLE_SOURCE 10
 #define PARTICLE_TYPE_INDIVIDUAL_STAR 11
+#define PARTICLE_TYPE_INDIVIDUAL_STAR_WD 12
 
 #define CHILDRENPERPARENT           12
 /* Ways to deposit particles from a subgrid. */
@@ -513,6 +514,11 @@ typedef int            HDF5_hid_t;
 #define MULTIMETALS_RPROCESS 4
 
 #define MULTIMETALS_METHOD(A) (TestProblemData.MultiMetals >> (A) & 1) // bitwise
+
+ // for stellar yields tabulation
+#define MAXIMUM_NUMBER_OF_YIELD_CHEMICALS        10
+#define MAXIMUM_NUMBER_OF_YIELD_MASS_BINS         7
+#define MAXIMUM_NUMBER_OF_YIELD_METALLICITY_BINS 15
 
 /* Feedback modes */
 

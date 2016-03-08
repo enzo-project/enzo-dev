@@ -18,6 +18,8 @@
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
 
+// #include "StellarYieldsData.h"
+
 /* These are the different types of baryon fields. */
 
 #ifdef SMALL_INTS
@@ -292,6 +294,7 @@ const star_type
   SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
   IndividualStar = PARTICLE_TYPE_INDIVIDUAL_STAR,
+  IndividualStarWD = PARTICLE_TYPE_INDIVIDUAL_STAR_WD,
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
   MBH = PARTICLE_TYPE_MBH;
 

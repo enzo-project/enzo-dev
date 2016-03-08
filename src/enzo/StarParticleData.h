@@ -144,7 +144,12 @@ SPEXTERN float IndividualStarTypeIIMassCutoff;
 SPEXTERN float IndividualStarPSNMassCutoff;
 SPEXTERN float IndividualStarRadiationMinimumMass;
 SPEXTERN int   IndividualStarStellarWinds;
-
+SPEXTERN int   IndividualStarFollowStellarYields;
+SPEXTERN float IndividualStarType1aMinimumMass;
+SPEXTERN float IndividualStarType1aMaximumMass;
+SPEXTERN float IndividualStarDTDSlope;
+SPEXTERN float IndividualStarNSN1a;
+SPEXTERN int   IndividualStarUseType1aSN;
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
 SPEXTERN float *IMFData;
