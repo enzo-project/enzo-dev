@@ -1981,6 +1981,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
   }
 
+  /* Cosmic ray diffusion should be off if Cosmic rays are off */
+  if(CRDiffusion > 0 && CRModel == 0){
+    ENZO_FAIL("CRDiffusion can only be used if CRModel is turned on!!\n");
+  }
 
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
 
