@@ -1137,5 +1137,9 @@ EXTERN FLOAT ChemicalEvolutionTestStarPosition[MAX_DIMENSION];
 EXTERN float ChemicalEvolutionTestStarMass;
 EXTERN float ChemicalEvolutionTestStarMetallicity;
 EXTERN int   ChemicalEvolutionTestStarFormed;
+EXTERN FLOAT ChemicalEvolutionTestStarLifetime;
+
+/* For individual star radiation data */
+EXTERN IndividualStarRadDataType IndividualStarRadData;
 
 #endif

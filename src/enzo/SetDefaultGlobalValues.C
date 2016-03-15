@@ -731,6 +731,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ChemicalEvolutionTestStarMass        = 20.0   ; // solar masses
   ChemicalEvolutionTestStarMetallicity = 0.0001 ;
   ChemicalEvolutionTestStarFormed      = FALSE  ;
+  ChemicalEvolutionTestStarLifetime    = 0      ; // 0 is off > 0 lifetime in Myr
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     ChemicalEvolutionTestStarPosition[dim] = 0.5; // code units - center of box
   }

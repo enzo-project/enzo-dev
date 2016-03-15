@@ -17,6 +17,7 @@
 #include "RateData.h"
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
+#include "IndividualStarData.h"
 
 // #include "StellarYieldsData.h"
 

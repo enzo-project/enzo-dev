@@ -35,7 +35,7 @@ void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
 
 
 int StarParticleIndividual_IMFInitialize(void);
-
+int IndividualStarProperties_Initialize(void);
 
 
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
@@ -68,6 +68,10 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     StarParticleIndividual_IMFInitialize();
+
+    if(RadiativeTransfer){ // initialize properties for radiation
+      IndividualStarProperties_Initialize();
+    }
   }
 
   int level, grids;

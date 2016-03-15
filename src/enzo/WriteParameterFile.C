@@ -1058,7 +1058,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ChemicalEvolutionTestStarPosition = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarPosition);
   fprintf(fptr, "ChemicalEvolutionTestStarMass = %"FSYM"\n", ChemicalEvolutionTestStarMass);
-  fprintf(fptr, "ChemicalEvolutionTestStarMetallicity = %"FSYM"\n\n", ChemicalEvolutionTestStarMetallicity);
+  fprintf(fptr, "ChemicalEvolutionTestStarMetallicity = %"FSYM"\n", ChemicalEvolutionTestStarMetallicity);
+  fprintf(fptr, "ChemicalEvolutionTestStarLifetime = %"FSYM"\n\n", ChemicalEvolutionTestStarLifetime);
 
   /* Most Stanford additions: */
 

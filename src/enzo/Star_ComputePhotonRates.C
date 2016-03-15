@@ -29,7 +29,13 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "IndividualStarProperties.h"
+
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
+
+int GetUnits(float *DensityUnits, float *LengthUnits,
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
 
 int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[])
 {
@@ -40,12 +46,22 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   double L_UV, cgs_convert, _mass;
   float x, x2, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
   float Mform, EnergyFractionHeI, EnergyFractionHeII;
+
+  /* for individual star */
+  float Teff, g, Z, M, tau;
+  float DensityUnits, LengthUnits, TemperatureUnits, tunits, VelocityUnits;
+  float H_ionizing_energy = 13.6; // eV
+  float HeI_ionizing_energy = 24.587; // eV
+  float R;
+
   if (this->Mass < 0.1)  // Not "born" yet
     _mass = this->FinalMass;
   else
     _mass = this->Mass;
   x = log10((float)(_mass));
   x2 = x*x;
+
+
 
   switch(ABS(this->type)) {
 
@@ -79,28 +95,46 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     break;
   
   case IndividualStar:
-    // AJE 2/27: Rates below are copy of above and are wrong
-    //           for Pop I stars
-    nbins = 3;
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &tunits,
+             &VelocityUnits, CurrentGrid->Time);
 
-    E[0] = 28.0;
-    E[1] = 30.0;
-    E[2] = 58.0;
+    nbins = 2;
 
-    if (_mass > 9 && _mass <= 500) {
-      Q[0] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);
-      Q[1] = pow(10.0, 42.51 + 5.69*x  - 1.01*x2);
-      Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
-    } else if (_mass > 5 && _mass <= 9) {
-      Q[0] = pow(10.0, 39.29 + 8.55*x);
-      Q[1] = pow(10.0, 29.24 + 18.49*x);
-      Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
-    } // ENDELSE
-    else {
-      for (i = 0; i < nbins; i++) Q[i] = 0.0;
+    M   = this->Mass;
+    tau = this->LifeTime;
+    tau = tau * (TimeUnits); // convert to cgs
+
+
+    Teff = IndividualStarTeff( &M, &tau);
+    g    = IndividualStarSurfaceGravity( &M );
+    Z    = this->Metallicity;
+    R    = IndividualStarRadius( &M );
+
+    printf("Star_ComputePhotonRates: Teff = %"ESYM" g = %"ESYM" Z = %"ESYM"\n", Teff, g, Z);
+    if( IndividualStarComputeIonizingRates( &Q[0], &Q[1], &Teff, &g, &Z) == FAIL){
+      ENZO_FAIL("Star_ComputePhotonRates: Failure in comuting individual star ionizing radiation.\n");
     }
-    break;
 
+    // compute average energy by integrating over the black body spectrum
+    H_ionizing_energy  /= eV_erg; // convert to ergs
+    HeI_ionizing_energy /= eV_erg; // conver to ergs
+    ComputeAverageEnergy(&E[0], &H_ionizing_energy, &Teff);
+    ComputeAverageEnergy(&E[1], &HeI_ionizing_energy, &Teff);
+
+    // convert to eV from cgs
+    E[0] = E[0] * eV_erg;
+    E[1] = E[1] * eV_erg;
+
+    printf("Star_ComputePhotonRates: E[0] = %"ESYM" E[1] = %"ESYM"\n", E[0], E[1]);
+
+    // Functions above return the ionizing flux at stellar surface.
+    // Convert to photon rate
+    Q[0] = Q[0] * 4.0 * pi * R*R;
+    Q[1] = Q[1] * 4.0 * pi * R*R;
+
+    printf("Star_ComputePhotonRates: Q[0] = %"ESYM" Q[1] = %"ESYM"\n", Q[0], Q[1]);
+
+    break;
 
     /* Average energy from Schaerer (2003) */
 

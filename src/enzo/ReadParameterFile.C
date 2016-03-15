@@ -907,6 +907,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                        &ChemicalEvolutionTestStarMass);
     ret += sscanf(line, "ChemicalEvolutionTestStarMetallicity = %"FSYM,
                        &ChemicalEvolutionTestStarMetallicity);
+    ret += sscanf(line, "ChemicalEvolutionTestStarLifetime = %"FSYM,
+                       &ChemicalEvolutionTestStarLifetime);
 
     /* Read star particle parameters. */
 

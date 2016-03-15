@@ -564,6 +564,11 @@ typedef int            HDF5_hid_t;
 #define NON_DM_PARTICLES_MERGED_ALL 4
 #define TEMPERATURE_FIELD 1000
 
+/* Parameters for star particle yields and individual star properties */
+#define INDIVIDUAL_STAR_METALLICITY_BINS 10
+#define INDIVIDUAL_STAR_SG_BINS           8
+#define INDIVIDUAL_STAR_TEMPERATURE_BINS 12
+
 /* Maximum number of leafs per parent in radiation source tree. */
 
 #define MAX_LEAF 2

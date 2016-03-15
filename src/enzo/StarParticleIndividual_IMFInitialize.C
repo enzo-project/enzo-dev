@@ -96,10 +96,12 @@ int StarParticleIndividual_IMFInitialize(void)
      number of times + 1 to return to state before restart. */
   if (IndividualStarIMFSeed == INT_UNDEFINED){
     mt_init(time(NULL)); //
+    srand(time(NULL));
 //    random_init(time(NULL));
   }
   else{
     mt_init(IndividualStarIMFSeed); //
+    srand(IndividualStarIMFSeed - 1);
 //    random_init(IndividualStarIMFSeed - 1);
   }
 

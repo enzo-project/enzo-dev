@@ -622,6 +622,8 @@ OBJS_CONFIG_LIB = \
         IdentifyNewSubgridsBySignature.o \
         ImplosionInitialize.o \
         individual_star_maker.o \
+        IndividualStarProperties_Initialize.o \
+        IndividualStarProperties.o \
 	InexactNewton.o \
 	InexactNewton_constructor.o \
 	InexactNewton_destructor.o \
