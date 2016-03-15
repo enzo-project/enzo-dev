@@ -177,7 +177,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
     if (ret == 0 && strstr(line, "=") && strstr(line, "ChemicalEvolutionTest")
                  && line[0] != '#' && !strstr(line, "ChemicalEvolutionTestStar")){
-      fprintf(stderr, "warning: the following parameter lin was not interpretd:\n%s\n",line);
+      fprintf(stderr, "warning: the following parameter line was not interpretd:\n%s\n",line);
     }
   }
 
