@@ -531,6 +531,23 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   DrivenFlowVelocity, DrivenFlowVelocity+1, DrivenFlowVelocity+2);
     ret += sscanf(line, "DrivenFlowAutoCorrl = %"FSYM"%"FSYM"%"FSYM,
                      DrivenFlowAutoCorrl, DrivenFlowAutoCorrl+1, DrivenFlowAutoCorrl+2);
+    
+    ret += sscanf(line, "UseSGSModel = %"ISYM, &UseSGSModel);
+    ret += sscanf(line, "SGSFilterStencil = %"ISYM, &SGSFilterStencil);
+    ret += sscanf(line, "SGSFilterWidth = %"FSYM, &SGSFilterWidth);
+    ret += sscanf(line, "SGSFilterWeights = %"FSYM"%"FSYM"%"FSYM"%"FSYM,
+        &SGSFilterWeights[0],&SGSFilterWeights[1],&SGSFilterWeights[2],&SGSFilterWeights[3]);
+    ret += sscanf(line, "SGScoeffERS2J2 = %"FSYM, &SGScoeffERS2J2);
+    ret += sscanf(line, "SGScoeffERS2M2Star = %"FSYM, &SGScoeffERS2M2Star);
+    ret += sscanf(line, "SGScoeffEVStarEnS2Star = %"FSYM, &SGScoeffEVStarEnS2Star);
+    ret += sscanf(line, "SGScoeffEnS2StarTrace = %"FSYM, &SGScoeffEnS2StarTrace);
+    ret += sscanf(line, "SGScoeffNLemfCompr = %"FSYM, &SGScoeffNLemfCompr);
+    ret += sscanf(line, "SGScoeffNLu = %"FSYM, &SGScoeffNLu);
+    ret += sscanf(line, "SGScoeffNLuNormedEnS2Star = %"FSYM, &SGScoeffNLuNormedEnS2Star);
+    ret += sscanf(line, "SGScoeffNLb =%"FSYM, &SGScoeffNLb);
+    ret += sscanf(line, "SGScoeffSSu = %"FSYM, &SGScoeffSSu);
+    ret += sscanf(line, "SGScoeffSSb =%"FSYM, &SGScoeffSSb);
+    ret += sscanf(line, "SGScoeffSSemf = %"FSYM, &SGScoeffSSemf);
 
 #ifdef USE_GRACKLE
     /* Grackle chemistry parameters */
@@ -1381,6 +1398,29 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                  DrivenFlowWeight,
                  DrivenFlowSeed);
   }
+
+  /* In order to use filtered fields we need additional ghost zones */
+
+  if (SGSFilterStencil/2 + 2 > NumberOfGhostZones)
+    ENZO_FAIL("SGS filtering needs additional ghost zones!\n");
+    
+  if (SGScoeffERS2J2 != 0. || 
+      SGScoeffERS2M2Star != 0. ||
+      SGScoeffEVStarEnS2Star != 0. ||
+      SGScoeffEnS2StarTrace != 0. || 
+      SGScoeffNLemfCompr != 0. || 
+      SGScoeffNLu != 0. || 
+      SGScoeffNLuNormedEnS2Star != 0. || 
+      SGScoeffNLb != 0.)
+
+      SGSNeedJacobians = 1;
+
+  if (SGScoeffSSu != 0. ||
+      SGScoeffSSb != 0. ||
+      SGScoeffSSemf != 0.)
+
+      SGSNeedMixedFilteredQuantities = 1;
+
 
 
   /* Now we know which hydro solver we're using, we can assign the

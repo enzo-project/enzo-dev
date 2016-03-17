@@ -331,6 +331,62 @@ int grid::MHDSourceTerms(float **dU)
       }
     }
   }
+
+  if (UseSGSModel) {
+    if (SGSFilterWidth > 1.) {
+		if (this->SGSUtil_FilterFields() == FAIL) {
+         fprintf(stderr, "grid::MHDSourceTerms: Error in SGSUtil_FilterFields.\n"); 
+         return FAIL;
+		}
+
+		
+        if (SGSNeedJacobians) {
+            if (this->SGSUtil_ComputeJacobian(JacVel,FilteredFields[1],FilteredFields[2],FilteredFields[3]) == FAIL) {
+             fprintf(stderr, "grid::MHDSourceTerms: Error in SGSUtil_ComputeJacobian(Vel).\n"); 
+             return FAIL;
+    		}
+    		
+    		if (this->SGSUtil_ComputeJacobian(JacB,FilteredFields[4],FilteredFields[5],FilteredFields[6]) == FAIL) {
+             fprintf(stderr, "grid::MHDSourceTerms: Error in SGSUtil_ComputeJacobian(B).\n"); 
+             return FAIL;
+    		}
+        }
+
+        if (SGSNeedMixedFilteredQuantities) {
+            if (this->SGSUtil_ComputeMixedFilteredQuantities() == FAIL) {
+             fprintf(stderr, "grid::MHDSourceTerms: Error in SGSUtil_ComputeMixedFilteredQuantities().\n"); 
+             return FAIL;
+    		}
+        
+        }
+
+    } else {
+      
+        /* we don't need a special check for SGSNeedJacobians here as all models apart
+         * from the scale-similarity model need Jacbobians and the scale-similarity model
+         * always has SGSFilterWidth > 1.
+         */        
+		if (this->SGSUtil_ComputeJacobian(JacVel,BaryonField[Vel1Num],BaryonField[Vel2Num],BaryonField[Vel3Num]) == FAIL) {
+         fprintf(stderr, "grid::MHDSourceTerms: Error in SGSUtil_ComputeJacobian(Vel).\n"); 
+         return FAIL;
+		}
+		
+		if (this->SGSUtil_ComputeJacobian(JacB,BaryonField[B1Num],BaryonField[B2Num],BaryonField[B3Num]) == FAIL) {
+         fprintf(stderr, "grid::MHDSourceTerms: Error in SGSUtil_ComputeJacobian(B).\n"); 
+         return FAIL;
+		}
+    }
+
+    if (this->SGSAddMomentumTerms(dU) == FAIL) { 
+         fprintf(stderr, "grid::MHDSourceTerms: Error in SGSAddMomentumTerms(dU).\n"); 
+         return FAIL;
+    }
+     
+    if (this->SGSAddEMFTerms(dU) == FAIL) { 
+         fprintf(stderr, "grid::MHDSourceTerms: Error in SGSAddEMFTerms(dU).\n"); 
+         return FAIL;
+    }
+  }
   
   /* Add centrifugal force for the shearing box */
 

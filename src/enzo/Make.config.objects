@@ -963,7 +963,10 @@ OBJS_CONFIG_LIB = \
    Grid_FTStochasticForcing.o \
    DrivenFlowInitialize.o \
    Grid_DrivenFlowInitializeGrid.o \
-   Grid_Phases.o 
+   Grid_Phases.o \
+	 Grid_SGSUtilities.o \
+	 Grid_SGSAddEMFTerms.o \
+	 Grid_SGSAddMomentumTerms.o 
 
 
 #-----------------------------------------------------------------------

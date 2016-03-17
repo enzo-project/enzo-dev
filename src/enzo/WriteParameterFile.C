@@ -490,6 +490,19 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "DrivenFlowProfile              = %"ISYM"\n", DrivenFlowProfile);
   if (DrivenFlowProfile)
     Forcing.WriteParameters(fptr);
+  fprintf(fptr, "UseSGSModel                    = %"ISYM"\n", UseSGSModel);
+  fprintf(fptr, "SGSFilterWidth                 = %"FSYM"\n", SGSFilterWidth);
+  fprintf(fptr, "SGSFilterStencil               = %"ISYM"\n", SGSFilterStencil);
+  fprintf(fptr, "SGSFilterWeights               = %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
+    SGSFilterWeights[0],SGSFilterWeights[1],SGSFilterWeights[2],SGSFilterWeights[3]);
+  fprintf(fptr, "SGScoeffERS2J2                 = %"FSYM"\n", SGScoeffERS2J2);
+  fprintf(fptr, "SGScoeffERS2M2Star             = %"FSYM"\n", SGScoeffERS2M2Star);
+  fprintf(fptr, "SGScoeffEVStarEnS2Star         = %"FSYM"\n", SGScoeffEVStarEnS2Star);
+  fprintf(fptr, "SGScoeffEnS2StarTrace          = %"FSYM"\n", SGScoeffEnS2StarTrace);
+  fprintf(fptr, "SGScoeffNLemfCompr             = %"FSYM"\n", SGScoeffNLemfCompr);
+  fprintf(fptr, "SGScoeffNLu                    = %"FSYM"\n", SGScoeffNLu);
+  fprintf(fptr, "SGScoeffNLuNormedEnS2Star      = %"FSYM"\n", SGScoeffNLuNormedEnS2Star);
+  fprintf(fptr, "SGScoeffNLb                    = %"FSYM"\n", SGScoeffNLb);
 #ifdef USE_GRACKLE
   /* Grackle chemistry parameters */
   fprintf(fptr, "use_grackle                 = %d\n", grackle_data.use_grackle);

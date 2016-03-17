@@ -66,7 +66,23 @@ grid::grid()
   }
   PhaseFctInitEven = NULL; // WS
   PhaseFctInitOdd  = NULL; // WS
- 
+
+  for (i = 0; i < MAX_DIMENSION; i++) 
+    for (j = 0; j < MAX_DIMENSION; j++) {
+      JacVel[i][j] = NULL;
+      JacB[i][j] = NULL;
+    }
+
+  for (i = 0; i < 7; i++)
+    FilteredFields[i] = NULL;
+
+  for (i = 0; i < 6; i++) {
+      FltrhoUU[i] = NULL;
+      FltBB[i] = NULL;
+  }
+  for (i = 0; i < 3; i++) 
+      FltUB[i] = NULL;
+
   ParticleAcceleration[MAX_DIMENSION]      = NULL;
  
   /* clear MAX_NUMBER_OF_BARYON_FIELDS vectors & [][MAX_DIMENSION] matricies */

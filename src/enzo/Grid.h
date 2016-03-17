@@ -2392,6 +2392,34 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
     int FTStochasticForcing(int FieldDim); // WS
 
+    // pgrete: Jacobians to be used in SGS model
+    float *JacVel[MAX_DIMENSION][MAX_DIMENSION];
+    float *JacB[MAX_DIMENSION][MAX_DIMENSION];
+
+
+    float *FilteredFields[7]; // filtered fields: rho, xyz-vel, Bxyz
+    
+    // the scale-similarity model needs mixed filtered quantities
+    float *FltrhoUU[6];
+    float *FltBB[6];
+    float *FltUB[3];
+
+    int SGSUtil_ComputeJacobian(float *Jac[][MAX_DIMENSION],float* field1,float* field2,float* field3);
+    int SGSUtil_ComputeMixedFilteredQuantities();
+    int SGSUtil_FilterFields();
+    int SGSAddEMFTerms(float **dU);
+    int SGSAddMomentumTerms(float **dU);
+    void SGSAddEMFERS2J2Term(float **EMF);
+    void SGSAddEMFERS2M2StarTerm(float **EMF);
+    void SGSAddEMFNLemfComprTerm(float **EMF);
+    void SGSAddTauNLuTerm(float **Tau);
+    void SGSAddTauNLuNormedEnS2StarTerm(float **Tau);
+    void SGSAddTauNLbTerm(float **Tau);
+    void SGSAddTauEVEnS2StarTerm(float **Tau);
+    void SGSAddTauSSuTerm(float **Tau);
+    void SGSAddTauSSbTerm(float **Tau);
+    void SGSAddEMFSSTerm(float **EMF);
+
 /* Comoving coordinate expansion terms. */
 
   int ComovingExpansionTerms();

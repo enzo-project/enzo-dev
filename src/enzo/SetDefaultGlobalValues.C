@@ -402,6 +402,22 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     DrivenFlowDomainLength[dim] = 0.0;
   }
 
+  UseSGSModel = 0; // off
+  SGSFilterStencil = 0;
+  SGSNeedJacobians = 0;
+  SGSNeedMixedFilteredQuantities = 0;
+  SGSFilterWidth = 0.; // off
+  for (i = 0; i < 4; i++)
+    SGSFilterWeights[i] = 0.;
+  SGScoeffERS2J2 = 0.0; // off
+  SGScoeffERS2M2Star = 0.0; // off
+  SGScoeffEVStarEnS2Star = 0.0; // off
+  SGScoeffEnS2StarTrace = 0.0; // off
+  SGScoeffNLemfCompr = 0.0; // off
+  SGScoeffNLu = 0.0; // off
+  SGScoeffNLuNormedEnS2Star = 0.0; // off
+  SGScoeffNLb = 0.0; // off
+
   RadiativeCooling            = FALSE;             // off
   RadiativeCoolingModel       = 1;                 //1=cool_rates.in table lookup
                                                    //3=Koyama&Inutsuka 2002
