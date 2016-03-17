@@ -34,11 +34,12 @@ const double SOLAR_RADIUS      = 69.63E9           ; // cm
 const double SOLAR_METALLICITY = 0.02              ;
 
 float IndividualStarLifetime(float *mp){
-  // Compute the lifetime of the star given only the mass
-  // This first computes the luminosity then uses linear
-  // scaling relative to solar to get lifetime
-  // value returned in cgs
-
+  /* ---------------------------------------------------------
+   * Compute lifetime given only the mass. This is only used
+   * used when radiation for individual stars is not being used
+   * as luminosity calculation is not deterministic.
+   * value returned in CGS.
+   * ---------------------------------------------------------*/
   float luminosity, lifetime;
 
   luminosity  = IndividualStarLuminosity( mp);
@@ -50,14 +51,21 @@ float IndividualStarLifetime(float *mp){
 }
 
 float IndividualStarLuminosity(float *mp){
-  // calculate star luminosity based on
-  // the mass and data from Ekel et. al. 2015
-  // input mass in solar masses
-  // output luminosity in cgs
+  /* ------------------------------------------------------------
+   * Use the broken power law scaling fits to the M-L
+   * relationship in Ekel et. al. 2015 to compute the star's
+   * luminosity given the mass. Assume L is Gaussianly distributed
+   * about mean relation at fixed mass, using spread taken
+   * from Ekel et. al. 2015:
+   *
+   * log(L [solar]) = alpha * log(M [solar]) + A
+   *
+   * Luminosity returned in CGS
+   * ------------------------------------------------------------- */
 
-  float alpha; // slope
-  float A;     // normalization
-  float sigma; // standard deviation
+  float alpha;     // slope
+  float A;         // normalization
+  float sigma;     // standard deviation
   float luminosity;
 
   float rnum;
@@ -67,19 +75,19 @@ float IndividualStarLuminosity(float *mp){
   // first range is technically 0.38 < M <= 1.05
   if( *mp <= 1.05 ){
     alpha = 4.841;
-    A     = -0.026 ; // POW(10,-0.026) 
+    A     = -0.026;
     sigma = 0.121;
   } else if (1.05 < *mp && *mp <= 2.40) {
     alpha = 4.328;
-    A     = -0.002; // POW(10, -0.002)
+    A     = -0.002;
     sigma = 0.108;
   } else if (2.40 < *mp && *mp <= 7.00) {
     alpha = 3.962;
-    A     = 0.120; // POW(10, 0.120)
+    A     = 0.120;
     sigma = 0.165;
-  } else{ // last range technically 7 < M <= 32
+  } else{ // last range is fit over 7 < M <= 32 but extend it
     alpha = 2.726;
-    A     = 1.237; // POW(10, 1.237)
+    A     = 1.237;
     sigma = 0.158;
   }
 
@@ -95,12 +103,16 @@ float IndividualStarLuminosity(float *mp){
   return luminosity;
 }
 
-float IndividualStarLuminosity(float *mp, float *tau){
-  // given the mass and lifetime, reverse and caluclate
-  // luminosity
-  // Assuming M in solar and t in cgs
+float IndividualStarLuminosity(float *mp, float *lifetime){
+  /* -----------------------------------------------------
+   * Since lifetime is computed using the luminosity, return
+   * luminosity given mass and lifetime to avoid having to store
+   * the value for luminosity in the simulation
+   *
+   * M in solar, lifetime in cgs
+   * ------------------------------------------------------ */
 
-  return SOLAR_LUMINOSITY * (*mp)/ ( *tau / SOLAR_LIFETIME);
+  return SOLAR_LUMINOSITY * (*mp)/ ( *lifetime / SOLAR_LIFETIME);
 }
 
 float IndividualStarRadius(float *mp){
@@ -115,15 +127,6 @@ float IndividualStarRadius(float *mp){
 
   float R;
 
-  // need to figure out mass regimes for each of the nuclear 
-  // burning phases
-/*
-  if (*mp <= 8.0){ // pp burning
-    R = POW(*mp, 3.0/7.0);
-  } else{ // CNO burning
-    R = POW(*mp, 15.0/19.0);
-  }
-*/
   // assume a polytropic equation of state with p-p dominated burning
   // - in this case n = 4 and R scales as M^( (n-1) / (n+3))
   // this may underestimate radius for most massive stars
@@ -135,21 +138,15 @@ float IndividualStarRadius(float *mp){
     R = POW(*mp, 15.0/19.0); // CNO dominated - n = 16
   }
 
-/*if (*mp < 20.0){
-    R = POW(*mp, 15.0/19.0); // CNO cycle dominated
-  } else{
-    R = POW(*mp, 0.75 ); // else follow Hansen
-  }
-*/
   return R * SOLAR_RADIUS;
 }
 
-float IndividualStarTeff(float *mp, float *tau){
+float IndividualStarTeff(float *mp, float *lifetime){
  // given mass and tau, calculate L and R
  // use stefan boltzman to get teff
 
   float L, R;
-  L = IndividualStarLuminosity( mp , tau) / SOLAR_LUMINOSITY;
+  L = IndividualStarLuminosity( mp , lifetime) / SOLAR_LUMINOSITY;
   R = IndividualStarRadius( mp ) / SOLAR_RADIUS;
 
   return SOLAR_TEFF * POW(L / (R*R), 0.25);
@@ -385,6 +382,16 @@ int IndividualStarInterpolateRadData(float *q0, float *q1,
 
 
 int ComputeAverageEnergy(float *energy, float *e_i, float *Teff){
+  /* ==========================================================================
+   * ComputeAverageEnergy
+   * ==========================================================================
+   * Compute the average energy of ionizing photons for a given black body of
+   * temperature Teff and for a given ionizing energy of e_i. Energy returned
+   * by parameter.
+   *
+   * Computation is done by integrating black body curve using series approx.
+   * ==========================================================================
+   */
 
   const double sigma   = 5.6074E-5;
   const double pi      = 3.1415621;
@@ -413,6 +420,17 @@ int ComputeAverageEnergy(float *energy, float *e_i, float *Teff){
 }
 
 int PhotonRadianceBlackBody(float *q, float x){
+  /* ==========================================================================
+   * PhotonRadianceBlackBody
+   * ==========================================================================
+   * Compute the photon radiance for a black body using unitless wavelength "x",
+   * where x*lambda = hc/kT
+   *
+   * Integral is taken in its series form, which is iterated over until
+   * convergence (should only take a few iterations)
+   * ==========================================================================
+   */
+
   const int max_iterations = 513;
   const int min_iterations = 4;
   const float tolerance = 1.0E-10;
@@ -423,6 +441,7 @@ int PhotonRadianceBlackBody(float *q, float x){
   difference = 1.0E10;
   sum = old_sum = 0.0;
   i = 1;
+  // do until tolerance reached, force minimum number of iterations
   while((difference > tolerance && i < max_iterations) || i <min_iterations){
     old_sum = sum;
     sum += ( x*x/((float) i) + 2.0 *x / ((float) i*i) + 2.0/((float) i*i*i) )*exp(-i*x);

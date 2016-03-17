@@ -12,9 +12,9 @@
 // mass input always in solar masses, everything else always cgs (in and out)
 float IndividualStarLifetime(float *mp); // solar - cgs
 float IndividualStarLuminosity(float *mp); // solar - cgs
-float IndividualStarLuminosity(float *mp, float *tau); // solar, cgs - cgs
+float IndividualStarLuminosity(float *mp, float *lifetime); // solar, cgs - cgs
 float IndividualStarRadius(float *mp);                 // solar - cgs
-float IndividualStarTeff(float *mp, float *tau);       // solar, cgs - cgs
+float IndividualStarTeff(float *mp, float *lifetime);       // solar, cgs - cgs
 float IndividualStarTeff(float *mp, float *L, float *R); // solar, cgs, cgs - cgs
 float IndividualStarSurfaceGravity(float *mp); //solar - cgs
 float IndividualStarSurfaceGravity(float *mp, float *R); // solar - cgs
