@@ -26,7 +26,7 @@
 #include "IndividualStarProperties.h"
 
 // some global constants
-const double SOLAR_LIFETIME    = 10.0E9 * 3.1536E13 ; // s
+const double SOLAR_LIFETIME    = 10.0E9 * 3.1536E7 ; // s
 const double SOLAR_LUMINOSITY  = 3.9E33            ; // cgs
 const double SOLAR_TEFF        = 5777.0            ; // K - Cox 2000
 const double SOLAR_MASS        = 1.99E33           ; // g
@@ -358,23 +358,23 @@ int IndividualStarInterpolateRadData(float *q0, float *q1,
 
   /* Now apply the coefficients and compute the ionizing rate */
   *q0 = (1.0 - t)*(1.0 - u)*(1.0 - v) * IndividualStarRadData.q0[i  ][j  ][k  ] +
-        (      t)*(1.0 - u)*(1.0 - v) * IndividualStarRadData.q0[i  ][j+1][k  ] +
+        (1.0 - t)*(      u)*(1.0 - v) * IndividualStarRadData.q0[i  ][j+1][k  ] +
         (      t)*(      u)*(1.0 - v) * IndividualStarRadData.q0[i+1][j+1][k  ] +
-        (1.0 - t)*(      u)*(1.0 - v) * IndividualStarRadData.q0[i+1][j  ][k  ] +
+        (      t)*(1.0 - u)*(1.0 - v) * IndividualStarRadData.q0[i+1][j  ][k  ] +
         (1.0 - t)*(1.0 - u)*(      v) * IndividualStarRadData.q0[i  ][j  ][k+1] +
-        (      t)*(1.0 - u)*(      v) * IndividualStarRadData.q0[i  ][j+1][k+1] +
+        (1.0 - t)*(      u)*(      v) * IndividualStarRadData.q0[i  ][j+1][k+1] +
         (      t)*(      u)*(      v) * IndividualStarRadData.q0[i+1][j+1][k+1] +
-        (1.0 - t)*(      u)*(      v) * IndividualStarRadData.q0[i+1][j  ][k+1] ;
+        (      t)*(1.0 - u)*(      v) * IndividualStarRadData.q0[i+1][j  ][k+1] ;
 
   /* q1 ionizing flux */
   *q1 = (1.0 - t)*(1.0 - u)*(1.0 - v) * IndividualStarRadData.q1[i  ][j  ][k  ] +
-        (      t)*(1.0 - u)*(1.0 - v) * IndividualStarRadData.q1[i  ][j+1][k  ] +
+        (1.0 - t)*(      u)*(1.0 - v) * IndividualStarRadData.q1[i  ][j+1][k  ] +
         (      t)*(      u)*(1.0 - v) * IndividualStarRadData.q1[i+1][j+1][k  ] +
-        (1.0 - t)*(      u)*(1.0 - v) * IndividualStarRadData.q1[i+1][j  ][k  ] +
+        (      t)*(1.0 - u)*(1.0 - v) * IndividualStarRadData.q1[i+1][j  ][k  ] +
         (1.0 - t)*(1.0 - u)*(      v) * IndividualStarRadData.q1[i  ][j  ][k+1] +
-        (      t)*(1.0 - u)*(      v) * IndividualStarRadData.q1[i  ][j+1][k+1] +
+        (1.0 - t)*(      u)*(      v) * IndividualStarRadData.q1[i  ][j+1][k+1] +
         (      t)*(      u)*(      v) * IndividualStarRadData.q1[i+1][j+1][k+1] +
-        (1.0 - t)*(      u)*(      v) * IndividualStarRadData.q1[i+1][j  ][k+1];
+        (      t)*(1.0 - u)*(      v) * IndividualStarRadData.q1[i+1][j  ][k+1];
 
 
   return SUCCESS;
