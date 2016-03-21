@@ -22,6 +22,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "StarParticleData.h"
 
 #include "IndividualStarProperties.h"
 
@@ -198,8 +199,10 @@ int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
   const double eV_erg  = 6.24150934326E11; // eV in one erg
 
 
-  if(IndividualStarInterpolateRadData(q0, q1, Teff, g, metallicity) == SUCCESS){
-    return SUCCESS; // rates computed from table
+  if (IndividualStarBlackBodyOnly == FALSE){
+    if(IndividualStarInterpolateRadData(q0, q1, Teff, g, metallicity) == SUCCESS){
+      return SUCCESS; // rates computed from table
+    }
   }
 
   // if we are here, it means star was outside tabulated data. Use a black
@@ -218,12 +221,11 @@ int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
   }
 
   float A = 2.0 * k_boltz * k_boltz * k_boltz * (*Teff)*(*Teff)*(*Teff) /
-                             (h*h*h*c*c);
+                               (h*h*h*c*c);
 
    // convert to units of # / s / m-2 / sr-1
   *q0 = A * (*q0);
   *q1 = A * (*q1);
-
 
   return SUCCESS;
 }

@@ -154,7 +154,6 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
         ParticleAttribute[1][0] = ChemicalEvolutionTestStarLifetime * myr / (*t1);
       } else{
         ParticleAttribute[1][0] = IndividualStarLifetime( &ChemicalEvolutionTestStarMass) / (*t1);
-//        ParticleAttribute[1][0] = compute_lifetime( &ChemicalEvolutionTestStarMass ) / (*t1);
       }
 
 
@@ -702,7 +701,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
     particle_age = (*current_time) - ParticleAttribute[0][i];
     lifetime     = ParticleAttribute[1][i];
 
-    printf("Particle age, current_time, creation_time, lifetime %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",particle_age, *current_time, ParticleAttribute[0][i], lifetime);
+//    printf("Particle age, current_time, creation_time, lifetime %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",particle_age, *current_time, ParticleAttribute[0][i], lifetime);
 
     do_stellar_winds           = FALSE;
     go_supernova               = FALSE;
@@ -764,6 +763,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
     distmass = 0.0; energy = 0.0;
     if(do_stellar_winds || go_supernova){
+        float sum_dens = 0.0;
 
         // AJE 3/2/16
         // Stellar winds do nothing at the moment
@@ -788,6 +788,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
         }
 
         // add energy to surroundings
+        sum_dens = 0.0;
         for(int kc = kp - StarFeedbackDistRadius; kc <= kp + StarFeedbackDistRadius; kc++){
           int stepk = abs(kc - kp);
           for(int jc = jp - StarFeedbackDistRadius; jc <= jp + StarFeedbackDistRadius; jc++){
@@ -844,6 +845,9 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                 BaryonField[Vel3Num][index] = BaryonField[Vel3Num][index] * BaryonField[DensNum][index] +
                            distmass * ParticleVelocity[2][i];
 
+
+                sum_dens += BaryonField[DensNum][index]; // sum densityto compute average later
+
                 // add mass to cells and convert vels to des again
                 BaryonField[DensNum][index] += distmass;
                 BaryonField[Vel1Num][index] /= BaryonField[DensNum][index];
@@ -862,6 +866,28 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
             } // i dist
           } // j dist
         }// k dist
+
+
+        // if we went supernova, check if radius is resolved:
+        if(go_supernova){
+          const double m_proton = 1.6726E-24;
+          const double mu       = 1.31; // O.K. assumption since we are just doing this approx
+          float n, r_rad;
+          sum_dens /= ((float) StarFeedbackDistTotalCells); // now average mass density
+          n         = sum_dens*(*d1) / (mu * m_proton);     // in cgs
+          r_rad = (7.32E19) * POW(energy * m1 * (*v1)*(*v1) / 1.0E51,0.29) / POW(n,0.42);
+
+          if( (*dx) > 0.25* (r_rad/(*x1)) ){ // unresolved
+
+            printf("IndividualStarFeedback: Unresolved supernova with <n> = %"ESYM" <E> = %"ESYM" r_rad = %"ESYM" and dx = %"ESYM"\n",n,energy*m1*(*v1)*(*v1),r_rad/3.086E18,(*dx)*(*x1)/3.086E18);
+          } else if( (*dx) > 0.125 * (r_rad/(*x1)) ){ // moderately resolved
+            printf("IndividualStarFeedback: Moderately resolved SN with <n> = %"ESYM" <E> = %"ESYM" r_rad = %"ESYM" and dx = %"ESYM"\n",n,energy*m1*(*v1)*(*v1),r_rad/3.086E18,(*dx) * (*x1) / 3.086E18);
+          } else{ // yay
+            printf("IndividualStarFeedback: Resolved supernova with <n> = %"ESYM" <E> = %"ESYM" r_rad = %"ESYM" and dx = %"ESYM"\n",n,energy*m1*(*v1)*(*v1),r_rad/3.086E18, (*dx)*(*x1)/3.086E18);
+          }
+
+        }
+
 
     } // if do feedback
 

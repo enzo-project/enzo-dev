@@ -66,10 +66,12 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   if (PopIIIInitialMassFunction && STARMAKE_METHOD(INDIVIDUAL_STAR) == FALSE)
     StarParticlePopIII_IMFInitialize();
 
+  /* Initialize IMF lookup table if needed and radiation table if needed */
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     StarParticleIndividual_IMFInitialize();
 
-    if(RadiativeTransfer){ // initialize properties for radiation
+    /* Initialize radiation table if needed */
+    if(RadiativeTransfer && IndividualStarBlackBodyOnly == FALSE){
       IndividualStarProperties_Initialize();
     }
   }

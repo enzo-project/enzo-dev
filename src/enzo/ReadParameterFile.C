@@ -1100,6 +1100,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarNSN1a);
     ret += sscanf(line, "IndividualStarUseType1aSN = %"ISYM,
                         &IndividualStarUseType1aSN);
+    ret += sscanf(line, "IndividualStarBlackBodyOnly = %"ISYM,
+                        &IndividualStarBlackBodyOnly);
 
     /* Read Movie Dump parameters */
 

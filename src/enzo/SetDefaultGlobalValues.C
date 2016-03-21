@@ -726,6 +726,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarDTDSlope             = 1.06;        // beta (positive)
   IndividualStarNSN1a                = 3.0E-3;      // number of SN1a per solar mass - assumes user has done proper IMF normalization
   IndividualStarUseType1aSN          = 0;           // on or off
+  IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
 
   // chemical evolution test star
   ChemicalEvolutionTestStarMass        = 20.0   ; // solar masses

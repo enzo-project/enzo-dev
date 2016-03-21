@@ -150,8 +150,11 @@ SPEXTERN float IndividualStarType1aMaximumMass;
 SPEXTERN float IndividualStarDTDSlope;
 SPEXTERN float IndividualStarNSN1a;
 SPEXTERN int   IndividualStarUseType1aSN;
+SPEXTERN int   IndividualStarBlackBodyOnly;
+
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
+
 SPEXTERN float *IMFData;
 
 #endif
