@@ -101,18 +101,23 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     nbins = 2;
 
     M   = this->Mass;
+    Z   = this->Metallicity;
     tau = this->LifeTime;
     tau = tau * (TimeUnits); // convert to cgs
 
+    if ( IndividualStarInterpolateProperties(&Teff, &R, &M, &Z) == FAIL){
+      ENZO_FAIL("Star_ComputePhotonRates: Failure in computing individual star properties\n");
+    }
 
-    Teff = IndividualStarTeff( &M, &tau);
-    g    = IndividualStarSurfaceGravity( &M );
-    Z    = this->Metallicity;
-    R    = IndividualStarRadius( &M );
+    g = IndividualStarSurfaceGravity( &M, &R); // M in solar - R in cgs
+
+//    Teff = IndividualStarTeff( &M, &tau);
+//    g    = IndividualStarSurfaceGravity( &M );
+//    R    = IndividualStarRadius( &M );
 
     printf("Star_ComputePhotonRates: Teff = %"ESYM" g = %"ESYM" Z = %"ESYM"\n", Teff, g, Z);
     if( IndividualStarComputeIonizingRates( &Q[0], &Q[1], &Teff, &g, &Z) == FAIL){
-      ENZO_FAIL("Star_ComputePhotonRates: Failure in comuting individual star ionizing radiation.\n");
+      ENZO_FAIL("Star_ComputePhotonRates: Failure in computing individual star ionizing radiation.\n");
     }
 
     // compute average energy by integrating over the black body spectrum

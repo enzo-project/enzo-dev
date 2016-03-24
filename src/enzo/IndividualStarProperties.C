@@ -51,6 +51,24 @@ float IndividualStarLifetime(float *mp){
   return lifetime;
 }
 
+float IndividualStarLifetime(float *mp, float *metallicity){
+  /* ========================================================
+   * compute lifetime by interpolating parsec tables for L
+   * mp is assumed to be in solar masses
+   * =======================================================*/
+
+  float L, lifetime;
+
+  if(IndividualStarInterpolateLuminosity(&L, mp, metallicity) == FAIL){
+    ENZO_FAIL("IndividualStarLifetime: Failed to interpolate luminosity\n");
+  }
+
+  // L from above is in solar units already
+  lifetime = SOLAR_LIFETIME * (*mp) / (L);
+
+  return lifetime;
+}
+
 float IndividualStarLuminosity(float *mp){
   /* ------------------------------------------------------------
    * Use the broken power law scaling fits to the M-L
@@ -176,7 +194,7 @@ float IndividualStarSurfaceGravity(float *mp, float *R){
   /* Compute surface gravity given radius */
   const double G = 6.6743E-8;
 
-  return G*(*mp)/((*R)*(*R));
+  return G*(*mp * SOLAR_MASS)/((*R)*(*R));
 }
 
 int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
@@ -230,6 +248,179 @@ int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
   return SUCCESS;
 }
 
+int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
+  /* =================================================================
+   * IndividualStarInterpolateLuminosity
+   * =================================================================
+   * Performs billinear interpolation over star mass and metallicity
+   * to compute star luminosity using the PARSEC stellar evolution
+   * tracks. Luminosity is used to set the star particle lifetime.
+   *
+   * =================================================================
+   */
+
+  int i, j;
+  int width, bin_number;
+
+  float Z = (*metallicity); // should NOT be in solar units
+
+  // check values are within tabulated data points
+  if( (*M < IndividualStarPropertiesData.M[0]) ||
+      (*M > IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1])){
+    printf("IndividualStarInterpolateLuminosity: Mass out of bounds\n");
+    return FAIL;
+  }
+
+  if( (Z < IndividualStarPropertiesData.Z[0]) ||
+      (Z > IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins - 1])){
+    printf("IndividualStarInterpolateLuminosity: Metallicity out of bounds\n");
+    return FAIL;
+  }
+
+  // binary search over star mass (i)
+  width = IndividualStarPropertiesData.NumberOfMassBins / 2;
+  i     = IndividualStarPropertiesData.NumberOfMassBins / 2;
+
+  while (width > 1){
+    width /=2;
+    if ( *M > IndividualStarPropertiesData.M[i])
+      i += width;
+    else if ( *M < IndividualStarPropertiesData.M[i])
+      i -= width;
+    else
+      break;
+  } // nass binary search
+
+  // search finds nearest bin - interpolation requires floored nearest bin
+  if ( *M < IndividualStarPropertiesData.M[i] ) i--;
+
+  // binary search over metallicity (j)
+  width = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
+  j     = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
+
+  while (width > 1){
+    width /= 2;
+    if ( Z > IndividualStarPropertiesData.Z[j])
+      j += width;
+    else if ( Z < IndividualStarPropertiesData.Z[j])
+      j -= width;
+    else
+      break;
+  } // metallicity binary search
+
+  // search finds nearest bin - interpolation requires floored nearest bin
+  if ( Z < IndividualStarPropertiesData.Z[j]) j--;
+
+  // now compute the multiplicative factors (fractions from nearest edge)
+  float t, u;
+
+  t = (*M - IndividualStarPropertiesData.M[i]) /
+        (IndividualStarPropertiesData.M[i+1] - IndividualStarPropertiesData.M[i]);
+  u = (Z - IndividualStarPropertiesData.Z[j]) /
+        (IndividualStarPropertiesData.Z[j+1] - IndividualStarPropertiesData.Z[j]);
+
+  /* Now apply the coefficients and compute the effective temperature */
+  *L = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.L[i  ][j  ] +
+       (1.0 - t)*(      u) * IndividualStarPropertiesData.L[i  ][j+1] +
+       (      t)*(      u) * IndividualStarPropertiesData.L[i+1][j+1] +
+       (      t)*(1.0 - u) * IndividualStarPropertiesData.L[i+1][j  ] ;
+
+
+  return SUCCESS;
+}
+
+
+int IndividualStarInterpolateProperties(float *Teff, float *R,
+                                        float *M, float *metallicity){
+
+  /* ==================================================================
+   * IndividualStarInterpolateProperties
+   * ==================================================================
+   * Performs billinear interpolation over star mass and metallicity
+   * to compute star effective temperature and radius (for surface
+   * gravity) using the PARSEC stellar evolution tracks
+   *
+   * ==================================================================
+   */
+
+  int i, j; // i -> M, j -> Z (indeces)
+  int width, bin_number;
+
+  // metallicity should not be in solar units
+  float Z = (*metallicity);
+
+  // check that values are within tabulated data points
+  if( (*M < IndividualStarPropertiesData.M[0]) ||
+      (*M > IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1])){
+    printf("IndividualStarInterpolateProperties: Mass out of bounds\n");
+    return FAIL;
+  }
+
+  if( (Z < IndividualStarPropertiesData.Z[0]) ||
+      (Z > IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins - 1])){
+    printf("IndividualStarInterpolateProperties: Metallicity out of bounds\n");
+    return FAIL;
+  }
+
+  // binary search over star mass (i)
+  width = IndividualStarPropertiesData.NumberOfMassBins / 2;
+  i     = IndividualStarPropertiesData.NumberOfMassBins / 2;
+
+  while (width > 1){
+    width /=2;
+    if ( *M > IndividualStarPropertiesData.M[i])
+      i += width;
+    else if ( *M < IndividualStarPropertiesData.M[i])
+      i -= width;
+    else
+      break;
+  } // temperature binary search
+
+  // search finds nearest bin - interpolation requires floored nearest bin
+  if ( *M < IndividualStarPropertiesData.M[i] ) i--;
+
+  // binary search over metallicity (j)
+  width = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
+  j     = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
+
+  while (width > 1){
+    width /= 2;
+    if ( Z > IndividualStarPropertiesData.Z[j])
+      j += width;
+    else if ( Z < IndividualStarPropertiesData.Z[j])
+      j -= width;
+    else
+      break;
+  } // metallicity binary search
+
+  // search finds nearest bin - interpolation requires floored nearest bin
+  if ( Z < IndividualStarPropertiesData.Z[j]) j--;
+
+  // now compute the multiplicative factors (fractions from nearest edge)
+  float t, u;
+
+  t = (*M - IndividualStarPropertiesData.M[i]) /
+        (IndividualStarPropertiesData.M[i+1] - IndividualStarPropertiesData.M[i]);
+  u = (Z - IndividualStarPropertiesData.Z[j]) /
+        (IndividualStarPropertiesData.Z[j+1] - IndividualStarPropertiesData.Z[j]);
+
+  /* Now apply the coefficients and compute the effective temperature */
+  *Teff = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.Teff[i  ][j  ] +
+          (1.0 - t)*(      u) * IndividualStarPropertiesData.Teff[i  ][j+1] +
+          (      t)*(      u) * IndividualStarPropertiesData.Teff[i+1][j+1] +
+          (      t)*(1.0 - u) * IndividualStarPropertiesData.Teff[i+1][j  ] ;
+
+  *R    = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.R[i  ][j  ] +
+          (1.0 - t)*(      u) * IndividualStarPropertiesData.R[i  ][j+1] +
+          (      t)*(      u) * IndividualStarPropertiesData.R[i+1][j+1] +
+          (      t)*(1.0 - u) * IndividualStarPropertiesData.R[i+1][j  ] ;
+
+
+
+  return SUCCESS;
+}
+
+
 int IndividualStarInterpolateRadData(float *q0, float *q1,
                                      float *Teff, float *g, float *metallicity){
   /* ===================================================================
@@ -251,7 +442,7 @@ int IndividualStarInterpolateRadData(float *q0, float *q1,
 
   // convert metallicity to solar
   float Z; // Z is in units of solar
-  Z = (*metallicity) / SOLAR_METALLICITY;
+  Z = (*metallicity) / IndividualStarRadData.Zsolar;
 
   // check star values against minimum and maximum tabulated bins
   // FOr now just throw an error. But in the future, if Teff and g are below
@@ -524,6 +715,8 @@ int AverageEnergyBlackBody(float *energy, float x){
 
   return SUCCESS;
 }
+
+
 
 /*-----------------------------------------------------------------------------
  GaussianRandomVariable

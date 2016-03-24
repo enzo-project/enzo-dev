@@ -1139,7 +1139,8 @@ EXTERN float ChemicalEvolutionTestStarMetallicity;
 EXTERN int   ChemicalEvolutionTestStarFormed;
 EXTERN FLOAT ChemicalEvolutionTestStarLifetime;
 
-/* For individual star radiation data */
-EXTERN IndividualStarRadDataType IndividualStarRadData;
+/* For individual star properties and radiation data */
+EXTERN IndividualStarRadDataType        IndividualStarRadData;
+EXTERN IndividualStarPropertiesDataType IndividualStarPropertiesData;
 
 #endif

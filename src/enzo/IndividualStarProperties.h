@@ -11,6 +11,7 @@
                                          // INPUT - OUTPUT
 // mass input always in solar masses, everything else always cgs (in and out)
 float IndividualStarLifetime(float *mp); // solar - cgs
+float IndividualStarLifetime(float *mp, float *metallicity); // solar, fraction - cgs
 float IndividualStarLuminosity(float *mp); // solar - cgs
 float IndividualStarLuminosity(float *mp, float *lifetime); // solar, cgs - cgs
 float IndividualStarRadius(float *mp);                 // solar - cgs
@@ -19,16 +20,26 @@ float IndividualStarTeff(float *mp, float *L, float *R); // solar, cgs, cgs - cg
 float IndividualStarSurfaceGravity(float *mp); //solar - cgs
 float IndividualStarSurfaceGravity(float *mp, float *R); // solar - cgs
 
-int   IndividualStarComputeIonizingRates(float *q0, float *q1,
-                                             float *Teff, float *g, float *metallicity);
 
-int   IndividualStarInterpolateRadData(float *q0, float *q1,
+/* Functions for stellar properties data */
+int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity);
+int IndividualStarInterpolateProperties(float *Teff, float *R,
+                                        float *M, float *metallicity);
+
+
+/* Functions for radiation data */
+int IndividualStarComputeIonizingRates(float *q0, float *q1,
                                        float *Teff, float *g, float *metallicity);
+
+int IndividualStarInterpolateRadData(float *q0, float *q1,
+                                     float *Teff, float *g, float *metallicity);
 int PhotonRadianceBlackBody(float *q, float x);
 
 int ComputeAverageEnergy(float *energy, float *e_i, float *Teff);
 int AverageEnergyBlackBody(float *energy, float x);
 
+
+/* General helper functions */
 float GaussianRandomVariable(void);
 
 #endif

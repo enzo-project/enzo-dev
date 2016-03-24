@@ -26,8 +26,82 @@
 
 #include "IndividualStarProperties.h"
 
+int IndividualStarProperties_Initialize(void);
+int IndividualStarRadiationProperties_Initialize(void);
+
 
 int IndividualStarProperties_Initialize(void){
+
+  if (IndividualStarPropertiesData.Teff != NULL && IndividualStarPropertiesData.R != NULL){
+    return SUCCESS; // already initialized
+  }
+
+  IndividualStarPropertiesData.NumberOfMassBins        = 0;
+  IndividualStarPropertiesData.NumberOfMetallicityBins = 0;
+
+//  IndividualStarPropertiesData.Zsolar = 0.01524; // see IndividualStarData.h
+
+  // read in the data to populate the tables
+  FILE *fptr = fopen("parsec_zams.in", "r");
+  if (fptr == NULL){
+    ENZO_FAIL("Error opening stellar properties file, 'parsec_zams.in' \n");
+  }
+
+  char line[MAX_LINE_LENGTH];
+  IndividualStarPropertiesData.NumberOfMassBins        = 26; // hard code for now
+  IndividualStarPropertiesData.NumberOfMetallicityBins = 11;
+
+  /* store bin values (not evenly spaced) */
+  IndividualStarPropertiesData.M = new float[IndividualStarPropertiesData.NumberOfMassBins];
+  IndividualStarPropertiesData.Z = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
+
+  /* arrays for data */
+  IndividualStarPropertiesData.Teff = new float*[IndividualStarPropertiesData.NumberOfMassBins];
+  IndividualStarPropertiesData.R    = new float*[IndividualStarPropertiesData.NumberOfMassBins];
+  IndividualStarPropertiesData.L    = new float*[IndividualStarPropertiesData.NumberOfMassBins];
+
+  /* fill arrays in each dimension */
+  for (int i = 0; i < IndividualStarPropertiesData.NumberOfMassBins; i++){
+    IndividualStarPropertiesData.Teff[i] = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
+    IndividualStarPropertiesData.R[i]    = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
+    IndividualStarPropertiesData.L[i]    = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
+
+    /* need to do NULL things if I move away from hard coding sizes above */
+  }
+
+  /* read in the data */
+  int i, j, err;
+  float L, Teff, R;
+  i = 0; j = 0;
+  while( fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
+
+    if(line[0] != '#'){
+      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                         &IndividualStarPropertiesData.M[i],
+                         &IndividualStarPropertiesData.Z[j],
+                         &L,
+                         &Teff,
+                         &R);
+      // un-log the data
+      IndividualStarPropertiesData.L[i][j]    = POW(10.0, L);
+      IndividualStarPropertiesData.Teff[i][j] = POW(10.0, Teff);
+      IndividualStarPropertiesData.R[i][j]    = POW(10.0, R);
+
+      j++;
+      if ( j >= IndividualStarPropertiesData.NumberOfMetallicityBins){
+        j = 0;
+        i++;
+      }
+
+    } // end #
+  } // end while
+
+  fclose(fptr);
+
+  return SUCCESS;
+}
+
+int IndividualStarRadiationProperties_Initialize(void){
 
   if (IndividualStarRadData.q0 != NULL && IndividualStarRadData.q1 != NULL){
     return SUCCESS;
@@ -36,6 +110,8 @@ int IndividualStarProperties_Initialize(void){
   IndividualStarRadData.NumberOfTemperatureBins = 0;
   IndividualStarRadData.NumberOfSGBins          = 0;
   IndividualStarRadData.NumberOfMetallicityBins = 0;
+
+//  IndividualStarRadData.Zsolar = 0.017 // see IndividualStarData.h
 
   // now read in the data to populate the tables
 

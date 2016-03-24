@@ -118,6 +118,14 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
 
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
+    MetalIaNum, MetalIINum;
+
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, 
+              MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
+  }
+
   if(TestProblemData.MultiMetals >= 2){
     if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
                                            FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
@@ -153,7 +161,8 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
       if(ChemicalEvolutionTestStarLifetime > 0){
         ParticleAttribute[1][0] = ChemicalEvolutionTestStarLifetime * myr / (*t1);
       } else{
-        ParticleAttribute[1][0] = IndividualStarLifetime( &ChemicalEvolutionTestStarMass) / (*t1);
+        ParticleAttribute[1][0] = IndividualStarLifetime(&ChemicalEvolutionTestStarMass,
+                                                         &ChemicalEvolutionTestStarMetallicity) / (*t1);
       }
 
 
@@ -389,7 +398,11 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
                 ParticleType[istar]            = -(*ctype);   // negative is a "new" star
                 ParticleAttribute[0][istar]    = *t;          // formation tim
-                ParticleAttribute[1][istar]    = IndividualStarLifetime( &ParticleMass[istar] ) / (*t1);
+                ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metallicity
+
+                ParticleAttribute[1][istar] = IndividualStarLifetime( &ParticleMass[istar], 
+                                                                      &ParticleAttribute[2][istar]);
+//                ParticleAttribute[1][istar]    = IndividualStarLifetime( &ParticleMass[istar] ) / (*t1);
 //                ParticleAttribute[1][istar]    = compute_lifetime( &ParticleMass[istar] ) / (*t1); // lifetime
                 ParticleMass[istar]            = ParticleMass[istar] * msolar / m1;                // mass
 
