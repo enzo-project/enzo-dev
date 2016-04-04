@@ -39,7 +39,7 @@ int IndividualStarProperties_Initialize(void){
   IndividualStarPropertiesData.NumberOfMassBins        = 0;
   IndividualStarPropertiesData.NumberOfMetallicityBins = 0;
 
-//  IndividualStarPropertiesData.Zsolar = 0.01524; // see IndividualStarData.h
+  IndividualStarPropertiesData.Zsolar = 0.01524; // see IndividualStarData.h
 
   // read in the data to populate the tables
   FILE *fptr = fopen("parsec_zams.in", "r");
@@ -111,8 +111,9 @@ int IndividualStarRadiationProperties_Initialize(void){
   IndividualStarRadData.NumberOfSGBins          = 0;
   IndividualStarRadData.NumberOfMetallicityBins = 0;
 
-//  IndividualStarRadData.Zsolar = 0.017 // see IndividualStarData.h
 
+
+  IndividualStarRadData.Zsolar = 0.017; // see IndividualStarData.h
   // now read in the data to populate the tables
 
   // read in from file

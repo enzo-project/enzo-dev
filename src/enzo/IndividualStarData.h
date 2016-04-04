@@ -31,7 +31,7 @@ struct IndividualStarRadDataType
 
   // solar metallicity as defined by OSTAR2002
   // using Grevesse & Savaul 1998 0.017
-  const float Zsolar = 0.0170 ;
+  float Zsolar;
 };
 
 struct IndividualStarPropertiesDataType
@@ -52,5 +52,5 @@ struct IndividualStarPropertiesDataType
   // solar metallicity as defined in PARSEC
   // stellar evolution code using
   // Caffau et. al. 2009/2011  0.01524
-  const float Zsolar = 0.01524;
+  float Zsolar;
 };
