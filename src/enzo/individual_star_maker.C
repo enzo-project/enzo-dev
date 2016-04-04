@@ -771,6 +771,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
       if (rnum < PSN1a){
         go_supernova = TRUE;
+        printf("individual_star_feedback: SN1a going off this timestep\n");
       }
     } // end type check
 
