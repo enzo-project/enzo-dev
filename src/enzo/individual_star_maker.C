@@ -243,8 +243,14 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
           sum_mass = 0.0; index_presf = ii;
           if (   BaryonField[DensNum][index]      > odthreshold
               && temp[index] <= min_temp
-              && IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
-              && 0.5*bmass > IndividualStarIMFUpperMassCutoff){
+              && bmass * IndividualStarMassFraction > IndividualStarIMFLowerMassCutoff){ // 4/4/16
+              //&& IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
+              //&& 0.5*bmass > IndividualStarIMFUpperMassCutoff){
+
+            // allow star formation in regions that cannot support very massive star formation
+            // by limiting the IMF in those regions determined by local gas mass
+            float M_max_star;
+            M_max_star = min(bmass * IndividualStarMassFraction, IndividualStarIMFUpperMassCutoff);
 
 
             // star formation may be possible
@@ -272,7 +278,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               // Tests as of 2/22/16 show NO SF here for at least 10^5 stars in a LMC dwarf galaxy
               if(mass_to_stars >= mass_available){
                 mass_to_stars = mass_available;
-                while( ii < *nmax && mass_to_stars > IndividualStarIMFUpperMassCutoff){
+                while( ii < *nmax && mass_to_stars > M_max_star){
                   ParticleMass[ii] = SampleIMF();
                   sum_mass        += ParticleMass[ii]; // counter for mass formed in this cell
                   mass_to_stars   -= ParticleMass[ii]; // reduce available mass
@@ -281,8 +287,8 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               }
 
               // Tests (as of 2/22/16) show NO SF here for at least the first 10^5 stars
-              if (mass_to_stars > IndividualStarIMFUpperMassCutoff){
-                while (ii < *nmax && mass_to_stars > IndividualStarIMFUpperMassCutoff){
+              if (mass_to_stars > M_max_star){
+                while (ii < *nmax && mass_to_stars > M_max_star){
                   ParticleMass[ii]  = SampleIMF();
                   sum_mass         += ParticleMass[ii];
                   mass_to_stars    -= ParticleMass[ii];
@@ -293,17 +299,24 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               // If mass is above IMF lower limit, star formation will happen.
               // Just form stars randomly over IMF until mass dips below lower cutoff
               if(mass_to_stars > IndividualStarIMFLowerMassCutoff){
-                while( ii < *nmax && mass_to_stars > IndividualStarIMFLowerMassCutoff){
-                  ParticleMass[ii]  = SampleIMF();
-                  sum_mass         += ParticleMass[ii];
-                  mass_to_stars    -= ParticleMass[ii];
-                  ii++;
+
+                // loop until mass to stars is less than 10% of smallest star particle size
+                while( ii < *nmax && mass_to_stars > 1.1 * IndividualStarIMFLowerMassCutoff){
+                  float tempmass;
+                  tempmass = SampleIMF();
+
+                  if (tempmass < M_max_star){
+                      ParticleMass[ii]  = SampleIMF();
+                      sum_mass         += ParticleMass[ii];
+                      mass_to_stars    -= ParticleMass[ii];
+                      ii++;
+                  } // else redraw
 
                   if (mass_to_stars < 0.0){
                     mass_to_stars = 0.0;
                   }
                 }
-              }
+              } // end mass above individual star cutoff
 
               // now we are in the Goldbaum et. al. 2015 regime (star_maker_ssn.F)
               // Calculate probability of star forming and form stars stochastically
