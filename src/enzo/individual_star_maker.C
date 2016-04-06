@@ -42,7 +42,7 @@ float SampleIMF(void);
 
 float compute_lifetime(float *mp);
 
-float compute_SN1a_probability(float *mprog, float *t1);
+float compute_SNIa_probability(float *current_time, float *formation_time, float *lifetime, float *t1);
 unsigned_long_int mt_random(void);
 
 
@@ -748,8 +748,8 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
       if ( mp >= IndividualStarTypeIIMassCutoff && ((particle_age + (*dt)) > lifetime)){
         go_supernova = TRUE;
-      } else if ( mp >= IndividualStarType1aMinimumMass && mp <= IndividualStarType1aMaximumMass
-                  && particle_age + (*dt) > lifetime && IndividualStarUseType1aSN){
+      } else if ( mp >= IndividualStarTypeIaMinimumMass && mp <= IndividualStarTypeIaMaximumMass
+                  && particle_age + (*dt) > lifetime && IndividualStarUseTypeIaSN){
 
         ParticleAttribute[3][i] = ParticleMass[i]; // very bad / gross hack
 
@@ -766,25 +766,23 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
     } else if (ParticleType[i] == IndividualStarWD){
 
-      float formation_time = ParticleAttribute[0][i] +
-                             ParticleAttribute[1][i];
+      float formation_time = ParticleAttribute[0][i]; // MS star formation
+                             //ParticleAttribute[1][i];
 
-      float M_proj = ParticleAttribute[3][i] * (*dx)*(*dx)*(*dx) ; // very bad hack, see above
-      float PSN1a;
+      float PSNIa;
       float rnum;
 
-      M_proj = M_proj * m1 / msolar;
-
-      PSN1a  = compute_SN1a_probability( &M_proj, t1); // units of t^((beta)) / s
-      PSN1a *= POW( (*current_time) - formation_time, -IndividualStarDTDSlope) * (*dt);
+      // compute probability / s
+      PSNIa  = compute_SNIa_probability(current_time, &formation_time, &lifetime, t1); // units of t^((beta)) / s
+      PSNIa *= (*dt);
 
       rnum =  (float) (random() % max_random) / ((float) (max_random));
 
-      printf("individual_star_feedback: SN1a - M_proj, PSN1a, rnum = %"ESYM" %"ESYM" %"ESYM"\n",M_proj, PSN1a, rnum);
+      printf("individual_star_feedback: SNIa - M_proj, PSNIa, rnum = %"ESYM" %"ESYM"\n", PSNIa, rnum);
 
-      if (rnum < PSN1a){
+      if (rnum < PSNIa){
         go_supernova = TRUE;
-        printf("individual_star_feedback: SN1a going off this timestep\n");
+        printf("individual_star_feedback: SNIa going off this timestep\n");
       }
     } // end type check
 
@@ -942,90 +940,36 @@ float compute_lifetime(float *mp){
   return tau;
 }
 
-// calculates probability of WD going SN as a 1a
-// by normalizing a DTD appropriately and computing
-// SF mass required to get a star of mass equal to the WD's projenitor (MS) mass
-float compute_SN1a_probability(float *mprog, float *t1){
+float compute_SNIa_probability(float *current_time, float *formation_time, float *lifetime, float *t1){
+ /* -----------------------------------------------------------------
+  * Compute_SNIa_probability
+  *
+  * Computes dPdt for a given white dwarf that might go supernova. The
+  * probability is such that the integral over dP from the time the WD
+  * was born for a hubble time afterwards is a free parameter on order of
+  * a few percent. This is IndividualStarSNIaFraction, or fraction of WD's
+  * over a certain progenitor mass range that will go supernova in a hubble
+  * time.
+  * ------------------------------------------------------------------- */
 
- float msf, IMF_norm, DTD_norm;
- float probability;
 
+ float dPdt;
  const float hubble_time = 4.382E17; // need to allow for cosmology units AJE TO DO
                                      // currently assumes H_o = 70.4
- const float time_first_WD = 1.262304E15; // seconds - 40 Myr
 
- // compute star formation mass. This requires knowing the IMF
- // and integrating the IMF. Integral is computed analytically for each 
- // IMF case
+ dPdt = IndividualStarSNIaFraction;
 
- switch( IndividualStarIMF ) {
-
-   case 0: // Salpeter
-     IMF_norm = 1.0 / POW(*mprog, IndividualStarSalpeterSlope);
-
-     // integrate IMF from lower mass limit to upper mass limit
-     msf = IMF_norm * (POW(*mprog                          ,IndividualStarSalpeterSlope + 2) -
-                       POW(IndividualStarIMFLowerMassCutoff,IndividualStarSalpeterSlope + 2))/
-                      (IndividualStarSalpeterSlope + 2.0);
-     break;
-   case 1: // Chabrier 2003
-
-     float m_a, m_b;
-     m_a = IndividualStarIMFLowerMassCutoff;
-     m_b = IndividualStarIMFUpperMassCutoff; // convenience - will get optimized out
-
-     IMF_norm = 1.0 / ( 0.158 * exp( -0.5 * POW(log10(*mprog)-log10(0.08),2.0)/
-                                            POW(0.69,2))); 
-
-     msf  = 0.158 * exp( -0.5 * POW(log10(m_b) - log10(0.08),2.0)/
-                                   POW(0.69,2.0)) *
-           -1.0*(log10(m_b)-log10(0.08))*exp(m_b)/(POW(0.69,2)*log(10.0));
-
-     msf -= 0.158 * exp( -0.5 * POW(log10(m_a) - log10(0.08),2.0)/ POW(0.69,2)) *
-            (-1.0)*(log10(m_a) - log10(0.08))*exp(m_a)/(POW(0.69,2)*log(10.0));
-
-     break;
-   case 2: // Kroupa
-     if (*mprog < 0.08){ IMF_norm  = 1.0 / POW(*mprog, IndividualStarKroupaAlpha1);}
-     else if (*mprog < 0.5){ IMF_norm = 1.0 / POW(*mprog, IndividualStarKroupaAlpha2);}
-     else{ IMF_norm = 1.0 / POW(*mprog, IndividualStarKroupaAlpha3);}
-
-     msf =            (POW(*mprog , IndividualStarKroupaAlpha3 + 2) -
-                       POW(0.5, IndividualStarKroupaAlpha3 + 2.0))/
-                      (IndividualStarKroupaAlpha3 + 2.0);
-
-     msf +=           (POW(0.50, IndividualStarKroupaAlpha2 + 2) -
-                       POW(0.08, IndividualStarKroupaAlpha2 + 2))/
-                      (IndividualStarKroupaAlpha2 + 2.0);
-
-     msf +=           (POW(0.08, IndividualStarKroupaAlpha1+2) -
-                       POW(IndividualStarIMFLowerMassCutoff, IndividualStarKroupaAlpha1 + 2))/
-                      (IndividualStarKroupaAlpha1 + 2.0);
-
-     msf *= IMF_norm;
-
-     break;
-
-   default:
-     printf("WARNING IMF TYPE NOT KNOWN IN SN1A PROBABILITY COMPUTATION\n");
-     msf = 0.0;
-     break;
- } // end switch
-
- // now compute the normalized delay time distribution
- if(IndividualStarDTDSlope == 1.0){
-   DTD_norm = IndividualStarNSN1a / log(hubble_time / time_first_WD );
-
- } else {
-   DTD_norm = (-1.0 * IndividualStarDTDSlope + 1.0) /
-              (POW(hubble_time/(*t1),-1.0*IndividualStarDTDSlope + 1.0) - POW(time_first_WD/(*t1), -1.0*IndividualStarDTDSlope+1.0)) *
-              (IndividualStarNSN1a);
+ //
+ if (IndividualStarDTDSlope == 1.0){
+   dPdt /= log( (hubble_time / (*t1) + *lifetime) / (*lifetime) );
+ } else{
+   dPdt *= (-IndividualStarDTDSlope + 1.0);
+   dPdt /= ( POW( (hubble_time / (*t1) + *lifetime) , -IndividualStarDTDSlope + 1) +
+             POW((*lifetime)                      , -IndividualStarDTDSlope + 1));
  }
 
- probability = DTD_norm * msf;
+ dPdt = dPdt * POW( ((*current_time) - (*formation_time)), -IndividualStarDTDSlope);
 
- printf("compute_sn1a_probability: probability, DTD_norm, msf = %"ESYM" %"ESYM" %"ESYM"\n", probability, DTD_norm, msf);
 
- return probability;
+ return dPdt;
 }
-

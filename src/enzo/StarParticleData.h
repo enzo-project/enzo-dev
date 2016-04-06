@@ -145,11 +145,11 @@ SPEXTERN float IndividualStarPSNMassCutoff;
 SPEXTERN float IndividualStarRadiationMinimumMass;
 SPEXTERN int   IndividualStarStellarWinds;
 SPEXTERN int   IndividualStarFollowStellarYields;
-SPEXTERN float IndividualStarType1aMinimumMass;
-SPEXTERN float IndividualStarType1aMaximumMass;
+SPEXTERN float IndividualStarTypeIaMinimumMass;
+SPEXTERN float IndividualStarTypeIaMaximumMass;
 SPEXTERN float IndividualStarDTDSlope;
-SPEXTERN float IndividualStarNSN1a;
-SPEXTERN int   IndividualStarUseType1aSN;
+SPEXTERN float IndividualStarSNIaFraction;
+SPEXTERN int   IndividualStarUseTypeIaSN;
 SPEXTERN int   IndividualStarBlackBodyOnly;
 
 SPEXTERN float minStarLifetime;

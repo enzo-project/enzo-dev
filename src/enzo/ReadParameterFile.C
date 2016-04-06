@@ -1090,16 +1090,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarStellarWinds);
     ret += sscanf(line, "IndividualStarFollowStellarYields = %"ISYM,
                         &IndividualStarFollowStellarYields);
-    ret += sscanf(line, "IndividualStarType1aMinimumMass = %"FSYM,
-                        &IndividualStarType1aMinimumMass);
-    ret += sscanf(line, "IndividualStarType1aMaximumMass = %"FSYM,
-                        &IndividualStarType1aMaximumMass);
+    ret += sscanf(line, "IndividualStarTypeIaMinimumMass = %"FSYM,
+                        &IndividualStarTypeIaMinimumMass);
+    ret += sscanf(line, "IndividualStarTypeIaMaximumMass = %"FSYM,
+                        &IndividualStarTypeIaMaximumMass);
     ret += sscanf(line, "IndividualStarDTDSlope = %"FSYM,
                         &IndividualStarDTDSlope);
-    ret += sscanf(line, "IndividualStarNSN1a = %"FSYM,
-                        &IndividualStarNSN1a);
-    ret += sscanf(line, "IndividualStarUseType1aSN = %"ISYM,
-                        &IndividualStarUseType1aSN);
+    ret += sscanf(line, "IndividualStarSNIaFraction = %"FSYM,
+                        &IndividualStarSNIaFraction);
+    ret += sscanf(line, "IndividualStarUseTypeIaSN = %"ISYM,
+                        &IndividualStarUseTypeIaSN);
     ret += sscanf(line, "IndividualStarBlackBodyOnly = %"ISYM,
                         &IndividualStarBlackBodyOnly);
 
