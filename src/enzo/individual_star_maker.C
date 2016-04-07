@@ -746,18 +746,22 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
         }
       } // end winds check
 
-      if ( mp >= IndividualStarTypeIIMassCutoff && ((particle_age + (*dt)) > lifetime)){
+      if ( mp >= IndividualStarSNIIMassCutoff && ((particle_age + (*dt)) > lifetime)){
         go_supernova = TRUE;
-      } else if ( mp >= IndividualStarTypeIaMinimumMass && mp <= IndividualStarTypeIaMaximumMass
-                  && particle_age + (*dt) > lifetime && IndividualStarUseTypeIaSN){
+      } else if ( mp >= IndividualStarWDMinimumMass && mp <= IndividualStarWDMaximumMass
+                  && particle_age + (*dt) > lifetime && IndividualStarUseSNIa){
 
-        ParticleAttribute[3][i] = ParticleMass[i]; // very bad / gross hack
+                                      // this is a very back hack to store
+        ParticleAttribute[3][i] = mp; // progenitor mass w/o making new attribute
+                                      // this attribute slot is used for 'type1a_fraction'
+                                      // which is implicity assumed to NOT be in use with this
+                                      // SF scheme --- 3/6/16
 
         float wd_mass; // compute WD mass using linear fit from Salaris et. al. 2009
-        if( mp >= 1.7 && mp < 4.0){ wd_mass = 0.134 * mp + 0.331;}
-        else if (mp > 4.0){         wd_mass = 0.047 * mp + 0.679;}
+        if(      mp  < 4.0){ wd_mass = 0.134 * mp + 0.331;}
+        else if (mp >= 4.0){ wd_mass = 0.047 * mp + 0.679;}
 
-        ParticleMass[i] = wd_mass * (msolar / m1) / ((*dx)*(*dx)*(*dx)); // make 1 Msun WD for now
+        ParticleMass[i] = wd_mass * (msolar / m1) / ((*dx)*(*dx)*(*dx));
         ParticleType[i] = IndividualStarWD;
 
       } else if (particle_age + (*dt) > lifetime){
@@ -766,24 +770,30 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
     } else if (ParticleType[i] == IndividualStarWD){
 
-      float formation_time = ParticleAttribute[0][i]; // MS star formation
+      // check progenitor mass - again, this is a bad hack. see above comment in WD formation
+      if( (ParticleAttribute[3][i] > IndividualStarSNIaMinimumMass) &&
+          (ParticleAttribute[3][i] < IndividualStarSNIaMaximumMass) ){
+
+        float formation_time = ParticleAttribute[0][i]; // MS star formation
                              //ParticleAttribute[1][i];
 
-      float PSNIa;
-      float rnum;
+        float PSNIa;
+        float rnum;
 
-      // compute probability / s
-      PSNIa  = compute_SNIa_probability(current_time, &formation_time, &lifetime, t1); // units of t^((beta)) / s
-      PSNIa *= (*dt);
+        // compute probability / s
+        PSNIa  = compute_SNIa_probability(current_time, &formation_time, &lifetime, t1); // units of t^((beta)) / s
+        PSNIa *= (*dt);
 
-      rnum =  (float) (random() % max_random) / ((float) (max_random));
+        rnum =  (float) (random() % max_random) / ((float) (max_random));
 
-      printf("individual_star_feedback: SNIa - M_proj, PSNIa, rnum = %"ESYM" %"ESYM"\n", PSNIa, rnum);
+        printf("individual_star_feedback: SNIa - M_proj, PSNIa, rnum = %"ESYM" %"ESYM"\n", PSNIa, rnum);
 
-      if (rnum < PSNIa){
-        go_supernova = TRUE;
-        printf("individual_star_feedback: SNIa going off this timestep\n");
-      }
+        if (rnum < PSNIa){
+          go_supernova = TRUE;
+          printf("individual_star_feedback: SNIa going off this timestep\n");
+        }
+      } // end SNIa progenitor + WD check
+
     } // end type check
 
     distmass = 0.0; energy = 0.0;
