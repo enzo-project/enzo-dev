@@ -1080,8 +1080,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarKroupaAlpha3);
     ret += sscanf(line, "IndividualStarMassFraction = %"FSYM,
                         &IndividualStarMassFraction);
-    ret += sscanf(line, "IndividualStarTypeIIMassCutoff = %"FSYM,
-                        &IndividualStarTypeIIMassCutoff);
+    ret += sscanf(line, "IndividualStarSNIIMassCutoff = %"FSYM,
+                        &IndividualStarSNIIMassCutoff);
     ret += sscanf(line, "IndividualStarPSNMassCutoff = %"FSYM,
                         &IndividualStarPSNMassCutoff);
     ret += sscanf(line, "IndividualStarRadiationMinimumMass = %"FSYM,
@@ -1090,16 +1090,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarStellarWinds);
     ret += sscanf(line, "IndividualStarFollowStellarYields = %"ISYM,
                         &IndividualStarFollowStellarYields);
-    ret += sscanf(line, "IndividualStarTypeIaMinimumMass = %"FSYM,
-                        &IndividualStarTypeIaMinimumMass);
-    ret += sscanf(line, "IndividualStarTypeIaMaximumMass = %"FSYM,
-                        &IndividualStarTypeIaMaximumMass);
+    ret += sscanf(line, "IndividualStarWDMinimumMass = %"FSYM,
+                        &IndividualStarWDMinimumMass);
+    ret += sscanf(line, "IndividualStarWDMaximumMass = %"FSYM,
+                        &IndividualStarWDMaximumMass);
+    ret += sscanf(line, "IndividualStarSNIaMinimumMass = %"FSYM,
+                        &IndividualStarSNIaMinimumMass);
+    ret += sscanf(line, "IndividualStarSNIaMaximumMass = %"FSYM,
+                        &IndividualStarSNIaMaximumMass);
     ret += sscanf(line, "IndividualStarDTDSlope = %"FSYM,
                         &IndividualStarDTDSlope);
     ret += sscanf(line, "IndividualStarSNIaFraction = %"FSYM,
                         &IndividualStarSNIaFraction);
-    ret += sscanf(line, "IndividualStarUseTypeIaSN = %"ISYM,
-                        &IndividualStarUseTypeIaSN);
+    ret += sscanf(line, "IndividualStarUseSNIa = %"ISYM,
+                        &IndividualStarUseSNIa);
     ret += sscanf(line, "IndividualStarBlackBodyOnly = %"ISYM,
                         &IndividualStarBlackBodyOnly);
 

@@ -716,16 +716,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarKroupaAlpha2        = 1.3;
   IndividualStarKroupaAlpha3        = 2.3;
   IndividualStarMassFraction        = 0.5;
-  IndividualStarTypeIIMassCutoff    = 8.0;          // Solar masses
-  IndividualStarTypeIaMinimumMass   = 3.0;          // Solar masses
-  IndividualStarTypeIaMaximumMass   = 8.0;          // solar masses
+  IndividualStarSNIIMassCutoff      = 8.0;          // Solar masses
+  IndividualStarWDMinimumMass       = 1.7;          // Solar masses
+  IndividualStarWDMaximumMass       = 8.0;          // solar masses
+  IndividualStarSNIaMinimumMass     = 3.0;          // Solar masses
+  IndividualStarSNIaMaximumMass     = 8.0;          // solar masses
   IndividualStarPSNMassCutoff       = 40.0;         // Solar masses
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
   IndividualStarStellarWinds         = 0;           // on or off
-  IndividualStarFollowStellarYields = 0;            // on or off
+  IndividualStarFollowStellarYields  = 0;            // on or off
   IndividualStarDTDSlope             = 1.20;        // beta (positive) - Default from Maoz et. al. 2012
   IndividualStarSNIaFraction         = 0.043;       // Fraction of MS stars that can be SNIa progenitors that will go SNIa in hubble time
-  IndividualStarUseTypeIaSN          = 0;           // on or off
+  IndividualStarUseSNIa              = 0;           // on or off
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
 
   // chemical evolution test star
