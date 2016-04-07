@@ -153,6 +153,8 @@ SPEXTERN float IndividualStarDTDSlope;
 SPEXTERN float IndividualStarSNIaFraction;
 SPEXTERN int   IndividualStarUseSNIa;
 SPEXTERN int   IndividualStarBlackBodyOnly;
+SPEXTERN float IndividualStarBlackBodyq0Factors[2];
+SPEXTERN float IndividualStarBlackBodyq1Factors[2];
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;

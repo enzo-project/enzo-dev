@@ -730,6 +730,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarUseSNIa              = 0;           // on or off
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
 
+  IndividualStarBlackBodyq0Factors[0]  = 0.1 ;      // if OSTAR is ON, adjust black body to be continious
+  IndividualStarBlackBodyq0Factors[1]  = 3.0 ;      // factors are for q0 and q1 with first
+  IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
+  IndividualStarBlackBodyq1Factors[1]  = 5.0 ;      // and second high mass off grid.
+
   // chemical evolution test star
   ChemicalEvolutionTestStarMass        = 20.0   ; // solar masses
   ChemicalEvolutionTestStarMetallicity = 0.0001 ;

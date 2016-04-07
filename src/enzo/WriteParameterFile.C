@@ -1056,7 +1056,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarDTDSlope = %"FSYM"\n", IndividualStarDTDSlope);
   fprintf(fptr, "IndividualStarSNIaFraction = %"FSYM"\n", IndividualStarSNIaFraction);
   fprintf(fptr, "IndividualStarFollowStellarYields = %"ISYM"\n", IndividualStarFollowStellarYields);
-  fprintf(fptr, "IndividualStarBlackBodyOnly = %"ISYM"\n\n", IndividualStarBlackBodyOnly);
+  fprintf(fptr, "IndividualStarBlackBodyOnly = %"ISYM"\n", IndividualStarBlackBodyOnly);
+
+  fprintf(fptr, "IndividualStarBlackBodyq0Factors  = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, IndividualStarBlackBodyq0Factors);
+  fprintf(fptr, "IndividualStarBlackBodyq1Factors  = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, IndividualStarBlackBodyq1Factors);
 
   fprintf(fptr, "ChemicalEvolutionTestStarPosition = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarPosition);

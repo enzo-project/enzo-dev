@@ -242,6 +242,25 @@ int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
 
+  //
+  // now adjust the black body curve to be roughly continious
+  // with OSTAR, but only do this if OSTAR is actually being used
+  //
+  if(IndividualStarBlackBodyOnly == FALSE){
+    int index;
+    // If we are here because star is below temperature limit, we are a
+    // low mass star and black body overestimates radiation
+    if ( (*Teff) < IndividualStarRadData.T[0] ){
+        index = 0;
+    } else { // else we are too hot
+        index = 1;
+    }
+
+    *q0 = (*q0) * IndividualStarBlackBodyq0Factors[index];
+    *q1 = (*q1) * IndividualStarBlackBodyq1Factors[index];
+  }
+
+
   float A = 2.0 * k_boltz * k_boltz * k_boltz * (*Teff)*(*Teff)*(*Teff) /
                                (h*h*h*c*c);
 
