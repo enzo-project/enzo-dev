@@ -60,7 +60,7 @@ float IndividualStarLifetime(float *mp, float *metallicity){
   float L, lifetime;
 
   if(IndividualStarInterpolateLuminosity(&L, mp, metallicity) == FAIL){
-    ENZO_FAIL("IndividualStarLifetime: Failed to interpolate luminosity\n");
+    ENZO_FAIL("IndividualStarLifetime: Failed to interpolate luminosity \n");
   }
 
   // L from above is in solar units already
@@ -268,12 +268,14 @@ int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
   if( (*M < IndividualStarPropertiesData.M[0]) ||
       (*M > IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1])){
     printf("IndividualStarInterpolateLuminosity: Mass out of bounds\n");
+    printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", *M, IndividualStarPropertiesData.M[0], IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1]);
     return FAIL;
   }
 
   if( (Z < IndividualStarPropertiesData.Z[0]) ||
       (Z > IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins - 1])){
     printf("IndividualStarInterpolateLuminosity: Metallicity out of bounds\n");
+    printf("Z = %"ESYM" for minimum Z = %"ESYM" and maximum Z = %"ESYM"\n", Z, IndividualStarPropertiesData.Z[0], IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins - 1]);
     return FAIL;
   }
 
@@ -353,12 +355,14 @@ int IndividualStarInterpolateProperties(float *Teff, float *R,
   if( (*M < IndividualStarPropertiesData.M[0]) ||
       (*M > IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1])){
     printf("IndividualStarInterpolateProperties: Mass out of bounds\n");
+    printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", *M, IndividualStarPropertiesData.M[0], IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1]);
     return FAIL;
   }
 
   if( (Z < IndividualStarPropertiesData.Z[0]) ||
       (Z > IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins - 1])){
     printf("IndividualStarInterpolateProperties: Metallicity out of bounds\n");
+    printf("Z = %"ESYM" for minimum Z = %"ESYM" and maximum Z = %"ESYM"\n", Z, IndividualStarPropertiesData.Z[0], IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins - 1]);
     return FAIL;
   }
 
