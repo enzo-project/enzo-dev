@@ -66,6 +66,10 @@ float IndividualStarLifetime(float *mp, float *metallicity){
   // L from above is in solar units already
   lifetime = SOLAR_LIFETIME * (*mp) / (L);
 
+  if ( lifetime < 0.0){
+    printf("Lifetime < 0, mp = %"ESYM", L = %"ESYM", lifetimre = %"ESYM"\n",*mp, L, lifetime);
+  }
+
   return lifetime;
 }
 
@@ -294,6 +298,8 @@ int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
   } // nass binary search
 
   // search finds nearest bin - interpolation requires floored nearest bin
+  // if number of bins is even, this may need to be done twice
+  if ( *M < IndividualStarPropertiesData.M[i] ) i--;
   if ( *M < IndividualStarPropertiesData.M[i] ) i--;
 
   // binary search over metallicity (j)
@@ -327,7 +333,7 @@ int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
        (      t)*(      u) * IndividualStarPropertiesData.L[i+1][j+1] +
        (      t)*(1.0 - u) * IndividualStarPropertiesData.L[i+1][j  ] ;
 
-
+  printf("i j t u L %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM"\n",i,j,t,u,*L);
   return SUCCESS;
 }
 
