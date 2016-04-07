@@ -413,8 +413,8 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 ParticleAttribute[0][istar]    = *t;          // formation tim
                 ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metallicity
 
-                ParticleAttribute[1][istar] = IndividualStarLifetime( &ParticleMass[istar], 
-                                                                      &ParticleAttribute[2][istar]);
+                ParticleAttribute[1][istar] = IndividualStarLifetime( &ParticleMass[istar],
+                                                                      &ParticleAttribute[2][istar]) / (*t1);
 //                ParticleAttribute[1][istar]    = IndividualStarLifetime( &ParticleMass[istar] ) / (*t1);
 //                ParticleAttribute[1][istar]    = compute_lifetime( &ParticleMass[istar] ) / (*t1); // lifetime
                 ParticleMass[istar]            = ParticleMass[istar] * msolar / m1;                // mass
