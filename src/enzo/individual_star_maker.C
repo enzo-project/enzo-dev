@@ -974,7 +974,7 @@ float compute_SNIa_probability(float *current_time, float *formation_time, float
    dPdt /= log( (hubble_time / (*t1) + *lifetime) / (*lifetime) );
  } else{
    dPdt *= (-IndividualStarDTDSlope + 1.0);
-   dPdt /= ( POW( (hubble_time / (*t1) + *lifetime) , -IndividualStarDTDSlope + 1) +
+   dPdt /= ( POW( (hubble_time / (*t1) + *lifetime) , -IndividualStarDTDSlope + 1) -
              POW((*lifetime)                      , -IndividualStarDTDSlope + 1));
  }
 
