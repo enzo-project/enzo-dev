@@ -318,6 +318,7 @@ int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
 
   // search finds nearest bin - interpolation requires floored nearest bin
   if ( Z < IndividualStarPropertiesData.Z[j]) j--;
+  if ( Z < IndividualStarPropertiesData.Z[j]) j--;
 
   // now compute the multiplicative factors (fractions from nearest edge)
   float t, u;
@@ -388,6 +389,7 @@ int IndividualStarInterpolateProperties(float *Teff, float *R,
 
   // search finds nearest bin - interpolation requires floored nearest bin
   if ( *M < IndividualStarPropertiesData.M[i] ) i--;
+  if ( *M < IndividualStarPropertiesData.M[i] ) i--;
 
   // binary search over metallicity (j)
   width = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
@@ -404,6 +406,7 @@ int IndividualStarInterpolateProperties(float *Teff, float *R,
   } // metallicity binary search
 
   // search finds nearest bin - interpolation requires floored nearest bin
+  if ( Z < IndividualStarPropertiesData.Z[j]) j--;
   if ( Z < IndividualStarPropertiesData.Z[j]) j--;
 
   // now compute the multiplicative factors (fractions from nearest edge)
@@ -492,7 +495,9 @@ int IndividualStarInterpolateRadData(float *q0, float *q1,
       break;
   } // temperature binary search
 
+
   // search finds nearest bin - interpolation requires floored nearest bin
+  if ( *Teff < IndividualStarRadData.T[i] ) i--;
   if ( *Teff < IndividualStarRadData.T[i] ) i--;
 
   // binary search over surface gravity (j)
@@ -511,6 +516,7 @@ int IndividualStarInterpolateRadData(float *q0, float *q1,
 
   // search finds closest bin - interpolation requires floored nearest bin
   if ( *g < IndividualStarRadData.g[j]) j--;
+  if ( *g < IndividualStarRadData.g[j]) j--;
 
   // binary search over metallicity
   width = IndividualStarRadData.NumberOfMetallicityBins / 2;
@@ -527,6 +533,7 @@ int IndividualStarInterpolateRadData(float *q0, float *q1,
   } // metallicity binary search
 
   // search finds closest bin - interpolation requires floored nearest bin
+  if (Z < IndividualStarRadData.Z[k]) k--;
   if (Z < IndividualStarRadData.Z[k]) k--;
 
   /* Now that we've located the point in 3D, compute coefficients */
