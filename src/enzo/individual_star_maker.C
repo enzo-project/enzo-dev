@@ -34,6 +34,12 @@
 
 #include "IndividualStarProperties.h"
 
+
+/* Following Grid_ComputeTemperatureField.C */
+#ifndef MU_METAL
+# define MU_METAL 16.0
+#endif
+
 /* function prototypes */
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
@@ -97,6 +103,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
   float umean, vmean, wmean, px, py, pz, px_excess, py_excess, pz_excess;
   float rnum;
   const double m_h = 1.673e-24;
+  float inv_metal_mol = 1.0 /MU_METAL;
 
   const int max_random = (1<<16);
 
@@ -116,6 +123,15 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                        Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+  }
+
+  /* identify species fields if they exist for proper computation of Mu */
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+      DINum, DIINum, HDINum;
+
+  if (MultiSpecies == TRUE){
+    IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+                          HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
   }
 
   int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
@@ -221,7 +237,10 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
     min_temp = 1.0E5; // set conditional based on cooling and metals present
 
     // over density threshold in code units
-    odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (*d1);
+    // if multispecies is off, assumes a value for MU
+    if (MultiSpecies == FALSE){
+        odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (*d1);
+    }
 
     // loop over all cells, check condition, form stars stochastically
     ii = 0; index_presf = 0;
@@ -241,6 +260,31 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
           //    (i.e. baryon mass likely always going to be > ~10 solar masses)
 
           sum_mass = 0.0; index_presf = ii;
+
+          /* Need to compute Mu exactly and recompute threshold */
+          if (MultiSpecies == TRUE){
+            float mu_cell, number_density;
+
+            number_density =
+              0.25*(BaryonField[HeINum][index] + BaryonField[HeIINum][index] +
+                    BaryonField[HeIIINum][index])                        +
+                   BaryonField[HINum][index] + BaryonField[HIINum][index]    +
+                   BaryonField[DeNum][index];
+            /* if H2 is present */
+            if (MultiSpecies > 1){
+              number_density += BaryonField[HMNum][index] +
+                          0.5*(BaryonField[H2INum][index] + BaryonField[H2IINum][index]);
+            }
+
+            /* Metal field must be present in this star formation scheme */
+            number_density += BaryonField[MetalNum][index] * inv_metal_mol;
+
+            /* factor of m_h cancels out in below... it is ignored */
+            mu_cell = BaryonField[DensNum][index] / (number_density);
+            odthreshold = StarMakerOverDensityThreshold * (mu_cell) / (*d1);
+          }
+
+
           if (   BaryonField[DensNum][index]      > odthreshold
               && temp[index] <= min_temp
               && bmass * IndividualStarMassFraction > IndividualStarIMFLowerMassCutoff){ // 4/4/16
