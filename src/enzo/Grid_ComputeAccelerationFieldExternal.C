@@ -417,12 +417,6 @@ int grid::ComputeAccelerationFieldExternal()
       } } } // end: loop over grid (i/j/k)
     } // end: loop over dims
 
-    /* ---  PARTICLES NOT IMPLEMENTED -- SHOULD BE ADDED HERE --- */
-
-
-    // AJE BREAKING THIS !!!!
-    //if (NumberOfParticles > 0)
-    //  ENZO_FAIL("DiskGravity with particles not yet implemented.");
     if (NumberOfParticles > 0 && GridRank != 3) {
         ENZO_FAIL("DiskGravity Requires 3D for use with particles");
     }
