@@ -97,7 +97,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   const double pi     = 3.14159265358979323846;
   const double msolar = 1.9891E33;
-  const double mpc    = 3.086E24;
+  const double mpc    = 3.0856E24;
 
   /* make sure it is 3D */
 
@@ -155,7 +155,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationDarkMatterConcentrationParameter = 12;
   GalaxySimulationGasMass            = 4.0e10;
   GalaxySimulationGalaxyMass         = 1.0e12;
-  GalaxySimulationDiskTemperature    = 1000.0;
+  GalaxySimulationDiskTemperature    = 1000.0;   // AJE whhy is this repeated??
   GalaxySimulationGasHalo            = 0; // uniform halo w/ densicm and UniformTemperature
   GalaxySimulationGasHaloScaleRadius = .001; // Mpc
   GalaxySimulationGasHaloDensity     = 1.8e-27; // cgs
@@ -391,6 +391,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DiskGravityDarkMatterDensity = DiskGravityDarkMatterMassInterior*msolar /
                                      ( (2.0 * pi * POW(DiskGravityDarkMatterR*mpc,3.0) ) *
                                        (0.5 * log(1.0 + xtemp*xtemp) + log(1.0 + xtemp) - atan(xtemp)));
+
+      printf("darkmatterdensity, mass interior, darkmatterr %"ESYM" %"ESYM" %"ESYM"\n",DiskGravityDarkMatterDensity, DiskGravityDarkMatterMassInteriorR, DiskGravityDarkMatterMassInterior*msolar);
     }
 
   } // end DiskGravity if

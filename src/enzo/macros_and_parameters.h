@@ -38,7 +38,9 @@
 
 #define MAX_DEPTH_OF_HIERARCHY             50
 
-#define MAX_LINE_LENGTH                   512
+#define MAX_LINE_LENGTH                   1024 /* AJE: for stellar yields */
+
+#define MAX_STELLAR_YIELDS                14
 
 #define MAX_NAME_LENGTH                   512
 
