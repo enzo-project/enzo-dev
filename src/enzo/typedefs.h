@@ -18,9 +18,7 @@
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
 #include "IndividualStarData.h"
-//#include "StellarYieldsData.h"
-
-// #include "StellarYieldsData.h"
+#include "StellarYieldsData.h"
 
 /* These are the different types of baryon fields. */
 

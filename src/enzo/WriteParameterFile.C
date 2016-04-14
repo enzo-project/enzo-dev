@@ -1069,6 +1069,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ChemicalEvolutionTestStarMetallicity = %"FSYM"\n", ChemicalEvolutionTestStarMetallicity);
   fprintf(fptr, "ChemicalEvolutionTestStarLifetime = %"FSYM"\n\n", ChemicalEvolutionTestStarLifetime);
 
+  fprintf(fptr, "StellarYieldsAtomicNumbers          = ");
+  WriteListOfInts(fptr, MAX_STELLAR_YIELDS, StellarYieldsAtomicNumbers);
+
   /* Most Stanford additions: */
 
   fprintf(fptr, "UseHydro                   = %"ISYM"\n", UseHydro);

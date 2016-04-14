@@ -860,7 +860,9 @@ OBJS_CONFIG_LIB = \
 	star_maker10.o \
 	star_maker_h2reg.o \
     star_maker_ssn.o \
-	StratifiedMediumExplosionInitialize.o \
+	StellarYieldsRoutines.o \
+        StellarYields_Initialize.o \
+        StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
         TestGravityCheckResults.o \

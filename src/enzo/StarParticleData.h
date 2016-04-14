@@ -156,6 +156,8 @@ SPEXTERN int   IndividualStarBlackBodyOnly;
 SPEXTERN float IndividualStarBlackBodyq0Factors[2];
 SPEXTERN float IndividualStarBlackBodyq1Factors[2];
 
+SPEXTERN int   StellarYieldsNumberOfSpecies;
+
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
 

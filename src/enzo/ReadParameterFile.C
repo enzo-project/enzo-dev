@@ -1111,12 +1111,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "IndividualStarBlackBodyq1Factors = %"FSYM" %"FSYM,
                         IndividualStarBlackBodyq1Factors+0, IndividualStarBlackBodyq1Factors+1);
 
-/*
+
     ret += sscanf(line, "StellarYieldsAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
                   StellarYieldsAtomicNumbers+0, StellarYieldsAtomicNumbers+1, StellarYieldsAtomicNumbers+2, StellarYieldsAtomicNumbers+3,
                   StellarYieldsAtomicNumbers+4, StellarYieldsAtomicNumbers+5, StellarYieldsAtomicNumbers+6, StellarYieldsAtomicNumbers+7,
                   StellarYieldsAtomicNumbers+8, StellarYieldsAtomicNumbers+9);
-*/
+
 
     /* Read Movie Dump parameters */
 
@@ -1408,6 +1408,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s", line);
  
+  }
+
+
+  /* AJE  - Count up the number of species we are following */
+  StellarYieldsNumberOfSpecies = 0;
+  for(int species = 0; species < MAX_STELLAR_YIELDS; species++){
+    if (StellarYieldsAtomicNumbers[species] != NULL){
+      StellarYieldsNumberOfSpecies ++;
+    }
   }
 
   // HierarchyFile IO sanity check

@@ -1145,9 +1145,9 @@ EXTERN IndividualStarPropertiesDataType IndividualStarPropertiesData;
 
 
 /* For stellar yields data tables */
-//EXTERN StellarYieldsDataType          StellarYieldsSNData;
-//EXTERN StellarYieldsDataType          StellarYieldsWindData;
-//EXTERN int StellarYieldsAtomicNumbers[MAX_STELLAR_YIELDS];
+EXTERN StellarYieldsDataType          StellarYieldsSNData;
+EXTERN StellarYieldsDataType          StellarYieldsWindData;
+EXTERN int StellarYieldsAtomicNumbers[MAX_STELLAR_YIELDS];
 
 
 #endif
