@@ -15,7 +15,7 @@ MACH_TEXT  = NCSA Blue Waters
 MACH_VALID = 1
 MACH_FILE  = Make.mach.ncsa-bluewaters-gnu
 
-MACHINE_NOTES = "Building on NCSA's Blue Waters requires PrgEnv-gnu, not PrgEnv-cray"
+MACHINE_NOTES = "Do this first: module swap PrgEnv-cray PrgEnv-gnu ; module load cray-hdf5"
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -27,9 +27,10 @@ MACHINE_NOTES = "Building on NCSA's Blue Waters requires PrgEnv-gnu, not PrgEnv-
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = 
-LOCAL_HDF5_INSTALL   = $(HOME)/yt-x86_64/
+LOCAL_HDF5_INSTALL   = /opt/cray/hdf5/1.8.14/gnu/4.9
 LOCAL_HYPRE_INSTALL  = 
-LOCAL_PYTHON_INSTALL = $(HOME)/yt-x86_64/
+LOCAL_PYTHON_INSTALL = 
+LOCAL_GRACKLE_INSTALL = $(HOME)/local/gnu/grackle
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -88,11 +89,13 @@ LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7/ \
                         -I$(LOCAL_PYTHON_INSTALL)/lib/python2.7/site-packages/numpy/core/include
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_GRACKLE  = $(LOCAL_INCLUDES_GRACKLE)
 
 #-----------------------------------------------------------------------
 # Libraries
@@ -103,10 +106,11 @@ LOCAL_LIBS_MPI    =
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz
 LOCAL_LIBS_PYTHON = -L$(LOCAL_PYTHON_INSTALL)/lib -lpython2.7 -ldl -lutil
 LOCAL_LIBS_HYPRE  = 
-
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
 LOCAL_LIBS_MACH   = 
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)
