@@ -9,8 +9,8 @@
 # define ISEXTERN extern
 #endif
 
-float StellarYieldsInterpolateYield(StellarYieldsDataType table, float *M,
-                                    float *metallicity, int atomic_number);
+float StellarYieldsInterpolateYield(int yield_type, const float &M,
+                                    const float &metallicity, int atomic_number);
 
 int GetYieldIndex(int *atomic_numbers, int number_of_yields, int Z);
 

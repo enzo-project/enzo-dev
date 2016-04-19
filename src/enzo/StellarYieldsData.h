@@ -24,6 +24,7 @@ struct StellarYieldsDataType
 
   int *atomic_number;
 
+  float  **Mtot;
   float ***Yields;
 };
 
