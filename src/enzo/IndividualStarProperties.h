@@ -22,9 +22,9 @@ float IndividualStarSurfaceGravity(float *mp, float *R); // solar - cgs
 
 
 /* Functions for stellar properties data */
-int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity);
+int IndividualStarInterpolateLuminosity(float *L, const float &M, const float &metallicity);
 int IndividualStarInterpolateProperties(float *Teff, float *R,
-                                        float *M, float *metallicity);
+                                        const float &M, const float &metallicity);
 
 
 /* Functions for radiation data */

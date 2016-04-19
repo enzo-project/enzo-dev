@@ -59,7 +59,7 @@ float IndividualStarLifetime(float *mp, float *metallicity){
 
   float L, lifetime;
 
-  if(IndividualStarInterpolateLuminosity(&L, mp, metallicity) == FAIL){
+  if(IndividualStarInterpolateLuminosity(&L, *mp, *metallicity) == FAIL){
     ENZO_FAIL("IndividualStarLifetime: Failed to interpolate luminosity \n");
   }
 
@@ -267,7 +267,7 @@ int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
   return SUCCESS;
 }
 
-int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
+int IndividualStarInterpolateLuminosity(float *L, const float &M, const float &metallicity){
   /* =================================================================
    * IndividualStarInterpolateLuminosity
    * =================================================================
@@ -281,13 +281,13 @@ int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
   int i, j;
   int width, bin_number;
 
-  float Z = (*metallicity); // should NOT be in solar units
+  float Z = (metallicity); // should NOT be in solar units
 
   // check values are within tabulated data points
-  if( (*M < IndividualStarPropertiesData.M[0]) ||
-      (*M > IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1])){
+  if( (M < IndividualStarPropertiesData.M[0]) ||
+      (M > IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1])){
     printf("IndividualStarInterpolateLuminosity: Mass out of bounds\n");
-    printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", *M, IndividualStarPropertiesData.M[0], IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1]);
+    printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, IndividualStarPropertiesData.M[0], IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1]);
     return FAIL;
   }
 
@@ -304,9 +304,9 @@ int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
 
   while (width > 1){
     width /=2;
-    if ( *M > IndividualStarPropertiesData.M[i])
+    if ( M > IndividualStarPropertiesData.M[i])
       i += width;
-    else if ( *M < IndividualStarPropertiesData.M[i])
+    else if ( M < IndividualStarPropertiesData.M[i])
       i -= width;
     else
       break;
@@ -314,8 +314,8 @@ int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
 
   // search finds nearest bin - interpolation requires floored nearest bin
   // if number of bins is even, this may need to be done twice
-  if ( *M < IndividualStarPropertiesData.M[i] ) i--;
-  if ( *M < IndividualStarPropertiesData.M[i] ) i--;
+  if ( M < IndividualStarPropertiesData.M[i] ) i--;
+  if ( M < IndividualStarPropertiesData.M[i] ) i--;
 
   // binary search over metallicity (j)
   width = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
@@ -338,7 +338,7 @@ int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
   // now compute the multiplicative factors (fractions from nearest edge)
   float t, u;
 
-  t = (*M - IndividualStarPropertiesData.M[i]) /
+  t = (M - IndividualStarPropertiesData.M[i]) /
         (IndividualStarPropertiesData.M[i+1] - IndividualStarPropertiesData.M[i]);
   u = (Z - IndividualStarPropertiesData.Z[j]) /
         (IndividualStarPropertiesData.Z[j+1] - IndividualStarPropertiesData.Z[j]);
@@ -354,7 +354,7 @@ int IndividualStarInterpolateLuminosity(float *L, float *M, float *metallicity){
 
 
 int IndividualStarInterpolateProperties(float *Teff, float *R,
-                                        float *M, float *metallicity){
+                                        const float &M, const float &metallicity){
 
   /* ==================================================================
    * IndividualStarInterpolateProperties
@@ -370,13 +370,13 @@ int IndividualStarInterpolateProperties(float *Teff, float *R,
   int width, bin_number;
 
   // metallicity should not be in solar units
-  float Z = (*metallicity);
+  float Z = (metallicity);
 
   // check that values are within tabulated data points
-  if( (*M < IndividualStarPropertiesData.M[0]) ||
-      (*M > IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1])){
+  if( (M < IndividualStarPropertiesData.M[0]) ||
+      (M > IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1])){
     printf("IndividualStarInterpolateProperties: Mass out of bounds\n");
-    printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", *M, IndividualStarPropertiesData.M[0], IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1]);
+    printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, IndividualStarPropertiesData.M[0], IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1]);
     return FAIL;
   }
 
@@ -393,17 +393,17 @@ int IndividualStarInterpolateProperties(float *Teff, float *R,
 
   while (width > 1){
     width /=2;
-    if ( *M > IndividualStarPropertiesData.M[i])
+    if ( M > IndividualStarPropertiesData.M[i])
       i += width;
-    else if ( *M < IndividualStarPropertiesData.M[i])
+    else if ( M < IndividualStarPropertiesData.M[i])
       i -= width;
     else
       break;
   } // temperature binary search
 
   // search finds nearest bin - interpolation requires floored nearest bin
-  if ( *M < IndividualStarPropertiesData.M[i] ) i--;
-  if ( *M < IndividualStarPropertiesData.M[i] ) i--;
+  if ( M < IndividualStarPropertiesData.M[i] ) i--;
+  if ( M < IndividualStarPropertiesData.M[i] ) i--;
 
   // binary search over metallicity (j)
   width = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
@@ -426,7 +426,7 @@ int IndividualStarInterpolateProperties(float *Teff, float *R,
   // now compute the multiplicative factors (fractions from nearest edge)
   float t, u;
 
-  t = (*M - IndividualStarPropertiesData.M[i]) /
+  t = (M - IndividualStarPropertiesData.M[i]) /
         (IndividualStarPropertiesData.M[i+1] - IndividualStarPropertiesData.M[i]);
   u = (Z - IndividualStarPropertiesData.Z[j]) /
         (IndividualStarPropertiesData.Z[j+1] - IndividualStarPropertiesData.Z[j]);
