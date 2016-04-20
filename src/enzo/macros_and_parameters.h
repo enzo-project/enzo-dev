@@ -38,7 +38,7 @@
 
 #define MAX_DEPTH_OF_HIERARCHY             50
 
-#define MAX_LINE_LENGTH                   1024 /* AJE: for stellar yields */
+#define MAX_LINE_LENGTH                   1280 /* AJE: for stellar yields */
 
 #define MAX_STELLAR_YIELDS                14
 
@@ -465,7 +465,7 @@ typedef int            HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 13
+#define NUM_PARTICLE_TYPES 14
 
 #define PARTICLE_TYPE_RESET         -1
 #define PARTICLE_TYPE_GAS            0
@@ -481,6 +481,7 @@ typedef int            HDF5_hid_t;
 #define PARTICLE_TYPE_SIMPLE_SOURCE 10
 #define PARTICLE_TYPE_INDIVIDUAL_STAR 11
 #define PARTICLE_TYPE_INDIVIDUAL_STAR_WD 12
+#define PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT 13
 
 #define CHILDRENPERPARENT           12
 /* Ways to deposit particles from a subgrid. */

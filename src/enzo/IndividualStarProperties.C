@@ -274,7 +274,7 @@ int IndividualStarInterpolateLuminosity(float *L, const float &M, const float &m
    * Performs billinear interpolation over star mass and metallicity
    * to compute star luminosity using the PARSEC stellar evolution
    * tracks. Luminosity is used to set the star particle lifetime.
-   *
+   * Luminosity is returned in SOLAR UNITS
    * =================================================================
    */
 

@@ -47,6 +47,7 @@ class Star
   star_type	 type;
   float          accreted_angmom[MAX_DIMENSION];  // used for MBH_JETS feedback
   double         NotEjectedMass;                  // Msun, used for MBH_JETS feedback
+  double         BirthMass; // Msun - AJE
 
   friend class grid;
 
@@ -74,6 +75,7 @@ public:
   double ReturnMass(void) { return Mass; };
   float ReturnBirthTime(void) { return BirthTime; };
   double ReturnFinalMass(void) { return FinalMass; };
+  double ReturnBirthMass(void) { return BirthMass; };
   void  AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };
   float ReturnBirthtime(void) { return BirthTime; };
@@ -130,6 +132,7 @@ public:
   float RelativeVelocity2(Star a);
   float RelativeVelocity2(Star *a);
   void  UpdatePositionVelocity(void);
+  void  UpdateIndividualStarParticleProperties(void);
   void	CopyFromParticle(grid *_grid, int _id, int _level);
   void	AssignAccretedAngularMomentum(void);
   void	DeleteCopyInGrid(void);

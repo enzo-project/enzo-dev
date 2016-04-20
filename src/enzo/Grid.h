@@ -2197,9 +2197,23 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                float *dx, FLOAT *current_time, float *dt,
                                float *d1, float *x1, float *v1, float *t1,
                                FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
-                               int   *ibuff, int *np, float *ParticleMass,
+                               int   *ibuff, int *np, float *ParticleMass, int *ParticleType,
                                FLOAT *ParticlePosition[], float *ParticleVelocity[],
                                float *ParticleAttribute[]);
+
+  int IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
+                                    const float &up, const float &vp, const float &wp,
+                                    const float &d1, const float &x1, const float &m1,
+                                    const float &v1, const FLOAT &xstart, const FLOAT &ystart,
+                                    const FLOAT &zstart, const FLOAT &dx,
+                                    const float &dt, const int &nx, const int &ny, const int &nz,
+                                    const int &ibuff, const float &mproj, const float &lifetime,
+                                    const float &metallicity, float *mp, int mode); /* AJE:  CLean up parameters !!! TO do */
+
+
+  int IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc, const FLOAT &zfc,
+                                        float up, float wp, float vp, float m_eject,
+                                        float E_thermal, float E_kin);
 
   /* Initialization for isolated galaxy sims */
   int GalaxySimulationInitializeGrid(

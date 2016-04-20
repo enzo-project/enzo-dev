@@ -53,6 +53,8 @@ void Star::ActivateNewStar(FLOAT Time, float Timestep)
       type = StarType;
       break;
     case IndividualStar:
+    case IndividualStarWD:
+    case IndividualStarRemnant:
       type = StarType;
       break;
     case BlackHole:

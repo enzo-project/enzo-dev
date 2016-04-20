@@ -1944,7 +1944,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
                                 &CellWidthTemp, &dtFixed,
                                 &Time, &DensityUnits, &LengthUnits, &VelocityUnits,
                                 &TimeUnits, CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2],
-                                &GhostZones, &NumberOfParticles, ParticleMass, ParticlePosition,
+                                &GhostZones, &NumberOfParticles, ParticleMass, ParticleType, ParticlePosition,
                                 ParticleVelocity, ParticleAttribute) == FAIL){
       ENZO_FAIL("Failure in individual star feedback\n");
     }

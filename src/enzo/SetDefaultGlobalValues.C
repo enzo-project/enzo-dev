@@ -729,6 +729,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarSNIaFraction         = 0.043;       // Fraction of MS stars that can be SNIa progenitors that will go SNIa in hubble time
   IndividualStarUseSNIa              = 0;           // on or off
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
+  IndividualStarFeedbackStencilSize  = 3;
 
   IndividualStarBlackBodyq0Factors[0]  = 0.1 ;      // if OSTAR is ON, adjust black body to be continious
   IndividualStarBlackBodyq0Factors[1]  = 3.0 ;      // factors are for q0 and q1 with first

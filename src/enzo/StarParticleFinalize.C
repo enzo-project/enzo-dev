@@ -89,6 +89,12 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
     ThisStar->UpdatePositionVelocity();
 
+  /* AJE 04/19/16 - a hack to get around some of the particle handler routines */
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && STARFEED_METHOD(INDIVIDUAL_STAR)){
+    for(ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
+      ThisStar->UpdateIndividualStarParticleProperties(); // AJE - a bit of a hack
+  } //
+
 
   /* Apply any stellar feedback onto the grids and add any gas to the
      accretion rates of the star particles */
@@ -140,8 +146,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //      printf("AddedFeedback[%d] = %d\n", count, AddedFeedback[count]);
 //     ThisStar->PrintInfo();
 //    }
-    // AJE 2/26/16 - HACK warning... not sure about this
-    if (AddedFeedback[count] || ThisStar->ReturnType() == -IndividualStar) {
+    // AJE 2/26/16 - HACK warning... not sure about this 041916
+    if (AddedFeedback[count]  || ThisStar->ReturnType() == -IndividualStar) {
       ThisStar->ActivateNewStar(TimeNow, Timestep);
       if (ThisStar->ReturnType() == PopIII && PopIIIOutputOnFeedback == TRUE)
 	OutputNow = TRUE;

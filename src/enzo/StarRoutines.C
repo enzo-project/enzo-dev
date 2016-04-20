@@ -54,7 +54,7 @@ Star::Star(void)
   NextStar = NULL;
   PrevStar = NULL;
   CurrentGrid = NULL;
-  Mass = FinalMass = DeltaMass = BirthTime = LifeTime = 
+  Mass = FinalMass = BirthMass = DeltaMass = BirthTime = LifeTime = 
     last_accretion_rate = NotEjectedMass = Metallicity = deltaZ = 0.0;
   FeedbackFlag = Identifier = level = GridID = type = naccretions = 0;
   AddedEmissivity = false;
@@ -89,8 +89,13 @@ Star::Star(grid *_grid, int _id, int _level)
   GridID = _grid->ID;
   type = _grid->ParticleType[_id];
   Identifier = _grid->ParticleNumber[_id];
-  Mass = FinalMass = (double)(_grid->ParticleMass[_id]);
+  Mass = FinalMass = BirthMass = (double)(_grid->ParticleMass[_id]);
   BirthTime = _grid->ParticleAttribute[0][_id];
+
+  if( type >= PARTICLE_TYPE_INDIVIDUAL_STAR  && type <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
+    BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
+  }
+
   if (type == PARTICLE_TYPE_STAR)
     LifeTime = LIFETIME_IN_TDYN * _grid->ParticleAttribute[1][_id];
   else
@@ -122,6 +127,7 @@ Star::Star(StarBuffer *buffer, int n)
     accretion_rate = NULL;
   }
   Mass = buffer[n].Mass;
+  BirthMass = buffer[n].BirthMass;
   FinalMass = buffer[n].FinalMass;
   DeltaMass = buffer[n].DeltaMass;
   BirthTime = buffer[n].BirthTime;
@@ -163,6 +169,7 @@ Star::Star(StarBuffer buffer)
     accretion_rate = NULL;
   }
   Mass = buffer.Mass;
+  BirthMass = buffer.BirthMass;
   FinalMass = buffer.FinalMass;
   DeltaMass = buffer.DeltaMass;
   BirthTime = buffer.BirthTime;
@@ -213,6 +220,7 @@ void Star::operator=(Star a)
   }
   naccretions = a.naccretions;
   Mass = a.Mass;
+  BirthMass = a.BirthMass;
   FinalMass = a.FinalMass;
   DeltaMass = a.DeltaMass;
   BirthTime = a.BirthTime;
@@ -279,6 +287,7 @@ Star *Star::copy(void)
   }
   a->naccretions = naccretions;
   a->Mass = Mass;
+  a->BirthMass = BirthMass;
   a->FinalMass = FinalMass;
   a->DeltaMass = DeltaMass;
   a->BirthTime = BirthTime;
@@ -319,6 +328,7 @@ void Star::ConvertAllMassesToSolar(void)
   MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
   this->Mass *= MassConversion;
   this->FinalMass *= MassConversion;
+  this->BirthMass *= MassConversion;
   return;
 }
 
@@ -433,6 +443,38 @@ void Star::UpdatePositionVelocity(void)
   return;
 }
 
+void Star::UpdateIndividualStarParticleProperties(void)
+{
+ /* AJE - particle properties modified self consistently in feedback routines */
+ /* make sure updates are carried forward */
+  LCAPERF_START("star_UpdateIndividualStarParticleProperties");
+  int i , dim;
+  int _id = -1;
+  if (CurrentGrid != NULL && type >=0) {
+    // search for particle
+    for (i = 0; i < CurrentGrid->NumberOfParticles; i++){
+      if( Identifier == CurrentGrid->ParticleNumber[i]){
+         _id = i;
+          break;
+      }
+    }
+    assert(_id >=0);
+
+    // update mass and type
+    Mass    = (double)(CurrentGrid->ParticleMass[_id]);
+    printf("UpdateISP: Mass %"ESYM"\n", Mass);
+    type     = CurrentGrid->ParticleType[_id];
+    LifeTime = CurrentGrid->ParticleAttribute[1][_id];
+    this->ConvertMassToSolar();
+    printf("UPdateIndividualStarProperties: Updating star properties\n");
+    printf("UpdateISP: Final Mass %"ESYM"\n", Mass);
+  } // end if
+
+
+  LCAPERF_STOP("star_UpdateIndividualStarParticleProperties");
+  return;
+}
+
 void Star::CopyFromParticle(grid *_grid, int _id, int _level)
 {
   int dim;
@@ -457,6 +499,7 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
     this->ConvertMassToSolar();
   }
   return;
+  /* AJE - might need to mess with this code */
 }
 
 void Star::DeleteCopyInGrid(void)
@@ -490,8 +533,8 @@ void Star::PrintInfo(void)
     printf("\n");
   printf("\t birthtime = %"FSYM", lifetime = %"FSYM"\n", BirthTime, LifeTime);
   printf("\t Z = %"GSYM", deltaZ = %"GSYM"\n", Metallicity, deltaZ);
-  printf("\t mass = %"GSYM", dmass = %"GSYM", fmass = %"GSYM", type = %"ISYM", grid %"ISYM","
-	 " lvl %"ISYM"\n", Mass, DeltaMass, FinalMass, type, GridID, level);
+  printf("\t mass = %"GSYM", dmass = %"GSYM", fmass = %"GSYM", bmass = %"GSYM" type = %"ISYM", grid %"ISYM","
+	 " lvl %"ISYM"\n", Mass, DeltaMass, FinalMass, BirthMass, type, GridID, level);
   printf("\t FeedbackFlag = %"ISYM"\n", FeedbackFlag);
   printf("\t accreted_angmom = %"FSYM" %"FSYM" %"FSYM"\n", accreted_angmom[0],
 	 accreted_angmom[1], accreted_angmom[2]);
@@ -551,6 +594,7 @@ StarBuffer* Star::StarListToBuffer(int n)
       result[count].accretion_time[i] = 0.0;
     }
     result[count].Mass = tmp->Mass;
+    result[count].BirthMass = tmp->BirthMass;
     result[count].FinalMass = tmp->FinalMass;
     result[count].DeltaMass = tmp->DeltaMass;
     result[count].BirthTime = tmp->BirthTime;

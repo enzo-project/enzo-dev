@@ -105,7 +105,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     tau = this->LifeTime;
     tau = tau * (TimeUnits); // convert to cgs
 
-    if ( IndividualStarInterpolateProperties(&Teff, &R, &M, &Z) == FAIL){
+    if ( IndividualStarInterpolateProperties(&Teff, &R, M, Z) == FAIL){
       ENZO_FAIL("Star_ComputePhotonRates: Failure in computing individual star properties\n");
     }
 
