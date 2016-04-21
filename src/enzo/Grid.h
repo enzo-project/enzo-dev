@@ -1721,6 +1721,10 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   int IdentifyShockSpeciesFields(int &MachNum,int &PSTempNum, int &PSDenNum);
 
   /* Identify chemical tracer fields */
+  int IdentifyChemicalTracerSpeciesFieldsByNumber( int &field_num,
+                                                   const int &atomic_number,
+                                                   const int ion_level = 0);
+
   int IdentifyChemicalTracerSpeciesFields(int  &CINum, int  &NINum, int  &OINum,
                                           int &MgINum, int &SiINum, int &FeINum,
                                           int  &YINum, int &BaINum, int &LaINum,
