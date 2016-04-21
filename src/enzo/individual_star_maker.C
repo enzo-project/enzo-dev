@@ -106,6 +106,12 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
                             const float &mass_per_cell, const float &mom_per_cell,
                             const float &therm_per_cell, const int &stencil);
 
+void AddMetalSpeciesToGridCells(float *m, const float &mass_per_cell,
+                                const int &nx, const int &ny, const int &nz,
+                                const int &ic, const int &jc, const int &kc,
+                                const float &dxc, const float &dyc, const float &dzc,
+                                const int &stencil);
+
 
 
 
@@ -1594,14 +1600,39 @@ void Momentum(float *u, float *v, float *w, float *d,
 // done
 }
 
-
 void MetalConversion(float *m, float *d, const float &dx,
                      const int &nx, const int &ny, const int &nz,
                      const int &ic, const int &jc, const int &kc,
                      const int &stencil, int idir){
+ /* -----------------------------------------------------------------
+  * MetalConversion
+  * -----------------------------------------------------------------
+  * A. Emerick - 04/19/16
+  * ----------------------
+  * Converts an arbitrary metal field from metal density to metal
+  * density (a proxy for mass since we are operating on a grid with
+  * uniform dx) and vice versa depending on idir. Feedback injection
+  * occurs in terms of metall density (mass), field stored as fraction
+  * ------------------------------------------------------------------- */
 
-  printf("Currently do nothing with metals\n");
+  /* any add all changes to momentum above should (probably) be reflected here as well */
+  /* Metal fields give metal density in a given cell - convert to mass */
+  int integer_sep = floor((stencil+1)/2.0) + 1;
+  for(int k = -integer_sep; k <= integer_sep; k++){
+    for(int j = -integer_sep; j <= integer_sep; j++){
+      for(int i = -integer_sep; i <= integer_sep; i++){
 
+        int index = (ic + i) + ( (jc + j) + (kc + k) * ny) * nx;
+
+        if (idir == 1.0){
+          m[index] = m[index] / d[index];
+        } else {
+          m[index] = m[index] * d[index];
+        }
+
+      } // end i
+    } // end j
+  } // end k
 } // done with metal conversion
 
 void SumMassEnergy(float *pu, float *pv, float *pw, float *d, float *ge, float *te,
@@ -1726,6 +1757,58 @@ void ComputeAbcCoefficients(float *pu, float *pv, float *pw, float *d,
 
 } // end comput coeff
 
+void AddMetalSpeciesToGridCells(float *m, const float &mass_per_cell,
+                                const int &nx, const int &ny, const int &nz,
+                                const int &ic, const int &jc, const int &kc,
+                                const float &dxc, const float &dyc, const float &dzc,
+                                const int &stencil){
+ /* -------------------------------------------------------------------------
+  * AddMetalSpeciesToGridCells
+  * --------------------------------------------------------------------------
+  * Adds in metal species deposition for a given metal field and mass ejection.
+  * This is a copy / adaptation of the below algorithm (AddFeedbackToGridCells).
+  * Any modification to that function should be reflected here as well.
+  * I know this is gross, but it is somewhat more efficient.
+  * ------------------------------------------------------------------------- */
+
+  int integer_sep;
+  float delta_mass = 0.0, total_mass = 0.0;
+
+  integer_sep = floor(stencil/2.0);
+  for (int k = -integer_sep; k <= integer_sep; k++){
+    for (int j = -integer_sep; j <= integer_sep; j++){
+      for (int i = -integer_sep; i <= integer_sep; i++){
+
+        /*  */
+        for(int i_loc = i; i_loc <= i + 1; i_loc++){
+          float dxc_loc = ( (i_loc == i) ? dxc : 1.0 - dxc);
+
+          for(int j_loc = j; j_loc <= j + 1; j_loc++){
+            float dyc_loc = ( (j_loc == j) ? dyc : 1.0 - dyc);
+
+            for( int k_loc = k; k_loc <= k + 1; k_loc++){
+              float dzc_loc = ( (k_loc == k) ? dzc : 1.0 - dzc);
+
+
+              int index = (ic + i_loc) + ( (jc + j_loc) + (kc + k_loc)*ny) * nx;
+
+              delta_mass = mass_per_cell * dxc_loc * dyc_loc * dzc_loc;
+
+              m[index] = m[index] + delta_mass;
+
+              total_mass += delta_mass;
+            } //
+
+          } //
+
+        } //
+
+      }
+    }
+  } // end k loop 
+
+  printf("MetalFeedback: Deposited total metal mass (density) %"ESYM"\n", total_mass);
+}
 
 void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
                             float *d, float * ge, float *te,
@@ -1768,7 +1851,7 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
             for(int k_loc = k; k_loc <= k + 1; k_loc++){
               float dzf_loc, dzc_loc;
 
-              dzf_loc = dzf;    dzf_loc = dzf;
+              dzf_loc = dzf;    dzc_loc = dzc;
               if( k_loc == k + 1){
                 dzf_loc = 1.0 - dzf;
                 dzc_loc = 1.0 - dzc;
