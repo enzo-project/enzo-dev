@@ -103,12 +103,18 @@ float StellarYieldsInterpolateYield(int yield_type,
   if (atomic_number > 0) { // interpolate yields given atomic number
 
     int yield_index;
-    yield_index     = GetYieldIndex(table.atomic_number, table.NumberOfYields, atomic_number);
+    yield_index     = GetYieldIndex(table.NumberOfYields, atomic_number);
 
     ll = table.Yields[i  ][j  ][yield_index];
     lr = table.Yields[i  ][j+1][yield_index];
     ur = table.Yields[i+1][j+1][yield_index];
     ul = table.Yields[i+1][j  ][yield_index];
+
+  } else if (atomic_number == 0){ // interpolate total metal mass
+    ll = table.Metal_Mtot[i  ][j  ];
+    lr = table.Metal_Mtot[i  ][j+1];
+    ur = table.Metal_Mtot[i+1][j+1];
+    ul = table.Metal_Mtot[i+1][j  ];
 
   } else if (atomic_number < 0 ){ // interpolate total mass
 
@@ -129,7 +135,7 @@ float StellarYieldsInterpolateYield(int yield_type,
 
 
 
-int GetYieldIndex(int *atomic_numbers, int number_of_yields, int Z){
+int GetYieldIndex(const int &number_of_yields, const int &Z){
 /* --------------------------------------------------------
  * GetYieldIndex
  * --------------------------------------------------------
@@ -143,11 +149,14 @@ int GetYieldIndex(int *atomic_numbers, int number_of_yields, int Z){
  int i = 0;
  int index = -1;
 
+ printf("GetYieldIndex: number_of_yields %"ISYM" %"ISYM"\n", number_of_yields, Z);
+
  while( i < number_of_yields){
-   if( atomic_numbers[i] == Z){
+   if( StellarYieldsAtomicNumbers[i] == Z){
      index = i;
      break;
    }
+   i++;
  }
 
   return index;

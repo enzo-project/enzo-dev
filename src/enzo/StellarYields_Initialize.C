@@ -81,7 +81,10 @@ int InitializeStellarYields(void){
 
   /* total mass for each M and Z */
   StellarYieldsSNData.Mtot   = new float*[StellarYieldsSNData.NumberOfMassBins];
+  StellarYieldsSNData.Metal_Mtot = new float*[StellarYieldsSNData.NumberOfMassBins];
+
   StellarYieldsWindData.Mtot = new float*[StellarYieldsWindData.NumberOfMassBins];
+  StellarYieldsWindData.Metal_Mtot = new float*[StellarYieldsWindData.NumberOfMassBins];
 
   /* start making arrays for the data */
   StellarYieldsSNData.Yields   = new float**[StellarYieldsSNData.NumberOfMassBins];
@@ -91,6 +94,7 @@ int InitializeStellarYields(void){
     StellarYieldsSNData.Yields[i] = new float*[StellarYieldsSNData.NumberOfMetallicityBins];
 
     StellarYieldsSNData.Mtot[i]   = new float[StellarYieldsSNData.NumberOfMetallicityBins];
+    StellarYieldsSNData.Metal_Mtot[i] = new float[StellarYieldsSNData.NumberOfMetallicityBins];
 
     for (int j = 0; j < StellarYieldsSNData.NumberOfMetallicityBins; j++){ 
       StellarYieldsSNData.Yields[i][j] = new float[ StellarYieldsSNData.NumberOfYields ]; /* AJE: Make parameter */
@@ -101,6 +105,7 @@ int InitializeStellarYields(void){
     StellarYieldsWindData.Yields[i] = new float*[StellarYieldsWindData.NumberOfMetallicityBins];
 
     StellarYieldsWindData.Mtot[i]   = new float[StellarYieldsWindData.NumberOfMetallicityBins];
+    StellarYieldsWindData.Metal_Mtot[i] = new float[StellarYieldsWindData.NumberOfMetallicityBins];
 
     for (int j = 0; j < StellarYieldsWindData.NumberOfMetallicityBins; j++){ 
       StellarYieldsWindData.Yields[i][j] = new float[ StellarYieldsWindData.NumberOfYields ]; /* AJE: Make parameter */
@@ -111,7 +116,7 @@ int InitializeStellarYields(void){
   int i, j, err;
   i = 0; j = 0;
 
-  float *dummy = new float[86];
+  float *dummy = new float[87];
 
   /* We are doing the unnatractive thing of unpacking a 80+ column file when
      we only want a few columns. Hence the function call to unpack the line 
@@ -121,15 +126,16 @@ int InitializeStellarYields(void){
 
       unpack_line_to_yields(line, dummy);
 
-      StellarYieldsSNData.M[i]       = dummy[0];
-      StellarYieldsSNData.Z[j]       = dummy[1];
-      StellarYieldsSNData.Mtot[i][j] = dummy[2];
+      StellarYieldsSNData.M[i]                = dummy[0];
+      StellarYieldsSNData.Z[j]                = dummy[1];
+      StellarYieldsSNData.Mtot[i][j]          = dummy[2];
+      StellarYieldsSNData.Metal_Mtot[i][j]    = dummy[3];
 
       /* file column numbers are atomic numbers + 1, if first column is 0
          loop over number of yields provided by user and pick only the ones we
          want  2 in below is number of non-element columns - 1 */
       for (int k = 0; k < StellarYieldsSNData.NumberOfYields; k++){
-        StellarYieldsSNData.Yields[i][j][k] = dummy[2 + *(StellarYieldsAtomicNumbers+k)];
+        StellarYieldsSNData.Yields[i][j][k] = dummy[3 + *(StellarYieldsAtomicNumbers+k)];
       }
 
       j++;
@@ -147,13 +153,14 @@ int InitializeStellarYields(void){
 
       unpack_line_to_yields(line, dummy);
 
-      StellarYieldsWindData.M[i]       = dummy[0];
-      StellarYieldsWindData.Z[j]       = dummy[1];
-      StellarYieldsWindData.Mtot[i][j] = dummy[2];
+      StellarYieldsWindData.M[i]                = dummy[0];
+      StellarYieldsWindData.Z[j]                = dummy[1];
+      StellarYieldsWindData.Mtot[i][j]          = dummy[2];
+      StellarYieldsWindData.Metal_Mtot[i][j]    = dummy[3];
 
       /* see above comment in previous while loop */
       for (int k = 0; k < StellarYieldsWindData.NumberOfYields; k++){
-        StellarYieldsWindData.Yields[i][j][k] = dummy[2 + *(StellarYieldsAtomicNumbers+k)];
+        StellarYieldsWindData.Yields[i][j][k] = dummy[3 + *(StellarYieldsAtomicNumbers+k)];
       }
 
       j++;
@@ -186,7 +193,7 @@ void unpack_line_to_yields( char *line, float *dummy){
     int err;
 
     /* I'm sorry - really, I am*/
-    err = sscanf(line, " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+    err = sscanf(line, " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
                    &dummy[ 0], &dummy[ 1], &dummy[ 2], &dummy[ 3], &dummy[ 4], &dummy[ 5], &dummy[ 6], &dummy[ 7], &dummy[ 8],
                    &dummy[ 9], &dummy[10], &dummy[11], &dummy[12], &dummy[13], &dummy[14], &dummy[15], &dummy[16],
                    &dummy[17], &dummy[18], &dummy[19], &dummy[20], &dummy[21], &dummy[22], &dummy[23], &dummy[24],
@@ -197,6 +204,6 @@ void unpack_line_to_yields( char *line, float *dummy){
                    &dummy[57], &dummy[58], &dummy[59], &dummy[60], &dummy[61], &dummy[62], &dummy[63], &dummy[64],
                    &dummy[65], &dummy[66], &dummy[67], &dummy[68], &dummy[69], &dummy[70], &dummy[71], &dummy[72],
                    &dummy[73], &dummy[74], &dummy[75], &dummy[76], &dummy[77], &dummy[78], &dummy[79], &dummy[80],
-                   &dummy[81], &dummy[82], &dummy[83], &dummy[84], &dummy[85]);
+                   &dummy[81], &dummy[82], &dummy[83], &dummy[84], &dummy[85], &dummy[86]);
 }
 

@@ -45,9 +45,10 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, double *MassUnits, FLOAT Time);
+
 float SampleIMF(void);
-float compute_lifetime(float *mp);
-float compute_SNIa_probability(float *current_time, float *formation_time, float *lifetime, float *t1);
+
+float ComputeSnIaProbability(float *current_time, float *formation_time, float *lifetime, float *t1);
 unsigned_long_int mt_random(void);
 
 void ComputeStellarWindVelocity(const float &mproj, const float &metallicity, float *v_wind);
@@ -775,40 +776,14 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
       printf("Warning: star particle is outside of grid\n");
       return FAIL;
     }
-    
-
-/*
-    AJE removing due to feedback overhaul - 4/17/16
-
-
-    // Modify position if too close to grid boundary
-    // If too close, pretends particles are at a new position, which
-    // is the to closest they can be to grid without causing
-    // feedback require MPI calls. Does not actually move particle
-    if (StarFeedbackDistRadius > 0){
-      ip = fmax( (*ibuff) + StarFeedbackDistRadius,
-
-               fmin( (*nx) - (*ibuff) - StarFeedbackDistRadius, ip) );
-      jp = fmax( (*ibuff) + StarFeedbackDistRadius,
-               fmin( (*ny) - (*ibuff) - StarFeedbackDistRadius, jp) );
-      kp = fmax( (*ibuff) + StarFeedbackDistRadius,
-               fmin( (*nz) - (*ibuff) - StarFeedbackDistRadius, kp) );
-    }
- --- AJE end remving
-*/
 
 
     particle_age = (*current_time) - ParticleAttribute[0][i];
     lifetime     = ParticleAttribute[1][i];
-//    printf("Particle age, current_time, creation_time, lifetime %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",particle_age, *current_time, ParticleAttribute[0][i], lifetime);
 
     do_stellar_winds           = FALSE;
     go_supernova               = FALSE;
     stellar_wind_time_fraction = 0.0;
-    // i think they are fixed 3/10 but be careful
-          /* woa these are bad if statements .. not fixed as of 3/6/16 */
-    // if stellar winds
-
 
     if(ParticleType[i] == IndividualStar){
       if(IndividualStarStellarWinds){
@@ -823,16 +798,12 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
       if ( mp >= IndividualStarSNIIMassCutoff && ((particle_age + *dt) > lifetime)){
         go_supernova = TRUE;
-        ParticleAttribute[1][i] = lifetime*1.0E10;
-        printf("ISF: Settinf supernova flag to true\n");
+        ParticleAttribute[1][i] = lifetime*1.0E10; // lifetime set to arbitrarily large number
+
       } else if ( mp >= IndividualStarWDMinimumMass && mp <= IndividualStarWDMaximumMass
                   && particle_age + (*dt) > lifetime && IndividualStarUseSNIa){
 
-                                      // this is a very back hack to store
-        ParticleAttribute[3][i] = mp; // progenitor mass w/o making new attribute
-                                      // this attribute slot is used for 'type1a_fraction'
-                                      // which is implicity assumed to NOT be in use with this
-                                      // SF scheme --- 3/6/16
+        ParticleAttribute[3][i] = mp; // Birth Mass (main sequence mass) in solar units
 
         float wd_mass; // compute WD mass using linear fit from Salaris et. al. 2009
         if(      mp  < 4.0){ wd_mass = 0.134 * mp + 0.331;}
@@ -841,26 +812,26 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
         ParticleMass[i] = wd_mass * (msolar / m1) / ((*dx)*(*dx)*(*dx));
         ParticleType[i] = IndividualStarWD;
         ParticleAttribute[1][i] = lifetime*1.0E10; // make a big number
-        printf("ISF: Making a White Dwarf\n");
+
       } else if (particle_age + (*dt) > lifetime){
         ParticleMass[i] = 0.0; // kill silently
-        printf("ISF: Killing star silently\n");
       }
 
-    } else if (ParticleType[i] == IndividualStarWD){
 
-      // check progenitor mass - again, this is a bad hack. see above comment in WD formation
+    } else if (ParticleType[i] == IndividualStarWD){
+      /* White Dwarf Feedback - Make SNIa */
+
+      /* Does the progenitor mass (main sequence mass) fit within range */
       if( (ParticleAttribute[3][i] > IndividualStarSNIaMinimumMass) &&
           (ParticleAttribute[3][i] < IndividualStarSNIaMaximumMass) ){
 
-        float formation_time = ParticleAttribute[0][i]; // MS star formation
-                             //ParticleAttribute[1][i];
+        float formation_time = ParticleAttribute[0][i]; // formation time of main sequence star
 
         float PSNIa;
         float rnum;
 
-        // compute probability / s
-        PSNIa  = compute_SNIa_probability(current_time, &formation_time, &lifetime, t1); // units of t^((beta)) / s
+        /* Probability that the star will explode as SNIa in this timestep */
+        PSNIa  = ComputeSnIaProbability(current_time, &formation_time, &lifetime, t1); // units of t^((beta)) / s
         PSNIa *= (*dt);
 
         rnum =  (float) (random() % max_random) / ((float) (max_random));
@@ -869,7 +840,6 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
         if (rnum < PSNIa){
           go_supernova = TRUE;
-          printf("individual_star_feedback: SNIa going off this timestep\n");
         }
       } // end SNIa progenitor + WD check
 
@@ -878,140 +848,34 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
     if(do_stellar_winds || go_supernova){
         float sum_dens = 0.0;
 
-        // AJE 3/2/16
-        // Stellar winds do nothing at the moment
-        if(do_stellar_winds){ // isotropic winds
+        if(do_stellar_winds){
 
+          float mproj  = ParticleAttribute[3][i]; /* Main sequence star mass / birth mass  in solar */
 
-          /* WARNING: Need to save initial mass as a particle attribute. This is currently NOT being
-                      used. Need to fix this AJE 4/17/16 */
-          float mproj; // need to make this a particle attribute (THIS IS WRONG CURRENTLY)
-          mproj = ParticleAttribute[3][i];// * ((*dx)*(*dx)*(*dx)) * m1 / msolar ;
-          /* negative mode (last arguemtn) means do stellar winds */
           printf("ISF: Calling feedback general to do stellar winds\n");
           printf("ISF: Current Mass = %"ESYM" Particle aatribute 3 = %"ESYM" mproj = %"ESYM"\n", mp,ParticleAttribute[3][i], mproj);
 
+          /* Apply stellar wind feedback. Determined by setting last arguemtn to -1 */
           IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
                                            ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
                                            *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
                                            *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, -1);
-/*
-          float mdot; // something for mass loss rate
-          float edot;
-          edot = 0.0; mdot = 0.0;
-
-          distmass += mdot * (*dt); // need to interpolate and integrate
-          energy   += edot * (*dt);
-
-          ParticleMass[i] -= distmass/((*dx)*(*dx)*(*dx)); // remove mass from particle (UNITS)
-*/
         }
 
         if(go_supernova){
-          float mproj = ParticleAttribute[3][i];// * m1 /msolar / ((*dx)*(*dx)*(*dx));
-          printf("ISF: Calling feedback general to do supernova\n");
-          /* see above comment at previous function call */
+          float mproj = ParticleAttribute[3][i]; // main sequence star mass in solar
+
+          /* do supernova feedback - set by last value == 1 */
           IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
                                            ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
                                            *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
                                            *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 1);
-          // mass and energy to distribute over local cells
-//          distmass += StarMassEjectionFraction * ParticleMass[i] / ((float) StarFeedbackDistTotalCells);
-//          energy   += ParticleMass[i] * StarEnergyToThermalFeedback * 
-//                       (speed_of_light*speed_of_light/((*v1)*(*v1))) / ((float) StarFeedbackDistTotalCells);
-//
-//          ParticleMass[i] = 0.0;
+
             ParticleType[i] = IndividualStarRemnant; // change type
-            printf("Changing particle type to remnant %"ISYM"\n", ParticleType[i]);
         }
-        printf("ISF: Updating particle mass to mp = %"ESYM"\n",mp);
-        ParticleMass[i] = mp *msolar / m1 / ( (*dx)*(*dx)*(*dx) ); // convert back to code units
-        printf("ISF: updating mass in code units %"ESYM"\n",ParticleMass[i]);
-/* -- this is previous feedback method --- removing AJE 4/17/16 ew
-
-
-        // add energy to surroundings
-        sum_dens = 0.0;
-        for(int kc = kp - StarFeedbackDistRadius; kc <= kp + StarFeedbackDistRadius; kc++){
-          int stepk = abs(kc - kp);
-          for(int jc = jp - StarFeedbackDistRadius; jc <= jp + StarFeedbackDistRadius; jc++){
-            int stepj = stepk + abs(jc - jp);
-            for(int ic = ip - StarFeedbackDistRadius; ic <= ip + StarFeedbackDistRadius; ic++){
-              int cellstep = stepj + abs(ic - ip);
-              index = ic + (jc + kc * (*ny)) * (*nx);
-
-
-              if (cellstep <= StarFeedbackDistCellStep){ // not sure
-                dratio    = 1.0 / (BaryonField[DensNum][index] + distmass);
-
-                if( CRModel ){
-                  BaryonField[TENum][index] =
-                     (BaryonField[TENum][index]*BaryonField[DensNum][index] +
-                                                     energy*(1.0-CRFeedback)) * dratio;
-
-                  if(DualEnergyFormalism){
-                    BaryonField[GENum][index] =
-                      ((BaryonField[GENum][index] * BaryonField[DensNum][index]) +
-                                                     energy*(1.0-CRFeedback)) * dratio;
-                  }
-
-
-                  BaryonField[CRNum][index] += energy*CRFeedback; // add CR
-                } else{
-                  BaryonField[TENum][index] =
-                     (BaryonField[TENum][index]*BaryonField[DensNum][index] + energy) * dratio;
-
-                  if(DualEnergyFormalism){
-                    BaryonField[GENum][index] =
-                        ((BaryonField[GENum][index] * BaryonField[DensNum][index]) +
-                                                                               energy) * dratio;
-                  }
-                } // end CR
-
-                // now do metal feedback and chemical yields
-                // here
-                // if(TestProblemData.UseMetallicityField){
-                //
-                //  if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA){
-                //
-                //    }
-                //  BaryonField[CINum][index] = BaryonField[CINum][index] * 1.01;
-                //  BaryonField[NINum][index] = BaryonField[NINum][index] * 1.05;
-                //  BaryonField[OINum][index] = BaryonField[OINum][index] * 0.9;
-                //}
-
-                // do mass and momentum feedback
-                BaryonField[Vel1Num][index] = BaryonField[Vel1Num][index] * BaryonField[DensNum][index] +
-                           distmass * ParticleVelocity[0][i];
-                BaryonField[Vel2Num][index] = BaryonField[Vel2Num][index] * BaryonField[DensNum][index] +
-                           distmass * ParticleVelocity[1][i];
-                BaryonField[Vel3Num][index] = BaryonField[Vel3Num][index] * BaryonField[DensNum][index] +
-                           distmass * ParticleVelocity[2][i];
-
-
-                sum_dens += BaryonField[DensNum][index]; // sum densityto compute average later
-
-                // add mass to cells and convert vels to des again
-                BaryonField[DensNum][index] += distmass;
-                BaryonField[Vel1Num][index] /= BaryonField[DensNum][index];
-                BaryonField[Vel2Num][index] /= BaryonField[DensNum][index];
-                BaryonField[Vel3Num][index] /= BaryonField[DensNum][index];
-
-                if (HydroMethod != 2 && DualEnergyFormalism){
-                  BaryonField[TENum][index] = 0.5 * (BaryonField[Vel1Num][index]*BaryonField[Vel1Num][index] + 
-                                                     BaryonField[Vel2Num][index]*BaryonField[Vel2Num][index] +
-                                                     BaryonField[Vel3Num][index]*BaryonField[Vel3Num][index])
-                                                   + BaryonField[GENum][index];
-                }
-
-              } // end if distribute
-
-            } // i dist
-          } // j dist
-        }// k dist
-*/
 
         // if we went supernova, check if radius is resolved:
+/*
         if(go_supernova){
           const double m_proton = 1.6726E-24;
           const double mu       = 1.31; // O.K. assumption since we are just doing this approx
@@ -1030,8 +894,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
           }
 
         }
-
-
+*/
     } // if do feedback
 
 
@@ -1040,27 +903,9 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
   return SUCCESS;
 }
 
-//
-// Function to compute star lifetime based on age
-// and metallicity. Input mass in Msun.
-// Age in cgs
-float compute_lifetime(float *mp){
-
-  const double myr       = 3.1536e13;
-  const double tau_solar = myr * 1.0E4   ; // lifetime of 1 solar mass star, seconds
-
-  float tau;
-
-  // For now, just do an approximate scaling:
-  // until have full stellar evolution models
-  tau = tau_solar * POW( *mp, -2.5);
-
-  return tau;
-}
-
-float compute_SNIa_probability(float *current_time, float *formation_time, float *lifetime, float *t1){
+float ComputeSnIaProbability(float *current_time, float *formation_time, float *lifetime, float *t1){
  /* -----------------------------------------------------------------
-  * Compute_SNIa_probability
+  * ComputeSnIaProbability
   *
   * Computes dPdt for a given white dwarf that might go supernova. The
   * probability is such that the integral over dP from the time the WD
@@ -1077,7 +922,7 @@ float compute_SNIa_probability(float *current_time, float *formation_time, float
 
  dPdt = IndividualStarSNIaFraction;
 
- //
+ /* conmpute normalized probability - normalized by integral over WD formation time to hubble time */
  if (IndividualStarDTDSlope == 1.0){
    dPdt /= log( (hubble_time / (*t1) + *lifetime) / (*lifetime) );
  } else{
@@ -1092,10 +937,18 @@ float compute_SNIa_probability(float *current_time, float *formation_time, float
  return dPdt;
 }
 
-
-
-/* AJE 4/19 velocity */
 void ComputeStellarWindVelocity(const float &mproj, const float &metallicity, float *v_wind){
+ /* ------------------------------------------------------------------
+  * ComputeStellarWindVelocity
+  * -------------------------------------------------------------------
+  * A. Emerick - 4/22/16
+  *
+  * Model for stellar wind velocities taken from Leitherer et. al. 1992.
+  * This is the same model used in STARBURST 99 stellar wind models.
+  * The mass loss rate is computed elsewhere from stellar yields tables,
+  * but velocity is set below using the fit function in luminosity,
+  * stellar mass, effective temperature, and metallicity
+  * -------------------------------------------------------------------- */
 
   float L, Teff, Z, R;
 
@@ -1106,7 +959,11 @@ void ComputeStellarWindVelocity(const float &mproj, const float &metallicity, fl
   IndividualStarInterpolateProperties(&Teff, &R, mproj, metallicity);
 
 
-  /* in km / s */
+  // wind is in units of km / s
+  // L - solar units
+  // T - Kelvin
+  // M - solar units
+  // Z - solar units
   *v_wind = 1.23 - 0.30*log10(L) + 0.55 * log10(mproj) + 0.64 * log10(Teff) + 0.13*log10(metallicity/solar_z);
   *v_wind = POW(10.0, *v_wind);
 }
@@ -1125,12 +982,26 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 
   float m_eject, E_thermal, E_kin, f_kinetic, v_wind;
   const double c_light = 2.99792458E10; const double msolar = 1.989E33;
+
+  float *metal_mass;
+
+  printf("ISF: Assiging initital values to metal mass\n");
+  if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+
+    metal_mass = new float[StellarYieldsNumberOfSpecies + 1];
+
+    for (int i = 0; i < StellarYieldsNumberOfSpecies; i ++){
+      metal_mass[i] = 0.0;
+    }
+
+  } else { metal_mass = NULL; }
+
   /* General function call to handle feedback precomputing of numbers */
 
   /* handle mass removal from particle here */
 
   if (mode < 0){ // computing stellar winds
-    /* */
+
     m_eject   = StellarYieldsInterpolateYield(1, mproj, metallicity, -1) *msolar/ m1; /* first arg, 1 = wind ; last -1 = tot mass */
     /* need ejection model */
     m_eject = m_eject * dt / lifetime;
@@ -1155,8 +1026,30 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     v_wind    = 0.0;
     E_kin     = 0.0;
     printf("AddFeedbackGeneral: M_proj %"FSYM" Z = %"FSYM", M_eject = %"ESYM" E_thermal = %"ESYM"\n", mproj, metallicity, m_eject*m1/msolar, E_thermal*v1*v1*m1);
-
   }
+
+
+  /* if we are tracking yeilds, interpolat the ejecta mass for each species */
+  printf("Tabulating metal ejecta mass fields \n");
+  if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields){
+    int interpolation_mode;
+
+    if (mode > 0){
+      interpolation_mode = 0;
+    } else if (mode < 0){
+      interpolation_mode = 1;
+    }
+
+    /* If last paramter is 0, returns total metal mass */
+    metal_mass[0] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, 0) / (dx*dx*dx);
+    for(int i = 0; i < MAX_STELLAR_YIELDS; i ++){
+      if(StellarYieldsAtomicNumbers[i] != NULL){
+        metal_mass[1 + i] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, StellarYieldsAtomicNumbers[i]) / (dx*dx*dx);
+      } else {break;}
+    }
+  }
+
+
   m_eject   = m_eject   / (dx*dx*dx);   // now in code units (code mass / code volume)
   E_thermal = E_thermal / (dx*dx*dx);
   E_kin     = E_kin     / (dx*dx*dx);
@@ -1168,15 +1061,18 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
   CheckFeedbackCellCenter( xp, yp, zp, xstart, ystart, zstart, dx,
                            nx, ny, nz, ibuff, &xfc, &yfc, &zfc);
 
+  printf("ISF: injecting feedback to grid\n");
   this->IndividualStarInjectFeedbackToGrid(xfc, yfc, zfc,
                                            up, vp, wp,
-                                           m_eject, E_thermal, E_kin); // function call
+                                           m_eject, E_thermal, E_kin, metal_mass); // function call
 
   *mp = *mp - m_eject * (dx*dx*dx)*m1/ msolar; // remove mass from particle
 
   if( *mp < 0){
       ENZO_FAIL("IndividualStarFeedback: Ejected mass greater than current particle mass - negative particle mass!!!\n");
   }
+
+  delete [] metal_mass;
 
   return SUCCESS;
 }
@@ -1219,7 +1115,7 @@ void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
 
 int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc, const FLOAT &zfc,
                                float up, float wp, float vp,
-                               float m_eject, float E_thermal, float E_kin){
+                               float m_eject, float E_thermal, float E_kin, float *metal_mass){
 
   float dx = float(CellWidth[0][0]);
 
@@ -1231,7 +1127,6 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
 
-  /* identify species fields if they exist for proper computation of Mu */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
@@ -1295,8 +1190,6 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   float *u_local, *v_local, *w_local, *d_local, *ge_local, *te_local;
   float *ke_before;
 
-  float **metal_local;
-
   int local_number_of_cells = POW(stencil + 1,3);
 
   u_local  = new float[local_number_of_cells];
@@ -1305,14 +1198,6 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   d_local  = new float[local_number_of_cells];
   ge_local = new float[local_number_of_cells];
   te_local = new float[local_number_of_cells];
-
-  if (IndividualStarFollowStellarYields) {
-    /* need to allocate a local metal pointer for ALL tracer species */
-    metal_local = new float*[StellarYieldsSNData.NumberOfYields];
-    for(int m = 0; m < StellarYieldsSNData.NumberOfYields; m++){
-      metal_local[m] = new float[local_number_of_cells];
-    }
-  } else{ metal_local = NULL; }
 
 
   if (HydroMethod != 2){
@@ -1330,12 +1215,6 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
         d_local[index] = 0.0;
         ge_local[index] = 0.0;
         te_local[index] = 0.0;
-
-        if (IndividualStarFollowStellarYields){
-          for (int m = 0; m < StellarYieldsSNData.NumberOfYields; m++){
-            metal_local[m][index] = 0.0;
-          }
-        }
 
         if( HydroMethod != 2){
           ke_before[index] = 0.0;
@@ -1372,14 +1251,23 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
            up, vp, wp, nx, ny, nz, ic, jc, kc, iface, jface, kface, stencil, 1);
   /* end convert to momenta */
 
+
   /* If needed, convert metals */
-/*  if(IndividualStarFollowStellarYields){
-    for(int m = 0; m < StelalrYieldsSNData.NumberOfYields; m++){
-      MetalConversion( BaryonField[ StellarYieldsSNData.BaryonFieldNum[m] ], BaryonField[DensNum],
+  if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+    int field_num;
+    this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0);
+    MetalConversion( BaryonField[field_num], BaryonField[DensNum],
+                     dx, nx, ny, nz, ic, jc, kc, stencil, 1);
+
+    for(int m = 0; m < StellarYieldsSNData.NumberOfYields; m++){
+      this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[m]);
+
+      MetalConversion( BaryonField[field_num], BaryonField[DensNum],
                        dx, nx, ny, nz, ic, jc, kc, stencil, 1);
     }
   }
-*/
+  /* -------------------------------------------------- */
+
   /* compute the total mass and energy in cells before the explosion */
   float mass_before, energy_before, kin_energy_before;
   SumMassEnergy(BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[DensNum],
@@ -1410,12 +1298,38 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
     mom_per_cell = 0.0;
   }
 
+  /* add metal feedback - mass in cells */
+  printf("ISF: Starting metal injection feedback calls\n");
+  if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields){
+    /* For the first call, add in general metallicity field */
+    int field_num;
+    this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0); // when atomic number is zero, gives metallicity field
+
+    AddMetalSpeciesToGridCells(BaryonField[field_num], metal_mass[0] / ((float) number_of_cells),
+                               nx, ny, nz, ic, jc, kc, dxc, dyc, dzc, stencil);
+
+    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+      if(StellarYieldsAtomicNumbers[ii] != NULL){
+        this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
+
+        printf("ISF: Adding metal feedaback for field %"ISYM" and atomic number %"ISYM" %"ISYM"\n", field_num, StellarYieldsAtomicNumbers[ii], ii);
+        AddMetalSpeciesToGridCells(BaryonField[field_num], metal_mass[1 + ii] / ((float) number_of_cells),
+                                   nx, ny, nz, ic, jc, kc, dxc, dyc, dzc, stencil);
+
+      } else {break;}
+    }
+
+  } // 
+
+
   /* Now call add feedback again to add the feedback into the grid cells */
   AddFeedbackToGridCells(BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
                          BaryonField[DensNum], BaryonField[GENum],   BaryonField[TENum]  ,
                          nx, ny, nz, ic, jc, kc, iface, jface, kface,
                          dxf, dyf, dzf, dxc, dyc, dzc, m_eject, mom_per_cell, E_thermal,
                          stencil);
+
+
 
   /* compute total mass and energy after feedback has been added */
   float mass_after, energy_after, kin_energy_after;
@@ -1437,13 +1351,21 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
            iface, jface, kface, stencil, -1);
 
   /* If needed, convert metals back to metal fractions */
-/*  if(IndividualStarFollowStellarYields){
-    for(int m = 0; m < StelalrYieldsSNData.NumberOfYields; m++){
-      MetalConversion( BaryonField[ StellarYieldsSNData.BaryonFieldNum[m] ], BaryonField[DensNum],
+  if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+    int field_num;
+    this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0);
+    MetalConversion( BaryonField[field_num], BaryonField[DensNum],
+                     dx, nx, ny, nz, ic, jc, kc, stencil, -1);
+
+
+    for(int m = 0; m < StellarYieldsSNData.NumberOfYields; m++){
+      int field_num;
+      this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[m]);
+
+      MetalConversion( BaryonField[field_num], BaryonField[DensNum],
                        dx, nx, ny, nz, ic, jc, kc, stencil, -1);
     }
   }
-*/
   /* -------------------------------------------------- */
 
 
@@ -1615,9 +1537,9 @@ void MetalConversion(float *m, float *d, const float &dx,
         int index = (ic + i) + ( (jc + j) + (kc + k) * ny) * nx;
 
         if (idir == 1.0){
-          m[index] = m[index] / d[index];
-        } else {
           m[index] = m[index] * d[index];
+        } else {
+          m[index] = m[index] / d[index];
         }
 
       } // end i
