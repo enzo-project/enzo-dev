@@ -22,6 +22,7 @@
 
 #include "macros_and_parameters.h"
 #include "typedefs.h"
+#include "global_data.h"
 #include "AMRH5writer.h"
 #include "StarParticleData.h"
 
@@ -30,8 +31,11 @@ AMRHDF5Writer::AMRHDF5Writer() :
   staggerType(CELL_CENTERED),
   fieldType(SCALAR)
 {
-  
+
 };
+
+
+char* ChemicalSpeciesParticleLabel(const int &atomic_number);
 
 void AMRHDF5Writer::AMRHDF5Create( const char*      fileName, 
 				   const int*       relativeRefinement,
@@ -65,11 +69,29 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
 #else
 //  const char *ParticleAttributeLabel[] = 
 //    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
-// AJE 2/13/16
+// AJE 2/13/16 - updated 4/22/16
+  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
+  ParticleAttributeLabel[0] = "creation_time";
+  ParticleAttributeLabel[1] = "dynamical_time";
+  ParticleAttributeLabel[2] = "metallicity_fraction";
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
+    ParticleAttributeLabel[3] = "birth_mass";
+    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+      if(StellarYieldsAtomicNumbers[ii] != NULL){
+        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+      } else {break;}
+    }
+
+  } else {
+    ParticleAttributeLabel[3] = "typeia_fraction";
+  }
+/*
   const char *ParticleAttributeLabel[] = 
       {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
        "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
        "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
+*/
 #endif
 
   int i;
@@ -443,11 +465,29 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
 #else
 //  const char *ParticleAttributeLabel[] = 
 //    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
+  ParticleAttributeLabel[0] = "creation_time";
+  ParticleAttributeLabel[1] = "dynamical_time";
+  ParticleAttributeLabel[2] = "metallicity_fraction";
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
+    ParticleAttributeLabel[3] = "birth_mass";
+    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+      if(StellarYieldsAtomicNumbers[ii] != NULL){
+        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+      } else {break;}
+    }
+
+  } else {
+    ParticleAttributeLabel[3] = "typeia_fraction";
+  }
+
+/*
   const char *ParticleAttributeLabel[] = 
       {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
        "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
        "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
-
+*/
 // AJE
 #endif
 
@@ -616,11 +656,30 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
 #else
 //  const char *ParticleAttributeLabel[] = 
 //    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
+  ParticleAttributeLabel[0] = "creation_time";
+  ParticleAttributeLabel[1] = "dynamical_time";
+  ParticleAttributeLabel[2] = "metallicity_fraction";
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
+    ParticleAttributeLabel[3] = "birth_mass";
+    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+      if(StellarYieldsAtomicNumbers[ii] != NULL){
+        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+      } else {break;}
+    }
+
+  } else {
+    ParticleAttributeLabel[3] = "typeia_fraction";
+  }
+
+
+/*
   const char *ParticleAttributeLabel[] = 
       {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
        "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
        "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
-
+*/
 #endif
 
   /* if there's no particle, don't bother,
@@ -868,11 +927,30 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
 #else
 //  const char *ParticleAttributeLabel[] = 
 //    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"}
+  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
+  ParticleAttributeLabel[0] = "creation_time";
+  ParticleAttributeLabel[1] = "dynamical_time";
+  ParticleAttributeLabel[2] = "metallicity_fraction";
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
+    ParticleAttributeLabel[3] = "birth_mass";
+    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+      if(StellarYieldsAtomicNumbers[ii] != NULL){
+        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+      } else {break;}
+    }
+
+  } else {
+    ParticleAttributeLabel[3] = "typeia_fraction";
+  }
+
+
+/*
   const char *ParticleAttributeLabel[] = 
       {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
        "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
        "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
-
+*/
 #endif
 
   int i;
@@ -971,11 +1049,30 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
 #else
 //  const char *ParticleAttributeLabel[] = 
 //    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
+  ParticleAttributeLabel[0] = "creation_time";
+  ParticleAttributeLabel[1] = "dynamical_time";
+  ParticleAttributeLabel[2] = "metallicity_fraction";
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
+    ParticleAttributeLabel[3] = "birth_mass";
+    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+      if(StellarYieldsAtomicNumbers[ii] != NULL){
+        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+      } else {break;}
+    }
+
+  } else {
+    ParticleAttributeLabel[3] = "typeia_fraction";
+  }
+
+
+/*
   const char *ParticleAttributeLabel[] = 
       {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
        "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
        "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
-
+*/
 #endif
 
   if (nPart == 0) 

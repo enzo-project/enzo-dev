@@ -26,6 +26,39 @@
 
 int FindField(int f, int farray[], int n);
 
+char* ChemicalSpeciesParticleLabel(const int &atomic_number){
+
+  char *label = {};
+
+  switch(atomic_number){
+    case  1 : label = "H_Fraction" ; break;
+    case  2 : label = "He_Fraction"; break;
+
+    case  6 : label = "C_Fraction" ; break;
+    case  7 : label = "N_Fraction" ; break;
+    case  8 : label = "O_Fraction" ; break;
+
+    case 12 : label = "Mg_Fraction"; break;
+
+    case 14 : label = "Si_Fraction"; break;
+
+    case 26 : label = "Fe_Fraction"; break;
+
+    case 39 : label = "Y_Fraction" ; break;
+
+    case 56 : label = "Ba_Fraction"; break;
+    case 57 : label = "La_Fraction"; break;
+
+    case 63 : label = "Eu_Fraction"; break;
+
+    default:
+      ENZO_FAIL("Error in ChemicalSpeciesParticleLabel - Label not found\n");
+  }
+
+  return label;
+}
+
+
 int grid::IdentifyChemicalTracerSpeciesFieldsByNumber(int &field_num, const int &atomic_number){
 
   this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, atomic_number, 0);
