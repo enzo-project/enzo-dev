@@ -182,26 +182,40 @@ int EnzoProblemType::InitializeUniformGrid(
       tg->FieldType[ExtraField[1] = tg->NumberOfBaryonFields++] = ExtraType1;
     }
 
-    if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
+    if(TestProblemData.MultiMetals == 2){
 
-      tg->FieldType[ CINum = tg->NumberOfBaryonFields++] = CIDensity;
-      tg->FieldType[ NINum = tg->NumberOfBaryonFields++] = NIDensity;
-      tg->FieldType[ OINum = tg->NumberOfBaryonFields++] = OIDensity;
-      tg->FieldType[MgINum = tg->NumberOfBaryonFields++] = MgIDensity;
-      tg->FieldType[SiINum = tg->NumberOfBaryonFields++] = SiDensity;
-      tg->FieldType[FeINum = tg->NumberOfBaryonFields++] = FeIDensity;
+      for(int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i ++){
+        if (StellarYieldsAtomicNumbers[yield_i] != NULL){
+          switch( StellarYieldsAtomicNumbers[yield_i] ){
+            case 1:
+            case 2:
+              if ( TestProblemData.MultiSpecies == 0){ ENZO_FAIL("Multispecies must be > 0 to track stellar yields for H and He");
+              break;
 
-    }
-    if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-      tg->FieldType[YINum  = tg->NumberOfBaryonFields++] =  YIDensity;
-      tg->FieldType[BaINum = tg->NumberOfBaryonFields++] = BaIDensity;
-      tg->FieldType[LaINum = tg->NumberOfBaryonFeilds++] = LaIDensity;
-     }
-    if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-      tg->FieldType[EuINum = tg->NumberOfBaryonFields++] = EuIDensity;
-     }
+            case  6 : tg->FieldType[ tg->NumberOfBaryonFields++] =  CIDensity; break;
+            case  7 : tg->FieldType[ tg->NumberOfBaryonFields++] =  NIDensity; break;
+            case  8 : tg->FieldType[ tg->NumberOfBaryonFields++] =  OIDensity; break;
+
+            case 12 : tg->FieldType[ tg->NumberOfBaryonFields++] = MgIDensity; break;
+
+            case 14 : tg->FieldType[ tg->NumberOfBaryonFields++] = SiIDensity; break;
+
+            case 26 : tg->FieldType[ tg->NumberOfBaryonFields++] = FeIDensity; break;
+
+            case 39 : tg->FieldType[ tg->NumberOfBaryonFields++] = YIDensity; break;
+
+            case 56 : tg->FieldType[ tg->NumberOfBaryonFields++] = BaIDensity; break;
+            case 57 : tg->FieldType[ tg->NumberOfBaryonFields++] = LaIDensity; break;
+
+            case 63 : tg->FieldType[ tg->NumberOfBaryonFields++] = EuIDensity; break;
+
+          }
+        } else {break;}
+      } // loop
+
+    } /* multi metals == 2 */
   }
- 
+
   // Simon glover's chemistry models (there are several)
   //
   // model #1:  primordial (H, D, He)
@@ -379,22 +393,19 @@ int EnzoProblemType::InitializeUniformGrid(
         tg->BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
       }
 
-      if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-        tg->BaryonField[ CINum][i] = TestProblemData.CI_Fraction* UniformDensity;
-        tg->BaryonField[ NINum][i] = TestProblemData.NI_Fraction* UniformDensity;
-        tg->BaryonField[ OINum][i] = TestProblemData.OI_Fraction* UniformDensity;
-        tg->BaryonField[MgINum][i] = TestProblemData.MgI_Fraction* UniformDensity;
-        tg->BaryonField[SiINum][i] = TestProblemData.SiI_Fraction* UniformDensity;
-        tg->BaryonField[FeINum][i] = TestProblemData.FeI_Fraction* UniformDensity;
-      }
-      if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-        tg->BaryonField[ YINum][i] = TestProblemData.YI_Fraction* UniformDensity;
-        tg->BaryonField[BaINum][i] = TestProblemData.BaI_Fraction* UniformDensity;
-        tg->BaryonField[LaINum][i] = TestProblemData.LaI_Fraction* UniformDensity;
-      }
-      if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-        tg->BaryonField[EuINum][i] = TestProblemData.EuI_Fraction* UniformDensity;
-      }
+      if(TestProblemData.MultiMetals == 2){
+        for (int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i ++){
+          if(StellarYieldsAtomicNumbers[yield_i] != NULL && StellarYieldsAtomicNumbers[yield_i] > 2){
+            float fraction = 0.0; int field_num = 0;
+
+            this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+            fraction = TestProblemData.ChemicalTracerSpecies_Fractions[yield_i];
+
+            tg->BaryonField[field_num][i] = fraction * UniformDensity;
+          } else if (StellarYieldsAtomicNumbers[yield_i] == NULL) {break;}
+
+        }
+      } // if MM = 2
 
     } // if(TestProblemData.UseMetallicityField)
 

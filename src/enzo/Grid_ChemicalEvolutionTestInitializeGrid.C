@@ -70,16 +70,6 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
   }
 
 
-  int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
-
-  if (TestProblemData.MultiMetals >= 2){
-    if (IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum, FeINum,
-                                            YINum, BaINum, LaINum, EuINum) == FAIL){
-      ENZO_FAIL("Error in grid->IdentifyChemicalTracerSpeciesFields");
-    }
-  }
-
-
   int size = 1, i;
 
   for (int dim = 0; dim < GridRank; dim++){
@@ -135,32 +125,23 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
   } // Multispecies
 
 
-  if (TestProblemData.MultiMetals >= 2){
+  /* Loop over all requested stellar yields species and assign initial values */
+  if (TestProblemData.MultiMetals == 2){
+    for( int sp = 0; sp < MAX_STELLAR_YIELDS; sp++){
+      if(StellarYieldsAtomicNumbers[sp] != NULL && StellarYieldsAtomicNumbers[sp] > 2){
+        int   field_num;
+        float fraction;
 
-    if (MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-      for( i = 0; i < size; i ++){
-        BaryonField[ CINum][i] = GasDensity * TestProblemData.CI_Fraction;
-        BaryonField[ NINum][i] = GasDensity * TestProblemData.NI_Fraction;
-        BaryonField[ OINum][i] = GasDensity * TestProblemData.OI_Fraction;
-        BaryonField[MgINum][i] = GasDensity * TestProblemData.MgI_Fraction;
-        BaryonField[SiINum][i] = GasDensity * TestProblemData.SiI_Fraction;
-        BaryonField[FeINum][i] = GasDensity * TestProblemData.FeI_Fraction;
-      }
-    }
+        fraction = TestProblemData.ChemicalTracerSpecies_Fractions[sp];
 
-    if (MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-      for ( i = 0; i < size; i ++){
-        BaryonField[ YINum][i] = GasDensity * TestProblemData.YI_Fraction;
-        BaryonField[BaINum][i] = GasDensity * TestProblemData.BaI_Fraction;
-        BaryonField[LaINum][i] = GasDensity * TestProblemData.LaI_Fraction;
-      }
-    }
+        IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[sp]);
 
-    if (MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-      for ( i = 0; i < size; i ++){
-        BaryonField[EuINum][i] = GasDensity * TestProblemData.EuI_Fraction;
-      }
-    }
+        for(i = 0; i < size; i++){ // assign initial values
+          BaryonField[field_num][i] = fraction * GasDensity;
+        }
+      } else if (StellarYieldsAtomicNumbers[sp] == NULL) { break ; }
+    } // loop over yields
+
   } // MULTI METALS
 
   return SUCCESS;

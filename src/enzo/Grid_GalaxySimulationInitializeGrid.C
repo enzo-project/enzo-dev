@@ -193,23 +193,34 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 
   /* AJE Add chemical tracer here */
-  if(TestProblemData.MultiMetals >= 2){
-    if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-      FieldType[ CINum = NumberOfBaryonFields++] =  CIDensity;
-      FieldType[ NINum = NumberOfBaryonFields++] =  NIDensity;
-      FieldType[ OINum = NumberOfBaryonFields++] =  OIDensity;
-      FieldType[MgINum = NumberOfBaryonFields++] = MgIDensity;
-      FieldType[SiINum = NumberOfBaryonFields++] = SiIDensity;
-      FieldType[FeINum = NumberOfBaryonFields++] = FeIDensity;
-    }
-    if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-      FieldType[ YINum = NumberOfBaryonFields++] =  YIDensity;
-      FieldType[BaINum = NumberOfBaryonFields++] = BaIDensity;
-      FieldType[LaINum = NumberOfBaryonFields++] = LaIDensity;
-    }
-    if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-      FieldType[EuINum = NumberOfBaryonFields++] = EuIDensity;
-    }
+  if(TestProblemData.MultiMetals == 2){
+    for(int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i++){
+      if(StellarYieldsAtomicNumbers[yield_i] != NULL){
+        switch(StellarYieldsAtomicNumbers[yield_i] ){
+          case 1 : 
+          case 2 :
+            if( TestProblemData.MultiSpecies == 0){ ENZO_FAIL("MultiSpecies must be on to track H and He stellar yields")};
+            break;
+
+          case  6 : FieldType[NumberOfBaryonFields++] = CIDensity; break;
+          case  7 : FieldType[NumberOfBaryonFields++] = NIDensity; break;
+          case  8 : FieldType[NumberOfBaryonFields++] = OIDensity; break;
+
+          case 12 : FieldType[NumberOfBaryonFields++] = MgIDensity; break;
+
+          case 14 : FieldType[NumberOfBaryonFields++] = SiIDensity; break;
+
+          case 26 : FieldType[NumberOfBaryonFields++] = FeIDensity; break;
+
+          case 39 : FieldType[NumberOfBaryonFields++] = YIDensity; break;
+
+          case 56 : FieldType[NumberOfBaryonFields++] = BaIDensity; break;
+          case 57 : FieldType[NumberOfBaryonFields++] = LaIDensity; break;
+
+          case 63 : FieldType[NumberOfBaryonFields++] = EuIDensity; break;
+        }
+      } else {break;}
+    } // loop over yeilds
   } // done setting multimetals
 
  /* Return if this doesn't concern us. */
@@ -323,26 +334,21 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  /* set chemical tracers to small density */
         /* For now, init halo chemical tracers density to zero */
- if (TestProblemData.MultiMetals >=2){
-   for (i = 0; i < size; i++){
-     if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-       BaryonField[ CINum][i] = UniformDensity * tiny_number;
-       BaryonField[ NINum][i] = UniformDensity * tiny_number;
-       BaryonField[ OINum][i] = UniformDensity * tiny_number;
-       BaryonField[MgINum][i] = UniformDensity * tiny_number;
-       BaryonField[SiINum][i] = UniformDensity * tiny_number;
-       BaryonField[FeINum][i] = UniformDensity * tiny_number;
-     } 
-     if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-       BaryonField[ YINum][i] = UniformDensity * tiny_number;
-       BaryonField[BaINum][i] = UniformDensity * tiny_number;
-       BaryonField[LaINum][i] = UniformDensity * tiny_number;
-     }
-     if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-       BaryonField[EuINum][i] = UniformDensity * tiny_number;
-     }
-   }
- } // end chemical tracer value set
+ if (TestProblemData.MultiMetals == 2){
+   for (int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i++){
+     if(StellarYieldsAtomicNumbers[yield_i] != NULL && StellarYieldsAtomicNumbers[yield_i] > 2){
+       float fraction = 0.0; int field_num = 0;
+
+       this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+       fraction = tiny_number;
+
+       for (i = 0; i  < size; i ++){
+         BaryonField[field_num][i] = fraction * UniformDensity;
+       }
+
+     } else if (StellarYieldsAtomicNumbers[yield_i] == NULL) { break; }
+   } // end for loop
+ } // end MM == 2 check
 
  /* Loop over the mesh. */
 
@@ -350,6 +356,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  FLOAT temperature, temp1, init_temp;
  FLOAT r, x, y = 0, z = 0;
  int n = 0;
+
+ float chemical_species_fraction [MAX_STELLAR_YIELDS] = { tiny_number };
 
  for (k = 0; k < GridDimension[2]; k++) {
    for (j = 0; j < GridDimension[1]; j++) {
@@ -368,17 +376,11 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
        /* Set default tracer fraction */
        metal_fraction = HaloMetallicity;
-       CI_Fraction    = TestProblemData.CI_Fraction_2;
-       NI_Fraction    = TestProblemData.NI_Fraction_2;
-       OI_Fraction    = TestProblemData.OI_Fraction_2;
-       MgI_Fraction   = TestProblemData.MgI_Fraction_2;
-       SiI_Fraction   = TestProblemData.SiI_Fraction_2;
-       FeI_Fraction   = TestProblemData.FeI_Fraction_2;
-
-       YI_Fraction    = TestProblemData.YI_Fraction_2;
-       BaI_Fraction   = TestProblemData.BaI_Fraction_2;
-       LaI_Fraction   = TestProblemData.LaI_Fraction_2;
-       EuI_Fraction   = TestProblemData.EuI_Fraction_2;
+       for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+         if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+           chemical_species_fraction[ii] = TestProblemData.ChemicalTracerSpecies_Fractions_2[ii];
+         } else if (StellarYieldsAtomicNumbers[ii] == NULL) { break ;}
+       }
 
        /* Compute position of current cell */
        x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
@@ -546,16 +548,11 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
            D_to_H_ratio   = TestProblemData.InnerDeuteriumToHydrogenRatio;
 
            // set chemical tracers in the disk
-           CI_Fraction = TestProblemData.CI_Fraction;
-           NI_Fraction = TestProblemData.NI_Fraction;
-           OI_Fraction = TestProblemData.OI_Fraction;
-           MgI_Fraction = TestProblemData.MgI_Fraction;
-           SiI_Fraction = TestProblemData.SiI_Fraction;
-           FeI_Fraction = TestProblemData.FeI_Fraction;
-           YI_Fraction = TestProblemData.YI_Fraction;
-           LaI_Fraction = TestProblemData.LaI_Fraction;
-           BaI_Fraction = TestProblemData.BaI_Fraction;
-           EuI_Fraction = TestProblemData.EuI_Fraction;
+           for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+             if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+               chemical_species_fraction[ii] = TestProblemData.ChemicalTracerSpecies_Fractions[ii];
+             } else if (StellarYieldsAtomicNumbers[ii] == NULL) { break ;}
+           }
          }
        } // end: if (r < DiskRadius)
 
@@ -606,22 +603,14 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
        } // end multispecies
 
 
-       if (TestProblemData.MultiMetals >=2){
-         if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-           BaryonField[ CINum][n] = density *  CI_Fraction;//
-           BaryonField[ NINum][n] = density *  NI_Fraction;
-           BaryonField[ OINum][n] = density *  OI_Fraction;
-           BaryonField[MgINum][n] = density * MgI_Fraction;
-           BaryonField[SiINum][n] = density * SiI_Fraction;
-           BaryonField[FeINum][n] = density * FeI_Fraction;
-         }
-         if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-           BaryonField[ YINum][n] = density *  YI_Fraction;
-           BaryonField[BaINum][n] = density * BaI_Fraction;
-           BaryonField[LaINum][n] = density * LaI_Fraction;
-         }
-         if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-           BaryonField[EuINum][n] = density * EuI_Fraction;
+       if (TestProblemData.MultiMetals == 2){
+         for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+           if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+             int field_num;
+             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
+
+             BaryonField[field_num][n] = density * chemical_species_fraction[ii];
+           } else if (StellarYieldsAtomicNumbers[ii] == NULL) { break ;}
          }
        } // end chemical tracer value set
 

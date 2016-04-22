@@ -26,9 +26,15 @@
 
 int FindField(int f, int farray[], int n);
 
-int grid::IdentifyChemicalTracerSpeciesByNumber(int &field_num,
-                                                const int &atomic_number,
-                                                const int ion_level = 0){
+int grid::IdentifyChemicalTracerSpeciesFieldsByNumber(int &field_num, const int &atomic_number){
+
+  this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, atomic_number, 0);
+
+}
+
+int grid::IdentifyChemicalTracerSpeciesFieldsByNumber(int &field_num,
+                                                      const int &atomic_number,
+                                                      const int &ion_level){
  /* -------------------------------------------------------------------------------------
   * IdentifyChemicalTracerSpeciesByNumber
   * ------------------------------------------------------------------------------------
@@ -39,7 +45,8 @@ int grid::IdentifyChemicalTracerSpeciesByNumber(int &field_num,
   * found by atomic number. If H or He are requested, last parameter is used (optional)
   * ---------------------------------------------------------------------------------- */
 
-  field_num = -1
+  field_num = -1;
+
 
   switch(atomic_number){
 
@@ -71,7 +78,7 @@ int grid::IdentifyChemicalTracerSpeciesByNumber(int &field_num,
 
     case 12: field_num = FindField(MgIDensity, FieldType, NumberOfBaryonFields); break;
 
-    case 14: field_num = FindField(SiDensity, FieldType, NumberOfBaryonFields); break;
+    case 14: field_num = FindField(SiIDensity, FieldType, NumberOfBaryonFields); break;
 
     case 26: field_num = FindField(FeIDensity, FieldType, NumberOfBaryonFields); break;
 
@@ -84,11 +91,13 @@ int grid::IdentifyChemicalTracerSpeciesByNumber(int &field_num,
   }
 
   if(field_num < 0){
-    ENZO_FAIL("Error in IdentifyChemicalTracerSpeciesByNumber. No species found for atomic Number %"ISYM, atomic_number);
+    ENZO_FAIL("Error in IdentifyChemicalTracerSpeciesByNumber. No species found");
   }
 
+  return SUCCESS;
 }
 
+/* AJE overhaul 04 21 16
 int grid::IdentifyChemicalTracerSpeciesFields(int  &CINum, int  &NINum, int  &OINum,
                                               int &MgINum, int &SiINum, int &FeINum,
                                               int  &YINum, int &BaINum, int &LaINum,
@@ -127,3 +136,4 @@ int grid::IdentifyChemicalTracerSpeciesFields(int  &CINum, int  &NINum, int  &OI
 
   return SUCCESS;
 }
+*/

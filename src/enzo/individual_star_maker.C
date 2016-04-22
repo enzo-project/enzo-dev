@@ -180,7 +180,6 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
 
-  int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
 
   this->DebugCheck("StarParticleHandler");
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
@@ -203,13 +202,6 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
   if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, 
               MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-  }
-
-  if(TestProblemData.MultiMetals >= 2){
-    if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
-                                           FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
-      ENZO_FAIL("Failure in identifying chemical tracer species fields.");
-    }
   }
 
   if (ProblemType == 260){ // place a star by hand and exit
@@ -261,24 +253,28 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
       n  = ip + (jp + kp * (*ny)) * (*nx);
 
-      if(TestProblemData.MultiMetals >= 2){
-        if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-          ParticleAttribute[ 4][0] = BaryonField[ CINum][n] / BaryonField[DensNum][n];
-          ParticleAttribute[ 5][0] = BaryonField[ NINum][n] / BaryonField[DensNum][n];
-          ParticleAttribute[ 6][0] = BaryonField[ OINum][n] / BaryonField[DensNum][n];
-          ParticleAttribute[ 7][0] = BaryonField[MgINum][n] / BaryonField[DensNum][n];
-          ParticleAttribute[ 8][0] = BaryonField[SiINum][n] / BaryonField[DensNum][n];
-          ParticleAttribute[ 9][0] = BaryonField[FeINum][n] / BaryonField[DensNum][n];
+      /* Metal fields are all in fractions, as set in Grid_StarParticleHandler */
+      if(TestProblemData.MultiMetals == 2){
+        for( int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+          if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+            int field_num;
+
+            this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
+
+            ParticleAttribute[4 + ii][0] = BaryonField[field_num][n];
+
+          } else if (StellarYieldsAtomicNumbers[ii] == 1){
+            /* Take H and He fractions as TOTAL amount of H and He species in the cell */
+            ParticleAttribute[4 + ii][0] = BaryonField[HINum][n] + BaryonField[HIINum][n];
+
+          } else if (StellarYieldsAtomicNumbers[ii] == 2){
+
+            ParticleAttribute[4 + ii][0] = BaryonField[HeINum][n]  +
+                                           BaryonField[HeIINum][n] + BaryonField[HeIIINum][n];
+
+          } else if (StellarYieldsAtomicNumbers[ii] == NULL) { break ; }
         }
-        if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-          ParticleAttribute[10][0] = BaryonField[ YINum][n] / BaryonField[DensNum][n];
-          ParticleAttribute[11][0] = BaryonField[BaINum][n] / BaryonField[DensNum][n];
-          ParticleAttribute[12][0] = BaryonField[LaINum][n] / BaryonField[DensNum][n];
-        }
-        if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-          ParticleAttribute[13][0] = BaryonField[EuINum][n] / BaryonField[DensNum][n];
-        }
-      } // if multimetals
+      }
 
       *np = 1;
       ChemicalEvolutionTestStarFormed = TRUE;
@@ -561,24 +557,28 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 // chemical tags to all of the particles
                 // depending on whether or not multimetals is ON
                 // Tags give fraction of star by mass of given chemical species
-                if(TestProblemData.MultiMetals >= 2){
-                  if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-                    ParticleAttribute[ 4][istar] = BaryonField[ CINum][index] / BaryonField[DensNum][index];
-                    ParticleAttribute[ 5][istar] = BaryonField[ NINum][index] / BaryonField[DensNum][index];
-                    ParticleAttribute[ 6][istar] = BaryonField[ OINum][index] / BaryonField[DensNum][index];
-                    ParticleAttribute[ 7][istar] = BaryonField[MgINum][index] / BaryonField[DensNum][index];
-                    ParticleAttribute[ 8][istar] = BaryonField[SiINum][index] / BaryonField[DensNum][index];
-                    ParticleAttribute[ 9][istar] = BaryonField[FeINum][index] / BaryonField[DensNum][index];
+                if(TestProblemData.MultiMetals == 2){
+                  for( int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
+                    if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+                      int field_num;
+
+                      this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
+
+                      ParticleAttribute[4 + ii][istar] = BaryonField[field_num][index];
+
+                    } else if (StellarYieldsAtomicNumbers[ii] == 1){
+                    /* Take H and He fractions as TOTAL amount of H and He species in the cell */
+                      ParticleAttribute[4 + ii][istar] = BaryonField[HINum][index] + BaryonField[HIINum][index];
+
+                    } else if (StellarYieldsAtomicNumbers[ii] == 2){
+
+                      ParticleAttribute[4 + ii][istar] = BaryonField[HeINum][index]  +
+                                           BaryonField[HeIINum][index] + BaryonField[HeIIINum][index];
+
+                    } else if (StellarYieldsAtomicNumbers[ii] == NULL) { break ; }
                   }
-                  if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-                    ParticleAttribute[10][istar] = BaryonField[ YINum][index] / BaryonField[DensNum][index];
-                    ParticleAttribute[11][istar] = BaryonField[BaINum][index] / BaryonField[DensNum][index];
-                    ParticleAttribute[12][istar] = BaryonField[LaINum][index] / BaryonField[DensNum][index];
-                  }
-                  if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-                    ParticleAttribute[13][istar] = BaryonField[EuINum][index] / BaryonField[DensNum][index];
-                  }
-                } // end multi metals
+                }
+
 
               } // end while loop for assigning particle properties
               // ---------------------------------------------------
@@ -726,7 +726,6 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
-  int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
 
 
   this->DebugCheck("StarParticleHandler");
@@ -738,15 +737,6 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
   if (CRModel){
     if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
       ENZO_FAIL("Cannot Find Cosmic Rays");
-  }
-
-  if(TestProblemData.MultiMetals >=2){
-
-    if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
-                                           FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
-      ENZO_FAIL("Error in IdentifyChemicalTracerSpeciesFields.");
-    }
-
   }
 
 

@@ -731,6 +731,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
   IndividualStarFeedbackStencilSize  = 3;
 
+  for (i = 0; i < MAX_STELLAR_YIELDS; i++){
+    StellarYieldsAtomicNumbers[i] = NULL;
+  }
+
   IndividualStarBlackBodyq0Factors[0]  = 0.1 ;      // if OSTAR is ON, adjust black body to be continious
   IndividualStarBlackBodyq0Factors[1]  = 3.0 ;      // factors are for q0 and q1 with first
   IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
@@ -905,6 +909,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.BaI_Fraction_2 = tiny_number;
   TestProblemData.EuI_Fraction_2 = tiny_number;
 
+  for (int i = 0; i < MAX_STELLAR_YIELDS; i++){
+    TestProblemData.ChemicalTracerSpecies_Fractions[i]   = tiny_number;
+    TestProblemData.ChemicalTracerSpecies_Fractions_2[i] = tiny_number;
+  }
 
   TestProblemData.GloverChemistryModel = 0;
   // This is for the gas in the surrounding medium, for the blast wave problem.

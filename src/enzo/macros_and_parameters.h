@@ -510,13 +510,6 @@ typedef int            HDF5_hid_t;
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
 
-/* AJE Chemistry tracer checker */
-
-#define MULTIMETALS_ALPHA    2
-#define MULTIMETALS_SPROCESS 3
-#define MULTIMETALS_RPROCESS 4
-
-#define MULTIMETALS_METHOD(A) (TestProblemData.MultiMetals >> (A) & 1) // bitwise
 
  // for stellar yields tabulation
 #define MAXIMUM_NUMBER_OF_YIELD_CHEMICALS        10

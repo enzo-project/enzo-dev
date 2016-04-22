@@ -194,39 +194,22 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (Galaxy2ColourNum != -1) colnum[NumberOfColours++] = Galaxy2ColourNum;
 
     /* Add Chemical tracer species as color fields */
-    if(TestProblemData.MultiMetals >= 2){
-      int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
+    if(TestProblemData.MultiMetals == 2){
+      for(int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i++){
+        if(StellarYieldsAtomicNumbers[yield_i] != NULL && StellarYieldsAtomicNumbers[yield_i] > 2){
 
-      if(IdentifyChemicalTracerSpeciesFields(CINum, NINum, OINum, MgINum, SiINum,
-                                             FeINum, YINum, BaINum, LaINum, EuINum) == FAIL){
-         ENZO_FAIL("Error in IdentifyChemicalTracerSpeciesFields.");
+          int field_num = 0;
+
+          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+          colnum[NumberOfColours++] = field_num;
+
+
+        } else if (StellarYieldsAtomicNumbers[yield_i] == NULL) { break ; }
       }
-
-      if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-        colnum[NumberOfColours++] =  CINum;
-        colnum[NumberOfColours++] =  NINum;
-        colnum[NumberOfColours++] =  OINum;
-        colnum[NumberOfColours++] = MgINum;
-        colnum[NumberOfColours++] = SiINum;
-        colnum[NumberOfColours++] = FeINum;
-      }
-
-      if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-        colnum[NumberOfColours++] = YINum;
-        colnum[NumberOfColours++] = BaINum;
-        colnum[NumberOfColours++] = LaINum;
-      }
-
-      if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-        colnum[NumberOfColours++] = EuINum;
-      }
-
-
-    } // end chemical tracer colour fields
+    } // if mm == 2
 
 
     /* Add Simon Glover's chemistry species as color fields */
-
     if(TestProblemData.GloverChemistryModel){
 
       // Declarations for Simon Glover's cooling.

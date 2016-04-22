@@ -186,78 +186,20 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 	    Py_DECREF(dataset);
 
             /* chemical tracers */
-            if(TestProblemData.MultiMetals >= 2){
+            if(TestProblemData.MultiMetals == 2){
 
-              if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                        1, dims, ENPY_BFLOAT, ParticleAttribute[4];
-                PyDict_SetItemString(grid_data, "CI_fraction",
-                  (PyObject*) dataset);
-                Py_DECREF(dataset);
+              for(int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i++){
+                if(StellarYieldsAtomicNumbers[yield_i] != NULL && StellarYieldsAtomicNumbers[yield_i] > 2){
 
-                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                        1, dims, ENPY_BFLOAT, ParticleAttribute[5];
-                PyDict_SetItemString(grid_data, "NI_fraction",
-                  (PyObject*) dataset);
-                Py_DECREF(dataset);
+                  /* AJE DOES NOT WORK --- NEED STRING LOOKUP TABLE */
 
-                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                        1, dims, ENPY_BFLOAT, ParticleAttribute[6];
-                PyDict_SetItemString(grid_data, "OI_fraction",
-                  (PyObject*) dataset);
-                Py_DECREF(dataset);
-
-                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                        1, dims, ENPY_BFLOAT, ParticleAttribute[7];
-                PyDict_SetItemString(grid_data, "MgI_fraction",
-                  (PyObject*) dataset);
-                Py_DECREF(dataset);
-
-                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                        1, dims, ENPY_BFLOAT, ParticleAttribute[8];
-                PyDict_SetItemString(grid_data, "SiI_fraction",
-                  (PyObject*) dataset);
-                Py_DECREF(dataset);
-
-                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                        1, dims, ENPY_BFLOAT, ParticleAttribute[9];
-                PyDict_SetItemString(grid_data, "FeI_fraction",
-                  (PyObject*) dataset);
-                Py_DECREF(dataset);
-
-
-
-
+                  dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                             1, dims, ENPY_BFLOAT, ParticleAttribute[4 + yield_i]);
+                  PyDict_SetItemString(grid_data, yield_string, (PyObject*) dataset);
+                  PyDECREF(dataset);
+                } else if (StellarYieldsAtomicNumbers[yield_i] == NULL) { break; }
               }
-
-              if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                        1, dims, ENPY_BFLOAT, ParticleAttribute[10];
-                PyDict_SetItemString(grid_data, "YI_fraction",
-                  (PyObject*) dataset);
-                Py_DECREF(dataset);
-
-                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                        1, dims, ENPY_BFLOAT, ParticleAttribute[11];
-                PyDict_SetItemString(grid_data, "BaI_fraction",
-                  (PyObject*) dataset);
-                Py_DECREF(dataset);
-
-                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                        1, dims, ENPY_BFLOAT, ParticleAttribute[12];
-                PyDict_SetItemString(grid_data, "LaI_fraction",
-                  (PyObject*) dataset);
-                Py_DECREF(dataset);
-              }
-
-              if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                        1, dims, ENPY_BFLOAT, ParticleAttribute[13];
-                PyDict_SetItemString(grid_data, "EuI_fraction",
-                  (PyObject*) dataset);
-                Py_DECREF(dataset);
-
-              }
+            } // mm == 2 check
 
 	  } // end check multimetals
 

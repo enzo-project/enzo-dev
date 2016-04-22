@@ -40,7 +40,7 @@ struct TestProblemDataType
   float DI_Fraction;
   float DII_Fraction;
   float HDI_Fraction;
-  
+
   int UseMassInjection;
   float InitialHydrogenMass;
   float InitialHeliumMass;
@@ -86,6 +86,10 @@ struct TestProblemDataType
   float LaI_Fraction_2;
   float BaI_Fraction_2;
   float EuI_Fraction_2;
+
+  /* Chemical tracer fields */
+  float ChemicalTracerSpecies_Fractions[MAX_STELLAR_YIELDS];
+  float ChemicalTracerSpecies_Fractions_2[MAX_STELLAR_YIELDS];
 
   /* simon glover chemistry+cooling */
   int GloverChemistryModel;

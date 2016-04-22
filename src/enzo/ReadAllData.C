@@ -152,16 +152,15 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       if (TestProblemData.MultiMetals){
         NumberOfParticleAttributes ++; // counter offset to get names right
                                          // this is a hack and a waste of memory
-        if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-          NumberOfParticleAttributes += 6; // index 4 - 9
+        if(TestProblemData.MultiMetals == 2){
+          for(int iii = 0; iii < MAX_STELLAR_YIELDS; iii++){
+            if( StellarYieldsAtomicNumbers[iii] != NULL){
+              NumberOfParticleAttributes ++;
+            } else{ break; }
+          }
+
         }
-        if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-          NumberOfParticleAttributes += 3; // index 10 - 12
-        }
-        if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-          NumberOfParticleAttributes += 1; // index 13
-        }
-      }
+      } // end multi metals
 
       AddParticleAttributes = TRUE;
     } else {

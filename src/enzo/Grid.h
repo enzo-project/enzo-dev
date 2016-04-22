@@ -1721,15 +1721,17 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   int IdentifyShockSpeciesFields(int &MachNum,int &PSTempNum, int &PSDenNum);
 
   /* Identify chemical tracer fields */
+  int IdentifyChemicalTracerSpeciesFieldsByNumber( int &field_num, const int &atomic_number);
+
   int IdentifyChemicalTracerSpeciesFieldsByNumber( int &field_num,
                                                    const int &atomic_number,
-                                                   const int ion_level = 0);
-
+                                                   const int &ion_level);
+  /*
   int IdentifyChemicalTracerSpeciesFields(int  &CINum, int  &NINum, int  &OINum,
                                           int &MgINum, int &SiINum, int &FeINum,
                                           int  &YINum, int &BaINum, int &LaINum,
                                           int &EuINum);
-
+  */
   // Identify Simon Glover Species Fields
   int IdentifyGloverSpeciesFields(int &HIINum,int &HINum,int &H2INum,
 				  int &DINum,int &DIINum,int &HDINum,

@@ -342,6 +342,31 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "GalaxySimulationInitialEuIFractionHalo = %"FSYM,
                         &TestProblemData.EuI_Fraction_2);
 
+   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsDisk = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 0,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 1,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 2,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 3,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 4,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 5,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 6,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 7,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 8,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 9);
+
+   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsHalo = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 0,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 1,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 2,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 3,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 4,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 5,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 6,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 7,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 8,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 9);
+
+
 
     ret += sscanf(line, "TestProblemUseMetallicityField = %"ISYM,
                         &TestProblemData.UseMetallicityField);
@@ -595,25 +620,26 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    DataLabel[count++] = MetalIaName;
 
  /* Chemical tracer set ups */
- if (TestProblemData.MultiMetals >= 2){
+ if (TestProblemData.MultiMetals == 2){
 
-   if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-     DataLabel[count++] =  CIName;
-     DataLabel[count++] =  NIName;
-     DataLabel[count++] =  OIName;
-     DataLabel[count++] = MgIName;
-     DataLabel[count++] = SiIName;
-     DataLabel[count++] = FeIName;
-   }
-   if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-     DataLabel[count++] =  YIName;
-     DataLabel[count++] = BaIName;
-     DataLabel[count++] = LaIName;
-   }
-   if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-     DataLabel[count++] = EuIName;
-   }
+   for(int i =0; i < MAX_STELLAR_YIELDS; i ++){
+     if(StellarYieldsAtomicNumbers[i] != NULL && StellarYieldsAtomicNumbers[i] > 2){
+       switch(StellarYieldsAtomicNumbers[i]){
+         case 6 : DataLabel[count++] = CIName; break;
+         case 7 : DataLabel[count++] = NIName; break;
+         case 8 : DataLabel[count++] = OIName; break;
 
+         case 12 : DataLabel[count++] = MgIName; break;
+         case 14 : DataLabel[count++] = SiIName; break;
+         case 26 : DataLabel[count++] = FeIName; break;
+         case 39 : DataLabel[count++] = YIName; break;
+         case 56 : DataLabel[count++] = BaIName; break;
+         case 57 : DataLabel[count++] = LaIName; break;
+         case 63 : DataLabel[count++] = EuIName; break;
+
+       }
+     } else if (StellarYieldsAtomicNumbers[i] == NULL){ break; }
+   } // yields loop
  }
 
  for (i = 0; i < count; i++)
@@ -746,6 +772,12 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
            TestProblemData.LaI_Fraction_2);
    fprintf(Outfptr, "GalaxySimulationInitialEuIFractionHalo = %"GOUTSYM"\n",
            TestProblemData.EuI_Fraction_2);
+
+   fprintf(Outfptr, "GalaxySimulationInitialSpeciesFractionDisk = ");
+   WriteListOfFloats(Outfptr, MAX_STELLAR_YIELDS, TestProblemData.ChemicalTracerSpecies_Fractions);
+
+   fprintf(Outfptr, "GalaxySimulationInitialSpeciesFractionHalo = ");
+   WriteListOfFloats(Outfptr, MAX_STELLAR_YIELDS, TestProblemData.ChemicalTracerSpecies_Fractions_2);
 
    fprintf(Outfptr, "TestProblemUseMetallicityField = %"ISYM"\n",
            TestProblemData.UseMetallicityField);
