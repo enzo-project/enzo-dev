@@ -46,6 +46,8 @@ void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int WriteStringAttr(hid_t dset_id, char *Alabel, char *String, FILE *log_fptr);
 int FindField(int field, int farray[], int numfields);
 
+char* ChemicalSpeciesParticleLabel(const int &atomic_number);
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -148,10 +150,28 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 #else
 //  char *ParticleAttributeLabel[] = 
 //    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+// AJE 2/13/16 - updated 4/22/16
+  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
+  ParticleAttributeLabel[0] = "creation_time";
+  ParticleAttributeLabel[1] = "dynamical_time";
+  ParticleAttributeLabel[2] = "metallicity_fraction";
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
+    ParticleAttributeLabel[3] = "birth_mass";
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+    }
+
+  } else {
+    ParticleAttributeLabel[3] = "typeia_fraction";
+  }
+
+/*
   const char *ParticleAttributeLabel[] = 
       {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
        "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
        "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
+*/
 
 #endif
   char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",

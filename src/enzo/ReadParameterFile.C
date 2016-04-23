@@ -1415,12 +1415,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 
   /* AJE  - Count up the number of species we are following if not set manually by user*/
-  if (StellarYieldsNumberOfSpecies == INT_UNDEFINED){
+  if (StellarYieldsNumberOfSpecies == INT_UNDEFINED && TestProblemData.MultiMetals == 2){
     for(int species = 0; species < MAX_STELLAR_YIELDS; species++){
       if (StellarYieldsAtomicNumbers[species] != NULL){
         StellarYieldsNumberOfSpecies ++;
       }
     }
+  } else {
+    StellarYieldsNumberOfSpecies == 0;
   }
 
   // HierarchyFile IO sanity check

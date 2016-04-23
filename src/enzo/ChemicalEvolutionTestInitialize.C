@@ -309,8 +309,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
     if(TestProblemData.MultiMetals ==2){
 
-      for(int i = 0; i < MAX_STELLAR_YIELDS; i++){
-        if(StellarYieldsAtomicNumbers[i] != NULL && StellarYieldsAtomicNumbers[i] > 2){
+      for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+        if(StellarYieldsAtomicNumbers[i] > 2){
           switch(StellarYieldsAtomicNumbers[i]){
             case  6 : DataLabel[count++] = CIName; break;
             case  7 : DataLabel[count++] = NIName; break;
@@ -329,7 +329,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
             case 63 : DataLabel[count++] = EuIName; break;
           }
-        } else if (StellarYieldsAtomicNumbers[i] == NULL) { break;}
+        }
       }
     }
   }

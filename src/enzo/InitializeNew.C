@@ -312,11 +312,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
         NumberOfParticleAttributes ++;   // counter offset to get names right
                                          // this is a hack and a waste of memory
         if (TestProblemData.MultiMetals == 2){
-          for(int iii = 0; iii < MAX_STELLAR_YIELDS; iii++){
-            if(StellarYieldsAtomicNumbers[iii] != NULL){
-                NumberOfParticleAttributes++;
-            } else { break; }
-          }
+          NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
         }
 
       } // end multimetals

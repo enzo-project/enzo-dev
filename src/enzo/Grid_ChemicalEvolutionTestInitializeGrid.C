@@ -127,8 +127,8 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
 
   /* Loop over all requested stellar yields species and assign initial values */
   if (TestProblemData.MultiMetals == 2){
-    for( int sp = 0; sp < MAX_STELLAR_YIELDS; sp++){
-      if(StellarYieldsAtomicNumbers[sp] != NULL && StellarYieldsAtomicNumbers[sp] > 2){
+    for( int sp = 0; sp < StellarYieldsNumberOfSpecies; sp++){
+      if(StellarYieldsAtomicNumbers[sp] > 2){
         int   field_num;
         float fraction;
 
@@ -139,7 +139,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
         for(i = 0; i < size; i++){ // assign initial values
           BaryonField[field_num][i] = fraction * GasDensity;
         }
-      } else if (StellarYieldsAtomicNumbers[sp] == NULL) { break ; }
+      }
     } // loop over yields
 
   } // MULTI METALS

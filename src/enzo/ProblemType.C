@@ -184,33 +184,31 @@ int EnzoProblemType::InitializeUniformGrid(
 
     if(TestProblemData.MultiMetals == 2){
 
-      for(int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i ++){
-        if (StellarYieldsAtomicNumbers[yield_i] != NULL){
-          switch( StellarYieldsAtomicNumbers[yield_i] ){
-            case 1:
-            case 2:
-              if ( TestProblemData.MultiSpecies == 0){ ENZO_FAIL("Multispecies must be > 0 to track stellar yields for H and He");
-              break;
+      for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
+        switch( StellarYieldsAtomicNumbers[yield_i] ){
+          case 1:
+          case 2:
+            if ( TestProblemData.MultiSpecies == 0){ ENZO_FAIL("Multispecies must be > 0 to track stellar yields for H and He");
+            break;
 
-            case  6 : tg->FieldType[ tg->NumberOfBaryonFields++] =  CIDensity; break;
-            case  7 : tg->FieldType[ tg->NumberOfBaryonFields++] =  NIDensity; break;
-            case  8 : tg->FieldType[ tg->NumberOfBaryonFields++] =  OIDensity; break;
+          case  6 : tg->FieldType[ tg->NumberOfBaryonFields++] =  CIDensity; break;
+          case  7 : tg->FieldType[ tg->NumberOfBaryonFields++] =  NIDensity; break;
+          case  8 : tg->FieldType[ tg->NumberOfBaryonFields++] =  OIDensity; break;
 
-            case 12 : tg->FieldType[ tg->NumberOfBaryonFields++] = MgIDensity; break;
+          case 12 : tg->FieldType[ tg->NumberOfBaryonFields++] = MgIDensity; break;
 
-            case 14 : tg->FieldType[ tg->NumberOfBaryonFields++] = SiIDensity; break;
+          case 14 : tg->FieldType[ tg->NumberOfBaryonFields++] = SiIDensity; break;
 
-            case 26 : tg->FieldType[ tg->NumberOfBaryonFields++] = FeIDensity; break;
+          case 26 : tg->FieldType[ tg->NumberOfBaryonFields++] = FeIDensity; break;
 
-            case 39 : tg->FieldType[ tg->NumberOfBaryonFields++] = YIDensity; break;
+          case 39 : tg->FieldType[ tg->NumberOfBaryonFields++] = YIDensity; break;
 
-            case 56 : tg->FieldType[ tg->NumberOfBaryonFields++] = BaIDensity; break;
-            case 57 : tg->FieldType[ tg->NumberOfBaryonFields++] = LaIDensity; break;
+          case 56 : tg->FieldType[ tg->NumberOfBaryonFields++] = BaIDensity; break;
+          case 57 : tg->FieldType[ tg->NumberOfBaryonFields++] = LaIDensity; break;
 
-            case 63 : tg->FieldType[ tg->NumberOfBaryonFields++] = EuIDensity; break;
+          case 63 : tg->FieldType[ tg->NumberOfBaryonFields++] = EuIDensity; break;
 
-          }
-        } else {break;}
+        }
       } // loop
 
     } /* multi metals == 2 */
@@ -394,16 +392,15 @@ int EnzoProblemType::InitializeUniformGrid(
       }
 
       if(TestProblemData.MultiMetals == 2){
-        for (int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i ++){
-          if(StellarYieldsAtomicNumbers[yield_i] != NULL && StellarYieldsAtomicNumbers[yield_i] > 2){
+        for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
+          if(StellarYieldsAtomicNumbers[yield_i] > 2){
             float fraction = 0.0; int field_num = 0;
 
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
             fraction = TestProblemData.ChemicalTracerSpecies_Fractions[yield_i];
 
             tg->BaryonField[field_num][i] = fraction * UniformDensity;
-          } else if (StellarYieldsAtomicNumbers[yield_i] == NULL) {break;}
-
+          }
         }
       } // if MM = 2
 

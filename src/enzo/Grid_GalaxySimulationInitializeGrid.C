@@ -194,32 +194,30 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
   /* AJE Add chemical tracer here */
   if(TestProblemData.MultiMetals == 2){
-    for(int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i++){
-      if(StellarYieldsAtomicNumbers[yield_i] != NULL){
-        switch(StellarYieldsAtomicNumbers[yield_i] ){
-          case 1 : 
-          case 2 :
-            if( TestProblemData.MultiSpecies == 0){ ENZO_FAIL("MultiSpecies must be on to track H and He stellar yields")};
-            break;
+    for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+      switch(StellarYieldsAtomicNumbers[yield_i] ){
+        case 1 : 
+        case 2 :
+          if( TestProblemData.MultiSpecies == 0){ ENZO_FAIL("MultiSpecies must be on to track H and He stellar yields")};
+          break;
 
-          case  6 : FieldType[NumberOfBaryonFields++] = CIDensity; break;
-          case  7 : FieldType[NumberOfBaryonFields++] = NIDensity; break;
-          case  8 : FieldType[NumberOfBaryonFields++] = OIDensity; break;
+        case  6 : FieldType[NumberOfBaryonFields++] = CIDensity; break;
+        case  7 : FieldType[NumberOfBaryonFields++] = NIDensity; break;
+        case  8 : FieldType[NumberOfBaryonFields++] = OIDensity; break;
 
-          case 12 : FieldType[NumberOfBaryonFields++] = MgIDensity; break;
+        case 12 : FieldType[NumberOfBaryonFields++] = MgIDensity; break;
 
-          case 14 : FieldType[NumberOfBaryonFields++] = SiIDensity; break;
+        case 14 : FieldType[NumberOfBaryonFields++] = SiIDensity; break;
 
-          case 26 : FieldType[NumberOfBaryonFields++] = FeIDensity; break;
+        case 26 : FieldType[NumberOfBaryonFields++] = FeIDensity; break;
 
-          case 39 : FieldType[NumberOfBaryonFields++] = YIDensity; break;
+        case 39 : FieldType[NumberOfBaryonFields++] = YIDensity; break;
 
-          case 56 : FieldType[NumberOfBaryonFields++] = BaIDensity; break;
-          case 57 : FieldType[NumberOfBaryonFields++] = LaIDensity; break;
+        case 56 : FieldType[NumberOfBaryonFields++] = BaIDensity; break;
+        case 57 : FieldType[NumberOfBaryonFields++] = LaIDensity; break;
 
-          case 63 : FieldType[NumberOfBaryonFields++] = EuIDensity; break;
-        }
-      } else {break;}
+        case 63 : FieldType[NumberOfBaryonFields++] = EuIDensity; break;
+      }
     } // loop over yeilds
   } // done setting multimetals
 
@@ -335,8 +333,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  /* set chemical tracers to small density */
         /* For now, init halo chemical tracers density to zero */
  if (TestProblemData.MultiMetals == 2){
-   for (int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i++){
-     if(StellarYieldsAtomicNumbers[yield_i] != NULL && StellarYieldsAtomicNumbers[yield_i] > 2){
+   for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+     if(StellarYieldsAtomicNumbers[yield_i] > 2){
        float fraction = 0.0; int field_num = 0;
 
        this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
@@ -346,7 +344,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
          BaryonField[field_num][i] = fraction * UniformDensity;
        }
 
-     } else if (StellarYieldsAtomicNumbers[yield_i] == NULL) { break; }
+     }
    } // end for loop
  } // end MM == 2 check
 
@@ -376,10 +374,10 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
        /* Set default tracer fraction */
        metal_fraction = HaloMetallicity;
-       for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-         if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+         if(StellarYieldsAtomicNumbers[ii] > 2){
            chemical_species_fraction[ii] = TestProblemData.ChemicalTracerSpecies_Fractions_2[ii];
-         } else if (StellarYieldsAtomicNumbers[ii] == NULL) { break ;}
+         }
        }
 
        /* Compute position of current cell */
@@ -548,10 +546,10 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
            D_to_H_ratio   = TestProblemData.InnerDeuteriumToHydrogenRatio;
 
            // set chemical tracers in the disk
-           for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-             if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+           for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+             if(StellarYieldsAtomicNumbers[ii] > 2){
                chemical_species_fraction[ii] = TestProblemData.ChemicalTracerSpecies_Fractions[ii];
-             } else if (StellarYieldsAtomicNumbers[ii] == NULL) { break ;}
+             }
            }
          }
        } // end: if (r < DiskRadius)
@@ -604,13 +602,13 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 
        if (TestProblemData.MultiMetals == 2){
-         for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-           if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+         for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+           if(StellarYieldsAtomicNumbers[ii] > 2){
              int field_num;
              this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
 
              BaryonField[field_num][n] = density * chemical_species_fraction[ii];
-           } else if (StellarYieldsAtomicNumbers[ii] == NULL) { break ;}
+           }
          }
        } // end chemical tracer value set
 

@@ -660,8 +660,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   }
 
   if(TestProblemData.MultiMetals == 2){
-    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-      if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      if(StellarYieldsAtomicNumbers[ii] > 2){
         int field_num;
 
         this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
@@ -675,7 +675,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           }
         }
 
-      } else if (StellarYieldsAtomicNumbers[ii] == NULL){ break; }
+      }
     }
   } // end multi metals conversion
 
@@ -1973,8 +1973,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   /* Convert metal species tracers back to densities */
   if(TestProblemData.MultiMetals == 2){
-    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-      if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      if(StellarYieldsAtomicNumbers[ii] > 2){
         int field_num;
 
         this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
@@ -1985,10 +1985,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
             for( i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
                 BaryonField[field_num][index] *= BaryonField[DensNum][index];
             }
-          } 
-        } 
+          }
+        }
 
-      } else if (StellarYieldsAtomicNumbers[ii] == NULL){ break; }
+      }
     }
   } // end multi metals conversion
 

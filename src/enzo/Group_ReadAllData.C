@@ -186,11 +186,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
         if(NumberOfParticleAttributes < 4){ NumberOfParticleAttributes = 4;}
 
-        for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-          if(StellarYieldsAtomicNumbers[ii] != NULL){ 
-            NumberOfParticleAttributes++;
-          } else{break;}
-        }
+        NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
       }
 
     } else {

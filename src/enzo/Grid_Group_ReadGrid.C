@@ -104,10 +104,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
     ParticleAttributeLabel[3] = "birth_mass";
-    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-      if(StellarYieldsAtomicNumbers[ii] != NULL){
-        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
-      } else {break;}
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
     }
 
   } else {

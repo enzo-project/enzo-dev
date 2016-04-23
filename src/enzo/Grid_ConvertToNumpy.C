@@ -54,10 +54,8 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 
     if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
       ParticleAttributeLabel[3] = "birth_mass";
-      for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-        if(StellarYieldsAtomicNumbers[ii] != NULL){
-          ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
-        } else {break;}
+      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
 
     } else {
@@ -214,16 +212,15 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
                 PyDict_SetItemString(grid_data, ParticleAttributeLabels[3], (PyObject*) da$
                 PyDECREF(dataset);
 
-              for(int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i++){
-                if(StellarYieldsAtomicNumbers[yield_i] != NULL && StellarYieldsAtomicNumbers[yield_i] > 2){
+              for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+                if(StellarYieldsAtomicNumbers[yield_i] > 2){
 
-                  /* AJE DOES NOT WORK --- NEED STRING LOOKUP TABLE */
 
                   dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                              1, dims, ENPY_BFLOAT, ParticleAttribute[4 + yield_i]);
                   PyDict_SetItemString(grid_data, ParticleAttributeLabels[4 + yield_i], (PyObject*) dataset);
                   PyDECREF(dataset);
-                } else if (StellarYieldsAtomicNumbers[yield_i] == NULL) { break; }
+                }
               }
             } // mm == 2 check
 

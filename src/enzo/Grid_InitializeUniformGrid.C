@@ -130,35 +130,31 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
     if( MM == 2){
 
-      for(int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i ++){
+      for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
+        switch ( StellarYieldsAtomicNumbers[yield_i] ){
+          case 1 : // if we want to track H or He this should be handled
+          case 2 : // by MultiSpecies. Break if this is not enabled
+            if( TestProblemData.MultiSpecies == 0){ ENZO_FAIL("MultiSpecies must be > 0 to track hydrogen and helium stellar yields.")};
+            break;
 
-        if(StellarYieldsAtomicNumbers[yield_i] != NULL){
-          switch ( StellarYieldsAtomicNumbers[yield_i] ){
-            case 1 : // if we want to track H or He this should be handled
-            case 2 : // by MultiSpecies. Break if this is not enabled
-              if( TestProblemData.MultiSpecies == 0){ ENZO_FAIL("MultiSpecies must be > 0 to track hydrogen and helium stellar yields.")};
-              break;
+          case  6 : FieldType[NumberOfBaryonFields++] = CIDensity; break;
+          case  7 : FieldType[NumberOfBaryonFields++] = NIDensity; break;
+          case  8 : FieldType[NumberOfBaryonFields++] = OIDensity; break;
 
-            case  6 : FieldType[NumberOfBaryonFields++] = CIDensity; break;
-            case  7 : FieldType[NumberOfBaryonFields++] = NIDensity; break;
-            case  8 : FieldType[NumberOfBaryonFields++] = OIDensity; break;
+          case 12 : FieldType[NumberOfBaryonFields++] = MgIDensity; break;
 
-            case 12 : FieldType[NumberOfBaryonFields++] = MgIDensity; break;
+          case 14 : FieldType[NumberOfBaryonFields++] = SiIDensity; break;
 
-            case 14 : FieldType[NumberOfBaryonFields++] = SiIDensity; break;
+          case 26 : FieldType[NumberOfBaryonFields++] = FeIDensity; break;
 
-            case 26 : FieldType[NumberOfBaryonFields++] = FeIDensity; break;
+          case 39 : FieldType[NumberOfBaryonFields++] = YIDensity; break;
 
-            case 39 : FieldType[NumberOfBaryonFields++] = YIDensity; break;
+          case 56 : FieldType[NumberOfBaryonFields++] = BaIDensity; break;
+          case 57 : FieldType[NumberOfBaryonFields++] = LaIDensity; break;
 
-            case 56 : FieldType[NumberOfBaryonFields++] = BaIDensity; break;
-            case 57 : FieldType[NumberOfBaryonFields++] = LaIDensity; break;
+          case 63 : FieldType[NumberOfBaryonFields++] = EuIDensity; break;
 
-            case 63 : FieldType[NumberOfBaryonFields++] = EuIDensity; break;
-
-          }
-        } else if (StellarYieldsAtomicNumbers[yield_i] == NULL) { break; }
-
+        }
       } // end loop over atomic numbers
     } // end mm = 2
 
@@ -349,9 +345,9 @@ int grid::InitializeUniformGrid(float UniformDensity,
       if( MM == 2){
 
       /* loop over elements again and nam initial values */
-        for (int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i ++){
+        for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
           /* > 2 b/c H and He initialization is handled by MultiSpecies */
-          if(StellarYieldsAtomicNumbers[yield_i] != NULL && StellarYieldsAtomicNumbers[yield_i] > 2){
+          if(StellarYieldsAtomicNumbers[yield_i] > 2){
             float fraction  = 0.0;
             int   field_num = 0;
 
@@ -361,7 +357,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
             fraction = TestProblemData.ChemicalTracerSpecies_Fractions[yield_i];
 
             BaryonField[field_num][i] = fraction * UniformDensity;
-          } else if (StellarYieldsAtomicNumbers[yield_i] == NULL) { break; }
+          }
         } // yields loop
       } // if we are doing stellar yields
 

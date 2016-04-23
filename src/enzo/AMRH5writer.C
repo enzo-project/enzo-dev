@@ -77,10 +77,8 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
     ParticleAttributeLabel[3] = "birth_mass";
-    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-      if(StellarYieldsAtomicNumbers[ii] != NULL){
-        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
-      } else {break;}
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
     }
 
   } else {
@@ -472,10 +470,8 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
     ParticleAttributeLabel[3] = "birth_mass";
-    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-      if(StellarYieldsAtomicNumbers[ii] != NULL){
-        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
-      } else {break;}
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
     }
 
   } else {
@@ -663,10 +659,8 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
     ParticleAttributeLabel[3] = "birth_mass";
-    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-      if(StellarYieldsAtomicNumbers[ii] != NULL){
-        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
-      } else {break;}
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
     }
 
   } else {
@@ -934,10 +928,8 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
     ParticleAttributeLabel[3] = "birth_mass";
-    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-      if(StellarYieldsAtomicNumbers[ii] != NULL){
-        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
-      } else {break;}
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
     }
 
   } else {
@@ -1056,10 +1048,8 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
     ParticleAttributeLabel[3] = "birth_mass";
-    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-      if(StellarYieldsAtomicNumbers[ii] != NULL){
-        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
-      } else {break;}
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
     }
 
   } else {

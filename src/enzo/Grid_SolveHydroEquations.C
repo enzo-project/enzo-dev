@@ -195,8 +195,8 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* Add Chemical tracer species as color fields */
     if(TestProblemData.MultiMetals == 2){
-      for(int yield_i = 0; yield_i < MAX_STELLAR_YIELDS; yield_i++){
-        if(StellarYieldsAtomicNumbers[yield_i] != NULL && StellarYieldsAtomicNumbers[yield_i] > 2){
+      for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+        if(StellarYieldsAtomicNumbers[yield_i] > 2){
 
           int field_num = 0;
 
@@ -204,7 +204,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
           colnum[NumberOfColours++] = field_num;
 
 
-        } else if (StellarYieldsAtomicNumbers[yield_i] == NULL) { break ; }
+        }
       }
     } // if mm == 2
 

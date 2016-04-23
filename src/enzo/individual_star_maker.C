@@ -256,8 +256,8 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
       /* Metal fields are all in fractions, as set in Grid_StarParticleHandler */
       if(TestProblemData.MultiMetals == 2){
-        for( int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-          if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+        for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+          if(StellarYieldsAtomicNumbers[ii] > 2){
             int field_num;
 
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
@@ -273,7 +273,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
             ParticleAttribute[4 + ii][0] = BaryonField[HeINum][n]  +
                                            BaryonField[HeIINum][n] + BaryonField[HeIIINum][n];
 
-          } else if (StellarYieldsAtomicNumbers[ii] == NULL) { break ; }
+          }
         }
       }
 
@@ -559,8 +559,8 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 // depending on whether or not multimetals is ON
                 // Tags give fraction of star by mass of given chemical species
                 if(TestProblemData.MultiMetals == 2){
-                  for( int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-                    if(StellarYieldsAtomicNumbers[ii] != NULL && StellarYieldsAtomicNumbers[ii] > 2){
+                  for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+                    if(StellarYieldsAtomicNumbers[ii] > 2){
                       int field_num;
 
                       this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
@@ -576,7 +576,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                       ParticleAttribute[4 + ii][istar] = BaryonField[HeINum][index]  +
                                            BaryonField[HeIINum][index] + BaryonField[HeIIINum][index];
 
-                    } else if (StellarYieldsAtomicNumbers[ii] == NULL) { break ; }
+                    }
                   }
                 }
 
@@ -1042,10 +1042,8 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 
     /* If last paramter is 0, returns total metal mass */
     metal_mass[0] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, 0) / (dx*dx*dx);
-    for(int i = 0; i < MAX_STELLAR_YIELDS; i ++){
-      if(StellarYieldsAtomicNumbers[i] != NULL){
-        metal_mass[1 + i] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, StellarYieldsAtomicNumbers[i]) / (dx*dx*dx);
-      } else {break;}
+    for(int i = 0; i < StellarYieldsNumberOfSpecies; i ++){
+      metal_mass[1 + i] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, StellarYieldsAtomicNumbers[i]) / (dx*dx*dx);
     }
   }
 
@@ -1308,15 +1306,13 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
     AddMetalSpeciesToGridCells(BaryonField[field_num], metal_mass[0] / ((float) number_of_cells),
                                nx, ny, nz, ic, jc, kc, dxc, dyc, dzc, stencil);
 
-    for(int ii = 0; ii < MAX_STELLAR_YIELDS; ii++){
-      if(StellarYieldsAtomicNumbers[ii] != NULL){
-        this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
 
-        printf("ISF: Adding metal feedaback for field %"ISYM" and atomic number %"ISYM" %"ISYM"\n", field_num, StellarYieldsAtomicNumbers[ii], ii);
-        AddMetalSpeciesToGridCells(BaryonField[field_num], metal_mass[1 + ii] / ((float) number_of_cells),
-                                   nx, ny, nz, ic, jc, kc, dxc, dyc, dzc, stencil);
+       printf("ISF: Adding metal feedaback for field %"ISYM" and atomic number %"ISYM" %"ISYM"\n", field_num, StellarYieldsAtomicNumbers[ii], ii);
+       AddMetalSpeciesToGridCells(BaryonField[field_num], metal_mass[1 + ii] / ((float) number_of_cells),
+                                  nx, ny, nz, ic, jc, kc, dxc, dyc, dzc, stencil);
 
-      } else {break;}
     }
 
   } // 

@@ -26,6 +26,18 @@
 
 int FindField(int f, int farray[], int n);
 
+char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
+ /* do similar thing to below but for baryon field labels to remove
+    need of repeated switch statements in problem initialization files
+    and centralize adding of new field names, minimizing number of files
+    we need to modify */
+
+  char *label = {};
+  /* does nothing right now */
+
+  return label;
+}
+
 char* ChemicalSpeciesParticleLabel(const int &atomic_number){
 
   char *label = {};
