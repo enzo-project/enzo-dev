@@ -1119,6 +1119,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   StellarYieldsAtomicNumbers+4, StellarYieldsAtomicNumbers+5, StellarYieldsAtomicNumbers+6, StellarYieldsAtomicNumbers+7,
                   StellarYieldsAtomicNumbers+8, StellarYieldsAtomicNumbers+9);
 
+    ret += sscanf(line, "StellarYieldsNumberOfSpecies = %"ISYM, &StellarYieldsNumberOfSpecies);
 
     /* Read Movie Dump parameters */
 
@@ -1413,11 +1414,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
 
-  /* AJE  - Count up the number of species we are following */
-  StellarYieldsNumberOfSpecies = 0;
-  for(int species = 0; species < MAX_STELLAR_YIELDS; species++){
-    if (StellarYieldsAtomicNumbers[species] != NULL){
-      StellarYieldsNumberOfSpecies ++;
+  /* AJE  - Count up the number of species we are following if not set manually by user*/
+  if (StellarYieldsNumberOfSpecies == INT_UNDEFINED){
+    for(int species = 0; species < MAX_STELLAR_YIELDS; species++){
+      if (StellarYieldsAtomicNumbers[species] != NULL){
+        StellarYieldsNumberOfSpecies ++;
+      }
     }
   }
 

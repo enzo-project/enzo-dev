@@ -731,6 +731,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
   IndividualStarFeedbackStencilSize  = 3;
 
+  StellarYieldsNumberOfSpecies       = INT_UNDEFINED; // number of species to follow - optional, calculated automatically if left undefined
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){
     StellarYieldsAtomicNumbers[i] = NULL;
   }
