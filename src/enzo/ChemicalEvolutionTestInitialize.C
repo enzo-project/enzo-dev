@@ -46,6 +46,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int RebuildHierarchy(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], int level);
 
+char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 
@@ -78,17 +79,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   char *HDIName   = "HDI_Density";
 
   /* Names for chemical evolution element abundances */
-  char *CIName  =  "CI_Density";
-  char *OIName  =  "OI_Density";
-  char *NIName  =  "NI_Density";
-  char *MgIName = "MgI_Density";
-  char *SiIName = "SiI_Density";
-  char *FeIName = "FeI_Density";
-  char *YIName  =  "YI_Density";
-  char *LaIName = "LaI_Density";
-  char *BaIName = "BaI_Density";
-  char *EuIName = "EuI_Density";
-   
+     // these are handled in lookup table in function declared inGrid_IdentifyChemicalTracerSpeciesFields //
+
   /* declarations */
   char line[MAX_LINE_LENGTH];
   int  dim, ret, level, disk, i; // might not need disk
@@ -311,24 +303,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
       for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
         if(StellarYieldsAtomicNumbers[i] > 2){
-          switch(StellarYieldsAtomicNumbers[i]){
-            case  6 : DataLabel[count++] = CIName; break;
-            case  7 : DataLabel[count++] = NIName; break;
-            case  8 : DataLabel[count++] = OIName; break;
-
-            case 12 : DataLabel[count++] = MgIName; break;
-
-            case 14 : DataLabel[count++] = SiIName; break;
-
-            case 26 : DataLabel[count++] = FeIName; break;
-
-            case 39 : DataLabel[count++] = YIName; break;
-
-            case 56 : DataLabel[count++] = BaIName; break;
-            case 57 : DataLabel[count++] = LaIName; break;
-
-            case 63 : DataLabel[count++] = EuIName; break;
-          }
+          DataLabel[count++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[i]);
         }
       }
     }

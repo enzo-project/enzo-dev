@@ -48,6 +48,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
        float *TemperatureUnits, float *TimeUnits,
        float *VelocityUnits, float *MassUnits, FLOAT Time);
 
+char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
+
 
 int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, 
 			  HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary &Exterior)
@@ -78,17 +80,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MetalIaName     = "MetalSNIa_Density";
 
   /* Chemical Tracers */
-  char *CIName  = "CI_Density";
-  char *NIName  = "NI_Density";
-  char *OIName  = "OI_Density";
-  char *MgIName = "MgI_Density";
-  char *SiIName = "SiI_Density";
-  char *FeIName = "FeI_Density";
-
-  char *YIName  = "YI_Density";
-  char *BaIName = "BaI_Density";
-  char *LaIName = "LaI_Density";
-  char *EuIName = "EuI_Density";
+  /* handled with lookup table - see below */
 
   /* declarations */
 
@@ -624,20 +616,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
    for(int i =0; i < StellarYieldsNumberOfSpecies; i ++){
      if(StellarYieldsAtomicNumbers[i] > 2){
-       switch(StellarYieldsAtomicNumbers[i]){
-         case 6 : DataLabel[count++] = CIName; break;
-         case 7 : DataLabel[count++] = NIName; break;
-         case 8 : DataLabel[count++] = OIName; break;
-
-         case 12 : DataLabel[count++] = MgIName; break;
-         case 14 : DataLabel[count++] = SiIName; break;
-         case 26 : DataLabel[count++] = FeIName; break;
-         case 39 : DataLabel[count++] = YIName; break;
-         case 56 : DataLabel[count++] = BaIName; break;
-         case 57 : DataLabel[count++] = LaIName; break;
-         case 63 : DataLabel[count++] = EuIName; break;
-
-       }
+       DataLabel[count++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[i]);
      }
    } // yields loop
  }

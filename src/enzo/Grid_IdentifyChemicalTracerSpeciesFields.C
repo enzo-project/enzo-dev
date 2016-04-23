@@ -4,11 +4,23 @@
 /
 / written by: Andrew Emerick
 / date      : February, 2016
-/ modified1 :
+/ modified1 : April, 2016
 /
 / PURPOSE:
 /
-/ NOTE:
+/ NOTE: A few helper functions exist here to help with identifying
+/       the chemical tracer species fields and to minimize the amount of
+/       changes needed to define new fields. These functions can be
+/       used to set the FieldType and DataLabel arrays at initialization
+/       following examples in ChemicalEvolutionTestInitialize.C and
+/       Grid_ChemicalEvolutionTestInitializeGrid.C
+/
+/       If one wants to add new species field, this requires only modifying
+/       typedefs.h to include the new field, and adding in the proper
+/       case (coded by atomic number) in the switch statements below.
+/       This is a centralized way of handling many different labels for
+/       both the baryon fields and paticles in a consistent manner.
+/
 /
 /***********************************************************************/
 
@@ -26,14 +38,79 @@
 
 int FindField(int f, int farray[], int n);
 
+int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number){
+
+  int field_num;
+
+  /* Look up and return field index defined in typedefs.h */
+  switch(atomic_number){
+    case 1 :
+    case 2 :
+      if (TestProblemData.MultiSpecies == 0){
+        ENZO_FAIL("ChemicalSpeciesBaryonFieldNumber: Multispecies must be ON to track H and He yields");
+      }
+      break;
+
+    case  6 : field_num = CIDensity; break;
+    case  7 : field_num = NDensity; break;
+    case  8 : field_num = OIDensity; break;
+
+    case 12 : field_num = MgDensity; break;
+
+    case 14 : field_num = SiIDensity; break;
+
+    case 26 : field_num = FeDensity; break;
+
+    case 39 : field_num = YDensity; break;
+
+    case 56 : field_num = BaDensity; break;
+    case 57 : field_num = LaDensity; break;
+
+    case 63 : field_num = EuDensity; break;
+
+    default:
+      ENZO_FAIL("ChemicalSpeciesBaryonFieldNumber: Cannot find field");
+
+  }
+
+  return field_num;
+
+}
+
 char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
- /* do similar thing to below but for baryon field labels to remove
-    need of repeated switch statements in problem initialization files
-    and centralize adding of new field names, minimizing number of files
-    we need to modify */
 
   char *label = {};
-  /* does nothing right now */
+
+  /* For a given atomic number, return the name we should assign to the baryon field
+     DataLabel */
+  switch(atomic_number){
+    case 1 : // Handled via multispecies - this can be re-worked in the case when MultiSpecies
+    case 2 : // is off, making passive H and He tracers, but why would one do this?
+      if (TestProblemData.MultiSpecies == 0){
+        ENZO_FAIL("ChemicalSpeciesBaryonFieldLabel: MultiSpecies must be ON to track yields for H or He");
+      }
+      break;
+
+    case  6 : label = "C_Density"; break;
+    case  7 : label = "N_Density"; break;
+    case  8 : label = "O_Density"; break;
+
+    case 12 : label = "Mg_Density"; break;
+
+    case 14 : label = "Si_Density"; break;
+
+    case 26 : label = "Fe_Density"; break;
+
+    case 39 : label = "Y_Density"; break;
+
+    case 56 : label = "Ba_Density"; break;
+    case 57 : label = "La_Density"; break;
+
+    case 63 : label = "Eu_Density"; break;
+
+    default:
+      ENZO_FAIL("Error in ChemicalSpeciesBaryonFieldLabel - Label not found\n");
+  }
 
   return label;
 }
@@ -41,6 +118,9 @@ char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
 char* ChemicalSpeciesParticleLabel(const int &atomic_number){
 
   char *label = {};
+
+  /* For a given atomic number, return the name we should assign
+     to the particle attribute for chemical tagging purposes */
 
   switch(atomic_number){
     case  1 : label = "H_Fraction" ; break;
@@ -117,22 +197,24 @@ int grid::IdentifyChemicalTracerSpeciesFieldsByNumber(int &field_num,
 
     /* only one case for all other species */
 
+    /* for all other cases can do field_num = FindField(ChemicalSpeciesBaryonFieldNumber(atomic_number), FieldType, NumberO */
+
     case  6: field_num = FindField( CIDensity, FieldType, NumberOfBaryonFields); break;
-    case  7: field_num = FindField( NIDensity, FieldType, NumberOfBaryonFields); break;
+    case  7: field_num = FindField( NDensity, FieldType, NumberOfBaryonFields); break;
     case  8: field_num = FindField( OIDensity, FieldType, NumberOfBaryonFields); break;
 
-    case 12: field_num = FindField(MgIDensity, FieldType, NumberOfBaryonFields); break;
+    case 12: field_num = FindField(MgDensity, FieldType, NumberOfBaryonFields); break;
 
     case 14: field_num = FindField(SiIDensity, FieldType, NumberOfBaryonFields); break;
 
-    case 26: field_num = FindField(FeIDensity, FieldType, NumberOfBaryonFields); break;
+    case 26: field_num = FindField(FeDensity, FieldType, NumberOfBaryonFields); break;
 
-    case 39: field_num = FindField(YIDensity, FieldType, NumberOfBaryonFields); break;
+    case 39: field_num = FindField(YDensity, FieldType, NumberOfBaryonFields); break;
 
-    case 56: field_num = FindField(BaIDensity, FieldType, NumberOfBaryonFields); break;
-    case 57: field_num = FindField(LaIDensity, FieldType, NumberOfBaryonFields); break;
+    case 56: field_num = FindField(BaDensity, FieldType, NumberOfBaryonFields); break;
+    case 57: field_num = FindField(LaDensity, FieldType, NumberOfBaryonFields); break;
 
-    case 63: field_num = FindField(EuIDensity, FieldType, NumberOfBaryonFields); break;
+    case 63: field_num = FindField(EuDensity, FieldType, NumberOfBaryonFields); break;
   }
 
   if(field_num < 0){
@@ -141,44 +223,3 @@ int grid::IdentifyChemicalTracerSpeciesFieldsByNumber(int &field_num,
 
   return SUCCESS;
 }
-
-/* AJE overhaul 04 21 16
-int grid::IdentifyChemicalTracerSpeciesFields(int  &CINum, int  &NINum, int  &OINum,
-                                              int &MgINum, int &SiINum, int &FeINum,
-                                              int  &YINum, int &BaINum, int &LaINum,
-                                              int &EuINum)
-{
-
-  CINum = NINum = OINum = MgINum = SiINum = FeINum = YINum = BaINum = LaINum = EuINum = 0;
-
-  //
-  if(MULTIMETALS_METHOD(MULTIMETALS_ALPHA)){
-     CINum = FindField( CIDensity, FieldType, NumberOfBaryonFields);
-     NINum = FindField( NIDensity, FieldType, NumberOfBaryonFields);
-     OINum = FindField( OIDensity, FieldType, NumberOfBaryonFields);
-    MgINum = FindField(MgIDensity, FieldType, NumberOfBaryonFields);
-    SiINum = FindField(SiIDensity, FieldType, NumberOfBaryonFields);
-    FeINum = FindField(FeIDensity, FieldType, NumberOfBaryonFields);
-  }
-
-  if(MULTIMETALS_METHOD(MULTIMETALS_SPROCESS)){
-     YINum = FindField( YIDensity, FieldType, NumberOfBaryonFields);
-    BaINum = FindField(BaIDensity, FieldType, NumberOfBaryonFields);
-    LaINum = FindField(LaIDensity, FieldType, NumberOfBaryonFields);
-  }
-
-  if(MULTIMETALS_METHOD(MULTIMETALS_RPROCESS)){
-    EuINum = FindField(EuIDensity, FieldType, NumberOfBaryonFields);
-  }
-
-  if(( CINum < 0) || ( NINum < 0) || ( OINum < 0) || (MgINum < 0) || (SiINum < 0) ||
-     (FeINum < 0) || ( YINum < 0) || (BaINum < 0) || (LaINum < 0) || (EuINum < 0)){
-
-    ENZO_VFAIL("Error identifying species for Chemical Tracers = %"ISYM".\n",
-                TestProblemData.MultiMetals)
-  }
-
-
-  return SUCCESS;
-}
-*/

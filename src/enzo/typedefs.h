@@ -173,13 +173,13 @@ const field_type
   CRDensity = 97,
 
   /* AJE chemical evolution element densities */
-  NIDensity  = 98,
-  MgIDensity = 99,
-  FeIDensity = 100,
-  YIDensity  = 101,
-  BaIDensity = 102,
-  LaIDensity = 103,
-  EuIDensity = 104,
+  NDensity  = 98,
+  MgDensity = 99,
+  FeDensity = 100,
+  YDensity  = 101,
+  BaDensity = 102,
+  LaDensity = 103,
+  EuDensity = 104,
 
 
   FieldUndefined  = 105;
