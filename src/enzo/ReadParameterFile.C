@@ -1088,6 +1088,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarRadiationMinimumMass);
     ret += sscanf(line, "IndividualStarStellarWinds = %"ISYM,
                         &IndividualStarStellarWinds);
+    ret += sscanf(line, "IndividualStarStellarWindVelocity = %"FSYM,
+                        &IndividualStarStellarWindVelocity);
     ret += sscanf(line, "IndividualStarFollowStellarYields = %"ISYM,
                         &IndividualStarFollowStellarYields);
     ret += sscanf(line, "IndividualStarWDMinimumMass = %"FSYM,
@@ -1112,7 +1114,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         IndividualStarBlackBodyq0Factors+0, IndividualStarBlackBodyq0Factors+1);
     ret += sscanf(line, "IndividualStarBlackBodyq1Factors = %"FSYM" %"FSYM,
                         IndividualStarBlackBodyq1Factors+0, IndividualStarBlackBodyq1Factors+1);
-
+    ret += sscanf(line, "IndividualStarSupernovaEnergy = %"FSYM,
+                        &IndividualStarSupernovaEnergy);
 
     ret += sscanf(line, "StellarYieldsAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
                   StellarYieldsAtomicNumbers+0, StellarYieldsAtomicNumbers+1, StellarYieldsAtomicNumbers+2, StellarYieldsAtomicNumbers+3,
@@ -1415,14 +1418,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 
   /* AJE  - Count up the number of species we are following if not set manually by user*/
-  if (StellarYieldsNumberOfSpecies == INT_UNDEFINED && TestProblemData.MultiMetals == 2){
+  if (StellarYieldsNumberOfSpecies == INT_UNDEFINED){
+    StellarYieldsNumberOfSpecies = 0;
     for(int species = 0; species < MAX_STELLAR_YIELDS; species++){
       if (StellarYieldsAtomicNumbers[species] != NULL){
         StellarYieldsNumberOfSpecies ++;
       }
     }
-  } else {
-    StellarYieldsNumberOfSpecies == 0;
   }
 
   // HierarchyFile IO sanity check

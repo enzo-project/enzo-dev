@@ -1007,7 +1007,13 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     m_eject = m_eject * dt / lifetime;
 
     E_thermal = 0.0;
-    ComputeStellarWindVelocity(mproj, metallicity, &v_wind);
+
+    /* set wind velocity depending on mode */
+    if ( IndividualStarStellarWindVelocity < 0){
+      ComputeStellarWindVelocity(mproj, metallicity, &v_wind); // compute wind velocity in km / s using model
+    } else {
+      v_wind = IndividualStarStellarWindVelocity; // wind velocity in km / s
+    }
 
     printf("ISF: Stellar wind mass in Msun = %"ESYM" in code units %"ESYM"\n", m_eject *m1/msolar, m_eject);
     printf("ISF: Total Expected momentum in cgs %"ESYM" and in code units %"ESYM"\n", v_wind*1.0E5*m_eject*m1/msolar, m_eject * v_wind*1.0E5/v1);
@@ -1022,7 +1028,13 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 
   } else if (mode > 0) { // computing supernova
     m_eject   = StellarYieldsInterpolateYield(0, mproj, metallicity, -1) * msolar / m1;
-    E_thermal = m_eject * StarEnergyToThermalFeedback * (c_light * c_light/(v1*v1));
+
+    if( IndividualStarSupernovaEnergy < 0){
+      E_thermal = m_eject * StarEnergyToThermalFeedback * (c_light * c_light/(v1*v1));
+    } else {
+      E_thermal = IndividualStarSupernovaEnergy * 1.0E51 / (m1*v1*v1);
+    }
+
     v_wind    = 0.0;
     E_kin     = 0.0;
     printf("AddFeedbackGeneral: M_proj %"FSYM" Z = %"FSYM", M_eject = %"ESYM" E_thermal = %"ESYM"\n", mproj, metallicity, m_eject*m1/msolar, E_thermal*v1*v1*m1);
