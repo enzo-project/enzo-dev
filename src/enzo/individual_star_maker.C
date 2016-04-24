@@ -51,7 +51,8 @@ float SampleIMF(void);
 float ComputeSnIaProbability(float *current_time, float *formation_time, float *lifetime, float *t1);
 unsigned_long_int mt_random(void);
 
-void ComputeStellarWindVelocity(const float &mproj, const float &metallicity, float *v_wind);
+void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
+                                const float &lifetime,  float *v_wind);
 
 
 /* o boy *//*
@@ -233,8 +234,8 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
       if(ChemicalEvolutionTestStarLifetime > 0){
         ParticleAttribute[1][0] = ChemicalEvolutionTestStarLifetime * myr / (*t1);
       } else{
-        ParticleAttribute[1][0] = IndividualStarLifetime(&ChemicalEvolutionTestStarMass,
-                                                         &ChemicalEvolutionTestStarMetallicity) / (*t1);
+        ParticleAttribute[1][0] = IndividualStarLifetime(ChemicalEvolutionTestStarMass,
+                                                         ChemicalEvolutionTestStarMetallicity) / (*t1);
       }
 
       ParticleAttribute[3][0] = ChemicalEvolutionTestStarMass; // in solar!!!
@@ -515,14 +516,12 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
                 ParticleType[istar]            = -(*ctype);   // negative is a "new" star
                 ParticleAttribute[0][istar]    = *t;          // formation tim
-                ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metallicity
+                ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metal fraction (conv from density in Grid_StarParticleHandler)
 
-                ParticleAttribute[1][istar] = IndividualStarLifetime( &ParticleMass[istar],
-                                                                      &ParticleAttribute[2][istar]) / (*t1);
-//                ParticleAttribute[1][istar]    = IndividualStarLifetime( &ParticleMass[istar] ) / (*t1);
-//                ParticleAttribute[1][istar]    = compute_lifetime( &ParticleMass[istar] ) / (*t1); // lifetime
+                ParticleAttribute[1][istar] = IndividualStarLifetime( ParticleMass[istar],
+                                                                      ParticleAttribute[2][istar]) / (*t1);
                 ParticleAttribute[3][istar]    = ParticleMass[istar]; //progenitor mass in solar (main sequence mass)
-                ParticleMass[istar]            = ParticleMass[istar] * msolar / m1;                // mass
+                ParticleMass[istar]            = ParticleMass[istar] * msolar / m1;   // mass in code (not yet dens)
 
                 // give the star particle a position chosen at random
                 // within the cell ( so they are not all at cell center )
@@ -554,10 +553,9 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 py += ParticleVelocity[1][istar]*ParticleMass[istar];
                 pz += ParticleVelocity[2][istar]*ParticleMass[istar];
 
-                // this is where code would go to assign
-                // chemical tags to all of the particles
-                // depending on whether or not multimetals is ON
-                // Tags give fraction of star by mass of given chemical species
+                // We did the metallicity tagging already, but now loop through and
+                // do individual chemical tagging for each species tracked in the simulation
+                // these are stored as particle attributes starting with attr number 5 (index 4)
                 if(TestProblemData.MultiMetals == 2){
                   for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
                     if(StellarYieldsAtomicNumbers[ii] > 2){
@@ -568,11 +566,12 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                       ParticleAttribute[4 + ii][istar] = BaryonField[field_num][index];
 
                     } else if (StellarYieldsAtomicNumbers[ii] == 1){
-                    /* Take H and He fractions as TOTAL amount of H and He species in the cell */
+                      // Take H and He fractions as TOTAL amount of H in the cell
+                      // this is probably not needed since it should all be HI in a star forming region anyway
                       ParticleAttribute[4 + ii][istar] = BaryonField[HINum][index] + BaryonField[HIINum][index];
 
                     } else if (StellarYieldsAtomicNumbers[ii] == 2){
-
+                      // Again, total amount of Helium - probably not necessary, should all be HeI anyway
                       ParticleAttribute[4 + ii][istar] = BaryonField[HeINum][index]  +
                                            BaryonField[HeIINum][index] + BaryonField[HeIIINum][index];
 
@@ -937,7 +936,8 @@ float ComputeSnIaProbability(float *current_time, float *formation_time, float *
  return dPdt;
 }
 
-void ComputeStellarWindVelocity(const float &mproj, const float &metallicity, float *v_wind){
+void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
+                                const float &lifetime, float *v_wind){
  /* ------------------------------------------------------------------
   * ComputeStellarWindVelocity
   * -------------------------------------------------------------------
@@ -955,7 +955,7 @@ void ComputeStellarWindVelocity(const float &mproj, const float &metallicity, fl
   const double solar_z = 0.02; // as assumed in Leithener et. al. 1992
 
   /* get properties */
-  IndividualStarInterpolateLuminosity(&L, mproj, metallicity);
+  L = IndividualStarLuminosity(mproj, lifetime);
   IndividualStarInterpolateProperties(&Teff, &R, mproj, metallicity);
 
 
@@ -1010,7 +1010,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 
     /* set wind velocity depending on mode */
     if ( IndividualStarStellarWindVelocity < 0){
-      ComputeStellarWindVelocity(mproj, metallicity, &v_wind); // compute wind velocity in km / s using model
+      ComputeStellarWindVelocity(mproj, metallicity, lifetime * (x1/v1), &v_wind); // compute wind velocity in km / s using model
     } else {
       v_wind = IndividualStarStellarWindVelocity; // wind velocity in km / s
     }

@@ -109,11 +109,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       ENZO_FAIL("Star_ComputePhotonRates: Failure in computing individual star properties\n");
     }
 
-    g = IndividualStarSurfaceGravity( &M, &R); // M in solar - R in cgs
-
-//    Teff = IndividualStarTeff( &M, &tau);
-//    g    = IndividualStarSurfaceGravity( &M );
-//    R    = IndividualStarRadius( &M );
+    g = IndividualStarSurfaceGravity( M, R); // M in solar - R in cgs
 
     printf("Star_ComputePhotonRates: Teff = %"ESYM" g = %"ESYM" Z = %"ESYM"\n", Teff, g, Z);
     if( IndividualStarComputeIonizingRates( &Q[0], &Q[1], &Teff, &g, &Z) == FAIL){

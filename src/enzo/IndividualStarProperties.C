@@ -34,96 +34,36 @@ const double SOLAR_MASS        = 1.99E33           ; // g
 const double SOLAR_RADIUS      = 69.63E9           ; // cm
 const double SOLAR_METALLICITY = 0.02              ;
 
-float IndividualStarLifetime(float *mp){
-  /* ---------------------------------------------------------
-   * Compute lifetime given only the mass. This is only used
-   * used when radiation for individual stars is not being used
-   * as luminosity calculation is not deterministic.
-   * value returned in CGS.
-   * ---------------------------------------------------------*/
-  float luminosity, lifetime;
-
-  luminosity  = IndividualStarLuminosity( mp);
-  luminosity /= SOLAR_LUMINOSITY; // convert from cgs to solar
-
-  lifetime   = SOLAR_LIFETIME * (*mp)/(luminosity); // in cgs
-
-  return lifetime;
-}
-
-float IndividualStarLifetime(float *mp, float *metallicity){
+float IndividualStarLifetime(const float &mp, const float &metallicity){
   /* ========================================================
-   * compute lifetime by interpolating parsec tables for L
+   * IndividualStarLifetime
+   * --------------------------------------------------------
+   * A. Emerick - Feb 2016
+   *
+   * Compute star lifetime by interpolating tables to obtain L
+   * and scale based upon solar lifetime
+   *
    * mp is assumed to be in solar masses
    * =======================================================*/
 
   float L, lifetime;
 
-  if(IndividualStarInterpolateLuminosity(&L, *mp, *metallicity) == FAIL){
+  if(IndividualStarInterpolateLuminosity(L, mp, metallicity) == FAIL){
     ENZO_FAIL("IndividualStarLifetime: Failed to interpolate luminosity \n");
   }
 
   // L from above is in solar units already
-  lifetime = SOLAR_LIFETIME * (*mp) / (L);
+  lifetime = SOLAR_LIFETIME * (mp) / (L);
 
   return lifetime;
 }
 
-float IndividualStarLuminosity(float *mp){
-  /* ------------------------------------------------------------
-   * Use the broken power law scaling fits to the M-L
-   * relationship in Ekel et. al. 2015 to compute the star's
-   * luminosity given the mass. Assume L is Gaussianly distributed
-   * about mean relation at fixed mass, using spread taken
-   * from Ekel et. al. 2015:
-   *
-   * log(L [solar]) = alpha * log(M [solar]) + A
-   *
-   * Luminosity returned in CGS
-   * ------------------------------------------------------------- */
-
-  float alpha;     // slope
-  float A;         // normalization
-  float sigma;     // standard deviation
-  float luminosity;
-
-  float rnum;
-  int rsign;
-  const int max_random = (1<<16);
-
-  // first range is technically 0.38 < M <= 1.05
-  if( *mp <= 1.05 ){
-    alpha = 4.841;
-    A     = -0.026;
-    sigma = 0.121;
-  } else if (1.05 < *mp && *mp <= 2.40) {
-    alpha = 4.328;
-    A     = -0.002;
-    sigma = 0.108;
-  } else if (2.40 < *mp && *mp <= 7.00) {
-    alpha = 3.962;
-    A     = 0.120;
-    sigma = 0.165;
-  } else{ // last range is fit over 7 < M <= 32 but extend it
-    alpha = 2.726;
-    A     = 1.237;
-    sigma = 0.158;
-  }
-
-  // calculate mean luminosity at given mass
-  luminosity = alpha * log10(*mp) + A; // log luminosity
-
-  // now assume gaussian distribution about the mean
-  rnum  = (float) (random() % max_random) / (float) (max_random);
-  rsign = rnum>0.5 ? 1:-1;
-  luminosity = luminosity + rsign * GaussianRandomVariable() * sigma;
-  luminosity = POW(10.0, luminosity) * SOLAR_LUMINOSITY;
-
-  return luminosity;
-}
-
-float IndividualStarLuminosity(float *mp, float *lifetime){
+float IndividualStarLuminosity(const float &mp, const float &lifetime){
   /* -----------------------------------------------------
+   * IndividualStarLuminosity
+   * -----------------------------------------------------
+   * A. Emerick - Feb 2016
+   *
    * Since lifetime is computed using the luminosity, return
    * luminosity given mass and lifetime to avoid having to store
    * the value for luminosity in the simulation
@@ -131,70 +71,21 @@ float IndividualStarLuminosity(float *mp, float *lifetime){
    * M in solar, lifetime in cgs
    * ------------------------------------------------------ */
 
-  return SOLAR_LUMINOSITY * (*mp)/ ( *lifetime / SOLAR_LIFETIME);
+  return SOLAR_LUMINOSITY * (mp)/ ( lifetime / SOLAR_LIFETIME);
 }
 
-float IndividualStarRadius(float *mp){
-  // computes the stellar radius using mass alone
-  // The assumption here is that stellar radius has a one-to-one
-  // relationship with mass and does not depend on metallicity
-  // The radii are computed assuming a polytropic equation of state
-  // scaled to the solar mass / radius. Stars are differentiated
-  // based on type of nuclear burning dominance and the associated
-  // polytropic value for their E.O.S.... more massive stars are 
-  // closer to linear relationship
-
-  float R;
-
-  // assume a polytropic equation of state with p-p dominated burning
-  // - in this case n = 4 and R scales as M^( (n-1) / (n+3))
-  // this may underestimate radius for most massive stars
-  if (*mp <= 0.5){
-    R = POW(*mp, 0.9); // fully convective - nearly one-to-one scaling
-  } else if (*mp < 2.0){
-    R = POW(*mp, 3.0/7.0); // pp chain dominated - n = 4
-  } else{
-    R = POW(*mp, 15.0/19.0); // CNO dominated - n = 16
-  }
-
-  return R * SOLAR_RADIUS;
-}
-
-float IndividualStarTeff(float *mp, float *lifetime){
- // given mass and tau, calculate L and R
- // use stefan boltzman to get teff
-
-  float L, R;
-  L = IndividualStarLuminosity( mp , lifetime) / SOLAR_LUMINOSITY;
-  R = IndividualStarRadius( mp ) / SOLAR_RADIUS;
-
-  return SOLAR_TEFF * POW(L / (R*R), 0.25);
-}
-
-float IndividualStarTeff(float *mp, float *L, float *R){
-  /* Effective temperature given L and R */
-
-  return SOLAR_TEFF * POW(
-                              (*L/SOLAR_LUMINOSITY)
-                              / ( (*R)*(*R) /(SOLAR_RADIUS*SOLAR_RADIUS)), 0.25);
-}
-
-float IndividualStarSurfaceGravity(float *mp){
-  /* given mass, compute radius and get surface gravity (cgs) */
-
-  float R;
+float IndividualStarSurfaceGravity(const float &mp, const float &R){
+  /* ----------------------------------------------------
+   * IndividualStarSurfaceGravity
+   * ----------------------------------------------------
+   * A. Emerick - Feb 2016
+   *
+   * Given stellar mass (solar) and radius (cm), compute
+   * the star's surface gravity (cgs).
+   * ---------------------------------------------------*/
   const double G = 6.6743E-8;
 
-  R = IndividualStarRadius( mp );
-
-  return G*(*mp * SOLAR_MASS)/(R*R);
-}
-
-float IndividualStarSurfaceGravity(float *mp, float *R){
-  /* Compute surface gravity given radius */
-  const double G = 6.6743E-8;
-
-  return G*(*mp * SOLAR_MASS)/((*R)*(*R));
+  return G*(mp * SOLAR_MASS) / ( R*R );
 }
 
 int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
@@ -202,6 +93,8 @@ int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
  /*============================================================
   * IndividualStarComputeIonizingRates
   * ===========================================================
+  * A. Emerick - Feb 2016
+  *
   * Computes the ionizing photon rates for an individual star.
   * Attempts to use OSTAR2002 gridded ionizing rate data first
   * which is an interpolation over a grid of T, g, and Z. If
@@ -267,10 +160,12 @@ int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
   return SUCCESS;
 }
 
-int IndividualStarInterpolateLuminosity(float *L, const float &M, const float &metallicity){
+int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &metallicity){
   /* =================================================================
    * IndividualStarInterpolateLuminosity
    * =================================================================
+   * A. Emerick - Feb 2016
+   *
    * Performs billinear interpolation over star mass and metallicity
    * to compute star luminosity using the PARSEC stellar evolution
    * tracks. Luminosity is used to set the star particle lifetime.
@@ -344,10 +239,10 @@ int IndividualStarInterpolateLuminosity(float *L, const float &M, const float &m
         (IndividualStarPropertiesData.Z[j+1] - IndividualStarPropertiesData.Z[j]);
 
   /* Now apply the coefficients and compute the effective temperature */
-  *L = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.L[i  ][j  ] +
-       (1.0 - t)*(      u) * IndividualStarPropertiesData.L[i  ][j+1] +
-       (      t)*(      u) * IndividualStarPropertiesData.L[i+1][j+1] +
-       (      t)*(1.0 - u) * IndividualStarPropertiesData.L[i+1][j  ] ;
+  L = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.L[i  ][j  ] +
+      (1.0 - t)*(      u) * IndividualStarPropertiesData.L[i  ][j+1] +
+      (      t)*(      u) * IndividualStarPropertiesData.L[i+1][j+1] +
+      (      t)*(1.0 - u) * IndividualStarPropertiesData.L[i+1][j  ] ;
 
   return SUCCESS;
 }
@@ -359,6 +254,8 @@ int IndividualStarInterpolateProperties(float *Teff, float *R,
   /* ==================================================================
    * IndividualStarInterpolateProperties
    * ==================================================================
+   * A. Emerick - Feb 2016
+   *
    * Performs billinear interpolation over star mass and metallicity
    * to compute star effective temperature and radius (for surface
    * gravity) using the PARSEC stellar evolution tracks
@@ -453,6 +350,8 @@ int IndividualStarInterpolateRadData(float *q0, float *q1,
   /* ===================================================================
    * IndividualStarInterpolateRadData
    * ===================================================================
+   * A. Emerick - Feb 2016
+   *
    * Performs trillinear interpolation over effective temperature,
    * surface gravity, and metallicity to compute stellar ionizing fluxes
    * q0 and q1. Method follows billinear interpolation outlined in
