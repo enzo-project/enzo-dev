@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------------------
 /
-/ INDIVIDUAL STAR PROPERTIES HELPER ROUTINES
+/ INDIVIDUAL STAR PROPERTIES
 /
 / Author: Andrew Emerick
 / Date  : March, 2016
@@ -38,7 +38,7 @@ float IndividualStarLifetime(const float &mp, const float &metallicity){
   /* ========================================================
    * IndividualStarLifetime
    * --------------------------------------------------------
-   * A. Emerick - Feb 2016
+   * A. Emerick - March 2016
    *
    * Compute star lifetime by interpolating tables to obtain L
    * and scale based upon solar lifetime
@@ -62,7 +62,7 @@ float IndividualStarLuminosity(const float &mp, const float &lifetime){
   /* -----------------------------------------------------
    * IndividualStarLuminosity
    * -----------------------------------------------------
-   * A. Emerick - Feb 2016
+   * A. Emerick - March 2016
    *
    * Since lifetime is computed using the luminosity, return
    * luminosity given mass and lifetime to avoid having to store
@@ -78,7 +78,7 @@ float IndividualStarSurfaceGravity(const float &mp, const float &R){
   /* ----------------------------------------------------
    * IndividualStarSurfaceGravity
    * ----------------------------------------------------
-   * A. Emerick - Feb 2016
+   * A. Emerick - March 2016
    *
    * Given stellar mass (solar) and radius (cm), compute
    * the star's surface gravity (cgs).
@@ -93,7 +93,7 @@ int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
  /*============================================================
   * IndividualStarComputeIonizingRates
   * ===========================================================
-  * A. Emerick - Feb 2016
+  * A. Emerick - March 2016
   *
   * Computes the ionizing photon rates for an individual star.
   * Attempts to use OSTAR2002 gridded ionizing rate data first
@@ -164,7 +164,7 @@ int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &m
   /* =================================================================
    * IndividualStarInterpolateLuminosity
    * =================================================================
-   * A. Emerick - Feb 2016
+   * A. Emerick - March 2016
    *
    * Performs billinear interpolation over star mass and metallicity
    * to compute star luminosity using the PARSEC stellar evolution
@@ -254,7 +254,7 @@ int IndividualStarInterpolateProperties(float *Teff, float *R,
   /* ==================================================================
    * IndividualStarInterpolateProperties
    * ==================================================================
-   * A. Emerick - Feb 2016
+   * A. Emerick - March 2016
    *
    * Performs billinear interpolation over star mass and metallicity
    * to compute star effective temperature and radius (for surface
@@ -350,7 +350,7 @@ int IndividualStarInterpolateRadData(float *q0, float *q1,
   /* ===================================================================
    * IndividualStarInterpolateRadData
    * ===================================================================
-   * A. Emerick - Feb 2016
+   * A. Emerick - March 2016
    *
    * Performs trillinear interpolation over effective temperature,
    * surface gravity, and metallicity to compute stellar ionizing fluxes

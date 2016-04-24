@@ -23,19 +23,25 @@
 #include "StellarYieldsRoutines.h"
 
 /* function prototypes */
-
-
 void unpack_line_to_yields( char *line, float *dummy);
 
-int InitializeStellarYields(void){
 
-  //
-  // check to make sure these are even needed
+
+int InitializeStellarYields(void){
+  /* ------------------------------------------------------
+   * InitializeStellarYields
+   * -------------------------------------------------------
+   * A. Emerick - April 2016
+   *
+   * Initializes stellar yields lookup tables if requested
+   * -------------------------------------------------------*/
+
+  // Make sure we have the right parameters set to do this
   //
   // Requires:
-  //           MultiMetals >= 2
+  //           MultiMetals == 2
   //           ChemicalEjecta ON
-  // Useless unless:
+  // Useless unless: (as of May 2016)
   //           IndividualStar SF method
   if( !IndividualStarFollowStellarYields &&
       !TestProblemData.MultiMetals       &&
@@ -52,6 +58,8 @@ int InitializeStellarYields(void){
   }
 
   // AJE: Hard code he number of bins for now
+  //     - I want to fix this but this is not priority -
+  //     - unfixed as of April 2016 -
   StellarYieldsSNData.NumberOfMassBins        = 12;
   StellarYieldsSNData.NumberOfMetallicityBins =  5;
   StellarYieldsSNData.NumberOfYields          = StellarYieldsNumberOfSpecies;
@@ -60,7 +68,10 @@ int InitializeStellarYields(void){
   StellarYieldsWindData.NumberOfMetallicityBins =  5;
   StellarYieldsWindData.NumberOfYields          = StellarYieldsNumberOfSpecies;
 
-  // read in data and populate tables
+  // read in data from files - one table for each yield type:
+  //   1) core collapse supernova
+  //   2) stellar winds
+  //
   FILE *fptr_sn = fopen("stellar_yields_sn.in", "r");
   if (fptr_sn == NULL){
     ENZO_FAIL("Error opening stellar yields SN file, 'stellar_yields_sn.in");
