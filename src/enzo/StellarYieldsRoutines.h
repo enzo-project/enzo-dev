@@ -9,6 +9,9 @@
 # define ISEXTERN extern
 #endif
 
+
+float StellarYields_SNIaYieldsByNumber(const int &atomic_number);
+
 float StellarYieldsInterpolateYield(int yield_type, const float &M,
                                     const float &metallicity, int atomic_number);
 

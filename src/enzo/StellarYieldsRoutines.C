@@ -18,6 +18,63 @@
 
 #include "StellarYieldsRoutines.h"
 
+
+float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
+  /* -------------------------------------------------------------
+   * StellarYields_SNIaYieldsByNumber
+   * -------------------------------------------------------------
+   * Given the atomic number of a desired element, returns the SNIa
+   * yields for a given Type Ia supernova as given in the
+   * Thieleman et. al. 1986 table (see Table 5)
+   *
+   * Table 5 in Thielemann et. al. 1986 has yields for multiple
+   * isotopes for each species. 
+   * -------------------------------------------------------------*/
+
+  float yield = -1.0;
+
+  if (atomic_number <= 5 || atomic_number >= 33 ){
+    return 0.0; // nothing produced here (not included in table)
+  }
+
+  // yields are presented below as sum over all isotpes
+  // in table in units of Msun
+  switch(atomic_number){
+    case  6 : yield = 5.0E-2 + 4.5E-13; break;
+    case  7 : yield = 2.7E-9 + 4.4E-9 ; break;
+    case  8 : yield = 1.3E-1 + 1.1E-10 + 1.7E-12; break;
+    case  9 : yield = 2.5E-13; break;
+    case 10 : yield = 1.8E-3 + 1.1E-8  + 2.5E-3; break;
+    case 11 : yield = 1.8E-6; break;
+    case 12 : yield = 1.6E-6 + 5.8E-6 + 4.0E-6; break;
+    case 13 : yield = 4.4E-4; break;
+    case 14 : yield = 1.5E-1 + 3.0E-4 + 3.4E-3; break;
+    case 15 : yield = 1.4E-4; break;
+    case 16 : yield = 8.2E-2 + 7.2E-4 + 1.5E-3 + 2.5E-8; break;
+    case 17 : yield = 1.2E-4 + 2.8E-5; break;
+    case 18 : yield = 1.7E-2 + 1.2E-3; break;
+    case 19 : yield = 9.9E-5 + 6.6E-6; break;
+    case 20 : yield = 1.5E-2 + 3.6E-5 + 4.2E-8 + 1.8E-5 + 1.3E-9 + 5.7E-12; break;
+    case 21 : yield = 1.6E-7; break;
+    case 22 : yield = 1.9E-5 + 3.1E-7 + 2.0E-4 + 9.3E-6 + 1.6E-6; break;
+    case 23 : yield = 5.0E-9 + 2.8E-5; break;
+    case 24 : yield = 2.3E-4 + 5.2E-3 + 6.6E-4 + 3.8E-5; break;
+    case 25 : yield = 6.7E-3; break;
+    case 26 : yield = 9.0E-2 + 6.3E-1 + 2.2E-2 + 2.5E-4; break;
+    case 27 : yield = 7.3E-4; break;
+    case 28 : yield = 1.3E-2 + 1.4E-2 + 2.4E-4 + 5.1E-3 + 2.6E-7; break;
+    case 29 : yield = 2.0E-6 + 8.5E-6; break;
+    case 30 : yield = 1.3E-5 + 1.9E-5 + 8.2E-8 + 3.5E-7 + 1.0E-9; break;
+    case 31 : yield = 1.0E-7 + 6.1E-9; break;
+    case 32 : yield = 8.4E-7 + 5.7E-8 + 8.1E-11 + 1.8E-8; break;
+
+    default:
+      ENZO_FAIL("Failure to find atomic number in SNIa yield computation");
+  }
+
+  return yield;
+}
+
 float StellarYieldsInterpolateYield(int yield_type,
                                     const float &M, const float &metallicity, int atomic_number){
   /* --------------------------------------------------------------------------
