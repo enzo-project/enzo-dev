@@ -33,6 +33,11 @@ float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
 
   float yield = -1.0;
 
+  if (atomic_number <= 0) {
+    return 1.2447714757 ; // total mass as summed from table (all mass is in metals)
+  }
+
+
   if (atomic_number <= 5 || atomic_number >= 33 ){
     return 0.0; // nothing produced here (not included in table)
   }
