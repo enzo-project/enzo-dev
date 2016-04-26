@@ -859,18 +859,35 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                                            ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
                                            *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
                                            *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, -1);
+          ParticleMass[i] = mp * msolar / m1 / ((*dx)*(*dx)*(*dx));
+
         }
 
         if(go_supernova){
           float mproj = ParticleAttribute[3][i]; // main sequence star mass in solar
 
-          /* do supernova feedback - set by last value == 1 */
-          IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
-                                           ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
-                                           *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
-                                           *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 1);
+          if( ParticleType[i] != IndividualStarWD){
+            /* do core collapse supernova feedback - set by last value == 1 */
+            IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
+                                             ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
+                                             *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
+                                             *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 1);
 
+            ParticleMass[i] = mp * msolar / m1 / ((*dx)*(*dx)*(*dx));
             ParticleType[i] = IndividualStarRemnant; // change type
+          } else{
+
+            /* do SNIa supernova feedback - set by last value == 1 */
+            IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
+                                             ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
+                                             *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
+                                             *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 2);
+
+            ParticleMass[i]     = 0.0;                             // make particle mass zero - now a masless tracer
+            ParticleAttribute[1][i] = 1.0E10 * ParticleAttribute[1][i];    // make lifetime infinite  -
+
+          }
+
         }
 
         // if we went supernova, check if radius is resolved:
@@ -1026,7 +1043,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     printf("ISF: Stellar wind kinetic energy in code units %"ESYM" and erg = %"ESYM"\n", E_kin, E_kin * m1 * v1 * v1);
     /* need to scale winds by timestep size */
 
-  } else if (mode > 0) { // computing supernova
+  } else if (mode == 1) { // computing core collapse supernova
     m_eject   = StellarYieldsInterpolateYield(0, mproj, metallicity, -1) * msolar / m1;
 
     if( IndividualStarSupernovaEnergy < 0){
@@ -1038,24 +1055,46 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     v_wind    = 0.0;
     E_kin     = 0.0;
     printf("AddFeedbackGeneral: M_proj %"FSYM" Z = %"FSYM", M_eject = %"ESYM" E_thermal = %"ESYM"\n", mproj, metallicity, m_eject*m1/msolar, E_thermal*v1*v1*m1);
+  } else if ( mode == 2){ // Type Ia supernova
+
+    m_eject = StellarYields_SNIaYieldsByNumber(-1) * msolar / m1; // total ejected mass
+
+    if( IndividualStarSupernovaEnergy < 0){
+      E_thermal = m_eject * StarEnergyToThermalFeedback * (c_light * c_light/(v1*v1));
+    } else {
+      E_thermal = IndividualStarSupernovaEnergy * 1.0E51 / (m1*v1*v1);
+    }
+
+    v_wind = 0.0;
+    E_kin  = 0.0;
   }
 
 
   /* if we are tracking yeilds, interpolat the ejecta mass for each species */
   printf("Tabulating metal ejecta mass fields \n");
   if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields){
-    int interpolation_mode;
+    int interpolation_mode;     // switch for stellar winds vs cc SN interpolation
 
-    if (mode > 0){
+    if (mode == 1){
       interpolation_mode = 0;
     } else if (mode < 0){
       interpolation_mode = 1;
     }
 
-    /* If last paramter is 0, returns total metal mass */
-    metal_mass[0] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, 0) / (dx*dx*dx);
-    for(int i = 0; i < StellarYieldsNumberOfSpecies; i ++){
-      metal_mass[1 + i] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, StellarYieldsAtomicNumbers[i]) / (dx*dx*dx);
+    // for each metal species, compute the total metal mass ejected depending on supernova type
+    if (mode == 1){
+      // atomic number of 0 counts total metal mass
+      metal_mass[0] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, 0) / (dx*dx*dx);
+
+      for(int i = 0; i < StellarYieldsNumberOfSpecies; i ++){
+        metal_mass[1 + i] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, StellarYieldsAtomicNumbers[i]) / (dx*dx*dx);
+      }
+    } else if (mode == 2){
+      metal_mass[0] = StellarYields_SNIaYieldsByNumber(0) / (dx*dx*dx);
+
+      for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+        metal_mass[1 + i] = StellarYields_SNIaYieldsByNumber( StellarYieldsAtomicNumbers[i] ) / (dx * dx * dx);
+      }
     }
   }
 
