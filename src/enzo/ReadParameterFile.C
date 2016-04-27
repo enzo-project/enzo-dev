@@ -1117,6 +1117,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "IndividualStarSupernovaEnergy = %"FSYM,
                         &IndividualStarSupernovaEnergy);
 
+    ret += sscanf(line, "IndividualStarFUVHeating = %"FSYM,
+                        &IndividualStarFUVHeating);
+    ret += sscanf(line, "IndividualStarDustCOoling = %"FSYM,
+                        &IndividualStarDustCooling);
+
     ret += sscanf(line, "StellarYieldsAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
                   StellarYieldsAtomicNumbers+0, StellarYieldsAtomicNumbers+1, StellarYieldsAtomicNumbers+2, StellarYieldsAtomicNumbers+3,
                   StellarYieldsAtomicNumbers+4, StellarYieldsAtomicNumbers+5, StellarYieldsAtomicNumbers+6, StellarYieldsAtomicNumbers+7,

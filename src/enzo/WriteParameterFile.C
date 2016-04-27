@@ -1060,6 +1060,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarBlackBodyOnly = %"ISYM"\n", IndividualStarBlackBodyOnly);
   fprintf(fptr, "IndividualStarSupernovaEnergy = %"FSYM"\n", IndividualStarSupernovaEnergy);
   fprintf(fptr, "IndividualStarStellarWindVelocity = %"FSYM"\n", IndividualStarStellarWindVelocity);
+  fprintf(fptr, "IndividualStarFUVHeating = %"FSYM"\n", IndividualStarFUVHeating);
+  fprintf(fptr, "IndividualStarDustCooling = %"FSYM"\n", IndividualStarDustCooling);
 
   fprintf(fptr, "IndividualStarBlackBodyq0Factors  = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, IndividualStarBlackBodyq0Factors);

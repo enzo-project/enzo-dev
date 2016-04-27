@@ -158,6 +158,8 @@ SPEXTERN float IndividualStarBlackBodyq1Factors[2];
 SPEXTERN int   IndividualStarFeedbackStencilSize;
 SPEXTERN float IndividualStarSupernovaEnergy;
 SPEXTERN float IndividualStarStellarWindVelocity;
+SPEXTERN int   IndividualStarFUVHeating;
+SPEXTERN int   IndividualStarDustCooling;
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;

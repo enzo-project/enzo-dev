@@ -731,6 +731,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
   IndividualStarFeedbackStencilSize  = 3;
 
+  IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens FUV Heating
+  IndividualStarDustCooling          = 0;           // on or off - include Wolfire et. al. 2003 dust recomination cooling
+
   IndividualStarSupernovaEnergy      = -1;          // when < 0, use factor x mc^2 for supernova energy injection
                                                     // when > 0, constant supernova energy in units of 10^51 erg
   IndividualStarStellarWindVelocity  = -1;          // when < 0, use Leithener et. al. model for stellar wind velocities
