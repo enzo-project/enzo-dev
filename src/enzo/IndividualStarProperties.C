@@ -34,6 +34,27 @@ const double SOLAR_MASS        = 1.99E33           ; // g
 const double SOLAR_RADIUS      = 69.63E9           ; // cm
 const double SOLAR_METALLICITY = 0.02              ;
 
+
+
+/* internal function prototypes */
+int IndividualStarRadDataEvaluateInterpolation(float &y, float **ya[],
+                                               const float &t, const float &u, const float &v,
+                                               const int &i, const int &j, const int &k);
+
+int LinearInterpolationCoefficients(float &t, int &i, 
+                                    const float &x1, const float *x1a, const int &x1a_size);
+
+int LinearInterpolationCoefficients(float &t, float &u, int &i, int &j, 
+                                    const float &x1, const float &x2, 
+                                    const float *x1a, const float *x2a, 
+                                    const int &x1a_size, const int &x2a_size);
+
+int LinearInterpolationCoefficients(float &t, float &u, float &v, int &i, int &j, int &k,
+                                    const float &x1, const float &x2, const float &x3,
+                                    const float *x1a, const float *x2a, const float *x3a,
+                                    const int &x1a_size, const int &x2a_size, const int &x3a_size);
+
+
 float IndividualStarLifetime(const float &mp, const float &metallicity){
   /* ========================================================
    * IndividualStarLifetime
@@ -88,8 +109,49 @@ float IndividualStarSurfaceGravity(const float &mp, const float &R){
   return G*(mp * SOLAR_MASS) / ( R*R );
 }
 
-int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
-                                       float *g, float *metallicity){
+int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float &g, const float &metallicity){
+
+
+
+  return SUCCESS;
+}
+
+int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const float &metallicity){
+
+  float Teff, R, g, Fuv;
+  const double pi = 3.1415621;
+
+  IndividualStarInterpolateProperties(Teff, R, mp, metallicity);
+  g = IndividualStarSurfaceGravity(mp, R);
+
+  if (IndividualStarBlackBodyOnly == FALSE){
+    if(IndividualStarInterpolateFUVFlux(Fuv, Teff, g, metallicity) == SUCCESS){
+
+      L_fuv = 4.0 * pi * R * R * Fuv;
+
+      return SUCCESS; // rates computed from table
+    }
+  }
+
+
+  /* if we are here it is because we need to do the black body integration */
+  const double fuv_emin =  6.0 * 1.6021772E-12 ; // eV -> cgs
+  const double fuv_emax = 13.6 * 1.6021772E-12 ; // eV -> cgs
+
+  ComputeBlackBodyFlux(Fuv, Teff, fuv_emin, fuv_emax);
+
+
+  L_fuv = 4.0 * pi * R * R * Fuv;
+
+  return SUCCESS;
+
+}
+
+
+
+
+int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
+                                       const float &g, const float &metallicity){
  /*============================================================
   * IndividualStarComputeIonizingRates
   * ===========================================================
@@ -120,13 +182,13 @@ int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
   // body to compute radiation:
   float x;
 
-  x = (E_ion_HI / eV_erg) / (k_boltz * (*Teff));
+  x = (E_ion_HI / eV_erg) / (k_boltz * (Teff));
   // compute the black body radiance in unitless numbers
   if( (PhotonRadianceBlackBody(q0, x)) == FAIL){
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
 
-  x = (E_ion_He / eV_erg) / (k_boltz * (*Teff));
+  x = (E_ion_He / eV_erg) / (k_boltz * (Teff));
   if ( PhotonRadianceBlackBody(q1, x) == FAIL ){
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
@@ -139,23 +201,23 @@ int IndividualStarComputeIonizingRates(float *q0, float *q1, float *Teff,
     int index;
     // If we are here because star is below temperature limit, we are a
     // low mass star and black body overestimates radiation
-    if ( (*Teff) < IndividualStarRadData.T[0] ){
+    if ( (Teff) < IndividualStarRadData.T[0] ){
         index = 0;
     } else { // else we are too hot
         index = 1;
     }
 
-    *q0 = (*q0) * IndividualStarBlackBodyq0Factors[index];
-    *q1 = (*q1) * IndividualStarBlackBodyq1Factors[index];
+    q0 = (q0) * IndividualStarBlackBodyq0Factors[index];
+    q1 = (q1) * IndividualStarBlackBodyq1Factors[index];
   }
 
 
-  float A = 2.0 * k_boltz * k_boltz * k_boltz * (*Teff)*(*Teff)*(*Teff) /
+  float A = 2.0 * k_boltz * k_boltz * k_boltz * (Teff*Teff*Teff) /
                                (h*h*h*c*c);
 
    // convert to units of # / s / m-2 / sr-1
-  *q0 = A * (*q0);
-  *q1 = A * (*q1);
+  q0 = A * (q0);
+  q1 = A * (q1);
 
   return SUCCESS;
 }
@@ -173,71 +235,28 @@ int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &m
    * =================================================================
    */
 
-  int i, j;
-  int width, bin_number;
+  int   i, j; // indexes
+  float t, u; // interpolation coefficients
 
-  float Z = (metallicity); // should NOT be in solar units
+  float Z = metallicity;
 
-  // check values are within tabulated data points
-  if( (M < IndividualStarPropertiesData.M[0]) ||
-      (M > IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1])){
-    printf("IndividualStarInterpolateLuminosity: Mass out of bounds\n");
-    printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, IndividualStarPropertiesData.M[0], IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1]);
+  if( LinearInterpolationCoefficients(t, u, i, j, M, Z,
+                                      IndividualStarPropertiesData.M, IndividualStarPropertiesData.Z,
+                                      IndividualStarPropertiesData.NumberOfMassBins, IndividualStarPropertiesData.NumberOfMetallicityBins) == FAIL){
+    /* if interpolation fails, fail here */
+    float value, value_min, value_max;
+    printf("IndividualStarInterpolateProperties: Failure in interpolation ");
+
+    if( t < 0){ 
+      printf("Mass out of bounds ");
+      value = M; value_min = IndividualStarPropertiesData.M[0]; value_max = IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins-1];
+    } else if (u < 0){
+      printf("Metallicity out of bounds ");
+      value = M; value_min = IndividualStarPropertiesData.Z[0]; value_max = IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins-1];
+    }
+    printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
     return FAIL;
   }
-
-  if( (Z < IndividualStarPropertiesData.Z[0]) ||
-      (Z > IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins - 1])){
-    printf("IndividualStarInterpolateLuminosity: Metallicity out of bounds\n");
-    printf("Z = %"ESYM" for minimum Z = %"ESYM" and maximum Z = %"ESYM"\n", Z, IndividualStarPropertiesData.Z[0], IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins - 1]);
-    return FAIL;
-  }
-
-  // binary search over star mass (i)
-  width = IndividualStarPropertiesData.NumberOfMassBins / 2;
-  i     = IndividualStarPropertiesData.NumberOfMassBins / 2;
-
-  while (width > 1){
-    width /=2;
-    if ( M > IndividualStarPropertiesData.M[i])
-      i += width;
-    else if ( M < IndividualStarPropertiesData.M[i])
-      i -= width;
-    else
-      break;
-  } // nass binary search
-
-  // search finds nearest bin - interpolation requires floored nearest bin
-  // if number of bins is even, this may need to be done twice
-  if ( M < IndividualStarPropertiesData.M[i] ) i--;
-  if ( M < IndividualStarPropertiesData.M[i] ) i--;
-
-  // binary search over metallicity (j)
-  width = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
-  j     = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
-
-  while (width > 1){
-    width /= 2;
-    if ( Z > IndividualStarPropertiesData.Z[j])
-      j += width;
-    else if ( Z < IndividualStarPropertiesData.Z[j])
-      j -= width;
-    else
-      break;
-  } // metallicity binary search
-
-  // search finds nearest bin - interpolation requires floored nearest bin
-  if ( Z < IndividualStarPropertiesData.Z[j]) j--;
-  if ( Z < IndividualStarPropertiesData.Z[j]) j--;
-
-  // now compute the multiplicative factors (fractions from nearest edge)
-  float t, u;
-
-  t = (M - IndividualStarPropertiesData.M[i]) /
-        (IndividualStarPropertiesData.M[i+1] - IndividualStarPropertiesData.M[i]);
-  u = (Z - IndividualStarPropertiesData.Z[j]) /
-        (IndividualStarPropertiesData.Z[j+1] - IndividualStarPropertiesData.Z[j]);
-
   /* Now apply the coefficients and compute the effective temperature */
   L = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.L[i  ][j  ] +
       (1.0 - t)*(      u) * IndividualStarPropertiesData.L[i  ][j+1] +
@@ -248,7 +267,7 @@ int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &m
 }
 
 
-int IndividualStarInterpolateProperties(float *Teff, float *R,
+int IndividualStarInterpolateProperties(float &Teff, float &R,
                                         const float &M, const float &metallicity){
 
   /* ==================================================================
@@ -263,81 +282,40 @@ int IndividualStarInterpolateProperties(float *Teff, float *R,
    * ==================================================================
    */
 
-  int i, j; // i -> M, j -> Z (indeces)
-  int width, bin_number;
+  int   i, j; // indexes
+  float t, u; // interpolation coefficients
 
-  // metallicity should not be in solar units
-  float Z = (metallicity);
+  float Z = metallicity;
 
-  // check that values are within tabulated data points
-  if( (M < IndividualStarPropertiesData.M[0]) ||
-      (M > IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1])){
-    printf("IndividualStarInterpolateProperties: Mass out of bounds\n");
-    printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, IndividualStarPropertiesData.M[0], IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins - 1]);
+  if( LinearInterpolationCoefficients(t, u, i, j, M, Z,
+                                      IndividualStarPropertiesData.M, IndividualStarPropertiesData.Z,
+                                      IndividualStarPropertiesData.NumberOfMassBins, IndividualStarPropertiesData.NumberOfMetallicityBins) == FAIL){
+    /* if interpolation fails, fail here */
+    float value, value_min, value_max;
+    printf("IndividualStarInterpolateProperties: Failure in interpolation ");
+
+    if( t < 0){ 
+      printf("Mass out of bounds ");
+      value = M; value_min = IndividualStarPropertiesData.M[0]; value_max = IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins-1];
+    } else if (u < 0){
+      printf("Metallicity out of bounds ");
+      value = M; value_min = IndividualStarPropertiesData.Z[0]; value_max = IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins-1];
+    }
+    printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
     return FAIL;
   }
 
-  if( (Z < IndividualStarPropertiesData.Z[0]) ||
-      (Z > IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins - 1])){
-    printf("IndividualStarInterpolateProperties: Metallicity out of bounds\n");
-    printf("Z = %"ESYM" for minimum Z = %"ESYM" and maximum Z = %"ESYM"\n", Z, IndividualStarPropertiesData.Z[0], IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins - 1]);
-    return FAIL;
-  }
-
-  // binary search over star mass (i)
-  width = IndividualStarPropertiesData.NumberOfMassBins / 2;
-  i     = IndividualStarPropertiesData.NumberOfMassBins / 2;
-
-  while (width > 1){
-    width /=2;
-    if ( M > IndividualStarPropertiesData.M[i])
-      i += width;
-    else if ( M < IndividualStarPropertiesData.M[i])
-      i -= width;
-    else
-      break;
-  } // temperature binary search
-
-  // search finds nearest bin - interpolation requires floored nearest bin
-  if ( M < IndividualStarPropertiesData.M[i] ) i--;
-  if ( M < IndividualStarPropertiesData.M[i] ) i--;
-
-  // binary search over metallicity (j)
-  width = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
-  j     = IndividualStarPropertiesData.NumberOfMetallicityBins / 2;
-
-  while (width > 1){
-    width /= 2;
-    if ( Z > IndividualStarPropertiesData.Z[j])
-      j += width;
-    else if ( Z < IndividualStarPropertiesData.Z[j])
-      j -= width;
-    else
-      break;
-  } // metallicity binary search
-
-  // search finds nearest bin - interpolation requires floored nearest bin
-  if ( Z < IndividualStarPropertiesData.Z[j]) j--;
-  if ( Z < IndividualStarPropertiesData.Z[j]) j--;
-
-  // now compute the multiplicative factors (fractions from nearest edge)
-  float t, u;
-
-  t = (M - IndividualStarPropertiesData.M[i]) /
-        (IndividualStarPropertiesData.M[i+1] - IndividualStarPropertiesData.M[i]);
-  u = (Z - IndividualStarPropertiesData.Z[j]) /
-        (IndividualStarPropertiesData.Z[j+1] - IndividualStarPropertiesData.Z[j]);
 
   /* Now apply the coefficients and compute the effective temperature */
-  *Teff = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.Teff[i  ][j  ] +
-          (1.0 - t)*(      u) * IndividualStarPropertiesData.Teff[i  ][j+1] +
-          (      t)*(      u) * IndividualStarPropertiesData.Teff[i+1][j+1] +
-          (      t)*(1.0 - u) * IndividualStarPropertiesData.Teff[i+1][j  ] ;
+  Teff = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.Teff[i  ][j  ] +
+         (1.0 - t)*(      u) * IndividualStarPropertiesData.Teff[i  ][j+1] +
+         (      t)*(      u) * IndividualStarPropertiesData.Teff[i+1][j+1] +
+         (      t)*(1.0 - u) * IndividualStarPropertiesData.Teff[i+1][j  ] ;
 
-  *R    = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.R[i  ][j  ] +
-          (1.0 - t)*(      u) * IndividualStarPropertiesData.R[i  ][j+1] +
-          (      t)*(      u) * IndividualStarPropertiesData.R[i+1][j+1] +
-          (      t)*(1.0 - u) * IndividualStarPropertiesData.R[i+1][j  ] ;
+  R    = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.R[i  ][j  ] +
+         (1.0 - t)*(      u) * IndividualStarPropertiesData.R[i  ][j+1] +
+         (      t)*(      u) * IndividualStarPropertiesData.R[i+1][j+1] +
+         (      t)*(1.0 - u) * IndividualStarPropertiesData.R[i+1][j  ] ;
 
 
 
@@ -345,8 +323,8 @@ int IndividualStarInterpolateProperties(float *Teff, float *R,
 }
 
 
-int IndividualStarInterpolateRadData(float *q0, float *q1,
-                                     float *Teff, float *g, float *metallicity){
+int IndividualStarInterpolateRadData(float &q0, float &q1,
+                                     const float &Teff, const float &g, const float &metallicity){
   /* ===================================================================
    * IndividualStarInterpolateRadData
    * ===================================================================
@@ -361,143 +339,89 @@ int IndividualStarInterpolateRadData(float *q0, float *q1,
    * ===================================================================
    */
 
-  // do a bisect search in each dimension to find index
-  int i, j, k; // i -> Teff , j -> g, k -> Z
 
-  int width, bin_number;
+  int i, j, k; // i -> Teff , j -> g, k -> Z
+  float t, u, v;
 
   // convert metallicity to solar
   float Z; // Z is in units of solar
-  Z = (*metallicity) / IndividualStarRadData.Zsolar;
+  Z = (metallicity) / IndividualStarRadData.Zsolar;
 
-  // check star values against minimum and maximum tabulated bins
-  // FOr now just throw an error. But in the future, if Teff and g are below
-  // the gridded values, then just use a black body spectrum as Josh Wall suggested
-  // If T or g are ABOVE the gridded table... well... then I have some thinking to do
+  if( LinearInterpolationCoefficients(t, u, v, i, j, k, Teff, g, Z, 
+                                      IndividualStarRadData.T, IndividualStarRadData.g, IndividualStarRadData.Z,
+                                      IndividualStarRadData.NumberOfTemperatureBins, IndividualStarRadData.NumberOfSGBins, IndividualStarRadData.NumberOfMetallicityBins) == FAIL){
+    /* if interpolation fails, fail here */
+    float value, value_min, value_max;
+    printf("IndividualStarInterpolateRadData: Failure in interpolation ");
 
-  if ( *Teff < IndividualStarRadData.T[0] ||
-       *Teff > IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins -1]){
-    printf("WARNING in IndividualStarInterpolateRadData: Temperature out of bounds - Using black body");
-    printf("Teff = %"ESYM" for minimum value %"ESYM" and maximum %"ESYM"\n", *Teff, IndividualStarRadData.T[0], IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1]);
-    return -1;
-  }
-  if ( *g < IndividualStarRadData.g[0] ||
-       *g > IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins -1]){
-    printf("WARNING in IndividualStarInterpolateRadData: Surface gravity out of bounds - Using black body");
-    printf("logg = %"ESYM" for logged minimum value %"ESYM" and maximum %"ESYM"\n", log10(*g), log10(IndividualStarRadData.g[0]), log10(IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1]));
-    return -1;
-  }
-  if ( Z < IndividualStarRadData.Z[0] ||
-       Z > IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins - 1]){
-    printf("WARNING in IndividualStarInterpolateRadData: Metallicity out of bounds - Using black body");
-    printf("Z (solar) = %"ESYM" for minimum value %"ESYM" and maximum %"ESYM"\n", Z, IndividualStarRadData.Z[0], IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1]);
-    return -1;
+    if( t < 0) { 
+      printf("Temperature out of bounds ");
+      value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
+    } else if (u < 0) {
+      printf("Surface Gravity out of bounds ");
+      value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
+    } else if (v < 0) {
+      printf("Metallicity out of bounds ");
+      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];    
+    }
+
+    printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
+    return FAIL;
   }
 
-  // binary search over temperature (i)
-  width = IndividualStarRadData.NumberOfTemperatureBins / 2;
-  i     = IndividualStarRadData.NumberOfTemperatureBins / 2;
 
-  while (width > 1){
-    width /=2;
-    if ( *Teff > IndividualStarRadData.T[i])
-      i += width;
-    else if ( *Teff < IndividualStarRadData.T[i])
-      i -= width;
-    else
-      break;
-  } // temperature binary search
+  if( (IndividualStarRadDataEvaluateInterpolation(q0, IndividualStarRadData.q0,
+                                                  t, u, v, i, j, k) == FAIL) ||
+      (IndividualStarRadDataEvaluateInterpolation(q1, IndividualStarRadData.q1,
+                                                  t, u, v, i, j, k) == FAIL)){
 
+    printf("IndividualStarRadData: outside sampled grid points, using black body instead\n");   
+    return FAIL;
+  }  
 
-  // search finds nearest bin - interpolation requires floored nearest bin
-  if ( *Teff < IndividualStarRadData.T[i] ) i--;
-  if ( *Teff < IndividualStarRadData.T[i] ) i--;
+  return SUCCESS;
+}
 
-  // binary search over surface gravity (j)
-  width = IndividualStarRadData.NumberOfSGBins / 2;
-  j     = IndividualStarRadData.NumberOfSGBins / 2;
-
-  while (width > 1){
-    width /= 2;
-    if ( *g > IndividualStarRadData.g[j])
-      j += width;
-    else if ( *g < IndividualStarRadData.g[j])
-      j -= width;
-    else
-      break;
-  } // surface gravity binary search
-
-  // search finds closest bin - interpolation requires floored nearest bin
-  if ( *g < IndividualStarRadData.g[j]) j--;
-  if ( *g < IndividualStarRadData.g[j]) j--;
-
-  // binary search over metallicity
-  width = IndividualStarRadData.NumberOfMetallicityBins / 2;
-  k     = IndividualStarRadData.NumberOfMetallicityBins / 2;
-
-  while (width > 1){
-    width /=2;
-    if ( Z > IndividualStarRadData.Z[k] )
-      k += width;
-    else if ( Z < IndividualStarRadData.Z[k] )
-      k -= width;
-    else
-      break;
-  } // metallicity binary search
-
-  // search finds closest bin - interpolation requires floored nearest bin
-  if (Z < IndividualStarRadData.Z[k]) k--;
-  if (Z < IndividualStarRadData.Z[k]) k--;
-
-  /* Now that we've located the point in 3D, compute coefficients */
-  float t, u, v;
-
-  t = (*Teff - IndividualStarRadData.T[i]) /
-                  (IndividualStarRadData.T[i+1] - IndividualStarRadData.T[i]);
-  u = (*g - IndividualStarRadData.g[j]) /
-                  (IndividualStarRadData.g[j+1] - IndividualStarRadData.g[j]);
-  v = ( Z - IndividualStarRadData.Z[k]) /
-                  (IndividualStarRadData.Z[k+1] - IndividualStarRadData.Z[k]);
-
+int IndividualStarRadDataEvaluateInterpolation(float &y, float **ya[],
+                                               const float &t, const float &u, const float &v,
+                                               const int &i, const int &j, const int &k){
 
   /* Since the tabulated data is not fully sampled in surface gravity at every
      temperature, need to make sure that interpolation is not occuring outside
      of the tabulated range. Throw a very loud warning if this is happening    */
-  if( IndividualStarRadData.q0[i  ][j  ][k  ] == 1.0 ||
-      IndividualStarRadData.q0[i  ][j+1][k  ] == 1.0 ||
-      IndividualStarRadData.q0[i+1][j+1][k  ] == 1.0 ||
-      IndividualStarRadData.q0[i+1][j  ][k  ] == 1.0 ||
-      IndividualStarRadData.q0[i  ][j  ][k+1] == 1.0 ||
-      IndividualStarRadData.q0[i  ][j+1][k+1] == 1.0 ||
-      IndividualStarRadData.q0[i+1][j+1][k+1] == 1.0 ||
-      IndividualStarRadData.q0[i+1][j  ][k+1] == 1.0   ){
+  if( ya[i  ][j  ][k  ] == 1.0 ||
+      ya[i  ][j+1][k  ] == 1.0 ||
+      ya[i+1][j+1][k  ] == 1.0 ||
+      ya[i+1][j  ][k  ] == 1.0 ||
+      ya[i  ][j  ][k+1] == 1.0 ||
+      ya[i  ][j+1][k+1] == 1.0 ||
+      ya[i+1][j+1][k+1] == 1.0 ||
+      ya[i+1][j  ][k+1] == 1.0   ){
+    return FAIL;
+  }  
+  y = (1.0 - t)*(1.0 - u)*(1.0 - v) * ya[i  ][j  ][k  ] +
+      (1.0 - t)*(      u)*(1.0 - v) * ya[i  ][j+1][k  ] +
+      (      t)*(      u)*(1.0 - v) * ya[i+1][j+1][k  ] +
+      (      t)*(1.0 - u)*(1.0 - v) * ya[i+1][j  ][k  ] +
+      (1.0 - t)*(1.0 - u)*(      v) * ya[i  ][j  ][k+1] +
+      (1.0 - t)*(      u)*(      v) * ya[i  ][j+1][k+1] +
+      (      t)*(      u)*(      v) * ya[i+1][j+1][k+1] +
+      (      t)*(1.0 - u)*(      v) * ya[i+1][j  ][k+1];
 
-    printf("WARNING in IndividaulStarProperties: Values for interpolation outside range:"
-           " Teff = %"ESYM" logg = %"ESYM" Z = %"ESYM"\n", *Teff, log10(*g), Z);
-    printf("     Nearest neighbor Teff = %"ESYM" logg = %"ESYM" Z = %"ESYM"\n", IndividualStarRadData.T[i], log10(IndividualStarRadData.g[j]), IndividualStarRadData.Z[k]);
-    printf(" Using black body instead\n");
-    return -1;
-  }
 
-  /* Now apply the coefficients and compute the ionizing rate */
-  *q0 = (1.0 - t)*(1.0 - u)*(1.0 - v) * IndividualStarRadData.q0[i  ][j  ][k  ] +
-        (1.0 - t)*(      u)*(1.0 - v) * IndividualStarRadData.q0[i  ][j+1][k  ] +
-        (      t)*(      u)*(1.0 - v) * IndividualStarRadData.q0[i+1][j+1][k  ] +
-        (      t)*(1.0 - u)*(1.0 - v) * IndividualStarRadData.q0[i+1][j  ][k  ] +
-        (1.0 - t)*(1.0 - u)*(      v) * IndividualStarRadData.q0[i  ][j  ][k+1] +
-        (1.0 - t)*(      u)*(      v) * IndividualStarRadData.q0[i  ][j+1][k+1] +
-        (      t)*(      u)*(      v) * IndividualStarRadData.q0[i+1][j+1][k+1] +
-        (      t)*(1.0 - u)*(      v) * IndividualStarRadData.q0[i+1][j  ][k+1] ;
+  return SUCCESS;
+}
 
-  /* q1 ionizing flux */
-  *q1 = (1.0 - t)*(1.0 - u)*(1.0 - v) * IndividualStarRadData.q1[i  ][j  ][k  ] +
-        (1.0 - t)*(      u)*(1.0 - v) * IndividualStarRadData.q1[i  ][j+1][k  ] +
-        (      t)*(      u)*(1.0 - v) * IndividualStarRadData.q1[i+1][j+1][k  ] +
-        (      t)*(1.0 - u)*(1.0 - v) * IndividualStarRadData.q1[i+1][j  ][k  ] +
-        (1.0 - t)*(1.0 - u)*(      v) * IndividualStarRadData.q1[i  ][j  ][k+1] +
-        (1.0 - t)*(      u)*(      v) * IndividualStarRadData.q1[i  ][j+1][k+1] +
-        (      t)*(      u)*(      v) * IndividualStarRadData.q1[i+1][j+1][k+1] +
-        (      t)*(1.0 - u)*(      v) * IndividualStarRadData.q1[i+1][j  ][k+1];
+int ComputeBlackBodyFlux(float &flux, const float &Teff, const float &e_min, const float &e_max){
+  /* ==============================================================================
+   * ComputeBlackBodyFlux
+   * ==============================================================================
+   * Integral over black body curve to get flux between specified photon energy
+   * range.
+   *
+   * Computation is done by integrating black body curve using series approx
+   * ==============================================================================*/
+
 
 
   return SUCCESS;
@@ -542,7 +466,7 @@ int ComputeAverageEnergy(float *energy, float *e_i, float *Teff){
   return SUCCESS;
 }
 
-int PhotonRadianceBlackBody(float *q, float x){
+int PhotonRadianceBlackBody(float &q, const float &x){
   /* ==========================================================================
    * PhotonRadianceBlackBody
    * ==========================================================================
@@ -576,7 +500,7 @@ int PhotonRadianceBlackBody(float *q, float x){
     return FAIL;
   }
 
-  *q = sum;
+  q = sum;
 
   return SUCCESS;
 }
@@ -646,16 +570,95 @@ int AverageEnergyBlackBody(float *energy, float x){
   return SUCCESS;
 }
 
+int LinearInterpolationCoefficients(float &t, int &i, 
+                                    const float &x1, const float *x1a, const int &x1a_size){
+  /* ------------------------------------------------------------
+   * LinearInterpolationCoefficients
+   * ------------------------------------------------------------
+   * Performs binary search of x1 in assumed sorted array x1a
+   * to compute linear interpolation coefficients for that value.
+   * ------------------------------------------------------------
+   */
+
+  int width, bin_number;
+
+  /* make sure value is within the bounds - FAIL if not */
+  if( ( x1 < x1a[0] ) || ( x1 > x1a[x1a_size -1] )){
+      t = -1;
+      return FAIL;
+  }
+
+  /* now perform a binary search over the array */
+  width = x1a_size / 2;
+  i     = x1a_size / 2;
+
+  while (width > 1){
+    width /= 2;
+    if ( x1 > x1a[i] )
+      i += width;
+    else if (x1 < x1a[i] )
+      i += width;
+    else
+      break;
+  }
+
+  // ensure we are finding the nearest, value that is less than x1
+  if ( x1 < x1a[i] ) i--;
+  if ( x1 < x1a[i] ) i--;
+
+  t = (x1 - x1a[i]) / (x1a[i + 1] - x1a[i]);
+
+  return SUCCESS;
+}
 
 
+int LinearInterpolationCoefficients(float &t, float &u, int &i, int &j,
+                                    const float &x1, const float &x2,
+                                    const float *x1a, const float *x2a,
+                                    const int &x1a_size, const int &x2a_size){
+  /* ------------------------------------------------------------
+   * LinearInterpolationCoefficients
+   * ------------------------------------------------------------
+   * Overloaded function to do billinear interpolation coefficients
+   * ------------------------------------------------------------
+   */
+  int error1, error2;
+
+  error1 = LinearInterpolationCoefficients(t, i, x1, x1a, x1a_size);
+  error2 = LinearInterpolationCoefficients(u, j, x2, x2a, x2a_size);
+
+  return error1 * error2; // FAIL is 0, SUCCESS 1
+}
+
+int LinearInterpolationCoefficients(float &t, float &u, float &v, int &i, int &j, int &k,
+                                    const float &x1, const float &x2, const float &x3,
+                                    const float *x1a, const float *x2a, const float *x3a,
+                                    const int &x1a_size, const int &x2a_size, const int &x3a_size){
+  /* ------------------------------------------------------------
+   * LinearInterpolationCoefficients
+   * ------------------------------------------------------------
+   * Overloaded function to do trillinear interpolation coefficients
+   * ------------------------------------------------------------
+   */
+
+  int error1, error2, error3;
+
+  error1 = LinearInterpolationCoefficients(t, i, x1, x1a, x1a_size);
+  error2 = LinearInterpolationCoefficients(u, j, x2, x2a, x2a_size);
+  error3 = LinearInterpolationCoefficients(v, k, x3, x3a, x3a_size);
+
+  return error1 * error2 * error3; // FAIL is 0, SUCCESS 1
+}
+
+
+
+float GaussianRandomVariable(void){
 /*-----------------------------------------------------------------------------
  GaussianRandomVariable
 
  Returns a random variable selected over a Gaussian distribution with mean
  of zero and varince of unity using the Box-Muller transform
 -----------------------------------------------------------------------------*/
-float GaussianRandomVariable(void){
-
     const int max_random = (1<<16);
 
     float y1, y2, w;

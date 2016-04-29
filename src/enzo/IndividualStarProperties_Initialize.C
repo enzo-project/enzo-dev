@@ -154,16 +154,19 @@ int IndividualStarRadiationProperties_Initialize(void){
   IndividualStarRadData.Z[0] = 0.0;
 
   // ionizing radiation arrays
-  IndividualStarRadData.q0 = new float**[IndividualStarRadData.NumberOfTemperatureBins];
-  IndividualStarRadData.q1 = new float**[IndividualStarRadData.NumberOfTemperatureBins];
+  IndividualStarRadData.q0  = new float**[IndividualStarRadData.NumberOfTemperatureBins];
+  IndividualStarRadData.q1  = new float**[IndividualStarRadData.NumberOfTemperatureBins];
+  IndividualStarRadData.Fuv = new float**[IndividualStarRadData.NumberOfTemperatureBins];
 
   // fill the arrays in all dimensions
   for(int i = 0; i < IndividualStarRadData.NumberOfTemperatureBins; i++){
     IndividualStarRadData.q0[i] = new float*[IndividualStarRadData.NumberOfSGBins];
     IndividualStarRadData.q1[i] = new float*[IndividualStarRadData.NumberOfSGBins];
+    IndividualStarRadData.Fuv[i] = new float*[IndividualStarRadData.NumberOfSGBins];
     for ( int j = 0; j < IndividualStarRadData.NumberOfSGBins; j ++){
       IndividualStarRadData.q0[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
       IndividualStarRadData.q1[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
+      IndividualStarRadData.Fuv[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
 
   /* AJE 3/16/16: Need to NULL everything if allow for variable size */
   //    for ( int k = 0; k < INDIVIDUAL_STAR_METALLICITY_BINS; k ++){ 
@@ -253,12 +256,53 @@ int IndividualStarRadiationProperties_Initialize(void){
     } // check #
   } // end while read
 
+  fclose(fptrq1);
+
+
+  FILE *fptrFuv = fopen("FUV_rates.in", "r");
+  if (fptrFuv == NULL){
+    ENZO_FAIL("Error opening FUV_rates.in");
+  }
+
+
+  i = 0; j = 0;
+  while( fgets(line, MAX_LINE_LENGTH, fptrFuv) != NULL){
+    float temp1, temp2;
+
+    if(line[0] != '#'){
+
+      // note metallicities are currently listed in CORRECT order for FUV file
+
+      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                   &temp1,
+                   &temp2,
+                   &IndividualStarRadData.Fuv[i][j][0],
+                   &IndividualStarRadData.Fuv[i][j][1],
+                   &IndividualStarRadData.Fuv[i][j][2],
+                   &IndividualStarRadData.Fuv[i][j][3],
+                   &IndividualStarRadData.Fuv[i][j][4],
+                   &IndividualStarRadData.Fuv[i][j][5],
+                   &IndividualStarRadData.Fuv[i][j][6],
+                   &IndividualStarRadData.Fuv[i][j][7],
+                   &IndividualStarRadData.Fuv[i][j][8],
+                   &IndividualStarRadData.Fuv[i][j][9]);
+
+
+      j++;
+      if (j >= IndividualStarRadData.NumberOfSGBins){
+        j = 0;
+        i++;
+      }
+    } // check #
+  } // end while read
+
+
   // convert surface gravity values to linear scale
   for( j = 0; j < IndividualStarRadData.NumberOfSGBins; j++){
     IndividualStarRadData.g[j] = POW(10.0, IndividualStarRadData.g[j]);
   }
 
-  fclose(fptrq1);
+  fclose(fptrFuv);
 
   return SUCCESS;
 }

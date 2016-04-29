@@ -105,14 +105,14 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     tau = this->LifeTime;
     tau = tau * (TimeUnits); // convert to cgs
 
-    if ( IndividualStarInterpolateProperties(&Teff, &R, M, Z) == FAIL){
+    if ( IndividualStarInterpolateProperties(Teff, R, M, Z) == FAIL){
       ENZO_FAIL("Star_ComputePhotonRates: Failure in computing individual star properties\n");
     }
 
     g = IndividualStarSurfaceGravity( M, R); // M in solar - R in cgs
 
     printf("Star_ComputePhotonRates: Teff = %"ESYM" g = %"ESYM" Z = %"ESYM"\n", Teff, g, Z);
-    if( IndividualStarComputeIonizingRates( &Q[0], &Q[1], &Teff, &g, &Z) == FAIL){
+    if( IndividualStarComputeIonizingRates( Q[0], Q[1], Teff, g, Z) == FAIL){
       ENZO_FAIL("Star_ComputePhotonRates: Failure in computing individual star ionizing radiation.\n");
     }
 

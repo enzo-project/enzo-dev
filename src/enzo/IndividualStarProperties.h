@@ -17,21 +17,22 @@ float IndividualStarSurfaceGravity(const float &mp, const float &R);
 
 /* Functions for stellar properties data */
 int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &metallicity);
-int IndividualStarInterpolateProperties(float *Teff, float *R,
+int IndividualStarInterpolateProperties(float &Teff, float &R,
                                         const float &M, const float &metallicity);
 
 
 /* Functions for radiation data */
-int IndividualStarComputeIonizingRates(float *q0, float *q1,
-                                       float *Teff, float *g, float *metallicity);
+int IndividualStarComputeIonizingRates(float &q0, float &q1,
+                                       const float &Teff, const float &g, const float &metallicity);
 
-int IndividualStarInterpolateRadData(float *q0, float *q1,
-                                     float *Teff, float *g, float *metallicity);
-int PhotonRadianceBlackBody(float *q, float x);
+int IndividualStarInterpolateRadData(float &q0, float &q1,
+                                     const float &Teff, const float &g, const float &metallicity);
+
+int PhotonRadianceBlackBody(float &q, const float &x);
 
 int ComputeAverageEnergy(float *energy, float *e_i, float *Teff);
 int AverageEnergyBlackBody(float *energy, float x);
-
+int ComputeBlackBodyFlux(float &flux, const float &Teff, const float &e_min, const float &e_max);
 
 /* General helper functions */
 float GaussianRandomVariable(void);
