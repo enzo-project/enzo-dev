@@ -2218,7 +2218,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc, const FLOAT &zfc,
                                         float up, float wp, float vp, float m_eject,
-                                        float E_thermal, float E_kin, float *metal_mass);
+                                        float E_thermal, float E_kin, float p_feedback, float *metal_mass);
 
   /* Initialization for isolated galaxy sims */
   int GalaxySimulationInitializeGrid(

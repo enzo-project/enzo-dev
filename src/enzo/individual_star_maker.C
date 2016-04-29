@@ -55,17 +55,6 @@ void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
                                 const float &lifetime,  float *v_wind);
 
 
-/* o boy *//*
-int AddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
-                        const float &up, const float &vp, const float &wp,
-                        const float &d1, const float &x1, const float &m1,
-                        const float &v1,
-                        const FLOAT &xstart, const FLOAT &ystart, const FLOAT &zstart,
-                        const FLOAT &dx,
-                        const int &nx, const int &ny, const int &nz,
-                        const int &ibuff, const float &mproj, const float &metallicity,
-                        float *mp, int mode);*/
-
 void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
                              const FLOAT &xstart, const FLOAT &ystart, const FLOAT &zstart,
                              const FLOAT &dx,
@@ -898,6 +887,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
           float mproj = ParticleAttribute[3][i]; // main sequence star mass in solar
 
           if( ParticleType[i] != IndividualStarWD){
+            printf("Calling feedback to do cc supernova");
             /* do core collapse supernova feedback - set by last value == 1 */
             IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
                                              ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
@@ -907,7 +897,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
             ParticleMass[i] = mp * msolar / m1 / ((*dx)*(*dx)*(*dx));
             ParticleType[i] = IndividualStarRemnant; // change type
           } else{
-
+            printf("calling feedback to do supernova 1a\n");
             /* do SNIa supernova feedback - set by last value == 1 */
             IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
                                              ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
@@ -1028,7 +1018,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
                        const float &mproj, const float &lifetime, const float &metallicity,
                        float *mp, int mode     ){
 
-  float m_eject, E_thermal, E_kin, f_kinetic, v_wind;
+  float m_eject, E_thermal, E_kin, f_kinetic, v_wind, p_feedback;
   const double c_light = 2.99792458E10; const double msolar = 1.989E33;
 
   float *metal_mass;
@@ -1067,12 +1057,11 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     printf("ISF: Total Expected momentum in cgs %"ESYM" and in code units %"ESYM"\n", v_wind*1.0E5*m_eject*m1/msolar, m_eject * v_wind*1.0E5/v1);
     printf("ISF: Stellar wind in km / s %"ESYM" in code %"ESYM" and code vel = %"ESYM"\n", v_wind , v_wind *1.0E5/ v1, v1);
 
-    v_wind    = (v_wind*1.0E5) / v1; // convert from km/s to cm/s then to code units
+    v_wind     = (v_wind*1.0E5) / v1; // convert from km/s to cm/s then to code units
 
-    E_kin     = 0.5 * m_eject * v_wind * v_wind;
-
-    printf("ISF: Stellar wind kinetic energy in code units %"ESYM" and erg = %"ESYM"\n", E_kin, E_kin * m1 * v1 * v1);
-    /* need to scale winds by timestep size */
+    p_feedback = m_eject * v_wind;
+    E_kin      = 0.0;
+//    E_kin     = 0.5 * m_eject * v_wind * v_wind;
 
   } else if (mode == 1) { // computing core collapse supernova
     m_eject   = StellarYieldsInterpolateYield(0, mproj, metallicity, -1) * msolar / m1;
@@ -1083,8 +1072,9 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
       E_thermal = IndividualStarSupernovaEnergy * 1.0E51 / (m1*v1*v1);
     }
 
-    v_wind    = 0.0;
-    E_kin     = 0.0;
+    v_wind     = 0.0;
+    p_feedback = m_eject * v_wind;
+    E_kin      = 0.0;
     printf("AddFeedbackGeneral: M_proj %"FSYM" Z = %"FSYM", M_eject = %"ESYM" E_thermal = %"ESYM"\n", mproj, metallicity, m_eject*m1/msolar, E_thermal*v1*v1*m1);
   } else if ( mode == 2){ // Type Ia supernova
 
@@ -1096,8 +1086,9 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
       E_thermal = IndividualStarSupernovaEnergy * 1.0E51 / (m1*v1*v1);
     }
 
-    v_wind = 0.0;
-    E_kin  = 0.0;
+    v_wind     = 0.0;
+    p_feedback = m_eject * v_wind;
+    E_kin      = 0.0;
   }
 
 
@@ -1130,9 +1121,10 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
   }
 
 
-  m_eject   = m_eject   / (dx*dx*dx);   // now in code units (code mass / code volume)
-  E_thermal = E_thermal / (dx*dx*dx);
-  E_kin     = E_kin     / (dx*dx*dx);
+  m_eject    = m_eject    / (dx*dx*dx);   // now in code units (code mass / code volume)
+  p_feedback = p_feedback / (dx*dx*dx);
+  E_thermal  = E_thermal  / (dx*dx*dx);
+  E_kin      = E_kin      / (dx*dx*dx);
 
   /* find coordinates of feedback center. This is nominally the particle position
      but is shifted if needed if particle is too close to grid boundary.
@@ -1144,7 +1136,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
   printf("ISF: injecting feedback to grid\n");
   this->IndividualStarInjectFeedbackToGrid(xfc, yfc, zfc,
                                            up, vp, wp,
-                                           m_eject, E_thermal, E_kin, metal_mass); // function call
+                                           m_eject, E_thermal, E_kin, p_feedback, metal_mass); // function call
 
   *mp = *mp - m_eject * (dx*dx*dx)*m1/ msolar; // remove mass from particle
 
@@ -1195,7 +1187,7 @@ void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
 
 int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc, const FLOAT &zfc,
                                float up, float wp, float vp,
-                               float m_eject, float E_thermal, float E_kin, float *metal_mass){
+                               float m_eject, float E_thermal, float E_kin, float p_feedback, float *metal_mass){
 
   float dx = float(CellWidth[0][0]);
 
@@ -1225,9 +1217,10 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
 
   number_of_cells = POW(stencil, 3);
   /* scale everything to be the injected values in each cell */
-  m_eject   = m_eject   / ((float) number_of_cells);
-  E_thermal = E_thermal / ((float) number_of_cells);
-  E_kin     = E_kin; // E_kin is totoal?   //  / ((float) number_of_cells);
+  m_eject    = m_eject   / ((float) number_of_cells);
+  E_thermal  = E_thermal / ((float) number_of_cells);
+  p_feedback = p_feedback / ((float) number_of_cells - 1); // no momentum in center cell
+  E_kin      = E_kin; // E_kin is totoal?   //  / ((float) number_of_cells);
 
   /* */
 
@@ -1305,7 +1298,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   /* done allocating the zeroed arrays */
 
   /* add up kinetic energy in the clocal region */
-  if( HydroMethod != 2){
+  if( HydroMethod != 2 ){
     int integer_sep = floor((stencil + 1) / 2.0);
 
     int local_index = 0;
@@ -1350,10 +1343,12 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
 
   /* compute the total mass and energy in cells before the explosion */
   float mass_before, energy_before, kin_energy_before;
+
   SumMassEnergy(BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[DensNum],
                   BaryonField[GENum],   BaryonField[TENum],
                   nx, ny, nz, iface, jface, kface, ic, jc, kc, stencil,
                   &mass_before, &energy_before, &kin_energy_before);
+
 
   /* Now add mass and momentum terms to the dummy fields constructed earlier */
   AddFeedbackToGridCells(u_local, v_local, w_local, d_local, ge_local, te_local,
@@ -1375,7 +1370,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
 
     printf("ISF: Coeffs mom_per_cell %"ESYM"\n", mom_per_cell);
   } else { // no kinetic energy injection - add feedback will add mass directly
-    mom_per_cell = 0.0;
+    mom_per_cell = p_feedback;
   }
 
   /* add metal feedback - mass in cells */
@@ -1412,9 +1407,9 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   /* compute total mass and energy after feedback has been added */
   float mass_after, energy_after, kin_energy_after;
   SumMassEnergy(BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
-                  BaryonField[DensNum], BaryonField[GENum],   BaryonField[TENum],
-                  nx, ny, nz, iface, jface, kface, ic, jc, kc, stencil,
-                  &mass_after, &energy_after, &kin_energy_after);
+                    BaryonField[DensNum], BaryonField[GENum],   BaryonField[TENum],
+                    nx, ny, nz, iface, jface, kface, ic, jc, kc, stencil,
+                    &mass_after, &energy_after, &kin_energy_after);
 
   /* error checking statments go here */
   printf("ISF energy cheks, before %"ESYM" after %"ESYM" eject %"ESYM"\n", energy_before, energy_after, E_thermal);
