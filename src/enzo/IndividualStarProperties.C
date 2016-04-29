@@ -597,7 +597,7 @@ int LinearInterpolationCoefficients(float &t, int &i,
     if ( x1 > x1a[i] )
       i += width;
     else if (x1 < x1a[i] )
-      i += width;
+      i -= width;
     else
       break;
   }
