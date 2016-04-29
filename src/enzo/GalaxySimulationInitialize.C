@@ -752,10 +752,10 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    fprintf(Outfptr, "GalaxySimulationInitialEuIFractionHalo = %"GOUTSYM"\n",
            TestProblemData.EuI_Fraction_2);
 
-   fprintf(Outfptr, "GalaxySimulationInitialSpeciesFractionDisk = ");
+   fprintf(Outfptr, "GalaxySimulationInitialSpeciesFractionsDisk = ");
    WriteListOfFloats(Outfptr, MAX_STELLAR_YIELDS, TestProblemData.ChemicalTracerSpecies_Fractions);
 
-   fprintf(Outfptr, "GalaxySimulationInitialSpeciesFractionHalo = ");
+   fprintf(Outfptr, "GalaxySimulationInitialSpeciesFractionsHalo = ");
    WriteListOfFloats(Outfptr, MAX_STELLAR_YIELDS, TestProblemData.ChemicalTracerSpecies_Fractions_2);
 
    fprintf(Outfptr, "TestProblemUseMetallicityField = %"ISYM"\n",
