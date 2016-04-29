@@ -1021,7 +1021,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
                                  &dtFixed, &CellWidthTemp, &Time,
                                  &MyProcessorNumber, &DensityUnits, &LengthUnits,
                                  &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles,
-                                 CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
                                  &Mu, MetalPointer, &IndividualStarType,
                                  &NumberOfNewParticles, tg->ParticleMass, tg->ParticleType,
                                  tg->ParticlePosition, tg->ParticleVelocity, tg->ParticleAttribute) == FAIL){

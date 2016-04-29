@@ -121,8 +121,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                                 float *dm, float *temp, float *dt,
                                 float *dx, FLOAT *t, int *procnum,
                                 float *d1, float *x1, float *v1, float *t1,
-                                int *nmax, FLOAT *xstart, FLOAT *ystart,
-                                FLOAT *zstart, int *ibuff,
+                                int *nmax,
                                 float *mu, float *metal, int *ctype,
                                 int *np, float *ParticleMass,
                                 int *ParticleType, FLOAT *ParticlePosition[],
@@ -161,6 +160,8 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
   double m1   = (*d1)*POW(*x1,3); // mass units
 
   int i, j, k, index, ii=0, istar=0, index_presf=0;
+  int ibuff = NumberOfGhostZones;
+  FLOAT xstart = *CellLeftEdge[0], ystart = *CellLeftEdge[1], zstart = *CellLeftEdge[2];
   int xo, yo, zo, rsign=1;
   float bmass, div, min_temp, star_mass=0.0, sum_mass=0.0;
   float pstar, mass_to_stars, mass_available, tdyn;
@@ -218,9 +219,9 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
       zz = ChemicalEvolutionTestStarPosition[2];
 
       // make sure particle position is on this grid / processor
-      if( !( (xx > (*xstart) + (*ibuff)*(*dx)) && (xx < *xstart + (*ibuff + *nx)*(*dx))) ||
-          !( (yy > (*ystart) + (*ibuff)*(*dx)) && (yy < *ystart + (*ibuff + *ny)*(*dx))) ||
-          !( (zz > (*zstart) + (*ibuff)*(*dx)) && (zz < *zstart + (*ibuff + *nz)*(*dx))) ) {
+      if( !( (xx > (xstart) + (ibuff)*(*dx)) && (xx < xstart + (ibuff + *nx)*(*dx))) ||
+          !( (yy > (ystart) + (ibuff)*(*dx)) && (yy < ystart + (ibuff + *ny)*(*dx))) ||
+          !( (zz > (zstart) + (ibuff)*(*dx)) && (zz < zstart + (ibuff + *nz)*(*dx))) ) {
         printf("P(%"ISYM") individual_star_maker: Particle not on this grid. Leaving\n", *procnum);
         return SUCCESS;
       }
@@ -249,9 +250,9 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
       // find grid cell and assign chemical tags
       int ip, jp, kp, n;
-      ip = int ( (ParticlePosition[0][0] - (*xstart)) / (*dx));
-      jp = int ( (ParticlePosition[1][0] - (*ystart)) / (*dx));
-      kp = int ( (ParticlePosition[2][0] - (*zstart)) / (*dx));
+      ip = int ( (ParticlePosition[0][0] - (xstart)) / (*dx));
+      jp = int ( (ParticlePosition[1][0] - (ystart)) / (*dx));
+      kp = int ( (ParticlePosition[2][0] - (zstart)) / (*dx));
 
       n  = ip + (jp + kp * (*ny)) * (*nx);
 
@@ -305,20 +306,31 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
     // loop over all cells, check condition, form stars stochastically
     ii = 0; index_presf = 0;
-    for (k = *ibuff; k < *nz - *ibuff; k++){
-      for (j = *ibuff; j < *ny - *ibuff; j++){
-        for (i = *ibuff; i < *nx - *ibuff; i++){
-          index = i + (j + k * (*ny)) * (*nx);
 
-          bmass = (BaryonField[DensNum][index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
+    int number_of_stencil_cells = POW(IndividualStarFeedbackStencilSize, 3);
+    int integer_sep = floor((IndividualStarFeedbackStencilSize + 1) / 2.0);
 
-          // perform the following easy checks for SF before proceeding
-          // 1) Is density greater than the density threshold?
-          // 2) Is temperature < the minimum temperature?
-          // 3) Do not allow star formation if minimum star particle mass is
-          //    above some fraction of cell mass. This is very unlikely to occur
-          //    in intended use case:
-          //    (i.e. baryon mass likely always going to be > ~10 solar masses)
+    /* increase buffer size to be one away  from edges */
+    ibuff += integer_sep;
+
+    for (k = ibuff; k < *nz - ibuff; k++){
+      for (j = ibuff; j < *ny - ibuff; j++){
+        for (i = ibuff; i < *nx - ibuff; i++){
+
+          index = i + ( j + k * (*ny)) * (*nx);
+
+          /* if distributed star formation */
+          // check center cell's SF condition, if met, do SF
+          /* loop and sum over all*/
+
+           bmass = (BaryonField[DensNum][index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
+               // perform the following easy checks for SF before proceeding
+               // 1) Is density greater than the density threshold?
+               // 2) Is temperature < the minimum temperature?
+               // 3) Do not allow star formation if minimum star particle mass is
+               //    above some fraction of cell mass. This is very unlikely to occur
+               //    in intended use case:
+               //    (i.e. baryon mass likely always going to be > ~10 solar masses)
 
           sum_mass = 0.0; index_presf = ii;
 
@@ -347,8 +359,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
 
           if (   BaryonField[DensNum][index]      > odthreshold
-              && temp[index] <= min_temp
-              && bmass * IndividualStarMassFraction > IndividualStarIMFLowerMassCutoff){ // 4/4/16
+              && temp[index] <= min_temp ){ // 4/4/16
               //&& IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
               //&& 0.5*bmass > IndividualStarIMFUpperMassCutoff){
 
@@ -367,6 +378,16 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                             POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
 
             if (jeansmass <= bmass){
+
+              bmass = 0.0;
+              for (int k_loc = -integer_sep; k_loc <= integer_sep; k_loc++){
+                for(int j_loc = -integer_sep; j_loc <= integer_sep; j_loc++){
+                  for (int i_loc = -integer_sep; i_loc <= integer_sep; i_loc++){ 
+                    int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(*ny))*(*nx);
+                    bmass += (BaryonField[DensNum][loc_index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
+                  }
+                }
+              }
 
               // calculate mass in cell that can be converted to stars in timestep
               // generally this should be small (comparable to or less than the lower mass
@@ -527,11 +548,11 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 // within the cell ( so they are not all at cell center )
 
                 rnum =  (float) (random() % max_random) / (float) (max_random);
-                ParticlePosition[0][istar] = (*dx) * rnum + *xstart + ((float) i + 0.5)*(*dx);
+                ParticlePosition[0][istar] = (*dx) * rnum + xstart + ((float) i + 0.5)*(*dx);
                 rnum =  (float) (random() % max_random) / (float) (max_random);
-                ParticlePosition[1][istar] = (*dx) * rnum + *ystart + ((float) j + 0.5)*(*dx);
+                ParticlePosition[1][istar] = (*dx) * rnum + ystart + ((float) j + 0.5)*(*dx);
                 rnum =  (float) (random() % max_random) / (float) (max_random);
-                ParticlePosition[2][istar] = (*dx) * rnum + *zstart + ((float) k + 0.5)*(*dx);
+                ParticlePosition[2][istar] = (*dx) * rnum + zstart + ((float) k + 0.5)*(*dx);
 
                 // assume velocity dispersion is isotropic in each velocity component. Multiply disp by
                 // sqrt(1/3) to get disp in each component... taking above velocities as the mean
@@ -613,7 +634,17 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               }
 
               // now remove mass from grid
-              BaryonField[DensNum][index] = (bmass*msolar/m1 - sum_mass) / ((*dx)*(*dx)*(*dx)) ;
+              for (int k_loc = -integer_sep; k_loc <= integer_sep; k_loc++){
+                for(int j_loc = -integer_sep; j_loc <= integer_sep; j_loc++){
+                  for (int i_loc = -integer_sep; i_loc <= integer_sep; i_loc++){
+                    int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(*ny))*(*nx);
+                    float current_mass;
+                    current_mass = BaryonField[DensNum][loc_index]*(*dx)*(*dx)*(*dx);
+
+                    BaryonField[DensNum][loc_index] = (current_mass - sum_mass /( (float) number_of_stencil_cells) )/((*dx)*(*dx)*(*dx));
+                  }
+                }
+              }
 
             } // if jeans mass unstable
           } // resolution and density
@@ -973,7 +1004,7 @@ void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
 
   /* get properties */
   L = IndividualStarLuminosity(mproj, lifetime);
-  IndividualStarInterpolateProperties(&Teff, &R, mproj, metallicity);
+  IndividualStarInterpolateProperties(Teff, R, mproj, metallicity);
 
 
   // wind is in units of km / s
