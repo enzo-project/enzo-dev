@@ -132,10 +132,13 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
   ParticleAttributeLabel[1] = "dynamical_time";
   ParticleAttributeLabel[2] = "metallicity_fraction";
 
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
-      ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+    if(TestProblemData.MultiMetals == 2){
+      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+      }
     }
 
   } else {

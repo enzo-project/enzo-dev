@@ -52,15 +52,19 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
     ParticleAttributeLabel[1] = "dynamical_time";
     ParticleAttributeLabel[2] = "metallicity_fraction";
 
-    if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
-      ParticleAttributeLabel[3] = "birth_mass";
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    ParticleAttributeLabel[3] = "birth_mass";
+    if(TestProblemData.MultiMetals == 2){
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
-
-    } else {
-      ParticleAttributeLabel[3] = "typeia_fraction";
     }
+
+  } else {
+    ParticleAttributeLabel[3] = "typeia_fraction";
+  }
+
 /*
   const char *ParticleAttributeLabel[] = 
       {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
