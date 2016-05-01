@@ -275,10 +275,6 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
     }
   } // end ChemicalEvolutionTest ProblemType check
 
-  // Particle attributes hard coded for chemical tagging numbers. This is NOT IDEAL
-  // AJE : TO DO is to address this issue with a lookup method like the above for baryon fields
-  //       this may necessitate adding a new ParticleAttribute like array to stars specifically
-  //       for chemical tagging
 
     // 3D -> 1D index
     xo = 1;
@@ -290,18 +286,17 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
     // over density threshold in code units
     // if multispecies is off, assumes a value for MU
     if (MultiSpecies == FALSE){
-        odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (*d1);
+        odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (*d1); // code density
     }
 
     // loop over all cells, check condition, form stars stochastically
     ii = 0; index_presf = 0;
 
-    int number_of_stencil_cells = POW(IndividualStarFeedbackStencilSize, 3);
+    int number_of_sf_cells = 0;
     int integer_sep = floor((IndividualStarFeedbackStencilSize + 1) / 2.0);
 
     /* increase buffer size to be one away  from edges */
     ibuff += integer_sep;
-
     for (k = ibuff; k < *nz - ibuff; k++){
       for (j = ibuff; j < *ny - ibuff; j++){
         for (i = ibuff; i < *nx - ibuff; i++){
@@ -331,7 +326,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               0.25*(BaryonField[HeINum][index] + BaryonField[HeIINum][index] +
                     BaryonField[HeIIINum][index])                        +
                    BaryonField[HINum][index] + BaryonField[HIINum][index]    +
-                   BaryonField[DeNum][index];
+                   0.5 * BaryonField[DeNum][index];
             /* if H2 is present */
             if (MultiSpecies > 1){
               number_density += BaryonField[HMNum][index] +
@@ -341,9 +336,14 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
             /* Metal field must be present in this star formation scheme */
             number_density += BaryonField[MetalNum][index] * inv_metal_mol;
 
+
+            number_density *= BaryonField[DensNum][index] / m_h ; // now actual n density
+
             /* factor of m_h cancels out in below... it is ignored */
-            mu_cell = BaryonField[DensNum][index] / (number_density);
-            odthreshold = StarMakerOverDensityThreshold * (mu_cell) / (*d1);
+            mu_cell = BaryonField[DensNum][index] / (number_density * m_h);
+//            mu_cell = BaryonField[DensNum][index] / (number_density);
+//            mu_cell = 1.0 / (number_density / m_h)
+            odthreshold = StarMakerOverDensityThreshold * (mu_cell) * m_h / (*d1);
           }
 
 
@@ -354,8 +354,6 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
             // allow star formation in regions that cannot support very massive star formation
             // by limiting the IMF in those regions determined by local gas mass
-            float M_max_star;
-            M_max_star = min(bmass * IndividualStarMassFraction, IndividualStarIMFUpperMassCutoff);
 
 
             // star formation may be possible
@@ -367,16 +365,21 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                             POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
 
             if (jeansmass <= bmass){
-
-              bmass = 0.0;
+              bmass = 0.0; number_of_sf_cells = 0;
               for (int k_loc = -integer_sep; k_loc <= integer_sep; k_loc++){
                 for(int j_loc = -integer_sep; j_loc <= integer_sep; j_loc++){
                   for (int i_loc = -integer_sep; i_loc <= integer_sep; i_loc++){ 
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(*ny))*(*nx);
-                    bmass += (BaryonField[DensNum][loc_index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
+
+                    if(BaryonField[DensNum][loc_index] > odthreshold){
+                      bmass += (BaryonField[DensNum][loc_index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
+                      number_of_sf_cells++;
+                    }
+
                   }
                 }
               }
+              float M_max_star = min(bmass * IndividualStarMassFraction, IndividualStarIMFUpperMassCutoff);
 
               // calculate mass in cell that can be converted to stars in timestep
               // generally this should be small (comparable to or less than the lower mass
@@ -628,9 +631,11 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                   for (int i_loc = -integer_sep; i_loc <= integer_sep; i_loc++){
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(*ny))*(*nx);
                     float current_mass;
-                    current_mass = BaryonField[DensNum][loc_index]*(*dx)*(*dx)*(*dx);
 
-                    BaryonField[DensNum][loc_index] = (current_mass - sum_mass /( (float) number_of_stencil_cells) )/((*dx)*(*dx)*(*dx));
+                      if(BaryonField[DensNum][loc_index] > odthreshold){
+                        current_mass = BaryonField[DensNum][loc_index]*(*dx)*(*dx)*(*dx);
+                        BaryonField[DensNum][loc_index] = (current_mass - sum_mass /( (float) number_of_sf_cells) )/((*dx)*(*dx)*(*dx));
+                      }
                   }
                 }
               }
