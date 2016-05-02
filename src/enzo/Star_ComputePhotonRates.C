@@ -100,7 +100,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
     nbins = 2;
 
-    M   = this->Mass;
+    M   = this->BirthMass;   // interpolate grids on initial ZAMS mass
     Z   = this->Metallicity;
     tau = this->LifeTime;
     tau = tau * (TimeUnits); // convert to cgs
