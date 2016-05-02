@@ -76,7 +76,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *HDIName      = "HDI_Density";
 
   char *MetalName       = "Metal_Density";
-  char *MetallicityName = "Metallicity";
+//  char *MetallicityName = "Metallicity";
   char *MetalIaName     = "MetalSNIa_Density";
 
   /* Chemical Tracers */
@@ -425,9 +425,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationTruncationRadius, 
 						       GalaxySimulationDarkMatterConcentrationParameter,
 						       GalaxySimulationDiskTemperature,
+                                                       GalaxySimulationInitialTemperature,
                                                        GalaxySimulationInitialDiskMetallicity,
                                                        GalaxySimulationInitialHaloMetallicity,
-						       GalaxySimulationInitialTemperature,
 						       GalaxySimulationUniformDensity,
 						       GalaxySimulationGasHalo,
 						       GalaxySimulationGasHaloScaleRadius,
@@ -605,7 +605,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    DataLabel[count++] = MetalName;
 
  if (TestProblemData.UseMetallicityField){
-   DataLabel[count++] = MetallicityName;
+   DataLabel[count++] = MetalName;
  }
 
  if (StarMakerTypeIaSNe)

@@ -268,12 +268,12 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  if (UseMetallicityField){
    for (i = 0; i < size; i++)
-     BaryonField[MetalNum][i] = tiny_number;
+     BaryonField[MetalNum][i] = tiny_number * UniformDensity;
  }
 
  if (TestProblemData.UseMetallicityField){
    for (i = 0; i < size; i ++)
-     BaryonField[MetalNum][i] = tiny_number;
+     BaryonField[MetalNum][i] = tiny_number * UniformDensity;
  }
 
  if (MultiSpecies){
