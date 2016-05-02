@@ -48,7 +48,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 float SampleIMF(void);
 
-float ComputeSnIaProbability(float *current_time, float *formation_time, float *lifetime, float *t1);
+float ComputeSnIaProbability(float *current_time, const float &formation_time, const float &lifetime, float *t1);
 unsigned_long_int mt_random(void);
 
 void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
@@ -780,6 +780,8 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
   int do_stellar_winds, go_supernova;
   float stellar_wind_time_fraction;
 
+  const float fudge_factor = 1.0E10; // see comment below - hack to get WD and SNIa to work
+
   int IndividualStar        = PARTICLE_TYPE_INDIVIDUAL_STAR,
       IndividualStarWD      = PARTICLE_TYPE_INDIVIDUAL_STAR_WD,
       IndividualStarRemnant = PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT; // convenience
@@ -791,6 +793,8 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
     ip = int ( (ParticlePosition[0][i] - (*xstart)) / (*dx));
     jp = int ( (ParticlePosition[1][i] - (*ystart)) / (*dx));
     kp = int ( (ParticlePosition[2][i] - (*zstart)) / (*dx));
+
+    float birth_mass = ParticleAttribute[3][i];
 
     mp = ParticleMass[i] * (*dx) * (*dx) * (*dx); // mass in code units
     mp = mp * (m1) / msolar ; // Msun
@@ -820,22 +824,23 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
         }
       } // end winds check
 
-      if ( mp >= IndividualStarSNIIMassCutoff && ((particle_age + *dt) > lifetime)){
+      if ( birth_mass >= IndividualStarSNIIMassCutoff && ((particle_age + *dt) > lifetime)){
         go_supernova = TRUE;
         ParticleAttribute[1][i] = lifetime*1.0E10; // lifetime set to arbitrarily large number
 
-      } else if ( mp >= IndividualStarWDMinimumMass && mp <= IndividualStarWDMaximumMass
+      } else if ( birth_mass >= IndividualStarWDMinimumMass && birth_mass <= IndividualStarWDMaximumMass
                   && particle_age + (*dt) > lifetime && IndividualStarUseSNIa){
 
-        ParticleAttribute[3][i] = mp; // Birth Mass (main sequence mass) in solar units
-
         float wd_mass; // compute WD mass using linear fit from Salaris et. al. 2009
-        if(      mp  < 4.0){ wd_mass = 0.134 * mp + 0.331;}
-        else if (mp >= 4.0){ wd_mass = 0.047 * mp + 0.679;}
+        if(      birth_mass  < 4.0){ wd_mass = 0.134 * birth_mass + 0.331;}
+        else if (birth_mass >= 4.0){ wd_mass = 0.047 * birth_mass + 0.679;}
 
         ParticleMass[i] = wd_mass * (msolar / m1) / ((*dx)*(*dx)*(*dx));
         ParticleType[i] = IndividualStarWD;
-        ParticleAttribute[1][i] = lifetime*1.0E10; // make a big number
+        /* fudge factor makes lifetime very long so particle is not deleted,
+           however, SNIa scheme needs to know the main sequence lifetime. This
+           confusing, but a little bit more efficient than making a new particle attribute */
+        ParticleAttribute[1][i] = lifetime*fudge_factor; // make a big number
 
       } else if (particle_age + (*dt) > lifetime){
         ParticleMass[i] = 0.0; // kill silently
@@ -846,8 +851,8 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
       /* White Dwarf Feedback - Make SNIa */
 
       /* Does the progenitor mass (main sequence mass) fit within range */
-      if( (ParticleAttribute[3][i] > IndividualStarSNIaMinimumMass) &&
-          (ParticleAttribute[3][i] < IndividualStarSNIaMaximumMass) ){
+      if( (birth_mass > IndividualStarSNIaMinimumMass) &&
+          (birth_mass < IndividualStarSNIaMaximumMass) ){
 
         float formation_time = ParticleAttribute[0][i]; // formation time of main sequence star
 
@@ -855,7 +860,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
         float rnum;
 
         /* Probability that the star will explode as SNIa in this timestep */
-        PSNIa  = ComputeSnIaProbability(current_time, &formation_time, &lifetime, t1); // units of t^((beta)) / s
+        PSNIa  = ComputeSnIaProbability(current_time, formation_time, lifetime/fudge_factor, t1); // units of t^((beta)) / s
         PSNIa *= (*dt);
 
         rnum =  (float) (random() % max_random) / ((float) (max_random));
@@ -874,7 +879,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
         if(do_stellar_winds){
 
-          float mproj  = ParticleAttribute[3][i]; /* Main sequence star mass / birth mass  in solar */
+          float mproj  = birth_mass; /* Main sequence star mass / birth mass  in solar */
 
           printf("ISF: Calling feedback general to do stellar winds\n");
           printf("ISF: Current Mass = %"ESYM" Particle aatribute 3 = %"ESYM" mproj = %"ESYM"\n", mp,ParticleAttribute[3][i], mproj);
@@ -884,7 +889,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                                            ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
                                            *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
                                            *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, -1);
-          ParticleMass[i] = mp * msolar / m1 / ((*dx)*(*dx)*(*dx));
+          ParticleMass[i] = mp;
 
         }
 
@@ -899,7 +904,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
                                              *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
                                              *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 1);
 
-            ParticleMass[i] = mp * msolar / m1 / ((*dx)*(*dx)*(*dx));
+            ParticleMass[i] = mp;
             ParticleType[i] = IndividualStarRemnant; // change type
           } else{
             printf("calling feedback to do supernova 1a\n");
@@ -945,7 +950,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
   return SUCCESS;
 }
 
-float ComputeSnIaProbability(float *current_time, float *formation_time, float *lifetime, float *t1){
+float ComputeSnIaProbability(float *current_time, const float &formation_time, const float &lifetime, float *t1){
  /* -----------------------------------------------------------------
   * ComputeSnIaProbability
   *
@@ -966,14 +971,14 @@ float ComputeSnIaProbability(float *current_time, float *formation_time, float *
 
  /* conmpute normalized probability - normalized by integral over WD formation time to hubble time */
  if (IndividualStarDTDSlope == 1.0){
-   dPdt /= log( (hubble_time / (*t1) + *lifetime) / (*lifetime) );
+   dPdt /= log( (hubble_time / (*t1) + lifetime) / (lifetime) );
  } else{
    dPdt *= (-IndividualStarDTDSlope + 1.0);
-   dPdt /= ( POW( (hubble_time / (*t1) + *lifetime) , -IndividualStarDTDSlope + 1) -
-             POW((*lifetime)                      , -IndividualStarDTDSlope + 1));
+   dPdt /= ( POW( (hubble_time / (*t1) + lifetime) , -IndividualStarDTDSlope + 1) -
+             POW((lifetime)                      , -IndividualStarDTDSlope + 1));
  }
 
- dPdt = dPdt * POW( ((*current_time) - (*formation_time)), -IndividualStarDTDSlope);
+ dPdt = dPdt * POW( ((*current_time) - (formation_time)), -IndividualStarDTDSlope);
 
 
  return dPdt;
@@ -1143,9 +1148,9 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
                                            up, vp, wp,
                                            m_eject, E_thermal, E_kin, p_feedback, metal_mass); // function call
 
-  *mp = *mp - m_eject * (dx*dx*dx)*m1/ msolar; // remove mass from particle
+  *mp = (*mp)*msolar/m1 /(dx*dx*dx) - m_eject; // remove mass from particle - in code units now
 
-  if( *mp < 0){
+  if( *mp < 0 && mode != 2){ // ignore this check for SNIa yields
       ENZO_FAIL("IndividualStarFeedback: Ejected mass greater than current particle mass - negative particle mass!!!\n");
   }
 
