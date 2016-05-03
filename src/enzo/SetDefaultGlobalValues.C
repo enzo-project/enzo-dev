@@ -723,6 +723,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarSNIaMaximumMass     = 8.0;          // solar masses
   IndividualStarPSNMassCutoff       = 40.0;         // Solar masses
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
+  IndividualStarFUVMinimumMass      = 8.0;          // SOlar masses
   IndividualStarStellarWinds         = 0;           // on or off
   IndividualStarFollowStellarYields  = 0;            // on or off
   IndividualStarDTDSlope             = 1.20;        // beta (positive) - Default from Maoz et. al. 2012

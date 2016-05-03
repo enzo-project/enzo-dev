@@ -42,6 +42,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
 
+  int PeNum;
 
   int ExtraField[2];
 
@@ -141,6 +142,11 @@ int grid::InitializeUniformGrid(float UniformDensity,
     } // end mm = 2
 
   } // use metallicity field
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+
+    FieldType[PeNum = NumberOfBaryonFields++] = PeHeatingRate;
+  }
 
   // Simon glover's chemistry models (there are several)
   //
@@ -344,6 +350,10 @@ int grid::InitializeUniformGrid(float UniformDensity,
       } // if we are doing stellar yields
 
     } // if(TestProblemData.UseMetallicityField)
+
+    if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+      BaryonField[PeNum][i] = 0.0;
+    }
 
         // simon glover chemistry stuff
     if(TestProblemData.GloverChemistryModel){

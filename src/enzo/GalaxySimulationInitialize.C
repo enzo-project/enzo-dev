@@ -79,6 +79,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 //  char *MetallicityName = "Metallicity";
   char *MetalIaName     = "MetalSNIa_Density";
 
+
+  char *PeHeatingRateName = "Pe_heating_rate";
   /* Chemical Tracers */
   /* handled with lookup table - see below */
 
@@ -619,6 +621,10 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
        DataLabel[count++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[i]);
      }
    } // yields loop
+ }
+
+ if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+   DataLabel[count++] = PeHeatingRateName;
  }
 
  for (i = 0; i < count; i++)

@@ -52,7 +52,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
   }
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum, MetalNum;
+      DINum, DIINum, HDINum, MetalNum, PeNum;
 
   if(MultiSpecies){
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
@@ -69,6 +69,9 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
     printf("ChemicalEvolutionTest: Metallicity Field not found.\n");
   }
 
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+    PeNum = FindField(PeHeatingRate, FieldType, NumberOfBaryonFields);
+  }
 
   int size = 1, i;
 
@@ -143,6 +146,12 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
     } // loop over yields
 
   } // MULTI METALS
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+    for(i = 0; i < size; i ++){
+      BaryonField[PeNum][i] = 0.0; 
+    }
+  }
 
   return SUCCESS;
 }

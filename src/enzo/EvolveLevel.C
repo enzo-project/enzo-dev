@@ -468,7 +468,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
 
-
     /* Compute stochastic force field via FFT from the spectrum. */
     if (DrivenFlowProfile) {
         if (ComputeStochasticForcing(MetaData, Grids, NumberOfGrids) == FAIL) {

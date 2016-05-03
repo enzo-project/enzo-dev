@@ -78,6 +78,9 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   char *DIIName   = "DII_Density";
   char *HDIName   = "HDI_Density";
 
+  char *PeHeatingRateName = "Pe_heating_rate";
+
+
   /* Names for chemical evolution element abundances */
      // these are handled in lookup table in function declared inGrid_IdentifyChemicalTracerSpeciesFields //
 
@@ -308,6 +311,10 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
       }
     }
   }
+
+ if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+  DataLabel[count++] = PeHeatingRateName;
+ }
 
  // fill in remaining slots
  for(int j=0; j < count; j++) DataUnits[j] = NULL;

@@ -48,6 +48,10 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 				     Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
+
+int StarParticlePhotoelectricHeating(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+                                     int level, Star *&AllStars);
+
 int CommunicationMergeStarParticle(HierarchyEntry *Grids[], int NumberOfGrids);
 void DeleteStarList(Star * &Node);
 
@@ -128,6 +132,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   StarParticleDeath(LevelArray, level, AllStars);
 
+
   /*
      If the new particles are above a specified mass threshold,
      "activate" them.  Then check for any stellar deaths.
@@ -172,6 +177,11 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     }
 
   } // ENDFOR stars
+
+  /* for existing stars, populate the photoelectric heating baryon field */
+  StarParticlePhotoelectricHeating(MetaData, LevelArray, level, AllStars);
+
+
 
   if (PopIIIOutputOnFeedback)
     OutputNow = CommunicationMaxValue(OutputNow);

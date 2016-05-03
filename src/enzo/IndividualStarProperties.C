@@ -111,7 +111,41 @@ float IndividualStarSurfaceGravity(const float &mp, const float &R){
 
 int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float &g, const float &metallicity){
 
+  int i, j, k; // i -> Teff , j -> g, k -> Z
+  float t, u, v;
 
+  // convert metallicity to solar
+  float Z; // Z is in units of solar
+  Z = (metallicity) / IndividualStarRadData.Zsolar;
+
+  if( LinearInterpolationCoefficients(t, u, v, i, j, k, Teff, g, Z,
+                                      IndividualStarRadData.T, IndividualStarRadData.g, IndividualStarRadData.Z,
+                                      IndividualStarRadData.NumberOfTemperatureBins, IndividualStarRadData.NumberOfSGBins, IndividualStarRadData.NumberOfMetallicityBins) == FAIL){
+    /* if interpolation fails, fail here */
+    float value, value_min, value_max;
+    printf("IndividualStarInterpolateFUVFlux: Failure in interpolation ");
+
+    if( t < 0) { 
+      printf("Temperature out of bounds ");
+      value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
+    } else if (u < 0) {
+      printf("Surface Gravity out of bounds ");
+      value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
+    } else if (v < 0) {
+      printf("Metallicity out of bounds ");
+      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];    
+    }
+
+    printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
+    return FAIL;
+  }
+
+
+  if( IndividualStarRadDataEvaluateInterpolation(Fuv, IndividualStarRadData.Fuv,
+                                                 t, u, v, i, j, k) == FAIL){
+    printf("IndividualStarFUVHeating: outside sampled grid points, using black body instead\n");   
+    return FAIL;
+  }
 
   return SUCCESS;
 }
@@ -678,5 +712,8 @@ float GaussianRandomVariable(void){
 
   return y1;
 }
+
+
+
 
 

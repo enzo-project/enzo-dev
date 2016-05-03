@@ -75,7 +75,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     IndividualStarProperties_Initialize();
 
     /* Initialize radiation data table */
-    if(RadiativeTransfer && IndividualStarBlackBodyOnly == FALSE){
+    if((RadiativeTransfer && IndividualStarBlackBodyOnly == FALSE) || IndividualStarFUVHeating){
       IndividualStarRadiationProperties_Initialize();
     }
 

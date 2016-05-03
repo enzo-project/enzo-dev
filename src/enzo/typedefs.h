@@ -181,8 +181,9 @@ const field_type
   LaDensity = 103,
   EuDensity = 104,
 
+  PeHeatingRate = 105,
 
-  FieldUndefined  = 105;
+  FieldUndefined  = 106;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

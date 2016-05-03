@@ -100,7 +100,7 @@ Star::Star(grid *_grid, int _id, int _level)
     LifeTime = LIFETIME_IN_TDYN * _grid->ParticleAttribute[1][_id];
   else
     LifeTime = _grid->ParticleAttribute[1][_id];
-  Metallicity = _grid->ParticleAttribute[2][_id];
+  Metallicity = (double)(_grid->ParticleAttribute[2][_id]);
   this->ConvertAllMassesToSolar();
 }
 

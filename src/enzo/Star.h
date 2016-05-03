@@ -37,7 +37,7 @@ class Star
   float		 DeltaMass;	// Msun (to be added to ParticleMass[])
   float		 BirthTime;
   float		 LifeTime;
-  float          Metallicity;
+  double         Metallicity;
   float          deltaZ;
   int		 FeedbackFlag;
   PINT		 Identifier;
@@ -76,6 +76,7 @@ public:
   float ReturnBirthTime(void) { return BirthTime; };
   double ReturnFinalMass(void) { return FinalMass; };
   double ReturnBirthMass(void) { return BirthMass; };
+  double ReturnMetallicity(void) { return Metallicity; };
   void  AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };
   float ReturnBirthtime(void) { return BirthTime; };

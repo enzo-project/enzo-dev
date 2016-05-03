@@ -625,17 +625,18 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 }
               }
 
-              // now remove mass from grid
+              // now remove mass from grid - do not need to do this for tracer fields since they are kept as fractions
+              // and will be modified accordingly when converted back to densities in Grid_StarParticleHandler
               for (int k_loc = -integer_sep; k_loc <= integer_sep; k_loc++){
                 for(int j_loc = -integer_sep; j_loc <= integer_sep; j_loc++){
                   for (int i_loc = -integer_sep; i_loc <= integer_sep; i_loc++){
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(*ny))*(*nx);
-                    float current_mass;
+                    float current_mass; float volume = (*dx)*(*dx)*(*dx);
 
-                      if(BaryonField[DensNum][loc_index] > odthreshold){
-                        current_mass = BaryonField[DensNum][loc_index]*(*dx)*(*dx)*(*dx);
-                        BaryonField[DensNum][loc_index] = (current_mass - sum_mass /( (float) number_of_sf_cells) )/((*dx)*(*dx)*(*dx));
-                      }
+                    if(BaryonField[DensNum][loc_index] > odthreshold){
+                      current_mass = BaryonField[DensNum][loc_index] * volume;
+                      BaryonField[DensNum][loc_index] = (current_mass - sum_mass /( (float) number_of_sf_cells) ) / volume;
+                    }
                   }
                 }
               }
