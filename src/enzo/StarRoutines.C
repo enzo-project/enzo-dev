@@ -462,12 +462,9 @@ void Star::UpdateIndividualStarParticleProperties(void)
 
     // update mass and type
     Mass    = (double)(CurrentGrid->ParticleMass[_id]);
-    printf("UpdateISP: Mass %"ESYM"\n", Mass);
     type     = CurrentGrid->ParticleType[_id];
     LifeTime = CurrentGrid->ParticleAttribute[1][_id];
     this->ConvertMassToSolar();
-    printf("UPdateIndividualStarProperties: Updating star properties\n");
-    printf("UpdateISP: Final Mass %"ESYM"\n", Mass);
   } // end if
 
 
