@@ -189,7 +189,6 @@ int InitializeStellarYields(void){
   fclose(fptr_sn);
   fclose(fptr_wind);
 
-  printf("Got to end of stellar yields, that is probably a good sign\n");
   return SUCCESS;
 }
 
