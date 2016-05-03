@@ -338,7 +338,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
    for (i = 0; i < size; i++){
-     BaryonField[PeHeatingRate][i] = 0.0;
+     BaryonField[PeHeatingNum][i] = 0.0;
    }
  }
 
