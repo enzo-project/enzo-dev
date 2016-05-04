@@ -36,7 +36,8 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const floa
 
 
 /* internal prototypes */
-float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const float &T, const float &G);
+float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const float &Z,
+                                      const float &T, const float &G);
 
 
 int StarParticlePhotoelectricHeating(TopGridData *MetaData,
@@ -176,7 +177,7 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
 
   /* get multispecies fields */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum, ElectronNum, PeNum;
+      DINum, DIINum, HDINum, ElectronNum, PeNum, DensNum, MetalNum;
   if (MultiSpecies){
     this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                                 HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
@@ -185,7 +186,9 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
     ENZO_FAIL("StarParticlePhotoelectricHeating: MultiSpeices is required for photoelectrci heating");
   }
 
-  // electron density field number and heating rate field number
+  // find fields for density, metal density, electron density, and the heating rate
+  DensNum     = FindField(Density, this->FieldType, this->NumberOfBaryonFields);
+  MetalNum    = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
   ElectronNum = FindField(ElectronDensity, this->FieldType, this->NumberOfBaryonFields);
   PeNum       = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
 
@@ -200,7 +203,7 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
 
       for(int i = 0; i < this->GridDimension[0]; i++){
 
-        int index = i + (j + k * GridDimension[1])*GridDimension[0];
+        int index = i + (j + k * this->GridDimension[1])* this->GridDimension[0];
 
         FLOAT xcell = this->CellLeftEdge[0][i] + 0.5*this->CellWidth[0][i];
         float local_flux = 0.0;
@@ -218,13 +221,24 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
         }
 
 
-        float n_H, n_e;
+        float n_H, n_e, Z;
 
-        n_H = (BaryonField[HINum][index] + BaryonField[HIINum][index]) * DensityUnits / m_h;
-        n_e = BaryonField[ElectronNum][index] * DensityUnits / m_e;
+        n_H = (this->BaryonField[HINum][index] + this->BaryonField[HIINum][index]);
+
+        if ( MultiSpecies > 1){ /* include H2 */
+          n_H += this->BaryonField[HMNum][index] +
+                    0.5 * (this->BaryonField[H2INum][index] + this->BaryonField[H2IINum][index]);
+        }
+
+
+        n_H *= DensityUnits / m_h;
+
+        n_e  = this->BaryonField[ElectronNum][index] * DensityUnits / m_e;
+
+        Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
         // assign heating rate from model
-        BaryonField[PeNum][index] = ComputeHeatingRateFromDustModel(n_H, n_e, temperature[index], local_flux);
+        BaryonField[PeNum][index] = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], local_flux);
 
       }
     }
@@ -232,7 +246,8 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
 
 }
 
-float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const float &T,
+float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
+                                      const float &T,   const float &Z,
                                       const float &G){
   /* ---------------------------------------------------------------------------------
    * ComputeHeatingRateFromDustModel
@@ -245,19 +260,24 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const 
    * and the FUV flux. This works well for MW like galaxies but its abilitiy to handle
    * low metetallicity galaxies is questionable.
    *
-   * CURRENTLY DOES NOT DO METAL SCALIGN - THIS NEEDS TO BE PUT IN 
+   * CURRENTLY DOES NOT DO METAL SCALIGN - THIS NEEDS TO BE PUT IN
    * ----------------------------------------------------------------------------------
    */
 
   const double G_norm = 1.59E-3; // Habing field normalization - MW flux in cgs
+
+  const double Z_o    =    0.02; // solar metallicity as defined in Forbes et. al. 2016
+
   float G_o   = G / G_norm;
-  float epsilon;
+  float epsilon, flux;
 
   epsilon = 4.9E-2                        / (1.0 + 4.0E-3 * POW(( G_o * POW(T,0.5) / n_e ),0.73)) +
             3.7E-2 * POW(1.0E-4 * T, 0.7) / (1.0 + 2.0E-4 *    (( G_o * POW(T,0.5) / n_e )     ));
 
 
-  return 1.3E-24 * n_H * epsilon * G_o; // heating rate per unit volume
+  flux = 1.3E-24 * n_H * epsilon * G_o * (Z / Z_o);
+
+  return flux;
 }
 
 void grid::ZeroPhotoelectricHeatingField(void){
