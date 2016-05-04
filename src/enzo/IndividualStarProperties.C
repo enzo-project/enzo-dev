@@ -127,9 +127,16 @@ int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float
                                       IndividualStarRadData.NumberOfTemperatureBins, IndividualStarRadData.NumberOfSGBins, IndividualStarRadData.NumberOfMetallicityBins) == FAIL){
     /* if interpolation fails, fail here */
     float value, value_min, value_max;
-    printf("IndividualStarInterpolateFUVFlux: Failure in interpolation ");
 
-    if( t < 0) { 
+    if ( t < 0){
+      return FAIL;
+    } // no print statements if temperature is out of bounds -
+      // that is O.K. and covered with black body integral
+
+    printf("IndividualStarInterpolateFUVFlux: Failure in interpolation "); 
+
+
+    if( t < 0) {
       printf("Temperature out of bounds ");
       value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
     } else if (u < 0) {
