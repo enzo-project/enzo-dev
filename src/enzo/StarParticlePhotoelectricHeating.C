@@ -206,43 +206,51 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
         int index = i + (j + k * this->GridDimension[1])* this->GridDimension[0];
 
         FLOAT xcell = this->CellLeftEdge[0][i] + 0.5*this->CellWidth[0][i];
-        float local_flux = 0.0;
-        FLOAT rsqr;
 
-        /* find total local flux due to all stars */
-        for (int sp = 0; sp < number_of_fuv_stars; sp++){
+        /* if the cell is below the temperature threshold for dust to exist, apply heating */
+        if( temperature[index] < IndividualStarFUVTemperatureCutoff){
+          float local_flux = 0.0;
+          FLOAT rsqr;
 
-          rsqr = (xcell - xs[sp])*(xcell - xs[sp]) +
-                 (ycell - ys[sp])*(ycell - ys[sp]) +
-                 (zcell - zs[sp])*(zcell - zs[sp]);
+          /* find total local flux due to all stars */
+          for (int sp = 0; sp < number_of_fuv_stars; sp++){
 
-          local_flux += Ls[sp] / (4.0 * pi * rsqr);
+            rsqr = (xcell - xs[sp])*(xcell - xs[sp]) +
+                   (ycell - ys[sp])*(ycell - ys[sp]) +
+                   (zcell - zs[sp])*(zcell - zs[sp]);
 
+            local_flux += Ls[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
+
+          }
+
+
+          float n_H, n_e, Z;
+
+          n_H = (this->BaryonField[HINum][index] + this->BaryonField[HIINum][index]);
+
+          if ( MultiSpecies > 1){ /* include H2 */
+            n_H += this->BaryonField[HMNum][index] +
+                      0.5 * (this->BaryonField[H2INum][index] + this->BaryonField[H2IINum][index]);
+          }
+
+
+          n_H *= DensityUnits / m_h;
+
+          n_e  = this->BaryonField[ElectronNum][index] * DensityUnits / m_e;
+
+          Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
+
+
+          // assign heating rate from model
+          BaryonField[PeNum][index] = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], local_flux);
+
+        } else {
+          BaryonField[PeNum][index] = 0.0; // no heating above temperature threshold
         }
 
-
-        float n_H, n_e, Z;
-
-        n_H = (this->BaryonField[HINum][index] + this->BaryonField[HIINum][index]);
-
-        if ( MultiSpecies > 1){ /* include H2 */
-          n_H += this->BaryonField[HMNum][index] +
-                    0.5 * (this->BaryonField[H2INum][index] + this->BaryonField[H2IINum][index]);
-        }
-
-
-        n_H *= DensityUnits / m_h;
-
-        n_e  = this->BaryonField[ElectronNum][index] * DensityUnits / m_e;
-
-        Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
-
-        // assign heating rate from model
-        BaryonField[PeNum][index] = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], local_flux);
-
-      }
-    }
-  }
+      } // end loop over i
+    } // j
+  } // k
 
 }
 

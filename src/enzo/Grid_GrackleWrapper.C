@@ -90,7 +90,10 @@ int grid::GrackleWrapper()
   float *velocity1   = BaryonField[Vel1Num];
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
- 
+
+  float *volumetric_heating_rate;
+  float *specific_heating_rate;
+
   /* Compute the cooling time. */
  
   FLOAT a = 1.0, dadt;
@@ -105,6 +108,19 @@ int grid::GrackleWrapper()
     aUnits = 1.0/(1.0 + InitialRedshift);
   }
   float afloat = float(a);
+
+
+  /* assign heating rates - set to Null pointers if not used */
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+    int PeNum = FindField( PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+
+    volumetric_heating_rate = BaryonField[PeNum];
+    specific_heating_rate   = NULL;
+  } else{
+    volumetric_heating_rate = NULL;
+    specific_heating_rate   = NULL;
+  }
+
 
   /* Update units. */
 
@@ -202,7 +218,8 @@ int grid::GrackleWrapper()
                       BaryonField[H2INum],  BaryonField[H2IINum],
                       BaryonField[DINum],   BaryonField[DIINum], 
                       BaryonField[HDINum],  BaryonField[DeNum], 
-                      MetalPointer) == FAIL) {
+                      MetalPointer, volumetric_heating_rate, // AJE - 5/4/16
+                      specific_heating_rate) == FAIL) {
     fprintf(stderr, "Error in Grackle solve_chemistry.\n");
     return FAIL;
   }

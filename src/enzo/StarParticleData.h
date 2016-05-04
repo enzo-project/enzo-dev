@@ -161,6 +161,8 @@ SPEXTERN float IndividualStarSupernovaEnergy;
 SPEXTERN float IndividualStarStellarWindVelocity;
 SPEXTERN int   IndividualStarFUVHeating;
 SPEXTERN float IndividualStarFUVMinimumMass;
+SPEXTERN float IndividualStarFUVTemperatureCutoff;
+
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;

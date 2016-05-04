@@ -143,9 +143,12 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
   float *velocity1   = BaryonField[Vel1Num];
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
- 
+
+  float *volumetric_heating_rate;
+  float *specific_heating_rate;
+
   /* Compute the cooling time. */
- 
+
   FLOAT a = 1.0, dadt;
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
     VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
@@ -154,10 +157,22 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 	   &TimeUnits, &VelocityUnits, Time);
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt);
- 
+
     aUnits = 1.0/(1.0 + InitialRedshift);
   }
   float afloat = float(a);
+
+  /* assign heating rates - set to Null pointers if not used */
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+    int PeNum = FindField( PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+
+    volumetric_heating_rate = BaryonField[PeNum];
+    specific_heating_rate   = NULL;
+  } else{
+    volumetric_heating_rate = NULL;
+    specific_heating_rate   = NULL;
+  }
+
  
   /* Metal cooling codes. */
  
@@ -266,7 +281,8 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
                                BaryonField[H2INum],  BaryonField[H2IINum],
                                BaryonField[DINum],   BaryonField[DIINum], 
                                BaryonField[HDINum],  BaryonField[DeNum], 
-                               MetalPointer, cooling_time) == FAIL) {
+                               MetalPointer, cooling_time, // AJE - 5/4/16
+                               volumetric_heating_rate, specific_heating_rate) == FAIL) {
       ENZO_FAIL("Error in Grackle calculate_cooling_time.\n");
     }
 
