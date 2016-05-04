@@ -55,6 +55,10 @@ int LinearInterpolationCoefficients(float &t, float &u, float &v, int &i, int &j
                                     const int &x1a_size, const int &x2a_size, const int &x3a_size);
 
 
+
+
+
+
 float IndividualStarLifetime(const float &mp, const float &metallicity){
   /* ========================================================
    * IndividualStarLifetime
@@ -456,7 +460,20 @@ int ComputeBlackBodyFlux(float &flux, const float &Teff, const float &e_min, con
    * Computation is done by integrating black body curve using series approx
    * ==============================================================================*/
 
+  const double c       = 2.99792458E10;
+  const double k        = 1.380658E-16;
+  const double h       = 6.6260755E-27;
 
+  float x1, x2, A;
+
+  x1 = (e_min) / (k * Teff);
+  x2 = (e_max) / (k * Teff);
+
+  BlackBodyFlux(flux, x1, x2);
+
+  A = 2.0 * k*k*k*k * Teff*Teff*Teff*Teff / (h*h*h*c*c);
+
+  flux *= A;
 
   return SUCCESS;
 }
@@ -499,6 +516,60 @@ int ComputeAverageEnergy(float *energy, float *e_i, float *Teff){
 
   return SUCCESS;
 }
+
+int BlackBodyFlux(float &F, const float &x1, const float &x2){
+ /* -----------------------------------------------------------
+  * BlackBodyFlux
+  * -----------------------------------------------------------
+  * Computes the in band flux from the black body curve given
+  * unitless wavelength x1 and x2 to integrate over.
+  * require that x_2 > x_1
+  *
+  * Integral is taken as two one sided integrals
+  * ------------------------------------------------------------
+  */
+
+  float f_1, f_2;
+  int error1, error2;
+
+  error1 = BlackBodyFlux(f_1, x1);
+  error2 = BlackBodyFlux(f_2, x2);
+
+  F = f_1 - f_2;
+
+ return error1 * error2;
+}
+
+int BlackBodyFlux(float &F, const float &x){
+ /* -----------------------------------------------------------
+  * BlackBodyFlux
+  * -----------------------------------------------------------
+  * Compute the one sided integral over black body curve to get 
+  * flux contribution from light with wave number x to infinity
+  *
+  * ------------------------------------------------------------
+  */
+
+  const int max_iterations = 513;
+  const int min_iterations = 4;
+  const float tolerance = 1.0E-10;
+
+  float difference = 1.0E10, sum, old_sum;
+  sum = old_sum = 0.0;
+  int i = 1;
+
+  while((difference > tolerance && i < max_iterations) || (i < min_iterations)){
+    old_sum = sum;
+    sum += (x*x*x / ((float) i) + 3.0*x*x/((float) i*i) +
+           6.0 *x / ((float) i*i*i) + 6.0/((float) i*i*i*i)) * exp(-i*x);
+
+    difference = sum - old_sum;
+    i++;
+  }
+
+  return SUCCESS;
+}
+
 
 int PhotonRadianceBlackBody(float &q, const float &x){
   /* ==========================================================================

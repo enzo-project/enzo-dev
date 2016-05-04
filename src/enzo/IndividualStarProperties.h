@@ -34,6 +34,12 @@ int ComputeAverageEnergy(float *energy, float *e_i, float *Teff);
 int AverageEnergyBlackBody(float *energy, float x);
 int ComputeBlackBodyFlux(float &flux, const float &Teff, const float &e_min, const float &e_max);
 
+
+int BlackBodyFlux(float &F, const float &x1, const float &x2);
+int BlackBodyFlux(float &F, const float &x);
+
+
+
 /* General helper functions */
 float GaussianRandomVariable(void);
 
