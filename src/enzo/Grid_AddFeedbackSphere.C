@@ -579,7 +579,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       for (jj = -SUPERCELL; jj <= SUPERCELL; jj++) {
 	for (ii = -SUPERCELL; ii <= SUPERCELL; ii++) {
 
-	  if (fabs(ii) != SUPERCELL && fabs(jj) != SUPERCELL && fabs(kk) != SUPERCELL) {  //if not on edges
+	  if (ABS(ii) != SUPERCELL && ABS(jj) != SUPERCELL && ABS(kk) != SUPERCELL) {  //if not on edges
 
 	    ind_cell_inside[n_cell_inside] = i+ii+(j+jj+(k+kk)*GridDimension[1])*GridDimension[0];
 	    m_cell_inside += BaryonField[DensNum][ind_cell_inside[n_cell_inside]] * 

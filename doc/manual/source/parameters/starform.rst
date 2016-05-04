@@ -29,12 +29,14 @@ General
 	8  - Springel & Hernquist (2003)
 	9  - Massive Black Hole (MBH) particles insertion by hand / Kim et al. (2010)
 	10 - Population III stellar tracers  
-        11 - Molecular hydrogen regulated star formation
-        13 - Distributed stellar feedback model (So et al. 2014)
+	11 - Molecular hydrogen regulated star formation
+	13 - Distributed stellar feedback model (So et al. 2014)
+	14 - Cen & Ostriker (1992) stochastic star formation with kinetic feedback 
+             / Simpson et al. (2015)
 
 ``StarParticleFeedback`` (external)
     This parameter works the same way as ``StarParticleCreation`` but only
-    is valid for ``StarParticleCreation`` method = 0, 1, 2, 7 and 8 because methods 3, 5 and 9
+    is valid for ``StarParticleCreation`` method = 0, 1, 2, 7, 8 and 14 because methods 3, 5 and 9
     use the radiation transport module and ``Star_*.C`` routines to
     calculate the feedback, 4 has explicit feedback and 10 does not use feedback. Default: 0.
 
@@ -87,7 +89,7 @@ Normal Star Formation
 ^^^^^^^^^^^^^^^^^^^^^
 
 The parameters below are considered in ``StarParticleCreation`` method
-0, 1, 2, 7, 8, and 13
+0, 1, 2, 7, 8, 13 and 14.
 
 ``StarMakerOverDensityThreshold`` (external)
     The overdensity threshold in code units (for cosmological simulations, note that code units are relative to the total mean density, not
@@ -150,6 +152,18 @@ The parameters below are considered in ``StarParticleCreation`` method
     The fraction of the rest-mass energy of the stars created which is
     returned as UV radiation with a quasar spectrum. This is used when
     calculating the radiation background. Default: 5e-6
+``StarFeedbackKineticFraction`` (external)
+    Only valid for ``StarParticleFeedback`` method = 14.  If set to a zero or positive
+    value between 0.0 and 1.0, this is the constant fraction of energy injected in kinetic 
+    form.  If set to -1, then a variable kinetic fraction is used that depends on local
+    gas density, metallicity and resolution.  See Simpson et al. 2015
+    for details. Note, some failures may occur in -1 mode.  Default 0.0
+``StarMakerExplosionDelayTime`` (external)
+    Only valid for ``StarParticleFeedback`` method = 14.  If set to a positive value, energy,
+    metals and mass from the particle are injected in a single timestep that is delayed from
+    the particle creation time by this amount.  This value is in units of Myrs.  If set
+    to a negative value, energy, mass and metals are injected gradually in the same way as is
+    done for ``StarParticleFeedback`` method = 1.  Default -1.
 
 Molecular Hydrogen Regulated Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -46,7 +46,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
        float *TemperatureUnits, float *TimeUnits,
-       float *VelocityUnits, float *MassUnits, FLOAT Time);
+       float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
 
@@ -380,8 +380,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
 
   /* fix wind values wrt units */
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits,
-        MassUnits;
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
+  double MassUnits;
   if (GetUnits(&DensityUnits, &LengthUnits,&TemperatureUnits, &TimeUnits,
                &VelocityUnits, &MassUnits, MetaData.Time) == FAIL){
     fprintf(stderr, "Error in GetUnits.\n");

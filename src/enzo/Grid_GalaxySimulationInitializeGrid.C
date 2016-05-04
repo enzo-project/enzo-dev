@@ -59,7 +59,7 @@ void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, F
 /* Internal Routines for Disk Potential Setup */
 float HaloGasDensity(FLOAT);
 float HaloGasTemperature(FLOAT);
-double DiskPotentialCircularVelocity(FLOAT cellwidth,FLOAT z,FLOAT density,FLOAT &temperature);
+float DiskPotentialCircularVelocity(FLOAT cellwidth,FLOAT z,FLOAT density,FLOAT &temperature);
 double trapzd(double (func)(), double a, double b, int n);
 double qromb(double (*func)(double), double a, double b);
 void polint(double xa[],double ya[],int n,double x,double *y,double *dy);
@@ -1077,7 +1077,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
   vrot=sqrt(-drcyl*LengthUnits*(FtotR-FdPdR));
 
-  if ((denuse == densicm)) vrot = 0.0;
+  if (denuse == densicm) vrot = 0.0;
 
   return (vrot/VelocityUnits); //code units
 

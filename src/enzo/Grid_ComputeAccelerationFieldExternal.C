@@ -307,7 +307,8 @@ int grid::ComputeAccelerationFieldExternal()
   if (DiskGravity > 0) {
 
     double accel, radius, rsquared, xpos, ypos = 0, zpos = 0, rcore,rcyl;
-    float dadt, a = 1, AngularMomentumx, AngularMomentumy, AngularMomentumz;
+    FLOAT dadt, a = 1;
+    float AngularMomentumx, AngularMomentumy, AngularMomentumz;
     float MSDisk, SDiskScaleHeightR, SDiskScaleHeightz, MBulge, rBulge,
       rDMConst, densDMConst;
 
@@ -324,7 +325,8 @@ int grid::ComputeAccelerationFieldExternal()
 
     /* Compute adot/a at time = t+1/2dt (time-centered). */
     float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-          VelocityUnits=1, MassUnits=1, AccelUnits=1;
+          VelocityUnits=1, AccelUnits=1;
+    double MassUnits=1;
 
     if (ComovingCoordinates) {
       if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) == FAIL) {

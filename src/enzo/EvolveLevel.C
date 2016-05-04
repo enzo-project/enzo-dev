@@ -581,7 +581,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
 
       /* Compute and Apply Cosmic Ray Diffusion */
-      if(CRDiffusion){
+      if(CRModel && CRDiffusion){
         if(Grids[grid1]->GridData->ComputeCRDiffusion() == FAIL){
           fprintf(stderr, "Error in grid->ComputeCRDiffusion.\n");
           return FAIL;

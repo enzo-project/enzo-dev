@@ -304,7 +304,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     endindex = GridDimension[1] - 2;
     dtdx = dtFixed/CellWidthTemp[1][0];
     // Y SWEEP
-    if ( (n % 3 == 1) )
+    if ( (n % 3 == 1) ) {
       if ( nyz == 1 ){
         TransverseMagneticFlux(BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[Vel1Num],
                                BaryonField[B2Num], BaryonField[B3Num], BaryonField[B1Num], 
@@ -420,12 +420,13 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
         }//y sweep ii loop
       }//y sweep kk loop
     }//strang conditional
-    
+    }//y sweep
+
     startindex = 3;
     endindex = GridDimension[2] - 2;
     dtdx = dtFixed/CellWidthTemp[2][0];
     // z sweep
-    if( (n % 3 == 2) )
+    if( (n % 3 == 2) ) {
       if ( nzz == 1 ){
         TransverseMagneticFlux(BaryonField[Vel3Num], BaryonField[Vel1Num], BaryonField[Vel2Num],
                                BaryonField[B3Num], BaryonField[B1Num], BaryonField[B2Num],
@@ -546,7 +547,8 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
           }
           }//z sweep jj loop
       }//z sweep kk loop
-    }
+    }//strang conditional
+    }//z sweep
 
   }//strang order loop
 

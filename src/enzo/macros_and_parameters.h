@@ -90,7 +90,7 @@
 
 #define ROOT_PROCESSOR                      0
 
-#define VERSION                             2.4  /* current version number */
+#define VERSION                             2.5  /* current version number */
 
 /* Unmodifiable Parameters */
 
@@ -505,7 +505,8 @@ typedef int            HDF5_hid_t;
 #define H2REG_STAR     11
 #define SINGLE_SUPERNOVA 12
 #define DISTR_FEEDBACK 13
-#define INDIVIDUAL_STAR 14
+#define MOM_STAR 14
+#define INDIVIDUAL_STAR 15
 
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)

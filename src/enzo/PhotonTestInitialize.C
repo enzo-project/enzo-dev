@@ -127,12 +127,14 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   rewind(fptr);
 
   // Set default values
-  if (debug)
-    if (Reinitialize)
+  if (debug) {
+    if (Reinitialize){
       fprintf(stderr, "PhotonTestInitialize: Reinitializing after root "
 	      "grid split.\n");
-    else
+    } else {
       fprintf(stderr, "PhotonTestInitialize: Set up test problem.\n");
+    }
+  }
 
   for (sphere = 0; sphere < MAX_SPHERES; sphere++) {
     PhotonTestSphereRadius[sphere]     = 0.5;

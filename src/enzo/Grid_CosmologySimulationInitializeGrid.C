@@ -401,13 +401,15 @@ int grid::CosmologySimulationInitializeGrid(
   if (CosmologySimulationVelocityNames[0] != NULL && ReadData)
   {
     // Determine if we're reading different files for each component
-    if (GridRank > 1)
+    if (GridRank > 1) {
       if (strstr(CosmologySimulationVelocityNames[0], 
-		 CosmologySimulationVelocityNames[1]) == NULL)
-	OneComponentPerFile = TRUE;
-      else
-	OneComponentPerFile = FALSE;
-
+              CosmologySimulationVelocityNames[1]) == NULL) {
+        OneComponentPerFile = TRUE;
+      } else {
+        OneComponentPerFile = FALSE;
+      }
+    }
+    
     for (dim = 0; dim < GridRank; dim++) {
       if (OneComponentPerFile) {
 	ndim = 1;

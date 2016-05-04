@@ -156,7 +156,8 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
 
   /* delete buffer */
 
-  delete [] TopBuffer, BottomBuffer;
+  delete [] TopBuffer;
+  delete [] BottomBuffer;
 
   /* Count number of flagged Cells. */
 

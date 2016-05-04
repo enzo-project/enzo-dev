@@ -139,7 +139,7 @@ int force_treebuild(FOFData &D, int first, int len, float thetamax)
 	if (D.P[ip].Pos[j] > th->center[j])
 	  subnode += fak;
 	  
-      if (nn = th->suns[subnode])
+      if ((nn = th->suns[subnode]))
 	th = nn;
       else
 	break;
@@ -307,7 +307,7 @@ void force_setupnonrecursive(FNODE *no)
   _TopData.last = no;
   
   for (i = 0; i < 8; i++)
-    if (nn = no->suns[i])
+    if ((nn = no->suns[i]))
       force_setupnonrecursive(nn);
 }
  

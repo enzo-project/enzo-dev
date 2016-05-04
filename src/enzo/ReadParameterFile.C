@@ -940,6 +940,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarEnergyToThermalFeedback);
     ret += sscanf(line, "StarEnergyToStellarUV = %"FSYM, &StarEnergyToStellarUV);
     ret += sscanf(line, "StarEnergyToQuasarUV = %"FSYM, &StarEnergyToQuasarUV);
+    ret += sscanf(line, "StarFeedbackKineticFraction = %"FSYM, 
+    	&StarFeedbackKineticFraction);
+    ret += sscanf(line, "StarMakerExplosionDelayTime = %"FSYM, 
+    	&StarMakerExplosionDelayTime);
     ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
     ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
 
@@ -1813,7 +1817,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     for (k = -StarFeedbackDistRadius;k <= StarFeedbackDistRadius;k++) {
       for (j = -StarFeedbackDistRadius;j <= StarFeedbackDistRadius;j++) {
 	for (i = -StarFeedbackDistRadius;i <= StarFeedbackDistRadius;i++) {
-	  cell_step = fabs(k) + fabs(j) + fabs(i);
+	  cell_step = ABS(k) + ABS(j) + ABS(i);
 	  if (cell_step <= StarFeedbackDistCellStep) {
 	    StarFeedbackDistTotalCells++;
 	  }
@@ -2078,6 +2082,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
   }
 
+  /* Cosmic ray diffusion should be off if Cosmic rays are off */
+  if(CRDiffusion > 0 && CRModel == 0){
+    ENZO_FAIL("CRDiffusion can only be used if CRModel is turned on!!\n");
+  }
 
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
 

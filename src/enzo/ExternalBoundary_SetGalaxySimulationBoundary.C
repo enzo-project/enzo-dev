@@ -30,7 +30,7 @@ int FindField(int f, int farray[], int n);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT time);
+	     float *VelocityUnits, double *MassUnits, FLOAT time);
  
 // Set the Left BoundaryValue of the chosen wave direction (set by
 //  GalaxySimulationRPSWindSpeed) to the appropriate inflow boundary condition.
@@ -165,7 +165,8 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 			if( loadTable ){
 	
 				/* Find units */
-				float DensityUnits,LengthUnits,TemperatureUnits,TimeUnits,VelocityUnits,MassUnits,temperature;
+				float DensityUnits,LengthUnits,TemperatureUnits,TimeUnits,VelocityUnits,temperature;
+				double MassUnits;
 				GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 				         &TimeUnits, &VelocityUnits, &MassUnits, time);
 
@@ -176,17 +177,17 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 				while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 					if (line[0] == 'N') {
 						(sscanf(line, "NumberOfSteps = %"ISYM"\n", &ICMTableSize));
-						ICMTimeTable        = new float[ICMTableSize];
-						ICMDensityTable     = new float[ICMTableSize];
-						ICMTotalEnergyTable = new float[ICMTableSize];
-						ICMVelocityXTable   = new float[ICMTableSize];
-						ICMVelocityYTable   = new float[ICMTableSize];
-						ICMVelocityZTable   = new float[ICMTableSize];
+						ICMTimeTable        = new double[ICMTableSize];
+						ICMDensityTable     = new double[ICMTableSize];
+						ICMTotalEnergyTable = new double[ICMTableSize];
+						ICMVelocityXTable   = new double[ICMTableSize];
+						ICMVelocityYTable   = new double[ICMTableSize];
+						ICMVelocityZTable   = new double[ICMTableSize];
 					}
 					if (line[0] != '#' && line[0] != 'N') {
 						
 						// read values
-						sscanf(line,"%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"",&ICMTimeTable[f_index],&ICMDensityTable[f_index], 
+						sscanf(line,"%lf %lf %lf %lf %lf %lf",&ICMTimeTable[f_index],&ICMDensityTable[f_index], 
 						       &temperature,&ICMVelocityXTable[f_index],&ICMVelocityYTable[f_index],&ICMVelocityZTable[f_index]);
 						
 						// convert to code units

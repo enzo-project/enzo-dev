@@ -127,14 +127,17 @@ int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid,
 
   /* If requested, reset the grid processors. */
 
-  if (ResetLoadBalancing) 
-    if (GridID <= NumberOfRootGrids)
-      if (LoadBalancing == 2 && PreviousMaxTask < NumberOfProcessors-1)
-	Task = (GridID-1) * NumberOfProcessors / (PreviousMaxTask+1);
-      else
-	Task = (GridID-1) % NumberOfProcessors;
-    else
+  if (ResetLoadBalancing) {
+    if (GridID <= NumberOfRootGrids) {
+      if (LoadBalancing == 2 && PreviousMaxTask < NumberOfProcessors-1) {
+        Task = (GridID-1) * NumberOfProcessors / (PreviousMaxTask+1);
+      } else {
+        Task = (GridID-1) % NumberOfProcessors;
+      } 
+    } else {
       Task = ParentGrid->GridData->ReturnProcessorNumber();
+    }
+  }
 
   // Assign tasks in a round-robin fashion if we're increasing the
   // processor count, but processors are grouped together
@@ -144,13 +147,15 @@ int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid,
 
   // If provided load balancing of root grids based on subgrids, use
   // these instead.
-  if (LoadBalancing > 1 && RootGridProcessors != NULL)
-    if (GridID <= NumberOfRootGrids)
+  if (LoadBalancing > 1 && RootGridProcessors != NULL) {
+    if (GridID <= NumberOfRootGrids) {
       Task = RootGridProcessors[GridID-1];
-    else if (StaticRefineRegionLevel[0] == INT_UNDEFINED)
+    } else if (StaticRefineRegionLevel[0] == INT_UNDEFINED) {
       // Load the child on the same processor as its parent only if
       // it's not a zoom-in calculation
       Task = ParentGrid->GridData->ReturnProcessorNumber();
+    }
+  }
   
   Grid->GridData->SetProcessorNumber(Task);
 

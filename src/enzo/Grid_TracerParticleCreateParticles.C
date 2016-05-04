@@ -162,7 +162,7 @@ int grid::TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
     
       /* make sure that this particle is within the grid in the z-dimension, OR just keep on
 	 going if this is a 1D or 2D simulation. */
-      if ((GridLeftEdge[2] < pos[2]) && (pos[2] <= GridRightEdge[2]) || GridRank < 3) {
+      if (((GridLeftEdge[2] < pos[2]) && (pos[2] <= GridRightEdge[2])) || GridRank < 3) {
 
 	for (j = 0; j < Dims[1]; j++) {
  
@@ -174,7 +174,7 @@ int grid::TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
 
 	  /* make sure that this particle is within the grid in the y-dimension, OR just keep
 	     on going if this is a 1D simulation */
-	  if ((GridLeftEdge[1] < pos[1]) && (pos[1] <= GridRightEdge[1]) || GridRank < 2) {
+	  if (((GridLeftEdge[1] < pos[1]) && (pos[1] <= GridRightEdge[1])) || GridRank < 2) {
 	    
 	    for (i = 0; i < Dims[0]; i++) {
  

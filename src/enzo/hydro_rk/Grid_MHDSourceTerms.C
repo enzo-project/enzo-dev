@@ -264,7 +264,7 @@ int grid::MHDSourceTerms(float **dU)
   }
 
 
-  if ((ComovingCoordinates == 1)) { // add some B related cosmological expansion terms here
+  if (ComovingCoordinates == 1) { // add some B related cosmological expansion terms here
 
     int igrid;
     float rho, coef=0.;
@@ -358,7 +358,7 @@ int grid::MHDSourceTerms(float **dU)
     float lengthy=DomainRightEdge[1]-DomainLeftEdge[1];
     float lengthz;
     if (GridRank==3) lengthz=DomainRightEdge[2]-DomainLeftEdge[2];
-    else lengthz-0.0;
+    else lengthz=0.0;
     
 
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {

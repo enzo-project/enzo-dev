@@ -777,7 +777,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		//		temperature = (1-weight)*temperature + weight*temp1;
 		//	      temp1 = InitialTemperature;
 
-		if (SphereType[sphere] != 7 && SphereType[sphere] != 9)
+		if (SphereType[sphere] != 7 && SphereType[sphere] != 9) {
 		  if (temp1 == InitialTemperature) {
 		    if (SphereConstantPressure[sphere] == TRUE) {
 		      temperature = SphereTemperature[sphere] * (SphereDensity[sphere] / dens1);
@@ -787,6 +787,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		  } else {
 		    temperature = temp1;
 		  }
+        }
 
 		sigma = sigma1;
 		if (SphereType[sphere] != 10)

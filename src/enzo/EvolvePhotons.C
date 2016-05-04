@@ -312,7 +312,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     START_PERF();
     if (RadiativeTransferSourceClustering == TRUE) {
-      CreateSourceClusteringTree(NULL, NULL, LevelArray);
+      CreateSourceClusteringTree(0, NULL, LevelArray);
     }
     END_PERF(1);
 

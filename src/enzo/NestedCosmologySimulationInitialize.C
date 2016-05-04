@@ -802,7 +802,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	    CosmologySimulationVelocityNames[1]);
     fprintf(Outfptr, "CosmologySimulationParticleVelocity3Name = %s\n",
 	    CosmologySimulationVelocityNames[2]);
-    if (CosmologySimulationParticleDisplacementNames) {	
+    if (CosmologySimulationParticleDisplacementNames[0]) {	
       fprintf(Outfptr, "CosmologySimulationParticleDisplacement1Name = %s\n",
 	      CosmologySimulationParticleDisplacementNames[0]);
       fprintf(Outfptr, "CosmologySimulationParticleDisplacement2Name = %s\n",

@@ -62,15 +62,16 @@ int WriteStringAttr(hid_t dset_id, char *Alabel, char *String, FILE *log_fptr)
     if (io_log) fprintf(log_fptr, "  H5Acreate attr_id: %"ISYM"\n", attr_id);
     if( attr_id == h5_error ){my_exit(EXIT_FAILURE);}
 
-    if (String != NULL)
+    if (String != NULL) {
       if( strlen(String) > 0 )
-	{
-	  h5_status = H5Awrite(attr_id, attr_type_id, (void *) String);
-	}
+      {
+        h5_status = H5Awrite(attr_id, attr_type_id, (void *) String);
+      }
       else
-	{
-	  h5_status = H5Awrite(attr_id, attr_type_id, (void *) NoString);
-	}
+      {
+        h5_status = H5Awrite(attr_id, attr_type_id, (void *) NoString);
+      }
+    }
  
     if (io_log) fprintf(log_fptr, "  H5Awrite: %"ISYM"\n", h5_status);
     if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}

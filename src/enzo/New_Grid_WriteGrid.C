@@ -970,6 +970,8 @@ int grid::WriteAllFluxes(hid_t grid_node)
   H5Gclose(subgrid_group);
   H5Gclose(fluxes_node);
 
+  return SUCCESS;
+
 }
 
 int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
@@ -1035,4 +1037,7 @@ int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
 
     H5Gclose(axis_group);
   }
+
+  return SUCCESS;
+
 }

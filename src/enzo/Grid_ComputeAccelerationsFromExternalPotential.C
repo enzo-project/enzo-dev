@@ -155,7 +155,7 @@ int grid::ComputeAccelerationsFromExternalPotential(int DifferenceType,
       // delete AccelPoints;
       for (dim = 0; dim < GridRank; dim++){
 	delete [] PartAccel[dim];
-	PartAccel[dim] == NULL;
+	PartAccel[dim] = NULL;
       }
     
 

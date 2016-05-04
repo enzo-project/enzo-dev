@@ -80,6 +80,8 @@ int ConductionCloudInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid
 			     TopGridData &MetaData);
 int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			     TopGridData &MetaData);
+int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			       TopGridData &MetaData, float *Initialdt);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -592,6 +594,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 80)
     ret = StratifiedMediumExplosionInitialize(fptr, Outfptr, TopGrid, MetaData);  
 
+  // 90) Test a star particle explosion
+  if (ProblemType == 90)
+    ret = TestStarParticleInitialize(fptr, Outfptr, TopGrid, MetaData, 
+				     Initialdt);
   
   /* 101) 3D Collapse */
   if (ProblemType == 101) {
@@ -885,7 +891,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   
   // If using StarParticles, set the number to zero 
   // (assuming it hasn't already been set)
-  if (NumberOfStarParticles == NULL)
+  if (NumberOfStarParticles != 0)
     if (StarParticleCreation || StarParticleFeedback)
       NumberOfStarParticles = 0;
   
