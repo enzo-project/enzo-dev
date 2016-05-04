@@ -1063,6 +1063,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarFUVHeating = %"FSYM"\n", IndividualStarFUVHeating);
   fprintf(fptr, "IndividualStarFUVMinimumMass = %"FSYM"\n", IndividualStarFUVMinimumMass);
   fprintf(fptr, "IndividualStarDustCooling = %"FSYM"\n", IndividualStarDustCooling);
+  fprintf(fptr, "IndividualStarCreationStencilSize = %"ISYM"\n", IndividualStarCreationStencilSize);
 
   fprintf(fptr, "IndividualStarBlackBodyq0Factors  = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, IndividualStarBlackBodyq0Factors);

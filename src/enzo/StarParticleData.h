@@ -155,6 +155,7 @@ SPEXTERN int   IndividualStarUseSNIa;
 SPEXTERN int   IndividualStarBlackBodyOnly;
 SPEXTERN float IndividualStarBlackBodyq0Factors[2];
 SPEXTERN float IndividualStarBlackBodyq1Factors[2];
+SPEXTERN int   IndividualStarCreationStencilSize;
 SPEXTERN int   IndividualStarFeedbackStencilSize;
 SPEXTERN float IndividualStarSupernovaEnergy;
 SPEXTERN float IndividualStarStellarWindVelocity;

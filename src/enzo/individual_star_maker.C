@@ -293,7 +293,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
     ii = 0; index_presf = 0;
 
     int number_of_sf_cells = 0;
-    int integer_sep = floor((IndividualStarFeedbackStencilSize + 1) / 2.0);
+    int integer_sep = floor((IndividualStarCreationStencilSize + 1) / 2.0);
 
     /* increase buffer size to be one away  from edges */
     ibuff += integer_sep;
