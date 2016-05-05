@@ -712,10 +712,6 @@ float SampleIMF(void){
     printf("individual_star_maker: IMF sampling not working m %"FSYM" %"FSYM"\n",m, IndividualStarIMFUpperMassCutoff);
   }
 
-  if (IndividualStarIMFUpperMassCutoff != 100.0 || IndividualStarIMFLowerMassCutoff != 1.0){
-    printf("individual_star_maker: Bounds are wrong!!!!\n");
-  }
-
   return m;
 }
 
