@@ -574,6 +574,12 @@ int BlackBodyFlux(float &F, const float &x){
     i++;
   }
 
+  if ( i >= max_iterations){
+    return FAIL;
+  }
+
+  F = sum;
+
   return SUCCESS;
 }
 
