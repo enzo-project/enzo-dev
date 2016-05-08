@@ -743,6 +743,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarStellarWindVelocity  = -1;          // when < 0, use Leithener et. al. model for stellar wind velocities
                                                     // when > 0, uniform wind velocity for all stars in km / s
                                                     // when = 0, use this to do mass deposition without energy injection
+  IndividualStarInfiniteLifetimes    = 0;           // on or off - when on, stars never die by setting lieftime to LARGE number
 
   StellarYieldsNumberOfSpecies       = INT_UNDEFINED; // number of species to follow - optional, calculated automatically if left undefined
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){

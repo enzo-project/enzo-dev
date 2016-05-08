@@ -73,6 +73,13 @@ float IndividualStarLifetime(const float &mp, const float &metallicity){
 
   float L, lifetime;
 
+  /* for testing purposes w/o feedback - hack to never kill stars
+     to prevent instantaneous change in local mass in cells when star dies
+     (no feedback = no gradual mass loss and no mass conservation) */
+  if (IndividualStarInfiniteLifetimes){
+    return SOLAR_LIFETIME * 1.0E10;
+  }
+
   if(IndividualStarInterpolateLuminosity(L, mp, metallicity) == FAIL){
     ENZO_FAIL("IndividualStarLifetime: Failed to interpolate luminosity \n");
   }
