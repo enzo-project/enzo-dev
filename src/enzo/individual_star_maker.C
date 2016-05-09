@@ -366,20 +366,29 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
             if (jeansmass <= bmass){
               bmass = 0.0; number_of_sf_cells = 0;
+              float lowest_cell_mass = bmass;
               for (int k_loc = -integer_sep; k_loc <= integer_sep; k_loc++){
                 for(int j_loc = -integer_sep; j_loc <= integer_sep; j_loc++){
-                  for (int i_loc = -integer_sep; i_loc <= integer_sep; i_loc++){ 
+                  for (int i_loc = -integer_sep; i_loc <= integer_sep; i_loc++){
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(*ny))*(*nx);
 
                     if(BaryonField[DensNum][loc_index] > odthreshold){
-                      bmass += (BaryonField[DensNum][loc_index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
+                      float current_cell_mass = BaryonField[DensNum][loc_index]*((*dx)*(*dx)*(*dx))*m1/msolar;
+                      bmass += current_cell_mass; // solar masses
                       number_of_sf_cells++;
+                      if ( current_cell_mass < lowest_cell_mass){
+                        lowest_cell_mass = current_cell_mass;
+                      }
                     }
 
                   }
                 }
               }
-              float M_max_star = min(bmass * IndividualStarMassFraction, IndividualStarIMFUpperMassCutoff);
+
+              /* set maximum stellar mass either to IMF upper limit or such that no more than 1/2 of
+                 a given cell's gas mass is converted into stars in the timestep (truncates IMF)      */
+              float M_max_star = min(number_of_sf_cells * lowest_cell_mass * IndividualStarMassFraction,
+                                     IndividualStarIMFUpperMassCutoff);
 
               // calculate mass in cell that can be converted to stars in timestep
               // generally this should be small (comparable to or less than the lower mass
@@ -531,8 +540,11 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 ParticleAttribute[0][istar]    = *t;          // formation tim
                 ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metal fraction (conv from density in Grid_StarParticleHandler)
 
+
                 ParticleAttribute[1][istar] = IndividualStarLifetime( ParticleMass[istar],
                                                                       ParticleAttribute[2][istar]) / (*t1);
+
+
                 ParticleAttribute[3][istar]    = ParticleMass[istar]; //progenitor mass in solar (main sequence mass)
                 ParticleMass[istar]            = ParticleMass[istar] * msolar / m1;   // mass in code (not yet dens)
 
@@ -570,22 +582,22 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 // do individual chemical tagging for each species tracked in the simulation
                 // these are stored as particle attributes starting with attr number 5 (index 4)
                 if(TestProblemData.MultiMetals == 2){
-                  for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+                  for( int iyield = 0; iyield < StellarYieldsNumberOfSpecies; iyield++){
                     if(StellarYieldsAtomicNumbers[ii] > 2){
                       int field_num;
 
-                      this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
+                      this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[iyield]);
 
-                      ParticleAttribute[4 + ii][istar] = BaryonField[field_num][index];
+                      ParticleAttribute[4 + iyield][istar] = BaryonField[field_num][index];
 
-                    } else if (StellarYieldsAtomicNumbers[ii] == 1){
+                    } else if (StellarYieldsAtomicNumbers[iyield] == 1){
                       // Take H and He fractions as TOTAL amount of H in the cell
                       // this is probably not needed since it should all be HI in a star forming region anyway
-                      ParticleAttribute[4 + ii][istar] = BaryonField[HINum][index] + BaryonField[HIINum][index];
+                      ParticleAttribute[4 + iyield][istar] = BaryonField[HINum][index] + BaryonField[HIINum][index];
 
-                    } else if (StellarYieldsAtomicNumbers[ii] == 2){
+                    } else if (StellarYieldsAtomicNumbers[iyield] == 2){
                       // Again, total amount of Helium - probably not necessary, should all be HeI anyway
-                      ParticleAttribute[4 + ii][istar] = BaryonField[HeINum][index]  +
+                      ParticleAttribute[4 + iyield][istar] = BaryonField[HeINum][index]  +
                                            BaryonField[HeIINum][index] + BaryonField[HeIIINum][index];
 
                     }
