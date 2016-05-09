@@ -755,6 +755,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
   IndividualStarBlackBodyq1Factors[1]  = 5.0 ;      // and second high mass off grid.
 
+  IndividualStarBlackBodyFUVFactors[0] = 1.00E-4;     // same as above, but for FUV luminosities
+  IndividualStarBlackBodyFUVFactors[1] = 2.29E-5;
+
   // chemical evolution test star
   ChemicalEvolutionTestStarMass        = 20.0   ; // solar masses
   ChemicalEvolutionTestStarMetallicity = 0.0001 ;

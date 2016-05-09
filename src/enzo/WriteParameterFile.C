@@ -1074,9 +1074,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarInfiniteLifetimes = %"ISYM"\n", IndividualStarInfiniteLifetimes);
 
   fprintf(fptr, "IndividualStarBlackBodyq0Factors  = ");
-  WriteListOfFloats(fptr, MetaData.TopGridRank, IndividualStarBlackBodyq0Factors);
+  WriteListOfFloats(fptr, 2, IndividualStarBlackBodyq0Factors);
   fprintf(fptr, "IndividualStarBlackBodyq1Factors  = ");
-  WriteListOfFloats(fptr, MetaData.TopGridRank, IndividualStarBlackBodyq1Factors);
+  WriteListOfFloats(fptr, 2, IndividualStarBlackBodyq1Factors);
+  fprintf(fptr, "IndividualStarBlackBodyFUVFactos = ");
+  WriteListOfFloats(fptr, 2, IndividualStarBlackBodyFUVFactors);
 
   fprintf(fptr, "ChemicalEvolutionTestStarPosition = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarPosition);

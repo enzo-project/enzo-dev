@@ -1118,6 +1118,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         IndividualStarBlackBodyq0Factors+0, IndividualStarBlackBodyq0Factors+1);
     ret += sscanf(line, "IndividualStarBlackBodyq1Factors = %"FSYM" %"FSYM,
                         IndividualStarBlackBodyq1Factors+0, IndividualStarBlackBodyq1Factors+1);
+    ret += sscanf(line, "IndividualStarBlackBodyFUVFactors = %"FSYM" %"FSYM,
+                        IndividualStarBlackBodyFUVFactors+0, IndividualStarBlackBodyFUVFactors+1);
     ret += sscanf(line, "IndividualStarSupernovaEnergy = %"FSYM,
                         &IndividualStarSupernovaEnergy);
     ret += sscanf(line, "IndividualStarFUVTemperatureCutoff = %"FSYM,

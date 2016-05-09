@@ -192,6 +192,19 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const floa
 
   ComputeBlackBodyFlux(Fuv, Teff, fuv_emin, fuv_emax);
 
+  if (IndividualStarBlackBodyOnly == FALSE){ // adjust to match OSTAR
+      int index;
+      // If we are here because star is below temperature limit, we are a
+      // low mass star and black body vastly overestimates
+      if ( (Teff) < IndividualStarRadData.T[0] ){
+          index = 0;
+      } else { // else we are too hot and black body is even worse
+          index = 1;
+      }
+
+      Fuv *= IndividualStarBlackBodyFUVFactors[index];
+  }
+
 
   L_fuv = 4.0 * pi * R * R * Fuv;
 
