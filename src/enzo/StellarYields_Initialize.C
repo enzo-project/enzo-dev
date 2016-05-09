@@ -43,8 +43,8 @@ int InitializeStellarYields(void){
   //           ChemicalEjecta ON
   // Useless unless: (as of May 2016)
   //           IndividualStar SF method
-  if( !IndividualStarFollowStellarYields &&
-      !TestProblemData.MultiMetals       &&
+  if( !IndividualStarFollowStellarYields ||
+      !TestProblemData.MultiMetals       ||
       !STARMAKE_METHOD(INDIVIDUAL_STAR)) {
     printf("Returning.... did not meet initialize conditions");
     return SUCCESS;
@@ -174,13 +174,16 @@ int InitializeStellarYields(void){
         StellarYieldsWindData.Yields[i][j][k] = dummy[3 + *(StellarYieldsAtomicNumbers+k)];
       }
 
+
       j++;
       if ( j >= StellarYieldsWindData.NumberOfMetallicityBins){
         j = 0;
         i++;
       }
     }
+
   }
+ 
 
   delete [] dummy;
 
@@ -189,6 +192,8 @@ int InitializeStellarYields(void){
   fclose(fptr_sn);
   fclose(fptr_wind);
 
+
+  printf("Initialized Stellar Yields Tables\n");
   return SUCCESS;
 }
 
