@@ -1077,7 +1077,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   WriteListOfFloats(fptr, 2, IndividualStarBlackBodyq0Factors);
   fprintf(fptr, "IndividualStarBlackBodyq1Factors  = ");
   WriteListOfFloats(fptr, 2, IndividualStarBlackBodyq1Factors);
-  fprintf(fptr, "IndividualStarBlackBodyFUVFactos = ");
+  fprintf(fptr, "IndividualStarBlackBodyFUVFactors = ");
   WriteListOfFloats(fptr, 2, IndividualStarBlackBodyFUVFactors);
 
   fprintf(fptr, "ChemicalEvolutionTestStarPosition = ");

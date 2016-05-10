@@ -1444,6 +1444,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
   }
 
+  if(MultiMetals){
+    TestProblemData.MultiMetals = MultiMetals;
+  }
+
   // HierarchyFile IO sanity check
 
   // Note that although I only do not allow HierarchyFileInputFormat=2

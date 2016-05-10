@@ -614,6 +614,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    DataLabel[count++] = MetalIaName;
 
  /* Chemical tracer set ups */
+ MultiMetals = TestProblemData.MultiMetals;
  if (TestProblemData.MultiMetals == 2){
 
    for(int i =0; i < StellarYieldsNumberOfSpecies; i ++){
