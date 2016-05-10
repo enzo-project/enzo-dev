@@ -738,7 +738,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens FUV Heating
 
-  IndividualStarSupernovaEnergy      = -1;          // when < 0, use factor x mc^2 for supernova energy injection
+  IndividualStarSupernovaEnergy      = 1;          // when < 0, use factor x mc^2 for supernova energy injection
                                                     // when > 0, constant supernova energy in units of 10^51 erg
   IndividualStarStellarWindVelocity  = -1;          // when < 0, use Leithener et. al. model for stellar wind velocities
                                                     // when > 0, uniform wind velocity for all stars in km / s
