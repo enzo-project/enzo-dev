@@ -295,8 +295,6 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
     int number_of_sf_cells = 0;
     int integer_sep = (IndividualStarCreationStencilSize + 1) / 2.0 - 1; // stencil size must be odd number
 
-    /* increase buffer size to be one away  from edges */
-    ibuff += integer_sep;
     for (k = ibuff; k < *nz - ibuff; k++){
       for (j = ibuff; j < *ny - ibuff; j++){
         for (i = ibuff; i < *nx - ibuff; i++){
@@ -365,11 +363,24 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                             POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
 
             if (jeansmass <= bmass){
-              bmass = 0.0; number_of_sf_cells = 0;
               float lowest_cell_mass = bmass;
-              for (int k_loc = -integer_sep; k_loc <= integer_sep; k_loc++){
-                for(int j_loc = -integer_sep; j_loc <= integer_sep; j_loc++){
-                  for (int i_loc = -integer_sep; i_loc <= integer_sep; i_loc++){
+              bmass = 0.0; number_of_sf_cells = 0;
+
+              int istart, iend, jstart, jend, kstart, kend;
+
+              istart = iend = jstart = jend = kstart = kend = 0;
+              if (integer_sep > 0){
+                istart   = min( i - ibuff             , integer_sep);
+                iend     = min( (*nx - ibuff - 1 ) - i, integer_sep);
+                jstart   = min( j - ibuff             , integer_sep);
+                jend     = min( (*ny - ibuff - 1 ) - j, integer_sep);
+                kstart   = min( k - ibuff             , integer_sep);
+                kend     = min( (*nz - ibuff - 1 ) - k, integer_sep);
+              }
+
+              for (int k_loc = -kstart; k_loc <= kend; k_loc++){
+                for(int j_loc = -jstart; j_loc <= jend; j_loc++){
+                  for (int i_loc = -istart; i_loc <= iend; i_loc++){
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(*ny))*(*nx);
 
                     if(BaryonField[DensNum][loc_index] > odthreshold){
@@ -390,6 +401,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               float M_max_star = min(number_of_sf_cells * lowest_cell_mass * IndividualStarMassFraction,
                                      IndividualStarIMFUpperMassCutoff);
 
+              printf("lowest cell = %"ESYM", nsf = %"ISYM", bmass = %"ESYM"\n",lowest_cell_mass, number_of_sf_cells, bmass);
               // calculate mass in cell that can be converted to stars in timestep
               // generally this should be small (comparable to or less than the lower mass
               // cutoff of the IMF)
@@ -552,11 +564,13 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 // within the cell ( so they are not all at cell center )
 
                 rnum =  (float) (random() % max_random) / (float) (max_random);
-                ParticlePosition[0][istar] = (*dx) * rnum + xstart + ((float) i + 0.5)*(*dx);
+                ParticlePosition[0][istar] = this->CellWidth[0][i]*rnum + this->CellLeftEdge[0][i];
+
                 rnum =  (float) (random() % max_random) / (float) (max_random);
-                ParticlePosition[1][istar] = (*dx) * rnum + ystart + ((float) j + 0.5)*(*dx);
+                ParticlePosition[1][istar] = this->CellWidth[1][j]*rnum + this->CellLeftEdge[1][j];
+
                 rnum =  (float) (random() % max_random) / (float) (max_random);
-                ParticlePosition[2][istar] = (*dx) * rnum + zstart + ((float) k + 0.5)*(*dx);
+                ParticlePosition[2][istar] = this->CellWidth[2][k]*rnum + this->CellLeftEdge[2][k];
 
                 // assume velocity dispersion is isotropic in each velocity component. Multiply disp by
                 // sqrt(1/3) to get disp in each component... taking above velocities as the mean
@@ -639,9 +653,9 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
               // now remove mass from grid - do not need to do this for tracer fields since they are kept as fractions
               // and will be modified accordingly when converted back to densities in Grid_StarParticleHandler
-              for (int k_loc = -integer_sep; k_loc <= integer_sep; k_loc++){
-                for(int j_loc = -integer_sep; j_loc <= integer_sep; j_loc++){
-                  for (int i_loc = -integer_sep; i_loc <= integer_sep; i_loc++){
+              for (int k_loc = -kstart; k_loc <= kend; k_loc++){
+                for(int j_loc = -jstart; j_loc <= jend; j_loc++){
+                  for (int i_loc = -istart; i_loc <= iend; i_loc++){
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(*ny))*(*nx);
                     float current_mass; float volume = (*dx)*(*dx)*(*dx);
 
@@ -1123,7 +1137,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     }
 
     // for each metal species, compute the total metal mass ejected depending on supernova type
-    if (mode == 1){
+    if (mode <= 1){
       // atomic number of 0 counts total metal mass
       metal_mass[0] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, 0) / (dx*dx*dx);
 
@@ -1137,6 +1151,12 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
         metal_mass[1 + i] = StellarYields_SNIaYieldsByNumber( StellarYieldsAtomicNumbers[i] ) / (dx * dx * dx);
       }
     }
+
+    printf("Metal masses in array ");
+    for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+      printf("    %"ESYM,metal_mass[i]);
+    }
+    printf("\n");
   }
 
 
