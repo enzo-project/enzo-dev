@@ -46,8 +46,8 @@ int InitializeStellarYields(void){
   if( !IndividualStarFollowStellarYields ||
       !TestProblemData.MultiMetals       ||
       !STARMAKE_METHOD(INDIVIDUAL_STAR)) {
-    printf("Returning.... did not meet initialize conditions");
     return SUCCESS;
+
   } else if (IndividualStarFollowStellarYields && !TestProblemData.MultiMetals){
     printf("Failure in InitializeStellarYields. MultiMetals must be enabled to follow yields\n");
     return FAIL;
