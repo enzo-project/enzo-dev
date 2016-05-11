@@ -54,6 +54,9 @@ unsigned_long_int mt_random(void);
 void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
                                 const float &lifetime,  float *v_wind);
 
+void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity,
+                                   const float & lifetime, float *dMdt);
+
 
 void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
                              const FLOAT &xstart, const FLOAT &ystart, const FLOAT &zstart,
@@ -293,7 +296,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
     ii = 0; index_presf = 0;
 
     int number_of_sf_cells = 0;
-    int integer_sep = (IndividualStarCreationStencilSize + 1) / 2.0 - 1; // stencil size must be odd number
+    int integer_sep = ((int) (IndividualStarCreationStencilSize + 1) / 2.0 - 1); // stencil size must be odd number
 
     for (k = ibuff; k < *nz - ibuff; k++){
       for (j = ibuff; j < *ny - ibuff; j++){
@@ -1007,6 +1010,33 @@ float ComputeSnIaProbability(float *current_time, const float &formation_time, c
  return dPdt;
 }
 
+void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity,
+                                   const float & lifetime, float *dMdt){
+ /* ------------------------------------------------------------------
+  * ComputeStellarWindEjectaMass
+  * -------------------------------------------------------------------
+  * A. Emerick - 4/22/16
+  *
+  * Model for stellar wind mass loss rate taken from Leitherer et. al. 1992.
+  * This is the same model used in STARBURST 99 stellar wind models.
+  * -------------------------------------------------------------------- */
+
+  float L, Teff, Z, R;
+
+  const double solar_z = 0.02; // as assumed in Leithener et. al. 1992
+  const double yr      = 3.16224E7; // number of seconds in a year
+ 
+  /* get properties */
+  L = IndividualStarLuminosity(mproj, lifetime);
+  IndividualStarInterpolateProperties(Teff, R, mproj, metallicity);
+
+  /* compute logged mass loss rate */
+  *dMdt = -24.06 + 2.45 * log10(L) - 1.10 * log10(mproj) + 1.31 * log10(Teff)
+                                   + 0.80 * log10(metallicity / solar_z);
+
+  *dMdt = POW(10.0, *dMdt) / yr ; // Msun / yr -> Msun / s
+}
+
 void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
                                 const float &lifetime, float *v_wind){
  /* ------------------------------------------------------------------
@@ -1073,9 +1103,17 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 
   if (mode < 0){ // computing stellar winds
 
-    m_eject   = StellarYieldsInterpolateYield(1, mproj, metallicity, -1) *msolar/ m1; /* first arg, 1 = wind ; last -1 = tot mass */
-    /* need ejection model */
-    m_eject = m_eject * dt / lifetime;
+    /* compute ejecta mass - use yield tables if yields are tracked, otherwise use model */
+    if ( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+      m_eject   = StellarYieldsInterpolateYield(1, mproj, metallicity, -1) *msolar/ m1; /* first arg, 1 = wind ; last -1 = tot mass */
+      m_eject  /= lifetime ; // average mass loss rate over lifetime
+    } else{
+      // gives m_eject as Msun / s
+      ComputeStellarWindMassLossRate(mproj, metallicity, lifetime * (x1/v1), &m_eject);
+      m_eject = m_eject * msolar / m1 * (x1/v1);  // convert to code mass / code time
+    }
+
+    m_eject = m_eject * dt; // ejected mass is mass loss rate * dt
 
     E_thermal = 0.0;
 
@@ -1097,7 +1135,13 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 //    E_kin     = 0.5 * m_eject * v_wind * v_wind;
 
   } else if (mode == 1) { // computing core collapse supernova
-    m_eject   = StellarYieldsInterpolateYield(0, mproj, metallicity, -1) * msolar / m1;
+
+    /* use yield tables to compute supernova ejecta mass - otherwise just eject the entire star */
+    if ( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+      m_eject   = StellarYieldsInterpolateYield(0, mproj, metallicity, -1) * msolar / m1;
+    } else{
+      m_eject = mproj * msolar / m1;
+    }
 
     if( IndividualStarSupernovaEnergy < 0){
       E_thermal = m_eject * StarEnergyToThermalFeedback * (c_light * c_light/(v1*v1));
@@ -1197,7 +1241,7 @@ void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
 
   /* checks if cell center is O.K. and rescales if needed */
 
-  int fbuff = ibuff + IndividualStarFeedbackStencilSize; // number of cells away from edge
+  int fbuff = ibuff + ((int) (IndividualStarFeedbackStencilSize+1)/2.0 - 1); // number of cells away from edge
   float xfcshift, yfcshift, zfcshift;
 
   if ( xp < xstart +         fbuff*dx ||
@@ -1338,12 +1382,12 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
 
   /* add up kinetic energy in the clocal region */
   if( HydroMethod != 2 ){
-    int integer_sep = floor((stencil + 1) / 2.0);
+    int integer_sep = ((int) (stencil+1)/2.0 - 1); //floor((stencil + 1) / 2.0);
 
-    int local_index = 0;
-    for(int k = kc - integer_sep; k < kc + integer_sep; k ++){
-      for(int j = jc - integer_sep; j < jc + integer_sep; j++){
-        for(int i = ic - integer_sep; i < ic + integer_sep; i++){
+    int local_index = 0; // AJE 5 - 10 - 16
+    for(int k = kc - integer_sep; k <= kc + integer_sep + 1; k ++){
+      for(int j = jc - integer_sep; j <= jc + integer_sep + 1; j++){
+        for(int i = ic - integer_sep; i <= ic + integer_sep + 1; i++){
           /* check this index, I think it should be nx ny not stencil+1 */
           int index = i + (j + k * (ny))*(nx);
 
@@ -1508,11 +1552,18 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
     int l_index = 0;
     float delta_ke = 0.0;
     float ke_after = 0.0;
-    int integer_sep = floor((stencil + 1) / 2.0);
+    int integer_sep = ((int) (stencil+1)/2.0 - 1); // floor((stencil + 1) / 2.0);
+    printf("ISF kinetic feedback: integer_separation = %"ISYM"\n",integer_sep);
 
-    for(int k = -integer_sep; k < integer_sep; k++){
-      for(int j = -integer_sep; j < integer_sep; j++){
-        for(int i = -integer_sep; i < integer_sep; i++){
+    int local_index = 0; // AJE 5 - 10 - 16
+    for(int k = kc - integer_sep; k <= kc + integer_sep + 1; k ++){
+      for(int j = jc - integer_sep; j <= jc + integer_sep + 1 ; j++){
+        for(int i = ic - integer_sep; i <= ic + integer_sep + 1; i++){
+
+
+//    for(int k = -integer_sep; k < integer_sep; k++){
+//      for(int j = -integer_sep; j < integer_sep; j++){
+//        for(int i = -integer_sep; i < integer_sep; i++){
 
           int index   = (ic + i) + ( (jc + j) + (kc + k)*ny)*nx;
 
@@ -1562,10 +1613,11 @@ void Momentum(float *u, float *v, float *w, float *d,
 
   /* making this a bigger region.... for stencil = 3, do -2 -1 0 1 2  -- 4/20/16 */
 //  printf("Momentum Conversion: Direction %"ISYM"\n",idir);
-  int integer_sep = floor((stencil+1)/2.0) + 1;
-  for(int k = -integer_sep; k <= integer_sep; k++){
-    for(int j = -integer_sep; j <= integer_sep; j++){
-      for(int i = -integer_sep; i <= integer_sep; i++){
+//  int integer_sep = floor((stencil+1)/2.0) + 1; - AJE 5/10/16
+  int integer_sep = ( (int) (stencil+1)/2.0 -1);
+  for(int k = -integer_sep; k <= integer_sep + 1; k++){
+    for(int j = -integer_sep; j <= integer_sep + 1 ; j++){
+      for(int i = -integer_sep; i <= integer_sep + 1; i++){
 
         int index=0, x_index=0, y_index = 0, z_index = 0;
         if ( idir == 1.0) {
@@ -1641,10 +1693,11 @@ void MetalConversion(float *m, float *d, const float &dx,
 
   /* any add all changes to momentum above should (probably) be reflected here as well */
   /* Metal fields give metal density in a given cell - convert to mass */
-  int integer_sep = floor((stencil+1)/2.0) + 1;
-  for(int k = -integer_sep; k <= integer_sep; k++){
-    for(int j = -integer_sep; j <= integer_sep; j++){
-      for(int i = -integer_sep; i <= integer_sep; i++){
+//  int integer_sep = floor((stencil+1)/2.0) + 1;
+  int integer_sep = ((int) (stencil+1)/2.0 - 1);
+  for(int k = -integer_sep; k <= integer_sep + 1; k++){
+    for(int j = -integer_sep; j <= integer_sep + 1; j++){
+      for(int i = -integer_sep; i <= integer_sep + 1; i++){
 
         int index = (ic + i) + ( (jc + j) + (kc + k) * ny) * nx;
 
@@ -1673,10 +1726,11 @@ void SumMassEnergy(float *pu, float *pv, float *pw, float *d, float *ge, float *
   yo = nx;
   zo = (nx * ny);
 
-  int integer_sep = floor((stencil+1)/2.0);
-  for(int k = -integer_sep; k < integer_sep; k++){
-    for(int j = -integer_sep; j < integer_sep; j++){
-      for(int i = -integer_sep; i < integer_sep; i++){
+//  int integer_sep = floor((stencil+1)/2.0);
+  int integer_sep = ((int) (stencil+1)/2.0 - 1);
+  for(int k = -integer_sep; k <= integer_sep+1; k++){
+    for(int j = -integer_sep; j <= integer_sep+1; j++){
+      for(int i = -integer_sep; i <= integer_sep+1; i++){
         float mass_term, mom_term, gas_energy = 0.0, kinetic_energy;
 
         int index   = (ic + i) + ( (jc + j) + (kc + k)*ny)*nx;
@@ -1735,12 +1789,12 @@ void ComputeAbcCoefficients(float *pu, float *pv, float *pw, float *d,
 
   float mass_term=0.0, mom_term=0.0, b_term=0.0, c_term = 0.0;
 
-  int integer_sep;
-  integer_sep = floor((stencil+1)/2.0);
+  int integer_sep = ((int) (stencil+1)/2.0 - 1);
   int l_index     = 0; int index = 0;
-  for(int k = -integer_sep; k < integer_sep; k++){
-    for(int j = -integer_sep; j < integer_sep; j++){
-      for(int i = -integer_sep; i < integer_sep; i++){
+
+  for(int k = -integer_sep; k <= integer_sep + 1; k++){
+    for(int j = -integer_sep; j <= integer_sep + 1; j++){
+      for(int i = -integer_sep; i <= integer_sep + 1; i++){
         int x_index, y_index, z_index;
 
         /* this may be memory issue -- check this */
@@ -1795,10 +1849,9 @@ void AddMetalSpeciesToGridCells(float *m, const float &mass_per_cell,
   * I know this is gross, but it is somewhat more efficient.
   * ------------------------------------------------------------------------- */
 
-  int integer_sep;
+  int integer_sep = ((int) (stencil+1)/2.0 - 1);
   float delta_mass = 0.0, total_mass = 0.0;
 
-  integer_sep = floor(stencil/2.0);
   for (int k = -integer_sep; k <= integer_sep; k++){
     for (int j = -integer_sep; j <= integer_sep; j++){
       for (int i = -integer_sep; i <= integer_sep; i++){
@@ -1845,10 +1898,9 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
                             const float &therm_per_cell, const int &stencil){
 
 
-  int integer_sep;
+  int integer_sep = ((int) (stencil+1)/2.0 - 1);
   float total_mass = 0.0, delta_therm =0.0;
 
-  integer_sep = floor(stencil/2.0);
   // should go over a stencilxstencilxstencil region (if stencil is 3, -1, 0, 1)
   for(int k = -integer_sep; k <= integer_sep; k++){
     for(int j = -integer_sep; j <= integer_sep; j++){
