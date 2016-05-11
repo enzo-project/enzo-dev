@@ -298,6 +298,13 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
     int number_of_sf_cells = 0;
     int integer_sep = ((int) (IndividualStarCreationStencilSize + 1) / 2.0 - 1); // stencil size must be odd number
 
+    float *ke_before;
+    if (HydroMethod != 2){
+      ke_before = new float[ ((int) POW(IndividualStarCreationStencilSize,3)) ];
+    } else{
+      ke_before = NULL;
+    }
+
     for (k = ibuff; k < *nz - ibuff; k++){
       for (j = ibuff; j < *ny - ibuff; j++){
         for (i = ibuff; i < *nx - ibuff; i++){
@@ -381,6 +388,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 kend     = min( (*nz - ibuff - 1 ) - k, integer_sep);
               }
 
+              int l = 0;
               for (int k_loc = -kstart; k_loc <= kend; k_loc++){
                 for(int j_loc = -jstart; j_loc <= jend; j_loc++){
                   for (int i_loc = -istart; i_loc <= iend; i_loc++){
@@ -395,6 +403,14 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                       }
                     }
 
+                    /* if PPM, need to be careful about energies */
+                    if (HydroMethod != 2){
+                      ke_before[ l ] = 0.5 * BaryonField[DensNum][index] *
+                                 ( BaryonField[Vel1Num][index] * BaryonField[Vel1Num][index] +
+                                   BaryonField[Vel2Num][index] * BaryonField[Vel2Num][index] +
+                                   BaryonField[Vel3Num][index] * BaryonField[Vel3Num][index]);
+                    }
+                    l++;
                   }
                 }
               }
@@ -404,7 +420,6 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               float M_max_star = min(number_of_sf_cells * lowest_cell_mass * IndividualStarMassFraction,
                                      IndividualStarIMFUpperMassCutoff);
 
-              printf("lowest cell = %"ESYM", nsf = %"ISYM", bmass = %"ESYM"\n",lowest_cell_mass, number_of_sf_cells, bmass);
               // calculate mass in cell that can be converted to stars in timestep
               // generally this should be small (comparable to or less than the lower mass
               // cutoff of the IMF)
@@ -656,6 +671,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
               // now remove mass from grid - do not need to do this for tracer fields since they are kept as fractions
               // and will be modified accordingly when converted back to densities in Grid_StarParticleHandler
+              l = 0;
               for (int k_loc = -kstart; k_loc <= kend; k_loc++){
                 for(int j_loc = -jstart; j_loc <= jend; j_loc++){
                   for (int i_loc = -istart; i_loc <= iend; i_loc++){
@@ -665,6 +681,21 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                     if(BaryonField[DensNum][loc_index] > odthreshold){
                       current_mass = BaryonField[DensNum][loc_index] * volume;
                       BaryonField[DensNum][loc_index] = (current_mass - sum_mass /( (float) number_of_sf_cells) ) / volume;
+
+                      // adjust total energy if we are using PPM
+                      if (HydroMethod != 2){
+                          float ke_after, delta_ke;
+
+                          ke_after = 0.5 * BaryonField[DensNum][index] *
+                                   ( BaryonField[Vel1Num][index] * BaryonField[Vel1Num][index] +
+                                     BaryonField[Vel2Num][index] * BaryonField[Vel2Num][index] +
+                                     BaryonField[Vel3Num][index] * BaryonField[Vel3Num][index]);
+
+                          delta_ke = ke_after - ke_before[ l ];
+
+                          BaryonField[TENum][index] += delta_ke / BaryonField[DensNum][index];
+                      }
+                      l++;
                     }
                   }
                 }
@@ -694,6 +725,9 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
   }
 
   *np = ii; // number of stars formed : AJE 2/29 check if this is a bug with the -1
+
+
+  delete [] ke_before;
 
   return SUCCESS;
 }
