@@ -539,6 +539,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "use_grackle = %d", &grackle_data.use_grackle);
     ret += sscanf(line, "with_radiative_cooling = %d",
                   &grackle_data.with_radiative_cooling);
+    ret += sscanf(line, "use_volumetric_heating_rate = %d",
+                  &grackle_data.use_volumetric_heating_rate);
+    ret += sscanf(line, "use_specific_heating_rate = %d",
+                  &grackle_data.use_specific_heating_rate);
+    ret += sscanf(line, "radiative_transfer_intermediate_step = %d",
+                  &grackle_data.radiative_transfer_intermediate_step); // AJE
+
     if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
       grackle_data.grackle_data_file = dummy;
       ret++;
@@ -1704,6 +1711,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     grackle_data.DeuteriumToHydrogenRatio       = (double) CoolData.DeuteriumToHydrogenRatio;
     grackle_data.SolarMetalFractionByMass       = (double) CoolData.SolarMetalFractionByMass;
 
+    grackle_data.use_radiative_transfer                 = (Eint32) RadiativeTransfer;
+    grackle_data.radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
+    grackle_data.radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
+
     // Initialize units structure.
     FLOAT a_value, dadt;
     a_value = 1.0;
@@ -1725,10 +1736,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     grackle_units.length_units         = (double) LengthUnits;
     grackle_units.time_units           = (double) TimeUnits;
     grackle_units.velocity_units       = (double) VelocityUnits;
+    grackle_units.a_value              = (double) a_value;
 
     // Initialize chemistry structure.
-    if (initialize_chemistry_data(&grackle_units,
-                                  (double) a_value) == FAIL) {
+    if (initialize_chemistry_data(&grackle_units) == FAIL) {
       ENZO_FAIL("Error in Grackle initialize_chemistry_data.\n");
     }
   }  // if (grackle_data.use_grackle == TRUE)

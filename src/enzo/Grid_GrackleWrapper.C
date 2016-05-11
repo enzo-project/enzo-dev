@@ -131,6 +131,7 @@ int grid::GrackleWrapper()
   grackle_units.time_units           = (double) TimeUnits;
   grackle_units.velocity_units       = (double) VelocityUnits;
   grackle_units.a_units              = (double) aUnits;
+  grackle_units.a_value              = (double) a;
 
   /* Metal cooling codes. */
  
@@ -204,22 +205,59 @@ int grid::GrackleWrapper()
     } // for (int i = 0; i < size; i++)
   }
 
+  /* set up the my_fields */
+  grackle_field_data my_fields;
+
+  my_fields.grid_rank = (Eint32) GridRank;
+  my_fields.grid_dimension = g_grid_dimension;
+  my_fields.grid_start     = g_grid_start;
+  my_fields.grid_end       = g_grid_end;
+
+  /* now add in the baryon fields */
+  my_fields.density         = density;
+  my_fields.internal_energy = thermal_energy; // is this right??
+  my_fields.x_velocity      = velocity1;
+  my_fields.y_velocity      = velocity2;
+  my_fields.z_velocity      = velocity3;
+  my_fields.HI_density      = BaryonField[HINum];
+  my_fields.HII_density     = BaryonField[HIINum];
+  my_fields.HeI_density     = BaryonField[HeINum];
+  my_fields.HeII_density    = BaryonField[HeIINum];
+  my_fields.HeIII_density   = BaryonField[HeIIINum];
+  my_fields.e_density       = BaryonField[DeNum];
+
+  my_fields.HM_density      = BaryonField[HMNum];
+  my_fields.H2I_density     = BaryonField[H2INum];
+  my_fields.H2II_density    = BaryonField[H2IINum];
+
+  my_fields.DI_density      = BaryonField[DINum];
+  my_fields.DII_density     = BaryonField[DIINum];
+  my_fields.HDI_density     = BaryonField[HDINum];
+
+  my_fields.metal_density   = MetalPointer;
+
+  my_fields.volumetric_heating_rate = volumetric_heating_rate;
+  my_fields.specific_heating_rate   = specific_heating_rate;
+
+  /* add in radiative transfer fields */
+  if( RadiativeTransfer ){
+    int kphHINum, kphHeINum, kphHeIINum, kdissH2INum,
+        gammaNum;
+
+    IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
+                                    kphHeIINum, kdissH2INum);
+
+    my_fields.kphHINum    = BaryonField[kphHINum];
+    my_fields.kphHeINum   = BaryonField[kphHeINum];
+    my_fields.kphHeIINum  = BaryonField[kphHeIINum];
+    my_fields.kdissH2INum = BaryonField[kdissH2INum];
+    my_fields.gammaNum    = BaryonField[gammaNum];
+  }
+
   /* Call the chemistry solver. */
 
-  if (solve_chemistry(&grackle_units,
-                      (double) afloat, (double) dtFixed,
-                      (Eint32) GridRank, g_grid_dimension,
-                      g_grid_start, g_grid_end,
-                      density, thermal_energy,
-                      velocity1, velocity2, velocity3,
-                      BaryonField[HINum],   BaryonField[HIINum], 
-                      BaryonField[HMNum],   BaryonField[HeINum], 
-                      BaryonField[HeIINum], BaryonField[HeIIINum],
-                      BaryonField[H2INum],  BaryonField[H2IINum],
-                      BaryonField[DINum],   BaryonField[DIINum], 
-                      BaryonField[HDINum],  BaryonField[DeNum], 
-                      MetalPointer, volumetric_heating_rate, // AJE - 5/4/16
-                      specific_heating_rate) == FAIL) {
+  /* AJE may 2016 - updated to new grackle API */
+  if (solve_chemistry(&grackle_units, &my_fields, (double) dtFixed) == FAIL) {
     fprintf(stderr, "Error in Grackle solve_chemistry.\n");
     return FAIL;
   }
@@ -228,7 +266,7 @@ int grid::GrackleWrapper()
 
   if (HydroMethod != Zeus_Hydro) {
     for (i = 0; i < size; i++) {
-      BaryonField[TENum][i] = thermal_energy[i] +
+      BaryonField[TENum][i] = my_fields.internal_energy[i] +
         0.5 * POW(BaryonField[Vel1Num][i], 2.0);
       if(GridRank > 1)
         BaryonField[TENum][i] += 0.5 * POW(BaryonField[Vel2Num][i], 2.0);

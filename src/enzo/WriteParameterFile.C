@@ -496,6 +496,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   /* Grackle chemistry parameters */
   fprintf(fptr, "use_grackle                 = %d\n", grackle_data.use_grackle);
   fprintf(fptr, "with_radiative_cooling      = %d\n", grackle_data.with_radiative_cooling);
+  fprintf(fptr, "use_volumentric_heating_rate = %d\n", grackle_data.use_volumetric_heating_rate);
+  fprintf(fptr, "use_specific_heating_rate   = %d\n", grackle_data.use_specific_heating_rate);
+  fprintf(fptr, "radiative_transfer_intermediate_step = %d\n", grackle_data.radiative_transfer_intermediate_step);
   fprintf(fptr, "grackle_data_file           = %s\n", grackle_data.grackle_data_file);
   fprintf(fptr, "UVbackground                = %d\n", grackle_data.UVbackground);
   fprintf(fptr, "Compton_xray_heating        = %d\n", grackle_data.Compton_xray_heating);
