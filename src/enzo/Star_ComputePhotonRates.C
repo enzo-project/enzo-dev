@@ -33,10 +33,6 @@
 
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
-int GetUnits(float *DensityUnits, float *LengthUnits,
-             float *TemperatureUnits, float *TimeUnits,
-             float *VelocityUnits, FLOAT Time);
-
 int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[])
 {
 
@@ -95,9 +91,6 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     break;
   
   case IndividualStar:
-    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &tunits,
-             &VelocityUnits, CurrentGrid->Time);
-
     nbins = 2;
 
     M   = this->BirthMass;   // interpolate grids on initial ZAMS mass
