@@ -44,11 +44,13 @@
 /* function prototypes */
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
-             float *VelocityUnits, double *MassUnits, FLOAT Time);
+             float *VelocityUnits, FLOAT Time);
+
+int FindField(int f, int farray[], int n);
 
 float SampleIMF(void);
 
-float ComputeSnIaProbability(float *current_time, const float &formation_time, const float &lifetime, float *t1);
+float ComputeSnIaProbability(const float &current_time, const float &formation_time, const float &lifetime, const float &t1);
 unsigned_long_int mt_random(void);
 
 void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
@@ -109,30 +111,16 @@ void AddMetalSpeciesToGridCells(float *m, const float &mass_per_cell,
 
 
 
-int grid::individual_star_maker(int *nx, int *ny, int *nz,
-                                float *dm, float *temp, float *dt,
-                                float *dx, FLOAT *t, int *procnum,
-                                float *d1, float *x1, float *v1, float *t1,
-                                int *nmax,
-                                float *mu, float *metal, int *ctype,
-                                int *np, float *ParticleMass,
+int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, int *np,
+                                float *ParticleMass,
                                 int *ParticleType, FLOAT *ParticlePosition[],
                                 float *ParticleVelocity[], float *ParticleAttribute[]){
 /*-----------------------------------------------------------------------------
   INPUTS:
-    nx, ny, nz  - dimensions of field arrays
     dm          - dark matter density field (computed in Grid_StarParticleHandler)
     temp        - temperature field (computed in Grid_StarParticleHandler)
-    dt          - current timestep (code units)
-    dx          - zone size (code units)
-    t           - current time (code units)
-    procnum     - Processor number for output information
-    d1,x1,v1,t1 - conversion factors from code units to cgs
     nmax        - Maximum allowed number of stars that can form on a single grid
-    x/y/z start - starting position of grid origin (first index)
-    ibuff       - ghost zone buffer size
     mu          - global Mean Molecular weight of gas
-    metal       - metallicity field
     ctype       - number for desired particle type assignment
 
   OUTPUTS: SUCCESS or FAIL
@@ -149,11 +137,8 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
   const double msolar  = 1.989e33;
   const double sndspdC = 1.3095e8;
   const double myr     = 3.1536e13;
-  double m1   = (*d1)*POW(*x1,3); // mass units
 
   int i, j, k, index, ii=0, istar=0, index_presf=0;
-  int ibuff = NumberOfGhostZones;
-  FLOAT xstart = *CellLeftEdge[0], ystart = *CellLeftEdge[1], zstart = *CellLeftEdge[2];
   int xo, yo, zo, rsign=1;
   float bmass, div, min_temp, star_mass=0.0, sum_mass=0.0;
   float pstar, mass_to_stars, mass_available, tdyn;
@@ -167,15 +152,21 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
   int form_method = -1; // tracker for debugging purposes
 
+  /* for convenience, rename some grid properties - will likely get optimized out */
+  int  nx = this->GridDimension[0], ny = this->GridDimension[1], nz = this->GridDimension[2];
+  int  ibuff = NumberOfGhostZones;
 
-  if ((*dt) == 0.0){
+  FLOAT xstart = *CellLeftEdge[0], ystart = *CellLeftEdge[1], zstart = *CellLeftEdge[2];
+  float   dx   = CellWidth[0][0];
+
+
+  if ( this->dtFixed == 0.0){
     printf("DT EQUAL TO ZERO\N");
     return FAIL;
   }
 
+  /* obtain baryon field indexes */
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
-
-
   this->DebugCheck("StarParticleHandler");
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                        Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
@@ -185,19 +176,22 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
   /* identify species fields if they exist for proper computation of Mu */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
-
   if (MultiSpecies == TRUE){
     IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                           HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
   }
 
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-    MetalIaNum, MetalIINum;
+  /* get metallicity tracer field number */
+  int MetalNum;
+  MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, 
-              MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
-    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
+  /* get units */
+  float d1, x1, TemperatureUnits, t1, v1, m1;
+  if (GetUnits(&d1, &x1, &TemperatureUnits, &t1, &v1, this->Time) == FAIL){
+      ENZO_FAIL("Error in GetUnits");
   }
+  m1   = d1*x1*x1*x1; // mass units
+
 
   if (ProblemType == 260){ // place a star by hand and exit
 
@@ -211,24 +205,24 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
       zz = ChemicalEvolutionTestStarPosition[2];
 
       // make sure particle position is on this grid / processor
-      if( !( (xx > (xstart) + (ibuff)*(*dx)) && (xx < xstart + (ibuff + *nx)*(*dx))) ||
-          !( (yy > (ystart) + (ibuff)*(*dx)) && (yy < ystart + (ibuff + *ny)*(*dx))) ||
-          !( (zz > (zstart) + (ibuff)*(*dx)) && (zz < zstart + (ibuff + *nz)*(*dx))) ) {
-        printf("P(%"ISYM") individual_star_maker: Particle not on this grid. Leaving\n", *procnum);
+      if( !( (xx > (xstart) + (ibuff)*(dx)) && (xx < xstart + (ibuff + nx)*(dx))) ||
+          !( (yy > (ystart) + (ibuff)*(dx)) && (yy < ystart + (ibuff + ny)*(dx))) ||
+          !( (zz > (zstart) + (ibuff)*(dx)) && (zz < zstart + (ibuff + nz)*(dx))) ) {
+        printf("P(%"ISYM") individual_star_maker: Particle not on this grid. Leaving\n", MyProcessorNumber);
         return SUCCESS;
       }
 
       // deposit the star by hand
-      ParticleMass[0] = ChemicalEvolutionTestStarMass * msolar / m1 / ((*dx)*(*dx)*(*dx));
-      ParticleType[0] = -(*ctype);
-      ParticleAttribute[0][0] = *t;
+      ParticleMass[0] = ChemicalEvolutionTestStarMass * msolar / m1 / (dx*dx*dx);
+      ParticleType[0] = - PARTICLE_TYPE_INDIVIDUAL_STAR;
+      ParticleAttribute[0][0] = this->Time;
 
       // allow user to set lifetime artificially
       if(ChemicalEvolutionTestStarLifetime > 0){
-        ParticleAttribute[1][0] = ChemicalEvolutionTestStarLifetime * myr / (*t1);
+        ParticleAttribute[1][0] = ChemicalEvolutionTestStarLifetime * myr / (t1);
       } else{
         ParticleAttribute[1][0] = IndividualStarLifetime(ChemicalEvolutionTestStarMass,
-                                                         ChemicalEvolutionTestStarMetallicity) / (*t1);
+                                                         ChemicalEvolutionTestStarMetallicity) / (t1);
       }
 
       ParticleAttribute[3][0] = ChemicalEvolutionTestStarMass; // in solar!!!
@@ -242,11 +236,11 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
       // find grid cell and assign chemical tags
       int ip, jp, kp, n;
-      ip = int ( (ParticlePosition[0][0] - (xstart)) / (*dx));
-      jp = int ( (ParticlePosition[1][0] - (ystart)) / (*dx));
-      kp = int ( (ParticlePosition[2][0] - (zstart)) / (*dx));
+      ip = int ( (ParticlePosition[0][0] - (xstart)) / (dx));
+      jp = int ( (ParticlePosition[1][0] - (ystart)) / (dx));
+      kp = int ( (ParticlePosition[2][0] - (zstart)) / (dx));
 
-      n  = ip + (jp + kp * (*ny)) * (*nx);
+      n  = ip + (jp + kp * (ny)) * (nx);
 
       /* Metal fields are all in fractions, as set in Grid_StarParticleHandler */
       if(TestProblemData.MultiMetals == 2){
@@ -273,7 +267,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
       *np = 1;
       ChemicalEvolutionTestStarFormed = TRUE;
-      printf("individual_star_maker: Formed star ChemicalEvolutionTest. M =  %"FSYM" and Z = %"FSYM". tau = %"ESYM"\n", ParticleMass[0]*((*dx)*(*dx)*(*dx))*m1/msolar, ParticleAttribute[2][0], ParticleAttribute[1][0]); 
+      printf("individual_star_maker: Formed star ChemicalEvolutionTest. M =  %"FSYM" and Z = %"FSYM". tau = %"ESYM"\n", ParticleMass[0]*(dx*dx*dx)*m1/msolar, ParticleAttribute[2][0], ParticleAttribute[1][0]); 
       return SUCCESS;
     }
   } // end ChemicalEvolutionTest ProblemType check
@@ -281,15 +275,15 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
     // 3D -> 1D index
     xo = 1;
-    yo = *nx;
-    zo = (*nx) * (*ny);
+    yo = nx;
+    zo = (nx) * (ny);
 
     min_temp = 1.0E5; // set conditional based on cooling and metals present
 
     // over density threshold in code units
     // if multispecies is off, assumes a value for MU
     if (MultiSpecies == FALSE){
-        odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (*d1); // code density
+        odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (d1); // code density
     }
 
     // loop over all cells, check condition, form stars stochastically
@@ -305,17 +299,17 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
       ke_before = NULL;
     }
 
-    for (k = ibuff; k < *nz - ibuff; k++){
-      for (j = ibuff; j < *ny - ibuff; j++){
-        for (i = ibuff; i < *nx - ibuff; i++){
+    for (k = ibuff; k < nz - ibuff; k++){
+      for (j = ibuff; j < ny - ibuff; j++){
+        for (i = ibuff; i < nx - ibuff; i++){
 
-          index = i + ( j + k * (*ny)) * (*nx);
+          index = i + ( j + k * (ny)) * nx;
 
           /* if distributed star formation */
           // check center cell's SF condition, if met, do SF
           /* loop and sum over all*/
 
-           bmass = (BaryonField[DensNum][index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
+           bmass = (BaryonField[DensNum][index]*(dx*dx*dx)) * m1 / msolar; // in solar masses
                // perform the following easy checks for SF before proceeding
                // 1) Is density greater than the density threshold?
                // 2) Is temperature < the minimum temperature?
@@ -347,11 +341,8 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
             number_density *= BaryonField[DensNum][index] / m_h ; // now actual n density
 
-            /* factor of m_h cancels out in below... it is ignored */
             mu_cell = BaryonField[DensNum][index] / (number_density * m_h);
-//            mu_cell = BaryonField[DensNum][index] / (number_density);
-//            mu_cell = 1.0 / (number_density / m_h)
-            odthreshold = StarMakerOverDensityThreshold * (mu_cell) * m_h / (*d1);
+            odthreshold = StarMakerOverDensityThreshold * (mu_cell) * m_h / (d1);
           }
 
 
@@ -366,10 +357,10 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
             // star formation may be possible
             // compute values and check jeans mass unstable
-            dtot = ( BaryonField[DensNum][index] + dm[index] ) * (*d1);         // total density
-            tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (*t1);            // in code units
+            dtot = ( BaryonField[DensNum][index] + dm[index] ) * (d1);         // total density
+            tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (t1);            // in code units
             isosndsp2 = sndspdC * temp[index] ;
-            jeansmass = pi / (6.0 * sqrt(BaryonField[DensNum][index]*(*d1)) *
+            jeansmass = pi / (6.0 * sqrt(BaryonField[DensNum][index]*d1) *
                             POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
 
             if (jeansmass <= bmass){
@@ -381,21 +372,21 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               istart = iend = jstart = jend = kstart = kend = 0;
               if (integer_sep > 0){
                 istart   = min( i - ibuff             , integer_sep);
-                iend     = min( (*nx - ibuff - 1 ) - i, integer_sep);
+                iend     = min( (nx - ibuff - 1 ) - i, integer_sep);
                 jstart   = min( j - ibuff             , integer_sep);
-                jend     = min( (*ny - ibuff - 1 ) - j, integer_sep);
+                jend     = min( (ny - ibuff - 1 ) - j, integer_sep);
                 kstart   = min( k - ibuff             , integer_sep);
-                kend     = min( (*nz - ibuff - 1 ) - k, integer_sep);
+                kend     = min( (nz - ibuff - 1 ) - k, integer_sep);
               }
 
               int l = 0;
               for (int k_loc = -kstart; k_loc <= kend; k_loc++){
                 for(int j_loc = -jstart; j_loc <= jend; j_loc++){
                   for (int i_loc = -istart; i_loc <= iend; i_loc++){
-                    int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(*ny))*(*nx);
+                    int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(ny))*(nx);
 
                     if(BaryonField[DensNum][loc_index] > odthreshold){
-                      float current_cell_mass = BaryonField[DensNum][loc_index]*((*dx)*(*dx)*(*dx))*m1/msolar;
+                      float current_cell_mass = BaryonField[DensNum][loc_index]*(dx*dx*dx)*m1/msolar;
                       bmass += current_cell_mass; // solar masses
                       number_of_sf_cells++;
                       if ( current_cell_mass < lowest_cell_mass){
@@ -424,7 +415,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               // generally this should be small (comparable to or less than the lower mass
               // cutoff of the IMF)
 
-              star_fraction  = min(StarMakerMassEfficiency*(*dt)/tdyn, 1.0);
+              star_fraction  = min(StarMakerMassEfficiency*(this->dtFixed)/tdyn, 1.0);
               mass_to_stars  = star_fraction * bmass;
               mass_available = StarMakerMassEfficiency * bmass;
               mass_to_stars  = min(mass_to_stars, mass_available);
@@ -566,13 +557,13 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               px = 0.0; py = 0.0; pz =0.0; // initialize momentum counters
               for (istar = index_presf; istar < ii; istar++){
 
-                ParticleType[istar]            = -(*ctype);   // negative is a "new" star
-                ParticleAttribute[0][istar]    = *t;          // formation tim
+                ParticleType[istar]            = - PARTICLE_TYPE_INDIVIDUAL_STAR;   // negative is a "new" star
+                ParticleAttribute[0][istar]    = this->Time;          // formation tim
                 ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metal fraction (conv from density in Grid_StarParticleHandler)
 
 
                 ParticleAttribute[1][istar] = IndividualStarLifetime( ParticleMass[istar],
-                                                                      ParticleAttribute[2][istar]) / (*t1);
+                                                                      ParticleAttribute[2][istar]) / (t1);
 
 
                 ParticleAttribute[3][istar]    = ParticleMass[istar]; //progenitor mass in solar (main sequence mass)
@@ -594,15 +585,15 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
                 // sqrt(1/3) to get disp in each component... taking above velocities as the mean
                 rnum  =  (float) (random() % max_random) / (float) (max_random);
                 rsign = rnum>0.5 ? 1:-1;
-                ParticleVelocity[0][istar] = umean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(*t1)/(*x1);
+                ParticleVelocity[0][istar] = umean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(t1)/(x1);
 
                 rnum  =  (float) (random() % max_random) / (float) (max_random);
                 rsign = rnum>0.5 ? 1:-1;
-                ParticleVelocity[1][istar] = vmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0e5*(*t1)/(*x1);
+                ParticleVelocity[1][istar] = vmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0e5*(t1)/(x1);
 
                 rnum  =  (float) (random() % max_random) / (float) (max_random);
                 rsign = rnum>0.5 ? 1:-1;
-                ParticleVelocity[2][istar] = wmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(*t1)/(*x1);
+                ParticleVelocity[2][istar] = wmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(t1)/(x1);
 
                 // ENSURE MOMENTUM CONSERVATION!!!!!
                 // make running total of momentum in each direction
@@ -675,8 +666,8 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
               for (int k_loc = -kstart; k_loc <= kend; k_loc++){
                 for(int j_loc = -jstart; j_loc <= jend; j_loc++){
                   for (int i_loc = -istart; i_loc <= iend; i_loc++){
-                    int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(*ny))*(*nx);
-                    float current_mass; float volume = (*dx)*(*dx)*(*dx);
+                    int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(ny))*(nx);
+                    float current_mass; float volume = (dx*dx*dx);
 
                     if(BaryonField[DensNum][loc_index] > odthreshold){
                       current_mass = BaryonField[DensNum][loc_index] * volume;
@@ -711,7 +702,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
 
     // Done forming stars!!! Output and exit
     if (ii > 0){
-      printf("P(%"ISYM"): individual_star_maker[add]: %"ISYM" new star particles\n", *procnum, ii);
+      printf("P(%"ISYM"): individual_star_maker[add]: %"ISYM" new star particles\n", MyProcessorNumber, ii);
     }
     if (ii >= *nmax){
       fprintf(stdout, "individual_star_maker: reached max new particle count!! Available: %"ISYM". Made: %"ISYM"\n", *nmax, ii);
@@ -721,7 +712,7 @@ int grid::individual_star_maker(int *nx, int *ny, int *nz,
   // star masses are recorded as densities (mass / cell volume)
   // set progenitor masses in solar
   for (int counter = 0; counter < ii; counter++){
-    ParticleMass[counter]   = ParticleMass[counter] / ((*dx)*(*dx)*(*dx)); // code units / cell volume
+    ParticleMass[counter]   = ParticleMass[counter] / (dx*dx*dx); // code units / cell volume
   }
 
   *np = ii; // number of stars formed : AJE 2/29 check if this is a bug with the -1
@@ -778,11 +769,7 @@ float SampleIMF(void){
   return m;
 }
 
-int grid::individual_star_feedback(int *nx, int *ny, int *nz,
-                                   float *dx, float *dt,
-                                   FLOAT *current_time, float *d1, float *x1,
-                                   float *v1, float *t1, FLOAT *xstart, FLOAT *ystart,
-                                   FLOAT *zstart, int *ibuff, int *np,
+int grid::individual_star_feedback(int *np,
                                    float *ParticleMass, int *ParticleType, FLOAT *ParticlePosition[],
                                    float *ParticleVelocity[], float *ParticleAttribute[]){
 /*-----------------------------------------------------------------------------
@@ -804,32 +791,27 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
     ParticleVelocity -
     ParticleAttribute -
 -----------------------------------------------------------------------------*/
+  /* copy some grid parameters for convenience */
+  int  nx = this->GridDimension[0];
+  int  ny = this->GridDimension[1];
+  int  nz = this->GridDimension[2];
+  int  ibuff = NumberOfGhostZones;
+
+  FLOAT xstart = *CellLeftEdge[0], ystart = *CellLeftEdge[1], zstart = *CellLeftEdge[2];
+  float   dx   = CellWidth[0][0];
 
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
 
-  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum;
-
-
-
-  this->DebugCheck("StarParticleHandler");
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-                                       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+  /* Get Units */
+  float d1, x1, TemperatureUnits, t1, v1, m1;
+  if (GetUnits(&d1, &x1, &TemperatureUnits, &t1, &v1, this->Time) == FAIL){
+      ENZO_FAIL("Error in GetUnits");
   }
-
-  if (CRModel){
-    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
-      ENZO_FAIL("Cannot Find Cosmic Rays");
-  }
-
+  m1   = d1*x1*x1*x1; // mass units
 
   float mp, distmass, energy, dratio;
   const double msolar = 1.989e33;                 // solar mass in cgs
   const double speed_of_light = 2.99792458e10 ;
-  double m1 = (*d1)*(*x1)*(*x1)*(*x1);            // code mass units
-  double e1 = m1 * (*x1) * (*x1) / (*t1) * (*t1); // code energy units
 
   FLOAT particle_age, lifetime;
 
@@ -846,27 +828,28 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
       IndividualStarWD      = PARTICLE_TYPE_INDIVIDUAL_STAR_WD,
       IndividualStarRemnant = PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT; // convenience
 
+
   // loop over all star particles
   for(int i = 0; i < (*np); i++){
 
     // where is the particle?
-    ip = int ( (ParticlePosition[0][i] - (*xstart)) / (*dx));
-    jp = int ( (ParticlePosition[1][i] - (*ystart)) / (*dx));
-    kp = int ( (ParticlePosition[2][i] - (*zstart)) / (*dx));
+    ip = int ( (ParticlePosition[0][i] - (xstart)) / dx);
+    jp = int ( (ParticlePosition[1][i] - (ystart)) / dx);
+    kp = int ( (ParticlePosition[2][i] - (zstart)) / dx);
 
     float birth_mass = ParticleAttribute[3][i];
 
-    mp = ParticleMass[i] * (*dx) * (*dx) * (*dx); // mass in code units
-    mp = mp * (m1) / msolar ; // Msun
+    mp = ParticleMass[i] * dx*dx*dx; // mass in code units
+    mp = mp * (m1) / msolar ;        // Msun
 
     // warning if outside current grid
-    if( ip < 0 || ip > (*nx) || jp < 0 || jp > (*ny) || kp < 0 || kp > (*nz)){
+    if( ip < 0 || ip > nx || jp < 0 || jp > ny || kp < 0 || kp > nz){
       printf("Warning: star particle is outside of grid\n");
       return FAIL;
     }
 
 
-    particle_age = (*current_time) - ParticleAttribute[0][i];
+    particle_age = (this->Time) - ParticleAttribute[0][i];
     lifetime     = ParticleAttribute[1][i];
 
     do_stellar_winds           = FALSE;
@@ -875,34 +858,34 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
 
     if(ParticleType[i] == IndividualStar){
       if(IndividualStarStellarWinds){
-        if (particle_age + *dt < lifetime){
+        if (particle_age + this->dtFixed < lifetime){
           do_stellar_winds = TRUE;
           stellar_wind_time_fraction = 1.0;
         } else if (particle_age < lifetime){
           do_stellar_winds = TRUE;
-          stellar_wind_time_fraction = (lifetime - particle_age) / (*dt);
+          stellar_wind_time_fraction = (lifetime - particle_age) / (this->dtFixed);
         }
       } // end winds check
 
-      if ( birth_mass >= IndividualStarSNIIMassCutoff && ((particle_age + *dt) > lifetime)){
+      if ( birth_mass >= IndividualStarSNIIMassCutoff && ((particle_age + this->dtFixed) > lifetime)){
         go_supernova = TRUE;
         ParticleAttribute[1][i] = lifetime*1.0E10; // lifetime set to arbitrarily large number
 
       } else if ( birth_mass >= IndividualStarWDMinimumMass && birth_mass <= IndividualStarWDMaximumMass
-                  && particle_age + (*dt) > lifetime && IndividualStarUseSNIa){
+                  && particle_age + (this->dtFixed) > lifetime && IndividualStarUseSNIa){
 
         float wd_mass; // compute WD mass using linear fit from Salaris et. al. 2009
         if(      birth_mass  < 4.0){ wd_mass = 0.134 * birth_mass + 0.331;}
         else if (birth_mass >= 4.0){ wd_mass = 0.047 * birth_mass + 0.679;}
 
-        ParticleMass[i] = wd_mass * (msolar / m1) / ((*dx)*(*dx)*(*dx));
+        ParticleMass[i] = wd_mass * (msolar / m1) / (dx*dx*dx);
         ParticleType[i] = IndividualStarWD;
         /* fudge factor makes lifetime very long so particle is not deleted,
            however, SNIa scheme needs to know the main sequence lifetime. This
            confusing, but a little bit more efficient than making a new particle attribute */
         ParticleAttribute[1][i] = lifetime*fudge_factor; // make a big number
 
-      } else if (particle_age + (*dt) > lifetime){
+      } else if (particle_age + (this->dtFixed) > lifetime){
         ParticleMass[i] = 0.0; // kill silently
       }
 
@@ -920,8 +903,8 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
         float rnum;
 
         /* Probability that the star will explode as SNIa in this timestep */
-        PSNIa  = ComputeSnIaProbability(current_time, formation_time, lifetime/fudge_factor, t1); // units of t^((beta)) / s
-        PSNIa *= (*dt);
+        PSNIa  = ComputeSnIaProbability( this->Time, formation_time, lifetime/fudge_factor, t1); // units of t^((beta)) / s
+        PSNIa *= this->dtFixed;
 
         rnum =  (float) (random() % max_random) / ((float) (max_random));
 
@@ -937,6 +920,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
     if(do_stellar_winds || go_supernova){
         float sum_dens = 0.0;
 
+        // call feedback function to do stellar winds
         if(do_stellar_winds){
 
           float mproj  = birth_mass; /* Main sequence star mass / birth mass  in solar */
@@ -945,34 +929,31 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
           printf("ISF: Current Mass = %"ESYM" Particle aatribute 3 = %"ESYM" mproj = %"ESYM"\n", mp,ParticleAttribute[3][i], mproj);
 
           /* Apply stellar wind feedback. Determined by setting last arguemtn to -1 */
-          IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
+          this->IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
                                            ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
-                                           *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
-                                           *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, -1);
-          ParticleMass[i] = mp;
+                                           birth_mass, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, -1);
 
+          ParticleMass[i] = mp; // update particle mass with mass loss from above
         }
 
+        // call feedback function to do supernova feedback (either SNIa or core collapse)
         if(go_supernova){
-          float mproj = ParticleAttribute[3][i]; // main sequence star mass in solar
 
           if( ParticleType[i] != IndividualStarWD){
             printf("Calling feedback to do cc supernova");
             /* do core collapse supernova feedback - set by last value == 1 */
-            IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
+            this->IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
                                              ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
-                                             *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
-                                             *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 1);
+                                             birth_mass, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 1);
 
             ParticleMass[i] = mp;
             ParticleType[i] = IndividualStarRemnant; // change type
           } else{
             printf("calling feedback to do supernova 1a\n");
             /* do SNIa supernova feedback - set by last value == 1 */
-            IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
+            this->IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
                                              ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
-                                             *d1, *x1, m1, *v1, *xstart, *ystart, *zstart, *dx, *dt,
-                                             *nx, *ny, *nz, *ibuff, mproj, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 2);
+                                             birth_mass, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 2);
 
             ParticleMass[i]     = 0.0;                             // make particle mass zero - now a masless tracer
             ParticleAttribute[1][i] = 1.0E10 * ParticleAttribute[1][i];    // make lifetime infinite  -
@@ -1010,7 +991,7 @@ int grid::individual_star_feedback(int *nx, int *ny, int *nz,
   return SUCCESS;
 }
 
-float ComputeSnIaProbability(float *current_time, const float &formation_time, const float &lifetime, float *t1){
+float ComputeSnIaProbability(const float &current_time, const float &formation_time, const float &lifetime, const float &t1){
  /* -----------------------------------------------------------------
   * ComputeSnIaProbability
   *
@@ -1031,14 +1012,14 @@ float ComputeSnIaProbability(float *current_time, const float &formation_time, c
 
  /* conmpute normalized probability - normalized by integral over WD formation time to hubble time */
  if (IndividualStarDTDSlope == 1.0){
-   dPdt /= log( (hubble_time / (*t1) + lifetime) / (lifetime) );
+   dPdt /= log( (hubble_time / (t1 + lifetime)) / (lifetime) );
  } else{
    dPdt *= (-IndividualStarDTDSlope + 1.0);
-   dPdt /= ( POW( (hubble_time / (*t1) + lifetime) , -IndividualStarDTDSlope + 1) -
-             POW((lifetime)                      , -IndividualStarDTDSlope + 1));
+   dPdt /= ( POW( hubble_time / (t1 + lifetime) , -IndividualStarDTDSlope + 1) -
+             POW( (lifetime)                      , -IndividualStarDTDSlope + 1));
  }
 
- dPdt = dPdt * POW( ((*current_time) - (formation_time)), -IndividualStarDTDSlope);
+ dPdt = dPdt * POW( ((current_time) - (formation_time)), -IndividualStarDTDSlope);
 
 
  return dPdt;
@@ -1107,11 +1088,6 @@ void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
 /* AJE: 4/17 - since making this member function can clean up arguements A LOT - to do */
 int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
                        const float &up, const float &vp, const float &wp,
-                       const float &d1, const float &x1, const float &m1, const float &v1,
-                       const FLOAT &xstart, const FLOAT &ystart, const FLOAT &zstart,
-                       const FLOAT &dx, const FLOAT &dt,
-                       const int &nx, const int &ny, const int &nz,
-                       const int &ibuff,
                        const float &mproj, const float &lifetime, const float &metallicity,
                        float *mp, int mode     ){
 
@@ -1119,6 +1095,22 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
   const double c_light = 2.99792458E10; const double msolar = 1.989E33;
 
   float *metal_mass;
+
+  /* Get Units */
+  float d1, x1, TemperatureUnits, t1, v1, m1;
+  if (GetUnits(&d1, &x1, &TemperatureUnits, &t1, &v1, this->Time) == FAIL){
+      ENZO_FAIL("Error in GetUnits");
+  }
+  m1   = d1*x1*x1*x1; // mass units
+
+
+  /* rename some grid parameters for convenience */
+  int  nx = this->GridDimension[0], ny = this->GridDimension[1], nz = this->GridDimension[2];
+  int  ibuff = NumberOfGhostZones;
+
+  FLOAT xstart = *CellLeftEdge[0], ystart = *CellLeftEdge[1], zstart = *CellLeftEdge[2];
+  float   dx   = CellWidth[0][0];
+
 
   printf("ISF: Assiging initital values to metal mass\n");
   if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
@@ -1147,7 +1139,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
       m_eject = m_eject * msolar / m1 * (x1/v1);  // convert to code mass / code time
     }
 
-    m_eject = m_eject * dt; // ejected mass is mass loss rate * dt
+    m_eject = m_eject * this->dtFixed; // ejected mass is mass loss rate * dt
 
     E_thermal = 0.0;
 

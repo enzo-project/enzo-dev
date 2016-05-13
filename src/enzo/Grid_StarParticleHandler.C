@@ -1082,14 +1082,12 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       // Only attempt if on max refiment level
       if (level == MaximumRefinementLevel || ProblemType == 260){
         // lets try and form stars
-        if(individual_star_maker(GridDimension, GridDimension+1, GridDimension+2,
-                                 dmfield, temperature,
-                                 &dtFixed, &CellWidthTemp, &Time,
-                                 &MyProcessorNumber, &DensityUnits, &LengthUnits,
-                                 &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles,
-                                 &Mu, MetalPointer, &IndividualStarType,
-                                 &NumberOfNewParticles, tg->ParticleMass, tg->ParticleType,
-                                 tg->ParticlePosition, tg->ParticleVelocity, tg->ParticleAttribute) == FAIL){
+        if(individual_star_maker(dmfield, temperature,
+                                 &MaximumNumberOfNewParticles,
+                                 &Mu, &NumberOfNewParticles,
+                                 tg->ParticleMass, tg->ParticleType,
+                                 tg->ParticlePosition, tg->ParticleVelocity,
+                                 tg->ParticleAttribute) == FAIL){
           ENZO_FAIL("Error in individual_star_maker.\n");
         } // end call to function 
 
@@ -2042,11 +2040,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   if (STARFEED_METHOD(INDIVIDUAL_STAR)) {
 
-    if(individual_star_feedback(GridDimension, GridDimension+1, GridDimension+2,
-                                &CellWidthTemp, &dtFixed,
-                                &Time, &DensityUnits, &LengthUnits, &VelocityUnits,
-                                &TimeUnits, CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2],
-                                &GhostZones, &NumberOfParticles, ParticleMass, ParticleType, ParticlePosition,
+    if(individual_star_feedback(&NumberOfParticles,
+                                ParticleMass, ParticleType, ParticlePosition,
                                 ParticleVelocity, ParticleAttribute) == FAIL){
       ENZO_FAIL("Failure in individual star feedback\n");
     }
