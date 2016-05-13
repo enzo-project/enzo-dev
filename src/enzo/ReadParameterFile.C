@@ -916,6 +916,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                        &ChemicalEvolutionTestStarMetallicity);
     ret += sscanf(line, "ChemicalEvolutionTestStarLifetime = %"FSYM,
                        &ChemicalEvolutionTestStarLifetime);
+    ret += sscanf(line, "ChemicalEvolutionTestStarFormed = %"ISYM,
+                       &ChemicalEvolutionTestStarFormed);
 
     /* Read star particle parameters. */
 
@@ -1134,7 +1136,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "IndividualStarInfiniteLifetimes = %"ISYM,
                         &IndividualStarInfiniteLifetimes);
 
-    ret += sscanf(line, "IndividualStarFUVHeating = %"FSYM,
+    ret += sscanf(line, "IndividualStarFUVHeating = %"ISYM,
                         &IndividualStarFUVHeating);
     ret += sscanf(line, "IndividualStarFUVMinimumMass = %"FSYM,
                         &IndividualStarFUVMinimumMass);

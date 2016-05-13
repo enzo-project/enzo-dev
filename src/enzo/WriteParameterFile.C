@@ -1070,7 +1070,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarBlackBodyOnly = %"ISYM"\n", IndividualStarBlackBodyOnly);
   fprintf(fptr, "IndividualStarSupernovaEnergy = %"FSYM"\n", IndividualStarSupernovaEnergy);
   fprintf(fptr, "IndividualStarStellarWindVelocity = %"FSYM"\n", IndividualStarStellarWindVelocity);
-  fprintf(fptr, "IndividualStarFUVHeating = %"FSYM"\n", IndividualStarFUVHeating);
+  fprintf(fptr, "IndividualStarFUVHeating = %"ISYM"\n", IndividualStarFUVHeating);
   fprintf(fptr, "IndividualStarFUVMinimumMass = %"FSYM"\n", IndividualStarFUVMinimumMass);
   fprintf(fptr, "IndividualStarCreationStencilSize = %"ISYM"\n", IndividualStarCreationStencilSize);
   fprintf(fptr, "IndividualStarFUVTemperatureCutoff = %"FSYM"\n", IndividualStarFUVTemperatureCutoff);
@@ -1090,7 +1090,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ChemicalEvolutionTestStarLifetime = %"FSYM"\n", ChemicalEvolutionTestStarLifetime);
   fprintf(fptr, "ChemicalEvolutionTestStarFormed = %"ISYM"\n\n", ChemicalEvolutionTestStarFormed);
 
-  fprintf(fptr, "StellarYieldsNumberOfSpecies        = %"FSYM"\n", StellarYieldsNumberOfSpecies);
+  fprintf(fptr, "StellarYieldsNumberOfSpecies        = %"ISYM"\n", StellarYieldsNumberOfSpecies);
   fprintf(fptr, "StellarYieldsAtomicNumbers          = ");
   WriteListOfInts(fptr, MAX_STELLAR_YIELDS, StellarYieldsAtomicNumbers);
 
