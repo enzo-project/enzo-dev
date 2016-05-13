@@ -1087,8 +1087,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarPosition);
   fprintf(fptr, "ChemicalEvolutionTestStarMass = %"FSYM"\n", ChemicalEvolutionTestStarMass);
   fprintf(fptr, "ChemicalEvolutionTestStarMetallicity = %"FSYM"\n", ChemicalEvolutionTestStarMetallicity);
-  fprintf(fptr, "ChemicalEvolutionTestStarLifetime = %"FSYM"\n\n", ChemicalEvolutionTestStarLifetime);
-
+  fprintf(fptr, "ChemicalEvolutionTestStarLifetime = %"FSYM"\n", ChemicalEvolutionTestStarLifetime);
+  fprintf(fptr, "ChemicalEvolutionTestStarFormed = %"ISYM"\n\n", ChemicalEvolutionTestStarFormed);
 
   fprintf(fptr, "StellarYieldsNumberOfSpecies        = %"FSYM"\n", StellarYieldsNumberOfSpecies);
   fprintf(fptr, "StellarYieldsAtomicNumbers          = ");

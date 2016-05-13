@@ -205,9 +205,11 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
       zz = ChemicalEvolutionTestStarPosition[2];
 
       // make sure particle position is on this grid / processor
-      if( !( (xx > (xstart) + (ibuff)*(dx)) && (xx < xstart + (ibuff + nx)*(dx))) ||
-          !( (yy > (ystart) + (ibuff)*(dx)) && (yy < ystart + (ibuff + ny)*(dx))) ||
-          !( (zz > (zstart) + (ibuff)*(dx)) && (zz < zstart + (ibuff + nz)*(dx))) ) {
+      if( !( (xx > this->CellLeftEdge[0][ibuff - 1]) && (xx < this->CellLeftEdge[0][nx - ibuff ] )) ||
+          !( (yy > this->CellLeftEdge[1][ibuff - 1]) && (yy < this->CellLeftEdge[1][ny - ibuff ] )) ||
+          !( (zz > this->CellLeftEdge[2][ibuff -1 ]) && (zz < this->CellLeftEdge[2][nz - ibuff ] )) ) {
+        ChemicalEvolutionTestStarFormed = TRUE; // setting this here to avoid doing MPI communication
+                                                // on whatever processor the star actually gets placed
         printf("P(%"ISYM") individual_star_maker: Particle not on this grid. Leaving\n", MyProcessorNumber);
         return SUCCESS;
       }
@@ -268,6 +270,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
       *np = 1;
       ChemicalEvolutionTestStarFormed = TRUE;
       printf("individual_star_maker: Formed star ChemicalEvolutionTest. M =  %"FSYM" and Z = %"FSYM". tau = %"ESYM"\n", ParticleMass[0]*(dx*dx*dx)*m1/msolar, ParticleAttribute[2][0], ParticleAttribute[1][0]); 
+
+
       return SUCCESS;
     }
   } // end ChemicalEvolutionTest ProblemType check
@@ -845,6 +849,8 @@ int grid::individual_star_feedback(int *np,
     // warning if outside current grid
     if( ip < 0 || ip > nx || jp < 0 || jp > ny || kp < 0 || kp > nz){
       printf("Warning: star particle is outside of grid\n");
+      printf(" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" \n", ip, jp, kp, nx, ny, nz);
+      printf(" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n", dx, xstart, ystart, zstart, ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i]);
       return FAIL;
     }
 
