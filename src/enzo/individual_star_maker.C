@@ -929,10 +929,9 @@ int grid::individual_star_feedback(int *np,
         // call feedback function to do stellar winds
         if(do_stellar_winds){
 
-          float mproj  = birth_mass; /* Main sequence star mass / birth mass  in solar */
 
           printf("ISF: Calling feedback general to do stellar winds\n");
-          printf("ISF: Current Mass = %"ESYM" Particle aatribute 3 = %"ESYM" mproj = %"ESYM"\n", mp,ParticleAttribute[3][i], mproj);
+          printf("ISF: Current Mass = %"ESYM" Particle aatribute 3 = %"ESYM" mproj = %"ESYM"\n", mp,ParticleAttribute[3][i], birth_mass);
 
           /* Apply stellar wind feedback. Determined by setting last arguemtn to -1 */
           this->IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
@@ -954,6 +953,7 @@ int grid::individual_star_feedback(int *np,
 
             ParticleMass[i] = mp;
             ParticleType[i] = IndividualStarRemnant; // change type
+            ParticleAttribute[1][i] = 1.0E10 * ParticleAttribute[1][i];
           } else{
             printf("calling feedback to do supernova 1a\n");
             /* do SNIa supernova feedback - set by last value == 1 */
@@ -1215,22 +1215,22 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     // for each metal species, compute the total metal mass ejected depending on supernova type
     if (mode <= 1){
       // atomic number of 0 counts total metal mass
-      metal_mass[0] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, 0) / (dx*dx*dx);
+      metal_mass[0] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, 0) * msolar / m1 / (dx*dx*dx);
 
       for(int i = 0; i < StellarYieldsNumberOfSpecies; i ++){
-        metal_mass[1 + i] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, StellarYieldsAtomicNumbers[i]) / (dx*dx*dx);
+        metal_mass[1 + i] = StellarYieldsInterpolateYield(interpolation_mode, mproj, metallicity, StellarYieldsAtomicNumbers[i]) * msolar / m1 / (dx*dx*dx);
       }
     } else if (mode == 2){
-      metal_mass[0] = StellarYields_SNIaYieldsByNumber(0) / (dx*dx*dx);
+      metal_mass[0] = StellarYields_SNIaYieldsByNumber(0) * msolar / m1 / (dx*dx*dx);
 
       for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
-        metal_mass[1 + i] = StellarYields_SNIaYieldsByNumber( StellarYieldsAtomicNumbers[i] ) / (dx * dx * dx);
+        metal_mass[1 + i] = StellarYields_SNIaYieldsByNumber( StellarYieldsAtomicNumbers[i] ) * msolar / m1 / (dx * dx * dx);
       }
     }
 
     printf("Metal masses in array ");
     for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
-      printf("    %"ESYM,metal_mass[i]);
+      printf(" %"ESYM " %"ESYM " -- ",metal_mass[i] * dx*dx*dx *m1 / msolar , metal_mass[i]);
     }
     printf("\n");
   }
