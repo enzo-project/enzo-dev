@@ -1453,8 +1453,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
   }
 
-  if(MultiMetals){
+  if( MultiMetals ){
     TestProblemData.MultiMetals = MultiMetals;
+  } else if (TestProblemData.MultiMetals){
+    MultiMetals = TestProblemData.MultiMetals;
   }
 
   // HierarchyFile IO sanity check

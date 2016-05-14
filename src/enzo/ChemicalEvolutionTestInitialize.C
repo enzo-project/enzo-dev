@@ -298,6 +298,12 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     }
   }
 
+  if (TestProblemData.MultiMetals ){
+    MultiMetals = TestProblemData.MultiMetals;
+  } else if (MultiMetals) {
+    TestProblemData.MultiMetals = MultiMetals;
+  }
+
   /* Metallicity and Metals */
   if (TestProblemData.UseMetallicityField){
     DataLabel[count++] = MetalName;
