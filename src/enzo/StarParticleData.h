@@ -131,6 +131,7 @@ SPEXTERN float  H2StarMakerH2DissociationFlux_MW;
 SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
 
+SPEXTERN float IndividualStarTemperatureThreshold;
 SPEXTERN float IndividualStarIMFUpperMassCutoff;
 SPEXTERN float IndividualStarIMFLowerMassCutoff;
 SPEXTERN float IndividualStarVelocityDispersion;

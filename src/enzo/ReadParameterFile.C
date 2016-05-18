@@ -1071,6 +1071,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
     /* AJE Individual Star */
+    ret += sscanf(line, "IndividualStarTemperatureThreshold = %"FSYM,
+                        &IndividualStarTemperatureThreshold);
     ret += sscanf(line, "IndividualStarIMFUpperMassCutoff = %"FSYM,
                         &IndividualStarIMFUpperMassCutoff);
     ret += sscanf(line, "IndividualStarIMFLowerMassCutoff = %"FSYM,

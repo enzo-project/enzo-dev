@@ -140,7 +140,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
   int i, j, k, index, ii=0, istar=0, index_presf=0;
   int xo, yo, zo, rsign=1;
-  float bmass, div, min_temp, star_mass=0.0, sum_mass=0.0;
+  float bmass, div, star_mass=0.0, sum_mass=0.0;
   float pstar, mass_to_stars, mass_available, tdyn;
   float dtot, isosndsp2, jeansmass, star_fraction, odthreshold;
   float umean, vmean, wmean, px, py, pz, px_excess, py_excess, pz_excess;
@@ -282,8 +282,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     yo = nx;
     zo = (nx) * (ny);
 
-    min_temp = 1.0E5; // set conditional based on cooling and metals present
-
     // over density threshold in code units
     // if multispecies is off, assumes a value for MU
     if (MultiSpecies == FALSE){
@@ -351,7 +349,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
 
           if (   BaryonField[DensNum][index]      > odthreshold
-              && temp[index] <= min_temp ){ // 4/4/16
+              && temp[index] <= IndividualStarTemperatureThreshold ){ // 4/4/16
               //&& IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
               //&& 0.5*bmass > IndividualStarIMFUpperMassCutoff){
 

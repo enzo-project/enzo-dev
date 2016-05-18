@@ -735,6 +735,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
   IndividualStarCreationStencilSize  = 0;           // n x n region to form stars around a cell (0 = cell by cell)
   IndividualStarFeedbackStencilSize  = 3;
+  IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
 
   IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens FUV Heating
 
