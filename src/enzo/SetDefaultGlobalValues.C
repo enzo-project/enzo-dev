@@ -707,6 +707,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerColdGasTemperature = 1e4;
 
   // AJE Individual Star
+  IndividualStarAllowTruncatedIMF   = 0;            // on or off - truncates IMF for low mass regions if on
   IndividualStarIMFUpperMassCutoff  = 100.0;        // Solar masses
   IndividualStarIMFLowerMassCutoff  =   1.0;        // Solar masses
   IndividualStarVelocityDispersion  =   1.0;        // km/s

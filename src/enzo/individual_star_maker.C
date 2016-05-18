@@ -349,7 +349,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
 
           if (   BaryonField[DensNum][index]      > odthreshold
-              && temp[index] <= IndividualStarTemperatureThreshold ){ // 4/4/16
+              && temp[index] <= IndividualStarTemperatureThreshold){
               //&& IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
               //&& 0.5*bmass > IndividualStarIMFUpperMassCutoff){
 
@@ -408,10 +408,22 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 }
               }
 
-              /* set maximum stellar mass either to IMF upper limit or such that no more than 1/2 of
-                 a given cell's gas mass is converted into stars in the timestep (truncates IMF)      */
-              float M_max_star = min(number_of_sf_cells * lowest_cell_mass * IndividualStarMassFraction,
-                                     IndividualStarIMFUpperMassCutoff);
+
+              float M_max_star;
+              if (IndividualStarAllowTruncatedIMF){
+                  /* allow IMF to be truncated to safely allow SF in less dense regions. This may be an
+                     unphysical thing to do, as it won't necessarily reproduce the input IMF. In reality
+                     SF clouds will do this (low mass clouds are less likely to make very massive stars), but
+                     this is all convolved together in the input IMF (IMF may vary cloud-by-cloud)........
+                     use this with caution */
+                  M_max_star =  min(bmass * IndividualStarMassFraction, IndividualStarIMFUpperMassCutoff);
+              } else {
+                  /* only allow star formation if IMF can fully sampled (safely) in the given region */
+                  if ( bmass * IndividualStarMassFraction < IndividualStarIMFUpperMassCutoff){
+                    break;
+                  }
+                  M_max_star = IndividualStarIMFUpperMassCutoff;
+              }
 
               // calculate mass in cell that can be converted to stars in timestep
               // generally this should be small (comparable to or less than the lower mass
@@ -669,11 +681,12 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 for(int j_loc = -jstart; j_loc <= jend; j_loc++){
                   for (int i_loc = -istart; i_loc <= iend; i_loc++){
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(ny))*(nx);
-                    float current_mass; float volume = (dx*dx*dx);
 
                     if(BaryonField[DensNum][loc_index] > odthreshold){
-                      current_mass = BaryonField[DensNum][loc_index] * volume;
-                      BaryonField[DensNum][loc_index] = (current_mass - sum_mass /( (float) number_of_sf_cells) ) / volume;
+                      // mass is removed as weighted by the previous cell mass (more mass is
+                      // taken out of higher density regions). M_new = M_old - M_sf * (M_old / M_tot)
+                      // where M_tot is mass of cells that meet above SF conditions. Simplifies to below eq:
+                      BaryonField[DensNum][loc_index] *= (1.0 - sum_mass / bmass);
 
                       // adjust total energy if we are using PPM
                       if (HydroMethod != 2){
