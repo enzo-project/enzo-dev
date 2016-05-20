@@ -252,6 +252,9 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
     } // j
   } // k
 
+
+  delete[] temperature;
+
 }
 
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
