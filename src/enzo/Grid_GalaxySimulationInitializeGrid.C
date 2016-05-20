@@ -1246,7 +1246,7 @@ void polint(double xa[],double ya[],int n,double x,double *y,double *dy)
 	
 	*y=ya[ns--];
 	for (m=1;m<n;m++) {
-		for (i=1;i<=n;i++) {
+		for (i=1; i<n; i++) {
 			ho=xa[i]-x;
 			hp=xa[i+m]-x;
 			w=polint_c[i+1]-polint_d[i];
