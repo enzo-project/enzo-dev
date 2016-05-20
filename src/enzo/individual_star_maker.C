@@ -733,7 +733,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   *np = ii; // number of stars formed : AJE 2/29 check if this is a bug with the -1
 
 
-  delete [] ke_before;
+  delete[] ke_before;
 
   return SUCCESS;
 }
@@ -1193,7 +1193,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     }
 
     v_wind     = 0.0;
-    p_feedback = m_eject * v_wind;
+    p_feedback = 0.0;
     E_kin      = 0.0;
     printf("AddFeedbackGeneral: M_proj %"FSYM" Z = %"FSYM", M_eject = %"ESYM" E_thermal = %"ESYM"\n", mproj, metallicity, m_eject*m1/msolar, E_thermal*v1*v1*m1);
   } else if ( mode == 2){ // Type Ia supernova
@@ -1207,7 +1207,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     }
 
     v_wind     = 0.0;
-    p_feedback = m_eject * v_wind;
+    p_feedback = 0.0;
     E_kin      = 0.0;
   }
 
@@ -1592,7 +1592,6 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   /* Adjust the total energy field if we are using PPM */
   if (HydroMethod != 2){
     float ke_injected = 0.0;
-    int l_index = 0;
     float delta_ke = 0.0;
     float ke_after = 0.0;
     int integer_sep = ((int) (stencil+1)/2.0 - 1); // floor((stencil + 1) / 2.0);
@@ -1608,23 +1607,24 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
 //      for(int j = -integer_sep; j < integer_sep; j++){
 //        for(int i = -integer_sep; i < integer_sep; i++){
 
-          int index   = (ic + i) + ( (jc + j) + (kc + k)*ny)*nx;
+          int index   = i + ( j + k*ny)*nx;
 
           ke_after = 0.5 * BaryonField[DensNum][index] *
                     ( BaryonField[Vel1Num][index] * BaryonField[Vel1Num][index] +
                       BaryonField[Vel2Num][index] * BaryonField[Vel2Num][index] +
                       BaryonField[Vel3Num][index] * BaryonField[Vel3Num][index]);
 
-          delta_ke = ke_after - ke_before[l_index];
+          delta_ke = ke_after - ke_before[local_index];
 
           BaryonField[TENum][index] += delta_ke/BaryonField[DensNum][index];
 
           ke_injected += delta_ke;
 
-          l_index++;
+          local_index++;
         }
       }
     }
+    printf("IndividualStarFeedback: change in kinetic energy %"ESYM"\n", ke_injected);
   } // endif
 
 
@@ -1977,7 +1977,7 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
               }
               /* now we do the feedback */
               int index, x_index, y_index, z_index;
-              float delta_mass, delta_pu, delta_pv, delta_pw, dratio;
+              float delta_mass, delta_pu, delta_pv, delta_pw, inv_dens;
 
               index = (ic + i_loc) + ( (jc + j_loc) + (kc + k_loc)*ny)*nx;
 
@@ -1987,30 +1987,36 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
               /* do things here finally */
               delta_mass  = mass_per_cell * dxc_loc * dyc_loc * dzc_loc;
 
-              /* AJE - 4/19/16 Need to change this to accomodate larger senticls. just
-                       do this by setting i j and k to sign(i) sign(j) sign(k) instead
-                       and make sure it handles zero appropriately
-              */
-              delta_pu    = i * mom_per_cell * dxf_loc * dyc_loc * dzc_loc;
-              delta_pv    = j * mom_per_cell * dxc_loc * dyf_loc * dzc_loc;
-              delta_pw    = k * mom_per_cell * dxc_loc * dyc_loc * dzf_loc;
+              // add momentum, then do sign changing later
+              delta_pu    = mom_per_cell * dxf_loc * dyc_loc * dzc_loc;
+              delta_pv    = mom_per_cell * dxc_loc * dyf_loc * dzc_loc;
+              delta_pw    = mom_per_cell * dxc_loc * dyc_loc * dzf_loc;
+
+              // change sign to point away from central sell
+              // +1 or -1 if index is pos or neg respectively
+              // multiply by zero if we are the central cell
+              delta_pu *=  ( (i > 0) ? 1.0 : ( i < 0 ? -1.0 : 0));
+              delta_pv *=  ( (j > 0) ? 1.0 : ( j < 0 ? -1.0 : 0));
+              delta_pw *=  ( (k > 0) ? 1.0 : ( k < 0 ? -1.0 : 0));
+
               delta_therm = therm_per_cell * dxc_loc * dyc_loc * dzc_loc;
 
               /* add mass momentum and thermal energy */
-              dratio   = d[index] / (d[index] + delta_mass);
+              inv_dens   = 1.0 / (d[index] + delta_mass);
 
-              d[index]    = d[index] + delta_mass;
+
               pu[x_index] = pu[x_index] + delta_pu;
               pv[y_index] = pv[y_index] + delta_pv;
               pw[z_index] = pw[z_index] + delta_pw;
 
               total_mass  += delta_mass;
 
-              te[index] = te[index]*dratio + delta_therm/d[index];
+              te[index] = (te[index]*d[index] + delta_therm) * inv_dens;
 
               if (DualEnergyFormalism) {
-                ge[index] = ge[index]*dratio + delta_therm/d[index];
+                ge[index] = (ge[index]*d[index] + delta_therm) * inv_dens;
               }
+              d[index] = d[index] + delta_mass;
           //    printf("feedback_indexes: i x y z %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",index, x_index, y_index, z_index);
 
             } // k loc
