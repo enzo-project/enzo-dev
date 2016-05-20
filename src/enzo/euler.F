@@ -10,8 +10,8 @@ c
      &            idim, jdim, i1, i2, j1, j2, dt, 
      &            gamma, idiff, gravity, idual, eta1, eta2,
      &            df, ef, uf, vf, wf, gef, ges,
-     &            ncolor, colslice, colf
-     &                 )
+     &            ncolor, colslice, colf,
+     &            idfloor, dfloor       )
 c
 c  SOLVES THE EULERIAN CONSERVATION LAWS USING FLUXES FROM THE RIEMANN SOLVER
 c
@@ -59,6 +59,8 @@ c    vl,rs  - 2-velocity at left and right edges of each cell
 c    vslice - extracted 2d slice of the 2-velocity, v
 c    wl,rs  - 3-velocity at left and right edges of each cell
 c    wslice - extracted 2d slice of the 3-velocity, w
+c    idfloor - include density floor flag (0 = off)
+c    dfloor - density floor in fraction of code units
 c
 c  OUTPUT:
 c    dslice - extracted 2d slice of the density, d
@@ -84,8 +86,8 @@ c
 c  argument declarations
 c
       INTG_PREC gravity, i1, i2, idiff, idim, idual, j1, j2, 
-     &       jdim, ncolor
-      R_PREC    dt, eta1, eta2, gamma
+     &       jdim, ncolor, idfloor
+      R_PREC    dt, eta1, eta2, gamma, dfloor
       R_PREC diffcoef(idim,jdim),  dslice(idim,jdim),      dx(idim   ),
      &       eslice(idim,jdim), grslice(idim,jdim), geslice(idim,jdim),
      &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim)
@@ -134,9 +136,14 @@ c          if (dnu(i) .le. 0.0 .or. eslice(i,j)*dslice(i,j) +
 c     &      qc*(dueb(i)-dueb(i+1)+upb(i)-upb(i+1)) .lt. 0.0) then
 
 c
-c     A small cheat: if idual is on, assume a cosmo sim, and institute a
-c     minimum density.  This should be a parameter and pased in.
+c     Apply density floor if being used. Update inv density field
 c
+          if (idfloor .eq. 1) then
+              dnu(i)    = max(dnu(i), dfloor)
+              dnuinv(i) = 1._RKIND/dnu(i)
+          endif
+     
+
           if (idual .eq. 1 .and. gravity .eq. 1) 
      &         dnu(i) = max(dnu(i),1.e-3_RKIND)
 

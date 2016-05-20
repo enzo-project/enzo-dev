@@ -387,6 +387,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DualEnergyFormalism         = FALSE;             // off
   DualEnergyFormalismEta1     = 0.001;             // typical 0.001
   DualEnergyFormalismEta2     = 0.1;               // 0.08-0.1
+  UseDensityFloor             = 0;                 // on or off
+  DensityFloor                = 1.0E-3;            // density floor (in code units)
   ParticleCourantSafetyNumber = 0.5;
   RootGridCourantSafetyNumber = 1.0;
   RandomForcing               = FALSE;             // off //AK

@@ -513,6 +513,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &DualEnergyFormalismEta1);
     ret += sscanf(line, "DualEnergyFormalismEta2 = %"FSYM,
 		  &DualEnergyFormalismEta2);
+    ret += sscanf(line, "UseDensityFloor = %"ISYM, &UseDensityFloor);
+    ret += sscanf(line, "DensityFloor    = %"FSYM, &DensityFloor);
     ret += sscanf(line, "ParticleCourantSafetyNumber = %"FSYM,
 		  &ParticleCourantSafetyNumber);
     ret += sscanf(line, "RootGridCourantSafetyNumber = %"FSYM,
