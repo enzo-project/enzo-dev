@@ -144,8 +144,8 @@ c
           endif
      
 
-          if (idual .eq. 1 .and. gravity .eq. 1) 
-     &         dnu(i) = max(dnu(i),1.e-3_RKIND)
+c          if (idual .eq. 1 .and. gravity .eq. 1) 
+c     &         dnu(i) = max(dnu(i),1.e-3_RKIND)
 
           uold(i)     = uslice(i,j)
 c          write(20,*) i, uslice(i,j), (uslice(i,j)*dslice(i,j) +
