@@ -85,4 +85,4 @@ extern "C" void FORTRAN_NAME(euler)(
 		int *gravity, int *idual, float *eta1, float *eta2, float *df, 
 		float *ef, float *uf, float *vf, float *wf, float *gef,
 		float *ges,
-		int *ncolor, float *colslice, float *colf);
+		int *ncolor, float *colslice, float *colf, float *dfloor);
