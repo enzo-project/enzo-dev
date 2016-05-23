@@ -357,14 +357,6 @@ EXTERN int DualEnergyFormalism;
 EXTERN float DualEnergyFormalismEta1;
 EXTERN float DualEnergyFormalismEta2;
 
-/* Density floor (TRUE or FALSE) */
-
-EXTERN int UseDensityFloor;
-
-/* Value for density floor in code units */
-
-EXTERN float DensityFloor;
-
 /* This is the particle equivalent of the Courant factor.  It is the maximum
    number of cells a particle is allowed to travel in a single timestep. */
 
