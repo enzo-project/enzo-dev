@@ -1097,6 +1097,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarKroupaAlpha3);
     ret += sscanf(line, "IndividualStarMassFraction = %"FSYM,
                         &IndividualStarMassFraction);
+    ret += sscanf(line, "IndividualStarAGBThreshold = %"FSYM,
+                        &IndividualStarAGBThreshold);
     ret += sscanf(line, "IndividualStarSNIIMassCutoff = %"FSYM,
                         &IndividualStarSNIIMassCutoff);
     ret += sscanf(line, "IndividualStarPSNMassCutoff = %"FSYM,
