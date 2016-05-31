@@ -41,6 +41,11 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			     bool &MarkedSubgrids)
 {
 
+  // AJE-memleak
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return SUCCESS;
+  }
+
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 

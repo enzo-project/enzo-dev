@@ -42,6 +42,11 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+      return SUCCESS;
+  } // AJE-memleak
+
   Star *ThisStar, *OtherStar, *LastStar, *MoveStar;
   LevelHierarchyEntry *Temp;
   float rmerge2, rmerge2o, dx, dx2;
@@ -49,9 +54,9 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   int dim, level;
   const float pc = 3.086e18;
 
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
-    return SUCCESS; // no merging!!!
-  }
+//  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+//    return SUCCESS; // no merging!!!
+//  }
 
   /* Get the time at the finest level */
   

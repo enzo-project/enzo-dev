@@ -107,6 +107,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     if (cstar->ReturnType() == -IndividualStar){
       AddedFeedback[count] = TRUE;
+      break; // AJE-memleak
     }
 
     dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();

@@ -36,6 +36,11 @@ void Star::CalculateFeedbackParameters(float &Radius,
 				       float VelocityUnits, float dtForThisStar,
 				       FLOAT Time, bool &SphereCheck)
 {
+  // AJE-memleak
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return;
+  }
+
 
   // Parameters for the Stroemgren sphere in Whalen et al. (2004)
   const float	BirthRadius	  = 50;		// pc

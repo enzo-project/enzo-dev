@@ -37,6 +37,11 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int StarParticleSetRefinementLevel(Star *AllStars)
 {
 
+  // AJE-memleak
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return SUCCESS;
+  }
+
   if (PopIIISupernovaMustRefine == FALSE)
     return SUCCESS;
 
