@@ -59,33 +59,41 @@ int IndividualStarProperties_Initialize(void){
   IndividualStarPropertiesData.Teff = new float*[IndividualStarPropertiesData.NumberOfMassBins];
   IndividualStarPropertiesData.R    = new float*[IndividualStarPropertiesData.NumberOfMassBins];
   IndividualStarPropertiesData.L    = new float*[IndividualStarPropertiesData.NumberOfMassBins];
+  IndividualStarPropertiesData.lifetime    = new float*[IndividualStarPropertiesData.NumberOfMassBins];
+  IndividualStarPropertiesData.agb_start = new float*[IndividualStarPropertiesData.NumberOfMassBins];
 
   /* fill arrays in each dimension */
   for (int i = 0; i < IndividualStarPropertiesData.NumberOfMassBins; i++){
     IndividualStarPropertiesData.Teff[i] = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
     IndividualStarPropertiesData.R[i]    = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
     IndividualStarPropertiesData.L[i]    = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
+    IndividualStarPropertiesData.lifetime[i]    = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
+    IndividualStarPropertiesData.agb_start[i] = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
 
     /* need to do NULL things if I move away from hard coding sizes above */
   }
 
   /* read in the data */
   int i, j, err;
-  float L, Teff, R;
+  float L, Teff, R, lifetime, agb_start;
   i = 0; j = 0;
   while( fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
 
     if(line[0] != '#'){
-      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
                          &IndividualStarPropertiesData.M[i],
                          &IndividualStarPropertiesData.Z[j],
                          &L,
                          &Teff,
-                         &R);
+                         &R,
+                         &lifetime,
+                         &agb_start);
       // un-log the data
-      IndividualStarPropertiesData.L[i][j]    = POW(10.0, L);
-      IndividualStarPropertiesData.Teff[i][j] = POW(10.0, Teff);
-      IndividualStarPropertiesData.R[i][j]    = POW(10.0, R);
+      IndividualStarPropertiesData.L[i][j]           = POW(10.0, L);
+      IndividualStarPropertiesData.Teff[i][j]        = POW(10.0, Teff);
+      IndividualStarPropertiesData.R[i][j]           = POW(10.0, R);
+      IndividualStarPropertiesData.lifetime[i][j]    = lifetime;
+      IndividualStarPropertiesData.agb_start[i][j] = agb_start;
 
       j++;
       if ( j >= IndividualStarPropertiesData.NumberOfMetallicityBins){

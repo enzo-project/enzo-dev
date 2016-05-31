@@ -223,8 +223,14 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
       if(ChemicalEvolutionTestStarLifetime > 0){
         ParticleAttribute[1][0] = ChemicalEvolutionTestStarLifetime * myr / (t1);
       } else{
-        ParticleAttribute[1][0] = IndividualStarLifetime(ChemicalEvolutionTestStarMass,
-                                                         ChemicalEvolutionTestStarMetallicity) / (t1);
+        // last arg tells function to return total stellar lifetime
+        if(IndividualStarInterpolateLifetime(ParticleAttribute[1][0], ChemicalEvolutionTestStarMass,
+                                                                      ChemicalEvolutionTestStarMetallicity, 1) == FAIL){
+            ENZO_FAIL("Failure in stellar lifetime interpolation");
+        }
+
+        ParticleAttribute[1][0] /= t1; // convert from s to code units
+
       }
 
       ParticleAttribute[3][0] = ChemicalEvolutionTestStarMass; // in solar!!!
@@ -572,12 +578,15 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               for (istar = index_presf; istar < ii; istar++){
 
                 ParticleType[istar]            = - PARTICLE_TYPE_INDIVIDUAL_STAR;   // negative is a "new" star
-                ParticleAttribute[0][istar]    = this->Time;          // formation tim
+                ParticleAttribute[0][istar]    = this->Time;                        // formation time
                 ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metal fraction (conv from density in Grid_StarParticleHandler)
 
 
-                ParticleAttribute[1][istar] = IndividualStarLifetime( ParticleMass[istar],
-                                                                      ParticleAttribute[2][istar]) / (t1);
+                if(IndividualStarInterpolateLifetime(ParticleAttribute[1][istar], ParticleMass[istar],
+                                                                                  ParticleAttribute[2][istar], 1) == FAIL){
+                  ENZO_FAIL("Error in stellar lifetime interpolation");
+                }
+                ParticleAttribute[1][istar] /= t1; // convert from s to code units
 
 
                 ParticleAttribute[3][istar]    = ParticleMass[istar]; //progenitor mass in solar (main sequence mass)
@@ -835,7 +844,6 @@ int grid::individual_star_feedback(int *np,
   int ip, jp, kp, index; // particle location
 
   int do_stellar_winds, go_supernova;
-  float stellar_wind_time_fraction;
 
   const float fudge_factor = 1.0E10; // see comment below - hack to get WD and SNIa to work
 
@@ -871,19 +879,27 @@ int grid::individual_star_feedback(int *np,
 
     do_stellar_winds           = FALSE;
     go_supernova               = FALSE;
-    stellar_wind_time_fraction = 0.0;
 
     if(ParticleType[i] == IndividualStar){
       if(IndividualStarStellarWinds){
-        if (particle_age + this->dtFixed < lifetime){
-          do_stellar_winds = TRUE;
-          stellar_wind_time_fraction = 1.0;
-        } else if (particle_age < lifetime){
-          do_stellar_winds = TRUE;
-          stellar_wind_time_fraction = (lifetime - particle_age) / (this->dtFixed);
+
+        float wind_start_age = 0.0;
+        if(birth_mass < IndividualStarAGBThreshold){
+          // star has AGB phase, do winds only in last fraction of lifetime
+          if(IndividualStarInterpolateLifetime(wind_start_age, birth_mass,
+                                               ParticleAttribute[2][i], 2) == FAIL){
+            ENZO_FAIL("IndividualStarFeedback: Failure in main sequence lifetime interpolation");
+          }
         }
+
+        // dt addition here so stars w/ unresolved agb phases dump all winds at last timestep
+        if (particle_age  < lifetime && particle_age + this->dtFixed > wind_start_age){
+          do_stellar_winds = TRUE;
+        }
+
       } // end winds check
 
+      // move all attribute changes until AFTER feedback has occured!!!!!
       if ( birth_mass >= IndividualStarSNIIMassCutoff && ((particle_age + this->dtFixed) > lifetime)){
         go_supernova = TRUE;
         ParticleAttribute[1][i] = lifetime*1.0E10; // lifetime set to arbitrarily large number
@@ -946,10 +962,10 @@ int grid::individual_star_feedback(int *np,
 
           /* Apply stellar wind feedback. Determined by setting last arguemtn to -1 */
           this->IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
-                                           ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
-                                           birth_mass, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, -1);
+                                                 ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
+                                                 birth_mass, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, -1);
 
-          ParticleMass[i] = mp; // update particle mass with mass loss from above
+          ParticleMass[i] = mp* (msolar/m1) / (dx*dx*dx); // update particle mass and put in code units
         }
 
         // call feedback function to do supernova feedback (either SNIa or core collapse)
@@ -959,10 +975,10 @@ int grid::individual_star_feedback(int *np,
             printf("Calling feedback to do cc supernova");
             /* do core collapse supernova feedback - set by last value == 1 */
             this->IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
-                                             ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
-                                             birth_mass, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 1);
+                                                   ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
+                                                   birth_mass, ParticleAttribute[1][i], ParticleAttribute[2][i], &mp, 1);
 
-            ParticleMass[i] = mp;
+            ParticleMass[i] = mp * (msolar/m1) / (dx*dx*dx); // update particle mass and put in code units
             ParticleType[i] = IndividualStarRemnant; // change type
             ParticleAttribute[1][i] = 1.0E10 * ParticleAttribute[1][i];
           } else{
@@ -977,6 +993,12 @@ int grid::individual_star_feedback(int *np,
 
           }
 
+
+
+
+
+
+          // put attriute changes here
         }
 
         // if we went supernova, check if radius is resolved:
@@ -1057,13 +1079,20 @@ void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity
 
   const double solar_z = 0.02; // as assumed in Leithener et. al. 1992
   const double yr      = 3.16224E7; // number of seconds in a year
+  const double solar_L = 3.9E33;
+
  
   /* get properties */
-  L = IndividualStarLuminosity(mproj, lifetime);
-  IndividualStarInterpolateProperties(Teff, R, mproj, metallicity);
+  if(IndividualStarInterpolateLuminosity(L, mproj, metallicity) == FAIL){
+    ENZO_FAIL("ComputeStellarWindMassLossRate: Failed to interpolate luminosity");
+  }
+
+  if(IndividualStarInterpolateProperties(Teff, R, mproj, metallicity) == FAIL){
+    ENZO_FAIL("ComputeStellarWindMassLossRate: Failed to interpolate stellar properties");
+  }
 
   /* compute logged mass loss rate */
-  *dMdt = -24.06 + 2.45 * log10(L) - 1.10 * log10(mproj) + 1.31 * log10(Teff)
+  *dMdt = -24.06 + 2.45 * log10(L/solar_L) - 1.10 * log10(mproj) + 1.31 * log10(Teff)
                                    + 0.80 * log10(metallicity / solar_z);
 
   *dMdt = POW(10.0, *dMdt) / yr ; // Msun / yr -> Msun / s
@@ -1086,23 +1115,26 @@ void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
   float L, Teff, Z, R;
 
   const double solar_z = 0.02; // as assumed in Leithener et. al. 1992
+  const double solar_L = 3.9E33;
 
   /* get properties */
-  L = IndividualStarLuminosity(mproj, lifetime);
-  IndividualStarInterpolateProperties(Teff, R, mproj, metallicity);
-
+  if (IndividualStarInterpolateLuminosity(L, mproj, metallicity) == FAIL){
+    ENZO_FAIL("ComputeStellarWindVelocity: failure in interpolating luminosity");
+  }
+  if( IndividualStarInterpolateProperties(Teff, R, mproj, metallicity) == FAIL){
+    ENZO_FAIL("ComputeStellarWindVelocity: failure in interpolating stellar properties");
+  }
 
   // wind is in units of km / s
   // L - solar units
   // T - Kelvin
   // M - solar units
   // Z - solar units
-  *v_wind = 1.23 - 0.30*log10(L) + 0.55 * log10(mproj) + 0.64 * log10(Teff) + 0.13*log10(metallicity/solar_z);
+  *v_wind = 1.23 - 0.30*log10(L/solar_L) + 0.55 * log10(mproj) + 0.64 * log10(Teff) + 0.13*log10(metallicity/solar_z);
   *v_wind = POW(10.0, *v_wind);
 }
 
 
-/* AJE: 4/17 - since making this member function can clean up arguements A LOT - to do */
 int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
                        const float &up, const float &vp, const float &wp,
                        const float &mproj, const float &lifetime, const float &metallicity,
@@ -1144,19 +1176,35 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 
   /* handle mass removal from particle here */
 
+  float wind_dt = 0.0;
   if (mode < 0){ // computing stellar winds
 
     /* compute ejecta mass - use yield tables if yields are tracked, otherwise use model */
     if ( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
       m_eject   = StellarYieldsInterpolateYield(1, mproj, metallicity, -1) *msolar/ m1; /* first arg, 1 = wind ; last -1 = tot mass */
-      m_eject  /= lifetime ; // average mass loss rate over lifetime
+
+      float wind_lifetime = lifetime;
+      if (mproj < IndividualStarAGBThreshold){
+        if(IndividualStarInterpolateLifetime(wind_lifetime, mproj, metallicity, 2) == FAIL){
+          ENZO_FAIL("Individual star add feedback general: failure in interpolating lifetime");
+        }
+      }
+
+      // make sure we don't overinject mass
+      wind_dt = fmin( this->Time - lifetime, fmin(this->dtFixed, wind_lifetime));
+
+      m_eject  /= wind_lifetime ; // average mass loss rate over lifetime
+
     } else{
       // gives m_eject as Msun / s
       ComputeStellarWindMassLossRate(mproj, metallicity, lifetime * (x1/v1), &m_eject);
       m_eject = m_eject * msolar / m1 * (x1/v1);  // convert to code mass / code time
+
+      // make sure we don't over-inject mass (i.e. partial timestep)
+      wind_dt = fmin( this->Time - lifetime, this->dtFixed);
     }
 
-    m_eject = m_eject * this->dtFixed; // ejected mass is mass loss rate * dt
+    m_eject = m_eject * wind_dt; // ejected mass is mass loss rate * dt
 
     E_thermal = 0.0;
 
@@ -1264,7 +1312,8 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
                                            up, vp, wp,
                                            m_eject, E_thermal, E_kin, p_feedback, metal_mass); // function call
 
-  *mp = (*mp)*msolar/m1 /(dx*dx*dx) - m_eject; // remove mass from particle - in code units now
+  // subtract mass from particle (in solar units)
+  *mp = (*mp) - m_eject * (dx*dx*dx)*m1/msolar;
 
   if( *mp < 0 && mode != 2){ // ignore this check for SNIa yields
       ENZO_FAIL("IndividualStarFeedback: Ejected mass greater than current particle mass - negative particle mass!!!\n");

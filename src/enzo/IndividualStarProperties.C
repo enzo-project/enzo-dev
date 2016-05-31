@@ -55,57 +55,6 @@ int LinearInterpolationCoefficients(float &t, float &u, float &v, int &i, int &j
                                     const int &x1a_size, const int &x2a_size, const int &x3a_size);
 
 
-
-
-
-
-float IndividualStarLifetime(const float &mp, const float &metallicity){
-  /* ========================================================
-   * IndividualStarLifetime
-   * --------------------------------------------------------
-   * A. Emerick - March 2016
-   *
-   * Compute star lifetime by interpolating tables to obtain L
-   * and scale based upon solar lifetime
-   *
-   * mp is assumed to be in solar masses
-   * =======================================================*/
-
-  float L, lifetime;
-
-  /* for testing purposes w/o feedback - hack to never kill stars
-     to prevent instantaneous change in local mass in cells when star dies
-     (no feedback = no gradual mass loss and no mass conservation) */
-  if (IndividualStarInfiniteLifetimes){
-    return SOLAR_LIFETIME * 1.0E10;
-  }
-
-  if(IndividualStarInterpolateLuminosity(L, mp, metallicity) == FAIL){
-    ENZO_FAIL("IndividualStarLifetime: Failed to interpolate luminosity \n");
-  }
-
-  // L from above is in solar units already
-  lifetime = SOLAR_LIFETIME * (mp) / (L);
-
-  return lifetime;
-}
-
-float IndividualStarLuminosity(const float &mp, const float &lifetime){
-  /* -----------------------------------------------------
-   * IndividualStarLuminosity
-   * -----------------------------------------------------
-   * A. Emerick - March 2016
-   *
-   * Since lifetime is computed using the luminosity, return
-   * luminosity given mass and lifetime to avoid having to store
-   * the value for luminosity in the simulation
-   *
-   * M in solar, lifetime in cgs
-   * ------------------------------------------------------ */
-
-  return SOLAR_LUMINOSITY * (mp)/ ( lifetime / SOLAR_LIFETIME);
-}
-
 float IndividualStarSurfaceGravity(const float &mp, const float &R){
   /* ----------------------------------------------------
    * IndividualStarSurfaceGravity
@@ -286,6 +235,62 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
 
   return SUCCESS;
 }
+
+int IndividualStarInterpolateLifetime(float &tau, const float &M, const float &metallicity, const int &mode){
+  /* ================================================================
+   * IndividualStarInterpolateLifetime
+   * ================================================================
+   * A. Emerick - May 2016
+   *
+   * Performs billinear interpolation over star mass and metallicity
+   * to compute stellar lifetime using the PARSEC stellar evolution
+   * tracks. Returns either the total stellar lifetime (mode = 1)
+   * or the main sequence lifetime (mode = 2) of the star in seconds.
+   * ================================================================
+   */
+
+  int   i, j; // indexes
+  float t, u; // interpolation coefficients
+
+  float Z = metallicity;
+
+  if( LinearInterpolationCoefficients(t, u, i, j, M, Z,
+                                      IndividualStarPropertiesData.M, IndividualStarPropertiesData.Z,
+                                      IndividualStarPropertiesData.NumberOfMassBins, IndividualStarPropertiesData.NumberOfMetallicityBins) == FAIL){
+    /* if interpolation fails, fail here */
+    float value, value_min, value_max;
+    printf("IndividualStarInterpolateProperties: Failure in interpolation ");
+
+    if( t < 0){
+      printf("Mass out of bounds ");
+      value = M; value_min = IndividualStarPropertiesData.M[0]; value_max = IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins-1];
+    } else if (u < 0){
+      printf("Metallicity out of bounds ");
+      value = Z; value_min = IndividualStarPropertiesData.Z[0]; value_max = IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins-1];
+    }
+    printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
+    return FAIL;
+  }
+
+
+  /* Now apply the coefficients and compute the effective temperature */
+  if (mode == 1){ // total star lifetime
+    tau = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.lifetime[i  ][j  ] +
+          (1.0 - t)*(      u) * IndividualStarPropertiesData.lifetime[i  ][j+1] +
+          (      t)*(      u) * IndividualStarPropertiesData.lifetime[i+1][j+1] +
+          (      t)*(1.0 - u) * IndividualStarPropertiesData.lifetime[i+1][j  ] ;
+  } else if (mode == 2){ // main sequence lifetime
+    tau = (1.0 - t)*(1.0 - u) * IndividualStarPropertiesData.agb_start[i  ][j  ] +
+          (1.0 - t)*(      u) * IndividualStarPropertiesData.agb_start[i  ][j+1] +
+          (      t)*(      u) * IndividualStarPropertiesData.agb_start[i+1][j+1] +
+          (      t)*(1.0 - u) * IndividualStarPropertiesData.agb_start[i+1][j  ] ;
+  } else{
+    ENZO_FAIL("IndividualStarInterpolateProperties: Failure in lifetime interpolation, mode must be set to either 1 or 2");
+  }
+
+  return SUCCESS;
+}
+
 
 int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &metallicity){
   /* =================================================================

@@ -10,15 +10,14 @@
 #endif
                                          // INPUT - OUTPUT
 // mass input always in solar masses, everything else always cgs (in and out)
-float IndividualStarLifetime(const float &mp, const float &metallicity); // solar, fraction - cgs
-float IndividualStarLuminosity(const float &mp, const float &lifetime); // solar, cgs - cgs
 float IndividualStarSurfaceGravity(const float &mp, const float &R);
-
 
 /* Functions for stellar properties data */
 int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &metallicity);
 int IndividualStarInterpolateProperties(float &Teff, float &R,
                                         const float &M, const float &metallicity);
+
+int IndividualStarInterpolateLifetime(float & tau, const float &M, const float &metallicity, const int &mode);
 
 
 /* Functions for radiation data */

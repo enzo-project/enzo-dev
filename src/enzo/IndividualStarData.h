@@ -46,6 +46,8 @@ struct IndividualStarPropertiesDataType
   float **Teff;
   float **R;
   float **L;
+  float **lifetime;
+  float **agb_start;
 
   // bin values
   float *M; // mass (solar)

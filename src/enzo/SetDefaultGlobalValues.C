@@ -720,6 +720,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarKroupaAlpha3        = 2.3;
   IndividualStarMassFraction        = 0.5;
   IndividualStarSNIIMassCutoff      = 8.0;          // Solar masses
+  IndividualStarAGBThreshold        = 8.0;          // solar masses - stars below this mass have winds at end of life only
   IndividualStarWDMinimumMass       = 1.7;          // Solar masses
   IndividualStarWDMaximumMass       = 8.0;          // solar masses
   IndividualStarSNIaMinimumMass     = 3.0;          // Solar masses
