@@ -175,6 +175,10 @@ General
 ``PPMSteepeningParameter`` (external)
     A PPM modification designed to sharpen contact discontinuities. It
     is either on (1) or off (0). Default: 0
+``SmallRho`` (external)
+    Minimum value for density in code units. Enforced when using the PPM
+    solver in euler.F or when ``HydroMethod`` is 3 or 4 in
+     hydro_rk/EvolveLevel_RK.C. Default: 1e-30
 ``ZEUSQuadraticArtificialViscosity`` (external)
     This is the quadratic artificial viscosity parameter C2 of Stone &
     Norman, and corresponds (roughly) to the number of zones over which
@@ -324,8 +328,6 @@ Because many of the following parameters are not actively being tested and maint
     This parameter is used to add resistivity and thereby update magnetic fields in some set-ups; see ComputeResistivity in hydro_rk/Grid_AddResistivity.C.  Default: 0
 ``UsePhysicalUnit`` (external)
     For some test problems (mostly in hydro_rk), the relevant parameters could be defined in physical CGS units.  Default: 0
-``SmallRho`` (external)
-    Minimum value for density in hydro_rk/EvolveLevel_RK.C.  Default: 1e-30 (note that the default value assumes UsePhysicalUnit = 1)
 ``SmallT`` (external)
     Minimum value for temperature in hydro_rk/EvolveLevel_RK.C.  Default: 1e-10 (note that the default value assumes UsePhysicalUnit = 1)
 ``SmallP``
