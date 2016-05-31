@@ -138,8 +138,8 @@ int grid::ComputeCellCenteredField(int Num)
 	} // ENDFOR j
       
     } // ENDELSE subgrid marker
-  }
 #endif /* TRANSFER */
+  }
   
   return SUCCESS;
 }
