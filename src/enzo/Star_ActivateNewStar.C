@@ -26,7 +26,7 @@
 void Star::ActivateNewStar(FLOAT Time, float Timestep)
 {
   int StarType;
-  FILE *fptr;
+
   if (this->IsUnborn()) {  // unborn
     StarType = ABS(type);
     switch (StarType) {
