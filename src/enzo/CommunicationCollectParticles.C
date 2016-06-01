@@ -99,7 +99,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
   star_data *StarSendList = NULL;
   star_data *StarSharedList = NULL;
 
-  int NumberOfReceives, StarNumberOfReceives, TotalNumber;
+  int NumberOfReceives, StarNumberOfReceives, TotalNumber, TotalStars;
   int *NumberToMove = new int[NumberOfProcessors];
   int *StarsToMove = new int[NumberOfProcessors];
 
@@ -178,7 +178,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 	if (MoveStars)
 	  GridHierarchyPointer[j]->GridData->TransferSubgridStars
 	    (SubgridPointers, NumberOfSubgrids, StarsToMove, Zero, Zero, 
-	     StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT); 
+	     StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, TRUE); 
 
 	GridHierarchyPointer[j]->GridData->TransferSubgridParticles
 	    (SubgridPointers, NumberOfSubgrids, NumberToMove, Zero, Zero, 
@@ -189,11 +189,15 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     /* Now allocate the memory once and store the particles to move */
 
     TotalNumber = 0;
+    TotalStars = 0;
     for (j = 0; j < NumberOfProcessors; j++) {
       TotalNumber += NumberToMove[j];
+      TotalStars += StarsToMove[j];
       NumberToMove[j] = 0;  // Zero-out to use in the next step
+      StarsToMove[j] = 0;  // Zero-out to use in the next step
     }
     SendList = new particle_data[TotalNumber];
+    StarSendList = new star_data[TotalStars];
 
     for (j = 0; j < NumberOfGrids; j++)
       if (GridHierarchyPointer[j]->NextGridNextLevel != NULL) {
@@ -202,6 +206,10 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 	    GridHierarchyPointer[j]->GridData->ReturnNumberOfStars() == 0)
 	  continue;
 
+	GridHierarchyPointer[j]->GridData->TransferSubgridStars
+	    (SubgridPointers, NumberOfSubgrids, StarsToMove, Zero, Zero, 
+	     StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, FALSE);
+ 
 	GridHierarchyPointer[j]->GridData->TransferSubgridParticles
 	    (SubgridPointers, NumberOfSubgrids, NumberToMove, Zero, Zero, 
 	     SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, FALSE);

@@ -179,6 +179,7 @@ public:
 
   Star* StarBufferToList(StarBuffer *buffer, int n);
   StarBuffer* StarListToBuffer(int n);
+  void StarToBuffer(StarBuffer *result);
   
 };
 

@@ -1630,7 +1630,8 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			   int EndIndex, star_data* &List, 
 			   bool KeepLocal, bool ParticlesAreLocal,
 			   int CopyDirection,
-			   int IncludeGhostZones = FALSE);
+			   int IncludeGhostZones = FALSE,
+			   int CountOnly = FALSE);
 
 // -------------------------------------------------------------------------
 // Helper functions (should be made private)
