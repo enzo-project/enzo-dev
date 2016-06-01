@@ -450,9 +450,6 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 	  (j, StarsToMove, StartNum, Zero, StarSendList, COPY_OUT);
     } // ENDIF MoveStars
 
-    if (StarsToMove[MyProcessorNumber] > 0)
-      printf("CCP: moving stars!\n");
-
     /* Share the particle move list */
 
     NumberOfReceives = 0;

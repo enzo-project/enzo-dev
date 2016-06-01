@@ -569,10 +569,9 @@ RadiationSourceEntry* Star::RadiationSourceInitialize(void)
      CONVERSION ROUTINES FROM/TO ARRAY BUFFERS
 **************************************************/
 
-StarBuffer* Star::StarListToBuffer(int n)
+void Star::StarListToBuffer(StarBuffer *&result, int n)
 {
   int i, count = 0;
-  StarBuffer *result = new StarBuffer[n];
   Star *tmp = this;
   while (tmp != NULL) {
     for (i = 0; i < MAX_DIMENSION; i++) {
@@ -609,7 +608,7 @@ StarBuffer* Star::StarListToBuffer(int n)
     count++;
     tmp = tmp->NextStar;
   }
-  return result;
+  return;
 }
 
 void Star::StarToBuffer(StarBuffer *result)
@@ -646,4 +645,5 @@ void Star::StarToBuffer(StarBuffer *result)
   result->GridID = tmp->GridID;
   result->type = tmp->type;
   result->AddedEmissivity = tmp->AddedEmissivity;
+  return;
 }
