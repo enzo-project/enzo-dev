@@ -137,6 +137,14 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
  
       /* Move stars into list */
 
+      // Increase the size of the list to include the stars from this grid
+
+      star_data *NewList = new star_data[TotalToMove];
+      memcpy(NewList, List, PreviousTotalToMove * sizeof(star_data));
+      delete [] List;
+      List = NewList;
+
+
       int n1 = PreviousTotalToMove;
 
       cstar = Stars;
