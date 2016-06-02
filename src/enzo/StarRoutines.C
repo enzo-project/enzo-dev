@@ -634,6 +634,7 @@ void Star::StarToBuffer(StarBuffer *result)
   result->FinalMass = tmp->FinalMass;
   result->DeltaMass = tmp->DeltaMass;
   result->BirthTime = tmp->BirthTime;
+  result->BirthMass = tmp->BirthMass;
   result->LifeTime = tmp->LifeTime;
   result->Metallicity = tmp->Metallicity;
   result->deltaZ = tmp->deltaZ;
