@@ -169,7 +169,6 @@ SPEXTERN float IndividualStarStellarWindVelocity;
 SPEXTERN int   IndividualStarFUVHeating;
 SPEXTERN float IndividualStarFUVMinimumMass;
 SPEXTERN float IndividualStarFUVTemperatureCutoff;
-SPEXTERN int   IndividualStarInfiniteLifetimes;
 
 
 SPEXTERN float minStarLifetime;

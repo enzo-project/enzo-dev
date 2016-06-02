@@ -1141,8 +1141,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarSupernovaEnergy);
     ret += sscanf(line, "IndividualStarFUVTemperatureCutoff = %"FSYM,
                         &IndividualStarFUVTemperatureCutoff);
-    ret += sscanf(line, "IndividualStarInfiniteLifetimes = %"ISYM,
-                        &IndividualStarInfiniteLifetimes);
 
     ret += sscanf(line, "IndividualStarFUVHeating = %"ISYM,
                         &IndividualStarFUVHeating);
