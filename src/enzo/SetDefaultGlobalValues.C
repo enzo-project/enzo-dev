@@ -708,6 +708,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   // AJE Individual Star
   IndividualStarAllowTruncatedIMF   = 0;            // on or off - truncates IMF for low mass regions if on
+  IndividualStarSecondaryOverDensityThreshold = -1; // in cc - if < 0, set to over density thresh in ReadParamFile
   IndividualStarIMFUpperMassCutoff  = 100.0;        // Solar masses
   IndividualStarIMFLowerMassCutoff  =   1.0;        // Solar masses
   IndividualStarVelocityDispersion  =   1.0;        // km/s

@@ -142,7 +142,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   int xo, yo, zo, rsign=1;
   float bmass, div, star_mass=0.0, sum_mass=0.0;
   float pstar, mass_to_stars, mass_available, tdyn;
-  float dtot, isosndsp2, jeansmass, star_fraction, odthreshold;
+  float dtot, isosndsp2, jeansmass, star_fraction;
   float umean, vmean, wmean, px, py, pz, px_excess, py_excess, pz_excess;
   float rnum;
   const double m_h = 1.673e-24;
@@ -290,8 +290,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
     // over density threshold in code units
     // if multispecies is off, assumes a value for MU
+    float odthreshold, secondary_odthreshold;
     if (MultiSpecies == FALSE){
-        odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (d1); // code density
+        odthreshold           = StarMakerOverDensityThreshold * m_h * (*mu) / (d1); // code density
+        secondary_odthreshold = IndividualStarSecondaryOverDensityThreshold * m_h * (*mu) / (d1);
     }
 
     // loop over all cells, check condition, form stars stochastically
@@ -351,6 +353,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
             mu_cell = BaryonField[DensNum][index] / (number_density * m_h);
             odthreshold = StarMakerOverDensityThreshold * (mu_cell) * m_h / (d1);
+
+            secondary_odthreshold = IndividualStarSecondaryOverDensityThreshold * (mu_cell) * m_h / d1;
           }
 
 
@@ -393,7 +397,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                   for (int i_loc = -istart; i_loc <= iend; i_loc++){
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(ny))*(nx);
 
-                    if(BaryonField[DensNum][loc_index] > odthreshold){
+                    if(BaryonField[DensNum][loc_index] > secondary_odthreshold){
                       float current_cell_mass = BaryonField[DensNum][loc_index]*(dx*dx*dx)*m1/msolar;
                       bmass += current_cell_mass; // solar masses
                       number_of_sf_cells++;
@@ -691,7 +695,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                   for (int i_loc = -istart; i_loc <= iend; i_loc++){
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(ny))*(nx);
 
-                    if(BaryonField[DensNum][loc_index] > odthreshold){
+                    if(BaryonField[DensNum][loc_index] > secondary_odthreshold){
                       // mass is removed as weighted by the previous cell mass (more mass is
                       // taken out of higher density regions). M_new = M_old - M_sf * (M_old / M_tot)
                       // where M_tot is mass of cells that meet above SF conditions. Simplifies to below eq:

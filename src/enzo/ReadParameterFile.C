@@ -1073,6 +1073,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* AJE Individual Star */
     ret += sscanf(line, "IndividualStarAllowTruncatedIMF = %"ISYM,
                         &IndividualStarAllowTruncatedIMF);
+    ret += sscanf(line, "IndividualStarSecondaryOverDensityThreshold = %"FSYM,
+                        &IndividualStarSecondaryOverDensityThreshold);
     ret += sscanf(line, "IndividualStarTemperatureThreshold = %"FSYM,
                         &IndividualStarTemperatureThreshold);
     ret += sscanf(line, "IndividualStarIMFUpperMassCutoff = %"FSYM,
@@ -1448,6 +1450,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
   }
 
+
+  /* AJE - */
+  if (IndividualStarSecondaryOverDensityThreshold < 0){
+    IndividualStarSecondaryOverDensityThreshold = StarMakerOverDensityThreshold;
+  }
 
   /* AJE  - Count up the number of species we are following if not set manually by user*/
   if (StellarYieldsNumberOfSpecies == INT_UNDEFINED){
