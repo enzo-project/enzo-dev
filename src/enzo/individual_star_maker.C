@@ -435,73 +435,105 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                   M_max_star = IndividualStarIMFUpperMassCutoff;
               }
 
-              // calculate mass in cell that can be converted to stars in timestep
-              // generally this should be small (comparable to or less than the lower mass
-              // cutoff of the IMF)
 
-              star_fraction  = min(StarMakerMassEfficiency*(this->dtFixed)/tdyn, 1.0);
-              mass_to_stars  = star_fraction * bmass;
-              mass_available = StarMakerMassEfficiency * bmass;
-              mass_to_stars  = min(mass_to_stars, mass_available);
+              if(IndividualStarSFAlgorithm == 0){
+                // calculate mass in cell that can be converted to stars in timestep
+                // generally this should be small (comparable to or less than the lower mass
+                // cutoff of the IMF)
 
-              // If mass_to_stars greater than available mass, convert
-              // all of available mass into stars
-              // Frankly this is very unlikely to occur...
-              // Tests as of 2/22/16 show NO SF here for at least 10^5 stars in a LMC dwarf galaxy
-              if(mass_to_stars >= mass_available){
-                mass_to_stars = mass_available;
-                while( ii < *nmax && mass_to_stars > M_max_star){
-                  ParticleMass[ii] = SampleIMF();
-                  sum_mass        += ParticleMass[ii]; // counter for mass formed in this cell
-                  mass_to_stars   -= ParticleMass[ii]; // reduce available mass
-                  ii++;
-                }
-              }
+                star_fraction  = min(StarMakerMassEfficiency*(this->dtFixed)/tdyn, 1.0);
+                mass_to_stars  = star_fraction * bmass;
+                mass_available = IndividualStarMassFraction * bmass; // AJE - fixed 6/4
+                mass_to_stars  = min(mass_to_stars, mass_available);
 
-              // Tests (as of 2/22/16) show NO SF here for at least the first 10^5 stars
-              if (mass_to_stars > M_max_star){
-                while (ii < *nmax && mass_to_stars > M_max_star){
-                  ParticleMass[ii]  = SampleIMF();
-                  sum_mass         += ParticleMass[ii];
-                  mass_to_stars    -= ParticleMass[ii];
-                  ii++;
-                }
-              }
-
-              // If mass is above IMF lower limit, star formation will happen.
-              // Just form stars randomly over IMF until mass dips below lower cutoff
-              if(mass_to_stars > IndividualStarIMFLowerMassCutoff){
-
-                // loop until mass to stars is less than 10% of smallest star particle size
-                while( ii < *nmax && mass_to_stars > 1.1 * IndividualStarIMFLowerMassCutoff){
-                  float tempmass;
-                  tempmass = SampleIMF();
-
-                  if (tempmass < M_max_star){
-                      ParticleMass[ii]  = SampleIMF();
-                      sum_mass         += ParticleMass[ii];
-                      mass_to_stars    -= ParticleMass[ii];
-                      ii++;
-                  } // else redraw
-
-                  if (mass_to_stars < 0.0){
-                    mass_to_stars = 0.0;
+                // If mass_to_stars greater than available mass, convert
+                // all of available mass into stars
+                // Frankly this is very unlikely to occur...
+                // Tests as of 2/22/16 show NO SF here for at least 10^5 stars in a LMC dwarf galaxy
+                if(mass_to_stars >= mass_available){
+                  mass_to_stars = mass_available;
+                  while( ii < *nmax && mass_to_stars > M_max_star){
+                    ParticleMass[ii] = SampleIMF();
+                    sum_mass        += ParticleMass[ii]; // counter for mass formed in this cell
+                    mass_to_stars   -= ParticleMass[ii]; // reduce available mass
+                    ii++;
                   }
                 }
-              } // end mass above individual star cutoff
 
-              // now we are in the Goldbaum et. al. 2015 regime (star_maker_ssn.F)
-              // Calculate probability of star forming and form stars stochastically
-              if (mass_to_stars < IndividualStarIMFLowerMassCutoff && mass_to_stars > tiny_number){
-                star_mass = SampleIMF();
-                pstar     = mass_to_stars / star_mass;
-                rnum =  (float) (random() % max_random) / (float) (max_random);
-                if (rnum < pstar){
-                  ParticleMass[ii]  = star_mass;
-                  sum_mass         += ParticleMass[ii];
-                  ii++;
+                // Tests (as of 2/22/16) show NO SF here for at least the first 10^5 stars
+                if (mass_to_stars > M_max_star){
+                  while (ii < *nmax && mass_to_stars > M_max_star){
+                    ParticleMass[ii]  = SampleIMF();
+                    sum_mass         += ParticleMass[ii];
+                    mass_to_stars    -= ParticleMass[ii];
+                    ii++;
+                  }
                 }
-              }
+
+                // If mass is above IMF lower limit, star formation will happen.
+                // Just form stars randomly over IMF until mass dips below lower cutoff
+                if(mass_to_stars > IndividualStarIMFLowerMassCutoff){
+
+                  // loop until mass to stars is less than 10% of smallest star particle size
+                  while( ii < *nmax && mass_to_stars > 1.1 * IndividualStarIMFLowerMassCutoff){
+                    float tempmass;
+                    tempmass = SampleIMF();
+
+                    if (tempmass < M_max_star){
+                        ParticleMass[ii]  = SampleIMF();
+                        sum_mass         += ParticleMass[ii];
+                        mass_to_stars    -= ParticleMass[ii];
+                        ii++;
+                    } // else redraw
+  
+                    if (mass_to_stars < 0.0){
+                      mass_to_stars = 0.0;
+                    }
+                  }
+                } // end mass above individual star cutoff
+
+                // now we are in the Goldbaum et. al. 2015 regime (star_maker_ssn.F)
+                // Calculate probability of star forming and form stars stochastically
+                if (mass_to_stars < IndividualStarIMFLowerMassCutoff && mass_to_stars > tiny_number){
+                  star_mass = SampleIMF();
+                  pstar     = mass_to_stars / star_mass;
+                  rnum =  (float) (random() % max_random) / ((float) max_random);
+                  if (rnum < pstar){
+                    ParticleMass[ii]  = star_mass;
+                    sum_mass         += ParticleMass[ii];
+                    ii++;
+                  }
+                }
+
+              } else if (IndividualStarSFAlgorithm == 1){
+                /* take chunks of mass */
+
+                if( bmass*IndividualStarMassFraction > IndividualStarSFGasMassThreshold ){ // set to ~ 2 x M_max_star
+                  // if true, we can try and form stars. compute probability that this mass will
+                  // form stars this timestep
+                  star_fraction  = min(StarMakerMassEfficiency*(this->dtFixed)/tdyn, 1.0);
+                  mass_to_stars  = star_fraction * bmass;
+
+                  pstar          = mass_to_stars / IndividualStarSFGasMassThreshold;
+
+                  rnum           = (float) (random() % max_random) / ( (float) max_random);
+
+                  if ( rnum < pstar){ // form stars until mass runs out - keep star if too much is made
+                      float mass_counter = IndividualStarSFGasMassThreshold;
+                      while( mass_counter > 0.0){
+                          ParticleMass[ii]  = SampleIMF();
+                          sum_mass         += ParticleMass[ii];
+                          mass_counter     -= ParticleMass[ii];
+                          ii++;
+                      }
+
+                  } // endif randum number draw check
+
+                } // endif mass threshold check
+
+              } // endif sf algorithm for star formation
+
+
 
               // prepare for assigning star properties by computing the local
               // gas velocity properties (this is for velocity assignment)
@@ -591,7 +623,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                   ENZO_FAIL("Error in stellar lifetime interpolation");
                 }
                 ParticleAttribute[1][istar] /= t1; // convert from s to code units
-
 
                 ParticleAttribute[3][istar]    = ParticleMass[istar]; //progenitor mass in solar (main sequence mass)
                 ParticleMass[istar]            = ParticleMass[istar] * msolar / m1;   // mass in code (not yet dens)

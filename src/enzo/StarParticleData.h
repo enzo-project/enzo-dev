@@ -132,6 +132,8 @@ SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
 
 SPEXTERN int   IndividualStarAllowTruncatedIMF;
+SPEXTERN int   IndividualStarSFAlgorithm;
+SPEXTERN float IndividualStarSFGasMassThreshold;
 SPEXTERN float IndividualStarTemperatureThreshold;
 SPEXTERN float IndividualStarSecondaryOverDensityThreshold;
 SPEXTERN float IndividualStarIMFUpperMassCutoff;

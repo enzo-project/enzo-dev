@@ -1044,6 +1044,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   /* AJE Indiviudal Star */
   fprintf(fptr, "IndividualStarAllowTruncatedIMF = %"ISYM"\n", IndividualStarAllowTruncatedIMF);
+  fprintf(fptr, "IndividualStarSFGasMassThreshold = %"FSYM"\n", IndividualStarSFGasMassThreshold);
+  fprintf(fptr, "IndividualStarSFAlgorithm        = %"ISYM"\n", IndividualStarSFAlgorithm);
   fprintf(fptr, "IndividualStarTemperatureThreshold = %"FSYM"\n", IndividualStarTemperatureThreshold);
   fprintf(fptr, "IndividualStarSecondaryOverDensityThreshold = %"FSYM"\n", IndividualStarSecondaryOverDensityThreshold);
   fprintf(fptr, "IndividualStarIMFUpperMassCutoff = %"FSYM"\n", IndividualStarIMFUpperMassCutoff);

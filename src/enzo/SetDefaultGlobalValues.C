@@ -708,6 +708,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   // AJE Individual Star
   IndividualStarAllowTruncatedIMF   = 0;            // on or off - truncates IMF for low mass regions if on
+  IndividualStarSFGasMassThreshold  = 200.0;        // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
+  IndividualStarSFAlgorithm         = 0;            // 0 or 1 to switch between algorithms - hopefully temperorary until one works
   IndividualStarSecondaryOverDensityThreshold = -1; // in cc - if < 0, set to over density thresh in ReadParamFile
   IndividualStarIMFUpperMassCutoff  = 100.0;        // Solar masses
   IndividualStarIMFLowerMassCutoff  =   1.0;        // Solar masses

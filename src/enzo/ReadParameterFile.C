@@ -1073,6 +1073,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* AJE Individual Star */
     ret += sscanf(line, "IndividualStarAllowTruncatedIMF = %"ISYM,
                         &IndividualStarAllowTruncatedIMF);
+    ret += sscanf(line, "IndividualStarSFAlgorithm = %"ISYM,
+                        &IndividualStarSFAlgorithm);
+    ret += sscanf(line, "IndividualStarSFGasMassThreshold = %"FSYM,
+                        &IndividualStarSFGasMassThreshold);
     ret += sscanf(line, "IndividualStarSecondaryOverDensityThreshold = %"FSYM,
                         &IndividualStarSecondaryOverDensityThreshold);
     ret += sscanf(line, "IndividualStarTemperatureThreshold = %"FSYM,
