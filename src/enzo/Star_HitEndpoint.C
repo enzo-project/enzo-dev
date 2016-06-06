@@ -108,7 +108,7 @@ int Star::HitEndpoint(FLOAT Time)
 
   case IndividualStar:
     result = NO_DEATH;
-    printf("HitEndpoint: IndividualStar\n");
+    printf("HitEndpoint: IndividualStar with lifetime %"ESYM"\n", this->LifeTime);
     this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
 
     float mproj;
