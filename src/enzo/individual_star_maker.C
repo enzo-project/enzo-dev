@@ -799,7 +799,7 @@ float SampleIMF(void){
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
   float x = (float) (random_int%max_random) / (float) (max_random);
-  float dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/ (float) (IMF_TABLE_ENTRIES-1);
+  float dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/ ((float) (IMF_TABLE_ENTRIES-1));
   float m;
 
 
