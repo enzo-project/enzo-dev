@@ -45,7 +45,7 @@ int StarParticleIndividual_IMFInitialize(void)
   float m, m0, dm, total_fn;
 
   dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/
-       (float) (IMF_TABLE_ENTRIES-1);
+       ((float) (IMF_TABLE_ENTRIES-1));
   m0 = log10(IndividualStarIMFLowerMassCutoff);
 
   total_fn = 0; // will hold cumulative probability density function
@@ -92,17 +92,17 @@ int StarParticleIndividual_IMFInitialize(void)
     IMFData[i] /= IMFData[IMF_TABLE_ENTRIES-1];
   }
 
-  /* Initialize random number generator. If restart, call it the
-     number of times + 1 to return to state before restart. */
+  // Initialize random number generator. If restart, call it the
+  // number of times + 1 to return to state before restart.
+  // As of June 2016, we are breaking repeatability to have each
+  // processor with their own random number generator (otherwise
+  // SF regions will be identical across the simulation)
+
   if (IndividualStarIMFSeed == INT_UNDEFINED){
-    mt_init(time(NULL)); //
-    srand(time(NULL));
-//    random_init(time(NULL));
+    mt_init( time(NULL) + MyProcessorNumber );
   }
   else{
-    mt_init(IndividualStarIMFSeed); //
-    srand(IndividualStarIMFSeed - 1);
-//    random_init(IndividualStarIMFSeed - 1);
+    mt_init(IndividualStarIMFSeed + MyProcessorNumber);
   }
 
   unsigned_long_int trash;
