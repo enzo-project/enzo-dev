@@ -976,7 +976,7 @@ int grid::individual_star_feedback(int *np,
 
         rnum =  (float) (random() % max_random) / ((float) (max_random));
 
-        printf("individual_star_feedback: SNIa - M_proj, PSNIa, rnum = %"ESYM" %"ESYM"\n", PSNIa, rnum);
+//        printf("individual_star_feedback: SNIa - M_proj, PSNIa, rnum = %"ESYM" %"ESYM"\n", PSNIa, rnum);
 
         if (rnum < PSNIa){
           go_supernova = TRUE;
