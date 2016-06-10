@@ -1086,10 +1086,10 @@ float ComputeSnIaProbability(const float &current_time, const float &formation_t
 
  /* conmpute normalized probability - normalized by integral over WD formation time to hubble time */
  if (IndividualStarDTDSlope == 1.0){
-   dPdt /= log( (hubble_time / (t1 + lifetime)) / (lifetime) );
+   dPdt /= log( ((hubble_time / t1) + lifetime) / lifetime );
  } else{
    dPdt *= (-IndividualStarDTDSlope + 1.0);
-   dPdt /= ( POW( hubble_time / (t1 + lifetime) , -IndividualStarDTDSlope + 1) -
+   dPdt /= ( POW( (hubble_time / t1) + lifetime   , -IndividualStarDTDSlope + 1) -
              POW( (lifetime)                      , -IndividualStarDTDSlope + 1));
  }
 
