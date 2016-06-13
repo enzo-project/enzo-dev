@@ -104,8 +104,8 @@ int grid::GrackleWrapper()
  
     aUnits = 1.0/(1.0 + InitialRedshift);
   } else if (RadiationFieldRedshift >= 0){
-    aUnits  = 1.0 / (1.0 + RadiationFieldRedshift);
-    a       = 1.0;
+    a        = 1.0 / (1.0 + RadiationFieldRedshift);
+    aUnits   = 1.0;
   }
   float afloat = float(a);
 
