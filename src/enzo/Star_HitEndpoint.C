@@ -108,13 +108,13 @@ int Star::HitEndpoint(FLOAT Time)
 
   case IndividualStar:
     result = NO_DEATH;
-    printf("HitEndpoint: IndividualStar with lifetime %"ESYM"\n", this->LifeTime);
+    //printf("HitEndpoint: IndividualStar with lifetime %"ESYM"\n", this->LifeTime);
     this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
 
     float mproj;
     mproj       = this->BirthMass; // ?? works ??
 
-    printf("HitEndpoint: BirthMass %"ESYM"\n",mproj);
+    //printf("HitEndpoint: BirthMass %"ESYM"\n",mproj);
 
     /* check mass */
     if(mproj > IndividualStarSNIIMassCutoff){ this->type = IndividualStarRemnant;}
@@ -135,7 +135,7 @@ int Star::HitEndpoint(FLOAT Time)
     break; // do nothing
 
   case IndividualStarRemnant:
-    result = NO_DEATH; printf("Individual Star remnamt in hit endpoint\n");
+    result = NO_DEATH; //printf("Individual Star remnamt in hit endpoint\n");
     break;
 
   } // ENDSWITCH
