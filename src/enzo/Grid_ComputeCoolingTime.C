@@ -156,7 +156,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt);
  
     aUnits = 1.0/(1.0 + InitialRedshift);
-  } else if (RadiationFieldRedshift >= 0){
+  } else if (RadiationFieldRedshift > -1){
     a       = 1.0 / (1.0 + RadiationFieldRedshift);
     aUnits  = 1.0;
   }
