@@ -1266,7 +1266,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     if ( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
       m_eject   = StellarYieldsInterpolateYield(0, mproj, metallicity, -1) * msolar / m1;
     } else{
-      m_eject = mproj * msolar / m1;
+      m_eject   = StarMassEjectionFraction * mproj * msolar / m1;
     }
 
     if( IndividualStarSupernovaEnergy < 0){
