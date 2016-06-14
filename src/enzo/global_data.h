@@ -1143,6 +1143,9 @@ EXTERN FLOAT ChemicalEvolutionTestStarLifetime;
 EXTERN IndividualStarRadDataType        IndividualStarRadData;
 EXTERN IndividualStarPropertiesDataType IndividualStarPropertiesData;
 
+/* fuv */
+EXTERN float PhotoelectricHeatingDustModelEfficiency;
+
 
 /* For stellar yields data tables */
 EXTERN StellarYieldsDataType          StellarYieldsSNData;

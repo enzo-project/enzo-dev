@@ -282,9 +282,13 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
   float G_o   = G / G_norm;
   float epsilon, flux;
 
-  epsilon = 4.9E-2                        / (1.0 + 4.0E-3 * POW(( G_o * POW(T,0.5) / n_e ),0.73)) +
-            3.7E-2 * POW(1.0E-4 * T, 0.7) / (1.0 + 2.0E-4 *    (( G_o * POW(T,0.5) / n_e )     ));
 
+  if ( PhotoelectricHeatingDustModelEfficiency > 0.0){
+    epsilon = PhotoelectricHeatingDustModelEfficiency;
+  } else{
+    epsilon = 4.9E-2                        / (1.0 + 4.0E-3 * POW(( G_o * POW(T,0.5) / n_e ),0.73)) +
+              3.7E-2 * POW(1.0E-4 * T, 0.7) / (1.0 + 2.0E-4 *    (( G_o * POW(T,0.5) / n_e )     ));
+  }
 
   flux = 1.3E-24 * n_H * epsilon * G_o * (Z / Z_o);
 

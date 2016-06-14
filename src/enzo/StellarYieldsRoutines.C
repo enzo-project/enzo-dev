@@ -17,7 +17,7 @@
 #include "global_data.h"
 
 #include "StellarYieldsRoutines.h"
-
+#include "StarParticleData.h"
 
 float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
   /* -------------------------------------------------------------
@@ -109,10 +109,17 @@ float StellarYieldsInterpolateYield(int yield_type,
 
   float Z = (metallicity); // not in solar units
 
+  float interp_M = M;
+
   if( (M < table.M[0]) || (M > table.M[table.NumberOfMassBins - 1])){
-    printf("StellarYieldsInterpolateYield: Mass out of bounds\n");
-    printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, table.M[0], table.M[table.NumberOfMassBins-1]);
-    return FAIL;
+    if( IndividualStarExtrapolateYields ){
+      // scale to most massive star
+      interp_M  = table.M[table.NumberOfMassBins - 1] * 0.9999999;
+    } else{
+      printf("StellarYieldsInterpolateYield: Mass out of bounds\n");
+      printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, table.M[0], table.M[table.NumberOfMassBins-1]);
+      return FAIL;
+    }
   }
 
   if( (Z < table.Z[0]) || (Z > table.Z[table.NumberOfMetallicityBins - 1])){
@@ -128,16 +135,16 @@ float StellarYieldsInterpolateYield(int yield_type,
   while (width > 1){
 
     width /= 2;
-    if ( M > table.M[i])
+    if ( interp_M > table.M[i])
       i += width;
-    else if (M < table.M[i])
+    else if (interp_M < table.M[i])
       i -= width;
     else
       break;
   } // mass binary search
 
-  if ( M < table.M[i] ) i--;
-  if ( M < table.M[i] ) i--;
+  if ( interp_M < table.M[i] ) i--;
+  if ( interp_M < table.M[i] ) i--;
 
   width = table.NumberOfMetallicityBins / 2;
   j     = table.NumberOfMetallicityBins / 2;
@@ -158,7 +165,7 @@ float StellarYieldsInterpolateYield(int yield_type,
 
   float t, u;
 
-  t = (M - table.M[i]) / (table.M[i+1] - table.M[i]);
+  t = (interp_M - table.M[i]) / (table.M[i+1] - table.M[i]);
   u = (Z  - table.Z[j]) / (table.Z[j+1] - table.Z[j]);
 
   float ll, lr, ur, ul; // lower left, lower right, upper right, upper left points
@@ -187,10 +194,10 @@ float StellarYieldsInterpolateYield(int yield_type,
   }
 
 
-  return (1.0 - t)*(1.0 - u) * (ll) +
-         (1.0 - t)*(      u) * (lr) +
-         (      t)*(      u) * (ur) +
-         (      t)*(1.0 - u) * (ul);
+  return ((1.0 - t)*(1.0 - u) * (ll)   +
+          (1.0 - t)*(      u) * (lr)   +
+          (      t)*(      u) * (ur)   +
+          (      t)*(1.0 - u) * (ul) ) * M / interp_M ;
 }
 
 

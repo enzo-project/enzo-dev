@@ -708,6 +708,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   // AJE Individual Star
   IndividualStarAllowTruncatedIMF   = 0;            // on or off - truncates IMF for low mass regions if on
+  IndividualStarExtrapolateYields   = 1;            // on or off - extrapolate yields using abundances from most massive tabulated star
   IndividualStarSFGasMassThreshold  = 200.0;        // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
   IndividualStarSFAlgorithm         = 0;            // 0 or 1 to switch between algorithms - hopefully temperorary until one works
   IndividualStarSecondaryOverDensityThreshold = -1; // in cc - if < 0, set to over density thresh in ReadParamFile
@@ -762,6 +763,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   IndividualStarBlackBodyFUVFactors[0] = 1.00E-4;     // same as above, but for FUV luminosities
   IndividualStarBlackBodyFUVFactors[1] = 2.29E-5;
+
+  PhotoelectricHeatingDustModelEfficiency = 0.0;
 
   // chemical evolution test star
   ChemicalEvolutionTestStarMass        = 20.0   ; // solar masses
