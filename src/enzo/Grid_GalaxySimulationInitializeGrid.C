@@ -60,12 +60,6 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth,FLOAT z,FLOAT density,FLOAT 
 double trapzd(double (func)(), double a, double b, int n);
 double qromb(double (*func)(double), double a, double b);
 void polint(double xa[],double ya[],int n,double x,double *y,double *dy);
-double func1(double zint);
-double func2(double zint);
-double func3(double zint);
-double func4(double zint);
-double *vector(int nl,int nh);
-void free_vector(double *v,int nl,int nh);
 static double drcyl;
 static double r2;
 
