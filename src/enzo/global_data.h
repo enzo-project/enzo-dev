@@ -1134,6 +1134,7 @@ EXTERN float GalaxySimulationPreWindVelocity[MAX_DIMENSION];
 
 /* For setting up the chemical evolution test */
 EXTERN FLOAT ChemicalEvolutionTestStarPosition[MAX_DIMENSION];
+EXTERN float ChemicalEvolutionTestStarVelocity[MAX_DIMENSION];
 EXTERN float ChemicalEvolutionTestStarMass;
 EXTERN float ChemicalEvolutionTestStarMetallicity;
 EXTERN int   ChemicalEvolutionTestStarFormed;

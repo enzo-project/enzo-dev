@@ -773,6 +773,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ChemicalEvolutionTestStarLifetime    = 0      ; // 0 is off > 0 lifetime in Myr
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     ChemicalEvolutionTestStarPosition[dim] = 0.5; // code units - center of box
+    ChemicalEvolutionTestStarVelocity[dim] = 0.0;
   }
 
   NumberOfParticleAttributes       = INT_UNDEFINED;

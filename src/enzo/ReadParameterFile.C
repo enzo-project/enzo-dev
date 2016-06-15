@@ -910,6 +910,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* Read chemical evolution test parameters */
     ret += sscanf(line, "ChemicalEvolutionTestStarPosition = %"PSYM" %"PSYM" %"PSYM,
                        ChemicalEvolutionTestStarPosition, ChemicalEvolutionTestStarPosition+1, ChemicalEvolutionTestStarPosition+2);
+    ret += sscanf(line, "ChemicalEvolutionTestStarVelocity = %"PSYM" %"PSYM" %"PSYM,
+                     ChemicalEvolutionTestStarVelocity, ChemicalEvolutionTestStarVelocity+1,ChemicalEvolutionTestStarVelocity+2);
     ret += sscanf(line, "ChemicalEvolutionTestStarMass = %"FSYM,
                        &ChemicalEvolutionTestStarMass);
     ret += sscanf(line, "ChemicalEvolutionTestStarMetallicity = %"FSYM,

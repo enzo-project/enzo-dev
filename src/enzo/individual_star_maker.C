@@ -240,7 +240,9 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
       ParticlePosition[1][0] = ChemicalEvolutionTestStarPosition[1];
       ParticlePosition[2][0] = ChemicalEvolutionTestStarPosition[2];
 
-      ParticleVelocity[0][0] = 0.0; ParticleVelocity[1][0] = 0.0; ParticleVelocity[2][0] = 0.0;
+      ParticleVelocity[0][0] = ChemicalEvolutionTestStarVelocity[0]*1.0E5 / v1;
+      ParticleVelocity[1][0] = ChemicalEvolutionTestStarVelocity[1]*1.0E5 / v1;
+      ParticleVelocity[2][0] = ChemicalEvolutionTestStarVelocity[2]*1.0E5 / v1;
 
       // find grid cell and assign chemical tags
       int ip, jp, kp, n;
