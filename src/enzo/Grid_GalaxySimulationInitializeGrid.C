@@ -709,6 +709,8 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
   double PbulgeComp2(double zint);       // same but for r2 (3D distance)
   double PstellarComp1(double zint);     // (density times stellar disk force)
   double PstellarComp2(double zint);     // same but for r2 (3D distance plane)
+  double PDMComp1(double zint);          // (density times dark matter halo force)
+  double PDMComp2(double zint);          // same but for r2 (3D distance plane)
 
   double Pressure,Pressure2,zicm,zicm2,zicmf=0.0,zsmall=0.0,
     zicm2f=0.0,zint,FdPdR,FtotR,denuse,rsph,vrot,bulgeComp,rsph_icm;
@@ -731,11 +733,13 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
       bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ? 
 		   0.0 : qromb(PbulgeComp1, fabs(zicm), fabs(z)));
-      Pressure= bulgeComp + qromb(PstellarComp1, fabs(zicm), fabs(z));
+      Pressure  = bulgeComp + qromb(PstellarComp1, fabs(zicm), fabs(z));
+      Pressure += qromb(PDMComp1, fabs(zicm), fabs(z));
 
       bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ? 
 		   0.0 : qromb(PbulgeComp2, fabs(zicm2), fabs(z)));
-      Pressure2= bulgeComp + qromb(PstellarComp2, fabs(zicm2), fabs(z));
+      Pressure2  = bulgeComp + qromb(PstellarComp2, fabs(zicm2), fabs(z));
+      Pressure2 += qromb(PDMComp2, fabs(zicm2), fabs(z));
 
     }  // end |z| < |zicm| if
 
@@ -760,13 +764,13 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 	      
 	bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ?
 		     0.0 : qromb(PbulgeComp1, fabs(zicm), fabs(z)));
-	Pressure  = (bulgeComp + qromb(PstellarComp1, fabs(zicm), fabs(z)))
+	Pressure  = (bulgeComp + qromb(PDMComp1, fabs(zicm), fabs(z)) + qromb(PstellarComp1, fabs(zicm), fabs(z)))
 	  *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-SmoothRadius*Mpc)/
 			 (SmoothLength*Mpc))));
 
 	bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ?
 		     0.0 : qromb(PbulgeComp2, fabs(zicm2), fabs(z)));
-	Pressure2 = (bulgeComp + qromb(PstellarComp2, fabs(zicm2), fabs(z)))
+	Pressure2 = (bulgeComp + qromb(PDMComp2, fabs(zicm), fabs(z)) + qromb(PstellarComp2, fabs(zicm2), fabs(z)))
 	  *(0.5*(1.0+cos(pi*(r2-SmoothRadius*Mpc)/(SmoothLength*Mpc))));
 
       } // end |z| < |zicm| if
@@ -908,6 +912,48 @@ double PstellarComp2(double zint)
 {
   extern double r2;
   return PstellarComp_general(r2, zint);
+}
+
+double PDMComp_general(double rvalue, double zint){
+/* --------------------------------------------------------
+ * PDMComp_general
+ * --------------------------------------------------------
+ * General function for computing the DM contribution to
+ * local (vertical) pressure on the gas in thegalaxy's disk.
+ * This returns the gas density at a given position
+ * times the force on the gas due to the dark matter
+ * --------------------------------------------------------- */
+
+  float gas_density;
+  float F;             // dark matter force
+  float rsph; // 3D, spherical radius
+
+
+  /* compute gas density */
+  gas_density  = MgasScale*SolarMass / (8.0 * pi * POW(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc);
+  gas_density /= (cosh(rvalue/gScaleHeightR/Mpc)*cosh(fabs(zint)/gScaleHeightz/Mpc));
+
+  rsph = sqrt(rvalue*rvalue + zint*zint);
+
+  /* fabs(zint) is because this is the force in the direction downward */
+  F    = (-pi)*GravConst*DiskGravityDarkMatterDensity*
+             pow(DiskGravityDarkMatterR*Mpc,3)/pow(rsph,3) * fabs(zint)
+            *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc) + 
+            2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc) +
+            log(1.0+pow(rsph/DiskGravityDarkMatterR/Mpc,2)));
+
+  return gas_density * F;
+}
+
+/* DM pressure integration */
+double PDMComp1(double zint){
+  extern double drcyl;
+  return PDMComp_general(drcyl*LengthUnits, zint);
+}
+
+double PDMComp2(double zint){
+  extern double r2;
+  return PDMComp_general(r2, zint);
 }
 
 // Will be called by qromb to find the pressure at every point in disk.
