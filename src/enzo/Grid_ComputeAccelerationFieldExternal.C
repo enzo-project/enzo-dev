@@ -408,7 +408,7 @@ int grid::ComputeAccelerationFieldExternal()
                                             + accelcylR*xpos1
                                             + accelcylz*AngularMomentumx);
              if (dim == 1)
-               AccelerationField[1][n] -= (  accelsph*ypos1
+               AccelerationField[1][n] -= (  accelsph*ypos
                                             + accelcylR*ypos1
                                             + accelcylz*AngularMomentumy);
              if (dim == 2)
