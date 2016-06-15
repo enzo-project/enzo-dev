@@ -176,9 +176,10 @@ General
     A PPM modification designed to sharpen contact discontinuities. It
     is either on (1) or off (0). Default: 0
 ``SmallRho`` (external)
-    Minimum value for density in code units. Enforced when using the PPM
-    solver in euler.F or when ``HydroMethod`` is 3 or 4 in
-     hydro_rk/EvolveLevel_RK.C. Default: 1e-30
+    Minimum value for density in code units. This is enforced in euler.F
+    when using the PPM solver (``HydroMethod`` = 0) or in 
+    hydro_rk/EvolveLevel_RK.C when ``HydroMethod`` is 3 or 4. Not enforced
+    in other hydrodynamics methods. Default: 1e-30
 ``ZEUSQuadraticArtificialViscosity`` (external)
     This is the quadratic artificial viscosity parameter C2 of Stone &
     Norman, and corresponds (roughly) to the number of zones over which
