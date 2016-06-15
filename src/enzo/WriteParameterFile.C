@@ -1187,7 +1187,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr,"MHD_CT_Method                 =%"ISYM"\n",MHD_CT_Method);
   fprintf(fptr,"NumberOfGhostZones           =%"ISYM"\n",NumberOfGhostZones);
   fprintf(fptr,"IsothermalSoundSpeed          =%"GSYM"\n",IsothermalSoundSpeed);
-  fprintf(fptr,"FixedTimestep          =%"GSYM"\n",FixedTimestep);
   fprintf(fptr,"MHD_ProjectB                  =%"ISYM"\n",MHD_ProjectB);
   fprintf(fptr,"MHD_ProjectE                  =%"ISYM"\n",MHD_ProjectE);
   fprintf(fptr,"EquationOfState               =%"ISYM"\n",EquationOfState);
