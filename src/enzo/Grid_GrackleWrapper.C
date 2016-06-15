@@ -103,6 +103,9 @@ int grid::GrackleWrapper()
     CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt);
  
     aUnits = 1.0/(1.0 + InitialRedshift);
+  } else if (RadiationFieldRedshift > -1){
+    a        = 1.0 / (1.0 + RadiationFieldRedshift);
+    aUnits   = 1.0;
   }
   float afloat = float(a);
 
