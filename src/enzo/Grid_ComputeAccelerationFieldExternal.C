@@ -419,10 +419,78 @@ int grid::ComputeAccelerationFieldExternal()
       } } } // end: loop over grid (i/j/k)
     } // end: loop over dims
 
-    /* ---  PARTICLES NOT IMPLEMENTED -- SHOULD BE ADDED HERE --- */
+    if (NumberOfParticles > 0 && GridRank != 3) {
+        ENZO_FAIL("DiskGravity Requires 3D for use with particles");
+    }
 
-    if (NumberOfParticles > 0)
-      ENZO_FAIL("DiskGravity with particles not yet implemented.");
+    // I think null check is needed if output external acceleratrion is included
+    // as the writre out calls this to compute accelerations for output, but particle
+    // accel won't be declared when this call happens.... need to make sure... for now:
+    if(NumberOfParticles > 0 && ParticleAcceleration[0] != NULL){ // why do I need the Null check?
+      for (int i = 0; i < NumberOfParticles; i++){
+
+        // re-center relative to disk
+        // these are actual (subgrid) positions...
+        // need to conside if mapping to grid cell pos is needed
+        xpos = ParticlePosition[0][i] - DiskGravityPosition[0];
+        ypos = ParticlePosition[1][i] - DiskGravityPosition[1];
+        zpos = ParticlePosition[2][i] - DiskGravityPosition[2]; 
+
+        // model after grid loops
+        rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
+
+        double accelsph, accelcylR, accelcylz, zheight, xpos1, ypos1, zpos1;
+
+        // compute z and r_perp
+
+        zheight = AngularMomentumx*xpos + AngularMomentumy*ypos + AngularMomentumz*zpos;
+
+        // position in plane of disk
+        xpos1 = xpos - zheight*AngularMomentumx;
+        ypos1 = ypos - zheight*AngularMomentumy;
+        zpos1 = zpos - zheight*AngularMomentumz;
+
+        // again, copied from grid loops above
+        radius = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1 + zheight*zheight);
+        rcyl   = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1);
+        radius = radius*LengthUnits;
+        rcyl   = rcyl*LengthUnits;
+
+        accelsph = (GravConst)*MBulge*SolarMass/pow(radius+rBulge*Mpc,2)
+                 + pi*GravConst*densDMConst*pow(rDMConst*Mpc,3)/pow(radius,2)
+                 * (-2.0*atan(radius/rDMConst/Mpc)
+                    +2.0*log(1.0+radius/rDMConst/Mpc)
+                    +log(1.0+pow(radius/rDMConst/Mpc,2))
+                   );
+        accelcylR = GravConst*MSDisk*SolarMass*rcyl/sqrt(pow(pow(rcyl,2)
+                  + pow(SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
+                  + pow(SDiskScaleHeightz*Mpc,2)),2),3));
+        accelcylz = GravConst*MSDisk*SolarMass/sqrt(pow(zheight*LengthUnits,2)
+                  + pow(SDiskScaleHeightz*Mpc,2))*zheight*LengthUnits/sqrt(pow(pow(rcyl,2)
+                  + pow(SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
+                  + pow(SDiskScaleHeightz*Mpc,2)),2),3))
+                    *(  SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
+                      + pow(SDiskScaleHeightz*Mpc,2))
+                     )/AccelUnits;
+
+        accelsph  = (radius ==0.0?0.0:fabs(accelsph )/(radius/LengthUnits)/AccelUnits);
+        accelcylR = (rcyl   ==0.0?0.0:fabs(accelcylR)/(rcyl/LengthUnits)/AccelUnits);
+        accelcylz = (zheight==0.0?0.0:fabs(accelcylz)*zheight/fabs(zheight));
+
+
+        ParticleAcceleration[0][i] -= (   accelsph*xpos
+                                        + accelcylR*xpos1
+                                        + accelcylz*AngularMomentumx);
+        ParticleAcceleration[1][i] -= (   accelsph*ypos1
+                                        + accelcylR*ypos1
+                                        + accelcylz*AngularMomentumy);
+        ParticleAcceleration[2][i] -= (   accelsph*zpos
+                                        + accelcylR*zpos1
+                                        + accelcylz*AngularMomentumz);
+
+
+      } // end: loop over particles
+    } // end: check if particles + NULL
 
   } // end: if (DiskGravity)
 
