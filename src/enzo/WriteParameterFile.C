@@ -1179,7 +1179,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   //MHDCT variables
   fprintf(fptr, "MHDCTSlopeLimiter          = %"ISYM"\n", MHDCTSlopeLimiter);
   fprintf(fptr, "MHDCTDualEnergyMethod          = %"ISYM"\n", MHDCTDualEnergyMethod);
-  fprintf(fptr, "MHDPowellSource          = %"ISYM"\n", MHDCTPowellSource);
+  fprintf(fptr, "MHDCTPowellSource          = %"ISYM"\n", MHDCTPowellSource);
   fprintf(fptr, "WriteBoundary          = %"ISYM"\n", WriteBoundary);
   fprintf(fptr,"CT_AthenaDissipation          =%"GSYM"\n",CT_AthenaDissipation);
   fprintf(fptr,"MHD_WriteElectric             =%"ISYM"\n",MHD_WriteElectric);
