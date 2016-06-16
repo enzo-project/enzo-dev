@@ -382,21 +382,21 @@ int grid::ComputeAccelerationFieldExternal()
             rcyl = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1);
             radius = radius*LengthUnits;
             rcyl = rcyl*LengthUnits;
-            accelsph = (GravConst)*MBulge*SolarMass/pow(radius+rBulge*Mpc,2)
-                     + pi*GravConst*densDMConst*pow(rDMConst*Mpc,3)/pow(radius,2)
+            accelsph = (GravConst)*MBulge*SolarMass/POW(radius+rBulge*Mpc,2)
+                     + pi*GravConst*densDMConst*POW(rDMConst*Mpc,3)/POW(radius,2)
                        *(-2.0*atan(radius/rDMConst/Mpc)
                          +2.0*log(1.0+radius/rDMConst/Mpc)
-                         +log(1.0+pow(radius/rDMConst/Mpc,2))
+                         +log(1.0+POW(radius/rDMConst/Mpc,2))
                         );
-            accelcylR = GravConst*MSDisk*SolarMass*rcyl/sqrt(pow(pow(rcyl,2)
-                      + pow(SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
-                      + pow(SDiskScaleHeightz*Mpc,2)),2),3));
-            accelcylz = GravConst*MSDisk*SolarMass/sqrt(pow(zheight*LengthUnits,2)
-                      + pow(SDiskScaleHeightz*Mpc,2))*zheight*LengthUnits/sqrt(pow(pow(rcyl,2)
-                      + pow(SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
-                      + pow(SDiskScaleHeightz*Mpc,2)),2),3))
-                        *(  SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
-                          + pow(SDiskScaleHeightz*Mpc,2))
+            accelcylR = GravConst*MSDisk*SolarMass*rcyl/sqrt(POW(POW(rcyl,2)
+                      + POW(SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
+                      + POW(SDiskScaleHeightz*Mpc,2)),2),3));
+            accelcylz = GravConst*MSDisk*SolarMass/sqrt(POW(zheight*LengthUnits,2)
+                      + POW(SDiskScaleHeightz*Mpc,2))*zheight*LengthUnits/sqrt(POW(POW(rcyl,2)
+                      + POW(SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
+                      + POW(SDiskScaleHeightz*Mpc,2)),2),3))
+                        *(  SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
+                          + POW(SDiskScaleHeightz*Mpc,2))
                          )/AccelUnits;
 
              accelsph  = (radius ==0.0?0.0:fabs(accelsph )/(radius/LengthUnits)/AccelUnits);
@@ -455,21 +455,21 @@ int grid::ComputeAccelerationFieldExternal()
         radius = radius*LengthUnits;
         rcyl   = rcyl*LengthUnits;
 
-        accelsph = (GravConst)*MBulge*SolarMass/pow(radius+rBulge*Mpc,2)
-                 + pi*GravConst*densDMConst*pow(rDMConst*Mpc,3)/pow(radius,2)
+        accelsph = (GravConst)*MBulge*SolarMass/POW(radius+rBulge*Mpc,2)
+                 + pi*GravConst*densDMConst*POW(rDMConst*Mpc,3)/POW(radius,2)
                  * (-2.0*atan(radius/rDMConst/Mpc)
                     +2.0*log(1.0+radius/rDMConst/Mpc)
-                    +log(1.0+pow(radius/rDMConst/Mpc,2))
+                    +log(1.0+POW(radius/rDMConst/Mpc,2))
                    );
-        accelcylR = GravConst*MSDisk*SolarMass*rcyl/sqrt(pow(pow(rcyl,2)
-                  + pow(SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
-                  + pow(SDiskScaleHeightz*Mpc,2)),2),3));
-        accelcylz = GravConst*MSDisk*SolarMass/sqrt(pow(zheight*LengthUnits,2)
-                  + pow(SDiskScaleHeightz*Mpc,2))*zheight*LengthUnits/sqrt(pow(pow(rcyl,2)
-                  + pow(SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
-                  + pow(SDiskScaleHeightz*Mpc,2)),2),3))
-                    *(  SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
-                      + pow(SDiskScaleHeightz*Mpc,2))
+        accelcylR = GravConst*MSDisk*SolarMass*rcyl/sqrt(POW(POW(rcyl,2)
+                  + POW(SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
+                  + POW(SDiskScaleHeightz*Mpc,2)),2),3));
+        accelcylz = GravConst*MSDisk*SolarMass/sqrt(POW(zheight*LengthUnits,2)
+                  + POW(SDiskScaleHeightz*Mpc,2))*zheight*LengthUnits/sqrt(POW(POW(rcyl,2)
+                  + POW(SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
+                  + POW(SDiskScaleHeightz*Mpc,2)),2),3))
+                    *(  SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
+                      + POW(SDiskScaleHeightz*Mpc,2))
                      )/AccelUnits;
 
         accelsph  = (radius ==0.0?0.0:fabs(accelsph )/(radius/LengthUnits)/AccelUnits);
@@ -480,7 +480,7 @@ int grid::ComputeAccelerationFieldExternal()
         ParticleAcceleration[0][i] -= (   accelsph*xpos
                                         + accelcylR*xpos1
                                         + accelcylz*AngularMomentumx);
-        ParticleAcceleration[1][i] -= (   accelsph*ypos1
+        ParticleAcceleration[1][i] -= (   accelsph*ypos
                                         + accelcylR*ypos1
                                         + accelcylz*AngularMomentumy);
         ParticleAcceleration[2][i] -= (   accelsph*zpos
