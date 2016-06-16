@@ -279,16 +279,28 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
 
   const double Z_o    =    0.02; // solar metallicity as defined in Forbes et. al. 2016
 
-  float G_o   = G / G_norm;
+  float G_o   = G / G_norm;      // local FUV flux normalized to Habing field
   float epsilon, flux;
 
 
   if ( PhotoelectricHeatingDustModelEfficiency > 0.0){
     epsilon = PhotoelectricHeatingDustModelEfficiency;
-  } else{
-    epsilon = 4.9E-2                        / (1.0 + 4.0E-3 * POW(( G_o * POW(T,0.5) / n_e ),0.73)) +
-              3.7E-2 * POW(1.0E-4 * T, 0.7) / (1.0 + 2.0E-4 *    (( G_o * POW(T,0.5) / n_e )     ));
+  } else {
+    // power law fit to Wolfire 2003 figure 10b - (hard coded for now)
+    // where we are having efficiency scale with local gas density
+    epsilon = 0.01488637246 * POW(n_H, 0.235269059);
   }
+//
+// AJE - 6/17/16
+//     Taking out full model for now. Would need to be able to compute n_e accurately
+//     at all n and T, which we cannot do with just primordial chemistry. Turn this
+//     back on if / when a model that includes contributions of C, dust, and PAH
+//     ionizations to n_e is used.
+//
+//  } else {
+//    epsilon = 4.9E-2                        / (1.0 + 4.0E-3 * POW(( G_o * POW(T,0.5) / n_e ),0.73)) +
+//              3.7E-2 * POW(1.0E-4 * T, 0.7) / (1.0 + 2.0E-4 *    (( G_o * POW(T,0.5) / n_e )     ));
+// }
 
   flux = 1.3E-24 * n_H * epsilon * G_o * (Z / Z_o);
 
