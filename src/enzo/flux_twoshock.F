@@ -183,7 +183,6 @@ c     (linear interpolation between end states, as suggested in PPM ref)
 c
          frac     = l0(i) - lbar(i)
          if (frac .lt. tiny) frac = tiny
-         if (frac .gt. 1._RKIND)  frac = 1._RKIND
          frac     = (0._RKIND - lbar(i))/frac
          frac     = min(max(frac, 0._RKIND), 1._RKIND)
          pb(i)    = p0(i)*frac + pbar(i,j)*(1._RKIND - frac)
