@@ -919,7 +919,7 @@ double PDMComp_general(double rvalue, double zint){
  * PDMComp_general
  * --------------------------------------------------------
  * General function for computing the DM contribution to
- * local (vertical) pressure on the gas in thegalaxy's disk.
+ * local (vertical) pressure on the gas in the galaxy's disk.
  * This returns the gas density at a given position
  * times the force on the gas due to the dark matter
  * --------------------------------------------------------- */
