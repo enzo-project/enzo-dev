@@ -156,7 +156,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   int  nx = this->GridDimension[0], ny = this->GridDimension[1], nz = this->GridDimension[2];
   int  ibuff = NumberOfGhostZones;
 
-  FLOAT xstart = *CellLeftEdge[0], ystart = *CellLeftEdge[1], zstart = *CellLeftEdge[2];
+  FLOAT xstart = CellLeftEdge[0][0], ystart = CellLeftEdge[1][0], zstart = CellLeftEdge[2][0];
   float   dx   = CellWidth[0][0];
 
 
@@ -858,7 +858,7 @@ int grid::individual_star_feedback(int *np,
   int  nz = this->GridDimension[2];
   int  ibuff = NumberOfGhostZones;
 
-  FLOAT xstart = *CellLeftEdge[0], ystart = *CellLeftEdge[1], zstart = *CellLeftEdge[2];
+  FLOAT xstart = CellLeftEdge[0][0], ystart = CellLeftEdge[1][0], zstart = CellLeftEdge[2][0];
   float   dx   = CellWidth[0][0];
 
 
@@ -1194,7 +1194,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
   int  nx = this->GridDimension[0], ny = this->GridDimension[1], nz = this->GridDimension[2];
   int  ibuff = NumberOfGhostZones;
 
-  FLOAT xstart = *CellLeftEdge[0], ystart = *CellLeftEdge[1], zstart = *CellLeftEdge[2];
+  FLOAT xstart = CellLeftEdge[0][0], ystart = CellLeftEdge[1][0], zstart = CellLeftEdge[2][0];
   float   dx   = CellWidth[0][0];
 
 
@@ -1420,7 +1420,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   }
 
 
-  float xstart = *CellLeftEdge[0], ystart = *CellLeftEdge[1], zstart = *CellLeftEdge[2];
+  FLOAT xstart = CellLeftEdge[0][0], ystart = CellLeftEdge[1][0], zstart = CellLeftEdge[2][0];
   int nx = *(GridDimension), ny = *(GridDimension+1), nz = *(GridDimension+2);
   int number_of_cells;
   int stencil = IndividualStarFeedbackStencilSize; //renaming in case variable size
@@ -1446,26 +1446,28 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   face_shift = 0.0;
   if (HydroMethod == 2){ face_shift = 0.5; }
 
-  xface = (xfc - xstart)/dx - 0.5 - face_shift;
-  yface = (yfc - ystart)/dx - 0.5 - face_shift;
-  zface = (zfc - zstart)/dx - 0.5 - face_shift;
+  /* AJE: I Suspect -0.5 should not be there in xface/xpos - June 2016*/
 
-  iface = ((int) xface + 0.5);
-  jface = ((int) yface + 0.5);
-  kface = ((int) zface + 0.5);
+  xface = (xfc - xstart)/dx  - face_shift;
+  yface = (yfc - ystart)/dx  - face_shift;
+  zface = (zfc - zstart)/dx  - face_shift;
+
+  iface = ((int) floor(xface + 0.5));
+  jface = ((int) floor(yface + 0.5));
+  kface = ((int) floor(zface + 0.5));
 
   dxf = iface + 0.5 - xface;
   dyf = jface + 0.5 - yface;
   dzf = kface + 0.5 - zface;
 
   /* we now need the index of the cell to add mass */
-  xpos = (xfc - xstart)/dx - 0.5;
-  ypos = (yfc - ystart)/dx - 0.5;
-  zpos = (zfc - zstart)/dx - 0.5;
+  xpos = (xfc - xstart)/dx;
+  ypos = (yfc - ystart)/dx;
+  zpos = (zfc - zstart)/dx;
 
-  ic   = ((int) xpos + 0.5);
-  jc   = ((int) ypos + 0.5);
-  kc   = ((int) zpos + 0.5);
+  ic   = ((int) floor(xpos + 0.5));
+  jc   = ((int) floor(ypos + 0.5));
+  kc   = ((int) floor(zpos + 0.5));
 
   dxc  = ic + 0.5 - xpos;
   dyc  = jc + 0.5 - ypos;
@@ -2070,6 +2072,7 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
               x_index = (iface + i_loc) + ( (jc    + j_loc) + (kc    + k_loc)*ny)*nx;
               y_index = (ic    + i_loc) + ( (jface + j_loc) + (kc    + k_loc)*ny)*nx;
               z_index = (ic    + i_loc) + ( (jc    + j_loc) + (kface + k_loc)*ny)*nx;
+
               /* do things here finally */
               delta_mass  = mass_per_cell * dxc_loc * dyc_loc * dzc_loc;
 
@@ -2103,6 +2106,11 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
                 ge[index] = (ge[index]*d[index] + delta_therm) * inv_dens;
               }
               d[index] = d[index] + delta_mass;
+
+              if( d[index] < 0.0 || delta_mass < 0.0){
+                printf("individual_star: Feedback producing negative densities %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", d[index], delta_mass, te[index], delta_therm);
+                printf("--------------------------------- %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",mass_per_cell,dxf_loc, dxc_loc, dyf_loc, dyc_loc, dzf_loc, dzc_loc);
+              }
           //    printf("feedback_indexes: i x y z %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",index, x_index, y_index, z_index);
 
             } // k loc
