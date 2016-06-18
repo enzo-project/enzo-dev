@@ -533,10 +533,20 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
+
+      // AJE-density-check
+//      if ( Grids[grid1]->GridData->CheckDensity() == FAIL){
+ //         printf("Negative densities reached before solve hydro equations\n");
+   //   }
       /* Call hydro solver and save fluxes around subgrids. */
 
 	Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
+
+      // AJE-density-check
+//      if(  Grids[grid1]->GridData->CheckDensity() == FAIL){
+  //      printf("Negative densities reached after solve hydro equations\n");
+    //  }
 
       /* Solve the cooling and species rate equations. */
  
@@ -569,9 +579,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->StarParticleHandler
 	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove, TopGridTimeStep);
 
+//      if (Grids[grid1]->GridData->CheckDensity() == FAIL){
+  //       printf("Negative densities reached after star particle handler\n");
+    ///  }
       /* Include shock-finding */
 
       Grids[grid1]->GridData->ShocksHandler();
+
+//      if (Grids[grid1]->GridData->CheckDensity() == FAIL){
+  //       printf("Negative densities reached after shock handler\n");
+    //  }
+
 
       /* Compute and apply thermal conduction. */
       if(IsotropicConduction || AnisotropicConduction){

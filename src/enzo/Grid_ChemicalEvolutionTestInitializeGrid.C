@@ -85,6 +85,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
     }
   }
 
+
   if (MultiSpecies){
     // set set background to primordial and 100% ionized (only HII and HeIII)
     for( i = 0; i < size; i++){
@@ -126,6 +127,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
 
     }// loop over cells
   } // Multispecies
+
 
 
   /* Loop over all requested stellar yields species and assign initial values */

@@ -372,6 +372,12 @@ public:
 
    int CheckTimeStep(float dt) {return ((dtFixed > dt) ? FAIL : SUCCESS);};
 
+/* Debugging function for looping over a field over all cells in a grid to
+   check for negative values */
+
+   int CheckField(int FieldNum);
+   int CheckDensity(void);
+
 /* Return time, timestep */
 
    FLOAT ReturnTime() {return Time;};

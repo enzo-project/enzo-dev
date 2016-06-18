@@ -319,6 +319,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ApplyTimeAction.o \
 	Grid_CalculateAngularMomentum.o \
 	Grid_ChangeParticleTypeBeforeSN.o \
+        Grid_CheckField.o \
 	Grid_CheckForExternalReflections.o \
 	Grid_CheckForOverlap.o \
 	Grid_CheckForPossibleOverlap.o \
