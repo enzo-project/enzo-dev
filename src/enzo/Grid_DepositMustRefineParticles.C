@@ -33,15 +33,15 @@ extern "C" void PFORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, float *partmass, int *ndim, int *npositions,
                         int *itype, int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
-			int *imatch1, int *imatch2, float *minmassmust, int *buffersize,
-			float *unipartmass);
+			int *imatch1, int *imatch2, int *imatch3, float *minmassmust,
+                        int *buffersize, float *unipartmass);
  
  
 int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField)
 {
   /* declarations */
   //printf("grid::DepositMustRefineParticles called \n");
-  int i, dim, size = 1, ParticleTypeToMatch1, ParticleTypeToMatch2;
+  int i, dim, size = 1, ParticleTypeToMatch1, ParticleTypeToMatch2, ParticleTypeToMatch3;
   FLOAT LeftEdge[MAX_DIMENSION], CellSize;
   int ParticleBufferSize;
 
@@ -86,6 +86,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   ParticleTypeToMatch1 = PARTICLE_TYPE_MUST_REFINE;
   ParticleTypeToMatch2 = PARTICLE_TYPE_MBH;
+  ParticleTypeToMatch3 = PARTICLE_TYPE_INDIVIDUAL_STAR;
  
   float UniformParticleMass = 0.0;
   if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3)
@@ -95,7 +96,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 	   ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], ParticleMass,
 	   &GridRank, &NumberOfParticles, ParticleType, FlaggingField,
 	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
-	   &CellSize, &ParticleTypeToMatch1, &ParticleTypeToMatch2, 
+	   &CellSize, &ParticleTypeToMatch1, &ParticleTypeToMatch2, &ParticleTypeToMatch3,
 	   &MustRefineParticlesMinimumMass, &ParticleBufferSize,
 			  &UniformParticleMass);
 
