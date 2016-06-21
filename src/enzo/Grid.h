@@ -2214,6 +2214,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
                                        const float &up, const float &vp, const float &wp,
                                        const float &mproj, const float &lifetime,
+                                       const float &particle_age,
                                        const float &metallicity, float *mp, int mode);
 
 
