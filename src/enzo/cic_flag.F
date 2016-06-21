@@ -49,7 +49,8 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      INTG_PREC dim1, dim2, dim3, npositions, ndim, imatch1, imatch2, imatch3
+      INTG_PREC dim1, dim2, dim3, npositions, ndim, imatch1, imatch2,
+     &          imatch3
       R_PREC minmassmust, unipartmass
       R_PREC partmass(npositions)
       INTG_PREC buffersize
