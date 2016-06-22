@@ -55,8 +55,8 @@ Background Radiation Parameters
 ``RadiationFieldRedshift`` (external)
     This parameter specifies the redshift at which the radiation field
     is calculated.  If a UV radiation background is used in a
-    non-cosmological simulation, this needs to be defined.  Default:
-    (undefined)
+    non-cosmological simulation, this needs to be defined. Negative
+    redshifts are permitted. Default: (undefined)
 ``RadiationRedshiftOn`` (external) 
     The redshift at which the UV 
     background turns on. Default: 7.0.

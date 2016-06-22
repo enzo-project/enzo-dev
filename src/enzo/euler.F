@@ -11,7 +11,7 @@ c
      &            gamma, idiff, gravity, idual, eta1, eta2,
      &            df, ef, uf, vf, wf, gef, ges,
      &            ncolor, colslice, colf, dfloor
-     &               )
+     &                 )
 c
 c  SOLVES THE EULERIAN CONSERVATION LAWS USING FLUXES FROM THE RIEMANN SOLVER
 c
@@ -134,14 +134,14 @@ c     &        write(6,*) i,j,uadvect,uslice(i,j),dt
 c          if (dnu(i) .le. 0.0 .or. eslice(i,j)*dslice(i,j) +
 c     &      qc*(dueb(i)-dueb(i+1)+upb(i)-upb(i+1)) .lt. 0.0) then
 
+
 c
-c     Apply density floor (if used) and update inv density
+c  Apply density floor (if used) and update inv density
 c
           if (dfloor .gt. 0._RKIND) then
-              dnu(i)    = max(dnu(i), dfloor)
-              dnuinv(i) = 1._RKIND/dnu(i)
+              dnu(i)    = max( dnu(i), dfloor)
+              dnuinv(i) = 1._RKIND / dnu(i)
           endif
-     
 
           uold(i)     = uslice(i,j)
 c          write(20,*) i, uslice(i,j), (uslice(i,j)*dslice(i,j) +
