@@ -286,6 +286,7 @@ int IndividualStarInterpolateLifetime(float &tau, const float &M, const float &m
           (      t)*(1.0 - u) * IndividualStarPropertiesData.agb_start[i+1][j  ] ;
   } else{
     ENZO_FAIL("IndividualStarInterpolateProperties: Failure in lifetime interpolation, mode must be set to either 1 or 2");
+    return FAIL;
   }
 
   return SUCCESS;
