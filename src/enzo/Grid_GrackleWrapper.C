@@ -136,6 +136,7 @@ int grid::GrackleWrapper()
   grackle_units.velocity_units       = (double) VelocityUnits;
   grackle_units.a_units              = (double) aUnits;
   grackle_units.a_value              = (double) a;
+  grackle_units.grid_dx              = (double) CellWidth[0][0];
 
   /* Metal cooling codes. */
  
