@@ -271,6 +271,8 @@ class EnzoTestCollection(object):
         self.verbose = verbose
         if args is None: args = sys.argv[:1]
         self.args = args
+        if self.verbose:
+            self.args.append('-v')
         if plugins is None: plugins = []
         self.plugins = plugins
         if tests is None:
