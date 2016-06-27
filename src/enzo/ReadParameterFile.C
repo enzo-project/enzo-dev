@@ -548,6 +548,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "radiative_transfer_intermediate_step = %d",
                   &grackle_data.radiative_transfer_intermediate_step); // AJE
 
+    ret += sscanf(line, "hi_ph_avg_cross_section = %d", &grackle_data.hi_ph_avg_cross_section);
+    ret += sscanf(line, "hei_ph_avg_cross_section = %d",&grackle_data.hei_ph_avg_cross_section);
+    ret += sscanf(line, "heii_ph_avg_cross_section = %d", &grackle_data.heii_ph_avg_cross_section);
+    ret += sscanf(line, "hi_pi_avg_cross_section = %d", &grackle_data.hi_pi_avg_cross_section);
+    ret += sscanf(line, "hei_pi_avg_cross_section = %d", &grackle_data.hei_pi_avg_cross_section);
+    ret += sscanf(line, "heii_pi_avg_cross_section = %d", &grackle_data.heii_pi_avg_cross_section);
+
     if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
       grackle_data.grackle_data_file = dummy;
       ret++;
