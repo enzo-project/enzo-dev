@@ -17,6 +17,7 @@ _base_fields = ("Density",
                 "y-velocity",
                 "z-velocity",
                 "Gas_Energy",
+                "GasEnergy"
                 "particle_position_x",
                 "particle_position_y",
                 "particle_position_z")
@@ -30,7 +31,7 @@ def test_standard():
     sim.get_time_series()
     yield VerifySimulationSameTest(sim)
     base_pf = sim[0]
-    fields = [f for f in _base_fields if f in base_pf.h.field_list]
+    fields = [f for f in _base_fields if ('enzo', f) in base_pf.h.field_list]
     # Only test the last output.
     pf = sim[-1]
     for test in standard_small_simulation(pf, fields): yield test
