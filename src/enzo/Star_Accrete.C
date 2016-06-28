@@ -1,4 +1,3 @@
-#define DEBUG 0
 /***********************************************************************
 /
 /  ADD ANY MASS MARKED FOR ACCRETION ONTO THE STAR PARTICLE
@@ -32,7 +31,7 @@ int Star::Accrete(void)
 {
 
   if (this->CurrentGrid == NULL || 
-      (this->naccretions == 0 && abs(this->DeltaMass) < tiny_number))
+      (this->naccretions == 0 && fabs(this->DeltaMass) < tiny_number))
     return SUCCESS;
 
   const double Msun = 1.989e33, yr = 3.1557e7;
@@ -106,17 +105,13 @@ int Star::Accrete(void)
 
   /* Keep the last accretion_rate for future use */
 
-  if (n > 0) {
-    last_accretion_rate = accretion_rate[n-1]; 
-    fprintf(stdout, "star::Accrete:  last_accretion_rate = %g Msun/yr, time = %g, "
-	    "accretion_time[0] = %g, this_dt = %e, DeltaMass = %g, Mass = %lf\n",
-	    last_accretion_rate*yr, time, accretion_time[0], this_dt, DeltaMass, Mass);
-  } else {
-    if (DEBUG)
-      fprintf(stdout, "star::Accrete:  last_accretion_rate = %g Msun/yr, time = %g, "
-	      "this_dt = %e, DeltaMass = %g, Mass = %lf\n",
-	      last_accretion_rate*yr, time, this_dt, DeltaMass, Mass);
-  }
+  if (n > 0)  last_accretion_rate = accretion_rate[n-1]; 
+
+  fprintf(stdout, "star::Accrete:  last_accretion_rate = %"GOUTSYM
+	  " Msun/yr, time = %"GOUTSYM", "
+	  "accretion_time[0] = %"GOUTSYM", this_dt = %"GOUTSYM
+	  ", DeltaMass = %"GOUTSYM", Mass = %lf\n",
+	  last_accretion_rate*yr, time, accretion_time[0], this_dt, DeltaMass, Mass);
 
   /* Remove these entries in the accretion table */
 

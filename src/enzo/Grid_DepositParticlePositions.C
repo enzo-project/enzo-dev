@@ -109,7 +109,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
     if (TargetGrid->GravitatingMassFieldParticlesCellSize <= 0)
       TargetGrid->InitializeGravitatingMassFieldParticles(RefineBy);
     DepositFieldPointer = TargetGrid->GravitatingMassFieldParticles;
-    CellSize            = float(TargetGrid->GravitatingMassFieldParticlesCellSize);
+    CellSize            = float(TargetGrid->CellWidth[0][0]);
     CloudSize            = float(CellWidth[0][0]);
     for (dim = 0; dim < GridRank; dim++) {
       LeftEdge[dim]  = TargetGrid->GravitatingMassFieldParticlesLeftEdge[dim];

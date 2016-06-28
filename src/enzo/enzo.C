@@ -531,7 +531,11 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
     // but write parallel root grid io for all new outputs
 
     if (restart && TopGrid.NextGridThisLevel == NULL && !HaloFinderOnly) {
+      int ParallelRootGridIOHold = ParallelRootGridIO;
+      if (TopGrid.NextGridThisLevel == NULL && ParallelRootGridIO == TRUE)
+         ParallelRootGridIO = FALSE;
       CommunicationPartitionGrid(&TopGrid, 0);  // partition top grid if necessary
+      ParallelRootGridIO = ParallelRootGridIOHold;
     }
  
     if (MyProcessorNumber == ROOT_PROCESSOR) {

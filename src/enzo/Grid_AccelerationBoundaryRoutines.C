@@ -122,7 +122,7 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 			    int CycleNumber)
 {
 
-  if ( ! ( (SelfGravity || UniformGravity || PointSourceGravity) && level > 0 ))
+  if ( ! ( (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity ) && level > 0 ))
     return SUCCESS;
 
   if ( Grids[0]->GridData->ReturnNumberOfBaryonFields() == 0 ){

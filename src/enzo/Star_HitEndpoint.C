@@ -28,7 +28,7 @@
 int Star::HitEndpoint(FLOAT Time)
 {
 
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40;
+  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
 
   /* First check if the star's past its lifetime and then check other
@@ -46,7 +46,8 @@ int Star::HitEndpoint(FLOAT Time)
     // If a Pop III star is going supernova, only kill it after it has
     // applied its feedback sphere
     if ((this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
-	(this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass)) {
+        ((this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass) &&
+            PopIIISupernovaExplosions == TRUE)) {
 
       // Needs to be non-zero (multiply by a small number to retain
       // memory of mass)
@@ -80,6 +81,12 @@ int Star::HitEndpoint(FLOAT Time)
       }
     } else // SN tracers (must refine)
       result = NO_DEATH;
+
+    if (debug)
+      printf("HitEndpoint[%"ISYM"]: type = %"ISYM", mass = %"GOUTSYM", result = %"ISYM", feedback = %"ISYM", Time = %"PSYM"/%"PSYM"\n",
+	     this->Identifier, this->type, this->Mass, result, this->FeedbackFlag, Time,
+	     this->BirthTime+this->LifeTime);
+
     break;
     
   case PopII:

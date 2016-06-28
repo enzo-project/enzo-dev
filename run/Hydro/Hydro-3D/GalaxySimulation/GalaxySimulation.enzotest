@@ -1,0 +1,12 @@
+name = 'GalaxySimulation'
+answer_testing_script = None
+nprocs = 16
+runtime = 'long'
+hydro = True
+gravity = True
+AMR = True
+dimensionality = 3
+max_time_minutes = 1000
+fullsuite = False
+pushsuite = False
+quicksuite = False

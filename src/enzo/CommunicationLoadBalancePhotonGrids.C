@@ -234,7 +234,7 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
 
   if (MyProcessorNumber == ROOT_PROCESSOR && GridsMoved > 0) {
     tt1 = ReturnWallTime();
-    printf("PhotonLoadBalance[%d]: Number of grids moved = %"ISYM" out of %"ISYM" "
+    printf("PhotonLoadBalance[%"ISYM"]: Number of grids moved = %"ISYM" out of %"ISYM" "
 	   "(%lg seconds elapsed)\n", lvl, GridsMoved, NumberOfGrids[lvl], tt1-tt0);
   }
 

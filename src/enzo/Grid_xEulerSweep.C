@@ -293,7 +293,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      &PPMDiffusionParameter, &GravityOn, &DualEnergyFormalism, 
 		      &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
 		      df, ef, uf, vf, wf, gef, ges,
-		      &NumberOfColours, colslice, colf);
+		      &NumberOfColours, colslice, colf, &SmallRho);
 
   /* If necessary, recompute the pressure to correctly set ge and e */
 

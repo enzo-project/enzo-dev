@@ -254,7 +254,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
      super source in each leaf. */
   
   if (RadiativeTransferSourceClustering == TRUE)
-    if (CreateSourceClusteringTree(NULL, NULL, NULL) == FAIL) {
+    if (CreateSourceClusteringTree(0, NULL, NULL) == FAIL) {
       ENZO_FAIL("Error in CreateSourceClusteringTree.\n");
 
     }

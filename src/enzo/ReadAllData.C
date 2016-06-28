@@ -175,20 +175,21 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     BRerr = 1;
   } else ReadHDF4B = 1;
 #endif // HDF4
-  if (ReadHDF4B != 1) 
-    if(LoadGridDataAtStart){    
+  if (ReadHDF4B != 1) {
+    if(LoadGridDataAtStart) {    
       if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
 	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 		MetaData.BoundaryConditionName);
 	BRerr = 1;
       }
-    }else{
+    } else {
       if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
 	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 		MetaData.BoundaryConditionName);
 	BRerr = 1;
       }
     }
+  }
 
 
   if (BRerr ==0) strcat(MetaData.BoundaryConditionName, hdfsuffix);

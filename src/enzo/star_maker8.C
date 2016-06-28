@@ -468,7 +468,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       for (int kk = -2; kk <= 2; kk++) {
 	for (int jj = -2; jj <= 2; jj++) {
 	  for (int ii = -2; ii <= 2; ii++) {
-	    if (fabs(ii) != 2 && fabs(jj) != 2 && fabs(kk) != 2) continue;
+	    if (ABS(ii) != 2 && ABS(jj) != 2 && ABS(kk) != 2) continue;
 
 	    x_cell = ii*(*dx), y_cell = jj*(*dx), z_cell = kk*(*dx);
 	    r_cell = sqrt(POW(x_cell,2) + POW(y_cell,2) + POW(z_cell,2));	    
@@ -588,7 +588,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       for (int kk = -2; kk <= 2; kk++) {
 	for (int jj = -2; jj <= 2; jj++) {
 	  for (int ii = -2; ii <= 2; ii++) {
-	    if (fabs(ii) != 2 && fabs(jj) != 2 && fabs(kk) != 2) continue;
+	    if (ABS(ii) != 2 && ABS(jj) != 2 && ABS(kk) != 2) continue;
 
 	    x_cell = ii*(*dx), y_cell = jj*(*dx), z_cell = kk*(*dx);
 	    r_cell = sqrt(POW(x_cell,2) + POW(y_cell,2) + POW(z_cell,2));	    
@@ -696,11 +696,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	for (int jj = -3; jj <= 3; jj++) {
 	  for (int ii = -3; ii <= 3; ii++) {
 	    if (ii == 0 && jj == 0 && kk == 0) continue;
-	    /*if ((fabs(kk) == 2 && fabs(jj) == 2) ||
-		(fabs(kk) == 2 && fabs(ii) == 2) ||
-		(fabs(jj) == 2 && fabs(ii) == 2))
-		continue;*/
-	    if (fabs(ii) != 3 && fabs(jj) != 3 && fabs(kk) != 3) continue;
+	    if (ABS(ii) != 3 && ABS(jj) != 3 && ABS(kk) != 3) continue;
 	    
 	    x_cell = ii*(*dx), y_cell = jj*(*dx), z_cell = kk*(*dx);
 	    radius2 = POW(x_cell,2) + POW(y_cell,2) + POW(z_cell,2);

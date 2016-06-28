@@ -34,6 +34,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
  
   HubbleConstantNow    = 0.701;
   OmegaMatterNow       = 0.279;
+  OmegaDarkMatterNow   = FLOAT_UNDEFINED;
   OmegaLambdaNow       = 0.721;
   ComovingBoxSize      = 64;
   MaxExpansionRate     = 0.01;
@@ -56,6 +57,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
     ret += sscanf(line, "CosmologyHubbleConstantNow = %"FSYM,
 		  &HubbleConstantNow);
     ret += sscanf(line, "CosmologyOmegaMatterNow = %"FSYM, &OmegaMatterNow);
+    ret += sscanf(line, "CosmologyOmegaDarkMatterNow = %"FSYM, &OmegaDarkMatterNow);
     ret += sscanf(line, "CosmologyOmegaLambdaNow = %"FSYM, &OmegaLambdaNow);
     ret += sscanf(line, "CosmologyComovingBoxSize = %"FSYM, &ComovingBoxSize);
     ret += sscanf(line, "CosmologyMaxExpansionRate = %"FSYM,
@@ -81,11 +83,17 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
     /* if the line is suspicious, issue a warning */
  
     if (ret == 0 && strstr(line, "=") != NULL && line[0] != '#' &&
-	strstr(line, "Cosmology") && !strstr(line, "CosmologySimulation"))
+	strstr(line, "Cosmology") && !strstr(line, "CosmologySimulation") &&
+	MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
  
   }
- 
+
+  if (MyProcessorNumber == ROOT_PROCESSOR &&
+      OmegaDarkMatterNow == FLOAT_UNDEFINED &&
+      MustRefineParticlesCreateParticles > 0)
+    ENZO_FAIL("Must define CosmologyOmegaDarkMatterNow if using must-refine particles in a cosmology simulation.");
+  
   /* Initialize by finding the time at the initial redshift. */
  
   if (CosmologyComputeTimeFromRedshift(InitialRedshift,

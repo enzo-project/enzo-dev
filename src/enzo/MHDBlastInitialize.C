@@ -131,14 +131,16 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     DataLabel[i++] = Vel3Name;
     DataUnits[j++] = NULL;
   if( UseMHD ){
-    DataUnits[i] = NULL;
     DataLabel[i++] = BxName;
-    DataUnits[i] = NULL;
+    DataUnits[j++] = NULL;
     DataLabel[i++] = ByName;
-    DataUnits[i] = NULL;
+    DataUnits[j++] = NULL;
     DataLabel[i++] = BzName;
-    DataUnits[i] = NULL;
+    DataUnits[j++] = NULL;
+  }
+  if( HydroMethod == MHD_RK ){
     DataLabel[i++] = PhiName;
+    DataUnits[j++] = NULL;
   }
 
 

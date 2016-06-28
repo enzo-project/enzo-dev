@@ -130,7 +130,7 @@ int grid::CosmologySimulationInitializeGrid(
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, PhotoGammaNum;
  
   int ExtraField[2];
-  int ForbidNum, iTE;
+  int ForbidNum, iTE, iCR;
  
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
@@ -178,6 +178,7 @@ int grid::CosmologySimulationInitializeGrid(
      if ( (ParallelRootGridIO != TRUE) || 
 	  (ParallelParticleIO != TRUE && !CosmologySimulationCalculatePositions) )
      {
+				if( MyProcessorNumber == ROOT_PROCESSOR )
          fprintf(stderr, "WARNING: ParallelRootGridIO and ParallelParticleIO are recommended for > 64 cpus to shrink data read-in time.");
      }
   }
@@ -233,7 +234,10 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[NumberOfBaryonFields++] = Velocity3;
     iTE = NumberOfBaryonFields;
     FieldType[NumberOfBaryonFields++] = TotalEnergy;
-
+    if(CRModel){
+        iCR = NumberOfBaryonFields;
+        FieldType[NumberOfBaryonFields++] = CRDensity;
+    }
     if (DualEnergyFormalism)
       FieldType[NumberOfBaryonFields++] = InternalEnergy;
     
@@ -376,6 +380,12 @@ int grid::CosmologySimulationInitializeGrid(
 		    BaryonField[iTE], &tempbuffer, 0, 1) == FAIL) {
             ENZO_FAIL("Error reading total energy field.");
     }
+
+  // set the CR energy density field to small fraction of density
+  if(CRModel){
+    for (i = 0; i < size; i++)
+      BaryonField[iCR][i] = CosmologySimulationUniformCR;
+	} // end CR if
  
   // Read the gas energy field
  
@@ -391,13 +401,15 @@ int grid::CosmologySimulationInitializeGrid(
   if (CosmologySimulationVelocityNames[0] != NULL && ReadData)
   {
     // Determine if we're reading different files for each component
-    if (GridRank > 1)
+    if (GridRank > 1) {
       if (strstr(CosmologySimulationVelocityNames[0], 
-		 CosmologySimulationVelocityNames[1]) == NULL)
-	OneComponentPerFile = TRUE;
-      else
-	OneComponentPerFile = FALSE;
-
+              CosmologySimulationVelocityNames[1]) == NULL) {
+        OneComponentPerFile = TRUE;
+      } else {
+        OneComponentPerFile = FALSE;
+      }
+    }
+    
     for (dim = 0; dim < GridRank; dim++) {
       if (OneComponentPerFile) {
 	ndim = 1;

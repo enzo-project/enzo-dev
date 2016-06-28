@@ -52,6 +52,8 @@ int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
  
 int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
+int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
+			   HierarchyEntry &TopGrid, TopGridData &MetaData);
 int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData);
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -76,6 +78,8 @@ int ConductionCloudInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid
 			     TopGridData &MetaData);
 int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			     TopGridData &MetaData);
+int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			       TopGridData &MetaData, float *Initialdt);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -95,7 +99,7 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
-                        TopGridData &MetaData);
+                        TopGridData &MetaData, ExternalBoundary &Exterior);
 int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData);
 int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
@@ -205,7 +209,7 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
 int MHD1DTestWavesInitialize(FILE *fptr, FILE *Outfptr,
                         HierarchyEntry &TopGrid, TopGridData &MetaData);
 int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
-                        HierarchyEntry &TopGrid, TopGridData &MetaData);
+                        HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr, 
 			HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr, 
@@ -510,7 +514,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   
   // 31) GalaxySimulation
   if (ProblemType == 31)
-    ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData,Exterior);
 
   // 35) Shearing Box Simulation
   if (ProblemType == 35) 
@@ -579,6 +583,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 80)
     ret = StratifiedMediumExplosionInitialize(fptr, Outfptr, TopGrid, MetaData);  
 
+  // 90) Test a star particle explosion
+  if (ProblemType == 90)
+    ret = TestStarParticleInitialize(fptr, Outfptr, TopGrid, MetaData, 
+				     Initialdt);
   
   /* 101) 3D Collapse */
   if (ProblemType == 101) {
@@ -619,7 +627,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   /* 201) 2D MHD Test */
   if (ProblemType == 201) {
-    ret = MHD2DTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = MHD2DTestInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
 
   /* 202) 3D MHD Collapse */
@@ -656,6 +664,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 210) {
     ret = MHDDecayingRandomFieldInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
+
+  // 250 ) Cosmic Ray Shocktube Problem
+  if (ProblemType == 250){
+    ret = CRShockTubesInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
 
 
   /* ???? */
@@ -862,7 +876,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   
   // If using StarParticles, set the number to zero 
   // (assuming it hasn't already been set)
-  if (NumberOfStarParticles == NULL)
+  if (NumberOfStarParticles != 0)
     if (StarParticleCreation || StarParticleFeedback)
       NumberOfStarParticles = 0;
   
@@ -978,6 +992,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     }
     //  if (HydroMethod == Zeus_Hydro) ConvertTotalEnergyToGasEnergy(&TopGrid);
   }
+
+  if (ProblemType == 201)
+    if (MHD2DTestInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
+	== FAIL) {
+      ENZO_FAIL("Error in MHD2DTestReInitialize.\n");
+    }
+  
   
     if (ProblemType == 202)
     CollapseMHD3DInitialize(fptr, Outfptr, TopGrid, MetaData, 1);

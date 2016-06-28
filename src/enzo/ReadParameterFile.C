@@ -169,6 +169,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
            &CurrentDensityOutput);
     ret += sscanf(line, "IncrementDensityOutput = %"FSYM,
            &IncrementDensityOutput);
+    ret += sscanf(line, "StopFirstTimeAtDensity = %"FSYM,
+           &StopFirstTimeAtDensity);
+    ret += sscanf(line, "StopFirstTimeAtMetalEnrichedDensity = %"FSYM,
+           &StopFirstTimeAtMetalEnrichedDensity);
+    ret += sscanf(line, "EnrichedMetalFraction = %"FSYM,
+           &EnrichedMetalFraction);
 
     /* Subcycle directed output */
     ret += sscanf(line, "SubcycleSkipDataDump = %"ISYM, 
@@ -335,6 +341,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &OptimalSubgridsPerProcessor);
     ret += sscanf(line, "MinimumSubgridEdge     = %"ISYM, &MinimumSubgridEdge);
     ret += sscanf(line, "MaximumSubgridSize     = %"ISYM, &MaximumSubgridSize);
+    ret += sscanf(line, "CriticalGridRatio      = %"FSYM, &CriticalGridRatio);
     ret += sscanf(line, "NumberOfBufferZones    = %"ISYM, &NumberOfBufferZones);
     ret += sscanf(line, "FastSiblingLocatorEntireDomain = %"ISYM, &FastSiblingLocatorEntireDomain);
     ret += sscanf(line, "MustRefineRegionMinRefinementLevel = %"ISYM,
@@ -455,6 +462,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PointSourceGravityCoreRadius = %"FSYM,
 		  &PointSourceGravityCoreRadius);
  
+    ret += sscanf(line, "DiskGravity                        = %"ISYM,&DiskGravity);
+    ret += sscanf(line, "DiskGravityPosition                = %"PSYM" %"PSYM" %"PSYM,
+      DiskGravityPosition, DiskGravityPosition+1, DiskGravityPosition+2);
+    ret += sscanf(line, "DiskGravityAngularMomentum         = %"PSYM" %"PSYM" %"PSYM,
+      DiskGravityAngularMomentum,DiskGravityAngularMomentum+1,
+      DiskGravityAngularMomentum+2);
+    ret += sscanf(line, "DiskGravityStellarDiskMass         = %"FSYM,&DiskGravityStellarDiskMass);
+    ret += sscanf(line, "DiskGravityStellarDiskScaleHeightR = %"FSYM,&DiskGravityStellarDiskScaleHeightR);
+    ret += sscanf(line, "DiskGravityStellarDiskScaleHeightz = %"FSYM,&DiskGravityStellarDiskScaleHeightz);
+    ret += sscanf(line, "DiskGravityStellarBulgeMass        = %"FSYM,&DiskGravityStellarBulgeMass);
+    ret += sscanf(line, "DiskGravityStellarBulgeR           = %"FSYM,&DiskGravityStellarBulgeR);
+    ret += sscanf(line, "DiskGravityDarkMatterR             = %"FSYM,&DiskGravityDarkMatterR);
+    ret += sscanf(line, "DiskGravityDarkMatterDensity       = %"FSYM,&DiskGravityDarkMatterDensity);
+
     ret += sscanf(line, "ExternalGravity         = %"ISYM,&ExternalGravity);
     ret += sscanf(line, "ExternalGravityConstant = %"FSYM, &ExternalGravityConstant);
     ret += sscanf(line, "ExternalGravityRadius   = %"FSYM,&ExternalGravityRadius);
@@ -550,6 +571,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++;
     }
 
+    ret += sscanf(line, "CRModel = %"ISYM, &CRModel); 
+    ret += sscanf(line, "CRDiffusion = %"ISYM, &CRDiffusion);
+    ret += sscanf(line, "CRkappa = %"FSYM, &CRkappa);
+    ret += sscanf(line, "CRCourantSafetyNumber = %"FSYM, &CRCourantSafetyNumber);
+    ret += sscanf(line, "CRFeedback = %"FSYM, &CRFeedback);
+    ret += sscanf(line, "CRdensFloor = %"FSYM, &CRdensFloor);
+    ret += sscanf(line, "CRmaxSoundSpeed = %"FSYM, &CRmaxSoundSpeed);
+    ret += sscanf(line, "CRgamma = %"FSYM, &CRgamma);
+    ret += sscanf(line, "CosmologySimulationUniformCR = %"FSYM, &CosmologySimulationUniformCR); // FIXME
+
     ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
     ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
     ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
@@ -616,6 +647,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &RefineByResistiveLengthSafetyFactor);
     ret += sscanf(line, "MustRefineParticlesRefineToLevel = %"ISYM,
                   &MustRefineParticlesRefineToLevel);
+    ret += sscanf(line, "MustRefineParticlesCreateParticles = %"ISYM,
+                  &MustRefineParticlesCreateParticles);
+    ret += sscanf(line, "MustRefineParticlesLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+                  MustRefineParticlesLeftEdge, MustRefineParticlesLeftEdge+1, 
+                  MustRefineParticlesLeftEdge+2);
+    ret += sscanf(line, "MustRefineParticlesRightEdge = %"PSYM" %"PSYM" %"PSYM,
+                  MustRefineParticlesRightEdge, MustRefineParticlesRightEdge+1,
+                  MustRefineParticlesRightEdge+2);
     ret += sscanf(line, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM,
                   &MustRefineParticlesRefineToLevelAutoAdjust);
     ret += sscanf(line, "MustRefineParticlesMinimumMass = %"FSYM,
@@ -843,6 +882,21 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	  MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stderr, "Warning: Incorrect version number.\n");
     }
+
+    /* Read Galaxy Simulation Wind Boundary Variabels */
+
+     ret += sscanf(line, "GalaxySimulationRPSWind = %"ISYM,&GalaxySimulationRPSWind);
+     ret += sscanf(line, "GalaxySimulationRPSWindShockSpeed = %"FSYM,&GalaxySimulationRPSWindShockSpeed);
+     ret += sscanf(line, "GalaxySimulationRPSWindDelay = %"FSYM,&GalaxySimulationRPSWindDelay);
+     ret += sscanf(line, "GalaxySimulationRPSWindDensity = %"FSYM,&GalaxySimulationRPSWindDensity);
+     ret += sscanf(line, "GalaxySimulationRPSWindTotalEnergy = %"FSYM,&GalaxySimulationRPSWindTotalEnergy);
+     ret += sscanf(line, "GalaxySimulationRPSWindPressure = %"FSYM,&GalaxySimulationRPSWindPressure);
+     ret += sscanf(line, "GalaxySimulationRPSWindVelocity = %"PSYM" %"PSYM" %"PSYM,
+      GalaxySimulationRPSWindVelocity, GalaxySimulationRPSWindVelocity+1, GalaxySimulationRPSWindVelocity+2);
+     ret += sscanf(line, "GalaxySimulationPreWindDensity = %"FSYM,&GalaxySimulationPreWindDensity);
+     ret += sscanf(line, "GalaxySimulationPreWindTotalEnergy = %"FSYM,&GalaxySimulationPreWindTotalEnergy);
+     ret += sscanf(line, "GalaxySimulationPreWindVelocity = %"PSYM" %"PSYM" %"PSYM,
+         GalaxySimulationPreWindVelocity,GalaxySimulationPreWindVelocity+1,GalaxySimulationPreWindVelocity+2);
  
     /* Read star particle parameters. */
 
@@ -874,6 +928,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarEnergyToThermalFeedback);
     ret += sscanf(line, "StarEnergyToStellarUV = %"FSYM, &StarEnergyToStellarUV);
     ret += sscanf(line, "StarEnergyToQuasarUV = %"FSYM, &StarEnergyToQuasarUV);
+    ret += sscanf(line, "StarFeedbackKineticFraction = %"FSYM, 
+    	&StarFeedbackKineticFraction);
+    ret += sscanf(line, "StarMakerExplosionDelayTime = %"FSYM, 
+    	&StarMakerExplosionDelayTime);
     ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
     ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
 
@@ -936,6 +994,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIIColorDensityThreshold);
     ret += sscanf(line, "PopIIIColorMass = %"FSYM,
 		  &PopIIIColorMass);
+    ret += sscanf(line, "PopIIIUseHypernova = %"ISYM,
+		  &PopIIIUseHypernova);
+    ret += sscanf(line, "PopIIISupernovaExplosions = %"ISYM,
+		  &PopIIISupernovaExplosions);
+    ret += sscanf(line, "PopIIIOutputOnFeedback = %"ISYM,
+		  &PopIIIOutputOnFeedback);
 
     ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
     ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);
@@ -1066,6 +1130,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
     ret += sscanf(line, "BAnyl = %"ISYM, &BAnyl);
+    ret += sscanf(line, "WriteExternalAccel = %"ISYM, &WriteExternalAccel);
 
 
     /* Read MHD Paramters */
@@ -1091,10 +1156,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ViscosityCoefficient = %"FSYM, &ViscosityCoefficient);  
     ret += sscanf(line, "UseAmbipolarDiffusion = %"ISYM"", &UseAmbipolarDiffusion);
     ret += sscanf(line, "UseResistivity = %"ISYM"", &UseResistivity);
-    ret += sscanf(line, "SmallRho = %g", &SmallRho);
-    ret += sscanf(line, "SmallP = %g", &SmallP);
-    ret += sscanf(line, "SmallT = %g", &SmallT);
-    ret += sscanf(line, "MaximumAlvenSpeed = %g", &MaximumAlvenSpeed);
+    ret += sscanf(line, "SmallRho = %"FSYM, &SmallRho);
+    ret += sscanf(line, "SmallP = %"FSYM, &SmallP);
+    ret += sscanf(line, "SmallT = %"FSYM, &SmallT);
+    ret += sscanf(line, "MaximumAlvenSpeed = %"FSYM, &MaximumAlvenSpeed);
     ret += sscanf(line, "Coordinate = %"ISYM, &Coordinate);
     ret += sscanf(line, "RiemannSolver = %"ISYM, &RiemannSolver);
     ret += sscanf(line, "RiemannSolverFallback = %"ISYM, &RiemannSolverFallback);
@@ -1198,6 +1263,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     if (*dummy != 0) {
       dummy = new char[MAX_LINE_LENGTH];
+      dummy[0] = 0;
       ret++;
     }
  
@@ -1234,7 +1300,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TracerParticleCreation")) ret++;
     if (strstr(line, "TurbulenceSimulation")) ret++;
     if (strstr(line, "ProtostellarCollapse")) ret++;
-    if (strstr(line, "GalaxySimulation")) ret++;
+    if (strstr(line, "GalaxySimulation") 
+			&& !strstr(line,"RPSWind") && !strstr(line,"PreWind") ) ret++;
     if (strstr(line, "AgoraRestart")) ret++;
     if (strstr(line, "ConductionTest")) ret++;
     if (strstr(line, "ConductionBubble")) ret++;
@@ -1649,7 +1716,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     for (k = -StarFeedbackDistRadius;k <= StarFeedbackDistRadius;k++) {
       for (j = -StarFeedbackDistRadius;j <= StarFeedbackDistRadius;j++) {
 	for (i = -StarFeedbackDistRadius;i <= StarFeedbackDistRadius;i++) {
-	  cell_step = fabs(k) + fabs(j) + fabs(i);
+	  cell_step = ABS(k) + ABS(j) + ABS(i);
 	  if (cell_step <= StarFeedbackDistCellStep) {
 	    StarFeedbackDistTotalCells++;
 	  }
@@ -1686,7 +1753,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   // Determine color fields (NColor) later inside a grid object.
   // ...
-
 #ifdef UNUSED
   if (MaximumGravityRefinementLevel == INT_UNDEFINED)
     MaximumGravityRefinementLevel = (RadiativeCooling && SelfGravity
@@ -1769,18 +1835,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
        meantime, just double-check to make sure that if one tries to use the isolated boundary
        conditions when the unigrid transpose stuff is on, the code crashes loudly.
        -- BWO, 26 June 2008 */
-      if (MyProcessorNumber == ROOT_PROCESSOR){
-	fprintf(stderr, "\n\n");
-	fprintf(stderr, "  ************************************************************************\n");
-	fprintf(stderr, "  ****  D'oh!  At present, you cannot use isolated top grid boundary  ****\n");
-	fprintf(stderr, "  ****  conditions with the top grid unigrid bookkeeping scheme.      ****\n");
-	fprintf(stderr, "  ****  Consult Brian O'Shea for the details of this wackiness,       ****\n");
-	fprintf(stderr, "  ****  and in the meantime enzo DISABLED unigrid tranposition!       ****\n");
-	fprintf(stderr, "  ************************************************************************\n");      
-	fprintf(stderr, "\n\n");
-      }
-      UnigridTranspose = FALSE;
-    }
+    ENZO_FAIL("Parameter mismatch: TopGridGravityBoundary = 1 only works with UnigridTranspose = 0");
+  }
 
   /* If the restart dump parameters were set to the previous defaults
      (dtRestartDump = 5 hours), then set back to current default,
@@ -1925,6 +1981,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
   }
 
+  /* Cosmic ray diffusion should be off if Cosmic rays are off */
+  if(CRDiffusion > 0 && CRModel == 0){
+    ENZO_FAIL("CRDiffusion can only be used if CRModel is turned on!!\n");
+  }
 
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
 

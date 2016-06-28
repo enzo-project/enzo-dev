@@ -37,13 +37,17 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   const float eV_erg = 6.241509e11;
 
   int i;
-  double L_UV, cgs_convert;
-  float x, x2, _mass, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
+  double L_UV, cgs_convert, _mass;
+  float x, x2, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
   float Mform, EnergyFractionHeI, EnergyFractionHeII;
-  x = log10((float)(this->Mass));
+  if (this->Mass < 0.1)  // Not "born" yet
+    _mass = this->FinalMass;
+  else
+    _mass = this->Mass;
+  x = log10((float)(_mass));
   x2 = x*x;
 
-  switch(this->type) {
+  switch(ABS(this->type)) {
 
     /* Luminosities from Schaerer (2002) */
 
@@ -57,7 +61,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[1] = 30.0;
     E[2] = 58.0;
     E[3] = 12.8;
-    _mass = max(min((float)(this->Mass), 500), 5);
+    _mass = max(min((float)(_mass), 500), 5);
     if (_mass > 9 && _mass <= 500) {
       Q[0] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);
       Q[1] = pow(10.0, 42.51 + 5.69*x  - 1.01*x2);
@@ -90,7 +94,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[1] = 30.0;
     E[2] = 60.0;
     E[3] = 12.8;
-    Q[0] = StarClusterIonizingLuminosity * this->Mass;
+    Q[0] = StarClusterIonizingLuminosity * _mass;
     if (StarClusterHeliumIonization) {
       Q[1] = EnergyFractionHeI * Q[0];
       Q[2] = EnergyFractionHeII * Q[0];

@@ -1,0 +1,40 @@
+#
+#  Turner & Stone equilibration test, cold->hot
+#
+#  Daniel R. Reynolds, reynolds@smu.edu
+#
+#############################
+# 
+# problem and general modules 
+# 
+ProblemType                = 400           // RadHydroConstTest initializer
+RadiativeTransferFLD       = 2             // FLD radiation solver
+ImplicitProblem            = 1             // use gFLDProblem module
+UseHydro                   = 0             // no hydro
+Unigrid                    = 1             // unigrid run
+RadiativeTransferOpticallyThinH2 = 0       // no 1/r^2 LW background
+RadHydroParamfile = TurnerStoneEquil1.gfld
+#
+# grid and boundary 
+#
+TopGridRank                = 3
+TopGridDimensions          = 8 8 8
+LeftFaceBoundaryCondition  = 3 3 3         // periodic
+RightFaceBoundaryCondition = 3 3 3
+DomainLeftEdge             = 0.0 0.0 0.0   // (scaled units)
+DomainRightEdge            = 1.0 1.0 1.0
+#
+# runtime and I/O
+#
+StopTime                   = 2.5e0         // (scaled units)
+StopCycle                  = 99999
+dtDataDump                 = 2.5e-2
+ParallelRootGridIO         = 1
+# 
+# units
+#
+DensityUnits               = 1.0e-3
+LengthUnits                = 1.0e0
+TimeUnits                  = 1.0e-7
+
+#############################

@@ -62,6 +62,8 @@ SPEXTERN float StarEnergyToQuasarUV;
 SPEXTERN int StarFeedbackDistRadius;
 SPEXTERN int StarFeedbackDistCellStep;
 SPEXTERN int StarFeedbackDistTotalCells;
+SPEXTERN float StarFeedbackKineticFraction;
+SPEXTERN float StarMakerExplosionDelayTime;
 
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIInitialMassFunction;
@@ -82,6 +84,9 @@ SPEXTERN int   PopIIISupernovaMustRefine;
 SPEXTERN int   PopIIISupernovaMustRefineResolution;
 SPEXTERN float PopIIIColorDensityThreshold;
 SPEXTERN float PopIIIColorMass;
+SPEXTERN int   PopIIIUseHypernova;
+SPEXTERN int   PopIIISupernovaExplosions;
+SPEXTERN int   PopIIIOutputOnFeedback;
 
 SPEXTERN int    StarClusterUseMetalField;
 SPEXTERN int    StarClusterHeliumIonization;

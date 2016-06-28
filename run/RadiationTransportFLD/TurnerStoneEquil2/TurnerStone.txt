@@ -1,0 +1,70 @@
+Turner & Stone Equilibration Tests
+[Matter-radiation equilibration in a homogeneous medium]
+
+
+In this problem, both e and E are spatially uniform but are
+initialized to values far away from equilibrium.  This case thus
+exercises the matter-radiation coupling terms in our gas and 
+radiation energy equations for our model that assumes local
+thermodynamic equilibrium (i.e. no chemistry).  
+
+We assume an isotropic medium characterized by a single opacity of
+4e-8 cm^{-1}, a gas density of 1e-7 g cm^{-3}, and an average particle
+mass of 0.6 m_h, where m_h is the mass of a hydrogen atom.  Coupled to
+this medium is a radiation field with a uniform value of 1e12 erg
+cm^{-3}.  This radiation field therefore corresponds to a ``radiation
+temperature'', T_r = (E/a_r)^{1/4}, of about 3.4e6 K.  Here we have
+defined a_r as the radiation constant, 7.56e-15 erg cm^{-3} K^{-1}.
+
+Two cases are considered: one in which the initial gas energy density
+is e = 1e10 erg cm^{-3}, and the other with e = 1e2 erg cm^{-3}.
+These parameters correspond to gas temperatures of roughly 4.8e8 and
+4.8 K, respectively, which therefore bracket the radiation
+temperature.  In both cases, however, the initial radiation
+temperature is sufficiently high that the radiation energy density
+should remain constant to good approximation as the gas evolves to
+thermal equilibrium.  
+
+These tests are run in a small box domain (4^3 zones) with
+triply-periodic boundaries. The case of T(0) < T_r is performed in the
+files TurnerStoneEquil1, and the T(0) > T_r case is performed in the
+files TurnerStoneEquil2.
+
+Analysis may be performed using the ts_makeplots.py script, assuming
+that you have the python packages matplotlib and scipy installed.
+
+Alternatively, the final equilibrium values of these two simulations
+should be approximately:
+
+   test    | e (internal) |  e (CGS)  | E (internal) |   E (CGS)
+  -----------------------------------------------------------------
+   1: c->h |   6.9968     | 6.9968e14 |   9.9993     | 9.9993e+11
+   2: h->c |   7.0144     | 7.0144e14 |   1.0099     | 1.0099e+11
+  -----------------------------------------------------------------
+
+
+Test files:
+- implicit solver, test 1: TurnerStoneEquil1.enzo, TurnerStoneEquil1.gfld
+- implicit solver, test 2: TurnerStoneEquil2.enzo, TurnerStoneEquil2.gfld
+- split solver, test 1: TurnerStoneEquil1_sp.enzo, TurnerStoneEquil1_sp.gfld
+- split solver, test 2: TurnerStoneEquil2_sp.enzo, TurnerStoneEquil2_sp.gfld
+- analysis: ts_makeplots.py (all tests); requires matplotlib, h5py and
+  scipy
+
+
+Problem-specific Input Parameters:
+- RadHydroVelocity -- initial velocity in each direction [cm/s]
+- RadHydroDensity -- initial density [g/cm^3]
+- RadHydroIEnergy -- initial specific energy [erg/g]
+- RadHydroRadiationEnergy -- initial radiation energy [erg/cm^3]
+
+
+References:
+
+N.J. Turner, J.M. Stone, "A module for radiation hydrodynamic
+calculations with ZEUS-2D using flux-limited diffusion," ApJ Supp,
+135: 95-107, 2001. 
+
+D.R. Reynolds, J.C. Hayes, P. Paschos and M.L. Norman,
+"Self-consistent solution of cosmological radiation-hydrodynamics and
+chemical ionization," J. Comp. Phys., 228: 6833-6854, 2009.

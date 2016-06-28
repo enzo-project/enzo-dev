@@ -4,7 +4,8 @@ c///////////////////////  SUBROUTINE EXPAND_TERMS  \\\\\\\\\\\\\\\\\\\\\
 c
       subroutine expand_terms(rank, isize, idual, coef, imethod, gamma,
      &                        p, d, e, ge, u, v, w,
-     &                        dold, eold, geold, uold, vold, wold)
+     &                        dold, eold, geold, uold, vold, wold,
+     &                        icr, ecr, ecrold)
 c
 c  ADDS THE COMOVING EXPANSION TERMS TO THE PHYSICAL VARIABLES
 c
@@ -36,12 +37,12 @@ c
 c
 c     Arguments
 c
-      INTG_PREC isize, idual, imethod, rank
+      INTG_PREC isize, idual, imethod, rank, icr
       R_PREC    gamma, coef
       R_PREC    d(isize), p(isize), e(isize), ge(isize),
-     &        u(isize), v(isize), w(isize)
+     &        u(isize), v(isize), w(isize), ecr(isize)
       R_PREC    dold(isize), eold(isize), geold(isize),
-     &        uold(isize), vold(isize), wold(isize)
+     &        uold(isize), vold(isize), wold(isize), ecrold(isize)
 c
 c     Locals
 c
@@ -86,10 +87,18 @@ c     Now do total energy; the term is 3*p/d + v^2
 c       (for zeus method (imethod=2), only use 3*p/d term)
 c
       if (imethod .eq. 2) then
-         do i = 1, isize
-            e(i) = max(e(i) - coef*6._RKIND*p(i)/(d(i)+dold(i)), 
-     &           0.5_RKIND*e(i))
-         enddo
+         if (icr .gt. 0) then
+c           For CR, use implicit on both
+            do i = 1, isize
+               e(i) = e(i) * (1.0 - coef)/(1.0 + coef)
+               ecr(i) = ecr(i) * (2.0 - coef)/(2.0 + coef)
+            enddo
+         else
+            do i = 1, isize
+               e(i) = max(e(i) - coef*6._RKIND*p(i)/(d(i)+dold(i)), 
+     &              0.5_RKIND*e(i))
+            enddo
+         endif
       else
          do i = 1, isize
 #ifdef ENERGY_METHOD1

@@ -36,4 +36,7 @@ SHOCK_POOL_EXTERN float ShockPoolVelocity[MAX_DIMENSION];
 SHOCK_POOL_EXTERN float ShockPoolShockDensity;
 SHOCK_POOL_EXTERN float ShockPoolShockTotalEnergy;
 SHOCK_POOL_EXTERN float ShockPoolShockVelocity[MAX_DIMENSION];
- 
+
+/* Delay of shock */
+
+SHOCK_POOL_EXTERN float ShockPoolDelay; 

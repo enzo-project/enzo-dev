@@ -97,9 +97,9 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
 			 DomainRightEdge[1]  || ShearingVelocityDirection==1 ))                        ) &&
 	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
 			 (CellLeftEdge[2][0] < DomainLeftEdge[2]  || ShearingVelocityDirection==2))    ) &&
-	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
+	    (k != -1 || (((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
 			 (CellLeftEdge[2][GridDimension[2]-1] >
-			 DomainRightEdge[2])  || ShearingVelocityDirection==2 )  )   ){
+			 DomainRightEdge[2]))  || ShearingVelocityDirection==2 )  )   ){
  
 // 	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
 // 			 (CellLeftEdge[0][0] < DomainLeftEdge[0] ))    ) &&

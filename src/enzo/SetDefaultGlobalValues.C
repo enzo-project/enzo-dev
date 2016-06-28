@@ -211,6 +211,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MinimumEfficiency         = 0.2;               // between 0-1, usually ~0.1
   MinimumSubgridEdge        = 6;                 // min for acceptable subgrid
   MaximumSubgridSize        = 32768;             // max for acceptable subgrid
+  CriticalGridRatio         = 3.0;              // max grid ratio
+
   SubgridSizeAutoAdjust     = TRUE; // true for adjusting maxsize and minedge
   OptimalSubgridsPerProcessor = 16;    // Subgrids per processor
   NumberOfBufferZones       = 1;
@@ -239,9 +241,16 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MetaData.NewMovieLeftEdge[dim]  = 0.0;
     MetaData.NewMovieRightEdge[dim] = 1.0;
     PointSourceGravityPosition[dim] = 0.0;
-    MustRefineRegionLeftEdge[dim] = 0.0;
-    MustRefineRegionRightEdge[dim] = 1.0;
+    MustRefineRegionLeftEdge[dim]   = 0.0;
+    MustRefineRegionRightEdge[dim]  = 1.0;
+    MustRefineParticlesLeftEdge[dim] = 0.0;
+    MustRefineParticlesRightEdge[dim] = 0.0;
+    DiskGravityPosition[dim]        = 0.0;
+    DiskGravityAngularMomentum[dim] = 0.0;
+    GalaxySimulationRPSWindVelocity[dim] = 0.0;
+    GalaxySimulationPreWindVelocity[dim] = 0.0;
   }
+  if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0; 
 
   MultiRefineRegionMaximumOuterLevel = INT_UNDEFINED;
   MultiRefineRegionMinimumOuterLevel = INT_UNDEFINED;
@@ -286,7 +295,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;
   Unigrid                     = FALSE;
-  UnigridTranspose            = FALSE;
+  UnigridTranspose            = 2;
   NumberOfRootGridTilesPerDimensionPerProcessor = 1;
   PartitionNestedGrids        = FALSE;
   ExtractFieldsOnly           = TRUE;
@@ -310,7 +319,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CurrentDensityOutput             = 999;
   IncrementDensityOutput           = 999;
   CurrentMaximumDensity            = -999;
- 
+  StopFirstTimeAtDensity              = 0.0;
+  StopFirstTimeAtMetalEnrichedDensity = 0.0;
+  CurrentMaximumMetalEnrichedDensity  = -999;
+  EnrichedMetalFraction               = 1.e-8;
+
   CubeDumpEnabled             = 0;
 
 #ifdef STAGE_INPUT
@@ -333,6 +346,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PointSourceGravityConstant   = 1.0;
   PointSourceGravityCoreRadius = 0.0;
 
+  DiskGravity                        = FALSE;
+  DiskGravityStellarDiskMass         = 1.0E11;      // Solar Masses
+  DiskGravityStellarDiskScaleHeightR = 4.0E-3;      // Mpc
+  DiskGravityStellarDiskScaleHeightz = 2.5E-4;      // Mpc
+  DiskGravityStellarBulgeMass        = 1.0E10;      // Solar Masses
+  DiskGravityStellarBulgeR           = 4.0E-4;      // Mpc
+  DiskGravityDarkMatterR             = 2.3E-2;      // Mpc
+  DiskGravityDarkMatterDensity       = 3.81323E-25; // CGS
+
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
   AccretionKernal             = FALSE;             // off
@@ -345,6 +367,17 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   WritePotential              = FALSE;
   ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
   BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
+
+  GalaxySimulationRPSWind = 0;
+  GalaxySimulationRPSWindShockSpeed = 0.0;
+  GalaxySimulationRPSWindDelay = 0.0;
+
+  GalaxySimulationRPSWindDensity = 1.0;
+  GalaxySimulationRPSWindTotalEnergy = 1.0;
+  GalaxySimulationRPSWindPressure = 1.0;
+
+  GalaxySimulationPreWindDensity = 1.0;
+  GalaxySimulationPreWindTotalEnergy = 1.0;
 
   GreensFunctionMaxNumber     = 1;                 // only one at a time
   GreensFunctionMaxSize       = 1;                 // not used yet
@@ -388,6 +421,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
+  CRModel                     = 0;                 // off
+  CRDiffusion                 = 0;                 // off
+  CRkappa                     = 0.0;
+  CRCourantSafetyNumber       = 0.5;
+  CRFeedback                  = 0.0;               // no stellar feedback into CRs
+  CRdensFloor                 = 0.0;               // off
+  CRmaxSoundSpeed             = 0.0;               // off 
+  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
+  CosmologySimulationUniformCR= 1e-20;             // FIXME
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
@@ -500,6 +542,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockwaveRefinementMinVelocity = 1.0e7; //1000 km/s
   ShockwaveRefinementMaxLevel = 0; 
   MustRefineParticlesRefineToLevel = 0;
+  MustRefineParticlesCreateParticles = 0;
   MustRefineParticlesRefineToLevelAutoAdjust = FALSE;
   MustRefineParticlesMinimumMass   = 0.0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
@@ -528,6 +571,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarEnergyToThermalFeedback      = 1.0e-5;
   StarEnergyToStellarUV            = 3.0e-6;
   StarEnergyToQuasarUV             = 5.0e-6;
+  StarFeedbackKineticFraction      = 0.0;
+  StarMakerExplosionDelayTime      = -1.0; //in Myrs if >= 0.0
   StarFeedbackDistRadius           = 0;
   StarFeedbackDistCellStep         = 0;
   StarFeedbackDistTotalCells       = 1;
@@ -618,6 +663,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIISupernovaMustRefineResolution = 32;
   PopIIIColorDensityThreshold      = 1e6;          // times mean total density
   PopIIIColorMass                  = 1e6;          // total mass to color
+  PopIIIUseHypernova               = TRUE;         // TRUE for HN yields, FALSE for CCSN
+  PopIIISupernovaExplosions        = TRUE;         // TRUE for supernova energy injection
+  PopIIIOutputOnFeedback           = FALSE;        // TRUE to output at creation and supernova
   IMFData                          = NULL;
 
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate, 4: Bondi with v_rel=0, 5: Bondi with v_rel=0 and vorticity
@@ -920,7 +968,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }  
 
   VelAnyl                     = 0;
-  BAnyl                     = 0;
+  BAnyl                       = 0;
+  WriteExternalAccel          = 0;
 
   /* Gas drag parameters */
   UseGasDrag = 0;

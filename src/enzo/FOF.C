@@ -138,6 +138,8 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   LCAPERF_STOP("InlineHaloFinder");
 
+  return SUCCESS;
+
 }
 
 /************************************************************************
@@ -389,7 +391,7 @@ int get_particles(int dest, int minid, int len, FOF_particle_data *buf,
     pp = AllVars.Head[minid - AllVars.Noffset[MyProcessorNumber]];
     do {
       buf[i++] = AllVars.P[pp];
-    } while (pp = AllVars.Next[pp]);
+    } while ((pp = AllVars.Next[pp]));
 
     return len;
 
@@ -411,7 +413,7 @@ int get_particles(int dest, int minid, int len, FOF_particle_data *buf,
     do {
       if (pp <= AllVars.Nslab[MyProcessorNumber])
 	localbuf[nlocal++]= AllVars.P[pp];
-    } while (pp = AllVars.Next[pp]);      
+    } while ((pp = AllVars.Next[pp]));
   } // ENDIF
   else if (AllVars.Ncontrib) {
 
@@ -444,7 +446,7 @@ int get_particles(int dest, int minid, int len, FOF_particle_data *buf,
 	do {
 	  if (pp <= AllVars.Nslab[MyProcessorNumber])
 	    localbuf[nlocal++] = AllVars.P[pp];
-	} while (pp = AllVars.Next[pp]);
+	} while ((pp = AllVars.Next[pp]));
       } // ENDIF
 
     } // ENDIF
@@ -723,17 +725,17 @@ void find_minids(FOFData &AllVars)
 	    AllVars.P[pp].ID < (1 + AllVars.Noffset[MyProcessorNumber] + 
 				AllVars.Nslab[MyProcessorNumber]))
 	  len++;
-      } while (pp = AllVars.Next[pp]);
+      } while ((pp = AllVars.Next[pp]));
 
       AllVars.P[n].MinID = AllVars.P[n].ID;
       AllVars.P[n].GrLen = len; /* Len[n]; */
 
       pp = n;
-      while (pp = AllVars.Next[pp])
+      while ((pp = AllVars.Next[pp]))
 	if (AllVars.P[n].MinID > AllVars.P[pp].ID)
 	  AllVars.P[n].MinID = AllVars.P[pp].ID;
       pp = n;
-      while (pp = AllVars.Next[pp]) {
+    while ((pp = AllVars.Next[pp])) {
 	AllVars.P[pp].MinID = AllVars.P[n].MinID;
 	AllVars.P[pp].GrLen = AllVars.P[n].GrLen;
       }
@@ -846,7 +848,7 @@ void stitch_together(FOFData &AllVars)
       do {
 	AllVars.P[pp].MinID = newid;
 	AllVars.P[pp].GrLen = len;
-      } while (pp = AllVars.Next[pp]);
+      } while ((pp = AllVars.Next[pp]));
 
       while (i < nbuf-1) {
 	if (iddat[i+1].minID == iddat[i].minID)
@@ -1225,7 +1227,7 @@ void find_groups(FOFData &AllVars)
   for (i = AllVars.Grid-2; i >= 1; i--)
     for (j = AllVars.Grid-2; j >= 1; j--)
       for (k = AllVars.Grid-2; k >= 1; k--) {
-	if (p = AllVars.GridFirst[i][j][k]) {
+        if ((p = AllVars.GridFirst[i][j][k])) {
 	  do {
 	    check_cell(AllVars, p, i+1,j  ,k  );
 	    check_cell(AllVars, p, i+1,j+1,k  );
@@ -1235,14 +1237,14 @@ void find_groups(FOFData &AllVars)
 	    check_cell(AllVars, p, i  ,j+1,k+1);
 	    check_cell(AllVars, p, i  ,j  ,k+1);
 	    check_cell(AllVars, p, i  ,j  ,k);    
-	  } while (p = AllVars.GridNext[p]);
+	  } while ((p = AllVars.GridNext[p]));
 	} // ENDIF
       } // ENDFOR k
 
   for (i = AllVars.Grid-2; i >= 1; i--)
     for (j = AllVars.Grid-2; j >= 1; j--)
       for (k = AllVars.Grid-2; k >= 1; k--) {
-	if (p = AllVars.GridFirst[i][j][k]) {
+        if ((p = AllVars.GridFirst[i][j][k])) {
 	  do {
 	    check_cell(AllVars, p, i+1,j  ,k-1);
 	    check_cell(AllVars, p, i+1,j-1,k  );
@@ -1250,7 +1252,7 @@ void find_groups(FOFData &AllVars)
 	    check_cell(AllVars, p, i-1,j+1,k+1);
 	    check_cell(AllVars, p, i-1,j-1,k+1);
 	    check_cell(AllVars, p, i+1,j-1,k+1);
-	  } while (p = AllVars.GridNext[p]);
+	  } while ((p = AllVars.GridNext[p]));
 	} // ENDIF
       } // ENDFOR k
 
@@ -1264,7 +1266,7 @@ void check_cell(FOFData &AllVars, int p, int i, int j, int k)
   int pp,ss;
   int s, flag;
   
-  if (s = AllVars.GridFirst[i][j][k]) {
+  if ((s = AllVars.GridFirst[i][j][k])) {
     flag = AllVars.Head[s];
     if (AllVars.GridFlag[i][j][k])
       if (AllVars.Head[s] == AllVars.Head[p])
@@ -1304,7 +1306,7 @@ void check_cell(FOFData &AllVars, int p, int i, int j, int k)
 		
 	  do {
 	    AllVars.Head[ss]=AllVars.Head[p];
-	  } while (ss = AllVars.Next[ss]);
+	  } while ((ss = AllVars.Next[ss]));
 
 	  flag=0;
 	} // ENDIF
@@ -1315,7 +1317,7 @@ void check_cell(FOFData &AllVars, int p, int i, int j, int k)
 	  pp = AllVars.Head[p];
 	  do {
 	    AllVars.Head[pp] = AllVars.Head[s];
-	  } while (pp = AllVars.Next[pp]);
+	  } while ((pp = AllVars.Next[pp]));
 
 	  flag=0;
 	} // ENDELSE
@@ -1353,7 +1355,7 @@ void linkit(int p, int s, FOFData &AllVars)
 
       do {
 	AllVars.Head[ss] = AllVars.Head[p];
-      } while (ss = AllVars.Next[ss]);
+      } while ((ss = AllVars.Next[ss]));
     } // ENDIF p group is longer
     else {
       AllVars.Next[ AllVars.Tail[AllVars.Head[s]] ] = AllVars.Head[p];
@@ -1363,7 +1365,7 @@ void linkit(int p, int s, FOFData &AllVars)
 
       do {
 	AllVars.Head[pp] = AllVars.Head[s];
-      } while (pp = AllVars.Next[pp]);
+      } while ((pp = AllVars.Next[pp]));
     } // ENDELSE
   } // ENDIF not linked
 }

@@ -139,4 +139,33 @@ added to the acceleration field for the baryons and particles.
 ``UniformGravityConstant`` (external)
     Magnitude (and sign) of the uniform gravitational acceleration.
     Default: 1
-
+``DiskGravity`` (external)
+    This flag (1 - on, 0 - off) indicates if there is to be a
+    disk-like gravity field (Berkert 1995; Mori & Burkert 2000).  Default: 0
+``DiskGravityPosition`` (external)
+    This indicates the position of the center of the disk gravity.
+    Default: 0 0 0
+``DiskGravityAngularMomentum`` (external)
+    Specifies the unit vector of the disk angular momentum.
+    Default: 0 0 1
+``DiskGravityStellarDiskMass`` (external)
+    Total mass of stellar disk (in solar masses)
+    Default: 1e11
+``DiskGravityDiskScaleHeightR`` (external)
+    Disk scale length in radius (in Mpc)
+    Default: 4.0e-3
+``DiskGravityDiskScaleHeightz`` (external)
+    Disk scale height in z (in Mpc)
+    Default: 2.5e-4
+``DiskGravityStellarBulgeMass`` (external)
+    Disk stellar bulge mass (in solar masses)
+    Default: 1.0e10
+``DiskGravityStellarBulgeR`` (external)
+    Disk stellar bulge scalue radius (in Mpc)
+    Default: 1.0e-4
+``DiskGravityDarkMatterR`` (external)
+    Dark matter halo scale radius (in Mpc)
+    Default: 2.3e-2
+``DiskGravityDarkMatterDensity`` (external)
+    Dark matter effective density (in cgs)
+    Default: 3.81323e-25

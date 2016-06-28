@@ -44,4 +44,4 @@ int FSProb::ComputeOpacityLW(float *H2Density)
   return SUCCESS;
 
 }
-#endif TRANSFER
+#endif // TRANSFER

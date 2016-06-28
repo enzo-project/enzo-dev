@@ -147,7 +147,7 @@ int grid::PoissonSolverTestInitializeGrid(int TestType, float GeometryControl)
 	    else BaryonField[p][n]=0;
 	  }
 	  else  if (TestType==6){ //saw function
-	    if (p==B1 && abs(x)<0.30) BaryonField[p][n]=abs(x)*GeometryControl;
+	    if (p==B1 && fabs(x)<0.30) BaryonField[p][n]=fabs(x)*GeometryControl;
 	    else if (p==0) BaryonField[p][n]=1;
 	    else BaryonField[p][n]=0;
 	  }

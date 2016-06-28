@@ -31,6 +31,7 @@ ParticleCourantSafetyNumber = 0.4
 #
 StaticHierarchy           = 0    // dynamic hierarchy
 MaximumRefinementLevel    = 0    // use up to this many extra levels
+UnigridTranspose          = 0
 RefineBy                  = 2    // refinement factor
 CellFlaggingMethod        = 0
 #

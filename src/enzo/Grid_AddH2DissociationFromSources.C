@@ -97,8 +97,12 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
     ddr2[dim] = new FLOAT[ActiveDims[dim]];
   }
 
-  // Dilution factor (prevent breaking in the rate solver near the star)
-  float dilutionRadius = 10.0 * pc / (double) LengthUnits;
+  // Dilution factor (prevent breaking in the rate solver near the
+  // star).  The value of 1 AU was chosen to be within the radius
+  // where the gas is fully molecular.  If the solver still breaks,
+  // then this parameter can be safely increased to ~100 AU or turning
+  // on H2 self-shielding with RadiationShield = 2.
+  float dilutionRadius = 4.848e-6 * pc / (double) LengthUnits;  // 1 AU
   float dilRadius2 = dilutionRadius * dilutionRadius;
   float LightTravelDist = TimeUnits * clight / LengthUnits;
 
@@ -143,8 +147,6 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	  index = GRIDINDEX(0, j, k);
 	  for (i = 0; i < ActiveDims[0]; i++, index++) {
 	    radius2 = radius2_yz + ddr2[0][i];
-	    //if (radius2 < outerFront2 && radius2 > innerFront2) {
-	    //radius2 = max(radius2, dilRadius2);
 	    if (radius2 < dilRadius2)
 	      BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
 	    else
@@ -199,10 +201,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	  index = GRIDINDEX(0, j, k);
 	  for (i = 0; i < ActiveDims[0]; i++, index++) {
 	    radius2 = radius2_yz + ddr2[0][i];
-	    //if (radius2 < outerFront2 && radius2 > innerFront2) {
-	    //radius2 = max(radius2, dilRadius2);
 	    if (radius2 < dilRadius2)
-
 	      BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
 	    else
 	      BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;

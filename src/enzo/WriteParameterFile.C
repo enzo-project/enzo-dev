@@ -195,7 +195,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "OutputOnDensity = %"ISYM"\n", OutputOnDensity);
   fprintf(fptr, "StartDensityOutputs = %"GSYM"\n", StartDensityOutputs);
   fprintf(fptr, "CurrentDensityOutput = %"GSYM"\n", CurrentDensityOutput);
-  fprintf(fptr, "IncrementDensityOutput = %"GSYM"\n\n", IncrementDensityOutput);
+  fprintf(fptr, "IncrementDensityOutput = %"GSYM"\n", IncrementDensityOutput);
+  fprintf(fptr, "StopFirstTimeAtDensity = %"GSYM"\n", StopFirstTimeAtDensity);
+  fprintf(fptr, "StopFirstTimeAtMetalEnrichedDensity = %"GSYM"\n", StopFirstTimeAtMetalEnrichedDensity);
+  fprintf(fptr, "EnrichedMetalFraction = %"GSYM"\n\n", EnrichedMetalFraction);
 
   fprintf(fptr, "FileDirectedOutput = %"ISYM"\n", FileDirectedOutput);
 
@@ -259,7 +262,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 		TimeActionRedshift[dim]);
       else
 	fprintf(fptr, "TimeActionTime[%"ISYM"]      = %"GOUTSYM"\n", dim,
-		TimeActionRedshift[dim]);
+		TimeActionTime[dim]);
       fprintf(fptr, "TimeActionParameter[%"ISYM"] = %"GSYM"\n", dim,
 	      TimeActionParameter[dim]);
     }
@@ -327,6 +330,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  OptimalSubgridsPerProcessor);
   fprintf(fptr, "MinimumSubgridEdge             = %"ISYM"\n", MinimumSubgridEdge);
   fprintf(fptr, "MaximumSubgridSize             = %"ISYM"\n", MaximumSubgridSize);
+  fprintf(fptr, "CriticalGridRatio              = %"GSYM"\n", CriticalGridRatio);
+
   fprintf(fptr, "NumberOfBufferZones            = %"ISYM"\n\n", NumberOfBufferZones);
 
   fprintf(fptr, "FastSiblingLocatorEntireDomain      = %"ISYM"\n", 
@@ -356,6 +361,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "MustRefineRegionRightEdge  = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineRegionRightEdge);
   fprintf(fptr, "RefineRegionTimeType   = %d\n", RefineRegionTimeType);
+  fprintf(fptr, "MustRefineParticlesLeftEdge   = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineParticlesLeftEdge);
+  fprintf(fptr, "MustRefineParticlesRightEdge  = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineParticlesRightEdge);
+  fprintf(fptr, "\n");
   if (RefineRegionFile != NULL)
     fprintf(fptr, "RefineRegionFile       = %s\n", RefineRegionFile);
   fprintf(fptr, "\n");
@@ -373,10 +383,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
       fprintf(fptr, "DataUnits[%"ISYM"]              = %s\n", dim, DataUnits[dim]);
     if (DataLabel[dim]) {
       if ((strstr(DataLabel[dim], "Density") != NULL) ||
-	  (strstr(DataLabel[dim], "Colour") != NULL))
-	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GOUTSYM"\n", dim, DensityUnits);
-      if (strstr(DataLabel[dim], "velocity") != NULL)
-	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GOUTSYM"\n", dim, VelocityUnits);
+          (strstr(DataLabel[dim], "Colour") != NULL)) {
+        if( strstr(DataLabel[dim], "CR" ) != NULL ) {
+          fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n", dim, VelocityUnits*VelocityUnits*DensityUnits);
+        } else {
+          fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n", dim, DensityUnits);
+        }
+      }
+      if (strstr(DataLabel[dim], "velocity") != NULL) {
+        fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GOUTSYM"\n", dim, VelocityUnits);
+      }
     }
   }
   fprintf(fptr, "#TimeUnits                 = %"GOUTSYM"\n", TimeUnits);
@@ -394,6 +410,19 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  PointSourceGravityConstant);
   fprintf(fptr, "PointSourceGravityCoreRadius = %"GSYM"\n\n",
 	  PointSourceGravityCoreRadius);
+
+  fprintf(fptr, "DiskGravity                        = %"ISYM"\n",DiskGravity);
+  fprintf(fptr, "DiskGravityPosition                = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, DiskGravityPosition);
+  fprintf(fptr, "DiskGravityAngularMomentum         = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, DiskGravityAngularMomentum);
+  fprintf(fptr, "DiskGravityStellarDiskMass         = %"GSYM"\n",DiskGravityStellarDiskMass);
+  fprintf(fptr, "DiskGravityStellarDiskScaleHeightR = %"GSYM"\n",DiskGravityStellarDiskScaleHeightR);
+  fprintf(fptr, "DiskGravityStellarDiskScaleHeightz = %"GSYM"\n",DiskGravityStellarDiskScaleHeightz);
+  fprintf(fptr, "DiskGravityStellarBulgeMass        = %"GSYM"\n",DiskGravityStellarBulgeMass);
+  fprintf(fptr, "DiskGravityStellarBulgeR           = %"GSYM"\n",DiskGravityStellarBulgeR);
+  fprintf(fptr, "DiskGravityDarkMatterR             = %"GSYM"\n",DiskGravityDarkMatterR);
+  fprintf(fptr, "DiskGravityDarkMatterDensity       = %"GSYM"\n",DiskGravityDarkMatterDensity);
 
   fprintf(fptr, "ExternalGravity           = %"ISYM"\n",ExternalGravity); 
   fprintf(fptr, "ExternalGravityConstant     = %"FSYM"\n",ExternalGravityConstant);
@@ -434,6 +463,19 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  HaloFinderTimestep);
   fprintf(fptr, "HaloFinderLastTime             = %"PSYM"\n\n", 
 	  HaloFinderLastTime);
+
+  fprintf(fptr, "GalaxySimulationRPSWind            = %"ISYM"\n",GalaxySimulationRPSWind);
+  fprintf(fptr, "GalaxySimulationRPSWindShockSpeed  = %"GSYM"\n",GalaxySimulationRPSWindShockSpeed);
+  fprintf(fptr, "GalaxySimulationRPSWindDelay       = %"GSYM"\n",GalaxySimulationRPSWindDelay);
+  fprintf(fptr, "GalaxySimulationRPSWindDensity     = %"GSYM"\n",GalaxySimulationRPSWindDensity);
+  fprintf(fptr, "GalaxySimulationRPSWindTotalEnergy = %"GSYM"\n",GalaxySimulationRPSWindTotalEnergy);
+  fprintf(fptr, "GalaxySimulationRPSWindPressure    = %"GSYM"\n",GalaxySimulationRPSWindPressure);
+  fprintf(fptr, "GalaxySimulationRPSWindVelocity    = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, GalaxySimulationRPSWindVelocity);
+  fprintf(fptr, "GalaxySimulationPreWindDensity     = %"GSYM"\n",GalaxySimulationPreWindDensity);
+  fprintf(fptr, "GalaxySimulationPreWindTotalEnergy = %"GSYM"\n",GalaxySimulationPreWindTotalEnergy);
+  fprintf(fptr, "GalaxySimulationPreWindVelocity    = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, GalaxySimulationPreWindVelocity);
  
   fprintf(fptr, "GreensFunctionMaxNumber     = %"ISYM"\n", GreensFunctionMaxNumber);
   fprintf(fptr, "GreensFunctionMaxSize       = %"ISYM"\n", GreensFunctionMaxSize);
@@ -476,6 +518,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RadiativeTransfer              = %"ISYM"\n", RadiativeTransfer);
   fprintf(fptr, "RadiationXRaySecondaryIon      = %"ISYM"\n", RadiationXRaySecondaryIon);
   fprintf(fptr, "RadiationXRayComptonHeating    = %"ISYM"\n", RadiationXRayComptonHeating);
+  fprintf(fptr, "CRModel                        = %"ISYM"\n", CRModel);
+  fprintf(fptr, "CRDiffusion                    = %"ISYM"\n", CRDiffusion);
+  fprintf(fptr, "CRkappa                        = %"FSYM"\n", CRkappa);
+  fprintf(fptr, "CRCourantSafetyNumber          = %"FSYM"\n", CRCourantSafetyNumber);
+  fprintf(fptr, "CRFeedback                     = %"FSYM"\n", CRFeedback);
+  fprintf(fptr, "CRdensFloor                    = %"FSYM"\n", CRdensFloor);
+  fprintf(fptr, "CRmaxSoundSpeed                = %"FSYM"\n", CRmaxSoundSpeed);
+  fprintf(fptr, "CRgamma                        = %"FSYM"\n", CRgamma);
+  fprintf(fptr, "CosmologySimulationUniformCR   = %"FSYM"\n", CosmologySimulationUniformCR); // FIXME
   fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);
   fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
   fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
@@ -514,6 +565,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
   fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
+  fprintf(fptr, "WriteExternalAccel             = %"ISYM"\n", WriteExternalAccel);
 
   // Negative number means that it was flagged from the command line.  Don't propagate.
   if (OutputCoolingTime < 0)
@@ -553,6 +605,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  RefineByResistiveLengthSafetyFactor);
   fprintf(fptr, "MustRefineParticlesRefineToLevel = %"ISYM"\n",
           MustRefineParticlesRefineToLevel);
+  fprintf(fptr, "MustRefineParticlesCreateParticles = %"ISYM"\n",
+          MustRefineParticlesCreateParticles);
   fprintf(fptr, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM"\n",
           MustRefineParticlesRefineToLevelAutoAdjust);
   fprintf(fptr, "MustRefineParticlesMinimumMass = %"FSYM"\n",
@@ -829,6 +883,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarEnergyToStellarUV);
   fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n",
           StarEnergyToQuasarUV);
+  fprintf(fptr, "StarFeedbackKineticFraction           = %"GSYM"\n",
+          StarFeedbackKineticFraction);
+  fprintf(fptr, "StarMakerExplosionDelayTime           = %"GSYM"\n",
+          StarMakerExplosionDelayTime);
   fprintf(fptr, "StarFeedbackDistRadius                = %"ISYM"\n",
           StarFeedbackDistRadius);
   fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n",
@@ -901,19 +959,25 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           PopIIIH2CriticalFraction);
   fprintf(fptr, "PopIIIMetalCriticalFraction           = %"GSYM"\n",
           PopIIIMetalCriticalFraction);
+  fprintf(fptr, "PopIIISupernovaExplosions             = %"ISYM"\n",
+          PopIIISupernovaExplosions);
   fprintf(fptr, "PopIIISupernovaRadius                 = %"GSYM"\n",
           PopIIISupernovaRadius);
   fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n",
           PopIIISupernovaUseColour);
   fprintf(fptr, "PopIIISupernovaMustRefine             = %"ISYM"\n",
           PopIIISupernovaMustRefine);
-  fprintf(fptr, "PopIIISupernovaMustRefineResolution   = %"ISYM"\n\n",
+  fprintf(fptr, "PopIIISupernovaMustRefineResolution   = %"ISYM"\n",
           PopIIISupernovaMustRefineResolution);
 
   fprintf(fptr, "PopIIIColorDensityThreshold           = %"GSYM"\n",
           PopIIIColorDensityThreshold);
-  fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n\n",
+  fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n",
           PopIIIColorMass);
+  fprintf(fptr, "PopIIIUseHypernova                    = %"ISYM"\n",
+          PopIIIUseHypernova);
+  fprintf(fptr, "PopIIIOutputOnFeedback                = %"ISYM"\n\n",
+          PopIIIOutputOnFeedback);
 
   fprintf(fptr, "MBHAccretion                          = %"ISYM"\n", MBHAccretion);
   fprintf(fptr, "MBHAccretionRadius                    = %"GSYM"\n", MBHAccretionRadius);

@@ -8,6 +8,7 @@ TopGridRank            = 3
 TopGridDimensions      = 32 32 32
 SelfGravity            = 1       // gravity on
 TopGridGravityBoundary = 1       // Isolated BCs
+UnigridTranspose       = 0
 #
 #  set problem parameters
 #

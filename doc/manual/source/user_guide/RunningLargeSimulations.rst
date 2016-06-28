@@ -82,6 +82,12 @@ Compile-time options
 * ``fastsib-yes``: Uses a chaining mesh to help locate sibling grids
   when constructing the boundary conditions.  Default: ON
 
+* ``log2alloc-yes``: All arrays created with ``new`` are allocated 
+  with sizes that are the nearest power of 2.  This will result in a 
+  roughly 20% increase in overall memory usage, but in some cases,
+  should reduce memory fragmentation.  If you are having problems
+  with memory fragmentation, consider enabling this.  Default: OFF
+
 .. |ge| unicode:: 0x2265
 
 .. _space filling curve: http://en.wikipedia.org/wiki/Hilbert_curve

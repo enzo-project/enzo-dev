@@ -83,6 +83,8 @@ void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 bool _first = true;
 static double RHperf[16];
 
+int MustCollectParticlesToLevelZero = FALSE;  // Set only in NestedCosmologySimulationInitialize
+
 #define NO_RH_PERF
 
 
@@ -174,6 +176,10 @@ int RebuildHierarchy(TopGridData *MetaData,
   for (i = 0; i < MAX_STATIC_REGIONS; i++)
     MaximumStaticSubgridLevel = max(MaximumStaticSubgridLevel,
 				    StaticRefineRegionLevel[i]);
+  if (MustCollectParticlesToLevelZero == TRUE) {
+    MaximumStaticSubgridLevel = -1;  // Force particle collection to level 0 on first call.
+    MustCollectParticlesToLevelZero = FALSE;
+  }
 
   /* Calculate number of cells on each level */
 

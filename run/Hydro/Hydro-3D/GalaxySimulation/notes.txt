@@ -1,0 +1,15 @@
+This problem sets up a galaxy disk using code written by Stephanie
+Tonnesen and Munier Salem.  The gravity is modelled with a static
+potential that includes a dark matter halo, bulge, and stellar disk.
+The gas disk is modelled with self gravity and the mass, scale height
+and length can be set with parameters.  A full description is in Salem
+et al 2014 (ApJ, 815, 77; http://arxiv.org/pdf/1507.07935.pdf).
+
+This version also includes a ram pressure wind that uses a lookup
+table (included here as ICMinflow_data.in) to set the density,
+temperature and velocity of the inflowing gas as a function of time
+(see documentation and the above paper).
+
+This is not really intended as a test (and so one should not trust the
+enzotest settings), but more as an example run file for this kind of
+problem.

@@ -301,7 +301,7 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 		if (buffer[buffer_index] == INT_UNDEFINED)
 		  SubgridMarker[index] = NULL;
 		else
-		  SubgridMarker[index] = (grid*) buffer[buffer_index];
+		  SubgridMarker[index] = (grid*) (long) buffer[buffer_index];
 	    } // ENDFOR j
 
 	  // Right face
@@ -317,7 +317,7 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 		if (buffer[buffer_index] == INT_UNDEFINED)
 		  SubgridMarker[index] = NULL;
 		else
-		  SubgridMarker[index] = (grid*) buffer[buffer_index];
+		  SubgridMarker[index] = (grid*) (long) buffer[buffer_index];
 	    } // ENDFOR j
 
 	} // ENDFOR dim

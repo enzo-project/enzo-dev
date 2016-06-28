@@ -45,7 +45,7 @@ float ngb_treefind(FOF_particle_data *P, double xyz[3], int desngb, float hguess
 	if (xyz[j] > th->center[j])
 	  subnode+=fak;
 
-      if (nn = th->suns[subnode])
+      if ((nn = th->suns[subnode]))
 	if (nn->count > 200)
 	  th = nn;
 	else
@@ -147,7 +147,7 @@ void ngb_treesearch(NODE *THIS, FOF_particle_data *P)
     }
     else {
       for (k = 0; k < 8; k++) 
-	if (nn = THIS->suns[k])
+        if ((nn = THIS->suns[k]))
 	  ngb_treesearch(nn, P);
     } // ENDELSE
 
@@ -281,7 +281,7 @@ void ngb_treebuild(FOFData &D, int Npart)
 	if(D.P[i].Pos[j] > th->center[j])
 	  subnode += fak;
 
-      if (nn = th->suns[subnode])
+      if ((nn = th->suns[subnode]))
 	th = nn;
       else
 	break;
