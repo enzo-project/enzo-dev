@@ -499,12 +499,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "use_volumetric_heating_rate = %d\n", grackle_data.use_volumetric_heating_rate);
   fprintf(fptr, "use_specific_heating_rate   = %d\n", grackle_data.use_specific_heating_rate);
   fprintf(fptr, "self_shielding_method       = %d\n", grackle_data.self_shielding_method);
-  fprintf(fptr, "hi_ph_avg_cross_section     = %d\n", grackle_data.hi_ph_avg_cross_section);
-  fprintf(fptr, "hei_ph_avg_cross_section    = %d\n", grackle_data.hei_ph_avg_cross_section);
-  fprintf(fptr, "heii_ph_avg_cross_section   = %d\n", grackle_data.heii_ph_avg_cross_section);
-  fprintf(fptr, "hi_pi_avg_cross_section     = %d\n", grackle_data.hi_pi_avg_cross_section);
-  fprintf(fptr, "hei_pi_avg_cross_section    = %d\n", grackle_data.hei_pi_avg_cross_section);
-  fprintf(fptr, "heii_pi_avg_cross_section   = %d\n", grackle_data.heii_pi_avg_cross_section);
+  fprintf(fptr, "hi_ph_avg_cross_section     = %"GSYM"\n", grackle_data.hi_ph_avg_cross_section);
+  fprintf(fptr, "hei_ph_avg_cross_section    = %"GSYM"\n", grackle_data.hei_ph_avg_cross_section);
+  fprintf(fptr, "heii_ph_avg_cross_section   = %"GSYM"\n", grackle_data.heii_ph_avg_cross_section);
+  fprintf(fptr, "hi_pi_avg_cross_section     = %"GSYM"\n", grackle_data.hi_pi_avg_cross_section);
+  fprintf(fptr, "hei_pi_avg_cross_section    = %"GSYM"\n", grackle_data.hei_pi_avg_cross_section);
+  fprintf(fptr, "heii_pi_avg_cross_section   = %"GSYM"\n", grackle_data.heii_pi_avg_cross_section);
 
 
   fprintf(fptr, "radiative_transfer_intermediate_step = %d\n", grackle_data.radiative_transfer_intermediate_step);
