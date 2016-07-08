@@ -6,6 +6,8 @@ from yt.utilities.answer_testing.framework import \
 from yt.frontends.enzo.answer_testing_support import \
      requires_outputlog
 
+import numpy as na
+
 _pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
 _dir_name = os.path.dirname(__file__)
 
@@ -14,12 +16,12 @@ class TestFreeExpansionDistance(AnswerTestingTest):
     _attrs = ()
 
     def __init__(self, pf):
-        self.pf = pf
+        self.ds = pf
 
     def run(self):
-        ray = self.pf.h.ray([0.0,0.5,0.5], [1.0,0.5,0.5])
+        ray = self.ds.ray([0.0,0.5,0.5], [1.0,0.5,0.5])
         ray_length = np.sqrt(((ray.end_point - ray.start_point)**2).sum())
-        ipos = na.argwhere(ray['VelocityMagnitude'] == 0.0)
+        ipos = na.argwhere(ray[('gas', 'velocity_magnitude')] == 0.0)
         if len(ipos) > 0:
             ipos = ipos.min()
         else:

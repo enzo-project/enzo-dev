@@ -466,8 +466,10 @@ class EnzoTestRun(object):
             shutil.copy(os.path.join(self.test_dir, version_filename),
                         os.path.join(self.run_dir, version_filename))
             if self.exe_path is not None:
-                os.symlink(os.path.realpath(self.exe_path), 
-                           os.path.join(self.run_dir, self.local_exe))
+                symlink_path = os.path.join(self.run_dir, self.local_exe)
+                if os.path.exists(symlink_path):
+                    os.remove(symlink_path)
+                os.symlink(os.path.realpath(self.exe_path), symlink_path)
 
     def _create_run_script(self):
         template_path = os.path.join(os.path.dirname(__file__), 
