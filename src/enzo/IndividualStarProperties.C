@@ -12,6 +12,15 @@
 /   interpolation of radiation data as well as a gaussian random variable
 /   generator used here and in some random draws in individual_star_maker
 /
+/   WARNING: In every case where interpolation is over metallicity, we institute
+/            a 'metallicity floor' whereby the star's metallicity is set to Z_min
+/            during interpolation for that given table, whenever Z_star < Z_min
+/            for that given table. This *may* lead to potential inconsistencies if
+/            Z_min is different in each table, but really that means certain
+/            properties will be *better* than others in this regime. This is also
+/            applied to the nucleosynethsis yields tables.
+/
+/
 --------------------------------------------------------------------------------*/
 
 #include <stdlib.h>
@@ -77,6 +86,11 @@ int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float
   // convert metallicity to solar
   float Z; // Z is in units of solar
   Z = (metallicity) / IndividualStarRadData.Zsolar;
+
+  // WARNING: See statement at beginning of file
+  if (Z < IndividualStarRadData.Z[0]){
+    Z = IndividualStarRadData.Z[0];
+  }
 
   if( LinearInterpolationCoefficients(t, u, v, i, j, k, Teff, g, Z,
                                       IndividualStarRadData.T, IndividualStarRadData.g, IndividualStarRadData.Z,
@@ -160,9 +174,6 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const floa
   return SUCCESS;
 
 }
-
-
-
 
 int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
                                        const float &g, const float &metallicity){
@@ -254,6 +265,11 @@ int IndividualStarInterpolateLifetime(float &tau, const float &M, const float &m
 
   float Z = metallicity;
 
+  // WARNING: see statement at top of file
+  if (Z < IndividualStarPropertiesData.Z[0]){
+    Z = IndividualStarPropertiesData.Z[0];
+  }
+
   if( LinearInterpolationCoefficients(t, u, i, j, M, Z,
                                       IndividualStarPropertiesData.M, IndividualStarPropertiesData.Z,
                                       IndividualStarPropertiesData.NumberOfMassBins, IndividualStarPropertiesData.NumberOfMetallicityBins) == FAIL){
@@ -311,6 +327,11 @@ int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &m
 
   float Z = metallicity;
 
+  // WARNING: see statement at beginning of file
+  if (Z < IndividualStarPropertiesData.Z[0]){
+    Z = IndividualStarPropertiesData.Z[0];
+  }
+
   if( LinearInterpolationCoefficients(t, u, i, j, M, Z,
                                       IndividualStarPropertiesData.M, IndividualStarPropertiesData.Z,
                                       IndividualStarPropertiesData.NumberOfMassBins, IndividualStarPropertiesData.NumberOfMetallicityBins) == FAIL){
@@ -357,6 +378,11 @@ int IndividualStarInterpolateProperties(float &Teff, float &R,
   float t, u; // interpolation coefficients
 
   float Z = metallicity;
+
+  // WARNING: see statement at beginning of file
+  if (Z < IndividualStarPropertiesData.Z[0]){
+    Z = IndividualStarPropertiesData.Z[0];
+  }
 
   if( LinearInterpolationCoefficients(t, u, i, j, M, Z,
                                       IndividualStarPropertiesData.M, IndividualStarPropertiesData.Z,
@@ -417,6 +443,11 @@ int IndividualStarInterpolateRadData(float &q0, float &q1,
   // convert metallicity to solar
   float Z; // Z is in units of solar
   Z = (metallicity) / IndividualStarRadData.Zsolar;
+
+  // WARNING: See warning at beginning of file
+  if( Z < IndividualStarRadData.Z[0]){
+    Z = IndividualStarRadData.Z[0];
+  }
 
   if( LinearInterpolationCoefficients(t, u, v, i, j, k, Teff, g, Z, 
                                       IndividualStarRadData.T, IndividualStarRadData.g, IndividualStarRadData.Z,
