@@ -1,0 +1,103 @@
+Shapiro & Giroux Cosmological Ionization Tests
+[Isothermal, cosmological radiative ionization, static medium]
+
+
+In this problem, we couple E and nHI together in an isothermal, 
+hydrodynamically-static but cosmologically-expanding environment.  The
+physical situation of interest is the expansion of an ionized hydrogen
+(HII) region in a cosmologically-expanding uniform gas around a single
+monochromatic ionizing source emitting 5e48 photons per second at the
+ionization frequency of hydrogen (h\nu = 13.6 eV).  We enforce a fixed
+gas temperature of T=1e4 K.  In such a problem, the radiation source
+should rapidly ionize the surrounding hydrogen, and then should
+develop a spherically-propagating ionization front (I-front) that 
+propages quickly at first, slows, and approaches the Stromgren
+radius, where ionization (HI -> HII) and recombinations (HII -> HI)
+balance. However, due to the cosmological expansion, the front should
+then begin to lag behind as cosmological expansion drives the
+Stromgren radius outward faster than the I-front can propagate.  
+
+We have 4 related tests. Here, q0 is the cosmological deceleration
+parameter and z0 is the initial redshift:
+ 1. q0=0.5, z0=4: L~80 kpc, H0=0.5, \Omega_m=1, \Omega_L=0,
+    \Omega_b=0.2. 
+ 2. q0=0.05, z0=4: L~60 kpc, H0=1, \Omega_m=0.1, \Omega_L=0,
+    \Omega_b=0.1. 
+ 3. q0=0.5, z0=10: L~36 kpc, H0=0.5, \Omega_m=1, \Omega_L=0,
+    \Omega_b=0.2. 
+ 4. q0=0.05, z0=10: L~27 kpc, H0=1, \Omega_m=0.1, \Omega_L=0,
+    \Omega_b=0.1. 
+Here L is the initial box size, H0 is the Hubble constant, \Omega_m is
+the contribution of all non-relativistic matter to the gas energy
+density at z=0 (in units of the value required to close the universe),
+similarly \Omega_L and \Omega_b are the contributions of the
+cosmological constant and the baryonic matter to the energy density,
+respectively.  
+
+We have the following problem parameters: 
+- the initial radiation energy density is E=1e-35 erg cm^{-3},
+- the initial ionization fraction (HII/H) is 0,
+- the ionization source is located in the lower corner of the box (the
+  (1,1,1) cell),
+- we use reflecting boundary conditions at the x-, y- and z-left
+  boundaries, and outflow conditions at the corresponding right
+  boundaries,
+- the initial density is dependent on q0, with \rho=1.175e-28 g cm^{-3}
+  for q0=0.5, and \rho=2.35e-28 g cm^{-3} for q0=0.05,
+- all simulations are run from the initial redshift z0 to z=1.  
+
+
+Shapiro & Giroux provide an analytical solution for the expansion of
+the I-front in relation to the Stromgren radius as a function of
+redshift.  This analytical solution has been coded into the analysis
+scripts sg_q5z4_makeplots.py, sg_q05z4_makeplots.py,
+sg_q5z10_makeplots.py and sg_q05z10_makeplots.py, which compare the
+computed solution with these analytical values.
+
+
+
+Test 1 files [q0 = 0.5, z0 = 4]:
+- implicit solver: CosmoIonization_q5z4.enzo, CosmoIonization_q5z4.gfld
+- split solver: CosmoIonization_q5z4_sp.enzo, CosmoIonization_q5z4_sp.gfld
+- analysis: sg_q5z4_makeplots.py; requires matplotlib, h5py, numpy and
+  scipy
+
+Test 2 files [q0 = 0.05, z0 = 4]:
+- implicit solver: CosmoIonization_q05z4.enzo, CosmoIonization_q05z4.gfld
+- split solver: CosmoIonization_q05z4_sp.enzo, CosmoIonization_q05z4_sp.gfld
+- analysis: sg_q05z4_makeplots.py; requires matplotlib, h5py, numpy and
+  scipy
+
+Test 3 files [q0 = 0.5, z0 = 10]:
+- implicit solver: CosmoIonization_q5z10.enzo, CosmoIonization_q5z10.gfld
+- split solver: CosmoIonization_q5z10_sp.enzo, CosmoIonization_q5z10_sp.gfld
+- analysis: sg_q5z10_makeplots.py; requires matplotlib, h5py, numpy and
+  scipy
+
+Test 4 files [q0 = 0.05, z0 = 10]:
+- implicit solver: CosmoIonization_q05z10.enzo, CosmoIonization_q05z10.gfld
+- split solver: CosmoIonization_q05z10_sp.enzo, CosmoIonization_q05z10_sp.gfld
+- analysis: sg_q05z10_makeplots.py; requires matplotlib, h5py, numpy and
+  scipy
+
+
+Problem-Specific Input Parameters:
+- RadHydroVelocity -- initial velocity in each direction [cm/s]
+- RadHydroTemperature --initial temperature [K]
+- RadHydroRadiationEnergy -- initial radiation energy [erg/cm^3]
+- RadHydroOmegaBaryonNow -- baryonic fraction of total Omega
+- NGammaDot -- ionization source emission rate [photons/sec]
+- EtaRadius -- radius for emissivity source [cells], 0 gives a
+  single-cell source
+- EtaCenter -- center of emissivity source (0.0, 0.0, 0.0)
+
+
+References:
+
+P.R. Shapiro and M.L. Giroux, "Cosmological HII regions and the
+photoionization of the intergalactic medium," ApJ Lett., 321:
+107-112, 1987.
+
+D.R. Reynolds, J.C. Hayes, P. Paschos and M.L. Norman,
+"Self-consistent solution of cosmological radiation-hydrodynamics and
+chemical ionization," J. Comp. Phys., 228: 6833-6854, 2009.

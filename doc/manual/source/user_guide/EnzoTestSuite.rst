@@ -72,8 +72,10 @@ standard settings, complete these commands:
 
 ::
 
-    $ cd <enzo_root>/src/enzo
-    $ make default
+    $ cd <enzo_root>
+    $ ./configure
+    $ cd ./src/enzo
+    $ make load-config-allphysics
     $ make clean
     $ make
 
@@ -81,17 +83,31 @@ Note that you need not copy the resulting enzo executable to your path,
 since the enzo.exe will be symbolically linked from the src/enzo directory
 into each test problem directory before tests are run.
 
+This build configuration requires that the Hypre and Grackle libraries are
+installed and visible in your compiler's search paths. If you do not have these
+libraries available, then you can set:
+
+::
+
+    $ make grackle-no
+    $ make hypre-no
+
+.. note::
+
+  If Enzo is compiled without support for the grackle and hypre libraries, tests
+  of Enzo modules that depend on these libraries will likely fail.
+
 2.  **Get the correct yt version** The enzo tests are generated and compared
-using the yt analysis suite.  You must be using yt 2.6.3 in order for the test
-suite to work.  The test suite has not yet been updated to work with yt 3.0 and
-newer releases. If you do not yet have yt, visit http://yt-project.org/#getyt
-for installation instructions.  If you already have yt and yt is in your path,
-make sure you're using yt 2.6.3 by running the following commands:
+using the yt analysis suite.  You must be using yt 3.3.0 or newer in order for
+the test suite to work.  If you do not yet have yt, visit
+http://yt-project.org/#getyt for installation instructions.  If you already have
+yt and yt is in your path, make sure you are using the latest verion of yt by
+running the following commands:
 
 ::
 
     $ cd /path/to/yt_mercurial_repository
-    $ hg update yt-2.x
+    $ hg update yt
     $ python setup.py develop
 
 3. **Generate answers to test with.** Run the test suite with these flags within

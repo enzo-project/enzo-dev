@@ -53,7 +53,7 @@ InterpolationMethod    = 1       // SecondOrderA
 #
 StaticHierarchy                 = 0    // dynamic hierarchy
 MaximumRefinementLevel          = 3    // use up to 3 levels
-RefineBy                        = 3    // refinement factor
+RefineBy                        = 2    // refinement factor
 CellFlaggingMethod              = 2    // baryon overdensity
 MinimumOverDensityForRefinement = 2.0  // times the initial overdensity
 MinimumEfficiency               = 0.3  // fraction efficiency

@@ -89,8 +89,8 @@ int RadiationFieldCalculateRates(FLOAT Time)
     CosmologyComputeExpansionFactor(Time, &a, &dadt);
     aUnits = 1.0/(1.0 + InitialRedshift);
     Redshift = 1.0/(a*aUnits) - 1;
-  } else if (RadiationFieldRedshift >= 0) {  
-    Redshift = RadiationFieldRedshift;   
+  } else if (RadiationFieldRedshift > -1 ) {
+    Redshift = RadiationFieldRedshift;
     CoolData.RadiationRedshiftOn = RadiationFieldRedshift+0.2;
     CoolData.RadiationRedshiftOff = 0.0;
     CoolData.RadiationRedshiftFullOn = RadiationFieldRedshift+0.1;
