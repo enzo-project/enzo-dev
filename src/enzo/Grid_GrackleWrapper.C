@@ -141,7 +141,7 @@ int grid::GrackleWrapper()
   /* If both metal fields (Pop I/II and III) exist, create a field
      that contains their sum */
 
-  float *MetalPointer;
+  float *MetalPointer = NULL;
   float *TotalMetals = NULL;
 
   if (MetalNum != -1 && SNColourNum != -1) {
