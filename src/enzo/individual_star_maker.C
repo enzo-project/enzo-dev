@@ -365,8 +365,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               //&& IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
               //&& 0.5*bmass > IndividualStarIMFUpperMassCutoff){
 
-            // allow star formation in regions that cannot support very massive star formation
-            // by limiting the IMF in those regions determined by local gas mass
 
 
             // star formation may be possible
