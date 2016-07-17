@@ -50,7 +50,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   float HeI_ionizing_energy = 24.587; // eV
   float R;
 
-  if (this->Mass < 0.1)  // Not "born" yet
+  if (this->Mass < 0.1 && (ABS(this->type) != IndividualStar))  // Not "born" yet
     _mass = this->FinalMass;
   else
     _mass = this->Mass;
