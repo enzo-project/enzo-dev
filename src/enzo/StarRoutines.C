@@ -92,7 +92,8 @@ Star::Star(grid *_grid, int _id, int _level)
   Mass = FinalMass = BirthMass = (double)(_grid->ParticleMass[_id]);
   BirthTime = _grid->ParticleAttribute[0][_id];
 
-  if( type >= PARTICLE_TYPE_INDIVIDUAL_STAR  && type <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
+  if( ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR  &&
+      ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
   }
 
@@ -328,7 +329,8 @@ void Star::ConvertAllMassesToSolar(void)
   MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
   this->Mass *= MassConversion;
   this->FinalMass *= MassConversion;
-  this->BirthMass *= MassConversion;
+//  this->BirthMass *= MassConversion; - AJE : birth mass always in solar
+//                                             test to make sure this works 7/16
   return;
 }
 
@@ -495,8 +497,12 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
     Mass = (double)(_grid->ParticleMass[_id]); 
     this->ConvertMassToSolar();
   }
+  if (ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR &&
+      ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
+    BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
+  }
+
   return;
-  /* AJE - might need to mess with this code */
 }
 
 void Star::DeleteCopyInGrid(void)
