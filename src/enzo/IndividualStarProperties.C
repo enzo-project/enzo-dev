@@ -567,16 +567,16 @@ int ComputeAverageEnergy(float *energy, float *e_i, float *Teff){
   // convert wavelength to unitless energy
   xmax = *e_i /(k_boltz*(*Teff));
 
-  printf("ISP: Energy %"ESYM" xmax %"ESYM" Teff %"ESYM"\n",*e_i, xmax, *Teff);
+//  printf("ISP: Energy %"ESYM" xmax %"ESYM" Teff %"ESYM"\n",*e_i, xmax, *Teff);
   if(AverageEnergyBlackBody(energy, xmax)==FAIL){
     printf("Warning: Non-convergence in black body integral (summation) for IndividualStar Spectrum\n");
   }
 
-  printf("ISP: Avg energy unitless %"ESYM"\n", *energy);
+//  printf("ISP: Avg energy unitless %"ESYM"\n", *energy);
   // converto from unitless energy to cgs
   *energy = (*energy) * (k_boltz) * (*Teff);
 
-  printf("ISP: Energy cgs %"ESYM"\n", *energy);
+//  printf("ISP: Energy cgs %"ESYM"\n", *energy);
 
   return SUCCESS;
 }
@@ -736,7 +736,7 @@ int AverageEnergyBlackBody(float *energy, float x){
   // assign value for unitless energy
   *energy = u_dens_summation / n_dens_summation;
 
-  printf("ISP: nsum %"ESYM" dsum %"ESYM" energy %"ESYM"\n",n_dens_summation, u_dens_summation, *energy);
+//  printf("ISP: nsum %"ESYM" dsum %"ESYM" energy %"ESYM"\n",n_dens_summation, u_dens_summation, *energy);
 
   if( i >= max_iterations){
     return FAIL;
