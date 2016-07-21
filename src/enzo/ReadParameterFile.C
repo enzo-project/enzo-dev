@@ -536,36 +536,29 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 #ifdef USE_GRACKLE
     /* Grackle chemistry parameters */
-    ret += sscanf(line, "use_grackle = %d", &grackle_data.use_grackle);
+    ret += sscanf(line, "use_grackle = %d", &grackle_data->use_grackle);
     ret += sscanf(line, "with_radiative_cooling = %d",
-                  &grackle_data.with_radiative_cooling);
+                  &grackle_data->with_radiative_cooling);
     ret += sscanf(line, "use_volumetric_heating_rate = %d",
-                  &grackle_data.use_volumetric_heating_rate);
+                  &grackle_data->use_volumetric_heating_rate);
     ret += sscanf(line, "use_specific_heating_rate = %d",
-                  &grackle_data.use_specific_heating_rate);
+                  &grackle_data->use_specific_heating_rate);
     ret += sscanf(line, "self_shielding_method = %d",
-                  &grackle_data.self_shielding_method);
+                  &grackle_data->self_shielding_method);
     ret += sscanf(line, "radiative_transfer_intermediate_step = %d",
-                  &grackle_data.radiative_transfer_intermediate_step); // AJE
-
-    ret += sscanf(line, "hi_ph_avg_cross_section = %"FSYM, &grackle_data.hi_ph_avg_cross_section);
-    ret += sscanf(line, "hei_ph_avg_cross_section = %"FSYM,&grackle_data.hei_ph_avg_cross_section);
-    ret += sscanf(line, "heii_ph_avg_cross_section = %"FSYM, &grackle_data.heii_ph_avg_cross_section);
-    ret += sscanf(line, "hi_pi_avg_cross_section = %"FSYM, &grackle_data.hi_pi_avg_cross_section);
-    ret += sscanf(line, "hei_pi_avg_cross_section = %"FSYM, &grackle_data.hei_pi_avg_cross_section);
-    ret += sscanf(line, "heii_pi_avg_cross_section = %"FSYM, &grackle_data.heii_pi_avg_cross_section);
+                  &grackle_data->radiative_transfer_intermediate_step); // AJE
 
     if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
-      grackle_data.grackle_data_file = dummy;
+      grackle_data->grackle_data_file = dummy;
       ret++;
     }
-    ret += sscanf(line, "UVbackground = %d", &grackle_data.UVbackground);
+    ret += sscanf(line, "UVbackground = %d", &grackle_data->UVbackground);
     ret += sscanf(line, "Compton_xray_heating = %d", 
-                  &grackle_data.Compton_xray_heating);
+                  &grackle_data->Compton_xray_heating);
     ret += sscanf(line, "LWbackground_intensity = %lf", 
-                  &grackle_data.LWbackground_intensity);
+                  &grackle_data->LWbackground_intensity);
     ret += sscanf(line, "LWbackground_sawtooth_suppression = %d",
-                  &grackle_data.LWbackground_sawtooth_suppression);
+                  &grackle_data->LWbackground_sawtooth_suppression);
     /********************************/
 #endif
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
@@ -1717,7 +1710,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #ifdef USE_GRACKLE
   /* If using Grackle chemistry and cooling library, override all other 
      cooling machinery and do a translation of some of the parameters. */
-  if (grackle_data.use_grackle == TRUE) {
+  if (grackle_data->use_grackle == TRUE) {
     // grackle_data.use_grackle already set
     // grackle_data.with_radiative_cooling already set
     // grackle_data.grackle_data_file already set
@@ -1725,30 +1718,30 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     // grackle_data.Compton_xray_heating already set
     // grackle_data.LWbackground_intensity already set
     // grackle_data.LWbackground_sawtooth_suppression already set
-    grackle_data.Gamma                          = (double) Gamma;
-    grackle_data.primordial_chemistry           = (Eint32) MultiSpecies;
-    grackle_data.metal_cooling                  = (Eint32) MetalCooling;
-    grackle_data.h2_on_dust                     = (Eint32) H2FormationOnDust;
-    grackle_data.cmb_temperature_floor          = (Eint32) CloudyCoolingData.CMBTemperatureFloor;
-    grackle_data.three_body_rate                = (Eint32) ThreeBodyRate;
-    grackle_data.cie_cooling                    = (Eint32) CIECooling;
-    grackle_data.h2_optical_depth_approximation = (Eint32) H2OpticalDepthApproximation;
-    grackle_data.photoelectric_heating          = (Eint32) PhotoelectricHeating;
-    grackle_data.photoelectric_heating_rate     = (double) PhotoelectricHeatingRate;
-    grackle_data.NumberOfTemperatureBins        = (Eint32) CoolData.NumberOfTemperatureBins;
-    grackle_data.CaseBRecombination             = (Eint32) RateData.CaseBRecombination;
-    grackle_data.TemperatureStart               = (double) CoolData.TemperatureStart;
-    grackle_data.TemperatureEnd                 = (double) CoolData.TemperatureEnd;
-    grackle_data.NumberOfDustTemperatureBins    = (Eint32) RateData.NumberOfDustTemperatureBins;
-    grackle_data.DustTemperatureStart           = (double) RateData.DustTemperatureStart;
-    grackle_data.DustTemperatureEnd             = (double) RateData.DustTemperatureEnd;
-    grackle_data.HydrogenFractionByMass         = (double) CoolData.HydrogenFractionByMass;
-    grackle_data.DeuteriumToHydrogenRatio       = (double) CoolData.DeuteriumToHydrogenRatio;
-    grackle_data.SolarMetalFractionByMass       = (double) CoolData.SolarMetalFractionByMass;
+    grackle_data->Gamma                          = (double) Gamma;
+    grackle_data->primordial_chemistry           = (Eint32) MultiSpecies;
+    grackle_data->metal_cooling                  = (Eint32) MetalCooling;
+    grackle_data->h2_on_dust                     = (Eint32) H2FormationOnDust;
+    grackle_data->cmb_temperature_floor          = (Eint32) CloudyCoolingData.CMBTemperatureFloor;
+    grackle_data->three_body_rate                = (Eint32) ThreeBodyRate;
+    grackle_data->cie_cooling                    = (Eint32) CIECooling;
+    grackle_data->h2_optical_depth_approximation = (Eint32) H2OpticalDepthApproximation;
+    grackle_data->photoelectric_heating          = (Eint32) PhotoelectricHeating;
+    grackle_data->photoelectric_heating_rate     = (double) PhotoelectricHeatingRate;
+    grackle_data->NumberOfTemperatureBins        = (Eint32) CoolData.NumberOfTemperatureBins;
+    grackle_data->CaseBRecombination             = (Eint32) RateData.CaseBRecombination;
+    grackle_data->TemperatureStart               = (double) CoolData.TemperatureStart;
+    grackle_data->TemperatureEnd                 = (double) CoolData.TemperatureEnd;
+    grackle_data->NumberOfDustTemperatureBins    = (Eint32) RateData.NumberOfDustTemperatureBins;
+    grackle_data->DustTemperatureStart           = (double) RateData.DustTemperatureStart;
+    grackle_data->DustTemperatureEnd             = (double) RateData.DustTemperatureEnd;
+    grackle_data->HydrogenFractionByMass         = (double) CoolData.HydrogenFractionByMass;
+    grackle_data->DeuteriumToHydrogenRatio       = (double) CoolData.DeuteriumToHydrogenRatio;
+    grackle_data->SolarMetalFractionByMass       = (double) CoolData.SolarMetalFractionByMass;
 
-    grackle_data.use_radiative_transfer                 = (Eint32) RadiativeTransfer;
-    grackle_data.radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
-    grackle_data.radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
+    grackle_data->use_radiative_transfer                 = (Eint32) RadiativeTransfer;
+    grackle_data->radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
+    grackle_data->radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
 
     // Initialize units structure.
     FLOAT a_value, dadt;
@@ -1777,7 +1770,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (initialize_chemistry_data(&grackle_units) == FAIL) {
       ENZO_FAIL("Error in Grackle initialize_chemistry_data.\n");
     }
-  }  // if (grackle_data.use_grackle == TRUE)
+  }  // if (grackle_data->use_grackle == TRUE)
 
   else {
 #endif // USE_GRACKE
