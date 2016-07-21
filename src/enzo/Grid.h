@@ -2224,7 +2224,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 
   void ZeroPhotoelectricHeatingField(void);
-  void AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, const float *ys, const float *zs, const int &number_of_fuv_stars);
+  void AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, const float *ys,
+                                       const float *zs, const float *ts, const int &number_of_fuv_stars);
 
   /* Initialization for isolated galaxy sims */
   int GalaxySimulationInitializeGrid(

@@ -80,7 +80,7 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
 
   Star *cstar;
 
-  float *Ls, *xs, *ys, *zs;
+  float *Ls, *xs, *ys, *zs, *ts;
 
   int count = 0, number_of_fuv_stars = 0;
   /* figure out how many stars there are that contribute to FUV heating */
@@ -100,6 +100,7 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
   xs = new float[number_of_fuv_stars];
   ys = new float[number_of_fuv_stars];
   zs = new float[number_of_fuv_stars];
+  ts = new float[number_of_fuv_stars];
 
   count = 0;
   float *star_pos;
@@ -116,6 +117,7 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
       xs[count] = star_pos[0];
       ys[count] = star_pos[1];
       zs[count] = star_pos[2];
+      ts[count] = cstar->ReturnBirthTime();
 
       count++;
     } // if star massive enough
@@ -127,7 +129,7 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
 
       if (!Temp->GridData->isLocal()){ continue ;} // skip if grid is on another proc
 
-      Temp->GridData->AddPhotoelectricHeatingFromStar(Ls, xs, ys, zs, number_of_fuv_stars);
+      Temp->GridData->AddPhotoelectricHeatingFromStar(Ls, xs, ys, zs, ts, number_of_fuv_stars);
 
     }
   } // end level loop
@@ -136,12 +138,13 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
   delete[] xs;
   delete[] ys;
   delete[] zs;
+  delete[] ts;
 
   return SUCCESS;
 }
 
 void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, const float *ys, const float *zs,
-                                           const int &number_of_fuv_stars){
+                                           const float *ts, const int &number_of_fuv_stars){
   /* ---------------------------------------------------------------------------------------------------------
    * AddPhotoelectricHeatingFromStar
    * ---------------------------------------------------------------------------------------------------------
@@ -156,6 +159,7 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
   const double m_e = 9.109E-28; // in g
   const double m_h = 1.673E-24; // in g
   const double pi  = 3.1415621;
+  const double c_light = 2.99792458E10; // cgs
   float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, TimeUnits, EnergyUnits, MassUnits;
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, this->Time);
@@ -219,7 +223,11 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
                    (ycell - ys[sp])*(ycell - ys[sp]) +
                    (zcell - zs[sp])*(zcell - zs[sp]);
 
-            local_flux += Ls[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
+            float speed = (rsqr * LengthUnits) / (ts[i] * TimeUnits);
+
+            if ( speed <= c_light ){
+                local_flux += Ls[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
+            }
 
           }
 
