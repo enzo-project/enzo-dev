@@ -934,7 +934,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MHDCTDualEnergyMethod = INT_UNDEFINED;
   MHDCTPowellSource = 0;
   MHDCTUseSpecificEnergy = TRUE;
-  FixedTimestep = -1.0;
   WriteBoundary             = FALSE;
   CT_AthenaDissipation = 0.1;
   MHD_WriteElectric = TRUE;
