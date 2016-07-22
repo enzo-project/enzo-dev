@@ -44,7 +44,6 @@ char DefaultExtraName[] = "ExtraDumpXX";
 char DefaultExtraDir[]="ED00";
  
  
- 
 int SetDefaultGlobalValues(TopGridData &MetaData)
 {
  
@@ -492,7 +491,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
 #ifdef USE_GRACKLE
   // Grackle chemistry data structure.
-  if (set_default_chemistry_parameters(grackle_data) == FAIL) {
+  chemistry_data my_chemistry;
+  if (set_default_chemistry_parameters(&my_chemistry) == FAIL) {
     ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
   }
   // Map Grackle defaults to corresponding Enzo parameters
