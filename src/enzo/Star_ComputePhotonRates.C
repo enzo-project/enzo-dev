@@ -258,9 +258,10 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     nbins = 2;
     E[0]  = 0.0; E[1] = 0.0;
     Q[0]  = 0.0; Q[1] = 0.0;
-    printf("Star_ComputePhotonRates: WARNING IndividualStarWD and IndividualStarRemnant particles should not be ionizing sources - check code\n");
+    printf("Star_ComputePhotonRates: WARNING IndividualStarWD and IndividualStarRemnant particles should not be ionizing sources\n");
 
     break;
+
 
   default:
     ENZO_VFAIL("Star type = %"ISYM" not understood.\n", this->type)
