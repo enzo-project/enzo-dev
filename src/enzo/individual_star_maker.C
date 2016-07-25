@@ -1272,7 +1272,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
       m_eject = m_eject * msolar / MassUnits * TimeUnits;  // convert to code mass / code time
 
       // make sure we don't over-inject mass (i.e. partial timestep)
-      wind_dt = fmin( particle_age - lifetime, this->dtFixed);
+      wind_dt = fmin( lifetime - particle_age, this->dtFixed);
     }
 
     // Finally, compute total amount of mass ejected this timestep
