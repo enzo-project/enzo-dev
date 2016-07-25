@@ -1261,7 +1261,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
         //
         // Check timestep to make sure we don't overinject yields at end of life
         //
-        wind_dt = fmin( particle_age - lifetime, this->dtFixed);
+        wind_dt = fmin(lifetime - particle_age, this->dtFixed);
       }
 
       m_eject  /= wind_lifetime ; // average mass loss rate over entire wind lifetime
