@@ -514,7 +514,7 @@ typedef int            HDF5_hid_t;
 
 
  // for stellar yields tabulation
-#define MAXIMUM_NUMBER_OF_YIELD_CHEMICALS        10
+#define MAXIMUM_NUMBER_OF_YIELD_CHEMICALS        20
 #define MAXIMUM_NUMBER_OF_YIELD_MASS_BINS         7
 #define MAXIMUM_NUMBER_OF_YIELD_METALLICITY_BINS 15
 
