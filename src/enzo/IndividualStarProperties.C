@@ -454,6 +454,11 @@ int IndividualStarInterpolateRadData(float &q0, float &q1,
                                       IndividualStarRadData.NumberOfTemperatureBins, IndividualStarRadData.NumberOfSGBins, IndividualStarRadData.NumberOfMetallicityBins) == FAIL){
     /* if interpolation fails, fail here */
     float value, value_min, value_max;
+    
+    if ( t < 0 ){
+        return FAIL; // Temperature failure is O.K. --- just means do black body
+    }
+
     printf("IndividualStarInterpolateRadData: Failure in interpolation ");
 
     if( t < 0) { 
