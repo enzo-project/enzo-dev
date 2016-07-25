@@ -490,11 +490,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
 #ifdef USE_GRACKLE
+
   // Grackle chemistry data structure.
-  chemistry_data my_chemistry;
-  if (set_default_chemistry_parameters(&my_chemistry) == FAIL) {
+  chemistry_data *my_chemistry;
+  my_chemistry = new chemistry_data;
+  if (set_default_chemistry_parameters(my_chemistry) == FAIL) {
     ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
   }
+
   // Map Grackle defaults to corresponding Enzo parameters
   Gamma                                 = (float) grackle_data->Gamma;
   MultiSpecies                          = (int) grackle_data->primordial_chemistry;
@@ -516,6 +519,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.HydrogenFractionByMass       = (float) grackle_data->HydrogenFractionByMass;
   CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data->DeuteriumToHydrogenRatio;
   CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
+
 #endif
 
   OutputCoolingTime = FALSE;
