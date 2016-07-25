@@ -65,6 +65,8 @@ bool Star::IsARadiationSource(FLOAT Time)
     if( Mass >= IndividualStarRadiationMinimumMass){
       rules[4] = true;
     }
+  } else if (type == IndividualStarWD || type == IndividualStarRemnant){
+    rules[4] = false;
   } else{
     rules[4] = true;
   }
