@@ -992,8 +992,8 @@ int grid::individual_star_feedback(int *np,
         if(do_stellar_winds){
 
 
-          printf("ISF: Calling feedback general to do stellar winds\n");
-          printf("ISF: Current Mass = %"ESYM" Particle aatribute 3 = %"ESYM" mproj = %"ESYM"\n", mp,ParticleAttribute[3][i], birth_mass);
+//          printf("ISF: Calling feedback general to do stellar winds\n");
+//          printf("ISF: Current Mass = %"ESYM" Particle aatribute 3 = %"ESYM" mproj = %"ESYM"\n", mp,ParticleAttribute[3][i], birth_mass);
 
           /* Apply stellar wind feedback. Determined by setting last arguemtn to -1 */
           this->IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
@@ -1007,7 +1007,7 @@ int grid::individual_star_feedback(int *np,
         if(go_supernova){
 
           if( ParticleType[i] != IndividualStarWD){
-            printf("Calling feedback to do cc supernova");
+//            printf("Calling feedback to do cc supernova");
             /* do core collapse supernova feedback - set by last value == 1 */
             this->IndividualStarAddFeedbackGeneral(ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
                                                    ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i],
@@ -1196,7 +1196,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
   float   dx   = CellWidth[0][0];
 
 
-  printf("ISF: Assiging initital values to metal mass\n");
+  //printf("ISF: Assiging initital values to metal mass\n");
   if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
 
     metal_mass = new float[StellarYieldsNumberOfSpecies + 1];
@@ -1287,9 +1287,9 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
       v_wind = IndividualStarStellarWindVelocity; // wind velocity in km / s
     }
 
-    printf("ISF: Stellar wind mass in Msun = %"ESYM" in code units %"ESYM"\n", m_eject *MassUnits/msolar, m_eject);
-    printf("ISF: Total Expected momentum in cgs %"ESYM" and in code units %"ESYM"\n", v_wind*1.0E5*m_eject*MassUnits/msolar, m_eject * v_wind*1.0E5/VelocityUnits);
-    printf("ISF: Stellar wind in km / s %"ESYM" in code %"ESYM" and code vel = %"ESYM"\n", v_wind , v_wind *1.0E5/ VelocityUnits, VelocityUnits);
+    //printf("ISF: Stellar wind mass in Msun = %"ESYM" in code units %"ESYM"\n", m_eject *MassUnits/msolar, m_eject);
+    //printf("ISF: Total Expected momentum in cgs %"ESYM" and in code units %"ESYM"\n", v_wind*1.0E5*m_eject*MassUnits/msolar, m_eject * v_wind*1.0E5/VelocityUnits);
+    //printf("ISF: Stellar wind in km / s %"ESYM" in code %"ESYM" and code vel = %"ESYM"\n", v_wind , v_wind *1.0E5/ VelocityUnits, VelocityUnits);
 
     v_wind     = (v_wind*1.0E5) / VelocityUnits; // convert from km/s to cm/s then to code units
 
@@ -1348,7 +1348,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 
 
   /* if we are tracking yeilds, interpolat the ejecta mass for each species */
-  printf("Tabulating metal ejecta mass fields \n");
+  //printf("Tabulating metal ejecta mass fields \n");
   if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields){
     int interpolation_mode;     // switch for stellar winds vs cc SN interpolation
 
@@ -1396,11 +1396,11 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     }
 
 
-    printf("Metal masses in array ");
-    for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
-      printf(" %"ESYM " %"ESYM " -- ",metal_mass[i] * dx*dx*dx *MassUnits / msolar , metal_mass[i]);
-    }
-    printf("\n");
+    //printf("Metal masses in array ");
+    //for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+      //printf(" %"ESYM " %"ESYM " -- ",metal_mass[i] * dx*dx*dx *MassUnits / msolar , metal_mass[i]);
+    //}
+    //printf("\n");
   }
 
 
@@ -1416,7 +1416,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
   CheckFeedbackCellCenter( xp, yp, zp, xstart, ystart, zstart, dx,
                            nx, ny, nz, ibuff, &xfc, &yfc, &zfc);
 
-  printf("ISF: injecting feedback to grid\n");
+  //printf("ISF: injecting feedback to grid\n");
   this->IndividualStarInjectFeedbackToGrid(xfc, yfc, zfc,
                                            up, vp, wp,
                                            m_eject, E_thermal, E_kin, p_feedback, metal_mass); // function call
@@ -1654,13 +1654,13 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
     A = A - (kin_energy_before + E_kin);
     mom_per_cell  = (-B + sqrt(B*B - 4.0 * A * C)) / (2.0 * C);
 
-    printf("ISF: Coeffs mom_per_cell %"ESYM"\n", mom_per_cell);
+    //printf("ISF: Coeffs mom_per_cell %"ESYM"\n", mom_per_cell);
   } else { // no kinetic energy injection - add feedback will add mass directly
     mom_per_cell = p_feedback;
   }
 
   /* add metal feedback - mass in cells */
-  printf("ISF: Starting metal injection feedback calls\n");
+  //printf("ISF: Starting metal injection feedback calls\n");
   if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields){
     /* For the first call, add in general metallicity field */
     int field_num;
@@ -1672,7 +1672,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
     for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
       this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
 
-       printf("ISF: Adding metal feedaback for field %"ISYM" and atomic number %"ISYM" %"ISYM"\n", field_num, StellarYieldsAtomicNumbers[ii], ii);
+       //printf("ISF: Adding metal feedaback for field %"ISYM" and atomic number %"ISYM" %"ISYM"\n", field_num, StellarYieldsAtomicNumbers[ii], ii);
        AddMetalSpeciesToGridCells(BaryonField[field_num], metal_mass[1 + ii] / ((float) number_of_cells),
                                   nx, ny, nz, ic, jc, kc, dxc, dyc, dzc, stencil);
 
@@ -1698,9 +1698,9 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
                     &mass_after, &energy_after, &kin_energy_after);
 
   /* error checking statments go here */
-  printf("ISF energy cheks, before %"ESYM" after %"ESYM" eject %"ESYM"\n", energy_before, energy_after, E_thermal);
-  printf("ISF Mass checks, before %"ESYM" after %"ESYM" eject %"ESYM"\n", mass_before, mass_after, m_eject);
-  printf("ISF Kinetic energy checks, before, after, E_kin %"ESYM" %"ESYM" %"ESYM"\n", kin_energy_before, kin_energy_after, E_kin);
+  //printf("ISF energy cheks, before %"ESYM" after %"ESYM" eject %"ESYM"\n", energy_before, energy_after, E_thermal);
+  //printf("ISF Mass checks, before %"ESYM" after %"ESYM" eject %"ESYM"\n", mass_before, mass_after, m_eject);
+  //printf("ISF Kinetic energy checks, before, after, E_kin %"ESYM" %"ESYM" %"ESYM"\n", kin_energy_before, kin_energy_after, E_kin);
   /*           -------------           */
 
 
@@ -1746,7 +1746,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
       number_of_bad_cells++;
     }
   }
-  printf("Velocities are too large cells %"ISYM" %"ISYM"\n", nx*ny*nz, number_of_bad_cells);
+  //printf("Velocities are too large cells %"ISYM" %"ISYM"\n", nx*ny*nz, number_of_bad_cells);
 
 
   /* Adjust the total energy field if we are using PPM */
@@ -1755,7 +1755,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
     float delta_ke = 0.0;
     float ke_after = 0.0;
     int integer_sep = ((int) (stencil+1)/2.0 - 1); // floor((stencil + 1) / 2.0);
-    printf("ISF kinetic feedback: integer_separation = %"ISYM"\n",integer_sep);
+    //printf("ISF kinetic feedback: integer_separation = %"ISYM"\n",integer_sep);
 
     int local_index = 0; // AJE 5 - 10 - 16
     for(int k = kc - integer_sep; k <= kc + integer_sep + 1; k ++){
@@ -1784,7 +1784,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
         }
       }
     }
-    printf("IndividualStarFeedback: change in kinetic energy %"ESYM"\n", ke_injected);
+    //printf("IndividualStarFeedback: change in kinetic energy %"ESYM"\n", ke_injected);
   } // endif
 
 
@@ -2033,7 +2033,7 @@ void ComputeAbcCoefficients(float *pu, float *pv, float *pw, float *d,
       }
     }
   }
-  printf("ComputeAbcCoefficients: local_index = %"ISYM" integer_sep = %"ISYM" A = %"ESYM" B = %"ESYM" C = %"ESYM"\n", l_index, index, A, B, C);
+  //printf("ComputeAbcCoefficients: local_index = %"ISYM" integer_sep = %"ISYM" A = %"ESYM" B = %"ESYM" C = %"ESYM"\n", l_index, index, A, B, C);
 
 
 } // end comput coeff
@@ -2087,7 +2087,7 @@ void AddMetalSpeciesToGridCells(float *m, const float &mass_per_cell,
     }
   } // end k loop 
 
-  printf("MetalFeedback: Deposited total metal mass (density) %"ESYM"\n", total_mass);
+  //printf("MetalFeedback: Deposited total metal mass (density) %"ESYM"\n", total_mass);
 }
 
 void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
@@ -2193,7 +2193,7 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
       }
     }
   }//end loop
-  printf("AddedFeedbackToGridCells: mom_per_cell = %"ESYM" therm_per_cell = %"ESYM"\n", mom_per_cell, therm_per_cell);
-  printf("AddedFeedbackToGridCells: M_tot =  %"ESYM" therm = %"ESYM"\n", total_mass, delta_therm);
+  //printf("AddedFeedbackToGridCells: mom_per_cell = %"ESYM" therm_per_cell = %"ESYM"\n", mom_per_cell, therm_per_cell);
+  //printf("AddedFeedbackToGridCells: M_tot =  %"ESYM" therm = %"ESYM"\n", total_mass, delta_therm);
 
 }
