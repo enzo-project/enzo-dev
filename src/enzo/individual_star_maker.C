@@ -1225,7 +1225,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     /* compute ejecta mass - use yield tables if yields are tracked, otherwise use model */
     if ( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
       m_eject   = StellarYieldsInterpolateYield(1, mproj, metallicity, -1) *msolar/ MassUnits; /* first arg, 1 = wind ; last -1 = tot mass */
-
+     // printf("m_eject msolar MassUnits  %"ESYM" %"ESYM" %"ESYM"\n",m_eject, msolar, MassUnits);
       wind_lifetime = lifetime;
       if (mproj < IndividualStarAGBThreshold){
 
@@ -1363,7 +1363,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     }
 
     // for each metal species, compute the total metal mass ejected depending on supernova type
-    if (mode == 0){
+    if (mode < 0){
 
       metal_mass[0] = StellarYieldsInterpolateYield(1, mproj, metallicity, 0) *msolar / MassUnits / (dx*dx*dx);
 
@@ -1374,7 +1374,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
       // metal_mass now contains total mass ejected over wind lifetime. Adjust using wind loss rate and 
       // finite timestep check performed above
       for (int i = 0; i < StellarYieldsNumberOfSpecies + 1; i++){
-        metal_mass[1+i] /= wind_dt / wind_lifetime;
+        metal_mass[1+i] *= wind_dt / wind_lifetime;
       }
 
     } else if (mode == 1){

@@ -208,7 +208,7 @@ float StellarYieldsInterpolateYield(int yield_type,
     ul = table.Mtot[i+1][j  ];
   }
 
-
+//  printf("t u ll lr ur ul M im %"ESYM" %"ESYM" %"ESYM " %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",t,u,ll,lr,ur,ul,M,interp_M);
   return ((1.0 - t)*(1.0 - u) * (ll)   +
           (1.0 - t)*(      u) * (lr)   +
           (      t)*(      u) * (ur)   +
