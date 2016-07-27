@@ -131,12 +131,14 @@ float StellarYieldsInterpolateYield(int yield_type,
   }
 
   if( (Z < table.Z[0]) || (Z > table.Z[table.NumberOfMetallicityBins - 1])){
-    printf("StellarYieldsInterpolateYield: Metallicity out of bounds\n");
-    printf("Z = %"ESYM" for minimum Z = %"ESYM" and maximum Z = %"ESYM"\n", Z, table.Z[0], table.Z[table.NumberOfMetallicityBins-1]);
 
     if ( Z < table.Z[0] ){ // WARNING: see statement at top of file
       Z = table.Z[0];
     } else {
+
+      printf("StellarYieldsInterpolateYield: Metallicity out of bounds\n");
+      printf("Z = %"ESYM" for minimum Z = %"ESYM" and maximum Z = %"ESYM"\n", Z, table.Z[0], table.Z[table.NumberOfMetallicityBins-1]);
+
       return FAIL;
     }
   }
