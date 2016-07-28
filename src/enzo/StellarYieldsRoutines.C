@@ -233,8 +233,6 @@ int GetYieldIndex(const int &number_of_yields, const int &Z){
  int i = 0;
  int index = -1;
 
- printf("GetYieldIndex: number_of_yields %"ISYM" %"ISYM"\n", number_of_yields, Z);
-
  while( i < number_of_yields){
    if( StellarYieldsAtomicNumbers[i] == Z){
      index = i;

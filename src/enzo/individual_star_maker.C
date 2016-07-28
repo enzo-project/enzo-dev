@@ -1225,7 +1225,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     /* compute ejecta mass - use yield tables if yields are tracked, otherwise use model */
     if ( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
       m_eject   = StellarYieldsInterpolateYield(1, mproj, metallicity, -1) *msolar/ MassUnits; /* first arg, 1 = wind ; last -1 = tot mass */
-     // printf("m_eject msolar MassUnits  %"ESYM" %"ESYM" %"ESYM"\n",m_eject, msolar, MassUnits);
+//      printf("TOTAL INTERP: m_eject msolar MassUnits  %"ESYM" %"ESYM" %"ESYM"\n", m_eject*MassUnits/msolar, msolar, MassUnits);
       wind_lifetime = lifetime;
       if (mproj < IndividualStarAGBThreshold){
 
@@ -1287,9 +1287,9 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
       v_wind = IndividualStarStellarWindVelocity; // wind velocity in km / s
     }
 
-    printf("ISF: Stellar wind mass in Msun = %"ESYM" in code units %"ESYM"\n", m_eject *MassUnits/msolar, m_eject);
+//    printf("ISF: Stellar wind mass in Msun = %"ESYM" in code units %"ESYM"\n", m_eject *MassUnits/msolar, m_eject);
     //printf("ISF: Total Expected momentum in cgs %"ESYM" and in code units %"ESYM"\n", v_wind*1.0E5*m_eject*MassUnits/msolar, m_eject * v_wind*1.0E5/VelocityUnits);
-    printf("ISF: Stellar wind in km / s %"ESYM" in code %"ESYM" and code vel = %"ESYM"\n", v_wind , v_wind *1.0E5/ VelocityUnits, VelocityUnits);
+//    printf("ISF: Stellar wind in km / s %"ESYM" in code %"ESYM" and code vel = %"ESYM"\n", v_wind , v_wind *1.0E5/ VelocityUnits, VelocityUnits);
 
     v_wind     = (v_wind*1.0E5) / VelocityUnits; // convert from km/s to cm/s then to code units
 
@@ -1374,7 +1374,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
       // metal_mass now contains total mass ejected over wind lifetime. Adjust using wind loss rate and 
       // finite timestep check performed above
       for (int i = 0; i < StellarYieldsNumberOfSpecies + 1; i++){
-        metal_mass[1+i] *= wind_dt / wind_lifetime;
+        metal_mass[i] *= wind_dt / wind_lifetime;
       }
 
     } else if (mode == 1){
@@ -1397,10 +1397,11 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 
 
     //printf("Metal masses in array ");
-    //for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
-      //printf(" %"ESYM " %"ESYM " -- ",metal_mass[i] * dx*dx*dx *MassUnits / msolar , metal_mass[i]);
-    //}
-    //printf("\n");
+//    printf("ANUM = %"ISYM" %"ESYM " %"ESYM " -- \n", 0, (wind_lifetime/wind_dt) *metal_mass[0] * dx*dx*dx *MassUnits / msolar , metal_mass[0]);
+//    for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+//      printf("ANUM = %"ISYM" %"ESYM " %"ESYM " -- \n", StellarYieldsAtomicNumbers[i], (wind_lifetime/wind_dt) *metal_mass[i+1] * dx*dx*dx *MassUnits / msolar , metal_mass[i+1]);
+//    }
+//    printf("\n");
   }
 
 
