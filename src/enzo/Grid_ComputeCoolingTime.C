@@ -317,11 +317,11 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
       IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
                                       kphHeIINum, kdissH2INum);
 
-      my_fields.kphHINum    = BaryonField[kphHINum];
-      my_fields.kphHeINum   = BaryonField[kphHeINum];
-      my_fields.kphHeIINum  = BaryonField[kphHeIINum];
-      my_fields.kdissH2INum = BaryonField[kdissH2INum];
-      my_fields.gammaNum    = BaryonField[gammaNum];
+      my_fields.RT_HI_ionization_rate   = BaryonField[kphHINum];
+      my_fields.RT_HeI_ionization_rate  = BaryonField[kphHeINum];
+      my_fields.RT_HeII_ionization_rate = BaryonField[kphHeIINum];
+      my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
+      my_fields.RT_heating_rate         = BaryonField[gammaNum];
     }
 
 
