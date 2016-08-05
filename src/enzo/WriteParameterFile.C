@@ -1192,7 +1192,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   //MHDCT variables
   fprintf(fptr, "MHDCTSlopeLimiter          = %"ISYM"\n", MHDCTSlopeLimiter);
   fprintf(fptr, "MHDCTDualEnergyMethod          = %"ISYM"\n", MHDCTDualEnergyMethod);
-  fprintf(fptr, "MHDPowellSource          = %"ISYM"\n", MHDCTPowellSource);
+  fprintf(fptr, "MHDCTPowellSource          = %"ISYM"\n", MHDCTPowellSource);
   fprintf(fptr, "WriteBoundary          = %"ISYM"\n", WriteBoundary);
   fprintf(fptr,"CT_AthenaDissipation          =%"GSYM"\n",CT_AthenaDissipation);
   fprintf(fptr,"MHD_WriteElectric             =%"ISYM"\n",MHD_WriteElectric);
@@ -1200,7 +1200,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr,"MHD_CT_Method                 =%"ISYM"\n",MHD_CT_Method);
   fprintf(fptr,"NumberOfGhostZones           =%"ISYM"\n",NumberOfGhostZones);
   fprintf(fptr,"IsothermalSoundSpeed          =%"GSYM"\n",IsothermalSoundSpeed);
-  fprintf(fptr,"FixedTimestep          =%"GSYM"\n",FixedTimestep);
   fprintf(fptr,"MHD_ProjectB                  =%"ISYM"\n",MHD_ProjectB);
   fprintf(fptr,"MHD_ProjectE                  =%"ISYM"\n",MHD_ProjectE);
   fprintf(fptr,"EquationOfState               =%"ISYM"\n",EquationOfState);

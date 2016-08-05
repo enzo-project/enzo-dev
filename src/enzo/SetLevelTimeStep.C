@@ -78,10 +78,12 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
       AnisotropicConduction = my_anisotropic_conduction;
 
       float dt_conduction;
+      float dt_cond_temp;
       dt_conduction = huge_number;
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-        if (Grids[grid1]->GridData->ComputeConductionTimeStep(dt_conduction) == FAIL) 
+        if (Grids[grid1]->GridData->ComputeConductionTimeStep(dt_cond_temp) == FAIL) 
           ENZO_FAIL("Error in ComputeConductionTimeStep.\n");
+	dt_conduction = min(dt_conduction,dt_cond_temp);
       }
       dt_conduction = CommunicationMinValue(dt_conduction);
       dt_conduction *= float(NumberOfGhostZones);  // for subcycling

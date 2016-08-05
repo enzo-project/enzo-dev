@@ -1103,7 +1103,6 @@ EXTERN int MHDCTSlopeLimiter;
 EXTERN int MHDCTDualEnergyMethod;
 EXTERN int MHDCTPowellSource;
 EXTERN int MHDCTUseSpecificEnergy;
-EXTERN float FixedTimestep;
 EXTERN int WriteBoundary;
 EXTERN int WriteAcceleration;
 EXTERN int TracerParticlesAddToRestart;// forces addition of tracer particles to already initialized simulations
