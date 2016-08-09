@@ -53,11 +53,10 @@ float SampleIMF(void);
 float ComputeSnIaProbability(const float &current_time, const float &formation_time, const float &lifetime, const float &TimeUnits);
 unsigned_long_int mt_random(void);
 
-void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
-                                const float &lifetime,  float *v_wind);
+void ComputeStellarWindVelocity(const float &mproj, const float &metallicity, float *v_wind);
 
 void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity,
-                                   const float & lifetime, float *dMdt);
+                                    float *dMdt);
 
 
 void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
@@ -1100,7 +1099,7 @@ float ComputeSnIaProbability(const float &current_time, const float &formation_t
 }
 
 void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity,
-                                   const float & lifetime, float *dMdt){
+                                    float *dMdt){
  /* ------------------------------------------------------------------
   * ComputeStellarWindEjectaMass
   * -------------------------------------------------------------------
@@ -1114,7 +1113,6 @@ void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity
 
   const double solar_z = 0.02; // as assumed in Leithener et. al. 1992
   const double yr      = 3.16224E7; // number of seconds in a year
-  const double solar_L = 3.9E33;
 
  
   /* get properties */
@@ -1127,14 +1125,13 @@ void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity
   }
 
   /* compute logged mass loss rate */
-  *dMdt = -24.06 + 2.45 * log10(L/solar_L) - 1.10 * log10(mproj) + 1.31 * log10(Teff)
+  *dMdt = -24.06 + 2.45 * log10(L) - 1.10 * log10(mproj) + 1.31 * log10(Teff)
                                    + 0.80 * log10(metallicity / solar_z);
 
   *dMdt = POW(10.0, *dMdt) / yr ; // Msun / yr -> Msun / s
 }
 
-void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
-                                const float &lifetime, float *v_wind){
+void ComputeStellarWindVelocity(const float &mproj, const float &metallicity, float *v_wind){
  /* ------------------------------------------------------------------
   * ComputeStellarWindVelocity
   * -------------------------------------------------------------------
@@ -1150,7 +1147,6 @@ void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
   float L, Teff, Z, R;
 
   const double solar_z = 0.02; // as assumed in Leithener et. al. 1992
-  const double solar_L = 3.9E33;
 
   /* get properties */
   if (IndividualStarInterpolateLuminosity(L, mproj, metallicity) == FAIL){
@@ -1165,8 +1161,10 @@ void ComputeStellarWindVelocity(const float &mproj, const float &metallicity,
   // T - Kelvin
   // M - solar units
   // Z - solar units
-  *v_wind = 1.23 - 0.30*log10(L/solar_L) + 0.55 * log10(mproj) + 0.64 * log10(Teff) + 0.13*log10(metallicity/solar_z);
+  *v_wind = 1.23 - 0.30*log10(L) + 0.55 * log10(mproj) + 0.64 * log10(Teff) + 0.13*log10(metallicity/solar_z);
   *v_wind = POW(10.0, *v_wind);
+
+
 }
 
 
@@ -1268,7 +1266,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 
     } else{
       // gives m_eject as Msun / s
-      ComputeStellarWindMassLossRate(mproj, metallicity, lifetime * TimeUnits, &m_eject);
+      ComputeStellarWindMassLossRate(mproj, metallicity, &m_eject);
       m_eject = m_eject * msolar / MassUnits * TimeUnits;  // convert to code mass / code time
 
       // make sure we don't over-inject mass (i.e. partial timestep)
@@ -1282,7 +1280,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
 
     /* set wind velocity depending on mode */
     if ( IndividualStarStellarWindVelocity < 0){
-      ComputeStellarWindVelocity(mproj, metallicity, lifetime * (LengthUnits/VelocityUnits), &v_wind); // compute wind velocity in km / s using model
+      ComputeStellarWindVelocity(mproj, metallicity, &v_wind); // compute wind velocity in km / s using model
     } else {
       v_wind = IndividualStarStellarWindVelocity; // wind velocity in km / s
     }
