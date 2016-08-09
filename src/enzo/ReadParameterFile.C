@@ -1926,6 +1926,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     StarParticleCreation -= 1 << POP3_STAR;
   }
 
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
+    NumberOfParticleAttributes = 4;
+    if (IndividualStarFollowStellarYields){
+      NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
+    }
+  }
+
   /* Use the value in MaximumParticleRefinementLevel to set the smoothing
      radius for the particles, to be used to Grid_DepositPositions. */
  
