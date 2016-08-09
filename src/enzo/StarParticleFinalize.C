@@ -97,6 +97,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && STARFEED_METHOD(INDIVIDUAL_STAR)){
     for(ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
       ThisStar->UpdateIndividualStarParticleProperties(); // AJE - a bit of a hack
+
+    IndividualStarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
+
   } //
 
 
