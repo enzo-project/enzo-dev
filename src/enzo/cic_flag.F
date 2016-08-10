@@ -5,7 +5,7 @@ c
       subroutine cic_flag(posx, posy, posz, partmass, ndim, npositions, 
      &                    itype, ffield, leftedge, 
      &                    dim1, dim2, dim3, cellsize, imatch1, 
-     &                    imatch2, minmassmust, buffersize,
+     &                    imatch2, imatch3, minmassmust, buffersize,
      &                    unipartmass)
 #ifndef CONFIG_PFLOAT_16
 c
@@ -28,7 +28,7 @@ c     npositions - number of particles
 c     posx,y,z   - particle positions
 c     partmass   - particle masses
 c     itype      - 1D field (length npositions) of types
-c     imatch1,2  - INTG_PREC(s) indicating type of particle to match
+c     imatch1,2,3  - INTG_PREC(s) indicating type of particle to match
 c     minmassmust - minimum mass for MustRefine particles to refine around
 c     buffersize - how many cells to flag around the particle
 c     unipartmass - initial particle mass in nested cosmology sims
@@ -49,7 +49,8 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      INTG_PREC dim1, dim2, dim3, npositions, ndim, imatch1, imatch2
+      INTG_PREC dim1, dim2, dim3, npositions, ndim, imatch1, imatch2,
+     &          imatch3
       R_PREC minmassmust, unipartmass
       R_PREC partmass(npositions)
       INTG_PREC buffersize
@@ -84,6 +85,7 @@ c
 c           only do this for must-refine particles
 c
             if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2 
+     &           .or. itype(n) .eq. imatch3
      &           .or. partmass(n) .lt. unipartmass) then
 c
 c	    only for particles above minimum mass
@@ -128,6 +130,7 @@ c
 c           only do this for must-refine particles
 c
             if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2
+     &           .or. itype(n) .eq. imatch3
      &           .or. partmass(n) .lt. unipartmass) then
 c
 c	    only for particles above minimum mass
@@ -180,6 +183,7 @@ c
 c           only do this for must-refine particles
 c
             if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2
+     &           .or. itype(n) .eq. imatch3
      &           .or. partmass(n) .lt. unipartmass) then
 c
 c	      only for particles above minimum mass

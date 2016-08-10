@@ -25,10 +25,15 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "IndividualStarProperties.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+
+float ComputeSnIaProbability(const float &current_time, const float &formation_time,
+                             const float &lifetime, const float &TimeUnits);
+
 
 void Star::SetFeedbackFlag(int flag)
 {
@@ -44,7 +49,7 @@ void Star::SetFeedbackFlag(Eint32 flag)
 }
 #endif
 
-int Star::SetFeedbackFlag(FLOAT Time)
+int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
 {
 
   const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
@@ -53,6 +58,8 @@ int Star::SetFeedbackFlag(FLOAT Time)
   const float StarClusterSNeEnd = 20.0; // Myr (lifetime of a 8 Msun star)
   const double G = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
   const double Msun = 1.989e33;
+
+  const int max_random = (1<<16);
 
   int abs_type;
   float AgeInMyr;
@@ -64,6 +71,65 @@ int Star::SetFeedbackFlag(FLOAT Time)
 
   abs_type = ABS(this->type);
   switch (abs_type) {
+
+  case IndividualStar:
+    {
+    // Individual star particles can either have stellar winds
+    // or go supernova depending on a few conditions. Radiative
+    // feedback is handled elsewhere
+
+    float particle_age = Time - this->BirthTime;
+
+    if (IndividualStarStellarWinds){
+
+        float wind_start_age = 0.0;
+        if(this->BirthMass < IndividualStarAGBThreshold){
+          if(IndividualStarInterpolateLifetime(wind_start_age, this->BirthMass,
+                                               this->Metallicity, 2) == FAIL){
+            ENZO_FAIL("SetFeedbackFlag: Failure in MS lifetime interpolation");
+          }
+        }
+
+        if(particle_age < this->LifeTime && particle_age + dtFixed > wind_start_age){
+            this->FeedbackFlag = INDIVIDUAL_STAR_STELLAR_WIND;
+        }
+
+    } // end check if we are using winds
+
+    if ( this->BirthMass >= IndividualStarSNIIMassCutoff &&
+                            ((particle_age + dtFixed) > this->LifeTime)){
+      if( this->FeedbackFlag == INDIVIDUAL_STAR_STELLAR_WIND){
+        this->FeedbackFlag = INDIVIDUAL_STAR_WIND_AND_SN;
+      } else{
+        this->FeedbackFlag = INDIVIDUAL_STAR_SNII;
+      }
+    } // end check if we are going supernova
+
+    break;
+    }
+  case IndividualStarWD:
+    {
+    // OUTSTANDING ISSUE:
+    //   WD particles can go Type Ia using random number generator
+    //   but this MUST be consistent across all processors... need to
+    //   figure out how to ensure all processors have the same star
+    //   exploding at the same time
+
+    if( (this->BirthMass > IndividualStarSNIaMinimumMass) &&
+        (this->BirthMass < IndividualStarSNIaMaximumMass)){
+
+        float PSNIa = ComputeSnIaProbability(Time, this->BirthTime,
+                                             this->LifeTime, TimeUnits);
+        PSNIa *= dtFixed;
+
+        float rnum = (float) (random() % max_random) / ((float) (max_random));
+        if (rnum < PSNIa){
+          this->FeedbackFlag = INDIVIDUAL_STAR_SNIA;
+        }
+    }
+
+    break;
+    }
 
   case PopIII:
     if (this->type < 0) // birth
@@ -82,7 +148,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
   case SimpleSource:
     if (this->type < 0) // birth
       this->FeedbackFlag = FORMATION;
-    
+
   case PopII:
     AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
     if (this->type > 0)

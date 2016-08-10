@@ -28,6 +28,10 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 
+
+char* ChemicalSpeciesParticleLabel(const int &atomic_number);
+
+
 void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, int level, FLOAT WriteTime)
 {
 
@@ -40,8 +44,33 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
       {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
        "particle_jet_y", "particle_jet_z", "typeia_fraction"};
 #else
-    char *ParticleAttributeLabel[] = 
-      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+//    char *ParticleAttributeLabel[] = 
+//      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+/* AJE 04/21/16 */
+    char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
+    ParticleAttributeLabel[0] = "creation_time";
+    ParticleAttributeLabel[1] = "dynamical_time";
+    ParticleAttributeLabel[2] = "metallicity_fraction";
+
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    ParticleAttributeLabel[3] = "birth_mass";
+    if(TestProblemData.MultiMetals == 2){
+      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+      }
+    }
+
+  } else {
+    ParticleAttributeLabel[3] = "typeia_fraction";
+  }
+
+/*
+  const char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
+       "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
+       "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
+*/
 #endif
 
     this->DebugCheck("Converting to NumPy arrays");
@@ -180,7 +209,26 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 	       (PyObject*) dataset);
 	    Py_DECREF(dataset);
 
-	  }
+            /* chemical tracers */
+            if(TestProblemData.MultiMetals == 2){
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                           1, dims, ENPY_BFLOAT, ParticleAttribute[3]);
+                PyDict_SetItemString(grid_data, ParticleAttributeLabels[3], (PyObject*) da$
+                PyDECREF(dataset);
+
+              for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+                if(StellarYieldsAtomicNumbers[yield_i] > 2){
+
+
+                  dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                             1, dims, ENPY_BFLOAT, ParticleAttribute[4 + yield_i]);
+                  PyDict_SetItemString(grid_data, ParticleAttributeLabels[4 + yield_i], (PyObject*) dataset);
+                  PyDECREF(dataset);
+                }
+              }
+            } // mm == 2 check
+
+	  } // end check multimetals
 
         }
 

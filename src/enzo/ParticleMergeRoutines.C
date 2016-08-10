@@ -41,16 +41,23 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
   PINT MergeID, MergeIndex;
 
   /* Pick only the star particles  -- June 30 2011 Eve*/
+  /* And don't do for individual star particles -- Feb 8 2016 AJE */
   int starn = 0;
   for (int i = 0; i < Size; i++){
-      if (List[i].Type != PARTICLE_TYPE_DARK_MATTER)      
+      if (List[i].Type != PARTICLE_TYPE_DARK_MATTER &&
+          List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR &&
+          List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD &&
+          List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT)
 	starn++;
   }
 
   int *star_index = new int[starn];
   int n = 0;
   for (int i = 0; i < Size; i++)
-    if (List[i].Type != PARTICLE_TYPE_DARK_MATTER)
+    if (List[i].Type != PARTICLE_TYPE_DARK_MATTER &&
+        List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR &&
+        List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD &&
+        List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT)
       star_index[n++] = i;
 
   /* Loop over star particles only -- June 30 2011 Eve */
@@ -136,7 +143,11 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
   int NumberOfRemainingSmallParticles = 0;
   for (int i = 0; i < Size; i++){
     //if (List[i].Mass < MergeMass && Flag[i] == -1) //Jul 5 2011 Eve
-    if (List[i].Mass < MergeMass && Flag[i] == -1 && List[i].Type != PARTICLE_TYPE_DARK_MATTER)
+    /* do not merge individual star particles - AJE Feb 8 2016 */
+    if (List[i].Mass < MergeMass && Flag[i] == -1 && List[i].Type != PARTICLE_TYPE_DARK_MATTER
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT)
       NumberOfRemainingSmallParticles++;
   }
 
@@ -151,7 +162,10 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
   int n = 0;
   for (int i = 0; i < Size; i++)
     //if (List[i].Mass < MergeMass && Flag[i] == -1) //Jul 5 2011 Eve
-    if (List[i].Mass < MergeMass && Flag[i] == -1 && List[i].Type != PARTICLE_TYPE_DARK_MATTER)
+    if (List[i].Mass < MergeMass && Flag[i] == -1 && List[i].Type != PARTICLE_TYPE_DARK_MATTER
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT)
       IndexArray[n++] = i;
 
   FLOAT *xp = new FLOAT[NumberOfRemainingSmallParticles];

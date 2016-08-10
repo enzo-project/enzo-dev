@@ -180,7 +180,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     if (MetalNum != -1) {
       colnum[NumberOfColours++] = MetalNum;
-      if (MultiMetals || TestProblemData.MultiMetals) {
+      if ((MultiMetals || TestProblemData.MultiMetals == 1 ) && TestProblemData.MultiMetals < 2) {
 	colnum[NumberOfColours++] = MetalNum+1; //ExtraType0
 	colnum[NumberOfColours++] = MetalNum+2; //ExtraType1
       }
@@ -193,9 +193,23 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
     if (Galaxy2ColourNum != -1) colnum[NumberOfColours++] = Galaxy2ColourNum;
 
+    /* Add Chemical tracer species as color fields */
+    if(TestProblemData.MultiMetals == 2){
+      for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+        if(StellarYieldsAtomicNumbers[yield_i] > 2){
+
+          int field_num = 0;
+
+          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+          colnum[NumberOfColours++] = field_num;
+
+
+        }
+      }
+    } // if mm == 2
+
 
     /* Add Simon Glover's chemistry species as color fields */
-
     if(TestProblemData.GloverChemistryModel){
 
       // Declarations for Simon Glover's cooling.

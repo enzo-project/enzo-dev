@@ -54,6 +54,8 @@ int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			   HierarchyEntry &TopGrid, TopGridData &MetaData);
+int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr,
+                           HierarchyEntry &TopGrid, TopGridData &MetaData);
 int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData);
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -307,6 +309,14 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       NumberOfParticleAttributes = 3;
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
       if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
+      if (STARMAKE_METHOD(INDIVIDUAL_STAR)) NumberOfParticleAttributes++; // 3 + birth mass = 4
+      if (TestProblemData.MultiMetals){
+
+        if (TestProblemData.MultiMetals == 2){
+          NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
+        }
+
+      } // end multimetals
     } else {
       NumberOfParticleAttributes = 0;
     }
@@ -670,6 +680,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = CRShockTubesInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
+  // 260 ) Chemical evolution test problem
+  if (ProblemType == 260){
+    ret = ChemicalEvolutionTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
 
 
   /* ???? */

@@ -44,6 +44,7 @@ int FindCube(char *cube_name);
 int FindField(int f, int farray[], int n);
 int WriteStringAttr(hid_t dset_id, char *Alabel, char *String, FILE *log_fptr);
 
+char* ChemicalSpeciesParticleLabel(const int &atomic_number);
  
  
  
@@ -124,8 +125,33 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
       {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
        "particle_jet_y", "particle_jet_z", "typeia_fraction"};
 #else
-    char *ParticleAttributeLabel[] = 
-      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+//    char *ParticleAttributeLabel[] = 
+//      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
+  ParticleAttributeLabel[0] = "creation_time";
+  ParticleAttributeLabel[1] = "dynamical_time";
+  ParticleAttributeLabel[2] = "metallicity_fraction";
+
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    ParticleAttributeLabel[3] = "birth_mass";
+    if(TestProblemData.MultiMetals == 2){
+      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+      }
+    }
+
+  } else {
+    ParticleAttributeLabel[3] = "typeia_fraction";
+  }
+
+
+/*
+  const char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
+       "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
+       "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
+*/
 #endif
 #ifdef IO_LOG
   int         io_log = 1;

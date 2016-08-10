@@ -26,7 +26,7 @@
 void Star::ActivateNewStar(FLOAT Time, float Timestep)
 {
   int StarType;
-  FILE *fptr;
+
   if (this->IsUnborn()) {  // unborn
     StarType = ABS(type);
     switch (StarType) {
@@ -50,6 +50,11 @@ void Star::ActivateNewStar(FLOAT Time, float Timestep)
       }
       break;
     case PopIII_CF:
+      type = StarType;
+      break;
+    case IndividualStar:
+    case IndividualStarWD:
+    case IndividualStarRemnant:
       type = StarType;
       break;
     case BlackHole:

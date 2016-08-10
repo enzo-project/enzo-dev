@@ -48,6 +48,13 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 				     Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
+
+int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+                                      int level, Star* &AllStars, bool* &AddedFeedback);
+
+int StarParticlePhotoelectricHeating(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+                                     int level, Star *&AllStars);
+
 int CommunicationMergeStarParticle(HierarchyEntry *Grids[], int NumberOfGrids);
 void DeleteStarList(Star * &Node);
 
@@ -89,18 +96,24 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
     ThisStar->UpdatePositionVelocity();
 
+  // Apply individual star feedback if it exists
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && STARFEED_METHOD(INDIVIDUAL_STAR)){
+    IndividualStarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
+  } else{
 
-  /* Apply any stellar feedback onto the grids and add any gas to the
-     accretion rates of the star particles */
+    /* Apply any stellar feedback onto the grids and add any gas to the
+       accretion rates of the star particles */
 
-  StarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
+    StarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
 
-  /* Update star particles for any accretion */
 
-  StarParticleAccretion(MetaData, LevelArray, level, AllStars);
+    /* Update star particles for any accretion */
+
+    StarParticleAccretion(MetaData, LevelArray, level, AllStars);
+  }
 
   /* Collect all sink particles and report the total mass to STDOUT */
-  
+
   if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
     TotalMass = 0.0;
     for (l = 0; l <= MaximumRefinementLevel; l++)
@@ -122,13 +135,13 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   StarParticleDeath(LevelArray, level, AllStars);
 
-  /* 
+  /*
      If the new particles are above a specified mass threshold,
      "activate" them.  Then check for any stellar deaths.
 
      Sync all star and normal particles that are stored in the grids
      to the global list (AllStars) so these changes are reflected
-     there. 
+     there.
   */
 
   int count = 0;
@@ -139,8 +152,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //    if (debug) {
 //      printf("AddedFeedback[%d] = %d\n", count, AddedFeedback[count]);
 //     ThisStar->PrintInfo();
-//    } 
-    if (AddedFeedback[count]) {
+//    }
+
+    if (AddedFeedback[count]  || ThisStar->ReturnType() == -IndividualStar) {
       ThisStar->ActivateNewStar(TimeNow, Timestep);
       if (ThisStar->ReturnType() == PopIII && PopIIIOutputOnFeedback == TRUE)
 	OutputNow = TRUE;
@@ -166,9 +180,12 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   } // ENDFOR stars
 
+  /* for existing stars, populate the photoelectric heating baryon field */
+  StarParticlePhotoelectricHeating(MetaData, LevelArray, level, AllStars);
+
   if (PopIIIOutputOnFeedback)
     OutputNow = CommunicationMaxValue(OutputNow);
-  
+
   /* Merge star particles */
 
   if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {  
@@ -189,5 +206,4 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   LCAPERF_STOP("StarParticleFinalize");
   return SUCCESS;
-
 }

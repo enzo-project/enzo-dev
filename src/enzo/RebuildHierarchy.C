@@ -315,7 +315,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   ReportMemoryUsage("Rebuild pos 3");
   if (MetaData->StaticHierarchy == FALSE) {
 
-//    if (debug) ReportMemoryUsage("Memory usage report: Rebuild 1");
+    //ReportMemoryUsage("Memory usage report: Rebuild 1");
  
     /* 1) Create a new TempLevelArray in which to keep the old grids. */
  
@@ -341,7 +341,7 @@ int RebuildHierarchy(TopGridData *MetaData,
  
     } // end: loop over levels
  
-//    if (debug) ReportMemoryUsage("Memory usage report: Rebuild 3");
+    //ReportMemoryUsage("Memory usage report: Rebuild 3");
 
     /* 3) Rebuild all grids on this level and below.  Note: All the grids
           in LevelArray[level+] have been deleted. */

@@ -38,7 +38,9 @@
 
 #define MAX_DEPTH_OF_HIERARCHY             50
 
-#define MAX_LINE_LENGTH                   512
+#define MAX_LINE_LENGTH                   2000 /* AJE: for stellar yields */
+
+#define MAX_STELLAR_YIELDS                20
 
 #define MAX_NAME_LENGTH                   512
 
@@ -68,7 +70,8 @@
 #ifdef WINDS 
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
 #else
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
+//#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES 20 // AJE may need to do something different 
 #endif
 
 #define MAX_TIME_ACTIONS                   10
@@ -350,6 +353,7 @@ typedef int            HDF5_hid_t;
 #define POW(X,Y) pow((double) (X), (double) (Y))
 #define COS(X) cos((double) (X))
 #define SIN(X) sin((double) (X))
+#define ceil_log2(size) ((size) > 1 ? ((size_t)pow(2, (int)log2(size-1)+1)) : 1 )
 
 /* Macros for grid indices (with and without ghost zones, and
    vertex-centered data) */
@@ -462,7 +466,7 @@ typedef int            HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 11
+#define NUM_PARTICLE_TYPES 14
 
 #define PARTICLE_TYPE_RESET         -1
 #define PARTICLE_TYPE_GAS            0
@@ -476,6 +480,9 @@ typedef int            HDF5_hid_t;
 #define PARTICLE_TYPE_MBH            8
 #define PARTICLE_TYPE_COLOR_STAR     9
 #define PARTICLE_TYPE_SIMPLE_SOURCE 10
+#define PARTICLE_TYPE_INDIVIDUAL_STAR 11
+#define PARTICLE_TYPE_INDIVIDUAL_STAR_WD 12
+#define PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT 13
 
 #define CHILDRENPERPARENT           12
 /* Ways to deposit particles from a subgrid. */
@@ -500,9 +507,16 @@ typedef int            HDF5_hid_t;
 #define SINGLE_SUPERNOVA 12
 #define DISTR_FEEDBACK 13
 #define MOM_STAR 14
+#define INDIVIDUAL_STAR 15
 
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
+
+
+ // for stellar yields tabulation
+#define MAXIMUM_NUMBER_OF_YIELD_CHEMICALS        20
+#define MAXIMUM_NUMBER_OF_YIELD_MASS_BINS         7
+#define MAXIMUM_NUMBER_OF_YIELD_METALLICITY_BINS 15
 
 /* Feedback modes */
 
@@ -517,6 +531,11 @@ typedef int            HDF5_hid_t;
 #define MBH_THERMAL 7
 #define MBH_JETS 8
 #define COLOR_FIELD 9
+#define FEEDBACK_INDIVIDUAL_STAR 10
+#define INDIVIDUAL_STAR_STELLAR_WIND 11
+#define INDIVIDUAL_STAR_SNII 12
+#define INDIVIDUAL_STAR_SNIA 13
+#define INDIVIDUAL_STAR_WIND_AND_SN 14
 
 /* Sink particle accretion modes */
 
@@ -546,6 +565,11 @@ typedef int            HDF5_hid_t;
 #define NON_DM_PARTICLES_MERGED_LEVEL 3
 #define NON_DM_PARTICLES_MERGED_ALL 4
 #define TEMPERATURE_FIELD 1000
+
+/* Parameters for star particle yields and individual star properties */
+#define INDIVIDUAL_STAR_METALLICITY_BINS 10
+#define INDIVIDUAL_STAR_SG_BINS           8
+#define INDIVIDUAL_STAR_TEMPERATURE_BINS 12
 
 /* Maximum number of leafs per parent in radiation source tree. */
 

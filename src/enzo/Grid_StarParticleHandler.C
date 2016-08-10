@@ -627,6 +627,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   int MBHParticleType = PARTICLE_TYPE_MBH;
   int ColorStar = PARTICLE_TYPE_COLOR_STAR;
   int SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE;
+  int IndividualStarType = PARTICLE_TYPE_INDIVIDUAL_STAR;
 
   /* Compute the redshift. */
  
@@ -668,10 +669,12 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Convert the species densities into fractional densities (i.e. divide
      by total baryonic density).  At the end we will multiply by the new
      density so that species fractions are maintained. */
- 
-  for (field = 0; field < NumberOfBaryonFields; field++)
+
+ /* AJE TO DO Will need to add code here for chemical tracers */
+
+  for (field = 0; field < NumberOfBaryonFields; field++){
     if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
-	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity)
+	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity){
 #ifdef EMISSIVITY
       /* 
          it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
@@ -686,6 +689,29 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
 	    BaryonField[field][index] /= BaryonField[DensNum][index];
 	}
+
+    }
+  }
+
+  if(TestProblemData.MultiMetals == 2){
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      if(StellarYieldsAtomicNumbers[ii] > 2){
+        int field_num;
+
+        this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
+
+        for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+          for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+            index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+            for( i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
+                BaryonField[field_num][index] /= BaryonField[DensNum][index];
+            }
+          }
+        }
+
+      }
+    }
+  } // end multi metals conversion
 
   /* If creating primordial stars, make a total H2 density field */
 
@@ -782,6 +808,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     int NumberOfNewParticlesSoFar = 0;
     int NumberOfNewParticles = 0;
  
+
 #ifdef STAR1
     //    if (StarParticleCreation == 1) {
     if (0) {
@@ -871,7 +898,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     if (STARMAKE_METHOD(UNIGRID_STAR)) {
 
       //---- UNIGRID ALGORITHM (NO JEANS MASS)
-      
+
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
       FORTRAN_NAME(star_maker3)(
@@ -1045,6 +1072,28 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       }
       
     }
+
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
+
+      // Makes individual stars stochastically via IMF sampling and
+      // chemically tags particles based on local environment with MultiMetals on
+      NumberOfNewParticlesSoFar = NumberOfNewParticles; 
+
+      // Only attempt if on max refiment level
+      if (level == MaximumRefinementLevel || ProblemType == 260){
+        // lets try and form stars
+        if(individual_star_maker(dmfield, temperature,
+                                 &MaximumNumberOfNewParticles,
+                                 &Mu, &NumberOfNewParticles,
+                                 tg->ParticleMass, tg->ParticleType,
+                                 tg->ParticlePosition, tg->ParticleVelocity,
+                                 tg->ParticleAttribute) == FAIL){
+          ENZO_FAIL("Error in individual_star_maker.\n");
+        } // end call to function 
+
+      } // check refinement level
+
+    } // END INDIVIDUAL_STAR
 
     if (STARMAKE_METHOD(SINGLE_SUPERNOVA)) {
 
@@ -1435,30 +1484,30 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	float B2 = Bx*Bx + By*By + Bz*Bz;
 	BaryonField[TENum][n] += 0.5*B2/den;
       }
- 
+
 
     /* Move any new particles into their new homes. */
- 
+
     if (NumberOfNewParticles > 0) {
- 
+
       if (debug)
 	printf("Grid_StarParticleHandler: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
- 
+
       /* Set the particle numbers.  The correct indices will be assigned in 
-	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
- 
+         CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
+
       for (i = 0; i < NumberOfNewParticles; i++)
  	tg->ParticleNumber[i] = INT_UNDEFINED;
- 
+
       /* Move Particles into this grid (set cell size) using the fake grid. */
- 
+
       tg->NumberOfParticles = NumberOfNewParticles;
       for (dim = 0; dim < GridRank; dim++) {
 	tg->CellWidth[dim] = new FLOAT[1];
 	tg->CellWidth[dim][0] = CellWidth[dim][0];
       }
       this->MoveAllParticles(1, &tg);
- 
+
     } // end: if (NumberOfNewParticles > 0)
 
     /* Clean up and keep it quiet. */
@@ -1466,7 +1515,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     delete tg; // temporary grid
 
     //    if (debug) printf("StarParticle: end\n");
- 
+
   }
 #ifdef EMISSIVITY
     if (StarMakerEmissivityField > 0) {
@@ -1549,6 +1598,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticleVelocity[0], ParticleVelocity[1],
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
+
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
  
   } // end: if NORMAL_STAR
@@ -1988,6 +2038,16 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   }
 
+  if (STARFEED_METHOD(INDIVIDUAL_STAR)) {
+
+    if(individual_star_feedback(&NumberOfParticles,
+                                ParticleMass, ParticleType, ParticlePosition,
+                                ParticleVelocity, ParticleAttribute) == FAIL){
+      ENZO_FAIL("Failure in individual star feedback\n");
+    }
+
+  }
+
   if (StarMakerTypeIaSNe == 1 || StarMakerPlanetaryNebulae == 1) {
 
       FORTRAN_NAME(star_feedback_pn_snia)(
@@ -2037,7 +2097,30 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       }
     }
   }
- 
+
+  /* Convert metal species tracers back to densities */
+  if(TestProblemData.MultiMetals == 2){
+    for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      if(StellarYieldsAtomicNumbers[ii] > 2){
+        int field_num;
+
+        this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
+
+        for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+          for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+            index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+            for( i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
+                BaryonField[field_num][index] *= BaryonField[DensNum][index];
+            }
+          }
+        }
+
+      }
+    }
+  } // end multi metals conversion
+
+
+
   /* Clean up. */
  
   delete [] h2field;

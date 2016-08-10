@@ -31,6 +31,8 @@
 
 #include "ProblemType.h"
 
+int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
+
 EnzoProblemMap& get_problem_types()
 {
     static EnzoProblemMap problem_type_map;
@@ -116,7 +118,7 @@ int EnzoProblemType::InitializeUniformGrid(
   int dim, i, size, field, GCM;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, B1Num, B2Num, B3Num, PhiNum;
+    DINum, DIINum, HDINum, MetalNum, B1Num, B2Num, B3Num, PhiNum, PeNum;
 
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
@@ -177,12 +179,28 @@ int EnzoProblemType::InitializeUniformGrid(
   if (TestProblemData.UseMetallicityField) {
     tg->FieldType[MetalNum = tg->NumberOfBaryonFields++] = Metallicity;
 
-    if(TestProblemData.MultiMetals){
+    if(TestProblemData.MultiMetals == 1){
       tg->FieldType[ExtraField[0] = tg->NumberOfBaryonFields++] = ExtraType0;
       tg->FieldType[ExtraField[1] = tg->NumberOfBaryonFields++] = ExtraType1;
     }
+
+    if(TestProblemData.MultiMetals == 2){
+
+      for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
+        if(StellarYieldsAtomicNumbers[yield_i] > 2){
+          tg->FieldType[ tg->NumberOfBaryonFields++] =
+                     ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i]);
+        }
+      } // loop
+
+    } /* multi metals == 2 */
   }
- 
+
+  if ( STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+    tg->FieldType[ PeNum = tg->NumberOfBaryonFields++ ] =
+           PeHeatingRate;
+  }
+
   // Simon glover's chemistry models (there are several)
   //
   // model #1:  primordial (H, D, He)
@@ -355,12 +373,30 @@ int EnzoProblemType::InitializeUniformGrid(
     if(TestProblemData.UseMetallicityField){
       tg->BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction* UniformDensity;
 
-      if(TestProblemData.MultiMetals){
-      tg->BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
-      tg->BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
-
+      if(TestProblemData.MultiMetals == 1){
+        tg->BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
+        tg->BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
       }
+
+      if(TestProblemData.MultiMetals == 2){
+        for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
+          if(StellarYieldsAtomicNumbers[yield_i] > 2){
+            float fraction = 0.0; int field_num = 0;
+
+            this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+            fraction = TestProblemData.ChemicalTracerSpecies_Fractions[yield_i];
+
+            tg->BaryonField[field_num][i] = fraction * UniformDensity;
+          }
+        }
+      } // if MM = 2
+
     } // if(TestProblemData.UseMetallicityField)
+
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+      tg->BaryonField[PeNum][i] = 0.0;
+    }
+
 
         // simon glover chemistry stuff
     if(TestProblemData.GloverChemistryModel){

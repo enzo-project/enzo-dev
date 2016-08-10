@@ -29,6 +29,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "IndividualStarProperties.h"
+
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
 int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[])
@@ -40,12 +42,22 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   double L_UV, cgs_convert, _mass;
   float x, x2, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
   float Mform, EnergyFractionHeI, EnergyFractionHeII;
-  if (this->Mass < 0.1)  // Not "born" yet
+
+  /* for individual star */
+  float Teff, g, Z, M, tau;
+  float DensityUnits, LengthUnits, TemperatureUnits, tunits, VelocityUnits;
+  float H_ionizing_energy = 13.6; // eV
+  float HeI_ionizing_energy = 24.587; // eV
+  float R;
+
+  if (this->Mass < 0.1 && (ABS(this->type) != IndividualStar))  // Not "born" yet
     _mass = this->FinalMass;
   else
     _mass = this->Mass;
   x = log10((float)(_mass));
   x2 = x*x;
+
+
 
   switch(ABS(this->type)) {
 
@@ -76,6 +88,46 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     else {
       for (i = 0; i < nbins; i++) Q[i] = 0.0;
     }
+    break;
+  
+  case IndividualStar:
+    nbins = 2;
+
+    M   = this->BirthMass;   // interpolate grids on initial ZAMS mass
+    Z   = this->Metallicity;
+    tau = this->LifeTime;
+    tau = tau * (TimeUnits); // convert to cgs
+
+    if ( IndividualStarInterpolateProperties(Teff, R, M, Z) == FAIL){
+      ENZO_FAIL("Star_ComputePhotonRates: Failure in computing individual star properties\n");
+    }
+
+    g = IndividualStarSurfaceGravity( M, R); // M in solar - R in cgs
+
+//    printf("Star_ComputePhotonRates: Teff = %"ESYM" g = %"ESYM" Z = %"ESYM"\n", Teff, g, Z);
+    if( IndividualStarComputeIonizingRates( Q[0], Q[1], Teff, g, Z) == FAIL){
+      ENZO_FAIL("Star_ComputePhotonRates: Failure in computing individual star ionizing radiation.\n");
+    }
+
+    // compute average energy by integrating over the black body spectrum
+    H_ionizing_energy  /= eV_erg; // convert to ergs
+    HeI_ionizing_energy /= eV_erg; // conver to ergs
+    ComputeAverageEnergy(&E[0], &H_ionizing_energy, &Teff);
+    ComputeAverageEnergy(&E[1], &HeI_ionizing_energy, &Teff);
+
+    // convert to eV from cgs
+    E[0] = E[0] * eV_erg;
+    E[1] = E[1] * eV_erg;
+
+//    printf("Star_ComputePhotonRates: E[0] = %"ESYM" E[1] = %"ESYM"\n", E[0], E[1]);
+
+    // Functions above return the ionizing flux at stellar surface.
+    // Convert to photon rate
+    Q[0] = Q[0] * 4.0 * pi * R*R;
+    Q[1] = Q[1] * 4.0 * pi * R*R;
+
+//    printf("Star_ComputePhotonRates: Q[0] = %"ESYM" Q[1] = %"ESYM"\n", Q[0], Q[1]);
+
     break;
 
     /* Average energy from Schaerer (2003) */
@@ -198,6 +250,18 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     Q[0] = 0.0;
 #endif
     break;
+
+
+  case IndividualStarWD:
+  case IndividualStarRemnant:
+
+    nbins = 2;
+    E[0]  = 0.0; E[1] = 0.0;
+    Q[0]  = 0.0; Q[1] = 0.0;
+    printf("Star_ComputePhotonRates: WARNING IndividualStarWD and IndividualStarRemnant particles should not be ionizing sources\n");
+
+    break;
+
 
   default:
     ENZO_VFAIL("Star type = %"ISYM" not understood.\n", this->type)

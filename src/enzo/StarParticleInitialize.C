@@ -33,10 +33,18 @@ int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
 void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
 				  int TotalStarParticleCountPrevious[]);
 
+
+int StarParticleIndividual_IMFInitialize(void);
+int IndividualStarProperties_Initialize(void);
+int IndividualStarRadiationProperties_Initialize(void);
+int InitializeStellarYields(void);
+
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
 			   int TotalStarParticleCountPrevious[])
+
+
 {
 
   /* Return if this does not concern us */
@@ -56,8 +64,25 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   /* Initialize the IMF lookup table if requested and not defined */
 
-  if (PopIIIInitialMassFunction)
+  if (PopIIIInitialMassFunction && STARMAKE_METHOD(INDIVIDUAL_STAR) == FALSE)
     StarParticlePopIII_IMFInitialize();
+
+  /* Initialize IMF lookup table if needed and radiation table if needed */
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    StarParticleIndividual_IMFInitialize();
+
+    /* Initialize individual star properties (L, T, R) */
+    IndividualStarProperties_Initialize();
+
+    /* Initialize radiation data table */
+    if((RadiativeTransfer && IndividualStarBlackBodyOnly == FALSE) || IndividualStarFUVHeating){
+      IndividualStarRadiationProperties_Initialize();
+    }
+
+    /* StellarYields */
+    InitializeStellarYields();
+
+  }
 
   int level, grids;
   Star *cstar;
@@ -84,6 +109,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
     /* Merge any newly created, clustered particles */
 
+    /* If individual stars, no merging */
     if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
         ENZO_FAIL("Error in StarParticleMergeNew.");
     }
@@ -111,7 +137,9 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //  }
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
-    cstar->SetFeedbackFlag(TimeNow);
+    float dtForThisStar   = LevelArray[ThisLevel]->GridData->ReturnTimeStep();
+
+    cstar->SetFeedbackFlag(TimeNow, dtForThisStar);
     cstar->CopyToGrid();
     cstar->MirrorToParticle();
   }

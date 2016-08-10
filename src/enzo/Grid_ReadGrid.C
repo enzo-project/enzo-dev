@@ -40,7 +40,10 @@ void my_exit(int status);
  
 int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
- 
+
+char* ChemicalSpeciesParticleLabel(const int &atomic_number);
+
+
 // extern int ParticleTypeInFile; // declared and set in ReadParameterFile
  
 #ifdef USE_HDF4 //Ji-hoon Kim
@@ -83,8 +86,33 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
       {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
        "particle_jet_y", "particle_jet_z", "typeia_fraction"};
 #else
-    char *ParticleAttributeLabel[] = 
-      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+//    char *ParticleAttributeLabel[] = 
+//      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
+  ParticleAttributeLabel[0] = "creation_time";
+  ParticleAttributeLabel[1] = "dynamical_time";
+  ParticleAttributeLabel[2] = "metallicity_fraction";
+
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    ParticleAttributeLabel[3] = "birth_mass";
+    if(TestProblemData.MultiMetals == 2){
+      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+      }
+    }
+
+  } else {
+    ParticleAttributeLabel[3] = "typeia_fraction";
+  }
+
+
+/*
+  const char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
+       "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
+       "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
+*/
 #endif
 
 #ifdef USE_HDF4

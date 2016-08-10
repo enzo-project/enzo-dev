@@ -37,7 +37,7 @@ class Star
   float		 DeltaMass;	// Msun (to be added to ParticleMass[])
   float		 BirthTime;
   float		 LifeTime;
-  float          Metallicity;
+  double         Metallicity;
   float          deltaZ;
   int		 FeedbackFlag;
   PINT		 Identifier;
@@ -47,6 +47,7 @@ class Star
   star_type	 type;
   float          accreted_angmom[MAX_DIMENSION];  // used for MBH_JETS feedback
   double         NotEjectedMass;                  // Msun, used for MBH_JETS feedback
+  double         BirthMass; // Msun - AJE
 
   friend class grid;
 
@@ -74,6 +75,8 @@ public:
   double ReturnMass(void) { return Mass; };
   float ReturnBirthTime(void) { return BirthTime; };
   double ReturnFinalMass(void) { return FinalMass; };
+  double ReturnBirthMass(void) { return BirthMass; };
+  double ReturnMetallicity(void) { return Metallicity; };
   void  AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };
   float ReturnBirthtime(void) { return BirthTime; };
@@ -88,6 +91,7 @@ public:
   bool  MarkedToDelete(void) { return type == TO_DELETE; };
   void  MarkForDeletion(void) { type = TO_DELETE; };
   void  AddMass(double dM) { Mass += dM; };
+  void  SetNewMass(double M) { Mass = M; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
   void  ResetAccretion(void) { DeltaMass = 0.0; };
   void  SetAccretionMass(const float value) { DeltaMass = value; };
@@ -109,7 +113,7 @@ public:
   int   CalculateMassAccretion(float &BondiRadius, float &density);
   float CalculateMassLoss(const float dt);
   int   ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[]);
-  int	SetFeedbackFlag(FLOAT Time);
+  int	SetFeedbackFlag(FLOAT Time, float dtFixed);
   void  SetFeedbackFlag(int flag);
 #ifdef LARGE_INTS
   void  SetFeedbackFlag(Eint32 flag);
@@ -130,6 +134,7 @@ public:
   float RelativeVelocity2(Star a);
   float RelativeVelocity2(Star *a);
   void  UpdatePositionVelocity(void);
+  void  UpdateIndividualStarParticleProperties(void);
   void	CopyFromParticle(grid *_grid, int _id, int _level);
   void	AssignAccretedAngularMomentum(void);
   void	DeleteCopyInGrid(void);
@@ -174,7 +179,8 @@ public:
 #endif
 
   Star* StarBufferToList(StarBuffer *buffer, int n);
-  StarBuffer* StarListToBuffer(int n);
+  void StarListToBuffer(StarBuffer *&result, int n);
+  void StarToBuffer(StarBuffer *result);
   
 };
 

@@ -25,7 +25,7 @@
 void DeleteStarList(Star * &Node);
 Star* StarBufferToList(StarBuffer buffer);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
- 
+
 int grid::CollectStars(int GridNum, int* &NumberToMove, 
 		       int &StartIndex, int &EndIndex, 
 		       star_data* &List, int CopyDirection)
@@ -35,7 +35,6 @@ int grid::CollectStars(int GridNum, int* &NumberToMove,
 
   int i, j, dim, n1, grid, proc;
   Star *MoveStar;
-  StarBuffer *TempBuffer;
 
   /* ----------------------------------------------------------------- */
   /* Copy star out of grid. */
@@ -64,17 +63,15 @@ int grid::CollectStars(int GridNum, int* &NumberToMove,
       ENZO_FAIL("Star pointer cannot be NULL here.  NumberOfStars "
 		"and star pointer are mismatched.");
 
-    n1 = StartIndex;
-    TempBuffer = Stars->StarListToBuffer(NumberOfStars);
-    DeleteStarList(Stars);
-    
-    for (i = 0, n1 = StartIndex; i < NumberOfStars; i++, n1++) {
-      List[n1].data = TempBuffer[i];
+    for (i = 0, n1 = StartIndex, MoveStar = Stars; i < NumberOfStars;
+	 i++, n1++, MoveStar = MoveStar->NextStar) {
+      MoveStar->StarToBuffer(&List[n1].data);
       List[n1].grid = GridNum;
       List[n1].proc = ProcessorNumber;
     } // ENDFOR stars
 
     StartIndex = n1;
+    DeleteStarList(Stars);
     NumberOfStars = 0;
 
   } // end: if (COPY_OUT)

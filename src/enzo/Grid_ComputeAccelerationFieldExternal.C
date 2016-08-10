@@ -480,15 +480,16 @@ int grid::ComputeAccelerationFieldExternal()
         ParticleAcceleration[0][i] -= (   accelsph*xpos
                                         + accelcylR*xpos1
                                         + accelcylz*AngularMomentumx);
+
         ParticleAcceleration[1][i] -= (   accelsph*ypos
                                         + accelcylR*ypos1
                                         + accelcylz*AngularMomentumy);
+
         ParticleAcceleration[2][i] -= (   accelsph*zpos
                                         + accelcylR*zpos1
                                         + accelcylz*AngularMomentumz);
 
-
-      } // end: loop over particles
+      }
     } // end: check if particles + NULL
 
   } // end: if (DiskGravity)

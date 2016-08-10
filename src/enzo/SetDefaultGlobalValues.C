@@ -44,7 +44,6 @@ char DefaultExtraName[] = "ExtraDumpXX";
 char DefaultExtraDir[]="ED00";
  
  
- 
 int SetDefaultGlobalValues(TopGridData &MetaData)
 {
  
@@ -354,6 +353,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityStellarBulgeR           = 4.0E-4;      // Mpc
   DiskGravityDarkMatterR             = 2.3E-2;      // Mpc
   DiskGravityDarkMatterDensity       = 3.81323E-25; // CGS
+  DiskGravityDarkMatterMassInterior  = 0.0;         // solar masses - Only used when above is -1
+  DiskGravityDarkMatterMassInteriorR = 0.0;         // Mpc - Only used in conjuction with above
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
@@ -489,31 +490,36 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
 #ifdef USE_GRACKLE
+
   // Grackle chemistry data structure.
-  if (set_default_chemistry_parameters() == FAIL) {
+  chemistry_data *my_chemistry;
+  my_chemistry = new chemistry_data;
+  if (set_default_chemistry_parameters(my_chemistry) == FAIL) {
     ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
   }
+
   // Map Grackle defaults to corresponding Enzo parameters
-  Gamma                                 = (float) grackle_data.Gamma;
-  MultiSpecies                          = (int) grackle_data.primordial_chemistry;
-  MetalCooling                          = (int) grackle_data.metal_cooling;
-  H2FormationOnDust                     = (int) grackle_data.h2_on_dust;
-  CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data.cmb_temperature_floor;
-  ThreeBodyRate                         = (int) grackle_data.three_body_rate;
-  CIECooling                            = (int) grackle_data.cie_cooling;
-  H2OpticalDepthApproximation           = (int) grackle_data.h2_optical_depth_approximation;
-  PhotoelectricHeating                  = (int) grackle_data.photoelectric_heating;
-  PhotoelectricHeatingRate              = (float) grackle_data.photoelectric_heating_rate;
-  CoolData.NumberOfTemperatureBins      = (int) grackle_data.NumberOfTemperatureBins;
-  RateData.CaseBRecombination           = (int) grackle_data.CaseBRecombination;
-  CoolData.TemperatureStart             = (float) grackle_data.TemperatureStart;
-  CoolData.TemperatureEnd               = (float) grackle_data.TemperatureEnd;
-  RateData.NumberOfDustTemperatureBins  = (int) grackle_data.NumberOfDustTemperatureBins;
-  RateData.DustTemperatureStart         = (float) grackle_data.DustTemperatureStart;
-  RateData.DustTemperatureEnd           = (float) grackle_data.DustTemperatureEnd;
-  CoolData.HydrogenFractionByMass       = (float) grackle_data.HydrogenFractionByMass;
-  CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data.DeuteriumToHydrogenRatio;
-  CoolData.SolarMetalFractionByMass     = (float) grackle_data.SolarMetalFractionByMass;
+  Gamma                                 = (float) grackle_data->Gamma;
+  MultiSpecies                          = (int) grackle_data->primordial_chemistry;
+  MetalCooling                          = (int) grackle_data->metal_cooling;
+  H2FormationOnDust                     = (int) grackle_data->h2_on_dust;
+  CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data->cmb_temperature_floor;
+  ThreeBodyRate                         = (int) grackle_data->three_body_rate;
+  CIECooling                            = (int) grackle_data->cie_cooling;
+  H2OpticalDepthApproximation           = (int) grackle_data->h2_optical_depth_approximation;
+  PhotoelectricHeating                  = (int) grackle_data->photoelectric_heating;
+  PhotoelectricHeatingRate              = (float) grackle_data->photoelectric_heating_rate;
+  CoolData.NumberOfTemperatureBins      = (int) grackle_data->NumberOfTemperatureBins;
+  RateData.CaseBRecombination           = (int) grackle_data->CaseBRecombination;
+  CoolData.TemperatureStart             = (float) grackle_data->TemperatureStart;
+  CoolData.TemperatureEnd               = (float) grackle_data->TemperatureEnd;
+  RateData.NumberOfDustTemperatureBins  = (int) grackle_data->NumberOfDustTemperatureBins;
+  RateData.DustTemperatureStart         = (float) grackle_data->DustTemperatureStart;
+  RateData.DustTemperatureEnd           = (float) grackle_data->DustTemperatureEnd;
+  CoolData.HydrogenFractionByMass       = (float) grackle_data->HydrogenFractionByMass;
+  CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data->DeuteriumToHydrogenRatio;
+  CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
+
 #endif
 
   OutputCoolingTime = FALSE;
@@ -545,6 +551,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MustRefineParticlesCreateParticles = 0;
   MustRefineParticlesRefineToLevelAutoAdjust = FALSE;
   MustRefineParticlesMinimumMass   = 0.0;
+  MustRefineParticlesBufferSize    = 8;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
@@ -704,6 +711,76 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerH2FloorInColdGas = 0.0;
   H2StarMakerColdGasTemperature = 1e4;
 
+  // AJE Individual Star
+  IndividualStarAllowTruncatedIMF   = 0;            // on or off - truncates IMF for low mass regions if on
+  IndividualStarExtrapolateYields   = 1;            // on or off - extrapolate yields using abundances from most massive tabulated star
+  IndividualStarSFGasMassThreshold  = 200.0;        // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
+  IndividualStarSFAlgorithm         = 0;            // 0 or 1 to switch between algorithms - hopefully temperorary until one works
+  IndividualStarSecondaryOverDensityThreshold = -1; // in cc - if < 0, set to over density thresh in ReadParamFile
+  IndividualStarIMFUpperMassCutoff  = 100.0;        // Solar masses
+  IndividualStarIMFLowerMassCutoff  =   1.0;        // Solar masses
+  IndividualStarVelocityDispersion  =   1.0;        // km/s
+  IndividualStarIMFSeed             = INT_UNDEFINED;
+  IndividualStarIMF                 = 0;            // 0: salpeter, 1: kroupa, 2: chabrier
+  IndividualStarIMFCalls            = 0;
+  IndividualStarSalpeterSlope       = 2.5;
+  IndividualStarKroupaAlpha1        = 0.3;
+  IndividualStarKroupaAlpha2        = 1.3;
+  IndividualStarKroupaAlpha3        = 2.3;
+  IndividualStarMassFraction        = 0.5;
+  IndividualStarSNIIMassCutoff      = 8.0;          // Solar masses
+  IndividualStarAGBThreshold        = 8.0;          // solar masses - stars below this mass have winds at end of life only
+  IndividualStarWDMinimumMass       = 1.7;          // Solar masses
+  IndividualStarWDMaximumMass       = 8.0;          // solar masses
+  IndividualStarSNIaMinimumMass     = 3.0;          // Solar masses
+  IndividualStarSNIaMaximumMass     = 8.0;          // solar masses
+  IndividualStarPSNMassCutoff       = 40.0;         // Solar masses
+  IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
+  IndividualStarFUVMinimumMass       = 8.0;         // SOlar masses
+  IndividualStarFUVTemperatureCutoff = 2.0E4;       // K - if FUV heating is on, heat up to this temperature
+  IndividualStarStellarWinds         = 0;           // on or off
+  IndividualStarFollowStellarYields  = 0;            // on or off
+  IndividualStarDTDSlope             = 1.20;        // beta (positive) - Default from Maoz et. al. 2012
+  IndividualStarSNIaFraction         = 0.043;       // Fraction of MS stars that can be SNIa progenitors that will go SNIa in hubble time
+  IndividualStarUseSNIa              = 0;           // on or off
+  IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
+  IndividualStarCreationStencilSize  = 0;           // n x n region to form stars around a cell (0 = cell by cell)
+  IndividualStarFeedbackStencilSize  = 3;
+  IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
+
+  IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens FUV Heating
+
+  IndividualStarSupernovaEnergy      = 1;          // when < 0, use factor x mc^2 for supernova energy injection
+                                                    // when > 0, constant supernova energy in units of 10^51 erg
+  IndividualStarStellarWindVelocity  = -1;          // when < 0, use Leithener et. al. model for stellar wind velocities
+                                                    // when > 0, uniform wind velocity for all stars in km / s
+                                                    // when = 0, use this to do mass deposition without energy injection
+
+  StellarYieldsNumberOfSpecies       = INT_UNDEFINED; // number of species to follow - optional, calculated automatically if left undefined
+  for (i = 0; i < MAX_STELLAR_YIELDS; i++){
+    StellarYieldsAtomicNumbers[i] = NULL;
+  }
+
+  IndividualStarBlackBodyq0Factors[0]  = 0.1 ;      // if OSTAR is ON, adjust black body to be continious
+  IndividualStarBlackBodyq0Factors[1]  = 3.0 ;      // factors are for q0 and q1 with first
+  IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
+  IndividualStarBlackBodyq1Factors[1]  = 5.0 ;      // and second high mass off grid.
+
+  IndividualStarBlackBodyFUVFactors[0] = 1.00E-4;     // same as above, but for FUV luminosities
+  IndividualStarBlackBodyFUVFactors[1] = 2.29E-5;
+
+  PhotoelectricHeatingDustModelEfficiency = 0.0;
+
+  // chemical evolution test star
+  ChemicalEvolutionTestStarMass        = 20.0   ; // solar masses
+  ChemicalEvolutionTestStarMetallicity = 0.0001 ;
+  ChemicalEvolutionTestStarFormed      = FALSE  ;
+  ChemicalEvolutionTestStarLifetime    = 0      ; // 0 is off > 0 lifetime in Myr
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    ChemicalEvolutionTestStarPosition[dim] = 0.5; // code units - center of box
+    ChemicalEvolutionTestStarVelocity[dim] = 0.0;
+  }
+
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
   LastSupernovaTime                = FLOAT_UNDEFINED;
@@ -843,6 +920,31 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.MultiMetals = 0;
   TestProblemData.MultiMetalsField1_Fraction = tiny_number;
   TestProblemData.MultiMetalsField2_Fraction = tiny_number;
+
+  // AJE alpha process, iron, s and r process elements
+  TestProblemData.NI_Fraction  = tiny_number;
+  TestProblemData.MgI_Fraction = tiny_number;
+  TestProblemData.FeI_Fraction = tiny_number;
+  TestProblemData.YI_Fraction  = tiny_number;
+  TestProblemData.BaI_Fraction = tiny_number;
+  TestProblemData.LaI_Fraction = tiny_number;
+  TestProblemData.EuI_Fraction = tiny_number;
+  // same for second set of chemical tracers:
+  TestProblemData.CI_Fraction_2 = tiny_number;
+  TestProblemData.NI_Fraction_2 = tiny_number;
+  TestProblemData.OI_Fraction_2 = tiny_number;
+  TestProblemData.MgI_Fraction_2 = tiny_number;
+  TestProblemData.SiI_Fraction_2 = tiny_number;
+  TestProblemData.FeI_Fraction_2 = tiny_number;
+  TestProblemData.YI_Fraction_2  = tiny_number;
+  TestProblemData.LaI_Fraction_2 = tiny_number;
+  TestProblemData.BaI_Fraction_2 = tiny_number;
+  TestProblemData.EuI_Fraction_2 = tiny_number;
+
+  for (int i = 0; i < MAX_STELLAR_YIELDS; i++){
+    TestProblemData.ChemicalTracerSpecies_Fractions[i]   = tiny_number;
+    TestProblemData.ChemicalTracerSpecies_Fractions_2[i] = tiny_number;
+  }
 
   TestProblemData.GloverChemistryModel = 0;
   // This is for the gas in the surrounding medium, for the blast wave problem.

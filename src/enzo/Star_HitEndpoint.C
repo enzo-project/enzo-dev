@@ -21,6 +21,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "StarParticleData.h" // AJE
+
 #define NO_DEATH 0
 #define KILL_STAR 1
 #define KILL_ALL 2
@@ -102,6 +104,35 @@ int Star::HitEndpoint(FLOAT Time)
     break;
 
   case NormalStar:
+    break;
+
+  case IndividualStar:
+    result = NO_DEATH;
+    this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
+
+    float mproj;
+    mproj       = this->BirthMass;
+
+    /* check mass */
+    if(mproj > IndividualStarSNIIMassCutoff){ this->type = IndividualStarRemnant;}
+
+    if(mproj >= IndividualStarWDMinimumMass && mproj <= IndividualStarWDMaximumMass){
+        this->type = IndividualStarWD;
+
+        float wd_mass;
+        if(   mproj < 4.0){ wd_mass = 0.134 * mproj + 0.331;}
+        else if (mproj >=4.0){ wd_mass = 0.047 * mproj + 0.679;}
+        this->Mass = wd_mass;
+
+    } // end WD check
+
+    break;
+  case IndividualStarWD:
+    result = NO_DEATH;
+    break; // do nothing
+
+  case IndividualStarRemnant:
+    result = NO_DEATH; //printf("Individual Star remnamt in hit endpoint\n");
     break;
 
   } // ENDSWITCH

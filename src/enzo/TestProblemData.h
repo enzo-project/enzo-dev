@@ -40,7 +40,7 @@ struct TestProblemDataType
   float DI_Fraction;
   float DII_Fraction;
   float HDI_Fraction;
-  
+
   int UseMassInjection;
   float InitialHydrogenMass;
   float InitialHeliumMass;
@@ -63,6 +63,33 @@ struct TestProblemDataType
   int MultiMetals;
   float MultiMetalsField1_Fraction;
   float MultiMetalsField2_Fraction;
+
+  /* AJE */
+  float NI_Fraction;
+  float MgI_Fraction;
+  float FeI_Fraction;
+  float YI_Fraction;
+  float BaI_Fraction;
+  float LaI_Fraction;
+  float EuI_Fraction;
+
+  /* AJE */
+  // allow for a second set of initial chemical tracer values
+  // initial idea is first set for galaxy disk, second for halo
+  float  CI_Fraction_2;
+  float  NI_Fraction_2;
+  float  OI_Fraction_2;
+  float MgI_Fraction_2;
+  float SiI_Fraction_2;
+  float FeI_Fraction_2;
+  float  YI_Fraction_2;
+  float LaI_Fraction_2;
+  float BaI_Fraction_2;
+  float EuI_Fraction_2;
+
+  /* Chemical tracer fields */
+  float ChemicalTracerSpecies_Fractions[MAX_STELLAR_YIELDS];
+  float ChemicalTracerSpecies_Fractions_2[MAX_STELLAR_YIELDS];
 
   /* simon glover chemistry+cooling */
   int GloverChemistryModel;

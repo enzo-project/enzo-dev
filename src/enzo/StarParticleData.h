@@ -131,8 +131,52 @@ SPEXTERN float  H2StarMakerH2DissociationFlux_MW;
 SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
 
+SPEXTERN int   IndividualStarAllowTruncatedIMF;
+SPEXTERN int   IndividualStarExtrapolateYields;
+SPEXTERN int   IndividualStarSFAlgorithm;
+SPEXTERN float IndividualStarSFGasMassThreshold;
+SPEXTERN float IndividualStarTemperatureThreshold;
+SPEXTERN float IndividualStarSecondaryOverDensityThreshold;
+SPEXTERN float IndividualStarIMFUpperMassCutoff;
+SPEXTERN float IndividualStarIMFLowerMassCutoff;
+SPEXTERN float IndividualStarVelocityDispersion;
+SPEXTERN int   IndividualStarIMFSeed;
+SPEXTERN int   IndividualStarIMF;
+SPEXTERN int   IndividualStarIMFCalls;
+SPEXTERN float IndividualStarSalpeterSlope;
+SPEXTERN float IndividualStarKroupaAlpha1;
+SPEXTERN float IndividualStarKroupaAlpha2;
+SPEXTERN float IndividualStarKroupaAlpha3;
+SPEXTERN float IndividualStarMassFraction;
+SPEXTERN float IndividualStarSNIIMassCutoff;
+SPEXTERN float IndividualStarAGBThreshold;
+SPEXTERN float IndividualStarPSNMassCutoff;
+SPEXTERN float IndividualStarRadiationMinimumMass;
+SPEXTERN int   IndividualStarStellarWinds;
+SPEXTERN int   IndividualStarFollowStellarYields;
+SPEXTERN float IndividualStarWDMinimumMass;
+SPEXTERN float IndividualStarWDMaximumMass;
+SPEXTERN float IndividualStarSNIaMinimumMass;
+SPEXTERN float IndividualStarSNIaMaximumMass;
+SPEXTERN float IndividualStarDTDSlope;
+SPEXTERN float IndividualStarSNIaFraction;
+SPEXTERN int   IndividualStarUseSNIa;
+SPEXTERN int   IndividualStarBlackBodyOnly;
+SPEXTERN float IndividualStarBlackBodyq0Factors[2];
+SPEXTERN float IndividualStarBlackBodyq1Factors[2];
+SPEXTERN float IndividualStarBlackBodyFUVFactors[2];
+SPEXTERN int   IndividualStarCreationStencilSize;
+SPEXTERN int   IndividualStarFeedbackStencilSize;
+SPEXTERN float IndividualStarSupernovaEnergy;
+SPEXTERN float IndividualStarStellarWindVelocity;
+SPEXTERN int   IndividualStarFUVHeating;
+SPEXTERN float IndividualStarFUVMinimumMass;
+SPEXTERN float IndividualStarFUVTemperatureCutoff;
+
+
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
+
 SPEXTERN float *IMFData;
 
 #endif

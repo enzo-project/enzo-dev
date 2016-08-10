@@ -372,11 +372,20 @@ public:
 
    int CheckTimeStep(float dt) {return ((dtFixed > dt) ? FAIL : SUCCESS);};
 
+/* Debugging function for looping over a field over all cells in a grid to
+   check for negative values */
+
+   int CheckField(int FieldNum);
+   int CheckDensity(void);
+
 /* Return time, timestep */
 
    FLOAT ReturnTime() {return Time;};
    FLOAT ReturnOldTime() {return OldTime;};
    float ReturnTimeStep() {return dtFixed;};
+
+/* Return cell width */
+  float ReturnCellWidth(){ return CellWidth[0][0];};
 
   /* Return, set grid ID */
 
@@ -1448,7 +1457,7 @@ gradient force to gravitational force for one-zone collapse test. */
      for (int i = 0; i < NumberOfParticleAttributes; i++) {
        if (ParticleAttribute[i] != NULL) delete [] ParticleAttribute[i];
        ParticleAttribute[i] = NULL;
-     }   
+     }
    };
 
 /* Particles: allocate new particle fields. */
@@ -1630,7 +1639,8 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			   int EndIndex, star_data* &List, 
 			   bool KeepLocal, bool ParticlesAreLocal,
 			   int CopyDirection,
-			   int IncludeGhostZones = FALSE);
+			   int IncludeGhostZones = FALSE,
+			   int CountOnly = FALSE);
 
 // -------------------------------------------------------------------------
 // Helper functions (should be made private)
@@ -1720,6 +1730,18 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   /* Identify shock fields. */
   int IdentifyShockSpeciesFields(int &MachNum,int &PSTempNum, int &PSDenNum);
 
+  /* Identify chemical tracer fields */
+  int IdentifyChemicalTracerSpeciesFieldsByNumber( int &field_num, const int &atomic_number);
+
+  int IdentifyChemicalTracerSpeciesFieldsByNumber( int &field_num,
+                                                   const int &atomic_number,
+                                                   const int &ion_level);
+  /*
+  int IdentifyChemicalTracerSpeciesFields(int  &CINum, int  &NINum, int  &OINum,
+                                          int &MgINum, int &SiINum, int &FeINum,
+                                          int  &YINum, int &BaINum, int &LaINum,
+                                          int &EuINum);
+  */
   // Identify Simon Glover Species Fields
   int IdentifyGloverSpeciesFields(int &HIINum,int &HINum,int &H2INum,
 				  int &DINum,int &DIINum,int &HDINum,
@@ -2178,6 +2200,36 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  float CosmologySimulationInitialUniformBField[]);
 
 
+  /* Initialization for chemical evolution test */
+  int ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTemperature,
+                                          float GasMetallicity);
+
+  /* AJE Individual star formation and feedback */
+  int individual_star_maker( float *dm, float *temp, int *nmax, float *mu, int *np,
+                             float *ParticleMass,
+                             int *ParticleType, FLOAT *ParticlePosition[],
+                             float *ParticleVelocity[], float *ParticleAttribute[]);
+
+  int individual_star_feedback(int *np, float *ParticleMass, int *ParticleType,
+                               FLOAT *ParticlePosition[], float *ParticleVelocity[],
+                               float *ParticleAttribute[]);
+
+  int IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
+                                       const float &up, const float &vp, const float &wp,
+                                       const float &mproj, const float &lifetime,
+                                       const float &particle_age,
+                                       const float &metallicity, float *mp, int mode);
+
+
+  int IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc, const FLOAT &zfc,
+                                        float up, float wp, float vp, float m_eject,
+                                        float E_thermal, float E_kin, float p_feedback, float *metal_mass);
+
+
+  void ZeroPhotoelectricHeatingField(void);
+  void AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, const float *ys,
+                                       const float *zs, const float *ts, const int &number_of_fuv_stars);
+
   /* Initialization for isolated galaxy sims */
   int GalaxySimulationInitializeGrid(
 				     FLOAT DiskRadius,
@@ -2190,6 +2242,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float DMConcentration,
 				     float DiskTemperature,
 				     float InitialTemperature,
+                                     float DiskMetallicity,
+                                     float HaloMetallicity,
 				     float UniformDensity,
 				     int   GasHalo,
 				     float GasHaloScaleRadius,
@@ -2200,7 +2254,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float GalaxySimulationInflowTime,
 				     float GalaxySimulationInflowDensity,
 				     int level,
-				     float GalaxySimulationCR = 0.0 );
+				     float GalaxySimulationCR = 0.0,
+                                     float GalaxySimulationInitialCIFraction = 0.0);
 
   /* Free expansion test */
   int FreeExpansionInitializeGrid(int FreeExpansionFullBox,

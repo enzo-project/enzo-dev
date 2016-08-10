@@ -51,6 +51,10 @@ int StarParticleAccretion(TopGridData *MetaData,
 
   LCAPERF_START("StarParticleAccretion");
 
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return SUCCESS; // AJE-memleak
+  }
+
   Star *ThisStar;
   FLOAT Time;
   float BondiRadius = 0.0, density = 0.0, RecalibrateAccretingMassRatio = 1.0;

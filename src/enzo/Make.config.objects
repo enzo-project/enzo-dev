@@ -52,6 +52,7 @@ OBJS_CONFIG_LIB = \
         CheckForResubmit.o \
         CheckForTimeAction.o \
         CheckShearingBoundaryConsistency.o \
+        ChemicalEvolutionTestInitialize.o \
 	chtable.o \
         cic_deposit.o \
         cic_deposit_c.o \
@@ -318,10 +319,12 @@ OBJS_CONFIG_LIB = \
 	Grid_ApplyTimeAction.o \
 	Grid_CalculateAngularMomentum.o \
 	Grid_ChangeParticleTypeBeforeSN.o \
+        Grid_CheckField.o \
 	Grid_CheckForExternalReflections.o \
 	Grid_CheckForOverlap.o \
 	Grid_CheckForPossibleOverlap.o \
         Grid_CheckForSharedFace.o \
+        Grid_ChemicalEvolutionTestInitializeGrid.o \
 	grid_cic.o \
 	grid_ngp.o \
 	Grid_CleanUpMovedParticles.o \
@@ -464,6 +467,7 @@ OBJS_CONFIG_LIB = \
 	Grid_IdentifyColourFields.o \
 	Grid_HydroShockTubesInitializeGrid.o \
 	Grid_IdentifyShockSpeciesFields.o \
+        Grid_IdentifyChemicalTracerSpeciesFields.o \
 	Grid_IdentifyGloverSpeciesFields.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
@@ -619,6 +623,10 @@ OBJS_CONFIG_LIB = \
         I_ColumnFormat.o \
         IdentifyNewSubgridsBySignature.o \
         ImplosionInitialize.o \
+        individual_star_maker.o \
+        IndividualStarParticleAddFeedback.o \
+        IndividualStarProperties_Initialize.o \
+        IndividualStarProperties.o \
 	InexactNewton.o \
 	InexactNewton_constructor.o \
 	InexactNewton_destructor.o \
@@ -638,7 +646,7 @@ OBJS_CONFIG_LIB = \
         InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
 	InitialLoadBalanceRootGrids.o \
-    init_random_seed.o \
+        init_random_seed.o \
 	interp1d.o \
 	interp2d.o \
 	interp3d.o \
@@ -813,9 +821,11 @@ OBJS_CONFIG_LIB = \
         StarParticleDeath.o \
         StarParticleFinalize.o \
         StarParticleFindAll.o \
+        StarParticleIndividual_IMFInitialize.o \
         StarParticleInitialize.o \
         StarParticleMergeNew.o \
         StarParticleMergeMBH.o \
+        StarParticlePhotoelectricHeating.o \
 	StarParticlePopIII_IMFInitialize.o \
 	StarParticleSetRefinementLevel.o \
         StarParticleSubtractAccretedMass.o \
@@ -855,7 +865,9 @@ OBJS_CONFIG_LIB = \
 	star_maker10.o \
 	star_maker_h2reg.o \
     star_maker_ssn.o \
-	StratifiedMediumExplosionInitialize.o \
+	StellarYieldsRoutines.o \
+        StellarYields_Initialize.o \
+        StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
         TestGravityCheckResults.o \

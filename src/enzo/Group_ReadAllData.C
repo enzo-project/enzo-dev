@@ -180,6 +180,15 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
       NumberOfParticleAttributes = 3;
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
       AddParticleAttributes = TRUE;
+
+      /* Add particle attribute for each chemical tracer species field */
+      if(STARMAKE_METHOD(INDIVIDUAL_STAR) && TestProblemData.MultiMetals == 2){
+
+        if(NumberOfParticleAttributes < 4){ NumberOfParticleAttributes = 4;}
+
+        NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
+      }
+
     } else {
       NumberOfParticleAttributes = 0;
     }

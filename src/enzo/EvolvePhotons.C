@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "preincludes.h"
 #include "performance.h"
 #include "ErrorExceptions.h"
 #include "EnzoTiming.h"
@@ -582,12 +583,25 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     END_PERF(10);
 
     START_PERF();
+
     if (RadiativeTransferCoupledRateSolver)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->RadiationPresent() == TRUE) {
 
 	    int RTCoupledSolverIntermediateStep = TRUE;
+#ifdef USE_GRACKLE
+            if (grackle_data->use_grackle == TRUE) {
+
+              grackle_data->radiative_transfer_intermediate_step = (Eint32) RTCoupledSolverIntermediateStep;
+
+              if (Temp->GridData->GrackleWrapper() == FAIL) {
+                ENZO_FAIL("Error in GrackleWrapper.\n");
+              }
+              continue; // AJE-RT
+            }
+#endif
+
 	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
 
 	  } /* ENDIF radiation */

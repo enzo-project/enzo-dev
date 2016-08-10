@@ -37,6 +37,7 @@
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
 
+
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
@@ -46,6 +47,8 @@ int RebuildHierarchy(TopGridData *MetaData,
 int GetUnits(float *DensityUnits, float *LengthUnits,
        float *TemperatureUnits, float *TimeUnits,
        float *VelocityUnits, double *MassUnits, FLOAT Time);
+
+char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
 
 
 int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, 
@@ -58,16 +61,40 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel2Name    = "y-velocity";
   char *Vel3Name    = "z-velocity";
   char *CRName      = "CREnergyDensity";
-  char *MetalName   = "Metal_Density";
-  char *MetalIaName = "MetalSNIa_Density";
+
+  char *ElectronName = "Electron_Density";
+  char *HIName       = "HI_Density";
+  char *HIIName      = "HII_Density";
+  char *HeIName      = "HeI_Density";
+  char *HeIIName     = "HeII_Density";
+  char *HeIIIName    = "HeIII_Density";
+  char *HMName       = "HM_Density";
+  char *H2IName      = "H2I_Density";
+  char *H2IIName     = "H2II_Density";
+  char *DIName       = "DI_Density";
+  char *DIIName      = "DII_Density";
+  char *HDIName      = "HDI_Density";
+
+  char *MetalName       = "Metal_Density";
+//  char *MetallicityName = "Metallicity";
+  char *MetalIaName     = "MetalSNIa_Density";
+
+
+  char *PeHeatingRateName = "Pe_heating_rate";
+  /* Chemical Tracers */
+  /* handled with lookup table - see below */
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
   int   dim, ret, level, disk, i;
 
+  const double pi     = 3.14159265358979323846;
+  const double msolar = 1.9891E33;
+  const double mpc    = 3.0856E24;
+
   /* make sure it is 3D */
-  
+
   if (MetaData.TopGridRank != 3) {
     ENZO_VFAIL("Cannot do GalaxySimulation in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
   }
@@ -106,6 +133,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ZeroBField[3] = {0.0, 0.0, 0.0};
 
+  /* Chemical tracers */
+  float GalaxySimulationInitialDiskMetallicity, GalaxySimulationInitialHaloMetallicity;
+
   /* Default Values */
 
   GalaxySimulationRefineAtStart      = TRUE;
@@ -119,12 +149,38 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationDarkMatterConcentrationParameter = 12;
   GalaxySimulationGasMass            = 4.0e10;
   GalaxySimulationGalaxyMass         = 1.0e12;
-  GalaxySimulationDiskTemperature    = 1000.0;
+  GalaxySimulationDiskTemperature    = 1000.0;   // AJE whhy is this repeated??
   GalaxySimulationGasHalo            = 0; // uniform halo w/ densicm and UniformTemperature
   GalaxySimulationGasHaloScaleRadius = .001; // Mpc
   GalaxySimulationGasHaloDensity     = 1.8e-27; // cgs
   GalaxySimulationInflowTime         = -1;
   GalaxySimulationInflowDensity      = 0;
+
+  /* Chemical tracer defaults in SetDefaultGlobalValues.C; set to tiny_number */
+
+  /* Set default abundances for halo and galaxy disk. 
+     Default is primordial with 100% neutral galaxy ISM and 100% ionized halo */
+
+  // these are the disk abundances
+  TestProblemData.InnerHydrogenFractionByMass         = 0.75;
+  TestProblemData.HII_Fraction_Inner                  = 0.00;
+  TestProblemData.HeII_Fraction_Inner                 = 0.00;
+  TestProblemData.HeIII_Fraction_Inner                = 0.00;
+  TestProblemData.HM_Fraction_Inner                   = 0.00;
+  TestProblemData.H2I_Fraction_Inner                  = 0.00;
+  TestProblemData.H2II_Fraction_Inner                 = 0.00;
+  TestProblemData.InnerDeuteriumToHydrogenRatio        = 0.00;
+
+  // these are the halo abundances
+  TestProblemData.HydrogenFractionByMass              = 0.75;
+  TestProblemData.HII_Fraction                        = 1.00;
+  TestProblemData.HeII_Fraction                       = 0.00;
+  TestProblemData.HeIII_Fraction                      = 1.00;
+  TestProblemData.HM_Fraction                         = 0.00;
+  TestProblemData.H2I_Fraction                        = 0.00;
+  TestProblemData.H2II_Fraction                       = 0.00;
+  TestProblemData.DeuteriumToHydrogenRatio             = 0.00;
+
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     GalaxySimulationDiskPosition[dim] = 0.5*(DomainLeftEdge[dim] +
 					     DomainRightEdge[dim]);
@@ -136,6 +192,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationCR = .01;
   GalaxySimulationUniformCR = .01;
 
+
+  GalaxySimulationInitialDiskMetallicity = tiny_number;
+  GalaxySimulationInitialHaloMetallicity = tiny_number;
   /* read input from file */
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
@@ -191,13 +250,134 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationAngularMomentum[0],
 		  &GalaxySimulationAngularMomentum[1],
 		  &GalaxySimulationAngularMomentum[2]);
-    
+
+    ret += sscanf(line, "GalaxySimulationMultiMetals = %"ISYM, 
+                        &TestProblemData.MultiMetals);
+
+    /* Initial abundances for the galaxy disk */
+    ret += sscanf(line, "GalaxySimulationHydrogenFractionByMass = %"FSYM,
+                        &TestProblemData.InnerHydrogenFractionByMass);
+    ret += sscanf(line, "GalaxySimulationHIIFraction = %"FSYM,
+                        &TestProblemData.HII_Fraction_Inner);
+    ret += sscanf(line, "GalaxySimulationHeIIFraction = %"FSYM,
+                        &TestProblemData.HeII_Fraction_Inner);
+    ret += sscanf(line, "GalaxySimulationHeIIIFraction = %"FSYM,
+                        &TestProblemData.HeIII_Fraction_Inner);
+    ret += sscanf(line, "GalaxySimulationHMFraction = %"FSYM,
+                        &TestProblemData.HM_Fraction_Inner);
+    ret += sscanf(line, "GalaxySimulationH2IFraction = %"FSYM,
+                        &TestProblemData.H2I_Fraction_Inner);
+    ret += sscanf(line, "GalaxySimulationH2IIFraction = %"FSYM,
+                        &TestProblemData.H2II_Fraction_Inner);
+    ret += sscanf(line, "GalaxySimulationDeuteriumToHydrogenRatio = %"FSYM,
+                        &TestProblemData.InnerDeuteriumToHydrogenRatio);
+
+    /* Initial abundances for the galaxy halo */
+    ret += sscanf(line, "GalaxySimulationHydrogenFractionByMassHalo = %"FSYM,
+                        &TestProblemData.HydrogenFractionByMass);
+    ret += sscanf(line, "GalaxySimulationHIIFractionHalo = %"FSYM,
+                        &TestProblemData.HII_Fraction);
+    ret += sscanf(line, "GalaxySimulationHeIIFractionHalo = %"FSYM,
+                        &TestProblemData.HeII_Fraction);
+    ret += sscanf(line, "GalaxySimulationHeIIIFractionHalo = %"FSYM,
+                        &TestProblemData.HeIII_Fraction);
+    ret += sscanf(line, "GalaxySimulationHMFractionHalo = %"FSYM,
+                        &TestProblemData.HM_Fraction);
+    ret += sscanf(line, "GalaxySimulationH2IFractionHalo = %"FSYM,
+                        &TestProblemData.H2I_Fraction);
+    ret += sscanf(line, "GalaxySimulationH2IIFractionHalo = %"FSYM,
+                        &TestProblemData.H2II_Fraction);
+    ret += sscanf(line, "GalaxySimulationDeuteriumToHydrogenRatioHalo = %"FSYM,
+                        &TestProblemData.DeuteriumToHydrogenRatio);
+
+
+    /* Read in chemical tracer IC's */
+    ret += sscanf(line, "GalaxySimulationInitialCIFraction = %"FSYM,
+                        &TestProblemData.CI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialNIFraction = %"FSYM,
+                        &TestProblemData.NI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialOIFraction = %"FSYM,
+                        &TestProblemData.OI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialMgIFraction = %"FSYM,
+                        &TestProblemData.MgI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialSiIFraction = %"FSYM,
+                        &TestProblemData.SiI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialFeIFraction = %"FSYM,
+                        &TestProblemData.FeI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialYIFraction = %"FSYM,
+                        &TestProblemData.YI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialBaIFraction = %"FSYM,
+                        &TestProblemData.BaI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialLaIFraction = %"FSYM,
+                        &TestProblemData.LaI_Fraction);
+    ret += sscanf(line, "GalaxySimulationInitialEuIFraction = %"FSYM,
+                        &TestProblemData.EuI_Fraction);
+
+
+    /* Initial Chemical tracer values for halo */
+    ret += sscanf(line, "GalaxySimulationInitialCIFractionHalo = %"FSYM,
+                        &TestProblemData.CI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialNIFractionHalo = %"FSYM,
+                        &TestProblemData.NI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialOIFractionHalo = %"FSYM,
+                        &TestProblemData.OI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialMgIFractionHalo = %"FSYM,
+                        &TestProblemData.MgI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialSiIFractionHalo = %"FSYM,
+                        &TestProblemData.SiI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialFeIFractionHalo = %"FSYM,
+                        &TestProblemData.FeI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialYIFractionHalo = %"FSYM,
+                        &TestProblemData.YI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialBaIFractionHalo = %"FSYM,
+                        &TestProblemData.BaI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialLaIFractionHalo = %"FSYM,
+                        &TestProblemData.LaI_Fraction_2);
+    ret += sscanf(line, "GalaxySimulationInitialEuIFractionHalo = %"FSYM,
+                        &TestProblemData.EuI_Fraction_2);
+
+   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsDisk = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 0,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 1,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 2,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 3,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 4,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 5,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 6,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 7,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 8,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 9);
+
+   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsHalo = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 0,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 1,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 2,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 3,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 4,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 5,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 6,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 7,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 8,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 9);
+
+
+
+    ret += sscanf(line, "TestProblemUseMetallicityField = %"ISYM,
+                        &TestProblemData.UseMetallicityField);
+
+    ret += sscanf(line, "GalaxySimulationInitialDiskMetallicity = %"FSYM,
+                        &GalaxySimulationInitialDiskMetallicity);
+
+    ret += sscanf(line, "GalaxySimulationInitialHaloMetallicity = %"FSYM,
+                        &GalaxySimulationInitialHaloMetallicity);
+
     /* if the line is suspicious, issue a warning */
     if (ret == 0 && strstr(line, "=") && strstr(line, "GalaxySimulation") 
 	&& line[0] != '#' && !strstr(line,"RPSWind") && !strstr(line,"PreWind"))
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
 
   } // end input from parameter file
+
 
   /* fix wind values wrt units */
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
@@ -215,10 +395,25 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationRPSWindShockSpeed = GalaxySimulationRPSWindShockSpeed/LengthUnits*TimeUnits;
   GalaxySimulationRPSWindDelay = GalaxySimulationRPSWindDelay/TimeUnits;
 
+  TestProblemData.MultiSpecies = MultiSpecies;
+
+
   /* Align gaseous and stellar disks */
   if( DiskGravity > 0 ){
     for( i = 0 ; i < MAX_DIMENSION ; i++ )
       DiskGravityAngularMomentum[i] = GalaxySimulationAngularMomentum[i];
+
+
+    // set central density if DM mass given
+    if( DiskGravityDarkMatterDensity < 0){
+      float xtemp = DiskGravityDarkMatterMassInteriorR / DiskGravityDarkMatterR; // convenience for below
+      DiskGravityDarkMatterDensity = DiskGravityDarkMatterMassInterior*msolar /
+                                     ( (2.0 * pi * POW(DiskGravityDarkMatterR*mpc,3.0) ) *
+                                       (0.5 * log(1.0 + xtemp*xtemp) + log(1.0 + xtemp) - atan(xtemp)));
+
+      printf("darkmatterdensity, mass interior, darkmatterr %"ESYM" %"ESYM" %"ESYM"\n",DiskGravityDarkMatterDensity, DiskGravityDarkMatterMassInteriorR, DiskGravityDarkMatterMassInterior*msolar);
+    }
+
   } // end DiskGravity if
 
   /* set up grid */
@@ -231,8 +426,10 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationDiskScaleHeightR,
 						       GalaxySimulationTruncationRadius, 
 						       GalaxySimulationDarkMatterConcentrationParameter,
-						       GalaxySimulationDiskTemperature, 
-						       GalaxySimulationInitialTemperature,
+						       GalaxySimulationDiskTemperature,
+                                                       GalaxySimulationInitialTemperature,
+                                                       GalaxySimulationInitialDiskMetallicity,
+                                                       GalaxySimulationInitialHaloMetallicity,
 						       GalaxySimulationUniformDensity,
 						       GalaxySimulationGasHalo,
 						       GalaxySimulationGasHaloScaleRadius,
@@ -242,7 +439,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationUseMetallicityField,
 						       GalaxySimulationInflowTime,
 						       GalaxySimulationInflowDensity,0,
-						       GalaxySimulationCR )
+						       GalaxySimulationCR)
 	      == FAIL) {
       ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
   }// end subgrid if
@@ -291,6 +488,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationDarkMatterConcentrationParameter,
 						       GalaxySimulationDiskTemperature, 
 						       GalaxySimulationInitialTemperature,
+                                                       GalaxySimulationInitialDiskMetallicity,
+                                                       GalaxySimulationInitialHaloMetallicity,
 						       GalaxySimulationUniformDensity,
 						       GalaxySimulationGasHalo,
 						       GalaxySimulationGasHaloScaleRadius,
@@ -300,7 +499,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationUseMetallicityField,
 						       GalaxySimulationInflowTime,
 						       GalaxySimulationInflowDensity,level,
-						       GalaxySimulationCR )
+						       GalaxySimulationCR)
 	      == FAIL) {
 	    ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
 	}// end subgrid if
@@ -344,7 +543,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     InflowValue[4] = GalaxySimulationRPSWindVelocity[2];
     if (GalaxySimulationUseMetallicityField)
       InflowValue[5] = 1.0e-10;
-  
+
     if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
 						Dummy) == FAIL) {
       fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
@@ -382,10 +581,57 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    DataLabel[count++] = Vel3Name;
  if(CRModel)
    DataLabel[count++] = CRName;
+
+ if (MultiSpecies) {
+   DataLabel[count++] = ElectronName;
+   DataLabel[count++] = HIName;
+   DataLabel[count++] = HIIName;
+   DataLabel[count++] = HeIName;
+   DataLabel[count++] = HeIIName;
+   DataLabel[count++] = HeIIIName;
+
+   if (MultiSpecies > 1){
+     DataLabel[count++] = HMName;
+     DataLabel[count++] = H2IName;
+     DataLabel[count++] = H2IIName;
+   }
+
+   if (MultiSpecies > 2){
+     DataLabel[count++] = DIName;
+     DataLabel[count++] = DIIName;
+     DataLabel[count++] = HDIName;
+   }
+ }
+
  if (GalaxySimulationUseMetallicityField)
    DataLabel[count++] = MetalName;
+
+ if (TestProblemData.UseMetallicityField){
+   DataLabel[count++] = MetalName;
+ }
+
  if (StarMakerTypeIaSNe)
    DataLabel[count++] = MetalIaName;
+
+ /* Chemical tracer set ups */
+ if(TestProblemData.MultiMetals){
+   MultiMetals = TestProblemData.MultiMetals;
+ } else if (MultiMetals){
+   TestProblemData.MultiMetals = MultiMetals;
+ }
+
+ if (TestProblemData.MultiMetals == 2){
+
+   for(int i =0; i < StellarYieldsNumberOfSpecies; i ++){
+     if(StellarYieldsAtomicNumbers[i] > 2){
+       DataLabel[count++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[i]);
+     }
+   } // yields loop
+ }
+
+ if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+   DataLabel[count++] = PeHeatingRateName;
+ }
 
  for (i = 0; i < count; i++)
    DataUnits[i] = NULL;
@@ -435,6 +681,106 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	   GalaxySimulationInflowTime);
    fprintf(Outfptr, "GalaxySimulationInflowDensity = %"GOUTSYM"\n",
 	   GalaxySimulationInflowDensity);
+
+   /* Output chemical abundance IC's */
+
+   // galaxy chemistry
+   fprintf(Outfptr, "GalaxySimulationHydrogenFractionByMass = %"GOUTSYM"\n",
+           TestProblemData.InnerHydrogenFractionByMass);
+   fprintf(Outfptr, "GalaxySimulationDeuteriumToHydrogenRatio = %"GOUTSYM"\n",
+           TestProblemData.InnerDeuteriumToHydrogenRatio);
+   fprintf(Outfptr, "GalaxySimulationHIIFraction = %"GOUTSYM"\n",
+           TestProblemData.HII_Fraction_Inner);
+   fprintf(Outfptr, "GalaxySimulationHeIIFraction = %"GOUTSYM"\n",
+           TestProblemData.HeII_Fraction_Inner);
+   fprintf(Outfptr, "GalaxySimulationHeIIIFraction = %"GOUTSYM"\n",
+           TestProblemData.HeIII_Fraction_Inner);
+   fprintf(Outfptr, "GalaxySimulationHMFraction = %"GOUTSYM"\n",
+           TestProblemData.HM_Fraction_Inner);
+   fprintf(Outfptr, "GalaxySimulationH2IFraction = %"GOUTSYM"\n",
+           TestProblemData.H2I_Fraction_Inner);
+   fprintf(Outfptr, "GalaxySimulationH2IIFraction = %"GOUTSYM"\n",
+           TestProblemData.H2II_Fraction_Inner);
+
+   // halo chemistry
+   fprintf(Outfptr, "GalaxySimulationHydrogenFractionByMassHalo = %"GOUTSYM"\n",
+              TestProblemData.HydrogenFractionByMass);
+   fprintf(Outfptr, "GalaxySimulationDeuteriumToHydrogenRatioHalo = %"GOUTSYM"\n",
+              TestProblemData.DeuteriumToHydrogenRatio);
+   fprintf(Outfptr, "GalaxySimulationHIIFractionHalo = %"GOUTSYM"\n",
+              TestProblemData.HII_Fraction);
+   fprintf(Outfptr, "GalaxySimulationHeIIFractionHalo = %"GOUTSYM"\n",
+              TestProblemData.HeII_Fraction);
+   fprintf(Outfptr, "GalaxySimulationHeIIIFractionHalo = %"GOUTSYM"\n",
+              TestProblemData.HeIII_Fraction);
+   fprintf(Outfptr, "GalaxySimulationHMFraction = %"GOUTSYM"\n",
+              TestProblemData.HM_Fraction);
+   fprintf(Outfptr, "GalaxySimulationH2IFractionHalo = %"GOUTSYM"\n",
+              TestProblemData.H2I_Fraction);
+   fprintf(Outfptr, "GalaxySimulationH2IIFractionHalo = %"GOUTSYM"\n",
+              TestProblemData.H2II_Fraction);
+
+   // galaxy chemical tracers
+   fprintf(Outfptr, "GalaxySimulationInitialCIFraction = %"GOUTSYM"\n",
+           TestProblemData.CI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialNIFraction = %"GOUTSYM"\n",
+           TestProblemData.NI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialOIFraction = %"GOUTSYM"\n",
+           TestProblemData.OI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialMgIFraction = %"GOUTSYM"\n",
+           TestProblemData.MgI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialSiIFraction = %"GOUTSYM"\n",
+           TestProblemData.SiI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialFeIFraction = %"GOUTSYM"\n",
+           TestProblemData.FeI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialYIFraction = %"GOUTSYM"\n",
+           TestProblemData.YI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialBaIFraction = %"GOUTSYM"\n",
+           TestProblemData.BaI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialLaIFraction = %"GOUTSYM"\n",
+           TestProblemData.LaI_Fraction);
+   fprintf(Outfptr, "GalaxySimulationInitialEuIFraction = %"GOUTSYM"\n",
+           TestProblemData.EuI_Fraction);
+
+   // halo chemical tracers
+   fprintf(Outfptr, "GalaxySimulationInitialCIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.CI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialNIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.NI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialOIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.OI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialMgIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.MgI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialSiIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.SiI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialFeIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.FeI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialYIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.YI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialBaIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.BaI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialLaIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.LaI_Fraction_2);
+   fprintf(Outfptr, "GalaxySimulationInitialEuIFractionHalo = %"GOUTSYM"\n",
+           TestProblemData.EuI_Fraction_2);
+
+   fprintf(Outfptr, "GalaxySimulationInitialSpeciesFractionsDisk = ");
+   WriteListOfFloats(Outfptr, MAX_STELLAR_YIELDS, TestProblemData.ChemicalTracerSpecies_Fractions);
+
+   fprintf(Outfptr, "GalaxySimulationInitialSpeciesFractionsHalo = ");
+   WriteListOfFloats(Outfptr, MAX_STELLAR_YIELDS, TestProblemData.ChemicalTracerSpecies_Fractions_2);
+
+   fprintf(Outfptr, "TestProblemUseMetallicityField = %"ISYM"\n",
+           TestProblemData.UseMetallicityField);
+   fprintf(Outfptr, "GalaxySimulationMultiMetals = %"ISYM"\n",
+           TestProblemData.MultiMetals);
+
+   fprintf(Outfptr, "GalaxySimulationInitialDiskMetallicity = %"GOUTSYM"\n",
+           GalaxySimulationInitialDiskMetallicity);
+
+   fprintf(Outfptr, "GalaxySimulationInitialHaloMetallicity = %"GOUTSYM"\n",
+           GalaxySimulationInitialHaloMetallicity);
+
    fprintf(Outfptr, "GalaxySimulationDiskPosition = ");
    WriteListOfFloats(Outfptr, MetaData.TopGridRank, GalaxySimulationDiskPosition);
    fprintf(Outfptr, "GalaxySimulationAngularMomentum = ");

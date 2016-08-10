@@ -282,6 +282,8 @@ EXTERN float DiskGravityStellarBulgeMass;
 EXTERN float DiskGravityStellarBulgeR;
 EXTERN float DiskGravityDarkMatterR;
 EXTERN float DiskGravityDarkMatterDensity;
+EXTERN float DiskGravityDarkMatterMassInterior;
+EXTERN float DiskGravityDarkMatterMassInteriorR;
 
 /* SelfGravity (TRUE or FALSE) */
 
@@ -618,6 +620,11 @@ EXTERN int   MustRefineParticlesRefineToLevelAutoAdjust;
    For new particle system only refine around particles above the minimum mass */
 
 EXTERN float MustRefineParticlesMinimumMass;
+
+/* For CellFlaggingMethod = 8,
+   Number of hydro cells around a must refine particle to flag for refinement */
+
+EXTERN int MustRefineParticlesBufferSize;
 
 /* For CellFlaggingMethod = 8,
    region in which particles are flagged as MustRefine particles */
@@ -1128,5 +1135,29 @@ EXTERN float GalaxySimulationRPSWindPressure;
 EXTERN float GalaxySimulationPreWindDensity;
 EXTERN float GalaxySimulationPreWindTotalEnergy; 
 EXTERN float GalaxySimulationPreWindVelocity[MAX_DIMENSION];
- 
+
+/* For setting up the chemical evolution test */
+EXTERN FLOAT ChemicalEvolutionTestStarPosition[MAX_DIMENSION];
+EXTERN float ChemicalEvolutionTestStarVelocity[MAX_DIMENSION];
+EXTERN float ChemicalEvolutionTestStarMass;
+EXTERN float ChemicalEvolutionTestStarMetallicity;
+EXTERN int   ChemicalEvolutionTestStarFormed;
+EXTERN FLOAT ChemicalEvolutionTestStarLifetime;
+
+/* For individual star properties and radiation data */
+EXTERN IndividualStarRadDataType        IndividualStarRadData;
+EXTERN IndividualStarPropertiesDataType IndividualStarPropertiesData;
+
+/* fuv */
+EXTERN float PhotoelectricHeatingDustModelEfficiency;
+
+
+/* For stellar yields data tables */
+EXTERN StellarYieldsDataType          StellarYieldsSNData;
+EXTERN StellarYieldsDataType          StellarYieldsWindData;
+EXTERN int StellarYieldsAtomicNumbers[MAX_STELLAR_YIELDS];
+EXTERN int StellarYieldsNumberOfSpecies;
+
+
 #endif
+

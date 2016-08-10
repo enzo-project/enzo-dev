@@ -37,6 +37,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int StarParticleSetRefinementLevel(Star *AllStars)
 {
 
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return SUCCESS;
+  }
+
   if (PopIIISupernovaMustRefine == FALSE)
     return SUCCESS;
 

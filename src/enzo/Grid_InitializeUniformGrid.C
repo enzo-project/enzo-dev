@@ -22,7 +22,9 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
- 
+
+int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
+
 int grid::InitializeUniformGrid(float UniformDensity,
 				float UniformTotalEnergy,
 				float UniformInternalEnergy,
@@ -32,7 +34,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 {
   /* declarations */
  
-  int dim, i, j, k, index, size, field, GCM;
+  int dim, i, j, k, index, size, field, GCM, MM;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum, CRNum;
@@ -40,6 +42,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
 
+  int PeNum;
 
   int ExtraField[2];
 
@@ -99,20 +102,52 @@ int grid::InitializeUniformGrid(float UniformDensity,
     }
   }
 
-  //  Metal fields, including the standard 'metallicity' as well 
-  // as two extra fields
+  //  Metal fields as defined by MultiMetals: (AJE 1/21/16)
+  //      0    : Standard metallicity field
+  //      1    : Above + two extra blank fields
+  //      --- Values > 2 meant to be coupled to stellar
+  //                   chemical evolution models + ejecta
+  //      These numbers are additive, meanting to include the elements
+  //      from 2 and 3 use 5. Use 9 to include all
+  //      2    : Metallicity field + alpha elements and Iron:
+  //             C, N, O, Mg, Si, Fe
+  //      3    : same as 2 + s-process
+  //             Y, Ba, La
+  //      4    : 3 + r-process
+  //             Eu   (Y, Ba, La as well but already defined above)
+  //
+  //  Full element names used to keep these distinct from 
+  //  Simon Glover's chemistry models (see below)          
   if (TestProblemData.UseMetallicityField) {
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
 
+    MM = TestProblemData.MultiMetals; // for convenience
+  
     if (StarMakerTypeIaSNe)
       FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
 
-    if(TestProblemData.MultiMetals){
+    if(MM == 1){
       FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
       FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
     }
+
+    if( MM == 2){
+
+      for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
+        if(StellarYieldsAtomicNumbers[yield_i] > 2){
+          FieldType[NumberOfBaryonFields++] =
+                               ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i]);
+        }
+      } // end loop over atomic numbers
+    } // end mm = 2
+
+  } // use metallicity field
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+
+    FieldType[PeNum = NumberOfBaryonFields++] = PeHeatingRate;
   }
- 
+
   // Simon glover's chemistry models (there are several)
   //
   // model #1:  primordial (H, D, He)
@@ -279,6 +314,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
     } // if(TestProblemData.MultiSpecies)
 
     // metallicity fields (including 'extra' metal fields)
+    // AJE 1/21/19
     if(TestProblemData.UseMetallicityField){
       BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction* UniformDensity;
 
@@ -286,12 +322,38 @@ int grid::InitializeUniformGrid(float UniformDensity,
 	BaryonField[MetalIaNum][i] = TestProblemData.MetallicitySNIaField_Fraction*
 	  UniformDensity;
 
-      if(TestProblemData.MultiMetals){
+      MM = TestProblemData.MultiMetals;
+
+      if(MM==1){
       BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
       BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
 
       }
+
+      if( MM == 2){
+
+      /* loop over elements again and nam initial values */
+        for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
+          /* > 2 b/c H and He initialization is handled by MultiSpecies */
+          if(StellarYieldsAtomicNumbers[yield_i] > 2){
+            float fraction  = 0.0;
+            int   field_num = 0;
+
+            this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+
+            /* We need to make the assumption that the fractions are placed IN ORDER */
+            fraction = TestProblemData.ChemicalTracerSpecies_Fractions[yield_i];
+
+            BaryonField[field_num][i] = fraction * UniformDensity;
+          }
+        } // yields loop
+      } // if we are doing stellar yields
+
     } // if(TestProblemData.UseMetallicityField)
+
+    if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+      BaryonField[PeNum][i] = 0.0;
+    }
 
         // simon glover chemistry stuff
     if(TestProblemData.GloverChemistryModel){
