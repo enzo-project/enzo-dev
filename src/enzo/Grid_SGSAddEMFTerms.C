@@ -1,3 +1,24 @@
+/***********************************************************************
+ *
+ * INFORMATION This file is part of a subgrid-scale (SGS) modeling 
+ * framework in order to conduct explicit large eddy simulations (LES).
+ *
+ * The functions in this file concern models for the turbulent 
+ * electromotive force (EMF) in the induction equation.
+ *
+ * The models have been verified "a priori", i.e. in comparison to
+ * reference data, in 
+ * Grete et al 2015 New J. Phys. 17 023070 doi: 10.1088/1367-2630/17/2/023070
+ * Grete et al 2016 Phys. Plasmas 23 062317 doi: 10.1063/1.4954304 (Grete2016a)
+ * and "a posteriori", i.e. used in simulations of decaying MHD turbulence, in
+ * Grete et al ... under review ... (Grete201X)
+ *
+ * WRITTEN BY Philipp Grete (mail@pgrete.de)
+ *
+ * DATE 2016
+ *
+************************************************************************/
+
 #include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -6,9 +27,15 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-/* pure (unscaled) full (compressible) nonlinear model 
+
+/* 
+ * This function adds to the EMF 
+ * the pure (unscaled) full (compressible) nonlinear model:
  * EMF = 1/12 * Delta^2 * eps_ijk * (u_j,l * B_k,l - (ln rho),l u_j,l B_k)
- * see eq TODO of TODO for details
+ *
+ * See equation (37) in Grete2016a for details (such as coefficient values)
+ * or Vlaykov et al 2016 Phys. Plasmas 23 062316 doi: 10.1063/1.4954303 for
+ * the derivation.
  */
 void grid::SGSAddEMFNLemfComprTerm(float **EMF) {
     if (debug)
@@ -20,11 +47,17 @@ void grid::SGSAddEMFNLemfComprTerm(float **EMF) {
             TENum, B1Num, B2Num, B3Num, PhiNum);
 
     float *rho, *Bx, *By, *Bz;
+
+    // if an explicit filter should be used
+    // (at this point the fields are already filtered, 
+    // see hydro_rk/Grid_MHDSourceTerms.C)
     if (SGSFilterWidth > 1.) {
         rho = FilteredFields[0];
         Bx  = FilteredFields[4];
         By  = FilteredFields[5];
         Bz  = FilteredFields[6];
+    // if the model should be calculated based on grid-scale quantities
+    // (not recommended, see Grete201X)
     } else {
         rho = BaryonField[DensNum];
         Bx  = BaryonField[B1Num];
@@ -46,6 +79,7 @@ void grid::SGSAddEMFNLemfComprTerm(float **EMF) {
     }
 
 
+    // the combined prefactor
     float CDeltaSqr = 1./12. * SGScoeffNLemfCompr * pow(SGSFilterWidth,2.) *
         pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
 
@@ -94,79 +128,14 @@ void grid::SGSAddEMFNLemfComprTerm(float **EMF) {
 
 }
 
-/* eddy resistivity model scaled by Smagorinsky energies
- * EMF = -C * Delta^2 * sqrt(|S|^2 + |J|^2/rho) * J
- * see eq TODO of TODO for details
- */
-void grid::SGSAddEMFERS2J2Term(float **EMF) {
-    if (debug)
-        printf("[%"ISYM"] grid::SGSAddEMFERS2J2Term start\n",MyProcessorNumber);
-
-    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-    int B1Num, B2Num, B3Num, PhiNum;
-    this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num,
-            TENum, B1Num, B2Num, B3Num, PhiNum);
-
-    float* rho;
-    if (SGSFilterWidth > 1.) {
-        rho = FilteredFields[0];
-    } else {
-        rho = BaryonField[DensNum];
-    }
-
-    int size = 1;
-    int StartIndex[MAX_DIMENSION];
-    int EndIndex[MAX_DIMENSION];
-
-    for (int dim = 0; dim < MAX_DIMENSION; dim++) {
-        size *= GridDimension[dim];
-
-        /* we need the EMF in the first ghost zone as well
-         * as we'll take another derivative later on */
-        StartIndex[dim] = GridStartIndex[dim] - 1;
-        EndIndex[dim] = GridEndIndex[dim] + 1;
-    }
-
-
-    float MinusCDeltaSqr = -SGScoeffERS2J2 * pow(SGSFilterWidth,2.) * 
-        pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
-
-    int igrid;
-    float sqrtS2plusJ2overRho;
-
-    for (int k = StartIndex[2]; k <= EndIndex[2]; k++)
-        for (int j = StartIndex[1]; j <= EndIndex[1]; j++)
-            for (int i = StartIndex[0]; i <= EndIndex[0]; i++) {
-
-                igrid = i + (j+k*GridDimension[1])*GridDimension[0];
-
-                sqrtS2plusJ2overRho = pow(
-                        2.*(pow(JacVel[X][X][igrid],2.) +
-                            pow(JacVel[Y][Y][igrid],2.) +
-                            pow(JacVel[Z][Z][igrid],2.)
-                           )
-                        + pow(JacVel[X][Y][igrid] + JacVel[Y][X][igrid],2.)
-                        + pow(JacVel[Y][Z][igrid] + JacVel[Z][Y][igrid],2.)
-                        + pow(JacVel[X][Z][igrid] + JacVel[Z][X][igrid],2.)
-                        + (pow(JacB[Z][Y][igrid] - JacB[Y][Z][igrid],2.) +
-                            pow(JacB[X][Z][igrid] - JacB[Z][X][igrid],2.) +
-                            pow(JacB[Y][X][igrid] - JacB[X][Y][igrid],2.)
-                          )/rho[igrid],1./2.);
-
-                EMF[X][igrid] += MinusCDeltaSqr * sqrtS2plusJ2overRho * 
-                    (JacB[Z][Y][igrid] - JacB[Y][Z][igrid]);
-                EMF[Y][igrid] += MinusCDeltaSqr * sqrtS2plusJ2overRho * 
-                    (JacB[X][Z][igrid] - JacB[Z][X][igrid]);
-                EMF[Z][igrid] += MinusCDeltaSqr * sqrtS2plusJ2overRho * 
-                    (JacB[Y][X][igrid] - JacB[X][Y][igrid]);
-
-            }
-
-}
-
-/* eddy resistivity model scaled by realiz. energies
+/* 
+ * This function adds to the EMF 
+ * an eddy resistivity model where the strength of anomalous resistivity is 
+ * scaled by the total SGS energy as given by a model based on 
+ * realizability conditions:
  * EMF = -C * Delta^2 * sqrt(|S*|^2 + |M|^2/rho) * J
- * see eq TODO of TODO for details
+ *
+ * See equation (23) and (13) in Grete2016a for details (such as coefficient values)
  */
 void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
     if (debug)
@@ -178,8 +147,13 @@ void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
             TENum, B1Num, B2Num, B3Num, PhiNum);
 
     float* rho; 
+    // if an explicit filter should be used
+    // (at this point the fields are already filtered, 
+    // see hydro_rk/Grid_MHDSourceTerms.C and the SGSNeedJacobians switch)
     if (SGSFilterWidth > 1.) {
         rho = FilteredFields[0];
+    // if the model should be calculated based on grid-scale quantities
+    // (not recommended, see Grete201X)
     } else {
         rho = BaryonField[DensNum];
     }
@@ -198,21 +172,14 @@ void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
     }
 
 
+    // the combined prefactor
     float MinusCDeltaSqr = -SGScoeffERS2M2Star * pow(SGSFilterWidth,2.) *
         pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
 
     int igrid;
 
-    /* magic with S |S| S*... could potentially handled by
-     * external function, should reduce CPU time, but increase memory usage
-     */
     float traceSthird, traceMthird;
     float sqrtS2StarplusM2overRho;
-    /* just for fun: how accurate is Dedner
-     * we count the number of cells where divB is dynamically important
-     * divB * Delta / |B| > 1.
-     */
-    int divBerror = 0;
 
     for (int k = StartIndex[2]; k <= EndIndex[2]; k++)
         for (int j = StartIndex[1]; j <= EndIndex[1]; j++)
@@ -222,14 +189,6 @@ void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
 
                 traceSthird = (JacVel[X][X][igrid] + JacVel[Y][Y][igrid] + JacVel[Z][Z][igrid])/3.;
                 traceMthird = (JacB[X][X][igrid] + JacB[Y][Y][igrid] + JacB[Z][Z][igrid])/3.;
-
-                if (debug && (traceMthird*pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.)*3./pow(
-                                BaryonField[B1Num][igrid]*BaryonField[B1Num][igrid] +
-                                BaryonField[B2Num][igrid]*BaryonField[B2Num][igrid] +
-                                BaryonField[B3Num][igrid]*BaryonField[B3Num][igrid],1./2.) > 1.)) {
-                    divBerror++;
-                }
-
 
                 sqrtS2StarplusM2overRho = pow(
                         2.*(pow(JacVel[X][X][igrid]-traceSthird,2.) +
@@ -256,16 +215,14 @@ void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
                     (JacB[Y][X][igrid] - JacB[X][Y][igrid]);
 
             }
-    if (debug)
-        printf("[%"ISYM"] grid::SGSAddEMFERS2M2StarTerm divB error total: %"ISYM" |\%: %"FSYM"\n",
-                MyProcessorNumber,divBerror,
-                (float) divBerror / (float)((EndIndex[0] + 1 - StartIndex[0])*(EndIndex[1] + 1 - StartIndex[1])*(EndIndex[2] + 1 - StartIndex[2])));
-
 }
 
-/* scale-similarity model 
+/* 
+ * This function adds to the EMF 
+ * a scale-similarity motivated term:
  * EMF = flt(u x B) - flt(u) x flt(B)
- * see eq TODO of TODO for details
+ *
+ * See equation (32) in Grete2016a for details (such as coefficient values)
  */
 void grid::SGSAddEMFSSTerm(float **EMF) {
     if (debug)
@@ -302,11 +259,16 @@ void grid::SGSAddEMFSSTerm(float **EMF) {
                 EMF[Z][igrid] += SGScoeffSSemf * FltUB[Z][igrid] - (
                     FilteredFields[1][igrid] * FilteredFields[5][igrid] - 
                     FilteredFields[2][igrid] * FilteredFields[4][igrid]);
-
             }
-
 }
 
+
+/*
+ * This function initializes a zero EMF and calls the individual
+ * functions that add the different terms to the EMF.
+ * Finally, the curl of the EMF is added to the dU vector used by
+ * the MUSCL framework in hydro_rk/Grid_MHDSourceTerms.C 
+ */
 int grid::SGSAddEMFTerms(float **dU) {
     if (ProcessorNumber != MyProcessorNumber) {
         return SUCCESS;
@@ -337,9 +299,8 @@ int grid::SGSAddEMFTerms(float **dU) {
     }
 
 
-    if (SGScoeffERS2J2 != 0.) 
-        SGSAddEMFERS2J2Term(EMF);
 
+    // the individual terms are added/activated by a non-zero coefficient
     if (SGScoeffERS2M2Star != 0.) 
         SGSAddEMFERS2M2StarTerm(EMF);
 

@@ -1400,10 +1400,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
   /* In order to use filtered fields we need additional ghost zones */
-
   if (SGSFilterStencil/2 + 2 > NumberOfGhostZones)
     ENZO_FAIL("SGS filtering needs additional ghost zones!\n");
-    
+  
+  // all these models are calculated based on the partial derivatives of
+  // the primitive quantities
   if (SGScoeffERS2J2 != 0. || 
       SGScoeffERS2M2Star != 0. ||
       SGScoeffEVStarEnS2Star != 0. ||
@@ -1415,6 +1416,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
       SGSNeedJacobians = 1;
 
+  // the scale-similarity type models need filtered mixed quantities
   if (SGScoeffSSu != 0. ||
       SGScoeffSSb != 0. ||
       SGScoeffSSemf != 0.)

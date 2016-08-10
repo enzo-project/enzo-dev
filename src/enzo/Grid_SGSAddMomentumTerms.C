@@ -1,3 +1,26 @@
+/***********************************************************************
+ *
+ * INFORMATION This file is part of a subgrid-scale (SGS) modeling 
+ * framework in order to conduct explicit large eddy simulations (LES).
+ *
+ * The functions in this file concern models for the turbulent 
+ * stress tensor in the momentum equation.
+ * It consists of the turbulent (or SGS) Reynolds stress, the SGS
+ * Maxwell stress, and the SGS magnetic pressure.
+ *
+ * The models have been verified "a priori", i.e. in comparison to
+ * reference data, in 
+ * Grete et al 2015 New J. Phys. 17 023070 doi: 10.1088/1367-2630/17/2/023070
+ * Grete et al 2016 Phys. Plasmas 23 062317 doi: 10.1063/1.4954304 (Grete2016a)
+ * and "a posteriori", i.e. used in simulations of decaying MHD turbulence, in
+ * Grete et al ... under review ... (Grete201X)
+ *
+ * WRITTEN BY Philipp Grete (mail@pgrete.de)
+ *
+ * DATE 2016
+ *
+************************************************************************/
+
 #include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -7,9 +30,14 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-/* pure (unscaled) nonlinear model for TauU (full)
+/* 
+ * This function adds to the SGS stress tensor (Reynolds stress component)
+ * the pure (unscaled) nonlinear model
  * TauU = 1/12 * Delta^2 rho u_i,k u_j,k
- * see eq TODO of TODO for details
+ *
+ * See equation (35) in Grete2016a for details (such as coefficient values)
+ * or Vlaykov et al 2016 Phys. Plasmas 23 062316 doi: 10.1063/1.4954303 for
+ * the derivation.
  */
 void grid::SGSAddTauNLuTerm(float **Tau) {
   if (debug)
@@ -21,8 +49,13 @@ void grid::SGSAddTauNLuTerm(float **Tau) {
       TENum, B1Num, B2Num, B3Num, PhiNum);
 
   float* rho;
+  // if an explicit filter should be used
+  // (at this point the fields are already filtered, 
+  // see hydro_rk/Grid_MHDSourceTerms.C and the SGSNeedJacobians switch)
   if (SGSFilterWidth > 1.) {
     rho = FilteredFields[0];
+  // if the model should be calculated based on grid-scale quantities
+  // (not recommended, see Grete201X)
   } else {
     rho = BaryonField[DensNum];
   }
@@ -41,6 +74,7 @@ void grid::SGSAddTauNLuTerm(float **Tau) {
   }
 
 
+  // the combined prefactor
   float CDeltaSqr = 1./12. * SGScoeffNLu * pow(SGSFilterWidth,2.) *
     pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
 
@@ -65,9 +99,13 @@ void grid::SGSAddTauNLuTerm(float **Tau) {
 
 }
 
-/* nonlinear model for TauU (full) and scaled by realiz. energy
+/* 
+ * This function adds to the SGS stress tensor (Reynolds stress component)
+ * the scaled nonlinear model (magnitude is scaled by an kinetic SGS energy
+ * model based on realizability conditions): *
  * TauU =  2 C Delta^2 rho |S*|^2 (u_i,k u_j,k)/(u_l,s u_l,s)
- * see eq TODO of TODO for details
+ *
+ * See equation (43) and (13) in Grete2016a for details (such as coefficient values)
  */
 void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
   if (debug)
@@ -79,8 +117,13 @@ void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
       TENum, B1Num, B2Num, B3Num, PhiNum);
 
   float* rho;
+  // if an explicit filter should be used
+  // (at this point the fields are already filtered, 
+  // see hydro_rk/Grid_MHDSourceTerms.C and the SGSNeedJacobians switch)
   if (SGSFilterWidth > 1.) {
     rho = FilteredFields[0];
+  // if the model should be calculated based on grid-scale quantities
+  // (not recommended, see Grete201X)
   } else {
     rho = BaryonField[DensNum];
   }
@@ -98,7 +141,7 @@ void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
     EndIndex[dim] = GridEndIndex[dim] + 1;
   }
 
-
+  // the combined prefactor
   float TwoCDeltaSqr = 2. * SGScoeffNLuNormedEnS2Star * pow(SGSFilterWidth,2.) *
     pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
   float traceSthird;
@@ -142,12 +185,16 @@ void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
         }
 
       }
-
 }
 
-/* pure (unscaled) nonlinear model for TauB (full)
+/* 
+ * This function adds to the SGS stress tensor (Maxwell stress component) 
+ * the pure (unscaled) nonlinear model for TauB (full)
  * TauB = 1/12 * Delta^2 B_i,k B_j,k
- * see eq TODO of TODO for details
+ *
+ * See equation (36) in Grete2016a for details (such as coefficient values)
+ * or Vlaykov et al 2016 Phys. Plasmas 23 062316 doi: 10.1063/1.4954303 for
+ * the derivation.
  */
 void grid::SGSAddTauNLbTerm(float **Tau) {
   if (debug)
@@ -167,6 +214,7 @@ void grid::SGSAddTauNLbTerm(float **Tau) {
   }
 
 
+  // the combined prefactor
   float CDeltaSqr = 1./12. * SGScoeffNLb * pow(SGSFilterWidth,2.) * 
     pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
 
@@ -180,6 +228,8 @@ void grid::SGSAddTauNLbTerm(float **Tau) {
         igrid = i + (j+k*GridDimension[1])*GridDimension[0];
 
         turbMagPres = 0.;
+
+        // the pure Maxwell stress component
         for (int l = 0; l < MAX_DIMENSION; l++) {
           turbMagPres += JacB[X][l][igrid] * JacB[X][l][igrid] 
             + JacB[Y][l][igrid] * JacB[Y][l][igrid]
@@ -193,18 +243,24 @@ void grid::SGSAddTauNLbTerm(float **Tau) {
           Tau[XZ][igrid] -= CDeltaSqr * JacB[X][l][igrid] * JacB[Z][l][igrid];
         }
 
+        // the turbulent magnetic pressure component
         Tau[XX][igrid] += CDeltaSqr * turbMagPres/2.;
         Tau[YY][igrid] += CDeltaSqr * turbMagPres/2.;
         Tau[ZZ][igrid] += CDeltaSqr * turbMagPres/2.;
 
       }
-
 }
 
 
-/* eddy viscosity model for full tau scaled by realiz. energies
+/* 
+ * This function adds to the SGS stress tensor (Reynolds stress component)
+ * the eddy viscosity model where the strength of eddy turbulent viscosity is 
+ * scaled by the kinetic SGS energy as given by a model based on 
+ * realizability conditions:
  * Tau = -2 C_1 Delta^2 rho |S*| S* + 2/3 C_2 delta_ij Delta^2 rho |S*|^2
- * see eq TODO of TODO for details
+ *
+ * See equation (10), (21) and (13) in Grete2016a for details (such as coefficient 
+ * values) or (in practice) equations (8), (10) and (12) in Grete201X.
  */
 void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
   if (debug)
@@ -217,7 +273,12 @@ void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
 
   float* rho;
   if (SGSFilterWidth > 1.) {
+  // if an explicit filter should be used
+  // (at this point the fields are already filtered, 
+  // see hydro_rk/Grid_MHDSourceTerms.C and the SGSNeedJacobians switch)
     rho = FilteredFields[0];
+  // if the model should be calculated based on grid-scale quantities
+  // (not recommended, see Grete201X)
   } else {
     rho = BaryonField[DensNum];
   }
@@ -236,16 +297,14 @@ void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
   }
 
 
+  // the combined prefactor of the deviatoric part
   float Minus2C1DeltaSqr = -2. * SGScoeffEVStarEnS2Star * pow(SGSFilterWidth,2.) *
     pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
+  // the combined prefactor of the isotropic part
   float TwoThirdC2DeltaSqr = 2./3. * SGScoeffEnS2StarTrace * pow(SGSFilterWidth,2.) *
     pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
 
   int igrid;
-
-  /* magic with S |S| S*... could potentially handled by
-   * external function, should reduce CPU time, but increase memory usage
-   */
   float traceSthird;
   float SStarSqr;
 
@@ -284,9 +343,12 @@ void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
       }
 }
 
-/* scale-similarity model for TauU 
+/* 
+ * This function adds to the SGS stress tensor (Reynolds stress component)
+ * a scale-similarity motivated term
  * TauU = flt(rho) * (flt(u_i u_j) - flt(u_i) * flt(u_j))
- * see eq TODO of TODO for details
+ *
+ * See equation (30) in Grete2016a for details (such as coefficient values)
  */
 void grid::SGSAddTauSSuTerm(float **Tau) {
   if (debug)
@@ -331,9 +393,12 @@ void grid::SGSAddTauSSuTerm(float **Tau) {
 
 }
 
-/* scale-similarity model for TauB 
+/* 
+ * This function adds to the SGS stress tensor (Maxwell stress component)
+ * a scale-similarity motivated term
  * TauU = (flt(B_i B_j) - flt(B_i) * flt(B_j))
- * see eq TODO of TODO for details
+ *
+ * See equation (31) in Grete2016a for details (such as coefficient values)
  */
 void grid::SGSAddTauSSbTerm(float **Tau) {
   if (debug)
@@ -378,6 +443,12 @@ void grid::SGSAddTauSSbTerm(float **Tau) {
 
 }
 
+/*
+ * This function initializes a zero stress tensor and calls the individual
+ * functions that add the different terms to it.
+ * Finally, the divergence of the tensor is added to the dU vector used by
+ * the MUSCL framework in hydro_rk/Grid_MHDSourceTerms.C 
+ */
 int grid::SGSAddMomentumTerms(float **dU) {
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
@@ -395,9 +466,14 @@ int grid::SGSAddMomentumTerms(float **dU) {
       TENum, B1Num, B2Num, B3Num, PhiNum);
 
   float* rho;
+  // if an explicit filter should be used
+  // (at this point the fields are already filtered, 
+  // see hydro_rk/Grid_MHDSourceTerms.C and the SGSNeedJacobians switch)
   if (SGSFilterWidth > 1.) {
     rho = FilteredFields[0];
   } else {
+  // if the model should be calculated based on grid-scale quantities
+  // (not recommended, see Grete201X)
     rho = BaryonField[DensNum];
   }
 
@@ -415,6 +491,7 @@ int grid::SGSAddMomentumTerms(float **dU) {
   }
 
 
+  // the individual terms are added/activated by a non-zero coefficient
   if (SGScoeffNLu != 0.) 
     SGSAddTauNLuTerm(Tau);
 
@@ -478,10 +555,6 @@ int grid::SGSAddMomentumTerms(float **dU) {
         dU[ivz][n] += MomzIncr;
         dU[iEtot][n] += EtotIncr;
       }
-
-  if (debug)
-    printf("[%"ISYM"] grid::SGSAddMomentumTerms end, last incr: %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
-        MyProcessorNumber,MomxIncr,MomyIncr,MomzIncr,EtotIncr);
 
   for (int dim = 0; dim < 6; dim++) {
     delete [] Tau[dim];

@@ -2392,10 +2392,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
     int FTStochasticForcing(int FieldDim); // WS
 
-    // pgrete: Jacobians to be used in SGS model
+
+    /* START Subgrid-scale modeling framework by P. Grete */
+
+    // Jacobians to be used in SGS model
     float *JacVel[MAX_DIMENSION][MAX_DIMENSION];
     float *JacB[MAX_DIMENSION][MAX_DIMENSION];
-
 
     float *FilteredFields[7]; // filtered fields: rho, xyz-vel, Bxyz
     
@@ -2407,8 +2409,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     int SGSUtil_ComputeJacobian(float *Jac[][MAX_DIMENSION],float* field1,float* field2,float* field3);
     int SGSUtil_ComputeMixedFilteredQuantities();
     int SGSUtil_FilterFields();
+    
+    // the general functions that add the SGS terms to the dynamic eqns.
     int SGSAddEMFTerms(float **dU);
     int SGSAddMomentumTerms(float **dU);
+    
+    // the different SGS models
     void SGSAddEMFERS2J2Term(float **EMF);
     void SGSAddEMFERS2M2StarTerm(float **EMF);
     void SGSAddEMFNLemfComprTerm(float **EMF);
@@ -2419,6 +2425,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     void SGSAddTauSSuTerm(float **Tau);
     void SGSAddTauSSbTerm(float **Tau);
     void SGSAddEMFSSTerm(float **EMF);
+    
+    /* END Subgrid-scale modeling framework by P. Grete */
 
 /* Comoving coordinate expansion terms. */
 

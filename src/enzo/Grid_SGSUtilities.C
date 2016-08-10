@@ -1,3 +1,17 @@
+/***********************************************************************
+ *
+ * INFORMATION This file is part of a subgrid-scale (SGS) modeling 
+ * framework in order to conduct explicit large eddy simulations (LES).
+ *
+ * The functions in this file are considered utility functions and
+ * concern the calculation of Jacobians and explicit filtering operations.
+ *
+ * WRITTEN BY Philipp Grete (mail@pgrete.de)
+ *
+ * DATE 2016
+ *
+************************************************************************/
+
 #include "preincludes.h"
 #include <stdlib.h>
 #include "macros_and_parameters.h"
@@ -8,7 +22,26 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-
+/*
+ * This function conducts an explicit filtering operation on the
+ * primary quantities. 
+ * The original fields remain untouched and the result is stored in the
+ * FilteredFields array.
+ * Mass-weighted filtering applies to the velocity field.
+ * The multi-dimensional filtering operation is constructed by sequential
+ * application of the one-dimensional filter.
+ *
+ * At this point, this function is very flexible with respect to the 
+ * discrete filter definition (both in effective width and weights).
+ * However, this also makes the nested for-loops less efficient, but the
+ * overhead is reasonable (see e.g. Grete201X ...)
+ * 
+ * For additional information on how to construct multi-dimensional
+ * discrete filters, see e.g. 
+ * Vasilyev, Lund & Moin (1998) Journal of Comp. Physics 146, 82 or
+ * Sagaut and Grohens (1999) Journal for Num. Meth. in Fluids 31, 1195
+ * 
+ */
 int grid::SGSUtil_FilterFields() {
     if (ProcessorNumber != MyProcessorNumber) {
         return SUCCESS;
@@ -43,7 +76,6 @@ int grid::SGSUtil_FilterFields() {
     int igrid, ifilter;
     float totalWeight;
 
-    /* this is !highly! inefficient, just making sure it's working */
     for (int k = StartIndex[2]; k <= EndIndex[2]; k++)
     for (int j = StartIndex[1]; j <= EndIndex[1]; j++)
     for (int i = StartIndex[0]; i <= EndIndex[0]; i++) {
@@ -85,6 +117,11 @@ int grid::SGSUtil_FilterFields() {
     return SUCCESS;
 }
 
+/*
+ * This functional calculated the Jacobian of an arbitrary 3-dimensional
+ * field (components given by field1, field2, and field3).
+ * The result is stored in the Jac array.
+ */
 int grid::SGSUtil_ComputeJacobian(float *Jac[][MAX_DIMENSION],float *field1,float* field2,float* field3) {
     if (ProcessorNumber != MyProcessorNumber) {
         return SUCCESS;
@@ -157,7 +194,11 @@ int grid::SGSUtil_ComputeJacobian(float *Jac[][MAX_DIMENSION],float *field1,floa
     return SUCCESS;
 }
     
-    
+/*
+ * This function conducts an explicit filter operation on mixed quantities, e.g.
+ * flt(rho u_i u_j), which are required by the scale-similarity SGS model.
+ * The same general comments as for SGSUtil_FilterFields (see above) apply.
+ */
 int grid::SGSUtil_ComputeMixedFilteredQuantities() {
 
     if (ProcessorNumber != MyProcessorNumber) {

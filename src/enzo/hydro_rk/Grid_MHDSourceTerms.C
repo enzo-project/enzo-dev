@@ -333,25 +333,31 @@ int grid::MHDSourceTerms(float **dU)
   }
 
   if (UseSGSModel) {
+    // if an explicit filtering operation should be used, otherwise
+    // grid-scale quantities are used
     if (SGSFilterWidth > 1.) {
 		if (this->SGSUtil_FilterFields() == FAIL) {
          fprintf(stderr, "grid::MHDSourceTerms: Error in SGSUtil_FilterFields.\n"); 
          return FAIL;
 		}
 
-		
+		// if the partial derivatives of primitive variables are required
+        // in the calculation of the SGS models
         if (SGSNeedJacobians) {
+            // velocity Jacobian
             if (this->SGSUtil_ComputeJacobian(JacVel,FilteredFields[1],FilteredFields[2],FilteredFields[3]) == FAIL) {
              fprintf(stderr, "grid::MHDSourceTerms: Error in SGSUtil_ComputeJacobian(Vel).\n"); 
              return FAIL;
     		}
     		
+            // magnetic field Jacobian
     		if (this->SGSUtil_ComputeJacobian(JacB,FilteredFields[4],FilteredFields[5],FilteredFields[6]) == FAIL) {
              fprintf(stderr, "grid::MHDSourceTerms: Error in SGSUtil_ComputeJacobian(B).\n"); 
              return FAIL;
     		}
         }
 
+        // Scale-similarity type models need filtered mixed terms, such as flt(u_i B_j), etc.
         if (SGSNeedMixedFilteredQuantities) {
             if (this->SGSUtil_ComputeMixedFilteredQuantities() == FAIL) {
              fprintf(stderr, "grid::MHDSourceTerms: Error in SGSUtil_ComputeMixedFilteredQuantities().\n"); 

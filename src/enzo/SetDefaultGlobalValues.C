@@ -403,11 +403,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }
 
   UseSGSModel = 0; // off
-  SGSFilterStencil = 0;
-  SGSNeedJacobians = 0;
-  SGSNeedMixedFilteredQuantities = 0;
-  SGSFilterWidth = 0.; // off
+  SGSFilterStencil = 0; // the one-dimensional stencil of the complete filter 
+  SGSNeedJacobians = 0; // set automatically in ReadParameter file 
+  SGSNeedMixedFilteredQuantities = 0; // set automatically in ReadParameter file
+  SGSFilterWidth = 0.; // off, i.e. use grid-scale quantities
   for (i = 0; i < 4; i++)
+    // discrete filter weights of explicit filter
     SGSFilterWeights[i] = 0.;
   SGScoeffERS2J2 = 0.0; // off
   SGScoeffERS2M2Star = 0.0; // off
