@@ -223,7 +223,7 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
                    (ycell - ys[sp])*(ycell - ys[sp]) +
                    (zcell - zs[sp])*(zcell - zs[sp]);
 
-            float speed = (sqrt(rsqr) * LengthUnits) / (ts[i] * TimeUnits);
+            float speed = (sqrt(rsqr) * LengthUnits) / ((this->Time - ts[i]) * TimeUnits);
 
             if ( speed <= c_light ){
                 local_flux += Ls[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);

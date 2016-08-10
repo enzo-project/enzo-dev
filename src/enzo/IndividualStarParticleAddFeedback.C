@@ -117,7 +117,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
     /* Add stellar wind feedback if present */
     double particle_mass = cstar->ReturnMass();
-    printf("Type = %"ISYM" -- Feedback Flag %"ISYM"\n", cstar->ReturnType(), cstar->ReturnFeedbackFlag());
+//    printf("Type = %"ISYM" -- Feedback Flag %"ISYM"\n", cstar->ReturnType(), cstar->ReturnFeedbackFlag());
 //
 //  Stellar Winds
 //
