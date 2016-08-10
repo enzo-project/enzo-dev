@@ -660,6 +660,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &MustRefineParticlesRefineToLevel);
     ret += sscanf(line, "MustRefineParticlesCreateParticles = %"ISYM,
                   &MustRefineParticlesCreateParticles);
+    ret += sscanf(line, "MustRefineParticlesBufferSize = %"ISYM,
+                  &MustRefineParticlesBufferSize);
     ret += sscanf(line, "MustRefineParticlesLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
                   MustRefineParticlesLeftEdge, MustRefineParticlesLeftEdge+1, 
                   MustRefineParticlesLeftEdge+2);

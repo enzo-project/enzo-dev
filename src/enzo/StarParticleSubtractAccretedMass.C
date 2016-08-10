@@ -46,10 +46,6 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 				     Star *&AllStars)
 {
 
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
-    return SUCCESS;
-  } // AJE-memleak
-
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
@@ -65,6 +61,11 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
   if (AllStars == NULL)
     return SUCCESS;
+
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return SUCCESS;
+  }
+
 
   LCAPERF_START("StarParticleSubtractAccretedMass");
 

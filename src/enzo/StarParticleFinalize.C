@@ -99,16 +99,18 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   // Apply individual star feedback if it exists
   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && STARFEED_METHOD(INDIVIDUAL_STAR)){
     IndividualStarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
+  } else{
+
+    /* Apply any stellar feedback onto the grids and add any gas to the
+       accretion rates of the star particles */
+
+    StarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
+
+
+    /* Update star particles for any accretion */
+
+    StarParticleAccretion(MetaData, LevelArray, level, AllStars);
   }
-
-  /* Apply any stellar feedback onto the grids and add any gas to the
-     accretion rates of the star particles */
-
-  StarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
-
-  /* Update star particles for any accretion */
-
-  StarParticleAccretion(MetaData, LevelArray, level, AllStars);
 
   /* Collect all sink particles and report the total mass to STDOUT */
 

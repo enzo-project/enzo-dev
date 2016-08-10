@@ -622,6 +622,11 @@ EXTERN int   MustRefineParticlesRefineToLevelAutoAdjust;
 EXTERN float MustRefineParticlesMinimumMass;
 
 /* For CellFlaggingMethod = 8,
+   Number of hydro cells around a must refine particle to flag for refinement */
+
+EXTERN int MustRefineParticlesBufferSize;
+
+/* For CellFlaggingMethod = 8,
    region in which particles are flagged as MustRefine particles */
 
 EXTERN FLOAT MustRefineParticlesLeftEdge[MAX_DIMENSION], 

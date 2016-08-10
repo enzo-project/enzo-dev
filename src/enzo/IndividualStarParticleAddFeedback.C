@@ -114,34 +114,59 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
       // redundancy is O.K. here
       continue;
     }
-    printf("passing position check\n");
 
     /* Add stellar wind feedback if present */
     double particle_mass = cstar->ReturnMass();
-    int feedback_mode = -9999;
-    // AJE TO DO NEED TO CHECK MASS UNITS HERE
+    printf("Type = %"ISYM" -- Feedback Flag %"ISYM"\n", cstar->ReturnType(), cstar->ReturnFeedbackFlag());
+//
+//  Stellar Winds
+//
     if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_STELLAR_WIND ||
         cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN){
-      feedback_mode = -1;
+      for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
+
+        for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
+
+          if(Temp->GridData->isLocal()){
+            Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
+                                                           vel[0], vel[1], vel[2],
+                                                           cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
+                                                           Time - cstar->ReturnBirthTime(),
+                                                           cstar->ReturnMetallicity(), &particle_mass, -1);
+            cstar->SetNewMass(particle_mass); // CHECK MASS UNITS
+            AddedFeedback[count] = true;
+          }
+        }
+      }
     }
+
+//
+// Type II SN
+//
+
     if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNII ||
         cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN){
-      feedback_mode = 1;
-    }
-    if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNIA){
-      feedback_mode = 2;
-      if(Temp->GridData->isLocal()){
-        Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
-                                                         vel[0], vel[1], vel[2],
-                                                         cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
-                                                         Time - cstar->ReturnBirthTime(),
-                                                         cstar->ReturnMetallicity(), &particle_mass, 2);
+      for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
+
+        for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
+
+          if(Temp->GridData->isLocal()){
+            Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
+                                                           vel[0], vel[1], vel[2],
+                                                           cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
+                                                           Time - cstar->ReturnBirthTime(),
+                                                           cstar->ReturnMetallicity(), &particle_mass, 1);
+            cstar->SetNewMass(particle_mass); // CHECK MASS UNITS
+            AddedFeedback[count] = true;
+          }
+        }
       }
-      AddedFeedback[count] = true;
     }
 
-    if (feedback_mode > -9999){
-
+//
+//  Type Ia SN
+//
+    if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNIA){
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
 
         for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){

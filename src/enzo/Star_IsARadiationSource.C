@@ -45,8 +45,7 @@ bool Star::IsARadiationSource(FLOAT Time)
   rules[0] = (FeedbackFlag == NO_FEEDBACK    ||
 	      FeedbackFlag == CONT_SUPERNOVA ||
 	      FeedbackFlag == MBH_THERMAL    ||
-	      FeedbackFlag == MBH_JETS       ||
-              FeedbackFlag == FEEDBACK_INDIVIDUAL_STAR  );
+	      FeedbackFlag == MBH_JETS);
 
   // Living
   rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime && type > 0);
@@ -65,6 +64,8 @@ bool Star::IsARadiationSource(FLOAT Time)
     if( Mass >= IndividualStarRadiationMinimumMass){
       rules[4] = true;
     }
+    // else leave as false
+
   } else if (type == IndividualStarWD || type == IndividualStarRemnant){
     rules[4] = false;
   } else{

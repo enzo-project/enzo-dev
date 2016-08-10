@@ -551,6 +551,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MustRefineParticlesCreateParticles = 0;
   MustRefineParticlesRefineToLevelAutoAdjust = FALSE;
   MustRefineParticlesMinimumMass   = 0.0;
+  MustRefineParticlesBufferSize    = 8;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
