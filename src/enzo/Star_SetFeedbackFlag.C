@@ -74,11 +74,9 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
 
   case IndividualStar:
     {
-    // Feedback for these are handled differently than rest of particley
-    // types in this scheme. Set to INDIVIDUAL_STAR to make distinct
-    // AJE: 2/29/16 TO DO: make this jive with rest of code. Reduce to
-    //                     no if statements if they end up being useless
-    //                     as they currently are
+    // Individual star particles can either have stellar winds
+    // or go supernova depending on a few conditions. Radiative
+    // feedback is handled elsewhere
 
     float particle_age = Time - this->BirthTime;
 
@@ -105,12 +103,18 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
       } else{
         this->FeedbackFlag = INDIVIDUAL_STAR_SNII;
       }
-    }
+    } // end check if we are going supernova
 
     break;
     }
   case IndividualStarWD:
     {
+    // OUTSTANDING ISSUE:
+    //   WD particles can go Type Ia using random number generator
+    //   but this MUST be consistent across all processors... need to
+    //   figure out how to ensure all processors have the same star
+    //   exploding at the same time
+
     if( (this->BirthMass > IndividualStarSNIaMinimumMass) &&
         (this->BirthMass < IndividualStarSNIaMaximumMass)){
 
@@ -126,6 +130,7 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
 
     break;
     }
+
   case PopIII:
     if (this->type < 0) // birth
       this->FeedbackFlag = FORMATION;

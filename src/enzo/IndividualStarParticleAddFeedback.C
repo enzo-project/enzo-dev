@@ -1,3 +1,28 @@
+/******************************************************************
+/
+/ HANDLES FEEDBACK FOR INDIVIDUAL STAR PARTICLES
+/
+/ written by: Andrew Emerick
+/ date:       August 2016
+/ modified:
+/
+/ PURPOSE: Routine applies feedback from individual star particles
+/          (stellar winds or supernovae) using the CIC stencil
+/          interpolation methods from Simpson et. al. 2015. This
+/          routine exists following the pre-existing Star Particle
+/          class formalism in order to allow consistent feedback
+/          across grids when particles are near grid boundaries.
+/          This is a substantial improvement over previous method
+/          which "shifted" feedback zone to avoid this.
+/
+/
+/ OUTSTANDIG ISSUES: Type Ia supernovae rely on random number generator
+/                    to go off... need to do this consistently (somehow)
+/                    across all processors. Do in Set feedback flag
+/
+/
+**********************************************************************/
+
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
@@ -18,25 +43,18 @@
 #include "LevelHierarchy.h"
 
 
-int GetUnits(float *DensityUnits, float *LengthUnits,
-             float *TemperatureUnits, float *TimeUnits,
-             float *VelocityUnits, FLOAT Time);
 
-
-int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-                                      int level, Star* &AllStars, bool* &AddedFeedback){
-
-
-
+int IndividualStarParticleAddFeedback(TopGridData *MetaData,
+                                      LevelHierarchyEntry *LevelArray[],
+                                      int level, Star* &AllStars,
+                                      bool* &AddedFeedback){
 
   Star *cstar;
   LevelHierarchyEntry *Temp;
 
-  bool FeedbackOnGrid;
-
   FLOAT Time;
-  float dxThisLevel;
   FLOAT *pos;
+  float dxThisLevel;
   float *vel;
 
   if (AllStars == NULL)
@@ -47,12 +65,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry
   Temp        = LevelArray[level];
   Time        = Temp->GridData->ReturnTime();
 
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    VelocityUnits;
-  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-           &TimeUnits, &VelocityUnits, Time);
 
-  /* make sure feedback will happen somewhere on this grid */
+  /* figure out some grid properties */
   int Rank, Dims[MAX_DIMENSION];
   float CellWidth;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
@@ -62,13 +76,10 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry
 
   int count = 0;
 
+  /* Loop over all stars, checking properties before feedback */
   for (cstar = AllStars; cstar; cstar = cstar->NextStar, count++){
 
     AddedFeedback[count] = false;
-
-    printf("cstar type = %"ISYM"\n", cstar->ReturnType());
-    printf("cstar flag = %"ISYM"\n", cstar->ReturnFeedbackFlag());
-
 
     if( ABS(cstar->ReturnType()) != IndividualStar &&
         ABS(cstar->ReturnType()) != IndividualStarWD &&
@@ -82,13 +93,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry
       continue; // skip to next star
     }
 
-    //
-    // for winds and supernova, feedback is applied on a n x n cell stencil
-    // check and see if any of the affected cells are on this grid level
-    //
-    printf("cstar level and grid level = %"ISYM" %"ISYM"\n",cstar->ReturnLevel(),level);
     if( cstar->ReturnLevel() != level){
-      continue;
+      continue; // only apply feedback on level of star
     }
 
     /* make sure star's feedback will land somewhere on this grid - skip if not*/
@@ -97,9 +103,6 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry
     pos = cstar->ReturnPosition();
     vel = cstar->ReturnVelocity();
 
-    printf("position %"FSYM" %"FSYM " %"FSYM"\n",pos[0], pos[1], pos[2]);
-    printf("ncell cell width %"ISYM"\n",ncell);
-
     if( (pos[0] - (ncell + 0.5)*CellWidth > RightEdge[0]) ||
         (pos[0] + (ncell + 0.5)*CellWidth < LeftEdge[0])  ||
         (pos[1] - (ncell + 0.5)*CellWidth > RightEdge[1]) ||
@@ -107,6 +110,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry
         (pos[2] - (ncell + 0.5)*CellWidth > RightEdge[2]) ||
         (pos[2] + (ncell + 0.5)*CellWidth < LeftEdge[2])){
       // particle feedback zone is not on grid at all. skip
+      // this check is performed also in actual feedback routines, but
+      // redundancy is O.K. here
       continue;
     }
     printf("passing position check\n");
@@ -156,6 +161,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry
 
   } // end stars loop
 
+  LCAPERF_END("IndividualStarParticleAddFeedback");
+  return SUCCESS;
 }
 
 

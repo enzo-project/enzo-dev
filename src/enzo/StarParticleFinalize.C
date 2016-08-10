@@ -96,15 +96,10 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
     ThisStar->UpdatePositionVelocity();
 
-  /* AJE 04/19/16 - a hack to get around some of the particle handler routines */
+  // Apply individual star feedback if it exists
   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && STARFEED_METHOD(INDIVIDUAL_STAR)){
-//    for(ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
-//      ThisStar->UpdateIndividualStarParticleProperties(); // AJE - a bit of a hack
-
     IndividualStarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
-
-  } //
-
+  }
 
   /* Apply any stellar feedback onto the grids and add any gas to the
      accretion rates of the star particles */
@@ -116,7 +111,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   StarParticleAccretion(MetaData, LevelArray, level, AllStars);
 
   /* Collect all sink particles and report the total mass to STDOUT */
-  
+
   if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
     TotalMass = 0.0;
     for (l = 0; l <= MaximumRefinementLevel; l++)
@@ -137,7 +132,6 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Check for any stellar deaths */
 
   StarParticleDeath(LevelArray, level, AllStars);
-
 
   /*
      If the new particles are above a specified mass threshold,
@@ -187,11 +181,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* for existing stars, populate the photoelectric heating baryon field */
   StarParticlePhotoelectricHeating(MetaData, LevelArray, level, AllStars);
 
-
-
   if (PopIIIOutputOnFeedback)
     OutputNow = CommunicationMaxValue(OutputNow);
-  
+
   /* Merge star particles */
 
   if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {  
