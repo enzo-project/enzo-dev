@@ -384,6 +384,9 @@ public:
    FLOAT ReturnOldTime() {return OldTime;};
    float ReturnTimeStep() {return dtFixed;};
 
+/* Return cell width */
+  float ReturnCellWidth(){ return CellWidth[0][0];};
+
   /* Return, set grid ID */
 
   void SetGridID(int id) { ID = id; };

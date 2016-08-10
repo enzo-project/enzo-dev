@@ -108,13 +108,10 @@ int Star::HitEndpoint(FLOAT Time)
 
   case IndividualStar:
     result = NO_DEATH;
-    //printf("HitEndpoint: IndividualStar with lifetime %"ESYM"\n", this->LifeTime);
     this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
 
     float mproj;
-    mproj       = this->BirthMass; // ?? works ??
-
-    //printf("HitEndpoint: BirthMass %"ESYM"\n",mproj);
+    mproj       = this->BirthMass;
 
     /* check mass */
     if(mproj > IndividualStarSNIIMassCutoff){ this->type = IndividualStarRemnant;}
@@ -125,7 +122,7 @@ int Star::HitEndpoint(FLOAT Time)
         float wd_mass;
         if(   mproj < 4.0){ wd_mass = 0.134 * mproj + 0.331;}
         else if (mproj >=4.0){ wd_mass = 0.047 * mproj + 0.679;}
-        this->Mass = wd_mass; // AJE - not sure if this actually updates masses correctly
+        this->Mass = wd_mass;
 
     } // end WD check
 

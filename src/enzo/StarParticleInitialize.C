@@ -137,7 +137,9 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //  }
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
-    cstar->SetFeedbackFlag(TimeNow);
+    float dtForThisStar   = LevelArray[ThisLevel]->GridData->ReturnTimeStep();
+
+    cstar->SetFeedbackFlag(TimeNow, dtForThisStar);
     cstar->CopyToGrid();
     cstar->MirrorToParticle();
   }

@@ -25,10 +25,15 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "IndividualStarProperties.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+
+float ComputeSnIaProbability(const float &current_time, const float &formation_time,
+                             const float &lifetime, const float &TimeUnits);
+
 
 void Star::SetFeedbackFlag(int flag)
 {
@@ -44,7 +49,7 @@ void Star::SetFeedbackFlag(Eint32 flag)
 }
 #endif
 
-int Star::SetFeedbackFlag(FLOAT Time)
+int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
 {
 
   const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
@@ -53,6 +58,8 @@ int Star::SetFeedbackFlag(FLOAT Time)
   const float StarClusterSNeEnd = 20.0; // Myr (lifetime of a 8 Msun star)
   const double G = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
   const double Msun = 1.989e33;
+
+  const int max_random = (1<<16);
 
   int abs_type;
   float AgeInMyr;
@@ -66,22 +73,59 @@ int Star::SetFeedbackFlag(FLOAT Time)
   switch (abs_type) {
 
   case IndividualStar:
+    {
     // Feedback for these are handled differently than rest of particley
     // types in this scheme. Set to INDIVIDUAL_STAR to make distinct
     // AJE: 2/29/16 TO DO: make this jive with rest of code. Reduce to
     //                     no if statements if they end up being useless
     //                     as they currently are
-    if (Time > this->BirthTime + this->LifeTime){ // endpoint
-      if (this->Mass > IndividualStarSNIIMassCutoff){
-        this->FeedbackFlag = FEEDBACK_INDIVIDUAL_STAR;
-      }
-    } else if (this->Mass > IndividualStarRadiationMinimumMass){
-      this->FeedbackFlag = FEEDBACK_INDIVIDUAL_STAR;
-    } else{
-      this->FeedbackFlag = FEEDBACK_INDIVIDUAL_STAR;
-    }
-    break;
 
+    float particle_age = Time - this->BirthTime;
+
+    if (IndividualStarStellarWinds){
+
+        float wind_start_age = 0.0;
+        if(this->BirthMass < IndividualStarAGBThreshold){
+          if(IndividualStarInterpolateLifetime(wind_start_age, this->BirthMass,
+                                               this->Metallicity, 2) == FAIL){
+            ENZO_FAIL("SetFeedbackFlag: Failure in MS lifetime interpolation");
+          }
+        }
+
+        if(particle_age < this->LifeTime && particle_age + dtFixed > wind_start_age){
+            this->FeedbackFlag = INDIVIDUAL_STAR_STELLAR_WIND;
+        }
+
+    } // end check if we are using winds
+
+    if ( this->BirthMass >= IndividualStarSNIIMassCutoff &&
+                            ((particle_age + dtFixed) > this->LifeTime)){
+      if( this->FeedbackFlag == INDIVIDUAL_STAR_STELLAR_WIND){
+        this->FeedbackFlag = INDIVIDUAL_STAR_WIND_AND_SN;
+      } else{
+        this->FeedbackFlag = INDIVIDUAL_STAR_SNII;
+      }
+    }
+
+    break;
+    }
+  case IndividualStarWD:
+    {
+    if( (this->BirthMass > IndividualStarSNIaMinimumMass) &&
+        (this->BirthMass < IndividualStarSNIaMaximumMass)){
+
+        float PSNIa = ComputeSnIaProbability(Time, this->BirthTime,
+                                             this->LifeTime, TimeUnits);
+        PSNIa *= dtFixed;
+
+        float rnum = (float) (random() % max_random) / ((float) (max_random));
+        if (rnum < PSNIa){
+          this->FeedbackFlag = INDIVIDUAL_STAR_SNIA;
+        }
+    }
+
+    break;
+    }
   case PopIII:
     if (this->type < 0) // birth
       this->FeedbackFlag = FORMATION;

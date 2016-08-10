@@ -532,6 +532,10 @@ typedef int            HDF5_hid_t;
 #define MBH_JETS 8
 #define COLOR_FIELD 9
 #define FEEDBACK_INDIVIDUAL_STAR 10
+#define INDIVIDUAL_STAR_STELLAR_WIND 11
+#define INDIVIDUAL_STAR_SNII 12
+#define INDIVIDUAL_STAR_SNIA 13
+#define INDIVIDUAL_STAR_WIND_AND_SN 14
 
 /* Sink particle accretion modes */
 

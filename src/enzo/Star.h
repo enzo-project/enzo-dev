@@ -91,6 +91,7 @@ public:
   bool  MarkedToDelete(void) { return type == TO_DELETE; };
   void  MarkForDeletion(void) { type = TO_DELETE; };
   void  AddMass(double dM) { Mass += dM; };
+  void  SetNewMass(double M) { Mass = M; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
   void  ResetAccretion(void) { DeltaMass = 0.0; };
   void  SetAccretionMass(const float value) { DeltaMass = value; };
@@ -112,7 +113,7 @@ public:
   int   CalculateMassAccretion(float &BondiRadius, float &density);
   float CalculateMassLoss(const float dt);
   int   ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[]);
-  int	SetFeedbackFlag(FLOAT Time);
+  int	SetFeedbackFlag(FLOAT Time, float dtFixed);
   void  SetFeedbackFlag(int flag);
 #ifdef LARGE_INTS
   void  SetFeedbackFlag(Eint32 flag);

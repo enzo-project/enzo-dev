@@ -850,6 +850,11 @@ int grid::individual_star_feedback(int *np,
     ParticleAttribute -
 -----------------------------------------------------------------------------*/
   /* copy some grid parameters for convenience */
+
+
+ ///// AJE ///// for now
+  return SUCCESS;
+
   int  nx = this->GridDimension[0];
   int  ny = this->GridDimension[1];
   int  nz = this->GridDimension[2];
@@ -1173,6 +1178,8 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
                        const float &mproj, const float &lifetime, const float &particle_age,
                        const float &metallicity, float *mp, int mode     ){
 
+// mode < 0 - wind .... mode = 1 SNII ... mode = 2 SNIA
+
   float m_eject, E_thermal, E_kin, f_kinetic, v_wind, p_feedback;
   const double c_light = 2.99792458E10; const double msolar = 1.989E33;
 
@@ -1444,6 +1451,10 @@ void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
   int fbuff = ibuff + ((int) (IndividualStarFeedbackStencilSize+1)/2.0 - 1); // number of cells away from edge
   float xfcshift, yfcshift, zfcshift;
 
+  *xfc = xp; *yfc = yp; *zfc = zp;
+  return;
+
+/*
   if ( xp < xstart +         fbuff*dx ||
        xp > xstart + dx*nx - fbuff*dx ||
        yp < ystart +         fbuff*dx ||
@@ -1465,6 +1476,7 @@ void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
     *yfc = yp;
     *zfc = zp;
   }
+*/
 }
 
 
@@ -1491,8 +1503,12 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   }
 
 
-  FLOAT xstart = CellLeftEdge[0][0], ystart = CellLeftEdge[1][0], zstart = CellLeftEdge[2][0];
+  FLOAT xstart = this->CellLeftEdge[0][0],
+        ystart = this->CellLeftEdge[1][0],
+        zstart = this->CellLeftEdge[2][0];
+  printf("start coordinates %"FSYM" %"FSYM" %"FSYM"\n",xstart,ystart,zstart);
   int nx = *(GridDimension), ny = *(GridDimension+1), nz = *(GridDimension+2);
+  int size = nx*ny*nz;
   int number_of_cells;
   int stencil = IndividualStarFeedbackStencilSize; //renaming in case variable size
                                                    // is added in future
@@ -1593,10 +1609,16 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
           /* check this index, I think it should be nx ny not stencil+1 */
           int index = i + (j + k * (ny))*(nx);
 
-          ke_before[local_index] = 0.5 * BaryonField[DensNum][index] *
-                                 ( (BaryonField[Vel1Num][index] * BaryonField[Vel1Num][index]) +
-                                   (BaryonField[Vel2Num][index] * BaryonField[Vel2Num][index]) +
-                                   (BaryonField[Vel3Num][index] * BaryonField[Vel3Num][index]));
+
+          if( index >= 0 && index < size){
+            ke_before[local_index] = 0.5 * BaryonField[DensNum][index] *
+                                   ( (BaryonField[Vel1Num][index] * BaryonField[Vel1Num][index]) +
+                                     (BaryonField[Vel2Num][index] * BaryonField[Vel2Num][index]) +
+                                     (BaryonField[Vel3Num][index] * BaryonField[Vel3Num][index]));
+          } else{
+            ke_before[local_index] = 0.0; // off grid but give some value
+          }
+
           local_index++;
         }
       }
@@ -1768,16 +1790,20 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
 
           int index   = i + ( j + k*ny)*nx;
 
-          ke_after = 0.5 * BaryonField[DensNum][index] *
-                    ( BaryonField[Vel1Num][index] * BaryonField[Vel1Num][index] +
-                      BaryonField[Vel2Num][index] * BaryonField[Vel2Num][index] +
-                      BaryonField[Vel3Num][index] * BaryonField[Vel3Num][index]);
+          if (index >= 0 && index < size){
 
-          delta_ke = ke_after - ke_before[local_index];
+            ke_after = 0.5 * BaryonField[DensNum][index] *
+                      ( BaryonField[Vel1Num][index] * BaryonField[Vel1Num][index] +
+                        BaryonField[Vel2Num][index] * BaryonField[Vel2Num][index] +
+                        BaryonField[Vel3Num][index] * BaryonField[Vel3Num][index]);
 
-          BaryonField[TENum][index] += delta_ke/BaryonField[DensNum][index];
+            delta_ke = ke_after - ke_before[local_index];
 
-          ke_injected += delta_ke;
+            BaryonField[TENum][index] += delta_ke/BaryonField[DensNum][index];
+
+            ke_injected += delta_ke;
+
+          } // off grid if not true... do nothing
 
           local_index++;
         }
@@ -1839,6 +1865,11 @@ void Momentum(float *u, float *v, float *w, float *d,
 
           } else {
             index = (ic + i) + ( (jc + j) + (kc + k)*ny)*nx;
+
+            if (index < 0 || index >= nx*ny*nz){
+              continue; // off grid
+            }
+
             u[index] = (u[index] - up)*d[index];
             v[index] = (v[index] - vp)*d[index];
             w[index] = (w[index] - wp)*d[index];
@@ -1862,6 +1893,10 @@ void Momentum(float *u, float *v, float *w, float *d,
         //    printf("Output u = %"ESYM" v = %"ESYM" w = %"ESYM"\n", u[x_index], v[y_index], w[z_index]);
           } else{
             index = (ic + i) + ( (jc + j) + (kc + k) *ny)*nx;
+
+            if( index < 0 || index >= nx*ny*nz){
+              continue; // off grid
+            }
 
             u[index] = u[index] / d[index] + up;
             v[index] = v[index] / d[index] + vp;
@@ -1903,6 +1938,11 @@ void MetalConversion(float *m, float *d, const float &dx,
 
         int index = (ic + i) + ( (jc + j) + (kc + k) * ny) * nx;
 
+        if (index < 0 || index >= nx*ny*nz){
+          continue; // off grid
+        }
+
+
         if (idir == 1.0){
           m[index] = m[index] * d[index];
         } else {
@@ -1939,6 +1979,13 @@ void SumMassEnergy(float *pu, float *pv, float *pw, float *d, float *ge, float *
         int x_index = (iface + i) + ( (jc    + j) + (kc    + k)*ny)*nx;
         int y_index = (ic    + i) + ( (jface + j) + (kc    + k)*ny)*nx;
         int z_index = (ic    + i) + ( (jc    + j) + (kface + k)*ny)*nx;
+
+        if ( (index   < 0 || index >= nx*ny*nz) ||
+             (x_index < 0 || x_index >= nx*ny*nz) ||
+             (y_index < 0 || y_index >= nx*ny*nz) ||
+             (z_index < 0 || z_index >= nx*ny*nz) ) {
+          continue; // off grid
+        }
 
         mass_term = d[index];
         mom_term  = pu[x_index]*pu[x_index] +
@@ -2006,6 +2053,13 @@ void ComputeAbcCoefficients(float *pu, float *pv, float *pw, float *d,
         y_index = (ic    + i) + ( (jface + j) + (kc    + k)*ny)*nx;
         z_index = (ic    + i) + ( (jc    + j) + (kface + k)*ny)*nx;
 
+        if ( (index   < 0 || index >= nx*ny*nz) ||
+             (x_index < 0 || x_index >= nx*ny*nz) ||
+             (y_index < 0 || y_index >= nx*ny*nz) ||
+             (z_index < 0 || z_index >= nx*ny*nz) ) {
+          continue; // off grid
+        }
+
 
         mass_term = d[index];
         mom_term  = pu[x_index]*pu[x_index] +
@@ -2070,6 +2124,10 @@ void AddMetalSpeciesToGridCells(float *m, const float &mass_per_cell,
 
 
               int index = (ic + i_loc) + ( (jc + j_loc) + (kc + k_loc)*ny) * nx;
+
+              if (index < 0 || index >= nx*ny*nz){
+                continue; // off grid
+              }
 
               delta_mass = mass_per_cell * dxc_loc * dyc_loc * dzc_loc;
 
@@ -2143,6 +2201,14 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
               x_index = (iface + i_loc) + ( (jc    + j_loc) + (kc    + k_loc)*ny)*nx;
               y_index = (ic    + i_loc) + ( (jface + j_loc) + (kc    + k_loc)*ny)*nx;
               z_index = (ic    + i_loc) + ( (jc    + j_loc) + (kface + k_loc)*ny)*nx;
+
+              if ( (index   < 0 || index >= nx*ny*nz) ||
+                 (x_index < 0 || x_index >= nx*ny*nz) ||
+                 (y_index < 0 || y_index >= nx*ny*nz) ||
+                 (z_index < 0 || z_index >= nx*ny*nz) ) {
+                continue; // off grid
+              }
+
 
               /* do things here finally */
               delta_mass  = mass_per_cell * dxc_loc * dyc_loc * dzc_loc;
