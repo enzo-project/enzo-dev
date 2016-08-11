@@ -1503,7 +1503,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   FLOAT xstart = this->CellLeftEdge[0][0],
         ystart = this->CellLeftEdge[1][0],
         zstart = this->CellLeftEdge[2][0];
-  printf("start coordinates %"FSYM" %"FSYM" %"FSYM"\n",xstart,ystart,zstart);
+
   int nx = *(GridDimension), ny = *(GridDimension+1), nz = *(GridDimension+2);
   int size = nx*ny*nz;
   int number_of_cells;
