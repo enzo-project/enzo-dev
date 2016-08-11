@@ -852,9 +852,6 @@ int grid::individual_star_feedback(int *np,
   /* copy some grid parameters for convenience */
 
 
- ///// AJE ///// for now
-  return SUCCESS;
-
   int  nx = this->GridDimension[0];
   int  ny = this->GridDimension[1];
   int  nz = this->GridDimension[2];
@@ -1748,28 +1745,6 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   }
   /* -------------------------------------------------- */
 
-
-  /* For sanity checking purposes */
-  int number_of_bad_cells = 0;
-  for(int ii = 0; ii < nx*ny*nz; ii++){
-    float vx, vy, vz, vmag;
-    float VelocityUnits = 3128941.28086;
-
-    vx = BaryonField[Vel1Num][ii] * VelocityUnits;
-    vy = BaryonField[Vel2Num][ii] * VelocityUnits;
-    vz = BaryonField[Vel3Num][ii] * VelocityUnits;
-    vmag = sqrt(vx*vx + vy*vy + vz*vz);
-
-    float v_threshold = 1.0E4 * 1.0E5; // 10,000 km /s
-
-    if (vx > v_threshold || vy > v_threshold || vz > v_threshold || vmag > v_threshold){
-//      printf("Velocities are too large %"ESYM " %"ESYM" %"ESYM" %"ESYM"\n", vx, vy, vz, vmag);
-      number_of_bad_cells++;
-    }
-  }
-  //printf("Velocities are too large cells %"ISYM" %"ISYM"\n", nx*ny*nz, number_of_bad_cells);
-
-
   /* Adjust the total energy field if we are using PPM */
   if (HydroMethod != 2){
     float ke_injected = 0.0;
@@ -1778,7 +1753,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
     int integer_sep = ((int) (stencil+1)/2.0 - 1); // floor((stencil + 1) / 2.0);
     //printf("ISF kinetic feedback: integer_separation = %"ISYM"\n",integer_sep);
 
-    int local_index = 0; // AJE 5 - 10 - 16
+    int local_index = 0;
     for(int k = kc - integer_sep; k <= kc + integer_sep + 1; k ++){
       for(int j = jc - integer_sep; j <= jc + integer_sep + 1 ; j++){
         for(int i = ic - integer_sep; i <= ic + integer_sep + 1; i++){
@@ -2046,7 +2021,6 @@ void ComputeAbcCoefficients(float *pu, float *pv, float *pw, float *d,
       for(int i = -integer_sep; i <= integer_sep + 1; i++){
         int x_index, y_index, z_index;
 
-        /* this may be memory issue -- check this */
 
         index   = (ic + i) + ( (jc + j) + (kc + k)*ny)*nx;
         x_index = (iface + i) + ( (jc    + j) + (kc    + k)*ny)*nx;

@@ -43,6 +43,7 @@
 #include "LevelHierarchy.h"
 
 
+int IsParticleFeedbackInGrid(float *pos, int ncell, LevelHierarchyEntry *Temp);
 
 int IndividualStarParticleAddFeedback(TopGridData *MetaData,
                                       LevelHierarchyEntry *LevelArray[],
@@ -103,18 +104,6 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     pos = cstar->ReturnPosition();
     vel = cstar->ReturnVelocity();
 
-    if( (pos[0] - (ncell + 0.5)*CellWidth > RightEdge[0]) ||
-        (pos[0] + (ncell + 0.5)*CellWidth < LeftEdge[0])  ||
-        (pos[1] - (ncell + 0.5)*CellWidth > RightEdge[1]) ||
-        (pos[1] + (ncell + 0.5)*CellWidth < LeftEdge[1])  ||
-        (pos[2] - (ncell + 0.5)*CellWidth > RightEdge[2]) ||
-        (pos[2] + (ncell + 0.5)*CellWidth < LeftEdge[2])){
-      // particle feedback zone is not on grid at all. skip
-      // this check is performed also in actual feedback routines, but
-      // redundancy is O.K. here
-      continue;
-    }
-
     /* Add stellar wind feedback if present */
     double particle_mass = cstar->ReturnMass();
 //    printf("Type = %"ISYM" -- Feedback Flag %"ISYM"\n", cstar->ReturnType(), cstar->ReturnFeedbackFlag());
@@ -127,7 +116,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
         for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
 
-          if(Temp->GridData->isLocal()){
+          if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp) ){
+
             Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
                                                            vel[0], vel[1], vel[2],
                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
@@ -150,7 +140,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
         for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
 
-          if(Temp->GridData->isLocal()){
+          if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
             Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
                                                            vel[0], vel[1], vel[2],
                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
@@ -171,7 +161,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
         for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
 
-          if(Temp->GridData->isLocal()){
+          if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
+
             Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
                                                            vel[0], vel[1], vel[2],
                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
@@ -188,6 +179,37 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
   LCAPERF_END("IndividualStarParticleAddFeedback");
   return SUCCESS;
+}
+
+
+int IsParticleFeedbackInGrid(float *pos, int ncell, LevelHierarchyEntry *Temp){
+/* Check and see if particle feedback zone overlaps with any portion
+   of grid before calling feedback functions. This is checked as well
+   in feedback functions but reduces overhead somewhat by having 
+   a redundant check here
+*/
+
+  int Rank, Dims[MAX_DIMENSION];
+  float CellWidth;
+  FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
+
+  Temp->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
+  CellWidth = (RightEdge[0] - LeftEdge[0]) / (Dims[0] - 2*NumberOfGhostZones);
+
+
+  if( (pos[0] - (ncell + 0.5)*CellWidth > RightEdge[0]) ||
+      (pos[0] + (ncell + 0.5)*CellWidth < LeftEdge[0])  ||
+      (pos[1] - (ncell + 0.5)*CellWidth > RightEdge[1]) ||
+      (pos[1] + (ncell + 0.5)*CellWidth < LeftEdge[1])  ||
+      (pos[2] - (ncell + 0.5)*CellWidth > RightEdge[2]) ||
+      (pos[2] + (ncell + 0.5)*CellWidth < LeftEdge[2])){
+      // particle feedback zone is not on grid at all. skip
+      // this check is performed also in actual feedback routines, but
+      // redundancy is O.K. here
+      return FALSE;
+  }
+
+  return TRUE;
 }
 
 

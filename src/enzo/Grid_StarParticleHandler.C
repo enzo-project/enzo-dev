@@ -2037,7 +2037,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
 
   }
-
+/*
   if (STARFEED_METHOD(INDIVIDUAL_STAR)) {
 
     if(individual_star_feedback(&NumberOfParticles,
@@ -2047,7 +2047,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     }
 
   }
-
+  moved to IndividualStarParticleAddFeedback as called from
+  StarParticleFinalize
+*/
   if (StarMakerTypeIaSNe == 1 || StarMakerPlanetaryNebulae == 1) {
 
       FORTRAN_NAME(star_feedback_pn_snia)(
