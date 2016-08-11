@@ -50,12 +50,12 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
                                       int level, Star* &AllStars,
                                       bool* &AddedFeedback){
 
+  /* stars and hierarchy */
   Star *cstar;
   LevelHierarchyEntry *Temp;
 
-  FLOAT Time;
+  /* pos and vel for star */
   FLOAT *pos;
-  float dxThisLevel;
   float *vel;
 
   if (AllStars == NULL)
@@ -63,21 +63,9 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
   LCAPERF_START("IndividualStarParticleAddFeedback");
 
-  Temp        = LevelArray[level];
-  Time        = Temp->GridData->ReturnTime();
-
-
-  /* figure out some grid properties */
-  int Rank, Dims[MAX_DIMENSION];
-  float CellWidth;
-  FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
-
-  Temp->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
-  CellWidth = (RightEdge[0] - LeftEdge[0]) / (Dims[0] - 2*NumberOfGhostZones);
-
   int count = 0;
 
-  /* Loop over all stars, checking properties before feedback */
+  /* Loop over all stars, checking properties before doing feedback */
   for (cstar = AllStars; cstar; cstar = cstar->NextStar, count++){
 
     AddedFeedback[count] = false;
@@ -85,10 +73,10 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     if( ABS(cstar->ReturnType()) != IndividualStar &&
         ABS(cstar->ReturnType()) != IndividualStarWD &&
         ABS(cstar->ReturnType()) != IndividualStarRemnant){
-      continue; // what are we doing here in the first place?
+      continue; // This probably should never need to be checked
     }
 
-    /* Check feedback flag and see if particle is doing anything intersting */
+    /* Check feedback flag - skip if particle isn't doing anything interesting */
     if( cstar->ReturnFeedbackFlag() < INDIVIDUAL_STAR_STELLAR_WIND ||
         cstar->ReturnFeedbackFlag() > INDIVIDUAL_STAR_WIND_AND_SN){
       continue; // skip to next star
@@ -98,18 +86,18 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
       continue; // only apply feedback on level of star
     }
 
-    /* make sure star's feedback will land somewhere on this grid - skip if not*/
+    /* feedback is done in a cic interpolation. This is number of cells
+       on eiher side of central cell (i.e. 3x3 CIC -> ncell = 1) */
     int ncell = (int) ((IndividualStarFeedbackStencilSize+1)/2.0 - 1);
 
     pos = cstar->ReturnPosition();
     vel = cstar->ReturnVelocity();
 
-    /* Add stellar wind feedback if present */
     double particle_mass = cstar->ReturnMass();
-//    printf("Type = %"ISYM" -- Feedback Flag %"ISYM"\n", cstar->ReturnType(), cstar->ReturnFeedbackFlag());
-//
-//  Stellar Winds
-//
+
+    //
+    // Check Stellar Winds - Apply if particle on grid and grid local
+    //
     if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_STELLAR_WIND ||
         cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN){
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
@@ -121,8 +109,10 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
             Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
                                                            vel[0], vel[1], vel[2],
                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
-                                                           Time - cstar->ReturnBirthTime(),
+                                                           Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
                                                            cstar->ReturnMetallicity(), &particle_mass, -1);
+                                                           // < 0 in last arg signifies stellar winds
+
             cstar->SetNewMass(particle_mass); // CHECK MASS UNITS
             AddedFeedback[count] = true;
           }
@@ -130,10 +120,9 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
       }
     }
 
-//
-// Type II SN
-//
-
+    //
+    // Check Core Collapse Supernova
+    //
     if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNII ||
         cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN){
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
@@ -144,8 +133,10 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
             Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
                                                            vel[0], vel[1], vel[2],
                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
-                                                           Time - cstar->ReturnBirthTime(),
+                                                           Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
                                                            cstar->ReturnMetallicity(), &particle_mass, 1);
+                                                           // 1 in last arg signifies Core collapse SN
+
             cstar->SetNewMass(particle_mass); // CHECK MASS UNITS
             AddedFeedback[count] = true;
           }
@@ -153,12 +144,11 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
       }
     }
 
-//
-//  Type Ia SN
-//
+    //
+    // Check Type Ia Supernova
+    //
     if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNIA){
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
-
         for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
 
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
@@ -166,8 +156,10 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
             Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
                                                            vel[0], vel[1], vel[2],
                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
-                                                           Time - cstar->ReturnBirthTime(),
+                                                           Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
                                                            cstar->ReturnMetallicity(), &particle_mass, 2);
+                                                           // 2 in last arg signifies Type 1a
+
             cstar->SetNewMass(particle_mass); // CHECK MASS UNITS
             AddedFeedback[count] = true;
           }
@@ -185,7 +177,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 int IsParticleFeedbackInGrid(float *pos, int ncell, LevelHierarchyEntry *Temp){
 /* Check and see if particle feedback zone overlaps with any portion
    of grid before calling feedback functions. This is checked as well
-   in feedback functions but reduces overhead somewhat by having 
+   in feedback functions but reduces overhead somewhat by having
    a redundant check here
 */
 
