@@ -126,13 +126,17 @@ int Star::HitEndpoint(FLOAT Time)
 
     } // end WD check
 
+    this->FeedbackFlag = NO_FEEDBACK;
+
     break;
   case IndividualStarWD:
     result = NO_DEATH;
+    this->FeedbackFlag = NO_FEEDBACK;
     break; // do nothing
 
   case IndividualStarRemnant:
     result = NO_DEATH; //printf("Individual Star remnamt in hit endpoint\n");
+    this->FeedbackFlag = NO_FEEDBACK;
     break;
 
   } // ENDSWITCH

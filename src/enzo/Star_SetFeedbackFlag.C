@@ -98,6 +98,7 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
 
     if ( this->BirthMass >= IndividualStarSNIIMassCutoff &&
                             ((particle_age + dtFixed) > this->LifeTime)){
+
       if( this->FeedbackFlag == INDIVIDUAL_STAR_STELLAR_WIND){
         this->FeedbackFlag = INDIVIDUAL_STAR_WIND_AND_SN;
       } else{
