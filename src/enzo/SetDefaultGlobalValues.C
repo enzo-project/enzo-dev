@@ -744,7 +744,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarSNIaFraction         = 0.043;       // Fraction of MS stars that can be SNIa progenitors that will go SNIa in hubble time
   IndividualStarUseSNIa              = 0;           // on or off
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
-  IndividualStarCreationStencilSize  = 0;           // n x n region to form stars around a cell (0 = cell by cell)
+  IndividualStarCreationStencilSize  = 3;           // n x n region to form stars around a cell (0 = cell by cell)
   IndividualStarFeedbackStencilSize  = 3;
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
 
