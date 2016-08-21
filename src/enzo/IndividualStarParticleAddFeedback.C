@@ -189,12 +189,12 @@ int IsParticleFeedbackInGrid(float *pos, int ncell, LevelHierarchyEntry *Temp){
   CellWidth = (RightEdge[0] - LeftEdge[0]) / (Dims[0] - 2*NumberOfGhostZones);
 
 
-  if( (pos[0] - (ncell + 0.5)*CellWidth > RightEdge[0]) ||
-      (pos[0] + (ncell + 0.5)*CellWidth < LeftEdge[0])  ||
-      (pos[1] - (ncell + 0.5)*CellWidth > RightEdge[1]) ||
-      (pos[1] + (ncell + 0.5)*CellWidth < LeftEdge[1])  ||
-      (pos[2] - (ncell + 0.5)*CellWidth > RightEdge[2]) ||
-      (pos[2] + (ncell + 0.5)*CellWidth < LeftEdge[2])){
+  if( (pos[0] - (ncell + 2.5)*CellWidth > RightEdge[0]) ||
+      (pos[0] + (ncell + 2.5)*CellWidth < LeftEdge[0])  ||
+      (pos[1] - (ncell + 2.5)*CellWidth > RightEdge[1]) ||
+      (pos[1] + (ncell + 2.5)*CellWidth < LeftEdge[1])  ||
+      (pos[2] - (ncell + 2.5)*CellWidth > RightEdge[2]) ||
+      (pos[2] + (ncell + 2.5)*CellWidth < LeftEdge[2])){
       // particle feedback zone is not on grid at all. skip
       // this check is performed also in actual feedback routines, but
       // redundancy is O.K. here
