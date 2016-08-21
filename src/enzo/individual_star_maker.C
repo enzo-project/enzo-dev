@@ -1227,7 +1227,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
     /* compute ejecta mass - use yield tables if yields are tracked, otherwise use model */
     if ( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
       m_eject   = StellarYieldsInterpolateYield(1, mproj, metallicity, -1) *msolar/ MassUnits; /* first arg, 1 = wind ; last -1 = tot mass */
-//      printf("TOTAL INTERP: m_eject msolar MassUnits  %"ESYM" %"ESYM" %"ESYM"\n", m_eject*MassUnits/msolar, msolar, MassUnits);
+      //printf("TOTAL INTERP: m_eject msolar MassUnits  %"ESYM" %"ESYM" %"ESYM"\n", m_eject*MassUnits/msolar, msolar, MassUnits);
       wind_lifetime = lifetime;
       if (mproj < IndividualStarAGBThreshold){
 
@@ -1425,11 +1425,14 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
                                            m_eject, E_thermal, E_kin, p_feedback, metal_mass); // function call
 
   // subtract mass from particle (in solar units)
-  *mp = (*mp) - m_eject * (dx*dx*dx)*MassUnits/msolar;
+  float new_mass = (*mp) - m_eject * (dx*dx*dx)*MassUnits/msolar;
 
   if( *mp < 0 && mode != 2){ // ignore this check for SNIa yields
+      printf("new_mass = %"ESYM" mp = %"ESYM" m_eject =%"ESYM"\n", new_mass, *mp, m_eject*dx*dx*dx*MassUnits/msolar);
       ENZO_FAIL("IndividualStarFeedback: Ejected mass greater than current particle mass - negative particle mass!!!\n");
   }
+
+  *mp = new_mass;
 
   delete [] metal_mass;
 
@@ -1600,9 +1603,11 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
     int integer_sep = ((int) (stencil+1)/2.0 - 1); //floor((stencil + 1) / 2.0);
 
     int local_index = 0; // AJE 5 - 10 - 16
-    for(int k = kc - integer_sep; k <= kc + integer_sep + 1; k ++){
-      for(int j = jc - integer_sep; j <= jc + integer_sep + 1; j++){
-        for(int i = ic - integer_sep; i <= ic + integer_sep + 1; i++){
+/* changing + 1 to - 1 here - - */
+
+    for(int k = kc - integer_sep - 1 ; k <= kc + integer_sep; k ++){
+      for(int j = jc - integer_sep - 1 ; j <= jc + integer_sep; j++){
+        for(int i = ic - integer_sep - 1; i <= ic + integer_sep; i++){
           /* check this index, I think it should be nx ny not stencil+1 */
           int index = i + (j + k * (ny))*(nx);
 
@@ -1753,10 +1758,12 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
     int integer_sep = ((int) (stencil+1)/2.0 - 1); // floor((stencil + 1) / 2.0);
     //printf("ISF kinetic feedback: integer_separation = %"ISYM"\n",integer_sep);
 
+/* CHanging + 1 to -1 AJE 8/17 */
+
     int local_index = 0;
-    for(int k = kc - integer_sep; k <= kc + integer_sep + 1; k ++){
-      for(int j = jc - integer_sep; j <= jc + integer_sep + 1 ; j++){
-        for(int i = ic - integer_sep; i <= ic + integer_sep + 1; i++){
+    for(int k = kc - integer_sep - 1; k <= kc + integer_sep; k ++){
+      for(int j = jc - integer_sep - 1; j <= jc + integer_sep ; j++){
+        for(int i = ic - integer_sep - 1; i <= ic + integer_sep; i++){
 
 
 //    for(int k = -integer_sep; k < integer_sep; k++){
@@ -1817,10 +1824,11 @@ void Momentum(float *u, float *v, float *w, float *d,
   /* making this a bigger region.... for stencil = 3, do -2 -1 0 1 2  -- 4/20/16 */
 //  printf("Momentum Conversion: Direction %"ISYM"\n",idir);
 //  int integer_sep = floor((stencil+1)/2.0) + 1; - AJE 5/10/16
+/* CHanging +1 to -1 AJE 8/17 */
   int integer_sep = ( (int) (stencil+1)/2.0 -1);
-  for(int k = -integer_sep; k <= integer_sep + 1; k++){
-    for(int j = -integer_sep; j <= integer_sep + 1 ; j++){
-      for(int i = -integer_sep; i <= integer_sep + 1; i++){
+  for(int k = -integer_sep -1 ; k <= integer_sep; k++){
+    for(int j = -integer_sep -1 ; j <= integer_sep; j++){
+      for(int i = -integer_sep -1 ; i <= integer_sep; i++){
 
         int index=0, x_index=0, y_index = 0, z_index = 0;
         if ( idir == 1.0) {
@@ -1907,9 +1915,10 @@ void MetalConversion(float *m, float *d, const float &dx,
   /* Metal fields give metal density in a given cell - convert to mass */
 //  int integer_sep = floor((stencil+1)/2.0) + 1;
   int integer_sep = ((int) (stencil+1)/2.0 - 1);
-  for(int k = -integer_sep; k <= integer_sep + 1; k++){
-    for(int j = -integer_sep; j <= integer_sep + 1; j++){
-      for(int i = -integer_sep; i <= integer_sep + 1; i++){
+/* changing +1 to -1 AJE 8/17 */
+  for(int k = -integer_sep - 1; k <= integer_sep ; k++){
+    for(int j = -integer_sep - 1; j <= integer_sep ; j++){
+      for(int i = -integer_sep - 1; i <= integer_sep ; i++){
 
         int index = (ic + i) + ( (jc + j) + (kc + k) * ny) * nx;
 
@@ -1945,9 +1954,10 @@ void SumMassEnergy(float *pu, float *pv, float *pw, float *d, float *ge, float *
 
 //  int integer_sep = floor((stencil+1)/2.0);
   int integer_sep = ((int) (stencil+1)/2.0 - 1);
-  for(int k = -integer_sep; k <= integer_sep+1; k++){
-    for(int j = -integer_sep; j <= integer_sep+1; j++){
-      for(int i = -integer_sep; i <= integer_sep+1; i++){
+/*changing +1 to -1 AJE 8/17 */
+  for(int k = -integer_sep -1; k <= integer_sep; k++){
+    for(int j = -integer_sep -1; j <= integer_sep; j++){
+      for(int i = -integer_sep -1; i <= integer_sep; i++){
         float mass_term, mom_term, gas_energy = 0.0, kinetic_energy;
 
         int index   = (ic + i) + ( (jc + j) + (kc + k)*ny)*nx;
@@ -2016,9 +2026,11 @@ void ComputeAbcCoefficients(float *pu, float *pv, float *pw, float *d,
   int integer_sep = ((int) (stencil+1)/2.0 - 1);
   int l_index     = 0; int index = 0;
 
-  for(int k = -integer_sep; k <= integer_sep + 1; k++){
-    for(int j = -integer_sep; j <= integer_sep + 1; j++){
-      for(int i = -integer_sep; i <= integer_sep + 1; i++){
+/* changing + 1 to -1 AJE 8/17 */
+
+  for(int k = -integer_sep - 1; k <= integer_sep ; k++){
+    for(int j = -integer_sep - 1; j <= integer_sep ; j++){
+      for(int i = -integer_sep -1; i <= integer_sep ; i++){
         int x_index, y_index, z_index;
 
 
@@ -2086,14 +2098,14 @@ void AddMetalSpeciesToGridCells(float *m, const float &mass_per_cell,
     for (int j = -integer_sep; j <= integer_sep; j++){
       for (int i = -integer_sep; i <= integer_sep; i++){
 
-        /*  */
-        for(int i_loc = i; i_loc <= i + 1; i_loc++){
+        /* + 1 to -1 AJE 8/17 be careful here */
+        for(int i_loc = i - 1; i_loc <= i; i_loc++){
           float dxc_loc = ( (i_loc == i) ? dxc : 1.0 - dxc);
 
-          for(int j_loc = j; j_loc <= j + 1; j_loc++){
+          for(int j_loc = j - 1; j_loc <= j ; j_loc++){
             float dyc_loc = ( (j_loc == j) ? dyc : 1.0 - dyc);
 
-            for( int k_loc = k; k_loc <= k + 1; k_loc++){
+            for( int k_loc = k - 1; k_loc <= k ; k_loc++){
               float dzc_loc = ( (k_loc == k) ? dzc : 1.0 - dzc);
 
 
@@ -2135,34 +2147,39 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
   int integer_sep = ((int) (stencil+1)/2.0 - 1);
   float total_mass = 0.0, delta_therm =0.0;
 
+  int on_grid, off_grid;
+  on_grid = 0; off_grid = 0;
+
   // should go over a stencilxstencilxstencil region (if stencil is 3, -1, 0, 1)
   for(int k = -integer_sep; k <= integer_sep; k++){
     for(int j = -integer_sep; j <= integer_sep; j++){
       for(int i = -integer_sep; i <= integer_sep; i++){
 
-        for(int i_loc = i; i_loc <= i + 1; i_loc++){
+/* + 1 to - 1 here - be careful */
+
+        for(int i_loc = i - 1; i_loc <= i; i_loc++){
           float dxf_loc, dxc_loc;
 
           dxf_loc = dxf;  dxc_loc = dxc;
-          if( i_loc == i + 1){
+          if( i_loc == i){
             dxf_loc = 1.0 - dxf;
             dxc_loc = 1.0 - dxc;
           }
 
-          for(int j_loc = j; j_loc <= j + 1; j_loc++){
+          for(int j_loc = j - 1; j_loc <= j; j_loc++){
             float dyf_loc, dyc_loc;
 
             dyf_loc = dyf;  dyc_loc = dyc;
-            if( j_loc == j + 1){
+            if( j_loc == j){
               dyf_loc = 1.0 - dyf;
               dyc_loc = 1.0 - dyc;
             }
 
-            for(int k_loc = k; k_loc <= k + 1; k_loc++){
+            for(int k_loc = k - 1; k_loc <= k; k_loc++){
               float dzf_loc, dzc_loc;
 
               dzf_loc = dzf;    dzc_loc = dzc;
-              if( k_loc == k + 1){
+              if( k_loc == k){
                 dzf_loc = 1.0 - dzf;
                 dzc_loc = 1.0 - dzc;
               }
@@ -2180,9 +2197,10 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
                  (x_index < 0 || x_index >= nx*ny*nz) ||
                  (y_index < 0 || y_index >= nx*ny*nz) ||
                  (z_index < 0 || z_index >= nx*ny*nz) ) {
+                off_grid++;
                 continue; // off grid
               }
-
+              on_grid++;
 
               /* do things here finally */
               delta_mass  = mass_per_cell * dxc_loc * dyc_loc * dzc_loc;
@@ -2218,10 +2236,10 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
               }
               d[index] = d[index] + delta_mass;
 
-              if( d[index] < 0.0 || delta_mass < 0.0){
-                printf("individual_star: Feedback producing negative densities %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", d[index], delta_mass, te[index], delta_therm);
-                printf("--------------------------------- %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",mass_per_cell,dxf_loc, dxc_loc, dyf_loc, dyc_loc, dzf_loc, dzc_loc);
-              }
+              //if( d[index] < 0.0 || delta_mass < 0.0){
+              //  printf("individual_star: Feedback producing negative densities %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", d[index], delta_mass, te[index], delta_therm);
+              //  printf("--------------------------------- %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",mass_per_cell,dxf_loc, dxc_loc, dyf_loc, dyc_loc, dzf_loc, dzc_loc);
+              //}
           //    printf("feedback_indexes: i x y z %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",index, x_index, y_index, z_index);
 
             } // k loc
@@ -2232,6 +2250,7 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
       }
     }
   }//end loop
+  printf("AddFeedbackToGridCells: on_grid = %"ISYM" off_grid = %"ISYM" total = %"ISYM"\n", on_grid, off_grid, on_grid+off_grid);
   //printf("AddedFeedbackToGridCells: mom_per_cell = %"ESYM" therm_per_cell = %"ESYM"\n", mom_per_cell, therm_per_cell);
   //printf("AddedFeedbackToGridCells: M_tot =  %"ESYM" therm = %"ESYM"\n", total_mass, delta_therm);
 
