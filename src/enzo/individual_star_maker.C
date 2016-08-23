@@ -2250,7 +2250,7 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
       }
     }
   }//end loop
-  printf("AddFeedbackToGridCells: on_grid = %"ISYM" off_grid = %"ISYM" total = %"ISYM"\n", on_grid, off_grid, on_grid+off_grid);
+  //printf("AddFeedbackToGridCells: on_grid = %"ISYM" off_grid = %"ISYM" total = %"ISYM"\n", on_grid, off_grid, on_grid+off_grid);
   //printf("AddedFeedbackToGridCells: mom_per_cell = %"ESYM" therm_per_cell = %"ESYM"\n", mom_per_cell, therm_per_cell);
   //printf("AddedFeedbackToGridCells: M_tot =  %"ESYM" therm = %"ESYM"\n", total_mass, delta_therm);
 
