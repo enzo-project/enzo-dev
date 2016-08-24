@@ -108,16 +108,27 @@ int Star::HitEndpoint(FLOAT Time)
 
   case IndividualStar:
     result = NO_DEATH;
-    this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
 
     float mproj;
     mproj       = this->BirthMass;
 
     /* check mass */
-    if(mproj > IndividualStarSNIIMassCutoff){ this->type = IndividualStarRemnant;}
+    if(mproj > IndividualStarSNIIMassCutoff){
+
+        if(this->FeedbackFlag == INDIVIDUAL_STAR_SNII ||
+           this->FeedbackFlag == INDIVIDUAL_STAR_WIND_AND_SN){
+            this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
+            this->type = IndividualStarRemnant;
+            this->FeedbackFlag = NO_FEEDBACK;
+        } else { // havent blown up yet
+            this->FeedbackFlag = INDIVIDUAL_STAR_SNII;
+        }
+
+    }
 
     if(mproj >= IndividualStarWDMinimumMass && mproj <= IndividualStarWDMaximumMass){
         this->type = IndividualStarWD;
+        this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
 
         float wd_mass;
         if(   mproj < 4.0){ wd_mass = 0.134 * mproj + 0.331;}
@@ -126,7 +137,6 @@ int Star::HitEndpoint(FLOAT Time)
 
     } // end WD check
 
-    this->FeedbackFlag = NO_FEEDBACK;
 
     break;
   case IndividualStarWD:

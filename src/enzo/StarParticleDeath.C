@@ -56,6 +56,7 @@ int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
     death = ThisStar->HitEndpoint(TimeNow);
     MoveStar = PopStar(ThisStar);
     if (death == KILL_STAR) {
+      printf("Killing star - this should not be happening\n");
       MoveStar->MirrorToParticle();
       MoveStar->DeleteCopyInGridGlobal(LevelArray);
       DeleteStar(MoveStar);
