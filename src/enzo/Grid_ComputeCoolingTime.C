@@ -170,8 +170,25 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
   if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
     int PeNum = FindField( PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
 
+    /* zero heating rate when temperature is above threshold */
+    float *temperature;
+    temperature = new float[size];
+
+    if(this->ComputeTemperatureField(temperature) == FAIL){
+      ENZO_FAIL("Error in compute temperature in Grid_GrackleWrapper");
+    }
+
     volumetric_heating_rate = BaryonField[PeNum];
     specific_heating_rate   = NULL;
+
+    /* change heating to zero in high temperature regions */
+    for( i = 0; i < size; i ++){
+      if ( temperature[i] * TemperatureUnits >= IndividualStarFUVTemperatureCutoff){
+        volumetric_heating_rate[i] = 0.0;
+      }
+    }
+    delete [] temperature;
+
   } else{
     volumetric_heating_rate = NULL;
     specific_heating_rate   = NULL;

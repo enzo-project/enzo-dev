@@ -212,7 +212,7 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
         FLOAT xcell = this->CellLeftEdge[0][i] + 0.5*this->CellWidth[0][i];
 
         /* if the cell is below the temperature threshold for dust to exist, apply heating */
-        if( temperature[index] < IndividualStarFUVTemperatureCutoff){
+        //if( temperature[index] < IndividualStarFUVTemperatureCutoff){
           float local_flux = 0.0;
           FLOAT rsqr;
 
@@ -252,9 +252,9 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
           // assign heating rate from model
           BaryonField[PeNum][index] = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], local_flux);
 
-        } else {
-          BaryonField[PeNum][index] = 0.0; // no heating above temperature threshold
-        }
+        //} else {
+        //  BaryonField[PeNum][index] = 0.0; // no heating above temperature threshold
+        //}
 
       } // end loop over i
     } // j
