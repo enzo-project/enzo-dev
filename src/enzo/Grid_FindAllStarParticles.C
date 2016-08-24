@@ -56,7 +56,7 @@ int grid::FindAllStarParticles(int level)
 	ParticleType[i] == PARTICLE_TYPE_SIMPLE_SOURCE ||
         ParticleType[i] == PARTICLE_TYPE_INDIVIDUAL_STAR ||
         ParticleType[i] == PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
-        ParticleType[i] == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT || // AJE
+        ParticleType[i] == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ||
 	(StarParticleRadiativeFeedback == TRUE &&
 	 ParticleType[i] == PARTICLE_TYPE_STAR)) {
 
