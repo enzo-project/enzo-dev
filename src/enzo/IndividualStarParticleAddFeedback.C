@@ -186,7 +186,7 @@ int IsParticleFeedbackInGrid(float *pos, int ncell, LevelHierarchyEntry *Temp){
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
 
   Temp->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
-  CellWidth = (RightEdge[0] - LeftEdge[0]) / (Dims[0] - 2*NumberOfGhostZones);
+  CellWidth = (RightEdge[0] - LeftEdge[0]) / Dims[0];
 
 
   if( (pos[0] - (ncell + 2.5)*CellWidth > RightEdge[0]) ||
