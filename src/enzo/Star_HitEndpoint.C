@@ -107,7 +107,7 @@ int Star::HitEndpoint(FLOAT Time)
     break;
 
   case IndividualStar:
-    result = NO_DEATH;
+    result = NO_DEATH; // never kill these stars
 
     float mproj;
     mproj       = this->BirthMass;
@@ -127,13 +127,23 @@ int Star::HitEndpoint(FLOAT Time)
     }
 
     if(mproj >= IndividualStarWDMinimumMass && mproj <= IndividualStarWDMaximumMass){
-        this->type = IndividualStarWD;
-        this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
 
-        float wd_mass;
-        if(   mproj < 4.0){ wd_mass = 0.134 * mproj + 0.331;}
-        else if (mproj >=4.0){ wd_mass = 0.047 * mproj + 0.679;}
-        this->Mass = wd_mass;
+        if(this->FeedbackFlag == INDIVIDUAL_STAR_STELLAR_WIND){
+
+            this->type = IndividualStarWD;
+            this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
+
+            float wd_mass;
+            if(   mproj < 4.0){ wd_mass = 0.134 * mproj + 0.331;}
+            else if (mproj >=4.0){ wd_mass = 0.047 * mproj + 0.679;}
+            this->Mass = wd_mass;
+        } else{
+
+          // otherwise, we haven't done the last phase of AGB wind yet
+          // keep this particle around for another timestep
+          this->FeedbackFlag = INDIVIDUAL_STAR_STELLAR_WIND;
+
+        }
 
     } // end WD check
 
