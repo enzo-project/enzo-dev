@@ -116,6 +116,8 @@ int grid::GrackleWrapper()
 
   /* assign heating rates - set to Null pointers if not used */
   if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+    float EnergyUnits = DensityUnits * VelocityUnits * VelocityUnits;
+
     int PeNum = FindField( PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
 
     /* zero heating rate when temperature is above threshold */
@@ -126,6 +128,7 @@ int grid::GrackleWrapper()
       ENZO_FAIL("Error in compute temperature in Grid_GrackleWrapper");
     }
 
+    /* send to Grackle in CGS */
     volumetric_heating_rate = BaryonField[PeNum];
     specific_heating_rate   = NULL;
 
@@ -133,6 +136,8 @@ int grid::GrackleWrapper()
     for( i = 0; i < size; i ++){
       if ( temperature[i] * TemperatureUnits >= IndividualStarFUVTemperatureCutoff){
         volumetric_heating_rate[i] = 0.0;
+      } else {
+        volumetric_heating_rate[i] *= EnergyUnits; // convert to CGS
       }
     }
 
