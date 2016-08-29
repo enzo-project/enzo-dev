@@ -137,7 +137,7 @@ int grid::GrackleWrapper()
       if ( temperature[i] * TemperatureUnits >= IndividualStarFUVTemperatureCutoff){
         volumetric_heating_rate[i] = 0.0;
       } else {
-        volumetric_heating_rate[i] *= EnergyUnits; // convert to CGS
+        volumetric_heating_rate[i] *= (EnergyUnits/TimeUnits); // convert to CGS
       }
     }
 

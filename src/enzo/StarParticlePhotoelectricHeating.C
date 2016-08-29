@@ -251,7 +251,7 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
 
           // assign heating rate from model
           BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], local_flux);
-          BaryonField[PeNum][index] /= EnergyUnits;
+          BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
         //} else {
         //  BaryonField[PeNum][index] = 0.0; // no heating above temperature threshold
         //}
