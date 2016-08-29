@@ -465,7 +465,6 @@ void Star::UpdateWhiteDwarfProperties(void){
 
     this->LifeTime = CurrentGrid->ParticleAttribute[1][_id];
     this->type     = CurrentGrid->ParticleType[_id];
-    printf(" update :  %"ISYM" %"ESYM"\n", this->type, this->LifeTime);
   }
 
   LCAPERF_STOP("star_UpdateWhiteDwarfProperties");
