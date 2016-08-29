@@ -98,6 +98,15 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   // Apply individual star feedback if it exists
   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && STARFEED_METHOD(INDIVIDUAL_STAR)){
+    for(ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar){
+      if(ThisStar->ReturnType() == -PARTICLE_TYPE_INDIVIDUAL_STAR_WD){
+        printf(" %"ISYM" %"ESYM"\n", ThisStar->ReturnType(), ThisStar->ReturnLifetime());
+        ThisStar->UpdateWhiteDwarfProperties();
+        printf(" %"ISYM" %"ESYM"\n", ThisStar->ReturnType(), ThisStar->ReturnLifetime());
+
+      }
+    }
+
     IndividualStarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
   } else{
 

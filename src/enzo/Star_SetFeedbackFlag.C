@@ -31,9 +31,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-float ComputeSnIaProbability(const float &current_time, const float &formation_time,
-                             const float &lifetime, const float &TimeUnits);
-
 
 void Star::SetFeedbackFlag(int flag)
 {
@@ -109,28 +106,18 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
     break;
     }
   case IndividualStarWD:
-    {
-    // OUTSTANDING ISSUE:
-    //   WD particles can go Type Ia using random number generator
-    //   but this MUST be consistent across all processors... need to
-    //   figure out how to ensure all processors have the same star
-    //   exploding at the same time
 
-    if( (this->BirthMass > IndividualStarSNIaMinimumMass) &&
-        (this->BirthMass < IndividualStarSNIaMaximumMass)){
-
-        float PSNIa = ComputeSnIaProbability(Time, this->BirthTime,
-                                             this->LifeTime, TimeUnits);
-        PSNIa *= dtFixed;
-
-        float rnum = (float) (random() % max_random) / ((float) (max_random));
-        if (rnum < PSNIa){
-          this->FeedbackFlag = INDIVIDUAL_STAR_SNIA;
-        }
+    if ( (this->type > 0) &&
+         (Time > this->BirthTime + this->LifeTime) ){
+      this->FeedbackFlag = INDIVIDUAL_STAR_SNIA;
     }
 
     break;
-    }
+
+  case IndividualStarRemnant:
+
+    this->FeedbackFlag = NO_FEEDBACK;
+    break;
 
   case PopIII:
     if (this->type < 0) // birth

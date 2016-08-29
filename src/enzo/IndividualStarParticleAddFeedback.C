@@ -105,7 +105,6 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
         for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
 
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp) ){
-
             Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
                                                            vel[0], vel[1], vel[2],
                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
@@ -130,6 +129,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
         for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
 
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
+            particle_mass = cstar->ReturnMass();
+
             Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
                                                            vel[0], vel[1], vel[2],
                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
@@ -160,7 +161,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
                                                            cstar->ReturnMetallicity(), &particle_mass, 2);
                                                            // 2 in last arg signifies Type 1a
 
-            cstar->SetNewMass(particle_mass); // CHECK MASS UNITS
+            cstar->SetNewMass( 0.0 ); // masless tracer after explosion
             AddedFeedback[count] = true;
           }
         }

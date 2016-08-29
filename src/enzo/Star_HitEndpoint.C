@@ -107,52 +107,63 @@ int Star::HitEndpoint(FLOAT Time)
     break;
 
   case IndividualStar:
-    result = NO_DEATH; // never kill these stars
+    {
+      result = NO_DEATH; // never kill these stars
 
-    float mproj;
-    mproj       = this->BirthMass;
+      float mproj;
+      mproj       = this->BirthMass;
 
-    /* check mass */
-    if(mproj > IndividualStarSNIIMassCutoff){
+      /* check mass */
+      if(mproj > IndividualStarSNIIMassCutoff){
 
-        if(this->FeedbackFlag == INDIVIDUAL_STAR_SNII ||
-           this->FeedbackFlag == INDIVIDUAL_STAR_WIND_AND_SN){
-            this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
-            this->type = IndividualStarRemnant;
-            this->FeedbackFlag = NO_FEEDBACK;
-        } else { // havent blown up yet
-            this->FeedbackFlag = INDIVIDUAL_STAR_SNII;
-        }
+          if(this->FeedbackFlag == INDIVIDUAL_STAR_SNII ||
+             this->FeedbackFlag == INDIVIDUAL_STAR_WIND_AND_SN){
+              this->LifeTime = huge_number; // make to a Hubble time
+              this->type = IndividualStarRemnant;
+              this->FeedbackFlag = NO_FEEDBACK;
+          } else { // havent blown up yet
+              this->FeedbackFlag = INDIVIDUAL_STAR_SNII;
+          }
 
+      }
+
+      if(mproj >= IndividualStarWDMinimumMass && mproj <= IndividualStarWDMaximumMass){
+
+          if(this->FeedbackFlag == INDIVIDUAL_STAR_STELLAR_WIND){
+
+              this->type = -IndividualStarWD;           // set negative
+//              this->LifeTime = huge_number ; // very large number
+
+              float wd_mass;
+              if(   mproj < 4.0){ wd_mass = 0.134 * mproj + 0.331;}
+              else if (mproj >=4.0){ wd_mass = 0.047 * mproj + 0.679;}
+              this->Mass = wd_mass;
+
+          } else{
+
+            // otherwise, we haven't done the last phase of AGB wind yet
+            // keep this particle around for another timestep
+            this->FeedbackFlag = INDIVIDUAL_STAR_STELLAR_WIND;
+
+          }
+
+      } // end WD check
+
+
+      break;
     }
-
-    if(mproj >= IndividualStarWDMinimumMass && mproj <= IndividualStarWDMaximumMass){
-
-        if(this->FeedbackFlag == INDIVIDUAL_STAR_STELLAR_WIND){
-
-            this->type = IndividualStarWD;
-            this->LifeTime = 1.0E99 * this->LifeTime; // make to a Hubble time
-
-            float wd_mass;
-            if(   mproj < 4.0){ wd_mass = 0.134 * mproj + 0.331;}
-            else if (mproj >=4.0){ wd_mass = 0.047 * mproj + 0.679;}
-            this->Mass = wd_mass;
-        } else{
-
-          // otherwise, we haven't done the last phase of AGB wind yet
-          // keep this particle around for another timestep
-          this->FeedbackFlag = INDIVIDUAL_STAR_STELLAR_WIND;
-
-        }
-
-    } // end WD check
-
-
-    break;
   case IndividualStarWD:
     result = NO_DEATH;
-    this->FeedbackFlag = NO_FEEDBACK;
-    break; // do nothing
+
+    if ( this->FeedbackFlag == INDIVIDUAL_STAR_SNIA ){
+      this->Mass         = 0.0;
+      this->LifeTime     = huge_number;
+      this->FeedbackFlag = NO_FEEDBACK;
+    } else{
+      this->FeedbackFlag = INDIVIDUAL_STAR_SNIA;
+    }
+
+    break;
 
   case IndividualStarRemnant:
     result = NO_DEATH; //printf("Individual Star remnamt in hit endpoint\n");

@@ -2037,6 +2037,20 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
 
   }
+
+  if ( STARFEED_METHOD(INDIVIDUAL_STAR) ) {
+    //
+    // Actual feedback for these particles is handled via Star particle
+    // class interface. This only goes through and checks for WD particles,
+    // setting their lifetime on grid if not yet set. Done this way b/c
+    // lifetime involves random number draw 
+    //
+
+    if( IndividualStarSetWDLifetime() == FAIL){
+      ENZO_FAIL("Failure setting indiidual star white dwarf lifetimes");
+    }
+  }
+
 /*
   if (STARFEED_METHOD(INDIVIDUAL_STAR)) {
 

@@ -58,6 +58,11 @@ void ComputeStellarWindVelocity(const float &mproj, const float &metallicity, fl
 void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity,
                                     float *dMdt);
 
+int SetWDLifetime(float &WD_lifetime,
+                    const float &current_time, const float &formation_time,
+                    const float &lifetime, const float &TimeUnits);
+
+
 
 void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
                              const FLOAT &xstart, const FLOAT &ystart, const FLOAT &zstart,
@@ -825,6 +830,55 @@ float SampleIMF(void){
   }
 
   return m;
+}
+
+int grid::IndividualStarSetWDLifetime(void){
+
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+              &TimeUnits, &VelocityUnits, this->Time) == FAIL){
+      ENZO_FAIL("Error in GetUnits");
+  }
+
+
+  if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+
+  if (NumberOfParticles == 0)
+    return SUCCESS;
+
+  for (int i = 0; i < NumberOfParticles; i++){
+
+    if( ParticleType[i] != -PARTICLE_TYPE_INDIVIDUAL_STAR_WD ){
+      continue;
+    }
+
+    //
+    // lifetime is set relative to WD formation time (now)
+    //
+    float new_lifetime = -1;
+
+    int result = SetWDLifetime(new_lifetime, this->Time, ParticleAttribute[0][i],
+                                            ParticleAttribute[1][i], TimeUnits);
+
+    ParticleAttribute[1][i] = new_lifetime;
+    ParticleType[i]         = ABS(ParticleType[i]);
+
+    if (ParticleAttribute[1][i] < 0){
+      return FAIL;
+    }
+    //
+    // feedback operates computing death time = lifetime + birth time
+    // renormalize so as to keep birth time the original star particle birth time
+    // but only if actually set
+    //
+    if (result > 0){ // negative result means WD never exploding 
+      ParticleAttribute[1][i] = new_lifetime + (this->Time - ParticleAttribute[0][i]);
+    }
+  }
+
+
+  return SUCCESS;
 }
 
 int grid::individual_star_feedback(int *np,

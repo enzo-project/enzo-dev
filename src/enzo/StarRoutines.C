@@ -445,6 +445,34 @@ void Star::UpdatePositionVelocity(void)
   return;
 }
 
+void Star::UpdateWhiteDwarfProperties(void){
+  LCAPERF_START("star_UpdateWhiteDwarfProperties");
+
+  int i, dim;
+  int _id = -1;
+
+  if (CurrentGrid != NULL &&
+      ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD){
+    for(i = 0; i < CurrentGrid->NumberOfParticles; i++){
+
+
+      if( Identifier == CurrentGrid->ParticleNumber[i]){
+        _id = i;
+        break;
+      }
+    }
+    assert(_id >= 0);
+
+    this->LifeTime = CurrentGrid->ParticleAttribute[1][_id];
+    this->type     = CurrentGrid->ParticleType[_id];
+    printf(" update :  %"ISYM" %"ESYM"\n", this->type, this->LifeTime);
+  }
+
+  LCAPERF_STOP("star_UpdateWhiteDwarfProperties");
+  return;
+
+}
+
 void Star::UpdateIndividualStarParticleProperties(void)
 {
  /* AJE - particle properties modified self consistently in feedback routines */

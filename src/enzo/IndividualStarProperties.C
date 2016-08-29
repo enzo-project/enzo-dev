@@ -64,6 +64,127 @@ int LinearInterpolationCoefficients(float &t, float &u, float &v, int &i, int &j
                                     const int &x1a_size, const int &x2a_size, const int &x3a_size);
 
 
+unsigned_long_int mt_random(void);
+
+
+float SNIaProbability(const float &current_time, const float &formation_time,
+                      const float &lifetime, const float &TimeUnits){
+
+
+  float  dPdt = IndividualStarSNIaFraction;
+  const float hubble_time = 4.408110831E17;
+
+
+  if (IndividualStarDTDSlope == 1.0){
+    dPdt /= log( ( (hubble_time / TimeUnits) + formation_time ) / (formation_time + lifetime));
+  } else {
+    dPdt *= (- IndividualStarDTDSlope + 1.0);
+    dPdt /= ( POW( (hubble_time / TimeUnits) + formation_time, -IndividualStarDTDSlope + 1) -
+              POW( formation_time + lifetime, -IndividualStarDTDSlope + 1));
+  }
+
+  dPdt = dPdt * POW(current_time, -IndividualStarDTDSlope);
+
+  return dPdt;
+}
+
+int SetWDLifetime(float &WD_lifetime,
+                    const float &current_time, const float &formation_time,
+                    const float &lifetime, const float &TimeUnits){
+
+  unsigned_long_int random_int = mt_random();
+  const int max_random = (1<<16);
+  float x  = (float) (random_int % max_random) / ((float) (max_random));
+
+  const int size = 1000;
+  const float hubble_time = 4.408110831E17;
+
+  float tabulated_probability [size];
+  float time [size];
+
+  /* logspace in time */
+  float min_time = log10(lifetime/10.0);
+  float max_time = log10(hubble_time / TimeUnits);
+  float dt       = (max_time - min_time) / (1.0*(size - 1)) ;
+
+  time[0] = POW(10.0, min_time);
+  tabulated_probability[0] = SNIaProbability(time[0] + formation_time + lifetime,
+                                             formation_time, lifetime, TimeUnits);
+
+  const float inv_six = 1.0 / 6.0;
+
+  float f_a = tabulated_probability[0];
+
+  /* tabulate dPdt and do Simpson's int to obtain probability distribution */
+  for( int i = 1; i < size; i ++){
+    time[i] = POW(10.0, min_time + dt*i);
+
+    float f_b  = SNIaProbability(time[i] + formation_time + lifetime,
+                                 formation_time, lifetime, TimeUnits);
+
+    float f_ab = SNIaProbability( 0.5*(time[i] + time[i-1]) + formation_time + lifetime,
+                                 formation_time, lifetime, TimeUnits);
+
+    tabulated_probability[i]  = inv_six*(time[i] - time[i-1])*(f_a + 4.0*f_ab + f_b);
+
+    f_a = f_b;
+  }
+
+  tabulated_probability[0] = tabulated_probability[1] * 0.5;
+
+  // change to cumulative probability distribution
+  // This is normalized to IndividualStarSNIa fraction, or
+  // the probability that the star will explode as SNIa in a Hubble time
+  // -- value is around a few percent
+  for( int i = 1; i < size; i ++){
+    tabulated_probability[i] += tabulated_probability[i-1];
+  }
+
+  /* now use the random number to set lifetime */
+  if (x < tabulated_probability[0] ){
+
+    // explosion is happening immenently - This is unlikely
+
+    WD_lifetime = time[0];
+
+    return 1;
+
+  } else if (x > tabulated_probability[size-1]){
+
+    // explosion never happens
+    // most likely outcome assuming prob is around a few percent
+
+    WD_lifetime = 1000.0 * hubble_time/TimeUnits;
+
+    return -1;
+  } else {
+    // explosion is happening at some time, find that time
+
+    int width = size / 2;
+    int bin_number = size / 2;
+
+    while ( width > 1){
+      width /= 2;
+
+      if (x > tabulated_probability[bin_number]){
+        bin_number += width;
+      } else if (x < tabulated_probability[bin_number]){
+        bin_number -= width;
+      } else{
+        break;
+      }
+    }
+
+    WD_lifetime = time[bin_number];
+
+    return 1;
+  }
+
+  return FAIL;
+}
+
+
+
 float IndividualStarSurfaceGravity(const float &mp, const float &R){
   /* ----------------------------------------------------
    * IndividualStarSurfaceGravity
