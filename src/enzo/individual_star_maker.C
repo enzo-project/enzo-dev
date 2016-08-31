@@ -668,7 +668,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 // these are stored as particle attributes starting with attr number 5 (index 4)
                 if(TestProblemData.MultiMetals == 2){
                   for( int iyield = 0; iyield < StellarYieldsNumberOfSpecies; iyield++){
-                    if(StellarYieldsAtomicNumbers[ii] > 2){
+                    if(StellarYieldsAtomicNumbers[iyield] > 2){
                       int field_num;
 
                       this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[iyield]);
