@@ -192,8 +192,6 @@ int InitializeStellarYields(void){
   fclose(fptr_sn);
   fclose(fptr_wind);
 
-
-  printf("Initialized Stellar Yields Tables\n");
   return SUCCESS;
 }
 
