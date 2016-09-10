@@ -23,8 +23,6 @@ MACH_FILE  = Make.mach.ubuntu-hardy
 
 LOCAL_HDF5_INSTALL = /usr/local/hdf5/1.8.2s
 
-
-
 LOCAL_GRACKLE_INSTALL  = /home/emerick/local
 
 

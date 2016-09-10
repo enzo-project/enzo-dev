@@ -1077,6 +1077,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
     /* AJE Individual Star */
+    ret += sscanf(line, "IndividualStarJitterFeedbackCIC = %"ISYM,
+                        &IndividualStarJitterFeedbackCIC);
     ret += sscanf(line, "IndividualStarAllowTruncatedIMF = %"ISYM,
                         &IndividualStarAllowTruncatedIMF);
     ret += sscanf(line, "IndividualStarExtrapolateYields = %"ISYM,

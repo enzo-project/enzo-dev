@@ -712,6 +712,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerColdGasTemperature = 1e4;
 
   // AJE Individual Star
+  IndividualStarJitterFeedbackCIC   = 0;
   IndividualStarAllowTruncatedIMF   = 0;            // on or off - truncates IMF for low mass regions if on
   IndividualStarExtrapolateYields   = 1;            // on or off - extrapolate yields using abundances from most massive tabulated star
   IndividualStarSFGasMassThreshold  = 200.0;        // for SF algorithm 1, size of mass chunk that will be 100% converted to stars

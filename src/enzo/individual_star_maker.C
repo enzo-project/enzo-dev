@@ -64,7 +64,7 @@ int SetWDLifetime(float &WD_lifetime,
 
 
 
-void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
+void SetFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
                              const FLOAT &xstart, const FLOAT &ystart, const FLOAT &zstart,
                              const FLOAT &dx,
                              const int &nx, const int &ny, const int &nz, const int &ibuff,
@@ -180,7 +180,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   /* identify species fields if they exist for proper computation of Mu */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
-  if (MultiSpecies == TRUE){
+  if ( MultiSpecies ){
     IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                           HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
   }
@@ -337,7 +337,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
           sum_mass = 0.0; index_presf = ii;
 
           /* Need to compute Mu exactly and recompute threshold */
-          if (MultiSpecies == TRUE){
+          if ( MultiSpecies ){
             float mu_cell, number_density;
 
             number_density =
@@ -1470,7 +1470,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
      but is shifted if needed if particle is too close to grid boundary.
      This is taken care of below (xfc = x feedback center) */
   float xfc, yfc, zfc;
-  CheckFeedbackCellCenter( xp, yp, zp, xstart, ystart, zstart, dx,
+  SetFeedbackCellCenter( xp, yp, zp, xstart, ystart, zstart, dx,
                            nx, ny, nz, ibuff, &xfc, &yfc, &zfc);
 
   //printf("ISF: injecting feedback to grid\n");
@@ -1493,7 +1493,7 @@ int grid::IndividualStarAddFeedbackGeneral(const FLOAT &xp, const FLOAT &yp, con
   return SUCCESS;
 }
 
-void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
+void SetFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
                              const FLOAT &xstart, const FLOAT &ystart, const FLOAT &zstart,
                              const FLOAT &dx,
                              const int &nx, const int &ny, const int &nz,
@@ -1503,9 +1503,32 @@ void CheckFeedbackCellCenter(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
   /* checks if cell center is O.K. and rescales if needed */
 
   int fbuff = ibuff + ((int) (IndividualStarFeedbackStencilSize+1)/2.0 - 1); // number of cells away from edge
-  float xfcshift, yfcshift, zfcshift;
+  float xshift, yshift, zshift;
+  float rnum;
+  const int max_random = (1<<16);
 
-  *xfc = xp; *yfc = yp; *zfc = zp;
+  xshift = 0.0; yshift = 0.0; zshift = 0.0;
+  if( IndividualStarJitterFeedbackCIC ){
+    float r, theta, phi;
+
+    rnum =  (float) (random() % max_random) / (float) (max_random);
+    r    = rnum * 0.5 * dx;
+
+    rnum  =  (float) (random() % max_random) / (float) (max_random);
+    theta = 2.0 * 3.14159 * rnum;
+
+    rnum =  (float) (random() % max_random) / (float) (max_random) * 2.0 - 1.0;
+
+    xshift = r * sqrt(1.0 - rnum*rnum) * cos(theta);
+    yshift = r * sqrt(1.0 - rnum*rnum) * sin(theta);
+    zshift = r * rnum;
+
+  }
+
+  *xfc = xp + xshift;
+  *yfc = yp + yshift;
+  *zfc = zp + zshift;
+
   return;
 
 /*
@@ -1551,7 +1574,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
-  if (MultiSpecies == TRUE){
+  if ( MultiSpecies ) {
     IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                           HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
   }
