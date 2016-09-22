@@ -712,7 +712,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerColdGasTemperature = 1e4;
 
   // AJE Individual Star
-  IndividualStarJitterFeedbackCIC   = 0;
+  IndividualStarUseWindMixingModel  = 1;            // account for unresolved mixing at wind/ISM shell interface
+  IndividualStarWindTemperature     = 1.0E6;        // temperature cap on stellar wind source region (K)
   IndividualStarAllowTruncatedIMF   = 0;            // on or off - truncates IMF for low mass regions if on
   IndividualStarExtrapolateYields   = 1;            // on or off - extrapolate yields using abundances from most massive tabulated star
   IndividualStarSFGasMassThreshold  = 200.0;        // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
@@ -737,6 +738,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarSNIaMaximumMass     = 8.0;          // solar masses
   IndividualStarPSNMassCutoff       = 40.0;         // Solar masses
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
+  IndividualStarLWMinimumMass        = 8.0;         // solar masses
   IndividualStarFUVMinimumMass       = 8.0;         // SOlar masses
   IndividualStarFUVTemperatureCutoff = 2.0E4;       // K - if FUV heating is on, heat up to this temperature
   IndividualStarStellarWinds         = 0;           // on or off
@@ -750,6 +752,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
 
   IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens FUV Heating
+  IndividualStarLWFlux               = 0;          // on or off - include optically thin LW photons from stars
 
   IndividualStarSupernovaEnergy      = 1;          // when < 0, use factor x mc^2 for supernova energy injection
                                                     // when > 0, constant supernova energy in units of 10^51 erg
@@ -769,6 +772,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   IndividualStarBlackBodyFUVFactors[0] = 1.00E-4;     // same as above, but for FUV luminosities
   IndividualStarBlackBodyFUVFactors[1] = 2.29E-5;
+
+  IndividualStarBlackBodyLWFactors[0] = 0.0;        // same, but for LW
+  IndividualStarBlackBodyLWFactors[1] = 0.0;
 
   PhotoelectricHeatingDustModelEfficiency = 0.0;
 

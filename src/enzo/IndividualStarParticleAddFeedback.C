@@ -114,13 +114,20 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
             // refresh mass every time to prevent double+ counting loss
             particle_mass = cstar->ReturnMass();
 
+            Temp->GridData->IndividualStarAddFeedbackSphere(pos[0], pos[1], pos[2],
+                                                            vel[0], vel[1], vel[2],
+                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
+                                                            Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
+                                                            cstar->ReturnMetallicity(), &particle_mass, -1);
+
+/*
             Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
                                                            vel[0], vel[1], vel[2],
                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
                                                            Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
                                                            cstar->ReturnMetallicity(), &particle_mass, -1);
                                                            // < 0 in last arg signifies stellar winds
-
+*/
             AddedFeedback[count] = true;
           }
         }

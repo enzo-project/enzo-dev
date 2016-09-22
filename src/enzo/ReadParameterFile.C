@@ -1077,8 +1077,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
     /* AJE Individual Star */
-    ret += sscanf(line, "IndividualStarJitterFeedbackCIC = %"ISYM,
-                        &IndividualStarJitterFeedbackCIC);
+    ret += sscanf(line, "IndividualStarUseWindMixingModel = %"ISYM,
+                        &IndividualStarUseWindMixingModel);
+    ret += sscanf(line, "IndividualStarWindTemperature = %"FSYM,
+                        &IndividualStarWindTemperature);
     ret += sscanf(line, "IndividualStarAllowTruncatedIMF = %"ISYM,
                         &IndividualStarAllowTruncatedIMF);
     ret += sscanf(line, "IndividualStarExtrapolateYields = %"ISYM,
@@ -1151,6 +1153,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         IndividualStarBlackBodyq1Factors+0, IndividualStarBlackBodyq1Factors+1);
     ret += sscanf(line, "IndividualStarBlackBodyFUVFactors = %"FSYM" %"FSYM,
                         IndividualStarBlackBodyFUVFactors+0, IndividualStarBlackBodyFUVFactors+1);
+    ret += sscanf(line, "IndividualStarBlackBodyLWFactors = %"FSYM" %"FSYM,
+                        IndividualStarBlackBodyLWFactors+0, IndividualStarBlackBodyLWFactors+1);
     ret += sscanf(line, "IndividualStarSupernovaEnergy = %"FSYM,
                         &IndividualStarSupernovaEnergy);
     ret += sscanf(line, "IndividualStarFUVTemperatureCutoff = %"FSYM,
@@ -1158,6 +1162,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "IndividualStarFUVHeating = %"ISYM,
                         &IndividualStarFUVHeating);
+    ret += sscanf(line, "IndividualStarLWFlux = %"ISYM,
+                        &IndividualStarLWFlux);
+
+    ret += sscanf(line, "IndividualStarLWMinimumMass = %"FSYM,
+                        &IndividualStarLWMinimumMass);
     ret += sscanf(line, "IndividualStarFUVMinimumMass = %"FSYM,
                         &IndividualStarFUVMinimumMass);
     ret += sscanf(line, "IndividualStarCreationStencilSize = %"ISYM,

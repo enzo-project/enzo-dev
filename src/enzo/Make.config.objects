@@ -593,6 +593,7 @@ OBJS_CONFIG_LIB = \
         Grid_UpdateParticlePosition.o \
         Grid_UpdateParticleVelocity.o \
         Grid_UpdateStarParticles.o \
+        Grid_UpdateAveragedAbundances.o \
         Grid_WriteCubeInterpolate.o \
         Grid_WriteCube.o \
         Grid_WriteGridInterpolate.o \
