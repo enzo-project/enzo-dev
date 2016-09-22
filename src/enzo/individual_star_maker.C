@@ -114,6 +114,8 @@ void AddMetalSpeciesToGridCells(float *m, const float &mass_per_cell,
                                 const float &dxc, const float &dyc, const float &dzc,
                                 const int &stencil, const float additional_mass_factor);
 
+void IndividualStarSetCoreCollapseSupernovaProperties(const float &mproj, const float &metallicity,
+                                                      float &m_eject, float &E_thermal, float *metal_mass);
 
 float ComputeOverlap(const int &i_shape, const float &radius,
                      const FLOAT &xc, const FLOAT &yc, const FLOAT &zc,
@@ -2523,7 +2525,8 @@ int grid::IndividualStarAddFeedbackSphere(const FLOAT &xp, const FLOAT &yp, cons
 
     // core collapse supernova
     float E_thermal;
-//    IndividualStarSetCoreCollapseSupernovaProperties(mproj, metallicity, E_thermal);
+    IndividualStarSetCoreCollapseSupernovaProperties(mproj, metallicity,
+                                                     m_eject, E_thermal, metal_mass);
     E_thermal_min = E_thermal;
     E_thermal_max = E_thermal;
 
@@ -2726,6 +2729,40 @@ int grid::IndividualStarInjectSphericalFeedback(const FLOAT &xp, const FLOAT &yp
   delete [] temperature;
   // done with spherical injection
 }
+
+void IndividualStarSetCoreCollapseSupernovaProperties(const float &mproj, const float &metallicity,
+                                                      float &m_eject, float &E_thermal, float *metal_mass){
+
+  const float c_light = 2.99792458E10;
+
+  /* compute total ejected yield */
+  if ( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+    // 0 in first argument signifies use CC supernova yield table
+    m_eject   = StellarYieldsInterpolateYield(0, mproj, metallicity, -1);
+  } else{
+    m_eject   = StarMassEjectionFraction * mproj;
+  }
+
+  /* set thermal energy of explosion */
+  if( IndividualStarSupernovaEnergy < 0){
+    E_thermal = m_eject * StarEnergyToThermalFeedback * (c_light * c_light);
+  } else{
+    E_thermal = IndividualStarSupernovaEnergy * 1.0E51;
+  }
+
+  /* metal masses for tracer species */
+  if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+    metal_mass[0] = StellarYieldsInterpolateYield(0, mproj, metallicity, 0);
+
+    for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+      metal_mass[1+i] = StellarYieldsInterpolateYield(0, mproj, metallicity,
+                                                      StellarYieldsAtomicNumbers[i]);
+    }
+  }
+
+
+}
+
 
 void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
                                float cell_mass, float T, float dx,

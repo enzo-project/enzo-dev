@@ -146,14 +146,20 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
             // refresh mass every time to prevent double+ counting
             particle_mass = cstar->ReturnMass();
+            Temp->GridData->IndividualStarAddFeedbackSphere(pos[0], pos[1], pos[2],
+                                                            vel[0], vel[1], vel[2],
+                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
+                                                            Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
+                                                            cstar->ReturnMetallicity(), &particle_mass, 1);
 
+/*
             Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
                                                            vel[0], vel[1], vel[2],
                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
                                                            Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
                                                            cstar->ReturnMetallicity(), &particle_mass, 1);
                                                            // 1 in last arg signifies Core collapse SN
-
+*/
             AddedFeedback[count] = true;
           }
         }
