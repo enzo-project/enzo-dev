@@ -712,6 +712,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerColdGasTemperature = 1e4;
 
   // AJE Individual Star
+  IndividualStarFeedbackOverlapSample = 20;         // number of points per cell to compute fractional overlap in feedback routine
   IndividualStarUseWindMixingModel  = 1;            // account for unresolved mixing at wind/ISM shell interface
   IndividualStarWindTemperature     = 1.0E6;        // temperature cap on stellar wind source region (K)
   IndividualStarAllowTruncatedIMF   = 0;            // on or off - truncates IMF for low mass regions if on

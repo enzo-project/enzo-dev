@@ -1047,6 +1047,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "H2StarMakerColdGasTemperature      = %"GSYM"\n\n", H2StarMakerColdGasTemperature);
 
   /* AJE Indiviudal Star */
+  fprintf(fptr, "IndividualStarFeedbackOverlapSample = %"ISYM"\n", IndividualStarFeedbackOverlapSample);
   fprintf(fptr, "IndividualStarUseWindMixingModel = %"ISYM"\n", IndividualStarUseWindMixingModel);
   fprintf(fptr, "IndividualStarWindTemperature = %"GSYM"\n", IndividualStarWindTemperature);
   fprintf(fptr, "IndividualStarAllowTruncatedIMF = %"ISYM"\n", IndividualStarAllowTruncatedIMF);

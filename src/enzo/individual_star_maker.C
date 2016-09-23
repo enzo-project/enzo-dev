@@ -2669,7 +2669,7 @@ int grid::IndividualStarInjectSphericalFeedback(const FLOAT &xp, const FLOAT &yp
         // do fractional overlap calculation
         fractional_overlap = ComputeOverlap(1, radius, xp, yp, zp,
                                             xc - dx, yc - dx, zc - dx,
-                                            xc + dx, yc + dx, zc + dx, 20);
+                                            xc + dx, yc + dx, zc + dx, IndividualStarFeedbackOverlapSample);
 
         if(fractional_overlap <= 0.0) continue; // cell is enirely outside sphere
 

@@ -131,6 +131,7 @@ SPEXTERN float  H2StarMakerH2DissociationFlux_MW;
 SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
 
+SPEXTERN int   IndividualStarFeedbackOverlapSample;
 SPEXTERN int   IndividualStarUseWindMixingModel;
 SPEXTERN int   IndividualStarAllowTruncatedIMF;
 SPEXTERN int   IndividualStarExtrapolateYields;
