@@ -2530,6 +2530,7 @@ int grid::IndividualStarAddFeedbackSphere(const FLOAT &xp, const FLOAT &yp, cons
     E_thermal_min = E_thermal;
     E_thermal_max = E_thermal;
 
+    stellar_wind_mode = FALSE;
   }
   /* Implement core collapse and SNIa here*/
 
@@ -2692,6 +2693,11 @@ int grid::IndividualStarInjectSphericalFeedback(const FLOAT &xp, const FLOAT &yp
                                     temperature[index], dx, MassUnits, EnergyUnits,
                                     delta_mass, E_thermal, injected_metal_mass,
                                     this->AveragedAbundances);
+        } else{
+
+          /* no adjustment */
+          E_thermal = delta_therm_max;
+
         }
 
 
