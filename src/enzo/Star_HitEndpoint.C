@@ -139,6 +139,7 @@ int Star::HitEndpoint(FLOAT Time)
               else if (mproj >=4.0){ wd_mass = 0.047 * mproj + 0.679;}
               this->Mass = wd_mass;
 
+              this->FeedbackFlag = NO_FEEDBACK;
           } else{
 
             // otherwise, we haven't done the last phase of AGB wind yet

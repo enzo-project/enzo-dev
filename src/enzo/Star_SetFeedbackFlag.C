@@ -87,7 +87,7 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
           }
         }
 
-        if(particle_age < this->LifeTime && particle_age + dtFixed > wind_start_age){
+        if(particle_age < this->LifeTime && particle_age + dtFixed > wind_start_age/TimeUnits){
             this->FeedbackFlag = INDIVIDUAL_STAR_STELLAR_WIND;
         }
 
