@@ -314,7 +314,7 @@ int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float
 int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const float &metallicity){
 
   float Teff, R, g, Fuv;
-  const double pi = 3.1415621;
+  const double pi = 3.141592653589393;
 
   IndividualStarInterpolateProperties(Teff, R, mp, metallicity);
   g = IndividualStarSurfaceGravity(mp, R);
