@@ -103,7 +103,7 @@ int grid::CalculateAverageAbundances(void){
   for(int index = 0; index < size; index++){
     int field_num;
 
-    if( temperature[index] < 2.0E4){
+    if( temperature[index] < 1.0E4){
       mass_counter[0] += BaryonField[MetalNum][index];
       for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
         this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
