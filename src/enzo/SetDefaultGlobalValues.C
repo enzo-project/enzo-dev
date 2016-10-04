@@ -733,6 +733,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarMassFraction        = 0.5;
   IndividualStarSNIIMassCutoff      = 8.0;          // Solar masses
   IndividualStarAGBThreshold        = 8.0;          // solar masses - stars below this mass have winds at end of life only
+  IndividualStarAGBWindVelocity     = 20.0;         // km/s - wind velocity for all AGB stars
   IndividualStarWDMinimumMass       = 1.7;          // Solar masses
   IndividualStarWDMaximumMass       = 8.0;          // solar masses
   IndividualStarSNIaMinimumMass     = 3.0;          // Solar masses
@@ -780,6 +781,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PhotoelectricHeatingDustModelEfficiency = 0.0;
 
   // chemical evolution test star
+  ChemicalEvolutionTestNumberOfStars   = 1;
   ChemicalEvolutionTestStarMass        = 20.0   ; // solar masses
   ChemicalEvolutionTestStarMetallicity = 0.0001 ;
   ChemicalEvolutionTestStarFormed      = FALSE  ;

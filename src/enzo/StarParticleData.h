@@ -152,6 +152,7 @@ SPEXTERN float IndividualStarKroupaAlpha3;
 SPEXTERN float IndividualStarMassFraction;
 SPEXTERN float IndividualStarSNIIMassCutoff;
 SPEXTERN float IndividualStarAGBThreshold;
+SPEXTERN float IndividualStarAGBWindVelocity;
 SPEXTERN float IndividualStarPSNMassCutoff;
 SPEXTERN float IndividualStarRadiationMinimumMass;
 SPEXTERN int   IndividualStarStellarWinds;

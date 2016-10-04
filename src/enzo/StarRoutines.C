@@ -452,7 +452,7 @@ void Star::UpdateWhiteDwarfProperties(void){
   int _id = -1;
 
   if (CurrentGrid != NULL &&
-      ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD){
+      this->type == -PARTICLE_TYPE_INDIVIDUAL_STAR_WD){
     for(i = 0; i < CurrentGrid->NumberOfParticles; i++){
 
 

@@ -223,6 +223,106 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     // Only form on first call of individual_star_maker
     if(ChemicalEvolutionTestStarFormed){
       return SUCCESS;
+
+    } else if (ChemicalEvolutionTestNumberOfStars > 1){
+      /* read in prperties from file  */
+
+      int nstar = ChemicalEvolutionTestNumberOfStars;
+
+      FLOAT xpos[nstar], ypos[nstar], zpos[nstar];
+      float xvel[nstar], yvel[nstar], zvel[nstar];
+      float mass[nstar], z[nstar];
+
+      FILE *fptr = fopen("ChemicalEvolutionTest.inits", "r");
+      if (fptr == NULL){
+        ENZO_FAIL("Error opening star initial positions - check that you want > 1 stars and 'ChemicalEvolutionTest.inits' exists\n");
+      }
+
+      char line[MAX_LINE_LENGTH];
+      int err;
+      int i = 0;
+      while( fgets(line, MAX_LINE_LENGTH, fptr) !=NULL){
+        if(line[0] != '#'){
+          err = sscanf(line, "%"FSYM " %"FSYM " %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                             &xpos[i], &ypos[i], &zpos[i], &xvel[i], &yvel[i], &zvel[i], &mass[i], &z[i]);
+          i++;
+        }
+      }
+      fclose(fptr);
+
+      int count = 0; // total number of stars formed on this processor
+      printf("nstar = %"ISYM"\n");
+      for (i = 0; i < nstar; i++){
+
+
+        // make sure particle position is on this grid / processor
+        if( !( (xpos[i] > this->CellLeftEdge[0][ibuff - 1]) && (xpos[i] < this->CellLeftEdge[0][nx - ibuff ] )) ||
+            !( (ypos[i] > this->CellLeftEdge[1][ibuff - 1]) && (ypos[i] < this->CellLeftEdge[1][ny - ibuff ] )) ||
+            !( (zpos[i] > this->CellLeftEdge[2][ibuff -1 ]) && (zpos[i] < this->CellLeftEdge[2][nz - ibuff ] )) ) {
+          continue;
+        }
+
+        // deposit the star by hand
+        ParticleMass[i] = mass[i] * msolar / MassUnits / (dx*dx*dx);
+        ParticleType[i] = - PARTICLE_TYPE_INDIVIDUAL_STAR;
+        ParticleAttribute[0][i] = this->Time;
+
+        // last arg tells function to return total stellar lifetime
+        if(IndividualStarInterpolateLifetime(ParticleAttribute[1][i], mass[i], z[i], 1) == FAIL){
+            ENZO_FAIL("Failure in stellar lifetime interpolation");
+        }
+
+        ParticleAttribute[1][i] /= TimeUnits; // convert from s to code units
+        ParticleAttribute[3][i] = mass[i]; // leave in solar
+        ParticleAttribute[2][i] = z[i];
+
+        ParticlePosition[0][i] = xpos[i];
+        ParticlePosition[1][i] = ypos[i];
+        ParticlePosition[2][i] = zpos[i];
+
+        ParticleVelocity[0][i] = xvel[i]*1.0E5 / VelocityUnits;
+        ParticleVelocity[1][i] = yvel[i]*1.0E5 / VelocityUnits;
+        ParticleVelocity[2][i] = zvel[i]*1.0E5 / VelocityUnits;
+
+        // find grid cell and assign chemical tags
+        int ip, jp, kp, n;
+        ip = int ( (ParticlePosition[0][i] - (xstart)) / (dx));
+        jp = int ( (ParticlePosition[1][i] - (ystart)) / (dx));
+        kp = int ( (ParticlePosition[2][i] - (zstart)) / (dx));
+
+        n  = ip + (jp + kp * (ny)) * (nx);
+
+        /* Metal fields are all in fractions, as set in Grid_StarParticleHandler */
+        if(TestProblemData.MultiMetals == 2){
+          for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+            if(StellarYieldsAtomicNumbers[ii] > 2){
+              int field_num;
+
+              this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
+
+              ParticleAttribute[4 + ii][i] = BaryonField[field_num][n];
+
+            } else if (StellarYieldsAtomicNumbers[ii] == 1){
+              /* Take H and He fractions as TOTAL amount of H and He species in the cell */
+              ParticleAttribute[4 + ii][i] = BaryonField[HINum][n] + BaryonField[HIINum][n];
+
+            } else if (StellarYieldsAtomicNumbers[ii] == 2){
+
+              ParticleAttribute[4 + ii][i] = BaryonField[HeINum][n]  +
+                                           BaryonField[HeIINum][n] + BaryonField[HeIIINum][n];
+
+            }
+          }
+        }
+
+
+        count++;
+      } // end loop over particles
+
+      *np = count;
+      ChemicalEvolutionTestStarFormed = TRUE;
+
+      return SUCCESS;
     } else {
       FLOAT xx, yy, zz;
       xx = ChemicalEvolutionTestStarPosition[0];
@@ -2822,16 +2922,16 @@ void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
 
       /* modify metal abundances here */
       m_ism = m_ism / (dx*dx*dx) / MassUnits;
-      printf("Grid abundances = ");
+//      printf("Grid abundances = ");
       if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields){
         for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
           metal_mass[im] = metal_mass[im] + m_ism * grid_abundances[im]; // ISM add
-          printf(" %"ESYM,grid_abundances[im]);
+//          printf(" %"ESYM,grid_abundances[im]);
         }
-        printf("\n");
+//        printf("\n");
       }
 
-    printf("m_ism %"ESYM"\n",m_ism);
+//    printf("m_ism %"ESYM"\n",m_ism);
    // }
   }
 
@@ -2928,8 +3028,12 @@ void IndividualStarSetStellarWindProperties(const float &mproj, const float &lif
         // mass when winds should only be "ON" for part of a timestep, either at beginning or end
         // of AGB phase, or when AGB phase is unresolved (i.e. AGB time < dt)
         //
-        if (particle_age > agb_start_time && particle_age + dt > lifetime) {
-          wind_dt = lifetime - particle_age; // wind only occurs for part of timestep + star dies
+        if (particle_age > lifetime){
+
+          wind_dt = fmax(0.0, lifetime - (particle_age - dt));
+
+        } else if (particle_age > agb_start_time && particle_age < lifetime ) {
+          wind_dt = fmin(lifetime - particle_age,dt); // wind only occurs for part of timestep + star dies
 
         } else if (particle_age < agb_start_time && particle_age + dt > lifetime) {
           //
@@ -2939,9 +3043,12 @@ void IndividualStarSetStellarWindProperties(const float &mproj, const float &lif
 
         } else if (particle_age < agb_start_time && particle_age + dt > agb_start_time){
           wind_dt = particle_age + dt - agb_start_time; // wind only occurs for part of timestep
+
+        } else{
+          printf("PROBLEM IN AGB WIND PHASE\n");
         }
 
-
+      printf("Wind lifetime = %"ESYM" - wind_dt = %"ESYM"  %"ESYM" %"ESYM" %"ESYM"\n",wind_lifetime, wind_dt, lifetime, agb_start_time, particle_age);
 
 
       // end AGB check
@@ -2959,9 +3066,11 @@ void IndividualStarSetStellarWindProperties(const float &mproj, const float &lif
              wind_dt = 0.001*dt;
            }
         }
-      }
+    }
 
-      m_eject  /= wind_lifetime ; // average mass loss rate over entire wind lifetime
+
+
+  m_eject  /= wind_lifetime ; // average mass loss rate over entire wind lifetime
 
     // end yields methods
   } else {
@@ -2982,13 +3091,21 @@ void IndividualStarSetStellarWindProperties(const float &mproj, const float &lif
 
   } // end  checking for yields
 
+
   float v_wind, IndividualStarMaximumWindVelocity = 500.0;
 
-  if (IndividualStarStellarWindVelocity < 0){
+  if(mproj < IndividualStarAGBThreshold){
+    /* no good model for AGB wind - use constant user velocity */
+    v_wind = IndividualStarAGBWindVelocity;
+
+  } else  if (IndividualStarStellarWindVelocity < 0){
     ComputeStellarWindVelocity(mproj, metallicity, &v_wind); // v in km /s
   } else{
     v_wind = IndividualStarStellarWindVelocity; // user chosen, in km/s
   }
+
+
+
 
   v_wind *= 1.0E5; // now in cgs
 
