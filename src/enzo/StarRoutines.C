@@ -329,8 +329,7 @@ void Star::ConvertAllMassesToSolar(void)
   MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
   this->Mass *= MassConversion;
   this->FinalMass *= MassConversion;
-//  this->BirthMass *= MassConversion; - AJE : birth mass always in solar
-//                                             test to make sure this works 7/16
+  //this->BirthMass *= MassConversion; - for now, this is always in solar
   return;
 }
 
