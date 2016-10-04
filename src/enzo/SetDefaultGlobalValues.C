@@ -738,7 +738,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarWDMaximumMass       = 8.0;          // solar masses
   IndividualStarSNIaMinimumMass     = 3.0;          // Solar masses
   IndividualStarSNIaMaximumMass     = 8.0;          // solar masses
-  IndividualStarPSNMassCutoff       = 40.0;         // Solar masses
+  IndividualStarDirectCollapseThreshold = 25.0;     // solar masses - no SNII and no ejecta above this mass
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
   IndividualStarLWMinimumMass        = 8.0;         // solar masses
   IndividualStarFUVMinimumMass       = 8.0;         // SOlar masses

@@ -114,7 +114,7 @@ int Star::HitEndpoint(FLOAT Time)
       mproj       = this->BirthMass;
 
       /* check mass */
-      if(mproj > IndividualStarSNIIMassCutoff){
+      if(mproj > IndividualStarSNIIMassCutoff && mproj < IndividualStarDirectCollapseThreshold){
 
           if(this->FeedbackFlag == INDIVIDUAL_STAR_SNII ||
              this->FeedbackFlag == INDIVIDUAL_STAR_WIND_AND_SN){
@@ -125,6 +125,10 @@ int Star::HitEndpoint(FLOAT Time)
               this->FeedbackFlag = INDIVIDUAL_STAR_SNII;
           }
 
+      } else if (mproj > IndividualStarDirectCollapseThreshold){
+        this->FeedbackFlag = NO_FEEDBACK;
+        this->LifeTime     = huge_number;
+        this->type         = IndividualStarRemnant;
       }
 
       if(mproj >= IndividualStarWDMinimumMass && mproj <= IndividualStarWDMaximumMass){

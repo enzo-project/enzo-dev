@@ -53,8 +53,6 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
   const float PISNLowerMass = 140, PISNUpperMass = 260;
   const float StarClusterSNeStart = 4.0;   // Myr after cluster is born
   const float StarClusterSNeEnd = 20.0; // Myr (lifetime of a 8 Msun star)
-  const double G = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
-  const double Msun = 1.989e33;
 
   const int max_random = (1<<16);
 
@@ -94,6 +92,7 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
     } // end check if we are using winds
 
     if ( this->BirthMass >= IndividualStarSNIIMassCutoff &&
+         this->BirthMass < IndividualStarDirectCollapseThreshold &&
                             ((particle_age) > this->LifeTime)){
 
       if( this->FeedbackFlag == INDIVIDUAL_STAR_STELLAR_WIND){

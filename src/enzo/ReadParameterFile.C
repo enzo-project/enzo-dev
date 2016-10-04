@@ -1123,8 +1123,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarAGBWindVelocity);
     ret += sscanf(line, "IndividualStarSNIIMassCutoff = %"FSYM,
                         &IndividualStarSNIIMassCutoff);
-    ret += sscanf(line, "IndividualStarPSNMassCutoff = %"FSYM,
-                        &IndividualStarPSNMassCutoff);
+    ret += sscanf(line, "IndividualStarDirectCollapseThreshold = %"FSYM,
+                        &IndividualStarDirectCollapseThreshold);
     ret += sscanf(line, "IndividualStarRadiationMinimumMass = %"FSYM,
                         &IndividualStarRadiationMinimumMass);
     ret += sscanf(line, "IndividualStarStellarWinds = %"ISYM,
