@@ -234,6 +234,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
       FLOAT xpos[nstar], ypos[nstar], zpos[nstar];
       float xvel[nstar], yvel[nstar], zvel[nstar];
       float mass[nstar], z[nstar];
+      int pt[nstar];
 
       FILE *fptr = fopen("ChemicalEvolutionTest.inits", "r");
       if (fptr == NULL){
@@ -245,8 +246,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
       int i = 0;
       while( fgets(line, MAX_LINE_LENGTH, fptr) !=NULL){
         if(line[0] != '#'){
-          err = sscanf(line, "%"FSYM " %"FSYM " %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
-                             &xpos[i], &ypos[i], &zpos[i], &xvel[i], &yvel[i], &zvel[i], &mass[i], &z[i]);
+          err = sscanf(line, "%"FSYM " %"FSYM " %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"ISYM,
+                             &xpos[i], &ypos[i], &zpos[i], &xvel[i], &yvel[i], &zvel[i], &mass[i], &z[i], &pt[i]);
           i++;
         }
       }
@@ -266,7 +267,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
         // deposit the star by hand
         ParticleMass[i] = mass[i] * msolar / MassUnits / (dx*dx*dx);
-        ParticleType[i] = - PARTICLE_TYPE_INDIVIDUAL_STAR;
+        ParticleType[i] = -pt[i];
         ParticleAttribute[0][i] = this->Time;
 
         // last arg tells function to return total stellar lifetime
@@ -2731,7 +2732,7 @@ int grid::IndividualStarInjectSphericalFeedback(const FLOAT &xp, const FLOAT &yp
         ystart = this->CellLeftEdge[1][0],
         zstart = this->CellLeftEdge[2][0];
 
-  int nx = *(GridDimension), ny = *(GridDimension+1), nz = *(GridDimension+2);
+  int nx = *(this->GridDimension), ny = *(this->GridDimension+1), nz = *(this->GridDimension+2);
   int size = nx*ny*nz;
   int number_of_cells;
 
@@ -2887,7 +2888,7 @@ void IndividualStarSetTypeIaSupernovaProperties(float &m_eject, float &E_thermal
   if (IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
     metal_mass[0] = StellarYields_SNIaYieldsByNumber(0); // total metal mass
 
-    for( int i = 0; i < StellarYieldsNumberOfSpecies + 1; i++){
+    for( int i = 0; i < StellarYieldsNumberOfSpecies; i++){
       metal_mass[i+1] = StellarYields_SNIaYieldsByNumber(StellarYieldsAtomicNumbers[i]);
     }
   }
@@ -3097,27 +3098,28 @@ void IndividualStarSetStellarWindProperties(const float &mproj, const float &lif
         // mass when winds should only be "ON" for part of a timestep, either at beginning or end
         // of AGB phase, or when AGB phase is unresolved (i.e. AGB time < dt)
         //
-        if (particle_age > lifetime){
+        if (particle_age > lifetime && particle_age - dt < lifetime){
 
-          wind_dt = fmax(0.0, lifetime - (particle_age - dt));
-
+          wind_dt = fmin( fmax(0.0, lifetime - (particle_age - dt)) , lifetime - agb_start_time);
+          printf("wind lifetime mode 1\n");
         } else if (particle_age > agb_start_time && particle_age < lifetime ) {
-          wind_dt = fmin(lifetime - particle_age,dt); // wind only occurs for part of timestep + star dies
+          wind_dt = fmin(particle_age - agb_start_time,dt); // wind only occurs for part of timestep + star dies
 
+          printf("wind lifetime mode 2\n");
         } else if (particle_age < agb_start_time && particle_age + dt > lifetime) {
           //
           // AGB phase is unresolved. Set wind timestep to lifetime to do all ejecta this timestep
           //
           wind_dt = wind_lifetime;
-
+          printf("wind lifetime mode 3\n");
         } else if (particle_age < agb_start_time && particle_age + dt > agb_start_time){
           wind_dt = particle_age + dt - agb_start_time; // wind only occurs for part of timestep
-
+          printf("wind lifeitme mode 4\n");
         } else{
           printf("PROBLEM IN AGB WIND PHASE\n");
         }
 
-      printf("Wind lifetime = %"ESYM" - wind_dt = %"ESYM"  %"ESYM" %"ESYM" %"ESYM"\n",wind_lifetime, wind_dt, lifetime, agb_start_time, particle_age);
+      printf("Wind lifetime = %"ESYM" - wind_dt = %"ESYM"  %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",wind_lifetime, wind_dt, lifetime, agb_start_time, particle_age, dt);
 
 
       // end AGB check
