@@ -117,6 +117,8 @@ void AddMetalSpeciesToGridCells(float *m, const float &mass_per_cell,
 void IndividualStarSetCoreCollapseSupernovaProperties(const float &mproj, const float &metallicity,
                                                       float &m_eject, float &E_thermal, float *metal_mass);
 
+void IndividualStarSetTypeIaSupernovaProperties(float &m_eject, float &E_thermal, float *metal_mass);
+
 float ComputeOverlap(const int &i_shape, const float &radius,
                      const FLOAT &xc, const FLOAT &yc, const FLOAT &zc,
                      const FLOAT &xl, const FLOAT &yl, const FLOAT &zl,
@@ -2617,6 +2619,8 @@ int grid::IndividualStarAddFeedbackSphere(const FLOAT &xp, const FLOAT &yp, cons
   if( mode < 0 ){  // compute properties for stellar winds
 
     // mproj needs to be in Msun - everything else in CGS
+    // min and max thermal energy are now redundant - leftover from old code
+    // that will be completely removed with further testing
     IndividualStarSetStellarWindProperties(mproj, lifetime*TimeUnits, metallicity, // pass
                                            particle_age*TimeUnits, this->dtFixed * TimeUnits,
                                            m_eject, E_thermal_min, E_thermal_max, metal_mass);  // returns
@@ -2627,18 +2631,34 @@ int grid::IndividualStarAddFeedbackSphere(const FLOAT &xp, const FLOAT &yp, cons
     float E_thermal;
     IndividualStarSetCoreCollapseSupernovaProperties(mproj, metallicity,
                                                      m_eject, E_thermal, metal_mass);
+    // min and max are now redundant - leftover from old code
+    // that will be completely removed with further testing
+
+    E_thermal_min = E_thermal;
+    E_thermal_max = E_thermal;
+
+    stellar_wind_mode = FALSE;
+  } else if (mode == 2){
+    // Type Ia supernova properties
+
+    float E_thermal;
+
+    IndividualStarSetTypeIaSupernovaProperties(m_eject, E_thermal, metal_mass);
+
+    // min and max are now redundant - leftover from old code
+    // that will be completely removed with further testing
     E_thermal_min = E_thermal;
     E_thermal_max = E_thermal;
 
     stellar_wind_mode = FALSE;
   }
-  /* Implement core collapse and SNIa here*/
 
 
   printf("CGS Testing %"ESYM" Msun ----- %"ESYM" %"ESYM"\n",mproj, lifetime*TimeUnits, particle_age*TimeUnits);
   printf("Ejected mass %"ESYM" Msun --- and Energy %"ESYM" erg %"ESYM" erg\n",m_eject, E_thermal_min, E_thermal_max);
+
   /* convert computed parameters to code units */
-  m_eject   = m_eject   * msolar / MassUnits   / (dx*dx*dx);
+  m_eject       = m_eject*msolar / MassUnits   / (dx*dx*dx);
   E_thermal_min = E_thermal_min  / EnergyUnits / (dx*dx*dx);
   E_thermal_max = E_thermal_max  / EnergyUnits / (dx*dx*dx);
 
@@ -2657,7 +2677,7 @@ int grid::IndividualStarAddFeedbackSphere(const FLOAT &xp, const FLOAT &yp, cons
 
   float new_mass = (*mp) - m_eject * (dx*dx*dx) * MassUnits / msolar; // update mass
 
-  if( *mp < 0 && mode != 2){ // O.K. to happen for Type 1a
+  if( *mp < 0 && mode != 2){ // This can happen for Type 1a since using fixed mass model
     printf("new_mass = %"ESYM" mp = %"ESYM" m_eject =%"ESYM"\n", new_mass, *mp, m_eject*dx*dx*dx*MassUnits/msolar);
     ENZO_FAIL("IndividualStarFeedback: Ejected mass greater than current particle mass - negative particle mass!!!\n");
   } else if (mode == 2){
@@ -2833,11 +2853,60 @@ int grid::IndividualStarInjectSphericalFeedback(const FLOAT &xp, const FLOAT &yp
   }
 
   delete [] temperature;
-  // done with spherical injection
+  // done with spherical injection feedback
+
+  return SUCCESS;
+}
+
+void IndividualStarSetTypeIaSupernovaProperties(float &m_eject, float &E_thermal, float *metal_mass){
+/* -------------------------------------------------------
+ * IndividualStarSetTypeIaSupernovaProperties
+ * -------------------------------------------------------
+ * A. Emerick - Oct 2016
+ *
+ * Set the ejected mass, energy, and metal masses for a
+ * Type Ia supernova explosion.
+ *
+ * Current model treats all Type Ia uniformly
+ * -------------------------------------------------------
+ */
+
+
+  const float c_light = 2.99792458E10;
+
+  m_eject = StellarYields_SNIaYieldsByNumber(-1); // total ejecta in solar masses
+
+  /* set energy given user input */
+  if( IndividualStarSupernovaEnergy < 0){
+    E_thermal = m_eject * StarEnergyToThermalFeedback * (c_light * c_light);
+  } else {
+    E_thermal = IndividualStarSupernovaEnergy * 1.0E51;
+  }
+
+  /* populate metal species array if needed */
+  if (IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+    metal_mass[0] = StellarYields_SNIaYieldsByNumber(0); // total metal mass
+
+    for( int i = 0; i < StellarYieldsNumberOfSpecies + 1; i++){
+      metal_mass[i+1] = StellarYields_SNIaYieldsByNumber(StellarYieldsAtomicNumbers[i]);
+    }
+  }
+
+  return;
 }
 
 void IndividualStarSetCoreCollapseSupernovaProperties(const float &mproj, const float &metallicity,
                                                       float &m_eject, float &E_thermal, float *metal_mass){
+/* -------------------------------------------------------
+ * IndividualStarCoreCollapseSupernovaProperties
+ * -------------------------------------------------------
+ * A. Emerick - Sep 2016
+ *
+ * Set the ejected mass, energy, and metal masses for a
+ * core collapse supernova, given star's birth mass and
+ * metallicity.
+ * -------------------------------------------------------
+ */
 
   const float c_light = 2.99792458E10;
 
@@ -2866,7 +2935,7 @@ void IndividualStarSetCoreCollapseSupernovaProperties(const float &mproj, const 
     }
   }
 
-
+  return;
 }
 
 
