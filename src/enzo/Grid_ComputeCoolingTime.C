@@ -177,7 +177,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     temperature = new float[size];
 
     if(this->ComputeTemperatureField(temperature) == FAIL){
-      ENZO_FAIL("Error in compute temperature in Grid_GrackleWrapper");
+      ENZO_FAIL("Error in compute temperature in Grid_ComputeCoolingTime");
     }
 
     // send to Grackle in CGS
@@ -333,8 +333,13 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 
     /* add in radiative transfer fields */
     if( RadiativeTransfer ){
+      const float ev2erg = 1.60217653E-12;
+
       int kphHINum, kphHeINum, kphHeIINum, kdissH2INum,
           gammaNum;
+
+      /* convert from eV/s*TimeUnit to erg/s */
+      float rtunits = ev2erg / TimeUnits;
 
       IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
                                       kphHeIINum, kdissH2INum);
@@ -343,7 +348,8 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
       my_fields.RT_HeI_ionization_rate  = BaryonField[kphHeINum];
       my_fields.RT_HeII_ionization_rate = BaryonField[kphHeIINum];
       my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
-      my_fields.RT_heating_rate         = BaryonField[gammaNum];
+      for(i = 0; i < size; i ++)
+           my_fields.RT_heating_rate[i] = BaryonField[gammaNum][i] * rtunits;
     }
 
 
