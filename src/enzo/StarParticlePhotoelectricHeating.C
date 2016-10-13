@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -95,6 +96,7 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
     return SUCCESS;
   }
 
+  TIMER_START("StarParticlePhotoelectricHeating");
   /* now, do the FUV heating for all stars */
   Ls = new float[number_of_fuv_stars];
   xs = new float[number_of_fuv_stars];
@@ -109,7 +111,9 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
     if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR && cstar->ReturnBirthMass() > IndividualStarFUVMinimumMass){
 
       float L;
-      IndividualStarComputeFUVLuminosity(L, cstar->ReturnBirthMass(), cstar->ReturnMetallicity());
+// TEST ONLY WARNING WARNING WARNING       IndividualStarComputeFUVLuminosity(L, cstar->ReturnBirthMass(), cstar->ReturnMetallicity());
+     // how bad is doing the interpolation every time??? -- 2 solar radii * 1.0E8
+      L = 0.0; // erg/s
 
       star_pos = cstar->ReturnPosition();
 
@@ -140,6 +144,7 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
   delete[] zs;
   delete[] ts;
 
+  TIMER_STOP("StarParticlePhotoelectricHeating");
   return SUCCESS;
 }
 

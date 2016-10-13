@@ -305,6 +305,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   TIMER_REGISTER("RebuildHierarchy");
   TIMER_REGISTER("SetBoundaryConditions");
   TIMER_REGISTER("SolveHydroEquations");
+  TIMER_REGISTER("StarParticlePhotoelectricHeating");
   TIMER_REGISTER("Total");
 
 #ifdef USE_LCAPERF
