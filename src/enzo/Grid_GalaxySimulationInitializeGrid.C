@@ -94,7 +94,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float GalaxySimulationInflowDensity,
 					 int level,
 					 float GalaxySimulationCR,
-                                         float GalaxySimulationInitialCIFraction )
+                                         int   GalaxySimulationUseDensityPerturbation )
 {
  /* declarations */
 
@@ -188,7 +188,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
     FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
 
 
-  /* AJE Add chemical tracer here */
+  // Initialize chemical species tracer fields
   if(TestProblemData.MultiMetals == 2){
     for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
       if(StellarYieldsAtomicNumbers[yield_i] > 2){
@@ -199,6 +199,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   } // done setting multimetals
 
 
+  // Restricted to use with individual star feedback for now - can be changed
   if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
     FieldType[PeHeatingNum = NumberOfBaryonFields++] = PeHeatingRate;
   }
@@ -544,6 +545,23 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
        /* Set density. */
 
+       if(GalaxySimulationUseDensityPerturbation){
+
+         /* compute x and y position */
+         float r = sqrt((x-DiskPosition[0])*(x-DiskPosition[0]) +
+                        (y-DiskPosition[1])*(y-DiskPosition[1]) +
+                        (z-DiskPosition[2])*(z-DiskPosition[2]));
+
+         float perturbation_size = 0.5; // 10%
+
+         // l = 1
+         //density *= fabs(perturbation_size*2.0 * (z-DiskPosition[2]) / r) + (1.0 - perturbation_size);
+
+         // l = 4
+         density *= (fabs((POW(z-DiskPosition[2],4)*35.0 - 30.0*POW(z-DiskPosition[2],2)*POW(r,2) + 3.0*POW(r,4))/(POW(r,4))) + 24.0/7.0) / (24.0 / 7.0 + 8.0) + perturbation_size;
+
+       }
+
        BaryonField[DensNum][n] = density;
 
        if(TestProblemData.UseMetallicityField){
@@ -563,7 +581,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
          if(MultiSpecies > 1){
            BaryonField[HMNum][n] = HM_Fraction * BaryonField[HIINum][n];
            BaryonField[H2INum][n] = H2I_Fraction * BaryonField[DensNum][n] * H_Fraction;
-           // copy from RotatingSphere... why factor of 2 ? AJE 2/22/16
            BaryonField[H2IINum][n] = H2II_Fraction * 2.0 * BaryonField[HIINum][n];
          }
 
@@ -574,7 +591,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
                                      BaryonField[H2INum][n]);
          }
 
-         /// AJE finish coding not done
          BaryonField[DeNum][n] = BaryonField[HIINum][n] + 0.25*BaryonField[HeIINum][n] +
                                   0.5*BaryonField[HeIIINum][n];
          if (MultiSpecies > 1){
@@ -610,6 +626,23 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
        /* Set Velocities. */
 
        for (dim = 0; dim < GridRank; dim++){
+
+         if(GalaxySimulationUseDensityPerturbation){
+
+           /* compute x and y position */
+           float r = sqrt((x-DiskPosition[0])*(x-DiskPosition[0]) +
+                        (y-DiskPosition[1])*(y-DiskPosition[1]) +
+                        (z-DiskPosition[2])*(z-DiskPosition[2]));
+
+           float perturbation_size = 0.25; // 10%
+
+           // l = 1
+           //density *= fabs(perturbation_size*2.0 * (z-DiskPosition[2]) / r) + (1.0 - perturbation_size);
+
+           // l = 4
+           Velocity[dim] *= (fabs((POW(z-DiskPosition[2],4)*35.0 - 30.0*POW(z-DiskPosition[2],2)*POW(r,2) + 3.0*POW(r,4))/(POW(r,4))) + 24.0/7.0) / (24.0 / 7.0 + 8.0) + perturbation_size;
+         }
+
          BaryonField[vel+dim][n] = Velocity[dim] + UniformVelocity[dim];
        }
 

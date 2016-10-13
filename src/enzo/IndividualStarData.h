@@ -24,7 +24,8 @@ struct IndividualStarRadDataType
   float ***q0;
   float ***q1;
 
-  float ***Fuv; // FUV heating rate
+  float ***Fuv;     // FUV heating rate
+  float ***LW_flux; // LW flux
 
   // bin values
   float *T;

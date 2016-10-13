@@ -1047,7 +1047,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "H2StarMakerColdGasTemperature      = %"GSYM"\n\n", H2StarMakerColdGasTemperature);
 
   /* AJE Indiviudal Star */
-  fprintf(fptr, "IndividualStarJitterFeedbackCIC = %"ISYM"\n", IndividualStarJitterFeedbackCIC);
+  fprintf(fptr, "IndividualStarFeedbackOverlapSample = %"ISYM"\n", IndividualStarFeedbackOverlapSample);
+  fprintf(fptr, "IndividualStarUseWindMixingModel = %"ISYM"\n", IndividualStarUseWindMixingModel);
+  fprintf(fptr, "IndividualStarWindTemperature = %"GSYM"\n", IndividualStarWindTemperature);
   fprintf(fptr, "IndividualStarAllowTruncatedIMF = %"ISYM"\n", IndividualStarAllowTruncatedIMF);
   fprintf(fptr, "IndividualStarExtrapolateYields = %"ISYM"\n", IndividualStarExtrapolateYields);
   fprintf(fptr, "IndividualStarSFGasMassThreshold = %"FSYM"\n", IndividualStarSFGasMassThreshold);
@@ -1067,11 +1069,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarMassFraction = %"FSYM"\n", IndividualStarMassFraction);
   fprintf(fptr, "IndividualStarSNIIMassCutoff = %"FSYM"\n", IndividualStarSNIIMassCutoff);
   fprintf(fptr, "IndividualStarAGBThreshold = %"FSYM"\n", IndividualStarAGBThreshold);
+  fprintf(fptr, "IndividualStarAGBWindVelocity = %"FSYM"\n", IndividualStarAGBWindVelocity);
   fprintf(fptr, "IndividualStarWDMinimumMass = %"FSYM"\n", IndividualStarWDMinimumMass);
   fprintf(fptr, "IndividualStarWDMaximumMass = %"FSYM"\n", IndividualStarWDMaximumMass);
   fprintf(fptr, "IndividualStarSNIaMinimumMass = %"FSYM"\n", IndividualStarSNIaMinimumMass);
   fprintf(fptr, "IndividualStarSNIaMaximumMass = %"FSYM"\n", IndividualStarSNIaMaximumMass);
-  fprintf(fptr, "IndividualStarPSNMassCutoff = %"FSYM"\n", IndividualStarPSNMassCutoff);
+  fprintf(fptr, "IndividualStarDirectCollapseThreshold = %"FSYM"\n", IndividualStarDirectCollapseThreshold);
   fprintf(fptr, "IndividualStarRadiationMinimumMass = %"FSYM"\n", IndividualStarRadiationMinimumMass);
   fprintf(fptr, "IndividualStarStellarWinds = %"ISYM"\n", IndividualStarStellarWinds);
   fprintf(fptr, "IndividualStarUseSNIa = %"ISYM"\n", IndividualStarUseSNIa);
@@ -1082,8 +1085,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarBlackBodyOnly = %"ISYM"\n", IndividualStarBlackBodyOnly);
   fprintf(fptr, "IndividualStarSupernovaEnergy = %"FSYM"\n", IndividualStarSupernovaEnergy);
   fprintf(fptr, "IndividualStarStellarWindVelocity = %"FSYM"\n", IndividualStarStellarWindVelocity);
+  fprintf(fptr, "IndividualStarLWFlux = %"ISYM"\n", IndividualStarLWFlux);
   fprintf(fptr, "IndividualStarFUVHeating = %"ISYM"\n", IndividualStarFUVHeating);
   fprintf(fptr, "IndividualStarFUVMinimumMass = %"FSYM"\n", IndividualStarFUVMinimumMass);
+  fprintf(fptr, "IndividualStarLWMinimumMass = %"FSYM"\n", IndividualStarLWMinimumMass);
   fprintf(fptr, "IndividualStarCreationStencilSize = %"ISYM"\n", IndividualStarCreationStencilSize);
   fprintf(fptr, "IndividualStarFUVTemperatureCutoff = %"FSYM"\n", IndividualStarFUVTemperatureCutoff);
 
@@ -1093,6 +1098,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   WriteListOfFloats(fptr, 2, IndividualStarBlackBodyq1Factors);
   fprintf(fptr, "IndividualStarBlackBodyFUVFactors = ");
   WriteListOfFloats(fptr, 2, IndividualStarBlackBodyFUVFactors);
+  fprintf(fptr, "IndividualStarBlackBodyLWFactors = ");
+  WriteListOfFloats(fptr, 2, IndividualStarBlackBodyLWFactors);
 
   fprintf(fptr, "PhotoelectricHeatingDustModelEfficiency = %"FSYM"\n", PhotoelectricHeatingDustModelEfficiency);
 

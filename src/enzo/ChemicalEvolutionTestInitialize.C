@@ -119,6 +119,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
     ret = 0;
 
+    ret += sscanf(line, "ChemicalEvolutionTestNumberOfStars = %"ISYM,
+                        &ChemicalEvolutionTestNumberOfStars);
     ret += sscanf(line, "ChemicalEvolutionTestGasDensity = %"FSYM, 
                         &GasDensity);
     ret += sscanf(line, "ChemicalEvolutionTestGasTemperature = %"FSYM,

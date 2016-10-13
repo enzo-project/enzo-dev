@@ -99,6 +99,9 @@ class grid
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
 
+  // AJE: grid averaged abundances
+  float AveragedAbundances[MAX_STELLAR_YIELDS];
+
   // For restart dumps
 
   int NumberOfSubgrids;
@@ -2223,13 +2226,26 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc, const FLOAT &zfc,
                                         float up, float wp, float vp, float m_eject,
-                                        float E_thermal, float E_kin, float p_feedback, float *metal_mass);
+                                        float E_thermal, float E_kin, float p_feedback, float *metal_mass,
+                                        int check_mass_in_region, float E_thermal_wind);
+
+  int IndividualStarAddFeedbackSphere(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
+                                          const float &up, const float &vp, const float &wp, // might not need vel
+                                          const float &mproj, const float &lifetime, const float &particle_age,
+                                          const float &metallicity, float *mp, int mode);
+
+  int IndividualStarInjectSphericalFeedback(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
+                                            float m_eject, float E_thermal_min, float E_thermal_max,
+                                            float *metal_mass, int stellar_wind_mode);
+
+
 
   int IndividualStarSetWDLifetime(void);
 
   void ZeroPhotoelectricHeatingField(void);
   void AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, const float *ys,
                                        const float *zs, const float *ts, const int &number_of_fuv_stars);
+  int CalculateAverageAbundances(void);
 
   /* Initialization for isolated galaxy sims */
   int GalaxySimulationInitializeGrid(
@@ -2256,7 +2272,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float GalaxySimulationInflowDensity,
 				     int level,
 				     float GalaxySimulationCR = 0.0,
-                                     float GalaxySimulationInitialCIFraction = 0.0);
+                                     int GalaxySimulationUseDensityPerturbation = 0);
 
   /* Free expansion test */
   int FreeExpansionInitializeGrid(int FreeExpansionFullBox,

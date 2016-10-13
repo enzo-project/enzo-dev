@@ -199,7 +199,66 @@ float IndividualStarSurfaceGravity(const float &mp, const float &R){
   return G*(mp * SOLAR_MASS) / ( R*R );
 }
 
-int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float &g, const float &metallicity){
+
+int IndividualStarInterpolateLWFlux(float & LW_flux, const float &Teff, const float &g,
+                                    const float &metallicity){
+
+  int i, j, k;    // i,j,k are Teff, g, and Z respectively
+  float t, u ,v;
+
+  // convert metallicity to solar
+  float Z = (metallicity) / IndividualStarRadData.Zsolar;
+
+  // WARNING: see statement of metallicity floor at top of file
+  if (Z < IndividualStarRadData.Z[0]){
+    Z = IndividualStarRadData.Z[0];
+  }
+
+  if( LinearInterpolationCoefficients(t, u ,v, i ,j, k, Teff, g, Z,
+                                      IndividualStarRadData.T, IndividualStarRadData.g,
+                                      IndividualStarRadData.Z,
+                                      IndividualStarRadData.NumberOfTemperatureBins,
+                                      IndividualStarRadData.NumberOfSGBins,
+                                      IndividualStarRadData.NumberOfMetallicityBins) ==FAIL){
+
+    float value, value_min, value_max;
+
+    // if interpolation fails due to temperature, do BB interpolation
+    // otherwise FAIL
+    if (t < 0){
+      return FAIL;
+    }
+
+    printf("IndividualStarInterpolateLWFlux: Failure in interpolation");
+
+    if( t < 0) {
+      printf("Temperature out of bounds ");
+      value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
+    } else if (u < 0) {
+      printf("Surface Gravity out of bounds ");
+      value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
+    } else if (v < 0) {
+      printf("Metallicity out of bounds ");
+      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];    
+    }
+
+    printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
+    return FAIL;
+  }
+
+  // otherwise, do the interpolation
+  if(IndividualStarRadDataEvaluateInterpolation(LW_flux, IndividualStarRadData.LW_flux,
+                                                t, u, v, i, j, k) == FAIL){
+    printf("IndividualStarLWHeating: outside sample gird points, using black body instead\n");
+    return FAIL;
+  }
+
+  return SUCCESS;
+}
+
+
+int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float &g,
+                                     const float &metallicity){
 
   int i, j, k; // i -> Teff , j -> g, k -> Z
   float t, u, v;
@@ -255,7 +314,7 @@ int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float
 int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const float &metallicity){
 
   float Teff, R, g, Fuv;
-  const double pi = 3.1415621;
+  const double pi = 3.141592653589393;
 
   IndividualStarInterpolateProperties(Teff, R, mp, metallicity);
   g = IndividualStarSurfaceGravity(mp, R);

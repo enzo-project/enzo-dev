@@ -55,6 +55,10 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry
 int StarParticlePhotoelectricHeating(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                                      int level, Star *&AllStars);
 
+int UpdateAveragedAbundances(TopGridData *MetaData,
+                             LevelHierarchyEntry *LevelArray[],
+                             int level, Star* &AllStars);
+
 int CommunicationMergeStarParticle(HierarchyEntry *Grids[], int NumberOfGrids);
 void DeleteStarList(Star * &Node);
 
@@ -106,6 +110,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       }
     }
 
+    UpdateAveragedAbundances(MetaData, LevelArray, level, AllStars);
     IndividualStarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
   } else{
 
