@@ -65,7 +65,7 @@ LOCAL_HDF4_INSTALL    =
 LOCAL_HYPRE_INSTALL   = $(TACC_HYPRE_DIR)
 LOCAL_ACML_INSTALL    = 
 LOCAL_HDF5_INSTALL    = $(TACC_HDF5_DIR)
-LOCAL_GRACKLE_INSTALL = 
+LOCAL_GRACKLE_INSTALL = $(HOME)/local
 
 #-----------------------------------------------------------------------
 # Compiler settings
