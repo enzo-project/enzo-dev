@@ -81,6 +81,15 @@ int grid::GrackleWrapper()
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
+
+  /* Find RT fields */
+
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum,
+        gammaNum;
+
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
+                                  kphHeIINum, kdissH2INum);
+
  
   /* Get easy to handle pointers for each variable. */
  
@@ -110,6 +119,10 @@ int grid::GrackleWrapper()
     a        = 1.0 / (1.0 + RadiationFieldRedshift);
     aUnits   = 1.0;
   }
+
+  /* for converting from Enzo RT heating to cgs */
+  const float ev2erg = 1.60217653E-12;
+  float rtunits = ev2erg / TimeUnits;
 
   float afloat = float(a);
 
@@ -268,23 +281,15 @@ int grid::GrackleWrapper()
 
   /* add in radiative transfer fields */
   if( RadiativeTransfer ){
-    const float ev2erg = 1.60217653E-12;
-
-    int kphHINum, kphHeINum, kphHeIINum, kdissH2INum,
-        gammaNum;
-
-    /* convert from eV/s*TimeUnit to erg/s */
-    float rtunits = ev2erg / TimeUnits;
-
-    IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
-                                    kphHeIINum, kdissH2INum);
 
     my_fields.RT_HI_ionization_rate   = BaryonField[kphHINum];
     my_fields.RT_HeI_ionization_rate  = BaryonField[kphHeINum];
     my_fields.RT_HeII_ionization_rate = BaryonField[kphHeIINum];
     my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
-    for(i = 0; i < size; i ++)
-         my_fields.RT_heating_rate[i] = BaryonField[gammaNum][i] * rtunits;
+    for(i = 0; i < size; i ++) BaryonField[gammaNum][i] *= rtunits;
+
+    my_fields.RT_heating_rate = BaryonField[gammaNum];
+
   }
 
   /* Call the chemistry solver. */
@@ -319,6 +324,11 @@ int grid::GrackleWrapper()
   if (temp_thermal == TRUE) {
     delete [] thermal_energy;
   }
+
+  if (RadiativeTransfer){ /* convert back to Enzo units */
+    for(i = 0; i < size; i ++) BaryonField[gammaNum][i] /= rtunits;
+  }
+
 
   delete [] TotalMetals;
   delete [] g_grid_dimension;
