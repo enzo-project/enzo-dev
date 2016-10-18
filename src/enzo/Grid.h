@@ -2229,12 +2229,13 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                         float E_thermal, float E_kin, float p_feedback, float *metal_mass,
                                         int check_mass_in_region, float E_thermal_wind);
 
-  int IndividualStarAddFeedbackSphere(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
+  int IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
                                           const float &up, const float &vp, const float &wp, // might not need vel
                                           const float &mproj, const float &lifetime, const float &particle_age,
                                           const float &metallicity, float *mp, int mode);
 
-  int IndividualStarInjectSphericalFeedback(const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
+  int IndividualStarInjectSphericalFeedback(Star *cstar,
+                                            const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
                                             float m_eject, float E_thermal_min, float E_thermal_max,
                                             float *metal_mass, int stellar_wind_mode);
 
@@ -2243,8 +2244,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int IndividualStarSetWDLifetime(void);
 
   void ZeroPhotoelectricHeatingField(void);
-  void AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, const float *ys,
-                                       const float *zs, const float *ts, const int &number_of_fuv_stars);
+  void ZeroOTLWRadiationField(void);
+  void AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_lw,
+                                         const float *xs, const float *ys, const float *zs,
+                                         const float *ts, const int &number_of_fuv_stars);
   int CalculateAverageAbundances(void);
 
   /* Initialization for isolated galaxy sims */

@@ -118,7 +118,7 @@ int EnzoProblemType::InitializeUniformGrid(
   int dim, i, size, field, GCM;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, B1Num, B2Num, B3Num, PhiNum, PeNum;
+    DINum, DIINum, HDINum, MetalNum, B1Num, B2Num, B3Num, PhiNum, PeNum, OTLWkdissH2INum;
 
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
@@ -199,6 +199,10 @@ int EnzoProblemType::InitializeUniformGrid(
   if ( STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
     tg->FieldType[ PeNum = tg->NumberOfBaryonFields++ ] =
            PeHeatingRate;
+  }
+  if ( STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
+    tg->FieldType[ OTLWkdissH2INum = tg->NumberOfBaryonFields++] =
+           OTLWkdissH2I;
   }
 
   // Simon glover's chemistry models (there are several)
@@ -395,6 +399,9 @@ int EnzoProblemType::InitializeUniformGrid(
 
     if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
       tg->BaryonField[PeNum][i] = 0.0;
+    }
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
+      tg->BaryonFIeld[OTLWkdissH2INum][i] = 0.0;
     }
 
 

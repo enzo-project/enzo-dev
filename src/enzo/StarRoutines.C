@@ -58,6 +58,10 @@ Star::Star(void)
     last_accretion_rate = NotEjectedMass = Metallicity = deltaZ = 0.0;
   FeedbackFlag = Identifier = level = GridID = type = naccretions = 0;
   AddedEmissivity = false;
+
+  se_table_position[0] = se_table_position[1] = -1;
+  rad_table_position[0] = rad_table_position[1] = rad_table_position[3] = -1;
+  yield_table_position[0] = yield_table_position[1] = -1;
 }
 
 Star::Star(grid *_grid, int _id, int _level)
@@ -145,9 +149,17 @@ Star::Star(StarBuffer *buffer, int n)
   AddedEmissivity = buffer[n].AddedEmissivity;
   NextStar = NULL;
   PrevStar = NULL;
+
+  /* AJE */
+  for(int i =0; i < 2; i++){
+    se_table_position[i] = buffer[n].se_table_position[i];
+    yield_table_position[i] = buffer[n].yield_table_position[i];
+    rad_table_position[i] = buffer[n].rad_table_position[i];
+  }
+  rad_table_position[2] = buffer[n].rad_table_position[2];
 }
 
-Star::Star(StarBuffer buffer) 
+Star::Star(StarBuffer buffer)
 {
   int i;
   CurrentGrid = NULL;
@@ -186,6 +198,15 @@ Star::Star(StarBuffer buffer)
   type = buffer.type;
   NextStar = NULL;
   PrevStar = NULL;
+
+  /* AJE */
+  for(int i =0; i < 2; i++){
+    se_table_position[i] = buffer.se_table_position[i];
+    yield_table_position[i] = buffer.yield_table_position[i];
+    rad_table_position[i] = buffer.rad_table_position[i];
+  }
+  rad_table_position[2] = buffer.rad_table_position[2];
+
 }
 
 /* No need to delete the accretion arrays because the pointers are
@@ -251,6 +272,16 @@ void Star::operator=(Star a)
     accretion_rate = NULL;
     accretion_time = NULL;
   }
+
+  /* AJE */
+  for(int i =0; i < 2; i++){
+    se_table_position[i] = a.se_table_position[i];
+    yield_table_position[i] = a.yield_table_position[i];
+    rad_table_position[i] = a.rad_table_position[i];
+  }
+  rad_table_position[2] = a.rad_table_position[2];
+
+
   return;
 }
 
@@ -314,6 +345,15 @@ Star *Star::copy(void)
     a->accretion_rate = NULL;
     a->accretion_time = NULL;
   }
+
+  /* AJE */
+  for(int i =0; i < 2; i++){
+    a->se_table_position[i]    = se_table_position[i];
+    a->yield_table_position[i] = yield_table_position[i];
+    a->rad_table_position[i]   = rad_table_position[i];
+  }
+  a->rad_table_position[2] = rad_table_position[2];
+
   return a;
 }
 
@@ -678,5 +718,14 @@ void Star::StarToBuffer(StarBuffer *result)
   result->GridID = tmp->GridID;
   result->type = tmp->type;
   result->AddedEmissivity = tmp->AddedEmissivity;
+
+  /* AJE */
+  for(int i =0; i < 2; i++){
+    result->se_table_position[i] = tmp->se_table_position[i];
+    result->yield_table_position[i] = tmp->yield_table_position[i];
+    result->rad_table_position[i] = tmp->rad_table_position[i];
+  }
+  result->rad_table_position[2] = tmp->rad_table_position[2];
+
   return;
 }

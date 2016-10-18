@@ -175,9 +175,11 @@ SPEXTERN int   IndividualStarFeedbackStencilSize;
 SPEXTERN float IndividualStarSupernovaEnergy;
 SPEXTERN float IndividualStarStellarWindVelocity;
 SPEXTERN int   IndividualStarFUVHeating;
-SPEXTERN int   IndividualStarLWFlux;
-SPEXTERN float IndividualStarLWMinimumMass;
-SPEXTERN float IndividualStarFUVMinimumMass;
+SPEXTERN int   IndividualStarLWRadiation;
+
+SPEXTERN float IndividualStarOTRadiationMass; // to supercede below 2
+SPEXTERN float IndividualStarLWMinimumMass;  // remove
+SPEXTERN float IndividualStarFUVMinimumMass; // remove
 SPEXTERN float IndividualStarFUVTemperatureCutoff;
 
 

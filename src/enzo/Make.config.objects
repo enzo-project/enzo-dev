@@ -826,7 +826,7 @@ OBJS_CONFIG_LIB = \
         StarParticleInitialize.o \
         StarParticleMergeNew.o \
         StarParticleMergeMBH.o \
-        StarParticlePhotoelectricHeating.o \
+        StarParticleOpticallyThinRadiation.o \
 	StarParticlePopIII_IMFInitialize.o \
 	StarParticleSetRefinementLevel.o \
         StarParticleSubtractAccretedMass.o \
@@ -836,6 +836,7 @@ OBJS_CONFIG_LIB = \
         Star_ActivateNewStar.o \
         Star_ApplyFeedbackTrue.o \
         Star_AssignAccretedAngularMomentum.o \
+        Star_AssignInterpolationTablePositions.o \
 	Star_AssignFinalMassFromIMF.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \

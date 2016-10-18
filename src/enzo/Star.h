@@ -49,6 +49,12 @@ class Star
   double         NotEjectedMass;                  // Msun, used for MBH_JETS feedback
   double         BirthMass; // Msun - AJE
 
+  /* AJE: for individual stars - yield table numbers */
+  int se_table_position[2];
+  int rad_table_position[3];
+  int yield_table_position[2];
+
+
   friend class grid;
 
 public:
@@ -77,6 +83,12 @@ public:
   double ReturnFinalMass(void) { return FinalMass; };
   double ReturnBirthMass(void) { return BirthMass; };
   double ReturnMetallicity(void) { return Metallicity; };
+  int* ReturnYieldTablePosition(void){printf("yield %"ISYM" %"ISYM"\n", yield_table_position[0], yield_table_position[1]);
+                                    return yield_table_position; };
+  int* ReturnSETablePosition(void){ printf("setable %"ISYM" %"ISYM"\n",se_table_position[0], se_table_position[1]);
+                                    return se_table_position; };
+  int* ReturnRadTablePosition(void){printf("radtable %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]); 
+                                    return rad_table_position; };
   void  AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };
   float ReturnBirthtime(void) { return BirthTime; };
@@ -179,10 +191,16 @@ public:
   RadiationSourceEntry* RadiationSourceInitialize(void);
 #endif
 
+  /* AJE */
+  void AssignInterpolationTablePositions(void);
+  void AssignRadTablePosition(void);
+  void AssignSETablePosition(void);
+  void AssignYieldTablePosition(void);
+  void AssertInterpolationPositions(int mode);
+
   Star* StarBufferToList(StarBuffer *buffer, int n);
   void StarListToBuffer(StarBuffer *&result, int n);
   void StarToBuffer(StarBuffer *result);
-  
 };
 
 #endif

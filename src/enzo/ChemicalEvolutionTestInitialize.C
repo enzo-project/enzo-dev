@@ -79,6 +79,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   char *HDIName   = "HDI_Density";
 
   char *PeHeatingRateName = "Pe_heating_rate";
+  char *OTLWkdissH2IName  = "OTLW_kdissH2I";
 
 
   /* Names for chemical evolution element abundances */
@@ -321,7 +322,10 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   }
 
  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-  DataLabel[count++] = PeHeatingRateName;
+   DataLabel[count++] = PeHeatingRateName;
+ }
+ if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
+   DataLabel[count++] = OTLWkdissH2IName;
  }
 
  // fill in remaining slots

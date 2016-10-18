@@ -38,6 +38,11 @@ struct StarBuffer {
   star_type	type;
   float         accreted_angmom[MAX_DIMENSION];  
   double        NotEjectedMass;
+
+  /* AJE: for individual stars - yield table numbers */
+  int se_table_position[2];
+  int rad_table_position[3];
+  int yield_table_position[2];
 };
 
 #endif
