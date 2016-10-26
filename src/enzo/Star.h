@@ -83,11 +83,10 @@ public:
   double ReturnFinalMass(void) { return FinalMass; };
   double ReturnBirthMass(void) { return BirthMass; };
   double ReturnMetallicity(void) { return Metallicity; };
-  int* ReturnYieldTablePosition(void){printf("yield %"ISYM" %"ISYM"\n", yield_table_position[0], yield_table_position[1]);
-                                    return yield_table_position; };
-  int* ReturnSETablePosition(void){ printf("setable %"ISYM" %"ISYM"\n",se_table_position[0], se_table_position[1]);
+  int* ReturnYieldTablePosition(void){ return yield_table_position; };
+  int* ReturnSETablePosition(void){ //printf("setable %"ISYM" %"ISYM"\n",se_table_position[0], se_table_position[1]);
                                     return se_table_position; };
-  int* ReturnRadTablePosition(void){printf("radtable %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]); 
+  int* ReturnRadTablePosition(void){//printf("radtable %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]); 
                                     return rad_table_position; };
   void  AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };

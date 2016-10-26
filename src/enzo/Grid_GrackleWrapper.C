@@ -286,11 +286,22 @@ int grid::GrackleWrapper()
     my_fields.RT_HI_ionization_rate   = BaryonField[kphHINum];
     my_fields.RT_HeI_ionization_rate  = BaryonField[kphHeINum];
     my_fields.RT_HeII_ionization_rate = BaryonField[kphHeIINum];
-    my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
+
+    if(!IndividualStarLWRadiation){
+      my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
+    }
+
     for(i = 0; i < size; i ++) BaryonField[gammaNum][i] *= rtunits;
 
     my_fields.RT_heating_rate = BaryonField[gammaNum];
   }
+
+  if(IndividualStarLWRadiation){
+    int OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
+
+    my_fields.RT_H2_dissociation_rate = BaryonField[OTLWkdissH2INum];
+  }
+
 
   /* Call the chemistry solver. */
 

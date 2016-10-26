@@ -2667,8 +2667,8 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
   }
 
 
-  printf("CGS Testing %"ESYM" Msun ----- %"ESYM" %"ESYM"\n",mproj, lifetime*TimeUnits, particle_age*TimeUnits);
-  printf("Ejected mass %"ESYM" Msun --- and Energy %"ESYM" erg %"ESYM" erg\n",m_eject, E_thermal_min, E_thermal_max);
+//  printf("CGS Testing %"ESYM" Msun ----- %"ESYM" %"ESYM"\n",mproj, lifetime*TimeUnits, particle_age*TimeUnits);
+//  printf("Ejected mass %"ESYM" Msun --- and Energy %"ESYM" erg %"ESYM" erg\n",m_eject, E_thermal_min, E_thermal_max);
 
   /* convert computed parameters to code units */
   m_eject       = m_eject*msolar / MassUnits   / (dx*dx*dx);
@@ -2785,6 +2785,10 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
   float injected_metal_mass[StellarYieldsNumberOfSpecies+1];
 
+  if (metal_mass == NULL){
+    injected_metal_mass[0] = 1.0E-4 * m_eject;
+  }
+
   // loop over cells, compute fractional volume, inject feedback
   for(int k = kc - r_int; k <= kc + r_int; k++){
     for(int j = jc - r_int; j <= jc + r_int; j++){
@@ -2814,8 +2818,10 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         float delta_therm_min = E_thermal_min * injection_factor;
         float delta_therm_max = E_thermal_max * injection_factor;
 
-        for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
-          injected_metal_mass[im] = metal_mass[im]*injection_factor;
+        if (IndividualStarFollowStellarYields){
+          for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
+            injected_metal_mass[im] = metal_mass[im]*injection_factor;
+          }
         }
 
         if(stellar_wind_mode){
@@ -2860,6 +2866,11 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
             BaryonField[field_num][index] += injected_metal_mass[1 + im];
           }
 
+        } else{
+          int field_num;
+          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0); // gives metallicity field
+
+          BaryonField[field_num][index] += injected_metal_mass[0];
         } // end yields check
 
       }

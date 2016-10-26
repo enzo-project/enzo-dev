@@ -36,7 +36,10 @@ void Star::AssignInterpolationTablePositions(void){
 
   if( abs(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR ){
 
-    this->AssignSETablePosition();
+    if ( !( this->FeedbackFlag == NO_FEEDBACK ) ||
+          ( this->Mass <= IndividualStarSNIIMassCutoff)) {
+        this->AssignSETablePosition();
+    }
 
     /* if we have any radiation on, assign radiation properties */
     if( (RadiativeTransfer && (this->BirthMass >= IndividualStarRadiationMinimumMass)) ||
