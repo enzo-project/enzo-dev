@@ -740,6 +740,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarSNIaMaximumMass     = 8.0;          // solar masses
   IndividualStarDirectCollapseThreshold = 25.0;     // solar masses - no SNII and no ejecta above this mass
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
+  IndividualStarOTRadiationMass      = 8.0;         // Solar masses
   IndividualStarLWMinimumMass        = 8.0;         // solar masses
   IndividualStarFUVMinimumMass       = 8.0;         // SOlar masses
   IndividualStarFUVTemperatureCutoff = 2.0E4;       // K - if FUV heating is on, heat up to this temperature
@@ -754,7 +755,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
 
   IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens FUV Heating
-  IndividualStarLWFlux               = 0;          // on or off - include optically thin LW photons from stars
+  IndividualStarLWRadiation          = 0;          // on or off - include optically thin LW photons from stars
 
   IndividualStarSupernovaEnergy      = 1;          // when < 0, use factor x mc^2 for supernova energy injection
                                                     // when > 0, constant supernova energy in units of 10^51 erg

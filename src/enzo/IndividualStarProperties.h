@@ -12,6 +12,47 @@
 // mass input always in solar masses, everything else always cgs (in and out)
 float IndividualStarSurfaceGravity(const float &mp, const float &R);
 
+/* new functions for stellar properties given bin location */
+int IndividualStarGetSETablePosition (int &i, int &j, const float &M, const float &metallicity);
+
+int IndividualStarGetRadTablePosition(int &i, int &j, int &k,
+                                      const float &Teff, const float &g, const float &metallicity);
+
+void IndividualStarInterpolateProperties(float &Teff, float &R,
+                                         const int &i, const int &j,
+                                         const float &M, const float &metallicity);
+
+int IndividualStarInterpolateRadData(float &q0, float &q1,
+                                     const int &i, const int &j, const int &k,
+                                     const float &Teff, const float &g, const float &metallicity);
+
+void IndividualStarInterpolateLuminosity(float &L, const int &i, const int &j,
+                                         const float &M, const float &metallicity);
+
+int  IndividualStarInterpolateLifetime(float &tau, const int &i, const int &j,
+                                       const float &M, const float &metallicity, const int &mode);
+
+int IndividualStarComputeFUVLuminosity(float &L_fuv, Star *cstar);
+
+int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar);
+
+int IndividualStarInterpolateFUVFlux(float &FUV_flux,
+                                     const int &i, const int &j, const int &k,
+                                     const float &Teff, const float &g, const float &metallicity);
+
+int IndividualStarInterpolateLWFlux(float &LW_flux,
+                                    const int &i, const int &j, const int &k,
+                                    const float &Teff, const float &g, const float &metallicity);
+
+int IndividualStarEvaluateInterpolation(float &y, float *ya[],
+                                        const int &i, const int &j,
+                                        const float &t, const float &u);
+
+int IndividualStarComputeIonizingRates(float &q0, float &q1,
+                                       const int &i, const int &j, const int &k,
+                                       const float &Teff, const float &g, const float &metallicity);
+
+
 /* Functions for stellar properties data */
 int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &metallicity);
 int IndividualStarInterpolateProperties(float &Teff, float &R,

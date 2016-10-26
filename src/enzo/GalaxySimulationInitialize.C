@@ -81,6 +81,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
 
   char *PeHeatingRateName = "Pe_heating_rate";
+  char *OTLWkdissH2IName  = "OTLW_kdissH2I";
   /* Chemical Tracers */
   /* handled with lookup table - see below */
 
@@ -638,6 +639,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
    DataLabel[count++] = PeHeatingRateName;
+ }
+ if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
+   DataLabel[count++] = OTLWkdissH2IName;
  }
 
  for (i = 0; i < count; i++)

@@ -52,8 +52,8 @@ int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                                       int level, Star* &AllStars, bool* &AddedFeedback);
 
-int StarParticlePhotoelectricHeating(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-                                     int level, Star *&AllStars);
+//int StarParticleOpticallyThinRadiation(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+//                                     int level, Star *&AllStars);
 
 int UpdateAveragedAbundances(TopGridData *MetaData,
                              LevelHierarchyEntry *LevelArray[],
@@ -193,8 +193,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   } // ENDFOR stars
 
-  /* for existing stars, populate the photoelectric heating baryon field */
-  StarParticlePhotoelectricHeating(MetaData, LevelArray, level, AllStars);
+  /* for existing stars, account for OT radation (FUV and LW) */
+//  StarParticleOpticallyThinRadiation(MetaData, LevelArray, level, AllStars);
 
   if (PopIIIOutputOnFeedback)
     OutputNow = CommunicationMaxValue(OutputNow);

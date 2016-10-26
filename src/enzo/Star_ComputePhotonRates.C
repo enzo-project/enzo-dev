@@ -50,6 +50,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   float HeI_ionizing_energy = 24.587; // eV
   float R;
 
+    int *se_table_position, *rad_table_position;
+
+
   if (this->Mass < 0.1 && (ABS(this->type) != IndividualStar))  // Not "born" yet
     _mass = this->FinalMass;
   else
@@ -98,16 +101,19 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     tau = this->LifeTime;
     tau = tau * (TimeUnits); // convert to cgs
 
-    if ( IndividualStarInterpolateProperties(Teff, R, M, Z) == FAIL){
-      ENZO_FAIL("Star_ComputePhotonRates: Failure in computing individual star properties\n");
-    }
+    se_table_position  = this->ReturnSETablePosition();
+    rad_table_position = this->ReturnRadTablePosition();
+
+    IndividualStarInterpolateProperties(Teff, R,
+                                             se_table_position[0], se_table_position[1],
+                                             M, Z);
 
     g = IndividualStarSurfaceGravity( M, R); // M in solar - R in cgs
 
 //    printf("Star_ComputePhotonRates: Teff = %"ESYM" g = %"ESYM" Z = %"ESYM"\n", Teff, g, Z);
-    if( IndividualStarComputeIonizingRates( Q[0], Q[1], Teff, g, Z) == FAIL){
-      ENZO_FAIL("Star_ComputePhotonRates: Failure in computing individual star ionizing radiation.\n");
-    }
+   IndividualStarComputeIonizingRates( Q[0], Q[1],
+                                           rad_table_position[0], rad_table_position[1], rad_table_position[2],
+                                           Teff, g, Z);
 
     // compute average energy by integrating over the black body spectrum
     H_ionizing_energy  /= eV_erg; // convert to ergs
@@ -119,14 +125,14 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[0] = E[0] * eV_erg;
     E[1] = E[1] * eV_erg;
 
-//    printf("Star_ComputePhotonRates: E[0] = %"ESYM" E[1] = %"ESYM"\n", E[0], E[1]);
+    printf("Star_ComputePhotonRates: E[0] = %"ESYM" E[1] = %"ESYM"\n", E[0], E[1]);
 
     // Functions above return the ionizing flux at stellar surface.
     // Convert to photon rate
     Q[0] = Q[0] * 4.0 * pi * R*R;
     Q[1] = Q[1] * 4.0 * pi * R*R;
 
-//    printf("Star_ComputePhotonRates: Q[0] = %"ESYM" Q[1] = %"ESYM"\n", Q[0], Q[1]);
+    printf("Star_ComputePhotonRates: Q[0] = %"ESYM" Q[1] = %"ESYM"\n", Q[0], Q[1]);
 
     break;
 

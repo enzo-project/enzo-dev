@@ -256,8 +256,9 @@ const field_type
   BiDensity = 178,
 
   PeHeatingRate = 179,
+  OTLWkdissH2I  = 180,
 
-  FieldUndefined  = 180;
+  FieldUndefined  = 181;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -270,9 +271,9 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
                  FieldUndefined};
 */
 
-#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3)) ? FALSE : TRUE)
-#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9) || ((A) == PeHeatingRate)) ? TRUE : FALSE)
-#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments)) ? TRUE : FALSE)
+#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3) || ((A) == PeHeatingRate) || ((A) == OTLWkdissH2I)) ? FALSE : TRUE)
+#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9) || ((A) == PeHeatingRate) || ((A) == OTLWkdissH2I)) ? TRUE : FALSE)
+#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments) || ((A) == PeHeatingRate) || ((A) == OTLWkdissH2I)) ? TRUE : FALSE)
 
 /* Different stochastic forcing types */
 const forcing_type

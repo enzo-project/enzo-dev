@@ -1166,9 +1166,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "IndividualStarFUVHeating = %"ISYM,
                         &IndividualStarFUVHeating);
-    ret += sscanf(line, "IndividualStarLWFlux = %"ISYM,
-                        &IndividualStarLWFlux);
+    ret += sscanf(line, "IndividualStarLWRadiation = %"ISYM,
+                        &IndividualStarLWRadiation);
 
+    ret += sscanf(line, "IndividualStarOTRadiationMass = %"FSYM,
+                        &IndividualStarOTRadiationMass);
     ret += sscanf(line, "IndividualStarLWMinimumMass = %"FSYM,
                         &IndividualStarLWMinimumMass);
     ret += sscanf(line, "IndividualStarFUVMinimumMass = %"FSYM,

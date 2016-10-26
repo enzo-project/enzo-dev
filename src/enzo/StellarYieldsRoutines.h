@@ -15,6 +15,13 @@ float StellarYields_SNIaYieldsByNumber(const int &atomic_number);
 float StellarYieldsInterpolateYield(int yield_type, const float &M,
                                     const float &metallicity, int atomic_number);
 
+int StellarYieldsGetYieldTablePosition(int &i, int &j,
+                                        const float &M, const float &metallciity);
+
+float StellarYieldsInterpolateYield(int yield_type,
+                                    const int &i, const int &j,
+                                    const float &M, const float &metallicity, int atomic_number);
+
 int GetYieldIndex(const int &number_of_yields, const int &Z);
 
 #endif

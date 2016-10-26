@@ -1,14 +1,17 @@
 /*--------------------------------------------------------------------------
- * StarParticlePhotoelectricHeating
+ * StarParticleOpticallyThinRadiation
  * ------------------------------------------------------------------------
  * Author : A. Emerick
  * Date   : May 2016
  *
- * For each star particle with an available photoelectric heating flux model,
- * compute the FUV flux from each star in each grid cell and compute the resulting
- * local photoelectric heating.
+ * For each star particle, add contributions of tracked optically thin radiation
+ * components. Currently, this is either FUV radiation, leading to photoelectric
+ * heating, or LW radiation, leading to H2 dissociation. This computes flux from
+ * each star in each cell and the assocaited heating / dissociation rates.
+ * To avoid full MxN comparison in cells/stars, uses constant flux calculated at
+ * grid center when star's flux varies by <= 10% over grid size.
  *
- * Currently only works for individual star particles
+ * Currently only for individual star particles
  *---------------------------------------------------------------------------------
  */
 #include <stdlib.h>
@@ -33,29 +36,29 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int FindField(int f, int farray[], int n);
 
-int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const float &metallicity);
-
+int IndividualStarComputeFUVLuminosity(float &L_fuv, Star *cstar);
+int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar);
 
 /* internal prototypes */
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const float &Z,
                                       const float &T, const float &G);
 
 
-int StarParticlePhotoelectricHeating(TopGridData *MetaData,
-                                     LevelHierarchyEntry *LevelArray[], int level,
-                                     Star* &AllStars){
+int StarParticleOpticallyThinRadiation(TopGridData *MetaData,
+                                       LevelHierarchyEntry *LevelArray[], int level,
+                                       Star* &AllStars){
 /* ---------------------------------------------------------------------
- * StarParticlePhotoelectricHeating
+ * StarParticleOpticallyThinRadiation
  * --------------------------------------------------------------------
  * Author : A. Emerick
  * Date    : May 2016
- * Function prepares for the calculation of the local FUV heating field.
- * First checks if there are FUV stars around. Then loops over all
- * and computes their FUV properties. Then hands this off to each grid
- * to compute the local FUV heating rate in each grid.
+ *           Oct 2016
+ * Function prepares for computation of local FUV and local LW flux
+ * from each stellar component.
  * --------------------------------------------------------------------*/
 
-  if(!STARMAKE_METHOD(INDIVIDUAL_STAR) || !IndividualStarFUVHeating){
+  if(!STARMAKE_METHOD(INDIVIDUAL_STAR) ||
+    !(IndividualStarFUVHeating || IndividualStarLWRadiation)){
     return SUCCESS; // do nothing
   }
 
@@ -68,8 +71,8 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
       if (! Temp->GridData->isLocal() ){ // only do this for local grids
         continue;
       }
-
       Temp->GridData->ZeroPhotoelectricHeatingField();
+      Temp->GridData->ZeroOTLWRadiationField();
     }
   }
 
@@ -81,43 +84,49 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
 
   Star *cstar;
 
-  float *Ls, *xs, *ys, *zs, *ts;
+  float *L_fuv, *L_lw, *xs, *ys, *zs, *ts;
 
-  int count = 0, number_of_fuv_stars = 0;
-  /* figure out how many stars there are that contribute to FUV heating */
+  int count = 0, number_of_ot_stars = 0;
+  /* figure out how many stars there are that contribute to optically thin radiation */
   for (cstar = AllStars; cstar; cstar = cstar->NextStar){
-    if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR && cstar->ReturnBirthMass() > IndividualStarFUVMinimumMass){
+    if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR &&
+        cstar->ReturnBirthMass() > IndividualStarOTRadiationMass){
       count++;
     }
   }
-  number_of_fuv_stars = count;
+  number_of_ot_stars = count;
 
-  if (number_of_fuv_stars == 0){ // return if there are none
+  if (number_of_ot_stars == 0){ // return if there are none
     return SUCCESS;
   }
 
   TIMER_START("StarParticlePhotoelectricHeating");
   /* now, do the FUV heating for all stars */
-  Ls = new float[number_of_fuv_stars];
-  xs = new float[number_of_fuv_stars];
-  ys = new float[number_of_fuv_stars];
-  zs = new float[number_of_fuv_stars];
-  ts = new float[number_of_fuv_stars];
+  L_fuv = new float[number_of_ot_stars];
+  L_lw  = new float[number_of_ot_stars];
+  xs = new float[number_of_ot_stars];
+  ys = new float[number_of_ot_stars];
+  zs = new float[number_of_ot_stars];
+  ts = new float[number_of_ot_stars];
 
   count = 0;
   float *star_pos;
-  /* loop over all stars and compute their FUV luminosity and position - store to be passed to grid */
+  /* loop over all stars and compute their luminosity and position - store to be passed to grid */
   for (cstar = AllStars; cstar; cstar = cstar->NextStar){
-    if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR && cstar->ReturnBirthMass() > IndividualStarFUVMinimumMass){
+    if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR &&
+        cstar->ReturnBirthMass() >= IndividualStarOTRadiationMass){
 
-      float L;
-// TEST ONLY WARNING WARNING WARNING       IndividualStarComputeFUVLuminosity(L, cstar->ReturnBirthMass(), cstar->ReturnMetallicity());
-     // how bad is doing the interpolation every time??? -- 2 solar radii * 1.0E8
-      L = 0.0; // erg/s
+      float fuv_luminosity = 0.0, lw_luminosity = 0.0;
+
+      if(IndividualStarFUVHeating)
+          IndividualStarComputeFUVLuminosity(fuv_luminosity, cstar);
+      if(IndividualStarLWRadiation)
+          IndividualStarComputeLWLuminosity(lw_luminosity, cstar);
 
       star_pos = cstar->ReturnPosition();
 
-      Ls[count] = L;
+      L_fuv[count] = fuv_luminosity;
+      L_lw[count] = lw_luminosity;
       xs[count] = star_pos[0];
       ys[count] = star_pos[1];
       zs[count] = star_pos[2];
@@ -133,12 +142,14 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
 
       if (!Temp->GridData->isLocal()){ continue ;} // skip if grid is on another proc
 
-      Temp->GridData->AddPhotoelectricHeatingFromStar(Ls, xs, ys, zs, ts, number_of_fuv_stars);
+      Temp->GridData->AddOpticallyThinRadiationFromStar(L_fuv, L_lw,
+                                                        xs, ys, zs, ts, number_of_ot_stars);
 
     }
   } // end level loop
 
-  delete[] Ls;
+  delete[] L_fuv;
+  delete[] L_lw;
   delete[] xs;
   delete[] ys;
   delete[] zs;
@@ -148,8 +159,9 @@ int StarParticlePhotoelectricHeating(TopGridData *MetaData,
   return SUCCESS;
 }
 
-void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, const float *ys, const float *zs,
-                                           const float *ts, const int &number_of_fuv_stars){
+void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_lw,
+                                             const float *xs, const float *ys, const float *zs,
+                                             const float *ts, const int &number_of_ot_stars){
   /* ---------------------------------------------------------------------------------------------------------
    * AddPhotoelectricHeatingFromStar
    * ---------------------------------------------------------------------------------------------------------
@@ -186,13 +198,13 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
 
   /* get multispecies fields */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum, ElectronNum, PeNum, DensNum, MetalNum;
+      DINum, DIINum, HDINum, ElectronNum, PeNum, DensNum, MetalNum, OTLWkdissH2INum;
   if (MultiSpecies){
     this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                                 HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
 
   } else{
-    ENZO_FAIL("StarParticlePhotoelectricHeating: MultiSpeices is required for photoelectrci heating");
+    ENZO_FAIL("StarParticleOpticallyThinRadiation: MultiSpeices is required for photoelectrci heating");
   }
 
   // find fields for density, metal density, electron density, and the heating rate
@@ -200,7 +212,43 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
   MetalNum    = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
   ElectronNum = FindField(ElectronDensity, this->FieldType, this->NumberOfBaryonFields);
   PeNum       = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+  OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
 
+/*
+  /* find out which stars we can approximate, avoiding the NxM comparison 
+  int *approximate_radiation;
+  approximate_radiation = new int[number_of_ot_stars];
+  float distances[8];
+  FLOAT min_sqr = huge_number, max_rsqr = tiny_number;
+  for (int sp = 0; sp < number_of_ot_stars; sp++{
+    int count = 0;
+    for(int k = 0; k < this->GridDimension[2]; k + this->GridDimension[2]-1){
+      FLOAT zcell = this->CellLeftEdge[2][k] + 0.5 * this->CellWidth[2][k];
+      for(int j =0; j < this->GridDimension[1]; j + this->GridDimension[1]-1){
+      FLOAT ycell = this->CellLeftEdge[1][k] + 0.5 * this->CellWidth[1][j];
+        for(int i =0; i < this->GridDimension[0]; i + this->GridDimension[0][i]-1){
+          FLOAT xcell = this->GridCellLeftEdge[0][i] + 0.5 * this->GridDimension[0][i]l
+
+          FLOAT rsqr = (xs[sp] - xcell)*(xs[sp]-xcell) +
+                       (ys[sp] - ycell)*(ys[sp]-ycell) +
+                       (zs[sp] - zcell)*(zs[sp]-zcell);
+          if(rsqr < min_rsqr)
+            min_rsqr = rsqr;
+          if(rsqr > max_rsqr)
+            max_rsqr = rsqr;
+        }
+      }
+    } // end z loop
+    // compute flux difference in min and max cell
+    float flux_ratio;
+    flux_ratio = (1.0/(min_rsqr*min_rsqr) - 1.0/((max_rsqr)*(max_rsqr))) * (max_rsqr)*(max_rsqr);
+
+
+    if (flux_ratio <= 0.10){ approximate_radiation = TRUE;}
+    else { approximate_radiation = FALSE;}
+  }
+
+*/
 
   /* loop over every cell, sum flux contribution from each star in each cell */
   for(int k = 0; k < this->GridDimension[2]; k++){
@@ -218,11 +266,11 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
 
         /* if the cell is below the temperature threshold for dust to exist, apply heating */
         //if( temperature[index] < IndividualStarFUVTemperatureCutoff){
-          float local_flux = 0.0;
+          float local_fuv_flux = 0.0, local_lw_flux = 0.0;
           FLOAT rsqr;
 
           /* find total local flux due to all stars */
-          for (int sp = 0; sp < number_of_fuv_stars; sp++){
+          for (int sp = 0; sp < number_of_ot_stars; sp++){
 
             rsqr = (xcell - xs[sp])*(xcell - xs[sp]) +
                    (ycell - ys[sp])*(ycell - ys[sp]) +
@@ -231,32 +279,39 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
             float speed = (sqrt(rsqr) * LengthUnits) / ((this->Time - ts[i]) * TimeUnits);
 
             if ( speed <= c_light ){
-                local_flux += Ls[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
+                    local_fuv_flux += L_fuv[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
+                    local_lw_flux  += L_lw[sp]  / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
             }
 
           }
 
+          if(IndividualStarFUVHeating){
+            float n_H, n_e, Z;
 
-          float n_H, n_e, Z;
+            n_H = (this->BaryonField[HINum][index] + this->BaryonField[HIINum][index]);
 
-          n_H = (this->BaryonField[HINum][index] + this->BaryonField[HIINum][index]);
+            if ( MultiSpecies > 1){ /* include H2 */
+              n_H += this->BaryonField[HMNum][index] +
+                        0.5 * (this->BaryonField[H2INum][index] + this->BaryonField[H2IINum][index]);
+            }
 
-          if ( MultiSpecies > 1){ /* include H2 */
-            n_H += this->BaryonField[HMNum][index] +
-                      0.5 * (this->BaryonField[H2INum][index] + this->BaryonField[H2IINum][index]);
+
+            n_H *= DensityUnits / m_h;
+
+            n_e  = this->BaryonField[ElectronNum][index] * DensityUnits / m_e;
+
+            Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
+
+            // assign heating rate from model
+            BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], local_fuv_flux);
+            BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
+
+          } // end PE heating
+
+          if(IndividualStarLWRadiation){
+            BaryonField[OTLWkdissH2INum][index] = 1.13E8 * local_lw_flux * TimeUnits ;
           }
 
-
-          n_H *= DensityUnits / m_h;
-
-          n_e  = this->BaryonField[ElectronNum][index] * DensityUnits / m_e;
-
-          Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
-
-
-          // assign heating rate from model
-          BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], local_flux);
-          BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
         //} else {
         //  BaryonField[PeNum][index] = 0.0; // no heating above temperature threshold
         //}
@@ -267,7 +322,7 @@ void grid::AddPhotoelectricHeatingFromStar(const float *Ls, const float *xs, con
 
 
   delete[] temperature;
-
+//  delete[] approximate_radiation;
 }
 
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
@@ -333,6 +388,8 @@ void grid::ZeroPhotoelectricHeatingField(void){
   int PeNum;
   PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
 
+  if (PeNum < 0) return; // not enabled - no need to zero
+
   int size = 1;
   for (int dim = 0; dim < this->GridRank; dim++){
     size *= this->GridDimension[dim];
@@ -345,4 +402,30 @@ void grid::ZeroPhotoelectricHeatingField(void){
 }
 
 
+
+void grid::ZeroOTLWRadiationField(void){
+ /* ----------------------------------------------
+  * ZeroOTLWRadiationField
+  * ----------------------------------------------
+  * A. Emerick - OCt 2016
+  *
+  * Set H2I dissociation field from optically thin
+  * LW to zero - recompute field each timestep
+  * -----------------------------------------------*/
+
+  int OTLWkdissH2INum;
+  OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
+
+  if (OTLWkdissH2INum < 0) return; // not enabled - no need to zero
+
+  int size = 1;
+  for (int dim = 0; dim < this->GridRank; dim++){
+    size *= this->GridDimension[dim];
+  }
+
+  for(int i = 0; i < size; i++){
+    this->BaryonField[OTLWkdissH2INum][i] = 0.0;
+  }
+
+}
 

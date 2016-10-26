@@ -75,6 +75,8 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
 
     float particle_age = Time - this->BirthTime;
 
+    this->FeedbackFlag = NO_FEEDBACK;
+
     if (IndividualStarStellarWinds){
 
         float wind_start_age = 0.0;

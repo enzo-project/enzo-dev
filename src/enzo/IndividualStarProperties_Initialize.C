@@ -20,11 +20,26 @@
 #include <math.h>
 #include <time.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
-#include "StarParticleData.h"
+#include "units.h"
+#include "flowdefs.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+#include "Hierarchy.h"
+#include "LevelHierarchy.h"
+#include "TopGridData.h"
+#include "communication.h"
+#include "CommunicationUtilities.h"
 
+
+
+#include "StarParticleData.h"
 #include "IndividualStarProperties.h"
 
 int IndividualStarProperties_Initialize(void);
@@ -322,7 +337,7 @@ int IndividualStarRadiationProperties_Initialize(void){
     }
   }
 
-  if(IndividualStarLWFlux){
+  if(IndividualStarLWRadiation){
     FILE *fptrLW = fopen("LW_rates.in", "r");
     if (fptrLW == NULL){
       ENZO_FAIL("Error opening LW_rates.in");

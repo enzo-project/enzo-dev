@@ -142,6 +142,11 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     cstar->SetFeedbackFlag(TimeNow, dtForThisStar);
     cstar->CopyToGrid();
     cstar->MirrorToParticle();
+
+    if(STARMAKE_METHOD(INDIVIDUAL_STAR))
+      cstar->AssignInterpolationTablePositions();
+
+
   }
 
 //  fprintf(stdout, "\nin StarParticleInitialize.C \n", MetaData->NumberOfParticles); 
