@@ -221,6 +221,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars,
 			 int TotalStarParticleCountPrevious[], int &OutputNow);
+int StarParticleOpticallyThinRadiation(TopGridData *MetaData,
+                                       LevelHierarchyEntry *LevelArray[], int level,
+                                       Star* &AllStars);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
 int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level);
@@ -521,6 +524,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 */
 #ifdef SAB
     } // End of loop over grids
+
+    //Compute radiation fields
+    StarParticleOpticallyThinRadiation(MetaData, LevelArray, level, AllStars);
+
     
     //Ensure the consistency of the AccelerationField
     SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
@@ -538,8 +545,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //      if ( Grids[grid1]->GridData->CheckDensity() == FAIL){
  //         printf("Negative densities reached before solve hydro equations\n");
    //   }
-      /* Call hydro solver and save fluxes around subgrids. */
 
+      /* Call hydro solver and save fluxes around subgrids. */
 	Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
 
