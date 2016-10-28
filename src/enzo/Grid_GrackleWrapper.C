@@ -290,9 +290,10 @@ int grid::GrackleWrapper()
 
     my_fields.RT_heating_rate = BaryonField[gammaNum];
 
-  if(IndividualStarLWRadiation){
-    int OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
-    my_fields.RT_H2_dissociation_rate = BaryonField[OTLWkdissH2INum];
+    if(IndividualStarLWRadiation){
+      int OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
+      my_fields.RT_H2_dissociation_rate = BaryonField[OTLWkdissH2INum];
+    }
   }
 
 
