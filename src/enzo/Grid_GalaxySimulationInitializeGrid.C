@@ -94,7 +94,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float GalaxySimulationInflowDensity,
 					 int level,
 					 float GalaxySimulationCR,
-                                         int   GalaxySimulationUseDensityPerturbation )
+                                         int   GalaxySimulationUseDensityPerturbation,
+                                         float GalaxySimulationPerturbationFraction )
 {
  /* declarations */
 
@@ -560,13 +561,11 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
                         (y-DiskPosition[1])*(y-DiskPosition[1]) +
                         (z-DiskPosition[2])*(z-DiskPosition[2]));
 
-         float perturbation_size = 0.5; // 10%
-
          // l = 1
          //density *= fabs(perturbation_size*2.0 * (z-DiskPosition[2]) / r) + (1.0 - perturbation_size);
 
          // l = 2
-         density *= (1.0 + perturbation_size*
+         density *= (1.0 + GalaxySimulationPerturbationFraction*
                     ((0.25 * sqrt(5.0/pi)) *
                        (-POW(x-DiskPosition[0],2) - POW(y-DiskPosition[1],2) + 2.0*POW(z-DiskPosition[2],2))
                          /(POW(r,2))));
@@ -648,13 +647,11 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
                         (y-DiskPosition[1])*(y-DiskPosition[1]) +
                         (z-DiskPosition[2])*(z-DiskPosition[2]));
 
-           float perturbation_size = 0.25; // 10%
-
            // l = 1
            //density *= fabs(perturbation_size*2.0 * (z-DiskPosition[2]) / r) + (1.0 - perturbation_size);
 
            // l = 2
-           Velocity[dim] *= (1.0 + perturbation_size*
+           Velocity[dim] *= (1.0 + GalaxySimulationPerturbationFraction*
                                 ((0.25 * sqrt(5.0/pi)) * 
                                  (-POW(x-DiskPosition[0],2) - POW(y-DiskPosition[1],2) + 2.0*POW(z-DiskPosition[2],2))
                                   /(POW(r,2))));

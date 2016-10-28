@@ -130,7 +130,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   int   GalaxySimulationRefineAtStart,
     GalaxySimulationUseMetallicityField,
-    GalaxySimulationUseDensityPerturbation;
+    GalaxySimulationUseDensityPerturbation,
+    GalaxySimulationPerturbationFraction;
  
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ZeroBField[3] = {0.0, 0.0, 0.0};
@@ -158,6 +159,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationInflowTime         = -1;
   GalaxySimulationInflowDensity      = 0;
   GalaxySimulationUseDensityPerturbation = 0;
+  GalaxySimulationPerturbationFraction   = 0.5;
 
   /* Chemical tracer defaults in SetDefaultGlobalValues.C; set to tiny_number */
 
@@ -254,11 +256,13 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationAngularMomentum[1],
 		  &GalaxySimulationAngularMomentum[2]);
 
-    ret += sscanf(line, "GalaxySimulationMultiMetals = %"ISYM, 
+    ret += sscanf(line, "GalaxySimulationMultiMetals = %"ISYM,
                         &TestProblemData.MultiMetals);
 
     ret += sscanf(line, "GalaxySimulationUseDensityPerturbation = %"ISYM,
                         &GalaxySimulationUseDensityPerturbation);
+    ret += sscanf(line, "GalaxySimulationPerturbationFraction = %"FSYM,
+                        &GalaxySimulationPerturbationFraction);
 
     /* Initial abundances for the galaxy disk */
     ret += sscanf(line, "GalaxySimulationHydrogenFractionByMass = %"FSYM,
@@ -446,7 +450,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationInflowTime,
 						       GalaxySimulationInflowDensity,0,
 						       GalaxySimulationCR,
-                                                       GalaxySimulationUseDensityPerturbation)
+                                                       GalaxySimulationUseDensityPerturbation,
+                                                       GalaxySimulationPerturbationFraction)
 	      == FAIL) {
       ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
   }// end subgrid if
@@ -507,7 +512,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationInflowTime,
 						       GalaxySimulationInflowDensity,level,
 						       GalaxySimulationCR,
-                                                       GalaxySimulationUseDensityPerturbation)
+                                                       GalaxySimulationUseDensityPerturbation,
+                                                       GalaxySimulationPerturbationFraction)
 	      == FAIL) {
 	    ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
 	}// end subgrid if

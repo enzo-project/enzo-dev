@@ -2275,7 +2275,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float GalaxySimulationInflowDensity,
 				     int level,
 				     float GalaxySimulationCR = 0.0,
-                                     int GalaxySimulationUseDensityPerturbation = 0);
+                                     int GalaxySimulationUseDensityPerturbation = 0,
+                                     float GalaxySimulationPerturbationFraction = 0.5);
 
   /* Free expansion test */
   int FreeExpansionInitializeGrid(int FreeExpansionFullBox,
