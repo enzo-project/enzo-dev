@@ -565,10 +565,14 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
          //density *= fabs(perturbation_size*2.0 * (z-DiskPosition[2]) / r) + (1.0 - perturbation_size);
 
          // l = 2
-         density *= (1.0 + GalaxySimulationPerturbationFraction*
-                    ((0.25 * sqrt(5.0/pi)) *
-                       (-POW(x-DiskPosition[0],2) - POW(y-DiskPosition[1],2) + 2.0*POW(z-DiskPosition[2],2))
+/*         density *= fabs(
+                    ((-POW(x-DiskPosition[0],2) - POW(y-DiskPosition[1],2) + 2.0*POW(z-DiskPosition[2],2))
+                         /(POW(r,2))) + 2.0/sqrt(2.0))/(2.0 + 2.0/sqrt(2.0))*(2.0*GalaxySimulationPerturbationFraction) + (1.0 - GalaxySimulationPerturbationFraction);
+*/
+         density *= GalaxySimulationPerturbationFraction * (0.25 * sqrt(5.0/pi) *
+                    ((-POW(x-DiskPosition[0],2) - POW(y-DiskPosition[1],2) + 2.0*POW(z-DiskPosition[2],2))
                          /(POW(r,2))));
+
 
          // l = 4
 //         density *= (fabs((POW(z-DiskPosition[2],4)*35.0 - 30.0*POW(z-DiskPosition[2],2)*POW(r,2) + 3.0*POW(r,4))/(POW(r,4))) + 24.0/7.0) / (24.0 / 7.0 + 8.0) + perturbation_size;
@@ -640,24 +644,24 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
        for (dim = 0; dim < GridRank; dim++){
 
-         if(GalaxySimulationUseDensityPerturbation){
+//         if(GalaxySimulationUseDensityPerturbation){
 
            /* compute x and y position */
-           float r = sqrt((x-DiskPosition[0])*(x-DiskPosition[0]) +
-                        (y-DiskPosition[1])*(y-DiskPosition[1]) +
-                        (z-DiskPosition[2])*(z-DiskPosition[2]));
+  //         float r = sqrt((x-DiskPosition[0])*(x-DiskPosition[0]) +
+    //                    (y-DiskPosition[1])*(y-DiskPosition[1]) +
+      //                  (z-DiskPosition[2])*(z-DiskPosition[2]));
 
            // l = 1
            //density *= fabs(perturbation_size*2.0 * (z-DiskPosition[2]) / r) + (1.0 - perturbation_size);
 
            // l = 2
-           Velocity[dim] *= (1.0 + GalaxySimulationPerturbationFraction*
-                                ((0.25 * sqrt(5.0/pi)) * 
-                                 (-POW(x-DiskPosition[0],2) - POW(y-DiskPosition[1],2) + 2.0*POW(z-DiskPosition[2],2))
-                                  /(POW(r,2))));
+         //  Velocity[dim] *= (1.0 + GalaxySimulationPerturbationFraction*
+           //                     ((0.25 * sqrt(5.0/pi)) *
+             //                    (-POW(x-DiskPosition[0],2) - POW(y-DiskPosition[1],2) + 2.0*POW(z-DiskPosition[2],2))
+               //                   /(POW(r,2))));
 
 //           Velocity[dim] *= (fabs((POW(z-DiskPosition[2],4)*35.0 - 30.0*POW(z-DiskPosition[2],2)*POW(r,2) + 3.0*POW(r,4))/(POW(r,4))) + 24.0/7.0) / (24.0 / 7.0 + 8.0) + perturbation_size;
-         }
+         //}
 
          BaryonField[vel+dim][n] = Velocity[dim] + UniformVelocity[dim];
        }

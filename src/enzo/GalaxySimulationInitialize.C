@@ -130,8 +130,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   int   GalaxySimulationRefineAtStart,
     GalaxySimulationUseMetallicityField,
-    GalaxySimulationUseDensityPerturbation,
-    GalaxySimulationPerturbationFraction;
+    GalaxySimulationUseDensityPerturbation;
+
+  float GalaxySimulationPerturbationFraction;
  
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ZeroBField[3] = {0.0, 0.0, 0.0};
