@@ -2786,7 +2786,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   float injected_metal_mass[StellarYieldsNumberOfSpecies+1];
 
   if (metal_mass == NULL){
-    injected_metal_mass[0] = 1.0E-4 * m_eject;
+    injected_metal_mass[0] = cstar->ReturnMetallicity() * m_eject;
   }
 
   // loop over cells, compute fractional volume, inject feedback
@@ -2860,10 +2860,22 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
           BaryonField[field_num][index] += injected_metal_mass[0];
 
+          if (injected_metal_mass[0] <= tiny_number || injected_metal_mass[0] >= huge_number){
+              cstar->PrintInfo();
+              printf("FAILURE IN total metal MASS %"ISYM" %"ESYM"\n",0, injected_metal_mass[0]);
+          }
+
           for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
                                                               StellarYieldsAtomicNumbers[im]);
             BaryonField[field_num][index] += injected_metal_mass[1 + im];
+
+            if (injected_metal_mass[1+im] <= tiny_number || injected_metal_mass[1+im] >= huge_number){
+
+                cstar->PrintInfo();
+                printf("FAILURE IN MASS %"ISYM" %"ESYM"\n", 1+im, injected_metal_mass[1+im]);
+            }
+
           }
 
         } else{
@@ -3015,19 +3027,24 @@ void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
       /* Compute the mass that needs to be injected */
       float E_final = (3.0/2.0) * (cell_mass/(est_mu*mp))*k_boltz * T + E_thermal;
       T_final = fmax(T, IndividualStarWindTemperature);
-      m_ism = (E_final * (2.0 * est_mu * mp)/(3.0*k_boltz * T_final)) - cell_mass - m_eject;
+      m_ism   = fmin((E_final * (2.0 * est_mu * mp)/(3.0*k_boltz * T_final)) - cell_mass - m_eject, 0.0);
 
 //      m_ism = (0.85)*m_eject;
 
       /* modify metal abundances here */
       m_ism = m_ism / (dx*dx*dx) / MassUnits;
 //      printf("Grid abundances = ");
-      if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields){
+      if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields && m_ism > 0.0){
         for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
+/*
+          if(m_ism < 0.0){
+              printf("metal_mass = %"ESYM" m_ism = %"ESYM" grid = %"ESYM"\n", metal_mass[im], m_ism, grid_abundances[im]);
+          }
+*/
+
           metal_mass[im] = metal_mass[im] + m_ism * grid_abundances[im]; // ISM add
 //          printf(" %"ESYM,grid_abundances[im]);
         }
-//        printf("\n");
       }
 
 //    printf("m_ism %"ESYM"\n",m_ism);
