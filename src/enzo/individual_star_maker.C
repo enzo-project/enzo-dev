@@ -2818,8 +2818,14 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         float delta_therm_min = E_thermal_min * injection_factor;
         float delta_therm_max = E_thermal_max * injection_factor;
 
+        
+
         if (IndividualStarFollowStellarYields){
           for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
+            if( metal_mass[im] <= tiny_number ){
+                printf("injected metal mass %"ESYM" %"ESYM"\n", metal_mass[im], injection_factor);
+            }
+
             injected_metal_mass[im] = metal_mass[im]*injection_factor;
           }
         }
@@ -2860,21 +2866,10 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
           BaryonField[field_num][index] += injected_metal_mass[0];
 
-          if (injected_metal_mass[0] <= tiny_number || injected_metal_mass[0] >= huge_number){
-              cstar->PrintInfo();
-              printf("FAILURE IN total metal MASS %"ISYM" %"ESYM"\n",0, injected_metal_mass[0]);
-          }
-
           for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
                                                               StellarYieldsAtomicNumbers[im]);
             BaryonField[field_num][index] += injected_metal_mass[1 + im];
-
-            if (injected_metal_mass[1+im] <= tiny_number || injected_metal_mass[1+im] >= huge_number){
-
-                cstar->PrintInfo();
-                printf("FAILURE IN MASS %"ISYM" %"ESYM"\n", 1+im, injected_metal_mass[1+im]);
-            }
 
           }
 
