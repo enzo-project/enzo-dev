@@ -3048,6 +3048,10 @@ void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
           if(metal_mass[im] < 0.0){ ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0"); }
 
         }
+      } else{
+        for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
+          if(metal_mass[im] < 0.0){ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0");}
+        }
       }
 
 //    printf("m_ism %"ESYM"\n",m_ism);
