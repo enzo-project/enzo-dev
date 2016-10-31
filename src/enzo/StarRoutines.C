@@ -607,6 +607,9 @@ void Star::PrintInfo(void)
   printf("\t FeedbackFlag = %"ISYM"\n", FeedbackFlag);
   printf("\t accreted_angmom = %"FSYM" %"FSYM" %"FSYM"\n", accreted_angmom[0],
 	 accreted_angmom[1], accreted_angmom[2]);
+  printf("\t SE table = %"ISYM" %"ISYM"\n", se_table_position[0], se_table_position[1]);
+  printf("\t Rad table = %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
+  printf("\t Yield table = %"ISYM" %"ISYM"\n", yield_table_position[0], yield_table_position[1]);
   printf("\t this = %x, PrevStar = %x, NextStar = %x\n", this, PrevStar, NextStar);
   return;
 }
