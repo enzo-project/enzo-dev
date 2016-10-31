@@ -769,15 +769,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }
 
   IndividualStarBlackBodyq0Factors[0]  = 0.1 ;      // if OSTAR is ON, adjust black body to be continious
-  IndividualStarBlackBodyq0Factors[1]  = 3.0 ;      // factors are for q0 and q1 with first
+  IndividualStarBlackBodyq0Factors[1]  = 3.2 ;      // factors are for q0 and q1 with first
   IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
-  IndividualStarBlackBodyq1Factors[1]  = 5.0 ;      // and second high mass off grid.
+  IndividualStarBlackBodyq1Factors[1]  = 4.000 ;      // and second high mass off grid.
 
   IndividualStarBlackBodyFUVFactors[0] = 1.00E-4;     // same as above, but for FUV luminosities
-  IndividualStarBlackBodyFUVFactors[1] = 2.29E-5;
+  IndividualStarBlackBodyFUVFactors[1] = 2.30E-5;
 
-  IndividualStarBlackBodyLWFactors[0] = 0.0;        // same, but for LW
-  IndividualStarBlackBodyLWFactors[1] = 0.0;
+  IndividualStarBlackBodyLWFactors[0]  = 5.0E-5;        // same, but for LW
+  IndividualStarBlackBodyLWFactors[1]  = 5.0E-6;
 
   PhotoelectricHeatingDustModelEfficiency = 0.0;
 
