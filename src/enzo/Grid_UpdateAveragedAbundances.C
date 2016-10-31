@@ -116,6 +116,18 @@ int grid::CalculateAverageAbundances(void){
     } // end temperature cutoff
   }
 
+  if( total_mass <= tiny_number){
+    ENZO_FAIL("Grid_UpdateAverageAbundances: No mass in average abundances");
+  } else{
+
+    for(int im = 0; im <StellarYieldsNumberOfSpecies + 1; im++){
+      if(mass_counter[im] <= tiny_number){
+        ENZO_FAIL("Grid_UpdateAverageAbundances: No tracer species mass found on grid");
+      }
+    }
+  }
+
+
   for(int im = 0; im < StellarYieldsNumberOfSpecies + 1; im ++){
     this->AveragedAbundances[im] = mass_counter[im] / total_mass;
   }
