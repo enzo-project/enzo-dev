@@ -573,7 +573,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
                     ((-POW(x-DiskPosition[0],2) - POW(y-DiskPosition[1],2) + 2.0*POW(z-DiskPosition[2],2))
                          /(POW(r,2)))));
 */
-
+         if(density<0){
+             ENZO_FAIL("Grid_GalaxySimulationInitialize: Negative perturbation density\n");
+         }
          // l = 4
 //         density *= (fabs((POW(z-DiskPosition[2],4)*35.0 - 30.0*POW(z-DiskPosition[2],2)*POW(r,2) + 3.0*POW(r,4))/(POW(r,4))) + 24.0/7.0) / (24.0 / 7.0 + 8.0) + perturbation_size;
 
