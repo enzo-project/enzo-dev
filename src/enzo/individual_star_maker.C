@@ -2818,7 +2818,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         float delta_therm_min = E_thermal_min * injection_factor;
         float delta_therm_max = E_thermal_max * injection_factor;
 
-        
+        if (injection_factor < 0) {ENZO_FAIL("injection factor < 0");}
 
         if (IndividualStarFollowStellarYields){
           for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
@@ -3040,12 +3040,17 @@ void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
           metal_mass[im] = metal_mass[im] + m_ism * grid_abundances[im]; // ISM add
 //          printf(" %"ESYM,grid_abundances[im]);
 
-          if(metal_mass[im] < 0.0){ ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0"); }
-
+          if(metal_mass[im] < 0.0){
+            printf("metal_mass %"ESYM" %"ISYM" %"ESYM"\n", metal_mass[im], im, grid_abundances[im]);
+            ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0 and m_ism >0"); 
+          }
         }
       } else{
         for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
-          if(metal_mass[im] < 0.0){ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0");}
+          if(metal_mass[im] < 0.0){
+            printf("metal_mass %"ESYM" %"ISYM"\n", metal_mass[im], im);
+            ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0 and m_ism < 0");
+          }
         }
       }
 
@@ -3187,7 +3192,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
         //
         // Check timestep to make sure we don't overinject yields at end of life
         //
-        wind_dt = fmin(lifetime - particle_age, dt);
+        wind_dt = fmin(fmax(lifetime - particle_age, 0.0) , dt);
         if (wind_dt < 0.0){
            wind_dt = dt - (particle_age - lifetime);
 
@@ -3276,5 +3281,16 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
   }
 
 
+  for(int i = 0; i < StellarYieldsNumberOfSpecies+1; i++){
+      if(metal_mass[i] <= 0.0){
+        printf("metal mass = %"ESYM" wind_dt = %"ESYM" wind_lifetime = %"ESYM" eject = %"ESYM"\n",metal_mass[i], wind_dt, wind_lifetime, m_eject);
+        cstar->PrintInfo();
+
+        ENZO_FAIL("Negative metal mass in wind setup");
+      }
+  }
+
+
   // done computing stellar wind properties
+  return;
 }

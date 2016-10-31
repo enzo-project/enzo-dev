@@ -53,7 +53,7 @@ int UpdateAveragedAbundances(TopGridData *MetaData,
 
     for( Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel){
 
-      if(Temp->GridData->isLocal() && l == MAX_DEPTH_OF_HIERARCHY){
+      if(Temp->GridData->isLocal()){
         Temp->GridData->CalculateAverageAbundances();
       }
     }
@@ -103,7 +103,7 @@ int grid::CalculateAverageAbundances(void){
   for(int index = 0; index < size; index++){
     int field_num;
 
-    if( temperature[index] < 1.0E4){
+    if( temperature[index] < 1.0E6){
       mass_counter[0] += BaryonField[MetalNum][index];
       for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
         this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
@@ -121,7 +121,7 @@ int grid::CalculateAverageAbundances(void){
   } else{
 
     for(int im = 0; im <StellarYieldsNumberOfSpecies + 1; im++){
-      if(mass_counter[im] <= tiny_number){
+      if(mass_counter[im] <= 0.0 ){
         ENZO_FAIL("Grid_UpdateAverageAbundances: No tracer species mass found on grid");
       }
     }
@@ -130,6 +130,9 @@ int grid::CalculateAverageAbundances(void){
 
   for(int im = 0; im < StellarYieldsNumberOfSpecies + 1; im ++){
     this->AveragedAbundances[im] = mass_counter[im] / total_mass;
+    if(this->AveragedAbundances[im] <= 0.0){
+        ENZO_FAIL("Averaged abundance ratio negative");
+    }
   }
 
   delete [] temperature;
