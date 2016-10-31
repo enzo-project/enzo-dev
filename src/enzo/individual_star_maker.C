@@ -3027,7 +3027,7 @@ void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
       /* Compute the mass that needs to be injected */
       float E_final = (3.0/2.0) * (cell_mass/(est_mu*mp))*k_boltz * T + E_thermal;
       T_final = fmax(T, IndividualStarWindTemperature);
-      m_ism   = fmin((E_final * (2.0 * est_mu * mp)/(3.0*k_boltz * T_final)) - cell_mass - m_eject, 0.0);
+      m_ism   = fmax( (E_final * (2.0 * est_mu * mp)/(3.0*k_boltz * T_final)) - cell_mass - m_eject, 0.0);
 
 //      m_ism = (0.85)*m_eject;
 
@@ -3044,6 +3044,9 @@ void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
 
           metal_mass[im] = metal_mass[im] + m_ism * grid_abundances[im]; // ISM add
 //          printf(" %"ESYM,grid_abundances[im]);
+
+          if(metal_mass[im] < 0.0){ ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0"); }
+
         }
       }
 
