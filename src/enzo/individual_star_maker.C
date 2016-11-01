@@ -2822,9 +2822,9 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
         if (IndividualStarFollowStellarYields){
           for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
-            if( metal_mass[im] <= tiny_number ){
-                printf("injected metal mass %"ESYM" %"ESYM"\n", metal_mass[im], injection_factor);
-            }
+  //          if( metal_mass[im] <= 0.0 ){
+//                printf("injected metal mass %"ESYM" %"ESYM" %"ESYM"\n", metal_mass[im], m_eject, injection_factor);
+    //        }
 
             injected_metal_mass[im] = metal_mass[im]*injection_factor;
           }
@@ -3214,7 +3214,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
     ComputeStellarWindMassLossRate(mproj, metallicity, &m_eject);
 
-    wind_dt = fmin(lifetime - particle_age, dt);
+    wind_dt = fmin( fmax(lifetime - particle_age, 0.0), dt);
     if (wind_dt < 0.0){
        wind_dt = dt - (particle_age - lifetime);
 
@@ -3282,7 +3282,8 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
 
   for(int i = 0; i < StellarYieldsNumberOfSpecies+1; i++){
-      if(metal_mass[i] <= 0.0){
+      if(metal_mass[i] < 0.0){
+        printf("particle age = %"ESYM" lifetim - age = %"ESYM" dt %"ESYM"\n", particle_age, lifetime-particle_age, dt);
         printf("metal mass = %"ESYM" wind_dt = %"ESYM" wind_lifetime = %"ESYM" eject = %"ESYM"\n",metal_mass[i], wind_dt, wind_lifetime, m_eject);
         cstar->PrintInfo();
 
