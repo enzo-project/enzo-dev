@@ -94,7 +94,9 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
     /* feedback is done in a cic interpolation. This is number of cells
        on eiher side of central cell (i.e. 3x3 CIC -> ncell = 1) */
-    int ncell = (int) ((IndividualStarFeedbackStencilSize+1)/2.0 - 1);
+//    int ncell = (int) ((IndividualStarFeedbackStencilSize+1)/2.0 - 1);
+
+    int ncell = (int) (IndividualStarFeedbackStencilSize);
 
     pos = cstar->ReturnPosition();
     vel = cstar->ReturnVelocity();
@@ -228,13 +230,14 @@ int IsParticleFeedbackInGrid(float *pos, int ncell, LevelHierarchyEntry *Temp){
   Temp->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
   CellWidth = (RightEdge[0] - LeftEdge[0]) / Dims[0];
 
+  float fudge = 0.1;
 
-  if( (pos[0] - (ncell + 2.5)*CellWidth > RightEdge[0]) ||
-      (pos[0] + (ncell + 2.5)*CellWidth < LeftEdge[0])  ||
-      (pos[1] - (ncell + 2.5)*CellWidth > RightEdge[1]) ||
-      (pos[1] + (ncell + 2.5)*CellWidth < LeftEdge[1])  ||
-      (pos[2] - (ncell + 2.5)*CellWidth > RightEdge[2]) ||
-      (pos[2] + (ncell + 2.5)*CellWidth < LeftEdge[2])){
+  if( (pos[0] - (ncell + fudge)*CellWidth > RightEdge[0]) ||
+      (pos[0] + (ncell + fudge)*CellWidth < LeftEdge[0])  ||
+      (pos[1] - (ncell + fudge)*CellWidth > RightEdge[1]) ||
+      (pos[1] + (ncell + fudge)*CellWidth < LeftEdge[1])  ||
+      (pos[2] - (ncell + fudge)*CellWidth > RightEdge[2]) ||
+      (pos[2] + (ncell + fudge)*CellWidth < LeftEdge[2])){
       // particle feedback zone is not on grid at all. skip
       // this check is performed also in actual feedback routines, but
       // redundancy is O.K. here
