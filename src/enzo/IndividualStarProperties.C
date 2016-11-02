@@ -322,7 +322,7 @@ int IndividualStarInterpolateFUVFlux(float &FUV_flux,
     Z = IndividualStarRadData.Z[0];
   }
 
-  /* not on grid - use black body instead */
+ /* not on grid - use black body instead */
   if( i == -9 || j == -9 || k == -9){
     return FAIL;
   }
@@ -792,7 +792,7 @@ int IndividualStarInterpolateLifetime(float   &tau,
   /* new function - oct 2016 - for new interplation methods */
   // convert metallicity to solar
   float Z; // Z is in units of solar
-  Z = (metallicity) / IndividualStarPropertiesData.Zsolar;
+  Z = metallicity;
 
   // WARNING: See warning at beginning of file
   if( Z < IndividualStarPropertiesData.Z[0]){
