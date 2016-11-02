@@ -347,7 +347,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "GalaxySimulationInitialEuIFractionHalo = %"FSYM,
                         &TestProblemData.EuI_Fraction_2);
 
-   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsDisk = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsDisk = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 0,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 1,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 2,
@@ -357,9 +357,14 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 6,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 7,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 8,
-                        TestProblemData.ChemicalTracerSpecies_Fractions + 9);
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 9,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 10,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 11,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 12,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 13,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 14 );
 
-   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsHalo = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsHalo = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 0,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 1,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 2,
@@ -369,7 +374,13 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 6,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 7,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 8,
-                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 9);
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 9,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 10,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 11,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 12,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 13,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 14 );
+
 
 
 
