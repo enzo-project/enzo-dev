@@ -3154,8 +3154,14 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
       // 2 at end of argument implies compute start time of AGB phase
       IndividualStarInterpolateLifetime(agb_start_time, se_table_position[0], se_table_position[1],
                                            mproj, metallicity, 2);
+      /* sanity check */
+      float temp_lifetime;
+      IndividualStarInterpolateLifetime(temp_lifetime, se_table_position[0], se_table_position[1], mproj, metallicity, 1);
 
       wind_lifetime = lifetime - agb_start_time; // CGS Units
+      if (wind_lifetime < 0.0){
+        printf("WARNING LIFETIME ISSUE --- lifetime = %"ESYM" agb_start = %"ESYM" temp_lifetime = %"ESYM"\n", lifetime, agb_start_time, temp_lifetime);
+      }
 
         //
         // To ensure total (integrated) mass ejected is accurate, make sure we don't overinject
