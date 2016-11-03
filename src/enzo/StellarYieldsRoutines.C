@@ -200,6 +200,11 @@ float StellarYieldsInterpolateYield(int yield_type,
   t = (interp_M - table.M[i]) / (table.M[i+1] - table.M[i]);
   u = (Z  - table.Z[j]) / (table.Z[j+1] - table.Z[j]);
 
+  if( (t<0) || (u<0) ){
+      printf("Stellar yields interpolation issue - t = %"FSYM" u = %"FSYM"\n",t,u);
+      printf("i, j, interp_M, Z %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", i, j, interp_M, Z, table.M[i], table.Z[j]);
+  }
+
   float ll, lr, ur, ul; // lower left, lower right, upper right, upper left points
   if (atomic_number > 0) { // interpolate yields given atomic number
 

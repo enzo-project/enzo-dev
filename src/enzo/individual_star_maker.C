@@ -3291,6 +3291,11 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
       if(metal_mass[i] < 0.0){
         printf("particle age = %"ESYM" lifetim - age = %"ESYM" dt %"ESYM"\n", particle_age, lifetime-particle_age, dt);
         printf("metal mass = %"ESYM" wind_dt = %"ESYM" wind_lifetime = %"ESYM" eject = %"ESYM"\n",metal_mass[i], wind_dt, wind_lifetime, m_eject);
+        if(i>0){
+            printf("i = %"ISYM" anum = %"ISYM"\n", i, StellarYieldsAtomicNumbers[i-1]);
+        } else{
+            printf("i = %"ISYM"\n",i);
+        }
         cstar->PrintInfo();
 
         ENZO_FAIL("Negative metal mass in wind setup");
