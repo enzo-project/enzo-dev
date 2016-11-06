@@ -27,6 +27,10 @@
 #include "StellarYieldsRoutines.h"
 #include "StarParticleData.h"
 
+int search_lower_bound(float *arr, float value, int low, int high,
+                       int total);
+
+
 float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
   /* -------------------------------------------------------------
    * StellarYields_SNIaYieldsByNumber
@@ -123,7 +127,7 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
     }
   }
 
-  /* binary search over star mass */
+/*
   width = table.NumberOfMassBins / 2;
   i     = table.NumberOfMassBins / 2;
 
@@ -164,6 +168,10 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
   // search finds nearest bin - interpolation requires floored nearest bin
   if ( Z < table.Z[j]) j--;
   if ( Z < table.Z[j]) j--;
+*/
+
+  i = search_lower_bound(table.M, interp_M, 0, table.NumberOfMassBins, table.NumberOfMassBins);
+  j = search_lower_bound(table.Z, Z, 0, table.NumberOfMetallicityBins, table.NumberOfMetallicityBins);
 
   if( (interp_M > table.M[i+1]) || interp_M < (table.M[i])){
     printf("interp_m = %"ESYM" i = %"ISYM" j = %"ISYM"\n", interp_M, i, j);
@@ -304,7 +312,7 @@ float StellarYieldsInterpolateYield(int yield_type,
     }
   }
 
-  /* binary search over star mass */
+/*
   width = table.NumberOfMassBins / 2;
   i     = table.NumberOfMassBins / 2;
 
@@ -338,6 +346,9 @@ float StellarYieldsInterpolateYield(int yield_type,
   // search finds nearest bin - interpolation requires floored nearest bin
   if ( Z < table.Z[j]) j--;
   if ( Z < table.Z[j]) j--;
+*/
+  i = search_lower_bound(table.M, interp_M, 0, table.NumberOfMassBins, table.NumberOfMassBins);
+  j = search_lower_bound(table.Z, Z, 0, table.NumberOfMetallicityBins, table.NumberOfMetallicityBins);
 
   float t, u;
 
