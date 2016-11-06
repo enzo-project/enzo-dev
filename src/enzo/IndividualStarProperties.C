@@ -81,6 +81,7 @@ int LinearInterpolationCoefficients(float &t, float &u, float &v, int &i, int &j
                                     const float *x1a, const float *x2a, const float *x3a,
                                     const int &x1a_size, const int &x2a_size, const int &x3a_size);
 
+int search_lower_bound(float *arr, float value, int low, int high, int total);
 
 unsigned_long_int mt_random(void);
 
@@ -178,21 +179,8 @@ int SetWDLifetime(float &WD_lifetime,
   } else {
     // explosion is happening at some time, find that time
 
-    int width = size / 2;
-    int bin_number = size / 2;
-
-    while ( width > 1){
-      width /= 2;
-
-      if (x > tabulated_probability[bin_number]){
-        bin_number += width;
-      } else if (x < tabulated_probability[bin_number]){
-        bin_number -= width;
-      } else{
-        break;
-      }
-    }
-
+    int bin_number = search_lower_bound(tabulated_probability, x, 0,
+                                        size, size);
     WD_lifetime = time[bin_number];
 
     return 1;
@@ -1424,23 +1412,7 @@ int LinearInterpolationCoefficients(float &t, int &i,
       return FAIL;
   }
 
-  /* now perform a binary search over the array */
-  width = x1a_size / 2;
-  i     = x1a_size / 2;
-
-  while (width > 1){
-    width /= 2;
-    if ( x1 > x1a[i] )
-      i += width;
-    else if (x1 < x1a[i] )
-      i -= width;
-    else
-      break;
-  }
-
-  // ensure we are finding the nearest, value that is less than x1
-  if ( x1 < x1a[i] ) i--;
-  if ( x1 < x1a[i] ) i--;
+  i = search_lower_bound((float*)x1a, x1, 0, x1a_size, x1a_size);
 
   t = LinearInterpolationCoefficient(i, x1, x1a);
 
