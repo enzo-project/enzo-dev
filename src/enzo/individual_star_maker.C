@@ -3268,6 +3268,8 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
 
   /* finally, compute metal masses if needed */
+  float wind_scaling = wind_dt / wind_lifetime;
+
   if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals==2){
 
     metal_mass[0] = StellarYieldsInterpolateYield(1, yield_table_position[0], yield_table_position[1],
@@ -3279,9 +3281,9 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
                                                         StellarYieldsAtomicNumbers[i]);
     }
 
-    /* scale for wind dt and lifetime*/
+    /* scale for wind dt and lifetime */
     for(int i = 0; i < StellarYieldsNumberOfSpecies+1; i ++){
-      metal_mass[i] *= wind_dt / wind_lifetime;
+      metal_mass[i] *= wind_scaling;
     }
 
   }
@@ -3289,7 +3291,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
   for(int i = 0; i < StellarYieldsNumberOfSpecies+1; i++){
       if(metal_mass[i] < 0.0){
-        printf("particle age = %"ESYM" lifetim - age = %"ESYM" dt %"ESYM"\n", particle_age, lifetime-particle_age, dt);
+        printf("particle age = %"ESYM" lifetim - age = %"ESYM" dt %"ESYM" %"ESYM"\n", particle_age, lifetime-particle_age, dt, wind_scaling);
         printf("metal mass = %"ESYM" wind_dt = %"ESYM" wind_lifetime = %"ESYM" eject = %"ESYM"\n",metal_mass[i], wind_dt, wind_lifetime, m_eject);
         if(i>0){
             printf("i = %"ISYM" anum = %"ISYM"\n", i, StellarYieldsAtomicNumbers[i-1]);
