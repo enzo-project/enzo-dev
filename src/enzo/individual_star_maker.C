@@ -140,7 +140,7 @@ void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
                                float *grid_abundances);
 
 
-
+int search_lower_bound(float *arr, float value, int low, int high, int total);
 
 int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, int *np,
                                 float *ParticleMass,
@@ -935,27 +935,11 @@ float SampleIMF(void){
   float m;
 
 
-  int width = IMF_TABLE_ENTRIES/2;
-  int bin_number = IMF_TABLE_ENTRIES/2;
-
-  while (width > 1) {
-    width /= 2;
-    if (x > IMFData[bin_number]){
-      bin_number += width;
-    } else if (x < IMFData[bin_number]){
-      bin_number -= width;
-    } else{
-      break;
-    }
-  } // found the bin
+  int bin_number = search_lower_bound(IMFData, x, 0, IMF_TABLE_ENTRIES, IMF_TABLE_ENTRIES);
 
   m = IndividualStarIMFLowerMassCutoff * POW(10.0, bin_number * dm);
 
   IndividualStarIMFCalls++;
-
-  if ( m > IndividualStarIMFUpperMassCutoff || m < IndividualStarIMFLowerMassCutoff){
-    printf("individual_star_maker: IMF sampling not working m %"FSYM" %"FSYM"\n",m, IndividualStarIMFUpperMassCutoff);
-  }
 
   return m;
 }
