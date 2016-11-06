@@ -127,16 +127,23 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
   width = table.NumberOfMassBins / 2;
   i     = table.NumberOfMassBins / 2;
 
-  while (width > 1){
+  if( !((table.M[i] < interp_M) && (table.M[i+1] > interp_M))){
+    if( table.M[i] > interp_M && table.M[i-1] < interp_M){
+      i = i - 1;
+    } else{
 
-    width /= 2;
-    if ( interp_M > table.M[i])
-      i += width;
-    else if (interp_M < table.M[i])
-      i -= width;
-    else
-      break;
-  } // mass binary search
+      while (width > 1){
+
+        width /= 2;
+        if ( interp_M > table.M[i])
+          i += width;
+        else if (interp_M < table.M[i])
+          i -= width;
+        else
+          break;
+      } // mass binary search
+    }
+  }
 
   if ( interp_M < table.M[i] ) i--;
   if ( interp_M < table.M[i] ) i--;
@@ -158,8 +165,14 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
   if ( Z < table.Z[j]) j--;
   if ( Z < table.Z[j]) j--;
 
+  if( (interp_M > table.M[i+1]) || interp_M < (table.M[i])){
+    printf("interp_m = %"ESYM" i = %"ISYM" j = %"ISYM"\n", interp_M, i, j);
+    ENZO_FAIL("FAIURE IN STELLAR YIELDS TABLE INTERPOLATION");
+  }
+
   return SUCCESS;
 }
+
 
 float StellarYieldsInterpolateYield(int yield_type,
                                     const int &i, const int &j,
@@ -200,7 +213,7 @@ float StellarYieldsInterpolateYield(int yield_type,
   t = (interp_M - table.M[i]) / (table.M[i+1] - table.M[i]);
   u = (Z  - table.Z[j]) / (table.Z[j+1] - table.Z[j]);
 
-  if( (t<0) || (u<0) ){
+  if( (t<0) || (u<0)  || (t>1) || (u>1)){
       printf("Stellar yields interpolation issue - t = %"FSYM" u = %"FSYM"\n",t,u);
       printf("i, j, interp_M, Z %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", i, j, interp_M, Z, table.M[i], table.Z[j]);
   }
