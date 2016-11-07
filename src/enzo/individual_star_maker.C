@@ -3194,6 +3194,9 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
     }
 
 
+    /* Gaurd against cases where agb phase is zero */
+    wind_lifetime = (wind_lifetime < tiny_number) ? dt : wind_lifetime;
+    wind_dt       = (wind_dt       < tiny_number) ? dt : wind_dt;
 
     m_eject  /= wind_lifetime ; // average mass loss rate over entire wind lifetime
 
