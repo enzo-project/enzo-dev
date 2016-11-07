@@ -125,14 +125,14 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[0] = E[0] * eV_erg;
     E[1] = E[1] * eV_erg;
 
-    printf("Star_ComputePhotonRates: E[0] = %"ESYM" E[1] = %"ESYM"\n", E[0], E[1]);
+    // printf("Star_ComputePhotonRates: E[0] = %"ESYM" E[1] = %"ESYM"\n", E[0], E[1]);
 
     // Functions above return the ionizing flux at stellar surface.
     // Convert to photon rate
     Q[0] = Q[0] * 4.0 * pi * R*R;
     Q[1] = Q[1] * 4.0 * pi * R*R;
 
-    printf("Star_ComputePhotonRates: Q[0] = %"ESYM" Q[1] = %"ESYM"\n", Q[0], Q[1]);
+    // printf("Star_ComputePhotonRates: Q[0] = %"ESYM" Q[1] = %"ESYM"\n", Q[0], Q[1]);
 
     break;
 
