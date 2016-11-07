@@ -1171,10 +1171,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "IndividualStarOTRadiationMass = %"FSYM,
                         &IndividualStarOTRadiationMass);
-    ret += sscanf(line, "IndividualStarLWMinimumMass = %"FSYM,
-                        &IndividualStarLWMinimumMass);
-    ret += sscanf(line, "IndividualStarFUVMinimumMass = %"FSYM,
-                        &IndividualStarFUVMinimumMass);
     ret += sscanf(line, "IndividualStarCreationStencilSize = %"ISYM,
                         &IndividualStarCreationStencilSize);
 

@@ -741,8 +741,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarDirectCollapseThreshold = 25.0;     // solar masses - no SNII and no ejecta above this mass
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
   IndividualStarOTRadiationMass      = 8.0;         // Solar masses
-  IndividualStarLWMinimumMass        = 8.0;         // solar masses
-  IndividualStarFUVMinimumMass       = 8.0;         // SOlar masses
   IndividualStarFUVTemperatureCutoff = 2.0E4;       // K - if FUV heating is on, heat up to this temperature
   IndividualStarStellarWinds         = 0;           // on or off
   IndividualStarFollowStellarYields  = 0;            // on or off
