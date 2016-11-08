@@ -934,8 +934,15 @@ float SampleIMF(void){
   float dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/ ((float) (IMF_TABLE_ENTRIES-1));
   float m;
 
+  int bin_number;
 
-  int bin_number = search_lower_bound(IMFData, x, 0, IMF_TABLE_ENTRIES, IMF_TABLE_ENTRIES);
+  if (x <= IMFData[0] ){
+    bin_number = 0;
+  } else if (x >= IMFData[IMF_TABLE_ENTRIES-1]){
+    bin_number = IMF_TABLE_ENTRIES - 1;
+  } else{
+    bin_number = search_lower_bound(IMFData, x, 0, IMF_TABLE_ENTRIES, IMF_TABLE_ENTRIES);
+  }
 
   m = IndividualStarIMFLowerMassCutoff * POW(10.0, bin_number * dm);
 
