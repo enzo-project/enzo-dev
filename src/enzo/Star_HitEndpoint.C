@@ -118,7 +118,7 @@ int Star::HitEndpoint(FLOAT Time)
 
           if(this->FeedbackFlag == INDIVIDUAL_STAR_SNII ||
              this->FeedbackFlag == INDIVIDUAL_STAR_WIND_AND_SN){
-              this->LifeTime = huge_number; // make to a Hubble time
+              this->LifeTime = huge_number*this->LifeTime; // make to a Hubble time
               this->type = IndividualStarRemnant;
               this->FeedbackFlag = NO_FEEDBACK;
           } else { // havent blown up yet
@@ -162,7 +162,7 @@ int Star::HitEndpoint(FLOAT Time)
 
     if ( this->FeedbackFlag == INDIVIDUAL_STAR_SNIA ){
       this->Mass         = 0.0;
-      this->LifeTime     = huge_number;
+      this->LifeTime     = huge_number * this->LifeTime;
       this->FeedbackFlag = NO_FEEDBACK;
     } else{
       this->FeedbackFlag = INDIVIDUAL_STAR_SNIA;
@@ -173,7 +173,7 @@ int Star::HitEndpoint(FLOAT Time)
   case IndividualStarRemnant:
     result = NO_DEATH; //printf("Individual Star remnamt in hit endpoint\n");
     this->FeedbackFlag = NO_FEEDBACK;
-    this->LifeTime     = Time + huge_number;
+    this->LifeTime     = huge_number * this->LifeTime;
     break;
 
   } // ENDSWITCH
