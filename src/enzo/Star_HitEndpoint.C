@@ -127,7 +127,7 @@ int Star::HitEndpoint(FLOAT Time)
 
       } else if (mproj > IndividualStarDirectCollapseThreshold){
         this->FeedbackFlag = NO_FEEDBACK;
-        this->LifeTime     = huge_number;
+        this->LifeTime     = huge_number * this->LifeTime;
         this->type         = IndividualStarRemnant;
       }
 
