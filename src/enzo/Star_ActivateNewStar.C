@@ -58,6 +58,9 @@ void Star::ActivateNewStar(FLOAT Time, float Timestep)
     case MBH:  // probably you wouldn't need this activation routine anyway (see mbh_maker)
       type = StarType;  
       break;
+    case PARTICLE_TYPE_SUPERNOVA_SEEDFIELD:
+      type = StarType;
+      break;
     } // ENDSWITCH type
   } // ENDIF FORMATION
 

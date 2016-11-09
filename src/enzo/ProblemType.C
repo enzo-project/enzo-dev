@@ -128,15 +128,15 @@ int EnzoProblemType::InitializeUniformGrid(
  
   tg->NumberOfBaryonFields = 0;
   tg->FieldType[tg->NumberOfBaryonFields++] = Density;
-  tg->FieldType[tg->NumberOfBaryonFields++] = TotalEnergy;
-  if (DualEnergyFormalism)
-    tg->FieldType[tg->NumberOfBaryonFields++] = InternalEnergy;
   int vel = tg->NumberOfBaryonFields;
   tg->FieldType[tg->NumberOfBaryonFields++] = Velocity1;
   if (tg->GridRank > 1 || HydroMethod > 2)
     tg->FieldType[tg->NumberOfBaryonFields++] = Velocity2;
   if (tg->GridRank > 2 || HydroMethod > 2)
     tg->FieldType[tg->NumberOfBaryonFields++] = Velocity3;
+  tg->FieldType[tg->NumberOfBaryonFields++] = TotalEnergy;
+  if (DualEnergyFormalism)
+    tg->FieldType[tg->NumberOfBaryonFields++] = InternalEnergy;
   if ( UseMHD ) {
     tg->FieldType[B1Num = tg->NumberOfBaryonFields++] = Bfield1;
     tg->FieldType[B2Num = tg->NumberOfBaryonFields++] = Bfield2;

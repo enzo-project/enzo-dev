@@ -21,6 +21,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "list.h"
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
@@ -987,6 +988,37 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   /* Now it's done, unmark. */
 
   //cstar->FeedbackFlag = NO_FEEDBACK;
+  /*
+  if (cstar->FeedbackFlag == SUPERNOVA_SEEDFIELD) {
+    if(UseSupernovaSeedFieldSourceTerms == 1){
+
+      SuperNova *P = new SuperNova();
+      float random_u = (rand() %100)/100.0; // random variable from 0 to 1                                                               
+      float random_v = (rand() %100)/100.0;
+      float random_phi = 2*M_PI*random_u; // 0 to 2pi                                                                                    
+      float random_theta = acos(2*random_v-1); // 0 to pi                                                                                
+      // Setting up randomly oriented magnetic feedback of supernova
+      float phi_x = sin(random_theta)*cos(random_phi);
+      float phi_y = sin(random_theta)*sin(random_phi);
+      float phi_z = cos(random_theta);
+
+      // Birthtime of supernova is at the end of a star particle's life
+      float sn_birthtime = cstar->BirthTime + cstar->LifeTime;
+
+      // Creates a supernova with magnetic feedback set by user-defined parameters and 
+      // adds it to supernova list
+      if((Time > sn_birthtime) && (Time < sn_birthtime + SupernovaSeedFieldDuration)){
+	printf("about to add SN to list in Grid_AddFeedbackSphere.C \n");
+        P->setValues(phi_x, phi_y, phi_z, cstar->pos[0], cstar->pos[1], cstar->pos[2], 
+                    SupernovaSeedFieldRadius, sn_birthtime, SupernovaSeedFieldDuration,
+                    SupernovaSeedFieldEnergy, SupernovaSeedFieldSigma);
+
+        this->SuperNovaList.append(P);
+	printf("added SN to list in Grid_AddFeedbackSphere.C \n");
+      }
+    }
+  }
+  */
 
   return SUCCESS;
 

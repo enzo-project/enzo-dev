@@ -476,6 +476,7 @@ typedef int            HDF5_hid_t;
 #define PARTICLE_TYPE_MBH            8
 #define PARTICLE_TYPE_COLOR_STAR     9
 #define PARTICLE_TYPE_SIMPLE_SOURCE 10
+#define PARTICLE_TYPE_SUPERNOVA_SEEDFIELD 11
 
 #define CHILDRENPERPARENT           12
 /* Ways to deposit particles from a subgrid. */
@@ -517,6 +518,7 @@ typedef int            HDF5_hid_t;
 #define MBH_THERMAL 7
 #define MBH_JETS 8
 #define COLOR_FIELD 9
+#define SUPERNOVA_SEEDFIELD 11
 
 /* Sink particle accretion modes */
 

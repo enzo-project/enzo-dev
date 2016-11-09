@@ -29,6 +29,7 @@
 #include "EventHooks.h"
 #include "phys_constants.h"
 
+
 #define VCIRC_TABLE_LENGTH 10000
 
 void mt_init(unsigned_int seed);
@@ -53,7 +54,7 @@ int nlines(const char* fname) {
   } while (ch != EOF);
 
   fclose(fptr);
-
+  if (debug) fprintf(stderr,"Read %"ISYM" lines \n", n);
   return n;
 }
 
@@ -69,6 +70,7 @@ class ProblemType_AgoraRestart : public EnzoProblemType
 private:
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   FLOAT CenterPosition[MAX_DIMENSION];
+  float Bfield[MAX_DIMENSION];
   FLOAT ScaleLength;
   FLOAT ScaleHeight;
   float DiskMass;
@@ -128,6 +130,10 @@ public:
     char *MetalName = "Metal_Density";
     char *MetalSNIaName = "MetalSNIa_Density";
     char *MetalSNIIName = "MetalSNII_Density";
+    char *BxName = "Bx";
+    char *ByName = "By";
+    char *BzName = "Bz";
+    char *PhiName = "Phi";
 
     /* local declarations */
 
@@ -146,6 +152,7 @@ public:
     for (i=0; i < MAX_DIMENSION; i++)
     {
       this->CenterPosition[i] = 0.5;
+      this->Bfield[i] = 0.;
     }
 
     // These come from Oscar's sample output.  The units are:
@@ -186,6 +193,9 @@ public:
 		    &HaloTemperature);
       ret += sscanf(line, "AgoraRestartHaloMetallicity = %"FSYM,
                     &HaloMetallicity);
+      ret += sscanf(line, "AgoraRestartMagneticField = %"FSYM" %"FSYM" %"FSYM,
+		    Bfield, Bfield+1, Bfield+2);
+
       ret += sscanf(line, "AgoraRestartRefineAtStart = %"ISYM,
 		    &RefineAtStart);
       ret += sscanf(line, "AgoraRestartHydrogenFractionByMass = %"FSYM,
@@ -244,7 +254,7 @@ public:
     float dummy_gas_energy = 1.0; // Only used if DualEnergyFormalism is True
     float dummy_total_energy = 1.0;
     float dummy_velocity[3] = {0.0, 0.0, 0.0};
-    float dummy_b_field[3] = {0.0, 0.0, 0.0}; // Only set if HydroMethod = mhd_rk
+    float dummy_b_field[3] = {1e-20, 1e-20, 1e-20}; // Only set if HydroMethod = mhd_rk
 
     if (this->InitializeUniformGrid(
 	  TopGrid.GridData, dummy_density, dummy_total_energy,
@@ -302,14 +312,22 @@ public:
     /* set up field names and units */
     int count = 0;
     DataLabel[count++] = DensName;
-    DataLabel[count++] = TEName;
-    if (DualEnergyFormalism)
-      DataLabel[count++] = GEName;
     DataLabel[count++] = Vel1Name;
     if(MetaData.TopGridRank > 1)
       DataLabel[count++] = Vel2Name;
     if(MetaData.TopGridRank > 2)
       DataLabel[count++] = Vel3Name;
+    DataLabel[count++] = TEName;
+    if (DualEnergyFormalism)
+      DataLabel[count++] = GEName;
+
+    if (HydroMethod == MHD_RK) {
+      DataLabel[count++] = (char*) BxName;
+      DataLabel[count++] = (char*) ByName;
+      DataLabel[count++] = (char*) BzName;
+      DataLabel[count++] = (char*) PhiName;
+    }
+
     if (MultiSpecies)
     {
       DataLabel[count++] = ElectronName;
@@ -347,6 +365,8 @@ public:
       fprintf(Outfptr, "AgoraRestartCenterPosition          = %"
 	      PSYM" %"PSYM" %"PSYM"\n",
 	      CenterPosition[0], CenterPosition[1], CenterPosition[2]);
+      fprintf(Outfptr, "AgoraRestartMagneticField           = %"FSYM" %"FSYM" %"FSYM,
+		    Bfield[0], Bfield[1], Bfield[2]);
       fprintf(Outfptr, "AgoraRestartScaleLength             = %"PSYM"\n",
 	      ScaleLength);
       fprintf(Outfptr, "AgoraRestartScaleHeight             = %"PSYM"\n",
@@ -394,7 +414,7 @@ public:
       fprintf(Outfptr, "AgoraRestartUseMetallicityField  = %"ISYM"\n",
 	      TestProblemData.UseMetallicityField);
     }
-
+ 
     return SUCCESS;
 
   } // InitializeSimulation
@@ -402,6 +422,9 @@ public:
   int InitializeGrid(grid *thisgrid_orig, HierarchyEntry &TopGrid,
 		     TopGridData &MetaData)
   {
+
+    if(debug)
+      printf("Entering AgoraRestart InitializeGrid\n");
 
     AgoraRestartGrid *thisgrid =
       static_cast<AgoraRestartGrid *>(thisgrid_orig);
@@ -420,13 +443,13 @@ public:
     }
 
     /* Identify physical quantities */
-    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, MetalNum;
+    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num, PhiNum, MetalNum;
 
     int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
     if (thisgrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-					     Vel3Num, TENum) == FAIL) {
+					     Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
       ENZO_FAIL("");
     }
@@ -562,20 +585,22 @@ public:
 	      vcirc*x/xy_radius/VelocityUnits;
 	    thisgrid->BaryonField[Vel3Num][index] = 0;
 
-	    thisgrid->BaryonField[TENum][index] = DiskGasEnergy;
+	    thisgrid->BaryonField[TENum][index] = DiskGasEnergy + 0.5 *
+	      (POW(thisgrid->BaryonField[Vel1Num][index],2) +
+	       POW(thisgrid->BaryonField[Vel2Num][index],2) +
+	       POW(thisgrid->BaryonField[Vel3Num][index],2));
+
+	    
 	    if (DualEnergyFormalism)
-	    {
-	      thisgrid->BaryonField[GENum][index] = DiskGasEnergy;
-	      thisgrid->BaryonField[TENum][index] += 0.5 *
-		(POW(thisgrid->BaryonField[Vel1Num][index],2) +
-		 POW(thisgrid->BaryonField[Vel2Num][index],2));
-	    }
+	      {
+		thisgrid->BaryonField[GENum][index] = DiskGasEnergy;
+	      }
 
 	    if (TestProblemData.UseMetallicityField) {
 	      thisgrid->BaryonField[MetalNum][index] = thisgrid->BaryonField[DensNum][index] *
 		TestProblemData.MetalFractionByMass * DiskMetallicity;
 
-        }
+	    }
 	  }
       if (StarMakerTypeIaSNe) {
           int SNIaNum = FindField(MetalSNIaDensity , thisgrid->FieldType, thisgrid->NumberOfBaryonFields);
@@ -652,6 +677,21 @@ public:
 		CoolData.DeuteriumToHydrogenRatio * thisgrid->BaryonField[H2INum][index];
 	    }
 	  } // if(TestProblemData.MultiSpecies)
+
+	    if (HydroMethod == MHD_RK)
+	      {
+		thisgrid->BaryonField[B1Num][index] = Bfield[0];
+		thisgrid->BaryonField[B2Num][index] = Bfield[1];
+		thisgrid->BaryonField[B3Num][index] = Bfield[2];
+
+		thisgrid->BaryonField[TENum][index] += 
+		  0.5*(POW(thisgrid->BaryonField[B1Num][index], 2) +
+		       POW(thisgrid->BaryonField[B2Num][index], 2) + 
+		       POW(thisgrid->BaryonField[B3Num][index], 2))/thisgrid->BaryonField[DensNum][index];
+	      }
+
+
+
 	} // i
       } // j
     } // k
@@ -668,12 +708,20 @@ public:
 
     mt_init(thisgrid->ID);
 
+    if(debug)
+      printf("Entering AgoraRestart InitializeParticles\n");
+
     // Determine the number of particles of each type
     int nBulge, nDisk, nHalo, nParticles;
     nBulge = nlines("bulge.dat");
+    if(debug) fprintf(stderr, "InitializeParticles: Number of Bulge Particles %"ISYM"\n", nBulge);
     nDisk = nlines("disk.dat");
+    if(debug) fprintf(stderr, "InitializeParticles: Number of Disk Particles %"ISYM"\n", nDisk);
     nHalo = nlines("halo.dat");
+    if(debug) fprintf(stderr, "InitializeParticles: Number of Halo Particles %"ISYM"\n", nHalo);
     nParticles = nBulge + nDisk + nHalo;
+    if(debug) fprintf(stderr, "InitializeParticles: Total Number of Particles %"ISYM"\n", nParticles);
+
 
     // Initialize particle arrays
     PINT *Number = new PINT[nParticles];
@@ -712,6 +760,8 @@ public:
     thisgrid->SetParticlePointers(Mass, Number, Type, Position,
 				  Velocity, Attribute);
     MetaData.NumberOfParticles = count;
+    if(debug) fprintf(stderr, "InitializeParticles: Set Number of Particles %"ISYM"\n", count);
+
   }
 
   float gauss_mass(

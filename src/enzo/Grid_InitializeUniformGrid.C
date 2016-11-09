@@ -34,7 +34,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
  
   int dim, i, j, k, index, size, field, GCM;
 
-  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+  int DeNum, GENum, TENum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum, CRNum;
 
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
@@ -47,15 +47,15 @@ int grid::InitializeUniformGrid(float UniformDensity,
  
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
-  FieldType[NumberOfBaryonFields++] = TotalEnergy;
-  if (DualEnergyFormalism)
-    FieldType[NumberOfBaryonFields++] = InternalEnergy;
   int vel = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = Velocity1;
   if (GridRank > 1 || HydroMethod > 2)
     FieldType[NumberOfBaryonFields++] = Velocity2;
   if (GridRank > 2 || HydroMethod > 2)
     FieldType[NumberOfBaryonFields++] = Velocity3;
+  FieldType[TENum = NumberOfBaryonFields++] = TotalEnergy;
+  if (DualEnergyFormalism)
+    FieldType[GENum = NumberOfBaryonFields++] = InternalEnergy;
   if ( UseMHD ) {
     FieldType[B1Num = NumberOfBaryonFields++] = Bfield1;
     FieldType[B2Num = NumberOfBaryonFields++] = Bfield2;
@@ -193,7 +193,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
  
   for (i = 0; i < size; i++) {
     BaryonField[0][i] = UniformDensity;
-    BaryonField[1][i] = UniformTotalEnergy;
+    BaryonField[TENum][i] = UniformTotalEnergy;
     if ( CRModel ) BaryonField[CRNum][i] = UniformCR;
   }
  
@@ -207,12 +207,17 @@ int grid::InitializeUniformGrid(float UniformDensity,
  
   if (DualEnergyFormalism)
     for (i = 0; i < size; i++)
-      BaryonField[2][i] = UniformInternalEnergy;
+      BaryonField[GENum][i] = UniformInternalEnergy;
 
   if (UseMHD) {
     for (dim = 0; dim < 3; dim++) 
       for (i = 0; i < size; i++)
         BaryonField[B1Num+dim][i] = UniformBField[dim];
+    if (HydroMethod == MHD_RK){
+      for (i = 0; i < size; i++)
+	BaryonField[PhiNum][i] = 0.;
+    }
+
   }
 
    /* set density of color fields to user-specified values (if user doesn't specify, 

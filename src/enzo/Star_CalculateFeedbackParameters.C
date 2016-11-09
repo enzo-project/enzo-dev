@@ -247,6 +247,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
     
     break;
 
+  case SUPERNOVA_SEEDFIELD:
+    if (MaximumRefinementLevel == 8)    Radius = .0003; // Temporarily hard-coding radius for testing purposes                         
+    else Radius = 0.002; // for lvl 6 refinement  
+
   } // ENDSWITCH FeedbackFlag
   
 //    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
