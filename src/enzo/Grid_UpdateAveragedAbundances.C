@@ -82,7 +82,7 @@ int grid::CalculateAverageAbundances(void){
 
   /* get multispecies fields */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum, ElectronNum, PeNum, DensNum, MetalNum;
+      DINum, DIINum, HDINum, ElectronNum, DensNum, MetalNum;
   if (MultiSpecies){
     this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                                 HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
