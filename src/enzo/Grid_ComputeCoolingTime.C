@@ -185,7 +185,8 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     }
 
     // send to Grackle in CGS
-    volumetric_heating_rate = BaryonField[PeNum];
+    volumetric_heating_rate = new float[size];
+//    volumetric_heating_rate = BaryonField[PeNum];
     specific_heating_rate   = NULL;
 
     /* change heating to zero in high temperature regions */
@@ -193,7 +194,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
       if ( temperature[i] * TemperatureUnits >= IndividualStarFUVTemperatureCutoff){
         volumetric_heating_rate[i] = 0.0;
       } else {
-        volumetric_heating_rate[i] *= (EnergyUnits/TimeUnits); // convert to CGS
+        volumetric_heating_rate[i] = BaryonField[PeNum][i] * (EnergyUnits/TimeUnits); // convert to CGS
       }
     }
     delete [] temperature;
@@ -372,6 +373,11 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     if (RadiativeTransfer){ /* convert back to Enzo units */
       for(i = 0; i < size; i ++) BaryonField[gammaNum][i] /= rtunits;
     }
+
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+      delete [] volumetric_heating_rate;
+    }
+
 
     delete [] TotalMetals;
     delete [] g_grid_dimension;
