@@ -90,7 +90,7 @@ int StarParticleOpticallyThinRadiation(TopGridData *MetaData,
   /* figure out how many stars there are that contribute to optically thin radiation */
   for (cstar = AllStars; cstar; cstar = cstar->NextStar){
     if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR &&
-        cstar->ReturnBirthMass() > IndividualStarOTRadiationMass){
+        cstar->ReturnBirthMass() >= IndividualStarOTRadiationMass){
       count++;
     }
   }
@@ -120,6 +120,7 @@ int StarParticleOpticallyThinRadiation(TopGridData *MetaData,
 
       if(IndividualStarFUVHeating)
           IndividualStarComputeFUVLuminosity(fuv_luminosity, cstar);
+
       if(IndividualStarLWRadiation)
           IndividualStarComputeLWLuminosity(lw_luminosity, cstar);
 
@@ -305,7 +306,6 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
             // assign heating rate from model
             BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], local_fuv_flux);
             BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
-
           } // end PE heating
 
           if(IndividualStarLWRadiation){
