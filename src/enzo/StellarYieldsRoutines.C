@@ -31,6 +31,104 @@ int search_lower_bound(float *arr, float value, int low, int high,
                        int total);
 
 
+float StellarYields_SolarAbundancesByNumber(const int &atomic_number){
+ /* ----------------------------------------------------------------
+  * StellarYields_SolarAbundancesByNumber
+  * ----------------------------------------------------------------
+  * Given atomic number of an element, returns the solar abundances
+  * of that element as reported in Table 1 of
+  * Asplund et. al. 2009 (ARAA 47:481-522). All abundances are
+  * the recorded photosphere abundances when available, but meteoric
+  * abundances are used instead when these are unavailable (for
+  * As, Se, Br, Cd, Sb, Te, I, Cs, Ta, Re, Pt, Hg, Bi). Abundances
+  * here are reported as-is in table, of the form:
+  *
+  * log(e_x) = log(N_x / N_H) + 12.0
+  *
+  * Where the LHS is the value reported in the table for element X,
+  * N_x is the abundance of element X, and N_H is abundance of
+  * Hydrogen.
+  * ---------------------------------------------------------------*/
+
+  float abund = 0.0;
+
+  switch(atomic_number){
+    case  1: abund = 12.00; break;    case  2: abund = 10.93; break;
+    case  3: abund =  1.05; break;    case  4: abund =  1.38; break;
+    case  5: abund =  2.70; break;    case  6: abund =  8.43; break;
+    case  7: abund =  7.83; break;    case  8: abund =  8.69; break;
+    case  9: abund =  4.56; break;    case 10: abund =  7.93; break;
+    case 11: abund =  6.24; break;    case 12: abund =  7.60; break;
+    case 13: abund =  6.45; break;    case 14: abund =  7.51; break;
+    case 15: abund =  5.41; break;    case 16: abund =  7.12; break;
+    case 17: abund =  5.50; break;    case 18: abund =  6.40; break;
+    case 19: abund =  5.03; break;    case 20: abund =  6.34; break;
+    case 21: abund =  3.15; break;    case 22: abund =  4.95; break;
+    case 23: abund =  3.93; break;    case 24: abund =  5.64; break;
+    case 25: abund =  5.43; break;    case 26: abund =  7.50; break;
+    case 27: abund =  4.99; break;    case 28: abund =  6.22; break;
+    case 29: abund =  4.19; break;    case 30: abund =  4.56; break;
+    case 31: abund =  3.04; break;    case 32: abund =  3.65; break;
+    case 33: abund =  2.30; break;    case 34: abund =  3.34; break;
+    case 35: abund =  2.54; break;    case 36: abund =  3.25; break;
+    case 37: abund =  2.52; break;    case 38: abund =  2.87; break;
+    case 39: abund =  2.21; break;    case 40: abund =  2.58; break;
+    case 41: abund =  1.46; break;    case 42: abund =  1.88; break;
+    // case 43: abund =  0.00; break; // Tc is not natural
+    case 44: abund =  1.75; break;    case 45: abund =  0.91; break;
+    case 46: abund =  1.57; break;    case 47: abund =  0.94; break;
+    case 48: abund =  1.71; break;    case 49: abund =  0.80; break;
+    case 50: abund =  2.04; break;    case 51: abund =  1.01; break;
+    case 52: abund =  2.18; break;    case 53: abund =  1.55; break;
+    case 54: abund =  2.24; break;    case 55: abund =  1.08; break;
+    case 56: abund =  2.18; break;    case 57: abund =  1.10; break;
+    case 58: abund =  1.58; break;    case 59: abund =  0.72; break;
+    case 60: abund =  1.42; break;    case 61: abund =  0.00; break;
+    case 62: abund =  0.96; break;    case 63: abund =  0.52; break;
+    case 64: abund =  1.07; break;    case 65: abund =  0.30; break;
+    case 66: abund =  1.10; break;    case 67: abund =  0.48; break;
+    case 68: abund =  0.92; break;    case 69: abund =  0.10; break;
+    case 70: abund =  0.84; break;    case 71: abund =  0.10; break;
+    case 72: abund =  0.85; break;    case 73: abund = -0.12; break;
+    case 74: abund =  0.85; break;    case 75: abund =  0.26; break;
+    case 76: abund =  1.40; break;    case 77: abund =  1.38; break;
+    case 78: abund =  1.62; break;    case 79: abund =  0.92; break;
+    case 80: abund =  1.17; break;    case 81: abund =  0.90; break;
+    case 82: abund =  1.75; break;    case 83: abund =  0.65; break;
+
+    default:
+      ENZO_FAIL("Failure in StellarYields_SolarAbundancesByNumber: Wrong atomic number");
+  }
+
+  return abund;
+}
+
+float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
+                                                    const int   &atomic_number){
+
+  // Constants below taken from values reported in
+  // Asplund et. al. 2009 (ARAA 47:481-522), as this
+  // is the source for the solar abundances used to scale
+  // [see section 3.12 of this work]
+
+  const float solar_H_mass_fraction = 0.7381;
+  const float solar_metallicity     = 0.0134;
+
+  float Z = metallicity / solar_metallicity;
+
+  if (atomic_number <= 2){
+    ENZO_FAIL("Failure in StellarYields_ScaledSolarMassFractionByNumber: cannot set metallicity scaled abundances for H or He");
+  }
+
+  float solar_abundance;
+  solar_abundance = StellarYields_SolarAbundancesByNumber(atomic_number);
+
+  // Asplund abundances are reported as log(e_x) = log(N_x/N_H) + 12.0
+  // where LHS is the value in table, need to remove 12 scaling to get
+  // actual abundance
+  return solar_H_mass_fraction * POW(10.0, solar_abundance - 12.0) * Z;
+}
+
 float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
   /* -------------------------------------------------------------
    * StellarYields_SNIaYieldsByNumber
@@ -415,3 +513,4 @@ int GetYieldIndex(const int &number_of_yields, const int &Z){
 
   return index;
 }
+

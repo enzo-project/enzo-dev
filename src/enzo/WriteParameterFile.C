@@ -1112,6 +1112,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ChemicalEvolutionTestStarFormed = %"ISYM"\n\n", ChemicalEvolutionTestStarFormed);
 
   fprintf(fptr, "StellarYieldsNumberOfSpecies        = %"ISYM"\n", StellarYieldsNumberOfSpecies);
+  fprintf(fptr, "StellarYieldsScaledSolarInitialAbundances = %"ISYM"\n", StellarYieldsScaledSolarInitialAbundances);
   fprintf(fptr, "StellarYieldsAtomicNumbers          = ");
   WriteListOfInts(fptr, MAX_STELLAR_YIELDS, StellarYieldsAtomicNumbers);
 

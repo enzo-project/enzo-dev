@@ -762,6 +762,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
                                                     // when = 0, use this to do mass deposition without energy injection
 
   StellarYieldsNumberOfSpecies       = INT_UNDEFINED; // number of species to follow - optional, calculated automatically if left undefined
+  StellarYieldsScaledSolarInitialAbundances = 1;    // use solar abundances to set initial mass fractions, linearly scaled by metalliticy
+
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){
     StellarYieldsAtomicNumbers[i] = NULL;
   }

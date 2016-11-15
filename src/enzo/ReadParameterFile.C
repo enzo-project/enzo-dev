@@ -1183,6 +1183,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   StellarYieldsAtomicNumbers+8, StellarYieldsAtomicNumbers+9);
 
     ret += sscanf(line, "StellarYieldsNumberOfSpecies = %"ISYM, &StellarYieldsNumberOfSpecies);
+    ret += sscanf(line, "StellarYieldsScaledSolarInitialAbundances = %"ISYM, &StellarYieldsScaledSolarInitialAbundances);
 
     /* Read Movie Dump parameters */
 

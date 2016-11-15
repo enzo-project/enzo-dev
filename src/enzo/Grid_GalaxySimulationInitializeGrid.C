@@ -48,6 +48,8 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
 
+float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity, const int &atomic_number);
+
 /* Internal routines */
 
 float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, 
@@ -372,9 +374,19 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
        /* Set default tracer fraction */
        metal_fraction = HaloMetallicity;
-       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
-         if(StellarYieldsAtomicNumbers[ii] > 2){
-           chemical_species_fraction[ii] = TestProblemData.ChemicalTracerSpecies_Fractions_2[ii];
+
+       if (StellarYieldsScaledSolarInitialAbundances){
+         for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+           if(StellarYieldsAtomicNumbers[ii] > 2){
+             chemical_species_fraction[ii] = \
+                StellarYields_ScaledSolarMassFractionByNumber(metal_fraction, StellarYieldsAtomicNumbers[ii]);
+           }
+         }
+       } else{
+         for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+           if(StellarYieldsAtomicNumbers[ii] > 2){
+             chemical_species_fraction[ii] = TestProblemData.ChemicalTracerSpecies_Fractions_2[ii];
+           }
          }
        }
 
@@ -544,11 +556,21 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
            D_to_H_ratio   = TestProblemData.InnerDeuteriumToHydrogenRatio;
 
            // set chemical tracers in the disk
-           for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
-             if(StellarYieldsAtomicNumbers[ii] > 2){
-               chemical_species_fraction[ii] = TestProblemData.ChemicalTracerSpecies_Fractions[ii];
+           if (StellarYieldsScaledSolarInitialAbundances){
+             for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+               if(StellarYieldsAtomicNumbers[ii] > 2){
+                 chemical_species_fraction[ii] = \
+                    StellarYields_ScaledSolarMassFractionByNumber(metal_fraction, StellarYieldsAtomicNumbers[ii]);
+               }
              }
-           }
+           } else{
+             for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+               if(StellarYieldsAtomicNumbers[ii] > 2){
+                 chemical_species_fraction[ii] = TestProblemData.ChemicalTracerSpecies_Fractions[ii];
+               }
+             }
+           } // end stellar yields fractions
+
          }
        } // end: if (r < DiskRadius)
 
