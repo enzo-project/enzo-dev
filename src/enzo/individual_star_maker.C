@@ -3161,7 +3161,10 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
         //
         if (particle_age > lifetime && particle_age - dt < lifetime){
 
-          wind_dt = fmin( fmax(0.0, lifetime - (particle_age - dt)) , lifetime - agb_start_time);
+          // wind_dt = fmin( fmax(0.0, lifetime - (particle_age - dt)) , lifetime - agb_start_time);
+          wind_dt = fmax(0.0, lifetime - (particle_age - dt));
+          wind_dt = fmin( wind_dt, lifetime - agb_start_time);
+
           printf("wind lifetime mode 1\n");
         } else if (particle_age > agb_start_time && particle_age < lifetime ) {
           wind_dt = fmin(particle_age - agb_start_time,dt); // wind only occurs for part of timestep + star dies
@@ -3177,6 +3180,8 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
           wind_dt = particle_age + dt - agb_start_time; // wind only occurs for part of timestep
           printf("wind lifeitme mode 4\n");
         } else{
+          wind_dt = fmin( lifetime - agb_start_time, dt);
+
           printf("PROBLEM IN AGB WIND PHASE\n");
         }
 
