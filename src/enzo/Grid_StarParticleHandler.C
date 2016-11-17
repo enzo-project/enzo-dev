@@ -627,7 +627,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   int MBHParticleType = PARTICLE_TYPE_MBH;
   int ColorStar = PARTICLE_TYPE_COLOR_STAR;
   int SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE;
-  int SuperNovaSeedField = PARTICLE_TYPE_SUPERNOVA_SEEDFIELD;
+
 
 
   /* Compute the redshift. */

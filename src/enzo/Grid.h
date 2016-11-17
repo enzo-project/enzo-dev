@@ -9,7 +9,6 @@
 /  PURPOSE:
 /
 ************************************************************************/
-
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
 #include "ProtoSubgrid.h"
@@ -59,6 +58,9 @@ struct HierarchyEntry;
 //  int Number;
 // int Type;
 //};
+
+
+
 
 extern int CommunicationDirection;
 int FindField(int f, int farray[], int n);
@@ -3008,9 +3010,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHDCT_ConvertEnergyToSpecificS();
 
   //List of SuperNova objects that each grid needs to keep track of                                                                      
-
+  
   List<SuperNova> SuperNovaList;
-  List<int> SuperNovaID;
+  
 
 };
 

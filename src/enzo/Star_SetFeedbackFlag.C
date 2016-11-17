@@ -135,18 +135,6 @@ int Star::SetFeedbackFlag(FLOAT Time)
 
    //this->type = abs_type;
 
- case SuperNovaSeedField:
-   // Create star                                                                                                                       
-   if(this->type <0){
-     this->FeedbackFlag = FORMATION;
-   }
-   else{
-     this->FeedbackFlag = SUPERNOVA_SEEDFIELD;
-     printf("Set FeedbackFlag to SUPERNOVA_SEEDFIELD in Star_SetFeedbackFlag.C \n");
-   }
-   break;
-
-
  case PARTICLE_TYPE_STAR:
    if(UseSupernovaSeedFieldSourceTerms)
      this->FeedbackFlag = SUPERNOVA_SEEDFIELD;

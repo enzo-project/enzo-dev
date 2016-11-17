@@ -282,8 +282,8 @@ const star_type
   SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
-  MBH = PARTICLE_TYPE_MBH,
-  SuperNovaSeedField = PARTICLE_TYPE_SUPERNOVA_SEEDFIELD;
+  MBH = PARTICLE_TYPE_MBH;
+
 
 /* Define a float/int union. */
 

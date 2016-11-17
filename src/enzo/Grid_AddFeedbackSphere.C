@@ -988,7 +988,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   /* Now it's done, unmark. */
 
   //cstar->FeedbackFlag = NO_FEEDBACK;
-  /*
+   
+
+  // Create a randomly-oriented SuperNova object and add it to the SuperNova Grid list
   if (cstar->FeedbackFlag == SUPERNOVA_SEEDFIELD) {
     if(UseSupernovaSeedFieldSourceTerms == 1){
 
@@ -1008,17 +1010,15 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       // Creates a supernova with magnetic feedback set by user-defined parameters and 
       // adds it to supernova list
       if((Time > sn_birthtime) && (Time < sn_birthtime + SupernovaSeedFieldDuration)){
-	printf("about to add SN to list in Grid_AddFeedbackSphere.C \n");
         P->setValues(phi_x, phi_y, phi_z, cstar->pos[0], cstar->pos[1], cstar->pos[2], 
                     SupernovaSeedFieldRadius, sn_birthtime, SupernovaSeedFieldDuration,
                     SupernovaSeedFieldEnergy, SupernovaSeedFieldSigma);
 
         this->SuperNovaList.append(P);
-	printf("added SN to list in Grid_AddFeedbackSphere.C \n");
       }
     }
   }
-  */
+  
 
   return SUCCESS;
 

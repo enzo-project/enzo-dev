@@ -88,10 +88,9 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	   &TimeUnits, &VelocityUnits, Time);
 
   count = 0;
-  // clear list of Supernovae at each time step to avoid adding duplicates in Grid_AddFeedbackSphere                                     
+  // clear list of Supernovae at each timestep to avoid adding duplicates in Grid_AddFeedbackSphere                                     
   if(UseSupernovaSeedFieldSourceTerms){
-       LevelArray[level]->GridData->SuperNovaList.clear();
-       //       printf("cleared SN list in StarParticleAddFeedback.C \n");
+    LevelArray[level]->GridData->SuperNovaList.clear();
   }
   for (cstar = AllStars; cstar; cstar = cstar->NextStar, count++) {
 

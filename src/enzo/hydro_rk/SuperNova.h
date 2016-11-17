@@ -39,6 +39,5 @@ private:
 };
 
 
-//std::list<SuperNova> superNovaList;
 
 #endif /* defined(____SuperNova__) */

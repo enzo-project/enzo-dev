@@ -143,7 +143,6 @@ snsf_source_terms SuperNova::getSourceTerms(double dx, double dy, double dz, dou
 	
 	snsf_source_terms S;
 
-	//fprintf(stderr, "SN.position = (%f, %f, %f)\n SN.E = %f \n SN.L = %f, SN.tau = %f, SN.time = %f \n", location[0], location[1], location[2], totalEnergy, characteristicLength, characteristicTime, timeStarted);
 	// the z_hat direction in the cell.
 	// chosen to be the z-axis
 	zhat_cell[0] = 0;
@@ -196,7 +195,7 @@ snsf_source_terms SuperNova::getSourceTerms(double dx, double dy, double dz, dou
 	  phi[0] = z_direction*(-rotated_coords[1]/r_cyl);
 	  phi[1] = z_direction*(rotated_coords[0]/r_cyl);
 	  phi[2] = 0;
-	  // if(t_s < 0.01 && r_s < 0.05) printf("phi[0], phi[1] = (%f, %f)\n", phi[0], phi[1]);
+
 	}
         else { phi[0] = 1; 
 	  phi[1] = 1;
@@ -221,7 +220,7 @@ snsf_source_terms SuperNova::getSourceTerms(double dx, double dy, double dz, dou
 	S.dUtot = norm_factor*r_scale*db_t_exp*b_t_exp;
 	S.dUb = (S.bx*S.dbx + S.by*S.dby + S.bz*S.dbz);
 	
-	//if(S.dbx != 0 || S.dUtot !=0) fprintf(stderr, "S.dbx = %f  r_cyl = %f  r_s = %f  phi[0] = %f  db_t_exp = %f  t_s = %f  S.dUtot = %f\n", S.dbx, r_cyl, r_s, phi[0], db_t_exp, t_s, S.dUtot);
+
 	return S;
 	
 }

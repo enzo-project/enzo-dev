@@ -211,7 +211,6 @@ grid::grid()
      (April 2012) only implemented for H2REG_STAR and completely
      ignored for all other star makers. */
   MakeStars = 0;
-
-  List<SuperNova>  SuperNovaList;
+    if (UseSupernovaSeedFieldSourceTerms == 1)  List<SuperNova>  SuperNovaList;
 
 }
