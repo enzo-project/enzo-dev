@@ -124,6 +124,14 @@ EXTERN float Gamma;
 
 EXTERN int PressureFree;
 
+/* FDM: Flag indicating if fuzzy dark matter is turned on, using quantum pressure */
+
+EXTERN int QuantumPressure;
+
+/* FDM: Parameter for FDM Mass, in unit of 1e-22 eV */
+
+EXTERN float FDMMass;
+
 /* Factor to refine by */
 
 EXTERN int RefineBy;
@@ -598,6 +606,10 @@ EXTERN float MinimumPressureJumpForRefinement, MinimumEnergyRatioForRefinement;
    The number of cells by which the Jeans length should be resolved. */
 
 EXTERN float RefineByJeansLengthSafetyFactor;
+
+/* FDM: velocity divergence refinement safety factor */
+
+EXTERN float RefineByVelDivSafetyFactor;
 
 /* If > 0, this will be used instead of the temperature at all locations */
 

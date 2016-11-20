@@ -193,6 +193,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HydroMethod               = PPM_DirectEuler;   //
   Gamma                     = 5.0/3.0;           // 5/3
   PressureFree              = FALSE;             // use pressure (duh)
+  QuantumPressure           = FALSE;             // FDM: no fuzzy dark matter
+  FDMMass           = 1.0;             // FDM: FDM mass 1e-22 eV
+
   RefineBy                  = 2;                 // Refinement factor
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
@@ -202,6 +205,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetallicityRefinementMinMetallicity = 1.0e-5;
   MetallicityRefinementMinDensity = FLOAT_UNDEFINED;
   FluxCorrection            = TRUE;
+
 
   UseCoolingTimestep = FALSE;
   CoolingTimestepSafetyFactor = 0.1;
@@ -536,6 +540,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
   MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
   RefineByJeansLengthSafetyFactor  = 4.0;
+  RefineByVelDivSafetyFactor  = 4.0;             // FDM: velocity divergence refinement factor
   JeansRefinementColdTemperature  = -1.0;
   RefineByResistiveLengthSafetyFactor  = 2.0;
   ShockwaveRefinementMinMach = 1.3; // Only above M=1.3

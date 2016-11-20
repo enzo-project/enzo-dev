@@ -49,7 +49,8 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
 int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
  
 // Initialization function prototypes
- 
+int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+        TopGridData &MetaData);//FDM
 int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
@@ -619,6 +620,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 108) {
     ret = ClusterInitialize(fptr, Outfptr, TopGrid, MetaData, Exterior);
  }
+
+  // 190) FDM: Fuzzy dark matter
+  if ( ProblemType == 190 ){
+    ret = LightBosonInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
 
   /* 200) 1D MHD Test */
   if (ProblemType == 200) {

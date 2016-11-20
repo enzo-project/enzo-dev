@@ -35,39 +35,38 @@ MACH_FILE  = Make.mach.darwin
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_PACKAGES       = /usr/local
+LOCAL_PACKAGES       = /opt/local/bin
 
 # This will not work on OSX Lion or newer.  You may wany to try installing
 # openmpi via macports.  
-LOCAL_MPI_INSTALL    = /usr/local
-LOCAL_FC_INSTALL     = /usr/local
-LOCAL_HDF5_INSTALL   = $(YT_DEST)
+LOCAL_MPI_INSTALL    = /opt/local
+LOCAL_FC_INSTALL     = /opt/local
+LOCAL_HDF5_INSTALL   = /opt/local
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
 LOCAL_PYTHON_INSTALL = $(YT_DEST)
-LOCAL_GRACKLE_INSTALL = /usr/local
 
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
-MACH_CPP       = /usr/bin/cpp
+MACH_CPP       = /opt/local/bin/cpp-mp-5
 
 # With MPI
 
-MACH_CC_MPI    = mpicc
-MACH_CXX_MPI   = mpic++ 
-MACH_FC_MPI    = gfortran 
-MACH_F90_MPI   = gfortran
-MACH_LD_MPI    = mpic++ 
+MACH_CC_MPI    = mpicc-openmpi-mp
+MACH_CXX_MPI   = mpicxx-openmpi-mp
+MACH_FC_MPI    = gfortran-mp-5 
+MACH_F90_MPI   = gfortran-mp-5
+MACH_LD_MPI    = mpicxx-openmpi-mp 
 MACH_CUDACOMPILER = /usr/local/cuda/bin/nvcc
 
 # Without MPI
 
 MACH_CC_NOMPI  = gcc  # C compiler when not using MPI
 MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
-MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
-MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
+MACH_FC_NOMPI  = gfortran-mp-5 # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = gfortran-mp-5 # Fortran 90 compiler when not using MPI
 MACH_LD_NOMPI  = g++ # Linker when not using MPI
 
 #-----------------------------------------------------------------------
@@ -113,30 +112,25 @@ LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_CUDA   = -I/Developer/CUDA/common/inc
-LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_CUDA)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
-MACH_INCLUDES_GRACKLE  = $(LOCAL_INCLUDES_GRACKLE)
 
 #-----------------------------------------------------------------------
 # Libraries
 #-----------------------------------------------------------------------
 
-LOCAL_LIBS_MACH   = -L$(LOCAL_FC_INSTALL)/lib -lgfortran 
+LOCAL_LIBS_MACH   = -L/opt/local/lib/libgcc -lgfortran.3 
                     #-L$(HOME)/yt/enzolib/enzolib -lproblemtype_handler
-LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
+LOCAL_LIBS_HDF5   = -L/opt/local/lib -lhdf5
 LOCAL_LIBS_PYTHON = -lpython2.6
 LOCAL_LIBS_PYTHON = -framework Python 
 LOCAL_LIBS_CUDA   = -L/usr/local/cuda/lib/ -lcudart
-LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
-LOCAL_LIBS_HYPRE = -L$(LOCAL_HYPRE_INSTALL)/lib -lhypre
 
 MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) 
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
 MACH_LIBS_MPI    = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE  = $(LOCAL_LIBS_HYPRE)
 MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
-MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)

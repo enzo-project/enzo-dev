@@ -318,6 +318,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "tiny_number            = %"FSYM, &tiny_number);
     ret += sscanf(line, "Gamma                  = %"FSYM, &Gamma);
     ret += sscanf(line, "PressureFree           = %"ISYM, &PressureFree);
+
+/* FDM: read FDM parameters */
+    ret += sscanf(line, "QuantumPressure          = %"ISYM, &QuantumPressure);
+    ret += sscanf(line, "FDMMass          = %"FSYM, &FDMMass);
+
     ret += sscanf(line, "RefineBy               = %"ISYM, &RefineBy);
     ret += sscanf(line, "MaximumRefinementLevel = %"ISYM,
 		  &MaximumRefinementLevel);
@@ -641,6 +646,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MinimumPressureSupportParameter);
     ret += sscanf(line, "RefineByJeansLengthSafetyFactor = %"FSYM,
 		  &RefineByJeansLengthSafetyFactor);
+    /* FDM: read velocity divergence refinement factor */
+    ret += sscanf(line, "RefineByVelDivSafetyFactor = %"FSYM,
+      &RefineByVelDivSafetyFactor);
     ret += sscanf(line, "JeansRefinementColdTemperature = %"FSYM,
 		  &JeansRefinementColdTemperature);
     ret += sscanf(line, "RefineByResistiveLengthSafetyFactor = %" FSYM,

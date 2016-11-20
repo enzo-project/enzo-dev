@@ -311,6 +311,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "tiny_number                    = %e\n", tiny_number);
   fprintf(fptr, "Gamma                          = %"GOUTSYM"\n", Gamma);
   fprintf(fptr, "PressureFree                   = %"ISYM"\n", PressureFree);
+  /* FDM: write FDM parameters */  
+  fprintf(fptr, "QuantumPressure                = %"ISYM"\n", QuantumPressure);
+  fprintf(fptr, "FDMMass                        = %"ISYM"\n", FDMMass);
+
   fprintf(fptr, "RefineBy                       = %"ISYM"\n", RefineBy);
   fprintf(fptr, "MaximumRefinementLevel         = %"ISYM"\n", MaximumRefinementLevel);
   fprintf(fptr, "MaximumGravityRefinementLevel  = %"ISYM"\n",
@@ -599,6 +603,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MinimumPressureSupportParameter);
   fprintf(fptr, "RefineByJeansLengthSafetyFactor  = %"FSYM"\n",
 	  RefineByJeansLengthSafetyFactor);
+  /* FDM: write velocity divergence refinement factor */
+  fprintf(fptr, "RefineByVelDivSafetyFactor  = %"FSYM"\n",
+    RefineByVelDivSafetyFactor);
   fprintf(fptr, "JeansRefinementColdTemperature  = %"FSYM"\n",
 	  JeansRefinementColdTemperature);
   fprintf(fptr, "RefineByResistiveLengthSafetyFactor  = %"FSYM"\n", 

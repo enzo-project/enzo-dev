@@ -402,6 +402,10 @@ public:
    int ConductHeat();			     /* Conduct Heat */
    float ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
 
+/* FDM: functions for lightboson dark matter */
+  int ComputeQuantumTimeStep(float &dt); /* Estimate quantum time-step */
+  int ComputeQuantumAcceleration(float time); /* Net Acceleration of Lightboson */
+
 /* Member functions for dealing with Cosmic Ray Diffusion */
 
    int ComputeCRDiffusion(); // CR Diffusion Method 
@@ -930,6 +934,12 @@ gradient force to gravitational force for one-zone collapse test. */
    Flagged cells in the boundary zones and within one zone of the boundary. */
 
    int FlagBufferZones();
+
+/* FDM: new refinement criteria */
+/* FDM: Jean's scale */
+   int FlagCellsToBeRefinedByQuantumJeansLength();
+/* FDM: velocity divergence */
+   int FlagCellsToBeRefinedByVelDiv();
 
 /* Identify new subgrids for this grid (and prove Fermat's last theorem too)
    (gg #5) */
@@ -2446,6 +2456,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
 				int InitialMagneticFieldConfiguration);
+
+/* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
+  int LightBosonInitializeGrid(float CenterPosition);
 // -------------------------------------------------------------------------
 // Analysis functions for AnalysisBaseClass and it's derivatives.
 //

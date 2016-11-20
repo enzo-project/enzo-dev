@@ -278,6 +278,26 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 	  return FAIL;
 	}
 	break;
+
+	/* ==== METHOD 50: FDM: Refine Quantum Jeans Length ==== */
+    case 50:
+
+  NumberOfFlaggedCells = this->FlagCellsToBeRefinedByQuantumJeansLength();
+  if (NumberOfFlaggedCells < 0) {
+    fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByQuantumJeansLength.\n");
+    return FAIL;
+  }
+  break;
+
+      /* ==== METHOD 51: FDM: Refine Velocity Divergence ==== */
+    case 51:
+
+  NumberOfFlaggedCells = this->FlagCellsToBeRefinedByVelDiv();
+  if (NumberOfFlaggedCells < 0) {
+    fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByVelDiv.\n");
+    return FAIL;
+  }
+  break;
 	
 	/* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
 	

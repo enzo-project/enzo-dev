@@ -1,0 +1,140 @@
+/***********************************************************************
+/
+/  GRID CLASS (FLAG CELLS TO BE REFINED BY THE JEAN'S CRITERION)
+/
+/  written by: Greg Bryan
+/  date:       February, 1998
+/  modified1:  Alexei Kritsuk, Feb. 2004 mods for isothermal EOS.
+/
+/  PURPOSE:
+/
+/  RETURNS:
+/    number of flagged cells, or -1 on failure
+/
+************************************************************************/
+ 
+#include <stdio.h>
+#include <math.h>
+#include "phys_constants.h"
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+#include "hydro_rk/EOS.h"
+ 
+/* function prototypes */
+ 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+int QuantumGetUnits (float *DensityUnits, float *LengthUnits,
+        float *TemperatureUnits, float *TimeUnits,
+        float *VelocityUnits, double *MassUnits, FLOAT Time);
+ 
+int grid::FlagCellsToBeRefinedByQuantumJeansLength()
+{
+  /* declarations */
+ 
+  int i, dim;
+ 
+  /* error check */
+ 
+  if (FlaggingField == NULL) {
+    fprintf(stderr, "Flagging Field is undefined.\n");
+    return -1;
+  }
+ 
+  /* compute size */
+ 
+  int size = 1;
+  for (dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+ 
+  /* Find fields: density, total energy, velocity1-3. */
+ 
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+				       Vel3Num, TENum) == FAIL) {
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+  }
+ 
+ 
+  float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1,
+    TemperatureUnits=1, MassUnits=1;
+  /* Get density units. 
+
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
+    ENZO_FAIL("Error in GetUnits.\n");
+  }*/
+
+  /* Get quantum coef. */
+  if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+    ENZO_FAIL("Error in GetUnits.");
+  }
+ 
+   FLOAT hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
+
+   /* Compute expansion factor*/
+   FLOAT a = 1.0, dadt;
+    if (ComovingCoordinates){
+      if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
+    ENZO_FAIL("Error in ComputeExpansionFactor.\n");
+     }
+    }
+
+  /* Compute constant for Jean's length computation.
+      l_j = (4*pi*G*a*4*(m/h)^2)^4  . */
+ 
+  FLOAT JL = 2*pi/pow(a*4,0.25)*sqrt(hmcoef);
+ 
+//  if (ProblemType == 60 || ProblemType == 61)
+//    JLSquared = double(4.0*3.14159*3.14159)/GravitationalConstant; //AK
+
+  /* This is the safety factor to decrease the Jean's length by. */
+ 
+  JL /= RefineByJeansLengthSafetyFactor;
+ 
+/* printf("jl: JL, dx, t, d = %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", sqrt(JLSquared), CellWidth[0][3],
+	 temperature[(3 + 3*GridDimension[1])*GridDimension[0]+3],
+	 BaryonField[DensNum][(3 + 3*GridDimension[1])*GridDimension[0]+3]);*/
+ 
+  /* Loop over grid. */
+ 
+#ifdef UNUSED
+  int j, k, index;
+  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+      index = (j + k*GridDimension[1])*GridDimension[0];
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
+	if ((CellWidth[0][i]) >
+	    JL/pow(BaryonField[DensNum][index+i]),0.25)
+	  FlaggingField[index+i]++;
+    }
+#endif /* UNUSED */
+ 
+ // FLOAT CellWidthSquared = CellWidth[0][0]*CellWidth[0][0];
+  for (i = 0; i < size; i++)
+    {
+	if (CellWidth[0][0] > JL/pow(BaryonField[DensNum][i],0.25))
+	  FlaggingField[i]++; 
+    }
+ 
+  /* clean up */
+ 
+  /* Count number of flagged Cells. */
+ 
+  int NumberOfFlaggedCells = 0;
+  for (i = 0; i < size; i++) {
+    FlaggingField[i] = (FlaggingField[i] >= 1)? 1 : 0;
+    NumberOfFlaggedCells += FlaggingField[i];
+  }
+ 
+  return NumberOfFlaggedCells;
+ 
+}
