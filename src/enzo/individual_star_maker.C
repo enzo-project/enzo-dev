@@ -3122,7 +3122,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
   const float msun = 1.989E33, k_boltz = 1.380658E-16;
   float E_thermal;
 
-  /* AJE Temporary */
+  /* New variables to make code slightly cleaner + handle units */
   float mproj        = cstar->ReturnBirthMass();
   float lifetime     = cstar->ReturnLifetime() * TimeUnits;
   float metallicity  = cstar->ReturnMetallicity();

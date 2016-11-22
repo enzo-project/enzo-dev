@@ -90,8 +90,8 @@ void Star::AssignRadTablePosition(void){
 void Star::AssignYieldTablePosition(void){
 
   StellarYieldsGetYieldTablePosition(this->yield_table_position[0],
-                                      this->yield_table_position[1],
-                                      this->BirthMass, this->Metallicity);
+                                     this->yield_table_position[1],
+                                     this->BirthMass, this->Metallicity);
 
   return;
 }

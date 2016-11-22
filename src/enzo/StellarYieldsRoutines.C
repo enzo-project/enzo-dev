@@ -193,7 +193,17 @@ float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
 int StellarYieldsGetYieldTablePosition(int &i, int &j,
                                         const float &M, const float &metallicity){
   /* interpolate table */
-  StellarYieldsDataType table = StellarYieldsSNData; // either is fine
+  StellarYieldsDataType table;
+
+  if (M <= StellarYieldsSNData.M[StellarYieldsSNData.NumberOfMassBins - 1]){
+    // if mass is on NuGrid data set (M <= 25) use this table
+    table = StellarYieldsSNData;
+  } else if (( M >= StellarYieldsMassiveStarData.M[0]) &&
+            ( M <= StellarYieldsMassiveStarData.M[StellarYieldsMassiveStarData.NumberOfMassBins-1])){
+    // use massive star data from PARSEC models (massive stars only! and wind only!)
+
+    table = StellarYieldsMassiveStarData;
+  }
 
   int width, bin_number;
 
@@ -202,14 +212,17 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
   float interp_M = M;
 
   if( (M < table.M[0]) || (M > table.M[table.NumberOfMassBins - 1])){
+
     if( IndividualStarExtrapolateYields ){
       // scale to most massive star
       interp_M  = table.M[table.NumberOfMassBins - 1] * 0.9999999;
+
     } else{
       printf("StellarYieldsInterpolateYield: Mass out of bounds\n");
       printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, table.M[0], table.M[table.NumberOfMassBins-1]);
       return FAIL;
     }
+
   }
 
   if( (Z < table.Z[0]) || (Z > table.Z[table.NumberOfMetallicityBins - 1])){
@@ -224,49 +237,6 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
       return FAIL;
     }
   }
-
-/*
-  width = table.NumberOfMassBins / 2;
-  i     = table.NumberOfMassBins / 2;
-
-  if( !((table.M[i] < interp_M) && (table.M[i+1] > interp_M))){
-    if( table.M[i] > interp_M && table.M[i-1] < interp_M){
-      i = i - 1;
-    } else{
-
-      while (width > 1){
-
-        width /= 2;
-        if ( interp_M > table.M[i])
-          i += width;
-        else if (interp_M < table.M[i])
-          i -= width;
-        else
-          break;
-      } // mass binary search
-    }
-  }
-
-  if ( interp_M < table.M[i] ) i--;
-  if ( interp_M < table.M[i] ) i--;
-
-  width = table.NumberOfMetallicityBins / 2;
-  j     = table.NumberOfMetallicityBins / 2;
-
-  while (width > 1){
-    width /= 2;
-    if ( Z > table.Z[j])
-      j += width;
-    else if ( Z < table.Z[j])
-      j -= width;
-    else
-      break;
-  } // metallicity binary search
-
-  // search finds nearest bin - interpolation requires floored nearest bin
-  if ( Z < table.Z[j]) j--;
-  if ( Z < table.Z[j]) j--;
-*/
 
   i = search_lower_bound(table.M, interp_M, 0, table.NumberOfMassBins, table.NumberOfMassBins);
   j = search_lower_bound(table.Z, Z, 0, table.NumberOfMetallicityBins, table.NumberOfMetallicityBins);
@@ -290,9 +260,17 @@ float StellarYieldsInterpolateYield(int yield_type,
 
     table = StellarYieldsSNData;
 
+    if( M > table.M[table.NumberOfMassBins - 1]){
+      ENZO_FAIL("StellarYieldsInterpolateYield: No yields available for massive stars. Assuming all do direct collapse.");
+    }
   } else if (yield_type == 1){     // do stellar wind yields
 
-    table = StellarYieldsWindData;
+    /* use NuGrid wind data if star is on grid, else use PARSEC massive star winds */
+    if ( M > StellarYieldsWindData.M[StellarYieldsWindData.NumberOfMassBins - 1]){
+      table = StellarYieldsMassiveStarData;
+    } else{
+      table = StellarYieldsWindData;
+    }
 
   } // another if for SN1a
 
@@ -371,9 +349,17 @@ float StellarYieldsInterpolateYield(int yield_type,
 
     table = StellarYieldsSNData;
 
+    if( M > table.M[table.NumberOfMassBins - 1]){
+      ENZO_FAIL("StellarYieldsInterpolateYield: No yields available for massive stars. Assuming all do direct collapse.");
+    }
   } else if (yield_type == 1){     // do stellar wind yields
 
-    table = StellarYieldsWindData;
+    /* use NuGrid wind data if star is on grid, else use PARSEC massive star winds */
+    if ( M > StellarYieldsWindData.M[StellarYieldsWindData.NumberOfMassBins - 1]){
+      table = StellarYieldsMassiveStarData;
+    } else{
+      table = StellarYieldsWindData;
+    }
 
   } // another if for SN1a
 
@@ -410,41 +396,6 @@ float StellarYieldsInterpolateYield(int yield_type,
     }
   }
 
-/*
-  width = table.NumberOfMassBins / 2;
-  i     = table.NumberOfMassBins / 2;
-
-  while (width > 1){
-
-    width /= 2;
-    if ( interp_M > table.M[i])
-      i += width;
-    else if (interp_M < table.M[i])
-      i -= width;
-    else
-      break;
-  } // mass binary search
-
-  if ( interp_M < table.M[i] ) i--;
-  if ( interp_M < table.M[i] ) i--;
-
-  width = table.NumberOfMetallicityBins / 2;
-  j     = table.NumberOfMetallicityBins / 2;
-
-  while (width > 1){
-    width /= 2;
-    if ( Z > table.Z[j])
-      j += width;
-    else if ( Z < table.Z[j])
-      j -= width;
-    else
-      break;
-  } // metallicity binary search
-
-  // search finds nearest bin - interpolation requires floored nearest bin
-  if ( Z < table.Z[j]) j--;
-  if ( Z < table.Z[j]) j--;
-*/
   i = search_lower_bound(table.M, interp_M, 0, table.NumberOfMassBins, table.NumberOfMassBins);
   j = search_lower_bound(table.Z, Z, 0, table.NumberOfMetallicityBins, table.NumberOfMetallicityBins);
 
