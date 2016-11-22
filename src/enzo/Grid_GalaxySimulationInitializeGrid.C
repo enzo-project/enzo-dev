@@ -296,11 +296,11 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
        BaryonField[H2IINum][i] = tiny_number * 2.0 * BaryonField[HIINum][i];
      }
 
-     BaryonField[HINum][i] = 0.75 *UniformDensity - BaryonField[HIINum][i];
+     BaryonField[HINum][i] = fmax(0.75 *UniformDensity - BaryonField[HIINum][i], tiny_number);
 
      if( MultiSpecies > 1){
-       BaryonField[HINum][i] -= (BaryonField[HMNum][i] + BaryonField[H2IINum][i] +
-                                 BaryonField[H2INum][i]);
+       BaryonField[HINum][i] = fmax( BaryonField[HINum][i] - (BaryonField[HMNum][i] + BaryonField[H2IINum][i] +
+                                 BaryonField[H2INum][i]), tiny_number);
      }
 
      // Electron density: sum up ionized species
@@ -625,11 +625,11 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
            BaryonField[H2IINum][n] = H2II_Fraction * 2.0 * BaryonField[HIINum][n];
          }
 
-         BaryonField[HINum][n] = H_Fraction*BaryonField[DensNum][n] -
-                                                       BaryonField[HIINum][n];
+         BaryonField[HINum][n] = fmax(H_Fraction*BaryonField[DensNum][n] -
+                                                       BaryonField[HIINum][n], tiny_number);
          if(MultiSpecies > 1){
-           BaryonField[HINum][n] -= (BaryonField[HMNum][n] + BaryonField[H2IINum][n] +
-                                     BaryonField[H2INum][n]);
+           BaryonField[HINum][n] = fmax( BaryonField[HINum][n] -(BaryonField[HMNum][n] + BaryonField[H2IINum][n] +
+                                     BaryonField[H2INum][n]), tiny_number);
          }
 
          BaryonField[DeNum][n] = BaryonField[HIINum][n] + 0.25*BaryonField[HeIINum][n] +
