@@ -24,6 +24,8 @@
 
 /* function prototypes */
 void unpack_line_to_yields( char *line, float *dummy);
+void initialize_table(StellarYieldsDataType* table);
+void fill_table(StellarYieldsDataType *table, FILE *fptr);
 
 
 
@@ -68,9 +70,14 @@ int InitializeStellarYields(void){
   StellarYieldsWindData.NumberOfMetallicityBins =  5;
   StellarYieldsWindData.NumberOfYields          = StellarYieldsNumberOfSpecies;
 
+  StellarYieldsMassiveStarData.NumberOfMassBins        = 29;
+  StellarYieldsMassiveStarData.NumberOfMetallicityBins = 12;
+  StellarYieldsMassiveStarData.NumberOfYields       = StellarYieldsNumberOfSpecies;
+
   // read in data from files - one table for each yield type:
   //   1) core collapse supernova
   //   2) stellar winds
+  //   3) Massive star tables
   //
   FILE *fptr_sn = fopen("stellar_yields_sn.in", "r");
   if (fptr_sn == NULL){
@@ -81,116 +88,25 @@ int InitializeStellarYields(void){
     ENZO_FAIL("Error opening stellar yields wind file, 'stellar_yields_wind.in'");
   }
 
-  char line[MAX_LINE_LENGTH];
-
-  /* bins are not evenly spaced - save bin values */
-  StellarYieldsSNData.M = new float[StellarYieldsSNData.NumberOfMassBins];
-  StellarYieldsSNData.Z = new float[StellarYieldsSNData.NumberOfMetallicityBins];
-
-  StellarYieldsWindData.M = new float[StellarYieldsWindData.NumberOfMassBins];
-  StellarYieldsWindData.Z = new float[StellarYieldsWindData.NumberOfMetallicityBins];
-
-  /* total mass for each M and Z */
-  StellarYieldsSNData.Mtot   = new float*[StellarYieldsSNData.NumberOfMassBins];
-  StellarYieldsSNData.Metal_Mtot = new float*[StellarYieldsSNData.NumberOfMassBins];
-
-  StellarYieldsWindData.Mtot = new float*[StellarYieldsWindData.NumberOfMassBins];
-  StellarYieldsWindData.Metal_Mtot = new float*[StellarYieldsWindData.NumberOfMassBins];
-
-  /* start making arrays for the data */
-  StellarYieldsSNData.Yields   = new float**[StellarYieldsSNData.NumberOfMassBins];
-  StellarYieldsWindData.Yields = new float**[StellarYieldsWindData.NumberOfMassBins];
-
-  for (int i = 0; i < StellarYieldsSNData.NumberOfMassBins; i++){
-    StellarYieldsSNData.Yields[i] = new float*[StellarYieldsSNData.NumberOfMetallicityBins];
-
-    StellarYieldsSNData.Mtot[i]   = new float[StellarYieldsSNData.NumberOfMetallicityBins];
-    StellarYieldsSNData.Metal_Mtot[i] = new float[StellarYieldsSNData.NumberOfMetallicityBins];
-
-    for (int j = 0; j < StellarYieldsSNData.NumberOfMetallicityBins; j++){ 
-      StellarYieldsSNData.Yields[i][j] = new float[ StellarYieldsSNData.NumberOfYields ]; /* AJE: Make parameter */
-    }
+  FILE *fptr_mstar = fopen("stellar_yields_massive_star.in", "r");
+  if (fptr_mstar == NULL){
+    ENZO_FAIL("Error opening stellar yields massive stars, 'stellar_yields_massive_star.in'");
   }
 
-  for (int i = 0; i < StellarYieldsWindData.NumberOfMassBins; i++){
-    StellarYieldsWindData.Yields[i] = new float*[StellarYieldsWindData.NumberOfMetallicityBins];
+  /* Initialize tables with empty pointers */
+  initialize_table(&StellarYieldsSNData);
+  initialize_table(&StellarYieldsWindData);
+  initialize_table(&StellarYieldsMassiveStarData);
 
-    StellarYieldsWindData.Mtot[i]   = new float[StellarYieldsWindData.NumberOfMetallicityBins];
-    StellarYieldsWindData.Metal_Mtot[i] = new float[StellarYieldsWindData.NumberOfMetallicityBins];
-
-    for (int j = 0; j < StellarYieldsWindData.NumberOfMetallicityBins; j++){ 
-      StellarYieldsWindData.Yields[i][j] = new float[ StellarYieldsWindData.NumberOfYields ]; /* AJE: Make parameter */
-    }
-  }
-
-  /* now read in the data from file */
-  int i, j, err;
-  i = 0; j = 0;
-
-  float *dummy = new float[87];
-
-  /* We are doing the unnatractive thing of unpacking a 80+ column file when
-     we only want a few columns. Hence the function call to unpack the line 
-     to a dummy variable */
-  while( fgets(line, MAX_LINE_LENGTH, fptr_sn) != NULL){
-    if(line[0] != '#'){
-
-      unpack_line_to_yields(line, dummy);
-
-      StellarYieldsSNData.M[i]                = dummy[0];
-      StellarYieldsSNData.Z[j]                = dummy[1];
-      StellarYieldsSNData.Mtot[i][j]          = dummy[2];
-      StellarYieldsSNData.Metal_Mtot[i][j]    = dummy[3];
-
-      /* file column numbers are atomic numbers + 1, if first column is 0
-         loop over number of yields provided by user and pick only the ones we
-         want  2 in below is number of non-element columns - 1 */
-      for (int k = 0; k < StellarYieldsSNData.NumberOfYields; k++){
-        StellarYieldsSNData.Yields[i][j][k] = dummy[3 + *(StellarYieldsAtomicNumbers+k)];
-      }
-
-      j++;
-      if ( j >= StellarYieldsSNData.NumberOfMetallicityBins){
-        j = 0;
-        i++;
-      }
-    }
-  } // end sn yields read in
-
-  i = 0; j = 0;
-
-  while( fgets(line, MAX_LINE_LENGTH, fptr_wind) != NULL){
-    if(line[0] != '#'){
-
-      unpack_line_to_yields(line, dummy);
-
-      StellarYieldsWindData.M[i]                = dummy[0];
-      StellarYieldsWindData.Z[j]                = dummy[1];
-      StellarYieldsWindData.Mtot[i][j]          = dummy[2];
-      StellarYieldsWindData.Metal_Mtot[i][j]    = dummy[3];
-
-      /* see above comment in previous while loop */
-      for (int k = 0; k < StellarYieldsWindData.NumberOfYields; k++){
-        StellarYieldsWindData.Yields[i][j][k] = dummy[3 + *(StellarYieldsAtomicNumbers+k)];
-      }
-
-
-      j++;
-      if ( j >= StellarYieldsWindData.NumberOfMetallicityBins){
-        j = 0;
-        i++;
-      }
-    }
-
-  }
- 
-
-  delete [] dummy;
-
+  /* Now fill the tables with data from respective files */
+  fill_table(&StellarYieldsSNData, fptr_sn);
+  fill_table(&StellarYieldsWindData, fptr_wind);
+  fill_table(&StellarYieldsMassiveStarData, fptr_mstar);
 
   /* close files */
   fclose(fptr_sn);
   fclose(fptr_wind);
+  fclose(fptr_mstar);
 
   return SUCCESS;
 }
@@ -219,4 +135,75 @@ void unpack_line_to_yields( char *line, float *dummy){
                    &dummy[73], &dummy[74], &dummy[75], &dummy[76], &dummy[77], &dummy[78], &dummy[79], &dummy[80],
                    &dummy[81], &dummy[82], &dummy[83], &dummy[84], &dummy[85], &dummy[86]);
 }
+
+void initialize_table(StellarYieldsDataType* table){
+  /* -----------------------------------------------
+   * fill_table
+   * -----------------------------------------------
+   */
+
+  table->M    = new float[table->NumberOfMassBins];
+  table->Z    = new float[table->NumberOfMetallicityBins];
+  table->Mtot = new float*[table->NumberOfMassBins];
+  table->Metal_Mtot = new float*[table->NumberOfMassBins];
+  table->Yields = new float**[table->NumberOfMassBins];
+
+  for (int i = 0; i < table->NumberOfMassBins; i++){
+    table->Yields[i] = new float*[table->NumberOfMetallicityBins];
+
+    table->Mtot[i] = new float[table->NumberOfMetallicityBins];
+    table->Metal_Mtot[i] = new float[table->NumberOfMetallicityBins];
+
+    for (int j = 0; j < table->NumberOfMetallicityBins; j++){
+      table->Yields[i][j] = new float [table->NumberOfYields];
+    }
+  }
+
+  return;
+}
+
+void fill_table(StellarYieldsDataType *table, FILE *fptr){
+
+  const int max_column_number = 87;
+  float *dummy = new float[max_column_number];
+
+  char line[MAX_LINE_LENGTH];
+
+  int i,j;
+  i = 0; j = 0;
+  while ( fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
+    if (line[0] != '#'){
+
+      // just to be sure, reset dumyy variable every time
+      for (int d = 0; d < max_column_number; d++){
+        dummy[d] = 0.0;
+      }
+
+      unpack_line_to_yields(line, dummy);
+
+      table->M[i] = dummy[0];
+      table->Z[i] = dummy[1];
+      table->Mtot[i][j]       = dummy[2];
+      table->Metal_Mtot[i][j] = dummy[3];
+
+
+      // file column numbers are atomic numbers + 1,
+      // if first column is 0. Loop over number of yields
+      // and pick only the ones we want
+      for (int k = 0; k < table->NumberOfYields; k++){
+        table->Yields[i][j][k] = dummy[3 + *(StellarYieldsAtomicNumbers+k)];
+      }
+
+      // iterate counters and reset if needed
+      j++;
+      if( j >= table->NumberOfMetallicityBins){
+        j=0;
+        i++;
+      }
+    } // end if
+  }
+
+  return;
+}
+
 
