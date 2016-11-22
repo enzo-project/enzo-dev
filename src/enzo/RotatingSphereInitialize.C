@@ -120,7 +120,7 @@ int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
       ret += sscanf(line, "RotatingSphereCentralDensity = %"FSYM, &RotatingSphereCentralDensity);
       ret += sscanf(line, "RotatingSphereCoreDensityExponent = %"FSYM, &RotatingSphereCoreDensityExponent);
       ret += sscanf(line, "RotatingSphereOuterDensityExponent = %"FSYM, &RotatingSphereOuterDensityExponent);
-      ret += sscanf(line, "RotatingSphereExernalTemperature = %"FSYM, &RotatingSphereExternalTemperature);
+      ret += sscanf(line, "RotatingSphereExternalTemperature = %"FSYM, &RotatingSphereExternalTemperature);
       ret += sscanf(line, "RotatingSphereSpinParameter = %"FSYM, &RotatingSphereSpinParameter);
       ret += sscanf(line, "RotatingSphereAngularMomentumExponent = %"FSYM, &RotatingSphereAngularMomentumExponent);
       ret += sscanf(line, "RotatingSphereUseTurbulence = %"ISYM, &RotatingSphereUseTurbulence);
