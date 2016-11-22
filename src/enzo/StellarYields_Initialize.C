@@ -70,7 +70,7 @@ int InitializeStellarYields(void){
   StellarYieldsWindData.NumberOfMetallicityBins =  5;
   StellarYieldsWindData.NumberOfYields          = StellarYieldsNumberOfSpecies;
 
-  StellarYieldsMassiveStarData.NumberOfMassBins        = 29;
+  StellarYieldsMassiveStarData.NumberOfMassBins        = 30;
   StellarYieldsMassiveStarData.NumberOfMetallicityBins = 12;
   StellarYieldsMassiveStarData.NumberOfYields       = StellarYieldsNumberOfSpecies;
 
@@ -182,7 +182,7 @@ void fill_table(StellarYieldsDataType *table, FILE *fptr){
       unpack_line_to_yields(line, dummy);
 
       table->M[i] = dummy[0];
-      table->Z[i] = dummy[1];
+      table->Z[j] = dummy[1];
       table->Mtot[i][j]       = dummy[2];
       table->Metal_Mtot[i][j] = dummy[3];
 
