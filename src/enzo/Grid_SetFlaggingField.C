@@ -26,7 +26,7 @@
 extern float DepositParticleMaximumParticleMass;
  
  
-int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
+int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level, int MaximumCurrentLevel)
 {
  
   /* Return if this doesn't concern us. */
@@ -292,10 +292,12 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
       /* ==== METHOD 51: FDM: Refine Velocity Divergence ==== */
     case 51:
 
-  NumberOfFlaggedCells = this->FlagCellsToBeRefinedByVelDiv();
-  if (NumberOfFlaggedCells < 0) {
-    fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByVelDiv.\n");
-    return FAIL;
+  if (level < MaximumCurrentLevel) {
+     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByVelDiv();
+     if (NumberOfFlaggedCells < 0) {
+       fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByVelDiv.\n");
+      return FAIL;
+     }
   }
   break;
 	

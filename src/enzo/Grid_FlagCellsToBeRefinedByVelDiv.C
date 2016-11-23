@@ -42,6 +42,7 @@ int grid::FlagCellsToBeRefinedByVelDiv()
  
   int i, j, k, dim;
   float *u, *v, *w;
+  float dxcalc;
  
   /* error check */
  
@@ -87,14 +88,29 @@ int grid::FlagCellsToBeRefinedByVelDiv()
   v = BaryonField[Vel2Num];
   w = BaryonField[Vel3Num];
 
+
+
+
     /* allocate divergence of velocity */
   float *div = new float[size];
   int in = GridDimension[0];
   int jn = GridDimension[1];
   int kn = GridDimension[2];
+
   float dx = CellWidth[0][0];
-  float dy = CellWidth[1][0];
-  float dz = CellWidth[2][0];
+
+  if (GridRank < 2) {
+    v = new float[size];
+    for (i = 0; i < size; i++)
+      v[i] = 0;
+  }
+  if (GridRank < 3) {
+    w = new float[size];
+    for (i = 0; i < size; i++)
+      w[i] = 0;
+  }
+
+
 
   /* loop to compute velocity divergence */
 
@@ -105,12 +121,14 @@ int grid::FlagCellsToBeRefinedByVelDiv()
   		for (i=0; i<in; i++){
   			div[IDX(i,j,k)] = fabs((u[IDX(min(i+1,in-1),j,k)]-u[(IDX(i,j,k))]))/dx;
   			if (GridRank>1){
-  				div[IDX(i,j,k)] += fabs((v[IDX(i,min(j+1,jn-1),k)]-v[(IDX(i,j,k))]))/dy;
+  				div[IDX(i,j,k)] += fabs((v[IDX(i,min(j+1,jn-1),k)]-v[(IDX(i,j,k))]))/dx;
   			}
   			if (GridRank>2){
-  				div[IDX(i,j,k)] += fabs((w[IDX(i,j,min(k+1,kn-1))]-w[(IDX(i,j,k))]))/dz;
+  				div[IDX(i,j,k)] += fabs((w[IDX(i,j,min(k+1,kn-1))]-w[(IDX(i,j,k))]))/dx;
   			}
   			div[IDX(i,j,k)] = max(div[IDX(i,j,k)]*RefineByVelDivSafetyFactor, tiny_number);
+
+
   		}
   	}
   }
@@ -120,24 +138,26 @@ int grid::FlagCellsToBeRefinedByVelDiv()
  
 #ifdef UNUSED
   int j, k, index;
-  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       index = (j + k*GridDimension[1])*GridDimension[0];
-      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
-	if (CellWidth[0][i] > sqrt(hmcoef/(a*div[i]))){
-	  FlaggingField[index+i]++;
-  }
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++){
+              dxcalc = sqrt(hmcoef/a/div[i]);
+	if (dx > dxcalc){
+	  FlaggingField[index+i]++;}
+        }
+      }
     }
 #endif /* UNUSED */
  
  // FLOAT CellWidthSquared = CellWidth[0][0]*CellWidth[0][0];
   for (i = 0; i < size; i++)
     {
-      //fprintf(stderr, "%f %f %f \n", CellWidth[0][0],div[i],sqrt(hmcoef/(a*div[i])) ); 
-	if (CellWidth[0][0] > (sqrt(hmcoef/a/div[i]))){
+      dxcalc = sqrt(hmcoef/a/div[i]);
+	if (dx > dxcalc){
 	  FlaggingField[i]++; 
 
-  }    
+      }    
 
     }
  

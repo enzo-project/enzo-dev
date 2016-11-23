@@ -72,13 +72,13 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
 
     // set up an initial Gaussian density profile, v=0
 
-      BaryonField[iden ][index] = 1*exp(-alpha*pow((x-CenterPosition),2)/sumsquare)/pow(sumsquare,0.5)/5.; // Gaussian Density Field
+      BaryonField[iden ][index] = 1e-6+1*exp(-alpha*pow((x-CenterPosition),2)/sumsquare)/pow(sumsquare,0.5)/5.; // Gaussian Density Field
       //BaryonField[ivx ][index] = 1.e-4*exp(-alpha*pow((x-CenterPosition),2)/sumsquare); // Gaussian Density Field
 
       //BaryonField[RePsiNum ][index] = sqrt(BaryonField[iden ][index]);
       //BaryonField[ImPsiNum ][index] = 0;
       //BaryonField[iden ][index] = 1.0;
-    if( x>0.5){
+    /*if( x>0.5){
       BaryonField[iden ][index] = 6.;
     }else{
       BaryonField[iden ][index] = 5.;

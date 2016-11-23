@@ -138,13 +138,13 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
           p[IDX(i,j,k)] = p[IDX(i,j,k)] + (logd[IDX(i,j,max(k-1,0))]-2.0*logd[IDX(i,j,k)]+logd[IDX(i,j,min(k+1,kn-1))])/(dz[k]*dz[k])/2.;
           p[IDX(i,j,k)] = p[IDX(i,j,k)] + pow((logd[IDX(i,j,min(k+1,kn-1))]-logd[IDX(i,j,max(k-1,0))])/(dz[k]*2.),2)/4.;
 
-          //visz[IDX(i,j,k)] = w[IDX(max(i-1,0),j,k)]-2.0*w[IDX(i,j,k)]+w[IDX(min(i+1,in-1),j,k)];
+          visz[IDX(i,j,k)] = w[IDX(max(i-1,0),j,k)]-2.0*w[IDX(i,j,k)]+w[IDX(min(i+1,in-1),j,k)];
 
-          //visz[IDX(i,j,k)] += w[IDX(i,max(j-1,0),k)]-2.0*w[IDX(i,j,k)]+w[IDX(i,min(j+1,jn-1),k)];
+          visz[IDX(i,j,k)] += w[IDX(i,max(j-1,0),k)]-2.0*w[IDX(i,j,k)]+w[IDX(i,min(j+1,jn-1),k)];
 
-          //visx[IDX(i,j,k)] += u[IDX(i,j,max(k-1,0))]-2.0*u[IDX(i,j,k)]+u[IDX(i,j,min(k+1,kn-1))];
-          //visy[IDX(i,j,k)] += v[IDX(i,j,max(k-1,0))]-2.0*v[IDX(i,j,k)]+v[IDX(i,j,min(k+1,kn-1))];
-          //visz[IDX(i,j,k)] += w[IDX(i,j,max(k-1,0))]-2.0*w[IDX(i,j,k)]+w[IDX(i,j,min(k+1,kn-1))];
+          visx[IDX(i,j,k)] += u[IDX(i,j,max(k-1,0))]-2.0*u[IDX(i,j,k)]+u[IDX(i,j,min(k+1,kn-1))];
+          visy[IDX(i,j,k)] += v[IDX(i,j,max(k-1,0))]-2.0*v[IDX(i,j,k)]+v[IDX(i,j,min(k+1,kn-1))];
+          visz[IDX(i,j,k)] += w[IDX(i,j,max(k-1,0))]-2.0*w[IDX(i,j,k)]+w[IDX(i,j,min(k+1,kn-1))];
 
 
           }// end rank > 2
@@ -168,16 +168,16 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
     for (j = jsm1; j <= jep2; j++) {
       for (i = is-1; i <= ie+2; i++) {
       		
-          deltav =  dt*(p[IDX(i-1,j,k)]-p[IDX(i,j,k)])/dx[i]+ visx[IDX(i,j,k)]*1e-4;
+          deltav =  dt*(p[IDX(i-1,j,k)]-p[IDX(i,j,k)])/dx[i]+ visx[IDX(i,j,k)]*min(dx[i],1e-2);
 		      u[IDX(i,j,k)] = u[IDX(i,j,k)] + deltav;
 
       if (rank > 1) {
-      		deltav =  dt*(p[IDX(i,j-1,k)]-p[IDX(i,j,k)])/dy[j]+ visy[IDX(i,j,k)]*1e-4;
+      		deltav =  dt*(p[IDX(i,j-1,k)]-p[IDX(i,j,k)])/dy[j]+ visy[IDX(i,j,k)]*min(dx[i],1e-2);
       	  v[IDX(i,j,k)] = v[IDX(i,j,k)] + deltav;
           }// end rank >1
 
       if (rank > 2) {
-      		deltav =  dt*(p[IDX(i,j,k-1)]-p[IDX(i,j,k)])/dz[k]+ visz[IDX(i,j,k)]*1e-4;
+      		deltav =  dt*(p[IDX(i,j,k-1)]-p[IDX(i,j,k)])/dz[k]+ visz[IDX(i,j,k)]*min(dx[i],1e-2);
       	  w[IDX(i,j,k)] = w[IDX(i,j,k)] + deltav;
         }// end rank>2
 
