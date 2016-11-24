@@ -26,7 +26,7 @@
 extern float DepositParticleMaximumParticleMass;
  
  
-int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level, int MaximumCurrentLevel)
+int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 {
  
   /* Return if this doesn't concern us. */
@@ -37,6 +37,8 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level, int MaximumCurr
   /* declarations */
  
   NumberOfFlaggedCells = INT_UNDEFINED;
+
+  int  NumberOfQuantumFlaggedCells = 0;
 
   /* For must-refine particles, restrict refinement to where they
      exist.  This is already done in Grid_SetParticleMassFlaggingField
@@ -283,6 +285,8 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level, int MaximumCurr
     case 50:
 
   NumberOfFlaggedCells = this->FlagCellsToBeRefinedByQuantumJeansLength();
+  NumberOfQuantumFlaggedCells = NumberOfFlaggedCells;
+
   if (NumberOfFlaggedCells < 0) {
     fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByQuantumJeansLength.\n");
     return FAIL;
@@ -292,8 +296,10 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level, int MaximumCurr
       /* ==== METHOD 51: FDM: Refine Velocity Divergence ==== */
     case 51:
 
-  if (level < MaximumCurrentLevel) {
+  	if ( NumberOfQuantumFlaggedCells>0){
+
      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByVelDiv();
+
      if (NumberOfFlaggedCells < 0) {
        fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByVelDiv.\n");
       return FAIL;

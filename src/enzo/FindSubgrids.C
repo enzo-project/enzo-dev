@@ -33,7 +33,7 @@ static ProtoSubgrid *SubgridList[MAX_NUMBER_OF_SUBGRIDS];
  
  
 int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
-		 int &FlaggedGrids, int MaximumCurrentLevel)
+		 int &FlaggedGrids)
 {
  
   /* declarations */
@@ -64,7 +64,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
  
   /* Set the flagging field. */
 
-  if (CurrentGrid->SetFlaggingField(NumberOfFlaggedCells, level, MaximumCurrentLevel) == FAIL) {
+  if (CurrentGrid->SetFlaggingField(NumberOfFlaggedCells, level) == FAIL) {
     ENZO_FAIL("Error in grid->SetFlaggingField.");
   }
  

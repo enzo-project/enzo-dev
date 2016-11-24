@@ -134,7 +134,7 @@ int grid::FlagCellsToBeRefinedByQuantumJeansLength()
     FlaggingField[i] = (FlaggingField[i] >= 1)? 1 : 0;
     NumberOfFlaggedCells += FlaggingField[i];
   }
- 
+  
   return NumberOfFlaggedCells;
  
 }
