@@ -169,23 +169,23 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   // these are the disk abundances
   TestProblemData.InnerHydrogenFractionByMass         = 0.75;
-  TestProblemData.HII_Fraction_Inner                  = 0.00;
-  TestProblemData.HeII_Fraction_Inner                 = 0.00;
-  TestProblemData.HeIII_Fraction_Inner                = 0.00;
-  TestProblemData.HM_Fraction_Inner                   = 0.00;
-  TestProblemData.H2I_Fraction_Inner                  = 0.00;
-  TestProblemData.H2II_Fraction_Inner                 = 0.00;
-  TestProblemData.InnerDeuteriumToHydrogenRatio        = 0.00;
+  TestProblemData.HII_Fraction_Inner                  = tiny_number;
+  TestProblemData.HeII_Fraction_Inner                 = tiny_number;
+  TestProblemData.HeIII_Fraction_Inner                = tiny_number;
+  TestProblemData.HM_Fraction_Inner                   = tiny_number;
+  TestProblemData.H2I_Fraction_Inner                  = tiny_number;
+  TestProblemData.H2II_Fraction_Inner                 = tiny_number;
+  TestProblemData.InnerDeuteriumToHydrogenRatio        = tiny_number;
 
   // these are the halo abundances
   TestProblemData.HydrogenFractionByMass              = 0.75;
   TestProblemData.HII_Fraction                        = 1.00;
-  TestProblemData.HeII_Fraction                       = 0.00;
+  TestProblemData.HeII_Fraction                       = tiny_number;
   TestProblemData.HeIII_Fraction                      = 1.00;
-  TestProblemData.HM_Fraction                         = 0.00;
-  TestProblemData.H2I_Fraction                        = 0.00;
-  TestProblemData.H2II_Fraction                       = 0.00;
-  TestProblemData.DeuteriumToHydrogenRatio             = 0.00;
+  TestProblemData.HM_Fraction                         = tiny_number;
+  TestProblemData.H2I_Fraction                        = tiny_number;
+  TestProblemData.H2II_Fraction                       = tiny_number;
+  TestProblemData.DeuteriumToHydrogenRatio             = tiny_number;
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     GalaxySimulationDiskPosition[dim] = 0.5*(DomainLeftEdge[dim] +
