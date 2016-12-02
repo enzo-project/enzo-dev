@@ -15,11 +15,11 @@ class TestPhotonTest(AnswerTestingTest):
     _attrs = ("field", )
 
     def __init__(self, pf, field):
-        self.pf = pf
+        self.ds = pf
         self.field = field
 
     def run(self):
-        sl = self.pf.h.slice(2,0.5)
+        sl = self.ds.slice(2,0.5)
         frb = FixedResolutionBuffer(sl, (0,1,0,1), (200,200))
         dd = frb[self.field]
         return np.array([dd.mean(), dd.std(), dd.min(), dd.max()])

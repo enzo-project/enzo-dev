@@ -32,7 +32,7 @@ FluxCorrection         = 1
 #
 StaticHierarchy           = 0    // dynamic hierarchy
 MaximumRefinementLevel    = 1    // 2 levels total
-RefineBy                  = 3    // refinement factor
+RefineBy                  = 2    // refinement factor
 CellFlaggingMethod        = 3    // use shock criteria for refinement 
 MinimumEfficiency         = 0.8  // good value for 2d
 #
