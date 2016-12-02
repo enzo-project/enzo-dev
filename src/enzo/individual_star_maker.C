@@ -2780,6 +2780,11 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
     injected_metal_mass[0] = cstar->ReturnMetallicity() * m_eject;
   }
 
+  // for printing stats at the end
+  float total_volume_fraction = 0.0, total_grid_mass = 0.0, total_mass_injected = 0.0;
+  float total_energy_injected = 0.0, max_density_on_grid = 0.0, average_density_on_grid = 0.0;
+  int   cells_this_grid = 0;
+
   // loop over cells, compute fractional volume, inject feedback
   for(int k = kc - r_int; k <= kc + r_int; k++){
     for(int j = jc - r_int; j <= jc + r_int; j++){
@@ -2842,6 +2847,14 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
         float inv_dens = 1.0 / (BaryonField[DensNum][index] + delta_mass);
 
+        /* record statistics accumulators */
+        cells_this_grid++;
+        total_volume_fraction += injection_factor;
+        total_mass_injected   += delta_mass;
+        total_energy_injected += delta_therm_max;
+        total_grid_mass       += BaryonField[DensNum][index];
+        max_density_on_grid     = fmax( BaryonField[DensNum][index], max_density_on_grid);
+
         BaryonField[TENum][index] = (BaryonField[TENum][index] * BaryonField[DensNum][index]
                                      + delta_therm) * inv_dens;
         if(DualEnergyFormalism){
@@ -2871,9 +2884,36 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
           BaryonField[field_num][index] += injected_metal_mass[0];
         } // end yields check
 
+
+
+
       }
     }
   }
+
+
+  // print SN stats to check if resolved if desired
+  if (IndividualStarPrintSNStats && (!stellar_wind_mode)){
+    // Column order: Grid ID, Particle ID, M_now, M_eject, Sphere Volume
+
+    average_density_on_grid = total_grid_mass / (1.0 * cells_this_grid); // Sum Density / # cells
+
+    /* convert to CGS */
+    total_grid_mass         *= dx*dx*dx * MassUnits;
+    total_mass_injected     *= dx*dx*dx * MassUnits;
+    total_energy_injected   *= dx*dx*dx * EnergyUnits;
+    volume                  /= (LengthUnits * LengthUnits * LengthUnits);
+    max_density_on_grid     *= DensityUnits;
+    average_density_on_grid *= DensityUnits;
+    m_eject                 *= dx*dx*dx * MassUnits;
+
+    printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", 
+          this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), m_eject,
+          cells_this_grid, volume, total_volume_fraction, total_mass_injected, total_energy_injected,
+          total_grid_mass, max_density_on_grid, average_density_on_grid);
+
+  }
+
 
   delete [] temperature;
   // done with spherical injection feedback

@@ -176,6 +176,7 @@ SPEXTERN float IndividualStarSupernovaEnergy;
 SPEXTERN float IndividualStarStellarWindVelocity;
 SPEXTERN int   IndividualStarFUVHeating;
 SPEXTERN int   IndividualStarLWRadiation;
+SPEXTERN int   IndividualStarPrintSNStats;
 
 SPEXTERN float IndividualStarOTRadiationMass; // to supercede below 2
 SPEXTERN float IndividualStarFUVTemperatureCutoff;
