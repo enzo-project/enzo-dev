@@ -3220,8 +3220,9 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
           wind_dt = particle_age + dt - agb_start_time; // wind only occurs for part of timestep
           printf("wind lifeitme mode 4\n");
         } else{
-          wind_dt = fmin( lifetime - agb_start_time, dt);
+          wind_dt = fmax( lifetime - agb_start_time, dt);
 
+          
           printf("PROBLEM IN AGB WIND PHASE\n");
         }
 
@@ -3249,8 +3250,14 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
     /* Gaurd against cases where agb phase is zero */
     wind_lifetime = (wind_lifetime < tiny_number) ? dt : wind_lifetime;
     wind_dt       = (wind_dt       < tiny_number) ? dt : wind_dt;
+    //printf("corrected Wind lifetime = %"ESYM" - wind_dt = %"ESYM"  %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",wind_lifetime, wind_dt, lifetime, agb_start_time, particle_age, dt);
 
-    m_eject  /= wind_lifetime ; // average mass loss rate over entire wind lifetime
+    if (dt == 0){
+        m_eject = 0.0;
+        // printf("WARNING: ZERO TIME STEP SIZE IN WIND LAUNCHING");
+    } else{
+        m_eject  /= wind_lifetime ; // average mass loss rate over entire wind lifetime
+    }
 
     // end yields methods
   } else {
