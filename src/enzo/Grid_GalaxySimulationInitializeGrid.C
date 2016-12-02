@@ -162,6 +162,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   if( CRModel )
     FieldType[NumberOfBaryonFields++] = CRDensity;
 
+  if (WritePotential) FieldType[NumberOfBaryonFields++] = GravPotential;
+
   if (MultiSpecies) {
     FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
     FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;

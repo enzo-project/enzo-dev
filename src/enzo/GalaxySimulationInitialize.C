@@ -61,6 +61,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel2Name    = "y-velocity";
   char *Vel3Name    = "z-velocity";
   char *CRName      = "CREnergyDensity";
+  char *GravPotentialName = "GravPotential";
+
 
   char *ElectronName = "Electron_Density";
   char *HIName       = "HI_Density";
@@ -607,6 +609,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    DataLabel[count++] = Vel3Name;
  if(CRModel)
    DataLabel[count++] = CRName;
+
+ if(WritePotential)
+   DataLabel[count++] = GravPotentialName;
 
  if (MultiSpecies) {
    DataLabel[count++] = ElectronName;
