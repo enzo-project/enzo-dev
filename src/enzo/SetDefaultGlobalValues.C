@@ -489,31 +489,36 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
 #ifdef USE_GRACKLE
-  // Grackle chemistry data structure.
-  if (set_default_chemistry_parameters() == FAIL) {
-    ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
+  if (grackle_data->use_grackle == TRUE){
+    // Grackle chemistry data structure.
+    chemistry_data *my_chemistry;
+    my_chemistry = new chemistry_data;
+    if (set_default_chemistry_parameters(my_chemistry) == FAIL) {
+      ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
+    }
+
+    // Map Grackle defaults to corresponding Enzo parameters
+    Gamma                                 = (float) grackle_data->Gamma;
+    MultiSpecies                          = (int) grackle_data->primordial_chemistry;
+    MetalCooling                          = (int) grackle_data->metal_cooling;
+    H2FormationOnDust                     = (int) grackle_data->h2_on_dust;
+    CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data->cmb_temperature_floor;
+    ThreeBodyRate                         = (int) grackle_data->three_body_rate;
+    CIECooling                            = (int) grackle_data->cie_cooling;
+    H2OpticalDepthApproximation           = (int) grackle_data->h2_optical_depth_approximation;
+    PhotoelectricHeating                  = (int) grackle_data->photoelectric_heating;
+    PhotoelectricHeatingRate              = (float) grackle_data->photoelectric_heating_rate;
+    CoolData.NumberOfTemperatureBins      = (int) grackle_data->NumberOfTemperatureBins;
+    RateData.CaseBRecombination           = (int) grackle_data->CaseBRecombination;
+    CoolData.TemperatureStart             = (float) grackle_data->TemperatureStart;
+    CoolData.TemperatureEnd               = (float) grackle_data->TemperatureEnd;
+    RateData.NumberOfDustTemperatureBins  = (int) grackle_data->NumberOfDustTemperatureBins;
+    RateData.DustTemperatureStart         = (float) grackle_data->DustTemperatureStart;
+    RateData.DustTemperatureEnd           = (float) grackle_data->DustTemperatureEnd;
+    CoolData.HydrogenFractionByMass       = (float) grackle_data->HydrogenFractionByMass;
+    CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data->DeuteriumToHydrogenRatio;
+    CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
   }
-  // Map Grackle defaults to corresponding Enzo parameters
-  Gamma                                 = (float) grackle_data.Gamma;
-  MultiSpecies                          = (int) grackle_data.primordial_chemistry;
-  MetalCooling                          = (int) grackle_data.metal_cooling;
-  H2FormationOnDust                     = (int) grackle_data.h2_on_dust;
-  CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data.cmb_temperature_floor;
-  ThreeBodyRate                         = (int) grackle_data.three_body_rate;
-  CIECooling                            = (int) grackle_data.cie_cooling;
-  H2OpticalDepthApproximation           = (int) grackle_data.h2_optical_depth_approximation;
-  PhotoelectricHeating                  = (int) grackle_data.photoelectric_heating;
-  PhotoelectricHeatingRate              = (float) grackle_data.photoelectric_heating_rate;
-  CoolData.NumberOfTemperatureBins      = (int) grackle_data.NumberOfTemperatureBins;
-  RateData.CaseBRecombination           = (int) grackle_data.CaseBRecombination;
-  CoolData.TemperatureStart             = (float) grackle_data.TemperatureStart;
-  CoolData.TemperatureEnd               = (float) grackle_data.TemperatureEnd;
-  RateData.NumberOfDustTemperatureBins  = (int) grackle_data.NumberOfDustTemperatureBins;
-  RateData.DustTemperatureStart         = (float) grackle_data.DustTemperatureStart;
-  RateData.DustTemperatureEnd           = (float) grackle_data.DustTemperatureEnd;
-  CoolData.HydrogenFractionByMass       = (float) grackle_data.HydrogenFractionByMass;
-  CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data.DeuteriumToHydrogenRatio;
-  CoolData.SolarMetalFractionByMass     = (float) grackle_data.SolarMetalFractionByMass;
 #endif
 
   OutputCoolingTime = FALSE;

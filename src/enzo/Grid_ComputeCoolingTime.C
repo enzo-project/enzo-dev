@@ -143,6 +143,9 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
   float *velocity1   = BaryonField[Vel1Num];
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
+
+  float *volumetric_heating_rate = NULL;
+  float *specific_heating_rate   = NULL;
  
   /* Compute the cooling time. */
  
@@ -201,7 +204,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
   } // ENDELSE both metal types
  
 #ifdef USE_GRACKLE
-  if (grackle_data.use_grackle == TRUE) {
+  if (grackle_data->use_grackle == TRUE) {
 
     Eint32 *g_grid_dimension, *g_grid_start, *g_grid_end;
     g_grid_dimension = new Eint32[GridRank];
@@ -222,13 +225,14 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     grackle_units.time_units           = (double) TimeUnits;
     grackle_units.velocity_units       = (double) VelocityUnits;
     grackle_units.a_units              = (double) aUnits;
+    grackle_units.a_value              = (double) a;
 
     int temp_thermal = FALSE;
     float *thermal_energy;
     if ( UseMHD ){
       iBx = FindField(Bfield1, FieldType, NumberOfBaryonFields);
       iBy = FindField(Bfield2, FieldType, NumberOfBaryonFields);
-      iBz = FindField(Bfield3, FieldType, NumberOfBaryonFields);  
+      iBz = FindField(Bfield3, FieldType, NumberOfBaryonFields);
     }
 
     if (HydroMethod==Zeus_Hydro) {
@@ -257,19 +261,67 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
       } // for (int i = 0; i < size; i++)
     }
 
-    if (calculate_cooling_time(&grackle_units,
-                               (double) afloat,
-                               (Eint32) GridRank, g_grid_dimension,
-                               g_grid_start, g_grid_end,
-                               density, thermal_energy,
-                               velocity1, velocity2, velocity3,
-                               BaryonField[HINum],   BaryonField[HIINum], 
-                               BaryonField[HMNum],   BaryonField[HeINum], 
-                               BaryonField[HeIINum], BaryonField[HeIIINum],
-                               BaryonField[H2INum],  BaryonField[H2IINum],
-                               BaryonField[DINum],   BaryonField[DIINum], 
-                               BaryonField[HDINum],  BaryonField[DeNum], 
-                               MetalPointer, cooling_time) == FAIL) {
+    /* set up the my_fields */
+    grackle_field_data my_fields;
+
+    my_fields.grid_rank = (Eint32) GridRank;
+    my_fields.grid_dimension = g_grid_dimension;
+    my_fields.grid_start     = g_grid_start;
+    my_fields.grid_end       = g_grid_end;
+
+    /* now add in the baryon fields */
+    my_fields.density         = density;
+    my_fields.internal_energy = thermal_energy;
+    my_fields.x_velocity      = velocity1;
+    my_fields.y_velocity      = velocity2;
+    my_fields.z_velocity      = velocity3;
+
+    my_fields.HI_density      = BaryonField[HINum];
+    my_fields.HII_density     = BaryonField[HIINum];
+    my_fields.HeI_density     = BaryonField[HeINum];
+    my_fields.HeII_density    = BaryonField[HeIINum];
+    my_fields.HeIII_density   = BaryonField[HeIIINum];
+    my_fields.e_density       = BaryonField[DeNum];
+
+    my_fields.HM_density      = BaryonField[HMNum];
+    my_fields.H2I_density     = BaryonField[H2INum];
+    my_fields.H2II_density    = BaryonField[H2IINum];
+
+    my_fields.DI_density      = BaryonField[DINum];
+    my_fields.DII_density     = BaryonField[DIINum];
+    my_fields.HDI_density     = BaryonField[HDINum];
+
+    my_fields.metal_density   = MetalPointer;
+
+    my_fields.volumetric_heating_rate  = volumetric_heating_rate;
+    my_fields.specific_heating_rate    = specific_heating_rate;
+
+#ifdef TRANSFER
+
+    /* unit conversion from Enzo RT units to CGS */
+    const float ev2erg = 1.60217653E-12;
+    float rtunits = ev2erg / TimeUnits;
+
+    if ( RadiativeTransfer ){
+      my_fields.RT_HI_ionization_rate = BaryonField[kphHINum];
+
+      if (RadiativeTransferHydrogenOnly == FALSE){
+        my_fields.RT_HeI_ionization_rate  = BaryonField[kphHeINum];
+        my_fields.RT_HeII_ionization_rate = BaryonField[kphHeIINum];
+      }
+
+      if (MultiSpecies > 1)
+        my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
+
+      /* need to convert to CGS units */
+      for( i = 0; i < size; i++) BaryonField[gammaNum][i] *= rtunits;
+
+      my_fields.RT_heating_rate = BaryonField[gammaNum];
+
+    }
+#endif // TRANSFER
+
+    if (calculate_cooling_time(&grackle_units, &my_fields, cooling_time) == FAIL) {
       ENZO_FAIL("Error in Grackle calculate_cooling_time.\n");
     }
 
@@ -280,6 +332,14 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     if (temp_thermal == TRUE) {
       delete [] thermal_energy;
     }
+
+#ifdef TRANSFER
+  if (RadiativeTransfer){
+    /* convert the RT units back to Enzo */
+    for(i = 0; i < size; i ++) BaryonField[gammaNum][i] /= rtunits;
+
+  }
+#endif // TRANSFER
 
     delete [] TotalMetals;
     delete [] g_grid_dimension;
