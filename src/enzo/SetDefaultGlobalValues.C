@@ -712,77 +712,87 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerH2FloorInColdGas = 0.0;
   H2StarMakerColdGasTemperature = 1e4;
 
-  // AJE Individual Star
-  IndividualStarFeedbackOverlapSample = 20;         // number of points per cell to compute fractional overlap in feedback routine
-  IndividualStarUseWindMixingModel  = 1;            // account for unresolved mixing at wind/ISM shell interface
-  IndividualStarWindTemperature     = 1.0E6;        // temperature cap on stellar wind source region (K)
-  IndividualStarAllowTruncatedIMF   = 0;            // on or off - truncates IMF for low mass regions if on
-  IndividualStarExtrapolateYields   = 0;            // on or off - extrapolate yields from NuGrid set by scaling. If off, use PARSEC wind yields
-  IndividualStarSFGasMassThreshold  = 200.0;        // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
-  IndividualStarSFAlgorithm         = 0;            // 0 or 1 to switch between algorithms - hopefully temperorary until one works
-  IndividualStarSecondaryOverDensityThreshold = -1; // in cc - if < 0, set to over density thresh in ReadParamFile
-  IndividualStarIMFUpperMassCutoff  = 100.0;        // Solar masses
-  IndividualStarIMFLowerMassCutoff  =   1.0;        // Solar masses
-  IndividualStarVelocityDispersion  =   1.0;        // km/s
-  IndividualStarIMFSeed             = INT_UNDEFINED;
-  IndividualStarIMF                 = 0;            // 0: salpeter, 1: kroupa, 2: chabrier
-  IndividualStarIMFCalls            = 0;
-  IndividualStarSalpeterSlope       = 2.5;
-  IndividualStarKroupaAlpha1        = 0.3;
-  IndividualStarKroupaAlpha2        = 1.3;
-  IndividualStarKroupaAlpha3        = 2.3;
-  IndividualStarMassFraction        = 0.5;
-  IndividualStarSNIIMassCutoff      = 8.0;          // Solar masses
-  IndividualStarAGBThreshold        = 8.0;          // solar masses - stars below this mass have winds at end of life only
-  IndividualStarAGBWindVelocity     = 20.0;         // km/s - wind velocity for all AGB stars
-  IndividualStarWDMinimumMass       = 1.7;          // Solar masses
-  IndividualStarWDMaximumMass       = 8.0;          // solar masses
-  IndividualStarSNIaMinimumMass     = 3.0;          // Solar masses
-  IndividualStarSNIaMaximumMass     = 8.0;          // solar masses
-  IndividualStarDirectCollapseThreshold = 25.0;     // solar masses - no SNII and no ejecta above this mass
-  IndividualStarRadiationMinimumMass = 8.0;         // Solar masses
-  IndividualStarOTRadiationMass      = 8.0;         // Solar masses
-  IndividualStarFUVTemperatureCutoff = 2.0E4;       // K - if FUV heating is on, heat up to this temperature
-  IndividualStarStellarWinds         = 0;           // on or off
-  IndividualStarFollowStellarYields  = 0;            // on or off
-  IndividualStarDTDSlope             = 1.20;        // beta (positive) - Default from Maoz et. al. 2012
-  IndividualStarSNIaFraction         = 0.043;       // Fraction of MS stars that can be SNIa progenitors that will go SNIa in hubble time
-  IndividualStarUseSNIa              = 0;           // on or off
-  IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
-  IndividualStarCreationStencilSize  = 3;           // n x n region to form stars around a cell (0 = cell by cell)
-  IndividualStarFeedbackStencilSize  = 3;
+  // Paramters for Individual Star Star formation and Feedback
+
+  /* IndividualStar: Star Formation */
+  IndividualStarCreationStencilSize  =     3;         // n x n cell region (on each side) to sample for star formation
+  // StarParticleOverdensityThreshold is used as primary density threshold parameter 
+  IndividualStarSecondaryOverDensityThreshold = -1;  // in cc - if < 0, set to over density thresh in ReadParamFile
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
+  IndividualStarMassFraction         =   0.5;         // Maximum fraction of region that can be converted into stars in one timestep
+  IndividualStarSFAlgorithm          =     1;         // 0 or 1 to switch between algorithms - temporary!!! 
+  IndividualStarSFGasMassThreshold   = 200.0;         // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
+  IndividualStarIMF                  =     0;         // 0: salpeter, 1: kroupa, 2: chabrier
+  IndividualStarIMFCalls             =     0;         // Do not touch - number of calls to IMF so far in simulation
+  IndividualStarSalpeterSlope        =   2.5;         // slope
+  IndividualStarKroupaAlpha1         =   0.3;         // kroupa slope over mass range
+  IndividualStarKroupaAlpha2         =   1.3;         // '' over 
+  IndividualStarKroupaAlpha3         =   2.3;         // '' over
+  IndividualStarIMFLowerMassCutoff   =   1.0;         // Solar masses
+  IndividualStarIMFUpperMassCutoff   = 100.0;         // Solar masses
+  IndividualStarAllowTruncatedIMF    =     0;         // on or off - truncates IMF for low mass regions if on
+  IndividualStarVelocityDispersion   =   1.0;         // initial velocity disperion of stars in SF region (km/s)
+  IndividualStarIMFSeed              = INT_UNDEFINED; // random number seed for IMF sampling
 
-  IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens FUV Heating
-  IndividualStarLWRadiation          = 0;          // on or off - include optically thin LW photons from stars
-
-  IndividualStarSupernovaEnergy      = 1;          // when < 0, use factor x mc^2 for supernova energy injection
-                                                    // when > 0, constant supernova energy in units of 10^51 erg
-  IndividualStarStellarWindVelocity  = -1;          // when < 0, use Leithener et. al. model for stellar wind velocities
+  /* IndividualStar: Stellar Feedback (non-radiation) */
+  IndividualStarFeedbackOverlapSample = 20;         // number of points per cell to compute fractional overlap in feedback routine
+  IndividualStarFeedbackStencilSize   = 3;          // Size of feedback injection region (radius in number of cells)
+  
+  IndividualStarStellarWinds          = 0;          // on or off
+  IndividualStarWindTemperature       = 1.0E6;      // temperature cap on stellar wind source region (K)
+  IndividualStarUseWindMixingModel    = 1;          // account for unresolved mixing at wind/ISM shell interface and allow mass loading
+  IndividualStarStellarWindVelocity   = -1;         // when < 0, use Leithener et. al. model for stellar wind velocities
                                                     // when > 0, uniform wind velocity for all stars in km / s
                                                     // when = 0, use this to do mass deposition without energy injection
+  IndividualStarAGBWindVelocity       = 20.0;       // km/s - wind velocity for all AGB stars
 
-  IndividualStarPrintSNStats          = 0;          // print out grid and density info for each SN explosion
+  IndividualStarAGBThreshold            = 8.0;      // solar masses - stars below this mass have winds at end of life only
+  IndividualStarSNIIMassCutoff          = 8.0;      // Solar masses - stars above this go core collapse supernova
+  IndividualStarDirectCollapseThreshold = 25.0;     // solar masses - no SNII and no ejecta above this mass
+  IndividualStarSupernovaEnergy         = 1;        // when < 0, use factor x mc^2 for supernova energy injection
+                                                    // when > 0, constant supernova energy in units of 10^51 erg
+  IndividualStarPrintSNStats            = 0;        // print out grid and density info for each SN explosion
 
+  IndividualStarUseSNIa                 = 0;        // on or off
+  IndividualStarDTDSlope                = 1.20;     // beta (positive) - Default from Maoz et. al. 2012
+  IndividualStarWDMinimumMass           = 1.7;      // Solar masses - min MS projenitor mass that forms WD
+  IndividualStarWDMaximumMass           = 8.0;      // solar masses - max MS projenitor mass that forms WD
+  IndividualStarSNIaMinimumMass         = 3.0;      // Solar masses - min MS projenitor mass that goes SNIa after WD formation
+  IndividualStarSNIaMaximumMass         = 8.0;      // solar masses - max MS projenitor mass that goes SNIa after WD formation
+  IndividualStarSNIaFraction            = 0.043;    // Fraction of MS stars that can be SNIa progenitors that will go SNIa in hubble time
+
+  /* IndividualStar: Yields Tracking */
+  IndividualStarFollowStellarYields  = 0;           // on or off
+  IndividualStarExtrapolateYields    = 0;           // on or off - extrapolate yields from NuGrid set by scaling. If off, use PARSEC wind yields
+
+  /* IndividualStar: Stellar Feedback - Radiation */
+  IndividualStarRadiationMinimumMass = 8.0;         // Solar masses - Stars above this are radiating particles (full RT)
+  IndividualStarOTRadiationMass      = 8.0;         // Solar masses - Stars above this are allowed to have optically thin radiation
+  IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens Pe Heating using optically thin FUV
+  IndividualStarLWRadiation          = 0;           // on or off - include optically thin LW photons from stars
+  IndividualStarFUVTemperatureCutoff = 2.0E4;       // K - if FUV heating is on, heat up to this temperature
+  IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
+
+  IndividualStarBlackBodyq0Factors[0]  = 0.1 ;      // if OSTAR is ON, adjust black body to be continious
+  IndividualStarBlackBodyq0Factors[1]  = 3.2 ;      // factors are for q0 and q1 with first
+  IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
+  IndividualStarBlackBodyq1Factors[1]  = 4.000 ;    // and second high mass off grid.
+
+  IndividualStarBlackBodyFUVFactors[0] = 1.00E-4;   // same as above, but for FUV luminosities
+  IndividualStarBlackBodyFUVFactors[1] = 2.30E-5;
+
+  IndividualStarBlackBodyLWFactors[0]  = 5.0E-5;     // same, but for LW
+  IndividualStarBlackBodyLWFactors[1]  = 5.0E-6;
+
+  PhotoelectricHeatingDustModelEfficiency = 0.0;    // Pe heating efficiency - <= 0 uses fit to Wolfire et. al. 2003 at solar radius
+
+  /* Stellar Yields Parameters */
   StellarYieldsNumberOfSpecies       = INT_UNDEFINED; // number of species to follow - optional, calculated automatically if left undefined
   StellarYieldsScaledSolarInitialAbundances = 1;    // use solar abundances to set initial mass fractions, linearly scaled by metalliticy
 
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){
     StellarYieldsAtomicNumbers[i] = NULL;
   }
-
-  IndividualStarBlackBodyq0Factors[0]  = 0.1 ;      // if OSTAR is ON, adjust black body to be continious
-  IndividualStarBlackBodyq0Factors[1]  = 3.2 ;      // factors are for q0 and q1 with first
-  IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
-  IndividualStarBlackBodyq1Factors[1]  = 4.000 ;      // and second high mass off grid.
-
-  IndividualStarBlackBodyFUVFactors[0] = 1.00E-4;     // same as above, but for FUV luminosities
-  IndividualStarBlackBodyFUVFactors[1] = 2.30E-5;
-
-  IndividualStarBlackBodyLWFactors[0]  = 5.0E-5;        // same, but for LW
-  IndividualStarBlackBodyLWFactors[1]  = 5.0E-6;
-
-  PhotoelectricHeatingDustModelEfficiency = 0.0;
 
   // chemical evolution test star
   ChemicalEvolutionTestNumberOfStars   = 1;
