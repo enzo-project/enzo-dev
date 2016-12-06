@@ -491,7 +491,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
 #ifdef USE_GRACKLE
 
-  if (grackle_data->use_grackle == TRUE){
+//  if (grackle_data->use_grackle == TRUE){
     // Grackle chemistry data structure.
     chemistry_data *my_chemistry;
     my_chemistry = new chemistry_data;
@@ -520,7 +520,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     CoolData.HydrogenFractionByMass       = (float) grackle_data->HydrogenFractionByMass;
     CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data->DeuteriumToHydrogenRatio;
     CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
-  }
+//  }
 #endif
 
   OutputCoolingTime = FALSE;
