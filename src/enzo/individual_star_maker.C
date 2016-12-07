@@ -880,6 +880,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                       // mass is removed as weighted by the previous cell mass (more mass is
                       // taken out of higher density regions). M_new = M_old - M_sf * (M_old / M_tot)
                       // where M_tot is mass of cells that meet above SF conditions. Simplifies to below eq:
+                      float old_density = BaryonField[DensNum][loc_index];
+
                       BaryonField[DensNum][loc_index] *= (1.0 - sum_mass / bmass);
 
                       // adjust total energy if we are using PPM
@@ -893,7 +895,9 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                           delta_ke = ke_after - ke_before[ l ];
 
-                          BaryonField[TENum][loc_index] += delta_ke / BaryonField[DensNum][loc_index];
+                           // or TE_new = TE_old/(1.0 -sum_mass / bmass) + delta_ke / new_density;
+                          BaryonField[TENum][loc_index] = (BaryonField[TENum][loc_index]*old_density +
+                                                                  delta_ke) / BaryonField[DensNum][loc_index];
                       }
                       l++;
                     }
