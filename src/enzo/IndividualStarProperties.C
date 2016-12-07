@@ -50,16 +50,6 @@
 #include "StarParticleData.h"
 #include "IndividualStarProperties.h"
 
-// some global constants
-const double SOLAR_LIFETIME    = 10.0E9 * 3.1536E7 ; // s
-const double SOLAR_LUMINOSITY  = 3.9E33            ; // cgs
-const double SOLAR_TEFF        = 5777.0            ; // K - Cox 2000
-//const double SOLAR_MASS        = 1.989E33           ; // g
-const double SOLAR_RADIUS      = 69.63E9           ; // cm
-const double SOLAR_METALLICITY = 0.02              ;
-
-
-
 
 /* internal function prototypes */
 int IndividualStarRadDataEvaluateInterpolation(float &y, float **ya[],
@@ -85,10 +75,17 @@ int search_lower_bound(float *arr, float value, int low, int high, int total);
 
 unsigned_long_int mt_random(void);
 
-
 float SNIaProbability(const float &current_time, const float &formation_time,
                       const float &lifetime, const float &TimeUnits){
-
+/* --------------------------------
+ * SNIaProbability
+ * --------------------------------
+ * Using DTD model, computes probability that WD will explode as SNIa
+ * at a specified time after its formation
+ *
+ * CURRENTLY NOT USED IN SNIa MODEL - OCT 2016 - SLATED FOR REMOVAL
+ * ---------------------------------
+ */
 
   float  dPdt = IndividualStarSNIaFraction;
   const float hubble_time = 4.408110831E17;
@@ -110,13 +107,25 @@ float SNIaProbability(const float &current_time, const float &formation_time,
 int SetWDLifetime(float &WD_lifetime,
                     const float &current_time, const float &formation_time,
                     const float &lifetime, const float &TimeUnits){
+/* --------------------------------------------------------------------------
+ * SetWDLifetime
+ * --------------------------------------------------------------------------
+ * For a given WD, assigns its lifetime based on the formation of the MS star
+ * and the lifetime of that star. Computes this using a DTD model to compute
+ * when over a hubble time the star will explode as a SNIa, using a random
+ * number draw with total normalized probability set as input (on order of
+ * a few percent) [see SNIaProbabiltiy function]. If the star does not explode
+ * in a Hubble time, then lifetime is set to some arbitrarily large value.
+ * --------------------------------------------------------------------------
+ */
+
 
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
   float x  = (float) (random_int % max_random) / ((float) (max_random));
 
-  const int size = 1000;
-  const float hubble_time = 4.408110831E17;
+  const int size = 1000; // number of table entries
+  const float hubble_time = 4.408110831E17; // Hard coded redshift 0
 
   float tabulated_probability [size];
   float time [size];
@@ -149,6 +158,7 @@ int SetWDLifetime(float &WD_lifetime,
     f_a = f_b;
   }
 
+  /* this is strictly wrong, but should never really be an issue */
   tabulated_probability[0] = tabulated_probability[1] * 0.5;
 
   // change to cumulative probability distribution
@@ -200,7 +210,7 @@ float IndividualStarSurfaceGravity(const float &mp, const float &R){
    * Given stellar mass (solar) and radius (cm), compute
    * the star's surface gravity (cgs).
    * ---------------------------------------------------*/
-  const double G = 6.6743E-8;
+  const double G = 6.67259E-8;
 
   return G*(mp * SOLAR_MASS) / ( R*R );
 }
@@ -535,8 +545,8 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
                                        const int &i, const int &j, const int &k,
                                        const float &Teff, const float &g, const float &metallicity){
 
-  const double E_ion_HI   = 13.6; // eV
-  const double E_ion_He   = 24.587; // eV
+  const double E_ion_HI   = 13.5984; // eV
+  const double E_ion_He   = 24.5874; // eV
   const double k_boltz = 1.380658E-16;
   const double c       = 2.99792458E10;
   const double h       = 6.6260755E-27;
@@ -558,8 +568,6 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
   x = (E_ion_HI / eV_erg) / (k_boltz * (Teff));
   // compute the black body radiance in unitless numbers
   if( (PhotonRadianceBlackBody(q0, x)) == FAIL){
-
-
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
 
@@ -590,7 +598,7 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
   float A = 2.0 * k_boltz * k_boltz * k_boltz * (Teff*Teff*Teff) /
                                (h*h*h*c*c);
 
-   // convert to units of # / s / m-2 / sr-1
+  // convert to units of # / s / m-2 / sr-1
   q0 = A * (q0);
   q1 = A * (q1);
 
@@ -651,8 +659,8 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
   * use a black body instead
   * ============================================================
   */
-  const double E_ion_HI   = 13.6; // eV
-  const double E_ion_He   = 24.587; // eV
+  const double E_ion_HI   = 13.5984; // eV
+  const double E_ion_He   = 24.5874; // eV
   const double k_boltz = 1.380658E-16;
   const double c       = 2.99792458E10;
   const double h       = 6.6260755E-27;
@@ -765,6 +773,12 @@ int IndividualStarInterpolateLifetime(float &tau, const float &M,
 int IndividualStarEvaluateInterpolation(float &y, float *ya[],
                                         const int &i, const int &j,
                                         const float &t, const float &u){
+/* ------------------------------------------------------------------------
+ * IndividualStarEvaluateInterpolation
+ * ------------------------------------------------------------------------
+ * Simple billinear interpolation evaluation when all factors are known
+ * ------------------------------------------------------------------------
+ */
 
   y = (1.0 - t)*(1.0 - u) * ya[i  ][j  ] +
       (1.0 - t)*(      u) * ya[i  ][j+1] +
@@ -779,14 +793,12 @@ int IndividualStarInterpolateLifetime(float   &tau,
                                       const float &M, const float &metallicity, const int &mode){
   /* new function - oct 2016 - for new interplation methods */
   // convert metallicity to solar
-  float Z; // Z is in units of solar
-  Z = metallicity;
+  float Z = metallicity;
 
   // WARNING: See warning at beginning of file
   if( Z < IndividualStarPropertiesData.Z[0]){
     Z = IndividualStarPropertiesData.Z[0];
   }
-
 
   float t,u;
 
