@@ -930,6 +930,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   return SUCCESS;
 }
 
+float SampleIMF(void){
 /*-----------------------------------------------------------------------------
   SampleIMF
 
@@ -943,7 +944,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     Mass of randomly selected star in solar masses
 
 -----------------------------------------------------------------------------*/
-float SampleIMF(void){
+
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
   float x = (float) (random_int%max_random) / (float) (max_random);
@@ -968,6 +969,13 @@ float SampleIMF(void){
 }
 
 int grid::IndividualStarSetWDLifetime(void){
+/* --------------------------------------------------
+ * IndividualStarSetWDLifetime
+ * --------------------------------------------------
+ * Updates WD lifetimes if not yet initialized using
+ * DTD SNIa model
+ * --------------------------------------------------
+ */
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -1323,6 +1331,8 @@ void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity
                                    + 0.80 * log10(metallicity / solar_z);
 
   *dMdt = POW(10.0, *dMdt) / yr ; // Msun / yr -> Msun / s
+  return;
+
 }
 
 void ComputeStellarWindVelocity(Star *cstar, float *v_wind){
@@ -1358,6 +1368,8 @@ void ComputeStellarWindVelocity(Star *cstar, float *v_wind){
   *v_wind =   1.23 - 0.30*log10(L) + 0.55 * log10(cstar->ReturnBirthMass())
             + 0.64 * log10(Teff) + 0.13*log10(cstar->ReturnMetallicity()/solar_z);
   *v_wind = POW(10.0, *v_wind);
+
+  return;
 }
 
 /*
