@@ -46,12 +46,11 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   /* for individual star */
   float Teff, g, Z, M, tau;
   float DensityUnits, LengthUnits, TemperatureUnits, tunits, VelocityUnits;
-  float H_ionizing_energy = 13.6; // eV
-  float HeI_ionizing_energy = 24.587; // eV
+  float H_ionizing_energy   = 13.5984; // eV
+  float HeI_ionizing_energy = 24.5874; // eV
   float R;
 
-    int *se_table_position, *rad_table_position;
-
+  int *se_table_position, *rad_table_position;
 
   if (this->Mass < 0.1 && (ABS(this->type) != IndividualStar))  // Not "born" yet
     _mass = this->FinalMass;
@@ -92,8 +91,10 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       for (i = 0; i < nbins; i++) Q[i] = 0.0;
     }
     break;
-  
+
   case IndividualStar:
+    /* Compute HI and HeI ionizing photon rates using individual star model */
+
     nbins = 2;
 
     M   = this->BirthMass;   // interpolate grids on initial ZAMS mass
@@ -105,19 +106,18 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     rad_table_position = this->ReturnRadTablePosition();
 
     IndividualStarInterpolateProperties(Teff, R,
-                                             se_table_position[0], se_table_position[1],
-                                             M, Z);
+                                        se_table_position[0], se_table_position[1],
+                                        M, Z);
 
     g = IndividualStarSurfaceGravity( M, R); // M in solar - R in cgs
 
-//    printf("Star_ComputePhotonRates: Teff = %"ESYM" g = %"ESYM" Z = %"ESYM"\n", Teff, g, Z);
-   IndividualStarComputeIonizingRates( Q[0], Q[1],
-                                           rad_table_position[0], rad_table_position[1], rad_table_position[2],
-                                           Teff, g, Z);
+    IndividualStarComputeIonizingRates(Q[0], Q[1],
+                                       rad_table_position[0], rad_table_position[1], rad_table_position[2],
+                                       Teff, g, Z);
 
     // compute average energy by integrating over the black body spectrum
-    H_ionizing_energy  /= eV_erg; // convert to ergs
-    HeI_ionizing_energy /= eV_erg; // conver to ergs
+    H_ionizing_energy   /= eV_erg; // convert to ergs
+    HeI_ionizing_energy /= eV_erg; // convert to ergs
     ComputeAverageEnergy(&E[0], &H_ionizing_energy, &Teff);
     ComputeAverageEnergy(&E[1], &HeI_ionizing_energy, &Teff);
 
@@ -125,14 +125,10 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[0] = E[0] * eV_erg;
     E[1] = E[1] * eV_erg;
 
-    // printf("Star_ComputePhotonRates: E[0] = %"ESYM" E[1] = %"ESYM"\n", E[0], E[1]);
-
     // Functions above return the ionizing flux at stellar surface.
-    // Convert to photon rate
+    // Convert to ionizing photon rate
     Q[0] = Q[0] * 4.0 * pi * R*R;
     Q[1] = Q[1] * 4.0 * pi * R*R;
-
-    // printf("Star_ComputePhotonRates: Q[0] = %"ESYM" Q[1] = %"ESYM"\n", Q[0], Q[1]);
 
     break;
 
