@@ -106,9 +106,23 @@ int grid::CalculateAverageAbundances(void){
     if( temperature[index] < 1.0E6){
       mass_counter[0] += BaryonField[MetalNum][index];
       for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
-        this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
+
+        if( StellarYieldsAtomicNumbers[im] == 1){
+          mass_counter[im+1] = BaryonField[HINum][index] + BaryonField[HIINum][index];
+
+          if ( MultiSpecies > 1){
+            mass_counter[im+1] += BaryonField[HMNum][index] + BaryonField[H2INum][index] +
+                                  BaryonField[H2IINum][index];
+          }
+
+        } else if (StellarYieldsAtomicNumbers[im] == 2){
+          mass_counter[im+1] = BaryonField[HeINum][index] + BaryonField[HeIINum][index] +
+                               BaryonField[HeIIINum][index];
+        } else{
+          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
                                                          StellarYieldsAtomicNumbers[im]);
-        mass_counter[im+1] += BaryonField[field_num][index];
+          mass_counter[im+1] += BaryonField[field_num][index];
+        }
       }
 
       total_mass += BaryonField[DensNum][index];
