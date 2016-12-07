@@ -429,6 +429,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
 
+    StarParticleOpticallyThinRadiation(MetaData, LevelArray, level, AllStars);
+
     /* Calculate ClusterSMBHColdGasMass */
 
     ClusterSMBHSumGasMass(Grids, NumberOfGrids, level);
@@ -525,8 +527,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef SAB
     } // End of loop over grids
 
-    //Compute radiation fields
-    StarParticleOpticallyThinRadiation(MetaData, LevelArray, level, AllStars);
 
     
     //Ensure the consistency of the AccelerationField
