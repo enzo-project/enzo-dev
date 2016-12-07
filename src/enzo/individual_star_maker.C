@@ -3280,10 +3280,15 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
   m_eject = m_eject * wind_dt; // convert Mdot to M_ej
 
-  E_thermal = 1.5 * 2.0E5 * (m_eject*msun / (1.0 * 1.67E-24)) * k_boltz; // current T of wind
+  float Teff, R; // Need Teff for computing thermal energy of ejecta
+  IndividualStarInterpolateProperties(Teff, R,
+                                      se_table_position[0], se_table_position[1],
+                                      cstar->ReturnBirthMass(), cstar->ReturnMetallicity());
 
-  if( v_wind > IndividualStarMaximumWindVelocity * 1.0E5){ // so we don't waste CPU
-    v_wind = IndividualStarMaximumWindVelocity * 1.0E5;
+  E_thermal = 1.5 * Teff * (m_eject*msun / (1.0 * 1.67E-24)) * k_boltz; // current T of wind
+
+  if( v_wind > IndividualStarMaximumStellarWindVelocity * 1.0E5){ // so we don't waste CPU
+    v_wind = IndividualStarMaximumStellarWindVelocity * 1.0E5;
   }
 
   E_thermal = E_thermal + 0.5 * (m_eject * msun) * v_wind * v_wind; // assume 100% KE thermalization
