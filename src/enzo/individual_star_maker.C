@@ -448,6 +448,9 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     float *ke_before;
     if (HydroMethod != 2){
       ke_before = new float[ ((int) POW(IndividualStarCreationStencilSize,3)) ];
+
+      for (i = 0; i < ((int) POW(IndividualStarCreationStencilSize,3)); i++) ke_before[i] = 0.0;
+
     } else{
       ke_before = NULL;
     }
