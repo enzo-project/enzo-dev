@@ -497,8 +497,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               //&& IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
               //&& 0.5*bmass > IndividualStarIMFUpperMassCutoff){
 
-
-
             // star formation may be possible
             // compute values and check jeans mass unstable
             dtot = ( BaryonField[DensNum][index] + dm[index] ) * (DensityUnits);         // total density
@@ -513,6 +511,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
               int istart, iend, jstart, jend, kstart, kend;
 
+              // compute indeces for adjacent cells integer_sep away from center in each dir
+              // stop at grid edge if cell near boundary
               istart = iend = jstart = jend = kstart = kend = 0;
               if (integer_sep > 0){
                 istart   = min( i - ibuff             , integer_sep);
@@ -523,13 +523,15 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 kend     = min( (nz - ibuff - 1 ) - k, integer_sep);
               }
 
+              // loop through cells and add up total amount of mass available for SF
               int l = 0;
               for (int k_loc = -kstart; k_loc <= kend; k_loc++){
                 for(int j_loc = -jstart; j_loc <= jend; j_loc++){
                   for (int i_loc = -istart; i_loc <= iend; i_loc++){
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(ny))*(nx);
 
-                    if(BaryonField[DensNum][loc_index] > secondary_odthreshold){
+                    if(BaryonField[DensNum][loc_index] > secondary_odthreshold &&
+                       temp[loc_index] < IndividualStarTemperatureThreshold       ){
                       float current_cell_mass = BaryonField[DensNum][loc_index]*(dx*dx*dx)*MassUnits/msolar;
                       bmass += current_cell_mass; // solar masses
                       number_of_sf_cells++;
@@ -540,10 +542,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                     /* if PPM, need to be careful about energies */
                     if (HydroMethod != 2){
-                      ke_before[ l ] = 0.5 * BaryonField[DensNum][index] *
-                                 ( BaryonField[Vel1Num][index] * BaryonField[Vel1Num][index] +
-                                   BaryonField[Vel2Num][index] * BaryonField[Vel2Num][index] +
-                                   BaryonField[Vel3Num][index] * BaryonField[Vel3Num][index]);
+                      ke_before[ l ] = 0.5 * BaryonField[DensNum][loc_index] *
+                                 ( BaryonField[Vel1Num][loc_index] * BaryonField[Vel1Num][loc_index] +
+                                   BaryonField[Vel2Num][loc_index] * BaryonField[Vel2Num][loc_index] +
+                                   BaryonField[Vel3Num][loc_index] * BaryonField[Vel3Num][loc_index]);
                     }
                     l++;
                   }
@@ -858,7 +860,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                   for (int i_loc = -istart; i_loc <= iend; i_loc++){
                     int loc_index = (i + i_loc) + ( (j + j_loc) + (k + k_loc)*(ny))*(nx);
 
-                    if(BaryonField[DensNum][loc_index] > secondary_odthreshold){
+                    if(BaryonField[DensNum][loc_index] > secondary_odthreshold &&
+                       temp[loc_index] < IndividualStarTemperatureThreshold    ){
                       // mass is removed as weighted by the previous cell mass (more mass is
                       // taken out of higher density regions). M_new = M_old - M_sf * (M_old / M_tot)
                       // where M_tot is mass of cells that meet above SF conditions. Simplifies to below eq:
@@ -868,14 +871,14 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                       if (HydroMethod != 2){
                           float ke_after, delta_ke;
 
-                          ke_after = 0.5 * BaryonField[DensNum][index] *
-                                   ( BaryonField[Vel1Num][index] * BaryonField[Vel1Num][index] +
-                                     BaryonField[Vel2Num][index] * BaryonField[Vel2Num][index] +
-                                     BaryonField[Vel3Num][index] * BaryonField[Vel3Num][index]);
+                          ke_after = 0.5 * BaryonField[DensNum][loc_index] *
+                                   ( BaryonField[Vel1Num][loc_index] * BaryonField[Vel1Num][loc_index] +
+                                     BaryonField[Vel2Num][loc_index] * BaryonField[Vel2Num][loc_index] +
+                                     BaryonField[Vel3Num][loc_index] * BaryonField[Vel3Num][loc_index]);
 
                           delta_ke = ke_after - ke_before[ l ];
 
-                          BaryonField[TENum][index] += delta_ke / BaryonField[DensNum][index];
+                          BaryonField[TENum][loc_index] += delta_ke / BaryonField[DensNum][loc_index];
                       }
                       l++;
                     }
