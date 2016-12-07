@@ -313,6 +313,11 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               /* Take H and He fractions as TOTAL amount of H and He species in the cell */
               ParticleAttribute[4 + ii][i] = BaryonField[HINum][n] + BaryonField[HIINum][n];
 
+              if (MultiSpecies > 1){
+                ParticleAttribute[4 + ii][istar] += BaryonField[HMNum][index] +
+                                       BaryonField[H2INum][index] + BaryonField[H2IINum][index];
+              }
+
             } else if (StellarYieldsAtomicNumbers[ii] == 2){
 
               ParticleAttribute[4 + ii][i] = BaryonField[HeINum][n]  +
@@ -397,6 +402,11 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
           } else if (StellarYieldsAtomicNumbers[ii] == 1){
             /* Take H and He fractions as TOTAL amount of H and He species in the cell */
             ParticleAttribute[4 + ii][0] = BaryonField[HINum][n] + BaryonField[HIINum][n];
+
+            if (MultiSpecies > 1){
+              ParticleAttribute[4 + ii][istar] += BaryonField[HMNum][index] +
+                                           BaryonField[H2INum][index] + BaryonField[H2IINum][index];
+            }
 
           } else if (StellarYieldsAtomicNumbers[ii] == 2){
 
@@ -570,7 +580,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               }
 
 
-              if(IndividualStarSFAlgorithm == 0){
+              if(IndividualStarSFAlgorithm == 0){ /* DO NOT USE THIS */
+
                 // calculate mass in cell that can be converted to stars in timestep
                 // generally this should be small (comparable to or less than the lower mass
                 // cutoff of the IMF)
@@ -666,8 +677,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 } // endif mass threshold check
 
               } // endif sf algorithm for star formation
-
-
 
               // prepare for assigning star properties by computing the local
               // gas velocity properties (this is for velocity assignment)
@@ -810,6 +819,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                       // this is probably not needed since it should all be HI in a star forming region anyway
                       ParticleAttribute[4 + iyield][istar] = BaryonField[HINum][index] + BaryonField[HIINum][index];
 
+                      if (MultiSpecies > 1){
+                        ParticleAttribute[4 + iyield][istar] += BaryonField[HMNum][index] +
+                                                         BaryonField[H2INum][index] + BaryonField[H2IINum][index];
+                      }
                     } else if (StellarYieldsAtomicNumbers[iyield] == 2){
                       // Again, total amount of Helium - probably not necessary, should all be HeI anyway
                       ParticleAttribute[4 + iyield][istar] = BaryonField[HeINum][index]  +
