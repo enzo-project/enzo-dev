@@ -129,12 +129,11 @@ float ComputeOverlap(const int &i_shape, const float &radius,
 
 void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
                                             const float &dtFixed, const float &TimeUnits,
-                                            float &m_eject, float &E_thermal_min,
-                                            float &E_thermal_max, float *metal_mass);
+                                            float &m_eject, float &E_thermal,
+                                            float *metal_mass);
 
 
-void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
-                               float cell_mass, float T, float dx,
+void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
                                float MassUnits, float EnergyUnits, float &m_eject,
                                float &E_thermal, float * metal_mass,
                                float *grid_abundances);
@@ -2619,7 +2618,7 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
 
   float dx = this->CellWidth[0][0];
 
-  float m_eject, E_thermal_min, E_thermal_max;
+  float m_eject, E_thermal;
   const double msolar = 1.989E33;
 
   float *metal_mass; // array of individual species masses
@@ -2653,46 +2652,26 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
   if( mode < 0 ){  // compute properties for stellar wids
 
     // mproj needs to be in Msun - everything else in CGS
-    // min and max thermal energy are now redundant - leftover from old code
-    // that will be completely removed with further testing
     IndividualStarSetStellarWindProperties(cstar, this->Time, this->dtFixed, TimeUnits,
-                                           m_eject, E_thermal_min, E_thermal_max, metal_mass);
+                                           m_eject, E_thermal, metal_mass);
     stellar_wind_mode = TRUE;
   } else if (mode == 1){
 
     // core collapse supernova
-    float E_thermal;
     IndividualStarSetCoreCollapseSupernovaProperties(cstar, m_eject, E_thermal, metal_mass);
-    // min and max are now redundant - leftover from old code
-    // that will be completely removed with further testing
-
-    E_thermal_min = E_thermal;
-    E_thermal_max = E_thermal;
 
     stellar_wind_mode = FALSE;
   } else if (mode == 2){
+
     // Type Ia supernova properties
-
-    float E_thermal;
-
     IndividualStarSetTypeIaSupernovaProperties(m_eject, E_thermal, metal_mass);
-
-    // min and max are now redundant - leftover from old code
-    // that will be completely removed with further testing
-    E_thermal_min = E_thermal;
-    E_thermal_max = E_thermal;
 
     stellar_wind_mode = FALSE;
   }
 
-
-//  printf("CGS Testing %"ESYM" Msun ----- %"ESYM" %"ESYM"\n",mproj, lifetime*TimeUnits, particle_age*TimeUnits);
-//  printf("Ejected mass %"ESYM" Msun --- and Energy %"ESYM" erg %"ESYM" erg\n",m_eject, E_thermal_min, E_thermal_max);
-
   /* convert computed parameters to code units */
-  m_eject       = m_eject*msolar / MassUnits   / (dx*dx*dx);
-  E_thermal_min = E_thermal_min  / EnergyUnits / (dx*dx*dx);
-  E_thermal_max = E_thermal_max  / EnergyUnits / (dx*dx*dx);
+  m_eject   = m_eject*msolar / MassUnits   / (dx*dx*dx);
+  E_thermal = E_thermal      / EnergyUnits / (dx*dx*dx);
 
   if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
     for(int i = 0; i < StellarYieldsNumberOfSpecies + 1; i++){
@@ -2704,8 +2683,8 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
   // now that we've computed the explosion properties
   // find where we should go off
   //
-  this->IndividualStarInjectSphericalFeedback(cstar, xp, yp, zp, m_eject, E_thermal_min,
-                                              E_thermal_max, metal_mass, stellar_wind_mode);
+  this->IndividualStarInjectSphericalFeedback(cstar, xp, yp, zp, m_eject, E_thermal,
+                                              metal_mass, stellar_wind_mode);
 
   float new_mass = (*mp) - m_eject * (dx*dx*dx) * MassUnits / msolar; // update mass
 
@@ -2725,8 +2704,7 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
 
 int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
                                                 const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
-                                                float m_eject, float E_thermal_min,
-                                                float E_thermal_max,
+                                                float m_eject, float E_thermal,
                                                 float *metal_mass, int stellar_wind_mode){
 
   float dx = float(this->CellWidth[0][0]); // for convenience
@@ -2770,8 +2748,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
   float xpos, ypos, zpos;
   int ic, jc, kc;
-
-  float E_thermal = E_thermal_max;
 
   //
   // find position and index for grid zone
@@ -2839,8 +2815,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         float injection_factor = cell_volume_fraction * fractional_overlap;
 
         float delta_mass  = m_eject   * injection_factor;
-        float delta_therm_min = E_thermal_min * injection_factor;
-        float delta_therm_max = E_thermal_max * injection_factor;
+        float delta_therm = E_thermal * injection_factor;
 
         if (injection_factor < 0) {ENZO_FAIL("injection factor < 0");}
 
@@ -2857,21 +2832,11 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         if(stellar_wind_mode){
           // Stellar winds are challenging - to avoid both very high velocities
           // on the grid and superheated gas, modify feedback accordingly
-          ModifyStellarWindFeedback(delta_therm_min,
-                                    delta_therm_max,
-                                    BaryonField[DensNum][index],
+          ModifyStellarWindFeedback(BaryonField[DensNum][index],
                                     temperature[index], dx, MassUnits, EnergyUnits,
-                                    delta_mass, E_thermal, injected_metal_mass,
+                                    delta_mass, delta_therm, injected_metal_mass,
                                     this->AveragedAbundances);
-        } else{
-
-          /* no adjustment */
-          E_thermal = delta_therm_max;
-
         }
-
-
-        float delta_therm = E_thermal;
 
         float inv_dens = 1.0 / (BaryonField[DensNum][index] + delta_mass);
 
@@ -2879,7 +2844,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         cells_this_grid++;
         total_volume_fraction += injection_factor;
         total_mass_injected   += delta_mass;
-        total_energy_injected += delta_therm_max;
+        total_energy_injected += delta_therm;
         total_grid_mass       += BaryonField[DensNum][index];
         max_density_on_grid     = fmax( BaryonField[DensNum][index], max_density_on_grid);
 
@@ -2911,9 +2876,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
           BaryonField[field_num][index] += injected_metal_mass[0];
         } // end yields check
-
-
-
 
       }
     }
@@ -3035,8 +2997,7 @@ void IndividualStarSetCoreCollapseSupernovaProperties(Star *cstar,
 }
 
 
-void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
-                               float cell_mass, float T, float dx,
+void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
                                float MassUnits, float EnergyUnits, float &m_eject,
                                float &E_thermal, float * metal_mass,
                                float *grid_abundances){
@@ -3064,18 +3025,12 @@ void ModifyStellarWindFeedback(float E_thermal_min, float E_thermal_max,
 
   float m_ism = 0.0;
 
-  E_thermal = E_thermal_max  * dx *dx *dx * EnergyUnits;
+  E_thermal = E_thermal * dx *dx *dx * EnergyUnits;
   m_eject   = m_eject * dx *dx *dx * MassUnits;
   cell_mass = cell_mass *dx*dx*dx*MassUnits;
 
   float T_final = (E_thermal + 1.5 * cell_mass * k_boltz * T / (est_mu*mp)) *
                   (2.0 * est_mu * mp/(3.0 * k_boltz * (cell_mass + m_eject)));
-
-//  if(T_final > IndividualStarWindTemperature || T > IndividualStarWindTemperature){
-//    E_thermal = E_thermal_min * dx*dx*dx *EnergyUnits;
-
-//    T_final = (E_thermal + 1.5 * cell_mass * k_boltz * T / (est_mu*mp)) *
-//              (2.0 * est_mu * mp/(3.0 * k_boltz * (cell_mass + m_eject)));
 
     if(T_final > IndividualStarWindTemperature || T > IndividualStarWindTemperature){
       /* Compute the mass that needs to be injected */
@@ -3183,12 +3138,11 @@ float ComputeOverlap(const int &i_shape, const float &radius,
 
 void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
                                             const float &dtFixed, const float &TimeUnits,
-                                            float &m_eject, float &E_thermal_min,
-                                            float &E_thermal_max, float *metal_mass){
+                                            float &m_eject,
+                                            float &E_thermal, float *metal_mass){
 
   float wind_lifetime, agb_start_time, wind_dt;
   const float msun = 1.989E33, k_boltz = 1.380658E-16;
-  float E_thermal;
 
   /* New variables to make code slightly cleaner + handle units */
   float mproj        = cstar->ReturnBirthMass();
@@ -3329,15 +3283,15 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
   m_eject = m_eject * wind_dt; // convert Mdot to M_ej
 
-  E_thermal     = 1.5 * 2.0E5 * (m_eject*msun / (1.0 * 1.67E-24)) * k_boltz; // current T of wind
+  E_thermal = 1.5 * 2.0E5 * (m_eject*msun / (1.0 * 1.67E-24)) * k_boltz; // current T of wind
 
-  E_thermal_max = E_thermal + 0.5 * (m_eject * msun) * v_wind * v_wind; // assume 100% KE thermalization
+  E_thermal = E_thermal + 0.5 * (m_eject * msun) * v_wind * v_wind; // assume 100% KE thermalization
 
   if( v_wind > IndividualStarMaximumWindVelocity * 1.0E5){ // so we don't waste CPU
     v_wind = IndividualStarMaximumWindVelocity * 1.0E5;
   }
 
-  E_thermal_min = E_thermal + 0.5 * (m_eject * msun) * v_wind * v_wind; // assume 100% KE thermalization
+  E_thermal = E_thermal + 0.5 * (m_eject * msun) * v_wind * v_wind; // assume 100% KE thermalization
 
 
 
