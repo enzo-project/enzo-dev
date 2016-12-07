@@ -3293,10 +3293,12 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
   E_thermal = E_thermal + 0.5 * (m_eject * msun) * v_wind * v_wind; // assume 100% KE thermalization
 
-
-
   /* finally, compute metal masses if needed */
   float wind_scaling = wind_dt / wind_lifetime;
+
+  if (wind_lifetime <= tiny_number){
+    wind_scaling = 0.0;
+  }
 
   if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals==2){
 
