@@ -553,7 +553,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                     }
 
                     /* if PPM, need to be careful about energies */
-                    if (HydroMethod != 2){
+                    if (HydroMethod != 2 && FALSE){
                       ke_before[ l ] = 0.5 * BaryonField[DensNum][loc_index] *
                                  ( BaryonField[Vel1Num][loc_index] * BaryonField[Vel1Num][loc_index] +
                                    BaryonField[Vel2Num][loc_index] * BaryonField[Vel2Num][loc_index] +
@@ -885,7 +885,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                       BaryonField[DensNum][loc_index] *= (1.0 - sum_mass / bmass);
 
                       // adjust total energy if we are using PPM
-                      if (HydroMethod != 2){
+                      if (HydroMethod != 2 && FALSE){
                           float ke_after, delta_ke;
 
                           ke_after = 0.5 * BaryonField[DensNum][loc_index] *
