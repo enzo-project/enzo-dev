@@ -3285,8 +3285,6 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
   E_thermal = 1.5 * 2.0E5 * (m_eject*msun / (1.0 * 1.67E-24)) * k_boltz; // current T of wind
 
-  E_thermal = E_thermal + 0.5 * (m_eject * msun) * v_wind * v_wind; // assume 100% KE thermalization
-
   if( v_wind > IndividualStarMaximumWindVelocity * 1.0E5){ // so we don't waste CPU
     v_wind = IndividualStarMaximumWindVelocity * 1.0E5;
   }
