@@ -2236,7 +2236,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int IndividualStarInjectSphericalFeedback(Star *cstar,
                                             const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
-                                            float m_eject, float E_thermal_min, float E_thermal_max,
+                                            float m_eject, float E_thermal,
                                             float *metal_mass, int stellar_wind_mode);
 
 
