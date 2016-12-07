@@ -3261,7 +3261,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
   } // end  checking for yields
 
 
-  float v_wind, IndividualStarMaximumWindVelocity = 500.0;
+  float v_wind;
 
   if(mproj < IndividualStarAGBThreshold){
     /* no good model for AGB wind - use constant user velocity */
@@ -3273,9 +3273,6 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
   } else{
     v_wind = IndividualStarStellarWindVelocity; // user chosen, in km/s
   }
-
-
-
 
   v_wind *= 1.0E5; // now in cgs
 

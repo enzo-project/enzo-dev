@@ -174,6 +174,7 @@ SPEXTERN int   IndividualStarCreationStencilSize;
 SPEXTERN int   IndividualStarFeedbackStencilSize;
 SPEXTERN float IndividualStarSupernovaEnergy;
 SPEXTERN float IndividualStarStellarWindVelocity;
+SPEXTERN float IndividualStarMaximumStellarWindVelocity;
 SPEXTERN int   IndividualStarFUVHeating;
 SPEXTERN int   IndividualStarLWRadiation;
 SPEXTERN int   IndividualStarPrintSNStats;

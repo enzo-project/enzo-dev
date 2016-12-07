@@ -1077,6 +1077,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarDirectCollapseThreshold = %"FSYM"\n", IndividualStarDirectCollapseThreshold);
   fprintf(fptr, "IndividualStarRadiationMinimumMass = %"FSYM"\n", IndividualStarRadiationMinimumMass);
   fprintf(fptr, "IndividualStarStellarWinds = %"ISYM"\n", IndividualStarStellarWinds);
+  fprintf(fptr, "IndividualStarMaximumStellarWindVelocity = %"FSYM"\n", IndividualStarMaximumStellarWindVelocity);
   fprintf(fptr, "IndividualStarUseSNIa = %"ISYM"\n", IndividualStarUseSNIa);
   fprintf(fptr, "IndividualStarDTDSlope = %"FSYM"\n", IndividualStarDTDSlope);
   fprintf(fptr, "IndividualStarSNIaFraction = %"FSYM"\n", IndividualStarSNIaFraction);

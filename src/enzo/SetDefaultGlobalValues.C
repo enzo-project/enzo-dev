@@ -744,6 +744,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarStellarWindVelocity   = -1;         // when < 0, use Leithener et. al. model for stellar wind velocities
                                                     // when > 0, uniform wind velocity for all stars in km / s
                                                     // when = 0, use this to do mass deposition without energy injection
+  IndividualStarMaximumStellarWindVelocity = 3000.0; // km/s - maximum wind velocity in all cases
   IndividualStarAGBWindVelocity       = 20.0;       // km/s - wind velocity for all AGB stars
 
   IndividualStarAGBThreshold            = 8.0;      // solar masses - stars below this mass have winds at end of life only
