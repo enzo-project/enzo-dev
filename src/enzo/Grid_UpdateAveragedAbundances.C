@@ -41,7 +41,7 @@ int UpdateAveragedAbundances(TopGridData *MetaData,
   if (AllStars == NULL)
     return SUCCESS;
 
-  if ( !IndividualStarStellarWinds &&
+  if ( !IndividualStarStellarWinds ||
        !IndividualStarUseWindMixingModel)
     return SUCCESS;
 
