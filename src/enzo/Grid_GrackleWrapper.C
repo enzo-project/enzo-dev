@@ -1,4 +1,4 @@
-bitt/***********************************************************************
+/***********************************************************************
 /
 /  GRID CLASS (WRAP THE GRACKLE CHEMISTRY SOLVER)
 /
@@ -111,12 +111,7 @@ int grid::GrackleWrapper()
     aUnits   = 1.0;
   }
 
-  /* for converting from Enzo RT heating to cgs */
-  const float ev2erg = 1.60217653E-12;
-  float rtunits = ev2erg / TimeUnits;
-
   float afloat = float(a);
-
 
   /* assign heating rates - set to Null pointers if not used */
   if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
