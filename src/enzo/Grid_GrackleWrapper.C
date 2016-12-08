@@ -1,4 +1,4 @@
-/***********************************************************************
+bitt/***********************************************************************
 /
 /  GRID CLASS (WRAP THE GRACKLE CHEMISTRY SOLVER)
 /
@@ -82,15 +82,6 @@ int grid::GrackleWrapper()
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
 
-  /* Find RT fields */
-
-  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum,
-        gammaNum;
-
-  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
-                                  kphHeIINum, kdissH2INum);
-
-
   /* Get easy to handle pointers for each variable. */
 
   float *density     = BaryonField[DensNum];
@@ -100,8 +91,8 @@ int grid::GrackleWrapper()
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
 
-  float *volumetric_heating_rate;
-  float *specific_heating_rate;
+  float *volumetric_heating_rate = NULL;
+  float *specific_heating_rate   = NULL;
 
   /* Compute the cooling time. */
 
@@ -143,7 +134,6 @@ int grid::GrackleWrapper()
 
     /* send to Grackle in CGS */
     volumetric_heating_rate = new float[size];
-//    volumetric_heating_rate = BaryonField[PeNum];
     specific_heating_rate   = NULL;
 
     /* change heating to zero in high temperature regions */
@@ -157,11 +147,7 @@ int grid::GrackleWrapper()
 
     delete [] temperature;
 
-  } else{
-    volumetric_heating_rate = NULL;
-    specific_heating_rate   = NULL;
   }
-
 
   /* Update units. */
 
@@ -246,7 +232,12 @@ int grid::GrackleWrapper()
     } // for (int i = 0; i < size; i++)
   }
 
-  /* set up the my_fields */
+  //
+  // Put code here to assign fields to volumetric or specific
+  // heating rate pointers
+  //
+
+  /* set up grackle fields object */
   grackle_field_data my_fields;
 
   my_fields.grid_rank = (Eint32) GridRank;
@@ -256,7 +247,8 @@ int grid::GrackleWrapper()
 
   /* now add in the baryon fields */
   my_fields.density         = density;
-  my_fields.internal_energy = thermal_energy; // is this right??
+  my_fields.internal_energy = thermal_energy;
+
   my_fields.x_velocity      = velocity1;
   my_fields.y_velocity      = velocity2;
   my_fields.z_velocity      = velocity3;
@@ -280,14 +272,32 @@ int grid::GrackleWrapper()
   my_fields.volumetric_heating_rate = volumetric_heating_rate;
   my_fields.specific_heating_rate   = specific_heating_rate;
 
-  /* add in radiative transfer fields */
+#ifdef TRANSFER
+  /* Find RT fields */
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum,
+        gammaNum;
+
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
+                                  kphHeIINum, kdissH2INum);
+
+  /* unit conversion from Enzo RT units to CGS */
+  const float ev2erg = 1.60217653E-12;
+  float rtunits = ev2erg / TimeUnits;
+
   if( RadiativeTransfer ){
 
     my_fields.RT_HI_ionization_rate   = BaryonField[kphHINum];
-    my_fields.RT_HeI_ionization_rate  = BaryonField[kphHeINum];
-    my_fields.RT_HeII_ionization_rate = BaryonField[kphHeIINum];
-    my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
-    for(i = 0; i < size; i ++) BaryonField[gammaNum][i] *= rtunits;
+
+    if (RadiativeTransferHydrogenOnly == FALSE){
+      my_fields.RT_HeI_ionization_rate  = BaryonField[kphHeINum];
+      my_fields.RT_HeII_ionization_rate = BaryonField[kphHeIINum];
+    }
+
+    if (MultiSpecies > 1)
+      my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
+
+    /* need to convert to CGS units */
+    for( i = 0; i < size; i++) BaryonField[gammaNum][i] *= rtunits;
 
     my_fields.RT_heating_rate = BaryonField[gammaNum];
 
@@ -296,17 +306,14 @@ int grid::GrackleWrapper()
       my_fields.RT_H2_dissociation_rate = BaryonField[OTLWkdissH2INum];
     }
   }
-
+#endif // TRANSFER
 
   /* Call the chemistry solver. */
 
-  /* AJE may 2016 - updated to new grackle API */
-  if (solve_chemistry(&grackle_units, &my_fields, (double) dtFixed) == FAIL) {
+  if (solve_chemistry(&grackle_units, &my_fields, (double) dtFixed) == FAIL){
     fprintf(stderr, "Error in Grackle solve_chemistry.\n");
     return FAIL;
   }
-
-  // Set the total energy appropriately for the updated thermal energy.
 
   if (HydroMethod != Zeus_Hydro) {
     for (i = 0; i < size; i++) {
@@ -331,9 +338,12 @@ int grid::GrackleWrapper()
     delete [] thermal_energy;
   }
 
-  if (RadiativeTransfer){ /* convert back to Enzo units */
+#ifdef TRANSFER
+  if (RadiativeTransfer){
+    /* convert the RT units back to Enzo */
     for(i = 0; i < size; i ++) BaryonField[gammaNum][i] /= rtunits;
   }
+#endif TRANSFER
 
   if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
       delete [] volumetric_heating_rate;

@@ -546,7 +546,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "self_shielding_method = %d",
                   &grackle_data->self_shielding_method);
     ret += sscanf(line, "radiative_transfer_intermediate_step = %d",
-                  &grackle_data->radiative_transfer_intermediate_step); // AJE
+                  &grackle_data->radiative_transfer_intermediate_step);
 
     if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
       grackle_data->grackle_data_file = dummy;
@@ -1733,13 +1733,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   /* If using Grackle chemistry and cooling library, override all other 
      cooling machinery and do a translation of some of the parameters. */
   if (grackle_data->use_grackle == TRUE) {
-    // grackle_data.use_grackle already set
-    // grackle_data.with_radiative_cooling already set
-    // grackle_data.grackle_data_file already set
-    // grackle_data.UVbackground already set
-    // grackle_data.Compton_xray_heating already set
-    // grackle_data.LWbackground_intensity already set
-    // grackle_data.LWbackground_sawtooth_suppression already set
+    // grackle_data->use_grackle already set
+    // grackle_data->with_radiative_cooling already set
+    // grackle_data->grackle_data_file already set
+    // grackle_data->UVbackground already set
+    // grackle_data->Compton_xray_heating already set
+    // grackle_data->LWbackground_intensity already set
+    // grackle_data->LWbackground_sawtooth_suppression already set
+
     grackle_data->Gamma                          = (double) Gamma;
     grackle_data->primordial_chemistry           = (Eint32) MultiSpecies;
     grackle_data->metal_cooling                  = (Eint32) MetalCooling;
@@ -1760,8 +1761,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     grackle_data->HydrogenFractionByMass         = (double) CoolData.HydrogenFractionByMass;
     grackle_data->DeuteriumToHydrogenRatio       = (double) CoolData.DeuteriumToHydrogenRatio;
     grackle_data->SolarMetalFractionByMass       = (double) CoolData.SolarMetalFractionByMass;
-
-    grackle_data->use_radiative_transfer                 = (Eint32) RadiativeTransfer;
+    grackle_data->use_radiative_transfer         = (Eint32) RadiativeTransfer;
     grackle_data->radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
     grackle_data->radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
 

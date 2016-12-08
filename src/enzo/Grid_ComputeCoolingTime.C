@@ -144,8 +144,8 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
 
-  float *volumetric_heating_rate;
-  float *specific_heating_rate;
+  float *volumetric_heating_rate = NULL;
+  float *specific_heating_rate   = NULL;
 
   /* Compute the cooling time. */
 
@@ -311,7 +311,8 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 
     /* now add in the baryon fields */
     my_fields.density         = density;
-    my_fields.internal_energy = thermal_energy; // is this right??
+    my_fields.internal_energy = thermal_energy;
+
     my_fields.x_velocity      = velocity1;
     my_fields.y_velocity      = velocity2;
     my_fields.z_velocity      = velocity3;
@@ -333,21 +334,28 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 
     my_fields.metal_density   = MetalPointer;
 
-    my_fields.volumetric_heating_rate = volumetric_heating_rate;
+    my_fields.volumetric_heating_rate  = volumetric_heating_rate;
     my_fields.specific_heating_rate    = specific_heating_rate;
 
-    /* add in radiative transfer fields */
-    if( RadiativeTransfer ){
+#ifdef TRANSFER
 
-      my_fields.RT_HI_ionization_rate   = BaryonField[kphHINum];
-      my_fields.RT_HeI_ionization_rate  = BaryonField[kphHeINum];
-      my_fields.RT_HeII_ionization_rate = BaryonField[kphHeIINum];
+    /* unit conversion from Enzo RT units to CGS */
+    const float ev2erg = 1.60217653E-12;
+    float rtunits = ev2erg / TimeUnits;
 
-      if(!IndividualStarLWRadiation){
-        my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
+    if ( RadiativeTransfer ){
+      my_fields.RT_HI_ionization_rate = BaryonField[kphHINum];
+
+      if (RadiativeTransferHydrogenOnly == FALSE){
+        my_fields.RT_HeI_ionization_rate  = BaryonField[kphHeINum];
+        my_fields.RT_HeII_ionization_rate = BaryonField[kphHeIINum];
       }
 
-      for(i = 0; i < size; i++) BaryonField[gammaNum][i] *= rtunits;
+      if (MultiSpecies > 1)
+        my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
+
+      /* need to convert to CGS units */
+      for( i = 0; i < size; i++) BaryonField[gammaNum][i] *= rtunits;
       my_fields.RT_heating_rate = BaryonField[gammaNum];
 
     }
@@ -357,6 +365,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
       my_fields.RT_H2_dissociation_rate = BaryonField[OTLWkdissH2INum];
     }
 
+#endif // TRANSFER
 
     if (calculate_cooling_time(&grackle_units, &my_fields, cooling_time) == FAIL) {
       ENZO_FAIL("Error in Grackle calculate_cooling_time.\n");
@@ -370,14 +379,17 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
       delete [] thermal_energy;
     }
 
-    if (RadiativeTransfer){ /* convert back to Enzo units */
+#ifdef TRANSFER
+    if (RadiativeTransfer){
+      /* convert the RT units back to Enzo */
       for(i = 0; i < size; i ++) BaryonField[gammaNum][i] /= rtunits;
+
     }
+#endif // TRANSFER
 
     if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
       delete [] volumetric_heating_rate;
     }
-
 
     delete [] TotalMetals;
     delete [] g_grid_dimension;

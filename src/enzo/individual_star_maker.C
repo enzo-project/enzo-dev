@@ -2794,6 +2794,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   // for printing stats at the end
   float total_volume_fraction = 0.0, total_grid_mass = 0.0, total_mass_injected = 0.0;
   float total_energy_injected = 0.0, max_density_on_grid = 0.0, average_density_on_grid = 0.0;
+  float total_metal_mass = 0.0;
   int   cells_this_grid = 0;
 
   // loop over cells, compute fractional volume, inject feedback
@@ -2869,6 +2870,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
           this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0); // gives metallicity field
 
           BaryonField[field_num][index] += injected_metal_mass[0];
+          total_metal_mass += BaryonField[field_num][index];
 
           for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
@@ -2899,16 +2901,19 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
     total_grid_mass         *= dx*dx*dx * MassUnits;
     total_mass_injected     *= dx*dx*dx * MassUnits;
     total_energy_injected   *= dx*dx*dx * EnergyUnits;
+    total_metal_mass        *= dx*dx*dx * MassUnits;
     volume                  /= (LengthUnits * LengthUnits * LengthUnits);
     max_density_on_grid     *= DensityUnits;
     average_density_on_grid *= DensityUnits;
     m_eject                 *= dx*dx*dx * MassUnits;
+    average_metallicity      = total_metal_mass / (total_mass_injected + total_grid_mass);
 
-    printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", 
+    /* compute Sedov-Taylor phase radius (R_dps) */
+
+    printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
           this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), m_eject,
           cells_this_grid, volume, total_volume_fraction, total_mass_injected, total_energy_injected,
-          total_grid_mass, max_density_on_grid, average_density_on_grid);
-
+          total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
   }
 
 

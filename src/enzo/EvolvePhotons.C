@@ -590,17 +590,19 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (Temp->GridData->RadiationPresent() == TRUE) {
 
 	    int RTCoupledSolverIntermediateStep = TRUE;
+
 #ifdef USE_GRACKLE
-            if (grackle_data->use_grackle == TRUE) {
+            if (grackle_data->use_grackle == TRUE){
 
               grackle_data->radiative_transfer_intermediate_step = (Eint32) RTCoupledSolverIntermediateStep;
 
-              if (Temp->GridData->GrackleWrapper() == FAIL) {
+              if (Temp->GridData->GrackleWrapper() == FAIL){
+
                 ENZO_FAIL("Error in GrackleWrapper.\n");
               }
-              continue; // AJE-RT
+              continue;
             }
-#endif
+#endif // USE_GRACKLE
 
 	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
 
