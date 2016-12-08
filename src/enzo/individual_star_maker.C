@@ -2895,6 +2895,8 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   if (IndividualStarPrintSNStats && (!stellar_wind_mode)){
     // Column order: Grid ID, Particle ID, M_now, M_eject, Sphere Volume
 
+    float average_metallicity;
+
     average_density_on_grid = total_grid_mass / (1.0 * cells_this_grid); // Sum Density / # cells
 
     /* convert to CGS */
