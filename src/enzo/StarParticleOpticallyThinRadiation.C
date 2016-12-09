@@ -176,10 +176,12 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
 
   const double m_e = 9.109E-28; // in g
   const double m_h = 1.673E-24; // in g
-  const double pi  = 3.1415621;
+  const double pi  = 3.14159265358979;
   const double c_light = 2.99792458E10; // cgs
   const double H2ISigma = 3.71e-18;
   float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, TimeUnits, EnergyUnits, MassUnits;
+
+  float dx = this->CellWidth[0][0];
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, this->Time);
   MassUnits   = DensityUnits * POW(LengthUnits,3);
@@ -277,6 +279,7 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
             rsqr = (xcell - xs[sp])*(xcell - xs[sp]) +
                    (ycell - ys[sp])*(ycell - ys[sp]) +
                    (zcell - zs[sp])*(zcell - zs[sp]);
+            rsqr = fmax(rsqr, 0.0625*dx*dx); // minimum separation of 1/4 cell to avoid divide by zero issues
 
             float speed = (sqrt(rsqr) * LengthUnits) / ((this->Time - ts[i]) * TimeUnits);
 
