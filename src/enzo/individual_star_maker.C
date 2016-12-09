@@ -2782,7 +2782,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   //
   float radius = IndividualStarFeedbackStencilSize * dx;    // code length
   float volume = 4.0 * pi * radius * radius * radius / 3.0; // (code length)**3
-  int   r_int  = IndividualStarFeedbackStencilSize + 1;     // int of farthest cell in any dir.
+  int   r_int  = IndividualStarFeedbackStencilSize;     // int of farthest cell in any dir.
   float cell_volume_fraction = dx*dx*dx / volume;           // fraction of vol for each cell
 
   float injected_metal_mass[StellarYieldsNumberOfSpecies+1];
@@ -2806,6 +2806,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         float fractional_overlap = 1.0;
 
         // off grid - just means particle is near a boundary
+        // feedback handled appropriately on corresponding grid
         if( index < 0 || index >= nx*ny*nz) continue;
 
         float xc,yc,zc;
@@ -2829,10 +2830,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
         if (IndividualStarFollowStellarYields){
           for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
-  //          if( metal_mass[im] <= 0.0 ){
-//                printf("injected metal mass %"ESYM" %"ESYM" %"ESYM"\n", metal_mass[im], m_eject, injection_factor);
-    //        }
-
             injected_metal_mass[im] = metal_mass[im]*injection_factor;
           }
         }
@@ -3033,9 +3030,9 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
  * mixing, which will be heineously unresolved at 1 pc resolution (need ~0.01 pc).
  * ----------------------------------------------------------------------------- */
 
-  const float est_mu = 0.4; // estimated - this is approximate anyway
+  const float est_mu  = 0.4; // estimated - this is approximate anyway
   const float k_boltz = 1.380658E-16;
-  const float mp     = 1.6733E-24;
+  const float mp      = 1.6733E-24;
 
   float m_ism = 0.0;
 
@@ -3052,21 +3049,12 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
       T_final = fmax(T, IndividualStarWindTemperature);
       m_ism   = fmax( (E_final * (2.0 * est_mu * mp)/(3.0*k_boltz * T_final)) - cell_mass - m_eject, 0.0);
 
-//      m_ism = (0.85)*m_eject;
-
       /* modify metal abundances here */
       m_ism = m_ism / (dx*dx*dx) / MassUnits;
-//      printf("Grid abundances = ");
       if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields && m_ism > 0.0){
         for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
-/*
-          if(m_ism < 0.0){
-              printf("metal_mass = %"ESYM" m_ism = %"ESYM" grid = %"ESYM"\n", metal_mass[im], m_ism, grid_abundances[im]);
-          }
-*/
 
-          metal_mass[im] = metal_mass[im] + m_ism * grid_abundances[im]; // ISM add
-//          printf(" %"ESYM,grid_abundances[im]);
+          metal_mass[im] = metal_mass[im] + m_ism * grid_abundances[im]; // ISM abundances
 
           if(metal_mass[im] < 0.0){
             printf("metal_mass %"ESYM" %"ISYM" %"ESYM"\n", metal_mass[im], im, grid_abundances[im]);
@@ -3082,8 +3070,6 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
         }
       }
 
-//    printf("m_ism %"ESYM"\n",m_ism);
-   // }
   }
 
   /* convert back into code units */
