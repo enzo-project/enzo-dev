@@ -1203,8 +1203,8 @@ int ComputeAverageEnergy(float *energy, float *e_i, float *Teff){
    * ==========================================================================
    */
 
-  const double sigma   = 5.6074E-5;
-  const double pi      = 3.1415621;
+  const double sigma   = 5.60751E-5;
+  const double pi      = 3.14159265358979;
   const double c       = 2.99792458E10;
   const double k_boltz = 1.380658E-16;
   const double h       = 6.6260755E-27;
@@ -1266,7 +1266,7 @@ int BlackBodyFlux(float &F, const float &x){
   const int min_iterations = 4;
   const float tolerance = 1.0E-10;
 
-  float difference = 1.0E10, sum, old_sum;
+  float difference = huge_number, sum, old_sum;
   sum = old_sum = 0.0;
   int i = 1;
 
@@ -1308,7 +1308,7 @@ int PhotonRadianceBlackBody(float &q, const float &x){
   float difference, old_sum, sum;
   int i;
 
-  difference = 1.0E10;
+  difference = huge_number;
   sum = old_sum = 0.0;
   i = 1;
   // do until tolerance reached, force minimum number of iterations
@@ -1344,7 +1344,7 @@ int AverageEnergyBlackBody(float *energy, float x){
   float difference, old_sum, sum, u_dens_summation, n_dens_summation;
   int i;
 
-  difference = 1.0E10;
+  difference = huge_number;
   sum = old_sum = 0.0;
   i = 1;
   // compute series approximation of the energy density integral
@@ -1366,7 +1366,7 @@ int AverageEnergyBlackBody(float *energy, float x){
 
   // now compute the series approximation of photon number density integral
   old_sum    = 0.0;
-  difference = 1.0E10;
+  difference = huge_number;
   sum        = 0.0;
   i = 1;
   // force minimum number of iterations
