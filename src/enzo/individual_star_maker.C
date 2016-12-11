@@ -2909,8 +2909,8 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
     /* compute Sedov-Taylor phase radius (R_dps) */
 
-    printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
-          this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), m_eject,
+    printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
+          this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), m_eject,
           cells_this_grid, volume, total_volume_fraction, total_mass_injected, total_energy_injected,
           total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
   }
