@@ -380,6 +380,7 @@ public:
 
    int CheckField(int FieldNum);
    int CheckDensity(void);
+   int CheckOTRadiation(void);
 
 /* Return time, timestep */
 
