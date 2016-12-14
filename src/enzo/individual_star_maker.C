@@ -2622,6 +2622,8 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
                 switches between stellar wind, core collapse SN, or type ia sn
 
 */
+  if (this->NumberOfBaryonFields == 0 || !this->isLocal() )
+    return SUCCESS;
 
   float dx = this->CellWidth[0][0];
 
