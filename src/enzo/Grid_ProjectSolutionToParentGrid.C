@@ -455,7 +455,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   if (ParentGrid.ProcessorNumber != MyProcessorNumber)
 
     for (field = 0; field < NumberOfBaryonFields; field++) {
-      delete ParentGrid.BaryonField[field];
+      delete [] ParentGrid.BaryonField[field];
       ParentGrid.BaryonField[field] = NULL;
     }
  
