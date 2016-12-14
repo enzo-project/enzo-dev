@@ -435,7 +435,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
                                      ( (2.0 * pi * POW(DiskGravityDarkMatterR*mpc,3.0) ) *
                                        (0.5 * log(1.0 + xtemp*xtemp) + log(1.0 + xtemp) - atan(xtemp)));
 
-      printf("darkmatterdensity, mass interior, darkmatterr %"ESYM" %"ESYM" %"ESYM"\n",DiskGravityDarkMatterDensity, DiskGravityDarkMatterMassInteriorR, DiskGravityDarkMatterMassInterior*msolar);
     }
 
   } // end DiskGravity if
