@@ -25,6 +25,12 @@ int grid::CheckField(int FieldNum){
   * debugging tool.
   * -----------------------------------------*/
 
+  if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+
+  if (NumberOfBaryonFields == 0)
+    return SUCCESS;
+
   int size = 1;
   for (int dim = 0; dim < this->GridRank; dim++){
     size *= this->GridDimension[dim];
@@ -40,6 +46,8 @@ int grid::CheckField(int FieldNum){
 
 int grid::CheckDensity(void){
 
+  if (NumberOfBaryonFields == 0) return SUCCESS;
+
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                        Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
@@ -48,3 +56,20 @@ int grid::CheckDensity(void){
 
   return (this->CheckField(DensNum));
 }
+
+
+int grid::CheckOTRadiation(void){
+
+  if (NumberOfBaryonFields == 0) return SUCCESS;
+
+  int OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
+  int PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+
+  int err = SUCCESS;
+  if (PeNum > 0) err *= this->CheckField(PeNum);
+  if (OTLWkdissH2INum > 0) err *= this->CheckField(OTLWkdissH2INum);
+
+  return err;
+
+}
+
