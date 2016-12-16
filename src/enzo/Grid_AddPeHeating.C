@@ -1,9 +1,10 @@
 /***********************************************************************
 /
-/  (WRAPPER) ADD H2 DISSOCIATION EMISSION FROM RADIATIVE PARTICLES
+/  (WRAPPER) ADD PE HEATING FROM FUV EMISSION FROM RADIATIVE PARTICLES
 /
-/  written by: John Wise
-/  date:       January, 2012
+/  (copied from Grid_AddH2Dissociation.C
+/  written by: Andrew Emerick
+/  date:       December, 2016
 /  modified1:
 /
 /  PURPOSE:
@@ -24,7 +25,7 @@
 #include "CosmologyParameters.h"
 #include "Star.h"
 
-int grid::AddH2Dissociation(Star *AllStars, int NumberOfSources)
+int grid::AddPeHeating(Star *AllStars, int NumberOfSources)
 {
 
   /* If we're merging rays, we already have a binary tree of the
@@ -32,15 +33,13 @@ int grid::AddH2Dissociation(Star *AllStars, int NumberOfSources)
      have more than 10 sources.  With smaller numbers, the overhead
      makes the direct calculation faster. */
 
-// #ifdef LWTREE
-
-  if (RadiativeTransferOpticallyThinSourceClustering == TRUE &&
-      NumberOfSources >= 10)
-    this->AddH2DissociationFromTree();
+//#ifdef FUVTREE
+  if (RadiativeTransferOpticallyThinSourceClustering == TRUE 
+      && NumberOfSources >= 10)
+    this->AddPeHeatingFromTree();
   else
 //#endif
-    this->AddH2DissociationFromSources(AllStars);
+  this->AddPeHeatingFromSources(AllStars);
 
   return SUCCESS;
-
 }

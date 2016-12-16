@@ -1002,6 +1002,9 @@ POBJS_CONFIG_LIB = \
 	Grid_AddH2Dissociation.o \
 	Grid_AddH2DissociationFromSources.o \
 	Grid_AddH2DissociationFromTree.o \
+        Grid_AddPeHeating.o \
+        Grid_AddPeHeatingFromSources.o \
+        Grid_AddPeHeatingFromTree.o \
 	Grid_AddRadiationImpulse.o \
 	Grid_AddRadiationPressureAcceleration.o \
 	Grid_AllocateInterpolatedRadiation.o \

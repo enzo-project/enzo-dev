@@ -44,8 +44,7 @@ int grid::AddH2DissociationFromTree(void)
   FLOAT pos[MAX_DIMENSION];
   FLOAT radius2;
   FLOAT innerFront, outerFront, innerFront2, outerFront2;
-  double Luminosity[MAX_ENERGY_BINS];
-  float energies[MAX_ENERGY_BINS], kdiss_r2;
+  float kdiss_r2;
   double H2Luminosity, H2ISigma = 3.71e-18;
 
   if (MyProcessorNumber != ProcessorNumber)
@@ -87,7 +86,11 @@ int grid::AddH2DissociationFromTree(void)
   /* Find sources in the tree that contribute to the cells */
 
   SuperSourceEntry *Leaf;
-  float factor = LConv_inv * H2ISigma / (4.0 * M_PI);
+  float factor;
+//  if (ProblemType == 50)
+  factor = LConv_inv * H2ISigma / (4.0 * M_PI);
+  //else
+  //factor = H2ISigma * (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits) / (4.0 * M_PI);
   float angle;
 
   Leaf = SourceClusteringTree;

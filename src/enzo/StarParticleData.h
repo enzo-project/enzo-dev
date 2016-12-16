@@ -179,9 +179,10 @@ SPEXTERN int   IndividualStarFUVHeating;
 SPEXTERN int   IndividualStarLWRadiation;
 SPEXTERN int   IndividualStarPrintSNStats;
 
-SPEXTERN float IndividualStarOTRadiationMass; // to supercede below 2
+SPEXTERN float IndividualStarIonizingRadiationMinimumMass;
+SPEXTERN float IndividualStarOTRadiationMass;
 SPEXTERN float IndividualStarFUVTemperatureCutoff;
-
+SPEXTERN int IndividualStarOTRadiationMethod;
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;

@@ -165,10 +165,22 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
     for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
       // Skip if not 'living'
-      if (!(cstar->FeedbackFlag == NO_FEEDBACK ||
-	    cstar->FeedbackFlag == CONT_SUPERNOVA)) 
-	continue;
-      
+      // checks are different for individual star particles
+      if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+        // these checks shouldn't be needed since things are
+        // zeroed, but saves some time rather than running
+        // through loops below
+
+        if ( (cstar->type != INDIVIDUAL_STAR) ||
+             (cstar->BirthMass < IndividualStarOTRadiationMass ))
+         continue;
+
+      } else {
+        if (!(cstar->FeedbackFlag == NO_FEEDBACK ||
+  	    cstar->FeedbackFlag == CONT_SUPERNOVA)) 
+  	continue;
+      }
+
       /* Determine H2 emission rate */
 
       if (cstar->ComputePhotonRates(TimeUnits, nbins, energies, Luminosity) == FAIL) {

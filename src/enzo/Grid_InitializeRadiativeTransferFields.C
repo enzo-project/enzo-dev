@@ -38,6 +38,10 @@ int grid::InitializeRadiativeTransferFields()
   int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
 				  kphHeIINum, kdissH2INum);
+  int OTLWkdissH2INum, PeNum;
+
+  PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+  OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
 
   int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
 
@@ -85,7 +89,7 @@ int grid::InitializeRadiativeTransferFields()
 	    BaryonField[RPresNum3][index] = 0.0;
 	}
       }  // loop over grid
-    
+
   }  /* ENDIF RadiationPressure */
 
   if (RadiativeTransferLoadBalance)
@@ -95,6 +99,40 @@ int grid::InitializeRadiativeTransferFields()
 	for (i = 0; i < GridDimension[0]; i++, index++)
 	  BaryonField[RaySegNum][index] = 0.0;
       }  // loop over grid
+
+  /* This is a litte rough for now, but going through testing -
+     this can be distilled to just a couple params once
+     done - Dec 2016 - AJE
+  */
+
+  if (IndividualStarOTRadiationMethod == 1 &&
+      RadiativeTransferOpticallyThinH2     &&
+      IndividualStarLWRadiation){
+    if (OTLWkdissH2INum < 0) ENZO_FAIL("Failure to identify OTLWkdiss in InitializeRadiativeTransferFields\n");
+
+    for (k = 0; k < GridDimension[2]; k++){
+      for (j = 0; j < GridDimension[1]; j++) {
+        index = (k*GridDimension[1] + j)*GridDimension[0];
+        for (i = 0; i < GridDimension[0]; i++, index++){
+          BaryonField[OTLWkdissH2INum][index] = 0.0;
+        }
+      }
+    }
+  }
+
+  if (IndividualStarOTRadiationMethod == 1 &&
+      RadiativeTransferOpticallyThinFUV    &&
+      IndividualStarFUVHeating){
+    if (PeNum < 0) ENZO_FAIL("Failure to identify PeHeatingRate in InitializeRadiativeTransferFields\n");
+    for ( k = 0; k < GridDimension[2]; k++){
+      for( j = 0; j < GridDimension[1]; j++){
+        index = (k*GridDimension[1] + j)*GridDimension[0];
+        for (i = 0; i < GridDimension[0]; i++, index++){
+          BaryonField[PeNum][index] = 0.0;
+        }
+      }
+    }
+  }
 
   HasRadiation = FALSE;
   MaximumkphIfront = 0;

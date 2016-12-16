@@ -764,8 +764,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarExtrapolateYields    = 0;           // on or off - extrapolate yields from NuGrid set by scaling. If off, use PARSEC wind yields
 
   /* IndividualStar: Stellar Feedback - Radiation */
-  IndividualStarRadiationMinimumMass = 8.0;         // Solar masses - Stars above this are radiating particles (full RT)
+  IndividualStarRadiationMinimumMass = 8.0;         // Solar masses - Stars above this are posible rad sources
+  IndividualStarOTRadiationMethod    = 0;           // flag - 0 = MxN comparison in grid - 1 goes through RT framework
   IndividualStarOTRadiationMass      = 8.0;         // Solar masses - Stars above this are allowed to have optically thin radiation
+  IndividualStarIonizingRadiationMinimumMass = 8.0; // Solar masses - stars above this are allowed ionizing radiation
   IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens Pe Heating using optically thin FUV
   IndividualStarLWRadiation          = 0;           // on or off - include optically thin LW photons from stars
   IndividualStarFUVTemperatureCutoff = 2.0E4;       // K - if FUV heating is on, heat up to this temperature

@@ -105,30 +105,67 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     se_table_position  = this->ReturnSETablePosition();
     rad_table_position = this->ReturnRadTablePosition();
 
-    IndividualStarInterpolateProperties(Teff, R,
+    /* set ionizing radiation photon rates */
+    if (M >= IndividualStarIonizingRadiationMinimumMass){
+      IndividualStarInterpolateProperties(Teff, R,
                                         se_table_position[0], se_table_position[1],
                                         M, Z);
 
-    g = IndividualStarSurfaceGravity( M, R); // M in solar - R in cgs
+      g = IndividualStarSurfaceGravity( M, R); // M in solar - R in cgs
 
-    IndividualStarComputeIonizingRates(Q[0], Q[1],
-                                       rad_table_position[0], rad_table_position[1], rad_table_position[2],
-                                       Teff, g, Z);
+      IndividualStarComputeIonizingRates(Q[0], Q[1],
+                                         rad_table_position[0], rad_table_position[1], rad_table_position[2],
+                                         Teff, g, Z);
 
-    // compute average energy by integrating over the black body spectrum
-    H_ionizing_energy   /= eV_erg; // convert to ergs
-    HeI_ionizing_energy /= eV_erg; // convert to ergs
-    ComputeAverageEnergy(&E[0], &H_ionizing_energy, &Teff);
-    ComputeAverageEnergy(&E[1], &HeI_ionizing_energy, &Teff);
+      // compute average energy by integrating over the black body spectrum
+      H_ionizing_energy   /= eV_erg; // convert to ergs
+      HeI_ionizing_energy /= eV_erg; // convert to ergs
+      ComputeAverageEnergy(&E[0], &H_ionizing_energy, &Teff);
+      ComputeAverageEnergy(&E[1], &HeI_ionizing_energy, &Teff);
 
-    // convert to eV from cgs
-    E[0] = E[0] * eV_erg;
-    E[1] = E[1] * eV_erg;
+      // convert to eV from cgs
+      E[0] = E[0] * eV_erg;
+      E[1] = E[1] * eV_erg;
+      E[2] = 58.0; // HeII
 
-    // Functions above return the ionizing flux at stellar surface.
-    // Convert to ionizing photon rate
-    Q[0] = Q[0] * 4.0 * pi * R*R;
-    Q[1] = Q[1] * 4.0 * pi * R*R;
+      // Functions above return the ionizing flux at stellar surface.
+      // Convert to ionizing photon rate
+      Q[0] = Q[0] * 4.0 * pi * R*R;
+      Q[1] = Q[1] * 4.0 * pi * R*R;
+      Q[2] = 0.0; // do not track
+    } else{
+      E[0] = 21.0; //irrelevant
+      E[1] = 30.0; //irrelevant
+      E[2] = 60.0; //irrelevant
+
+      Q[0] = 0.0; Q[1] = 0.0; Q[2] = 0.0;
+    } // end ionizing radiation
+
+    /* compute optically thin rates */
+    if( (IndividualStarFUVHeating || IndividualStarLWRadiation) &&
+       IndividualStarOTRadiationMethod == 1){
+      nbins = 5; // + LW and + FUV
+
+      E[3] = 12.8; // LW radiation
+      E[4] = 8.8;  // FUV radiation
+
+      if(IndividualStarFUVHeating && M > IndividualStarOTRadiationMass){
+          float l_fuv;
+          IndividualStarComputeFUVLuminosity(l_fuv, this);
+          Q[4] = l_fuv / (E[3] / eV_erg);
+      } else{
+          Q[4] = 0.0;
+      }
+
+      if(IndividualStarLWRadiation && M > IndividualStarOTRadiationMass){
+        float l_lw;
+        IndividualStarComputeLWLuminosity(l_lw, this);
+        Q[3] = l_lw / (E[4] / eV_erg);
+      } else{
+        Q[3] = 0.0;
+      }
+
+    } // end optically thin radiation
 
     break;
 
@@ -217,10 +254,10 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       E[3] = 0.0;
 
       Q[0] = 1.12e66 * MBHFeedbackRadiativeEfficiency *
-	this->last_accretion_rate / E[0]; 
+	this->last_accretion_rate / E[0];
       Q[1] = 0.0;
       Q[2] = 0.0;
-      Q[3] = 0.0;  
+      Q[3] = 0.0;
 
       //better check the initial mean energy when tracing spectrum
       if (MyProcessorNumber == ROOT_PROCESSOR)

@@ -49,6 +49,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPropagationDistance        = 0.1;
   RadiativeTransferCoupledRateSolver          = TRUE;
   RadiativeTransferOpticallyThinH2            = TRUE;
+  RadiativeTransferOpticallyThinFUV           = TRUE;
+  RadiativeTransferOpticallyThinSourceClustering = FALSE;
   RadiativeTransferFluxBackgroundLimit        = 0.01;
   RadiativeTransferSplitPhotonRadius          = FLOAT_UNDEFINED; // kpc
   RadiativeTransferRaysPerCell                = 5.1;
@@ -70,8 +72,10 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferLoadBalance                = FALSE;
   RadiativeTransferHubbleTimeFraction         = 0.1;
 
-  if (MultiSpecies == 0)
+  if (MultiSpecies == 0){
     RadiativeTransferOpticallyThinH2 = FALSE;
+    RadiativeTransferOpticallyThinFUV = FALSE;
+  }
 
   /* read input from file */
 
@@ -95,6 +99,10 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferCoupledRateSolver);
     ret += sscanf(line, "RadiativeTransferOpticallyThinH2 = %"ISYM, 
 		  &RadiativeTransferOpticallyThinH2);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinFUV = %"ISYM,
+                  &RadiativeTransferOpticallyThinFUV);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
+                  &RadiativeTransferOpticallyThinSourceClustering);
     ret += sscanf(line, "RadiativeTransferPeriodicBoundary = %"ISYM, 
 		  &RadiativeTransferPeriodicBoundary);
     ret += sscanf(line, "RadiativeTransferSplitPhotonRadius = %"FSYM, 
@@ -155,6 +163,14 @@ int RadiativeTransferReadParameters(FILE *fptr)
   }
 
   /* Error check */
+
+  /* Check if source clustering is off. If off, make sure optically thin clustering is off */
+  if (RadiativeTransferSourceClustering == FALSE){
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning: source clustering is off, but opically thin"
+                "radiation source clustering is on. Setting optically thin clustering to OFF.\n");
+    RadiativeTransferOpticallyThinSourceClustering = FALSE;
+  }
 
   /* Check if H2 cooling is turned on for Lyman-Werner radiation. */
 

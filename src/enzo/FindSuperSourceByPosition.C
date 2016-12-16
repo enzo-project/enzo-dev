@@ -209,3 +209,53 @@ float CalculateLWFromTree(const FLOAT pos[],
   return result;
 
 }
+
+float CalculateFUVFromTree(const FLOAT pos[], 
+                          const float angle, 
+                          const SuperSourceEntry *Leaf, 
+                          const float min_radius, 
+                          float result0)
+{
+
+  int dim;
+  FLOAT dx, radius2;
+  float tan_angle, result;
+  Eflt32 temp, radius_inv;
+
+  if (Leaf == NULL) 
+    return result0;
+
+  result = result0;
+  radius2 = 0.0;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    dx = Leaf->Position[dim] - pos[dim];
+    radius2 += dx*dx;
+  }
+
+  temp = (Eflt32)radius2;
+  temp = max(min_radius, temp);
+  vrsqrt(&temp, &radius_inv);
+  //radius_inv = 1.0 / sqrtf((float)radius2);
+  tan_angle = Leaf->ClusteringRadius * radius_inv;
+
+//  int pid = (Leaf->ParentSource == NULL) ? -1 : Leaf->ParentSource->LeafID;
+//  printf("Leaf->ID = %d (%d), cradius = %g, radius = %g, tan_angle = %g, result0 = %g\n",
+//       Leaf->LeafID, pid, Leaf->ClusteringRadius, sqrt(radius2), tan_angle, result0);
+
+  // Larger than opening angle -> go to children
+  if (tan_angle > angle) {
+    result = CalculateFUVFromTree(pos, angle, Leaf->ChildSource[0], min_radius, result);
+    result = CalculateFUVFromTree(pos, angle, Leaf->ChildSource[1], min_radius, result);
+  }
+
+  // Smaller than opening angle -> use this in the calculation
+  else {
+    result += Leaf->FUVLuminosity * radius_inv * radius_inv;
+  }
+
+  //printf("\t after[%d] -- result = %g\n", Leaf->LeafID, result);
+
+  return result;
+
+}
+

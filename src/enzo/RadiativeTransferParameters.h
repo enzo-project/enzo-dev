@@ -66,6 +66,14 @@ EXTERN float RadiationPressureScale;
 
 EXTERN int RadiativeTransferOpticallyThinH2;
 
+/* Flag to turn on a 1/r^2 FUV radiation field */
+
+EXTERN int RadiativeTransferOpticallyThinFUV;
+
+/* Flag to turn on source clustering for optically thin radiation */
+
+EXTERN int RadiativeTransferOpticallyThinSourceClustering;
+
 /* Periodic boundary conditions for the photon packages */
 
 EXTERN int RadiativeTransferPeriodicBoundary;
