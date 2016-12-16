@@ -62,6 +62,8 @@ int StarParticleOpticallyThinRadiation(TopGridData *MetaData,
     return SUCCESS; // do nothing
   }
 
+  if (IndividualStarOTRadiationMethod != 0) return SUCCESS; // using RT framework
+
   LevelHierarchyEntry *Temp;
 
   // loop through all grids and set FUV to zero
@@ -281,7 +283,7 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
                    (zcell - zs[sp])*(zcell - zs[sp]);
             rsqr = fmax(rsqr, 0.0625*dx*dx); // minimum separation of 1/4 cell to avoid divide by zero issues
 
-            float speed = (sqrt(rsqr) * LengthUnits) / ((this->Time - ts[i]) * TimeUnits);
+            float speed = (sqrt(rsqr) * LengthUnits) / ((this->Time - ts[sp]) * TimeUnits);
 
             if ( speed <= c_light ){
                     local_fuv_flux += L_fuv[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
