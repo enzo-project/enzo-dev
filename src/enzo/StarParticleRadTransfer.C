@@ -135,7 +135,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 	RadSource->LWLuminosity = 0.0;
 
       if (RadiativeTransferOpticallyThinFUV)
-        RadSource->FUVLuminosity = Q[4] * LConv;
+        RadSource->FUVLuminosity = Q[4] * LConv * energies[4]; // NOTE: actual Luminosity - not photon luminosity
       else
         RadSource->FUVLuminosity = 0.0;
 
