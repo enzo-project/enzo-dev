@@ -95,7 +95,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   case IndividualStar:
     /* Compute HI and HeI ionizing photon rates using individual star model */
 
-    nbins = 2;
+    nbins = 3;
 
     M   = this->BirthMass;   // interpolate grids on initial ZAMS mass
     Z   = this->Metallicity;
@@ -147,12 +147,12 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       nbins = 5; // + LW and + FUV
 
       E[3] = 12.8; // LW radiation
-      E[4] = 8.8;  // FUV radiation
+      E[4] = 9.8;  // FUV radiation - average of 6 eV to 13.6 eV range
 
       if(IndividualStarFUVHeating && M > IndividualStarOTRadiationMass){
           float l_fuv;
           IndividualStarComputeFUVLuminosity(l_fuv, this);
-          Q[4] = l_fuv / (E[3] / eV_erg);
+          Q[4] = l_fuv / (E[4] / eV_erg);
       } else{
           Q[4] = 0.0;
       }
@@ -160,7 +160,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       if(IndividualStarLWRadiation && M > IndividualStarOTRadiationMass){
         float l_lw;
         IndividualStarComputeLWLuminosity(l_lw, this);
-        Q[3] = l_lw / (E[4] / eV_erg);
+        Q[3] = l_lw / (E[3] / eV_erg);
       } else{
         Q[3] = 0.0;
       }
