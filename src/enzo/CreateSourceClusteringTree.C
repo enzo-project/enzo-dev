@@ -94,10 +94,9 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       /* This will be silly RT units, but eV/s NOT #/s like above*/
       if (RadSource->EnergyBins > FUVBin)
         SourceList[i].FUVLuminosity = RadSource->Luminosity *
-          RadSource->SED[FUVBin] * RadSource->Energy[4];
+          RadSource->SED[FUVBin] * RadSource->Energy[FUVBin];
       else
-        SourceList[i].FUVLuminosity = RadSource->FUVLuminosity *
-                                      RadSource->Energy[4];
+        SourceList[i].FUVLuminosity = RadSource->FUVLuminosity;
 
       SourceList[i].Source = RadSource;
       RadSource = RadSource->NextSource;
