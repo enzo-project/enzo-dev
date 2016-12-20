@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -105,6 +106,7 @@ int grid::InitializeRadiativeTransferFields()
      done - Dec 2016 - AJE
   */
 
+  TIMER_START("InitializeOTFields");
   if (IndividualStarOTRadiationMethod == 1 &&
       RadiativeTransferOpticallyThinH2     &&
       IndividualStarLWRadiation){
@@ -133,6 +135,7 @@ int grid::InitializeRadiativeTransferFields()
       }
     }
   }
+  TIMER_STOP("InitializeOTFields");
 
   HasRadiation = FALSE;
   MaximumkphIfront = 0;
