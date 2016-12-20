@@ -77,8 +77,12 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
   
   /* Exit if no star particles and not Photon Test */
 
-  if (AllStars == NULL && ProblemType != 50)
+  if (AllStars == NULL)
     return SUCCESS;
+
+  if(ProblemType != 50 && !(STARMAKE_METHOD(INDIVIDUAL_STAR)))
+    return SUCCESS;
+
 
   /* If using cosmology, get units. */
 
@@ -171,7 +175,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
         // zeroed, but saves some time rather than running
         // through loops below
 
-        if ( (cstar->type != INDIVIDUAL_STAR) ||
+        if ( (cstar->type != PARTICLE_TYPE_INDIVIDUAL_STAR) ||
              (cstar->BirthMass < IndividualStarOTRadiationMass ))
          continue;
 
@@ -198,7 +202,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	  ddr2[dim][i] = 
 	    fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][index] -
 		 cstar->pos[dim]);
-	  ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
+//	  ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
 	  ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
 	}
 
