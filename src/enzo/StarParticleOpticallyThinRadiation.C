@@ -181,6 +181,7 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
   const double pi  = 3.14159265358979;
   const double c_light = 2.99792458E10; // cgs
   const double H2ISigma = 3.71e-18;
+  const double LW_energy = 12.8 / 6.241509E11; // LW band energy in erg
   float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, TimeUnits, EnergyUnits, MassUnits;
 
   float dx = this->CellWidth[0][0];
@@ -315,7 +316,7 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
           } // end PE heating
 
           if(IndividualStarLWRadiation){
-            BaryonField[OTLWkdissH2INum][index] = H2ISigma * local_lw_flux * TimeUnits ;
+            BaryonField[OTLWkdissH2INum][index] = H2ISigma * local_lw_flux * TimeUnits / ( LW_energy) ;
           }
 
         //} else {
