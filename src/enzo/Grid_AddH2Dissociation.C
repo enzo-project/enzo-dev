@@ -35,11 +35,12 @@ int grid::AddH2Dissociation(Star *AllStars, int NumberOfSources)
 // #ifdef LWTREE
 
   if (RadiativeTransferOpticallyThinSourceClustering == TRUE &&
-      NumberOfSources >= 10)
-    this->AddH2DissociationFromTree();
-  else
+      NumberOfSources >= 10){
+      this->AddH2DissociationFromTree();
+  } else{
 //#endif
-    this->AddH2DissociationFromSources(AllStars);
+      this->AddH2DissociationFromSources(AllStars);
+  }
 
   return SUCCESS;
 
