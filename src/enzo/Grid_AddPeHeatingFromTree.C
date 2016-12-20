@@ -104,7 +104,7 @@ int grid::AddPeHeatingFromTree(void)
 
 
   // Dilution factor (prevent breaking in rate solver near star)
-  float dilutionRadius = this->CellWidth[0][0] / 4.0;
+  float dilutionRadius = this->CellWidth[0][0] / 8.0;
   float dilRadius2     = dilutionRadius * dilutionRadius;
 
   /* Find sources in the tree that contribute to the cells */
@@ -160,8 +160,7 @@ int grid::AddPeHeatingFromTree(void)
         Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
         // assign heating rate from model
-        BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], FUVLuminosity);
-        BaryonField[PeNum][index] *= PeConversion;
+        BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], FUVLuminosity) * PeConversion;
 
       }
     }
