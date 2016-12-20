@@ -311,11 +311,13 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        creating tree (type SuperSource), compute position of the super
        source in each leaf. */
 
+    TIMER_START("CreateSourceClusteringTree");
     START_PERF();
     if (RadiativeTransferSourceClustering == TRUE) {
       CreateSourceClusteringTree(0, NULL, LevelArray);
     }
     END_PERF(1);
+    TIMER_STOP("CreateSourceClusteringTree");
 
     // first identify sources and let them radiate 
     RS = GlobalRadiationSources->NextSource;
