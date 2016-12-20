@@ -1,9 +1,10 @@
 /***********************************************************************
 /
-/  ADD H2 DISSOCIATION EMISSION FROM SHINING PARTICLES
+/  ADD PE HEATING RATE FROM FUV RADIATION FROM SHINING PARTICLES
 /
-/  written by: John Wise
-/  date:       March, 2006
+/  written by: Andrew Emerick
+/  date:       December, 2016
+/       taken from Grid_AddH2DissociationFromSources
 /  modified1:
 /
 /  PURPOSE:
@@ -74,7 +75,10 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
-  if (AllStars == NULL && ProblemType != 50)
+  if (AllStars == NULL)
+    return SUCCESS;
+
+  if(ProblemType != 50 && !(STARMAKE_METHOD(INDIVIDUAL_STAR)))
     return SUCCESS;
 
 
@@ -113,7 +117,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   }
 
   // Dilution factor to prevent breaking of rate solver near the star
-  float dilutionRadius = 0.25 * this->CellWidth[0][0];
+  float dilutionRadius = 0.125 * this->CellWidth[0][0];
   float dilRadius2     = dilutionRadius * dilutionRadius;
   float LightTravelDist = TimeUnits * clight / LengthUnits;
 
@@ -131,7 +135,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
       // zeroed, but saves some time rather than running
       // through loops below
 
-      if ( (cstar->type != INDIVIDUAL_STAR) ||
+      if ( (cstar->type != PARTICLE_TYPE_INDIVIDUAL_STAR) ||
            (cstar->BirthMass < IndividualStarOTRadiationMass ))
        continue;
 
@@ -149,7 +153,9 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
     FUVLuminosity = (Luminosity[4]*energies[4]) / (4.0 * M_PI * eV_erg);
 
     /* Pre-calculate distances from cells to source */
-
+    cstar->PrintInfo();
+    printf("FUVLuminosity = %"ESYM"\n", FUVLuminosity);
+    
     for (dim = 0; dim < GridRank; dim++)
       for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim]; 
            i++, index++) {
@@ -158,14 +164,14 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
         ddr2[dim][i] = 
           fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][index] -
                cstar->pos[dim]);
-        ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
+//        ddr2[dim][i] = m1in(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
         ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
       }
 
    /* Loop over cells */
 
     double radius2, radius2_yz;
-
+    double FUVflux;
     for (k = 0; k < ActiveDims[2]; k++) {
       for (j = 0; j < ActiveDims[1]; j++) {
         radius2_yz = ddr2[1][j] + ddr2[2][k];
@@ -174,9 +180,9 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           radius2 = radius2_yz + ddr2[0][i];
 
           if (radius2 < dilRadius2) // need r^2 in cgs
-            FUVLuminosity /= (dilRadius2 * LengthUnits * LengthUnits);
+            FUVflux = FUVLuminosity / (dilRadius2 * LengthUnits * LengthUnits);
           else
-            FUVLuminosity /= (radius2 * LengthUnits * LengthUnits);
+            FUVflux = FUVLuminosity / (radius2 * LengthUnits * LengthUnits);
 
           float n_H, n_e, Z;
 
@@ -196,8 +202,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
 
           BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, Z,
-                                                                       temperature[index], FUVLuminosity);
-          BaryonField[PeNum][index] *= PeConversion;
+                                                                       temperature[index], FUVflux) * PeConversion;
             //} // ENDIF
         } // END: i-direction
       } // END: j-direction
