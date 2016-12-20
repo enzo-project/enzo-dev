@@ -76,7 +76,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       nShine++;
       RadSource = RadSource->NextSource;
     }
-    if (nShine <= 1) 
+    if (nShine <= 1)
 	return SUCCESS;
 
     SourceList = new SuperSourceData[nShine];
@@ -222,6 +222,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   } else {
     median = nShine/2;
     nleft = (nShine+1)/2;
+    if (nleft > median) nleft = median; // AJE - may need to change
     nright = nShine-nleft;
   }
   /* Divide into children if there are more than one source */
@@ -269,6 +270,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       }
     } else {
       LR_leaf_flag[0] = 0;
+      LR_leaf_flag[1] = 0; // AJE - may be wrong
     }
     for (i = 0; i < nShine; i++) {
       new_leaf = new SuperSourceEntry;
