@@ -153,9 +153,6 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
     FUVLuminosity = (Luminosity[4]*energies[4]) / (4.0 * M_PI * eV_erg);
 
     /* Pre-calculate distances from cells to source */
-    cstar->PrintInfo();
-    printf("FUVLuminosity = %"ESYM"\n", FUVLuminosity);
-    
     for (dim = 0; dim < GridRank; dim++)
       for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim]; 
            i++, index++) {
