@@ -61,7 +61,6 @@ int grid::AddPeHeatingFromTree(void)
 
   /* obtain baryon field indexes */
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
-  this->DebugCheck("StarParticleHandler");
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                        Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
