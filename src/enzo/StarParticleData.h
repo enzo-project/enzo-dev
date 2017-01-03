@@ -181,6 +181,8 @@ SPEXTERN int   IndividualStarPrintSNStats;
 
 SPEXTERN float IndividualStarIonizingRadiationMinimumMass;
 SPEXTERN float IndividualStarOTRadiationMass;
+SPEXTERN int IndividualStarApproximateOTRadiation;
+SPEXTERN float IndividualStarApproximateOTThreshold;
 SPEXTERN float IndividualStarFUVTemperatureCutoff;
 SPEXTERN int IndividualStarOTRadiationMethod;
 

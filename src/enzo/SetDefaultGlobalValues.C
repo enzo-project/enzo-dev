@@ -766,6 +766,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* IndividualStar: Stellar Feedback - Radiation */
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses - Stars above this are posible rad sources
   IndividualStarOTRadiationMethod    = 0;           // flag - 0 = MxN comparison in grid - 1 goes through RT framework
+  IndividualStarApproximateOTRadiation = 0;         // flag - save some time in MxN comparison (IndividualStarOTRadiationMethod = 1) by using fixed value on grid for stars whose flux varies by < IndividualStarApproximateOTThreshold over the grid
+  IndividualStarApproximateOTThreshold = 0.1;       // if above is on, stars whose flux varies by less than this fraction over the grid are added as constant background on the grid
   IndividualStarOTRadiationMass      = 8.0;         // Solar masses - Stars above this are allowed to have optically thin radiation
   IndividualStarIonizingRadiationMinimumMass = 8.0; // Solar masses - stars above this are allowed ionizing radiation
   IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens Pe Heating using optically thin FUV

@@ -129,11 +129,11 @@ int StarParticleOpticallyThinRadiation(TopGridData *MetaData,
       star_pos = cstar->ReturnPosition();
 
       L_fuv[count] = fuv_luminosity;
-      L_lw[count] = lw_luminosity;
-      xs[count] = star_pos[0];
-      ys[count] = star_pos[1];
-      zs[count] = star_pos[2];
-      ts[count] = cstar->ReturnBirthTime();
+      L_lw[count]  = lw_luminosity;
+      xs[count]    = star_pos[0];
+      ys[count]    = star_pos[1];
+      zs[count]    = star_pos[2];
+      ts[count]    = cstar->ReturnBirthTime();
 
       count++;
     } // if star massive enough
@@ -164,7 +164,7 @@ int StarParticleOpticallyThinRadiation(TopGridData *MetaData,
 
 void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_lw,
                                              const float *xs, const float *ys, const float *zs,
-                                             const float *ts, const int &number_of_ot_stars){
+                                             const float *ts, const int &max_number_of_ot_stars){
   /* ---------------------------------------------------------------------------------------------------------
    * AddPhotoelectricHeatingFromStar
    * ---------------------------------------------------------------------------------------------------------
@@ -221,41 +221,94 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
   PeNum       = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
   OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
 
-/*
-  /* find out which stars we can approximate, avoiding the NxM comparison 
-  int *approximate_radiation;
-  approximate_radiation = new int[number_of_ot_stars];
-  float distances[8];
-  FLOAT min_sqr = huge_number, max_rsqr = tiny_number;
-  for (int sp = 0; sp < number_of_ot_stars; sp++{
+  FLOAT * xstar, *ystar, *zstar;
+  float * L_fuv_star, *L_lw_star, *ts_star;
+  float fuv_background_flux = 0.0, lw_background_flux = 0.0;
+  int number_of_ot_stars;
+
+  xstar = new float[max_number_of_ot_stars]; ystar = new float[max_number_of_ot_stars];
+  zstar = new float[max_number_of_ot_stars];
+  L_fuv_star = new float [max_number_of_ot_stars];
+  L_lw_star = new float[max_number_of_ot_stars];
+  ts_star = new float[max_number_of_ot_stars];
+
+  if (IndividualStarApproximateOTRadiation){
+     FLOAT xcenter, ycenter, zcenter;
+     xcenter = this->CellLeftEdge[0][0] + this->CellLeftEdge[0][this->GridDimension[0]-1] + 0.5*this->CellWidth[0][0];
+     ycenter = this->CellLeftEdge[1][0] + this->CellLeftEdge[1][this->GridDimension[1]-1] + 0.5*this->CellWidth[0][0];
+     zcenter = this->CellLeftEdge[2][0] + this->CellLeftEdge[2][this->GridDimension[2]-1] + 0.5*this->CellWidth[0][0];
+
+    /* find out which stars we can approximate, avoiding the NxM comparison */
     int count = 0;
-    for(int k = 0; k < this->GridDimension[2]; k + this->GridDimension[2]-1){
-      FLOAT zcell = this->CellLeftEdge[2][k] + 0.5 * this->CellWidth[2][k];
-      for(int j =0; j < this->GridDimension[1]; j + this->GridDimension[1]-1){
-      FLOAT ycell = this->CellLeftEdge[1][k] + 0.5 * this->CellWidth[1][j];
-        for(int i =0; i < this->GridDimension[0]; i + this->GridDimension[0][i]-1){
-          FLOAT xcell = this->GridCellLeftEdge[0][i] + 0.5 * this->GridDimension[0][i]l
+    for (int sp = 0; sp < max_number_of_ot_stars; sp++){
+      FLOAT min_rsqr = huge_number, max_rsqr = tiny_number, avg_rsqr = 0.0;
+      int tempcount = 0;
+      /* check rsqr values at corner points and find max variation over grid */
+      for(int k = 0; k < this->GridDimension[2]; k += this->GridDimension[2]-1){
+        FLOAT zcell = this->CellLeftEdge[2][k] + 0.5 * this->CellWidth[2][k];
 
-          FLOAT rsqr = (xs[sp] - xcell)*(xs[sp]-xcell) +
-                       (ys[sp] - ycell)*(ys[sp]-ycell) +
-                       (zs[sp] - zcell)*(zs[sp]-zcell);
-          if(rsqr < min_rsqr)
-            min_rsqr = rsqr;
-          if(rsqr > max_rsqr)
-            max_rsqr = rsqr;
+        for(int j =0; j < this->GridDimension[1]; j += this->GridDimension[1]-1){
+        FLOAT ycell = this->CellLeftEdge[1][j] + 0.5 * this->CellWidth[1][j];
+
+          for(int i =0; i < this->GridDimension[0]; i += this->GridDimension[0]-1){
+            FLOAT xcell = this->CellLeftEdge[0][i] + 0.5 * this->CellWidth[0][i];
+
+            FLOAT rsqr = (xs[sp] - xcell)*(xs[sp]-xcell) +
+                         (ys[sp] - ycell)*(ys[sp]-ycell) +
+                         (zs[sp] - zcell)*(zs[sp]-zcell);
+
+            if(rsqr < min_rsqr)
+              min_rsqr = rsqr;
+            if(rsqr > max_rsqr)
+              max_rsqr = rsqr;
+            avg_rsqr += rsqr;
+            tempcount++;
+          }
         }
+      } // end z loop
+      avg_rsqr = avg_rsqr / (8.0); // there are 8 corner points
+
+      // compute flux difference in min and max cell
+      float flux_ratio = fmax( fabs( (min_rsqr - avg_rsqr)/avg_rsqr), fabs((max_rsqr-avg_rsqr)/avg_rsqr));
+
+      // make shorter threshold name
+      if (flux_ratio <= IndividualStarApproximateOTThreshold){
+        /* we can approximate this star - add to background radiation level */
+
+        FLOAT rsqr = (xs[sp] - xcenter)*(xs[sp] - xcenter) +
+                     (ys[sp] - ycenter)*(ys[sp] - ycenter) +
+                     (zs[sp] - zcenter)*(zs[sp] - zcenter);
+
+        fuv_background_flux += L_fuv[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
+        lw_background_flux  += L_lw[sp]  / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
+
+      } else{
+        /* we cannot approximate this star - add to list of stars */
+        xstar[count] = xs[sp];
+        ystar[count] = ys[sp];
+        zstar[count] = zs[sp];
+        L_fuv_star[count] = L_fuv[sp];
+        L_lw_star[count]  = L_lw[sp];
+        ts_star[count]      = ts[sp];
+        count++;
       }
-    } // end z loop
-    // compute flux difference in min and max cell
-    float flux_ratio;
-    flux_ratio = (1.0/(min_rsqr*min_rsqr) - 1.0/((max_rsqr)*(max_rsqr))) * (max_rsqr)*(max_rsqr);
+    } // end loop over stars
 
+    number_of_ot_stars = count - 1;
+  } else{
+    /* just use full star arrays - this copy over is not ideal */
+    for(int i = 0; i < max_number_of_ot_stars; i++){
+      xstar[i] = xs[i];
+      ystar[i] = ys[i];
+      zstar[i] = zs[i];
+      L_fuv_star[i] = L_fuv[i];
+      L_lw_star[i]  = L_lw[i];
+      ts_star[i] = ts[i];
+    }
 
-    if (flux_ratio <= 0.10){ approximate_radiation = TRUE;}
-    else { approximate_radiation = FALSE;}
+    number_of_ot_stars = max_number_of_ot_stars;
   }
 
-*/
 
   /* loop over every cell, sum flux contribution from each star in each cell */
   for(int k = 0; k < this->GridDimension[2]; k++){
@@ -273,22 +326,23 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
 
         /* if the cell is below the temperature threshold for dust to exist, apply heating */
         //if( temperature[index] < IndividualStarFUVTemperatureCutoff){
-          float local_fuv_flux = 0.0, local_lw_flux = 0.0;
+          float local_fuv_flux = fuv_background_flux;
+          float local_lw_flux  = lw_background_flux;
           FLOAT rsqr;
 
           /* find total local flux due to all stars */
           for (int sp = 0; sp < number_of_ot_stars; sp++){
 
-            rsqr = (xcell - xs[sp])*(xcell - xs[sp]) +
-                   (ycell - ys[sp])*(ycell - ys[sp]) +
-                   (zcell - zs[sp])*(zcell - zs[sp]);
+            rsqr = (xcell - xstar[sp])*(xcell - xstar[sp]) +
+                   (ycell - ystar[sp])*(ycell - ystar[sp]) +
+                   (zcell - zstar[sp])*(zcell - zstar[sp]);
             rsqr = fmax(rsqr, 0.0625*dx*dx); // minimum separation of 1/4 cell to avoid divide by zero issues
 
-            float speed = (sqrt(rsqr) * LengthUnits) / ((this->Time - ts[sp]) * TimeUnits);
+            float speed = (sqrt(rsqr) * LengthUnits) / ((this->Time - ts_star[sp]) * TimeUnits);
 
             if ( speed <= c_light ){
-                    local_fuv_flux += L_fuv[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
-                    local_lw_flux  += L_lw[sp]  / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
+                    local_fuv_flux += L_fuv_star[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
+                    local_lw_flux  += L_lw_star[sp]  / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
             }
 
           }
@@ -329,6 +383,16 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
 
 
   delete[] temperature;
+
+//  if (IndividualStarApproximateOTRadiation){
+    delete [] xstar;
+    delete [] ystar;
+    delete [] zstar;
+    delete [] L_fuv_star;
+    delete [] L_lw_star;
+    delete [] ts_star;
+//  }
+
 //  delete[] approximate_radiation;
 }
 
