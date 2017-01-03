@@ -166,9 +166,11 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
   /* Check if source clustering is off. If off, make sure optically thin clustering is off */
   if (RadiativeTransferSourceClustering == FALSE){
-    if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "Warning: source clustering is off, but opically thin"
+    if (RadiativeTransferOpticallyThinSourceClustering){
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+        fprintf(stderr, "Warning: source clustering is off, but opically thin"
                 "radiation source clustering is on. Setting optically thin clustering to OFF.\n");
+    }
     RadiativeTransferOpticallyThinSourceClustering = FALSE;
   }
 
