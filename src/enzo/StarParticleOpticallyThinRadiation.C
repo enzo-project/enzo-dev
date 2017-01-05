@@ -266,7 +266,7 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
           }
         }
       } // end z loop
-      float inv_avg_rsqr = avg_rsqr / (8.0); // there are 8 corner points
+      float inv_avg_rsqr = 1.0 / (avg_rsqr / (8.0)); // there are 8 corner points
 
       // compute flux difference in min and max cell
       float flux_ratio = fmax( fabs( (1.0/min_rsqr - inv_avg_rsqr)/inv_avg_rsqr), 
