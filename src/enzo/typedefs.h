@@ -284,7 +284,6 @@ const star_type
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
   MBH = PARTICLE_TYPE_MBH;
 
-
 /* Define a float/int union. */
 
 union float_int {

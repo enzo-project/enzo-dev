@@ -22,22 +22,24 @@
 
 
 SuperNova::SuperNova(){
-	// Set reasonable default values for a super nova seed field
+	// Set zero values (which result in no supernova feedback) in case SuperNova 
+
+  // object is initialized but not given proper values
 	
-	zHat[0] = 0;
-	zHat[1] = 0;
-	zHat[2] = 1;
+  zHat[0] = FLOAT();
+  zHat[1] = FLOAT();
+  zHat[2] = FLOAT();
 	
-	location[0] = .65;
-	location[1] = .65;
-	location[2] = .5;
+  location[0] = FLOAT();
+  location[1] = FLOAT();
+  location[2] = FLOAT();
 	
-	characteristicLength = .000025;
-	timeStarted = 0.3;
-	characteristicTime = .00001;
+  characteristicLength = FLOAT();
+  timeStarted = FLOAT();
+  characteristicTime = FLOAT();
 	
-	totalEnergy = .00000003;
-	sigma = 1;
+  totalEnergy = float();
+  sigma = float();
 	
 }
 
@@ -106,17 +108,17 @@ static void Rotate_Vector(FLOAT v_z[3], FLOAT v_sn[3], FLOAT v_to_rotate[3]) {
 	
 	// Rotation matrix s.t. u = R*z
 	// Handy algorithm on wikipedia page on rotation matrices
-	R[0][0] = cos_theta + pow(u[0], 2)*(1-cos_theta);
+	R[0][0] = cos_theta + POW(u[0], 2)*(1-cos_theta);
 	R[0][1] = u[0]*u[1]*(1-cos_theta) - u[2]*sin_theta;
 	R[0][2] = u[0]*u[2]*(1-cos_theta) + u[1]*sin_theta;
 	
 	R[1][0] = u[1]*u[0]*(1-cos_theta) + u[2]*sin_theta;
-	R[1][1] = cos_theta + pow(u[1], 2)*(1-cos_theta);
+	R[1][1] = cos_theta + POW(u[1], 2)*(1-cos_theta);
 	R[1][2] = u[1]*u[2]*(1-cos_theta) - u[0]*sin_theta;
 	
 	R[2][0] = u[2]*u[0]*(1-cos_theta) - u[1]*sin_theta;
 	R[2][1] = u[2]*u[1]*(1-cos_theta) + u[0]*sin_theta;
-	R[2][2] = cos_theta + pow(u[2], 2)*(1-cos_theta);
+	R[2][2] = cos_theta + POW(u[2], 2)*(1-cos_theta);
 	
 	// Multiplying R*v_to_rotate (essentially rotating v_to_rotate)
 	v_to_rotate[0] = R[0][0]*copy[0] + R[0][1]*copy[1] + R[0][2]*copy[2];
@@ -203,7 +205,7 @@ snsf_source_terms SuperNova::getSourceTerms(double dx, double dy, double dz, dou
 	// Rotate phi back to the orientation of the cell
 	Rotate_Vector(zHat, zhat_cell, phi);
 	
-	FLOAT norm_factor = 4*totalEnergy / (pow(characteristicLength, 3) * M_PI*M_PI);
+	FLOAT norm_factor = 4*totalEnergy / (POW(characteristicLength, 3) * M_PI*M_PI);
 	FLOAT dB_scale = sqrt(sigma*norm_factor)*sqrt(r_scale)*db_t_exp;
 	FLOAT B_scale = sqrt(sigma*norm_factor)*sqrt(r_scale)*b_t_exp;
 

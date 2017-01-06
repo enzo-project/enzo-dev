@@ -585,11 +585,13 @@ public:
 	      vcirc*x/xy_radius/VelocityUnits;
 	    thisgrid->BaryonField[Vel3Num][index] = 0;
 
-	    thisgrid->BaryonField[TENum][index] = DiskGasEnergy + 0.5 *
-	      (POW(thisgrid->BaryonField[Vel1Num][index],2) +
-	       POW(thisgrid->BaryonField[Vel2Num][index],2) +
-	       POW(thisgrid->BaryonField[Vel3Num][index],2));
-
+	    thisgrid->BaryonField[TENum][index] = DiskGasEnergy; 
+	    if(HydroMethod != Zeus_Hydro) {
+	      thisgrid->BaryonField[TENum][index] +=  0.5 *
+		(POW(thisgrid->BaryonField[Vel1Num][index],2) +
+		 POW(thisgrid->BaryonField[Vel2Num][index],2) +
+		 POW(thisgrid->BaryonField[Vel3Num][index],2));
+	    }
 	    
 	    if (DualEnergyFormalism)
 	      {

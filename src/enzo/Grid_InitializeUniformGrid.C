@@ -192,7 +192,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
   /* set density, total energy */
  
   for (i = 0; i < size; i++) {
-    BaryonField[0][i] = UniformDensity;
+    BaryonField[DeNum][i] = UniformDensity;
     BaryonField[TENum][i] = UniformTotalEnergy;
     if ( CRModel ) BaryonField[CRNum][i] = UniformCR;
   }
@@ -248,7 +248,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 	  BaryonField[HIINum][i];
 
 	BaryonField[H2INum][i] = TestProblemData.H2I_Fraction *
-	  BaryonField[0][i] * TestProblemData.HydrogenFractionByMass;
+	  BaryonField[DeNum][i] * TestProblemData.HydrogenFractionByMass;
 
 	BaryonField[H2IINum][i] = TestProblemData.H2II_Fraction * 2.0 *
 	  BaryonField[HIINum][i];
@@ -256,7 +256,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
       // HI density is calculated by subtracting off the various ionized fractions
       // from the total
-      BaryonField[HINum][i] = TestProblemData.HydrogenFractionByMass*BaryonField[0][i]
+      BaryonField[HINum][i] = TestProblemData.HydrogenFractionByMass*BaryonField[DeNum][i]
 	- BaryonField[HIINum][i];
       if (MultiSpecies > 1)
 	BaryonField[HINum][i] -= (BaryonField[HMNum][i] + BaryonField[H2IINum][i]
@@ -307,13 +307,13 @@ int grid::InitializeUniformGrid(float UniformDensity,
       BaryonField[HIINum][i] = TestProblemData.HII_Fraction * 
 	TestProblemData.HydrogenFractionByMass * UniformDensity;
       BaryonField[H2INum][i] = TestProblemData.H2I_Fraction *
-	  BaryonField[0][i] * TestProblemData.HydrogenFractionByMass;
+	  BaryonField[DeNum][i] * TestProblemData.HydrogenFractionByMass;
 
       tempHM = TestProblemData.HM_Fraction * BaryonField[HIINum][i];
 
       tempH2II = TestProblemData.H2II_Fraction * 2.0 * BaryonField[HIINum][i];
 
-      BaryonField[HINum][i] = TestProblemData.HydrogenFractionByMass*BaryonField[0][i]
+      BaryonField[HINum][i] = TestProblemData.HydrogenFractionByMass*BaryonField[DeNum][i]
 	- BaryonField[HIINum][i];
       BaryonField[HINum][i] -= (tempHM + tempH2II + BaryonField[H2INum][i]);
 

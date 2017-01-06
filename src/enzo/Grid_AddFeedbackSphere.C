@@ -43,6 +43,8 @@
 
 int FindField(int field, int farray[], int numfields);
 
+void mt_init(unsigned_int seed);
+
 int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits, 
 			    float LengthUnits, float VelocityUnits, 
 			    float TemperatureUnits, float TimeUnits, double EjectaDensity, 
@@ -995,8 +997,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     if(UseSupernovaSeedFieldSourceTerms == 1){
 
       SuperNova *P = new SuperNova();
-      float random_u = (rand() %100)/100.0; // random variable from 0 to 1                                                               
-      float random_v = (rand() %100)/100.0;
+      int mt_seed = 100;
+      mt_init((unsigned int)mt_seed);
+      float random_u = (float)mt_seed/100.0; // random variable from 0 to 1
+      float random_v = (float)mt_seed/100.0;
       float random_phi = 2*M_PI*random_u; // 0 to 2pi                                                                                    
       float random_theta = acos(2*random_v-1); // 0 to pi                                                                                
       // Setting up randomly oriented magnetic feedback of supernova
