@@ -183,10 +183,10 @@ c
 !$omp end parallel do
          else 
 c     
-!$omp parallel do schedule(static)
-!$omp+ private(xpos, ypos, zpos, i1, j1, k1)
-!$omp+ private(dx, dy, dz)
-!$omp+ reduction(+:field)
+c!$omp parallel do schedule(static)
+c!$omp+ private(xpos, ypos, zpos, i1, j1, k1)
+c!$omp+ private(dx, dy, dz)
+c!$omp+ reduction(+:field)
             do n=1, npositions
 c     
 c     Compute the position of the central cell
@@ -227,7 +227,7 @@ c
      &              mass(n)*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c     
             enddo
-!$omp end parallel do
+c!$omp end parallel do
       
          endif                  ! end of  addaspoints if 
 !     do kkk=1,dim3
