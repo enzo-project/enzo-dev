@@ -73,11 +73,13 @@ int grid::CalculateAverageAbundances(void){
 */
 
   float mass_counter[StellarYieldsNumberOfSpecies + 1]; // metal + tracers
-  float total_mass = 0.0;
+  float mass_counter_hot[StellarYieldsNumberOfSpecies + 1];
+  float total_mass = 0.0, total_mass_hot = 0.0;
   float *temperature;
 
   for(int im = 0 ; im < StellarYieldsNumberOfSpecies + 1; im++){
     mass_counter[im] = 0.0;
+    mass_counter_hot[im] = 0.0;
   }
 
   /* get multispecies fields */
@@ -103,52 +105,87 @@ int grid::CalculateAverageAbundances(void){
   for(int index = 0; index < size; index++){
     int field_num;
 
-    if( temperature[index] < 1.0E6){
+    if( temperature[index] < IndividualStarWindTemperature){
       mass_counter[0] += BaryonField[MetalNum][index];
       for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
 
-        if( StellarYieldsAtomicNumbers[im] == 1){
-          mass_counter[im+1] = BaryonField[HINum][index] + BaryonField[HIINum][index];
+        switch(StellarYieldsAtomicNumbers[im]){
 
-          if ( MultiSpecies > 1){
-            mass_counter[im+1] += BaryonField[HMNum][index] + BaryonField[H2INum][index] +
-                                  BaryonField[H2IINum][index];
-          }
+          case 1: // Hydrogen
+            mass_counter[im+1] += BaryonField[HINum][index] + BaryonField[HIINum][index];
+            if (MultiSpecies > 1){
+              mass_counter[im+1] += BaryonField[HMNum][index] + BaryonField[H2INum][index] +
+                                    BaryonField[H2IINum][index];
+            }
+            break;
 
-        } else if (StellarYieldsAtomicNumbers[im] == 2){
-          mass_counter[im+1] = BaryonField[HeINum][index] + BaryonField[HeIINum][index] +
-                               BaryonField[HeIIINum][index];
-        } else{
-          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
-                                                         StellarYieldsAtomicNumbers[im]);
-          mass_counter[im+1] += BaryonField[field_num][index];
-        }
-      }
+          case 2: // Helium
+            mass_counter[im+1] += BaryonField[HeINum][index] + BaryonField[HeIINum][index] +
+                                  BaryonField[HeIIINum][index];
+            break;
 
+          default:
+
+            this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[im]);
+            mass_counter[im+1] += BaryonField[field_num][index];
+
+        } // end switch
+      } // end species loop
       total_mass += BaryonField[DensNum][index];
 
-    } // end temperature cutoff
-  }
+    } else {
+      mass_counter_hot[0] += BaryonField[MetalNum][index];
+      for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
+
+        switch(StellarYieldsAtomicNumbers[im]){
+
+          case 1: // Hydrogen
+            mass_counter_hot[im+1] += BaryonField[HINum][index] + BaryonField[HIINum][index];
+            if (MultiSpecies > 1){
+              mass_counter_hot[im+1] += BaryonField[HMNum][index] + BaryonField[H2INum][index] +
+                                    BaryonField[H2IINum][index];
+            }
+            break;
+
+          case 2: // Helium
+            mass_counter_hot[im+1] += BaryonField[HeINum][index] + BaryonField[HeIINum][index] +
+                                  BaryonField[HeIIINum][index];
+            break;
+
+          default:
+
+            this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[im]);
+            mass_counter_hot[im+1] += BaryonField[field_num][index];
+
+        } // end switch
+      } // end species loop
+      total_mass_hot += BaryonField[DensNum][index];
+
+    } // end temperature check
+  } // end loop
 
   if( total_mass <= tiny_number){
     ENZO_FAIL("Grid_UpdateAverageAbundances: No mass in average abundances");
   } else{
 
     for(int im = 0; im <StellarYieldsNumberOfSpecies + 1; im++){
-      if(mass_counter[im] <= 0.0 ){
+      if(mass_counter[im] <= 0.0  && mass_counter_hot[im] > 0.0){
+        mass_counter[im] = mass_counter_hot[im];
+      } else {
+        printf("Grid_UpdateAverageAbundances: Failing for species number %"ISYM" in list (where 0 = total metals)\n", im);
         ENZO_FAIL("Grid_UpdateAverageAbundances: No tracer species mass found on grid");
       }
     }
   }
 
-
+/*
   for(int im = 0; im < StellarYieldsNumberOfSpecies + 1; im ++){
     this->AveragedAbundances[im] = mass_counter[im] / total_mass;
     if(this->AveragedAbundances[im] <= 0.0){
         ENZO_FAIL("Averaged abundance ratio negative");
     }
   }
-
+*/
   delete [] temperature;
   return SUCCESS;
 }
