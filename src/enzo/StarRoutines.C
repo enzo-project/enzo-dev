@@ -99,6 +99,15 @@ Star::Star(grid *_grid, int _id, int _level)
   if( ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR  &&
       ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
+
+    int ts = ParticleAttributeTableStartIndex;
+    se_table_position[0] = (int)(_grid->ParticleAttribute[ts]);
+    se_table_position[1] = (int)(_grid->ParticleAttribute[ts+1]);
+    rad_table_position[0] = (int)( _grid->ParticleAttribute[ts+2]);
+    rad_table_position[1] = (int)( _grid->ParticleAttribute[ts+3]);
+    rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4]);
+    yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5]);
+    yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6]);
   }
 
   if (type == PARTICLE_TYPE_STAR)
@@ -566,6 +575,16 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
   if (ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR &&
       ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
+
+    int ts = ParticleAttributeTableStartIndex;
+    se_table_position[0] = (int)(_grid->ParticleAttribute[ts]);
+    se_table_position[1] = (int)(_grid->ParticleAttribute[ts+1]);
+    rad_table_position[0] = (int)(_grid->ParticleAttribute[ts+2]);
+    rad_table_position[1] = (int)(_grid->ParticleAttribute[ts+3]);
+    rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4]);
+    yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5]);
+    yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6]);
+
   }
 
   return;

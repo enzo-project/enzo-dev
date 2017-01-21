@@ -48,7 +48,8 @@ int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
 
 char* ChemicalSpeciesParticleLabel(const int &atomic_number);
- 
+char* IndividualStarTableIDLabel(const int &num); 
+
 void MHDCTSetupFieldLabels(void);
 static int GridReadDataGridCounter = 0;
  
@@ -109,6 +110,9 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+    }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
 
   } else {

@@ -294,9 +294,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   case IndividualStarWD:
   case IndividualStarRemnant:
 
-    nbins = 2;
-    E[0]  = 0.0; E[1] = 0.0;
-    Q[0]  = 0.0; Q[1] = 0.0;
+    nbins = 3;
+    E[0]  = 0.0; E[1] = 0.0; E[2] = 0.0;
+    Q[0]  = 0.0; Q[1] = 0.0; Q[2] = 0.0;
     printf("Star_ComputePhotonRates: WARNING IndividualStarWD and IndividualStarRemnant particles should not be ionizing sources\n");
 
     break;

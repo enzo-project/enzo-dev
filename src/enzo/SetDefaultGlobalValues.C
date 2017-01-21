@@ -583,6 +583,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarFeedbackDistTotalCells       = 1;
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
+  NumberOfParticleTableIDs         = MAX_NUMBER_OF_PARTICLE_TABLE_POSITIONS;
+  ParticleAttributeTableStartIndex = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
   ReadGhostZones                   = FALSE;
   WriteGhostZones                  = FALSE;

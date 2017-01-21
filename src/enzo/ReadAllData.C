@@ -156,6 +156,10 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
           NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
         }
       } // end multi metals
+      if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+        ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
+        NumberOfParticleAttributes += NumberOfParticleTableIDs;
+      }
 
       AddParticleAttributes = TRUE;
     } else {

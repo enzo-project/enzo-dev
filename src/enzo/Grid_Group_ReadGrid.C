@@ -35,7 +35,7 @@ void my_exit(int status);
 
 
 char* ChemicalSpeciesParticleLabel(const int &atomic_number);
-
+char* IndividualStarTableIDLabel(const int &num);
  
 #ifdef PROTO /* Remove troublesome HDF PROTO declaration. */
 #undef PROTO
@@ -109,6 +109,9 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+    }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
 
   } else {

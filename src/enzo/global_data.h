@@ -682,6 +682,8 @@ EXTERN int   StarParticleCreation;
 EXTERN int   StarParticleFeedback;
 EXTERN int   StarParticleRadiativeFeedback;
 EXTERN int   NumberOfParticleAttributes;
+EXTERN int   NumberOfParticleTableIDs;
+EXTERN int   ParticleAttributeTableStartIndex;
 EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
 EXTERN int   BigStarFormationDone;

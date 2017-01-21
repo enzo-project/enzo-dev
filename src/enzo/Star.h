@@ -196,6 +196,7 @@ public:
   void AssignSETablePosition(void);
   void AssignYieldTablePosition(void);
   void AssertInterpolationPositions(int mode);
+  void AssertInterpolationPositions(void);
 
   Star* StarBufferToList(StarBuffer *buffer, int n);
   void StarListToBuffer(StarBuffer *&result, int n);

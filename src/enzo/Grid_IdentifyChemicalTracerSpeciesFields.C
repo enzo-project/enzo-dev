@@ -245,6 +245,24 @@ char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
   return label;
 }
 
+char* IndividualStarTableIDLabel(const int &num){
+
+  char *label = {};
+  switch(num){
+    case 0 : label = "se_table_M_pos"; break;
+    case 1 : label = "se_table_Z_pos"; break;
+    case 2 : label = "rad_table_T_pos"; break;
+    case 3 : label = "rad_table_g_pos"; break;
+    case 4 : label = "rad_table_Z_pos"; break;
+    case 5 : label = "yield_table_M_pos"; break;
+    case 6 : label = "yield_table_Z_pos"; break;
+    default:
+      ENZO_FAIL("Looking for too large of a number for table position labels");
+  }
+
+  return label;
+}
+
 char* ChemicalSpeciesParticleLabel(const int &atomic_number){
 
   char *label = {};

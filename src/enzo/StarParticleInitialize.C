@@ -144,7 +144,8 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     cstar->MirrorToParticle();
 
     if(STARMAKE_METHOD(INDIVIDUAL_STAR))
-      cstar->AssignInterpolationTablePositions();
+      cstar->AssertInterpolationPositions(); // should be set at init, but double check
+//      cstar->AssignInterpolationTablePositions();
 
 
   }

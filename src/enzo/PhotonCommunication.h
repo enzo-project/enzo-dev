@@ -4,11 +4,14 @@
 #define EXTERN extern
 #endif /* DEFINE_STORAGE */
 
-#define MAX_PH_RECEIVE_BUFFERS 50000
-#define MAX_PH_REQUESTS 50000
+#define MAX_PH_RECEIVE_BUFFERS 100000
+#define MAX_PH_REQUESTS 100000
+//  #define MAX_PH_RECEIVE_BUFFERS 50000
+//  #define MAX_PH_REQUESTS 50000
 
 // Maximum number of photons to send in one MPI message.
-#define PHOTON_BUFFER_SIZE 100000
+//  #define PHOTON_BUFFER_SIZE 100000
+#define PHOTON_BUFFER_SIZE 200000
 
 #define NO_TRANSPORT 0
 #define TRANSPORT 1

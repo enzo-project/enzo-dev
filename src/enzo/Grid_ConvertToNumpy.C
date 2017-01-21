@@ -30,7 +30,7 @@
 
 
 char* ChemicalSpeciesParticleLabel(const int &atomic_number);
-
+char* IndividualStarTableIDLabel(const int &num);
 
 void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, int level, FLOAT WriteTime)
 {
@@ -59,6 +59,9 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+    }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
 
   } else {
@@ -227,8 +230,17 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
                 }
               }
             } // mm == 2 check
+            if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+              for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                              1, dims, ENPY_BFLOAT, ParticleAttribute[ii]);
+                PyDict_SetItemString(grid_data, ParticleAttributeLabels[ii], (PyObject*) dataset);
+                PyDECREF(dataset);
+              }
+            }
 
-	  } // end check multimetals
+
+	  } // end check star particle
 
         }
 

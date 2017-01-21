@@ -148,6 +148,18 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       if (!RadiativeTransferOpticallyThinFUV && RS->Energy[i] < 11.0) ebin = 4;
     }*/
 
+    /*
+     The below two lines may present a problem if running with optically
+     thin H2 off and optically thin FUV off.... really I need to be running
+     with both ON at all times, even when using the other method for calculating
+     them..... OR just disable H2 and FUV in hard code permanantly for now. 
+
+     This could be the reason why I'm getting SOOOO many photon packages
+
+       Jan 2017 - AJE 
+    */
+
+
     // Don't create LW photon packages if we're doing an optically-thin approx.
     if (ebin == 3 && RadiativeTransferOpticallyThinH2)
       continue;

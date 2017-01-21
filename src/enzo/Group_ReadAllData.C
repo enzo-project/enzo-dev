@@ -188,6 +188,11 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
         NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
       }
+      if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+        ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
+        NumberOfParticleAttributes += NumberOfParticleTableIDs;
+      }
+
 
     } else {
       NumberOfParticleAttributes = 0;

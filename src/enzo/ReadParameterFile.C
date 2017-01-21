@@ -1964,6 +1964,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (IndividualStarFollowStellarYields){
       NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
     }
+    ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
+    NumberOfParticleAttributes += NumberOfParticleTableIDs;
   }
 
   /* Use the value in MaximumParticleRefinementLevel to set the smoothing

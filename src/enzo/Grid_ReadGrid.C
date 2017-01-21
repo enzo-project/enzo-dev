@@ -42,7 +42,7 @@ int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
 
 char* ChemicalSpeciesParticleLabel(const int &atomic_number);
-
+char* IndividualStarTableIDLabel(const int &num);
 
 // extern int ParticleTypeInFile; // declared and set in ReadParameterFile
  
@@ -100,6 +100,9 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+    }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
 
   } else {

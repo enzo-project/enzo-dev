@@ -47,6 +47,7 @@ int WriteStringAttr(hid_t dset_id, char *Alabel, char *String, FILE *log_fptr);
 int FindField(int field, int farray[], int numfields);
 
 char* ChemicalSpeciesParticleLabel(const int &atomic_number);
+char* IndividualStarTableIDLabel(const int &num);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -165,6 +166,9 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+    }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
 
   } else {

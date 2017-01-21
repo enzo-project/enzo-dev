@@ -34,7 +34,7 @@ void IndividualStarInterpolateProperties(float &Teff, float &R,
 void Star::AssignInterpolationTablePositions(void){
   /* Sets table positions for each star */
 
-  if( abs(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR ){
+  if( ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR ){
 
     if ( !( this->FeedbackFlag == NO_FEEDBACK ) ||
           ( this->Mass <= IndividualStarSNIIMassCutoff)) {
@@ -96,6 +96,14 @@ void Star::AssignYieldTablePosition(void){
   return;
 }
 
+void Star::AssertInterpolationPositions(void){
+  this->AssertInterpolationPositions(1);
+  this->AssertInterpolationPositions(2);
+  this->AssertInterpolationPositions(3);
+
+  return;
+}
+
 void Star::AssertInterpolationPositions(int mode){
  // mode = 1: se    table
  //        2: rad   table
@@ -104,21 +112,27 @@ void Star::AssertInterpolationPositions(int mode){
   switch(mode){
     case 1:
       if (this->se_table_position[0] < 0 || this->se_table_position[1] < 0){
+        printf("STAR: Table positions not being set correctly. Setting SE table.\n");
+
         this->AssignSETablePosition();
       }
       break;
 
     case 2:
-      for(int i = 0; i < 3; i++){
-        if(this->rad_table_position[i] < 0 && this->rad_table_position[i] > -2){
-          this->AssignRadTablePosition();
-          continue;
-        }
+      // -9 is used as a flag to use black body calculation instead of table
+      if( (this->rad_table_position[0] < 0 && this->rad_table_position[0] > -2) &&
+           this->BirthMass > IndividualStarRadiationMinimumMass &&
+           ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR){  // only interpolate if actually needed
+        printf("STAR: Table positions not being set correctly. Setting Rad table.\n");
+
+        this->AssignRadTablePosition();
       }
       break;
 
     case 3:
       if (this->yield_table_position[0] < 0 || this->yield_table_position[1] < 0){
+        printf("STAR: Table positions not being set correctly. Setting Yield table.\n");
+
         this->AssignYieldTablePosition();
       }
       break;

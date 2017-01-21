@@ -133,6 +133,7 @@ class grid
   int NumberOfStars;
   Star *Stars;
 
+  int Grid_ChemicalEvolutionTestStarFormed = FALSE;
 // For once-per-rootgrid-timestep star formation, the following flag
 // determines whether SF is about to occur or not. It's currently
 //(April 2012) only implemented for H2REG_STAR and completely

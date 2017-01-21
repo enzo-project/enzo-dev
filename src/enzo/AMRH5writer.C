@@ -36,6 +36,7 @@ AMRHDF5Writer::AMRHDF5Writer() :
 
 
 char* ChemicalSpeciesParticleLabel(const int &atomic_number);
+char* IndividualStarTableIDLabel(const int &num);
 
 void AMRHDF5Writer::AMRHDF5Create( const char*      fileName, 
 				   const int*       relativeRefinement,
@@ -81,6 +82,9 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+    }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
 
   } else {
@@ -478,6 +482,9 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
     }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+    }
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -669,6 +676,9 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+    }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
 
   } else {
@@ -942,6 +952,9 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
     }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+    }
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -1064,6 +1077,9 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+    }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
 
   } else {

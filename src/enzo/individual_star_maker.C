@@ -138,6 +138,19 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
                                float &E_thermal, float * metal_mass,
                                float *grid_abundances);
 
+int IndividualStarGetSETablePosition (int &i, int &j, const float &M, const float &metallicity);
+int IndividualStarGetRadTablePosition(int &i, int &j, int &k,
+                                      const float &Teff, const float &g, const float &metallicity);
+int StellarYieldsGetYieldTablePosition(int &i, int &j, const float &M, const float &metallicity);
+
+
+float IndividualStarSurfaceGravity(const float &mp, const float &R);
+
+void IndividualStarInterpolateProperties(float &Teff, float &R,
+                                         const int &i, const int &j,
+                                         const float &M, const float &metallicity);
+
+
 
 int search_lower_bound(float *arr, float value, int low, int high, int total);
 
@@ -189,6 +202,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   FLOAT xstart = CellLeftEdge[0][0], ystart = CellLeftEdge[1][0], zstart = CellLeftEdge[2][0];
   float   dx   = CellWidth[0][0];
 
+  if (! this->isLocal()) return SUCCESS;
 
   if ( this->dtFixed == 0.0){
     printf("DT EQUAL TO ZERO\N");
@@ -222,11 +236,11 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   }
   MassUnits   = DensityUnits*LengthUnits*LengthUnits*LengthUnits; // mass units
 
-
   if (ProblemType == 260){ // place a star by hand and exit
 
     // Only form on first call of individual_star_maker
-    if(ChemicalEvolutionTestStarFormed){
+//    if(ChemicalEvolutionTestStarFormed){
+    if(this->Grid_ChemicalEvolutionTestStarFormed){
       return SUCCESS;
 
     } else if (ChemicalEvolutionTestNumberOfStars > 1){
@@ -325,13 +339,44 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
             }
           }
         }
+        /* now go trough and assign the interpolation table positions so we don't have to again */
+        int tstart = ParticleAttributeTableStartIndex;
+
+        // stellar evolution table (attr 3 = birth mass, attr 2 = metallicity)
+        int t_i = -1, t_j = -1, t_k = -1;
+        IndividualStarGetSETablePosition(t_i, t_j,
+                                         ParticleAttribute[3][i], ParticleAttribute[2][i]);
+        ParticleAttribute[tstart    ][i] = t_i;
+        ParticleAttribute[tstart + 1][i] = t_j;
+        // radiation properties table (only do if particle can radiate - saves time)
+        if( ParticleAttribute[3][i] >= IndividualStarRadiationMinimumMass){
+          float Teff, R;
+          IndividualStarInterpolateProperties(Teff, R, (int)ParticleAttribute[tstart][i],
+                                              (int)ParticleAttribute[tstart+1][i],
+                                              ParticleAttribute[3][i], ParticleAttribute[2][i]);
+          float g = IndividualStarSurfaceGravity(ParticleAttribute[3][i], R);
+
+          t_i = -1; t_j = -1; t_k = -1;
+          IndividualStarGetRadTablePosition(t_i, t_j, t_k,
+                                            Teff, g, ParticleAttribute[2][i]);
+          ParticleAttribute[tstart + 2][i] = t_i;
+          ParticleAttribute[tstart + 3][i] = t_j;
+          ParticleAttribute[tstart + 4][i] = t_k;
+        }
+
+        // yields table position
+        t_i = -1 ; t_j = -1;
+        StellarYieldsGetYieldTablePosition(t_i, t_j,
+                                           ParticleAttribute[3][i], ParticleAttribute[2][i]);
+        ParticleAttribute[tstart + 5][i] = t_i;
+        ParticleAttribute[tstart + 6][i] = t_j;
 
 
         count++;
       } // end loop over particles
 
       *np = count;
-      ChemicalEvolutionTestStarFormed = TRUE;
+      this->Grid_ChemicalEvolutionTestStarFormed = TRUE;
 
       return SUCCESS;
     } else {
@@ -344,7 +389,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
       if( !( (xx > this->CellLeftEdge[0][ibuff - 1]) && (xx < this->CellLeftEdge[0][nx - ibuff ] )) ||
           !( (yy > this->CellLeftEdge[1][ibuff - 1]) && (yy < this->CellLeftEdge[1][ny - ibuff ] )) ||
           !( (zz > this->CellLeftEdge[2][ibuff -1 ]) && (zz < this->CellLeftEdge[2][nz - ibuff ] )) ) {
-        ChemicalEvolutionTestStarFormed = TRUE; // setting this here to avoid doing MPI communication
+        this->Grid_ChemicalEvolutionTestStarFormed = TRUE; // setting this here to avoid doing MPI communication
                                                 // on whatever processor the star actually gets placed
         printf("P(%"ISYM") individual_star_maker: Particle not on this grid. Leaving\n", MyProcessorNumber);
         return SUCCESS;
@@ -417,7 +462,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
       }
 
       *np = 1;
-      ChemicalEvolutionTestStarFormed = TRUE;
+      this->Grid_ChemicalEvolutionTestStarFormed = TRUE;
       printf("individual_star_maker: Formed star ChemicalEvolutionTest. M =  %"FSYM" and Z = %"FSYM". tau = %"ESYM"\n", ParticleMass[0]*(dx*dx*dx)*MassUnits/msolar, ParticleAttribute[2][0], ParticleAttribute[1][0]); 
 
 
@@ -2766,9 +2811,9 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   ypos = (yp - ystart)/dx;
   zpos = (zp - zstart)/dx;
 
-  ic   = ((int) floor(xpos + 0.5));
-  jc   = ((int) floor(ypos + 0.5));
-  kc   = ((int) floor(zpos + 0.5));
+  ic   = ((int) floor(xpos ));
+  jc   = ((int) floor(ypos ));
+  kc   = ((int) floor(zpos ));
 
   float * temperature;
   temperature = new float[size];
@@ -3032,7 +3077,7 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
  * mixing, which will be heineously unresolved at 1 pc resolution (need ~0.01 pc).
  * ----------------------------------------------------------------------------- */
 
-  const float est_mu  = 0.4; // estimated - this is approximate anyway
+  const float est_mu  = 0.5; // estimated - this is approximate anyway
   const float k_boltz = 1.380658E-16;
   const float mp      = 1.6733E-24;
 
@@ -3074,9 +3119,16 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
 
   }
 
+  /* make sure things aren't whacky */
+  if (E_thermal < 0.0 || m_eject < 0.0 || m_ism < 0.0){
+    printf("Error in stellar wind calculation. E_thermal = %"ESYM" m_eject = %"ESYM" m_ism (code) = %"ESYM"\n",E_thermal, m_eject, m_ism);
+    ENZO_FAIL("IndividualStarFeedback: Negative injection values in stellar wind feedback modification\n");
+  }
+
   /* convert back into code units */
   E_thermal  = E_thermal / (dx*dx*dx) / EnergyUnits;
   m_eject    = (m_eject)  / (dx*dx*dx) / MassUnits + m_ism;
+
 }
 
 float ComputeOverlap(const int &i_shape, const float &radius,

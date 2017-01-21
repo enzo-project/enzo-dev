@@ -45,6 +45,7 @@ int FindField(int f, int farray[], int n);
 int WriteStringAttr(hid_t dset_id, char *Alabel, char *String, FILE *log_fptr);
 
 char* ChemicalSpeciesParticleLabel(const int &atomic_number);
+char* IndividualStarTableIDLabel(const int &num);
  
  
  
@@ -139,6 +140,9 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+    }
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
 
   } else {

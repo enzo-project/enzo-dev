@@ -317,6 +317,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
         }
 
       } // end multimetals
+      if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+        ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
+        NumberOfParticleAttributes += NumberOfParticleTableIDs;
+      }
     } else {
       NumberOfParticleAttributes = 0;
     }
