@@ -308,6 +308,9 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   TIMER_REGISTER("StarParticlePhotoelectricHeating");
   TIMER_REGISTER("CreateSourceClusteringTree");
   TIMER_REGISTER("InitializeOTFields");
+  TIMER_REGISTER("IndividualStarAddFeedback");
+  TIMER_REGISTER("GrackleWrapper");
+  TIMER_REGISTER("StarParticleInitialize");
   TIMER_REGISTER("Total");
 
 #ifdef USE_LCAPERF
