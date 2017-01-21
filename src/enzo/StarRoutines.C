@@ -101,13 +101,13 @@ Star::Star(grid *_grid, int _id, int _level)
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
     int ts = ParticleAttributeTableStartIndex;
-    se_table_position[0] = (int)(_grid->ParticleAttribute[ts]);
-    se_table_position[1] = (int)(_grid->ParticleAttribute[ts+1]);
-    rad_table_position[0] = (int)( _grid->ParticleAttribute[ts+2]);
-    rad_table_position[1] = (int)( _grid->ParticleAttribute[ts+3]);
-    rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4]);
-    yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5]);
-    yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6]);
+    se_table_position[0] = (int)(_grid->ParticleAttribute[ts][_id]);
+    se_table_position[1] = (int)(_grid->ParticleAttribute[ts+1][_id]);
+    rad_table_position[0] = (int)( _grid->ParticleAttribute[ts+2][_id]);
+    rad_table_position[1] = (int)( _grid->ParticleAttribute[ts+3][_id]);
+    rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4][_id]);
+    yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
+    yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
   }
 
   if (type == PARTICLE_TYPE_STAR)
@@ -577,13 +577,13 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
     int ts = ParticleAttributeTableStartIndex;
-    se_table_position[0] = (int)(_grid->ParticleAttribute[ts]);
-    se_table_position[1] = (int)(_grid->ParticleAttribute[ts+1]);
-    rad_table_position[0] = (int)(_grid->ParticleAttribute[ts+2]);
-    rad_table_position[1] = (int)(_grid->ParticleAttribute[ts+3]);
-    rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4]);
-    yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5]);
-    yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6]);
+    se_table_position[0] = (int)(_grid->ParticleAttribute[ts][_id]);
+    se_table_position[1] = (int)(_grid->ParticleAttribute[ts+1][_id]);
+    rad_table_position[0] = (int)(_grid->ParticleAttribute[ts+2][_id]);
+    rad_table_position[1] = (int)(_grid->ParticleAttribute[ts+3][_id]);
+    rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4][_id]);
+    yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
+    yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
 
   }
 

@@ -275,19 +275,19 @@ int IndividualStarInterpolateLWFlux(float & LW_flux, const float &Teff, const fl
 
     // if interpolation fails due to temperature, do BB interpolation
     // otherwise FAIL
-    if (t < 0){
+    if (t < 0 || t > 1){
       return FAIL;
     }
 
     printf("IndividualStarInterpolateLWFlux: Failure in interpolation");
 
-    if( t < 0) {
+    if( t < 0 || t > 1) {
       printf("Temperature out of bounds ");
       value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
-    } else if (u < 0) {
+    } else if (u < 0 || u > 1) {
       printf("Surface Gravity out of bounds ");
       value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
-    } else if (v < 0) {
+    } else if (v < 0 || v > 1) {
       printf("Metallicity out of bounds ");
       value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];    
     }
@@ -361,7 +361,7 @@ int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float
     /* if interpolation fails, fail here */
     float value, value_min, value_max;
 
-    if ( t < 0){
+    if ( t < 0 || t > 1){
       return FAIL;
     } // no print statements if temperature is out of bounds -
       // that is O.K. and covered with black body integral
@@ -369,13 +369,13 @@ int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float
     printf("IndividualStarInterpolateFUVFlux: Failure in interpolation "); 
 
 
-    if( t < 0) {
+    if( t < 0 || t > 1) {
       printf("Temperature out of bounds ");
       value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
-    } else if (u < 0) {
+    } else if (u < 0 || u > 1) {
       printf("Surface Gravity out of bounds ");
       value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
-    } else if (v < 0) {
+    } else if (v < 0 || v > 1) {
       printf("Metallicity out of bounds ");
       value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];    
     }
@@ -748,10 +748,10 @@ int IndividualStarInterpolateLifetime(float &tau, const float &M,
     float value, value_min, value_max;
     printf("IndividualStarInterpolateProperties: Failure in interpolation ");
 
-    if( t < 0){
+    if( t < 0 || t > 1){
       printf("Mass out of bounds ");
       value = M; value_min = IndividualStarPropertiesData.M[0]; value_max = IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins-1];
-    } else if (u < 0){
+    } else if (u < 0 || u > 1){
       printf("Metallicity out of bounds ");
       value = Z; value_min = IndividualStarPropertiesData.Z[0]; value_max = IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins-1];
     }
@@ -838,20 +838,20 @@ int IndividualStarGetRadTablePosition(int &i, int &j, int &k,
                                       IndividualStarRadData.NumberOfTemperatureBins, IndividualStarRadData.NumberOfSGBins, IndividualStarRadData.NumberOfMetallicityBins) == FAIL){
     /* if interpolation fails, fail here */
     float value, value_min, value_max;
-    if ( t < 0 ){
+    if ( t < 0  || t > 1){
       i = -9; j = -9; k = -9;
       return SUCCESS;
     }
 
     printf("IndividualStarInterpolateRadData: Failure in interpolation ");
 
-    if( t < 0) { 
+    if( t < 0 || t > 1) { 
       printf("Temperature out of bounds ");
       value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
-    } else if (u < 0) {
+    } else if (u < 0 || u > 1) {
       printf("Surface Gravity out of bounds ");
       value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
-    } else if (v < 0) {
+    } else if (v < 0 || v > 1) {
       printf("Metallicity out of bounds ");
       value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];  
     }
@@ -884,12 +884,12 @@ int IndividualStarGetSETablePosition(int &i, int &j, const float &M, const float
     float value, value_min, value_max;
     printf("IndividualStarInterpolateProperties: Failure in interpolation ");
 
-    if( t < 0){
+    if( t < 0 || t > 1){
       printf("Mass out of bounds ");
       value = M;
       value_min = IndividualStarPropertiesData.M[0];
       value_max = IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins-1];
-    } else if (u < 0){
+    } else if (u < 0 || u > 1){
       printf("Metallicity out of bounds ");
       value = Z;
       value_min = IndividualStarPropertiesData.Z[0];
@@ -960,10 +960,10 @@ int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &m
     float value, value_min, value_max;
     printf("IndividualStarInterpolateProperties: Failure in interpolation ");
 
-    if( t < 0){ 
+    if( t < 0 || t > 1){ 
       printf("Mass out of bounds ");
       value = M; value_min = IndividualStarPropertiesData.M[0]; value_max = IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins-1];
-    } else if (u < 0){
+    } else if (u < 0 || u > 1){
       printf("Metallicity out of bounds ");
       value = Z; value_min = IndividualStarPropertiesData.Z[0]; value_max = IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins-1];
     }
@@ -1034,10 +1034,10 @@ int IndividualStarInterpolateProperties(float &Teff, float &R,
     float value, value_min, value_max;
     printf("IndividualStarInterpolateProperties: Failure in interpolation ");
 
-    if( t < 0){ 
+    if( t < 0 || t > 1){ 
       printf("Mass out of bounds ");
       value = M; value_min = IndividualStarPropertiesData.M[0]; value_max = IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins-1];
-    } else if (u < 0){
+    } else if (u < 0 || u > 1){
       printf("Metallicity out of bounds ");
       value = M; value_min = IndividualStarPropertiesData.Z[0]; value_max = IndividualStarPropertiesData.Z[IndividualStarPropertiesData.NumberOfMetallicityBins-1];
     }
@@ -1098,19 +1098,19 @@ int IndividualStarInterpolateRadData(float &q0, float &q1,
     /* if interpolation fails, fail here */
     float value, value_min, value_max;
     
-    if ( t < 0 ){
+    if ( t < 0  || t > 1){
         return FAIL; // Temperature failure is O.K. --- just means do black body
     }
 
     printf("IndividualStarInterpolateRadData: Failure in interpolation ");
 
-    if( t < 0) { 
+    if( t < 0 || t > 1) { 
       printf("Temperature out of bounds ");
       value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
-    } else if (u < 0) {
+    } else if (u < 0 || u > 1) {
       printf("Surface Gravity out of bounds ");
       value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
-    } else if (v < 0) {
+    } else if (v < 0 || v > 1) {
       printf("Metallicity out of bounds ");
       value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];    
     }
@@ -1425,6 +1425,8 @@ int LinearInterpolationCoefficients(float &t, int &i,
   }
 
   i = search_lower_bound((float*)x1a, x1, 0, x1a_size, x1a_size);
+
+  if (i < 0 || i > x1a_size){ ENZO_FAIL("FAILURE IN INTERPOLATION COEFFICIENTS"); }
 
   t = LinearInterpolationCoefficient(i, x1, x1a);
 
