@@ -370,11 +370,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                                            ParticleAttribute[3][i], ParticleAttribute[2][i]);
         ParticleAttribute[tstart + 5][i] = t_i;
         ParticleAttribute[tstart + 6][i] = t_j;
-        printf(" Mass = %"FSYM" Z = %"FSYM" ",ParticleAttribute[3][i], ParticleAttribute[2][i]);
-        for( int ti = tstart; ti < tstart + 7; ti++){
-            printf("%"ISYM" ", ParticleAttribute[ti][i]);
-        }
-        printf("\n");
 
         count++;
       } // end loop over particles
@@ -917,12 +912,13 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                                                  ParticleAttribute[3][istar], ParticleAttribute[2][istar]);
                 ParticleAttribute[tstart + 5][istar] = t_i;
                 ParticleAttribute[tstart + 6][istar] = t_j;
+/*
                 printf(" Mass = %"FSYM" Z = %"FSYM" ",ParticleAttribute[3][istar], ParticleAttribute[2][istar]);
                 for( int ti = tstart; ti < tstart + 7; ti++){
                    printf("%"FSYM" ", ParticleAttribute[ti][istar]);
                 }
                 printf("\n");
-
+*/
 
 
               } // end while loop for assigning particle properties
