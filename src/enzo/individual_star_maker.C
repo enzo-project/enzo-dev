@@ -2766,9 +2766,9 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   ypos = (yp - ystart)/dx;
   zpos = (zp - zstart)/dx;
 
-  ic   = ((int) floor(xpos + 0.5));
-  jc   = ((int) floor(ypos + 0.5));
-  kc   = ((int) floor(zpos + 0.5));
+  ic   = ((int) floor(xpos ));
+  jc   = ((int) floor(ypos ));
+  kc   = ((int) floor(zpos ));
 
   float * temperature;
   temperature = new float[size];
@@ -3073,6 +3073,13 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
       }
 
   }
+
+  /* make sure things aren't whacky */
+  if (E_thermal < 0.0 || m_eject < 0.0 || m_ism < 0.0){
+    printf("Error in stellar wind calculation. E_thermal = %"ESYM" m_eject = %"ESYM" m_ism (code) = %"ESYM"\n",E_thermal, m_eject, m_ism);
+    ENZO_FAIL("IndividualStarFeedback: Negative injection values in stellar wind feedback modification\n");
+  }
+
 
   /* convert back into code units */
   E_thermal  = E_thermal / (dx*dx*dx) / EnergyUnits;

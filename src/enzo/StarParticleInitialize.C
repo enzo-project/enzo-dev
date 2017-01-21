@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include "performance.h"
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -52,6 +53,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     return SUCCESS;
 
   LCAPERF_START("StarParticleInitialize");
+  TIMER_START("StarParticleInitialize");
 
   /* Set MetaData->NumberOfParticles and prepare TotalStarParticleCountPrevious
      these are to be used in CommunicationUpdateStarParticleCount 
@@ -156,6 +158,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
 
   LCAPERF_STOP("StarParticleInitialize");
+  TIMER_STOP("StarParticleInitialize");
   return SUCCESS;
 
 }

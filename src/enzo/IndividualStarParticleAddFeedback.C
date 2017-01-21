@@ -31,6 +31,7 @@
 #include <math.h>
 #include "performance.h"
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -61,7 +62,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
   if (AllStars == NULL)
     return SUCCESS;
 
-  LCAPERF_START("IndividualStarParticleAddFeedback");
+  TIMER_START("IndividualStarParticleAddFeedback");
 
   int count = 0;
 
@@ -211,7 +212,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
   } // end stars loop
 
-  LCAPERF_END("IndividualStarParticleAddFeedback");
+  TIMER_STOP("IndividualStarParticleAddFeedback");
   return SUCCESS;
 }
 

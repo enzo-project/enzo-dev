@@ -171,21 +171,21 @@ int grid::CalculateAverageAbundances(void){
     for(int im = 0; im <StellarYieldsNumberOfSpecies + 1; im++){
       if(mass_counter[im] <= 0.0  && mass_counter_hot[im] > 0.0){
         mass_counter[im] = mass_counter_hot[im];
-      } else {
-        printf("Grid_UpdateAverageAbundances: Failing for species number %"ISYM" in list (where 0 = total metals)\n", im);
+      } else if (mass_counter[im] <= 0.0) {
+        printf("Grid_UpdateAverageAbundances: Failing for species number %"ISYM" %"ESYM" %"ESYM" in list (where 0 = total metals)\n", im, mass_counter[im], mass_counter_hot[im]);
         ENZO_FAIL("Grid_UpdateAverageAbundances: No tracer species mass found on grid");
       }
     }
   }
 
-/*
+
   for(int im = 0; im < StellarYieldsNumberOfSpecies + 1; im ++){
     this->AveragedAbundances[im] = mass_counter[im] / total_mass;
     if(this->AveragedAbundances[im] <= 0.0){
         ENZO_FAIL("Averaged abundance ratio negative");
     }
   }
-*/
+
   delete [] temperature;
   return SUCCESS;
 }
