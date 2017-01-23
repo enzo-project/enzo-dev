@@ -537,10 +537,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif //SAB.
       /* Copy current fields (with their boundaries) to the old fields
 	  in preparation for the new step. */
-      if (Grids[grid1]->GridData->CheckOTRadiation() == FAIL){
-       printf("Negative OT radiation at start of loop over grids\n");
-      }
-
  
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
@@ -637,9 +633,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (ComovingCoordinates)
 	Grids[grid1]->GridData->ComovingExpansionTerms();
 
-      if (Grids[grid1]->GridData->CheckOTRadiation() == FAIL){
-       printf("Negative OT radiation at end of loop over grids\n");
-      }
 
  
     }  // end loop over grids
@@ -648,11 +641,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious, OutputNow);
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-        ENZO_FAIL("Negative OT values after SP finalize\n");
-      }
-    }
 
     /* For each grid: a) interpolate boundaries from the parent grid.
                       b) copy any overlapping zones from siblings. */
@@ -667,11 +655,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  Exterior, LevelArray[level]);
 #endif
     EXTRA_OUTPUT_MACRO(25,"After SBC")
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-        ENZO_FAIL("Negative OT values after set boundary\n");
-      }
-    }
 
     /* If cosmology, then compute grav. potential for output if needed. */
 
@@ -695,12 +678,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
           Grids[grid1]->GridData->SetTimeStep(dtThisLevel[level]);
     }
 
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-        ENZO_FAIL("Negative OT values before recursive evolve level\n");
-      }
-    }
-
 
     if (LevelArray[level+1] != NULL) {
       if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel[level], Exterior
@@ -713,11 +690,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
 
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-        ENZO_FAIL("Negative OT values after evolvelevel\n");
-      }
-    }
 
 #ifdef USE_LCAPERF
     // Update lcaperf "level" attribute
@@ -730,11 +702,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  , ImplicitSolver
 #endif
 			  );
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-        ENZO_FAIL("Negative OT values after output from evolve level\n");
-      }
-    }
 
 #ifdef USE_PYTHON
     LCAPERF_START("CallPython");
@@ -765,11 +732,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      * (b) correct for the difference between this grid's fluxes and the
      *     subgrid's fluxes. (step #19)
      */
-     for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-        ENZO_FAIL("Negative OT before createsubling list\n");
-      }
-    }
 
     SUBlingList = new LevelHierarchyEntry*[NumberOfGrids];
 #ifdef FAST_SIB
@@ -781,21 +743,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
     EXTRA_OUTPUT_MACRO(3,"Before UFG")
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-        ENZO_FAIL("Negative OT values before update from finer grids\n");
-      }
-    }
 
     UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
 			     SubgridFluxesEstimate,SUBlingList,MetaData);
 
 
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-        ENZO_FAIL("Negative OT values after update from finer grids\n");
-      }
-    }
 
     DeleteSUBlingList( NumberOfGrids, SUBlingList );
 
@@ -824,31 +776,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
     }
 
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-       	ENZO_FAIL("Negative OT values after SetBoundaryConditions\n");
-      }
-    }
 
     EXTRA_OUTPUT_MACRO(51, "After SBC")
 
     FinalizeFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
 
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-       	ENZO_FAIL("Negative OT values after FinalizeFluxes\n");
-      }
-    }
-
-
     /* Recompute radiation field, if requested. */
     RadiationFieldUpdate(LevelArray, level, MetaData);
  
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-       	ENZO_FAIL("Negative OT values after RadiationFieldUpdate \n");
-      }
-    }
 
 //     //dcc cut second potential cut: Duplicate?
  
@@ -894,21 +829,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-       	ENZO_FAIL("Negative OT values after collect grid information \n");
-      }
-    }
-
 
     if (dtThisLevelSoFar[level] < dtLevelAbove)
       RebuildHierarchy(MetaData, LevelArray, level);
-
-    for(grid1=0;grid1<NumberOfGrids; grid1++){
-      if( Grids[grid1]->GridData->CheckOTRadiation() == FAIL ){
-       	ENZO_FAIL("Negative OT values after RebuildHierarchy \n");
-      }
-    }
 
 
     cycle++;
