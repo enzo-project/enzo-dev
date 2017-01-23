@@ -76,6 +76,21 @@ void Star::MirrorToParticle(void)
   CurrentGrid->ParticleAttribute[0][place] = this->BirthTime;
   CurrentGrid->ParticleAttribute[1][place] = this->LifeTime;
   CurrentGrid->ParticleAttribute[2][place] = this->Metallicity;
-  
+
+/*
+  if( ABS(this->type) >= PARTICLE_TYPE_INDIVIDUAL_STAR &&
+      ABS(this->type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
+    CurrentGrid->ParticleAttribute[3][place] = this->BirthMass;
+
+    int ts = ParticleAttributeTableStartIndex;
+    CurrentGrid->ParticleAttribute[ts][place] = this->se_table_position[0];
+    CurrentGrid->ParticleAttribute[ts+1][place] = this->se_table_position[1];
+    CurrentGrid->ParticleAttribute[ts+2][place] = this->rad_table_position[0];
+    CurrentGrid->ParticleAttribute[ts+3][place] = this->rad_table_position[1];
+    CurrentGrid->ParticleAttribute[ts+4][place] = this->rad_table_position[2];
+    CurrentGrid->ParticleAttribute[ts+5][place] = this->yield_table_position[0];
+    CurrentGrid->ParticleAttribute[ts+6][place] = this->yield_table_position[1];
+  }
+*/
   return;
 }
