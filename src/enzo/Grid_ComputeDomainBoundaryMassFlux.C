@@ -26,6 +26,11 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
+
+
 int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer)
 {
 
@@ -35,6 +40,15 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
     return SUCCESS;
 
   PrepareBoundaryMassFluxFieldNumbers(); //  this should be put somewhere else
+
+  /* get units */
+  const float msolar = 1.989e33;
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+               &TimeUnits, &VelocityUnits, this->Time) == FAIL){
+      ENZO_FAIL("Error in GetUnits");
+  }
+  MassUnits   = DensityUnits*LengthUnits*LengthUnits*LengthUnits; // mass unit
 
   /* Is this grid on the edge of the domain */
   int GridOffsetLeft[MAX_DIMENSION], GridOffsetRight[MAX_DIMENSION];
@@ -83,8 +97,8 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
       size *= BoundaryFluxes->LeftFluxEndGlobalIndex[dim][j] -
                 BoundaryFluxes->LeftFluxStartGlobalIndex[dim][j] + 1;
 
-    /* dx**2 * dt * dx**3  (convert from dt * flux (density / area)  to mass) */
-    conversion = POW( this->CellWidth[dim][0] , 5);
+    /* dx**2 * dt * dx**3  (convert from dt * flux (density / area)  to mass in solar masses) */
+    conversion = POW( this->CellWidth[dim][0] , 5) * MassUnits / msolar;
 
     if (GridOffsetLeft[dim] != 0 && GridOffsetRight[dim] != 0) continue; // not at any domain boundary
 
