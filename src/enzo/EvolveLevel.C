@@ -239,6 +239,8 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 			     ImplicitProblemABC *ImplicitSolver);
 #endif
 
+int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level, int NumberOfGrids);
+
 int SetLevelTimeStep(HierarchyEntry *Grids[],
         int NumberOfGrids, int level,
         float *dtThisLevelSoFar, float *dtThisLevel,
@@ -760,7 +762,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }//MHD True
 
     EXTRA_OUTPUT_MACRO(5,"After UMF")
-
   /* ------------------------------------------------------- */
   /* Add the saved fluxes (in the last subsubgrid entry) to the exterior
      fluxes for this subgrid .
@@ -780,6 +781,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     EXTRA_OUTPUT_MACRO(51, "After SBC")
 
     FinalizeFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
+
+    ComputeDomainBoundaryMassFlux(Grids, level, NumberOfGrids);
 
     /* Recompute radiation field, if requested. */
     RadiationFieldUpdate(LevelArray, level, MetaData);

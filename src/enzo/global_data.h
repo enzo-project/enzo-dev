@@ -726,6 +726,8 @@ EXTERN int   ExternalBoundaryValueIO;
 EXTERN int   ExternalBoundaryField;
 EXTERN int   SimpleConstantBoundary;
 
+EXTERN int   StoreDomainBoundaryMassFlux;
+
 EXTERN Eint64 TaskMemory[MAX_NUMBER_OF_TASKS];
 EXTERN int    TaskMap[MAX_NUMBER_OF_TASKS];
 
@@ -1163,6 +1165,9 @@ EXTERN int StellarYieldsAtomicNumbers[MAX_STELLAR_YIELDS];
 EXTERN int StellarYieldsNumberOfSpecies;
 EXTERN int StellarYieldsScaledSolarInitialAbundances;
 
+
+EXTERN int   BoundaryMassFluxFieldNumbers[MAX_NUMBER_OF_BARYON_FIELDS];
+EXTERN float BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS];
 
 #endif
 

@@ -395,6 +395,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
       }
     }
   }
+
   fprintf(fptr, "#TimeUnits                 = %"GOUTSYM"\n", TimeUnits);
   fprintf(fptr, "#TemperatureUnits          = %"GOUTSYM"\n", TemperatureUnits);
   fprintf(fptr, "\n");
@@ -1281,6 +1282,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr,"EquationOfState               =%"ISYM"\n",EquationOfState);
 
   fprintf(fptr, "CorrectParentBoundaryFlux          = %d\n", CorrectParentBoundaryFlux);
+
+  fprintf(fptr, "StoreDomainBoundaryMassFlux = %"ISYM"\n", StoreDomainBoundaryMassFlux);
+  for (dim = 0; dim < MAX_NUMBER_OF_BARYON_FIELDS; dim++){
+    if (BoundaryMassFluxFieldNumbers[dim] >= 0){
+      fprintf(fptr, "BoundaryMassFluxFieldNumbers[%"ISYM"]        = %"ISYM"\n", dim, BoundaryMassFluxFieldNumbers[dim]);
+      fprintf(fptr, "BoundaryMassFluxContainer[%"ISYM"]           = %"ESYM"\n", dim, BoundaryMassFluxContainer[dim]);
+    }
+  }
 
   /* Output current time */
   time_t ID;

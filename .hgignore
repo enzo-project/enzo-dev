@@ -25,6 +25,7 @@ temp.show-*
 Make.config.machine
 Make.config.override
 *.mod
+*.orig
 
 src/mpgrafic/degraf/Makefile
 src/mpgrafic/degraf/config.h

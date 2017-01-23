@@ -288,6 +288,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     }
   }
 
+  StoreDomainBoundaryMassFlux = 0;
+  for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
+    BoundaryMassFluxFieldNumbers[i] = -1;
+    BoundaryMassFluxContainer[i] = 0.0;
+  }
+
   DatabaseLocation = NULL;
 
  

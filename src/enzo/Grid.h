@@ -97,6 +97,7 @@ class grid
   int    FieldType[MAX_NUMBER_OF_BARYON_FIELDS];
   FLOAT *CellLeftEdge[MAX_DIMENSION];
   FLOAT *CellWidth[MAX_DIMENSION];
+  float grid_BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS];
   fluxes *BoundaryFluxes;
 
   // AJE: grid averaged abundances
@@ -133,7 +134,7 @@ class grid
   int NumberOfStars;
   Star *Stars;
 
-  int Grid_ChemicalEvolutionTestStarFormed = FALSE;
+  int Grid_ChemicalEvolutionTestStarFormed;
 // For once-per-rootgrid-timestep star formation, the following flag
 // determines whether SF is about to occur or not. It's currently
 //(April 2012) only implemented for H2REG_STAR and completely
@@ -1246,6 +1247,9 @@ gradient force to gravitational force for one-zone collapse test. */
    FLOAT GetGridLeftEdge(int Dimension) {return GridLeftEdge[Dimension];}
    FLOAT GetGridRightEdge(int Dimension) {return GridRightEdge[Dimension];}
 
+
+  int PrepareBoundaryMassFluxFieldNumbers();
+  int ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer);
 
 #ifdef TRANSFER
 // -------------------------------------------------------------------------
