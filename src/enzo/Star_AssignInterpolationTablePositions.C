@@ -34,7 +34,7 @@ void IndividualStarInterpolateProperties(float &Teff, float &R,
 void Star::AssignInterpolationTablePositions(void){
   /* Sets table positions for each star */
 
-  if( ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR ){
+  if( this->type == PARTICLE_TYPE_INDIVIDUAL_STAR ){
 
     if ( !( this->FeedbackFlag == NO_FEEDBACK ) ||
           ( this->Mass <= IndividualStarSNIIMassCutoff)) {
@@ -109,11 +109,12 @@ void Star::AssertInterpolationPositions(int mode){
  //        2: rad   table
  //        3: yield table
 
+  if (this->type < 0) return; // do not do anything 
+
   switch(mode){
     case 1:
       if (this->se_table_position[0] < 0 || this->se_table_position[1] < 0){
         printf("STAR: Table positions not being set correctly. Setting SE table.\n");
-
         this->AssignSETablePosition();
       }
       break;
@@ -122,7 +123,7 @@ void Star::AssertInterpolationPositions(int mode){
       // -9 is used as a flag to use black body calculation instead of table
       if( (this->rad_table_position[0] < 0 && this->rad_table_position[0] > -2) &&
            this->BirthMass > IndividualStarRadiationMinimumMass &&
-           ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR){  // only interpolate if actually needed
+           this->type == PARTICLE_TYPE_INDIVIDUAL_STAR){  // only interpolate if actually needed
         printf("STAR: Table positions not being set correctly. Setting Rad table.\n");
 
         this->AssignRadTablePosition();
@@ -132,7 +133,6 @@ void Star::AssertInterpolationPositions(int mode){
     case 3:
       if (this->yield_table_position[0] < 0 || this->yield_table_position[1] < 0){
         printf("STAR: Table positions not being set correctly. Setting Yield table.\n");
-
         this->AssignYieldTablePosition();
       }
       break;

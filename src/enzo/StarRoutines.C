@@ -699,6 +699,14 @@ void Star::StarListToBuffer(StarBuffer *&result, int n)
     result[count].GridID = tmp->GridID;
     result[count].type = tmp->type;
     result[count].AddedEmissivity = tmp->AddedEmissivity;
+
+    for (i = 0; i < 2; i++){
+      result[count].se_table_position[i] = tmp->se_table_position[i];
+      result[count].yield_table_position[i] = tmp->yield_table_position[i];
+      result[count].rad_table_position[i] = tmp->rad_table_position[i];
+    }
+    result[count].rad_table_position[2] = tmp->rad_table_position[2];
+
     count++;
     tmp = tmp->NextStar;
   }
