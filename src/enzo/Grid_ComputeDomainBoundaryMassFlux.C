@@ -121,7 +121,7 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
       // add into global container on this processor
       allgrid_BoundaryMassFluxContainer[i] += grid_BoundaryMassFluxContainer[i];
 
-      if (grid_BoundaryMassFluxContainer[i] > 0) printf("field_num = %"ISYM" mass = %"ESYM"\n", field_num, grid_BoundaryMassFluxContainer[i]);
+//      if (grid_BoundaryMassFluxContainer[i] > 0) printf("field_num = %"ISYM" mass = %"ESYM"\n", field_num, grid_BoundaryMassFluxContainer[i]);
 
     } // end loop over fields
   } // end loop over dim
