@@ -449,13 +449,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "StoreDomainBoundaryMassFlux  = %"ISYM, &StoreDomainBoundaryMassFlux);
 
-    //if (sscanf(line, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM, &dim, &int_dummy) == 1)
-    ret += sscanf(line, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM, &dim, &int_dummy);
-      BoundaryMassFluxFieldNumbers[dim] = int_dummy;
+    if (sscanf(line, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM, &dim, &int_dummy)){
+    //ret += sscanf(line, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM, &dim, &int_dummy);
+      BoundaryMassFluxFieldNumbers[dim] = int_dummy; ret++;
+    }
 
-//    if (sscanf(line, "BoundaryMassFluxContainer[%"ISYM"]        = %"FSYM, &dim, &float_dummy) == 1)
-    ret += sscanf(line, "BoundaryMassFluxContainer[%"ISYM"]        = %"FSYM, &dim, &float_dummy);
-      BoundaryMassFluxContainer[dim] = float_dummy;
+    if (sscanf(line, "BoundaryMassFluxContainer[%"ISYM"]        = %"FSYM, &dim, &float_dummy)){
+//    ret += sscanf(line, "BoundaryMassFluxContainer[%"ISYM"]        = %"FSYM, &dim, &float_dummy);
+      BoundaryMassFluxContainer[dim] = float_dummy; ret++;
+    }
  
     ret += sscanf(line, "UniformGravity          = %"ISYM, &UniformGravity);
     ret += sscanf(line, "UniformGravityDirection = %"ISYM,
