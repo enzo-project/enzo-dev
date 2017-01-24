@@ -1516,7 +1516,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (StellarYieldsNumberOfSpecies == INT_UNDEFINED){
     StellarYieldsNumberOfSpecies = 0;
     for(int species = 0; species < MAX_STELLAR_YIELDS; species++){
-      if (StellarYieldsAtomicNumbers[species] != NULL){
+      if (StellarYieldsAtomicNumbers[species] > 0 && StellarYieldsAtomicNumbers[species] <= 118){
         StellarYieldsNumberOfSpecies ++;
       }
     }

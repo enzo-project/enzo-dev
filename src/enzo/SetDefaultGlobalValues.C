@@ -802,7 +802,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StellarYieldsScaledSolarInitialAbundances = 1;    // use solar abundances to set initial mass fractions, linearly scaled by metalliticy
 
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){
-    StellarYieldsAtomicNumbers[i] = NULL;
+    StellarYieldsAtomicNumbers[i] = -1;
   }
 
   // chemical evolution test star
