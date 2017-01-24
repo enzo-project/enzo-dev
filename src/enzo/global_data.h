@@ -1168,6 +1168,7 @@ EXTERN int StellarYieldsScaledSolarInitialAbundances;
 
 EXTERN int   BoundaryMassFluxFieldNumbers[MAX_NUMBER_OF_BARYON_FIELDS];
 EXTERN float BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS];
+EXTERN char *BoundaryMassFluxFilename;
 
 #endif
 

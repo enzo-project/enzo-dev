@@ -1286,8 +1286,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "StoreDomainBoundaryMassFlux = %"ISYM"\n", StoreDomainBoundaryMassFlux);
   for (dim = 0; dim < MAX_NUMBER_OF_BARYON_FIELDS; dim++){
     if (BoundaryMassFluxFieldNumbers[dim] >= 0){
-      fprintf(fptr, "BoundaryMassFluxFieldNumbers[%"ISYM"]        = %"ISYM"\n", dim, BoundaryMassFluxFieldNumbers[dim]);
-      fprintf(fptr, "BoundaryMassFluxContainer[%"ISYM"]           = %"ESYM"\n", dim, BoundaryMassFluxContainer[dim]);
+      fprintf(fptr, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM"\n", dim, BoundaryMassFluxFieldNumbers[dim]);
+      fprintf(fptr, "BoundaryMassFluxContainer[%"ISYM"]        = %"ESYM"\n", dim, BoundaryMassFluxContainer[dim]);
     }
   }
 

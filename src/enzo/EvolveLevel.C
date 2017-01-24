@@ -239,7 +239,8 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 			     ImplicitProblemABC *ImplicitSolver);
 #endif
 
-int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level, int NumberOfGrids);
+int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level, int CycleNumber,
+                                  float Time, int NumberOfGrids);
 
 int SetLevelTimeStep(HierarchyEntry *Grids[],
         int NumberOfGrids, int level,
@@ -782,7 +783,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     FinalizeFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
 
-    ComputeDomainBoundaryMassFlux(Grids, level, NumberOfGrids);
+    ComputeDomainBoundaryMassFlux(Grids, level, LevelCycleCount[level], 
+                                  MetaData->Time, NumberOfGrids);
 
     /* Recompute radiation field, if requested. */
     RadiationFieldUpdate(LevelArray, level, MetaData);

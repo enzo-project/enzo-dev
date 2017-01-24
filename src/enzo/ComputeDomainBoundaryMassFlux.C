@@ -1,3 +1,24 @@
+/**********************************************************************
+/
+/ COMPUTE DOMAIN BOUNDARY MASS FLUX
+/
+/ written by: Andrew Emerick
+/ date:       January 2017
+/ modified1:
+/
+/ Purpose:
+/   This routine sums up the external boundary mass flux for each
+/   field assigned in Grid_PrepareBoundaryMassFluxFieldNumbers.
+/
+/   NOTE: This is done assuming outflowing grid boundaries in each
+/         direction, with no checks to ensure this is correct. In
+/         addition, the Grid_ComputeDomainBoundaryMassFlux assumes
+/         mass flux for each field, reporting the mass that leaves
+/         the grid in solar masses. However, this could (in principle)
+/         be generalized.
+/
+/*********************************************************************/
+
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
@@ -22,7 +43,8 @@
 #include "CommunicationUtilities.h"
 
 
-int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level, int NumberOfGrids){
+int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level, int CycleNumber,
+                                  float Time, int NumberOfGrids){
 
   if (!StoreDomainBoundaryMassFlux) return SUCCESS;
 
@@ -44,9 +66,41 @@ int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level, int Number
 
   /* now store total in root grid for output */
   if (MyProcessorNumber == ROOT_PROCESSOR){
+
+    FILE *fptr;
+
+    /* check if this is the first time through and write header */
+    if (BoundaryMassFluxContainer[0] <= 0){
+      if ((fptr = fopen(BoundaryMassFluxFilename, "w")) == NULL){
+        ENZO_VFAIL("Error opening file %s\n", BoundaryMassFluxFilename); 
+      }
+      fprintf(fptr, "Cycle_Number Time ");
+      for(int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i ++){
+        if(BoundaryMassFluxFieldNumbers[i] < 0) break;
+        fprintf(fptr, " %s ", DataLabel[ BoundaryMassFluxFieldNumbers[i] ]);
+      }
+      fprintf(fptr, "\n");
+      fclose(fptr);
+    }
+
+    /* now add to the cumulative boundary mass flux container */
     for( int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i ++){
         BoundaryMassFluxContainer[i] += max(allgrid_BoundaryMassFluxContainer[i], 0.0);
     }
+
+    /* now output the amount of mass outflow in this cycle */
+    if ((fptr = fopen(BoundaryMassFluxFilename, "a")) == NULL){
+      ENZO_VFAIL("Error opening file %s\n", BoundaryMassFluxFilename);
+    }
+
+    fprintf(fptr, "%"ISYM" %"GSYM" ", CycleNumber, Time);
+    for (int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
+      if( BoundaryMassFluxFieldNumbers[i] < 0) break;
+      fprintf(fptr, "%"GSYM" ", allgrid_BoundaryMassFluxContainer[i]);
+    }
+    fprintf(fptr, "\n");
+    fclose(fptr);
+
   }
 
   return SUCCESS;
