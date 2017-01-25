@@ -71,7 +71,7 @@
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
 #else
 //#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES 27 // AJE may need to do something different 
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES 29 // AJE may need to do something different 
 #endif
 
 #define MAX_NUMBER_OF_PARTICLE_TABLE_POSITIONS   7
