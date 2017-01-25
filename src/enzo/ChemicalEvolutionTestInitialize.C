@@ -60,6 +60,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   char *Vel2Name  = "y-velocity";
   char *Vel3Name  = "z-velocity";
   char *CRName      = "CREnergyDensity";
+  char *GravPotentialName = "GravPotential";
   char *MetalName   = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
 
@@ -280,7 +281,10 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     DataLabel[count++] = Vel3Name;
   if(CRModel)
     DataLabel[count++] = CRName;
-  
+
+  if(WritePotential)
+    DataLabel[count++] = GravPotentialName;
+
   /* handle the multispecies things */
   if (TestProblemData.MultiSpecies) {
     DataLabel[count++] = ElectronName;
