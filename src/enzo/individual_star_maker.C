@@ -460,6 +460,43 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
         }
       }
 
+      int tstart = ParticleAttributeTableStartIndex;
+
+      // stellar evolution table (attr 3 = birth mass, attr 2 = metallicity)
+      int t_i = -1, t_j = -1, t_k = -1;
+      IndividualStarGetSETablePosition(t_i, t_j,
+                                       ParticleAttribute[3][0], ParticleAttribute[2][0]);
+      ParticleAttribute[tstart    ][0] = t_i;
+      ParticleAttribute[tstart + 1][0] = t_j;
+      // radiation properties table (only do if particle can radiate - saves time)
+      if( ParticleAttribute[3][0] >= IndividualStarRadiationMinimumMass){
+         float Teff, R;
+         IndividualStarInterpolateProperties(Teff, R, (int)ParticleAttribute[tstart][0],
+                                            (int)ParticleAttribute[tstart+1][0],
+                                            ParticleAttribute[3][0], ParticleAttribute[2][0]);
+         float g = IndividualStarSurfaceGravity(ParticleAttribute[3][0], R);
+
+         t_i = -1; t_j = -1; t_k = -1;
+         IndividualStarGetRadTablePosition(t_i, t_j, t_k,
+                                           Teff, g, ParticleAttribute[2][0]);
+                                           ParticleAttribute[tstart + 2][0] = t_i;
+         ParticleAttribute[tstart + 3][0] = t_j;
+         ParticleAttribute[tstart + 4][0] = t_k;
+      } else {
+         ParticleAttribute[tstart + 2][0] = -1;
+         ParticleAttribute[tstart + 3][0] = -1;
+         ParticleAttribute[tstart + 4][0] = -1;
+      }
+
+      // yields table position
+      t_i = -1 ; t_j = -1;
+      StellarYieldsGetYieldTablePosition(t_i, t_j,
+                                         ParticleAttribute[3][0], ParticleAttribute[2][0]);
+      ParticleAttribute[tstart + 5][0] = t_i;
+      ParticleAttribute[tstart + 6][0] = t_j;
+
+
+
       *np = 1;
       this->Grid_ChemicalEvolutionTestStarFormed = TRUE;
       printf("individual_star_maker: Formed star ChemicalEvolutionTest. M =  %"FSYM" and Z = %"FSYM". tau = %"ESYM"\n", ParticleMass[0]*(dx*dx*dx)*MassUnits/msolar, ParticleAttribute[2][0], ParticleAttribute[1][0]); 
