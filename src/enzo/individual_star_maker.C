@@ -3406,6 +3406,10 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
     v_wind = IndividualStarStellarWindVelocity; // user chosen, in km/s
   }
 
+  if (v_wind > IndividualStarMaximumStellarWindVelocity && 
+      IndividualStarMaximumStellarWindVelocity > 0) 
+            v_wind = IndividualStarMaximumStellarWindVelocity;
+
   v_wind *= 1.0E5; // now in cgs
 
   /* Now that we have wind lifetime and ejected mass, compute properties of wind*/
