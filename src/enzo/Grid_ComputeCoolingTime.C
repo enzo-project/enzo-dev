@@ -191,7 +191,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 
     /* change heating to zero in high temperature regions */
     for( i = 0; i < size; i ++){
-      if ( temperature[i] * TemperatureUnits >= IndividualStarFUVTemperatureCutoff){
+      if ( temperature[i]  >= IndividualStarFUVTemperatureCutoff){
         volumetric_heating_rate[i] = 0.0;
       } else {
         volumetric_heating_rate[i] = BaryonField[PeNum][i] * (EnergyUnits/TimeUnits); // convert to CGS
