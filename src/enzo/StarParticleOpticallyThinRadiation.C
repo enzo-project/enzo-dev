@@ -495,8 +495,6 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
 
     float attenuation = exp( -1.33E-21 * D * dx * n_H); // dx and n_H in cgs
 
-    printf("D = %"ESYM" attenuation = %"ESYM" Z_solar = %"ESYM"\n", D, attenuation, Z / 0.014);
-
     flux = 1.3E-24 * n_H * epsilon * G_o * D * attenuation;
 
   } else{
