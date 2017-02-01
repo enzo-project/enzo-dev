@@ -1110,6 +1110,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "IndividualStarPrintSNStats = %"ISYM"\n", IndividualStarPrintSNStats);
 
+  fprintf(fptr, "PhotoelectricHeatingDustModel = %"ISYM"\n", PhotoelectricHeatingDustModel);
   fprintf(fptr, "PhotoelectricHeatingDustModelEfficiency = %"FSYM"\n", PhotoelectricHeatingDustModelEfficiency);
 
   fprintf(fptr, "ChemicalEvolutionTestStarPosition = ");

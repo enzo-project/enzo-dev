@@ -30,8 +30,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 int FindField(int f, int farray[], int n);
 
-float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const float &Z,
-                                      const float &T, const float &G);
+float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const float &T,
+                                      const float &Z, const float &G, const float &dx);
 
 int grid::AddPeHeatingFromSources(Star *AllStars)
 {
@@ -198,8 +198,9 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
 
-          BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, Z,
-                                                                       temperature[index], FUVflux) * PeConversion;
+          BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, temperature[index],
+                                                                       Z, FUVflux,
+                                                                       this->CellWidth[0][0]*LengthUnits) * PeConversion;
             //} // ENDIF
         } // END: i-direction
       } // END: j-direction

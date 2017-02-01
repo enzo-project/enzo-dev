@@ -795,6 +795,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarBlackBodyLWFactors[0]  = 5.0E-5;     // same, but for LW
   IndividualStarBlackBodyLWFactors[1]  = 5.0E-6;
 
+  PhotoelectricHeatingDustModel = 1; // 0 - no shielding, linear in metallicity ; 1 - approx local shield, dust to gas ratio model
   PhotoelectricHeatingDustModelEfficiency = 0.0;    // Pe heating efficiency - <= 0 uses fit to Wolfire et. al. 2003 at solar radius
 
   /* Stellar Yields Parameters */

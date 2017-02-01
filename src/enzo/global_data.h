@@ -1155,7 +1155,7 @@ EXTERN IndividualStarPropertiesDataType IndividualStarPropertiesData;
 
 /* fuv */
 EXTERN float PhotoelectricHeatingDustModelEfficiency;
-
+EXTERN int   PhotoelectricHeatingDustModel;
 
 /* For stellar yields data tables */
 EXTERN StellarYieldsDataType          StellarYieldsSNData;

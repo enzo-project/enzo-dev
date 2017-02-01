@@ -1202,6 +1202,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "IndividualStarPrintSNStats = %"ISYM,
                         &IndividualStarPrintSNStats);
 
+    ret += sscanf(line, "PhotoelectricHeatingDustModel = %"ISYM,
+                        &PhotoelectricHeatingDustModel);
     ret += sscanf(line, "PhotoelectricHeatingDustModelEfficiency =%"FSYM,
                         &PhotoelectricHeatingDustModelEfficiency);
 

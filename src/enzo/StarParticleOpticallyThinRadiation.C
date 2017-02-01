@@ -40,8 +40,8 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv, Star *cstar);
 int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar);
 
 /* internal prototypes */
-float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const float &Z,
-                                      const float &T, const float &G);
+float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const float &T,
+                                      const float &Z, const float &G, const float &dx);
 
 
 int StarParticleOpticallyThinRadiation(TopGridData *MetaData,
@@ -366,7 +366,9 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
             Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
             // assign heating rate from model
-            BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], local_fuv_flux);
+            BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, temperature[index],
+                                                                         Z, local_fuv_flux,
+                                                                         dx*LengthUnits);
             BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
           } // end PE heating
 
@@ -397,9 +399,42 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
 //  delete[] approximate_radiation;
 }
 
+float NormalizedDustToGasRatio(const float &Z){
+  // Broken power law fit to gas to dust ratio
+  // from Remy-Ruyer et. al. 2014, using log metallicity
+  // in solar as "x" instead of 12 + log(O/H) as is done
+  // in that work. The below gives the right results one
+  // would expect assuming a one-to-one with 12+log(O/H)
+  // and metallicity
+
+  const float x_t     = -0.73; // 7.96 - 8.69 - threshold from paper
+  const float Z_solar = 0.014; // as used in Remy-Ruyer
+  const float D_mw    = 6.616595E-3; // MW / solar dust to gas ratio, 1 / 10**(2.21)
+
+  float g_to_d, d_to_g, x;
+
+  x = log10( Z / Z_solar);
+
+  // compute log(Gas / Dust)
+  if (x <= x_t){ // low metallicity regime
+    g_to_d = 0.68 - 3.08 * x;
+  } else{
+    g_to_d = 2.21 - 1.00 * x;
+  }
+
+  d_to_g = 1.0 / POW(10.0, g_to_d); // convert to actual dust to gas
+
+  // return in MW units
+
+  d_to_g /= D_mw;
+
+  return d_to_g;
+}
+
+
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
                                       const float &T,   const float &Z,
-                                      const float &G){
+                                      const float &G, const float &dx){
   /* ---------------------------------------------------------------------------------
    * ComputeHeatingRateFromDustModel
    * ---------------------------------------------------------------------------------
@@ -442,7 +477,31 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
 //              3.7E-2 * POW(1.0E-4 * T, 0.7) / (1.0 + 2.0E-4 *    (( G_o * POW(T,0.5) / n_e )     ));
 // }
 
-  flux = 1.3E-24 * n_H * epsilon * G_o * (Z / Z_o);
+  if (PhotoelectricHeatingDustModel == 0){
+    // simplest approximation possible, scaling linerly with metallicity
+    // and no self-shielding approximation.
+    // Linear scaling valid for Z > 0.1 Z_sun, and ignoring shielding
+    // is O.K. for low density / low dust regimes (aka. be careful)
+
+      flux = 1.3E-24 * n_H * epsilon * G_o * (Z / Z_o);
+  } else if (PhotoelectricHeatingDustModel == 1){
+    // do a slightly better job in high density / high metallicity
+    // regimes and do a very approximate, local self-shielding, while
+    // using a broken power law dust to gas ratio to better model
+    // the different scaling with dust and metallicity below 0.1 Z_sun
+
+    // following Hu et. al. 2016, and Bergin et. al. 2004
+    float D = NormalizedDustToGasRatio(Z);
+
+    float attenuation = exp( -1.33E-21 * D * dx * n_H); // dx and n_H in cgs
+
+    printf("D = %"ESYM" attenuation = %"ESYM" Z_solar = %"ESYM"\n", D, attenuation, Z / 0.014);
+
+    flux = 1.3E-24 * n_H * epsilon * G_o * D * attenuation;
+
+  } else{
+    ENZO_FAIL("PhotoelectricHeatingDustModel must be either 0 or 1\n");
+  }
 
   return flux;
 }

@@ -37,7 +37,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
                                       const float &T,   const float &Z,
-                                      const float &G);
+                                      const float &G, const float &dx);
 
 
 
@@ -159,7 +159,9 @@ int grid::AddPeHeatingFromTree(void)
         Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
         // assign heating rate from model
-        BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, Z, temperature[index], FUVLuminosity) * PeConversion;
+        BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, temperature[index],
+                                                                     Z, FUVLuminosity,
+                                                                     this->CellWidth[0][0]*LengthUnits) * PeConversion;
 
       }
     }
