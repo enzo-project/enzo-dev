@@ -598,7 +598,20 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
             jeansmass = pi / (6.0 * sqrt(BaryonField[DensNum][index]*DensityUnits) *
                             POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
 
-            if (jeansmass <= bmass){
+            float vel_div = -1.0;
+            if (IndividualStarCheckVelocityDiv){
+              if (HydroMethod == 2){
+                vel_div = BaryonField[Vel1Num][index + xo] - BaryonField[Vel1Num][index] +
+                          BaryonField[Vel2Num][index + yo] - BaryonField[Vel2Num][index] +
+                          BaryonField[Vel3Num][index + zo] - BaryonField[Vel3Num][index];
+              } else{
+                vel_div = BaryonField[Vel1Num][index + xo] - BaryonField[Vel1Num][index - xo] +
+                          BaryonField[Vel2Num][index + yo] - BaryonField[Vel2Num][index - yo] +
+                          BaryonField[Vel3Num][index + zo] - BaryonField[Vel3Num][index - zo];
+              }
+            }
+
+            if (jeansmass <= bmass && vel_div < 0.0){
               float lowest_cell_mass = bmass;
               bmass = 0.0; number_of_sf_cells = 0;
 

@@ -722,6 +722,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   /* IndividualStar: Star Formation */
   IndividualStarCreationStencilSize  =     3;         // n x n cell region (on each side) to sample for star formation
+  IndividualStarCheckVelocityDiv     =     0;         // use velocity divergence in SF check - default off for backwards compatability
   // StarParticleOverdensityThreshold is used as primary density threshold parameter 
   IndividualStarSecondaryOverDensityThreshold = -1;  // in cc - if < 0, set to over density thresh in ReadParamFile
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
