@@ -72,6 +72,9 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferLoadBalance                = FALSE;
   RadiativeTransferHubbleTimeFraction         = 0.1;
 
+  RadiativeTransferDeletePhotonByPosition     = FALSE;
+  RadiativeTransferDeletePhotonRadius         = FLOAT_UNDEFINED; // in code units
+
   if (MultiSpecies == 0){
     RadiativeTransferOpticallyThinH2 = FALSE;
     RadiativeTransferOpticallyThinFUV = FALSE;
@@ -141,6 +144,10 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferLoadBalance);
     ret += sscanf(line, "RadiativeTransferHubbleTimeFraction = %"FSYM, 
 		  &RadiativeTransferHubbleTimeFraction);
+    ret += sscanf(line, "RadiativeTransferDeletePhotonByPosition = %"ISYM,
+                  &RadiativeTransferDeletePhotonByPosition);
+    ret += sscanf(line, "RadiativeTransferDeletePhotonRadius = %"FSYM,
+                  &RadiativeTransferDeletePhotonRadius);
     if (sscanf(line, "RadiativeTransferTraceSpectrumTable = %s", dummy) == 1)
       RadiativeTransferTraceSpectrumTable = dummy;  
     ret += sscanf(line, "dtPhoton = %"FSYM, &dtPhoton);

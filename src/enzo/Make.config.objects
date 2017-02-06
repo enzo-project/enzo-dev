@@ -1035,6 +1035,7 @@ POBJS_CONFIG_LIB = \
         Grid_MergePausedPhotonPackages.o \
         Grid_RegridPausedPhotonPackage.o \
         Grid_MoveAllPhotonPackages.o \
+        Grid_PhotonDeleteByPosition.o \
 	Grid_PhotonPeriodicBoundary.o \
         Grid_PhotonTestInitializeGrid.o \
         Grid_PhotonTestRestartInitializeGrid.o \

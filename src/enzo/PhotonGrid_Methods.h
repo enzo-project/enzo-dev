@@ -422,6 +422,10 @@ int PhotonPeriodicBoundary(int &cindex, FLOAT *r, int *g, FLOAT *s,
 			   PhotonPackageEntry* &PP, grid* &MoveToGrid, 
 			   const float *DomainWidth, int &DeleteMe);
 
+int PhotonDeleteByPosition(int &cindex, FLOAT *r,
+                           PhotonPackageEntry* &PP, grid* &MoveToGrid,
+                           int &DeleteMe);
+
 /* Create PhotonPackages for a given radiation sources   */
 
 int Shine(RadiationSourceEntry *RadiationSource);

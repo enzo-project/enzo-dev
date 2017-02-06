@@ -371,6 +371,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     				       DomainWidth, DeleteMe) == FALSE)
     	break;
 
+    if (RadiativeTransferDeletePhotonByPosition)
+      if (this->PhotonDeleteByPosition(cindex, r, *PP, *MoveToGrid, DeleteMe) == FALSE)
+        break;
+
     oldr = (*PP)->Radius;
     min_dr = 1e20;
        

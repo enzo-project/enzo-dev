@@ -119,3 +119,15 @@ EXTERN float RadiativeTransferFluxBackgroundLimit;
    constant. */
 
 EXTERN float RadiativeTransferHubbleTimeFraction;
+
+
+/* Flag to turn on photon deletion for photons that have passed
+   a certain radial distance from the domain center (set by next 
+   parameter) */
+
+EXTERN int RadiativeTransferDeletePhotonByPosition;
+
+/* If above is on, delete photons that go this radial distance from
+   domain center (in code units) */
+
+EXTERN float RadiativeTransferDeletePhotonRadius;

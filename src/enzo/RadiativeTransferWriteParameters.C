@@ -83,6 +83,10 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferHydrogenOnly);
   fprintf(fptr, "RadiativeTransferTraceSpectrum            = %"ISYM"\n", 
 	  RadiativeTransferTraceSpectrum);
+  fprintf(fptr, "RadiativeTransferDeletePhotonByPosition   = %"ISYM"\n",
+          RadiativeTransferDeletePhotonByPosition);
+  fprintf(fptr, "RadiativeTransferDeletePhotonRadius       = %"FSYM"\n",
+          RadiativeTransferDeletePhotonRadius);
   fprintf(fptr, "RadiativeTransferTraceSpectrumTable       = %s\n\n", 
 	  RadiativeTransferTraceSpectrumTable);
 
