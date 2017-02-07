@@ -366,10 +366,10 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
             Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
             // assign heating rate from model
-            BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, temperature[index],
+            BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e, temperature[index],
                                                                          Z, local_fuv_flux,
-                                                                         dx*LengthUnits);
-            BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
+                                                                         dx*LengthUnits) / (EnergyUnits/TimeUnits);
+//            BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
           } // end PE heating
 
           if(IndividualStarLWRadiation){
@@ -451,12 +451,13 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
    */
 
   const double G_norm = 1.59E-3; // Habing field normalization - MW flux in cgs
-
+                                 // This is 5.29E-14 erg cm^(-3) times the speed of light
+                                 // to convert from energy density to flux density
   const double Z_o    =    0.02; // solar metallicity as defined in Forbes et. al. 2016
-
   float G_o   = G / G_norm;      // local FUV flux normalized to Habing field
   float epsilon, flux;
 
+  G_o = fmax(G_o, 0.00324);
 
   if ( PhotoelectricHeatingDustModelEfficiency > 0.0){
     epsilon = PhotoelectricHeatingDustModelEfficiency;
@@ -514,6 +515,8 @@ void grid::ZeroPhotoelectricHeatingField(void){
   * Field is recomputed every timestep.
   * -----------------------------------------------*/
 
+  const float G_background = 0.00324 * 1.59E-3; // HM2012 FUV background at z = 0
+
   int PeNum;
   PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
 
@@ -524,10 +527,69 @@ void grid::ZeroPhotoelectricHeatingField(void){
     size *= this->GridDimension[dim];
   }
 
-  for(int i = 0; i < size; i++){
-    this->BaryonField[PeNum][i] = 0.0;
+
+  //if(UseUVBackgroundFUVRate){
+  if (TRUE){
+    const double m_e = 9.109E-28; // in g
+    const double m_h = 1.673E-24; // in g
+
+    // ---- get units ------
+    float TemperatureUnits, DensityUnits, LengthUnits,
+          VelocityUnits, TimeUnits, EnergyUnits, MassUnits;
+
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+             &TimeUnits, &VelocityUnits, this->Time);
+    EnergyUnits = DensityUnits * VelocityUnits * VelocityUnits;
+
+    // ---- get field numbers -----
+    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+        DINum, DIINum, HDINum, ElectronNum, DensNum, MetalNum;
+    if (MultiSpecies){
+      this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+                                  HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
+
+    } else{
+      ENZO_FAIL("StarParticleOpticallyThinRadiation: MultiSpeices is required for photoelectrci heating");
+    }
+
+    // find fields for density, metal density, electron density, and the heating rate
+    DensNum     = FindField(Density, this->FieldType, this->NumberOfBaryonFields);
+    MetalNum    = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
+    ElectronNum = FindField(ElectronDensity, this->FieldType, this->NumberOfBaryonFields);
+
+    float n_H, n_e, Z;
+
+    for( int i = 0; i < size; i++){ // apply background heating rate
+      n_H = (this->BaryonField[HINum][i] + this->BaryonField[HIINum][i]);
+
+      if ( MultiSpecies > 1){ /* include H2 */
+         n_H += this->BaryonField[HMNum][i] +
+           0.5 * (this->BaryonField[H2INum][i] + this->BaryonField[H2IINum][i]);
+      }
+
+
+      n_H *= DensityUnits / m_h;
+
+      n_e  = this->BaryonField[ElectronNum][i] * DensityUnits / m_e;
+
+      Z    = this->BaryonField[MetalNum][i] / this->BaryonField[DensNum][i]; // metal dens / dens
+
+      // assign heating rate from model
+      BaryonField[PeNum][i]  = ComputeHeatingRateFromDustModel(n_H, n_e, 100.0, // temperature doesn't matter
+                                                                   Z, G_background,
+                                                            (this->CellWidth[0][0])*LengthUnits);
+      BaryonField[PeNum][i] /= (EnergyUnits / TimeUnits);
+
+    } // end loop
+
+  } else{
+
+    for(int i = 0; i < size; i++){
+      this->BaryonField[PeNum][i] = 0.0;
+    }
   }
 
+  return;
 }
 
 
