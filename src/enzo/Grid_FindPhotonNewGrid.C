@@ -55,8 +55,8 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u, int *g,
   if (RadiativeTransferDeletePhotonByPosition){
     // check if we've left the photon sphere
     for (dim = 0, radius = 0.0; dim <MAX_DIMENSION; dim++)
-      radius += (r[dim] - (DomainRightEdge[dim]-DomainLeftEdge[dim])*0.5)*
-                (r[dim] - (DomainRightEdge[dim]-DomainLeftEdge[dim])*0.5);
+      radius += (r[dim] - 0.5*(DomainRightEdge[dim] - DomainLeftEdge[dim]) )*
+                (r[dim] - 0.5*(DomainRightEdge[dim] - DomainLeftEdge[dim]) );
     radius = sqrt(radius);
 
     if (radius > RadiativeTransferDeletePhotonRadius){
@@ -64,10 +64,13 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u, int *g,
       MoveToGrid = NULL;
       DeleteMe   = TRUE;
     }
+  }
 
   /***** Root grids *****/
 
-  } else if (ParentGrid == NULL) {
+  if (ParentGrid == NULL &&
+      (!DeleteMe && RadiativeTransferDeletePhotonRadius)) { // second cond ensures default behavior
+                                                            // when delete photon radius is off
 
     if (RayInsideGrid) {
       // Inside root grid -> Child grid
@@ -99,7 +102,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u, int *g,
 
   /***** Subgrids *****/
 
-  else {
+  else if (!DeleteMe && RadiativeTransferDeletePhotonRadius){
 
     if (RayInsideGrid) {
       DeltaLevel = +1;
