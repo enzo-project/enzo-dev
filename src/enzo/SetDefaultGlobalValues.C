@@ -790,11 +790,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
   IndividualStarBlackBodyq1Factors[1]  = 4.000 ;    // and second high mass off grid.
 
-  IndividualStarBlackBodyFUVFactors[0] = 1.00E-4;   // same as above, but for FUV luminosities
-  IndividualStarBlackBodyFUVFactors[1] = 2.30E-5;
+  IndividualStarBlackBodyFUVFactors[0] = 1.0;   // same as above, but for FUV luminosities
+  IndividualStarBlackBodyFUVFactors[1] = 1.0;
 
-  IndividualStarBlackBodyLWFactors[0]  = 5.0E-5;     // same, but for LW
-  IndividualStarBlackBodyLWFactors[1]  = 5.0E-6;
+  IndividualStarBlackBodyLWFactors[0]  = 1.0;     // same, but for LW
+  IndividualStarBlackBodyLWFactors[1]  = 1.0;
 
   PhotoelectricHeatingDustModel = 1; // 0 - no shielding, linear in metallicity ; 1 - approx local shield, dust to gas ratio model
   PhotoelectricHeatingDustModelEfficiency = 0.0;    // Pe heating efficiency - <= 0 uses fit to Wolfire et. al. 2003 at solar radius
