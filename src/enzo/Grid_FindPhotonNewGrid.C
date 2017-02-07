@@ -68,9 +68,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u, int *g,
 
   /***** Root grids *****/
 
-  if (ParentGrid == NULL &&
-      (!DeleteMe && RadiativeTransferDeletePhotonRadius)) { // second cond ensures default behavior
-                                                            // when delete photon radius is off
+  if (ParentGrid == NULL && (!DeleteMe)) {
 
     if (RayInsideGrid) {
       // Inside root grid -> Child grid
@@ -102,7 +100,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u, int *g,
 
   /***** Subgrids *****/
 
-  else if (!DeleteMe && RadiativeTransferDeletePhotonRadius){
+  else if (!DeleteMe){
 
     if (RayInsideGrid) {
       DeltaLevel = +1;
