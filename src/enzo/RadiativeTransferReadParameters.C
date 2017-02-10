@@ -73,7 +73,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferHubbleTimeFraction         = 0.1;
 
   RadiativeTransferDeletePhotonByPosition     = FALSE;
-  RadiativeTransferDeletePhotonRadius         = FLOAT_UNDEFINED; // in code units
+  RadiativeTransferDeletePhotonRadius         = FLOAT_UNDEFINED ; // in code units
+  RadiativeTransferDeletePhotonSourceRadius   = 1.0E20          ; // in code units
 
   if (MultiSpecies == 0){
     RadiativeTransferOpticallyThinH2 = FALSE;

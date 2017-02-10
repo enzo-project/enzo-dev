@@ -87,6 +87,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
           RadiativeTransferDeletePhotonByPosition);
   fprintf(fptr, "RadiativeTransferDeletePhotonRadius       = %"FSYM"\n",
           RadiativeTransferDeletePhotonRadius);
+  fprintf(fptr, "RadiativeTransferDeletePhotonSourceRadius = %"FSYM"\n",
+          RadiativeTransferDeletePhotonSourceRadius);
   fprintf(fptr, "RadiativeTransferTraceSpectrumTable       = %s\n\n", 
 	  RadiativeTransferTraceSpectrumTable);
 

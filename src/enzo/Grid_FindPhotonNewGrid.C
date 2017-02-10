@@ -63,6 +63,19 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u, int *g,
       DeltaLevel = 0;
       MoveToGrid = NULL;
       DeleteMe   = TRUE;
+    } else{
+      // check if we've left the source sphere
+      for (dim = 0, radius = 0.0; dim < MAX_DIMENSION; dim++)
+        radius += (r[dim] - PP->SourcePosition[dim])*
+                  (r[dim] - PP->SourcePosition[dim]);
+      radius = sqrt(radius);
+
+      if (radius > RadiativeTransferDeletePhotonSourceRadius){
+        DeltaLevel = 0;
+        MoveToGrid = NULL;
+        DeleteMe   = TRUE;
+      }
+
     }
   }
 

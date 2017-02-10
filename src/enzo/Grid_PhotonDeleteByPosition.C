@@ -47,7 +47,23 @@ int grid::PhotonDeleteByPosition(int &cindex, FLOAT *r,
     MoveToGrid = NULL;
     DeleteMe   = TRUE;
     return FALSE;
+  } else{
+    // check if we've left the source sphere
+    for (dim = 0, radius = 0.0; dim < MAX_DIMENSION; dim++)
+      radius += (r[dim] - PP->SourcePosition[dim])*
+                (r[dim] - PP->SourcePosition[dim]);
+    radius = sqrt(radius);
+
+    if (radius > RadiativeTransferDeletePhotonSourceRadius){
+      PP->Photons = -1;
+      MoveToGrid = NULL;
+      DeleteMe   = TRUE;
+      return FALSE;
+    }
   }
+
+
+
 
   return TRUE;
 }

@@ -131,3 +131,5 @@ EXTERN int RadiativeTransferDeletePhotonByPosition;
    domain center (in code units) */
 
 EXTERN float RadiativeTransferDeletePhotonRadius;
+
+EXTERN float RadiativeTransferDeletePhotonSourceRadius;
