@@ -149,6 +149,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
                   &RadiativeTransferDeletePhotonByPosition);
     ret += sscanf(line, "RadiativeTransferDeletePhotonRadius = %"FSYM,
                   &RadiativeTransferDeletePhotonRadius);
+    ret += sscanf(line, "RadiativeTransferDeletePhotonSourceRadius = %"FSYM,
+                  &RadiativeTransferDeletePhotonSourceRadius);
     if (sscanf(line, "RadiativeTransferTraceSpectrumTable = %s", dummy) == 1)
       RadiativeTransferTraceSpectrumTable = dummy;  
     ret += sscanf(line, "dtPhoton = %"FSYM, &dtPhoton);
