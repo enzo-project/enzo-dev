@@ -1557,14 +1557,17 @@ c...  Right-going fast magnetoacoustic wave u+cf
       return
       end
 
-
-       subroutine limiter1(u,ndx,nu,nxbe,theta,ux,method)
+      subroutine limiter1(u,ndx,nu,nxbe,theta,ux,method
+     $                     , uc, ucx, nc
+     $                    )
 c=====================================================================
 c     Input:
 c        ndx  -- number of points in x-direction
 c        nu   -- number of compoment of solution at one point
 c        nxbe -- logical structure for x
 c        u(:,:) -- solution (cell-centered value)
+c        uc(:,:) -- color fields ［BH］
+c        nc   -- number of colours ［BH］
 c        theta -- parameter for minmod limiter
 c        method -- 1, generalized minmod limiter
 C                     theta = 1 -- minmod limiter
@@ -1574,16 +1577,19 @@ c                  2, van Leer's limiter
 c
 c     Output:
 c        ux   -- difference in x-direction       
+c        ucx  -- difference for the colours (only for method=1)［BH］      
+c	 uchoice -- 
 c=======================================================================
       implicit none 
 #include "fortran_types.def"  
       INTG_PREC ndx,nu,nxbe(4),method
       R_PREC  u(ndx,nu),ux(ndx,nu),theta
+      R_PREC  uc(ndx, nc), ucx(ndx, nc)  ![BH]
+      INTG_PREC nc      ![BH]
 c
 c...  local variable
-      R_PREC  a,b,z,xmic, rhoa, du1,du2
-      INTG_PREC ix,iu
-
+      R_PREC  a,b,z,xmic, rhoa, du1,du2,du3(3), sign1
+      INTG_PREC ix,iu,ic
       xmic(z,a,b)=0.25_RKIND*(sign(1._RKIND,a)+sign(1._RKIND,b))*
      $     min(z*abs(a),z*abs(b), 0.5_RKIND*abs(a+b))
       rhoa(a,b) = 0.25_RKIND*
@@ -1604,6 +1610,20 @@ c...  minmod limiter
                du1 = du2
             end do
          end do
+c        repeat for color fields
+         do iu = 1, nc                                  ![BH]
+            ix = nxbe(2)-2                               ![BH]
+            du1 = uc(ix+1,iu) - uc(ix,iu)                 ![BH]
+            do ix = nxbe(2)-1, nxbe(3)+1                 ![BH]
+               du2 = uc(ix+1,iu) - uc(ix,iu)              ![BH]
+c               ucx(ix,iu) = 0.0 ! xmic(theta,du1,du2)           ![BH]
+               ucx(ix,iu) =  xmic(theta,du1,du2)           ![BH]
+               du1 = du2                                 ![BH]
+            enddo                                         ![BH]
+         enddo                                            ![BH]
+
+c		call myprint( u, uc,ndx,1,1,0,ux,ucx)
+
 c     
 c...  positivity preserving
 c$$$         do iu = 1, nu, nu-1
@@ -1642,11 +1662,14 @@ c-----------------------------------------------------------------------------
 c     piecewise-linear method (PLM) predictor
 c-----------------------------------------------------------------------------
       subroutine plmpred_mhd(q,qx,ndx,nu,lmin,lmax,dt,dx,gamma,
-     $     idir,ur,ul,smallp,smallr,csmin)
+     $     idir,ur,ul,smallp,smallr,csmin
+     $     , qcn, qc, qcx, qcl, qcr ![BH]
+     $     )
 c----------------------------------------------------------------------
 c     piecewise-linear predictor (PLM)  -- qx = 0.5h*u_x
 c     This routine uses limited construction on primitive variable,
 c     which is input
+c     ... and does the same to colours [BH]
 c-----------------------------------------------------------------------
       implicit none
 #include "fortran_types.def"  
@@ -1654,8 +1677,11 @@ c-----------------------------------------------------------------------
       R_PREC  q(ndx,nu), qx(ndx,nu), ur(ndx,nu), ul(ndx,nu)
       R_PREC  dt, dx, gamma
       R_PREC smallp, smallr,csmin
+      INTG_PREC qcn ![BH]
+      R_PREC  qc(ndx,qcn), qcx(ndx,qcn), qcl(ndx,qcn), qcr(ndx,qcn) ![BH]
 c
 c...  local variables
+      INTG_PREC cix ![BH]
       INTG_PREC i, inorm, itan1, itan2,ip1, ibt1,ibt2,ibn
       R_PREC gamma1,rho,u,v,w,pr,dtdx,cs,c2,at1,at2,at3,at4,
      $     at5, at6, at7, at8, off, rx,ux,vx,wx,px,tau,
@@ -1817,7 +1843,19 @@ c
      $        as*c*bz*sqrho*at7 - af*c*bz*sqrho*(at4+at6) + off*btx2
          ul(ip1,nu)    = max(smallp, pr + c2*rho*(af*at7 +
      $        as*(at4+at6)) + off*px)
-c     
+
+         do cix = 1, qcn                                        ![BH]
+c      rho = q(i,1)
+c      rx  = qx(i,1)
+c         ul(ip1,1) = max(smallr,rho + at1 + (at4+at6)*rho*as +
+c     $        at7*rho*af + off*rx)
+                qcl(ip1,cix) = max(smallr,                      ![BH]
+     $              qc(i,cix) * ( 1 + (at4+at6)*as + at7*af)    ![BH]
+     $              + off * qcx(i,cix) + at1                    ![BH]
+     $          )                                               ![BH]
+         enddo                                                  ![BH]
+
+
          rho = q(ip1,1)
          u   = q(ip1,inorm)
          v   = q(ip1,itan1)
@@ -1944,28 +1982,41 @@ c
          ur(ip1,nu)    = max(smallp, pr + c2*rho*(af*at5 +
      $        as*(at4+at6)) + off*px)
 
+         do cix = 1, qcn                                        ![BH]
+c         ur(ip1,1) = max(smallr,rho + at1 + (at4+at6)*rho*as +
+c     $        at5*rho*af + off*rx)
+                qcr(ip1,cix) = max(smallr,                      ![BH]
+     $              qc(ip1,cix) * ( 1 + (at4+at6)*as + at5*af)  ![BH]
+     $              + off * qcx(ip1,cix) + at1                  ![BH]
+     $          )                                               ![BH]
+         enddo                                                  ![BH]
+
       end do
 c     
       return
       end
 c
       subroutine hncokpred_mhd(q,qx,ndx,nu,lmin,lmax,dt,dx,gamma,
-     $     idir,ur,ul,smallp, smallr,csmin)
+     $     idir,ur,ul,smallp, smallr,csmin, uc, ucx, nc, qcl, qcr)
 c-----------------------------------------------------------------------
 c     Hancock predictor (MHM) -- qx = 0.5hu_x
 c-----------------------------------------------------------------------
       implicit none
 #include "fortran_types.def"  
-      INTG_PREC ndx, nu,lmin, lmax, idir
+      INTG_PREC ndx, nu,lmin, lmax, idir, nc, ic
       R_PREC  q(ndx,nu), qx(ndx,nu), ur(ndx,nu), ul(ndx,nu)
+      R_PREC uc(ndx, nc), ucx(ndx, nc)
       R_PREC  dt, dx, gamma
       R_PREC smallp, smallr,csmin
+      R_PREC qcl(ndx, nc), qcr(ndx,nc)
 c
 c...  local variables
       INTG_PREC i, inorm, itan1, itan2,ip1, ibn, ibt1, ibt2
       R_PREC gamma1,rho,u,v,w,pr,dtdx,cs2,at1,at2,at3,at4,
      $     at5,at6,at7,at8, rx,ux,vx,wx,px,bnx,btx1,btx2,
      $     tau,bn,bt1,bt2
+      R_PREC uctemp(nc), ucxtemp(nc), atc(nc)
+      R_PREC total, total2, total3
 c
 c predictor step for variables at midtime at cell edges for muscl
 c working on row number j
@@ -2006,6 +2057,13 @@ c
       btx1 = qx(i,ibt1)
       btx2 = qx(i,ibt2)
       px  = qx(i,nu)
+      do ic=1,nc
+        uctemp(ic) = uc(i,ic)
+        ucxtemp(ic) = ucx(i,ic)
+        atc(ic) = dtdx*(uctemp(ic)*ux + ucxtemp(ic)*u)
+      end do
+
+
 
       tau = 1._RKIND/rho
       cs2 = max(csmin,gamma*pr*tau)*rho
@@ -2030,6 +2088,10 @@ c
          ul(ip1,ibt1)  = btx1 - at6 + bt1
          ul(ip1,ibt2)  = btx2 - at7 + bt2
          ul(ip1,nu)    = max(smallp, px - at8 + pr)
+
+         do ic=1,nc
+         qcl(ip1,nc) = ucxtemp(ic) - atc(ic) + uctemp(ic)
+         end do
 c         
          rho = q(ip1,1)
          u   = q(ip1,inorm)
@@ -2047,6 +2109,11 @@ c
          btx1 = qx(ip1,ibt1)
          btx2 = qx(ip1,ibt2)
          px  = qx(ip1,nu)
+         do ic=1,nc
+           uctemp(ic) = uc(ip1,ic)
+           ucxtemp(ic) = ucx(ip1,ic)
+           atc(ic) = dtdx*(uctemp(ic)*ux + ucxtemp(ic)*u)
+         end do
 
          tau = 1._RKIND/rho
          cs2 = max(csmin,gamma*pr*tau)*rho
@@ -2068,6 +2135,9 @@ c
          ur(ip1,ibt1)  = -(btx1 + at6) + bt1
          ur(ip1,ibt2)  = -(btx2 + at7) + bt2         
          ur(ip1,nu)    = max(smallp, -(px+at8) + pr)
+         do ic=1,nc
+         qcr(ip1,nc) = -(ucxtemp(ic)+atc(ic)) + uctemp(ic)
+         end do
       end do
 c     
       return

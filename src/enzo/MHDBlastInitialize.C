@@ -116,62 +116,6 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   char *BzName = "Bz";
   char *PhiName = "Phi";
   
-  int i=0, j=0;
-
-    DataLabel[i++] = DensName;
-    DataUnits[j++] = NULL;
-  if( EquationOfState == 0 ){
-    DataLabel[i++] = TEName;
-    DataUnits[j++] = NULL;
-  }
-    DataLabel[i++] = Vel1Name;
-    DataUnits[j++] = NULL;
-    DataLabel[i++] = Vel2Name;
-    DataUnits[j++] = NULL;
-    DataLabel[i++] = Vel3Name;
-    DataUnits[j++] = NULL;
-  if( UseMHD ){
-    DataLabel[i++] = BxName;
-    DataUnits[j++] = NULL;
-    DataLabel[i++] = ByName;
-    DataUnits[j++] = NULL;
-    DataLabel[i++] = BzName;
-    DataUnits[j++] = NULL;
-  }
-  if( HydroMethod == MHD_RK ){
-    DataLabel[i++] = PhiName;
-    DataUnits[j++] = NULL;
-  }
-
-
-  if(DualEnergyFormalism ){
-    char *GEName = "GasEnergy";
-    DataLabel[i++] = GEName;
-    DataUnits[j++] = NULL;   
-  }
-
-  if (WritePotential){
-    DataLabel[i++] = GPotName;
-    DataUnits[j++] = NULL;
-  }
-  
-  if ( UseMHDCT ){
-  MHDLabel[0] = "BxF";
-  MHDLabel[1] = "ByF";
-  MHDLabel[2] = "BzF";
-  
-  MHDeLabel[0] = "Ex";
-  MHDeLabel[1] = "Ey";
-  MHDeLabel[2] = "Ez";
-  
-  MHDUnits[0] = "None";
-  MHDUnits[1] = "None";
-  MHDUnits[2] = "None";
-  
-  MHDeUnits[0] = "None";
-  MHDeUnits[1] = "None";
-  MHDeUnits[2] = "None";
-  }
   
 
   // General control variable
@@ -182,6 +126,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   int ret = 0, GasFlag = 0, Pflag=0, TotalFlag=0;
   int ObsFlag = 0;
   int RefineOnStartup = FALSE;
+  int UseMetal = FALSE, metal_ret=0 ;
 
   float DensityA = 1.0666,
     DensityB = 1.0,
@@ -190,6 +135,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     TotalEnergyA = 1.0,
     TotalEnergyB = 1.0;
 
+  float MetalDensityA = 0.0, MetalDensityB=0.0;
   float PressureA, PressureB;
   float VelocityA[3] = {0.666, 0.666, 0.666};
   float VelocityB[3] = {0.3666, 0.3666, 0.3666};
@@ -241,6 +187,13 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
     TotalFlag += sscanf(line, "MHDBlastTotalEnergyA = %"PSYM, &TotalEnergyA);
     TotalFlag += sscanf(line, "MHDBlastTotalEnergyB = %"PSYM, &TotalEnergyB);
+    
+    metal_ret += sscanf(line, "MHDBlastMetalDensityA = %"PSYM, &MetalDensityA);
+    metal_ret += sscanf(line, "MHDBlastMetalDensityB = %"PSYM, &MetalDensityB);
+    if( metal_ret > 0){
+        ret++;
+        UseMetal = TRUE;
+    }
     
     ////
 
@@ -342,6 +295,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					       Energy0,  Energy1,
 					       VelocityA, VelocityB,
 					       BA, BB, 
+                           MetalDensityA, MetalDensityB, UseMetal,
 					       Radius, MHDBlastCenter, LongDimension,
 					       PerturbAmplitude, PerturbMethod,PerturbWavelength,
 					       InitStyle) == FAIL )
@@ -412,6 +366,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 							   Energy0,  Energy1,
 							   VelocityA, VelocityB,
 							   BA, BB, 
+                               MetalDensityA, MetalDensityB, UseMetal,
 							   Radius, MHDBlastCenter, LongDimension,
 							   PerturbAmplitude, PerturbMethod,PerturbWavelength,
 							   InitStyle) == FAIL )
@@ -452,6 +407,66 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     MHD_ProjectB = MHD_ProjectBtmp;
     
   }//RefineOnStartup
+  int i=0, j=0;
+
+    DataLabel[i++] = DensName;
+    DataUnits[j++] = NULL;
+  if( EquationOfState == 0 ){
+    DataLabel[i++] = TEName;
+    DataUnits[j++] = NULL;
+  }
+    DataLabel[i++] = Vel1Name;
+    DataUnits[j++] = NULL;
+    DataLabel[i++] = Vel2Name;
+    DataUnits[j++] = NULL;
+    DataLabel[i++] = Vel3Name;
+    DataUnits[j++] = NULL;
+  if( UseMHD ){
+    DataLabel[i++] = BxName;
+    DataUnits[j++] = NULL;
+    DataLabel[i++] = ByName;
+    DataUnits[j++] = NULL;
+    DataLabel[i++] = BzName;
+    DataUnits[j++] = NULL;
+  }
+  if( HydroMethod == MHD_RK ){
+    DataLabel[i++] = PhiName;
+    DataUnits[j++] = NULL;
+  }
+
+
+  if(DualEnergyFormalism ){
+    char *GEName = "GasEnergy";
+    DataLabel[i++] = GEName;
+    DataUnits[j++] = NULL;   
+  }
+
+  if (WritePotential){
+    DataLabel[i++] = GPotName;
+    DataUnits[j++] = NULL;
+  }
+  if( UseMetal ){
+      DataLabel[i++] = "Metal_Density";
+      DataUnits[j++] = NULL;
+  }
+  
+  if ( UseMHDCT ){
+  MHDLabel[0] = "BxF";
+  MHDLabel[1] = "ByF";
+  MHDLabel[2] = "BzF";
+  
+  MHDeLabel[0] = "Ex";
+  MHDeLabel[1] = "Ey";
+  MHDeLabel[2] = "Ez";
+  
+  MHDUnits[0] = "None";
+  MHDUnits[1] = "None";
+  MHDUnits[2] = "None";
+  
+  MHDeUnits[0] = "None";
+  MHDeUnits[1] = "None";
+  MHDeUnits[2] = "None";
+  }
 
   return SUCCESS;
 }

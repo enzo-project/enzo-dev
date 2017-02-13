@@ -2990,6 +2990,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                              float Energy0,  float Energy1,
                              float Velocity0[], float Velocity1[],
                              float B0[], float B1[],
+                             float MetalDensity0, float MetalDensity1, int UseMetal,
                              float Radius, float MHDBlastCenter[], int LongDimension,
                              float PerturbAmplitude, int PerturbMethod, float PerturbWavelength[],
                              int InitStyle);
