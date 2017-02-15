@@ -330,7 +330,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
     
     /* Do the interpolation for the density field. */
  
-    if (HydroMethod == Zeus_Hydro)
+    if (HydroMethod == Zeus_Hydro && AccelerationHack != TRUE)
       InterpolationMethod = (SecondOrderBFlag[densfield] == 0) ?
 	SecondOrderA : SecondOrderC;
 
