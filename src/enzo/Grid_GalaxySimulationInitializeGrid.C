@@ -723,6 +723,10 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 }
 
 
+/*
+ Below used only for point source gravity
+
+*/
 float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float GalaxyMass, FLOAT ScaleHeightR, FLOAT ScaleHeightz, float DMConcentration, FLOAT Time)
 {
 
