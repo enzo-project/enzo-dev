@@ -43,29 +43,31 @@
 #include "CommunicationUtilities.h"
 
 
-int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level, int CycleNumber,
-                                  float Time, int NumberOfGrids){
+int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level,
+                                  float Time, int CycleNumber, int NumberOfGrids){
 
   if (!StoreDomainBoundaryMassFlux) return SUCCESS;
 
-  if (level != 0) return SUCCESS; // only do for root grid
+  // if (level != 0) return SUCCESS; // only do for root grid
 
   int grid1;
 
   float allgrid_BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS];
   for (int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i ++) allgrid_BoundaryMassFluxContainer[i] = 0.0;
 
-  for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
+  if (level == 0){
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
 
-    if( Grids[grid1]->GridData->ComputeDomainBoundaryMassFlux(allgrid_BoundaryMassFluxContainer) == FAIL)
-      ENZO_FAIL("Error in grid->ComputeDomainBoundaryMassFlux.\n");
+      if( Grids[grid1]->GridData->ComputeDomainBoundaryMassFlux(allgrid_BoundaryMassFluxContainer) == FAIL)
+        ENZO_FAIL("Error in grid->ComputeDomainBoundaryMassFlux.\n");
+    }
   }
 
   /* now communicate */
   CommunicationSumValues(allgrid_BoundaryMassFluxContainer, MAX_NUMBER_OF_BARYON_FIELDS);
 
   /* now store total in root grid for output */
-  if (MyProcessorNumber == ROOT_PROCESSOR){
+  if (MyProcessorNumber == ROOT_PROCESSOR && level == 0){
 
     FILE *fptr;
 
