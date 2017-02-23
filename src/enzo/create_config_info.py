@@ -19,7 +19,7 @@ def get_hg_info():
         from mercurial import hg, ui, commands 
         from mercurial.error import RepoError
     except ImportError:
-        print "WARNING: could not get version information.  Please install mercurial."
+        print("WARNING: could not get version information.  Please install mercurial.")
         return ('unknown', 'unknown', None)
     
     try:
@@ -33,7 +33,7 @@ def get_hg_info():
         my_diff = u.popbuffer()
         return (my_info[0], my_info[1], my_diff)
     except RepoError:
-        print "WARNING: could not get version information."
+        print("WARNING: could not get version information.")
         return ('unknown', 'unknown', None)
 
 def get_options(filename, my_options=None, get_list_order=False):
