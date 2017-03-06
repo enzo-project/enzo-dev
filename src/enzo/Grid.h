@@ -1216,6 +1216,9 @@ gradient force to gravitational force for one-zone collapse test. */
      }
    };
 
+/* Gravity: Add moving, time varying external acceleration field */
+   int AddTimeVaryingExternalAcceleration();
+
 /* Gravity: Add fixed, external acceleration to baryons & particles. */
 
    int AddExternalAcceleration();
@@ -2214,6 +2217,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                           float GasMetallicity);
 
   /* AJE Individual star formation and feedback */
+  int chemical_evolution_test_star_deposit(int *nmax, int *np,
+                                           float *ParticleMass,
+                                           int *ParticleType, FLOAT *ParticlePosition[],
+                                           float *ParticleVelocity[], float *ParticleAttribute[]);
+
+
   int individual_star_maker( float *dm, float *temp, int *nmax, float *mu, int *np,
                              float *ParticleMass,
                              int *ParticleType, FLOAT *ParticlePosition[],

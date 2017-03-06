@@ -607,6 +607,24 @@ int grid::ComputeAccelerationFieldExternal()
     
   } // end if (ExternalGravity == 1)
 
+
+  else if (ExternalGravity >= 2 && ExternalGravity <= 3){
+    /* -------------------------------------------------------------
+       Time varying background potential from a specified field.
+
+       ExternalGravity == 2 : NFW DM potential
+       ExternalGravity == 3 : Burkert DM potential
+
+     */
+
+    // handle this elsewhere to de-clutter a bit
+    if( this->AddTimeVaryingExternalAcceleration() == FAIL){
+        fprintf(stderr, "Error in grid->AddTimeVaryingExternalAcceleration()\n");
+        return FAIL;
+    }
+
+
+  } // end if (ExternalGravity == 2)
   /* -----------------------------------------------------------------
      ExternalGravity > 9 : Acceleration from specified potential field.
 

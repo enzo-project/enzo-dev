@@ -435,6 +435,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   WriteListOfFloats(fptr, MetaData.TopGridRank, ExternalGravityPosition);
   fprintf(fptr, "ExternalGravityOrientation   = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, ExternalGravityOrientation);
+  fprintf(fptr, "ExternalGravityTimeOn  = %"FSYM"\n", ExternalGravityTimeOn);
+  fprintf(fptr, "ExternalGravityTimeOff = %"FSYM"\n", ExternalGravityTimeOff); 
 
   fprintf(fptr, "SelfGravity                    = %"ISYM"\n", SelfGravity);
   fprintf(fptr, "SelfGravityGasOff              = %"ISYM"\n", SelfGravityGasOff);

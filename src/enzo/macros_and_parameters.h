@@ -584,6 +584,10 @@ typedef int            HDF5_hid_t;
 
 #define IMF_TABLE_ENTRIES 1000
 
+/* Maximum number of entries in the time varying external gravity position */
+
+#define EXTERNAL_GRAVITY_ENTRIES 1000
+
 #ifdef USE_MPI
 #else /* USE_MPI */
 //#undef MEM_TRACE
