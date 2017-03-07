@@ -498,9 +498,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ExternalGravityOrientation = %"FSYM" %"FSYM" %"FSYM, 
 		  ExternalGravityOrientation, ExternalGravityOrientation+1, 
 		  ExternalGravityOrientation+2);
-    ret += sscanf(line, "ExternalGravityTimeOn = %"FSYM, &ExternalGravityTimeOn);
-    ret += sscanf(line, "ExternalGravityTimeOff = %"FSYM,&ExternalGravityTimeOff);
-    ret += sscanf(line, "ExternalGravityMass    = %"GSYM,&ExternalGravityMass);
+    ret += sscanf(line, "ExternalGravityTimeOn = %"FSYM,  &ExternalGravityTimeOn);
+    ret += sscanf(line, "ExternalGravityTimeOff = %"FSYM, &ExternalGravityTimeOff);
+    ret += sscanf(line, "ExternalGravityMass    = %"FSYM, &ExternalGravityMass);
 
     ret += sscanf(line, "SelfGravity           = %"ISYM, &SelfGravity);
     ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
