@@ -110,7 +110,14 @@ int grid::AddTimeVaryingExternalAcceleration(void){
           // ExternalGravityRadius  -> dm halo scale radius in Mpc
 
           if (ExternalGravity == 2){ // NFW
-            ENZO_FAIL("Time varying NFW external gravity potential not yet implemented\n");
+
+            accel = 4.0 * pi * (GravConst) * ExternalGravityDensity * POW(ExternalGravityRadius*Mpc,3)
+                        * (  log(1.0 + r/ExternalGravityRadius/Mpc)/r
+                           - 1.0/(ExternalGravityRadius/Mpc + r)
+                          ) / (rsquared);
+
+            accel = ( r == 0.0 ? 0.0 : fabs(accel) / AccelUnits);
+
           } else if (ExternalGravity == 3){ // spherical burkert profile
 
             accel = pi*(GravConst)*ExternalGravityDensity*POW(ExternalGravityRadius*Mpc,3)/(rsquared)
@@ -164,7 +171,14 @@ int grid::AddTimeVaryingExternalAcceleration(void){
 
 
       if (ExternalGravity == 2){
-        ENZO_FAIL("NFW time varying external gravity not yet working for particles\n");
+
+        accel = 4.0 * pi * (GravConst) * ExternalGravityDensity * POW(ExternalGravityRadius*Mpc,3)
+                             * (  log(1.0 + r/ExternalGravityRadius/Mpc)/r
+                                 - 1.0/(ExternalGravityRadius/Mpc + r) 
+                               ) / (rsquared);
+
+        accel = ( r == 0.0 ? 0.0 : fabs(accel) / AccelUnits);
+
 
       } else if (ExternalGravity == 3){
         accel = pi*(GravConst)*ExternalGravityDensity*POW(ExternalGravityRadius*Mpc,3)/(rsquared)
