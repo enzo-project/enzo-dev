@@ -17,7 +17,7 @@
 int InitializeTimeVaryingExternalAcceleration(float Time){
 
   // this doesn't concern us
-  if (ExternalGravity < 2 || ExternalGravity > 3){
+  if (ExternalGravity < 2 || ExternalGravity > 4){
     return SUCCESS;
   }
 

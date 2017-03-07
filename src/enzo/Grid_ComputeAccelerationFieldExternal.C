@@ -608,7 +608,7 @@ int grid::ComputeAccelerationFieldExternal()
   } // end if (ExternalGravity == 1)
 
 
-  else if (ExternalGravity >= 2 && ExternalGravity <= 3){
+  else if (ExternalGravity >= 2 && ExternalGravity <= 4){
     /* -------------------------------------------------------------
        Time varying background potential from a specified field.
 

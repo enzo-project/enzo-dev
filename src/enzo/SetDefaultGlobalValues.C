@@ -344,13 +344,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ExternalGravityDensity      = 0.0;
   ExternalGravityRadius       = 0.0;
 
-  // for externalgravity type 2 or 3
+  // for externalgravity type 2 - 4
   ExternalGravityTimeOn       = 0.0;               // time in code units to turn on time varying external potential
   ExternalGravityTimeOff      = huge_number;       // time in code units to turn off time varying external potential
   ExternalGravityTime         = NULL;
   for (dim = 0 ; dim < MAX_DIMENSION; dim ++){
     ExternalGravityTimePositions[dim] = NULL;
   }
+  ExternalGravityMass         = 0.0; // mass in solar masses of time varying point source potential (EG = 4)
 
 
   UniformGravity              = FALSE;             // off

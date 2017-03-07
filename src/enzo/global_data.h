@@ -867,6 +867,7 @@ EXTERN int   ExternalGravityNumberofTimePoints;
 EXTERN float ExternalGravityTimeOn;
 EXTERN float ExternalGravityTimeOff;
 EXTERN float *ExternalGravityTime;
+EXTERN float ExternalGravityMass;
 EXTERN FLOAT *ExternalGravityTimePositions[MAX_DIMENSION];
 
 /* Poisson Clean */

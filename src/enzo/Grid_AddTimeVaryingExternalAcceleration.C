@@ -35,9 +35,11 @@ int grid::AddTimeVaryingExternalAcceleration(void){
                &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
+  MassUnits  = DensityUnits * LengthUnits * LengthUnits * LengthUnits;
   AccelUnits = LengthUnits/TimeUnits/TimeUnits;
 
-  const float myr = 3.15576E13;
+  const float myr  = 3.15576E13;
+  const float Msun = 1.989E33;
 
   float time_myr = this->Time * TimeUnits / myr;
 
@@ -119,6 +121,13 @@ int grid::AddTimeVaryingExternalAcceleration(void){
 
             accel = ( r ==0.0?0.0:fabs(accel) / (r/LengthUnits) / AccelUnits);
 
+          } else if (ExternalGravity == 4) {
+            // point mass with
+
+            accel = (GravConst) * (ExternalGravityMass * Msun / MassUnits);
+
+            accel = ( r==0.0?0.0:fabs(accel) / (rsquared*r/(LengthUnits*LengthUnits*LengthUnits)) /AccelUnits);
+
           } // end potential type check
 
           if (dim == 0)
@@ -166,6 +175,13 @@ int grid::AddTimeVaryingExternalAcceleration(void){
 
 
         accel = ( r ==0.0?0.0:fabs(accel) / (r/LengthUnits) / AccelUnits);
+      } else if (ExternalGravity == 4) {
+        // point mass with
+
+        accel = (GravConst) * (ExternalGravityMass * Msun / MassUnits);
+
+        accel = ( r==0.0?0.0:fabs(accel) / (rsquared*r/(LengthUnits*LengthUnits*LengthUnits)) /AccelUnits);
+
 
       } // end potential type
 
