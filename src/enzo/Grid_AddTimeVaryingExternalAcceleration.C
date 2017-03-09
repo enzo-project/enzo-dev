@@ -112,8 +112,8 @@ int grid::AddTimeVaryingExternalAcceleration(void){
           if (ExternalGravity == 2){ // NFW
 
             accel = 4.0 * pi * (GravConst) * ExternalGravityDensity * POW(ExternalGravityRadius*Mpc,3)
-                        * (  log(1.0 + r/ExternalGravityRadius/Mpc)/r
-                           - 1.0/(ExternalGravityRadius/Mpc + r)
+                        * (  log(1.0 + r/(ExternalGravityRadius*Mpc))/r
+                           - 1.0/(ExternalGravityRadius*Mpc + r)
                           ) / (rsquared);
 
             accel = ( r == 0.0 ? 0.0 : fabs(accel) / AccelUnits);
@@ -121,9 +121,9 @@ int grid::AddTimeVaryingExternalAcceleration(void){
           } else if (ExternalGravity == 3){ // spherical burkert profile
 
             accel = pi*(GravConst)*ExternalGravityDensity*POW(ExternalGravityRadius*Mpc,3)/(rsquared)
-                      *(- 2.0 * atan(r/ExternalGravityRadius/Mpc)
-                        + 2.0 *  log(1.0 + r/ExternalGravityRadius/Mpc)
-                        +        log(1.0 + rsquared / POW(ExternalGravityRadius/Mpc,2))
+                      *(- 2.0 * atan(r/(ExternalGravityRadius*Mpc))
+                        + 2.0 *  log(1.0 + r/(ExternalGravityRadius*Mpc))
+                        +        log(1.0 + rsquared / POW(ExternalGravityRadius*Mpc,2))
                        );
 
             accel = ( r ==0.0?0.0:fabs(accel) / (r/LengthUnits) / AccelUnits);
@@ -173,8 +173,8 @@ int grid::AddTimeVaryingExternalAcceleration(void){
       if (ExternalGravity == 2){
 
         accel = 4.0 * pi * (GravConst) * ExternalGravityDensity * POW(ExternalGravityRadius*Mpc,3)
-                             * (  log(1.0 + r/ExternalGravityRadius/Mpc)/r
-                                 - 1.0/(ExternalGravityRadius/Mpc + r) 
+                             * (  log(1.0 + r/(ExternalGravityRadius*Mpc))/r
+                                 - 1.0/(ExternalGravityRadius*Mpc + r) 
                                ) / (rsquared);
 
         accel = ( r == 0.0 ? 0.0 : fabs(accel) / AccelUnits);
@@ -182,9 +182,9 @@ int grid::AddTimeVaryingExternalAcceleration(void){
 
       } else if (ExternalGravity == 3){
         accel = pi*(GravConst)*ExternalGravityDensity*POW(ExternalGravityRadius*Mpc,3)/(rsquared)
-                  *(- 2.0 * atan(r/ExternalGravityRadius/Mpc)
-                    + 2.0 *  log(1.0 + r/ExternalGravityRadius/Mpc)
-                    +        log(1.0 + rsquared / POW(ExternalGravityRadius/Mpc,2))
+                  *(- 2.0 * atan(r/(ExternalGravityRadius*Mpc))
+                    + 2.0 *  log(1.0 + r/(ExternalGravityRadius*Mpc))
+                    +        log(1.0 + rsquared / POW(ExternalGravityRadius*Mpc,2))
                    );
 
 
