@@ -313,6 +313,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AddOverlappingParticleMassField.o \
 	Grid_AddParticlesFromList.o \
 	Grid_AddRandomForcing.o \
+        Grid_AddTimeVaryingExternalAcceleration.o \
 	Grid_AddToBoundaryFluxes.o \
 	Grid_AllocateGrids.o \
 	Grid_AnalyzeTrackPeaks.o \
@@ -1011,7 +1012,6 @@ POBJS_CONFIG_LIB = \
         Grid_AddPeHeatingFromTree.o \
 	Grid_AddRadiationImpulse.o \
 	Grid_AddRadiationPressureAcceleration.o \
-        Grid_AddTimeVaryingExternalAcceleration.o \
 	Grid_AllocateInterpolatedRadiation.o \
 	Grid_CheckSubgridMarker.o \
 	Grid_CommunicationSendPhotonPackages.o \
