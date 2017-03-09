@@ -543,6 +543,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &grackle_data->use_specific_heating_rate);
     ret += sscanf(line, "self_shielding_method = %d",
                   &grackle_data->self_shielding_method);
+    ret += sscanf(line, "H2_self_shielding = %d",
+                  &grackle_data->H2_self_shielding);
     ret += sscanf(line, "radiative_transfer_intermediate_step = %d",
                   &grackle_data->radiative_transfer_intermediate_step);
 

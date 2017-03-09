@@ -268,6 +268,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     my_fields.grid_dimension = g_grid_dimension;
     my_fields.grid_start     = g_grid_start;
     my_fields.grid_end       = g_grid_end;
+    my_fields.grid_dx        = this->CellWidth[0][0];
 
     /* now add in the baryon fields */
     my_fields.density         = density;
