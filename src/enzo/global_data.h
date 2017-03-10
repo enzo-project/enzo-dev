@@ -1134,7 +1134,5 @@ EXTERN int UseSupernovaSeedFieldSourceTerms;
 EXTERN float SupernovaSeedFieldRadius;
 EXTERN float SupernovaSeedFieldDuration;
 EXTERN float SupernovaSeedFieldEnergy;
-EXTERN float SupernovaSeedFieldSigma;
-
 
 #endif

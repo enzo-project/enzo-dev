@@ -39,13 +39,11 @@ SuperNova::SuperNova(){
   characteristicTime = FLOAT();
 	
   totalEnergy = float();
-  sigma = float();
-	
 }
 
 
 void SuperNova::setValues(FLOAT phi_x, FLOAT phi_y, FLOAT phi_z,  FLOAT x, FLOAT y, FLOAT z, \
-			 FLOAT radius, FLOAT time_started, FLOAT duration, float energy, float sigma_sn){
+			 FLOAT radius, FLOAT time_started, FLOAT duration, float energy){
 	zHat[0] = phi_x;
 	zHat[1] = phi_y;
 	zHat[2] = phi_z;
@@ -59,7 +57,6 @@ void SuperNova::setValues(FLOAT phi_x, FLOAT phi_y, FLOAT phi_z,  FLOAT x, FLOAT
 	characteristicTime = duration/5.0;
 	
 	totalEnergy = energy;
-	sigma = sigma_sn;
 	
 }
 
@@ -206,8 +203,8 @@ snsf_source_terms SuperNova::getSourceTerms(double dx, double dy, double dz, dou
 	Rotate_Vector(zHat, zhat_cell, phi);
 	
 	FLOAT norm_factor = 4*totalEnergy / (POW(characteristicLength, 3) * M_PI*M_PI);
-	FLOAT dB_scale = sqrt(sigma*norm_factor)*sqrt(r_scale)*db_t_exp;
-	FLOAT B_scale = sqrt(sigma*norm_factor)*sqrt(r_scale)*b_t_exp;
+	FLOAT dB_scale = sqrt(norm_factor)*sqrt(r_scale)*db_t_exp;
+	FLOAT B_scale = sqrt(norm_factor)*sqrt(r_scale)*b_t_exp;
 
 	
 	// the x,y,z components of dB in the cell's frame of reference

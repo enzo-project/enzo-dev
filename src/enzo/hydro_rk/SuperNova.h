@@ -23,7 +23,7 @@ public:
 	SuperNova();
 	~SuperNova() {}
 	void setValues(FLOAT phi_x, FLOAT phi_y, FLOAT phi_z,  FLOAT x, FLOAT y, FLOAT z, \
-				   FLOAT radius, FLOAT time_started, FLOAT duration, float energy, float sigma_sn);
+				   FLOAT radius, FLOAT time_started, FLOAT duration, float energy);
 	snsf_source_terms getSourceTerms(double dx, double dy, double dz, double enzoTime);
 	
         FLOAT* getPosition();
@@ -35,7 +35,7 @@ private:
 	FLOAT characteristicTime;
 	
 	float totalEnergy;
-	float sigma;
+
 };
 
 

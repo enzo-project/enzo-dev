@@ -1198,7 +1198,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "SupernovaSeedFieldRadius = %"GSYM"\n", SupernovaSeedFieldRadius);
   fprintf(fptr,"SupernovaSeedFieldEnergy = %"GSYM"\n",SupernovaSeedFieldEnergy);
   fprintf(fptr,"SupernovaSeedFieldDuration = %"GSYM"\n",SupernovaSeedFieldDuration);
-  fprintf(fptr, "SupernovaSeedFieldSigma = %"GSYM"\n", SupernovaSeedFieldSigma);
 
   /* Output current time */
   time_t ID;

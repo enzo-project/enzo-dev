@@ -538,3 +538,60 @@ The routines included in ``star_maker1.F`` are obsolete and not
 compiled into the executable.  For a more stable version of the
 algorithm, use Method 1.
 
+
+Magnetic Supernova Feedback
+----------------------------
+*Source: hydro_rk/SuperNovaSeedField.C*
+
+Select this method by setting ``UseSupernovaSeedFieldSourceTerms = 1``
+(Default = 0) and
+specifying the following parameters: 
+
+``SupernovaSeedFieldTotalEnergy`` (in units of ergs) is the total amount
+of magnetic energy to be injected by a single supernova event. Defualt = 0.0.
+
+``SupernovaSeedFieldRadius`` (in units of parsecs) gives the scale over
+which to inject supernova energy. The injection mechanism normalizes the
+spatial exponential decay of the injected supernova energy so that all of the
+energy is contained within the specified radius. For this reason, the
+``SupernovaSeedFieldRadius`` should be at least 3 times the minimum cell width of
+the simulation. Default = 0.0.
+
+``SupernovaSeedFieldDuration`` (in units of Myr) gives the duration of the
+supernova magnetic energy injection. The injection mechanism is normalized so
+that all of the ``SupernovaSeedFieldTotalEnergy`` is injected over this
+time scale. In order to inject the correct amount of energy, ``SupernovaSeedFieldDuration`` should be set to at least 4
+times the minimum time step of the simulation.  Default = 0.0.
+
+
+The following applies to  Methods 0 (Cen & Ostriker) and 1 (+
+stochastic star formation). The magnetic feedback method is described fully in `Butsky et al. (2017)
+<https://arxiv.org/abs/1610.08528>`_.
+
+When a star cluster particle reaches the end of its lifetime, we inject a
+toroidal loop of magnetic field at its position in *hydro_rk/Grid_MHDSourceTerms*. The spatial and temporal
+evolution of the injected magnetic energy and magnetic field is chosen to be: 
+
+ .. math::
+
+  \dot{U}_{B,\, {source}} = \tau^{-1} \frac{B_0^2}{4\pi} \frac{R}{L}
+  e^{-r^2/L^2} e^{-t/\tau} (1-e^{-t/\tau})\\
+  \mathbf{\dot{B}}_{source} = \tau^{-1} B_0 \left(\frac{R}{L}\right)^{1/2}
+  e^{- r^2 / 2L^2} e^{-t / \tau} \, \hat{\mathbf{e}}_\phi 
+
+where t is the time since the 'death' of the star cluster particle,
+:math:`\tau` is the ``SupernovaSeedFieldDuration``, R is the cylindrical
+radius, r is the spherical radius, and L is the ``SupernovaSeedFieldRadius``. 
+
+.. figure:: magnetic-feedback.png
+   :align: center
+   :scale: 70%
+   :alt: Two-dimensional schematic overview of the life cycle of a star
+   cluster particle and two channels of its feedback. Left: Star cluster
+   particle formation. Middle: Thermal feedback. Thermal energy by Type II
+   supernova explosion is injected into the gas cell in which a star cluster
+   particle of age less than 120 Myr resides. Right: Magnetic
+   feedback. Toroidal magnetic fields are seeded within three finest cells
+   from a star cluster particle. 
+
+

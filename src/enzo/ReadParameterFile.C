@@ -1263,7 +1263,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line,"SupernovaSeedFieldRadius = %"FSYM, &SupernovaSeedFieldRadius);
     ret += sscanf(line,"SupernovaSeedFieldEnergy = %"FSYM, &SupernovaSeedFieldEnergy);
     ret += sscanf(line,"SupernovaSeedFieldDuration = %"FSYM, &SupernovaSeedFieldDuration);
-    ret += sscanf(line,"SupernovaSeedFieldSigma = %"FSYM, &SupernovaSeedFieldSigma);
 
     /* If the dummy char space was used, then make another. */
  

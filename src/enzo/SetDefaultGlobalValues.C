@@ -977,11 +977,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* Supernova magnetic seed field */
   /* Default == 0 -> no magnetic field contribution */
   UseSupernovaSeedFieldSourceTerms = 0;
-  SupernovaSeedFieldRadius = 6e-4;
-  SupernovaSeedFieldDuration = 1e-3;
-  SupernovaSeedFieldEnergy = 1e-10;
-  SupernovaSeedFieldSigma = 1.0;
-
+  SupernovaSeedFieldRadius = 0.0;
+  SupernovaSeedFieldDuration = 0.0;
+  SupernovaSeedFieldEnergy = 0.0;
 
   return SUCCESS;
 }

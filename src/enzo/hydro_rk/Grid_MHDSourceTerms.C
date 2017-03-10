@@ -432,9 +432,9 @@ if((UseSupernovaSeedFieldSourceTerms == 1)) {
 	    dU[iBx][n] += S.dbx*dtFixed;
 	    dU[iBy][n] += S.dby*dtFixed;
 	    dU[iBz][n] += S.dbz*dtFixed;
-	    dU[iEtot][n] += S.dUtot*dtFixed/rho;
+	    dU[iEtot][n] += S.dUtot*dtFixed;
 
-          }
+	  }
 	  P = P->next();
 	}// End of SuperNovaList iteration                                                                                           
       } // End of k for-loop                                                                                                         
