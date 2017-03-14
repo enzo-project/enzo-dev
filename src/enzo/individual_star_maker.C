@@ -154,6 +154,170 @@ void IndividualStarInterpolateProperties(float &Teff, float &R,
 
 int search_lower_bound(float *arr, float value, int low, int high, int total);
 
+int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
+                                       int *ParticleType, FLOAT *ParticlePosition[],
+                                       float *ParticleVelocity[], float *ParticleAttribute[]){
+
+  /* only do this on the root processor */
+  if (!(GalaxySimulationInitialStellarDist))
+    return SUCCESS;
+
+//  if !(MyProcessorNumber == ROOT_PROCESSOR)
+//   return SUCCESS;
+
+  if (ProcessorNumber != MyProcessorNumber)
+    return SUCCESS;
+
+  printf("Current time %"FSYM"\n", this->Time);
+  if (this->Time > 0) return SUCCESS;
+
+  printf("number of subgrids %"ISYM"\n", this->NumberOfSubgrids);
+  if (this->NumberOfSubgrids > 1)  // only do on highest refined grid
+    return SUCCESS;
+
+  /* get units */
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, this->Time) == FAIL){
+      ENZO_FAIL("Error in GetUnits");
+  }
+  MassUnits   = DensityUnits*LengthUnits*LengthUnits*LengthUnits; // mass units
+
+  /* obtain baryon field indexes */
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
+  this->DebugCheck("StarParticleHandler");
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+  }
+
+  const float msolar = 1.989E33;
+
+  int nstar = 0;
+  const int maxstar = 10000;
+  FLOAT xpos[maxstar], ypos[maxstar], zpos[maxstar];
+  float mass[maxstar], z[maxstar];
+
+  printf("nmax = %"ISYM"\n",*nmax);
+
+  FILE *fptr = fopen("particle_IC.in", "r");
+
+  if (fptr == NULL){
+    ENZO_FAIL("Error opening star initial positions\n");
+  }
+
+  char line[MAX_LINE_LENGTH];
+  int err;
+  int i = 0;
+  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
+    if(line[0] != '#'){
+      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                         &mass[i], &z[i], &xpos[i], &ypos[i], &zpos[i]);
+      i++;
+    }
+  }
+  fclose(fptr);
+
+  nstar = i - 1;
+
+  int  nx = this->GridDimension[0], ny = this->GridDimension[1], nz = this->GridDimension[2];
+  int  ibuff = NumberOfGhostZones;
+
+  int count = 0;
+  FLOAT cell_volume = this->CellWidth[0][0]*this->CellWidth[0][0]*this->CellWidth[0][0];
+  for( i = 0; i < nstar; i++){
+
+    xpos[i] = xpos[i]*pc/LengthUnits + DiskGravityPosition[0];
+    ypos[i] = ypos[i]*pc/LengthUnits + DiskGravityPosition[1];
+    zpos[i] = zpos[i]*pc/LengthUnits + DiskGravityPosition[2];
+
+    // make sure particle position is on this grid / processor
+    if( !( (xpos[i] > this->CellLeftEdge[0][ibuff]) && (xpos[i] < this->CellLeftEdge[0][nx - ibuff] )) ||
+        !( (ypos[i] > this->CellLeftEdge[1][ibuff]) && (ypos[i] < this->CellLeftEdge[1][ny - ibuff] )) ||
+        !( (zpos[i] > this->CellLeftEdge[2][ibuff]) && (zpos[i] < this->CellLeftEdge[2][nz - ibuff] )) ) {
+      continue;
+    }
+
+
+    ParticleMass[count] = mass[i] * msolar / MassUnits / (cell_volume);
+    ParticleAttribute[3][count] = mass[i]; // birth mass in solar units always
+    ParticleType[count] = - PARTICLE_TYPE_INDIVIDUAL_STAR;
+    ParticleAttribute[0][count] = this->Time;
+
+    IndividualStarInterpolateLifetime(ParticleAttribute[1][count],
+                                      mass[i], z[i], 1);
+
+    ParticleAttribute[1][count] /= TimeUnits;
+
+    ParticlePosition[0][count] = xpos[i];
+    ParticlePosition[1][count] = ypos[i];
+    ParticlePosition[2][count] = zpos[i];
+
+/*
+    ParticleVelocity[0][i] = (vx[i]*1.0E5 / VelocityUnits);
+    ParticleVelocity[1][i] = (vy[i]*1.0E5 / VelocityUnits);
+    ParticleVelocity[2][i] = (vz[i]*1.0E5 / VelocityUnits);
+*/
+
+    int ip, jp, kp, index;
+    ip = int ( (ParticlePosition[0][count] - (this->CellLeftEdge[0][0])) / (this->CellWidth[0][0]));
+    jp = int ( (ParticlePosition[1][count] - (this->CellLeftEdge[1][0])) / (this->CellWidth[0][0]));
+    kp = int ( (ParticlePosition[2][count] - (this->CellLeftEdge[2][0])) / (this->CellWidth[0][0]));
+
+    index  = ip + (jp + kp * (ny)) * (nx); // flat array index
+    ParticleVelocity[0][count] = BaryonField[Vel1Num][index];
+    ParticleVelocity[1][count] = BaryonField[Vel2Num][index];
+    ParticleVelocity[2][count] = BaryonField[Vel3Num][index];
+
+
+
+    /* now assign metal abundnace fractions as all tiny numbers  */
+    if (TestProblemData.MultiMetals == 2){
+      for (int is = 0; is < StellarYieldsNumberOfSpecies; is++){
+        ParticleAttribute[4 + is][count] = tiny_number;
+      }
+    }
+
+    /* now go trough and assign the interpolation table positions so we don't have to again */
+    int tstart = ParticleAttributeTableStartIndex;
+
+    // stellar evolution table (attr 3 = birth mass, attr 2 = metallicity)
+    int t_i = -1, t_j = -1, t_k = -1;
+    IndividualStarGetSETablePosition(t_i, t_j,
+                                     ParticleAttribute[3][count], ParticleAttribute[2][count]);
+    ParticleAttribute[tstart    ][count] = t_i;
+    ParticleAttribute[tstart + 1][count] = t_j;
+    // radiation properties table (only do if particle can radiate - saves time)
+    if( ParticleAttribute[3][count] >= IndividualStarRadiationMinimumMass){
+      float Teff, R;
+      IndividualStarInterpolateProperties(Teff, R, (int)ParticleAttribute[tstart][count],
+                                          (int)ParticleAttribute[tstart+1][count],
+                                          ParticleAttribute[3][count], ParticleAttribute[2][count]);
+      float g = IndividualStarSurfaceGravity(ParticleAttribute[3][count], R);
+      t_i = -1; t_j = -1; t_k = -1;
+      IndividualStarGetRadTablePosition(t_i, t_j, t_k,
+                                        Teff, g, ParticleAttribute[2][count]);
+      ParticleAttribute[tstart + 2][count] = t_i;
+      ParticleAttribute[tstart + 3][count] = t_j;
+      ParticleAttribute[tstart + 4][count] = t_k;
+    } // end radiation check
+
+    t_i = -1 ; t_j = -1;
+    StellarYieldsGetYieldTablePosition(t_i, t_j,
+                                       ParticleAttribute[3][count], ParticleAttribute[2][count]);
+    ParticleAttribute[tstart + 5][count] = t_i;
+    ParticleAttribute[tstart + 6][count] = t_j;
+
+    count++;
+  }
+
+  *np = count - 1;
+
+  printf("P(%"ISYM") formed %"ISYM" stars of %"ISYM"\n", MyProcessorNumber, count, nstar);
+
+  return SUCCESS;
+}
+
+
 int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *ParticleMass,
                                                int *ParticleType, FLOAT *ParticlePosition[],
                                                float *ParticleVelocity[], float *ParticleAttribute[]){
@@ -259,6 +423,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
       ParticleVelocity[1][i] = yvel[i]*1.0E5 / VelocityUnits;
       ParticleVelocity[2][i] = zvel[i]*1.0E5 / VelocityUnits;
 
+
       // find grid cell and assign chemical tags
       int ip, jp, kp, n;
       ip = int ( (ParticlePosition[0][i] - (xstart)) / (dx));
@@ -289,8 +454,9 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
                                            BaryonField[HeIINum][n] + BaryonField[HeIIINum][n];
 
           }
-        }
-      }
+        } // end loop over species
+      } // end species tagging
+
       /* now go trough and assign the interpolation table positions so we don't have to again */
       int tstart = ParticleAttributeTableStartIndex;
 
@@ -492,6 +658,16 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     if (this->chemical_evolution_test_star_deposit(nmax, np, ParticleMass,
                                                    ParticleType, ParticlePosition,
                                                    ParticleVelocity, ParticleAttribute) == FAIL){
+      return FAIL;
+    }
+
+    return SUCCESS;
+  } else if (ProblemType == 31 && GalaxySimulationInitialStellarDist){
+
+    printf("Initializing stellar distribution\n");
+    if (this->GalaxySimulationInitialStars(nmax, np, ParticleMass, ParticleType,
+                                           ParticlePosition, ParticleVelocity,
+                                           ParticleAttribute) == FAIL){
       return FAIL;
     }
 

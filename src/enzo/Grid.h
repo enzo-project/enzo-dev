@@ -2222,6 +2222,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                            int *ParticleType, FLOAT *ParticlePosition[],
                                            float *ParticleVelocity[], float *ParticleAttribute[]);
 
+  int GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass, int *ParticleType,
+                                   FLOAT *ParticlePosition[], float *ParticleVelocity[],
+                                   float *ParticleAttribute[]);
+
 
   int individual_star_maker( float *dm, float *temp, int *nmax, float *mu, int *np,
                              float *ParticleMass,

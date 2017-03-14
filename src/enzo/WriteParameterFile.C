@@ -482,6 +482,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "GalaxySimulationPreWindTotalEnergy = %"GSYM"\n",GalaxySimulationPreWindTotalEnergy);
   fprintf(fptr, "GalaxySimulationPreWindVelocity    = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, GalaxySimulationPreWindVelocity);
+
+  fprintf(fptr, "GalaxySimulationInitialStellarDist = %"ISYM"\n", GalaxySimulationInitialStellarDist);
  
   fprintf(fptr, "GreensFunctionMaxNumber     = %"ISYM"\n", GreensFunctionMaxNumber);
   fprintf(fptr, "GreensFunctionMaxSize       = %"ISYM"\n", GreensFunctionMaxSize);

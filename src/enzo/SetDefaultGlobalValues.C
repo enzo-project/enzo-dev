@@ -397,6 +397,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GalaxySimulationPreWindDensity = 1.0;
   GalaxySimulationPreWindTotalEnergy = 1.0;
 
+  GalaxySimulationInitialStellarDist = 0;          // only works in individual star maker - initialize a stellar distribution if ON
+
   GreensFunctionMaxNumber     = 1;                 // only one at a time
   GreensFunctionMaxSize       = 1;                 // not used yet
  

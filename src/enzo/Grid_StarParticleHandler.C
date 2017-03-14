@@ -796,6 +796,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     /* Allocate space for new particles. */
  
     int MaximumNumberOfNewParticles = int(0.25*float(size)) + 5;
+
+    if (ProblemType == 31 && GalaxySimulationInitialStellarDist && this->Time < 1){
+        MaximumNumberOfNewParticles = 10000;
+    }
+
     tg->AllocateNewParticles(MaximumNumberOfNewParticles);
  
     /* Compute the cooling time. */
@@ -1080,7 +1085,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       NumberOfNewParticlesSoFar = NumberOfNewParticles; 
 
       // Only attempt if on max refiment level
-      if ( level == MaximumRefinementLevel){
+      if ( level == MaximumRefinementLevel ||
+           ((ProblemType == 31) && (GalaxySimulationInitialStellarDist) && (this->Time == 0.0)) ){
         // lets try and form stars
         if(individual_star_maker(dmfield, temperature,
                                  &MaximumNumberOfNewParticles,

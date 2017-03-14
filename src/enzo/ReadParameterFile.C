@@ -927,6 +927,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
      ret += sscanf(line, "GalaxySimulationPreWindTotalEnergy = %"FSYM,&GalaxySimulationPreWindTotalEnergy);
      ret += sscanf(line, "GalaxySimulationPreWindVelocity = %"PSYM" %"PSYM" %"PSYM,
          GalaxySimulationPreWindVelocity,GalaxySimulationPreWindVelocity+1,GalaxySimulationPreWindVelocity+2);
+
+    ret += sscanf(line, "GalaxySimulationInitialStellarDist = %"ISYM, &GalaxySimulationInitialStellarDist);
  
     /* Read chemical evolution test parameters */
     ret += sscanf(line, "ChemicalEvolutionTestStarPosition = %"PSYM" %"PSYM" %"PSYM,
@@ -1473,7 +1475,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TurbulenceSimulation")) ret++;
     if (strstr(line, "ProtostellarCollapse")) ret++;
     if (strstr(line, "GalaxySimulation") 
-			&& !strstr(line,"RPSWind") && !strstr(line,"PreWind") ) ret++;
+			&& !strstr(line,"RPSWind") && !strstr(line,"PreWind")  && !strstr(line,"InitialStellar")) ret++;
     if (strstr(line, "AgoraRestart")) ret++;
     if (strstr(line, "ConductionTest")) ret++;
     if (strstr(line, "ConductionBubble")) ret++;
