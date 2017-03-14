@@ -1434,6 +1434,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
       SGSNeedMixedFilteredQuantities = 1;
 
+  if (! (HydroMethod == MHD_Li || HydroMethod == MHD_RK) && (
+    SGScoeffNLemfCompr != 0. ||
+    SGScoeffNLb != 0. ||
+    SGScoeffERS2J2 != 0. ||
+    SGScoeffERS2M2Star != 0. ||
+    SGScoeffSSb != 0. ||
+    SGScoeffSSemf != 0))
+    ENZO_FAIL("SGS terms related to MHD should be set to 0 for hydro sims.\n");
+
 
 
   /* Now we know which hydro solver we're using, we can assign the

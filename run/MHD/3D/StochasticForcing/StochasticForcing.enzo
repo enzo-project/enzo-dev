@@ -64,4 +64,23 @@ DrivenFlowDensity    = 1.0        # initial uniform density
 DrivenFlowPressure   = 1.0        # initial uniform pressure
 DrivenFlowMagField  = 3.1622777   # initial uniform field (x direction)
 
+UseSGSModel = 1 # use SGS model
 
+SGSFilterWidth = 2.7110
+SGSFilterStencil = 3
+SGSFilterWeights = 0.40150 0.29925 0.00000 0.0
+
+SGScoeffNLemfCompr = 1.0 # compr. unscaled  nonliner model EMF
+SGScoeffNLu = 1.0 # compr. unscaled nonlinear model tauU
+SGScoeffNLb = 0.0 # compr. unscaled nonlinear model tauB
+#SGScoeffERS2J2 = 0.0 # eddy resistivity EMF model scaled by Smag.
+#energies
+##SGScoeffERS2M2Star = 0.012 # eddy resistivity EMF model scaled by
+#realiz. energies
+##SGScoeffEVStarEnS2Star = 0.01 # eddy viscosity tauUstar scaled by
+#realiz. energies
+##SGScoeffEnS2StarTrace = 0.08 # tauUtrace - SGS energy coeff from
+#realiz. energies
+##SGScoeffSSu = 0.67
+##SGScoeffSSb = 0.9
+##SGScoeffSSemf = 0.89 

@@ -65,7 +65,13 @@ int grid::SGSUtil_FilterFields() {
         EndIndex[dim] = GridEndIndex[dim] + 2;
     }
 
-    for (int m = 0; m < 7; m++)
+    int NumFilteredFields;
+    if (UseMHD)
+      NumFilteredFields = 7;
+    else
+      NumFilteredFields = 4;
+
+    for (int m = 0; m < NumFilteredFields; m++)
         if (FilteredFields[m] == NULL) {
             FilteredFields[m] = new float[size];
             for (int o = 0; o < size; o++)
@@ -82,7 +88,7 @@ int grid::SGSUtil_FilterFields() {
         
         igrid = i + (j+k*GridDimension[1])*GridDimension[0];
 
-        for (int l = 0; l < 7; l++)
+        for (int l = 0; l < NumFilteredFields; l++)
             FilteredFields[l][igrid] = 0.;
 
         for (int  l = -N; l <= N; l++)
@@ -102,9 +108,11 @@ int grid::SGSUtil_FilterFields() {
             FilteredFields[3][igrid] += totalWeight * BaryonField[DensNum][ifilter]*BaryonField[Vel3Num][ifilter];
             
             // magnetic fields
-            FilteredFields[4][igrid] += totalWeight * BaryonField[B1Num][ifilter];
-            FilteredFields[5][igrid] += totalWeight * BaryonField[B2Num][ifilter];
-            FilteredFields[6][igrid] += totalWeight * BaryonField[B3Num][ifilter];
+            if (UseMHD) {
+              FilteredFields[4][igrid] += totalWeight * BaryonField[B1Num][ifilter];
+              FilteredFields[5][igrid] += totalWeight * BaryonField[B2Num][ifilter];
+              FilteredFields[6][igrid] += totalWeight * BaryonField[B3Num][ifilter];
+            }
         }
 
         // now that the density is filtered, we can finalize mass-weighted filtering
@@ -229,18 +237,23 @@ int grid::SGSUtil_ComputeMixedFilteredQuantities() {
             for (int o = 0; o < size; o++)
                 FltrhoUU[m][o] = 0.;
         }
-        if (FltBB[m] == NULL) {
-            FltBB[m] = new float[size];
-            for (int o = 0; o < size; o++)
-                FltBB[m][o] = 0.;
-        }
     }
-    for (int m = 0; m < 3; m++) {
-        if (FltUB[m] == NULL) {
-            FltUB[m] = new float[size];
-            for (int o = 0; o < size; o++)
-                FltUB[m][o] = 0.;
-        }
+    
+    if (UseMHD) {
+      for (int m = 0; m < 6; m++) {
+          if (FltBB[m] == NULL) {
+              FltBB[m] = new float[size];
+              for (int o = 0; o < size; o++)
+                  FltBB[m][o] = 0.;
+          }
+      }
+      for (int m = 0; m < 3; m++) {
+          if (FltUB[m] == NULL) {
+              FltUB[m] = new float[size];
+              for (int o = 0; o < size; o++)
+                  FltUB[m][o] = 0.;
+          }
+      }
     }
 
     int N = SGSFilterStencil/2;
@@ -281,6 +294,9 @@ int grid::SGSUtil_ComputeMixedFilteredQuantities() {
                 BaryonField[Vel2Num][ifilter] * BaryonField[Vel3Num][ifilter];
             FltrhoUU[XZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
                 BaryonField[Vel1Num][ifilter] * BaryonField[Vel3Num][ifilter];
+
+            if (!UseMHD)
+              continue;
             
             FltBB[XX][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B1Num][ifilter];
             FltBB[YY][igrid] += totalWeight * BaryonField[B2Num][ifilter] * BaryonField[B2Num][ifilter];
