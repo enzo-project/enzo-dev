@@ -85,7 +85,7 @@ c
 c           only do this for must-refine particles
 c
             if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2 
-     &           .or. itype(n) .eq. imatch3
+     &           .or. (abs(itype(n)) .eq. imatch3)
      &           .or. partmass(n) .lt. unipartmass) then
 c
 c	    only for particles above minimum mass

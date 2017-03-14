@@ -240,13 +240,14 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
 
     ParticleMass[count] = mass[i] * msolar / MassUnits / (cell_volume);
     ParticleAttribute[3][count] = mass[i]; // birth mass in solar units always
-    ParticleType[count] = - PARTICLE_TYPE_INDIVIDUAL_STAR;
-    ParticleAttribute[0][count] = this->Time;
+    ParticleType[count] = -PARTICLE_TYPE_INDIVIDUAL_STAR;
+    ParticleAttribute[0][count] = this->Time + 2.0*this->dtFixed;
 
     IndividualStarInterpolateLifetime(ParticleAttribute[1][count],
                                       mass[i], z[i], 1);
 
     ParticleAttribute[1][count] /= TimeUnits;
+    ParticleAttribute[2][count]  = z[i];
 
     ParticlePosition[0][count] = xpos[i];
     ParticlePosition[1][count] = ypos[i];
