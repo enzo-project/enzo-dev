@@ -588,6 +588,8 @@ typedef int            HDF5_hid_t;
 
 #define EXTERNAL_GRAVITY_ENTRIES 1000
 
+#define DOUBLE_POWER_DG_POINTS 1000
+
 #ifdef USE_MPI
 #else /* USE_MPI */
 //#undef MEM_TRACE
