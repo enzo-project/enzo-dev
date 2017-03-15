@@ -168,10 +168,8 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
-  printf("Current time %"FSYM"\n", this->Time);
   if (this->Time > 0) return SUCCESS;
 
-  printf("number of subgrids %"ISYM"\n", this->NumberOfSubgrids);
   if (this->NumberOfSubgrids > 1)  // only do on highest refined grid
     return SUCCESS;
 
@@ -196,8 +194,6 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
   const int maxstar = 10000;
   FLOAT xpos[maxstar], ypos[maxstar], zpos[maxstar];
   float mass[maxstar], z[maxstar];
-
-  printf("nmax = %"ISYM"\n",*nmax);
 
   FILE *fptr = fopen("particle_IC.in", "r");
 
@@ -665,7 +661,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     return SUCCESS;
   } else if (ProblemType == 31 && GalaxySimulationInitialStellarDist){
 
-    printf("Initializing stellar distribution\n");
     if (this->GalaxySimulationInitialStars(nmax, np, ParticleMass, ParticleType,
                                            ParticlePosition, ParticleVelocity,
                                            ParticleAttribute) == FAIL){
