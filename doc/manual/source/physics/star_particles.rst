@@ -585,13 +585,14 @@ radius, r is the spherical radius, and L is the ``SupernovaSeedFieldRadius``.
 
 .. figure:: magnetic-feedback.png
    :align: center
-   :scale: 70%
-   :alt: Two-dimensional schematic overview of the life cycle of a star
-   cluster particle and two channels of its feedback. Left: Star cluster
-   particle formation. Middle: Thermal feedback. Thermal energy by Type II
-   supernova explosion is injected into the gas cell in which a star cluster
-   particle of age less than 120 Myr resides. Right: Magnetic
-   feedback. Toroidal magnetic fields are seeded within three finest cells
-   from a star cluster particle. 
+   :scale: 25%
+   :alt: Magnetic feedback schematic.
 
+Two-dimensional schematic overview of the life cycle of a star
+cluster particle and two channels of its feedback. Left: Star cluster
+particle formation. Middle: Thermal feedback. Thermal energy by Type II
+supernova explosion is injected into the gas cell in which a star cluster
+particle of age less than 120 Myr resides. Right: Magnetic
+feedback. Toroidal magnetic fields are seeded within three finest cells
+from a star cluster particle. 
 
