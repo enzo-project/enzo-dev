@@ -373,6 +373,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityDarkMatterMassInterior  = 0.0;         // solar masses - Only used when above is -1
   DiskGravityDarkMatterMassInteriorR = 0.0;         // Mpc - Only used in conjuction with above
 
+  DiskGravityDoublePower             = FALSE;       // use general doubnle power law DM dis - use with particles
+  DiskGravityDoublePowerR            = NULL;
+  DiskGravityDoublePowerMass         = NULL;
+  DiskGravityDoublePowerPot          = NULL;
+  DiskGravityDarkMatterCutoffR       = huge_number;
+  DiskGravityDarkMatterAlpha         = 1.0;
+  DiskGravityDarkMatterBeta          = 3.0;
+  DiskGravityDarkMatterGamma         = 1.0;
+
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
   AccretionKernal             = FALSE;             // off

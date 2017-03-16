@@ -50,6 +50,8 @@ int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
 
 float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity, const int &atomic_number);
 
+double DoublePowerInterpolateMass(double r);
+
 /* Internal routines */
 
 float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, 
@@ -97,7 +99,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 int level,
 					 float GalaxySimulationCR,
                                          int   GalaxySimulationUseDensityPerturbation,
-                                         float GalaxySimulationPerturbationFraction )
+                                         float GalaxySimulationPerturbationFraction)
 {
  /* declarations */
 
@@ -720,6 +722,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    }
  } // end loop over grid
 
+
+
  return SUCCESS;
 }
 
@@ -875,6 +879,8 @@ double DiskPotentialDarkMatterMass(FLOAT R){
  */
  FLOAT  R0 = DiskGravityDarkMatterR*Mpc, x=R/R0*LengthUnits;
  double M0 = pi*DiskGravityDarkMatterDensity*R0*R0*R0;
+
+ if (DiskGravityDoublePower) return DoublePowerInterpolateMass(R*LengthUnits);
 
  return M0*(-2.0*atan(x)+2.0*log(1+x)+log(1.0+x*x));
 } // end DiskPotentialDarkMatterMass
@@ -1113,11 +1119,17 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
   /* Calculate Gravity = Fg_DM + Fg_StellarDisk + Fg_StellaDiskGravityStellarBulgeR */
 
-  FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*
+
+  if (DiskGravityDoublePower){
+    FtotR = GravConst * drcyl*LengthUnits * DoublePowerInterpolateMass(drcyl*LengthUnits)/
+                  (drcyl*drcyl*LengthUnits*LengthUnits);
+  } else{
+    FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*
           POW(DiskGravityDarkMatterR*Mpc,3)/POW(rsph,3)*drcyl*LengthUnits
 	  *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc) + 
 	    2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc) +
 	    log(1.0+POW(rsph/DiskGravityDarkMatterR/Mpc,2)));
+  }
 
   FtotR += -GravConst*DiskGravityStellarDiskMass*SolarMass*drcyl*LengthUnits
 	  /sqrt(POW(POW(drcyl*LengthUnits,2) + 
@@ -1237,12 +1249,19 @@ double PDMComp_general(double rvalue, double zint){
 
   rsph = sqrt(rvalue*rvalue + zint*zint);
 
-  /* fabs(zint) is because this is the force in the direction downward */
-  F    = (-pi)*GravConst*DiskGravityDarkMatterDensity*
+  // if double power law use this instead:
+
+  // looks like you take the acceleration in the |z| direction
+  if (DiskGravityDoublePower){
+    F = fabs(zint) * GravConst * DoublePowerInterpolateMass(rsph) / (rsph*rsph);
+  } else {
+    /* fabs(zint) is because this is the force in the direction downward */
+    F    = (-pi)*GravConst*DiskGravityDarkMatterDensity*
              POW(DiskGravityDarkMatterR*Mpc,3)/POW(rsph,3) * fabs(zint)
             *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc) + 
             2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc) +
             log(1.0+POW(rsph/DiskGravityDarkMatterR/Mpc,2)));
+  }
 
   return gas_density * F;
 }

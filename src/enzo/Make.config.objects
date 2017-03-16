@@ -139,6 +139,7 @@ OBJS_CONFIG_LIB = \
 	DetermineParallelism.o \
 	DetermineSubgridSizeExtrema.o \
         DoubleMachInitialize.o \
+        DoublePowerLawDiskGravity.o \
         E_ColumnFormat.o \
         ealFloat.o \
         ealInt.o \
@@ -457,6 +458,7 @@ OBJS_CONFIG_LIB = \
 	Grid_Gadgetfindabundancesandrates.o \
 	Grid_GadgetEquilibriumCooling.o \
 	Grid_GalaxySimulationInitializeGrid.o \
+        Grid_GalaxySimulationInitializeParticles.o \
         Grid_GetEnclosedMass.o \
         Grid_GetEnclosedMassInShell.o \
         Grid_GetProjectedBoundaryFluxes.o \

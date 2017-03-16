@@ -48,6 +48,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
        float *TemperatureUnits, float *TimeUnits,
        float *VelocityUnits, double *MassUnits, FLOAT Time);
 
+int InitializeDoublePowerDarkMatter(void);
+
 char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
 
 
@@ -132,12 +134,16 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   int   GalaxySimulationRefineAtStart,
     GalaxySimulationUseMetallicityField,
-    GalaxySimulationUseDensityPerturbation;
+    GalaxySimulationUseDensityPerturbation,
+    GalaxySimulationDarkMatterParticles;
 
   float GalaxySimulationPerturbationFraction;
  
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ZeroBField[3] = {0.0, 0.0, 0.0};
+
+  float *DMParticleMass;
+  float *DMParticlePosition[MAX_DIMENSION], *DMParticleVelocity[MAX_DIMENSION];
 
   /* Chemical tracers */
   float GalaxySimulationInitialDiskMetallicity, GalaxySimulationInitialHaloMetallicity;
@@ -163,6 +169,13 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationInflowDensity      = 0;
   GalaxySimulationUseDensityPerturbation = 0;
   GalaxySimulationPerturbationFraction   = 0.5;
+  GalaxySimulationDarkMatterParticles = FALSE;
+
+  DMParticleMass = NULL;
+  for (int dim = 0; dim < MAX_DIMENSION; dim++){
+    DMParticlePosition[dim] = NULL;
+    DMParticleVelocity[dim] = NULL;
+  }
 
   /* Chemical tracer defaults in SetDefaultGlobalValues.C; set to tiny_number */
 
@@ -385,6 +398,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
 
 
+    ret += sscanf(line, "GalaxySimulationDarkMatterParticles = %"ISYM,
+                        &GalaxySimulationDarkMatterParticles);
 
     ret += sscanf(line, "TestProblemUseMetallicityField = %"ISYM,
                         &TestProblemData.UseMetallicityField);
@@ -420,6 +435,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationRPSWindDelay = GalaxySimulationRPSWindDelay/TimeUnits;
 
   TestProblemData.MultiSpecies = MultiSpecies;
+
+  /* initialize dark matter */
+  if (DiskGravityDoublePower) InitializeDoublePowerDarkMatter() ;
 
 
   /* Align gaseous and stellar disks */
@@ -480,12 +498,12 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
 
   /* If requested, refine the grid to the desired level. */
-
+  LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
   if (GalaxySimulationRefineAtStart) {
 
     /* Declare, initialize and fill out the LevelArray. */
 
-    LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
+  //  LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       LevelArray[level] = NULL;
     AddLevel(LevelArray, &TopGrid, 0);
@@ -500,6 +518,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       }
       if (LevelArray[level+1] == NULL)
 	break;
+
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
 
@@ -550,6 +569,59 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     }
 
   } // end: if (GalaxySimulationRefineAtStart)
+
+  /* If we are using dark matter particles, loop through grids depositing the particles */
+  if (DiskGravityDoublePower && GalaxySimulationDarkMatterParticles){
+    const int MAXIMUM_NUMBER_OF_INITIAL_PARTICLES = 1000000;
+
+    /* Read in the particles */
+    DMParticleMass = new float[MAXIMUM_NUMBER_OF_INITIAL_PARTICLES];
+    for(int dim = 0; dim < MAX_DIMENSION; dim++){
+      DMParticlePosition[dim] = new float[MAXIMUM_NUMBER_OF_INITIAL_PARTICLES];
+      DMParticleVelocity[dim] = new float[MAXIMUM_NUMBER_OF_INITIAL_PARTICLES];
+    }
+
+    char line[MAX_LINE_LENGTH];
+    int err;
+
+    FILE *fptr = fopen("GalaxySimulationParticleIC.in", "r");
+    if (fptr == NULL){
+      ENZO_FAIL("Error opening galaxy simulation dark matter particle positions\n");
+    }
+
+    while(fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
+      if (line[0] != '#'){
+        err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                          &DMParticleMass[i], 
+                          &DMParticlePosition[0][i], &DMParticlePosition[1][i], &DMParticlePosition[2][i],
+                          &DMParticleVelocity[0][i], &DMParticleVelocity[1][i], &DMParticleVelocity[2][i]);
+        i++;
+      }
+    }
+    fclose(fptr);
+    int NumberOfDMParticles = i;
+
+    /* Now deposit the particles */
+    LevelHierarchyEntry *Temp;
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level ++){
+
+      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
+        if (Temp->GridData->GalaxySimulationInitializeParticles(NumberOfDMParticles,
+                                                                DMParticleMass, DMParticlePosition,
+                                                                DMParticleVelocity) == FAIL){
+          fprintf(stderr, "Error in grid->GalaxySimulationInitializeParticles.\n");
+          return FAIL;
+        }
+      }
+    }
+
+    delete [] DMParticleMass;
+
+    for(int dim = 0; dim <MAX_DIMENSION; dim++){
+      delete [] DMParticlePosition[dim];
+      delete [] DMParticleVelocity[dim];
+    }
+  }
 
   /* If Galaxy is Subject to ICM Wind, Initialize the exterior */
 

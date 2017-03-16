@@ -285,6 +285,15 @@ EXTERN float DiskGravityDarkMatterDensity;
 EXTERN float DiskGravityDarkMatterMassInterior;
 EXTERN float DiskGravityDarkMatterMassInteriorR;
 
+EXTERN int DiskGravityDoublePower;
+EXTERN float *DiskGravityDoublePowerMass;
+EXTERN float *DiskGravityDoublePowerR;
+EXTERN float *DiskGravityDoublePowerPot;
+EXTERN float DiskGravityDarkMatterCutoffR;
+EXTERN float DiskGravityDarkMatterAlpha;
+EXTERN float DiskGravityDarkMatterBeta;
+EXTERN float DiskGravityDarkMatterGamma;
+
 /* SelfGravity (TRUE or FALSE) */
 
 EXTERN int SelfGravity;
