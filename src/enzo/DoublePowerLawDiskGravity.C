@@ -61,7 +61,13 @@ double integrate(double (*function)(double), double a, double b){
 
   }
 
-  fprintf(stderr, "WARNING TOO MANY STEPS IN INTEGRATION\n");
+  fprintf(stderr,"Warning!\n");
+  fprintf(stderr,"Too many steps in function integral!\n");
+  fprintf(stderr,"a = %"ESYM"\n",a);
+  fprintf(stderr,"b = %"ESYM"\n",b);
+  fprintf(stderr,"sum = %"ESYM"\n",sb);
+  fprintf(stderr,"Sum not converged within tolerance of %e\n",tol);
+  fprintf(stderr,"Abort tolerance was %e\n",fabs((sa-sb)/sb));
   return sb;
 }
 
@@ -84,7 +90,7 @@ double trapez(double (*function)(double), double a, double b, int n){
     sum = 0.5 * ((*function)(a) + (*function)(b));
 
     for(i = 1; i < (n+1); i++){
-      deltax = (b-a)/N[i];
+      deltax = (b-a)/((float) N[i]); // integer div issue in halogen?
       sumN = 0;
 
       for( j = 1; j < (N[i-1]+1); j++){
@@ -101,6 +107,14 @@ double trapez(double (*function)(double), double a, double b, int n){
     return value;
   }
 
+}
+
+void FinalizeDoublePowerDarkMatter(void){
+  /* do some clean up of arrays that we don't need anymore */
+  printf("Finished cleanup of dark matter functions \n");
+  delete [] DiskGravityDoublePowerMass;
+  delete [] DiskGravityDoublePowerPot;
+  delete [] DiskGravityDoublePowerR;
 }
 
 int InitializeDoublePowerDarkMatter(void){
@@ -120,19 +134,32 @@ int InitializeDoublePowerDarkMatter(void){
 
   float rmin, rmax, dr;
 
-  rmin = log10(0.001 * pc);
-  rmax = log10(DiskGravityDarkMatterCutoffR * Mpc);
+  rmin = log(1.0E-6 * DiskGravityDarkMatterR * Mpc); // in log
 
-  dr   = log10((rmax - rmin) / ((float) DOUBLE_POWER_DG_POINTS - 1));
+  float router = DiskGravityDarkMatterR * Mpc;
 
-  DiskGravityDoublePowerR[0]    = POW(10.0, rmin);
-  DiskGravityDoublePowerMass[0] = integrate(DoublePower_integrandMenc,
-                                            DiskGravityDoublePowerR[0] - POW(10.0, dr),
-                                            DiskGravityDoublePowerR[0]);
+  float temp = DoublePower_rho(DiskGravityDarkMatterR*Mpc);
+  while ((temp / DoublePower_rho(router)) < f_router){
+    router = router * sqrt(10);
+  }
+
+  rmax = log(router); // in log
+
+  dr   = (rmax - rmin) / ((float) DOUBLE_POWER_DG_POINTS - 1); // in log
+
+  DiskGravityDoublePowerR[0]    = exp(rmin);
+
+  float rhoHalor = DoublePower_rho(exp(rmin));
+  DiskGravityDoublePowerMass[0] = 4.0 * pi * rhoHalor * POW(exp(rmin),3.0) /(3.0 - DiskGravityDarkMatterGamma);
 
   for (int i = 1; i < DOUBLE_POWER_DG_POINTS; i++){
-    DiskGravityDoublePowerR[i]     = POW(10.0, rmin + dr*i);
-    DiskGravityDoublePowerMass[i] += integrate(DoublePower_integrandMenc,
+    DiskGravityDoublePowerR[i]     = exp(rmin + dr*i);
+
+    /* Add previous mass */
+    DiskGravityDoublePowerMass[i]   = DiskGravityDoublePowerMass[i-1];
+
+    /* integrate over next section */
+    DiskGravityDoublePowerMass[i]  += integrate(DoublePower_integrandMenc,
                                                DiskGravityDoublePowerR[i-1],
                                                DiskGravityDoublePowerR[i]);
   }
@@ -140,13 +167,6 @@ int InitializeDoublePowerDarkMatter(void){
   /* Below is a direct copy of halogen */
 
   float Potoutr = 0.0;
-
-  float router = DiskGravityDarkMatterR * Mpc;
-
-  while (DoublePower_rho(DiskGravityDarkMatterR*Mpc) / DoublePower_rho(router) < f_router){
-    router = router * sqrt(10);
-  }
-
 
   int index = DOUBLE_POWER_DG_POINTS - 1;
   if (DiskGravityDarkMatterBeta > 3){
@@ -169,12 +189,18 @@ int InitializeDoublePowerDarkMatter(void){
 
   }
 
+
+  printf("Initialized dark matter functions\n");
   return SUCCESS;
 }
 
 double DoublePowerInterpolateMass(double r){
 
   float M;
+
+  if (r > DiskGravityDoublePowerR[DOUBLE_POWER_DG_POINTS-1]){
+    return DiskGravityDoublePowerMass[DOUBLE_POWER_DG_POINTS-1];
+  }
 
   int index = search_lower_bound(DiskGravityDoublePowerR, r, 0, DOUBLE_POWER_DG_POINTS, DOUBLE_POWER_DG_POINTS);
   float coeff = LinearInterpolationCoefficient(index, r, DiskGravityDoublePowerR);
@@ -187,6 +213,8 @@ double DoublePowerInterpolateMass(double r){
 double DoublePowerInterpolatePotential(double r){
 
   float pot;
+
+
 
   int index = search_lower_bound(DiskGravityDoublePowerR, r, 0, DOUBLE_POWER_DG_POINTS, DOUBLE_POWER_DG_POINTS);
   float coeff = LinearInterpolationCoefficient(index, r, DiskGravityDoublePowerR);
@@ -254,7 +282,13 @@ double DoublePower_rho(double r){
       return DiskGravityDarkMatterDensity / DoublePower_tau(r);
 
     } else{
-      ENZO_FAIL("DoublePower_DiskGravity: Cannot currently compute outside cutoff radius of halo\n");
+      fac1 = POW( (r / (DiskGravityDarkMatterCutoffR*Mpc)), DiskGravityDarkMatterDelta);
+      fac2 = exp(-(r - (DiskGravityDarkMatterCutoffR*Mpc))/(DiskGravityDarkMatterRDecay*Mpc));
+
+      return (DiskGravityDarkMatterDensity / DoublePower_tau(DiskGravityDarkMatterCutoffR*Mpc) * fac1 * fac2);
+
     }
   }
+
+
 }

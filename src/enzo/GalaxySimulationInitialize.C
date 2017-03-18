@@ -49,6 +49,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
        float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 int InitializeDoublePowerDarkMatter(void);
+void FinalizeDoublePowerDarkMatter(void);
 
 char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
 
@@ -437,9 +438,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   TestProblemData.MultiSpecies = MultiSpecies;
 
   /* initialize dark matter */
-  if (DiskGravityDoublePower) InitializeDoublePowerDarkMatter() ;
-
-
   /* Align gaseous and stellar disks */
   if( DiskGravity > 0 ){
     for( i = 0 ; i < MAX_DIMENSION ; i++ )
@@ -455,7 +453,12 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
     }
 
+
+    if (DiskGravityDoublePower) InitializeDoublePowerDarkMatter() ;
+
   } // end DiskGravity if
+
+
 
   /* set up grid */
 
@@ -570,9 +573,15 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   } // end: if (GalaxySimulationRefineAtStart)
 
+  /* clean up dark matter interpolation arrays that we don't need anymore */
+  if (DiskGravityDoublePower){
+    FinalizeDoublePowerDarkMatter();
+  }
+
+
   /* If we are using dark matter particles, loop through grids depositing the particles */
   if (DiskGravityDoublePower && GalaxySimulationDarkMatterParticles){
-    const int MAXIMUM_NUMBER_OF_INITIAL_PARTICLES = 1000000;
+    const int MAXIMUM_NUMBER_OF_INITIAL_PARTICLES = 200000;
 
     /* Read in the particles */
     DMParticleMass = new float[MAXIMUM_NUMBER_OF_INITIAL_PARTICLES];
@@ -615,6 +624,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       }
     }
 
+    /* clean up */
     delete [] DMParticleMass;
 
     for(int dim = 0; dim <MAX_DIMENSION; dim++){

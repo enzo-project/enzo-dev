@@ -1121,7 +1121,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
 
   if (DiskGravityDoublePower){
-    FtotR = GravConst * drcyl*LengthUnits * DoublePowerInterpolateMass(drcyl*LengthUnits)/
+    FtotR = -GravConst * drcyl*LengthUnits * DoublePowerInterpolateMass(drcyl*LengthUnits)/
                   (drcyl*drcyl*LengthUnits*LengthUnits);
   } else{
     FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*
@@ -1253,7 +1253,7 @@ double PDMComp_general(double rvalue, double zint){
 
   // looks like you take the acceleration in the |z| direction
   if (DiskGravityDoublePower){
-    F = fabs(zint) * GravConst * DoublePowerInterpolateMass(rsph) / (rsph*rsph);
+    F = -fabs(zint) * GravConst * DoublePowerInterpolateMass(rsph) / (rsph*rsph*rsph); // i think this is cubed
   } else {
     /* fabs(zint) is because this is the force in the direction downward */
     F    = (-pi)*GravConst*DiskGravityDarkMatterDensity*

@@ -47,38 +47,54 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
 
   const float msolar = 1.989E33;
 
-  int  nx = this->GridDimension[0], ny = this->GridDimension[1], nz = this->GridDimension[2];
-  int  ibuff = NumberOfGhostZones;
-
   int count = 0;
   FLOAT cell_volume = this->CellWidth[0][0]*this->CellWidth[0][0]*this->CellWidth[0][0];
 
-  /* now loop through and deposit particles if they are on this grid */
+  int *particle_index;
+  particle_index = new int[NumberOfDMParticles];
+
+  /* find which particles belong on this grid
+     handle unit and coordinate conversions */
   for(int i = 0; i < NumberOfDMParticles; i++){
 
     int off_grid = 0;
     for(int dim = 0; dim < MAX_DIMENSION; dim ++){
       DMParticlePosition[dim][i] = DMParticlePosition[dim][i]*pc/LengthUnits + DiskGravityPosition[dim];
 
-      off_grid += !( (DMParticlePosition[dim][i] > this->CellLeftEdge[0][ibuff])*
-                     (DMParticlePosition[dim][i] < this->CellLeftEdge[dim][nx-ibuff]) );
+      off_grid += !( (DMParticlePosition[dim][i] > this->CellLeftEdge[dim][NumberOfGhostZones])*
+                     (DMParticlePosition[dim][i] < this->CellLeftEdge[dim][this->GridDimension[dim]-NumberOfGhostZones]) );
     }
+
+    particle_index[i] = -1;
 
     if (off_grid) continue;
-
-    for (int dim = 0; dim < MAX_DIMENSION; dim ++){
-      ParticlePosition[dim][count] = DMParticlePosition[dim][i];
-      ParticleVelocity[dim][count] = DMParticleVelocity[dim][i] * 1.0E5 / VelocityUnits;
-    }
-    ParticleMass[count] = DMParticleMass[i] * msolar / MassUnits / (cell_volume);
-
-    ParticleAttribute[0][count] = this->Time;
-    ParticleType[count] = PARTICLE_TYPE_DARK_MATTER;
-    ParticleNumber[count] = count;
-
+    particle_index[count] = i;
+    count++;
   }
 
-  printf("P(%"ISYM"): Deposited %"ISYM" Dark Matter Particles\n", MyProcessorNumber, count);
+  /* allocate memory for the new particles */
+  this->AllocateNewParticles(count);
+
+
+  /* now deposit the particles that belong to this grid */
+  if (count > 0){
+    for(int i = 0; i < count; i ++){
+      for (int dim = 0; dim < MAX_DIMENSION; dim ++){
+        ParticlePosition[dim][i] = DMParticlePosition[dim][particle_index[i]];
+        ParticleVelocity[dim][i] = DMParticleVelocity[dim][particle_index[i]] * 1.0E5 / VelocityUnits;
+      }
+      ParticleMass[i] = DMParticleMass[particle_index[i]] * msolar / MassUnits / (cell_volume);
+
+      ParticleAttribute[0][i] = this->Time;
+      ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
+      ParticleNumber[i] = i;
+    }
+  }
+
+  printf("P(%"ISYM"): Deposited %"ISYM" Dark Matter Particles out of %"ISYM"\n", MyProcessorNumber, count, NumberOfDMParticles);
+
+  // clean up
+  delete [] particle_index;
 
   return SUCCESS;
 }

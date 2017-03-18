@@ -493,6 +493,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "DiskGravityDarkMatterAlpha = %"FSYM, &DiskGravityDarkMatterAlpha);
     ret += sscanf(line, "DiskGravityDarkMatterBeta = %"FSYM, &DiskGravityDarkMatterBeta);
     ret += sscanf(line, "DiskGravityDarkMatterGamma = %"FSYM, &DiskGravityDarkMatterGamma);
+    ret += sscanf(line, "DiskGravityDarkMatterDelta = %"FSYM, &DiskGravityDarkMatterDelta);
+    ret += sscanf(line, "DiskGravityDarkMatterRDecay = %"FSYM, &DiskGravityDarkMatterRDecay);
 
 
     ret += sscanf(line, "ExternalGravity         = %"ISYM,&ExternalGravity);

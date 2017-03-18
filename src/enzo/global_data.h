@@ -293,6 +293,8 @@ EXTERN float DiskGravityDarkMatterCutoffR;
 EXTERN float DiskGravityDarkMatterAlpha;
 EXTERN float DiskGravityDarkMatterBeta;
 EXTERN float DiskGravityDarkMatterGamma;
+EXTERN float DiskGravityDarkMatterDelta;
+EXTERN float DiskGravityDarkMatterRDecay;
 
 /* SelfGravity (TRUE or FALSE) */
 

@@ -432,6 +432,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "DiskGravityDarkMatterAlpha = %"GSYM"\n", DiskGravityDarkMatterAlpha);
   fprintf(fptr, "DiskGravityDarkMatterBeta = %"GSYM"\n", DiskGravityDarkMatterBeta);
   fprintf(fptr, "DiskGravityDarkMatterGamma = %"GSYM"\n", DiskGravityDarkMatterGamma);
+  fprintf(fptr, "DiskGravityDarkMatterDelta = %"GSYM"\n", DiskGravityDarkMatterDelta);
+  fprintf(fptr, "DiskGravityDarkMatterRDecay = %"GSYM"\n", DiskGravityDarkMatterRDecay);
 
 
   fprintf(fptr, "ExternalGravity           = %"ISYM"\n",ExternalGravity); 

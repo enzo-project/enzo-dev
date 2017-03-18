@@ -381,6 +381,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityDarkMatterAlpha         = 1.0;
   DiskGravityDarkMatterBeta          = 3.0;
   DiskGravityDarkMatterGamma         = 1.0;
+  DiskGravityDarkMatterDelta         = -1.0;
+  DiskGravityDarkMatterRDecay        = huge_number;
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
