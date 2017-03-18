@@ -490,6 +490,56 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
   }// end subgrid if
 
+  /* If we are using dark matter particles, loop through grids depositing the particles */
+  if (DiskGravityDoublePower && GalaxySimulationDarkMatterParticles){
+    const int MAXIMUM_NUMBER_OF_INITIAL_PARTICLES = 2000000;
+
+    /* Read in the particles */
+    DMParticleMass = new float[MAXIMUM_NUMBER_OF_INITIAL_PARTICLES];
+    for(int dim = 0; dim < MAX_DIMENSION; dim++){
+      DMParticlePosition[dim] = new float[MAXIMUM_NUMBER_OF_INITIAL_PARTICLES];
+      DMParticleVelocity[dim] = new float[MAXIMUM_NUMBER_OF_INITIAL_PARTICLES];
+    }
+
+    char line[MAX_LINE_LENGTH];
+    int err;
+
+    FILE *fptr = fopen("GalaxySimulationParticleIC.in", "r");
+    if (fptr == NULL){
+      ENZO_FAIL("Error opening galaxy simulation dark matter particle positions\n");
+    }
+
+    i = 0;
+    while(fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
+      if (line[0] != '#'){
+        err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                          &DMParticleMass[i], 
+                          &DMParticlePosition[0][i], &DMParticlePosition[1][i], &DMParticlePosition[2][i],
+                          &DMParticleVelocity[0][i], &DMParticleVelocity[1][i], &DMParticleVelocity[2][i]);
+        i++;
+      }
+    }
+    fclose(fptr);
+    int NumberOfDMParticles = i;
+
+    if(TopGrid.GridData->GalaxySimulationInitializeParticles(NumberOfDMParticles,
+                                                                DMParticleMass, DMParticlePosition,
+                                                                DMParticleVelocity) == FAIL){
+          fprintf(stderr, "Error in grid->GalaxySimulationInitializeParticles.\n");
+          return FAIL;
+    }
+
+    /* clean up */
+    delete [] DMParticleMass;
+
+    for(int dim = 0; dim <MAX_DIMENSION; dim++){
+      delete [] DMParticlePosition[dim];
+      delete [] DMParticleVelocity[dim];
+    }
+  }
+
+
+
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
 
@@ -576,61 +626,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   /* clean up dark matter interpolation arrays that we don't need anymore */
   if (DiskGravityDoublePower){
     FinalizeDoublePowerDarkMatter();
-  }
-
-
-  /* If we are using dark matter particles, loop through grids depositing the particles */
-  if (DiskGravityDoublePower && GalaxySimulationDarkMatterParticles){
-    const int MAXIMUM_NUMBER_OF_INITIAL_PARTICLES = 200000;
-
-    /* Read in the particles */
-    DMParticleMass = new float[MAXIMUM_NUMBER_OF_INITIAL_PARTICLES];
-    for(int dim = 0; dim < MAX_DIMENSION; dim++){
-      DMParticlePosition[dim] = new float[MAXIMUM_NUMBER_OF_INITIAL_PARTICLES];
-      DMParticleVelocity[dim] = new float[MAXIMUM_NUMBER_OF_INITIAL_PARTICLES];
-    }
-
-    char line[MAX_LINE_LENGTH];
-    int err;
-
-    FILE *fptr = fopen("GalaxySimulationParticleIC.in", "r");
-    if (fptr == NULL){
-      ENZO_FAIL("Error opening galaxy simulation dark matter particle positions\n");
-    }
-
-    while(fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
-      if (line[0] != '#'){
-        err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
-                          &DMParticleMass[i], 
-                          &DMParticlePosition[0][i], &DMParticlePosition[1][i], &DMParticlePosition[2][i],
-                          &DMParticleVelocity[0][i], &DMParticleVelocity[1][i], &DMParticleVelocity[2][i]);
-        i++;
-      }
-    }
-    fclose(fptr);
-    int NumberOfDMParticles = i;
-
-    /* Now deposit the particles */
-    LevelHierarchyEntry *Temp;
-    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level ++){
-
-      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
-        if (Temp->GridData->GalaxySimulationInitializeParticles(NumberOfDMParticles,
-                                                                DMParticleMass, DMParticlePosition,
-                                                                DMParticleVelocity) == FAIL){
-          fprintf(stderr, "Error in grid->GalaxySimulationInitializeParticles.\n");
-          return FAIL;
-        }
-      }
-    }
-
-    /* clean up */
-    delete [] DMParticleMass;
-
-    for(int dim = 0; dim <MAX_DIMENSION; dim++){
-      delete [] DMParticlePosition[dim];
-      delete [] DMParticleVelocity[dim];
-    }
   }
 
   /* If Galaxy is Subject to ICM Wind, Initialize the exterior */

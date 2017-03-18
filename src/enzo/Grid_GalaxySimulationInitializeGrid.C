@@ -1122,7 +1122,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
   if (DiskGravityDoublePower){
     FtotR = -GravConst * drcyl*LengthUnits * DoublePowerInterpolateMass(drcyl*LengthUnits)/
-                  (drcyl*drcyl*LengthUnits*LengthUnits);
+                  (drcyl*drcyl*drcyl*LengthUnits*LengthUnits*LengthUnits);
   } else{
     FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*
           POW(DiskGravityDarkMatterR*Mpc,3)/POW(rsph,3)*drcyl*LengthUnits

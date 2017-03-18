@@ -304,10 +304,10 @@ int grid::ComputeAccelerationFieldExternal()
  *     Reference: Burkert 1995, Mori & Burkert 2000
  *------------------------------------------------------------------------*/
 
-  if (DiskGravityDoublePower){
+  if (DiskGravity && DiskGravityDoublePower){
     /* Gravity computed from dark matter particles */
 
-    if (NumberOfParticles < 0){ ENZO_FAIL("Where are the particles\n");}
+    if (NumberOfParticles <= 0){ ENZO_FAIL("Where are the particles\n");}
 
   } else if (DiskGravity > 0) {
 

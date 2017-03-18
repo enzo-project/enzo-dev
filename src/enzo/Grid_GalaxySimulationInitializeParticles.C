@@ -33,10 +33,14 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
                                               float *DMParticleMass, FLOAT *DMParticlePosition[],
                                               float *DMParticleVelocity[]){
 
+
+  // remove this if need to sep by processor
+  NumberOfParticles = NumberOfDMParticles;
+
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  if (this->NumberOfSubgrids > 1) return SUCCESS;
+//  if (this->NumberOfSubgrids > 1) return SUCCESS;
 
   /* get units */
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
@@ -67,6 +71,8 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
 
     particle_index[i] = -1;
 
+    off_grid = FALSE; // remove if need to separate by processor
+
     if (off_grid) continue;
     particle_index[count] = i;
     count++;
@@ -87,11 +93,16 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
 
       ParticleAttribute[0][i] = this->Time;
       ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
-      ParticleNumber[i] = i;
+      ParticleNumber[i] = particle_index[i];
     }
   }
 
   printf("P(%"ISYM"): Deposited %"ISYM" Dark Matter Particles out of %"ISYM"\n", MyProcessorNumber, count, NumberOfDMParticles);
+  if (count > 0){
+    printf("DM particle mass %"ESYM"\n", ParticleMass[particle_index[0]]);
+  }
+
+//  NumberOfParticles += count;
 
   // clean up
   delete [] particle_index;
