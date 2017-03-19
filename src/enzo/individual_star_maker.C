@@ -213,7 +213,7 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
   }
   fclose(fptr);
 
-  nstar = i - 1;
+  nstar = i;
 
   int  nx = this->GridDimension[0], ny = this->GridDimension[1], nz = this->GridDimension[2];
   int  ibuff = NumberOfGhostZones;
@@ -307,7 +307,7 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
     count++;
   }
 
-  *np = count - 1;
+  *np = count;
 
   printf("P(%"ISYM") formed %"ISYM" stars of %"ISYM"\n", MyProcessorNumber, count, nstar);
 
