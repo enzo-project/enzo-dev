@@ -35,7 +35,7 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
 
 
   // remove this if need to sep by processor
-  NumberOfParticles = NumberOfDMParticles;
+//   NumberOfParticles = NumberOfDMParticles;
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -57,7 +57,7 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
   int *particle_index;
   particle_index = new int[NumberOfDMParticles];
 
-  /* find which particles belong on this grid
+  /* find which particles belong in the simulation
      handle unit and coordinate conversions */
   for(int i = 0; i < NumberOfDMParticles; i++){
 
@@ -65,13 +65,13 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
     for(int dim = 0; dim < MAX_DIMENSION; dim ++){
       DMParticlePosition[dim][i] = DMParticlePosition[dim][i]*pc/LengthUnits + DiskGravityPosition[dim];
 
-      off_grid += !( (DMParticlePosition[dim][i] > this->CellLeftEdge[dim][NumberOfGhostZones])*
-                     (DMParticlePosition[dim][i] < this->CellLeftEdge[dim][this->GridDimension[dim]-NumberOfGhostZones]) );
+      off_grid += !( (DMParticlePosition[dim][i] > this->CellLeftEdge[dim][NumberOfGhostZones]   )*
+                     (DMParticlePosition[dim][i] < this->CellLeftEdge[dim][this->GridDimension[dim] - NumberOfGhostZones]) );
     }
 
     particle_index[i] = -1;
 
-    off_grid = FALSE; // remove if need to separate by processor
+   // off_grid = FALSE; // remove if need to separate by processor
 
     if (off_grid) continue;
     particle_index[count] = i;
@@ -93,16 +93,17 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
 
       ParticleAttribute[0][i] = this->Time;
       ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
-      ParticleNumber[i] = particle_index[i];
+      // ParticleNumber[i] = particle_index[i]; // set in GalaxySimulationInitialize
     }
   }
 
   printf("P(%"ISYM"): Deposited %"ISYM" Dark Matter Particles out of %"ISYM"\n", MyProcessorNumber, count, NumberOfDMParticles);
-  if (count > 0){
-    printf("DM particle mass %"ESYM"\n", ParticleMass[particle_index[0]]);
+
+  if ((NumberOfDMParticles - count) > 0){
+    printf("P(%"ISYM"): WARNING: %"ISYM" particles were not within the computational domain \n", MyProcessorNumber, NumberOfDMParticles - count);
   }
 
-//  NumberOfParticles += count;
+  NumberOfParticles = count;
 
   // clean up
   delete [] particle_index;

@@ -36,6 +36,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
+#include "CommunicationUtilities.h"
 
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
@@ -52,6 +53,8 @@ int InitializeDoublePowerDarkMatter(void);
 void FinalizeDoublePowerDarkMatter(void);
 
 char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
+
+void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
 
 
 int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, 
@@ -462,7 +465,12 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   /* set up grid */
 
-  if (TopGrid.GridData->GalaxySimulationInitializeGrid(GalaxySimulationDiskRadius,
+  /* try something here */
+  HierarchyEntry *Temp = &TopGrid;
+
+  while (Temp != NULL){
+
+    if (TopGrid.GridData->GalaxySimulationInitializeGrid(GalaxySimulationDiskRadius,
 						       GalaxySimulationGalaxyMass, 
 						       GalaxySimulationGasMass,
 						       GalaxySimulationDiskPosition, 
@@ -488,7 +496,10 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
                                                        GalaxySimulationPerturbationFraction)
 	      == FAIL) {
       ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
-  }// end subgrid if
+    }// end subgrid if
+    Temp = Temp->NextGridThisLevel;
+
+  } // end top grid loop
 
   /* If we are using dark matter particles, loop through grids depositing the particles */
   if (DiskGravityDoublePower && GalaxySimulationDarkMatterParticles){
@@ -522,11 +533,16 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     fclose(fptr);
     int NumberOfDMParticles = i;
 
-    if(TopGrid.GridData->GalaxySimulationInitializeParticles(NumberOfDMParticles,
-                                                                DMParticleMass, DMParticlePosition,
-                                                                DMParticleVelocity) == FAIL){
-          fprintf(stderr, "Error in grid->GalaxySimulationInitializeParticles.\n");
-          return FAIL;
+    Temp = &TopGrid;
+    while (Temp != NULL){
+      if(TopGrid.GridData->GalaxySimulationInitializeParticles(NumberOfDMParticles,
+                                                               DMParticleMass, DMParticlePosition,
+                                                               DMParticleVelocity) == FAIL){
+        fprintf(stderr, "Error in grid->GalaxySimulationInitializeParticles.\n");
+        return FAIL;
+      } // end if particle initialize
+
+      Temp = Temp->NextGridThisLevel;
     }
 
     /* clean up */
@@ -536,18 +552,42 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       delete [] DMParticlePosition[dim];
       delete [] DMParticleVelocity[dim];
     }
-  }
 
+    int LocalNumberOfParticles = 0;
+    Temp = &TopGrid;
+    /* figure out particle count across grids and processors */
+    while (Temp != NULL){
+      LocalNumberOfParticles = 0;
+      LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
 
+#ifdef USE_MPI
+      CommunicationAllReduceValues(&LocalNumberOfParticles, 1, MPI_SUM);
+#endif /* USE_MPI */
 
-  /* Convert minimum initial overdensity for refinement to mass
-     (unless MinimumMass itself was actually set). */
+      Temp->GridData->SetNumberOfParticles(LocalNumberOfParticles);
+
+      LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
+
+      Temp = Temp->NextGridThisLevel;
+
+    } // done communicating particle count
+
+    Temp = &TopGrid;
+    PINT ParticleCount = 0;
+    RecursivelySetParticleCount(Temp, &ParticleCount);
+
+    MetaData.NumberOfParticles = ParticleCount;
+
+  } // end if using particles check
+
+    /* Convert minimum initial overdensity for refinement to mass
+       (unless MinimumMass itself was actually set). */
 
   if (MinimumMassForRefinement[0] == FLOAT_UNDEFINED) {
     MinimumMassForRefinement[0] = MinimumOverDensityForRefinement[0];
     for (int dim = 0; dim < MetaData.TopGridRank; dim++)
       MinimumMassForRefinement[0] *=(DomainRightEdge[dim]-DomainLeftEdge[dim])/
-	float(MetaData.TopGridDims[dim]);
+        float(MetaData.TopGridDims[dim]);
   }
 
   /* If requested, refine the grid to the desired level. */
@@ -912,3 +952,5 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
  return SUCCESS;
 
 }
+
+
