@@ -27,7 +27,7 @@ MACHINE_NOTES = "Do this first: module swap PrgEnv-cray PrgEnv-gnu ; module load
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = 
-LOCAL_HDF5_INSTALL   = /opt/cray/hdf5/1.8.14/gnu/4.9
+LOCAL_HDF5_INSTALL   = $(HDF5_ROOT)
 LOCAL_HYPRE_INSTALL  = 
 LOCAL_PYTHON_INSTALL = 
 LOCAL_GRACKLE_INSTALL = $(HOME)/local/gnu/grackle
