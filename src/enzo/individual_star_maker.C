@@ -3369,6 +3369,10 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
  * mixing, which will be heineously unresolved at 1 pc resolution (need ~0.01 pc).
  * ----------------------------------------------------------------------------- */
 
+  if (!IndividualStarUseWindMixingModel){
+     return;
+  }
+
   const float est_mu  = 0.5; // estimated - this is approximate anyway
   const float k_boltz = 1.380658E-16;
   const float mp      = 1.6733E-24;
