@@ -659,7 +659,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     }
 
     return SUCCESS;
-  } else if (ProblemType == 31 && GalaxySimulationInitialStellarDist){
+
+  } else if (ProblemType == 31 && GalaxySimulationInitialStellarDist && this->Time <= 0.0){
 
     if (this->GalaxySimulationInitialStars(nmax, np, ParticleMass, ParticleType,
                                            ParticlePosition, ParticleVelocity,
