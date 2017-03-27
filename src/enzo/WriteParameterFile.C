@@ -1198,6 +1198,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "CorrectParentBoundaryFlux          = %d\n", CorrectParentBoundaryFlux);
 
+  /* Supernova magnetic seed field */
+  fprintf(fptr, "UseSupernovaSeedFieldSourceTerms = %"ISYM"\n", UseSupernovaSeedFieldSourceTerms);
+  fprintf(fptr, "SupernovaSeedFieldRadius = %"GSYM"\n", SupernovaSeedFieldRadius);
+  fprintf(fptr,"SupernovaSeedFieldEnergy = %"GSYM"\n",SupernovaSeedFieldEnergy);
+  fprintf(fptr,"SupernovaSeedFieldDuration = %"GSYM"\n",SupernovaSeedFieldDuration);
+
   /* Output current time */
   time_t ID;
   ID = time(NULL);

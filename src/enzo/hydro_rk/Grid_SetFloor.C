@@ -50,7 +50,7 @@ int grid::SetFloor()
     return FAIL;
   }
 
-#if 1
+#if 0
   float vx, vy, vz, v2, eint, emin, rho;
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {

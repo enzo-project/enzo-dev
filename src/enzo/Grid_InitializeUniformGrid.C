@@ -213,6 +213,10 @@ int grid::InitializeUniformGrid(float UniformDensity,
     for (dim = 0; dim < 3; dim++) 
       for (i = 0; i < size; i++)
         BaryonField[B1Num+dim][i] = UniformBField[dim];
+    if (HydroMethod == MHD_RK){
+      for (i=0; i < size; i++)
+        BaryonField[PhiNum][i] = 0.;
+    }
   }
 
    /* set density of color fields to user-specified values (if user doesn't specify, 

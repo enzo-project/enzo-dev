@@ -1269,6 +1269,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "UseGasDrag = %"ISYM, &UseGasDrag);
     ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
 
+    // Parameters for magnetic feedback from supernovae
+    ret += sscanf(line, "UseSupernovaSeedFieldSourceTerms = %"ISYM, &UseSupernovaSeedFieldSourceTerms);
+    ret += sscanf(line,"SupernovaSeedFieldRadius = %"FSYM, &SupernovaSeedFieldRadius);
+    ret += sscanf(line,"SupernovaSeedFieldEnergy = %"FSYM, &SupernovaSeedFieldEnergy);
+    ret += sscanf(line,"SupernovaSeedFieldDuration = %"FSYM, &SupernovaSeedFieldDuration);
 
     /* If the dummy char space was used, then make another. */
  

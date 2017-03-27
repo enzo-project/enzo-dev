@@ -1136,8 +1136,9 @@ OBJS_HYDRO_RK = \
 	hydro_rk/MHDDecayingRandomFieldInitialize.o \
 	hydro_rk/Riemann_HLL_MHD.o \
 	hydro_rk/Riemann_HLLD_MHD.o \
-	hydro_rk/Riemann_LLF_MHD.o
-
+	hydro_rk/Riemann_LLF_MHD.o \
+	hydro_rk/SuperNovaSeedField.o
+	
 # Objects for the CUDA GPU-computing support
 OBJS_ECUDA_ALL = \
         hydro_rk/CudaMHD.o \

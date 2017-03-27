@@ -25,6 +25,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "list.h"
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
@@ -87,6 +88,10 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	   &TimeUnits, &VelocityUnits, Time);
 
   count = 0;
+  // clear list of Supernovae at each timestep to avoid adding duplicates in Grid_AddFeedbackSphere                                     
+  if(UseSupernovaSeedFieldSourceTerms){
+    LevelArray[level]->GridData->SuperNovaList.clear();
+  }
   for (cstar = AllStars; cstar; cstar = cstar->NextStar, count++) {
 
     AddedFeedback[count] = false;

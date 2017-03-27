@@ -9,7 +9,6 @@
 /  PURPOSE:
 /
 ************************************************************************/
-
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
 #include "ProtoSubgrid.h"
@@ -21,6 +20,8 @@
 #include "Star.h"
 #include "FOF_allvars.h"
 #include "MemoryPool.h"
+#include "list.h"
+#include "hydro_rk/SuperNova.h"
 #ifdef ECUDA
 #include "hydro_rk/CudaMHD.h"
 #endif
@@ -57,6 +58,9 @@ struct HierarchyEntry;
 //  int Number;
 // int Type;
 //};
+
+
+
 
 extern int CommunicationDirection;
 int FindField(int f, int farray[], int n);
@@ -1708,7 +1712,7 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
   int IdentifyColourFields(int &SNColourNum, int &MetalNum, 
 			   int &MetalIaNum, int &MetalIINum, int &MBHColourNum,
-			   int &Galaxy1ColourNum, int &Galaxy2ColourNum);
+		           int &Galaxy1ColourNum, int &Galaxy2ColourNum);
 
   /* Identify Multi-species fields. */
 
@@ -3004,6 +3008,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHDCT_ConvertEnergyToSpecificC();
   int MHDCT_ConvertEnergyToConservedS();
   int MHDCT_ConvertEnergyToSpecificS();
+
+  //List of SuperNova objects that each grid needs to keep track of                                                                      
+  
+  List<SuperNova> SuperNovaList;
+  
 
 };
 
