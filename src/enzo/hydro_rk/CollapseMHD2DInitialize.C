@@ -46,7 +46,6 @@ int CollapseMHD2DInitialize(FILE *fptr, FILE *Outfptr,
   char *ByName = "By";
   char *BzName = "Bz";
   char *PhiName = "Phi";
-  char *DebugName = "Debug";
   char *Phi_pName = "Phip";
 
 
@@ -211,7 +210,6 @@ int CollapseMHD2DInitialize(FILE *fptr, FILE *Outfptr,
 
   if(UseDivergenceCleaning){
     DataLabel[count++] = Phi_pName;
-    DataLabel[count++] = DebugName;
   }
 
   for (i = 0; i < count; i++) {
