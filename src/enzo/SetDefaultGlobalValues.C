@@ -977,5 +977,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseGasDrag = 0;
   GasDragCoefficient = 0.;
 
+  /* Supernova magnetic seed field */
+  /* Default == 0 -> no magnetic field contribution */
+  UseSupernovaSeedFieldSourceTerms = 0;
+  SupernovaSeedFieldRadius = 0.0;
+  SupernovaSeedFieldDuration = 0.0;
+  SupernovaSeedFieldEnergy = 0.0;
+
   return SUCCESS;
 }
