@@ -205,7 +205,7 @@ double DoublePowerInterpolateMass(double r){
   int index = search_lower_bound(DiskGravityDoublePowerR, r, 0, DOUBLE_POWER_DG_POINTS, DOUBLE_POWER_DG_POINTS);
   float coeff = LinearInterpolationCoefficient(index, r, DiskGravityDoublePowerR);
 
-  M = (1.0 - coeff)*DiskGravityDoublePowerMass[index] + coeff*DiskGravityDoublePowerMass[index-1];
+  M = ( coeff)*DiskGravityDoublePowerMass[index+1] + (1.0 - coeff)*DiskGravityDoublePowerMass[index];
 
   return M;
 }
@@ -219,7 +219,7 @@ double DoublePowerInterpolatePotential(double r){
   int index = search_lower_bound(DiskGravityDoublePowerR, r, 0, DOUBLE_POWER_DG_POINTS, DOUBLE_POWER_DG_POINTS);
   float coeff = LinearInterpolationCoefficient(index, r, DiskGravityDoublePowerR);
 
-  pot = (1.0 - coeff)*DiskGravityDoublePowerPot[index] + coeff*DiskGravityDoublePowerPot[index-1];
+  pot = ( coeff)*DiskGravityDoublePowerPot[index+1] +(1.0- coeff)*DiskGravityDoublePowerPot[index];
 
   return pot;
 }
