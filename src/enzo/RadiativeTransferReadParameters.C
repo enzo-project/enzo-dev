@@ -12,6 +12,11 @@
 /
 ************************************************************************/
 
+#ifdef USE_GRACKLE
+extern "C" {
+#include <grackle.h>
+} // USE_GRACKLE
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -211,6 +216,13 @@ int RadiativeTransferReadParameters(FILE *fptr)
   if (RadiativeTransferFLD > 1  &&  (ImplicitProblem == 0)) 
     ENZO_FAIL("Error: RadiativeTransferFLD > 1 requires ImplicitProblem > 0!")
 
+#ifdef USE_GRACKLE
+  // Set some radiative transfer grackle parameters.
+  if (grackle_data->use_grackle == TRUE) {
+    grackle_data->radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
+    grackle_data->radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
+  }
+#endif // USE_GRACKLE
 
   delete [] dummy;
 
