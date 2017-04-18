@@ -83,7 +83,8 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   char *Acce2Name = "AccelerationField2";
   char *Acce3Name = "AccelerationField3";
   char *MetalName = "Metal_Density";
-
+  char *Phi_pName = "Phip";
+  
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
@@ -279,6 +280,9 @@ printf("Plasma beta=%"GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(In
   }
   if( HydroMethod == MHD_RK){
     DataLabel[count++] = PhiName;
+    if(UseDivergenceCleaning){
+      DataLabel[count++] = Phi_pName;
+    }
   }
   if (MultiSpecies) {
     DataLabel[count++] = ElectronName;
