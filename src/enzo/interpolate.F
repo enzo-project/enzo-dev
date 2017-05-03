@@ -126,75 +126,27 @@ c  B) SecondOrderA
 c
       if (imethod .eq. 1 .or. 
      &    (imethod .eq. 2 .and. iposflag .eq. 2)) then
-
-      call int_spline(parent, grid, ndim, pdims(1), pdims(2), pdims(3),
-     &                   gdims(1), gdims(2), gdims(3), 
-     &                   pstart(1), pstart(2), pstart(3),
-     &                   refine(1), refine(2), refine(3), temp1, temp2)
-
-c
-c         if (ndim .eq. 1) call interp1d(parent, work, 
-c     &                            pdims(1),
-c     &                            pstart(1)+1_IKIND,
-c     &                            pend(1)+1_IKIND,
-c     &                            refine(1),
-c     &                            grid, gdims(1),
-c     &                            gstart(1)+1_IKIND,
-c     &                            gdims(1)/refine(1)+1_IKIND)
-
-c         if (ndim .eq. 2) call interp2d(parent, work, 
-c     &                            pdims(1), pdims(2),
-c     &                            pstart(1)+1_IKIND, pstart(2)+1_IKIND,
-c     &                            pend(1)+1_IKIND, pend(2)+1_IKIND,
-c     &                            refine(1), refine(2),
-c     &                            grid, gdims(1), gdims(2),
-c     &                            gstart(1)+1_IKIND, gstart(2)+1_IKIND,
-c     &                            gdims(1)/refine(1)+1_IKIND, 
-c     &                            gdims(2)/refine(2)+1_IKIND)
-
-c         if (ndim .eq. 3) call interp3d(parent, work, 
-c     &        pdims(1), pdims(2), pdims(3),
-c     &        pstart(1)+1_IKIND, pstart(2)+1_IKIND, pstart(3)+1_IKIND,
-c     &        pend(1)+1_IKIND, pend(2)+1_IKIND, pend(3)+1_IKIND,
-c     &        refine(1), refine(2), refine(3),
-c     &        grid, gdims(1), gdims(2), gdims(3),
-c     &        gstart(1)+1_IKIND, gstart(2)+1_IKIND, gstart(3)+1_IKIND,
-c     &        gdims(1)/refine(1)+1_IKIND, 
-c     &        gdims(2)/refine(2)+1_IKIND,
-c     &        gdims(3)/refine(3)+1_IKIND, ierror)
-c
-      endif
-c
-c  C) SecondOrderB
-c
-      if (imethod .eq. 2 .and. iposflag .ne. 2) then
-c
-#if 0
+    
          if (ndim .eq. 1) call interp1d(parent, work, 
-     &        pdims(1),
-     &        pstart(1)+1_IKIND,
-     &        pend(1)+1_IKIND,
-     &        refine(1),
-     &        grid, gdims(1),
-     &        gstart(1)+1_IKIND,
-     &        gdims(1)/refine(1)+1_IKIND)
-c
+     &                            pdims(1),
+     &                            pstart(1)+1_IKIND,
+     &                            pend(1)+1_IKIND,
+     &                            refine(1),
+     &                            grid, gdims(1),
+     &                            gstart(1)+1_IKIND,
+     &                            gdims(1)/refine(1)+1_IKIND)
+
          if (ndim .eq. 2) call interp2d(parent, work, 
-     &        pdims(1), pdims(2),
-     &        pstart(1)+1_IKIND, pstart(2)+1_IKIND,
-     &        pend(1)+1_IKIND, pend(2)+1_IKIND,
-     &        refine(1), refine(2),
-     &        grid, gdims(1), gdims(2),
-     &        gstart(1)+1_IKIND, gstart(2)+1_IKIND,
-     &        gdims(1)/refine(1)+1_IKIND, 
-     &        gdims(2)/refine(2)+1_IKIND)
-#endif
-         if (ndim .ne. 3) then
-            write(6,*) 'INTERPOLATE: imethod=2 only for 3d'
-            ERROR_MESSAGE
-         endif
-c
-         if (ndim .eq. 3) call int_lin3d(parent, work, 
+     &                            pdims(1), pdims(2),
+     &                            pstart(1)+1_IKIND, pstart(2)+1_IKIND,
+     &                            pend(1)+1_IKIND, pend(2)+1_IKIND,
+     &                            refine(1), refine(2),
+     &                            grid, gdims(1), gdims(2),
+     &                            gstart(1)+1_IKIND, gstart(2)+1_IKIND,
+     &                            gdims(1)/refine(1)+1_IKIND, 
+     &                            gdims(2)/refine(2)+1_IKIND)
+
+         if (ndim .eq. 3) call interp3d(parent, work, 
      &        pdims(1), pdims(2), pdims(3),
      &        pstart(1)+1_IKIND, pstart(2)+1_IKIND, pstart(3)+1_IKIND,
      &        pend(1)+1_IKIND, pend(2)+1_IKIND, pend(3)+1_IKIND,
@@ -203,7 +155,54 @@ c
      &        gstart(1)+1_IKIND, gstart(2)+1_IKIND, gstart(3)+1_IKIND,
      &        gdims(1)/refine(1)+1_IKIND, 
      &        gdims(2)/refine(2)+1_IKIND,
-     &        gdims(3)/refine(3)+1_IKIND, iposflag)
+     &        gdims(3)/refine(3)+1_IKIND, ierror)
+c
+      endif
+c
+c  C) SecondOrderB
+c
+      if (imethod .eq. 2 .and. iposflag .ne. 2) then
+
+      call int_spline(parent, grid, ndim, pdims(1), pdims(2), pdims(3),
+     &                   gdims(1), gdims(2), gdims(3), 
+     &                   pstart(1)+1, pstart(2)+1, pstart(3)+1,
+     &                   refine(1), refine(2), refine(3), temp1, temp2)
+c
+c#if 0
+c         if (ndim .eq. 1) call interp1d(parent, work, 
+c     &        pdims(1),
+c     &        pstart(1)+1_IKIND,
+c     &        pend(1)+1_IKIND,
+c     &        refine(1),
+c     &        grid, gdims(1),
+c     &        gstart(1)+1_IKIND,
+c     &        gdims(1)/refine(1)+1_IKIND)
+c
+c         if (ndim .eq. 2) call interp2d(parent, work, 
+c     &        pdims(1), pdims(2),
+c     &        pstart(1)+1_IKIND, pstart(2)+1_IKIND,
+c     &        pend(1)+1_IKIND, pend(2)+1_IKIND,
+c     &        refine(1), refine(2),
+c     &        grid, gdims(1), gdims(2),
+c     &        gstart(1)+1_IKIND, gstart(2)+1_IKIND,
+c     &        gdims(1)/refine(1)+1_IKIND, 
+c     &        gdims(2)/refine(2)+1_IKIND)
+c#endif
+c         if (ndim .ne. 3) then
+c            write(6,*) 'INTERPOLATE: imethod=2 only for 3d'
+c            ERROR_MESSAGE
+c         endif
+c
+c         if (ndim .eq. 3) call int_lin3d(parent, work, 
+c     &        pdims(1), pdims(2), pdims(3),
+c     &        pstart(1)+1_IKIND, pstart(2)+1_IKIND, pstart(3)+1_IKIND,
+c     &        pend(1)+1_IKIND, pend(2)+1_IKIND, pend(3)+1_IKIND,
+c     &        refine(1), refine(2), refine(3),
+c     &        grid, gdims(1), gdims(2), gdims(3),
+c     &        gstart(1)+1_IKIND, gstart(2)+1_IKIND, gstart(3)+1_IKIND,
+c     &        gdims(1)/refine(1)+1_IKIND, 
+c     &        gdims(2)/refine(2)+1_IKIND,
+c     &        gdims(3)/refine(3)+1_IKIND, iposflag)
 c
       endif
 c

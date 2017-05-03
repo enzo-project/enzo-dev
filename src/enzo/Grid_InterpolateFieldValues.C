@@ -306,7 +306,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid
  
     if (HydroMethod == Zeus_Hydro)
       InterpolationMethod = (SecondOrderBFlag[densfield] == 0) ?
-	SecondOrderA : SecondOrderC;
+  SecondOrderA : SecondOrderC;
  
     //    fprintf(stdout, "grid:: InterpolateBoundaryFromParent[3]\n"); 
 

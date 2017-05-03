@@ -91,7 +91,7 @@ int grid::FlagCellsToBeRefinedByQuantumJeansLength()
   /* Compute constant for Jean's length computation.
       l_j = (4*pi*G*a*4*(m/h)^2)^4  . */
  
-  FLOAT JL = 2*pi/pow(a*4,0.25)*sqrt(hmcoef);
+  FLOAT JL = 1./pow(a*4,0.25)*sqrt(hmcoef);
  
 //  if (ProblemType == 60 || ProblemType == 61)
 //    JLSquared = double(4.0*3.14159*3.14159)/GravitationalConstant; //AK

@@ -1,21 +1,22 @@
 /***********************************************************************
-/
-/  GRID CLASS (FLAG CELLS TO BE REFINED BY THE JEAN'S CRITERION)
-/
-/  written by: Greg Bryan
-/  date:       February, 1998
-/  modified1:  Alexei Kritsuk, Feb. 2004 mods for isothermal EOS.
-/
-/  PURPOSE:
-/
-/  RETURNS:
-/    number of flagged cells, or -1 on failure
-/
-************************************************************************/
- 
+  /
+  /  GRID CLASS (FLAG CELLS TO BE REFINED BY SECOND DERIVATIVE)
+  /
+  /  written by: Samuel Skillman 
+  /  date:       October, 2012
+  /  modified1:  
+  /
+  /  PURPOSE: 
+  /    flag cells based on the second derivative, normalized by an
+  /    average of the first derivatives.
+  /
+  /  RETURNS:
+  /    number of flagged cells, or -1 on failure
+  /
+ ************************************************************************/
+
 #include <stdio.h>
 #include <math.h>
-#include "phys_constants.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -24,51 +25,40 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "hydro_rk/EOS.h"
- 
-/* function prototypes */
- 
-int GetUnits(float *DensityUnits, float *LengthUnits,
-	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, FLOAT Time);
-int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
-int QuantumGetUnits (float *DensityUnits, float *LengthUnits,
-        float *TemperatureUnits, float *TimeUnits,
-        float *VelocityUnits, double *MassUnits, FLOAT Time);
- 
+
 int grid::FlagCellsToBeRefinedByVelDiv()
 {
   /* declarations */
- 
-  int i, j, k, dim;
-  float *u, *v, *w;
-  float dxcalc;
- 
+
+  int i, j, k, index, dim;
+  int Start[MAX_DIMENSION], End[MAX_DIMENSION];
+
+  /* Return if this grid is not on this processor. */
+
+  if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+
   /* error check */
- 
+
   if (FlaggingField == NULL) {
     fprintf(stderr, "Flagging Field is undefined.\n");
     return -1;
   }
 
-   /* Get density units. */
+  /* Make sure quantities are defined at least to dim 3 */
 
-  float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1,
-    TemperatureUnits=1, MassUnits=1;
-  /* Get quantum coef. */
-  if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
-    ENZO_FAIL("Error in GetUnits.");
+  for (dim = GridRank; dim < 3; dim++) {
+    GridDimension[dim] = 1;
+    GridStartIndex[dim] = 0;
+    GridEndIndex[dim] = 0;
   }
- 
-   FLOAT hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
 
-   /* Compute expansion factor*/
-   FLOAT a = 1.0, dadt;
-    if (ComovingCoordinates){
-      if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
-    ENZO_FAIL("Error in ComputeExpansionFactor.\n");
-     }
-    }
+  /* loop over all zones */
+ 
+  for (dim = 0; dim < 3; dim++) {
+    Start[dim] = GridStartIndex[dim];
+    End[dim]   = GridEndIndex[dim];
+  }
  
   /* compute size */
  
@@ -76,105 +66,106 @@ int grid::FlagCellsToBeRefinedByVelDiv()
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
  
-  /* Find fields: density, total energy, velocity1-3. */
+  /* allocate a temporary second derivative and normalization field. */
  
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-				       Vel3Num, TENum) == FAIL) {
-    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
-  }
-
-  u = BaryonField[Vel1Num];
-  v = BaryonField[Vel2Num];
-  w = BaryonField[Vel3Num];
-
-
-
-
-    /* allocate divergence of velocity */
-  float *div = new float[size];
-  int in = GridDimension[0];
-  int jn = GridDimension[1];
-  int kn = GridDimension[2];
-
-  float dx = CellWidth[0][0];
-
-  if (GridRank < 2) {
-    v = new float[size];
-    for (i = 0; i < size; i++)
-      v[i] = 0;
-  }
-  if (GridRank < 3) {
-    w = new float[size];
-    for (i = 0; i < size; i++)
-      w[i] = 0;
-  }
-
-
-
-  /* loop to compute velocity divergence */
-
-  #define IDX(a,b,c) ( ((c)*jn + (b))*in + (a) )
-
-  for (k=0; k<kn; k++){
-  	for (j=0; j<jn; j++){
-  		for (i=0; i<in; i++){
-  			div[IDX(i,j,k)] = fabs((u[IDX(min(i+1,in-1),j,k)]-u[(IDX(i,j,k))]))/dx;
-  			if (GridRank>1){
-  				div[IDX(i,j,k)] += fabs((v[IDX(i,min(j+1,jn-1),k)]-v[(IDX(i,j,k))]))/dx;
-  			}
-  			if (GridRank>2){
-  				div[IDX(i,j,k)] += fabs((w[IDX(i,j,min(k+1,kn-1))]-w[(IDX(i,j,k))]))/dx;
-  			}
-  			div[IDX(i,j,k)] = max(div[IDX(i,j,k)]*RefineByVelDivSafetyFactor, tiny_number);
-
-
-  		}
-  	}
-  }
-
+  float *TopBuffer = new float[size];
+  float *BottomBuffer = new float[size];
  
-  /* Loop over grid. */
+  /* some problems do not need to check all the fields, in particular
+     the velocity components */
  
-#ifdef UNUSED
-  int j, k, index;
-  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
-    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      index = (j + k*GridDimension[1])*GridDimension[0];
-      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++){
-              dxcalc = sqrt(hmcoef/a/div[i]);
-	if (dx > dxcalc){
-	  FlaggingField[index+i]++;}
+  /* Force the user to specify fields if they want to use this on more than 
+     one field */
+  int NumberOfFields = 1;
+  if (SecondDerivativeFlaggingFields[0] != INT_UNDEFINED){
+    NumberOfFields = NumberOfBaryonFields;
+  }
+
+  bool doField=false;
+  float MinimumSecondDerivativeForRefinementThis;
+  int Offset = 1;
+  int Offsets[3];
+  for (dim=0; dim<GridRank; dim++)
+    Offsets[dim] = 1;
+  
+  for (dim = 0; dim<GridRank-1; dim++){
+    Offsets[dim+1] = Offsets[dim]*GridDimension[dim]; 
+  }
+
+  for (int field = 0; field < NumberOfFields; field++) {
+    doField = false;
+    if (SecondDerivativeFlaggingFields[0]==INT_UNDEFINED){ 
+      MinimumSecondDerivativeForRefinementThis=MinimumSecondDerivativeForRefinement[0];
+      doField=true;
+    } else {
+      for (int g=0; g<MAX_FLAGGING_METHODS; g++){
+        if (SecondDerivativeFlaggingFields[g]==FieldType[field]){
+          MinimumSecondDerivativeForRefinementThis=MinimumSecondDerivativeForRefinement[g];
+          doField=true;
         }
       }
     }
-#endif /* UNUSED */
- 
- // FLOAT CellWidthSquared = CellWidth[0][0]*CellWidth[0][0];
-  for (i = 0; i < size; i++)
-    {
-      dxcalc = sqrt(hmcoef/a/div[i]);
-	if (dx > dxcalc){
-	  FlaggingField[i]++; 
 
-      }    
+    if (!doField)
+      continue;
 
+    /* loop over active dimensions */
+    for (i = 0; i < size; i++){
+      TopBuffer[i] = 0.0;
+      BottomBuffer[i] = 1.0; //Protects from 0.0/0.0 later on.
     }
- 
-  /* clean up */
- 
-  /* Count number of flagged Cells. */
- 
-  int NumberOfFlaggedCells = 0;
-  for (i = 0; i < size; i++) {
-    FlaggingField[i] = (FlaggingField[i] >= 1)? 1 : 0;
-    NumberOfFlaggedCells += FlaggingField[i];
-  }
 
-  delete [] div;
-  if (GridRank < 2) delete [] v;
-  if (GridRank < 3) delete [] w;
- 
+    /* compute second derivative criteria */
+    for (k = Start[2]; k <= End[2]; k++)
+      for (j = Start[1]; j <= End[1]; j++)
+        for (i = Start[0]; i <= End[0]; i++) {
+          index = i + j*GridDimension[0] +
+              k*GridDimension[1]*GridDimension[0];
+          BottomBuffer[index] = 0.0;
+          for (int dimk = 0; dimk < GridRank; dimk++){
+            for (int diml = 0; diml < GridRank; diml++){
+              // Top buffer is the 2nd order partial derivatives
+              TopBuffer[index] += 
+                  0.125*POW(sqrt(BaryonField[field][index + Offsets[dimk] + Offsets[diml]]) -
+                            sqrt(BaryonField[field][index + Offsets[dimk] - Offsets[diml]]) -
+                            sqrt(BaryonField[field][index - Offsets[dimk] + Offsets[diml]]) +
+                            sqrt(BaryonField[field][index - Offsets[dimk] - Offsets[diml]]), 2.0);
+              // BottomBuffer is the normalization, which is an average of the 
+              // first derivatives + SecondDerivativeEpsilong * an average of 
+              // the field values, filtering out oscillations. 
+              BottomBuffer[index] +=
+                  POW(0.5*(fabs(sqrt(BaryonField[field][index + Offsets[dimk]]) -
+                                sqrt(BaryonField[field][index]) )+
+                           fabs(sqrt(BaryonField[field][index]) -
+                                sqrt(BaryonField[field][index - Offsets[dimk]]))) +
+                      SecondDerivativeEpsilon * (fabs(sqrt(BaryonField[field][index + Offsets[dimk] + Offsets[diml]])) +
+                                        fabs(sqrt(BaryonField[field][index + Offsets[dimk] - Offsets[diml]])) +
+                                        fabs(sqrt(BaryonField[field][index - Offsets[dimk] + Offsets[diml]])) +
+                                        fabs(sqrt(BaryonField[field][index - Offsets[dimk] - Offsets[dimk]]))) , 2.0);
+            }
+          }
+        }
+
+    /* flag field based on second derivative */
+    for (i = 0; i < size; i++){
+      TopBuffer[i] = sqrt(TopBuffer[i]/BottomBuffer[i]);
+      FlaggingField[i] += (TopBuffer[i] > RefineByVelDivSafetyFactor) ? 1 : 0;
+    }
+  }  // end loop over field
+
+
+  /* delete buffer */
+
+  delete [] TopBuffer;
+  delete [] BottomBuffer;
+
+  /* Count number of flagged Cells. */
+
+  int NumberOfFlaggedCells = 0;
+  for (i = 0; i < size; i++)
+    if (FlaggingField[i] > 0)
+      NumberOfFlaggedCells++;
+
   return NumberOfFlaggedCells;
- 
+
 }

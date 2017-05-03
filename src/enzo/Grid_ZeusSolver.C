@@ -94,7 +94,7 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
 int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
          int in, int jn, int kn, int rank,
          int is, int ie, int js, int je, int ks, int ke, 
-         float dt, float dx[], float dy[], float dz[],
+         float C1, float C2, float *gamma, float dt, float dx[], float dy[], float dz[],
          int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
          float minsupecoef, float lapcoef);
 
@@ -105,6 +105,8 @@ int FindField(int field, int farray[], int numfields);
 int QuantumGetUnits(float *DensityUnits, float *LengthUnits,
        float *TemperatureUnits, float *TimeUnits,
        float *VelocityUnits, FLOAT Time);
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+
 
 int grid::ZeusSolver(float *gamma, int igamfield, int nhy, 
 		     float dx[], float dy[], float dz[], 
@@ -220,6 +222,13 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
          &TimeUnits, &VelocityUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
+
+  FLOAT a = 1, dadt;
+  if (ComovingCoordinates)
+      if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
+    == FAIL) {
+  ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
+      }
   // calculate hbar/m
   float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
   //(hbar/m)^2/2
@@ -229,7 +238,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
      GridDimension[0], GridDimension[1], GridDimension[2],
      GridRank, 
      is, ie, js, je, ks, ke, 
-     dtFixed, dx, dy, dz,
+     ZEUSLinearArtificialViscosity,
+     ZEUSQuadraticArtificialViscosity,
+     gamma, dtFixed, dx, dy, dz,
      gravity, AccelerationField[0], AccelerationField[1],
      AccelerationField[2],
      minsupecoef,lapcoef) == FAIL) {

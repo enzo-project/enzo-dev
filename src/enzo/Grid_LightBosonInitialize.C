@@ -57,7 +57,7 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
 
   //float a = 1./(1.+2.);
   float alpha = 1./500;
-  float initialtime=0;
+  float initialtime=-.1;
   float sumsquare = pow(alpha,2)+pow(coef*initialtime,2);
 
   int i;
@@ -72,18 +72,20 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
 
     // set up an initial Gaussian density profile, v=0
 
-      BaryonField[iden ][index] = 1e-6+1*exp(-alpha*pow((x-CenterPosition),2)/sumsquare)/pow(sumsquare,0.5)/5.; // Gaussian Density Field
+// 1) Gaussian Density Field
+
+      BaryonField[iden ][index] = 1*exp(-alpha*pow((x-CenterPosition),2)/sumsquare)/pow(sumsquare,0.5)/5+1e-6; 
       //BaryonField[ivx ][index] = 1.e-4*exp(-alpha*pow((x-CenterPosition),2)/sumsquare); // Gaussian Density Field
 
-      //BaryonField[RePsiNum ][index] = sqrt(BaryonField[iden ][index]);
-      //BaryonField[ImPsiNum ][index] = 0;
-      //BaryonField[iden ][index] = 1.0;
+// 2) Fresnel solution
     /*if( x>0.5){
       BaryonField[iden ][index] = 6.;
     }else{
       BaryonField[iden ][index] = 5.;
     }
-      //BaryonField[iden ][index] = 1.0+1.0e-2*cos(8*3.1415927*(x-0.5));
+
+// 3) Zeldovich Test
+      //BaryonField[iden ][index] = (10.0+5.0*cos(2*3.1415927*(x-0.5)))/10.;
       //BaryonField[iden ][index] = 1.0+2.*exp(-1.*pow((x-0.7)/0.05,2))+2.*exp(-1.*pow((x-0.3)/0.05,2));
      /*BaryonField[iden  ][index] = 1;
      if ((x<0.5)&&(x>0.4)){

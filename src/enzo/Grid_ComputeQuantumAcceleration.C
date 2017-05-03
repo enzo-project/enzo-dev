@@ -182,35 +182,38 @@ int grid::ComputeQuantumAcceleration(float Time)
     for (k = 0; k < kn; k++) {
         for (j = 0; j < jn; j++) {
             for (i = 0; i < in; i++){
-
-          //p[IDX(i,j,k)] = (pow(d[IDX(max(i-1,0),j,k)],0.5)-2.0*pow(d[IDX(i,j,k)],0.5)+pow(d[IDX(min(i+1,in-1),j,k)],0.5))/pow(CellWidthTemp[0][i],2);
-          //2nd order differentiation
-          p[IDX(i,j,k)] = (logd[IDX(max(i-1,0),j,k)]-2.0*logd[IDX(i,j,k)]+logd[IDX(min(i+1,in-1),j,k)])/(CellWidthTemp[0][i]*CellWidthTemp[0][i])/2.;
-          p[IDX(i,j,k)] = p[IDX(i,j,k)] + pow((logd[IDX(min(i+1,in-1),j,k)]-logd[IDX(max(i-1,0),j,k)])/(CellWidthTemp[0][i]*2.),2)/4.;
-
           //4th order differentiation
-          /*p[IDX(i,j,k)] = (-1./12.*(logd[IDX(max(i-2,0),j,k)]+logd[IDX(min(i+2,in-1),j,k)])
+          p[IDX(i,j,k)] = (-1./12.*(logd[IDX(max(i-2,0),j,k)]+logd[IDX(min(i+2,in-1),j,k)])
                     +4./3.*(logd[IDX(max(i-1,0),j,k)]+logd[IDX(min(i+1,in-1),j,k)])
                     -5./2.*logd[IDX(i,j,k)])/(CellWidthTemp[0][i]*CellWidthTemp[0][i])/2.;
           p[IDX(i,j,k)] = p[IDX(i,j,k)] 
                   + pow((1./12.*(logd[IDX(max(i-2,0),j,k)]-logd[IDX(min(i+2,in-1),j,k)])
-                    -2./3.*(logd[IDX(max(i-1,0),j,k)]-logd[IDX(min(i+1,in-1),j,k)]))/CellWidthTemp[0][i],2)/4.;*/
-
+                    -2./3.*(logd[IDX(max(i-1,0),j,k)]-logd[IDX(min(i+1,in-1),j,k)]))/CellWidthTemp[0][i],2)/4.;
           if (rank > 1) {
      
-          p[IDX(i,j,k)] = p[IDX(i,j,k)] + (logd[IDX(i,max(j-1,0),k)]-2.0*logd[IDX(i,j,k)]+logd[IDX(i,min(j+1,jn-1),k)])/(CellWidthTemp[1][j]*CellWidthTemp[1][j])/2.;
-          p[IDX(i,j,k)] = p[IDX(i,j,k)] + pow((logd[IDX(i,min(j+1,jn-1),k)]-logd[IDX(i,max(j-1,0),k)])/(CellWidthTemp[1][j]*2.),2)/4.;
-
+          p[IDX(i,j,k)] = p[IDX(i,j,k)]
+          				  +(-1./12.*(logd[IDX(i,max(j-2,0),k)]+logd[IDX(i,min(j+2,jn-1),k)])
+          				  +4./3.*(logd[IDX(i,max(j-1,0),k)]+logd[IDX(i,min(j+1,jn-1),k)])
+          				  -5./2.*logd[IDX(i,j,k)])/(CellWidthTemp[1][j]*CellWidthTemp[1][j])/2.;
+          p[IDX(i,j,k)] = p[IDX(i,j,k)] 
+          				+ pow((1./12.*(logd[IDX(i,max(j-2,0),k)]-logd[IDX(i,min(j+2,jn-1),k)])
+          				  -2./3.*(logd[IDX(i,max(j-1,0),k)]-logd[IDX(i,min(j+1,jn-1),k)]))/CellWidthTemp[1][j],2)/4.;
 
           }//endif rank >1
           if (rank > 2) {
     
-          p[IDX(i,j,k)] = p[IDX(i,j,k)] + (logd[IDX(i,j,max(k-1,0))]-2.0*logd[IDX(i,j,k)]+logd[IDX(i,j,min(k+1,kn-1))])/(CellWidthTemp[2][k]*CellWidthTemp[2][k])/2.;
-          p[IDX(i,j,k)] = p[IDX(i,j,k)] + pow((logd[IDX(i,j,min(k+1,kn-1))]-logd[IDX(i,j,max(k-1,0))])/(CellWidthTemp[2][k]*2.),2)/4.;
+         p[IDX(i,j,k)] = p[IDX(i,j,k)]
+          				  +(-1./12.*(logd[IDX(i,j,max(k-2,0))]+logd[IDX(i,j,min(k+2,kn-1))])
+          				  +4./3.*(logd[IDX(i,j,max(k-1,0))]+logd[IDX(i,j,min(k+1,kn-1))])
+          				  -5./2.*logd[IDX(i,j,k)])/(CellWidthTemp[2][k]*CellWidthTemp[2][k])/2.;
+          p[IDX(i,j,k)] = p[IDX(i,j,k)] 
+          				+ pow((1./12.*(logd[IDX(i,j,max(k-2,0))]-logd[IDX(i,j,min(k+2,kn-1))])
+          				  -2./3.*(logd[IDX(i,j,max(k-1,0))]-logd[IDX(i,j,min(k+1,kn-1))]))/CellWidthTemp[2][k],2)/4.;
 
           }//endif rank>2
 
           p[IDX(i,j,k)] = p[IDX(i,j,k)]*lapcoef;
+          //fprintf(stderr, "quantum pressure=%"GSYM",%"GSYM",%"GSYM",%"ISYM"\n", p[IDX(i,j,k)], CellWidth[0][IDX(i,j,k)],lapcoef,i);
             }//end loop over i
           }//end loop over j
         }//end loop over k
@@ -220,13 +223,19 @@ int grid::ComputeQuantumAcceleration(float Time)
 
       for (k = 0; k < kn; k++) {
         for (j = 0; j < jn; j++) {
-          for (i = 0; i < in; i++){
+          for (i = 3; i < in-3; i++){
 
             if (HydroMethod == Zeus_Hydro){
+              //fprintf(stderr, "before=%"GSYM",%"ISYM"\n", AccelerationField[0][IDX(i,j,k)],i);
               AccelerationField[0][IDX(i,j,k)] += (p[IDX(i,j,k)]-p[IDX(max(0,i-1),j,k)])/CellWidthTemp[0][i];
+              //fprintf(stderr, "after=%"GSYM"\n", AccelerationField[0][IDX(i,j,k)]);
+
 
             }else{
+              //fprintf(stderr, "before=%"GSYM",%"ISYM"\n", AccelerationField[0][IDX(i,j,k)],i);
               AccelerationField[0][IDX(i,j,k)] += (p[IDX(min(in-1,i+1),j,k)]-p[IDX(max(0,i-1),j,k)])/(2*CellWidthTemp[0][i]);
+              //fprintf(stderr, "after=%"GSYM"\n", AccelerationField[0][IDX(i,j,k)]);
+
             }
 
            

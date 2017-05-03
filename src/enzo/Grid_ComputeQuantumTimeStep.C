@@ -54,7 +54,7 @@ int grid::ComputeQuantumTimeStep (float &dt) {
     ENZO_FAIL("Error in GetUnits.");
   }
  
-   hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2);
+   hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
 
 
   dt = huge_number;

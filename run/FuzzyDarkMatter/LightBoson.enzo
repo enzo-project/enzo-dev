@@ -15,23 +15,33 @@ WriteGhostZones            = 0
 #  define cosmology parameters
 #
 ComovingCoordinates        = 0       // Expansion ON
-#CosmologyHubbleConstantNow = 1.
-#CosmologyOmegaMatterNow = 1
-#CosmologyOmegaLambdaNow = 0
-#CosmologyComovingBoxSize   = 0.05   // 1 Mpc/h
-#CosmologyMaxExpansionRate  = 0.05    //
-#CosmologyInitialRedshift   = 3      // start at z=2
-#CosmologyFinalRedshift     = 0
-#GravitationalConstant      = 1       // this must be true for cosmology
+CosmologyHubbleConstantNow = 1.
+CosmologyOmegaMatterNow = 1
+CosmologyOmegaLambdaNow = 0
+CosmologyComovingBoxSize   = 0.1   // 1 Mpc/h
+CosmologyMaxExpansionRate  = 0.05    //
+CosmologyInitialRedshift   = 2      // start at z=2
+CosmologyFinalRedshift     = 0
+GravitationalConstant      = 1       // this must be true for cosmology
 
 #
 #  set I/O and stop/start parameters
 #
-StopTime               = 1e-1
-dtDataDump             = 1e-2
+StopTime               = 2e-1
+dtDataDump             = 1e-1
+CourantSafetyNumber    = 0.5
 #SubcycleSkipDataDump = 1
+#RedshiftDumpName = RD
+#RedshiftDumpDir  = RD
+#Initialdt = 1e-4
 
-
+CosmologyOutputRedshift[0] = 2
+CosmologyOutputRedshift[1] = 1.5
+CosmologyOutputRedshift[2] = 1
+CosmologyOutputRedshift[3] = 0.5
+CosmologyOutputRedshift[4] = 0.3
+CosmologyOutputRedshift[5] = 0.1
+CosmologyOutputRedshift[6] = 0
 
 #
 #  set Hydro parameters
@@ -47,20 +57,21 @@ ConservativeInterpolation   = 0
 FDMMass = 1.
 
 Gamma                  = 1.66667
-CourantSafetyNumber    = 0.5
+CourantSafetyNumber    = 0.2
 
 
 StaticHierarchy                       = 0
-MaximumRefinementLevel                = 5
-MaximumGravityRefinementLevel         = 5
-MaximumParticleRefinementLevel        = 5
+MaximumRefinementLevel                = 2
+MaximumGravityRefinementLevel         = 2
+MaximumParticleRefinementLevel        = 2
 RefineBy                              = 2
 CellFlaggingMethod                    = 2
-MinimumOverDensityForRefinement       = 50.0
+MinimumOverDensityForRefinement       = 20.0
 #RefineByJeansLengthSafetyFactor       = 4
-#RefineByDivVelSafetyFactor            = 16
+RefineByDivVelSafetyFactor            = 0.01
+SecondDerivativeFlaggingFields = 0
 
-NumberOfBufferZones                   = 2
+NumberOfBufferZones                   = 1
 
 
 
@@ -70,6 +81,7 @@ NumberOfBufferZones                   = 2
 
 DensityUnits = 1.8788e-29
 LengthUnits = 1.542839e+23
+#LengthUnits = 3.08567758e+24
 TimeUnits = 2.519445e+17
 
 Debug1 = 1

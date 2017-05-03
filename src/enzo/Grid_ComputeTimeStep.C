@@ -480,9 +480,10 @@ float grid::ComputeTimeStep()
         }
 
   
-      dtQuant = CourantSafetyNumber/dtBaryons + (2.*hmcoef)/pow(dx,2);
+      //dtQuant = CourantSafetyNumber/dtBaryons + 2*hmcoef/pow(dx,2);
 
-      dtQuant = CourantSafetyNumber/dtQuant; 
+      //dtQuant = CourantSafetyNumber/dtQuant; 
+      dtQuant = pow(dx,2)/hmcoef/2.*CourantSafetyNumber;
 
   }
 
