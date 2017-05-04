@@ -233,6 +233,10 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
   //(hbar/m)^2/2
   float lapcoef = pow(hmcoef,2)/2.;
+      /* modify acceleration to include quantum pressure */
+      if (this->ComputeQuantumAcceleration(d, dx, dy, dz, lapcoef) == FAIL) {
+  ENZO_FAIL("Error in ComputeQuantumAcceleration.");
+    }
 
     if (ZeusFDM(d, e, u, v, w, p,
      GridDimension[0], GridDimension[1], GridDimension[2],

@@ -89,7 +89,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
   /* Compute the quantum pressure */
   
 
-  for (k = 0; k < kn; k++) {
+ /* for (k = 0; k < kn; k++) {
     for (j = 0; j < jn; j++) {
       for (i = 0; i < in; i++){
 
@@ -175,7 +175,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
     for (j = jsm1; j <= jep2; j++) {
       for (i = is-1; i <= ie+2; i++) {
       		
-          deltav =  dt*(p[IDX(i-1,j,k)]-p[IDX(i,j,k)])/dx[i];// + visx[IDX(i,j,k)]* 1e-1;
+          /*deltav =  dt*(p[IDX(i-1,j,k)]-p[IDX(i,j,k)])/dx[i];// + visx[IDX(i,j,k)]* 1e-1;
 		      u[IDX(i,j,k)] = u[IDX(i,j,k)] + deltav;
 
       if (rank > 1) {
@@ -190,7 +190,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
 
       /* Update velocities with acceleration */
 
-        if(gravity ==1 ){
+        //if(gravity ==1 ){
 
     	  u[IDX(i,j,k)] = u[IDX(i,j,k)] + dt*gr_xacc[IDX(i,j,k)];
 
@@ -199,7 +199,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
 
 	     if (rank > 2)
 	         w[IDX(i,j,k)] = w[IDX(i,j,k)] + dt*gr_zacc[IDX(i,j,k)];
-       }
+       //}
 
       }// end loop over i
     } // end: loop over j
