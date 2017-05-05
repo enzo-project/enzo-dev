@@ -165,7 +165,7 @@ c
 
       call int_spline(parent, grid, ndim, pdims(1), pdims(2), pdims(3),
      &                   gdims(1), gdims(2), gdims(3), 
-     &                   pstart(1)+1, pstart(2)+1, pstart(3)+1,
+     &                   pstart(1), pstart(2), pstart(3),
      &                   refine(1), refine(2), refine(3), temp1, temp2)
 c
 c#if 0

@@ -970,7 +970,7 @@ OBJS_CONFIG_LIB = \
         QuantumGetUnits.o \
         Grid_FlagCellsToBeRefinedByQuantumJeans.o \
 	ZeusFDM.o\
-        Grid_FlagCellsToBeRefinedByVelDiv.o\
+        Grid_FlagCellsToBeRefinedBySqrtSecondDeriv.o\
 	Grid_ComputeQuantumAcceleration.o 
 
 

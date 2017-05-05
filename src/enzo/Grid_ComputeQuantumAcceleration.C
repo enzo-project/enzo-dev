@@ -57,12 +57,14 @@ c     minsupecoef - coefficient for minimum pressure support (0 - not used)
 #define IDX(a,b,c) ( ((c)*jn + (b))*in + (a) )
 
 
-int grid::ComputeQuantumAcceleration(float *d, float dx[], float dy[], float dz[], float lapcoef)
+int grid::ComputeQuantumAcceleration(float dx[], float dy[], float dz[], float lapcoef)
 {
 
   /*  Locals */
 
   int dim,i, j, k;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum;
+
 
   int rank = GridRank;
   int in = GridDimension[0];
@@ -72,8 +74,17 @@ int grid::ComputeQuantumAcceleration(float *d, float dx[], float dy[], float dz[
   /* Allocate temporary space */
 
   int size = in*jn*kn;
+  float *d = new float[size];
   float *p = new float[size];
   float *logd = new float[size];
+
+    /* Find fields: density, total energy, velocity1-3 and set pointers to them
+     Create zero fields for velocity2-3 for low-dimension runs because solver
+     assumes they exist. */
+
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum );
+  
+  d = BaryonField[DensNum];
 
   /* Compute log of density */
    for (i = 0; i < size; i++) {
@@ -119,6 +130,8 @@ int grid::ComputeQuantumAcceleration(float *d, float dx[], float dy[], float dz[
           p[IDX(i,j,k)] = p[IDX(i,j,k)] 
                   + pow((1./12.*(logd[IDX(max(i-2,0),j,k)]-logd[IDX(min(i+2,in-1),j,k)])
                     -2./3.*(logd[IDX(max(i-1,0),j,k)]-logd[IDX(min(i+1,in-1),j,k)]))/dx[i],2)/4.;
+          p[IDX(i,j,k)] = (pow(d[IDX(max(i-1,0),j,k)],0.5)-2.0*pow(d[IDX(i,j,k)],0.5)+pow(d[IDX(min(i+1,in-1),j,k)],0.5))/pow(dx[i],2);
+
           if (rank > 1) {
      
           p[IDX(i,j,k)] = p[IDX(i,j,k)]
@@ -142,7 +155,8 @@ int grid::ComputeQuantumAcceleration(float *d, float dx[], float dy[], float dz[
 
           }//endif rank>2
 
-          p[IDX(i,j,k)] = p[IDX(i,j,k)]*lapcoef;
+          //p[IDX(i,j,k)] = p[IDX(i,j,k)]*lapcoef;
+          p[IDX(i,j,k)] = p[IDX(i,j,k)]/pow(d[IDX(i,j,k)],0.5)*lapcoef;
             }//end loop over i
           }//end loop over j
         }//end loop over k

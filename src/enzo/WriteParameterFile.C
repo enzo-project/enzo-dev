@@ -603,9 +603,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MinimumPressureSupportParameter);
   fprintf(fptr, "RefineByJeansLengthSafetyFactor  = %"FSYM"\n",
 	  RefineByJeansLengthSafetyFactor);
-  /* FDM: write velocity divergence refinement factor */
-  fprintf(fptr, "RefineByVelDivSafetyFactor  = %"FSYM"\n",
-    RefineByVelDivSafetyFactor);
   fprintf(fptr, "JeansRefinementColdTemperature  = %"FSYM"\n",
 	  JeansRefinementColdTemperature);
   fprintf(fptr, "RefineByResistiveLengthSafetyFactor  = %"FSYM"\n", 

@@ -26,7 +26,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-int grid::FlagCellsToBeRefinedByVelDiv()
+int grid::FlagCellsToBeRefinedBySqrtSecondDeriv()
 {
   /* declarations */
 
@@ -149,7 +149,7 @@ int grid::FlagCellsToBeRefinedByVelDiv()
     /* flag field based on second derivative */
     for (i = 0; i < size; i++){
       TopBuffer[i] = sqrt(TopBuffer[i]/BottomBuffer[i]);
-      FlaggingField[i] += (TopBuffer[i] > RefineByVelDivSafetyFactor) ? 1 : 0;
+      FlaggingField[i] += (TopBuffer[i] > MinimumSecondDerivativeForRefinementThis) ? 1 : 0;
     }
   }  // end loop over field
 

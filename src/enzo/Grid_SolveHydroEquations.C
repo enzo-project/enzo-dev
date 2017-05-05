@@ -33,6 +33,9 @@
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int FindField(int f, int farray[], int n);
+int QuantumGetUnits(float *DensityUnits, float *LengthUnits,
+       float *TemperatureUnits, float *TimeUnits,
+       float *VelocityUnits, FLOAT Time);
 
 #ifdef PPM_LR
 extern "C" void FORTRAN_NAME(ppm_lr)(
@@ -417,6 +420,26 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (RadiationPressure)
       GravityOn = 1;
 #endif    
+
+    /* Modify Acceleration for quantum pressure */
+    /*if (QuantumPressure){
+      GravityOn = 1;
+        float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
+    VelocityUnits = 1, TimeUnits = 1;
+
+  if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+         &TimeUnits, &VelocityUnits, Time) == FAIL) {
+    ENZO_FAIL("Error in QuantumGetUnits.");
+  }
+  float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
+  //(hbar/m)^2/2
+  float lapcoef = pow(hmcoef,2)/2.;
+
+      if (this->ComputeQuantumAcceleration(CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2], lapcoef) 
+    == FAIL) {
+  ENZO_FAIL("Error in ComputeQuantumAcceleration.");
+    }
+  }*/
 
     //Some setup for MHDCT
 

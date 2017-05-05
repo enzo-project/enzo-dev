@@ -646,9 +646,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MinimumPressureSupportParameter);
     ret += sscanf(line, "RefineByJeansLengthSafetyFactor = %"FSYM,
 		  &RefineByJeansLengthSafetyFactor);
-    /* FDM: read velocity divergence refinement factor */
-    ret += sscanf(line, "RefineByVelDivSafetyFactor = %"FSYM,
-      &RefineByVelDivSafetyFactor);
     ret += sscanf(line, "JeansRefinementColdTemperature = %"FSYM,
 		  &JeansRefinementColdTemperature);
     ret += sscanf(line, "RefineByResistiveLengthSafetyFactor = %" FSYM,

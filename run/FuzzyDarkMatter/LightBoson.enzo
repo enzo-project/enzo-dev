@@ -27,8 +27,8 @@ GravitationalConstant      = 1       // this must be true for cosmology
 #
 #  set I/O and stop/start parameters
 #
-StopTime               = 2e-1
-dtDataDump             = 1e-1
+StopTime               = 2e-2
+dtDataDump             = 1e-2
 CourantSafetyNumber    = 0.5
 #SubcycleSkipDataDump = 1
 #RedshiftDumpName = RD
@@ -52,7 +52,7 @@ PressureFree                = 1
 ZEUSQuadraticArtificialViscosity = 1.0 
 SelfGravity                 = 0
 FluxCorrection              = 1
-ConservativeInterpolation   = 0
+ConservativeInterpolation   = 1
 #ConductionCourantSafetyNumber = 0.01
 FDMMass = 1.
 
@@ -65,11 +65,11 @@ MaximumRefinementLevel                = 2
 MaximumGravityRefinementLevel         = 2
 MaximumParticleRefinementLevel        = 2
 RefineBy                              = 2
-CellFlaggingMethod                    = 2
+CellFlaggingMethod                    = 15
 MinimumOverDensityForRefinement       = 50.0
 #RefineByJeansLengthSafetyFactor       = 4
-RefineByDivVelSafetyFactor            = 0.01
 SecondDerivativeFlaggingFields = 0
+MinimumSecondDerivativeForRefinement  = 0.5
 
 NumberOfBufferZones                   = 1
 

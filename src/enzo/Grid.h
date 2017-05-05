@@ -404,7 +404,7 @@ public:
 
 /* FDM: functions for lightboson dark matter */
   int ComputeQuantumTimeStep(float &dt); /* Estimate quantum time-step */
-  int ComputeQuantumAcceleration(float *d, float dx[], float dy[], float dz[], float lapcoef); /* Net Acceleration of Lightboson */
+  int ComputeQuantumAcceleration(float dx[], float dy[], float dz[], float lapcoef); /* Net Acceleration of Lightboson */
 
 /* Member functions for dealing with Cosmic Ray Diffusion */
 
@@ -938,8 +938,8 @@ gradient force to gravitational force for one-zone collapse test. */
 /* FDM: new refinement criteria */
 /* FDM: Jean's scale */
    int FlagCellsToBeRefinedByQuantumJeansLength();
-/* FDM: velocity divergence */
-   int FlagCellsToBeRefinedByVelDiv();
+/* FDM: 2nd order derivative of sqrt */
+   int FlagCellsToBeRefinedBySqrtSecondDeriv();
 
 /* Identify new subgrids for this grid (and prove Fermat's last theorem too)
    (gg #5) */

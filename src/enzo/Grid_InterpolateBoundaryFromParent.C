@@ -332,7 +332,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
  
     if (HydroMethod == Zeus_Hydro)
       InterpolationMethod = (SecondOrderBFlag[densfield] == 0) ?
-	SecondOrderB : SecondOrderC;
+	SecondOrderA : SecondOrderC;
 
     if( AccelerationHack != TRUE ) {
       FORTRAN_NAME(interpolate)(&GridRank,

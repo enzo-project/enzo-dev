@@ -297,7 +297,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level, int MaximumCurr
 
   	//if ( (level < (MaximumCurrentLevel-1))&&(NumberOfFlaggedCells>0)){
 
-     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByVelDiv();
+     NumberOfFlaggedCells = this->FlagCellsToBeRefinedBySqrtSecondDeriv();
 
      if (NumberOfFlaggedCells < 0) {
        fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByVelDiv.\n");

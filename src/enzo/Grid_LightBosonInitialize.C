@@ -57,7 +57,7 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
 
   //float a = 1./(1.+2.);
   float alpha = 1./500;
-  float initialtime=-.1;
+  float initialtime=-.1*0;
   float sumsquare = pow(alpha,2)+pow(coef*initialtime,2);
 
   int i;
@@ -74,12 +74,14 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
 
 // 1) Gaussian Density Field
 
-      BaryonField[iden ][index] = 1*exp(-alpha*pow((x-CenterPosition),2)/sumsquare)/pow(sumsquare,0.5)/5+1e-6; 
+      //BaryonField[iden ][index] = 1*exp(-alpha*pow((x-CenterPosition),2)/sumsquare)/pow(sumsquare,0.5)/5; 
       //BaryonField[ivx ][index] = 1.e-4*exp(-alpha*pow((x-CenterPosition),2)/sumsquare); // Gaussian Density Field
 
 // 2) Fresnel solution
-    /*if( x>0.5){
+    if( x>0.5){
       BaryonField[iden ][index] = 6.;
+    }else if (x==0.5){
+      BaryonField[iden ][index] = 0.;
     }else{
       BaryonField[iden ][index] = 5.;
     }

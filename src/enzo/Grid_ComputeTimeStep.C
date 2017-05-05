@@ -390,7 +390,7 @@ float grid::ComputeTimeStep()
  
   /* 4) Calculate minimum dt due to acceleration field (if present). */
  
-  if (SelfGravity || QuantumPressure) {
+  if (SelfGravity) {
     for (dim = 0; dim < GridRank; dim++)
       if (AccelerationField[dim])
 	for (i = 0; i < size; i++) {
