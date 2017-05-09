@@ -527,7 +527,6 @@ int grid::CosmologySimulationInitializeGrid(
         BaryonField[ForbidNum][i] = 0.0;
     }
   } // ENDIF UseMetallicityField
-  
 
 #ifdef EMISSIVITY
     // If using an emissivity field, initialize to zero
@@ -554,7 +553,7 @@ int grid::CosmologySimulationInitializeGrid(
 	BaryonField[dim2][i] = 0.;
       }
     }
-
+  
     if (CosmologySimulationTotalEnergyName == NULL) {
       for (i = 0; i < size; i++) {
         BaryonField[iTE][i] = CosmologySimulationInitialTemperature/
@@ -601,7 +600,21 @@ int grid::CosmologySimulationInitializeGrid(
               }                               
       }  // if(UseMHDCT == TRUE)              
     }
-  }
+  
+    /* Initialize Quantum Pressure */
+    if (QuantumPressure && ReadData){
+
+      printf("Initializing Quantum Pressure...\n");
+
+      if (this->ComputeQuantumPressure (Time) == FAIL) { 
+        ENZO_FAIL("Error in ComputeQuantumPressure!\n");
+      }
+      printf("Quantum Pressure Initialized.\n");
+
+
+    }
+
+  } // end: if (CosmologySimulationDensityName != NULL && ReadData)
 
   } // end: if (NumberOfBaryonFields > 0)
  

@@ -970,8 +970,13 @@ OBJS_CONFIG_LIB = \
         QuantumGetUnits.o \
         Grid_FlagCellsToBeRefinedByQuantumJeans.o \
 	ZeusFDM.o\
+        Zeus_xTransport_FDM.o \
+        Zeus_yTransport_FDM.o \
+        Zeus_zTransport_FDM.o \
         Grid_FlagCellsToBeRefinedBySqrtSecondDeriv.o\
-	Grid_ComputeQuantumAcceleration.o 
+	Grid_ComputeQuantumAcceleration.o \
+	Grid_ComputeQuantumPressure.o 
+
 
 
 #-----------------------------------------------------------------------

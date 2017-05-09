@@ -91,12 +91,36 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
 	       int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
 	       int bottom, float minsupecoef, int CRModel, float CRgamma);
 
-int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
+int ZeusFDM(float *d, float *e, float *u, float *v, float *w,
          int in, int jn, int kn, int rank,
          int is, int ie, int js, int je, int ks, int ke, 
          float C1, float C2, float *gamma, float dt, float dx[], float dy[], float dz[],
          int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
          float minsupecoef, float lapcoef);
+
+int Zeus_xTransport_FDM(float *d, float *e, float *u, float *v, float *w, 
+        int in, int jn, int kn, int rank,
+        int is, int ie, int js, int je, int ks, int ke,
+        float dt, float dx[], float *f1, int bottom,
+        int nsubgrids, long_int GridGlobalStart[],
+        fluxes *SubgridFluxes[], int DensNum, int TENum, 
+        int Vel1Num, int Vel2Num, int Vel3Num, float *BaryonField[]);
+
+int Zeus_yTransport_FDM(float *d, float *e, float *u, float *v, float *w, 
+        int in, int jn, int kn, int rank,
+        int is, int ie, int js, int je, int ks, int ke,
+        float dt, float dy[], float *f1, int bottom,
+        int nsubgrids, long_int GridGlobalStart[],
+        fluxes *SubgridFluxes[], int DensNum, int TENum, 
+        int Vel1Num, int Vel2Num, int Vel3Num, float *BaryonField[]);
+
+int Zeus_zTransport_FDM(float *d, float *e, float *u, float *v, float *w, 
+        int in, int jn, int kn, int rank,
+        int is, int ie, int js, int je, int ks, int ke,
+        float dt, float dz[], float *f1, int bottom,
+        int nsubgrids, long_int GridGlobalStart[],
+        fluxes *SubgridFluxes[], int DensNum, int TENum, 
+        int Vel1Num, int Vel2Num, int Vel3Num, float *BaryonField[]);
 
 int GetUnits (float *DensityUnits, float *LengthUnits,
          float *TemperatureUnits, float *TimeUnits,
@@ -121,7 +145,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   int i, ie, is, j, je, js, k, ks, ke, n, ixyz, ret;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum;
   float pmin;
-  float *d, *e, *u, *v, *w, *cr, *m;
+  float *d, *e, *u, *v, *w, *cr, *m, *qpres;
 
   /* Error Check */
 
@@ -234,7 +258,10 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   //(hbar/m)^2/2
   float lapcoef = pow(hmcoef,2)/2.;
 
-    if (ZeusFDM(d, e, u, v, w, p,
+  //int QNum = FindField(QPressure, FieldType, NumberOfBaryonFields);
+  //qpres = BaryonField[QNum];
+  
+    if (ZeusFDM(d, e, u, v, w,
      GridDimension[0], GridDimension[1], GridDimension[2],
      GridRank, 
      is, ie, js, je, ks, ke, 
@@ -308,6 +335,47 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 
   ixyz = nhy % GridRank;
   for(n=ixyz; n <= ixyz+GridRank-1; n++) {
+    if(QuantumPressure){
+      /* Transport step - x direction */
+    
+    if ((n % GridRank) == 0)
+      ret = Zeus_xTransport_FDM(d, e, u, v, w, GridDimension[0], 
+          GridDimension[1], GridDimension[2], GridRank,
+          is, ie, js, je, ks, ke,
+          dtFixed, dx, p, bottom,
+          NumberOfSubgrids, GridGlobalStart,
+          SubgridFluxes, DensNum, TENum,
+          Vel1Num, Vel2Num, Vel3Num, BaryonField);
+
+    /*  Transport step - y direction */
+
+    if ((n % GridRank) == 1 && GridRank > 1)
+      ret = Zeus_yTransport_FDM(d, e, u, v, w, GridDimension[0], 
+          GridDimension[1], GridDimension[2], GridRank,
+          is, ie, js, je, ks, ke,
+          dtFixed, dy, p, bottom,
+          NumberOfSubgrids, GridGlobalStart,
+          SubgridFluxes, DensNum, TENum,
+          Vel1Num, Vel2Num, Vel3Num, BaryonField);
+
+    /*  Transport step - z direction */
+
+    if ((n % GridRank) == 2 && GridRank > 2)
+      ret = Zeus_zTransport_FDM(d, e, u, v, w, GridDimension[0], 
+          GridDimension[1], GridDimension[2], GridRank,
+          is, ie, js, je, ks, ke,
+          dtFixed, dz, p, bottom,
+          NumberOfSubgrids, GridGlobalStart,
+          SubgridFluxes, DensNum, TENum,
+          Vel1Num, Vel2Num, Vel3Num, BaryonField);
+
+    if (ret == FAIL) {
+      fprintf(stderr, "P(%"ISYM"): Error on ZeusTransport dim=%"ISYM" (Cycle = %"ISYM", dt=%"GSYM")\n", 
+        MyProcessorNumber, n % GridRank, nhy, dtFixed);
+    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+      ENZO_FAIL("Error in ZeusSource!\n");
+     }
+    } else {
 
     /* Transport step - x direction */
     
@@ -350,9 +418,16 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 	      MyProcessorNumber, n % GridRank, nhy, dtFixed);
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
       ENZO_FAIL("Error in ZeusSource!\n");
+      }
     }
   
   } // end loop over n
+
+  if (QuantumPressure){
+    if (this->ComputeQuantumPressure (Time) == FAIL) {
+    ENZO_FAIL("Error in ComputeQuantumPressure!\n");
+    }
+  }
 
   /* Clean up */
 

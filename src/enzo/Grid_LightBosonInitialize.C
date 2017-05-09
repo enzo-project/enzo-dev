@@ -24,7 +24,6 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
   FieldType[NumberOfBaryonFields++] = Velocity2;
   FieldType[NumberOfBaryonFields++] = Velocity3;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
-
   
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
@@ -111,6 +110,10 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
 
   }
   }
+  }
+
+   if (this->ComputeQuantumPressure(Time) == FAIL) {
+    ENZO_FAIL("Error in ComputeQuantumPressure!\n");
   }
 
   return SUCCESS;

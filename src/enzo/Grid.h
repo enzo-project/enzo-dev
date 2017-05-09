@@ -405,6 +405,7 @@ public:
 /* FDM: functions for lightboson dark matter */
   int ComputeQuantumTimeStep(float &dt); /* Estimate quantum time-step */
   int ComputeQuantumAcceleration(float dx[], float dy[], float dz[], float lapcoef); /* Net Acceleration of Lightboson */
+  int ComputeQuantumPressure(float Time); /* Net Acceleration of Lightboson */
 
 /* Member functions for dealing with Cosmic Ray Diffusion */
 

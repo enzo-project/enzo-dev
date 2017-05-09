@@ -51,10 +51,11 @@ QuantumPressure            = 1
 PressureFree                = 1
 ZEUSQuadraticArtificialViscosity = 1.0 
 SelfGravity                 = 0
-FluxCorrection              = 1
+FluxCorrection              = 0
 ConservativeInterpolation   = 1
 #ConductionCourantSafetyNumber = 0.01
 FDMMass = 1.
+#OutputFirstTimeAtLevel      = 1
 
 Gamma                  = 1.66667
 CourantSafetyNumber    = 0.2
@@ -65,11 +66,11 @@ MaximumRefinementLevel                = 2
 MaximumGravityRefinementLevel         = 2
 MaximumParticleRefinementLevel        = 2
 RefineBy                              = 2
-CellFlaggingMethod                    = 15
+CellFlaggingMethod                    = 51
 MinimumOverDensityForRefinement       = 50.0
 #RefineByJeansLengthSafetyFactor       = 4
 SecondDerivativeFlaggingFields = 0
-MinimumSecondDerivativeForRefinement  = 0.5
+MinimumSecondDerivativeForRefinement  = 0.1
 
 NumberOfBufferZones                   = 1
 

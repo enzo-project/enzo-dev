@@ -8,11 +8,12 @@
 #
 ProblemType                = 30      // cosmology simulation
 TopGridRank                = 3
-TopGridDimensions          = 32 32 32
+TopGridDimensions          = 64 64 64
 SelfGravity                = 1       // gravity on
 TopGridGravityBoundary     = 0       // Periodic BC for gravity
 LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
 RightFaceBoundaryCondition = 3 3 3
+NumberOfGhostZones         = 4
 
 #
 # problem parameters
@@ -67,10 +68,10 @@ CosmologyOutputRedshift[9] = 0.007
 HydroMethod                 = 2       // PPM
 Gamma                       = 1.6667
 PPMDiffusionParameter       = 0       // diffusion off
-DualEnergyFormalism         = 1       // use total & internal energy
+DualEnergyFormalism         = 0       // use total & internal energy
 InterpolationMethod         = 1       // SecondOrderA
 FluxCorrection              = 1
-ConservativeInterpolation   = 1
+ConservativeInterpolation   = 0
 CourantSafetyNumber         = 0.5
 ParticleCourantSafetyNumber = 0.8
 UseMinimumPressureSupport   = 0

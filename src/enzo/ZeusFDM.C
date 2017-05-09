@@ -38,7 +38,7 @@ c
 
 #define IDX(a,b,c) ( ((c)*jn + (b))*in + (a) )
 
-int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
+int ZeusFDM(float *d, float *p, float *u, float *v, float *w,
 	       int in, int jn, int kn, int rank,
 	       int is, int ie, int js, int je, int ks, int ke, 
 	       float C1, float C2, float *gamma, float dt, float dx[], float dy[], float dz[],
@@ -53,7 +53,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
   int size = in*jn*kn;
   float gamma1 = gamma[0];
   float  deltav, dt1, e1;
-  float *logd = new float[size];
+  //float *logd = new float[size];
   //float *visx = new float[size];
   //float *visy = new float[size];
   //float *visz = new float[size];
@@ -76,7 +76,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
 
   /* compute log of density */
   
-   for (i = 0; i < size; i++) {
+   /*for (i = 0; i < size; i++) {
     if (d[i] < 0) {
       fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
         u[i],v[i],w[i],d[i],e[i], dx[0], dt);
@@ -84,12 +84,12 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
     } else{
       logd[i] = log(d[i]);
     }
-  }
+  }*/
 
   /* Compute the quantum pressure */
   
 
-  for (k = 0; k < kn; k++) {
+  /*for (k = 0; k < kn; k++) {
     for (j = 0; j < jn; j++) {
       for (i = 0; i < in; i++){
 
@@ -159,9 +159,9 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
 
           }// end rank > 2
 
-          //p[IDX(i,j,k)] = -1.0*p[IDX(i,j,k)]/pow(d[IDX(i,j,k)],0.5)*lapcoef;
+          //p[IDX(i,j,k)] = p[IDX(i,j,k)]/pow(d[IDX(i,j,k)],0.5)*lapcoef;
           
-          p[IDX(i,j,k)] = -1.0*p[IDX(i,j,k)]*lapcoef;
+          p[IDX(i,j,k)] = p[IDX(i,j,k)]*lapcoef;
           
           e[IDX(i,j,k)] = 1e3;          
                   }// end loop over i
@@ -175,16 +175,16 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
     for (j = jsm1; j <= jep2; j++) {
       for (i = is-1; i <= ie+2; i++) {
       		
-          deltav =  dt*(p[IDX(i-1,j,k)]-p[IDX(i,j,k)])/dx[i];// + visx[IDX(i,j,k)]* 1e-1;
+          deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i-1,j,k)])/dx[i]*lapcoef;// + visx[IDX(i,j,k)]* 1e-1;
 		      u[IDX(i,j,k)] = u[IDX(i,j,k)] + deltav;
 
       if (rank > 1) {
-      		deltav =  dt*(p[IDX(i,j-1,k)]-p[IDX(i,j,k)])/dy[j];// + visy[IDX(i,j,k)]* 1e-1;
+      		deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i,j-1,k)])/dy[j]*lapcoef;// + visy[IDX(i,j,k)]* 1e-1;
       	  v[IDX(i,j,k)] = v[IDX(i,j,k)] + deltav;
           }// end rank >1
 
       if (rank > 2) {
-      		deltav =  dt*(p[IDX(i,j,k-1)]-p[IDX(i,j,k)])/dz[k];// + visz[IDX(i,j,k)]* 1e-1;
+      		deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i,j,k-1)])/dz[k]*lapcoef;// + visz[IDX(i,j,k)]* 1e-1;
       	  w[IDX(i,j,k)] = w[IDX(i,j,k)] + deltav;
         }// end rank>2
 
@@ -350,7 +350,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
 
 
 
-delete [] logd;
+//delete [] logd;
 
 //delete [] visx;
 //delete [] visy;
