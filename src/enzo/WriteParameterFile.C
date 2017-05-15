@@ -520,6 +520,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "Compton_xray_heating        = %d\n", grackle_data->Compton_xray_heating);
   fprintf(fptr, "LWbackground_intensity      = %lf\n", grackle_data->LWbackground_intensity);
   fprintf(fptr, "LWbackground_sawtooth_suppression = %d\n", grackle_data->LWbackground_sawtooth_suppression);
+  fprintf(fptr, "RampCooling                 = %d\n", grackle_data->RampCooling);
+  fprintf(fptr, "RampCooling_time_on         = %"GSYM"\n", grackle_data->RampCooling_time_on);
+  fprintf(fptr, "RampCooling_time_fullon     = %"GSYM"\n", grackle_data->RampCooling_time_fullon);
   /********************************/
 #endif
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
