@@ -571,8 +571,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &grackle_data->H2_self_shielding);
 
     ret += sscanf(line, "RampCooling = %d", &grackle_data->RampCooling);
-    ret += sscanf(line, "RampCooling_time_on = %"GSYM, &grackle_data->RampCooling_time_on);
-    ret += sscanf(line, "RampCooling_time_fullon = %"GSYM, &grackle_data->RampCooling_time_fullon);
+    ret += sscanf(line, "RampCooling_time_on = %"FSYM, &grackle_data->RampCooling_time_on);
+    ret += sscanf(line, "RampCooling_time_fullon = %"FSYM, &grackle_data->RampCooling_time_fullon);
 
     if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
       grackle_data->grackle_data_file = dummy;
