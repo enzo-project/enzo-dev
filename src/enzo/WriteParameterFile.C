@@ -633,7 +633,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           MustRefineParticlesCreateParticles);
   fprintf(fptr, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM"\n",
           MustRefineParticlesRefineToLevelAutoAdjust);
-  fprintf(fptr, "MustRefineParticlesMinimumMass = %"FSYM"\n",
+  fprintf(fptr, "MustRefineParticlesMinimumMass = %"ESYM"\n",
           MustRefineParticlesMinimumMass);
   fprintf(fptr, "MustRefineParticlesBufferSize = %"ISYM"\n",
           MustRefineParticlesBufferSize);
