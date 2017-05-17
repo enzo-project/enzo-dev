@@ -754,7 +754,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarSFGasMassThreshold   = 200.0;         // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
   IndividualStarIMF                  =     0;         // 0: salpeter, 1: kroupa, 2: chabrier
   IndividualStarIMFCalls             =     0;         // Do not touch - number of calls to IMF so far in simulation
-  IndividualStarSalpeterSlope        =   2.5;         // slope
+  IndividualStarSalpeterSlope        = -1.35;         // slope
   IndividualStarKroupaAlpha1         =   0.3;         // kroupa slope over mass range
   IndividualStarKroupaAlpha2         =   1.3;         // '' over 
   IndividualStarKroupaAlpha3         =   2.3;         // '' over
