@@ -1109,6 +1109,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* AJE Individual Star */
     ret += sscanf(line, "IndividualStarCheckVelocityDiv = %"ISYM,
                         &IndividualStarCheckVelocityDiv);
+    ret += sscanf(line, "IndividualStarICLifetimeMode = %"ISYM,
+                        &IndividualStarICLifetimeMode);
     ret += sscanf(line, "IndividualStarFeedbackOverlapSample = %"ISYM,
                         &IndividualStarFeedbackOverlapSample);
     ret += sscanf(line, "IndividualStarUseWindMixingModel = %"ISYM,

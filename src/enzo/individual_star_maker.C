@@ -193,7 +193,7 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
   int nstar = 0;
   const int maxstar = 10000;
   FLOAT xpos[maxstar], ypos[maxstar], zpos[maxstar];
-  float mass[maxstar], z[maxstar];
+  float mass[maxstar], z[maxstar], lifetime[maxstar];
 
   FILE *fptr = fopen("particle_IC.in", "r");
 
@@ -204,13 +204,30 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
   char line[MAX_LINE_LENGTH];
   int err;
   int i = 0;
-  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
-    if(line[0] != '#'){
-      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
-                         &mass[i], &z[i], &xpos[i], &ypos[i], &zpos[i]);
-      i++;
+
+  if (IndividualStarICLifetimeMode == 2){
+
+    while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
+      if(line[0] != '#'){
+        err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                           &mass[i], &z[i], &lifetime[i], &xpos[i], &ypos[i], &zpos[i]);
+        i++;
+      }
     }
+
+
+  } else {
+
+    while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
+      if(line[0] != '#'){
+        err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                           &mass[i], &z[i], &xpos[i], &ypos[i], &zpos[i]);
+        i++;
+      }
+    }
+
   }
+
   fclose(fptr);
 
   nstar = i;
@@ -239,10 +256,20 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
     ParticleType[count] = -PARTICLE_TYPE_INDIVIDUAL_STAR;
     ParticleAttribute[0][count] = this->Time + 2.0*this->dtFixed;
 
-    IndividualStarInterpolateLifetime(ParticleAttribute[1][count],
-                                      mass[i], z[i], 1);
 
-    ParticleAttribute[1][count] /= TimeUnits;
+    if (IndividualStarICLifetimeMode == 0){
+        IndividualStarInterpolateLifetime(ParticleAttribute[1][count],
+                                          mass[i], z[i], 1);
+        ParticleAttribute[1][count] /= TimeUnits;
+
+    } else if (IndividualStarICLifetimeMode == 1){
+        ParticleAttribute[1][count] = 1.5 * this->dtFixed; // end life basically now
+
+    } else if (IndividualStarICLifetimeMode == 2){ // read from file
+        float Myr = 3.1556E13;
+        ParticleAttribute[1][count] = lifetime[count] * Myr / TimeUnits;
+    }
+
     ParticleAttribute[2][count]  = z[i];
 
     ParticlePosition[0][count] = xpos[i];

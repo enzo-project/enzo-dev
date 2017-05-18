@@ -132,6 +132,7 @@ SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
 
 SPEXTERN int   IndividualStarCheckVelocityDiv;
+SPEXTERN int   IndividualStarICLifetimeMode;
 SPEXTERN int   IndividualStarFeedbackOverlapSample;
 SPEXTERN int   IndividualStarUseWindMixingModel;
 SPEXTERN int   IndividualStarAllowTruncatedIMF;
