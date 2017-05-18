@@ -711,6 +711,11 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationPreWindVelocity[2] = 0.0;
   }
 
+  if (IndividualStarICSupernovaRate > 0){ // save galaxy properties for SN driving if used
+    IndividualStarICSupernovaR = GalaxySimulationDiskScaleHeightR; // in Mpc
+    IndividualStarICSupernovaZ = GalaxySimulationDiskScaleHeightz; // in Mpc
+  }
+
  /* set up field names and units */
 
  int count = 0;

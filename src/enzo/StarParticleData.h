@@ -131,6 +131,10 @@ SPEXTERN float  H2StarMakerH2DissociationFlux_MW;
 SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
 
+SPEXTERN float IndividualStarICSupernovaRate;
+SPEXTERN float IndividualStarICSupernovaTime;
+SPEXTERN float IndividualStarICSupernovaR;
+SPEXTERN float IndividualStarICSupernovaZ;
 SPEXTERN int   IndividualStarCheckVelocityDiv;
 SPEXTERN int   IndividualStarICLifetimeMode;
 SPEXTERN int   IndividualStarFeedbackOverlapSample;

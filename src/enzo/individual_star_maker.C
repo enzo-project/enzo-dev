@@ -3153,8 +3153,10 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
   float injected_metal_mass[StellarYieldsNumberOfSpecies+1];
 
-  if (metal_mass == NULL){
+  if (metal_mass == NULL && (cstar)){
     injected_metal_mass[0] = cstar->ReturnMetallicity() * m_eject;
+  } else {
+    injected_metal_mass[0] = 0.0;
   }
 
   // for printing stats at the end
@@ -3194,7 +3196,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
         if (injection_factor < 0) {ENZO_FAIL("injection factor < 0");}
 
-        if (IndividualStarFollowStellarYields){
+        if (IndividualStarFollowStellarYields && cstar){
           for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
             injected_metal_mass[im] = metal_mass[im]*injection_factor;
           }
@@ -3225,6 +3227,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
           BaryonField[GENum][index] = (BaryonField[GENum][index] * BaryonField[DensNum][index]
                                        + delta_therm) * inv_dens;
         }
+        float old_mass = BaryonField[DensNum][index];
         BaryonField[DensNum][index] += delta_mass;
 
         /* add metal species if we need to */
@@ -3232,21 +3235,38 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
           int field_num;
           this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0); // gives metallicity field
 
-          BaryonField[field_num][index] += injected_metal_mass[0];
-          total_metal_mass += BaryonField[field_num][index];
+
+          if (cstar){
+            BaryonField[field_num][index] += injected_metal_mass[0];
+
+          } else {
+            // keep same fraction if using artificial SN generaotr
+            BaryonField[field_num][index] += delta_mass *
+                                             BaryonField[field_num][index] / old_mass;
+          }
+            total_metal_mass += BaryonField[field_num][index];
 
           for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
                                                               StellarYieldsAtomicNumbers[im]);
-            BaryonField[field_num][index] += injected_metal_mass[1 + im];
-
+            if (cstar){
+              BaryonField[field_num][index] += injected_metal_mass[1 + im];
+            } else { // keep same fraction if using artificial SN generator
+              BaryonField[field_num][index] += delta_mass *
+                                               BaryonField[field_num][index] / old_mass;
+            }
           }
 
         } else{
           int field_num;
           this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0); // gives metallicity field
 
-          BaryonField[field_num][index] += injected_metal_mass[0];
+          if (cstar){
+            BaryonField[field_num][index] += injected_metal_mass[0];
+          } else{
+            BaryonField[field_num][index] += delta_mass *
+                                             BaryonField[field_num][index]/ old_mass;
+          }
         } // end yields check
 
       }
@@ -3255,7 +3275,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
 
   // print SN stats to check if resolved if desired
-  if (IndividualStarPrintSNStats && (!stellar_wind_mode)){
+  if (IndividualStarPrintSNStats && (!stellar_wind_mode) && (cstar)){
     // Column order: Grid ID, Particle ID, M_now, M_eject, Sphere Volume
 
     float average_metallicity;

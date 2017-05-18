@@ -1107,6 +1107,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
     /* AJE Individual Star */
+    ret += sscanf(line, "IndividualStarICSupernovaRate = %"ISYM,
+                        &IndividualStarICSupernovaRate);
+    ret += sscanf(line, "IndividualStarICSupernovaTime = %"ISYM,
+                        &IndividualStarICSupernovaTime);
     ret += sscanf(line, "IndividualStarCheckVelocityDiv = %"ISYM,
                         &IndividualStarCheckVelocityDiv);
     ret += sscanf(line, "IndividualStarICLifetimeMode = %"ISYM,
@@ -1532,6 +1536,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   /* AJE - */
   if (IndividualStarSecondaryOverDensityThreshold < 0){
     IndividualStarSecondaryOverDensityThreshold = StarMakerOverDensityThreshold;
+  }
+
+  if (IndividualStarICSupernovaRate > 0 && GalaxySimulationInitialStellarDist){
+    ENZO_FAIL("Are you sure you want to have initial random supernova driving and a stellar population\n");
   }
 
   /* AJE  - Count up the number of species we are following if not set manually by user*/
