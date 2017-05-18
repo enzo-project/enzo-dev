@@ -98,11 +98,11 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
           r     = sqrt( rand()*1.0/RAND_MAX ) * rmax;
           theta = (rand()*1.0/RAND_MAX)  * 2.0 * pi;
-          z     = (rand()*1.0/RAND_MAX) * zmax;
+          z     = (rand()*1.0/RAND_MAX) * 2.0 *zmax - zmax;
 
-          SNPosition[0] = r * cos(theta);
-          SNPosition[1] = r * sin(theta);
-          SNPosition[2] = z;
+          SNPosition[0] += r * cos(theta);
+          SNPosition[1] += r * sin(theta);
+          SNPosition[2] += z;
         }
 
 
