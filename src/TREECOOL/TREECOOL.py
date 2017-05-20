@@ -68,9 +68,9 @@ settings = {
 ####################################
 
 # Print current settings.
-print "Current settings:\n"
+print("Current settings:\n")
 for param in settings:
-    print str(param) + " = " + str(settings[param])
+    print(str(param) + " = " + str(settings[param]))
 
 ainvinit    = math.log10(1+settings["zc_init"])
 ainvfinal   = math.log10(1+settings["zc_final"])
@@ -173,4 +173,4 @@ for ii,zc in enumerate(zcarr):
     fp.write(line)
 
 fp.close()
-print '\nAll done. Saved to "TREECOOL.mod"'
+print('\nAll done. Saved to "TREECOOL.mod"')

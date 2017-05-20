@@ -228,9 +228,9 @@ for it in range(0,Npoints):
 Tr_err_norm = (np.sum(np.multiply(Tr_err,Tr_err))/Npoints)**(0.5)
 Tg_err_norm = (np.sum(np.multiply(Tg_err,Tg_err))/Npoints)**(0.5)
 if ((Tr_err_norm < tol) and (Tg_err_norm < tol)):
-    print 'Errors of ',Tr_err_norm,' and ',Tg_err_norm,' are below tolerance ',tol
-    print 'PASS'
+    print('Errors of ',Tr_err_norm,' and ',Tg_err_norm,' are below tolerance ',tol)
+    print('PASS')
 else:
-    print 'Errors of ',Tr_err_norm,' and ',Tg_err_norm,' are above tolerance ',tol
-    print 'FAIL'
+    print('Errors of ',Tr_err_norm,' and ',Tg_err_norm,' are above tolerance ',tol)
+    print('FAIL')
 

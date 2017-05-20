@@ -32,7 +32,7 @@ import numpy as np
 from matplotlib import cm
 
 def err_handler(type, flag):
-    print "Floating point error (%s), with flag %s, probably due to one of your timers being 0.0.  You can probably ignore this." % (type, flag)
+    print("Floating point error (%s), with flag %s, probably due to one of your timers being 0.0.  You can probably ignore this." % (type, flag))
 np.seterrcall(err_handler)
 np.seterr(all = 'call')
 

@@ -13,7 +13,7 @@ ForceRadialTrue = Data[:,3]
 Error = (ForceRadialComputed-ForceRadialTrue)/ForceRadialTrue
 indices = na.where((radius > 1.0) & (radius < 8.0))
 rmsError = na.std(Error[indices])
-print "rms error = "+str(rmsError)
+print("rms error = "+str(rmsError))
 
 # Plot the computed radial force again the r-2 profile 
 #  (which should be equal except for outer part where the periodic 
