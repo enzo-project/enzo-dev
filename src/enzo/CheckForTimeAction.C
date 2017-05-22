@@ -149,9 +149,9 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
               fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid\n");
               return FAIL;
             }
+            Temp = Temp->NextGridThisLevel;
           }
 
-          Temp = Temp->NextGridThisLevel;
 
         }
 
