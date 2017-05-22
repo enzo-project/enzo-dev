@@ -1107,9 +1107,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
     /* AJE Individual Star */
-    ret += sscanf(line, "IndividualStarICSupernovaRate = %"ISYM,
+    ret += sscanf(line, "IndividualStarICSupernovaRate = %"FSYM,
                         &IndividualStarICSupernovaRate);
-    ret += sscanf(line, "IndividualStarICSupernovaTime = %"ISYM,
+    ret += sscanf(line, "IndividualStarICSupernovaTime = %"FSYM,
                         &IndividualStarICSupernovaTime);
     ret += sscanf(line, "IndividualStarCheckVelocityDiv = %"ISYM,
                         &IndividualStarCheckVelocityDiv);
