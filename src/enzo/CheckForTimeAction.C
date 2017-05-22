@@ -37,6 +37,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int CommunicationBroadcastValues(float *Values, int Number, int BroadcastProcessor);
 
+int IsParticleFeedbackInGrid(float *pos, int ncell, LevelHierarchyEntry *Temp);
+
 int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 		       TopGridData &MetaData)
 {
@@ -118,23 +120,29 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
         for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++){
           LevelHierarchyEntry *Temp = LevelArray[level];
           while (Temp != NULL){
-            // call grid function to do the supernova here
 
-            float dx = float(Temp->GridData->ReturnCellWidth());
+            // if explosion is on this grid (and grid is local), add feedback
+            if (Temp->GridData->isLocal() && IsParticleFeedbackInGrid(SNPosition,
+                                                                      IndividualStarFeedbackStencilSize,
+                                                                      Temp)){
 
-            float m_eject_dens = m_eject / (dx*dx*dx);
+              float dx = float(Temp->GridData->ReturnCellWidth());
+              float m_eject_dens = m_eject / (dx*dx*dx);
 
-            if ( Temp->GridData->IndividualStarInjectSphericalFeedback(NULL,
-                                           SNPosition[0], SNPosition[1], SNPosition[2],
-                                           m_eject_dens, E_thermal, NULL, 0) == FAIL){
-              ENZO_FAIL("Error in grid->function()");
+              if ( Temp->GridData->IndividualStarInjectSphericalFeedback(NULL,
+                                             SNPosition[0], SNPosition[1], SNPosition[2],
+                                             m_eject_dens, E_thermal, NULL, 0) == FAIL){
+                ENZO_FAIL("Error in grid->function()");
+              }
+
             }
 
             Temp = Temp->NextGridThisLevel;
           }
         }
 
-        for (level = MaximumRefinementLevel; level > 0; level++){
+        
+        for (level = MaximumRefinementLevel; level > 0; level--){
           LevelHierarchyEntry *Temp = LevelArray[level];
           while (Temp != NULL) {
             if (Temp->GridData->ProjectSolutionToParentGrid(*Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL){
@@ -146,6 +154,8 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
           Temp = Temp->NextGridThisLevel;
 
         }
+
+        printf("finished applying explosion\n");
       } else { 
         /* Done, turn it off (-1 in redshift indicates off). */
  
