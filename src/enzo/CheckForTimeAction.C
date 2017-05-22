@@ -65,6 +65,8 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
                   &TimeUnits, &VelocityUnits, MetaData.Time) == FAIL) {
           ENZO_FAIL("Error in GetUnits in CheckForTimeAction.C.");
         }
+        MassUnits = DensityUnits * LengthUnits * LengthUnits * LengthUnits;
+
         float Myr = 3.1556E13;
         float Mpc = 3.086E24;
         float pi  = 3.14156926;
@@ -128,6 +130,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
               float dx = float(Temp->GridData->ReturnCellWidth());
               float m_eject_dens = m_eject / (dx*dx*dx);
+              E_thermal = E_thermal / (dx*dx*dx);
 
               if ( Temp->GridData->IndividualStarInjectSphericalFeedback(NULL,
                                              SNPosition[0], SNPosition[1], SNPosition[2],
