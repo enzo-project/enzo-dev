@@ -130,11 +130,11 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
               float dx = float(Temp->GridData->ReturnCellWidth());
               float m_eject_dens = m_eject / (dx*dx*dx);
-              E_thermal = E_thermal / (dx*dx*dx);
+              float e_eject      = E_thermal / (dx*dx*dx);
 
               if ( Temp->GridData->IndividualStarInjectSphericalFeedback(NULL,
                                              SNPosition[0], SNPosition[1], SNPosition[2],
-                                             m_eject_dens, E_thermal, NULL, 0) == FAIL){
+                                             m_eject_dens, e_eject, NULL, 0) == FAIL){
                 ENZO_FAIL("Error in grid->function()");
               }
 
