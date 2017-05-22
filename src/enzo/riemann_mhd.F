@@ -2090,7 +2090,7 @@ c
          ul(ip1,nu)    = max(smallp, px - at8 + pr)
 
          do ic=1,nc
-         qcl(ip1,nc) = ucxtemp(ic) - atc(ic) + uctemp(ic)
+         qcl(ip1,ic) = ucxtemp(ic) - atc(ic) + uctemp(ic)
          end do
 c         
          rho = q(ip1,1)
@@ -2136,7 +2136,7 @@ c
          ur(ip1,ibt2)  = -(btx2 + at7) + bt2         
          ur(ip1,nu)    = max(smallp, -(px+at8) + pr)
          do ic=1,nc
-         qcr(ip1,nc) = -(ucxtemp(ic)+atc(ic)) + uctemp(ic)
+         qcr(ip1,ic) = -(ucxtemp(ic)+atc(ic)) + uctemp(ic)
          end do
       end do
 c     
