@@ -74,19 +74,36 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
         // in Myr
         float sntime = IndividualStarICSupernovaTime*Myr/TimeUnits;
 
-        if (MetaData.Time > 0.5*sntime){
-          TimeActionParameter[i] = IndividualStarICSupernovaRate * (sntime - MetaData.Time)/(0.5*sntime);
-        } else{
-          TimeActionParameter[i] = IndividualStarICSupernovaRate;
-        }
-        TimeActionParameter[i] = 1.0 / TimeActionParameter[i]; // convert to time from rate
+        if (IndividualStarICSupernovaTime <= 0){ // go until stars form
 
-        /* set next explosion time if there is one */
-        if (MetaData.Time >= sntime){
-            TimeActionTime[i] = -1;
+          if (MetaData.NumberOfParticles > 0){ // turn off SN
+            TimeActionParameter[i] = -1;
+            TimeActionTime[i]      = -1;
+
+          } else {
+            TimeActionParameter[i] = 1.0 / IndividualStarICSupernovaRate;
+            TimeActionTime[i]     += TimeActionParameter[i] * 3.1556E7 / TimeUnits;
+          }
+
         } else{
-            TimeActionTime[i] += TimeActionParameter[i] * 3.1556E7 / TimeUnits;
-            TimeActionTime[i] = min(TimeActionTime[i], sntime);
+
+          // otherwise, time sets a cutoff to turn off SN
+          if (MetaData.Time > 0.5*sntime){
+            TimeActionParameter[i] = IndividualStarICSupernovaRate * (sntime - MetaData.Time)/(0.5*sntime);
+          } else{
+            TimeActionParameter[i] = IndividualStarICSupernovaRate;
+          }
+
+          TimeActionParameter[i] = 1.0 / TimeActionParameter[i]; // convert to time from rate
+
+          /* set next explosion time if there is one */
+          if (MetaData.Time >= sntime){
+              TimeActionTime[i] = -1;
+          } else{
+              TimeActionTime[i] += TimeActionParameter[i] * 3.1556E7 / TimeUnits;
+              TimeActionTime[i] = min(TimeActionTime[i], sntime);
+          }
+
         }
 
 
