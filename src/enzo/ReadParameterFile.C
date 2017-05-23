@@ -1111,6 +1111,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarICSupernovaRate);
     ret += sscanf(line, "IndividualStarICSupernovaTime = %"FSYM,
                         &IndividualStarICSupernovaTime);
+    ret += sscanf(line, "IndividualStarICSupernovaR = %"ESYM,
+                        &IndividualStarICSupernovaR);
+    ret += sscanf(line, "IndividualStarICSupernovaZ = %"ESYM,
+                        &IndividualStarICSupernovaZ);
     ret += sscanf(line, "IndividualStarCheckVelocityDiv = %"ISYM,
                         &IndividualStarCheckVelocityDiv);
     ret += sscanf(line, "IndividualStarICLifetimeMode = %"ISYM,
