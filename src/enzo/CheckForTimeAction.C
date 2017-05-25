@@ -175,7 +175,6 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
         }
 
-        printf("finished applying explosion\n");
       } else { 
         /* Done, turn it off (-1 in redshift indicates off). */
  
