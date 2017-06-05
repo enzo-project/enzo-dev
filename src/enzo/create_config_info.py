@@ -9,6 +9,10 @@ Enzo_Build_Diff.
 
 Author: Britton Smith <brittonsmith@gmail.com>
 Date: December, 2011
+
+Updated 2017-06-05 by Brian O'Shea: this now requires hglib 
+(https://pypi.python.org/pypi/python-hglib), which is quite possibly installable
+via pip.
 """
 
 import os
