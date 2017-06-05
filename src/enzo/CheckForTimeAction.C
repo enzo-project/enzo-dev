@@ -252,7 +252,6 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
         }
 
-
       } else {
         /* Done, turn it off (-1 in redshift indicates off). */
 
