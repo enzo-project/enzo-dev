@@ -16,22 +16,21 @@ import time
 
 def get_hg_info():
     try:
-        from mercurial import hg, ui, commands 
-        from mercurial.error import RepoError
+        #from mercurial import hg, ui, commands 
+        #from mercurial.error import RepoError
+        import hglib
     except ImportError:
-        print("WARNING: could not get version information.  Please install mercurial.")
+        print("WARNING: could not get version information.  Please install mercurial and/or hglib.")
         return ('unknown', 'unknown', None)
     
     try:
-        u = ui.ui()
-        u.pushbuffer()
-        repo = hg.repository(u, os.path.expanduser('../..'))
-        commands.identify(u, repo)
-        my_info = u.popbuffer().strip().split()
-        u.pushbuffer()
-        commands.diff(u, repo)
-        my_diff = u.popbuffer()
-        return (my_info[0], my_info[1], my_diff)
+        client = hglib.open('../..')
+        changeset = str(client.tip().node)
+        branch = str(client.tip().branch)
+        my_diff = client.diff().decode('utf-8')
+        
+        return (changeset, branch, my_diff)
+    
     except RepoError:
         print("WARNING: could not get version information.")
         return ('unknown', 'unknown', None)
