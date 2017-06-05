@@ -126,7 +126,8 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   int ret = 0, GasFlag = 0, Pflag=0, TotalFlag=0;
   int ObsFlag = 0;
   int RefineOnStartup = FALSE;
-  int UseMetal = FALSE, metal_ret=0 ;
+  int UseMetal = FALSE, metal_ret=0;
+  float MetalOffsetInX = 0;
 
   float DensityA = 1.0666,
     DensityB = 1.0,
@@ -190,6 +191,8 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     
     metal_ret += sscanf(line, "MHDBlastMetalDensityA = %"PSYM, &MetalDensityA);
     metal_ret += sscanf(line, "MHDBlastMetalDensityB = %"PSYM, &MetalDensityB);
+    ret += sscanf(line, "MHDBlastMetalOffsetInX = %"PSYM, &MetalOffsetInX); 
+    //shift the metal density by this fraction of the box.
     if( metal_ret > 0){
         ret++;
         UseMetal = TRUE;
@@ -295,7 +298,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					       Energy0,  Energy1,
 					       VelocityA, VelocityB,
 					       BA, BB, 
-                           MetalDensityA, MetalDensityB, UseMetal,
+                           MetalDensityA, MetalDensityB, UseMetal,MetalOffsetInX,
 					       Radius, MHDBlastCenter, LongDimension,
 					       PerturbAmplitude, PerturbMethod,PerturbWavelength,
 					       InitStyle) == FAIL )
@@ -366,7 +369,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 							   Energy0,  Energy1,
 							   VelocityA, VelocityB,
 							   BA, BB, 
-                               MetalDensityA, MetalDensityB, UseMetal,
+                               MetalDensityA, MetalDensityB, UseMetal,MetalOffsetInX,
 							   Radius, MHDBlastCenter, LongDimension,
 							   PerturbAmplitude, PerturbMethod,PerturbWavelength,
 							   InitStyle) == FAIL )
