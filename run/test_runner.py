@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # This is the object that locates all *.enzo_test directories
 
+from __future__ import print_function
+
 import imp
 import optparse
 import os.path
@@ -117,13 +119,23 @@ except ImportError:
     machine_config = None
 
 def _get_hg_version(path):
-    print("Getting current revision.")
-    from mercurial import hg, ui, commands 
-    u = ui.ui() 
-    u.pushbuffer() 
-    repo = hg.repository(u, path) 
-    commands.identify(u, repo) 
-    return u.popbuffer()
+
+    print("Getting current revision.", path)
+
+    if sys.version_info[0] > 2:
+        import hglib
+        client = hglib.open(path)
+        summ = client.summary()
+        rev = str(client.tip().node)
+        return rev[2:10]
+        
+    else:
+        from mercurial import hg, ui, commands 
+        u = ui.ui() 
+        u.pushbuffer() 
+        repo = hg.repository(u, path) 
+        commands.identify(u, repo) 
+        return u.popbuffer()
 
 def _to_walltime(ts):
     return "%02d:%02d:%02d" % \
@@ -134,25 +146,40 @@ def add_files(my_list, dirname, fns):
     my_list += [os.path.join(dirname, fn) for
                 fn in fns if fn.endswith(".enzotest")]
 
+    #print("***", [os.path.join(dirname, fn) for
+    #            fn in fns if fn.endswith(".enzotest")])
+    
 
 def version_swap(repository, changeset, jcompile):
     """Updates *repository* to *changeset*,
     then does make; make -j *jcompile* enzo"""
-    print(repository, changeset)
-    from mercurial import hg, ui, commands, util
-    options.repository = os.path.expanduser(options.repository)
-    u = ui.ui() 
-    u.pushbuffer()
-    repo = hg.repository(u, options.repository)
-    u.popbuffer()
-    commands.update(u,repo,changeset)
-    command = "cd %s/src/enzo; pwd; "%options.repository
-    command += "make clean && make -j %d enzo.exe"%jcompile
-    status = os.system(command)
-    return status
+
+    if sys.version_info[0] > 2:
+        print("version_swap does not work with Python 3 because it requires Mercurial (which does not support Python 3)")
+        print("test_runner currently uses hglib!")
+        sys.exit(1)
+    else:
+        print(repository, changeset)
+        from mercurial import hg, ui, commands, util
+        options.repository = os.path.expanduser(options.repository)
+        u = ui.ui() 
+        u.pushbuffer()
+        repo = hg.repository(u, options.repository)
+        u.popbuffer()
+        commands.update(u,repo,changeset)
+        command = "cd %s/src/enzo; pwd; "%options.repository
+        command += "make clean && make -j %d enzo.exe"%jcompile
+        status = os.system(command)
+        return status
 
 
 def bisector(options,args):
+
+    if sys.version_info[0] > 2:
+        print("version_swap does not work with Python 3 because it requires Mercurial (which does not support Python 3)")
+        print("test_runner currently uses hglib!")
+        sys.exit(1)
+
     print(options.good)
     from mercurial import hg, ui, commands, util
     # get current revision
@@ -279,7 +306,14 @@ class EnzoTestCollection(object):
             # Now we look for all our *.enzotest files
             fns = []
             for cat in known_categories:
-                os.path.walk(cat, add_files, fns)
+                if sys.version_info[0] < 3:
+                    os.path.walk(cat, add_files, fns)
+                else:
+                    for root, dirs, files in os.walk(cat):
+                        #print(root,dirs,files)
+                        add_files(fns,root,files)
+                    
+            print("BWO:",fns)
             self.tests = []
             for fn in sorted(fns):
                 if self.verbose: print("HANDLING", fn)
@@ -354,7 +388,15 @@ class EnzoTestCollection(object):
         # We now do something dangerous: we exec the file directly and grab
         # its environment variables from it.
         local_vars = {}
-        execfile(fn, {}, local_vars)
+
+        if sys.version_info[0] > 2:
+
+            exec(open(fn).read(), {}, local_vars)
+        else:
+
+            execfile(fn, {}, local_vars)
+
+        
         test_spec = variable_defaults.copy()
         test_spec['fullpath'] = fn
         test_spec['fulldir'] = os.path.dirname(fn)
