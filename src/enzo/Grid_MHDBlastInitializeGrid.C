@@ -537,7 +537,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
         BaryonField[BzNum][index] = (1-fraction) * BA[2] + fraction*BB[2];
 	  }
       if( UseMetal ){
-          int metal_index = index - GridDimension[0]*MetalOffsetInX;
+          int metal_index = index - (GridDimension[0]+2*NumberOfGhostZones)*MetalOffsetInX;
           if ( metal_index < 0 ) metal_index += GridDimension[0];
           BaryonField[MetalNum][metal_index] = (1-fraction)*MetalDensityA + fraction*MetalDensityB;
       }
