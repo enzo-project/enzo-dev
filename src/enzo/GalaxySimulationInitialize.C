@@ -711,10 +711,44 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationPreWindVelocity[2] = 0.0;
   }
 
-  if (IndividualStarICSupernovaRate > 0){ // save galaxy properties for SN driving if used
-    IndividualStarICSupernovaR = GalaxySimulationDiskScaleHeightR; // in Mpc
-    IndividualStarICSupernovaZ = GalaxySimulationDiskScaleHeightz; // in Mpc
-  }
+  if (IndividualStarICSupernovaRate > 0 || IndividualStarICSupernovaFromFile) { // save galaxy properties for SN driving if used
+
+    if (IndividualStarICSupernovaR == 0.0)
+      IndividualStarICSupernovaR = GalaxySimulationDiskScaleHeightR; // in Mpc
+    if (IndividualStarICSupernovaZ == 0.0)
+      IndividualStarICSupernovaZ = GalaxySimulationDiskScaleHeightz; // in Mpc
+
+    if (IndividualStarICSupernovaFromFile){
+      // load supernova time parameters from file
+      FILE *fptr = fopen("ic_supernova_rates.in", "r");
+      if (fptr == NULL){
+        ENZO_FAIL("Failed attempted to get ICSupernova rates from file. Cannot find 'ic_supernova_rates.in' \n");
+      }
+
+      for (int i = 0; i < 500; i ++){
+        ICSupernovaTimeArray[i] = 0.0;
+        ICSupernovaSNRArray[i]  = 0.0;
+      }
+
+      char line[MAX_LINE_LENGTH];
+      int i, err;
+      float t, snr;
+      i = 0;
+      while( fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
+        if(line[0] != '#'){
+          err = sscanf(line, "%"FSYM" %"FSYM, &ICSupernovaTimeArray[i], &ICSupernovaSNRArray[i]);
+
+          i = i + 1;
+        }
+      } // end read file
+      fclose(fptr);
+
+      IndividualStarICSupernovaTime = ICSupernovaTimeArray[i-1];
+      ICSupernovaNumberOfPoints     = i - 1;
+
+    } // end if reading ic supernova from file
+
+  } // end IC supernova
 
  /* set up field names and units */
 

@@ -1115,6 +1115,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarICSupernovaR);
     ret += sscanf(line, "IndividualStarICSupernovaZ = %"ESYM,
                         &IndividualStarICSupernovaZ);
+    ret += sscanf(line, "IndividualStarICSupernovaMethod = %"ISYM,
+                        &IndividualStarICSupernovaMethod);
+    ret += sscanf(line, "IndividualStarICSupernovaInjectionMethod = %"ISYM,
+                        &IndividualStarICSupernovaInjectionMethod);
+    ret += sscanf(line, "IndividualStarICSupernovaFromFile = %"ISYM,
+                        &IndividualStarICSupernovaFromFile);
+    ret += sscanf(line, "IndividualStarICSupernovaPos = %"FSYM" %"FSYM" %"FSYM,
+                  IndividualStarICSupernovaPos+0, IndividualStarICSupernovaPos+1, IndividualStarICSupernovaPos+2);
+
     ret += sscanf(line, "IndividualStarCheckVelocityDiv = %"ISYM,
                         &IndividualStarCheckVelocityDiv);
     ret += sscanf(line, "IndividualStarICLifetimeMode = %"ISYM,
