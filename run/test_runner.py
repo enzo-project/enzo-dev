@@ -14,6 +14,7 @@ import sys
 import time
 import tarfile
 import logging
+import hglib
 
 known_categories = [
     "Cooling",
@@ -120,22 +121,17 @@ except ImportError:
 
 def _get_hg_version(path):
 
+    # BWO - DEBUG
     print("Getting current revision.", path)
 
-    if sys.version_info[0] > 2:
-        import hglib
-        client = hglib.open(path)
-        summ = client.summary()
-        rev = str(client.tip().node)
-        return rev[2:10]
-        
-    else:
-        from mercurial import hg, ui, commands 
-        u = ui.ui() 
-        u.pushbuffer() 
-        repo = hg.repository(u, path) 
-        commands.identify(u, repo) 
-        return u.popbuffer()
+    client = hglib.open(path)
+    #summ = client.summary()
+    rev = str(client.tip().node)
+
+    # BWO - DEBUG
+    print("_get_hg_version: revision is ",rev[2:10])
+    
+    return rev[2:10]
 
 def _to_walltime(ts):
     return "%02d:%02d:%02d" % \
@@ -154,6 +150,7 @@ def version_swap(repository, changeset, jcompile):
     """Updates *repository* to *changeset*,
     then does make; make -j *jcompile* enzo"""
 
+    # python 2/3 compatibility stuff
     if sys.version_info[0] > 2:
         print("version_swap does not work with Python 3 because it requires Mercurial (which does not support Python 3)")
         print("test_runner currently uses hglib!")
@@ -175,6 +172,7 @@ def version_swap(repository, changeset, jcompile):
 
 def bisector(options,args):
 
+    # python 2/3 compatibility 
     if sys.version_info[0] > 2:
         print("version_swap does not work with Python 3 because it requires Mercurial (which does not support Python 3)")
         print("test_runner currently uses hglib!")
@@ -306,14 +304,13 @@ class EnzoTestCollection(object):
             # Now we look for all our *.enzotest files
             fns = []
             for cat in known_categories:
-                if sys.version_info[0] < 3:
-                    os.path.walk(cat, add_files, fns)
-                else:
+                # python 2/3 compatibility (MAY NOT BE NECESSSARY)
+                if sys.version_info[0] > 2:  
                     for root, dirs, files in os.walk(cat):
-                        #print(root,dirs,files)
                         add_files(fns,root,files)
-                    
-            print("BWO:",fns)
+                else:
+                    os.path.walk(cat, add_files, fns)
+
             self.tests = []
             for fn in sorted(fns):
                 if self.verbose: print("HANDLING", fn)
@@ -389,13 +386,11 @@ class EnzoTestCollection(object):
         # its environment variables from it.
         local_vars = {}
 
+        # python 2/3 compatibility 
         if sys.version_info[0] > 2:
-
             exec(open(fn).read(), {}, local_vars)
         else:
-
             execfile(fn, {}, local_vars)
-
         
         test_spec = variable_defaults.copy()
         test_spec['fullpath'] = fn
@@ -855,7 +850,8 @@ if __name__ == "__main__":
         for test in etc2.test_container:
             # This is to avoid any sorting code in JS
             vals = test.results.items()
-            vals.sort()
+            #print("VALS:",vals)
+            vals = sorted(vals)
             results.append( dict(name = test.test_data['name'],
                              results = vals) )
         f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
