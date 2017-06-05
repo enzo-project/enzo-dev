@@ -335,8 +335,9 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   if( WritePotential )
       FieldType[NumberOfBaryonFields++] = GravPotential; 
   
+  int MetalNum=-1;
    if( UseMetal)
-       FieldType[NumberOfBaryonFields++] = Metallicity;
+       FieldType[MetalNum=NumberOfBaryonFields++] = Metallicity;
   
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;  
@@ -536,7 +537,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
         BaryonField[BzNum][index] = (1-fraction) * BA[2] + fraction*BB[2];
 	  }
       if( UseMetal )
-             BaryonField[NumberOfBaryonFields-1][index] = (1-fraction)*MetalDensityA + fraction*MetalDensityB;
+             BaryonField[MetalNum][index] = (1-fraction)*MetalDensityA + fraction*MetalDensityB;
 
 
 	}else{
