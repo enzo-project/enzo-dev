@@ -125,8 +125,16 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
   /* Get total compute time over all processors */
 
   CommunicationSumValues(ComputeTime, TotalNumberOfGrids);
-  CommunicationSumValues(&Nonzero, 1);
+  CommunicationAllSumValues(&Nonzero, 1);
 
+  /* Don't load balance if there are 0/1 grids with radiation */
+
+  if (Nonzero <= 1) {
+    delete [] ComputeTime;
+    delete [] NewProcessorNumber;
+    return SUCCESS;
+  }
+  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
   /* Find grids with non-zero amount of work and only load balance
