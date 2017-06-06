@@ -70,7 +70,7 @@ def tube(ds_list,fields=None,times=None, points=[(0.0,0.0,0.0),(1.0,0.0,0.0)],wi
         fiducial_field = []
         ax = fig.add_subplot(n_rows,width,i+1)
         if debug > 0:
-            print "n_rows %d width %d i %d field %s"%(n_rows,width,i+1, field)
+            print("n_rows %d width %d i %d field %s"%(n_rows,width,i+1, field))
         counter = -1
         for n_ds,ds in enumerate(ds_list):
             counter += 1
@@ -119,4 +119,4 @@ def tube(ds_list,fields=None,times=None, points=[(0.0,0.0,0.0),(1.0,0.0,0.0)],wi
         first_ax.legend(Handels,LabelsToUse)
     fig.savefig(filename)
     plt.close(fig)
-    print filename
+    print(filename)
