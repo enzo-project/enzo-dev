@@ -99,11 +99,10 @@ libraries available, then you can set:
 
 
 2.  **Install the necessary Python libraries**  The test suite works
-    with both Python 2.x and Python 3.x, but requires Python's hglib
-    (https://pypi.python.org/pypi/python-hglib) to access Mercurial.  This is installable
-    via pip in Python 3.x, but may require manual installation in
-    Python 2.x using the directions on the website.
-
+    with both Python 2.x and Python 3.x, but requires python-hglib
+    (https://pypi.python.org/pypi/python-hglib) to access Mercurial.
+    This should be installable via pip.
+    
    
 3.  **Get the correct yt version** The enzo tests are generated and compared
 using the yt analysis suite.  You must be using yt 3.3.0 or newer in order for

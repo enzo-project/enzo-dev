@@ -19,6 +19,7 @@ import hglib
 known_categories = [
     "Cooling",
     "Cosmology",
+    "CosmoSim",
     "DrivenTurbulence3D",
     "FLD",
     "GravitySolver",
