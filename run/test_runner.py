@@ -121,17 +121,18 @@ except ImportError:
 
 def _get_hg_version(path):
 
-    # BWO - DEBUG
-    print("Getting current revision.", path)
-
     client = hglib.open(path)
-    #summ = client.summary()
-    rev = str(client.tip().node)
 
-    # BWO - DEBUG
-    print("_get_hg_version: revision is ",rev[2:10])
+    # this is a horrifying string by is necessary to be both Python2
+    # and 3 compatible
+    rev = str(client.tip().node.decode('utf-8'))[:12]
     
-    return rev[2:10]
+    #if sys.version_info[0] > 2:
+    #    rev = client.tip().node.decode('utf-8')[:12]
+    #else:
+    #    rev = client.tip().node[:12]
+    
+    return rev
 
 def _to_walltime(ts):
     return "%02d:%02d:%02d" % \
@@ -150,13 +151,22 @@ def version_swap(repository, changeset, jcompile):
     """Updates *repository* to *changeset*,
     then does make; make -j *jcompile* enzo"""
 
+    client = hglib.open(options.repository)
+    client.update(rev=changeset)
+    
+    command = "cd %s/src/enzo; pwd; "%options.repository
+    command += "make clean && make -j %d enzo.exe"%jcompile
+    status = os.system(command)
+    return status
+    
     # python 2/3 compatibility stuff
+    '''
     if sys.version_info[0] > 2:
         print("version_swap does not work with Python 3 because it requires Mercurial (which does not support Python 3)")
         print("test_runner currently uses hglib!")
         sys.exit(1)
     else:
-        print(repository, changeset)
+        print("WOOHOO",repository, changeset,jcompile)
         from mercurial import hg, ui, commands, util
         options.repository = os.path.expanduser(options.repository)
         u = ui.ui() 
@@ -168,6 +178,7 @@ def version_swap(repository, changeset, jcompile):
         command += "make clean && make -j %d enzo.exe"%jcompile
         status = os.system(command)
         return status
+    '''
 
 
 def bisector(options,args):
