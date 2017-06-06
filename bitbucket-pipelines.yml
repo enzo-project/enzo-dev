@@ -1,0 +1,7 @@
+# Use the default image
+
+pipelines:
+  default:
+    - step:
+        script:
+          - bash build.sh
