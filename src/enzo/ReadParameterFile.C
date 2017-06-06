@@ -491,15 +491,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
     ret += sscanf(line, "AccretionKernal       = %"ISYM, &AccretionKernal);
     ret += sscanf(line, "GravitationalConstant = %"FSYM, &GravitationalConstant);
-    ret += sscanf(line, "S2ParticleSize        = %"FSYM, &S2ParticleSize);
     ret += sscanf(line, "GravityResolution     = %"FSYM, &GravityResolution);
     ret += sscanf(line, "ComputePotential      = %"ISYM, &ComputePotential);
     ret += sscanf(line, "PotentialIterations   = %"ISYM, &PotentialIterations);
     ret += sscanf(line, "WritePotential        = %"ISYM, &WritePotential);
     ret += sscanf(line, "ParticleSubgridDepositMode  = %"ISYM, &ParticleSubgridDepositMode);
     ret += sscanf(line, "WriteAcceleration      = %"ISYM, &WriteAcceleration);
-    ret += sscanf(line, "BaryonSelfGravityApproximation = %"ISYM,
-		  &BaryonSelfGravityApproximation);
  
     ret += sscanf(line, "GreensFunctionMaxNumber   = %"ISYM,
 		  &GreensFunctionMaxNumber);

@@ -85,7 +85,7 @@ Simple Cooling Options
 ``CIECooling`` (external)
     Should CIE (Ripamonti & Abel 2004) cooling be included at high densities?
 ``H2OpticalDepthApproximation`` (external)
-    Should the H2 cooling be attenuated (RA04)?
+    Should the H2 cooling be attenuated? Taken from `Ripamonti & Abel 2004 <http://adsabs.harvard.edu/abs/2004MNRAS.348.1019R>`. Default: 1?
 ``H2FormationOnDust`` (external)
     Turns on H2 formation on dust grains and gas-grain heat transfer following Omukai (2000). Default: 0 (OFF)
 ``NumberOfDustTemperatureBins`` (external)
