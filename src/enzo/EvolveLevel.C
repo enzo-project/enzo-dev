@@ -116,6 +116,8 @@ int ExtraOutput(int output_flag, LevelHierarchyEntry *LevelArray[],TopGridData *
 #endif
         , char * output_string);
 
+int ComputeDednerWaveSpeeds(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[], 
+			    int level, FLOAT dt0);
 int  RebuildHierarchy(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level);
 int  ReportMemoryUsage(char *header = NULL);
@@ -266,7 +268,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
-    , SiblingGridList *SiblingGridListStorage[] 
+    , FLOAT dt0, SiblingGridList *SiblingGridListStorage[] 
 		)
 {
   /* Declarations */
@@ -335,6 +337,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
   }
  
+  //Grids[0]->GridData->SetNumberOfColours(); Do we want this?
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
      current grid to correct the zones surrounding this subgrid (step #18). 
@@ -451,6 +454,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     CreateFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
 
+    if ((HydroMethod == MHD_RK) && (level == 0))
+      ComputeDednerWaveSpeeds(MetaData, LevelArray, level, dt0);
+	
+    if (debug1 && HydroMethod == MHD_RK && (MyProcessorNumber == ROOT_PROCESSOR)) 
+      fprintf(stderr, "wave speeds: timestep: %"GSYM"  C_h: %"GSYM"  C_p: %"GSYM"\n ", 
+	       dt0, C_h, C_p);
     /* ------------------------------------------------------- */
     /* Prepare the density field (including particle density). */
 
@@ -536,11 +545,108 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Call hydro solver and save fluxes around subgrids. */
 
+      if( HydroMethod != HD_RK && HydroMethod != MHD_RK ){
 	Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
+      }else{
+          if( UseHydro ) {
+        if (HydroMethod == HD_RK)
+          Grids[grid1]->GridData->RungeKutta2_1stStep
+              (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
+        else if (HydroMethod == MHD_RK) {
+          Grids[grid1]->GridData->MHDRK2_1stStep
+              (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
+        }
+        //	dcc notes;  expansion terms probably not here.
+        //	SetNextTimestep should be here.
+	//	if (ComovingCoordinates)
+	//	  Grids[grid1]->GridData->ComovingExpansionTerms();
+    //  Grids[grid1]->GridData->SetTimeNextTimestep();
+
+          }//use hydro
+      }//hydro method
+    }//grids
+
+    if( HydroMethod == HD_RK || HydroMethod == MHD_RK ){
+#ifdef FAST_SIB
+      SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);
+#else
+      SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
+#endif
+
+
+    if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
+  
+      When = 0.5;
+#ifdef FAST_SIB
+      PrepareDensityField(LevelArray,  level, MetaData, When, SiblingGridListStorage);
+#else  
+      PrepareDensityField(LevelArray, level, MetaData, When);
+#endif  // end FAST_SIB
+
+
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+      /* Gravity: compute acceleration field for grid and particles. */
+      if (RK2SecondStepBaryonDeposit && SelfGravity) {
+	int Dummy;
+	if (level <= MaximumGravityRefinementLevel) {
+	  if (level > 0) 
+	    Grids[grid1]->GridData->SolveForPotential(level) ;
+	  Grids[grid1]->GridData->ComputeAccelerations(level) ;
+	}
+      } // end: if (SelfGravity)
+
+      Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ;
+
+    } // End of loop over grids
+
+
+#ifdef SAB    
+    //Ensure the consistency of the AccelerationField
+    SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
+			    Exterior, LevelArray[level], LevelCycleCount[level]);
+
+#endif //SAB.    
+
+      }
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+      if (UseHydro) {
+        if (HydroMethod == HD_RK)
+          Grids[grid1]->GridData->RungeKutta2_2ndStep
+              (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
+
+        else if (HydroMethod == MHD_RK) {
+
+          Grids[grid1]->GridData->MHDRK2_2ndStep
+              (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
+          if (UseAmbipolarDiffusion) 
+            Grids[grid1]->GridData->AddAmbipolarDiffusion();
+
+          if (UseResistivity) 
+            Grids[grid1]->GridData->AddResistivity();
+
+        } // ENDIF MHD_RK
+
+        //time1 = ReturnWallTime(); dcc get this, I guess.
+
+        /* Add viscosity */
+
+        if (UseViscosity) 
+          Grids[grid1]->GridData->AddViscosity();
+
+        /* If using comoving co-ordinates, do the expansion terms now. */
+        if (ComovingCoordinates)
+          Grids[grid1]->GridData->ComovingExpansionTerms();
+
+      } // ENDIF UseHydro
+    }//grid
+    }//RK hydro
 
       /* Solve the cooling and species rate equations. */
  
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       Grids[grid1]->GridData->MultiSpeciesHandler();
 
       /* Update particle positions (if present). */
@@ -657,7 +763,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		      , ImplicitSolver
 #endif
-          ,SiblingGridListStorage
+          ,dt0,SiblingGridListStorage
 		      ) == FAIL) {
 	ENZO_VFAIL("Error in EvolveLevel (%"ISYM").\n", level)
       }
