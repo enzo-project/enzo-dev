@@ -171,11 +171,16 @@ c
 c      Colour variables (note: colf already multiplied by dt)
 c
        do n=1,ncolor
+          do i=i1, i2+1
+             colf(i,j,n) = colf(i,j,n)/dx(i)
+          enddo
+       enddo
+       do n=1,ncolor
           do i=i1, i2
 c             colslice(i,j,n) = (colslice(i,j,n)*dslice(i,j) +
 c     &         (colf(i,j,n)-colf(i+1,j,n))/dx(i)      )/dnu(i) ! c*d conserved
              colslice(i,j,n) =  colslice(i,j,n)              +
-     &            (colf(i,j,n)-colf(i+1,j,n))/dx(i) ! c conserved
+     &            (colf(i,j,n)-colf(i+1,j,n)) ! c conserved
              colslice(i,j,n) = max(colslice(i,j,n), min_color)
           enddo
        enddo
