@@ -177,10 +177,10 @@ if (err_norm > tol):
 
 # issue final success/failure statement
 if (ret > 0):
-    print 'Error tolerance ',tol,' exceeded for ',ret,'/10 datasets'
-    print 'FAIL'
+    print('Error tolerance ',tol,' exceeded for ',ret,'/10 datasets')
+    print('FAIL')
 else:
-    print 'PASS'
+    print('PASS')
 
 
 # end of script

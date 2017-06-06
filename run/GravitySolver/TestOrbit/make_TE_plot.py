@@ -45,7 +45,7 @@ for it, pf in enumerate(ts):
 
     myTE = myKE + myPE
 
-    #print myKE, myPE, myTE
+    #print(myKE, myPE, myTE)
 
     # ignore first value: the PE is garbage since the potential energy field is not
     # actually calculated before this is written out.
@@ -61,11 +61,11 @@ TotalEnergy = na.array(TE)
 AllTime = na.array(time)
 
 # print out some interesting info (note: all energies are specific total energies, in arbitrary units)
-print "Total energy mean:     ", np.mean(TotalEnergy)
-print "Total energy STD:      ", np.std(TotalEnergy)
-print "total energy min, max: ", np.min(TotalEnergy), np.max(TotalEnergy)
-print "|std/mean|:            ", abs(np.std(TotalEnergy)/np.mean(TotalEnergy))
-print "|max-min/mean|:        ", abs( (np.max(TotalEnergy)-np.min(TotalEnergy))/np.mean(TotalEnergy))
+print("Total energy mean:     ", np.mean(TotalEnergy))
+print("Total energy STD:      ", np.std(TotalEnergy))
+print("total energy min, max: ", np.min(TotalEnergy), np.max(TotalEnergy))
+print("|std/mean|:            ", abs(np.std(TotalEnergy)/np.mean(TotalEnergy)))
+print("|max-min/mean|:        ", abs( (np.max(TotalEnergy)-np.min(TotalEnergy))/np.mean(TotalEnergy)))
 
 # make the actual plot (note: total energy is specific total energy, in arbitrary units)
 plt.plot(AllTime, TotalEnergy,'bo-')

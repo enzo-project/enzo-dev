@@ -19,7 +19,7 @@ problem_name += dumpid
 
 ### construct input filename
 filename = './' + output_dir_base + dumpid + '/' + datafile_base + dumpid
-print "Plotting output file %s\n" % filename
+print("Plotting output file %s\n" % filename)
 
 
 ### some more filenames
