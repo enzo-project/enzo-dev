@@ -249,6 +249,8 @@ Hierarchy Control Parameters
     = 128 (pc), then the code will automatically calculate
     ``MustRefineParticlesRefineToLevel`` using the boxsize and redshift
     information. Default: 0 (FALSE)
+``MustRefineParticlesMinimumMass`` (external)
+    This was an experimental parameter to set a minimum for ``MustRefineParticles``. Default: 0.0
 ``MustRefineParticlesRegionLeftEdge`` (external)
     Bottom-left corner of a region in which dark matter particles are flagged 
     as ``MustRefineParticles`` in nested cosmological simulations.  To be used with 

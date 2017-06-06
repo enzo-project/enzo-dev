@@ -668,6 +668,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   MustRefineParticlesRightEdge+2);
     ret += sscanf(line, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM,
                   &MustRefineParticlesRefineToLevelAutoAdjust);
+    ret += sscanf(line, "MustRefineParticlesMinimumMass = %"FSYM,
+                  &MustRefineParticlesMinimumMass);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
                   &ParticleTypeInFile);
 
