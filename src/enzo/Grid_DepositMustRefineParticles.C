@@ -86,7 +86,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   /* Loop over all particles, marking wich ones are must refine
      To add rules, modify number of rules here and add to loop below */
   bool *rules;
-  const int NumberOfRules = 3;
+  const int NumberOfRules = 2;
   rules = new bool[NumberOfRules];
 
   // Flag particles as must refine particles
@@ -95,15 +95,13 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   for (i = 0; i < NumberOfParticles; i ++){
     IsParticleMustRefine[i] = 1;
 
-    // check particle type
+    // check particle type and uniform mass
     rules[0] = (ParticleType[i] == PARTICLE_TYPE_MUST_REFINE ||
-                ParticleType[i] == PARTICLE_TYPE_MBH);
+                ParticleType[i] == PARTICLE_TYPE_MBH) ||
+               (ParticleMass[i] < UniformParticleMass);
 
     // check particle mass greater than minimum mass
     rules[1] = (ParticleMass[i] > MustRefineParticlesMinimumMass);
-
-    // check particle mass less than uniform mass
-    rules[2] = (ParticleMass[i] < UniformParticleMass);
 
     // add more rules here
 
