@@ -123,7 +123,7 @@ def _get_hg_version(path):
 
     client = hglib.open(path)
 
-    # this is a horrifying string by is necessary to be both Python2
+    # this is a horrifying string but is necessary to be both Python2
     # and 3 compatible
     rev = str(client.tip().node.decode('utf-8'))[:12]
     
@@ -137,10 +137,6 @@ def _to_walltime(ts):
 def add_files(my_list, dirname, fns):
     my_list += [os.path.join(dirname, fn) for
                 fn in fns if fn.endswith(".enzotest")]
-
-    #print("***", [os.path.join(dirname, fn) for
-    #            fn in fns if fn.endswith(".enzotest")])
-    
 
 def version_swap(repository, changeset, jcompile):
     """Updates *repository* to *changeset*,
@@ -184,7 +180,7 @@ def bisector(options,args):
     
     def bisection_default_corrector(key,value):
         """mercurial.commands.bisection has bad default values.  This corrects these values."""
-        correct_defaults={'good':False,'bad':False,'skip':False,'extend':False,                                                         'command':False,'extra':None,'reset':False}
+        correct_defaults={'good':False,'bad':False,'skip':False,'extend':False,'command':False,'extra':None,'reset':False}
         correct_defaults[key]=value
         return correct_defaults
 
@@ -835,9 +831,9 @@ if __name__ == "__main__":
         f = open("results.js", "w")
         results = []
         for test in etc2.test_container:
+
             # This is to avoid any sorting code in JS
             vals = test.results.items()
-            #print("VALS:",vals)
             vals = sorted(vals)
             results.append( dict(name = test.test_data['name'],
                              results = vals) )

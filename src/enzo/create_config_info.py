@@ -20,9 +20,8 @@ import time
 
 def get_hg_info():
     try:
-        #from mercurial import hg, ui, commands 
-        #from mercurial.error import RepoError
         import hglib
+
     except ImportError:
         print("WARNING: could not get version information.  Please install mercurial and/or hglib.")
         return ('unknown', 'unknown', None)
