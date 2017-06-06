@@ -48,10 +48,10 @@ c     Note that for the most part things are treated identically as adiabatic.
 
       INTG_PREC EquationOfState ! 0=adiabatic 1=isothermal
       R_PREC SoundSpeed, dummy(8)
-      R_PREC wc(ndx,numberofcolours), ucx(ndx,numberofcolours) ![BH]
-      R_PREC wcr(ndx,numberofcolours), wcl(ndx,numberofcolours) ![BH]
-      R_PREC wcw(numberofcolours), wce(numberofcolours) ![BH]
-      R_PREC fluxc(numberofcolours) ![BH]
+      R_PREC wc(ndx,numberofcolours), ucx(ndx,numberofcolours) 
+      R_PREC wcr(ndx,numberofcolours), wcl(ndx,numberofcolours) 
+      R_PREC wcw(numberofcolours), wce(numberofcolours) 
+      R_PREC fluxc(numberofcolours) 
       INTG_PREC uchoice(ndx,npu)
       R_PREC total
       common /printff/printflag
@@ -165,7 +165,7 @@ c...  charateristic limiting
 c...  component limiting
 
          call limiter1(w,ndx,npu,nxbe,theta,ux,MHDCTSlopeLimiter,
-     $      wc,ucx,numberofcolours ) ![BH]
+     $      wc,ucx,numberofcolours ) 
 
       end if
       
@@ -174,7 +174,7 @@ c
 c...  piece-wise linear method (PLM) predictor for primitive variables
          call plmpred_mhd(w,ux,ndx,npu,nxb,nxe,dt,dx,gamma,
      $        isweep,ur,ul,prelow,rhomin,csmin,
-     $        numberofcolours,wc,ucx,wcl,wcr) ![BH]
+     $        numberofcolours,wc,ucx,wcl,wcr) 
       else if (ReconstructionMethod.eq.6) then
 c
 c...  Hancock predictor for primitive variables
@@ -218,7 +218,7 @@ c...  calculate the flux at interface in x-direction
          if( EquationOfState .eq. 0 ) then
             if ( RiemannSolver .eq. 6 ) then
                 call hllds(we,ww,flux,gamma
-     $                     ,numberofcolours,wce,wcw,fluxc  ![BH]
+     $                     ,numberofcolours,wce,wcw,fluxc  
      $                    )
             else
          call calc_fluxai_mhd(gamma,we,ww,flux,cmax,1_IKIND,
@@ -262,9 +262,9 @@ c------------------------------------------------------------
          do iu = 1, npu
             fluxph(ix,iu) = flux(iu)
          end do
-         do iu = 1, numberofcolours ![BH]
-            fluxColour(ix,iu) = fluxc(iu) ![BH]
-         enddo ![BH]
+         do iu = 1, numberofcolours 
+            fluxColour(ix,iu) = fluxc(iu) 
+         enddo 
 
          if (MHDCTDualEnergyMethod.gt.0)then
             if (MHDCTDualEnergyMethod.eq.1) then
@@ -412,19 +412,7 @@ c...  copy solution to u0(*)--------------------------------------
             end do
             u0(5,ix) = u(ix,8)
             u0(6,ix) = ein(ix)*gm1     
-c................................................................. [BH]BEGIN
-c Take the color update outside this loop
-c            do iu = 1, numberofcolours
-c                 fluxColour(ix,iu) =
-c     $       fluxph(ix,1)*(uc(ix,iu)+uc(ix+1,iu))/(u(ix,1)+u(ix+1,1))
-c                 uc(ix,iu) = uc(ix,iu) + dtdx*(fluxColour(ix,iu)-fluxColour(ix-1,iu))
-c            end do
          else
-c            do iu = 1, numberofcolours
-c               fluxColour(ix,iu) = 0
-c                 uc(ix,iu) = rhomin*uc(ix,iu)/u0(1,ix)
-c            end do
-c................................................................. [BH]END
              eth = w(ix,8)*(rhomin)/u0(1,ix)/gm1
              u0(1,ix) = rhomin
             u0(2,ix) = 0.5_RKIND*u0(1,ix)*w(ix,2)

@@ -1566,8 +1566,8 @@ c        ndx  -- number of points in x-direction
 c        nu   -- number of compoment of solution at one point
 c        nxbe -- logical structure for x
 c        u(:,:) -- solution (cell-centered value)
-c        uc(:,:) -- color fields ［BH］
-c        nc   -- number of colours ［BH］
+c        uc(:,:) -- color fields
+c        nc   -- number of colours
 c        theta -- parameter for minmod limiter
 c        method -- 1, generalized minmod limiter
 C                     theta = 1 -- minmod limiter
@@ -1577,18 +1577,18 @@ c                  2, van Leer's limiter
 c
 c     Output:
 c        ux   -- difference in x-direction       
-c        ucx  -- difference for the colours (only for method=1)［BH］      
+c        ucx  -- difference for the colours (only for method=1)
 c	 uchoice -- 
 c=======================================================================
       implicit none 
 #include "fortran_types.def"  
       INTG_PREC ndx,nu,nxbe(4),method
       R_PREC  u(ndx,nu),ux(ndx,nu),theta
-      R_PREC  uc(ndx, nc), ucx(ndx, nc)  ![BH]
-      INTG_PREC nc      ![BH]
+      R_PREC  uc(ndx, nc), ucx(ndx, nc) 
+      INTG_PREC nc      
 c
 c...  local variable
-      R_PREC  a,b,z,xmic, rhoa, du1,du2,du3(3), sign1
+      R_PREC  a,b,z,xmic, rhoa, du1,du2
       INTG_PREC ix,iu,ic
       xmic(z,a,b)=0.25_RKIND*(sign(1._RKIND,a)+sign(1._RKIND,b))*
      $     min(z*abs(a),z*abs(b), 0.5_RKIND*abs(a+b))
@@ -1611,16 +1611,16 @@ c...  minmod limiter
             end do
          end do
 c        repeat for color fields
-         do iu = 1, nc                                  ![BH]
-            ix = nxbe(2)-2                               ![BH]
-            du1 = uc(ix+1,iu) - uc(ix,iu)                 ![BH]
-            do ix = nxbe(2)-1, nxbe(3)+1                 ![BH]
-               du2 = uc(ix+1,iu) - uc(ix,iu)              ![BH]
-c               ucx(ix,iu) = 0.0 ! xmic(theta,du1,du2)           ![BH]
-               ucx(ix,iu) =  xmic(theta,du1,du2)           ![BH]
-               du1 = du2                                 ![BH]
-            enddo                                         ![BH]
-         enddo                                            ![BH]
+         do iu = 1, nc                                  
+            ix = nxbe(2)-2                               
+            du1 = uc(ix+1,iu) - uc(ix,iu)                 
+            do ix = nxbe(2)-1, nxbe(3)+1                 
+               du2 = uc(ix+1,iu) - uc(ix,iu)              
+c               ucx(ix,iu) = 0.0 ! xmic(theta,du1,du2)           
+               ucx(ix,iu) =  xmic(theta,du1,du2)           
+               du1 = du2                                 
+            enddo                                         
+         enddo                                            
 
 c		call myprint( u, uc,ndx,1,1,0,ux,ucx)
 
@@ -1663,13 +1663,13 @@ c     piecewise-linear method (PLM) predictor
 c-----------------------------------------------------------------------------
       subroutine plmpred_mhd(q,qx,ndx,nu,lmin,lmax,dt,dx,gamma,
      $     idir,ur,ul,smallp,smallr,csmin
-     $     , qcn, qc, qcx, qcl, qcr ![BH]
+     $     , qcn, qc, qcx, qcl, qcr 
      $     )
 c----------------------------------------------------------------------
 c     piecewise-linear predictor (PLM)  -- qx = 0.5h*u_x
 c     This routine uses limited construction on primitive variable,
 c     which is input
-c     ... and does the same to colours [BH]
+c     ... and does the same to colours
 c-----------------------------------------------------------------------
       implicit none
 #include "fortran_types.def"  
@@ -1677,11 +1677,11 @@ c-----------------------------------------------------------------------
       R_PREC  q(ndx,nu), qx(ndx,nu), ur(ndx,nu), ul(ndx,nu)
       R_PREC  dt, dx, gamma
       R_PREC smallp, smallr,csmin
-      INTG_PREC qcn ![BH]
-      R_PREC  qc(ndx,qcn), qcx(ndx,qcn), qcl(ndx,qcn), qcr(ndx,qcn) ![BH]
+      INTG_PREC qcn 
+      R_PREC  qc(ndx,qcn), qcx(ndx,qcn), qcl(ndx,qcn), qcr(ndx,qcn) 
 c
 c...  local variables
-      INTG_PREC cix ![BH]
+      INTG_PREC cix 
       INTG_PREC i, inorm, itan1, itan2,ip1, ibt1,ibt2,ibn
       R_PREC gamma1,rho,u,v,w,pr,dtdx,cs,c2,at1,at2,at3,at4,
      $     at5, at6, at7, at8, off, rx,ux,vx,wx,px,tau,
@@ -1844,16 +1844,16 @@ c
          ul(ip1,nu)    = max(smallp, pr + c2*rho*(af*at7 +
      $        as*(at4+at6)) + off*px)
 
-         do cix = 1, qcn                                        ![BH]
+         do cix = 1, qcn                                        
 c      rho = q(i,1)
 c      rx  = qx(i,1)
 c         ul(ip1,1) = max(smallr,rho + at1 + (at4+at6)*rho*as +
 c     $        at7*rho*af + off*rx)
-                qcl(ip1,cix) = max(smallr,                      ![BH]
-     $              qc(i,cix) * ( 1 + (at4+at6)*as + at7*af)    ![BH]
-     $              + off * qcx(i,cix) + at1                    ![BH]
-     $          )                                               ![BH]
-         enddo                                                  ![BH]
+                qcl(ip1,cix) = max(0._RKIND,                      
+     $              qc(i,cix) * ( 1 + (at4+at6)*as + at7*af)    
+     $              + off * qcx(i,cix) + at1                    
+     $          )                                               
+         enddo                                                  
 
 
          rho = q(ip1,1)
@@ -1982,14 +1982,14 @@ c
          ur(ip1,nu)    = max(smallp, pr + c2*rho*(af*at5 +
      $        as*(at4+at6)) + off*px)
 
-         do cix = 1, qcn                                        ![BH]
+         do cix = 1, qcn                                        
 c         ur(ip1,1) = max(smallr,rho + at1 + (at4+at6)*rho*as +
 c     $        at5*rho*af + off*rx)
-                qcr(ip1,cix) = max(smallr,                      ![BH]
-     $              qc(ip1,cix) * ( 1 + (at4+at6)*as + at5*af)  ![BH]
-     $              + off * qcx(ip1,cix) + at1                  ![BH]
-     $          )                                               ![BH]
-         enddo                                                  ![BH]
+                qcr(ip1,cix) = max(0._RKIND,                      
+     $              qc(ip1,cix) * ( 1 + (at4+at6)*as + at5*af)  
+     $              + off * qcx(ip1,cix) + at1                  
+     $          )                                               
+         enddo                                                 
 
       end do
 c     
