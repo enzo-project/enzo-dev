@@ -1,8 +1,8 @@
 #=======================================================================
 #
-# FILE:        Make.mach.ubuntu-hardy
+# FILE:        Make.mach.linux-gnu
 #
-# DESCRIPTION: Makefile settings for a machine running Ubuntu 8.04
+# DESCRIPTION: Makefile settings for a machine running Ubuntu
 #
 # AUTHOR:      Rick Wagner (rick@ucsd.edu)
 #
@@ -13,15 +13,15 @@
 #
 #=======================================================================
 
-MACH_TEXT  = Generic Ubuntu 8.04
+MACH_TEXT  = Use apt-get to install csh libhdf5-serial-dev gfortran openmpi-bin libopenmpi-dev
 MACH_VALID = 1
-MACH_FILE  = Make.mach.ubuntu-hardy
+MACH_FILE  = Make.mach.linux-gnu
 
 #-----------------------------------------------------------------------
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL = /usr/local/hdf5/1.8.2s
+LOCAL_HDF5_INSTALL = /usr/
 LOCAL_GRACKLE_INSTALL = /usr/local
 
 #-----------------------------------------------------------------------
@@ -78,7 +78,7 @@ MACH_OPT_AGGRESSIVE  = -O3 -g
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = # MPI includes
-LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I/$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = # hypre includes
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
