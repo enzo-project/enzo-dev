@@ -287,7 +287,7 @@ class EnzoTestCollection(object):
             # Now we look for all our *.enzotest files
             fns = []
             for cat in known_categories:
-                # python 2/3 compatibility (MAY NOT BE NECESSSARY)
+                # python 2/3 compatibility 
                 if sys.version_info[0] > 2:  
                     for root, dirs, files in os.walk(cat):
                         add_files(fns,root,files)
