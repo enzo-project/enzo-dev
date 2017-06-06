@@ -150,48 +150,6 @@ def version_swap(repository, changeset, jcompile):
     status = os.system(command)
     return status
 
-
-def bisector(options,args):
-
-    # python 2/3 compatibility 
-    if sys.version_info[0] > 2:
-        print("bisector does not work with Python 3 because it requires \"hg bisect\" (which is not available in hglib)")
-        sys.exit(1)
-
-    print(options.good)
-
-    from mercurial import hg, ui, commands, util
-    # get current revision
-    options.repository = os.path.expanduser(options.repository)
-    u = ui.ui() 
-    u.pushbuffer()
-    repo = hg.repository(u, options.repository)
-    u.popbuffer()
-    
-    test_directory = os.getcwd()
-    command = "cd %s/src/enzo;"%options.repository
-    command += "make clean;"
-    command += "make -j %d enzo.exe &&"%int(options.jcompile)
-    command += "cd %s;"%test_directory
-    command += "./test_runner.py --problematic=True " #we only run the problematic tests with bisector
-    command += "--output-dir=%s "%options.output_dir
-    command += "--repo=%s "%options.repository
-    command += "--compare-dir=%s "%options.compare_dir
-    
-    def bisection_default_corrector(key,value):
-        """mercurial.commands.bisection has bad default values.  This corrects these values."""
-        correct_defaults={'good':False,'bad':False,'skip':False,'extend':False,'command':False,'extra':None,'reset':False}
-        correct_defaults[key]=value
-        return correct_defaults
-
-    #should read commands.bisect(u,repo,reset=True), etc.,
-    # but the defaults for this command do not work. This should be updated
-    # when mercurial is.  
-    commands.bisect(u,repo,**bisection_default_corrector("reset",True))
-    commands.bisect(u,repo,rev=options.good,**bisection_default_corrector("good",True))
-    commands.bisect(u,repo,rev=options.bad,**bisection_default_corrector("bad",True))
-    commands.bisect(u,repo,**bisection_default_corrector("command",command))
-
 class ResultsSummary(Plugin):
     name = "results_summary"
     score = 10000
@@ -588,17 +546,6 @@ if __name__ == "__main__":
                       default=False, help="Slightly more verbose output.")
     parser.add_option("--pdb", action="store_true", dest="pdb",
                       default=False, help="Drop into debugger on errors")
-    parser.add_option("-b", "--bisect", dest="bisect", action="store_true",
-                      default=False, help="Run bisection on test. Requires revisions" +
-                      "--good and --bad.  Best if --repo is different from location of test_runner.py."+
-                      "Runs  --problematic suite.  See README for more info")
-    parser.add_option("--good", dest="good", default=None, metavar='str', 
-                      help="For bisection, most recent good revision")
-    parser.add_option("--bad", dest="bad", default=None, metavar='str',
-                      help="For bisection, most recent bad revision")
-    parser.add_option("-j", "--jcompile", dest="jcompile", type="int", default=1, 
-                      metavar='int',
-                      help="number of processors with which to compile when running bisect")
     parser.add_option("--changeset", dest="changeset", default=None, metavar='str',
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
@@ -683,10 +630,6 @@ if __name__ == "__main__":
         status = version_swap(options.repository, options.changeset, options.jcompile)
         if status:
             sys.exit(status)
-
-    if options.bisect:
-        bisector(options,args)
-        sys.exit(0)
 
     etc = EnzoTestCollection(verbose=options.verbose, args=sys.argv[:1],
                              plugins = [answer_plugin, reporting_plugin, pdb_plugin, xunit_plugin])
