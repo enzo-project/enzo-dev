@@ -6,11 +6,15 @@ Enzo.  The original mechanism, ``inits``, has long been distributed with Enzo.
 It is exclusively serial.  We also now distribute ``mpgrafic`` with
 modifications to support Enzo data formats.
 
+Using MUSIC
+-----------
+Describe MUSIC here.
+
 .. _using_inits:
 
 Using inits
 -----------
-
+Inits can also generate 2D cosmological initial conditions.
 The inits program uses one or more ASCII input files to set
 parameters, including the details of the power spectrum, the grid
 size, and output file names. Each line of the parameter file is

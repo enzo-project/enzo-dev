@@ -19,10 +19,10 @@ National Science Foundation.
    :maxdepth: 2
 
    EnzoLicense.rst
-   tutorials/index.rst
    user_guide/index.rst
    parameters/index.rst
    physics/index.rst
+   faq/index.rst
    developer_guide/index.rst
    reference/index.rst
    presentations/index.rst

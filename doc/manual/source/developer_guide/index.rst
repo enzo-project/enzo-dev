@@ -13,6 +13,7 @@ of AMR and numerical methods is assumed throughout this documentation.
 
    ModificationIntro.rst
    ProgrammingGuide.rst
+   EnzoTestSuite.rst
    FilenameConventions.rst
    DebuggingWithGDB.rst
    FineGrainedOutput.rst
@@ -29,3 +30,4 @@ of AMR and numerical methods is assumed throughout this documentation.
    using_mhd.rst
    mhdct_details.rst
    DoingARelease.rst
+
