@@ -18,3 +18,6 @@ hg up tip
 cd src/enzo
 make machine-linux-gnu
 make -j 4
+
+# Tell the test runner to parse the output
+export AUTOTEST=1

@@ -151,6 +151,28 @@ def version_swap(repository, changeset, jcompile):
     status = os.system(command)
     return status
 
+def parse_results_file(filename):
+    """
+    Parse the output file and raise an AssertionError if failures
+    or errors occurred.
+    """
+    lines = open(filename, "r").readlines()
+    status = -1
+    # Order is passes, failures, errors
+    outcomes = [0, 0, 0]
+    for line in lines:
+        line = line.strip()
+        if line.startswith("Tests that "):
+            status += 1
+            continue
+        if line and status >= 0:
+            outcomes[status] += 1
+    print ("Passes:   %d." % outcomes[0])
+    print ("Failures: %d." % outcomes[1])
+    print ("Errors:   %d." % outcomes[2])
+    if sum(outcomes[1:]) > 0:
+        raise AssertionError("Some tests failed or had errors!")
+
 class ResultsSummary(Plugin):
     name = "results_summary"
     score = 10000
@@ -268,6 +290,7 @@ class EnzoTestCollection(object):
         # copy executable to top of testing directory
         shutil.copy(exe_path, output_dir)
         exe_path = os.path.join(output_dir, os.path.basename(exe_path))
+        results_path = os.path.join(self.output_dir, results_filename)
         
         if interleaved:
             for i, my_test in enumerate(self.tests):
@@ -291,8 +314,9 @@ class EnzoTestCollection(object):
         go_stop_time = time.time()
         print("\n\nComplete!")
         print("Total time: %f seconds." % (go_stop_time - go_start_time))
-        print("See %s/%s for a summary of all tests." % \
-            (self.output_dir, results_filename))
+        print("See %s for a summary of all tests." % results_path)
+        if os.environ.get("AUTOTEST", 0) == "1":
+            parse_results_file(results_path)
 
     def prepare_all_tests(self, output_dir, machine, exe_path):
         print("Preparing all tests.")
