@@ -17,5 +17,4 @@ hg up tip
 ./configure
 cd src/enzo
 make machine-linux-gnu
-make
-
+make -j 4
