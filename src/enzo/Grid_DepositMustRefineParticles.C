@@ -40,7 +40,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   /* declarations */
   //printf("grid::DepositMustRefineParticles called \n");
   int i, dim, size = 1;
-  FLOAT LeftEdge[MAX_DIMENSION], CellSize;
+  FLOAT LeftEdge[MAX_DIMENSION], CellSize, CellVolume;
   int ParticleBufferSize;
 
   ParticleBufferSize = 1;
@@ -70,7 +70,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     size *= GridDimension[dim];
   }
 
-  CellSize = float(CellWidth[0][0]);
+  CellSize   = float(CellWidth[0][0]);
+  CellVolume = CellSize*CellSize*CellSize;
 
   /* Temporarily set the flagging field, then we will increase the
      particle mass flagging field above the refinement criteron. */
@@ -100,7 +101,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
                 ParticleType[i] == PARTICLE_TYPE_MBH);
 
     // check particle mass greater than minimum mass
-    rules[1] = (ParticleMass[i] > MustRefineParticlesMinimumMass);
+    rules[1] = (ParticleMass[i]*(CellVolume) > MustRefineParticlesMinimumMass);
 
     // check particle mass less than uniform mass
     rules[2] = (ParticleMass[i] < UniformParticleMass);
