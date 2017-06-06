@@ -108,10 +108,10 @@ coeff, residual, tr1, tr2, tr3 = \
        na.polyfit(na.log(prof1d['Radius'][:-1]),
                   na.log(prof1d['HI_kph'][:-1]), 1, full=True)
 
-print "="*72
-print "Maximum error in ionization front radius = %g (at %f Myr)" % \
-      (error.max(), time[imax]/Myr)
-print "Average error in ionization front radius = %g" % (error.mean())
-print "Inside 2*r_anyl: Radiation field slope = %f +/- %g" % \
-      (coeff[0], residual)
-print "="*72
+print("="*72)
+print("Maximum error in ionization front radius = %g (at %f Myr)" % \
+      (error.max(), time[imax]/Myr))
+print("Average error in ionization front radius = %g" % (error.mean()))
+print("Inside 2*r_anyl: Radiation field slope = %f +/- %g" % \
+      (coeff[0], residual))
+print("="*72)

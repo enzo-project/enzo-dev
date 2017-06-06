@@ -9,7 +9,7 @@ datafile_base = 'data'
 ts = TimeSeriesData.from_filenames("*/*.hierarchy")
 for pf in ts:
     pylab.clf()
-    print pf.current_time
+    print(pf.current_time)
 
     ### extract an ortho_ray (1D solution vector)
     ray = pf.h.ortho_ray(0, [0.5, 0.5])

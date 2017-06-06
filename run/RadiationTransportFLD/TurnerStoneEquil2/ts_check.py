@@ -75,8 +75,8 @@ for it in range(0,nt+1):
 # compute error norm
 err_norm = (np.sum(np.multiply(e_err,e_err))/nt)**(0.5)
 if (err_norm < tol):
-    print 'Error of ',err_norm,' is below tolerance ',tol
-    print 'PASS'
+    print('Error of ',err_norm,' is below tolerance ',tol)
+    print('PASS')
 else:
-    print 'Error of ',err_norm,' is above tolerance ',tol
-    print 'FAIL'
+    print('Error of ',err_norm,' is above tolerance ',tol)
+    print('FAIL')

@@ -25,8 +25,8 @@ for i in range(min_output_number, max_output_number+1, skip):
 
     convD = pf.conversion_factors["Density"]
     convV = pf.conversion_factors["x-velocity"]
-    print convD
-    print convV
+    print(convD)
+    print(convV)
 
     proj = pf.h.proj(0, field, weight_field=field)
 

@@ -101,8 +101,8 @@ for tstep in range(0,te+1):
 r_err = (rdata[1][1:] - rdata[2][1:])/rs0
 r_err_norm = (np.sum(np.multiply(r_err,r_err))/te)**(0.5)
 if (r_err_norm < tol):
-    print 'Error of ',r_err_norm,' is below tolerance ',tol
-    print 'PASS'
+    print('Error of ',r_err_norm,' is below tolerance ',tol)
+    print('PASS')
 else:
-    print 'Error of ',r_err_norm,' is above tolerance ',tol
-    print 'FAIL'
+    print('Error of ',r_err_norm,' is above tolerance ',tol)
+    print('FAIL')
