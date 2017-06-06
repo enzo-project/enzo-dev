@@ -33,13 +33,6 @@ General
     terms of the S2 particle described by Hockney and Eastwood in their
     book Computer Simulation Using Particles. A reasonable value is
     3.0. [Ignored in current version]. Default: 3.0
-``GravityResolution`` (external)
-    This was a mis-guided attempt to provide the capability to increase
-    the resolution of the gravitational mesh. In theory it still works,
-    but has not been recently tested. Besides, it's just not a good
-    idea. The value (a float) indicates the ratio of the gravitational
-    cell width to the baryon cell width. [Ignored in current version].
-    Default: 1
 ``PotentialIterations`` (external)
     Number of iterations to solve the potential on the subgrids. Values
     less than 4 sometimes will result in slight overdensities on grid
