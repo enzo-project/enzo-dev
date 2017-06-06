@@ -339,6 +339,11 @@ thorough explanation of each.
     When a test fails a pdb session is triggered.  Allows interactive inspection
     of failed test data.
 
+``--changeset=str`` default: latest
+    Changeset to use in simulation repo.  If supplied,
+    make clean && make is also run
+
+    
 **Flags for storing, comparing against different standards**
 
 ``--answer-store`` default: False
@@ -352,26 +357,6 @@ thorough explanation of each.
 
 ``--local`` default: False
     Store/Compare the reference standard locally (i.e. not on the cloud)
-
-**Bisection flags**
-
-``-b, --bisect`` default: False
-    Run bisection on test. Requires revisions ``--good`` and
-    ``--bad``.  Best if ``--repo`` is different from location of
-    ``test_runner.py`` runs  ``--problematic`` suite.  
-
-``--good=str`` default: None
-    For bisection, most recent good revision
-
-``--bad=str`` default: None
-    For bisection, most recent bad revision
-
-``-j int, --jcompile=int`` default: 1
-    number of processors with which to compile when running bisect
-
-``--changeset=str`` default: latest
-    Changeset to use in simulation repo.  If supplied,
-    make clean && make is also run
 
 
 **Flags not used**
