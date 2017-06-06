@@ -315,8 +315,7 @@ class EnzoTestCollection(object):
         print("\n\nComplete!")
         print("Total time: %f seconds." % (go_stop_time - go_start_time))
         print("See %s for a summary of all tests." % results_path)
-        if os.environ.get("AUTOTEST", 0) == "1":
-            parse_results_file(results_path)
+        parse_results_file(results_path)
 
     def prepare_all_tests(self, output_dir, machine, exe_path):
         print("Preparing all tests.")
