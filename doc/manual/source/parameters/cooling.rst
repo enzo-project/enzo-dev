@@ -81,13 +81,13 @@ Simple Cooling Options
     (Metal_Density) and two additional metal fields (Z_Field1 and
     Z_Field2). Acceptable values are 1 or 0, Default: 0 (off).
 ``ThreeBodyRate`` (external)
-    Which Three Body rate should be used for H2 formation?: 0 = Abel, Bryan, Norman 2002, 1 = PSS83, 2= CW83, 3 = FH07, 4= G08.  (Turk et al 2011 covers these)
+    Which Three Body rate should be used for H2 formation?: 0 = Abel, Bryan, Norman 2002, 1 = PSS83, 2= CW83, 3 = FH07, 4= G08.  (See `Turk et al 2011 <http://adsabs.harvard.edu/abs/2011ApJ...726...55T>`)
 ``CIECooling`` (external)
-    Should CIE (Ripamonti & Abel 2004) cooling be included at high densities?
+    Should CIE (`Ripamonti & Abel 2004 <http://adsabs.harvard.edu/abs/2004MNRAS.348.1019R>`) cooling be included at high densities?
 ``H2OpticalDepthApproximation`` (external)
     Should the H2 cooling be attenuated? Taken from `Ripamonti & Abel 2004 <http://adsabs.harvard.edu/abs/2004MNRAS.348.1019R>`. Default: 1?
 ``H2FormationOnDust`` (external)
-    Turns on H2 formation on dust grains and gas-grain heat transfer following Omukai (2000). Default: 0 (OFF)
+    Turns on H2 formation on dust grains and gas-grain heat transfer following `Omukai (2000) <http://adsabs.harvard.edu/abs/2000ApJ...534..809O>`. Default: 0 (OFF)
 ``NumberOfDustTemperatureBins`` (external)
     Number of dust temperature bins for the dust cooling and H2 formation rates.  Default: 250
 ``DustTemperatureStart`` (external)
@@ -98,7 +98,7 @@ Simple Cooling Options
     Flag to write out the dust temperature field.  Default: 0
 ``PhotoelectricHeating`` (external)
     If set to be 1, the following parameter will be added uniformly
-    to the gas without any shielding (Tasker & Bryan 2008). Default: 0
+    to the gas without any shielding (`Tasker & Bryan 2008 <http://adsabs.harvard.edu/abs/2008ApJ...673..810T>`). Default: 0
 ``PhotoelectricHeatingRate`` (external)
     This is the parameter used as Gamma_pe for uniform photoelectric heating.
     Default: 8.5e-26 erg s^-1 cm^-3
