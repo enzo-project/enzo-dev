@@ -97,7 +97,15 @@ libraries available, then you can set:
   If Enzo is compiled without support for the grackle and hypre libraries, tests
   of Enzo modules that depend on these libraries will likely fail.
 
-2.  **Get the correct yt version** The enzo tests are generated and compared
+
+2.  **Install the necessary Python libraries**  The test suite works
+    with both Python 2.x and Python 3.x, but requires Python's hglib
+    (https://pypi.python.org/pypi/python-hglib) to access Mercurial.  This is installable
+    via pip in Python 3.x, but may require manual installation in
+    Python 2.x using the directions on the website.
+
+   
+3.  **Get the correct yt version** The enzo tests are generated and compared
 using the yt analysis suite.  You must be using yt 3.3.0 or newer in order for
 the test suite to work.  If you do not yet have yt, visit
 http://yt-project.org/#getyt for installation instructions.  If you already have
@@ -110,7 +118,7 @@ running the following commands:
     $ hg update yt
     $ python setup.py develop
 
-3. **Generate answers to test with.** Run the test suite with these flags within
+4. **Generate answers to test with.** Run the test suite with these flags within
 the ``run/`` subdirectory in the enzo source hierarchy:
 
 ::
@@ -147,7 +155,7 @@ reference standard.  Feel free to test against this reference standard or tar
 and gzip it up and send it to another machine for testing.
 
 
-4.  **Run the test suite using your local answers.** The testing suite operates
+5.  **Run the test suite using your local answers.** The testing suite operates
 by running a series of enzo test files throughout the ``run`` subdirectory.
 Note that if you want to test a specific enzo changeset, you must update to it
 and recompile enzo. You can initiate the quicksuite test simulations and their
