@@ -22,12 +22,12 @@ compiler, the following libraries are necessary:
    * `MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, for multi-processor parallel
      jobs.  Note that Enzo will compile without MPI, but it's fine to compile
      with MPI and only run on a single processor.
+   * `hg <https://www.mercurial-scm.org/>`_, a free, distributed
+     source control management tool.
    * `yt <http://yt-project.org>`_, the yt visualization and analysis suite.  
      While it is not required to run enzo, ``yt`` enables the easiest analysis
-     of its outputs, as well as the ability to run the enzo testing tools.  It
-     also provides an easy way to download enzo as part of its installation script.
-     See the `Enzo Project home page <http://enzo-project.org/>`_ for more 
-     information.
+     of its outputs, as well as the ability to run the enzo testing tools.
+ 
 
 Downloading Enzo
 ----------------
@@ -68,13 +68,16 @@ wish to use the latest development version, you must update to the
 
 ::
 
-   ~/enzo $ hg update week-of-code
+  ~/ $ cd enzo
+  ~/enzo $ hg update week-of-code
 
 .. highlight:: none
 
+Enzo development continues regularly, and if you wish to use the
+latest changes, you can update the code as follows:
+	       
 ::
 
-    ~/enzo $ cd enzo
     ~/enzo $ hg pull
     pulling from https://bitbucket.org/enzo/enzo-dev
     searching for changes
@@ -82,8 +85,6 @@ wish to use the latest development version, you must update to the
 
     ~/enzo $ hg update
     0 files updated, 0 files merged, 0 files removed, 0 files unresolved
-
-    ~/enzo $ 
 
 This covers the basics, but for more information about interacting with the
 mercurial version control system please peruse the :ref:`developers_guide`,
@@ -114,8 +115,6 @@ and creates a couple of files for building.
     ~/enzo $ ./configure 
     Configure complete.
 
-    ~/enzo $ 
-
 This message just confirms that the build system has been
 initialized.  To further confirm that it ran, there should be a file called
 Make.config.machine in the src/enzo subdirectory.
@@ -132,8 +131,6 @@ src/ directory.
     ~/enzo/src $ ls
     Makefile      P-GroupFinder      TREECOOL      anyl      enzo      enzohop
     inits         lcaperf            mpgrafic      performance_tools   ring
-
-    ~/enzo/src $ 
 
 Right now, we're just building the main executable (the one that
 does the simulations), so we need the ``enzo/`` directory.
@@ -234,8 +231,6 @@ use it (remember to ``make clean`` if you change any previous settings):
      *** Execute 'gmake clean' before rebuilding executables ***
     
        MACHINE: Darwin (OSX Leopard)
-    
-    ~/enzo/src/enzo $ 
 
 You may also want to know the settings (precision, etc.) that are being
 use. You can find this out using ``make show-config``. For a detailed
@@ -305,23 +300,33 @@ The default build target is the main executable, Enzo.
     Linking
     Success!
 
-    ~/enzo/src/enzo $ 
-
 After compiling, you will have ``enzo.exe`` in the current directory.
 If you have a failure during the compiler process, you may get enough of
 an error message to track down what was responsible.  If there is a failure
 during linking, examine the ``compile.out`` file to learn more about 
 what caused the problem.  A common problem is that you forgot to include the 
-current location of the HDF5 libraries in your machine-specific makefile.
+current location of the HDF5 libraries in your machine-specific
+makefile.
+
+Congratulations!  You now have a working executable and continue
+on the next step of running a test calculation.
 
 Building other Tools
-++++++++++++++++++++
+-------------------------
 
-Building other tools is typically very straightforward; they rely on the same
-Makefiles, and so should require no porting or modifications to configuration.
+There are a few other tools included with enzo, none of these are
+required but provide additional functionality.  If you wish to do so
+at this point, you can building the other tools - compilation is
+typically very straightforward; they rely on the same Makefiles, and
+so should require no porting or modifications to configuration.
 
 Inits
 ~~~~~
+
+This is a simple tool for generating cosmological initial conditions;
+however, for production cosmological runs we recommend using
+the MUSIC initial conditions generator (see :doc:`RunCosmologySimulation`)
+
 
 ::
 

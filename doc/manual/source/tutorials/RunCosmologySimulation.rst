@@ -4,6 +4,9 @@ How to run a cosmology simulation
 =================================
 
 In order to run a cosmology simulation, you'll need to build enzo.exe,
+and an initial conditions generator.  We recommend using the `MUSIC
+<https://bitbucket.org/ohahn/music>`.
+
 inits.exe and ring.exe (see :doc:`building_enzo`) inits creates the
 initial conditions for your simulation, and ring splits up the root
 grid which is necessary if you're using parallel IO. Once you have
