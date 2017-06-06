@@ -37,7 +37,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
-    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 1st dataset'
+    print('Error tolerance ',tol,' exceeded (',err_norm,'), 1st dataset')
 f.close()
 
 
@@ -60,7 +60,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
-    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 2nd dataset'
+    print('Error tolerance ',tol,' exceeded (',err_norm,'), 2nd dataset')
 f.close()
 
 
@@ -83,7 +83,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
-    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 3rd dataset'
+    print('Error tolerance ',tol,' exceeded (',err_norm,'), 3rd dataset')
 f.close()
 
 
@@ -106,7 +106,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
-    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 4th dataset'
+    print('Error tolerance ',tol,' exceeded (',err_norm,'), 4th dataset')
 f.close()
 
 
@@ -129,7 +129,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
-    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 5th dataset'
+    print('Error tolerance ',tol,' exceeded (',err_norm,'), 5th dataset')
 f.close()
 
 
@@ -152,7 +152,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
-    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 6th dataset'
+    print('Error tolerance ',tol,' exceeded (',err_norm,'), 6th dataset')
 f.close()
 
 
@@ -175,7 +175,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
-    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 7th dataset'
+    print('Error tolerance ',tol,' exceeded (',err_norm,'), 7th dataset')
 f.close()
 
 
@@ -198,7 +198,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
-    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 8th dataset'
+    print('Error tolerance ',tol,' exceeded (',err_norm,'), 8th dataset')
 f.close()
 
 
@@ -221,7 +221,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
-    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 9th dataset'
+    print('Error tolerance ',tol,' exceeded (',err_norm,'), 9th dataset')
 f.close()
 
 
@@ -244,14 +244,14 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
-    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 10th dataset'
+    print('Error tolerance ',tol,' exceeded (',err_norm,'), 10th dataset')
 
 # issue final success/failure statement
 if (ret > 0):
-    print 'Error tolerance ',tol,' exceeded for ',ret,'/10 datasets'
-    print 'FAIL'
+    print('Error tolerance ',tol,' exceeded for ',ret,'/10 datasets')
+    print('FAIL')
 else:
-    print 'PASS'
+    print('PASS')
 
 
 # end of script

@@ -132,7 +132,7 @@ coeff, residual, tr1, tr2, tr3 = \
        na.polyfit(na.log(prof1d['Radius'][:-1]),
                   na.log(prof1d['HI_kph'][:-1]), 1, full=True)
 
-print "="*72
-print "Inside 2*r_anyl: Radiation field slope = %f +/- %g" % \
-      (coeff[0], residual)
-print "="*72
+print("="*72)
+print("Inside 2*r_anyl: Radiation field slope = %f +/- %g" % \
+      (coeff[0], residual))
+print("="*72)

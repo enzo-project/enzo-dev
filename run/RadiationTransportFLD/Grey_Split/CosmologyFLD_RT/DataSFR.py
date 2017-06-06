@@ -55,7 +55,7 @@ for i in range(min_output_number, max_output_number+1, skip):
 
     pf = load("DD%04i/DD%04i" % (i,i))
 
-    print ("loaded DD%04i" % i)
+    print("loaded DD%04i" % i)
 
     dd = pf.h.all_data()
 
