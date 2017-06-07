@@ -152,7 +152,7 @@ typedef long long int  Elong_int;
 
 typedef int            MPI_Arg;
 
-typedef int            HDF5_hid_t;
+typedef long long int   HDF5_hid_t;
 
 /* HDF5 definitions */
 
