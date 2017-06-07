@@ -1,6 +1,6 @@
 .. _controlling_data_output:
 
-Controlling Enzo data output
+Controlling Enzo Data Output
 ============================
 
 How and when Enzo outputs data is described below.  There are five ways to
