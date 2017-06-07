@@ -20,6 +20,7 @@ National Science Foundation.
 
    EnzoLicense.rst
    user_guide/index.rst
+   supplementary_info/index.rst
    parameters/index.rst
    physics/index.rst
    faq/index.rst

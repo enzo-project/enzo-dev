@@ -59,8 +59,3 @@ inquiries and comments should be directed to the `Enzo Users' List
    RunningLargeSimulations.rst
    EnzoOutputFormat.rst
    HierarchyFile.rst
-   UsingInits.rst
-   SimulationNamesAndIdentifiers.rst
-   EmbeddedPython.rst
-   FlowChart.rst
-   TestProblems.rst
