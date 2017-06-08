@@ -8,6 +8,14 @@ conda install -q -y mercurial cython h5py matplotlib sympy numpy pytest flake8 y
 sudo apt-get update
 sudo apt-get install -y csh libhdf5-serial-dev gfortran libtool openmpi-bin libopenmpi-dev
 
+# install hypre
+wget https://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods/download/hypre-2.11.2.tar.gz
+tar xvfz hypre-2.11.2.tar.gz
+cd hypre-2.11.2/src
+./configure --prefix=/usr --with-MPI --with-MPI-include=/usr/include/mpi --with-MPI-libs=mpi --with-MPI-lib-dirs=/usr/lib
+make install
+cd ../../
+
 echo "backend : Agg" > $HOME/matplotlibrc
 export MATPLOTLIBRC=$HOME
 
@@ -17,4 +25,9 @@ hg up tip
 ./configure
 cd src/enzo
 make machine-linux-gnu
+make opt-high
+make integers-32
+make particle-id-32
+make hypre-yes
+#make grackle-yes
 make -j 4
