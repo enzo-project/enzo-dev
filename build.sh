@@ -16,6 +16,17 @@ cd hypre-2.11.2/src
 make install
 cd ../../
 
+# install grackle
+mkdir -p $HOME/local
+hg clone https://bitbucket.org/grackle/grackle
+cd grackle
+hg up tip
+./configure
+cd src/clib
+make machine-linux-gnu
+make
+make install
+
 echo "backend : Agg" > $HOME/matplotlibrc
 export MATPLOTLIBRC=$HOME
 
@@ -29,5 +40,5 @@ make opt-high
 make integers-32
 make particle-id-32
 make hypre-yes
-#make grackle-yes
+make grackle-yes
 make -j 4

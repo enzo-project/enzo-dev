@@ -22,7 +22,7 @@ MACH_FILE  = Make.mach.linux-gnu
 #-----------------------------------------------------------------------
 
 LOCAL_HDF5_INSTALL = /usr
-LOCAL_GRACKLE_INSTALL = /usr/local
+LOCAL_GRACKLE_INSTALL = $(HOME)/local
 LOCAL_HYPRE_INSTALL = /usr
 
 #-----------------------------------------------------------------------
