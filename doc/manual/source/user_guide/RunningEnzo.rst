@@ -56,13 +56,9 @@ implementation that is initiated by the 'mpirun' command, and implies
 the use of a single processors (the argument after the -np flag
 indicates the number of processors).
 
-
-
-
 The -d flag triggers a debug option that produces a substantial amount
-of output. See :ref:`GettingStarted` for more detailed information on
-running simulations. You may also need to use :ref:`ring` if you are
-using parallel I/O.
+of output. 
+
 
 Restarting
 ----------

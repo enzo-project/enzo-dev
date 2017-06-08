@@ -1,13 +1,14 @@
 .. _RunCosmologySimulation:
 
-Running a Cosmology Simulation
-=================================
+Deprecated: Running a Cosmology Simulation
+==========================================
+
+This section has mostly been replaced by :ref:`CosmologicalInitialConditions`.
 
 In order to run a cosmology simulation, you'll need to build enzo.exe,
-and an initial conditions generator.  We recommend using the `MUSIC
-<https://bitbucket.org/ohahn/music>`_.
+and an initial conditions generator (either MUSIC or inits).
 
-inits.exe and ring.exe (see :doc:`building_enzo`) inits creates the
+inits.exe and ring.exe - inits creates the
 initial conditions for your simulation, and ring splits up the root
 grid which is necessary if you're using parallel IO. Once you have
 built the three executables, put them in a common directory where you
