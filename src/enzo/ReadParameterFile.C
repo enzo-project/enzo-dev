@@ -545,8 +545,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &grackle_data->self_shielding_method);
     ret += sscanf(line, "H2_self_shielding = %d",
                   &grackle_data->H2_self_shielding);
-    ret += sscanf(line, "radiative_transfer_intermediate_step = %d",
-                  &grackle_data->radiative_transfer_intermediate_step);
 
     if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
       grackle_data->grackle_data_file = dummy;
@@ -1612,8 +1610,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     grackle_data->DeuteriumToHydrogenRatio       = (double) CoolData.DeuteriumToHydrogenRatio;
     grackle_data->SolarMetalFractionByMass       = (double) CoolData.SolarMetalFractionByMass;
     grackle_data->use_radiative_transfer         = (Eint32) RadiativeTransfer;
-    grackle_data->radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
-    grackle_data->radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
+    // grackle_data->radiative_transfer_coupled_rate_solver set in RadiativeTransferReadParameters
+    // grackle_data->radiative_transfer_hydrogen_only set in RadiativeTransferReadParameters
 
     // Initialize units structure.
     FLOAT a_value, dadt;
@@ -1645,7 +1643,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }  // if (grackle_data->use_grackle == TRUE)
 
   else {
-#endif // USE_GRACKE
+#endif // USE_GRACKLE
 
     /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
        or RadiationFieldType to be on - both are taken care of in
