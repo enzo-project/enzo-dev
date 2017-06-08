@@ -27,6 +27,7 @@ National Science Foundation.
    developer_guide/index.rst
    reference/index.rst
    presentations/index.rst
+   faq/index.rst
 
 Enzo Mailing Lists
 -----------------------
