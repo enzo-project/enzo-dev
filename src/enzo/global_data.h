@@ -308,17 +308,6 @@ EXTERN int BaryonSelfGravityApproximation;
 
 EXTERN float GravitationalConstant;
 
-/* S2 Particle size in top grid cell units (usually around 3).  The S2
-   particle is S(r) = A*(a/2-r) (if r < a/2, 0 otherwise).  The constant
-   A depends on the dimension: 1D) 4/a^2,  2D) 24/(Pi*a^3)  3D) 48/(Pi*a^3). */
-
-EXTERN float S2ParticleSize;
-
-/* Gravity resolution factor is a float indicating the comparative resolution
-   of the gravitational computation compared to the grid (1-2 or so). */
-
-EXTERN float GravityResolution;
-
 /* Flag to indicate if gravitational potential field should be computed
    and stored. */
 
@@ -335,16 +324,6 @@ EXTERN int WritePotential;
      NGP_DEPOSIT - nearest grid point */
 
 EXTERN int ParticleSubgridDepositMode;
-
-/* Maximum number of GreensFunctions that will be stored in any time.
-   This number must be less than MAX_NUMBER_OF_GREENS_FUNCTIONS. */
-
-EXTERN int GreensFunctionMaxNumber;
-
-/* Maximum number of words associated with GreensFunction storage
-   (Not currently implemented). */
-
-EXTERN int GreensFunctionMaxSize;
 
 /* Dual energy formalism (TRUE or FALSE). */
 
@@ -407,8 +386,6 @@ EXTERN int H2FormationOnDust;
 
 /* Glover chemistry/cooling network flags */
 EXTERN int GloverChemistryModel;  // 0 is off, on is 1-7, excluding 6
-EXTERN int GloverRadiationBackground; // 1: low Z, 2: ISM
-EXTERN int GloverOpticalDepth; // 0: opticaly thin, 1: single-cell
 
 /* Multi-element metallicity field flag and count. */
 
@@ -782,7 +759,6 @@ EXTERN int Coordinate;
 EXTERN int NSpecies;
 EXTERN int NColor;
 EXTERN float Theta_Limiter;
-EXTERN int RKOrder;
 EXTERN int UsePhysicalUnit;
 EXTERN int iden;
 EXTERN int ietot;
@@ -830,14 +806,6 @@ EXTERN int UseViscosity;
 EXTERN float ViscosityCoefficient;
 EXTERN int UseAmbipolarDiffusion;
 EXTERN int UseResistivity;
-
-/* Chemistry & cooling parameters */
-
-EXTERN float CoolingCutOffDensity1;
-EXTERN float CoolingCutOffDensity2;
-EXTERN float CoolingPowerCutOffDensity1;
-EXTERN float CoolingPowerCutOffDensity2;
-EXTERN float CoolingCutOffTemperature;
 
 /* Gravity parameters */
 
