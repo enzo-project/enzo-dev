@@ -231,28 +231,3 @@ actually projects the ``ElectricField``, then takes the curl over the new
 magnetic field.  This is formally equivalent to projection plus flux correction,
 but doesn't have as many cases to check and grid interactions to worry about.
 This is done in ``EvolveLevel`` by the routine ``Grid_MHD_UpdateMagneticField``
-
-Future Work (or, "Projects for Interested Students")
-----------------------------------------------------
-
-Most neighbor searching throughout Enzo is done with the Fast Neighbor Locator,
-which uses a chaining mesh to identify neighbors.  This is not done for the
-communication done in ``SendOldFineGrids,`` but should be.
-
-Additionally, both ``SendOldFineGrids`` and the electric field projection need
-to be updated to work with the 3 phase non-blocking communication
-
-In principle, the CT machinery can be used in conjunction with the MHD-RK
-machinery.  Interested students can contact dcollins for further instruction.
-
-Presently MHD-CT needs additional layers of ghost zones over the base hydro.  I
-believe that I can reduce this by communicating the electric field, which will
-improve memory overhead.  Again, interested parties can contact me for details.
-
-Multi-species needs to be tested.
-
-The mhd interpolation routine, ``mhd_interpolate.F``, could use to be re-factored.  The interested 
-student can feel free to contact David Collins.
-
-
-

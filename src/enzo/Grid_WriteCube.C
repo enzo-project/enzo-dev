@@ -628,12 +628,9 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
     if ( output_cube > -1 ) {
  
     if (SelfGravity && NumberOfParticles > 0) {
-      float SaveGravityResolution = GravityResolution;
-      GravityResolution = 1;
       this->InitializeGravitatingMassFieldParticles(RefineBy);
       this->ClearGravitatingMassFieldParticles();
       this->DepositParticlePositions(this, Time, GRAVITATING_MASS_FIELD_PARTICLES);
-      GravityResolution = SaveGravityResolution;
     }
  
     // If present, write out the GravitatingMassFieldParticles
@@ -775,11 +772,6 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
       h5_status = H5Fclose(file_id);
         fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      // Clean up if we modified the resolution
- 
-      if (SelfGravity && GravityResolution != 1)
-	this->DeleteGravitatingMassFieldParticles();
  
     } // end of (if GravitatingMassFieldParticles != NULL)
  

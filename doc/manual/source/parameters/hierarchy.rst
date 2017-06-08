@@ -286,6 +286,7 @@ Hierarchy Control Parameters
 ``AvoidRefineRegionLevel[#]`` (external)
     This parameter is used to limit the refinement to this level in a
     rectangular region.  Up to MAX_STATIC_REGIONS regions can be used.
+    Default: IND_UNDEFINED
 ``AvoidRefineRegionLeftEdge[#]``, ``AvoidRefineRegionRightEdge[#]`` (external) 
     These two parameters specify the two corners of a region that
     limits refinement to a certain level (see the previous

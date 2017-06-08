@@ -203,15 +203,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
 	  fprintf(fptr, "%"GSYM" %"GSYM" %"GSYM" ", PeakDensity[level][n],
 		  temperature[index], temperature[index]/
 		  POW(BaryonField[DensNum][index], Gamma-1));
- 
-/*
-	  if (SelfGravity && GravityResolution == 1 &&
-	      GravitatingMassFieldParticles != NULL && level > 0)
-	    fprintf(fptr, "%"GSYM" ", GravitatingMassFieldParticles[index]);
-	  else
-	    fprintf(fptr, "%"GSYM" ", tiny_number);
-*/
-	
+
 	  if (SelfGravity && GravitatingMassFieldParticles != NULL) {
 
 	    int gdims[3], gindex;
