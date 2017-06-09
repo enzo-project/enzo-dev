@@ -33,7 +33,6 @@ echo "backend : Agg" > $HOME/matplotlibrc
 export MATPLOTLIBRC=$HOME
 
 cd $BITBUCKET_CLONE_DIR
-hg up tip
 
 ./configure
 cd src/enzo
