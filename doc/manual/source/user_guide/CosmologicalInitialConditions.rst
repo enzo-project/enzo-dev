@@ -17,7 +17,7 @@ modifications to support Enzo data formats.
 Using MUSIC
 -----------
 The MUSIC package is described in `Hahn & Abel (2011)
-<http://arxiv.org/abs/1103.6031>`_ and is available from a bit bucket
+<http://arxiv.org/abs/1103.6031>`_ and is available from a BitBucket
 repository `here <https://bitbucket.org/ohahn/music>`_.   After you
 download and compiled it (note that MUSIC has its own depenencies
 including FFTW and GSL), you should have the ``MUSIC`` executable.  

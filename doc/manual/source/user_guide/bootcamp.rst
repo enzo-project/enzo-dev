@@ -36,12 +36,16 @@ clone the repository using Mercurial:
 
 Mercurial (hg) is a revision-control system that is available on many
 platforms (see `www.mercurial-scm.org
-<http://www.mercurial-scm.org>`_).  You can then use a pre-existing
-Makefile (if one exists for your machine) or modify one to point to
-either the system-wide installation of HDF5 and MPI or to the
-yt-installed HDF5 and the system-wide MPI.  However, since the process
-of setting up the Makefile can be a bit tricky, it's discussed in more
-depth down below.
+<http://www.mercurial-scm.org>`_).  Note that when you download enzo
+in this way, you will be suing the stable version of the code; if you
+wish to use the more cutting-edge development version, see the full
+documentation.
+
+You can then use a pre-existing Makefile (if one exists for your
+machine) or modify one to point to either the system-wide installation
+of HDF5 and MPI or to the yt-installed HDF5 and the system-wide MPI.
+However, since the process of setting up the Makefile can be a bit
+tricky, it's discussed in more depth down below.
 
 
 
@@ -72,9 +76,10 @@ In this directory there are several subdirectories:
    Note that the newer documentation is in a format called ReStructured
    Text, which is converted to HTML to be posted on the website. It can
    be read in plain text.
- * **input** These are files used as input to several test
-   problems. If Enzo fails at startup with a missing file, it is likely
-   in this directory. There are some additional scripts as well.
+ * **input** These are files used as input to several problems,
+   including radiative cooling tables. If Enzo fails at startup with a
+   missing file, it is likely in this directory. There are some
+   additional scripts as well.
  * **run** This directory contains example parameter files along with
    notes about expected output and scripts for plotting. This is also the
    basis of the Enzo answer test suite, which compares results from one
@@ -96,8 +101,7 @@ Change into the src/enzo/ directory, and execute the command
 
 This will come up with a list of potential Makefiles which have been
 pre-made. If you see one that may be appropriate (for instance, if
-you're on NICS Kraken, you might select Make.mach.nics-kraken )
-you can execute
+you're on a mac, use Make.mach.darwin) you can execute
 
 
 ::
@@ -106,11 +110,11 @@ you can execute
 
 
 For other machines, replace darwin with the final segment of the
-Makefile name. If you don't see a Makefile that's
-appropriate, you will want to copy one that is close (good starting
-points are Make.mach.unknown and Make.mach.linux-gnu) to a name that
-reflects the host you're on. You can then edit that Makefile, and
-you will need to set up the appropriate compilation information.
+Makefile name. If you don't see a Makefile that's appropriate, you
+will want to copy one that is close (good starting points are
+Make.mach.unknown and Make.mach.linux-gnu) to a name that reflects the
+host you're on. You can then edit that Makefile, and you will need to
+set up the appropriate compilation information.
 
 Specifically, despite the fact that there are many variables, for the
 most part they will be straightforward to set; Make.mach.linux-gnu is

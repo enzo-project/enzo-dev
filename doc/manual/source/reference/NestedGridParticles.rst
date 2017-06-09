@@ -15,8 +15,8 @@ The Problem
 -----------
 
 Following the
-:doc:`cosmology tutorial </tutorials/RunCosmologySimulation>` for
-:doc:`nested grids </tutorials/WritingParameterFiles>`,
+:doc:`cosmology tutorial </user_guide/CosmologicalInitialConditions>` for
+:doc:`nested grids </user_guide/WritingParameterFiles>`,
 first inits is run, and then ring is run on the output of inits to
 prepare data for the Parallel Root Grid IO mode of Enzo. The contents of the
 initial conditions are easily inspected:
@@ -102,7 +102,7 @@ requires a Python installation that has both
 `h5py <http://code.google.com/p/h5py/>`_. A simple way to gain an
 installation of Python with these modules is to install
 `yt <http://yt.enzotools.org/>`_, which is one of the
-:doc:`data analysis tools </tutorials/DataAnalysisBasics>`
+:doc:`data analysis tools </user_guide/AnalyzingWithYT>`
 available for Enzo.
 
 Procedure

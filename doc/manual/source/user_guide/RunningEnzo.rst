@@ -134,7 +134,7 @@ Test Problems
 
 There are a number of built-in tests, which can be used to debug the
 system or characterize how well it solves a particular problem.  (see
-:doc:`EnzoTestSuite` for a complete list.) Note that Enzo can run any
+:ref:`EnzoTestSuite` for a complete list.) Note that Enzo can run any
 problem after compilation, since no compilation flags affect
 simulation parameters.  To run a particular test, cd to the
 [browser:public/trunk/doc/examples doc/examples] subdirectory of the

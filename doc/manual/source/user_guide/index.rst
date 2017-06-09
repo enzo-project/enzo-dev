@@ -53,7 +53,6 @@ inquiries and comments should be directed to the `Enzo Users' List
    Grackle.rst
    Progress.rst
    RunTestProblem.rst
-   EnzoTestSuite.rst
    AnalyzingWithYT.rst
    CosmologicalInitialConditions.rst
    RunningLargeSimulations.rst

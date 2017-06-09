@@ -80,8 +80,8 @@ complicated and will be discussed below.
 
 ``Time = 646.75066015177``
 
-  The current time to which the baryon values in this grid have been
-  evolved.
+  The current time (in code units) to which the baryon values in this
+  grid have been evolved.
 
 
 ``SubgridsAreStatic = 0``
@@ -138,7 +138,8 @@ HDF5-formatted Hierarchy File
 
 We are transitioning to an HDF5-formatted hierarchy file. This is an
 improvement because reading a large (many thousand grid) ASCII
-hierarchy file take a long time. [Other improvements?]
+hierarchy file take a long time, and be a possible cause of precision
+errors in deep hierarchies.
 
 The structure of the file:
 
