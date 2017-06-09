@@ -3,8 +3,6 @@ Frequently Asked Questions
 
 This document lists a few frequently asked questions about Enzo.
 
-**WORK IN PROGRESS: Please add questions new Enzo users may ask**
-
 Building Enzo
 -------------
 
