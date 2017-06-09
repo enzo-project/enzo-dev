@@ -2,7 +2,8 @@
 wget --quiet https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
 bash ./Miniconda2-latest-Linux-x86_64.sh -b -p ./enzo-conda -f
 export PATH=$PWD/enzo-conda/bin:$PATH
-conda install -q -y mercurial cython h5py matplotlib sympy numpy pytest flake8 yt
+conda install -q -y mercurial cython h5py matplotlib sympy numpy pytest flake8 yt nose
+pip install python-hglib
 
 # install OS dependencies
 sudo apt-get update
@@ -26,6 +27,7 @@ cd src/clib
 make machine-linux-gnu
 make
 make install
+export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
 
 echo "backend : Agg" > $HOME/matplotlibrc
 export MATPLOTLIBRC=$HOME
