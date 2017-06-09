@@ -438,14 +438,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "AccretionKernal                = %"ISYM"\n", AccretionKernal);
   fprintf(fptr, "GravitationalConstant          = %e\n",
 	  GravitationalConstant);
-  fprintf(fptr, "S2ParticleSize                 = %"GSYM"\n", S2ParticleSize);
-  fprintf(fptr, "GravityResolution              = %"GSYM"\n", GravityResolution);
   fprintf(fptr, "ComputePotential               = %"ISYM"\n", ComputePotential);
   fprintf(fptr, "PotentialIterations            = %"ISYM"\n", PotentialIterations);
   fprintf(fptr, "WritePotential                 = %"ISYM"\n", WritePotential);
   fprintf(fptr, "ParticleSubgridDepositMode     = %"ISYM"\n", ParticleSubgridDepositMode);
-  fprintf(fptr, "BaryonSelfGravityApproximation = %"ISYM"\n",
-	  BaryonSelfGravityApproximation);
 
   fprintf(fptr, "InlineHaloFinder               = %"ISYM"\n", InlineHaloFinder);
   fprintf(fptr, "HaloFinderSubfind              = %"ISYM"\n", HaloFinderSubfind);
@@ -498,7 +494,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "use_specific_heating_rate   = %d\n", grackle_data->use_specific_heating_rate);
   fprintf(fptr, "self_shielding_method       = %d\n", grackle_data->self_shielding_method);
   fprintf(fptr, "H2_self_shielding           = %d\n", grackle_data->H2_self_shielding);
-  fprintf(fptr, "radiative_transfer_intermediate_step = %d\n", grackle_data->radiative_transfer_intermediate_step);
   fprintf(fptr, "grackle_data_file           = %s\n", grackle_data->grackle_data_file);
   fprintf(fptr, "UVbackground                = %d\n", grackle_data->UVbackground);
   fprintf(fptr, "Compton_xray_heating        = %d\n", grackle_data->Compton_xray_heating);
