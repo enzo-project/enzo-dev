@@ -1,8 +1,6 @@
 Frequently Asked Questions
 ==========================
 
-This document lists a few frequently asked questions about Enzo.
-
 Building Enzo
 -------------
 
@@ -71,5 +69,13 @@ Misc.
 branch? Should I only use the stable branch?**
 
 A:
+
+The "week-of-code" branch of enzo-dev is the primary development branch, which
+is updated on a fairly regular basis (the name "week-of-code" is historical).
+Changes are migrated into the stable branch on a roughly annual basis. In
+general, if you want code that is somewhat more reliable but may be
+significantly behind the cutting-edge Enzo version, you should use the 'stable'
+branch. If you are comfortable with more recent (and thus possibly less
+reliable) code, you should use the "week-of-code" branch.
 
 
