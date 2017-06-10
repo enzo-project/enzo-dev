@@ -792,13 +792,10 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
     if (OutputSmoothedDarkMatter == FALSE) {
     
       if (SelfGravity && NumberOfParticles > 0) {
-	float SaveGravityResolution = GravityResolution;
-	GravityResolution = 1;
 	this->InitializeGravitatingMassFieldParticles(RefineBy);
 	this->ClearGravitatingMassFieldParticles();
 	this->DepositParticlePositions(this, Time,
 				       GRAVITATING_MASS_FIELD_PARTICLES);
-	GravityResolution = SaveGravityResolution;
       }
  
       /* If present, write out the GravitatingMassFieldParticles. */
@@ -860,11 +857,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
         if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
   
-	/* Clean up if we modified the resolution. */
- 
-	if (SelfGravity && GravityResolution != 1)
-	  this->DeleteGravitatingMassFieldParticles();
- 
       } // end of (if GravitatingMassFieldParticles != NULL)
 
     } // ENDIF !OutputSmoothedDarkMatter

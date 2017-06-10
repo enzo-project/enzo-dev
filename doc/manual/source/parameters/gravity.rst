@@ -19,20 +19,6 @@ General
     This is the gravitational constant to be used in code units. For cgs units it
     should be 4\*pi\*G. For cosmology, this value must be 1 for the
     standard units to hold. A more detailed decription can be found at :ref:`EnzoInternalUnits`. Default: 4\*pi.
-``GreensFunctionMaxNumber`` (external)
-    The Green's functions for the gravitational potential depend on the
-    grid size, so they are calculated on a as-needed basis. Since they
-    are often re-used, they can be cached. This integer indicates the
-    number that can be stored. They don't take much memory (only the
-    real part is stored), so a reasonable number is 100. [Ignored in
-    current version]. Default: 1
-``GreensFunctionMaxSize``
-    Reserved for future use.
-``S2ParticleSize`` (external)
-    This is the gravitational softening radius, in cell widths, in
-    terms of the S2 particle described by Hockney and Eastwood in their
-    book Computer Simulation Using Particles. A reasonable value is
-    3.0. [Ignored in current version]. Default: 3.0
 ``PotentialIterations`` (external)
     Number of iterations to solve the potential on the subgrids. Values
     less than 4 sometimes will result in slight overdensities on grid
