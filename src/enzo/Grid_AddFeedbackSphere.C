@@ -998,7 +998,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
       SuperNova *P = new SuperNova();
       int mt_seed = 100;
-      mt_init((unsigned int)mt_seed);
+      mt_init(mt_seed);
       float random_u = (float)mt_seed/100.0; // random variable from 0 to 1
       float random_v = (float)mt_seed/100.0;
       float random_phi = 2*M_PI*random_u; // 0 to 2pi                                                                                    
