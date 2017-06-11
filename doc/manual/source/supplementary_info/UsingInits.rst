@@ -1,8 +1,10 @@
-Using Inits and Other Tools
-====================
+Deprecated: Using Inits and Other Tools
+=======================================
+
+This section has been largely replaced by :ref:`CosmologicalInitialConditions`.
 
 Building inits
------
+--------------
 
 This is the initial conditions generator. See :ref:`using_inits` for more
 detailed information. Initial conditions with a single initial grid or multiple

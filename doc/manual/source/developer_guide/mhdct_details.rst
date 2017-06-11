@@ -181,7 +181,7 @@ solver.
 The staggered magnetic field is stored in ``MagneticField``, and electric field, ``ElectricField``, is 
 centered on the zone edges.  ``MagneticField``, being stored on the faces of the
 zones, has one additional point along each component.  For instance, if a ``grid`` had dimensions :math:`n_x, n_y, n_z` then
- :math:`B_x` will have dimensions :math:`n_x+1, n_y, n_z`.  ``ElectricField`` has additional points transverse to the direction
+:math:`B_x` will have dimensions :math:`n_x+1, n_y, n_z`.  ``ElectricField`` has additional points transverse to the direction
 of the component, so :math:`E_x` has dimensions :math:`n_x, n_y+1, n_z+1`.
 There are several helper variables, such as ``MagneticDims[3][3]``,
 ``ElectricDims[3][3]``, ``MagneticSize[3]``, and ``ElectricSize[3]`` to describe

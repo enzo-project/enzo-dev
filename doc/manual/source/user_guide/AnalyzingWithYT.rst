@@ -1,7 +1,7 @@
 .. _analyzing_with_yt:
 
 Analyzing Enzo Data
-=================
+===================
 
 Using YT
 --------

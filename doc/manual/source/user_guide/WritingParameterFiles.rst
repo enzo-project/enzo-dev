@@ -12,13 +12,10 @@ packages are compiled into Enzo (unlike codes such as ZEUS-MP 1.0,
 where you have to recompile the code in order to enable new physics).
 
 It is inadvisable for a novice to put together a parameter file from
-scratch. Several parameter files are available for download at
-:doc:`SampleParameterFiles`. The simulations include:
-
--  dark matter-only unigrid and AMR simulations,
--  dark matter + hydro unigrid and AMR simulations,
--  an AMR dm + hydro simulation with multiple nested grids and a
-   limited refinement region.
+scratch.  There are many example parameter files in the ``enzo/run``
+directory, classified by the kind of test file.  See also the section
+:ref:`creating cosmological initial
+conditions. <CosmologicalInitialConditions>`.
 
 In order to make the most of this tutorial it is advisable to have
 one or more of these parameter files open while reading this page.
@@ -107,6 +104,9 @@ doing!
 Cosmology
 ---------
 
+See also the section on :ref:`creating cosmological initial
+conditions. <CosmologicalInitialConditions>`.  
+
 Complete descriptions of all cosmology parameters are given 
 :ref:`here <cosmology-parameters>` and 
 :ref:`here <cosmologysimulation_param>`. ``ComovingCoordinates`` determines 
@@ -180,7 +180,7 @@ a cosmological simulation, it is important to turn
 as PPM stable in a regime where there are hypersonic fluid flows,
 which is quite common in cosmology. The final parameter that one must
 set is ``Gamma``, the ratio of specific heats for an ideal gas. If
-``MultiSpecies`` (discussed later in :ref:`Cooling`) is on, this is
+``MultiSpecies`` (discussed later in :ref:`RadCooling`) is on, this is
 ignored. For a cosmological simulation where we wish to use PPM and
 have ``Gamma`` = 5/3, we use the following parameters:
 
@@ -426,7 +426,7 @@ Note that Enzo always outputs outputs data at the end of the
 simulation, regardless of the settings of ``dtDataDump`` and
 ``CosmologyOutputRedshift``.
 
-.. _Cooling:
+.. _RadCooling:
 
 Radiative Cooling and UV Physics Parameters
 -------------------------------------------
