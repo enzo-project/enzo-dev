@@ -37,5 +37,4 @@ def test_almost_standard():
 # Tests that OutputLog exists and fails otherwise
 def test_exist():
     filename = os.path.dirname(__file__) + "/OutputLog"
-    if not os.path.exists(filename):
-        raise EnzoTestOutputFileNonExistent(filename)
+    assert os.path.exists(filename)
