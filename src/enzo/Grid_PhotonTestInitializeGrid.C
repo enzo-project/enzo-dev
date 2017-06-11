@@ -775,7 +775,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
 	/* Set density. */
 
-	BaryonField[0][n] = density*BaryonMeanDensity;
+	BaryonField[0][n] = max(density*BaryonMeanDensity, tiny_number);
 
 	/* If doing multi-species (HI, etc.), set these. */
 
