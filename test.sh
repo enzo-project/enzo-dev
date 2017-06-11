@@ -32,6 +32,7 @@ export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
 echo "backend : Agg" > $HOME/matplotlibrc
 export MATPLOTLIBRC=$HOME
 
+# this is the location of the repository
 cd $BITBUCKET_CLONE_DIR
 
 ./configure
