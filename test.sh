@@ -33,10 +33,11 @@ echo "backend : Agg" > $HOME/matplotlibrc
 export MATPLOTLIBRC=$HOME
 
 export ENZOTEST_DIR=$HOME/enzo_test
+export GOLD_STANDARD_TAG="gold-standard-v1"
 
 # Build the gold standard version.
 cd $BITBUCKET_CLONE_DIR
-hg up test-gold-standard
+hg up $GOLD_STANDARD_TAG
 ./configure
 cd src/enzo
 make machine-linux-gnu
