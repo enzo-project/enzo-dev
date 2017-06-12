@@ -34,7 +34,7 @@ export MATPLOTLIBRC=$HOME
 
 export ENZOTEST_DIR=$HOME/enzo_test
 
-# Generate the gold standard results.
+# Build the gold standard version.
 cd $BITBUCKET_CLONE_DIR
 hg up test-gold-standard
 ./configure
@@ -43,10 +43,11 @@ make machine-linux-gnu
 make load-config-test-suite
 make -j 4
 
+# Generate the gold standard results.
 cd $BITBUCKET_CLONE_DIR/run
 python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-store --answer-name=push_suite  --local --strict=high --verbose
 
-# Run tests on the tip and compare to gold standard.
+# Build the tip version.
 cd $BITBUCKET_CLONE_DIR
 hg up tip
 ./configure
@@ -56,5 +57,6 @@ make machine-linux-gnu
 make load-config-test-suite
 make -j 4
 
+# Run tests on the tip and compare to gold standard.
 cd $BITBUCKET_CLONE_DIR/run
 python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=push_suite  --local --clobber --strict=high --verbose
