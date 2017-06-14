@@ -1,0 +1,84 @@
+
+TopGridRank            = 1
+TopGridDimensions      = 100 
+
+ProblemType            = 500
+
+CourantSafetyNumber    = 0.4
+
+
+RightFaceBoundaryCondition = 3
+LeftFaceBoundaryCondition =  3
+
+#    various init styles:
+#       0 = sphere: 1,2,3=rectangular slice along x, y,z
+#       40,41,42=cylander along x,y,z: 
+#       5,6,7,8 = Index Tests. 5: 10*i + 100*j + 1000*k, 6: i, 7:j, 8k
+HydroMethod       = 6
+NumberOfGhostZones = 5
+#MHD_CT_Method = 1  //0 = none, 1 = Balsara, 2 = Poisson, 3=RJ (use 1)
+RiemannSolver = 6
+ReconstructionMethod = 6
+
+MHDBlastInitStyle = 1
+
+# In this two state, A is "outside" and B is "Inside"
+MHDBlastCenter = 0.5 0.5 0.5 //Center in spatial units.
+MHDBlastRadius = 0.25 //in space units OF THE LONGEST AXIS
+
+Gamma                  = 1.6666666667
+
+MHDBlastMetalDensityA = 1e-5
+MHDBlastMetalDensityB = 1e-4
+MHDBlastMetalOffsetInX = 0.25
+
+StopCycle = 100
+#StopTime = 3.0
+CycleSkipDataDump = 100
+CycleLastDataDump = -100
+
+MHDBlastDA = 1
+MHDBlastDB = 2
+
+MHDBlastVelocityA = 0.5 0 0
+MHDBlastVelocityB = 0.5 0 0
+
+MHDBlastBA  =  0.0 0.0 0.0
+MHDBlastBB  =  0.0 0.0 0.0
+
+MHDBlastPA = 1 
+MHDBlastPB = 1 
+
+#For characteristic advection
+#8x = Square Wave.
+#7x = Sine Wave.
+#x:
+#0 left fast
+#1 left Alfven
+#2 left Slow
+#3 contact
+#4 right slow
+#5 right alfven
+#6 right fast
+#MHDBlastPerturbMethod = 83
+#MHDBlastPerturbAmplitude = 1e-6
+
+#
+# AMR flags
+#
+
+MaximumRefinementLevel    = 0
+CellFlaggingMethod     = 8
+NumberOfBufferZones    = 0
+MHD_InterpolationMethod = 1 //0 = Direct sample, 1=Average
+MinimumSlopeForRefinement        = 0.3;
+
+MHD_ProjectE           =  1
+MHD_ProjectB   = 0
+
+StaticHierarchy           = 0    // dynamic hierarchy
+RefineBy                  = 2    // refinement factor
+
+TopGridGravityBoundary = 0       // Periodic BC
+SelfGravity            = 0       // Gravity on.
+
