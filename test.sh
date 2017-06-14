@@ -32,15 +32,32 @@ export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
 echo "backend : Agg" > $HOME/matplotlibrc
 export MATPLOTLIBRC=$HOME
 
-# this is the location of the repository
-cd $BITBUCKET_CLONE_DIR
+export ENZOTEST_DIR=$HOME/enzo_test
+export GOLD_STANDARD_TAG="gold-standard-v1"
 
+# Build the gold standard version.
+cd $BITBUCKET_CLONE_DIR
+hg up $GOLD_STANDARD_TAG
 ./configure
 cd src/enzo
 make machine-linux-gnu
-make opt-high
-make integers-32
-make particle-id-32
-make hypre-yes
-make grackle-yes
+make load-config-test-suite
 make -j 4
+
+# Generate the gold standard results.
+cd $BITBUCKET_CLONE_DIR/run
+python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-store --answer-name=push_suite  --local --strict=high --verbose
+
+# Build the tip version.
+cd $BITBUCKET_CLONE_DIR
+hg up tip
+./configure
+cd src/enzo
+make clean
+make machine-linux-gnu
+make load-config-test-suite
+make -j 4
+
+# Run tests on the tip and compare to gold standard.
+cd $BITBUCKET_CLONE_DIR/run
+python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=push_suite  --local --clobber --strict=high --verbose
