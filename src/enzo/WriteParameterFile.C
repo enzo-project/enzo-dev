@@ -1080,7 +1080,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "UseDrivingField            = %d\n", UseDrivingField);
   fprintf(fptr, "DrivingEfficiency          = %f\n", DrivingEfficiency);
-  fprintf(fptr, "MHDMixSpeciesAndColors             = %d\n", MHDMixSpeciesAndColors);
+  fprintf(fptr, "MHDMixSpeciesAndColors     = %d\n", MHDMixSpeciesAndColors);
 #ifdef ECUDA
   fprintf(fptr, "UseCUDA = %"ISYM"\n", UseCUDA);
 #endif
