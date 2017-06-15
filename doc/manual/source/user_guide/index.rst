@@ -55,7 +55,6 @@ inquiries and comments should be directed to the `Enzo Users' List
    RunTestProblem.rst
    AnalyzingWithYT.rst
    CosmologicalInitialConditions.rst
-   RunCosmologySimulation.rst
    RunningLargeSimulations.rst
    EnzoOutputFormat.rst
-   HierarchyFile.rst
+

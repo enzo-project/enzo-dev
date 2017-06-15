@@ -128,12 +128,6 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
   }
  
  
-  /* Set The GravityResolution to 1 to make the DM resolution the same at
-     the gas. This is one of two reason's why this routine cannot be called
-     during the evolution. */
- 
-  GravityResolution = 1;
- 
   /* Copy ProjectStart and ProjectEnd into long int version so we can do
      deep projections. */
  

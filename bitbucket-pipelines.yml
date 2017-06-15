@@ -4,4 +4,4 @@ pipelines:
   default:
     - step:
         script:
-          - bash build.sh
+          - bash test.sh

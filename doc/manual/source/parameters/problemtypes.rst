@@ -1,5 +1,5 @@
 Problem Type Parameters
------------------------
+--------------------
 
 ``ProblemType`` (external)
     This integer specifies the type of problem to be run. Its value
@@ -1245,7 +1245,7 @@ Photon Test (50)
 .. _stochastic_forcing_param:
 
 Turbulence Simulation with Stochastic Forcing (59)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Typical quasi-isothermal "turbulence-in-a-box" problem with non-static driving field.
     For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
     http://dx.doi.org/10.1051/0004-6361:200809967
@@ -1694,7 +1694,7 @@ Galaxy Disk (207)
 .. _agndisk_param:
 
 AGN Disk (207)
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~
 
 ``DiskType`` (external)
     Default: 1
@@ -1714,10 +1714,11 @@ AGN Disk (207)
     Initial height of the disk. Default: 1
 
 .. _poissonsolver_param:
-.. _shocktube_param:
+
+.. _cr_shocktube_param:
 
 CR Shock Tube (250: unigrid and AMR)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Very similar to normal shock tube (see problem 1) but includes CR
     component.  See Salem, Bryan & Hummels (2014) for discussion.

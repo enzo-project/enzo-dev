@@ -58,10 +58,6 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
     ENZO_FAIL("UNDER_SUBGRID_FLAG field not set.\n");
   }
  
-  if (SelfGravity && GravityResolution != 1) {
-    ENZO_FAIL("ProjectToPlane assumes GravityResolution == 1.\n");
-  }
- 
   /* Declarations */
  
   int i, j, k, dim, start, stop, Index[MAX_DIMENSION];

@@ -297,6 +297,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 				 float EnergyA,  float EnergyB,
 				 float VelocityA[], float VelocityB[],
 				 float BA[], float BB[], 
+                 float MetalDensityA, float MetalDensityB, int UseMetal,float MetalOffsetInX,
 				 float Radius, float MHDBlastCenter[], int LongDimension,
 				 float PerturbAmplitude, int PerturbMethod, float PerturbWavelength[],
 				 int InitStyle)
@@ -333,6 +334,10 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   
   if( WritePotential )
       FieldType[NumberOfBaryonFields++] = GravPotential; 
+  
+  int MetalNum=-1;
+   if( UseMetal)
+       FieldType[MetalNum=NumberOfBaryonFields++] = Metallicity;
   
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;  
@@ -531,6 +536,13 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
         BaryonField[ByNum][index] = (1-fraction) * BA[1] + fraction*BB[1];
         BaryonField[BzNum][index] = (1-fraction) * BA[2] + fraction*BB[2];
 	  }
+      if( UseMetal ){
+          int metal_index = index - (GridDimension[0]+2*NumberOfGhostZones)*MetalOffsetInX;
+          if ( metal_index < 0 ) metal_index += GridDimension[0];
+          BaryonField[MetalNum][metal_index] = (1-fraction)*MetalDensityA + fraction*MetalDensityB;
+      }
+
+
 	}else{
 	  continue;
 	}

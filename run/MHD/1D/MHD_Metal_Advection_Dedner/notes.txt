@@ -1,0 +1,2 @@
+Square wave advection with a single species field.
+The metals are offset by 0.25 from the density. 

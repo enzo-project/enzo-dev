@@ -361,12 +361,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
   GravitationalConstant       = 4*Pi;              // G = 1
-  S2ParticleSize              = 3.0;               // ~3 is reasonable
-  GravityResolution           = 1.0;               // equivalent to grid
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
-  BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
 
   GalaxySimulationRPSWind = 0;
   GalaxySimulationRPSWindShockSpeed = 0.0;
@@ -379,9 +376,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GalaxySimulationPreWindDensity = 1.0;
   GalaxySimulationPreWindTotalEnergy = 1.0;
 
-  GreensFunctionMaxNumber     = 1;                 // only one at a time
-  GreensFunctionMaxSize       = 1;                 // not used yet
- 
   DualEnergyFormalism         = FALSE;             // off
   DualEnergyFormalismEta1     = 0.001;             // typical 0.001
   DualEnergyFormalismEta2     = 0.1;               // 0.08-0.1
@@ -419,8 +413,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2OpticalDepthApproximation = 1;
   H2FormationOnDust           = FALSE;
   GloverChemistryModel        = 0;                 // 0ff
-  GloverRadiationBackground   = 0;
-  GloverOpticalDepth          = 0;
   CRModel                     = 0;                 // off
   CRDiffusion                 = 0;                 // off
   CRkappa                     = 0.0;
@@ -736,7 +728,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NSpecies		     = INT_UNDEFINED;
   NColor		     = INT_UNDEFINED;
   Theta_Limiter		     = 1.5;
-  RKOrder		     = 2;
   UsePhysicalUnit	     = 0;
   NEQ_HYDRO		     = 5;
   NEQ_MHD		     = 9;
@@ -756,11 +747,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   EOSGamma		     = 1.667;
   Mu			     = 0.6;
   DivBDampingLength          = 1.;
-  CoolingCutOffDensity1	     = 0;
-  CoolingCutOffDensity2	     = 1e10;
-  CoolingCutOffTemperature   = 0.0;
-  CoolingPowerCutOffDensity1 = 0;
-  CoolingPowerCutOffDensity2 = 1e10;
   UseCUDA		     = 0;
   UseFloor		     = 0;
   UseViscosity		     = 0;

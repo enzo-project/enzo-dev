@@ -250,7 +250,7 @@ Hierarchy Control Parameters
     ``MustRefineParticlesRefineToLevel`` using the boxsize and redshift
     information. Default: 0 (FALSE)
 ``MustRefineParticlesMinimumMass`` (external)
-    This was an experimental parameter to set a minimum for ``MustRefineParticles``.  Default: 0.0
+    This was an experimental parameter to set a minimum for ``MustRefineParticles``. Default: 0.0
 ``MustRefineParticlesRegionLeftEdge`` (external)
     Bottom-left corner of a region in which dark matter particles are flagged 
     as ``MustRefineParticles`` in nested cosmological simulations.  To be used with 
@@ -286,6 +286,7 @@ Hierarchy Control Parameters
 ``AvoidRefineRegionLevel[#]`` (external)
     This parameter is used to limit the refinement to this level in a
     rectangular region.  Up to MAX_STATIC_REGIONS regions can be used.
+    Default: IND_UNDEFINED
 ``AvoidRefineRegionLeftEdge[#]``, ``AvoidRefineRegionRightEdge[#]`` (external) 
     These two parameters specify the two corners of a region that
     limits refinement to a certain level (see the previous
