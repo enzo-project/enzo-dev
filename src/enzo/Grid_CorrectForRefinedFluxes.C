@@ -97,14 +97,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
             ENZO_FAIL("Error in grid->IdentifyPhysicalQuantities.");
     }
 
-    /* Find metallicity field and set flag. */
- 
-    int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-        MetalIaNum, MetalIINum;
-    if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, 
-                MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
-      ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-
     //dcc kludge:  Just remove a(t)? 09/06/05 
     /* If using comoving coordinates, compute a(t) because we'll need it
        to multiply against the CellWidth. */
@@ -369,14 +361,15 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
           fieldNumberList.push_back(GENum);
         }
       }
-      if (FieldType[MetalNum] == Metallicity) { 
-        fieldNumberList.push_back(MetalNum);
-      }
-      if (FieldType[MetalNum+1] == ExtraType0) {
-        fieldNumberList.push_back(MetalNum+1);
-      }
-      if (FieldType[MetalNum+2] == ExtraType1) { 
-        fieldNumberList.push_back(MetalNum+2);
+      // When FluxCorrection is set to 2, species will be directly corrected 
+      // like density, total energy, and internal energy
+      if (FluxCorrection == 2){
+        for (field = 0; field < NumberOfBaryonFields; field++) {
+          if (FieldType[field] >= ElectronDensity &&
+              FieldType[field] <= ExtraType1) {
+            fieldNumberList.push_back(field);
+          }
+        }
       }
 	
       for (field = 0; field < NumberOfBaryonFields; field++) { 
@@ -405,13 +398,11 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
         // them by the new density (species are not otherwise modified --
         // see the next comment).  This ensures that the species are changed
         // to keep the same fractional density.
+        if (FluxCorrection == 1) { // Skip this routine when FluxCorrection = 2
         if (
           (
             (FieldType[field] >= ElectronDensity
               && FieldType[field] <= ExtraType1
-              && FieldType[field] != Metallicity 
-              && FieldType[field] != ExtraType0 
-              && FieldType[field] != ExtraType1 
             )
             || FieldType[field] == MetalSNIaDensity
             || FieldType[field] == MetalSNIIDensity
@@ -430,6 +421,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
             }
           }
         }
+        }
 
 	    if (FieldTypeNoInterpolate(FieldType[field]) == FALSE
           // Density, total energy, and internal energy were already 
@@ -437,9 +429,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
           && FieldType[field] != Density
           && FieldType[field] != TotalEnergy
           && FieldType[field] != InternalEnergy
-          && FieldType[field] != Metallicity 
-          && FieldType[field] != ExtraType0 
-          && FieldType[field] != ExtraType1 
           && FieldType[field] < ElectronDensity 
           && FieldType[field] != DrivingField1
           && FieldType[field] != DrivingField2
@@ -555,10 +544,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		
 		    if ((FieldTypeIsDensity(FieldType[field]) == TRUE ||
 			 FieldType[field] == TotalEnergy ||
-			 FieldType[field] == InternalEnergy
-                         || FieldType[field] == Metallicity 
-                         || FieldType[field] == ExtraType0 
-                         || FieldType[field] == ExtraType1 
+			 FieldType[field] == InternalEnergy ||
+                         ( FieldType[field] >= ElectronDensity &&
+                           FieldType[field] <= ExtraType1 )
                          )) {
 
 		      /* If new density & energy is < 0 then undo the
@@ -731,7 +719,10 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		/* Check for positivity and undo flux correction if negative */
 		if ((FieldType[field] == Density || 
 		     FieldType[field] == TotalEnergy ||
-		     FieldType[field] == InternalEnergy) &&
+		     FieldType[field] == InternalEnergy  ||
+                     ( FieldType[field] >= ElectronDensity &&
+                       FieldType[field] <= ExtraType1 )
+                    ) &&
 		    BaryonField[field][FieldIndex] <= 0) {
 		  /*if (debug) {
 		    printf("CFRFl warn: %e %e %e %d %d %d %d [%d]\n",
@@ -755,7 +746,10 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		}
 		if ((FieldType[field] == Density || 
 		     FieldType[field] == TotalEnergy ||
-		     FieldType[field] == InternalEnergy) &&
+		     FieldType[field] == InternalEnergy ||
+                     ( FieldType[field] >= ElectronDensity &&
+                       FieldType[field] <= ExtraType1 )
+                    ) &&
 		    BaryonField[field][FieldIndex + Offset] <= 0.0) {
 		  /*if (debug) {
 		    printf("CFRFr warn: %e %e %e %d %d %d %d (%d) [%d]\n",
@@ -855,13 +849,10 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	    /* Multiply species by density to return from fractional to real
 	       density. (see comments above regarding species). */
 	
+          if (FluxCorrection == 1) {
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if ( ((FieldType[field] >= ElectronDensity &&
-		   FieldType[field] <= ExtraType1
-                   && FieldType[field] != Metallicity 
-                   && FieldType[field] != ExtraType0 
-                   && FieldType[field] != ExtraType1 
-                  ) ||
+		   FieldType[field] <= ExtraType1) ||
 		  FieldType[field] == MetalSNIaDensity ||
 		  FieldType[field] == MetalSNIIDensity) &&
 		 FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
@@ -875,6 +866,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      BaryonField[DensNum][index+Offset];
 		  }
 		}
+           }
 	
 	} // if( CorrectLeftBaryonField || CorrectRightBaryonField)
 
