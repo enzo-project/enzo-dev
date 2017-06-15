@@ -70,9 +70,8 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
   this->ReturnOldHydroRKPointers(OldPrim, false);
 
   //##### Want to mix species and colors for renormalization?  Normally you don't
-  int MixSpeciesAndColors = 0;
   int NSpecies_renorm;
-  if (MixSpeciesAndColors) 
+  if (MHDMixSpeciesAndColors) 
     NSpecies_renorm = NSpecies+NColor;
   else if (NoMultiSpeciesButColors) {
     NSpecies_renorm = NSpecies;
