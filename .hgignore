@@ -24,7 +24,6 @@ svn_version.def
 temp.show-*
 Make.config.machine
 Make.config.override
-Make.machine.darwin
 *.mod
 
 src/mpgrafic/degraf/Makefile

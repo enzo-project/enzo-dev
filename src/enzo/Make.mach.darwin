@@ -37,14 +37,15 @@ MACH_FILE  = Make.mach.darwin
 
 LOCAL_PACKAGES       = /usr/local
 
-LOCAL_MPI_INSTALL    = /usr
+# This will not work on OSX Lion or newer.  You may wany to try installing
+# openmpi via macports.  
+LOCAL_MPI_INSTALL    = /usr/local
 LOCAL_FC_INSTALL     = /usr/local
-LOCAL_HDF5_INSTALL   = /Users/dkoh30/yt-conda/lib
+LOCAL_HDF5_INSTALL   = $(YT_DEST)
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
-LOCAL_PYTHON_INSTALL = $(YT_DEST) 
-#LOCAL_PYTHON_INSTALL = /Library/Frameworks/Python.framework/Versions/Current/
-LOCAL_CVODE_INSTALL  = /usr/local/
+LOCAL_PYTHON_INSTALL = $(YT_DEST)
+LOCAL_GRACKLE_INSTALL = /usr/local
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -93,15 +94,6 @@ MACH_SHARED_FLAGS = -dynamiclib -Wl,-headerpad_max_install_names,-undefined,dyna
 MACH_SHARED_EXT   = dylib
 
 #-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = 
-MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8
-MACH_FFLAGS_REAL_32    = 
-MACH_FFLAGS_REAL_64    = -fdefault-real-8 -fdefault-double-8
-
-#-----------------------------------------------------------------------
 # Optimization flags
 #-----------------------------------------------------------------------
 
@@ -121,14 +113,13 @@ LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_CUDA   = -I/Developer/CUDA/common/inc
-LOCAL_INCLUDES_CVODE  = 
-#-I$(LOCAL_CVODE_INSTALL)/include/cvode/
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_CUDA) \
-                        $(LOCAL_INCLUDES_CVODE)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_CUDA)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_GRACKLE  = $(LOCAL_INCLUDES_GRACKLE)
 
 #-----------------------------------------------------------------------
 # Libraries
@@ -140,12 +131,12 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_PYTHON = -lpython2.6
 LOCAL_LIBS_PYTHON = -framework Python 
 LOCAL_LIBS_CUDA   = -L/usr/local/cuda/lib/ -lcudart
-LOCAL_LIBS_CVODE  = 
-#-L$(LOCAL_CVODE_INSTALL)/lib -lsundials_cvode \
-#                    -lsundials_nvecserial -lhdf5_hl
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+LOCAL_LIBS_HYPRE = -L$(LOCAL_HYPRE_INSTALL)/lib -lhypre
 
-MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_CVODE)
+MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) 
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
 MACH_LIBS_MPI    = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE  = $(LOCAL_LIBS_HYPRE)
 MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)
