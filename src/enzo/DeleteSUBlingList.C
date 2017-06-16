@@ -40,7 +40,7 @@ int DeleteSUBlingList( int NumberOfGrids,
 		      LevelHierarchyEntry **SUBlingList)
 {
 
-  if( FluxCorrection != TRUE )
+  if( FluxCorrection == 0 )
     return SUCCESS;
   LevelHierarchyEntry *LastEntry, *NextEntry;
  
