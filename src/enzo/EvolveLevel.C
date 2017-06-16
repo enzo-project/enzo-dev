@@ -337,7 +337,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
   }
  
-  //Grids[0]->GridData->SetNumberOfColours(); Do we want this?
+  Grids[0]->GridData->SetNumberOfColours();
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
      current grid to correct the zones surrounding this subgrid (step #18). 
