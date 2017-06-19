@@ -71,7 +71,7 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 
   //##### Want to mix species and colors for renormalization?  Normally you don't
   int NSpecies_renorm;
-  if (MHDMixSpeciesAndColors) 
+  if (MixSpeciesAndColors) 
     NSpecies_renorm = NSpecies+NColor;
   else if (NoMultiSpeciesButColors) {
     NSpecies_renorm = NSpecies;

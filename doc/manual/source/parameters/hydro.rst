@@ -329,8 +329,8 @@ Because many of the following parameters are not actively being tested and maint
     This parameter is used to add resistivity and thereby update magnetic fields in some set-ups; see ComputeResistivity in hydro_rk/Grid_AddResistivity.C.  Default: 0
 ``UsePhysicalUnit`` (external)
     For some test problems (mostly in hydro_rk), the relevant parameters could be defined in physical CGS units.  Default: 0
-``MHDMixSpeciesAndColors`` (external)
-    This parameter enables color fields to be evolved as species in MHD solvers. If ``PopIIISupernovaUseColour`` is on, this must also be turned on to trace the metal field. Default: 1
+``MixSpeciesAndColors`` (external)
+    This parameter enables color fields to be evolved as species in the MUSCL solvers. If ``PopIIISupernovaUseColour`` is on, this must also be turned on to trace the metal field. Default: 1
 
 ``SmallT`` (external)
     Minimum value for temperature in hydro_rk/EvolveLevel_RK.C.  Default: 1e-10 (note that the default value assumes UsePhysicalUnit = 1)

@@ -647,7 +647,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     StarClusterRegionRightEdge[dim] = 1.0;
   }
  
-  MHDMixSpeciesAndColors           = 1;            //Enable SNColour field to be advected as species in MHD
+  MixSpeciesAndColors           = 1;            //Enable SNColour field to be advected as species in MHD
  
   PopIIIStarMass                   = 100;
   PopIIIInitialMassFunction        = FALSE;

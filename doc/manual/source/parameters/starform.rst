@@ -228,7 +228,7 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
     thermal energy at the end of the star's life. Units are in parsecs.
     Default: 1.
 ``PopIIISupernovaUseColour`` (external)
-    Set to 1 to trace the metals expelled from supernovae. If using ``HydroMethod`` 3 or 4, also set ``MHDMixSpeciesAndColors`` to 1 to trace metals. Default: 0.
+    Set to 1 to trace the metals expelled from supernovae. If using ``HydroMethod`` 3 or 4, also set ``MixSpeciesAndColors`` to 1 to trace metals. Default: 0.
 ``PopIIIUseHypernovae`` (external)
     Set to 1 to use the hypernova energies and metal ejecta masses
     from Nomoto et al. (2006).  If set to 0, then the supernova
