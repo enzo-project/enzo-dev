@@ -136,6 +136,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *PhiName = "Phi";
   char *DebugName = "Debug";
   char *Phi_pName = "Phip";
+  char *QPresName = "Quantum_Pressure"; 
 
 #ifdef TRANSFER
   char *RadName = "Grey_Radiation_Energy";
@@ -815,7 +816,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = PSTempName;
       DataLabel[i++] = PSDenName;
     }
-  } 
+  }
+  if (QuantumPressure) {
+    DataLabel[i++] = QPresName;
+  }
 
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;

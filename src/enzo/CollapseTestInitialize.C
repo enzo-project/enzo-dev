@@ -68,6 +68,9 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *DIIName   = "DII_Density";
   const char *HDIName   = "HDI_Density";
   const char *MetalName = "Metal_Density";
+  const char *RePsiName = "Re_Psi "; 
+  const char *ImPsiName = "Im_Psi "; 
+
 
   /* declarations */
 
@@ -499,6 +502,10 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[count++] = (char*) ColourName;
   if (CollapseTestUseMetals)
     DataLabel[count++] = (char*) MetalName;
+  if (QuantumPressure) {
+    DataLabel[count++] = (char*) RePsiName;
+    DataLabel[count++] = (char*) ImPsiName;
+  }
 
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;

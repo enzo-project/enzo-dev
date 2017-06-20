@@ -91,7 +91,7 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
 	       int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
 	       int bottom, float minsupecoef, int CRModel, float CRgamma);
 
-int ZeusFDM(float *d, float *e, float *u, float *v, float *w,
+int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
          int in, int jn, int kn, int rank,
          int is, int ie, int js, int je, int ks, int ke, 
          float C1, float C2, float *gamma, float dt, float dx[], float dy[], float dz[],
@@ -145,7 +145,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   int i, ie, is, j, je, js, k, ks, ke, n, ixyz, ret;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum;
   float pmin;
-  float *d, *e, *u, *v, *w, *cr, *m, *qpres;
+  float *d, *e, *u, *v, *w, *cr, *m;
 
   /* Error Check */
 
@@ -175,6 +175,8 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   u = BaryonField[Vel1Num];
   v = BaryonField[Vel2Num];
   w = BaryonField[Vel3Num];
+  //for (i=0;i<size;i++)
+    //printf("i,e=%"ISYM",%"GSYM"\n",TENum,BaryonField[TENum][100]);
   if (GridRank < 2) {
     v = new float[size];
     for (i = 0; i < size; i++)
@@ -257,11 +259,13 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
   //(hbar/m)^2/2
   float lapcoef = pow(hmcoef,2)/2.;
+  int QNum;
+  float *qpres;
+  QNum = FindField(QPres, FieldType, NumberOfBaryonFields);
+  qpres = BaryonField[QNum];
 
-  //int QNum = FindField(QPressure, FieldType, NumberOfBaryonFields);
-  //qpres = BaryonField[QNum];
   
-    if (ZeusFDM(d, e, u, v, w,
+    if (ZeusFDM(d, e, u, v, w, qpres,
      GridDimension[0], GridDimension[1], GridDimension[2],
      GridRank, 
      is, ie, js, je, ks, ke, 
@@ -277,7 +281,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     ENZO_FAIL("Error in ZeusFDM!\n");
     }
 
-  } else{
+  } else {
 
   if (ZeusSource(d, e, u, v, w, p, cr, 
 		 GridDimension[0], GridDimension[1], GridDimension[2],

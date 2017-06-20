@@ -975,7 +975,10 @@ OBJS_CONFIG_LIB = \
         Zeus_zTransport_FDM.o \
         Grid_FlagCellsToBeRefinedBySqrtSecondDeriv.o\
 	Grid_ComputeQuantumAcceleration.o \
-	Grid_ComputeQuantumPressure.o 
+	Grid_ComputeQuantumPressure.o \
+	Grid_SchrodingerSolver.o \
+	rk3tvd.o \
+	SchrodingerAddPotential.o
 
 
 

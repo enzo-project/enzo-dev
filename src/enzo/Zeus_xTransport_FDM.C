@@ -153,7 +153,7 @@ int Zeus_xTransport_FDM(float *d, float *e, float *u, float *v, float *w,
 //    Compute momentum fluxes
 
       for (i = is-2; i <= ie+2; i++)
-	f2[i] = ustar[i]*0.5*(f1[IDX(i,j,k)] + f1[IDX(i+1,j,k)]);
+	f2[i] = uavgi[i]*0.5*(f1[IDX(i,j,k)] + f1[IDX(i+1,j,k)]);
 
       if (rank > 1)
 	for (i = is-1; i <= ie+2; i++) {

@@ -115,6 +115,8 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
       BottomBuffer[i] = 1.0; //Protects from 0.0/0.0 later on.
     }
 
+    int workfield = FieldType[field];
+
     /* compute second derivative criteria */
     for (k = Start[2]; k <= End[2]; k++)
       for (j = Start[1]; j <= End[1]; j++)
@@ -126,22 +128,22 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
             for (int diml = 0; diml < GridRank; diml++){
               // Top buffer is the 2nd order partial derivatives
               TopBuffer[index] += 
-                  0.125*POW(BaryonField[field][index + Offsets[dimk] + Offsets[diml]] -
-                            BaryonField[field][index + Offsets[dimk] - Offsets[diml]] -
-                            BaryonField[field][index - Offsets[dimk] + Offsets[diml]] +
-                            BaryonField[field][index - Offsets[dimk] - Offsets[diml]], 2.0);
+                  0.125*POW(BaryonField[workfield][index + Offsets[dimk] + Offsets[diml]] -
+                            BaryonField[workfield][index + Offsets[dimk] - Offsets[diml]] -
+                            BaryonField[workfield][index - Offsets[dimk] + Offsets[diml]] +
+                            BaryonField[workfield][index - Offsets[dimk] - Offsets[diml]], 2.0);
               // BottomBuffer is the normalization, which is an average of the 
               // first derivatives + SecondDerivativeEpsilong * an average of 
               // the field values, filtering out oscillations. 
               BottomBuffer[index] +=
-                  POW(0.5*(fabs(BaryonField[field][index + Offsets[dimk]] -
-                                BaryonField[field][index]) +
-                           fabs(BaryonField[field][index] -
-                                BaryonField[field][index - Offsets[dimk]])) +
-                      SecondDerivativeEpsilon * (fabs(BaryonField[field][index + Offsets[dimk] + Offsets[diml]]) +
-                                        fabs(BaryonField[field][index + Offsets[dimk] - Offsets[diml]]) +
-                                        fabs(BaryonField[field][index - Offsets[dimk] + Offsets[diml]]) +
-                                        fabs(BaryonField[field][index - Offsets[dimk] - Offsets[dimk]])) , 2.0);
+                  POW(0.5*(fabs(BaryonField[workfield][index + Offsets[dimk]] -
+                                BaryonField[workfield][index]) +
+                           fabs(BaryonField[workfield][index] -
+                                BaryonField[workfield][index - Offsets[dimk]])) +
+                      SecondDerivativeEpsilon * (fabs(BaryonField[workfield][index + Offsets[dimk] + Offsets[diml]]) +
+                                        fabs(BaryonField[workfield][index + Offsets[dimk] - Offsets[diml]]) +
+                                        fabs(BaryonField[workfield][index - Offsets[dimk] + Offsets[diml]]) +
+                                        fabs(BaryonField[workfield][index - Offsets[dimk] - Offsets[dimk]])) , 2.0);
             }
           }
         }

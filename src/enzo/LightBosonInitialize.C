@@ -37,7 +37,9 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
-  //char *QPressure_Name = "Quantum_Pressure";
+  char *RePsiName = "RePsi";
+  char *ImPsiName = "ImPsi";
+
 
 
 
@@ -103,7 +105,9 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataLabel[2] = Vel2Name;
   DataLabel[3] = Vel3Name;
   DataLabel[4] = TEName;
-  //DataLabel[5] = QPressure_Name;
+  DataLabel[5] = RePsiName;
+  DataLabel[6] = ImPsiName;
+
 
 
 
@@ -113,8 +117,8 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataUnits[2] = NULL;
   DataUnits[3] = NULL;
   DataUnits[4] = NULL;
-  //DataUnits[5] = NULL;
-
+  DataUnits[5] = NULL;
+  DataUnits[6] = NULL;
 
 
   

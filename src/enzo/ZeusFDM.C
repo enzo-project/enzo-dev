@@ -38,7 +38,7 @@ c
 
 #define IDX(a,b,c) ( ((c)*jn + (b))*in + (a) )
 
-int ZeusFDM(float *d, float *p, float *u, float *v, float *w,
+int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
 	       int in, int jn, int kn, int rank,
 	       int is, int ie, int js, int je, int ks, int ke, 
 	       float C1, float C2, float *gamma, float dt, float dx[], float dy[], float dz[],
@@ -79,7 +79,7 @@ int ZeusFDM(float *d, float *p, float *u, float *v, float *w,
    /*for (i = 0; i < size; i++) {
     if (d[i] < 0) {
       fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
-        u[i],v[i],w[i],d[i],e[i], dx[0], dt);
+        u[i],v[i],w[i],d[i],p[i], dx[0], dt);
       ENZO_FAIL("ZeusSolver: Negative Density! \n");
     } else{
       logd[i] = log(d[i]);
@@ -166,7 +166,7 @@ int ZeusFDM(float *d, float *p, float *u, float *v, float *w,
           e[IDX(i,j,k)] = 1e3;          
                   }// end loop over i
     } // end loop over j
-  } // end loop over k
+  } // end loop over k */
 
   /* 1) Substep 1 -- pressure and gravity terms */
       /* Update velocities */
@@ -200,6 +200,9 @@ int ZeusFDM(float *d, float *p, float *u, float *v, float *w,
 	     if (rank > 2)
 	         w[IDX(i,j,k)] = w[IDX(i,j,k)] + dt*gr_zacc[IDX(i,j,k)];
        }
+       e[IDX(i,j,k)] = 1e3;
+       //fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
+        //u[i],v[i],w[i],d[i],p[i], dx[0], dt);
 
       }// end loop over i
     } // end: loop over j
@@ -321,7 +324,7 @@ int ZeusFDM(float *d, float *p, float *u, float *v, float *w,
       for (i = 0; i < in; i++){
     e1 = minsupecoef*d[IDX(i,j,k)];
     gamma1 = 5./3.;
-    p[IDX(i,j,k)] = (gamma1-1.0)*d[IDX(i,j,k)]*e1;
+    e[IDX(i,j,k)] = (gamma1-1.0)*d[IDX(i,j,k)]*e1;
                               }// end loop over i
                             }// end loop over j
                           }// end loop over k
@@ -330,20 +333,28 @@ int ZeusFDM(float *d, float *p, float *u, float *v, float *w,
     for (j = jsm2; j <= jep2; j++) {
       for (i = is-1; i <= ie+2; i++) {
           
-          deltav =  dt*(p[IDX(i-1,j,k)]-p[IDX(i,j,k)])/(dx[i]*0.5*(d[IDX(i-1,j,k)]+d[IDX(i,j,k)]));
+          deltav =  dt*(e[IDX(i-1,j,k)]-e[IDX(i,j,k)])/(dx[i]*0.5*(d[IDX(i-1,j,k)]+d[IDX(i,j,k)]));
           u[IDX(i,j,k)] = u[IDX(i,j,k)] + deltav;
 
       if (rank > 1) {
-          deltav = dt*(p[IDX(i,j-1,k)]-p[IDX(i,j,k)])/(dy[j]*0.5*(d[IDX(i,j-1,k)]+d[IDX(i,j,k)]));
+          deltav = dt*(e[IDX(i,j-1,k)]-e[IDX(i,j,k)])/(dy[j]*0.5*(d[IDX(i,j-1,k)]+d[IDX(i,j,k)]));
           v[IDX(i,j,k)] = v[IDX(i,j,k)] + deltav;
           }
       if (rank > 2) {
-          deltav = dt*(p[IDX(i,j,k-1)]-p[IDX(i,j,k)])/(dz[k]*0.5*(d[IDX(i,j,k-1)]+d[IDX(i,j,k)]));
+          deltav = dt*(e[IDX(i,j,k-1)]-e[IDX(i,j,k)])/(dz[k]*0.5*(d[IDX(i,j,k-1)]+d[IDX(i,j,k)]));
           w[IDX(i,j,k)] = w[IDX(i,j,k)] + deltav;
           }
         }// end loop over i
       }// end loop over j
     }// end loop over k
+
+  for (k = 0; k < kn; k++) {
+    for (j = 0; j < jn; j++) {
+      for (i = 0; i < in; i++){
+    e[IDX(i,j,k)] = 1e3;
+                              }// end loop over i
+                            }// end loop over j
+                          }// end loop over k
 
           }// end min pressure support
 

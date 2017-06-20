@@ -106,6 +106,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
   int dim, i, j, k, m, field, sphere, size;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum;
+  int RePsiNum, ImPsiNum;
   float xdist,ydist,zdist;
 
   /* create fields */
@@ -138,6 +139,10 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
       FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
     }
+  }
+  if (QuantumPressure){
+    FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
+    FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
   }
   if (SphereUseMetals)
     FieldType[MetalNum = NumberOfBaryonFields++] = SNColour;
@@ -246,8 +251,8 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
       BaryonMeanDensity = 1.0;
 
     // FDM: lower background density
-    if (QuantumPressure)
-      BaryonMeanDensity = 1e-3;
+    //if (QuantumPressure)
+      //BaryonMeanDensity = 1e-1;
 
     if (ParticleMeanDensity == FLOAT_UNDEFINED)
       ParticleMeanDensity = 1.0 - BaryonMeanDensity;
@@ -1029,6 +1034,19 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	} // end loop over grid
 
   } // end loop SetupLoopCount
+
+  if (QuantumPressure){
+
+      printf("Initializing Wave Function...\n");
+
+      for (int i=1; i<size; i++){
+        BaryonField[RePsiNum][i] = sqrt(BaryonField[0][i]);
+        BaryonField[ImPsiNum][i] = 0;
+      }
+      printf("Wave Function Initialized.\n");
+
+
+    }
 
   if (SphereUseParticles && debug)
     printf("CollapseTestInitialize: NumberOfParticles = %"ISYM"\n", 
