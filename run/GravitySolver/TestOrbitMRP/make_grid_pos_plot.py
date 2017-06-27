@@ -24,7 +24,7 @@ ts = yt.DatasetSeries("*/*.hierarchy")
 for ds in ts:
     
     if ds.index.num_grids != ds.index.max_level+1:
-        print 'Something is wrong, there is not one grid per level',ds.index.num_grids,ds.index.max_level+1
+        print('Something is wrong, there is not one grid per level',ds.index.num_grids,ds.index.max_level+1)
         break
 
     ad = ds.all_data()
@@ -90,9 +90,9 @@ part_x = na.array(part_x)
 for gn in range(ds.parameters['MaximumRefinementLevel']):
    
     plt.plot(time,delta_grid[:,gn],'-o',label='Level '+str(gn+1)+' Grid')
-    print 'Grid on Level '+str(gn+1)
-    print '   mean grid offset from particle:',na.mean(delta_grid[:,gn]),'cells'
-    print '   mean grid volume:',na.mean(grid_vol[:,gn]),'cells^3'
+    print('Grid on Level '+str(gn+1))
+    print('   mean grid offset from particle:',na.mean(delta_grid[:,gn]),'cells')
+    print('   mean grid volume:',na.mean(grid_vol[:,gn]),'cells^3')
 
 plt.xlabel('Orbit Number')
 plt.ylabel('|Center of Grid - Particle Position| / Cell Width')

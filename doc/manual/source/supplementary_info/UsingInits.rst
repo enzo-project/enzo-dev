@@ -1,61 +1,10 @@
-.. _ExecutablesArgumentsOutputs:
+Deprecated: Using Inits and Other Tools
+=======================================
 
-Executables, Arguments, and Outputs
-===================================
+This section has been largely replaced by :ref:`CosmologicalInitialConditions`.
 
-This page is a summary of all of the binaries that are created
-after ``make; make install`` is run in the Enzo code bundle. They
-should be located in the ``bin`` directory. Links to the various pages
-of the manual that describe a particular binary are also included.
-
-enzo
-----
-
-This is the main simulation code executable. See :ref:`RunningEnzo`
-for more detailed information.
-
-When an Enzo simulation is run, at every datastep several files are output,
-inserted into subdirectories.  The most important of these are the files with
-no extension and those ending in ``.hierarchy``, of which there will be one of
-each for each datadump.  For more information on the format of Enzo output, see
-:ref:`EnzoOutputFormats`.
-
-::
-
-   usage: ./enzo.exe [options] param_file
-      options are:
-      -d(ebug)
-      -r(estart)
-      -x(extract)
-         -l(evel_of_extract) level
-      -p(roject_to_plane) dimension
-      -P(roject_to_plane version 2) dimension
-         -m(smooth projection)
-      -o(utput as particle data)
-      -g (Write Potential field only)
-      -M (Write smoothed DM field only)
-      -F(riends-of-friends halo finder only)
-      -C(ooling time write only)
-      -h(elp)
-      -i(nformation output)
-      -V (show compiler options and flags)
-      -s(tart  index region) dim0 [dim1] [dim2]
-      -e(nd    index region) dim0 [dim1] [dim2]
-      -b(egin  coordinate region) dim0 [dim1] [dim2]
-      -f(inish coordinate region) dim0 [dim1] [dim2]
-
-The -g, -M, and -C flags will read in the dataset given on the command
-line and write additional data fields to the same data files.  When
-running with these flags (or the -F flag), the -r flag must also be
-given so that the code knows to read in a dataset.  For example, to
-write out the cooling time to the output DD0001, do the following:
-
-::
-
-   enzo.exe -r -C DD0001/DD0001
-
-inits
------
+Building inits
+--------------
 
 This is the initial conditions generator. See :ref:`using_inits` for more
 detailed information. Initial conditions with a single initial grid or multiple
@@ -72,6 +21,22 @@ set of these files for each level, appended with numbers to make them unique.
        options are:
           -d(ebug)
           -s(ubgrid) param_file
+
+Building is as simple as the follwing.
+
+::
+
+    ~/enzo/src/ring $ cd ../inits/
+    ~/enzo/src/inits $ make
+    Compiling enzo_module.src90
+    Updating DEPEND
+    Compiling acml_st1.src
+    ...
+    Compiling XChunk_WriteIntField.C
+    Linking
+    Success!
+
+This will produce ``inits.exe``.
 
 
 .. _ring:
@@ -105,6 +70,21 @@ like:
 
     ring pv ParticlePositions ParticleVelocities
 
+Building is as simple as the following.
+
+::
+
+    ~/enzo/src/enzo $ cd ../ring/
+    ~/enzo/src/ring $ make
+    Updating DEPEND
+    Compiling Ring_Decomp.C
+    Compiling Enzo_Dims_create.C
+    Compiling Mpich_V1_Dims_create.c
+    Linking
+    Success!
+
+This will produce ``ring.exe``.
+
 
 
 enzohop
@@ -136,5 +116,6 @@ all AMR formats including HDF4 and packed HDF5.
 ::
 
     usage: anyl.exe <amr file> <anyl parameter file>
+
 
 

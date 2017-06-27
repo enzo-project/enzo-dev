@@ -3,6 +3,46 @@
 Running Enzo
 ============
 
+When an Enzo simulation is run, at every datastep several files are output,
+inserted into subdirectories.  The most important of these are the files with
+no extension and those ending in ``.hierarchy``, of which there will be one of
+each for each datadump.  For more information on the format of Enzo output, see
+:ref:`EnzoOutputFormats`.
+
+::
+
+   usage: ./enzo.exe [options] param_file
+      options are:
+      -d(ebug)
+      -r(estart)
+      -x(extract)
+         -l(evel_of_extract) level
+      -p(roject_to_plane) dimension
+      -P(roject_to_plane version 2) dimension
+         -m(smooth projection)
+      -o(utput as particle data)
+      -g (Write Potential field only)
+      -M (Write smoothed DM field only)
+      -F(riends-of-friends halo finder only)
+      -C(ooling time write only)
+      -h(elp)
+      -i(nformation output)
+      -V (show compiler options and flags)
+      -s(tart  index region) dim0 [dim1] [dim2]
+      -e(nd    index region) dim0 [dim1] [dim2]
+      -b(egin  coordinate region) dim0 [dim1] [dim2]
+      -f(inish coordinate region) dim0 [dim1] [dim2]
+
+The -g, -M, and -C flags will read in the dataset given on the command
+line and write additional data fields to the same data files.  When
+running with these flags (or the -F flag), the -r flag must also be
+given so that the code knows to read in a dataset.  For example, to
+write out the cooling time to the output DD0001, do the following:
+
+::
+
+   enzo.exe -r -C DD0001/DD0001
+
 Once the code is compiled and a parameter file is prepared,
 starting the simulation is easy:
 
@@ -17,9 +57,8 @@ the use of a single processors (the argument after the -np flag
 indicates the number of processors).
 
 The -d flag triggers a debug option that produces a substantial amount
-of output. See :ref:`GettingStarted` for more detailed information on
-running simulations. You may also need to use :ref:`ring` if you are
-using parallel I/O.
+of output. 
+
 
 Restarting
 ----------
@@ -95,7 +134,7 @@ Test Problems
 
 There are a number of built-in tests, which can be used to debug the
 system or characterize how well it solves a particular problem.  (see
-:doc:`EnzoTestSuite` for a complete list.) Note that Enzo can run any
+:ref:`EnzoTestSuite` for a complete list.) Note that Enzo can run any
 problem after compilation, since no compilation flags affect
 simulation parameters.  To run a particular test, cd to the
 [browser:public/trunk/doc/examples doc/examples] subdirectory of the
@@ -148,6 +187,5 @@ added more `regression tests and answer tests
 <http://ppcluster.ucsd.edu/lcatest/>`_, using LCAtest.  We hope to
 add more answer tests, especially for large production-type
 simulations, e.g. a 512\ :sup:`3` cosmology simulation.
-
 
 

@@ -13,4 +13,4 @@ uncompiled = []
 for fn in itertools.chain(*(glob.glob("*.%s" % ext) for ext in exts)):
     if fn.split(".")[0] not in objs: uncompiled.append(fn)
 
-for fn in sorted(uncompiled): print fn
+for fn in sorted(uncompiled): print(fn)

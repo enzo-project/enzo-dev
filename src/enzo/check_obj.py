@@ -21,8 +21,8 @@ for f in files:
             found = True
             break
     if found == False:
-        print "%s not found." % (f)
+        print("%s not found." % (f))
         AllFound = False
 
 if AllFound:
-    print "All source files in Makefile accounted for!"
+    print("All source files in Makefile accounted for!")

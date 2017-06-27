@@ -40,10 +40,6 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     ENZO_FAIL("UNDER_SUBGRID_FLAG field not set.\n");
   }
  
-  if (SelfGravity && GravityResolution != 1) {
-    ENZO_FAIL("OutputAsParticleData assumes GravityResolution == 1.\n");
-  }
- 
   /* Declarations */
  
   int i,j,k, n, dim, field, findex, start[] = {0,0,0}, stop[] = {0,0,0};

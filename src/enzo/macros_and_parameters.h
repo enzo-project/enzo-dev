@@ -152,7 +152,7 @@ typedef long long int  Elong_int;
 
 typedef int            MPI_Arg;
 
-typedef int            HDF5_hid_t;
+typedef long long int   HDF5_hid_t;
 
 /* HDF5 definitions */
 
@@ -517,6 +517,7 @@ typedef int            HDF5_hid_t;
 #define MBH_THERMAL 7
 #define MBH_JETS 8
 #define COLOR_FIELD 9
+#define SUPERNOVA_SEEDFIELD 11
 
 /* Sink particle accretion modes */
 

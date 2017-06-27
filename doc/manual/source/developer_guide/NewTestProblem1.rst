@@ -27,7 +27,7 @@ assigns data. There are several pitfalls to setting up these files,
 so read these pages carefully.
 
 We strongly recommend reading everything that proceeds this page on
-the :doc:`../tutorials/index` page and the page about version control
+the :doc:`../user_guide/index` page and the page about version control
 and regression testing, :doc:`ModificationIntro`.
 
 Lastly, please give your problem a reasonable name. I'll be using

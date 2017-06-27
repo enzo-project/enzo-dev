@@ -50,11 +50,12 @@ int grid::FindAllStarParticles(int level)
     //StarType = abs(ParticleType[i]);
     if (ParticleType[i] == PARTICLE_TYPE_SINGLE_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE ||
+	(ParticleType[i] == PARTICLE_TYPE_STAR && UseSupernovaSeedFieldSourceTerms) ||
 	ParticleType[i] == PARTICLE_TYPE_CLUSTER ||
         ParticleType[i] == PARTICLE_TYPE_COLOR_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_MBH ||
 	ParticleType[i] == PARTICLE_TYPE_SIMPLE_SOURCE ||
-	(StarParticleRadiativeFeedback == TRUE &&
+       	(StarParticleRadiativeFeedback == TRUE &&
 	 ParticleType[i] == PARTICLE_TYPE_STAR)) {
 
       if (ParticleType[i] == PARTICLE_TYPE_STAR)

@@ -68,7 +68,7 @@ DiskGravityDarkMatterDensity       = 7.7E-24   // CGS
 DensityUnits          = 1e-27          # Related to LCDM Critical Density [ CGS ]
 LengthUnits           = 1.85140655e23  # 60 kpc in cm
 TimeUnits             = 3.1557e+13
-GravitationalConstant = 2.81259113e-9  # 4 pi G_cgs * DensUn * TimeUn^2
+GravitationalConstant = 8.35174209E-7  # 4 pi G_cgs * DensUn * TimeUn^2
 
 #  set I/O and stop/start parameters
 dtDataDump             = 100.0 # Myr

@@ -50,7 +50,7 @@ refinement = 2
 tstart = time.time()
 
 # Open the files
-print 'Reading data...'
+print('Reading data...')
 PPfp, PVfp, PMfp = [], [], []
 for i,file in enumerate(PP):
     PPfp.append(h5py.File(file))
@@ -86,7 +86,7 @@ for i,arr in enumerate(PParr):
     count += arr.shape[1]
 
 # We're done with the original data.
-print 'Calculating new locations...'
+print('Calculating new locations...')
 del PParr, PVarr, PMarr
 
 # Make a mapping of where the particles should go.
@@ -124,7 +124,7 @@ tcalc = time.time()
 
 # With the places they go, make new files similar to the old ones, and
 # save the data there.
-print 'Writing new data to disk in the directory "new_ICs"...'
+print('Writing new data to disk in the directory "new_ICs"...')
 try:
     os.mkdir('new_ICs')
 except OSError:
@@ -186,5 +186,5 @@ full = tdone - tstart
 IO = tread - tstart + tdone - tcalc
 calc = tcalc - tread
 
-print 'Moved %d particles to new grids in %f seconds.' % (tosum.size, full)
-print 'Spent %f sec in disk IO and %f sec in calculations.' % (IO, calc)
+print('Moved %d particles to new grids in %f seconds.' % (tosum.size, full))
+print('Spent %f sec in disk IO and %f sec in calculations.' % (IO, calc))
