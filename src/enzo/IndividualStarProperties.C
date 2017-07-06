@@ -557,6 +557,7 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
     if(IndividualStarInterpolateRadData(q0, q1,
                                         i, j, k,
                                         Teff, g, metallicity) == SUCCESS){
+      return SUCCESS;
     }
 
   }
