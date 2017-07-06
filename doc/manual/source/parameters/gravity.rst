@@ -26,10 +26,8 @@ General
 ``MaximumGravityRefinementLevel`` (external)
     This is the lowest (most refined) depth that a gravitational
     acceleration field is computed. More refined levels interpolate
-    from this level, provided a mechanism for instituting a minimum
+    from this level, providing a mechanism for instituting a minimum
     gravitational smoothing length. Default: ``MaximumRefinementLevel``
-    (unless ``HydroMethod`` is ZEUS and radiative cooling is on, in which
-    case it is ``MaximumRefinementLevel`` - 3).
 ``MaximumParticleRefinementLevel`` (external)
     This is the level at which the dark matter particle contribution to
     the gravity is smoothed. This works in an inefficient way (it

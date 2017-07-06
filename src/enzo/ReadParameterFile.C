@@ -1210,7 +1210,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MHDCTSlopeLimiter             = %"ISYM, &MHDCTSlopeLimiter);
     ret += sscanf(line, "WriteBoundary          = %"ISYM, &WriteBoundary);
     ret += sscanf(line,"TracerParticlesAddToRestart = %"ISYM,&TracerParticlesAddToRestart);
-    ret += sscanf(line,"RefineByJeansLengthUnits = %"ISYM,&RefineByJeansLengthUnits);
+    ret += sscanf(line, "IsothermalSoundSpeed = %"GSYM, &IsothermalSoundSpeed);
 
     ret += sscanf(line,"CT_AthenaDissipation = %"FSYM,&CT_AthenaDissipation);
     ret += sscanf(line,"MHD_WriteElectric = %"ISYM,&MHD_WriteElectric);
@@ -1745,6 +1745,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     iEint = 5;
   }
 
+  // Determine color fields (NColor) later inside a grid object.
   // Don't include free electron field
   switch (MultiSpecies) {
   case 0:  NSpecies = 0;  break;
@@ -1754,8 +1755,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   default: NSpecies = 0;  break;
   }
 
-  // Determine color fields (NColor) later inside a grid object.
-  // ...
 #ifdef UNUSED
   if (MaximumGravityRefinementLevel == INT_UNDEFINED)
     MaximumGravityRefinementLevel = (RadiativeCooling && SelfGravity
@@ -1766,9 +1765,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     MaximumGravityRefinementLevel = MaximumRefinementLevel;
 #endif
 
-    ret += sscanf(line, "IsothermalSoundSpeed = %"GSYM, &IsothermalSoundSpeed);
-    ret += sscanf(line, "RefineByJeansLengthUnits = %"ISYM, &RefineByJeansLengthUnits);
- 
   MaximumGravityRefinementLevel =
     min(MaximumGravityRefinementLevel, MaximumRefinementLevel);
  
