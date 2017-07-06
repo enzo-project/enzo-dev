@@ -2383,7 +2383,7 @@ int grid::IndividualStarInjectFeedbackToGrid(const FLOAT &xfc, const FLOAT &yfc,
 
   /* add metal feedback - mass in cells */
   //printf("ISF: Starting metal injection feedback calls\n");
-  if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields){
+  if(TestProblemData.MultiMetals == 2 && IndividualStarFollowStellarYields && (metal_mass)){
     /* For the first call, add in general metallicity field */
     int field_num;
     this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0); // when atomic number is zero, gives metallicity field
