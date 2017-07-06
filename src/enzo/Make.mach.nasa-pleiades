@@ -41,10 +41,10 @@ MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/2.10r6
-LOCAL_HDF5_INSTALL   = $(YT_DEST)
-LOCAL_PYTHON_INSTALL = $(YT_DEST)
-LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2013.5.192/
-LOCAL_GRACKLE_INSTALL = $(HOME)/local
+LOCAL_HDF5_INSTALL   = /u/aemerick/anaconda2
+LOCAL_PYTHON_INSTALL = /u/aemerick/anaconda2
+LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2016.2.181/
+LOCAL_GRACKLE_INSTALL = /u/aemerick/local
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -129,7 +129,9 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 
 LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib -lmpi -lmpi++
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz
-LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+#LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+LOCAL_LIBS_GRACKLE = /u/aemerick/code/grackle-emerick/src/clib/*.o
+
 #LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg     
 #LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a -lpthread -lutil
 
