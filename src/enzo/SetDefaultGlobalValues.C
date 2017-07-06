@@ -746,8 +746,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* IndividualStar: Star Formation */
   IndividualStarICSupernovaRate      =   0.0;     // rate (# / yr) of supernova for initial driving - off if zero
   IndividualStarICSupernovaTime      =  10.0;     // (Myr) length of time to do SN driving if true - rate dec linearly starting at 1/2 this time
-  IndividualStarICSupernovaR         =   0.0;     // radius limit for SN - set to galaxy scale radius
-  IndividualStarICSupernovaZ         =   0.0;     // vertical height limit for supernova - set to Galaxy scale height
+  IndividualStarICSupernovaR         =  -1.0;     // radius limit for SN - set to galaxy scale radius
+  IndividualStarICSupernovaZ         =  -1.0;     // vertical height limit for supernova - set to Galaxy scale height
   IndividualStarCreationStencilSize  =     3;         // n x n cell region (on each side) to sample for star formation
   IndividualStarCheckVelocityDiv     =     1;         // use velocity divergence in SF check
   IndividualStarICLifetimeMode       =     0;         // 0 - use interpolated lifetime, 1 - set to now, 2 - from file
