@@ -885,7 +885,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   LoadGridDataAtStart = TRUE;
 
   IsothermalSoundSpeed = 1.0;
-  RefineByJeansLengthUnits = 0;
 
   MetalCooling = FALSE;
   MetalCoolingTable = (char*) "metal_cool.dat";
