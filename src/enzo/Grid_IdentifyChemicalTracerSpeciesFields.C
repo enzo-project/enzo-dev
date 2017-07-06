@@ -144,7 +144,7 @@ int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number){
 
 char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
 
-  char *label = {};
+  char *label = NULL;
 
   /* For a given atomic number, return the name we should assign to the baryon field
      DataLabel */
@@ -247,7 +247,7 @@ char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
 
 char* IndividualStarTableIDLabel(const int &num){
 
-  char *label = {};
+  char *label = NULL;
   switch(num){
     case 0 : label = "se_table_M_pos"; break;
     case 1 : label = "se_table_Z_pos"; break;
@@ -265,7 +265,7 @@ char* IndividualStarTableIDLabel(const int &num){
 
 char* ChemicalSpeciesParticleLabel(const int &atomic_number){
 
-  char *label = {};
+  char *label = NULL;
 
   /* For a given atomic number, return the name we should assign
      to the particle attribute for chemical tagging purposes */
