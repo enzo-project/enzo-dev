@@ -191,7 +191,7 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
   const float msolar = 1.989E33;
 
   int nstar = 0;
-  const int maxstar = 10000;
+  const int maxstar = 200000;
   FLOAT xpos[maxstar], ypos[maxstar], zpos[maxstar];
   float mass[maxstar], z[maxstar], lifetime[maxstar];
 
