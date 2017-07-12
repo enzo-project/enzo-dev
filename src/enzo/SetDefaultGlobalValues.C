@@ -746,8 +746,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* IndividualStar: Star Formation */
   IndividualStarICSupernovaRate      =   0.0;     // rate (# / yr) of supernova for initial driving - off if zero
   IndividualStarICSupernovaTime      =  10.0;     // (Myr) length of time to do SN driving if true - rate dec linearly starting at 1/2 this time
-  IndividualStarICSupernovaR         =   0.0;     // radius limit for SN - set to galaxy scale radius
-  IndividualStarICSupernovaZ         =   0.0;     // vertical height limit for supernova - set to Galaxy scale height
+  IndividualStarICSupernovaR         =   -1;     // radius limit for SN - set to galaxy scale radius
+  IndividualStarICSupernovaZ         =   -1;     // vertical height limit for supernova - set to Galaxy scale height
   IndividualStarICSupernovaMethod    =     1;     // 1: uniform disk with R and Z - 2: uniform sphere using R only
   IndividualStarICSupernovaFromFile  =     0;     // if ON, loads SNR as a function of time from a file.
   IndividualStarICSupernovaInjectionMethod = 1;   // 1 = thermal only, spherical ball - 2: thermal and kinetic mix - Simpson et. al. 2015
