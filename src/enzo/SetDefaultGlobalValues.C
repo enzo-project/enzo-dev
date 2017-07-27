@@ -754,6 +754,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   for (i = 0; i < 3; i ++)
       IndividualStarICSupernovaPos[i] = 0.5;
 
+  IndividualStarWDFixedLifetime      =  -1.0;         // debugging parameter - fixed lifetime in Myr before SNIa if > 0
   IndividualStarCreationStencilSize  =     3;         // n x n cell region (on each side) to sample for star formation
   IndividualStarCheckVelocityDiv     =     1;         // use velocity divergence in SF check
   IndividualStarICLifetimeMode       =     0;         // 0 - use interpolated lifetime, 1 - set to now, 2 - from file
