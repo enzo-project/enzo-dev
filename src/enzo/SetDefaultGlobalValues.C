@@ -752,6 +752,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarCreationStencilSize  =     3;         // n x n cell region (on each side) to sample for star formation
   IndividualStarCheckVelocityDiv     =     1;         // use velocity divergence in SF check
   IndividualStarICLifetimeMode       =     0;         // 0 - use interpolated lifetime, 1 - set to now, 2 - from file
+  IndividualStarLifeRefinementFactor  =    3;         // for particles with SNII or SNIa, treat as must refine if end is within this many dT from end of life
   // StarParticleOverdensityThreshold is used as primary density threshold parameter
   IndividualStarSecondaryOverDensityThreshold = -1;  // in cc - if < 0, set to over density thresh in ReadParamFile
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)

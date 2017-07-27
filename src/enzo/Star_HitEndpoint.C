@@ -116,8 +116,9 @@ int Star::HitEndpoint(FLOAT Time)
       /* check mass */
       if(mproj > IndividualStarSNIIMassCutoff && mproj < IndividualStarDirectCollapseThreshold){
 
-          if(this->FeedbackFlag == INDIVIDUAL_STAR_SNII ||
-             this->FeedbackFlag == INDIVIDUAL_STAR_WIND_AND_SN){
+          if(this->FeedbackFlag == INDIVIDUAL_STAR_SN_COMPLETE){
+             //(this->FeedbackFlag == INDIVIDUAL_STAR_SNII ||
+             //this->FeedbackFlag == INDIVIDUAL_STAR_WIND_AND_SN)){
               this->LifeTime = huge_number*this->LifeTime; // make to a Hubble time
               this->type = IndividualStarRemnant;
               this->FeedbackFlag = NO_FEEDBACK;
@@ -160,7 +161,8 @@ int Star::HitEndpoint(FLOAT Time)
   case IndividualStarWD:
     result = NO_DEATH;
 
-    if ( this->FeedbackFlag == INDIVIDUAL_STAR_SNIA ){
+    if ( this->FeedbackFlag == INDIVIDUAL_STAR_SN_COMPLETE){
+         //this->FeedbackFlag == INDIVIDUAL_STAR_SNIA ){
       this->Mass         = 0.0;
       this->LifeTime     = huge_number * this->LifeTime;
       this->FeedbackFlag = NO_FEEDBACK;

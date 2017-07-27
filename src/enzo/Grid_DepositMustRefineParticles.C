@@ -26,9 +26,13 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 
- 
+
+int GetUnits(float *DensityUnits, float *LengthUnits,
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
+
 /* function prototypes */
- 
+
 extern "C" void PFORTRAN_NAME(cic_flag)(int* irefflag, FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
                         int *ffield, FLOAT *leftedge,
@@ -92,7 +96,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   /* Loop over all particles, marking wich ones are must refine
      To add rules, modify number of rules here and add to loop below */
   bool *rules;
-  const int NumberOfRules = 2;
+  const int NumberOfRules = 3;
   rules = new bool[NumberOfRules];
 
   // Flag particles as must refine particles
@@ -110,12 +114,51 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     rules[1] = (ParticleMass[i] > MustRefineParticlesMinimumMass);
 
     // add more rules here
+    // Rules for individual star particles and their feedback
+    //   if M < SNII thresh: Only refine when within a few dt from end 
+    //   if M > SNII thresh: Always refine (if winds are on, otherwise do above)
+    //   if WD and a few dt from end of life
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && STARFEED_METHOD(INDIVIDUAL_STAR)){
+      rules[0] = TRUE;
+      rules[1] = TRUE;
+
+      float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
+
+      if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+                &TimeUnits, &VelocityUnits, Time) == FAIL) {
+          ENZO_FAIL("Error in GetUnits.");
+      }
+      MassUnits = DensityUnits * LengthUnits * LengthUnits * LengthUnits;
+
+      float m_star      = ParticleMass[i] * this->CellWidth[0][0]*this->CellWidth[0][0]*this->CellWidth[0][0] * MassUnits / 1.989E33;
+      float end_of_life = ParticleAttribute[1][i] + ParticleAttribute[0][i];
+
+      // within some factor of the end of its life
+      bool near_end_of_life = fabs(this->Time - end_of_life) < IndividualStarLifeRefinementFactor * this->dtFixed;
+
+      if (ParticleType[i] == PARTICLE_TYPE_INDIVIDUAL_STAR){
+        rules[2] = ( ( IndividualStarStellarWinds) && (m_star > IndividualStarSNIIMassCutoff)  ) || // massive stars always on if winds are on
+                   ( (!IndividualStarStellarWinds) && (near_end_of_life)  ) ||  // SNII check if no winds are on
+                   ( ( IndividualStarStellarWinds) && (near_end_of_life) && (m_star < IndividualStarSNIIMassCutoff) ); // AGB wind check
+
+      } else if (ParticleType[i] == PARTICLE_TYPE_INDIVIDUAL_STAR_WD){
+        rules[2] = near_end_of_life;
+      } else {
+        rules[2] = FALSE; // otherwise this is NOT a must refine particle
+      }
+
+    } else{
+      rules[2] = TRUE; // must set to true since using AND
+    }
 
     //
 
     // set flag for this particle
     for (int j = 0; j < NumberOfRules; j++)
       IsParticleMustRefine[i] *= rules[j];
+
+    printf("Checked if we should refine, the answer is %"ISYM"\n", IsParticleMustRefine[i]);
+    printf("rule 0 = %"ISYM" rule 1 = %"ISYM" rule 2 = %"ISYM"\n",rules[0],rules[1],rules[2]);
   }
 
   PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,

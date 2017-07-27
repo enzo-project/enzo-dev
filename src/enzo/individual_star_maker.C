@@ -384,10 +384,11 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
   }
   MassUnits   = DensityUnits*LengthUnits*LengthUnits*LengthUnits; // mass units
 
-  if(this->Grid_ChemicalEvolutionTestStarFormed){
-    return SUCCESS;
+//  if(this->Grid_ChemicalEvolutionTestStarFormed){
+//    return SUCCESS;
 
- } else if (ChemicalEvolutionTestNumberOfStars > 1){
+ // } else 
+ if (ChemicalEvolutionTestNumberOfStars > 1){
     /* read in prperties from file  */
 
     int nstar = ChemicalEvolutionTestNumberOfStars;
@@ -514,7 +515,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
        count++;
     } // end loop over particles
      *np = count;
-    this->Grid_ChemicalEvolutionTestStarFormed = TRUE;
+     this->Grid_ChemicalEvolutionTestStarFormed = TRUE;
      return SUCCESS;
   } else {
     FLOAT xx, yy, zz;
@@ -676,28 +677,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     printf("DT EQUAL TO ZERO\N");
     return FAIL;
   }
-
-  if (ProblemType == 260){ // place a star by hand and exit
-    printf("attempting to form stars from chem e grid");
-    if (this->chemical_evolution_test_star_deposit(nmax, np, ParticleMass,
-                                                   ParticleType, ParticlePosition,
-                                                   ParticleVelocity, ParticleAttribute) == FAIL){
-      return FAIL;
-    }
-
-    return SUCCESS;
-
-  } else if (ProblemType == 31 && GalaxySimulationInitialStellarDist && this->Time <= 0.0){
-
-    if (this->GalaxySimulationInitialStars(nmax, np, ParticleMass, ParticleType,
-                                           ParticlePosition, ParticleVelocity,
-                                           ParticleAttribute) == FAIL){
-      return FAIL;
-    }
-
-    return SUCCESS;
-  }
-
 
   /* obtain baryon field indexes */
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;

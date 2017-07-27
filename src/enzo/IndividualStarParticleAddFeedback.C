@@ -87,7 +87,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
         cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNII){
       printf("we are doing feedback for supernova\n");
     }
-    if( cstar->ReturnLevel() != level){
+    if( cstar->ReturnLevel() > level){
       if (cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN ||
           cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNII){
         printf("but are now skipping because of grid level. \n");
@@ -177,11 +177,12 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
                                                            cstar->ReturnMetallicity(), &particle_mass, 1);
                                                            // 1 in last arg signifies Core collapse SN
 */
-            AddedFeedback[count] = true;
           }
         }
       }
 
+      AddedFeedback[count] = true;
+      cstar->SetFeedbackFlag(INDIVIDUAL_STAR_SN_COMPLETE);
       cstar->SetNewMass(particle_mass); // update mass (only once)
     }
 
@@ -210,12 +211,12 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
                                                            cstar->ReturnMetallicity(), &particle_mass, 2);
                                                            // 2 in last arg signifies Type 1a
 */
-
-            AddedFeedback[count] = true;
           }
         }
       }
 
+      AddedFeedback[count] = true;
+      cstar->SetFeedbackFlag(INDIVIDUAL_STAR_SN_COMPLETE);
       cstar->SetNewMass(0.0); // now a massless tracer
     }
 
