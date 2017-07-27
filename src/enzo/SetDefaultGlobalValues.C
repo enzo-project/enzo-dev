@@ -771,10 +771,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarIMFSeed              = INT_UNDEFINED; // random number seed for IMF sampling
 
   /* IndividualStar: Stellar Feedback (non-radiation) */
-  IndividualStarFeedbackOverlapSample = 20;         // number of points per cell to compute fractional overlap in feedback routine
+  IndividualStarFeedbackOverlapSample = 32;         // number of points per cell to compute fractional overlap in feedback routine
   IndividualStarFeedbackStencilSize   = 3;          // Size of feedback injection region (radius in number of cells)
   
-  IndividualStarStellarWinds          = 0;          // on or off
+  IndividualStarStellarWinds          = 1;          // on or off
   IndividualStarWindTemperature       = 1.0E6;      // temperature cap on stellar wind source region (K)
   IndividualStarUseWindMixingModel    = 1;          // account for unresolved mixing at wind/ISM shell interface and allow mass loading
   IndividualStarStellarWindVelocity   = -1;         // when < 0, use Leithener et. al. model for stellar wind velocities
