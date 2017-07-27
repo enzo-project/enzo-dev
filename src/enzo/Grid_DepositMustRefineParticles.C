@@ -85,10 +85,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   /* Loop over all the particles, using only particles marked as
      must-refine particles. */
 
-//  ParticleTypeToMatch1 = PARTICLE_TYPE_MUST_REFINE;
-//  ParticleTypeToMatch2 = PARTICLE_TYPE_MBH;
- // ParticleTypeToMatch3 = PARTICLE_TYPE_INDIVIDUAL_STAR;
-
   float UniformParticleMass = 0.0;
   if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3)
     UniformParticleMass = OmegaDarkMatterNow / OmegaMatterNow;
@@ -134,14 +130,15 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       float end_of_life = ParticleAttribute[1][i] + ParticleAttribute[0][i];
 
       // within some factor of the end of its life
-      bool near_end_of_life = fabs(this->Time - end_of_life) < IndividualStarLifeRefinementFactor * this->dtFixed;
+      bool near_end_of_life = fabs(this->Time - end_of_life) < IndividualStarLifeRefinementFactor * this->dtFixed * POW(2,level); // factor of root grid, estimate root grid
 
       if (ParticleType[i] == PARTICLE_TYPE_INDIVIDUAL_STAR){
         rules[2] = ( ( IndividualStarStellarWinds) && (m_star > IndividualStarSNIIMassCutoff)  ) || // massive stars always on if winds are on
                    ( (!IndividualStarStellarWinds) && (near_end_of_life)  ) ||  // SNII check if no winds are on
                    ( ( IndividualStarStellarWinds) && (near_end_of_life) && (m_star < IndividualStarSNIIMassCutoff) ); // AGB wind check
 
-      } else if (ParticleType[i] == PARTICLE_TYPE_INDIVIDUAL_STAR_WD){
+      } else if (ABS(ParticleType[i]) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
+                 ABS(ParticleType[i]) == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ){
         rules[2] = near_end_of_life;
       } else {
         rules[2] = FALSE; // otherwise this is NOT a must refine particle
@@ -150,8 +147,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     } else{
       rules[2] = TRUE; // must set to true since using AND
     }
-
-    //
 
     // set flag for this particle
     for (int j = 0; j < NumberOfRules; j++)
