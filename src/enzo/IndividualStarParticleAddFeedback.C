@@ -83,9 +83,23 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
       continue; // skip to next star
     }
 
+    if (cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN ||
+        cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNII){
+      printf("we are doing feedback for supernova\n");
+    }
     if( cstar->ReturnLevel() != level){
+      if (cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN ||
+          cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNII){
+        printf("but are now skipping because of grid level. \n");
+      }
+
       continue; // only apply feedback on level of star
     }
+      if (cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN ||
+          cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNII){
+        printf("wooooooooooooo \n");
+      }
+
 
     if(cstar->ReturnMass() < 0.0){
         cstar->PrintInfo();

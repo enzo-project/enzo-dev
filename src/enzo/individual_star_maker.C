@@ -678,7 +678,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   }
 
   if (ProblemType == 260){ // place a star by hand and exit
-
+    printf("attempting to form stars from chem e grid");
     if (this->chemical_evolution_test_star_deposit(nmax, np, ParticleMass,
                                                    ParticleType, ParticlePosition,
                                                    ParticleVelocity, ParticleAttribute) == FAIL){
@@ -3038,7 +3038,7 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
 
     // Type Ia supernova properties
     IndividualStarSetTypeIaSupernovaProperties(m_eject, E_thermal, metal_mass);
-
+    printf("m_eject  for snia = %"FSYM"\n", m_eject);
     stellar_wind_mode = FALSE;
   }
 
@@ -3048,6 +3048,7 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
 
   if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
     for(int i = 0; i < StellarYieldsNumberOfSpecies + 1; i++){
+      printf("metal mass species %"ISYM"   = %"ESYM"\n", i, metal_mass[i]);
       metal_mass[i] = metal_mass[i] * msolar / MassUnits / (dx*dx*dx);
     }
   }
