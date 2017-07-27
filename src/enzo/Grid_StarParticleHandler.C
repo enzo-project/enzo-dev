@@ -1084,9 +1084,12 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       // chemically tags particles based on local environment with MultiMetals on
       NumberOfNewParticlesSoFar = NumberOfNewParticles; 
 
+      if (this->Time ==0.0){ this->Grid_ChemicalEvolutionTestStarFormed = FALSE;}
+
       // Only attempt if on max refiment level
-      if ( level == MaximumRefinementLevel ||
-           ((ProblemType == 31) && (GalaxySimulationInitialStellarDist) && (this->Time == 0.0)) ){
+      if ( (level == MaximumRefinementLevel) ||
+           ((ProblemType == 31) && (GalaxySimulationInitialStellarDist) && (this->Time == 0.0)) ||
+           ((ProblemType == 260) && (this->Time < 1.0))){
         // lets try and form stars
         if(individual_star_maker(dmfield, temperature,
                                  &MaximumNumberOfNewParticles,
