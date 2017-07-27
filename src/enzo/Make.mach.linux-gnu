@@ -21,7 +21,7 @@ MACH_FILE  = Make.mach.ubuntu-hardy
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL = /usr/local/hdf5/1.8.2s
+#LOCAL_HDF5_INSTALL = /home/emerick/anaconda
 
 LOCAL_GRACKLE_INSTALL  = /home/emerick/local
 
