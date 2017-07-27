@@ -329,11 +329,12 @@ Because many of the following parameters are not actively being tested and maint
     This parameter is used to add resistivity and thereby update magnetic fields in some set-ups; see ComputeResistivity in hydro_rk/Grid_AddResistivity.C.  Default: 0
 ``UsePhysicalUnit`` (external)
     For some test problems (mostly in hydro_rk), the relevant parameters could be defined in physical CGS units.  Default: 0
+``MixSpeciesAndColors`` (external)
+    This parameter enables color fields to be evolved as species in the MUSCL solvers. If ``PopIIISupernovaUseColour`` is on, this must also be turned on to trace the metal field. Default: 1
+
 ``SmallT`` (external)
     Minimum value for temperature in hydro_rk/EvolveLevel_RK.C.  Default: 1e-10 (note that the default value assumes UsePhysicalUnit = 1)
 ``SmallP``
-    [not used]
-``RKOrder``
     [not used]
 ``Theta_Limiter`` (external)
     Flux limiter in the minmod Van Leer formulation.  Must be between 1 (most dissipative) and 2 (least dissipative). Default: 1.5
@@ -358,14 +359,3 @@ Because many of the following parameters are not actively being tested and maint
 ``ResetMagneticFieldAmplitude`` (external)
     The magnetic field values (in Gauss) that will be used for the
     above parameter. Default: 0.0 0.0 0.0
-``CoolingCutOffDensity1``
-    Reserved for future use
-``CoolingCutOffDensity2``
-    Reserved for future use
-``CoolingCutOffTemperature``
-    Reserved for future use
-``CoolingPowerCutOffDensity1``
-    Reserved for future use
-``CoolingPowerCutOffDensity2``
-    Reserved for future use
-

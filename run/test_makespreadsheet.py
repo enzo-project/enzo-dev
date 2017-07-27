@@ -21,7 +21,7 @@ tests={}
 attribute_list=['name','nprocs','max_time_minutes','dimensionality','runtime','answer_testing_script','hydro','gravity','cooling','chemistry','cosmology','author','mhd','radiation','AMR']
 for file in matches:
     if dbg > 0:
-        print file
+        print(file)
     lines = open(file,'r').readlines()
     tests[file]={}
     for line in lines:

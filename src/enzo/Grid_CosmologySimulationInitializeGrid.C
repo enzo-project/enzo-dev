@@ -248,6 +248,9 @@ int grid::CosmologySimulationInitializeGrid(
     }
     if( HydroMethod == MHD_RK ){
       FieldType[NumberOfBaryonFields++] = PhiField;
+      if (UseDivergenceCleaning) {
+	FieldType[NumberOfBaryonFields++] = Phi_pField;
+      }
     }
     
 #ifdef TRANSFER

@@ -29,19 +29,16 @@
  
 /* function prototypes */
  
-extern "C" void PFORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
-			FLOAT *posz, float *partmass, int *ndim, int *npositions,
-                        int *itype, int *ffield, FLOAT *leftedge,
+extern "C" void PFORTRAN_NAME(cic_flag)(int* irefflag, FLOAT *posx, FLOAT *posy,
+			FLOAT *posz, int *ndim, int *npositions,
+                        int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
-			int *imatch1, int *imatch2, int *imatch3, float *minmassmust,
-                        int *buffersize, float *unipartmass);
- 
- 
+			int *buffersize);
 int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField)
 {
   /* declarations */
   //printf("grid::DepositMustRefineParticles called \n");
-  int i, dim, size = 1, ParticleTypeToMatch1, ParticleTypeToMatch2, ParticleTypeToMatch3;
+  int i, dim, size = 1;
   FLOAT LeftEdge[MAX_DIMENSION], CellSize;
   int ParticleBufferSize;
 
@@ -66,7 +63,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 				     &ParticleBufferSize);
 
   /* Set Left edge of grid. */
- 
+
   for (dim = 0; dim < GridRank; dim++) {
     LeftEdge[dim] = CellLeftEdge[dim][0];
     size *= GridDimension[dim];
@@ -84,21 +81,48 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   /* Loop over all the particles, using only particles marked as
      must-refine particles. */
 
-  ParticleTypeToMatch1 = PARTICLE_TYPE_MUST_REFINE;
-  ParticleTypeToMatch2 = PARTICLE_TYPE_MBH;
-  ParticleTypeToMatch3 = PARTICLE_TYPE_INDIVIDUAL_STAR;
- 
+//  ParticleTypeToMatch1 = PARTICLE_TYPE_MUST_REFINE;
+//  ParticleTypeToMatch2 = PARTICLE_TYPE_MBH;
+ // ParticleTypeToMatch3 = PARTICLE_TYPE_INDIVIDUAL_STAR;
+
   float UniformParticleMass = 0.0;
   if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3)
     UniformParticleMass = OmegaDarkMatterNow / OmegaMatterNow;
 
-  PFORTRAN_NAME(cic_flag)(
-	   ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], ParticleMass,
-	   &GridRank, &NumberOfParticles, ParticleType, FlaggingField,
+  /* Loop over all particles, marking wich ones are must refine
+     To add rules, modify number of rules here and add to loop below */
+  bool *rules;
+  const int NumberOfRules = 2;
+  rules = new bool[NumberOfRules];
+
+  // Flag particles as must refine particles
+  int *IsParticleMustRefine;
+  IsParticleMustRefine = new int[NumberOfParticles];
+  for (i = 0; i < NumberOfParticles; i ++){
+    IsParticleMustRefine[i] = 1;
+
+    // check particle type and uniform mass
+    rules[0] = (ParticleType[i] == PARTICLE_TYPE_MUST_REFINE ||
+                ParticleType[i] == PARTICLE_TYPE_MBH) ||
+               (ParticleMass[i] < UniformParticleMass);
+
+    // check particle mass greater than minimum mass
+    rules[1] = (ParticleMass[i] > MustRefineParticlesMinimumMass);
+
+    // add more rules here
+
+    //
+
+    // set flag for this particle
+    for (int j = 0; j < NumberOfRules; j++)
+      IsParticleMustRefine[i] *= rules[j];
+  }
+
+  PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
+	   ParticlePosition[0], ParticlePosition[1], ParticlePosition[2],
+	   &GridRank, &NumberOfParticles, FlaggingField,
 	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
-	   &CellSize, &ParticleTypeToMatch1, &ParticleTypeToMatch2, &ParticleTypeToMatch3,
-	   &MustRefineParticlesMinimumMass, &ParticleBufferSize,
-			  &UniformParticleMass);
+	   &CellSize, &ParticleBufferSize);
 
   /* Increase particle mass flagging field for definite refinement */
 
@@ -138,6 +162,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     delete [] FlaggingField;
     FlaggingField = NULL;
   }
+
+  delete [] IsParticleMustRefine;
+  delete [] rules;
 
   return NumberOfFlaggedCells;
  

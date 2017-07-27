@@ -390,12 +390,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
   GravitationalConstant       = 4*Pi;              // G = 1
-  S2ParticleSize              = 3.0;               // ~3 is reasonable
-  GravityResolution           = 1.0;               // equivalent to grid
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
-  BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
 
   GalaxySimulationRPSWind = 0;
   GalaxySimulationRPSWindShockSpeed = 0.0;
@@ -410,9 +407,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   GalaxySimulationInitialStellarDist = 0;          // only works in individual star maker - initialize a stellar distribution if ON
 
-  GreensFunctionMaxNumber     = 1;                 // only one at a time
-  GreensFunctionMaxSize       = 1;                 // not used yet
- 
   DualEnergyFormalism         = FALSE;             // off
   DualEnergyFormalismEta1     = 0.001;             // typical 0.001
   DualEnergyFormalismEta2     = 0.1;               // 0.08-0.1
@@ -450,8 +444,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2OpticalDepthApproximation = 1;
   H2FormationOnDust           = FALSE;
   GloverChemistryModel        = 0;                 // 0ff
-  GloverRadiationBackground   = 0;
-  GloverOpticalDepth          = 0;
   CRModel                     = 0;                 // off
   CRDiffusion                 = 0;                 // off
   CRkappa                     = 0.0;
@@ -680,7 +672,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     StarClusterRegionLeftEdge[dim] = 0.0;
     StarClusterRegionRightEdge[dim] = 1.0;
   }
-
+ 
+  MixSpeciesAndColors           = 1;            //Enable SNColour field to be advected as species in MHD
+ 
   PopIIIStarMass                   = 100;
   PopIIIInitialMassFunction        = FALSE;
   PopIIIInitialMassFunctionSeed    = INT_UNDEFINED;
@@ -882,7 +876,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NSpecies		     = INT_UNDEFINED;
   NColor		     = INT_UNDEFINED;
   Theta_Limiter		     = 1.5;
-  RKOrder		     = 2;
   UsePhysicalUnit	     = 0;
   NEQ_HYDRO		     = 5;
   NEQ_MHD		     = 9;
@@ -902,11 +895,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   EOSGamma		     = 1.667;
   Mu			     = 0.6;
   DivBDampingLength          = 1.;
-  CoolingCutOffDensity1	     = 0;
-  CoolingCutOffDensity2	     = 1e10;
-  CoolingCutOffTemperature   = 0.0;
-  CoolingPowerCutOffDensity1 = 0;
-  CoolingPowerCutOffDensity2 = 1e10;
   UseCUDA		     = 0;
   UseFloor		     = 0;
   UseViscosity		     = 0;
@@ -1147,6 +1135,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* Gas drag parameters */
   UseGasDrag = 0;
   GasDragCoefficient = 0.;
+
+  /* Supernova magnetic seed field */
+  /* Default == 0 -> no magnetic field contribution */
+  UseSupernovaSeedFieldSourceTerms = 0;
+  SupernovaSeedFieldRadius = 0.0;
+  SupernovaSeedFieldDuration = 0.0;
+  SupernovaSeedFieldEnergy = 0.0;
 
   return SUCCESS;
 }

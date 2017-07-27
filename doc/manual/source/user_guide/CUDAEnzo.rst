@@ -24,6 +24,7 @@ correctly set this, make sure that in src/enzo/ you run the following
 configuration commands:
 
 ::
+
     make cuda-yes
     make integers-32
     make precision-32

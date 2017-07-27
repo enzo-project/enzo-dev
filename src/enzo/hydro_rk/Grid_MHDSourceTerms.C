@@ -19,6 +19,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "list.h"
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
@@ -99,7 +100,7 @@ int grid::MHDSourceTerms(float **dU)
 
   if (DualEnergyFormalism) {
     int igrid, ip1, im1, jp1, jm1, kp1, km1;
-    FLOAT coef = 1.;
+    FLOAT coef = 0.5;
     FLOAT dtdx = coef*dtFixed/CellWidth[0][0]/a,
       dtdy = (GridRank > 1) ? coef*dtFixed/CellWidth[1][0]/a : 0.0,
       dtdz = (GridRank > 2) ? coef*dtFixed/CellWidth[2][0]/a : 0.0;
@@ -397,7 +398,52 @@ int grid::MHDSourceTerms(float **dU)
       }
     }
   }
+  
+if((UseSupernovaSeedFieldSourceTerms == 1)) {
 
+  int n = 0, igrid;
+  int iden=FindField(Density, FieldType, NumberOfBaryonFields);
+  snsf_source_terms S;
+  List<SuperNova>::Iterator *P = this->SuperNovaList.begin();
+  FLOAT cell_center[3];
+  FLOAT dx, dy, dz, dist_to_sn;
+  int temp =1;
+  int entered = 0;
+
+  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+	igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+
+	cell_center[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	cell_center[1] = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	cell_center[2] = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+
+	while(P != this->SuperNovaList.end()){
+	  dx = P->get()->getPosition()[0] - cell_center[0];
+	  dy = P->get()->getPosition()[1] - cell_center[1];
+	  dz = P->get()->getPosition()[2] - cell_center[2];
+
+	  dist_to_sn = sqrt(dx*dx + dy*dy + dz*dz);
+	  if (dist_to_sn < 1.1*SupernovaSeedFieldRadius){
+	    S = P->get()->getSourceTerms(dx, dy, dz, Time);
+   	    double rho = BaryonField[DensNum][igrid];
+
+	    dU[iBx][n] += S.dbx*dtFixed;
+	    dU[iBy][n] += S.dby*dtFixed;
+	    dU[iBz][n] += S.dbz*dtFixed;
+	    dU[iEtot][n] += S.dUtot*dtFixed;
+
+	  }
+	  P = P->next();
+	}// End of SuperNovaList iteration                                                                                           
+      } // End of k for-loop                                                                                                         
+    } // End of j for-loop                                                                                                           
+  } // End of i for-loop                                                                                                             
+
+} // End of UseSuperNovaSeedFieldSourceTerms scope                                                                                   
+
+  
 
   return SUCCESS;
 }

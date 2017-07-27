@@ -40,7 +40,7 @@ pyplot.plot(time, AngMomPercentageChangeEachMyr, 'r', label='Change per Myr')
 pyplot.legend()
 pyplot.savefig('AngMom.png')
 
-print "Net L change, Maximum L change: ", max(AngMomPercentageChange), \
-  max(AngMomPercentageChangeEachMyr)
+print("Net L change, Maximum L change: ", max(AngMomPercentageChange), \
+  max(AngMomPercentageChangeEachMyr))
 
 

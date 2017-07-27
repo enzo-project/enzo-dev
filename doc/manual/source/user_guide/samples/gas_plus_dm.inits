@@ -34,14 +34,14 @@ PowerSpectrumRandomSeed      = -12345931
 #  Grid info
 #
 Rank                = 3
-GridDims            = 128 128 128
+GridDims            = 64 64 64
 InitializeGrids     = 1
 GridRefinement      = 1
 
 #
 #  Particle info
 #
-ParticleDims        = 128 128 128
+ParticleDims        = 64 64 64
 InitializeParticles = 1
 ParticleRefinement  = 1
 

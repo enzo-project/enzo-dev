@@ -32,7 +32,7 @@ complex than Gadget or Zeus, and much much easier to break.
 
 
 #. Read it, and understand the structure. The flowcharts can help,
-   they can be found in :doc:`../user_guide/FlowChart`.
+   they can be found in :doc:`../supplementary_info/FlowChart`.
 
 
 #. Add a parameter to drive your code in :doc:`AddingNewParameters`

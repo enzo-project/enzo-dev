@@ -70,7 +70,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
   this->ReturnOldHydroRKPointers(OldPrim, false);
 
   //##### Want to mix species and colors for renormalization?  Normally you don't
-  int MixSpeciesAndColors = 0;
   int NSpecies_renorm;
   if (MixSpeciesAndColors) 
     NSpecies_renorm = NSpecies+NColor;
@@ -171,7 +170,7 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	etot = BaryonField[TENum][igrid];
 	Tau  = rho*etot;
 	if (DualEnergyFormalism) {
-	  eint = BaryonField[ieint][igrid];
+	  eint = BaryonField[GENum][igrid];
 	}
 	Bx   = BaryonField[B1Num][igrid];
 	By   = BaryonField[B2Num][igrid];
@@ -243,9 +242,9 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	if (DualEnergyFormalism) {
 	  v2 = vx*vx + vy*vy + vz*vz;
 	  B2 = Bx_new*Bx_new + By_new*By_new + Bz_new*Bz_new;
+	  eint = Eint_new/D_new;
 	  float emin = SmallT/(Mu*(Gamma-1.0));
 
-	  eint = Eint_new/D_new;
 	  float eint1 = etot - 0.5*v2 - 0.5*B2/D_new;
 	  if (eint1 > 0) {
 	    EOS(p, D_new, eint1, h, cs, dpdrho, dpde, EOSType, 2);

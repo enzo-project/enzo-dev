@@ -29,10 +29,15 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int Star::Accrete(void)
 {
-
-  if (this->CurrentGrid == NULL || 
-      (this->naccretions == 0 && fabs(this->DeltaMass) < tiny_number))
-    return SUCCESS;
+  if (UseSupernovaSeedFieldSourceTerms == 1){
+    if (this->CurrentGrid == NULL ||(this->naccretions == 0))
+      return SUCCESS;
+  }
+  else {
+      if (this->CurrentGrid == NULL || 
+          (this->naccretions == 0 && fabs(this->DeltaMass) < tiny_number))
+      return SUCCESS;
+  }
 
   const double Msun = 1.989e33, yr = 3.1557e7;
   int dim, i, n, count;

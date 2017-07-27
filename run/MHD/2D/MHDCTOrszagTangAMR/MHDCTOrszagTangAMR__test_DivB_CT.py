@@ -35,8 +35,7 @@ def test_standard():
 # Tests that OutputLog exists and fails otherwise
 def test_exist():
     filename = os.path.dirname(__file__) + "/OutputLog"
-    if not os.path.exists(filename):
-        raise EnzoTestOutputFileNonExistent(filename)
+    assert os.path.exists(filename)
 
 @requires_outputlog(os.path.dirname(__file__), "MHDCTOrszagTangAMR.enzo") # Verifies that OutputLog exists
 def test_DivB_CT():
