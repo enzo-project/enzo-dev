@@ -267,6 +267,10 @@ static int StaticLevelZero = 0;
 extern int RK2SecondStepBaryonDeposit;
 
 
+#ifdef INDIVIDUALSTAR
+void DeleteStarList(Star * &Node);
+#endif
+
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior
 #ifdef TRANSFER
@@ -836,7 +840,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 
     if (dtThisLevelSoFar[level] < dtLevelAbove)
-      RebuildHierarchy(MetaData, LevelArray, level);
+      RebuildHierarchy(MetaData, LevelArray, level
+#ifdef INDIVIDUALSTAR
+                       ,AllStars
+#endif
+                       );
+
+#ifdef INDIVIDUALSTAR
+     DeleteStarList(AllStars);
+#endif
 
 
     cycle++;

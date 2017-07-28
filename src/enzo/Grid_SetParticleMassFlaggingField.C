@@ -39,7 +39,11 @@ extern float DepositParticleMaximumParticleMass;
  
 int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level, 
 				       int ParticleMassMethod, int MustRefineMethod,
-				       int *SendProcs, int NumberOfSends)
+				       int *SendProcs, int NumberOfSends
+#ifdef INDIVIDUALSTAR
+                                       ,Star *&AllStars
+#endif
+                                       )
 {
 
   //printf("grid::SetParticleMassFlaggingField called \n");
@@ -120,7 +124,11 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
       KeepFlaggingField = (level == MustRefineParticlesRefineToLevel);
       NumberOfFlaggedCells = 
 	this->DepositMustRefineParticles(ParticleMassMethod, level,
-					 KeepFlaggingField);
+					 KeepFlaggingField
+#ifdef INDIVIDUALSTAR
+                                         , AllStars
+#endif
+                                         );
 
       if (NumberOfFlaggedCells < 0) {
 	ENZO_FAIL("Error in grid->DepositMustRefineParticles.\n");

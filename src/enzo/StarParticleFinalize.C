@@ -214,7 +214,10 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   /* Delete the global star particle list, AllStars */
 
+#ifndef INDIVIDUALSTAR
   DeleteStarList(AllStars);
+#endif
+
   delete [] AddedFeedback;
 
   LCAPERF_STOP("StarParticleFinalize");

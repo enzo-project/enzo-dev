@@ -42,6 +42,7 @@
 #    CONFIG_SET_ACCELERATION_BOUNDARY
 #    CONFIG_ENZO_PERFORMANCE
 #    CONFIG_GRACKLE
+#    CONFIG_INDIVIDUALSTAR
 #
 #=======================================================================
 
@@ -332,3 +333,12 @@
 #----------------------------------------------------------------------- 
  
      CONFIG_LOG2ALLOC = no
+
+#=======================================================================
+# CONFIG_INDIVIDUALSTAR
+#=======================================================================
+#    yes           Compile with individual star particles methods
+#    no            Compile without individual star particles methods
+#-----------------------------------------------------------------------
+
+     CONFIG_INDIVIDUALSTAR = no

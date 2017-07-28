@@ -38,6 +38,165 @@ extern "C" void PFORTRAN_NAME(cic_flag)(int* irefflag, FLOAT *posx, FLOAT *posy,
                         int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
 			int *buffersize);
+
+#ifdef INDIVIDUALSTAR
+// do a separate method to keep things clean, even though a lot will be redundant
+int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField
+                                     Star *&AllStars){
+
+  /* declarations */
+  //printf("grid::DepositMustRefineParticles called \n");
+  int i, dim, size = 1;
+  FLOAT LeftEdge[MAX_DIMENSION], CellSize;
+  int ParticleBufferSize;
+
+  ParticleBufferSize = MustRefineParticlesBufferSize;
+  if (ProblemType == 106 || ProblemType ==107)
+    ParticleBufferSize = 16;
+
+
+  /* error check */
+ 
+  if (ParticleMassFlaggingField == NULL) {
+    fprintf(stderr, "Particle Mass Flagging Field is undefined.\n");
+    return -1;
+  }
+
+  /* If refining region before supernova (to be safe in its last 5% of
+     the lifetime), temporarily set particle type of star to
+     PARTICLE_TYPE_MUST_REFINE. */
+
+  if (PopIIISupernovaMustRefine == TRUE)
+    this->ChangeParticleTypeBeforeSN(PARTICLE_TYPE_MUST_REFINE, level,
+				     &ParticleBufferSize);
+
+  /* Set Left edge of grid. */
+
+  for (dim = 0; dim < GridRank; dim++) {
+    LeftEdge[dim] = CellLeftEdge[dim][0];
+    size *= GridDimension[dim];
+  }
+
+  CellSize = float(CellWidth[0][0]);
+
+  /* Temporarily set the flagging field, then we will increase the
+     particle mass flagging field above the refinement criteron. */
+
+  FlaggingField = new int[size];
+  for (i = 0; i < size; i++)
+    FlaggingField[i] = 0;
+
+  /* Loop over all the particles, using only particles marked as
+     must-refine particles. */
+
+  float UniformParticleMass = 0.0;
+  if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3)
+    UniformParticleMass = OmegaDarkMatterNow / OmegaMatterNow;
+
+  /* need to do the following, either:
+   *    1) Make flagging field and particle arrays at size of star particles
+   *    2) Check if particle position overlaps with grid z
+   *    3) then check must refine rules
+   *    4) save particles and number of refinement required particles -
+   *       send this # to cic so only need to loop over the "yes"'s
+   * ---------------------------------------------------------------------- */
+  int *IsParticleMustRefine;
+  FLOAT *StarPosX, *StarPosY, *StarPosZ;
+  IsParticleMustRefine = new int[MetaData.NumberOfParticles];
+  StarPosX = new FLOAT[MetaData.NumberOfParticles];
+  StarPosY = new FLOAT[MetaData.NumberOfParticles];
+  StarPosZ = new FLOAT[MetaData.NumberOfParticles];
+
+  for (i = 0; i < MetaData.NumberOfParticles; i++){
+    IsParticleMustRefine[i] = 0;
+    StarPosX[i] = 0.5;
+    StarPosY[i] = 0.5;
+    StarPosZ[i] = 0.5;
+  }
+
+  int NumberOfMustRefineStars = 0
+  for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
+    float end_of_life = cstar->ReturnBirthTime() + cstar->ReturnLifetime();
+    bool near_end_of_life = fabs(this->Time - end_of_life) < IndividualStarLifeRefinementFactor * this->dtFixed * POW(2,level); // factor of root grid, estimate root $
+
+    if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR){
+        rules[2] = ( ( IndividualStarStellarWinds) && (m_star > IndividualStarSNIIMassCutoff)  ) || // massive stars always on if winds are on
+                   ( (!IndividualStarStellarWinds) && (near_end_of_life)  ) ||  // SNII check if no winds are on
+                   ( ( IndividualStarStellarWinds) && (near_end_of_life) && (cstar->ReturnMass() < IndividualStarSNIIMassCutoff) ); // AGB wind check
+
+      IsParticleMustRefine[i] = 1;
+    } else if (fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
+               fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ){
+      IsParticleMustRefine[i] = near_end_of_life;
+    } else {
+      IsParticleMustRefine[i] = 0; // otherwise this is NOT a must refine particle
+    }
+
+    if(IsParticleMustRefine[i]){
+      float *pos = cstar->ReturnPosition();
+      StarPosX[i] = pos[0];
+      StarPosY[i] = pos[1];
+      StarPosZ[i] = pos[2];
+      NumberOfMustRefineStars++;
+    }
+  }
+
+  PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
+	                  StarPosX, StarPosY, StarPosZ,
+      	                  &GridRank, &NumberOfMustRefineStars, FlaggingField,
+	                  LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
+                          &CellSize, &ParticleBufferSize);
+
+  /* Increase particle mass flagging field for definite refinement */
+
+  float MustRefineMass = 
+    1.001*MinimumMassForRefinement[pmethod] * 
+    POW(RefineBy, level * MinimumMassForRefinementLevelExponent[pmethod]);
+  if (ProblemType == 28)
+    MustRefineMass = 0;
+
+  /* Special case on level == MustRefineParticlesRefineToLevel when we
+     restrict the additional AMR to regions with must-refine
+     particles, and don't use the particle mass field. */
+  
+  int NumberOfFlaggedCells = 0;
+  if (!(ProblemType == 30 && MustRefineParticlesCreateParticles == 3 &&
+	level == MustRefineParticlesRefineToLevel)) {
+    for (i = 0; i < size; i++)
+      if (FlaggingField[i]) {
+	ParticleMassFlaggingField[i] = MustRefineMass;
+	NumberOfFlaggedCells++;
+      }
+  }
+
+  if (debug1)
+    printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
+	   level,NumberOfFlaggedCells);
+
+  /* If refining region before supernova, change particle type back to
+     its original value. */
+
+  if (PopIIISupernovaMustRefine == TRUE)
+    this->ChangeParticleTypeBeforeSN(PARTICLE_TYPE_RESET, level);
+
+  /* Clean up */
+
+  if (!KeepFlaggingField) {
+    delete [] FlaggingField;
+    FlaggingField = NULL;
+  }
+
+  delete [] IsParticleMustRefine;
+  delete [] StarPosX;
+  delete [] StarPosY;
+  delete [] StarPosZ;
+
+  return NumberOfFlaggedCells;
+
+}
+
+#else
+
 int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField)
 {
   /* declarations */
@@ -137,8 +296,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
                    ( (!IndividualStarStellarWinds) && (near_end_of_life)  ) ||  // SNII check if no winds are on
                    ( ( IndividualStarStellarWinds) && (near_end_of_life) && (m_star < IndividualStarSNIIMassCutoff) ); // AGB wind check
 
-      } else if (ABS(ParticleType[i]) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
-                 ABS(ParticleType[i]) == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ){
+      } else if (fabs(ParticleType[i]) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
+                 fabs(ParticleType[i]) == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ){
         rules[2] = near_end_of_life;
       } else {
         rules[2] = FALSE; // otherwise this is NOT a must refine particle
@@ -207,3 +366,4 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   return NumberOfFlaggedCells;
  
 }
+#endif // ifdef INDIVIDUALSTAR

@@ -106,7 +106,11 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
       // most of the time.
       if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
 	if (Temp->GridData->SetParticleMassFlaggingField
-	    (Zero, Zero, level, ParticleMassMethod, MustRefineMethod) == FAIL) {
+	    (Zero, Zero, level, ParticleMassMethod, MustRefineMethod
+#ifdef INDIVIDUALSTAR
+            NULL, 0, AllStars
+#endif
+            ) == FAIL) {
 	  ENZO_FAIL("Error in grid->SetParticleMassFlaggingField(send).\n");
 	}
 
@@ -345,7 +349,11 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 		SendProcs[i] = SharedList[count-i-1].proc;
 	      if (Grids[grid1]->GridData->SetParticleMassFlaggingField
 		  (StartProc, EndProc, level, ParticleMassMethod,
-		   MustRefineMethod, SendProcs, nSends) == FAIL) {
+		   MustRefineMethod, SendProcs, nSends
+#ifdef INDIVIDUALSTAR
+                  , AllStars
+#endif
+                ) == FAIL) {
 		ENZO_FAIL("Error in grid->SetParticleMassFlaggingField"
 			"(receive).\n");
 	      }
@@ -360,7 +368,11 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 	for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
 	  if (Grids[grid1]->GridData->SetParticleMassFlaggingField
 	      (StartProc, EndProc, level, ParticleMassMethod,
-	       MustRefineMethod) == FAIL) {
+	       MustRefineMethod
+#ifdef INDIVIDUALSTAR
+               NULL, 0, AllStars
+#endif
+               ) == FAIL) {
 	    ENZO_FAIL("Error in grid->SetParticleMassFlaggingField(send).\n");
 	  }
 

@@ -824,7 +824,11 @@ gradient force to gravitational force for one-zone collapse test. */
    int SetParticleMassFlaggingField(int StartProc=0, int EndProc=0, int level=-1, 
 				    int ParticleMassMethod=-1, int MustRefineMethod=-1,
 				    int *SendProcs=NULL, 
-				    int NumberOfSends=0);
+				    int NumberOfSends=0
+#ifdef INDIVIDUALSTAR
+                                    , Star *&AllStars
+#endif
+                                    );
    int CollectParticleMassFlaggingField(void);
    void ClearParticleMassFlaggingField(void);
 
@@ -861,7 +865,12 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Particles: deposit particles to particle mass flagging field. */
 
    int DepositMustRefineParticles(int pmethod, int level,
-				  bool KeepFlaggingField);
+				  bool KeepFlaggingField
+#ifdef INDIVIDUALSTAR
+                                  , Star *&AllStars
+#endif
+                                  );
+
 
 /* baryons: add baryon density to mass flaggin field (so the mass flagging
             field contains the mass in the cell (not the density) 
