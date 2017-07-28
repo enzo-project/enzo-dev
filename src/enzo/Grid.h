@@ -820,15 +820,19 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Sum particle mass flagging fields into ProcessorNumber if particles
    aren't local. */
+#ifdef INDIVIDUALSTAR // NEED TO DO THINS LIKE REBUILD HIERARCHY FUNCTIONS
+   int SetParticleMassFlaggingField(
+                                    TopGridData *MetaData, Star *&AllStars,
+                                    int StartProc=0, int EndProc=0, int level=-1, 
+				    int ParticleMassMethod=-1, int MustRefineMethod=-1,
+				    int *SendProcs=NULL,
+				    int NumberOfSends=0);
+#endif
 
    int SetParticleMassFlaggingField(int StartProc=0, int EndProc=0, int level=-1, 
-				    int ParticleMassMethod=-1, int MustRefineMethod=-1,
-				    int *SendProcs=NULL, 
-				    int NumberOfSends=0
-#ifdef INDIVIDUALSTAR
-                                    , Star *&AllStars
-#endif
-                                    );
+                                    int ParticleMassMethod=-1, int MustRefineMethod=-1,
+                                    int *SendProcs=NULL,
+                                    int NumberOfSends=0);
    int CollectParticleMassFlaggingField(void);
    void ClearParticleMassFlaggingField(void);
 
@@ -867,7 +871,7 @@ gradient force to gravitational force for one-zone collapse test. */
    int DepositMustRefineParticles(int pmethod, int level,
 				  bool KeepFlaggingField
 #ifdef INDIVIDUALSTAR
-                                  , Star *&AllStars
+                                  , TopGridData *MetaData, Star *&AllStars
 #endif
                                   );
 

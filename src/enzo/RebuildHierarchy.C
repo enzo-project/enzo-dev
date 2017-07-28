@@ -48,7 +48,7 @@ int ReportMemoryUsage(char *header = NULL);
 int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 				     int level, bool AllLocal
 #ifdef INDIVIDUALSTAR
-                                     , Star *AllStars
+                                     , TopGridData *MetaData, Star *&AllStars
 #endif
                                      );
 
@@ -94,23 +94,6 @@ int MustCollectParticlesToLevelZero = FALSE;  // Set only in NestedCosmologySimu
 
 
 /* RebuildHierarchy function */
-
-#ifdef INDIVIDUALSTAR
-void DeleteStarList(Star * &Node);
-
-// do this to avoid having to edit all funtcion calls of rebuild hierarchy
-int RebuildHierarchy(TopGridData *MetaData,
-                     LevelHierarchyEntry *LevelArray[], int level){
-
-  Star *AllStars = NULL;
-
-  int val = RebuildHierarchy(MetaData, LevelArray, level, AllStars);
-  DeleteStarList(AllStars);
-  return val;
-}
-
-
-#endif
 
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level
@@ -418,8 +401,8 @@ int RebuildHierarchy(TopGridData *MetaData,
 
       tt0 = ReturnWallTime();
       DepositParticleMassFlaggingField(LevelArray, i, ParticlesAreLocal
-#ifdef INDIVIDUALSTARS
-                                       , AllStars
+#ifdef INDIVIDUALSTAR
+                                       , MetaData, AllStars
 #endif
                                        );
       tt1 = ReturnWallTime();
@@ -748,3 +731,22 @@ int RebuildHierarchy(TopGridData *MetaData,
   return SUCCESS;
  
 }
+
+
+#ifdef INDIVIDUALSTAR
+void DeleteStarList(Star * &Node);
+
+// do this to avoid having to edit all funtcion calls of rebuild hierarchy
+int RebuildHierarchy(TopGridData *MetaData,
+                     LevelHierarchyEntry *LevelArray[], int level){
+
+  Star *AllStars = NULL;
+
+  int val = RebuildHierarchy(MetaData, LevelArray, level, AllStars);
+  DeleteStarList(AllStars);
+  return val;
+}
+
+
+#endif
+

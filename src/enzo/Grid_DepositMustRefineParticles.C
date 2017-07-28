@@ -41,8 +41,8 @@ extern "C" void PFORTRAN_NAME(cic_flag)(int* irefflag, FLOAT *posx, FLOAT *posy,
 
 #ifdef INDIVIDUALSTAR
 // do a separate method to keep things clean, even though a lot will be redundant
-int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField
-                                     Star *&AllStars){
+int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField,
+                                     TopGridData *MetaData, Star *&AllStars){
 
   /* declarations */
   //printf("grid::DepositMustRefineParticles called \n");
@@ -54,6 +54,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   if (ProblemType == 106 || ProblemType ==107)
     ParticleBufferSize = 16;
 
+  if (!(AllStars)){
+    printf("Here is the problem, the all stars pointer is NULL\n");
+  }
 
   /* error check */
  
@@ -102,29 +105,32 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
    * ---------------------------------------------------------------------- */
   int *IsParticleMustRefine;
   FLOAT *StarPosX, *StarPosY, *StarPosZ;
-  IsParticleMustRefine = new int[MetaData.NumberOfParticles];
-  StarPosX = new FLOAT[MetaData.NumberOfParticles];
-  StarPosY = new FLOAT[MetaData.NumberOfParticles];
-  StarPosZ = new FLOAT[MetaData.NumberOfParticles];
+  IsParticleMustRefine = new int[MetaData->NumberOfParticles];
+  StarPosX = new FLOAT[MetaData->NumberOfParticles];
+  StarPosY = new FLOAT[MetaData->NumberOfParticles];
+  StarPosZ = new FLOAT[MetaData->NumberOfParticles];
 
-  for (i = 0; i < MetaData.NumberOfParticles; i++){
+  for (i = 0; i < MetaData->NumberOfParticles; i++){
     IsParticleMustRefine[i] = 0;
     StarPosX[i] = 0.5;
     StarPosY[i] = 0.5;
     StarPosZ[i] = 0.5;
   }
+  printf("Number of particles in meta data %"ISYM"\n",MetaData->NumberOfParticles);
 
-  int NumberOfMustRefineStars = 0
+  int NumberOfMustRefineStars = 0;
+  Star *cstar;
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
     float end_of_life = cstar->ReturnBirthTime() + cstar->ReturnLifetime();
     bool near_end_of_life = fabs(this->Time - end_of_life) < IndividualStarLifeRefinementFactor * this->dtFixed * POW(2,level); // factor of root grid, estimate root $
 
     if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR){
-        rules[2] = ( ( IndividualStarStellarWinds) && (m_star > IndividualStarSNIIMassCutoff)  ) || // massive stars always on if winds are on
+        if (( ( IndividualStarStellarWinds) && (cstar->ReturnMass() > IndividualStarSNIIMassCutoff)  ) || // massive stars always on if winds are on
                    ( (!IndividualStarStellarWinds) && (near_end_of_life)  ) ||  // SNII check if no winds are on
-                   ( ( IndividualStarStellarWinds) && (near_end_of_life) && (cstar->ReturnMass() < IndividualStarSNIIMassCutoff) ); // AGB wind check
+                   ( ( IndividualStarStellarWinds) && (near_end_of_life) && (cstar->ReturnMass() < IndividualStarSNIIMassCutoff) )){ // AGB wind check
 
-      IsParticleMustRefine[i] = 1;
+          IsParticleMustRefine[i] = 1;
+        }
     } else if (fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
                fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ){
       IsParticleMustRefine[i] = near_end_of_life;
@@ -138,6 +144,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       StarPosY[i] = pos[1];
       StarPosZ[i] = pos[2];
       NumberOfMustRefineStars++;
+      printf("This particle is flagged as a must refine\n");
+    }else{
+      printf("No must refine particle found\n");
     }
   }
 
@@ -169,7 +178,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       }
   }
 
-  if (debug1)
+//  if (debug1)
+  if (TRUE)
     printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
 	   level,NumberOfFlaggedCells);
 

@@ -1,5 +1,10 @@
 /***********************************************************************
 /
+/ AJE NEED TO SOMEHOW COMMUNICATE ALLSTARS BACK UP TO EVOLVE HIERARCHY TO BE
+/ PASSED TO REBUILD HIERARCHY. Alternatively. Can just regather them here
+/ in this function (this may be best).. do a star particle init and then delete list
+/
+/
 /  EVOLVE HIERARCHY FUNCTION
 /
 /  written by: Greg Bryan

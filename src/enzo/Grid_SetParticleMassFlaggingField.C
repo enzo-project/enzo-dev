@@ -36,14 +36,15 @@ int Return_MPI_Tag(int grid_num, int proc);
 /* The following is defined in Grid_DepositParticlePositions.C. */
  
 extern float DepositParticleMaximumParticleMass;
- 
-int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level, 
-				       int ParticleMassMethod, int MustRefineMethod,
-				       int *SendProcs, int NumberOfSends
+
+
+int grid::SetParticleMassFlaggingField(
 #ifdef INDIVIDUALSTAR
-                                       ,Star *&AllStars
+                                       TopGridData *MetaData, Star *&AllStars,
 #endif
-                                       )
+                                       int StartProc, int EndProc, int level,
+				       int ParticleMassMethod, int MustRefineMethod,
+				       int *SendProcs, int NumberOfSends)
 {
 
   //printf("grid::SetParticleMassFlaggingField called \n");
@@ -126,7 +127,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 	this->DepositMustRefineParticles(ParticleMassMethod, level,
 					 KeepFlaggingField
 #ifdef INDIVIDUALSTAR
-                                         , AllStars
+                                         , MetaData, AllStars
 #endif
                                          );
 
@@ -258,3 +259,24 @@ void InitializeParticleMassFlaggingFieldCommunication(void)
   return;
 }
 #endif
+
+
+#ifdef INDIVIDUALSTAR
+
+void DeleteStarList(Star *&Node);
+
+int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level, 
+                                       int ParticleMassMethod, int MustRefineMethod,
+                                       int *SendProcs, int NumberOfSends){
+
+  Star *AllStars = NULL;
+  TopGridData *MetaData = NULL;
+  int val = this->SetParticleMassFlaggingField(MetaData, AllStars, StartProc, EndProc, level,
+                                     ParticleMassMethod, MustRefineMethod,
+                                     SendProcs, NumberOfSends);
+  DeleteStarList(AllStars);
+  return val;
+
+}
+#endif
+
