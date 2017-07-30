@@ -43,7 +43,11 @@ int InitializeStellarYields(void);
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
-			   int TotalStarParticleCountPrevious[])
+			   int TotalStarParticleCountPrevious[]
+#ifdef INDIVIDUALSTAR
+                           , int SkipFeedbackFlag = 0
+#endif
+                           )
 
 
 {
@@ -138,6 +142,9 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //      cstar->PrintInfo();
 //  }
 
+#ifdef INDIVIDUALSTAR
+  if (SkipFeedbackFlag){
+#endif
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
     float dtForThisStar   = LevelArray[ThisLevel]->GridData->ReturnTimeStep();
 
@@ -151,6 +158,10 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
 
   }
+#ifdef INDIVIDUALSTAR
+  }
+#endif
+
 
 //  fprintf(stdout, "\nin StarParticleInitialize.C \n", MetaData->NumberOfParticles); 
 //  fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles); 

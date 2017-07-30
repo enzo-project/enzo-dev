@@ -44,7 +44,11 @@
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
-			   int TotalStarParticleCountPrevious[]);
+			   int TotalStarParticleCountPrevious[]
+#ifdef INDIVIDUALSTAR
+                           , int SkipFeedbackFlag = 0
+#endif
+                           );
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars,

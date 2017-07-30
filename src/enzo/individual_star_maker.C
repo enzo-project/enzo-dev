@@ -420,40 +420,41 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
     for (i = 0; i < nstar; i++){
 
       // make sure particle position is on this grid / processor
-      if( !( (xpos[i] > this->CellLeftEdge[0][ibuff - 1]) && (xpos[i] < this->CellLeftEdge[0][nx - ibuff ] )) ||
-          !( (ypos[i] > this->CellLeftEdge[1][ibuff - 1]) && (ypos[i] < this->CellLeftEdge[1][ny - ibuff ] )) ||
-          !( (zpos[i] > this->CellLeftEdge[2][ibuff -1 ]) && (zpos[i] < this->CellLeftEdge[2][nz - ibuff ] )) ) {
+      if( !( (xpos[i] > this->CellLeftEdge[0][ibuff]) && (xpos[i] < this->CellLeftEdge[0][nx - ibuff] )) ||
+          !( (ypos[i] > this->CellLeftEdge[1][ibuff]) && (ypos[i] < this->CellLeftEdge[1][ny - ibuff] )) ||
+          !( (zpos[i] > this->CellLeftEdge[2][ibuff]) && (zpos[i] < this->CellLeftEdge[2][nz - ibuff] )) ) {
         continue;
       }
 
       // deposit the star by hand
-      ParticleMass[i] = mass[i] * msolar / MassUnits / (dx*dx*dx);
-      ParticleType[i] = -pt[i];
-      ParticleAttribute[0][i] = this->Time;
+      ParticleMass[count] = mass[i] * msolar / MassUnits / (dx*dx*dx);
+      ParticleType[count] = -pt[i];
+      ParticleAttribute[0][count] = this->Time;
+      ParticleNumber[count] = i; // unique ID
 
       // last arg tells function to return total stellar lifetime
       if(IndividualStarInterpolateLifetime(ParticleAttribute[1][i], mass[i], z[i], 1) == FAIL){
           ENZO_FAIL("Failure in stellar lifetime interpolation");
       }
 
-      ParticleAttribute[1][i] /= TimeUnits; // convert from s to code units
-      ParticleAttribute[3][i] = mass[i]; // leave in solar
-      ParticleAttribute[2][i] = z[i];
+      ParticleAttribute[1][count] /= TimeUnits; // convert from s to code units
+      ParticleAttribute[3][count] = mass[i]; // leave in solar
+      ParticleAttribute[2][count] = z[i];
 
-      ParticlePosition[0][i] = xpos[i];
-      ParticlePosition[1][i] = ypos[i];
-      ParticlePosition[2][i] = zpos[i];
+      ParticlePosition[0][count] = xpos[i];
+      ParticlePosition[1][count] = ypos[i];
+      ParticlePosition[2][count] = zpos[i];
 
-      ParticleVelocity[0][i] = xvel[i]*1.0E5 / VelocityUnits;
-      ParticleVelocity[1][i] = yvel[i]*1.0E5 / VelocityUnits;
-      ParticleVelocity[2][i] = zvel[i]*1.0E5 / VelocityUnits;
+      ParticleVelocity[0][count] = xvel[i]*1.0E5 / VelocityUnits;
+      ParticleVelocity[1][count] = yvel[i]*1.0E5 / VelocityUnits;
+      ParticleVelocity[2][count] = zvel[i]*1.0E5 / VelocityUnits;
 
 
       // find grid cell and assign chemical tags
       int ip, jp, kp, n;
-      ip = int ( (ParticlePosition[0][i] - (xstart)) / (dx));
-      jp = int ( (ParticlePosition[1][i] - (ystart)) / (dx));
-      kp = int ( (ParticlePosition[2][i] - (zstart)) / (dx));
+      ip = int ( (ParticlePosition[0][count] - (xstart)) / (dx));
+      jp = int ( (ParticlePosition[1][count] - (ystart)) / (dx));
+      kp = int ( (ParticlePosition[2][count] - (zstart)) / (dx));
 
       n  = ip + (jp + kp * (ny)) * (nx);
 
@@ -464,19 +465,19 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
             int field_num;
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
 
-            ParticleAttribute[4 + ii][i] = BaryonField[field_num][n];
+            ParticleAttribute[4 + ii][count] = BaryonField[field_num][n];
           } else if (StellarYieldsAtomicNumbers[ii] == 1){
             /* Take H and He fractions as TOTAL amount of H and He species in the cell */
-            ParticleAttribute[4 + ii][i] = BaryonField[HINum][n] + BaryonField[HIINum][n];
+            ParticleAttribute[4 + ii][count] = BaryonField[HINum][n] + BaryonField[HIINum][n];
             if (MultiSpecies > 1){
-              ParticleAttribute[4 + ii][i] += BaryonField[HMNum][n] +
+              ParticleAttribute[4 + ii][count] += BaryonField[HMNum][n] +
                                      BaryonField[H2INum][n] + BaryonField[H2IINum][n];
             }
 
           } else if (StellarYieldsAtomicNumbers[ii] == 2){
 
-            ParticleAttribute[4 + ii][i] = BaryonField[HeINum][n]  +
-                                           BaryonField[HeIINum][n] + BaryonField[HeIIINum][n];
+            ParticleAttribute[4 + ii][count] = BaryonField[HeINum][n]  +
+                                               BaryonField[HeIINum][n] + BaryonField[HeIIINum][n];
 
           }
         } // end loop over species
@@ -488,30 +489,30 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
       // stellar evolution table (attr 3 = birth mass, attr 2 = metallicity)
       int t_i = -1, t_j = -1, t_k = -1;
       IndividualStarGetSETablePosition(t_i, t_j,
-                                       ParticleAttribute[3][i], ParticleAttribute[2][i]);
-      ParticleAttribute[tstart    ][i] = t_i;
-      ParticleAttribute[tstart + 1][i] = t_j;
+                                       ParticleAttribute[3][count], ParticleAttribute[2][count]);
+      ParticleAttribute[tstart    ][count] = t_i;
+      ParticleAttribute[tstart + 1][count] = t_j;
       // radiation properties table (only do if particle can radiate - saves time)
-      if( ParticleAttribute[3][i] >= IndividualStarRadiationMinimumMass){
+      if( ParticleAttribute[3][count] >= IndividualStarRadiationMinimumMass){
         float Teff, R;
-        IndividualStarInterpolateProperties(Teff, R, (int)ParticleAttribute[tstart][i],
-                                            (int)ParticleAttribute[tstart+1][i],
-                                            ParticleAttribute[3][i], ParticleAttribute[2][i]);
-        float g = IndividualStarSurfaceGravity(ParticleAttribute[3][i], R);
+        IndividualStarInterpolateProperties(Teff, R, (int)ParticleAttribute[tstart][count],
+                                            (int)ParticleAttribute[tstart+1][count],
+                                            ParticleAttribute[3][count], ParticleAttribute[2][count]);
+        float g = IndividualStarSurfaceGravity(ParticleAttribute[3][count], R);
 
         t_i = -1; t_j = -1; t_k = -1;
         IndividualStarGetRadTablePosition(t_i, t_j, t_k,
-                                         Teff, g, ParticleAttribute[2][i]);
-        ParticleAttribute[tstart + 2][i] = t_i;
-        ParticleAttribute[tstart + 3][i] = t_j;
-        ParticleAttribute[tstart + 4][i] = t_k;
+                                         Teff, g, ParticleAttribute[2][count]);
+        ParticleAttribute[tstart + 2][count] = t_i;
+        ParticleAttribute[tstart + 3][count] = t_j;
+        ParticleAttribute[tstart + 4][count] = t_k;
       }
        // yields table position
       t_i = -1 ; t_j = -1;
       StellarYieldsGetYieldTablePosition(t_i, t_j,
-                                         ParticleAttribute[3][i], ParticleAttribute[2][i]);
-      ParticleAttribute[tstart + 5][i] = t_i;
-      ParticleAttribute[tstart + 6][i] = t_j;
+                                         ParticleAttribute[3][count], ParticleAttribute[2][count]);
+      ParticleAttribute[tstart + 5][count] = t_i;
+      ParticleAttribute[tstart + 6][count] = t_j;
        count++;
     } // end loop over particles
      *np = count;
@@ -524,9 +525,9 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
     zz = ChemicalEvolutionTestStarPosition[2];
 
     // make sure particle position is on this grid / processor
-    if( !( (xx > this->CellLeftEdge[0][ibuff - 1]) && (xx < this->CellLeftEdge[0][nx - ibuff ] )) ||
-        !( (yy > this->CellLeftEdge[1][ibuff - 1]) && (yy < this->CellLeftEdge[1][ny - ibuff ] )) ||
-        !( (zz > this->CellLeftEdge[2][ibuff -1 ]) && (zz < this->CellLeftEdge[2][nz - ibuff ] )) ) {
+    if( !( (xx > this->CellLeftEdge[0][ibuff ]) && (xx < this->CellLeftEdge[0][nx - ibuff ] )) ||
+        !( (yy > this->CellLeftEdge[1][ibuff ]) && (yy < this->CellLeftEdge[1][ny - ibuff ] )) ||
+        !( (zz > this->CellLeftEdge[2][ibuff ]) && (zz < this->CellLeftEdge[2][nz - ibuff ] )) ) {
       this->Grid_ChemicalEvolutionTestStarFormed = TRUE; // setting this here to avoid doing MPI communication
                                               // on whatever processor the star actually gets placed
       printf("P(%"ISYM") individual_star_maker: Particle not on this grid. Leaving\n", MyProcessorNumber);
@@ -1362,10 +1363,10 @@ int grid::IndividualStarSetWDLifetime(void){
     //
     // feedback operates computing death time = lifetime + birth time
     // renormalize so as to keep birth time the original star particle birth time
-    // but only if actually set
+    //  - original lifetime of progenitor star to WD can be backed out via postprocessing, but not birth time
     //
-    if (result > 0){ // negative result means WD never exploding 
-      ParticleAttribute[1][i] = new_lifetime + (this->Time - ParticleAttribute[0][i]);
+    if (result > 0){ // negative result means WD never exploding  -- ensure it is not this timestep
+      ParticleAttribute[1][i] = fmax(new_lifetime,1.5*this->dtFixed) + (this->Time - ParticleAttribute[0][i]);
     }
   }
 
@@ -3579,7 +3580,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
           wind_dt = particle_age + dt - agb_start_time; // wind only occurs for part of timestep
           printf("wind lifeitme mode 4\n");
         } else{
-          wind_dt = fmax( lifetime - agb_start_time, dt);
+          wind_dt = fmin( lifetime - agb_start_time, dt);
 
           
           printf("PROBLEM IN AGB WIND PHASE\n");

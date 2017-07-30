@@ -55,6 +55,7 @@ void Star::ActivateNewStar(FLOAT Time, float Timestep)
     case IndividualStar:
     case IndividualStarRemnant:
       type = StarType;
+      printf("Activating new star\n");
       break;
 
     case IndividualStarWD:

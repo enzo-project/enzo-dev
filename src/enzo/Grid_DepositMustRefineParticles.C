@@ -112,17 +112,18 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   for (i = 0; i < MetaData->NumberOfParticles; i++){
     IsParticleMustRefine[i] = 0;
-    StarPosX[i] = 0.5;
-    StarPosY[i] = 0.5;
-    StarPosZ[i] = 0.5;
+    StarPosX[i] = -1.;
+    StarPosY[i] = -1.;
+    StarPosZ[i] = -1.;
   }
   printf("Number of particles in meta data %"ISYM"\n",MetaData->NumberOfParticles);
 
   int NumberOfMustRefineStars = 0;
+  FLOAT *pos;
   Star *cstar;
-  for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
+  for (cstar = AllStars, i = 0; cstar; cstar = cstar->NextStar) {
     float end_of_life = cstar->ReturnBirthTime() + cstar->ReturnLifetime();
-    bool near_end_of_life = fabs(this->Time - end_of_life) < IndividualStarLifeRefinementFactor * this->dtFixed * POW(2,level); // factor of root grid, estimate root $
+    bool near_end_of_life = fabs(this->Time - end_of_life) < (IndividualStarLifeRefinementFactor * this->dtFixed * POW(2,level)); // factor of root grid, estimate root $
 
     if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR){
         if (( ( IndividualStarStellarWinds) && (cstar->ReturnMass() > IndividualStarSNIIMassCutoff)  ) || // massive stars always on if winds are on
@@ -133,22 +134,26 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
         }
     } else if (fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
                fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ){
-      IsParticleMustRefine[i] = near_end_of_life;
-    } else {
-      IsParticleMustRefine[i] = 0; // otherwise this is NOT a must refine particle
+      IsParticleMustRefine[i] = ((int) near_end_of_life);
     }
 
+//   else { not needed, we are only saving the ones that work
+//      IsParticleMustRefine[i] = 0; // otherwise this is NOT a must refine particle
+//    }
+
     if(IsParticleMustRefine[i]){
-      float *pos = cstar->ReturnPosition();
+      pos = cstar->ReturnPosition();
       StarPosX[i] = pos[0];
       StarPosY[i] = pos[1];
       StarPosZ[i] = pos[2];
-      NumberOfMustRefineStars++;
-      printf("This particle is flagged as a must refine\n");
+      i++;
+      printf("This particle is flagged as a must refine at position %"FSYM" %"FSYM" %"FSYM"\n", StarPosX[i], StarPosY[i], StarPosZ[i]);
     }else{
       printf("No must refine particle found\n");
     }
   }
+
+  NumberOfMustRefineStars = i; // save number of stars
 
   PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
 	                  StarPosX, StarPosY, StarPosZ,
@@ -353,7 +358,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       }
   }
 
-  if (debug1)
+//  if (debug1)
+    if (TRUE)
     printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
 	   level,NumberOfFlaggedCells);
 

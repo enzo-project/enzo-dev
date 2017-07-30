@@ -118,9 +118,9 @@ int ExtraOutput(int output_flag, LevelHierarchyEntry *LevelArray[],TopGridData *
 
 int  RebuildHierarchy(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level
-#ifdef INDIVIDUALSTAR
-                      , Star *&AllStars
-#endif
+//#ifdef INDIVIDUALSTAR
+//                      , Star *&AllStars
+//#endif
                       );
 
 int  ReportMemoryUsage(char *header = NULL);
@@ -221,7 +221,12 @@ int DeleteSUBlingList(int NumberOfGrids,
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
-			   int TotalStarParticleCountPrevious[]);
+			   int TotalStarParticleCountPrevious[]
+#ifdef INDIVIDUALSTAR
+                           , int SkipFeedbackFlag = 0
+#endif
+                           );
+
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars,
@@ -390,7 +395,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   EXTRA_OUTPUT_MACRO(1, "Before Time Loop")
 
 #ifdef INDIVIDUALSTAR
-  Star *AllStars = NULL;
+//  Star *AllStars = NULL;
 #endif
 
   while ((CheckpointRestart == TRUE)
@@ -441,12 +446,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Initialize the star particles */
 
-#ifdef INDIVIDUALSTAR
-    DeleteStarList(AllStars);
+//#ifdef INDIVIDUALSTAR
+//    DeleteStarList(AllStars);
+//    Star *AllStars = NULL;
+//#else
     Star *AllStars = NULL;
-#else
-    Star *AllStars = NULL;
-#endif
+//#endif
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
 
@@ -854,14 +859,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (dtThisLevelSoFar[level] < dtLevelAbove)
       RebuildHierarchy(MetaData, LevelArray, level
-#ifdef INDIVIDUALSTAR
-                       ,AllStars
-#endif
+//#ifdef INDIVIDUALSTAR
+//                       ,AllStars
+//#endif
                        );
 
-#ifdef INDIVIDUALSTAR
-     DeleteStarList(AllStars);
-#endif
+//#ifdef INDIVIDUALSTAR
+//     DeleteStarList(AllStars);
+//#endif
 
 
     cycle++;

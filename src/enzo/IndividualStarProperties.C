@@ -120,7 +120,7 @@ int SetWDLifetime(float &WD_lifetime,
  */
 
   if (IndividualStarWDFixedLifetime > 0){ // testing parameter to force SNIA immediately
-    WD_lifetime = IndividualStarWDFixedLifetime * 1.0E6 * 3.1556E13 / TimeUnits;
+    WD_lifetime = IndividualStarWDFixedLifetime * 3.1556E13 / TimeUnits;
     return 1;
   }
 
