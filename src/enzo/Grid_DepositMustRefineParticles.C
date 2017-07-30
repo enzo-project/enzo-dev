@@ -45,7 +45,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
                                      TopGridData *MetaData, Star *&AllStars){
 
   /* declarations */
-  //printf("grid::DepositMustRefineParticles called \n");
   int i, dim, size = 1;
   FLOAT LeftEdge[MAX_DIMENSION], CellSize;
   int ParticleBufferSize;
@@ -54,12 +53,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   if (ProblemType == 106 || ProblemType ==107)
     ParticleBufferSize = 16;
 
-  if (!(AllStars)){
-    printf("Here is the problem, the all stars pointer is NULL\n");
-  }
-
   /* error check */
- 
+
   if (ParticleMassFlaggingField == NULL) {
     fprintf(stderr, "Particle Mass Flagging Field is undefined.\n");
     return -1;
@@ -116,7 +111,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     StarPosY[i] = -1.;
     StarPosZ[i] = -1.;
   }
-  printf("Number of particles in meta data %"ISYM"\n",MetaData->NumberOfParticles);
 
   int NumberOfMustRefineStars = 0;
   FLOAT *pos;
@@ -137,20 +131,17 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       IsParticleMustRefine[i] = ((int) near_end_of_life);
     }
 
-//   else { not needed, we are only saving the ones that work
-//      IsParticleMustRefine[i] = 0; // otherwise this is NOT a must refine particle
-//    }
-
     if(IsParticleMustRefine[i]){
       pos = cstar->ReturnPosition();
       StarPosX[i] = pos[0];
       StarPosY[i] = pos[1];
       StarPosZ[i] = pos[2];
       i++;
-      printf("This particle is flagged as a must refine at position %"FSYM" %"FSYM" %"FSYM"\n", StarPosX[i], StarPosY[i], StarPosZ[i]);
-    }else{
-      printf("No must refine particle found\n");
+      // printf("This particle is flagged as a must refine at position %"FSYM" %"FSYM" %"FSYM"\n", StarPosX[i], StarPosY[i], StarPosZ[i]);
     }
+    //else{
+      // printf("No must refine particle found\n");
+    //}
   }
 
   NumberOfMustRefineStars = i; // save number of stars
@@ -183,8 +174,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       }
   }
 
-//  if (debug1)
-  if (TRUE)
+  if (debug1)
     printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
 	   level,NumberOfFlaggedCells);
 
@@ -215,7 +205,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField)
 {
   /* declarations */
-  //printf("grid::DepositMustRefineParticles called \n");
   int i, dim, size = 1;
   FLOAT LeftEdge[MAX_DIMENSION], CellSize;
   int ParticleBufferSize;
@@ -326,8 +315,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     for (int j = 0; j < NumberOfRules; j++)
       IsParticleMustRefine[i] *= rules[j];
 
-    printf("Checked if we should refine, the answer is %"ISYM"\n", IsParticleMustRefine[i]);
-    printf("rule 0 = %"ISYM" rule 1 = %"ISYM" rule 2 = %"ISYM"\n",rules[0],rules[1],rules[2]);
+    // printf("Checked if we should refine, the answer is %"ISYM"\n", IsParticleMustRefine[i]);
+    // printf("rule 0 = %"ISYM" rule 1 = %"ISYM" rule 2 = %"ISYM"\n",rules[0],rules[1],rules[2]);
   }
 
   PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
@@ -358,8 +347,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       }
   }
 
-//  if (debug1)
-    if (TRUE)
+  if (debug1)
     printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
 	   level,NumberOfFlaggedCells);
 

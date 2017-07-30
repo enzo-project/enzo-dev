@@ -3018,7 +3018,7 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
 
     // Type Ia supernova properties
     IndividualStarSetTypeIaSupernovaProperties(m_eject, E_thermal, metal_mass);
-    printf("m_eject  for snia = %"FSYM"\n", m_eject);
+    // printf("m_eject  for snia = %"FSYM"\n", m_eject);
     stellar_wind_mode = FALSE;
   }
 
@@ -3028,7 +3028,7 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
 
   if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
     for(int i = 0; i < StellarYieldsNumberOfSpecies + 1; i++){
-      printf("metal mass species %"ISYM"   = %"ESYM"\n", i, metal_mass[i]);
+      // printf("metal mass species %"ISYM"   = %"ESYM"\n", i, metal_mass[i]);
       metal_mass[i] = metal_mass[i] * msolar / MassUnits / (dx*dx*dx);
     }
   }
@@ -3565,28 +3565,27 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
           wind_dt = fmax(0.0, lifetime - (particle_age - dt));
           wind_dt = fmin( wind_dt, lifetime - agb_start_time);
 
-          printf("wind lifetime mode 1\n");
+          // printf("wind lifetime mode 1\n");
         } else if (particle_age > agb_start_time && particle_age < lifetime ) {
           wind_dt = fmin(particle_age - agb_start_time,dt); // wind only occurs for part of timestep + star dies
 
-          printf("wind lifetime mode 2\n");
+          // printf("wind lifetime mode 2\n");
         } else if (particle_age < agb_start_time && particle_age + dt > lifetime) {
           //
           // AGB phase is unresolved. Set wind timestep to lifetime to do all ejecta this timestep
           //
           wind_dt = wind_lifetime;
-          printf("wind lifetime mode 3\n");
+          // printf("wind lifetime mode 3\n");
         } else if (particle_age < agb_start_time && particle_age + dt > agb_start_time){
           wind_dt = particle_age + dt - agb_start_time; // wind only occurs for part of timestep
-          printf("wind lifeitme mode 4\n");
+          // printf("wind lifeitme mode 4\n");
         } else{
           wind_dt = fmin( lifetime - agb_start_time, dt);
 
-          
-          printf("PROBLEM IN AGB WIND PHASE\n");
+          // printf("PROBLEM IN AGB WIND PHASE\n");
         }
 
-      printf("Wind lifetime = %"ESYM" - wind_dt = %"ESYM"  %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",wind_lifetime, wind_dt, lifetime, agb_start_time, particle_age, dt);
+      // printf("Wind lifetime = %"ESYM" - wind_dt = %"ESYM"  %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",wind_lifetime, wind_dt, lifetime, agb_start_time, particle_age, dt);
 
 
       // end AGB check
