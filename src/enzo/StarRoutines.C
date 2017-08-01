@@ -62,6 +62,8 @@ Star::Star(void)
   se_table_position[0] = se_table_position[1] = -1;
   rad_table_position[0] = rad_table_position[1] = rad_table_position[3] = -1;
   yield_table_position[0] = yield_table_position[1] = -1;
+
+  wind_mass_ejected = sn_mass_ejected = 0.0;
 }
 
 Star::Star(grid *_grid, int _id, int _level)
@@ -108,6 +110,10 @@ Star::Star(grid *_grid, int _id, int _level)
     rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4][_id]);
     yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
     yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
+
+    wind_mass_ejected = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
+    sn_mass_ejected   = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
+
   }
 
   if (type == PARTICLE_TYPE_STAR)
@@ -166,6 +172,9 @@ Star::Star(StarBuffer *buffer, int n)
     rad_table_position[i] = buffer[n].rad_table_position[i];
   }
   rad_table_position[2] = buffer[n].rad_table_position[2];
+
+  wind_mass_ejected = buffer[n].wind_mass_ejected;
+  sn_mass_ejected   = buffer[n].sn_mass_ejected;
 }
 
 Star::Star(StarBuffer buffer)
@@ -215,6 +224,9 @@ Star::Star(StarBuffer buffer)
     rad_table_position[i] = buffer.rad_table_position[i];
   }
   rad_table_position[2] = buffer.rad_table_position[2];
+
+  wind_mass_ejected = buffer.wind_mass_ejected;
+  sn_mass_ejected   = buffer.sn_mass_ejected;
 
 }
 
@@ -290,6 +302,8 @@ void Star::operator=(Star a)
   }
   rad_table_position[2] = a.rad_table_position[2];
 
+  wind_mass_ejected = a.wind_mass_ejected;
+  sn_mass_ejected   = a.sn_mass_ejected;
 
   return;
 }
@@ -362,6 +376,9 @@ Star *Star::copy(void)
     a->rad_table_position[i]   = rad_table_position[i];
   }
   a->rad_table_position[2] = rad_table_position[2];
+
+  a->wind_mass_ejected = wind_mass_ejected;
+  a->sn_mass_ejected   = sn_mass_ejected;
 
   return a;
 }
@@ -541,6 +558,8 @@ void Star::UpdateIndividualStarParticleProperties(void)
     Mass    = (double)(CurrentGrid->ParticleMass[_id]);
     type     = CurrentGrid->ParticleType[_id];
     LifeTime = CurrentGrid->ParticleAttribute[1][_id];
+    wind_mass_ejected = (double)(CurrentGrid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
+    sn_mass_ejected   = (double)(CurrentGrid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
     this->ConvertMassToSolar();
   } // end if
 
@@ -584,6 +603,9 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
     rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4][_id]);
     yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
     yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
+
+    wind_mass_ejected = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
+    sn_mass_ejected   = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
 
   }
 
@@ -629,6 +651,7 @@ void Star::PrintInfo(void)
   printf("\t SE table = %"ISYM" %"ISYM"\n", se_table_position[0], se_table_position[1]);
   printf("\t Rad table = %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
   printf("\t Yield table = %"ISYM" %"ISYM"\n", yield_table_position[0], yield_table_position[1]);
+  printf("\t Wind Mass Ejected = %"ESYM"   SN Mass Ejected %"ESYM"\n", wind_mass_ejected, sn_mass_ejected);
   printf("\t this = %x, PrevStar = %x, NextStar = %x\n", this, PrevStar, NextStar);
   return;
 }
@@ -707,6 +730,9 @@ void Star::StarListToBuffer(StarBuffer *&result, int n)
     }
     result[count].rad_table_position[2] = tmp->rad_table_position[2];
 
+    result[count].wind_mass_ejected = tmp->wind_mass_ejected;
+    result[count].sn_mass_ejected   = tmp->sn_mass_ejected;
+
     count++;
     tmp = tmp->NextStar;
   }
@@ -756,6 +782,9 @@ void Star::StarToBuffer(StarBuffer *result)
     result->rad_table_position[i] = tmp->rad_table_position[i];
   }
   result->rad_table_position[2] = tmp->rad_table_position[2];
+
+  result->wind_mass_ejected = tmp->wind_mass_ejected;
+  result->sn_mass_ejected   = tmp->sn_mass_ejected;
 
   return;
 }

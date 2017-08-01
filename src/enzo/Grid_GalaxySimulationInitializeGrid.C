@@ -50,12 +50,6 @@ int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
 
 float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity, const int &atomic_number);
 
-
-int IndividualStarProperties_Initialize(void);
-int IndividualStarRadiationProperties_Initialize(void);
-int InitializeStellarYields(void);
-
-
 double DoublePowerInterpolateMass(double r);
 
 /* Internal routines */
@@ -730,28 +724,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 
 
-  // now deposit stars if we want
-  if (GalaxySimulationInitialStellarDist){
-    // initialize star properties
-    IndividualStarProperties_Initialize();
-    IndividualStarRadiationProperties_Initialize();
-    InitializeStellarYields();
-
-    int MaximumNumberOfNewParticles = 10000;
-    int NumberOfNewParticles = 0;
-    this->AllocateNewParticles(MaximumNumberOfNewParticles);
-
-
-    this->GalaxySimulationInitialStars(&MaximumNumberOfNewParticles, &NumberOfNewParticles,
-                                       this->ParticleMass, this->ParticleType, this->ParticlePosition,
-                                       this->ParticleVelocity, this->ParticleAttribute);
-
-    if (NumberOfNewParticles > 0) {
-      this->NumberOfParticles = NumberOfNewParticles;
-    } else{
-      ENZO_FAIL("Was not able to deposit stars in chemical evolution test\n");
-    } // end: if (NumberOfNewParticles > 0)
-  } // end initial stellar dist
 
  return SUCCESS;
 }

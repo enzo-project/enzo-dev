@@ -154,6 +154,19 @@ void IndividualStarInterpolateProperties(float &Teff, float &R,
 
 int search_lower_bound(float *arr, float value, int low, int high, int total);
 
+int grid::GalaxySimulationInitialStars(int *nmax, int *np){
+
+  if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+
+  this->AllocateNewParticles(*nmax);
+
+  return this->GalaxySimulationInitialStars(nmax, np, this->ParticleMass, this->ParticleType,
+                                            this->ParticlePosition, this->ParticleVelocity,
+                                            this->ParticleAttribute);
+
+}
+
 int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
                                        int *ParticleType, FLOAT *ParticlePosition[],
                                        float *ParticleVelocity[], float *ParticleAttribute[]){
@@ -168,7 +181,7 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
-  if (this->Time > 0) return SUCCESS;
+//  if (this->Time > 0) return SUCCESS;
 
   if (this->NumberOfSubgrids > 1)  // only do on highest refined grid
     return SUCCESS;
@@ -330,6 +343,9 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
                                        ParticleAttribute[3][count], ParticleAttribute[2][count]);
     ParticleAttribute[tstart + 5][count] = t_i;
     ParticleAttribute[tstart + 6][count] = t_j;
+
+    ParticleAttribute[NumberOfParticleAttributes-2][count] = 0.0; // wind mass ejected
+    ParticleAttribute[NumberOfParticleAttributes-1][count] = 0.0; // sn mass ejected
 
     count++;
   }
@@ -513,7 +529,12 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
                                          ParticleAttribute[3][count], ParticleAttribute[2][count]);
       ParticleAttribute[tstart + 5][count] = t_i;
       ParticleAttribute[tstart + 6][count] = t_j;
-       count++;
+
+      ParticleAttribute[NumberOfParticleAttributes-2][count] = 0.0; // wind mass ejected
+      ParticleAttribute[NumberOfParticleAttributes-1][count] = 0.0; // sn mass ejected
+
+
+      count++;
     } // end loop over particles
      *np = count;
      this->Grid_ChemicalEvolutionTestStarFormed = TRUE;
@@ -616,6 +637,10 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
     ParticleAttribute[tstart + 5][0] = t_i;
     ParticleAttribute[tstart + 6][0] = t_j;
 
+    ParticleAttribute[NumberOfParticleAttributes-2][0] = 0.0; // wind mass ejected
+    ParticleAttribute[NumberOfParticleAttributes-1][0] = 0.0; // sn mass ejected
+
+
     *np = 1;
     this->Grid_ChemicalEvolutionTestStarFormed = TRUE;
     printf("individual_star_maker: Formed star ChemicalEvolutionTest. M =  %"FSYM" and Z = %"FSYM". tau = %"ESYM"\n", ParticleMass[0]*(dx*dx*dx)*MassUnits/msolar, ParticleAttribute[2][0], ParticleAttribute[1][0]); 
@@ -646,6 +671,17 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     ParticleVelocity - particle velocities
     ParticleAttribute - particle attributes
 -----------------------------------------------------------------------------*/
+
+  if (ProblemType == 31 && GalaxySimulationInitialStellarDist && this->Time <= 0.0){
+
+    if (this->GalaxySimulationInitialStars(nmax, np, ParticleMass, ParticleType,
+                                           ParticlePosition, ParticleVelocity,
+                                           ParticleAttribute) == FAIL){
+      return FAIL;
+    }
+
+    return SUCCESS;
+  }
 
   const double msolar  = 1.989e33;
   const double sndspdC = 1.3095e8;
@@ -1170,6 +1206,9 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                                                  ParticleAttribute[3][istar], ParticleAttribute[2][istar]);
                 ParticleAttribute[tstart + 5][istar] = t_i;
                 ParticleAttribute[tstart + 6][istar] = t_j;
+
+                ParticleAttribute[NumberOfParticleAttributes-2][istar] = 0.0;
+                ParticleAttribute[NumberOfParticleAttributes-1][istar] = 0.0;
 /*
                 printf(" Mass = %"FSYM" Z = %"FSYM" ",ParticleAttribute[3][istar], ParticleAttribute[2][istar]);
                 for( int ti = tstart; ti < tstart + 7; ti++){
@@ -3352,6 +3391,11 @@ void IndividualStarSetCoreCollapseSupernovaProperties(Star *cstar,
     m_eject   = StarMassEjectionFraction * cstar->ReturnMass();
   }
 
+  /* Fail if we are injecting a second time */
+  if (cstar->ReturnSNMassEjected() > 0.0){
+    ENZO_FAIL("Somehow ejected SN mass twice for this particle\n");
+  }
+
   /* set thermal energy of explosion */
   if( IndividualStarSupernovaEnergy < 0){
     E_thermal = m_eject * StarEnergyToThermalFeedback * (c_light * c_light);
@@ -3532,11 +3576,14 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
   int *yield_table_position = cstar->ReturnYieldTablePosition();
   int *se_table_position    = cstar->ReturnSETablePosition();
 
+  float m_eject_total = 0.0;
+
   if( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
 
     // 1 = wind, -1 = return total mass
     m_eject = StellarYieldsInterpolateYield(1, yield_table_position[0], yield_table_position[1],
                                             mproj, metallicity, -1); // total ejecta mass in Msun
+    m_eject_total = m_eject;
 
     wind_lifetime = lifetime;   // CGS units
 
@@ -3635,6 +3682,8 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
        }
     }
 
+    m_eject_total = m_eject;
+
   } // end  checking for yields
 
 
@@ -3659,7 +3708,16 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
   /* Now that we have wind lifetime and ejected mass, compute properties of wind*/
 
+  float correction_factor = 1.0;
   m_eject = m_eject * wind_dt; // convert Mdot to M_ej
+
+  /* correct the mas ejection if needed - save scaling */
+  if( cstar->ReturnWindMassEjected() + m_eject > m_eject_total){
+    float old_ejection = m_eject;
+
+    m_eject = fmax(m_eject_total - cstar->ReturnWindMassEjected(), 0.0);
+    correction_factor = m_eject / old_ejection;
+  }
 
   float Teff, R; // Need Teff for computing thermal energy of ejecta
   IndividualStarInterpolateProperties(Teff, R,
@@ -3675,7 +3733,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
   E_thermal = E_thermal + 0.5 * (m_eject * msun) * v_wind * v_wind; // assume 100% KE thermalization
 
   /* finally, compute metal masses if needed */
-  float wind_scaling = wind_dt / wind_lifetime;
+  float wind_scaling = wind_dt / wind_lifetime  * correction_factor;
 
   if (wind_lifetime <= tiny_number){
     wind_scaling = 0.0;

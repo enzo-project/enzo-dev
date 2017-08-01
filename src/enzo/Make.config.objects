@@ -848,6 +848,7 @@ OBJS_CONFIG_LIB = \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
         Star_CalculateMassLoss.o \
+        Star_CheckMassEjectionValidity.o \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \

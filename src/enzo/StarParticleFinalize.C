@@ -174,7 +174,6 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     }
     if (ThisStar->ReturnType() == -IndividualStar || ThisStar->ReturnType() == -IndividualStarRemnant){
       ThisStar->SetType( ABS(ThisStar->ReturnType()) );
-      printf("setting star particle type to alive\n");
     }
     ThisStar->ResetAccretion();
     ThisStar->CopyToGrid();

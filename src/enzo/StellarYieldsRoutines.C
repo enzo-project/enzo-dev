@@ -284,12 +284,16 @@ float StellarYieldsInterpolateYield(int yield_type,
     if( IndividualStarExtrapolateYields ){
       // scale to most massive star
       interp_M  = table.M[table.NumberOfMassBins - 1] * 0.9999999;
+    } else{
+       ENZO_FAIL("Interpolation mass off of yields table\n");
     }
   }
 
   if( (Z < table.Z[0]) || (Z > table.Z[table.NumberOfMetallicityBins - 1])){
     if ( Z < table.Z[0] ){ // WARNING: see statement at top of file
       Z = table.Z[0];
+    } else{
+      ENZO_FAIL("Metallicity off of yields table\n");
     }
   }
 

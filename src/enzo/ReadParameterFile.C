@@ -2016,6 +2016,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
     ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
     NumberOfParticleAttributes += NumberOfParticleTableIDs;
+
+    /* make the last two particle attributes mass counters for wind and SN */
+    NumberOfParticleAttributes += 2;
   }
 
   /* Use the value in MaximumParticleRefinementLevel to set the smoothing

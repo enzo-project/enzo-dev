@@ -320,6 +320,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
         ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
         NumberOfParticleAttributes += NumberOfParticleTableIDs;
+        NumberOfParticleAttributes += 2; // mass loss counters
       }
     } else {
       NumberOfParticleAttributes = 0;
