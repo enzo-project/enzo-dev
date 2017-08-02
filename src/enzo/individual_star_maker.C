@@ -3711,10 +3711,18 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
   float correction_factor = 1.0;
   m_eject = m_eject * wind_dt; // convert Mdot to M_ej
 
-  /* correct the mas ejection if needed - save scaling */
-  if( cstar->ReturnWindMassEjected() + m_eject > m_eject_total){
-    float old_ejection = m_eject;
+  /* If mass injection exceeds total, correct this fractionally -
+     this should rarely happen, but is here to ensure correct chemical evolution.
+     Also, if this is likely the last time step the particle is alive, dump
+     everything. Again, this is not physically the best solution, but 
+     ensures that all of the correct yields get deposited, but sacrifices
+     correct temporal injection. Given that dt is generally small, this means
+     the time at which yields get injected may only be off by 10^3 - 10^4 years...
+     this should be irrelevant for galaxy scale (100-1000 Myr) simulations. */
+  if( (cstar->ReturnWindMassEjected() + m_eject > m_eject_total) ||
+      (particle_age + 1.5*dt > lifetime) ){
 
+    float old_ejection = m_eject;
     m_eject = fmax(m_eject_total - cstar->ReturnWindMassEjected(), 0.0);
     correction_factor = m_eject / old_ejection;
   }
