@@ -103,6 +103,66 @@ float StellarYields_SolarAbundancesByNumber(const int &atomic_number){
   return abund;
 }
 
+float StellarYields_MMW(const int &atomic_number){
+
+  float A = 0.0;
+
+  switch(atomic_number){
+    case 1: A = 1.007900; break;     case 2: A = 4.002600; break;
+    case 3: A = 6.941000; break;     case 4: A = 9.012200; break;
+    case 5: A = 10.811000; break;     case 6: A = 12.010700; break;
+    case 7: A = 14.006700; break;     case 8: A = 15.999400; break;
+    case 9: A = 18.998400; break;     case 10: A = 20.179700; break;
+    case 11: A = 22.989700; break;     case 12: A = 24.305000; break;
+    case 13: A = 26.981500; break;     case 14: A = 28.085500; break;
+    case 15: A = 30.973800; break;     case 16: A = 32.065000; break;
+    case 17: A = 35.453000; break;     case 18: A = 39.948000; break;
+    case 19: A = 39.098000; break;     case 20: A = 40.078000; break;
+    case 21: A = 44.955912; break;     case 22: A = 47.867000; break;
+    case 23: A = 50.941500; break;     case 24: A = 51.996100; break;
+    case 25: A = 54.938045; break;     case 26: A = 55.845000; break;
+    case 27: A = 58.933195; break;     case 28: A = 58.693400; break;
+    case 29: A = 63.546000; break;     case 30: A = 65.380000; break;
+    case 31: A = 69.723000; break;     case 32: A = 72.640000; break;
+    case 33: A = 74.921600; break;     case 34: A = 78.960000; break;
+    case 35: A = 79.904000; break;     case 36: A = 83.798000; break;
+    case 37: A = 85.467800; break;     case 38: A = 87.620000; break;
+    case 39: A = 88.905850; break;     case 40: A = 91.224000; break;
+    case 41: A = 92.906380; break;     case 42: A = 95.960000; break;
+    case 43: A = 97.907200; break;     case 44: A = 101.070000; break;
+    case 45: A = 102.905500; break;     case 46: A = 106.420000; break;
+    case 47: A = 107.868200; break;     case 48: A = 112.411000; break;
+    case 49: A = 114.818000; break;     case 50: A = 118.710000; break;
+    case 51: A = 121.760000; break;     case 52: A = 127.600000; break;
+    case 53: A = 126.904470; break;     case 54: A = 131.293000; break;
+    case 55: A = 132.9054519; break;     case 56: A = 137.327000; break;
+    case 57: A = 138.905470; break;     case 58: A = 140.116000; break;
+    case 59: A = 140.907650; break;     case 60: A = 144.242000; break;
+    case 61: A = 145.000000; break;     case 62: A = 150.360000; break;
+    case 63: A = 151.964000; break;     case 64: A = 157.250000; break;
+    case 65: A = 158.925350; break;     case 66: A = 162.500000; break;
+    case 67: A = 164.930320; break;     case 68: A = 167.259000; break;
+    case 69: A = 168.934210; break;     case 70: A = 173.054000; break;
+    case 71: A = 174.966800; break;     case 72: A = 178.490000; break;
+    case 73: A = 180.947880; break;     case 74: A = 183.840000; break;
+    case 75: A = 186.207000; break;     case 76: A = 190.230000; break;
+    case 77: A = 192.217000; break;     case 78: A = 195.084000; break;
+    case 79: A = 196.966569; break;     case 80: A = 200.590000; break;
+    case 81: A = 204.383300; break;     case 82: A = 207.200000; break;
+
+    default:
+      ENZO_FAIL("Failure in StellarYields_AtomicMassByNumber: Wrong atomic number");
+  }
+
+  return A;
+}
+
+float StellarYields_AtomicMassByNumber(const int &atomic_number){
+  const float amu = 1.66054E-24;
+
+  return StellarYields_MMW(atomic_number) * amu;
+}
+
 float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
                                                     const int   &atomic_number){
 
@@ -126,7 +186,16 @@ float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
   // Asplund abundances are reported as log(e_x) = log(N_x/N_H) + 12.0
   // where LHS is the value in table, need to remove 12 scaling to get
   // actual abundance
-  return solar_H_mass_fraction * POW(10.0, solar_abundance - 12.0) * Z;
+  float e_x = POW(10.0, solar_abundance - 12.0);
+
+  // solar mass fraction
+  float f_x = e_x * solar_H_mass_fraction * (StellarYields_MMW(atomic_number) /
+                                             StellarYields_MMW(1));
+
+  // scaled solar mass fraction
+  return f_x * Z;
+
+//  return solar_H_mass_fraction * POW(10.0, solar_abundance - 12.0) * Z;
 }
 
 float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
