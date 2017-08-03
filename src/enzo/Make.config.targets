@@ -223,6 +223,11 @@ help-config:
 	@echo "      gmake individualstar-yes"
 	@echo "      gmake individualstar-no"
 	@echo
+	@echo "   Set whether to compile with photon package memory pooling"
+	@echo 
+	@echo "      gmake memorypool-yes"
+	@echo "      gmake memorypool-no"
+	@echo
 
 #-----------------------------------------------------------------------
 
@@ -293,6 +298,7 @@ show-config:
 	@echo "   CONFIG_GRACKLE  [grackle-{yes,no}]                        : $(CONFIG_GRACKLE)"
 	@echo "   CONFIG_LOG2ALLOC  [log2alloc-{yes,no}]                    : $(CONFIG_LOG2ALLOC)"
 	@echo "   CONFIG_INDIVIDUALSTAR [individualstar-{yes,no}]           : $(CONFIG_INDIVIDUALSTAR)"
+	@echo "   CONFIG_MEMORYPOOL [memorypool-{yes,no}]                   : $(CONFIG_MEMORYPOOL)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -964,6 +970,23 @@ CONFIG_INDIVIDUALSTAR-%: suggest-clean
 	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
 	echo "CONFIG_INDIVIDUALSTAR = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_INDIVIDUALSTAR; \
+	echo
+
+#----------------------------------------------------------------------
+
+VALID_MEMORYPOOL = memorypool-yes memorypool-no
+.PHONY: $(VALID_MEMORYPOOL)
+
+memorypool-yes: CONFIG_MEMORYPOOL-yes
+memorypool-no: CONFIG_MEMORYPOOL-no
+memorypool-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_MEMORYPOOL)]\n\n"
+CONFIG_MEMORYPOOL-%: suggest-clean
+	@tmp=.config.temp; \
+	grep -v CONFIG_MEMORYPOOL $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+	echo "CONFIG_MEMORYPOOL = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_MEMORYPOOL; \
 	echo
 
 #-----------------------------------------------------------------------

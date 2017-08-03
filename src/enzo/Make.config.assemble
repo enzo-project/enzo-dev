@@ -964,6 +964,30 @@
      endif
 
 #-----------------------------------------------------------------------
+# DETERMINE USE MEMORY POOL
+#-----------------------------------------------------------------------
+
+    ERROR_MEMORYPOOL = 1
+
+    # compilers and settings if INDIVIDUALSTAR is yes
+
+    ifeq ($(CONFIG_MEMORYPOOL),yes)
+        ERROR_MEMORYPOOL = 0
+        ASSEMBLE_MEMORYPOOL_DEFINES = -DMEMORYPOOL
+    endif
+
+    ifeq ($(CONFIG_MEMORYPOOL),no)
+        ERROR_MEMORYPOOL = 0
+        ASSEMBLE_MEMORYPOOL_DEFINES =
+    endif
+
+    ifeq ($(ERROR_MEMORYPOOL),1)
+        .PHONY: error_compilers
+        error_compilers:
+         $(error Illegal value '$(CONFIG_MEMORYPOOL)' for $$(CONFIG_MEMORYPOOL))
+     endif
+
+#-----------------------------------------------------------------------
 # DETERMINE USE GRACKLE
 #-----------------------------------------------------------------------
 
@@ -1081,7 +1105,8 @@
               $(ASSEMBLE_GRACKLE_DEFINES) \
               $(ASSEMBLE_LOG2ALLOC_DEFINES) \
               $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES) \
-              $(ASSEMBLE_INDIVIDUALSTAR_DEFINES)
+              $(ASSEMBLE_INDIVIDUALSTAR_DEFINES) \
+	      $(ASSEMBLE_MEMORYPOOL_DEFINES)
 
 
     INCLUDES = $(MACH_INCLUDES) \
