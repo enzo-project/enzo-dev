@@ -1239,11 +1239,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PhotoelectricHeatingDustModelEfficiency =%"FSYM,
                         &PhotoelectricHeatingDustModelEfficiency);
 
-    ret += sscanf(line, "StellarYieldsAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM " %"ISYM" %"ISYM " %"ISYM " %"ISYM " %"ISYM,
+    ret += sscanf(line, "StellarYieldsAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM " %"ISYM" %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM,
                   StellarYieldsAtomicNumbers+0, StellarYieldsAtomicNumbers+1, StellarYieldsAtomicNumbers+2, StellarYieldsAtomicNumbers+3,
                   StellarYieldsAtomicNumbers+4, StellarYieldsAtomicNumbers+5, StellarYieldsAtomicNumbers+6, StellarYieldsAtomicNumbers+7,
                   StellarYieldsAtomicNumbers+8, StellarYieldsAtomicNumbers+9, StellarYieldsAtomicNumbers+10, StellarYieldsAtomicNumbers+11,
-                  StellarYieldsAtomicNumbers+12, StellarYieldsAtomicNumbers+13, StellarYieldsAtomicNumbers+14);
+                  StellarYieldsAtomicNumbers+12, StellarYieldsAtomicNumbers+13, StellarYieldsAtomicNumbers+14, StellarYieldsAtomicNumbers+15, StellarYieldsAtomicNumbers+16);
 
     ret += sscanf(line, "StellarYieldsNumberOfSpecies = %"ISYM, &StellarYieldsNumberOfSpecies);
     ret += sscanf(line, "StellarYieldsScaledSolarInitialAbundances = %"ISYM, &StellarYieldsScaledSolarInitialAbundances);
