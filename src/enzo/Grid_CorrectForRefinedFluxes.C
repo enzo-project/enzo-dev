@@ -365,8 +365,10 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
       // like density, total energy, and internal energy
       if (FluxCorrection == 2){
         for (field = 0; field < NumberOfBaryonFields; field++) {
-          if (FieldType[field] >= ElectronDensity &&
-              FieldType[field] <= ExtraType1) {
+          if ((FieldType[field] >= ElectronDensity &&
+              FieldType[field] <= ExtraType1) ||
+              (FieldType[field] >= LiDensity &&
+               FieldType[field] <= BiDensity) ) {
             fieldNumberList.push_back(field);
           }
         }
@@ -404,6 +406,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
             (FieldType[field] >= ElectronDensity
               && FieldType[field] <= ExtraType1
             )
+            || (FieldType[field] >= LiDensity &&
+                FieldType[field] <= BiDensity)
             || FieldType[field] == MetalSNIaDensity
             || FieldType[field] == MetalSNIIDensity
           )
@@ -546,7 +550,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			 FieldType[field] == TotalEnergy ||
 			 FieldType[field] == InternalEnergy ||
                          ( FieldType[field] >= ElectronDensity &&
-                           FieldType[field] <= ExtraType1 )
+                           FieldType[field] <= ExtraType1 ) ||
+                         (FieldType[field] >= LiDensity &&
+                          FieldType[field] <= BiDensity)
                          )) {
 
 		      /* If new density & energy is < 0 then undo the
@@ -721,7 +727,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		     FieldType[field] == TotalEnergy ||
 		     FieldType[field] == InternalEnergy  ||
                      ( FieldType[field] >= ElectronDensity &&
-                       FieldType[field] <= ExtraType1 )
+                       FieldType[field] <= ExtraType1 ) ||
+                     (FieldType[field] >= LiDensity &&
+                       FieldType[field] <= BiDensity)
                     ) &&
 		    BaryonField[field][FieldIndex] <= 0) {
 		  /*if (debug) {
@@ -748,7 +756,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		     FieldType[field] == TotalEnergy ||
 		     FieldType[field] == InternalEnergy ||
                      ( FieldType[field] >= ElectronDensity &&
-                       FieldType[field] <= ExtraType1 )
+                       FieldType[field] <= ExtraType1 ) ||
+                     (FieldType[field] >= LiDensity &&
+                       FieldType[field] <= BiDensity)
                     ) &&
 		    BaryonField[field][FieldIndex + Offset] <= 0.0) {
 		  /*if (debug) {
