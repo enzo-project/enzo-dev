@@ -3076,8 +3076,10 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
   // now that we've computed the explosion properties
   // find where we should go off
   //
-  this->IndividualStarInjectSphericalFeedback(cstar, xp, yp, zp, m_eject, E_thermal,
-                                              metal_mass, stellar_wind_mode);
+  if( (m_eject > 0) || (E_thermal > 0)){ // can sometimes both be zero for stellar winds due to mass corrections
+    this->IndividualStarInjectSphericalFeedback(cstar, xp, yp, zp, m_eject, E_thermal,
+                                                metal_mass, stellar_wind_mode);
+  }
 
   float new_mass = (*mp) - m_eject * (dx*dx*dx) * MassUnits / msolar; // update mass
 
@@ -3606,6 +3608,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
         // mass when winds should only be "ON" for part of a timestep, either at beginning or end
         // of AGB phase, or when AGB phase is unresolved (i.e. AGB time < dt)
         //
+/*
         if (particle_age > lifetime && particle_age - dt < lifetime){
 
           // wind_dt = fmin( fmax(0.0, lifetime - (particle_age - dt)) , lifetime - agb_start_time);
@@ -3628,9 +3631,9 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
           // printf("wind lifeitme mode 4\n");
         } else{
           wind_dt = fmin( lifetime - agb_start_time, dt);
-
           // printf("PROBLEM IN AGB WIND PHASE\n");
         }
+*/
 
       // printf("Wind lifetime = %"ESYM" - wind_dt = %"ESYM"  %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",wind_lifetime, wind_dt, lifetime, agb_start_time, particle_age, dt);
 
@@ -3652,10 +3655,10 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
         }
     }
 
-
     /* Gaurd against cases where agb phase is zero */
     wind_lifetime = (wind_lifetime < tiny_number) ? dt : wind_lifetime;
-    wind_dt       = (wind_dt       < tiny_number) ? dt : wind_dt;
+//    wind_dt       = (wind_dt       < tiny_number) ? dt : wind_dt;
+    wind_dt = dt;
     //printf("corrected Wind lifetime = %"ESYM" - wind_dt = %"ESYM"  %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",wind_lifetime, wind_dt, lifetime, agb_start_time, particle_age, dt);
 
     if (dt == 0){
@@ -3682,6 +3685,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
        }
     }
 
+    wind_dt = dt;
     m_eject_total = m_eject;
 
   } // end  checking for yields
@@ -3720,7 +3724,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
      the time at which yields get injected may only be off by 10^3 - 10^4 years...
      this should be irrelevant for galaxy scale (100-1000 Myr) simulations. */
   if( (cstar->ReturnWindMassEjected() + m_eject > m_eject_total) ||
-      (particle_age + 1.5*dt > lifetime) ){
+      (particle_age + 2.0*dt > lifetime) ){
 
     float old_ejection = m_eject;
     m_eject = fmax(m_eject_total - cstar->ReturnWindMassEjected(), 0.0);
@@ -3743,9 +3747,9 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
   /* finally, compute metal masses if needed */
   float wind_scaling = wind_dt / wind_lifetime  * correction_factor;
 
-  if (wind_lifetime <= tiny_number){
-    wind_scaling = 0.0;
-  }
+//  if (wind_lifetime <= tiny_number){
+//    wind_scaling = 0.0;
+//  }
 
   if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals==2){
 
