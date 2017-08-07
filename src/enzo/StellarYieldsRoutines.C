@@ -261,6 +261,11 @@ float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
 
 int StellarYieldsGetYieldTablePosition(int &i, int &j,
                                         const float &M, const float &metallicity){
+/* ------------------------------------------------------------------------
+ * StellarYieldsGetYieldTablePosition
+ * ------------------------------------------------------------------------
+ * Interpolation function which finds the position in the yield table (i and j)
+ * -------------------------------------------------------------------------*/
   /* interpolate table */
   StellarYieldsDataType table;
 
@@ -322,6 +327,17 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
 float StellarYieldsInterpolateYield(int yield_type,
                                     const int &i, const int &j,
                                     const float &M, const float &metallicity, int atomic_number){
+/* ------------------------------------------------------------------------
+ * StellarYieldsInterpolateYield
+ * ------------------------------------------------------------------------
+ * Interpolation function for when the position in the table is already known
+ * (i and j). Does some out of bounds checking just in case.
+ *
+ * yield_type switches between SN and wind yield tables, atomic_number
+ * is the atomic number of the desired yield. If atomic_number < 0, the
+ * total yield mass is returned. If atomic_number == 0, the total metal mass
+ * is returned.
+ * -------------------------------------------------------------------------*/
 
   StellarYieldsDataType table;
 

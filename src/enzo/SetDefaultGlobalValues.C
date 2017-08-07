@@ -831,7 +831,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   /* Stellar Yields Parameters */
   StellarYieldsNumberOfSpecies       = INT_UNDEFINED; // number of species to follow - optional, calculated automatically if left undefined
-  StellarYieldsScaledSolarInitialAbundances = 1;    // use solar abundances to set initial mass fractions, linearly scaled by metalliticy
+  StellarYieldsScaledSolarInitialAbundances = 0;    // use solar abundances to set initial mass fractions, linearly scaled by metalliticy
 
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){
     StellarYieldsAtomicNumbers[i] = -1;

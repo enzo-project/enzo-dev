@@ -365,6 +365,11 @@ char* ChemicalSpeciesParticleLabel(const int &atomic_number){
 
 
 int grid::IdentifyChemicalTracerSpeciesFieldsByNumber(int &field_num, const int &atomic_number){
+  // overloaded function for the below. This was done so one could in principle
+  // write code to return fields with specific ionization levels when they do exist.
+  // currently this only makes sense for the varius H and He fields. having "0" in the
+  // last argument below means you don't care about the ionization state or there isn't
+  // one to care about in the first place.
 
   this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, atomic_number, 0);
 
