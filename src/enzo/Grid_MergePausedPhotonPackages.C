@@ -165,6 +165,7 @@ int grid::MergePausedPhotonPackages() {
 	//NewPack->Radius /= NewPack->Photons;
 	NewPack->EmissionTimeInterval /= NewPack->Photons;
 	NewPack->ColumnDensity /= NewPack->Photons;
+        NewPack->Energy /= NewPack->Photons;
 	if (DEBUG)
 	  printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
 		 NewPack->Type, NewPack->level,
