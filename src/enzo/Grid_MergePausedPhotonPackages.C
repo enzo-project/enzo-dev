@@ -154,6 +154,8 @@ int grid::MergePausedPhotonPackages() {
       NewPack->EmissionTimeInterval += TempPP[i].EmissionTimeInterval * weight;
       //NewPack->Radius += TempPP[i].Radius * weight;
       NewPack->ColumnDensity += TempPP[i].ColumnDensity * weight;
+      NewPack->Energy += TempPP[i].Energy * weight;
+
       this->NumberOfPhotonPackages--;
     } else { // ENDIF match
 
@@ -176,7 +178,7 @@ int grid::MergePausedPhotonPackages() {
       weight = TempPP[i].Photons;
       NewPack->Photons = TempPP[i].Photons;
       NewPack->Type = TempPP[i].Type;
-      NewPack->Energy = TempPP[i].Energy;
+      NewPack->Energy = TempPP[i].Energy * weight;
       for (j = 0; j < MAX_CROSS_SECTIONS; j++)
 	NewPack->CrossSection[j] = TempPP[i].CrossSection[j];
       NewPack->EmissionTimeInterval = TempPP[i].EmissionTimeInterval * weight;
@@ -202,6 +204,7 @@ int grid::MergePausedPhotonPackages() {
     //NewPack->Radius /= NewPack->Photons;
     NewPack->EmissionTimeInterval /= NewPack->Photons;
     NewPack->ColumnDensity /= NewPack->Photons;
+    NewPack->Energy /= NewPack->Photons;
     if (DEBUG)
       printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
 	     NewPack->Type, NewPack->level,
