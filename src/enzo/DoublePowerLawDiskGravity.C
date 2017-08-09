@@ -198,8 +198,12 @@ double DoublePowerInterpolateMass(double r){
 
   float M;
 
-  if (r > DiskGravityDoublePowerR[DOUBLE_POWER_DG_POINTS-1]){
+  if (r >= DiskGravityDoublePowerR[DOUBLE_POWER_DG_POINTS-1]){
     return DiskGravityDoublePowerMass[DOUBLE_POWER_DG_POINTS-1];
+  }
+
+  if (r <= DiskGravityDoublePowerR[0]){
+    return DiskGravityDoublePowerMass[0];
   }
 
   int index = search_lower_bound(DiskGravityDoublePowerR, r, 0, DOUBLE_POWER_DG_POINTS, DOUBLE_POWER_DG_POINTS);

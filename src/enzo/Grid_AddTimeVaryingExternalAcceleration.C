@@ -62,6 +62,9 @@ int grid::AddTimeVaryingExternalAcceleration(void){
   int index = 0;
   float coeff;
 
+  /* Normalize time to start of external graivty file */
+  time_myr = time_myr  - ExternalGravityTimeOn * TimeUnits / myr;
+
   index = search_lower_bound(ExternalGravityTime, time_myr, 0, ExternalGravityNumberofTimePoints - 1,
                                                                EXTERNAL_GRAVITY_ENTRIES);
   coeff = LinearInterpolationCoefficient(index, time_myr, ExternalGravityTime);
@@ -69,11 +72,11 @@ int grid::AddTimeVaryingExternalAcceleration(void){
   // find coordinates and normalize to box frame coordinates, which is what grid cell and particle positions will be in
   // ExternalGravityPosition is initally in coordinates relative to the center of the secondary galaxy
   ExternalGravityPosition[0] = ((1.0 - coeff)*ExternalGravityTimePositions[0][index] +
-                               (      coeff)*ExternalGravityTimePositions[0][index+1])*Mpc/LengthUnits + DiskGravityPosition[0];
+                               (      coeff)*ExternalGravityTimePositions[0][index+1])*kpc/LengthUnits + DiskGravityPosition[0];
   ExternalGravityPosition[1] = ((1.0 - coeff)*ExternalGravityTimePositions[1][index] +
-                               (      coeff)*ExternalGravityTimePositions[1][index+1])*Mpc/LengthUnits + DiskGravityPosition[1];
+                               (      coeff)*ExternalGravityTimePositions[1][index+1])*kpc/LengthUnits + DiskGravityPosition[1];
   ExternalGravityPosition[2] = ((1.0 - coeff)*ExternalGravityTimePositions[2][index] +
-                               (      coeff)*ExternalGravityTimePositions[2][index+1])*Mpc/LengthUnits + DiskGravityPosition[2];
+                               (      coeff)*ExternalGravityTimePositions[2][index+1])*kpc/LengthUnits + DiskGravityPosition[2];
 
 
   FLOAT x, y, z, xpos, ypos, zpos, r, rsquared;

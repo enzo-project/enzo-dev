@@ -586,7 +586,7 @@ typedef int            HDF5_hid_t;
 
 /* Maximum number of entries in the time varying external gravity position */
 
-#define EXTERNAL_GRAVITY_ENTRIES 1000
+#define EXTERNAL_GRAVITY_ENTRIES 5000
 
 #define DOUBLE_POWER_DG_POINTS 1000
 
