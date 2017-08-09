@@ -217,9 +217,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   /* Delete the global star particle list, AllStars */
 
-#ifndef INDIVIDUALSTAR
+//#ifndef INDIVIDUALSTAR
   DeleteStarList(AllStars);
-#endif
+//#endif
 
   delete [] AddedFeedback;
 

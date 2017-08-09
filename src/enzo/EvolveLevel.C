@@ -395,7 +395,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   EXTRA_OUTPUT_MACRO(1, "Before Time Loop")
 
 #ifdef INDIVIDUALSTAR
-  Star *AllStars = NULL;
+  //Star *AllStars = NULL;
 #endif
 
   while ((CheckpointRestart == TRUE)
@@ -446,12 +446,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Initialize the star particles */
 
-#ifdef INDIVIDUALSTAR
-    DeleteStarList(AllStars);
+//#ifdef INDIVIDUALSTAR
+    //DeleteStarList(AllStars);
     Star *AllStars = NULL;
-#else
-    Star *AllStars = NULL;
-#endif
+//#else
+//    Star *AllStars = NULL;
+//#endif
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
 
@@ -856,6 +856,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
+
+    Star *AllStars = NULL;
+    StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
+                           level, AllStars, TotalStarParticleCountPrevious);
+
 
     if (dtThisLevelSoFar[level] < dtLevelAbove)
       RebuildHierarchy(MetaData, LevelArray, level
