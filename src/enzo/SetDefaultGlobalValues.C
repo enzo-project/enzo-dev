@@ -246,6 +246,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MustRefineParticlesRightEdge[dim] = 0.0;
     DiskGravityPosition[dim]        = 0.0;
     DiskGravityAngularMomentum[dim] = 0.0;
+    DiskGravityDarkMatterCOM[dim]   = 0.0;
     GalaxySimulationRPSWindVelocity[dim] = 0.0;
     GalaxySimulationPreWindVelocity[dim] = 0.0;
   }
@@ -372,6 +373,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityDarkMatterDensity       = 3.81323E-25; // CGS
   DiskGravityDarkMatterMassInterior  = 0.0;         // solar masses - Only used when above is -1
   DiskGravityDarkMatterMassInteriorR = 0.0;         // Mpc - Only used in conjuction with above
+  DiskGravityDarkMatterUpdateCOM     = 0;           // when live DM is used, compute COM every root time step
 
   DiskGravityDoublePower             = FALSE;       // use general doubnle power law DM dis - use with particles
   DiskGravityDoublePowerR            = NULL;
