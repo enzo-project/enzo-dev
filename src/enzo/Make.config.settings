@@ -42,6 +42,8 @@
 #    CONFIG_SET_ACCELERATION_BOUNDARY
 #    CONFIG_ENZO_PERFORMANCE
 #    CONFIG_GRACKLE
+#    CONFIG_INDIVIDUALSTAR
+#    CONFIG_MEMORYPOOL
 #
 #=======================================================================
 
@@ -332,3 +334,22 @@
 #----------------------------------------------------------------------- 
  
      CONFIG_LOG2ALLOC = no
+
+#=======================================================================
+# CONFIG_INDIVIDUALSTAR
+#=======================================================================
+#    yes           Compile with individual star particles methods
+#    no            Compile without individual star particles methods
+#-----------------------------------------------------------------------
+
+     CONFIG_INDIVIDUALSTAR = no
+
+#=======================================================================
+# CONFIG_MEMORYPOOL
+#=======================================================================
+#    yes           Compile with memory pooling in photon packages
+#    no            Compile without memory pooling in photon packages
+#-----------------------------------------------------------------------
+
+     CONFIG_MEMORYPOOL = no
+

@@ -83,7 +83,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
       continue; // skip to next star
     }
 
-    if( cstar->ReturnLevel() != level){
+    if( cstar->ReturnLevel() > level){
       continue; // only apply feedback on level of star
     }
 
@@ -131,11 +131,18 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
                                                            cstar->ReturnMetallicity(), &particle_mass, -1);
                                                            // < 0 in last arg signifies stellar winds
 */
-            AddedFeedback[count] = true;
+            AddedFeedback[count] = TRUE;
           }
         }
       }
-      cstar->SetNewMass(particle_mass); // update mass (only once)
+
+      if (AddedFeedback[count]){ // only if this particle did something
+//        cstar->PrintInfo();
+        float old_mass = cstar->ReturnMass();
+        cstar->SetNewMass(particle_mass); // update mass (only once)
+        cstar->AddToWindMassEjected(old_mass - particle_mass);
+//        cstar->PrintInfo();
+      }
     }
 
     //
@@ -163,12 +170,18 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
                                                            cstar->ReturnMetallicity(), &particle_mass, 1);
                                                            // 1 in last arg signifies Core collapse SN
 */
-            AddedFeedback[count] = true;
+            AddedFeedback[count] = TRUE;
           }
         }
       }
 
-      cstar->SetNewMass(particle_mass); // update mass (only once)
+      if (AddedFeedback[count]){
+        float old_mass = cstar->ReturnMass();
+        AddedFeedback[count] = true;
+        cstar->SetFeedbackFlag(INDIVIDUAL_STAR_SN_COMPLETE);
+        cstar->SetNewMass(particle_mass); // update mass (only once)
+        cstar->AddToSNMassEjected(old_mass - particle_mass);
+      }
     }
 
     //
@@ -196,12 +209,13 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
                                                            cstar->ReturnMetallicity(), &particle_mass, 2);
                                                            // 2 in last arg signifies Type 1a
 */
-
-            AddedFeedback[count] = true;
           }
         }
       }
 
+      AddedFeedback[count] = true;
+      cstar->SetFeedbackFlag(INDIVIDUAL_STAR_SN_COMPLETE);
+      cstar->AddToSNMassEjected(cstar->ReturnMass()); // not the actual mass ejection from SNIA !!!
       cstar->SetNewMass(0.0); // now a massless tracer
     }
 
@@ -211,6 +225,15 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     }
 
   } // end stars loop
+
+
+  // debugging loop to ensure validity of mass ejection
+  if (TRUE) {
+    for (cstar = AllStars; cstar; cstar = cstar->NextStar){
+      cstar->CheckMassEjectionValidity();
+    }
+  }
+
 
   TIMER_STOP("IndividualStarParticleAddFeedback");
   return SUCCESS;

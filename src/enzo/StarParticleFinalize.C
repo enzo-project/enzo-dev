@@ -167,10 +167,13 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //     ThisStar->PrintInfo();
 //    }
 
-    if (AddedFeedback[count]  || ThisStar->ReturnType() == -IndividualStar) {
+    if (AddedFeedback[count]) {
       ThisStar->ActivateNewStar(TimeNow, Timestep);
       if (ThisStar->ReturnType() == PopIII && PopIIIOutputOnFeedback == TRUE)
 	OutputNow = TRUE;
+    }
+    if (ThisStar->ReturnType() == -IndividualStar || ThisStar->ReturnType() == -IndividualStarRemnant){
+      ThisStar->SetType( ABS(ThisStar->ReturnType()) );
     }
     ThisStar->ResetAccretion();
     ThisStar->CopyToGrid();
@@ -214,7 +217,10 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   /* Delete the global star particle list, AllStars */
 
+//#ifndef INDIVIDUALSTAR
   DeleteStarList(AllStars);
+//#endif
+
   delete [] AddedFeedback;
 
   LCAPERF_STOP("StarParticleFinalize");

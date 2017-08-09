@@ -30,17 +30,18 @@ General
     More details on each of the above methods can be found at :ref:`hydro_methods`.
 ``FluxCorrection`` (external)
     This flag indicates if the flux fix-up step should be carried out
-    around the boundaries of the sub-grid to preserve conservation (1 -
-    on, 0 - off). Strictly speaking this should always be used, but we
-    have found it to lead to a less accurate solution for cosmological
-    simulations because of the relatively sharp density gradients
-    involved. However, it does appear to be important when radiative
-    cooling is turned on and very dense structures are created.
-    It does work with the ZEUS
-    hydro method, but since velocity is face-centered, momentum flux is
-    not corrected. Species quantities are not flux corrected directly
-    but are modified to keep the fraction constant based on the density
-    change. Default: 1
+    around the boundaries of the sub-grid to preserve conservation (0 -
+    off, 1 - on, 2 - direct correction for color fields). Strictly speaking
+    this should always be used, but we have found it to lead to a less
+    accurate solution for cosmological simulations because of the relatively
+    sharp density gradients involved. However, it does appear to be
+    important when radiative cooling is turned on and very dense structures
+    are created. It does work with the ZEUS hydro method, but since velocity
+    is face-centered, momentum flux is not corrected. If FluxCorrection = 1,
+    species quantities are not flux corrected directly but are modified to
+    keep the fraction constant based on the density change. If FluxCorrection
+    = 2, species quantities are flux corrected directly in the same way as
+    density and energy. Default: 1
 ``InterpolationMethod`` (external)
     There should be a whole section devoted to the interpolation
     method, which is used to generate new sub-grids and to fill in the
@@ -329,11 +330,12 @@ Because many of the following parameters are not actively being tested and maint
     This parameter is used to add resistivity and thereby update magnetic fields in some set-ups; see ComputeResistivity in hydro_rk/Grid_AddResistivity.C.  Default: 0
 ``UsePhysicalUnit`` (external)
     For some test problems (mostly in hydro_rk), the relevant parameters could be defined in physical CGS units.  Default: 0
+``MixSpeciesAndColors`` (external)
+    This parameter enables color fields to be evolved as species in the MUSCL solvers. If ``PopIIISupernovaUseColour`` is on, this must also be turned on to trace the metal field. Default: 1
+
 ``SmallT`` (external)
     Minimum value for temperature in hydro_rk/EvolveLevel_RK.C.  Default: 1e-10 (note that the default value assumes UsePhysicalUnit = 1)
 ``SmallP``
-    [not used]
-``RKOrder``
     [not used]
 ``Theta_Limiter`` (external)
     Flux limiter in the minmod Van Leer formulation.  Must be between 1 (most dissipative) and 2 (least dissipative). Default: 1.5
@@ -358,14 +360,3 @@ Because many of the following parameters are not actively being tested and maint
 ``ResetMagneticFieldAmplitude`` (external)
     The magnetic field values (in Gauss) that will be used for the
     above parameter. Default: 0.0 0.0 0.0
-``CoolingCutOffDensity1``
-    Reserved for future use
-``CoolingCutOffDensity2``
-    Reserved for future use
-``CoolingCutOffTemperature``
-    Reserved for future use
-``CoolingPowerCutOffDensity1``
-    Reserved for future use
-``CoolingPowerCutOffDensity2``
-    Reserved for future use
-

@@ -629,6 +629,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   int SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE;
   int IndividualStarType = PARTICLE_TYPE_INDIVIDUAL_STAR;
 
+
+
   /* Compute the redshift. */
  
   float zred;
@@ -796,10 +798,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     /* Allocate space for new particles. */
  
     int MaximumNumberOfNewParticles = int(0.25*float(size)) + 5;
-
-    if (ProblemType == 31 && GalaxySimulationInitialStellarDist && this->Time < 1){
-        MaximumNumberOfNewParticles = 10000;
-    }
 
     tg->AllocateNewParticles(MaximumNumberOfNewParticles);
  
@@ -1085,8 +1083,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       NumberOfNewParticlesSoFar = NumberOfNewParticles; 
 
       // Only attempt if on max refiment level
-      if ( level == MaximumRefinementLevel ||
-           ((ProblemType == 31) && (GalaxySimulationInitialStellarDist) && (this->Time == 0.0)) ){
+      if (level == MaximumRefinementLevel ||
+          (ProblemType == 31 && Time <= 0.0 && GalaxySimulationInitialStellarDist)){
         // lets try and form stars
         if(individual_star_maker(dmfield, temperature,
                                  &MaximumNumberOfNewParticles,

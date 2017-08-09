@@ -515,20 +515,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
     ret += sscanf(line, "AccretionKernal       = %"ISYM, &AccretionKernal);
     ret += sscanf(line, "GravitationalConstant = %"FSYM, &GravitationalConstant);
-    ret += sscanf(line, "S2ParticleSize        = %"FSYM, &S2ParticleSize);
-    ret += sscanf(line, "GravityResolution     = %"FSYM, &GravityResolution);
     ret += sscanf(line, "ComputePotential      = %"ISYM, &ComputePotential);
     ret += sscanf(line, "PotentialIterations   = %"ISYM, &PotentialIterations);
     ret += sscanf(line, "WritePotential        = %"ISYM, &WritePotential);
     ret += sscanf(line, "ParticleSubgridDepositMode  = %"ISYM, &ParticleSubgridDepositMode);
     ret += sscanf(line, "WriteAcceleration      = %"ISYM, &WriteAcceleration);
-    ret += sscanf(line, "BaryonSelfGravityApproximation = %"ISYM,
-		  &BaryonSelfGravityApproximation);
- 
-    ret += sscanf(line, "GreensFunctionMaxNumber   = %"ISYM,
-		  &GreensFunctionMaxNumber);
-    ret += sscanf(line, "GreensFunctionMaxSize     = %"ISYM,
-		  &GreensFunctionMaxSize);
  
     ret += sscanf(line, "DualEnergyFormalism     = %"ISYM, &DualEnergyFormalism);
     ret += sscanf(line, "DualEnergyFormalismEta1 = %"FSYM,
@@ -571,8 +562,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &grackle_data->H2_self_shielding);
 
     ret += sscanf(line, "RampCooling = %d", &grackle_data->RampCooling);
-    ret += sscanf(line, "RampCooling_time_on = %"GSYM, &grackle_data->RampCooling_time_on);
-    ret += sscanf(line, "RampCooling_time_fullon = %"GSYM, &grackle_data->RampCooling_time_fullon);
+    ret += sscanf(line, "RampCooling_time_on = %"FSYM, &grackle_data->RampCooling_time_on);
+    ret += sscanf(line, "RampCooling_time_fullon = %"FSYM, &grackle_data->RampCooling_time_fullon);
 
     if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
       grackle_data->grackle_data_file = dummy;
@@ -1107,8 +1098,31 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
     /* AJE Individual Star */
+    ret += sscanf(line, "IndividualStarICSupernovaRate = %"FSYM,
+                        &IndividualStarICSupernovaRate);
+    ret += sscanf(line, "IndividualStarICSupernovaTime = %"FSYM,
+                        &IndividualStarICSupernovaTime);
+    ret += sscanf(line, "IndividualStarICSupernovaR = %"ESYM,
+                        &IndividualStarICSupernovaR);
+    ret += sscanf(line, "IndividualStarICSupernovaZ = %"ESYM,
+                        &IndividualStarICSupernovaZ);
+    ret += sscanf(line, "IndividualStarICSupernovaMethod = %"ISYM,
+                        &IndividualStarICSupernovaMethod);
+    ret += sscanf(line, "IndividualStarICSupernovaInjectionMethod = %"ISYM,
+                        &IndividualStarICSupernovaInjectionMethod);
+    ret += sscanf(line, "IndividualStarICSupernovaFromFile = %"ISYM,
+                        &IndividualStarICSupernovaFromFile);
+    ret += sscanf(line, "IndividualStarICSupernovaPos = %"FSYM" %"FSYM" %"FSYM,
+                  IndividualStarICSupernovaPos+0, IndividualStarICSupernovaPos+1, IndividualStarICSupernovaPos+2);
+
+    ret += sscanf(line, "IndividualStarWDFixedLifetime = %"FSYM,
+                        &IndividualStarWDFixedLifetime);
+    ret += sscanf(line, "IndividualStarLifeRefinementFactor = %"ISYM,
+                        &IndividualStarLifeRefinementFactor);
     ret += sscanf(line, "IndividualStarCheckVelocityDiv = %"ISYM,
                         &IndividualStarCheckVelocityDiv);
+    ret += sscanf(line, "IndividualStarICLifetimeMode = %"ISYM,
+                        &IndividualStarICLifetimeMode);
     ret += sscanf(line, "IndividualStarFeedbackOverlapSample = %"ISYM,
                         &IndividualStarFeedbackOverlapSample);
     ret += sscanf(line, "IndividualStarUseWindMixingModel = %"ISYM,
@@ -1225,11 +1239,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PhotoelectricHeatingDustModelEfficiency =%"FSYM,
                         &PhotoelectricHeatingDustModelEfficiency);
 
-    ret += sscanf(line, "StellarYieldsAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM " %"ISYM" %"ISYM " %"ISYM " %"ISYM " %"ISYM,
+    ret += sscanf(line, "StellarYieldsAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM " %"ISYM" %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM,
                   StellarYieldsAtomicNumbers+0, StellarYieldsAtomicNumbers+1, StellarYieldsAtomicNumbers+2, StellarYieldsAtomicNumbers+3,
                   StellarYieldsAtomicNumbers+4, StellarYieldsAtomicNumbers+5, StellarYieldsAtomicNumbers+6, StellarYieldsAtomicNumbers+7,
                   StellarYieldsAtomicNumbers+8, StellarYieldsAtomicNumbers+9, StellarYieldsAtomicNumbers+10, StellarYieldsAtomicNumbers+11,
-                  StellarYieldsAtomicNumbers+12, StellarYieldsAtomicNumbers+13, StellarYieldsAtomicNumbers+14);
+                  StellarYieldsAtomicNumbers+12, StellarYieldsAtomicNumbers+13, StellarYieldsAtomicNumbers+14, StellarYieldsAtomicNumbers+15, StellarYieldsAtomicNumbers+16);
 
     ret += sscanf(line, "StellarYieldsNumberOfSpecies = %"ISYM, &StellarYieldsNumberOfSpecies);
     ret += sscanf(line, "StellarYieldsScaledSolarInitialAbundances = %"ISYM, &StellarYieldsScaledSolarInitialAbundances);
@@ -1335,7 +1349,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StringKickDimension = %"ISYM, &StringKickDimension);
     ret += sscanf(line, "UsePhysicalUnit = %"ISYM"", &UsePhysicalUnit);
     ret += sscanf(line, "Theta_Limiter = %"FSYM, &Theta_Limiter);
-    ret += sscanf(line, "RKOrder = %"ISYM"", &RKOrder);
     ret += sscanf(line, "UseFloor = %"ISYM"", &UseFloor);
     ret += sscanf(line, "UseViscosity = %"ISYM"", &UseViscosity);
     ret += sscanf(line, "ViscosityCoefficient = %"FSYM, &ViscosityCoefficient);  
@@ -1351,6 +1364,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ConservativeReconstruction = %"ISYM, &ConservativeReconstruction);
     ret += sscanf(line, "PositiveReconstruction = %"ISYM, &PositiveReconstruction);
     ret += sscanf(line, "ReconstructionMethod = %"ISYM, &ReconstructionMethod);
+    ret += sscanf(line, "MixSpeciesAndColors = %"ISYM"", &MixSpeciesAndColors);
 
     ret += sscanf(line, "EOSType = %"ISYM, &EOSType);
     ret += sscanf(line, "EOSSoundSpeed = %"FSYM, &EOSSoundSpeed);
@@ -1361,11 +1375,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &ConstantAcceleration[1], &ConstantAcceleration[2]);
     ret += sscanf(line, "Mu = %"FSYM, &Mu);
     ret += sscanf(line, "DivBDampingLength = %"FSYM, &DivBDampingLength);
-    ret += sscanf(line, "CoolingCutOffDensity1 = %"GSYM, &CoolingCutOffDensity1);
-    ret += sscanf(line, "CoolingCutOffDensity2 = %"GSYM, &CoolingCutOffDensity2);
-    ret += sscanf(line, "CoolingCutOffTemperature = %"GSYM, &CoolingCutOffTemperature);
-    ret += sscanf(line, "CoolingPowerCutOffDensity1 = %"GSYM, &CoolingPowerCutOffDensity1);
-    ret += sscanf(line, "CoolingPowerCutOffDensity2 = %"GSYM, &CoolingPowerCutOffDensity2);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
     ret += sscanf(line, "ClusterSMBHFeedback = %"ISYM, &ClusterSMBHFeedback);
     ret += sscanf(line, "ClusterSMBHJetMdot = %"FSYM, &ClusterSMBHJetMdot);
@@ -1443,6 +1452,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "UseGasDrag = %"ISYM, &UseGasDrag);
     ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
 
+    // Parameters for magnetic feedback from supernovae
+    ret += sscanf(line, "UseSupernovaSeedFieldSourceTerms = %"ISYM, &UseSupernovaSeedFieldSourceTerms);
+    ret += sscanf(line,"SupernovaSeedFieldRadius = %"FSYM, &SupernovaSeedFieldRadius);
+    ret += sscanf(line,"SupernovaSeedFieldEnergy = %"FSYM, &SupernovaSeedFieldEnergy);
+    ret += sscanf(line,"SupernovaSeedFieldDuration = %"FSYM, &SupernovaSeedFieldDuration);
 
     /* If the dummy char space was used, then make another. */
  
@@ -1530,6 +1544,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   /* AJE - */
   if (IndividualStarSecondaryOverDensityThreshold < 0){
     IndividualStarSecondaryOverDensityThreshold = StarMakerOverDensityThreshold;
+  }
+
+  if (IndividualStarICSupernovaRate > 0 && GalaxySimulationInitialStellarDist){
+    ENZO_FAIL("Are you sure you want to have initial random supernova driving and a stellar population\n");
   }
 
   /* AJE  - Count up the number of species we are following if not set manually by user*/
@@ -1805,8 +1823,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     grackle_data->DeuteriumToHydrogenRatio       = (double) CoolData.DeuteriumToHydrogenRatio;
     grackle_data->SolarMetalFractionByMass       = (double) CoolData.SolarMetalFractionByMass;
     grackle_data->use_radiative_transfer         = (Eint32) RadiativeTransfer;
-    grackle_data->radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
-    grackle_data->radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
+    // grackle_data->radiative_transfer_coupled_rate_solver set in RadiativeTransferReadParameters
+    // grackle_data->radiative_transfer_hydrogen_only set in RadiativeTransferReadParameters
 
     // Initialize units structure.
     FLOAT a_value, dadt;
@@ -1838,7 +1856,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }  // if (grackle_data->use_grackle == TRUE)
 
   else {
-#endif // USE_GRACKE
+#endif // USE_GRACKLE
 
     /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
        or RadiationFieldType to be on - both are taken care of in
@@ -1998,6 +2016,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
     ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
     NumberOfParticleAttributes += NumberOfParticleTableIDs;
+
+    /* make the last two particle attributes mass counters for wind and SN */
+    NumberOfParticleAttributes += 2;
   }
 
   /* Use the value in MaximumParticleRefinementLevel to set the smoothing

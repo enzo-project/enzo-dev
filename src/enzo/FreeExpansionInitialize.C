@@ -51,7 +51,6 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   char	*B2Name	   = "By";
   char	*B3Name	   = "Bz";
   char	*PhiName   = "Phi";
-  char	*DebugName = "Debug";
   char	*Phi_pName = "Phip";
 
   /* parameter declarations */
@@ -284,7 +283,6 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     DataLabel[i++] = PhiName;
     if (UseDivergenceCleaning) {
       DataLabel[i++] = Phi_pName;
-      DataLabel[i++] = DebugName;
     }
   }
 

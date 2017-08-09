@@ -119,6 +119,10 @@ int SetWDLifetime(float &WD_lifetime,
  * --------------------------------------------------------------------------
  */
 
+  if (IndividualStarWDFixedLifetime > 0){ // testing parameter to force SNIA immediately
+    WD_lifetime = IndividualStarWDFixedLifetime * 3.1556E13 / TimeUnits;
+    return 1;
+  }
 
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
@@ -557,6 +561,7 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
     if(IndividualStarInterpolateRadData(q0, q1,
                                         i, j, k,
                                         Teff, g, metallicity) == SUCCESS){
+      return SUCCESS;
     }
 
   }

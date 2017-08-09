@@ -4,25 +4,29 @@
 !
 !  written by: David Collins
 !  date:       2007?
-!  modified1:
+!  modified1:  Boyan Hristov 2015 Nov
+!		Added colour fields
 !
 !  PURPOSE:   HLLD riemann solver.
 !
 !
 !***********************************************************************/
 c top
-	subroutine hllds(pl,pr,f, gamma)
+	subroutine hllds(pl,pr,f,gamma, cn, cl, cr, cf) ![BH]
 
         IMPLICIT NONE
 #include "fortran_types.def"  
 	R_PREC ql(8),qr(8),f(8),qlz(8),qrz(8),qzz(8),fl(8),fr(8)
         R_PREC pl(8), pr(8) !dc
-
+        INTG_PREC cn ! number of colours [BH]
+	R_PREC cl(cn),cr(cn),cf(cn) ! colour left and right value and flux (output) [BH]
         R_PREC ul, ur, gamma
+
         R_PREC ptl, ptr, ptz, cfl, cfr
         R_PREC sl, sr, slu , sru, smu, sm  
         R_PREC rlz, slz, rrz, srz
         INTG_PREC m
+	R_PREC f0 ![BH]
 
         call cons1(pl,ql,gamma) !dcc
         call cons1(pr,qr,gamma) !dcc
@@ -37,7 +41,7 @@ c top
 
  	call flux(ql,f,gamma)
 
-
+	call colorflux(ql,f,cl,cf,cn)
 
 	return
 
@@ -47,6 +51,7 @@ c top
 
 	call flux(qr,f,gamma)
 
+	call colorflux(qr,f,cr,cf,cn)
 	return
 
 	endif
@@ -65,13 +70,14 @@ c top
 
 	if(sl.le.0.and.slz.gt.0.)then
   
-		call flux(ql,fl,gamma)
+   	    call flux(ql,fl,gamma)
 	    call quz(sm,sl,cfl,ptz,ql,qlz,gamma)
 	
 	    do m=1,8
 		  f(m) = fl(m) + sl*(qlz(m) - ql(m))
 	    enddo
 	    
+	call colorflux(ql,f,cl,cf,cn)
 		return
 
 	endif
@@ -89,6 +95,7 @@ c top
 		  f(m) = fr(m) + sr*(qrz(m) - qr(m))
 	    enddo
 	
+	call colorflux(qr,f,cr,cf,cn)
 	    return
 
 	endif
@@ -106,6 +113,7 @@ c top
 		f(m) = fl(m) + slz*qzz(m) - (slz - sl)*qlz(m) - sl*ql(m)
 	enddo
 
+	call colorflux(ql,f,cl,cf,cn)
 	return
 
 	endif
@@ -121,10 +129,11 @@ c top
 	enddo
 
 
+	call colorflux(qr,f,cr,cf,cn)
 	return
 
 	endif
-
+	print *,'hllds: WARNINIG: flux=0; sl,sm,sr,slz,srz: ',sl,sm,sr,slz,srz ![BH]
 	return
 	end
 
@@ -155,6 +164,24 @@ c top
 	f(8) = (q(8) + pt)*ux -q(5)*vb
 	return
 	end
+
+        subroutine colorflux(q,f,cq,cf,cn) ![BH]
+        IMPLICIT NONE ![BH]
+#include "fortran_types.def" ![BH]
+        INTG_PREC cn ! number of colours [BH]
+        R_PREC q(8),f(8) ![BH]
+        R_PREC cq(cn),cf(cn) ! colour density and colour flux [BH]
+
+        INTG_PREC ci ! colour index [BH]
+        R_PREC f0 ![BH]
+
+        f0 = f(1)/q(1) ![BH]
+        do ci = 1, cn ![BH]
+                cf(ci) = cq(ci)*f0 ![BH]
+        enddo ![BH]
+
+        return ![BH]
+        end ![BH]
 
 	subroutine quz(sm,sa,cfa,ptz,qa,qz,gamma)
         IMPLICIT NONE

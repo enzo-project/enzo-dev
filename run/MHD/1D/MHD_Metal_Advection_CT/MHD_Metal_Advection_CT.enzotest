@@ -1,0 +1,12 @@
+name = 'MHD_Metal_Advection_CT'
+answer_testing_script = 'test_metal.py'
+nprocs = 1
+runtime = 'short'
+hydro = False
+mhd = True
+gravity = False
+dimensionality = 1
+max_time_minutes = 1
+fullsuite = True
+pushsuite = True
+quicksuite = True

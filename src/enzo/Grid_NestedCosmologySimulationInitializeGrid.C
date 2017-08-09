@@ -366,6 +366,9 @@ int grid::NestedCosmologySimulationInitializeGrid(
     FieldType[NumberOfBaryonFields++] = Bfield2;
     FieldType[NumberOfBaryonFields++] = Bfield3;
     FieldType[NumberOfBaryonFields++] = PhiField;
+    if (UseDivergenceCleaning) {
+      FieldType[NumberOfBaryonFields++] = Phi_pField;
+    }
   }
     if (MultiSpecies) {
       FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;

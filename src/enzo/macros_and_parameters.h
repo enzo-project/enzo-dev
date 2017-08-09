@@ -71,7 +71,7 @@
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
 #else
 //#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES 29 // AJE may need to do something different 
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES 33 // AJE may need to do something different 
 #endif
 
 #define MAX_NUMBER_OF_PARTICLE_TABLE_POSITIONS   7
@@ -157,7 +157,7 @@ typedef long long int  Elong_int;
 
 typedef int            MPI_Arg;
 
-typedef int            HDF5_hid_t;
+typedef long long int   HDF5_hid_t;
 
 /* HDF5 definitions */
 
@@ -533,11 +533,15 @@ typedef int            HDF5_hid_t;
 #define MBH_THERMAL 7
 #define MBH_JETS 8
 #define COLOR_FIELD 9
-#define FEEDBACK_INDIVIDUAL_STAR 10
-#define INDIVIDUAL_STAR_STELLAR_WIND 11
-#define INDIVIDUAL_STAR_SNII 12
-#define INDIVIDUAL_STAR_SNIA 13
-#define INDIVIDUAL_STAR_WIND_AND_SN 14
+
+#define FEEDBACK_INDIVIDUAL_STAR 12
+#define INDIVIDUAL_STAR_STELLAR_WIND 13
+#define INDIVIDUAL_STAR_SNII 14
+#define INDIVIDUAL_STAR_SNIA 15
+#define INDIVIDUAL_STAR_WIND_AND_SN 16
+#define INDIVIDUAL_STAR_SN_COMPLETE 17
+
+#define SUPERNOVA_SEEDFIELD 11
 
 /* Sink particle accretion modes */
 

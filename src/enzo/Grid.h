@@ -9,7 +9,6 @@
 /  PURPOSE:
 /
 ************************************************************************/
-
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
 #include "ProtoSubgrid.h"
@@ -21,6 +20,8 @@
 #include "Star.h"
 #include "FOF_allvars.h"
 #include "MemoryPool.h"
+#include "list.h"
+#include "hydro_rk/SuperNova.h"
 #ifdef ECUDA
 #include "hydro_rk/CudaMHD.h"
 #endif
@@ -57,6 +58,9 @@ struct HierarchyEntry;
 //  int Number;
 // int Type;
 //};
+
+
+
 
 extern int CommunicationDirection;
 int FindField(int f, int farray[], int n);
@@ -816,11 +820,19 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Sum particle mass flagging fields into ProcessorNumber if particles
    aren't local. */
+#ifdef INDIVIDUALSTAR // NEED TO DO THINS LIKE REBUILD HIERARCHY FUNCTIONS
+   int SetParticleMassFlaggingField(
+                                    TopGridData *MetaData, Star *&AllStars,
+                                    int StartProc=0, int EndProc=0, int level=-1, 
+				    int ParticleMassMethod=-1, int MustRefineMethod=-1,
+				    int *SendProcs=NULL,
+				    int NumberOfSends=0);
+#endif
 
    int SetParticleMassFlaggingField(int StartProc=0, int EndProc=0, int level=-1, 
-				    int ParticleMassMethod=-1, int MustRefineMethod=-1,
-				    int *SendProcs=NULL, 
-				    int NumberOfSends=0);
+                                    int ParticleMassMethod=-1, int MustRefineMethod=-1,
+                                    int *SendProcs=NULL,
+                                    int NumberOfSends=0);
    int CollectParticleMassFlaggingField(void);
    void ClearParticleMassFlaggingField(void);
 
@@ -857,7 +869,12 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Particles: deposit particles to particle mass flagging field. */
 
    int DepositMustRefineParticles(int pmethod, int level,
-				  bool KeepFlaggingField);
+				  bool KeepFlaggingField
+#ifdef INDIVIDUALSTAR
+                                  , TopGridData *MetaData, Star *&AllStars
+#endif
+                                  );
+
 
 /* baryons: add baryon density to mass flaggin field (so the mass flagging
             field contains the mass in the cell (not the density) 
@@ -1730,7 +1747,7 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
   int IdentifyColourFields(int &SNColourNum, int &MetalNum, 
 			   int &MetalIaNum, int &MetalIINum, int &MBHColourNum,
-			   int &Galaxy1ColourNum, int &Galaxy2ColourNum);
+		           int &Galaxy1ColourNum, int &Galaxy2ColourNum);
 
   /* Identify Multi-species fields. */
 
@@ -2225,6 +2242,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass, int *ParticleType,
                                    FLOAT *ParticlePosition[], float *ParticleVelocity[],
                                    float *ParticleAttribute[]);
+  int GalaxySimulationInitialStars(int *nmax, int *np);
 
 
   int individual_star_maker( float *dm, float *temp, int *nmax, float *mu, int *np,
@@ -3094,6 +3112,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                              float Energy0,  float Energy1,
                              float Velocity0[], float Velocity1[],
                              float B0[], float B1[],
+                             float MetalDensity0, float MetalDensity1, int UseMetal, float MetalOffsetInX,
                              float Radius, float MHDBlastCenter[], int LongDimension,
                              float PerturbAmplitude, int PerturbMethod, float PerturbWavelength[],
                              int InitStyle);
@@ -3108,6 +3127,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHDCT_ConvertEnergyToSpecificC();
   int MHDCT_ConvertEnergyToConservedS();
   int MHDCT_ConvertEnergyToSpecificS();
+
+  //List of SuperNova objects that each grid needs to keep track of                                                                      
+  
+  List<SuperNova> SuperNovaList;
+  
 
 };
 

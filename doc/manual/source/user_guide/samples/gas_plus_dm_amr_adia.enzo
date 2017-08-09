@@ -16,7 +16,7 @@
 #
 ProblemType                = 30      // cosmology simulation
 TopGridRank                = 3
-TopGridDimensions          = 128 128 128
+TopGridDimensions          = 64 64 64
 SelfGravity                = 1       // gravity on
 TopGridGravityBoundary     = 0       // Periodic BC for gravity
 LeftFaceBoundaryCondition  = 3 3 3   // same for fluid

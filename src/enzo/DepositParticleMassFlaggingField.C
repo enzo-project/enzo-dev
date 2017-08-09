@@ -60,7 +60,11 @@ static MPI_Datatype MPI_TwoInt;
 #endif
 
 int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
-				     int level, bool AllLocal)
+				     int level, bool AllLocal
+#ifdef INDIVIDUALSTAR
+                                     , TopGridData *MetaData, Star *&AllStars
+#endif
+                                     )
 {
 
   /* Check if there are any grids on this level, and if we're already
@@ -106,7 +110,11 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
       // most of the time.
       if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
 	if (Temp->GridData->SetParticleMassFlaggingField
-	    (Zero, Zero, level, ParticleMassMethod, MustRefineMethod) == FAIL) {
+	    (
+#ifdef INDIVIDUALSTAR
+             MetaData, AllStars,
+#endif
+            Zero, Zero, level, ParticleMassMethod, MustRefineMethod) == FAIL) {
 	  ENZO_FAIL("Error in grid->SetParticleMassFlaggingField(send).\n");
 	}
 
@@ -344,7 +352,11 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 	      for (i = 0; i < nSends; i++)
 		SendProcs[i] = SharedList[count-i-1].proc;
 	      if (Grids[grid1]->GridData->SetParticleMassFlaggingField
-		  (StartProc, EndProc, level, ParticleMassMethod,
+		  (
+#ifdef INDIVIDUALSTAR
+                   MetaData, AllStars,
+#endif
+                   StartProc, EndProc, level, ParticleMassMethod,
 		   MustRefineMethod, SendProcs, nSends) == FAIL) {
 		ENZO_FAIL("Error in grid->SetParticleMassFlaggingField"
 			"(receive).\n");
@@ -359,7 +371,11 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 	CommunicationDirection = COMMUNICATION_SEND;
 	for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
 	  if (Grids[grid1]->GridData->SetParticleMassFlaggingField
-	      (StartProc, EndProc, level, ParticleMassMethod,
+	      (
+#ifdef INDIVIDUALSTAR
+               MetaData, AllStars,
+#endif
+               StartProc, EndProc, level, ParticleMassMethod,
 	       MustRefineMethod) == FAIL) {
 	    ENZO_FAIL("Error in grid->SetParticleMassFlaggingField(send).\n");
 	  }

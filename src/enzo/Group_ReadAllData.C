@@ -191,6 +191,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
       if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
         ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
         NumberOfParticleAttributes += NumberOfParticleTableIDs;
+        NumberOfParticleAttributes += 2; // store mass lost
       }
 
 

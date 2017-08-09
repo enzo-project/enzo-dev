@@ -8,6 +8,7 @@ Reference Information
    EnzoAlgorithms.rst
    EnzoInternalUnits.rst
    EnzoParticleMass.rst
+   HierarchyFile.rst
    FluxObjects.rst
    Headers.rst
    MakeOptions.rst

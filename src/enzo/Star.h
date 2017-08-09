@@ -54,6 +54,9 @@ class Star
   int rad_table_position[3];
   int yield_table_position[2];
 
+  double wind_mass_ejected;
+  double sn_mass_ejected;
+
 
   friend class grid;
 
@@ -88,6 +91,11 @@ public:
                                     return se_table_position; };
   int* ReturnRadTablePosition(void){//printf("radtable %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]); 
                                     return rad_table_position; };
+  double ReturnWindMassEjected(void){ return wind_mass_ejected; };
+  double ReturnSNMassEjected(void){ return sn_mass_ejected; };
+  double AddToWindMassEjected(double m){ wind_mass_ejected += m; };
+  double AddToSNMassEjected(double m){ sn_mass_ejected += m; };
+
   void  AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };
   float ReturnBirthtime(void) { return BirthTime; };
@@ -96,6 +104,7 @@ public:
   void  IncreaseLevel(void) { level++; };
   void  SetLevel(int i) { level = i; };
   void  SetGridID(int i) { GridID = i; };
+  void  SetType(int t) { type = t;};
   int   ReturnFeedbackFlag(void) { return FeedbackFlag; };
   grid *ReturnCurrentGrid(void) { return CurrentGrid; };
   void  AssignCurrentGrid(grid *a) { this->CurrentGrid = a; };
@@ -197,6 +206,7 @@ public:
   void AssignYieldTablePosition(void);
   void AssertInterpolationPositions(int mode);
   void AssertInterpolationPositions(void);
+  void CheckMassEjectionValidity(void); // make sure mass counters make sense
 
   Star* StarBufferToList(StarBuffer *buffer, int n);
   void StarListToBuffer(StarBuffer *&result, int n);

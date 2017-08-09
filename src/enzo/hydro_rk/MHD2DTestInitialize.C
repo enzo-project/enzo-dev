@@ -55,7 +55,6 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
   char *ByName = "By";
   char *BzName = "Bz";
   char *PhiName = "Phi";
-  char *DebugName = "Debug";
   char *Phi_pName = "Phip";
 
   /* declarations */
@@ -252,7 +251,6 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
     }
     if(UseDivergenceCleaning){
       DataLabel[count++] = Phi_pName;
-      DataLabel[count++] = DebugName;
     }
   }
   if ( UseMHDCT ){

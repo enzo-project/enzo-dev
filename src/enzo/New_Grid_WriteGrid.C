@@ -119,9 +119,12 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
     }
-    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes -2; ii++){
       ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
+
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -644,13 +647,10 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     if (OutputSmoothedDarkMatter == FALSE) {
     
       if (SelfGravity && NumberOfParticles > 0) {
-	float SaveGravityResolution = GravityResolution;
-	GravityResolution = 1;
 	this->InitializeGravitatingMassFieldParticles(RefineBy);
 	this->ClearGravitatingMassFieldParticles();
 	this->DepositParticlePositions(this, Time,
 				       GRAVITATING_MASS_FIELD_PARTICLES);
-	GravityResolution = SaveGravityResolution;
       }
  
       /* If present, write out the GravitatingMassFieldParticles. */
@@ -707,11 +707,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
     this->write_dataset(GridRank, dm_dims, "Dark_Matter_Density",
                   group_id, file_type_id, (VOIDP) temp, FALSE);
- 
-	/* Clean up if we modified the resolution. */
- 
-	if (SelfGravity && GravityResolution != 1)
-	  this->DeleteGravitatingMassFieldParticles();
  
       } // end of (if GravitatingMassFieldParticles != NULL)
 

@@ -63,7 +63,6 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
    const char *ByName = "By";
    const char *BzName = "Bz";
    const char *PhiName = "Phi";
-   const char *DebugName = "Debug";
    const char *Phi_pName = "Phip";
    const char *GravPotenName = "PotentialField";
    const char *Acce1Name = "AccelerationField1";
@@ -439,7 +438,6 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
   
   if(UseDivergenceCleaning){
     DataLabel[count++] = (char*) Phi_pName;
-    DataLabel[count++] = (char*) DebugName;
   }
   
   if (WritePotential) {
@@ -448,8 +446,6 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     //    DataLabel[count++] = (char*) Acce2Name;
     //    DataLabel[count++] = (char*) Acce3Name;
   }
-  
-  DataLabel[count++] = (char*) DebugName;
   
   for (i = 0; i < count; i++) {
     DataUnits[i] = NULL;

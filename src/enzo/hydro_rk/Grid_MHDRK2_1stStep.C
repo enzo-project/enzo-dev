@@ -141,7 +141,7 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     fprintf(stderr, "Grid_MHDRK2_1stStep: Falling back to zero order at RK 1st step\n");
         // fall back to zero order scheme
     this->CopyOldBaryonFieldToBaryonField();
-    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies+NColor; ns++) {
+    for (int ns = NEQ_MHD; ns < NEQ_MHD+NSpecies+NColor; ns++) {
       // change species from density to mass fraction
       for (int n = 0; n < size; n++) {
 	Prim[ns][n] /= Prim[iden][n];

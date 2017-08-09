@@ -56,6 +56,10 @@ char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
 
 void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
 
+int IndividualStarProperties_Initialize(void);
+int IndividualStarRadiationProperties_Initialize(void);
+int InitializeStellarYields(void);
+
 
 int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, 
 			  HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary &Exterior)
@@ -366,7 +370,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "GalaxySimulationInitialEuIFractionHalo = %"FSYM,
                         &TestProblemData.EuI_Fraction_2);
 
-   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsDisk = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsDisk = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 0,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 1,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 2,
@@ -381,9 +385,11 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 11,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 12,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 13,
-                        TestProblemData.ChemicalTracerSpecies_Fractions + 14 );
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 14,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 15,
+                        TestProblemData.ChemicalTracerSpecies_Fractions + 16 );
 
-   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsHalo = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+   ret += sscanf(line, "GalaxySimulationInitialSpeciesFractionsHalo = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 0,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 1,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 2,
@@ -398,7 +404,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 11,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 12,
                         TestProblemData.ChemicalTracerSpecies_Fractions_2 + 13,
-                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 14 );
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 14,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 15,
+                        TestProblemData.ChemicalTracerSpecies_Fractions_2 + 16 );
 
 
 
@@ -535,7 +543,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
     Temp = &TopGrid;
     while (Temp != NULL){
-      if(TopGrid.GridData->GalaxySimulationInitializeParticles(NumberOfDMParticles,
+      if(Temp->GridData->GalaxySimulationInitializeParticles(NumberOfDMParticles,
                                                                DMParticleMass, DMParticlePosition,
                                                                DMParticleVelocity) == FAIL){
         fprintf(stderr, "Error in grid->GalaxySimulationInitializeParticles.\n");
@@ -579,6 +587,63 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     MetaData.NumberOfParticles = ParticleCount;
 
   } // end if using particles check
+
+//  if (GalaxySimulationInitialStellarDist){
+    if(FALSE){ // NOT WORKING NOT SURE WHY - causes seg fault
+      // initialize star properties
+      IndividualStarProperties_Initialize();
+      IndividualStarRadiationProperties_Initialize();
+      InitializeStellarYields();
+
+      Temp = &TopGrid;
+      int TotalNumberOfNewParticles = 0;
+      while (Temp != NULL){
+        int MaximumNumberOfNewParticles = 10;
+        int NumberOfNewParticles = 0;
+        //TopGrid.GridData->AllocateNewParticles(MaximumNumberOfNewParticles);
+
+        if(Temp->GridData->GalaxySimulationInitialStars(&MaximumNumberOfNewParticles, &NumberOfNewParticles) == FAIL){
+          fprintf(stderr, "Error in grid->GalaxySimulationInitialStars.\n");
+          return FAIL;
+        } // end if particle initialize
+
+        Temp = Temp->NextGridThisLevel;
+        TotalNumberOfNewParticles += NumberOfNewParticles;
+      }
+
+//      if (TotalNumberOfNewParticles > 0) {
+//        TogGrid->NumberOfParticles = NumberOfNewParticles;
+ //     } else{
+//        ENZO_FAIL("Was not able to deposit stars in chemical evolution test\n");
+//      } // end: if (NumberOfNewParticles > 0)
+
+    int LocalNumberOfParticles = 0;
+    Temp = &TopGrid;
+    /* figure out particle count across grids and processors */
+    while (Temp != NULL){
+      LocalNumberOfParticles = 0;
+      LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
+
+#ifdef USE_MPI
+      CommunicationAllReduceValues(&LocalNumberOfParticles, 1, MPI_SUM);
+#endif /* USE_MPI */
+
+      Temp->GridData->SetNumberOfParticles(LocalNumberOfParticles);
+
+      LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
+
+      Temp = Temp->NextGridThisLevel;
+
+    } // done communicating particle count
+
+    Temp = &TopGrid;
+    PINT ParticleCount = 0;
+    RecursivelySetParticleCount(Temp, &ParticleCount);
+
+    MetaData.NumberOfParticles = ParticleCount;
+
+
+  } // end initial stellar dist
 
     /* Convert minimum initial overdensity for refinement to mass
        (unless MinimumMass itself was actually set). */
@@ -709,6 +774,13 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationPreWindVelocity[0] = 0.0;
     GalaxySimulationPreWindVelocity[1] = 0.0;
     GalaxySimulationPreWindVelocity[2] = 0.0;
+  }
+
+  if (IndividualStarICSupernovaRate > 0){ // save galaxy properties for SN driving if used
+    if (IndividualStarICSupernovaR < 0) 
+      IndividualStarICSupernovaR = GalaxySimulationDiskScaleHeightR; // in Mpc
+    if (IndividualStarICSupernovaZ < 0)
+      IndividualStarICSupernovaZ = GalaxySimulationDiskScaleHeightz; // in Mpc
   }
 
  /* set up field names and units */

@@ -101,9 +101,12 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
     }
-    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes - 2; ii++){
       ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
+
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";

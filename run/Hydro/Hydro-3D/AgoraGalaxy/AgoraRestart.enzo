@@ -12,6 +12,7 @@ TopGridRank                = 3
 TopGridDimensions          = 64 64 64
 SelfGravity                = 1       // gravity on
 TopGridGravityBoundary     = 1       // isolated gravity BCs
+UnigridTranspose           = 0
 LeftFaceBoundaryCondition  = 3 3 3   // periodic
 RightFaceBoundaryCondition = 3 3 3
 DomainLeftEdge             = 0 0 0

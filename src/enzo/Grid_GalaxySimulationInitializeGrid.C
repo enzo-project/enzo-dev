@@ -724,6 +724,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 
 
+
  return SUCCESS;
 }
 

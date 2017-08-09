@@ -62,9 +62,6 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   if (BaryonField[NumberOfBaryonFields] == NULL && level >= 0)
     ENZO_FAIL("UNDER_SUBGRID_FLAG field not set.");
 
-  if (SelfGravity && GravityResolution != 1)
-    ENZO_FAIL("ProjectToPlane assumes GravityResolution == 1.");
-
   /* Declarations */
 
   const int MetalLumField = 17;

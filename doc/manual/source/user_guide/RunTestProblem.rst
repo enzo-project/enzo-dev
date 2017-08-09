@@ -1,5 +1,5 @@
-How to run an Enzo test problem
-===============================
+Running Test Problems
+=====================
 
 Enzo comes with a set of pre-written parameter files which are used
 to test Enzo. This is useful when migrating to a new machine with

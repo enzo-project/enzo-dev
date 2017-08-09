@@ -77,6 +77,9 @@ void Star::MirrorToParticle(void)
   CurrentGrid->ParticleAttribute[1][place] = this->LifeTime;
   CurrentGrid->ParticleAttribute[2][place] = this->Metallicity;
 
+  CurrentGrid->ParticleAttribute[NumberOfParticleAttributes-2][place] = this->wind_mass_ejected;
+  CurrentGrid->ParticleAttribute[NumberOfParticleAttributes-1][place] = this->sn_mass_ejected;
+
 /*
   if( ABS(this->type) >= PARTICLE_TYPE_INDIVIDUAL_STAR &&
       ABS(this->type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){

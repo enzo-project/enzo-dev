@@ -86,6 +86,8 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
     for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
       ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -485,6 +487,9 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
     for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
       ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
+
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -680,6 +685,9 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
     for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
       ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
+
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -955,6 +963,9 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
     for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
       ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
+
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -1081,6 +1092,9 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
     for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
       ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
+
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";

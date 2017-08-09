@@ -144,7 +144,7 @@ int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number){
 
 char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
 
-  char *label = {};
+  char *label = NULL;
 
   /* For a given atomic number, return the name we should assign to the baryon field
      DataLabel */
@@ -247,7 +247,7 @@ char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
 
 char* IndividualStarTableIDLabel(const int &num){
 
-  char *label = {};
+  char *label = NULL;
   switch(num){
     case 0 : label = "se_table_M_pos"; break;
     case 1 : label = "se_table_Z_pos"; break;
@@ -265,7 +265,7 @@ char* IndividualStarTableIDLabel(const int &num){
 
 char* ChemicalSpeciesParticleLabel(const int &atomic_number){
 
-  char *label = {};
+  char *label = NULL;
 
   /* For a given atomic number, return the name we should assign
      to the particle attribute for chemical tagging purposes */
@@ -365,6 +365,11 @@ char* ChemicalSpeciesParticleLabel(const int &atomic_number){
 
 
 int grid::IdentifyChemicalTracerSpeciesFieldsByNumber(int &field_num, const int &atomic_number){
+  // overloaded function for the below. This was done so one could in principle
+  // write code to return fields with specific ionization levels when they do exist.
+  // currently this only makes sense for the varius H and He fields. having "0" in the
+  // last argument below means you don't care about the ionization state or there isn't
+  // one to care about in the first place.
 
   this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, atomic_number, 0);
 

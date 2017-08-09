@@ -128,10 +128,10 @@ if len(sys.argv) == 2:
     if name.isdigit and len(name) == 9:
         seed = int(name)
     else:
-        print ""
-        print "usage: python %s [seed]" % sys.argv[0]
-        print "--> seed is optional and must be 9 digits"
-        print "--> seed = %s" % name
+        print("")
+        print("usage: python %s [seed]" % sys.argv[0])
+        print("--> seed is optional and must be 9 digits")
+        print("--> seed = %s" % name)
         sys.exit()
 
 finest_res = resolution * 2**n_levels
@@ -152,7 +152,7 @@ os.chdir("..")
 os.system("make clean")
 os.system("make")
 if not os.path.exists("src/mpgrafic"):
-    print "mpgrafic does not exist.  Failure in make?  Must run ./configure first."
+    print("mpgrafic does not exist.  Failure in make?  Must run ./configure first.")
     os.chdir("..")
     sys.exit(1)
 os.chdir("src")
@@ -182,8 +182,8 @@ if (n_levels > 0):
 #    os.system("make clean")
     os.system("make")
     if not os.path.exists("src/degraf"):
-        print "degraf does not exist.  Failure in make?  ", \
-              "Must run ./configure first."
+        print("degraf does not exist.  Failure in make?  ", \
+              "Must run ./configure first.")
         os.chdir("..")
         sys.exit(1)
     os.chdir("src")
