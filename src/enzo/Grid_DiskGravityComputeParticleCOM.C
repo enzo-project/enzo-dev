@@ -36,9 +36,9 @@ int grid::DiskGravityComputeParticleCOM(FLOAT *localCOM, float & localMass){
   for(int i = 0; i < this->NumberOfParticles; i++){
     weight = this->ParticleMass[i];
 
-    x     += weight * this->ParticlePosition[i][0];
-    y     += weight * this->ParticlePosition[i][1];
-    z     += weight * this->ParticlePosition[i][2];
+    x     += weight * this->ParticlePosition[0][i];
+    y     += weight * this->ParticlePosition[1][i];
+    z     += weight * this->ParticlePosition[2][i];
     m     += weight;
   }
 
