@@ -79,19 +79,27 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
     fprintf(stderr, "Error in GetUnits.\n");
     return FAIL;
   }
-  MassUnits = DensityUnits*pow(LengthUnits,3);
+  MassUnits = DensityUnits*POW(LengthUnits,3);
 
   float ColdGasMassMsun=ClusterSMBHColdGasMass*MassUnits/SolarMass;
-  if (ClusterSMBHCalculateGasMass == 2){
-    if (ColdGasMassMsun  > 0.001) {
+  if (ClusterSMBHCalculateGasMass >1 ){   //2-calculate&remove,3-calculate&remove&re-orient,4-Bondi
+    if (ClusterSMBHCalculateGasMass == 3){
+       ClusterSMBHJetDim = floor(Time*TimeUnits/(1.0e6*3.1557e7*ClusterSMBHJetPrecessionPeriod));   //ClusterSMBHJetPrecessionPeriod is now the Dim changing period.
+    }
+    if (ColdGasMassMsun  > 0.000001) {
        ClusterSMBHFeedbackSwitch = TRUE;
+      if (ClusterSMBHCalculateGasMass == 4){  // no matter how much cold gas there is; accretiontime is now =dtFixed
+         ClusterSMBHJetMdot = (ColdGasMassMsun/(ClusterSMBHAccretionTime))/2.0;  // AccretionTime already in s; Mdot in Msun/s. Devide it by 2 because Mdot is for only one jet.
+         ClusterSMBHJetEdot = (ClusterSMBHAccretionEpsilon*ClusterSMBHJetMdot * SolarMass) * POW(clight,2)/1.0e44;   //for one jet
+         } 
+         else {
        ClusterSMBHJetMdot = (ColdGasMassMsun/(ClusterSMBHAccretionTime*1e6))/2.0;  // AccretionTime from Myr to yr; reset Mdot, still in Msun/yr. Devide it by 2 because Mdot is for only one jet.
-       float epsilon=0.001;
-       ClusterSMBHJetEdot = (epsilon*ClusterSMBHJetMdot * SolarMass/3.1557e7) * pow(clight,2)/1.0e44;   //for one jet
+       ClusterSMBHJetEdot = (ClusterSMBHAccretionEpsilon*ClusterSMBHJetMdot * SolarMass/3.1557e7) * POW(clight,2)/1.0e44;   //for one jet
        }
+      }
     else
        ClusterSMBHFeedbackSwitch = FALSE;    // if there is not enough ColdGas, then do not turn jet on.
-  } // end if ClusterSMBHCalculateGasMass == 2
+  } // end if ClusterSMBHCalculateGasMass > 1
   if (ClusterSMBHCalculateGasMass == 1) {
     int LastClusterSMBHFeedbackSwitch = ClusterSMBHFeedbackSwitch;
     if (ColdGasMassMsun < 1.0e5)
@@ -107,10 +115,11 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
        ClusterSMBHJetDim += 1;
     }
   } // end if ClusterSMBHCalculateGasMass == 1
+    
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     FILE *fptr=fopen("MT.out","a");
-    fprintf(fptr,"Time, ClusterSMBHStartTime, Switch, and Total ClusterSMBHColdGasMass in Msun = %g %g %d %g \n", Time, ClusterSMBHStartTime, ClusterSMBHFeedbackSwitch, ColdGasMassMsun);
+    fprintf(fptr,"Time, ClusterSMBHJetMdot, ClusterSMBHAccretionTime, and Total ClusterSMBHColdGasMass in Msun = %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", Time, ClusterSMBHJetMdot, ClusterSMBHAccretionTime, ColdGasMassMsun);
     fclose(fptr);
   }
   return SUCCESS;
