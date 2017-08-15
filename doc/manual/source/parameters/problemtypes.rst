@@ -1529,7 +1529,7 @@ Cluster Cooling Flow (108)
 ``ClusterSMBHJetPrecessionPeriod`` (external)
     Unit: Myr. Default: 0.0 (not precessing)
 ``ClusterSMBHCalculateGasMass`` (external)
-    Type: integer. 1--Calculate the amount of cold gas around the SMBH and remove it at the rate of 2*Mdot; 2--Calculate Mdot based on the amount of cold gas around the SMBH; 0--off (do not remove cold gas). Default: 1.
+    Type: integer. 1--Calculate the amount of cold gas around the SMBH and remove it at the rate of 2*Mdot; 2--Calculate Mdot based on the amount of cold gas around the SMBH; 3--Calculate Mdot similar to 2 but change ClusterSMBHJetDim periodically (period = ClusterSMBHJetPrecessionPeriod); 4--Calculate Mdot within Bondi radius (only use this when Bondi radius is resolved); 0--off (do not remove cold gas). Default: 1.
 ``ClusterSMBHFeedbackSwitch`` (external)
     Boolean flag. When ClusterSMBHCalculateGasMass=1, ClusterSMBHFeedbackSwitch is turned on when there is enough cold gas (ClusterSMBHEnoughColdGas) around the SMBH. Default: FALSE
 ``ClusterSMBHEnoughColdGas`` (external)

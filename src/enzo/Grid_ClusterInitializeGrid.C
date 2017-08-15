@@ -160,7 +160,7 @@ printf("PointSourceGravityConstant= %"GSYM"\n", PointSourceGravityConstant);
     NFWRadius[i] = SphereRadius[sphere]*POW(10, -5*(float(i)/NFW_POINTS));
     x1 = NFWRadius[i]/SphereCoreRadius[sphere];
     NFWDensity[i] = SphereDensity[sphere]/(x1*(1.0+x1)*(1.0+x1));    // DM Density
-    if (SphereType[sphere]>=6) {  //aka 6, 7, 8: Perseus Cluster
+    if (SphereType[sphere]>=6 && SphereType[sphere] <= 8) {  //aka 6, 7, 8: Perseus Cluster
     rkpc=NFWRadius[i]*LengthUnits/(1.0e-3*Mpc);
     /*  Initial Temperature */
     if (rkpc > 300.0){
@@ -275,9 +275,8 @@ printf("PointSourceGravityConstant= %"GSYM"\n", PointSourceGravityConstant);
               FLOAT xpos, ypos, zpos, vc, rz;
               x1 = r/SphereCoreRadius[sphere];
               dens1 = SphereDensity[sphere]/(x1*(1.0+x1)*(1.0+x1));
-            /* 6 Perseus_old */
+            /* 6 Perseus with self-gravity */
             /* 3, 7, 8 Perseus no gas self-gravity, force HSE */
-            /* SphereType[sphere] == 9: self-gravity */
             for (m = 1; m < NFW_POINTS; m++)
                 if (r > NFWRadius[m]) {
                   temp1 = NFWTemp[m] + (NFWTemp[m-1] - NFWTemp[m])*

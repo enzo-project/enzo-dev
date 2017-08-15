@@ -84,7 +84,7 @@ added to the acceleration field for the baryons and particles.
     2, then it takes the mass of the dark matter halo in CGS
     units. ``ProblemType`` = 31 (galaxy disk simulation) automatically calculates
     values for ``PointSourceGravityConstant`` and
-    ``PointSourceGravityCoreRadius``. Default: 1
+    ``PointSourceGravityCoreRadius``. ``ProblemType`` = 108 (elliptical galaxy and galaxy cluster) also includes the gravity from the stellar component and the SMBH. Default: 1
 ``PointSourceGravityCoreRadius`` (external)
     For ``PointSourceGravity`` = 1, this is the radius inside which
     the acceleration field is smoothed in code units. With ``PointSourceGravity`` =
