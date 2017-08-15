@@ -66,6 +66,7 @@ int DiskGravityUpdateParticleCOM(LevelHierarchyEntry *LevelArray[],
           }
 
           // running weighted sum for local COM
+          // printf("P(%"ISYM") grid mass = %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",MyProcessorNumber,gridMass, gridCOM[0], gridCOM[1], gridCOM[2]);
           for (int i = 0; i < MAX_DIMENSION; i ++){
             localCOM[i] += gridCOM[i] * gridMass;
           }
@@ -81,14 +82,14 @@ int DiskGravityUpdateParticleCOM(LevelHierarchyEntry *LevelArray[],
   // currently have total mass on this processor and weighted positions on this processor
   // need to do an all sum of the weighted positions in each dimension and total mass
   // then divide by total mass to get global COM
-  printf("local mass = %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",localMass, localCOM[0]/localMass, localCOM[1]/localMass, localCOM[2]/localMass);
+  // printf("P(%"ISYM") - 1 - local mass = %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",MyProcessorNumber,localMass, localCOM[0]/localMass, localCOM[1]/localMass, localCOM[2]/localMass);
   CommunicationAllSumValues(localCOM, MAX_DIMENSION);
   //
-  printf("local mass = %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",localMass, localCOM[0], localCOM[1], localCOM[2]);
+  // printf("P(%"ISYM") - 2 - local mass = %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",MyProcessorNumber,localMass, localCOM[0], localCOM[1], localCOM[2]);
   CommunicationAllSumValues(&localMass, 1);
 
 
-  printf("total Mass = %"ESYM"\n",localMass);
+  // printf("P(%"ISYM") total Mass = %"ESYM"\n",MyProcessorNumber,localMass);
   float inv_mass = 1.0 / localMass;
   for (int i = 0; i < MAX_DIMENSION; i ++){
     DiskGravityDarkMatterCOM[i] = localCOM[i] * inv_mass;

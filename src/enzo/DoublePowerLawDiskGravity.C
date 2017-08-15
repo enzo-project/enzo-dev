@@ -111,7 +111,7 @@ double trapez(double (*function)(double), double a, double b, int n){
 
 void FinalizeDoublePowerDarkMatter(void){
   /* do some clean up of arrays that we don't need anymore */
-  printf("Finished cleanup of dark matter functions \n");
+//  printf("Finished cleanup of dark matter functions \n");
   delete [] DiskGravityDoublePowerMass;
   delete [] DiskGravityDoublePowerPot;
   delete [] DiskGravityDoublePowerR;
@@ -190,7 +190,7 @@ int InitializeDoublePowerDarkMatter(void){
   }
 
 
-  printf("Initialized dark matter functions\n");
+//  printf("Initialized dark matter functions\n");
   return SUCCESS;
 }
 
