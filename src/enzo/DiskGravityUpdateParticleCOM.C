@@ -56,6 +56,11 @@ int DiskGravityUpdateParticleCOM(LevelHierarchyEntry *LevelArray[],
 
       if (Temp->GridData->isLocal()){
 
+          for (int i = 0; i < MAX_DIMENSION; i++){
+            gridCOM[i] = 0.0;
+            gridMass   = 0.0;
+          }
+
           if (Temp->GridData->DiskGravityComputeParticleCOM(gridCOM, gridMass) == FAIL){
             ENZO_FAIL("Error in grid->DiskGravityComputeParticleCOM\n");
           }
@@ -76,10 +81,14 @@ int DiskGravityUpdateParticleCOM(LevelHierarchyEntry *LevelArray[],
   // currently have total mass on this processor and weighted positions on this processor
   // need to do an all sum of the weighted positions in each dimension and total mass
   // then divide by total mass to get global COM
+  printf("local mass = %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",localMass, localCOM[0]/localMass, localCOM[1]/localMass, localCOM[2]/localMass);
   CommunicationAllSumValues(localCOM, MAX_DIMENSION);
   //
+  printf("local mass = %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",localMass, localCOM[0], localCOM[1], localCOM[2]);
   CommunicationAllSumValues(&localMass, 1);
 
+
+  printf("total Mass = %"ESYM"\n",localMass);
   float inv_mass = 1.0 / localMass;
   for (int i = 0; i < MAX_DIMENSION; i ++){
     DiskGravityDarkMatterCOM[i] = localCOM[i] * inv_mass;
