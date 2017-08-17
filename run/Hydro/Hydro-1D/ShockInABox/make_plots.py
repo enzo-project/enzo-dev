@@ -1,3 +1,4 @@
+from __future__ import print_function
 import yt
 import pylab
 import numpy as numpy
@@ -9,7 +10,7 @@ datafile_base = 'data'
 ts = yt.DatasetSeries.from_filenames("*/*.hierarchy")
 for pf in ts:
     pylab.clf()
-    print pf.current_time
+    print(pf.current_time)
 
     ### extract an ortho_ray (1D solution vector)
     ray = pf.ortho_ray(0, [0.5, 0.5])
