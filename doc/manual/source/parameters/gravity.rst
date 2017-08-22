@@ -26,10 +26,8 @@ General
 ``MaximumGravityRefinementLevel`` (external)
     This is the lowest (most refined) depth that a gravitational
     acceleration field is computed. More refined levels interpolate
-    from this level, provided a mechanism for instituting a minimum
+    from this level, providing a mechanism for instituting a minimum
     gravitational smoothing length. Default: ``MaximumRefinementLevel``
-    (unless ``HydroMethod`` is ZEUS and radiative cooling is on, in which
-    case it is ``MaximumRefinementLevel`` - 3).
 ``MaximumParticleRefinementLevel`` (external)
     This is the level at which the dark matter particle contribution to
     the gravity is smoothed. This works in an inefficient way (it
@@ -84,7 +82,7 @@ added to the acceleration field for the baryons and particles.
     2, then it takes the mass of the dark matter halo in CGS
     units. ``ProblemType`` = 31 (galaxy disk simulation) automatically calculates
     values for ``PointSourceGravityConstant`` and
-    ``PointSourceGravityCoreRadius``. Default: 1
+    ``PointSourceGravityCoreRadius``. ``ProblemType`` = 108 (elliptical galaxy and galaxy cluster) also includes the gravity from the stellar component and the SMBH. Default: 1
 ``PointSourceGravityCoreRadius`` (external)
     For ``PointSourceGravity`` = 1, this is the radius inside which
     the acceleration field is smoothed in code units. With ``PointSourceGravity`` =

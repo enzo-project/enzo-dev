@@ -623,6 +623,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ClusterSMBHAccretionTime         = 5.0;
   ClusterSMBHJetDim                = 2;
   ClusterSMBHAccretionEpsilon      = 0.001;
+  ClusterSMBHDiskRadius            = 0.5;
+  ClusterSMBHBCG                   = 1.0;
+  ClusterSMBHMass                  = 0.0;
+
+  EllipticalGalaxyRe               = 0.0;
+  OldStarFeedbackAlpha             = 0.0;
+  SNIaFeedbackEnergy               = 1.0;
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
@@ -902,7 +909,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   LoadGridDataAtStart = TRUE;
 
   IsothermalSoundSpeed = 1.0;
-  RefineByJeansLengthUnits = 0;
 
   MetalCooling = FALSE;
   MetalCoolingTable = (char*) "metal_cool.dat";

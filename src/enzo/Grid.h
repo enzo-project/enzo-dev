@@ -2735,6 +2735,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int ClusterSMBHFeedback(int level);
   int ClusterSMBHEachGridGasMass(int level);
+  int OldStarFeedback();
   int SetNumberOfColours(void);
   int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
                         float *Flux3D[], int flux, float fluxcoef, float dt);

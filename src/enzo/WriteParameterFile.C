@@ -916,7 +916,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ConductionCourantSafetyNumber   = %"FSYM"\n", ConductionCourantSafetyNumber);
   fprintf(fptr, "SpeedOfLightTimeStepLimit             = %"ISYM"\n", SpeedOfLightTimeStepLimit);
 
-  fprintf(fptr, "RefineByJeansLengthUnits              = %"ISYM"\n",RefineByJeansLengthUnits);
   fprintf(fptr, "IsothermalSoundSpeed                  = %"GSYM"\n",IsothermalSoundSpeed);
           
   fprintf(fptr, "StarClusterUseMetalField              = %"ISYM"\n",
@@ -1035,6 +1034,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ClusterSMBHAccretionTime      = %"FSYM"\n", ClusterSMBHAccretionTime);
   fprintf(fptr, "ClusterSMBHJetDim             = %"ISYM"\n", ClusterSMBHJetDim);
   fprintf(fptr, "ClusterSMBHAccretionEpsilon   = %"FSYM"\n", ClusterSMBHAccretionEpsilon);
+  fprintf(fptr, "ClusterSMBHDiskRadius         = %"FSYM"\n", ClusterSMBHDiskRadius);
+  fprintf(fptr, "ClusterSMBHBCG                = %"FSYM"\n", ClusterSMBHBCG);
+  fprintf(fptr, "ClusterSMBHMass               = %"FSYM"\n", ClusterSMBHMass);
+  fprintf(fptr, "EllipticalGalaxyRe            = %"FSYM"\n", EllipticalGalaxyRe);
+  fprintf(fptr, "OldStarFeedbackAlpha          = %"FSYM"\n", OldStarFeedbackAlpha);
+  fprintf(fptr, "SNIaFeedbackEnergy            = %"FSYM"\n", SNIaFeedbackEnergy);
   fprintf(fptr, "H2StarMakerEfficiency              = %"GSYM"\n", H2StarMakerEfficiency);
   fprintf(fptr, "H2StarMakerNumberDensityThreshold  = %"GSYM"\n", H2StarMakerNumberDensityThreshold);
   fprintf(fptr, "H2StarMakerMinimumMass             = %"GSYM"\n", H2StarMakerMinimumMass);
