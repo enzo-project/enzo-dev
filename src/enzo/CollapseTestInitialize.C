@@ -37,6 +37,9 @@ void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+       float *TemperatureUnits, float *TimeUnits,
+       float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 static float CollapseTestInitialFractionHII   = 1.2e-5;
 static float CollapseTestInitialFractionHeII  = 1.0e-14;
@@ -46,7 +49,7 @@ static float CollapseTestInitialFractionH2I   = 2.0e-20;
 static float CollapseTestInitialFractionH2II  = 3.0e-14;
 
 int CollapseTestInitialize(FILE *fptr, FILE *Outfptr, 
-			  HierarchyEntry &TopGrid, TopGridData &MetaData)
+			  HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary &Exterior)
 {
   const char *DensName = "Density";
   const char *TEName   = "TotalEnergy";
@@ -82,6 +85,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
   float CollapseTestParticleMeanDensity = FLOAT_UNDEFINED;
   int CollapseTestUseColour       = FALSE;
   int CollapseTestUseMetals       = FALSE;
+  int CollapseTestWind            = FALSE;
   float CollapseTestInitialTemperature = 1000;
   float CollapseTestInitialDensity     = 1.0;
   float CollapseTestSphereDensity[MAX_SPHERES],
@@ -99,7 +103,8 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     CollapseTestSphereHIIFraction[MAX_SPHERES],
     CollapseTestSphereHeIIFraction[MAX_SPHERES],
     CollapseTestSphereHeIIIFraction[MAX_SPHERES],
-    CollapseTestSphereH2IFraction[MAX_SPHERES];
+    CollapseTestSphereH2IFraction[MAX_SPHERES],
+    CollapseTestWindVelocity[MAX_DIMENSION];
   int CollapseTestSphereNumShells[MAX_SPHERES],
     CollapseTestSphereInitialLevel[MAX_SPHERES],
     CollapseTestSphereType[MAX_SPHERES],
@@ -140,6 +145,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
   }
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     CollapseTestUniformVelocity[dim] = 0;
+    CollapseTestWindVelocity[dim] = 0;
 
   /* read input from file */
 
@@ -161,6 +167,8 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &CollapseTestUseColour);
     ret += sscanf(line, "CollapseTestUseMetals = %"ISYM, 
 		  &CollapseTestUseMetals);
+    ret += sscanf(line, "CollapseTestWind = %"ISYM, 
+                  &CollapseTestWind);
     ret += sscanf(line, "CollapseTestInitialTemperature = %"FSYM, 
 		  &CollapseTestInitialTemperature);
     ret += sscanf(line, "CollapseTestInitialDensity = %"FSYM,
@@ -254,6 +262,10 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &CollapseTestInitialFractionH2I);
     ret += sscanf(line, "CollapseTestInitialFractionH2II = %"FSYM,
 		  &CollapseTestInitialFractionH2II);
+
+    ret += sscanf(line, "CollapseTestWindVelocity = %"FSYM" %"FSYM" %"FSYM, 
+                  &CollapseTestWindVelocity[0],&CollapseTestWindVelocity[1],&CollapseTestWindVelocity[2]);
+
 
     /* if the line is suspicious, issue a warning */
 
@@ -467,6 +479,53 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 
   } // end: if (CollapseTestRefineAtStart)
 
+  /* If there is wind, initialize the exterior */
+ 
+  if (CollapseTestWind) {
+    Exterior.Prepare(TopGrid.GridData);
+
+    const int MAX_BNDRY_VARS = 6;
+    double mh = 1.67e-24;
+    float mu=0.59;
+    double kboltz = 1.38e-16;
+    float InflowValue[MAX_BNDRY_VARS], Dummy[MAX_BNDRY_VARS];
+    float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
+    double MassUnits;
+    if (GetUnits(&DensityUnits, &LengthUnits,&TemperatureUnits, &TimeUnits,
+               &VelocityUnits, &MassUnits, MetaData.Time) == FAIL){
+    fprintf(stderr, "Error in GetUnits.\n");
+    return FAIL;
+    }
+    InflowValue[0] = CollapseTestInitialDensity;
+//    InflowValue[1] = CollapseTestWindPressure/(Gamma-1.0)/CollapseTestWindDensity; ////????
+    InflowValue[1] = kboltz * (CollapseTestInitialTemperature/TemperatureUnits) / ((mu * mh)*(Gamma-1.0)*CollapseTestInitialDensity);
+    if (HydroMethod != 2) {
+      InflowValue[1] = InflowValue[1] + 0.5*(   pow(CollapseTestWindVelocity[0]/VelocityUnits,2)
+                                                    + pow(CollapseTestWindVelocity[1]/VelocityUnits,2)
+                                                    + pow(CollapseTestWindVelocity[2]/VelocityUnits,2));
+    }
+    InflowValue[2] = CollapseTestWindVelocity[0]/VelocityUnits;
+    InflowValue[3] = CollapseTestWindVelocity[1]/VelocityUnits;
+    InflowValue[4] = CollapseTestWindVelocity[2]/VelocityUnits;
+    if (CollapseTestUseMetals)
+      InflowValue[5] = 1.0e-10; ///need to be changed
+
+    if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
+                                                Dummy) == FAIL) {
+      fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
+      return FAIL;
+    }
+    if (MetaData.TopGridRank > 1)
+      Exterior.InitializeExternalBoundaryFace(1, periodic, periodic,
+                                              Dummy, Dummy);
+    if (MetaData.TopGridRank > 2)
+      Exterior.InitializeExternalBoundaryFace(2, periodic, periodic,
+                                              Dummy, Dummy);
+  }
+
+
+
+
   /* set up field names and units */
 
   int count = 0;
@@ -516,6 +575,8 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 	    CollapseTestUseColour);
     fprintf(Outfptr, "CollapseTestUseMetals          = %"ISYM"\n",
 	    CollapseTestUseMetals);
+    fprintf(Outfptr, "CollapseTestWind               = $"ISYM"\n",
+            CollapseTestWind);
     fprintf(Outfptr, "CollapseTestInitialTemperature = %"FSYM"\n",
 	    CollapseTestInitialTemperature);
     fprintf(Outfptr, "CollapseTestInitialDensity     = %"FSYM"\n",
@@ -523,6 +584,9 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(Outfptr, "CollapseTestUniformVelocity    = %"FSYM" %"FSYM" %"FSYM"\n",
 	    CollapseTestUniformVelocity[0], CollapseTestUniformVelocity[1],
 	    CollapseTestUniformVelocity[2]);
+    fprintf(Outfptr, "CollapseTestWindVelocity    = %"FSYM" %"FSYM" %"FSYM"\n",
+            CollapseTestWindVelocity[0], CollapseTestWindVelocity[1],
+            CollapseTestWindVelocity[2]);
     for (sphere = 0; sphere < CollapseTestNumberOfSpheres; sphere++) {
       fprintf(Outfptr, "CollapseTestSphereType[%"ISYM"] = %"ISYM"\n", sphere,
 	      CollapseTestSphereType[sphere]);
