@@ -292,7 +292,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 	     CollapseTestSphereHeIIIFraction, CollapseTestSphereH2IFraction,
 	     CollapseTestUseParticles, CollapseTestParticleMeanDensity,
              CollapseTestUniformVelocity, CollapseTestUseColour,
-	     CollapseTestUseMetals,
+	     CollapseTestUseMetals, 
              CollapseTestInitialTemperature, CollapseTestInitialDensity,
 	     0,
 	     CollapseTestInitialFractionHII, CollapseTestInitialFractionHeII,
@@ -500,9 +500,9 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 //    InflowValue[1] = CollapseTestWindPressure/(Gamma-1.0)/CollapseTestWindDensity; ////????
     InflowValue[1] = kboltz * (CollapseTestInitialTemperature/TemperatureUnits) / ((mu * mh)*(Gamma-1.0)*CollapseTestInitialDensity);
     if (HydroMethod != 2) {
-      InflowValue[1] = InflowValue[1] + 0.5*(   pow(CollapseTestWindVelocity[0]/VelocityUnits,2)
-                                                    + pow(CollapseTestWindVelocity[1]/VelocityUnits,2)
-                                                    + pow(CollapseTestWindVelocity[2]/VelocityUnits,2));
+      InflowValue[1] = InflowValue[1] + 0.5*(POW(CollapseTestWindVelocity[0]/VelocityUnits,2)
+                                                    + POW(CollapseTestWindVelocity[1]/VelocityUnits,2)
+                                                    + POW(CollapseTestWindVelocity[2]/VelocityUnits,2));
     }
     InflowValue[2] = CollapseTestWindVelocity[0]/VelocityUnits;
     InflowValue[3] = CollapseTestWindVelocity[1]/VelocityUnits;

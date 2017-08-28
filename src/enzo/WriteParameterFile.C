@@ -1028,6 +1028,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "EllipticalGalaxyRe            = %"FSYM"\n", EllipticalGalaxyRe);
   fprintf(fptr, "OldStarFeedbackAlpha          = %"FSYM"\n", OldStarFeedbackAlpha);
   fprintf(fptr, "SNIaFeedbackEnergy            = %"FSYM"\n", SNIaFeedbackEnergy);
+  fprintf(fptr, "StellarWindSpeed              = %"FSYM"\n", StellarWindSpeed);
+  fprintf(fptr, "StellarWindDensity              = %"FSYM"\n", StellarWindDensity);
+  fprintf(fptr, "StellarWindRadius              = %"FSYM"\n", StellarWindRadius);
+  fprintf(fptr, "StellarWindTemperature         = %"FSYM"\n", StellarWindTemperature);
+
   fprintf(fptr, "H2StarMakerEfficiency              = %"GSYM"\n", H2StarMakerEfficiency);
   fprintf(fptr, "H2StarMakerNumberDensityThreshold  = %"GSYM"\n", H2StarMakerNumberDensityThreshold);
   fprintf(fptr, "H2StarMakerMinimumMass             = %"GSYM"\n", H2StarMakerMinimumMass);

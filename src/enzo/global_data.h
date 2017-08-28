@@ -1057,6 +1057,12 @@ EXTERN float EllipticalGalaxyRe;
 EXTERN float OldStarFeedbackAlpha;
 EXTERN float SNIaFeedbackEnergy;
 
+/* Stellar Wind from a single AGB star */
+EXTERN float StellarWindRadius;
+EXTERN float StellarWindDensity;
+EXTERN float StellarWindSpeed;
+EXTERN float StellarWindTemperature;
+
 EXTERN int MHDCTSlopeLimiter;
 EXTERN int MHDCTDualEnergyMethod;
 EXTERN int MHDCTPowellSource;

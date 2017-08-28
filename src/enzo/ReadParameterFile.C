@@ -1204,6 +1204,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "EllipticalGalaxyRe = %"FSYM, &EllipticalGalaxyRe);
     ret += sscanf(line, "OldStarFeedbackAlpha = %"FSYM, &OldStarFeedbackAlpha);
     ret += sscanf(line, "SNIaFeedbackEnergy = %"FSYM, &SNIaFeedbackEnergy);
+    ret += sscanf(line, "StellarWindSpeed = %"FSYM, &StellarWindSpeed);
+    ret += sscanf(line, "StellarWindDensity = %"FSYM, &StellarWindDensity);
+    ret += sscanf(line, "StellarWindRadius = %"FSYM, &StellarWindRadius);
+    ret += sscanf(line, "StellarWindTemperature = %"FSYM, &StellarWindTemperature);
 
     ret += sscanf(line, "ExtraOutputs = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"", ExtraOutputs,
 		  ExtraOutputs +1,ExtraOutputs +2,ExtraOutputs +3,

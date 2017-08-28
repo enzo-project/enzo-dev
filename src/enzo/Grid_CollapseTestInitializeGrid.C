@@ -756,6 +756,16 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		} // end: loop over dims
 
 	      } // end: disk
+
+               /* 11) stellar wind, with r^-2 power law density*/
+              if (SphereType[sphere] == 11) {
+                radial_velocity = StellarWindSpeed/VelocityUnits;
+                //dens1 = SphereDensity[sphere]*pow(r/SphereRadius[sphere], -2);
+                dens1 = (StellarWindDensity/DensityUnits)*pow(r/StellarWindRadius, -2);
+                Velocity[0] += radial_velocity * xpos / r;
+                Velocity[1] += radial_velocity * ypos / r;
+                Velocity[2] += radial_velocity * zpos / r;
+              } // end stellar wind
 	    
 	      /* If the density is larger than the background (or the previous
 		 sphere), then set the velocity. */
