@@ -496,9 +496,14 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stderr, "Error in GetUnits.\n");
     return FAIL;
     }
+    float EnergyUnits;
+    float TempToEnergyConversion;
+    EnergyUnits = POW(LengthUnits, 2.0) / POW(TimeUnits, 2.0);
+    TempToEnergyConversion =  kboltz/((Gamma - 1.0)*mu*mh);
+    TempToEnergyConversion /= EnergyUnits;  // this times temperature gives you energy units in ENZO UNITS (K -> Enzo)
+
     InflowValue[0] = CollapseTestInitialDensity;
-//    InflowValue[1] = CollapseTestWindPressure/(Gamma-1.0)/CollapseTestWindDensity; ////????
-    InflowValue[1] = kboltz * (CollapseTestInitialTemperature/TemperatureUnits) / ((mu * mh)*(Gamma-1.0)*CollapseTestInitialDensity);
+    InflowValue[1] = CollapseTestInitialTemperature*TempToEnergyConversion;
     if (HydroMethod != 2) {
       InflowValue[1] = InflowValue[1] + 0.5*(POW(CollapseTestWindVelocity[0]/VelocityUnits,2)
                                                     + POW(CollapseTestWindVelocity[1]/VelocityUnits,2)

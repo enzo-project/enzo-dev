@@ -86,7 +86,6 @@ int grid::AddStellarWind()
           BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindSpeed * (ypos/r)/VelocityUnits;
           BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindSpeed * (zpos/r)/VelocityUnits;
           BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindTemperature/TemperatureUnits/ ((Gamma-1.0)*mu);
-//          if (DualEnergyFormalism)  we do not need this
           if (HydroMethod != Zeus_Hydro){
               BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] += 0.5*POW(BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)], 2.0);
             if(GridRank > 1)
