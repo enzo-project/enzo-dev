@@ -486,7 +486,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 
     const int MAX_BNDRY_VARS = 6;
     double mh = 1.67e-24;
-    float mu=0.59;
+    Mu=0.6;
     double kboltz = 1.38e-16;
     float InflowValue[MAX_BNDRY_VARS], Dummy[MAX_BNDRY_VARS];
     float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
@@ -499,7 +499,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     float EnergyUnits;
     float TempToEnergyConversion;
     EnergyUnits = POW(LengthUnits, 2.0) / POW(TimeUnits, 2.0);
-    TempToEnergyConversion =  kboltz/((Gamma - 1.0)*mu*mh);
+    TempToEnergyConversion =  kboltz/((Gamma - 1.0)*Mu*mh);
     TempToEnergyConversion /= EnergyUnits;  // this times temperature gives you energy units in ENZO UNITS (K -> Enzo)
 
     InflowValue[0] = CollapseTestInitialDensity;

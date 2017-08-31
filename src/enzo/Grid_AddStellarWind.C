@@ -41,7 +41,7 @@ int grid::AddStellarWind()
 
 
   int i, j, k;
-  float mu = 0.59;
+  Mu = 0.6;
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1,
     TimeUnits = 1.0, VelocityUnits = 1.0;
@@ -85,13 +85,13 @@ int grid::AddStellarWind()
           BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindSpeed * (xpos/r)/VelocityUnits;
           BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindSpeed * (ypos/r)/VelocityUnits;
           BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindSpeed * (zpos/r)/VelocityUnits;
-          BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindTemperature/TemperatureUnits/ ((Gamma-1.0)*mu);
+          BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindTemperature/TemperatureUnits/ ((Gamma-1.0)*Mu);
           if (HydroMethod != Zeus_Hydro){
               BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] += 0.5*POW(BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)], 2.0);
             if(GridRank > 1)
-              BaryonField[TENum][ELT(i,j,k)] += 0.5*POW(BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)], 2.0);
+              BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] += 0.5*POW(BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)], 2.0);
             if(GridRank > 2)
-              BaryonField[TENum][ELT(i,j,k)] += 0.5*POW(BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)], 2.0);
+              BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] += 0.5*POW(BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)], 2.0);
           }
         }
   }
