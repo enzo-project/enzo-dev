@@ -1032,6 +1032,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "StellarWindDensity              = %"FSYM"\n", StellarWindDensity);
   fprintf(fptr, "StellarWindRadius              = %"FSYM"\n", StellarWindRadius);
   fprintf(fptr, "StellarWindTemperature         = %"FSYM"\n", StellarWindTemperature);
+  fprintf(fptr, "StellarWindCenterPosition   = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, StellarWindCenterPosition);
 
   fprintf(fptr, "H2StarMakerEfficiency              = %"GSYM"\n", H2StarMakerEfficiency);
   fprintf(fptr, "H2StarMakerNumberDensityThreshold  = %"GSYM"\n", H2StarMakerNumberDensityThreshold);

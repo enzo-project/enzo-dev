@@ -249,6 +249,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     DiskGravityAngularMomentum[dim] = 0.0;
     GalaxySimulationRPSWindVelocity[dim] = 0.0;
     GalaxySimulationPreWindVelocity[dim] = 0.0;
+    StellarWindCenterPosition[dim] = 0.5;
   }
   if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0; 
 

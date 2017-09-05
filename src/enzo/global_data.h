@@ -1062,6 +1062,7 @@ EXTERN float StellarWindRadius;
 EXTERN float StellarWindDensity;
 EXTERN float StellarWindSpeed;
 EXTERN float StellarWindTemperature;
+EXTERN float StellarWindCenterPosition[3];
 
 EXTERN int MHDCTSlopeLimiter;
 EXTERN int MHDCTDualEnergyMethod;

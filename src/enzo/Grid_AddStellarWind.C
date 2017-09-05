@@ -75,9 +75,9 @@ int grid::AddStellarWind()
           /* Find distance from center of star (0.125, 0.5, 0.5). */
 
         FLOAT xpos, ypos, zpos;
-        xpos = x-0.125;
-        ypos = y-0.5;
-        zpos = z-0.5;
+        xpos = x-StellarWindCenterPosition[0];
+        ypos = y-StellarWindCenterPosition[0];
+        zpos = z-StellarWindCenterPosition[0];
         r = sqrt(xpos*xpos + ypos*ypos + zpos*zpos);
         r = max(r, 0.1*CellWidth[0][0]);
         if (r<StellarWindRadius){
