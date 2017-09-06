@@ -81,7 +81,7 @@ int grid::AddStellarWind()
         r = sqrt(xpos*xpos + ypos*ypos + zpos*zpos);
         r = max(r, 0.1*CellWidth[0][0]);
         if (r<StellarWindRadius){
-          BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindDensity*POW(r/StellarWindRadius, -2)/DensityUnits;
+          BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindDensity*POW(r/StellarWindRadius, -2);
           BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindSpeed * (xpos/r)/VelocityUnits;
           BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindSpeed * (ypos/r)/VelocityUnits;
           BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = StellarWindSpeed * (zpos/r)/VelocityUnits;

@@ -616,7 +616,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SNIaFeedbackEnergy               = 1.0;
 
   StellarWindSpeed                 = 0.0;   // in cgs
-  StellarWindDensity               = 3.183237077991833e-21; // in cgs
+  StellarWindDensity               = 1.0; // in code unit
   StellarWindRadius                = 0.01;  // in code unit
   StellarWindTemperature           = 100.0;  // in K
 
