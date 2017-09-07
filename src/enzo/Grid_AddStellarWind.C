@@ -76,8 +76,8 @@ int grid::AddStellarWind()
 
         FLOAT xpos, ypos, zpos;
         xpos = x-StellarWindCenterPosition[0];
-        ypos = y-StellarWindCenterPosition[0];
-        zpos = z-StellarWindCenterPosition[0];
+        ypos = y-StellarWindCenterPosition[1];
+        zpos = z-StellarWindCenterPosition[2];
         r = sqrt(xpos*xpos + ypos*ypos + zpos*zpos);
         r = max(r, 0.1*CellWidth[0][0]);
         if (r<StellarWindRadius){
@@ -95,7 +95,6 @@ int grid::AddStellarWind()
           }
         }
   }
-
   return SUCCESS;
 
 }
