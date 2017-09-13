@@ -31,6 +31,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
+#include "phys_constants.h"
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
@@ -485,9 +486,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     Exterior.Prepare(TopGrid.GridData);
 
     const int MAX_BNDRY_VARS = 6;
-    double mh = 1.67e-24;
     Mu=0.6;
-    double kboltz = 1.38e-16;
     float InflowValue[MAX_BNDRY_VARS], Dummy[MAX_BNDRY_VARS];
     float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
     double MassUnits;
@@ -513,7 +512,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     InflowValue[3] = CollapseTestWindVelocity[1]/VelocityUnits;
     InflowValue[4] = CollapseTestWindVelocity[2]/VelocityUnits;
     if (CollapseTestUseMetals)
-      InflowValue[5] = 1.0e-10; ///need to be changed
+      InflowValue[5] = 1.0e-10; ///need to be changed to the wind metallicity
 
     if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
                                                 Dummy) == FAIL) {

@@ -53,9 +53,6 @@ int grid::AddStellarWind()
     return FAIL;
   }
 
-  float EnergyUnits;
-  EnergyUnits = MassUnits* POW(VelocityUnits, 2.0);
-
 
 
   FLOAT r, x, y, z = 0;
