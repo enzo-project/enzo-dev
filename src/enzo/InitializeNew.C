@@ -107,7 +107,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 int GravityEquilibriumTestInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
-			  HierarchyEntry &TopGrid, TopGridData &MetaData);
+			  HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary &Exterior);
 int ClusterInitialize(FILE *fptr, FILE *Outfptr,
                           HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary &Exterior);
 int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -491,7 +491,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 27) CollapseTest
  
   if (ProblemType == 27)
-    ret = CollapseTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = CollapseTestInitialize(fptr, Outfptr, TopGrid, MetaData, Exterior);
  
   // 28) TestGravityMotion
  

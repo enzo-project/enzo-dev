@@ -847,7 +847,11 @@ Collapse Test (27)
     Initial H2II fraction of the sphere.  Default: 3e-14
 ``CollapseTestSphereInitialLevel`` (external)
     Failed experiment to try to force refinement to a specified level.
-    Not working. Default: 0.
+    Not working. Default: 0
+``CollapseTestWind`` (external)
+    Boolean flag. Type: integer. This parameter decides if there is wind (inflow boundary). Default: 0 (FALSE)
+``CollapseTestWindVelocity`` (external)
+    When using inflow boundary, this is the inflow velocity. Default: 0.
 
 .. _testgravitymotion_param:
 
