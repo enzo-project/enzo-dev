@@ -54,6 +54,7 @@ c
       R_PREC    xpos, ypos, zpos, dx, dy, dz
       P_PREC edge1, edge2, edge3, fact, half
       parameter (half = 0.5001_PKIND)
+	  logical omp_in_parallel
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -134,15 +135,17 @@ c
       if (ndim .eq. 3) then
 
          if (addaspoints .eq. 1) then
-!$omp parallel do schedule(static)
-!$omp+ private(xpos, ypos, zpos, i1, j1, k1)
-!$omp+ private(dx, dy, dz)
-!$omp+ reduction(+:field)
+		    !write(0,*) 'Are we in parallel region? ' ,omp_in_parallel()
+c!$omp parallel do schedule(static)
+c!$omp+ private(xpos, ypos, zpos, i1, j1, k1)
+c!$omp+ private(dx, dy, dz)
+c!$omp+ reduction(+:field)
             do n=1, npositions
 
 c
 c           Compute the position of the central cell
 c
+
 #ifdef UNUSED
             xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
             ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
@@ -180,9 +183,9 @@ c
                field(i1  ,j1  ,k1  ) = field(i1,j1,k1) +
      &              mass(n)
             enddo
-!$omp end parallel do
+c!$omp end parallel do
          else 
-c     
+     
 c!$omp parallel do schedule(static)
 c!$omp+ private(xpos, ypos, zpos, i1, j1, k1)
 c!$omp+ private(dx, dy, dz)

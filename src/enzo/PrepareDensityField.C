@@ -156,6 +156,8 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     /* Next, send data and process grids on the same processor. */
 
     CommunicationDirection = COMMUNICATION_SEND;
+	//this is where we want to place the OMP parallel region: FINDME
+#pragma omp parallel for
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       DepositParticleMassField(Grids[grid1], EvaluateTime);
 

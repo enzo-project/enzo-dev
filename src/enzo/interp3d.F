@@ -100,7 +100,7 @@ c     Interpolate values from cell centers to cell corners
 c
       nneg = 0
 
-!$omp parallel do private(i,j) schedule(static)
+c !$omp parallel do private(i,j) schedule(static)
       do k = 1, pdim3+1
          do j = 1, pdim2+1
             do i = 1, pdim1+1
@@ -139,12 +139,12 @@ c      write(6,*) 'nneg =', nneg
 c
 c     Loop over coarse cells and compute the interpolation coefficients.
 c
-c$omp parallel do private(i, j)
-c$omp+ private(fbar, delf0, delf1, delf2, delf3, sprime, s)
-c$omp+ private(chi1, chi2, chi3, frac, delf1new, delf2new, delf3new)
-c$omp+ private(fx, fy, fz, fbar_save)
-c$omp+ private(k1, j1, i1)
-c$omp+ schedule(static)
+c!$omp parallel do private(i, j)
+c!$omp+ private(fbar, delf0, delf1, delf2, delf3, sprime, s)
+c!$omp+ private(chi1, chi2, chi3, frac, delf1new, delf2new, delf3new)
+c!$omp+ private(fx, fy, fz, fbar_save)
+c!$omp+ private(k1, j1, i1)
+c!$omp+ schedule(static)
       do k = 1, pdim3
          do j = 1, pdim2
             do i = 1, pdim1

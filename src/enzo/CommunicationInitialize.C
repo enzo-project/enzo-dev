@@ -143,9 +143,9 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
     _thread = omp_get_thread_num();
     (void)sched_getaffinity(0, sizeof(coremask), &coremask);
     cpuset_to_cstr(&coremask, clbuf);
-#pragma omp barrier
-    printf("Hello from rank %d, thread %d, on %s. (core affinity = %s)\n",
-	   mpi_rank, _thread, hnbuf, clbuf);
+//#pragma omp barrier
+    //printf("Hello from rank %d, thread %d, on %s. (core affinity = %s)\n",
+	  // mpi_rank, _thread, hnbuf, clbuf);
   }
 #endif /* _OPENMP */
 #endif /* __APPLE__ */
