@@ -3724,7 +3724,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
      the time at which yields get injected may only be off by 10^3 - 10^4 years...
      this should be irrelevant for galaxy scale (100-1000 Myr) simulations. */
   if( (cstar->ReturnWindMassEjected() + m_eject > m_eject_total) ||
-      (particle_age + 2.0*dt > lifetime) ){
+      (particle_age + 2.5*dt > lifetime) ){
 
     float old_ejection = m_eject;
     m_eject = fmax(m_eject_total - cstar->ReturnWindMassEjected(), 0.0);
