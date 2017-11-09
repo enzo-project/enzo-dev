@@ -3170,7 +3170,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   //
   float radius = IndividualStarFeedbackStencilSize * dx;    // code length
   float volume = 4.0 * pi * radius * radius * radius / 3.0; // (code length)**3
-  int   r_int  = IndividualStarFeedbackStencilSize;     // int of farthest cell in any dir.
+  int   r_int  = ceil(IndividualStarFeedbackStencilSize);     // int of farthest cell in any dir.
   float cell_volume_fraction = dx*dx*dx / volume;           // fraction of vol for each cell
 
   float injected_metal_mass[StellarYieldsNumberOfSpecies+1];
