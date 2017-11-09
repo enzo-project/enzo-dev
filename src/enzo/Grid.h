@@ -1195,7 +1195,10 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Gravity: Add fixed, external potential to baryons & particles. */
 
    int AddExternalPotentialField(float *field);
-   
+
+/* DiskGravity: When using particles, compute local COM to compute global COM. */
+
+  int DiskGravityComputeParticleCOM(FLOAT *localCOM, float & localMass);
 
 /* Particles + Gravity: Clear ParticleAccleration. */
 

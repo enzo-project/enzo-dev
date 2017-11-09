@@ -478,6 +478,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "DiskGravityAngularMomentum         = %"PSYM" %"PSYM" %"PSYM,
       DiskGravityAngularMomentum,DiskGravityAngularMomentum+1,
       DiskGravityAngularMomentum+2);
+    ret += sscanf(line, "DiskGravityDarkMatterCOM           = %"PSYM" %"PSYM" %"PSYM,
+      DiskGravityDarkMatterCOM, DiskGravityDarkMatterCOM+1, DiskGravityDarkMatterCOM+2);
     ret += sscanf(line, "DiskGravityStellarDiskMass         = %"FSYM,&DiskGravityStellarDiskMass);
     ret += sscanf(line, "DiskGravityStellarDiskScaleHeightR = %"FSYM,&DiskGravityStellarDiskScaleHeightR);
     ret += sscanf(line, "DiskGravityStellarDiskScaleHeightz = %"FSYM,&DiskGravityStellarDiskScaleHeightz);
@@ -487,6 +489,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "DiskGravityDarkMatterDensity       = %"FSYM,&DiskGravityDarkMatterDensity);
     ret += sscanf(line, "DiskGravityDarkMatterMassInterior  = %"FSYM,&DiskGravityDarkMatterMassInterior);
     ret += sscanf(line, "DiskGravityDarkMatterMassInteriorR = %"FSYM,&DiskGravityDarkMatterMassInteriorR);
+    ret += sscanf(line, "DiskGravityDarkMatterUpdateCOM     = %"ISYM,&DiskGravityDarkMatterUpdateCOM);
 
     ret += sscanf(line, "DiskGravityDoublePower = %"ISYM, &DiskGravityDoublePower);
     ret += sscanf(line, "DiskGravityDarkMatterCutoffR = %"FSYM, &DiskGravityDarkMatterCutoffR);

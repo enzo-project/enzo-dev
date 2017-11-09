@@ -62,6 +62,9 @@ int grid::AddTimeVaryingExternalAcceleration(void){
   int index = 0;
   float coeff;
 
+  /* Normalize time to start of external graivty file */
+  time_myr = time_myr  - ExternalGravityTimeOn * TimeUnits / myr;
+
   index = search_lower_bound(ExternalGravityTime, time_myr, 0, ExternalGravityNumberofTimePoints - 1,
                                                                EXTERNAL_GRAVITY_ENTRIES);
   coeff = LinearInterpolationCoefficient(index, time_myr, ExternalGravityTime);

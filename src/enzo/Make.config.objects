@@ -140,6 +140,7 @@ OBJS_CONFIG_LIB = \
 	DetermineSubgridSizeExtrema.o \
         DoubleMachInitialize.o \
         DoublePowerLawDiskGravity.o \
+        DiskGravityUpdateParticleCOM.o \
         E_ColumnFormat.o \
         ealFloat.o \
         ealInt.o \
@@ -419,6 +420,7 @@ OBJS_CONFIG_LIB = \
 	Grid_DepositPositions.o \
 	Grid_destructor.o \
 	Grid_DetachForcingFromBaryonFields.o \
+        Grid_DiskGravityComputeParticleCOM.o \
 	Grid_DoubleMachInitializeGrid.o \
 	Grid_FastSiblingLocatorAddGrid.o \
 	Grid_FastSiblingLocatorFindSiblings.o \

@@ -113,6 +113,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 		   int Restart = FALSE);
 int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 		       TopGridData &MetaData);
+int DiskGravityUpdateParticleCOM(LevelHierarchyEntry *LevelArray[],
+                                 TopGridData &MetaData);
 int CheckForResubmit(TopGridData &MetaData, int &Stop);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
@@ -644,7 +646,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     /* Check for time-actions. */
  
     CheckForTimeAction(LevelArray, MetaData);
- 
+
+    /* Compute COM of dark matter halo for isolated live DM simulations */
+
+    DiskGravityUpdateParticleCOM(LevelArray, MetaData);
+
     /* Check for output. */
  
     CheckForOutput(&TopGrid, MetaData, Exterior, 

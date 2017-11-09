@@ -79,7 +79,8 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
   }
 
   /* allocate memory for the new particles */
-  this->AllocateNewParticles(count);
+  if (count > 0 )
+    this->AllocateNewParticles(count);
 
 
   /* now deposit the particles that belong to this grid */
@@ -89,6 +90,7 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
         ParticlePosition[dim][i] = DMParticlePosition[dim][particle_index[i]];
         ParticleVelocity[dim][i] = DMParticleVelocity[dim][particle_index[i]] * 1.0E5 / VelocityUnits;
       }
+   
       ParticleMass[i] = DMParticleMass[particle_index[i]] * msolar / MassUnits / (cell_volume);
 
       ParticleAttribute[0][i] = this->Time;
