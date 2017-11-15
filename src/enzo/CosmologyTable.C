@@ -89,3 +89,47 @@ int CosmologyTableComputeTimeFromRedshift(FLOAT z, FLOAT *time)
 
   return SUCCESS;
 }
+
+int CosmologyTableComputeExpansionFactor(FLOAT time, FLOAT *a)
+{
+  /* Compute expansion factor from t/tH0. */
+
+  int bhigh, bmid;
+  int i = CosmologyTableLogtIndex;
+  FLOAT logt = log10(time);
+  FLOAT dloga = (CosmologyTableLogaFinal - CosmologyTableLogaInitial) /
+    (CosmologyTableNumberOfBins - 1);
+
+  // If the last index is not right, compute with bisection.
+  if (!((logt >= CosmologyTableLogt[i]) &&
+        (logt <= CosmologyTableLogt[i+1]))) {
+
+      if (logt <= CosmologyTableLogt[1]) {
+        i = 0;
+      }
+      else if (logt >= CosmologyTableLogt[CosmologyTableNumberOfBins-2]) {
+        i = CosmologyTableNumberOfBins - 2;
+      }
+      else {
+        i = 1;
+        bhigh = CosmologyTableNumberOfBins - 2;
+        while ((bhigh - i) > 1) {
+          bmid = int((i + bhigh) / 2);
+          if (logt >= CosmologyTableLogt[bmid]) {
+            i = bmid;
+          }
+          else {
+            bhigh = bmid;
+          }
+        }
+      }
+
+      CosmologyTableLogtIndex = i;
+    }
+
+  *a = POW(10, (dloga * (logt - CosmologyTableLogt[i]) /
+                (CosmologyTableLogt[i+1] - CosmologyTableLogt[i]) +
+                CosmologyTableLoga[i]));
+
+  return SUCCESS;
+}

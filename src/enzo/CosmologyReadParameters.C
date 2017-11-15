@@ -46,6 +46,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
   CosmologyTableLogt   = NULL;
   CosmologyTableLogaInitial = -6.0;
   CosmologyTableLogaFinal = 0.0;
+  CosmologyTableLogtIndex = 0;
 
   for (i = 0; i < MAX_NUMBER_OF_OUTPUT_REDSHIFTS; i++) {
     CosmologyOutputRedshift[i]     = -1;  // Never!!

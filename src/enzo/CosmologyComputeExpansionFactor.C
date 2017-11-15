@@ -34,6 +34,8 @@
  
 double arccosh(double x);
 double arcsinh(double x);
+
+int CosmologyTableComputeExpansionFactor(FLOAT time, FLOAT *a);
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
 {
@@ -48,7 +50,8 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
  
   /* Find Omega due to curvature. */
  
-  float OmegaCurvatureNow = 1 - OmegaMatterNow - OmegaLambdaNow;
+  float OmegaCurvatureNow = 1 - OmegaMatterNow -
+    OmegaLambdaNow - OmegaRadiationNow;
  
   /* Convert the time from code units to Time * H0 (c.f. CosmologyGetUnits). */
  
@@ -119,6 +122,22 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
   }
  
 #endif /* INVERSE_HYPERBOLIC_EXISTS */
+
+  /* 5) If we want to include the radiation term, use a table. */
+
+  if (OmegaRadiationNow > 0.) {
+    if (CosmologyTableComputeExpansionFactor(TimeHubble0, a) == FAIL) {
+      ENZO_FAIL("Error in CosmologyTableComputeExpansionFactor.\n");
+    }
+    *a *= (1 + InitialRedshift);
+  }
+
+  /* Someday, we'll implement the general case... */
+
+  if ((*a) == FLOAT_UNDEFINED) {
+    ENZO_FAIL("Cosmology selected is not implemented.\n");
+
+  }
  
   /* Compute the derivative of the expansion factor (Peebles93, eq. 13.3). */
  
@@ -126,13 +145,6 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
   *dadt = sqrt( 2.0/(3.0*OmegaMatterNow*(*a)) *
 	       (OmegaMatterNow + OmegaCurvatureNow*TempVal +
 		OmegaLambdaNow*TempVal*TempVal*TempVal));
- 
-  /* Someday, we'll implement the general case... */
- 
-  if ((*a) == FLOAT_UNDEFINED) {
-    ENZO_FAIL("Cosmology selected is not implemented.\n");
-
-  }
  
   return SUCCESS;
 }
