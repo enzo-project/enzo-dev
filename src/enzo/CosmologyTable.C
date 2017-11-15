@@ -24,7 +24,7 @@ FLOAT myageint(FLOAT a)
   FLOAT a2 = a * a;
   float OmegaCurvatureNow = 1 - OmegaMatterNow -
     OmegaLambdaNow - OmegaRadiationNow;
-  return pow(((OmegaMatterNow / a) + (OmegaRadiationNow / a2) +
+  return POW(((OmegaMatterNow / a) + (OmegaRadiationNow / a2) +
               (OmegaLambdaNow * a2) + OmegaCurvatureNow), -0.5);
 }
 
@@ -44,11 +44,11 @@ int InitializeCosmologyTable()
     (CosmologyTableNumberOfBins - 1);
 
   // Use Simpson's Rule to integrate
-  a_1 = pow(10, (loga_i - dloga));
+  a_1 = POW(10, (loga_i - dloga));
   dadt_1 = myageint(a_1);
   for (int i = 0; i < CosmologyTableNumberOfBins; i++) {
     CosmologyTableLoga[i] = i * dloga + loga_i;
-    a_2 = pow(10, (i * dloga + loga_i));
+    a_2 = POW(10, (i * dloga + loga_i));
     a_12  = 0.5 * (a_1 + a_2);
     coef = (a_2 - a_1) / 6.;
     dadt_2  = myageint(a_2);
@@ -66,6 +66,26 @@ int InitializeCosmologyTable()
   for (int i = 1; i < CosmologyTableNumberOfBins; i++) {
     CosmologyTableLogt[i] = log10(CosmologyTableLogt[i]);
   }
+
+  return SUCCESS;
+}
+
+int CosmologyTableComputeTimeFromRedshift(FLOAT z, FLOAT *time)
+{
+  /* Compute t/tH0 from redshift. */
+
+  int i;
+  FLOAT loga, dloga;
+
+  loga = log10(1. / (1 + z));
+  dloga = (CosmologyTableLogaFinal - CosmologyTableLogaInitial) /
+    (CosmologyTableNumberOfBins - 1);
+
+  i = min(CosmologyTableNumberOfBins - 2,
+          max(0, int((loga - CosmologyTableLogaInitial) / dloga)));
+  *time = POW(10, ((CosmologyTableLogt[i+1] - CosmologyTableLogt[i]) *
+                   (loga - CosmologyTableLoga[i]) / dloga +
+                   CosmologyTableLogt[i]));
 
   return SUCCESS;
 }

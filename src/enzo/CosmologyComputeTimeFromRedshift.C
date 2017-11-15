@@ -22,7 +22,9 @@
  
 double arccosh(double x);
 double arcsinh(double x);
- 
+
+int CosmologyTableComputeTimeFromRedshift(FLOAT z, FLOAT *time);
+
 int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits)
 {
  
@@ -32,7 +34,8 @@ int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits)
  
   /* Find Omega due to curvature. */
  
-  float OmegaCurvatureNow = 1 - OmegaMatterNow - OmegaLambdaNow;
+  float OmegaCurvatureNow = 1 - OmegaMatterNow -
+    OmegaLambdaNow - OmegaRadiationNow;
  
   /* 1) For a flat universe with OmegaMatterNow = 1, things are easy. */
  
@@ -68,8 +71,16 @@ int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits)
 		           POW(1+Redshift,FLOAT(1.5))             );
  
 #endif /* INVERSE_HYPERBOLIC_EXISTS */
+
+  /* 5) If we want to include the radiation term, use a table. */
+
+  if (OmegaRadiationNow > 0.) {
+    if (CosmologyTableComputeTimeFromRedshift(Redshift, &TimeHubble0) == FAIL) {
+      ENZO_FAIL("Error in CosmologyTableComputeTime.\n");
+    }
+  }
  
-  /* 5) Someday, we'll implement the general case... */
+  /* 6) Someday, we'll implement the general case... */
  
   if (TimeHubble0 == FLOAT_UNDEFINED) {
     ENZO_FAIL("Cosmology selected is not implemented.\n");
