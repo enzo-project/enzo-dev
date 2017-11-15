@@ -119,6 +119,7 @@ OBJS_CONFIG_LIB = \
         CosmologyGetUnits.o \
         CosmologyReadParameters.o \
         CosmologySimulationInitialize.o \
+        CosmologyTable.o \
         CosmologyWriteParameters.o \
         cray_x1_fft64.o \
         cray_x1_st1_fft64.o \
