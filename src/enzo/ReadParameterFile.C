@@ -1198,6 +1198,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ClusterSMBHAccretionTime = %"FSYM, &ClusterSMBHAccretionTime);
     ret += sscanf(line, "ClusterSMBHJetDim = %"ISYM, &ClusterSMBHJetDim);
     ret += sscanf(line, "ClusterSMBHAccretionEpsilon = %"FSYM, &ClusterSMBHAccretionEpsilon);
+    ret += sscanf(line, "ClusterSMBHDiskRadius = %"FSYM, &ClusterSMBHDiskRadius);
+    ret += sscanf(line, "ClusterSMBHBCG = %"FSYM, &ClusterSMBHBCG);
+    ret += sscanf(line, "ClusterSMBHMass = %"FSYM, &ClusterSMBHMass);
+    ret += sscanf(line, "EllipticalGalaxyRe = %"FSYM, &EllipticalGalaxyRe);
+    ret += sscanf(line, "OldStarFeedbackAlpha = %"FSYM, &OldStarFeedbackAlpha);
+    ret += sscanf(line, "SNIaFeedbackEnergy = %"FSYM, &SNIaFeedbackEnergy);
+    ret += sscanf(line, "StellarWindSpeed = %"FSYM, &StellarWindSpeed);
+    ret += sscanf(line, "StellarWindDensity = %"FSYM, &StellarWindDensity);
+    ret += sscanf(line, "StellarWindRadius = %"FSYM, &StellarWindRadius);
+    ret += sscanf(line, "StellarWindTemperature = %"FSYM, &StellarWindTemperature);
+    ret += sscanf(line, "StellarWindCenterPosition = %"PSYM" %"PSYM" %"PSYM,
+      StellarWindCenterPosition, StellarWindCenterPosition+1, StellarWindCenterPosition+2);
 
     ret += sscanf(line, "ExtraOutputs = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"", ExtraOutputs,
 		  ExtraOutputs +1,ExtraOutputs +2,ExtraOutputs +3,

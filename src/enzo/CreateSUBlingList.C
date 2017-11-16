@@ -76,7 +76,7 @@ int CreateSUBlingList(TopGridData *MetaData,
   NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
   NumberOfChildGrids = GenerateGridArray(LevelArray, level+1, &ChildGrids);
 
-  if( FluxCorrection != TRUE ) {
+  if( FluxCorrection == 0 ) {
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       (*SUBlingList)[grid1] = NULL;
     return SUCCESS;

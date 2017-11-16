@@ -498,6 +498,8 @@ OBJS_CONFIG_LIB = \
         Grid_MustRefineParticlesFlagInRegion.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
+        Grid_OldStarFeedback.o \
+        Grid_AddStellarWind.o \
 	Grid_OneZoneFreefallTestInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
 	Grid_OutputStarParticleInformation.o \
