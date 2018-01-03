@@ -222,6 +222,9 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   }
   InflowValue[DensNum] = ShockInABoxDensity[0];
   InflowValue[Vel1Num] = ShockInABoxVelocity[0];
+  if (HydroMethod == 2) 
+  InflowValue[TENum] = ShockInABoxPressure[0]/(Gamma-1.0)/ShockInABoxDensity[0];
+  else
   InflowValue[TENum] = ShockInABoxPressure[0]/(Gamma-1.0)/ShockInABoxDensity[0]
                    + 0.5*POW(ShockInABoxVelocity[0], 2);
  

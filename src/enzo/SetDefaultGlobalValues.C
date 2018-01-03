@@ -249,6 +249,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     DiskGravityAngularMomentum[dim] = 0.0;
     GalaxySimulationRPSWindVelocity[dim] = 0.0;
     GalaxySimulationPreWindVelocity[dim] = 0.0;
+    StellarWindCenterPosition[dim] = 0.5;
   }
   if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0; 
 
@@ -630,6 +631,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   EllipticalGalaxyRe               = 0.0;
   OldStarFeedbackAlpha             = 0.0;
   SNIaFeedbackEnergy               = 1.0;
+
+  StellarWindSpeed                 = 0.0;   // in cgs
+  StellarWindDensity               = 1.0; // in code unit
+  StellarWindRadius                = 0.01;  // in code unit
+  StellarWindTemperature           = 100.0;  // in K
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
