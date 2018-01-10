@@ -374,6 +374,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityDarkMatterMassInterior  = 0.0;         // solar masses - Only used when above is -1
   DiskGravityDarkMatterMassInteriorR = 0.0;         // Mpc - Only used in conjuction with above
   DiskGravityDarkMatterUpdateCOM     = 0;           // when live DM is used, compute COM every root time step
+  DiskGravityDarkMatterRefineCore    = 0;           // if > 0, update must refine region to be around halo center with this being 1/2 side length in code units
 
   DiskGravityDoublePower             = FALSE;       // use general doubnle power law DM dis - use with particles
   DiskGravityDoublePowerR            = NULL;

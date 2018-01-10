@@ -43,7 +43,10 @@ int grid::DiskGravityComputeParticleCOM(FLOAT *localCOM, float & localMass){
   }
 
   // now compute grid COM and mass on this grid
-  float inv_m = 1.0 / m;
+  float inv_m = 0.0;
+  if (m > 0) 
+    inv_m = 1.0 / m;
+
   localCOM[0] = x * inv_m;
   localCOM[1] = y * inv_m;
   localCOM[2] = z * inv_m;

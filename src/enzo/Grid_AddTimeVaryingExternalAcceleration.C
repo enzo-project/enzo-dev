@@ -71,12 +71,22 @@ int grid::AddTimeVaryingExternalAcceleration(void){
 
   // find coordinates and normalize to box frame coordinates, which is what grid cell and particle positions will be in
   // ExternalGravityPosition is initally in coordinates relative to the center of the secondary galaxy
-  ExternalGravityPosition[0] = ((1.0 - coeff)*ExternalGravityTimePositions[0][index] +
-                               (      coeff)*ExternalGravityTimePositions[0][index+1])*kpc/LengthUnits + DiskGravityPosition[0];
-  ExternalGravityPosition[1] = ((1.0 - coeff)*ExternalGravityTimePositions[1][index] +
-                               (      coeff)*ExternalGravityTimePositions[1][index+1])*kpc/LengthUnits + DiskGravityPosition[1];
-  ExternalGravityPosition[2] = ((1.0 - coeff)*ExternalGravityTimePositions[2][index] +
-                               (      coeff)*ExternalGravityTimePositions[2][index+1])*kpc/LengthUnits + DiskGravityPosition[2];
+
+  if (!(DiskGravityDarkMatterUpdateCOM)){
+    ExternalGravityPosition[0] = ((1.0 - coeff)*ExternalGravityTimePositions[0][index] +
+                                 (      coeff)*ExternalGravityTimePositions[0][index+1])*kpc/LengthUnits + DiskGravityPosition[0];
+    ExternalGravityPosition[1] = ((1.0 - coeff)*ExternalGravityTimePositions[1][index] +
+                                 (      coeff)*ExternalGravityTimePositions[1][index+1])*kpc/LengthUnits + DiskGravityPosition[1];
+    ExternalGravityPosition[2] = ((1.0 - coeff)*ExternalGravityTimePositions[2][index] +
+                                 (      coeff)*ExternalGravityTimePositions[2][index+1])*kpc/LengthUnits + DiskGravityPosition[2];
+  } else {
+    ExternalGravityPosition[0] = ((1.0 - coeff)*ExternalGravityTimePositions[0][index] +
+                                 (      coeff)*ExternalGravityTimePositions[0][index+1])*kpc/LengthUnits + DiskGravityDarkMatterCOM[0];
+    ExternalGravityPosition[1] = ((1.0 - coeff)*ExternalGravityTimePositions[1][index] +
+                                 (      coeff)*ExternalGravityTimePositions[1][index+1])*kpc/LengthUnits + DiskGravityDarkMatterCOM[1];
+    ExternalGravityPosition[2] = ((1.0 - coeff)*ExternalGravityTimePositions[2][index] +
+                                 (      coeff)*ExternalGravityTimePositions[2][index+1])*kpc/LengthUnits + DiskGravityDarkMatterCOM[2];
+  }
 
 
   FLOAT x, y, z, xpos, ypos, zpos, r, rsquared;

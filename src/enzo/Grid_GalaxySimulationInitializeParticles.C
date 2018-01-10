@@ -95,7 +95,7 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
 
       ParticleAttribute[0][i] = this->Time;
       ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
-      // ParticleNumber[i] = particle_index[i]; // set in GalaxySimulationInitialize
+      ParticleNumber[i] = particle_index[i]; // set in GalaxySimulationInitialize
     }
   }
 
@@ -105,7 +105,7 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
     printf("P(%"ISYM"): WARNING: %"ISYM" particles were not within the computational domain \n", MyProcessorNumber, NumberOfDMParticles - count);
   }
 
-  NumberOfParticles = count;
+  this->NumberOfParticles = count;
 
   // clean up
   delete [] particle_index;

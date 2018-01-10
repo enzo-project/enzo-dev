@@ -286,6 +286,7 @@ EXTERN float DiskGravityDarkMatterDensity;
 EXTERN float DiskGravityDarkMatterMassInterior;
 EXTERN float DiskGravityDarkMatterMassInteriorR;
 EXTERN int   DiskGravityDarkMatterUpdateCOM;
+EXTERN float DiskGravityDarkMatterRefineCore;
 
 EXTERN int DiskGravityDoublePower;
 EXTERN float *DiskGravityDoublePowerMass;
