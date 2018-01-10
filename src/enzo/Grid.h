@@ -2316,7 +2316,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     int level,
 				     float GalaxySimulationCR = 0.0,
                                      int GalaxySimulationUseDensityPerturbation = 0,
-                                     float GalaxySimulationPerturbationFraction = 0.5);
+                                     float GalaxySimulationPerturbationFraction = 0.5,
+                                     int GalaxySimulationSMAUGIC = 0);
 
   int GalaxySimulationInitializeParticles(int NumberOfDMParticles,
                                           float *DMParticleMass, FLOAT *DMParticlePosition[],

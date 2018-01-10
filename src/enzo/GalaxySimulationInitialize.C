@@ -143,7 +143,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   int   GalaxySimulationRefineAtStart,
     GalaxySimulationUseMetallicityField,
     GalaxySimulationUseDensityPerturbation,
-    GalaxySimulationDarkMatterParticles;
+    GalaxySimulationDarkMatterParticles,
+    GalaxySimulationSMAUGIC;
 
   float GalaxySimulationPerturbationFraction;
  
@@ -178,6 +179,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationUseDensityPerturbation = 0;
   GalaxySimulationPerturbationFraction   = 0.5;
   GalaxySimulationDarkMatterParticles = FALSE;
+  GalaxySimulationSMAUGIC             = FALSE;
 
   DMParticleMass = NULL;
   for (int dim = 0; dim < MAX_DIMENSION; dim++){
@@ -413,6 +415,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "GalaxySimulationDarkMatterParticles = %"ISYM,
                         &GalaxySimulationDarkMatterParticles);
 
+    ret += sscanf(line, "GalaxySimulationSMAUGIC = %"ISYM,
+                        &GalaxySimulationSMAUGIC);
+
     ret += sscanf(line, "TestProblemUseMetallicityField = %"ISYM,
                         &TestProblemData.UseMetallicityField);
 
@@ -469,8 +474,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   } // end DiskGravity if
 
-
-
   /* set up grid */
 
   /* try something here */
@@ -501,7 +504,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationInflowDensity,0,
 						       GalaxySimulationCR,
                                                        GalaxySimulationUseDensityPerturbation,
-                                                       GalaxySimulationPerturbationFraction)
+                                                       GalaxySimulationPerturbationFraction,
+                                                       GalaxySimulationSMAUGIC)
 	      == FAIL) {
       ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
     }// end subgrid if
@@ -703,7 +707,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationInflowDensity,level,
 						       GalaxySimulationCR,
                                                        GalaxySimulationUseDensityPerturbation,
-                                                       GalaxySimulationPerturbationFraction)
+                                                       GalaxySimulationPerturbationFraction,
+                                                       GalaxySimulationSMAUGIC)
 	      == FAIL) {
 	    ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
 	}// end subgrid if
