@@ -29,7 +29,6 @@
 
 int CommunicationAllSumValues(float *Values, int Number);
 
-
 int DiskGravityUpdateParticleCOM(LevelHierarchyEntry *LevelArray[],
                                    TopGridData &MetaData){
 
@@ -93,6 +92,14 @@ int DiskGravityUpdateParticleCOM(LevelHierarchyEntry *LevelArray[],
   float inv_mass = 1.0 / localMass;
   for (int i = 0; i < MAX_DIMENSION; i ++){
     DiskGravityDarkMatterCOM[i] = localCOM[i] * inv_mass;
+  }
+  // printf("P(%"ISYM") Final COM  = %"ESYM" %"ESYM" %"ESYM"\n",MyProcessorNumber,DiskGravityDarkMatterCOM[0],DiskGravityDarkMatterCOM[1], DiskGravityDarkMatterCOM[2]);
+
+  if (DiskGravityDarkMatterRefineCore > 0) {
+    for (int i = 0; i < MAX_DIMENSION; i ++){
+      MustRefineRegionLeftEdge[i] = DiskGravityDarkMatterCOM[i] - DiskGravityDarkMatterRefineCore;
+      MustRefineRegionRightEdge[i] = DiskGravityDarkMatterCOM[i] + DiskGravityDarkMatterRefineCore;
+    }
   }
 
   // DONE

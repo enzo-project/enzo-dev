@@ -418,7 +418,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "DiskGravityAngularMomentum         = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, DiskGravityAngularMomentum);
   fprintf(fptr, "DiskGravityDarkMatterCOM   = %"ESYM" %"ESYM" %"ESYM"\n",
-          DiskGravityDarkMatterCOM, DiskGravityDarkMatterCOM+1,DiskGravityDarkMatterCOM+2);
+          DiskGravityDarkMatterCOM[0], DiskGravityDarkMatterCOM[1],DiskGravityDarkMatterCOM[2]);
   fprintf(fptr, "DiskGravityStellarDiskMass         = %"GSYM"\n",DiskGravityStellarDiskMass);
   fprintf(fptr, "DiskGravityStellarDiskScaleHeightR = %"GSYM"\n",DiskGravityStellarDiskScaleHeightR);
   fprintf(fptr, "DiskGravityStellarDiskScaleHeightz = %"GSYM"\n",DiskGravityStellarDiskScaleHeightz);
@@ -429,6 +429,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "DiskGravityDarkMatterMassInterior  = %"GSYM"\n",DiskGravityDarkMatterMassInterior);
   fprintf(fptr, "DiskGravityDarkMatterMassInteriorR = %"GSYM"\n",DiskGravityDarkMatterMassInteriorR);
   fprintf(fptr, "DiskGravityDarkMatterUpdateCOM     = %"ISYM"\n",DiskGravityDarkMatterUpdateCOM);
+  fprintf(fptr, "DiskGravityDarkMatterRefineCore    = %"FSYM"\n",DiskGravityDarkMatterRefineCore);
 
   fprintf(fptr, "DiskGravityDoublePower = %"ISYM"\n", DiskGravityDoublePower);
   fprintf(fptr, "DiskGravityDarkMatterCutoffR = %"GSYM"\n", DiskGravityDarkMatterCutoffR);
