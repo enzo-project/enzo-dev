@@ -365,7 +365,7 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
 
             Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
-            // assign heating rate from model
+            // assign heating rate from model - adds to existing background (if present)
             BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e, temperature[index],
                                                                          Z, local_fuv_flux,
                                                                          dx*LengthUnits) / (EnergyUnits/TimeUnits);
@@ -457,7 +457,7 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
   float G_o   = G / G_norm;      // local FUV flux normalized to Habing field
   float epsilon, flux;
 
-  G_o = fmax(G_o, 0.00324);
+//  G_o = fmax(G_o, 0.00324); Background flux threshold now handled in zero background rates routine
 
   if ( PhotoelectricHeatingDustModelEfficiency > 0.0){
     epsilon = PhotoelectricHeatingDustModelEfficiency;

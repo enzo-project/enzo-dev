@@ -66,7 +66,9 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   
 !--------------
 ! locals
-  INTEGER   :: seed(12)
+!  INTEGER   :: seed(12)
+  integer, dimension(:), allocatable :: seed
+  integer   :: n
   INTG_PREC :: i, j, k, l, nsrc
   R_PREC    :: h_nu0, etaconst, rnums(10)
   R_PREC    :: dx, dy, dz, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
@@ -74,6 +76,10 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   REAL*8    :: dV
 
 !=======================================================================
+  ! initialized random number seed
+  call random_seed(size = n)
+  allocate(seed(n))
+
 
   ! initialize output to have all zero values, flag to success
   eta = 0._RKIND

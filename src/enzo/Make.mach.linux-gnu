@@ -21,8 +21,8 @@ MACH_FILE  = Make.mach.linux-gnu
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL = /home/emerick/anaconda
-LOCAL_GRACKLE_INSTALL  = /home/emerick/local
+LOCAL_HDF5_INSTALL = /home/aemerick/anaconda2
+LOCAL_GRACKLE_INSTALL  = /home/aemerick/code/local
 #LOCAL_HYPRE_INSTALL = /usr
 
 #-----------------------------------------------------------------------
@@ -34,7 +34,7 @@ MACH_CPP       = cpp # C preprocessor command
 # With MPI
 
 MACH_CC_MPI    = mpicc # C compiler when using MPI
-MACH_CXX_MPI   = mpic++ # C++ compiler when using MPI
+MACH_CXX_MPI   = mpic++ -DMPICH_IGNORE_CXX_SEEK # C++ compiler when using MPI
 MACH_FC_MPI    = gfortran # Fortran 77 compiler when using MPI
 MACH_F90_MPI   = gfortran # Fortran 90 compiler when using MPI
 MACH_LD_MPI    = mpic++ # Linker when using MPI
@@ -63,7 +63,7 @@ MACH_CFLAGS   =
 MACH_CXXFLAGS =
 MACH_FFLAGS   = -fno-second-underscore -ffixed-line-length-132
 MACH_F90FLAGS = -fno-second-underscore
-MACH_LDFLAGS  = 
+MACH_LDFLAGS  = -lstdc++ -lc
 
 #-----------------------------------------------------------------------
 # Optimization flags
