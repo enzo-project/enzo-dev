@@ -3170,7 +3170,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   //
   float radius = IndividualStarFeedbackStencilSize * dx;    // code length
   float volume = 4.0 * pi * radius * radius * radius / 3.0; // (code length)**3
-  int   r_int  = IndividualStarFeedbackStencilSize;     // int of farthest cell in any dir.
+  int   r_int  = ceil(IndividualStarFeedbackStencilSize);     // int of farthest cell in any dir.
   float cell_volume_fraction = dx*dx*dx / volume;           // fraction of vol for each cell
 
   float injected_metal_mass[StellarYieldsNumberOfSpecies+1];
@@ -3724,7 +3724,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
      the time at which yields get injected may only be off by 10^3 - 10^4 years...
      this should be irrelevant for galaxy scale (100-1000 Myr) simulations. */
   if( (cstar->ReturnWindMassEjected() + m_eject > m_eject_total) ||
-      (particle_age + 2.0*dt > lifetime) ){
+      (particle_age + 2.5*dt > lifetime) ){
 
     float old_ejection = m_eject;
     m_eject = fmax(m_eject_total - cstar->ReturnWindMassEjected(), 0.0);
