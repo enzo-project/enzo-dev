@@ -501,9 +501,14 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 	     dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
 
+             // also sets temp1 !!
 	     DiskVelocityMag = DiskPotentialCircularVelocity(CellWidth[0][0], zheight*LengthUnits,
                                                              dens1, temp1);
 	   }
+
+           if (GalaxySimulationSMAUGIC && DiskTemperature > 0.0){ // careful here - overrides the above
+             temp1 = DiskTemperature;
+           }
 
 	   if (PointSourceGravity*DiskGravity != FALSE ){
 	     ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
@@ -546,7 +551,14 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	 if (dens1 > density && fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
 
 	   density = dens1;
-	   if (temp1 == init_temp)
+           // this is confusing: (comment by A.E.)
+           //     -temp1 is set in DiskPotentialCircularVelocity call above (if using DiskGravity)
+           //            but is initially set to the same as init_temp. If it is unchanged,
+           //            then behavior is to set temperature to the user defined DiskTemperature
+           //            otherwise the temp1 value from DiskGravity persists. The 1.0E7 catch
+           //            is to prevent weirdly high temperatures. init_temp is set to
+           //            the corresponding halo temperature (see above)
+	   if (temp1 == init_temp) // temp1 is set by
 	     temp1 = DiskTemperature;
 	   temperature = temp1;
 	   if( temperature > 1.0e7 )
@@ -1258,30 +1270,44 @@ double PbulgeComp2(double zint)
 
 double PstellarComp_general(double rvalue, double zint)
 {
-  double gas_density;
+  double gas_density, stellar_force;
 
   if (useSMAUG){
     gas_density = (MgasScale*SolarMass/
           (4.0*pi*POW(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*
           PEXP(-rvalue/gScaleHeightR/Mpc) * PEXP(-fabs(zint)/gScaleHeightz/Mpc));
+
+    // need to change to exponential profile
+    stellar_force = GravConst*DiskGravityStellarDiskMass*SolarMass*
+          (DiskGravityStellarDiskScaleHeightR*Mpc + 
+           sqrt(POW(zint,2) + POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)))*
+          fabs(zint)/
+          sqrt(POW(POW(rvalue,2) + 
+                   POW((DiskGravityStellarDiskScaleHeightR*Mpc + 
+                        sqrt(POW(zint,2) + 
+                             POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)))
+                       ,2)
+                   ,3))/
+          sqrt(POW(zint,2)+POW(DiskGravityStellarDiskScaleHeightz*Mpc,2));
   } else {
     gas_density = (MgasScale*SolarMass/
           (2*pi*POW(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/
           cosh(rvalue/gScaleHeightR/Mpc) / cosh(fabs(zint)/gScaleHeightz/Mpc));
+
+    stellar_force = GravConst*DiskGravityStellarDiskMass*SolarMass*
+          (DiskGravityStellarDiskScaleHeightR*Mpc + 
+           sqrt(POW(zint,2) + POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)))*
+          fabs(zint)/
+          sqrt(POW(POW(rvalue,2) + 
+                   POW((DiskGravityStellarDiskScaleHeightR*Mpc + 
+                        sqrt(POW(zint,2) + 
+                             POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)))
+                       ,2)
+                   ,3))/
+          sqrt(POW(zint,2)+POW(DiskGravityStellarDiskScaleHeightz*Mpc,2));
   }
 
-  return (-gas_density*
-	  GravConst*DiskGravityStellarDiskMass*SolarMass*
-	  (DiskGravityStellarDiskScaleHeightR*Mpc + 
-	   sqrt(POW(zint,2) + POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)))*
-	  fabs(zint)/
-	  sqrt(POW(POW(rvalue,2) + 
-		   POW((DiskGravityStellarDiskScaleHeightR*Mpc + 
-			sqrt(POW(zint,2) + 
-			     POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)))
-		       ,2)
-		   ,3))/
-	  sqrt(POW(zint,2)+POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)));
+  return (-gas_density*stellar_force);
 }
 
 // Stellar Disk functions
