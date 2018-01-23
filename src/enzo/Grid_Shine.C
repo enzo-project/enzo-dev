@@ -1,4 +1,5 @@
 #define DEBUG 0
+#define MYPROC MyProcessorNumber == ProcessorNumber
 /***********************************************************************
 /
 /  GRID CLASS (CREATES PHOTON PACKES AT RADIATION SOURCE POSITION)
@@ -24,6 +25,10 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "RadiativeTransferHealpixRoutines64.h"
+#define MAX_HEALPIX_LEVEL 29
+
+
 
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
 FLOAT FindCrossSection(int type, float energy);
@@ -60,7 +65,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
      created?  */
   
   NumberOfNewPhotonPackages = BasePackages*stype;
-  if (DEBUG) 
+  if (MYPROC && DEBUG) 
     fprintf(stdout, "grid::Shine: Maximum Number of New Photon Packages %"ISYM"\n",
 	    NumberOfNewPhotonPackages);
 
@@ -87,7 +92,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     rand_init = 1;
   }
   
-  if (DEBUG) fprintf(stdout, "grid::Shine: Loop over sources and packages \n");
+  if (MYPROC && DEBUG) fprintf(stdout, "grid::Shine: Loop over sources and packages \n");
 
   int ebin, this_type, type_count;
   FLOAT FuzzyLength;
@@ -189,8 +194,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     for (j=0; j<BasePackages; j++) {
 
       if (RS->Type == Beamed) {
-	if (pix2vec_nest((long) (1 << min_level), (long) j, vec) == FAIL)
-	  ENZO_FAIL("Error in pix2vec_nested: beamed source");
+	pix2vec_nest64((int64_t) (1 << min_level), (int64_t) j, vec);
 	// Dot product of the source orientation (already normalized
 	// to 1) and ray normal must be greater than cos(beaming angle)
 	dot_prod = 0.0;
@@ -233,14 +237,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	NewPack->level = min_level;
 	NewPack->Energy = RS->Energy[ebin];
 	FLOAT dir_vec[3];
-	if (pix2vec_nest((long) (1<<NewPack->level), NewPack->ipix, 
-			 dir_vec) == FAIL) {
-	  NewPack->Photons=-1;
-	  ENZO_VFAIL("grid::WalkPhotonPackage:  pix2vec_nest outor %"ISYM" %"ISYM" %"GSYM" %"ISYM"\n",
-		  (long) (pow(2,NewPack->level)), NewPack->ipix, 
-		  NewPack->Photons, NewPack )
-	}
-
+	pix2vec_nest64((int64_t) (1 << NewPack->level), NewPack->ipix, dir_vec);
 	if (NewPack->Type != 3)  // not Lyman-Werner
 	  for (bin = 0; bin < MAX_CROSS_SECTIONS; bin++)
 	    NewPack->CrossSection[bin] = FindCrossSection(bin, NewPack->Energy);
@@ -297,8 +294,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     if (DEBUG) fprintf(stdout,"counted %"ISYM" packages\n", count);
   }
 
-  if (DEBUG) fprintf(stdout, "Shine: PhotonPackages : %"ISYM"   NextPackage  %"ISYM"\n", 
-
+  if (DEBUG) fprintf(stdout, "Shine: PhotonPackages : %p   NextPackage  %p\n", 
 		     PhotonPackages, PhotonPackages->NextPackage);
   
   return SUCCESS;

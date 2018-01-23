@@ -1036,7 +1036,7 @@ POBJS_CONFIG_LIB = \
 	PhotonTestRestartInitialize.o \
 	RadiativeTransferCallFLD.o \
         RadiativeTransferComputeTimestep.o \
-        RadiativeTransferHealpixRoutines.o \
+	RadiativeTransferHealpixRoutines64.o \
 	RadiativeTransferLoadBalanceRevert.o \
         RadiativeTransferInitialize.o \
         RadiativeTransferPrepare.o \

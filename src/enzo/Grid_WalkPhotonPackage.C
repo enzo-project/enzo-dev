@@ -28,8 +28,8 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "phys_constants.h"
-
-#define MAX_HEALPIX_LEVEL 13
+#include "RadiativeTransferHealpixRoutines64.h"
+#define MAX_HEALPIX_LEVEL 29
 #define MAX_COLUMN_DENSITY 1e25
 #define MIN_TAU_IFRONT 0.1
 #define TAU_DELETE_PHOTON 10.0
@@ -116,11 +116,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   c_inv = 1.0 / LightSpeed;
 
   /* Calculate the normal direction (HEALPix) */
-
-  if (pix2vec_nest((long) (1 << (*PP)->level), (*PP)->ipix, dir_vec)==FAIL) {
-    ENZO_VFAIL("WalkPhotonPackage: pix2vec_nest outor %ld %ld %g %x\n",
-	    (long) (1 << (*PP)->level), (*PP)->ipix, (*PP)->Photons, (*PP) )
-  }
+  pix2vec_nest64((int64_t) (1 << (*PP)->level), (*PP)->ipix, dir_vec);
 
   if (DEBUG) 
     fprintf(stderr,"grid::WalkPhotonPackage: %"GSYM" %"GSYM" %"GSYM". \n", 

@@ -26,7 +26,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "RadiativeTransferHealpixRoutines.h"
+#include "RadiativeTransferHealpixRoutines64.h"
 #include "ImplicitProblemABC.h"
 #include "gFLDProblem.h"
 #include "gFLDSplit.h"
@@ -365,18 +365,19 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
   /* Initialize SubgridMarker (do we need to do this?  it's already
      done in RebuildHierarchy) */
-
+#ifdef CONFIG_PFLOAT_4   //32 bit only
+  fprintf(stdout, "%s: 32 bit RT engaged.\n", __FUNCTION__);
   // Initialize HEALPix arrays
   if (RadiativeTransfer) {
-    pix2x = new long[1024];
-    pix2y = new long[1024];
+    pix2x = new long long[1024];
+    pix2y = new long long[1024];
     mkPix2xy(&pix2x[0],&pix2y[0]);
 
     x2pix = new int[128];
     y2pix = new int[128];
     mk_xy2pix(&x2pix[0], &y2pix[0]);
   }
-
+#endif
 //  fprintf(stderr, "RTI: RTTS = %d, RTTST =  %s\n", 
 //	  RadiativeTransferTraceSpectrum, RadiativeTransferTraceSpectrumTable); 
 
