@@ -15,7 +15,7 @@
 #ifndef __PHOTONPACKAGE_H
 #define __PHOTONPACKAGE_H
 #include "RadiationSource.h"
-#include "RadiativeTransferHealpixRoutines.h"
+#include "RadiativeTransferHealpixRoutines64.h"
 
 class PhotonPackageEntry
 {
@@ -31,9 +31,9 @@ public:
   FLOAT EmissionTime;           // Time when package was emitted
   FLOAT CurrentTime;            // Current Time
   FLOAT Radius;                 // Distance travelled
-  float ColumnDensity;           // Column Density (for shielding functions)
-  long  ipix;                   // pixel in HEALPIX terminology
-  int   level;                  // level in HEALPIX terminology
+  float ColumnDensity;          // Column Density (for shielding functions)
+  long level;                   // level in HEALPIX terminology
+  int64_t ipix;                 // pixel in HEALPIX terminology
   FLOAT SourcePosition[3];      // Position where package was emitted
   float SourcePositionDiff;     // Radius at which it was radiated (0 = pt src)
 
@@ -53,11 +53,11 @@ public:
   void PrintInfo(void) {
     FLOAT r[3];
     FLOAT u[3];
-    pix2vec_nest((long)(1 << level), ipix, u);
+    pix2vec_nest64((int64_t)(1 << level), ipix, u);
     for (int dim = 0; dim < 3; dim++) 
       r[dim] = SourcePosition[dim] + u[dim] * Radius;
     printf("Photons = %g, Type = %"ISYM", Radius = %"PSYM"\n", Photons, Type, Radius);
-    printf("ipix = %ld, level = %"ISYM"\n", ipix, level);
+    printf("ipix = %lld, level = %"ISYM"\n", ipix, level);
     printf("normal = %"PSYM" %"PSYM" %"PSYM"\n", u[0], u[1], u[2]);
     printf("SourcePosition = %"PSYM" %"PSYM" %"PSYM"\n",
 	   SourcePosition[0], SourcePosition[1], SourcePosition[2]);

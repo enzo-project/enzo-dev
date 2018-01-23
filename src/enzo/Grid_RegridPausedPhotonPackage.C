@@ -26,8 +26,9 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "SortCompareFunctions.h"
+#include "RadiativeTransferHealpixRoutines64.h"
+#define MAX_HEALPIX_LEVEL 29
 
-#define MAX_HEALPIX_LEVEL 13
 
 int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
 				    grid** MoveToGrid, int &DeltaLevel,
@@ -57,12 +58,7 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
   const float ln2_inv = 1.0/M_LN2;
 
   // Calculate original unit directional vector
-  if (pix2vec_nest((long) (1 << (*PP)->level), (*PP)->ipix, original_vec) == FAIL) {
-    ENZO_VFAIL("grid::RegridPausedPhotonPackages(1) -- "
-	       "pix2vec_nest %"ISYM" %"ISYM" %"GSYM"\n",
-	       (long) (1 << (*PP)->level), (*PP)->ipix, (*PP)->Photons)
-  }
-
+  pix2vec_nest64((int64_t) (1 << (*PP)->level), (*PP)->ipix, original_vec);
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     new_pos[dim] = (*PP)->SourcePosition[dim] + original_vec[dim]*(*PP)->Radius;
 
@@ -98,18 +94,9 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
   (*PP)->CurrentTime = PhotonTime + length / LightSpeed;
 
   // Calculate new pixel number with the super source
-  if (vec2pix_nest( (long) (1 << (*PP)->level), vec, &((*PP)->ipix) ) == FAIL) {
-    ENZO_VFAIL("grid::RegridPausedPhotonPackages -- "
-	       "vec2pix_nest %"ISYM" %"ISYM" %"GSYM"\n",
-	       (long) (1 << (*PP)->level), (*PP)->ipix, (*PP)->Photons)
-  }
-  
-  // Calculate new unit directional vector for merged package
-  if (pix2vec_nest((long) (1 << (*PP)->level), (*PP)->ipix, new_vec) == FAIL) {
-    ENZO_VFAIL("grid::RegridPausedPhotonPackages(2) -- "
-	       "pix2vec_nest %"ISYM" %"ISYM" %"GSYM"\n",
-	       (long) (1 << (*PP)->level), (*PP)->ipix, (*PP)->Photons)
-  }
+  vec2pix_nest64((int64_t) (1 << (*PP)->level), vec, &((*PP)->ipix));
+
+  pix2vec_nest64((int64_t) (1 << (*PP)->level), (*PP)->ipix, new_vec);
 
   // Calculate new photon package and see if it needs to be moved.
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
