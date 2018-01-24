@@ -73,7 +73,7 @@ static double r2;
 static float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits, MassUnits;
 int useSMAUG = 0;
 double gScaleHeightR, gScaleHeightz, densicm, MgasScale, Picm, TruncRadius, SmoothRadius, SmoothLength,Ticm;
-double GalaxySimulationGasHalo, GalaxySimulationGasHaloScaleRadius, GalaxySimulationGasHaloDensity;
+double GalaxySimulationGasHalo, GalaxySimulationGasHaloScaleRadius, GalaxySimulationGasHaloDensity, GalaxySimulationDiskTemperature;
 
 int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float GalaxyMass,
@@ -132,6 +132,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   SmoothRadius = TruncRadius*.02/.026;
   SmoothLength = TruncRadius - SmoothRadius;
   useSMAUG     = GalaxySimulationSMAUGIC;
+  GalaxySimulationDiskTemperature = DiskTemperature;
 
   GalaxySimulationGasHalo = GasHalo;
   GalaxySimulationGasHaloScaleRadius = GasHaloScaleRadius;
@@ -1166,16 +1167,25 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
     fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
   }
   rsph_icm = sqrt(drcyl*drcyl+POW(zicm/LengthUnits,2));
+
   Picm = HaloGasDensity(rsph_icm)*kboltz*HaloGasTemperature(rsph_icm)/(0.6*mh);
 
-  /* AJE: Need to account for DM in pressure. Also, need to 
-          add in computation to get correct Mu  (Jan 2018: DM is taken care of but mu is not... not totally needed)*/
+    /* AJE: Need to account for DM in pressure. Also, need to 
+            add in computation to get correct Mu  (Jan 2018: DM is taken care of but mu is not... not totally needed)*/
 
-  temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
+  if (FALSE){ // useSmaug
+    temperature = GalaxySimulationDiskTemperature;
+    Pressure    = Pressure - temperature*kboltz*denuse/(0.6*mh); // correct pressure
+  } else {
+    temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
+  }
 
   /* Calculate pressure gradient */
 
-  FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/density; 
+  // is this a bug? should density be denuse???? Jan 2018 AE
+
+  //  FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/density; 
+  FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/denuse;
 
   /* Calculate Gravity = Fg_DM + Fg_StellarDisk + Fg_StellaDiskGravityStellarBulgeR */
 
