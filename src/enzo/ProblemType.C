@@ -387,7 +387,8 @@ int EnzoProblemType::InitializeUniformGrid(
           if(StellarYieldsAtomicNumbers[yield_i] > 2){
             float fraction = 0.0; int field_num = 0;
 
-            this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+            ENZO_FAIL("This functionaly does not work yet");
+            //this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
             fraction = TestProblemData.ChemicalTracerSpecies_Fractions[yield_i];
 
             tg->BaryonField[field_num][i] = fraction * UniformDensity;
@@ -401,7 +402,7 @@ int EnzoProblemType::InitializeUniformGrid(
       tg->BaryonField[PeNum][i] = 0.0;
     }
     if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-      tg->BaryonFIeld[OTLWkdissH2INum][i] = 0.0;
+      tg->BaryonField[OTLWkdissH2INum][i] = 0.0;
     }
 
 

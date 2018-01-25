@@ -30,7 +30,8 @@
 #include "phys_constants.h"
 
 
-#define VCIRC_TABLE_LENGTH 10000
+#define VCIRC_TABLE_LENGTH 151
+// VCIRC_TABLE_LENGTH 10000
 
 void mt_init(unsigned_int seed);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
@@ -715,10 +716,14 @@ public:
 
     // Determine the number of particles of each type
     int nBulge, nDisk, nHalo, nParticles;
+    nBulge = 0;
+    nDisk  = 0;
+/*
     nBulge = nlines("bulge.dat");
     if(debug) fprintf(stderr, "InitializeParticles: Number of Bulge Particles %"ISYM"\n", nBulge);
     nDisk = nlines("disk.dat");
     if(debug) fprintf(stderr, "InitializeParticles: Number of Disk Particles %"ISYM"\n", nDisk);
+*/
     nHalo = nlines("halo.dat");
     if(debug) fprintf(stderr, "InitializeParticles: Number of Halo Particles %"ISYM"\n", nHalo);
     nParticles = nBulge + nDisk + nHalo;
@@ -748,12 +753,14 @@ public:
 
     // Read them in and assign them as we go
     int count = 0;
+/*
     this->ReadParticlesFromFile(
       Number, Type, Position, Velocity, Mass,
       "bulge.dat", PARTICLE_TYPE_STAR, count, dx);
     this->ReadParticlesFromFile(
       Number, Type, Position, Velocity, Mass,
       "disk.dat", PARTICLE_TYPE_STAR, count, dx);
+*/
     this->ReadParticlesFromFile(
       Number, Type, Position, Velocity, Mass,
       "halo.dat", PARTICLE_TYPE_DARK_MATTER, count, dx);
@@ -828,14 +835,19 @@ public:
   {
     int i;
 
-    for (i = 0; i < VCIRC_TABLE_LENGTH; i++)
+    for (i = 0; i < VCIRC_TABLE_LENGTH; i++){
+//      fprintf(stderr, "xx R = %ESYM ,  VCmax = %ESYM\n",radius, this->VCircRadius[i] );
+
       if (radius < this->VCircRadius[i])
 	break;
+    }
 
-    if (i == 0)
+    if (i == 0){
       return (VCircVelocity[i]) * (radius - VCircRadius[0]) / VCircRadius[0];
-    else if (i == VCIRC_TABLE_LENGTH)
+    } else if (i == VCIRC_TABLE_LENGTH){
+      printf("R = %GSYM ,  VCmax = %GSYM\n",radius, this->VCircRadius[i-1] );
       ENZO_FAIL("Fell off the circular velocity interpolation table");
+    }
 
     // we know the radius is between i and i-1
     return VCircVelocity[i-1] +
@@ -865,6 +877,7 @@ public:
     }
 
     const FLOAT kpc_cm = 3.08567758e21;
+    const FLOAT pc_cm  = kpc_cm / 1000.0;
     const float km_cm = 1e5;
     const float msun_g = 1.9891e33;
 
@@ -875,18 +888,19 @@ public:
       ret +=
 	sscanf(line,
 	       "%"PSYM" %"PSYM" %"PSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
-	       &x, &y, &z, &vx, &vy, &vz, &mass);
+               &x, &y, &z, &vx, &vy, &vz, &mass);
 
-      Position[0][c] = x * kpc_cm / LengthUnits + this->CenterPosition[0];
-      Position[1][c] = y * kpc_cm / LengthUnits + this->CenterPosition[1];
-      Position[2][c] = z * kpc_cm / LengthUnits + this->CenterPosition[2];
+      Position[0][c] = x * pc_cm / LengthUnits + this->CenterPosition[0];
+      Position[1][c] = y * pc_cm / LengthUnits + this->CenterPosition[1];
+      Position[2][c] = z * pc_cm / LengthUnits + this->CenterPosition[2];
 
       Velocity[0][c] = vx * km_cm / VelocityUnits;
       Velocity[1][c] = vy * km_cm / VelocityUnits;
       Velocity[2][c] = vz * km_cm / VelocityUnits;
 
       // Particle masses are actually densities.
-      Mass[c] = mass * 1e9 * msun_g / MassUnits / dx / dx / dx;
+//      Mass[c] = mass * 1e9 * msun_g / MassUnits / dx / dx / dx;
+      Mass[c] = mass * msun_g / MassUnits / dx / dx / dx;
       Type[c] = particle_type;
       Number[c] = c++;
     }
