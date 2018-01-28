@@ -253,10 +253,12 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 
     CommunicationDirection = COMMUNICATION_SEND;
 #ifdef FAST_SIB
+#pragma omp parallel for 
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       PrepareGravitatingMassField2a(Grids[grid1], grid1, SiblingList,
 				   MetaData, level, When);
 #else
+#pragma omp parallel for 
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       PrepareGravitatingMassField2a(Grids[grid1], MetaData, LevelArray,
 				   level, When);

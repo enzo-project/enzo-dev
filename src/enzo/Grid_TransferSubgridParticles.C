@@ -18,6 +18,7 @@
  
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -33,6 +34,19 @@
 
 int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids, 
 				   int* &NumberToMove, int StartIndex, 
+				   int EndIndex, particle_data* &List, 
+				   bool KeepLocal, bool ParticlesAreLocal,
+				   int CopyDirection, int IncludeGhostZones,
+				   int CountOnly)
+{
+	int ParticleCounter=0;
+//	printf("ParticleCounter reset 2\n");
+	return this->TransferSubgridParticles(Subgrids, NumberOfSubgrids,
+		NumberToMove, ParticleCounter, StartIndex, EndIndex, List, KeepLocal, ParticlesAreLocal,
+		CopyDirection, IncludeGhostZones, CountOnly);
+}
+int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids, 
+				   int* &NumberToMove, int &ParticleCounter, int StartIndex, 
 				   int EndIndex, particle_data* &List, 
 				   bool KeepLocal, bool ParticlesAreLocal,
 				   int CopyDirection, int IncludeGhostZones,
@@ -57,9 +71,9 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     /* If particles aren't distributed over several processors, exit
        if this isn't the host processor. */
 
-    if (ParticlesAreLocal && MyProcessorNumber != ProcessorNumber)
+    if (ParticlesAreLocal && MyProcessorNumber != ProcessorNumber){
       return SUCCESS;
-
+	}
     /* If there are no particles to move, we're done. */
 
     if (NumberOfParticles == 0) {
@@ -93,7 +107,6 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     int *subgrid = NULL;
     subgrid = new int[NumberOfParticles];
 
-#pragma omp parallel for schedule(static) private(i0,j0,k0,index,proc)
     for (i = 0; i < NumberOfParticles; i++) {
 
       /* Compute index of particle position. */
@@ -132,7 +145,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
     if (CountOnly == TRUE) {
       delete [] subgrid;
-      return SUCCESS;
+	  return SUCCESS;
     }
 
     int TotalToMove = 0;
@@ -163,33 +176,35 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
       /* Move particles (mark those moved by setting mass = FLOAT_UNDEFINED). */
 
-#pragma omp parallel private(ThreadStart, ThreadCount, n1, i, j, proc, dim)
-    {
 
       int nn, move_per_thread;
       int nmove = TotalToMove - PreviousTotalToMove;
       int CoresPerProcess = NumberOfCores / NumberOfProcessors;
       int ThreadNum = 0;
       bool SingleThread = (CoresPerProcess == 1 || nmove/50 < CoresPerProcess);
-#ifdef _OPENMP
-      ThreadNum = omp_get_thread_num();
-#endif
 
-      // Non-threaded version
-      if (SingleThread) {
-#pragma omp single 
-	{
-	n1 = PreviousTotalToMove;
+/** Since parallelization is done over grids, it is no longer necessary to have
+    a multi-threaded version of this routine.
+**/
+#pragma omp critical
+{
+//	printf("Thread %d enters critical section :: ParticleCounter @ %d \n ", omp_get_thread_num(), ParticleCounter);
 	for (i = 0; i < NumberOfParticles; i++) {
 	  if (subgrid[i] >= 0) {
 	    if (KeepLocal)
 	      proc = MyProcessorNumber;
 	    else
 	      proc = Subgrids[subgrid[i]]->ReturnProcessorNumber();
+
+		n1 = ParticleCounter;
 	    for (dim = 0; dim < GridRank; dim++) {
 	      List[n1].pos[dim] = ParticlePosition[dim][i];
 	      List[n1].vel[dim] = ParticleVelocity[dim][i];
+//		  if( abs(List[n1].pos[dim]) > 1 || abs(List[n1].vel[dim] > 1))
+//	          printf("n1=%d, ParticleCounter=%d\n", n1, ParticleCounter);
+
 	    }
+
 	    List[n1].mass = ParticleMass[i] * MassIncrease;
 	    List[n1].id = ParticleNumber[i];
 	    List[n1].type = ParticleType[i];
@@ -198,19 +213,23 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	    List[n1].grid = subgrid[i];
 	    List[n1].proc = proc;
 	    ParticleMass[i] = FLOAT_UNDEFINED;
-	    n1++;
+		ParticleCounter++;
 	  } // ENDIF move to subgrid
 	} // ENDFOR particles
-	} // END omp single
-      } // ENDIF SingleThread
+//	printf("Thread %d leaves critical section :: ParticleCounter @ %d \n ", omp_get_thread_num(), ParticleCounter);
+}//omp end critical
+
+//	} // END omp single
+//      } // ENDIF SingleThread
 
       // Threaded version
-      else {
+//      else {
 
 	/* Find out how many particles are being moved per thread
 	   block, so we know where to start inserting them in the move
 	   list. */
 
+/**
 #ifdef _OPENMP
 	move_per_thread = nmove / CoresPerProcess;
 	for (i = 0; i < CoresPerProcess+1; i++)
@@ -254,11 +273,11 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	      n1++;
 	    } // ENDIF move to subgrid
 	  } // ENDFOR particles
-#endif /* _OPENMP */
+#endif // _OPENMP
       } // ENDELSE SingleThread
 
     } // END parallel
-
+*/
       if (TotalToMove != PreviousTotalToMove)
 	this->CleanUpMovedParticles();
 
@@ -278,8 +297,9 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     /* If particles aren't distributed over several processors, exit
        if this isn't the host processor. */
 
-    if (ParticlesAreLocal && MyProcessorNumber != ProcessorNumber)
-      return SUCCESS;
+    if (ParticlesAreLocal && MyProcessorNumber != ProcessorNumber){
+		return SUCCESS;
+	}
 
     /* Count up total number. */
  
@@ -315,9 +335,9 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
     /* Copy this grid's particles to the new space. */
 
-#pragma omp parallel private(dim,j)
-    {
-#pragma omp for nowait schedule(static)
+//#pragma omp parallel private(dim,j)
+//    {
+//#pragma omp for nowait schedule(static)
     for (i = 0; i < NumberOfParticles; i++) {
       Mass[i] = ParticleMass[i];
       Number[i] = ParticleNumber[i];
@@ -325,14 +345,14 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     }
 
     for (dim = 0; dim < GridRank; dim++)
-#pragma omp for nowait schedule(static)
+//#pragma omp for nowait schedule(static)
       for (i = 0; i < NumberOfParticles; i++) {
 	Position[dim][i] = ParticlePosition[dim][i];
 	Velocity[dim][i] = ParticleVelocity[dim][i];
       }
 	
     for (j = 0; j < NumberOfParticleAttributes; j++)
-#pragma omp for nowait schedule(static)
+//#pragma omp for nowait schedule(static)
       for (i = 0; i < NumberOfParticles; i++)
 	  Attribute[j][i] = ParticleAttribute[j][i];
  
@@ -340,7 +360,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
     int n;
 
-#pragma omp for nowait schedule(static) private(n)
+//#pragma omp for nowait schedule(static) private(n)
     for (i = StartIndex; i < EndIndex; i++) {
       n = NumberOfParticles + i - StartIndex;
       Mass[n] = List[i].mass;
@@ -349,22 +369,26 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     }
 
     for (dim = 0; dim < GridRank; dim++) {
-#pragma omp for nowait schedule(static) private(n)
+//#pragma omp for nowait schedule(static) private(n)
       for (i = StartIndex; i < EndIndex; i++) {
 	n = NumberOfParticles + i - StartIndex;
 	Position[dim][n] = List[i].pos[dim];
 	Velocity[dim][n] = List[i].vel[dim];
+		if( fabs(Velocity[dim][n]) > 1 )
+			printf("FINDME: Velocity is too high!\n");
+		if( fabs(Position[dim][n]) > 2 )
+			printf("FINDME: Position is too high!\n");
       }
     }
       
     for (j = 0; j < NumberOfParticleAttributes; j++) {
-#pragma omp for nowait schedule(static) private(n)
+//#pragma omp for nowait schedule(static) private(n)
       for (i = StartIndex; i < EndIndex; i++) {
 	n = NumberOfParticles + i - StartIndex;
 	Attribute[j][n] = List[i].attribute[j];
       }
     }
-    } // ENDIF #pragma parallel
+ //   } // ENDIF #pragma parallel
       
     } // ENDIF TotalNumberOfParticles > 0
 

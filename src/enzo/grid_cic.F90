@@ -83,12 +83,12 @@ subroutine dep_grid_cic(source, dest, velx, vely, velz,&
 
   allocate(temp(ddim1, ddim2, ddim3, 4))
 
-!$omp parallel do private(i,j,n) schedule(static)
+!!$omp parallel do private(i,j,n) schedule(static)
   do k=1,ddim3
      dest(:,:,k) = 0.0
      temp(:,:,k,:) = 0.0
   enddo
-!$omp end parallel do
+!!$omp end parallel do
 
 !
 !     Precompute some things

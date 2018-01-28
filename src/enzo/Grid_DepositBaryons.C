@@ -313,7 +313,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
   /* Add dens_field to GravitatingMassField in target grid. */
  
   index = 0;
-#pragma omp parallel for schedule(static) private(j,gmindex,i,index)
+//#pragma omp parallel for schedule(static) private(j,gmindex,i,index)
   for (k = 0; k < RegionDim[2]; k++) {
     index = k*RegionDim[1]*RegionDim[0];
     for (j = 0; j < RegionDim[1]; j++) {
