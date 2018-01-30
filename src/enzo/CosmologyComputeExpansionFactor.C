@@ -150,7 +150,8 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
   FLOAT TempVal = (*a)/(1 + InitialRedshift);
   *dadt = sqrt( 2.0/(3.0*OmegaMatterNow*(*a)) *
 	       (OmegaMatterNow + OmegaCurvatureNow*TempVal +
-		OmegaLambdaNow*TempVal*TempVal*TempVal));
+		OmegaLambdaNow*TempVal*TempVal*TempVal +
+                OmegaRadiationNow/TempVal));
  
   return SUCCESS;
 }
