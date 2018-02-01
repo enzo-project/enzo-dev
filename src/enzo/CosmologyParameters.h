@@ -63,3 +63,6 @@ EXTERN FLOAT CosmologyTableLogaFinal;
 EXTERN FLOAT *CosmologyTableLoga;
 EXTERN FLOAT *CosmologyTableLogt;
 EXTERN int CosmologyTableLogtIndex;
+
+EXTERN FILE *cosmo_fptr_1;
+EXTERN FILE *cosmo_fptr_2;
