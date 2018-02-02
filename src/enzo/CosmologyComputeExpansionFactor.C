@@ -49,6 +49,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
    if (CosmologyTableComputeExpansionFactor(TimeHubble0, a) == FAIL) {
       ENZO_FAIL("Error in CosmologyTableComputeExpansionFactor.\n");
   }
+   *a *= (1 + InitialRedshift);    // to convert to code units, divide by [a]
  
   /* Compute the derivative of the expansion factor (Peebles93, eq. 13.3). */
  
