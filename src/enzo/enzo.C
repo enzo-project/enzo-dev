@@ -406,9 +406,6 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   flow_trace_on = TRUE;
 #endif
  
-  cosmo_fptr_1 = fopen("cosmo_1.out", "w");
-  cosmo_fptr_2 = fopen("cosmo_2.out", "w");
-
   if (flow_trace_on) flow_trace1("ENZO");
  
 #ifdef TRANSFER
@@ -890,9 +887,6 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
     fclose(flow_trace_fptr);
 #endif
  
-    fclose(cosmo_fptr_1);
-    fclose(cosmo_fptr_2);
-
   my_exit(EXIT_SUCCESS);
  
 }

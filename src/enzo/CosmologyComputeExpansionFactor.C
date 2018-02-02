@@ -18,26 +18,10 @@
 #include "macros_and_parameters.h"
 #include "CosmologyParameters.h"
  
-#define OMEGA_TOLERANCE 1.0e-5
- 
-#ifdef CONFIG_PFLOAT_4
-#define ETA_TOLERANCE 1.0e-5
-#endif
-#ifdef CONFIG_PFLOAT_8
-#define ETA_TOLERANCE 1.0e-10
-#endif
-#ifdef CONFIG_PFLOAT_16
-#define ETA_TOLERANCE 1.0e-20
-#endif
- 
 // function prototypes
  
-double arccosh(double x);
-double arcsinh(double x);
-
 int CosmologyTableComputeExpansionFactor(FLOAT time, FLOAT *a);
 
-int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits);
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
 {
@@ -47,8 +31,6 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
   if (InitialTimeInCodeUnits == 0) {
     ENZO_FAIL("The cosmology parameters seem to be improperly set.\n");
   }
- 
-  *a = FLOAT_UNDEFINED;
  
   /* Find Omega due to curvature. */
  
@@ -61,97 +43,12 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
                     POW(1 + InitialRedshift,FLOAT(1.5));
  
   FLOAT TimeHubble0 = time * TimeUnits * (HubbleConstantNow*3.24e-18);
- 
-  /* 1) For a flat universe with OmegaMatterNow = 1, it's easy. */
- 
-  if (fabs(OmegaMatterNow-1) < OMEGA_TOLERANCE &&
-      OmegaLambdaNow < OMEGA_TOLERANCE)
-    *a      = POW(time/InitialTimeInCodeUnits, FLOAT(2.0/3.0));
- 
-#define INVERSE_HYPERBOLIC_EXISTS
- 
-#ifdef INVERSE_HYPERBOLIC_EXISTS
- 
-  FLOAT eta, eta_old, x;
-  int i;
- 
-  /* 2) For OmegaMatterNow < 1 and OmegaLambdaNow == 0 see
-        Peebles 1993, eq. 13-3, 13-10.
-	Actually, this is a little tricky since we must solve an equation
-	of the form eta - sinh(eta) + x = 0..*/
- 
-  if (OmegaMatterNow < 1 && OmegaLambdaNow < OMEGA_TOLERANCE) {
- 
-    x = 2*TimeHubble0*POW(1.0 - OmegaMatterNow, 1.5) / OmegaMatterNow;
- 
-    /* Compute eta in a three step process, first from a third-order
-       Taylor expansion of the formula above, then use that in a fifth-order
-       approximation.  Then finally, iterate on the formula itself, solving for
-       eta.  This works well because parts 1 & 2 are an excellent approximation
-       when x is small and part 3 converges quickly when x is large. */
- 
-    eta = POW(6*x, FLOAT(1.0/3.0));                     // part 1
-    eta = POW(120*x/(20+eta*eta), FLOAT(1.0/3.0));      // part 2
-    for (i = 0; i < 40; i++) {                          // part 3
-      eta_old = eta;
-      eta = arcsinh(eta + x);
-      if (fabs(eta-eta_old) < ETA_TOLERANCE) break;
-    }
-    if (i == 40) {
-      ENZO_VFAIL("Case 2 -- no convergence after %"ISYM" iterations.\n", i)
-    }
- 
-    /* Now use eta to compute the expansion factor (eq. 13-10, part 2). */
- 
-    *a = OmegaMatterNow/(2*(1 - OmegaMatterNow))*(cosh(eta) - 1);
-    *a *= (1 + InitialRedshift);    // to convert to code units, divide by [a]
-  }
- 
-  /* 3) For OmegaMatterNow > 1 && OmegaLambdaNow == 0, use sin/cos.
-        Easy, but skip it for now. */
- 
-  if (OmegaMatterNow > 1 && OmegaLambdaNow < OMEGA_TOLERANCE) {
-  }
- 
-  /* 4) For flat universe, with non-zero OmegaLambdaNow, see eq. 13-20. */
- 
-  if (fabs(OmegaCurvatureNow) < OMEGA_TOLERANCE &&
-      OmegaLambdaNow > OMEGA_TOLERANCE) {
-    *a = POW(FLOAT(OmegaMatterNow/(1 - OmegaMatterNow)), FLOAT(1.0/3.0)) *
-         POW(FLOAT(sinh(1.5 * sqrt(1.0 - OmegaMatterNow)*TimeHubble0)),
-	     FLOAT(2.0/3.0));
-    *a *= (1 + InitialRedshift);    // to convert to code units, divide by [a]
-  }
- 
-#endif /* INVERSE_HYPERBOLIC_EXISTS */
 
-  /* 5) If we want to include the radiation term, use a table. */
-
-  if (OmegaRadiationNow > 0.) {
-    if (CosmologyTableComputeExpansionFactor(TimeHubble0, a) == FAIL) {
-      ENZO_FAIL("Error in CosmologyTableComputeExpansionFactor.\n");
-    }
-    *a *= (1 + InitialRedshift);
-  }
-
-  /* Someday, we'll implement the general case... */
-
-  if ((*a) == FLOAT_UNDEFINED) {
-    ENZO_FAIL("Cosmology selected is not implemented.\n");
-
-  }
-
-  FLOAT aNew, Redshift, myTimeCodeUnits;
-  Redshift = ((1 + InitialRedshift) / *a) - 1;
-  if (CosmologyTableComputeExpansionFactor(TimeHubble0, &aNew) == FAIL) {
+  /* Interpolate from a(t) table. */
+ 
+   if (CosmologyTableComputeExpansionFactor(TimeHubble0, a) == FAIL) {
       ENZO_FAIL("Error in CosmologyTableComputeExpansionFactor.\n");
   }
-  if (CosmologyComputeTimeFromRedshift(Redshift, &myTimeCodeUnits) == FAIL) {
-    ENZO_FAIL("Error in CosmologyComputeTimeFromRedshift.\n");
-  }
-  aNew *= (1 + InitialRedshift);
-  fprintf(cosmo_fptr_2, "%"GSYM" %.12"ESYM" %.12"ESYM"\n",
-          time*TimeUnits, *a, aNew);
  
   /* Compute the derivative of the expansion factor (Peebles93, eq. 13.3). */
  

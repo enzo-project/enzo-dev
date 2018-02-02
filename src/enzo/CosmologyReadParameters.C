@@ -100,11 +100,11 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
  
   }
 
-  //if (OmegaRadiationNow > 0.) {
-    if (InitializeCosmologyTable() == FAIL) {
-      ENZO_FAIL("Error in InitializeCosmologyTable.\n");
-    }
-    //}
+  /* Calculate the table of a vs. t. */
+
+  if (InitializeCosmologyTable() == FAIL) {
+    ENZO_FAIL("Error in InitializeCosmologyTable.\n");
+  }
 
   if (MyProcessorNumber == ROOT_PROCESSOR &&
       OmegaDarkMatterNow == FLOAT_UNDEFINED &&
