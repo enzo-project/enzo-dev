@@ -369,13 +369,11 @@ int RadiativeTransferInitialize(char *ParameterFile,
   fprintf(stdout, "%s: 32 bit RT engaged.\n", __FUNCTION__);
   // Initialize HEALPix arrays
   if (RadiativeTransfer) {
-    pix2x = new long long[1024];
-    pix2y = new long long[1024];
-    mkPix2xy(&pix2x[0],&pix2y[0]);
+    pix2x = new long[1024];
+    pix2y = new long[1024];
 
     x2pix = new int[128];
     y2pix = new int[128];
-    mk_xy2pix(&x2pix[0], &y2pix[0]);
   }
 #endif
 //  fprintf(stderr, "RTI: RTTS = %d, RTTST =  %s\n", 

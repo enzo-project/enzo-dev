@@ -51,7 +51,7 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
   int int_pos[MAX_DIMENSION];
   FLOAT length, length2, length_inv;
   FLOAT new_pos[MAX_DIMENSION];
-  FLOAT original_vec[MAX_DIMENSION], vec[MAX_DIMENSION], 
+  double original_vec[MAX_DIMENSION], vec[MAX_DIMENSION], 
     new_vec[MAX_DIMENSION];
   float dx_inv = 1.0 / this->CellWidth[0][0];
   float dx2_inv = dx_inv * dx_inv;
@@ -111,7 +111,8 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
     
   index = GRIDINDEX_NOGHOST(int_pos[0], int_pos[1], int_pos[2]);
   if (SubgridMarker[index] != this)
-    this->FindPhotonNewGrid(index, new_pos, new_vec, int_pos, *PP, *MoveToGrid,
+    this->FindPhotonNewGrid(index, new_pos, new_vec, int_pos,
+			    *PP, *MoveToGrid,
 			    DeltaLevel, DomainWidth, DeleteMe, 
 			    ParentGrid);
 

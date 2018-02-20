@@ -42,7 +42,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   const float EnergyThresholds[] = {13.6, 24.6, 54.4, 100.0};
 
   RadiationSourceEntry *RS = RadiationSource;
-  FLOAT min_beam_zvec, dot_prod, vec[3];
+  FLOAT min_beam_zvec, dot_prod;
+  double vec[3];
   int BasePackages, NumberOfNewPhotonPackages;
   int i, j, dim, bin;
   int count=0;
@@ -236,7 +237,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	NewPack->ipix = j;
 	NewPack->level = min_level;
 	NewPack->Energy = RS->Energy[ebin];
-	FLOAT dir_vec[3];
+	double dir_vec[3];
 	pix2vec_nest64((int64_t) (1 << NewPack->level), NewPack->ipix, dir_vec);
 	if (NewPack->Type != 3)  // not Lyman-Werner
 	  for (bin = 0; bin < MAX_CROSS_SECTIONS; bin++)
