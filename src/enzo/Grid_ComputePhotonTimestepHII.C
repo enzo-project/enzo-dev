@@ -17,10 +17,7 @@
 /
 ************************************************************************/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include "ErrorExceptions.h"
+#include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -29,6 +26,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "RadiativeTransferParameters.h"
+
 
 #define MAX_CHANGE 0.1
 
@@ -85,7 +83,7 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
   temperature = new float[size];
   this->ComputeTemperatureField(temperature);  
 
-  int tidx;
+  int tidx, nbins;
   float dxinv, dyinv, dzinv;
   float HIIdot, a3inv, a6inv, kr1, kr2, cs;
   float logtem, logtem0, logtem9, dlogtem, t1, t2, tdef, cs_factor;
@@ -99,9 +97,17 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
   dzinv = 1.0 / CellWidth[2][0];
   cs_factor = 9.082e3 / VelocityUnits / Mu;
 
+#ifdef USE_GRACKLE
+  logtem0 = log(grackle_data->TemperatureStart);
+  logtem9 = log(grackle_data->TemperatureEnd);
+  nbins = grackle_data->NumberOfTemperatureBins;
+  dlogtem = (logtem9 - logtem0) / float(nbins-1);
+#else
   logtem0 = log(RateData.TemperatureStart);
   logtem9 = log(RateData.TemperatureEnd);
-  dlogtem = (logtem9 - logtem0) / float(RateData.NumberOfTemperatureBins-1);
+  nbins = RateData.NumberOfTemperatureBins;
+  dlogtem = (logtem9 - logtem0) / float(nbins-1);
+#endif
 
   // Absorb all unit conversions into this factor, so we only have to
   // multiple by density.
@@ -124,16 +130,22 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
 	    BaryonField[kphHINum][index] > 0) {
 
 	  logtem = min( max( log(temperature[index]), logtem0 ), logtem9 );
-	  tidx = min( RateData.NumberOfTemperatureBins-1,
-		      max(1, int((logtem - logtem0) / dlogtem)+1) );
+	  tidx = min( nbins-1, max(1, int((logtem - logtem0) / dlogtem)+1) );
 	  t1 = logtem0 + (tidx - 1) * dlogtem;
 	  t2 = logtem0 + (tidx    ) * dlogtem;
 	  tdef = t2 - t1;
 
+#ifdef USE_GRACKLE
+	  kr1 = grackle_rates.k1[tidx] + (logtem - t1) * 
+	    (grackle_rates.k1[tidx+1] - grackle_rates.k1[tidx]) / tdef;
+	  kr2 = grackle_rates.k2[tidx] + (logtem - t1) * 
+	    (grackle_rates.k2[tidx+1] - grackle_rates.k2[tidx]) / tdef;
+#else
 	  kr1 = RateData.k1[tidx] + (logtem - t1) * 
 	    (RateData.k1[tidx+1] - RateData.k1[tidx]) / tdef;
 	  kr2 = RateData.k2[tidx] + (logtem - t1) * 
 	    (RateData.k2[tidx+1] - RateData.k2[tidx]) / tdef;
+#endif
 
 	  HIIdot = a6inv *
 	    (kr1 * BaryonField[HINum][index] * BaryonField[DeNum][index] -
