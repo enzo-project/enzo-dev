@@ -89,16 +89,19 @@ float grid::ComputePhotonTimestepTau(float DensityUnits, float LengthUnits,
   a6inv = a3inv * a3inv;
 
 #ifdef USE_GRACKLE
-  logtem0 = log(grackle_data->TemperatureStart);
-  logtem9 = log(grackle_data->TemperatureEnd);
-  nbins = grackle_data->NumberOfTemperatureBins;
-  dlogtem = (logtem9 - logtem0) / float(nbins-1);
-#else
-  logtem0 = log(RateData.TemperatureStart);
-  logtem9 = log(RateData.TemperatureEnd);
-  nbins = RateData.NumberOfTemperatureBins;
-  dlogtem = (logtem9 - logtem0) / float(nbins-1);
+  if (grackle_data->use_grackle == TRUE) {
+    logtem0 = log(grackle_data->TemperatureStart);
+    logtem9 = log(grackle_data->TemperatureEnd);
+    nbins = grackle_data->NumberOfTemperatureBins;
+    dlogtem = (logtem9 - logtem0) / float(nbins-1);
+  } else
 #endif
+  {
+    logtem0 = log(RateData.TemperatureStart);
+    logtem9 = log(RateData.TemperatureEnd);
+    nbins = RateData.NumberOfTemperatureBins;
+    dlogtem = (logtem9 - logtem0) / float(nbins-1);
+  }
 
   // Absorb all unit conversions into this factor, so we only have to
   // multiple by density.
@@ -124,16 +127,19 @@ float grid::ComputePhotonTimestepTau(float DensityUnits, float LengthUnits,
 	  tdef = t2 - t1;
 
 #ifdef USE_GRACKLE
-	  kr1 = grackle_rates.k1[tidx] + (logtem - t1) * 
-	    (grackle_rates.k1[tidx+1] - grackle_rates.k1[tidx]) / tdef;
-	  kr2 = grackle_rates.k2[tidx] + (logtem - t1) * 
-	    (grackle_rates.k2[tidx+1] - grackle_rates.k2[tidx]) / tdef;
-#else
-	  kr1 = RateData.k1[tidx] + (logtem - t1) * 
-	    (RateData.k1[tidx+1] - RateData.k1[tidx]) / tdef;
-	  kr2 = RateData.k2[tidx] + (logtem - t1) * 
-	    (RateData.k2[tidx+1] - RateData.k2[tidx]) / tdef;
+	  if (grackle_data->use_grackle == TRUE) {
+	    kr1 = grackle_rates.k1[tidx] + (logtem - t1) * 
+	      (grackle_rates.k1[tidx+1] - grackle_rates.k1[tidx]) / tdef;
+	    kr2 = grackle_rates.k2[tidx] + (logtem - t1) * 
+	      (grackle_rates.k2[tidx+1] - grackle_rates.k2[tidx]) / tdef;
+	  } else
 #endif
+	  {
+	    kr1 = RateData.k1[tidx] + (logtem - t1) * 
+	      (RateData.k1[tidx+1] - RateData.k1[tidx]) / tdef;
+	    kr2 = RateData.k2[tidx] + (logtem - t1) * 
+	      (RateData.k2[tidx+1] - RateData.k2[tidx]) / tdef;
+	  }
 
 	  HIIdot = a6inv *
 	    (kr1 * BaryonField[HINum][index] * BaryonField[DeNum][index] -
