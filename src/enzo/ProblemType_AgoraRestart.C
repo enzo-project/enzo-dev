@@ -30,7 +30,7 @@
 #include "phys_constants.h"
 
 
-#define VCIRC_TABLE_LENGTH 151
+#define VCIRC_TABLE_LENGTH 10000
 // VCIRC_TABLE_LENGTH 10000
 
 void mt_init(unsigned_int seed);
@@ -721,9 +721,10 @@ public:
 /*
     nBulge = nlines("bulge.dat");
     if(debug) fprintf(stderr, "InitializeParticles: Number of Bulge Particles %"ISYM"\n", nBulge);
+*/
     nDisk = nlines("disk.dat");
     if(debug) fprintf(stderr, "InitializeParticles: Number of Disk Particles %"ISYM"\n", nDisk);
-*/
+
     nHalo = nlines("halo.dat");
     if(debug) fprintf(stderr, "InitializeParticles: Number of Halo Particles %"ISYM"\n", nHalo);
     nParticles = nBulge + nDisk + nHalo;
@@ -757,10 +758,11 @@ public:
     this->ReadParticlesFromFile(
       Number, Type, Position, Velocity, Mass,
       "bulge.dat", PARTICLE_TYPE_STAR, count, dx);
+*/
     this->ReadParticlesFromFile(
       Number, Type, Position, Velocity, Mass,
       "disk.dat", PARTICLE_TYPE_STAR, count, dx);
-*/
+
     this->ReadParticlesFromFile(
       Number, Type, Position, Velocity, Mass,
       "halo.dat", PARTICLE_TYPE_DARK_MATTER, count, dx);
