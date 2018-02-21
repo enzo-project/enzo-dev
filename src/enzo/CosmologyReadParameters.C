@@ -14,6 +14,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -27,7 +28,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
 {
  
   int i, OutputNumber;
-  FLOAT CurrentRedshift;
+  FLOAT CurrentRedshift, logaInitial, logaFinal;
   char line[MAX_LINE_LENGTH], *dummy = new char[MAX_LINE_LENGTH];
   dummy[0] = 0;
  
@@ -100,7 +101,13 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
  
   }
 
-  /* Calculate the table of a vs. t. */
+  /* Calculate the table of a vs. t.
+     Adjust table bounds if exceeded by the initial/final redshift. */
+
+  logaInitial               = log10(1. / (1. + InitialRedshift));
+  logaFinal                 = log10(1. / (1. + FinalRedshift));
+  CosmologyTableLogaInitial = min(CosmologyTableLogaInitial, logaInitial);
+  CosmologyTableLogaFinal   = max(CosmologyTableLogaFinal,   logaFinal);
 
   if (InitializeCosmologyTable() == FAIL) {
     ENZO_FAIL("Error in InitializeCosmologyTable.\n");

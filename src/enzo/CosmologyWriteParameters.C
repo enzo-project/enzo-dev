@@ -54,8 +54,8 @@ int CosmologyWriteParameters(FILE *fptr, FLOAT StopTime, FLOAT CurrentTime)
   fprintf(fptr, "CosmologyInitialRedshift    = %"GOUTSYM"\n", InitialRedshift);
   fprintf(fptr, "CosmologyFinalRedshift      = %"GOUTSYM"\n", FinalRedshift);
   fprintf(fptr, "CosmologyTableNumberOfBins  = %"ISYM"\n", CosmologyTableNumberOfBins);
-  fprintf(fptr, "CosmologyTableLogaInitial   = %"GSYM"\n", CosmologyTableLogaInitial);
-  fprintf(fptr, "CosmologyTableLogaFinal     = %"GSYM"\n", CosmologyTableLogaFinal);
+  fprintf(fptr, "CosmologyTableLogaInitial   = %"GOUTSYM"\n", CosmologyTableLogaInitial);
+  fprintf(fptr, "CosmologyTableLogaFinal     = %"GOUTSYM"\n", CosmologyTableLogaFinal);
   fprintf(fptr, "CosmologyCurrentRedshift    = %"GOUTSYM"\n\n", CurrentRedshift);
  
   return SUCCESS;
