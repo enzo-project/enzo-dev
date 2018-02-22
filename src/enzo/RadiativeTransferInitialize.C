@@ -363,24 +363,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
   Exterior.DeleteObsoleteFields(ObsoleteFields, NumberOfObsoleteFields);
 
-  /* Initialize SubgridMarker (do we need to do this?  it's already
-     done in RebuildHierarchy) */
-#ifdef CONFIG_PFLOAT_4   //32 bit only
-  fprintf(stdout, "%s: 32 bit RT engaged.\n", __FUNCTION__);
-  // Initialize HEALPix arrays
-  if (RadiativeTransfer) {
-    pix2x = new long[1024];
-    pix2y = new long[1024];
-
-    x2pix = new int[128];
-    y2pix = new int[128];
-  }
-#endif
-//  fprintf(stderr, "RTI: RTTS = %d, RTTST =  %s\n", 
-//	  RadiativeTransferTraceSpectrum, RadiativeTransferTraceSpectrumTable); 
-
   /* If set, initialize spectrum table */
-
   if (RadiativeTransfer == TRUE &&
       RadiativeTransferTraceSpectrum == TRUE) {
     if (InitializeRadiativeTransferSpectrumTable(MetaData.Time) == FAIL) {  

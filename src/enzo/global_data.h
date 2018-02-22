@@ -898,10 +898,6 @@ EXTERN int H2OpticalDepthApproximation;
 EXTERN int RadiativeTransfer;
 EXTERN int RadiativeTransferHydrogenOnly;
 #ifdef TRANSFER
-EXTERN long *pix2x;
-EXTERN long *pix2y;
-EXTERN int  *x2pix;
-EXTERN int  *y2pix;
 EXTERN FLOAT PhotonTime;
 EXTERN float dtPhoton;
 #include "RadiationSource.h"
