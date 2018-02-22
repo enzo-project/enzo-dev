@@ -2,7 +2,7 @@
 wget --quiet https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
 bash ./Miniconda2-latest-Linux-x86_64.sh -b -p ./enzo-conda -f
 export PATH=$PWD/enzo-conda/bin:$PATH
-conda install -q -y mercurial cython h5py matplotlib sympy numpy pytest flake8 yt nose
+conda install -q -y mercurial cython h5py matplotlib sympy numpy!=1.14.0 pytest flake8 yt nose
 pip install python-hglib
 
 # install OS dependencies
@@ -33,7 +33,7 @@ echo "backend : Agg" > $HOME/matplotlibrc
 export MATPLOTLIBRC=$HOME
 
 export ENZOTEST_DIR=$HOME/enzo_test
-export GOLD_STANDARD_TAG="gold-standard-v2"
+export GOLD_STANDARD_TAG="gold-standard-v4"
 
 # Build the gold standard version.
 cd $BITBUCKET_CLONE_DIR
