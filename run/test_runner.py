@@ -160,18 +160,21 @@ def parse_results_file(filename):
     status = -1
     # Order is passes, failures, errors
     outcomes = [0, 0, 0]
+    dnfs = 0
     for line in lines:
         line = line.strip()
+        if line.startswith("Sims Not Finishing"):
+            dnfs = int(line.split(":")[1])
+            continue
         if line.startswith("Tests that "):
             status += 1
             continue
         if line and status >= 0:
             outcomes[status] += 1
-    print ("Passes:   %d." % outcomes[0])
-    print ("Failures: %d." % outcomes[1])
-    print ("Errors:   %d." % outcomes[2])
-    if sum(outcomes[1:]) > 0:
-        raise AssertionError("Some tests failed or had errors!")
+    print ("Passes:             %d." % outcomes[0])
+    print ("Failures:           %d." % outcomes[1])
+    print ("Errors:             %d." % outcomes[2])
+    print ("Sims not finishing: %d." % dnfs)
 
 class ResultsSummary(Plugin):
     name = "results_summary"
@@ -408,13 +411,13 @@ class EnzoTestCollection(object):
         print("NUMBER OF TESTS", len(self.tests))
 
     def save_test_summary(self):
-        all_passes = all_failures = 0
-        run_passes = run_failures = 0
-        dnfs = default_test = 0
         f = open(os.path.join(self.output_dir, results_filename), 'w')
         self.plugins[1].finalize(None, outfile=f, sims_not_finished=self.sims_not_finished, 
                                  sim_only=self.sim_only)
         f.close()
+
+        all_failures = len(self.plugins[1].failures)
+        dnfs = len(self.sims_not_finished)
         if all_failures > 0 or dnfs > 0:
             self.any_failures = True
         else:
@@ -804,6 +807,7 @@ if __name__ == "__main__":
         f.write("current_set = '%s';\n" % (hg_current.strip()))
 
     if etc2.any_failures:
+        raise AssertionError("Some tests failed or had errors!")
         sys.exit(1)
     else:
         sys.exit(0)
