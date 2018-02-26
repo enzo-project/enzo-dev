@@ -19,6 +19,10 @@ Cosmology Parameters
     This is the contribution of the cosmological constant to the energy
     density at the current epoch, in the same units as above. Default:
     0.721
+``CosmologyOmegaRadiationNow`` (external)
+    This is the contribution of all relativistic matter to the energy
+    density at the current epoch (z=0), in the same units as above.
+    Default: 0.0.
 ``CosmologyHubbleConstantNow`` (external)
     The Hubble constant at z=0, in units of 100 km/s/Mpc. Default:
     0.701
@@ -33,6 +37,22 @@ Cosmology Parameters
     accurate followed. The timestep is constrained so that the relative
     change in the expansion factor in a step is less than this value.
     Default: 0.01
+``CosmologyTableNumberOfBins`` (external)
+    Conversions between time and redshift are computed by interpolating
+    from a numerically integrated table of log(scale factor) vs. time.
+    This parameter sets the number of bins in the table. Default: 1000.
+``CosmologyTableLogaInitial`` (external)
+    This sets the lower bound of the table used to convert between time
+    and redshift. This is log10 of the lowest value of the scale factor.
+    This value will be automatically adjusted if
+    ``CosmologyInitialRedshift`` is set to an earlier time.
+    Default: -6.0, (i.e., z = 999,999.)
+``CosmologyTableLogaFinal`` (external)
+    This sets the upper bound of the table used to convert between time
+    and redshift. This is log10 of the highest value of the scale factor.
+    This value will be automatically adjusted if
+    ``CosmologyFinalRedshift`` is set to a later time.
+    Default: 0.0, (i.e., z = 0.)
 ``CosmologyCurrentRedshift`` (information only)
     This is not strictly speaking a parameter since it is never
     interpreted and is only meant to provide information to the user.
