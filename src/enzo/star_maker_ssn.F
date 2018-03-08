@@ -371,7 +371,8 @@ c
 c
       do n=1, npart
          typ = type(n) .eq. 2 .or. type(n) .eq. 4
-         if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. typ) then
+         if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. typ .and.
+     &          (t - tcp(n)) .lt. 3.7e7*3.15e7/t1) then
 
            dEject = 0.0_RKIND
 
@@ -865,8 +866,14 @@ c                         Limit maximum velocity boost to 1000 km/s
 c                         Add momentum feedback
 
                           u(ic,jc,kc) = u(ic,jc,kc) + (rx*pcell)/mc
+c                          u(ic,jc,kc) = sign(min(abs(u(ic,jc,kc)), mv),
+c     &                                       u(ic,jc,kx))
                           v(ic,jc,kc) = v(ic,jc,kc) + (ry*pcell)/mc
+c                          v(ic,jc,kc) = sign(min(abs(v(ic,jc,kc)), mv),
+c     &                                       v(ic,jc,kx))
                           w(ic,jc,kc) = w(ic,jc,kc) + (rz*pcell)/mc
+c                          w(ic,jc,kc) = sign(min(abs(w(ic,jc,kc)), mv),
+c     &                                       w(ic,jc,kx))
 
                           if (imethod .ne. 2 .and. idual .eq. 1) then
                              te(ic,jc,kc) = ge(ic,jc,kc) + 0.5_RKIND*(
