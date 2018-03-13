@@ -1278,6 +1278,8 @@ gradient force to gravitational force for one-zone collapse test. */
    float* AccessKPhHeII();
    float* AccessGammaHeII();
    float* AccessKDissH2I();
+   float* AccessKPhHM();
+   float* AccessKDissH2II();
    float* AccessGravPotential();
    float* AccessAcceleration0();
    float* AccessAcceleration1();
@@ -2620,7 +2622,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int IdentifyRadiativeTransferFields(int &kphHINum, int &gammaNum,
 				      int &kphHeINum, int &kphHeIINum, 
-				      int &kdissH2INum);
+				      int &kdissH2INum, int &kphHMNum,
+				      int &kdissH2IINum);
 
 #ifdef TRANSFER
 #include "PhotonGrid_Methods.h"

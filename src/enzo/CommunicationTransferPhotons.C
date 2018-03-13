@@ -64,7 +64,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 
   ListOfPhotonsToMove *Mover, *Destroyer;
   PhotonPackageEntry *ToGridPackages = NULL;
-  int j, ToGridNumber, FromGridNumber;
+  int ToGridNumber, FromGridNumber;
 
   /* Serial case */
 
@@ -223,9 +223,8 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 	Mover->PhotonPackage->CurrentTime;
       SendList[ToProc][ToCount].buffer.ColumnDensity        = 
 	Mover->PhotonPackage->ColumnDensity;
-      for (j = 0; j < MAX_CROSS_SECTIONS; j++)
-	SendList[ToProc][ToCount].buffer.CrossSection[j]         = 
-	  Mover->PhotonPackage->CrossSection[j];
+      SendList[ToProc][ToCount].buffer.CrossSection         = 
+	Mover->PhotonPackage->CrossSection;
 
       SendList[ToProc][ToCount].buffer.Radius = Mover->PhotonPackage->Radius;
       SendList[ToProc][ToCount].buffer.ipix   = Mover->PhotonPackage->ipix;
