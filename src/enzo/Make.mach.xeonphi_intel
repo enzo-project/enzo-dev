@@ -19,7 +19,7 @@ MACH_FILE  = Make.mach.xeon-phi
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5   = /home/cllorente3/hdf5-1.10.1
+LOCAL_HDF5   = /home/cllorente/hdf5-1.10.1
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -29,11 +29,11 @@ MACH_CPP       = cpp # C preprocessor command
 
 # With MPI
 
-MACH_CC_MPI    = mpicc # C compiler when using MPI
-MACH_CXX_MPI   = mpicxx # C++ compiler when using MPI
-MACH_FC_MPI    = mpifort # Fortran 77 compiler when using MPI
-MACH_F90_MPI   = mpifort # Fortran 90 compiler when using MPI
-MACH_LD_MPI    = mpicxx # Linker when using MPI
+MACH_CC_MPI    = mpiicc # C compiler when using MPI
+MACH_CXX_MPI   = mpiicpc # C++ compiler when using MPI
+MACH_FC_MPI    = mpiifort # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = mpiifort # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = mpiicpc # Linker when using MPI
 
 # Without MPI
 
@@ -86,7 +86,7 @@ MACH_OPT_AGGRESSIVE  = -O3 -g
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = # MPI includes
-LOCAL_INCLUDES_HDF5   = -I $(LOCAL_HDF5)/src # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I $(LOCAL_HDF5)/build/hdf5/include # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = # hypre includes
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 
@@ -101,12 +101,12 @@ MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MPI    = # MPI libraries
-LOCAL_LIBS_HDF5   = -L $(LOCAL_HDF5)/src/.libs -lhdf5 -lz # HDF5 libraries
+LOCAL_LIBS_HDF5   = -L $(LOCAL_HDF5)/build/hdf5/libs -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
 
 # Machine-dependent libraries
-LOCAL_LIBS_MACH   = -lifcore -limf -lifport
+LOCAL_LIBS_MACH   = -lifcore -limf -lifport -liomp5
 #LOCAL_LIBS_MACH   = -lgfortran
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)

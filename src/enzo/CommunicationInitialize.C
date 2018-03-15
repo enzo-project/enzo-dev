@@ -81,7 +81,7 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
   MPI_Arg mpi_size;
 
 #ifdef _OPENMP
-  MPI_Arg desired = MPI_THREAD_FUNNELED;
+  MPI_Arg desired = MPI_THREAD_MULTIPLE;
   MPI_Arg provided;
   MPI_Arg thread;
   MPI_Init_thread(argc, argv, desired, &provided);
