@@ -19,6 +19,7 @@ MACH_FILE  = Make.mach.xeon-phi
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
+#change this to your local hdf5 install path
 LOCAL_HDF5   = /home/cllorente/hdf5-1.10.1
 
 #-----------------------------------------------------------------------
@@ -60,7 +61,7 @@ MACH_CXXFLAGS = -DMPICH_IGNORE_CXX_SEEK
 MACH_FFLAGS   = -132
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = 
-MACH_OPENMP   = -qopenmp -g
+MACH_OPENMP   = -qopenmp
 
 
 #-----------------------------------------------------------------------
