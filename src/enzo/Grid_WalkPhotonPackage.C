@@ -1,12 +1,5 @@
 #define DEBUG 0
 #define MYPROC MyProcessorNumber == ProcessorNumber
-#define IDEBUG 0
-#define IRDEBUG 0
-#define LWDEBUG 0
-#define XDEBUG 0
-#define SDEBUG 0
-#define DELPHOTONS 0
-#define INDEX 26695
 /***********************************************************************
 /
 /  GRID CLASS (WALK PHOTON PACKAGES ACROSS GRID)
@@ -577,7 +570,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      * 7. A Full Spectrum including IR, LW, UV Ionising radiation and XRAYS
      *
      */
-   
+#if DEBUG
+    printf("%s: Radiation Type = %d\t PhotonEnergy = %f\n", __FUNCTION__, type, (*PP)->Energy);
+#endif
     switch (type) {
 
       /************************************************************/
