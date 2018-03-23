@@ -73,12 +73,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferTraceSpectrumTable         = (char*) "spectrum_table.dat";
   RadiativeTransferSourceBeamAngle            = 30.0;
   RadiativeTransferLoadBalance                = FALSE;
-  RadiativeTransferRayMaximumLength           = 1.7320508; //sqrt(3.0)
-  RadiativeTransferUseH2Shielding             = TRUE;
-  RadiativeTransferH2Shield                   = 0;
-  RadiativeTransferH2IIDiss                   = TRUE;
   RadiativeTransferHubbleTimeFraction         = 0.1;
-  RadiativeTransferPropagationSpeedFraction   = 1.0;
+
   if (MultiSpecies == 0)
     RadiativeTransferOpticallyThinH2 = FALSE;
 
@@ -136,18 +132,10 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferAdaptiveTimestep);
     ret += sscanf(line, "RadiativeTransferHydrogenOnly = %"ISYM, 
 		  &RadiativeTransferHydrogenOnly);
-    ret += sscanf(line, "RadiativeTransferH2Shield = %"ISYM, 
-		  &RadiativeTransferH2Shield);
-    ret += sscanf(line, "RadiativeTransferH2IIDiss = %"ISYM, 
-		  &RadiativeTransferH2IIDiss);
-    ret += sscanf(line, "RadiativeTransferUseH2Shielding = %"ISYM, 
-		  &RadiativeTransferUseH2Shielding);
     ret += sscanf(line, "RadiativeTransferTraceSpectrum = %"ISYM, 
 		  &RadiativeTransferTraceSpectrum);
     ret += sscanf(line, "RadiativeTransferLoadBalance = %"ISYM, 
 		  &RadiativeTransferLoadBalance);
-    ret += sscanf(line, "RadiativeTransferRayMaximumLength = %"FSYM, 
-		  &RadiativeTransferRayMaximumLength);
     ret += sscanf(line, "RadiativeTransferHubbleTimeFraction = %"FSYM, 
 		  &RadiativeTransferHubbleTimeFraction);
     if (sscanf(line, "RadiativeTransferTraceSpectrumTable = %s", dummy) == 1)

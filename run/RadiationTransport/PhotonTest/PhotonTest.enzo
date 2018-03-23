@@ -23,9 +23,6 @@ RadiativeTransferInitialHEALPixLevel = 3
 RadiativeTransferHIIRestrictedTimestep = 1
 RadiativeTransferAdaptiveTimestep = 1
 RadiativeTransferHydrogenOnly = 1
-RadiativeTransferRayMaximumLength = 1
-RadiativeTransferPropagationSpeedFraction = 1
-
 
 ComovingCoordinates     = 0
 DensityUnits = 1.673e-27    // 1e-3 cm^-3

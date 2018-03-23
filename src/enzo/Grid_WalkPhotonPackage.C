@@ -1,4 +1,5 @@
 #define DEBUG 0
+
 /***********************************************************************
 /
 /  GRID CLASS (WALK PHOTON PACKAGES ACROSS GRID)
@@ -509,6 +510,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      * 7. A Full Spectrum including IR, LW, UV Ionising radiation and XRAYS
      *
      */
+<<<<<<< local
 #if DEBUG
     printf("%s: Radiation Type = %d\t PhotonEnergy = %f\n", __FUNCTION__, type, (*PP)->Energy);
 #endif
@@ -526,6 +528,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
    
 =======
 
+>>>>>>> other
+||||||| base
+#if DEBUG
+    printf("%s: Radiation Type = %d\t PhotonEnergy = %f\n", __FUNCTION__, type, (*PP)->Energy);
+#endif
+=======
+   
 >>>>>>> other
     switch (type) {
 
