@@ -389,7 +389,8 @@ extern "C" void FORTRAN_NAME(star_feedback_ssn)(
     float *smthresh, int *willExplode, float *soonestExplosion,
     float *gamma, float *mu,
     float *te1, float *metalIIfield, float *metalIIfrac, int *imetalII,
-    float *s49_tot, int *maxlevel);
+    float *s49_tot, int *maxlevel,
+    int *distrad, int *diststep, int *distcells);
 
 extern "C" void FORTRAN_NAME(star_feedback7)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *te, float *ge, float *u, float *v, 
@@ -1732,6 +1733,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       for (i = 0; i < NumberOfParticles; ++i) {
           if(ParticleType[i] == PARTICLE_TYPE_STAR ||
              ParticleType[i] == PARTICLE_TYPE_MUST_REFINE)
+	    if ((Time - ParticleAttribute[0][i]) < 3.7e7 * year / TimeUnits)
             {
 
               soonestExplosion[i] = -1.0;
@@ -1874,7 +1876,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           explosionFlag, &StarMakerMinimumMass, willExplode, soonestExplosion,
           &Gamma, &Mu, &TemperatureUnits, BaryonField[MetalIINum],
           ParticleAttribute[metalII], &StarMakerTypeIISNeMetalField, s49_tot,
-          &MaximumRefinementLevel);
+          &MaximumRefinementLevel,
+          &StarFeedbackDistRadius, &StarFeedbackDistCellStep, &StarFeedbackDistTotalCells);
 
       delete[] s49_tot;
       delete[] explosionFlag;
