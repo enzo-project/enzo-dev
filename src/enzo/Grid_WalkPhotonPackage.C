@@ -1,5 +1,4 @@
 #define DEBUG 0
-
 /***********************************************************************
 /
 /  GRID CLASS (WALK PHOTON PACKAGES ACROSS GRID)
@@ -499,43 +498,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     /* Calculate the absorption.  There are three different cases:
        single ionizations, H2 dissociation, and X-rays. */
-<<<<<<< local
-/* Calculate the absorption. The different cases (currently) are:
-     *
-     * 0/1/2. Single ionizations (HI, HeI and HeII)
-     * 3. H2 dissociation in the Lyman Werner band
-     * 4. Infrared Radiation
-     * 5. X-rays. 
-     * 6. A Tracing Spectrum
-     * 7. A Full Spectrum including IR, LW, UV Ionising radiation and XRAYS
-     *
-     */
-<<<<<<< local
-#if DEBUG
-    printf("%s: Radiation Type = %d\t PhotonEnergy = %f\n", __FUNCTION__, type, (*PP)->Energy);
-#endif
-||||||| base
-/* Calculate the absorption. The different cases (currently) are:
-     *
-     * 0/1/2. Single ionizations (HI, HeI and HeII)
-     * 3. H2 dissociation in the Lyman Werner band
-     * 4. Infrared Radiation
-     * 5. X-rays. 
-     * 6. A Tracing Spectrum
-     * 7. A Full Spectrum including IR, LW, UV Ionising radiation and XRAYS
-     *
-     */
-   
-=======
 
->>>>>>> other
-||||||| base
-#if DEBUG
-    printf("%s: Radiation Type = %d\t PhotonEnergy = %f\n", __FUNCTION__, type, (*PP)->Energy);
-#endif
-=======
-   
->>>>>>> other
     switch (type) {
 
       /************************************************************/
