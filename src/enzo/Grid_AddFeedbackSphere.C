@@ -862,10 +862,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
     /* Get photo-ionization fields */
 
-    int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
+    int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
     int gammaNum;
     IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, kphHeIINum, 
-				    kdissH2INum, kphHMNum, kdissH2IINum);
+				    kdissH2INum);
     
     for (k = 0; k < GridDimension[2]; k++) {
 

@@ -106,36 +106,6 @@ EXTERN int RadiativeTransferLoadBalance;
 
 EXTERN float RadiativeTransferFluxBackgroundLimit;
 
-/* The maximum distance a ray can travel. By default this will 
- * be set to sqrt(3.0) meaning that the ray can travel at most from one 
- * corner of the box to another. To avoid rays hitting the same cell 
- * twice this should be set to be <= 0.5.
- */
-EXTERN float RadiativeTransferRayMaximumLength;
-
-/* 
- * If set to TRUE use the shielding fitting function to 
- * calculate the H2 dissociation due to radiation in the 
- * Lyman-Werner band. If set to false the dissociation
- * rate is based purely on the H2I cross section for
- * radiation in the Lyman-Werner band. 
- * Default = False
- */
-EXTERN int RadiativeTransferUseH2Shielding;
-
-/* This flag controls which shielding function is used in the 
- * calculation of the H2 shielding. Current options are the 
- * standard equation due to Draine & Beltoldi (1996) or the 
- * updated function due to Wolcott-Green (2011).
- */
-EXTERN int RadiativeTransferH2Shield;
-
-/* 
- * This flag controls whether the photo-dissociation of 
- * the H2II ion is included as part of the IR and LW 
- * radiation. By default it is included.
- */
-EXTERN int RadiativeTransferH2IIDiss;
 /* Parameter to control flux threshold when rays are deleted when the
    photo-ionization rate becomes as long as the Hubble time times this
    constant. */

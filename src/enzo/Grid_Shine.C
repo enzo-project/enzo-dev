@@ -39,18 +39,19 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  const float EnergyThresholds[] = {13.6, 24.6, 54.4, 100.0}; //Only used for determining HI,HeI,HeII
- 
+  const float EnergyThresholds[] = {13.6, 24.6, 54.4, 100.0};
+
   RadiationSourceEntry *RS = RadiationSource;
-  FLOAT min_beam_zvec, dot_prod, vec[3];
-  long long BasePackages = 0, NumberOfNewPhotonPackages = 0;
-  int dim = 0;
-  int64_t ray = 0;
-  int count = 0;
+  FLOAT min_beam_zvec, dot_prod;
+  double vec[3];
+  int BasePackages, NumberOfNewPhotonPackages;
+  int i, j, dim, bin;
+  int count=0;
   int min_level = RadiativeTransferInitialHEALPixLevel;
 
   /* base number of rays to star with: for min_level=2 this is 192
      photon packages per source */
+
   BasePackages = 12*(int)pow(4,min_level);
 
   /* If using a beamed source, calculate the minimum z-component of
@@ -94,8 +95,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   
   if (MYPROC && DEBUG) fprintf(stdout, "grid::Shine: Loop over sources and packages \n");
 
-  int ebin = 0, this_type = 0, type_count = 0;
-  FLOAT FuzzyLength = 0.0;
+  int ebin, this_type, type_count;
+  FLOAT FuzzyLength;
   FLOAT ShakeSource[3];
   double RampPercent = 1;
 
@@ -119,80 +120,82 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     ShakeSource[dim] = 0.0;
   //ShakeSource[dim] = (-0.01 + 0.02*float(rand())/RAND_MAX) * CellWidth[dim][0];
 
-  if (MYPROC && DEBUG)
-    printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent, 
-	   PhotonTime-RS->CreationTime+dtPhoton, RS->LifeTime, 
-	   RS->Luminosity);
+  switch (RS->Type) {
+  case PopII:
+    break;
+  case Episodic:
+  case PopIII:
+    if (MyProcessorNumber == ProcessorNumber)
+      printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent,
+	     PhotonTime-RS->CreationTime+dtPhoton, RS->LifeTime, 
+	     RS->Luminosity);
+    break;
+  case BlackHole:
+    break;
+  case MBH:
+    if (MyProcessorNumber == ProcessorNumber)
+      printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent, 
+	     PhotonTime-RS->CreationTime+dtPhoton, RS->LifeTime, 
+	     RS->Luminosity);
+    break;
+  } // ENDSWITCH type
 
+  for (i=0; i < stype; i++) {
 
-  /* Loop over Energy Bins  - stype is the number of energy bins */ 
-  /* The types are:
-   * Type0: HI Ionising Radiation
-   * Type1: HeI Ionising Radiation
-   * Type2: HeII Ionising Radiation
-   * Type3: H2I photo-dissociating Radiation
-   * Type4: Infrared Radiation (HM Photodetachment)
-   * Type5: XRAYS (which heat and ionise HI, HeI and HeII also)
-   * Type6: 
-   */
-  for (ebin=0; ebin < stype; ebin++) {
-
-    if (MYPROC && DEBUG)
-      fprintf(stdout, "Shine: Energy = %f eV", RS->Energy[ebin]);
     float photons_per_package;
 
-    if(RS->Energy[ebin] <= 0)
+    // Type 3 = H2I_LW
+    if (!RadiativeTransferOpticallyThinH2 && MultiSpecies > 1 &&
+	RS->Energy[i] < 13.6)
+      ebin = 3;
+    else
+      ebin = i;
+
+    // Don't create LW photon packages if we're doing an optically-thin approx.
+    if (ebin == 3 && RadiativeTransferOpticallyThinH2)
       continue;
-    /* If we are doing simple H2I, H2II and HM rates continue here. */
-    if(RS->Energy[ebin] <= 13.6 && RadiativeTransferOpticallyThinH2 == 1)
-      continue;
-    
+
     photons_per_package = RampPercent * RS->Luminosity * 
       RS->SED[ebin] * dtPhoton / float(BasePackages);
 
     if (ebin == 0)
       EscapedPhotonCount[0] += photons_per_package * BasePackages;
 
-    /* 
-     * Associate Energy Bin with type e.g. IR -> XRAYS 
-     */
-    if(RS->Energy[ebin] >= 0.01 && RS->Energy[ebin] < 11.2) {
-      this_type = IR; /* IR Case */
-    }
-    else if(RS->Energy[ebin] < 13.6) {
-      this_type = LW;  /* LW Case */
-    }
-    else if (RS->Energy[ebin] < 100.0) { //Set iHI or iHeI or iHeII
+    if (RS->Energy[ebin] < 100.0) {
       for (type_count = 0; type_count < 3; type_count++)
-	{
-	  if (RS->Energy[ebin] >= EnergyThresholds[type_count] &&
-	      RS->Energy[ebin] <  EnergyThresholds[type_count+1]) {
-	    this_type = type_count;
-	    break;
-	  }
+	if (RS->Energy[ebin] >= EnergyThresholds[type_count] &&
+	    RS->Energy[ebin] <  EnergyThresholds[type_count+1]) {
+	  this_type = type_count;
+	  break;
 	}
     }
-    else if (RS->Energy[ebin] >= 100.0)
-      this_type = XRAYS;
-    else {
-      fprintf(stderr, "Undefined energy bin found\n");
-      return FAIL;
-    }
 
-    if (MYPROC && DEBUG)
-      {
-	fprintf(stdout, "Shine: Photons/package[%"ISYM"]: %"GSYM" eV, Luminosity = %"GSYM"\n " \
-		"Ramp Luminosity = %"GSYM" \n " \
-		"SED = %"GSYM"\n Photons per Package = %"GSYM"\n Type = %"ISYM"\n",
-		ebin, RS->Energy[ebin], RS->Luminosity, RampPercent*RS->Luminosity, 
-		RS->SED[ebin], photons_per_package, this_type);
-      }
+    if (DEBUG)
+      printf("Shine: Photons/package[%"ISYM"]: %"GSYM" eV, %"GSYM", %"GSYM", %"GSYM", %"GSYM"\n", 
+	     ebin, RS->Energy[ebin], RS->Luminosity, RampPercent*RS->Luminosity, 
+	     RS->SED[ebin], photons_per_package);
 
-    /* Loop over each Ray */
-    for (ray=0; ray<BasePackages; ray++) {
+    if (RadiativeTransferInterpolateField)
+      switch (ebin) {
+      case 0:
+	FieldsToInterpolate[HINum] = TRUE;
+	break;
+      case 1:
+	FieldsToInterpolate[HeINum] = TRUE;
+	break;
+      case 2:
+	FieldsToInterpolate[HeIINum] = TRUE;
+	break;
+      case 3:
+	FieldsToInterpolate[H2INum] = TRUE;
+	break;
+      } // ENDSWITCH ebin
+      
+    // DEBUG fudge
+    for (j=0; j<BasePackages; j++) {
 
       if (RS->Type == Beamed) {
-	pix2vec_nest64((int64_t) (1 << min_level), (int64_t) ray, vec);
+	pix2vec_nest64((int64_t) (1 << min_level), (int64_t) j, vec);
 	// Dot product of the source orientation (already normalized
 	// to 1) and ray normal must be greater than cos(beaming angle)
 	dot_prod = 0.0;
@@ -202,6 +205,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  continue;
       }
 
+      //      for (j=0; j<1; j++) {
+      //	if (photons_per_package>tiny_number) { //removed and changed to below by Ji-hoon Kim in Sep.2009
       if (!isnan(photons_per_package) && photons_per_package > 0) { 
 	PhotonPackageEntry *NewPack = new PhotonPackageEntry;
 	NewPack->NextPackage = PhotonPackages->NextPackage;
@@ -210,10 +215,16 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	if (NewPack->NextPackage != NULL) 
 	  NewPack->NextPackage->PreviousPackage  = NewPack;
 	NewPack->Photons = photons_per_package;
-	NewPack->Type = this_type;
 
-	// Type 6 = tracing spectrum (check Grid_WalkPhotonPackage)
-	if (RadiativeTransferTraceSpectrum) NewPack->Type = TRACINGSPECTRUM;
+	// Type 4 = X-Ray
+	if (((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ||
+	    RS->Energy[ebin] > 100)
+	  NewPack->Type = 4;
+	else
+	  NewPack->Type = this_type;
+
+	// Type 5 = tracing spectrum (check Grid_WalkPhotonPackage)
+	if (RadiativeTransferTraceSpectrum) NewPack->Type = 5;  //#####
 
 	// Override if we're only doing hydrogen ionization
 	if (RadiativeTransferHydrogenOnly) NewPack->Type = 0;
@@ -223,18 +234,15 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	NewPack->CurrentTime  = PhotonTime;
 	NewPack->ColumnDensity = 0;
 	NewPack->Radius = 0.;
-	NewPack->ipix = ray;
+	NewPack->ipix = j;
 	NewPack->level = min_level;
 	NewPack->Energy = RS->Energy[ebin];
-	NewPack->CrossSection = 0.0;
-	FLOAT dir_vec[3];
+	double dir_vec[3];
 	pix2vec_nest64((int64_t) (1 << NewPack->level), NewPack->ipix, dir_vec);
-	/* Find the cross section for each radiation type */
-	if (NewPack->Type < 4)
-	  NewPack->CrossSection = 
-	    FindCrossSection(NewPack->Type, NewPack->Energy);
-	else
-	  NewPack->CrossSection = tiny_number;
+	if (NewPack->Type != 3)  // not Lyman-Werner
+	  for (bin = 0; bin < MAX_CROSS_SECTIONS; bin++)
+	    NewPack->CrossSection[bin] = FindCrossSection(bin, NewPack->Energy);
+
 	/* Set the photon origin to the source radius (0 = point src) */
 
 	NewPack->SourcePositionDiff = 0.0;
@@ -247,7 +255,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	}
 	NewPack->SourcePositionDiff = sqrt(NewPack->SourcePositionDiff);
 	NewPack->CurrentSource = RS->SuperSource;
-      
+
 	/* Consider the first super source with a leaf size greater
 	   than the cell size. */
 
@@ -257,9 +265,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	       RadiativeTransferPhotonMergeRadius * 
 	       NewPack->CurrentSource->ClusteringRadius < CellWidth[0][0])
 	  NewPack->CurrentSource = NewPack->CurrentSource->ParentSource;
-#endif
-	if(MYPROC && DEBUG == 2)  //Dumps info on 
-	  NewPack->PrintInfo();
+#endif /* PRE_MERGE */
 
 //	if (DEBUG) {
 //	  printf("Shine: MBH = %d, RS->Type = %d, E=%g, NewPack->Type = %d\n", 
@@ -269,15 +275,15 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
 	count++;
       } // if enough photons
-    } // Loop over BasePackages (rays)
+    } // Loop over BasePackages
   } //Loop over energy bins
 
- 
+  if (DEBUG) printf("grid::Shine: created %"ISYM" packages \n", count);
+
   // Set the new number of photon packages on this grid
   NumberOfPhotonPackages += NumberOfNewPhotonPackages;
 
-  if (MYPROC && DEBUG) {
-    printf("Shine: created %"ISYM" packages \n", count);
+  if (DEBUG) {
     PhotonPackageEntry *PP;
     PP = PhotonPackages;
     count = 0;
@@ -285,12 +291,12 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       count++;
       PP = PP->NextPackage;
     }
-    fprintf(stdout,"Shine: done.\n");
-    fprintf(stdout,"counted %"ISYM" packages\n", count);
+    if (DEBUG) fprintf(stdout,"Shine: done.\n");
+    if (DEBUG) fprintf(stdout,"counted %"ISYM" packages\n", count);
   }
 
   if (DEBUG) fprintf(stdout, "Shine: PhotonPackages : %p   NextPackage  %p\n", 
 		     PhotonPackages, PhotonPackages->NextPackage);
   
   return SUCCESS;
-}
+};

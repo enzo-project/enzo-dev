@@ -1,5 +1,4 @@
 #define DEBUG 0
-#define MYPROC MyProcessorNumber == ProcessorNumber
 /***********************************************************************
 /
 /  GRID CLASS (TRANSPORT PHOTON PACKAGES)
@@ -63,14 +62,44 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   if (PhotonPackages->NextPackage == NULL)
     return SUCCESS;
 
+  /* Find fields: density, total energy, velocity1-3. */
+
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+				       Vel3Num, TENum) == FAIL) {
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+  }
+
+  /* Find Multi-species fields. */
+
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+      DINum, DIINum, HDINum;
+  if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+                      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+    ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+  }
+
+  /* Find radiative transfer fields. */
+
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
+
+  int RPresNum1, RPresNum2, RPresNum3;
+  if (RadiationPressure)
+    IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3);
+
+  int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
+
   /* Get units. */
+
   double MassUnits, RT_Units;
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
     DensityUnits;
+
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
+	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL)
     ENZO_FAIL("Error in GetUnits.\n");
-  }
   MassUnits = (double) DensityUnits * POW(LengthUnits, 3.0);
   RT_Units = (double) TimeUnits * POW(LengthUnits, -3.0);
 
@@ -138,7 +167,9 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     MinimumPhotonFlux *= (float) ((RT_Units / TimeUnits) * (MassUnits / mh) * dtPhoton / 
 				  (10*RecombinationTime));
   }
-  
+  // float MinimumPhotonFlux = (DensityUnits/mh) * FinestCellVolume * dtPhoton /
+  //   (PhotonTime * RadiativeTransferHubbleTimeFraction);
+
   count = 0;
   PP = PhotonPackages->NextPackage;
   FPP = this->FinishedPhotonPackages;
@@ -150,9 +181,9 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   int trcount = 0;
   int AdvancePhotonPointer;
   int DeleteMe, DeltaLevel, PauseMe;
-  int prev_type = -1;
-  float LightCrossingTime = RadiativeTransferRayMaximumLength * (VelocityUnits) /
-    (clight * RadiativeTransferPropagationSpeedFraction); 
+
+  float LightCrossingTime = 1.7320508 * (VelocityUnits) /
+    (clight * RadiativeTransferPropagationSpeedFraction);  // sqrt(3)=1.73
   FLOAT EndTime;
 #if DEBUG
   printf("RadiativeTransferRayMaximumLength = %g\t  RadiativeTransferPropagationSpeedFraction= %g\n",  RadiativeTransferRayMaximumLength, RadiativeTransferPropagationSpeedFraction);
@@ -164,24 +195,24 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     EndTime = PhotonTime+dtPhoton-PFLOAT_EPSILON;
 
   while (PP != NULL) {
-    int retval = 0;
+
     if (PP->PreviousPackage == NULL)
       printf("Bad package.\n");
     DeleteMe = FALSE;
     PauseMe = FALSE;
     MoveToGrid = NULL;
     AdvancePhotonPointer = TRUE;
-    if (MYPROC && DEBUG) {
-      if(prev_type != PP->Type) {
-	fprintf(stdout, "%s: Radiation type = %ld\n", __FUNCTION__, PP->Type);
-	prev_type = PP->Type;
-      }
-    }
+
     if ((PP->CurrentTime) < EndTime) {
-      retval = WalkPhotonPackage(&PP,
-				 &MoveToGrid, ParentGrid, CurrentGrid, Grids0, nGrids0,
-				 DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
-				 LightSpeed, level, MinimumPhotonFlux);
+      WalkPhotonPackage(&PP,
+			&MoveToGrid, ParentGrid, CurrentGrid, Grids0, nGrids0,
+			DensNum, DeNum, HINum, HeINum, HeIINum, H2INum,
+			kphHINum, gammaNum, kphHeINum, 
+			kphHeIINum, kdissH2INum, RPresNum1,
+			RPresNum2, RPresNum3, RaySegNum,
+			DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
+			DensityUnits, TemperatureUnits, VelocityUnits, 
+			LengthUnits, TimeUnits, LightSpeed, MinimumPhotonFlux);
       tcount++;
     } else {
 

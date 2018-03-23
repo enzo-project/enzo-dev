@@ -38,7 +38,7 @@ int grid::DetectIonizationFrontApprox(float TemperatureUnits)
   float TOLERANCE = 5e3;  // if abs[dT(i+1) - dT(i)] > TOLERANCE, then we return TRUE
 
   int eNum, kphHINum, gammaNum, kphHeINum, kphHeIINum, 
-    kdissH2INum, kphHMNum, kdissH2IINum;
+    kdissH2INum;
 
   if (DualEnergyFormalism)
     eNum = FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
@@ -46,7 +46,7 @@ int grid::DetectIonizationFrontApprox(float TemperatureUnits)
     eNum = FindField(TotalEnergy, FieldType, NumberOfBaryonFields);
 
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+				  kphHeIINum, kdissH2INum);
 
   maxDT = -1e20;
   TOLERANCE /= TemperatureUnits;

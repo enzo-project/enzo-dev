@@ -128,10 +128,10 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
 
   /* Find photo-ionization fields */
 
-  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
   int gammaNum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+				  kphHeIINum, kdissH2INum);
 
   /* Compute size of the current grid. */
 

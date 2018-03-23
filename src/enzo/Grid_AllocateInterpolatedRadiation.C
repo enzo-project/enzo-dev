@@ -30,9 +30,9 @@ int grid::AllocateInterpolatedRadiation()
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+				  kphHeIINum, kdissH2INum);
 
   int i,j,k, index, field, dim, vcsize = 1;
 

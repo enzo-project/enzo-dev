@@ -243,10 +243,10 @@ int grid::GrackleWrapper()
 #ifdef TRANSFER
   /* Find RT fields */
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum,
-        gammaNum, kphHMNum, kdissH2IINum;
+        gammaNum;
 
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
-                                  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+                                  kphHeIINum, kdissH2INum);
 
   /* unit conversion from Enzo RT units to CGS */
   const float ev2erg = 1.60217653E-12;

@@ -60,10 +60,10 @@ int grid::AddH2DissociationFromTree(void)
 
   /* Get photo-ionization fields */
 
-  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
   int gammaNum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, kphHeIINum, 
-				  kdissH2INum, kphHMNum, kdissH2IINum);
+				  kdissH2INum);
 
   /* If using cosmology, get units. */
 

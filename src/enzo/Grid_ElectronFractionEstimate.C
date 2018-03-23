@@ -47,7 +47,7 @@ int grid::ElectronFractionEstimate(float dt)
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
-  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, gammaNum, kphHMNum, kdissH2IINum;
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, gammaNum;
 
   IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 			     Vel3Num, TENum);
@@ -56,7 +56,7 @@ int grid::ElectronFractionEstimate(float dt)
 			HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
 
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+				  kphHeIINum, kdissH2INum);
 
   /* If using cosmology, get units. */
 

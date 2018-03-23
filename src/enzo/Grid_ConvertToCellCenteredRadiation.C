@@ -38,9 +38,9 @@ int grid::ConvertToCellCenteredRadiation()
 
   /* Find radiative transfer fields. */
 
-  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+				  kphHeIINum, kdissH2INum);
 
   int rkph, rgamma, field;
 
