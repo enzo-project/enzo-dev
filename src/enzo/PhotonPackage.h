@@ -26,7 +26,7 @@ public:
   float Photons;                // number of photons in package
   int   Type;                   // 0 = HI, 1=HeI, 2=HeII, 3=H2I_LW, 4=Xray
   float Energy;                 // Mean energy of photons in this package [eV]
-  double CrossSection[MAX_CROSS_SECTIONS]; // Cross-section of absorber [cm^2]
+  double CrossSection; // Cross-section of absorber [cm^2]
   FLOAT EmissionTimeInterval;   // Time over which package was emitted
   FLOAT EmissionTime;           // Time when package was emitted
   FLOAT CurrentTime;            // Current Time

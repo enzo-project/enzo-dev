@@ -3,7 +3,7 @@ struct PhotonBuffer {
   int		Type;
   float		Energy;                   
   float		ColumnDensity;
-  double	CrossSection[MAX_CROSS_SECTIONS];
+  double	CrossSection;
   FLOAT		EmissionTimeInterval;
   FLOAT		EmissionTime;
   FLOAT		CurrentTime;
