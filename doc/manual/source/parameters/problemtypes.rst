@@ -47,7 +47,7 @@ Problem Type Description and Parameter List
 40 	     :ref:`supernovarestart_param`
 50 	     :ref:`photontest_param`
 51	     Photon Test Restart
-59       :ref:`stochastic_forcing_param`
+59           :ref:`stochastic_forcing_param`
 60 	     :ref:`turbulence_param` 
 61 	     :ref:`protostellar_param` 
 62 	     :ref:`coolingtest_param`
@@ -1249,7 +1249,7 @@ Photon Test (50)
 .. _stochastic_forcing_param:
 
 Turbulence Simulation with Stochastic Forcing (59)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Typical quasi-isothermal "turbulence-in-a-box" problem with non-static driving field.
     For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
     http://dx.doi.org/10.1051/0004-6361:200809967
@@ -1728,27 +1728,29 @@ AGN Disk (207)
 ``DiskHeight`` (external)
     Initial height of the disk. Default: 1
 
-.. _poissonsolver_param:
 .. _cr_shocktube_param:
 
 CR Shock Tube (250: unigrid and AMR)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Very similar to normal shock tube (see problem 1) but includes CR
-    component.  See Salem, Bryan & Hummels (2014) for discussion.
+    component.  See `Salem, Bryan & Hummels (2014)
+    <http://adsabs.harvard.edu/abs/2014ApJ...797L..18S>`__ for discussion.
 
-    In addition the regular shock tube parameters, we add:
+    In addition to the regular shock tube parameters, we add:
 
 ``HydroShockTubesLeftCREnDensity``, ``HydroShockTubesRightCREnDensity`` (external)
     The initial CR energy density on the left and right sides.
     Default: 1.0 for each value.
+
 ``HydroShockTubesCenterDensity``, ``HydroShockTubesCenterPressure``,
 ``HydroShockTubesCenterVelocityX``,
 ``HydroShockTubesCenterVelocityY``,
 ``HydroShockTubesCenterVelocityZ``,
 ``HydroShockTubesCenterCREnDensity`` (external)
+
     In addition to setting a shock tube with two constant regions,
-    this version also allows for three constant region, 
+    this version also allows for three constant regions, 
     with a Center region in addition to the Left and Right regions.
     Finally, there are two special cases -- if
     HydroShockTubesCenterCREnDensity is set to 123.4, then the central
@@ -1757,6 +1759,7 @@ CR Shock Tube (250: unigrid and AMR)
     gaussian CR energy density is initialized (these problems were set
     up to test the CR diffusion).
 
+.. _poissonsolver_param:
 
 Poisson Solver Test (300)
 ~~~~~~~~~~~~~~~~~~~~~~~~~

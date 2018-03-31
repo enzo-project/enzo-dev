@@ -218,22 +218,20 @@ Hierarchy Control Parameters
     information on how to use dark matter ``MustRefineParticles`` in 
     cosmological simulations can be found here (link).  Default: 0
 
-::
-
-   1 - If the user specifies ``MustRefineParticlesLeftEdge`` and 
+    1. If the user specifies ``MustRefineParticlesLeftEdge`` and 
        ``MustRefineParticlesRightEdge``, dark matter particles within the 
        specified region are flagged.  Otherwise, the code looks for an ascii 
        input file called MustRefineParticlesFlaggingList.in that contains a list
        of particle ids to be flagged.  The ids in this list must be sorted in 
        acending order.
-   2 - For use with ellipsodial masking in MUSIC inititial conditions.  This 
-       setting uses traditional static grids for intermediate resolution levels.  
-       MUSIC will generate RefinementMask files and the ``ParticleTypeName`` 
+    2. For use with ellipsodial masking in MUSIC inititial conditions.  This
+       setting uses traditional static grids for intermediate resolution levels
+       MUSIC will generate RefinementMask files and the ``ParticleTypeName``
        parameter should be set to the name of these files.
-   3 - Same as setting 2, except refinement on intermediate levels is not 
-       constrained by static grids.  Instead, refinement around dark matter 
-       particles is allowed down to the level of a particle's generation level.  
-       Refinement beyond this level is allowed around particles within the MUSIC 
+    3. Same as setting 2, except refinement on intermediate levels is not
+       constrained by static grids.  Instead, refinement around dark matter
+       particles is allowed down to the level of a particle's generation level.
+       Refinement beyond this level is allowed around particles within the MUSIC
        ellipsoidal making region.
 
 ``MustRefineParticlesRefineToLevel`` (external)

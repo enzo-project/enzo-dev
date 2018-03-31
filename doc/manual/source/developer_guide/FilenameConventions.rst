@@ -377,7 +377,6 @@ Hierarchy methods
 
 Radiation methods
 -----------------
-::
 
 Flux limited diffusion
 ^^^^^^^^^^^^^^^^^^^^^^
