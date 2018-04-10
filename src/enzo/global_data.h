@@ -984,6 +984,7 @@ EXTERN int MoveParticlesBetweenSiblings;
 EXTERN int ParticleSplitterIterations;
 EXTERN float ParticleSplitterChildrenParticleSeparation;
 EXTERN int ParticleSplitterRandomSeed;
+EXTERN int ParticleSplitterMustRefine;
 
 /* Magnetic Field Resetter */
 

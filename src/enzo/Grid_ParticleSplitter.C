@@ -185,6 +185,13 @@ int grid::ParticleSplitter(int level)
 	    NumberOfNewParticles, MyProcessorNumber);    
 #endif
 
+    /* If specified, set particle type to must-refine */
+
+    if (ParticleSplitterMustRefine == TRUE) {
+      for (i = 0; i < NumberOfNewParticles; i++)
+	tg->ParticleType[i] = PARTICLE_TYPE_MUST_REFINE;
+    }
+    
     /* If not set in the above routine, then set the metal fraction to zero. */
     
     if (MetallicityField == FALSE && NumberOfParticleAttributes > 1)
