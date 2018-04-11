@@ -930,10 +930,6 @@ EXTERN int H2OpticalDepthApproximation;
 EXTERN int RadiativeTransfer;
 EXTERN int RadiativeTransferHydrogenOnly;
 #ifdef TRANSFER
-EXTERN long *pix2x;
-EXTERN long *pix2y;
-EXTERN int  *x2pix;
-EXTERN int  *y2pix;
 EXTERN FLOAT PhotonTime;
 EXTERN float dtPhoton;
 #include "RadiationSource.h"
@@ -1010,7 +1006,6 @@ EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 = vortex wave ; 3 = stratified
 
 EXTERN float IsothermalSoundSpeed;
-EXTERN int RefineByJeansLengthUnits;
 
 
 
@@ -1080,6 +1075,21 @@ EXTERN float ClusterSMBHEnoughColdGas;  // To turn jet on, in SolarMass
 EXTERN float ClusterSMBHAccretionTime;  // Used only when CalculateGasMass=2
 EXTERN int ClusterSMBHJetDim;  // Jet dimension
 EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed)*c^2
+EXTERN float ClusterSMBHDiskRadius; // The size of the "disk" (actually a cube) in kpc
+EXTERN float ClusterSMBHBCG; // 1.0 is including BCG gravity; 0.0 makes it 0
+EXTERN float ClusterSMBHMass; // The mass of the SMBH in SolarMass
+
+/* Stellar Feedback in Elliptical galaxies*/
+EXTERN float EllipticalGalaxyRe;
+EXTERN float OldStarFeedbackAlpha;
+EXTERN float SNIaFeedbackEnergy;
+
+/* Stellar Wind from a single AGB star */
+EXTERN float StellarWindRadius;
+EXTERN float StellarWindDensity;
+EXTERN float StellarWindSpeed;
+EXTERN float StellarWindTemperature;
+EXTERN FLOAT StellarWindCenterPosition[3];
 
 EXTERN int MHDCTSlopeLimiter;
 EXTERN int MHDCTDualEnergyMethod;

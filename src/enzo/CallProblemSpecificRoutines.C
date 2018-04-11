@@ -42,7 +42,7 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
     ThisGrid->GridData->SphericalInfallGetProfile(level, 1);
   if (ProblemType == 30)
     ThisGrid->GridData->AnalyzeTrackPeaks(level, 0);
-  if (ProblemType == 27)
+  if (ProblemType == 27){
     if (ThisGrid->GridData->ReturnProcessorNumber()==MyProcessorNumber){
       float AM[3], MeanVelocity[3], DMVelocity[3];
       FLOAT Center[] = {0,0,0}, CenterOfMass[3], DMCofM[3];
@@ -60,6 +60,9 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 	      -CenterOfMass[0], -CenterOfMass[1], -CenterOfMass[2],
 	      DMCofM[0], DMCofM[1], DMCofM[2]);
     }
+    if (StellarWindSpeed > 0)
+      ThisGrid->GridData->AddStellarWind();
+  }
 
   /* Solve analytical free-fall */
   if (ProblemType == 63) {
@@ -69,6 +72,9 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
   /* Add radio-mode jet feedback */
   if (ClusterSMBHFeedback == TRUE)
    ThisGrid->GridData->ClusterSMBHFeedback(level);
+  /* Add Feedback from evolved stars */
+  if (OldStarFeedbackAlpha > 0.0)
+   ThisGrid->GridData->OldStarFeedback();
 
   return SUCCESS;
 }

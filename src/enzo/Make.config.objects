@@ -121,6 +121,7 @@ OBJS_CONFIG_LIB = \
         CosmologyGetUnits.o \
         CosmologyReadParameters.o \
         CosmologySimulationInitialize.o \
+        CosmologyTable.o \
         CosmologyWriteParameters.o \
         cray_x1_fft64.o \
         cray_x1_st1_fft64.o \
@@ -508,6 +509,8 @@ OBJS_CONFIG_LIB = \
         Grid_MustRefineParticlesFlagInRegion.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
+        Grid_OldStarFeedback.o \
+        Grid_AddStellarWind.o \
 	Grid_OneZoneFreefallTestInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
 	Grid_OutputStarParticleInformation.o \
@@ -1062,7 +1065,7 @@ POBJS_CONFIG_LIB = \
 	PhotonTestRestartInitialize.o \
 	RadiativeTransferCallFLD.o \
         RadiativeTransferComputeTimestep.o \
-        RadiativeTransferHealpixRoutines.o \
+	RadiativeTransferHealpixRoutines64.o \
 	RadiativeTransferLoadBalanceRevert.o \
         RadiativeTransferInitialize.o \
         RadiativeTransferPrepare.o \
