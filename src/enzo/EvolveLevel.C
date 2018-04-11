@@ -705,6 +705,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif //!SAB
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();
+
+      if (UseFloor) 
+	Grids[grid1]->GridData->SetFloor();
  
       /* Update current problem time of this subgrid. */
  
@@ -727,6 +730,20 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     EXTRA_OUTPUT_MACRO(2,"After SolveHydroEquations grid loop")
 
+    if (UseDivergenceCleaning != 0){
+
+#ifdef FAST_SIB
+      SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);
+#else
+      SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
+#endif
+      
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) 
+	Grids[grid1]->GridData->PoissonSolver(level);
+    
+    }
+    EXTRA_OUTPUT_MACRO(25,"After SBC")
+
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			  level, MetaData, Exterior, LevelArray[level]);
@@ -734,7 +751,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
 			  Exterior, LevelArray[level]);
 #endif
-    EXTRA_OUTPUT_MACRO(25,"After SBC")
+    EXTRA_OUTPUT_MACRO(27,"After SBC")
 
     /* If cosmology, then compute grav. potential for output if needed. */
 
