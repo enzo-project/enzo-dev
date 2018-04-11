@@ -129,7 +129,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      exist in each cell */
 
   float RaysPerCell = RadiativeTransferRaysPerCell;
-  float ConvertToProperNumberDensity = DensityUnits/1.673e-24f;
+  float ConvertToProperNumberDensity = DensityUnits/mh;
   // Only split photons within this radius if specified
   SplitWithinRadius = (RadiativeTransferSplitPhotonRadius > 0) ?
     RadiativeTransferSplitPhotonRadius * (3.086e21 / LengthUnits) : 2.0;
@@ -588,13 +588,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	thisDensity = PopulationFractions[i] * fields[i][index] * 
 	  ConvertToProperNumberDensity; //[cm^-3] for species i
 	taua = thisDensity * ddr * sigma[i];  //in cgs
-
 #ifdef GEO_CORRECTION
 	adj_thisDensity = PopulationFractions[i] * fields[i][adj_index] * 
 	  ConvertToProperNumberDensity;
 	adj_taua = adj_thisDensity * ddr * sigma[i];
 #endif
-
 
       if(FAIL == RadiativeTransferIonization(PP, dPi, index, i, taua, factor1, 
 					     ExcessEnergyfactor, slice_factor2, kphNum, 
@@ -610,7 +608,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     for (i = 0; i <= type; i++) dP += dPi[i];
     (*PP)->ColumnDensity += thisDensity * ddr * LengthUnits; //in cgs
-
     break;
 
       /************************************************************/
@@ -847,11 +844,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	BaryonField[RPresNum1+dim][index] += 
 	  RadiationPressureConversion * RadiationPressureScale * dP * (*PP)->Energy / 
 	  density[index] * dir_vec[dim];
-    
+
     (*PP)->CurrentTime += cdt;
     (*PP)->Photons     -= dP;
     (*PP)->Radius      += ddr;
-    
+
     if (RadiativeTransferLoadBalance) {
       int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
       BaryonField[RaySegNum][index] += 1.0;
