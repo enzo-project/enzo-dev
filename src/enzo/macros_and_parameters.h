@@ -478,6 +478,11 @@ typedef long long int   HDF5_hid_t;
 #define PARTICLE_TYPE_SIMPLE_SOURCE 10
 
 #define CHILDRENPERPARENT           12
+
+/* You probably don't want to do this too often */
+
+#define MAX_SPLIT_ITERATIONS        4
+
 /* Ways to deposit particles from a subgrid. */
 
 #define CIC_DEPOSIT        0

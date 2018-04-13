@@ -38,7 +38,7 @@
 #include "CosmologyParameters.h"
 #include "CommunicationUtilities.h"
 
-#define NO_DEBUG_PS 
+#define NO_DEBUG_PS
 
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
@@ -70,6 +70,13 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
       ParticleSplitterChildrenParticleSeparation <=0) 
     return SUCCESS;
 
+  if(ParticleSplitterIterations > MAX_SPLIT_ITERATIONS) {
+    fprintf(stderr, "WARNING: Splitting iterations exceeds maximum allowed\n" \
+	    "Resetting to %d\n",  MAX_SPLIT_ITERATIONS);
+    ParticleSplitterIterations = MAX_SPLIT_ITERATIONS;
+  }
+    
+
   /* Find total NumberOfParticles in all grids; this is needed in 
      CommunicationUpdateStarParticleCount below */
 
@@ -77,9 +84,6 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
   NumberOfOtherParticles = MetaData->NumberOfParticles - NumberOfStarParticles;
 
   /* Initialize all star particles if this is a restart */
-
-  if (ParticleSplitterIterations > 1)
-    fprintf(stderr, "WARNING: ParticleSplitterIterations > 1 is not properly tested yet.\n");
 
   for (i = 0; i < ParticleSplitterIterations; i++) {
 
@@ -98,7 +102,6 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 
       RecordTotalStarParticleCount(Grids, NumberOfGrids, 
 				   TotalStarParticleCountPrevious);
-
       //      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) 
       //	fprintf(stdout, "TotalStarParticleCountPrevious[grid=%d] = %d\n", grid1, 
       //		TotalStarParticleCountPrevious[grid1]);
@@ -110,7 +113,7 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 		Grids[grid1]->GridData->ReturnNumberOfParticles());
 #endif
 	
-	if (Grids[grid1]->GridData->ParticleSplitter(level) == FAIL) {
+	if (Grids[grid1]->GridData->ParticleSplitter(level, i) == FAIL) {
 	  ENZO_FAIL("Error in grid::ParticleSplitter.\n");
 	}
 

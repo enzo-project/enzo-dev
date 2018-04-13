@@ -33,6 +33,8 @@
 #include "fortran.def"
 #include "CosmologyParameters.h"
 
+#define DEBUG_PS
+
 void mt_init(unsigned_int seed);
 
 unsigned_long_int mt_random();
@@ -41,13 +43,15 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 			       int *ParticleType, FLOAT *ParticlePosition[],
 			       float *ParticleVelocity[], float *ParticleAttribute[],
 			       FLOAT *CellLeftEdge[], int *GridDimension, 
-			       int MaximumNumberOfNewParticles, int *NumberOfNewParticles)
+			       int MaximumNumberOfNewParticles, int iter, 
+			       int *NumberOfNewParticles)
 			 
 {
   int partnum = 0, i = 0, child = 0, m = 0, numpart = 0, innerchild = 0;
   int xindex=0, yindex=0, zindex=0;
   float rad = 0.0, sin60 = 0.0;
   FLOAT NewPos[3][CHILDRENPERPARENT];
+  FLOAT LeftEdge[3], RightEdge[3];
   int ChildrenPerParent = CHILDRENPERPARENT, total_children = 0;
   float alpha[3];
   float l11 = 0.0, l12 = 0.0, l13 = 0.0;
@@ -67,6 +71,63 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
   //Reproducible random seed
   mt_init(((unsigned_int) ParticleSplitterRandomSeed));
   
+  FLOAT sep[3], midpoint[3], newsep[3];
+
+  /* 
+   * The following three options determine over what region 
+   * particle splitting takes place. 
+   * By default the splitting occurs over the entire most refined 
+   * region. At times this can be too large so two further options
+   * exist controlled via the parameter file. The first just selects
+   * a fraction of that region centred on the centre of the most 
+   * refined region.
+   * The second allows the user to specify the centre of the splitting
+   * and the size of the region. 
+   */
+
+  /* Default Option */
+  for (i = 0; i < 3; i++) {
+    LeftEdge[i]  = RefineRegionLeftEdge[i];
+    RightEdge[i] = RefineRegionRightEdge[i];
+  }
+  /* Change particle refinement region in basic way */
+  if(ParticleSplitterFraction[iter] != 1.0)
+    {
+      fprintf(stderr, "Setting Particle Refinement using fractions.\n");
+      for (i = 0; i < 3; i++) {
+	sep[i] = RefineRegionRightEdge[i] - RefineRegionLeftEdge[i];
+	midpoint[i] = sep[i]/2.0 + RefineRegionLeftEdge[i];
+	newsep[i] = sep[i]*ParticleSplitterFraction[iter]/2.0;
+	LeftEdge[i] = midpoint[i] - newsep[i];
+	RightEdge[i] = midpoint[i] + newsep[i];
+      }
+    }
+  /* Centre particle refinement region around a specific point */
+  if(ParticleSplitterCenter[0] > 0.0 && ParticleSplitterCenterRegion[iter] > 0.0) {
+    fprintf(stderr, "Setting Particle Refinement around point.\n");
+    for (i = 0; i < 3; i++) {
+      midpoint[i] = ParticleSplitterCenter[i];
+      newsep[i] = ParticleSplitterCenterRegion[iter]/2.0;
+      LeftEdge[i] = midpoint[i] - newsep[i];
+      RightEdge[i] = midpoint[i] + newsep[i];
+      if(LeftEdge[i] < RefineRegionLeftEdge[i])
+	LeftEdge[i] = RefineRegionLeftEdge[i];
+       if(RightEdge[i] > RefineRegionRightEdge[i])
+	RightEdge[i] = RefineRegionRightEdge[i];
+    }
+  }
+
+ #ifdef DEBUG_PS
+  fprintf(stdout, "%s: Iteration %d: midpoint = (%lf, %lf, %lf)\n", 
+	  __FUNCTION__, iter, midpoint[0], midpoint[1], midpoint[2]);
+  fprintf(stdout, "%s: Iteration %d: newsep = (%lf, %lf, %lf)\n", 
+	  __FUNCTION__, iter, newsep[0], newsep[1], newsep[2]);
+  fprintf(stdout, "%s: Iteration %d: Refine Particles between (%lf, %lf, %lf) and (%lf, %lf, %lf)\n", 
+	  __FUNCTION__, iter, LeftEdge[0], LeftEdge[1], LeftEdge[2],
+	  RightEdge[0], RightEdge[1], RightEdge[2]);
+ #endif
+  
+
   /* 
    * Loop over existing (parent) particles; It implicitly assumes that 
    * only DM and conventional star particles  get splitted.  Other 
@@ -84,12 +145,12 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 	   * blatantly discriminate against non-refined types around 
 	   * here.
 	   */
-	  if(ParticlePosition[0][partnum] < RefineRegionLeftEdge[0]  ||
-	     ParticlePosition[0][partnum] > RefineRegionRightEdge[0] ||
-	     ParticlePosition[1][partnum] < RefineRegionLeftEdge[1]  ||
-	     ParticlePosition[1][partnum] > RefineRegionRightEdge[1] ||
-	     ParticlePosition[2][partnum] < RefineRegionLeftEdge[2]  ||
-	     ParticlePosition[2][partnum] > RefineRegionRightEdge[2])
+	  if(ParticlePosition[0][partnum] < LeftEdge[0]  ||
+	     ParticlePosition[0][partnum] > RightEdge[0] ||
+	     ParticlePosition[1][partnum] < LeftEdge[1]  ||
+	     ParticlePosition[1][partnum] > RightEdge[1] ||
+	     ParticlePosition[2][partnum] < LeftEdge[2]  ||
+	     ParticlePosition[2][partnum] > RightEdge[2])
 	    {
 	      //fprintf(stdout, "grid::PS: Particle outside RR - ignoring\n"); 
 	      continue;
@@ -302,8 +363,9 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 	}
     }
 #ifdef DEBUG_PS
-  fprintf(stdout,"%d new child particles created in this grid from %d parents", 
-	  total_children, NumberOfParticles);
+  if(total_children > 0)
+    fprintf(stdout,"Iteration %d: %d new child particles created in this grid from %d parents\n", 
+	    iter, total_children, NumberOfParticles);
 #endif
  
   *NumberOfNewParticles = total_children;
