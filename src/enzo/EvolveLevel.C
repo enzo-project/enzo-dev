@@ -575,6 +575,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 
 
+    RK2SecondStepBaryonDeposit = 1; // set this to (0/1) to (not use/use) this extra step  //#####
     if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
   
       When = 0.5;
@@ -637,8 +638,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
           Grids[grid1]->GridData->AddViscosity();
 
         /* If using comoving co-ordinates, do the expansion terms now. */
-        if (ComovingCoordinates)
-          Grids[grid1]->GridData->ComovingExpansionTerms();
+//        if (ComovingCoordinates)
+//          Grids[grid1]->GridData->ComovingExpansionTerms();
 
       } // ENDIF UseHydro
     }//grid
