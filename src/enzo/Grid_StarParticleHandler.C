@@ -389,7 +389,8 @@ extern "C" void FORTRAN_NAME(star_feedback_ssn)(
     float *smthresh, int *willExplode, float *soonestExplosion,
     float *gamma, float *mu,
     float *te1, float *metalIIfield, float *metalIIfrac, int *imetalII,
-    float *s49_tot, int *maxlevel, int *distrad, int* diststep, int* distcells);
+    float *s49_tot, int *maxlevel, int *distrad, int* diststep, int* distcells,
+    int *ipresn);
 
 extern "C" void FORTRAN_NAME(star_feedback7)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *te, float *ge, float *u, float *v, 
@@ -1927,7 +1928,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           &Gamma, &Mu, &TemperatureUnits, BaryonField[MetalIINum],
           ParticleAttribute[metalII], &StarMakerTypeIISNeMetalField, s49_tot,
           &MaximumRefinementLevel,&StarFeedbackDistRadius, &StarFeedbackDistCellStep, 
-          &StarFeedbackDistTotalCells );
+          &StarFeedbackDistTotalCells, &StarFeedbackPreSN);
 
       delete[] s49_tot;
       delete[] explosionFlag;

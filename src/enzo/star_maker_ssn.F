@@ -265,7 +265,7 @@ c
      &                      te1, metalSNII,
      &                      metalfSNII, imetalSNII,
      &                      s49_tot, maxlevel,
-     &                      distrad, diststep, distcells)
+     &                      distrad, diststep, distcells, ipresn)
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c
@@ -317,6 +317,8 @@ c    type  - particle types (currently in the cell)
 c    s49_tot - the ionizing luminosity of the particle, in units
 c              of 10^49 photons per second.
 c    maxlevel - the simulation's maximum refinement level
+c    ipresn   - Flag to turn on / off pre-supernova feedback (wind
+c               energy and radiation energy)
 c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
@@ -353,6 +355,7 @@ c
       INTG_PREC distrad
       INTG_PREC diststep
       INTG_PREC distcells
+      INTG_PREC ipresn
 c
 c  Locals
 c
@@ -417,6 +420,14 @@ c           then do nothing.
            if( r(i,j,k) .eq. 0 .and. level .ne. maxlevel) then
                goto 100
            endif
+
+
+c          If pre-supernova feedback is on, then include 
+c          stellar wind and ionizing radiation energy deposition
+c          (otherwise do SN only)           
+           if (ipresn .gt. 0) then 
+
+
 
 c
 c           Add internal energy to account for photoionization heating.
@@ -607,6 +618,15 @@ c           a mass ejection rate by multiplying through by dt in seconds
 
 c           m_eject is now the mass ejected in winds in this timestep in
 c           solar masses.
+
+c
+           else
+               m_eject = 0.0_RKIND
+               wind_energy = 0.0_RKIND
+           endif
+c          End presn check
+
+
 
 c           Now if there's a supernova, add the mass from that.
             m_ejSN = 0.0_RKIND
