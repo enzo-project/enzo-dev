@@ -92,13 +92,23 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   // Flag particles as must refine particles
   int *IsParticleMustRefine;
   IsParticleMustRefine = new int[NumberOfParticles];
+  bool OriginalParticle;
   for (i = 0; i < NumberOfParticles; i ++){
     IsParticleMustRefine[i] = 1;
+    if (NumberOfParticleAttributes > 0)
+      OriginalParticle = (ParticleAttribute[0][i] < 0);
+    else
+      OriginalParticle = true;
 
-    // check particle type and uniform mass
+    // check particle type and uniform mass. Also check particle
+    // creation time for DM particles that are positive, indicating
+    // that they are either inert stellar remnants or "leftovers" from
+    // particle merging
+
     rules[0] = (ParticleType[i] == PARTICLE_TYPE_MUST_REFINE ||
                 ParticleType[i] == PARTICLE_TYPE_MBH) ||
-               (ParticleMass[i] < UniformParticleMass);
+      (ParticleMass[i] < UniformParticleMass &&
+       ParticleType[i] == PARTICLE_TYPE_DARK_MATTER && OriginalParticle);
 
     // check particle mass greater than minimum mass
     rules[1] = (ParticleMass[i] > MustRefineParticlesMinimumMass);
@@ -110,6 +120,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     // set flag for this particle
     for (int j = 0; j < NumberOfRules; j++)
       IsParticleMustRefine[i] *= rules[j];
+
   }
 
   PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
