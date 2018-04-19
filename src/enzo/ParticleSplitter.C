@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <hdf5.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -83,6 +84,34 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
   MetaData->NumberOfParticles = FindTotalNumberOfParticles(LevelArray);
   NumberOfOtherParticles = MetaData->NumberOfParticles - NumberOfStarParticles;
 
+  /* Read must-refine particle positions if specified */
+
+  long *MustRefineIDs = NULL;
+  int NumberOfIDs = 0;
+  
+  if (ParticleSplitterMustRefine &&
+      ParticleSplitterMustRefineIDFile != NULL) {
+
+    int NumberOfMustRefineIDs;
+    hid_t file_id, dataset_id, dataspace_id;
+    herr_t status;
+    hsize_t dims[1], maxdims[1];
+    
+    file_id = H5Fopen(ParticleSplitterMustRefineIDFile,
+		      H5F_ACC_RDONLY, H5P_DEFAULT);
+    dataset_id = H5Dopen2(file_id, "/particle_identifier", H5P_DEFAULT);
+    dataspace_id = H5Dget_space(dataset_id);
+    // Get number of particles and allocate variable
+    status = H5Sget_simple_extent_dims(dataspace_id, dims, maxdims);
+    MustRefineIDs = new long[dims[0]];
+    NumberOfIDs = dims[0];
+    status = H5Dread(dataset_id, H5T_NATIVE_LLONG, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+     		     MustRefineIDs);
+    status = H5Dclose(dataset_id);
+    status = H5Fclose(file_id);
+    
+  }
+  
   /* Initialize all star particles if this is a restart */
 
   for (i = 0; i < ParticleSplitterIterations; i++) {
@@ -113,7 +142,8 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 		Grids[grid1]->GridData->ReturnNumberOfParticles());
 #endif
 	
-	if (Grids[grid1]->GridData->ParticleSplitter(level, i) == FAIL) {
+	if (Grids[grid1]->GridData->ParticleSplitter(level, i, NumberOfIDs,
+						     MustRefineIDs) == FAIL) {
 	  ENZO_FAIL("Error in grid::ParticleSplitter.\n");
 	}
 
@@ -151,6 +181,7 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 
   /* Set splitter parameter zero; otherwise it will split particles again at next restart */
 
+  delete [] MustRefineIDs;
   ParticleSplitterIterations = 0;
 
   return SUCCESS;

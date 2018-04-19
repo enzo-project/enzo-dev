@@ -40,7 +40,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 int FindField(int field, int farray[], int numfields);
  
-int grid::ParticleSplitter(int level, int iteration)
+int grid::ParticleSplitter(int level, int iteration, int NumberOfIDs,
+			   long *MustRefineIDs)
 {
 
   if (ParticleSplitterIterations == 0)
@@ -130,7 +131,7 @@ int grid::ParticleSplitter(int level, int iteration)
   fprintf(stdout, "grid::ParticleSplitter:  NumberOfParticles before splitting = %d, MyProcessorNumber = %d\n", 
 	  NumberOfParticles, MyProcessorNumber); 
 #endif
- 
+
   if (NumberOfParticles > 0) {
 
 #define NO_PARTICLE_IN_GRID_CHECK 
@@ -150,6 +151,24 @@ int grid::ParticleSplitter(int level, int iteration)
 		xindex, yindex, zindex, level); 
     }
 #endif
+
+    /* Before splitting, set particle type to must-refine if given in
+       the provided list. Only do this for the first iteration because
+       in the later iterations, the particle types are propagated to
+       the split particles. */
+
+    if (ParticleSplitterMustRefine == TRUE && MustRefineIDs != NULL &&
+	iteration == 0) {
+      for (i = 0; i < NumberOfParticles; i++) {
+	for (j = 0; j < NumberOfIDs; j++) {
+	  if (this->ParticleNumber[i] == MustRefineIDs[j]) {
+	    this->ParticleType[i] = PARTICLE_TYPE_MUST_REFINE;
+	    break;
+	  }
+	} // ENDFOR j
+      } // ENDFOR i
+    }
+    
     if(!tg->CreateChildParticles(CellWidthTemp, NumberOfParticles, ParticleMass,
 				 ParticleType, ParticlePosition, ParticleVelocity,
 				 ParticleAttribute, CellLeftEdge, GridDimension, 
@@ -171,9 +190,10 @@ int grid::ParticleSplitter(int level, int iteration)
 	    NumberOfNewParticles, MyProcessorNumber);    
 #endif
 
-    /* If specified, set particle type to must-refine */
-
-    if (ParticleSplitterMustRefine == TRUE) {
+    /* If specified and no ID list given, set all particle types to
+       must-refine */
+    
+    if (ParticleSplitterMustRefine == TRUE && MustRefineIDs == NULL) {
       for (i = 0; i < NumberOfNewParticles; i++)
 	tg->ParticleType[i] = PARTICLE_TYPE_MUST_REFINE;
     }
@@ -204,7 +224,7 @@ int grid::ParticleSplitter(int level, int iteration)
 
 #ifdef DEBUG_PS
     fprintf(stdout, "grid::ParticleSplitter:  NumberOfParticles(New) = %d, MyProcessorNumber = %d\n", 
-	    NumberOfParticles, MyProcessorNumber);    
+	    NumberOfParticles, MyProcessorNumber);
 #endif
     
   } // end: if (NumberOfNewParticles > 0)

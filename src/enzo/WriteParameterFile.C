@@ -632,6 +632,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   WriteListOfFloats(fptr, MAX_SPLIT_ITERATIONS, ParticleSplitterCenterRegion);
   fprintf(fptr, "ParticleSplitterMustRefine       = %"ISYM"\n",
 	  ParticleSplitterMustRefine);
+  fprintf(fptr, "ParticleSplitterMustRefineIDFile = %s\n",
+	  ParticleSplitterMustRefineIDFile);
   fprintf(fptr, "ResetMagneticField               = %"ISYM"\n",
 	  ResetMagneticField);
   fprintf(fptr, "ResetMagneticFieldAmplitude      = %"GSYM" %"GSYM" %"GSYM"\n", 

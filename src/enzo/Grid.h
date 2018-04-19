@@ -2409,7 +2409,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 /* Particle splitter routine. */
 
-  int ParticleSplitter(int level, int iter);
+  int ParticleSplitter(int level, int iter, int NumberOfIDs,
+		       long *MustRefineIDs);
 
   int CreateChildParticles(float dx, int NumberOfParticles, float *ParticleMass,
 			   int *ParticleType, FLOAT *ParticlePosition[],

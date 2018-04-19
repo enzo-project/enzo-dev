@@ -134,10 +134,14 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
    * particles - which usually become Star class particles - doesn't 
    * seem to have any reason to be splitted.  (as of Oct.2009)
    */
+
+  /* (Apr 2018) Include must-refine particles */
   
   for(partnum = 0; partnum < NumberOfParticles; partnum++)
     {
-      if(ParticleMass[partnum] > 0.0 && ParticleType[partnum] <= 2)
+      if(ParticleMass[partnum] > 0.0 &&
+	 (ParticleType[partnum] <= 2 ||
+	  ParticleType[partnum] == PARTICLE_TYPE_MUST_REFINE))
 	{
 	  /* 
 	   * Check that particle is within the most refined region.
