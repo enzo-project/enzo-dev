@@ -93,10 +93,11 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   int *IsParticleMustRefine;
   IsParticleMustRefine = new int[NumberOfParticles];
   bool OriginalParticle;
+  const float OriginalCrit = FLOAT_UNDEFINED+1;
   for (i = 0; i < NumberOfParticles; i ++){
     IsParticleMustRefine[i] = 1;
     if (NumberOfParticleAttributes > 0)
-      OriginalParticle = (ParticleAttribute[0][i] < 0);
+      OriginalParticle = (ParticleAttribute[0][i] < OriginalCrit);
     else
       OriginalParticle = true;
 
