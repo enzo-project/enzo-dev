@@ -607,6 +607,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarFeedbackDistRadius           = 0;
   StarFeedbackDistCellStep         = 0;
   StarFeedbackDistTotalCells       = 1;
+  StarFeedbackPreSN                = TRUE;
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   NumberOfParticleTableIDs         = MAX_NUMBER_OF_PARTICLE_TABLE_POSITIONS;

@@ -916,6 +916,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarFeedbackDistRadius);
   fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n",
           StarFeedbackDistCellStep);
+  fprintf(fptr, "StarFeedbackPreSN                     = %"ISYM"\n",
+          StarFeedbackPreSN);
   fprintf(fptr, "StarMakerTypeIaSNe                    = %"ISYM"\n",
 	  StarMakerTypeIaSNe);
   fprintf(fptr, "StarMakerTypeIISNeMetalField          = %"ISYM"\n",
