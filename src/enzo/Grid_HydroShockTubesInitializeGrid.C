@@ -67,9 +67,7 @@ int grid::HydroShockTubesInitializeGrid(float x0,
     size *= GridDimension[dim];
 
   int field;
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    if (BaryonField[field] == NULL)
-      BaryonField[field] = new float[size];
+  this->AllocateGrids();
 
   
   /* transform pressure to total energy */

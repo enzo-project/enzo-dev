@@ -142,9 +142,7 @@ int grid::TestGravitySphereInitializeGrid(float SphereInteriorDensity,
  
     /* allocate fields */
  
-    for (field = 0; field < NumberOfBaryonFields; field++)
-      if (BaryonField[field] == NULL)
-	BaryonField[field] = new float[size];
+    this->AllocateGrids();
  
     /* Set densities. */
  

@@ -57,11 +57,7 @@ int grid::PoissonSolverTestInitializeGrid(int TestType, float GeometryControl)
     size *= GridDimension[dim];
   }
 
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
+  this->AllocateGrids();
 
 
 //   if (UseDivergenceCleaning){

@@ -162,9 +162,7 @@ int grid::TestGravityInitializeGrid(float CentralDensity,
  
     /* allocate fields */
  
-    for (field = 0; field < NumberOfBaryonFields; field++)
-      if (BaryonField[field] == NULL)
-	BaryonField[field] = new float[size];
+    this->AllocateGrids();
  
     /* set density, total energy */
  

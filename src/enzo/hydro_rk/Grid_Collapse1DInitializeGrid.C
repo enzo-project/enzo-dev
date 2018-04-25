@@ -56,11 +56,7 @@ int grid::Collapse1DInitializeGrid(FLOAT r_sphere,
     size *= GridDimension[dim];
   }
 
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
+  this->AllocateGrids();
 
   // if use BE sphere, read in the BE sphere density profile
 

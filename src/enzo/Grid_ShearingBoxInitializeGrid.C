@@ -72,11 +72,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
     size *= GridDimension[dim];
   }
 
-  for (int field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
+  this->AllocateGrids();
 
   srand(110182*ProcessorNumber);
 

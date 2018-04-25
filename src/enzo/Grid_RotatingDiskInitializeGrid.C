@@ -104,9 +104,7 @@ int grid::RotatingDiskInitializeGrid(float RDScaleRadius,
 		
    /* allocate memory for baryon fields */
 		
-   for (field = 0; field < NumberOfBaryonFields; field++)
-     if (BaryonField[field] == NULL)
-       BaryonField[field] = new float[size];
+   this->AllocateGrids();
    
    /* make disk position the same as external gravity center */
 

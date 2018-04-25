@@ -63,11 +63,7 @@ int grid::MHD1DTestWavesInitializeGrid(float rhol,
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
   int field;
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
+  this->AllocateGrids();
 
   divB = new float[activesize];
   for (int dim = 0; dim < 3; dim++) {

@@ -195,9 +195,7 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
  
     /* allocate fields */
  
-    for (field = 0; field < NumberOfBaryonFields; field++)
-      if (BaryonField[field] == NULL)
-	BaryonField[field] = new float[size];
+    this->AllocateGrids();
  
     /* set density to cosmic mean and total energy to near zero. */
  

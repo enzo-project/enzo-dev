@@ -82,11 +82,7 @@ int grid::CollapseMHD2DInitializeGrid(FLOAT r_sphere,
     size *= GridDimension[dim];
   }
 
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
+  this->AllocateGrids();
 
   printf("rho_sphere=%"GSYM", cs_sphere=%"GSYM", rho_medium=%"GSYM", p_medium=%"GSYM"\n",
 	 rho_sphere[0], cs_sphere[0], rho_medium*DensityUnits, p_medium);

@@ -78,11 +78,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     size *= GridDimension[dim];
   }
 
-  for (int field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
+  this->AllocateGrids();
   
   for (int dim=0; dim < GridRank; dim++) 
     if (UseDrivingField && (HydroMethod < 3) && RandomForcingField[dim] == NULL) {

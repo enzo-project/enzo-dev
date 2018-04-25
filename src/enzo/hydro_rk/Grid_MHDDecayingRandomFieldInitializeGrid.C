@@ -71,12 +71,8 @@ int grid::MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium
     size *= GridDimension[dim];
   }
 
-  for (int field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
   
+  this->AllocateGrids();
 
   int activesize = 1,n=0;
   for (int dim = 0; dim < GridRank; dim++) {

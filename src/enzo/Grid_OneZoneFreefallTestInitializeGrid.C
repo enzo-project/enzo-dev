@@ -126,9 +126,8 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
  
   /* allocate fields */
 
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    if (BaryonField[field] == NULL)
-      BaryonField[field] = new float[size];
+  
+  this->AllocateGrids();
 
   /* Set up a 1d grid that varies in energy or a 2d grid that also varies in 
      metallicity. */

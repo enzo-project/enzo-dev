@@ -214,9 +214,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  /* allocate fields */
 
- for (field = 0; field < NumberOfBaryonFields; field++)
-   if (BaryonField[field] == NULL)
-     BaryonField[field] = new float[size];
+ this->AllocateGrids();
 
  /* set metals to small value */
 

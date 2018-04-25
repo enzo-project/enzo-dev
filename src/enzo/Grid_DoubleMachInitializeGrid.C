@@ -55,8 +55,7 @@ int grid::DoubleMachInitializeGrid(float d0, float e0, float u0, float v0,
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
  
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    BaryonField[field] = new float[size];
+  this->AllocateGrids();
  
   /* set fields */
  

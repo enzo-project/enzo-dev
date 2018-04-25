@@ -110,11 +110,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
     size *= GridDimension[dim];
   }
     
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
+  this->AllocateGrids();
    
   /* Loop over the mesh. */
 

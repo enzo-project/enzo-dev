@@ -227,9 +227,7 @@ printf("PointSourceGravityConstant= %"GSYM"\n", PointSourceGravityConstant);
   /* allocate fields */
 
   if (SetupLoopCount == 0)
-    for (field = 0; field < NumberOfBaryonFields; field++)
-      if (BaryonField[field] == NULL)
-        BaryonField[field] = new float[size];
+      this->AllocateGrids();
 
   /* Loop over the mesh. */
 
