@@ -34,6 +34,10 @@ void grid::AllocateGrids()
   int size = 1,i,field;
   for (int dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
+  int activesize = 1;
+  for (int dim = 0; dim < GridRank; dim++) {
+    activesize *= (GridDimension[dim] - 2 * NumberOfGhostZones);
+  }
  
   /* Allocate room and clear it. */
  
@@ -62,5 +66,24 @@ void grid::AllocateGrids()
     for( i=0;i< size; i++ ) divB[i] = 0.0;
     
   } // if(UseMHDCT)
+  if ( HydroMethod == MHD_RK){
+
+    if (divB == NULL) {
+      divB = new float[activesize];
+    }
+
+    for (int dim = 0; dim < 3; dim++) {
+      if (gradPhi[dim] == NULL) {
+	gradPhi[dim] = new float[activesize];
+      }
+    }
+
+    for (int dim = GridRank; dim < 3; dim++) {
+      for (int n = 0; n < activesize; n++) {
+	gradPhi[dim][n] = 0.0;
+	divB[n] = 0.0;
+      }
+    }
+  }
 
 }
