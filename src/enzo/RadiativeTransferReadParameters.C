@@ -78,7 +78,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferH2Shield                   = 0;
   RadiativeTransferH2IIDiss                   = TRUE;
   RadiativeTransferHubbleTimeFraction         = 0.1;
-  RadiativeTransferPropagationSpeedFraction   = 1.0;
+  
   if (MultiSpecies == 0)
     RadiativeTransferOpticallyThinH2 = FALSE;
 
