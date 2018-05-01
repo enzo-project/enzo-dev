@@ -459,12 +459,14 @@ Boiler plate code should look like this:
                                      Vel3Num, TENum, B1Num, B2Num, B3Num);
 
                             
+    //And then set the values for the fields in the manner that suits your
+    //problem.
     int index=0;
     for(int k=0; k<GridDimension[2];k++){
         for(int j=0; j<GridDimension[1];j++){
             for(int i=0; i<GridDimension[0]; i++){
                index = i+GridDimension[0]*(j+GridDimension[1]*k);
-               BaryonField[DensNum][index] = 0.5*CellWidth[0][0]*i;
+               BaryonField[DensNum][index] = 46.2; //define your problem here.
             }
         }
     }
