@@ -78,10 +78,9 @@ int grid::TransportPhotonPackages(int level, int finest_level,
      a(t), and Modify the photon propagation speed by this
      parameter */
 
-  const float c_cgs = 2.99792e10;
   float LightSpeed;
   LightSpeed = RadiativeTransferPropagationSpeedFraction * 
-    (c_cgs/VelocityUnits);
+    (clight/VelocityUnits);
 
   float DomainWidth[MAX_DIMENSION];
   //double FinestCellVolume = pow(RefineBy, -3*(finest_level-level));

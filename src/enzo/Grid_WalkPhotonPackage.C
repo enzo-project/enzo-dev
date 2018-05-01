@@ -70,7 +70,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 			    float LightSpeed, int level, float MinimumPhotonFlux) {
 
-  const float c_cgs = 2.99792e10;
   const float EnergyThresholds[] = {13.6, 24.6, 54.4, 11.2, 0.755, 100.0};
   const float PopulationFractions[] = {1.0, 0.25, 0.25, 1.0, 1.0, 1.0, 1.0}; //Matches Fields
   const float EscapeRadiusFractions[] = {0.5, 1.0, 2.0};
