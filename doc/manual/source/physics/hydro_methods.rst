@@ -65,7 +65,7 @@ Links
 
 \ P. R. Woodward and P. Colella. "A piecewise parabolic method for gas
 dynamical simulations," *J. Comp. Phys*, 54:174, 1984 `link
-<https://seesar.lbl.gov/anag/publications/colella/A_1_4_1984.pdf>`_
+<https://seesar.lbl.gov/anag/publications/colella/A_1_4_1984.pdf>`__
 
 
 Method 2: ZEUS
@@ -94,13 +94,13 @@ Links
 magnetohydrodynamics code for astrophysical flows in two space
 dimensions. I. The hydrodynamics algorithms and tests."  *The
 Astrophysical Journal Supplement*, 80:753, 1992 `link
-<http://adsabs.harvard.edu/abs/1992ApJS...80..753S>`_
+<http://adsabs.harvard.edu/abs/1992ApJS...80..753S>`__
 
 \ J. M. Stone and M. L. Norman. "Zeus-2D: A radiation
 magnetohydrodynamics code for astrophysical flows in two space
 dimensions. II. The magnetohydrodynamic algorithms and tests." *The
 Astrophysical Journal Supplement*, 80:791, 1992 `link
-<http://adsabs.harvard.edu/abs/1992ApJS...80..791S>`_
+<http://adsabs.harvard.edu/abs/1992ApJS...80..791S>`__
 
 Method 3: MUSCL
 ---------------
@@ -190,7 +190,7 @@ Parameters
 Parameter file call: ``HydroMethod = 6``
 
 Method 5: No Hydro
--------------
+------------------
 
 .. versionadded:: 2.0
 

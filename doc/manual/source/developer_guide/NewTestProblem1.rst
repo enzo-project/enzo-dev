@@ -335,7 +335,7 @@ the section identified with
 
 .. code-block:: c
 
-    \* check to see if the line belongs to one of the test problems \*/.
+    /* check to see if the line belongs to one of the test problems */
     
 You must add your prefix (in this
 case, ``MyProblem``) to the list of test problem prefixes considered in

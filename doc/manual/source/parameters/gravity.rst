@@ -39,23 +39,25 @@ General
 ``ParticleSubgridDepositMode`` (external)
     This parameter controls how particles stored in subgrid are deposited
     into the current grid.  Options are:
-      0 (CIC_DEPOSIT) - This is a second-order, cloud-in-cell deposition
+
+     0. (CIC_DEPOSIT) - This is a second-order, cloud-in-cell deposition
          method in which the cloud size is equal to the cell size in
          the target grid (particles are in source grid, deposited into
          target grid).  This method preserves the correct center-of-mass
          for a single particle but smears out boundaries and can result
          in small artifacts for smooth particle distributions (e.g.
          nested cosmological simulations with low perturbations).
-      1 (CIC_DEPOSIT_SMALL) - This is also a CIC method, but the cloud
+     1. (CIC_DEPOSIT_SMALL) - This is also a CIC method, but the cloud
          size is taken to be the cell size in the source grid, so for
          subgrids, the cloud is smaller than the grid size.  This
          is an attempt to compromise between the other two methods.
-      2 (NGP_DEPOSIT) - This uses a first order, nearest-grid-point
+     2. (NGP_DEPOSIT) - This uses a first order, nearest-grid-point
         method to deposit particle mass.  It does not preserve center-
         of mass position and so for single particle results in noisy
         accelerations.  However, it does correctly treat nested
         cosmology simulations with low initial perturbations.
-     Default: 1
+
+    Default: 1
 ``BaryonSelfGravityApproximation`` (external)
     This flag indicates if baryon density is derived in a strange,
     expensive but self-consistent way (0 - off), or by a completely
