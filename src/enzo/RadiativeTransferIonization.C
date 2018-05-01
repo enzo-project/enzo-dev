@@ -24,7 +24,7 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#define TINY_NUMBER 1e-20
+
 #define DEVCODE 1
 int grid::RadiativeTransferIonization(PhotonPackageEntry **PP, FLOAT *dPi, int cellindex, 
 				      int species, float tau, FLOAT photonrate, 
@@ -65,10 +65,10 @@ int grid::RadiativeTransferIonization(PhotonPackageEntry **PP, FLOAT *dPi, int c
    * Check to make sure we are not just dealing with very small numbers 
    * that could cause problems later on
    */
-  if(BaryonField[kphNum[species]][cellindex] < TINY_NUMBER) 
-    BaryonField[kphNum[species]][cellindex] = TINY_NUMBER;
-  if(BaryonField[gammaNum][cellindex] < TINY_NUMBER) 
-    BaryonField[gammaNum][cellindex] = TINY_NUMBER;
+  if(BaryonField[kphNum[species]][cellindex] < tiny_number) 
+    BaryonField[kphNum[species]][cellindex] = tiny_number;
+  if(BaryonField[gammaNum][cellindex] < tiny_number) 
+    BaryonField[gammaNum][cellindex] = tiny_number;
 #endif
   return SUCCESS;
 }

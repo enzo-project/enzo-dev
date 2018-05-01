@@ -63,7 +63,7 @@ int grid::PhotonSortLinkedLists(void)
     NewPack->Photons = TempPP[count].Photons;
     NewPack->Type = TempPP[count].Type;
     NewPack->Energy = TempPP[count].Energy;
-    NewPack->CrossSection = TempPP[count].CrossSection; //
+    NewPack->CrossSection = TempPP[count].CrossSection;
     NewPack->EmissionTimeInterval = TempPP[count].EmissionTimeInterval;
     NewPack->EmissionTime = TempPP[count].EmissionTime;
     NewPack->CurrentTime = TempPP[count].CurrentTime;

@@ -23,7 +23,7 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#define TINY_NUMBER   1e-20
+
 int grid::RadiativeTransferH2II(PhotonPackageEntry **PP, int cellindex, 
 				float tau, FLOAT photonrate, float geo_correction,
 				int kdissH2IINum)
@@ -44,9 +44,9 @@ int grid::RadiativeTransferH2II(PhotonPackageEntry **PP, int cellindex,
   // BaryonField[kdissH2IINum] needs to be normalised - see 
   // Grid_FinalizeRadiationFields.C
   BaryonField[kdissH2IINum][cellindex] += dPH2II*photonrate;
-  if(BaryonField[kdissH2IINum][cellindex] < TINY_NUMBER)
+  if(BaryonField[kdissH2IINum][cellindex] < tiny_number)
     {
-      BaryonField[kdissH2IINum][cellindex] = TINY_NUMBER;
+      BaryonField[kdissH2IINum][cellindex] = tiny_number;
     }
       
   return SUCCESS;

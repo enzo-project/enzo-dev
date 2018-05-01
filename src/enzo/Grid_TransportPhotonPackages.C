@@ -154,10 +154,10 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   float LightCrossingTime = RadiativeTransferRayMaximumLength * (VelocityUnits) /
     (clight * RadiativeTransferPropagationSpeedFraction); 
   FLOAT EndTime;
-#if DEBUG
-  printf("RadiativeTransferRayMaximumLength = %g\t  RadiativeTransferPropagationSpeedFraction= %g\n",  RadiativeTransferRayMaximumLength, RadiativeTransferPropagationSpeedFraction);
-  printf("LightCrossingTime = %f\n", LightCrossingTime);
-#endif
+ if (MYPROC && DEBUG) {
+   printf("RadiativeTransferRayMaximumLength = %g\t  RadiativeTransferPropagationSpeedFraction= %g\n",  RadiativeTransferRayMaximumLength, RadiativeTransferPropagationSpeedFraction);
+   printf("LightCrossingTime = %f\n", LightCrossingTime);
+ }
   if (RadiativeTransferAdaptiveTimestep)
     EndTime = PhotonTime+LightCrossingTime;
   else

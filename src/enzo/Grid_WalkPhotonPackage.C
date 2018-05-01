@@ -124,7 +124,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     ENZO_FAIL("Error in GetUnits.\n");
   }
   // Convert from #/s to RT units
-  double LConv = (double) TimeUnits / pow(LengthUnits,3);
+  double LConv = (double) TimeUnits / POW(LengthUnits,3);
   /* This controls the splitting condition, where this many rays must
      exist in each cell */
 
@@ -913,7 +913,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
  * The H2I cross section is taken from a fit to the 
  * Stancil et al. (1994) data. The data is a function of both 
  * temperature and frequency and so I fit the data to a 
- * temperarure close to 5000K. The fit is shown below.
+ * temperature close to 5000K. The fit is shown below.
  * A significantly more accurate treatment of the cross section 
  * can be obtained by using a look-up table (provided) by setting USE_H2II_LOOKUP 
  * to be true in RadiativeTransferH2IILoopUpTable.h
@@ -940,7 +940,7 @@ static void CalculateCrossSection(PhotonPackageEntry **PP,
     sigma[LW] = 3.71e-18 * LengthUnits; // H2I average cross-section
      /* Fit created from Stancil et al. 1994 */
     X = log((*PP)->Energy/8.0);
-    sigma[H2II] = a*pow(10.0, -b*X*X)*exp(-c*X) * 1e-18 * LengthUnits;
+    sigma[H2II] = a*POW(10.0, -b*X*X)*exp(-c*X) * 1e-18 * LengthUnits;
     //sigma[H2II] = 1.495509e-18 * LengthUnits; // H2II average cross-section
     } /* If Radiation is in XRays (type = 5) plus ionising radiation */
   else if ((*PP)->Type == XRAYS) {
@@ -952,10 +952,10 @@ static void CalculateCrossSection(PhotonPackageEntry **PP,
   else if (((*PP)->Type == IR)) {
     /* Fit taken from Tegmark et al. (1997) */
     X = (*PP)->Energy / 0.74;
-    sigma[IR] = (A*pow((X - 1), 1.5)/pow(X, 3.11)) * LengthUnits;
+    sigma[IR] = (A*POW((X - 1), 1.5)/POW(X, 3.11)) * LengthUnits;
     /* Fit created from Stancil et al. 1994 */
     X = log((*PP)->Energy/8.0);
-    sigma[H2II] = a*pow(10.0, -b*X*X)*exp(-c*X) * 1e-18 * LengthUnits;
+    sigma[H2II] = a*POW(10.0, -b*X*X)*exp(-c*X) * 1e-18 * LengthUnits;
   }
   return;
 }

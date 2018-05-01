@@ -26,7 +26,7 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#define TINY_NUMBER   1e-20
+
 #define THRESHOLD_DENSITY_DB36 1e14
 #define THRESHOLD_DENSITY_DB37 5e14
 
@@ -147,13 +147,13 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
   
   BaryonField[kdissH2INum][cellindex] += geo_correction * (*PP)->Photons * 
     dissrate;
-   if(BaryonField[kdissH2INum][cellindex] < TINY_NUMBER)
+   if(BaryonField[kdissH2INum][cellindex] < tiny_number)
     {
 #if DEBUG
-      fprintf(stdout, "Changing kdissH2I  from %g to %g\n", BaryonField[kdissH2INum][cellindex], TINY_NUMBER);
+      fprintf(stdout, "Changing kdissH2I  from %g to %g\n", BaryonField[kdissH2INum][cellindex], tiny_number);
       fprintf(stdout, "(*PP)->Photons = %g\t shield2 = %g\t dP = %g\n", (*PP)->Photons, shield2, dP );
 #endif
-      BaryonField[kdissH2INum][cellindex] = TINY_NUMBER;
+      BaryonField[kdissH2INum][cellindex] = tiny_number;
     }
       
   return SUCCESS;
