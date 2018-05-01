@@ -59,7 +59,7 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
 {
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size;
+  int dim, i, j, k, m, sphere;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
@@ -275,11 +275,6 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
     } // end: particle initialization
 
     /* Set up the baryon field. */
-    
-    size = 1;
-    for (dim = 0; dim < GridRank; dim++) {
-      size *= GridDimension[dim];
-    }
     
     if (SetupLoopCount == 0 && UseGas) {
       this->AllocateGrids();

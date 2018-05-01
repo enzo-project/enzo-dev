@@ -29,7 +29,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 {
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size;
+  int dim, i, j, k, m, sphere;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
@@ -105,11 +105,6 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 
   /* Set up the baryon field. */
   
-  size = 1;
-  for (dim = 0; dim < GridRank; dim++) {
-    size *= GridDimension[dim];
-  }
-    
   this->AllocateGrids();
    
   /* Loop over the mesh. */

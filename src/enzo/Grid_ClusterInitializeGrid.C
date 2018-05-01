@@ -54,7 +54,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 {
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size;
+  int dim, i, j, k, m, sphere;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
@@ -218,11 +218,6 @@ printf("PointSourceGravityConstant= %"GSYM"\n", PointSourceGravityConstant);
 
   /* Set up the baryon field. */
 
-  /* compute size of fields */
-
-  size = 1;
-  for (dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
 
   /* allocate fields */
 

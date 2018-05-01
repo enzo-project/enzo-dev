@@ -36,7 +36,7 @@ int grid::TestGravityInitializeGrid(float CentralDensity,
 {
   /* declarations */
  
-  int dim, i, size, field, vel;
+  int dim, i, size, vel;
   float phi, r, theta;
   int mt_random_seed = 123456789;
   int max_random = (1<<16);

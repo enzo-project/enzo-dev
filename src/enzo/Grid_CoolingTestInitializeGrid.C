@@ -35,7 +35,7 @@ int grid::CoolingTestInitializeGrid()
 {
   /* declarations */
 
-  int dim, i, j, k, size, field, GCM, index;
+  int dim, i, j, k, size, GCM, index;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, MetalNum;

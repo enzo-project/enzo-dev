@@ -34,7 +34,7 @@ int grid::TestGravitySphereInitializeGrid(float SphereInteriorDensity,
 {
   /* declarations */
  
-  int dim, i, j, k, size, vel, field;
+  int dim, i, j, k, size, vel;
   float phi, r, theta, pi = 3.14159;
  
   if (UseBaryons) {

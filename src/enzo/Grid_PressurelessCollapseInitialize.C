@@ -28,7 +28,7 @@ int grid::PressurelessCollapseInitializeGrid(int PressurelessCollapseDirection,
 {
   /* declarations */
  
-  int Divisor, index, size, dim, field, i;
+  int Divisor, index, size, dim, i;
  
   /* error check */
  

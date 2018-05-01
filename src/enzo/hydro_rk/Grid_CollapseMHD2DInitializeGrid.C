@@ -39,7 +39,7 @@ int grid::CollapseMHD2DInitializeGrid(FLOAT r_sphere,
 {
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size;
+  int dim, i, j, k, m, sphere;
 
     int phip_num;
   NumberOfBaryonFields = 0;
@@ -76,11 +76,6 @@ int grid::CollapseMHD2DInitializeGrid(FLOAT r_sphere,
   double MassUnits = DensityUnits*pow(LengthUnits,3);
   float MagneticUnits = sqrt(4.0*Pi*DensityUnits)*VelocityUnits;
   double G = 6.67e-8;
-
-  size = 1;
-  for (dim = 0; dim < GridRank; dim++) {
-    size *= GridDimension[dim];
-  }
 
   this->AllocateGrids();
 

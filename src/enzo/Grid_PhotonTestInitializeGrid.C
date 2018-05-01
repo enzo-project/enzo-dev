@@ -257,11 +257,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   /* Set up the baryon field. */
   /* compute size of fields */
-  size = 1;
   active_size = 1;
   int ActiveDims[MAX_DIMENSION];
   for (dim = 0; dim < GridRank; dim++) {
-    size *= GridDimension[dim];
     ActiveDims[dim] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
     active_size *= ActiveDims[dim];
   }

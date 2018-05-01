@@ -125,7 +125,6 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
   for (dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
-  int field;
   this->AllocateGrids();
 
   /* transform pressure to total energy */

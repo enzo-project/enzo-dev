@@ -76,10 +76,6 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
     return SUCCESS;
   }
 
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
-    size *= GridDimension[dim];
-  }
 
   this->AllocateGrids();
 

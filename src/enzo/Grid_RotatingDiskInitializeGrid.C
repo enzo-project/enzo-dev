@@ -91,16 +91,11 @@ int grid::RotatingDiskInitializeGrid(float RDScaleRadius,
   
    /* declarations */
 	
-   int dim, i, j, k, field, size;
+   int dim, i, j, k;
    FLOAT density, velocity[MAX_DIMENSION], temperature;
    FLOAT r, x, y = 0, z = 0, vx, vy, vz, velocity_mag;
    int n = 0;
    
-   /* compute size of baryon fields */
-	
-   size = 1;
-   for (dim = 0; dim < GridRank; dim++)
-     size *= GridDimension[dim];
 		
    /* allocate memory for baryon fields */
 		

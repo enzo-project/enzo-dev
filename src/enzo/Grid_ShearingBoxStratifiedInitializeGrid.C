@@ -80,10 +80,6 @@ int grid::ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float 
     }
   }
 
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
-    size *= GridDimension[dim];
-  }
 
   this->AllocateGrids();
 

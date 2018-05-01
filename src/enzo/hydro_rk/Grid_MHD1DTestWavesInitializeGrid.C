@@ -55,14 +55,11 @@ int grid::MHD1DTestWavesInitializeGrid(float rhol,
     return SUCCESS;
   }
 
-  int size = 1, activesize = 1, dim;
-  for (dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
+  int activesize = 1, dim;
 
   for (dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
-  int field;
   this->AllocateGrids();
 
   divB = new float[activesize];

@@ -73,10 +73,6 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   if (UsePhysicalUnit)
     GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
   
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
-    size *= GridDimension[dim];
-  }
 
   this->AllocateGrids();
   
