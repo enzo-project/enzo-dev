@@ -122,7 +122,7 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
           divB[i]=0.0;
       }
   }
-  for( dim=0;dim<GridRank;dim++){
+  for( dim=0;dim<MAX_DIMENSION;dim++){
       if (gradPhi[dim] == NULL) {
           gradPhi[dim] = new float[activesize];
       }
