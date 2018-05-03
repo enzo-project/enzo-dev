@@ -84,6 +84,15 @@ private:
   FLOAT VCircRadius[VCIRC_TABLE_LENGTH];
   float VCircVelocity[VCIRC_TABLE_LENGTH];
   int RefineAtStart;
+  int UseGasParticles;
+  int UseGasParticlesEqualizePressure;
+
+  FLOAT *GasParticlePosition[MAX_DIMENSION];
+  FLOAT *GasParticleVelocity[MAX_DIMENSION];
+  float *GasParticleMass;
+  int    NumberOfGasParticles;
+  float GasHaloDensity;
+  float GasHaloRadius;
 
 public:
   ProblemType_AgoraRestart() : EnzoProblemType()
@@ -161,6 +170,8 @@ public:
     // Mass: 10^9 Msun
     // Length: kpc
     // Temperature: K
+    this->UseGasParticles     = 0;          // by default, do not use gas particles to init gas
+    this->UseGasParticlesEqualizePressure = 1;
     this->ScaleLength         = .0343218;
     this->ScaleHeight         = .00343218;
     this->DiskMass            = 42.9661;
@@ -172,6 +183,15 @@ public:
     this->HaloMetallicity     = 0.0;
     this->RefineAtStart       = TRUE;
 
+    this->NumberOfGasParticles = 0;
+    this->GasParticleMass = NULL;
+    for (int i = 0; i < MAX_DIMENSION; i ++){
+      this->GasParticlePosition[i] = NULL;
+      this->GasParticleVelocity[i] = NULL;
+    }
+    this->GasHaloDensity = 0.0;
+    this->GasHaloRadius  = 0.0; // ignore if zero
+
     // set this from global data (kind of a hack)
     TestProblemData.MultiSpecies = MultiSpecies;
 
@@ -179,6 +199,10 @@ public:
     while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
     {
       ret = 0;
+      ret += sscanf(line, "AgoraRestartUseGasParticles = %"ISYM,
+                      &UseGasParticles);
+      ret += sscanf(line, "AgoraRestartUseGasParticlesEqualizePressure = %"ISYM,
+                      &UseGasParticlesEqualizePressure);
       ret += sscanf(line, "AgoraRestartCenterPosition = %"PSYM" %"PSYM" %"PSYM,
 		    CenterPosition, CenterPosition+1, CenterPosition+2);
       ret += sscanf(line, "AgoraRestartScaleLength = %"PSYM, &ScaleLength);
@@ -194,6 +218,10 @@ public:
 		    &HaloTemperature);
       ret += sscanf(line, "AgoraRestartHaloMetallicity = %"FSYM,
                     &HaloMetallicity);
+      ret += sscanf(line, "AgoraRestartGasHaloDensity = %"FSYM,
+                    &GasHaloDensity);
+      ret += sscanf(line, "AgoraRestartGasHaloRadius = %"FSYM,
+                    &GasHaloRadius);
       ret += sscanf(line, "AgoraRestartMagneticField = %"FSYM" %"FSYM" %"FSYM,
 		    Bfield, Bfield+1, Bfield+2);
 
@@ -246,8 +274,10 @@ public:
 
     this->ReadInVcircData();
 
-
-
+    if (UseGasParticles)
+    {
+      this->ReadInGasParticleData();
+    }
 
     /* set up top grid */
 
@@ -264,7 +294,13 @@ public:
       ENZO_FAIL("Error in InitializeUniformGrid");
     }
 
-    this->InitializeGrid(TopGrid.GridData, TopGrid, MetaData);
+    if (UseGasParticles)
+    {
+      this->InitializeGridWithParticles(TopGrid.GridData, TopGrid, MetaData);
+    } else
+    {
+      this->InitializeGrid(TopGrid.GridData, TopGrid, MetaData);
+    }
 
     this->InitializeParticles(TopGrid.GridData, TopGrid, MetaData);
 
@@ -299,13 +335,39 @@ public:
 	  break;
 	LevelHierarchyEntry *Temp = LevelArray[level+1];
 	while (Temp != NULL) {
-	  if (this->InitializeGrid(Temp->GridData, TopGrid, MetaData) == FAIL)
-	  {
-	    ENZO_FAIL("Error in AgoraRestart->InitializeGrid");
-	  }
+          if (UseGasParticles)
+          {
+            if(this->InitializeGridWithParticles(Temp->GridData, TopGrid, MetaData) == FAIL)
+            {
+              ENZO_FAIL("Error in AgoraReseart->InitializeGridWithParticles");
+            }
+          } else
+          {
+            if(this->InitializeGrid(Temp->GridData, TopGrid, MetaData) == FAIL)
+            {
+              ENZO_FAIL("Error in AgoraRestart->InitializeGrid");
+            }
+          }
+
 	  Temp = Temp->NextGridThisLevel;
 	} // end: loop over grids on this level
       } // end: loop over levels
+
+      if (UseGasParticles){
+        for (level = MaximumRefinementLevel; level > 0; level--) {
+          LevelHierarchyEntry *Temp = LevelArray[level];
+          while (Temp != NULL) {
+            if (Temp->GridData->ProjectSolutionToParentGrid(
+                                     *LevelArray[level-1]->GridData) == FAIL) {
+              fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
+              return FAIL;
+            }
+            Temp = Temp->NextGridThisLevel;
+          }
+        }
+      } // end use particles project
+
+
     }
 
 
@@ -363,6 +425,10 @@ public:
 
     if (MyProcessorNumber == ROOT_PROCESSOR)
     {
+      fprintf(Outfptr, "AgoraRestartUseGasParticles         = %"ISYM"\n",
+                 UseGasParticles);
+      fprintf(Outfptr, "AgoraRestartUseGasParticlesEqualizePressure = %"ISYM"\n",
+                 UseGasParticlesEqualizePressure);
       fprintf(Outfptr, "AgoraRestartCenterPosition          = %"
 	      PSYM" %"PSYM" %"PSYM"\n",
 	      CenterPosition[0], CenterPosition[1], CenterPosition[2]);
@@ -382,6 +448,10 @@ public:
 	      HaloMass);
       fprintf(Outfptr, "AgoraRestartHaloTemperature         = %"FSYM"\n",
 	      HaloTemperature);
+      fprintf(Outfptr, "AgoraRestartGasHaloDensity          = %"FSYM"\n",
+              GasHaloDensity);
+      fprintf(Outfptr, "AgoraRestartGasHaloRadius           = %"FSYM"\n",
+              GasHaloRadius);
       fprintf(Outfptr, "AgoraRestartRefineAtStart           = %"ISYM"\n",
 	      RefineAtStart);
       fprintf(Outfptr, "AgoraRestartHydrogenFractionByMass = %"FSYM"\n",
@@ -419,6 +489,488 @@ public:
     return SUCCESS;
 
   } // InitializeSimulation
+
+  int InitializeGridWithParticles(grid *thisgrid_orig, HierarchyEntry &TopGrid,
+                     TopGridData &MetaData)
+  {
+    // optional initialization scheme to read in gas directly from MakeDisk
+    // and and them to cells with NO smoothing
+    //
+    // Cells with no deposited particles will be set to a low, constant density
+    // with temperature such that they have the average pressure of adjacent cells.
+    // (and average velocity).... ???? Make sure this is sensible.
+
+    // need a flagging field to mark cells that don't host particles
+
+    if(debug)
+      printf("Entering AgoraRestart InitializeGridWithParticles\n");
+
+    AgoraRestartGrid *thisgrid =
+      static_cast<AgoraRestartGrid *>(thisgrid_orig);
+
+    if (thisgrid->ProcessorNumber != MyProcessorNumber)
+      return SUCCESS;
+
+/*
+    int nGas = 0, count = 0;
+    nGas = nlines("gas.dat");
+    if (debug) fprintf(stderr, "InitializeGridWithParticles: Number of Gas Particles %"ISYM"\n", nGas);
+
+    // Initialize particle arrays and read gas particles
+    PINT *Number = new PINT[nGas];
+    int *Type = new int[nGas];
+    FLOAT *Position[MAX_DIMENSION];
+    float *Velocity[MAX_DIMENSION];
+    for (int i = 0; i < thisgrid->GridRank; i++)
+    {
+      Position[i] = new FLOAT[nGas];
+      Velocity[i] = new FLOAT[nGas];
+    }
+    float *Mass = new float[nGas];
+
+    FLOAT dx = thisgrid->CellWidth[0][0];
+
+    this->ReadParticlesFromFile(
+        Number, Type, Position, Velocity, Mass,
+        "gas.dat", -1, count, dx); // particle type is irrelevant here
+*/
+    FLOAT dx = thisgrid->CellWidth[0][0];
+
+    /* Get Units */
+    float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1,
+      TemperatureUnits=1;
+    double MassUnits=1;
+
+    if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+                 &TimeUnits, &VelocityUnits, &MassUnits, thisgrid->Time) == FAIL) {
+      ENZO_FAIL("Error in GetUnits.");
+    }
+
+    /* Identify physical quantities */
+    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num, PhiNum, MetalNum;
+
+    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+      DINum, DIINum, HDINum;
+
+    if (thisgrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                             Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
+      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+      ENZO_FAIL("");
+    }
+
+    if (TestProblemData.MultiSpecies)
+      if (thisgrid->IdentifySpeciesFields(
+            DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+            HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL)
+        ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
+
+    int MetallicityField = FALSE;
+    if ((MetalNum = FindField(
+           Metallicity, thisgrid->FieldType, thisgrid->NumberOfBaryonFields)
+          ) != -1)
+      MetallicityField = TRUE;
+    else
+      MetalNum = 0;
+
+    //
+    int dim, i, j, k, n, size, index=0, nx, ny, nz;
+    float DiskGasEnergy, HaloGasEnergy, HaloDensity, BoxVolume, vcirc, mu;
+    FLOAT xstart, ystart, zstart, xend, yend, zend, xp, yp, zp;
+
+    nx = *(thisgrid->GridDimension);
+    ny = *(thisgrid->GridDimension+1);
+    nz = *(thisgrid->GridDimension+2);
+    size = nx*ny*nz;
+
+
+    // flagging field for empty cells
+    int *iflag = new int[size];
+    for (i = 0; i < size; i ++)
+      iflag[i] = 0;
+
+    BoxVolume = 1.;
+    for (dim = 0; dim < TopGrid.GridData->GetGridRank(); dim++)
+      BoxVolume *= (DomainRightEdge[dim] - DomainLeftEdge[dim]);
+
+    /* Find the mean molecular weight */
+
+    if (TestProblemData.MultiSpecies == FALSE)
+      mu = Mu;
+    else
+    {
+      // Atomic hydrogen
+      mu = TestProblemData.HydrogenFractionByMass *
+        (TestProblemData.HI_Fraction + 2.0*TestProblemData.HII_Fraction);
+
+      // Helium
+      mu += TestProblemData.HeliumFractionByMass / 4.0 *
+        (TestProblemData.HeI_Fraction + 2.0*TestProblemData.HeII_Fraction +
+         3.0*TestProblemData.HeIII_Fraction);
+
+      // Molecular hydrogen, ignore Deuterium
+      if (TestProblemData.MultiSpecies > 1)
+        mu += TestProblemData.HydrogenFractionByMass / 2.0 *
+          (TestProblemData.H2I_Fraction + 2.0*TestProblemData.H2II_Fraction);
+
+      // Metals
+      if (TestProblemData.UseMetallicityField)
+        mu += TestProblemData.MetalFractionByMass / 16.0;
+
+      mu = POW(mu, -1);
+
+    }
+
+    HaloGasEnergy = this->HaloTemperature / mu / (Gamma - 1) /
+      TemperatureUnits;
+
+    HaloDensity = this->HaloMass / BoxVolume;
+
+    DiskGasEnergy = this->DiskTemperature / mu / (Gamma - 1) /
+      TemperatureUnits;
+
+
+    // loop over and deposit all particles
+    int ibuff = NumberOfGhostZones;
+
+    xstart = thisgrid->CellLeftEdge[0][0];
+    ystart = thisgrid->CellLeftEdge[1][0];
+    zstart = thisgrid->CellLeftEdge[2][0];
+    xend   = xstart + dx*nx;
+    yend   = ystart + dx*ny;
+    zend   = zstart + dx*nz;
+
+    // initialize ALL cells to the DM halo background
+    FLOAT x, y, z, radius;
+    index = 0;
+    for (k = 0; k < thisgrid->GridDimension[2]; k++)
+    {
+      for (j = 0; j < thisgrid->GridDimension[1]; j++)
+      {
+        for (i = 0; i < thisgrid->GridDimension[0]; i++, index++)
+        {
+          /* Compute position */
+
+          x = (thisgrid->CellLeftEdge[0][i] + 0.5*thisgrid->CellWidth[0][i]);
+          y = (thisgrid->CellLeftEdge[1][j] + 0.5*thisgrid->CellWidth[1][j]);
+          z = (thisgrid->CellLeftEdge[2][k] + 0.5*thisgrid->CellWidth[2][k]);
+
+          x -= this->CenterPosition[0];
+          y -= this->CenterPosition[1];
+          z -= this->CenterPosition[2];
+
+          radius = sqrt(POW(x, 2) +
+                        POW(y, 2) +
+                        POW(z, 2) );
+
+//    for (index = 0; index < size; index++)
+//    {
+          if (radius < GasHaloRadius){
+            thisgrid->BaryonField[DensNum][index] = GasHaloDensity * mu * mh / MassUnits * POW(LengthUnits,3);
+            thisgrid->BaryonField[TENum][index]   = HaloGasEnergy;
+
+            if (DualEnergyFormalism)
+              thisgrid->BaryonField[GENum][index] = HaloGasEnergy;
+          } else{
+            thisgrid->BaryonField[DensNum][index] = GasHaloDensity * mu * mh / MassUnits * POW(LengthUnits,3) / 1000.0;
+
+            thisgrid->BaryonField[TENum][index]   = HaloGasEnergy * 10;
+            if (DualEnergyFormalism)
+              thisgrid->BaryonField[GENum][index] = HaloGasEnergy * 10;
+
+          }
+
+          thisgrid->BaryonField[Vel1Num][index] = 0;
+          thisgrid->BaryonField[Vel2Num][index] = 0;
+          thisgrid->BaryonField[Vel3Num][index] = 0;
+
+          if (TestProblemData.UseMetallicityField)
+            thisgrid->BaryonField[MetalNum][index] = thisgrid->BaryonField[DensNum][index]*
+                 TestProblemData.MetalFractionByMass *HaloMetallicity;
+      } // i
+     } // j
+    } // k
+//    } // end initialize
+
+    // Deposit gas particles and sum momentum in cells
+    int number_on_grid = 0;
+    for (n = 0; n < this->NumberOfGasParticles; n++)
+    {
+
+      if (this->GasParticlePosition[0][n] < xstart  || // + ibuff*dx  ||
+          this->GasParticlePosition[0][n] > xend    || // - ibuff*dx  ||
+          this->GasParticlePosition[1][n] < ystart  || // + ibuff*dx  ||
+          this->GasParticlePosition[1][n] > yend    || // - ibuff*dx  ||
+          this->GasParticlePosition[2][n] < zstart  || // + ibuff*dx  ||
+          this->GasParticlePosition[2][n] > zend    ){  // + ibuff*dx){
+        continue; // particle is off of this grid
+      }
+      xp = (this->GasParticlePosition[0][n] - xstart)/dx;
+      yp = (this->GasParticlePosition[1][n] - ystart)/dx;
+      zp = (this->GasParticlePosition[2][n] - zstart)/dx;
+
+      i = ((int) floor(xp));
+      j = ((int) floor(yp));
+      k = ((int) floor(zp));
+
+      index = i + (j + k * ny)*nx;
+
+      thisgrid->BaryonField[DensNum][index] = thisgrid->BaryonField[DensNum][index]*iflag[index] + this->GasParticleMass[n]/POW(dx,3);
+      // add momentum first, then divide by total this->GasParticleMass in cell later
+      thisgrid->BaryonField[Vel1Num][index] += this->GasParticleMass[n]*this->GasParticleVelocity[0][n]/POW(dx,3);
+      thisgrid->BaryonField[Vel2Num][index] += this->GasParticleMass[n]*this->GasParticleVelocity[1][n]/POW(dx,3);
+      thisgrid->BaryonField[Vel3Num][index] += this->GasParticleMass[n]*this->GasParticleVelocity[2][n]/POW(dx,3);
+
+      iflag[index] = 1;
+      number_on_grid++;
+    } // end particle deposition
+    fprintf(stderr, "Number of Particles on this Grid : %"ISYM"\n", number_on_grid);
+
+    // correct units in disk density and velocity
+    //   properly set energy and metal fraction for gas disk
+    for (index = 0; index < size; index++)
+    {
+      if (iflag[index] == 0)
+        continue;
+
+      thisgrid->BaryonField[Vel1Num][index] /= (thisgrid->BaryonField[DensNum][index]);
+      thisgrid->BaryonField[Vel2Num][index] /= (thisgrid->BaryonField[DensNum][index]);
+      thisgrid->BaryonField[Vel3Num][index] /= (thisgrid->BaryonField[DensNum][index]);
+//      thisgrid->BaryonField[DensNum][index] /= (MassUnits*POW(dx,3));
+
+      thisgrid->BaryonField[TENum][index] = DiskGasEnergy;
+      if(HydroMethod != Zeus_Hydro) {
+        thisgrid->BaryonField[TENum][index] += 0.5 *
+          (POW(thisgrid->BaryonField[Vel1Num][index],2) +
+           POW(thisgrid->BaryonField[Vel2Num][index],2) +
+           POW(thisgrid->BaryonField[Vel3Num][index],2));
+      }
+
+      if (DualEnergyFormalism)
+      {
+        thisgrid->BaryonField[GENum][index] = DiskGasEnergy;
+      }
+
+      if (TestProblemData.UseMetallicityField)
+      {
+        thisgrid->BaryonField[MetalNum][index] = thisgrid->BaryonField[DensNum][index] *
+                    TestProblemData.MetalFractionByMass * DiskMetallicity;
+      }
+    }
+
+    /// fill in cells near disk particles
+
+    /* Now compute the temperature of everything */
+
+    ///
+    /// do generic field initialization
+    int xo, yo, zo;
+    xo = 1;
+    yo = nx;
+    zo = nx * ny;
+    index = 0;
+    for (k = 0; k < thisgrid->GridDimension[2]; k++)
+    {
+      for (j = 0; j < thisgrid->GridDimension[1]; j++)
+      {
+        for (i = 0; i < thisgrid->GridDimension[0]; i++, index++)
+        {
+
+          if (iflag[index] == 0)
+          {
+            int xlow, xhigh, ylow, yhigh, zlow, zhigh;
+            xlow  = max(index - xo, 0);
+            xhigh = min(index + xo, size - 1);
+            ylow  = max(index - yo, 0);
+            yhigh = min(index + yo, size - 1);
+            zlow  = max(index - zo, 0);
+            zhigh = min(index + zo, size - 1);
+            
+
+            float total_mass = 0.0; // density
+            total_mass = iflag[xhigh]*thisgrid->BaryonField[DensNum][xhigh] +
+                         iflag[xlow]*thisgrid->BaryonField[DensNum][xlow] +
+                         iflag[yhigh]*thisgrid->BaryonField[DensNum][yhigh] +
+                         iflag[ylow]*thisgrid->BaryonField[DensNum][ylow] +
+                         iflag[zhigh]*thisgrid->BaryonField[DensNum][zhigh] +
+                         iflag[zlow]*thisgrid->BaryonField[DensNum][zlow];
+
+            if (total_mass > 0)
+            {
+              // average velocity with surrounding cells (mass weighted):
+              thisgrid->BaryonField[Vel1Num][index] = (
+                                 iflag[xhigh]*thisgrid->BaryonField[Vel1Num][xhigh]*thisgrid->BaryonField[DensNum][xhigh] +
+                                 iflag[xlow]*thisgrid->BaryonField[Vel1Num][xlow]*thisgrid->BaryonField[DensNum][xlow] +
+                                 iflag[yhigh]*thisgrid->BaryonField[Vel1Num][yhigh]*thisgrid->BaryonField[DensNum][yhigh] +
+                                 iflag[ylow]*thisgrid->BaryonField[Vel1Num][ylow]*thisgrid->BaryonField[DensNum][ylow] +
+                                 iflag[zhigh]*thisgrid->BaryonField[Vel1Num][zhigh]*thisgrid->BaryonField[DensNum][zhigh] +
+                                 iflag[zlow]*thisgrid->BaryonField[Vel1Num][zlow]*thisgrid->BaryonField[DensNum][zlow]
+                                                       ) / total_mass;
+              thisgrid->BaryonField[Vel2Num][index] = (
+                                 iflag[xhigh]*thisgrid->BaryonField[Vel2Num][xhigh]*thisgrid->BaryonField[DensNum][xhigh] +
+                                 iflag[xlow]*thisgrid->BaryonField[Vel2Num][xlow]*thisgrid->BaryonField[DensNum][xlow] +
+                                 iflag[yhigh]*thisgrid->BaryonField[Vel2Num][yhigh]*thisgrid->BaryonField[DensNum][yhigh] +
+                                 iflag[ylow]*thisgrid->BaryonField[Vel2Num][ylow]*thisgrid->BaryonField[DensNum][ylow] +
+                                 iflag[zhigh]*thisgrid->BaryonField[Vel2Num][zhigh]*thisgrid->BaryonField[DensNum][zhigh] +
+                                 iflag[zlow]*thisgrid->BaryonField[Vel2Num][zlow]*thisgrid->BaryonField[DensNum][zlow]
+                                                       ) / total_mass;
+              thisgrid->BaryonField[Vel3Num][index] = (
+                                 iflag[xhigh]*thisgrid->BaryonField[Vel3Num][xhigh]*thisgrid->BaryonField[DensNum][xhigh] +
+                                 iflag[xlow]*thisgrid->BaryonField[Vel3Num][xlow]*thisgrid->BaryonField[DensNum][xlow] +
+                                 iflag[yhigh]*thisgrid->BaryonField[Vel3Num][yhigh]*thisgrid->BaryonField[DensNum][yhigh] +
+                                 iflag[ylow]*thisgrid->BaryonField[Vel3Num][ylow]*thisgrid->BaryonField[DensNum][ylow] +
+                                 iflag[zhigh]*thisgrid->BaryonField[Vel3Num][zhigh]*thisgrid->BaryonField[DensNum][zhigh] +
+                                 iflag[zlow]*thisgrid->BaryonField[Vel3Num][zlow]*thisgrid->BaryonField[DensNum][zlow]
+                                                       ) / total_mass;
+
+              // compute pressure of surrounding cells (mass weighted)
+              // and set temperature accordingly
+              //     P   = rho * k * T / mu
+              //
+              //     T_new = P * mu / (rho * k)
+              //
+              //     removing mu and kboltz from computation (they get divided out anyway)
+              if (UseGasParticlesEqualizePressure)
+              {
+               float pressure = this->DiskTemperature * (
+                  iflag[xhigh]*thisgrid->BaryonField[DensNum][xhigh]*thisgrid->BaryonField[DensNum][xhigh] +
+                  iflag[xlow]*thisgrid->BaryonField[DensNum][xlow]*thisgrid->BaryonField[DensNum][xlow] +
+                  iflag[yhigh]*thisgrid->BaryonField[DensNum][yhigh]*thisgrid->BaryonField[DensNum][yhigh] +
+                  iflag[ylow]*thisgrid->BaryonField[DensNum][ylow]*thisgrid->BaryonField[DensNum][ylow] +
+                  iflag[zhigh]*thisgrid->BaryonField[DensNum][zhigh]*thisgrid->BaryonField[DensNum][zhigh] +
+                  iflag[zlow]*thisgrid->BaryonField[DensNum][zlow]*thisgrid->BaryonField[DensNum][zlow]
+                           ) / total_mass;
+
+                thisgrid->BaryonField[TENum][index] = (pressure / thisgrid->BaryonField[DensNum][index]) /
+                                                       mu / (Gamma - 1) / TemperatureUnits;
+
+                if (DualEnergyFormalism)
+                  thisgrid->BaryonField[GENum][index] = (pressure / thisgrid->BaryonField[DensNum][index]) /
+                                                         mu / (Gamma - 1) / TemperatureUnits;
+              }
+
+            } // endif cell is adjacent to any particle deposition
+
+          } // equalize the pressure with the surroundings
+
+
+          if (StarMakerTypeIaSNe) {
+            int SNIaNum = FindField(MetalSNIaDensity , thisgrid->FieldType, thisgrid->NumberOfBaryonFields);
+            if(SNIaNum != -1) {
+                thisgrid->BaryonField[SNIaNum][index] = thisgrid->BaryonField[DensNum][index] * 1.0e-8;
+            }
+          }
+          if (StarMakerTypeIISNeMetalField) {
+            int SNIINum = FindField(MetalSNIIDensity , thisgrid->FieldType, thisgrid->NumberOfBaryonFields);
+            if(SNIINum != -1) {
+                thisgrid->BaryonField[SNIINum][index] = thisgrid->BaryonField[DensNum][index] * 1.0e-8;
+            }
+            else {
+                ENZO_FAIL("Thought we would find a SNII field but did not.");
+            }
+          }
+
+          if(TestProblemData.MultiSpecies)
+          {
+            thisgrid->BaryonField[HINum][index] = TestProblemData.HI_Fraction *
+              TestProblemData.HydrogenFractionByMass * thisgrid->BaryonField[DensNum][index];
+
+            thisgrid->BaryonField[HIINum][index] = TestProblemData.HII_Fraction *
+              TestProblemData.HydrogenFractionByMass * thisgrid->BaryonField[DensNum][index];
+
+            thisgrid->BaryonField[HeINum][index] = TestProblemData.HeI_Fraction *
+              TestProblemData.HeliumFractionByMass * thisgrid->BaryonField[DensNum][index];
+
+            thisgrid->BaryonField[HeIINum][index] = TestProblemData.HeII_Fraction *
+              TestProblemData.HeliumFractionByMass * thisgrid->BaryonField[DensNum][index];
+
+            thisgrid->BaryonField[HeIIINum][index] = TestProblemData.HeIII_Fraction *
+              TestProblemData.HeliumFractionByMass * thisgrid->BaryonField[DensNum][index];
+
+            if(TestProblemData.MultiSpecies > 1){
+              thisgrid->BaryonField[HMNum][index] = TestProblemData.HM_Fraction *
+                TestProblemData.HydrogenFractionByMass * thisgrid->BaryonField[DensNum][index];
+
+              thisgrid->BaryonField[H2INum][index] = 2 * TestProblemData.H2I_Fraction *
+                TestProblemData.HydrogenFractionByMass * thisgrid->BaryonField[DensNum][index];
+
+              thisgrid->BaryonField[H2IINum][index] = 2 * TestProblemData.H2II_Fraction *
+                TestProblemData.HydrogenFractionByMass * thisgrid->BaryonField[DensNum][index];
+            }
+
+            if (TestProblemData.MultiSpecies > 1)
+              thisgrid->BaryonField[HIINum][index] -=
+                (thisgrid->BaryonField[HMNum][index] + thisgrid->BaryonField[H2IINum][index]
+                 + thisgrid->BaryonField[H2INum][index]);
+
+            // Electron "density" (remember, this is a factor of m_p/m_e scaled
+            // from the 'normal' density for convenience) is calculated by
+            // summing up all of the ionized species.  The factors of 0.25 and
+            // 0.5 in front of HeII and HeIII are to fix the fact that we're
+            // calculating mass density, not number density (because the
+            // thisgrid->BaryonField values are 4x as heavy for helium for a single
+            // electron)
+            thisgrid->BaryonField[DeNum][index] = thisgrid->BaryonField[HIINum][index] +
+              0.25*thisgrid->BaryonField[HeIINum][index] +
+              0.5*thisgrid->BaryonField[HeIIINum][index];
+            if (TestProblemData.MultiSpecies > 1)
+              thisgrid->BaryonField[DeNum][index] += 0.5*thisgrid->BaryonField[H2IINum][index] -
+                thisgrid->BaryonField[HMNum][index];
+
+            // Set deuterium species (assumed to be a negligible fraction of the
+            // total, so not counted in the conservation)
+            if(TestProblemData.MultiSpecies > 2){
+              thisgrid->BaryonField[DINum ][index] =
+                CoolData.DeuteriumToHydrogenRatio * thisgrid->BaryonField[HINum][index];
+              thisgrid->BaryonField[DIINum][index] =
+                CoolData.DeuteriumToHydrogenRatio * thisgrid->BaryonField[HIINum][index];
+              thisgrid->BaryonField[HDINum][index] = 0.75 *
+                CoolData.DeuteriumToHydrogenRatio * thisgrid->BaryonField[H2INum][index];
+            }
+          } // if(TestProblemData.MultiSpecies)
+
+            if (HydroMethod == MHD_RK)
+              {
+                thisgrid->BaryonField[B1Num][index] = Bfield[0];
+                thisgrid->BaryonField[B2Num][index] = Bfield[1];
+                thisgrid->BaryonField[B3Num][index] = Bfield[2];
+
+                thisgrid->BaryonField[TENum][index] += 
+                  0.5*(POW(thisgrid->BaryonField[B1Num][index], 2) +
+                       POW(thisgrid->BaryonField[B2Num][index], 2) + 
+                       POW(thisgrid->BaryonField[B3Num][index], 2))/thisgrid->BaryonField[DensNum][index];
+             }
+        } // k
+      } // j
+    } // i
+
+    for (index = 0; index < size; index++)
+      thisgrid->BaryonField[TENum][index] = DiskGasEnergy; // debugging
+    //
+    // make sure to delete particle arrays from gas particles
+    // as well as flagging field
+    //
+//    delete [] Mass;
+//   delete [] Type;
+    delete [] iflag;
+//    delete [] Number;
+//    for (i = 0; i < thisgrid->GridRank; i ++)
+//    {
+//      delete [] Position[i];
+//      Position[i] = NULL;
+//      delete [] Velocity[i];
+//      Velocity[i] = NULL;
+//    }
+//    Mass = NULL;
+//    Type = NULL;
+    iflag = NULL;
+//    Number = NULL;
+//   Position = NULL;
+//   Velocity = NULL;
+
+    return SUCCESS;
+
+  } // InitializeGridWithParticles
+
 
   int InitializeGrid(grid *thisgrid_orig, HierarchyEntry &TopGrid,
 		     TopGridData &MetaData)
@@ -810,6 +1362,35 @@ public:
       Mass += cellwidth/2.0*Weights[i]*xResult[i];
     }
     return Mass;
+  }
+
+  void ReadInGasParticleData(void)
+  {
+
+    int count = 0;
+    this->NumberOfGasParticles = nlines("gas.dat");
+    if (debug) fprintf(stderr, "ReadInGasParticleData: Number of Gas Particles %"ISYM"\n", this->NumberOfGasParticles);
+
+    // Initialize particle arrays and read gas particles
+    PINT *Number = new PINT[this->NumberOfGasParticles];
+    int *Type = new int[this->NumberOfGasParticles];
+    for (int i = 0; i < MAX_DIMENSION; i++)
+    {
+      this->GasParticlePosition[i] = new FLOAT[this->NumberOfGasParticles];
+      this->GasParticleVelocity[i] = new FLOAT[this->NumberOfGasParticles];
+    }
+    this->GasParticleMass = new float[this->NumberOfGasParticles];
+
+    this->ReadParticlesFromFile(
+        Number, Type, this->GasParticlePosition, this->GasParticleVelocity, this->GasParticleMass,
+        "gas.dat", -1, count, 1.0); // particle type is irrelevant here
+
+    delete [] Number;
+    delete [] Type;
+    Number = NULL;
+    Type   = NULL;
+
+    return;
   }
 
   void ReadInVcircData(void)
