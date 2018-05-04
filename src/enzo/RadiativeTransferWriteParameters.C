@@ -81,8 +81,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferTraceSpectrum);
   fprintf(fptr, "RadiativeTransferRayMaximumLength         = %"FSYM"\n", 
 	  RadiativeTransferRayMaximumLength);
-  fprintf(fptr, "RadiativeTransferH2Shield                 = %"ISYM"\n", 
-	  RadiativeTransferH2Shield);
+  fprintf(fptr, "RadiativeTransferH2ShieldType             = %"ISYM"\n", 
+	  RadiativeTransferH2ShieldType);
   fprintf(fptr, "RadiativeTransferUseH2Shielding           = %"ISYM"\n", 
 	  RadiativeTransferUseH2Shielding);
   fprintf(fptr, "RadiativeTransferH2IIDiss                 = %"ISYM"\n", 

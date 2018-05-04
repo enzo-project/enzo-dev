@@ -58,7 +58,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
   //Units = cm^2*LengthUnits/(CodeLength^2*CodeTime)
   FLOAT dissrate = emission_dt_inv*cross_section*Area_inv; 
  
-  if(RadiativeTransferH2Shield == 0) {
+  if(RadiativeTransferH2ShieldType == 0) {
     /* We treat H2 dissociation with the shielding function from
        Draine & Bertoldi (1996) */
     if ((*PP)->ColumnDensity < THRESHOLD_DENSITY_DB36) {
@@ -77,7 +77,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
       H2Thin = FALSE;
     }
   }
-  else if (RadiativeTransferH2Shield == 1) {
+  else if (RadiativeTransferH2ShieldType == 1) {
     /* We treat H2 dissociation with the shielding function from 
      * Equation 37 from Draine & Beltoldi with the exception that the 
      * power in the first term is 1.1 as per Wolcott-Green 2011

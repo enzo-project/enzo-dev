@@ -306,7 +306,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   /* Pre-compute some quantities to speed things up */
 
   /* Pre-compute some quantities to speed things up */
-  if(RadiativeTransferH2Shield == 1) {
+  if(RadiativeTransferH2ShieldType == 1) {
     TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
   }
 

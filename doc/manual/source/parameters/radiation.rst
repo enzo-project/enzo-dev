@@ -179,7 +179,7 @@ Radiative Transfer (Ray Tracing) Parameters
     Default: 1.7320608
 ``RadiativeTransferUseH2Shielding`` (external)
     Should H2 self-shielding be used.  Default: True
-``RadiativeTransferH2Shield`` (external)
+``RadiativeTransferH2ShieldType`` (external)
     If H2 shielding is turned on then which kind should we use. Setting this value to 0 used the self-shielding fit as per
     Draine & Bertoldi (1996). Setting this value to 1 uses the fit as per Wolcott-Green et al. (2011). Default: 0
 ``RadiativeTransferH2IIDiss`` (external)

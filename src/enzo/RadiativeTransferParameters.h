@@ -128,7 +128,7 @@ EXTERN int RadiativeTransferUseH2Shielding;
  * standard equation due to Draine & Beltoldi (1996) or the 
  * updated function due to Wolcott-Green (2011).
  */
-EXTERN int RadiativeTransferH2Shield;
+EXTERN int RadiativeTransferH2ShieldType;
 
 /* 
  * This flag controls whether the photo-dissociation of 

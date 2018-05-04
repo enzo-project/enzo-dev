@@ -75,7 +75,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferLoadBalance                = FALSE;
   RadiativeTransferRayMaximumLength           = 1.7320508; //sqrt(3.0)
   RadiativeTransferUseH2Shielding             = TRUE;
-  RadiativeTransferH2Shield                   = 0;
+  RadiativeTransferH2ShieldType               = 0;
   RadiativeTransferH2IIDiss                   = TRUE;
   RadiativeTransferHubbleTimeFraction         = 0.1;
   
@@ -136,8 +136,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferAdaptiveTimestep);
     ret += sscanf(line, "RadiativeTransferHydrogenOnly = %"ISYM, 
 		  &RadiativeTransferHydrogenOnly);
-    ret += sscanf(line, "RadiativeTransferH2Shield = %"ISYM, 
-		  &RadiativeTransferH2Shield);
+    ret += sscanf(line, "RadiativeTransferH2ShieldType = %"ISYM, 
+		  &RadiativeTransferH2ShieldType);
     ret += sscanf(line, "RadiativeTransferH2IIDiss = %"ISYM, 
 		  &RadiativeTransferH2IIDiss);
     ret += sscanf(line, "RadiativeTransferUseH2Shielding = %"ISYM, 
