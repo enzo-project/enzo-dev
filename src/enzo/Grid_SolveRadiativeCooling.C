@@ -142,10 +142,10 @@ int grid::SolveRadiativeCooling()
  
   /* Find photo-ionization fields */
 
-  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   int gammaNum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum);
+				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
   /* Get easy to handle pointers for each variable. */
  

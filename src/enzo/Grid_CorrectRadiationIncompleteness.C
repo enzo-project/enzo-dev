@@ -40,9 +40,9 @@ int grid::CorrectRadiationIncompleteness(void)
 
   /* Find radiative transfer fields. */
 
-  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum);
+				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
   int nsrc;
 
