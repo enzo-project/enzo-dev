@@ -47,7 +47,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 			       int *NumberOfNewParticles)
 			 
 {
-  int partnum = 0, i = 0, child = 0, m = 0, numpart = 0, innerchild = 0;
+  int partnum = 0, i = 0, child = 0, m = 0, innerchild = 0;
   int xindex=0, yindex=0, zindex=0;
   float rad = 0.0, sin60 = 0.0;
   FLOAT NewPos[3][CHILDRENPERPARENT];
@@ -350,8 +350,13 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 	      for(i = 0; i < 3; i++)
 		this->ParticleVelocity[i][child] = ParticleVelocity[i][partnum];
 	      this->ParticleType[child] = ParticleType[partnum];
+	      // Flag that a DM particle was split (originally -99999 or 0)
+	      if (NumberOfParticleAttributes > 0 &&
+	       	  ParticleType[partnum] == PARTICLE_TYPE_DARK_MATTER)
+	       	if (ParticleAttribute[0][partnum] <= 0)
+	       	  ParticleAttribute[0][partnum] = tiny_number;
 	      for(i = 0; i < NumberOfParticleAttributes; i++)
-		this->ParticleAttribute[i][child] = ParticleAttribute[i][numpart];
+		this->ParticleAttribute[i][child] = ParticleAttribute[i][partnum];
 	    }
 
 	  /* Loop forward by CHILDRENPERPARENT each time. */

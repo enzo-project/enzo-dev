@@ -198,12 +198,6 @@ int grid::ParticleSplitter(int level, int iteration, int NumberOfIDs,
 	tg->ParticleType[i] = PARTICLE_TYPE_MUST_REFINE;
     }
 
-    if (NumberOfParticleAttributes > 0)
-      for (i = 0; i < NumberOfNewParticles; i++) {
-	if (tg->ParticleType[i] == PARTICLE_TYPE_DARK_MATTER)
-	  tg->ParticleAttribute[0][i] = -1.0;
-      }
-    
     /* If not set in the above routine, then set the metal fraction to zero. */
     
     if (MetallicityField == FALSE && NumberOfParticleAttributes > 1)
