@@ -118,9 +118,9 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   if( divB == NULL ){
       divB = new float[activesize];
-      for( i=0;i<activesize;i++){
-          divB[i]=0.0;
-      }
+  }
+  for( i=0;i<activesize;i++){
+      divB[i]=0.0;
   }
   for( dim=0;dim<MAX_DIMENSION;dim++){
       if (gradPhi[dim] == NULL) {

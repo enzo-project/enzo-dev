@@ -34,10 +34,6 @@ void grid::AllocateGrids()
   int size = 1,i,field;
   for (int dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
-  int activesize = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim] - 2 * NumberOfGhostZones);
-  }
  
   /* Allocate room and clear it. */
  
