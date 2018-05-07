@@ -7,11 +7,9 @@ For details on the cosmic ray solver in Enzo see :ref:`cosmic_rays`.
 
 ``CRModel`` (external)
     This parameter turns on the model. Default: 0
-    
-    ::
 
-	0 - Off
-	1 - On
+    0. Off
+    1. On
 
 ``CRgamma``
     For CR equation of state. Default: 4.0/3.0 (relativistic, adiabatic gas)
@@ -19,10 +17,8 @@ For details on the cosmic ray solver in Enzo see :ref:`cosmic_rays`.
 ``CRDiffusion`` (external)
     Switches on diffusion of the cosmic ray energy density. Default: 0
 
-    ::
-
-  0 - Off
-  1 - On with constant coefficient (CRkappa)
+    0. Off
+    1. On with constant coefficient (``CRkappa``)
 
 
 ``CRkappa`` (external)

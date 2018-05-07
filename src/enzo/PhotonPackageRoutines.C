@@ -9,6 +9,7 @@
 /  PURPOSE: Constructs a Linked List of Photon Packages including data
 /
 ************************************************************************/
+#include <stdlib.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -23,8 +24,7 @@ PhotonPackageEntry::PhotonPackageEntry(void)
   Photons = 0.0;
   Type = 0;
   Energy = 0.0;
-  for (int bin = 0; bin < MAX_CROSS_SECTIONS; bin++)
-    CrossSection[bin] = 0.0;
+  CrossSection = 0.0;
   EmissionTimeInterval = 0.0;
   EmissionTime = 0.0;
   CurrentTime = 0.0;

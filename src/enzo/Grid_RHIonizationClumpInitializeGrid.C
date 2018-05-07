@@ -128,9 +128,7 @@ int grid::RHIonizationClumpInitializeGrid(int NumChemicals,
  
   // allocate fields
   if (NewData == TRUE) {
-    for (int field=0; field<NumberOfBaryonFields; field++)
-      if (BaryonField[field] == NULL)
-	BaryonField[field] = new float[size];
+    this->AllocateGrids();
  
     // set fluid density, total energy, [internal energy,] velocities, 
     // radiation energy, electron density, chemical species

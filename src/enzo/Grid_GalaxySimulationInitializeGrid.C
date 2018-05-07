@@ -92,7 +92,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 {
  /* declarations */
 
-  int dim, i, j, k, m, field, disk, size, MetalNum, MetalIaNum, vel;
+  int dim, i, j, k, m, disk, size, MetalNum, MetalIaNum, vel;
  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
    DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
  float DiskDensity, DiskVelocityMag;
@@ -214,9 +214,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  /* allocate fields */
 
- for (field = 0; field < NumberOfBaryonFields; field++)
-   if (BaryonField[field] == NULL)
-     BaryonField[field] = new float[size];
+ this->AllocateGrids();
 
  /* set metals to small value */
 

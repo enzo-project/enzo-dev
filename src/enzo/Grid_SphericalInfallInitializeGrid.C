@@ -35,7 +35,7 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
 {
   /* declarations */
  
-  int dim, i, j, k, n, size, field, vel;
+  int dim, i, j, k, n, size, vel;
   int ParticleDimension[MAX_DIMENSION], ParticleCenter[MAX_DIMENSION];;
   float DelParticle[MAX_DIMENSION], DelCenter[MAX_DIMENSION];;
  
@@ -195,9 +195,7 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
  
     /* allocate fields */
  
-    for (field = 0; field < NumberOfBaryonFields; field++)
-      if (BaryonField[field] == NULL)
-	BaryonField[field] = new float[size];
+    this->AllocateGrids();
  
     /* set density to cosmic mean and total energy to near zero. */
  

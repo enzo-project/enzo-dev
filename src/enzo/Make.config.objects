@@ -119,6 +119,7 @@ OBJS_CONFIG_LIB = \
         CosmologyGetUnits.o \
         CosmologyReadParameters.o \
         CosmologySimulationInitialize.o \
+        CosmologyTable.o \
         CosmologyWriteParameters.o \
         cray_x1_fft64.o \
         cray_x1_st1_fft64.o \
@@ -1039,13 +1040,19 @@ POBJS_CONFIG_LIB = \
 	PhotonTestRestartInitialize.o \
 	RadiativeTransferCallFLD.o \
         RadiativeTransferComputeTimestep.o \
-        RadiativeTransferHealpixRoutines.o \
+	RadiativeTransferHealpixRoutines64.o \
 	RadiativeTransferLoadBalanceRevert.o \
         RadiativeTransferInitialize.o \
         RadiativeTransferPrepare.o \
         RadiativeTransferReadParameters.o \
         RadiativeTransferWriteParameters.o \
 	RadiativeTransferMoveLocalPhotons.o \
+	RadiativeTransferLW.o \
+	RadiativeTransferLWShielding.o \
+	RadiativeTransferH2II.o \
+	RadiativeTransferIR.o \
+	RadiativeTransferIonization.o \
+	RadiativeTransferXRays.o \
         ReadPhotonSources.o \
         ReadRadiativeTransferSpectrumTable.o \
         ReassignSuperSources.o \
@@ -1055,6 +1062,7 @@ POBJS_CONFIG_LIB = \
         SplitPhotonPackage.o \
         StarParticleRadTransfer.o \
         TemperatureFieldToolsForComptonHeating.o \
+	TemperatureFieldToolsH2Shielding.o \
 	WritePhotonSources.o
 
 OBJS_HYDRO_RK = \

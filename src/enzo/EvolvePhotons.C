@@ -593,15 +593,14 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef USE_GRACKLE
             if (grackle_data->use_grackle == TRUE){
               grackle_data->radiative_transfer_intermediate_step = (Eint32) RTCoupledSolverIntermediateStep;
-
               if (Temp->GridData->GrackleWrapper() == FAIL){
                 ENZO_FAIL("Error in GrackleWrapper.\n");
               }
-              continue;
-            }
+            } else
 #endif // USE_GRACKLE
-
-	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
+	    {
+	      Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
+	    }
 
 	  } /* ENDIF radiation */
     END_PERF(9);

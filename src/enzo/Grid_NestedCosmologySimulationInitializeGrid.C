@@ -460,8 +460,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	printf("Allocating %"ISYM" baryon fields of size %"ISYM"\n", NumberOfBaryonFields, size);
  
       if (ReadData == TRUE)
-	for (int field = 0; field < NumberOfBaryonFields; field++)
-	  BaryonField[field] = new float[size];
+        this->AllocateGrids();
  
       // Read the density field
  

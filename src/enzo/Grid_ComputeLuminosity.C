@@ -113,9 +113,9 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
 
   /* Find photo-ionization fields */
 
-  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, gammaNum;
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, gammaNum, kphHMNum, kdissH2IINum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum);
+				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
   /* Get easy to handle pointers for each variable. */
 

@@ -85,16 +85,6 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   for (dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
-  /*
-  int field;
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-      for (int i = 0; i < size; i++) 
-	BaryonField[field][i] = 0.0;
-    }
-  }
-  */
   AllocateGrids();
 
   /* transform pressure to total energy */

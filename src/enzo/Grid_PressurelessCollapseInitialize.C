@@ -28,7 +28,7 @@ int grid::PressurelessCollapseInitializeGrid(int PressurelessCollapseDirection,
 {
   /* declarations */
  
-  int Divisor, index, size, dim, field, i;
+  int Divisor, index, size, dim, i;
  
   /* error check */
  
@@ -61,8 +61,7 @@ int grid::PressurelessCollapseInitializeGrid(int PressurelessCollapseDirection,
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
  
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    BaryonField[field] = new float[size];
+  this->AllocateGrids();
  
   /* set fields */
  

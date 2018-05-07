@@ -89,10 +89,10 @@ int grid::SolveRateEquations()
  
   /* Find photo-ionization fields */
 
-  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   int gammaNum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum);
+				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
   /* Find the density field. */
  

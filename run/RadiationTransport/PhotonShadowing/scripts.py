@@ -1,7 +1,8 @@
-from yt.mods import *
+import yt
 from matplotlib import use; use('Agg')
 import matplotlib.pyplot as plt
-
+import numpy as na
+import glob
 # Calculate
 # 1. Time evolution of the average temperature and ionization fraction
 #    of the clump
@@ -16,8 +17,8 @@ kpc = 3.086e21
 
 ########################################################################
 def _MyNeutralFrac(field, data):
-    return data['HI_Fraction'] / 0.75908798
-add_field("Neutral_Fraction", function=_MyNeutralFrac, take_log=True,
+    return data['H_p0_fraction'] / 0.75908798
+yt.add_field("Neutral_Fraction", function=_MyNeutralFrac, take_log=True,
           units='')
 ########################################################################
 
@@ -29,16 +30,14 @@ temp = []
 
 for i in range(first, last+1):
     amrfile = "DD%4.4d/data%4.4d" % (i,i)
-    pf = load(amrfile)
+    pf = yt.load(amrfile)
 
     sphere = pf.h.sphere(center, radius)
 
-    avg_xe = 1.0 - sphere.quantities["WeightedAverageQuantity"](
-        "Neutral_Fraction", "CellVolume", lazy_reader=True)
-    avg_temp = sphere.quantities["WeightedAverageQuantity"](
-        "Temperature", "CellVolume", lazy_reader=True)
-
-    time.append(pf["InitialTime"] * pf["Time"])
+    avg_xe = 1.0 - sphere.quantities.weighted_average_quantity("Neutral_Fraction", "cell_volume")
+    avg_temp = sphere.quantities.weighted_average_quantity("Temperature", "cell_volume")
+    print("Time = ", pf.current_time.to('Myr'))
+    time.append(pf.current_time.to('Myr'))
     xe.append(avg_xe)
     temp.append(avg_temp)
 
@@ -49,10 +48,10 @@ xe = na.array(xe)
 temp = na.array(temp)
 
 p = plt.subplot(211)
-p.plot(time/Myr, xe, 'k-')
+p.plot(time, xe, 'k-')
 p.set_ylabel(r'$\bar{x}_e$ (clump)')
 p = plt.subplot(212)
-p.plot(time/Myr, temp, 'k-')
+p.plot(time, temp, 'k-')
 p.set_ylabel(r'$\bar{T}$ (clump)')
 p.set_xlabel("Time (Myr)")
 plt.savefig("ClumpEvo.png")
@@ -66,7 +65,7 @@ outputs = [1,3,5,10,15]
 
 for outp in outputs:
     amrfile = "DD%4.4d/data%4.4d" % (outp, outp)
-    pf = load(amrfile)
+    pf = yt.load(amrfile)
     ray = pf.h.ortho_ray(0, (0.5,0.5))
     all_profiles[outp] = {}
     all_profiles[outp]['x'] = ray['x']
@@ -88,12 +87,11 @@ for f in fields:
 # Some basic analysis on the final output
 ########################################################################
 
-pf = load("DD%4.4d/data%4.4d" % (last,last))
+BASE = "./"
+f = BASE + ("DD00%d/data00%d.hierarchy" % (last, last))
 
-pc = PlotCollection(pf, center=[0.5,0.5,0.5])
-pc.add_slice('HI_kph',2)
-pc.add_slice('Neutral_Fraction',2)
-pc.add_slice('Temperature',2)
-pc.save()
+myfields = ["HI_kph", "Neutral_Fraction", "Temperature"]
+ds = yt.load(f)
+slc = yt.SlicePlot(ds, 2, center=[0.5,0.5,0.5], fields=myfields)
+slc.save()
 
-del pf

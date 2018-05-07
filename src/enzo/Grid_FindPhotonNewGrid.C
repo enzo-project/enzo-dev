@@ -25,7 +25,7 @@
 #include "GridList.h"
 #include "Grid.h"
 
-int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u, int *g,
+int grid::FindPhotonNewGrid(int cindex, FLOAT *r, double *u, int *g,
 			    PhotonPackageEntry* &PP,
 			    grid* &MoveToGrid, int &DeltaLevel,
 			    const float *DomainWidth, int &DeleteMe,

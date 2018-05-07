@@ -371,7 +371,8 @@ c
 c
       do n=1, npart
          typ = type(n) .eq. 2 .or. type(n) .eq. 4
-         if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. typ) then
+         if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. typ .and.
+     &          (t - tcp(n)) .lt. 3.7e7*3.15e7/t1) then
 
            dEject = 0.0_RKIND
 
