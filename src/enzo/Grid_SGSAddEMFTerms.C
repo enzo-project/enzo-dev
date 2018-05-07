@@ -11,7 +11,7 @@
  * Grete et al 2015 New J. Phys. 17 023070 doi: 10.1088/1367-2630/17/2/023070
  * Grete et al 2016 Phys. Plasmas 23 062317 doi: 10.1063/1.4954304 (Grete2016a)
  * and "a posteriori", i.e. used in simulations of decaying MHD turbulence, in
- * Grete et al ... under review ... (Grete201X)
+ * Grete et al 2017 Phys. Rev. E 05 033206 (Grete2017)
  *
  * WRITTEN BY Philipp Grete (mail@pgrete.de)
  *
@@ -57,7 +57,7 @@ void grid::SGSAddEMFNLemfComprTerm(float **EMF) {
         By  = FilteredFields[5];
         Bz  = FilteredFields[6];
     // if the model should be calculated based on grid-scale quantities
-    // (not recommended, see Grete201X)
+    // (not recommended, see Grete2017)
     } else {
         rho = BaryonField[DensNum];
         Bx  = BaryonField[B1Num];
@@ -153,7 +153,7 @@ void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
     if (SGSFilterWidth > 1.) {
         rho = FilteredFields[0];
     // if the model should be calculated based on grid-scale quantities
-    // (not recommended, see Grete201X)
+    // (not recommended, see Grete2017)
     } else {
         rho = BaryonField[DensNum];
     }

@@ -13,7 +13,7 @@
  * Grete et al 2015 New J. Phys. 17 023070 doi: 10.1088/1367-2630/17/2/023070
  * Grete et al 2016 Phys. Plasmas 23 062317 doi: 10.1063/1.4954304 (Grete2016a)
  * and "a posteriori", i.e. used in simulations of decaying MHD turbulence, in
- * Grete et al ... under review ... (Grete201X)
+ * Grete et al 2017 Phys. Rev. E 05 033206 (Grete2017)
  *
  * WRITTEN BY Philipp Grete (mail@pgrete.de)
  *
@@ -55,7 +55,7 @@ void grid::SGSAddTauNLuTerm(float **Tau) {
   if (SGSFilterWidth > 1.) {
     rho = FilteredFields[0];
   // if the model should be calculated based on grid-scale quantities
-  // (not recommended, see Grete201X)
+  // (not recommended, see Grete2017)
   } else {
     rho = BaryonField[DensNum];
   }
@@ -123,7 +123,7 @@ void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
   if (SGSFilterWidth > 1.) {
     rho = FilteredFields[0];
   // if the model should be calculated based on grid-scale quantities
-  // (not recommended, see Grete201X)
+  // (not recommended, see Grete2017)
   } else {
     rho = BaryonField[DensNum];
   }
@@ -260,7 +260,7 @@ void grid::SGSAddTauNLbTerm(float **Tau) {
  * Tau = -2 C_1 Delta^2 rho |S*| S* + 2/3 C_2 delta_ij Delta^2 rho |S*|^2
  *
  * See equation (10), (21) and (13) in Grete2016a for details (such as coefficient 
- * values) or (in practice) equations (8), (10) and (12) in Grete201X.
+ * values) or (in practice) equations (8), (10) and (12) in Grete2017.
  */
 void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
   if (debug)
@@ -278,7 +278,7 @@ void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
   // see hydro_rk/Grid_MHDSourceTerms.C and the SGSNeedJacobians switch)
     rho = FilteredFields[0];
   // if the model should be calculated based on grid-scale quantities
-  // (not recommended, see Grete201X)
+  // (not recommended, see Grete2017)
   } else {
     rho = BaryonField[DensNum];
   }
@@ -473,7 +473,7 @@ int grid::SGSAddMomentumTerms(float **dU) {
     rho = FilteredFields[0];
   } else {
   // if the model should be calculated based on grid-scale quantities
-  // (not recommended, see Grete201X)
+  // (not recommended, see Grete2017)
     rho = BaryonField[DensNum];
   }
 

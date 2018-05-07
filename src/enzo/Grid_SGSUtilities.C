@@ -34,7 +34,7 @@
  * At this point, this function is very flexible with respect to the 
  * discrete filter definition (both in effective width and weights).
  * However, this also makes the nested for-loops less efficient, but the
- * overhead is reasonable (see e.g. Grete201X ...)
+ * overhead is reasonable (see e.g. Grete et al 2017 Phys. Rev. E. 95 033206)
  * 
  * For additional information on how to construct multi-dimensional
  * discrete filters, see e.g. 
