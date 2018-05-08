@@ -101,7 +101,7 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
 
   } // ENDIF MultiSpecies
 
-  /* Add the colours (NColor is determined in EvolveLevel_RK2) */  
+  /* Add the colours (NColor is determined in EvolveLevel) */  
 
   int SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum, Galaxy1ColourNum, 
     Galaxy2ColourNum; 

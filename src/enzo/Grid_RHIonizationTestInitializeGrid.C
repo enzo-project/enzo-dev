@@ -125,9 +125,7 @@ int grid::RHIonizationTestInitializeGrid(int NumChemicals,
  
   // allocate fields
   if (NewData == TRUE) {
-    for (int field=0; field<NumberOfBaryonFields; field++)
-      if (BaryonField[field] == NULL)
-	BaryonField[field] = new float[size];
+      this->AllocateGrids();
       for (i=0; i<size; i++)
 	BaryonField[RhoNum][i] = DensityConstant/DensityUnits;
     

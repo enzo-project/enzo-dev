@@ -382,7 +382,18 @@ stores the actual data that the simulator is interested in.
 
     float *BaryonField[MAX_NUMBER_OF_BARYON_FIELDS];
 
-When setting up a new test problem, make sure to only set field values
+There are three important events that need to happen in
+``MyProblemInitializeGrid.``
+
+* Fill the ``FieldType`` array
+* Allocate the ``BaryonField`` array with ``this->AllocateGrids()``
+* Fill ``BaryonField`` with your desired initial conditions.
+
+Ensuring the proper sequence of the first two is somewhat cumbersome, we
+recommend simplifying by calling ``InitializeUniformGrid`` from ``MyTestInitialize``
+before calling ``MyProblemInitialize.``
+
+When setting your desired initial conditions, make sure to only set field values
 on Grids which live on the current processor. In Enzo, each Grid is a
 'real Grid' on one processor and a 'remote Grid', storing only metadata,
 on other processors. Therefore, your problem initializer should include
@@ -392,12 +403,77 @@ on other processors. Therefore, your problem initializer should include
       if (ProcessorNumber != MyProcessorNumber)
         return SUCCESS;
 
-before setting field values.
-
+before setting field values.  
 
 Finally, set up your test problem by setting the BaryonField values.
 See the page on Baryon Field Access for details.
 :ref:`BaryonFieldAccess`
+
+If, for some reason, it is preferable to not call ``InitializeUniformGrid``, the
+following must happen:
+
+* Before the ``if( ProcessorNumber != MyProcessorNumber)`` conditional, ``FieldType``
+  must be filled with values representing the correct fields, in the same order
+  as was done in ``DataLabel`` and ``BaryonField.``  This must happen _before_
+  the ``MyProcessorNumber`` check to ensure it happens on all grids on all
+  tasks.   
+* ``NumberOfBaryonFields`` must be  incremented while ``FieldType`` is filled.
+* ``BaryonField`` must be allocated, _after_ the ``MyProcessorNumber``
+  conditional.  This should be done by calling ``this->AllocateGrids()``.  Older
+  instances of the code used ``new``, but this should be avoided.
+
+Boiler plate code should look like this:
+
+.. code-block:: c
+
+    //This can be skipped if InitializeUniformGrid is used
+    NumberOfBaryonFields = 0;
+    FieldType[NumberOfBaryonFields++] = Density;
+    if( EquationOfState == 0 ){
+        FieldType[NumberOfBaryonFields++] = TotalEnergy;
+    }
+    FieldType[NumberOfBaryonFields++] = Velocity1;
+    FieldType[NumberOfBaryonFields++] = Velocity2;
+    FieldType[NumberOfBaryonFields++] = Velocity3;
+    if( UseMHD ){
+        FieldType[NumberOfBaryonFields++] = Bfield1;
+        FieldType[NumberOfBaryonFields++] = Bfield2;
+        FieldType[NumberOfBaryonFields++] = Bfield3;
+    }
+    if( HydroMethod == MHD_RK ){
+        FieldType[NumberOfBaryonFields++] = PhiField;
+    }
+    if(DualEnergyFormalism) FieldType[NumberOfBaryonFields++] = InternalEnergy;
+
+    //This is always necessary
+    if (ProcessorNumber != MyProcessorNumber)
+        return SUCCESS;
+
+    //Skipped if InitializeUniformGrid is used
+    this->AllocateGrids();
+
+    //Care should be taken to ensure that BaryonField relations are not 
+    //hard coded at any point: this should always be done
+    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
+    this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                     Vel3Num, TENum, B1Num, B2Num, B3Num);
+
+                            
+    //And then set the values for the fields in the manner that suits your
+    //problem.
+    int index=0;
+    for(int k=0; k<GridDimension[2];k++){
+        for(int j=0; j<GridDimension[1];j++){
+            for(int i=0; i<GridDimension[0]; i++){
+               index = i+GridDimension[0]*(j+GridDimension[1]*k);
+               BaryonField[DensNum][index] = 46.2; //define your problem here.
+            }
+        }
+    }
+
+
+
+
 
 Initializing AMR problems
 ~~~~~~~~~~~~~~~~~~~~~~~~~

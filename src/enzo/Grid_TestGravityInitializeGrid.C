@@ -36,7 +36,7 @@ int grid::TestGravityInitializeGrid(float CentralDensity,
 {
   /* declarations */
  
-  int dim, i, size, field, vel;
+  int dim, i, size, vel;
   float phi, r, theta;
   int mt_random_seed = 123456789;
   int max_random = (1<<16);
@@ -162,9 +162,7 @@ int grid::TestGravityInitializeGrid(float CentralDensity,
  
     /* allocate fields */
  
-    for (field = 0; field < NumberOfBaryonFields; field++)
-      if (BaryonField[field] == NULL)
-	BaryonField[field] = new float[size];
+    this->AllocateGrids();
  
     /* set density, total energy */
  

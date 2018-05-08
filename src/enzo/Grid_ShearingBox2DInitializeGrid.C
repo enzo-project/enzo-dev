@@ -76,18 +76,8 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
     return SUCCESS;
   }
 
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
-    size *= GridDimension[dim];
-  }
 
-  for (int field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-      for (int i = 0; i < size; i++)
-	BaryonField[field][i] = 0.0;
-    }
-  }
+  this->AllocateGrids();
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, 
     TimeUnits = 1.0, VelocityUnits = 1.0;

@@ -33,7 +33,7 @@ int grid::PhotonSortLinkedLists(void)
 
   if (MyProcessorNumber != ProcessorNumber) return SUCCESS;
   
-  int j, nphotons, dim, count;
+  int nphotons, dim, count;
   PhotonPackageEntry *PP, *TempPP, *NewPack;
   
   // PhotonPackages
@@ -63,8 +63,7 @@ int grid::PhotonSortLinkedLists(void)
     NewPack->Photons = TempPP[count].Photons;
     NewPack->Type = TempPP[count].Type;
     NewPack->Energy = TempPP[count].Energy;
-    for (j = 0; j < MAX_CROSS_SECTIONS; j++)
-      NewPack->CrossSection[j] = TempPP[count].CrossSection[j];
+    NewPack->CrossSection = TempPP[count].CrossSection;
     NewPack->EmissionTimeInterval = TempPP[count].EmissionTimeInterval;
     NewPack->EmissionTime = TempPP[count].EmissionTime;
     NewPack->CurrentTime = TempPP[count].CurrentTime;
@@ -112,8 +111,7 @@ int grid::PhotonSortLinkedLists(void)
     NewPack->Photons = TempPP[count].Photons;
     NewPack->Type = TempPP[count].Type;
     NewPack->Energy = TempPP[count].Energy;
-    for (j = 0; j < MAX_CROSS_SECTIONS; j++)
-      NewPack->CrossSection[j] = TempPP[count].CrossSection[j];
+    NewPack->CrossSection = TempPP[count].CrossSection;
     NewPack->EmissionTimeInterval = TempPP[count].EmissionTimeInterval;
     NewPack->EmissionTime = TempPP[count].EmissionTime;
     NewPack->CurrentTime = TempPP[count].CurrentTime;
@@ -160,8 +158,7 @@ int grid::PhotonSortLinkedLists(void)
     NewPack->Photons = TempPP[count].Photons;
     NewPack->Type = TempPP[count].Type;
     NewPack->Energy = TempPP[count].Energy;
-    for (j = 0; j < MAX_CROSS_SECTIONS; j++)
-      NewPack->CrossSection[j] = TempPP[count].CrossSection[j];
+    NewPack->CrossSection = TempPP[count].CrossSection;
     NewPack->EmissionTimeInterval = TempPP[count].EmissionTimeInterval;
     NewPack->EmissionTime = TempPP[count].EmissionTime;
     NewPack->CurrentTime = TempPP[count].CurrentTime;

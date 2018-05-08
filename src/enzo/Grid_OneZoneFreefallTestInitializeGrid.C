@@ -36,7 +36,7 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
 {
   /* declarations */
 
-  int dim, i, j, k, size, field, GCM, index;
+  int dim, i, j, k, size, GCM, index;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, MetalNum;
@@ -126,9 +126,8 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
  
   /* allocate fields */
 
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    if (BaryonField[field] == NULL)
-      BaryonField[field] = new float[size];
+  
+  this->AllocateGrids();
 
   /* Set up a 1d grid that varies in energy or a 2d grid that also varies in 
      metallicity. */

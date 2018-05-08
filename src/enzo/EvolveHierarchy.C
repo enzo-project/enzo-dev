@@ -67,15 +67,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
-    ,SiblingGridList *SiblingGridListStorage[]
+    ,FLOAT dt0, SiblingGridList *SiblingGridListStorage[]
 		);
-
-int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-                    int level, float dtLevelAbove, ExternalBoundary *Exterior, 
-#ifdef TRANSFER
-		    ImplicitProblemABC *ImplicitSolver, 
-#endif
-		    FLOAT dt0 ,SiblingGridList *SiblingGridListStorage[]);
 
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
@@ -492,49 +485,24 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 */
 #endif
  
-    if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
-	HydroMethod == PPM_LagrangeRemap || HydroMethod == HydroMethodUndefined ||
-	HydroMethod == MHD_Li || HydroMethod == NoHydro ||
-	HydroMethod < 0) {
-      if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
+    if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
 #ifdef TRANSFER
-		      , ImplicitSolver
+                , ImplicitSolver
 #endif
-          ,SiblingGridListStorage
-		      ) == FAIL) {
+                ,dt, SiblingGridListStorage
+                ) == FAIL) {
         if (NumberOfProcessors == 1) {
-          fprintf(stderr, "Error in EvolveLevel.\n");
-          fprintf(stderr, "--> Dumping data (output number %d).\n",
-                  MetaData.DataDumpNumber);
-	Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-		     &TopGrid, MetaData, Exterior
+            fprintf(stderr, "Error in EvolveLevel.\n");
+            fprintf(stderr, "--> Dumping data (output number %d).\n",
+                    MetaData.DataDumpNumber);
+            Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
+                    &TopGrid, MetaData, Exterior
 #ifdef TRANSFER
-		     , ImplicitSolver
-#endif		 
-		     );
+                    , ImplicitSolver
+#endif 
+                    );
         }
         return FAIL;
-      }
-    } else {
-      if (HydroMethod == HD_RK || HydroMethod == MHD_RK)
-	if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, 
-#ifdef TRANSFER
-			    ImplicitSolver, 
-#endif
-			    dt, SiblingGridListStorage) == FAIL) {
-	  if (NumberOfProcessors == 1) {
-	    fprintf(stderr, "Error in EvolveLevel_RK2.\n");
-	    fprintf(stderr, "--> Dumping data (output number %d).\n",
-		    MetaData.DataDumpNumber);
-	    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-			       &TopGrid, MetaData, Exterior
-#ifdef TRANSFER
-			       , ImplicitSolver
-#endif		 
-			       );
-	  }
-        return FAIL;
-      }
     }
 
 
