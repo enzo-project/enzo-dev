@@ -1,0 +1,12 @@
+name = 'PhotonTestMultiFrequency'
+answer_testing_script = 'test_photontest.py'
+nprocs = 1
+runtime = 'short'
+hydro = False
+gravity = True
+radiation = 'ray'
+dimensionality = 3
+max_time_minutes = 1
+fullsuite = True
+pushsuite = True
+quicksuite = True
