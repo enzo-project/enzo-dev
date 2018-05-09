@@ -25,14 +25,14 @@ for elem in Fields:
     YFields.append(elem)
 
 print("Yfields = ", YFields)
-outputs = [20]
+outputs = [10]
 
 for outp in outputs:
     amrfile = "DD%4.4d/data%4.4d" % (outp, outp)
     print("Load file %s" % (amrfile))
     ds = yt.load(amrfile)
     sphere = ds.h.sphere(center, (250, 'kpc'))
-    rp = yt.create_profile(sphere, 'radius',  YFields, n_bins=8,
+    rp = yt.create_profile(sphere, 'radius',  YFields, n_bins=10,
                            units = {'radius': 'kpc', 'HM_kph' : '1/s',
                                     'HI_kph' : '1/s','H2I_kdiss' : '1/s',
                                     'H2II_kdiss' : '1/s',
