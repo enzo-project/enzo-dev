@@ -60,7 +60,7 @@
 // function prototypes
 
 int RebuildHierarchy(TopGridData *MetaData,
-                     LevelHierarchyEntry *LevelAray[], int level);
+                     LevelHierarchyEntry *LevelArray[], int level);
 
 #ifdef INDIVIDUALSTAR
 int RebuildHierarchy(TopGridData *MetaData,

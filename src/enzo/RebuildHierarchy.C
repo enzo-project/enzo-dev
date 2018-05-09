@@ -740,8 +740,7 @@ void DeleteStarList(Star * &Node);
 int RebuildHierarchy(TopGridData *MetaData,
                      LevelHierarchyEntry *LevelArray[], int level){
 
-  Star *AllStars = NULL;
-
+  Star* AllStars = NULL;
   int val = RebuildHierarchy(MetaData, LevelArray, level, AllStars);
   DeleteStarList(AllStars);
   return val;
