@@ -30,8 +30,6 @@ RadiativeTransferOpticallyThinH2 = 0
 #Grackle
 use_grackle = 1
 H2_self_shielding = 0
-radiative_transfer_coupled_rate_solver = 1
-radiative_transfer_intermediate_step = 1
 
 ComovingCoordinates     = 0
 DensityUnits = 1.673e-27    // 1e-3 cm^-3
@@ -65,7 +63,7 @@ PhotonTestSourceLuminosity[0] = 5e48       // photon number flux [#/s]
 PhotonTestSourceLifeTime[0]   = 1e10
 PhotonTestSourceEnergyBins[0] = 7
 #PhotonTestSourceEnergy[0] = 23.2686
-PhotonTestSourceSED[0] = 0.14 0.14 0.14 0.14 0.14 0.14 0.14
+PhotonTestSourceSED[0] = 0.142857142 0.142857142 0.142857142 0.142857142 0.142857142 0.142857142 0.142857142
 PhotonTestSourceEnergy[0] = 1.0 8.0 12.8 13.60001 23.36 48.0 60.0
 PhotonTestSourceCreationTime[0] = -1
 
