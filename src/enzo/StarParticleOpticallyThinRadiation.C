@@ -40,7 +40,8 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv, Star *cstar);
 int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar);
 
 /* internal prototypes */
-float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const float &T,
+float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, 
+                                      // const float &T,
                                       const float &Z, const float &G, const float &dx);
 
 
@@ -191,17 +192,18 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
   EnergyUnits = DensityUnits * VelocityUnits * VelocityUnits;
 
   /* get temperature field */
-  float *temperature;
   int size = 1;
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
     size *= this->GridDimension[dim];
   }
 
-  temperature = new float[size];
+//  Current model doesn't need temperature field - 
+//  float *temperature;
+//  temperature = new float[size];
+//  if(  this->ComputeTemperatureField(temperature) == FAIL ){
+//    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
+//  }
 
-  if(  this->ComputeTemperatureField(temperature) == FAIL ){
-    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
-  }
 
   /* get multispecies fields */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
@@ -234,16 +236,29 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
 
   if (IndividualStarApproximateOTRadiation){
      FLOAT xcenter, ycenter, zcenter;
-     xcenter = this->CellLeftEdge[0][0] + this->CellLeftEdge[0][this->GridDimension[0]-1] + 0.5*this->CellWidth[0][0];
-     ycenter = this->CellLeftEdge[1][0] + this->CellLeftEdge[1][this->GridDimension[1]-1] + 0.5*this->CellWidth[0][0];
-     zcenter = this->CellLeftEdge[2][0] + this->CellLeftEdge[2][this->GridDimension[2]-1] + 0.5*this->CellWidth[0][0];
+     xcenter = (this->CellLeftEdge[0][0] + this->CellLeftEdge[0][this->GridDimension[0]-1])*0.5 + this->CellWidth[0][0]; // *0.5;
+     ycenter = (this->CellLeftEdge[1][0] + this->CellLeftEdge[1][this->GridDimension[1]-1])*0.5 + this->CellWidth[0][0];
+     zcenter = (this->CellLeftEdge[2][0] + this->CellLeftEdge[2][this->GridDimension[2]-1])*0.5 + this->CellWidth[0][0];
 
     /* find out which stars we can approximate, avoiding the NxM comparison */
     int count = 0;
+    FLOAT rsqr, rcenter, width; // distance to cell center
+    for (int sp = 0; sp < max_number_of_ot_stars; sp++){
+      rsqr = (xs[sp] - xcenter)*(xs[sp]-xcenter) +
+             (ys[sp] - ycenter)*(ys[sp]-ycenter) + 
+             (zs[sp] - zcenter)*(zs[sp]-zcenter);
+
+      // if ratio between distance to cell center and max grid width > 10, we get 20% error
+      width = (this->GridDimension[0]*this->CellWidth[0][0])*(this->GridDimension[0]*this->CellWidth[0][0])+
+              (this->GridDimension[1]*this->CellWidth[0][0])*(this->GridDimension[1]*this->CellWidth[0][0])+
+              (this->GridDimension[2]*this->CellWidth[0][0])*(this->GridDimension[2]*this->CellWidth[0][0]);
+      
+      float flux_ratio = width / rsqr;
+
+/*
     for (int sp = 0; sp < max_number_of_ot_stars; sp++){
       FLOAT min_rsqr = huge_number, max_rsqr = tiny_number, avg_rsqr = 0.0;
-      int tempcount = 0;
-      /* check rsqr values at corner points and find max variation over grid */
+      // check rsqr values at corner points and find max variation over grid 
       for(int k = 0; k < this->GridDimension[2]; k += this->GridDimension[2]-1){
         FLOAT zcell = this->CellLeftEdge[2][k] + 0.5 * this->CellWidth[2][k];
 
@@ -262,23 +277,24 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
             if(rsqr > max_rsqr)
               max_rsqr = rsqr;
             avg_rsqr += rsqr;
-            tempcount++;
           }
         }
       } // end z loop
-      float inv_avg_rsqr = 1.0 / (avg_rsqr / (8.0)); // there are 8 corner points
+*/    
+
+//      float inv_avg_rsqr = 1.0 / (avg_rsqr / (8.0)); // there are 8 corner points
 
       // compute flux difference in min and max cell
-      float flux_ratio = fmax( fabs( (1.0/min_rsqr - inv_avg_rsqr)/inv_avg_rsqr), 
-                               fabs( (1.0/max_rsqr- inv_avg_rsqr)/inv_avg_rsqr));
+//      float flux_ratio = fmax( fabs( (1.0/min_rsqr - inv_avg_rsqr)/inv_avg_rsqr), 
+//                               fabs( (1.0/max_rsqr- inv_avg_rsqr)/inv_avg_rsqr));
 
       // make shorter threshold name
       if (flux_ratio <= IndividualStarApproximateOTThreshold){
         /* we can approximate this star - add to background radiation level */
 
-        FLOAT rsqr = (xs[sp] - xcenter)*(xs[sp] - xcenter) +
-                     (ys[sp] - ycenter)*(ys[sp] - ycenter) +
-                     (zs[sp] - zcenter)*(zs[sp] - zcenter);
+//        FLOAT rsqr = (xs[sp] - xcenter)*(xs[sp] - xcenter) +
+//                    (ys[sp] - ycenter)*(ys[sp] - ycenter) +
+//                     (zs[sp] - zcenter)*(zs[sp] - zcenter);
 
         fuv_background_flux += L_fuv[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
         lw_background_flux  += L_lw[sp]  / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
@@ -366,7 +382,8 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
             Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
             // assign heating rate from model - adds to existing background (if present)
-            BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e, temperature[index],
+            BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e, 
+                                                                        // temperature[index],
                                                                          Z, local_fuv_flux,
                                                                          dx*LengthUnits) / (EnergyUnits/TimeUnits);
 //            BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
@@ -385,7 +402,7 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
   } // k
 
 
-  delete[] temperature;
+  // delete[] temperature;
 
 //  if (IndividualStarApproximateOTRadiation){
     delete [] xstar;
@@ -433,7 +450,8 @@ float NormalizedDustToGasRatio(const float &Z){
 
 
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
-                                      const float &T,   const float &Z,
+                                      //const float &T,   
+                                      const float &Z,
                                       const float &G, const float &dx){
   /* ---------------------------------------------------------------------------------
    * ComputeHeatingRateFromDustModel
@@ -575,7 +593,8 @@ void grid::ZeroPhotoelectricHeatingField(void){
       Z    = this->BaryonField[MetalNum][i] / this->BaryonField[DensNum][i]; // metal dens / dens
 
       // assign heating rate from model
-      BaryonField[PeNum][i]  = ComputeHeatingRateFromDustModel(n_H, n_e, 100.0, // temperature doesn't matter
+      BaryonField[PeNum][i]  = ComputeHeatingRateFromDustModel(n_H, n_e, 
+                                                              // 100.0, // temperature doesn't matter
                                                                    Z, G_background,
                                                             (this->CellWidth[0][0])*LengthUnits);
       BaryonField[PeNum][i] /= (EnergyUnits / TimeUnits);
