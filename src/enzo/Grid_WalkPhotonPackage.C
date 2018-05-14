@@ -89,12 +89,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
-  FLOAT dir_vec[3], sigma[H2II + 1]; //Accounts for all of the cross sections needed
+  FLOAT sigma[H2II + 1]; //Accounts for all of the cross sections needed
   FLOAT ddr, dP, dP1, dp2,EndTime;
   FLOAT dPi[H_SPECIES + 1], dPXray[H_SPECIES + 1];  //+ 1 is to account for Compton
   FLOAT thisDensity, min_dr, adj_thisDensity;
   FLOAT ce[3], nce[3];
-  FLOAT s[3], u[3], f[3], u_inv[3], r[3], dri[3];
+  FLOAT s[3], f[3], u_inv[3], r[3], dri[3];
+  double dir_vec[3], u[3];
   static int secondary_flag = 1, compton_flag = 1;
   static int photoncounter = 0;
 #ifdef GEO_CORRECTION
