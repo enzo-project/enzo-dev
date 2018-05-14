@@ -69,18 +69,6 @@ int grid::MHD1DTestWavesInitializeGrid(float rhol,
     }
   }
 
-  divB = new float[activesize];
-  for (int dim = 0; dim < 3; dim++) {
-    gradPhi[dim] = new float[activesize];
-  }
-
-  
-  for (int dim = GridRank; dim < 3; dim++) {
-    for (int n = 0; n < activesize; n++) {
-      gradPhi[dim][n] = 0.0;
-    }
-  }
-
   
   FLOAT x, rhobg, bxbg, bybg, bzbg, etotbg, pgasbg, B2 = 0., ampl = 1.e-6;
   int i;

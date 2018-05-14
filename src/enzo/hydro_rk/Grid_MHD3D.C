@@ -78,13 +78,6 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     }
   }
 
-  for (int i = 0; i < activesize; i++) {
-    divB[i] = 0.0;
-    for (int dim = 0; dim < 3; dim++) {
-      gradPhi[dim][i] = 0.0;
-    }
-  }
-
   FLOAT a = 1, dadt;
 
   /* If using comoving coordinates, multiply dx by a(n+1/2).
@@ -125,19 +118,6 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
       }
     }
 
-    n = 0;
-    for (int k = 0; k < Zactivesize; k++) {
-      for (int j = 0; j < Yactivesize; j++) {
-	iflux = (Xactivesize+1) * (j + k*(Yactivesize+1));
-	for (int i = 0; i < Xactivesize; i++, n++, iflux++) {
-	  ifluxp1 = iflux + offset[0];
-	  // We absorb the dt here
-	  divB[n] = (Flux3D[iPhi][ifluxp1] - Flux3D[iPhi][iflux]) / (C_h * C_h) * dtdx;
-	  gradPhi[0][n] = (Flux3D[iBx][ifluxp1] - Flux3D[iBx][iflux]) * dtdx;
-	}
-      }
-    }
-
   } // ENDIF Cartesian
 
   FLOAT geofacr, geofacl;
@@ -159,10 +139,6 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
             dU[field][n] = 
 	      -(geofacr * Flux3D[field][iflux+1] - geofacl * Flux3D[field][iflux]) * dtdx;
           }
-	  divB[n] = 
-	    (geofacr * Flux3D[iPhi][ifluxp1] - geofacl * Flux3D[iPhi][iflux]) / 
-	    (C_h * C_h) * dtdx;
-          gradPhi[0][n] = (Flux3D[iBx][ifluxp1] - Flux3D[iBx][iflux]) * dtdx;
         }
       }
     }
@@ -201,17 +177,6 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
 	}
       }
 
-      n = 0;
-      for (int k = 0; k < Zactivesize; k++) {
-	for (int j = 0; j < Yactivesize; j++) {
-	  iflux = (Xactivesize + 1) * (j+k*(Yactivesize + 1));
-	  for (int i = 0; i < Xactivesize; i++, n++, iflux++) {
-	    ifluxp1 = iflux + offset[1];
-	    divB[n] += (Flux3D[iPhi][ifluxp1] - Flux3D[iPhi][iflux])/(C_h*C_h)*dtdx;
-	    gradPhi[1][n] = (Flux3D[iBy][ifluxp1] - Flux3D[iBy][iflux])*dtdx;
-	  }
-	}
-      }
     
       if (FluxCorrection) {
 	if (this->SaveMHDSubgridFluxes(SubgridFluxes, NumberOfSubgrids,
@@ -247,17 +212,6 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
 	}
       }
 
-      n = 0;
-      for (int k = 0; k < Zactivesize; k++) {
-	for (int j = 0; j < Yactivesize; j++) { 
-	  iflux = (Xactivesize+1) * (j + k*(Yactivesize+1));
-	  for (int i = 0; i < Xactivesize; i++, n++, iflux++) { 
-	    ifluxp1 = iflux + offset[2];
-	    divB[n] += (Flux3D[iPhi][ifluxp1] - Flux3D[iPhi][iflux])/(C_h*C_h)*dtdx;
-	    gradPhi[2][n] = (Flux3D[iBz][ifluxp1] - Flux3D[iBz][iflux])*dtdx;
-	  }
-	}
-      }
     }
 
     if (Coordinate == Cylindrical) {
@@ -273,8 +227,6 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
 	    for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
               dU[field][n] -= (Flux3D[field][ifluxp1] - Flux3D[field][iflux])*dtdx/xc;
             }
-	    divB[n] += (Flux3D[iPhi][ifluxp1] - Flux3D[iPhi][iflux])/(C_h*C_h)*dtdx/xc;
-	    gradPhi[2][n] = (Flux3D[iBz][ifluxp1] - Flux3D[iBz][iflux])*dtdx/xc;	    
           }
         }
       }
