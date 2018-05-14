@@ -14,7 +14,7 @@ Enzo parameters associated with those modules.
    hydro_methods.rst
    gravity.rst
    cosmology.rst
-   cooling.rst
+   chemistry.rst
    radiative_transfer.rst
    star_particles.rst
    shock_finding.rst
