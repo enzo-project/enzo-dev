@@ -668,32 +668,6 @@ void MHDGravitySourceGPU(cuMHDData &Data, float dt)
   CUDA_SAFE_CALL( cudaGetLastError() );
 }
 
-__global__ 
-void MHDDednerSourceKernel(
-  float *dUS1, float *dUS2, float *dUS3, float *dUTau,
-  float *B1, float *B2, float *B3, float *divB, float *gradPhi,
-  int dimx, int dimy, int dimz, 
-  int i1, int i2, int j1, int j2, int k1, int k2)
-{
-  const int size = dimx*dimy*dimz;
-  int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
-    blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*dimx + k1*dimx*dimy;
-  
-  int i = idx3d % dimx;
-  int j = (idx3d % (dimx*dimy)) / dimx;
-  int k = idx3d / (dimx*dimy);
-
-  if (i >= i1 && i <= i2 && j >= j1 && j <= j2 && k >= k1 && k <= k2) {
-    dUS1[idx3d]  -= divB[idx3d] * B1[idx3d];
-    dUS2[idx3d]  -= divB[idx3d] * B2[idx3d];
-    dUS3[idx3d]  -= divB[idx3d] * B3[idx3d];
-    dUTau[idx3d] -= (B1[idx3d]*gradPhi[idx3d] + 
-                     B2[idx3d]*gradPhi[size+idx3d] + 
-                     B3[idx3d]*gradPhi[2*size+idx3d]);
-  }
-}
-    
-    
 
 __global__ 
 void MHDDualEnergySourceKernel(
