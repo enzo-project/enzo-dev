@@ -9,7 +9,7 @@ Enzo parameters associated with those modules.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    
    hydro_methods.rst
    gravity.rst

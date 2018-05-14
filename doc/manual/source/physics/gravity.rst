@@ -5,7 +5,8 @@ Gravity
 ======================================
 
 The current implementation of self-gravity in Enzo uses a fast Fourier
-technique (Hockney & Eastwood 1988) to solve Poisson’s equation on the
+technique (`Hockney & Eastwood 1988 <http://adsabs.harvard.edu/abs/1988csup.book.....H>`_)
+to solve Poisson’s equation on the
 root grid on each timestep. The advantage of using this method is that
 it is fast, accurate, and naturally allows both periodic and isolated
 boundary conditions for the gravity, choices which are very common in
@@ -15,6 +16,8 @@ subgrid). The Poisson equation is then solved on every timestep using
 a multigrid technique on one subgrid at a time. Aside from
 self-consistently calculating the gravitational potential arising from
 the baryon fields and particles in the simulation, there are also a
-number of options for specifying static gravitational fields.  Enzo
+number of options for specifying static gravitational fields
+(including, for example, gravitational acceleration from NFW halos,
+galactic disks, and point sources).  Enzo
 parameters relating to gravity can be found in
-:ref:`gravity-parameters` .
+:ref:`gravity-parameters`, and a brief description .
