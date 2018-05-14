@@ -1,11 +1,12 @@
-Physics Modules in Enzo
-==============================
+Physics and Analysis Capabilities
+=================================
 
 This section of the documentation presents a brief overview
-of the physics modules implemented in Enzo, links to the relevant
-journal articles where those modules are described in detail,
-guidance as to practical usage of the modules, and some of the common
-Enzo parameters associated with those modules.
+of the physics modules and analysis tools
+implemented in Enzo, links to the relevant
+journal articles where those modules and/or capabilities are described in detail,
+guidance as to practical usage of the modules and tools, and some of the common
+Enzo parameters associated with them.
 
 
 .. toctree::
