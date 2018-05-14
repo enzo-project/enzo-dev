@@ -1085,11 +1085,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   /* Poisson Solver */
 
-  fprintf(fptr, "DivergenceCleaningBoundaryBuffer = %"ISYM"\n",
-	  DivergenceCleaningBoundaryBuffer);
-  fprintf(fptr, "UseDivergenceCleaning            = %d\n", UseDivergenceCleaning);
-  fprintf(fptr, "DivergenceCleaningThreshold      = %g\n", 
-	  DivergenceCleaningThreshold);
+  fprintf(fptr, "PoissonDivergenceCleaningBoundaryBuffer = %"ISYM"\n",
+	  PoissonDivergenceCleaningBoundaryBuffer);
+  fprintf(fptr, "UsePoissonDivergenceCleaning            = %d\n", UsePoissonDivergenceCleaning);
+  fprintf(fptr, "PoissonDivergenceCleaningThreshold      = %g\n", 
+	  PoissonDivergenceCleaningThreshold);
   fprintf(fptr, "PoissonApproximationThreshold    = %g\n", 
 	  PoissonApproximationThreshold);
   fprintf(fptr, "PoissonBoundaryType    = %d\n", 

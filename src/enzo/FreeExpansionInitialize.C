@@ -281,7 +281,7 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     DataLabel[i++] = B2Name;
     DataLabel[i++] = B3Name;
     DataLabel[i++] = PhiName;
-    if (UseDivergenceCleaning) {
+    if (UsePoissonDivergenceCleaning) {
       DataLabel[i++] = Phi_pName;
     }
   }

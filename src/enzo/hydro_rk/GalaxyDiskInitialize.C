@@ -348,7 +348,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[count++] = BzName;
       DataLabel[count++] = PhiName;
   }
-  if(UseDivergenceCleaning){
+  if(UsePoissonDivergenceCleaning){
     DataLabel[count++] = Phi_pName;
   }
   if (MultiSpecies) {

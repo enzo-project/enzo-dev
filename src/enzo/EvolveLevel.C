@@ -725,7 +725,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     EXTRA_OUTPUT_MACRO(2,"After SolveHydroEquations grid loop")
 
-    if (UseDivergenceCleaning != 0){
+    if (UsePoissonDivergenceCleaning != 0){
 
 #ifdef FAST_SIB
       SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);

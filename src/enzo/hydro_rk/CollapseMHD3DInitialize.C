@@ -436,7 +436,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     }
   }  // if Multispecies
   
-  if(UseDivergenceCleaning){
+  if(UsePoissonDivergenceCleaning){
     DataLabel[count++] = (char*) Phi_pName;
   }
   

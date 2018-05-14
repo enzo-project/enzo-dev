@@ -49,7 +49,7 @@ int grid::PoissonSolver(int level)
   */
 {
 
-  if (ProcessorNumber != MyProcessorNumber || UseDivergenceCleaning==0 || UseMHD==0 ) {
+  if (ProcessorNumber != MyProcessorNumber || UsePoissonDivergenceCleaning==0 || UseMHD==0 ) {
    
     return SUCCESS;
   }
@@ -121,14 +121,14 @@ int grid::PoissonSolver(int level)
     }
   }
 
-  if (monopoleDensity<DivergenceCleaningThreshold){
-    if (debug) printf("Monopole Density %g < %g\n", monopoleDensity, DivergenceCleaningThreshold);
+  if (monopoleDensity<PoissonDivergenceCleaningThreshold){
+    if (debug) printf("Monopole Density %g < %g\n", monopoleDensity, PoissonDivergenceCleaningThreshold);
     return SUCCESS;
   }
 //  else
 //    printf("**Poisson Cleaning**\n");
 
-  int type=UseDivergenceCleaning;
+  int type=UsePoissonDivergenceCleaning;
 
    if(debug){
    bool badDiv=false;
@@ -192,7 +192,7 @@ int grid::PoissonCleanStep(int level)
 
   float Bx, By, Bz, B2, rho;
   
-  int x=DivergenceCleaningBoundaryBuffer;
+  int x=PoissonDivergenceCleaningBoundaryBuffer;
 
   int MatrixStartIndex[3]={GridStartIndex[0]+x,  GridStartIndex[1]+x,  GridStartIndex[2]+x};
   int MatrixEndIndex[3]={GridEndIndex[0]-x,  GridEndIndex[1]-x,  GridEndIndex[2]-x};
