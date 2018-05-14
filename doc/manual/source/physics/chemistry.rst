@@ -6,11 +6,8 @@ Gas Chemistry, Cooling, and Heating
 There are two ways that Enzo can perform radiative cooling.
 Natively, Enzo provides a number of different methods ranging from
 simple tabulated, analytical approximations to very sophisticated 
-non-equilibrium primoridal chemistry. These are described below. Alternatively, Enzo supports the external Grackle library for tracking chemistry
-and performing radiative cooling. 
-See :ref:`here <Grackle>` for a full description and reasons to use Grackle, 
-as well as 
-the `Grackle documentation <http://grackle.readthedocs.io/en/grackle-3.1/>`_.
+non-equilibrium primoridal chemistry. These are described below. Alternatively, Enzo supports the external `Grackle library <http://grackle.readthedocs.io>`_ for tracking chemistry and performing radiative cooling. 
+See :ref:`here <Grackle>` for a full description and reasons to use Grackle.
 Both Grackle and the native Enzo methods support metal cooling via Cloudy tables.
 
 All of these methods require the parameter ``RadiativeCooling`` be set to 1.
