@@ -20,4 +20,5 @@ Enzo parameters associated with those modules.
    shock_finding.rst
    cosmic_rays.rst
    additional_physics.rst
-   
+   analysis_modules.rst
+
