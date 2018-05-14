@@ -183,10 +183,6 @@ void grid::CudaMHDSourceTerm()
       ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
     }
 
-#ifdef DEDNER_SOURCE
-  MHDDednerSourceGPU(MHDData);
-#endif
-
   if (DualEnergyFormalism) 
     MHDDualEnergySourceGPU(MHDData, dtFixed, a,
                            CellWidth[0][0], CellWidth[1][0], CellWidth[2][0]);

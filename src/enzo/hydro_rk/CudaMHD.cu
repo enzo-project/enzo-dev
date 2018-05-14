@@ -553,7 +553,7 @@ void ComputeFluxSpeciesGPU(cuMHDData &Data, int dir)
 __global__ void ComputedUKernel(
   float *dUD, float *dUS1, float *dUS2, float *dUS3, float *dUTau,
   float *dUB1, float *dUB2, float *dUB3, float *dUPhi, float *dUGE,
-  float *divB, float *gradPhi, float **dUSpecies,
+  float **dUSpecies,
   const float* __restrict FluxD, const float* __restrict FluxS1, 
   const float* __restrict FluxS2, const float* __restrict FluxS3, 
   const float* __restrict FluxTau, const float* __restrict FluxB1, 
@@ -593,19 +593,6 @@ __global__ void ComputedUKernel(
       dUGE [idx3d] -= (FluxGE [ifluxp1] - FluxGE [iflux]) * dtdx;
     for (int f = 0; f < NSpecies; f++)
       dUSpecies[f][idx3d] -= (FluxSpecies[f][ifluxp1] - FluxSpecies[f][iflux]) * dtdx;
-#ifdef DEDNER_SOURCE
-    if (dir == 1) 
-      divB[idx3d] = 0;
-    divB[idx3d] += (FluxPhi[ifluxp1] - FluxPhi[iflux]) / (Ch*Ch) * dtdx;
-    if (dir == 1) 
-      gradPhi[idx3d] = (FluxB1[ifluxp1] - FluxB1[iflux]) * dtdx;
-    else if (dir == 2)
-      gradPhi[size + idx3d] = 
-        (FluxB2[ifluxp1]- FluxB2[iflux]) * dtdx;
-    else if (dir == 3)
-      gradPhi[2*size+idx3d] = 
-        (FluxB3[ifluxp1]- FluxB3[iflux]) * dtdx;
-#endif
   }
 }
 
@@ -617,7 +604,7 @@ void ComputedUGPU(cuMHDData &Data, float dt, float dx, int dir)
     Data.dU[IdxTau], 
     Data.dU[IdxB1], Data.dU[IdxB2], Data.dU[IdxB3], 
     Data.dU[IdxPhi], Data.dU[IdxGE],
-    Data.divB, Data.gradPhi, Data.dUSpeciesArray,
+    Data.dUSpeciesArray,
     Data.Flux[IdxD], Data.Flux[IdxS1], Data.Flux[IdxS2], Data.Flux[IdxS3], 
     Data.Flux[IdxTau], 
     Data.Flux[IdxB1], Data.Flux[IdxB2], Data.Flux[IdxB3], 
@@ -707,19 +694,6 @@ void MHDDednerSourceKernel(
 }
     
     
-extern "C"
-void MHDDednerSourceGPU(cuMHDData &Data)
-{
-  MHDDednerSourceKernel<<<CudaGrid, CudaBlock>>>(
-    Data.dU[IdxS1], Data.dU[IdxS2], Data.dU[IdxS3], Data.dU[IdxTau],
-    Data.Baryon[IdxB1], Data.Baryon[IdxB2], Data.Baryon[IdxB3],
-    Data.divB, Data.gradPhi,
-    Data.Dimension[0], Data.Dimension[1], Data.Dimension[2],
-    Data.StartIndex[0], Data.EndIndex[0],
-    Data.StartIndex[1], Data.EndIndex[1],
-    Data.StartIndex[2], Data.EndIndex[2]);
-  CUDA_SAFE_CALL( cudaGetLastError() );
-}
 
 __global__ 
 void MHDDualEnergySourceKernel(

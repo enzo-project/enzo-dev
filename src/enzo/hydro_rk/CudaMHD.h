@@ -52,9 +52,6 @@ extern "C"
 void MHDComovingSourceGPU(cuMHDData &Data, float dt, float coef);
 
 extern "C"
-void MHDDednerSourceGPU(cuMHDData &Data);
-
-extern "C"
 void MHDDrivingSourceGPU(cuMHDData &Data, float dt);
 
 extern "C"
