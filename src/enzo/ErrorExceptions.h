@@ -13,7 +13,6 @@
 #define __ENZO_EXCEPTIONS__
 
 #include <execinfo.h>
-#include <signal.h>
 #include <stdio.h>
 
 #include <exception>
