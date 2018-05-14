@@ -1,7 +1,7 @@
 .. _cooling:
 
 Gas Chemistry, Cooling, and Heating
-==========================
+===================================
 
 There are two ways that Enzo can perform radiative cooling.
 Natively, Enzo provides a number of different methods ranging from
