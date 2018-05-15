@@ -27,6 +27,8 @@
 #include "SphericalInfall.h"
 #include "phys_constants.h"
  
+#include "phys_constants.h"
+
 /* function prototypes */
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);

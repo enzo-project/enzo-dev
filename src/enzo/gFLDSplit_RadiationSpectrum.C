@@ -31,8 +31,7 @@ float gFLDSplit::RadiationSpectrum(float nu)
   // set necessary constants
   float h = 6.6260693e-27;          // Planck's constant [ergs*s]
   float kb = 1.3806504e-16;         // Boltzmann's constant [ergs/K]
-  float ev2erg = 1.60217653e-12;    // conversion constant from eV to ergs
-  float nu0 = hnu0_HI*ev2erg/h;     // ionization threshold of Hydrogen (hz)
+  float nu0 = hnu0_HI*erg_eV/h;     // ionization threshold of Hydrogen (hz)
   float nu1 = 2.5*nu0;              // ionization of Wolf Reyet stars + HeliumI
   float nu2 = 4.0*nu0;              // ionization threshold of HeliumII
   float nu3 = 100.0*nu0;            // parameter used to characterize PopII SED cutoff frequency

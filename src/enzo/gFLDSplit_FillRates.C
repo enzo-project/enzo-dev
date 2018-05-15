@@ -60,14 +60,13 @@ int gFLDSplit::FillRates(EnzoVector *u, EnzoVector *u0, float *phHI,
   // set some physical constants
   float hp = 6.6260693e-27;       // Planck's constant [ergs*s]
   float mp = 1.67262171e-24;      // mass of a proton [g]
-  float ev2erg = 1.60217653e-12;  // conversion constant from eV to ergs
   float dom = DenUnits*a*a*a/mp;
   float tbase1 = TimeUnits;
   float xbase1 = LenUnits/a/aUnits;
   float dbase1 = DenUnits*a*a*a*aUnits*aUnits*aUnits;
   float coolunit = aUnits*aUnits*aUnits*aUnits*aUnits * xbase1*xbase1
     * mp*mp / tbase1/tbase1/tbase1 / dbase1;
-  float rtunits = ev2erg/TimeUnits/coolunit/dom;
+  float rtunits = erg_eV/TimeUnits/coolunit/dom;
   // float ErUn = ErUnits;  // original
   float ErUn = (ErUnits+ErUnits0)*0.5;   // arithmetic mean
   // float ErUn = sqrt(ErUnits*ErUnits0);   // geometric mean
@@ -94,9 +93,9 @@ int gFLDSplit::FillRates(EnzoVector *u, EnzoVector *u0, float *phHI,
    
   // fill photo-heating rate
   float phScale    = clight*TimeUnits/intSigE/VelUnits/VelUnits/mp/rtunits;
-  float GHIconst   = phScale*(intSigESigHI   - 13.6*ev2erg/hp*intSigESigHInu);
-  float GHeIconst  = phScale*(intSigESigHeI  - 24.6*ev2erg/hp*intSigESigHeInu);
-  float GHeIIconst = phScale*(intSigESigHeII - 54.4*ev2erg/hp*intSigESigHeIInu);
+  float GHIconst   = phScale*(intSigESigHI   - 13.6*erg_eV/hp*intSigESigHInu);
+  float GHeIconst  = phScale*(intSigESigHeI  - 24.6*erg_eV/hp*intSigESigHeInu);
+  float GHeIIconst = phScale*(intSigESigHeII - 54.4*erg_eV/hp*intSigESigHeIInu);
   if (Nchem == 1)
     for (i=0; i<size; i++)  photogamma[i] = Er[i]*ErUn*GHIconst;
   if (Nchem == 3) {
