@@ -11,8 +11,12 @@ from yt.utilities.answer_testing.framework import \
     assert_rel_equal
 import os, glob
 
-test_data_dir   = os.environ.get("COSMO_TEST_DATA_DIR", None)
-compare_answers = int(os.environ.get("COSMO_TEST_COMPARE",0))
+sim_dir = os.path.basename(os.getcwd())
+test_data_dir = os.path.join(
+    os.environ.get("COSMO_TEST_DATA_DIR", None), sim_dir)
+if not os.path.exists(test_data_dir):
+    os.makedirs(test_data_dir)
+generate_answers = int(os.environ.get("COSMO_TEST_GENERATE",1))
 tolerance       = os.environ.get("COSMO_TEST_MASS_TOLERANCE",8)
 
 def test_dark_matter_mass():
@@ -34,12 +38,13 @@ def test_dark_matter_mass():
     filename = "DM_mass_results.h5"
     yt.save_as_dataset(ds, filename, output_data)
 
-    if compare_answers:
-        compare_filename = os.path.join(test_data_dir, filename)
-        ds_comp          = yt.load(compare_filename)
+    compare_filename = os.path.join(test_data_dir, filename)
+    if generate_answers:
+        os.rename(filename, compare_filename)
+        return
 
-        # assert
-        assert_rel_equal(output_data['mass'], ds_comp.data['mass'], tolerance)
+    ds_comp          = yt.load(compare_filename)
+    assert_rel_equal(output_data['mass'], ds_comp.data['mass'], tolerance)
 
     return
 
@@ -68,12 +73,13 @@ def test_individual_baryon_mass():
     filename = "gas_stars_mass_results.h5"
     yt.save_as_dataset(ds, filename, output_data)
 
-    if compare_answers:
-        compare_filename = os.path.join(test_data_dir, filename)
-        ds_comp          = yt.load(compare_filename)
+    compare_filename = os.path.join(test_data_dir, filename)
+    if generate_answers:
+        os.rename(filename, compare_filename)
+        return
 
-        # assert
-        assert_rel_equal(output_data['masses'], ds_comp.data['masses'], tolerance)
+    ds_comp          = yt.load(compare_filename)
+    assert_rel_equal(output_data['masses'], ds_comp.data['masses'], tolerance)
 
     return
 
@@ -101,12 +107,13 @@ def test_total_baryon_mass():
     filename = "baryon_mass_results.h5"
     yt.save_as_dataset(ds, filename, output_data)
 
-    if compare_answers:
-        compare_filename = os.path.join(test_data_dir, filename)
-        ds_comp          = yt.load(compare_filename)
+    compare_filename = os.path.join(test_data_dir, filename)
+    if generate_answers:
+        os.rename(filename, compare_filename)
+        return
 
-        # assert
-        assert_rel_equal(output_data['masses'], ds_comp.data['masses'], tolerance)
+    ds_comp          = yt.load(compare_filename)
+    assert_rel_equal(output_data['masses'], ds_comp.data['masses'], tolerance)
 
     return
 
