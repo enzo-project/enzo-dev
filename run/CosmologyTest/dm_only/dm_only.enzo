@@ -44,7 +44,7 @@ GravitationalConstant      = 1
 #
 # I/O and stop/start parameters
 #
-dtDataDump       = 5
+dtDataDump       = 25
 RedshiftDumpName = RD
 RedshiftDumpDir  = RD
 DataDumpName     = DD
