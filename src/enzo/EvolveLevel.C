@@ -406,6 +406,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
 
+#ifdef INDIVIDUALSTAR
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+        Grids[grid1]->GridData->ApplyTemperatureLimit();
+    }
+#endif
+
     TimeSinceRebuildHierarchy[level] += dtThisLevel[level];
 
     /* If StarFormationOncePerRootGridTimeStep, stars are only created
@@ -566,7 +572,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  in preparation for the new step. */
 
 #ifdef INDIVIDUALSTAR
-      Grids[grid1]->GridData->ApplyTemperatureLimit();
+//      Grids[grid1]->GridData->ApplyTemperatureLimit();
 #endif
  
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
@@ -691,8 +697,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
+#ifdef INDIVIDUALSTAR
+      Grids[grid1]->GridData->ApplyTemperatureLimit();
+#endif
+    }
 
     TIMER_STOP(level_name);
     /* ----------------------------------------- */
@@ -704,8 +714,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         // dtThisLevelSoFar set during restart
         // dtThisLevel set during restart
         // Set dtFixed on each grid to dtThisLevel
-        for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+        for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
+#ifdef INDIVIDUALSTAR
+          Grids[grid1]->GridData->ApplyTemperatureLimit();
+#endif
           Grids[grid1]->GridData->SetTimeStep(dtThisLevel[level]);
+        }
     }
 
 

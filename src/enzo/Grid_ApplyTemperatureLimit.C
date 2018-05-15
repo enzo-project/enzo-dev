@@ -80,10 +80,17 @@ int grid::ApplyTemperatureLimit(void){
       BaryonField[DensNum][i] *= factor;
 
       if (DualEnergyFormalism){
-         float kinetic = (BaryonField[TENum][i] - BaryonField[GENum][i])*old_dens;
+         float old_kinetic = (BaryonField[TENum][i] - BaryonField[GENum][i])*old_dens;
          float thermal = old_dens*BaryonField[GENum][i];
 
          BaryonField[GENum][i] = thermal / BaryonField[DensNum][i];
+
+
+         float kinetic = 0.0;
+         for (int dim = 0; dim < GridRank; dim++){
+           BaryonField[Vel1Num+dim][i] *= (old_dens / BaryonField[DensNum][i]);
+           kinetic += 0.5 * BaryonField[Vel1Num+dim][i] * BaryonField[Vel1Num+dim][i];
+         }
          BaryonField[TENum][i] = (thermal+kinetic)/BaryonField[DensNum][i];
       } else{
          BaryonField[TENum][i] /= factor;
