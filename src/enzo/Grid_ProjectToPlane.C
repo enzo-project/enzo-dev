@@ -26,6 +26,8 @@
 #include "ExternalBoundary.h"
 #include "CosmologyParameters.h"
 #include "Grid.h"
+
+#include "phys_constants.h"
  
 extern "C" void FORTRAN_NAME(projplane)(
           float *grid1, float *grid2, float *flaggrid, int *iflag,
@@ -349,7 +351,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
     for (i = 0; i < size; i++)
       sz[i] = BaryonField[DensNum][i]*temperature[i];
  
-    double sigma_thompson = 6.65e-25, mh = 1.67e-24, me = 9.11e-28,
+    double sigma_thompson = 6.65e-25, mh = 1.67e-24, 
            kboltz = 1.38e-16, clight = 3.00e10, csquared = 8.99e20;
  
     ConversionFactor = double(DensityUnits)*0.88/mh
