@@ -33,9 +33,6 @@ def test_hmf():
     yt.save_as_dataset(ds,filename,data)
 
     # make a plot
-    ds = yt.load(filename)
-    masses = ds.data['masses']
-    num = ds.data['n_sim']
     fig = plt.figure(figsize=(8,8))
     plt.semilogy(masses_sim,n_cumulative_sim,'-')
     plt.ylabel('Cumulative Halo Number Density $\mathrm{Mpc}^{-3}$',fontsize=16)
