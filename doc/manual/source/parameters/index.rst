@@ -36,7 +36,7 @@ modified so I list them here as well. Some parameters are true/false or on/off
 boolean flags.  Eventually, these may be parsed, but in the meantime, we use the
 common convention of 0 meaning false or off and 1 for true or on.
 
-This list includes parameters for the Enzo 2.3 release.
+This list includes parameters for the Enzo dev version.
 
 .. toctree::
    :maxdepth: 2
@@ -669,8 +669,6 @@ description of these parameters.)
 ``MetaDataInitialConditionsUUID`` (internal)
     This is similar to ``MetaDataRestartDatasetUUID``, except it's used to
     track which initial conditions were used.
-
-.. _simulation_identifiers_parameters:
 
 Hierarchy Control Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1885,21 +1883,21 @@ General Star Formation
     
     ::
 
-  0  - Cen & Ostriker (1992)
-  1  - Cen & Ostriker (1992) with stocastic star formation
-  2  - Global Schmidt Law / Kravstov et al. (2003)
-  3  - Population III stars / Abel, Wise & Bryan (2007)
-  4  - Sink particles: Pure sink particle or star particle with wind feedback depending on 
-       choice for HydroMethod / Wang et al. (2009)
-  5  - Radiative star clusters  / Wise & Cen (2009)
-  6  - [reserved for future use]
-  7  - Cen & Ostriker (1992) with no delay in formation
-  8  - Springel & Hernquist (2003)
-  9  - Massive Black Hole (MBH) particles insertion by hand / Kim et al. (2010)
-  10 - Population III stellar tracers  
-  11 - Molecular hydrogen regulated star formation
-  13 - Distributed stellar feedback model (So et al. 2014)
-  14 - Cen & Ostriker (1992) stochastic star formation with kinetic feedback 
+      0  - Cen & Ostriker (1992)
+      1  - Cen & Ostriker (1992) with stocastic star formation
+      2  - Global Schmidt Law / Kravstov et al. (2003)
+      3  - Population III stars / Abel, Wise & Bryan (2007)
+      4  - Sink particles: Pure sink particle or star particle with wind feedback depending on 
+           choice for HydroMethod / Wang et al. (2009)
+      5  - Radiative star clusters  / Wise & Cen (2009)
+      6  - [reserved for future use]
+      7  - Cen & Ostriker (1992) with no delay in formation
+      8  - Springel & Hernquist (2003)
+      9  - Massive Black Hole (MBH) particles insertion by hand / Kim et al. (2010)
+      10 - Population III stellar tracers  
+      11 - Molecular hydrogen regulated star formation
+      13 - Distributed stellar feedback model (So et al. 2014)
+      14 - Cen & Ostriker (1992) stochastic star formation with kinetic feedback 
              / Simpson et al. (2015)
 
 ``StarParticleFeedback`` (external)
@@ -2351,7 +2349,7 @@ Radiative Transfer (Ray Tracing) Parameters
 ``RadiativeTransferOpticallyThinH2`` (external)
     Set to 1 to include an optically-thin H_2 dissociating
     (Lyman-Werner) radiation field. Only used if ``MultiSpecies`` > 1. If
-   ``MultiSpecies`` > 1 and this option is off, the Lyman-Werner radiation
+    ``MultiSpecies`` > 1 and this option is off, the Lyman-Werner radiation
     field will be calculated with ray tracing. Default: 1.
 ``RadiativeTransferSplitPhotonPackage`` (external)
     Once photons are past this radius, they can no longer split. In
@@ -3002,11 +3000,11 @@ For details on shock finding in Enzo see :ref:`shock_finding`.
     
     ::
 
-  0 - Off
-  1 - Temperature Dimensionally Unsplit Jumps
-  2 - Temperature Dimensionally Split Jumps
-  1 - Velocity Dimensionally Unsplit Jumps
-  2 - Velocity Dimensionally Split Jumps
+      0 - Off
+      1 - Temperature Dimensionally Unsplit Jumps
+      2 - Temperature Dimensionally Split Jumps
+      3 - Velocity Dimensionally Unsplit Jumps
+      4 - Velocity Dimensionally Split Jumps
 
 ``ShockTemperatureFloor`` (external)
     When calculating the mach number using temperature jumps, set the
@@ -3272,46 +3270,46 @@ the user guides in the installation directory ``doc/implicit_fld`` and ``doc/spl
 ============ ====================================
 Problem Type Description and Parameter List
 ============ ====================================
-1        :ref:`shocktube_param`
-2      :ref:`wavepool_param`
-3        :ref:`shockpool_param`
-4        :ref:`doublemach_param`
-5        :ref:`shockinabox_param`
-6        :ref:`implosion_param`
-7        :ref:`sedovblast_param`
-8        :ref:`khinstability_param`
-9        :ref:`noh_param`
-10       :ref:`rotatingcylinder_param`
-11       :ref:`radiatingshock_param`
-12       :ref:`freeexpansion_param`
+1            :ref:`shocktube_param`
+2            :ref:`wavepool_param`
+3            :ref:`shockpool_param`
+4            :ref:`doublemach_param`
+5            :ref:`shockinabox_param`
+6            :ref:`implosion_param`
+7            :ref:`sedovblast_param`
+8            :ref:`khinstability_param`
+9            :ref:`noh_param`
+10           :ref:`rotatingcylinder_param`
+11           :ref:`radiatingshock_param`
+12           :ref:`freeexpansion_param`
 14           :ref:`rotatingsphere_param`
-20       :ref:`zeldovichpancake_param`
-21       :ref:`pressurelesscollapse_param`
-22       :ref:`adiabaticexpansion_param`
-23       :ref:`testgravity_param`
-24       :ref:`sphericalinfall_param`
-25       :ref:`testgravitysphere_param`
-26       :ref:`gravityequilibriumtest_param`
-27       :ref:`collapsetest_param`
-28       :ref:`testgravitymotion_param`
-29       :ref:`testorbit_param`
-30       :ref:`cosmologysimulation_param`
-31       :ref:`galaxysimulation_param`
-35       :ref:`shearingbox_param`
-36       Shearing Box 2D Simulation
-37       Stratifeid Shearing Box Simulation
-40       :ref:`supernovarestart_param`
-50       :ref:`photontest_param`
-51       Photon Test Restart
+20           :ref:`zeldovichpancake_param`
+21           :ref:`pressurelesscollapse_param`
+22           :ref:`adiabaticexpansion_param`
+23           :ref:`testgravity_param`
+24           :ref:`sphericalinfall_param`
+25           :ref:`testgravitysphere_param`
+26           :ref:`gravityequilibriumtest_param`
+27           :ref:`collapsetest_param`
+28           :ref:`testgravitymotion_param`
+29           :ref:`testorbit_param`
+30           :ref:`cosmologysimulation_param`
+31           :ref:`galaxysimulation_param`
+35           :ref:`shearingbox_param`
+36           Shearing Box 2D Simulation
+37           Stratifeid Shearing Box Simulation
+40           :ref:`supernovarestart_param`
+50           :ref:`photontest_param`
+51           Photon Test Restart
 59           :ref:`stochastic_forcing_param`
-60       :ref:`turbulence_param` 
-61       :ref:`protostellar_param` 
-62       :ref:`coolingtest_param`
+60           :ref:`turbulence_param` 
+61           :ref:`protostellar_param` 
+62           :ref:`coolingtest_param`
 63           One Zone Free Fall Test
-70       Conduction Test with Hydro Off
-71       Conduction Test with Hydro On
-72       Conduction Bubble Test
-73       Conduction Cloud Test
+70           Conduction Test with Hydro Off
+71           Conduction Test with Hydro On
+72           Conduction Bubble Test
+73           Conduction Cloud Test
 80           Explosion in a Stratified Medium Test
 101          :ref:`3dcollapse_param`
 102          :ref:`1dcollapse_param`
@@ -3325,9 +3323,9 @@ Problem Type Description and Parameter List
 204          3D MHD Test
 207          :ref:`galaxydisk_param`
 208          :ref:`agndisk_param`
-209      MHD 1D Waves
-210      MHD Decaying Random Magnetic Fields
-250      :ref:`cr_shocktube_param`
+209          MHD 1D Waves
+210          MHD Decaying Random Magnetic Fields
+250          :ref:`cr_shocktube_param`
 300          :ref:`poissonsolver_param`
 400          :ref:`rhdtest1_param`
 401          :ref:`rhdtest2_param`
@@ -3335,8 +3333,8 @@ Problem Type Description and Parameter List
 403          :ref:`rhdtest4_param`
 404/405      :ref:`rhdtest5_param`
 410/411      :ref:`rhdtest10_param`
-412        :ref:`rhdtest12_param`
-413        :ref:`rhdtest13_param`
+412          :ref:`rhdtest12_param`
+413          :ref:`rhdtest13_param`
 414/415      :ref:`rhdtest14_param`
 450-452      Free-streaming radiation tests (to be removed)
 ============ ====================================
@@ -3344,7 +3342,7 @@ Problem Type Description and Parameter List
 .. _shocktube_param:
 
 Shock Tube (1: unigrid and AMR)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Riemann problem or arbitrary discontinuity breakup problem. The
     discontinuity initially separates two arbitrary constant states:
@@ -3401,7 +3399,7 @@ Shock Tube (1: unigrid and AMR)
 .. _wavepool_param:
 
 Wave Pool (2)
-~~~~~~~~~~~~~
+^^^^^^^^^^^^^
 
     Wave Pool sets up a simulation with a 1D sinusoidal wave entering
     from the left boundary. The initial active region is uniform and
@@ -3429,7 +3427,7 @@ Wave Pool (2)
 .. _shockpool_param:
 
 Shock Pool (3: unigrid 2D, AMR 2D and unigrid 3D)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     The Shock Pool test sets up a system which introduces a shock from
     the left boundary. The initial active region is uniform, and the
@@ -3459,7 +3457,7 @@ Shock Pool (3: unigrid 2D, AMR 2D and unigrid 3D)
 .. _doublemach_param:
 
 Double Mach Reflection (4)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     A test for double Mach reflection of a strong shock (Woodward &
     Colella 1984). Most of the parameters are "hardwired": d0 = 8.0, e0
@@ -3474,7 +3472,7 @@ Double Mach Reflection (4)
 .. _shockinabox_param:
 
 Shock in a Box (5)
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
     A stationary shock front in a static 3D subgrid (Anninos et al.
     1994). Initialization is done as in the Shock Tube test.
@@ -3501,7 +3499,7 @@ Shock in a Box (5)
 .. _implosion_param:
 
 Implosion (6)
-~~~~~~~~~~~~~
+^^^^^^^^^^^^^
  
     The implosion test sets up a converging shock problem in a square domain
     (x,y) \in (0, 0.3)x(0, 0.3) with gas initially at rest. Initial
@@ -3531,7 +3529,7 @@ Implosion (6)
 .. _sedovblast_param:
 
 Sedov Blast (7)
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 
      Self-similar solution: L.I. Sedov (1946); 
      see also: Sedov (1959), Similarity and Dimensional Methods
@@ -3561,7 +3559,7 @@ Sedov Blast (7)
 .. _khinstability_param:
 
 Kelvin-Helmholtz Instability (8)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     This problem sets up a 2D box with periodic boundary conditions containing
     two fluids (inner fluid and outer fluid).  The inner fluid has a positive
@@ -3612,7 +3610,7 @@ Kelvin-Helmholtz Instability (8)
 .. _noh_param:
 
 2D/3D Noh Problem (9)
-~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
      
     Liska & Wendroff, 2003, SIAM J. Sci. Comput. 25, 995, 
     Section 4.5, Fig. 4.4.
@@ -3627,7 +3625,7 @@ Kelvin-Helmholtz Instability (8)
 .. _rotatingcylinder_param:
 
 Rotating Cylinder (10)
-~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^
 
     A test for the angular momentum conservation of a collapsing
     cylinder of gas in an AMR simulation. Written by Brian O'Shea
@@ -3662,7 +3660,7 @@ Rotating Cylinder (10)
 .. _radiatingshock_param:
 
 Radiating Shock (11)
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 
     This is a test problem similar to the Sedov test problem documented
     elsewhere, but with radiative cooling turned on (and the ability to
@@ -3725,7 +3723,7 @@ Radiating Shock (11)
 .. _freeexpansion_param:
 
 Free Expansion (12)
-~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^
 
 This test sets up a blast wave in the free expansion stage. There
 is only kinetic energy in the sphere with the radial velocity
@@ -3763,7 +3761,7 @@ should turn into a Sedov-Taylor blast wave.
 .. _rotatingsphere_param:
 
 Rotating Sphere (14)
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 
 A test originally created to study star formation. Sets up a rotating,
 turbulent sphere of gas within an NFW halo. For details of the setup
@@ -3828,7 +3826,7 @@ process, see Meece (2014).
 .. _zeldovichpancake_param:
 
 Zeldovich Pancake (20)
-~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^
 
     A test for gas dynamics, expansion terms and self-gravity in both
     linear and non-linear regimes [Bryan thesis (1996),
@@ -3853,7 +3851,7 @@ Zeldovich Pancake (20)
 .. _pressurelesscollapse_param:
 
 Pressureless Collapse (21)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     An 1D AMR test for the gravity solver and advection routines: the
     two-sided one-dimensional collapse of a homogeneous plane parallel
@@ -3870,7 +3868,7 @@ Pressureless Collapse (21)
 .. _adiabaticexpansion_param:
 
 Adiabatic Expansion (22)
-~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^
 
     A test for time-integration accuracy of the expansion terms (Bryan
     thesis 1996, Sect. 3.3.3).
@@ -3890,7 +3888,7 @@ Adiabatic Expansion (22)
 .. _testgravity_param:
 
 Test Gravity (23)
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
     We set up a system in which there is one grid point with mass in
     order to see the resulting acceleration field. If finer grids are
@@ -3913,7 +3911,7 @@ Test Gravity (23)
 .. _sphericalinfall_param:
 
 Spherical Infall (24)
-~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 
     A test based on Bertschinger's (1985) 3D self-similar spherical
     infall solution onto an initially overdense perturbation in an
@@ -3947,7 +3945,7 @@ Spherical Infall (24)
 .. _testgravitysphere_param:
 
 Test Gravity: Sphere (25)
-~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Sets up a 3D spherical mass distribution and follows its evolution
     to test the gravity solver.
@@ -3980,7 +3978,7 @@ Test Gravity: Sphere (25)
 .. _gravityequilibriumtest_param:
 
 Gravity Equilibrium Test (26)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Sets up a hydrostatic exponential atmosphere with the pressure=1.0
     and density=1.0 at the bottom. Assumes constant gravitational
@@ -3993,7 +3991,7 @@ Gravity Equilibrium Test (26)
 .. _collapsetest_param:
 
 Collapse Test (27)
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
     A self-gravity test.
 
@@ -4112,7 +4110,7 @@ Collapse Test (27)
 .. _testgravitymotion_param:
 
 Test Gravity Motion (28)
-~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``TestGravityMotionParticleVelocity`` (external)
     Initial velocity for particle. Default: 1.0
@@ -4120,7 +4118,7 @@ Test Gravity Motion (28)
 .. _testorbit_param:
 
 Test Orbit (29)
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 
 ``TestOrbitNumberOfParticles`` (external)
      Number of test particles. Default: 1
@@ -4136,7 +4134,7 @@ Test Orbit (29)
 .. _cosmologysimulation_param:
 
 Cosmology Simulation (30)
-~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
     A sample cosmology simulation.
 
@@ -4281,7 +4279,7 @@ Cosmology Simulation (30)
 .. _galaxysimulation_param:
 
 Isolated Galaxy Evolution (31)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Initializes an isolated galaxy, as per the Tasker & Bryan series of
     papers.
@@ -4380,7 +4378,7 @@ Isolated Galaxy Evolution (31)
 .. _shearingbox_param:
 
 Shearing Box Simulation (35)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``ShearingBoxProblemType`` (external)
     Value of 0 starts a sphere advection through the shearing box test.
@@ -4402,7 +4400,7 @@ Shearing Box Simulation (35)
 .. _supernovarestart_param:
 
 Supernova Restart Simulation (40)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     All of the supernova parameters are to be put into a restart dump
     parameter file. Note that ProblemType must be reset to 40,
@@ -4431,7 +4429,7 @@ Supernova Restart Simulation (40)
 .. _photontest_param:
 
 Photon Test (50)
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
 
     This test problem is modeled after Collapse Test (27), and thus
     borrows all of its parameters that control the setup of spheres.
@@ -4505,7 +4503,7 @@ Photon Test (50)
 .. _stochastic_forcing_param:
 
 Turbulence Simulation with Stochastic Forcing (59)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Typical quasi-isothermal "turbulence-in-a-box" problem with non-static driving field.
     For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
     http://dx.doi.org/10.1051/0004-6361:200809967
@@ -4550,7 +4548,7 @@ Turbulence Simulation with Stochastic Forcing (59)
 .. _turbulence_param:
 
 Turbulence Simulation (60)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Quasi-isothermal forced turbulence.
 
@@ -4604,7 +4602,7 @@ Turbulence Simulation (60)
 .. _protostellar_param:
 
 Protostellar Collapse (61)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
      Bate 1998, ApJL 508, L95-L98
 
@@ -4621,7 +4619,7 @@ Protostellar Collapse (61)
 .. _coolingtest_param:
 
 Cooling Test (62)
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
     This test problem sets up a 3D grid varying smoothly in log-space in H
     number density (x dimension), metallicity (y-dimension), and temperature
@@ -4663,7 +4661,7 @@ Cooling Test (62)
 .. _3dcollapse_param:
 
 3D Collapse Test (101)
-~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^
 
 ``NumberOfSpheres`` (external)
 ``RefineAtStart``
@@ -4690,7 +4688,7 @@ Cooling Test (62)
 .. _1dcollapse_param:
 
 1D Spherical Collapse Test (102)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``RefineAtStart`` (external)
     Boolean flag. Default: TRUE
@@ -4718,7 +4716,7 @@ Cooling Test (62)
 .. _mhdhydro_param:
 
 Hydro and MHD Turbulence Simulation (106)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``RefineAtStart`` (external)
     Boolean flag. Default: TRUE
@@ -4747,7 +4745,7 @@ Hydro and MHD Turbulence Simulation (106)
 .. _putsink_param:
 
 Put Sink from Restart (107)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``PutSinkRestartName`` (external)
      Filename to restart from. 
@@ -4756,7 +4754,7 @@ Put Sink from Restart (107)
 .. _clustercoolingflow_param:
 
 Cluster Cooling Flow (108)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``ClusterSMBHFeedback`` (external)
     Boolean flag. Default: FALSE
@@ -4816,7 +4814,7 @@ Cluster Cooling Flow (108)
 .. _mhd1d_param:
 
 1D MHD Test (200)
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 ``RefineAtStart`` (external)
     Boolean flag. Default: TRUE
@@ -4840,7 +4838,7 @@ Cluster Cooling Flow (108)
 .. _mhd2d_param:
 
 2D MHD Test (201)
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 This problem type sets up many common 2D hydro and MHD problem types.
 Many of them can be run also without MHD despite the name. Which problem is done is controled by
@@ -4871,7 +4869,7 @@ MHD2DProblemType which can vary from 0 to 16 so far.
 .. _mhd3d_param:
 
 3D MHD Collapse Test (202)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 ``RefineAtStart`` (external)
@@ -4894,7 +4892,7 @@ MHD2DProblemType which can vary from 0 to 16 so far.
 .. _mhdtcollapse_param:
 
 MHD Turbulent Collapse Test (203)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``RefineAtStart`` (external)
     Boolean flag. Default: TRUE
@@ -4913,7 +4911,7 @@ MHD Turbulent Collapse Test (203)
 .. _galaxydisk_param:
 
 Galaxy Disk (207)
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 ``NumberOfHalos`` (external)
     Number of Halos simulated. Default: 1
@@ -4965,7 +4963,7 @@ Galaxy Disk (207)
 .. _agndisk_param:
 
 AGN Disk (207)
-~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^
 
 ``DiskType`` (external)
     Default: 1
@@ -4987,7 +4985,7 @@ AGN Disk (207)
 .. _cr_shocktube_param:
 
 CR Shock Tube (250: unigrid and AMR)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Very similar to normal shock tube (see problem 1) but includes CR
     component.  See `Salem, Bryan & Hummels (2014)
@@ -5018,7 +5016,7 @@ CR Shock Tube (250: unigrid and AMR)
 .. _poissonsolver_param:
 
 Poisson Solver Test (300)
-~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 ``PoissonSolverTestType`` (external)
@@ -5031,7 +5029,7 @@ Poisson Solver Test (300)
 .. _rhdtest1_param:
 
 Radiation-Hydrodynamics Test 1 - Constant Fields (400)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Basic FLD radiation problem initializer, allowing setup of uniform
     fields throughout the computational domain, which are useful for
@@ -5076,7 +5074,7 @@ Radiation-Hydrodynamics Test 1 - Constant Fields (400)
 .. _rhdtest2_param:
 
 Radiation-Hydrodynamics Test 2 - Streams (401)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Streaming radiation tests.  The problem utilizes a uniform density
     and a constant opacity, setting one face of the domain to have a
@@ -5100,7 +5098,7 @@ Radiation-Hydrodynamics Test 2 - Streams (401)
 .. _rhdtest3_param:
 
 Radiation-Hydrodynamics Test 3 - Pulse (402)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``RadHydroDensity`` (external)
    Ambient density. Default: 1.0
@@ -5112,7 +5110,7 @@ Radiation-Hydrodynamics Test 3 - Pulse (402)
 .. _rhdtest4_param:
 
 Radiation-Hydrodynamics Test 4 - Grey Marshak Test (403)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Test problem used for problem 4.3 in (Reynolds et al.,
     "Self-consistent solution of cosmological radiation-hydrodynamics
@@ -5130,7 +5128,7 @@ Radiation-Hydrodynamics Test 4 - Grey Marshak Test (403)
 .. _rhdtest5_param:
 
 Radiation-Hydrodynamics Test 5 - Radiating Shock (404/405)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Test problem used for problem 4.4 in (Reynolds et al.,
     "Self-consistent solution of cosmological radiation-hydrodynamics
@@ -5154,7 +5152,7 @@ Radiation-Hydrodynamics Test 5 - Radiating Shock (404/405)
 .. _rhdtest10_param:
 
 Radiation-Hydrodynamics Tests 10 and 11 - I-Front Tests (410/411)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Uniform density ionization front test problems.  These tests are
     used to replicate the isothermal and temperature-dependent I-front
@@ -5209,7 +5207,7 @@ Radiation-Hydrodynamics Tests 10 and 11 - I-Front Tests (410/411)
 .. _rhdtest12_param:
 
 Radiation-Hydrodynamics Test 12 - HI ionization of a clump (412)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Ionization of a hydrogen clump, used to investigate I-front
     trapping in a dense clump, and the formation of a shadow.  This
@@ -5253,7 +5251,7 @@ Radiation-Hydrodynamics Test 12 - HI ionization of a clump (412)
 .. _rhdtest13_param:
 
 Radiation-Hydrodynamics Test 13 - HI ionization of a steep region (413)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     Ionization of a steep density gradient, used to investigate HII
     region expansion along a 1/r^2 density profile.  This test
@@ -5292,7 +5290,7 @@ Radiation-Hydrodynamics Test 13 - HI ionization of a steep region (413)
 .. _rhdtest14_param:
 
 Radiation-Hydrodynamics Tests 14/15 - Cosmological HI ionization (414/415)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     HI ionization in a uniform density field.  This test problem was
     used for problems 4.6 and 4.8 in (Reynolds et al.,
