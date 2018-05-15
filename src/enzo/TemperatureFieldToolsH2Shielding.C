@@ -47,6 +47,7 @@ int grid::InitializeTemperatureFieldForH2Shield()
   TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
   
   BaryonField[TemperatureField] = new float[size];
+  
   for (int i = 0; i < size; i++)
     BaryonField[TemperatureField][i] = temperature[i];
 

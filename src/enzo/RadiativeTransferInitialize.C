@@ -53,6 +53,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
   const char	*kphHeIName    = "HeI_kph";
   const char	*kphHeIIName   = "HeII_kph";
   const char	*kdissH2IName  = "H2I_kdiss";
+  const char	*kphHMName     = "HM_kph";
+  const char	*kdissH2IIName = "H2II_kdiss";
   const char	*RadAccel1Name = "RadAccel1";
   const char	*RadAccel2Name = "RadAccel2";
   const char	*RadAccel3Name = "RadAccel3";
@@ -76,7 +78,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
     /* Check for radiation fields and delete them */
 
-    NumberOfObsoleteFields = 8;
+    NumberOfObsoleteFields = 10;
     ObsoleteFields[0] = kphHI;
     ObsoleteFields[1] = PhotoGamma;
     ObsoleteFields[2] = kphHeI;
@@ -84,7 +86,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ObsoleteFields[4] = gammaHeI;
     ObsoleteFields[5] = gammaHeII;
     ObsoleteFields[6] = kdissH2I;
-    ObsoleteFields[7] = RaySegments;
+    ObsoleteFields[7] = kphHM;
+    ObsoleteFields[8] = kdissH2II;
+    ObsoleteFields[9] = RaySegments;
 
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
@@ -183,8 +187,11 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	TypesToAdd[FieldsToAdd++] = kphHeI;
 	TypesToAdd[FieldsToAdd++] = kphHeII;
       }
-      if (MultiSpecies > 1)
+      if (MultiSpecies > 1) {
 	TypesToAdd[FieldsToAdd++] = kdissH2I;
+	TypesToAdd[FieldsToAdd++] = kphHM;
+	TypesToAdd[FieldsToAdd++] = kdissH2II;
+      }
       if (RadiationPressure)
 	for (i = RadPressure0; i <= RadPressure2; i++)
 	  TypesToAdd[FieldsToAdd++] = i;
@@ -238,8 +245,11 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	TypesToAdd[FieldsToAdd++] = kphHeI;
 	TypesToAdd[FieldsToAdd++] = kphHeII;
       }
-      if (MultiSpecies > 1)
+      if (MultiSpecies > 1) {
 	TypesToAdd[FieldsToAdd++] = kdissH2I;
+	TypesToAdd[FieldsToAdd++] = kphHM;
+	TypesToAdd[FieldsToAdd++] = kdissH2II;
+      }
     }
 
     // don't use the rest
@@ -303,6 +313,12 @@ int RadiativeTransferInitialize(char *ParameterFile,
       break;
     case kdissH2I:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) kdissH2IName;
+      break;
+    case kphHM:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) kphHMName;
+      break;
+    case kdissH2II:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) kdissH2IIName;
       break;
     case RadPressure0:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) RadAccel1Name;
