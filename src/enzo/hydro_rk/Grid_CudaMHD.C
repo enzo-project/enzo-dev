@@ -102,10 +102,6 @@ void grid::CudaMHDMallocGPUData()
   }
 
   // source terms
-#ifdef DEDNER_SOURCE
-  CudaMHDMalloc((void**)&MHDData.divB, sizebytes);
-  CudaMHDMalloc((void**)&MHDData.gradPhi, 3*sizebytes);
-#endif
   if (SelfGravity || ExternalGravity || UniformGravity || PointSourceGravity) 
     for (int i = 0; i < GridRank; i++) {
       CudaMHDMalloc((void**)&MHDData.AccelerationField[i], sizebytes);
@@ -186,10 +182,6 @@ void grid::CudaMHDSourceTerm()
 	== FAIL) {
       ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
     }
-
-#ifdef DEDNER_SOURCE
-  MHDDednerSourceGPU(MHDData);
-#endif
 
   if (DualEnergyFormalism) 
     MHDDualEnergySourceGPU(MHDData, dtFixed, a,

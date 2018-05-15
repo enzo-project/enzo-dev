@@ -57,10 +57,6 @@ void grid::AllocateGrids()
       MHDParentTemp[field] = NULL;
     }
     
-    divB = new float[size]; //note that MHDCT uses divB that's a different size than StanfordMHD
-
-    for( i=0;i< size; i++ ) divB[i] = 0.0;
-    
   } // if(UseMHDCT)
 
 }

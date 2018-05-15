@@ -54,6 +54,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPropagationDistance        = 0.1;
   RadiativeTransferCoupledRateSolver          = TRUE;
   RadiativeTransferOpticallyThinH2            = TRUE;
+  RadiativeTransferOpticallyThinH2CharLength  = 0.25;
   RadiativeTransferFluxBackgroundLimit        = 0.01;
   RadiativeTransferSplitPhotonRadius          = FLOAT_UNDEFINED; // kpc
   RadiativeTransferRaysPerCell                = 5.1;
@@ -104,6 +105,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferCoupledRateSolver);
     ret += sscanf(line, "RadiativeTransferOpticallyThinH2 = %"ISYM, 
 		  &RadiativeTransferOpticallyThinH2);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinH2CharLength = %"FSYM, 
+		  &RadiativeTransferOpticallyThinH2CharLength);
     ret += sscanf(line, "RadiativeTransferPeriodicBoundary = %"ISYM, 
 		  &RadiativeTransferPeriodicBoundary);
     ret += sscanf(line, "RadiativeTransferSplitPhotonRadius = %"FSYM, 

@@ -1,0 +1,12 @@
+PhotonTest
+----------
+
+This test is derived from the PhotonTest problem which is itself
+based on the classical HII region expansion in a uniform
+static medium similar to Test 1 in Iliev et al. (2006). Rather than 
+a mono-chromatic source this source contains 7 frequency bins from 0.5 eV 
+up to 100 eV. It can be used to test the multi-frequency photon solver. In a separate
+subdirectory is the optically thin version (OT) which runs with H2 and HM dissociation
+run in optically thin mode.
+
+This test runs with Grackle. 
