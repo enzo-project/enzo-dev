@@ -70,10 +70,11 @@ int grid::ApplyTemperatureLimit(void){
   float high_density_threshold = 1.0E-26 / DensityUnits;
 
   for(int i = 0; i < size; i ++){
-    if( (temperature[i] > IndividualStarTemperatureThreshold) &&
+    if( (temperature[i] > IndividualStarTemperatureLimit) &&
         ((BaryonField[DensNum][i] > low_density_threshold) &&
          (BaryonField[DensNum][i] < high_density_threshold))  ){
-      float factor = min(temperature[i] / IndividualStarTemperatureThreshold, 2.0);
+      float factor = min(temperature[i] / IndividualStarTemperatureLimit,
+                         IndividualStarTemperatureLimitFactor);
       float old_dens = BaryonField[DensNum][i];
 
       BaryonField[DensNum][i] *= factor;
