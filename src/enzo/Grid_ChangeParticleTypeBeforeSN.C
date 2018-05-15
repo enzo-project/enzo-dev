@@ -23,6 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -40,7 +41,7 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
   if (Stars == NULL)
     return SUCCESS;
 
-  const float pc = 3.086e18, mh = 1.673e-24, Msun = 1.989e33;
+  const float pc = 3.086e18, Msun = 1.989e33;
   const float PISNLowerMass = 140.0, PISNUpperMass = 260.0;
   const float StartRefineAtTime = 0.99;  // Percentage of stellar lifetime
   const float EndRefineAtTime = 1.0;
@@ -166,7 +167,7 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
   
   /* ASSUMES POP III PAIR-INSTABILITY SUPERNOVA FOR ENERGY */
 
-  const float pc = 3.086e18, mh = 1.673e-24, Msun = 1.989e33;
+  const float pc = 3.086e18, Msun = 1.989e33;
   const float kb = 1.38e-16;
 
   FLOAT StartTime, SoundCrossingTime;

@@ -24,6 +24,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 /* function prototypes */
 
@@ -80,7 +81,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 
   float sigmaHI = 6.0e-18 * LengthUnits;
   float ConvertToProperNumberDensity =
-    (float) (double(DensityUnits)/double(1.67e-24));
+    (float) (double(DensityUnits)/double(mh));
   float OpticalDepthConversion = 
     ConvertToProperNumberDensity * CellWidth[0][0] * sigmaHI;
 

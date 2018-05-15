@@ -34,6 +34,8 @@
 #ifdef TRANSFER
 #include "gFLDProblem.h"
 
+#include "phys_constants.h"
+
 
 
 /* default constants */
@@ -68,7 +70,6 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
 
 
   // set some physical constants
-  float mp=1.67262171e-24;    // proton mass [g]
   float kb=1.3806504e-16;     // boltzmann constant [erg/K]
   float rc=7.56e-15;          // radiation constant [erg/cm^3/K^4]
   float Cv, everg, mmw;
@@ -129,7 +130,7 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
 	// special case for Lowrie & Edwards radiating shock
 	Cv    = 2.218056e12;
 	everg = 1.60219e-12;
-	mmw   = everg / (Gamma-1.0) / Cv / mp;
+	mmw   = everg / (Gamma-1.0) / Cv / mh;
 	Cv    = 2.218056e12 * kb / everg ;
 	for (i=0; i<size; i++)
 	  TempArr[i] = max(TempArr[i]/Cv, MIN_TEMP);
@@ -141,7 +142,7 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
       }
       if ( ProblemType != 405 ) {
 	for (i=0; i<size; i++)
-	  TempArr[i] = max((Gamma-1.0)*mmw*mp*TempArr[i]/kb, MIN_TEMP);
+	  TempArr[i] = max((Gamma-1.0)*mmw*mh*TempArr[i]/kb, MIN_TEMP);
       }
     }
   } 
@@ -157,7 +158,7 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
     //   the chemistry: use variable Mu (default 0.6) as in standard approach
     if ((Model == 4) || (Model == 5)) {
       for (i=0; i<size; i++)
-        TempArr[i] = max((Gamma-1.0)*Mu*mp*TempArr[i]/kb, MIN_TEMP);
+        TempArr[i] = max((Gamma-1.0)*Mu*mh*TempArr[i]/kb, MIN_TEMP);
     }
     else {
       // Hydrogen only
@@ -171,7 +172,7 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
 	  mu = rho[i]/num_density;
 	  
 	  // compute temperature
-	  TempArr[i] = max((Gamma-1.0)*mu*mp*TempArr[i]/kb, MIN_TEMP);
+	  TempArr[i] = max((Gamma-1.0)*mu*mh*TempArr[i]/kb, MIN_TEMP);
 	}
       }
       // Hydrogen and Helium
@@ -188,7 +189,7 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
 	  mu = rho[i]/num_density;
 	  
 	  // compute temperature
-	  TempArr[i] = max((Gamma-1.0)*mu*mp*TempArr[i]/kb, MIN_TEMP);
+	  TempArr[i] = max((Gamma-1.0)*mu*mh*TempArr[i]/kb, MIN_TEMP);
 	}
       }
       // otherwise return error

@@ -32,6 +32,8 @@
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
 
+#include "phys_constants.h"
+
 int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			     float &Radius, double &EjectaDensity, double &EjectaThermalEnergy,
 			     int &SphereContained, int &SkipMassRemoval,
@@ -41,7 +43,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			     bool &MarkedSubgrids)
 {
 
-  const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
+  const double pc = 3.086e18, Msun = 1.989e33, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   float values[7];

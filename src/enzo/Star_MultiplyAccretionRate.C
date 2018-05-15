@@ -32,10 +32,12 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "phys_constants.h"
+
 void Star::MultiplyAccretionRate(float &RecalibrateAccretingMassRatio)
 {
 
-  const double Grav = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
+  const double Grav = 6.673e-8, k_b = 1.38e-16
   const double Msun = 1.989e33, yr = 3.1557e7, sigma_T = 6.65e-25, c = 3.0e10;
 
   float mdot, mdot_Edd;
@@ -44,7 +46,7 @@ void Star::MultiplyAccretionRate(float &RecalibrateAccretingMassRatio)
   mdot = accretion_rate[0] * RecalibrateAccretingMassRatio; 
 
   // Below is exactly the same as in Star_CalculateMassAccretion
-  mdot_Edd = 4.0 * PI * Grav * this->Mass * m_h /
+  mdot_Edd = 4.0 * PI * Grav * this->Mass * mh /
     max(MBHFeedbackRadiativeEfficiency, 0.1) / sigma_T / c; 
 
   accretion_rate[0] = min(mdot, mdot_Edd);

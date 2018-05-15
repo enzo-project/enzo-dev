@@ -27,6 +27,8 @@
 #include "ProblemType.h"
 #include "EventHooks.h"
 
+#include "phys_constants.h"
+
 class ProblemType_CollapsingCoolingCloud;
 
 class CollapsingCoolingCloudGrid : private grid {
@@ -54,7 +56,7 @@ float g_of_r(float r);
 #define PC_CGS 3.0857e+18
 #define RADIUS_BINS 2048
 
-double mu = 1.22, mp=1.67e-24, kb=1.38e-16, gravconst=6.67e-8;
+double mu = 1.22, kb=1.38e-16, gravconst=6.67e-8;
 float n_core, r_core, n0, r0, r_outer, T_center, this_radius;
 float numdens_of_r[RADIUS_BINS],radius_bins[RADIUS_BINS],T_of_r[RADIUS_BINS];
 
@@ -260,7 +262,7 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       float EnergyUnits;
       float TempToEnergyConversion;
       EnergyUnits = POW(LengthUnits, 2.0) / POW(TimeUnits, 2.0);
-      TempToEnergyConversion =  kb/((Gamma - 1.0)*mu*mp); 
+      TempToEnergyConversion =  kb/((Gamma - 1.0)*mu*mh); 
       TempToEnergyConversion /= EnergyUnits;  // this times temperature gives you energy units in ENZO UNITS (K -> Enzo)
 
       // returns three arrays:  n(r), T(r), r, in cm^-3, Kelvin, pc respectively.
@@ -268,7 +270,7 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
 
       // convert from number density, Kelvin, parsecs to Enzo internal units.
       for(int i=0; i<RADIUS_BINS;i++){
-	numdens_of_r[i] *= mu*mp/DensityUnits;  // now in Enzo internal density units 
+	numdens_of_r[i] *= mu*mh/DensityUnits;  // now in Enzo internal density units 
 	T_of_r[i] *= TempToEnergyConversion;  // now in internal energy units
 	radius_bins[i] /= LengthUnits;
       }
@@ -818,7 +820,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
 }
 
 float dTdr(float r, float T){
-  return (-1.0*dn_dr(r) * (T / n_of_r(r)) - g_of_r(r) * mu*mp/kb);
+  return (-1.0*dn_dr(r) * (T / n_of_r(r)) - g_of_r(r) * mu*mh/kb);
 }
 
 float n_of_r(float r){
@@ -841,10 +843,10 @@ float g_of_r(float r){
 
 float Mass_of_r(float r){
   if(r <= r_core)
-    return ( (4.0/3.0) * 3.14159 * pow(r, 3.0) * mu * mp * n_core);
+    return ( (4.0/3.0) * 3.14159 * pow(r, 3.0) * mu * mh * n_core);
    else 
-    return ( (4.0/3.0) * 3.14159 * pow(r_core, 3.0) * mu * mp * n_core
-	     + 5.0 * 3.14159 * mu * mp * n0 * pow(r0, 2.2) * (pow(r,0.8) - pow(r_core, 0.8) ) );
+    return ( (4.0/3.0) * 3.14159 * pow(r_core, 3.0) * mu * mh * n_core
+	     + 5.0 * 3.14159 * mu * mh * n0 * pow(r0, 2.2) * (pow(r,0.8) - pow(r_core, 0.8) ) );
 }
 
 

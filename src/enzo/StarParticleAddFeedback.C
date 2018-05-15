@@ -34,6 +34,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "phys_constants.h"
+
 #define MAX_TEMPERATURE 1e8
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -51,7 +53,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 			    Star* &AllStars, bool* &AddedFeedback)
 {
 
-  const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
+  const double pc = 3.086e18, Msun = 1.989e33, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   Star *cstar;

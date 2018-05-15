@@ -23,6 +23,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -74,7 +76,7 @@ int grid::RadiationComputeDensities(int level)
   }
  
   float factor = double(LengthUnits)*CellWidth[0][0]*
-                 (double(DensityUnits)/double(1.67e-24));
+                 (double(DensityUnits)/double(mh));
  
   /* Loop over grid and compute densities. */
  

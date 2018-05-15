@@ -26,6 +26,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -84,7 +85,6 @@ int grid::ElectronFractionEstimate(float dt)
   /* For cells with photo-ionization rates and low e-fractions (shell
      of HII regions), estimate e-fraction. */
 
-  float mh = 1.673e-24;
   float alpha_recombination = 2.59e-13;  // Assume T = 1e4 K
   alpha_recombination *= (TimeUnits * (DensityUnits / mh));
 

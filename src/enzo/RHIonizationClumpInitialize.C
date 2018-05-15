@@ -27,6 +27,8 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 
+#include "phys_constants.h"
+
 
 /* default constants */
 #define DEFAULT_MU 0.6       // mean molecular mass
@@ -154,7 +156,6 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
   // if temperature specified and not internal energy, perform conversion here
   RadHydroTemperatureIn  = max(RadHydroTemperatureIn, MIN_TEMP); // enforce minimum
   RadHydroTemperatureOut = max(RadHydroTemperatureOut,MIN_TEMP); // enforce minimum
-  float mp = 1.67262171e-24;    // proton mass [g]
   float kb = 1.3806504e-16;     // boltzmann constant [erg/K]
   float nH, HI, HII, nHe, HeI, HeII, HeIII, ne, num_dens, mu;
   if (RadHydroChemistry == 0) 
@@ -183,8 +184,8 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
     return FAIL;	
   }
   // compute the internal energy
-  float RadHydroIEnergyIn  = kb*RadHydroTemperatureIn/mu/mp/(Gamma-1.0);
-  float RadHydroIEnergyOut = kb*RadHydroTemperatureOut/mu/mp/(Gamma-1.0);
+  float RadHydroIEnergyIn  = kb*RadHydroTemperatureIn/mu/mh/(Gamma-1.0);
+  float RadHydroIEnergyOut = kb*RadHydroTemperatureOut/mu/mh/(Gamma-1.0);
   
   // set up the grid(s) on this level
   HierarchyEntry *Temp = &TopGrid;

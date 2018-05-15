@@ -96,7 +96,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   //printf("Star Maker 8: densthresh = %g\n", densthresh);
   if (*jlrefine > 0) {
     jlsquared = ((double)((*gamma) * 3.14159 * 1.38e-16 / 6.673e-08) / 
-		 ((double)(*d1) * 1.673e-24)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
+		 ((double)(*d1) * mh)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
   }
 
   /* Set new particle index to number of created star particles */

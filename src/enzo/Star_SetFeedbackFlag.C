@@ -26,6 +26,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "phys_constants.h"
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -51,7 +53,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
   const float PISNLowerMass = 140, PISNUpperMass = 260;
   const float StarClusterSNeStart = 4.0;   // Myr after cluster is born
   const float StarClusterSNeEnd = 20.0; // Myr (lifetime of a 8 Msun star)
-  const double G = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
+  const double G = 6.673e-8, k_b = 1.38e-16;
   const double Msun = 1.989e33;
 
   int abs_type;

@@ -24,6 +24,8 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
+
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -141,7 +143,7 @@ int grid::SolveRateEquations()
      (the factor of a^3 comes from cancelling a factor of 1/a^3 in
       multi_cool.src) */
  
-  float ToCGS = double(DensityUnits)*a*a*a/double(1.67e-24);
+  float ToCGS = double(DensityUnits)*a*a*a/double(mh);
   float HIShieldFactor = RadiationData.HIAveragePhotoionizationCrossSection *
                    double(LengthUnits) * CellWidth[0][0] * ToCGS;
   float HeIShieldFactor = RadiationData.HeIAveragePhotoionizationCrossSection*

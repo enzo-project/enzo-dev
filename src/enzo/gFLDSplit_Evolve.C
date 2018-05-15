@@ -26,6 +26,7 @@
 #include "gFLDSplit.h"
 #include "CosmologyParameters.h"
 
+#include "phys_constants.h"
 
 //#define FAIL_ON_NAN
 #define NO_FAIL_ON_NAN
@@ -229,10 +230,9 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
     ENZO_FAIL("gFLDSplit Evolve: Error in GetUnits.");
   if (RadiationGetUnits(&RadUnits, tnew) != SUCCESS) 
     ENZO_FAIL("gFLDSplit Evolve: Error in RadiationGetUnits.");
-  float mp = 1.67262171e-24;   // Mass of a proton [g]
   ErUnits = RadUnits*ErScale;
   ecUnits = VelUnits*VelUnits*ecScale;
-  NiUnits = (Nchem == 0) ? NiScale : DenUnits/mp*NiScale;
+  NiUnits = (Nchem == 0) ? NiScale : DenUnits/mh*NiScale;
   if (debug) {
     printf("   current internal (physical) quantities:\n");
     printf("      Eg rms = %13.7e (%8.2e), max = %13.7e (%8.2e)\n",
@@ -504,9 +504,8 @@ int gFLDSplit::ChemStep(HierarchyEntry *ThisGrid, float thisdt, float tcur)
     ENZO_FAIL("gFLDSplit_ChemStep: Error in GetUnits.");
   if (RadiationGetUnits(&RadUnits, tcur-thisdt) != SUCCESS) 
     ENZO_FAIL("gFLDSplit_ChemStep: Error in RadiationGetUnits.");
-  float mp = 1.67262171e-24;   // Mass of a proton [g]
   ErUnits0 = RadUnits*ErScale;
-  NiUnits0 = (Nchem == 0) ? NiScale : DenUnits0/mp*NiScale;
+  NiUnits0 = (Nchem == 0) ? NiScale : DenUnits0/mh*NiScale;
   if (ComovingCoordinates) 
     if (CosmologyComputeExpansionFactor(tcur-thisdt, &a0, &adot0) != SUCCESS) 
       ENZO_FAIL("gFLDSplit_ChemStep: Error in CosmologyComputeExpansionFactor.");
@@ -520,7 +519,7 @@ int gFLDSplit::ChemStep(HierarchyEntry *ThisGrid, float thisdt, float tcur)
     ENZO_FAIL("gFLDSplit_ChemStep: Error in RadiationGetUnits.");
   ErUnits = RadUnits*ErScale;
   ecUnits = VelUnits*VelUnits*ecScale;
-  NiUnits = (Nchem == 0) ? NiScale : DenUnits/mp*NiScale;
+  NiUnits = (Nchem == 0) ? NiScale : DenUnits/mh*NiScale;
   if (ComovingCoordinates) 
     if (CosmologyComputeExpansionFactor(tcur, &a, &adot) != SUCCESS) 
       ENZO_FAIL("gFLDSplit_ChemStep: Error in CosmologyComputeExpansionFactor.");
@@ -701,9 +700,8 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
     ENZO_FAIL("gFLDSplit_RadStep: Error in GetUnits.");
   if (RadiationGetUnits(&RadUnits, told) != SUCCESS) 
     ENZO_FAIL("gFLDSplit_RadStep: Error in RadiationGetUnits.");
-  float mp = 1.67262171e-24;   // Mass of a proton [g]
   ErUnits0 = RadUnits*ErScale;
-  NiUnits0 = (Nchem == 0) ? NiScale : DenUnits0/mp*NiScale;
+  NiUnits0 = (Nchem == 0) ? NiScale : DenUnits0/mh*NiScale;
   if (ComovingCoordinates) 
     if (CosmologyComputeExpansionFactor(told, &a0, &adot0) != SUCCESS) 
       ENZO_FAIL("gFLDSplit_RadStep: Error in CosmologyComputeExpansionFactor.");
@@ -717,7 +715,7 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
     ENZO_FAIL("gFLDSplit_RadStep: Error in RadiationGetUnits.");
   ErUnits = RadUnits*ErScale;
   ecUnits = VelUnits*VelUnits*ecScale;
-  NiUnits = (Nchem == 0) ? NiScale : DenUnits/mp*NiScale;
+  NiUnits = (Nchem == 0) ? NiScale : DenUnits/mh*NiScale;
   if (ComovingCoordinates) 
     if (CosmologyComputeExpansionFactor(tnew, &a, &adot) != SUCCESS) 
       ENZO_FAIL("gFLDSplit_RadStep: Error in CosmologyComputeExpansionFactor.");

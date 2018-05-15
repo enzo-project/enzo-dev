@@ -22,8 +22,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
-#define MH 1.67e-24
 #define DEFAULT_MU 0.6
 
 int GetUnits(float *DensityUnits, float *LengthUnits,

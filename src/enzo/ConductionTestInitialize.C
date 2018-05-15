@@ -27,6 +27,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -105,7 +106,7 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     return FAIL;
   }
 
-  float Boltzmann = 1.38e-16, mu = 0.6, mh=1.67e-24;
+  float Boltzmann = 1.38e-16, mu = 0.6;
 
   // User can set 
   if(ConductionTestTemperature > 1.0){
