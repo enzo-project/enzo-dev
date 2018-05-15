@@ -670,8 +670,6 @@ description of these parameters.)
     This is similar to ``MetaDataRestartDatasetUUID``, except it's used to
     track which initial conditions were used.
 
-.. _simulation_identifiers_parameters:
-
 Hierarchy Control Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1885,21 +1883,21 @@ General Star Formation
     
     ::
 
-  0  - Cen & Ostriker (1992)
-  1  - Cen & Ostriker (1992) with stocastic star formation
-  2  - Global Schmidt Law / Kravstov et al. (2003)
-  3  - Population III stars / Abel, Wise & Bryan (2007)
-  4  - Sink particles: Pure sink particle or star particle with wind feedback depending on 
-       choice for HydroMethod / Wang et al. (2009)
-  5  - Radiative star clusters  / Wise & Cen (2009)
-  6  - [reserved for future use]
-  7  - Cen & Ostriker (1992) with no delay in formation
-  8  - Springel & Hernquist (2003)
-  9  - Massive Black Hole (MBH) particles insertion by hand / Kim et al. (2010)
-  10 - Population III stellar tracers  
-  11 - Molecular hydrogen regulated star formation
-  13 - Distributed stellar feedback model (So et al. 2014)
-  14 - Cen & Ostriker (1992) stochastic star formation with kinetic feedback 
+      0  - Cen & Ostriker (1992)
+      1  - Cen & Ostriker (1992) with stocastic star formation
+      2  - Global Schmidt Law / Kravstov et al. (2003)
+      3  - Population III stars / Abel, Wise & Bryan (2007)
+      4  - Sink particles: Pure sink particle or star particle with wind feedback depending on 
+           choice for HydroMethod / Wang et al. (2009)
+      5  - Radiative star clusters  / Wise & Cen (2009)
+      6  - [reserved for future use]
+      7  - Cen & Ostriker (1992) with no delay in formation
+      8  - Springel & Hernquist (2003)
+      9  - Massive Black Hole (MBH) particles insertion by hand / Kim et al. (2010)
+      10 - Population III stellar tracers  
+      11 - Molecular hydrogen regulated star formation
+      13 - Distributed stellar feedback model (So et al. 2014)
+      14 - Cen & Ostriker (1992) stochastic star formation with kinetic feedback 
              / Simpson et al. (2015)
 
 ``StarParticleFeedback`` (external)
@@ -2351,7 +2349,7 @@ Radiative Transfer (Ray Tracing) Parameters
 ``RadiativeTransferOpticallyThinH2`` (external)
     Set to 1 to include an optically-thin H_2 dissociating
     (Lyman-Werner) radiation field. Only used if ``MultiSpecies`` > 1. If
-   ``MultiSpecies`` > 1 and this option is off, the Lyman-Werner radiation
+    ``MultiSpecies`` > 1 and this option is off, the Lyman-Werner radiation
     field will be calculated with ray tracing. Default: 1.
 ``RadiativeTransferSplitPhotonPackage`` (external)
     Once photons are past this radius, they can no longer split. In
@@ -3002,11 +3000,11 @@ For details on shock finding in Enzo see :ref:`shock_finding`.
     
     ::
 
-  0 - Off
-  1 - Temperature Dimensionally Unsplit Jumps
-  2 - Temperature Dimensionally Split Jumps
-  1 - Velocity Dimensionally Unsplit Jumps
-  2 - Velocity Dimensionally Split Jumps
+      0 - Off
+      1 - Temperature Dimensionally Unsplit Jumps
+      2 - Temperature Dimensionally Split Jumps
+      3 - Velocity Dimensionally Unsplit Jumps
+      4 - Velocity Dimensionally Split Jumps
 
 ``ShockTemperatureFloor`` (external)
     When calculating the mach number using temperature jumps, set the
@@ -3272,46 +3270,46 @@ the user guides in the installation directory ``doc/implicit_fld`` and ``doc/spl
 ============ ====================================
 Problem Type Description and Parameter List
 ============ ====================================
-1        :ref:`shocktube_param`
-2      :ref:`wavepool_param`
-3        :ref:`shockpool_param`
-4        :ref:`doublemach_param`
-5        :ref:`shockinabox_param`
-6        :ref:`implosion_param`
-7        :ref:`sedovblast_param`
-8        :ref:`khinstability_param`
-9        :ref:`noh_param`
-10       :ref:`rotatingcylinder_param`
-11       :ref:`radiatingshock_param`
-12       :ref:`freeexpansion_param`
+1            :ref:`shocktube_param`
+2            :ref:`wavepool_param`
+3            :ref:`shockpool_param`
+4            :ref:`doublemach_param`
+5            :ref:`shockinabox_param`
+6            :ref:`implosion_param`
+7            :ref:`sedovblast_param`
+8            :ref:`khinstability_param`
+9            :ref:`noh_param`
+10           :ref:`rotatingcylinder_param`
+11           :ref:`radiatingshock_param`
+12           :ref:`freeexpansion_param`
 14           :ref:`rotatingsphere_param`
-20       :ref:`zeldovichpancake_param`
-21       :ref:`pressurelesscollapse_param`
-22       :ref:`adiabaticexpansion_param`
-23       :ref:`testgravity_param`
-24       :ref:`sphericalinfall_param`
-25       :ref:`testgravitysphere_param`
-26       :ref:`gravityequilibriumtest_param`
-27       :ref:`collapsetest_param`
-28       :ref:`testgravitymotion_param`
-29       :ref:`testorbit_param`
-30       :ref:`cosmologysimulation_param`
-31       :ref:`galaxysimulation_param`
-35       :ref:`shearingbox_param`
-36       Shearing Box 2D Simulation
-37       Stratifeid Shearing Box Simulation
-40       :ref:`supernovarestart_param`
-50       :ref:`photontest_param`
-51       Photon Test Restart
+20           :ref:`zeldovichpancake_param`
+21           :ref:`pressurelesscollapse_param`
+22           :ref:`adiabaticexpansion_param`
+23           :ref:`testgravity_param`
+24           :ref:`sphericalinfall_param`
+25           :ref:`testgravitysphere_param`
+26           :ref:`gravityequilibriumtest_param`
+27           :ref:`collapsetest_param`
+28           :ref:`testgravitymotion_param`
+29           :ref:`testorbit_param`
+30           :ref:`cosmologysimulation_param`
+31           :ref:`galaxysimulation_param`
+35           :ref:`shearingbox_param`
+36           Shearing Box 2D Simulation
+37           Stratifeid Shearing Box Simulation
+40           :ref:`supernovarestart_param`
+50           :ref:`photontest_param`
+51           Photon Test Restart
 59           :ref:`stochastic_forcing_param`
-60       :ref:`turbulence_param` 
-61       :ref:`protostellar_param` 
-62       :ref:`coolingtest_param`
+60           :ref:`turbulence_param` 
+61           :ref:`protostellar_param` 
+62           :ref:`coolingtest_param`
 63           One Zone Free Fall Test
-70       Conduction Test with Hydro Off
-71       Conduction Test with Hydro On
-72       Conduction Bubble Test
-73       Conduction Cloud Test
+70           Conduction Test with Hydro Off
+71           Conduction Test with Hydro On
+72           Conduction Bubble Test
+73           Conduction Cloud Test
 80           Explosion in a Stratified Medium Test
 101          :ref:`3dcollapse_param`
 102          :ref:`1dcollapse_param`
@@ -3325,9 +3323,9 @@ Problem Type Description and Parameter List
 204          3D MHD Test
 207          :ref:`galaxydisk_param`
 208          :ref:`agndisk_param`
-209      MHD 1D Waves
-210      MHD Decaying Random Magnetic Fields
-250      :ref:`cr_shocktube_param`
+209          MHD 1D Waves
+210          MHD Decaying Random Magnetic Fields
+250          :ref:`cr_shocktube_param`
 300          :ref:`poissonsolver_param`
 400          :ref:`rhdtest1_param`
 401          :ref:`rhdtest2_param`
@@ -3335,8 +3333,8 @@ Problem Type Description and Parameter List
 403          :ref:`rhdtest4_param`
 404/405      :ref:`rhdtest5_param`
 410/411      :ref:`rhdtest10_param`
-412        :ref:`rhdtest12_param`
-413        :ref:`rhdtest13_param`
+412          :ref:`rhdtest12_param`
+413          :ref:`rhdtest13_param`
 414/415      :ref:`rhdtest14_param`
 450-452      Free-streaming radiation tests (to be removed)
 ============ ====================================
