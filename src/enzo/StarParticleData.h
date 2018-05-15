@@ -133,6 +133,7 @@ SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
 
 SPEXTERN float IndividualStarTemperatureLimit;
+SPEXTERN float IndividualStarTemperatureLimitFactor;
 SPEXTERN float IndividualStarICSupernovaRate;
 SPEXTERN float IndividualStarICSupernovaTime;
 SPEXTERN float IndividualStarICSupernovaR;

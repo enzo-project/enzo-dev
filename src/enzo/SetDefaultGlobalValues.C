@@ -756,6 +756,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   /* IndividualStar: Star Formation */
   IndividualStarTemperatureLimit     =   -1;
+  IndividualStarTemperatureLimitFactor = 2;
   IndividualStarICSupernovaRate      =   0.0;     // rate (# / yr) of supernova for initial driving - off if zero
   IndividualStarICSupernovaTime      =  10.0;     // (Myr) length of time to do SN driving if true - rate dec linearly starting at 1/2 this time
   IndividualStarICSupernovaR         =   -1.0;     // radius limit for SN - set to galaxy scale radius
