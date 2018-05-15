@@ -26,6 +26,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -107,7 +108,7 @@ int grid::ElectronFractionEstimate(float dt)
     (pow(TimeUnits,3) * dbase1);
   float a3 = afloat*afloat*afloat;
   float dom = DensityUnits * a3 / mh;
-  double rtunits = 1.602e-12 / TimeUnits / CoolUnit;
+  double rtunits = erg_eV / TimeUnits / CoolUnit;
 
   float proper_d, proper_de, proper_hi, proper_hii, proper_hei, proper_heii,
     proper_heiii, pressure, temperature, max_edotplus;

@@ -23,6 +23,7 @@
 ************************************************************************/
 #ifdef TRANSFER
 #include "gFLDProblem.h"
+#include "phys_constants.h"
 
  
  
@@ -35,8 +36,7 @@ float gFLDProblem::RadiationSpectrum(float nu)
   float kb = 1.3806504e-16;         // Boltzmann's constant [ergs/K]
   float pi = 4.0*atan(1.0);         // pi
   float c = 2.99792458e10;          // speed of light [cm/s]
-  float ev2erg = 1.60217653e-12;    // conversion constant from eV to ergs
-  float nu0 = hnu0_HI*ev2erg/h;     // ionization threshold of Hydrogen (hz)
+  float nu0 = hnu0_HI*erg_eV/h;     // ionization threshold of Hydrogen (hz)
   float sigma;
 
   // check that frequency is within the allowed range

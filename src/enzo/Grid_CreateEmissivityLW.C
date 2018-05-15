@@ -21,6 +21,7 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -36,7 +37,6 @@ int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
   int i, j, k, index, dim, size, EtaNum, nbins;
   float energies[MAX_ENERGY_BINS], E_LW, TimeFraction;
   double Luminosity[MAX_ENERGY_BINS], L_LW, CellVolume;
-  const float ev_erg = 1.602176e-12;
 
   /* Allocate and compute emissivity field */
 
@@ -94,7 +94,7 @@ int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
 	k = int((cstar->pos[2] - GridLeftEdge[2]) / CellWidth[2][0]);
 	index = GRIDINDEX(i,j,k);
 
-	BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg / CellVolume * 
+	BaryonField[EtaNum][index] += L_LW * E_LW * erg_eV / CellVolume * 
 	  TimeFraction;
 
       } // ENDFOR stars
@@ -130,7 +130,7 @@ int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
 	k = int((RS->Position[2] - GridLeftEdge[2]) / CellWidth[2][0]);
 	index = GRIDINDEX(i,j,k);
 
-	BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg / CellVolume * 
+	BaryonField[EtaNum][index] += L_LW * E_LW * erg_eV / CellVolume * 
 	  TimeFraction;
 
       } // ENDFOR stars
