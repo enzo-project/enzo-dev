@@ -8,7 +8,7 @@ This section documents the two-fluid cosmic ray model implemented in
 Enzo, which was first used (and is described in detail) in `Salem &
 Bryan 2014 <http://adsabs.harvard.edu/abs/2014MNRAS.437.3312S>`_ .
 For relevant parameters, please also see
-:ref:`cosmic_ray_parameters`.  The bulk of the code itself can be found in *Grid_ZeusSolver.C*
+:ref:`cosmic_ray_two_fluid_model_parameters`.  The bulk of the code itself can be found in *Grid_ZeusSolver.C*
 
 This module models the dynamical role of cosmic rays via a set of two-fluid hydro equations
 (see `Jun et. al. 1994
@@ -16,7 +16,7 @@ This module models the dynamical role of cosmic rays via a set of two-fluid hydr
 is a new baryon field, CREnergyDensity, which is in units of ergs/cm^3, and is
 advected along with the gas. Gradients in the CR field result in a pressure
 felt by the gas. The CR gas is also diffusive and rays can be produced during
-star formation. See :ref:`cosmic_ray_parameters` for information on how to control all
+star formation. See :ref:`cosmic_ray_two_fluid_model_parameters` for information on how to control all
 these options. But most important are:
 
 
