@@ -6,8 +6,12 @@ from yt.analysis_modules.halo_mass_function.api import *
 from yt.analysis_modules.halo_analysis.api import HaloCatalog
 from yt.testing import assert_rel_equal
 
-test_data_dir = os.environ.get("COSMO_TEST_DATA_DIR", None)
-compare_answers = int(os.environ.get("COSMO_TEST_COMPARE", 0))
+sim_dir = os.path.basename(os.getcwd())
+test_data_dir = os.path.join(
+    os.environ.get("COSMO_TEST_DATA_DIR", None), sim_dir)
+if not os.path.exists(test_data_dir):
+    os.makedirs(test_data_dir)
+generate_answers = int(os.environ.get("COSMO_TEST_GENERATE", 1))
 
 def test_hmf():
     es = yt.simulation('amr_cosmology.enzo','Enzo')
@@ -27,14 +31,9 @@ def test_hmf():
     filename = 'data.h5' 
     data = {'masses': masses_sim, 'n_sim': n_cumulative_sim}
     yt.save_as_dataset(ds,filename,data)
-    if compare_answers:
-        compare_filename = os.path.join(test_data_dir, filename)
-        ds_comp = yt.load(compare_filename)
 
-        # assert quality to 8 decimals
-        asswert_rel_equal(data['masses'], ds_comp.data['masses'], 8)
-        asswert_rel_equal(data['n_sim'], ds_comp.data['n_sim'], 8)
-    ds = yt.load('data.h5')
+    # make a plot
+    ds = yt.load(filename)
     masses = ds.data['masses']
     num = ds.data['n_sim']
     fig = plt.figure(figsize=(8,8))
@@ -43,4 +42,16 @@ def test_hmf():
     plt.xlabel('log Mass/$\mathrm{M}_{\odot}$',fontsize=16)
     plt.tick_params(labelsize=16)
     plt.savefig('hmf.png',format='png')
+
+    compare_filename = os.path.join(test_data_dir, filename)
+    if generate_answers:
+        os.rename(filename, compare_filename)
+        return
+
+    # do the comparison
+    ds_comp = yt.load(compare_filename)
+
+    # assert quality to 8 decimals
+    assert_rel_equal(data['masses'], ds_comp.data['masses'], 8)
+    assert_rel_equal(data['n_sim'], ds_comp.data['n_sim'], 8)
 
