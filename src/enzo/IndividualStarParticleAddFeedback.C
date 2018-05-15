@@ -97,7 +97,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
        on eiher side of central cell (i.e. 3x3 CIC -> ncell = 1) */
 //    int ncell = (int) ((IndividualStarFeedbackStencilSize+1)/2.0 - 1);
 
-    int ncell = (int) (IndividualStarFeedbackStencilSize);
+    int ncell = (int) (IndividualStarFeedbackStencilSize) + 1;
 
     pos = cstar->ReturnPosition();
     vel = cstar->ReturnVelocity();

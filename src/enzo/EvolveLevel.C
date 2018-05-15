@@ -564,6 +564,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif //SAB.
       /* Copy current fields (with their boundaries) to the old fields
 	  in preparation for the new step. */
+
+#ifdef INDIVIDUALSTAR
+      Grids[grid1]->GridData->ApplyTemperatureLimit();
+#endif
  
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
@@ -661,7 +665,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Grids[grid1]->GridData->ComovingExpansionTerms();
 
 
- 
     }  // end loop over grids
  
     /* Finalize (accretion, feedback, etc.) star particles */
@@ -812,6 +815,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Recompute radiation field, if requested. */
     RadiationFieldUpdate(LevelArray, level, MetaData);
+
  
 
 //     //dcc cut second potential cut: Duplicate?
