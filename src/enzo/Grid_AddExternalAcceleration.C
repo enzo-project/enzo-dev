@@ -25,6 +25,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "SphericalInfall.h"
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -39,7 +40,7 @@ int grid::AddExternalAcceleration()
  
   if (ProblemType == 24) {
  
-    float Pi = 3.14159, accel;
+    float accel;
     FLOAT a = 1, dadt, rcubed, xpos, ypos = 0, zpos = 0;
     int   i, j, k, n = 0;
  
@@ -82,7 +83,7 @@ int grid::AddExternalAcceleration()
 	       (i.e. 1/a^2 * a = 1/a). */
  
 	    accel = GravitationalConstant*SphericalInfallFixedMass/
-	      (4.0*Pi*rcubed*a);
+	      (4.0*pi*rcubed*a);
  
 	    /* Apply force. */
  

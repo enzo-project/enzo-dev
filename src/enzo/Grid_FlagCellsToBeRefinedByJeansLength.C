@@ -25,6 +25,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "hydro_rk/EOS.h"
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -98,7 +99,7 @@ int grid::FlagCellsToBeRefinedByJeansLength()
                 (double(LengthUnits)*double(LengthUnits));
  
   if (ProblemType == 60 || ProblemType == 61)
-    JLSquared = double(4.0*3.14159*3.14159)/GravitationalConstant; //AK
+    JLSquared = double(4.0*pi*pi)/GravitationalConstant; //AK
 
   if (EOSType > 0)
     {

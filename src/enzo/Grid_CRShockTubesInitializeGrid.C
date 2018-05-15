@@ -10,6 +10,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *TemperatureUnits, float *TimeUnits,
@@ -216,7 +217,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
     for (i = 0; i < GridDimension[0]; i++) {
       x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];		
       x = x - x0;	// translate gaussian to center
-      BaryonField[iCRD][i] = 1.0/sqrt(4.0*3.14159*CRkappa*t0)
+      BaryonField[iCRD][i] = 1.0/sqrt(4.0*pi*CRkappa*t0)
 	* PEXP( -x*x/(4.0*CRkappa*t0));
     } // end i for
   } // end if

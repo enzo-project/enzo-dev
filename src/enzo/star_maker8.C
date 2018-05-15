@@ -89,7 +89,6 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double	jeansthresh, jlsquared, dx2, dist2, total_density, nearestdx2;
   FLOAT		xpos, ypos, zpos, delx, dely, delz;
   double        DensityFloor;
-  double        Pi = 3.1415926;
   float nx_cell[MAX_SUPERCELL_NUMBER], 
     ny_cell[MAX_SUPERCELL_NUMBER], nz_cell[MAX_SUPERCELL_NUMBER];
 
@@ -117,7 +116,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   dx2 = (*dx)*(*dx);
   //printf("Star Maker 8: densthresh = %g\n", densthresh);
   if (*jlrefine > 0) {
-    jlsquared = ((double)((*gamma) * 3.14159 * 1.38e-16 / 6.673e-08) / 
+    jlsquared = ((double)((*gamma) * pi * 1.38e-16 / 6.673e-08) / 
 		 ((double)(*d1) * 1.673e-24)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
   }
 
@@ -406,7 +405,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   float p_star = StellarWindMomentumPerStellarMass/(*v1);
   float m_wind = StellarWindThresholdMass/umass;
   float p_wind;
-  float b_c, bx_c, by_c, bz_c, costheta = cos(3.1415926/3.9), v_wind, rho_wind,
+  float b_c, bx_c, by_c, bz_c, costheta = cos(pi/3.9), v_wind, rho_wind,
     nx_b, ny_b, nz_b;
   FLOAT r_cell;
 
@@ -743,7 +742,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	else if (radius2_cell[ic] == 22.0) SolidAngle = 0.0356113280;
 	else if (radius2_cell[ic] == 27.0) SolidAngle = 0.0302870901;
 	else { 
-	  SolidAngle = 4.*3.1415926/n_cell; 
+	  SolidAngle = 4.*pi/n_cell; 
 	  printf("star_maker8.C line 373: Radius squared is wrong?!? radius =%f, n_cell = %i\n",radius2_cell[ic],n_cell); 
 	 }
 	rho_wind = mdot_wind*SolidAngle/(POW((*dx),3));

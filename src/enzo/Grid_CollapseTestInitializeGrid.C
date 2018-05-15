@@ -24,6 +24,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 #define NTHETA 1000
 #define NR 1000
@@ -158,7 +159,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
   /* Set various units. */
 
   const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-    pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16, LightSpeed = 2.9979e10;
+    mh = 1.67e-24, kboltz = 1.381e-16, LightSpeed = 2.9979e10;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
 
@@ -508,9 +509,9 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		else if (xpos > 0 && ypos < 0)
 		  theta = 2*pi + atan(ypos/xpos);
 	      } else if (xpos == 0 && ypos > 0)
-		theta = 3.14159 / 2.0;
+		theta = pi / 2.0;
 	      else if (xpos == 0 && ypos < 0)
-		theta = (3*3.14159) / 2.0;
+		theta = (3*pi) / 2.0;
 	      else
 		theta = 0.0;
 
@@ -1094,7 +1095,6 @@ double Maxwellian(double c_tilda, double vel_unit, double mu, double gamma)
   // Set constants
   double mh = 1.67e-24;
   double kboltz = 1.38e-16;
-  double pi = 3.14159;
 
   // Compute temperature in cgs units
   double c = c_tilda*vel_unit;

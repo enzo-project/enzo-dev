@@ -22,6 +22,7 @@
 #include "global_data.h"
 #include "TopGridData.h"
 #include "StarParticleData.h"
+#include "phys_constants.h"
  
 /* character strings */
  
@@ -50,7 +51,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
  
   /* declarations */
  
-  const float Pi = 3.14159;
   int dim, i, j;
  
   huge_number               = 1.0e+20;
@@ -361,7 +361,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   AccretionKernal             = FALSE;             // off
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
-  GravitationalConstant       = 4*Pi;              // G = 1
+  GravitationalConstant       = 4*pi;              // G = 1
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;

@@ -22,6 +22,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -32,8 +33,6 @@ int grid::SetMinimumSupport(float &MinimumSupportEnergyCoefficient)
 {
 
   if (NumberOfBaryonFields > 0) {
- 
-    const float pi = 3.14159;
  
     /* Compute cosmology factors. */
  

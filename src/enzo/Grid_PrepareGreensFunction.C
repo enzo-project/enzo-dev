@@ -23,6 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
  
 int grid::PrepareGreensFunction()
 {
@@ -52,7 +53,7 @@ int grid::PrepareGreensFunction()
  
   /* Set the constant to be used. */
  
-  float GravConst, pi = 3.14159;
+  float GravConst;
   if (GridRank == 3)
     GravConst = -GravitationalConstant/(4.0*pi);
   if (GridRank == 2)
