@@ -44,6 +44,7 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "phys_constants.h"
+
 // #include "CommunicationUtilities.h"
 
 #define USE
@@ -95,7 +96,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   dx2 = (*dx)*(*dx);
   //printf("Star Maker 8: densthresh = %g\n", densthresh);
   if (*jlrefine > 0) {
-    jlsquared = ((double)((*gamma) * 3.14159 * 1.38e-16 / 6.673e-08) / 
+    jlsquared = ((double)((*gamma) * 3.14159 * kboltz / 6.673e-08) / 
 		 ((double)(*d1) * 1.673e-24)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
   }
 

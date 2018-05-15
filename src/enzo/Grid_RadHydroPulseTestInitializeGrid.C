@@ -24,6 +24,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 
 #define DEFAULT_MU 0.6   // mean molecular mass for temperature field
@@ -107,7 +108,6 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
 
     float pi=4.0*atan(1.0);
     float StBz=5.6704e-5;
-    float BoltzCon = 1.38066e-16;
     float mH       = 1.66053e-24;
     float c=2.99792458e10;
     float RadCon = 4.0*StBz/c;

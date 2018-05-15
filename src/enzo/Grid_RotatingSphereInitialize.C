@@ -33,6 +33,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int FindField(int field, int farray[], int numfields);
 
@@ -91,7 +92,6 @@ const float SOLAR_MASS_IN_GRAMS = 1.9891e+33;
 
 const float G_CGS = 6.67259e-8;
 const float AMU_CGS = 1.6605402e-24;
-const float KB_CGS = 1.380658e-16;
 const float CM_PER_KM = 1.0e5;
 const float CM_PER_MEGAPARSEC = 3.085677581e24;
 
@@ -813,7 +813,7 @@ float dTdr(float r, float T, float core_radius, float core_density, float core_e
    amu_code = AMU_CGS / (DensityUnits * pow(LengthUnits, 3.0));
 
    // Convert kb (in cm^2 g s^-2 K^-1) to code units
-   kb_code = KB_CGS / (pow(LengthUnits, 5.0) * DensityUnits / pow(TimeUnits, 2.0));
+   kb_code = kboltz / (pow(LengthUnits, 5.0) * DensityUnits / pow(TimeUnits, 2.0));
 
    density = get_gas_density(r, core_radius, core_density, core_exponent, outer_exponent, redshift);
    grav_accel = get_grav_accel(r);

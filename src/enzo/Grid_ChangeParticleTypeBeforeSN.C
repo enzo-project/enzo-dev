@@ -23,6 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -167,7 +168,6 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
   /* ASSUMES POP III PAIR-INSTABILITY SUPERNOVA FOR ENERGY */
 
   const float pc = 3.086e18, mh = 1.673e-24, Msun = 1.989e33;
-  const float kb = 1.38e-16;
 
   FLOAT StartTime, SoundCrossingTime;
   float HeliumCoreMass, TransitionTime, ShockVelocity, STradius;
@@ -188,8 +188,8 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
 
   // Because we inject thermal energy, the blastwave is delayed by a
   // sound crossing time.
-  SNTemperature = min(double(Mass*Msun) / double(mh) / kb, 1e8);
-  SoundSpeed = sqrt(kb * SNTemperature / (0.6*mh));
+  SNTemperature = min(double(Mass*Msun) / double(mh) / kboltz, 1e8);
+  SoundSpeed = sqrt(kboltz * SNTemperature / (0.6*mh));
   SoundCrossingTime = PopIIISupernovaRadius * pc / SoundSpeed;
 
   // units in cm

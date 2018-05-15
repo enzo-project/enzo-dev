@@ -30,6 +30,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "Hierarchy.h"
+#include "phys_constants.h"
 
 /* function prototypes */
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -121,8 +122,7 @@ int FreezeRateData(FLOAT Time, HierarchyEntry &TopGrid)
   //    put the temperature together
   float mu = rho/num_density;
   float mp = 1.67262171e-24;    // proton mass [g]
-  float kb = 1.3806504e-16;     // boltzmann constant [erg/K]
-  float Temp = max((Gamma-1.0)*mu*mp*eint/kb, 1.0);
+  float Temp = max((Gamma-1.0)*mu*mp*eint/kboltz, 1.0);
 
   // find temperature bin
   float lamT = 3.15614e5/Temp;

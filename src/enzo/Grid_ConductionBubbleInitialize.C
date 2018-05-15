@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 // Function prototypes
 int GetUnits (float *DensityUnits, float *LengthUnits,
@@ -331,9 +332,9 @@ static void get_dens_temp(void){
 
 
 
-  // g*mu*mp/kb;
+  // g*mu*mp/kboltz;
 
-  bunch_of_constants = g*DEFAULT_MU*(1.67e-24)/(1.38e-16);
+  bunch_of_constants = g*DEFAULT_MU*(1.67e-24)/(kboltz);
 
   /*
   printf("n_mid, bunch_of_constants:  %e %e %e\n",n_mid,bunch_of_constants,g);

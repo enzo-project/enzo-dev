@@ -26,7 +26,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "hydro_rk/EOS.h"
- 
+#include "phys_constants.h"
+
 /* function prototypes */
  
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -190,7 +191,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   /* Compute constant for Jean's length computation.
      l_j = sqrt((pi*k*T) / (G \rho m_p))  . */
  
-  FLOAT JLSquared = (double(3.14159*1.38e-16/6.67e-8)/
+  FLOAT JLSquared = (double(3.14159*kboltz/6.67e-8)/
 		     (double(DensityUnits)*double(1.67e-24))) /
     (double(LengthUnits)*double(LengthUnits));
  

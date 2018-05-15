@@ -25,6 +25,7 @@
 #include "ExternalBoundary.h"
 #include "CosmologyParameters.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 extern "C" void FORTRAN_NAME(projplane)(
           float *grid1, float *grid2, float *flaggrid, int *iflag, 
@@ -169,7 +170,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   float TemperatureUnits, DensityUnits, LengthUnits, 
         VelocityUnits, TimeUnits;
   double sigma_thompson = 6.65e-25, mh = 1.67e-24, me = 9.11e-28,
-    kboltz = 1.38e-16, clight = 3.00e10, csquared = 8.99e20;
+    clight = 3.00e10, csquared = 8.99e20;
   const double SolarMass = 1.989e33, Mpc = 3.0824e24;
   
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,

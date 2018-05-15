@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 // Function prototypes
 int GetUnits (float *DensityUnits, float *LengthUnits,
@@ -65,9 +66,9 @@ int grid::StratifiedMediumExplosionInitialize(FLOAT BubbleRadius, int PulseType,
   float GroundTemp = 300.0;   // ground temperature in K
   float GroundEnergy, GroundDensity;
 
-  float Boltzmann = 1.38e-16, mu = 1.2, mh=1.67e-24;
+  float mu = 1.2, mh=1.67e-24;
 
-  GroundEnergy = (Boltzmann*GroundTemp)/((Gamma - 1.0)*mu*mh);
+  GroundEnergy = (kboltz*GroundTemp)/((Gamma - 1.0)*mu*mh);
   GroundEnergy /= (VelocityUnits*VelocityUnits);
 
 

@@ -26,6 +26,7 @@
 #include "TopGridData.h"
 #include "ProblemType.h"
 #include "EventHooks.h"
+#include "phys_constants.h"
 
 class ProblemType_CollapsingCoolingCloud;
 
@@ -54,7 +55,7 @@ float g_of_r(float r);
 #define PC_CGS 3.0857e+18
 #define RADIUS_BINS 2048
 
-double mu = 1.22, mp=1.67e-24, kb=1.38e-16, gravconst=6.67e-8;
+double mu = 1.22, mp=1.67e-24, gravconst=6.67e-8;
 float n_core, r_core, n0, r0, r_outer, T_center, this_radius;
 float numdens_of_r[RADIUS_BINS],radius_bins[RADIUS_BINS],T_of_r[RADIUS_BINS];
 
@@ -260,7 +261,7 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       float EnergyUnits;
       float TempToEnergyConversion;
       EnergyUnits = POW(LengthUnits, 2.0) / POW(TimeUnits, 2.0);
-      TempToEnergyConversion =  kb/((Gamma - 1.0)*mu*mp); 
+      TempToEnergyConversion =  kboltz/((Gamma - 1.0)*mu*mp); 
       TempToEnergyConversion /= EnergyUnits;  // this times temperature gives you energy units in ENZO UNITS (K -> Enzo)
 
       // returns three arrays:  n(r), T(r), r, in cm^-3, Kelvin, pc respectively.
@@ -818,7 +819,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
 }
 
 float dTdr(float r, float T){
-  return (-1.0*dn_dr(r) * (T / n_of_r(r)) - g_of_r(r) * mu*mp/kb);
+  return (-1.0*dn_dr(r) * (T / n_of_r(r)) - g_of_r(r) * mu*mp/kboltz);
 }
 
 float n_of_r(float r){

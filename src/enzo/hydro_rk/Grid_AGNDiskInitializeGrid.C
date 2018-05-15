@@ -10,6 +10,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -92,7 +93,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
   /* Set various units. */
 
   const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.672e-8,
-               pi = 3.14159, mh = 1.6726e-24, kboltz = 1.3807e-16;
+               pi = 3.14159, mh = 1.6726e-24;
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, MagneticUnits;
   double MassUnits;

@@ -32,6 +32,7 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 /* function prototypes */
 
@@ -295,7 +296,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
     /*
     CoolData.comp_xray = 6.65e-25 * 3.0e10 * 
                         (1.0/511.0e3) * 
-                        (4.0 * 1.38e-16/1.6e-12) *
+                        (4.0 * kboltz/1.6e-12) *
                         (6.3e-5 * 1.6e-12) * 
                         POW(1.0 + Redshift, 4) * 
                         exp(-POW(Redshift/RedshiftXrayCutoff, 2)) / 
@@ -305,14 +306,14 @@ int RadiationFieldCalculateRates(FLOAT Time)
        with U_xray(z=0) = 6.3e-5 and U_cmb(z=0) = 0.256 eV/cm3  */
 
     CoolData.temp_xray = 31.8e3*POW(1.0+Redshift, 0.3333)*1.6e-12/
-                         (4.0*1.38e-16) *
+                         (4.0*kboltz) *
                          6.3e-5 * POW(1.0 + Redshift, 4) * 
                          exp(-POW(Redshift/RedshiftXrayCutoff, 2)) /
                          (0.256 * (1+Redshift));  
 
     /*
     CoolData.temp_xray = 31.8e3*POW(1.0+Redshift, 0.3333)*1.6e-12/
-       (4.0*1.38e-16); */  // <-- this seems to be wrong, Ji-hoon Kim
+       (4.0*kboltz); */  // <-- this seems to be wrong, Ji-hoon Kim
   }
 
 

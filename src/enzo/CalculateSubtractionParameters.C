@@ -29,6 +29,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#include "phys_constants.h"
 
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);   
 
@@ -44,7 +45,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 {
 
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
-    k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
+    m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
 
   float mdot, AccretedMass, SafetyFactor;
   float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, OneOverRSquaredSum, AvgVelocity[MAX_DIMENSION];
@@ -157,7 +158,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
        because only integer can be broadcasted at the moment;
        anyway, this shouldn't make a huge difference overall. */
     
-    c_s = (int)(sqrt(Gamma * k_b * temperature[index] / (mu * m_h)));
+    c_s = (int)(sqrt(Gamma * kboltz * temperature[index] / (mu * m_h)));
 
     fprintf(stdout, "index = %d, temp = %g, mu = %g, density = %g, number_density = %g, c_s = %d\n",
 	    index, temperature[index], mu, density, number_density, c_s);  
@@ -182,7 +183,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
   /* When calculating Bondi radius, let's not bother to get accurate temperature and mu 
      just use the MBHAccretionFixedTemperature and default mu */
 
-    c_s = (int)(sqrt(Gamma * k_b * MBHAccretionFixedTemperature / (Mu * m_h)));
+    c_s = (int)(sqrt(Gamma * kboltz * MBHAccretionFixedTemperature / (Mu * m_h)));
 #endif
 
 
