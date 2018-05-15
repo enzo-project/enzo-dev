@@ -38,7 +38,7 @@
 ************************************************************************/
 #ifdef TRANSFER
 #include "gFLDProblem.h"
-
+#include "phys_constants.h"
 
 
 int gFLDProblem::UpdateBoundary(EnzoVector *u, float time, int flag)
@@ -99,9 +99,7 @@ int gFLDProblem::UpdateBoundary(EnzoVector *u, float time, int flag)
       idx = ((ugh[2][0])*x1len+ugh[1][0])*x0len;  // first interior cell index
       kap = OpacityE[idx];                        // opacity (constant)
       so_eps = MarshakParms[0];                   // 'epsilon' for Su & Olson
-      c = 2.99792458e10;                          // speed of light (cm/s)
-      pi = 4.0*atan(1.0);                         // no explanation needed
-      tau = so_eps * c * kap * time;              // non-dimensional S&O 'time'
+      tau = so_eps * clight * kap * time;              // non-dimensional S&O 'time'
 
       // compute the time-dependent boundary value:
       // if tau is small, use asymptotic solution [Su & Olson, eq (51)], 

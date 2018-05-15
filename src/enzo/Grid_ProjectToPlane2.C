@@ -171,7 +171,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   float TemperatureUnits, DensityUnits, LengthUnits, 
         VelocityUnits, TimeUnits;
   double sigma_thompson = 6.65e-25, mh = 1.67e-24, 
-    kboltz = 1.38e-16, clight = 3.00e10, csquared = 8.99e20;
+    kboltz = 1.38e-16;
   const double SolarMass = 1.989e33, Mpc = 3.0824e24;
   
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,

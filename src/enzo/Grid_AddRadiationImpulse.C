@@ -23,6 +23,7 @@
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
 #include "Star.h"
+#include "phys_constants.h"
 
 int FindField(int f, int farray[], int n);
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -33,7 +34,7 @@ int grid::AddRadiationImpulse(int field, double Luminosity, double sigma,
 			      FLOAT BirthTime, FLOAT* pos)
 {
 
-  const double pc = 3.086e19, clight = 3e10;
+  const double pc = 3.086e19;
 
   int i, j, k, index, dim, FieldNum;
   float kdiss_r2;

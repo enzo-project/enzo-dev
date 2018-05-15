@@ -159,7 +159,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
   /* Set various units. */
 
   const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-    mh = 1.67e-24, kboltz = 1.381e-16, LightSpeed = 2.9979e10;
+    mh = 1.67e-24, kboltz = 1.381e-16;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
 
@@ -403,7 +403,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
 	BHMass = SphereMass / SolarMass;  // in solar masses
 	SchwarzschildRadius = 2.0 * GravConst * SphereMass / 
-	  (LightSpeed*LightSpeed);
+	  (clight*clight);
 	CavityRadius = 117.0 * SchwarzschildRadius * pow((BHMass/1e6), 0.08);
 	InnerDensity = 4.31e-10 * pow((BHMass/1e8), -0.8) *
 	  pow((CavityRadius/SchwarzschildRadius/1e3), -0.6) / DensityUnits;

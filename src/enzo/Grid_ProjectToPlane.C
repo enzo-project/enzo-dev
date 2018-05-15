@@ -352,7 +352,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
       sz[i] = BaryonField[DensNum][i]*temperature[i];
  
     double sigma_thompson = 6.65e-25, mh = 1.67e-24, 
-           kboltz = 1.38e-16, clight = 3.00e10, csquared = 8.99e20;
+           kboltz = 1.38e-16, csquared = 8.99e20;
  
     ConversionFactor = double(DensityUnits)*0.88/mh
                        *kboltz/(me*csquared)*sigma_thompson

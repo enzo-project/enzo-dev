@@ -24,7 +24,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-
+#include "phys_constants.h"
 
 // function prototypes
 int GetUnits(float *DensityUnits, float *LengthUnits, 
@@ -101,9 +101,7 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
     
     int i, j, k;
 
-    float pi = 4.0*atan(1.0);
     float StBz = 5.6704e-5;
-    float c = 2.99792458e10;
     float Vxconstant = 0.0;
     float Vyconstant = 0.0;
     float Vzconstant = 0.0;
