@@ -322,6 +322,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AnalyzeTrackPeaks.o \
 	Grid_AppendForcingToBaryonFields.o \
 	Grid_ApplyTimeAction.o \
+        Grid_ApplyTemperatureLimit.o \
 	Grid_CalculateAngularMomentum.o \
 	Grid_ChangeParticleTypeBeforeSN.o \
         Grid_CheckField.o \
