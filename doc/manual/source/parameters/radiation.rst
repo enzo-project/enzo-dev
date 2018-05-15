@@ -120,9 +120,16 @@ Radiative Transfer (Ray Tracing) Parameters
     slowly. Default: 1.
 ``RadiativeTransferOpticallyThinH2`` (external)
     Set to 1 to include an optically-thin H_2 dissociating
-    (Lyman-Werner) radiation field. Only used if ``MultiSpecies`` > 1. If
+    (Lyman-Werner) radiation field. This also causes the HM and H2II
+    to be dissociated in an opticall thin fashion. Only used if ``MultiSpecies`` > 1. If
    ``MultiSpecies`` > 1 and this option is off, the Lyman-Werner radiation
-    field will be calculated with ray tracing. Default: 1.
+   field will be calculated with ray tracing. Default: 1.
+``RadiativeTransferOpticallyThinH2CharLength`` (external)
+This parameter controls the length over which the Jeans length self shielding
+prescription is performed. The default value is 0.25 which means that the
+characteristic length for applying self shielding of LW photons is over one
+quarter of the Jeans length. Leaving at this value is probably a good idea
+unless there is a strong reason to modify it. Default: 0.25.
 ``RadiativeTransferSplitPhotonPackage`` (external)
     Once photons are past this radius, they can no longer split. In
     units of kpc. If this value is negative (by default), photons can
