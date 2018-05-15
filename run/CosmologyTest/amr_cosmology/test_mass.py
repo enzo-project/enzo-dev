@@ -13,13 +13,10 @@ import os, glob
 
 test_data_dir   = os.environ.get("COSMO_TEST_DATA_DIR", None)
 compare_answers = int(os.environ.get("COSMO_TEST_COMPARE",0))
-tolerance       = os.environ.get("COSMO_TEST_MASS_TOLERANCE",2)
+tolerance       = os.environ.get("COSMO_TEST_MASS_TOLERANCE",8)
 
 def test_dark_matter_mass():
     pf_name = glob.glob('./*.enzo')[0]
-
-    # DM should be exact
-    tolerance = 8
 
     # gather most recent data set
     sim = sim_dir_load(pf_name, path= './',
