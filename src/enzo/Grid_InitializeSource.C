@@ -133,12 +133,12 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
 	fH = CoolData.HydrogenFractionByMass;
 	fHI = (ConvertToProperDensity * 
 	       (double) density[index+i] * fH / 
-	       (Luminosity / (4*M_PI*(double)pow(delr,2)))) *
+	       (Luminosity / (4*pi*(double)pow(delr,2)))) *
 	  (HIRecombinationRate / HICrossSection);
 
 //	printf("rho = %"GSYM", SA = %"GSYM", ratio = %"GSYM"\n", 
 //	       ConvertToProperDensity * (double)BaryonField[DensNum][index+i]*fH,
-//	       (4*M_PI*(double)pow(delr,2)),
+//	       (4*pi*(double)pow(delr,2)),
 //	       (HIRecombinationRate / HICrossSection));
 //	printf("fHI = %"GSYM", delr = %"GSYM", delC = %"GSYM", L = %"GSYM"\n", fHI, delr, delCell,
 //	       Luminosity);

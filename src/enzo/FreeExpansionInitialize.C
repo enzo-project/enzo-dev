@@ -33,6 +33,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -128,7 +129,7 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 	   &VelocityUnits, 0.0);
 
   PressureUnits = DensityUnits * (LengthUnits/TimeUnits)*(LengthUnits/TimeUnits);
-  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+  MagneticUnits = sqrt(PressureUnits*4.0*pi);
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     FreeExpansionBField[dim] /= MagneticUnits;
 

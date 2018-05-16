@@ -31,7 +31,6 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
-
 #include "phys_constants.h"
 
 int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
@@ -223,8 +222,8 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     case PopII:  // Star Cluster Formation
       AvgDensity = (float) 
 	(double(Msun * (MassEnclosed + Mass)) / 
-	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)));
-      DynamicalTime = sqrt((3.0 * M_PI) / (32.0 * gravConst * AvgDensity)) /
+	 double(4*pi/3.0 * pow(Radius*LengthUnits, 3)));
+      DynamicalTime = sqrt((3.0 * pi) / (32.0 * gravConst * AvgDensity)) /
 	TimeUnits;
       ColdGasFraction = ColdGasMass / (MassEnclosed + float(Mass));
       AccretedMass = ColdGasFraction * StarClusterFormEfficiency * MassEnclosed;
@@ -242,9 +241,9 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	 assuming initial density around MBH ~ 1 Msun/pc^3 = 40/cm3, which is close to 
 	 the density in Ostriker & McKee test problem (1 Msun/pc^3 = 6.77e-23 g/cm3 = 40/cm3) */
       MBHFeedbackThermalRadiusTooSmall = MassEnclosed < 
-	4*M_PI/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0; 
+	4*pi/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0; 
       fprintf(stderr, "MassEnclosed = %g\n", MassEnclosed);
-      fprintf(stderr, "MassEnclosed_ought_to_be = %g\n", 4*M_PI/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0);
+      fprintf(stderr, "MassEnclosed_ought_to_be = %g\n", 4*pi/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0);
       fprintf(stderr, "Radius = %g\n", Radius);
 #endif
       break;
@@ -257,7 +256,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       //EjectaDensity = (MassEnclosed - AccretedMass) / MassEnclosed;
       EjectaDensity = (float) 
 	(double(Msun * (MassEnclosed - AccretedMass)) / 
-	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
+	 double(4*pi/3.0 * pow(Radius*LengthUnits, 3)) /
 	 DensityUnits);
     
     else 

@@ -104,7 +104,7 @@ int grid::FlagCellsToBeRefinedByJeansLength()
     {
       float cs,dpdrho,dpde, eint, h, rho, p;
       EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1) ;
-      JLSquared = cs*cs*M_PI/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
+      JLSquared = cs*cs*pi/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
     }
 
   /* This is the safety factor to decrease the Jean's length by. */

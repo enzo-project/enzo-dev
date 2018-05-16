@@ -415,7 +415,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
       pow((1 + CurrentRedshift)/11, -2.5) * dom;
 
     prefactor = t_star * CellLength * LengthUnits * dom *
-      (3 * (clight*clight) * A_em) / (32 * M_PI * nu0 * nu0);
+      (3 * (clight*clight) * A_em) / (32 * pi * nu0 * nu0);
 
     for (i = 0; i < size; i++) {
 

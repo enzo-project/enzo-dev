@@ -16,7 +16,6 @@
  
 #include <stdio.h>
 #include <math.h>
-#include "phys_constants.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -26,6 +25,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "hydro_rk/EOS.h"
+#include "phys_constants.h"
 /* function prototypes */
  
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -200,7 +200,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
     {
       float cs,dpdrho,dpde, eint, h, rho, p;
       EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1) ;
-      JLSquared = cs*cs*M_PI/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
+      JLSquared = cs*cs*pi/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
     };
   //  printf("JLSquared %g\n", JLSquared);
 

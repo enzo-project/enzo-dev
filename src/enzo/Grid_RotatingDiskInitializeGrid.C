@@ -259,10 +259,10 @@ float gas_velocity(FLOAT radius, FLOAT cdensity, FLOAT totaldmmass, FLOAT rscale
   double rs = r_200/DMC;  //[m]
 
   if (radius < router) 
-    massgas = 4.0*M_PI*double(hscale)*POW(double(rscale),2.0)*double(cdensity)*PEXP(-double(radius/rscale))*(PEXP(double(radius/rscale))-double(radius/rscale)-1.0)*MassUnits; 
+    massgas = 4.0*pi*double(hscale)*POW(double(rscale),2.0)*double(cdensity)*PEXP(-double(radius/rscale))*(PEXP(double(radius/rscale))-double(radius/rscale)-1.0)*MassUnits; 
   
   else // if we're past outer radius
-    massgas = 4.0*M_PI*double(hscale)*POW(double(rscale),2.0)*double(cdensity)*PEXP(-double(router/rscale))*(PEXP(double(router/rscale))-double(router/rscale)-1.0)*MassUnits;
+    massgas = 4.0*pi*double(hscale)*POW(double(rscale),2.0)*double(cdensity)*PEXP(-double(router/rscale))*(PEXP(double(router/rscale))-double(router/rscale)-1.0)*MassUnits;
 
   massdm=(M_200/fC)*(log(1.0+r_cgs/rs)-(r_cgs/rs)/(1.0+r_cgs/rs));
   

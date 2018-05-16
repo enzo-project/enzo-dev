@@ -1112,7 +1112,7 @@ double Maxwellian(double c_tilda, double vel_unit, double mu, double gamma)
 
 double ERF(double x)
 {
-  return (2.0 / sqrt(M_PI)) *
+  return (2.0 / sqrt(pi)) *
     (x - pow(x,3)/3.0 + pow(x,5)/10.0 - pow(x,7)/42.0 + pow(x,9)/216.0);
 }
 
@@ -1122,7 +1122,7 @@ int ComputeRadialVelocity(float density, double mass, float r_init,
 			  double exterior_rho[], int Npts)
 {
 
-  const float theta0 = 0.5*M_PI, theta1 = 1.9*M_PI;
+  const float theta0 = 0.5*pi, theta1 = 1.9*pi;
   const float Grav = 6.673e-8, Mpc = 3.086e24, yr = 3.1557e7, Msun = 1.989e33;
   const float delta_i = 0.5;
   float dtheta, delta_t[NTHETA], Theta[NTHETA], Lambda[NTHETA], Chi;
@@ -1137,30 +1137,30 @@ int ComputeRadialVelocity(float density, double mass, float r_init,
   for (i = 0; i < NTHETA; i++) {
     Theta[i] = theta0 + i*dtheta;
     Lambda[i] = pow(sin(Theta[i]/2), 2) * 
-      pow((Theta[i] - sin(Theta[i])) / M_PI, -8.0/9);
+      pow((Theta[i] - sin(Theta[i])) / pi, -8.0/9);
     delta_t[i] = 4.5 * pow((Theta[i] - sin(Theta[i])), 2) / 
       pow((1.0 - cos(Theta[i])), 3) - 1.0;
     beta[i] = sin(0.5*Theta[i]) * sin(0.5*Theta[i]);
     little_d[i] = 0.75 * (Theta[i] - sin(Theta[i]));
     if (delta_t[i] < density)
       iinit = i;
-    if (Theta[i] < M_PI)   // Turnaround
+    if (Theta[i] < pi)   // Turnaround
       iturn = i;
   }
 
   t_init = 5.38e8 * yr * pow((1+InitialRedshift) / 10.0, -1.5);
-  z_vir = pow((Theta[iinit] - sin(Theta[iinit])) / (2*M_PI), 2.0/3) * 
+  z_vir = pow((Theta[iinit] - sin(Theta[iinit])) / (2*pi), 2.0/3) * 
     (1 + InitialRedshift) - 1.0;
   t_vir = 5.38e8 * yr * pow((1+z_vir) / 10.0, -1.5);
   t_ta = 0.5 * t_vir;
-  t_i = t_ta * pow(delta_i, 1.5) / (3*M_PI/4);
-  rho_ci = 1.0 / (6 * M_PI * Grav * t_i*t_i);
-  r_i = pow(mass / (4*M_PI/3 * rho_ci), 1.0/3);
+  t_i = t_ta * pow(delta_i, 1.5) / (3*pi/4);
+  rho_ci = 1.0 / (6 * pi * Grav * t_i*t_i);
+  r_i = pow(mass / (4*pi/3 * rho_ci), 1.0/3);
 
   dm_rotvel_corr = 2 * pow(2*r_init/r_i, 2);
   //  dm_rotvel_corr = 1;
 
-  r_ta_now = pow((3*M_PI/4), -8.0/9) * pow(delta_i, 1.0/3) * r_i 
+  r_ta_now = pow((3*pi/4), -8.0/9) * pow(delta_i, 1.0/3) * r_i 
     * pow(t_init / t_i, 8.0/9);
 
   for (i = 0; i < NTHETA; i++) {

@@ -380,7 +380,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   for (sphere = 0; sphere < NumberOfSpheres; sphere++) {
     Scale_Factor[sphere] = SphereCutOff[sphere] / SphereRadius[sphere];
-    HydrostaticTemperature[sphere] = (2*M_PI * GravConst * mh) / 
+    HydrostaticTemperature[sphere] = (2*pi * GravConst * mh) / 
       (3.0*kboltz) * (SphereDensity[sphere] * DensityUnits) * 
       pow(SphereRadius[sphere] * LengthUnits, 2.0);
     if (SphereFracKeplerianRot[sphere] > 0.0) {
@@ -600,7 +600,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	      double M_ej, E_ej, r_max, v_max, BlastTime, v_core, normalization,
 		speed;
 
-	      M_ej = SphereDensity[sphere] * (4.0*M_PI/3.0) * 
+	      M_ej = SphereDensity[sphere] * (4.0*pi/3.0) * 
 		POW(SphereRadius[sphere]*LengthUnits, 3.0) * DensityUnits;
 	      E_ej = M_ej * kboltz * SphereTemperature[sphere] / (mh*mu);
 	      r_max = LengthUnits * SphereRadius[sphere];
@@ -613,7 +613,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	      v_core = sqrt( (10.0 * E_ej * (DensitySlope-5)) /
 			     (3.0 * M_ej * (DensitySlope-3)) );
 	      normalization = (10.0 * (DensitySlope-5) * E_ej) / 
-		(4.0 * M_PI * DensitySlope) / POW(v_core, 5.0);
+		(4.0 * pi * DensitySlope) / POW(v_core, 5.0);
 	      printf("v_max = %g\n", v_max * VelocityUnits * 1e-5);
 	      
 	      v_core /= VelocityUnits;

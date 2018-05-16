@@ -119,7 +119,7 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   }
 
   if (HydroMethod == MHD_RK){
-    float MagneticUnits = sqrt(DensityUnits*4.0*M_PI)*VelocityUnits;
+    float MagneticUnits = sqrt(DensityUnits*4.0*pi)*VelocityUnits;
     ConductionTestInitialUniformBField[0] /= MagneticUnits;
     ConductionTestInitialUniformBField[1] /= MagneticUnits;
     ConductionTestInitialUniformBField[2] /= MagneticUnits;

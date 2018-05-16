@@ -29,6 +29,7 @@
 #include "CosmologyParameters.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 int FindField(int field, int farray[], int numfields);
 
@@ -58,7 +59,7 @@ int Star::RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity,
       this->CurrentGrid == NULL)
     return SUCCESS;
 
-  float BubbleVolume = (4.0 * M_PI / 3.0) * Radius * Radius * Radius;
+  float BubbleVolume = (4.0 * pi / 3.0) * Radius * Radius * Radius;
 
   old_mass = this->Mass;
 //  printf("star::RMFSAF: before: old_mass = %lf\n", old_mass);  

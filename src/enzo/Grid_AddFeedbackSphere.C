@@ -120,7 +120,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
     MetalNum = SNColourNum;
 
-  float BubbleVolume = (4.0 * M_PI / 3.0) * radius * radius * radius;
+  float BubbleVolume = (4.0 * pi / 3.0) * radius * radius * radius;
 
   /***********************************************************************
                                 SUPERNOVAE
@@ -147,7 +147,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   // Correct if the volume with 27 cells is larger than the energy bubble volume
 #ifdef UNUSED
   float BoxVolume = 27 * CellWidth[0][0] * CellWidth[0][0] * CellWidth[0][0];
-  float BubbleVolume = (4.0 * M_PI / 3.0) * radius * radius * radius;
+  float BubbleVolume = (4.0 * pi / 3.0) * radius * radius * radius;
   //printf("BoxVolume = %lg, BubbleVolume = %lg\n", BoxVolume, BubbleVolume);
   if (BoxVolume > BubbleVolume) {
     //printf("Reducing ejecta density by %g\n", BubbleVolume / BoxVolume);
@@ -564,8 +564,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
       //add random noise to theta and phi
       srand(time(NULL));
-      theta += MaximumNoiseAngle * M_PI / 180.0 * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0);  
-      phi   += MaximumNoiseAngle * M_PI / 180.0 * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0);
+      theta += MaximumNoiseAngle * pi / 180.0 * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0);  
+      phi   += MaximumNoiseAngle * pi / 180.0 * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0);
 
       //get back to Cartesian coordinate; some tricks needed to preserve the signs of nx_L and ny_L
       nx_L = sign(nx_L) * fabs(cos(theta))*sin(phi);  
@@ -857,7 +857,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
     float kph, kheat;
     sigma_HI *= (double) TimeUnits / ((double)LengthUnits * (double)LengthUnits) 
-      / (4.0 * M_PI);
+      / (4.0 * pi);
     kph = (float) (Q_HI * sigma_HI);
     kheat = kph * deltaE;
 
@@ -1002,7 +1002,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       mt_init(mt_seed);
       float random_u = (float)mt_seed/100.0; // random variable from 0 to 1
       float random_v = (float)mt_seed/100.0;
-      float random_phi = 2*M_PI*random_u; // 0 to 2pi                                                                                    
+      float random_phi = 2*pi*random_u; // 0 to 2pi                                                                                    
       float random_theta = acos(2*random_v-1); // 0 to pi                                                                                
       // Setting up randomly oriented magnetic feedback of supernova
       float phi_x = sin(random_theta)*cos(random_phi);

@@ -24,7 +24,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "TopGridData.h"
-
+#include "phys_constants.h"
 
 int PrepareIsolatedGreensFunction(region *GreensFunction, int proc, 
 				  int DomainDim[], TopGridData *MetaData)
@@ -91,7 +91,7 @@ int PrepareIsolatedGreensFunction(region *GreensFunction, int proc,
 
   /* Set the constant to be used. */
 
-  float GravConst, pi = M_PI;
+  float GravConst;
   if (GridRank == 3) 
     GravConst = -GravitationalConstant*RealCellVolume/(4.0*pi);
   if (GridRank == 2)

@@ -74,7 +74,7 @@ int grid::AddRadiationImpulse(int field, double Luminosity, double sigma,
   /* Loop over cells */
 
   index = 0;
-  kdiss_r2 = (float) (Luminosity * sigma / (4.0 * M_PI));
+  kdiss_r2 = (float) (Luminosity * sigma / (4.0 * pi));
   for (k = 0; k < GridDimension[2]; k++) {
     delz = fabs(CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - pos[2]);
     delz = min(delz, DomainWidth[2]-delz);

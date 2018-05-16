@@ -561,7 +561,7 @@ int grid::ComputeAccelerationFieldExternal()
     FLOAT xc = 0.5, yc = 0.5, zc = 0.5;
 
     double rs = rvir / c;
-    double Mvir = 4.0*M_PI*rhoc*POW(rs,3)*(log(1.0+c)-c/(1.0+c));
+    double Mvir = 4.0*pi*rhoc*POW(rs,3)*(log(1.0+c)-c/(1.0+c));
     
     float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, 
       TimeUnits = 1.0, VelocityUnits = 1.0;
@@ -603,7 +603,7 @@ int grid::ComputeAccelerationFieldExternal()
 	  
 	  if (r < rvir/LengthUnits) {
 	    x1 = r*LengthUnits/rs;
-	    M = 4.0*M_PI*rhoc*POW(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
+	    M = 4.0*pi*rhoc*POW(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
 	  }
 	  else {
 	    M = Mvir;
@@ -636,7 +636,7 @@ int grid::ComputeAccelerationFieldExternal()
 
       if (r < rvir/LengthUnits) {
 	x1 = r*LengthUnits/rs;
-	M = 4.0*M_PI*rhoc*POW(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
+	M = 4.0*pi*rhoc*POW(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
       }
       else {
 	M = Mvir;

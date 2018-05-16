@@ -39,6 +39,7 @@
 #include "CosmologyParameters.h"
 #include "fortran.def"
 #include "CommunicationUtilities.h"
+#include "phys_constants.h"
  
 // Function prototypes
  
@@ -419,7 +420,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
         ENZO_FAIL("Error in GetUnits.");
   }
   PressureUnits = DensityUnits * VelocityUnits*VelocityUnits;
-  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+  MagneticUnits = sqrt(PressureUnits*4.0*pi);
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
     if (CosmologySimulationInitialUniformBField[dim] != 0.0 && HydroMethod != 4 && HydroMethod != 6)

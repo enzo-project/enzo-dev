@@ -250,7 +250,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   uint64_t Hlevel = (*PP)->level, res = 2L, BRP = 12L;
   uint64_t Nlevel = (BRP * (res << (res*Hlevel-1)));
   double n_on_this_level = Nlevel;
-  double omega_package=4*M_PI/(n_on_this_level);
+  double omega_package=4*pi/(n_on_this_level);
   double dtheta = sqrt(omega_package);
   if(n_on_this_level <= 0.0  || omega_package == INFINITY)  {
     fprintf(stdout, "%s: level = %llu\n", __FUNCTION__, level);

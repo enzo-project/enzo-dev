@@ -23,6 +23,7 @@
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
 #include "Star.h"
+#include "phys_constants.h"
 
 #define MIN_OPENING_ANGLE 0.2  // 0.2 = arctan(11.3 deg)
 
@@ -87,7 +88,7 @@ int grid::AddH2DissociationFromTree(void)
   /* Find sources in the tree that contribute to the cells */
 
   SuperSourceEntry *Leaf;
-  float factor = LConv_inv * H2ISigma / (4.0 * M_PI);
+  float factor = LConv_inv * H2ISigma / (4.0 * pi);
   float angle;
 
   Leaf = SourceClusteringTree;

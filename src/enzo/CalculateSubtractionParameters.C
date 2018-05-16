@@ -286,7 +286,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
      if one wants to use this, change Grid_SAMFS.C accordingly. */
 
   Subtraction = -AccretedMass * Msun /   
-    (4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) / DensityUnits; 
+    (4*pi/3.0 * pow(Radius*LengthUnits, 3)) / DensityUnits; 
 #endif
 
 

@@ -33,7 +33,6 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
-
 #include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -147,10 +146,10 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
       AvgVelocity[dim] /= MassEnclosed;
 
     MBHFeedbackThermalRadiusTooSmall = 
-      (MassEnclosed < 4*M_PI/3.0*pow(-MBHFeedbackThermalRadius, 3)); 
+      (MassEnclosed < 4*pi/3.0*pow(-MBHFeedbackThermalRadius, 3)); 
 
 //    fprintf(stdout, "RecalibrateMFTR: MassEnclosed = %g, MassEnclosedTarget = %g, Radius = %g\n", 
-//	    MassEnclosed, 4*M_PI/3.0*pow(-MBHFeedbackThermalRadius, 3), Radius); 
+//	    MassEnclosed, 4*pi/3.0*pow(-MBHFeedbackThermalRadius, 3), Radius); 
     
   }  // ENDWHILE (too little mass)
 
@@ -170,7 +169,7 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
 #endif
 
 #ifdef CONSTANT_SPECIFIC
-  EjectaThermalEnergy *= 4*M_PI/3.0*pow(-MBHFeedbackThermalRadius, 3)/MassEnclosed;
+  EjectaThermalEnergy *= 4*pi/3.0*pow(-MBHFeedbackThermalRadius, 3)/MassEnclosed;
 #endif
 
 //  fprintf(stdout, "RecalibrateMFTR: OneOverRSquaredSum = %g\n", OneOverRSquaredSum); 

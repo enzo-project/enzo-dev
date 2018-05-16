@@ -141,7 +141,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 
       double radius2, radius2_yz;
 
-      kdiss_r2 = (float) (H2Luminosity * H2ISigma / (4.0 * M_PI));
+      kdiss_r2 = (float) (H2Luminosity * H2ISigma / (4.0 * pi));
       for (k = 0; k < ActiveDims[2]; k++) {
 	for (j = 0; j < ActiveDims[1]; j++) {
 	  radius2_yz = ddr2[1][j] + ddr2[2][k];
@@ -195,7 +195,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 
       double radius2, radius2_yz;
 
-      kdiss_r2 = (float) (H2Luminosity * H2ISigma / (4.0 * M_PI));
+      kdiss_r2 = (float) (H2Luminosity * H2ISigma / (4.0 * pi));
       for (k = 0; k < ActiveDims[2]; k++) {
 	for (j = 0; j < ActiveDims[1]; j++) {
 	  radius2_yz = ddr2[1][j] + ddr2[2][k];
