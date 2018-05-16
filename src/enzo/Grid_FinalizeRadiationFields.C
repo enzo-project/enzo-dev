@@ -1,4 +1,6 @@
 #define DEBUG 0
+#define MYPROC MyProcessorNumber == ProcessorNumber
+
 /***********************************************************************
 /
 /  GRID CLASS (FINALIZE THE PHOTO-RATES BY DIVIDING BY NUMBER OF PARTICLES)
@@ -91,10 +93,24 @@ int grid::FinalizeRadiationFields(void)
 	} // ENDFOR i
       } // ENDFOR j
   
-  if (RadiativeTransferHIIRestrictedTimestep &&
+   if (MultiSpecies > 1 && !RadiativeTransferFLD)
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	  if(!RadiativeTransferUseH2Shielding) {
+	    BaryonField[kdissH2INum][index] /= 
+	     1.0 * factor * BaryonField[H2INum][index];
+	  }
+	  BaryonField[kphHMNum][index] /= 
+	    1.0 * factor * BaryonField[HMNum][index];
+	  BaryonField[kdissH2IINum][index] /= 
+	    1.0 * factor * BaryonField[H2IINum][index];
+	} // ENDFOR i
+      } // ENDFOR j
 
-      this->IndexOfMaximumkph >= 0)
-    this->MaximumkphIfront /= (factor * BaryonField[HINum][IndexOfMaximumkph]);
+   if(this->IndexOfMaximumkph >= 0)
+     this->MaximumkphIfront /= (factor * BaryonField[HINum][IndexOfMaximumkph]);
 
 #endif /* TRANSFER */  
   

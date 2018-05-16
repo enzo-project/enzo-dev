@@ -108,10 +108,6 @@ class grid
   int NumberOfSubgrids;
   fluxes **SubgridFluxStorage;
 
-  // MHD data
-  float *divB;
-  float *gradPhi[MAX_DIMENSION];
-
   float  CourantSafetyNumber;                       // Hydro parameter
   int    PPMFlatteningParameter;                    // PPM parameter
   int    PPMDiffusionParameter;                     // PPM parameter

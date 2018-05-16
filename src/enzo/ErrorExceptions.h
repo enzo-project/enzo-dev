@@ -12,12 +12,7 @@
 #ifndef __ENZO_EXCEPTIONS__
 #define __ENZO_EXCEPTIONS__
 
-#ifndef OSX10_4
 #include <execinfo.h>
-#else
-#include "execinfo_local.h"
-#endif
-#include <signal.h>
 #include <stdio.h>
 
 #include <exception>

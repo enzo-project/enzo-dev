@@ -108,7 +108,7 @@ See also the section on :ref:`creating cosmological initial
 conditions. <CosmologicalInitialConditions>`.  
 
 Complete descriptions of all cosmology parameters are given 
-:ref:`here <cosmology-parameters>` and 
+:ref:`here <cosmology_parameters>` and 
 :ref:`here <cosmologysimulation_param>`. ``ComovingCoordinates`` determines 
 whether comoving
 coordinates are used or not. In practice, turning this off turns

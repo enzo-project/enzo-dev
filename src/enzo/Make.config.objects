@@ -150,7 +150,6 @@ OBJS_CONFIG_LIB = \
         euler.o \
         EvolveHierarchy.o \
 	EventHooks.o \
-	execinfo_local.o \
         expand_terms.o \
         expand_mhd_terms.o \
         ExternalBoundary_AddField.o \

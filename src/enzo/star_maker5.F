@@ -6,13 +6,13 @@ c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine star_maker5(nx, ny, nz,
-     &                      d, dm, temp, coolrate, u, v, w, cooltime,
+     &                      d, dm, temp, coolrate, u, v, w,
      &                      dt, r, metal, dx, t, z, procnum, 
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, mintdyn,
      &                      odthresh, shdens,
-     &                      masseff, smthresh, level, np,
+     &                      smthresh, level, np,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
      &                      rr_left0, rr_left1, rr_left2,
@@ -43,7 +43,6 @@ c    dm    - dark matter field
 c    temp  - temperature field
 c    coolrate - cooling rate of gas in cgs [note - positive is heading, neg. is cooling]
 c    u,v,w - velocity fields
-c    cooltime - cooling time in code units
 c    r     - refinement field (non-zero if zone is further refined)
 c    metal - metallicity field
 c    dt    - current timestep
@@ -56,7 +55,6 @@ c    ibuff    - number of buffer zones at each end of grid
 c    imethod  - Hydro method (0/1 -- PPM DE/LR, 2 - ZEUS)
 c    odthresh - Overdensity of the cell required to turn on star formation.
 c    shdesn   - Critical density (rho_crit) for star formation, see Springel & Hernquist
-c    masseff(not used) - gas-to-mass conversion efficiency ( 0<=masseff<=1 )
 c    smthresh - mass of all stars that are created ~= 7.6e4 (msolar)
 c    mintdyn  - timescale for star formation ~= 2.1e9 (yrs)
 c    level - current level of refinement
@@ -90,7 +88,7 @@ c
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz)
       R_PREC    temp(nx,ny,nz), coolrate(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), metal(nx,ny,nz)
       R_PREC    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
       R_PREC    dt, dx, z
       R_PREC    d1, x1, v1, t1, msolar1
@@ -98,7 +96,7 @@ c
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      R_PREC    odthresh, shdens, masseff, smthresh, mintdyn
+      R_PREC    odthresh, shdens, smthresh, mintdyn
       P_PREC rr_left0, rr_left1, rr_left2
       P_PREC rr_right0, rr_right1, rr_right2
 c
@@ -266,10 +264,10 @@ c
       subroutine star_feedback5(nx, ny, nz,
      &     d, dm, te, ge, u, v, w, metal,
      &     idual, imetal, imethod, dt, r, dx, t, z,
-     &     d1, x1, v1, t1, sn_param, m_eject, yield,
+     &     d1, x1, v1, t1, yield,
      &     npart, xstart, ystart, zstart, ibuff,
      &     xp, yp, zp, up, vp, wp,
-     &     mp, tdp, tcp, metalf, type, justburn)
+     &     mp, tdp, tcp, metalf, type)
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c
@@ -306,13 +304,10 @@ c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle (-1 if not a star particle)
 c    metalf   - star particle metal fraction
 c    npart    - particle array size specified by calling routine
-c    sn_param(not used) - fraction of stellar rest mass that goes to feedback
-c    m_eject(not used)  - fraction of stellar mass ejected back to gas
 c    yield    - fraction of stellar mass that is converted to metals
 c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
-c    justburn(not used) - time-weighted mass of star formation (code units)
 c
 c
 c-----------------------------------------------------------------------
@@ -327,7 +322,7 @@ c
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
       R_PREC    dt, dx, z
-      R_PREC    d1, x1, v1, t1, justburn
+      R_PREC    d1, x1, v1, t1
       P_PREC xstart, ystart, zstart, t
       P_PREC xp(npart), yp(npart), zp(npart)
       R_PREC    up(npart), vp(npart), wp(npart)
@@ -339,7 +334,7 @@ c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
       INTG_PREC i, j, k, n
       R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
-     &     m_eject, yield, minitial, xv1, xv2, dratio, sqrtepssn,
+     &     yield, minitial, xv1, xv2, dratio, sqrtepssn,
      &     msolar, beta
       parameter (clight = c_light, msolar_e51 = 1800._RKIND, 
      &     msolar=SolarMass, sqrtepssn=2.e24_RKIND, beta=0.1_RKIND)
