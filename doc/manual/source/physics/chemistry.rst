@@ -1,15 +1,19 @@
 .. _cooling:
 
-Cooling and Heating of Gas
-==========================
+Gas Chemistry, Cooling, and Heating
+===================================
 
-Enzo features a number of different methods for including radiative
-cooling.  These range from simple tabulated, analytical approximations
-to very sophisticated non-equilibrium primoridal chemistry.  All of
-these methods require the parameter ``RadiativeCooling`` be set to 1.
-Other parameters are required for using the various methods, which are
-described below.
-For relevant parameters, please also see :ref:`cooling_parameters`.
+There are two ways that Enzo can perform radiative cooling.
+Natively, Enzo provides a number of different methods ranging from
+simple tabulated, analytical approximations to very sophisticated 
+non-equilibrium primoridal chemistry. These are described below. Alternatively, Enzo supports the external `Grackle library <http://grackle.readthedocs.io>`_ for tracking chemistry and performing radiative cooling. 
+See :ref:`here <Grackle>` for a full description and reasons to use Grackle.
+Both Grackle and the native Enzo methods support metal cooling via Cloudy tables.
+
+All of these methods require the parameter ``RadiativeCooling`` be set to 1.
+Other parameters are required for using the various native methods, including
+Grackle, which are described below.
+For all relevant parameters, please also see :ref:`cooling_parameters`.
 
 MultiSpecies = 0: Sarazin & White
 ---------------------------------
@@ -19,8 +23,9 @@ MultiSpecies = 0: Sarazin & White
 
 ``MultiSpecies`` = 0
 
-This method uses an analytical approximation from Sarazin & White
-(1987, ApJ, 320, 32) for a fully ionized gas with metallicity of 0.5
+This method uses an analytical approximation from `Sarazin & White
+(1987, ApJ, 320, 32) <http://adsabs.harvard.edu/abs/1987ApJ...320...32S>`_
+for a fully ionized gas with metallicity of 0.5
 solar.  This cooling curve is valid over the temperature range from
 10,000 K to 10\ :sup:`9`\  K.  Since this assumes a fully ionized gas, the
 cooling rate is effectively zero below 10,000 K.
@@ -34,9 +39,12 @@ MultiSpecies = 1, 2, or 3: Primordial Chemistry and Cooling
 
 This method follows the nonequilibrium evolution of primordial
 (metal-free) gas.  The chemical rate equations are solved using a
-semi-implicit backward differencing scheme described by Abel et
-al. (1997, New Astronomy, 181) and Anninos et al. (1997, New
-Astronomy, 209).  Heating and cooling processes include atomic line
+semi-implicit backward differencing scheme described by 
+`Abel et al. (1997, New Astronomy, 181) 
+<http://adsabs.harvard.edu/abs/1997NewA....2..181A>`_
+and `Anninos et al. (1997, New Astronomy, 209)
+<http://adsabs.harvard.edu/abs/1997NewA....2..209A>`_.
+Heating and cooling processes include atomic line
 excitation, recombination, collisional excitation, free-free
 transitions, Compton scattering of the cosmic microwave background and
 photoionization from a variety of metagalactic UV backgrounds.  For 
@@ -65,9 +73,13 @@ consult *calc_rates.F*.
 
    Along with the six species above, H\ :sub:`2`\, H\
    :sub:`2`:sup:`+`\, and H\ :sup:`-`\  are also followed.
-   In addition to the rates described in Abel et al. (1997) and Anninos
-   et al. (1997), H2 formation via three-body reactions as described by
-   Abel, Bryan, and Norman (2002, Science, 295, 93) is also included.
+   In addition to the rates described in `Abel et al. (1997, New Astronomy, 181) 
+   <http://adsabs.harvard.edu/abs/1997NewA....2..181A>`_
+   and `Anninos et al. (1997, New Astronomy, 209)
+   <http://adsabs.harvard.edu/abs/1997NewA....2..209A>`_, 
+   H2 formation via three-body reactions as described by
+   `Abel, Bryan, and Norman (2002, Science, 295, 93)
+   <http://adsabs.harvard.edu/abs/2002Sci...295...93A>`_ is also included.
    This method is valid in the temperature range of 1 K to 10\
    :sup:`8`\  K and up to number densities of roughly 10\ :sup:`9`\  cm\ :sup:`-3`\.
    Additionally, three-body heating (4.48eV per molecule formed or dissociated)
@@ -96,7 +108,8 @@ parameter to 1, 2, or 3.
 
    ``MetalCooling`` = 1
 
-#. Cen et al (1995) cooling. This uses output from a Raymond-Smith
+#. `Cen et al (1995) <http://adsabs.harvard.edu/abs/1995ApJ...451..436C>`_ 
+   cooling. This uses output from a Raymond-Smith
    code to determine cooling rates from T > 10\ :sup:`4`\ K.  No ionizing
    background is used in computing cooling rates.  This method has
    not been extensively tested in the context of Enzo.
@@ -117,10 +130,13 @@ parameter to 1, 2, or 3.
 
    Cloudy cooling operates in conjunction with the primordial
    chemistry and cooling from ``MultiSpecies`` set to 1, 2, or 3.
-   As described in Smith, Sigurdsson, & Abel (2008), Cloudy cooling
+   As described in `Smith, Sigurdsson, & Abel (2008)
+   <http://adsabs.harvard.edu/abs/2008MNRAS.385.1443S>`_, Cloudy cooling
    interpolates over tables of precomputed cooling data using the
-   Cloudy photoionization software (Ferland et al. 1998, PASP, 110,
-   761, http://nublado.org).  The cooling datasets can be from one to
+   Cloudy photoionization software (`Ferland et al. 1998, PASP, 110,
+   761
+   <http://adsabs.harvard.edu/abs/1998PASP..110..761F>`_, 
+   `<http://nublado.org>`_).  The cooling datasets can be from one to
    five dimensional.  The range of validity will depends on the
    dataset used.
 
@@ -136,14 +152,36 @@ parameter to 1, 2, or 3.
    obtaining or creating Cloudy cooling datasets, contact Britton
    Smith (brittonsmith@gmail.com).
 
+Using Grackle
+-------------
+
+To use the Grackle library for radiative cooling:
+
+    ``use_grackle`` = 1
+
+    ``with_radiative_cooling`` = 1 
+
+The ``MultiSpecies`` and ``MetalCooling`` Enzo parameters are mapped to their
+respective Grackle parameters, with ``MultiSpecies`` behaving the same way as
+described above. 
+
+When using Grackle, ``MetalCooling`` can only be 0 or 1 for off
+and on respectively. If ``MetalCooling`` is on, a Cloudy cooling table must be
+specified using the ``grackle_data_file`` parameter.
+
+See :ref:`grackle_pars` for more parameters that can be used with Grackle.
+
 UV Meta-galactic Backgrounds
 ----------------------------
 *Source: RadiationFieldCalculateRates.C*
 
-A variety of spatially uniform photoionizing and photodissociating
-backgrounds are available, mainly by setting the parameter
+Enzo natively includes a variety of spatially uniform photoionizing 
+and photodissociating backgrounds, mainly by setting the parameter
 ``RadiationFieldType``.  These radiation backgrounds are redshift
 dependent and work by setting the photoionization and photoheating
 coeffiecients for H, He, and He\ :sup:`+`\.  See
 :ref:`radiation_backgrounds` for the additional parameters that
 control the UV backgrounds.
+
+**If using Grackle**, the UV background is instead enabled via the ``UVbackground``
+parameter, and specified with the ``grackle_data_file`` parameter.

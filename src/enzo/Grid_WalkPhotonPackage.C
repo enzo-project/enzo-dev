@@ -81,7 +81,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   int g[3], celli[3], u_dir[3], u_sign[3];
   int cindex;
   float m[3], slice_factor, slice_factor2, sangle_inv;
-  float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau, taua, adj_taua;
+  float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau, taua;
   float DomainWidth[3], dx, dx2, dxhalf, fraction, dColumnDensity;
   float shield1, shield2, solid_angle, midpoint, nearest_edge;
   float tau_delete, flux_floor;
@@ -92,16 +92,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT dir_vec[3], sigma[H2II + 1]; //Accounts for all of the cross sections needed
   FLOAT ddr, dP, dP1, dp2,EndTime;
   FLOAT dPi[H_SPECIES + 1], dPXray[H_SPECIES + 1];  //+ 1 is to account for Compton
-  FLOAT thisDensity, min_dr, adj_thisDensity;
+  FLOAT thisDensity, min_dr;
   FLOAT ce[3], nce[3];
   FLOAT s[3], u[3], f[3], u_inv[3], r[3], dri[3];
   static int secondary_flag = 1, compton_flag = 1;
   static int photoncounter = 0;
-#ifdef GEO_CORRECTION
-  float absm[3], one_minus_s2;
-  int closest_m, adj_index;
-  FLOAT adj_dPi[H_SPECIES + 1], dP2;
-#endif
+
   /* Check for early termination */
 
   if ((*PP)->Photons <= 0) {
@@ -587,12 +583,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	thisDensity = PopulationFractions[i] * fields[i][index] * 
 	  ConvertToProperNumberDensity; //[cm^-3] for species i
 	taua = thisDensity * ddr * sigma[i];  //in cgs
-#ifdef GEO_CORRECTION
-	adj_thisDensity = PopulationFractions[i] * fields[i][adj_index] * 
-	  ConvertToProperNumberDensity;
-	adj_taua = adj_thisDensity * ddr * sigma[i];
-#endif
-
       if(FAIL == RadiativeTransferIonization(PP, dPi, index, i, taua, factor1, 
 					     ExcessEnergyfactor, slice_factor2, kphNum, 
 					     gammaNum))
