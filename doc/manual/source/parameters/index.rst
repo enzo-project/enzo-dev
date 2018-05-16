@@ -36,8 +36,6 @@ modified so I list them here as well. Some parameters are true/false or on/off
 boolean flags.  Eventually, these may be parsed, but in the meantime, we use the
 common convention of 0 meaning false or off and 1 for true or on.
 
-This list includes parameters for the Enzo development version.
-
 .. toctree::
    :maxdepth: 2
 
