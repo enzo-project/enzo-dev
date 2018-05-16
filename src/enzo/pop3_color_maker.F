@@ -39,7 +39,6 @@ c    dm    - dark matter field
 c    h2d   - molecular hydrogen field
 c    temp  - temperature field
 c    u,v,w - velocity fields
-c    cooltime - cooling time in code units
 c    r     - refinement field (non-zero if zone is further refined)
 c    dt    - current timestep
 c    dx    - zone size (code units)
@@ -70,7 +69,6 @@ c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
 c    type     - particle types
 c    ctype    - current type to set the particles to
-c    justburn     - time-weighted mass of star formation (code units)
 c
 c
 c-----------------------------------------------------------------------
@@ -84,7 +82,7 @@ c
       INTG_PREC procnum, ctype
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), metal(nx,ny,nz)
       R_PREC    dt, dx, z
       R_PREC    d1, x1, v1, t1
       P_PREC xstart, ystart, zstart, t
