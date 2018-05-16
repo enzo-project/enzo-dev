@@ -28,8 +28,6 @@
 #include "EventHooks.h"
 #include "phys_constants.h"
 
-#include "phys_constants.h"
-
 class ProblemType_CollapsingCoolingCloud;
 
 class CollapsingCoolingCloudGrid : private grid {

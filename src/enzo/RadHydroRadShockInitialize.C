@@ -28,8 +28,6 @@
 #include "TopGridData.h"
 #include "phys_constants.h"
 
-#include "phys_constants.h"
-
 #define DEF_MU 0.5  // fully ionized hydrogen gas
 
 // function prototypes

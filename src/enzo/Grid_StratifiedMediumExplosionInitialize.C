@@ -24,8 +24,6 @@
 #include "Grid.h"
 #include "phys_constants.h"
 
-#include "phys_constants.h"
-
 // Function prototypes
 int GetUnits (float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,

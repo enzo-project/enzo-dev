@@ -25,8 +25,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "hydro_rk/EOS.h"
-#include "phys_constants.h"
- 
+
 /* function prototypes */
  
 int GetUnits(float *DensityUnits, float *LengthUnits,

@@ -26,8 +26,6 @@
 #include "Grid.h"
 #include "SphericalInfall.h"
 #include "phys_constants.h"
- 
-#include "phys_constants.h"
 
 /* function prototypes */
  

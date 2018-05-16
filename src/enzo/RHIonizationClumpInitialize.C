@@ -28,8 +28,6 @@
 #include "TopGridData.h"
 #include "phys_constants.h"
 
-#include "phys_constants.h"
-
 
 /* default constants */
 #define DEFAULT_MU 0.6       // mean molecular mass
