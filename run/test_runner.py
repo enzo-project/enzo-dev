@@ -624,6 +624,16 @@ if __name__ == "__main__":
     parser.add_option_group(testproblem_group)
     options, args = parser.parse_args()
 
+    # The cosmology tests change behavior based on environment variables,
+    # so set those based on the related run time arguments.
+    os.environ["COSMO_TEST_GENERATE"] = str(int(options.store_results))
+    if options.output_dir is None:
+        test_data_dir = "."
+    else:
+        test_data_dir = options.output_dir
+    if options.answer_name is not None:
+        test_data_dir = os.path.join(test_data_dir, options.answer_name)
+    os.environ["COSMO_TEST_DATA_DIR"] = test_data_dir
 
     if options.pdb:
         pdb_plugin.enabled = True
