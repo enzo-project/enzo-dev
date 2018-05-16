@@ -30,6 +30,8 @@
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
+
+#include "phys_constants.h"
  
 /* This parameter controls whether the cooling function recomputes
    the metal cooling rates.  It is reset by RadiationFieldUpdate. */
@@ -169,7 +171,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
   /* Sum up the density signatures over all the levels
      (also multiply of DensityUnits/mh to convert to particles/cm^3). */
  
-  float ToCGS = double(DensityUnits)/double(1.67e-24);
+  float ToCGS = double(DensityUnits)/double(mh);
  
   /* Allocate a single buffer to store all of the data to be summed (this
      makes the parallel sum much easier). */

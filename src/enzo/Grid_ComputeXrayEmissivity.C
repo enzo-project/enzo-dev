@@ -30,6 +30,7 @@
 #include "fortran.def"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -165,7 +166,7 @@ int grid::ComputeXrayEmissivity(float *temperature,
      (fh is hydrogen fraction by mass). */
  
   float temp, ne, nH, frac, fh = 0.76;
-  float ConvertToNumberDensity = DensityUnits/1.67e-24;
+  float ConvertToNumberDensity = DensityUnits/mh;
   float deltemp = (temp2-temp1)/float(NumberOfTemperatureBins-1);
   for (i = 0; i < size; i++) {
  

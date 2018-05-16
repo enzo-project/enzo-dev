@@ -42,6 +42,8 @@
 #include "macros_and_parameters.h"
 #include "phys_constants.h"
 
+#include "phys_constants.h"
+
 int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u, 
 		float *v, float *w, float *dt, float *r, float *dx, FLOAT *t, 
 		float *z, int *procnum, float *d1, float *x1, float *v1, 
@@ -73,7 +75,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
   dx2 = (*dx)*(*dx);
   if (*jlrefine > 0)
     jlsquared = ((double)(pi * kboltz / 6.673e-08) / 
-		 ((double)(*d1) * 1.673e-24)) / pow(*x1,2) / pow(*jlrefine,2);
+		 ((double)(*d1) * mh)) / pow(*x1,2) / pow(*jlrefine,2);
 
   /* Set new particle index to number of created star particles */
 

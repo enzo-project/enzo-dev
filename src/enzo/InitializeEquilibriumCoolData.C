@@ -20,6 +20,8 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "CosmologyParameters.h"
+
+#include "phys_constants.h"
  
 /* function prototypes */
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -122,7 +124,6 @@ int InitializeEquilibriumCoolData(FLOAT Time)
   double tbase1 = TimeUnits;
   double xbase1 = LengthUnits/(a*aUnits);
   double dbase1 = DensityUnits * POW(a*aUnits, 3);
-  double mh = 1.67e-24;
   double CoolUnit = (POW(aUnits,5) * POW(xbase1,2) * POW(mh,2)) /
                     (POW(tbase1,3) * dbase1);
   for (index = 0; index < CoolData.NumberOfTemperatureBins; index++)

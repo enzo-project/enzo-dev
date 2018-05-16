@@ -28,7 +28,6 @@
 #include "TopGridData.h"
 #include "phys_constants.h"
 
-
 /* default constants */
 #define DEFAULT_MU 0.6       // mean molecular mass
 #define MIN_TEMP 1.0         // minimum temperature [K]
@@ -151,7 +150,6 @@ int RadHydroConstTestInitialize(FILE *fptr, FILE *Outfptr,
     }
     else {
       RadHydroTemperature = max(RadHydroTemperature,MIN_TEMP); // enforce minimum
-      float mp = 1.67262171e-24;    // proton mass [g]
       float nH, HI, HII, nHe, HeI, HeII, HeIII, ne, num_dens, mu;
       if (RadHydroChemistry == 0) 
 	mu = DEFAULT_MU;
@@ -183,7 +181,7 @@ int RadHydroConstTestInitialize(FILE *fptr, FILE *Outfptr,
       if ((RadHydroModel == 4) || (RadHydroModel == 5)) 
 	mu = DEFAULT_MU;
       // compute the internal energy
-      RadHydroIEnergy = kboltz*RadHydroTemperature/mu/mp/(Gamma-1.0);	
+      RadHydroIEnergy = kboltz*RadHydroTemperature/mu/mh/(Gamma-1.0);
     }
   }
 

@@ -87,7 +87,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
     float b5 = 0;
     float x = 0;
     float alpha = 1.1;
-    float H2mass = 2.0*1.672623e-24; //grams
+    float H2mass = 2.0*mh; //grams
     float shield1_db = 1.0, shield2_db = 1.0;
     /*
      * The Wallcott-Green 2011 paper indicates that  a modified form

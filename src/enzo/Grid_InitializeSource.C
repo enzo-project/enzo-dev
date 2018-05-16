@@ -23,6 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 /* function prototypes */
 
@@ -109,7 +110,7 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
   FLOAT delr, delCell;
   double Luminosity= (double) RS->Luminosity * (double) pow(LengthUnits,3) / 
     (double) TimeUnits;
-  double ConvertToProperDensity = double(DensityUnits)/double(1.67e-24);
+  double ConvertToProperDensity = double(DensityUnits)/double(mh);
   float fH, fHI, Old_fHII;
 
   for (k = pos[2]-radius; k <= pos[2]+radius; k++) {

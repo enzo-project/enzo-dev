@@ -19,6 +19,8 @@
 #include "InexactNewton.h"
 #include "CosmologyParameters.h"
 
+#include "phys_constants.h"
+
 
 /* function prototypes */
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -197,10 +199,9 @@ int gFLDProblem::Evolve(HierarchyEntry *ThisGrid, float deltat)
   if (RadiationGetUnits(&RadUnits, told) == FAIL) 
     ENZO_FAIL("Error in RadiationGetUnits.");
   // incorporate Enzo units with implicit solver unit scaling
-  float mp = 1.67262171e-24;   // Mass of a proton [g]
   ErUnits = RadUnits*ErScale;
   ecUnits = VelUnits*VelUnits*ecScale;
-  NiUnits = DenUnits/mp*NiScale;
+  NiUnits = DenUnits/mh*NiScale;
 
   // set a, adot, unit scalings to correct time-level values
   if (ComovingCoordinates) {
@@ -317,7 +318,7 @@ int gFLDProblem::Evolve(HierarchyEntry *ThisGrid, float deltat)
   // incorporate Enzo units with implicit solver unit scaling
   ErUnits = RadUnits*ErScale;
   ecUnits = VelUnits*VelUnits*ecScale;
-  NiUnits = DenUnits/mp*NiScale;
+  NiUnits = DenUnits/mh*NiScale;
 
   // set a, adot to correct time-level values
   if (ComovingCoordinates)

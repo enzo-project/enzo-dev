@@ -40,7 +40,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
   if (this->type == MBH && MBHAccretion == 0)
     return SUCCESS;
 
-  const double Grav = 6.673e-8, m_h = 1.673e-24, Mpc = 3.086e24;
+  const double Grav = 6.673e-8, Mpc = 3.086e24;
   const double Msun = 1.989e33, yr = 3.1557e7, sigma_T = 6.65e-25, c = 3.0e10;
   const int AccretionType = LOCAL_ACCRETION;
   FLOAT time = CurrentGrid->OldTime;
@@ -103,7 +103,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       igrid[0] + CurrentGrid->GridStartIndex[0];
     density = CurrentGrid->BaryonField[DensNum][index];
     if (MultiSpecies == 0) {
-      number_density = density * DensityUnits / (Mu * m_h);
+      number_density = density * DensityUnits / (Mu * mh);
       mu = Mu;
     } else {
       number_density = 
@@ -121,7 +121,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       mu = density / number_density;
     }
 
-    c_s = sqrt(Gamma * kboltz * temperature[index] / (mu * m_h));  
+    c_s = sqrt(Gamma * kboltz * temperature[index] / (mu * mh));
     old_mass = (float)(this->Mass);
 
     // Calculate gas relative velocity (cm/s)
@@ -182,7 +182,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 // 	    CurrentGrid->GridDimension[0], CurrentGrid->GridDimension[1], CurrentGrid->GridDimension[2]);
 
     if (MultiSpecies == 0) {
-      number_density = density * DensityUnits / (Mu * m_h);
+      number_density = density * DensityUnits / (Mu * mh);
       mu = Mu;
     } else {
       /*
@@ -223,7 +223,8 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       v_rel = 0.0;
     }
 
-    c_s = sqrt(Gamma * kboltz * temperature[index] / (mu * m_h));
+    c_s = sqrt(Gamma * kboltz * temperature[index] / (mu * mh));
+
     old_mass = (float)(this->Mass);
 
     // Calculate accretion rate in Msun/s
@@ -432,9 +433,9 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 
       // Calculate accretion rate in Msun/s
       // mdot = 3pi*alpha * c_s^2 * Sigma / Omega
-      //      = 3^(4/3)/4^(1/3) * pi * (3*kboltz/m_h)^(4/3) * (3*kappa/(16*sigma_SB*G))^(1/3) * alpha^(4/3) *
+      //      = 3^(4/3)/4^(1/3) * pi * (3*kboltz/mh)^(4/3) * (3*kappa/(16*sigma_SB*G))^(1/3) * alpha^(4/3) *
       //        M^(-1/3) * Sigma^(5/3) * R * lambda^(-4/3)
-      mdot = pow(3.0, 4.0/3.0)/pow(4.0, 1.0/3.0) * PI / Msun * pow(3.0*kboltz/m_h, 4.0/3.0) *
+      mdot = pow(3.0, 4.0/3.0)/pow(4.0, 1.0/3.0) * PI / Msun * pow(3.0*kboltz/mh, 4.0/3.0) *
 	pow(3.0*kappa/16.0/sigma_SB/Grav, 1.0/3.0) * pow(alpha, 4.0/3.0) * pow(old_mass * Msun, -1.0/3.0) *
 	pow(density * DensityUnits * CurrentGrid->CellWidth[0][0]*LengthUnits, 5.0/3.0) *
 	CurrentGrid->CellWidth[0][0]*LengthUnits * pow(lambda, -7.0/3.0);
@@ -506,7 +507,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
        0.1 even when MBHFeedbackRadiativeEfficiency is set to be lower than 0.1 for 
        a logistical purpose (to combine radiative+mechanical feedbacks for example) */
 
-    mdot_Edd = 4.0 * PI * Grav * old_mass * m_h /
+    mdot_Edd = 4.0 * PI * Grav * old_mass * mh /
       max(MBHFeedbackRadiativeEfficiency, 0.1) / sigma_T / c;     
     if (MBHAccretion < 10 && MBHAccretingMassRatio != BONDI_ACCRETION_CORRECT_NUMERICAL) {
       mdot = min(mdot, mdot_Edd); 

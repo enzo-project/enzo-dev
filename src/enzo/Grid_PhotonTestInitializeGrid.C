@@ -1022,13 +1022,6 @@ double ph_Ang(double a1, double a2, double R, double r)
 
 double ph_Maxwellian(double c_tilda, double vel_unit, double mu, double gamma)
 {
-   // Set constants
-   double mh = 1.67e-24;
-<<<<<<< working copy
-   double pi = 3.14159;
-=======
-   double kboltz = 1.38e-16;
->>>>>>> merge rev
 
    // Compute temperature in cgs units
    double c = c_tilda*vel_unit;

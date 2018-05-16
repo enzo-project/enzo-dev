@@ -27,8 +27,6 @@
 #include "Grid.h"
 #include "phys_constants.h"
 
-#include "phys_constants.h"
-
 extern "C" void FORTRAN_NAME(projplane)(
           float *grid1, float *grid2, float *flaggrid, int *iflag, 
               int *ismooth,

@@ -45,7 +45,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float	WhalenMaxVelocity = 35;		// km/s
 
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
-    m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
+    sigma_T = 6.65e-25, h=0.70;
 
   const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
@@ -133,7 +133,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case STROEMGREN:
     Radius = BirthRadius * pc / LengthUnits;
     Radius = max(Radius, 1.5*StarLevelCellWidth);
-    EjectaDensity = WhalenDensity * m_h / DensityUnits;
+    EjectaDensity = WhalenDensity * mh / DensityUnits;
     EjectaThermalEnergy =
       WhalenTemperature / (TemperatureUnits * (Gamma-1.0) * 0.6);
     break;

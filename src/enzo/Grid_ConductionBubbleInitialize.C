@@ -148,7 +148,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   // convert 1D arrays into Enzo internal units.
   for(i=0; i<ncells; i++){
     rad[i] /= LengthUnits;  // convert to enzo distance
-    nofr[i] *= DEFAULT_MU * 1.67e-24 / DensityUnits;  // convert to enzo-unit density (from number density)
+    nofr[i] *= DEFAULT_MU * mh / DensityUnits;  // convert to enzo-unit density (from number density)
     Tofr[i] /= (TemperatureUnits*(Gamma-1.0)*DEFAULT_MU);  // convert from temp to internal energy
   }
 
@@ -334,7 +334,7 @@ static void get_dens_temp(void){
 
   // g*mu*mp/kboltz;
 
-  bunch_of_constants = g*DEFAULT_MU*(1.67e-24)/(kboltz);
+  bunch_of_constants = g*DEFAULT_MU*(mh)/(kboltz);
 
   /*
   printf("n_mid, bunch_of_constants:  %e %e %e\n",n_mid,bunch_of_constants,g);

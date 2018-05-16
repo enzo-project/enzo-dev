@@ -121,8 +121,7 @@ int FreezeRateData(FLOAT Time, HierarchyEntry &TopGrid)
 
   //    put the temperature together
   float mu = rho/num_density;
-  float mp = 1.67262171e-24;    // proton mass [g]
-  float Temp = max((Gamma-1.0)*mu*mp*eint/kboltz, 1.0);
+  float Temp = max((Gamma-1.0)*mu*mh*eint/kboltz, 1.0);
 
   // find temperature bin
   float lamT = 3.15614e5/Temp;

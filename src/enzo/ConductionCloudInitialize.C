@@ -124,7 +124,7 @@ int ConductionCloudInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid
     return FAIL;
   }
 
-  float mu = 0.6, mh=1.67e-24;
+  float mu = 0.6;
 
   if(ConductionCloudTemperature > 1.0){
 

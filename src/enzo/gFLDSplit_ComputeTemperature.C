@@ -30,8 +30,6 @@
 #include "gFLDSplit.h"
 #include "phys_constants.h"
 
-#include "phys_constants.h"
-
 /* default constants */
 #define MIN_TEMP 1.0     // minimum temperature [K]
 
@@ -61,9 +59,6 @@ int gFLDSplit::ComputeTemperature(float *TempArr, EnzoVector *u)
   if ((usz[2]+ghZl+ghZr) != ArrDims[2]) 
     ENZO_FAIL("Temperature error: x2 vector sizes do not match");
 
-
-  // set some physical constants
-  float mp=1.67262171e-24;    // proton mass [g]
 
   // extract fluid energy array
   float *ec = u->GetData(1);
@@ -104,12 +99,12 @@ int gFLDSplit::ComputeTemperature(float *TempArr, EnzoVector *u)
     // special case for the astrophysical radiating shock
     else if ( ProblemType == 404 ) {
       for (i=0; i<size; i++)
-	TempArr[i] = max((Gamma-1.0)*0.5*mp*TempArr[i]/kboltz, MIN_TEMP);
+	TempArr[i] = max((Gamma-1.0)*0.5*mh*TempArr[i]/kboltz, MIN_TEMP);
     } 
     // general LTE case
     else {
       for (i=0; i<size; i++)
-	TempArr[i] = max((Gamma-1.0)*Mu*mp*TempArr[i]/kboltz, MIN_TEMP);
+	TempArr[i] = max((Gamma-1.0)*Mu*mh*TempArr[i]/kboltz, MIN_TEMP);
     }
   }
   //  Chemistry case: non-LTE physics => 0 'Temperature'

@@ -34,6 +34,8 @@
 #include "CosmologyParameters.h"
 #include "phys_constants.h"
 
+#include "phys_constants.h"
+
 /* function prototypes */
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -102,7 +104,6 @@ int RadiationFieldCalculateRates(FLOAT Time)
   double tbase1 = TimeUnits;
   double xbase1 = LengthUnits/(a*aUnits);
   double dbase1 = DensityUnits*POW(a*aUnits, 3);
-  double mh     = 1.67e-24;
   double CoolingUnits = (POW(aUnits, 5) * xbase1*xbase1 * mh*mh) /
                         (POW(tbase1, 3) * dbase1);
 

@@ -117,7 +117,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   //printf("Star Maker 8: densthresh = %g\n", densthresh);
   if (*jlrefine > 0) {
     jlsquared = ((double)((*gamma) * pi * kboltz / 6.673e-08) / 
-		 ((double)(*d1) * 1.673e-24)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
+		 ((double)(*d1) * mh)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
   }
 
   /* Set new particle index to number of created star particles */
@@ -197,7 +197,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       wsink     = wpold[bb];
       // printf("sink velocity = %"FSYM",%"FSYM", %"FSYM" cgs \n", usink*(*v1), vsink*(*v1),  wsink*(*v1) );
       // printf("gas velocity = %g, %g, %g cgs \n", ugrid*(*v1), vgrid*(*v1),  wgrid*(*v1) );
-      csgrid2 = kboltz * tempgrid / 1.673e-24 / POW(*v1,2); 
+      csgrid2 = kboltz * tempgrid / mh / POW(*v1,2); 
       vrel2 = POW(ugrid-usink,2) + POW(vgrid-vsink,2) + POW(wgrid-wsink,2);
       r_bh = G*msink / (csgrid2 + vrel2);
       // printf("star_maker8: msink = %g = %g Msun, G = %g, csgrid2 = %g, vrel2 = %g, csgrid = %g cm/s, vrel = %g cm/s \n", msink, msink*umass, G, csgrid2, vrel2, pow(csgrid2,0.5)*(*v1), pow(vrel2,0.5)*(*v1));
@@ -364,7 +364,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       vsink     = vpold[bb];
       wsink     = wpold[bb];
 
-      csgrid2 = kboltz * tempgrid / 1.673e-24 / POW(*v1,2);
+      csgrid2 = kboltz * tempgrid / mh / POW(*v1,2);
       vrel2 = POW(ugrid-usink,2) + POW(vgrid-vsink,2) + POW(wgrid-wsink,2);
       //printf("star_maker8: Accretion routine, csgrid2 = %"FSYM", vrel2 = %"FSYM", Mach = %"FSYM"\n", csgrid2, vrel2, POW(vrel2/csgrid2,0.5));
       //printf("star_maker8: Accretion routine, CGS csgrid = %"FSYM", vrel = %"FSYM"\n", POW(csgrid2*POW(*v1,2),0.5), POW(vrel2*POW(*v1,2),0.5));

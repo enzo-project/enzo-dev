@@ -31,7 +31,6 @@
 #define Mpc (3.0856e24)         //Mpc [cm] 
 #define SolarMass (1.989e33)    //Solar Mass [g]
 #define GravConst (6.67e-8)     //Gravitational Constant [cm3g-1s-2]
-#define mh (1.67e-24)           //Mass of Hydrogen [g]
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,

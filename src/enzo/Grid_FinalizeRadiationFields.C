@@ -24,6 +24,7 @@
 #include "ExternalBoundary.h"
 #include "fortran.def"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -67,7 +68,7 @@ int grid::FinalizeRadiationFields(void)
     ENZO_FAIL("Error in GetUnits.\n");
   }
 
-  float DensityConversion = DensityUnits / 1.673e-24;
+  float DensityConversion = DensityUnits / mh;
   float factor = DensityConversion * CellVolume;
 
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)

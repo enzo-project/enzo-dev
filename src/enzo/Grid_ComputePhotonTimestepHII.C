@@ -26,6 +26,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "RadiativeTransferParameters.h"
+#include "phys_constants.h"
 
 
 #define MAX_CHANGE 0.1
@@ -47,7 +48,7 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
 
   int i, j, k, dim, index, indexn, size;
   float dt, this_dt, sigma_dx, *temperature;
-  const double sigmaHI = 6.345e-18, mh = 1.673e-24;
+  const double sigmaHI = 6.345e-18;
 
   dt = huge_number;
   
