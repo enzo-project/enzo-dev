@@ -14,7 +14,6 @@ versions of Enzo from 1.0 on are available.
 Enzo development is supported by grants AST-0808184 and OCI-0832662 from the
 National Science Foundation. 
 
-
 .. toctree::
    :maxdepth: 2
 

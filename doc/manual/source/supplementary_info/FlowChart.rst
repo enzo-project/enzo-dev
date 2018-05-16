@@ -4,7 +4,7 @@ Enzo Flow Chart, Source Browser
 ===============================
 
 `Here's a cartoon of
-Enzo. <http://lca.ucsd.edu/software/enzo/v1.5/flowchart/>`_ This was
+Enzo. <../_static/flowchart/main.html>`_ This was
 written as a first look as the details of how enzo works.  Black
 arrows indicate further flow charts. Grey boxes (usually) indicate
 direct links to the source code.
