@@ -158,8 +158,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
   /* Set various units. */
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8;
-
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
 
@@ -173,7 +171,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
     BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
   } else {
     CriticalDensity = 2.78e11*pow(0.74,2); // in Msolar/Mpc^3 for h=0.74
-    BoxLength = LengthUnits / 3.086e24;
+    BoxLength = LengthUnits / Mpc;
     HubbleConstantNow = 1.0;
     OmegaMatterNow = 1.0;
   }
@@ -1123,7 +1121,7 @@ int ComputeRadialVelocity(float density, double mass, float r_init,
 {
 
   const float theta0 = 0.5*pi, theta1 = 1.9*pi;
-  const float Grav = 6.673e-8, Mpc = 3.086e24, yr = 3.1557e7, Msun = 1.989e33;
+  const float yr = 3.1557e7;
   const float delta_i = 0.5;
   float dtheta, delta_t[NTHETA], Theta[NTHETA], Lambda[NTHETA], Chi;
   float beta[NTHETA], little_d[NTHETA];
@@ -1154,7 +1152,7 @@ int ComputeRadialVelocity(float density, double mass, float r_init,
   t_vir = 5.38e8 * yr * pow((1+z_vir) / 10.0, -1.5);
   t_ta = 0.5 * t_vir;
   t_i = t_ta * pow(delta_i, 1.5) / (3*pi/4);
-  rho_ci = 1.0 / (6 * pi * Grav * t_i*t_i);
+  rho_ci = 1.0 / (6 * pi * GravConst * t_i*t_i);
   r_i = pow(mass / (4*pi/3 * rho_ci), 1.0/3);
 
   dm_rotvel_corr = 2 * pow(2*r_init/r_i, 2);
@@ -1209,7 +1207,7 @@ int ComputeRadialVelocity(float density, double mass, float r_init,
       exterior_rho[i] = density;
     }
 //    printf("%"ISYM": r = %"GSYM" pc, v_r = %"GSYM" km/s, rho = %"GSYM"\n", 
-//	   i, radius_vr[i]*LengthUnits/3.086e18, Vr[i]*VelocityUnits/1e5,
+//	   i, radius_vr[i]*LengthUnits/pc, Vr[i]*VelocityUnits/1e5,
 //	   exterior_rho[i]);
   }
 

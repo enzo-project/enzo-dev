@@ -39,8 +39,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int grid::AddH2DissociationFromTree(void)
 {
 
-  const double pc = 3.086e18, clight = 3e10;
-
   int i, j, k, index, dim, ci;
   FLOAT pos[MAX_DIMENSION];
   FLOAT radius2;

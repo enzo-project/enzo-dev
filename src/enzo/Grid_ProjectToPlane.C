@@ -143,7 +143,6 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
     ENZO_FAIL("Error in GetUnits.\n");
   }
   if (ComovingCoordinates) {
-    const double SolarMass = 1.989e33, Mpc = 3.0824e24;
     DensityConversion *= float(double(DensityUnits)*double(LengthUnits)/
 			       SolarMass*Mpc*Mpc);
     XrayConversion *= float(1.0e-20*POW(double(DensityUnits),2)

@@ -189,7 +189,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   /* Compute constant for Jean's length computation.
      l_j = sqrt((pi*k*T) / (G \rho m_p))  . */
  
-  FLOAT JLSquared = (double(pi*kboltz/6.67e-8)/
+  FLOAT JLSquared = (double(pi*kboltz/GravConst)/
 		     (double(DensityUnits)*double(mh))) /
     (double(LengthUnits)*double(LengthUnits));
  
