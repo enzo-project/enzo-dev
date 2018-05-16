@@ -6,6 +6,7 @@ import os
 from yt.analysis_modules.halo_mass_function.api import *
 from yt.analysis_modules.halo_analysis.api import HaloCatalog
 from yt.testing import assert_rel_equal
+from numpy.testing import assert_equal
 
 from yt.utilities.answer_testing.framework import \
      sim_dir_load
@@ -211,7 +212,8 @@ def test_output_number():
         return
 
     ds_comp = yt.load(compare_filename)
-    assert_equal(output_data['num_files'], ds_comp.data['num_files'])
+    assert_equal(output_data['number_of_files'],
+                 ds_comp.data['number_of_files'])
 
 def test_phase():
     es = sim_dir_load(_pf_name, path=_dir_name)
