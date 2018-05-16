@@ -26,6 +26,7 @@
 #include "TopGridData.h"
 #include "ProblemType.h"
 #include "EventHooks.h"
+#include "phys_constants.h"
 
 class ProblemType_MagneticReconnection;
 
@@ -114,13 +115,12 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
       char line[MAX_LINE_LENGTH];
       int  i, j, dim, ret, level, NumberOfSubgridZones[MAX_DIMENSION],
            SubgridDims[MAX_DIMENSION];
-      float Pi                      = 3.14159;
 
       for(i=0; i<MAX_DIMENSION; i++) 
         MagneticReconnectionCenterPosition[i] = 0.5;  // right in the middle of the box
 
-      MagneticReconnectionBperturbk[0] = 2 * Pi;  
-      MagneticReconnectionBperturbk[1] = Pi;  
+      MagneticReconnectionBperturbk[0] = 2 * pi;  
+      MagneticReconnectionBperturbk[1] = pi;  
       MagneticReconnectionBperturbk[2] = 0;
 
 

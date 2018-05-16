@@ -155,7 +155,6 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       this->CollapsingCoolingCloudCentralTemperature = 1000.0;
       this->CollapsingCoolingCloudExternalTemperature = 100.0;
       this->CollapsingCoolingCloudTotalEnergy = 1.0;
-      float Pi                      = 3.14159;
 
       this->CollapsingCoolingCloudUseDensityFluctuations=0;
       this->CollapsingCoolingCloudRandomSeed=123456789;
@@ -842,10 +841,10 @@ float g_of_r(float r){
 
 float Mass_of_r(float r){
   if(r <= r_core)
-    return ( (4.0/3.0) * 3.14159 * pow(r, 3.0) * mu * mp * n_core);
+    return ( (4.0/3.0) * pi * pow(r, 3.0) * mu * mp * n_core);
    else 
-    return ( (4.0/3.0) * 3.14159 * pow(r_core, 3.0) * mu * mp * n_core
-	     + 5.0 * 3.14159 * mu * mp * n0 * pow(r0, 2.2) * (pow(r,0.8) - pow(r_core, 0.8) ) );
+    return ( (4.0/3.0) * pi * pow(r_core, 3.0) * mu * mp * n_core
+	     + 5.0 * pi * mu * mp * n0 * pow(r0, 2.2) * (pow(r,0.8) - pow(r_core, 0.8) ) );
 }
 
 

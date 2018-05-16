@@ -28,6 +28,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 #ifdef CONFIG_BFLOAT_4
 #define TOLERANCE 1e-06
@@ -468,7 +469,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     metallicity_inside = 0.0, colour_inside = 0.0, rho_inside, rho_metal_inside, rho_colour_inside;
   float m_cell_edge = 0.0, metal_cell_edge = 0.0, colour_cell_edge = 0.0, 
     metallicity_edge = 0.0, colour_edge = 0.0, rho_jet, rho_metal_jet, rho_colour_jet;
-  float L_x, L_y, L_z, L_s, nx_L = 0.0, ny_L = 0.0, nz_L = 0.0, costheta = cos(3.1415926/3.9);
+  float L_x, L_y, L_z, L_s, nx_L = 0.0, ny_L = 0.0, nz_L = 0.0, costheta = cos(pi/3.9);
   float EjectaMass, EjectaMetalMass, MBHJetsVelocity;
 
   if (cstar->FeedbackFlag == MBH_JETS) {

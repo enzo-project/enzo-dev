@@ -196,7 +196,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
     (double(LengthUnits)*double(LengthUnits));
  
   if (ProblemType == 60 || ProblemType == 61)
-    JLSquared = double(4.0*3.14159*3.14159)/GravitationalConstant; //AK
+    JLSquared = double(4.0*pi*pi)/GravitationalConstant; //AK
 
   if (EOSType > 0)
     {

@@ -92,11 +92,11 @@ int grid::StratifiedMediumExplosionInitialize(FLOAT BubbleRadius, int PulseType,
   float Mass;
 
   if(GridRank==2){
-    Mass = GroundDensity * 3.1415 * POW(BubbleRadius,3.0);
+    Mass = GroundDensity * pi * POW(BubbleRadius,3.0);
   }
 
   if(GridRank==3){
-    Mass = GroundDensity * 4.0*3.1415/3.0 * POW(BubbleRadius,3.0);
+    Mass = GroundDensity * 4.0*pi/3.0 * POW(BubbleRadius,3.0);
   }
 
   // energy per mass

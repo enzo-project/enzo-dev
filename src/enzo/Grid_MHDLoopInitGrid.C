@@ -62,7 +62,7 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
 
 
 
-  float Pi = 3.14159265, One=1.0;
+  float One=1.0;
   float R,X, Y, GasEnergy=Pressure/(Gamma-1), LoopTotalEnergy=0; 
   int index, size=1, i,j,k, Three=3,TENum=1; 
   float Scale[3];

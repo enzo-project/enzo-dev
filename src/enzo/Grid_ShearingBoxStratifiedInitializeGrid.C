@@ -26,6 +26,7 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "hydro_rk/EOS.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -105,7 +106,7 @@ int grid::ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float 
   float lengthz=DomainRightEdge[2]-DomainLeftEdge[2];
 
   float h, cs, dpdrho, dpde, H, pressure;  	
-  float bunit=sqrt(4.0*3.14159*rhou*velu*velu);
+  float bunit=sqrt(4.0*pi*rhou*velu*velu);
 
   FLOAT x,y,z;
 
@@ -143,8 +144,8 @@ int grid::ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float 
 	 
 	}
 	else if (ShearingBoxProblemType == 1){ 
-	  xVel[ShearingBoundaryDirection]=magnitude*sin(xPos[ShearingOtherDirection]*2.0*ShearingGeometry*3.14156);
-	  xVel[ShearingVelocityDirection]=magnitude/3.*sin(xPos[ShearingVelocityDirection]*2.0*ShearingGeometry*3.14156);
+	  xVel[ShearingBoundaryDirection]=magnitude*sin(xPos[ShearingOtherDirection]*2.0*ShearingGeometry*pi);
+	  xVel[ShearingVelocityDirection]=magnitude/3.*sin(xPos[ShearingVelocityDirection]*2.0*ShearingGeometry*pi);
 	  BaryonField[iden ][n] = rho;
 
 	  
@@ -153,7 +154,7 @@ int grid::ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float 
 	float rhoActual=BaryonField[iden ][n];
 	pressure=c_s*c_s*rhoActual/Gamma;
 	float realpressure=pressure*PressureUnits;  
-	float InitialBField=sqrt((8*3.14159*realpressure/(ThermalMagneticRatio)))/bunit;
+	float InitialBField=sqrt((8*pi*realpressure/(ThermalMagneticRatio)))/bunit;
 
 	eint=0.0;
 	
@@ -183,7 +184,7 @@ int grid::ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float 
 	  if (InitialMagneticFieldConfiguration == 0) 
 	    BaryonField[iB[ShearingOtherDirection]][n] = InitialBField;
 	  else if (InitialMagneticFieldConfiguration == 1) 
-	    BaryonField[iB[ShearingOtherDirection]][n] = InitialBField*sin(2*3.14159*xPos[ShearingBoundaryDirection]);
+	    BaryonField[iB[ShearingOtherDirection]][n] = InitialBField*sin(2*pi*xPos[ShearingBoundaryDirection]);
 	  
 	  BaryonField[ietot][n] = eint + 0.5*v2
 	    + 0.5*(BaryonField[iB[ShearingOtherDirection]][n]*

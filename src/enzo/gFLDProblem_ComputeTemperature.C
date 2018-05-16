@@ -70,7 +70,7 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
   // set some physical constants
   float mp=1.67262171e-24;    // proton mass [g]
   float rc=7.56e-15;          // radiation constant [erg/cm^3/K^4]
-  float Cv, everg, mmw;
+  float Cv, mmw;
 
 
   // extract fluid energy array
@@ -127,9 +127,9 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
       if ( ProblemType == 405 ) {
 	// special case for Lowrie & Edwards radiating shock
 	Cv    = 2.218056e12;
-	everg = 1.60219e-12;
-	mmw   = everg / (Gamma-1.0) / Cv / mp;
-	Cv    = 2.218056e12 * kboltz / everg ;
+	mmw   = erg_eV / (Gamma-1.0) / Cv / mp;
+	Cv    = 2.218056e12 * kb / erg_eV ;
+
 	for (i=0; i<size; i++)
 	  TempArr[i] = max(TempArr[i]/Cv, MIN_TEMP);
       } else if ( ProblemType == 404 ) {

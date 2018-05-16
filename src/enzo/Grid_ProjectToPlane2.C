@@ -27,6 +27,8 @@
 #include "Grid.h"
 #include "phys_constants.h"
 
+#include "phys_constants.h"
+
 extern "C" void FORTRAN_NAME(projplane)(
           float *grid1, float *grid2, float *flaggrid, int *iflag, 
               int *ismooth,
@@ -169,8 +171,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
     LuminosityConversion = CellLength;
   float TemperatureUnits, DensityUnits, LengthUnits, 
         VelocityUnits, TimeUnits;
-  double sigma_thompson = 6.65e-25, mh = 1.67e-24, me = 9.11e-28,
-    clight = 3.00e10, csquared = 8.99e20;
+  double sigma_thompson = 6.65e-25;
   const double SolarMass = 1.989e33, Mpc = 3.0824e24;
   
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,

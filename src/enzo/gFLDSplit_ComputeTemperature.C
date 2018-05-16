@@ -30,7 +30,7 @@
 #include "gFLDSplit.h"
 #include "phys_constants.h"
 
-
+#include "phys_constants.h"
 
 /* default constants */
 #define MIN_TEMP 1.0     // minimum temperature [K]
@@ -99,7 +99,7 @@ int gFLDSplit::ComputeTemperature(float *TempArr, EnzoVector *u)
     // special case for Lowrie & Edwards radiating shock
     if ( ProblemType == 405 ) {
       for (i=0; i<size; i++)
-	TempArr[i] = max(TempArr[i]/2.218056e12/kboltz*1.60219e-12, MIN_TEMP);
+	TempArr[i] = max(TempArr[i]/2.218056e12/kboltz*erg_eV, MIN_TEMP);
     } 
     // special case for the astrophysical radiating shock
     else if ( ProblemType == 404 ) {

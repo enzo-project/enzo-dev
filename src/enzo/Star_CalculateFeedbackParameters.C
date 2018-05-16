@@ -84,7 +84,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case SUPERNOVA:  // Single thermal bubble of SN feedback
     Radius = PopIIISupernovaRadius * pc / LengthUnits;
     Radius = max(Radius, 3.5*StarLevelCellWidth);
-    EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
+    EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);
     EjectaDensity = Mass * Msun / EjectaVolume / DensityUnits;
 
     // pair-instability SNe
@@ -165,7 +165,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
       Delta_SF = StarMassEjectionFraction * Mass * dtForThisStar * 
 	TimeUnits / (16.0*Myr);
     }
-    EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);   
+    EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);   
     EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;   
     EjectaMetalDensity = EjectaDensity * StarMetalYield;
     EjectaThermalEnergy = StarClusterSNEnergy / Msun /   

@@ -169,8 +169,8 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   /* Set various units. */
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-               pi = 3.14159, mh = 1.67e-24;
+  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8;
+
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6, mu_data;
 
@@ -519,9 +519,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	      else if (xpos > 0 && ypos < 0)
 		theta = 2*pi + atan(ypos/xpos);
              } else if (xpos == 0 && ypos > 0)
-	      theta = 3.14159 / 2.0;
+	      theta = pi / 2.0;
 	    else if (xpos == 0 && ypos < 0)
-	      theta = (3*3.14159) / 2.0;
+	      theta = (3*pi) / 2.0;
 	    else
 	      theta = 0.0;
 
@@ -1024,7 +1024,11 @@ double ph_Maxwellian(double c_tilda, double vel_unit, double mu, double gamma)
 {
    // Set constants
    double mh = 1.67e-24;
+<<<<<<< working copy
    double pi = 3.14159;
+=======
+   double kboltz = 1.38e-16;
+>>>>>>> merge rev
 
    // Compute temperature in cgs units
    double c = c_tilda*vel_unit;
