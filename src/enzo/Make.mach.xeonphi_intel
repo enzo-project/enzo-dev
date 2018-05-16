@@ -20,21 +20,24 @@ MACH_FILE  = Make.mach.xeon-phi
 #-----------------------------------------------------------------------
 
 #change this to your local hdf5 install path
-LOCAL_HDF5   = /home/cllorente/hdf5-1.10.1
+LOCAL_HDF5   = /usr
 
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
+export OMPI_CC=icc
+export OMPI_CXX=icpc
+
 MACH_CPP       = cpp # C preprocessor command
 
 # With MPI
 
-MACH_CC_MPI    = mpiicc # C compiler when using MPI
-MACH_CXX_MPI   = mpiicpc # C++ compiler when using MPI
-MACH_FC_MPI    = mpiifort # Fortran 77 compiler when using MPI
-MACH_F90_MPI   = mpiifort # Fortran 90 compiler when using MPI
-MACH_LD_MPI    = mpiicpc # Linker when using MPI
+MACH_CC_MPI    = mpicc # C compiler when using MPI
+MACH_CXX_MPI   = mpic++ # C++ compiler when using MPI
+MACH_FC_MPI    = ifort # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = ifort # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = mpic++ # Linker when using MPI
 
 # Without MPI
 
@@ -87,11 +90,11 @@ MACH_OPT_AGGRESSIVE  = -O3 -g
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = # MPI includes
-LOCAL_INCLUDES_HDF5   = -I $(LOCAL_HDF5)/build/hdf5/include # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I $(LOCAL_HDF5)/include/hdf5/serial # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = # hypre includes
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 
-MACH_INCLUDES         = -I/usr/include $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES         = -I /usr/include $(LOCAL_INCLUDES_HDF5)
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
@@ -102,7 +105,7 @@ MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MPI    = # MPI libraries
-LOCAL_LIBS_HDF5   = -L $(LOCAL_HDF5)/build/hdf5/libs -lhdf5 # HDF5 libraries
+LOCAL_LIBS_HDF5   = -L $(LOCAL_HDF5)/lib/x86_64-linux-gnu -lhdf5_serial # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
 

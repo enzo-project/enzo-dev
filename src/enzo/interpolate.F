@@ -54,7 +54,6 @@ c
 c  locals
 c
       INTG_PREC i
-      LOGICAL OMP_IN_PARALLEL, in_parallel
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -126,11 +125,6 @@ c
       if (imethod .eq. 1 .or. 
      &    (imethod .eq. 2 .and. iposflag .eq. 2)) then
 c
-		 in_parallel = OMP_IN_PARALLEL()
-         if (.NOT. in_parallel) then
-             print*, 'Found serial interpolation'
-		 endif
-
          if (ndim .eq. 1) call interp1d(parent, work, 
      &                            pdims(1),
      &                            pstart(1)+1_IKIND,

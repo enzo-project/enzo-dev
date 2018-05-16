@@ -158,7 +158,6 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     int ZeroOnAllProcs = (ParticlesAreLocal) ? FALSE : TRUE;
 
     /* Count number of particles to move first to allocate memory */
-
 #pragma omp parallel for default(shared) private(Subgrid, ThisID) reduction(+:NumberToMove[:NumberOfProcessors])
     for (j = 0; j < NumberOfGrids; j++)
       if (GridHierarchyPointer[j]->NextGridNextLevel != NULL) {

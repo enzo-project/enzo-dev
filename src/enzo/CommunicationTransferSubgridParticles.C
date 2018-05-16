@@ -172,7 +172,6 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
   } // ENDFOR grid1
 
   /* Allocate the memory for the move list and transfer the particles */
-//TODO: Place barrier around this 
 
 #pragma omp single
 {

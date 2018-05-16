@@ -81,7 +81,7 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
   MPI_Arg mpi_size;
 
 #ifdef _OPENMP
-  MPI_Arg desired = MPI_THREAD_MULTIPLE;
+  MPI_Arg desired = MPI_THREAD_FUNNELED;
   MPI_Arg provided;
   MPI_Arg thread;
   MPI_Init_thread(argc, argv, desired, &provided);
@@ -116,11 +116,18 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
 
 #ifdef _OPENMP
   int CoresPerProcessor;
-#pragma omp parallel
+  int tid, cid;
+  MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+#pragma omp parallel default(shared) private(tid, cid)
+{
   CoresPerProcessor = omp_get_num_threads();
+  tid = omp_get_thread_num();
+  cid = sched_getcpu();
   NumberOfCores = CoresPerProcessor * NumberOfProcessors;
+  printf("Hello from rank: %d, thread: %d, affinity: (core = %d) \n", mpi_rank, tid, cid);
   if (MyProcessorNumber == ROOT_PROCESSOR)
     printf("MPI_Init: NumberOfCores = %"ISYM"\n", NumberOfCores);
+}
 #else
   NumberOfCores = NumberOfProcessors;
 #endif  

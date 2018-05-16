@@ -382,6 +382,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 		     TotalFlaggedCells, FlaggedGrids);
       CommunicationSumValues(&TotalFlaggedCells, 1);
       CommunicationSumValues(&FlaggedGrids, 1);
+
       if (debug)
 	printf("RebuildHierarchy[%"ISYM"]: "
 	       "Flagged %"ISYM"/%"ISYM" grids. %"ISYM" flagged cells\n", 
@@ -476,6 +477,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 
 	SubgridHierarchyPointer[j]->GridData->DebugCheck("Rebuild child");
       }
+
       tt1 = ReturnWallTime();
       RHperf[8] += tt1-tt0;
  
