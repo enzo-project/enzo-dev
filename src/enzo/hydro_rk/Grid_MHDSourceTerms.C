@@ -286,7 +286,7 @@ int grid::MHDSourceTerms(float **dU)
 					BaryonField[B2Num][igrid]*BaryonField[B2Num][igrid]+
 					BaryonField[B3Num][igrid]*BaryonField[B3Num][igrid]);
 
-	  dU[iPhi][n] += 0.0; // Add correct Phi term here .....
+	  dU[iPhi][n] += 0.0; // Zero is the correct update, Phi is fully comoving.
 
 
 	}
