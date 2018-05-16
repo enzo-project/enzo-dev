@@ -149,14 +149,15 @@ used for the left and right states in the Riemann problem.
 
 0. PLM: **default**
 
-1. PPM: Currently being developed.
-
 Method 4: MHD with Hyperbolic Cleaning (Dedner)
 -----------------------------------------------
 
 The two MHD methods in Enzo differ primarily in the mechanism for maintaining
 :math:`\nabla \cdot B = 0`.  
 These are described in more detail in :ref:`mhd_methods`.
+
+Parameters
+^^^^^^^^^^
 
 ``HydroMethod = 4`` uses the hyperbolic cleaning method of Dedner et
 al. (2002, JCP 175, 645).  The basic integration is the MUSCL 2nd
@@ -182,11 +183,18 @@ used for the left and right states in the Riemann problem.
 
 0. PLM: **default**
 
-1. PPM: Currently being developed.
+``UsePoissonDivergenceCleaning``:
+Enables additional divergence cleaning by solving a Poisson equation.
+This works on top of the standard mixed hyperbolic/parabolic divergence
+leaning
+and is in most cases not required.
+Works on indiviual grids, i.e., it's *not* a global divergence purge.
+Use with care as this feature is not extensively tested.
 
-Parameters
-^^^^^^^^^^
-Parameter file call: ``HydroMethod = 4``
+Default: 0 (off)
+
+Please see  for all relevant parameters, see :ref:`mhd_dender_parameters`.
+
 
 Links
 ^^^^^
