@@ -19,7 +19,7 @@ import hglib
 known_categories = [
     "Cooling",
     "Cosmology",
-    "CosmoSim",
+    "CosmologySimulation",
     "DrivenTurbulence3D",
     "FLD",
     "GravitySolver",
@@ -73,6 +73,7 @@ varspec = dict(
     mhd = (bool, False),
     gravity = (bool, False),
     cosmology = (bool, False),
+    cosmology_simulation = (bool, False),
     chemistry = (bool, False),
     cooling = (bool, False),
     AMR = (bool, False),
