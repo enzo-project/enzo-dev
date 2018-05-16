@@ -36,7 +36,7 @@ modified so I list them here as well. Some parameters are true/false or on/off
 boolean flags.  Eventually, these may be parsed, but in the meantime, we use the
 common convention of 0 meaning false or off and 1 for true or on.
 
-This list includes parameters for the Enzo dev version.
+This list includes parameters for the Enzo development version.
 
 .. toctree::
    :maxdepth: 2
@@ -669,6 +669,8 @@ description of these parameters.)
 ``MetaDataInitialConditionsUUID`` (internal)
     This is similar to ``MetaDataRestartDatasetUUID``, except it's used to
     track which initial conditions were used.
+
+.. _hierarchy_control_parameters:
 
 Hierarchy Control Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1881,7 +1883,7 @@ General Star Formation
     2\ :sup:`3`\ ), or if methods 1, 4 and 7 are wanted, this would be
     146 (2\ :sup:`1`\  + 2\ :sup:`4`\  + 2\ :sup:`7`\ ). Default: 0
     
-    ::
+::
 
       0  - Cen & Ostriker (1992)
       1  - Cen & Ostriker (1992) with stocastic star formation
@@ -2348,8 +2350,8 @@ Radiative Transfer (Ray Tracing) Parameters
     slowly. Default: 1.
 ``RadiativeTransferOpticallyThinH2`` (external)
     Set to 1 to include an optically-thin H_2 dissociating
-    (Lyman-Werner) radiation field. Only used if ``MultiSpecies`` > 1. If
-    ``MultiSpecies`` > 1 and this option is off, the Lyman-Werner radiation
+    (Lyman-Werner) radiation field. Only used if ``MultiSpecies`` > 1. 
+    If ``MultiSpecies`` > 1 and this option is off, the Lyman-Werner radiation
     field will be calculated with ray tracing. Default: 1.
 ``RadiativeTransferSplitPhotonPackage`` (external)
     Once photons are past this radius, they can no longer split. In
@@ -2998,7 +3000,7 @@ For details on shock finding in Enzo see :ref:`shock_finding`.
 ``ShockMethod`` (external)
     This parameter controls the use and type of shock finding. Default: 0
     
-    ::
+::
 
       0 - Off
       1 - Temperature Dimensionally Unsplit Jumps
