@@ -169,8 +169,6 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   /* Set various units. */
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8;
-
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6, mu_data;
 
@@ -183,7 +181,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     CriticalDensity = 2.78e11*pow(HubbleConstantNow, 2); // in Msolar/Mpc^3
     BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
   } else {
-    BoxLength = LengthUnits / 3.086e24;
+    BoxLength = LengthUnits / Mpc;
   }
 
   /* Compute NFW profile-info. The parameters are SphereCoreRadius (which is
@@ -413,7 +411,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	printf("\nSphere Mass (M_sun): %"FSYM"\n", SphereMass/SolarMass);
       }
       
-      VelocityKep = sqrt(6.673e-8*SphereMass/(SphereRadius[sphere]*(LengthUnits)));
+      VelocityKep = sqrt(GravConst*SphereMass/(SphereRadius[sphere]*(LengthUnits)));
       SphereRotationalPeriod[sphere] = 2*pi*SphereRadius[sphere]*(LengthUnits)/
 	(SphereFracKeplerianRot[sphere]*VelocityKep);
       SphereRotationalPeriod[sphere] = SphereRotationalPeriod[sphere]/(TimeUnits);

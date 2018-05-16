@@ -84,8 +84,6 @@ int grid::PhotonTestRestartInitialize(int level, int *NumberOfCellsSet)
   PhotonPackages-> NextPackage= NULL;
 
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8;
-
   /* Initialize radiation fields - not needed in restart?? */
 
 //   if (this->InitializeRadiativeTransferFields() == FAIL) {

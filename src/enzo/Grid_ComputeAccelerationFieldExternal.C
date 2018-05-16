@@ -568,9 +568,8 @@ int grid::ComputeAccelerationFieldExternal()
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	     &TimeUnits, &VelocityUnits, &MassUnits, Time);
     double AccelerationUnits = LengthUnits / POW(TimeUnits,2);
-    double CGSGravConst = 6.672e-8;
 
-    printf("rhoc=%g, rvir=%g, Mvir=%g\n", rhoc, rvir, Mvir/1.989e33);
+    printf("rhoc=%g, rvir=%g, Mvir=%g\n", rhoc, rvir, Mvir/SolarMass);
     
     FLOAT x, y, z, xpos, ypos, zpos, r;
     int n = 0;
@@ -608,7 +607,7 @@ int grid::ComputeAccelerationFieldExternal()
 	  else {
 	    M = Mvir;
 	  }
-	  g = CGSGravConst*M/POW(r*LengthUnits,2);
+	  g = GravConst*M/POW(r*LengthUnits,2);
 	  g /= AccelerationUnits;
 	  if (dim == 0) { 
 	    AccelerationField[0][n] += -g*xpos/r;
@@ -641,7 +640,7 @@ int grid::ComputeAccelerationFieldExternal()
       else {
 	M = Mvir;
       }
-      g = CGSGravConst*M/POW(r*LengthUnits,2);
+      g = GravConst*M/POW(r*LengthUnits,2);
       g /= AccelerationUnits;
 
       ParticleAcceleration[0][i] += -g*xpos/r;

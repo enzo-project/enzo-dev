@@ -34,8 +34,6 @@ int grid::AddRadiationImpulse(int field, double Luminosity, double sigma,
 			      FLOAT BirthTime, FLOAT* pos)
 {
 
-  const double pc = 3.086e19;
-
   int i, j, k, index, dim, FieldNum;
   float kdiss_r2;
   FLOAT delx, dely, delz, DomainWidth[MAX_DIMENSION];

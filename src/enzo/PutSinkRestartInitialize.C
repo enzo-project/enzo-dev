@@ -34,7 +34,8 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "fortran.def"
- 
+#include "phys_constants.h"
+
 /* function prototypes */
  
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
@@ -176,8 +177,8 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   if (ComovingCoordinates) {
  
-    LengthConversion = 3.08e18;     // pc
-    MassConversion   = 2e33;        // solar masses
+    LengthConversion = pc;     // pc
+    MassConversion   = SolarMass;        // solar masses
     EnergyConversion = 1.0e51;      // 10^51 erg
  
   }

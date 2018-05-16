@@ -31,6 +31,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 Star *PopStar(Star * &Node);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
@@ -49,8 +50,6 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   FLOAT TimeNow;
   int dim, level;
   bool MBH_Exists = false;
-  const float pc = 3.086e18;
-  const double Grav = 6.673e-8, Msun = 1.989e33;
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
     if (ThisStar->ReturnType() == MBH) {
@@ -95,7 +94,7 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
          (3) relative velocity less than the circular velocity */
 
       /* Find the circular velocity using reduced mass dynamics, in code velocity unit */
-      vcirc2 = Grav * (ThisStar->ReturnMass() + OtherStar->ReturnMass()) * Msun / 
+      vcirc2 = GravConst * (ThisStar->ReturnMass() + OtherStar->ReturnMass()) * SolarMass / 
 	ThisStar->Separation(OtherStar) / LengthUnits / (VelocityUnits*VelocityUnits) ; 
 
       /*

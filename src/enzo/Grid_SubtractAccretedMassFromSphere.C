@@ -37,9 +37,6 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
 					 int &CellsModified)
 {
 
-  const double Msun = 1.989e33;
-  const double c = 3.0e10;
-
   int dim, i, j, k, index;
   FLOAT delx, dely, delz, radius2, Radius, DomainWidth[MAX_DIMENSION];
   float coef, speed, maxVelocity;
@@ -199,9 +196,9 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
   }  // END k-direction
 
 
-//  printf("grid::SAMFS: radius (pc) = %lf, increase = %lf, mass subtracted (Msun) = %lf\n", 
-//	 radius * LengthUnits / 3.086e18, increase, 
-//	 Subtraction * (4*pi/3.0 * pow(radius*LengthUnits, 3)) * DensityUnits / Msun); 
+//  printf("grid::SAMFS: radius (pc) = %lf, increase = %lf, mass subtracted (SolarMass) = %lf\n", 
+//	 radius * LengthUnits / pc, increase, 
+//	 Subtraction * (4*pi/3.0 * pow(radius*LengthUnits, 3)) * DensityUnits / SolarMass); 
   
   return SUCCESS;
 

@@ -48,8 +48,8 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 				     Star *&AllStars)
 {
 
-  const double pc = 3.086e18, Msun = 1.989e33, 
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
+  const double 
+    yr = 3.1557e7, Myr = 3.1557e13;
 
   Star *cstar;
   bool MarkedSubgrids = false;

@@ -88,12 +88,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 // Physical Constants
 const float VIRIAL_COEFFICIENT = 200.0; // Use r_200
-const float SOLAR_MASS_IN_GRAMS = 1.9891e+33;
-
-const float G_CGS = 6.67259e-8;
 const float AMU_CGS = 1.6605402e-24;
 const float CM_PER_KM = 1.0e5;
-const float CM_PER_MEGAPARSEC = 3.085677581e24;
 
 // Cosmological parameters, used for computing the critical density
 // and setting up the NFW halo. The setup should not be very sensitive
@@ -172,15 +168,15 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
 
    // Set the gravitational constant that Enzo uses.
    // This is 4 pi G_Cgs in code units.
-   GravitationalConstant = 4.0 * pi * G_CGS * DensityUnits * pow(TimeUnits, 2.0);
+   GravitationalConstant = 4.0 * pi * GravConst * DensityUnits * pow(TimeUnits, 2.0);
 
    // Set up the NFW halo.
    float g_code, nfw_mvir_code, critical_density_code, c, nfw_scale_density, nfw_scale_radius;
    float nfw_v_circular, nfw_temp, nfw_cs;
 
-   g_code = G_CGS * DensityUnits * pow(TimeUnits, 2.0);
+   g_code = GravConst * DensityUnits * pow(TimeUnits, 2.0);
 
-   nfw_mvir_code = RotatingSphereNFWMass * SOLAR_MASS_IN_GRAMS / MassUnits;
+   nfw_mvir_code = RotatingSphereNFWMass * SolarMass / MassUnits;
    critical_density_code = get_critical_density(RotatingSphereRedshift);
 
    c = RotatingSphereNFWConcentration;
@@ -845,7 +841,7 @@ float get_grav_accel(float r) {
 
    // Calculate G (in cm^3 g^-1 s^-2) code units
    float g_code;
-   g_code = G_CGS * DensityUnits * pow(TimeUnits, 2.0);
+   g_code = GravConst * DensityUnits * pow(TimeUnits, 2.0);
 
    dm_mass = PointSourceGravityConstant
              * (log(1.0 + r / PointSourceGravityCoreRadius) - r / (r + PointSourceGravityCoreRadius))
@@ -873,9 +869,9 @@ float get_critical_density(float redshift) {
 
    // Calculate G (in cm^3 g^-1 s^-2) code units
    float g_code, h_code;
-   g_code = G_CGS / (1.0 / (DensityUnits * pow(TimeUnits, 2.0)));
+   g_code = GravConst / (1.0 / (DensityUnits * pow(TimeUnits, 2.0)));
 
-   h_code = HUBBLE_CONSTANT_NOW * (CM_PER_KM / CM_PER_MEGAPARSEC); // Now in cgs
+   h_code = HUBBLE_CONSTANT_NOW * (CM_PER_KM / Mpc); // Now in cgs
    h_code *= TimeUnits; // Now in code units
 
    float E = sqrt(OMEGA_MATTER * pow(1.0 + redshift, 3.0) + OMEGA_LAMBDA);
@@ -1057,7 +1053,7 @@ float* mass_energy_derivs(float r,
 
    // Calculate G (in cm^3 g^-1 s^-2) code units
    float g_code;
-   g_code = G_CGS * DensityUnits * pow(TimeUnits, 2.0);
+   g_code = GravConst * DensityUnits * pow(TimeUnits, 2.0);
 
    // Calculate the dark matter density at r
    float dm_scale_density, rho_dm, r_hat;

@@ -21,6 +21,7 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "units.h"
+#include "phys_constants.h"
 
 int ReadUnits(FILE *fptr)
 {
@@ -67,7 +68,7 @@ int ReadUnits(FILE *fptr)
   I doubt this will cause a problem ... but when you read this it probably did ... */
   if (GlobalTimeUnits == 1 && GlobalDensityUnits != 1) {
     if(SelfGravity) {
-      GlobalTimeUnits =  1/sqrt(6.67428e-8*GlobalDensityUnits);
+      GlobalTimeUnits =  1/sqrt(GravConst*GlobalDensityUnits);
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stderr, "****** ReadUnits: Set Time Units based on Density Units "
 		"u_t = 1./sqrt(G u_rho).\n");

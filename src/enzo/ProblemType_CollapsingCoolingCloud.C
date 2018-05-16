@@ -52,10 +52,9 @@ float n_of_r(float r);
 float dn_dr(float r);
 float g_of_r(float r);
 
-#define PC_CGS 3.0857e+18
 #define RADIUS_BINS 2048
 
-double mu = 1.22, gravconst=6.67e-8;
+double mu = 1.22;
 
 float n_core, r_core, n0, r0, r_outer, T_center, this_radius;
 float numdens_of_r[RADIUS_BINS],radius_bins[RADIUS_BINS],T_of_r[RADIUS_BINS];
@@ -283,7 +282,7 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       printf("internal/external density/energy are:  %e/%e   %e/%e\n",numdens_of_r[0], numdens_of_r[RADIUS_BINS-1],
 	     T_of_r[0],T_of_r[RADIUS_BINS-1]);
 
-      CollapsingCoolingCloudRadius *= PC_CGS/LengthUnits;  // now in internal length units
+      CollapsingCoolingCloudRadius *= pc/LengthUnits;  // now in internal length units
 
       this->InitializeUniformGrid(TopGrid.GridData,
 				  ExternalDensity,
@@ -772,13 +771,13 @@ void calculate_radial_profiles(float central_density, float central_temperature,
   double dr, k1, k2, k3, k4, this_temperature;
 
   n0 = 1.0e+3; // particles/cc
-  r0 = 1.0 * PC_CGS;  // in parsecs
+  r0 = 1.0 * pc;  // in parsecs
 
   r_core = r0 * pow( n_core/n0, -1.0/2.2);
 
   printf("n0,n_c, r0, r_c = %e %e    %e %e\n",n0,n_core,r0,r_core);
 
-  dr = (r_outer - 0.0) * PC_CGS / RADIUS_BINS;  // dr in cm 
+  dr = (r_outer - 0.0) * pc / RADIUS_BINS;  // dr in cm 
 
   this_temperature = T_center;
 
@@ -788,7 +787,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
     numdens_of_r[i]=radius_bins[i]=T_of_r[i]= -1.0;
   }
 
-  printf("%e    %e    %e\n", this_radius/PC_CGS, this_temperature, n_of_r(this_radius) );
+  printf("%e    %e    %e\n", this_radius/pc, this_temperature, n_of_r(this_radius) );
 
   int counter=0;
 
@@ -797,7 +796,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
   radius_bins[counter]=this_radius;  // in CGS
   counter++;
 
-  while(this_radius <= r_outer*PC_CGS && counter < RADIUS_BINS){
+  while(this_radius <= r_outer*pc && counter < RADIUS_BINS){
 
     k1 = dTdr(this_radius,          this_temperature);
     k2 = dTdr(this_radius + 0.5*dr, this_temperature + 0.5*dr*k1);
@@ -811,7 +810,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
     numdens_of_r[counter]=n_of_r(this_radius);  // particles/CC
     radius_bins[counter]=this_radius;  // in CGS
 
-    printf("%e    %e    %e   %e  %e  %d\n", this_radius/PC_CGS, this_temperature, n_of_r(this_radius), dr, r_outer*PC_CGS, counter );
+    printf("%e    %e    %e   %e  %e  %d\n", this_radius/pc, this_temperature, n_of_r(this_radius), dr, r_outer*pc, counter );
 
     counter++;
 
@@ -838,7 +837,7 @@ float dn_dr(float r){
 }
 
 float g_of_r(float r){
-  return -gravconst*Mass_of_r(r)/(r*r);
+  return -GravConst*Mass_of_r(r)/(r*r);
 }
 
 float Mass_of_r(float r){

@@ -35,9 +35,9 @@
 #include "fitsio.h"
 #endif
 #include "RadiativeTransferHealpixRoutines64.h"
+#include "phys_constants.h"
 
 static const double twothird=2.0/3.0;
-static const double pi=3.141592653589793238462643383279502884197;
 static const double twopi=6.283185307179586476925286766559005768394;
 static const double halfpi=1.570796326794896619231321691639751442099;
 static const double inv_halfpi=0.6366197723675813430755350534900574;

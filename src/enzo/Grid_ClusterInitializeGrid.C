@@ -96,8 +96,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 
   /* Set various units. */
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-               keV=1.1604e7;
+  const double keV=1.1604e7;
 
   float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
@@ -112,7 +111,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
     BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
   } else {
     CriticalDensity = 2.78e11*POW(0.74,2); // in Msolar/Mpc^3 for h=0.74
-    BoxLength = LengthUnits / 3.086e24;
+    BoxLength = LengthUnits / Mpc;
     HubbleConstantNow = 1.0;
     OmegaMatterNow = 1.0;
   }

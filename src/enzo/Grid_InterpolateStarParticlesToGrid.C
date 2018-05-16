@@ -27,6 +27,7 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 /* function prototypes */
  
@@ -56,7 +57,7 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
   int NumberOfStarParticlesInGrid = 0;
   double xv1 = 0.0, xv2 = 0.0, minitial = 0.0, mform = 0.0;
   float CellWidthTemp = float(CellWidth[0][0]);
-  const double Msun = 1.989e33, yr = 3.15557e7, kpc = 3.086e21;
+  const double yr = 3.15557e7;
   FLOAT dtForSFR; 
 
   /* Set the units. */
@@ -183,7 +184,7 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
 	
 	// (12) SFR density (code density unit  ->  Ms/yr/kpc^3)
 	InterpolatedField[SFRDensNum][i] *= 
-	  DensityUnits / Msun * pow(kpc, 3) / ( dtForSFR * TimeUnits / yr );
+	  DensityUnits / SolarMass * pow(kpc, 3) / ( dtForSFR * TimeUnits / yr );
 	
 	// (13) (in code time unit)
 	InterpolatedField[CreationTimeNum][i] /= NumberOfStarParticlesInGrid;    

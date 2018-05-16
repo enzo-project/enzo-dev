@@ -42,8 +42,8 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			     bool &MarkedSubgrids)
 {
 
-  const double pc = 3.086e18, Msun = 1.989e33, 
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
+  const double 
+    yr = 3.1557e7, Myr = 3.1557e13;
 
   float values[7];
   float AccretedMass, DynamicalTime = 0, AvgDensity, AvgVelocity[MAX_DIMENSION];
@@ -79,7 +79,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       (StarType == PopIII && FeedbackFlag == FORMATION &&
        Mass >= this->FinalMass)) {
     if (debug)
-      printf("StarParticle[%"ISYM"]: Accreted mass = %"GSYM" Msun.\n", Identifier, Mass);
+      printf("StarParticle[%"ISYM"]: Accreted mass = %"GSYM" SolarMass.\n", Identifier, Mass);
     SkipMassRemoval = TRUE;
     return SUCCESS;
   }
@@ -221,9 +221,9 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     case PopII:  // Star Cluster Formation
       AvgDensity = (float) 
-	(double(Msun * (MassEnclosed + Mass)) / 
+	(double(SolarMass * (MassEnclosed + Mass)) / 
 	 double(4*pi/3.0 * pow(Radius*LengthUnits, 3)));
-      DynamicalTime = sqrt((3.0 * pi) / (32.0 * gravConst * AvgDensity)) /
+      DynamicalTime = sqrt((3.0 * pi) / (32.0 * GravConst * AvgDensity)) /
 	TimeUnits;
       ColdGasFraction = ColdGasMass / (MassEnclosed + float(Mass));
       AccretedMass = ColdGasFraction * StarClusterFormEfficiency * MassEnclosed;
@@ -237,9 +237,9 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     case MBH:  
 #ifdef UNUSED
       /* This is to enlarge Radius so that the thermal feedback affects the constant mass 
-	 as the AGN bubble expands, not the constant radius.  MassEnclosed in Msun. 
-	 assuming initial density around MBH ~ 1 Msun/pc^3 = 40/cm3, which is close to 
-	 the density in Ostriker & McKee test problem (1 Msun/pc^3 = 6.77e-23 g/cm3 = 40/cm3) */
+	 as the AGN bubble expands, not the constant radius.  MassEnclosed in SolarMass. 
+	 assuming initial density around MBH ~ 1 SolarMass/pc^3 = 40/cm3, which is close to 
+	 the density in Ostriker & McKee test problem (1 SolarMass/pc^3 = 6.77e-23 g/cm3 = 40/cm3) */
       MBHFeedbackThermalRadiusTooSmall = MassEnclosed < 
 	4*pi/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0; 
       fprintf(stderr, "MassEnclosed = %g\n", MassEnclosed);
@@ -255,7 +255,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       // the I-front passes through it.
       //EjectaDensity = (MassEnclosed - AccretedMass) / MassEnclosed;
       EjectaDensity = (float) 
-	(double(Msun * (MassEnclosed - AccretedMass)) / 
+	(double(SolarMass) * (MassEnclosed - AccretedMass)) / 
 	 double(4*pi/3.0 * pow(Radius*LengthUnits, 3)) /
 	 DensityUnits);
     
@@ -317,7 +317,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	     level, Radius*LengthUnits/pc, MassEnclosed, Metallicity2,
 	     Metallicity3);
       if (StarType == PopII || StarType == PopIII)
-	printf("\t mass = %"GSYM" (%"GSYM"%% cold) Msun, \n"
+	printf("\t mass = %"GSYM" (%"GSYM"%% cold) SolarMass, \n"
 	       "\t rho = %"GSYM" g/cm3, tdyn = %"GSYM" Myr\n"
 	       "\t vel = %"FSYM" %"FSYM" %"FSYM" (%"FSYM" %"FSYM" %"FSYM")\n"
 	       "\t pos = %"PSYM" %"PSYM" %"PSYM"\n",

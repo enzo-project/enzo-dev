@@ -83,7 +83,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     D.Time = a / (1 + InitialRedshift);
   }
   else {
-    D.BoxSize = LengthUnits / 3.086e21;
+    D.BoxSize = LengthUnits / kpc;
     D.Time = 1.0;
   }
 

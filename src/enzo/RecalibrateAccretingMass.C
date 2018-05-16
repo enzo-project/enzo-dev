@@ -50,8 +50,8 @@ int RecalibrateAccretingMass(FLOAT star_pos[], LevelHierarchyEntry *LevelArray[]
 			     float &RecalibrateAccretingMassRatio)
 {
 
-  const double pc = 3.086e18, Msun = 1.989e33,
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
+  const double
+    yr = 3.1557e7, Myr = 3.1557e13;
 
   float AvgVelocity[MAX_DIMENSION], MassEnclosed[2], Metallicity = 0, ColdGasMass = 0;
   float OneOverRSquaredSum, average_density_at_Bondi_radius = 0.0;
@@ -176,7 +176,7 @@ int RecalibrateAccretingMass(FLOAT star_pos[], LevelHierarchyEntry *LevelArray[]
   /* Find the average density at BondiRadius, using 
      rho = dM/dV = { M(R_B+dx) - M(R_B) } / { 4pi(R_B^2)*dx } */
 
-  average_density_at_Bondi_radius = (MassEnclosed[1] - MassEnclosed[0]) * Msun / MassUnits /
+  average_density_at_Bondi_radius = (MassEnclosed[1] - MassEnclosed[0]) * SolarMass / MassUnits /
     (4 * PI * BondiRadius * BondiRadius * CellWidth);
 
   /* Find the correction ratio using "average_density_at_Bondi_radius" 

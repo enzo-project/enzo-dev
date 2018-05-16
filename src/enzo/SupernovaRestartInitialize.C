@@ -158,8 +158,8 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   if (ComovingCoordinates) {
  
-    LengthConversion = 3.08e18;     // pc
-    MassConversion   = 2e33;        // solar masses
+    LengthConversion = pc;     // pc
+    MassConversion   = SolarMass;        // solar masses
     EnergyConversion = 1.0e51;      // 10^51 erg
  
   }

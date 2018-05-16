@@ -816,7 +816,7 @@ public:
     while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
     {
       ret += sscanf(line, "%"PSYM" %"FSYM, &rad, &vcirc);
-      this->VCircRadius[i] = rad*3.08567758e21; // 3.08567758e21 = kpc/cm
+      this->VCircRadius[i] = rad*kpc; // 3.08567758e21 = kpc/cm
       this->VCircVelocity[i] = vcirc*1e5; // 1e5 = (km/s)/(cm/s)
       i += 1;
     }
@@ -864,9 +864,7 @@ public:
       ENZO_FAIL("Error in GetUnits.");
     }
 
-    const FLOAT kpc_cm = 3.08567758e21;
     const float km_cm = 1e5;
-    const float msun_g = 1.9891e33;
 
     fptr = fopen(fname, "r");
 
@@ -877,16 +875,16 @@ public:
 	       "%"PSYM" %"PSYM" %"PSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
 	       &x, &y, &z, &vx, &vy, &vz, &mass);
 
-      Position[0][c] = x * kpc_cm / LengthUnits + this->CenterPosition[0];
-      Position[1][c] = y * kpc_cm / LengthUnits + this->CenterPosition[1];
-      Position[2][c] = z * kpc_cm / LengthUnits + this->CenterPosition[2];
+      Position[0][c] = x * kpc / LengthUnits + this->CenterPosition[0];
+      Position[1][c] = y * kpc / LengthUnits + this->CenterPosition[1];
+      Position[2][c] = z * kpc / LengthUnits + this->CenterPosition[2];
 
       Velocity[0][c] = vx * km_cm / VelocityUnits;
       Velocity[1][c] = vy * km_cm / VelocityUnits;
       Velocity[2][c] = vz * km_cm / VelocityUnits;
 
       // Particle masses are actually densities.
-      Mass[c] = mass * 1e9 * msun_g / MassUnits / dx / dx / dx;
+      Mass[c] = mass * 1e9 * SolarMass / MassUnits / dx / dx / dx;
       Type[c] = particle_type;
       Number[c] = c++;
     }

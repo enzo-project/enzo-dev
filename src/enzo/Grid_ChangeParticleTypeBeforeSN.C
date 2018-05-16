@@ -41,7 +41,6 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
   if (Stars == NULL)
     return SUCCESS;
 
-  const float pc = 3.086e18, Msun = 1.989e33;
   const float PISNLowerMass = 140.0, PISNUpperMass = 260.0;
   const float StartRefineAtTime = 0.99;  // Percentage of stellar lifetime
   const float EndRefineAtTime = 1.0;
@@ -167,8 +166,6 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
   
   /* ASSUMES POP III PAIR-INSTABILITY SUPERNOVA FOR ENERGY */
 
-  const float pc = 3.086e18, Msun = 1.989e33;
-
   FLOAT StartTime, SoundCrossingTime;
   float HeliumCoreMass, TransitionTime, ShockVelocity, STradius;
   float BlastWaveRadius, SoundSpeed, SNTemperature;
@@ -183,12 +180,12 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
   
   // With a constant shock velocity, calculate time it takes for
   // blastwave to travel from r=0 to r=PopIIISupernovaRadius
-  ShockVelocity = 1.165 * sqrt(2.0 * SNenergy / (Mass * Msun));
+  ShockVelocity = 1.165 * sqrt(2.0 * SNenergy / (Mass * SolarMass));
   StartTime = PopIIISupernovaRadius * pc / ShockVelocity;
 
   // Because we inject thermal energy, the blastwave is delayed by a
   // sound crossing time.
-  SNTemperature = min(double(Mass*Msun) / double(mh) / kboltz, 1e8);
+  SNTemperature = min(double(Mass*SolarMass) / double(mh) / kboltz, 1e8);
   SoundSpeed = sqrt(kboltz * SNTemperature / (0.6*mh));
   SoundCrossingTime = PopIIISupernovaRadius * pc / SoundSpeed;
 
