@@ -1,5 +1,5 @@
 name = 'amr_cosmology'
-answer_testing_script = 'test_hmf.py'
+answer_testing_script = 'test_amr_cosmology.py'
 nprocs = 1
 runtime = 'short'
 hydro = True
