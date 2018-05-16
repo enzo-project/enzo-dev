@@ -15,10 +15,14 @@ Method 0: Piecewise Parabolic Method (PPM)
 ------------------------------------------
 *Source:  Grid_SolvePPM_DE.C*
 
-The PPM scheme uses a parabolic function to estimate the left and right
-states of the Godunov problem. This method has a third-order accurate piecewise parabolic monotonic interpolation and a nonlinear Riemann solver for shock capturing. It does an excellent job of capturing strong shocks across a few cells. This more accurately represents both
-smooth gradients and discontinuities over linear interpolation,
-i.e. PLM (piecewise linear method). See :ref:`hydrodynamics_parameters` for more details about parameters.
+The PPM scheme uses a parabolic function to estimate the left and
+right states of the Godunov problem. This method has a third-order
+accurate piecewise parabolic monotonic interpolation and a nonlinear
+Riemann solver for shock capturing. It does an excellent job of
+capturing strong shocks across a few cells. This more accurately
+represents both smooth gradients and discontinuities over linear
+interpolation, i.e. PLM (piecewise linear method). See
+:ref:`hydrodynamics_parameters` for more details about parameters.
 
 Parameters
 ^^^^^^^^^^
@@ -74,8 +78,11 @@ Method 2: ZEUS
 Zeus_zTransport.C, Grid_ZeusSolver.C, ZeusUtilities.C*
 
 ZEUS is a finite-difference method of solving hyperbolic PDEs instead
-of solving the Godunov problem. This method uses hydrodynamical algorithm originally used in ZEUS, but the MHD and radiation hydrodynamics schemes are not implemented from ZEUS. This method is formally second-accurate in space but first-order accurate in time. It is a very robust but relatively
-diffusive scheme. 
+of solving the Godunov problem. This method uses hydrodynamical
+algorithm originally used in ZEUS, but the MHD and radiation
+hydrodynamics schemes are not implemented from ZEUS. This method is
+formally second-accurate in space but first-order accurate in time. It
+is a very robust but relatively diffusive scheme.
 
 Parameters
 ^^^^^^^^^^
@@ -151,10 +158,12 @@ The two MHD methods in Enzo differ primarily in the mechanism for maintaining
 :math:`\nabla \cdot B = 0`.  
 These are described in more detail in :ref:`mhd_methods`.
 
-``HydroMethod = 4`` uses the hyperbolic cleaning method of Dedner et al. (2002, JCP 175, 645).  The basic 
-integration is the MUSCL 2nd order Runga Kutta method described above. This class of solvers has been ported to nVidia's CUDA framework.  As
-``HydroMethod = 3``, there are three Riemann solver options, though instead of
-HLLC, HLLD is available
+``HydroMethod = 4`` uses the hyperbolic cleaning method of Dedner et
+al. (2002, JCP 175, 645).  The basic integration is the MUSCL 2nd
+order Runga Kutta method described above. This class of solvers has
+been ported to nVidia's CUDA framework.  As ``HydroMethod = 3``, there
+are three Riemann solver options, though instead of HLLC, HLLD is
+available
 
 1. HLL (Harten-Lax-van Leer): a two-wave, three-state solver with no
    resolution of contact waves.
@@ -182,7 +191,9 @@ Parameter file call: ``HydroMethod = 4``
 Links
 ^^^^^
 
-\ Dedner et al. "Hyperbolic Divergence Cleaning for the MHD Equations," *Journal of Computational Physics*, 175, 645, 2002 `link
+\ Dedner et al. "Hyperbolic Divergence Cleaning for the MHD
+Equations,"
+*Journal of Computational Physics*, 175, 645, 2002 `link
 <https://https://ui.adsabs.harvard.edu/#abs/2010ApJS..186..308C/abstract>`__
 
 Method 6: MHD with Constrained Transport (CT)
@@ -191,12 +202,15 @@ Method 6: MHD with Constrained Transport (CT)
 ``HydroMethod = 6`` uses the CT method, which computes an electric field from
 the Riemann solver, then uses that electric field to update the magnetic field.
 This MHD method is second-order in space and timee, and preserves
-the divergence constraint, ∇ · B = 0, to machine precision through the Constrained Transport (CT) method (Collins et al. 2010)
+the divergence constraint, ∇ · B = 0, to machine precision through
+the Constrained Transport (CT) method (Collins et al. 2010)
 
 Links
 ^^^^^
 
-\ Collins et al. "Cosmological Adaptive Mesh Refinement Magnetohydrodynamics with Enzo," *The Astrophysical Journal Supplement*, 186:308, 2010 `link
+\ Collins et al. "Cosmological Adaptive Mesh Refinement
+Magnetohydrodynamics with Enzo,"
+*The Astrophysical Journal Supplement*, 186:308, 2010 `link
 <https://https://ui.adsabs.harvard.edu/#abs/2010ApJS..186..308C/abstract>`__
 
 Parameters
