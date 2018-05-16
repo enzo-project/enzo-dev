@@ -94,23 +94,19 @@ c  Locals:
 c
       INTG_PREC  i, j, k, ii
       R_PREC   div, tdyn, dtot
-      R_PREC   pi, G, sndspdC,mproton
+      R_PREC   sndspdC
       R_PREC   isosndsp2, starmass, starfraction, bmass, jeanmass
       R_PREC   densthresh, timeconstant, gasfrac
-      real*8 msolar
-      parameter (pi=pi_val, G=GravConst, 
-     &           sndspdC=1.3095e8_RKIND,
-     &           msolar=SolarMass,
-     &           mproton=mass_h)
+      parameter (sndspdC=1.3095e8_RKIND)
 c
       ii = np
 c
 c  calculate density threshold.  odthresh is in proper particles per cc
-c  and (d1/mproton) gives the mean density of the universe in 
+c  and (d1/mass_h) gives the mean density of the universe in 
 c  particles/cm^3 (assuming hydrogen is dominant)
 c
 c
-      densthresh = odthresh / (d1 / mproton)
+      densthresh = odthresh / (d1 / mass_h)
 
 c
 c  calculate time constant for star formation.  This assumes that the
@@ -147,7 +143,7 @@ c            algorithm, and is somewhat degenerate with the density threshold,
 c            but we really don't want millions and millions of star particles.
 
                starmass = gasfrac*d(i,j,k)*dble(d1)*dble(x1*dx)**3
-     &                   / msolar
+     &                   / SolarMass
 
                if(starmass .lt. smthresh) goto 10
 
@@ -293,9 +289,9 @@ c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
       INTG_PREC i, j, k, n
-      R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
+      R_PREC mform, tfactor, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio
-      parameter (clight = c_light, msolar_e51 = 1800.0_RKIND)
+      parameter (msolar_e51 = 1800.0_RKIND)
 c
 c-----------------------------------------------------------------------
 c
@@ -340,7 +336,7 @@ c           Calculate how much of the star's energy should have
 c           gone into supernovae energy:  Do this instantaneously.
 c           use the star mass before ejected mass is removed
 c
-            energy = sn_param * mp(n) * (clight/v1)**2 / 
+            energy = sn_param * mp(n) * (c_light/v1)**2 / 
      &                 (d(i,j,k)+mform)
 
 c

@@ -129,8 +129,7 @@ c
       R_PREC sign2(4)
       data sign2/-1._RKIND,-1._RKIND, 1._RKIND, 1._RKIND/
 c
-      R_PREC  aa, pi, phayy, phazz, k1
-      parameter (pi=pi_val) 
+      R_PREC  aa, phayy, phazz, k1
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\////////////////////////////////
 c=======================================================================
@@ -154,10 +153,10 @@ c
 c      write(6,*) 'TURBOINIT: ig =',ig,  ' jg =',jg,  ' kg =',kg
 
 c   this is for large-scale force 1<k<2
-      aa    = 2._RKIND*pi/nbox
+      aa    = 2._RKIND*pi_val/nbox
 
 c   this is for the force  8<k<16
-c      aa    = 8.0*2.0*pi/nbox
+c      aa    = 8.0*2.0*pi_val/nbox
 c
 c fill-in the velocity arrays
 c

@@ -97,13 +97,10 @@ c
       INTG_PREC  i, j, k, ii
       INTG_PREC, save :: ran1_init = 0
       R_PREC   div, tdyn, dtot
-      R_PREC   pi, G, sndspdC
+      R_PREC   sndspdC
       R_PREC   isosndsp2, starmass, starfraction, bmass, jeanmass
       R_PREC   random, pstar
-      real*8 msolar
-      parameter (pi=pi_val, G=GravConst,
-     &           sndspdC=1.3095e8_RKIND,
-     &           msolar=SolarMass)
+      parameter (sndspdC=1.3095e8_RKIND)
 c
       ii = np
 
@@ -143,11 +140,11 @@ c              2) Calculate useful intermediate values.
 c
 
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
-               bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / msolar
+               tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/GravConst/dtot)/t1
+               bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / SolarMass
                isosndsp2 = sndspdC * temp(i,j,k)
-               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
-     &           dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
+               jeanmass = pi_val/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
+     &           dble(pi_val * isosndsp2 / GravConst)**1.5_RKIND / SolarMass
 
                if (jeanmass > bmass) then
                   goto 10
@@ -357,15 +354,14 @@ c
 c  Locals
 c
       INTG_PREC i, j, k, n, coldWind, stepk, stepj, cellstep, ic, jc, kc
-      R_PREC mform, tfactor, clight, energy, sn_param,
+      R_PREC mform, tfactor, energy, sn_param,
      &     m_eject, yield, minitial, xv1, xv2, dEject, ZSN,
      &     m_ejSN, dSN, td7, td7p2, td7p4, ionized, theDiff,
      &     logfac, alpha, num, stromgren_radius, stromgren_volume,
-     &     cell_volume, pi, mh, dEjectSN, year, xc, yc, zc, mc,
-     &     wind_energy, sn_energy, p_sn, radius, rx, ry, rz, msun, kms,
+     &     cell_volume, dEjectSN, year, xc, yc, zc, mc,
+     &     wind_energy, sn_energy, p_sn, radius, rx, ry, rz, kms,
      $     ex, ey, ez, px, py, pz, kesum, mv, pcell
-      parameter (clight = c_light, pi=pi_val,
-     &     mh=mass_h, year=3.15569d7, msun=SolarMass,
+      parameter (year=3.15569d7,
      &     kms=1d5)
       LOGICAL typ
 c
@@ -429,15 +425,15 @@ c
 c           Case B recombination, assuming T = 10^4 K.
             alpha = 2.60d-13 ! cm^3/s
 
-            num = d(i,j,k) * d1 / mu / mh
+            num = d(i,j,k) * d1 / mu / mass_h
             stromgren_radius = (
-     &           (3._RKIND*s49_tot(n)*1d49)/(4._RKIND*pi*alpha*num**2)
+     &           (3._RKIND*s49_tot(n)*1d49)/(4._RKIND*pi_val*alpha*num**2)
      &           )**(1._RKIND/3._RKIND)
             stromgren_volume =
-     &         (4._RKIND/3._RKIND)*pi*stromgren_radius**3
+     &         (4._RKIND/3._RKIND)*pi_val*stromgren_radius**3
             cell_volume = dx*x1*dx*x1*dx*x1
 
-            ionized = kboltz*1e4 / mu / mh / x1**2 * t1**2
+            ionized = kboltz*1e4 / mu / mass_h / x1**2 * t1**2
             if (stromgren_volume .le. cell_volume) then
                ionized = ionized * stromgren_volume/cell_volume
             endif
@@ -655,8 +651,8 @@ c     &         mp(n), xp(n),yp(n),zp(n),d(i,j,k),ge(i,j,k),
 c     &            te(i,j,k),wind_energy
             endif !! End of explosionFlag>0
 
-            dEjectSN = m_ejSN * 1.989d33 / (dx*x1)**3 / d1
-            dEject = m_eject * 1.989d33 / (dx*x1)**3 / d1
+            dEjectSN = m_ejSN * SolarMass / (dx*x1)**3 / d1
+            dEject = m_eject * SolarMass / (dx*x1)**3 / d1
 
             if((dEject + dEjectSN) .gt. mp(n)) then
                 write(6,*) 'WARNING: losing too much mass'
@@ -795,7 +791,7 @@ c
 c          Find momentum to deposit per SNe in code units.
 c
 
-           p_sn = explosionFlag(n) * 3d5 * msun / (d1*x1**3) * 
+           p_sn = explosionFlag(n) * 3d5 * SolarMass / (d1*x1**3) * 
      &      kms / v1 / (distcells - 1)
 
 c          Approximate that the explosion happens in the center of the

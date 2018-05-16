@@ -1,5 +1,6 @@
 #include "fortran.def"
 #include "error.def"
+#include "phys_const.def"
 
 !     set this if you want to log star particle info in a file (one per
 !     processor)
@@ -217,7 +218,7 @@ c
 c  Locals:
 c
       INTG_PREC  i, j, k, n, ii
-      R_PREC   pi, G, mproton, m1
+      R_PREC   m1
       R_PREC   starmass, starmass_in_Msun
       R_PREC   densthresh, timeconstant, gasfrac
       R_PREC   tau_ff, tau_max
@@ -230,9 +231,6 @@ c
 
       R_PREC U_MW, D_MW, Dstar, alpha, gg, Lambda, x
 
-      real*8 msolar
-      parameter (pi=pi_val, G=6.67e-8_RKIND,
-     $     msolar=1.989e33_RKIND,mproton=1.67e-24_RKIND)
       
 
 #ifdef STAR_LOG      
@@ -276,20 +274,20 @@ c     Initialize random number generator once using the MPI rank
 c      
 
 c     Calculate mass conversion factor
-      m1 = dble(x1*dx)**3 * dble(d1) / msolar
+      m1 = dble(x1*dx)**3 * dble(d1) / SolarMass
 
       ii = np
 
 c     Calculate density threshold in code units.
 c
 c     StarFormationNumberDensityThreshold is in proper particles
-c     per cc and (d1 / (MU*mproton)) gives the mean number density of
+c     per cc and (d1 / (MU*mass_h)) gives the mean number density of
 c     the universe in particles/cm^3 (assuming a mean molecular weight
 c     of 1.22, corresponding to neutral monatomic gas with X=0.7,
 c     Y=0.24)
 c
       densthresh = StarFormationNumberDensityThreshold / 
-     $     ( d1 / (MU * mproton) )
+     $     ( d1 / (MU * mass_h) )
       
 
 
@@ -348,7 +346,7 @@ c     2011). Thanks to Nick Gnedin & Andrey Kravtsov for clearing this
 c     up for me.]
 
 c     Hydrogen number density in proper cm^-3
-               nH = d(i,j,k) * fHI(i,j,k) * d1 / mproton
+               nH = d(i,j,k) * fHI(i,j,k) * d1 / mass_h
 
                if (AssumeColdWarmPressureBalance .eq. 1) then
 
@@ -430,7 +428,7 @@ c#ifdef STAR_LOG
 c                        write(4,*) 'Enforced fH2 = 0.01 for cell ',
 c     $                       'with T = ',temp(i,j,k),
 c     $                       'and n = ',
-c     $                       d(i,j,k)*( d1 / (MU * mproton))
+c     $                       d(i,j,k)*( d1 / (MU * mass_h))
 c#endif
 
                         H2_fraction = H2FloorInColdGas
