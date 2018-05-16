@@ -370,11 +370,13 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
   /* Calculate start and end indices for cooling time calculations and feed 
      them into the appropriate routine(s).  Unlike many other quantities, we
      want to actually calculate the cooling time for the ghost zones.  This is 
-     important for grid refinement when refining by local cooling time, because the
-     way that buffer zones are calculated looks for cooling time calculations.  We
-     calculate these numbers as unique variables and feed them into the various 
-     routines for clarity!  */
-  
+     important for grid refinement when refining by local cooling time, because 
+     Enzo flags a buffer region of grid cells around those cells that meet the
+     various refinement criteria.  Ghost zones need to be examined for refinement
+     criteria so this is done correctly, and thus cooling time needs to be calculated
+     in the ghost zones.  Note that we calculate these numbers as unique variables 
+     and feed them into the various routines for clarity!  */
+    
   int GridStartIndexX,GridStartIndexY,GridStartIndexZ,
     GridEndIndexX,GridEndIndexY,GridEndIndexZ;
 
