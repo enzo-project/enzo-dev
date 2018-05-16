@@ -212,8 +212,8 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     g_grid_end = new Eint32[GridRank];
     for (i = 0; i < GridRank; i++) {
       g_grid_dimension[i] = (Eint32) GridDimension[i];
-      g_grid_start[i] = (Eint32) GridStartIndex[i];
-      g_grid_end[i] = (Eint32) GridEndIndex[i];
+      g_grid_start[i] = 0;
+      g_grid_end[i] = (Eint32) GridDimension[i]-1;
     }
 
     /* Update units. */
@@ -366,7 +366,26 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
                           double(LengthUnits) * CellWidth[0][0];
   float HeIIShieldFactor = RadiationData.HeIIAveragePhotoHeatingCrossSection *
                            double(LengthUnits) * CellWidth[0][0];
- 
+
+  /* Calculate start and end indices for cooling time calculations and feed 
+     them into the appropriate routine(s).  Unlike many other quantities, we
+     want to actually calculate the cooling time for the ghost zones.  This is 
+     important for grid refinement when refining by local cooling time, because the
+     way that buffer zones are calculated looks for cooling time calculations.  We
+     calculate these numbers as unique variables and feed them into the various 
+     routines for clarity!  */
+  
+  int GridStartIndexX,GridStartIndexY,GridStartIndexZ,
+    GridEndIndexX,GridEndIndexY,GridEndIndexZ;
+
+  GridStartIndexX = 0;
+  GridStartIndexY = 0;
+  GridStartIndexZ = 0;
+
+  GridEndIndexX=GridDimension[0]-1;  
+  GridEndIndexY=GridDimension[1]-1;
+  GridEndIndexZ=GridDimension[2]-1;
+
   /* Call the appropriate FORTRAN routine to do the work. */
 
   if (MultiSpecies) {
@@ -422,8 +441,8 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
        &HydroMethod,
        &DualEnergyFormalism, &MultiSpecies, &MetalFieldPresent, &MetalCooling, 
        &H2FormationOnDust,
-       &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2,
-       GridEndIndex, GridEndIndex+1, GridEndIndex+2,
+       &GridRank, &GridStartIndexX, &GridStartIndexY, &GridStartIndexZ,
+       &GridEndIndexX, &GridEndIndexY, &GridEndIndexZ,
        &CoolData.ih2co, &CoolData.ipiht, &PhotoelectricHeating,
        &dtFixed, &afloat, &RadiationFieldRedshift,
        &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
@@ -475,8 +494,8 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
        GridDimension,GridDimension+1,
        GridDimension+2, &ComovingCoordinates, &HydroMethod,
        &DualEnergyFormalism, &GridRank,
-       GridStartIndex,GridStartIndex+1,GridStartIndex+2,
-       GridEndIndex,GridEndIndex+1,GridEndIndex+2,&dtFixed,
+       &GridStartIndexX,&GridStartIndexY,&GridStartIndexZ,
+       &GridEndIndexX, &GridEndIndexY, &GridEndIndexZ,&dtFixed,
        &afloat,&CoolData.HydrogenFractionByMass,
        &TemperatureUnits,&LengthUnits,
        &aUnits,&DensityUnits,&TimeUnits,&Gamma);
@@ -493,8 +512,8 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
           &CoolData.NumberOfTemperatureBins, &ComovingCoordinates,
           &HydroMethod,
        &DualEnergyFormalism, &GridRank, &PhotoelectricHeating,
-       GridStartIndex, GridStartIndex+1, GridStartIndex+2,
-          GridEndIndex, GridEndIndex+1, GridEndIndex+2,
+       &GridStartIndexX,&GridStartIndexY,&GridStartIndexZ,
+       &GridEndIndexX, &GridEndIndexY, &GridEndIndexZ,
        &dtFixed, &afloat, &CoolData.TemperatureStart,
           &CoolData.TemperatureEnd, &CoolData.HydrogenFractionByMass,
        &TemperatureUnits, &DensityUnits,
