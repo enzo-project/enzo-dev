@@ -20,4 +20,4 @@ number of options for specifying static gravitational fields
 (including, for example, gravitational acceleration from NFW halos,
 galactic disks, and point sources).  Enzo
 parameters relating to gravity can be found in
-:ref:`gravity-parameters`, and a brief description .
+:ref:`gravity_parameters`, and a brief description .

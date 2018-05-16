@@ -12,7 +12,7 @@ units infrastructure, which converts comoving units to the proper (e.g.,
 physical) units that are needed by those modules. 
 This functionality is turned on by setting
 ``ComovingCoordinates = 1``, and further documentation can be found in
-:ref:`cosmology-parameters`.
+:ref:`cosmology_parameters`.
 The source code for computing the expansion factor and its rate of change is in
 *CosmologyComputeExpansionFactor.C*, and the code for computing
 physical units can be found in *CosmologyGetUnits.C*.

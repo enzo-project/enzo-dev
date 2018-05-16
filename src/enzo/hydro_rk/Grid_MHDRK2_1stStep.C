@@ -113,8 +113,8 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
 
   float *dU[NEQ_MHD+NSpecies+NColor];
 
-  int activesize = 1;
-  for (int dim = 0; dim < GridRank; dim++)
+  int activesize = 1, i, dim;
+  for (dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
 
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++)
