@@ -284,26 +284,36 @@ Magnetohydrodynamics (CT) Parameters
     Project Electric fields from fine to coarse.
     Used for the time evolution of the fields.
 
+.. _dedner_parameters:
+
 Magnetohydrodynamics (Dedner) Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following parameters are considered only when ``HydroMethod`` is 3 or 4 (and occasionally only in some test problems).  
 Because many of the following parameters are not actively being tested and maintained, users are encouraged to carefully examine the code before using it.
 
-``UseDivergenceCleaning`` (external)
+``UsePoissonDivergenceCleaning`` (external)
+    Enables additional divergence cleaning by solving a Poisson equation.
+    This works on top of the standard mixed hyperbolic/parabolic divergence cleaning
+    and is in most cases not required.
+    Works on indiviual grids, i.e., it's *not* a global divergence purge.
+    Use with care as this feature is not extensively tested.
     Method 1 and 2 are a failed experiment to do divergence cleaning
     using successive over relaxation. Method 3 uses conjugate gradient
     with a 2 cell stencil and Method 4 uses a 4 cell stencil. 4 is more
     accurate but can lead to aliasing effects. Default: 0
-``DivergenceCleaningBoundaryBuffer`` (external)
+``PoissonDivergenceCleaningBoundaryBuffer`` (external)
     Choose to *not* correct in the active zone of a grid by a
     boundary of cells this thick. Default: 0
-``DivergenceCleaningThreshold`` (external)
+``PoissonDivergenceCleaningThreshold`` (external)
     Calls divergence cleaning on a grid when magnetic field divergence
     is above this threshold. Default: 0.001
-``PoissonApproximateThreshold`` (external)
+``PoissonApproximationThreshold`` (external)
     Controls the accuracy of the resulting solution for divergence
     cleaning Poisson solver. Default: 0.001
+``PoissonBoundaryType`` (external)
+    Controls the boundary conditions for divergence
+    cleaning Poisson solver. 0 - Neumann (default). 1 - Dirichlet 
 ``UseDrivingField`` (external)
     This parameter is used to add external driving force as a source term in some test problems; see hydro_rk/Grid_(MHD)SourceTerms.C. Default: 0
 ``DrivingEfficiency`` (external)
