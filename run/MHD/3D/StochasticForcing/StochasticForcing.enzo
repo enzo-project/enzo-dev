@@ -1,10 +1,13 @@
 #
-# PROBLEM DEFINITION FILE: MHD/HD turbulence problem with stochastic forcing 
+# PROBLEM DEFINITION FILE: MHD/HD turbulence problem with stochastic forcing
+#                          with subgrid-scale (SGS) turbulence model
 # Philipp Grete 2014
 #
 # Typical "turbulence-in-a-box" problem with non-static driving field.
 # For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
 # http://dx.doi.org/10.1051/0004-6361:200809967
+# For details on the SGS model, see Grete et al. (2017) Phys. Rev. E. 95 033206
+# https://dx.doi.org/10.1103/PhysRevE.95.033206
 #
 # Works/properly tested only on 3D uniform grids with MUSCL type solvers and MHDCT at this point.
 # For hydro use HydroMethod 3
@@ -25,7 +28,7 @@ RightFaceBoundaryCondition = 3 3 3
 #
 #  set I/O and stop/start parameters
 #
-StopTime            = 0.86
+StopTime            = 0.516
 dtDataDump          = 0.0215
 DataDumpName        = data
 ParallelRootGridIO  = 1
