@@ -6,18 +6,26 @@ from yt.analysis_modules.halo_mass_function.api import *
 from yt.analysis_modules.halo_analysis.api import HaloCatalog
 from yt.testing import assert_rel_equal
 
-sim_dir = os.path.basename(os.getcwd())
+from yt.utilities.answer_testing.framework import \
+     sim_dir_load
+
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
+
+sim_dir = os.path.basename(_dir_name)
 test_data_dir = os.path.join(
-    os.environ.get("COSMO_TEST_DATA_DIR", None), sim_dir)
+    os.environ.get("COSMO_TEST_DATA_DIR", "."), sim_dir)
 if not os.path.exists(test_data_dir):
     os.makedirs(test_data_dir)
 generate_answers = int(os.environ.get("COSMO_TEST_GENERATE", 1))
 
 def test_hmf():
-    es = yt.simulation('amr_cosmology.enzo','Enzo')
+    es = sim_dir_load(_pf_name, path=_dir_name)
     es.get_time_series()
     ds = es[-1]
-    hc = HaloCatalog(data_ds=ds,finder_method='fof',output_dir="halo_catalogs/catalog")
+    hc = HaloCatalog(
+        data_ds=ds, finder_method='fof',
+        output_dir=os.path.join(_dir_name, "halo_catalogs/catalog"))
     hc.create()
     masses = hc.data_source['particle_mass'].in_units('Msun')  
     h = ds.hubble_constant
@@ -28,9 +36,10 @@ def test_hmf():
     masses_sim,unique_indices = np.unique(masses_sim,return_index=True)
     
     n_cumulative_sim = n_cumulative_sim[unique_indices]/sim_volume
-    filename = 'data.h5' 
+    filename = 'hmf.h5'
+    save_filename = os.path.join(_dir_name, filename)
     data = {'masses': masses_sim, 'n_sim': n_cumulative_sim}
-    yt.save_as_dataset(ds,filename,data)
+    yt.save_as_dataset(ds, save_filename, data)
 
     # make a plot
     fig = plt.figure(figsize=(8,8))
@@ -38,11 +47,11 @@ def test_hmf():
     plt.ylabel('Cumulative Halo Number Density $\mathrm{Mpc}^{-3}$',fontsize=16)
     plt.xlabel('log Mass/$\mathrm{M}_{\odot}$',fontsize=16)
     plt.tick_params(labelsize=16)
-    plt.savefig('hmf.png',format='png')
+    plt.savefig(os.path.join(_dir_name, 'hmf.png'),format='png')
 
     compare_filename = os.path.join(test_data_dir, filename)
     if generate_answers:
-        os.rename(filename, compare_filename)
+        os.rename(save_filename, compare_filename)
         return
 
     # do the comparison

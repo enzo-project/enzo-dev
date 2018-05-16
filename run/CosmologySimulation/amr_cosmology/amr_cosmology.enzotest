@@ -1,11 +1,12 @@
 name = 'amr_cosmology'
-answer_testing_script = None
+answer_testing_script = 'test_hmf.py'
 nprocs = 1
 runtime = 'short'
 hydro = True
 gravity = True
 AMR = True
 cosmology = True
+cosmology_simulation = True
 dimensionality = 3
 max_time_minutes = 20
 fullsuite = True
