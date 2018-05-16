@@ -41,6 +41,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "Star.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -61,7 +62,7 @@ int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level)
     ENZO_FAIL("Your setup of assymmetrical topgrid is never tested.\n");
   }
       
-  const double pc = 3.086e18, ln2 = 0.69314718;
+  const double ln2 = 0.69314718;
   int MustRefineParticlesRefineToLevel_prev = MustRefineParticlesRefineToLevel;
 
   /* Compute Units. */

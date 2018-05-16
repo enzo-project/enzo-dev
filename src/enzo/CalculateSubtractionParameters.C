@@ -44,8 +44,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 				   float &Radius, double &Subtraction)
 {
 
-  const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
-    sigma_T = 6.65e-25, h=0.70;
+  const double yr = 3.1557e7, Myr = 3.1557e13, sigma_T = 6.65e-25, h=0.70;
 
   float mdot, AccretedMass, SafetyFactor;
   float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, OneOverRSquaredSum, AvgVelocity[MAX_DIMENSION];
@@ -193,14 +192,14 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 
   old_mass = (float)(star_mass);
   mdot = isnan(star_last_accretion_rate) ? 0.0 : star_last_accretion_rate;  
-  AccretedMass = mdot * dtForThisStar * TimeUnits; //in Msun
+  AccretedMass = mdot * dtForThisStar * TimeUnits; //in SolarMass
 
   
   if (MBHAccretionRadius > 0) 
     Radius = MBHAccretionRadius * pc / LengthUnits;
   else {
     SafetyFactor = -MBHAccretionRadius;
-    Radius = SafetyFactor * 2.0 * Grav * old_mass * Msun / (c_s * c_s) / LengthUnits;
+    Radius = SafetyFactor * 2.0 * GravConst * old_mass * SolarMass / (c_s * c_s) / LengthUnits;
   }
 
   Radius = min(max(Radius, 4*StarLevelCellWidth), 100*StarLevelCellWidth);
@@ -285,7 +284,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
      here Subtraction is the density that should be subtracted.
      if one wants to use this, change Grid_SAMFS.C accordingly. */
 
-  Subtraction = -AccretedMass * Msun /   
+  Subtraction = -AccretedMass * SolarMass /   
     (4*pi/3.0 * pow(Radius*LengthUnits, 3)) / DensityUnits; 
 #endif
 

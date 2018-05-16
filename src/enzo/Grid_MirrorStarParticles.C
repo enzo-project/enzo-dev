@@ -19,6 +19,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "Star.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -30,7 +31,6 @@ int grid::MirrorStarParticles(void)
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  const double Msun = 1.989e33;
   int i, dim, place;
   float MassConversion;
   Star *cstar;
@@ -43,7 +43,7 @@ int grid::MirrorStarParticles(void)
   MassConversion = (float) (double(LengthUnits*CellWidth[0][0]) *
 			    double(LengthUnits*CellWidth[0][0]) *
 			    double(LengthUnits*CellWidth[0][0]) *
-			    double(DensityUnits) / Msun);
+			    double(DensityUnits) / SolarMass);
 
   for (cstar = Stars; cstar; cstar = cstar->NextStar) {
 

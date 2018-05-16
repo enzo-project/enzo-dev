@@ -33,15 +33,7 @@ AnalysisBaseClass::AnalysisBaseClass( TopGridData *metadata,
 			    int level,
 			    FLOAT *Left,
 			    FLOAT *Right):
-#ifdef USE_BAD_VALUES
-  G(6.67e-8),
-  MPC_CM(3.0856e+24),
-  MSOLAR_G(1.989e+33)
-#else
-  G(6.6742e-8),
-  MPC_CM(3.0856776e+24),
-  MSOLAR_G(1.989e+33)
-#endif
+
 {
 
   int i;

@@ -28,10 +28,6 @@
 #include "CosmologyParameters.h"
 #include "phys_constants.h"
 
-#define Mpc (3.0856e24)         //Mpc [cm] 
-#define SolarMass (1.989e33)    //Solar Mass [g]
-#define GravConst (6.67e-8)     //Gravitational Constant [cm3g-1s-2]
-
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);

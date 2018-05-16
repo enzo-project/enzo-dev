@@ -54,8 +54,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 {
 
   const float WhalenMaxVelocity = 35;		// km/s
-  const double Msun = 1.989e33;
-  const double c = 3.0e10;
 
   int dim, i, j, k, index;
   int sx, sy, sz;
@@ -177,7 +175,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 //    printf("grid::AFS: before: cstar->Mass = %lf\n", cstar->Mass); 
     if (cstar->FeedbackFlag != SUPERNOVA) {
       float old_mass = (float)(cstar->Mass);
-      cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+      cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / SolarMass;  
       float frac = old_mass / cstar->Mass;
       cstar->vel[0] *= frac;
       cstar->vel[1] *= frac;
@@ -495,7 +493,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     /* Calculate mass that has accumulated thus far; since EjectaDensity is calculated 
        for isotropic MBH_THERMAL, we use it only to compute EjectaMass, not apply it directly. */
 
-    cstar->NotEjectedMass += EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+    cstar->NotEjectedMass += EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / SolarMass;  
 
 //    fprintf(stdout, "d1, d2, d3, i, j, k = %d %d %d / %d %d %d\n", 
 //	    GridDimension[0], GridDimension[1], GridDimension[2], i,j,k);
@@ -529,7 +527,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     
     /* Find ejecta mass */
 
-    EjectaMass = cstar->NotEjectedMass * Msun / DensityUnits / pow(LengthUnits,3.0); 
+    EjectaMass = cstar->NotEjectedMass * SolarMass / DensityUnits / pow(LengthUnits,3.0); 
     EjectaMetalMass = EjectaMass * MBHFeedbackMetalYield;
     OutputWhenJetsHaveNotEjected = FALSE; 
 
@@ -623,7 +621,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       }  // END jj-direction
     }  // END kk-direction
 
-//    printf("EjectaM in Msun = %g, EjectaM = %g, EjectaMetalM = %g, m_cell_edge = %g, n_cell_edge = %d\n",
+//    printf("EjectaM in SolarMass = %g, EjectaM = %g, EjectaMetalM = %g, m_cell_edge = %g, n_cell_edge = %d\n",
 //	   cstar->NotEjectedMass, EjectaMass, EjectaMetalMass, m_cell_edge, n_cell_edge); 
 
     /* Calculate the jet density */
@@ -657,13 +655,13 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
        Note that EjectaThermalEnergy is never used; MBHFeedbackEnergyCoupling 
        should now be calculated considering gravitational redshift (Kim et al. 2010) */
 
-    MBHJetsVelocity = c * sqrt( 2 * MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency 
+    MBHJetsVelocity = clight * sqrt( 2 * MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency 
 				      / MBHFeedbackMassEjectionFraction ) / VelocityUnits;
 
-    if (MBHJetsVelocity * VelocityUnits > 0.99*c) {
+    if (MBHJetsVelocity * VelocityUnits > 0.99*clight) {
       ENZO_VFAIL("grid::AddFS: MBHJetsVelocity is ultra-relativistic! (%g/ %g/ %g/ %g c)\n",
 		 MBHFeedbackEnergyCoupling, MBHFeedbackRadiativeEfficiency, 
-		 MBHFeedbackMassEjectionFraction, MBHJetsVelocity * VelocityUnits / c);
+		 MBHFeedbackMassEjectionFraction, MBHJetsVelocity * VelocityUnits / clight);
     }
 
     /* Finally, add the jet feedback at the edges (outer part of the supercell) */
@@ -760,7 +758,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 //	    old_mass, cstar->Mass, old_vel1, cstar->vel[1]);  
 
     fprintf(stdout, "grid::AddFS: jets injected (EjectaM = %g Ms, JetsVelocity = %g, grid v = %g, rho_jet = %g) along n_L = (%g, %g, %g)\n", 
-	    EjectaMass * DensityUnits * pow(LengthUnits,3.0) / Msun,
+	    EjectaMass * DensityUnits * pow(LengthUnits,3.0) / SolarMass,
 	    MBHJetsVelocity, BaryonField[Vel3Num][n_cell_edge-1], rho_jet, nx_L, ny_L, nz_L); 
 
   }  // END MBH_JETS
@@ -1016,7 +1014,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       // Converting time from years to seconds, then internal units
       float sn_duration = SupernovaSeedFieldDuration * 3.1556952e7 / TimeUnits;
       // Converting radius from parsecs to cm, then internal units
-      float sn_radius = SupernovaSeedFieldRadius * 3.0856775714e18 / LengthUnits;
+      float sn_radius = SupernovaSeedFieldRadius * pc / LengthUnits;
       // Converting energy from ergs to internal units
       float MassUnits = DensityUnits * POW(LengthUnits, 3);
       float sn_energy = SupernovaSeedFieldEnergy / (MassUnits*VelocityUnits*VelocityUnits);

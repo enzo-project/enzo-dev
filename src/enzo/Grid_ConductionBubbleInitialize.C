@@ -44,7 +44,6 @@ static double *rad,*nofr,*Tofr, g, bunch_of_constants, dKdr,
 static int ncells;
 
 #define KEV_KELVIN 1.1604e+7
-#define KPC_CGS 3.0857e+21
 #define DEFAULT_MU 0.6  // we assume total ionization
 
 // Grid Initializer: all input values are in Enzo internal units _except_ 
@@ -128,7 +127,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   nofr = new double[ncells];
   Tofr = new double[ncells];
 
-  dKdr_cgs = dKdr * KEV_KELVIN / KPC_CGS;
+  dKdr_cgs = dKdr * KEV_KELVIN / kpc;
   r_mid_cgs = r_mid * LengthUnits;
   r_max_cgs = 2.0*r_mid_cgs;
 

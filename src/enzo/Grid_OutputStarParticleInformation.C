@@ -26,6 +26,7 @@
 #include "ExternalBoundary.h"
 #include "CosmologyParameters.h"
 #include "Grid.h"
+#include "phys_constants.h"
  
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -60,7 +61,6 @@ int grid::OutputStarParticleInformation(FILE *StarFile)
   }
 
   if (ComovingCoordinates) {
-    const double SolarMass = 1.989e33 /* , Mpc = 3.0824e24 */ ;
     MassConversion *= float(double(DensityUnits)*POW(double(LengthUnits), 3)/
 			   SolarMass);
   }
