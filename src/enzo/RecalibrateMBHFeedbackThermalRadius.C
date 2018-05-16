@@ -45,8 +45,8 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
 					double &EjectaThermalEnergy)
 {
 
-  const double pc = 3.086e18, Msun = 1.989e33, 
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
+  const double 
+    yr = 3.1557e7, Myr = 3.1557e13;
 
   float AvgVelocity[MAX_DIMENSION], MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0;
   float OneOverRSquaredSum, initialRadius; 
@@ -173,7 +173,7 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
 #endif
 
 //  fprintf(stdout, "RecalibrateMFTR: OneOverRSquaredSum = %g\n", OneOverRSquaredSum); 
-//  fprintf(stdout, "RecalibrateMFTR: Radius = %g -> %g, EjectaThermalEnergy = %g -> %g, MassEnclosed = %g Msun\n", 
+//  fprintf(stdout, "RecalibrateMFTR: Radius = %g -> %g, EjectaThermalEnergy = %g -> %g, MassEnclosed = %g SolarMass\n", 
 //	  initialRadius, Radius, EjectaThermalEnergy/pow(initialRadius/Radius,3), 
 //	  EjectaThermalEnergy, MassEnclosed); 
 

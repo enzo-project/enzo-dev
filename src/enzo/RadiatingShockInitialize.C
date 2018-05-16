@@ -333,7 +333,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
       numberInjectionCells = (4./3.) * pi * pow(RadiatingShockSpreadOverNumZones,3);
     }
 
-    InjectionMass2Density_scaleFactor = 1.989e33 / 
+    InjectionMass2Density_scaleFactor = SolarMass / 
       (MassUnits * numberInjectionCells * 
        pow((dx*POW(RefineBy,-MaximumRefinementLevel)),3));
 

@@ -31,6 +31,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 Star *PopStar(Star * &Node);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
@@ -47,7 +48,6 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   float rmerge2, rmerge2o, dx, dx2;
   FLOAT TimeNow;
   int dim, level;
-  const float pc = 3.086e18;
 
   /* Get the time at the finest level */
   

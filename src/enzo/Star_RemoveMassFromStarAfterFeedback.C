@@ -43,7 +43,6 @@ int Star::RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity,
 {
 
   double old_mass;
-  double Msun = 1.989e33;
 
   /* Check if the star type is correct */
 
@@ -76,7 +75,7 @@ int Star::RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity,
     //this actually would not do anything because EjectaDensity = 0 for MBH_THERMAL
     //unless one changes the current scheme - Ji-hoon Kim, Jan.2010
 
-    this->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+    this->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / SolarMass;  
     break;
 
   case MBH_JETS:

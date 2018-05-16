@@ -15,6 +15,7 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "AnalysisBaseClass.h"
+#include "phys_constants.h"
 
 std::map<HierarchyEntry *, int> OriginalGridID;
 #ifdef USE_HDF5_GROUPS

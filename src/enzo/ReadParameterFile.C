@@ -1549,7 +1549,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	MinimumMassForRefinement[i] /= MassUnits;
       }
     if (GravitationalConstant > 12.49 && GravitationalConstant < 12.61) {
-      GravitationalConstant = 4.0 * pi * 6.6726e-8 * DensityUnits * pow(TimeUnits,2);
+      GravitationalConstant = 4.0 * pi * GravConst * DensityUnits * pow(TimeUnits,2);
       printf("Gravitational Constant recalculated from 4pi to 4piG in code units\n");
     }
 

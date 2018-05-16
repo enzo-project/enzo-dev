@@ -45,6 +45,7 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 int mbh_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u, 
 	      float *v, float *w, float *dt, float *r, float *dx, FLOAT *t, 
@@ -58,7 +59,7 @@ int mbh_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 
   int i, j, k, ii, index;
   FILE *fptr;
-  double dummy_double[3], msolar = 1.989e33;
+  double dummy_double[3];
   float dummy_float[3];
   char line[MAX_LINE_LENGTH];
 
@@ -112,7 +113,7 @@ int mbh_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 	  if (r[index] == 0.0) {
 	  
 	    // MBH mass and position
-	    mp[ii] = (float) ( dummy_float[0] * msolar / 
+	    mp[ii] = (float) ( dummy_float[0] * SolarMass / 
 			       ((double)(*d1) * pow((double)((*x1)*(*dx)), 3)) );
 	    xp[ii] = dummy_double[0]; 
 	    yp[ii] = dummy_double[1];
