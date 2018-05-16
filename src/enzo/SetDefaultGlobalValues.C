@@ -789,9 +789,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   iEtot = 4;
   iEint = 0;
 
-  UseDivergenceCleaning		   = 0;
-  DivergenceCleaningBoundaryBuffer = 0;
-  DivergenceCleaningThreshold	   = 0.001;
+  UsePoissonDivergenceCleaning		   = 0;
+  PoissonDivergenceCleaningBoundaryBuffer = 0;
+  PoissonDivergenceCleaningThreshold	   = 0.001;
   PoissonApproximationThreshold	   = 0.001;
   PoissonBoundaryType	   = 0;
 

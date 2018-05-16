@@ -122,7 +122,7 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = ByName;
   DataLabel[count++] = BzName;
   DataLabel[count++] = PhiName;
-  if(UseDivergenceCleaning){
+  if(UsePoissonDivergenceCleaning){
 
     DataLabel[count++] = Phi_pName;
   }

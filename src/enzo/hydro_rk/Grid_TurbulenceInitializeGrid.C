@@ -67,7 +67,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   if ( HydroMethod == MHD_RK){
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
-  if(UseDivergenceCleaning)
+  if(UsePoissonDivergenceCleaning)
     FieldType[NumberOfBaryonFields++] = Phi_pField;
   
   if (MultiSpecies) {

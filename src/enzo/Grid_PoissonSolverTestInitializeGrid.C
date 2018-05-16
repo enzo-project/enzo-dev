@@ -38,7 +38,7 @@ int grid::PoissonSolverTestInitializeGrid(int TestType, float GeometryControl)
   FieldType[B3=NumberOfBaryonFields++] = Bfield3;
   FieldType[NumberOfBaryonFields++] = PhiField;
 
-  if(UseDivergenceCleaning){
+  if(UsePoissonDivergenceCleaning){
     FieldType[phip_num=NumberOfBaryonFields++] = Phi_pField;
   }
 
@@ -55,8 +55,6 @@ int grid::PoissonSolverTestInitializeGrid(int TestType, float GeometryControl)
 
   this->AllocateGrids();
 
-
-    
 
   int p,n=0;
   double x,y,z, magnitude;

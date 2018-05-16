@@ -1134,11 +1134,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 
     /* Read MHD Paramters */
-    ret += sscanf(line, "UseDivergenceCleaning = %"ISYM"", &UseDivergenceCleaning);
-    ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %"ISYM"", &DivergenceCleaningBoundaryBuffer);
-    ret += sscanf(line, "DivergenceCleaningThreshold = %"FSYM, &DivergenceCleaningThreshold);
+    ret += sscanf(line, "UsePoissonDivergenceCleaning = %"ISYM"", &UsePoissonDivergenceCleaning);
+    ret += sscanf(line, "PoissonDivergenceCleaningBoundaryBuffer = %"ISYM"", 
+                        &PoissonDivergenceCleaningBoundaryBuffer);
+    ret += sscanf(line, "PoissonDivergenceCleaningThreshold = %"FSYM, &PoissonDivergenceCleaningThreshold);
     ret += sscanf(line, "PoissonApproximationThreshold = %"FSYM, &PoissonApproximationThreshold);
     ret += sscanf(line, "PoissonBoundaryType = %"ISYM"", &PoissonBoundaryType);
+    //Read old parameter names for kindness.
+    ret += sscanf(line, "UseDivergenceCleaning = %"ISYM"", &UsePoissonDivergenceCleaning);
+    ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %"ISYM"", &PoissonDivergenceCleaningBoundaryBuffer);
+    ret += sscanf(line, "DivergenceCleaningThreshold = %"FSYM, &PoissonDivergenceCleaningThreshold);
    
 
     ret += sscanf(line, "AngularVelocity = %"FSYM, &AngularVelocity);
