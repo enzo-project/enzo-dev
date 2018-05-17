@@ -48,6 +48,7 @@ make -j 4
 cd $BITBUCKET_CLONE_DIR/run
 # First, download the ICs for the cosmology simulation tests from the yt hub
 girder-cli --api-url https://girder.hub.yt/api/v1 download 5af9ef42ec1bd30001fcd001 CosmologySimulation
+girder-cli --api-url https://girder.hub.yt/api/v1 download 5afb0145ec1bd30001fcd024 CosmologySimulation
 python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-store --answer-name=push_suite  --local --strict=high --verbose
 
 # Build the tip version.

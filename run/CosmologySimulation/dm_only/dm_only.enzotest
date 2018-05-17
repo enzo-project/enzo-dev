@@ -1,0 +1,14 @@
+name = 'dm_only'
+answer_testing_script = 'test_dm_only.py'
+nprocs = 1
+runtime = 'short'
+hydro = False
+gravity = True
+AMR = True
+cosmology = True
+cosmology_simulation = True
+dimensionality = 3
+max_time_minutes = 20
+fullsuite = True
+pushsuite = True
+quicksuite = True
