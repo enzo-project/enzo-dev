@@ -186,7 +186,7 @@ used for the left and right states in the Riemann problem.
 ``UsePoissonDivergenceCleaning``:
 Enables additional divergence cleaning by solving a Poisson equation.
 This works on top of the standard mixed hyperbolic/parabolic divergence
-leaning
+cleaning
 and is in most cases not required.
 Works on indiviual grids, i.e., it's *not* a global divergence purge.
 Use with care as this feature is not extensively tested.

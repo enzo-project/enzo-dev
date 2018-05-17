@@ -1087,12 +1087,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "PoissonDivergenceCleaningBoundaryBuffer = %"ISYM"\n",
 	  PoissonDivergenceCleaningBoundaryBuffer);
-  fprintf(fptr, "UsePoissonDivergenceCleaning            = %d\n", UsePoissonDivergenceCleaning);
-  fprintf(fptr, "PoissonDivergenceCleaningThreshold      = %g\n", 
+  fprintf(fptr, "UsePoissonDivergenceCleaning            = %"ISYM"\n", UsePoissonDivergenceCleaning);
+  fprintf(fptr, "PoissonDivergenceCleaningThreshold      = %"GSYM"\n", 
 	  PoissonDivergenceCleaningThreshold);
-  fprintf(fptr, "PoissonApproximationThreshold    = %g\n", 
+  fprintf(fptr, "PoissonApproximationThreshold    = %"GSYM"\n", 
 	  PoissonApproximationThreshold);
-  fprintf(fptr, "PoissonBoundaryType    = %d\n", 
+  fprintf(fptr, "PoissonBoundaryType    = %"ISYM"\n", 
 	  PoissonBoundaryType);
 
   /* Gas Drag */ 
