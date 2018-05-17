@@ -1,3 +1,5 @@
+.. _embedded-python:
+
 Embedded Python
 ===============
 

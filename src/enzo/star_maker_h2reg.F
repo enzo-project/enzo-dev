@@ -9,7 +9,7 @@ c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine star_maker_h2reg(nx, ny, nz,
-     &     d, fHI, temp, u, v, w, cooltime,
+     &     d, fHI, temp, u, v, w,
      &     dt, r, metal, dx, t, z, procnum, 
      &     d1, x1, v1, t1,
      &     nmax, xstart, ystart, zstart, ibuff, 
@@ -27,7 +27,6 @@ c
      &     ColdGasTemperature,
      &     ran1_init, 
      &     level, grid_id,
-     &     oldnp, oldxp, oldyp, oldzp, oldmp, oldtcp, oldtype,
      &     np, xp, yp, zp, up, vp, wp,
      &     mp, tdp, tcp, metalf)
 c     
@@ -71,7 +70,6 @@ c    d     - density field
 c    fHI   - neutral hydrogen mass fraction (rho_HI / rho_tot)
 c    temp  - temperature field
 c    u,v,w - velocity fields
-c    cooltime - cooling time in code units
 c    r     - refinement field (non-zero if zone is further refined)
 c    dt    - current timestep  (root grid time step, if StarFormationOncePerRootGridTimeStep)
 c    dx    - zone size (code units)
@@ -142,11 +140,6 @@ c          for H2FloorInColdGas (see above).
 c
 c    level - current level of refinement
 c    procnum - processor number (for output)
-c    oldnp - number of particles in previous timestep (= NumberOfParticles)
-c    old{x,y,z}p - positions of particles in previous timestep (= ParticlePosition[])
-c    oldmp - mass of particles in previous timestep (= ParticleMass)
-c    oldtcp - creation time of particles in previous timestep (= ParticleAttribute[0])
-c    oldtype - type of particles in previous timestep (= ParticleType)
 c
 c  OUTPUTS:
 c
@@ -182,15 +175,10 @@ c
       INTG_PREC ran1_init
       R_PREC    d(nx,ny,nz), fHI(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), metal(nx,ny,nz)
       R_PREC    dt, dx, z
       R_PREC    d1, x1, v1, t1
       P_PREC xstart, ystart, zstart, t
-
-      INTG_PREC oldnp
-      P_PREC oldxp(oldnp), oldyp(oldnp), oldzp(oldnp)
-      R_PREC oldmp(oldnp), oldtcp(oldnp)
-      INTG_PREC oldtype(oldnp)
 
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)

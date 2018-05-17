@@ -19,7 +19,7 @@ typedef struct {
   // dU
   float *dU[NMHD];
   // source terms
-  float *divB, *gradPhi, *AccelerationField[3], *DrivingForce[3];
+  float  *AccelerationField[3], *DrivingForce[3];
   // Color
   float *Species[MAX_SPECIES];
   float *OldSpecies[MAX_SPECIES];
@@ -50,9 +50,6 @@ void MHDGravitySourceGPU(cuMHDData &Data, float dt);
 
 extern "C"
 void MHDComovingSourceGPU(cuMHDData &Data, float dt, float coef);
-
-extern "C"
-void MHDDednerSourceGPU(cuMHDData &Data);
 
 extern "C"
 void MHDDrivingSourceGPU(cuMHDData &Data, float dt);

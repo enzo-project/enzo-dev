@@ -90,7 +90,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   int dim, i, j, k, m, field, sphere, size, active_size, index, cindex;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum,
-    kphHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3; 
+    kphHeIINum, kdissH2INum, kdissH2IINum, kphHMNum, RPresNum1, RPresNum2, RPresNum3; 
   float *density_field = NULL, *HII_field = NULL, *HeII_field = NULL, 
     *HeIII_field = NULL, *Temperature_field = NULL;
 
@@ -141,8 +141,11 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	FieldType[kphHeINum   = NumberOfBaryonFields++] = kphHeI;
 	FieldType[kphHeIINum  = NumberOfBaryonFields++] = kphHeII;
       }
-      if (MultiSpecies > 1) 
-	FieldType[kdissH2INum    = NumberOfBaryonFields++] = kdissH2I;
+      if (MultiSpecies > 1) {
+	FieldType[kdissH2INum     = NumberOfBaryonFields++] = kdissH2I;
+	FieldType[kdissH2IINum    = NumberOfBaryonFields++] = kdissH2II;
+	FieldType[kphHMNum        = NumberOfBaryonFields++] = kphHM;
+      }
     } 
 
   if (RadiationPressure && RadiativeTransfer) {
@@ -801,6 +804,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    BaryonField[H2INum][n] = H2I_Fraction *
 	      BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)/
 	      (2.0*BaryonMeanDensity);
+	  BaryonField[kdissH2INum][n] = 0.0;
+	  BaryonField[kphHMNum][n] = 0.0;
+	  BaryonField[kdissH2IINum][n] = 0.0;
 	}
 	
 	BaryonField[HINum][n] = 

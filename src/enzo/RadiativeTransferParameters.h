@@ -66,6 +66,10 @@ EXTERN float RadiationPressureScale;
 
 EXTERN int RadiativeTransferOpticallyThinH2;
 
+/* Sets the characteristic length for the self-shielding of Lyman-Werner Radiation */
+
+EXTERN float RadiativeTransferOpticallyThinH2CharLength;
+
 /* Periodic boundary conditions for the photon packages */
 
 EXTERN int RadiativeTransferPeriodicBoundary;
