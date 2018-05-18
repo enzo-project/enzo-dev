@@ -4,7 +4,8 @@ initial refinement and must-refine-particles. The simulation uses Cen
 conditions made with MUSIC. The nested refinement zooms in on the most
 massive halo in the box at z = 1.8. Must-refine-particles are used to
 allow AMR only for particles that end up within 3 virial radii of the
-most massive halo at z = 1.8.
+most massive halo at z = 1.8. The simulation will run in about 1
+minute on a single core.
 
 The zoom initial conditions with must-refine-particle flagging was
 created using the method outlined in
