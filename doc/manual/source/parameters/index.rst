@@ -1924,6 +1924,13 @@ General Star Formation
     or 1  with ``StarParticleFeedback`` method =  1.  See :ref:`distributed_feedback` for an illustration.
     Default: 0.
 
+``StarMakerUseJeansMass`` (external)
+    This parameter controls the usage of the Jeans Mass check for
+    star formation. When spatial resolution gets high enough to
+    resolve the Jeans length, the Jeans Mass check restricts star
+    formation that should occur. Only implemented for
+    ``StarParticleCreation`` method = 1. Default: 1.
+
 ``StarMakerTypeIaSNe`` (external)
     This parameter turns on thermal and chemical feedback from Type Ia
     supernovae.  The mass loss and luminosity of the supernovae are
