@@ -396,7 +396,7 @@ have a look at :ref:`controlling_data_output` for more information.
     a four digit identification number is appended to the end of this
     name, starting from 0000 and incrementing by one for every output.
     This can be over-ridden by including four consecutive R's in the
-    name (e.g. RedshiftRRRR) in which case the an identification number
+    name (e.g. RedshiftRRRR) in which case an identification number
     will not be appended but the four R's will be converted to a
     redshift with an implied decimal point in the middle (i.e. z=1.24
     becomes 0124). Default: RedshiftOutput
@@ -895,8 +895,8 @@ Hierarchy Control Parameters
        specified region are flagged.  Otherwise, the code looks for an ascii 
        input file called MustRefineParticlesFlaggingList.in that contains a list
        of particle ids to be flagged.  The ids in this list must be sorted in 
-       acending order.
-    2. For use with ellipsodial masking in MUSIC inititial conditions.  This
+       ascending order.
+    2. For use with ellipsoidal masking in MUSIC initial conditions.  This
        setting uses traditional static grids for intermediate resolution levels
        MUSIC will generate RefinementMask files and the ``ParticleTypeName``
        parameter should be set to the name of these files.
@@ -970,7 +970,7 @@ Hierarchy Control Parameters
     and each multi-refined region is labelled starting from zero. Default: -1 (no multi-regions)
 ``MultiRefineRegionLeftEdge[#]``, ``MultiRefineRegionRightEdge[#]`` (external)
     Used when ``MultiRefineRegionGeometry[#] = 0`` and specifies the two corners in code units of a 
-    rectagular multi-region with a given maximum and minimum refinement level. Default: none.
+    rectangular multi-region with a given maximum and minimum refinement level. Default: none.
 ``MultiRefineRegionCenter[#]`` (external)
     Used when ``MultiRefineRegionGeometry[#] = 1 or 2`` and specifies the center of the ring or cylinder 
     in code units. Default: none
@@ -1090,11 +1090,11 @@ General Gravity Parameters
     This flag (1 - on, 0 - off) indicates if the baryons and particles
     undergo self-gravity.
 ``SelfGravityGasOff`` (external)
-    This parameter is used in conjuction with SelfGravity so that only particles contribute to potential, not gas. Default = False (i.e. gas does contribute)
+    This parameter is used in conjunction with SelfGravity so that only particles contribute to potential, not gas. Default = False (i.e. gas does contribute)
 ``GravitationalConstant`` (external)
     This is the gravitational constant to be used in code units. For cgs units it
     should be 4\*pi\*G. For cosmology, this value must be 1 for the
-    standard units to hold. A more detailed decription can be found at :ref:`EnzoInternalUnits`. Default: 4\*pi.
+    standard units to hold. A more detailed description can be found at :ref:`EnzoInternalUnits`. Default: 4\*pi.
 ``PotentialIterations`` (external)
     Number of iterations to solve the potential on the subgrids. Values
     less than 4 sometimes will result in slight overdensities on grid
@@ -1486,11 +1486,11 @@ Magnetohydrodynamics (CT) Parameters
 ``ReconstructionMethod`` (external) 
     There are two reconstruction methods
     that work with MHDCT: Piecewise Linear Method (PLM) (0) and MUSCL-Hancock (6).  This
-    formuation of MUSCL-Hancock is different from the 2nd order Runga Kutta used for
+    formulation of MUSCL-Hancock is different from the 2nd order Runga Kutta used for
     ``HydroMethod = 3,4``.     
 
 ``RiemannSolver`` (external)  
-    As with ``HydroMethod=4``, the prefered solver is
+    As with ``HydroMethod=4``, the preferred solver is
     HLLD (``RiemannSolver=6``).  Other solvers may be released if the DOE approves
     them.
 
@@ -1530,9 +1530,10 @@ Because many of the following parameters are not actively being tested and maint
 ``UsePoissonDivergenceCleaning`` (external)
     Enables additional divergence cleaning by solving a Poisson equation.
     This works on top of the standard mixed hyperbolic/parabolic divergence cleaning
-    and is in most cases not required.
-    Works on indiviual grids, i.e., it's *not* a global divergence purge.
-    Use with care as this feature is not extensively tested.
+    and is not necessary for the proper operation of the solver. 
+    This works on individual grids, i.e., it's *not* a global divergence purge.
+    Use with care as this feature is not extensively tested.  No recommendation
+    about the use of this option is made by the developers at this time.
     Method 1 and 2 are a failed experiment to do divergence cleaning
     using successive over relaxation. Method 3 uses conjugate gradient
     with a 2 cell stencil and Method 4 uses a 4 cell stencil. 4 is more

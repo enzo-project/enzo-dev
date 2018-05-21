@@ -183,13 +183,17 @@ used for the left and right states in the Riemann problem.
 
 0. PLM: **default**
 
-``UsePoissonDivergenceCleaning``:
-Enables additional divergence cleaning by solving a Poisson equation.
-This works on top of the standard mixed hyperbolic/parabolic divergence
-cleaning
-and is in most cases not required.
-Works on indiviual grids, i.e., it's *not* a global divergence purge.
-Use with care as this feature is not extensively tested.
+``UsePoissonDivergenceCleaning`` (external)
+    Enables additional divergence cleaning by solving a Poisson equation.
+    This works on top of the standard mixed hyperbolic/parabolic divergence cleaning
+    and is not necessary for the proper operation of the solver. 
+    This works on individual grids, i.e., it's *not* a global divergence purge.
+    Use with care as this feature is not extensively tested.  No recommendation
+    about the use of this option is made by the developers at this time.
+    Method 1 and 2 are a failed experiment to do divergence cleaning
+    using successive over relaxation. Method 3 uses conjugate gradient
+    with a 2 cell stencil and Method 4 uses a 4 cell stencil. 4 is more
+    accurate but can lead to aliasing effects. 
 
 Default: 0 (off)
 
