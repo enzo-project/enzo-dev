@@ -1,20 +1,19 @@
 .. _FlowChart:
 
-Enzo Flow Chart, Source Browser
-===============================
+Enzo Flow Chart
+===============
 
 `Here's a cartoon of
 Enzo. <../_static/flowchart/main.html>`_ This was
-written as a first look as the details of how enzo works.  Black
+written as a first look at the details of how Enzo works.  Black
 arrows indicate further flow charts. Grey boxes (usually) indicate
 direct links to the source code.
 
 No guarantees are made regarding the correctness of this flowchart --
 it's meant to help get a basic understanding of the flow of Enzo
-before extensive code modifications.  `Also see the Enzo Source
-Browser. <http://lca.ucsd.edu/software/enzo/v1.0.1/source_browser/>`_
-This is a second attempt at the same thing in a more dynamic way.  It
-allows one to (in principle) see all the routines called from a
-function, in order, and jump to the source showing the call. It also
-allows you to see a reverse call stack of every routine that calls a
-particular function.
+before extensive code modifications. This flowchart is certainly
+out of date and contains inaccuracies. The user should consult the 
+source code for an up-to-date look at how Enzo works. The purpose 
+of this flowchart is just to get a rough idea of how Enzo works,
+but it does not show the exact order of operations, and it does not 
+show all the methods that exist in the Enzo source code.
