@@ -44,6 +44,7 @@
 int FindField(int field, int farray[], int numfields);
 
 void mt_init(unsigned_int seed);
+unsigned_long_int mt_random();
 
 int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits, 
 			    float LengthUnits, float VelocityUnits, 
@@ -993,15 +994,16 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
    
 
   // Create a randomly-oriented SuperNova object and add it to the SuperNova Grid list
-  if (cstar->FeedbackFlag == SUPERNOVA_SEEDFIELD) {
+  if (cstar->ReturnFeedbackFlag() == SUPERNOVA_SEEDFIELD) {
     if(UseSupernovaSeedFieldSourceTerms){
 
-      SuperNova *P = new SuperNova();
-      int mt_seed = 100;
-      mt_init(mt_seed);
-      float random_u = (float)mt_seed/100.0; // random variable from 0 to 1
-      float random_v = (float)mt_seed/100.0;
-      float random_phi = 2*M_PI*random_u; // 0 to 2pi                                                                                    
+      SuperNova P = SuperNova();
+
+      mt_init((unsigned_int) cstar->ReturnID());
+      
+      float random_u = (float)(mt_random()%32768)/32768.0; // random variable from 0 to 1      
+      float random_v = (float)(mt_random()%32768)/32768.0;
+      float random_phi = 2*M_PI*random_u; // 0 to 2pi        
       float random_theta = acos(2*random_v-1); // 0 to pi                                                                                
       // Setting up randomly oriented magnetic feedback of supernova
       float phi_x = sin(random_theta)*cos(random_phi);
@@ -1023,11 +1025,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       // Creates a supernova with magnetic feedback set by user-defined parameters and 
       // adds it to supernova list
       if((Time > sn_birthtime) && (Time < sn_birthtime + SupernovaSeedFieldDuration)){
-        P->setValues(phi_x, phi_y, phi_z, cstar->pos[0], cstar->pos[1], cstar->pos[2], 
+        P.setValues(phi_x, phi_y, phi_z, cstar->pos[0], cstar->pos[1], cstar->pos[2], 
 		     sn_radius, sn_birthtime, sn_duration, sn_energy);
 
-        this->SuperNovaList.append(P);
-	printf("Added supernova to list \n"); 
+        this->SuperNovaList.push_back(P);
       }
     }
   }

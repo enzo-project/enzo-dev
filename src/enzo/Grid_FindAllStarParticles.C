@@ -58,7 +58,7 @@ int grid::FindAllStarParticles(int level)
        	(StarParticleRadiativeFeedback == TRUE &&
 	 ParticleType[i] == PARTICLE_TYPE_STAR)) {
 
-      if (ParticleType[i] == PARTICLE_TYPE_STAR)
+      if (ParticleType[i] == PARTICLE_TYPE_STAR && UseSupernovaSeedFieldSourceTerms == 0)
 	LifetimeFactor = 12.0;
       else
 	LifetimeFactor = 1.0;

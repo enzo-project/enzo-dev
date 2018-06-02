@@ -11,6 +11,7 @@
 ************************************************************************/
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
+#include <vector>
 #include "ProtoSubgrid.h"
 #include "ListOfParticles.h"
 #include "region.h"
@@ -20,7 +21,6 @@
 #include "Star.h"
 #include "FOF_allvars.h"
 #include "MemoryPool.h"
-#include "list.h"
 #include "hydro_rk/SuperNova.h"
 #ifdef ECUDA
 #include "hydro_rk/CudaMHD.h"
@@ -3011,9 +3011,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHDCT_ConvertEnergyToConservedS();
   int MHDCT_ConvertEnergyToSpecificS();
 
-  //List of SuperNova objects that each grid needs to keep track of                                                                      
-  
-  List<SuperNova> SuperNovaList;
+  //List of SuperNova objects that each grid needs to keep track of         
+  std::vector<SuperNova> SuperNovaList;
   
 
 };

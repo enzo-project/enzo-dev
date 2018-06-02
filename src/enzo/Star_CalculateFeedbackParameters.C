@@ -247,6 +247,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
     
     break;
 
+  case SUPERNOVA_SEEDFIELD:
+    Radius = 1.1*SupernovaSeedFieldRadius * pc / LengthUnits; // Real injection radius SupernovaSeedFieldRadius 
+    break;
+
   } // ENDSWITCH FeedbackFlag
   
 //    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 

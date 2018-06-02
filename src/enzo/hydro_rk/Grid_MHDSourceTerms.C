@@ -19,7 +19,6 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
-#include "list.h"
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
@@ -357,12 +356,11 @@ int grid::MHDSourceTerms(float **dU)
     }
   }
   
-if((UseSupernovaSeedFieldSourceTerms == 1)) {
+if(UseSupernovaSeedFieldSourceTerms) {
 
   int n = 0, igrid;
   int iden=FindField(Density, FieldType, NumberOfBaryonFields);
   snsf_source_terms S;
-  List<SuperNova>::Iterator *P = this->SuperNovaList.begin();
   FLOAT cell_center[3];
   FLOAT dx, dy, dz, dist_to_sn;
   int temp =1;
@@ -377,23 +375,24 @@ if((UseSupernovaSeedFieldSourceTerms == 1)) {
 	cell_center[1] = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
 	cell_center[2] = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
 
-	while(P != this->SuperNovaList.end()){
-	  dx = P->get()->getPosition()[0] - cell_center[0];
-	  dy = P->get()->getPosition()[1] - cell_center[1];
-	  dz = P->get()->getPosition()[2] - cell_center[2];
+	for (std::vector<SuperNova>::iterator P = this->SuperNovaList.begin(); 
+	     P != this->SuperNovaList.end(); P++){
+	  dx = P->getPosition()[0] - cell_center[0];
+	  dy = P->getPosition()[1] - cell_center[1];
+	  dz = P->getPosition()[2] - cell_center[2];
 
 	  dist_to_sn = sqrt(dx*dx + dy*dy + dz*dz);
 	  if (dist_to_sn < 1.1*SupernovaSeedFieldRadius){
-	    S = P->get()->getSourceTerms(dx, dy, dz, Time);
+	    S = P->getSourceTerms(dx, dy, dz, Time);
    	    double rho = BaryonField[DensNum][igrid];
-
+	    
 	    dU[iBx][n] += S.dbx*dtFixed;
 	    dU[iBy][n] += S.dby*dtFixed;
 	    dU[iBz][n] += S.dbz*dtFixed;
 	    dU[iEtot][n] += S.dUtot*dtFixed;
 
 	  }
-	  P = P->next();
+
 	}// End of SuperNovaList iteration                                                                                           
       } // End of k for-loop                                                                                                         
     } // End of j for-loop                                                                                                           

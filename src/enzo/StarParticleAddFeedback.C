@@ -163,7 +163,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     LCAPERF_START("star_FindFeedbackSphere2");
     if ((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
 	 cstar->ReturnFeedbackFlag() == MBH_JETS ||
-	 cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA) &&
+	 cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
+         cstar->ReturnFeedbackFlag() == SUPERNOVA_SEEDFIELD) &&
 	LevelArray[level+1] != NULL)
       cstar->FindFeedbackSphere
 	(LevelArray, level+1, influenceRadius, EjectaDensity, EjectaThermalEnergy, 
