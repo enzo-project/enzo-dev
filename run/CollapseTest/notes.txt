@@ -1,0 +1,18 @@
+CollapseTestNonCosmological
+------------------------
+
+This test problem initializes a constant density sphere at the center of the box 
+with radius of 0.15 of the box width.  The sphere is in pressure equilibrium with 
+its surroundings.  The sphere will collapse dynamically and reach its peak density 
+at t ~ 5.2 in code units.  Radiative cooling is turned off, so the sphere will bounce 
+and reach an equilibrium state.
+
+This test runs to completion (t = 7) and produces 71 outputs in roughly an hour 
+on a single processor.  In plot.py, we plot the evolution of the peak density versus 
+time create density projections for each output.
+
+Note for comparing with Enzo 1.5 - By default, Enzo 2.0 performs 4 iterations of 
+the multigrid gravity solver (configurable with the PotentialIterations parameter).  
+However, the default number of potential iteration in Enzo 1.5 is 0 and there is 
+no parameter to change this.  For a direct comparison, Enzo 1.5 must be compiled 
+with MAX_POTENTIAL_ITERATIONS (in macros_and_parameters.h) set to 4.

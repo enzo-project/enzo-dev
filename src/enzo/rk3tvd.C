@@ -53,8 +53,8 @@ int rk3tvd(double *repsi, double *impsi, double *repsi0, double *impsi0,
   int i, j, k, jsm1, ksm1, jep1, kep1, ism2, jsm2, ksm2, jep2, kep2;
   int size = in*jn*kn;
 
-  float *delre = new float[size];
-  float *delim = new float[size];
+  double *delre = new double[size];
+  double *delim = new double[size];
 
   /* ======================================================================= */
 

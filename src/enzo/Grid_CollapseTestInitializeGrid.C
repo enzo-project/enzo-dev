@@ -140,16 +140,16 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
     }
   }
-  if (QuantumPressure){
-    FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
-    FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
-  }
   if (SphereUseMetals)
     FieldType[MetalNum = NumberOfBaryonFields++] = SNColour;
 
   int ColourNum = NumberOfBaryonFields;
   if (SphereUseColour)
     FieldType[NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
+  if (QuantumPressure){
+    FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
+    FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
+  }
 
   /* Return if this doesn't concern us. */
 

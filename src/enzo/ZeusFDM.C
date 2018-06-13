@@ -53,7 +53,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
   int size = in*jn*kn;
   float gamma1 = gamma[0];
   float  deltav, dt1, e1;
-  //float *logd = new float[size];
+  float *logd = new float[size];
   //float *visx = new float[size];
   //float *visy = new float[size];
   //float *visz = new float[size];
@@ -76,7 +76,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
 
   /* compute log of density */
   
-   /*for (i = 0; i < size; i++) {
+   for (i = 0; i < size; i++) {
     if (d[i] < 0) {
       fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
         u[i],v[i],w[i],d[i],p[i], dx[0], dt);
@@ -84,12 +84,12 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
     } else{
       logd[i] = log(d[i]);
     }
-  }*/
+  }
 
   /* Compute the quantum pressure */
   
 
-  /*for (k = 0; k < kn; k++) {
+  for (k = 0; k < kn; k++) {
     for (j = 0; j < jn; j++) {
       for (i = 0; i < in; i++){
 
@@ -166,7 +166,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
           e[IDX(i,j,k)] = 1e3;          
                   }// end loop over i
     } // end loop over j
-  } // end loop over k */
+  } // end loop over k 
 
   /* 1) Substep 1 -- pressure and gravity terms */
       /* Update velocities */
@@ -175,16 +175,16 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
     for (j = jsm1; j <= jep2; j++) {
       for (i = is-1; i <= ie+2; i++) {
       		
-          deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i-1,j,k)])/dx[i]*lapcoef;// + visx[IDX(i,j,k)]* 1e-1;
+          deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i-1,j,k)])/dx[i];// + visx[IDX(i,j,k)]* 1e-1;
 		      u[IDX(i,j,k)] = u[IDX(i,j,k)] + deltav;
 
       if (rank > 1) {
-      		deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i,j-1,k)])/dy[j]*lapcoef;// + visy[IDX(i,j,k)]* 1e-1;
+      		deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i,j-1,k)])/dy[j];// + visy[IDX(i,j,k)]* 1e-1;
       	  v[IDX(i,j,k)] = v[IDX(i,j,k)] + deltav;
           }// end rank >1
 
       if (rank > 2) {
-      		deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i,j,k-1)])/dz[k]*lapcoef;// + visz[IDX(i,j,k)]* 1e-1;
+      		deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i,j,k-1)])/dz[k];// + visz[IDX(i,j,k)]* 1e-1;
       	  w[IDX(i,j,k)] = w[IDX(i,j,k)] + deltav;
         }// end rank>2
 
@@ -207,161 +207,11 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
       }// end loop over i
     } // end: loop over j
   } // end: loop over k
- /* 2) Substep 2 -- artificial viscosity */
-
-  //      nstep = 1;
-  nstep = 5;
-  dt1 = dt/float(nstep);
-
-  for (n = 0; n < nstep; n++) {
-    for (k = ksm2; k < kn; k++) {
-      for (j = jsm2; j < jn; j++) {
-
-	/* a) Quadratic viscosity */
-
-	for (i = is-2; i <= ie+2; i++) {
-	  if ((u[IDX(i+1,j,k)]-u[IDX(i,j,k)]) < 0.0){
-	    q[i] = C2*d[IDX(i,j,k)]*pow(u[IDX(i+1,j,k)]-u[IDX(i,j,k)],2.0);}
-	  else{
-	    q[i] = 0.0;}
-	}
-
-	/* b) linear viscosity */
-
-	if (C1 != 0.0) {
-	    for (i = is-2; i <= ie+2; i++){
-	      q[i] = q[i] + C1*d[IDX(i,j,k)]*(u[IDX(i+1,j,k)]-u[IDX(i,j,k)])*
-		    sqrt(gamma1*p[IDX(i,j,k)]/d[IDX(i,j,k)]);}
-	}
-
-	q[is-3] = q[is-2];
-	q[ie+3] = q[ie+2];
-
-	/* update velocity1 and energy */
-
-	for (i = is-2; i <= ie+3; i++){
-	  u[IDX(i,j,k)] = u[IDX(i,j,k)] + dt1*(q[i-1]-q[i])/
-		(dx[i]*0.5*(d[IDX(i,j,k)]+d[IDX(i-1,j,k)]));}
-
-      } // end loop over j
-    } // end loop over k
-
-    /* update velocity2 and energy */
-
-    if (rank > 1) {
-      for (k = ksm2; k < kn; k++) {
-	for (i = is-2; i < in; i++) {
-
-	  for (j = js-2; j <= je+2; j++) {
-	    if ((v[IDX(i,j+1,k)]-v[IDX(i,j,k)]) < 0.0){
-	      q[j] = C2*d[IDX(i,j,k)]*pow(v[IDX(i,j+1,k)]-v[IDX(i,j,k)], 2.0);
-	    }
-	    else{
-	      q[j] = 0.0;
-	    }
-	  }
-
-	  if (C1 != 0.0) {
-	      for (j = js-2; j <= je+2; j++){
-		q[j] = q[j] + C1*d[IDX(i,j,k)]*(v[IDX(i,j+1,k)]-v[IDX(i,j,k)])*
-		      sqrt(gamma1*p[IDX(i,j,k)]/d[IDX(i,j,k)]);
-	    }
-	  }
-
-	  q[js-3] = q[js-2];
-	  q[je+3] = q[je+2];
-
-	  for (j = js-2; j <= je+3; j++){
-	    v[IDX(i,j,k)] = v[IDX(i,j,k)] + dt1*(q[j-1]-q[j])/
- 		            (dy[j]*0.5*(d[IDX(i,j,k)]+d[IDX(i,j-1,k)]));}
-
-	} // end: loop over i
-      } // end: loop over k
-    } // end: if (rank > 1)
-
-    /*  update velocity3 and energy */
-
-    if (rank > 2) {
-      for (j = jsm2; j < jn; j++) {
-	for (i = is-2; i < in; i++) {
-
-	  for (k = ks-2; k <= ke+2; k++) {
-	    if ((w[IDX(i,j,k+1)]-w[IDX(i,j,k)]) < 0.0){
-	      q[k] = C2*d[IDX(i,j,k)]*pow(w[IDX(i,j,k+1)]-w[IDX(i,j,k)], 2.0);
-	    }
-	    else{
-	      q[k] = 0.0;
-	    }
-	  }
-
-	  if (C1 != 0.0) {
-	      for (k = ks-2; k <= ke+2; k++){
-		q[k] = q[k] + C1*d[IDX(i,j,k)]*(w[IDX(i,j,k+1)]-w[IDX(i,j,k)])*
-		                  sqrt(gamma1*p[IDX(i,j,k)]/d[IDX(i,j,k)]);
-	    }
-	  }
-
-	  q[ks-3] = q[ks-2];
-	  q[ke+3] = q[ke+2];
-
-
-	  for (k = ks-2; k <= ke+3; k++){
-	    w[IDX(i,j,k)] = w[IDX(i,j,k)] + dt1*(q[k-1]-q[k])/
-		            (dz[k]*0.5*(d[IDX(i,j,k)]+d[IDX(i,j,k-1)]));}
-
-	} // end loop over i
-      } // end loop over j
-    } // end: if (rank > 2)
-
-  } // end: loop over nstep (end of artificial viscosity)
-
-  /* 3) Add MinimumPressureSupport */
-
-  if (minsupecoef>0){
-    // compute pressure
-  for (k = 0; k < kn; k++) {
-    for (j = 0; j < jn; j++) {
-      for (i = 0; i < in; i++){
-    e1 = minsupecoef*d[IDX(i,j,k)];
-    gamma1 = 5./3.;
-    e[IDX(i,j,k)] = (gamma1-1.0)*d[IDX(i,j,k)]*e1;
-                              }// end loop over i
-                            }// end loop over j
-                          }// end loop over k
-
-  for (k = ksm2; k <= kep2; k++) {
-    for (j = jsm2; j <= jep2; j++) {
-      for (i = is-1; i <= ie+2; i++) {
-          
-          deltav =  dt*(e[IDX(i-1,j,k)]-e[IDX(i,j,k)])/(dx[i]*0.5*(d[IDX(i-1,j,k)]+d[IDX(i,j,k)]));
-          u[IDX(i,j,k)] = u[IDX(i,j,k)] + deltav;
-
-      if (rank > 1) {
-          deltav = dt*(e[IDX(i,j-1,k)]-e[IDX(i,j,k)])/(dy[j]*0.5*(d[IDX(i,j-1,k)]+d[IDX(i,j,k)]));
-          v[IDX(i,j,k)] = v[IDX(i,j,k)] + deltav;
-          }
-      if (rank > 2) {
-          deltav = dt*(e[IDX(i,j,k-1)]-e[IDX(i,j,k)])/(dz[k]*0.5*(d[IDX(i,j,k-1)]+d[IDX(i,j,k)]));
-          w[IDX(i,j,k)] = w[IDX(i,j,k)] + deltav;
-          }
-        }// end loop over i
-      }// end loop over j
-    }// end loop over k
-
-  for (k = 0; k < kn; k++) {
-    for (j = 0; j < jn; j++) {
-      for (i = 0; i < in; i++){
-    e[IDX(i,j,k)] = 1e3;
-                              }// end loop over i
-                            }// end loop over j
-                          }// end loop over k
-
-          }// end min pressure support
 
 
 
 
-//delete [] logd;
+delete [] logd;
 
 //delete [] visx;
 //delete [] visy;

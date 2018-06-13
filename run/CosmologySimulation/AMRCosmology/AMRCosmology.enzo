@@ -13,17 +13,17 @@ SelfGravity                = 1       // gravity on
 TopGridGravityBoundary     = 0       // Periodic BC for gravity
 LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
 RightFaceBoundaryCondition = 3 3 3
-NumberOfGhostZones         = 4
+NumberOfGhostZones         = 8
 
 #
 # problem parameters
 #
-CosmologySimulationOmegaBaryonNow       = 0.0441
+CosmologySimulationOmegaBaryonNow       = 0.2239
 CosmologySimulationOmegaCDMNow          = 0.2239
-CosmologySimulationDensityName          = GridDensity
-CosmologySimulationVelocity1Name        = GridVelocities_x
-CosmologySimulationVelocity2Name        = GridVelocities_y
-CosmologySimulationVelocity3Name        = GridVelocities_z
+CosmologySimulationDensityName          = GridDensity.new
+#CosmologySimulationVelocity1Name        = GridVelocities_x
+#CosmologySimulationVelocity2Name        = GridVelocities_y
+#CosmologySimulationVelocity3Name        = GridVelocities_z
 #CosmologySimulationParticlePositionName = ParticlePositions
 #CosmologySimulationParticleVelocityName = ParticleVelocities
 CosmologySimulationNumberOfInitialGrids = 1
@@ -45,7 +45,7 @@ GravitationalConstant      = 1
 #
 # I/O and stop/start parameters
 #
-dtDataDump       = 5
+dtDataDump       = 0.5
 RedshiftDumpName = RD
 RedshiftDumpDir  = RD
 DataDumpName     = DD
@@ -70,9 +70,9 @@ Gamma                       = 1.6667
 PPMDiffusionParameter       = 0       // diffusion off
 DualEnergyFormalism         = 0       // use total & internal energy
 InterpolationMethod         = 1       // SecondOrderA
-FluxCorrection              = 1
+FluxCorrection              = 0
 ConservativeInterpolation   = 0
-CourantSafetyNumber         = 0.5
+CourantSafetyNumber         = 0.4
 ParticleCourantSafetyNumber = 0.8
 UseMinimumPressureSupport   = 0
 
@@ -122,4 +122,5 @@ StarFeedbackDistCellStep      = 3
 GreensFunctionMaxNumber = 40
 ParallelRootGridIO      = 1
 ParallelParticleIO      = 1
+PartitionNestedGrids    = 1
 Debug1 = 1

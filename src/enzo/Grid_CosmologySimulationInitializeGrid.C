@@ -128,7 +128,6 @@ int grid::CosmologySimulationInitializeGrid(
 #endif
   int MachNum, PSTempNum, PSDenNum;
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, PhotoGammaNum;
-  int RePsiNum, ImPsiNum;
  
   int ExtraField[2];
   int ForbidNum, iTE, iCR;
@@ -310,12 +309,6 @@ int grid::CosmologySimulationInitializeGrid(
 	FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
       }
     }
-
-    if(QuantumPressure){
-    //FieldType[QNum = NumberOfBaryonFields++] = QPres;
-    FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
-    FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
-    }    
   }
  
   // Set the subgrid static flag
@@ -606,25 +599,6 @@ int grid::CosmologySimulationInitializeGrid(
                     CosmologySimulationInitialUniformBField[field];
               }                               
       }  // if(UseMHDCT == TRUE)              
-    }
-  
-    /* Initialize Quantum Pressure */
-    if (QuantumPressure && ReadData){
-      printf("Initializing Wave Function...\n");
-
-     // if (this->InitializeWaveFunction (Time) == FAIL) { 
-      //  ENZO_FAIL("Error in Initialize Wave Function!\n");
-      //}
-      printf("Wave Function Initialized.\n");
-
-      /*printf("Initializing Quantum Pressure...\n");
-
-      if (this->ComputeQuantumPressure (Time) == FAIL) { 
-        ENZO_FAIL("Error in ComputeQuantumPressure!\n");
-      }
-      printf("Quantum Pressure Initialized.\n");*/
-
-
     }
 
   } // end: if (CosmologySimulationDensityName != NULL && ReadData)

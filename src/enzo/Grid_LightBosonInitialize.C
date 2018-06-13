@@ -84,9 +84,9 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
     // set up an initial Gaussian density profile, v=0
 
 // 1) Gaussian Density Field
-      BaryonField[iden ][index] = 1*exp(-alpha*pow(x,2)/sumsquare)/pow(sumsquare,0.5)/5; 
-      BaryonField[RePsiNum][index] = sqrt(BaryonField[iden ][index]);
-      BaryonField[ImPsiNum][index] = 0;
+      //BaryonField[iden ][index] = 1*exp(-alpha*pow(x,2)/sumsquare)/pow(sumsquare,0.5)/5; 
+      //BaryonField[RePsiNum][index] = sqrt(BaryonField[iden ][index]);
+      //BaryonField[ImPsiNum][index] = 0;
       //BaryonField[ivx ][index] = 1.e-4*exp(-alpha*pow(x,2)/sumsquare); // Gaussian Density Field
       //BaryonField[ivx  ][index] = xv/sumsquare*coef*coef*initialtime;
 // 2) Fresnel solution
@@ -121,25 +121,23 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
       }*/
 
 //  4) Two colliding Gaussian packets
-    /*expa = exp(-alpha*pow((x+a),2)/sumsquare/2.);
+    expa = exp(-alpha*pow((x+a),2)/sumsquare/2.);
     expb = exp(-alpha*pow((x-a),2)/sumsquare/2.);
-    float k = 2*pi*20;
+    float k1 = 2*pi;
+    float k2 = 2*pi;
     float rho = expa*expa + expb*expb + expa*expb*2*cos(2*k*x);
 
-    BaryonField[iden][index] = rho;
-    BaryonField[RePsiNum][index] = expa*cos(k*(x+a)) + expb*cos(k*(x-a));
-    BaryonField[ImPsiNum][index] = expa*sin(k*(x+a)) - expb*sin(k*(x-a));*/
-    //BaryonField[ivx][index] = coef*(k*(expa*expa-expb*expb)-2*a*alpha/sumsquare*expa*expb*sin(2*k*x))/rho;
+    BaryonField[RePsiNum][index] = expa*cos(k1*(x+a)) + expb*cos(k2*(x-a));
+    BaryonField[ImPsiNum][index] = expa*sin(k1*(x+a)) - expb*sin(k2*(x-a));
+    BaryonField[iden][index] = BaryonField[RePsiNum][index]*BaryonField[RePsiNum][index] + BaryonField[ImPsiNum][index]*BaryonField[ImPsiNum][index];
+
+    BaryonField[ivx][index] = coef*(k1*(expa*expa-expb*expb)-2*a*alpha/sumsquare*expa*expb*sin(2*k*x))/rho;
 
 
-      BaryonField[ivx  ][index] = 0*(xv-CenterPosition)/sumsquare*coef*coef*initialtime;
+      //BaryonField[ivx  ][index] = 0*(xv-CenterPosition)/sumsquare*coef*coef*initialtime;
       BaryonField[ivy  ][index] = 0;
       BaryonField[ivz  ][index] = 0;
       BaryonField[ietot][index] = 100; 
-      //BaryonField[ivx][127] = -5e-7;  
-      //BaryonField[ivx][128] = 1e-6;   
-      //BaryonField[ivx][129] = -4e-7;  
-
   }
   }
   }

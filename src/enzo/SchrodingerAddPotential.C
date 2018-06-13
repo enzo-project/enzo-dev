@@ -37,11 +37,12 @@ c
 #include "fortran.def"
 
 #define IDX(a,b,c) ( ((c)*jn + (b))*in + (a) )
-#define GIDX(a,b,c) ( ((c)*(jn+2) + (b))*(in+2) + (a) )
+#define GIDX(a,b,c) ( ((c)*gjn + (b))*gin + (a) )
 
 
 int SchrdingerAddPotential(double *repsi, double *impsi,
          int in, int jn, int kn, int rank,
+         int gin, int gjn, int gkn,
          int is, int ie, int js, int je, int ks, int ke, 
          double dt, 
          double hmcoef,
@@ -53,9 +54,6 @@ int SchrdingerAddPotential(double *repsi, double *impsi,
 
   int i, j, k, jsm1, ksm1, jep1, kep1, ism2, jsm2, ksm2, jep2, kep2;
   int size = in*jn*kn;
-
-  float *delre = new float[size];
-  float *delim = new float[size];
 
   /* ======================================================================= */
 
@@ -75,11 +73,11 @@ int SchrdingerAddPotential(double *repsi, double *impsi,
   for (k = 0; k < kn; k++) {
     for (j = 0; j < jn; j++) {
       for (i = 0; i < in; i++){
-        auxre = cos(p[GIDX(i+start1, j+start2, k+start3)] / hmcoef * dt /2. ) * repsi[IDX(i,j,k)] 
-              + sin(p[GIDX(i+start1, j+start2, k+start3)] / hmcoef * dt /2. ) * impsi[IDX(i,j,k)];
+        auxre = cos(p[GIDX(i+start1, j+start2, k+start3)] / hmcoef * dt ) * repsi[IDX(i,j,k)] 
+              + sin(p[GIDX(i+start1, j+start2, k+start3)] / hmcoef * dt ) * impsi[IDX(i,j,k)];
 
-        auxim = cos(p[GIDX(i+start1, j+start2, k+start3)] / hmcoef * dt /2. ) * impsi[IDX(i,j,k)] 
-              - sin(p[GIDX(i+start1, j+start2, k+start3)] / hmcoef * dt /2. ) * repsi[IDX(i,j,k)];
+        auxim = cos(p[GIDX(i+start1, j+start2, k+start3)] / hmcoef * dt ) * impsi[IDX(i,j,k)] 
+              - sin(p[GIDX(i+start1, j+start2, k+start3)] / hmcoef * dt ) * repsi[IDX(i,j,k)];
 
         repsi[IDX(i,j,k)] = auxre;
         impsi[IDX(i,j,k)] = auxim;

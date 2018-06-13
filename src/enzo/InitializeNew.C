@@ -51,6 +51,8 @@ int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
 // Initialization function prototypes
 int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
         TopGridData &MetaData);//FDM
+int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+        TopGridData &MetaData);//FDM collapse
 int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
@@ -506,7 +508,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 30) Cosmology Simulation
  
   if (ProblemType == 30) {
-    if (PartitionNestedGrids) {
+    if (PartitionNestedGrids || QuantumPressure) {
       ret = NestedCosmologySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
     } else {
       ret = CosmologySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
@@ -624,6 +626,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 190) FDM: Fuzzy dark matter
   if ( ProblemType == 190 ){
     ret = LightBosonInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  // 191) FDM collapse
+  if ( ProblemType == 191 ){
+    ret = FDMCollapseInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
   /* 200) 1D MHD Test */

@@ -41,7 +41,7 @@ LOCAL_PACKAGES       = /opt/local/bin
 # openmpi via macports.  
 LOCAL_MPI_INSTALL    = /opt/local
 LOCAL_FC_INSTALL     = /opt/local
-LOCAL_HDF5_INSTALL   = /anaconda/pkgs/hdf5-1.8.17-1
+LOCAL_HDF5_INSTALL   = /opt/hdf5
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
 LOCAL_PYTHON_INSTALL = $(YT_DEST)
@@ -50,23 +50,23 @@ LOCAL_PYTHON_INSTALL = $(YT_DEST)
 # Compiler settings
 #-----------------------------------------------------------------------
 
-MACH_CPP       = /opt/local/bin/cpp-mp-5
+MACH_CPP       = /opt/local/bin/cpp
 
 # With MPI
 
-MACH_CC_MPI    = mpicc-openmpi-mp
-MACH_CXX_MPI   = mpicxx-openmpi-mp
-MACH_FC_MPI    = gfortran-mp-6 
-MACH_F90_MPI   = gfortran-mp-6
-MACH_LD_MPI    = mpicxx-openmpi-mp 
+MACH_CC_MPI    = mpicc
+MACH_CXX_MPI   = mpicxx
+MACH_FC_MPI    = gfortran 
+MACH_F90_MPI   = gfortran
+MACH_LD_MPI    = mpicxx 
 MACH_CUDACOMPILER = /usr/local/cuda/bin/nvcc
 
 # Without MPI
 
 MACH_CC_NOMPI  = gcc  # C compiler when not using MPI
 MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
-MACH_FC_NOMPI  = gfortran-mp-5 # Fortran 77 compiler when not using MPI
-MACH_F90_NOMPI = gfortran-mp-5 # Fortran 90 compiler when not using MPI
+MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
 MACH_LD_NOMPI  = g++ # Linker when not using MPI
 
 #-----------------------------------------------------------------------
@@ -124,7 +124,7 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 
 LOCAL_LIBS_MACH   = -L/opt/local/lib/libgcc -lgfortran.3 
                     #-L$(HOME)/yt/enzolib/enzolib -lproblemtype_handler
-LOCAL_LIBS_HDF5   = -lhdf5 $(MACH_DEFINES)
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 $(MACH_DEFINES)
 LOCAL_LIBS_PYTHON = -lpython2.6
 LOCAL_LIBS_PYTHON = -framework Python 
 LOCAL_LIBS_CUDA   = -L/usr/local/cuda/lib/ -lcudart

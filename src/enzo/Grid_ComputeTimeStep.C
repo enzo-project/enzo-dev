@@ -486,10 +486,14 @@ float grid::ComputeTimeStep()
       //dtQuant = CourantSafetyNumber/dtBaryons + 2*hmcoef/pow(dx,2);
 
       //dtQuant = CourantSafetyNumber/dtQuant; 
-      dtQuant = pow(dx,2)/hmcoef/2.*CourantSafetyNumber;
+      dtQuant = pow(dx,2)/hmcoef/2.;
+
+      dtQuant *= CourantSafetyNumber;
 
       if (SelfGravity && (PotentialField != NULL)){
-        for (int i=0; i<size; i++){
+        int gsize = GravitatingMassFieldDimension[0]*GravitatingMassFieldDimension[1]*GravitatingMassFieldDimension[2];
+
+        for (int i=0; i<gsize; ++i){
           dtQuant = min(dtQuant, fabs(hmcoef*1./(PotentialField[i])));
           //printf("time from potential %f %f %f\n", hmcoef,dtQuant,PotentialField[i]);
         }

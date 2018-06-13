@@ -132,6 +132,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *PhiName = "Phi";
   char *DebugName = "Debug";
   char *Phi_pName = "Phip";
+  char *RePsiName = "Re_Psi"; 
+  char *ImPsiName = "Im_Psi"; 
 
  
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
@@ -691,6 +693,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   i = 0;
   DataLabel[i++] = DensName;
+
   DataLabel[i++] = Vel1Name;
   if (MetaData.TopGridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
     DataLabel[i++] = Vel2Name;
@@ -752,6 +755,13 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = PSDenName;
     }
   } 
+
+    // real and imaginary part of wave function
+  if (QuantumPressure) {
+    DataLabel[i++] = (char*) RePsiName;
+    DataLabel[i++] = (char*) ImPsiName;
+  }
+
  
 
   for (j = 0; j < i; j++)

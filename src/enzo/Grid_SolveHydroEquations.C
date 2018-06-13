@@ -552,8 +552,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
                GravityOn) == FAIL)
                ENZO_FAIL("SchrodingerSolver() failed!\n");
       } else {
-
-      if (this->ZeusSolver(GammaField, UseGammaField, CycleNumber, 
+        if (this->ZeusSolver(GammaField, UseGammaField, CycleNumber, 
                CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2],
                GravityOn, NumberOfSubgrids, GridGlobalStart,
                SubgridFluxes,

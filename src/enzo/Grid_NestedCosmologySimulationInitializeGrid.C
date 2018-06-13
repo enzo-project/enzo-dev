@@ -125,6 +125,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
   int ExtraField[2];
   int ForbidNum;
   int MachNum, PSTempNum, PSDenNum;
+  int RePsiNum, ImPsiNum;
+
  
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
@@ -350,6 +352,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
     //  fprintf(stderr, "Create baryon fields for %s on CPU %"ISYM"\n", CosmologySimulationDensityName, MyProcessorNumber);
  
     FieldType[NumberOfBaryonFields++] = Density;
+
   vel = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = Velocity1;
   if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
@@ -407,6 +410,11 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
       }
     }    
+
+    if(QuantumPressure){
+    FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
+    FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
+    } 
   }
 
 
@@ -472,6 +480,22 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	for (i = 0; i < size; i++)
 	  BaryonField[0][i] = max(BaryonField[0][i], DENSITY_FLOOR);
       }
+
+      // Read wavefunction
+      if(QuantumPressure){
+  if (READFILE("GridRePsi", GridRank, GridDimension,
+         GridStartIndex, GridEndIndex, Offset, BaryonField[RePsiNum],
+         &tempbuffer, 0, 1) == FAIL) {
+    ENZO_FAIL("Error reading real part of wave function.\n");}
+  
+  if (READFILE("GridImPsi", GridRank, GridDimension,
+         GridStartIndex, GridEndIndex, Offset, BaryonField[ImPsiNum],
+         &tempbuffer, 0, 1) == FAIL) {
+    ENZO_FAIL("Error reading imaginary part of wave function.\n");
+    }    
+  fprintf(stderr, "Successfully Read Wave Function.\n" );
+  }
+ 
  
       // Read the total energy field
  

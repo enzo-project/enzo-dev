@@ -5,11 +5,11 @@
 #
 ProblemType            = 190        // Light Boson
 TopGridRank            = 1
-TopGridDimensions      = 256 
+TopGridDimensions      = 512 
 
-LeftFaceBoundaryCondition = 0  // set left faces to periodic 
-RightFaceBoundaryCondition = 0   // set right faces to periodic
-NumberOfGhostZones         = 4
+LeftFaceBoundaryCondition = 3  // set left faces to periodic 
+RightFaceBoundaryCondition = 3   // set right faces to periodic
+NumberOfGhostZones         = 8
 WriteGhostZones            = 0
 #
 #  define cosmology parameters
@@ -27,13 +27,14 @@ GravitationalConstant      = 1       // this must be true for cosmology
 #
 #  set I/O and stop/start parameters
 #
-StopTime               = 2e-2
-dtDataDump             = 1e-2
+StopTime               = 4e-2
+dtDataDump             = 4e-4
 CourantSafetyNumber    = 0.5
-#SubcycleSkipDataDump = 1
+#StopCycle              = 2
+#CycleSkipDataDump = 1
 #RedshiftDumpName = RD
 #RedshiftDumpDir  = RD
-#Initialdt = 1e-4
+Initialdt = 1e-6
 
 CosmologyOutputRedshift[0] = 2
 CosmologyOutputRedshift[1] = 1.5
@@ -49,29 +50,26 @@ CosmologyOutputRedshift[6] = 0
 HydroMethod                 = 2        // Zeus
 QuantumPressure            = 1
 PressureFree                = 1
-ZEUSQuadraticArtificialViscosity = 1.0 
+ZEUSQuadraticArtificialViscosity = 0.0 
 SelfGravity                 = 0
 FluxCorrection              = 0
-ConservativeInterpolation   = 1
+ConservativeInterpolation   = 0
 #ConductionCourantSafetyNumber = 0.01
 FDMMass = 1.
 #OutputFirstTimeAtLevel      = 1
 
 Gamma                  = 1.66667
-CourantSafetyNumber    = 0.2
 
-
-StaticHierarchy                       = 0
-MaximumRefinementLevel                = 2
+StaticHierarchy                       = 1
+MaximumRefinementLevel                = 1
 MaximumGravityRefinementLevel         = 2
 MaximumParticleRefinementLevel        = 2
 RefineBy                              = 2
-CellFlaggingMethod                    = 51
+CellFlaggingMethod                    = 15
 MinimumOverDensityForRefinement       = 50.0
 #RefineByJeansLengthSafetyFactor       = 4
-SecondDerivativeFlaggingFields = 0
-MinimumSecondDerivativeForRefinement  = 0.1
-
+SecondDerivativeFlaggingFields = 5 6
+MinimumSecondDerivativeForRefinement  = 0.3
 NumberOfBufferZones                   = 1
 
 

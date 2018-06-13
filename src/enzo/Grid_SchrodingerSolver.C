@@ -63,8 +63,15 @@ int rk3tvd(float *repsi, float *impsi, float *repsi0, float *impsi0,
 	       float hmcoef,
          int gravity, double *p);
 
+int rk4(double *repsi, double *impsi,
+         int in, int jn, int kn, int rank,
+         int is, int ie, int js, int je, int ks, int ke, 
+         double dt, double dx[], double dy[], double dz[],
+         double hmcoef);
+
 int SchrdingerAddPotential(double *repsi, double *impsi,
          int in, int jn, int kn, int rank,
+         int gin, int gjn, int gkn,
          int is, int ie, int js, int je, int ks, int ke, 
          double dt, 
          double hmcoef,
@@ -152,7 +159,7 @@ for (int dim = 0; dim < GridRank; dim++) {
 
   // calculate hbar/m
   float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
-  //(hbar/m)^2/2
+  //printf("hmcoef %f \n", hmcoef);
 
   int RePsiNum, ImPsiNum;
   RePsiNum = FindField(RePsi, FieldType, NumberOfBaryonFields);
@@ -162,26 +169,59 @@ for (int dim = 0; dim < GridRank; dim++) {
   repsi = BaryonField[RePsiNum];
   impsi = BaryonField[ImPsiNum];
 
+
+  /* If using comoving coordinates, compute the expansion factor a.  Otherwise,
+     set it to one. */
+ 
+  /*FLOAT a = 1, dadt;
+  if (ComovingCoordinates)
+    CosmologyComputeExpansionFactor(Time, &a, &dadt);
+  float afloat = float(a);
+
+  // Time the potential by a factor of a
+  if (gravity && (PotentialField != NULL) && ComovingCoordinates){
+    int gsize = GravitatingMassFieldDimension[0]*GravitatingMassFieldDimension[1]*GravitatingMassFieldDimension[2];
+    for (int i=0; i<size; ++i){
+      PotentialField[i] = a*PotentialField[i];
+    }
+  }*/
+
   // Add half gravity before the TVD-RK
   if (gravity && (PotentialField != NULL) ){
+    if (nhy == 0 ){ // Add half step of potential at the beginning
     if(SchrdingerAddPotential(repsi, impsi,
          GridDimension[0], GridDimension[1], GridDimension[2],
          GridRank, 
+         GravitatingMassFieldDimension[0],GravitatingMassFieldDimension[1],GravitatingMassFieldDimension[2],
+         is, ie, js, je, ks, ke, 
+         dtFixed/2., hmcoef,
+         PotentialField, 
+         Offset[0], Offset[1], Offset[2]) == FAIL){
+         ENZO_FAIL("Error in Add poteitial before TVD-RK!\n"); 
+         }
+     } else {
+
+    if(SchrdingerAddPotential(repsi, impsi,
+         GridDimension[0], GridDimension[1], GridDimension[2],
+         GridRank, 
+         GravitatingMassFieldDimension[0],GravitatingMassFieldDimension[1],GravitatingMassFieldDimension[2],
          is, ie, js, je, ks, ke, 
          dtFixed, hmcoef,
          PotentialField, 
          Offset[0], Offset[1], Offset[2]) == FAIL){
          ENZO_FAIL("Error in Add poteitial before TVD-RK!\n");
+         }
+
     }
   }
 
  /* cache wave-function before TVD-RK */
-  for (int i=0; i<size; i++){
+  /*for (int i=0; i<size; i++){
     repsi0[i] = repsi[i];
     impsi0[i] = impsi[i];
   }
 
-  /* 1st step of rk3tvd */
+  // 1st step of rk3tvd
   
     if (rk3tvd(repsi, impsi, repsi0, impsi0, 0.0, 1.0,
      GridDimension[0], GridDimension[1], GridDimension[2],
@@ -194,7 +234,7 @@ for (int dim = 0; dim < GridRank; dim++) {
     ENZO_FAIL("Error in rk3tvd 1st step!\n");
     }
 
-  /* 2nd step of rk3tvd */
+  // 2nd step of rk3tvd 
     if (rk3tvd(repsi, impsi, repsi0, impsi0, 0.75, 0.25,
      GridDimension[0], GridDimension[1], GridDimension[2],
      GridRank, 
@@ -206,7 +246,7 @@ for (int dim = 0; dim < GridRank; dim++) {
     ENZO_FAIL("Error in rk3tvd 2nd step!\n");
     }
 
-  /* final step of rk3tvd */
+  // final step of rk3tvd
     if (rk3tvd(repsi, impsi, repsi0, impsi0, 1./3., 2./3.,
      GridDimension[0], GridDimension[1], GridDimension[2],
      GridRank, 
@@ -217,19 +257,36 @@ for (int dim = 0; dim < GridRank; dim++) {
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
     ENZO_FAIL("Error in rk3tvd 3rd step!\n");
     }
+  // Clean up 
+  delete [] repsi0;
+  delete [] impsi0;
+    */
+  
+  // Runge-Kutta 4th order
+  if ( rk4(repsi, impsi, 
+          GridDimension[0], GridDimension[1], GridDimension[2], GridRank, 
+          is, ie, js, je, ks, ke,  
+          dtFixed, dx, dy, dz, hmcoef) == FAIL){
+    fprintf(stderr, "P(%"ISYM"): Error in rk3tvd on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
+      nhy, dtFixed);
+    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+    ENZO_FAIL("Error in 4th runge kutta advance\n");
+    }
+
 
   // Add half gravity after the TVD-RK
-  if (gravity && (PotentialField != NULL) ){
+  /*if (gravity && (PotentialField != NULL) ){
     if(SchrdingerAddPotential(repsi, impsi,
          GridDimension[0], GridDimension[1], GridDimension[2],
          GridRank, 
+         GravitatingMassFieldDimension[0],GravitatingMassFieldDimension[1],GravitatingMassFieldDimension[2],
          is, ie, js, je, ks, ke, 
-         dtFixed, hmcoef,
+         dtFixed/2., hmcoef,
          PotentialField, 
          Offset[0], Offset[1], Offset[2]) == FAIL){
          ENZO_FAIL("Error in Add poteitial after TVD-RK!\n");
     }
-  }
+  }*/
 
 
   // Update New Density
@@ -238,9 +295,6 @@ for (int dim = 0; dim < GridRank; dim++) {
     d[i] = repsi[i]*repsi[i]+impsi[i]*impsi[i];
   }
 
-  /* Clean up */
-  delete [] repsi0;
-  delete [] impsi0;
   
   
   return SUCCESS;

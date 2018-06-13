@@ -332,7 +332,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
  
     if (HydroMethod == Zeus_Hydro)
       InterpolationMethod = (SecondOrderBFlag[densfield] == 0) ?
-	FirstOrderA : SecondOrderC;
+	SecondOrderC : SecondOrderC;
 
     if( AccelerationHack != TRUE ) {
       FORTRAN_NAME(interpolate)(&GridRank,
@@ -368,7 +368,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
  
       if (HydroMethod == Zeus_Hydro)
         InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
-            FirstOrderA : SecondOrderC;
+            SecondOrderC : SecondOrderC;
       
       // Set FieldInterpolationMethod to be FirstOrderA for 
       // fields that shouldn't be interpolated.'
