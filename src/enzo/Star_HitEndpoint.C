@@ -101,15 +101,6 @@ int Star::HitEndpoint(FLOAT Time)
   case PopIII_CF:
     break;
 
-  case NormalStar:
-    if (UseMagneticSupernovaFeedback)
-      if (this->FeedbackFlag == DEATH){
-	result = KILL_STAR;
-	  printf("going to kill star\n"); 
-	}
-	
-    break;
-
   } // ENDSWITCH
 
   return result;

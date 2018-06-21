@@ -991,64 +991,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   /* Now it's done, unmark. */
 
   //cstar->FeedbackFlag = NO_FEEDBACK;
-   
-
-  // Create a randomly-oriented SuperNova object and add it to the SuperNova Grid list
-  printf("inside AddFeedbackSphere\n");
-  if (cstar->ReturnFeedbackFlag() == MAGNETIC_SUPERNOVA){
-    printf("inside MAGNETIC_SUPERNOVA in addfeedbackshpere \n");
-
-      SuperNova P = SuperNova();
-
-      // Setting up pseudo-randomly oriented toroidal magnetic field loops
-      // mt_init is deterministic, so that supernovae for the same star particle
-      // will always be generated in the same orientation
-      mt_init((unsigned_int) cstar->ReturnID());
-       
-      float random_u = (float)(mt_random()%32768)/32768.0; // random variable from 0 to 1      
-      float random_v = (float)(mt_random()%32768)/32768.0;
-      float random_phi = 2*M_PI*random_u; // 0 to 2pi        
-      float random_theta = acos(2*random_v-1); // 0 to pi                                                                                
-
-      float phi_x = sin(random_theta)*cos(random_phi);
-      float phi_y = sin(random_theta)*sin(random_phi);
-      float phi_z = cos(random_theta);
-
-      // Birthtime of supernova is at the end of a star particle's life
-      float sn_birthtime = cstar->BirthTime + cstar->LifeTime;
-
-      // Convert units to system units
-      // Converting time from years to seconds, then internal units
-      float sn_duration = MagneticSupernovaDuration * 3.1556952e7 / TimeUnits;
-      // Converting radius from parsecs to cm, then internal units
-      float sn_radius = MagneticSupernovaRadius * 3.0856775714e18 / LengthUnits;
-      // Converting energy from ergs to internal units
-      float MassUnits = DensityUnits * POW(LengthUnits, 3);
-      float sn_energy = MagneticSupernovaEnergy / (MassUnits*VelocityUnits*VelocityUnits);
-
-      if (UseMagneticSupernovaFeedback > 1){
-	// if UseMagneticSupernovaFeedback > 1, then we set the magnetic feedback radius and duration  
-	// below based on the resolution of the grid at the highest refinement level                                
-	  sn_duration = 5.0 * this->dtFixed;
-	  MagneticSupernovaDuration = sn_duration * TimeUnits / 3.1156952e7;
-	  sn_radius = 3.0 * this->CellWidth[0][0];
-	  MagneticSupernovaRadius = sn_radius * LengthUnits / 3.0856775714e18;
-      }
-
-      // Creates a supernova with magnetic feedback adds it to the grid's magnetic supernova list
-      // This list is looped through in hydro_rk/Grid_MHDSourceTerms to inject the magnetic field
-      if((Time > sn_birthtime) && (Time < sn_birthtime + sn_duration)){
-        P.setValues(phi_x, phi_y, phi_z, cstar->pos[0], cstar->pos[1], cstar->pos[2], 
-	     sn_radius, sn_birthtime, sn_duration, sn_energy);
-
-        this->MagneticSupernovaList.push_back(P);
-	printf("added supernova to list\n");
-      }
-      else if (Time > sn_birthtime + sn_duration)
-	cstar->SetFeedbackFlag(DEATH);
-
-  }
-  
+     
 
   return SUCCESS;
 

@@ -247,11 +247,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
     
     break;
 
-  case MAGNETIC_SUPERNOVA:
-    printf("inside Star_CalculateFeedbackParameters\n");
-    Radius = 1.1*MagneticSupernovaRadius * pc / LengthUnits; // Real injection radius SupernovaSeedFieldRadius 
-    break;
-
   } // ENDSWITCH FeedbackFlag
   
 //    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 

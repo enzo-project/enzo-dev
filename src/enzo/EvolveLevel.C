@@ -541,8 +541,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
 	// Find recently-supernova stars to add them the MagneticSupernovaList 
-	//	if ((UseMagneticSupernovaFeedback) && (level > MaximumRefinementLevel - 1))
-	// Grids[grid1]->GridData->AddMagneticSupernovaeToList();
+	if ((UseMagneticSupernovaFeedback) && (level > MaximumRefinementLevel - 1))
+	  Grids[grid1]->GridData->AddMagneticSupernovaeToList();
 
         /* Call hydro solver and save fluxes around subgrids. 
          * HD_RK and MHD_RK are the 2nd order Runge-Kutta integrations, which 
@@ -717,8 +717,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (ComovingCoordinates)
 	Grids[grid1]->GridData->ComovingExpansionTerms();
  
-      //      if (UseMagneticSupernovaFeedback)
-      //Grids[grid1]->GridData->MagneticSupernovaList.clear(); 
+      if (UseMagneticSupernovaFeedback)
+	Grids[grid1]->GridData->MagneticSupernovaList.clear(); 
 
    }  // end loop over grids
  

@@ -524,7 +524,6 @@ typedef long long int   HDF5_hid_t;
 #define MBH_THERMAL 7
 #define MBH_JETS 8
 #define COLOR_FIELD 9
-#define MAGNETIC_SUPERNOVA 11
 
 /* Sink particle accretion modes */
 

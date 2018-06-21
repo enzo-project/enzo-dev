@@ -550,13 +550,15 @@ algorithm, use Method 1.
 
 Magnetic Supernova Feedback
 ----------------------------
-*Source: hydro_rk/MagneticSupernova.C*
+*Source: hydro_rk/SuperNovaSeedField.C*
 
 Select this method by setting ``UseMagneticSupernovaFeedback = 1``
 (Default = 0) and specifying the parameters below. If
 ``UseMagneticSupernovaFeedback == 2``, the parameters 
 ``MagneticSupernovaRadius`` and ``MagneticSupernovaDuration`` will 
-be calculated at runtime based on the cell width and time step of the most-refined grid.
+be calculated to be the minimum allowed values (see below)
+at runtime based on the cell width and time step of the most-refined grid. 
+
 
 ``MagneticSupernovaEnergy`` (in units of ergs) is the total amount
 of magnetic energy to be injected by a single supernova event. Defualt = 1e51
@@ -567,17 +569,19 @@ which to inject supernova energy. The injection mechanism normalizes the
 spatial exponential decay of the injected supernova energy so that all of the
 energy is contained within the specified radius. For this reason, the
 ``MagneticSupernovaRadius`` should be at least 3 times the minimum cell width of
-the simulation. Default = 500 pc.
+the simulation. Default = 300 pc.
 
-``MagneticSupernovaDuration`` (in units of Myr) gives the duration of the
+``MagneticSupernovaDuration`` (in units of years) gives the duration of the
 supernova magnetic energy injection. The injection mechanism is normalized so
 that all of the ``MagneticSupernovaEnergy`` is injected over this
 time scale. In order to inject the correct amount of energy, ``MagneticSupernovaDuration`` should be set to at least 5
-times the minimum time step of the simulation.  Default = 10,000 years.
+times the minimum time step of the simulation.  Default = 50,000 years.
 
 
-The following applies to  Methods 0 (Cen & Ostriker) and 1 (+
-stochastic star formation). The magnetic feedback method is described fully in `Butsky et al. (2017)
+The following applies to all star formation methods that produce a
+PARTICLE_TYPE_STAR object.  Methods 0 (Cen & Ostriker) and 1 (+
+stochastic star formation) have been tested extensively. 
+The magnetic feedback method is described fully in `Butsky et al. (2017)
 <http://adsabs.harvard.edu/abs/2017ApJ...843..113B>`_.
 
 When a star cluster particle reaches the end of its lifetime, we inject a

@@ -377,16 +377,14 @@ int grid::MHDSourceTerms(float **dU)
 
     active_x = GridDimension[0] - 2*NumberOfGhostZones; 
     active_y = GridDimension[1] - 2*NumberOfGhostZones;
-    float active_z = GridDimension[2] - 2*NumberOfGhostZones;
 
     num_sn_cells_x = (int) (sn_radius / CellWidth[0][0]); 
     num_sn_cells_y = (int) (sn_radius / CellWidth[1][0]);
     num_sn_cells_z = (int) (sn_radius / CellWidth[2][0]);
 
-    int num_sn = 0; 
     for (std::vector<SuperNova>::iterator current_sn = this->MagneticSupernovaList.begin(); 
            current_sn != this->MagneticSupernovaList.end(); current_sn++){
-      num_sn++; 
+
       // find index of the cell nearest to the supernova center
       // assuming that supernova in the center of that cell
       center_i  = (int)((current_sn->getPosition()[0] - GridLeftEdge[0]) / CellWidth[0][0]);  
@@ -419,20 +417,12 @@ int grid::MHDSourceTerms(float **dU)
 
 	      dU[iEtot][n] += S.dUtot * dtFixed;
 	      
-	      float activesize = active_x*active_y*active_z;
-	      if (n > activesize)
-		printf("added supernova at (%"ISYM", %"ISYM", %"ISYM"), n = %"ISYM", activesize=%"ISYM", dim_x=%"ISYM", dim_y=%"ISYM",\n\
-GridStartIndices=(%"ISYM", %"ISYM", %"ISYM"), GridEndIndices=(%"ISYM", %"ISYM", %"ISYM")\n",	
-		       i, j, k, n, activesize, active_x, active_y, GridStartIndex[0], GridStartIndex[1], GridStartIndex[2],GridEndIndex[0], GridEndIndex[1], GridEndIndex[2]);
-
 	    }
 
 	  } // End of k for-loop     
 	} // End of j for-loop    
       } // End of i for-loop  
     } // End of MagneticSupernovaList loop
-    if (num_sn > 0)
-      printf("Number of magnetic supernova: %"ISYM"\n", num_sn); 
   } // End of UseMagneticSupernovaFeedback scope                                                                                   
 
   

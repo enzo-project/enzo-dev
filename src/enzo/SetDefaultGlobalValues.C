@@ -982,8 +982,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* Default == 0 -> no magnetic field contribution */
   UseMagneticSupernovaFeedback = 0;   // 0 = off; 1+ = on;  2 = Radius and duration calculated during runtime
   MagneticSupernovaRadius = 300.0;      // Total injection radius of magnetic field in parsecs
-  MagneticSupernovaDuration = 1e4;    // Total duration of magnetic feedback in years
-  MagneticSupernovaEnergy = 1.0e51;       // Total energy (ergs) injected per star particle (supernova)
+  MagneticSupernovaDuration = 5e4  ;    // Total duration of magnetic feedback in years
+  MagneticSupernovaEnergy = 1.0e51;    // Total energy (ergs) injected per star particle (supernova)
 
   return SUCCESS;
 }

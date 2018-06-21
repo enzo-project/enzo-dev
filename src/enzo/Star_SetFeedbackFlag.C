@@ -137,14 +137,5 @@ int Star::SetFeedbackFlag(FLOAT Time)
 
   }
 
-if(UseMagneticSupernovaFeedback)
-  if (Time > (this->BirthTime + this->LifeTime)){
-    this->FeedbackFlag = MAGNETIC_SUPERNOVA;
-    printf("set feedback flag\n");
-  } 
-   
-
-
-
   return SUCCESS;
 }
