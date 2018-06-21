@@ -91,7 +91,7 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
 
   /* Add source terms */
 
-  this->MHDSourceTerms(dU);
+    this->MHDSourceTerms(dU);
 
   /* Update primitive variables */
 
@@ -113,7 +113,7 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
                     0.5, fallback) == FAIL) {
       return FAIL;
     }
-    this->MHDSourceTerms(dU);
+      this->MHDSourceTerms(dU);
     if (this->UpdateMHDPrim(dU, 0.5, 0.5) == FAIL) {
       fprintf(stderr, "Grid_MHDRK2_2ndStep: Fallback failed, give up...\n");
       return FAIL;

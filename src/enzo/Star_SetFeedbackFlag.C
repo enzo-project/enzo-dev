@@ -135,11 +135,15 @@ int Star::SetFeedbackFlag(FLOAT Time)
 
    //this->type = abs_type;
 
- case PARTICLE_TYPE_STAR:
-   if(UseSupernovaSeedFieldSourceTerms)
-     this->FeedbackFlag = SUPERNOVA_SEEDFIELD;
-   break;
-}
+  }
+
+if(UseMagneticSupernovaFeedback)
+  if (Time > (this->BirthTime + this->LifeTime)){
+    this->FeedbackFlag = MAGNETIC_SUPERNOVA;
+    printf("set feedback flag\n");
+  } 
+   
+
 
 
   return SUCCESS;

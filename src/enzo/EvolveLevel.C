@@ -540,6 +540,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
         Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
+	// Find recently-supernova stars to add them the MagneticSupernovaList 
+	//	if ((UseMagneticSupernovaFeedback) && (level > MaximumRefinementLevel - 1))
+	// Grids[grid1]->GridData->AddMagneticSupernovaeToList();
+
         /* Call hydro solver and save fluxes around subgrids. 
          * HD_RK and MHD_RK are the 2nd order Runge-Kutta integrations, which 
          * require two steps (*_1stStep and *_2ndStep) 
@@ -547,7 +551,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
          * All others (PPM, Zeus, MHD_Li/CT) are called from SolveHydroEquations
          */
            
-
+	
         if( HydroMethod != HD_RK && HydroMethod != MHD_RK ){
             Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
                     NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
@@ -713,7 +717,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (ComovingCoordinates)
 	Grids[grid1]->GridData->ComovingExpansionTerms();
  
-    }  // end loop over grids
+      //      if (UseMagneticSupernovaFeedback)
+      //Grids[grid1]->GridData->MagneticSupernovaList.clear(); 
+
+   }  // end loop over grids
  
     /* Finalize (accretion, feedback, etc.) star particles */
 

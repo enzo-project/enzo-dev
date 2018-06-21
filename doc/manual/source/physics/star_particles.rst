@@ -550,27 +550,30 @@ algorithm, use Method 1.
 
 Magnetic Supernova Feedback
 ----------------------------
-*Source: hydro_rk/SuperNovaSeedField.C*
+*Source: hydro_rk/MagneticSupernova.C*
 
-Select this method by setting ``UseSupernovaSeedFieldSourceTerms = 1``
-(Default = 0) and
-specifying the following parameters: 
+Select this method by setting ``UseMagneticSupernovaFeedback = 1``
+(Default = 0) and specifying the parameters below. If
+``UseMagneticSupernovaFeedback == 2``, the parameters 
+``MagneticSupernovaRadius`` and ``MagneticSupernovaDuration`` will 
+be calculated at runtime based on the cell width and time step of the most-refined grid.
 
-``SupernovaSeedFieldTotalEnergy`` (in units of ergs) is the total amount
-of magnetic energy to be injected by a single supernova event. Defualt = 0.0.
+``MagneticSupernovaEnergy`` (in units of ergs) is the total amount
+of magnetic energy to be injected by a single supernova event. Defualt = 1e51
+ergs.
 
-``SupernovaSeedFieldRadius`` (in units of parsecs) gives the scale over
+``MagneticSupernovaRadius`` (in units of parsecs) gives the scale over
 which to inject supernova energy. The injection mechanism normalizes the
 spatial exponential decay of the injected supernova energy so that all of the
 energy is contained within the specified radius. For this reason, the
-``SupernovaSeedFieldRadius`` should be at least 3 times the minimum cell width of
-the simulation. Default = 0.0.
+``MagneticSupernovaRadius`` should be at least 3 times the minimum cell width of
+the simulation. Default = 500 pc.
 
-``SupernovaSeedFieldDuration`` (in units of Myr) gives the duration of the
+``MagneticSupernovaDuration`` (in units of Myr) gives the duration of the
 supernova magnetic energy injection. The injection mechanism is normalized so
-that all of the ``SupernovaSeedFieldTotalEnergy`` is injected over this
-time scale. In order to inject the correct amount of energy, ``SupernovaSeedFieldDuration`` should be set to at least 4
-times the minimum time step of the simulation.  Default = 0.0.
+that all of the ``MagneticSupernovaEnergy`` is injected over this
+time scale. In order to inject the correct amount of energy, ``MagneticSupernovaDuration`` should be set to at least 5
+times the minimum time step of the simulation.  Default = 10,000 years.
 
 
 The following applies to  Methods 0 (Cen & Ostriker) and 1 (+

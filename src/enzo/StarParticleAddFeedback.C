@@ -89,8 +89,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
   count = 0;
   // clear list of Supernovae at each timestep to avoid adding duplicates in Grid_AddFeedbackSphere                                     
-  if(UseSupernovaSeedFieldSourceTerms){
-    LevelArray[level]->GridData->SuperNovaList.clear();
+  if(UseMagneticSupernovaFeedback){
+     LevelArray[level]->GridData->MagneticSupernovaList.clear();
   }
   for (cstar = AllStars; cstar; cstar = cstar->NextStar, count++) {
 
@@ -164,7 +164,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     if ((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
 	 cstar->ReturnFeedbackFlag() == MBH_JETS ||
 	 cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
-         cstar->ReturnFeedbackFlag() == SUPERNOVA_SEEDFIELD) &&
+         cstar->ReturnFeedbackFlag() == MAGNETIC_SUPERNOVA) &&
 	LevelArray[level+1] != NULL)
       cstar->FindFeedbackSphere
 	(LevelArray, level+1, influenceRadius, EjectaDensity, EjectaThermalEnergy, 

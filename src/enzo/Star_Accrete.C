@@ -29,7 +29,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int Star::Accrete(void)
 {
-  if (UseSupernovaSeedFieldSourceTerms == 1){
+  if (UseMagneticSupernovaFeedback){
     if (this->CurrentGrid == NULL ||(this->naccretions == 0))
       return SUCCESS;
   }

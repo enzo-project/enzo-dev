@@ -25,6 +25,7 @@
 #include "TopGridData.h"
 #include "Grid.h"
 #include "EOS.h"
+#include "hydro_rk/SuperNova.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -32,6 +33,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int FindField(int field, int farray[], int numfields);
 
+void mt_init(unsigned_int seed);
+unsigned_long_int mt_random();
 
 int grid::MHDSourceTerms(float **dU)
 {
@@ -356,49 +359,81 @@ int grid::MHDSourceTerms(float **dU)
     }
   }
   
-if(UseSupernovaSeedFieldSourceTerms) {
+  if(UseMagneticSupernovaFeedback) {
+ 
+    int n, active_x, active_y, center_i, center_j, center_k, num_sn_cells_x, num_sn_cells_y, num_sn_cells_z; 
+    snsf_source_terms S;
+    float dx, dy, dz, dist_to_sn, magnetic_energy_density;
+    float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
 
-  int n = 0, igrid;
-  int iden=FindField(Density, FieldType, NumberOfBaryonFields);
-  snsf_source_terms S;
-  FLOAT cell_center[3];
-  FLOAT dx, dy, dz, dist_to_sn;
-  int temp =1;
-  int entered = 0;
+    if (GetUnits(&DensityUnits, &LengthUnits,&TemperatureUnits, &TimeUnits,
+               &VelocityUnits, Time) == FAIL){
+      fprintf(stderr, "Error in GetUnits.\n");
+      return FAIL;
+    }
 
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+    // Converting radius from parsecs to cm, then internal units   
+    float sn_radius = MagneticSupernovaRadius * 3.0856775714e18 / LengthUnits;
 
-	cell_center[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-	cell_center[1] = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-	cell_center[2] = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+    active_x = GridDimension[0] - 2*NumberOfGhostZones; 
+    active_y = GridDimension[1] - 2*NumberOfGhostZones;
+    float active_z = GridDimension[2] - 2*NumberOfGhostZones;
 
-	for (std::vector<SuperNova>::iterator P = this->SuperNovaList.begin(); 
-	     P != this->SuperNovaList.end(); P++){
-	  dx = P->getPosition()[0] - cell_center[0];
-	  dy = P->getPosition()[1] - cell_center[1];
-	  dz = P->getPosition()[2] - cell_center[2];
+    num_sn_cells_x = (int) (sn_radius / CellWidth[0][0]); 
+    num_sn_cells_y = (int) (sn_radius / CellWidth[1][0]);
+    num_sn_cells_z = (int) (sn_radius / CellWidth[2][0]);
 
-	  dist_to_sn = sqrt(dx*dx + dy*dy + dz*dz);
-	  if (dist_to_sn < 1.1*SupernovaSeedFieldRadius){
-	    S = P->getSourceTerms(dx, dy, dz, Time);
-   	    double rho = BaryonField[DensNum][igrid];
+    int num_sn = 0; 
+    for (std::vector<SuperNova>::iterator current_sn = this->MagneticSupernovaList.begin(); 
+           current_sn != this->MagneticSupernovaList.end(); current_sn++){
+      num_sn++; 
+      // find index of the cell nearest to the supernova center
+      // assuming that supernova in the center of that cell
+      center_i  = (int)((current_sn->getPosition()[0] - GridLeftEdge[0]) / CellWidth[0][0]);  
+      center_j  = (int)((current_sn->getPosition()[1] - GridLeftEdge[1]) / CellWidth[1][0]);
+      center_k  = (int)((current_sn->getPosition()[2] - GridLeftEdge[2]) / CellWidth[2][0]);
+
+      for(int k = center_k - num_sn_cells_z; k <= center_k + num_sn_cells_z; k++){
+	for(int j = center_j - num_sn_cells_y; j <= center_j + num_sn_cells_y; j++){
+	  for(int i = center_i - num_sn_cells_x; i <= center_i + num_sn_cells_x; i++){
 	    
-	    dU[iBx][n] += S.dbx*dtFixed;
-	    dU[iBy][n] += S.dby*dtFixed;
-	    dU[iBz][n] += S.dbz*dtFixed;
-	    dU[iEtot][n] += S.dUtot*dtFixed;
+	    // only add magnetic feedback on the active grid cells
+	    if ((k >= GridStartIndex[2]) && (k <= GridEndIndex[2]) && 
+		(j >= GridStartIndex[1]) && (j <= GridEndIndex[1]) &&
+		(i >= GridStartIndex[0]) && (i <= GridEndIndex[0])){
+	      
+	      dx = CellWidth[0][0] * (float)(i-center_i); 
+	      dy = CellWidth[1][0] * (float)(j-center_j);
+	      dz = CellWidth[2][0] * (float)(k-center_k);
+	 
+	      dist_to_sn = sqrt(dx*dx + dy*dy + dz*dz);
+	      S = current_sn->getSourceTerms(dx, dy, dz, Time);
+	    
+	      // solving for index n
+	      // analogous to how igrid is calculated, but taking into acount Ghost Zones
+	      n = (i - GridStartIndex[0])+((j-GridStartIndex[1]) + (k-GridStartIndex[2])*active_y) * active_x;     	    
+	      
+	      dU[iBx][n] += S.dbx*dtFixed;
+	      dU[iBy][n] += S.dby*dtFixed;
+	      dU[iBz][n] += S.dbz*dtFixed;
 
-	  }
+	      dU[iEtot][n] += S.dUtot * dtFixed;
+	      
+	      float activesize = active_x*active_y*active_z;
+	      if (n > activesize)
+		printf("added supernova at (%"ISYM", %"ISYM", %"ISYM"), n = %"ISYM", activesize=%"ISYM", dim_x=%"ISYM", dim_y=%"ISYM",\n\
+GridStartIndices=(%"ISYM", %"ISYM", %"ISYM"), GridEndIndices=(%"ISYM", %"ISYM", %"ISYM")\n",	
+		       i, j, k, n, activesize, active_x, active_y, GridStartIndex[0], GridStartIndex[1], GridStartIndex[2],GridEndIndex[0], GridEndIndex[1], GridEndIndex[2]);
 
-	}// End of SuperNovaList iteration                                                                                           
-      } // End of k for-loop                                                                                                         
-    } // End of j for-loop                                                                                                           
-  } // End of i for-loop                                                                                                             
+	    }
 
-} // End of UseSuperNovaSeedFieldSourceTerms scope                                                                                   
+	  } // End of k for-loop     
+	} // End of j for-loop    
+      } // End of i for-loop  
+    } // End of MagneticSupernovaList loop
+    if (num_sn > 0)
+      printf("Number of magnetic supernova: %"ISYM"\n", num_sn); 
+  } // End of UseMagneticSupernovaFeedback scope                                                                                   
 
   
 

@@ -116,6 +116,8 @@ grid::~grid()
 */
 
   //MHD stuff 
+  //  if (UseMagneticSupernovaFeedback)
+  // MagneticSupernovaList.clear(); 
  
   if( UseMHDCT ){
     for(i=0;i<3;i++){

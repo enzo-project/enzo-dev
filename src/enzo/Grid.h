@@ -3011,10 +3011,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHDCT_ConvertEnergyToConservedS();
   int MHDCT_ConvertEnergyToSpecificS();
 
-  //List of SuperNova objects that each grid needs to keep track of         
-  std::vector<SuperNova> SuperNovaList;
-  
-
+  // used if UseMagneticSupernovaFeedback is turned on
+  int AddMagneticSupernovaeToList();
+  //List of SuperNova objects that each grid needs to keep track of
+  std::vector<SuperNova> MagneticSupernovaList;
 };
 
 // inline int grid::ReadRandomForcingFields (FILE *main_file_pointer);
