@@ -63,7 +63,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
     if( HydroMethod == MHD_RK ){
         FieldType[PhiNum = NumberOfBaryonFields++] = PhiField;
     }
-    if (UseDivergenceCleaning) {
+    if (UsePoissonDivergenceCleaning) {
       FieldType[NumberOfBaryonFields++] = Phi_pField;
     }
   }

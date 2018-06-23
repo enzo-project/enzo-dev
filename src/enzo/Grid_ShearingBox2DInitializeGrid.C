@@ -66,7 +66,7 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
   
-  if(UseDivergenceCleaning) {
+  if(UsePoissonDivergenceCleaning) {
     FieldType[NumberOfBaryonFields++] = Phi_pField;
   }
 

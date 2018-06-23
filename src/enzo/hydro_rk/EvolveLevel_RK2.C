@@ -551,7 +551,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious, OutputNow);
 
-    if (UseDivergenceCleaning != 0){
+    if (UsePoissonDivergenceCleaning != 0){
 
 #ifdef FAST_SIB
       SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);

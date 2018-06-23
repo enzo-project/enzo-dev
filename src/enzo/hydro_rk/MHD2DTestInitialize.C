@@ -249,7 +249,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
     if( HydroMethod == MHD_RK ){
         DataLabel[count++] = PhiName;
     }
-    if(UseDivergenceCleaning){
+    if(UsePoissonDivergenceCleaning){
       DataLabel[count++] = Phi_pName;
     }
   }

@@ -133,7 +133,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
     FieldType[B2Num = NumberOfBaryonFields++] = Bfield2;
     FieldType[B3Num = NumberOfBaryonFields++] = Bfield3;
     FieldType[PhiNum = NumberOfBaryonFields++] = PhiField;
-    if (UseDivergenceCleaning) {
+    if (UsePoissonDivergenceCleaning) {
       FieldType[NumberOfBaryonFields++] = Phi_pField;
     }
   }
