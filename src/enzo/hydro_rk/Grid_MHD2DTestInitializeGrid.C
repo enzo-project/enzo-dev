@@ -60,7 +60,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   if( HydroMethod == MHD_RK ){
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
-  if (UseDivergenceCleaning) {
+  if (UsePoissonDivergenceCleaning) {
     FieldType[NumberOfBaryonFields++] = Phi_pField;
     //FieldType[NumberOfBaryonFields++] = DebugField;  
   }

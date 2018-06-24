@@ -280,7 +280,7 @@ printf("Plasma beta=%"GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(In
   }
   if( HydroMethod == MHD_RK){
     DataLabel[count++] = PhiName;
-    if(UseDivergenceCleaning){
+    if(UsePoissonDivergenceCleaning){
       DataLabel[count++] = Phi_pName;
     }
   }

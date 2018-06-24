@@ -11,7 +11,8 @@ c
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, tindsf, mintdyn,
-     &                      odthresh, masseff, smthresh, level, np, 
+     &                      odthresh, masseff, smthresh, usejeans,
+     &                      level, np, 
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
      &                      imetalSNIa, metalSNIa, metalfSNIa)
@@ -58,6 +59,7 @@ c    masseff - gas-to-mass conversion efficiency ( 0<=masseff<=1 )
 c    smthresh - star mass threshold (only creates stars with mass >
 c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
+c    usejeans - use jeans mass check 
 c    level - current level of refinement
 c    procnum - processor number (for output)
 c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
@@ -84,7 +86,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC imetalSNIa, procnum, tindsf
+      INTG_PREC imetalSNIa, procnum, tindsf, usejeans
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
@@ -167,10 +169,12 @@ c                 within large halos).
 c
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / msolar
                isosndsp2 = sndspdC * temp(i,j,k)
-               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
-     &                    dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
+               if (usejeans .eq. 1) then
+                  jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
+     &                 dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
 
-               if (bmass .lt. jeanmass) goto 10
+                  if (bmass .lt. jeanmass) goto 10
+               endif
 c
 c              6) Check to see if star is above threshold (given
 c                 in units of M_solar)

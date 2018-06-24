@@ -589,6 +589,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarFeedbackDistRadius           = 0;
   StarFeedbackDistCellStep         = 0;
   StarFeedbackDistTotalCells       = 1;
+  StarMakerUseJeansMass            = TRUE;
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
@@ -806,9 +807,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   iEtot = 4;
   iEint = 0;
 
-  UseDivergenceCleaning		   = 0;
-  DivergenceCleaningBoundaryBuffer = 0;
-  DivergenceCleaningThreshold	   = 0.001;
+  UsePoissonDivergenceCleaning		   = 0;
+  PoissonDivergenceCleaningBoundaryBuffer = 0;
+  PoissonDivergenceCleaningThreshold	   = 0.001;
   PoissonApproximationThreshold	   = 0.001;
   PoissonBoundaryType	   = 0;
 

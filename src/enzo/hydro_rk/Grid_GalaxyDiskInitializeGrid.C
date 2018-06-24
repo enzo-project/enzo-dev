@@ -103,7 +103,7 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
     }
   }
 
-  if(UseDivergenceCleaning){
+  if(UsePoissonDivergenceCleaning){
     FieldType[phip_num=NumberOfBaryonFields++] = Phi_pField;
     FieldType[NumberOfBaryonFields++] = DebugField;  
   }
