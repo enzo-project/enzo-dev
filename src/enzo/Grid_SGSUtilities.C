@@ -176,25 +176,25 @@ int grid::SGSUtil_ComputeJacobian(float *Jac[][MAX_DIMENSION],float *field1,floa
                 km1 = i + (j+(k-1)*GridDimension[1])*GridDimension[0];
 
                 // xdx
-                Jac[X][X][igrid] = (field1[ip1] - field1[im1]) * facX;
+                Jac[SGSX][SGSX][igrid] = (field1[ip1] - field1[im1]) * facX;
                 // xdy
-                Jac[X][Y][igrid] = (field1[jp1] - field1[jm1]) * facY;
+                Jac[SGSX][SGSY][igrid] = (field1[jp1] - field1[jm1]) * facY;
                 // xdz
-                Jac[X][Z][igrid] = (field1[kp1] - field1[km1]) * facZ;
+                Jac[SGSX][SGSZ][igrid] = (field1[kp1] - field1[km1]) * facZ;
 
                 // ydx
-                Jac[Y][X][igrid] = (field2[ip1] - field2[im1]) * facX;
+                Jac[SGSY][SGSX][igrid] = (field2[ip1] - field2[im1]) * facX;
                 // ydy
-                Jac[Y][Y][igrid] = (field2[jp1] - field2[jm1]) * facY;
+                Jac[SGSY][SGSY][igrid] = (field2[jp1] - field2[jm1]) * facY;
                 // ydz
-                Jac[Y][Z][igrid] = (field2[kp1] - field2[km1]) * facZ;
+                Jac[SGSY][SGSZ][igrid] = (field2[kp1] - field2[km1]) * facZ;
 
                 // zdx
-                Jac[Z][X][igrid] = (field3[ip1] - field3[im1]) * facX;
+                Jac[SGSZ][SGSX][igrid] = (field3[ip1] - field3[im1]) * facX;
                 // zdy
-                Jac[Z][Y][igrid] = (field3[jp1] - field3[jm1]) * facY;
+                Jac[SGSZ][SGSY][igrid] = (field3[jp1] - field3[jm1]) * facY;
                 // zdz
-                Jac[Z][Z][igrid] = (field3[kp1] - field3[km1]) * facZ;
+                Jac[SGSZ][SGSZ][igrid] = (field3[kp1] - field3[km1]) * facZ;
 
             }
 
@@ -282,36 +282,36 @@ int grid::SGSUtil_ComputeMixedFilteredQuantities() {
             ifilter = i + l + (j + m + (k+n)*GridDimension[1])*GridDimension[0];
             totalWeight =  SGSFilterWeights[ABS(l)] * SGSFilterWeights[ABS(m)] * SGSFilterWeights[ABS(n)];
             
-            FltrhoUU[XX][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
+            FltrhoUU[SGSXX][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
                 BaryonField[Vel1Num][ifilter] * BaryonField[Vel1Num][ifilter];
-            FltrhoUU[YY][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
+            FltrhoUU[SGSYY][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
                 BaryonField[Vel2Num][ifilter] * BaryonField[Vel2Num][ifilter];
-            FltrhoUU[ZZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
+            FltrhoUU[SGSZZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
                 BaryonField[Vel3Num][ifilter] * BaryonField[Vel3Num][ifilter];
-            FltrhoUU[XY][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
+            FltrhoUU[SGSXY][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
                 BaryonField[Vel1Num][ifilter] * BaryonField[Vel2Num][ifilter];
-            FltrhoUU[YZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
+            FltrhoUU[SGSYZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
                 BaryonField[Vel2Num][ifilter] * BaryonField[Vel3Num][ifilter];
-            FltrhoUU[XZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
+            FltrhoUU[SGSXZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
                 BaryonField[Vel1Num][ifilter] * BaryonField[Vel3Num][ifilter];
 
             if (!UseMHD)
               continue;
             
-            FltBB[XX][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B1Num][ifilter];
-            FltBB[YY][igrid] += totalWeight * BaryonField[B2Num][ifilter] * BaryonField[B2Num][ifilter];
-            FltBB[ZZ][igrid] += totalWeight * BaryonField[B3Num][ifilter] * BaryonField[B3Num][ifilter];
-            FltBB[XY][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B2Num][ifilter];
-            FltBB[YZ][igrid] += totalWeight * BaryonField[B2Num][ifilter] * BaryonField[B3Num][ifilter];
-            FltBB[XZ][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B3Num][ifilter];
+            FltBB[SGSXX][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B1Num][ifilter];
+            FltBB[SGSYY][igrid] += totalWeight * BaryonField[B2Num][ifilter] * BaryonField[B2Num][ifilter];
+            FltBB[SGSZZ][igrid] += totalWeight * BaryonField[B3Num][ifilter] * BaryonField[B3Num][ifilter];
+            FltBB[SGSXY][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B2Num][ifilter];
+            FltBB[SGSYZ][igrid] += totalWeight * BaryonField[B2Num][ifilter] * BaryonField[B3Num][ifilter];
+            FltBB[SGSXZ][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B3Num][ifilter];
             
-            FltUB[X][igrid] += totalWeight * (
+            FltUB[SGSX][igrid] += totalWeight * (
                 BaryonField[Vel2Num][ifilter] * BaryonField[B3Num][ifilter] -
                 BaryonField[Vel3Num][ifilter] * BaryonField[B2Num][ifilter]);
-            FltUB[Y][igrid] += totalWeight * (
+            FltUB[SGSY][igrid] += totalWeight * (
                 BaryonField[Vel3Num][ifilter] * BaryonField[B1Num][ifilter] -
                 BaryonField[Vel1Num][ifilter] * BaryonField[B3Num][ifilter]);
-            FltUB[Z][igrid] += totalWeight * (
+            FltUB[SGSZ][igrid] += totalWeight * (
                 BaryonField[Vel1Num][ifilter] * BaryonField[B2Num][ifilter] -
                 BaryonField[Vel2Num][ifilter] * BaryonField[B1Num][ifilter]);
             

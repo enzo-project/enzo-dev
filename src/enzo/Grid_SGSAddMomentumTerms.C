@@ -87,12 +87,12 @@ void grid::SGSAddTauNLuTerm(float **Tau) {
         igrid = i + (j+k*GridDimension[1])*GridDimension[0];
 
         for (int l = 0; l < MAX_DIMENSION; l++) {
-          Tau[XX][igrid] += CDeltaSqr * rho[igrid] * JacVel[X][l][igrid] * JacVel[X][l][igrid];
-          Tau[YY][igrid] += CDeltaSqr * rho[igrid] * JacVel[Y][l][igrid] * JacVel[Y][l][igrid];
-          Tau[ZZ][igrid] += CDeltaSqr * rho[igrid] * JacVel[Z][l][igrid] * JacVel[Z][l][igrid];
-          Tau[XY][igrid] += CDeltaSqr * rho[igrid] * JacVel[X][l][igrid] * JacVel[Y][l][igrid];
-          Tau[YZ][igrid] += CDeltaSqr * rho[igrid] * JacVel[Y][l][igrid] * JacVel[Z][l][igrid];
-          Tau[XZ][igrid] += CDeltaSqr * rho[igrid] * JacVel[X][l][igrid] * JacVel[Z][l][igrid];
+          Tau[SGSXX][igrid] += CDeltaSqr * rho[igrid] * JacVel[SGSX][l][igrid] * JacVel[SGSX][l][igrid];
+          Tau[SGSYY][igrid] += CDeltaSqr * rho[igrid] * JacVel[SGSY][l][igrid] * JacVel[SGSY][l][igrid];
+          Tau[SGSZZ][igrid] += CDeltaSqr * rho[igrid] * JacVel[SGSZ][l][igrid] * JacVel[SGSZ][l][igrid];
+          Tau[SGSXY][igrid] += CDeltaSqr * rho[igrid] * JacVel[SGSX][l][igrid] * JacVel[SGSY][l][igrid];
+          Tau[SGSYZ][igrid] += CDeltaSqr * rho[igrid] * JacVel[SGSY][l][igrid] * JacVel[SGSZ][l][igrid];
+          Tau[SGSXZ][igrid] += CDeltaSqr * rho[igrid] * JacVel[SGSX][l][igrid] * JacVel[SGSZ][l][igrid];
         }
 
       }
@@ -157,16 +157,16 @@ void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
 
         igrid = i + (j+k*GridDimension[1])*GridDimension[0];
 
-        traceSthird = (JacVel[X][X][igrid] + JacVel[Y][Y][igrid] + JacVel[Z][Z][igrid])/3.;
+        traceSthird = (JacVel[SGSX][SGSX][igrid] + JacVel[SGSY][SGSY][igrid] + JacVel[SGSZ][SGSZ][igrid])/3.;
 
         SStarSqr = (
-            2.*(pow(JacVel[X][X][igrid]-traceSthird,2.) +
-              pow(JacVel[Y][Y][igrid]-traceSthird,2.) +
-              pow(JacVel[Z][Z][igrid]-traceSthird,2.)
+            2.*(pow(JacVel[SGSX][SGSX][igrid]-traceSthird,2.) +
+              pow(JacVel[SGSY][SGSY][igrid]-traceSthird,2.) +
+              pow(JacVel[SGSZ][SGSZ][igrid]-traceSthird,2.)
               )
-            + pow(JacVel[X][Y][igrid] + JacVel[Y][X][igrid],2.)
-            + pow(JacVel[Y][Z][igrid] + JacVel[Z][Y][igrid],2.)
-            + pow(JacVel[X][Z][igrid] + JacVel[Z][X][igrid],2.));
+            + pow(JacVel[SGSX][SGSY][igrid] + JacVel[SGSY][SGSX][igrid],2.)
+            + pow(JacVel[SGSY][SGSZ][igrid] + JacVel[SGSZ][SGSY][igrid],2.)
+            + pow(JacVel[SGSX][SGSZ][igrid] + JacVel[SGSZ][SGSX][igrid],2.));
 
         JacNorm = 0.;
         for (int l = 0; l < MAX_DIMENSION; l++)
@@ -176,12 +176,12 @@ void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
         prefactor = TwoCDeltaSqr * rho[igrid] * SStarSqr / JacNorm;
 
         for (int l = 0; l < MAX_DIMENSION; l++) {
-          Tau[XX][igrid] += prefactor * JacVel[X][l][igrid] * JacVel[X][l][igrid];
-          Tau[YY][igrid] += prefactor * JacVel[Y][l][igrid] * JacVel[Y][l][igrid];
-          Tau[ZZ][igrid] += prefactor * JacVel[Z][l][igrid] * JacVel[Z][l][igrid];
-          Tau[XY][igrid] += prefactor * JacVel[X][l][igrid] * JacVel[Y][l][igrid];
-          Tau[YZ][igrid] += prefactor * JacVel[Y][l][igrid] * JacVel[Z][l][igrid];
-          Tau[XZ][igrid] += prefactor * JacVel[X][l][igrid] * JacVel[Z][l][igrid];
+          Tau[SGSXX][igrid] += prefactor * JacVel[SGSX][l][igrid] * JacVel[SGSX][l][igrid];
+          Tau[SGSYY][igrid] += prefactor * JacVel[SGSY][l][igrid] * JacVel[SGSY][l][igrid];
+          Tau[SGSZZ][igrid] += prefactor * JacVel[SGSZ][l][igrid] * JacVel[SGSZ][l][igrid];
+          Tau[SGSXY][igrid] += prefactor * JacVel[SGSX][l][igrid] * JacVel[SGSY][l][igrid];
+          Tau[SGSYZ][igrid] += prefactor * JacVel[SGSY][l][igrid] * JacVel[SGSZ][l][igrid];
+          Tau[SGSXZ][igrid] += prefactor * JacVel[SGSX][l][igrid] * JacVel[SGSZ][l][igrid];
         }
 
       }
@@ -231,22 +231,22 @@ void grid::SGSAddTauNLbTerm(float **Tau) {
 
         // the pure Maxwell stress component
         for (int l = 0; l < MAX_DIMENSION; l++) {
-          turbMagPres += JacB[X][l][igrid] * JacB[X][l][igrid] 
-            + JacB[Y][l][igrid] * JacB[Y][l][igrid]
-            + JacB[Z][l][igrid] * JacB[Z][l][igrid];
+          turbMagPres += JacB[SGSX][l][igrid] * JacB[SGSX][l][igrid] 
+            + JacB[SGSY][l][igrid] * JacB[SGSY][l][igrid]
+            + JacB[SGSZ][l][igrid] * JacB[SGSZ][l][igrid];
 
-          Tau[XX][igrid] -= CDeltaSqr * JacB[X][l][igrid] * JacB[X][l][igrid];
-          Tau[YY][igrid] -= CDeltaSqr * JacB[Y][l][igrid] * JacB[Y][l][igrid];
-          Tau[ZZ][igrid] -= CDeltaSqr * JacB[Z][l][igrid] * JacB[Z][l][igrid];
-          Tau[XY][igrid] -= CDeltaSqr * JacB[X][l][igrid] * JacB[Y][l][igrid];
-          Tau[YZ][igrid] -= CDeltaSqr * JacB[Y][l][igrid] * JacB[Z][l][igrid];
-          Tau[XZ][igrid] -= CDeltaSqr * JacB[X][l][igrid] * JacB[Z][l][igrid];
+          Tau[SGSXX][igrid] -= CDeltaSqr * JacB[SGSX][l][igrid] * JacB[SGSX][l][igrid];
+          Tau[SGSYY][igrid] -= CDeltaSqr * JacB[SGSY][l][igrid] * JacB[SGSY][l][igrid];
+          Tau[SGSZZ][igrid] -= CDeltaSqr * JacB[SGSZ][l][igrid] * JacB[SGSZ][l][igrid];
+          Tau[SGSXY][igrid] -= CDeltaSqr * JacB[SGSX][l][igrid] * JacB[SGSY][l][igrid];
+          Tau[SGSYZ][igrid] -= CDeltaSqr * JacB[SGSY][l][igrid] * JacB[SGSZ][l][igrid];
+          Tau[SGSXZ][igrid] -= CDeltaSqr * JacB[SGSX][l][igrid] * JacB[SGSZ][l][igrid];
         }
 
         // the turbulent magnetic pressure component
-        Tau[XX][igrid] += CDeltaSqr * turbMagPres/2.;
-        Tau[YY][igrid] += CDeltaSqr * turbMagPres/2.;
-        Tau[ZZ][igrid] += CDeltaSqr * turbMagPres/2.;
+        Tau[SGSXX][igrid] += CDeltaSqr * turbMagPres/2.;
+        Tau[SGSYY][igrid] += CDeltaSqr * turbMagPres/2.;
+        Tau[SGSZZ][igrid] += CDeltaSqr * turbMagPres/2.;
 
       }
 }
@@ -314,31 +314,31 @@ void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
 
         igrid = i + (j+k*GridDimension[1])*GridDimension[0];
 
-        traceSthird = (JacVel[X][X][igrid] + JacVel[Y][Y][igrid] + JacVel[Z][Z][igrid])/3.;
+        traceSthird = (JacVel[SGSX][SGSX][igrid] + JacVel[SGSY][SGSY][igrid] + JacVel[SGSZ][SGSZ][igrid])/3.;
 
         SStarSqr = (
-            2.*(pow(JacVel[X][X][igrid]-traceSthird,2.) +
-              pow(JacVel[Y][Y][igrid]-traceSthird,2.) +
-              pow(JacVel[Z][Z][igrid]-traceSthird,2.)
+            2.*(pow(JacVel[SGSX][SGSX][igrid]-traceSthird,2.) +
+              pow(JacVel[SGSY][SGSY][igrid]-traceSthird,2.) +
+              pow(JacVel[SGSZ][SGSZ][igrid]-traceSthird,2.)
               )
-            + pow(JacVel[X][Y][igrid] + JacVel[Y][X][igrid],2.)
-            + pow(JacVel[Y][Z][igrid] + JacVel[Z][Y][igrid],2.)
-            + pow(JacVel[X][Z][igrid] + JacVel[Z][X][igrid],2.));
+            + pow(JacVel[SGSX][SGSY][igrid] + JacVel[SGSY][SGSX][igrid],2.)
+            + pow(JacVel[SGSY][SGSZ][igrid] + JacVel[SGSZ][SGSY][igrid],2.)
+            + pow(JacVel[SGSX][SGSZ][igrid] + JacVel[SGSZ][SGSX][igrid],2.));
 
 
-        Tau[XX][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
-            JacVel[X][X][igrid] - traceSthird) + TwoThirdC2DeltaSqr * rho[igrid] * SStarSqr;
-        Tau[YY][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
-            JacVel[Y][Y][igrid] - traceSthird) + TwoThirdC2DeltaSqr * rho[igrid] * SStarSqr;
-        Tau[ZZ][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
-            JacVel[Z][Z][igrid] - traceSthird) + TwoThirdC2DeltaSqr * rho[igrid] * SStarSqr;
+        Tau[SGSXX][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+            JacVel[SGSX][SGSX][igrid] - traceSthird) + TwoThirdC2DeltaSqr * rho[igrid] * SStarSqr;
+        Tau[SGSYY][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+            JacVel[SGSY][SGSY][igrid] - traceSthird) + TwoThirdC2DeltaSqr * rho[igrid] * SStarSqr;
+        Tau[SGSZZ][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+            JacVel[SGSZ][SGSZ][igrid] - traceSthird) + TwoThirdC2DeltaSqr * rho[igrid] * SStarSqr;
 
-        Tau[XY][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
-            JacVel[X][Y][igrid] + JacVel[Y][X][igrid])/2.;
-        Tau[YZ][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
-            JacVel[Y][Z][igrid] + JacVel[Z][Y][igrid])/2.;
-        Tau[ZX][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
-            JacVel[Z][X][igrid] + JacVel[X][Z][igrid])/2.;
+        Tau[SGSXY][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+            JacVel[SGSX][SGSY][igrid] + JacVel[SGSY][SGSX][igrid])/2.;
+        Tau[SGSYZ][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+            JacVel[SGSY][SGSZ][igrid] + JacVel[SGSZ][SGSY][igrid])/2.;
+        Tau[SGSZX][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+            JacVel[SGSZ][SGSX][igrid] + JacVel[SGSX][SGSZ][igrid])/2.;
 
       }
 }
@@ -376,17 +376,17 @@ void grid::SGSAddTauSSuTerm(float **Tau) {
 
         igrid = i + (j+k*GridDimension[1])*GridDimension[0];
 
-        Tau[XX][igrid] += SGScoeffSSu * (FltrhoUU[XX][igrid] - 
+        Tau[SGSXX][igrid] += SGScoeffSSu * (FltrhoUU[SGSXX][igrid] - 
             FilteredFields[0][igrid] * FilteredFields[1][igrid] * FilteredFields[1][igrid]);
-        Tau[YY][igrid] += SGScoeffSSu * (FltrhoUU[YY][igrid] - 
+        Tau[SGSYY][igrid] += SGScoeffSSu * (FltrhoUU[SGSYY][igrid] - 
             FilteredFields[0][igrid] * FilteredFields[2][igrid] * FilteredFields[2][igrid]);
-        Tau[ZZ][igrid] += SGScoeffSSu * (FltrhoUU[ZZ][igrid] - 
+        Tau[SGSZZ][igrid] += SGScoeffSSu * (FltrhoUU[SGSZZ][igrid] - 
             FilteredFields[0][igrid] * FilteredFields[3][igrid] * FilteredFields[3][igrid]);
-        Tau[XY][igrid] += SGScoeffSSu * (FltrhoUU[XY][igrid] - 
+        Tau[SGSXY][igrid] += SGScoeffSSu * (FltrhoUU[SGSXY][igrid] - 
             FilteredFields[0][igrid] * FilteredFields[1][igrid] * FilteredFields[2][igrid]);
-        Tau[YZ][igrid] += SGScoeffSSu * (FltrhoUU[YZ][igrid] - 
+        Tau[SGSYZ][igrid] += SGScoeffSSu * (FltrhoUU[SGSYZ][igrid] - 
             FilteredFields[0][igrid] * FilteredFields[2][igrid] * FilteredFields[3][igrid]);
-        Tau[XZ][igrid] += SGScoeffSSu * (FltrhoUU[XZ][igrid] - 
+        Tau[SGSXZ][igrid] += SGScoeffSSu * (FltrhoUU[SGSXZ][igrid] - 
             FilteredFields[0][igrid] * FilteredFields[1][igrid] * FilteredFields[3][igrid]);
 
       }
@@ -426,17 +426,17 @@ void grid::SGSAddTauSSbTerm(float **Tau) {
 
         igrid = i + (j+k*GridDimension[1])*GridDimension[0];
 
-        Tau[XX][igrid] += SGScoeffSSb * (FltBB[XX][igrid] - 
+        Tau[SGSXX][igrid] += SGScoeffSSb * (FltBB[SGSXX][igrid] - 
             FilteredFields[4][igrid] * FilteredFields[4][igrid]);
-        Tau[YY][igrid] += SGScoeffSSb * (FltBB[YY][igrid] - 
+        Tau[SGSYY][igrid] += SGScoeffSSb * (FltBB[SGSYY][igrid] - 
             FilteredFields[5][igrid] * FilteredFields[5][igrid]);
-        Tau[ZZ][igrid] += SGScoeffSSb * (FltBB[ZZ][igrid] - 
+        Tau[SGSZZ][igrid] += SGScoeffSSb * (FltBB[SGSZZ][igrid] - 
             FilteredFields[6][igrid] * FilteredFields[6][igrid]);
-        Tau[XY][igrid] += SGScoeffSSb * (FltBB[XY][igrid] - 
+        Tau[SGSXY][igrid] += SGScoeffSSb * (FltBB[SGSXY][igrid] - 
             FilteredFields[4][igrid] * FilteredFields[5][igrid]);
-        Tau[YZ][igrid] += SGScoeffSSb * (FltBB[YZ][igrid] - 
+        Tau[SGSYZ][igrid] += SGScoeffSSb * (FltBB[SGSYZ][igrid] - 
             FilteredFields[5][igrid] * FilteredFields[6][igrid]);
-        Tau[XZ][igrid] += SGScoeffSSb * (FltBB[XZ][igrid] - 
+        Tau[SGSXZ][igrid] += SGScoeffSSb * (FltBB[SGSXZ][igrid] - 
             FilteredFields[4][igrid] * FilteredFields[6][igrid]);
 
       }
@@ -533,21 +533,21 @@ int grid::SGSAddMomentumTerms(float **dU) {
 
 
         MomxIncr = - dtFixed * (
-            (Tau[XX][ip1] - Tau[XX][im1])*facX + 
-            (Tau[XY][jp1] - Tau[XY][jm1])*facY + 
-            (Tau[XZ][kp1] - Tau[XZ][km1])*facZ);
+            (Tau[SGSXX][ip1] - Tau[SGSXX][im1])*facX + 
+            (Tau[SGSXY][jp1] - Tau[SGSXY][jm1])*facY + 
+            (Tau[SGSXZ][kp1] - Tau[SGSXZ][km1])*facZ);
         EtotIncr = BaryonField[Vel1Num][igrid] * MomxIncr + 0.5 / rho[igrid] * MomxIncr * MomxIncr;
 
         MomyIncr = - dtFixed * (
-            (Tau[YX][ip1] - Tau[YX][im1])*facX + 
-            (Tau[YY][jp1] - Tau[YY][jm1])*facY + 
-            (Tau[YZ][kp1] - Tau[YZ][km1])*facZ);
+            (Tau[SGSYX][ip1] - Tau[SGSYX][im1])*facX + 
+            (Tau[SGSYY][jp1] - Tau[SGSYY][jm1])*facY + 
+            (Tau[SGSYZ][kp1] - Tau[SGSYZ][km1])*facZ);
         EtotIncr += BaryonField[Vel2Num][igrid] * MomyIncr + 0.5 / rho[igrid] * MomyIncr * MomyIncr;
 
         MomzIncr = - dtFixed * (
-            (Tau[ZX][ip1] - Tau[ZX][im1])*facX + 
-            (Tau[ZY][jp1] - Tau[ZY][jm1])*facY + 
-            (Tau[ZZ][kp1] - Tau[ZZ][km1])*facZ);
+            (Tau[SGSZX][ip1] - Tau[SGSZX][im1])*facX + 
+            (Tau[SGSZY][jp1] - Tau[SGSZY][jm1])*facY + 
+            (Tau[SGSZZ][kp1] - Tau[SGSZZ][km1])*facZ);
         EtotIncr += BaryonField[Vel3Num][igrid] * MomzIncr + 0.5 / rho[igrid] * MomzIncr * MomzIncr;
 
         dU[ivx][n] += MomxIncr;

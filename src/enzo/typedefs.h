@@ -199,19 +199,19 @@ const forcing_type
 
 const enum_type
 /* indices used for vectors/Jacobians in SGS model */
-  X   = 0,
-  Y   = 1,
-  Z   = 2,
+  SGSX   = 0,
+  SGSY   = 1,
+  SGSZ   = 2,
 /* indices used for symmetric tensors */
-  XX  = 0,
-  YY  = 1,
-  ZZ  = 2,
-  XY  = 3,
-  YZ  = 4,
-  XZ  = 5,
-  YX  = 3,
-  ZY  = 4,
-  ZX  = 5;
+  SGSXX  = 0,
+  SGSYY  = 1,
+  SGSZZ  = 2,
+  SGSXY  = 3,
+  SGSYZ  = 4,
+  SGSXZ  = 5,
+  SGSYX  = 3,
+  SGSZY  = 4,
+  SGSZX  = 5;
 
 /* These are the different types of fluid boundary conditions. */
 
