@@ -42,7 +42,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   const float EnergyThresholds[] = {13.6, 24.6, 54.4, 100.0}; //Only used for determining HI,HeI,HeII
  
   RadiationSourceEntry *RS = RadiationSource;
-  FLOAT min_beam_zvec, dot_prod, vec[3];
+  FLOAT min_beam_zvec, dot_prod;
+  double vec[3];
   long long BasePackages = 0, NumberOfNewPhotonPackages = 0;
   int dim = 0;
   int64_t ray = 0;
@@ -230,7 +231,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	NewPack->level = min_level;
 	NewPack->Energy = RS->Energy[ebin];
 	NewPack->CrossSection = 0.0;
-	FLOAT dir_vec[3];
+	double dir_vec[3];
 	pix2vec_nest64((int64_t) (1 << NewPack->level), NewPack->ipix, dir_vec);
 	/* Find the cross section for each radiation type */
 	if (NewPack->Type < 4)
