@@ -781,9 +781,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarIMF                  =     0;         // 0: salpeter, 1: kroupa, 2: chabrier
   IndividualStarIMFCalls             =     0;         // Do not touch - number of calls to IMF so far in simulation
   IndividualStarSalpeterSlope        = -1.35;         // slope
-  IndividualStarKroupaAlpha1         =   0.3;         // kroupa slope over mass range
-  IndividualStarKroupaAlpha2         =   1.3;         // '' over 
-  IndividualStarKroupaAlpha3         =   2.3;         // '' over
+  IndividualStarKroupaAlpha1         =  -0.3;         // kroupa slope over mass range
+  IndividualStarKroupaAlpha2         =  -1.3;         // '' over 
+  IndividualStarKroupaAlpha3         =  -2.3;         // '' over
   IndividualStarIMFLowerMassCutoff   =   1.0;         // Solar masses
   IndividualStarIMFUpperMassCutoff   = 100.0;         // Solar masses
   IndividualStarIMFMassFloor         = IndividualStarIMFLowerMassCutoff;         // If this is below the lower mass cutoff, stars below this mass will get grouped together into a single particle
