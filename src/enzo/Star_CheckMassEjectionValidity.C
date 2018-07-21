@@ -20,16 +20,19 @@ void Star::CheckMassEjectionValidity(void){
   float tolerance = 1.05; // 5 percent tolerance
   int sn_fail = 0, wind_fail = 0;
 
-  float total_wind_mass_ejection = StellarYieldsInterpolateYield(1, this->yield_table_position[0],
-                                                                    this->yield_table_position[1],
-                                                                    this->BirthMass, this->Metallicity, -1);
+  float total_wind_mass_ejection = this->InterpolateYield(1, -1);
+//StellarYieldsInterpolateYield(1, this->yield_table_position[0],
+//                                                                    this->yield_table_position[1],
+//                                                                    this->BirthMass, this->Metallicity, -1);
   float total_sn_mass_ejection = 9999.9;
 
   if (this->BirthMass > IndividualStarSNIIMassCutoff &&
       this->BirthMass < IndividualStarDirectCollapseThreshold){
-    total_sn_mass_ejection = StellarYieldsInterpolateYield(0, this->yield_table_position[0],
-                                                              this->yield_table_position[1],
-                                                              this->BirthMass, this->Metallicity, -1);
+    total_sn_mass_ejection = this->InterpolateYield(0, -1);
+
+//StellarYieldsInterpolateYield(0, this->yield_table_position[0],
+//                                                              this->yield_table_position[1],
+//                                                              this->BirthMass, this->Metallicity, -1);
 
   }
 

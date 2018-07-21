@@ -293,7 +293,7 @@ int IndividualStarInterpolateLWFlux(float & LW_flux, const float &Teff, const fl
       value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
     } else if (v < 0 || v > 1) {
       printf("Metallicity out of bounds ");
-      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];    
+      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];
     }
 
     printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
@@ -370,7 +370,7 @@ int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float
     } // no print statements if temperature is out of bounds -
       // that is O.K. and covered with black body integral
 
-    printf("IndividualStarInterpolateFUVFlux: Failure in interpolation "); 
+    printf("IndividualStarInterpolateFUVFlux: Failure in interpolation ");
 
 
     if( t < 0 || t > 1) {
@@ -381,7 +381,7 @@ int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float
       value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
     } else if (v < 0 || v > 1) {
       printf("Metallicity out of bounds ");
-      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];    
+      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];
     }
 
     printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
@@ -391,18 +391,22 @@ int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float
 
   if( IndividualStarRadDataEvaluateInterpolation(Fuv, IndividualStarRadData.Fuv,
                                                  t, u, v, i, j, k) == FAIL){
-    printf("IndividualStarFUVHeating: outside sampled grid points, using black body instead\n");   
+    printf("IndividualStarFUVHeating: outside sampled grid points, using black body instead\n");
     return FAIL;
-  }
+  } 
 
   return SUCCESS;
 }
 
-int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar){
+int IndividualStarComputeLWLuminosity(float &L_Lw, //Star *cstar){
+                                      const int &i, const int &j, const int &k,
+                                      const float &Teff, const float &R, const float &g,
+                                      const float &Z){
 
-  float Teff, R, g, LW_flux;
+
+  float LW_flux;
   const double pi = 3.141592653689393;
-
+/*
   int * se_table_pos = cstar->ReturnSETablePosition();
   int * rad_table_pos = cstar->ReturnRadTablePosition();
 
@@ -411,11 +415,11 @@ int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar){
                                       cstar->ReturnBirthMass(), cstar->ReturnMetallicity());
 
   g = IndividualStarSurfaceGravity(cstar->ReturnBirthMass(), R);
-
+*/
   if (IndividualStarBlackBodyOnly == FALSE){
     if(IndividualStarInterpolateLWFlux(LW_flux,
-                                       rad_table_pos[0], rad_table_pos[1], rad_table_pos[2],
-                                       Teff, g, cstar->ReturnMetallicity()) == SUCCESS){
+                                       i, j, k,
+                                       Teff, g, Z) == SUCCESS){
 
       L_Lw = 4.0 * pi * R * R * LW_flux;
 
@@ -449,11 +453,14 @@ int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar){
 
 }
 
-int IndividualStarComputeFUVLuminosity(float &L_fuv, Star *cstar){
+int IndividualStarComputeFUVLuminosity(float &L_fuv,
+                                       const int &i, const int &j, const int &k,
+                                       const float & Teff, const float &R, const float &g,
+                                       const float & Z){
 
-  float Teff, R, g, Fuv;
+  float Fuv;
   const double pi = 3.141592653689393;
-
+/*
   int * se_table_pos = cstar->ReturnSETablePosition();
   int * rad_table_pos = cstar->ReturnRadTablePosition();
 
@@ -462,11 +469,12 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv, Star *cstar){
                                       cstar->ReturnBirthMass(), cstar->ReturnMetallicity());
 
   g = IndividualStarSurfaceGravity(cstar->ReturnBirthMass(), R);
+*/
 
   if (IndividualStarBlackBodyOnly == FALSE){
     if(IndividualStarInterpolateFUVFlux(Fuv,
-                                        rad_table_pos[0], rad_table_pos[1], rad_table_pos[2],
-                                        Teff, g, cstar->ReturnMetallicity()) == SUCCESS){
+                                        i, j, k,
+                                        Teff, g, Z) == SUCCESS){
 
       L_fuv = 4.0 * pi * R * R * Fuv;
 
@@ -850,7 +858,7 @@ int IndividualStarGetRadTablePosition(int &i, int &j, int &k,
 
     printf("IndividualStarInterpolateRadData: Failure in interpolation ");
 
-    if( t < 0 || t > 1) { 
+    if( t < 0 || t > 1) {
       printf("Temperature out of bounds ");
       value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
     } else if (u < 0 || u > 1) {
@@ -858,7 +866,7 @@ int IndividualStarGetRadTablePosition(int &i, int &j, int &k,
       value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
     } else if (v < 0 || v > 1) {
       printf("Metallicity out of bounds ");
-      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];  
+      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];
     }
 
     printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
@@ -965,7 +973,7 @@ int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &m
     float value, value_min, value_max;
     printf("IndividualStarInterpolateProperties: Failure in interpolation ");
 
-    if( t < 0 || t > 1){ 
+    if( t < 0 || t > 1){
       printf("Mass out of bounds ");
       value = M; value_min = IndividualStarPropertiesData.M[0]; value_max = IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins-1];
     } else if (u < 0 || u > 1){
@@ -1039,7 +1047,7 @@ int IndividualStarInterpolateProperties(float &Teff, float &R,
     float value, value_min, value_max;
     printf("IndividualStarInterpolateProperties: Failure in interpolation ");
 
-    if( t < 0 || t > 1){ 
+    if( t < 0 || t > 1){
       printf("Mass out of bounds ");
       value = M; value_min = IndividualStarPropertiesData.M[0]; value_max = IndividualStarPropertiesData.M[IndividualStarPropertiesData.NumberOfMassBins-1];
     } else if (u < 0 || u > 1){
@@ -1097,19 +1105,19 @@ int IndividualStarInterpolateRadData(float &q0, float &q1,
     Z = IndividualStarRadData.Z[0];
   }
 
-  if( LinearInterpolationCoefficients(t, u, v, i, j, k, Teff, g, Z, 
+  if( LinearInterpolationCoefficients(t, u, v, i, j, k, Teff, g, Z,
                                       IndividualStarRadData.T, IndividualStarRadData.g, IndividualStarRadData.Z,
                                       IndividualStarRadData.NumberOfTemperatureBins, IndividualStarRadData.NumberOfSGBins, IndividualStarRadData.NumberOfMetallicityBins) == FAIL){
     /* if interpolation fails, fail here */
     float value, value_min, value_max;
-    
+
     if ( t < 0  || t > 1){
         return FAIL; // Temperature failure is O.K. --- just means do black body
     }
 
     printf("IndividualStarInterpolateRadData: Failure in interpolation ");
 
-    if( t < 0 || t > 1) { 
+    if( t < 0 || t > 1) {
       printf("Temperature out of bounds ");
       value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
     } else if (u < 0 || u > 1) {
@@ -1117,7 +1125,7 @@ int IndividualStarInterpolateRadData(float &q0, float &q1,
       value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
     } else if (v < 0 || v > 1) {
       printf("Metallicity out of bounds ");
-      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];    
+      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];
     }
 
     printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
@@ -1130,9 +1138,9 @@ int IndividualStarInterpolateRadData(float &q0, float &q1,
       (IndividualStarRadDataEvaluateInterpolation(q1, IndividualStarRadData.q1,
                                                   t, u, v, i, j, k) == FAIL)){
 
-    printf("IndividualStarRadData: outside sampled grid points, using black body instead\n");   
+    printf("IndividualStarRadData: outside sampled grid points, using black body instead\n");
     return FAIL;
-  }  
+  }
 
   return SUCCESS;
 }
@@ -1153,7 +1161,7 @@ int IndividualStarRadDataEvaluateInterpolation(float &y, float **ya[],
       ya[i+1][j+1][k+1] == 1.0 ||
       ya[i+1][j  ][k+1] == 1.0   ){
     return FAIL;
-  }  
+  }
   y = (1.0 - t)*(1.0 - u)*(1.0 - v) * ya[i  ][j  ][k  ] +
       (1.0 - t)*(      u)*(1.0 - v) * ya[i  ][j+1][k  ] +
       (      t)*(      u)*(1.0 - v) * ya[i+1][j+1][k  ] +
@@ -1261,7 +1269,7 @@ int BlackBodyFlux(float &F, const float &x){
  /* -----------------------------------------------------------
   * BlackBodyFlux
   * -----------------------------------------------------------
-  * Compute the one sided integral over black body curve to get 
+  * Compute the one sided integral over black body curve to get
   * flux contribution from light with wave number x to infinity
   *
   * ------------------------------------------------------------
@@ -1505,8 +1513,3 @@ float GaussianRandomVariable(void){
 
   return y1;
 }
-
-
-
-
-

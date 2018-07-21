@@ -29,10 +29,144 @@ void IndividualStarInterpolateProperties(float &Teff, float &R,
                                          const int &i, const int &j,
                                          const float &M, const float &metallicity);
 
+// need to put functions here:
+// IndividualStar etc.
+float IndividualStarSurfaceGravity(const float &mp, const float &R);
+void IndividualStarComputeIonizingRates(float &q0, float &q1,
+                                        const int &i, const int &j, const int &k,
+                                        const float &Teff, const float &g,
+                                        const float &metallicity);
+int  IndividualStarComputeLWLuminosity(float &L_LW, const int &i,
+                                       const int &j, const int &k,
+                                       const float &Teff, const float &R,
+                                       const float &g, const float &Z);
+int  IndividualStarComputeFUVLuminosity(float &L_FUV, const int &i,
+                                       const int &j, const int &k,
+                                       const float &Teff, const float &R,
+                                       const float &g, const float &Z);
+int  IndividualStarInterpolateLifetime(float & tau, const int &i,
+                                       const int &j, const float &M,
+                                       const float &metallicity, const int &mode);
+float StellarYieldsInterpolateYield(int yield_type, const int &i,
+                                    const int &j ,const float &M,
+                                    const float &metallicity,
+                                    int atomic_number);
 
+/* Here I have overloaded all of the interpolation functions for the individual
+   star routines in order to be a little more self-consistent. Each routine
+   now 100% handles the interpolation without having to pass parameters,
+   while checking to make sure the table positions are already computed for
+   each star. Doing it this way ensures that the table positions will always
+   be set when needed, that they are only interpolated when actually needed,
+   and that this is only ever done ONCE for each star in each timestep
+*/
+
+void Star::InterpolateProperties(void){
+
+  // set this if not set already
+  this->AssertInterpolationPositions(1);
+
+  IndividualStarInterpolateProperties(this->Teff, this->Radius,
+                                      this->se_table_position[0],
+                                      this->se_table_position[1],
+                                      this->BirthMass, this->Metallicity);
+
+  this->SurfaceGravity = IndividualStarSurfaceGravity(this->BirthMass,
+                                                      this->Radius);
+  return;
+}
+
+void Star::AssertStellarProperties(void){
+  if ( (this->Teff <= 0.0) ||
+       (this->Radius <= 0.0) ||
+       (this->SurfaceGravity <= 0.0)){
+
+         this->InterpolateProperties();
+
+       }
+  return;
+}
+
+void Star::ComputeIonizingRates(float &Q0, float &Q1){
+
+  this->AssertStellarProperties();       // need Teff, g
+  this->AssertInterpolationPositions(2); // need
+
+  IndividualStarComputeIonizingRates(Q0, Q1,
+                                     this->rad_table_position[0],
+                                     this->rad_table_position[1],
+                                     this->rad_table_position[2],
+                                     this->Teff, this->SurfaceGravity,
+                                     this->Metallicity);
+  return;
+}
+
+void Star::ComputeLWLuminosity(float &L_LW){
+
+  this->AssertStellarProperties();
+  this->AssertInterpolationPositions(2);
+
+  IndividualStarComputeLWLuminosity(L_LW,
+      this->rad_table_position[0], this->rad_table_position[1], this->rad_table_position[2],
+      this->Teff, this->Radius, this->SurfaceGravity, this->Metallicity);
+  return;
+}
+
+void Star::ComputeFUVLuminosity(float &L_FUV){
+
+  this->AssertStellarProperties();
+  this->AssertInterpolationPositions(2);
+
+  IndividualStarComputeFUVLuminosity(L_FUV,
+      this->rad_table_position[0], this->rad_table_position[1], this->rad_table_position[2],
+      this->Teff, this->Radius, this->SurfaceGravity, this->Metallicity);
+
+  return;
+}
+
+int Star::InterpolateLifetime(float &tau, const int & mode ){
+
+  this->AssertInterpolationPositions(1);
+
+  return IndividualStarInterpolateLifetime(tau, this->se_table_position[0],
+                                    this->se_table_position[1],
+                                    this->BirthMass, this->Metallicity,
+                                    mode);
+}
+
+double Star::ReturnSurfaceGravity(void){
+  this->AssertStellarProperties();
+  return this->SurfaceGravity;
+}
+
+double Star::ReturnEffectiveTemperature(void){
+  this->AssertStellarProperties();
+  return this->Teff;
+}
+
+double Star::ReturnRadius(void){
+  this->AssertStellarProperties();
+  return this->Radius;
+}
+
+float Star::InterpolateYield(int yield_type,
+                                          int atomic_number){
+
+  this->AssertInterpolationPositions(3);
+
+  return StellarYieldsInterpolateYield(yield_type,
+                                       this->yield_table_position[0],
+                                       this->yield_table_position[1],
+                                       this->BirthMass, this->Metallicity,
+                                       atomic_number);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 void Star::AssignInterpolationTablePositions(void){
   /* Sets table positions for each star */
+
+  if (this->TablePositionsAssigned()){ return;} // don't reassign!!
 
   if( this->type == PARTICLE_TYPE_INDIVIDUAL_STAR ){
 
@@ -57,7 +191,23 @@ void Star::AssignInterpolationTablePositions(void){
   return;
 }
 
+int Star::TablePositionsAssigned(void){
+  int result = 0;
+
+  if ( (this->se_table_position[0] >= 0) &&
+       (this->se_table_position[1] >= 0) &&
+       (this->rad_table_position[0] >= 0) &&
+       (this->rad_table_position[1] >= 0) &&
+       (this->rad_table_position[2] >= 0) &&
+       (this->yield_table_position[0] >= 0) &&
+       (this->yield_table_position[1] >= 0)) result = 1;
+
+  return result;
+}
+
 void Star::AssignSETablePosition(void){
+
+  //  if (this->se_table_position[0] >= 0 && this->se_table_position[0] >= 0) return;
 
   /* find stellar properties - used for winds, SN, and radiation */
   IndividualStarGetSETablePosition(this->se_table_position[0],
@@ -67,6 +217,10 @@ void Star::AssignSETablePosition(void){
 }
 
 void Star::AssignRadTablePosition(void){
+
+  //if (this->rad_table_position[0] >= 0 &&
+  //    this->rad_table_position[1] >= 0 &&
+  //   this->rad_table_position[2] >= 0){ return;}
 
   this->AssertInterpolationPositions(1);
 
@@ -89,6 +243,9 @@ void Star::AssignRadTablePosition(void){
 
 void Star::AssignYieldTablePosition(void){
 
+  //if (this->yield_table_position[0] >= 0 &&
+  //    this->yield_table_position[1] >= 0){ return;}
+
   StellarYieldsGetYieldTablePosition(this->yield_table_position[0],
                                      this->yield_table_position[1],
                                      this->BirthMass, this->Metallicity);
@@ -109,12 +266,15 @@ void Star::AssertInterpolationPositions(int mode){
  //        2: rad   table
  //        3: yield table
 
-  if (this->type < 0) return; // do not do anything 
+  if (this->type < 0) return; // do not do anything
 
   switch(mode){
     case 1:
       if (this->se_table_position[0] < 0 || this->se_table_position[1] < 0){
-        printf("STAR: Table positions not being set correctly. Setting SE table.\n");
+
+        if(IndividualStarSaveTablePositions){
+          printf("STAR: Table positions not being set correctly. Setting SE table.\n");
+        }
         this->AssignSETablePosition();
       }
       break;
@@ -124,7 +284,9 @@ void Star::AssertInterpolationPositions(int mode){
       if( (this->rad_table_position[0] < 0 && this->rad_table_position[0] > -2) &&
            this->BirthMass > IndividualStarRadiationMinimumMass &&
            this->type == PARTICLE_TYPE_INDIVIDUAL_STAR){  // only interpolate if actually needed
-        printf("STAR: Table positions not being set correctly. Setting Rad table.\n");
+        if (IndividualStarSaveTablePositions){
+          printf("STAR: Table positions not being set correctly. Setting Rad table.\n");
+        }
 
         this->AssignRadTablePosition();
       }
@@ -132,7 +294,9 @@ void Star::AssertInterpolationPositions(int mode){
 
     case 3:
       if (this->yield_table_position[0] < 0 || this->yield_table_position[1] < 0){
-        printf("STAR: Table positions not being set correctly. Setting Yield table.\n");
+        if (IndividualStarSaveTablePositions){
+          printf("STAR: Table positions not being set correctly. Setting Yield table.\n");
+        }
         this->AssignYieldTablePosition();
       }
       break;

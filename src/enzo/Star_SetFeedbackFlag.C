@@ -81,8 +81,7 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
 
         float wind_start_age = 0.0;
         if(this->BirthMass < IndividualStarAGBThreshold){
-          if(IndividualStarInterpolateLifetime(wind_start_age, this->BirthMass,
-                                               this->Metallicity, 2) == FAIL){
+          if(this->InterpolateLifetime(wind_start_age, 2) == FAIL){
             ENZO_FAIL("SetFeedbackFlag: Failure in MS lifetime interpolation");
           }
         }
@@ -117,6 +116,7 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
     break;
 
   case IndividualStarRemnant:
+  case IndividualStarUnresolved:
 
     this->FeedbackFlag = NO_FEEDBACK;
     break;

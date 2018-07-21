@@ -980,7 +980,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                   // loop until mass to stars is less than 10% of smallest star particle size
                   while( ii < *nmax && mass_to_stars > 1.1 * IndividualStarIMFLowerMassCutoff){
-                    float tempmass;
+                    float tempmass = 0.0;
                     tempmass = SampleIMF();
 
                     if (tempmass < M_max_star){
@@ -1034,10 +1034,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                             unresolved_mass  += temp_mass;
                           } else{
                             ParticleMass[ii]  = temp_mass;
+                            ii++;
                           }
                           sum_mass         += temp_mass;
                           mass_counter     -= temp_mass;
-                          ii++;
                       }
 
                       if (unresolved_mass > 0.0) { // we've formed tiny stars (should always happen).. account for this
@@ -1274,11 +1274,11 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               } // end while loop for assigning particle properties
 
               if (add_unresolved_star){
-                ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT;
+                ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED;
                 ParticleAttribute[0][ii] = this->Time;
                 ParticleAttribute[2][ii] = BaryonField[MetalNum][index];
 
-                ParticleAttribute[1][ii] = huge_number;
+                ParticleAttribute[1][ii] = huge_number * TimeUnits;
                 ParticleAttribute[3][ii] = ParticleMass[ii];
                 ParticleMass[ii]         = ParticleMass[ii] * msolar / MassUnits;
                 ParticlePosition[0][ii]  = this->CellWidth[0][i] + this->CellLeftEdge[0][i];
@@ -1291,6 +1291,9 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 px += ParticleVelocity[0][ii]*ParticleMass[ii];
                 py += ParticleVelocity[1][ii]*ParticleMass[ii];
                 pz += ParticleVelocity[2][ii]*ParticleMass[ii];
+
+                ParticleAttribute[NumberOfParticleAttributes-2][ii] = 0.0;
+                ParticleAttribute[NumberOfParticleAttributes-1][ii] = 0.0;
 
                 if (TestProblemData.MultiMetals == 2){
                   if (IndividualStarOutputChemicalTags){
@@ -1464,7 +1467,7 @@ float SampleIMF(void){
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
   float x = (float) (random_int%max_random) / (float) (max_random);
-  float dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/ ((float) (IMF_TABLE_ENTRIES-1));
+  float dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFMassFloor)/ ((float) (IMF_TABLE_ENTRIES-1));
   float m;
 
   int bin_number;
@@ -1477,7 +1480,7 @@ float SampleIMF(void){
     bin_number = search_lower_bound(IMFData, x, 0, IMF_TABLE_ENTRIES, IMF_TABLE_ENTRIES);
   }
 
-  m = IndividualStarIMFLowerMassCutoff * POW(10.0, bin_number * dm);
+  m = IndividualStarIMFMassFloor * POW(10.0, bin_number * dm);
 
   IndividualStarIMFCalls++;
 

@@ -173,6 +173,7 @@ int Star::HitEndpoint(FLOAT Time)
     break;
 
   case IndividualStarRemnant:
+  case IndividualStarUnresolved:
     result = NO_DEATH; //printf("Individual Star remnamt in hit endpoint\n");
     this->FeedbackFlag = NO_FEEDBACK;
     this->LifeTime     = huge_number * this->LifeTime;

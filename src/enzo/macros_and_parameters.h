@@ -485,6 +485,7 @@ typedef long long int   HDF5_hid_t;
 #define PARTICLE_TYPE_INDIVIDUAL_STAR 11
 #define PARTICLE_TYPE_INDIVIDUAL_STAR_WD 12
 #define PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT 13
+#define PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED 14
 
 #define CHILDRENPERPARENT           12
 /* Ways to deposit particles from a subgrid. */

@@ -102,20 +102,10 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     tau = this->LifeTime;
     tau = tau * (TimeUnits); // convert to cgs
 
-    se_table_position  = this->ReturnSETablePosition();
-    rad_table_position = this->ReturnRadTablePosition();
-
     /* set ionizing radiation photon rates */
     if (M >= IndividualStarIonizingRadiationMinimumMass){
-      IndividualStarInterpolateProperties(Teff, R,
-                                        se_table_position[0], se_table_position[1],
-                                        M, Z);
 
-      g = IndividualStarSurfaceGravity( M, R); // M in solar - R in cgs
-
-      IndividualStarComputeIonizingRates(Q[0], Q[1],
-                                         rad_table_position[0], rad_table_position[1], rad_table_position[2],
-                                         Teff, g, Z);
+      this->ComputeIonizingRates(Q[0], Q[1]);
 
       // compute average energy by integrating over the black body spectrum
       H_ionizing_energy   /= eV_erg; // convert to ergs
@@ -151,7 +141,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
       if(IndividualStarFUVHeating && M > IndividualStarOTRadiationMass){
           float l_fuv;
-          IndividualStarComputeFUVLuminosity(l_fuv, this);
+          this->ComputeFUVLuminosity(l_fuv);
           Q[4] = l_fuv / (E[4] / eV_erg);
       } else{
           Q[4] = 0.0;
@@ -159,7 +149,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
       if(IndividualStarLWRadiation && M > IndividualStarOTRadiationMass){
         float l_lw;
-        IndividualStarComputeLWLuminosity(l_lw, this);
+        this->ComputeLWLuminosity(l_lw);
         Q[3] = l_lw / (E[3] / eV_erg);
       } else{
         Q[3] = 0.0;
@@ -293,6 +283,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
   case IndividualStarWD:
   case IndividualStarRemnant:
+  case IndividualStarUnresolved:
 
     nbins = 3;
     E[0]  = 0.0; E[1] = 0.0; E[2] = 0.0;

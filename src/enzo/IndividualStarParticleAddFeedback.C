@@ -73,7 +73,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
     if( ABS(cstar->ReturnType()) != IndividualStar &&
         ABS(cstar->ReturnType()) != IndividualStarWD &&
-        ABS(cstar->ReturnType()) != IndividualStarRemnant){
+        ABS(cstar->ReturnType()) != IndividualStarRemnant &&
+        ABS(cstar->ReturnType()) != IndividualStarUnresolved ){
       continue; // This probably should never need to be checked
     }
 

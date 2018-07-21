@@ -41,11 +41,11 @@ int IndividualStarGetRadTablePosition(int &i, int &j, int &k,
 int StellarYieldsGetYieldTablePosition(int &i, int &j, const float &M, const float &metallicity);
 
 
-float IndividualStarSurfaceGravity(const float &mp, const float &R);
+//float IndividualStarSurfaceGravity(const float &mp, const float &R);
 
-void IndividualStarInterpolateProperties(float &Teff, float &R,
-                                         const int &i, const int &j,
-                                         const float &M, const float &metallicity);
+//void IndividualStarInterpolateProperties(float &Teff, float &R,
+//                                         const int &i, const int &j,
+//                                         const float &M, const float &metallicity);
 
 
 
@@ -70,10 +70,13 @@ Star::Star(void)
   PrevStar = NULL;
   CurrentGrid = NULL;
   Mass = FinalMass = BirthMass = DeltaMass = BirthTime = LifeTime =
-    last_accretion_rate = NotEjectedMass = Metallicity = deltaZ = 0.0;
+    last_accretion_rate = NotEjectedMass = Metallicity = deltaZ =
+    Radius = SurfaceGravity = Teff = 0.0;
   FeedbackFlag = Identifier = level = GridID = type = naccretions = 0;
   AddedEmissivity = false;
 
+  // Init to bad values to cause failure if trying to use before set
+  //      used for Individual Star feedback only
   se_table_position[0] = se_table_position[1] = -1;
   rad_table_position[0] = rad_table_position[1] = rad_table_position[3] = -1;
   yield_table_position[0] = yield_table_position[1] = -1;
@@ -116,7 +119,7 @@ Star::Star(grid *_grid, int _id, int _level)
   Metallicity = (double)(_grid->ParticleAttribute[2][_id]);
 
   if( ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR  &&
-      ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
+      ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED){
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
     if (IndividualStarSaveTablePositions){
@@ -129,12 +132,17 @@ Star::Star(grid *_grid, int _id, int _level)
       yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
       yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
 
-    } else{
+    }
+/*
+ else if (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR || type < 0){
+      // interpolate table positions if not stored. This is used in feedback and
+      //   evolution routines. Do not do for every star though, only those with
+      //   actual feedback occuring.
 
       IndividualStarGetSETablePosition(se_table_position[0], se_table_position[1],
                                         BirthMass, Metallicity);
 
-      if (BirthMass >= IndividualStarRadiationMinimumMass){
+      if (BirthMass >= IndividualStarRadiationMinimumMass){ // don't bother if non-radiating
         float Teff, R;
         IndividualStarInterpolateProperties(Teff, R, se_table_position[0], se_table_position[1],
                                             BirthMass, Metallicity);
@@ -147,7 +155,7 @@ Star::Star(grid *_grid, int _id, int _level)
       StellarYieldsGetYieldTablePosition(yield_table_position[0], yield_table_position[1],
                                          BirthMass, Metallicity);
     }
-
+*/
     wind_mass_ejected = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
     sn_mass_ejected   = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
 
@@ -192,6 +200,9 @@ Star::Star(StarBuffer *buffer, int n)
   deltaZ = buffer[n].deltaZ;
   last_accretion_rate = buffer[n].last_accretion_rate;
   NotEjectedMass = buffer[n].NotEjectedMass;
+  Radius = buffer[n].Radius;
+  SurfaceGravity = buffer[n].SurfaceGravity;
+  Teff = buffer[n].Teff;
   FeedbackFlag = buffer[n].FeedbackFlag;
   Identifier = buffer[n].Identifier;
   level = buffer[n].level;
@@ -245,6 +256,9 @@ Star::Star(StarBuffer buffer)
   deltaZ = buffer.deltaZ;
   last_accretion_rate = buffer.last_accretion_rate;
   NotEjectedMass = buffer.NotEjectedMass;
+  Radius = buffer.Radius;
+  SurfaceGravity = buffer.SurfaceGravity;
+  Teff = buffer.Teff;
   FeedbackFlag = buffer.FeedbackFlag;
   Identifier = buffer.Identifier;
   level = buffer.level;
@@ -308,6 +322,9 @@ void Star::operator=(Star a)
   deltaZ = a.deltaZ;
   last_accretion_rate = a.last_accretion_rate;
   NotEjectedMass = a.NotEjectedMass;
+  Radius = a.Radius;
+  SurfaceGravity = a.SurfaceGravity;
+  Teff = a.Teff;
   FeedbackFlag = a.FeedbackFlag;
   Identifier = a.Identifier;
   level = a.level;
@@ -387,6 +404,9 @@ Star *Star::copy(void)
   a->deltaZ = deltaZ;
   a->last_accretion_rate = last_accretion_rate;
   a->NotEjectedMass = NotEjectedMass;
+  a->Radius = Radius;
+  a->SurfaceGravity = SurfaceGravity;
+  a->Teff = Teff;
   a->FeedbackFlag = FeedbackFlag;
   a->Identifier = Identifier;
   a->level = level;
@@ -627,10 +647,13 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
     Mass = (double)(_grid->ParticleMass[_id]);
     this->ConvertMassToSolar();
   }
+
+  // Do separate things if these are Individual Star Particles
   if (ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR &&
-      ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
+      ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED){
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
+    // check if using this optimization
     if (IndividualStarSaveTablePositions){
 
       int ts = ParticleAttributeTableStartIndex;
@@ -642,12 +665,16 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
       yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
       yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
 
-    } else{
+    }
+/*
+  else if (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR || type < 0){
+      // if not, need to re-interpolate particle properties. But don't do this
+      // for all individual stars... that would be a large waste
 
       IndividualStarGetSETablePosition(se_table_position[0], se_table_position[1],
                                         BirthMass, Metallicity);
 
-      if (BirthMass >= IndividualStarRadiationMinimumMass){
+      if (BirthMass >= IndividualStarRadiationMinimumMass){ // only if star is radiating
         float Teff, R;
         IndividualStarInterpolateProperties(Teff, R, se_table_position[0], se_table_position[1],
                                             BirthMass, Metallicity);
@@ -659,8 +686,9 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
 
       StellarYieldsGetYieldTablePosition(yield_table_position[0], yield_table_position[1],
                                          BirthMass, Metallicity);
-    }
-
+    } else {
+      // initialize to something
+*/
     wind_mass_ejected = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
     sn_mass_ejected   = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
   }
@@ -772,6 +800,9 @@ void Star::StarListToBuffer(StarBuffer *&result, int n)
     result[count].deltaZ = tmp->deltaZ;
     result[count].last_accretion_rate = tmp->last_accretion_rate;
     result[count].NotEjectedMass = tmp->NotEjectedMass;
+    result[count].Radius = tmp->Radius;
+    result[count].SurfaceGravity = tmp->SurfaceGravity;
+    result[count].Teff = tmp->Teff;
     result[count].FeedbackFlag = tmp->FeedbackFlag;
     result[count].Identifier = tmp->Identifier;
     result[count].level = tmp->level;
@@ -824,6 +855,9 @@ void Star::StarToBuffer(StarBuffer *result)
   result->deltaZ = tmp->deltaZ;
   result->last_accretion_rate = tmp->last_accretion_rate;
   result->NotEjectedMass = tmp->NotEjectedMass;
+  result->Radius = tmp->Radius;
+  result->SurfaceGravity = tmp->SurfaceGravity;
+  result->Teff = tmp->Teff;
   result->FeedbackFlag = tmp->FeedbackFlag;
   result->Identifier = tmp->Identifier;
   result->level = tmp->level;

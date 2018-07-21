@@ -75,7 +75,15 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
     ProcessorComputeTime[i] = 0;
  
   /* Compute work for each grid. */
- 
+
+  /* AE: Plug in particle compute time here:
+         1) get number of particle type 11 on this grid
+         2) take that as fraction of all star particles in simulation
+         3) Scale to same size as grid points, so particles have equal weight
+         4) Multiply by a factor of 2-3 such that grids WITH many young stars
+            are counted as heavy load
+  */
+
   for (i = 0; i < NumberOfGrids; i++) {
     proc = GridHierarchyPointer[i]->GridData->ReturnProcessorNumber();
     GridHierarchyPointer[i]->GridData->CollectGridInformation

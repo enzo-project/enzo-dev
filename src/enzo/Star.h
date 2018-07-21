@@ -53,6 +53,7 @@ class Star
   int se_table_position[2];
   int rad_table_position[3];
   int yield_table_position[2];
+  double Teff, SurfaceGravity, Radius;
 
   double wind_mass_ejected;
   double sn_mass_ejected;
@@ -86,15 +87,31 @@ public:
   double ReturnFinalMass(void) { return FinalMass; };
   double ReturnBirthMass(void) { return BirthMass; };
   double ReturnMetallicity(void) { return Metallicity; };
+
+// Individual Star
   int* ReturnYieldTablePosition(void){ return yield_table_position; };
   int* ReturnSETablePosition(void){ //printf("setable %"ISYM" %"ISYM"\n",se_table_position[0], se_table_position[1]);
                                     return se_table_position; };
-  int* ReturnRadTablePosition(void){//printf("radtable %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]); 
+  int* ReturnRadTablePosition(void){//printf("radtable %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
                                     return rad_table_position; };
   double ReturnWindMassEjected(void){ return wind_mass_ejected; };
   double ReturnSNMassEjected(void){ return sn_mass_ejected; };
+
   double AddToWindMassEjected(double m){ wind_mass_ejected += m; };
   double AddToSNMassEjected(double m){ sn_mass_ejected += m; };
+
+  int InterpolateLifetime(float &tau, const int &mode);
+  void ComputeFUVLuminosity(float &L_FUV);
+  void ComputeLWLuminosity(float &L_LW);
+  void ComputeIonizingRates(float &Q0, float &Q1);
+  void AssertStellarProperties(void);
+  void InterpolateProperties(void);
+  float InterpolateYield(int yield_type, int atomic_number);
+
+  double ReturnRadius(void);
+  double ReturnEffectiveTemperature(void);
+  double ReturnSurfaceGravity(void);
+// ---- Individual Star
 
   void  AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };
@@ -117,7 +134,7 @@ public:
   void  SetAccretionMass(const float value) { DeltaMass = value; };
   void  ResetNotEjectedMass(void) { NotEjectedMass = 0.0; };
   double ReturnNotEjectedMass(void) { return NotEjectedMass; };
-  void  ResetAccretionPointers(void) 
+  void  ResetAccretionPointers(void)
   { accretion_rate = NULL; accretion_time = NULL; }
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
@@ -170,28 +187,28 @@ public:
   int   HitEndpoint(FLOAT Time);
   void  PrintInfo(void);
 
-  void  CalculateFeedbackParameters(float &Radius, 
-				    float RootCellWidth, float SNe_dt, 
+  void  CalculateFeedbackParameters(float &Radius,
+				    float RootCellWidth, float SNe_dt,
 				    double &EjectaDensity,
 				    double &EjectaThermalEnergy,
 				    double &EjectaMetalDensity,
-				    float DensityUnits, float LengthUnits, 
+				    float DensityUnits, float LengthUnits,
 				    float TemperatureUnits, float TimeUnits,
 				    float VelocityUnits, float dtForThisStar,
 				    FLOAT Time, bool &SphereCheck);
-  int RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity, 
+  int RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity,
 				      float DensityUnits, float LengthUnits,
 				      int &CellsModified);
 
   int FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			 float &Radius, double &EjectaDensity, double &EjectaThermalEnergy,
 			 int &SphereContained, int &SkipMassRemoval,
-			 float DensityUnits, float LengthUnits, 
+			 float DensityUnits, float LengthUnits,
 			 float TemperatureUnits, float TimeUnits,
 			 float VelocityUnits, FLOAT Time,
 			 bool &MarkedSubgrids);
 
-  int SphereContained(LevelHierarchyEntry *LevelArray[], int level, 
+  int SphereContained(LevelHierarchyEntry *LevelArray[], int level,
 		      float Radius);
   int AssignFinalMassFromIMF(float TimeUnits);
 
@@ -206,6 +223,7 @@ public:
   void AssignYieldTablePosition(void);
   void AssertInterpolationPositions(int mode);
   void AssertInterpolationPositions(void);
+  int  TablePositionsAssigned(void);
   void CheckMassEjectionValidity(void); // make sure mass counters make sense
 
   Star* StarBufferToList(StarBuffer *buffer, int n);

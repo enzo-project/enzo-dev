@@ -36,9 +36,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int FindField(int f, int farray[], int n);
 
-int IndividualStarComputeFUVLuminosity(float &L_fuv, Star *cstar);
-int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar);
-
 /* internal prototypes */
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, 
                                       // const float &T,
@@ -122,10 +119,10 @@ int StarParticleOpticallyThinRadiation(TopGridData *MetaData,
       float fuv_luminosity = 0.0, lw_luminosity = 0.0;
 
       if(IndividualStarFUVHeating)
-          IndividualStarComputeFUVLuminosity(fuv_luminosity, cstar);
+          cstar->ComputeFUVLuminosity(fuv_luminosity);
 
       if(IndividualStarLWRadiation)
-          IndividualStarComputeLWLuminosity(lw_luminosity, cstar);
+          cstar->ComputeLWLuminosity(lw_luminosity);
 
       star_pos = cstar->ReturnPosition();
 

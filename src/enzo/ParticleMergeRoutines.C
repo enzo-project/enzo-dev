@@ -47,7 +47,8 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
       if (List[i].Type != PARTICLE_TYPE_DARK_MATTER &&
           List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR &&
           List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD &&
-          List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT)
+          List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT &&
+          List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED)
 	starn++;
   }
 
@@ -57,7 +58,8 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
     if (List[i].Type != PARTICLE_TYPE_DARK_MATTER &&
         List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR &&
         List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD &&
-        List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT)
+        List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT &&
+        List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED)
       star_index[n++] = i;
 
   /* Loop over star particles only -- June 30 2011 Eve */
@@ -147,7 +149,8 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
     if (List[i].Mass < MergeMass && Flag[i] == -1 && List[i].Type != PARTICLE_TYPE_DARK_MATTER
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD
-                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT)
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED)
       NumberOfRemainingSmallParticles++;
   }
 
@@ -165,7 +168,8 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
     if (List[i].Mass < MergeMass && Flag[i] == -1 && List[i].Type != PARTICLE_TYPE_DARK_MATTER
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD
-                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT)
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED)
       IndexArray[n++] = i;
 
   FLOAT *xp = new FLOAT[NumberOfRemainingSmallParticles];
