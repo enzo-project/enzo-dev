@@ -644,9 +644,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
                                     BaryonField[HeIINum][n] - BaryonField[HeIIINum][n];
 
          if(MultiSpecies > 1){
-           BaryonField[HMNum][n] = HM_Fraction * BaryonField[HIINum][n];
+           BaryonField[HMNum][n] = HM_Fraction * H_Fraction * BaryonField[DensNum][n]; // BaryonField[HIINum][n];
            BaryonField[H2INum][n] = H2I_Fraction * BaryonField[DensNum][n] * H_Fraction;
-           BaryonField[H2IINum][n] = H2II_Fraction * 2.0 * BaryonField[HIINum][n];
+           BaryonField[H2IINum][n] = H2II_Fraction * 2.0 * H_Fraction * BaryonField[DensNum][n]; // BaryonField[HIINum][n];
          }
 
          BaryonField[HINum][n] = fmax(H_Fraction*BaryonField[DensNum][n] -
