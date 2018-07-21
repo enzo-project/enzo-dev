@@ -755,14 +755,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   // Paramters for Individual Star Star formation and Feedback
 
   /* IndividualStar: Star Formation */
-  IndividualStarTemperatureLimit     =   -1;
+  IndividualStarTemperatureLimit       =   -1;
   IndividualStarTemperatureLimitFactor = 2;
-  IndividualStarICSupernovaRate      =   0.0;     // rate (# / yr) of supernova for initial driving - off if zero
-  IndividualStarICSupernovaTime      =  10.0;     // (Myr) length of time to do SN driving if true - rate dec linearly starting at 1/2 this time
-  IndividualStarICSupernovaR         =   -1.0;     // radius limit for SN - set to galaxy scale radius
-  IndividualStarICSupernovaZ         =   -1.0;     // vertical height limit for supernova - set to Galaxy scale height
-  IndividualStarICSupernovaMethod    =     1;     // 1: uniform disk with R and Z - 2: uniform sphere using R only
-  IndividualStarICSupernovaFromFile  =     0;     // if ON, loads SNR as a function of time from a file.
+  IndividualStarICSupernovaRate        =   0.0;     // rate (# / yr) of supernova for initial driving - off if zero
+  IndividualStarICSupernovaTime        =  10.0;     // (Myr) length of time to do SN driving if true - rate dec linearly starting at 1/2 this time
+  IndividualStarICSupernovaR           =   -1.0;     // radius limit for SN - set to galaxy scale radius
+  IndividualStarICSupernovaZ           =   -1.0;     // vertical height limit for supernova - set to Galaxy scale height
+  IndividualStarICSupernovaMethod      =     1;     // 1: uniform disk with R and Z - 2: uniform sphere using R only
+  IndividualStarICSupernovaFromFile    =     0;     // if ON, loads SNR as a function of time from a file.
   IndividualStarICSupernovaInjectionMethod = 1;   // 1 = thermal only, spherical ball - 2: thermal and kinetic mix - Simpson et. al. 2015
   for (i = 0; i < 3; i ++)
       IndividualStarICSupernovaPos[i] = 0.5;
@@ -786,6 +786,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarKroupaAlpha3         =   2.3;         // '' over
   IndividualStarIMFLowerMassCutoff   =   1.0;         // Solar masses
   IndividualStarIMFUpperMassCutoff   = 100.0;         // Solar masses
+  IndividualStarIMFMassFloor         = IndividualStarIMFLowerMassCutoff;         // If this is below the lower mass cutoff, stars below this mass will get grouped together into a single particle
   IndividualStarAllowTruncatedIMF    =     0;         // on or off - truncates IMF for low mass regions if on
   IndividualStarVelocityDispersion   =   1.0;         // initial velocity disperion of stars in SF region (km/s)
   IndividualStarIMFSeed              = INT_UNDEFINED; // random number seed for IMF sampling
@@ -793,7 +794,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* IndividualStar: Stellar Feedback (non-radiation) */
   IndividualStarFeedbackOverlapSample = 32;         // number of points per cell to compute fractional overlap in feedback routine
   IndividualStarFeedbackStencilSize   = 3;          // Size of feedback injection region (radius in number of cells)
-  
+
   IndividualStarStellarWinds          = 1;          // on or off
   IndividualStarWindTemperature       = 1.0E6;      // temperature cap on stellar wind source region (K)
   IndividualStarUseWindMixingModel    = 1;          // account for unresolved mixing at wind/ISM shell interface and allow mass loading
@@ -821,6 +822,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* IndividualStar: Yields Tracking */
   IndividualStarFollowStellarYields  = 0;           // on or off
   IndividualStarExtrapolateYields    = 0;           // on or off - extrapolate yields from NuGrid set by scaling. If off, use PARSEC wind yields
+  IndividualStarOutputChemicalTags   = 0;           // on or off - if ON does not tag particles, but instead outputs them to a file
+  IndividualStarChemicalTagFilename  = NULL;        // filename for above
+  IndividualStarSaveTablePositions   = 1;           // save table positions as particle attributes to save time
 
   /* IndividualStar: Stellar Feedback - Radiation */
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses - Stars above this are posible rad sources

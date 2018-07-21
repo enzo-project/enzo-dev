@@ -6,8 +6,8 @@
 /  date:       March, 2009
 /  modified1:
 /
-/  PURPOSE: Instead of restricting star particles to the typical 
-/           particle attributes, this class gives more functionality 
+/  PURPOSE: Instead of restricting star particles to the typical
+/           particle attributes, this class gives more functionality
 /           to them.
 /
 ************************************************************************/
@@ -34,6 +34,21 @@ void DeleteStar(Star * &Node);
 Star *PopStar(Star * &Node);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
 
+/* AJE */
+int IndividualStarGetSETablePosition (int &i, int &j, const float &M, const float &metallicity);
+int IndividualStarGetRadTablePosition(int &i, int &j, int &k,
+                                      const float &Teff, const float &g, const float &metallicity);
+int StellarYieldsGetYieldTablePosition(int &i, int &j, const float &M, const float &metallicity);
+
+
+float IndividualStarSurfaceGravity(const float &mp, const float &R);
+
+void IndividualStarInterpolateProperties(float &Teff, float &R,
+                                         const int &i, const int &j,
+                                         const float &M, const float &metallicity);
+
+
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -54,7 +69,7 @@ Star::Star(void)
   NextStar = NULL;
   PrevStar = NULL;
   CurrentGrid = NULL;
-  Mass = FinalMass = BirthMass = DeltaMass = BirthTime = LifeTime = 
+  Mass = FinalMass = BirthMass = DeltaMass = BirthTime = LifeTime =
     last_accretion_rate = NotEjectedMass = Metallicity = deltaZ = 0.0;
   FeedbackFlag = Identifier = level = GridID = type = naccretions = 0;
   AddedEmissivity = false;
@@ -98,18 +113,40 @@ Star::Star(grid *_grid, int _id, int _level)
   Mass = FinalMass = BirthMass = (double)(_grid->ParticleMass[_id]);
   BirthTime = _grid->ParticleAttribute[0][_id];
 
+  Metallicity = (double)(_grid->ParticleAttribute[2][_id]);
+
   if( ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR  &&
       ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
-    int ts = ParticleAttributeTableStartIndex;
-    se_table_position[0] = (int)(_grid->ParticleAttribute[ts][_id]);
-    se_table_position[1] = (int)(_grid->ParticleAttribute[ts+1][_id]);
-    rad_table_position[0] = (int)( _grid->ParticleAttribute[ts+2][_id]);
-    rad_table_position[1] = (int)( _grid->ParticleAttribute[ts+3][_id]);
-    rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4][_id]);
-    yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
-    yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
+    if (IndividualStarSaveTablePositions){
+      int ts = ParticleAttributeTableStartIndex;
+      se_table_position[0] = (int)(_grid->ParticleAttribute[ts][_id]);
+      se_table_position[1] = (int)(_grid->ParticleAttribute[ts+1][_id]);
+      rad_table_position[0] = (int)(_grid->ParticleAttribute[ts+2][_id]);
+      rad_table_position[1] = (int)(_grid->ParticleAttribute[ts+3][_id]);
+      rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4][_id]);
+      yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
+      yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
+
+    } else{
+
+      IndividualStarGetSETablePosition(se_table_position[0], se_table_position[1],
+                                        BirthMass, Metallicity);
+
+      if (BirthMass >= IndividualStarRadiationMinimumMass){
+        float Teff, R;
+        IndividualStarInterpolateProperties(Teff, R, se_table_position[0], se_table_position[1],
+                                            BirthMass, Metallicity);
+        float g = IndividualStarSurfaceGravity(BirthMass, R);
+        IndividualStarGetRadTablePosition(rad_table_position[0], rad_table_position[1],
+                                          rad_table_position[2],
+                                          Teff, g, Metallicity);
+      }
+
+      StellarYieldsGetYieldTablePosition(yield_table_position[0], yield_table_position[1],
+                                         BirthMass, Metallicity);
+    }
 
     wind_mass_ejected = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
     sn_mass_ejected   = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
@@ -120,11 +157,10 @@ Star::Star(grid *_grid, int _id, int _level)
     LifeTime = LIFETIME_IN_TDYN * _grid->ParticleAttribute[1][_id];
   else
     LifeTime = _grid->ParticleAttribute[1][_id];
-  Metallicity = (double)(_grid->ParticleAttribute[2][_id]);
   this->ConvertAllMassesToSolar();
 }
 
-Star::Star(StarBuffer *buffer, int n) 
+Star::Star(StarBuffer *buffer, int n)
 {
   int i;
   CurrentGrid = NULL;
@@ -443,7 +479,7 @@ bool Star::Mergable(Star *a) { return this->Mergable(*a); }
 
 bool Star::MergableMBH(Star a)
 {
-  // Merge MBH particle with another 
+  // Merge MBH particle with another
   return type == a.type && type == MBH;
 }
 bool Star::MergableMBH(Star *a) { return this->MergableMBH(*a); }
@@ -581,32 +617,52 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
   BirthTime = _grid->ParticleAttribute[0][_id];
   LifeTime = _grid->ParticleAttribute[1][_id];
   Metallicity = _grid->ParticleAttribute[2][_id];
-  // below is removed because we want to keep Star->Mass as double 
+  // below is removed because we want to keep Star->Mass as double
   // during the run - Ji-hoon Kim, Dec.2009
   //
   // If considering RT from original star_makers, then get the mass
   // because it decreases through ejecta in star_feedback() - John
   // Wise, Jan. 2014
   if (type == PARTICLE_TYPE_STAR) {
-    Mass = (double)(_grid->ParticleMass[_id]); 
+    Mass = (double)(_grid->ParticleMass[_id]);
     this->ConvertMassToSolar();
   }
   if (ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR &&
       ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT){
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
-    int ts = ParticleAttributeTableStartIndex;
-    se_table_position[0] = (int)(_grid->ParticleAttribute[ts][_id]);
-    se_table_position[1] = (int)(_grid->ParticleAttribute[ts+1][_id]);
-    rad_table_position[0] = (int)(_grid->ParticleAttribute[ts+2][_id]);
-    rad_table_position[1] = (int)(_grid->ParticleAttribute[ts+3][_id]);
-    rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4][_id]);
-    yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
-    yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
+    if (IndividualStarSaveTablePositions){
+
+      int ts = ParticleAttributeTableStartIndex;
+      se_table_position[0] = (int)(_grid->ParticleAttribute[ts][_id]);
+      se_table_position[1] = (int)(_grid->ParticleAttribute[ts+1][_id]);
+      rad_table_position[0] = (int)(_grid->ParticleAttribute[ts+2][_id]);
+      rad_table_position[1] = (int)(_grid->ParticleAttribute[ts+3][_id]);
+      rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4][_id]);
+      yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
+      yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
+
+    } else{
+
+      IndividualStarGetSETablePosition(se_table_position[0], se_table_position[1],
+                                        BirthMass, Metallicity);
+
+      if (BirthMass >= IndividualStarRadiationMinimumMass){
+        float Teff, R;
+        IndividualStarInterpolateProperties(Teff, R, se_table_position[0], se_table_position[1],
+                                            BirthMass, Metallicity);
+        float g = IndividualStarSurfaceGravity(BirthMass, R);
+        IndividualStarGetRadTablePosition(rad_table_position[0], rad_table_position[1],
+                                          rad_table_position[2],
+                                          Teff, g, Metallicity);
+      }
+
+      StellarYieldsGetYieldTablePosition(yield_table_position[0], yield_table_position[1],
+                                         BirthMass, Metallicity);
+    }
 
     wind_mass_ejected = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
     sn_mass_ejected   = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
-
   }
 
   return;
@@ -637,7 +693,7 @@ void Star::PrintInfo(void)
 	 delta_vel[2]);
   printf("\t naccr = %"ISYM, naccretions);
   if (naccretions > 0)
-    printf(", accr_rate[0] = %"GSYM", accr_time[0] = %"GSYM"\n", 
+    printf(", accr_rate[0] = %"GSYM", accr_time[0] = %"GSYM"\n",
 	   accretion_rate[0], accretion_time[0]);
   else
     printf("\n");
@@ -714,8 +770,8 @@ void Star::StarListToBuffer(StarBuffer *&result, int n)
     result[count].LifeTime = tmp->LifeTime;
     result[count].Metallicity = tmp->Metallicity;
     result[count].deltaZ = tmp->deltaZ;
-    result[count].last_accretion_rate = tmp->last_accretion_rate;    
-    result[count].NotEjectedMass = tmp->NotEjectedMass;    
+    result[count].last_accretion_rate = tmp->last_accretion_rate;
+    result[count].NotEjectedMass = tmp->NotEjectedMass;
     result[count].FeedbackFlag = tmp->FeedbackFlag;
     result[count].Identifier = tmp->Identifier;
     result[count].level = tmp->level;
@@ -766,8 +822,8 @@ void Star::StarToBuffer(StarBuffer *result)
   result->LifeTime = tmp->LifeTime;
   result->Metallicity = tmp->Metallicity;
   result->deltaZ = tmp->deltaZ;
-  result->last_accretion_rate = tmp->last_accretion_rate;    
-  result->NotEjectedMass = tmp->NotEjectedMass;    
+  result->last_accretion_rate = tmp->last_accretion_rate;
+  result->NotEjectedMass = tmp->NotEjectedMass;
   result->FeedbackFlag = tmp->FeedbackFlag;
   result->Identifier = tmp->Identifier;
   result->level = tmp->level;

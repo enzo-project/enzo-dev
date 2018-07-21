@@ -1154,6 +1154,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarIMFUpperMassCutoff);
     ret += sscanf(line, "IndividualStarIMFLowerMassCutoff = %"FSYM,
                         &IndividualStarIMFLowerMassCutoff);
+    ret += sscanf(line, "IndividualStarIMFMassFloor = %"FSYM,
+                        &IndividualStarIMFMassFloor);
     ret += sscanf(line, "IndividualStarVelocityDispersion = %"FSYM,
                         &IndividualStarVelocityDispersion);
     ret += sscanf(line, "IndividualStarIMFSeed = %"ISYM,
@@ -1190,6 +1192,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarStellarWindVelocity);
     ret += sscanf(line, "IndividualStarFollowStellarYields = %"ISYM,
                         &IndividualStarFollowStellarYields);
+    ret += sscanf(line, "IndividualStarSaveTablePositions = %"ISYM,
+                        &IndividualStarSaveTablePositions);
+    ret += sscanf(line, "IndividualStarOutputChemicalTags = %"ISYM,
+                        &IndividualStarOutputChemicalTags);
     ret += sscanf(line, "IndividualStarWDMinimumMass = %"FSYM,
                         &IndividualStarWDMinimumMass);
     ret += sscanf(line, "IndividualStarWDMaximumMass = %"FSYM,
@@ -2028,12 +2034,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
     NumberOfParticleAttributes = 4;
-    if (IndividualStarFollowStellarYields){
+    if (IndividualStarFollowStellarYields && !IndividualStarOutputChemicalTags){
       NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
     }
     ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
-    NumberOfParticleAttributes += NumberOfParticleTableIDs;
 
+    if (IndividualStarSaveTablePositions){
+      NumberOfParticleAttributes += NumberOfParticleTableIDs;
+    }
     /* make the last two particle attributes mass counters for wind and SN */
     NumberOfParticleAttributes += 2;
   }

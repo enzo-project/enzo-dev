@@ -50,7 +50,7 @@ char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 
-int IndividualStarProperties_Initialize(void);
+int IndividualStarProperties_Initialize(TopGridData &MetaData);
 int IndividualStarRadiationProperties_Initialize(void);
 int InitializeStellarYields(void);
 
@@ -193,7 +193,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
 
   // initialize star properties
-  IndividualStarProperties_Initialize();
+  IndividualStarProperties_Initialize(MetaData);
   IndividualStarRadiationProperties_Initialize();
   InitializeStellarYields();
 

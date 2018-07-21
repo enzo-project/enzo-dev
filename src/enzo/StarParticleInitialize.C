@@ -36,7 +36,7 @@ void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
 
 
 int StarParticleIndividual_IMFInitialize(void);
-int IndividualStarProperties_Initialize(void);
+int IndividualStarProperties_Initialize(TopGridData &MetaData);
 int IndividualStarRadiationProperties_Initialize(void);
 int InitializeStellarYields(void);
 
@@ -78,7 +78,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     StarParticleIndividual_IMFInitialize();
 
     /* Initialize individual star properties (L, T, R) */
-    IndividualStarProperties_Initialize();
+    IndividualStarProperties_Initialize(*MetaData);
 
     /* Initialize radiation data table */
     if((RadiativeTransfer && IndividualStarBlackBodyOnly == FALSE) || IndividualStarFUVHeating){

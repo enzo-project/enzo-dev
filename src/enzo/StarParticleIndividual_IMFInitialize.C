@@ -44,9 +44,9 @@ int StarParticleIndividual_IMFInitialize(void)
   int i;
   float m, m0, dm, total_fn;
 
-  dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/
+  dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFMassFloor)/
        ((float) (IMF_TABLE_ENTRIES-1));
-  m0 = log10(IndividualStarIMFLowerMassCutoff);
+  m0 = log10(IndividualStarIMFMassFloor);
 
   total_fn = 0; // will hold cumulative probability density function
 

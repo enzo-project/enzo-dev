@@ -56,7 +56,7 @@ char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
 
 void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
 
-int IndividualStarProperties_Initialize(void);
+int IndividualStarProperties_Initialize(TopGridData &MetaData);
 int IndividualStarRadiationProperties_Initialize(void);
 int InitializeStellarYields(void);
 
@@ -595,7 +595,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 //  if (GalaxySimulationInitialStellarDist){
     if(FALSE){ // NOT WORKING NOT SURE WHY - causes seg fault
       // initialize star properties
-      IndividualStarProperties_Initialize();
+      IndividualStarProperties_Initialize(MetaData);
       IndividualStarRadiationProperties_Initialize();
       InitializeStellarYields();
 

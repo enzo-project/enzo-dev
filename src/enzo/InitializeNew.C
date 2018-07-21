@@ -312,16 +312,20 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       if (STARMAKE_METHOD(INDIVIDUAL_STAR)) NumberOfParticleAttributes++; // 3 + birth mass = 4
       if (TestProblemData.MultiMetals){
 
-        if (TestProblemData.MultiMetals == 2){
+        if (TestProblemData.MultiMetals == 2 && !IndividualStarOutputChemicalTags){
           NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
         }
 
       } // end multimetals
       if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
-        ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
-        NumberOfParticleAttributes += NumberOfParticleTableIDs;
+        if (!IndividualStarSaveTablePositions){
+          ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
+          NumberOfParticleAttributes += NumberOfParticleTableIDs;
+        }
+
         NumberOfParticleAttributes += 2; // mass loss counters
       }
+
     } else {
       NumberOfParticleAttributes = 0;
     }
