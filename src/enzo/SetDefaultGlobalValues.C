@@ -787,7 +787,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarIMFLowerMassCutoff   =   1.0;         // Solar masses
   IndividualStarIMFUpperMassCutoff   = 100.0;         // Solar masses
   IndividualStarIMFMassFloor         = IndividualStarIMFLowerMassCutoff;         // If this is below the lower mass cutoff, stars below this mass will get grouped together into a single particle
-  IndividualStarAllowTruncatedIMF    =     0;         // on or off - truncates IMF for low mass regions if on
   IndividualStarVelocityDispersion   =   1.0;         // initial velocity disperion of stars in SF region (km/s)
   IndividualStarIMFSeed              = INT_UNDEFINED; // random number seed for IMF sampling
 

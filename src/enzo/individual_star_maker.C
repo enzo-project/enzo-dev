@@ -920,27 +920,16 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               }
 
 
-              float M_max_star;
-              if (IndividualStarAllowTruncatedIMF){
-                  /* allow IMF to be truncated to safely allow SF in less dense regions. This may be an
-                     unphysical thing to do, as it won't necessarily reproduce the input IMF. In reality
-                     SF clouds will do this (low mass clouds are less likely to make very massive stars), but
-                     this is all convolved together in the input IMF (IMF may vary cloud-by-cloud)........
-                     use this with caution */
-                  M_max_star =  min(bmass * IndividualStarMassFraction, IndividualStarIMFUpperMassCutoff);
-              } else {
-                  /* only allow star formation if IMF can fully sampled (safely) in the given region */
-                  if ( bmass * IndividualStarMassFraction < IndividualStarIMFUpperMassCutoff){
-                    break;
-                  }
-                  M_max_star = IndividualStarIMFUpperMassCutoff;
+              // only allow star formation if IMF can fully sampled (safely) in the given region
+              //   aka, make sure there is enough mass to form the most massive star + some fudge
+              if ( bmass * IndividualStarMassFraction < IndividualStarIMFUpperMassCutoff){
+                break;
               }
-
 
               int add_unresolved_star = FALSE; // only used when IMF mass floor is < imf lower limit
 
               /* Here is where star formation actually occurs */
-              if( bmass*IndividualStarMassFraction > IndividualStarSFGasMassThreshold ){ // set to ~ 2 x M_max_star
+              if( bmass*IndividualStarMassFraction > IndividualStarSFGasMassThreshold ){
                 // if true, we can try and form stars. compute probability that this mass will
                 // form stars this timestep
                 star_fraction  = min(StarMakerMassEfficiency*(this->dtFixed)/tdyn, 1.0);

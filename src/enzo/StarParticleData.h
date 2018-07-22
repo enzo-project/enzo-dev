@@ -151,7 +151,6 @@ SPEXTERN int   IndividualStarCheckVelocityDiv;
 SPEXTERN int   IndividualStarICLifetimeMode;
 SPEXTERN int   IndividualStarFeedbackOverlapSample;
 SPEXTERN int   IndividualStarUseWindMixingModel;
-SPEXTERN int   IndividualStarAllowTruncatedIMF;
 SPEXTERN int   IndividualStarExtrapolateYields;
 SPEXTERN float IndividualStarSFGasMassThreshold;
 SPEXTERN float IndividualStarTemperatureThreshold;
