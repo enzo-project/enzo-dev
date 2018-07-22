@@ -89,10 +89,11 @@ public:
   double ReturnMetallicity(void) { return Metallicity; };
 
 // Individual Star
-  int* ReturnYieldTablePosition(void){ return yield_table_position; };
-  int* ReturnSETablePosition(void){ //printf("setable %"ISYM" %"ISYM"\n",se_table_position[0], se_table_position[1]);
+  int* ReturnYieldTablePosition(void){  this->AssertInterpolationPositions(3);
+                                        return yield_table_position; };
+  int* ReturnSETablePosition(void){ this->AssertInterpolationPositions(1);//printf("setable %"ISYM" %"ISYM"\n",se_table_position[0], se_table_position[1]);
                                     return se_table_position; };
-  int* ReturnRadTablePosition(void){//printf("radtable %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
+  int* ReturnRadTablePosition(void){this->AssertInterpolationPositions(2);//printf("radtable %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
                                     return rad_table_position; };
   double ReturnWindMassEjected(void){ return wind_mass_ejected; };
   double ReturnSNMassEjected(void){ return sn_mass_ejected; };

@@ -266,7 +266,7 @@ void Star::AssertInterpolationPositions(int mode){
  //        2: rad   table
  //        3: yield table
 
-  if (this->type < 0) return; // do not do anything
+//  if (this->type < 0) return; // do not do anything
 
   switch(mode){
     case 1:

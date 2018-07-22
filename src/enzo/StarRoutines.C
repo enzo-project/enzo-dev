@@ -34,12 +34,12 @@ void DeleteStar(Star * &Node);
 Star *PopStar(Star * &Node);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
 
-/* AJE */
+/* AJE
 int IndividualStarGetSETablePosition (int &i, int &j, const float &M, const float &metallicity);
 int IndividualStarGetRadTablePosition(int &i, int &j, int &k,
                                       const float &Teff, const float &g, const float &metallicity);
 int StellarYieldsGetYieldTablePosition(int &i, int &j, const float &M, const float &metallicity);
-
+*/
 
 //float IndividualStarSurfaceGravity(const float &mp, const float &R);
 
@@ -131,6 +131,11 @@ Star::Star(grid *_grid, int _id, int _level)
       rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4][_id]);
       yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
       yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
+
+    } else{
+      se_table_position[0] = se_table_position[1] = -1.0;
+      rad_table_position[0] = rad_table_position[1] = rad_table_position[2] = -1.0;
+      yield_table_position[0] = yield_table_position[1] = -1.0;
 
     }
 /*
@@ -664,6 +669,11 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
       rad_table_position[2] = (int)(_grid->ParticleAttribute[ts+4][_id]);
       yield_table_position[0] = (int)(_grid->ParticleAttribute[ts+5][_id]);
       yield_table_position[1] = (int)(_grid->ParticleAttribute[ts+6][_id]);
+
+    }  else{
+      se_table_position[0] = se_table_position[1] = -1.0;
+      rad_table_position[0] = rad_table_position[1] = rad_table_position[2] = -1.0;
+      yield_table_position[0] = yield_table_position[1] = -1.0;
 
     }
 /*
