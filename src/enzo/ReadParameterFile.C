@@ -1142,8 +1142,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarAllowTruncatedIMF);
     ret += sscanf(line, "IndividualStarExtrapolateYields = %"ISYM,
                         &IndividualStarExtrapolateYields);
-    ret += sscanf(line, "IndividualStarSFAlgorithm = %"ISYM,
-                        &IndividualStarSFAlgorithm);
     ret += sscanf(line, "IndividualStarSFGasMassThreshold = %"FSYM,
                         &IndividualStarSFGasMassThreshold);
     ret += sscanf(line, "IndividualStarSecondaryOverDensityThreshold = %"FSYM,

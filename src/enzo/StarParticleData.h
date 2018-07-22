@@ -153,7 +153,6 @@ SPEXTERN int   IndividualStarFeedbackOverlapSample;
 SPEXTERN int   IndividualStarUseWindMixingModel;
 SPEXTERN int   IndividualStarAllowTruncatedIMF;
 SPEXTERN int   IndividualStarExtrapolateYields;
-SPEXTERN int   IndividualStarSFAlgorithm;
 SPEXTERN float IndividualStarSFGasMassThreshold;
 SPEXTERN float IndividualStarTemperatureThreshold;
 SPEXTERN float IndividualStarSecondaryOverDensityThreshold;
