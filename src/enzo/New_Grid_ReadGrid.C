@@ -378,9 +378,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       for (int dim = 0; dim < GridRank; dim++)
 	activesize *= (GridDimension[dim]-2*NumberOfGhostZones);
       
-      if (divB == NULL) 
-	divB = new float[activesize];
-      
       /* if we restart from a different solvers output without a Phi Field create here and set to zero */
       int PhiNum; 
       if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
@@ -399,7 +396,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
       /* if we restart from a different solvers output without a Phi_pField 
 	 and yet want to use the divergence cleaning, create here and set to zero */
-      if (UseDivergenceCleaning) {
+      if (UsePoissonDivergenceCleaning) {
 	int Phi_pNum; 
 	if ((Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields)) < 0) {
 	  fprintf(stderr, "Want to use divergence cleaning with no Phi_p field. \n");
@@ -412,13 +409,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 	}
       }
 
-      for (int dim = 0; dim < 3; dim++)
-	if (gradPhi[dim] == NULL)
-	  gradPhi[dim] = new float[activesize];
-      
-      for (int dim = GridRank; dim < 3; dim++)
-	for (int n = 0; n < activesize; n++)
-	  gradPhi[dim][n] = 0.0;
       
     } /* if HydroMethod == MHD */
 

@@ -151,7 +151,7 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     DataLabel[i++] = "By";
     DataLabel[i++] = "Bz";
     DataLabel[i++] = "Phi";
-    if(UseDivergenceCleaning){
+    if(UsePoissonDivergenceCleaning){
       DataLabel[i++] = "Phip";
     }
   }

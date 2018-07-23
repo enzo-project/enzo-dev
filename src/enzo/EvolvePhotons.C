@@ -295,7 +295,26 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (Temp->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {  
 	    ENZO_FAIL("Error in InitializeTemperatureFieldForComptonHeating.\n");
 	  }	
+    /* Initialize Temperature Field for H2 shielding approximation */
+    if(RadiativeTransferH2ShieldType == 1 || ProblemType == 50) {
+      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
+	  if (Temp->GridData->InitializeTemperatureFieldForH2Shield() == FAIL) {
+	    ENZO_FAIL("Error in InitializeTemperatureFieldForH2Shield.\n");
+	  }
+    }
 
+#if USE_H2II_LOOKUP	
+    /* Initialize Temperature Field for H2II cross section approximation */
+    if(RadiativeTransferH2IIDiss == TRUE) {
+      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
+	  if (Temp->GridData->InitializeTemperatureFieldForH2IICrossSection() == FAIL) {
+	    ENZO_FAIL("Error in InitializeTemperatureFieldForH2II.\n");
+	  }
+    }
+#endif
+    
     for (i = 0; i < 4; i++)
       EscapedPhotonCount[i] = 0.0;
 
@@ -613,7 +632,21 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (Temp->GridData->FinalizeTemperatureFieldForComptonHeating() == FAIL) {  
 	    ENZO_FAIL("Error in FinalizeTemperatureFieldForComptonHeating.\n");
 	  }	
-    
+    if (RadiativeTransferH2ShieldType == 1 || ProblemType == 50)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  if (Temp->GridData->FinalizeTemperatureFieldForH2Shield() == FAIL) {  
+	    ENZO_FAIL("Error in FinalizeTemperatureFieldForH2Shield.\n");
+	  }
+#if USE_H2II_LOOKUP	
+    if (RadiativeTransferH2IIDiss == TRUE) {
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  if (Temp->GridData->FinalizeTemperatureFieldForH2IICrossSection() == FAIL) {  
+	    ENZO_FAIL("Error in FinalizeTemperatureFieldForH2Shield.\n");
+	  }	
+    }
+#endif
     debug = debug_store;
 
     /* If we're using the HII restricted timestep, get the global

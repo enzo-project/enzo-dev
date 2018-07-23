@@ -36,7 +36,7 @@ int grid::RadiativeTransferIR(PhotonPackageEntry **PP, FLOAT &dPIR, int cellinde
   else //Optically thin case
     dPIR = min((*PP)->Photons*tau, (*PP)->Photons);
   
-  //dP1 is the number of absorptions
+  //dPIR is the number of absorptions
   dPIR = dPIR * geo_correction;
 
   // contributions to the photoionization rate is over whole timestep
