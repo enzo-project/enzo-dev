@@ -422,6 +422,11 @@ c           then do nothing.
                goto 100
            endif
 
+c           In preparation for using upcoming fitting formulae,
+c           compute the current delay time in units of 10^7 yrs
+            td7 = (t-tcp(n))*t1/3.16d14
+            td7p2 = td7*td7
+            td7p4 = td7p2*td7p2
 
 c          If pre-supernova feedback is on, then include 
 c          stellar wind and ionizing radiation energy deposition
@@ -458,12 +463,6 @@ c           Case B recombination, assuming T = 10^4 K.
                te(i,j,k) = te(i,j,k) + theDiff
             endif
 
-
-c           In preparation for using upcoming fitting formulae,
-c           compute the current delay time in units of 10^7 yrs
-            td7 = (t-tcp(n))*t1/3.16d14
-            td7p2 = td7*td7
-            td7p4 = td7p2*td7p2
 
 c
 c           Here m_eject is the mass ejection rate in log solar masses per year.
