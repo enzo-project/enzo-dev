@@ -776,7 +776,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarSecondaryOverDensityThreshold = -1;  // in cc - if < 0, set to over density thresh in ReadParamFile
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
   IndividualStarMassFraction         =   0.5;         // Maximum fraction of region that can be converted into stars in one timestep
-  IndividualStarSFAlgorithm          =     1;         // 0 or 1 to switch between algorithms - temporary!!! 
   IndividualStarSFGasMassThreshold   = 200.0;         // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
   IndividualStarIMF                  =     0;         // 0: salpeter, 1: kroupa, 2: chabrier
   IndividualStarIMFCalls             =     0;         // Do not touch - number of calls to IMF so far in simulation
