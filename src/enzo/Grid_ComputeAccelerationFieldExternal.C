@@ -181,18 +181,34 @@ int grid::ComputeAccelerationFieldExternal()
 	      // and 1.0 otherwise.
               //Yuan, Aug 2011: Add BCG and SMBH potential if ProblemType == 108
               if(ProblemType == 108){
-              accel = GravConst*PointSourceGravityConstant*SolarMass*
+                accel = GravConst*PointSourceGravityConstant*SolarMass*
                 ((log(1.0+x  )-x  /(1.0+x  )) /
                  (log(1.0+1.0)-1.0/(1.0+1.0))) /
                 POW(radius*LengthUnits, 2.0) / AccelUnits +
-                     POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc),0.5975)/3.206e-7,0.9) + POW(POW(radius*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +  GravConst*SolarMass*3.4e8 / POW(radius*LengthUnits, 2) / AccelUnits  ;  // + BCG + BH mass for Perseus;
-              } else {
-	      accel = GravConst*PointSourceGravityConstant*MassUnitsDouble*
-		((log(1.0+x  )-x  /(1.0+x  )) /
-		 (log(1.0+1.0)-1.0/(1.0+1.0))) / 
-		POW(radius*LengthUnits, 2.0) / AccelUnits;
+                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc),0.5975)/3.206e-7,0.9) +
+                POW(POW(radius*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
+                GravConst*SolarMass*ClusterSMBHMass / POW(radius*LengthUnits, 2) / AccelUnits; // + BCG + BH mass
+                  /*Bondi*/
+                if(ClusterSMBHCalculateGasMass == 4){
+                 accel = GravConst*PointSourceGravityConstant*SolarMass*
+                ((log(1.0+x  )-x  /(1.0+x  )) /
+                 (log(1.0+1.0)-1.0/(1.0+1.0))) /
+                POW(radius*LengthUnits, 2.0) / AccelUnits +
+                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc),0.5975)/3.206e-7,0.9) +
+                POW(POW(radius*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
+                GravConst*SolarMass*ClusterSMBHMass/POW(radius*LengthUnits - 2.0*GravConst*SolarMass/POW(clight,2), 2)/ AccelUnits;
+                 }
+                  /*Elliptical Galaxy Fixed Gravity*/
+                if(EllipticalGalaxyRe > 0.001){  
+                 accel = GravConst*PointSourceGravityConstant*SolarMass*
+                ((log(1.0+x  )-x  /(1.0+x  )) /
+                 (log(1.0+1.0)-1.0/(1.0+1.0))) /
+                POW(radius*LengthUnits, 2.0) / AccelUnits +
+                GravConst*(ClusterSMBHBCG*SolarMass*1.0e11)/POW(radius*LengthUnits+EllipticalGalaxyRe*1.0e-3*Mpc/1.8153, 2)/AccelUnits +
+                GravConst*SolarMass*ClusterSMBHMass/POW(radius*LengthUnits - 2.0*GravConst*SolarMass/POW(clight,2), 2)/ AccelUnits;
+                 }
               }
-	      accel = accel/radius;  // this radius normalizes the multiplication by 
+              accel = accel/radius;  // this radius normalizes the multiplication by
 	      // xpos,ypos,zpos done below
 
 	    }  else if (PointSourceGravity == 3) {
@@ -282,6 +298,35 @@ int grid::ComputeAccelerationFieldExternal()
 	    ((log(1.0+x  )-x  /(1.0+x  )) /
 	     (log(1.0+1.0)-1.0/(1.0+1.0))) / 
 	    POW(radius*LengthUnits, 2) / AccelUnits;
+              /*Yuan, Aug 2011: Add BCG and SMBH potential if ProblemType == 108*/
+              if(ProblemType == 108){
+                accel = GravConst*PointSourceGravityConstant*SolarMass*
+                ((log(1.0+x  )-x  /(1.0+x  )) /
+                 (log(1.0+1.0)-1.0/(1.0+1.0))) /
+                POW(radius*LengthUnits, 2.0) / AccelUnits +
+                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc),0.5975)/3.206e-7,0.9) +
+                POW(POW(radius*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
+                GravConst*SolarMass*ClusterSMBHMass / POW(radius*LengthUnits, 2) / AccelUnits; // + BCG + BH mass
+                  /*Bondi*/
+                if(ClusterSMBHCalculateGasMass == 4){
+                 accel = GravConst*PointSourceGravityConstant*SolarMass*
+                ((log(1.0+x  )-x  /(1.0+x  )) /
+                 (log(1.0+1.0)-1.0/(1.0+1.0))) /
+                POW(radius*LengthUnits, 2.0) / AccelUnits +
+                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc),0.5975)/3.206e-7,0.9) +
+                POW(POW(radius*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
+                GravConst*SolarMass*ClusterSMBHMass/POW(radius*LengthUnits - 2.0*GravConst*SolarMass/POW(clight,2), 2)/ AccelUnits;
+                 }
+                  /*Elliptical Galaxy Fixed Gravity*/
+                if(EllipticalGalaxyRe > 0.001){
+                 accel = GravConst*PointSourceGravityConstant*SolarMass*
+                ((log(1.0+x  )-x  /(1.0+x  )) /
+                 (log(1.0+1.0)-1.0/(1.0+1.0))) /
+                POW(radius*LengthUnits, 2.0) / AccelUnits +
+                GravConst*(ClusterSMBHBCG*SolarMass*1.0e11)/POW(radius*LengthUnits+EllipticalGalaxyRe*1.0e-3*Mpc/1.8153, 2)/AccelUnits +
+                GravConst*SolarMass*ClusterSMBHMass/POW(radius*LengthUnits - 2.0*GravConst*SolarMass/POW(clight,2), 2)/ AccelUnits;
+                 }
+              }
 	  accel = accel/radius;  // this radius normalizes the multiplication by xpos,ypos,zpos done below
 
 
@@ -304,7 +349,8 @@ int grid::ComputeAccelerationFieldExternal()
  *     Reference: Burkert 1995, Mori & Burkert 2000
  *------------------------------------------------------------------------*/
 
-  if (DiskGravity > 0) {
+  if (DiskGravity > 0 && !(DiskGravityDoublePower)) {
+
 
     double accel, radius, rsquared, xpos, ypos = 0, zpos = 0, rcore,rcyl;
     FLOAT dadt, a = 1;
@@ -607,6 +653,24 @@ int grid::ComputeAccelerationFieldExternal()
     
   } // end if (ExternalGravity == 1)
 
+
+  else if (ExternalGravity >= 2 && ExternalGravity <= 4){
+    /* -------------------------------------------------------------
+       Time varying background potential from a specified field.
+
+       ExternalGravity == 2 : NFW DM potential
+       ExternalGravity == 3 : Burkert DM potential
+
+     */
+
+    // handle this elsewhere to de-clutter a bit
+    if( this->AddTimeVaryingExternalAcceleration() == FAIL){
+        fprintf(stderr, "Error in grid->AddTimeVaryingExternalAcceleration()\n");
+        return FAIL;
+    }
+
+
+  } // end if (ExternalGravity == 2)
   /* -----------------------------------------------------------------
      ExternalGravity > 9 : Acceleration from specified potential field.
 

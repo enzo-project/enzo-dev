@@ -130,15 +130,15 @@ int EnzoProblemType::InitializeUniformGrid(
  
   tg->NumberOfBaryonFields = 0;
   tg->FieldType[tg->NumberOfBaryonFields++] = Density;
-  tg->FieldType[tg->NumberOfBaryonFields++] = TotalEnergy;
-  if (DualEnergyFormalism)
-    tg->FieldType[tg->NumberOfBaryonFields++] = InternalEnergy;
   int vel = tg->NumberOfBaryonFields;
   tg->FieldType[tg->NumberOfBaryonFields++] = Velocity1;
   if (tg->GridRank > 1 || HydroMethod > 2)
     tg->FieldType[tg->NumberOfBaryonFields++] = Velocity2;
   if (tg->GridRank > 2 || HydroMethod > 2)
     tg->FieldType[tg->NumberOfBaryonFields++] = Velocity3;
+  tg->FieldType[tg->NumberOfBaryonFields++] = TotalEnergy;
+  if (DualEnergyFormalism)
+    tg->FieldType[tg->NumberOfBaryonFields++] = InternalEnergy;
   if ( UseMHD ) {
     tg->FieldType[B1Num = tg->NumberOfBaryonFields++] = Bfield1;
     tg->FieldType[B2Num = tg->NumberOfBaryonFields++] = Bfield2;
@@ -387,7 +387,8 @@ int EnzoProblemType::InitializeUniformGrid(
           if(StellarYieldsAtomicNumbers[yield_i] > 2){
             float fraction = 0.0; int field_num = 0;
 
-            this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+            ENZO_FAIL("This functionaly does not work yet");
+            //this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
             fraction = TestProblemData.ChemicalTracerSpecies_Fractions[yield_i];
 
             tg->BaryonField[field_num][i] = fraction * UniformDensity;
@@ -401,7 +402,7 @@ int EnzoProblemType::InitializeUniformGrid(
       tg->BaryonField[PeNum][i] = 0.0;
     }
     if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-      tg->BaryonFIeld[OTLWkdissH2INum][i] = 0.0;
+      tg->BaryonField[OTLWkdissH2INum][i] = 0.0;
     }
 
 

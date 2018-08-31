@@ -50,6 +50,10 @@ char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 
+int IndividualStarProperties_Initialize(TopGridData &MetaData);
+int IndividualStarRadiationProperties_Initialize(void);
+int InitializeStellarYields(void);
+
 int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                                     TopGridData &MetaData)
 {
@@ -186,6 +190,15 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   GasDensity = GasDensity / DensityUnits;
   GasTemperature = GasTemperature / TemperatureUnits;
 
+
+
+  // initialize star properties
+  IndividualStarProperties_Initialize(MetaData);
+  IndividualStarRadiationProperties_Initialize();
+  InitializeStellarYields();
+
+
+
   /* set up grid */
 
   float uniform_velocity[3]  = {0.0, 0.0, 0.0};
@@ -199,7 +212,6 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
                                               uniform_B_field) == FAIL){
       ENZO_FAIL("Error in InitializeUniformGrid.");
   }
-
 
   if (TopGrid.GridData->ChemicalEvolutionTestInitializeGrid(GasDensity,
                                                         GasTemperature,
@@ -371,7 +383,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
  } 
 
- 
+
+
 }
 
 

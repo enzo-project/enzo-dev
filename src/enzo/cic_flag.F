@@ -2,11 +2,9 @@
 c=======================================================================
 c//////////////////////  SUBROUTINE CIC_FLAG  \\\\\\\\\\\\\\\\\\\\\\\
 c
-      subroutine cic_flag(posx, posy, posz, partmass, ndim, npositions, 
-     &                    itype, ffield, leftedge, 
-     &                    dim1, dim2, dim3, cellsize, imatch1, 
-     &                    imatch2, imatch3, minmassmust, buffersize,
-     &                    unipartmass)
+      subroutine cic_flag(irefflag, posx, posy, posz, ndim, npositions, 
+     &                    ffield, leftedge, 
+     &                    dim1, dim2, dim3, cellsize, buffersize)
 #ifndef CONFIG_PFLOAT_16
 c
 c  PERFORMS 1/2/3D CLOUD-IN-CELL MARKING OF FLAGGING FIELD
@@ -20,18 +18,14 @@ c           flagging field for must-refine particles.
 
 c
 c  INPUTS:
+c     irefflag   - flag per particle marking it as must refine
 c     ndim       - dimensionality
 c     cellsize   - the cell size of field
 c     dim1,2,3   - real dimensions of field
 c     leftedge   - the left edge(s) of field
 c     npositions - number of particles
 c     posx,y,z   - particle positions
-c     partmass   - particle masses
-c     itype      - 1D field (length npositions) of types
-c     imatch1,2,3  - INTG_PREC(s) indicating type of particle to match
-c     minmassmust - minimum mass for MustRefine particles to refine around
 c     buffersize - how many cells to flag around the particle
-c     unipartmass - initial particle mass in nested cosmology sims
 c
 c  OUTPUT ARGUMENTS: 
 c     ffield      - field to be deposited to
@@ -49,15 +43,12 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      INTG_PREC dim1, dim2, dim3, npositions, ndim, imatch1, imatch2,
-     &          imatch3
-      R_PREC minmassmust, unipartmass
-      R_PREC partmass(npositions)
+      INTG_PREC dim1, dim2, dim3, npositions, ndim
       INTG_PREC buffersize
+      INTG_PREC irefflag(npositions)
       P_PREC posx(npositions), posy(npositions), posz(npositions), 
      &     leftedge(3)
       P_PREC cellsize
-      INTG_PREC itype(npositions)
       INTG_PREC ffield(dim1, dim2, dim3)
 c
 c  locals
@@ -84,13 +75,7 @@ c
 c
 c           only do this for must-refine particles
 c
-            if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2 
-     &           .or. itype(n) .eq. imatch3
-     &           .or. partmass(n) .lt. unipartmass) then
-c
-c	    only for particles above minimum mass
-c
-	      if (partmass(n) .gt. minmassmust) then
+            if (irefflag(n) .eq. 1) then
 c
 c             Compute the position of the central cell
 c
@@ -114,7 +99,6 @@ c             keep default option unrolled!
                  enddo
               endif
 c
-            endif
 	    endif
 c
          enddo
@@ -129,13 +113,7 @@ c
 c
 c           only do this for must-refine particles
 c
-            if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2
-     &           .or. itype(n) .eq. imatch3
-     &           .or. partmass(n) .lt. unipartmass) then
-c
-c	    only for particles above minimum mass
-c
-	      if (partmass(n) .gt. minmassmust) then
+            if (irefflag(n) .eq. 1) then
 c
 c             Compute the position of the central cell
 c
@@ -167,7 +145,6 @@ c             keep default option unrolled!
                  enddo
               endif
 c
-              endif
             endif
 c
          enddo
@@ -182,13 +159,7 @@ c
 c
 c           only do this for must-refine particles
 c
-            if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2
-     &           .or. itype(n) .eq. imatch3
-     &           .or. partmass(n) .lt. unipartmass) then
-c
-c	      only for particles above minimum mass
-c
-	      if (partmass(n) .gt. minmassmust) then 
+            if (irefflag(n) .eq. 1) then
 c
 c             Compute the position of the central cell
 c
@@ -231,7 +202,6 @@ c	         print*,'cic_flag: buffersize is:',buffersize
                  enddo
               endif
 c
-              endif
 	  endif
 c
          enddo

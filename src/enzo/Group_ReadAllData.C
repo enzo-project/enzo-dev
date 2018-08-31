@@ -186,13 +186,17 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
         if(NumberOfParticleAttributes < 4){ NumberOfParticleAttributes = 4;}
 
-        NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
-      }
-      if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
-        ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
-        NumberOfParticleAttributes += NumberOfParticleTableIDs;
+        if (! IndividualStarOutputChemicalTags){
+          NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
+        }
       }
 
+      if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarSaveTablePositions){
+        ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
+        NumberOfParticleAttributes += NumberOfParticleTableIDs;
+//          NumberOfParticleAttributes += 2; // store mass lost
+      }
+      NumberOfParticleAttributes += 2; // store mass lost
 
     } else {
       NumberOfParticleAttributes = 0;

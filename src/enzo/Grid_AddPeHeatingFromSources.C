@@ -30,7 +30,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 int FindField(int f, int farray[], int n);
 
-float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, const float &T,
+float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, 
+                                      // const float &T,
                                       const float &Z, const float &G, const float &dx);
 
 int grid::AddPeHeatingFromSources(Star *AllStars)
@@ -102,13 +103,13 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
 
   /* get temperature field */
-  float *temperature;
+//  float *temperature;
 
-  temperature = new float[size];
+//  temperature = new float[size];
 
-  if(  this->ComputeTemperatureField(temperature) == FAIL ){
-    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
-  }
+//  if(  this->ComputeTemperatureField(temperature) == FAIL ){
+//    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
+//  }
 
   for (dim = 0; dim < GridRank; dim++){
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
@@ -198,7 +199,8 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
 
-          BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, temperature[index],
+          BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, 
+                                                               // temperature[index],
                                                                        Z, FUVflux,
                                                                        this->CellWidth[0][0]*LengthUnits) * PeConversion;
             //} // ENDIF
@@ -210,7 +212,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   for (dim = 0; dim < GridRank; dim++)
     delete [] ddr2[dim];
 
-  delete [] temperature;
+//  delete [] temperature;
 
   return SUCCESS;
 

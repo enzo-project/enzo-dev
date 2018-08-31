@@ -389,7 +389,8 @@ extern "C" void FORTRAN_NAME(star_feedback_ssn)(
     float *smthresh, int *willExplode, float *soonestExplosion,
     float *gamma, float *mu,
     float *te1, float *metalIIfield, float *metalIIfrac, int *imetalII,
-    float *s49_tot, int *maxlevel);
+    float *s49_tot, int *maxlevel,
+    int *distrad, int *diststep, int *distcells);
 
 extern "C" void FORTRAN_NAME(star_feedback7)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *te, float *ge, float *u, float *v, 
@@ -629,6 +630,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   int SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE;
   int IndividualStarType = PARTICLE_TYPE_INDIVIDUAL_STAR;
 
+
+
   /* Compute the redshift. */
  
   float zred;
@@ -796,12 +799,16 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     /* Allocate space for new particles. */
  
     int MaximumNumberOfNewParticles = int(0.25*float(size)) + 5;
+
     tg->AllocateNewParticles(MaximumNumberOfNewParticles);
  
     /* Compute the cooling time. */
  
-    float *cooling_time = new float[size];
-    this->ComputeCoolingTime(cooling_time);
+    float *cooling_time = NULL;
+    if (! STARMAKE_METHOD(INDIVIDUALSTAR)){
+      cooling_time = new float[size];
+      this->ComputeCoolingTime(cooling_time);
+    }
  
     /* Call FORTRAN routine to do the actual work. */
  
@@ -1080,7 +1087,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       NumberOfNewParticlesSoFar = NumberOfNewParticles; 
 
       // Only attempt if on max refiment level
-      if ( level == MaximumRefinementLevel){
+      if (level == MaximumRefinementLevel ||
+          (ProblemType == 31 && Time <= 0.0 && GalaxySimulationInitialStellarDist)){
         // lets try and form stars
         if(individual_star_maker(dmfield, temperature,
                                  &MaximumNumberOfNewParticles,
@@ -1780,6 +1788,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       for (i = 0; i < NumberOfParticles; ++i) {
           if(ParticleType[i] == PARTICLE_TYPE_STAR ||
              ParticleType[i] == PARTICLE_TYPE_MUST_REFINE)
+	    if ((Time - ParticleAttribute[0][i]) < 3.7e7 * year / TimeUnits)
             {
 
               soonestExplosion[i] = -1.0;
@@ -1922,7 +1931,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           explosionFlag, &StarMakerMinimumMass, willExplode, soonestExplosion,
           &Gamma, &Mu, &TemperatureUnits, BaryonField[MetalIINum],
           ParticleAttribute[metalII], &StarMakerTypeIISNeMetalField, s49_tot,
-          &MaximumRefinementLevel);
+          &MaximumRefinementLevel,
+          &StarFeedbackDistRadius, &StarFeedbackDistCellStep, &StarFeedbackDistTotalCells);
 
       delete[] s49_tot;
       delete[] explosionFlag;

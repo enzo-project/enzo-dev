@@ -117,7 +117,12 @@ int ExtraOutput(int output_flag, LevelHierarchyEntry *LevelArray[],TopGridData *
         , char * output_string);
 
 int  RebuildHierarchy(TopGridData *MetaData,
-		      LevelHierarchyEntry *LevelArray[], int level);
+		      LevelHierarchyEntry *LevelArray[], int level
+#ifdef INDIVIDUALSTAR
+                      , Star *&AllStars
+#endif
+                      );
+
 int  ReportMemoryUsage(char *header = NULL);
 int  UpdateParticlePositions(grid *Grid);
 int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
@@ -216,7 +221,12 @@ int DeleteSUBlingList(int NumberOfGrids,
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
-			   int TotalStarParticleCountPrevious[]);
+			   int TotalStarParticleCountPrevious[]
+#ifdef INDIVIDUALSTAR
+                           , int SkipFeedbackFlag = 0
+#endif
+                           );
+
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars,
@@ -266,6 +276,10 @@ static int StaticLevelZero = 0;
 
 extern int RK2SecondStepBaryonDeposit;
 
+
+#ifdef INDIVIDUALSTAR
+void DeleteStarList(Star * &Node);
+#endif
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior
@@ -380,6 +394,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   EXTRA_OUTPUT_MACRO(1, "Before Time Loop")
 
+#ifdef INDIVIDUALSTAR
+  Star *AllStars = NULL;
+#endif
+
   while ((CheckpointRestart == TRUE)
         || (dtThisLevelSoFar[level] < dtLevelAbove)) {
     if(CheckpointRestart == FALSE) {
@@ -387,6 +405,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     TIMER_START(level_name);
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
+
+#ifdef INDIVIDUALSTAR
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+        Grids[grid1]->GridData->ApplyTemperatureLimit();
+    }
+#endif
 
     TimeSinceRebuildHierarchy[level] += dtThisLevel[level];
 
@@ -428,7 +452,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Initialize the star particles */
 
+#ifdef INDIVIDUALSTAR
+    if (AllStars != NULL)
+      DeleteStarList(AllStars);
+    //Star *AllStars = NULL;
+#else
     Star *AllStars = NULL;
+#endif
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
 
@@ -540,6 +570,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif //SAB.
       /* Copy current fields (with their boundaries) to the old fields
 	  in preparation for the new step. */
+
+#ifdef INDIVIDUALSTAR
+//      Grids[grid1]->GridData->ApplyTemperatureLimit();
+#endif
  
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
@@ -637,7 +671,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Grids[grid1]->GridData->ComovingExpansionTerms();
 
 
- 
     }  // end loop over grids
  
     /* Finalize (accretion, feedback, etc.) star particles */
@@ -664,8 +697,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
+#ifdef INDIVIDUALSTAR
+      Grids[grid1]->GridData->ApplyTemperatureLimit();
+#endif
+    }
 
     TIMER_STOP(level_name);
     /* ----------------------------------------- */
@@ -677,8 +714,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         // dtThisLevelSoFar set during restart
         // dtThisLevel set during restart
         // Set dtFixed on each grid to dtThisLevel
-        for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+        for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
+#ifdef INDIVIDUALSTAR
+          Grids[grid1]->GridData->ApplyTemperatureLimit();
+#endif
           Grids[grid1]->GridData->SetTimeStep(dtThisLevel[level]);
+        }
     }
 
 
@@ -788,6 +829,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Recompute radiation field, if requested. */
     RadiationFieldUpdate(LevelArray, level, MetaData);
+
  
 
 //     //dcc cut second potential cut: Duplicate?
@@ -833,10 +875,22 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
- 
+
+    //Star *AllStars = NULL;
+    //StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
+    //                       level, AllStars, TotalStarParticleCountPrevious);
+
 
     if (dtThisLevelSoFar[level] < dtLevelAbove)
-      RebuildHierarchy(MetaData, LevelArray, level);
+      RebuildHierarchy(MetaData, LevelArray, level
+#ifdef INDIVIDUALSTAR
+                       ,AllStars
+#endif
+                       );
+
+#ifdef INDIVIDUALSTAR
+     DeleteStarList(AllStars);
+#endif
 
 
     cycle++;

@@ -77,17 +77,17 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
 
     this->FeedbackFlag = NO_FEEDBACK;
 
-    if (IndividualStarStellarWinds){
+    if (IndividualStarStellarWinds && (this->type > 0)){
 
         float wind_start_age = 0.0;
         if(this->BirthMass < IndividualStarAGBThreshold){
-          if(IndividualStarInterpolateLifetime(wind_start_age, this->BirthMass,
-                                               this->Metallicity, 2) == FAIL){
+          if(this->InterpolateLifetime(wind_start_age, 2) == FAIL){
             ENZO_FAIL("SetFeedbackFlag: Failure in MS lifetime interpolation");
           }
         }
 
-        if(particle_age < this->LifeTime && particle_age + dtFixed > wind_start_age/TimeUnits){
+        if( (particle_age < this->LifeTime) && (particle_age + 2.5*dtFixed > wind_start_age/TimeUnits)){
+//        if ((particle_age < this->LifeTime) && (particle_age > wind_start_age/TimeUnits)){
             this->FeedbackFlag = INDIVIDUAL_STAR_STELLAR_WIND;
         }
 
@@ -116,6 +116,7 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
     break;
 
   case IndividualStarRemnant:
+  case IndividualStarUnresolved:
 
     this->FeedbackFlag = NO_FEEDBACK;
     break;
@@ -188,9 +189,14 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
     this->FeedbackFlag = NO_FEEDBACK;
     break;
 
-  } // ENDSWITCH
+   //this->type = abs_type;
 
-  //this->type = abs_type;
+ case PARTICLE_TYPE_STAR:
+   if(UseSupernovaSeedFieldSourceTerms)
+     this->FeedbackFlag = SUPERNOVA_SEEDFIELD;
+   break;
+}
+
 
   return SUCCESS;
 }

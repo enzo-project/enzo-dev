@@ -109,7 +109,7 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
       int field_num = BoundaryMassFluxFieldNumbers[i];
       for (int index = 0; index < size; index ++){
         if (GridOffsetLeft[dim] == 0)
-          left_mass = (-1.0 * this->BoundaryFluxes->LeftFluxes[field_num][dim][index], 0.0);
+          left_mass += max(-1.0 * this->BoundaryFluxes->LeftFluxes[field_num][dim][index], 0.0);
 
         if (GridOffsetRight[dim] == 0)
           right_mass += max(this->BoundaryFluxes->RightFluxes[field_num][dim][index], 0.0);

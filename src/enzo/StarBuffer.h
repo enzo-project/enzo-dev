@@ -36,13 +36,19 @@ struct StarBuffer {
   int		GridID;
   bool          AddedEmissivity;
   star_type	type;
-  float         accreted_angmom[MAX_DIMENSION];  
+  float         accreted_angmom[MAX_DIMENSION];
   double        NotEjectedMass;
+  double Radius;
+  double SurfaceGravity;
+  double Teff;
 
   /* AJE: for individual stars - yield table numbers */
   int se_table_position[2];
   int rad_table_position[3];
   int yield_table_position[2];
+
+  double wind_mass_ejected;
+  double sn_mass_ejected;
 };
 
 #endif

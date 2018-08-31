@@ -44,9 +44,9 @@ int StarParticleIndividual_IMFInitialize(void)
   int i;
   float m, m0, dm, total_fn;
 
-  dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/
+  dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFMassFloor)/
        ((float) (IMF_TABLE_ENTRIES-1));
-  m0 = log10(IndividualStarIMFLowerMassCutoff);
+  m0 = log10(IndividualStarIMFMassFloor);
 
   total_fn = 0; // will hold cumulative probability density function
 
@@ -59,6 +59,7 @@ int StarParticleIndividual_IMFInitialize(void)
     } // end tabulate
 
   } else if (IndividualStarIMF == 1){ // Chabrier 2003
+
     for (i = 0; i < IMF_TABLE_ENTRIES; i ++){
       m = POW(10.0, m0 + i*dm);
       total_fn += 0.158 * exp( - 0.5 * POW(log10(m)-log10(0.08),2.0) /
@@ -70,7 +71,7 @@ int StarParticleIndividual_IMFInitialize(void)
   } else if (IndividualStarIMF == 2){ // Kroupa 2001
     for (i = 0; i < IMF_TABLE_ENTRIES; i ++){
       m = POW(10.0, m0 + i*dm);
-      
+
       if (m < 0.08){ // NEED TO CHECK UNITS !!!!
         total_fn += POW(m, IndividualStarKroupaAlpha1);
       } else if (m < 0.5){
@@ -78,7 +79,8 @@ int StarParticleIndividual_IMFInitialize(void)
       } else{
         total_fn += POW(m, IndividualStarKroupaAlpha3);
       }
-     
+
+      IMFData[i] = total_fn;
     } // end tabulate
 
   } else{

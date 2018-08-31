@@ -99,17 +99,14 @@ c  Locals:
 c
       INTG_PREC  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
       R_PREC   div, tdyn, dtot, wgt
-      R_PREC   pi, G, sndspdC, m1
+      R_PREC   sndspdC, m1
       R_PREC   isosndsp2, bmass, jeanmass, lum
-      real*8 msolar, mh
-      parameter (pi=pi_val, G=GravConst, 
-     &           sndspdC=1.3095e8_RKIND,
-     &           msolar=SolarMass, mh=mass_h)
+      parameter (sndspdC=1.3095e8_RKIND)
 c
       ii = np
 c
 c     calculate how many solar masses are in d1*x1^3
-      m1 = dble(x1*dx)**3 * dble(d1) / msolar
+      m1 = dble(x1*dx)**3 * dble(d1) / SolarMass
 c
 c  for each zone, : a primordial "star" particle is created if answers
 c  to all the following questions are affirmative:
@@ -152,7 +149,7 @@ c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
+               tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/GravConst/dtot)/t1
 c               if (tdyn .lt. cooltime(i,j,k) .and. 
 c     &             temp(i,j,k) .gt. 1.1e4) 
 c     &            write(40,*) '1',tdyn,cooltime(i,j,k),temp(i,j,k)
@@ -173,8 +170,8 @@ c                 within large halos).
 c
                bmass = d(i,j,k) * m1
 c               isosndsp2 = sndspdC * temp(i,j,k)
-c               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
-c     &                    dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
+c               jeanmass = pi_val/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
+c     &                    dble(pi_val * isosndsp2 / GravConst)**1.5_RKIND / SolarMass
 c
 c               if (bmass .lt. jeanmass) 
 c     &            write(40,*) '2',bmass,jeanmass
@@ -440,17 +437,15 @@ c
       INTG_PREC i, j, k, n
       R_PREC energy, lum, sn_nrg, m_eject, yield, dratio, m1
       R_PREC lower_pisn, upper_pisn, lsun, he_core, starmass, lifetime
-      real*8 msolar
       parameter (lower_pisn = 140._RKIND, upper_pisn = 260._RKIND, 
      $           lsun = 2.e33_RKIND)
-      parameter (msolar = SolarMass)
       LOGIC_PREC death, pisn
 c
 c-----------------------------------------------------------------------
 c
 c     Calculate mass conversion factor
 c
-      m1 = dble(x1*dx)**3 * dble(d1) / msolar
+      m1 = dble(x1*dx)**3 * dble(d1) / SolarMass
 c
 c     Loop over particles
 c
@@ -479,7 +474,7 @@ c
                energy = dt * t1 * lum * lsun
                death = .false.
             endif
-            energy = energy / dble(m1*msolar) / dble(v1)**2
+            energy = energy / dble(m1*SolarMass) / dble(v1)**2
 c
 c           Determine whether the star results in a pair-instability SN
 c

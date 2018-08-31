@@ -847,7 +847,11 @@ Collapse Test (27)
     Initial H2II fraction of the sphere.  Default: 3e-14
 ``CollapseTestSphereInitialLevel`` (external)
     Failed experiment to try to force refinement to a specified level.
-    Not working. Default: 0.
+    Not working. Default: 0
+``CollapseTestWind`` (external)
+    Boolean flag. Type: integer. This parameter decides if there is wind (inflow boundary). Default: 0 (FALSE)
+``CollapseTestWindVelocity`` (external)
+    When using inflow boundary, this is the inflow velocity. Default: 0.
 
 .. _testgravitymotion_param:
 
@@ -1529,7 +1533,7 @@ Cluster Cooling Flow (108)
 ``ClusterSMBHJetPrecessionPeriod`` (external)
     Unit: Myr. Default: 0.0 (not precessing)
 ``ClusterSMBHCalculateGasMass`` (external)
-    Type: integer. 1--Calculate the amount of cold gas around the SMBH and remove it at the rate of 2*Mdot; 2--Calculate Mdot based on the amount of cold gas around the SMBH; 0--off (do not remove cold gas). Default: 1.
+    Type: integer. 1--Calculate the amount of cold gas around the SMBH and remove it at the rate of 2*Mdot; 2--Calculate Mdot based on the amount of cold gas around the SMBH; 3--Calculate Mdot similar to 2 but change ClusterSMBHJetDim periodically (period = ClusterSMBHJetPrecessionPeriod); 4--Calculate Mdot within Bondi radius (only use this when Bondi radius is resolved); 0--off (do not remove cold gas). Default: 1.
 ``ClusterSMBHFeedbackSwitch`` (external)
     Boolean flag. When ClusterSMBHCalculateGasMass=1, ClusterSMBHFeedbackSwitch is turned on when there is enough cold gas (ClusterSMBHEnoughColdGas) around the SMBH. Default: FALSE
 ``ClusterSMBHEnoughColdGas`` (external)
@@ -1540,7 +1544,18 @@ Cluster Cooling Flow (108)
     0--x; 1--y; 2--z. Default: 2
 ``ClusterSMBHAccretionEpsilon`` (external)
     Jet Edot = ClusterSMBHAccretionEpsilon * Mdot * c^2. Default: 0.001
-
+``ClusterSMBHDiskRadius`` (external)
+    The size of the accretion zone in kpc. Default: 0.5
+``ClusterSMBHBCG`` (external)
+    The stellar component of the Perseus BCG (in cluster simulations) or the elliptical galaxies (in simulations of isolated elliptical galaxies). Default: 1.0
+``ClusterSMBHMass`` (external)
+    The mass of the SMBH of the Perseus BCG (in cluster simulations) or the elliptical galaxies (in simulations of isolated elliptical galaxies). Default: 0
+``EllipticalGalaxyRe`` (external)
+    Re is the radius of the isophote enclosing half of the galaxy's light. In Herquist profile, a=Re/1.8153. Default: 0
+``OldStarFeedbackAlpha`` (external)
+    Mass ejection rate from evolved stars in the unit of 10^{-19} s^{-1}. It is typically within a factor of 2 of unity. Default: 0
+``SNIaFeedbackEnergy`` (external)
+    Energy feedback from evolved stars (Type Ia SN). Default: 1.0
 
 .. _mhd1d_param:
 
@@ -1714,7 +1729,7 @@ AGN Disk (207)
     Initial height of the disk. Default: 1
 
 .. _poissonsolver_param:
-.. _shocktube_param:
+.. _cr_shocktube_param:
 
 CR Shock Tube (250: unigrid and AMR)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -9,14 +9,18 @@ operation of Enzo, a structured `Adaptive Mesh Refinement
 more loosely AMR) code which is primarily intended for use in
 astrophysics and cosmology. The User's Guide is intended to explain
 how to compile and run Enzo, the initial conditions generation code
-and the various analysis tools bundled with Enzo. The instructions on
+and the various analysis tools bundled with Enzo. 
+
+To get started quickly, please refer to the :doc:`bootcamp`.
+
+The instructions on
 actually running the code are not comprehensive in that they are not
 machine or platform-specific.  Arguably the most useful and important
 piece of this guide is :ref:`parameters`, which contains
 descriptions of all of the roughly 300 possible input parameters (as
 of September 2008). For more detailed information on the Enzo
 algorithms and on running Enzo on different platforms, you should
-refer to the :doc:`../tutorials/index`. Detailed information on the
+refer to the :doc:`building_enzo`. Detailed information on the
 algorithms used in Enzo will be available in the method paper
 (unreleased as of September 2008). In the meantime, see the
 :ref:`EnzoPrimaryReferences` for more concrete Enzo information.
@@ -38,20 +42,19 @@ inquiries and comments should be directed to the `Enzo Users' List
 <http://groups.google.com/group/enzo-users>`_. Thank you!
 
 .. toctree::
-   :maxdepth: 2
-
-   ExecutablesArgumentsOutputs.rst
+   :maxdepth: 1
+  
+   bootcamp.rst
+   building_enzo.rst
+   WritingParameterFiles.rst
+   ControllingDataOutput.rst
    RunningEnzo.rst
-   Progress.rst
    CUDAEnzo.rst
    Grackle.rst
-   EnzoTestSuite.rst
+   Progress.rst
+   RunTestProblem.rst
+   AnalyzingWithYT.rst
    CosmologicalInitialConditions.rst
    RunningLargeSimulations.rst
    EnzoOutputFormat.rst
-   AnalyzingWithYT.rst
-   SimulationNamesAndIdentifiers.rst
-   EmbeddedPython.rst
-   HierarchyFile.rst
-   FlowChart.rst
-   TestProblems.rst
+

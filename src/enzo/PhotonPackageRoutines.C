@@ -9,6 +9,7 @@
 /  PURPOSE: Constructs a Linked List of Photon Packages including data
 /
 ************************************************************************/
+#include <stdlib.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"

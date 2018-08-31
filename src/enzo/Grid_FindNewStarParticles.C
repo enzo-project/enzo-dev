@@ -39,6 +39,9 @@ int grid::FindNewStarParticles(int level)
 
   for (i = 0; i < NumberOfParticles; i++)
     if (ParticleType[i] == -PARTICLE_TYPE_SINGLE_STAR ||
+       (ParticleType[i] == -PARTICLE_TYPE_STAR && UseSupernovaSeedFieldSourceTerms &&
+	  (this->Time >= ParticleAttribute[0][i] &&
+	   this->Time <= ParticleAttribute[0][i]+ParticleAttribute[1][i])) ||
 	ParticleType[i] == -PARTICLE_TYPE_BLACK_HOLE ||
 	ParticleType[i] == -PARTICLE_TYPE_CLUSTER ||
 	ParticleType[i] == -PARTICLE_TYPE_COLOR_STAR ||
@@ -46,6 +49,7 @@ int grid::FindNewStarParticles(int level)
         ParticleType[i] == -PARTICLE_TYPE_INDIVIDUAL_STAR ||
         ParticleType[i] == -PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ||
         ParticleType[i] == -PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
+        ParticleType[i] == -PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED ||
 	ABS(ParticleType[i]) == PARTICLE_TYPE_MBH ||
 	(StarParticleRadiativeFeedback == TRUE &&
 	 ParticleType[i] == PARTICLE_TYPE_STAR)) {

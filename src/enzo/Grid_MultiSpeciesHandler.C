@@ -32,6 +32,7 @@ int grid::MultiSpeciesHandler()
 
 #ifdef USE_GRACKLE
   if (grackle_data->use_grackle == TRUE) {
+    grackle_data->radiative_transfer_intermediate_step = FALSE;
     if (this->GrackleWrapper() == FAIL) {
       ENZO_FAIL("Error in GrackleWrapper.\n");
     }

@@ -36,7 +36,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
-                                      const float &T,   const float &Z,
+                                      // const float &T,   
+                                      const float &Z,
                                       const float &G, const float &dx);
 
 
@@ -89,17 +90,16 @@ int grid::AddPeHeatingFromTree(void)
   EnergyUnits = DensityUnits * VelocityUnits * VelocityUnits;
 
   /* get temperature field */
-  float *temperature;
+  //float *temperature;
   int size = 1;
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
     size *= this->GridDimension[dim];
   }
 
-  temperature = new float[size];
-
-  if(  this->ComputeTemperatureField(temperature) == FAIL ){
-    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
-  }
+//  temperature = new float[size];
+//  if(  this->ComputeTemperatureField(temperature) == FAIL ){
+//    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
+//  }
 
 
   // Dilution factor (prevent breaking in rate solver near star)
@@ -159,7 +159,8 @@ int grid::AddPeHeatingFromTree(void)
         Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
         // assign heating rate from model
-        BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, temperature[index],
+        BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, 
+                                                                     // temperature[index],
                                                                      Z, FUVLuminosity,
                                                                      this->CellWidth[0][0]*LengthUnits) * PeConversion;
 
@@ -167,7 +168,7 @@ int grid::AddPeHeatingFromTree(void)
     }
   } // end loop
 
-  delete [] temperature;
+//  delete [] temperature;
 
   return SUCCESS;
 }

@@ -171,7 +171,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 	 (if dim == 0 then make sure it is even as well since the FFT
 	 requires this). */
  
-      if (dim == 0)
+      if ( i < Layout[dim]-1)
 	GridDims[dim][i] = nint(ExactCount*0.5)*2 - DisplacementCount;
       else
 	GridDims[dim][i] = nint(ExactCount) - DisplacementCount;

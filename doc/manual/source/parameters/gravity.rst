@@ -19,27 +19,6 @@ General
     This is the gravitational constant to be used in code units. For cgs units it
     should be 4\*pi\*G. For cosmology, this value must be 1 for the
     standard units to hold. A more detailed decription can be found at :ref:`EnzoInternalUnits`. Default: 4\*pi.
-``GreensFunctionMaxNumber`` (external)
-    The Green's functions for the gravitational potential depend on the
-    grid size, so they are calculated on a as-needed basis. Since they
-    are often re-used, they can be cached. This integer indicates the
-    number that can be stored. They don't take much memory (only the
-    real part is stored), so a reasonable number is 100. [Ignored in
-    current version]. Default: 1
-``GreensFunctionMaxSize``
-    Reserved for future use.
-``S2ParticleSize`` (external)
-    This is the gravitational softening radius, in cell widths, in
-    terms of the S2 particle described by Hockney and Eastwood in their
-    book Computer Simulation Using Particles. A reasonable value is
-    3.0. [Ignored in current version]. Default: 3.0
-``GravityResolution`` (external)
-    This was a mis-guided attempt to provide the capability to increase
-    the resolution of the gravitational mesh. In theory it still works,
-    but has not been recently tested. Besides, it's just not a good
-    idea. The value (a float) indicates the ratio of the gravitational
-    cell width to the baryon cell width. [Ignored in current version].
-    Default: 1
 ``PotentialIterations`` (external)
     Number of iterations to solve the potential on the subgrids. Values
     less than 4 sometimes will result in slight overdensities on grid
@@ -47,10 +26,8 @@ General
 ``MaximumGravityRefinementLevel`` (external)
     This is the lowest (most refined) depth that a gravitational
     acceleration field is computed. More refined levels interpolate
-    from this level, provided a mechanism for instituting a minimum
+    from this level, providing a mechanism for instituting a minimum
     gravitational smoothing length. Default: ``MaximumRefinementLevel``
-    (unless ``HydroMethod`` is ZEUS and radiative cooling is on, in which
-    case it is ``MaximumRefinementLevel`` - 3).
 ``MaximumParticleRefinementLevel`` (external)
     This is the level at which the dark matter particle contribution to
     the gravity is smoothed. This works in an inefficient way (it
@@ -105,7 +82,7 @@ added to the acceleration field for the baryons and particles.
     2, then it takes the mass of the dark matter halo in CGS
     units. ``ProblemType`` = 31 (galaxy disk simulation) automatically calculates
     values for ``PointSourceGravityConstant`` and
-    ``PointSourceGravityCoreRadius``. Default: 1
+    ``PointSourceGravityCoreRadius``. ``ProblemType`` = 108 (elliptical galaxy and galaxy cluster) also includes the gravity from the stellar component and the SMBH. Default: 1
 ``PointSourceGravityCoreRadius`` (external)
     For ``PointSourceGravity`` = 1, this is the radius inside which
     the acceleration field is smoothed in code units. With ``PointSourceGravity`` =

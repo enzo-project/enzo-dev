@@ -46,7 +46,12 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int ReportMemoryUsage(char *header = NULL);
 int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
-				     int level, bool AllLocal);
+				     int level, bool AllLocal
+#ifdef INDIVIDUALSTAR
+                                     , TopGridData *MetaData, Star *&AllStars
+#endif
+                                     );
+
 int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[], int grids,
 			    int ShareParticles = TRUE); 
 int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
@@ -89,9 +94,13 @@ int MustCollectParticlesToLevelZero = FALSE;  // Set only in NestedCosmologySimu
 
 
 /* RebuildHierarchy function */
- 
+
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level)
+		     LevelHierarchyEntry *LevelArray[], int level
+#ifdef INDIVIDUALSTAR
+                     , Star *&AllStars
+#endif
+                     )
 {
 
   if (LevelSubCycleCount[level] % RebuildHierarchyCycleSkip[level]) {
@@ -391,7 +400,11 @@ int RebuildHierarchy(TopGridData *MetaData,
       MoveParticles = (ParticlesAreLocal) ? TRUE : FALSE;
 
       tt0 = ReturnWallTime();
-      DepositParticleMassFlaggingField(LevelArray, i, ParticlesAreLocal);
+      DepositParticleMassFlaggingField(LevelArray, i, ParticlesAreLocal
+#ifdef INDIVIDUALSTAR
+                                       , MetaData, AllStars
+#endif
+                                       );
       tt1 = ReturnWallTime();
       RHperf[3] += tt1-tt0;
 
@@ -718,3 +731,21 @@ int RebuildHierarchy(TopGridData *MetaData,
   return SUCCESS;
  
 }
+
+
+#ifdef INDIVIDUALSTAR
+void DeleteStarList(Star * &Node);
+
+// do this to avoid having to edit all funtcion calls of rebuild hierarchy
+int RebuildHierarchy(TopGridData *MetaData,
+                     LevelHierarchyEntry *LevelArray[], int level){
+
+  Star* AllStars = NULL;
+  int val = RebuildHierarchy(MetaData, LevelArray, level, AllStars);
+  DeleteStarList(AllStars);
+  return val;
+}
+
+
+#endif
+

@@ -36,14 +36,18 @@ void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
 
 
 int StarParticleIndividual_IMFInitialize(void);
-int IndividualStarProperties_Initialize(void);
+int IndividualStarProperties_Initialize(TopGridData &MetaData);
 int IndividualStarRadiationProperties_Initialize(void);
 int InitializeStellarYields(void);
 
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
-			   int TotalStarParticleCountPrevious[])
+			   int TotalStarParticleCountPrevious[]
+#ifdef INDIVIDUALSTAR
+                           , int SkipFeedbackFlag = 0
+#endif
+                           )
 
 
 {
@@ -74,7 +78,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     StarParticleIndividual_IMFInitialize();
 
     /* Initialize individual star properties (L, T, R) */
-    IndividualStarProperties_Initialize();
+    IndividualStarProperties_Initialize(*MetaData);
 
     /* Initialize radiation data table */
     if((RadiativeTransfer && IndividualStarBlackBodyOnly == FALSE) || IndividualStarFUVHeating){
@@ -138,6 +142,9 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //      cstar->PrintInfo();
 //  }
 
+#ifdef INDIVIDUALSTAR
+  if (SkipFeedbackFlag){
+#endif
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
     float dtForThisStar   = LevelArray[ThisLevel]->GridData->ReturnTimeStep();
 
@@ -151,6 +158,10 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
 
   }
+#ifdef INDIVIDUALSTAR
+  }
+#endif
+
 
 //  fprintf(stdout, "\nin StarParticleInitialize.C \n", MetaData->NumberOfParticles); 
 //  fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles); 

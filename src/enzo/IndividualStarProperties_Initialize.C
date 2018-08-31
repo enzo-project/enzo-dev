@@ -42,11 +42,11 @@
 #include "StarParticleData.h"
 #include "IndividualStarProperties.h"
 
-int IndividualStarProperties_Initialize(void);
+int IndividualStarProperties_Initialize(TopGridData &MetaData);
 int IndividualStarRadiationProperties_Initialize(void);
 
 
-int IndividualStarProperties_Initialize(void){
+int IndividualStarProperties_Initialize(TopGridData &MetaData){
 
   if (IndividualStarPropertiesData.Teff != NULL && IndividualStarPropertiesData.R != NULL){
     return SUCCESS; // already initialized
@@ -56,6 +56,12 @@ int IndividualStarProperties_Initialize(void){
   IndividualStarPropertiesData.NumberOfMetallicityBins = 0;
 
   IndividualStarPropertiesData.Zsolar = 0.01524; // see IndividualStarData.h
+
+  if (IndividualStarOutputChemicalTags){
+    IndividualStarChemicalTagFilename = new char[80];
+    sprintf(IndividualStarChemicalTagFilename, "star_abundances%4.4d.dat",
+                 (Eint32) MetaData.DataDumpNumber-1); 
+  }
 
   // read in the data to populate the tables
   FILE *fptr = fopen("parsec_zams.in", "r");

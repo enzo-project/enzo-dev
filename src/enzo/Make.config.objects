@@ -121,6 +121,7 @@ OBJS_CONFIG_LIB = \
         CosmologyGetUnits.o \
         CosmologyReadParameters.o \
         CosmologySimulationInitialize.o \
+        CosmologyTable.o \
         CosmologyWriteParameters.o \
         cray_x1_fft64.o \
         cray_x1_st1_fft64.o \
@@ -139,6 +140,8 @@ OBJS_CONFIG_LIB = \
 	DetermineParallelism.o \
 	DetermineSubgridSizeExtrema.o \
         DoubleMachInitialize.o \
+        DoublePowerLawDiskGravity.o \
+        DiskGravityUpdateParticleCOM.o \
         E_ColumnFormat.o \
         ealFloat.o \
         ealInt.o \
@@ -313,11 +316,13 @@ OBJS_CONFIG_LIB = \
 	Grid_AddOverlappingParticleMassField.o \
 	Grid_AddParticlesFromList.o \
 	Grid_AddRandomForcing.o \
+        Grid_AddTimeVaryingExternalAcceleration.o \
 	Grid_AddToBoundaryFluxes.o \
 	Grid_AllocateGrids.o \
 	Grid_AnalyzeTrackPeaks.o \
 	Grid_AppendForcingToBaryonFields.o \
 	Grid_ApplyTimeAction.o \
+        Grid_ApplyTemperatureLimit.o \
 	Grid_CalculateAngularMomentum.o \
 	Grid_ChangeParticleTypeBeforeSN.o \
         Grid_CheckField.o \
@@ -417,6 +422,7 @@ OBJS_CONFIG_LIB = \
 	Grid_DepositPositions.o \
 	Grid_destructor.o \
 	Grid_DetachForcingFromBaryonFields.o \
+        Grid_DiskGravityComputeParticleCOM.o \
 	Grid_DoubleMachInitializeGrid.o \
 	Grid_FastSiblingLocatorAddGrid.o \
 	Grid_FastSiblingLocatorFindSiblings.o \
@@ -456,6 +462,7 @@ OBJS_CONFIG_LIB = \
 	Grid_Gadgetfindabundancesandrates.o \
 	Grid_GadgetEquilibriumCooling.o \
 	Grid_GalaxySimulationInitializeGrid.o \
+        Grid_GalaxySimulationInitializeParticles.o \
         Grid_GetEnclosedMass.o \
         Grid_GetEnclosedMassInShell.o \
         Grid_GetProjectedBoundaryFluxes.o \
@@ -503,6 +510,8 @@ OBJS_CONFIG_LIB = \
         Grid_MustRefineParticlesFlagInRegion.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
+        Grid_OldStarFeedback.o \
+        Grid_AddStellarWind.o \
 	Grid_OneZoneFreefallTestInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
 	Grid_OutputStarParticleInformation.o \
@@ -649,6 +658,7 @@ OBJS_CONFIG_LIB = \
         InitializeRadiationFieldData.o \
         InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
+        InitializeTimeVaryingExternalAcceleration.o \
 	InitialLoadBalanceRootGrids.o \
         init_random_seed.o \
 	interp1d.o \
@@ -844,6 +854,7 @@ OBJS_CONFIG_LIB = \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
         Star_CalculateMassLoss.o \
+        Star_CheckMassEjectionValidity.o \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \
@@ -1055,7 +1066,7 @@ POBJS_CONFIG_LIB = \
 	PhotonTestRestartInitialize.o \
 	RadiativeTransferCallFLD.o \
         RadiativeTransferComputeTimestep.o \
-        RadiativeTransferHealpixRoutines.o \
+	RadiativeTransferHealpixRoutines64.o \
 	RadiativeTransferLoadBalanceRevert.o \
         RadiativeTransferInitialize.o \
         RadiativeTransferPrepare.o \
@@ -1157,8 +1168,9 @@ OBJS_HYDRO_RK = \
 	hydro_rk/MHDDecayingRandomFieldInitialize.o \
 	hydro_rk/Riemann_HLL_MHD.o \
 	hydro_rk/Riemann_HLLD_MHD.o \
-	hydro_rk/Riemann_LLF_MHD.o
-
+	hydro_rk/Riemann_LLF_MHD.o \
+	hydro_rk/SuperNovaSeedField.o
+	
 # Objects for the CUDA GPU-computing support
 OBJS_ECUDA_ALL = \
         hydro_rk/CudaMHD.o \

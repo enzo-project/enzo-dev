@@ -58,9 +58,16 @@
 #endif
  
 // function prototypes
- 
+
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level);
+                     LevelHierarchyEntry *LevelArray[], int level);
+
+#ifdef INDIVIDUALSTAR
+int RebuildHierarchy(TopGridData *MetaData,
+		     LevelHierarchyEntry *LevelArray[], int level,
+                     Star *&AllStars);
+#endif INDIVIDUALSTAR
+
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior
@@ -106,6 +113,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 		   int Restart = FALSE);
 int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 		       TopGridData &MetaData);
+int DiskGravityUpdateParticleCOM(LevelHierarchyEntry *LevelArray[],
+                                 TopGridData &MetaData);
 int CheckForResubmit(TopGridData &MetaData, int &Stop);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
@@ -143,13 +152,23 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
                int level, int from_topgrid);
 #endif
 
- 
- 
 #define NO_REDUCE_FRAGMENTATION
- 
+
+#ifdef INDIVIDUALSTAR
+  int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
+                             int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
+                             int ThisLevel, Star *&AllStars,
+                             int TotalStarParticleCountPrevious[],
+                             int SkipFeedbackFlag = 0);
+
+  void DeleteStarList(Star *&Node);
+
+  int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+                        HierarchyEntry **Grids[]);
+
+#endif
 
 
- 
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
                     ExternalBoundary *Exterior,
 #ifdef TRANSFER
@@ -593,11 +612,32 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
     PrintMemoryUsage("Pre loop rebuild");
- 
+
+#ifdef INDIVIDUALSTAR
+    /* make a list of stars for must refine particle refinement */
+    Star *AllStars = NULL;
+    HierarchyEntry **Grids;
+    int NumberOfGrids = GenerateGridArray(LevelArray, 0, &Grids);
+    int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
+
+    StarParticleInitialize(Grids, &MetaData, NumberOfGrids, LevelArray,
+                           0, AllStars, TotalStarParticleCountPrevious, 1); //last arg, don't set flags
+
+    if (ProblemType != 25 && Restart == FALSE)
+      RebuildHierarchy(&MetaData, LevelArray, 0, AllStars);
+
+    PrintMemoryUsage("Post loop rebuild");
+
+    delete [] TotalStarParticleCountPrevious;
+    delete [] Grids;
+    DeleteStarList(AllStars);
+
+#else
     if (ProblemType != 25 && Restart == FALSE)
       RebuildHierarchy(&MetaData, LevelArray, 0);
 
     PrintMemoryUsage("Post loop rebuild");
+#endif
 
 #ifdef USE_MPI
     treb1 = MPI_Wtime();
@@ -606,7 +646,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     /* Check for time-actions. */
  
     CheckForTimeAction(LevelArray, MetaData);
- 
+
+    /* Compute COM of dark matter halo for isolated live DM simulations */
+
+    DiskGravityUpdateParticleCOM(LevelArray, MetaData);
+
     /* Check for output. */
  
     CheckForOutput(&TopGrid, MetaData, Exterior, 

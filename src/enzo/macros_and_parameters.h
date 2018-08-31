@@ -1,14 +1,14 @@
 #ifndef __macros_and_parameters_h_
 #define __macros_and_parameters_h_
 /***********************************************************************
-/  
+/
 / MACRO DEFINITIONS AND PARAMETERS
 /
 ************************************************************************/
 #ifdef USE_PYTHON
 #ifndef ENZO_PYTHON_IMPORTED
 #define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
-#define NO_IMPORT_ARRAY 
+#define NO_IMPORT_ARRAY
 #include <Python.h>
 #include "numpy/arrayobject.h"
 #endif
@@ -67,11 +67,11 @@
 
 #define MAX_REFINE_REGIONS               150
 
-#ifdef WINDS 
+#ifdef WINDS
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
 #else
 //#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES 29 // AJE may need to do something different 
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES 33 // AJE may need to do something different
 #endif
 
 #define MAX_NUMBER_OF_PARTICLE_TABLE_POSITIONS   7
@@ -157,7 +157,7 @@ typedef long long int  Elong_int;
 
 typedef int            MPI_Arg;
 
-typedef int            HDF5_hid_t;
+typedef long long int   HDF5_hid_t;
 
 /* HDF5 definitions */
 
@@ -381,10 +381,10 @@ typedef int            HDF5_hid_t;
 #define ZERO_ALL_FIELDS          0
 #define ZERO_UNDER_SUBGRID_FIELD 1
 
-/* Definitions for grid::CommunicationSend/ReceiveRegion and 
+/* Definitions for grid::CommunicationSend/ReceiveRegion and
    grid::DepositPositions */
 //If MAX_EXTRA_OUTPUTS neesd to be changed, change statements in ReadParameterFile and WriteParameterFile.
-#define MAX_EXTRA_OUTPUTS                10 
+#define MAX_EXTRA_OUTPUTS                10
 
 #define BARYONS_ELECTRIC                 -13
 #define BARYONS_MAGNETIC                 -12
@@ -485,6 +485,8 @@ typedef int            HDF5_hid_t;
 #define PARTICLE_TYPE_INDIVIDUAL_STAR 11
 #define PARTICLE_TYPE_INDIVIDUAL_STAR_WD 12
 #define PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT 13
+#define PARTICLE_TYPE_INDIVIDUAL_POPIII_STAR 14
+#define PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED 15
 
 #define CHILDRENPERPARENT           12
 /* Ways to deposit particles from a subgrid. */
@@ -533,11 +535,15 @@ typedef int            HDF5_hid_t;
 #define MBH_THERMAL 7
 #define MBH_JETS 8
 #define COLOR_FIELD 9
-#define FEEDBACK_INDIVIDUAL_STAR 10
-#define INDIVIDUAL_STAR_STELLAR_WIND 11
-#define INDIVIDUAL_STAR_SNII 12
-#define INDIVIDUAL_STAR_SNIA 13
-#define INDIVIDUAL_STAR_WIND_AND_SN 14
+
+#define FEEDBACK_INDIVIDUAL_STAR 12
+#define INDIVIDUAL_STAR_STELLAR_WIND 13
+#define INDIVIDUAL_STAR_SNII 14
+#define INDIVIDUAL_STAR_SNIA 15
+#define INDIVIDUAL_STAR_WIND_AND_SN 16
+#define INDIVIDUAL_STAR_SN_COMPLETE 17
+
+#define SUPERNOVA_SEEDFIELD 11
 
 /* Sink particle accretion modes */
 
@@ -583,6 +589,12 @@ typedef int            HDF5_hid_t;
 /* Number of entries in the Pop III IMF lookup table */
 
 #define IMF_TABLE_ENTRIES 1000
+
+/* Maximum number of entries in the time varying external gravity position */
+
+#define EXTERNAL_GRAVITY_ENTRIES 5000
+
+#define DOUBLE_POWER_DG_POINTS 1000
 
 #ifdef USE_MPI
 #else /* USE_MPI */

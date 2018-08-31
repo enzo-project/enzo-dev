@@ -130,7 +130,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *ByName = "By";
   char *BzName = "Bz";
   char *PhiName = "Phi";
-  char *DebugName = "Debug";
   char *Phi_pName = "Phip";
 
  
@@ -706,7 +705,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[i++] = PhiName;
     if(UseDivergenceCleaning){
       DataLabel[i++] = Phi_pName;
-      DataLabel[i++] = DebugName;
     }
   }
    if (MultiSpecies) {

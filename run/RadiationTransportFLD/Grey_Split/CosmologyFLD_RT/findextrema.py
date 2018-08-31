@@ -19,7 +19,7 @@ zmax = extreme[1]
 
 # calculates the mean value
 mean = dd.quantities["WeightedAverageQuantity"](field,"CellVolume")
-print (field)
-print ("min %16.16e" % zmin)
-print ("max %16.16e" % zmax)
-print ("mean %16.16e" % mean)
+print(field)
+print("min %16.16e" % zmin)
+print("max %16.16e" % zmax)
+print("mean %16.16e" % mean)

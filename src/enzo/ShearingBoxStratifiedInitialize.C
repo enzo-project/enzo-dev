@@ -66,7 +66,6 @@ int ShearingBoxStratifiedInitialize (FILE *fptr, FILE *Outfptr,
   const char *ByName = "By";
   const char *BzName = "Bz";
   const char *PhiName = "Phi";
-  const char *DebugName = "Debug";
   const char *Phi_pName = "Phip";
   
   /* declarations */

@@ -149,7 +149,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
       if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
 
-      if (TestProblemData.MultiMetals){
+      if (TestProblemData.MultiMetals && !IndividualStarOutputChemicalTags){
         NumberOfParticleAttributes ++; // counter offset to get names right
                                          // this is a hack and a waste of memory
         if(TestProblemData.MultiMetals == 2){
@@ -157,8 +157,11 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
         }
       } // end multi metals
       if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
-        ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
-        NumberOfParticleAttributes += NumberOfParticleTableIDs;
+        if (!IndividualStarSaveTablePositions){
+          ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
+          NumberOfParticleAttributes += NumberOfParticleTableIDs;
+        }
+        NumberOfParticleAttributes += 2; // counters for mass loss
       }
 
       AddParticleAttributes = TRUE;

@@ -246,8 +246,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MustRefineParticlesRightEdge[dim] = 0.0;
     DiskGravityPosition[dim]        = 0.0;
     DiskGravityAngularMomentum[dim] = 0.0;
+    DiskGravityDarkMatterCOM[dim]   = 0.0;
     GalaxySimulationRPSWindVelocity[dim] = 0.0;
     GalaxySimulationPreWindVelocity[dim] = 0.0;
+    StellarWindCenterPosition[dim] = 0.5;
   }
   if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0; 
 
@@ -344,6 +346,16 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ExternalGravityDensity      = 0.0;
   ExternalGravityRadius       = 0.0;
 
+  // for externalgravity type 2 - 4
+  ExternalGravityTimeOn       = 0.0;               // time in code units to turn on time varying external potential
+  ExternalGravityTimeOff      = huge_number;       // time in code units to turn off time varying external potential
+  ExternalGravityTime         = NULL;
+  for (dim = 0 ; dim < MAX_DIMENSION; dim ++){
+    ExternalGravityTimePositions[dim] = NULL;
+  }
+  ExternalGravityMass         = 0.0; // mass in solar masses of time varying point source potential (EG = 4)
+
+
   UniformGravity              = FALSE;             // off
   UniformGravityDirection     = 0;                 // x-direction
   UniformGravityConstant      = 1.0;
@@ -362,6 +374,19 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityDarkMatterDensity       = 3.81323E-25; // CGS
   DiskGravityDarkMatterMassInterior  = 0.0;         // solar masses - Only used when above is -1
   DiskGravityDarkMatterMassInteriorR = 0.0;         // Mpc - Only used in conjuction with above
+  DiskGravityDarkMatterUpdateCOM     = 0;           // when live DM is used, compute COM every root time step
+  DiskGravityDarkMatterRefineCore    = 0;           // if > 0, update must refine region to be around halo center with this being 1/2 side length in code units
+
+  DiskGravityDoublePower             = FALSE;       // use general doubnle power law DM dis - use with particles
+  DiskGravityDoublePowerR            = NULL;
+  DiskGravityDoublePowerMass         = NULL;
+  DiskGravityDoublePowerPot          = NULL;
+  DiskGravityDarkMatterCutoffR       = huge_number;
+  DiskGravityDarkMatterAlpha         = 1.0;
+  DiskGravityDarkMatterBeta          = 3.0;
+  DiskGravityDarkMatterGamma         = 1.0;
+  DiskGravityDarkMatterDelta         = -1.0;
+  DiskGravityDarkMatterRDecay        = huge_number;
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
@@ -369,12 +394,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
   GravitationalConstant       = 4*Pi;              // G = 1
-  S2ParticleSize              = 3.0;               // ~3 is reasonable
-  GravityResolution           = 1.0;               // equivalent to grid
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
-  BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
 
   GalaxySimulationRPSWind = 0;
   GalaxySimulationRPSWindShockSpeed = 0.0;
@@ -387,9 +409,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GalaxySimulationPreWindDensity = 1.0;
   GalaxySimulationPreWindTotalEnergy = 1.0;
 
-  GreensFunctionMaxNumber     = 1;                 // only one at a time
-  GreensFunctionMaxSize       = 1;                 // not used yet
- 
+  GalaxySimulationInitialStellarDist = 0;          // only works in individual star maker - initialize a stellar distribution if ON
+
   DualEnergyFormalism         = FALSE;             // off
   DualEnergyFormalismEta1     = 0.001;             // typical 0.001
   DualEnergyFormalismEta2     = 0.1;               // 0.08-0.1
@@ -427,8 +448,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2OpticalDepthApproximation = 1;
   H2FormationOnDust           = FALSE;
   GloverChemistryModel        = 0;                 // 0ff
-  GloverRadiationBackground   = 0;
-  GloverOpticalDepth          = 0;
   CRModel                     = 0;                 // off
   CRDiffusion                 = 0;                 // off
   CRkappa                     = 0.0;
@@ -588,6 +607,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarFeedbackDistRadius           = 0;
   StarFeedbackDistCellStep         = 0;
   StarFeedbackDistTotalCells       = 1;
+  StarFeedbackPreSN                = TRUE;
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   NumberOfParticleTableIDs         = MAX_NUMBER_OF_PARTICLE_TABLE_POSITIONS;
@@ -625,6 +645,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ClusterSMBHAccretionTime         = 5.0;
   ClusterSMBHJetDim                = 2;
   ClusterSMBHAccretionEpsilon      = 0.001;
+  ClusterSMBHDiskRadius            = 0.5;
+  ClusterSMBHBCG                   = 1.0;
+  ClusterSMBHMass                  = 0.0;
+
+  EllipticalGalaxyRe               = 0.0;
+  OldStarFeedbackAlpha             = 0.0;
+  SNIaFeedbackEnergy               = 1.0;
+
+  StellarWindSpeed                 = 0.0;   // in cgs
+  StellarWindDensity               = 1.0; // in code unit
+  StellarWindRadius                = 0.01;  // in code unit
+  StellarWindTemperature           = 100.0;  // in K
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
@@ -657,7 +689,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     StarClusterRegionLeftEdge[dim] = 0.0;
     StarClusterRegionRightEdge[dim] = 1.0;
   }
-
+ 
+  MixSpeciesAndColors           = 1;            //Enable SNColour field to be advected as species in MHD
+ 
   PopIIIStarMass                   = 100;
   PopIIIInitialMassFunction        = FALSE;
   PopIIIInitialMassFunctionSeed    = INT_UNDEFINED;
@@ -721,31 +755,45 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   // Paramters for Individual Star Star formation and Feedback
 
   /* IndividualStar: Star Formation */
+  IndividualStarTemperatureLimit       =   -1;
+  IndividualStarTemperatureLimitFactor = 2;
+  IndividualStarICSupernovaRate        =   0.0;     // rate (# / yr) of supernova for initial driving - off if zero
+  IndividualStarICSupernovaTime        =  10.0;     // (Myr) length of time to do SN driving if true - rate dec linearly starting at 1/2 this time
+  IndividualStarICSupernovaR           =   -1.0;     // radius limit for SN - set to galaxy scale radius
+  IndividualStarICSupernovaZ           =   -1.0;     // vertical height limit for supernova - set to Galaxy scale height
+  IndividualStarICSupernovaMethod      =     1;     // 1: uniform disk with R and Z - 2: uniform sphere using R only
+  IndividualStarICSupernovaFromFile    =     0;     // if ON, loads SNR as a function of time from a file.
+  IndividualStarICSupernovaInjectionMethod = 1;   // 1 = thermal only, spherical ball - 2: thermal and kinetic mix - Simpson et. al. 2015
+  for (i = 0; i < 3; i ++)
+      IndividualStarICSupernovaPos[i] = 0.5;
+
+  IndividualStarWDFixedLifetime      =  -1.0;         // debugging parameter - fixed lifetime in Myr before SNIa if > 0
   IndividualStarCreationStencilSize  =     3;         // n x n cell region (on each side) to sample for star formation
   IndividualStarCheckVelocityDiv     =     1;         // use velocity divergence in SF check
+  IndividualStarICLifetimeMode       =     0;         // 0 - use interpolated lifetime, 1 - set to now, 2 - from file
+  IndividualStarLifeRefinementFactor  =    3;         // for particles with SNII or SNIa, treat as must refine if end is within this many dT from end of life
   // StarParticleOverdensityThreshold is used as primary density threshold parameter
   IndividualStarSecondaryOverDensityThreshold = -1;  // in cc - if < 0, set to over density thresh in ReadParamFile
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
   IndividualStarMassFraction         =   0.5;         // Maximum fraction of region that can be converted into stars in one timestep
-  IndividualStarSFAlgorithm          =     1;         // 0 or 1 to switch between algorithms - temporary!!! 
   IndividualStarSFGasMassThreshold   = 200.0;         // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
   IndividualStarIMF                  =     0;         // 0: salpeter, 1: kroupa, 2: chabrier
   IndividualStarIMFCalls             =     0;         // Do not touch - number of calls to IMF so far in simulation
-  IndividualStarSalpeterSlope        =   2.5;         // slope
-  IndividualStarKroupaAlpha1         =   0.3;         // kroupa slope over mass range
-  IndividualStarKroupaAlpha2         =   1.3;         // '' over 
-  IndividualStarKroupaAlpha3         =   2.3;         // '' over
+  IndividualStarSalpeterSlope        = -1.35;         // slope
+  IndividualStarKroupaAlpha1         =  -0.3;         // kroupa slope over mass range
+  IndividualStarKroupaAlpha2         =  -1.3;         // '' over 
+  IndividualStarKroupaAlpha3         =  -2.3;         // '' over
   IndividualStarIMFLowerMassCutoff   =   1.0;         // Solar masses
   IndividualStarIMFUpperMassCutoff   = 100.0;         // Solar masses
-  IndividualStarAllowTruncatedIMF    =     0;         // on or off - truncates IMF for low mass regions if on
+  IndividualStarIMFMassFloor         = IndividualStarIMFLowerMassCutoff;         // If this is below the lower mass cutoff, stars below this mass will get grouped together into a single particle
   IndividualStarVelocityDispersion   =   1.0;         // initial velocity disperion of stars in SF region (km/s)
   IndividualStarIMFSeed              = INT_UNDEFINED; // random number seed for IMF sampling
 
   /* IndividualStar: Stellar Feedback (non-radiation) */
-  IndividualStarFeedbackOverlapSample = 20;         // number of points per cell to compute fractional overlap in feedback routine
+  IndividualStarFeedbackOverlapSample = 32;         // number of points per cell to compute fractional overlap in feedback routine
   IndividualStarFeedbackStencilSize   = 3;          // Size of feedback injection region (radius in number of cells)
-  
-  IndividualStarStellarWinds          = 0;          // on or off
+
+  IndividualStarStellarWinds          = 1;          // on or off
   IndividualStarWindTemperature       = 1.0E6;      // temperature cap on stellar wind source region (K)
   IndividualStarUseWindMixingModel    = 1;          // account for unresolved mixing at wind/ISM shell interface and allow mass loading
   IndividualStarStellarWindVelocity   = -1;         // when < 0, use Leithener et. al. model for stellar wind velocities
@@ -772,12 +820,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* IndividualStar: Yields Tracking */
   IndividualStarFollowStellarYields  = 0;           // on or off
   IndividualStarExtrapolateYields    = 0;           // on or off - extrapolate yields from NuGrid set by scaling. If off, use PARSEC wind yields
+  IndividualStarOutputChemicalTags   = 0;           // on or off - if ON does not tag particles, but instead outputs them to a file
+  IndividualStarChemicalTagFilename  = NULL;        // filename for above
+  IndividualStarSaveTablePositions   = 1;           // save table positions as particle attributes to save time
 
   /* IndividualStar: Stellar Feedback - Radiation */
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses - Stars above this are posible rad sources
-  IndividualStarOTRadiationMethod    = 0;           // flag - 0 = MxN comparison in grid - 1 goes through RT framework
-  IndividualStarApproximateOTRadiation = 0;         // flag - save some time in MxN comparison (IndividualStarOTRadiationMethod = 1) by using fixed value on grid for stars whose flux varies by < IndividualStarApproximateOTThreshold over the grid
-  IndividualStarApproximateOTThreshold = 0.1;       // if above is on, stars whose flux varies by less than this fraction over the grid are added as constant background on the grid
+  IndividualStarOTRadiationMethod    = 0;           // Experimetnal. flag - 0 = MxN comparison in grid - 1 goes through RT framework
+  IndividualStarApproximateOTRadiation = 0;         // Experimental. flag - save some time in MxN comparison (IndividualStarOTRadiationMethod = 1) by using fixed value on grid for stars whose flux varies by < IndividualStarApproximateOTThreshold over the grid
+  IndividualStarApproximateOTThreshold = 0.1;       // Experimental. if above is on, stars whose flux varies by less than this fraction over the grid are added as constant background on the grid
   IndividualStarOTRadiationMass      = 8.0;         // Solar masses - Stars above this are allowed to have optically thin radiation
   IndividualStarIonizingRadiationMinimumMass = 8.0; // Solar masses - stars above this are allowed ionizing radiation
   IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens Pe Heating using optically thin FUV
@@ -801,7 +852,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   /* Stellar Yields Parameters */
   StellarYieldsNumberOfSpecies       = INT_UNDEFINED; // number of species to follow - optional, calculated automatically if left undefined
-  StellarYieldsScaledSolarInitialAbundances = 1;    // use solar abundances to set initial mass fractions, linearly scaled by metalliticy
+  StellarYieldsScaledSolarInitialAbundances = 0;    // use solar abundances to set initial mass fractions, linearly scaled by metalliticy
 
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){
     StellarYieldsAtomicNumbers[i] = -1;
@@ -847,7 +898,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NSpecies		     = INT_UNDEFINED;
   NColor		     = INT_UNDEFINED;
   Theta_Limiter		     = 1.5;
-  RKOrder		     = 2;
   UsePhysicalUnit	     = 0;
   NEQ_HYDRO		     = 5;
   NEQ_MHD		     = 9;
@@ -867,11 +917,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   EOSGamma		     = 1.667;
   Mu			     = 0.6;
   DivBDampingLength          = 1.;
-  CoolingCutOffDensity1	     = 0;
-  CoolingCutOffDensity2	     = 1e10;
-  CoolingCutOffTemperature   = 0.0;
-  CoolingPowerCutOffDensity1 = 0;
-  CoolingPowerCutOffDensity2 = 1e10;
   UseCUDA		     = 0;
   UseFloor		     = 0;
   UseViscosity		     = 0;
@@ -1033,7 +1078,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   LoadGridDataAtStart = TRUE;
 
   IsothermalSoundSpeed = 1.0;
-  RefineByJeansLengthUnits = 0;
 
   MetalCooling = FALSE;
   MetalCoolingTable = (char*) "metal_cool.dat";
@@ -1112,6 +1156,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* Gas drag parameters */
   UseGasDrag = 0;
   GasDragCoefficient = 0.;
+
+  /* Supernova magnetic seed field */
+  /* Default == 0 -> no magnetic field contribution */
+  UseSupernovaSeedFieldSourceTerms = 0;
+  SupernovaSeedFieldRadius = 0.0;
+  SupernovaSeedFieldDuration = 0.0;
+  SupernovaSeedFieldEnergy = 0.0;
 
   return SUCCESS;
 }

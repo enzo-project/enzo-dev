@@ -28,8 +28,8 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "phys_constants.h"
-
-#define MAX_HEALPIX_LEVEL 13
+#include "RadiativeTransferHealpixRoutines64.h"
+#define MAX_HEALPIX_LEVEL 29
 #define MAX_COLUMN_DENSITY 1e25
 #define MIN_TAU_IFRONT 0.1
 #define TAU_DELETE_PHOTON 10.0
@@ -71,17 +71,17 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float DomainWidth[3], dx, dx2, dxhalf, fraction, dColumnDensity, thisDensity[3];
   float shield1, shield2, solid_angle, midpoint, nearest_edge;
   float tau_delete, flux_floor;
-  double dN;
+  double dN, dir_vec[3];
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
-  FLOAT dir_vec[3], sigma[4]; 
+  FLOAT  sigma[4]; 
   FLOAT ddr, dP, dP1, EndTime;
   FLOAT xE, dPi[3], dPXray[4], ratioE;  
   FLOAT min_dr;
   FLOAT ce[3], nce[3];
-  FLOAT s[3], u[3], f[3], u_inv[3], r[3], dri[3];
-
+  FLOAT s[3], f[3], u_inv[3], r[3], dri[3];
+  double u[3];
   /* Check for early termination */
 
   if ((*PP)->Photons <= 0) {
@@ -116,11 +116,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   c_inv = 1.0 / LightSpeed;
 
   /* Calculate the normal direction (HEALPix) */
-
-  if (pix2vec_nest((long) (1 << (*PP)->level), (*PP)->ipix, dir_vec)==FAIL) {
-    ENZO_VFAIL("WalkPhotonPackage: pix2vec_nest outor %ld %ld %g %x\n",
-	    (long) (1 << (*PP)->level), (*PP)->ipix, (*PP)->Photons, (*PP) )
-  }
+  pix2vec_nest64((int64_t) (1 << (*PP)->level), (*PP)->ipix, dir_vec);
 
   if (DEBUG) 
     fprintf(stderr,"grid::WalkPhotonPackage: %"GSYM" %"GSYM" %"GSYM". \n", 

@@ -68,7 +68,9 @@ bool Star::IsARadiationSource(FLOAT Time)
     }
     // else leave as false
 
-  } else if (type == IndividualStarWD || type == IndividualStarRemnant){
+  } else if (type == IndividualStarWD ||
+             type == IndividualStarRemnant ||
+             type == IndividualStarUnresolved ){
     rules[4] = false;
   } else{
     rules[4] = true;

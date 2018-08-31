@@ -27,7 +27,6 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "StarParticleData.h"
-#include "RadiativeTransferHealpixRoutines.h"
 #include "ImplicitProblemABC.h"
 
 float CommunicationMinValue(float Value);

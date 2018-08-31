@@ -78,14 +78,18 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(TestProblemData.MultiMetals == 2){
+    if(TestProblemData.MultiMetals == 2 && !IndividualStarOutputChemicalTags){
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
     }
-    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
-      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+    if (IndividualStarSaveTablePositions){
+      for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+        ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+      }
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -477,14 +481,19 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(TestProblemData.MultiMetals == 2){
+    if(TestProblemData.MultiMetals == 2 && !IndividualStarOutputChemicalTags){
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
     }
-    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
-      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+    if (IndividualStarSaveTablePositions){
+      for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+        ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+      }
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
+
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -672,14 +681,19 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(TestProblemData.MultiMetals == 2){
+    if(TestProblemData.MultiMetals == 2 && !IndividualStarOutputChemicalTags){
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
     }
-    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
-      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+    if (IndividualStarSaveTablePositions){
+      for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+        ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+      }
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
+
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -947,14 +961,19 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(TestProblemData.MultiMetals == 2){
+    if(TestProblemData.MultiMetals == 2 && !IndividualStarOutputChemicalTags){
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
     }
-    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
-      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+    if (IndividualStarSaveTablePositions){
+      for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+        ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+      }
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
+
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
@@ -1073,14 +1092,19 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(TestProblemData.MultiMetals == 2){
+    if(TestProblemData.MultiMetals == 2 && !IndividualStarOutputChemicalTags){
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
     }
-    for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
-      ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+    if (IndividualStarSaveTablePositions){
+      for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+        ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
+      }
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
+
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";

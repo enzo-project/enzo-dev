@@ -109,7 +109,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 int GravityEquilibriumTestInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
-			  HierarchyEntry &TopGrid, TopGridData &MetaData);
+			  HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary &Exterior);
 int ClusterInitialize(FILE *fptr, FILE *Outfptr,
                           HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary &Exterior);
 int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -312,15 +312,20 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       if (STARMAKE_METHOD(INDIVIDUAL_STAR)) NumberOfParticleAttributes++; // 3 + birth mass = 4
       if (TestProblemData.MultiMetals){
 
-        if (TestProblemData.MultiMetals == 2){
+        if (TestProblemData.MultiMetals == 2 && !IndividualStarOutputChemicalTags){
           NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
         }
 
       } // end multimetals
       if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
-        ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
-        NumberOfParticleAttributes += NumberOfParticleTableIDs;
+        if (!IndividualStarSaveTablePositions){
+          ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
+          NumberOfParticleAttributes += NumberOfParticleTableIDs;
+        }
+
+        NumberOfParticleAttributes += 2; // mass loss counters
       }
+
     } else {
       NumberOfParticleAttributes = 0;
     }
@@ -505,7 +510,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 27) CollapseTest
  
   if (ProblemType == 27)
-    ret = CollapseTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = CollapseTestInitialize(fptr, Outfptr, TopGrid, MetaData, Exterior);
  
   // 28) TestGravityMotion
  

@@ -31,12 +31,14 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
 
+
 int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTemperature,
                                               float GasMetallicity){
 
   if (ProcessorNumber != MyProcessorNumber){
     return SUCCESS;
   }
+
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
 
@@ -168,6 +170,25 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
       BaryonField[OTLWkdissH2INum][i] = 0.0;
     }
   }
+
+
+  /* now go through and initialize the particles */
+  int MaximumNumberOfNewParticles = 10000;
+  int NumberOfNewParticles = 0;
+  this->AllocateNewParticles(MaximumNumberOfNewParticles);
+
+  this->chemical_evolution_test_star_deposit(&MaximumNumberOfNewParticles,
+                                             &NumberOfNewParticles, this->ParticleMass,
+                                             this->ParticleType, this->ParticlePosition,
+                                             this->ParticleVelocity, this->ParticleAttribute);
+
+  if (NumberOfNewParticles > 0) {
+    this->NumberOfParticles = NumberOfNewParticles;
+  } else{
+    ENZO_FAIL("Was not able to deposit stars in chemical evolution test\n");
+  } // end: if (NumberOfNewParticles > 0)
+
+
 
   return SUCCESS;
 }

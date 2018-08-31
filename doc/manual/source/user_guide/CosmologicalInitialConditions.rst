@@ -1,16 +1,62 @@
+.. _CosmologicalInitialConditions:
+
 Creating Cosmological Initial Conditions
 ========================================
 
-There are two mechanisms for creating cosmological initial conditions with
-Enzo.  The original mechanism, ``inits``, has long been distributed with Enzo.
+Enzo does not, by itself, generate cosmological initial conditions.
+Instead, it relies on other packages to do so.  Here we describe a
+variety of external packages, beginning with ``MUSIC``, a widely used
+and flexible method for generating "uniform" or "zoomed" initial
+condition files that can be read by Enzo.  We also describe the
+original mechanism, ``inits``, has long been distributed with Enzo.
 It is exclusively serial.  We also now distribute ``mpgrafic`` with
 modifications to support Enzo data formats.
+
+.. _using_music:
+
+Using MUSIC
+-----------
+The MUSIC package is described in `Hahn & Abel (2011)
+<http://arxiv.org/abs/1103.6031>`_ and is available from a BitBucket
+repository `here <https://bitbucket.org/ohahn/music>`_.   After you
+download and compiled it (note that MUSIC has its own depenencies
+including FFTW and GSL), you should have the ``MUSIC`` executable.  
+
+To use this to generate an enzo initial condition file, you can either
+modify the MUSIC example parameter file, or use the sample one here:
+provided :download:`music_example.conf
+<./samples/music_example.conf>`  which can be used to set a small
+(16^3) unigrid run.  To generate the initial conditions file, use:
+
+::
+
+   ./MUSIC music_example.conf
+
+which should generate a directory called ``ic.enzo``, containing a
+number of files.  MUSIC will generate the baryon densities, velocities
+as well as dark matter particle displacements and velocities.
+Finally, it will also generate a rudimentary enzo parameter file
+``parameter_file.txt``.  You can modify this (text) file to change or
+add any enzo parameters (although it does contain all the basic
+settings to set the grid and cosmology parameters correctly.  To run
+the enzo simulation, you will need to copy ``enzo.exe`` into that
+directory and run enzo:
+
+::
+   
+   [mpirun] enzo.exe parameter_file.txt
+
+A more complicated MUSIC initial parameter file example for a zoomed
+simulation (one in which one or more static refined regions are
+created from the beginning, designed to model a small region at high
+resolution) can be found here: :download:`music_example_zoom.conf
+<./samples/music_example_zoom.conf>`
 
 .. _using_inits:
 
 Using inits
 -----------
-
+Inits can also generate 2D cosmological initial conditions.
 The inits program uses one or more ASCII input files to set
 parameters, including the details of the power spectrum, the grid
 size, and output file names. Each line of the parameter file is
@@ -27,10 +73,9 @@ assumed to be comments and ignored.
 
 First, set the parameters in the file. There are a large number of
 parameters, but many don't need to be set since reasonable default
-values are provided. Modifying a provided example (see
-:ref:`sample-parameter-files`) is probably the easiest route, but for
-reference there is a list of the parameters, their meanings, and their
-default values.
+values are provided. Modifying a provided example (see the sample
+files below) is probably the easiest route, but for reference there is
+a list of the parameters, their meanings, and their default values.
 
 Generating a single grid initialization (for simple Enzo runs) is
 relatively straightforward. Generating a multi-grid initialization for
@@ -46,9 +91,14 @@ appropriate Cosmology and Power Spectrum parameters. A sample
 parameter file is available, which sets up a small, single grid
 cosmology simulation (that is, single grid for the initial
 conditions, once Enzo is used, additional grids will be created).
+It is available here: :download:`gas_plus_dm.inits
+<./samples/gas_plus_dm.inits>` and the corresponding enzo parameter
+file that can be used to run a simulation with those initial
+conditions is here: 
 
 After creating or modifying a parameter file, and compiling inits,
-run the code with:
+run the code with: :download:`gas_plus_dm_amr_adia.enzo
+<./samples/gas_plus_dm_amr_adia.enzo>` 
 
 ::
 
@@ -58,6 +108,15 @@ Where parameter_file is the name of your modified parameter file
 (the -d turns on a debug option). This will produce a number of HDF
 files containing the initial grids and particles, which are in the
 correct units for use in Enzo.
+
+For example, to use the provided sample files, you would use the
+following commands:
+
+::
+
+   inits gas_plus_dm.inits
+   [mpirun] enzo gas_plus_dm_amr_adia.enzo
+
 
 Multiple-grid Initialization
 ++++++++++++++++++++++++++++

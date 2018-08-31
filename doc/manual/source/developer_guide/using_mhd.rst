@@ -18,15 +18,8 @@ CT preserves :math:`\nabla \cdot B` to machine precision, but is slightly harder
     Difficulty             Easy                 Two pitfalls 
     ====================== ==================== ===============
 
-
-Cosmology
-=========
-
-See the note at the bottom of the page for cosmology details.  The method papers
-are now out of date.
-
 Use of Dedner
-============= 
+------------- 
 
 The Dedner method (``HydroMethod = 4``) is relatively straight forward.
 The three magnetic components are stored in ``BaryonField``, with the relevant
@@ -43,7 +36,7 @@ The implementation and test problems can be found in `Wang & Abel 2009, ApJ 696 
 
 
 Use of MHD-CT
-=============
+-------------
 
 Use of MHD-CT (``HydroMethod = 6``) is somewhat complicated by the staggered nature of the magnetic field.  This allows the
 field to be updated by the curl of an electric field, thus preserving
@@ -84,7 +77,7 @@ Implementation and test problems:
 <http://adsabs.harvard.edu/abs/2010ApJS..186..308C>`_.
 
 Controlling MHD in the code
-===========================
+---------------------------
 
 Within the code, there are several flags to control use of magnetic fields.
 
@@ -109,7 +102,7 @@ the Phi field, which you only really need for initialization.
 Implementation details for MHDCT can be found in :ref:`mhdct_details`
 
 Cosmology
-=========
+---------
 
 As of January 2015, the cosmology has been modified slightly in MHDCT.  This was
 done in order to rectify the treatment of cosmology in the bulk of the code as
