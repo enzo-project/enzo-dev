@@ -41,20 +41,35 @@ int UpdateAveragedAbundances(TopGridData *MetaData,
   if (AllStars == NULL)
     return SUCCESS;
 
-  if ( !IndividualStarStellarWinds ||
-       !IndividualStarUseWindMixingModel)
+  if ( !IndividualStarStellarWinds)
     return SUCCESS;
 
   LevelHierarchyEntry *Temp;
 
+  /* if we aren't using the mixing model, just make sure abund are zero */
+  if ( !IndividualStarUseWindMixingModel){
+    for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l++){
+
+      for( Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel){
+
+        if(Temp->GridData->isLocal()){
+          Temp->GridData->CalculateAverageAbundances(0);
+        }
+      }
+    } // end loop over levels
+
+    return SUCCESS;
+  } // end wind mixing model check
+
 //  LCAPERF_START("UpdateAveragedAbundances");
 
+  // now loop through all grids and compute the average abundances
   for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l++){
 
     for( Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel){
 
       if(Temp->GridData->isLocal()){
-        Temp->GridData->CalculateAverageAbundances();
+        Temp->GridData->CalculateAverageAbundances(1);
       }
     }
   } // end loop over levels
@@ -62,7 +77,7 @@ int UpdateAveragedAbundances(TopGridData *MetaData,
   return SUCCESS;
 }
 
-int grid::CalculateAverageAbundances(void){
+int grid::CalculateAverageAbundances(int mode){
 /*
 
  Loop over the grid, calculating the average abundance
@@ -71,6 +86,13 @@ int grid::CalculateAverageAbundances(void){
 
 
 */
+  if (mode == 0){ // just zero and quit
+    for(int im = 0; im < StellarYieldsNumberOfSpecies + 1; im ++){
+      this->AveragedAbundances[im] = 0.0;
+    }
+    return SUCCESS;
+  }
+
 
   float mass_counter[StellarYieldsNumberOfSpecies + 1]; // metal + tracers
   float mass_counter_hot[StellarYieldsNumberOfSpecies + 1];

@@ -2254,7 +2254,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   void AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_lw,
                                          const float *xs, const float *ys, const float *zs,
                                          const float *ts, const int &number_of_fuv_stars);
-  int CalculateAverageAbundances(void);
+  int CalculateAverageAbundances(int mode);
 
   /* Initialization for isolated galaxy sims */
   int GalaxySimulationInitializeGrid(
