@@ -42,6 +42,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 inline int nlines(const char* fname);
 
+char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
+
+
 int nlines(const char* fname) {
 
   FILE* fptr = fopen(fname, "r");
@@ -144,6 +147,8 @@ public:
     char *ByName = "By";
     char *BzName = "Bz";
     char *PhiName = "Phi";
+    char *PeHeatingRateName = "Pe_heating_rate";
+    char *OTLWkdissH2IName  = "OTLW_kdissH2I";
 
     /* local declarations */
 
@@ -227,6 +232,8 @@ public:
 
       ret += sscanf(line, "AgoraRestartRefineAtStart = %"ISYM,
 		    &RefineAtStart);
+      ret += sscanf(line, "AgoraRestartMultiMetals = %"ISYM,
+                    &TestProblemData.MultiMetals);
       ret += sscanf(line, "AgoraRestartHydrogenFractionByMass = %"FSYM,
 		    &TestProblemData.HydrogenFractionByMass);
       ret += sscanf(line, "AgoraRestartHeliumFractionByMass = %"FSYM,
@@ -418,6 +425,30 @@ public:
         DataLabel[count++] = MetalSNIaName;
     if (StarMakerTypeIISNeMetalField)
         DataLabel[count++] = MetalSNIIName;
+
+    /* Chemical tracer set ups */
+    if(TestProblemData.MultiMetals){
+      MultiMetals = TestProblemData.MultiMetals;
+    } else if (MultiMetals){
+      TestProblemData.MultiMetals = MultiMetals;
+    }
+
+    if (TestProblemData.MultiMetals == 2){
+
+      for(int i =0; i < StellarYieldsNumberOfSpecies; i ++){
+        if(StellarYieldsAtomicNumbers[i] > 2){
+          DataLabel[count++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[i]);
+        }
+      } // yields loop
+    }
+
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+      DataLabel[count++] = PeHeatingRateName;
+    }
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
+      DataLabel[count++] = OTLWkdissH2IName;
+    }
+
     for (i = 0; i < count; i++)
       DataUnits[i] = NULL;
 
@@ -484,6 +515,8 @@ public:
 	      TestProblemData.HDI_Fraction);
       fprintf(Outfptr, "AgoraRestartUseMetallicityField  = %"ISYM"\n",
 	      TestProblemData.UseMetallicityField);
+      fprintf(Outfptr, "AgoraRestartMultiMetals = %"ISYM"\n",
+              TestProblemData.MultiMetals);
     }
  
     return SUCCESS;
@@ -571,6 +604,11 @@ public:
       MetallicityField = TRUE;
     else
       MetalNum = 0;
+
+    int PeHeatingNum = FindField( PeHeatingRate, thisgrid->FieldType,
+                                  thisgrid->NumberOfBaryonFields);
+    int OTLWkdissH2INum = FindField( OTLWkdissH2I, thisgrid->FieldType,
+                                     thisgrid->NumberOfBaryonFields);
 
     //
     int dim, i, j, k, n, size, index=0, nx, ny, nz;
@@ -928,7 +966,34 @@ public:
             }
           } // if(TestProblemData.MultiSpecies)
 
-            if (HydroMethod == MHD_RK)
+      
+         /* set chemical tracers to small density */
+         /* For now, init halo chemical tracers density to zero */
+         if (TestProblemData.MultiMetals == 2){
+           for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+             if(StellarYieldsAtomicNumbers[yield_i] > 2){
+               float fraction = 0.0; int field_num = 0;
+
+               thisgrid->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+               fraction = tiny_number;
+
+//               for (i = 0; i  < size; i ++){
+               thisgrid->BaryonField[field_num][index] = fraction * thisgrid->BaryonField[DensNum][index];
+//               }
+
+            }
+          } // end for loop
+        } // end MM == 2 check
+
+        if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+          thisgrid->BaryonField[PeHeatingNum][i] = 0.0;
+        }
+        if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
+          thisgrid->BaryonField[OTLWkdissH2INum][index] = 0.0;
+        }
+
+
+              if (HydroMethod == MHD_RK)
               {
                 thisgrid->BaryonField[B1Num][index] = Bfield[0];
                 thisgrid->BaryonField[B2Num][index] = Bfield[1];

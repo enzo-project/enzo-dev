@@ -387,8 +387,8 @@ int EnzoProblemType::InitializeUniformGrid(
           if(StellarYieldsAtomicNumbers[yield_i] > 2){
             float fraction = 0.0; int field_num = 0;
 
-            ENZO_FAIL("This functionaly does not work yet");
-            //this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+//            ENZO_FAIL("This functionaly does not work yet");
+            tg->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
             fraction = TestProblemData.ChemicalTracerSpecies_Fractions[yield_i];
 
             tg->BaryonField[field_num][i] = fraction * UniformDensity;
