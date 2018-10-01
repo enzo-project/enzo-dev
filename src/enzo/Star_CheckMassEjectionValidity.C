@@ -17,6 +17,9 @@
 
 void Star::CheckMassEjectionValidity(void){
 
+  if (abs(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED)
+    return;
+
   float tolerance = 1.05; // 5 percent tolerance
   int sn_fail = 0, wind_fail = 0;
 

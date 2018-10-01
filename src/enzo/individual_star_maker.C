@@ -949,7 +949,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                         // if the mass is between the lower mass cutoff and the mass floor, sum the total mass of
                         // these particles and dump into a single particle at the very end.
-                        if ( (temp_mass < IndividualStarIMFLowerMassCutoff) && (temp_mass >= IndividualStarIMFMassFloor)){
+                        if ( (temp_mass >= IndividualStarIMFLowerMassCutoff) && (temp_mass < IndividualStarIMFMassFloor)){
                           unresolved_mass  += temp_mass;
                         } else{
                           ParticleMass[ii]  = temp_mass;
@@ -960,7 +960,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                     }
                     if (unresolved_mass > 0.0) { // we've formed tiny stars (should always happen).. account for this
                       add_unresolved_star = TRUE;
-                      ParticleMass[ii] = unresolved_mass; // DO NOT iterate i++
+                      ParticleMass[ii] = unresolved_mass;
                     }
                 } // endif randum number draw check
 
@@ -1044,16 +1044,19 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               px = 0.0; py = 0.0; pz =0.0; // initialize momentum counters
               for (istar = index_presf; istar < ii; istar++){
 
-                ParticleType[istar]            = -PARTICLE_TYPE_INDIVIDUAL_STAR;   // negative is a "new" star
                 ParticleAttribute[0][istar]    = this->Time;                        // formation time
-                ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metal fraction (conv from density in Grid_StarParticleHandler)
+                ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metal fraction (conv from density in Grid_StarParti$
 
 
+                ParticleType[istar]            = -PARTICLE_TYPE_INDIVIDUAL_STAR;   // negative is a "new" star
                 if(IndividualStarInterpolateLifetime(ParticleAttribute[1][istar], ParticleMass[istar],
                                                                                   ParticleAttribute[2][istar], 1) == FAIL){
+                  printf(" %"ESYM"  %"ESYM"  %"ESYM"\n",ParticleAttribute[1][istar], ParticleMass[istar], 
+ParticleAttribute[2][istar]);
                   ENZO_FAIL("Error in stellar lifetime interpolation");
                 }
                 ParticleAttribute[1][istar] /= TimeUnits; // convert from s to code units
+
 
                 ParticleAttribute[3][istar]    = ParticleMass[istar]; //progenitor mass in solar (main sequence mass)
                 ParticleMass[istar]            = ParticleMass[istar] * msolar / MassUnits;   // mass in code (not yet dens)
@@ -1383,7 +1386,7 @@ float SampleIMF(void){
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
   float x = (float) (random_int%max_random) / (float) (max_random);
-  float dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFMassFloor)/ ((float) (IMF_TABLE_ENTRIES-1));
+  float dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/ ((float) (IMF_TABLE_ENTRIES-1));
   float m;
 
   int bin_number;
@@ -1396,7 +1399,7 @@ float SampleIMF(void){
     bin_number = search_lower_bound(IMFData, x, 0, IMF_TABLE_ENTRIES, IMF_TABLE_ENTRIES);
   }
 
-  m = IndividualStarIMFMassFloor * POW(10.0, bin_number * dm);
+  m = IndividualStarIMFLowerMassCutoff * POW(10.0, bin_number * dm);
 
   IndividualStarIMFCalls++;
 
@@ -1562,6 +1565,7 @@ int grid::individual_star_feedback(int *np,
           // star has AGB phase, do winds only in last fraction of lifetime
           if(IndividualStarInterpolateLifetime(wind_start_age, birth_mass,
                                                ParticleAttribute[2][i], 2) == FAIL){
+
             ENZO_FAIL("IndividualStarFeedback: Failure in main sequence lifetime interpolation");
           }
         }

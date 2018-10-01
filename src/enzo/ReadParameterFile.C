@@ -564,8 +564,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &grackle_data->self_shielding_method);
     ret += sscanf(line, "H2_self_shielding = %d",
                   &grackle_data->H2_self_shielding);
-    ret += sscanf(line, "k27_factor = %"FSYM, &grackle_data->k27_factor);
-    ret += sscanf(line, "LW_factor = %"FSYM,  &grackle_data->LW_factor);
+//    ret += sscanf(line, "k27_factor = %"FSYM, &grackle_data->k27_factor);
+//   ret += sscanf(line, "LW_factor = %"FSYM,  &grackle_data->LW_factor);
 
     ret += sscanf(line, "RampCooling = %d", &grackle_data->RampCooling);
     ret += sscanf(line, "RampCooling_time_on = %"FSYM, &grackle_data->RampCooling_time_on);
