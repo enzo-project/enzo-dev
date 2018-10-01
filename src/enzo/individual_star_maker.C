@@ -370,6 +370,8 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
                                                float *ParticleVelocity[], float *ParticleAttribute[]){
 
 
+  if (ChemicalEvolutionTestNumberOfStars == 0) return SUCCESS;
+
   const double msolar  = 1.989e33;
   const double myr     = 3.1536e13;
 
