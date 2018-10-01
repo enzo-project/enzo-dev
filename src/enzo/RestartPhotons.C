@@ -154,10 +154,14 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     NumberOfSources++;
   }
 
-  if (RadiativeTransferOpticallyThinH2 && IndividualStarOTRadiationMethod == 1)
-    for (_level = 0; _level < MAX_DEPTH_OF_HIERARCHY; _level++)
-      for (Temp = LevelArray[_level]; Temp; Temp = Temp->NextGridThisLevel)
+  if (RadiativeTransferOpticallyThinH2)
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
+	if (Temp->GridData->InitializeTemperatureFieldForH2Shield() == FAIL) {
+	  ENZO_FAIL("Error in InitializeTemperatureFieldForH2Shield.\n");
+	}
 	Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
+      }
 
   if (RadiativeTransferOpticallyThinFUV && IndividualStarOTRadiationMethod == 1)
     for (_level = 0; _level < MAX_DEPTH_OF_HIERARCHY; _level++)

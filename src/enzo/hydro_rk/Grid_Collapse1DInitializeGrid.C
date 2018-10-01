@@ -27,7 +27,7 @@ int grid::Collapse1DInitializeGrid(FLOAT r_sphere,
 {
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size;
+  int dim, i, j, k, m, sphere;
 
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
@@ -51,16 +51,7 @@ int grid::Collapse1DInitializeGrid(FLOAT r_sphere,
   
   GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
 
-  size = 1;
-  for (dim = 0; dim < GridRank; dim++) {
-    size *= GridDimension[dim];
-  }
-
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
+  this->AllocateGrids();
 
   // if use BE sphere, read in the BE sphere density profile
 

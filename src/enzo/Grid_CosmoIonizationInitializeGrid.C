@@ -124,9 +124,8 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
  
   // allocate fields
   if (NewData == TRUE) {
-    for (int field=0; field<NumberOfBaryonFields; field++)
-      if (BaryonField[field] == NULL)
-	BaryonField[field] = new float[size];
+    
+    this->AllocateGrids();
  
     // set field data
     int i;

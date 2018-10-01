@@ -35,7 +35,7 @@ int grid::CoolingTestInitializeGrid()
 {
   /* declarations */
 
-  int dim, i, j, k, size, field, GCM, index;
+  int dim, i, j, k, size, GCM, index;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, MetalNum;
@@ -122,9 +122,7 @@ int grid::CoolingTestInitializeGrid()
  
   /* allocate fields */
 
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    if (BaryonField[field] == NULL)
-      BaryonField[field] = new float[size];
+  this->AllocateGrids();
 
   // Set up a 3d grid that varies over density, metallicity, and temperature.
   // Do density and metallicity first, and temperature later when species fractions are set.

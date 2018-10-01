@@ -88,7 +88,7 @@ edge- centered fields.  While it is associated with ``HydroMethod=6``, in
 it only controlls the face- and edge-centered fields, so future ``HydroMethods``
 can also use these fields.  
 
- ``HydroMethod==MHD_RK`` controls things that only pertain
+``HydroMethod==MHD_RK`` controls things that only pertain
 to that hydro method.  This is either control of the solver itself, or the
 fields that pertain exclusively to that solver 
 (e.g. ``BaryonField[PhiNum]``, the Phi field is exclusive to the Dedner method.)

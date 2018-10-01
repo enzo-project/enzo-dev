@@ -1,15 +1,21 @@
 .. _star_particles:
 
 
-Active Particles: Stars, BH, and Sinks
-======================================
+Star, Black Hole, Sink, and Active Particles
+============================================
 
 There are many different subgrid models of star formation and feedback
 in the astrophysical literature, and we have included several of them
 in Enzo.  There are also methods that include routines for black hole,
 sink, and Pop III stellar tracer formation.  Here we give the details
 of each implementation and the parameters that control them.
-For relevant parameters please also see :ref:`StarParticleParameters`.
+For relevant parameters please also see
+:ref:`StarParticleParameters`.  Note that **this section is
+particularly detailed** because users are generally quite interested
+in the differences between the methods.  Note also that multiple star
+particle creation routines can be used simultaneously with the
+``StarParticleCreation`` parameter, as it uses a bitmask - see the
+parameter link above for more information.
 
 
 Method 0: Cen & Ostriker
@@ -18,8 +24,7 @@ Select this method by setting ``StarParticleCreation = 1``.
 
 *Source: star_maker2.F*
 
-This routine uses the algorithm from Cen & Ostriker (1992, ApJL 399,
-113) that creates star particles when the following six criteria are
+This routine uses the algorithm from `Cen & Ostriker (1992) <http://adsabs.harvard.edu/abs/1992ApJ...399L.113C>`_ that creates star particles when the following six criteria are
 met
 
 #. The gas density is greater than the threshold set in the parameter
@@ -33,7 +38,8 @@ met
    given by the parameter ``StarMakerMinimumDynamicalTime`` in *units
    of years*.
 
-#. The cell is Jeans unstable.
+#. The cell is Jeans unstable.  (**Note:** this may not be useful
+   depending on your physical resolution!  Be very careful with this!)
 
 #. The star particle mass is greater than ``StarMakerMinimumMass``,
    which is in units of solar masses.
@@ -76,7 +82,8 @@ Select this method by setting ``StarParticleCreation = 2``.
 This method is suitable for unigrid calculations.  It behaves in the
 same manner as Method 1 except
 
-* No Jeans unstable check
+* No Jeans unstable check (**Note:** removing this check may be more
+  broadly desirable, depending on your spatial resolution)
 
 * **Stochastic star formation**: Keeps a global sum of "unfulfilled"
   star formation that were not previously formed because the star
@@ -94,7 +101,9 @@ Select this method by setting ``StarParticleCreation = 4``.
 
 *Source: star_maker4.F*
 
-This method is based on the Kratsov (2003, ApJL 590, 1) paper that
+This method is based on the `Kravtsov (2003)
+<http://adsabs.harvard.edu/abs/2003ApJ...590L...1K>`_
+paper that
 forms star particles that result in a global Schmidt law.  This
 generally occurs when the gas consumption time depends on the local
 dynamical time.
@@ -115,7 +124,8 @@ Select this method by setting ``StarParticleCreation = 8``.
 
 *Source: pop3_maker.F*
 
-This method is based on the Abel et al. (2007, ApJL 659, 87) paper
+This method is based on the `Abel et al. (2007) <http://adsabs.harvard.edu/abs/2007ApJ...659L..87A>`_
+paper
 that forms star particles that represents single metal-free stars.
 The criteria for star formation are the same as Method 1 (Cen &
 Ostriker) with the expection of the Jeans unstable check.  It makes
@@ -146,8 +156,8 @@ Select this method by setting ``StarParticleCreation = 16``.
 *Source: sink_maker.C*
 
 
-A couple of variations on this method exist but are not being actively maintained.  
-They require a completely different set of parameters to turn on such as BigStarFormation; 
+Multiple variations on this method exist but are not being actively maintained.  
+They require a completely different set of parameters to turn on such as ``BigStarFormation``; 
 see Grid_StarParticleHandler.C and :ref:`StarParticleParameters`.
 
 *Source: star_maker8.C, star_maker9.C*
@@ -159,8 +169,8 @@ Select this method by setting ``StarParticleCreation = 32``.
 *Source: cluster_maker.F*
 
 This method is based on method 1 (Cen & Ostriker) with the Jeans
-unstable requirement relaxed.  It is described in Wise & Cen (2009,
-ApJ 693, 984).  The star particles created with this method use the
+unstable requirement relaxed.  It is described in `Wise & Cen (2009) <http://adsabs.harvard.edu/abs/2009ApJ...693..984W>`_.
+The star particles created with this method use the
 adaptive ray tracing to model stellar radiative feedback.  It
 considers both cases of Jeans-resolved and Jeans unresolved
 simulations.  The additional criteria are
@@ -179,9 +189,8 @@ Ostriker prescription.
 
 Method 6: Reserved for future use
 ---------------------------------
-Reserved for future use.
 
-*Source:*
+This method is reserved for future use.
 
 
 Method 7: Cen & Ostriker with no delay in formation
@@ -191,8 +200,8 @@ Select this method by setting ``StarParticleCreation = 128``.
 *Source: star_maker7.F*
 
 This method relaxes the following criteria from the original Cen &
-Ostriker prescription.  See Kim et al. (2011, ApJ 738, 54) for more
-details.  It can be used to represent single molecular clouds.
+Ostriker prescription.  See `Kim et al. (2011) <http://adsabs.harvard.edu/abs/2011ApJ...738...54K>`_
+for more details.  It can be used to represent single molecular clouds.
 
 * No Jeans unstable check
 
@@ -415,7 +424,7 @@ formation perscripton of Cen & Ostriker (1992) with a stochastic star formation
 recipe.  Like method 1, there is no Jeans instability check, however, unlike 
 method 1, the particle velocity is set to the gas velocity.
 
-The star feedback method is described fully in `Simpson et al. (2015) 
+This star feedback method is described fully in `Simpson et al. (2015) 
 <http://adsabs.harvard.edu/abs/2014arXiv1410.3822S>`_ (S15).  Feedback energy, 
 mass and metals are injected into a 3x3x3 CIC stencil cloud that is centered on 
 the particle position and mapped onto the physical grid.  The outer 26 cells of 
@@ -566,7 +575,7 @@ times the minimum time step of the simulation.  Default = 0.0.
 
 The following applies to  Methods 0 (Cen & Ostriker) and 1 (+
 stochastic star formation). The magnetic feedback method is described fully in `Butsky et al. (2017)
-<https://arxiv.org/abs/1610.08528>`_.
+<http://adsabs.harvard.edu/abs/2017ApJ...843..113B>`_.
 
 When a star cluster particle reaches the end of its lifetime, we inject a
 toroidal loop of magnetic field at its position in *hydro_rk/Grid_MHDSourceTerms*. The spatial and temporal

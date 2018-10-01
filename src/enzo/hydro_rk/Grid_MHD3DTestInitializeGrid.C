@@ -125,12 +125,7 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
   for (dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
-  int field;
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
+  this->AllocateGrids();
 
   /* transform pressure to total energy */
   float etotl, etotu, v2, B2;

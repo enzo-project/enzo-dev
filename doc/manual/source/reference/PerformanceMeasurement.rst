@@ -109,6 +109,7 @@ making sure it is before macros_and_parameters.
 .. code-block:: c
 
   TIMER_START("YourTimerName");
+
 and
 
 .. code-block:: c

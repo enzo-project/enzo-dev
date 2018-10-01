@@ -56,6 +56,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferOpticallyThinH2            = TRUE;
   RadiativeTransferOpticallyThinFUV           = TRUE;
   RadiativeTransferOpticallyThinSourceClustering = FALSE;
+  RadiativeTransferOpticallyThinH2CharLength  = 0.25;
   RadiativeTransferFluxBackgroundLimit        = 0.01;
   RadiativeTransferSplitPhotonRadius          = FLOAT_UNDEFINED; // kpc
   RadiativeTransferRaysPerCell                = 5.1;
@@ -75,8 +76,11 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferTraceSpectrumTable         = (char*) "spectrum_table.dat";
   RadiativeTransferSourceBeamAngle            = 30.0;
   RadiativeTransferLoadBalance                = FALSE;
+  RadiativeTransferRayMaximumLength           = 1.7320508; //sqrt(3.0)
+  RadiativeTransferUseH2Shielding             = TRUE;
+  RadiativeTransferH2ShieldType               = 0;
+  RadiativeTransferH2IIDiss                   = TRUE;
   RadiativeTransferHubbleTimeFraction         = 0.1;
-
   RadiativeTransferDeletePhotonByPosition     = FALSE;
   RadiativeTransferDeletePhotonRadius         = FLOAT_UNDEFINED ; // in code units
   RadiativeTransferDeletePhotonSourceRadius   = 1.0E20          ; // in code units
@@ -112,6 +116,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
                   &RadiativeTransferOpticallyThinFUV);
     ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
                   &RadiativeTransferOpticallyThinSourceClustering);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinH2CharLength = %"FSYM, 
+		  &RadiativeTransferOpticallyThinH2CharLength);
     ret += sscanf(line, "RadiativeTransferPeriodicBoundary = %"ISYM, 
 		  &RadiativeTransferPeriodicBoundary);
     ret += sscanf(line, "RadiativeTransferSplitPhotonRadius = %"FSYM, 
@@ -144,10 +150,18 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferAdaptiveTimestep);
     ret += sscanf(line, "RadiativeTransferHydrogenOnly = %"ISYM, 
 		  &RadiativeTransferHydrogenOnly);
+    ret += sscanf(line, "RadiativeTransferH2ShieldType = %"ISYM, 
+		  &RadiativeTransferH2ShieldType);
+    ret += sscanf(line, "RadiativeTransferH2IIDiss = %"ISYM, 
+		  &RadiativeTransferH2IIDiss);
+    ret += sscanf(line, "RadiativeTransferUseH2Shielding = %"ISYM, 
+		  &RadiativeTransferUseH2Shielding);
     ret += sscanf(line, "RadiativeTransferTraceSpectrum = %"ISYM, 
 		  &RadiativeTransferTraceSpectrum);
     ret += sscanf(line, "RadiativeTransferLoadBalance = %"ISYM, 
 		  &RadiativeTransferLoadBalance);
+    ret += sscanf(line, "RadiativeTransferRayMaximumLength = %"FSYM, 
+		  &RadiativeTransferRayMaximumLength);
     ret += sscanf(line, "RadiativeTransferHubbleTimeFraction = %"FSYM, 
 		  &RadiativeTransferHubbleTimeFraction);
     ret += sscanf(line, "RadiativeTransferDeletePhotonByPosition = %"ISYM,

@@ -47,6 +47,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
           RadiativeTransferOpticallyThinFUV);
   fprintf(fptr, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM"\n",
           RadiativeTransferOpticallyThinSourceClustering);
+  fprintf(fptr, "RadiativeTransferOpticallyThinH2CharLength = %"GOUTSYM"\n", 
+	  RadiativeTransferOpticallyThinH2CharLength);
   fprintf(fptr, "RadiativeTransferFLDCallOnLevel           = %"ISYM"\n", 
 	  RadiativeTransferFLDCallOnLevel);
   fprintf(fptr, "RadiativeTransferPeriodicBoundary         = %"ISYM"\n", 
@@ -89,6 +91,14 @@ int RadiativeTransferWriteParameters(FILE *fptr)
           RadiativeTransferDeletePhotonRadius);
   fprintf(fptr, "RadiativeTransferDeletePhotonSourceRadius = %"FSYM"\n",
           RadiativeTransferDeletePhotonSourceRadius);
+  fprintf(fptr, "RadiativeTransferRayMaximumLength         = %"FSYM"\n", 
+	  RadiativeTransferRayMaximumLength);
+  fprintf(fptr, "RadiativeTransferH2ShieldType             = %"ISYM"\n", 
+	  RadiativeTransferH2ShieldType);
+  fprintf(fptr, "RadiativeTransferUseH2Shielding           = %"ISYM"\n", 
+	  RadiativeTransferUseH2Shielding);
+  fprintf(fptr, "RadiativeTransferH2IIDiss                 = %"ISYM"\n", 
+	  RadiativeTransferH2IIDiss);
   fprintf(fptr, "RadiativeTransferTraceSpectrumTable       = %s\n\n", 
 	  RadiativeTransferTraceSpectrumTable);
 

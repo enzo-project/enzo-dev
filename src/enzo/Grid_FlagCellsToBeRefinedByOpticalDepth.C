@@ -62,9 +62,9 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 
   /* Find radiative transfer fields. */
 
-  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum);
+				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
   /* Get density units. */
 

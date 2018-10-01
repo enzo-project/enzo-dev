@@ -920,6 +920,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarFeedbackDistCellStep);
   fprintf(fptr, "StarFeedbackPreSN                     = %"ISYM"\n",
           StarFeedbackPreSN);
+  fprintf(fptr, "StarMakerUseJeansMass                 = %"ISYM"\n",
+	  StarMakerUseJeansMass);
   fprintf(fptr, "StarMakerTypeIaSNe                    = %"ISYM"\n",
 	  StarMakerTypeIaSNe);
   fprintf(fptr, "StarMakerTypeIISNeMetalField          = %"ISYM"\n",
@@ -1213,14 +1215,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   /* Poisson Solver */
 
-  fprintf(fptr, "DivergenceCleaningBoundaryBuffer = %"ISYM"\n",
-	  DivergenceCleaningBoundaryBuffer);
-  fprintf(fptr, "UseDivergenceCleaning            = %d\n", UseDivergenceCleaning);
-  fprintf(fptr, "DivergenceCleaningThreshold      = %g\n", 
-	  DivergenceCleaningThreshold);
-  fprintf(fptr, "PoissonApproximationThreshold    = %g\n", 
+  fprintf(fptr, "PoissonDivergenceCleaningBoundaryBuffer = %"ISYM"\n",
+	  PoissonDivergenceCleaningBoundaryBuffer);
+  fprintf(fptr, "UsePoissonDivergenceCleaning            = %"ISYM"\n", UsePoissonDivergenceCleaning);
+  fprintf(fptr, "PoissonDivergenceCleaningThreshold      = %"GSYM"\n", 
+	  PoissonDivergenceCleaningThreshold);
+  fprintf(fptr, "PoissonApproximationThreshold    = %"GSYM"\n", 
 	  PoissonApproximationThreshold);
-  fprintf(fptr, "PoissonBoundaryType    = %d\n", 
+  fprintf(fptr, "PoissonBoundaryType    = %"ISYM"\n", 
 	  PoissonBoundaryType);
 
   /* Gas Drag */ 

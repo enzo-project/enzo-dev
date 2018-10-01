@@ -104,12 +104,13 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 {
  /* declarations */
 
-  int dim, i, j, k, m, field, disk, size, MetalNum, MetalIaNum, vel;
+  int dim, i, j, k, m, disk, size, MetalNum, MetalIaNum, vel;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum, PeHeatingNum, OTLWkdissH2INum;
 
   float DiskDensity, DiskVelocityMag;
+
   int CRNum, DensNum;
 
   int CINum, NINum, OINum, MgINum, SiINum, FeINum, YINum, BaINum, LaINum, EuINum;
@@ -157,7 +158,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
     FieldType[B2Num = NumberOfBaryonFields++] = Bfield2;
     FieldType[B3Num = NumberOfBaryonFields++] = Bfield3;
     FieldType[PhiNum = NumberOfBaryonFields++] = PhiField;
-    if (UseDivergenceCleaning) {
+    if (UsePoissonDivergenceCleaning) {
       FieldType[NumberOfBaryonFields++] = Phi_pField;
     }
   }
@@ -264,9 +265,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  /* allocate fields */
 
- for (field = 0; field < NumberOfBaryonFields; field++)
-   if (BaryonField[field] == NULL)
-     BaryonField[field] = new float[size];
+ this->AllocateGrids();
 
  // background density and temperature
  for( i = 0; i < size; i++){

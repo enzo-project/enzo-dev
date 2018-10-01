@@ -59,7 +59,7 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
 {
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size;
+  int dim, i, j, k, m, sphere;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
@@ -103,7 +103,7 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
     }
   }
 
-  if(UseDivergenceCleaning){
+  if(UsePoissonDivergenceCleaning){
     FieldType[phip_num=NumberOfBaryonFields++] = Phi_pField;
     FieldType[NumberOfBaryonFields++] = DebugField;  
   }
@@ -276,17 +276,8 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
 
     /* Set up the baryon field. */
     
-    size = 1;
-    for (dim = 0; dim < GridRank; dim++) {
-      size *= GridDimension[dim];
-    }
-    
     if (SetupLoopCount == 0 && UseGas) {
-      for (field = 0; field < NumberOfBaryonFields; field++) {
-	if (BaryonField[field] == NULL) {
-	  BaryonField[field] = new float[size];
-	}
-      }
+      this->AllocateGrids();
     }
     /* Loop over the mesh. */
     

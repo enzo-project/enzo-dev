@@ -24,8 +24,7 @@ PhotonPackageEntry::PhotonPackageEntry(void)
   Photons = 0.0;
   Type = 0;
   Energy = 0.0;
-  for (int bin = 0; bin < MAX_CROSS_SECTIONS; bin++)
-    CrossSection[bin] = 0.0;
+  CrossSection = 0.0;
   EmissionTimeInterval = 0.0;
   EmissionTime = 0.0;
   CurrentTime = 0.0;

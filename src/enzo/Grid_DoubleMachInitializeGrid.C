@@ -28,7 +28,7 @@ int grid::DoubleMachInitializeGrid(float d0, float e0, float u0, float v0,
 {
   /* declarations */
  
-  int index, size, dim, field, i, j, k;
+  int index, dim, i, j, k;
   float xx;
  
   /* error check */
@@ -51,12 +51,8 @@ int grid::DoubleMachInitializeGrid(float d0, float e0, float u0, float v0,
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  
-  size = 1;
-  for (dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
  
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    BaryonField[field] = new float[size];
+  this->AllocateGrids();
  
   /* set fields */
  

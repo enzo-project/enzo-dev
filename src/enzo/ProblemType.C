@@ -146,7 +146,7 @@ int EnzoProblemType::InitializeUniformGrid(
   }
   if( HydroMethod == MHD_RK ){
     tg->FieldType[PhiNum = tg->NumberOfBaryonFields++] = PhiField;
-    if (UseDivergenceCleaning) {
+    if (UsePoissonDivergenceCleaning) {
       tg->FieldType[tg->NumberOfBaryonFields++] = Phi_pField;
     }
   }

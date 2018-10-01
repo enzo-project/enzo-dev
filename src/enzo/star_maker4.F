@@ -6,12 +6,12 @@ c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine star_maker4(nx, ny, nz,
-     &                      d, dm, temp, u, v, w, cooltime,
-     &                      dt, r, metal, dx, t, z, procnum, 
+     &                      d, dm, temp, u, v, w,
+     &                      dt, r, metal, dx, t, z, 
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, mintdyn,
-     &                      odthresh, masseff, smthresh, level, np,
+     &                      odthresh, smthresh, level, np,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
      &                      imetalSNIa, metalSNIa, metalfSNIa)
@@ -33,7 +33,6 @@ c    d     - density field
 c    dm    - dark matter field
 c    temp  - temperature field
 c    u,v,w - velocity fields
-c    cooltime - cooling time in code units
 c    r     - refinement field (non-zero if zone is further refined)
 c    dt    - current timestep
 c    dx    - zone size (code units)
@@ -44,12 +43,10 @@ c    nx,ny,nz - dimensions of field arrays
 c    ibuff    - number of buffer zones at each end of grid
 c    imethod  - Hydro method (0/1 -- PPM DE/LR, 2 - ZEUS)
 c    odthresh - overdensity threshold (some number * avg. density)
-c    masseff - gas-to-mass conversion efficiency ( 0<=masseff<=1 )
 c    smthresh - star mass threshold (only creates stars with mass >
 c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
-c    procnum - processor number (for output)
 c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
 c
 c  OUTPUTS:
@@ -73,10 +70,10 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC procnum, imetalSNIa
+      INTG_PREC imetalSNIa
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), metal(nx,ny,nz)
       R_PREC    dt, dx, z
       R_PREC    d1, x1, v1, t1
       P_PREC xstart, ystart, zstart, t
@@ -84,7 +81,7 @@ c
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       R_PREC    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
-      R_PREC    odthresh, masseff, smthresh, mintdyn
+      R_PREC    odthresh, smthresh, mintdyn
 c
       R_PREC   sformsum
       save   sformsum
@@ -220,7 +217,7 @@ c
      &                      d1, x1, v1, t1, sn_param, m_eject, yield,
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, type, justburn)
+     &                      mp, tdp, tcp, metalf, type)
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c
@@ -267,7 +264,6 @@ c    yield    - fraction of stellar mass that is converted to metals
 c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
-c    justburn     - time-weighted mass of star formation (code units)
 c
 c
 c-----------------------------------------------------------------------
@@ -282,7 +278,7 @@ c
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
       R_PREC    dt, dx, z
-      R_PREC    d1, x1, v1, t1, justburn
+      R_PREC    d1, x1, v1, t1
       P_PREC xstart, ystart, zstart, t
       P_PREC xp(npart), yp(npart), zp(npart)
       R_PREC    up(npart), vp(npart), wp(npart)

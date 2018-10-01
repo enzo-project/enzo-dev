@@ -50,7 +50,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 					  PhotonPackageEntry **ToPP)
 {
 
-  int j, index, dim, temp_int;
+  int index, dim, temp_int;
   PhotonPackageEntry *PP;
 
   if (CommunicationShouldExit(ProcessorNumber, ToProcessor))
@@ -88,8 +88,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       buffer[index].EmissionTime	 = PP->EmissionTime;
       buffer[index].CurrentTime          = PP->CurrentTime;
       buffer[index].ColumnDensity        = PP->ColumnDensity;
-      for (j = 0; j < MAX_CROSS_SECTIONS; j++)
-	buffer[index].CrossSection[j]    = PP->CrossSection[j];
+      buffer[index].CrossSection         = PP->CrossSection;
       buffer[index].Radius		 = PP->Radius;
       buffer[index].ipix		 = PP->ipix;
       buffer[index].level		 = PP->level;
@@ -239,8 +238,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       NewPP->EmissionTime	  = buffer[index].EmissionTime;
       NewPP->CurrentTime	  = buffer[index].CurrentTime;
       NewPP->ColumnDensity	  = buffer[index].ColumnDensity;
-      for (j = 0; j < MAX_CROSS_SECTIONS; j++)
-	NewPP->CrossSection[j]	  = buffer[index].CrossSection[j];
+      NewPP->CrossSection	  = buffer[index].CrossSection;
       NewPP->Radius		  = buffer[index].Radius;
       NewPP->ipix		  = buffer[index].ipix;
       NewPP->level		  = buffer[index].level;

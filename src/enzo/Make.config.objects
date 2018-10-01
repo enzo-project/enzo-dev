@@ -154,7 +154,6 @@ OBJS_CONFIG_LIB = \
         euler.o \
         EvolveHierarchy.o \
 	EventHooks.o \
-	execinfo_local.o \
         expand_terms.o \
         expand_mhd_terms.o \
         ExternalBoundary_AddField.o \
@@ -1073,6 +1072,12 @@ POBJS_CONFIG_LIB = \
         RadiativeTransferReadParameters.o \
         RadiativeTransferWriteParameters.o \
 	RadiativeTransferMoveLocalPhotons.o \
+	RadiativeTransferLW.o \
+	RadiativeTransferLWShielding.o \
+	RadiativeTransferH2II.o \
+	RadiativeTransferIR.o \
+	RadiativeTransferIonization.o \
+	RadiativeTransferXRays.o \
         ReadPhotonSources.o \
         ReadRadiativeTransferSpectrumTable.o \
         ReassignSuperSources.o \
@@ -1082,6 +1087,7 @@ POBJS_CONFIG_LIB = \
         SplitPhotonPackage.o \
         StarParticleRadTransfer.o \
         TemperatureFieldToolsForComptonHeating.o \
+	TemperatureFieldToolsH2Shielding.o \
 	WritePhotonSources.o
 
 OBJS_HYDRO_RK = \

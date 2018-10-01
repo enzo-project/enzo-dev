@@ -219,6 +219,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         )
 {
 
+    fprintf(stderr,"The Runge-Kutta EvolveLevel calls have been moved to the main EvolveLevel.\n");
+    fprintf(stderr,"Please contact the Enzo team for assistance if you have added functionality here");
+    ENZO_FAIL("EvolveLevel_RK2 has been downsized.")
+
   float dtGrid;
   int RefinementFactors[MAX_DIMENSION];
   int cycle = 0, counter = 0, grid1, subgrid, iLevel;
@@ -551,7 +555,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious, OutputNow);
 
-    if (UseDivergenceCleaning != 0){
+    if (UsePoissonDivergenceCleaning != 0){
 
 #ifdef FAST_SIB
       SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);

@@ -74,6 +74,57 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
   int InitializeRadiativeTransferFields(void);
   int AllocateInterpolatedRadiation(void);
 
+/* Function that handle the dissociation/ionization effects of photons */
+int RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
+				 FLOAT thisDensity, FLOAT ddr, 
+				 int cellindex,  float LengthUnits,
+				 int kdissH2INum, int TemperatureField,
+				 float geo_correction);
+
+int RadiativeTransferLW(PhotonPackageEntry **PP, FLOAT &dP,
+			int cellindex, float tau, FLOAT photonrate, 
+			float geo_correction, int kdissH2INum);
+
+int RadiativeTransferH2II(PhotonPackageEntry **PP,
+			  int cellindex, float tau, FLOAT photonrate, 
+			  float geo_correction, int kdissH2IINum);
+
+
+int RadiativeTransferIR(PhotonPackageEntry **PP, FLOAT &dP,
+			int cellindex, float tau, FLOAT photonrate, 
+			FLOAT *excessrate, float geo_correction, 
+			int kphHMNum, int gammaNum);
+
+int RadiativeTransferIonization(PhotonPackageEntry **PP, FLOAT *dPi, int cellindex, 
+				int species, float tau, FLOAT photonrate, 
+				FLOAT *excessrate, float geo_correction,
+				const int *kphNum, int gammaNum);
+
+int RadiativeTransferXRays(PhotonPackageEntry **PP, FLOAT *dPi, int cellindex, 
+			   int species, FLOAT ddr, FLOAT tau, float geo_correction,
+			   float photonrate, float *excessrate, float *ion_factor2,
+			   float heat_factor, const int *kphNum, int gammaNum);
+
+int RadiativeTransferComptonHeating(PhotonPackageEntry **PP, FLOAT *dPi, int cellindex, 
+				    float LengthUnits, float photonrate, 
+				    int TemperatureField, FLOAT ddr, double dN, 
+				    float geo_correction, int gammaNum);
+
+/* Functions to calculate the H2II cross section */
+float LookUpCrossSectionH2II(float hnu, float T);
+
+/* Tools for setting up temperature field for H2I Shielding */
+
+  int InitializeTemperatureFieldForH2Shield(void);
+  int FinalizeTemperatureFieldForH2Shield(void);
+  int GetTemperatureFieldNumberForH2Shield(void);
+
+/* Tools for setting up temperature field for H2II Cross Section  */
+
+  int InitializeTemperatureFieldForH2IICrossSection(void);
+  int FinalizeTemperatureFieldForH2IICrossSection(void);
+  int GetTemperatureFieldNumberForH2IICrossSection(void);
+
 /* Tools for setting up temperature field for Compton heating */
 
   int InitializeTemperatureFieldForComptonHeating(void);
@@ -286,9 +337,9 @@ int CountRadiationCells(void) {
 
   ncells = 0;
 
-  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   if (IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				      kphHeIINum, kdissH2INum) == FAIL) {
+				      kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
     return 0;
   }
@@ -311,9 +362,9 @@ float Max_kph(int &ncells) {
 
   ncells = 0;
 
-  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   if (IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				      kphHeIINum, kdissH2INum) == FAIL) {
+				      kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
     return 0;
   }
@@ -339,9 +390,9 @@ float Min_kph(int &ncells) {
 
   ncells = 0;
 
-  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   if (IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				      kphHeIINum, kdissH2INum) == FAIL) {
+				      kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
     return 0;
   }
@@ -398,19 +449,9 @@ int TraceRay(int NumberOfSegments,
 
 int WalkPhotonPackage(PhotonPackageEntry **PP, 
 		      grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid,
-		      grid **Grids0, int nGrids0,
-		      int DensNum, int DeNum, int HINum, int HeINum,
-		      int HeIINum, int H2INum,
-		      int kphHINum, int gammaNum,
-		      int kphHeINum,
-		      int kphHeIINum,
-		      int kdissH2INum, int RPresNum1, int RPresNum2, 
-		      int RPresNum3, int RaySegNum, int &DeleteMe, 
-		      int &PauseMe, int &DeltaLevel, float LightCrossingTime,
-		      float DensityUnits, 
-		      float TemperatureUnits, float VelocityUnits, 
-		      float LengthUnits, float TimeUnits, float LightSpeed,
-		      float MinimumPhotonFlux);
+		      grid **Grids0, int nGrids0, int &DeleteMe, int &PauseMe, 
+		      int &DeltaLevel, float LightCrossingTime,float LightSpeed,
+		      int level, float MinimumPhotonFlux);
 
 int FindPhotonNewGrid(int cindex, FLOAT *r, double *u, int *g,
 		      PhotonPackageEntry* &PP,

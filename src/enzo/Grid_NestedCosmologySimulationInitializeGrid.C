@@ -366,7 +366,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
     FieldType[NumberOfBaryonFields++] = Bfield2;
     FieldType[NumberOfBaryonFields++] = Bfield3;
     FieldType[NumberOfBaryonFields++] = PhiField;
-    if (UseDivergenceCleaning) {
+    if (UsePoissonDivergenceCleaning) {
       FieldType[NumberOfBaryonFields++] = Phi_pField;
     }
   }
@@ -460,8 +460,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	printf("Allocating %"ISYM" baryon fields of size %"ISYM"\n", NumberOfBaryonFields, size);
  
       if (ReadData == TRUE)
-	for (int field = 0; field < NumberOfBaryonFields; field++)
-	  BaryonField[field] = new float[size];
+        this->AllocateGrids();
  
       // Read the density field
  

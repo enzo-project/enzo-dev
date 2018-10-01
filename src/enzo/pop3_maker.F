@@ -92,7 +92,7 @@ c
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       INTG_PREC type(nmax)
-      R_PREC    odthresh, masseff, starmass, mintdyn, h2crit, lifetime
+      R_PREC    odthresh, starmass, mintdyn, h2crit, lifetime
       R_PREC    metalcrit
 c
 c  Locals:

@@ -117,9 +117,7 @@ int grid::RadHydroConstTestInitializeGrid(int NumChemicals,
 // 	   MyProcessorNumber, NumberOfBaryonFields, size, 
 // 	   GridDimension[0], GridDimension[1], GridDimension[2]);
 
-    for (int field=0; field<NumberOfBaryonFields; field++)
-      if (BaryonField[field] == NULL)
-	BaryonField[field] = new float[size];
+    this->AllocateGrids();
     
     // set fluid density, total energy, [internal energy,] velocities, 
     // radiation energy, electron density, chemical species

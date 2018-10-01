@@ -855,9 +855,9 @@ EXTERN FLOAT *ExternalGravityTimePositions[MAX_DIMENSION];
 
 /* Poisson Clean */
 
-EXTERN int UseDivergenceCleaning;
-EXTERN int DivergenceCleaningBoundaryBuffer;
-EXTERN float DivergenceCleaningThreshold;
+EXTERN int UsePoissonDivergenceCleaning;
+EXTERN int PoissonDivergenceCleaningBoundaryBuffer;
+EXTERN float PoissonDivergenceCleaningThreshold;
 EXTERN float PoissonApproximationThreshold;
 EXTERN int PoissonBoundaryType;
 

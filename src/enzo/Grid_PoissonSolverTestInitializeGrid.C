@@ -21,7 +21,7 @@ int grid::PoissonSolverTestInitializeGrid(int TestType, float GeometryControl)
 {
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size,B1, B2, B3, phip_num;
+  int dim, i, j, k, m, sphere,B1, B2, B3, phip_num;
 
   int TE, IE;
   NumberOfBaryonFields = 0;
@@ -38,7 +38,7 @@ int grid::PoissonSolverTestInitializeGrid(int TestType, float GeometryControl)
   FieldType[B3=NumberOfBaryonFields++] = Bfield3;
   FieldType[NumberOfBaryonFields++] = PhiField;
 
-  if(UseDivergenceCleaning){
+  if(UsePoissonDivergenceCleaning){
     FieldType[phip_num=NumberOfBaryonFields++] = Phi_pField;
   }
 
@@ -52,28 +52,9 @@ int grid::PoissonSolverTestInitializeGrid(int TestType, float GeometryControl)
   
   GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
 
-  size = 1;
-  for (dim = 0; dim < GridRank; dim++) {
-    size *= GridDimension[dim];
-  }
 
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
+  this->AllocateGrids();
 
-
-//   if (UseDivergenceCleaning){
-//     //   divB= new float[(GridDimension[0]-2*NumberOfGhostZones)*
-//     // 		    (GridDimension[1]-2*NumberOfGhostZones)*
-//     // 		    (GridDimension[2]-2*NumberOfGhostZones)];
-    
-//     divB= new float[size];
-//     Phi_p= new float[size];
-//   }
-
-    
 
   int p,n=0;
   double x,y,z, magnitude;

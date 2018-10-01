@@ -38,8 +38,10 @@ then set the following variables:
 
 ::
 
+    MACH_CUDACOMPILER = /your/path/to/nvcc
     MACH_OPT_CUDA = -arch=sm_20 -03
     MACH_LIBS_CUDA = -L/your/cuda/install/dir/lib64 -lcudart
+    # add -I/your/cuda/install/dir/include to the MACH_INCLUDES variable
 
 If using the Kepler K20 GPU, then 
 
