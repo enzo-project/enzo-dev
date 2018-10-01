@@ -167,8 +167,7 @@ int grid::MergePausedPhotonPackages() {
 	NewPack->EmissionTimeInterval /= NewPack->Photons;
 	NewPack->ColumnDensity /= NewPack->Photons;
         NewPack->Energy /= NewPack->Photons;
-        for (j = 0; j < MAX_CROSS_SECTIONS; j++)
-          NewPack->CrossSection[j] = FindCrossSection(j, NewPack->Energy);
+        NewPack->CrossSection = FindCrossSection(NewPack->Type, NewPack->Energy);
 	if (DEBUG)
 	  printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
 		 NewPack->Type, NewPack->level,
@@ -182,14 +181,8 @@ int grid::MergePausedPhotonPackages() {
       weight = TempPP[i].Photons;
       NewPack->Photons = TempPP[i].Photons;
       NewPack->Type = TempPP[i].Type;
-//<<<<<<< working copy
       NewPack->Energy = TempPP[i].Energy * weight;
-      for (j = 0; j < MAX_CROSS_SECTIONS; j++)
-	NewPack->CrossSection[j] = TempPP[i].CrossSection[j];
-//=======
-//      NewPack->Energy = TempPP[i].Energy;
-//      NewPack->CrossSection = TempPP[i].CrossSection;
-//>>>>>>> merge rev
+      NewPack->CrossSection = TempPP[i].CrossSection;
       NewPack->EmissionTimeInterval = TempPP[i].EmissionTimeInterval * weight;
       NewPack->EmissionTime = TempPP[i].EmissionTime;
       NewPack->CurrentTime = TempPP[i].CurrentTime;
@@ -214,8 +207,8 @@ int grid::MergePausedPhotonPackages() {
     NewPack->EmissionTimeInterval /= NewPack->Photons;
     NewPack->ColumnDensity /= NewPack->Photons;
     NewPack->Energy /= NewPack->Photons;
-    for (j = 0; j < MAX_CROSS_SECTIONS; j++)
-      NewPack->CrossSection[j] = FindCrossSection(j, NewPack->Energy);
+    NewPack->CrossSection = FindCrossSection(NewPack->Type, NewPack->Energy);
+
     if (DEBUG)
       printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
 	     NewPack->Type, NewPack->level,
