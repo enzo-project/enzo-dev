@@ -796,7 +796,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     /* Compute the cooling time. */
  
     float *cooling_time = NULL;
-    if (! STARMAKE_METHOD(INDIVIDUALSTAR)){
+    if (! STARMAKE_METHOD(INDIVIDUAL_STAR)){
       cooling_time = new float[size];
       this->ComputeCoolingTime(cooling_time);
     }
