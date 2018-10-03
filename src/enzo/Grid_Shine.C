@@ -144,7 +144,6 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     float photons_per_package;
 
     // Type 3 = H2I_LW
-    ebin = i;
 /*    if ( ( (!RadiativeTransferOpticallyThinH2 && MultiSpecies > 1) ||
            (!RadiativeTransferOpticallyThinFUV))       &&
 	RS->Energy[i] < 13.6){
