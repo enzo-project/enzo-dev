@@ -26,6 +26,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
 
+
+#ifdef INDIVIDUALSTAR
 int grid::ApplyTemperatureLimit(void){
 
   if (ProcessorNumber != MyProcessorNumber)
@@ -102,3 +104,4 @@ int grid::ApplyTemperatureLimit(void){
 
   return SUCCESS;
 }
+#endif INDIVIDUALSTAR
