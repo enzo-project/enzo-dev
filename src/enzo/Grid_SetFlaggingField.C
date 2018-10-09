@@ -37,7 +37,6 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level, int MaximumCurr
   /* declarations */
  
   NumberOfFlaggedCells = INT_UNDEFINED;
-  int NumberOfQuantumFlaggedCells = 0;
 
   /* For must-refine particles, restrict refinement to where they
      exist.  This is already done in Grid_SetParticleMassFlaggingField
@@ -279,32 +278,6 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level, int MaximumCurr
 	  return FAIL;
 	}
 	break;
-
-	/* ==== METHOD 50: FDM: Refine Quantum Jeans Length ==== */
-    case 50:
-
-  NumberOfFlaggedCells = this->FlagCellsToBeRefinedByQuantumJeansLength();
-  NumberOfQuantumFlaggedCells = NumberOfFlaggedCells;
-
-  if (NumberOfFlaggedCells < 0) {
-    fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByQuantumJeansLength.\n");
-    return FAIL;
-  }
-  break;
-
-      /* ==== METHOD 51: FDM: Refine Velocity Divergence ==== */
-    case 51:
-
-  	//if ( (level < (MaximumCurrentLevel-1))&&(NumberOfFlaggedCells>0)){
-
-     NumberOfFlaggedCells = this->FlagCellsToBeRefinedBySqrtSecondDeriv();
-
-     if (NumberOfFlaggedCells < 0) {
-       fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByVelDiv.\n");
-      return FAIL;
-     }
-  //}
-  break;
 	
 	/* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
 	

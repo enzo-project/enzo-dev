@@ -190,12 +190,13 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   }*/
 
   /* FDM: if use more ghost zones */  
-  is = is-max(0,is-3);
-  js = js-max(0,js-3);
-  ks = ks-max(0,ks-3);
   ie = ie+max(0,is-3);
   je = je+max(0,js-3);
   ke = ke+max(0,ks-3);
+  is = is-max(0,is-3);
+  js = js-max(0,js-3);
+  ks = ks-max(0,ks-3);
+
 
   /* Set minimum pressure (better if it were a parameter) */
 

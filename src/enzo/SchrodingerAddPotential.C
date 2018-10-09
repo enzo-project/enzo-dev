@@ -43,7 +43,6 @@ c
 int SchrdingerAddPotential(double *repsi, double *impsi,
          int in, int jn, int kn, int rank,
          int gin, int gjn, int gkn,
-         int is, int ie, int js, int je, int ks, int ke, 
          double dt, 
          double hmcoef,
          double *p, int start1, int start2, int start3)
@@ -59,14 +58,14 @@ int SchrdingerAddPotential(double *repsi, double *impsi,
 
   /* Compute varients on start indexes */
 
-  jsm1 = max(js-1, 0);
+  /*jsm1 = max(js-1, 0);
   jsm2 = max(js-2, 0);
   jep1 = min(je+1, jn-1);
   jep2 = min(je+2, jn-1);
   ksm1 = max(ks-1, 0);
   ksm2 = max(ks-2, 0);
   kep1 = min(ke+1, kn-1);
-  kep2 = min(ke+2, kn-1);
+  kep2 = min(ke+2, kn-1);*/
 
   double auxre, auxim;  
 

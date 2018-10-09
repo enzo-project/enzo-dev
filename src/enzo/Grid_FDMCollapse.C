@@ -54,7 +54,7 @@ int grid::FDMCollapseInitializeGrid()
   /* declarations */
 
   int dim, i, j, k, m, field, sphere, size, iden;
-  int RePsiNum, ImPsiNum;
+  int RePsiNum, ImPsiNum, FDMDensNum;
   float xdist,ydist,zdist;
 
   /* create fields */
@@ -73,6 +73,7 @@ int grid::FDMCollapseInitializeGrid()
   if (QuantumPressure){
     FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
     FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
+    FieldType[FDMDensNum = NumberOfBaryonFields++] = FDMDensity;
   }
   //printf("%d \n", NumberOfBaryonFields);
 
@@ -129,6 +130,10 @@ if(QuantumPressure){
          &tempbuffer, 0, 1) == FAIL) {
     ENZO_FAIL("Error reading imaginary part of wave function.\n");
     }    
+  for (i=0; i<size; i++){
+    BaryonField[FDMDensNum][i] = BaryonField[RePsiNum][i] * BaryonField[RePsiNum][i] + BaryonField[ImPsiNum][i] * BaryonField[ImPsiNum][i];
+  }
+
   }
 
   /*for (int i=0; i<size; i++){

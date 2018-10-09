@@ -170,12 +170,10 @@ const field_type
   /* Cosmic Ray Energy Density */
   CRDensity = 97,
 
-  /* Quantum Pressure */
-  QPres = 98,
-
   /* Real and Imag of Wave Function */
-  RePsi = 99,
-  ImPsi = 100,
+  RePsi = 98,
+  ImPsi = 99,
+  FDMDensity = 100,
 
   FieldUndefined  = 101;
 

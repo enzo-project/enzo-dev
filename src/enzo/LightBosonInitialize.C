@@ -39,6 +39,8 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   char *Vel3Name = "z-velocity";
   char *RePsiName = "RePsi";
   char *ImPsiName = "ImPsi";
+  char *FDMDensityName = "FDMDensity";
+
 
 
 
@@ -107,6 +109,7 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataLabel[4] = TEName;
   DataLabel[5] = RePsiName;
   DataLabel[6] = ImPsiName;
+  DataLabel[7] = FDMDensityName;
 
 
 
@@ -119,6 +122,7 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataUnits[4] = NULL;
   DataUnits[5] = NULL;
   DataUnits[6] = NULL;
+  DataUnits[7] = NULL;
 
 
   

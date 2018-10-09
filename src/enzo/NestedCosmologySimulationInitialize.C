@@ -134,6 +134,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Phi_pName = "Phip";
   char *RePsiName = "Re_Psi"; 
   char *ImPsiName = "Im_Psi"; 
+  char *FDMDensityName = "FDMDensity"; 
 
  
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
@@ -760,6 +761,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (QuantumPressure) {
     DataLabel[i++] = (char*) RePsiName;
     DataLabel[i++] = (char*) ImPsiName;
+    DataLabel[i++] = (char*) FDMDensityName;
   }
 
  

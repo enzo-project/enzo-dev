@@ -534,6 +534,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
+  /* Call schrodinger solver. */
+  if (QuantumPressure == 1)
+  {
+  Grids[grid1]->GridData->SchrodingerSolver(LevelCycleCount[level]);
+  }
+
       /* Call hydro solver and save fluxes around subgrids. */
 
 	Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],

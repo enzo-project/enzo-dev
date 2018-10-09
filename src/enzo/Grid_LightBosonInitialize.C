@@ -26,6 +26,7 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
   FieldType[NumberOfBaryonFields++] = RePsi;
   FieldType[NumberOfBaryonFields++] = ImPsi;
+  FieldType[NumberOfBaryonFields++] = FDMDensity;
 
 
   
@@ -52,9 +53,10 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
     ENZO_FAIL("Error in GetUnits.");
   }
 
-  int RePsiNum, ImPsiNum;
+  int RePsiNum, ImPsiNum, FDMDensNum;
   RePsiNum = FindField(RePsi, FieldType, NumberOfBaryonFields);
   ImPsiNum = FindField(ImPsi, FieldType, NumberOfBaryonFields);
+  FDMDensNum = FindField(FDMDensity, FieldType, NumberOfBaryonFields);
 
 
   float coef = (5.9157166856e27*TimeUnits/pow(LengthUnits,2));
@@ -123,13 +125,14 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
 //  4) Two colliding Gaussian packets
     expa = exp(-alpha*pow((x+a),2)/sumsquare/2.);
     expb = exp(-alpha*pow((x-a),2)/sumsquare/2.);
-    float k1 = 2*pi;
-    float k2 = 2*pi;
+    float k1 = 2*pi*10;
+    float k2 = 2*pi*10;
     float rho = expa*expa + expb*expb + expa*expb*2*cos(2*k*x);
 
     BaryonField[RePsiNum][index] = expa*cos(k1*(x+a)) + expb*cos(k2*(x-a));
     BaryonField[ImPsiNum][index] = expa*sin(k1*(x+a)) - expb*sin(k2*(x-a));
-    BaryonField[iden][index] = BaryonField[RePsiNum][index]*BaryonField[RePsiNum][index] + BaryonField[ImPsiNum][index]*BaryonField[ImPsiNum][index];
+    BaryonField[FDMDensNum][index] = BaryonField[RePsiNum][index]*BaryonField[RePsiNum][index] + BaryonField[ImPsiNum][index]*BaryonField[ImPsiNum][index];
+    //BaryonField[iden][index] = BaryonField[RePsiNum][index]*BaryonField[RePsiNum][index] + BaryonField[ImPsiNum][index]*BaryonField[ImPsiNum][index];
 
     BaryonField[ivx][index] = coef*(k1*(expa*expa-expb*expb)-2*a*alpha/sumsquare*expa*expb*sin(2*k*x))/rho;
 

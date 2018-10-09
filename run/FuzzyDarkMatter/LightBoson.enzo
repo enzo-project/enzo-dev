@@ -27,8 +27,8 @@ GravitationalConstant      = 1       // this must be true for cosmology
 #
 #  set I/O and stop/start parameters
 #
-StopTime               = 4e-2
-dtDataDump             = 4e-4
+StopTime               = 5e-2
+dtDataDump             = 1e-3
 CourantSafetyNumber    = 0.5
 #StopCycle              = 2
 #CycleSkipDataDump = 1
@@ -47,6 +47,7 @@ CosmologyOutputRedshift[6] = 0
 #
 #  set Hydro parameters
 #
+UseHydro                    = 0
 HydroMethod                 = 2        // Zeus
 QuantumPressure            = 1
 PressureFree                = 1

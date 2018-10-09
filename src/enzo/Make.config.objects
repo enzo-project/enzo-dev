@@ -968,14 +968,10 @@ OBJS_CONFIG_LIB = \
 	Grid_LightBosonInitialize.o\
         Grid_ComputeQuantumTimeStep.o\
         QuantumGetUnits.o \
-        Grid_FlagCellsToBeRefinedByQuantumJeans.o \
 	ZeusFDM.o\
         Zeus_xTransport_FDM.o \
         Zeus_yTransport_FDM.o \
         Zeus_zTransport_FDM.o \
-        Grid_FlagCellsToBeRefinedByPsiSecondDeriv.o\
-	Grid_ComputeQuantumAcceleration.o \
-	Grid_ComputeQuantumPressure.o \
 	Grid_SchrodingerSolver.o \
 	rk3tvd.o \
 	rk4.o\

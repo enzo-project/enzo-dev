@@ -58,7 +58,7 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
   const char *MetalName = "Metal_Density";
   const char *RePsiName = "Re_Psi"; 
   const char *ImPsiName = "Im_Psi"; 
-
+  const char *FDMDensName = "FDMDensity"; 
 
   /* declarations */
 
@@ -84,6 +84,7 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
   if (QuantumPressure) {
     DataLabel[count++] = (char*) RePsiName;
     DataLabel[count++] = (char*) ImPsiName;
+    DataLabel[count++] = (char*) FDMDensName;
   }
 
   for (i = 0; i < count; i++)
