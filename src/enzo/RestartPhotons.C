@@ -166,15 +166,17 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	}
 	Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
       }
+    }
 
   if (RadiativeTransferOpticallyThinFUV 
 #ifdef INDIVIDUALSTAR
     && IndividualStarOTRadiationMethod == 1
 #endif
-    )}
+    ){
     for (_level = 0; _level < MAX_DEPTH_OF_HIERARCHY; _level++)
       for (Temp = LevelArray[_level]; Temp; Temp = Temp->NextGridThisLevel)
         Temp->GridData->AddPeHeating(AllStars, NumberOfSources);
+    }
 
   return SUCCESS;
 
