@@ -154,7 +154,11 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     NumberOfSources++;
   }
 
-  if (RadiativeTransferOpticallyThinH2)
+  if (RadiativeTransferOpticallyThinH2 
+#ifdef INDIVIDUALSTAR
+    && IndividualStarOTRadiationMethod == 1
+#endif
+    ){
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
 	if (Temp->GridData->InitializeTemperatureFieldForH2Shield() == FAIL) {
@@ -163,7 +167,11 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
       }
 
-  if (RadiativeTransferOpticallyThinFUV && IndividualStarOTRadiationMethod == 1)
+  if (RadiativeTransferOpticallyThinFUV 
+#ifdef INDIVIDUALSTAR
+    && IndividualStarOTRadiationMethod == 1
+#endif
+    )}
     for (_level = 0; _level < MAX_DEPTH_OF_HIERARCHY; _level++)
       for (Temp = LevelArray[_level]; Temp; Temp = Temp->NextGridThisLevel)
         Temp->GridData->AddPeHeating(AllStars, NumberOfSources);
