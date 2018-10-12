@@ -84,7 +84,8 @@ varspec = dict(
     quicksuite = (bool, False),
     pushsuite = (bool, False),
     fullsuite = (bool, False),
-    problematic = (bool, False)
+    problematic = (bool, False),
+    hub_download = (str, None)
 )
 
 known_variables = dict( [(k, v[0]) for k, v in varspec.items()] )
@@ -109,6 +110,7 @@ template_vars = {'N_PROCS'   : 'nprocs',
 
 results_filename = 'test_results.txt'
 version_filename = 'version.txt'
+hub_url = 'https://girder.hub.yt/api/v1'
 
 # Files to be included when gathering results.
 results_gather = ['results', version_filename]
@@ -295,7 +297,7 @@ class EnzoTestCollection(object):
         shutil.copy(exe_path, output_dir)
         exe_path = os.path.join(output_dir, os.path.basename(exe_path))
         results_path = os.path.join(self.output_dir, results_filename)
-        
+
         if interleaved:
             for i, my_test in enumerate(self.tests):
                 print("Preparing test: %s." % my_test['name'])
@@ -499,6 +501,11 @@ class EnzoTestRun(object):
             return True
         
         os.chdir(self.run_dir)
+        # Download data if requested
+        command = "girder-cli --api-url %s download %s" % \
+                  (hub_url, self.test_data['hub_download'])
+        os.system(command)
+
         command = "%s %s" % (machines[self.machine]['command'], 
                              machines[self.machine]['script'])
         sim_start_time = time.time()
@@ -576,6 +583,8 @@ if __name__ == "__main__":
                       default=False, help="Drop into debugger on errors")
     parser.add_option("--changeset", dest="changeset", default=None, metavar='str',
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
+    parser.add_option("--jcompile", dest="jcompile", default=1, metavar='int',
+                      help="Number of cores to use when recompiling")
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
                       help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
     parser.add_option("", "--bitwise",
