@@ -1645,6 +1645,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (initialize_chemistry_data(&grackle_units) == FAIL) {
       ENZO_FAIL("Error in Grackle initialize_chemistry_data.\n");
     }
+
+    // Need to set these after initialize_chemistry_data since
+    // that function sets them automatically based on the tables.
+    if (FinalRedshift < grackle_data->UVbackground_redshift_off) {
+      grackle_data->UVbackground_redshift_off = FinalRedshift;
+      grackle_data->UVbackground_redshift_drop = FinalRedshift;
+    }
+
   }  // if (grackle_data->use_grackle == TRUE)
 
   else {
