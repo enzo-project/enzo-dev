@@ -1882,9 +1882,13 @@ Particle Parameters
     particles within the region marked for splitting will retain their
     original types.  This must be used in conjunction with
     ``ParticleSplitterMustRefine = 1``.  The dataset must be named
-    ``particle_identifier`` in the base group.  An example yt script is
-    provided below, selecting the particles in a sphere centered at
-    [0.5, 0.5, 0.5] with a radius 0.05 in code length units, using yt::
+    ``particle_identifier`` in the base group.  Default: (null).
+
+    An example yt script is provided below, selecting the particles in
+    a sphere centered at [0.5, 0.5, 0.5] with a radius 0.05 in code
+    length units.
+
+ .. code-block:: python
 
       import yt
       import h5py as h5
@@ -1897,7 +1901,6 @@ Particle Parameters
       fp['particle_identifier'] = sp['particle_index'].astype('int')
       fp.close()
       
-  Default: (null)
 ``ParticleSplitterFraction`` (external)
     An array of four values that represent the width of the splitting
     region in units of the original refine region set by
