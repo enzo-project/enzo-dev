@@ -85,7 +85,8 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
   } 
 
   /* Set the static (permanent) regions. */
-  if (MustRefineParticlesCreateParticles != 3){
+  if (MustRefineParticlesCreateParticles != 3 &&
+      MustRefineParticlesCreateParticles != 4) {
      if (CurrentGrid->SetFlaggingFieldStaticRegions(level, NumberOfFlaggedCells)
 	== FAIL) {
       ENZO_FAIL("Error in grid->SetFlaggingFieldStaticRegions.");

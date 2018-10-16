@@ -904,7 +904,21 @@ Hierarchy Control Parameters
        constrained by static grids.  Instead, refinement around dark matter
        particles is allowed down to the level of a particle's generation level.
        Refinement beyond this level is allowed around particles within the MUSIC
-       ellipsoidal making region.
+       ellipsoidal masking region.  Note, dark matter particles corresponding to
+       a generation level N are guaranteed to be refined to at least level N, but
+       may also exist on levels N > 1 if in the vicinity of an N > 1 dark matter
+       particle or a tagged must-refine particle.
+    4. Similar to setting 3, except dark matter particles corresponding to a
+       generation level N are refined only to level N and no further. If two
+       dark matter particles from different levels occupy the same cell, that
+       cell will be refined to the coarser level. Tagged must-refine particles
+       near coarse dark matter particles will be similarly de-refined. Compared
+       to option 3, this can be used to prevent unnecessary mesh refinement in
+       regions where coarser particles enter into higher resolution regions,
+       slowing down the simulation. Note, with this setting, coarse boundary
+       particles entering into a high resolution region will eventually lead
+       to total derefinement of the region of interest.
+
 
 ``MustRefineParticlesRefineToLevel`` (external)
     The maximum level on which ``MustRefineParticles`` are required to
