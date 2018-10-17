@@ -34,7 +34,6 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, i
 int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[])
 {
 
-  const float eV_erg = 6.241509e11;
 
   int i;
   double L_UV, cgs_convert, _mass;
