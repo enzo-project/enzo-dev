@@ -96,7 +96,7 @@ int Star::SubtractAccretedMassFromCell(void)
      igrid[0] + CurrentGrid->GridStartIndex[0];
 
   float MassConversion = (float) (pow(LengthUnits * CurrentGrid->CellWidth[0][0], 3.0)
-				  * double(DensityUnits) / );
+				  * double(DensityUnits));
   float densgrid, ugrid, vgrid, wgrid, denssink, usink, vsink, wsink, drho;
   double OldDensity, NewDensity, factor;
 
