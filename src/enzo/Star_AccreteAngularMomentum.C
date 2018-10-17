@@ -63,9 +63,9 @@ int Star::AccreteAngularMomentum(void)
     CosmologyComputeExpansionFactor(time, &a, &dadt);
     BoxSize = ComovingBoxSize/HubbleConstantNow*a/(1+InitialRedshift);
   } else
-    BoxSize = LengthUnits/Mpc; // to Mpc
+    BoxSize = LengthUnits/Mpc_cm; // to Mpc
 
-  DensityConversion = FLOAT(double(DensityUnits) / SolarMass * pow(Mpc, 3)); // to SolarMass/Mpc^3
+  DensityConversion = FLOAT(double(DensityUnits) / SolarMass * pow(Mpc_cm, 3)); // to SolarMass/Mpc^3
   VelocityConversion = FLOAT(double(VelocityUnits) / 1.0e5); // to km/s
 
   float CellWidthTemp = float(CurrentGrid->CellWidth[0][0]);

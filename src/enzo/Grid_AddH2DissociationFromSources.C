@@ -131,7 +131,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
   // where the gas is fully molecular.  If the solver still breaks,
   // then this parameter can be safely increased to ~100 AU or turning
   // on H2 self-shielding with RadiationShield = 2.
-  float dilutionRadius = 4.848e-6 * pc / (double) LengthUnits;  // 1 AU
+  float dilutionRadius = 4.848e-6 * pc_cm / (double) LengthUnits;  // 1 AU
   float dilRadius2 = dilutionRadius * dilutionRadius;
   float LightTravelDist = TimeUnits * clight / LengthUnits;
 

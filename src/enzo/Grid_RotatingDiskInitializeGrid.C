@@ -252,7 +252,7 @@ float gas_velocity(FLOAT radius, FLOAT cdensity, FLOAT totaldmmass, FLOAT rscale
   double H = sqrt(HubbleConstant*100*HubbleConstant*100*(OmegaLambda+OmegaMatter*POW(ExpansionFactor,-3)-(OMEGA-1.)*POW(ExpansionFactor,-2)));     
 
   // Virial radius: equation from Navarro, Frank and White, 1997 gives r_200 in kpc. Convert to cm.
-  double r_200 = (1.63e-2*POW(totaldmmass*MassUnits/SolarMass,1./3.)*POW((OmegaLambda+OmegaMatter*POW(ExpansionFactor, -3)-(OMEGA-1.0)*POW(ExpansionFactor,-2)),-1.0/3.0)*ExpansionFactor*POW(H,-2.0/3.0)*POW(100,2.0/3.0))*kpc;
+  double r_200 = (1.63e-2*POW(totaldmmass*MassUnits/SolarMass,1./3.)*POW((OmegaLambda+OmegaMatter*POW(ExpansionFactor, -3)-(OMEGA-1.0)*POW(ExpansionFactor,-2)),-1.0/3.0)*ExpansionFactor*POW(H,-2.0/3.0)*POW(100,2.0/3.0))*kpc_cm;
 
   double massgas, massdm, masstotal, accel, vcirc;
   double fC = log(1.0+DMC)-DMC/(1.0+DMC);

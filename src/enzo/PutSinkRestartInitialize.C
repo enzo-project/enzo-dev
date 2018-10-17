@@ -177,7 +177,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   if (ComovingCoordinates) {
  
-    LengthConversion = pc;     // pc
+    LengthConversion = pc_cm;     // pc
     MassConversion   = SolarMass;        // solar masses
     EnergyConversion = 1.0e51;      // 10^51 erg
  

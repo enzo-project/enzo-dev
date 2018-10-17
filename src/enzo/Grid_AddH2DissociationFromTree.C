@@ -76,7 +76,7 @@ int grid::AddH2DissociationFromTree(void)
   H2ISigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
 
   // Dilution factor (prevent breaking in the rate solver near the star)
-  float dilutionRadius = 10.0 * pc / (double) LengthUnits;
+  float dilutionRadius = 10.0 * pc_cm / (double) LengthUnits;
   float dilRadius2 = dilutionRadius * dilutionRadius;
 
   // Convert from #/s to RT units

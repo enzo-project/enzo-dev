@@ -85,7 +85,7 @@ int grid::ClusterSMBHFeedback(int level)
   float JetVelocity, FastJetVelocity; // Jet Velocity in km/s (should make parameter)-- gets value from parameter ClusterSMBHJetVelocity
   JetScaleRadius = ClusterSMBHJetRadius/2.0;  //JetScaleRadius is half the radius of the jet launch region in cellwidths
   float DiskRadius; //ClusterSMBHDiskRadius = 0.5;  //ClusterSMBHDiskRadiu now a parameter
-  DiskRadius = ClusterSMBHDiskRadius*kpc/LengthUnits; //from kpc to codeunits 
+  DiskRadius = ClusterSMBHDiskRadius*kpc_cm/LengthUnits; //from kpc to codeunits 
 
   for (dim = 0; dim < GridRank; dim++) {
     JetCenter[dim] = PointSourceGravityPosition[dim];
@@ -100,8 +100,8 @@ int grid::ClusterSMBHFeedback(int level)
     DiskRightCorner[dim] = PointSourceGravityPosition[dim] + DiskRadius;
   }
 
-  JetLeftCorner[jet_dim] -= ClusterSMBHJetLaunchOffset*kpc/LengthUnits;
-  JetRightCorner[jet_dim] += ClusterSMBHJetLaunchOffset*kpc/LengthUnits; //from kpc to codeunits
+  JetLeftCorner[jet_dim] -= ClusterSMBHJetLaunchOffset*kpc_cm/LengthUnits;
+  JetRightCorner[jet_dim] += ClusterSMBHJetLaunchOffset*kpc_cm/LengthUnits; //from kpc to codeunits
 
 
   /* Compute indices of jet launch region. */

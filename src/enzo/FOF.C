@@ -149,7 +149,7 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 void set_units(FOFData &AllVars) {
 
-  AllVars.UnitLength_in_cm	   = kpc; 
+  AllVars.UnitLength_in_cm	   = kpc_cm;
   AllVars.UnitMass_in_g		   = 1.989e43;
   AllVars.UnitVelocity_in_cm_per_s = 1.0e5;
 

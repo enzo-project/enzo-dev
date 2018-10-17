@@ -77,7 +77,7 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
   /* Merge multiple MBH particles within r_merge */
 
-  rmerge2 = powf(MBHCombineRadius * pc / LengthUnits, 2.0f);
+  rmerge2 = powf(MBHCombineRadius * pc_cm / LengthUnits, 2.0f);
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
     if (ThisStar->ReturnType() != MBH || ThisStar->IsUnborn() || ThisStar->MarkedToDelete())

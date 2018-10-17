@@ -184,7 +184,7 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
 	
 	// (12) SFR density (code density unit  ->  Ms/yr/kpc^3)
 	InterpolatedField[SFRDensNum][i] *= 
-	  DensityUnits / SolarMass * pow(kpc, 3) / ( dtForSFR * TimeUnits / yr );
+	  DensityUnits / SolarMass * pow(kpc_cm, 3) / ( dtForSFR * TimeUnits / yr );
 	
 	// (13) (in code time unit)
 	InterpolatedField[CreationTimeNum][i] /= NumberOfStarParticlesInGrid;    

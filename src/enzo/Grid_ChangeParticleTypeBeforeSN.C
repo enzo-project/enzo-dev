@@ -98,7 +98,7 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
 		if (factor < 1) {
 
 		  Diameter = 2 * BufferZone * PopIIISupernovaRadius * 
-		    (pc/LengthUnits);
+		    (pc_cm/LengthUnits);
 
 		} 
 
@@ -181,13 +181,13 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
   // With a constant shock velocity, calculate time it takes for
   // blastwave to travel from r=0 to r=PopIIISupernovaRadius
   ShockVelocity = 1.165 * sqrt(2.0 * SNenergy / (Mass * SolarMass));
-  StartTime = PopIIISupernovaRadius * pc / ShockVelocity;
+  StartTime = PopIIISupernovaRadius * pc_cm / ShockVelocity;
 
   // Because we inject thermal energy, the blastwave is delayed by a
   // sound crossing time.
   SNTemperature = min(double(Mass*SolarMass) / double(mh) / kboltz, 1e8);
   SoundSpeed = sqrt(kboltz * SNTemperature / (0.6*mh));
-  SoundCrossingTime = PopIIISupernovaRadius * pc / SoundSpeed;
+  SoundCrossingTime = PopIIISupernovaRadius * pc_cm / SoundSpeed;
 
   // units in cm
   STradius = 3.62e19 * powf(Mass/100., 1./3.) * powf(n0, -1./3.);
@@ -209,7 +209,7 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
   // it slows by a factor of 2 near the transition to the ST phase)
   if (Time < TransitionTime) {
 
-    BlastWaveRadius = PopIIISupernovaRadius * pc + ShockVelocity * Time;
+    BlastWaveRadius = PopIIISupernovaRadius * pc_cm + ShockVelocity * Time;
     printf("Free expansion\n");
 
   } // ENDIF Free expansion phase

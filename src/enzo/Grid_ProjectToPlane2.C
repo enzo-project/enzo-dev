@@ -187,8 +187,8 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   DensityConversion *= dom;
   //DensityConversion *= float(double(dom)*double(LengthUnits));
   XrayConversion *= float(1.0e-20*pow(double(DensityUnits),2)
-			  /pow(SolarMass,2)*pow(Mpc,6)
-			  *double(LengthUnits)/Mpc);
+			  /pow(SolarMass,2)*pow(Mpc_cm,6)
+			  *double(LengthUnits)/Mpc_cm);
   TempXrayConversion = XrayConversion;
   LuminosityConversion *= LengthUnits;
   CellVolume = pow(double(CellLength) * double(LengthUnits), 3);

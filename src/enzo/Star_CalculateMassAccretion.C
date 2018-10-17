@@ -363,9 +363,9 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 	CosmologyComputeExpansionFactor(time, &a, &dadt);
 	BoxSize = ComovingBoxSize/HubbleConstantNow*a/(1+InitialRedshift);
       } else
-	BoxSize = LengthUnits/Mpc; // to Mpc
+	BoxSize = LengthUnits/Mpc_cm; // to Mpc
 
-      DensityConversion = FLOAT(double(DensityUnits) / SolarMass * pow(Mpc, 3)); // to SolarMass/Mpc^3
+      DensityConversion = FLOAT(double(DensityUnits) / SolarMass * pow(Mpc_cm, 3)); // to SolarMass/Mpc^3
       VelocityConversion = FLOAT(double(VelocityUnits) / 1.0e5); // to km/s
 
       for (dim = 0; dim < MAX_DIMENSION; dim++) 

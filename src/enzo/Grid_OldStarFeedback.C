@@ -61,7 +61,7 @@ int grid::OldStarFeedback()
   float EnergyUnits;
   EnergyUnits = MassUnits* POW(VelocityUnits, 2.0);
 
-  a=(EllipticalGalaxyRe*kpc/1.8153)/LengthUnits;  // in code unit
+  a=(EllipticalGalaxyRe*kpc_cm/1.8153)/LengthUnits;  // in code unit
 
 
   FLOAT r, x, y = 0, z = 0, rho_star=0;

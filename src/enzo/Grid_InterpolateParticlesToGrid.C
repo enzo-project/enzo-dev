@@ -221,7 +221,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
     wk = new double[D->DesDensityNgb];
 
     // Tree is built in comoving kpc, so CellPos is.
-    LengthConversion = (LengthUnits / kpc) * (1.0 + CurrentRedshift);
+    LengthConversion = (LengthUnits / kpc_cm) * (1.0 + CurrentRedshift);
 
     for (k = 0; k < ActiveDim[2]; k++) {
       CellPos[2] = LengthConversion * 

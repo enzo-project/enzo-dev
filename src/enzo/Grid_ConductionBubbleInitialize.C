@@ -127,7 +127,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   nofr = new double[ncells];
   Tofr = new double[ncells];
 
-  dKdr_cgs = dKdr * KEV_KELVIN / kpc;
+  dKdr_cgs = dKdr * KEV_KELVIN / kpc_cm;
   r_mid_cgs = r_mid * LengthUnits;
   r_max_cgs = 2.0*r_mid_cgs;
 

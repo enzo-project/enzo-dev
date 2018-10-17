@@ -236,8 +236,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     } // ENDIF
 
 //    fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
-//	    "Radius = %e pc, changed %"ISYM" cells.\n", 
-//	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc, CellsModified); 
+//	    "Radius = %e pc_cm, changed %"ISYM" cells.\n", 
+//	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc_cm, CellsModified); 
 
     /* Remove mass from the star that is added to grids. Also, because EjectaDensity 
        is added with zero net momentum, increase the particle's velocity accordingly. 
@@ -269,7 +269,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
       if (cstar->ReturnFeedbackFlag() != FORMATION)
 	fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 		"Radius = %"GSYM" pc\n",
-		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
+		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc_cm);
       if (cstar->ReturnFeedbackFlag() == DEATH || 
 
 	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||

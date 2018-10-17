@@ -82,7 +82,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
   switch (this->FeedbackFlag) {
   case SUPERNOVA:  // Single thermal bubble of SN feedback
-    Radius = PopIIISupernovaRadius * pc / LengthUnits;
+    Radius = PopIIISupernovaRadius * pc_cm / LengthUnits;
     Radius = max(Radius, 3.5*StarLevelCellWidth);
     EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);
     EjectaDensity = Mass * SolarMass / EjectaVolume / DensityUnits;
@@ -122,16 +122,16 @@ void Star::CalculateFeedbackParameters(float &Radius,
 #define DEBUG
 #ifdef DEBUG
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      if (Radius > 10*PopIIISupernovaRadius * pc / LengthUnits) {
+      if (Radius > 10*PopIIISupernovaRadius * pc_cm / LengthUnits) {
 	printf("WARNING: Inserting PISN into a large radius!  %g pc\n",
-	       Radius * LengthUnits / pc);
+	       Radius * LengthUnits / pc_cm);
       }
 #endif    
 
     break;
 
   case STROEMGREN:
-    Radius = BirthRadius * pc / LengthUnits;
+    Radius = BirthRadius * pc_cm / LengthUnits;
     Radius = max(Radius, 1.5*StarLevelCellWidth);
     EjectaDensity = WhalenDensity * mh / DensityUnits;
     EjectaThermalEnergy =
@@ -144,7 +144,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
   case CONT_SUPERNOVA:
     // Inject energy into a sphere
-    Radius = StarClusterSNRadius * pc / LengthUnits;
+    Radius = StarClusterSNRadius * pc_cm / LengthUnits;
     if (Radius < 2*StarLevelCellWidth) {
       Radius = 2*StarLevelCellWidth;
       SphereCheck = false;
@@ -180,7 +180,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     mdot = isnan(this->last_accretion_rate) ? 0.0 : this->last_accretion_rate;  
     
     /* Inject energy into a sphere */
-    Radius = MBHFeedbackThermalRadius * pc / LengthUnits;
+    Radius = MBHFeedbackThermalRadius * pc_cm / LengthUnits;
     Radius = max(Radius, 2*StarLevelCellWidth);
 
     /* Only EjectaVolume is in physical units; all others are in code units. */
@@ -228,7 +228,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     mdot = isnan(this->last_accretion_rate) ? 0.0 : this->last_accretion_rate;  
     
     /* Inject energy into a sphere */
-    Radius = MBHFeedbackThermalRadius * pc / LengthUnits;
+    Radius = MBHFeedbackThermalRadius * pc_cm / LengthUnits;
     Radius = max(Radius, 2*StarLevelCellWidth);
 
     /* Release MBH-AGN thermal energy constantly. 

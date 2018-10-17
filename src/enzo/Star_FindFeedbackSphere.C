@@ -314,7 +314,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     if (debug) {
       printf("StarParticle[birth]: L%"ISYM", r = %"GSYM" pc, M = %"GSYM
 	     ", Z2/Z3 = %"GSYM"/%"GSYM"\n",
-	     level, Radius*LengthUnits/pc, MassEnclosed, Metallicity2,
+	     level, Radius*LengthUnits/pc_cm, MassEnclosed, Metallicity2,
 	     Metallicity3);
       if (StarType == PopII || StarType == PopIII)
 	printf("\t mass = %"GSYM" (%"GSYM"%% cold) SolarMass, \n"

@@ -144,10 +144,10 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
   }
   if (ComovingCoordinates) {
     DensityConversion *= float(double(DensityUnits)*double(LengthUnits)/
-			       SolarMass*Mpc*Mpc);
+			       SolarMass*Mpc_cm*Mpc_cm);
     XrayConversion *= float(1.0e-20*POW(double(DensityUnits),2)
-			      /POW(SolarMass,2)*POW(Mpc,6)
-			    *double(LengthUnits)/Mpc);
+			      /POW(SolarMass,2)*POW(Mpc_cm,6)
+			    *double(LengthUnits)/Mpc_cm);
     TempXrayConversion = XrayConversion;
   }
  

@@ -171,7 +171,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
     BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
   } else {
     CriticalDensity = 2.78e11*pow(0.74,2); // in Msolar/Mpc^3 for h=0.74
-    BoxLength = LengthUnits / Mpc;
+    BoxLength = LengthUnits / Mpc_cm;
     HubbleConstantNow = 1.0;
     OmegaMatterNow = 1.0;
   }
@@ -202,10 +202,10 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
     dpdr_old = dpdr;
     dpdr = GravConst * NFWMass[i] * SolarMass * 
       NFWDensity[i] / 
-      pow(NFWRadius[i]*BoxLength*Mpc, 2);
+      pow(NFWRadius[i]*BoxLength*Mpc_cm, 2);
     if (i > 0)
       NFWPressure[i] = NFWPressure[i-1] -
-	0.5*(dpdr+dpdr_old)*(NFWRadius[i]-NFWRadius[i-1])*BoxLength*Mpc;
+	0.5*(dpdr+dpdr_old)*(NFWRadius[i]-NFWRadius[i-1])*BoxLength*Mpc_cm;
     NFWTemp[i] = NFWPressure[i]*mu*mh/(kboltz*NFWDensity[i]); // in K
     NFWSigma[i] = sqrt(kboltz * NFWTemp[i] / (mu * mh));  // in cm/s
     float mean_overdensity = 3.0*SphereDensity[sphere] / (x1*x1*x1) *

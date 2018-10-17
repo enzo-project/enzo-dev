@@ -61,7 +61,7 @@ int grid::AddRadiationImpulse(int field, double Luminosity, double sigma,
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
 
   // Dilution factor (prevent breaking in the rate solver near the star)
-  float dilutionRadius = 10.0 * pc / (double) LengthUnits;
+  float dilutionRadius = 10.0 * pc_cm / (double) LengthUnits;
   float dilRadius2 = dilutionRadius * dilutionRadius;
   float LightTravelDist = TimeUnits * clight / LengthUnits;
 

@@ -816,7 +816,7 @@ public:
     while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
     {
       ret += sscanf(line, "%"PSYM" %"FSYM, &rad, &vcirc);
-      this->VCircRadius[i] = rad*kpc; // 3.08567758e21 = kpc/cm
+      this->VCircRadius[i] = rad*kpc_cm; // 3.08567758e21 = kpc/cm
       this->VCircVelocity[i] = vcirc*1e5; // 1e5 = (km/s)/(cm/s)
       i += 1;
     }
@@ -875,9 +875,9 @@ public:
 	       "%"PSYM" %"PSYM" %"PSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
 	       &x, &y, &z, &vx, &vy, &vz, &mass);
 
-      Position[0][c] = x * kpc / LengthUnits + this->CenterPosition[0];
-      Position[1][c] = y * kpc / LengthUnits + this->CenterPosition[1];
-      Position[2][c] = z * kpc / LengthUnits + this->CenterPosition[2];
+      Position[0][c] = x * kpc_cm / LengthUnits + this->CenterPosition[0];
+      Position[1][c] = y * kpc_cm / LengthUnits + this->CenterPosition[1];
+      Position[2][c] = z * kpc_cm / LengthUnits + this->CenterPosition[2];
 
       Velocity[0][c] = vx * km_cm / VelocityUnits;
       Velocity[1][c] = vy * km_cm / VelocityUnits;

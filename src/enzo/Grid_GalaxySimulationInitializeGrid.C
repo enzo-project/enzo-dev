@@ -316,18 +316,18 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 		  inv[j][i] = temp;
 		}
 
-	    if( fabs(drcyl*LengthUnits/Mpc) > TruncRadius ){
+	    if( fabs(drcyl*LengthUnits/Mpc_cm) > TruncRadius ){
 	      dens1 = 0.0;
 	      break;
 	    }
 		  
-	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0) 
+	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc_cm*POW(ScaleHeightR*Mpc_cm,2.0)))/DensityUnits;   //Code units (rho_0) 
 
 	    if (PointSourceGravity > 0 )
 	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
 	    else if( DiskGravity > 0 ){
 	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv,
-				    DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
+				    DiskDensity*DensityUnits,ScaleHeightR*Mpc_cm, ScaleHeightz*Mpc_cm, CellWidth[0][0]*LengthUnits);
 
 	      dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
 
@@ -338,7 +338,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 	    if (dim == 0) {
 	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv, 
-				    DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
+				    DiskDensity*DensityUnits,ScaleHeightR*Mpc_cm, ScaleHeightz*Mpc_cm, CellWidth[0][0]*LengthUnits);
 	      dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
 	    }
 
@@ -369,7 +369,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    /* If the density is larger than the background (or the previous
 	       disk), then set the velocity. */
 
-	  if (dens1 > density && fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
+	  if (dens1 > density && fabs(drcyl*LengthUnits/Mpc_cm) <= TruncRadius ) {
 	    density = dens1;
 	    if (temp1 == init_temp)
 	      temp1 = DiskTemperature;
@@ -434,7 +434,7 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
 
  double H = sqrt(HubbleConstantNow*100*HubbleConstantNow*100*(OmegaLambdaNow+OmegaMatterNow*POW(ExpansionFactor,-3)-(OMEGA-1.)*POW(ExpansionFactor,-2)));                                
 
- double r_200 = (1.63e-2*POW(GalaxyMass,1.0/3.0)*POW((OmegaLambdaNow+OmegaMatterNow*POW(ExpansionFactor, -3)-(OMEGA-1.0)*POW(ExpansionFactor,-2)),-1.0/3.0)*ExpansionFactor*POW(H,-2.0/3.0)*POW(100,2.0/3.0))*Mpc/1.0e5;
+ double r_200 = (1.63e-2*POW(GalaxyMass,1.0/3.0)*POW((OmegaLambdaNow+OmegaMatterNow*POW(ExpansionFactor, -3)-(OMEGA-1.0)*POW(ExpansionFactor,-2)),-1.0/3.0)*ExpansionFactor*POW(H,-2.0/3.0)*POW(100,2.0/3.0))*Mpc_cm/1.0e5;
  //virial radius [m]: M_200/M_Solar = GalaxyMass
 
  double M_gas, M_DM, M_Tot, Acc, V_Circ;
@@ -443,7 +443,7 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
 
  // Mass of gas disk and DM at given radius
 
-     M_gas=8.0*pi*ScaleHeightz*Mpc/100*ScaleHeightR*Mpc/100*ScaleHeightR*Mpc/100*DiskDensity*DensityUnits*1000*PEXP(-r/(ScaleHeightR*Mpc/100))*(PEXP(r/(ScaleHeightR*Mpc/100))-r/(ScaleHeightR*Mpc/100)-1.0);
+     M_gas=8.0*pi*ScaleHeightz*Mpc_cm/100*ScaleHeightR*Mpc_cm/100*ScaleHeightR*Mpc_cm/100*DiskDensity*DensityUnits*1000*PEXP(-r/(ScaleHeightR*Mpc_cm/100))*(PEXP(r/(ScaleHeightR*Mpc_cm/100))-r/(ScaleHeightR*Mpc_cm/100)-1.0);
 
      M_DM=(M_200/f_C)*(log(1.0+r/r_s)-(r/r_s)/(1.0+r/r_s));
 
@@ -531,10 +531,10 @@ float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv
 	      if( PointSourceGravity > 0 )
 		yResult[j] += cellwidth/2.0*Weights[k]*PEXP(-rrot/ScaleHeightR)/POW(cosh(zrot/(2.0*ScaleHeightz)),2);
 	      else if( DiskGravity > 0 ){
-		if( rrot/Mpc < SmoothRadius )
+		if( rrot/Mpc_cm < SmoothRadius )
 		  yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz);
-		else if( rrot/Mpc < TruncRadius )
-		  yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz)*0.5*(1.0+cos(pi*(rrot-SmoothRadius*Mpc)/(SmoothLength*Mpc)));
+		else if( rrot/Mpc_cm < TruncRadius )
+		  yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz)*0.5*(1.0+cos(pi*(rrot-SmoothRadius*Mpc_cm)/(SmoothLength*Mpc_cm)));
 	      } // end disk gravity if
 
 	  }
@@ -568,7 +568,7 @@ double DiskPotentialDarkMatterMass(FLOAT R){
  *
  * 	Returns: Mass, in grams
  */
-	FLOAT R0 = DiskGravityDarkMatterR*Mpc,x=R/R0*LengthUnits;
+	FLOAT R0 = DiskGravityDarkMatterR*Mpc_cm,x=R/R0*LengthUnits;
 	double M0 = pi*DiskGravityDarkMatterDensity*R0*R0*R0;
 
 	return M0*(-2.0*atan(x)+2.0*log(1+x)+log(1.0+x*x));
@@ -609,11 +609,11 @@ float DiskPotentialGasDensity(FLOAT r,FLOAT z){
  * 	Returns: density (in grams/cm^3)
  *
  */
-	double density = MgasScale*SolarMass/(8.0*pi*POW(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc);
-	density /= (cosh(r*LengthUnits/gScaleHeightR/Mpc)*cosh(z*LengthUnits/gScaleHeightz/Mpc));
+	double density = MgasScale*SolarMass/(8.0*pi*POW(gScaleHeightR*Mpc_cm,2)*gScaleHeightz*Mpc_cm);
+	density /= (cosh(r*LengthUnits/gScaleHeightR/Mpc_cm)*cosh(z*LengthUnits/gScaleHeightz/Mpc_cm));
 
-	if(fabs(r*LengthUnits/Mpc) > SmoothRadius && fabs(r*LengthUnits/Mpc) <= TruncRadius)
-		density *= 0.5*(1.0+cos(pi*(r*LengthUnits-SmoothRadius*Mpc)/(SmoothLength*Mpc)));
+	if(fabs(r*LengthUnits/Mpc_cm) > SmoothRadius && fabs(r*LengthUnits/Mpc_cm) <= TruncRadius)
+		density *= 0.5*(1.0+cos(pi*(r*LengthUnits-SmoothRadius*Mpc_cm)/(SmoothLength*Mpc_cm)));
 	return density;
 } // end DiskPotentialGasDensity
 
@@ -631,9 +631,9 @@ float HaloGasDensity(FLOAT R){
  */
 	if(GalaxySimulationGasHalo){
 		double T0,haloDensity;
-		T0 = HaloGasTemperature(GalaxySimulationGasHaloScaleRadius*Mpc/LengthUnits);
+		T0 = HaloGasTemperature(GalaxySimulationGasHaloScaleRadius*Mpc_cm/LengthUnits);
 		haloDensity = GalaxySimulationGasHaloDensity*(T0/HaloGasTemperature(R));
-		haloDensity /= POW((R*LengthUnits/GalaxySimulationGasHaloScaleRadius/Mpc),3);
+		haloDensity /= POW((R*LengthUnits/GalaxySimulationGasHaloScaleRadius/Mpc_cm),3);
 		return min(haloDensity,GalaxySimulationGasHaloDensity);
 	}
 	return densicm;
@@ -652,10 +652,10 @@ double findZicm(FLOAT r){
    *  Returns: zicm, edge of disk, (code units)
    */
 
-  static const double X_TOL = 1e-7*Mpc/LengthUnits; // sub pc resolution
+  static const double X_TOL = 1e-7*Mpc_cm/LengthUnits; // sub pc resolution
   static const int MAX_ITERS = 50; int iters=0;
 
-  double z_lo = 0.0,z_hi = 0.01*Mpc/LengthUnits,z_new,f_lo,f_hi,f_new;
+  double z_lo = 0.0,z_hi = 0.01*Mpc_cm/LengthUnits,z_new,f_lo,f_hi,f_new;
   f_hi = DiskPotentialGasDensity(r,z_hi) - HaloGasDensity(sqrt(r*r+z_hi*z_hi)); // -ve
   f_lo = DiskPotentialGasDensity(r,z_lo) - HaloGasDensity(sqrt(r*r+z_lo*z_lo)); // +ve
 
@@ -712,7 +712,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
   /*	Determine zicm: the height above the disk where rho -> rho_ICM,
    *	use this to find P_icm and dP_icm  */
 
-  if (fabs(drcyl*LengthUnits/Mpc) <= SmoothRadius) {
+  if (fabs(drcyl*LengthUnits/Mpc_cm) <= SmoothRadius) {
 
     zicm  = findZicm(drcyl)*LengthUnits;
     zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
@@ -736,7 +736,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
   }  else {
 
-    if (fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
+    if (fabs(drcyl*LengthUnits/Mpc_cm) <= TruncRadius ) {
 
       zicm  = findZicm(drcyl)*LengthUnits;
       zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
@@ -747,7 +747,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 #ifdef UNUSED
       if ( HaloGasDensity(sqrt(drcyl*drcyl+z*z)) >= DiskPotentialGasDensity(drcyl,z)
 	   && fabs(z) < zicm) {
-	printf("warning: small density zicm = %g, z = %g\n", zicm/Mpc, z/Mpc);
+	printf("warning: small density zicm = %g, z = %g\n", zicm/Mpc_cm, z/Mpc_cm);
       } // end small density if
 #endif /* UNUSED */
 
@@ -756,13 +756,13 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 	bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ?
 		     0.0 : qromb(PbulgeComp1, fabs(zicm), fabs(z)));
 	Pressure  = (bulgeComp + qromb(PDMComp1, fabs(zicm), fabs(z)) + qromb(PstellarComp1, fabs(zicm), fabs(z)))
-	  *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-SmoothRadius*Mpc)/
-			 (SmoothLength*Mpc))));
+	  *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-SmoothRadius*Mpc_cm)/
+			 (SmoothLength*Mpc_cm))));
 
 	bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ?
 		     0.0 : qromb(PbulgeComp2, fabs(zicm2), fabs(z)));
 	Pressure2 = (bulgeComp + qromb(PDMComp2, fabs(zicm2), fabs(z)) + qromb(PstellarComp2, fabs(zicm2), fabs(z)))
-	  *(0.5*(1.0+cos(pi*(r2-SmoothRadius*Mpc)/(SmoothLength*Mpc))));
+	  *(0.5*(1.0+cos(pi*(r2-SmoothRadius*Mpc_cm)/(SmoothLength*Mpc_cm))));
 
       } // end |z| < |zicm| if
 
@@ -772,10 +772,10 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
   denuse = density*DensityUnits; 
 
-  if (Pressure < 0.0 && fabs(drcyl)*LengthUnits/Mpc <= TruncRadius && fabs(z) <= fabs(zicm)) {
-    fprintf(stderr,"neg pressure:  P = %"FSYM", z = %"FSYM", r = %"FSYM"\n", Pressure, z/Mpc, drcyl*LengthUnits/Mpc);
+  if (Pressure < 0.0 && fabs(drcyl)*LengthUnits/Mpc_cm <= TruncRadius && fabs(z) <= fabs(zicm)) {
+    fprintf(stderr,"neg pressure:  P = %"FSYM", z = %"FSYM", r = %"FSYM"\n", Pressure, z/Mpc_cm, drcyl*LengthUnits/Mpc_cm);
   }
-  if (fabs(drcyl)*LengthUnits/Mpc >= TruncRadius || fabs(zicm) <= fabs(z)){
+  if (fabs(drcyl)*LengthUnits/Mpc_cm >= TruncRadius || fabs(zicm) <= fabs(z)){
     Pressure = 0.0;
     Pressure2 = 0.0;
     denuse = HaloGasDensity(rsph);
@@ -804,30 +804,30 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
   /* Calculate Gravity = Fg_DM + Fg_StellarDisk + Fg_StellaDiskGravityStellarBulgeR */
   
   FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*
-          POW(DiskGravityDarkMatterR*Mpc,3)/POW(rsph,3)*drcyl*LengthUnits
-	  *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc) + 
-	    2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc) +
-	    log(1.0+POW(rsph/DiskGravityDarkMatterR/Mpc,2)));
+          POW(DiskGravityDarkMatterR*Mpc_cm,3)/POW(rsph,3)*drcyl*LengthUnits
+	  *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc_cm) + 
+	    2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc_cm) +
+	    log(1.0+POW(rsph/DiskGravityDarkMatterR/Mpc_cm,2)));
   FtotR += -GravConst*DiskGravityStellarDiskMass*SolarMass*drcyl*LengthUnits
 	  /sqrt(POW(POW(drcyl*LengthUnits,2) + 
-		    POW(DiskGravityStellarDiskScaleHeightR*Mpc +
+		    POW(DiskGravityStellarDiskScaleHeightR*Mpc_cm +
 			sqrt(POW(z,2) + 
-			     POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)),
+			     POW(DiskGravityStellarDiskScaleHeightz*Mpc_cm,2)),
 			2),
 		    3));
   FtotR += -GravConst*DiskGravityStellarBulgeMass*SolarMass
            /POW(sqrt(POW(z,2) + POW(drcyl*LengthUnits,2)) + 
-	        DiskGravityStellarBulgeR*Mpc,2)*drcyl*LengthUnits/
+	        DiskGravityStellarBulgeR*Mpc_cm,2)*drcyl*LengthUnits/
            sqrt(POW(z,2) +POW(drcyl*LengthUnits,2));
 
   /* Some error checking. */
 
   if (temperature < 0.0) 
     fprintf(stderr,"G_GSIG: temp = %"FSYM", P = %"FSYM", z = %"FSYM", zicm = %"FSYM", zicmf=%"FSYM", zsmall=%"FSYM", drcyl = %"FSYM"\n", 
-	    temperature, Pressure, z/Mpc, zicm/Mpc, zicmf, zsmall, drcyl*LengthUnits/Mpc);
+	    temperature, Pressure, z/Mpc_cm, zicm/Mpc_cm, zicmf, zsmall, drcyl*LengthUnits/Mpc_cm);
   if ((FtotR - FdPdR) > 0.0) { 
     fprintf(stderr,"G_GSIG: FtotR = %"FSYM", FdPdR = %"FSYM", P = %"FSYM",P2 = %"FSYM", Picm = %"FSYM", dr = %"FSYM", drcyl = %"FSYM", z = %"FSYM"\n", 
-	    FtotR, FdPdR, Pressure, Pressure2, Picm, r2-drcyl*LengthUnits, drcyl*LengthUnits/Mpc, z/Mpc);
+	    FtotR, FdPdR, Pressure, Pressure2, Picm, r2-drcyl*LengthUnits, drcyl*LengthUnits/Mpc_cm, z/Mpc_cm);
     FdPdR = 0.0;
   } // end FtotR - FdPdr > 0.0 if
 
@@ -851,11 +851,11 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 double PbulgeComp_general(double rvalue, double zint)
 {
   return (-MgasScale*SolarMass/
-	  (2*pi*POW(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/
-	  cosh(rvalue/gScaleHeightR/Mpc) / cosh(fabs(zint)/gScaleHeightz/Mpc)*
+	  (2*pi*POW(gScaleHeightR*Mpc_cm,2)*gScaleHeightz*Mpc_cm)*0.25/
+	  cosh(rvalue/gScaleHeightR/Mpc_cm) / cosh(fabs(zint)/gScaleHeightz/Mpc_cm)*
 	  GravConst*DiskGravityStellarBulgeMass*SolarMass/
 	  POW((sqrt(POW(zint,2) + POW(rvalue,2)) + 
-	       DiskGravityStellarBulgeR*Mpc),2)*fabs(zint)/
+	       DiskGravityStellarBulgeR*Mpc_cm),2)*fabs(zint)/
 	  sqrt(POW(zint,2)+POW(rvalue,2)));
 }
 
@@ -876,19 +876,19 @@ double PbulgeComp2(double zint)
 double PstellarComp_general(double rvalue, double zint)
 {
   return (-MgasScale*SolarMass/
-	  (2*pi*POW(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/
-	  cosh(rvalue/gScaleHeightR/Mpc) / cosh(fabs(zint)/gScaleHeightz/Mpc)*
+	  (2*pi*POW(gScaleHeightR*Mpc_cm,2)*gScaleHeightz*Mpc_cm)*0.25/
+	  cosh(rvalue/gScaleHeightR/Mpc_cm) / cosh(fabs(zint)/gScaleHeightz/Mpc_cm)*
 	  GravConst*DiskGravityStellarDiskMass*SolarMass*
-	  (DiskGravityStellarDiskScaleHeightR*Mpc + 
-	   sqrt(POW(zint,2) + POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)))*
+	  (DiskGravityStellarDiskScaleHeightR*Mpc_cm + 
+	   sqrt(POW(zint,2) + POW(DiskGravityStellarDiskScaleHeightz*Mpc_cm,2)))*
 	  fabs(zint)/
 	  sqrt(POW(POW(rvalue,2) + 
-		   POW((DiskGravityStellarDiskScaleHeightR*Mpc + 
+		   POW((DiskGravityStellarDiskScaleHeightR*Mpc_cm + 
 			sqrt(POW(zint,2) + 
-			     POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)))
+			     POW(DiskGravityStellarDiskScaleHeightz*Mpc_cm,2)))
 		       ,2)
 		   ,3))/
-	  sqrt(POW(zint,2)+POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)));
+	  sqrt(POW(zint,2)+POW(DiskGravityStellarDiskScaleHeightz*Mpc_cm,2)));
 }
 
 // Stellar Disk functions
@@ -921,17 +921,17 @@ double PDMComp_general(double rvalue, double zint){
 
 
   /* compute gas density */
-  gas_density  = MgasScale*SolarMass / (8.0 * pi * POW(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc);
-  gas_density /= (cosh(rvalue/gScaleHeightR/Mpc)*cosh(fabs(zint)/gScaleHeightz/Mpc));
+  gas_density  = MgasScale*SolarMass / (8.0 * pi * POW(gScaleHeightR*Mpc_cm,2)*gScaleHeightz*Mpc_cm);
+  gas_density /= (cosh(rvalue/gScaleHeightR/Mpc_cm)*cosh(fabs(zint)/gScaleHeightz/Mpc_cm));
 
   rsph = sqrt(rvalue*rvalue + zint*zint);
 
   /* fabs(zint) is because this is the force in the direction downward */
   F    = (-pi)*GravConst*DiskGravityDarkMatterDensity*
-             POW(DiskGravityDarkMatterR*Mpc,3)/POW(rsph,3) * fabs(zint)
-            *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc) + 
-            2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc) +
-            log(1.0+POW(rsph/DiskGravityDarkMatterR/Mpc,2)));
+             POW(DiskGravityDarkMatterR*Mpc_cm,3)/POW(rsph,3) * fabs(zint)
+            *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc_cm) + 
+            2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc_cm) +
+            log(1.0+POW(rsph/DiskGravityDarkMatterR/Mpc_cm,2)));
 
   return gas_density * F;
 }
@@ -1035,7 +1035,7 @@ double qromb(double (*func)(double), double a, double b)
   }
 	/* Print bug report and exit */
   fprintf(stderr,"Too many steps in routine QROMB\n");
-  fprintf(stderr,"\t>> drcyl = %"FSYM", z = %"FSYM", z_icm = %"FSYM"\n", drcyl*LengthUnits/Mpc, a/Mpc, b/Mpc);
+  fprintf(stderr,"\t>> drcyl = %"FSYM", z = %"FSYM", z_icm = %"FSYM"\n", drcyl*LengthUnits/Mpc_cm, a/Mpc_cm, b/Mpc_cm);
 	fprintf(stderr,"\t>> ss = %"FSYM", dss = %"FSYM"\n", ss, dss);
 	ENZO_FAIL("FAILED IN QROMB IN GRID_GALAXYSIMULATIONINIALIZE\n");
 	return -1.0;

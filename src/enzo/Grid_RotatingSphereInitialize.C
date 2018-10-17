@@ -871,7 +871,7 @@ float get_critical_density(float redshift) {
    float g_code, h_code;
    g_code = GravConst / (1.0 / (DensityUnits * pow(TimeUnits, 2.0)));
 
-   h_code = HUBBLE_CONSTANT_NOW * (CM_PER_KM / Mpc); // Now in cgs
+   h_code = HUBBLE_CONSTANT_NOW * (CM_PER_KM / Mpc_cm); // Now in cgs
    h_code *= TimeUnits; // Now in code units
 
    float E = sqrt(OMEGA_MATTER * pow(1.0 + redshift, 3.0) + OMEGA_LAMBDA);

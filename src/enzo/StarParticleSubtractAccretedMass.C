@@ -197,7 +197,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 	if (cstar->ReturnFeedbackFlag() != FORMATION)
 	  fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
 		  "Radius = %"GSYM" pc\n",
-		  cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
+		  cstar->ReturnID(), level, influenceRadius*LengthUnits/pc_cm);
 	fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
 		"changed %"ISYM" cells.\n", 
 		cstar->ReturnID(), level, CellsModified);

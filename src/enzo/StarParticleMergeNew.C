@@ -66,7 +66,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
   /* Merge all yet-to-be born stars within r_merge */
 
-  rmerge2o = powf(StarClusterCombineRadius * pc / LengthUnits, 2.0f);
+  rmerge2o = powf(StarClusterCombineRadius * pc_cm / LengthUnits, 2.0f);
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
     if (ThisStar->IsActive() || ThisStar->MarkedToDelete())
