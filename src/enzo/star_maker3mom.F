@@ -639,7 +639,7 @@ c
      &                    * num_d**(-3._RKIND/7._RKIND)
      &                    * Zsol**(-1._RKIND/7._RKIND)
                endif
-               R_resolve = dx*x1/pc
+               R_resolve = dx*x1/pc_cm
                if (R_PDS .gt. 4.5*R_resolve) then
                   kinf = 0._RKIND
 #ifdef FORTRAN_DEBUG
