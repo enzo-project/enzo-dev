@@ -211,7 +211,7 @@ float grid::ComputePhotonTimestep()
     if (G_TotalNumberOfStars > 0 && minStarLifetime < 1e6) {
       dtStar = minStarLifetime/NumberOfStepsInLifetime;
     } else {
-      dtStar = 3.1557e13*mindtNOstars/TimeUnits;
+      dtStar = Myr_s*mindtNOstars/TimeUnits;
     }
   }
 

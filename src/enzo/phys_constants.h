@@ -57,7 +57,24 @@
 /* Megaparsec [cm] */
 
 #define Mpc_cm                             3.0857e24
+
+/* kiloparsec [cm] */
+
 #define kpc_cm                             3.0857e21
+
+/* parsec [cm] */
+
 #define pc_cm                              3.0857e18
+
+/* Megayear [s] */
+
+#define Myr_s                              3.1557E13
+
+/* year [s] */
+
+#define yr_s                               3.1557E7
+
+
+
 
 #endif

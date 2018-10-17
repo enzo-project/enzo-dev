@@ -143,7 +143,7 @@ dim][0]);
   } // end: loop over dim
 
   /* Compute mass and momentum to be put into cells in code units if Jet is on this grid. */
-  JetMdot = (ClusterSMBHJetMdot*SolarMass/3.1557e7)/(MassUnits/TimeUnits);  // from M_sun/yr to code units
+  JetMdot = (ClusterSMBHJetMdot*SolarMass/yr_s)/(MassUnits/TimeUnits);  // from M_sun/yr to code units
 if (JetOnGrid == true){
   float JetNormalization = 0.0, density_normalization, radius, Tramp;
   if (jet_dim == 2){
@@ -179,9 +179,9 @@ if (JetOnGrid == true){
 
   /* Convert to code units. */
   density_normalization = (JetMdot/JetNormalization)*dtFixed/POW(CellWidth[0][0], 3);
-  Tramp = ClusterSMBHTramp*1.0e6*3.1557e7/TimeUnits;  // from Myr to code units 
+  Tramp = ClusterSMBHTramp*1.0e6*yr_s/TimeUnits;  // from Myr to code units 
 
-  JetVelocity = sqrt((ClusterSMBHJetEdot*1.0e44*ClusterSMBHKineticFraction*2)/(ClusterSMBHJetMdot*SolarMass/3.1557e7))/VelocityUnits;
+  JetVelocity = sqrt((ClusterSMBHJetEdot*1.0e44*ClusterSMBHKineticFraction*2)/(ClusterSMBHJetMdot*SolarMass/yr_s))/VelocityUnits;
   JetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     //linear ramp
   
   /* Clip edge of jet launching disk so we don't set cell off the edge of the grid. */
@@ -212,7 +212,7 @@ if (jet_dim == 2){
 	JetVelocity_x = JetVelocity;  // mutiplied by sincos later
 	JetVelocity_y = JetVelocity;  // mutiplied by sincos later
         if (ClusterSMBHJetPrecessionPeriod > 0.00001 || ClusterSMBHJetPrecessionPeriod < -0.00001)
-           ClusterSMBHJetAnglePhi = Time*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*3.1557e7/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
+           ClusterSMBHJetAnglePhi = Time*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*yr_s/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
       }
       else {
 	JetVelocity_z = JetVelocity * ClusterSMBHJetOpenAngleRadius / sqrt(POW(ClusterSMBHJetOpenAngleRadius, 2) + POW(radius, 2));
@@ -273,7 +273,7 @@ if (jet_dim == 0){
         JetVelocity_z = JetVelocity;  // mutiplied by sincos later
         JetVelocity_y = JetVelocity;  // mutiplied by sincos later
         if (ClusterSMBHJetPrecessionPeriod > 0.00001)
-           ClusterSMBHJetAnglePhi = Time*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*3.1557e7/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
+           ClusterSMBHJetAnglePhi = Time*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*yr_s/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
       }
       else {
         JetVelocity_x = JetVelocity * ClusterSMBHJetOpenAngleRadius / sqrt(POW(ClusterSMBHJetOpenAngleRadius, 2) + POW(radius, 2));
@@ -335,7 +335,7 @@ if (jet_dim == 1){
         JetVelocity_z = JetVelocity;  // mutiplied by sincos later
         JetVelocity_x = JetVelocity;  // mutiplied by sincos later
         if (ClusterSMBHJetPrecessionPeriod > 0.00001)
-           ClusterSMBHJetAnglePhi = Time*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*3.1557e7/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
+           ClusterSMBHJetAnglePhi = Time*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*yr_s/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
       }
       else {
         JetVelocity_y = JetVelocity * ClusterSMBHJetOpenAngleRadius / sqrt(POW(ClusterSMBHJetOpenAngleRadius, 2) + POW(radius, 2));

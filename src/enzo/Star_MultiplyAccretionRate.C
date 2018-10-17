@@ -36,7 +36,7 @@
 void Star::MultiplyAccretionRate(float &RecalibrateAccretingMassRatio)
 {
 
-  const double yr = 3.1557e7, sigma_T = 6.65e-25, c = 3.0e10;
+  const double sigma_T = 6.65e-25;
 
   float mdot, mdot_Edd;
 
@@ -45,7 +45,7 @@ void Star::MultiplyAccretionRate(float &RecalibrateAccretingMassRatio)
 
   // Below is exactly the same as in Star_CalculateMassAccretion
   mdot_Edd = 4.0 * PI * GravConst * this->Mass * mh /
-    max(MBHFeedbackRadiativeEfficiency, 0.1) / sigma_T / c; 
+    max(MBHFeedbackRadiativeEfficiency, 0.1) / sigma_T / c_light; 
 
   accretion_rate[0] = min(mdot, mdot_Edd);
 

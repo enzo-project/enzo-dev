@@ -89,7 +89,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   // Critical density in units of Msun / kpc^3
   D.RhoCritical0 = 1.4775867e31 * 
-    ((3 * pow(100 * HubbleConstantNow / 3.086e19, 2)) / (8 * pi * GRAVITY));
+    ((3.0 * POW(100 * HubbleConstantNow / 3.086e19, 2)) / (8.0 * pi * GRAVITY));
   //D.RhoCritical /= pow(D.Time, 3);
 
   // Sometimes MassUnits is infinite (in cgs) when using single

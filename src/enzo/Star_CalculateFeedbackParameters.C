@@ -44,7 +44,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float	WhalenDensity	  = 1;	        // cm^-3
   const float	WhalenMaxVelocity = 35;		// km/s
 
-  const double yr = 3.1557e7, Myr = 3.1557e13, 
+  const double
     sigma_T = 6.65e-25, h=0.70;
 
   const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
@@ -163,7 +163,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 //	       Identifier, Delta_SF, Mass, frac, Time, BirthTime);
     } else {
       Delta_SF = StarMassEjectionFraction * Mass * dtForThisStar * 
-	TimeUnits / (16.0*Myr);
+	TimeUnits / (16.0*Myr_s);
     }
     EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);   
     EjectaDensity = Delta_SF * SolarMass / EjectaVolume / DensityUnits;   

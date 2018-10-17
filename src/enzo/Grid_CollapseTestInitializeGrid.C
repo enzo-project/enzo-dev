@@ -1121,7 +1121,6 @@ int ComputeRadialVelocity(float density, double mass, float r_init,
 {
 
   const float theta0 = 0.5*pi, theta1 = 1.9*pi;
-  const float yr = 3.1557e7;
   const float delta_i = 0.5;
   float dtheta, delta_t[NTHETA], Theta[NTHETA], Lambda[NTHETA], Chi;
   float beta[NTHETA], little_d[NTHETA];
@@ -1146,10 +1145,10 @@ int ComputeRadialVelocity(float density, double mass, float r_init,
       iturn = i;
   }
 
-  t_init = 5.38e8 * yr * pow((1+InitialRedshift) / 10.0, -1.5);
+  t_init = 5.38e8 * yr_s * pow((1+InitialRedshift) / 10.0, -1.5);
   z_vir = pow((Theta[iinit] - sin(Theta[iinit])) / (2*pi), 2.0/3) * 
     (1 + InitialRedshift) - 1.0;
-  t_vir = 5.38e8 * yr * pow((1+z_vir) / 10.0, -1.5);
+  t_vir = 5.38e8 * yr_s * pow((1+z_vir) / 10.0, -1.5);
   t_ta = 0.5 * t_vir;
   t_i = t_ta * pow(delta_i, 1.5) / (3*pi/4);
   rho_ci = 1.0 / (6 * pi * GravConst * t_i*t_i);

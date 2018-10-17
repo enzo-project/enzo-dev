@@ -63,10 +63,10 @@ int Star::AssignFinalMassFromIMF(float TimeUnits)
 
   // First in years, then convert to code units
   this->LifeTime = POW(10.0, (9.785 - 3.759*logm + 1.413*logm*logm - 
-			      0.186*logm*logm*logm)) / (TimeUnits/3.1557e7);
+			      0.186*logm*logm*logm)) / (TimeUnits/yr_s);
 
 //  printf("random_num = %f, mass = %f Msun, lifetime = %f Myr\n",
-//	 x, this->FinalMass, this->LifeTime * TimeUnits / 3.1557e13);
+//	 x, this->FinalMass, this->LifeTime * TimeUnits / Myr_s);
 
   PopIIIInitialMassFunctionCalls++;
 

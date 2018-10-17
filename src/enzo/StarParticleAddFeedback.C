@@ -53,9 +53,6 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 			    Star* &AllStars, bool* &AddedFeedback)
 {
 
-  const double 
-    yr = 3.1557e7, Myr = 3.1557e13;
-
   Star *cstar;
   bool MarkedSubgrids = false;
   bool SphereCheck;

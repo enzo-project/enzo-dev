@@ -48,9 +48,6 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 				     Star *&AllStars)
 {
 
-  const double 
-    yr = 3.1557e7, Myr = 3.1557e13;
-
   Star *cstar;
   bool MarkedSubgrids = false;
   int i, l, dim, temp_int, SkipMassRemoval, SphereContained,

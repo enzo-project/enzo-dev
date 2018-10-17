@@ -50,9 +50,6 @@ int RecalibrateAccretingMass(FLOAT star_pos[], LevelHierarchyEntry *LevelArray[]
 			     float &RecalibrateAccretingMassRatio)
 {
 
-  const double
-    yr = 3.1557e7, Myr = 3.1557e13;
-
   float AvgVelocity[MAX_DIMENSION], MassEnclosed[2], Metallicity = 0, ColdGasMass = 0;
   float OneOverRSquaredSum, average_density_at_Bondi_radius = 0.0;
   int i, l, dim, count, FirstLoop = TRUE;

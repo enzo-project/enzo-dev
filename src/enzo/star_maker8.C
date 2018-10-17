@@ -423,7 +423,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Decide whether mass increase reached the ejection threshold */
 
       if (dmold[bb] < m_wind) continue;
-      if (mpold[bb]*POW(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*3.1557e7) continue;
+      if (mpold[bb]*POW(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*yr_s) continue;
     printf("Feedback 1 running.........\n");
 
       int first = 0;
@@ -542,7 +542,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Decide whether mass increase reached the ejection threshold */
 
       if (dmold[bb] < m_wind)	continue;
-      if (mpold[bb]*POW(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*3.1557e7)	continue;
+      if (mpold[bb]*POW(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*yr_s)	continue;
   
       
       int first = 0;
@@ -648,7 +648,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   /* StellarWindFeedback 3: Isotropic wind */
 
-  float mdot_wind = 1e-5*(*dt)*(*t1)/(3.1557e7*umass);  /* 10^-5 solar mases per year - this is in code units: density x length^3*/
+  float mdot_wind = 1e-5*(*dt)*(*t1)/(yr_s*umass);  /* 10^-5 solar mases per year - this is in code units: density x length^3*/
   //printf("Adding Stellar wind 3: dt =%e, mdot =%e, Vwind =%e, rho_wind =%e \n",dt,mdot_wind*umass/(*t1),v_wind*(*v1),rho_wind*(*d1));
   float SolidAngle;
   FLOAT mdot_wind1, mdot_wind2;
@@ -665,13 +665,13 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       }
       
       v_wind = 1.e5*(-355.554+892.32*log10(mpold[bb]*POW(*dx,3)*umass - 5.24765))/(*v1);
-      mdot_wind1 = (POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427))*((*t1)*(*dx)/v_wind)/(3.1557e7*umass);
-      mdot_wind2 = (POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427))*(*dt)*(*t1)/(3.1557e7*umass);
+      mdot_wind1 = (POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427))*((*t1)*(*dx)/v_wind)/(yr_s*umass);
+      mdot_wind2 = (POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427))*(*dt)*(*t1)/(yr_s*umass);
       mdot_wind = max(mdot_wind1,mdot_wind2);
       //(POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427)) - mass loss in SolarMass/yr (from N. Smith 2006 table 1)
       mdot_wind = mdot_wind/(4.0*Pi);/* mass Per solid angle */
 
-      printf("\n Mass star = %e SolarMass, Mdot_wind = %e SolarMass/yr, and v_wind = %e cm/s \n \n",mpold[bb]*POW(*dx,3)*umass,(4.0*Pi)*mdot_wind/((*dt)*(*t1)/(3.1557e7*umass)), v_wind*(*v1));
+      printf("\n Mass star = %e SolarMass, Mdot_wind = %e SolarMass/yr, and v_wind = %e cm/s \n \n",mpold[bb]*POW(*dx,3)*umass,(4.0*Pi)*mdot_wind/((*dt)*(*t1)/(yr_s*umass)), v_wind*(*v1));
       
       i = (xpold[bb] - *xstart)/(*dx);
       j = (ypold[bb] - *ystart)/(*dx);

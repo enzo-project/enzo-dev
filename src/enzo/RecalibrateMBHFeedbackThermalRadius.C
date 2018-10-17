@@ -45,9 +45,6 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
 					double &EjectaThermalEnergy)
 {
 
-  const double 
-    yr = 3.1557e7, Myr = 3.1557e13;
-
   float AvgVelocity[MAX_DIMENSION], MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0;
   float OneOverRSquaredSum, initialRadius; 
   int i, l, dim, FirstLoop = TRUE, MBHFeedbackThermalRadiusTooSmall;

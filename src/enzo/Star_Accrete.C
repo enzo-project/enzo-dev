@@ -40,7 +40,6 @@ int Star::Accrete(void)
       return SUCCESS;
   }
 
-  const double yr = 3.1557e7;
   int dim, i, n, count;
   FLOAT time = CurrentGrid->Time;
   float dt = CurrentGrid->dtFixed;
@@ -117,7 +116,7 @@ int Star::Accrete(void)
 	  " SolarMass/yr, time = %"GOUTSYM", "
 	  "accretion_time[0] = %"GOUTSYM", this_dt = %"GOUTSYM
 	  ", DeltaMass = %"GOUTSYM", Mass = %lf\n",
-	  last_accretion_rate*yr, time, accretion_time[0], this_dt, DeltaMass, Mass);
+	  last_accretion_rate*yr_s, time, accretion_time[0], this_dt, DeltaMass, Mass);
 
   /* Remove these entries in the accretion table */
 

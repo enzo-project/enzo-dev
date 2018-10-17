@@ -76,7 +76,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
   double LConv = (double) TimeUnits / pow(LengthUnits,3);
 
   // Convert to years
-  float TimeInYears = 3.1557e7 / TimeUnits;
+  float TimeInYears = yr_s / TimeUnits;
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 

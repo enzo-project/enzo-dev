@@ -213,7 +213,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 
   if (RadiativeTransferAdaptiveTimestep == FALSE && debug)
     printf("RadiativeTransfer: Setting dtPhoton = %g = %g years\n",
-	   dtPhoton, dtPhoton*TimeUnits/3.1557e7);
+	   dtPhoton, dtPhoton*TimeUnits/yr_s);
   
   return SUCCESS;
 

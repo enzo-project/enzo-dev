@@ -1000,8 +1000,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       mt_init(mt_seed);
       float random_u = (float)mt_seed/100.0; // random variable from 0 to 1
       float random_v = (float)mt_seed/100.0;
-      float random_phi = 2*pi*random_u; // 0 to 2pi                                                                                    
-      float random_theta = acos(2*random_v-1); // 0 to pi                                                                                
+      float random_phi = 2.0*pi*random_u; // 0 to 2pi                                                                                    
+      float random_theta = acos(2.0*random_v-1); // 0 to pi                                                                                
       // Setting up randomly oriented magnetic feedback of supernova
       float phi_x = sin(random_theta)*cos(random_phi);
       float phi_y = sin(random_theta)*sin(random_phi);
@@ -1014,7 +1014,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       // Converting time from years to seconds, then internal units
       float sn_duration = SupernovaSeedFieldDuration * 3.1556952e7 / TimeUnits;
       // Converting radius from parsecs to cm, then internal units
-      float sn_radius = SupernovaSeedFieldRadius * pc / LengthUnits;
+      float sn_radius = SupernovaSeedFieldRadius * pc_cm / LengthUnits;
       // Converting energy from ergs to internal units
       float MassUnits = DensityUnits * POW(LengthUnits, 3);
       float sn_energy = SupernovaSeedFieldEnergy / (MassUnits*VelocityUnits*VelocityUnits);

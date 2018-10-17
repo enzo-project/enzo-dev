@@ -42,9 +42,6 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			     bool &MarkedSubgrids)
 {
 
-  const double 
-    yr = 3.1557e7, Myr = 3.1557e13;
-
   float values[7];
   float AccretedMass, DynamicalTime = 0, AvgDensity, AvgVelocity[MAX_DIMENSION];
   int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, 
@@ -69,7 +66,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   StarType = ABS(this->type);
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     AvgVelocity[dim] = 0.0;
-  tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr);
+  tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
 
   // If there is already enough mass from accretion, create it
   // without removing a sphere of material.  It was already done in
@@ -322,7 +319,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	       "\t vel = %"FSYM" %"FSYM" %"FSYM" (%"FSYM" %"FSYM" %"FSYM")\n"
 	       "\t pos = %"PSYM" %"PSYM" %"PSYM"\n",
 	       this->Mass+AccretedMass, 100*ColdGasFraction, 
-	       AvgDensity, DynamicalTime*TimeUnits/Myr,
+	       AvgDensity, DynamicalTime*TimeUnits/Myr_s,
 	       AvgVelocity[0], AvgVelocity[1], AvgVelocity[2],
 	       vel[0], vel[1], vel[2],
 	       pos[0], pos[1], pos[2]);
@@ -345,7 +342,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       if (debug) 
 	printf("star::FindFeedbackSphere: Old protostar: lived %g yr. "
 	       "Particle mass = %g. Star particle %"PISYM".  Turning on.\n",
-	       (Time-this->BirthTime)*TimeUnits/yr, this->Mass, this->Identifier);
+	       (Time-this->BirthTime)*TimeUnits/yr_s, this->Mass, this->Identifier);
       this->BirthTime = Time;
       this->type = PopII;
     }
