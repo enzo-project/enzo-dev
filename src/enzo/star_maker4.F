@@ -110,7 +110,7 @@ c  calculate time constant for star formation.  This assumes that the
 c  user input is in units of years
 c
 
-      timeconstant = mintdyn * 3.156e7_RKIND / t1
+      timeconstant = mintdyn * yr_s / t1
 c
 c  for each zone, : "star" particle is created if the density exceeds
 c  some threshold and this is the highest level of refinement.  That's
