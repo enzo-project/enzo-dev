@@ -46,7 +46,6 @@ float grid::ComputePhotonTimestepTau(float DensityUnits, float LengthUnits,
 
   int i, j, k, dim, index, size;
   float dt, this_dt, sigma_dx, *temperature;
-  const double sigmaHI = 6.345e-18;
 
   dt = huge_number;
   

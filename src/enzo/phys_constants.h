@@ -35,6 +35,10 @@
 
 #define erg_eV                          1.60217653e-12
 
+/* HI ionization cross section [cm^-2]*/
+
+#define sigmaHI                         6.345e-18
+
 
 /************************************************/
 
