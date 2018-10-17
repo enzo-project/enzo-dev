@@ -39,6 +39,10 @@
 
 #define sigmaHI                         6.345e-18
 
+/* Thompson cross section [cm^-2] */
+
+#define sigma_thompson                  6.65E-25
+
 
 /************************************************/
 

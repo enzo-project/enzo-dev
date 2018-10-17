@@ -169,7 +169,6 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
     LuminosityConversion = CellLength;
   float TemperatureUnits, DensityUnits, LengthUnits, 
         VelocityUnits, TimeUnits;
-  double sigma_thompson = 6.65e-25;
   
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);

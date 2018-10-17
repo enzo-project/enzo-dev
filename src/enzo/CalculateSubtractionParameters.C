@@ -44,7 +44,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 				   float &Radius, double &Subtraction)
 {
 
-  const double sigma_T = 6.65e-25, h=0.70;
+  const double h=0.70;
 
   float mdot, AccretedMass, SafetyFactor;
   float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, OneOverRSquaredSum, AvgVelocity[MAX_DIMENSION];

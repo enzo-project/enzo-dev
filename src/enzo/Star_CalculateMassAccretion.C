@@ -40,7 +40,6 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
   if (this->type == MBH && MBHAccretion == 0)
     return SUCCESS;
 
-  const double sigma_T = 6.65e-25;
   const int AccretionType = LOCAL_ACCRETION;
   FLOAT time = CurrentGrid->OldTime;
 
@@ -507,7 +506,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
        a logistical purpose (to combine radiative+mechanical feedbacks for example) */
 
     mdot_Edd = 4.0 * PI * GravConst * old_mass * mh /
-      max(MBHFeedbackRadiativeEfficiency, 0.1) / sigma_T / c;     
+      max(MBHFeedbackRadiativeEfficiency, 0.1) / sigma_thompson / clight;     
     if (MBHAccretion < 10 && MBHAccretingMassRatio != BONDI_ACCRETION_CORRECT_NUMERICAL) {
       mdot = min(mdot, mdot_Edd); 
     }

@@ -44,8 +44,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float	WhalenDensity	  = 1;	        // cm^-3
   const float	WhalenMaxVelocity = 35;		// km/s
 
-  const double
-    sigma_T = 6.65e-25, h=0.70;
+  const double h=0.70;
 
   const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
