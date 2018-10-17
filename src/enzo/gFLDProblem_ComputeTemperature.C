@@ -35,9 +35,6 @@
 #include "gFLDProblem.h"
 #include "phys_constants.h"
 
->>>>>>> merge rev
-
-
 /* default constants */
 #define MIN_TEMP 1.0     // minimum temperature [K]
 
