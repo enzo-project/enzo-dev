@@ -365,7 +365,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 	BoxSize = LengthUnits/Mpc_cm; // to Mpc
 
       DensityConversion = FLOAT(double(DensityUnits) / SolarMass * pow(Mpc_cm, 3)); // to SolarMass/Mpc^3
-      VelocityConversion = FLOAT(double(VelocityUnits) / 1.0e5); // to km/s
+      VelocityConversion = FLOAT(double(VelocityUnits) / km_cm); // to km/s
 
       for (dim = 0; dim < MAX_DIMENSION; dim++) 
 	CellVolume *= CurrentGrid->CellWidth[0][0]*BoxSize; // in Mpc^3
@@ -412,7 +412,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 	gas_angmom[dim] /= total_gas_mass;
 
       // the specific angular momentum in Keplerian orbit in: Mpc * km/s
-      double Keplerian_angmom = sqrt(GravConst * old_mass * SolarMass / (CurrentGrid->CellWidth[0][0]*LengthUnits)) / 1e5 *
+      double Keplerian_angmom = sqrt(GravConst * old_mass * SolarMass / (CurrentGrid->CellWidth[0][0]*LengthUnits)) / km_cm *
 	CurrentGrid->CellWidth[0][0] * BoxSize;
 
       // now lambda = the ratio of specific angular momentum (the real vs. the Keplerian orbit)

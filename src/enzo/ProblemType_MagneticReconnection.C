@@ -119,7 +119,7 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
       for(i=0; i<MAX_DIMENSION; i++) 
         MagneticReconnectionCenterPosition[i] = 0.5;  // right in the middle of the box
 
-      MagneticReconnectionBperturbk[0] = 2 * pi;  
+      MagneticReconnectionBperturbk[0] = 2.0 * pi;  
       MagneticReconnectionBperturbk[1] = pi;  
       MagneticReconnectionBperturbk[2] = 0;
 
