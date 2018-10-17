@@ -704,7 +704,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[i++] = ByName;
     DataLabel[i++] = BzName;
     DataLabel[i++] = PhiName;
-    if(UseDivergenceCleaning){
+    if(UsePoissonDivergenceCleaning){
       DataLabel[i++] = Phi_pName;
     }
   }

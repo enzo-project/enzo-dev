@@ -396,7 +396,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
       /* if we restart from a different solvers output without a Phi_pField 
 	 and yet want to use the divergence cleaning, create here and set to zero */
-      if (UseDivergenceCleaning) {
+      if (UsePoissonDivergenceCleaning) {
 	int Phi_pNum; 
 	if ((Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields)) < 0) {
 	  fprintf(stderr, "Want to use divergence cleaning with no Phi_p field. \n");

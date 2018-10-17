@@ -935,7 +935,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     	&StarMakerExplosionDelayTime);
     ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
     ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
-
+    ret += sscanf(line, "StarMakerUseJeansMass = %"ISYM,
+		  &StarMakerUseJeansMass);
+    
     ret += sscanf(line, "StarClusterUseMetalField = %"ISYM, 
 		  &StarClusterUseMetalField);
     ret += sscanf(line, "StarClusterMinDynamicalTime = %"FSYM, 
@@ -1135,11 +1137,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 
     /* Read MHD Paramters */
-    ret += sscanf(line, "UseDivergenceCleaning = %"ISYM"", &UseDivergenceCleaning);
-    ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %"ISYM"", &DivergenceCleaningBoundaryBuffer);
-    ret += sscanf(line, "DivergenceCleaningThreshold = %"FSYM, &DivergenceCleaningThreshold);
+    ret += sscanf(line, "UsePoissonDivergenceCleaning = %"ISYM"", &UsePoissonDivergenceCleaning);
+    ret += sscanf(line, "PoissonDivergenceCleaningBoundaryBuffer = %"ISYM"", 
+                        &PoissonDivergenceCleaningBoundaryBuffer);
+    ret += sscanf(line, "PoissonDivergenceCleaningThreshold = %"FSYM, &PoissonDivergenceCleaningThreshold);
     ret += sscanf(line, "PoissonApproximationThreshold = %"FSYM, &PoissonApproximationThreshold);
     ret += sscanf(line, "PoissonBoundaryType = %"ISYM"", &PoissonBoundaryType);
+    //Read old parameter names for kindness.
+    ret += sscanf(line, "UseDivergenceCleaning = %"ISYM"", &UsePoissonDivergenceCleaning);
+    ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %"ISYM"", &PoissonDivergenceCleaningBoundaryBuffer);
+    ret += sscanf(line, "DivergenceCleaningThreshold = %"FSYM, &PoissonDivergenceCleaningThreshold);
    
 
     ret += sscanf(line, "AngularVelocity = %"FSYM, &AngularVelocity);
@@ -1639,6 +1646,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (initialize_chemistry_data(&grackle_units) == FAIL) {
       ENZO_FAIL("Error in Grackle initialize_chemistry_data.\n");
     }
+
+    // Need to set these after initialize_chemistry_data since
+    // that function sets them automatically based on the tables.
+    if (FinalRedshift < grackle_data->UVbackground_redshift_off) {
+      grackle_data->UVbackground_redshift_off = FinalRedshift;
+      grackle_data->UVbackground_redshift_drop = FinalRedshift;
+    }
+
   }  // if (grackle_data->use_grackle == TRUE)
 
   else {

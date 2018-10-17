@@ -26,7 +26,7 @@
 #include "CosmologyParameters.h"
 #include "phys_constants.h"
 
-int grid::RadiativeTransferXRays(PhotonPackageEntry **PP, float *dPXray, int cellindex, 
+int grid::RadiativeTransferXRays(PhotonPackageEntry **PP, FLOAT *dPXray, int cellindex,
 				 int species, FLOAT ddr, FLOAT tau,  float geo_correction,
 				 FLOAT photonrate, FLOAT *excessrate, float *ion2_factor,
 				 float heat_factor, const int *kphNum, int gammaNum)
@@ -58,7 +58,7 @@ int grid::RadiativeTransferXRays(PhotonPackageEntry **PP, float *dPXray, int cel
 
 #define COMPTON 3
 
-int grid::RadiativeTransferComptonHeating(PhotonPackageEntry **PP, float *dPXray, int cellindex, 
+int grid::RadiativeTransferComptonHeating(PhotonPackageEntry **PP, FLOAT *dPXray, int cellindex,
 					  float LengthUnits, float photonrate, 
 					  int TemperatureField, FLOAT ddr, double dN, 
 					  float geo_correction, int gammaNum)

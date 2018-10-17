@@ -740,7 +740,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
   if( HydroMethod == MHD_RK ){
     DataLabel[i++] = PhiName;
-    if(UseDivergenceCleaning){
+    if(UsePoissonDivergenceCleaning){
       DataLabel[i++] = Phi_pName;
     }
   }

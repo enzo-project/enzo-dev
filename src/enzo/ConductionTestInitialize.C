@@ -163,7 +163,7 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   }
   if ( HydroMethod == MHD_RK ){
     DataLabel[i++] = "Phi";
-    if(UseDivergenceCleaning){
+    if(UsePoissonDivergenceCleaning){
       DataLabel[i++] = "Phip";
     }
   }

@@ -90,7 +90,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
 
-  if(UseDivergenceCleaning){
+  if(UsePoissonDivergenceCleaning){
     FieldType[phip_num=NumberOfBaryonFields++] = Phi_pField;
     FieldType[NumberOfBaryonFields++] = DebugField;  
   }
