@@ -324,7 +324,7 @@ c
       INTG_PREC i, j, k, n
       R_PREC mform, tfactor, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio
-      parameter (c_light, msolar_e51 = 1800._RKIND)
+      parameter (msolar_e51 = 1800._RKIND)
 c      parameter (sn_param = 4e-6)    ! this seems a bit high
 c      parameter (m_eject = 0.3, yield = 0.02)
 c

@@ -196,7 +196,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 
   
   if (MBHAccretionRadius > 0) 
-    Radius = MBHAccretionRadius * pc / LengthUnits;
+    Radius = MBHAccretionRadius * pc_cm / LengthUnits;
   else {
     SafetyFactor = -MBHAccretionRadius;
     Radius = SafetyFactor * 2.0 * GravConst * old_mass * SolarMass / (c_s * c_s) / LengthUnits;

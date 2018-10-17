@@ -30,13 +30,11 @@ float gFLDSplit::CrossSections(float nu, int species)
 {
 
   // set necessary constants
-  float h = 6.6260693e-27;               // Planck's constant [ergs*s]
-  float nu0_HI   = hnu0_HI*erg_eV/h;     // ionization threshold of HI (hz)
-  float nu0_HeI  = hnu0_HeI*erg_eV/h;    // ionization threshold of HeI (hz)
-  float nu0_HeII = hnu0_HeII*erg_eV/h;   // ionization threshold of HeII (hz)
+  float nu0_HI   = hnu0_HI*erg_eV/h_planck;     // ionization threshold of HI (hz)
+  float nu0_HeI  = hnu0_HeI*erg_eV/h_planck;    // ionization threshold of HeI (hz)
+  float nu0_HeII = hnu0_HeII*erg_eV/h_planck;   // ionization threshold of HeII (hz)
   float nuscaled;                        // normalized frequency
   float eps;                             // constant in cross section definition
-  float pi = 4.0*atan(1.0);
   float sigma;
 
 

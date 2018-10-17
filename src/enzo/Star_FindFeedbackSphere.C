@@ -252,8 +252,8 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       // the I-front passes through it.
       //EjectaDensity = (MassEnclosed - AccretedMass) / MassEnclosed;
       EjectaDensity = (float) 
-	(double(SolarMass) * (MassEnclosed - AccretedMass)) / 
-	 double(4*pi/3.0 * pow(Radius*LengthUnits, 3)) /
+	(double(SolarMass * (MassEnclosed - AccretedMass)) / 
+	 double(4.0*pi/3.0 * POW(Radius*LengthUnits, 3)) /
 	 DensityUnits);
     
     else 

@@ -282,7 +282,7 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       printf("internal/external density/energy are:  %e/%e   %e/%e\n",numdens_of_r[0], numdens_of_r[RADIUS_BINS-1],
 	     T_of_r[0],T_of_r[RADIUS_BINS-1]);
 
-      CollapsingCoolingCloudRadius *= pc/LengthUnits;  // now in internal length units
+      CollapsingCoolingCloudRadius *= pc_cm/LengthUnits;  // now in internal length units
 
       this->InitializeUniformGrid(TopGrid.GridData,
 				  ExternalDensity,
@@ -771,13 +771,13 @@ void calculate_radial_profiles(float central_density, float central_temperature,
   double dr, k1, k2, k3, k4, this_temperature;
 
   n0 = 1.0e+3; // particles/cc
-  r0 = 1.0 * pc;  // in parsecs
+  r0 = 1.0 * pc_cm;  // in parsecs
 
   r_core = r0 * pow( n_core/n0, -1.0/2.2);
 
   printf("n0,n_c, r0, r_c = %e %e    %e %e\n",n0,n_core,r0,r_core);
 
-  dr = (r_outer - 0.0) * pc / RADIUS_BINS;  // dr in cm 
+  dr = (r_outer - 0.0) * pc_cm / RADIUS_BINS;  // dr in cm 
 
   this_temperature = T_center;
 
@@ -787,7 +787,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
     numdens_of_r[i]=radius_bins[i]=T_of_r[i]= -1.0;
   }
 
-  printf("%e    %e    %e\n", this_radius/pc, this_temperature, n_of_r(this_radius) );
+  printf("%e    %e    %e\n", this_radius/pc_cm, this_temperature, n_of_r(this_radius) );
 
   int counter=0;
 
@@ -796,7 +796,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
   radius_bins[counter]=this_radius;  // in CGS
   counter++;
 
-  while(this_radius <= r_outer*pc && counter < RADIUS_BINS){
+  while(this_radius <= r_outer*pc_cm && counter < RADIUS_BINS){
 
     k1 = dTdr(this_radius,          this_temperature);
     k2 = dTdr(this_radius + 0.5*dr, this_temperature + 0.5*dr*k1);
@@ -810,7 +810,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
     numdens_of_r[counter]=n_of_r(this_radius);  // particles/CC
     radius_bins[counter]=this_radius;  // in CGS
 
-    printf("%e    %e    %e   %e  %e  %d\n", this_radius/pc, this_temperature, n_of_r(this_radius), dr, r_outer*pc, counter );
+    printf("%e    %e    %e   %e  %e  %d\n", this_radius/pc_cm, this_temperature, n_of_r(this_radius), dr, r_outer*pc_cm, counter );
 
     counter++;
 

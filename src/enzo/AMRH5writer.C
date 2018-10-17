@@ -24,6 +24,7 @@
 #include "typedefs.h"
 #include "AMRH5writer.h"
 #include "StarParticleData.h"
+#include "phys_constants.h"
 
 AMRHDF5Writer::AMRHDF5Writer() :
   h5DataType(H5T_NATIVE_FLOAT),
@@ -157,7 +158,8 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
   char nFields8bit = (char) NumberOfAllFields;
   char stag8bit = (char) stag;
   int field;
-  fwrite(&pi, sizeof(float), 1, index_file);
+  double test_pi = pi;
+  fwrite(&test_pi, sizeof(float), 1, index_file);
   fwrite(&root_dx, sizeof(float), 1, index_file);
   fwrite(&nFields8bit, sizeof(char), 1, index_file);
   fwrite(&stag8bit, sizeof(char), 1, index_file);

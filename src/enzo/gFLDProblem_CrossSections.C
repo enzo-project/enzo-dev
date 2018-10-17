@@ -38,7 +38,6 @@ float gFLDProblem::CrossSections(float nu, int species)
   float nu0_HeII = hnu0_HeII*erg_eV/h;   // ionization threshold of HeII (hz)
   float nuscaled;                        // normalized frequency
   float eps;                             // constant in cross section definition
-  float pi = 4.0*atan(1.0);
   float sigma;
 
 

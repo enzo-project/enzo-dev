@@ -192,14 +192,14 @@ void Star::CalculateFeedbackParameters(float &Radius,
        The unit of EjectaThermalEnergy is ergs/cm3 = (cm^2/s^2) * (g/cm3).
        This value will be recalibrated in RecalibrateMFTR */
     EjectaThermalEnergy = MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency * 
-      mdot * SolarMass * c * c * dtForThisStar * TimeUnits / 
+      mdot * SolarMass * clight * clight * dtForThisStar * TimeUnits / 
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits); 
 
 #ifdef CONSTANT_SPECIFIC
     /* When injected energy is proportional to the cell mass;
        The unit of EjectaThermalEnergy is ergs/g = cm^2/s^2. */
     EjectaThermalEnergy = MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency * 
-      mdot * SolarMass * c * c * dtForThisStar * TimeUnits / 
+      mdot * SolarMass * clight * clight * dtForThisStar * TimeUnits / 
       (4.0/3.0 * PI * pow(-MBHFeedbackThermalRadius, 3) * SolarMass) / (VelocityUnits * VelocityUnits);
 #endif    
 
@@ -240,7 +240,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     /* Now calculate the feedback parameter based on mdot estimated above.  
        The unit of EjectaThermalEnergy is ergs/g = cm^2/s^2. */
     EjectaThermalEnergy = MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency * 
-      mdot * SolarMass * c * c * dtForThisStar * TimeUnits / 
+      mdot * SolarMass * clight * clight * dtForThisStar * TimeUnits / 
       (EjectaDensity * DensityUnits) / EjectaVolume / (VelocityUnits * VelocityUnits);
     if (isnan(EjectaThermalEnergy)) EjectaThermalEnergy = 0.0;
 

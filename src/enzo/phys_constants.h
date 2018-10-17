@@ -15,6 +15,10 @@
 
 /************************************************/
 
+/* Planck's constant  [erg s] */
+
+#define h_planck                        6.6260693E-27
+
 /* Boltzmann's constant [cm2gs-2K-1] or [ergK-1] */
 
 #define kboltz                          1.3806504e-16

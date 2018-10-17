@@ -1901,7 +1901,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
     //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF)
 
-      float mbhradius = MBHFeedbackThermalRadius * pc / LengthUnits; 
+      float mbhradius = MBHFeedbackThermalRadius * pc_cm / LengthUnits; 
  
       FORTRAN_NAME(star_feedback7)(
        GridDimension, GridDimension+1, GridDimension+2,

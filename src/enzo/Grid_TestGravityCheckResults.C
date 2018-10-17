@@ -23,6 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
  
 int grid::TestGravityCheckResults(FILE *fptr, grid *TopGrid)
 {

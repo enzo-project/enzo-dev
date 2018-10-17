@@ -32,7 +32,7 @@ AnalysisBaseClass::AnalysisBaseClass( TopGridData *metadata,
 			    HierarchyEntry *topgrid,
 			    int level,
 			    FLOAT *Left,
-			    FLOAT *Right):
+			    FLOAT *Right)
 
 {
 

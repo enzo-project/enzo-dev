@@ -58,7 +58,6 @@ int gFLDSplit::FillRates(EnzoVector *u, EnzoVector *u0, float *phHI,
     ENZO_FAIL("FillRates error: x2 vector sizes do not match");
 
   // set some physical constants
-  float hp = 6.6260693e-27;       // Planck's constant [ergs*s]
   float dom = DenUnits*a*a*a/mh;
   float tbase1 = TimeUnits;
   float xbase1 = LenUnits/a/aUnits;
@@ -80,12 +79,12 @@ int gFLDSplit::FillRates(EnzoVector *u, EnzoVector *u0, float *phHI,
   for (dim=0; dim<rank; dim++)  size *= ArrDims[dim];
 
   // fill HI photo-ionization rate
-  float pHIconst = clight*TimeUnits*intSigESigHInu/hp/intSigE;
+  float pHIconst = clight*TimeUnits*intSigESigHInu/h_planck/intSigE;
   for (i=0; i<size; i++)  phHI[i] = Er[i]*ErUn*pHIconst;
 
   // fill HeI and HeII photo-ionization rates
-  float pHeIconst  = clight*TimeUnits*intSigESigHeInu/hp/intSigE;
-  float pHeIIconst = clight*TimeUnits*intSigESigHeIInu/hp/intSigE;
+  float pHeIconst  = clight*TimeUnits*intSigESigHeInu/h_planck/intSigE;
+  float pHeIIconst = clight*TimeUnits*intSigESigHeIInu/h_planck/intSigE;
   if (RadiativeTransferHydrogenOnly == FALSE) {
     for (i=0; i<size; i++)  phHeI[i]  = Er[i]*ErUn*pHeIconst;
     for (i=0; i<size; i++)  phHeII[i] = Er[i]*ErUn*pHeIIconst;
@@ -93,9 +92,9 @@ int gFLDSplit::FillRates(EnzoVector *u, EnzoVector *u0, float *phHI,
    
   // fill photo-heating rate
   float phScale    = clight*TimeUnits/intSigE/VelUnits/VelUnits/mh/rtunits;
-  float GHIconst   = phScale*(intSigESigHI   - 13.6*erg_eV/hp*intSigESigHInu);
-  float GHeIconst  = phScale*(intSigESigHeI  - 24.6*erg_eV/hp*intSigESigHeInu);
-  float GHeIIconst = phScale*(intSigESigHeII - 54.4*erg_eV/hp*intSigESigHeIInu);
+  float GHIconst   = phScale*(intSigESigHI   - 13.6*erg_eV/h_planck*intSigESigHInu);
+  float GHeIconst  = phScale*(intSigESigHeI  - 24.6*erg_eV/h_planck*intSigESigHeInu);
+  float GHeIIconst = phScale*(intSigESigHeII - 54.4*erg_eV/h_planck*intSigESigHeIInu);
   if (Nchem == 1)
     for (i=0; i<size; i++)  photogamma[i] = Er[i]*ErUn*GHIconst;
   if (Nchem == 3) {

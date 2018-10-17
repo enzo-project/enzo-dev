@@ -24,7 +24,7 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#include "physical_constants.h"
+#include "phys_constants.h"
 
 int grid::RadiativeTransferXRays(PhotonPackageEntry **PP, float *dPXray, int cellindex, 
 				 int species, FLOAT ddr, FLOAT tau,  float geo_correction,

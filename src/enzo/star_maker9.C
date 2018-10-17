@@ -96,6 +96,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   if (*jlrefine > 0) {
     jlsquared = ((double)((*gamma) * pi * kboltz / GravConst) /
 		 ((double)(*d1) * mh)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
+  }
 
   /* Set new particle index to number of created star particles */
 

@@ -25,6 +25,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 unsigned_long_int mt_random(void);
 

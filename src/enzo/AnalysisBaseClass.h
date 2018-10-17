@@ -33,10 +33,6 @@ class AnalysisBaseClass{
 
  protected:
 
-  const float G;
-  const float MPC_CM;
-  const float MSOLAR_G;
-
   TopGridData *MetaData;
   HierarchyEntry *TopGrid;
   int MaximumAnalysisLevel;

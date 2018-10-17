@@ -26,6 +26,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 #define NO_MEAN_ENERGY
 

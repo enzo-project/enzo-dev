@@ -65,8 +65,8 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
        density:   M(solar)/Mpc^3
        velocity:  km/s */
  
-    VelocityConversion = VelocityUnits / 1.0e5;
-    DensityConversion = float(double(DensityUnits) / SolarMass * POW(Mpc, 3));
+    VelocityConversion = VelocityUnits / km_cm;
+    DensityConversion = float(double(DensityUnits) / SolarMass * POW(Mpc_cm, 3));
   }
  
   /* Set number of values for particle lists. */

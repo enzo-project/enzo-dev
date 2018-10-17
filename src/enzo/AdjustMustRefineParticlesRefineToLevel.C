@@ -81,7 +81,7 @@ int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level)
 
   MustRefineParticlesRefineToLevel = 
     (int) floor( log( LengthUnits / MetaData->TopGridDims[0] 
-		     / MustRefineParticlesRefineToLevelAutoAdjust / pc) / ln2);
+		     / MustRefineParticlesRefineToLevelAutoAdjust / pc_cm) / ln2);
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 

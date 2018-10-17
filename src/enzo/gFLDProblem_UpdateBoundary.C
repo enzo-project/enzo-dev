@@ -95,7 +95,7 @@ int gFLDProblem::UpdateBoundary(EnzoVector *u, float time, int flag)
     if (flag == 0) {
 
       // set some relevant constants
-      float bval, kap, tau, c, pi, so_eps;
+      float bval, kap, tau, so_eps;
       idx = ((ugh[2][0])*x1len+ugh[1][0])*x0len;  // first interior cell index
       kap = OpacityE[idx];                        // opacity (constant)
       so_eps = MarshakParms[0];                   // 'epsilon' for Su & Olson

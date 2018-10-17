@@ -30,6 +30,7 @@
 #include "LevelHierarchy.h"
 #include "Star.h"
 #include "CommunicationUtilities.h"
+#include "phys_constants.h"
 
 extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 //int LastTimestepUseHII = FALSE;

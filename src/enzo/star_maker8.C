@@ -669,9 +669,9 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       mdot_wind2 = (POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427))*(*dt)*(*t1)/(yr_s*umass);
       mdot_wind = max(mdot_wind1,mdot_wind2);
       //(POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427)) - mass loss in SolarMass/yr (from N. Smith 2006 table 1)
-      mdot_wind = mdot_wind/(4.0*Pi);/* mass Per solid angle */
+      mdot_wind = mdot_wind/(4.0*pi);/* mass Per solid angle */
 
-      printf("\n Mass star = %e SolarMass, Mdot_wind = %e SolarMass/yr, and v_wind = %e cm/s \n \n",mpold[bb]*POW(*dx,3)*umass,(4.0*Pi)*mdot_wind/((*dt)*(*t1)/(yr_s*umass)), v_wind*(*v1));
+      printf("\n Mass star = %e SolarMass, Mdot_wind = %e SolarMass/yr, and v_wind = %e cm/s \n \n",mpold[bb]*POW(*dx,3)*umass,(4.0*pi)*mdot_wind/((*dt)*(*t1)/(yr_s*umass)), v_wind*(*v1));
       
       i = (xpold[bb] - *xstart)/(*dx);
       j = (ypold[bb] - *ystart)/(*dx);
@@ -723,8 +723,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       float m_wind = 0.0;
       float cells_volume = 0.0;
       for (int ic = 0; ic < n_cell; ic++) {
-	//v_wind = mdot_wind/(4.0*Pi*POW(radius_cell[ic],2)*rho_wind);
-	//rho_wind = mdot_wind/(4.0*Pi*POW(radius_cell[ic],2)*v_wind);
+	//v_wind = mdot_wind/(4.0*pi*POW(radius_cell[ic],2)*rho_wind);
+	//rho_wind = mdot_wind/(4.0*pi*POW(radius_cell[ic],2)*v_wind);
 	// m_wind += rho_wind*POW(*dx,3);;
 	float u1 = u[ind_cell[ic]], 
 	  v1 = v[ind_cell[ic]],
