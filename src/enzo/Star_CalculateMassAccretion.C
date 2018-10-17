@@ -132,7 +132,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 
     // Calculate accretion rate in SolarMass/s
     mdot = 4.0 * PI * GravConst*GravConst * (old_mass * old_mass * SolarMass) * 
-      (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
+      (density * DensityUnits) / POW(c_s * c_s + v_rel * v_rel, 1.5);
 
     //this->DeltaMass += mdot * (CurrentGrid->dtFixed * TimeUnits);
 
@@ -227,7 +227,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 
     // Calculate accretion rate in SolarMass/s
     mdot = 4.0 * PI * GravConst*GravConst * (old_mass * old_mass * SolarMass) * 
-      (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
+      (density * DensityUnits) / POW(c_s * c_s + v_rel * v_rel, 1.5);
 
     /* For MBH, MBHAccretingMassRatio is implemented; when we resolve Bondi radius, 
        the local density used to calculate mdot can be higher than what was supposed 
@@ -242,14 +242,14 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
     if (MBHAccretingMassRatio > 0) {
       mdot *= MBHAccretingMassRatio;
     } else if (MBHAccretingMassRatio == BONDI_ACCRETION_CORRECT_ANALYTIC) {
-      mdot *= min(pow(CurrentGrid->CellWidth[0][0]/BondiRadius, 1.5), 1.0);
+      mdot *= min(POW(CurrentGrid->CellWidth[0][0]/BondiRadius, 1.5), 1.0);
     } 
     
     /* Don't take out too much mass suddenly; this is usually not needed 
        because mdot is almost always very small */
 
 //  mdot_UpperLimit = 0.10 * density * DensityUnits * 
-//	pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / SolarMass / 
+//	POW(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / SolarMass / 
 //	(CurrentGrid->dtFixed) / TimeUnits;
 //  mdot = min(mdot, mdot_UpperLimit);
 
@@ -304,14 +304,14 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       vorticity = sqrt(curl_x*curl_x + curl_y*curl_y + curl_z*curl_z) / TimeUnits * 
 	BondiRadius * LengthUnits / c_s;
 
-      mdot *= pow(1 + pow(0.34 / (1 + pow(vorticity, 0.9)), -2.0), -0.5);
+      mdot *= POW(1 + POW(0.34 / (1 + POW(vorticity, 0.9)), -2.0), -0.5);
 
       if (mdot > 0.0) {
 	fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" SolarMass/yr, "
 		"M_BH = %lf SolarMass, rho = %"GSYM" g/cm3, c_s = %"GSYM" cm/s, "
 		"vorticity = %"GSYM" /s, suppression factor = %"GSYM"\n",
 		Identifier, time, mdot*yr_s, Mass, density*DensityUnits, c_s, vorticity,
-		pow(1 + pow(0.34 / (1 + pow(vorticity, 0.9)), -2.0), -0.5));
+		POW(1 + POW(0.34 / (1 + POW(vorticity, 0.9)), -2.0), -0.5));
 //	this->PrintInfo();  
       }
 
@@ -331,7 +331,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       mdot = 3.0 * PI * alpha * (c_s * c_s) / SolarMass * 
 	(density * DensityUnits * CurrentGrid->CellWidth[0][0]*LengthUnits) /
 	sqrt(GravConst * density * DensityUnits * 8.0 + 
-	     GravConst * (old_mass * SolarMass) / pow(CurrentGrid->CellWidth[0][0]*LengthUnits/2.0, 3.0));
+	     GravConst * (old_mass * SolarMass) / POW(CurrentGrid->CellWidth[0][0]*LengthUnits/2.0, 3.0));
 
       if (mdot > 0.0) {
 	fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" SolarMass/yr, "
@@ -339,7 +339,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
                 "Omega1 = %"GSYM" /s, Omeag2 = %"GSYM" /s\n",
 		Identifier, time, mdot*yr_s, Mass, density*DensityUnits, c_s, temperature[index],
 		sqrt(GravConst * density * DensityUnits * 8.0), 	     
-		sqrt(GravConst * old_mass * SolarMass / pow(CurrentGrid->CellWidth[0][0]*LengthUnits/2.0, 3.0)));
+		sqrt(GravConst * old_mass * SolarMass / POW(CurrentGrid->CellWidth[0][0]*LengthUnits/2.0, 3.0)));
 //	this->PrintInfo();  
       }
 
@@ -364,7 +364,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       } else
 	BoxSize = LengthUnits/Mpc_cm; // to Mpc
 
-      DensityConversion = FLOAT(double(DensityUnits) / SolarMass * pow(Mpc_cm, 3)); // to SolarMass/Mpc^3
+      DensityConversion = FLOAT(double(DensityUnits) / SolarMass * POW(Mpc_cm, 3)); // to SolarMass/Mpc^3
       VelocityConversion = FLOAT(double(VelocityUnits) / km_cm); // to km/s
 
       for (dim = 0; dim < MAX_DIMENSION; dim++) 
@@ -433,10 +433,10 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       // mdot = 3pi*alpha * c_s^2 * Sigma / Omega
       //      = 3^(4/3)/4^(1/3) * pi * (3*kboltz/mh)^(4/3) * (3*kappa/(16*sigma_SB*G))^(1/3) * alpha^(4/3) *
       //        M^(-1/3) * Sigma^(5/3) * R * lambda^(-4/3)
-      mdot = pow(3.0, 4.0/3.0)/pow(4.0, 1.0/3.0) * PI / SolarMass * pow(3.0*kboltz/mh, 4.0/3.0) *
-	pow(3.0*kappa/16.0/sigma_SB/GravConst, 1.0/3.0) * pow(alpha, 4.0/3.0) * pow(old_mass * SolarMass, -1.0/3.0) *
-	pow(density * DensityUnits * CurrentGrid->CellWidth[0][0]*LengthUnits, 5.0/3.0) *
-	CurrentGrid->CellWidth[0][0]*LengthUnits * pow(lambda, -7.0/3.0);
+      mdot = POW(3.0, 4.0/3.0)/POW(4.0, 1.0/3.0) * PI / SolarMass * POW(3.0*kboltz/mh, 4.0/3.0) *
+	POW(3.0*kappa/16.0/sigma_SB/GravConst, 1.0/3.0) * POW(alpha, 4.0/3.0) * POW(old_mass * SolarMass, -1.0/3.0) *
+	POW(density * DensityUnits * CurrentGrid->CellWidth[0][0]*LengthUnits, 5.0/3.0) *
+	CurrentGrid->CellWidth[0][0]*LengthUnits * POW(lambda, -7.0/3.0);
 
 //    if (mdot > 0.0) {
 // 	fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" SolarMass/yr, "
@@ -496,7 +496,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 
       // Calculate accretion rate in SolarMass/s
       // mdot = -rho * A * div(v) in SolarMass/sec (if no converging flow, no accretion)
-      mdot = max(0.0, -density * DensityUnits * pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 2.0) *
+      mdot = max(0.0, -density * DensityUnits * POW(CurrentGrid->CellWidth[0][0]*LengthUnits, 2.0) *
 		 divergence * VelocityUnits / SolarMass);	
     }		   
 
