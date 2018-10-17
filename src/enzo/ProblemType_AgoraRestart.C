@@ -864,8 +864,6 @@ public:
       ENZO_FAIL("Error in GetUnits.");
     }
 
-    const float km_cm = 1e5;
-
     fptr = fopen(fname, "r");
 
     while(fgets(line, MAX_LINE_LENGTH, fptr) != NULL)

@@ -74,6 +74,10 @@
 
 #define pc_cm                              3.0857e18
 
+/* kilometer [cm] */
+
+#define km_cm                              1.0E5
+
 /* Megayear [s] */
 
 #define Myr_s                              3.1557E13
