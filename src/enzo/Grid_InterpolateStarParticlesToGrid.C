@@ -57,7 +57,6 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
   int NumberOfStarParticlesInGrid = 0;
   double xv1 = 0.0, xv2 = 0.0, minitial = 0.0, mform = 0.0;
   float CellWidthTemp = float(CellWidth[0][0]);
-  const double yr = 3.15557e7;
   FLOAT dtForSFR; 
 
   /* Set the units. */
@@ -69,7 +68,7 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
         ENZO_FAIL("Error in GetUnits.");
   }
  
-  dtForSFR = StarMakerMinimumDynamicalTime * yr / TimeUnits;  // = 1.35e-5 in code unit
+  dtForSFR = StarMakerMinimumDynamicalTime * yr_s / TimeUnits;  // = 1.35e-5 in code unit
 
   /* Compute size (in floats) of the current grid. */
  
@@ -184,7 +183,7 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
 	
 	// (12) SFR density (code density unit  ->  Ms/yr/kpc^3)
 	InterpolatedField[SFRDensNum][i] *= 
-	  DensityUnits / SolarMass * pow(kpc_cm, 3) / ( dtForSFR * TimeUnits / yr );
+	  DensityUnits / SolarMass * pow(kpc_cm, 3) / ( dtForSFR * TimeUnits / yr_s );
 	
 	// (13) (in code time unit)
 	InterpolatedField[CreationTimeNum][i] /= NumberOfStarParticlesInGrid;    
