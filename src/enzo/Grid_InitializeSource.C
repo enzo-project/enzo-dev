@@ -104,11 +104,10 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
     //  }
 
   float HIRecombinationRate = 2.6e-13;
-  float HICrossSection = 6.8e-18;
 
   int delk, delj, deli, index;
   FLOAT delr, delCell;
-  double Luminosity= (double) RS->Luminosity * (double) pow(LengthUnits,3) / 
+  double Luminosity= (double) RS->Luminosity * (double) POW(LengthUnits,3) / 
     (double) TimeUnits;
   double ConvertToProperDensity = double(DensityUnits)/double(mh);
   float fH, fHI, Old_fHII;
@@ -133,13 +132,13 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
 	fH = CoolData.HydrogenFractionByMass;
 	fHI = (ConvertToProperDensity * 
 	       (double) density[index+i] * fH / 
-	       (Luminosity / (4*pi*(double)pow(delr,2)))) *
-	  (HIRecombinationRate / HICrossSection);
+	       (Luminosity / (4*pi*(double)POW(delr,2)))) *
+	  (HIRecombinationRate / sigmaHI);
 
 //	printf("rho = %"GSYM", SA = %"GSYM", ratio = %"GSYM"\n", 
 //	       ConvertToProperDensity * (double)BaryonField[DensNum][index+i]*fH,
-//	       (4*pi*(double)pow(delr,2)),
-//	       (HIRecombinationRate / HICrossSection));
+//	       (4*pi*(double)POW(delr,2)),
+//	       (HIRecombinationRate / sigmaHI));
 //	printf("fHI = %"GSYM", delr = %"GSYM", delC = %"GSYM", L = %"GSYM"\n", fHI, delr, delCell,
 //	       Luminosity);
 //	printf("delta(i,j,k) = %"ISYM" %"ISYM" %"ISYM"\n", deli, delj, delk);	
