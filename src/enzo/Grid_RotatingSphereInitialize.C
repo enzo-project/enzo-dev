@@ -89,7 +89,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 // Physical Constants
 const float VIRIAL_COEFFICIENT = 200.0; // Use r_200
 const float AMU_CGS = 1.6605402e-24;
-const float CM_PER_KM = 1.0e5;
 
 // Cosmological parameters, used for computing the critical density
 // and setting up the NFW halo. The setup should not be very sensitive
@@ -871,7 +870,7 @@ float get_critical_density(float redshift) {
    float g_code, h_code;
    g_code = GravConst / (1.0 / (DensityUnits * pow(TimeUnits, 2.0)));
 
-   h_code = HUBBLE_CONSTANT_NOW * (CM_PER_KM / Mpc_cm); // Now in cgs
+   h_code = HUBBLE_CONSTANT_NOW * (km_cm / Mpc_cm); // Now in cgs
    h_code *= TimeUnits; // Now in code units
 
    float E = sqrt(OMEGA_MATTER * pow(1.0 + redshift, 3.0) + OMEGA_LAMBDA);
