@@ -68,7 +68,7 @@ int grid::AddMagneticSupernovaeToList()
       printf("Current dtFixed = %e years \n", dtFixed * TimeUnits / yr_s);
     }
     // Converting radius from parsecs to cm, then internal units
-    sn_radius = MagneticSupernovaRadius * pc_cmn / LengthUnits;
+    sn_radius = MagneticSupernovaRadius * pc_cm / LengthUnits;
     if(sn_radius < 1.5 * this->CellWidth[0][0]){
       printf("WARNING: Magnetic supernova feedback radius is less than the recommended minimum of 1.5 x CellWidth\n"); 
       printf("Current CellWidth = %e pc \n", this->CellWidth[0][0] * LengthUnits / pc_cm);

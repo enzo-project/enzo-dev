@@ -30,8 +30,7 @@ float gFLDProblem::RadiationSpectrum(float nu)
 {
 
   // set necessary constants
-  float h = 6.6260693e-27;          // Planck's constant [ergs*s]
-  float nu0 = hnu0_HI*erg_eV/h;     // ionization threshold of Hydrogen (hz)
+  float nu0 = hnu0_HI*erg_eV/h_planck;     // ionization threshold of Hydrogen (hz)
   float sigma;
 
   // check that frequency is within the allowed range
@@ -46,7 +45,7 @@ float gFLDProblem::RadiationSpectrum(float nu)
 
   case 1:
     // T = 1e5 K blackbody spectrum
-    sigma = 8.0*pi*h*POW(nu/clight,3)/(exp(h*nu/kboltz/1e5)-1.0);
+    sigma = 8.0*pi*h_planck*POW(nu/clight,3)/(exp(h_planck*nu/kboltz/1e5)-1.0);
     break;
 
   // Add new spectrum choices here
