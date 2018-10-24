@@ -88,16 +88,12 @@
 
 /* Megayear [s] */
 
-#define Myr_s                              3.1557E13
+#define Myr_s                              3.1556952E13
 
 /* year [s] */
 
-#define yr_s                               3.1557E7
+#define yr_s                               3.1556952E7
 
 
-
-
-/* Time units */
-#define SecondsPerYear                  3.1556952e7
 
 #endif
