@@ -83,7 +83,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
       this->FeedbackFlag = FORMATION;
     
   case PopII:
-    AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
+    AgeInMyr = (Time - BirthTime) * TimeUnits / Myr_s;
     if (this->type > 0)
       if ((AgeInMyr > StarClusterSNeStart && AgeInMyr < StarClusterSNeEnd) ||
 	  StarClusterUnresolvedModel)
@@ -108,7 +108,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
   /* For MBH particle. Even with the NO_FEEDBACK flag, 
      the particle still can act as a Radiation Source if RadiativeTransfer = 1. */  
   case MBH:
-    AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
+    AgeInMyr = (Time - BirthTime) * TimeUnits / Myr_s;
     if (this->type > 0 && AgeInMyr > 0 && MBHFeedback > 0) {
       if (MBHFeedback == 1) 
 	this->FeedbackFlag = MBH_THERMAL;

@@ -1828,7 +1828,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
                           soonestExplosion[i] = delayTime;
                       }
                   }
-                  if( relativeTime < delayTime + 3.15e12/TimeUnits) {
+                  if( relativeTime < delayTime + 0.1 * Myr_s/TimeUnits) {
                       // refine!
                       ParticleType[i] = PARTICLE_TYPE_MUST_REFINE; 
                   } 
