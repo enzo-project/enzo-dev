@@ -51,7 +51,6 @@ int grid::FindAllStarParticles(int level)
     //StarType = abs(ParticleType[i]);
     if (ParticleType[i] == PARTICLE_TYPE_SINGLE_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE ||
-	(ParticleType[i] == PARTICLE_TYPE_STAR && UseSupernovaSeedFieldSourceTerms) ||
 	ParticleType[i] == PARTICLE_TYPE_CLUSTER ||
         ParticleType[i] == PARTICLE_TYPE_COLOR_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_MBH ||
@@ -59,7 +58,7 @@ int grid::FindAllStarParticles(int level)
        	(StarParticleRadiativeFeedback == TRUE &&
 	 ParticleType[i] == PARTICLE_TYPE_STAR)) {
 
-      if (ParticleType[i] == PARTICLE_TYPE_STAR)
+      if (ParticleType[i] == PARTICLE_TYPE_STAR && UseMagneticSupernovaFeedback == 0)
 	LifetimeFactor = 12.0;
       else
 	LifetimeFactor = 1.0;

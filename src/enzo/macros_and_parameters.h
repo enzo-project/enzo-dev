@@ -1,5 +1,12 @@
 #ifndef __macros_and_parameters_h_
 #define __macros_and_parameters_h_
+#include "string.h"
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <algorithm>
+#include <map>
+#include <cassert>
 /***********************************************************************
 /  
 / MACRO DEFINITIONS AND PARAMETERS
@@ -517,7 +524,6 @@ typedef long long int   HDF5_hid_t;
 #define MBH_THERMAL 7
 #define MBH_JETS 8
 #define COLOR_FIELD 9
-#define SUPERNOVA_SEEDFIELD 11
 
 /* Sink particle accretion modes */
 

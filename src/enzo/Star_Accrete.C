@@ -30,15 +30,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int Star::Accrete(void)
 {
-  if (UseSupernovaSeedFieldSourceTerms == 1){
-    if (this->CurrentGrid == NULL ||(this->naccretions == 0))
-      return SUCCESS;
-  }
-  else {
-      if (this->CurrentGrid == NULL || 
-          (this->naccretions == 0 && fabs(this->DeltaMass) < tiny_number))
-      return SUCCESS;
-  }
+   if (this->CurrentGrid == NULL || 
+      (this->naccretions == 0 && fabs(this->DeltaMass) < tiny_number))
+    return SUCCESS;
+  
 
   int dim, i, n, count;
   FLOAT time = CurrentGrid->Time;

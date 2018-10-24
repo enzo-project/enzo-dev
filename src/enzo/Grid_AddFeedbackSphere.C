@@ -44,8 +44,6 @@
 
 int FindField(int field, int farray[], int numfields);
 
-void mt_init(unsigned_int seed);
-
 int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits, 
 			    float LengthUnits, float VelocityUnits, 
 			    float TemperatureUnits, float TimeUnits, double EjectaDensity, 
@@ -989,7 +987,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   /* Now it's done, unmark. */
 
   //cstar->FeedbackFlag = NO_FEEDBACK;
-   
 
   // Create a randomly-oriented SuperNova object and add it to the SuperNova Grid list
   if (cstar->FeedbackFlag == SUPERNOVA_SEEDFIELD) {
@@ -1012,7 +1009,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
       // Convert units to system units
       // Converting time from years to seconds, then internal units
-      float sn_duration = SupernovaSeedFieldDuration * 3.1556952e7 / TimeUnits;
+      float sn_duration = SupernovaSeedFieldDuration * yr_s / TimeUnits;
       // Converting radius from parsecs to cm, then internal units
       float sn_radius = SupernovaSeedFieldRadius * pc_cm / LengthUnits;
       // Converting energy from ergs to internal units
@@ -1030,7 +1027,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       }
     }
   }
-  
+
 
   return SUCCESS;
 

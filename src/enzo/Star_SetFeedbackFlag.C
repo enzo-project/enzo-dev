@@ -134,12 +134,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
 
    //this->type = abs_type;
 
- case PARTICLE_TYPE_STAR:
-   if(UseSupernovaSeedFieldSourceTerms)
-     this->FeedbackFlag = SUPERNOVA_SEEDFIELD;
-   break;
-}
-
+  }
 
   return SUCCESS;
 }

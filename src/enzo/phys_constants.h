@@ -97,4 +97,7 @@
 
 
 
+/* Time units */
+#define SecondsPerYear                  3.1556952e7
+
 #endif
