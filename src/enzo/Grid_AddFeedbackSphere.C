@@ -43,9 +43,6 @@
 
 int FindField(int field, int farray[], int numfields);
 
-void mt_init(unsigned_int seed);
-unsigned_long_int mt_random();
-
 int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits, 
 			    float LengthUnits, float VelocityUnits, 
 			    float TemperatureUnits, float TimeUnits, double EjectaDensity, 

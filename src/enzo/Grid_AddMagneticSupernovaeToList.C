@@ -10,7 +10,6 @@
 /          
 ************************************************************************/
 
-#define USE
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -20,6 +19,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "phys_constants.h"
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
@@ -29,7 +29,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
-             float *VelocityUnits, FLOAT Time);
+             float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 void mt_init(unsigned_int seed);
 unsigned_long_int mt_random();
@@ -46,7 +46,7 @@ int grid::AddMagneticSupernovaeToList()
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits, EnergyUnits;
   if (GetUnits(&DensityUnits, &LengthUnits,&TemperatureUnits, &TimeUnits,
-               &VelocityUnits, Time) == FAIL){
+               &VelocityUnits, &MassUnits, Time) == FAIL){
     fprintf(stderr, "Error in GetUnits.\n");
     return FAIL;
   }
@@ -56,19 +56,26 @@ int grid::AddMagneticSupernovaeToList()
   // below based on the resolution of the grid at the highest refinement level
   if (UseMagneticSupernovaFeedback > 1){
     sn_duration = 5.0 * dtFixed;
-    MagneticSupernovaDuration = sn_duration * TimeUnits / 3.1156952e7;
-    sn_radius = 3.0 * this->CellWidth[0][0];
-    MagneticSupernovaRadius = sn_radius * LengthUnits / 3.0856775714e18;
+    MagneticSupernovaDuration = sn_duration * TimeUnits / SecondsPerYear;
+    sn_radius = 1.5 * this->CellWidth[0][0];
+    MagneticSupernovaRadius = sn_radius * LengthUnits / pc;
   }
   else {
     // Converting time from years to seconds, then internal units
-    sn_duration = MagneticSupernovaDuration * 3.1556952e7 / TimeUnits;
-
+    sn_duration = MagneticSupernovaDuration * SecondsPerYear / TimeUnits;
+    if(sn_duration < 5.0 * dtFixed) {
+      printf("WARNING: Magnetic supernova feedback duration is less than the recommended minimum of 5 x dtFixed\n");
+      printf("Current dtFixed = %e years \n", dtFixed * TimeUnits / SecondsPerYear);
+    }
     // Converting radius from parsecs to cm, then internal units
-    sn_radius = MagneticSupernovaRadius * 3.0856775714e18 / LengthUnits;
+    sn_radius = MagneticSupernovaRadius * pc / LengthUnits;
+    if(sn_radius < 1.5 * this->CellWidth[0][0]){
+      printf("WARNING: Magnetic supernova feedback radius is less than the recommended minimum of 1.5 x CellWidth\n"); 
+      printf("Current CellWidth = %e pc \n", this->CellWidth[0][0] * LengthUnits / pc);
+    }
+   
   }
   // Converting energy from ergs to internal units 
-  MassUnits = DensityUnits * POW(LengthUnits, 3);
   sn_energy = MagneticSupernovaEnergy / (MassUnits*VelocityUnits*VelocityUnits);
 
   for (int star_id = 0;  star_id < this->NumberOfParticles; star_id++){

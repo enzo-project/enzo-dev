@@ -568,8 +568,8 @@ ergs.
 which to inject supernova energy. The injection mechanism normalizes the
 spatial exponential decay of the injected supernova energy so that all of the
 energy is contained within the specified radius. For this reason, the
-``MagneticSupernovaRadius`` should be at least 3 times the minimum cell width of
-the simulation. Default = 300 pc.
+``MagneticSupernovaRadius`` should be at least 1.5 times the minimum cell width of
+the simulation (in pc). Default = 300 pc.
 
 ``MagneticSupernovaDuration`` (in units of years) gives the duration of the
 supernova magnetic energy injection. The injection mechanism is normalized so

@@ -541,7 +541,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
 	// Find recently-supernova stars to add them the MagneticSupernovaList 
-	if ((UseMagneticSupernovaFeedback) && (level > MaximumRefinementLevel - 1))
+	if ((UseMagneticSupernovaFeedback) && (level == MaximumRefinementLevel))
 	  Grids[grid1]->GridData->AddMagneticSupernovaeToList();
 
         /* Call hydro solver and save fluxes around subgrids. 

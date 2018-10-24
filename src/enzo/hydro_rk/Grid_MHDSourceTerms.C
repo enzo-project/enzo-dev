@@ -19,6 +19,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "phys_constants.h"
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
@@ -373,15 +374,17 @@ int grid::MHDSourceTerms(float **dU)
     }
 
     // Converting radius from parsecs to cm, then internal units   
-    float sn_radius = MagneticSupernovaRadius * 3.0856775714e18 / LengthUnits;
+    float sn_radius = MagneticSupernovaRadius * pc / LengthUnits;
 
     active_x = GridDimension[0] - 2*NumberOfGhostZones; 
     active_y = GridDimension[1] - 2*NumberOfGhostZones;
 
-    num_sn_cells_x = (int) (sn_radius / CellWidth[0][0]); 
-    num_sn_cells_y = (int) (sn_radius / CellWidth[1][0]);
-    num_sn_cells_z = (int) (sn_radius / CellWidth[2][0]);
-
+    // the number of additional cells that receive magnetic supernova feedback. 
+    // assuming the supernova is in the center of one cell
+    num_sn_cells_x = (int) ((sn_radius - 0.5*CellWidth[0][0])/ CellWidth[0][0]); 
+    num_sn_cells_y = (int) ((sn_radius - 0.5*CellWidth[1][0])/ CellWidth[1][0]);
+    num_sn_cells_z = (int) ((sn_radius - 0.5*CellWidth[2][0])/ CellWidth[2][0]);
+			    
     for (std::vector<SuperNova>::iterator current_sn = this->MagneticSupernovaList.begin(); 
            current_sn != this->MagneticSupernovaList.end(); current_sn++){
 
@@ -409,7 +412,7 @@ int grid::MHDSourceTerms(float **dU)
 	    
 	      // solving for index n
 	      // analogous to how igrid is calculated, but taking into acount Ghost Zones
-	      n = (i - GridStartIndex[0])+((j-GridStartIndex[1]) + (k-GridStartIndex[2])*active_y) * active_x;     	    
+	      n = (i - GridStartIndex[0])+((j-GridStartIndex[1]) + (k-GridStartIndex[2])*active_y) * active_x;
 	      
 	      dU[iBx][n] += S.dbx*dtFixed;
 	      dU[iBy][n] += S.dby*dtFixed;
