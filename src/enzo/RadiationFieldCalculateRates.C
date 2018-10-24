@@ -286,14 +286,14 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
     float RedshiftXrayCutoff = 5.0;
     
-    CoolData.comp_xray = sigma_thompson * 3.0e10 * 
+    CoolData.comp_xray = sigma_thompson * clight *
                         (31.8*POW(1.0+Redshift, 0.3333)/511.0) * 
                         (6.3e-5 * 1.6e-12) * 
                         POW(1.0 + Redshift, 4) * 
                         exp(-POW(Redshift/RedshiftXrayCutoff, 2)) / 
                         CoolingUnits; 
     /*
-    CoolData.comp_xray = sigma_thompson * 3.0e10 * 
+    CoolData.comp_xray = sigma_thompson * clight * 
                         (1.0/511.0e3) * 
                         (4.0 * kboltz/1.6e-12) *
                         (6.3e-5 * 1.6e-12) * 
