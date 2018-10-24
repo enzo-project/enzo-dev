@@ -167,8 +167,9 @@ c
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / SolarMass
                isosndsp2 = sndspdC * temp(i,j,k)
                if (usejeans .eq. 1) then
-                 jeanmass = pi_val/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
-       &                    dble(pi_val * isosndsp2 / GravConst)**1.5_RKIND / SolarMass
+                 jeanmass = pi_val/(6._RKIND*sqrt(d(i,j,k)*dble(d1)))*
+     &             dble(pi_val * isosndsp2 / GravConst)**1.5_RKIND / 
+     &            SolarMass
 
                   if (bmass .lt. jeanmass) goto 10
                endif
