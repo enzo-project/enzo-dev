@@ -74,6 +74,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     if( ABS(cstar->ReturnType()) != IndividualStar &&
         ABS(cstar->ReturnType()) != IndividualStarWD &&
         ABS(cstar->ReturnType()) != IndividualStarRemnant &&
+        ABS(cstar->ReturnType()) != IndividualStarPopIII  &&
         ABS(cstar->ReturnType()) != IndividualStarUnresolved ){
       continue; // This probably should never need to be checked
     }
@@ -118,20 +119,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
             // refresh mass every time to prevent double+ counting loss
             particle_mass = cstar->ReturnMass();
 
-            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, pos[0], pos[1], pos[2],
-                                                            vel[0], vel[1], vel[2],
-                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
-                                                            Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
-                                                            cstar->ReturnMetallicity(), &particle_mass, -1);
+            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, &particle_mass, -1); // -1 = wind mode
 
-/*
-            Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
-                                                           vel[0], vel[1], vel[2],
-                                                           cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
-                                                           Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
-                                                           cstar->ReturnMetallicity(), &particle_mass, -1);
-                                                           // < 0 in last arg signifies stellar winds
-*/
             AddedFeedback[count] = TRUE;
           }
         }
@@ -147,6 +136,29 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     }
 
     //
+    // Check Pop III Supernova
+    if (cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_POPIIISN) {
+      for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l++){
+        for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel){
+          if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
+
+            particle_mass = cstar->ReturnMass();
+            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, &particle_mass, 3); // 3 == popIII mode
+            AddedFeedback[count] = TRUE;
+
+          }
+        }
+      }
+
+      if (AddedFeedback[count]){
+        float old_mass = cstar->ReturnMass();
+        cstar->SetFeedbackFlag(INDIVIDUAL_STAR_SN_COMPLETE);
+        cstar->SetNewMass(particle_mass);
+        cstar->AddToSNMassEjected(old_mass - particle_mass);
+      }
+
+    }
+    //
     // Check Core Collapse Supernova
     if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNII ||
         cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN){
@@ -157,20 +169,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
             // refresh mass every time to prevent double+ counting
             particle_mass = cstar->ReturnMass();
-            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, pos[0], pos[1], pos[2],
-                                                            vel[0], vel[1], vel[2],
-                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
-                                                            Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
-                                                            cstar->ReturnMetallicity(), &particle_mass, 1);
+            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, &particle_mass, 1); // 1 == snII mode
 
-/*
-            Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
-                                                           vel[0], vel[1], vel[2],
-                                                           cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
-                                                           Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
-                                                           cstar->ReturnMetallicity(), &particle_mass, 1);
-                                                           // 1 in last arg signifies Core collapse SN
-*/
             AddedFeedback[count] = TRUE;
           }
         }
@@ -195,21 +195,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
             particle_mass = cstar->ReturnMass();
 
-            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, pos[0], pos[1], pos[2],
-                                                            vel[0], vel[1], vel[2],
-                                                            cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
-                                                            Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
-                                                            cstar->ReturnMetallicity(), &particle_mass, 2);
+            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, &particle_mass, 2); // 2 == SNIa
 
-
-/*
-            Temp->GridData->IndividualStarAddFeedbackGeneral(pos[0], pos[1], pos[2],
-                                                           vel[0], vel[1], vel[2],
-                                                           cstar->ReturnBirthMass(), cstar->ReturnLifetime(),
-                                                           Temp->GridData->ReturnTime() - cstar->ReturnBirthTime(),
-                                                           cstar->ReturnMetallicity(), &particle_mass, 2);
-                                                           // 2 in last arg signifies Type 1a
-*/
           }
         }
       }

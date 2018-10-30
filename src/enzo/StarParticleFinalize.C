@@ -174,6 +174,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     }
     if (ThisStar->ReturnType() == -IndividualStar ||
         ThisStar->ReturnType() == -IndividualStarRemnant ||
+        ThisStar->ReturnType() == -IndividualStarPopIII  ||
         ThisStar->ReturnType() == -IndividualStarUnresolved ){
       ThisStar->SetType( ABS(ThisStar->ReturnType()) );
     }

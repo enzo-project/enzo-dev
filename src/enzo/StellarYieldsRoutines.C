@@ -198,6 +198,25 @@ float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
 //  return solar_H_mass_fraction * POW(10.0, solar_abundance - 12.0) * Z;
 }
 
+
+float StellarYields_PopIIIYieldsByNumber(const int &atomic_number){
+// CURRENTLY NO YIELDS IMPLEMENTED
+
+
+  float yield = -1.0;
+
+  if (atomic_number < 0){
+    return 1.0; // total mass as summed from table
+  }
+
+  switch(atomic_number){
+    default:
+      yield = 1.0;
+  }
+
+  return yield;
+}
+
 float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
   /* -------------------------------------------------------------
    * StellarYields_SNIaYieldsByNumber

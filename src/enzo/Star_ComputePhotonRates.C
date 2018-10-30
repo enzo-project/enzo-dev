@@ -52,7 +52,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
   int *se_table_position, *rad_table_position;
 
-  if (this->Mass < 0.1 && (ABS(this->type) != IndividualStar))  // Not "born" yet
+  if (this->Mass < 0.1 && 
+        (  (ABS(this->type) != IndividualStar) || (ABS(this->type) != IndividualStarPopIII) )
+        )  // Not "born" yet
     _mass = this->FinalMass;
   else
     _mass = this->Mass;
@@ -65,6 +67,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
     /* Luminosities from Schaerer (2002) */
 
+  case IndividualStarPopIII:
   case PopIII:
     nbins = (PopIIIHeliumIonization &&
 	     !RadiativeTransferHydrogenOnly) ? 3 : 1;

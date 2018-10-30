@@ -757,7 +757,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   /* IndividualStar: Star Formation */
   IndividualStarTemperatureLimit       =   -1;
-  IndividualStarTemperatureLimitFactor = 2;
+  IndividualStarTemperatureLimitFactor =    2;
   IndividualStarICSupernovaRate        =   0.0;     // rate (# / yr) of supernova for initial driving - off if zero
   IndividualStarICSupernovaTime        =  10.0;     // (Myr) length of time to do SN driving if true - rate dec linearly starting at 1/2 this time
   IndividualStarICSupernovaR           =   -1.0;     // radius limit for SN - set to galaxy scale radius
@@ -778,6 +778,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
   IndividualStarMassFraction         =   0.5;         // Maximum fraction of region that can be converted into stars in one timestep
   IndividualStarSFGasMassThreshold   = 200.0;         // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
+  IndividualStarPopIIIFormation      =     0;         // flag to allow for Pop III star formation in gas below a Z threshold
+      // for popIII SF for individual stars, use the same PopIII IMF flags that already exist
+      // 
   IndividualStarIMF                  =     0;         // 0: salpeter, 1: kroupa, 2: chabrier
   IndividualStarIMFCalls             =     0;         // Do not touch - number of calls to IMF so far in simulation
   IndividualStarSalpeterSlope        = -1.35;         // slope

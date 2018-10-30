@@ -106,6 +106,23 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
 
     break;
     }
+
+  case IndividualStarPopIII:
+    {
+      float particle_age = Time - this->BirthTime;
+      this->FeedbackFlag = NO_FEEDBACK;
+
+      if ((this->BirthMass >= PISNLowerMass && this->BirthMass <= PISNUpperMass) ||
+          (this->BirthMass >= TypeIILowerMass && this->BirthMass <= TypeIIUpperMass) &&
+            (PopIIISupernovaExplosions == TRUE) &&
+            ((particle_age) > this->LifeTime)) {
+
+         this->FeedbackFlag = INDIVIDUAL_STAR_POPIIISN;
+
+      }
+
+      break;
+    }
   case IndividualStarWD:
 
     if ( (this->type > 0) &&

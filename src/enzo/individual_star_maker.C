@@ -44,6 +44,11 @@
 #endif
 
 /* function prototypes */
+
+extern "C" void FORTRAN_NAME(pop3_properties)(FLOAT *mass, FLOAT* luminosity,
+                                              FLOAT *lifetime);
+
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
@@ -51,6 +56,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int FindField(int f, int farray[], int n);
 
 float SampleIMF(void);
+float SampleIMF(float * data, const float & lower_mass, const float & upper_mass);
+float SamplePopIII_IMF(void);
 
 float ComputeSnIaProbability(const float &current_time, const float &formation_time, const float &lifetime, const float &TimeUnits);
 unsigned_long_int mt_random(void);
@@ -117,6 +124,8 @@ void AddMetalSpeciesToGridCells(float *m, const float &mass_per_cell,
 
 void IndividualStarSetCoreCollapseSupernovaProperties(Star *cstar,
                                                       float &m_eject, float &E_thermal, float *metal_mass);
+
+void IndividualStarSetPopIIISupernovaProperties(Star *cstar, float &m_eject, float &E_thermal, float *metal_mass);
 
 void IndividualStarSetTypeIaSupernovaProperties(float &m_eject, float &E_thermal, float *metal_mass);
 
@@ -708,7 +717,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
   int i, j, k, index, ii=0, istar=0, index_presf=0;
   int xo, yo, zo, rsign=1;
-  float bmass, div, star_mass=0.0, sum_mass=0.0;
+  float bmass, div, star_mass=0.0, sum_mass=0.0, metal_mass=0.0, H2mass=0.0;
   float pstar, mass_to_stars, mass_available, tdyn;
   float dtot, isosndsp2, jeansmass, star_fraction;
   float umean, vmean, wmean, px, py, pz, px_excess, py_excess, pz_excess;
@@ -801,7 +810,9 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
           // check center cell's SF condition, if met, do SF
           /* loop and sum over all*/
 
-           bmass = (BaryonField[DensNum][index]*(dx*dx*dx)) * MassUnits / msolar; // in solar masses
+           bmass      = (BaryonField[DensNum][index]*(dx*dx*dx)) * MassUnits / msolar; // in solar masses
+           metal_mass = (BaryonField[MetalNum][index]*(dx*dx*dx))*MassUnits/msolar;
+
                // perform the following easy checks for SF before proceeding
                // 1) Is density greater than the density threshold?
                // 2) Is temperature < the minimum temperature?
@@ -825,6 +836,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
             if (MultiSpecies > 1){
               number_density += BaryonField[HMNum][index] +
                           0.5*(BaryonField[H2INum][index] + BaryonField[H2IINum][index]);
+
+              H2mass = (BaryonField[H2INum][index] + BaryonField[H2IINum][index])*(dx*dx*dx)*MassUnits/msolar;
             }
 
             /* Metal field must be present in this star formation scheme */
@@ -855,11 +868,15 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
             //                 much less than the local baryon density... this should be fixed
             //                 if used in low resolution simulations
 
-            dtot = ( BaryonField[DensNum][index] + dm[index] ) * (DensityUnits);         // total density
-            tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (TimeUnits);            // in code units
-            isosndsp2 = sndspdC * temp[index] ;
-            jeansmass = pi / (6.0 * sqrt(BaryonField[DensNum][index]*DensityUnits) *
-                            POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
+            if (StarMakerUseJeansMass){
+              dtot = ( BaryonField[DensNum][index] + dm[index] ) * (DensityUnits);         // total density
+              tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (TimeUnits);            // in code units
+              isosndsp2 = sndspdC * temp[index] ;
+              jeansmass = pi / (6.0 * sqrt(BaryonField[DensNum][index]*DensityUnits) *
+                              POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
+            } else{
+              jeansmass = -1.0; // so always < bmass
+            }
 
             float vel_div = -1.0;
             if (IndividualStarCheckVelocityDiv){
@@ -902,7 +919,15 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                     if(BaryonField[DensNum][loc_index] > secondary_odthreshold &&
                        temp[loc_index] < IndividualStarTemperatureThreshold       ){
                       float current_cell_mass = BaryonField[DensNum][loc_index]*(dx*dx*dx)*MassUnits/msolar;
+
                       bmass += current_cell_mass; // solar masses
+                      metal_mass += BaryonField[MetalNum][loc_index]*(dx*dx*dx)*MassUnits/msolar;
+
+                      if (MultiSpecies > 1){
+                        H2mass += (BaryonField[H2INum][loc_index] + BaryonField[H2IINum][loc_index])*\
+                                   (dx*dx*dx)*MassUnits/msolar;
+                      }
+
                       number_of_sf_cells++;
                       if ( current_cell_mass < lowest_cell_mass){
                         lowest_cell_mass = current_cell_mass;
@@ -929,6 +954,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               }
 
               int add_unresolved_star = FALSE; // only used when IMF mass floor is < imf lower limit
+              int form_popIII_stars   = 0;
 
               /* Here is where star formation actually occurs */
               if( bmass*IndividualStarMassFraction > IndividualStarSFGasMassThreshold ){
@@ -942,6 +968,26 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 rnum           = (float) (random() % max_random) / ( (float) max_random);
 
                 if ( rnum < pstar){ // form stars until mass runs out - keep star if too much is made
+
+                  form_popIII_stars = ((IndividualStarPopIIIFormation) *\
+                                       ((H2mass/bmass) > PopIIIH2CriticalFraction) *\
+                                       ((metal_mass/bmass) <= PopIIIMetalCriticalFraction) ); // critial metallicity
+
+                  if (form_popIII_stars){
+                    float mass_counter    = IndividualStarSFGasMassThreshold;
+                    float unresolved_mass = 0.0;
+
+                    while( mass_counter > 0.0){
+                      float temp_mass = SamplePopIII_IMF();
+
+                      ParticleMass[ii] = temp_mass;
+                      ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII;
+                      ii++;
+                      sum_mass += temp_mass;
+                      mass_counter -= temp_mass;
+                    }
+
+                  } else{
                     float mass_counter = IndividualStarSFGasMassThreshold;
                     float unresolved_mass = 0.0;
                     while( mass_counter > 0.0){
@@ -953,15 +999,21 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                           unresolved_mass  += temp_mass;
                         } else{
                           ParticleMass[ii]  = temp_mass;
+                          ParticleType[ii]  = -PARTICLE_TYPE_INDIVIDUAL_STAR;
                           ii++;
                         }
                         sum_mass         += temp_mass;
                         mass_counter     -= temp_mass;
                     }
+
                     if (unresolved_mass > 0.0) { // we've formed tiny stars (should always happen).. account for this
                       add_unresolved_star = TRUE;
                       ParticleMass[ii] = unresolved_mass;
+                      ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED;
+                      ii++;
                     }
+                  } // check if doing popIII or normal SF
+
                 } // endif randum number draw check
 
               } // endif mass threshold check
@@ -1047,21 +1099,36 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 ParticleAttribute[0][istar]    = this->Time;                        // formation time
                 ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metal fraction (conv from density in Grid_StarParti$
 
+                if (ParticleType[istar] == -PARTICLE_TYPE_INDIVIDUAL_STAR){
 
-                ParticleType[istar]            = -PARTICLE_TYPE_INDIVIDUAL_STAR;   // negative is a "new" star
-                if(IndividualStarInterpolateLifetime(ParticleAttribute[1][istar], ParticleMass[istar],
-                                                                                  ParticleAttribute[2][istar], 1) == FAIL){
-                  printf(" %"ESYM"  %"ESYM"  %"ESYM"\n",ParticleAttribute[1][istar], ParticleMass[istar], 
-ParticleAttribute[2][istar]);
+                  if(IndividualStarInterpolateLifetime(ParticleAttribute[1][istar], ParticleMass[istar],
+                                                                                    ParticleAttribute[2][istar], 1) == FAIL){
+                    printf(" %"ESYM"  %"ESYM"  %"ESYM"\n",ParticleAttribute[1][istar], ParticleMass[istar], ParticleAttribute[2][istar]);
                   ENZO_FAIL("Error in stellar lifetime interpolation");
-                }
+                  }
+
+                } else if (ParticleType[istar] == -PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED){
+
+                  ParticleAttribute[1][istar] = huge_number * TimeUnits; // make sure its VERY large
+
+                } else if (ParticleType[istar] == -PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+
+                  float temp_mass, temp_lifetime, temp_luminosity;
+                  temp_mass = 1.0 * ParticleMass[istar];
+
+                  FORTRAN_NAME(pop3_properties)(&temp_mass, &temp_luminosity, &temp_lifetime);
+
+                  ParticleAttribute[1][istar] = temp_lifetime * 3.1556E7; // in seconds
+
+                } // end check for particle type for assigning lifetimes
+
                 ParticleAttribute[1][istar] /= TimeUnits; // convert from s to code units
 
 
                 ParticleAttribute[3][istar]    = ParticleMass[istar]; //progenitor mass in solar (main sequence mass)
                 ParticleMass[istar]            = ParticleMass[istar] * msolar / MassUnits;   // mass in code (not yet dens)
 
-                // give the star particle a position chosen at random
+               // give the star particle a position chosen at random
                 // within the cell ( so they are not all at cell center )
 
                 rnum =  (float) (random() % max_random) / (float) (max_random);
@@ -1147,7 +1214,7 @@ ParticleAttribute[2][istar]);
                   if (IndividualStarOutputChemicalTags) printf("\n");
                 } // check multimetals
 
-                if (IndividualStarSaveTablePositions){
+                if (IndividualStarSaveTablePositions && (ParticleType[istar] == -IndividualStar)){
                   int tstart = ParticleAttributeTableStartIndex;
 
                   // stellar evolution table (attr 3 = birth mass, attr 2 = metallicity)
@@ -1191,13 +1258,11 @@ ParticleAttribute[2][istar]);
 
 
               } // end while loop for assigning particle properties
-
+/*
               if (add_unresolved_star){
-                ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED;
                 ParticleAttribute[0][ii] = this->Time;
                 ParticleAttribute[2][ii] = BaryonField[MetalNum][index];
 
-                ParticleAttribute[1][ii] = huge_number * TimeUnits;
                 ParticleAttribute[3][ii] = ParticleMass[ii];
                 ParticleMass[ii]         = ParticleMass[ii] * msolar / MassUnits;
                 ParticlePosition[0][ii]  = this->CellWidth[0][i] + this->CellLeftEdge[0][i];
@@ -1268,6 +1333,7 @@ ParticleAttribute[2][istar]);
                 /////////////////////
                 ii++; // because we didn't iterate this before
               }
+*/
               // ---------------------------------------------------
 
               // ensure zero net momentum from mean velocity
@@ -1368,7 +1434,23 @@ ParticleAttribute[2][istar]);
   return SUCCESS;
 }
 
+
+float SamplePopIII_IMF(void){
+
+  return SampleIMF(SecondaryIMFData,
+                   PopIIILowerMassCutoff, PopIIIUpperMassCutoff);
+}
+
 float SampleIMF(void){
+// to retain default behavoir
+
+  return SampleIMF(IMFData,
+                   IndividualStarIMFLowerMassCutoff,
+                   IndividualStarIMFUpperMassCutoff);
+
+}
+
+float SampleIMF(float * data, const float & lower_mass, const float & upper_mass){
 /*-----------------------------------------------------------------------------
   SampleIMF
 
@@ -1386,20 +1468,20 @@ float SampleIMF(void){
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
   float x = (float) (random_int%max_random) / (float) (max_random);
-  float dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/ ((float) (IMF_TABLE_ENTRIES-1));
+  float dm = log10(upper_mass / lower_mass )/ ((float) (IMF_TABLE_ENTRIES-1));
   float m;
 
   int bin_number;
 
-  if (x <= IMFData[0] ){
+  if (x <= data[0] ){
     bin_number = 0;
-  } else if (x >= IMFData[IMF_TABLE_ENTRIES-1]){
+  } else if (x >= data[IMF_TABLE_ENTRIES-1]){
     bin_number = IMF_TABLE_ENTRIES - 1;
   } else{
-    bin_number = search_lower_bound(IMFData, x, 0, IMF_TABLE_ENTRIES, IMF_TABLE_ENTRIES);
+    bin_number = search_lower_bound(data, x, 0, IMF_TABLE_ENTRIES, IMF_TABLE_ENTRIES);
   }
 
-  m = IndividualStarIMFLowerMassCutoff * POW(10.0, bin_number * dm);
+  m = lower_mass * POW(10.0, bin_number * dm);
 
   IndividualStarIMFCalls++;
 
@@ -2457,16 +2539,8 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
 
 }
 
-//
-//
-// TODO (to do, To Do): Oct 2016 - clean up function call and variables now that it gets star class object
-//
 
-
-int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
-                                          const float &up, const float &vp, const float &wp, // might not need vel
-                                          const float &mproj, const float &lifetime, const float &particle_age,
-                                          const float &metallicity, float *mp, int mode){
+int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, int mode){
 
 /*
      General function to add feedback for a given star in a spherical region
@@ -2483,9 +2557,16 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
   float dx = this->CellWidth[0][0];
 
   float m_eject, E_thermal;
+
+  float mproj = cstar->ReturnBirthMass();
+  float lifetime = cstar->ReturnLifetime();
+
   const double msolar = 1.989E33;
 
   float *metal_mass; // array of individual species masses
+
+  FLOAT * pos;
+  pos = cstar->ReturnPosition();
 
   /* Get Units */
   float DensityUnits, LengthUnits, TemperatureUnits,
@@ -2531,6 +2612,12 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
     IndividualStarSetTypeIaSupernovaProperties(m_eject, E_thermal, metal_mass);
     // printf("m_eject  for snia = %"FSYM"\n", m_eject);
     stellar_wind_mode = FALSE;
+
+  } else if (mode == 3){
+
+    IndividualStarSetPopIIISupernovaProperties(cstar, m_eject, E_thermal, metal_mass);
+
+    stellar_wind_mode = FALSE;
   }
 
   /* convert computed parameters to code units */
@@ -2549,7 +2636,7 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
   // find where we should go off
   //
   if( (m_eject > 0) || (E_thermal > 0)){ // can sometimes both be zero for stellar winds due to mass corrections
-    this->IndividualStarInjectSphericalFeedback(cstar, xp, yp, zp, m_eject, E_thermal,
+    this->IndividualStarInjectSphericalFeedback(cstar, pos[0], pos[1], pos[2], m_eject, E_thermal,
                                                 metal_mass, stellar_wind_mode);
   }
 
@@ -2570,7 +2657,7 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FL
 }
 
 int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
-                                                const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
+                                                FLOAT xp, FLOAT yp, FLOAT zp,
                                                 float m_eject, float E_thermal,
                                                 float *metal_mass, int stellar_wind_mode){
 
@@ -2601,9 +2688,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   }
   MassUnits   = DensityUnits*LengthUnits*LengthUnits*LengthUnits;
   EnergyUnits = MassUnits * VelocityUnits * VelocityUnits;
-
-
-
 
   FLOAT xstart = this->CellLeftEdge[0][0],
         ystart = this->CellLeftEdge[1][0],
@@ -2800,6 +2884,32 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   // done with spherical injection feedback
 
   return SUCCESS;
+}
+
+void IndividualStarSetPopIIISupernovaProperties(Star *cstar, float &m_eject, float &E_thermal, float *metal_mass){
+/* -------------------------------------------------------
+ * IndividualStarSetPopIIISupernovaProperties
+ * -------------------------------------------------------
+ * A. Emerick - Oct 2018
+ *
+ * Set the ejected mass, energy, and metal masses for a
+ * PopIII supernova explosion.
+ * -------------------------------------------------------
+ */
+
+  m_eject   = 1.0 * 1.989E33; // NEED TO REPLACE WITH REAL NUMBERS
+  E_thermal = IndividualStarSupernovaEnergy * 1.0E51;
+
+  /* populate metal species array if needed */
+  if (IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+    metal_mass[0] = StellarYields_PopIIIYieldsByNumber(0); // total metal mass
+
+    for( int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+      metal_mass[i+1] = StellarYields_PopIIIYieldsByNumber(StellarYieldsAtomicNumbers[i]);
+    }
+  }
+
+  return;
 }
 
 void IndividualStarSetTypeIaSupernovaProperties(float &m_eject, float &E_thermal, float *metal_mass){

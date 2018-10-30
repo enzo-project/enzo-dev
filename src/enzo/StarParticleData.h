@@ -207,9 +207,12 @@ SPEXTERN float IndividualStarApproximateOTThreshold;
 SPEXTERN float IndividualStarFUVTemperatureCutoff;
 SPEXTERN int IndividualStarOTRadiationMethod;
 
+SPEXTERN int   IndividualStarPopIIIFormation;
+
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
 
 SPEXTERN float *IMFData;
+SPEXTERN float *SecondaryIMFData;
 
 #endif
