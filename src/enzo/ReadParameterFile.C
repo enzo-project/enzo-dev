@@ -1151,6 +1151,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarSecondaryOverDensityThreshold);
     ret += sscanf(line, "IndividualStarTemperatureThreshold = %"FSYM,
                         &IndividualStarTemperatureThreshold);
+    ret += sscanf(line, "IndividualStarPopIIIFormation = %"ISYM,
+                        &IndividualStarPopIIIFormation);
     ret += sscanf(line, "IndividualStarIMFUpperMassCutoff = %"FSYM,
                         &IndividualStarIMFUpperMassCutoff);
     ret += sscanf(line, "IndividualStarIMFLowerMassCutoff = %"FSYM,
