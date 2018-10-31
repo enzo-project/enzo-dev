@@ -245,6 +245,22 @@ char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
   return label;
 }
 
+char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num){
+  /* Just does a conversion from field type to atomic number
+     this is possible since they are contiguous field numbers beginning
+     at LiDensity and ending at BiDensity */
+
+  if ((field_num < LiDensity) || (field_num > BiDensity)){
+    ENZO_FAIL("ChemicalSpeciesBaryonFieldLabelByFieldType: Requesting atomic "
+              "number for a field that is not a elemental tracer species field");
+  }
+
+  int atomic_number = field_num - LiDensity + 3; // Li = atomic number 3
+
+  return ChemicalSpeciesBaryonFieldLabel(atomic_number);
+
+}
+
 char* IndividualStarTableIDLabel(const int &num){
 
   char *label = NULL;

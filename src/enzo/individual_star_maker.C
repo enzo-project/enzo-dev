@@ -2897,16 +2897,49 @@ void IndividualStarSetPopIIISupernovaProperties(Star *cstar, float &m_eject, flo
  * -------------------------------------------------------
  */
 
-  m_eject   = 1.0 * 1.989E33; // NEED TO REPLACE WITH REAL NUMBERS
-  E_thermal = IndividualStarSupernovaEnergy * 1.0E51;
+  int *yield_table_position = cstar->ReturnYieldTablePosition();
+  float birth_mass = cstar->ReturnBirthMass();
+  /* compute total ejected yield */
 
-  /* populate metal species array if needed */
-  if (IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
-    metal_mass[0] = StellarYields_PopIIIYieldsByNumber(0); // total metal mass
+  if ( (birth_mass > TypeIILowerMass) && (birth_mass < TypeIIUpperMass) ||
+       (birth_mass > PISNLowerMass)   && (birth_mass < PISNUpperMass){
 
-    for( int i = 0; i < StellarYieldsNumberOfSpecies; i++){
-      metal_mass[i+1] = StellarYields_PopIIIYieldsByNumber(StellarYieldsAtomicNumbers[i]);
+    if ( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+      m_eject   = StellarYieldsInterpolatePopIIIYield(yield_table_position[0],
+                                                      birth_mass, -1);
+    } else{
+      m_eject   = StarMassEjectionFraction * cstar->ReturnMass();
     }
+
+    /* metal masses for tracer species */
+    if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
+      metal_mass[0] = StellarYieldsInterpolatePopIIIYield(yield_table_position[0],
+                                                          cstar->ReturnBirthMass(),
+                                                          0);
+      for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+        metal_mass[1+i] = StellarYieldsInterpolatePopIIIYield(yield_table_position[0],
+                                                              cstar->ReturnBirthMass(),
+                                                              StellarYieldsAtomicNumbers[i]);
+      }
+    }
+
+    /* Set energy for normal SN */
+    if (birth_mass < TypeIIUpperMass){
+      E_thermal = IndividualStarSupernovaEnergy;
+    } else {
+      // taken from pop3_maker.F (heger and woosley??)
+      float he_core    = (13.0 / 24.0) * (birth_mass - 20.0);
+      float sne_factor = 5.0 + 1.304 * (he_core - 64.0)
+      E_thermal = sne_factor * 1.0E51;
+    }
+
+  } else {
+    m_eject = 0.0; // no yields -- but we should NEVER have to specify this if
+                   //   feedback routines are operating correctly
+    for (int i = 0; i <= StellarYieldsNumberOfSpecies; i++){
+      metal_mass[i] = 0.0;
+    }
+    E_thermal = 0.0;
   }
 
   return;

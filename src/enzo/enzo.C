@@ -245,6 +245,13 @@ int RadiativeTransferInitialize(char *ParameterFile,
 				LevelHierarchyEntry *LevelArray[]);
 #endif
 
+#ifdef INDIVIDUALSTAR
+int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
+                                 TopGridData &MetaData,
+                                 ExternalBoundary &Exterior,
+                                 LevelHierarchyEntry *LevelArray[]);
+#endif
+
 #ifdef USE_LCAPERF
 void lcaperfInitialize (int max_level);
 #endif
@@ -775,6 +782,14 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   if (RadiativeTransferInitialize(ParameterFile, TopGrid, MetaData, Exterior, 
 				  ImplicitSolver, LevelArray) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferInitialize.\n");
+    my_exit(EXIT_FAILURE);
+  }
+#endif
+
+#ifdef INDIVIDUALSTAR
+  if (InitializeStellarYieldFields(TopGrid, MetaData, Exterior,
+                                   LevelArray) == FAIL){
+    fprintf(stderr, "Error in StellarYieldsInitialize.\n");
     my_exit(EXIT_FAILURE);
   }
 #endif

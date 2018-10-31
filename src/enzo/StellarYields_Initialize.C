@@ -19,6 +19,13 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+#include "Hierarchy.h"
+#include "TopGridData.h"
+#include "LevelHierarchy.h"
 #include "StarParticleData.h"
 #include "StellarYieldsRoutines.h"
 
@@ -28,6 +35,97 @@ void initialize_table(StellarYieldsDataType* table);
 void fill_table(StellarYieldsDataType *table, FILE *fptr);
 
 
+int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
+char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num);
+
+
+
+int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
+                                 TopGridData &MetaData,
+                                 ExternalBoundary &Exterior,
+                                 LevelHierarchyEntry *LevelArray[]){
+// Initializes species yields if they do not already exist
+
+
+  if ( !IndividualStarFollowStellarYields ||
+       !TestProblemData.MultiMetals       ||
+       !STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return SUCCESS;
+  }
+
+  int OldNumberOfBaryonFields = 0, FieldsToAdd = 0;
+  int TypesToAdd[MAX_NUMBER_OF_BARYON_FIELDS];
+  int ExistingTypes[MAX_NUMBER_OF_BARYON_FIELDS];
+
+  for (int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i ++)
+    ExistingTypes[i] = FieldUndefined;
+
+  for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+    if(StellarYieldsAtomicNumbers[yield_i] > 2){
+      TypesToAdd[FieldsToAdd++] =
+                     ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i]);
+    }
+  } // loop over tracer fields to add
+
+  for (int i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
+    TypesToAdd[i] = FieldUndefined;
+  }
+
+  /* Check if the fields already exist */
+  OldNumberOfBaryonFields = LevelArray[0]->GridData->
+    ReturnNumberOfBaryonFields();
+  LevelArray[0]->GridData->ReturnFieldType(ExistingTypes);
+
+  for (int i = 0; i < FieldsToAdd; i++){
+    for (int j = 0; j < OldNumberOfBaryonFields; j++){
+      if(TypesToAdd[i] == ExistingTypes[j]) {
+
+        for (int k = i; k < FieldsToAdd; k++){
+          TypesToAdd[k] = TypesToAdd[k+1];
+        }
+        i--;
+
+        break;
+      } // endif
+    } // end oldnumberofbaryonfields loop
+  } // end fields to add loop
+
+  FieldsToAdd = 0;
+  while (TypesToAdd[FieldsToAdd] != FieldUndefined)
+    FieldsToAdd++;
+
+  // Add the fields
+  if (FieldsToAdd > 0 && debug)
+    fprintf(stdout, "InitializeStellarYieldsFields: Increasing baryon fields "
+             "from %"ISYM" to %"ISYM"\n", OldNumberOfBaryonFields,
+              OldNumberOfBaryonFields + FieldsToAdd);
+
+  // Add an extra one?? (copied over from RT, but do I actually need the +1?)
+  if (OldNumberOfBaryonFields+FieldsToAdd+1 > MAX_NUMBER_OF_BARYON_FIELDS)
+    ENZO_FAIL("Exceeds MAX_NUMBER_OF_BARYON_FIELDS. Please increase and re-compile.");
+
+  LevelHierarchyEntry *Temp;
+
+  for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++){
+    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
+      Temp->GridData->AddFields(TypesToAdd, FieldsToAdd);
+    }
+  }
+
+  // Add external boundaries
+  for (int i = 0; i < FieldsToAdd; i++){
+    Exterior.AddField(TypesToAdd[i]);
+  }
+
+  for (int i = 0; i < FieldsToAdd; i ++){
+   if(StellarYieldsAtomicNumbers[i] > 2){
+     DataLabel[OldNumberOfBaryonFields+i] =\
+          ChemicalSpeciesBaryonFieldLabelByFieldType(TypesToAdd[i]);
+   }
+  }
+
+  return SUCCESS;
+}
 
 int InitializeStellarYields(void){
   /* ------------------------------------------------------
@@ -74,6 +172,10 @@ int InitializeStellarYields(void){
   StellarYieldsMassiveStarData.NumberOfMetallicityBins = 12;
   StellarYieldsMassiveStarData.NumberOfYields       = StellarYieldsNumberOfSpecies;
 
+  StellarYieldsPopIIIData.NumberOfMassBins = 7;
+  StellarYieldsPopIIIData.NumberOfMetallicityBins = 1;
+  StellarYieldsPopIIIData.NumberOfYields = StellarYieldsNumberOfSpecies;
+
   // read in data from files - one table for each yield type:
   //   1) core collapse supernova
   //   2) stellar winds
@@ -107,6 +209,19 @@ int InitializeStellarYields(void){
   fclose(fptr_sn);
   fclose(fptr_wind);
   fclose(fptr_mstar);
+
+  if (IndividualStarPopIIIFormation){
+
+    FILE *fptr_popIII = fopen("popIII_yields.in", "r");
+
+    if (fptr_popIII == NULL){
+      ENZO_FAIL("Error opening stellar yields for pop III stars, 'popIII_yields.in'");
+    }
+
+    initialize_table(&StellarYieldsPopIIIData);
+    fill_table(&StellarYieldsPopIIIData, fptr_popIII);
+    fclose(fptr_popIII);
+  }
 
   return SUCCESS;
 }

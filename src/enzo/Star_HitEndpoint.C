@@ -30,9 +30,6 @@
 int Star::HitEndpoint(FLOAT Time)
 {
 
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
-  const float PISNLowerMass = 140, PISNUpperMass = 260;
-
   /* First check if the star's past its lifetime and then check other
      constrains based on its star type */
 

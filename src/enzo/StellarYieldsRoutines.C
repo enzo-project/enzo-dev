@@ -198,9 +198,9 @@ float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
 //  return solar_H_mass_fraction * POW(10.0, solar_abundance - 12.0) * Z;
 }
 
-
+/*
 float StellarYields_PopIIIYieldsByNumber(const int &atomic_number){
-// CURRENTLY NO YIELDS IMPLEMENTED
+// Adopted as Z = 0 yields from Nomoto et. al. 2006
 
 
   float yield = -1.0;
@@ -209,13 +209,20 @@ float StellarYields_PopIIIYieldsByNumber(const int &atomic_number){
     return 1.0; // total mass as summed from table
   }
 
+  if (atomic_number == 0){
+    return 1.0; // total mass in metals
+  }
+
   switch(atomic_number){
+    case  1 : yield = ; break;
+    case  2 : yield = ; break;
     default:
       yield = 1.0;
   }
 
   return yield;
 }
+*/
 
 float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
   /* -------------------------------------------------------------
@@ -278,25 +285,9 @@ float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
   return yield;
 }
 
-int StellarYieldsGetYieldTablePosition(int &i, int &j,
-                                        const float &M, const float &metallicity){
-/* ------------------------------------------------------------------------
- * StellarYieldsGetYieldTablePosition
- * ------------------------------------------------------------------------
- * Interpolation function which finds the position in the yield table (i and j)
- * -------------------------------------------------------------------------*/
-  /* interpolate table */
-  StellarYieldsDataType table;
 
-  if (M <= StellarYieldsSNData.M[StellarYieldsSNData.NumberOfMassBins - 1]){
-    // if mass is on NuGrid data set (M <= 25) use this table
-    table = StellarYieldsSNData;
-  } else if (( M >= StellarYieldsMassiveStarData.M[0]) &&
-            ( M <= StellarYieldsMassiveStarData.M[StellarYieldsMassiveStarData.NumberOfMassBins-1])){
-    // use massive star data from PARSEC models (massive stars only! and wind only!)
-
-    table = StellarYieldsMassiveStarData;
-  }
+int StellarYieldsGetYieldTablePosition(const StellarYieldsDataType & table,
+                                       int &i, int &j, const float &M, const float &metallicity){
 
   int width, bin_number;
 
@@ -342,6 +333,78 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
   return SUCCESS;
 }
 
+int StellarYieldsGetYieldTablePosition(int &i, int &j,
+                                        const float &M, const float &metallicity){
+/* ------------------------------------------------------------------------
+ * StellarYieldsGetYieldTablePosition
+ * ------------------------------------------------------------------------
+ * Interpolation function which finds the position in the yield table (i and j)
+ * -------------------------------------------------------------------------*/
+  /* interpolate table */
+  StellarYieldsDataType * table;
+
+  if (M <= StellarYieldsSNData.M[StellarYieldsSNData.NumberOfMassBins - 1]){
+    // if mass is on NuGrid data set (M <= 25) use this table
+    table = StellarYieldsSNData;
+  } else if (( M >= StellarYieldsMassiveStarData.M[0]) &&
+            ( M <= StellarYieldsMassiveStarData.M[StellarYieldsMassiveStarData.NumberOfMassBins-1])){
+    // use massive star data from PARSEC models (massive stars only! and wind only!)
+
+    table = StellarYieldsMassiveStarData;
+  }
+
+  return StellarYieldsGetYieldTablePosition(table, i, j, M, metallicity);
+}
+
+int StellarYieldsGetPopIIIYieldTablePosition(int &i, const float &M){
+
+    StellarYieldsDataType * table = StellarYieldsPopIIIData;
+
+    int j = -1;
+
+    return StellarYieldsGetYieldTablePositions(table, i, j, M, 0.0);
+}
+
+float StellarYieldsInterpolatePopIIIYield(const int &i, const float &M, int atomic_number){
+
+  StellarYieldsDataType * table = StellarYieldsPopIIIData;
+
+  float yield;
+
+  float interp_M = M;
+
+  if (M < table.M[0]){
+    interp_M = table.M[0]*1.00001;
+  } else if (M > table.M[table.NumberOfMassBins - 1]){
+    interp_M = table.M[table.NumberOfMassBins-1]*0.99999;
+  }
+
+  float t,u;
+  t = (interp_M - table.M[i]) / (table.M[i+1] - table.M[i]);
+
+  float ll, ul; // lower left, lower right, upper right, upper left points
+  if (atomic_number > 0) { // interpolate yields given atomic number
+
+    int yield_index;
+    yield_index     = GetYieldIndex(table.NumberOfYields, atomic_number);
+
+    ll = table.Yields[i  ][0][yield_index];
+    ul = table.Yields[i+1][0][yield_index];
+
+  } else if (atomic_number == 0){ // interpolate total metal mass
+    ll = table.Metal_Mtot[i  ][0];
+    ul = table.Metal_Mtot[i+1][0];
+
+  } else if (atomic_number < 0 ){ // interpolate total mass
+
+    ll = table.Mtot[i  ][0];
+    ul = table.Mtot[i+1][0];
+
+  }
+
+  return ((1.0 - t) * (ll)   +
+          (      t) * (ul) ) * M / interp_M ;
+}
 
 float StellarYieldsInterpolateYield(int yield_type,
                                     const int &i, const int &j,
@@ -358,7 +421,7 @@ float StellarYieldsInterpolateYield(int yield_type,
  * is returned.
  * -------------------------------------------------------------------------*/
 
-  StellarYieldsDataType table;
+  StellarYieldsDataType * table;
 
   if (yield_type == 0){            // do supernova / end of life yields
 
@@ -376,7 +439,7 @@ float StellarYieldsInterpolateYield(int yield_type,
       table = StellarYieldsWindData;
     }
 
-  } // another if for SN1a
+  }
 
   /* interpolate table */
 

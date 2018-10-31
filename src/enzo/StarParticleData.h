@@ -215,4 +215,8 @@ SPEXTERN FLOAT LastSupernovaTime;
 SPEXTERN float *IMFData;
 SPEXTERN float *SecondaryIMFData;
 
+SPEXTERN const float TypeIILowerMass, TypeIIUpperMass;
+SPEXTERN const float PISNLowerMass, PISNUpperMass;
+
+
 #endif

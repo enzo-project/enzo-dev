@@ -77,6 +77,7 @@ void Star::InterpolateProperties(void){
 }
 
 void Star::AssertStellarProperties(void){
+
   if ( (this->Teff <= 0.0) ||
        (this->Radius <= 0.0) ||
        (this->SurfaceGravity <= 0.0)){

@@ -755,6 +755,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   // Paramters for Individual Star Star formation and Feedback
 
+  /* PopIII Stars */
+  TypeIILowerMass = 11.0;
+  TypeIIUpperMass = 41.0;
+  PISNLowerMass   = 140.0;
+  PISNUpperMass   = 260.0;
+
   /* IndividualStar: Star Formation */
   IndividualStarTemperatureLimit       =   -1;
   IndividualStarTemperatureLimitFactor =    2;

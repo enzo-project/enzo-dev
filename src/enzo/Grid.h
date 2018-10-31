@@ -128,6 +128,10 @@ class grid
   int   *ParticleType;                     // type of particle
   float *ParticleAttribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 
+#ifdef INDIVIDUALSTAR
+  float *StellarAbundances[MAX_STELLAR_YIELDS]; // to temporarily tag new stars before output to file
+#endif
+
 //
 //  Star particle data
 //
@@ -1491,7 +1495,42 @@ gradient force to gravitational force for one-zone collapse test. */
        if (ParticleAttribute[i] != NULL) delete [] ParticleAttribute[i];
        ParticleAttribute[i] = NULL;
      }
+
+#ifdef INDIVIDUALSTAR
+     this->DeleteStellarAbundances();
+#endif
    };
+
+#ifdef INDIVIDUALSTAR
+   void DeleteStellarAbundances(){
+     for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+       if (StellarAbundances[i] != NULL){
+         delete [] StellarAbundances[i];
+       }
+       StellarAbundances[i] = NULL;
+     }
+   };
+
+   void OutputStellarAbundances(int * indeces){
+
+     for (int n = 0; n < NumberOfParticles; n++){
+       if (indeces[n] < 0) break;
+
+       printf("StellarAbundances P(%"ISYM"): %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM,
+              MyProcessorNumber,
+              this->ID, ParticleNumber[n], ParticleMass[n],
+              ParticleAttribute[3][n], // BirthMass
+              ParticleAttribute[2][n]); // metallicity
+
+       for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+         printf("     %"ESYM,StellarAbundances[i][n]);
+       }
+       printf("\n");
+     }
+     // end output stellar abundances
+   };
+#endif
+
 
 /* Particles: allocate new particle fields. */
 
@@ -1510,8 +1549,12 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Particles: Copy pointers passed into into grid. */
 
    void SetParticlePointers(float *Mass, PINT *Number, int *Type,
-                            FLOAT *Position[], 
-			    float *Velocity[], float *Attribute[]) {
+                            FLOAT *Position[],
+			    float *Velocity[], float *Attribute[]
+#ifdef INDIVIDUALSTAR
+                          , float *Abundances[]
+#endif
+    ) {
     ParticleMass   = Mass;
     ParticleNumber = Number;
     ParticleType   = Type;
@@ -1521,6 +1564,12 @@ gradient force to gravitational force for one-zone collapse test. */
     }
     for (int i = 0; i < NumberOfParticleAttributes; i++)
       ParticleAttribute[i] = Attribute[i];
+
+#ifdef INDIVIDUALSTAR
+    for (int i = 0; i < StellarYieldsNumberOfSpecies; i++)
+      StellarAbundances[i] = Abundances[i];
+#endif
+
    };
 
 /* Particles: Set new star particle index. */
