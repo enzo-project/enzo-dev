@@ -211,9 +211,20 @@ void Star::AssignSETablePosition(void){
   //  if (this->se_table_position[0] >= 0 && this->se_table_position[0] >= 0) return;
 
   /* find stellar properties - used for winds, SN, and radiation */
-  IndividualStarGetSETablePosition(this->se_table_position[0],
-                                   this->se_table_position[1],
-                                   this->BirthMass, this->Metallicity);
+  if ((ABS(this->type) != IndividualStar) || (ABS(this->type) != IndividualStarRemnant)){
+    // We do not need these for PopIII stars. Set separately
+    // using hard-coded routines in pop3_properties.F and
+    // ComputePhotonRates. Set to INT_UNDEFINED so it is > 0
+    // and routine doesn't keep trying to set it to a value.
+
+    this->se_table_position[0] = INT_UNDEFINED;
+    this->se_table_position[1] = INT_UNDEFINED;
+  } else {
+    IndividualStarGetSETablePosition(this->se_table_position[0],
+                                     this->se_table_position[1],
+                                     this->BirthMass, this->Metallicity);
+  }
+
   return;
 }
 

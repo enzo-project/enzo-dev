@@ -759,7 +759,7 @@ int IndividualStarInterpolateLifetime(float &tau, const float &M,
                                       IndividualStarPropertiesData.NumberOfMassBins, IndividualStarPropertiesData.NumberOfMetallicityBins) == FAIL){
     /* if interpolation fails, fail here */
     float value, value_min, value_max;
-    printf("IndividualStarInterpolateProperties: Failure in interpolation ");
+    printf("IndividualStarInterpolateProperties1: Failure in interpolation ");
 
     if( t < 0 || t > 1){
       printf("Mass out of bounds ");
@@ -827,7 +827,7 @@ int IndividualStarInterpolateLifetime(float   &tau,
                                         IndividualStarPropertiesData.agb_start, i,j,t,u);
 
   } else{
-    ENZO_FAIL("IndividualStarInterpolateProperties: Failure in lifetime interpolation, mode must be set to either 1 or 2");
+    ENZO_FAIL("IndividualStarInterpolateProperties2: Failure in lifetime interpolation, mode must be set to either 1 or 2");
     return FAIL;
   }
 
@@ -895,7 +895,7 @@ int IndividualStarGetSETablePosition(int &i, int &j, const float &M, const float
                                       IndividualStarPropertiesData.NumberOfMetallicityBins) == FAIL){
     /* if interpolation fails, fail here */
     float value, value_min, value_max;
-    printf("IndividualStarInterpolateProperties: Failure in interpolation ");
+    printf("IndividualStarInterpolateProperties3: Failure in interpolation ");
 
     if( t < 0 || t > 1){
       printf("Mass out of bounds ");
@@ -971,7 +971,7 @@ int IndividualStarInterpolateLuminosity(float &L, const float &M, const float &m
                                       IndividualStarPropertiesData.NumberOfMassBins, IndividualStarPropertiesData.NumberOfMetallicityBins) == FAIL){
     /* if interpolation fails, fail here */
     float value, value_min, value_max;
-    printf("IndividualStarInterpolateProperties: Failure in interpolation ");
+    printf("IndividualStarInterpolateProperties4: Failure in interpolation ");
 
     if( t < 0 || t > 1){
       printf("Mass out of bounds ");
@@ -1045,7 +1045,7 @@ int IndividualStarInterpolateProperties(float &Teff, float &R,
                                       IndividualStarPropertiesData.NumberOfMassBins, IndividualStarPropertiesData.NumberOfMetallicityBins) == FAIL){
     /* if interpolation fails, fail here */
     float value, value_min, value_max;
-    printf("IndividualStarInterpolateProperties: Failure in interpolation ");
+    printf("IndividualStarInterpolateProperties5: Failure in interpolation ");
 
     if( t < 0 || t > 1){
       printf("Mass out of bounds ");
