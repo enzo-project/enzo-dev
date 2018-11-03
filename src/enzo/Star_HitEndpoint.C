@@ -169,7 +169,7 @@ int Star::HitEndpoint(FLOAT Time)
          this->type     = IndividualStarRemnant;
          this->FeedbackFlag = NO_FEEDBACK;
        } else{
-         this->FeedbackFlag = INDIVIDUAL_STAR_SNII;
+         this->FeedbackFlag = INDIVIDUAL_STAR_POPIIISN;
        }
 
     } else{

@@ -757,7 +757,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   /* PopIII Stars */
   TypeIILowerMass = 11.0;
-  TypeIIUpperMass = 41.0;
+  TypeIIUpperMass = 40.0;
   PISNLowerMass   = 140.0;
   PISNUpperMass   = 260.0;
 
@@ -795,7 +795,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarKroupaAlpha3         =  -2.3;         // '' over
   IndividualStarIMFLowerMassCutoff   =   1.0;         // Solar masses
   IndividualStarIMFUpperMassCutoff   = 100.0;         // Solar masses
-  IndividualStarIMFMassFloor         = IndividualStarIMFLowerMassCutoff;         // If this is below the lower mass cutoff, stars below this mass will get grouped together into a single particle
+  IndividualStarIMFMassFloor         = IndividualStarIMFLowerMassCutoff;         // If this is above the lower mass cutoff, stars below this mass will get grouped together into a single particle
   IndividualStarVelocityDispersion   =   1.0;         // initial velocity disperion of stars in SF region (km/s)
   IndividualStarIMFSeed              = INT_UNDEFINED; // random number seed for IMF sampling
 

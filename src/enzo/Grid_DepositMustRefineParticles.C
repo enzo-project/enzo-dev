@@ -124,7 +124,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     IsParticleMustRefine[i] = 0;
     StarPosX[i] = StarPosY[i] = StarPosZ[i] = -1.;
 
-    if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR){
+    if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR || cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
         if (( ( IndividualStarStellarWinds) && (cstar->ReturnMass() > IndividualStarSNIIMassCutoff)  ) || // massive stars always on if winds are on
                    ( (!IndividualStarStellarWinds) && (near_end_of_life)  ) ||  // SNII check if no winds are on
                    ( ( IndividualStarStellarWinds) && (near_end_of_life) && (cstar->ReturnMass() < IndividualStarSNIIMassCutoff) )){ // AGB wind check

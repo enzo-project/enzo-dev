@@ -49,6 +49,7 @@ int grid::FindNewStarParticles(int level)
         ParticleType[i] == -PARTICLE_TYPE_INDIVIDUAL_STAR ||
         ParticleType[i] == -PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ||
         ParticleType[i] == -PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
+        ParticleType[i] == -PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII ||
         ParticleType[i] == -PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED ||
 	ABS(ParticleType[i]) == PARTICLE_TYPE_MBH ||
 	(StarParticleRadiativeFeedback == TRUE &&

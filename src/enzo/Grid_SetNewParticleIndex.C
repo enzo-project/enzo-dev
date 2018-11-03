@@ -58,7 +58,7 @@ void grid::SetNewParticleIndex(int &NumberCount1, PINT &NumberCount2)
 //	     ParticleNumber[n], NumberCount1, NumberCount2);
     }
 
-#ifdef INDIVIDUALSTARS
+#ifdef INDIVIDUALSTAR
   if ((IndividualStarOutputChemicalTags) && (newstarcount > 0))
     this->OutputStellarAbundances(newstars);
 

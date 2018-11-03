@@ -30,7 +30,7 @@
 void mt_init(unsigned_int seed);
 //void random_init(unsigned_int seed); need to find this function (2/8/16 AJE)
 
-int InitializeIMF(float * data, const float & lower_mass, const float & upper_mass,
+int InitializeIMF(float *& data, const float & lower_mass, const float & upper_mass,
                   const int & IMFtype);
 
 unsigned_long_int mt_random(void);
@@ -52,7 +52,7 @@ int StarParticleIndividual_IMFInitialize(void){
 }
 
 
-int InitializeIMF(float * data, const float & lower_mass, const float & upper_mass,
+int InitializeIMF(float *& data, const float & lower_mass, const float & upper_mass,
                                 const int & IMFtype)
 {
 

@@ -800,6 +800,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       cooling_time = new float[size];
       this->ComputeCoolingTime(cooling_time);
     }
+#ifdef INDIVIDUALSTAR
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarOutputChemicalTags){
+      tg->AllocateStellarAbundances(MaximumNumberOfNewParticles);
+    }
+#endif
  
     /* Call FORTRAN routine to do the actual work. */
  
@@ -1086,7 +1091,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
                                  &Mu, &NumberOfNewParticles,
                                  tg->ParticleMass, tg->ParticleType,
                                  tg->ParticlePosition, tg->ParticleVelocity,
-                                 tg->ParticleAttribute) == FAIL){
+                                 tg->ParticleAttribute, tg->StellarAbundances) == FAIL){
           ENZO_FAIL("Error in individual_star_maker.\n");
         } // end call to function 
 
@@ -1502,6 +1507,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	tg->CellWidth[dim] = new FLOAT[1];
 	tg->CellWidth[dim][0] = CellWidth[dim][0];
       }
+
+#ifdef INDIVIDUALSTAR
+      if(IndividualStarOutputChemicalTags)
+        this->MoveParticleAbundances(1, &tg);
+#endif
       this->MoveAllParticles(1, &tg);
 
     } // end: if (NumberOfNewParticles > 0)

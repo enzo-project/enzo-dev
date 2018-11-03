@@ -48,6 +48,7 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
           List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR &&
           List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD &&
           List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT &&
+          List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII &&
           List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED)
 	starn++;
   }
@@ -59,6 +60,7 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
         List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR &&
         List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD &&
         List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT &&
+        List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII &&
         List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED)
       star_index[n++] = i;
 
@@ -150,6 +152,7 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED)
       NumberOfRemainingSmallParticles++;
   }
@@ -169,6 +172,7 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT
+                                                  && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED)
       IndexArray[n++] = i;
 

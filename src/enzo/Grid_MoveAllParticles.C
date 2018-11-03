@@ -27,7 +27,17 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
+//#ifdef INDIVIDUALSTAR
+//int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[]){
+//   return this->MoveAllParticles(NumberOfGrids, &FromGrid, 0); // normal mode
+//}
+//#endif
+
+int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[]
+//#ifdef INDIVIDUALSTAR
+//    , int mode
+//#endif
+)
 {
 
   if (NumberOfGrids < 1) {
@@ -60,13 +70,17 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   float *Velocity[MAX_DIMENSION], *Mass,
         *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 
+/*
 #ifdef INDIVIDUALSTAR
   float *Abundances[MAX_STELLAR_YIELDS];
-  for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
-    Abundances[i] = new float[TotalNumberOfParticles];
+  if (mode > 0){
+    for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+      Abundances[i] = new float[NumberOfSubgridParticles]; // only need to allocate for potential new particles
+    }
   }
 #endif INDIVIDUALSTAR
- 
+*/
+
   Mass = new float[TotalNumberOfParticles];
   Number = new PINT[TotalNumberOfParticles];
   Type = new int[TotalNumberOfParticles];
@@ -107,11 +121,13 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
     for (i = 0; i < NumberOfParticles; i++)
       Attribute[j][i] = ParticleAttribute[j][i];
 
-#ifdef INDIVIDUALSTAR
-  for (j = 0; j < StellarYieldsNumberOfSpecies; j++)
-    for (i = 0; i < NumberOfParticles; i++)
-      Abundances[j][i] = StellarAbundances[j][i];
-#endif
+//#ifdef INDIVIDUALSTAR
+//  if (mode > 0){
+//    for (j = 0; j < StellarYieldsNumberOfSpecies; j++)
+//      for (i = 0; i < NumberOfSubgridParticles; i++)
+//        Abundances[j][i] = StellarAbundances[j][i];
+//  }
+//#endif
  
   /* Delete this grid's particles (now copied). */
  
@@ -121,14 +137,17 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
  
   this->SetParticlePointers(Mass, Number, Type, Position, Velocity,
 			    Attribute
-#ifdef INDIVIDUALSTAR
-                            , Abundances
-#endif
+//#ifdef INDIVIDUALSTAR
+//                            , Abundances
+//#endif
                             );
 
   /* Copy FromGrids' particles to new space on local "fake" grid. */
 
   int Index = NumberOfParticles;
+//#ifdef INDIVIDUALSTAR
+//  int AbundanceIndex = 0;
+//#endif
   for (grid = 0; grid < NumberOfGrids; grid++) {
 
     for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {
@@ -147,11 +166,15 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
       for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++)
 	Attribute[j][Index+i] = FromGrid[grid]->ParticleAttribute[j][i];
 
-#ifdef INDIVIDUALSTAR
-     for (j = 0; j < StellarYieldsNumberOfSpecies; j++)
-       for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++)
-         Abundances[j][Index+i] = FromGrid[grid]->StellarAbundances[j][i];
-#endif
+//#ifdef INDIVIDUALSTAR
+//    if (mode > 0){
+//       for (j = 0; j < StellarYieldsNumberOfSpecies; j++)
+//         for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++)
+//           Abundances[j][AbundanceIndex + i] = FromGrid[grid]->StellarAbundances[j][i];
+
+//      AbundanceIndex += FromGrid[grid]->NumberOfParticles;
+//    }
+//#endif
 
     Index += FromGrid[grid]->NumberOfParticles;
 
@@ -213,6 +236,13 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
   FLOAT *Position[MAX_DIMENSION];
   float *Velocity[MAX_DIMENSION], *Mass,
         *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+
+#ifdef INDIVIDUALSTAR
+  float *Abundances[MAX_STELLAR_YIELDS];
+  for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+    Abundances[i] = new float[TotalNumberOfParticles];
+  }
+#endif INDIVIDUALSTAR
 
   if (MyProcessorNumber == ProcessorNumber) {
      Mass = new float[TotalNumberOfParticles];

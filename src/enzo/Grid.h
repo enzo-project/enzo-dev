@@ -1423,6 +1423,12 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int MoveAllParticlesOld(int NumberOfGrids, grid* TargetGrids[]);
 
+#ifdef INDIVIDUALSTAR
+/* */
+   int MoveParticleAbundances(int NumberOfGrids, grid* TargetGrids[]);
+/* */
+#endif
+
 /* Particles: Move particles that lie within this grid from the TargetGrid
               to this grid. */
 
@@ -1496,13 +1502,15 @@ gradient force to gravitational force for one-zone collapse test. */
        ParticleAttribute[i] = NULL;
      }
 
-#ifdef INDIVIDUALSTAR
-     this->DeleteStellarAbundances();
-#endif
+//#ifdef INDIVIDUALSTAR
+//     this->DeleteStellarAbundances();
+//#endif
    };
 
 #ifdef INDIVIDUALSTAR
    void DeleteStellarAbundances(){
+     if(!StellarAbundances) return;
+
      for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
        if (StellarAbundances[i] != NULL){
          delete [] StellarAbundances[i];
@@ -1544,7 +1552,14 @@ gradient force to gravitational force for one-zone collapse test. */
      }
      for (int i = 0; i < NumberOfParticleAttributes; i++)
        ParticleAttribute[i] = new float[NumberOfNewParticles];
+
+
+//#ifdef INDIVIDUALSTAR
+//     for (int i = 0; i < StellarYieldsNumberOfSpecies; i++)
+//       StellarAbundances[i] = NULL;
+//#endif
    };
+
 
 /* Particles: Copy pointers passed into into grid. */
 
@@ -1565,12 +1580,29 @@ gradient force to gravitational force for one-zone collapse test. */
     for (int i = 0; i < NumberOfParticleAttributes; i++)
       ParticleAttribute[i] = Attribute[i];
 
+//#ifdef INDIVIDUALSTAR
+//    if (Abundances){
+//      for (int i = 0; i < StellarYieldsNumberOfSpecies; i++)
+//        StellarAbundances[i] = Abundances[i];
+//    }
+//#endif
+   };
+
 #ifdef INDIVIDUALSTAR
-    for (int i = 0; i < StellarYieldsNumberOfSpecies; i++)
-      StellarAbundances[i] = Abundances[i];
+   void SetParticlePointers(float *Mass, PINT *Number, int *Type,
+                            FLOAT *Position[], float *Velocity[],
+                            float *Attribute[]){
+
+     SetParticlePointers(Mass, Number, Type, Position,
+                         Velocity, Attribute, NULL);
+   };
+
+   void AllocateStellarAbundances(int NumberOfNewParticles){
+     for (int i = 0; i < StellarYieldsNumberOfSpecies; i++)
+       StellarAbundances[i] = new float[NumberOfNewParticles];
+   };
 #endif
 
-   };
 
 /* Particles: Set new star particle index. */
 
@@ -2301,7 +2333,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int individual_star_maker( float *dm, float *temp, int *nmax, float *mu, int *np,
                              float *ParticleMass,
                              int *ParticleType, FLOAT *ParticlePosition[],
-                             float *ParticleVelocity[], float *ParticleAttribute[]);
+                             float *ParticleVelocity[], float *ParticleAttribute[],
+                             float *StellarAbundances[]);
 
   int individual_star_feedback(int *np, float *ParticleMass, int *ParticleType,
                                FLOAT *ParticlePosition[], float *ParticleVelocity[],

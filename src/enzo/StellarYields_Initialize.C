@@ -172,7 +172,8 @@ int InitializeStellarYields(void){
   StellarYieldsMassiveStarData.NumberOfMetallicityBins = 12;
   StellarYieldsMassiveStarData.NumberOfYields       = StellarYieldsNumberOfSpecies;
 
-  StellarYieldsPopIIIData.NumberOfMassBins = 7;
+  StellarYieldsPopIIIData.NumberOfMassBins = 7 + 14 ;  //  7 from Nomoto+2016 for Type II (13 < M < 40)
+                                                       // 14 from Heger+Woosley2002 for PISN (60 < M < 130)
   StellarYieldsPopIIIData.NumberOfMetallicityBins = 1;
   StellarYieldsPopIIIData.NumberOfYields = StellarYieldsNumberOfSpecies;
 
