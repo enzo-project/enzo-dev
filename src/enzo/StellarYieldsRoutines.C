@@ -428,6 +428,7 @@ float StellarYieldsInterpolateYield(int yield_type,
     table = &StellarYieldsSNData;
 
     if( M > table->M[table->NumberOfMassBins - 1]){
+
       ENZO_FAIL("StellarYieldsInterpolateYield: No yields available for massive stars. Assuming all do direct collapse.");
     }
   } else if (yield_type == 1){     // do stellar wind yields

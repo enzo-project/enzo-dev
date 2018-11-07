@@ -25,12 +25,13 @@ void Star::CheckMassEjectionValidity(void){
 
   float total_wind_mass_ejection = 0.0, total_sn_mass_ejection = 0.0;
 
-  if (ABS(this->type) != PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+  if ( ((this->Metallicity > PopIIIMetalCriticalFraction) && IndividualStarPopIIIFormation) || !IndividualStarPopIIIFormation){
     total_wind_mass_ejection = this->InterpolateYield(1, -1);
 
     if (this->BirthMass > IndividualStarSNIIMassCutoff &&
         this->BirthMass < IndividualStarDirectCollapseThreshold){
       total_sn_mass_ejection = this->InterpolateYield(0, -1);
+    }
 
 
   }
@@ -38,16 +39,20 @@ void Star::CheckMassEjectionValidity(void){
 //StellarYieldsInterpolateYield(1, this->yield_table_position[0],
 //                                                                    this->yield_table_position[1],
 //                                                                    this->BirthMass, this->Metallicity, -1);
-  if ( ((this->BirthMass >= TypeIILowerMass) && (this->BirthMass <= TypeIIUpperMass)) ||
-       ((this->BirthMass >= PISNLowerMass  ) && (this->BirthMass <= PISNUpperMass )) ){
-     total_sn_mass_ejection = this->InterpolateYield(0, -1);
+  if (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII ||
+        (( IndividualStarPopIIIFormation) && (this->Metallicity < PopIIIMetalCriticalFraction))){
+
+    if ( ((this->BirthMass >= TypeIILowerMass) && (this->BirthMass <= TypeIIUpperMass)) ||
+         ((this->BirthMass >= PISNLowerMass  ) && (this->BirthMass <= PISNUpperMass )) ){
+       total_sn_mass_ejection = this->InterpolateYield(0, -1);
+    }
+
   }
 
 //StellarYieldsInterpolateYield(0, this->yield_table_position[0],
 //                                                              this->yield_table_position[1],
 //                                                              this->BirthMass, this->Metallicity, -1);
 
-  }
 
   if ( this->sn_mass_ejected > tolerance * total_sn_mass_ejection ){
     sn_fail = TRUE;

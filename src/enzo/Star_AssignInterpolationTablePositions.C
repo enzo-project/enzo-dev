@@ -153,16 +153,15 @@ double Star::ReturnRadius(void){
   return this->Radius;
 }
 
-float Star::InterpolateYield(int yield_type,
-                                          int atomic_number){
+float Star::InterpolateYield(int yield_type, int atomic_number){
 
   this->AssertInterpolationPositions(3);
 
-  if (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+  if (  ( this->type == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII) ||
+        ((IndividualStarPopIIIFormation) && (this->Metallicity < PopIIIMetalCriticalFraction))){
 
     return StellarYieldsInterpolatePopIIIYield(this->yield_table_position[0],
                                                this->BirthMass, atomic_number);
-
   } else{
 
     return StellarYieldsInterpolateYield(yield_type,
@@ -269,7 +268,8 @@ void Star::AssignYieldTablePosition(void){
   //if (this->yield_table_position[0] >= 0 &&
   //    this->yield_table_position[1] >= 0){ return;}
 
-  if (ABS(this->type) == IndividualStarPopIII) {
+  if ((ABS(this->type) == IndividualStarPopIII)   ||
+      ((IndividualStarPopIIIFormation) && (this->Metallicity <= PopIIIMetalCriticalFraction))) {
     StellarYieldsGetPopIIIYieldTablePosition(this->yield_table_position[0], this->BirthMass);
     this->yield_table_position[1] = 0;
   } else {

@@ -148,10 +148,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       StarPosY[i] = pos[1];
       StarPosZ[i] = pos[2];
       i++;
-      printf("This particle is flagged as a must refine at position %"FSYM" %"FSYM" %"FSYM"\n", StarPosX[i], StarPosY[i], StarPosZ[i]);
     }
     else{
-      printf("No must refine particle found\n");
     }
   }
 

@@ -1100,7 +1100,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               for (istar = index_presf; istar < ii; istar++){
 
                 ParticleAttribute[0][istar]    = this->Time;                        // formation time
-                ParticleAttribute[2][istar]    = BaryonField[MetalNum][index]; // metal fraction (conv from density in Grid_StarParti$
+                ParticleAttribute[2][istar]    = metal_mass / bmass ; //BaryonField[MetalNum][index]; // metal fraction (conv from density in Grid_StarParti$
 
                 if (ParticleType[istar] == -PARTICLE_TYPE_INDIVIDUAL_STAR){
 
