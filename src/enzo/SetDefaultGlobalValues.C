@@ -870,6 +870,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){
     StellarYieldsResetAtomicNumbers[i] = -1;
   }
+  ResetStellarAbundances = 0;
 
   // chemical evolution test star
   ChemicalEvolutionTestNumberOfStars   = 1;
