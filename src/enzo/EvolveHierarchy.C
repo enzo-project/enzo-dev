@@ -133,7 +133,10 @@ int CommunicationBroadcastValue(Eint64 *Value, int BroadcastProcessor);
 int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 		     TopGridData *MetaData); 
 int MagneticFieldResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
-			  TopGridData *MetaData); 
+			  TopGridData *MetaData);
+int StellarYieldsResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
+                          TopGridData *MetaData);
+
 void PrintMemoryUsage(char *str);
 int SetEvolveRefineRegion(FLOAT time);
 
@@ -308,6 +311,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   if (MetaData.FirstTimestepAfterRestart == TRUE &&
       ResetMagneticField == TRUE)
     MagneticFieldResetter(LevelArray, 0, &MetaData);
+
+  /* Reset tracer species if requested. */
+  if  (MetaData.FirstTimestepAfterRestart == TRUE &&
+      (StellarYieldsNumberOfSpecies > 0 && ResetStellarAbundances == TRUE))
+    StellarYieldsResetter(LevelArray, 0, &MetaData);
 
   /* Open the OutputLevelInformation file. */
  

@@ -2620,6 +2620,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int MagneticFieldResetter(int level);
 
+/* Reset stellar abundance tracer fields */
+
+  int StellarYieldsResetter(int level);
+
 /* Apply a time-action to a grid. */
 
   int ApplyTimeAction(int Type, float Parameter);

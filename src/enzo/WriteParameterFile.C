@@ -1175,6 +1175,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "StellarYieldsScaledSolarInitialAbundances = %"ISYM"\n", StellarYieldsScaledSolarInitialAbundances);
   fprintf(fptr, "StellarYieldsAtomicNumbers          = ");
   WriteListOfInts(fptr, MAX_STELLAR_YIELDS, StellarYieldsAtomicNumbers);
+  WriteListOfInts(fptr, MAX_STELLAR_YIELDS, StellarYieldsResetAtomicNumbers);
 
 
   /* Most Stanford additions: */

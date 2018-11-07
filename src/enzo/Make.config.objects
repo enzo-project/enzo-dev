@@ -576,7 +576,7 @@ OBJS_CONFIG_LIB = \
 	Grid_SolveForPotential.o \
         Grid_SolveHydroEquations.o \
 	Grid_SolveOneZoneFreefall.o \
-  Grid_SolveMHD_Li.o \
+        Grid_SolveMHD_Li.o \
 	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
@@ -586,6 +586,7 @@ OBJS_CONFIG_LIB = \
         Grid_SphericalInfallGetProfile.o \
         Grid_SphericalInfallInitializeGrid.o \
         Grid_StarParticleHandler.o \
+        Grid_StellarYieldsResetter.o \
 	Grid_StratifiedMediumExplosionInitialize.o \
         Grid_SupernovaRestartInitialize.o \
         Grid_SubtractAccretedMassFromSphere.o \
@@ -880,9 +881,10 @@ OBJS_CONFIG_LIB = \
 	star_maker9.o \
 	star_maker10.o \
 	star_maker_h2reg.o \
-    star_maker_ssn.o \
+        star_maker_ssn.o \
 	StellarYieldsRoutines.o \
         StellarYields_Initialize.o \
+        StellarYieldsResetter.o \
         StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \

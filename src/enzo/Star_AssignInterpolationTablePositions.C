@@ -179,7 +179,7 @@ void Star::AssignInterpolationTablePositions(void){
 
   if (this->TablePositionsAssigned()){ return;} // don't reassign!!
 
-  if( this->type == PARTICLE_TYPE_INDIVIDUAL_STAR ){
+  if( ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR ){
 
     if ( !( this->FeedbackFlag == NO_FEEDBACK ) ||
           ( this->Mass <= IndividualStarSNIIMassCutoff)) {
@@ -221,7 +221,9 @@ void Star::AssignSETablePosition(void){
   //  if (this->se_table_position[0] >= 0 && this->se_table_position[0] >= 0) return;
 
   /* find stellar properties - used for winds, SN, and radiation */
-  if ((ABS(this->type) != IndividualStar) || (ABS(this->type) != IndividualStarRemnant)){
+  if ( (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII)  ||
+       (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED) ||
+       (IndividualStarPopIIIFormation && (this->Metallicity < PopIIIMetalCriticalFraction))){
     // We do not need these for PopIII stars. Set separately
     // using hard-coded routines in pop3_properties.F and
     // ComputePhotonRates. Set to INT_UNDEFINED so it is > 0

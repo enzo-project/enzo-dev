@@ -1171,8 +1171,10 @@ EXTERN StellarYieldsDataType          StellarYieldsWindData;
 EXTERN StellarYieldsDataType          StellarYieldsMassiveStarData;
 EXTERN StellarYieldsDataType          StellarYieldsPopIIIData;
 EXTERN int StellarYieldsAtomicNumbers[MAX_STELLAR_YIELDS];
+EXTERN int StellarYieldsResetAtomicNumbers[MAX_STELLAR_YIELDS];
 EXTERN int StellarYieldsNumberOfSpecies;
 EXTERN int StellarYieldsScaledSolarInitialAbundances;
+EXTERN int ResetStellarAbundances;
 
 
 EXTERN int   BoundaryMassFluxFieldNumbers[MAX_NUMBER_OF_BARYON_FIELDS];
