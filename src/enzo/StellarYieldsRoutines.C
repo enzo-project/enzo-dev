@@ -439,6 +439,8 @@ float StellarYieldsInterpolateYield(int yield_type,
       table = &StellarYieldsWindData;
     }
 
+  } else if (yield_type == 2){
+    table = &StellarYieldsPopIIIData;
   }
 
   /* interpolate table */

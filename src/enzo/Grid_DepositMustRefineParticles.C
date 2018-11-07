@@ -124,13 +124,19 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     IsParticleMustRefine[i] = 0;
     StarPosX[i] = StarPosY[i] = StarPosZ[i] = -1.;
 
-    if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR || cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+    if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR){
         if (( ( IndividualStarStellarWinds) && (cstar->ReturnMass() > IndividualStarSNIIMassCutoff)  ) || // massive stars always on if winds are on
                    ( (!IndividualStarStellarWinds) && (near_end_of_life)  ) ||  // SNII check if no winds are on
                    ( ( IndividualStarStellarWinds) && (near_end_of_life) && (cstar->ReturnMass() < IndividualStarSNIIMassCutoff) )){ // AGB wind check
 
           IsParticleMustRefine[i] = 1;
         }
+    } else if (fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+      if (near_end_of_life   &&
+          (   ((cstar->ReturnBirthMass()>=TypeIILowerMass)&&(cstar->ReturnBirthMass()<=TypeIIUpperMass)) ||
+              ((cstar->ReturnBirthMass()>=PISNLowerMass)  &&(cstar->ReturnBirthMass()<=PISNUpperMass  ))   )){
+        IsParticleMustRefine[i] = 1;
+      }
     } else if (fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
                fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ){
       IsParticleMustRefine[i] = ((int) near_end_of_life);
@@ -142,11 +148,11 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       StarPosY[i] = pos[1];
       StarPosZ[i] = pos[2];
       i++;
-      // printf("This particle is flagged as a must refine at position %"FSYM" %"FSYM" %"FSYM"\n", StarPosX[i], StarPosY[i], StarPosZ[i]);
+      printf("This particle is flagged as a must refine at position %"FSYM" %"FSYM" %"FSYM"\n", StarPosX[i], StarPosY[i], StarPosZ[i]);
     }
-    //else{
-      // printf("No must refine particle found\n");
-    //}
+    else{
+      printf("No must refine particle found\n");
+    }
   }
 
   NumberOfMustRefineStars = i; // save number of stars

@@ -134,6 +134,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       Q[0] = 0.0; Q[1] = 0.0; Q[2] = 0.0;
     } // end ionizing radiation
 
+    E[3] = 0.0;
+    Q[3] = 0.0;
+
     /* compute optically thin rates */
     if( (IndividualStarFUVHeating || IndividualStarLWRadiation) &&
        IndividualStarOTRadiationMethod == 1){
@@ -289,8 +292,8 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   case IndividualStarUnresolved:
 
     nbins = 3;
-    E[0]  = 0.0; E[1] = 0.0; E[2] = 0.0;
-    Q[0]  = 0.0; Q[1] = 0.0; Q[2] = 0.0;
+    E[0]  = 0.0; E[1] = 0.0; E[2] = 0.0; E[3] = 0.0;
+    Q[0]  = 0.0; Q[1] = 0.0; Q[2] = 0.0; Q[3] = 0.0;
     printf("Star_ComputePhotonRates: WARNING IndividualStarWD and IndividualStarRemnant particles should not be ionizing sources\n");
 
     break;

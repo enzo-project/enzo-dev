@@ -12,6 +12,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "StellarYieldsRoutines.h"
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
@@ -51,6 +53,7 @@ float StellarYieldsInterpolateYield(int yield_type, const int &i,
                                     const int &j ,const float &M,
                                     const float &metallicity,
                                     int atomic_number);
+
 
 /* Here I have overloaded all of the interpolation functions for the individual
    star routines in order to be a little more self-consistent. Each routine
@@ -155,11 +158,19 @@ float Star::InterpolateYield(int yield_type,
 
   this->AssertInterpolationPositions(3);
 
-  return StellarYieldsInterpolateYield(yield_type,
-                                       this->yield_table_position[0],
-                                       this->yield_table_position[1],
-                                       this->BirthMass, this->Metallicity,
-                                       atomic_number);
+  if (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+
+    return StellarYieldsInterpolatePopIIIYield(this->yield_table_position[0],
+                                               this->BirthMass, atomic_number);
+
+  } else{
+
+    return StellarYieldsInterpolateYield(yield_type,
+                                         this->yield_table_position[0],
+                                         this->yield_table_position[1],
+                                         this->BirthMass, this->Metallicity,
+                                         atomic_number);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -217,8 +228,8 @@ void Star::AssignSETablePosition(void){
     // ComputePhotonRates. Set to INT_UNDEFINED so it is > 0
     // and routine doesn't keep trying to set it to a value.
 
-    this->se_table_position[0] = INT_UNDEFINED;
-    this->se_table_position[1] = INT_UNDEFINED;
+    this->se_table_position[0] = -1;
+    this->se_table_position[1] = -1;
   } else {
     IndividualStarGetSETablePosition(this->se_table_position[0],
                                      this->se_table_position[1],
@@ -258,9 +269,14 @@ void Star::AssignYieldTablePosition(void){
   //if (this->yield_table_position[0] >= 0 &&
   //    this->yield_table_position[1] >= 0){ return;}
 
-  StellarYieldsGetYieldTablePosition(this->yield_table_position[0],
-                                     this->yield_table_position[1],
-                                     this->BirthMass, this->Metallicity);
+  if (ABS(this->type) == IndividualStarPopIII) {
+    StellarYieldsGetPopIIIYieldTablePosition(this->yield_table_position[0], this->BirthMass);
+    this->yield_table_position[1] = 0;
+  } else {
+    StellarYieldsGetYieldTablePosition(this->yield_table_position[0],
+                                       this->yield_table_position[1],
+                                       this->BirthMass, this->Metallicity);
+  }
 
   return;
 }

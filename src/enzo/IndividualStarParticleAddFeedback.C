@@ -81,7 +81,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
     /* Check feedback flag - skip if particle isn't doing anything interesting */
     if( cstar->ReturnFeedbackFlag() < INDIVIDUAL_STAR_STELLAR_WIND ||
-        cstar->ReturnFeedbackFlag() > INDIVIDUAL_STAR_WIND_AND_SN){
+        cstar->ReturnFeedbackFlag() > INDIVIDUAL_STAR_POPIIISN){
       continue; // skip to next star
     }
 

@@ -160,9 +160,9 @@ int Star::HitEndpoint(FLOAT Time)
      {
      result = NO_DEATH;
 
-     if ((this->BirthMass >= PISNLowerMass && this->BirthMass <= PISNUpperMass) ||
-         ((this->BirthMass >= TypeIILowerMass && this->BirthMass <= TypeIIUpperMass) &&
-             PopIIISupernovaExplosions == TRUE)) {
+     if (((this->BirthMass >= PISNLowerMass && this->BirthMass <= PISNUpperMass) ||
+         (this->BirthMass >= TypeIILowerMass && this->BirthMass <= TypeIIUpperMass)) &&
+             PopIIISupernovaExplosions == TRUE) {
 
        if (this->FeedbackFlag == INDIVIDUAL_STAR_SN_COMPLETE){
          this->LifeTime = huge_number * this->LifeTime;

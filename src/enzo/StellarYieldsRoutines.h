@@ -26,6 +26,8 @@ float StellarYieldsInterpolateYield(int yield_type,
                                     const int &i, const int &j,
                                     const float &M, const float &metallicity, int atomic_number);
 
+int StellarYieldsGetPopIIIYieldTablePosition(int &i, const float &M);
+
 int GetYieldIndex(const int &number_of_yields, const int &Z);
 
 #endif

@@ -2907,8 +2907,8 @@ void IndividualStarSetPopIIISupernovaProperties(Star *cstar, float &m_eject, flo
   float birth_mass = cstar->ReturnBirthMass();
   /* compute total ejected yield */
 
-  if ( (birth_mass > TypeIILowerMass) && (birth_mass < TypeIIUpperMass) ||
-       (birth_mass > PISNLowerMass)   && (birth_mass < PISNUpperMass) ){
+  if ( ((birth_mass >= TypeIILowerMass) && (birth_mass <= TypeIIUpperMass)) ||
+       ((birth_mass >= PISNLowerMass)   && (birth_mass <= PISNUpperMass)) ){
 
     if ( IndividualStarFollowStellarYields && TestProblemData.MultiMetals == 2){
       m_eject   = StellarYieldsInterpolatePopIIIYield(yield_table_position[0],
@@ -2930,7 +2930,7 @@ void IndividualStarSetPopIIISupernovaProperties(Star *cstar, float &m_eject, flo
     }
 
     /* Set energy for normal SN */
-    if (birth_mass < TypeIIUpperMass){
+    if (birth_mass <= TypeIIUpperMass){
       E_thermal = IndividualStarSupernovaEnergy;
     } else {
       // taken from pop3_maker.F (heger and woosley??)
