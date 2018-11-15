@@ -868,12 +868,19 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Particles: deposit particles to particle mass flagging field. */
 
+//  Need both of these - first one for my individual star refine, but 
+//    this can be optimized and combined to a single routine
+#ifdef INDIVIDUALSTAR
    int DepositMustRefineParticles(int pmethod, int level,
 				  bool KeepFlaggingField
-#ifdef INDIVIDUALSTAR
                                   , TopGridData *MetaData, Star *&AllStars
-#endif
                                   );
+#endif
+
+   int DepositMustRefineParticles(int pmethod, int level,
+                                  bool KeepFlaggingField
+                                  );
+
 
 
 /* baryons: add baryon density to mass flaggin field (so the mass flagging

@@ -1108,6 +1108,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
     /* AJE Individual Star */
+    ret += sscanf(line, "IndividualStarRefineToLevel = %"ISYM,
+                        &IndividualStarRefineToLevel);
     ret += sscanf(line, "IndividualStarTemperatureLimit = %"FSYM,
                         &IndividualStarTemperatureLimit);
     ret += sscanf(line, "IndividualStarTemperatureLimitFactor = %"FSYM,
@@ -1601,6 +1603,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
     }
   }
+
+  if (IndividualStarRefineToLevel < 0)
+    IndividualStarRefineToLevel = MustRefineParticlesRefineToLevel;
 
   if( MultiMetals ){
     TestProblemData.MultiMetals = MultiMetals;

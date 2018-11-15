@@ -761,6 +761,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PISNLowerMass   = 140.0;
   PISNUpperMass   = 260.0;
 
+  IndividualStarRefineToLevel          =   -1;
   /* IndividualStar: Star Formation */
   IndividualStarTemperatureLimit       =   -1;
   IndividualStarTemperatureLimitFactor =    2;

@@ -80,9 +80,18 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   /* Temporarily set the flagging field, then we will increase the
      particle mass flagging field above the refinement criteron. */
 
-  FlaggingField = new int[size];
-  for (i = 0; i < size; i++)
-    FlaggingField[i] = 0;
+   // Have to do this since this takes place after other must refine
+   // methods. Double check we are not initializing this twice
+   // and that, if it is initialized, and not saving then we have
+   // to reset to zero. Otherwise, it needs to persist
+   if (FlaggingField == NULL){
+       FlaggingField = new int[size];
+   }
+   if (!KeepFlaggingField){
+     for (i = 0; i < size; i ++){
+       FlaggingField[i] = 0;
+     }
+   }
 
   /* Loop over all the particles, using only particles marked as
      must-refine particles. */
@@ -175,7 +184,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   
   int NumberOfFlaggedCells = 0;
   if (!(ProblemType == 30 && MustRefineParticlesCreateParticles == 3 &&
-	level == MustRefineParticlesRefineToLevel)) {
+	level == IndividualStarRefineToLevel)) {
     for (i = 0; i < size; i++)
       if (FlaggingField[i]) {
 	ParticleMassFlaggingField[i] = MustRefineMass;
@@ -208,8 +217,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   return NumberOfFlaggedCells;
 
 }
+#endif
 
-#else
+//#else
 
 int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField)
 {
@@ -339,4 +349,4 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   return NumberOfFlaggedCells;
  
 }
-#endif // ifdef INDIVIDUALSTAR
+//#endif // ifdef INDIVIDUALSTAR
