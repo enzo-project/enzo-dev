@@ -52,12 +52,13 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
   int *se_table_position, *rad_table_position;
 
-  if (this->Mass < 0.1 && 
-        (  (ABS(this->type) != IndividualStar) || (ABS(this->type) != IndividualStarPopIII) )
-        )  // Not "born" yet
+  if ( (ABS(this->type) == IndividualStar) || (ABS(this->type) == IndividualStarPopIII)){
+    _mass = this->BirthMass;
+  } else if (this->Mass < 0.1){  // Not "born" yet
     _mass = this->FinalMass;
-  else
+  } else {
     _mass = this->Mass;
+  }
   x = log10((float)(_mass));
   x2 = x*x;
 
@@ -103,7 +104,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     M   = this->BirthMass;   // interpolate grids on initial ZAMS mass
     Z   = this->Metallicity;
     tau = this->LifeTime;
+    R   = this->Radius;
     tau = tau * (TimeUnits); // convert to cgs
+
 
     /* set ionizing radiation photon rates */
     if (M >= IndividualStarIonizingRadiationMinimumMass){
