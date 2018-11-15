@@ -44,7 +44,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   float Mform, EnergyFractionHeI, EnergyFractionHeII;
 
   /* for individual star */
-  float Teff, g, Z, M, tau;
+  float Z, M, tau;
   float DensityUnits, LengthUnits, TemperatureUnits, tunits, VelocityUnits;
   float H_ionizing_energy   = 13.5984; // eV
   float HeI_ionizing_energy = 24.5874; // eV
@@ -116,8 +116,8 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       // compute average energy by integrating over the black body spectrum
       H_ionizing_energy   /= eV_erg; // convert to ergs
       HeI_ionizing_energy /= eV_erg; // convert to ergs
-      ComputeAverageEnergy(&E[0], &H_ionizing_energy, &Teff);
-      ComputeAverageEnergy(&E[1], &HeI_ionizing_energy, &Teff);
+      ComputeAverageEnergy(E[0], H_ionizing_energy, this->Teff);
+      ComputeAverageEnergy(E[1], HeI_ionizing_energy, this->Teff);
 
       // convert to eV from cgs
       E[0] = E[0] * eV_erg;

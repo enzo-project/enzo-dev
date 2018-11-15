@@ -70,8 +70,8 @@ int IndividualStarInterpolateRadData(float &q0, float &q1,
 
 int PhotonRadianceBlackBody(float &q, const float &x);
 
-int ComputeAverageEnergy(float *energy, float *e_i, float *Teff);
-int AverageEnergyBlackBody(float *energy, float x);
+int ComputeAverageEnergy(float &energy, const float &e_i, const float &Teff);
+int AverageEnergyBlackBody(float &energy, const float &x);
 int ComputeBlackBodyFlux(float &flux, const float &Teff, const float &e_min, const float &e_max);
 
 

@@ -110,6 +110,8 @@ Star::Star(grid *_grid, int _id, int _level)
   level = _level;
   FeedbackFlag = NO_FEEDBACK;
 
+  Radius = Teff = SurfaceGravity = -1.0;
+
   GridID = _grid->ID;
   type = _grid->ParticleType[_id];
   Identifier = _grid->ParticleNumber[_id];
@@ -652,6 +654,8 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
     Mass = (double)(_grid->ParticleMass[_id]);
     this->ConvertMassToSolar();
   }
+
+  Radius = Teff = SurfaceGravity = -1.0;
 
   // Do separate things if these are Individual Star Particles
   if (ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR &&

@@ -1204,7 +1204,7 @@ int ComputeBlackBodyFlux(float &flux, const float &Teff, const float &e_min, con
 }
 
 
-int ComputeAverageEnergy(float *energy, float *e_i, float *Teff){
+int ComputeAverageEnergy(float &energy, const float &e_i, const float &Teff){
   /* ==========================================================================
    * ComputeAverageEnergy
    * ==========================================================================
@@ -1226,7 +1226,7 @@ int ComputeAverageEnergy(float *energy, float *e_i, float *Teff){
   float xmax;
 
   // convert wavelength to unitless energy
-  xmax = *e_i /(k_boltz*(*Teff));
+  xmax = e_i /(k_boltz*(Teff));
 
 //  printf("ISP: Energy %"ESYM" xmax %"ESYM" Teff %"ESYM"\n",*e_i, xmax, *Teff);
   if(AverageEnergyBlackBody(energy, xmax)==FAIL){
@@ -1235,7 +1235,7 @@ int ComputeAverageEnergy(float *energy, float *e_i, float *Teff){
 
 //  printf("ISP: Avg energy unitless %"ESYM"\n", *energy);
   // converto from unitless energy to cgs
-  *energy = (*energy) * (k_boltz) * (*Teff);
+  energy = (energy) * (k_boltz) * (Teff);
 
 //  printf("ISP: Energy cgs %"ESYM"\n", *energy);
 
@@ -1341,7 +1341,7 @@ int PhotonRadianceBlackBody(float &q, const float &x){
   return SUCCESS;
 }
 
-int AverageEnergyBlackBody(float *energy, float x){
+int AverageEnergyBlackBody(float &energy, const float & x){
  //=========================================================================
  // computes the one-sided integral over the black body spectrum
  // to compute the average photon energy for wavelengths lambda and greater,
@@ -1395,7 +1395,7 @@ int AverageEnergyBlackBody(float *energy, float x){
   n_dens_summation = sum;
 
   // assign value for unitless energy
-  *energy = u_dens_summation / n_dens_summation;
+  energy = u_dens_summation / n_dens_summation;
 
 //  printf("ISP: nsum %"ESYM" dsum %"ESYM" energy %"ESYM"\n",n_dens_summation, u_dens_summation, *energy);
 

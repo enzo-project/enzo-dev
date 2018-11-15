@@ -242,33 +242,19 @@ void Star::AssignSETablePosition(void){
 
 void Star::AssignRadTablePosition(void){
 
-  //if (this->rad_table_position[0] >= 0 &&
-  //    this->rad_table_position[1] >= 0 &&
-  //   this->rad_table_position[2] >= 0){ return;}
-
   this->AssertInterpolationPositions(1);
-
-  float Teff, R;
-  IndividualStarInterpolateProperties(Teff,R,
-                                      this->se_table_position[0],
-                                      this->se_table_position[1],
-                                      this->BirthMass, this->Metallicity);
-
-  float g = IndividualStarSurfaceGravity(this->BirthMass, R);
+  this->AssertStellarProperties();
 
   IndividualStarGetRadTablePosition(this->rad_table_position[0],
                                     this->rad_table_position[1],
                                     this->rad_table_position[2],
-                                    Teff, g, this->Metallicity);
+                                    this->Teff, this->SurfaceGravity, this->Metallicity);
 
 
   return;
 }
 
 void Star::AssignYieldTablePosition(void){
-
-  //if (this->yield_table_position[0] >= 0 &&
-  //    this->yield_table_position[1] >= 0){ return;}
 
   if ((ABS(this->type) == IndividualStarPopIII)   ||
       ((IndividualStarPopIIIFormation) && (this->Metallicity <= PopIIIMetalCriticalFraction))) {
