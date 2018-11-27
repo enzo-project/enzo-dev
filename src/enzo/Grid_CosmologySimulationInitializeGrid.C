@@ -582,12 +582,12 @@ int grid::CosmologySimulationInitializeGrid(
   } // ENDIF UseMetallicityField
 
 #ifdef INDIVIDUALSTAR
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating && ReadData){
     for (i = 0; i < size; i++){
       BaryonField[PeHeatingNum][i] = 0.0;
     }
   }
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation && ReadData){
     for(i = 0; i < size; i ++){
       BaryonField[OTLWkdissH2INum][i] = 0.0;
     }
