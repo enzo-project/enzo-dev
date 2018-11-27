@@ -197,9 +197,9 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	int TemperatureField = 0;
 	/* Pre-compute some quantities to speed things up */
 	TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
-	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * M_PI));
-	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * M_PI));
-	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * M_PI));
+	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
+	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
+	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
 	for (k = 0; k < ActiveDims[2]; k++) {
 	  for (j = 0; j < ActiveDims[1]; j++) {
 	    radius2_yz = ddr2[1][j] + ddr2[2][k];
@@ -367,9 +367,9 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	int TemperatureField = 0;
 	/* Pre-compute some quantities to speed things up */
 	TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
-	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * M_PI));
-	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * M_PI));
-	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * M_PI));
+	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
+	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
+	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
 	for (k = 0; k < ActiveDims[2]; k++) {
 	  for (j = 0; j < ActiveDims[1]; j++) {
 	    radius2_yz = ddr2[1][j] + ddr2[2][k];
@@ -457,7 +457,7 @@ static double JeansLength(float T, float dens, float density_units)
 {
   float jeans_length = 0.0;
 
-  jeans_length = 15*kboltz*T/(4.0*M_PI*GravConst*mh*dens*density_units);
+  jeans_length = 15*kboltz*T/(4.0*pi*GravConst*mh*dens*density_units);
   return sqrt(jeans_length);
 }
   
