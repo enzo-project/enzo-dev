@@ -53,6 +53,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   if (ProblemType == 106 || ProblemType ==107)
     ParticleBufferSize = 16;
 
+   if (!(AllStars)) return 0;
+
   /* error check */
 
   if (ParticleMassFlaggingField == NULL) {
