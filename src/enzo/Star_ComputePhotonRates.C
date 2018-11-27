@@ -94,6 +94,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     else {
       for (i = 0; i < nbins; i++) Q[i] = 0.0;
     }
+
     break;
 
   case IndividualStar:
