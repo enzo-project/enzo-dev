@@ -78,7 +78,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
     /* Check for radiation fields and delete them */
 
-    NumberOfObsoleteFields = 10;
+    NumberOfObsoleteFields = 13;
     ObsoleteFields[0] = kphHI;
     ObsoleteFields[1] = PhotoGamma;
     ObsoleteFields[2] = kphHeI;
@@ -89,6 +89,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ObsoleteFields[7] = kphHM;
     ObsoleteFields[8] = kdissH2II;
     ObsoleteFields[9] = RaySegments;
+    ObsoleteFields[10] = RadPressure0;
+    ObsoleteFields[11] = RadPressure1;
+    ObsoleteFields[12] = RadPressure2;
 
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
