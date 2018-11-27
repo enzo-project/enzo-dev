@@ -58,15 +58,15 @@
 #endif
  
 // function prototypes
-
+/*
 int RebuildHierarchy(TopGridData *MetaData,
                      LevelHierarchyEntry *LevelArray[], int level);
-
+*/
 #ifdef INDIVIDUALSTAR
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level,
-                     Star *&AllStars);
-#endif INDIVIDUALSTAR
+                     Star *AllStars = NULL);
+#endif
 
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -295,7 +295,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   /* Do the first grid regeneration. */
  
   if(CheckpointRestart == FALSE) {
-    RebuildHierarchy(&MetaData, LevelArray, 0);
+    int zero = 0;
+    RebuildHierarchy(&MetaData, LevelArray, zero);
   }
 
   PrintMemoryUsage("1st rebuild");

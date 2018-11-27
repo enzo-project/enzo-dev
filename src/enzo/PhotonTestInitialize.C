@@ -39,7 +39,7 @@ void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
 int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime);
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level);
+		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
 
 static float PhotonTestInitialFractionHII   = 1.2e-5;
 static float PhotonTestInitialFractionHeII  = 1.0e-14;

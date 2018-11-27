@@ -44,7 +44,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
-int RebuildHierarchy(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], int level);
+int RebuildHierarchy(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
 
 char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
 
