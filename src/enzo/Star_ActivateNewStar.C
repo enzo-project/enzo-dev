@@ -54,6 +54,7 @@ void Star::ActivateNewStar(FLOAT Time, float Timestep)
       break;
     case IndividualStar:
     case IndividualStarRemnant:
+    case IndividualStarPopIII:
     case IndividualStarUnresolved:
       type = StarType;
       break;

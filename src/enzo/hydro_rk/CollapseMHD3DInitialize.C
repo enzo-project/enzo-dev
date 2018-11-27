@@ -32,7 +32,7 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level);
+		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *TemperatureUnits, float *TimeUnits,
 		      float *VelocityUnits, FLOAT Time);

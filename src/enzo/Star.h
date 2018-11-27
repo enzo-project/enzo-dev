@@ -95,6 +95,7 @@ public:
                                     return se_table_position; };
   int* ReturnRadTablePosition(void){this->AssertInterpolationPositions(2);//printf("radtable %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
                                     return rad_table_position; };
+
   double ReturnWindMassEjected(void){ return wind_mass_ejected; };
   double ReturnSNMassEjected(void){ return sn_mass_ejected; };
 

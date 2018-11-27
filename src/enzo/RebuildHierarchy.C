@@ -98,7 +98,7 @@ int MustCollectParticlesToLevelZero = FALSE;  // Set only in NestedCosmologySimu
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level
 #ifdef INDIVIDUALSTAR
-                     , Star *&AllStars
+                     , Star *AllStars = NULL
 #endif
                      )
 {
@@ -733,19 +733,21 @@ int RebuildHierarchy(TopGridData *MetaData,
 }
 
 
-#ifdef INDIVIDUALSTAR
-void DeleteStarList(Star * &Node);
+//#ifdef INDIVIDUALSTAR
+//void DeleteStarList(Star * &Node);
 
 // do this to avoid having to edit all funtcion calls of rebuild hierarchy
+/*
 int RebuildHierarchy(TopGridData *MetaData,
                      LevelHierarchyEntry *LevelArray[], int level){
 
-  Star* AllStars = NULL;
-  int val = RebuildHierarchy(MetaData, LevelArray, level, AllStars);
+  Star *AllStars = NULL;
+  int val = RebuildHierarchy(MetaData, LevelArray, level, AllStars); //AllStars);
   DeleteStarList(AllStars);
   return val;
 }
+*/
 
+//#endif
 
-#endif
 

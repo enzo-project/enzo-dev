@@ -32,7 +32,7 @@
 #include "CosmologyParameters.h"
 
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level);
+		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
 int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
 #ifdef TRANSFER

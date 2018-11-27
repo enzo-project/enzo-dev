@@ -118,10 +118,11 @@ int ExtraOutput(int output_flag, LevelHierarchyEntry *LevelArray[],TopGridData *
 
 int ComputeDednerWaveSpeeds(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[], 
 			    int level, FLOAT dt0);
+
 int  RebuildHierarchy(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level
 #ifdef INDIVIDUALSTAR
-                      , Star *&AllStars
+                      , Star *AllStars = NULL
 #endif
                       );
 
@@ -1003,7 +1004,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (dtThisLevelSoFar[level] < dtLevelAbove)
       RebuildHierarchy(MetaData, LevelArray, level
 #ifdef INDIVIDUALSTAR
-                       ,AllStars
+                       , AllStars
 #endif
                        );
 

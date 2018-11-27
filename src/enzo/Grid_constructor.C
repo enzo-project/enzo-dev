@@ -68,7 +68,7 @@ grid::grid()
   }
   PhaseFctInitEven = NULL; // WS
   PhaseFctInitOdd  = NULL; // WS
- 
+
   ParticleAcceleration[MAX_DIMENSION]      = NULL;
  
   /* clear MAX_NUMBER_OF_BARYON_FIELDS vectors & [][MAX_DIMENSION] matricies */
@@ -108,6 +108,11 @@ grid::grid()
   GravityBoundaryType           = GravityUndefined;
   for (i = 0; i < MAX_NUMBER_OF_PARTICLE_ATTRIBUTES; i++)
     ParticleAttribute[i] = NULL;
+
+#ifdef INDIVIDUALSTAR
+  for (i = 0; i < MAX_STELLAR_YIELDS; i++)
+    StellarAbundances[i] = NULL;
+#endif
 
   BoundaryFluxes                = NULL;
  

@@ -48,10 +48,12 @@ int FinalizeFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
 	DeleteFluxes(SubgridFluxesEstimate[grid1][subgrid]);
 	delete       SubgridFluxesEstimate[grid1][subgrid];
       }
-      delete [] SubgridFluxesEstimate[grid1];
       
     }
-    
+
+    delete [] SubgridFluxesEstimate[grid1];
+    SubgridFluxesEstimate[grid1] = NULL;
+
   } // end of loop over grids
   return SUCCESS;
 }

@@ -40,7 +40,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 		       int CheckpointDump = FALSE);
 
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level);
+		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
 #ifdef TRANSFER
 int RadiativeTransferReadParameters(FILE *fptr);
 #endif

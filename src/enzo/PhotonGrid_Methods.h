@@ -102,7 +102,7 @@ int RadiativeTransferIonization(PhotonPackageEntry **PP, FLOAT *dPi, int cellind
 
 int RadiativeTransferXRays(PhotonPackageEntry **PP, FLOAT *dPi, int cellindex, 
 			   int species, FLOAT ddr, FLOAT tau, float geo_correction,
-			   float photonrate, float *excessrate, float *ion_factor2,
+			   FLOAT photonrate, FLOAT *excessrate, float *ion_factor2,
 			   float heat_factor, const int *kphNum, int gammaNum);
 
 int RadiativeTransferComptonHeating(PhotonPackageEntry **PP, FLOAT *dPi, int cellindex, 

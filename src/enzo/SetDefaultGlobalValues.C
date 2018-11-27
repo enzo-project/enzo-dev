@@ -755,9 +755,16 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   // Paramters for Individual Star Star formation and Feedback
 
+  /* PopIII Stars */
+  TypeIILowerMass = 11.0;
+  TypeIIUpperMass = 40.0;
+  PISNLowerMass   = 140.0;
+  PISNUpperMass   = 260.0;
+
+  IndividualStarRefineToLevel          =   -1;
   /* IndividualStar: Star Formation */
   IndividualStarTemperatureLimit       =   -1;
-  IndividualStarTemperatureLimitFactor = 2;
+  IndividualStarTemperatureLimitFactor =    2;
   IndividualStarICSupernovaRate        =   0.0;     // rate (# / yr) of supernova for initial driving - off if zero
   IndividualStarICSupernovaTime        =  10.0;     // (Myr) length of time to do SN driving if true - rate dec linearly starting at 1/2 this time
   IndividualStarICSupernovaR           =   -1.0;     // radius limit for SN - set to galaxy scale radius
@@ -778,6 +785,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
   IndividualStarMassFraction         =   0.5;         // Maximum fraction of region that can be converted into stars in one timestep
   IndividualStarSFGasMassThreshold   = 200.0;         // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
+  IndividualStarPopIIIFormation      =     0;         // flag to allow for Pop III star formation in gas below a Z threshold
+      // for popIII SF for individual stars, use the same PopIII IMF flags that already exist
+      // 
   IndividualStarIMF                  =     0;         // 0: salpeter, 1: kroupa, 2: chabrier
   IndividualStarIMFCalls             =     0;         // Do not touch - number of calls to IMF so far in simulation
   IndividualStarSalpeterSlope        = -1.35;         // slope
@@ -786,7 +796,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarKroupaAlpha3         =  -2.3;         // '' over
   IndividualStarIMFLowerMassCutoff   =   1.0;         // Solar masses
   IndividualStarIMFUpperMassCutoff   = 100.0;         // Solar masses
-  IndividualStarIMFMassFloor         = IndividualStarIMFLowerMassCutoff;         // If this is below the lower mass cutoff, stars below this mass will get grouped together into a single particle
+  IndividualStarIMFMassFloor         = IndividualStarIMFLowerMassCutoff;         // If this is above the lower mass cutoff, stars below this mass will get grouped together into a single particle
   IndividualStarVelocityDispersion   =   1.0;         // initial velocity disperion of stars in SF region (km/s)
   IndividualStarIMFSeed              = INT_UNDEFINED; // random number seed for IMF sampling
 
@@ -858,6 +868,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){
     StellarYieldsAtomicNumbers[i] = -1;
   }
+  for (i = 0; i < MAX_STELLAR_YIELDS; i++){
+    StellarYieldsResetAtomicNumbers[i] = -1;
+  }
+  ResetStellarAbundances = 0;
 
   // chemical evolution test star
   ChemicalEvolutionTestNumberOfStars   = 1;

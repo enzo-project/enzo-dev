@@ -1081,6 +1081,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "H2StarMakerColdGasTemperature      = %"GSYM"\n\n", H2StarMakerColdGasTemperature);
 
   /* AJE Indiviudal Star */
+  fprintf(fptr, "IndividualStarRefineToLevel   = %"ISYM"\n", IndividualStarRefineToLevel);
   fprintf(fptr, "IndividualStarICSupernovaRate = %"ESYM"\n", IndividualStarICSupernovaRate);
   fprintf(fptr, "IndividualStarICSupernovaTime = %"ESYM"\n", IndividualStarICSupernovaTime);
   fprintf(fptr, "IndividualStarICSupernovaR    = %"ESYM"\n", IndividualStarICSupernovaR);
@@ -1102,6 +1103,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarSFGasMassThreshold = %"FSYM"\n", IndividualStarSFGasMassThreshold);
   fprintf(fptr, "IndividualStarTemperatureThreshold = %"FSYM"\n", IndividualStarTemperatureThreshold);
   fprintf(fptr, "IndividualStarSecondaryOverDensityThreshold = %"FSYM"\n", IndividualStarSecondaryOverDensityThreshold);
+  fprintf(fptr, "IndividualStarPopIIIFormation = %"ISYM"\n", IndividualStarPopIIIFormation);
   fprintf(fptr, "IndividualStarIMFUpperMassCutoff = %"FSYM"\n", IndividualStarIMFUpperMassCutoff);
   fprintf(fptr, "IndividualStarIMFLowerMassCutoff = %"FSYM"\n", IndividualStarIMFLowerMassCutoff);
   fprintf(fptr, "IndividualStarIMFMassFloor = %"FSYM"\n", IndividualStarIMFMassFloor);
@@ -1174,6 +1176,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "StellarYieldsScaledSolarInitialAbundances = %"ISYM"\n", StellarYieldsScaledSolarInitialAbundances);
   fprintf(fptr, "StellarYieldsAtomicNumbers          = ");
   WriteListOfInts(fptr, MAX_STELLAR_YIELDS, StellarYieldsAtomicNumbers);
+  WriteListOfInts(fptr, MAX_STELLAR_YIELDS, StellarYieldsResetAtomicNumbers);
 
 
   /* Most Stanford additions: */

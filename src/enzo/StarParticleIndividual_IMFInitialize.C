@@ -30,45 +30,62 @@
 void mt_init(unsigned_int seed);
 //void random_init(unsigned_int seed); need to find this function (2/8/16 AJE)
 
+int InitializeIMF(float *& data, const float & lower_mass, const float & upper_mass,
+                  const int & IMFtype);
+
 unsigned_long_int mt_random(void);
 
-int StarParticleIndividual_IMFInitialize(void)
-{
+int StarParticleIndividual_IMFInitialize(void){
 
-  if (IMFData != NULL){
-    return SUCCESS;
+  if (IMFData == NULL){
+    InitializeIMF( IMFData, IndividualStarIMFLowerMassCutoff,
+                            IndividualStarIMFUpperMassCutoff,
+                            IndividualStarIMF);
   }
 
-  IMFData = new float[IMF_TABLE_ENTRIES];
+  if (IndividualStarPopIIIFormation && SecondaryIMFData == NULL){
+    InitializeIMF( SecondaryIMFData, PopIIILowerMassCutoff, PopIIIUpperMassCutoff,
+                                     3); // 3 == PopIII IMF
+  }
+
+  return SUCCESS;
+}
+
+
+int InitializeIMF(float *& data, const float & lower_mass, const float & upper_mass,
+                                const int & IMFtype)
+{
+
+  data = new float[IMF_TABLE_ENTRIES];
 
   int i;
   float m, m0, dm, total_fn;
 
-  dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/
+  dm = log10(upper_mass / lower_mass)/
        ((float) (IMF_TABLE_ENTRIES-1));
-  m0 = log10(IndividualStarIMFLowerMassCutoff);
+  m0 = log10(lower_mass);
 
   total_fn = 0; // will hold cumulative probability density function
 
   // use global parameters from global_data.h
-  if (IndividualStarIMF == 0){ // Salpeter
+  if (IMFtype == 0){ // Salpeter
     for (i = 0; i < IMF_TABLE_ENTRIES; i ++){
       m = POW(10.0, m0 + i*dm);
       total_fn += POW(m, IndividualStarSalpeterSlope);
-      IMFData[i] = total_fn;
+      data[i] = total_fn;
     } // end tabulate
 
-  } else if (IndividualStarIMF == 1){ // Chabrier 2003
+  } else if (IMFtype == 1){ // Chabrier 2003
 
     for (i = 0; i < IMF_TABLE_ENTRIES; i ++){
       m = POW(10.0, m0 + i*dm);
       total_fn += 0.158 * exp( - 0.5 * POW(log10(m)-log10(0.08),2.0) /
                                        POW(0.69,2) );
-      IMFData[i] = total_fn;
+      data[i] = total_fn;
 
     } // end tabulate
  
-  } else if (IndividualStarIMF == 2){ // Kroupa 2001
+  } else if (IMFtype == 2){ // Kroupa 2001
     for (i = 0; i < IMF_TABLE_ENTRIES; i ++){
       m = POW(10.0, m0 + i*dm);
 
@@ -80,9 +97,18 @@ int StarParticleIndividual_IMFInitialize(void)
         total_fn += POW(m, IndividualStarKroupaAlpha3);
       }
 
-      IMFData[i] = total_fn;
+      data[i] = total_fn;
     } // end tabulate
 
+  } else if (IMFtype == 3){ // PopIII IMF
+    const float CutoffExponent = 1.6;
+
+    for (i = 0; i < IMF_TABLE_ENTRIES; i++){
+      m = POW(10.0, m0 + i*dm);
+      total_fn += POW(m, PopIIIInitialMassFunctionSlope) *
+         exp(-POW((PopIIIStarMass/m), CutoffExponent));
+      data[i] = total_fn;
+    }
   } else{
     fprintf(stdout, "Error in StarParticleIndividual_IMFInitialize. Invalid IMF choice.\n");
     return FAIL;
@@ -91,7 +117,7 @@ int StarParticleIndividual_IMFInitialize(void)
 
   // Normalize cpdf to 1
   for (i = 0; i < IMF_TABLE_ENTRIES; i ++){
-    IMFData[i] /= IMFData[IMF_TABLE_ENTRIES-1];
+    data[i] /= data[IMF_TABLE_ENTRIES-1];
   }
 
   // Initialize random number generator. If restart, call it the

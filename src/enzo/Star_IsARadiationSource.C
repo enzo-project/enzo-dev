@@ -60,7 +60,7 @@ bool Star::IsARadiationSource(FLOAT Time)
   rules[3] = (Mass > tiny_number);
 
   // Mass threshold for individual stars to save on computation
-  if (type == IndividualStar){
+  if ((type == IndividualStar) || (type == IndividualStarPopIII)){
     rules[0] = true;           // feedback flag only for winds + SN here
 
     if( this->BirthMass >= IndividualStarRadiationMinimumMass){
@@ -68,9 +68,13 @@ bool Star::IsARadiationSource(FLOAT Time)
     }
     // else leave as false
 
-  } else if (type == IndividualStarWD ||
-             type == IndividualStarRemnant ||
-             type == IndividualStarUnresolved ){
+//  } else if (type == IndividualStarPopIII){
+//    rulse[0] = true;
+//    rulse[4] = true;
+
+  } else if ((type == IndividualStarWD) ||
+             (type == IndividualStarRemnant) ||
+             (type == IndividualStarUnresolved) ){
     rules[4] = false;
   } else{
     rules[4] = true;

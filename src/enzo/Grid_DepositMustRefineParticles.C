@@ -53,6 +53,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   if (ProblemType == 106 || ProblemType ==107)
     ParticleBufferSize = 16;
 
+   if (!(AllStars)) return 0;
+
   /* error check */
 
   if (ParticleMassFlaggingField == NULL) {
@@ -80,9 +82,18 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   /* Temporarily set the flagging field, then we will increase the
      particle mass flagging field above the refinement criteron. */
 
-  FlaggingField = new int[size];
-  for (i = 0; i < size; i++)
-    FlaggingField[i] = 0;
+   // Have to do this since this takes place after other must refine
+   // methods. Double check we are not initializing this twice
+   // and that, if it is initialized, and not saving then we have
+   // to reset to zero. Otherwise, it needs to persist
+   if (FlaggingField == NULL){
+       FlaggingField = new int[size];
+   }
+   if (!KeepFlaggingField){
+     for (i = 0; i < size; i ++){
+       FlaggingField[i] = 0;
+     }
+   }
 
   /* Loop over all the particles, using only particles marked as
      must-refine particles. */
@@ -131,6 +142,12 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
           IsParticleMustRefine[i] = 1;
         }
+    } else if (fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+      if (near_end_of_life   &&
+          (   ((cstar->ReturnBirthMass()>=TypeIILowerMass)&&(cstar->ReturnBirthMass()<=TypeIIUpperMass)) ||
+              ((cstar->ReturnBirthMass()>=PISNLowerMass)  &&(cstar->ReturnBirthMass()<=PISNUpperMass  ))   )){
+        IsParticleMustRefine[i] = 1;
+      }
     } else if (fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||
                fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT ){
       IsParticleMustRefine[i] = ((int) near_end_of_life);
@@ -142,11 +159,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       StarPosY[i] = pos[1];
       StarPosZ[i] = pos[2];
       i++;
-      // printf("This particle is flagged as a must refine at position %"FSYM" %"FSYM" %"FSYM"\n", StarPosX[i], StarPosY[i], StarPosZ[i]);
     }
-    //else{
-      // printf("No must refine particle found\n");
-    //}
+    else{
+    }
   }
 
   NumberOfMustRefineStars = i; // save number of stars
@@ -171,7 +186,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   
   int NumberOfFlaggedCells = 0;
   if (!(ProblemType == 30 && MustRefineParticlesCreateParticles == 3 &&
-	level == MustRefineParticlesRefineToLevel)) {
+	level == IndividualStarRefineToLevel)) {
     for (i = 0; i < size; i++)
       if (FlaggingField[i]) {
 	ParticleMassFlaggingField[i] = MustRefineMass;
@@ -204,8 +219,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   return NumberOfFlaggedCells;
 
 }
+#endif
 
-#else
+//#else
 
 int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField)
 {
@@ -335,4 +351,4 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   return NumberOfFlaggedCells;
  
 }
-#endif // ifdef INDIVIDUALSTAR
+//#endif // ifdef INDIVIDUALSTAR

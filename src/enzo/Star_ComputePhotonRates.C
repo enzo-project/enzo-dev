@@ -44,7 +44,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   float Mform, EnergyFractionHeI, EnergyFractionHeII;
 
   /* for individual star */
-  float Teff, g, Z, M, tau;
+  float Z, M, tau;
   float DensityUnits, LengthUnits, TemperatureUnits, tunits, VelocityUnits;
   float H_ionizing_energy   = 13.5984; // eV
   float HeI_ionizing_energy = 24.5874; // eV
@@ -52,10 +52,13 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
   int *se_table_position, *rad_table_position;
 
-  if (this->Mass < 0.1 && (ABS(this->type) != IndividualStar))  // Not "born" yet
+  if ( (ABS(this->type) == IndividualStar) || (ABS(this->type) == IndividualStarPopIII)){
+    _mass = this->BirthMass;
+  } else if (this->Mass < 0.1){  // Not "born" yet
     _mass = this->FinalMass;
-  else
+  } else {
     _mass = this->Mass;
+  }
   x = log10((float)(_mass));
   x2 = x*x;
 
@@ -65,6 +68,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
     /* Luminosities from Schaerer (2002) */
 
+  case IndividualStarPopIII:
   case PopIII:
     nbins = (PopIIIHeliumIonization &&
 	     !RadiativeTransferHydrogenOnly) ? 3 : 1;
@@ -90,6 +94,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     else {
       for (i = 0; i < nbins; i++) Q[i] = 0.0;
     }
+
     break;
 
   case IndividualStar:
@@ -100,7 +105,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     M   = this->BirthMass;   // interpolate grids on initial ZAMS mass
     Z   = this->Metallicity;
     tau = this->LifeTime;
+    R   = this->Radius;
     tau = tau * (TimeUnits); // convert to cgs
+
 
     /* set ionizing radiation photon rates */
     if (M >= IndividualStarIonizingRadiationMinimumMass){
@@ -110,8 +117,8 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       // compute average energy by integrating over the black body spectrum
       H_ionizing_energy   /= eV_erg; // convert to ergs
       HeI_ionizing_energy /= eV_erg; // convert to ergs
-      ComputeAverageEnergy(&E[0], &H_ionizing_energy, &Teff);
-      ComputeAverageEnergy(&E[1], &HeI_ionizing_energy, &Teff);
+      ComputeAverageEnergy(E[0], H_ionizing_energy, this->Teff);
+      ComputeAverageEnergy(E[1], HeI_ionizing_energy, this->Teff);
 
       // convert to eV from cgs
       E[0] = E[0] * eV_erg;
@@ -130,6 +137,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
       Q[0] = 0.0; Q[1] = 0.0; Q[2] = 0.0;
     } // end ionizing radiation
+
+    E[3] = 0.0;
+    Q[3] = 0.0;
 
     /* compute optically thin rates */
     if( (IndividualStarFUVHeating || IndividualStarLWRadiation) &&
@@ -286,8 +296,8 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   case IndividualStarUnresolved:
 
     nbins = 3;
-    E[0]  = 0.0; E[1] = 0.0; E[2] = 0.0;
-    Q[0]  = 0.0; Q[1] = 0.0; Q[2] = 0.0;
+    E[0]  = 0.0; E[1] = 0.0; E[2] = 0.0; E[3] = 0.0;
+    Q[0]  = 0.0; Q[1] = 0.0; Q[2] = 0.0; Q[3] = 0.0;
     printf("Star_ComputePhotonRates: WARNING IndividualStarWD and IndividualStarRemnant particles should not be ionizing sources\n");
 
     break;

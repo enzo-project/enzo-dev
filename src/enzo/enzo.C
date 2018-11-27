@@ -166,7 +166,7 @@ int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
 int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
 
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level);
+		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 			 LevelHierarchyEntry *LevelArray[], int level);
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
@@ -243,6 +243,13 @@ int RadiativeTransferInitialize(char *ParameterFile,
 				ExternalBoundary &Exterior, 
 				ImplicitProblemABC* &ImplicitSolver,
 				LevelHierarchyEntry *LevelArray[]);
+#endif
+
+#ifdef INDIVIDUALSTAR
+int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
+                                 TopGridData &MetaData,
+                                 ExternalBoundary &Exterior,
+                                 LevelHierarchyEntry *LevelArray[]);
 #endif
 
 #ifdef USE_LCAPERF
@@ -775,6 +782,14 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   if (RadiativeTransferInitialize(ParameterFile, TopGrid, MetaData, Exterior, 
 				  ImplicitSolver, LevelArray) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferInitialize.\n");
+    my_exit(EXIT_FAILURE);
+  }
+#endif
+
+#ifdef INDIVIDUALSTAR
+  if (InitializeStellarYieldFields(TopGrid, MetaData, Exterior,
+                                   LevelArray) == FAIL){
+    fprintf(stderr, "Error in StellarYieldsInitialize.\n");
     my_exit(EXIT_FAILURE);
   }
 #endif

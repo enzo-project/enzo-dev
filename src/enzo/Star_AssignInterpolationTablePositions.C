@@ -12,6 +12,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "StellarYieldsRoutines.h"
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
@@ -52,6 +54,7 @@ float StellarYieldsInterpolateYield(int yield_type, const int &i,
                                     const float &metallicity,
                                     int atomic_number);
 
+
 /* Here I have overloaded all of the interpolation functions for the individual
    star routines in order to be a little more self-consistent. Each routine
    now 100% handles the interpolation without having to pass parameters,
@@ -77,6 +80,7 @@ void Star::InterpolateProperties(void){
 }
 
 void Star::AssertStellarProperties(void){
+
   if ( (this->Teff <= 0.0) ||
        (this->Radius <= 0.0) ||
        (this->SurfaceGravity <= 0.0)){
@@ -149,16 +153,23 @@ double Star::ReturnRadius(void){
   return this->Radius;
 }
 
-float Star::InterpolateYield(int yield_type,
-                                          int atomic_number){
+float Star::InterpolateYield(int yield_type, int atomic_number){
 
   this->AssertInterpolationPositions(3);
 
-  return StellarYieldsInterpolateYield(yield_type,
-                                       this->yield_table_position[0],
-                                       this->yield_table_position[1],
-                                       this->BirthMass, this->Metallicity,
-                                       atomic_number);
+  if (  ( this->type == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII) ||
+        ((IndividualStarPopIIIFormation) && (this->Metallicity < PopIIIMetalCriticalFraction))){
+
+    return StellarYieldsInterpolatePopIIIYield(this->yield_table_position[0],
+                                               this->BirthMass, atomic_number);
+  } else{
+
+    return StellarYieldsInterpolateYield(yield_type,
+                                         this->yield_table_position[0],
+                                         this->yield_table_position[1],
+                                         this->BirthMass, this->Metallicity,
+                                         atomic_number);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -168,7 +179,7 @@ void Star::AssignInterpolationTablePositions(void){
 
   if (this->TablePositionsAssigned()){ return;} // don't reassign!!
 
-  if( this->type == PARTICLE_TYPE_INDIVIDUAL_STAR ){
+  if( ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR ){
 
     if ( !( this->FeedbackFlag == NO_FEEDBACK ) ||
           ( this->Mass <= IndividualStarSNIIMassCutoff)) {
@@ -210,32 +221,34 @@ void Star::AssignSETablePosition(void){
   //  if (this->se_table_position[0] >= 0 && this->se_table_position[0] >= 0) return;
 
   /* find stellar properties - used for winds, SN, and radiation */
-  IndividualStarGetSETablePosition(this->se_table_position[0],
-                                   this->se_table_position[1],
-                                   this->BirthMass, this->Metallicity);
+  if ( (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII)  ||
+       (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED) ||
+       (IndividualStarPopIIIFormation && (this->Metallicity < PopIIIMetalCriticalFraction))){
+    // We do not need these for PopIII stars. Set separately
+    // using hard-coded routines in pop3_properties.F and
+    // ComputePhotonRates. Set to INT_UNDEFINED so it is > 0
+    // and routine doesn't keep trying to set it to a value.
+
+    this->se_table_position[0] = -1;
+    this->se_table_position[1] = -1;
+  } else {
+    IndividualStarGetSETablePosition(this->se_table_position[0],
+                                     this->se_table_position[1],
+                                     this->BirthMass, this->Metallicity);
+  }
+
   return;
 }
 
 void Star::AssignRadTablePosition(void){
 
-  //if (this->rad_table_position[0] >= 0 &&
-  //    this->rad_table_position[1] >= 0 &&
-  //   this->rad_table_position[2] >= 0){ return;}
-
   this->AssertInterpolationPositions(1);
-
-  float Teff, R;
-  IndividualStarInterpolateProperties(Teff,R,
-                                      this->se_table_position[0],
-                                      this->se_table_position[1],
-                                      this->BirthMass, this->Metallicity);
-
-  float g = IndividualStarSurfaceGravity(this->BirthMass, R);
+  this->AssertStellarProperties();
 
   IndividualStarGetRadTablePosition(this->rad_table_position[0],
                                     this->rad_table_position[1],
                                     this->rad_table_position[2],
-                                    Teff, g, this->Metallicity);
+                                    this->Teff, this->SurfaceGravity, this->Metallicity);
 
 
   return;
@@ -243,12 +256,15 @@ void Star::AssignRadTablePosition(void){
 
 void Star::AssignYieldTablePosition(void){
 
-  //if (this->yield_table_position[0] >= 0 &&
-  //    this->yield_table_position[1] >= 0){ return;}
-
-  StellarYieldsGetYieldTablePosition(this->yield_table_position[0],
-                                     this->yield_table_position[1],
-                                     this->BirthMass, this->Metallicity);
+  if ((ABS(this->type) == IndividualStarPopIII)   ||
+      ((IndividualStarPopIIIFormation) && (this->Metallicity <= PopIIIMetalCriticalFraction))) {
+    StellarYieldsGetPopIIIYieldTablePosition(this->yield_table_position[0], this->BirthMass);
+    this->yield_table_position[1] = 0;
+  } else {
+    StellarYieldsGetYieldTablePosition(this->yield_table_position[0],
+                                       this->yield_table_position[1],
+                                       this->BirthMass, this->Metallicity);
+  }
 
   return;
 }

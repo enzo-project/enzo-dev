@@ -30,9 +30,6 @@
 int Star::HitEndpoint(FLOAT Time)
 {
 
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
-  const float PISNLowerMass = 140, PISNUpperMass = 260;
-
   /* First check if the star's past its lifetime and then check other
      constrains based on its star type */
 
@@ -158,7 +155,33 @@ int Star::HitEndpoint(FLOAT Time)
 
       break;
     }
+
+  case IndividualStarPopIII:
+     {
+     result = NO_DEATH;
+
+     if (((this->BirthMass >= PISNLowerMass && this->BirthMass <= PISNUpperMass) ||
+         (this->BirthMass >= TypeIILowerMass && this->BirthMass <= TypeIIUpperMass)) &&
+             PopIIISupernovaExplosions == TRUE) {
+
+       if (this->FeedbackFlag == INDIVIDUAL_STAR_SN_COMPLETE){
+         this->LifeTime = huge_number * this->LifeTime;
+         this->type     = IndividualStarRemnant;
+         this->FeedbackFlag = NO_FEEDBACK;
+       } else{
+         this->FeedbackFlag = INDIVIDUAL_STAR_POPIIISN;
+       }
+
+    } else{
+       this->FeedbackFlag = NO_FEEDBACK;
+       this->LifeTime     = huge_number * this->LifeTime;
+       this->type         = IndividualStarRemnant;
+    }
+
+    break;
+    }
   case IndividualStarWD:
+    {
     result = NO_DEATH;
 
     if ( this->FeedbackFlag == INDIVIDUAL_STAR_SN_COMPLETE){
@@ -171,7 +194,7 @@ int Star::HitEndpoint(FLOAT Time)
     }
 
     break;
-
+    }
   case IndividualStarRemnant:
   case IndividualStarUnresolved:
     result = NO_DEATH; //printf("Individual Star remnamt in hit endpoint\n");

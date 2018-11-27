@@ -1108,6 +1108,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
     /* AJE Individual Star */
+    ret += sscanf(line, "IndividualStarRefineToLevel = %"ISYM,
+                        &IndividualStarRefineToLevel);
     ret += sscanf(line, "IndividualStarTemperatureLimit = %"FSYM,
                         &IndividualStarTemperatureLimit);
     ret += sscanf(line, "IndividualStarTemperatureLimitFactor = %"FSYM,
@@ -1151,6 +1153,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarSecondaryOverDensityThreshold);
     ret += sscanf(line, "IndividualStarTemperatureThreshold = %"FSYM,
                         &IndividualStarTemperatureThreshold);
+    ret += sscanf(line, "IndividualStarPopIIIFormation = %"ISYM,
+                        &IndividualStarPopIIIFormation);
     ret += sscanf(line, "IndividualStarIMFUpperMassCutoff = %"FSYM,
                         &IndividualStarIMFUpperMassCutoff);
     ret += sscanf(line, "IndividualStarIMFLowerMassCutoff = %"FSYM,
@@ -1260,6 +1264,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   StellarYieldsAtomicNumbers+4, StellarYieldsAtomicNumbers+5, StellarYieldsAtomicNumbers+6, StellarYieldsAtomicNumbers+7,
                   StellarYieldsAtomicNumbers+8, StellarYieldsAtomicNumbers+9, StellarYieldsAtomicNumbers+10, StellarYieldsAtomicNumbers+11,
                   StellarYieldsAtomicNumbers+12, StellarYieldsAtomicNumbers+13, StellarYieldsAtomicNumbers+14, StellarYieldsAtomicNumbers+15, StellarYieldsAtomicNumbers+16);
+
+    ret += sscanf(line, "StellarYieldsResetAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM " %"ISYM" %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM,
+                  StellarYieldsResetAtomicNumbers+0, StellarYieldsResetAtomicNumbers+1, StellarYieldsResetAtomicNumbers+2, StellarYieldsResetAtomicNumbers+3,
+                  StellarYieldsResetAtomicNumbers+4, StellarYieldsResetAtomicNumbers+5, StellarYieldsResetAtomicNumbers+6, StellarYieldsResetAtomicNumbers+7,
+                  StellarYieldsResetAtomicNumbers+8, StellarYieldsResetAtomicNumbers+9, StellarYieldsResetAtomicNumbers+10, StellarYieldsResetAtomicNumbers+11,
+                  StellarYieldsResetAtomicNumbers+12, StellarYieldsResetAtomicNumbers+13, StellarYieldsResetAtomicNumbers+14, StellarYieldsResetAtomicNumbers+15, StellarYieldsResetAtomicNumbers+16);
+
 
     ret += sscanf(line, "StellarYieldsNumberOfSpecies = %"ISYM, &StellarYieldsNumberOfSpecies);
     ret += sscanf(line, "StellarYieldsScaledSolarInitialAbundances = %"ISYM, &StellarYieldsScaledSolarInitialAbundances);
@@ -1592,6 +1603,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
     }
   }
+
+  if (IndividualStarRefineToLevel < 0)
+    IndividualStarRefineToLevel = MustRefineParticlesRefineToLevel;
 
   if( MultiMetals ){
     TestProblemData.MultiMetals = MultiMetals;

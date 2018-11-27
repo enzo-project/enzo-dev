@@ -128,6 +128,10 @@ class grid
   int   *ParticleType;                     // type of particle
   float *ParticleAttribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 
+#ifdef INDIVIDUALSTAR
+  float *StellarAbundances[MAX_STELLAR_YIELDS]; // to temporarily tag new stars before output to file
+#endif
+
 //
 //  Star particle data
 //
@@ -864,12 +868,19 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Particles: deposit particles to particle mass flagging field. */
 
+//  Need both of these - first one for my individual star refine, but 
+//    this can be optimized and combined to a single routine
+#ifdef INDIVIDUALSTAR
    int DepositMustRefineParticles(int pmethod, int level,
 				  bool KeepFlaggingField
-#ifdef INDIVIDUALSTAR
                                   , TopGridData *MetaData, Star *&AllStars
-#endif
                                   );
+#endif
+
+   int DepositMustRefineParticles(int pmethod, int level,
+                                  bool KeepFlaggingField
+                                  );
+
 
 
 /* baryons: add baryon density to mass flaggin field (so the mass flagging
@@ -1419,6 +1430,12 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int MoveAllParticlesOld(int NumberOfGrids, grid* TargetGrids[]);
 
+#ifdef INDIVIDUALSTAR
+/* */
+   int MoveParticleAbundances(int NumberOfGrids, grid* TargetGrids[]);
+/* */
+#endif
+
 /* Particles: Move particles that lie within this grid from the TargetGrid
               to this grid. */
 
@@ -1491,7 +1508,42 @@ gradient force to gravitational force for one-zone collapse test. */
        if (ParticleAttribute[i] != NULL) delete [] ParticleAttribute[i];
        ParticleAttribute[i] = NULL;
      }
+
+//#ifdef INDIVIDUALSTAR
+//     this->DeleteStellarAbundances();
+//#endif
    };
+
+#ifdef INDIVIDUALSTAR
+   void DeleteStellarAbundances(){
+//     if(!StellarAbundances) return;
+
+     for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
+       StellarAbundances[i] = NULL;
+     }
+   };
+
+   void OutputStellarAbundances(int * indeces){
+
+     for (int n = 0; n < NumberOfParticles; n++){
+       if (indeces[n] < 0) break;
+
+       printf("StellarAbundances P(%"ISYM"): %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM,
+              MyProcessorNumber,
+              this->ID, ParticleNumber[n], ParticleMass[n],
+              ParticleAttribute[3][n], // BirthMass
+              ParticleAttribute[2][n]); // metallicity
+
+       for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+         printf("     %"ESYM,StellarAbundances[i][n]);
+       }
+       printf("\n");
+     }
+     // end output stellar abundances
+   };
+#endif
+
 
 /* Particles: allocate new particle fields. */
 
@@ -1505,13 +1557,24 @@ gradient force to gravitational force for one-zone collapse test. */
      }
      for (int i = 0; i < NumberOfParticleAttributes; i++)
        ParticleAttribute[i] = new float[NumberOfNewParticles];
+
+
+//#ifdef INDIVIDUALSTAR
+//     for (int i = 0; i < StellarYieldsNumberOfSpecies; i++)
+//       StellarAbundances[i] = NULL;
+//#endif
    };
+
 
 /* Particles: Copy pointers passed into into grid. */
 
    void SetParticlePointers(float *Mass, PINT *Number, int *Type,
-                            FLOAT *Position[], 
-			    float *Velocity[], float *Attribute[]) {
+                            FLOAT *Position[],
+			    float *Velocity[], float *Attribute[]
+#ifdef INDIVIDUALSTAR
+                          , float *Abundances[]
+#endif
+    ) {
     ParticleMass   = Mass;
     ParticleNumber = Number;
     ParticleType   = Type;
@@ -1521,7 +1584,30 @@ gradient force to gravitational force for one-zone collapse test. */
     }
     for (int i = 0; i < NumberOfParticleAttributes; i++)
       ParticleAttribute[i] = Attribute[i];
+
+//#ifdef INDIVIDUALSTAR
+//    if (Abundances){
+//      for (int i = 0; i < StellarYieldsNumberOfSpecies; i++)
+//        StellarAbundances[i] = Abundances[i];
+//    }
+//#endif
    };
+
+#ifdef INDIVIDUALSTAR
+   void SetParticlePointers(float *Mass, PINT *Number, int *Type,
+                            FLOAT *Position[], float *Velocity[],
+                            float *Attribute[]){
+
+     SetParticlePointers(Mass, Number, Type, Position,
+                         Velocity, Attribute, NULL);
+   };
+
+   void AllocateStellarAbundances(int NumberOfNewParticles){
+     for (int i = 0; i < StellarYieldsNumberOfSpecies; i++)
+       StellarAbundances[i] = new float[NumberOfNewParticles];
+   };
+#endif
+
 
 /* Particles: Set new star particle index. */
 
@@ -2252,7 +2338,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int individual_star_maker( float *dm, float *temp, int *nmax, float *mu, int *np,
                              float *ParticleMass,
                              int *ParticleType, FLOAT *ParticlePosition[],
-                             float *ParticleVelocity[], float *ParticleAttribute[]);
+                             float *ParticleVelocity[], float *ParticleAttribute[],
+                             float *StellarAbundances[]);
 
   int individual_star_feedback(int *np, float *ParticleMass, int *ParticleType,
                                FLOAT *ParticlePosition[], float *ParticleVelocity[],
@@ -2270,13 +2357,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                         float E_thermal, float E_kin, float p_feedback, float *metal_mass,
                                         int check_mass_in_region, float E_thermal_wind);
 
-  int IndividualStarAddFeedbackSphere(Star *cstar, const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
-                                          const float &up, const float &vp, const float &wp, // might not need vel
-                                          const float &mproj, const float &lifetime, const float &particle_age,
-                                          const float &metallicity, float *mp, int mode);
+  int IndividualStarAddFeedbackSphere(Star *cstar, float *mp, int mode);
 
   int IndividualStarInjectSphericalFeedback(Star *cstar,
-                                            const FLOAT &xp, const FLOAT &yp, const FLOAT &zp,
+                                            FLOAT xp, FLOAT yp, FLOAT zp,
                                             float m_eject, float E_thermal,
                                             float *metal_mass, int stellar_wind_mode);
 
@@ -2540,6 +2624,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Magnetic field resetting routine. */
 
   int MagneticFieldResetter(int level);
+
+/* Reset stellar abundance tracer fields */
+
+  int StellarYieldsResetter(int level);
 
 /* Apply a time-action to a grid. */
 
