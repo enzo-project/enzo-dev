@@ -255,7 +255,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     fprintf(stdout, "%s: 12 * (1 << (2*(*PP)->level)) = %llu\n", __FUNCTION__, 
 	    BRP * (1L << (res*(*PP)->level)));
     fprintf(stdout, "%s: Hlevel = %llu\n", __FUNCTION__, Hlevel);
-    fprintf(stdout, "%s: Nlevel = %lld\n", __FUNCTION__, Nlevel);
+    fprintf(stdout, "%s: Nlevel = %llu\n", __FUNCTION__, Nlevel);
     fprintf(stdout, "%s: n_on_this_level = %lf\n", __FUNCTION__, n_on_this_level);
     ENZO_VFAIL("Computation of the number of pixels failed.\n"
 	       "\t level = %llu\n", (*PP)->level);
