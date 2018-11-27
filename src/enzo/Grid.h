@@ -1516,12 +1516,10 @@ gradient force to gravitational force for one-zone collapse test. */
 
 #ifdef INDIVIDUALSTAR
    void DeleteStellarAbundances(){
-     if(!StellarAbundances) return;
+//     if(!StellarAbundances) return;
 
      for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
-       if (StellarAbundances[i] != NULL){
-         delete [] StellarAbundances[i];
-       }
+       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
        StellarAbundances[i] = NULL;
      }
    };
