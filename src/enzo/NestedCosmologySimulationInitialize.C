@@ -131,7 +131,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *GPotName  = "Grav_Potential";
   char *MetalName = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
-  char *AGBMetalName    = "AGBMetalName";
+  char *AGBMetalName    = "AGB_Metal_Density";
   char *PopIIIMetalName = "PopIII_Metal_Density";
   char *ForbidName = "ForbiddenRefinement";
   char *MachName   = "Mach";
