@@ -764,6 +764,19 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   int MetalNum;
   MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
 
+ int PopIIIMetalNum, AGBMetalNum;
+
+  AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
+  PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
+
+  if ( IndividualStarTrackAGBMetalDensity && (AGBMetalNum <= 0)){
+    ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
+  }
+
+  if ( IndividualStarPopIIIFormation && (PopIIIMetalNum <= 0)){
+    ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
+  }
+
   /* get units */
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, this->Time) == FAIL){
@@ -1215,6 +1228,17 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                         ParticleAttribute[4 + iyield][istar] = temp_fraction;
                       }
                     }
+                  }// loop over yields
+
+                  int offset = 0;
+                  // add two to the stellar abundances for popIII and AGB metals (if tracked)
+                  if (IndividualStarTrackAGBMetalDensity && IndividualStarOutputChemicalTags){
+                    StellarAbundances[StellarYieldsNumberOfSpecies + 0][istar] = BaryonField[AGBMetalNum][index];
+                    offset++;
+                  }
+
+                  if (IndividualStarPopIIIFormation && IndividualStarOutputChemicalTags){
+                    StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[PopIIIMetalNum][index];
                   }
 
 //                  if (IndividualStarOutputChemicalTags) printf("\n");
@@ -2685,6 +2709,19 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
                           HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
   }
 
+  int PopIIIMetalNum, AGBMetalNum;
+
+  AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
+  PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
+
+  if ( IndividualStarTrackAGBMetalDensity && (AGBMetalNum <= 0)){
+    ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
+  }
+
+  if ( IndividualStarPopIIIFormation && (PopIIIMetalNum <= 0)){
+    ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
+  }
+
   /* Get Units */
   float DensityUnits, LengthUnits, TemperatureUnits,
         TimeUnits, VelocityUnits, MassUnits, EnergyUnits;
@@ -2822,6 +2859,14 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
           if (cstar){
             BaryonField[field_num][index] += injected_metal_mass[0];
+
+            // Track PopIII and AGB metals separately if requested
+            if (IndividualStarPopIIIFormation && cstar->ReturnMetallicity() < PopIIIMetalCriticalFraction){
+              BaryonField[PopIIIMetalNum][index] += injected_metal_mass[0];
+            } else if (IndividualStarTrackAGBMetalDensity &&
+                      (cstar->ReturnBirthMass() < IndividualStarSNIIMassCutoff)){
+              BaryonField[AGBMetalNum][index] += injected_metal_mass[0];
+            }
 
           } else {
             // keep same fraction if using artificial SN generaotr

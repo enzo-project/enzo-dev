@@ -786,6 +786,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarMassFraction         =   0.5;         // Maximum fraction of region that can be converted into stars in one timestep
   IndividualStarSFGasMassThreshold   = 200.0;         // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
   IndividualStarPopIIIFormation      =     0;         // flag to allow for Pop III star formation in gas below a Z threshold
+                                                      // also tracks PopIII metal enrichment w/ additional field (but ONLY when tags are written to file)
+
+  IndividualStarTrackAGBMetalDensity =     0;         // Track separate AGB metal mass field (only for outut chemical tags)
+
       // for popIII SF for individual stars, use the same PopIII IMF flags that already exist
       // 
   IndividualStarIMF                  =     0;         // 0: salpeter, 1: kroupa, 2: chabrier

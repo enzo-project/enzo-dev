@@ -131,6 +131,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *GPotName  = "Grav_Potential";
   char *MetalName = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
+  char *AGBMetalName    = "AGBMetalName";
+  char *PopIIIMetalName = "PopIII_Metal_Density";
   char *ForbidName = "ForbiddenRefinement";
   char *MachName   = "Mach";
   char *PSTempName = "PreShock_Temperature";
@@ -784,6 +786,15 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
          DataLabel[i++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[j]);
        }
      } // yields loop
+
+      if (IndividualStarTrackAGBMetalDensity){
+        DataLabel[i++] = AGBMetalName;
+      }
+
+      if (IndividualStarPopIIIFormation){
+        DataLabel[i++] = PopIIIMetalName;
+      }
+
     }
 
 #else

@@ -408,6 +408,15 @@ int grid::NestedCosmologySimulationInitializeGrid(
                                  ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i]);
         }
       } // loop over yeilds
+
+      if (IndividualStarTrackAGBMetalDensity) {
+        FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
+      }
+
+      if (IndividualStarPopIIIFormation){
+        FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
+      }
+
     }
 #else
     if(MultiMetals){
@@ -635,6 +644,19 @@ int grid::NestedCosmologySimulationInitializeGrid(
         }
       }
     } // end for loop
+
+    if (IndividualStarTrackAGBMetalDensity){
+      for (i = 0; i < size; i ++)
+        BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
+            * BaryonField[0][i];
+    }
+
+    if (IndividualStarPopIIIFormation){
+      for (i = 0; i < size; i ++)
+        BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
+           * BaryonField[0][i];
+    }
+
   }
 #else
   if (MultiMetals) {
