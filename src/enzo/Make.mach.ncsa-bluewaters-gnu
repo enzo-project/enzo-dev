@@ -69,7 +69,7 @@ MACH_CFLAGS   =
 MACH_CXXFLAGS = 
 MACH_FFLAGS   = -fno-second-underscore -m64
 MACH_F90FLAGS = -fno-second-underscore -m64
-MACH_LDFLAGS  = -Bdynamic
+MACH_LDFLAGS  = -Bstatic
 
 #-----------------------------------------------------------------------
 # Optimization flags
