@@ -47,13 +47,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   /* declarations */
   int i, dim, size = 1;
   FLOAT LeftEdge[MAX_DIMENSION], CellSize;
-  int ParticleBufferSize;
 
-  ParticleBufferSize = MustRefineParticlesBufferSize;
-  if (ProblemType == 106 || ProblemType ==107)
-    ParticleBufferSize = 16;
-
-   if (!(AllStars)) return 0;
+  if (!(AllStars)) return 0;
 
   /* error check */
 
@@ -61,14 +56,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     fprintf(stderr, "Particle Mass Flagging Field is undefined.\n");
     return -1;
   }
-
-  /* If refining region before supernova (to be safe in its last 5% of
-     the lifetime), temporarily set particle type of star to
-     PARTICLE_TYPE_MUST_REFINE. */
-
-  if (PopIIISupernovaMustRefine == TRUE)
-    this->ChangeParticleTypeBeforeSN(PARTICLE_TYPE_MUST_REFINE, level,
-				     &ParticleBufferSize);
 
   /* Set Left edge of grid. */
 
@@ -170,7 +157,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 	                  StarPosX, StarPosY, StarPosZ,
       	                  &GridRank, &NumberOfMustRefineStars, FlaggingField,
 	                  LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
-                          &CellSize, &ParticleBufferSize);
+                          &CellSize, &IndividualStarRefineBufferSize);
 
   /* Increase particle mass flagging field for definite refinement */
 

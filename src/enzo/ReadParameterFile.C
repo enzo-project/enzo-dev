@@ -1110,6 +1110,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* AJE Individual Star */
     ret += sscanf(line, "IndividualStarRefineToLevel = %"ISYM,
                         &IndividualStarRefineToLevel);
+    ret += sscanf(line, "IndividualStarRefineBufferSize = %"ISYM,
+                        &IndividualStarRefineBufferSize);
     ret += sscanf(line, "IndividualStarTemperatureLimit = %"FSYM,
                         &IndividualStarTemperatureLimit);
     ret += sscanf(line, "IndividualStarTemperatureLimitFactor = %"FSYM,

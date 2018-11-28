@@ -130,6 +130,8 @@ int grid::SetParticleMassFlaggingField(
       }
 
 #ifdef INDIVIDUALSTAR
+      // Call separate routine to loop over star particles and do
+      // additional refinement
       KeepFlaggingField = KeepFlaggingField || (level == IndividualStarRefineToLevel);
       if (level <= IndividualStarRefineToLevel){
         NumberOfFlaggedCells +=

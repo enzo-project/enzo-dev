@@ -1082,6 +1082,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   /* AJE Indiviudal Star */
   fprintf(fptr, "IndividualStarRefineToLevel   = %"ISYM"\n", IndividualStarRefineToLevel);
+  fprintf(fptr, "IndividualStarRefineBufferSize = %"ISYM"\n", IndividualStarRefineBufferSize);
   fprintf(fptr, "IndividualStarICSupernovaRate = %"ESYM"\n", IndividualStarICSupernovaRate);
   fprintf(fptr, "IndividualStarICSupernovaTime = %"ESYM"\n", IndividualStarICSupernovaTime);
   fprintf(fptr, "IndividualStarICSupernovaR    = %"ESYM"\n", IndividualStarICSupernovaR);
