@@ -310,9 +310,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
       if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
       if (STARMAKE_METHOD(INDIVIDUAL_STAR)) NumberOfParticleAttributes++; // 3 + birth mass = 4
-      if (TestProblemData.MultiMetals){
+      if (TestProblemData.MultiMetals || MultiMetals){
 
-        if (TestProblemData.MultiMetals == 2 && !IndividualStarOutputChemicalTags){
+        if (((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
           NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
         }
 

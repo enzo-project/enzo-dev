@@ -142,7 +142,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
 
 
   /* Loop over all requested stellar yields species and assign initial values */
-  if (TestProblemData.MultiMetals == 2){
+  if (TestProblemData.MultiMetals == 2 || MultiMetals == 2){
     for( int sp = 0; sp < StellarYieldsNumberOfSpecies; sp++){
       if(StellarYieldsAtomicNumbers[sp] > 2){
         int   field_num;

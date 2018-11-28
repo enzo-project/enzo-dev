@@ -194,7 +194,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (Galaxy2ColourNum != -1) colnum[NumberOfColours++] = Galaxy2ColourNum;
 
     /* Add Chemical tracer species as color fields */
-    if(TestProblemData.MultiMetals == 2){
+    if(TestProblemData.MultiMetals == 2 || MultiMetals == 2){
       for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
         if(StellarYieldsAtomicNumbers[yield_i] > 2){
 

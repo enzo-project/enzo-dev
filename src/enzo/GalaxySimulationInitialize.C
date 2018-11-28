@@ -844,7 +844,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    TestProblemData.MultiMetals = MultiMetals;
  }
 
- if (TestProblemData.MultiMetals == 2){
+ if (TestProblemData.MultiMetals == 2 || MultiMetals == 2){
 
    for(int i =0; i < StellarYieldsNumberOfSpecies; i ++){
      if(StellarYieldsAtomicNumbers[i] > 2){

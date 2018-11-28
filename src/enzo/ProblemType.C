@@ -176,15 +176,15 @@ int EnzoProblemType::InitializeUniformGrid(
 
   //  Metal fields, including the standard 'metallicity' as well 
   // as two extra fields
-  if (TestProblemData.UseMetallicityField) {
+  if (TestProblemData.UseMetallicityField || MultiMetals) {
     tg->FieldType[MetalNum = tg->NumberOfBaryonFields++] = Metallicity;
 
-    if(TestProblemData.MultiMetals == 1){
+    if(TestProblemData.MultiMetals == 1 || MultiMetals == 1){
       tg->FieldType[ExtraField[0] = tg->NumberOfBaryonFields++] = ExtraType0;
       tg->FieldType[ExtraField[1] = tg->NumberOfBaryonFields++] = ExtraType1;
     }
 
-    if(TestProblemData.MultiMetals == 2){
+    if(TestProblemData.MultiMetals == 2 || MultiMetals == 2){
 
       for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
         if(StellarYieldsAtomicNumbers[yield_i] > 2){
@@ -374,15 +374,15 @@ int EnzoProblemType::InitializeUniformGrid(
     } // if(TestProblemData.MultiSpecies)
 
     // metallicity fields (including 'extra' metal fields)
-    if(TestProblemData.UseMetallicityField){
+    if(TestProblemData.UseMetallicityField || MultiMetals){
       tg->BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction* UniformDensity;
 
-      if(TestProblemData.MultiMetals == 1){
+      if(TestProblemData.MultiMetals == 1 || MultiMetals == 1){
         tg->BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
         tg->BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
       }
 
-      if(TestProblemData.MultiMetals == 2){
+      if(TestProblemData.MultiMetals == 2 || MultiMetals == 2){
         for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
           if(StellarYieldsAtomicNumbers[yield_i] > 2){
             float fraction = 0.0; int field_num = 0;

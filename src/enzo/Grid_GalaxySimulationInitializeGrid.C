@@ -200,7 +200,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 
   // Initialize chemical species tracer fields
-  if(TestProblemData.MultiMetals == 2){
+  if(TestProblemData.MultiMetals == 2 || MultiMetals == 2){
     for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
       if(StellarYieldsAtomicNumbers[yield_i] > 2){
         FieldType[NumberOfBaryonFields++] =
@@ -327,7 +327,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  /* set chemical tracers to small density */
         /* For now, init halo chemical tracers density to zero */
- if (TestProblemData.MultiMetals == 2){
+ if (TestProblemData.MultiMetals == 2 || MultiMetals == 2){
    for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
      if(StellarYieldsAtomicNumbers[yield_i] > 2){
        float fraction = 0.0; int field_num = 0;
@@ -669,7 +669,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
        } // end multispecies
 
 
-       if (TestProblemData.MultiMetals == 2){
+       if (TestProblemData.MultiMetals == 2 || MultiMetals == 2){
          for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
            if(StellarYieldsAtomicNumbers[ii] > 2){
              int field_num;

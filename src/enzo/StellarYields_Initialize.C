@@ -48,7 +48,7 @@ int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
 
 
   if ( !IndividualStarFollowStellarYields ||
-       !TestProblemData.MultiMetals       ||
+       !(TestProblemData.MultiMetals || MultiMetals)       ||
        !STARMAKE_METHOD(INDIVIDUAL_STAR)){
     return SUCCESS;
   }

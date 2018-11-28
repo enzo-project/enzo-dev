@@ -687,7 +687,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     }
   }
 
-  if(TestProblemData.MultiMetals == 2){
+  if(TestProblemData.MultiMetals == 2 || MultiMetals == 2){
     for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
       if(StellarYieldsAtomicNumbers[ii] > 2){
         int field_num;
@@ -2120,7 +2120,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   }
 
   /* Convert metal species tracers back to densities */
-  if(TestProblemData.MultiMetals == 2){
+  if(TestProblemData.MultiMetals == 2 || MultiMetals == 2){
     for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
       if(StellarYieldsAtomicNumbers[ii] > 2){
         int field_num;

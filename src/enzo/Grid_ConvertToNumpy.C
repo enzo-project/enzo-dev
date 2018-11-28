@@ -55,7 +55,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(TestProblemData.MultiMetals == 2 && !IndividualStarOutputChemicalTags){
+    if( ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
       for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
@@ -218,7 +218,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 	    Py_DECREF(dataset);
 
             /* chemical tracers */
-            if(TestProblemData.MultiMetals == 2 && !IndividualStarOutputChemicalTags){
+            if( ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
                 dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                            1, dims, ENPY_BFLOAT, ParticleAttribute[3]);
                 PyDict_SetItemString(grid_data, ParticleAttributeLabels[3], (PyObject*) da$
