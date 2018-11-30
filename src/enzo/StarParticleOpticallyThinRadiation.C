@@ -628,29 +628,33 @@ void grid::ZeroPhotoelectricHeatingField(void){
 
     float n_H, n_e, Z;
 
-    for( int i = 0; i < size; i++){ // apply background heating rate
-      n_H = (this->BaryonField[HINum][i] + this->BaryonField[HIINum][i]);
+    if (G_background > 0.0){
+      for( int i = 0; i < size; i++){ // apply background heating rate
 
-      if ( MultiSpecies > 1){ /* include H2 */
-         n_H += this->BaryonField[HMNum][i] +
-           0.5 * (this->BaryonField[H2INum][i] + this->BaryonField[H2IINum][i]);
-      }
+        n_H = (this->BaryonField[HINum][i] + this->BaryonField[HIINum][i]);
+
+        if ( MultiSpecies > 1){ /* include H2 */
+           n_H += this->BaryonField[HMNum][i] +
+             0.5 * (this->BaryonField[H2INum][i] + this->BaryonField[H2IINum][i]);
+        }
 
 
-      n_H *= DensityUnits / m_h;
+        n_H *= DensityUnits / m_h;
 
-      n_e  = this->BaryonField[ElectronNum][i] * DensityUnits / m_e;
+        n_e  = this->BaryonField[ElectronNum][i] * DensityUnits / m_e;
 
-      Z    = this->BaryonField[MetalNum][i] / this->BaryonField[DensNum][i]; // metal dens / dens
+        Z    = this->BaryonField[MetalNum][i] / this->BaryonField[DensNum][i]; // metal dens / dens
 
-      // assign heating rate from model
-      BaryonField[PeNum][i]  = ComputeHeatingRateFromDustModel(n_H, n_e, 
-                                                              // 100.0, // temperature doesn't matter
-                                                                   Z, G_background,
-                                                            (this->CellWidth[0][0])*LengthUnits);
-      BaryonField[PeNum][i] /= (EnergyUnits / TimeUnits);
-
-    } // end loop
+        // assign heating rate from model
+        BaryonField[PeNum][i]  = ComputeHeatingRateFromDustModel(n_H, n_e, 
+                                                                // 100.0, // temperature doesn't matter
+                                                                     Z, G_background,
+                                                              (this->CellWidth[0][0])*LengthUnits);
+        BaryonField[PeNum][i] /= (EnergyUnits / TimeUnits);
+      } // end loop
+    } else { /* background is zero */
+      for( int i = 0; i < size; i ++) BaryonField[PeNum][i] = 0.0;
+    }
 
   } else{
 
