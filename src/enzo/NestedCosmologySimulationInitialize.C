@@ -133,6 +133,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MetalIaName = "MetalSNIa_Density";
   char *AGBMetalName    = "AGB_Metal_Density";
   char *PopIIIMetalName = "PopIII_Metal_Density";
+  char *SNIIMetalName = "SNII_Metal_Density";
+  char *SNIaMetalName = "SNIa_Metal_Density";
   char *ForbidName = "ForbiddenRefinement";
   char *MachName   = "Mach";
   char *PSTempName = "PreShock_Temperature";
@@ -793,6 +795,11 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
       if (IndividualStarPopIIIFormation){
         DataLabel[i++] = PopIIIMetalName;
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+        DataLabel[i++] = SNIaMetalName;
+        DataLabel[i++] = SNIIMetalName;
       }
 
     }

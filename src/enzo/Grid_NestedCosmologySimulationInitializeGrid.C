@@ -129,7 +129,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
     DINum, DIINum, HDINum, MetalNum, MetalIaNum, OTLWkdissH2INum, PeHeatingNum;
 
   int iTE = ietot;
-  int ExtraField[2];
+  int ExtraField[4];
   int ForbidNum;
   int MachNum, PSTempNum, PSDenNum;
 
@@ -417,6 +417,11 @@ int grid::NestedCosmologySimulationInitializeGrid(
         FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
       }
 
+      if (IndividualStarTrackSNMetalDensity){
+        FieldType[ExtraField[2] = NumberOfBaryonFields++] = MetalSNIaDensity;
+        FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalSNIIDensity;
+      }
+
     }
 #else
     if(MultiMetals){
@@ -655,6 +660,15 @@ int grid::NestedCosmologySimulationInitializeGrid(
       for (i = 0; i < size; i ++)
         BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
            * BaryonField[0][i];
+    }
+
+    if (IndividualStarTrackSNMetalDensity){
+      for (i = 0; i < size; i++){
+        BaryonField[ExtraField[2]][i] = CosmologySimulationInitialFractionMetal
+           * BaryonField[0][i];
+        BaryonField[ExtraField[3]][i] = CosmologySimulationInitialFractionMetal
+           * BaryonField[0][i];
+      }
     }
 
   }

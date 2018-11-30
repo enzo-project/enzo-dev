@@ -790,6 +790,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
                                                       // also tracks PopIII metal enrichment w/ additional field (but ONLY when tags are written to file)
 
   IndividualStarTrackAGBMetalDensity =     0;         // Track separate AGB metal mass field (only for outut chemical tags)
+  IndividualStarTrackSNMetalDensity  =     0;         // Track spearate SNII AND SNIa mass fields (only for output chemical tags)
 
       // for popIII SF for individual stars, use the same PopIII IMF flags that already exist
       // 

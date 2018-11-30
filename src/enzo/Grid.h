@@ -1530,6 +1530,14 @@ gradient force to gravitational force for one-zone collapse test. */
      if (IndividualStarPopIIIFormation){
        if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
        StellarAbundances[i] = NULL;
+       i++;
+     }
+     if (IndividualStarTrackSNMetalDensity){
+       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i]; // SNIa
+       StellarAbundances[i] = NULL;
+       i++;
+       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i]; // SNII
+       StellarAbundances[i] = NULL;
 //       i++; - make sure to do this if adding more
      }
 
@@ -1559,6 +1567,12 @@ gradient force to gravitational force for one-zone collapse test. */
        }
        if (IndividualStarPopIIIFormation){
          printf("     %"ESYM,StellarAbundances[i][n]);
+         i++;
+       }
+       if (IndividualStarTrackSNMetalDensity){
+         printf("     %"ESYM,StellarAbundances[i][n]); // SNIa
+         i++;
+         printf("     %"ESYM,StellarAbundances[i][n]); // SNII
 //         i++; - make sure to do this if adding more
        }
 
@@ -1630,8 +1644,16 @@ gradient force to gravitational force for one-zone collapse test. */
 
      if (IndividualStarPopIIIFormation){
        StellarAbundances[i] = new float[NumberOfNewParticles];
-//       i++;  - make sure to do this if adding more
+       i++;
      }
+
+     if (IndividualStarTrackSNMetalDensity){
+       StellarAbundances[i] = new float[NumberOfNewParticles]; // SNIa
+       i++;
+       StellarAbundances[i] = new float[NumberOfNewParticles]; // SNII
+//       i++; - make sure to do this if adding more
+     }
+
 
 
      return;

@@ -173,6 +173,7 @@ SPEXTERN float IndividualStarMassFraction;
 SPEXTERN float IndividualStarSNIIMassCutoff;
 SPEXTERN float IndividualStarAGBThreshold;
 SPEXTERN int   IndividualStarTrackAGBMetalDensity;
+SPEXTERN int   IndividualStarTrackSNMetalDensity;
 SPEXTERN float IndividualStarAGBWindVelocity;
 SPEXTERN float IndividualStarDirectCollapseThreshold;
 SPEXTERN float IndividualStarRadiationMinimumMass;

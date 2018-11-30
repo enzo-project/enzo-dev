@@ -207,10 +207,12 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
         }
       }
 
-      int PopIIIMetalNum, AGBMetalNum;
+      int PopIIIMetalNum, AGBMetalNum, SNIaMetalNum, SNIIMetalNum;
 
       AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
       PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
+      SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
+      SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
 
 
       if (IndividualStarTrackAGBMetalDensity){
@@ -219,6 +221,11 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
       if (IndividualStarPopIIIFormation){
         colnum[NumberOfColours++] = PopIIIMetalNum;
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+        colnum[NumberOfColours++] = SNIaMetalNum;
+        colnum[NumberOfColours++] = SNIIMetalNum;
       }
 
     } // if mm == 2
