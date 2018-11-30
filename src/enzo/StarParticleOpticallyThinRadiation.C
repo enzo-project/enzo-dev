@@ -29,12 +29,18 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "CosmologyParameters.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
 
 int FindField(int f, int farray[], int n);
+
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+
+int search_lower_bound(float *arr, float value, int low, int high, int total);
+
 
 /* internal prototypes */
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, 
@@ -458,10 +464,8 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
    * Photoelectric heating rate of dust grains from local FUV flux as computed from
    * models given in Wolfire et. al. 2013 (adopted from Bakes & Tielens 1994). This
    * heating rate is a function of hydrogen and electron number density, temperature,
-   * and the FUV flux. This works well for MW like galaxies but its abilitiy to handle
-   * low metetallicity galaxies is questionable.
+   * and the FUV flux.
    *
-   * CURRENTLY DOES NOT DO METAL SCALIGN - THIS NEEDS TO BE PUT IN
    * ----------------------------------------------------------------------------------
    */
 
@@ -530,7 +534,28 @@ void grid::ZeroPhotoelectricHeatingField(void){
   * Field is recomputed every timestep.
   * -----------------------------------------------*/
 
-  const float G_background = 0.00324 * 1.59E-3; // HM2012 FUV background at z = 0
+//  const float G_background = 0.00324 * 1.59E-3; // HM2012 FUV background at z = 0
+
+  /* Background FUV Flux density from HM2012 UVB integration */
+  const int num_z_bins = 25;
+  const float G_background_HM2012[num_z_bins] = { 3.15769E-6, 5.72059E-6, 1.02168E-5, 1.76486E-5,
+                                      2.93557E-5, 4.71664E-5, 7.27080E-5, 1.07841E-4,
+                                      1.52265E-4, 2.05013E-4, 2.63426E-4, 3.06212E-4,
+                                      3.24639E-4, 3.19161E-4, 2.97805E-4, 2.69064E-4,
+                                      2.37392E-4, 2.06384E-4, 1.79090E-4, 1.54363E-4,
+                                      1.31442E-4, 1.09434E-4, 8.71460E-5, 6.04930E-5,
+                                      2.42234E-5};
+
+  const float z_background_HM2012[num_z_bins] = { 0.00000E0 , 1.22020E-1, 2.58930E-1, 4.42540E-1,
+                                      5.84890E-1, 7.78280E-1, 9.95260E-1, 1.23870E0 ,
+                                      1.51190E0 , 1.81840E0 , 2.16230E0 , 2.54810E0 ,
+                                      2.98110E0 , 3.46680E0 , 4.01190E0 , 4.62340E0 ,
+                                      5.30960E0 , 6.07950E0 , 6.94330E0 , 7.91250E0 ,
+                                      9.00000E0 , 1.02200E1 , 1.15890E1 , 1.31250E1 ,
+                                      1.48490E1};
+
+
+  float G_background = 0.0;
 
   int PeNum;
   PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
@@ -565,6 +590,35 @@ void grid::ZeroPhotoelectricHeatingField(void){
 
     } else{
       ENZO_FAIL("StarParticleOpticallyThinRadiation: MultiSpeices is required for photoelectrci heating");
+    }
+
+    FLOAT CurrentRedshift = RadiationFieldRedshift;
+
+    if (ComovingCoordinates){
+      FLOAT a, dadt, aUnits;
+
+      /* Compute the current redshift (for information only). */
+      CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt);
+      aUnits = 1.0 / (1.0 + InitialRedshift);
+      CurrentRedshift = (1.0)/(a*aUnits) - 1.0;
+    }
+
+    /* Interpolate with current redshift */
+    if (CurrentRedshift > z_background_HM2012[num_z_bins-1]){
+      G_background = 0.0; // turn it off at very high z... no dust anyway
+    } else if ( CurrentRedshift <= z_background_HM2012[0]) {
+      G_background = G_background_HM2012[0]; // leave at z = 0 value
+    } else{
+      /* linear interpolate */
+
+      int index = search_lower_bound((float*)z_background_HM2012,
+                                     CurrentRedshift, 0, num_z_bins, num_z_bins);
+
+      float t = (CurrentRedshift - z_background_HM2012[index]) /
+                (z_background_HM2012[index+1] - z_background_HM2012[index]);
+
+      G_background = (1.0 - t) * G_background_HM2012[index] + t *G_background_HM2012[index+1];
+
     }
 
     // find fields for density, metal density, electron density, and the heating rate
