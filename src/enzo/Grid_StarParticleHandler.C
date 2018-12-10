@@ -728,7 +728,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   /* If both metal fields exist, make a total metal field */
 
-  float *MetalPointer;
+  float *MetalPointer = NULL;
   float *TotalMetals = NULL;
   int MetallicityField;
 
