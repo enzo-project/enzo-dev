@@ -1516,29 +1516,15 @@ gradient force to gravitational force for one-zone collapse test. */
 //     if(!StellarAbundances) return;
 
      int i;
-     for (i = 0; i < StellarYieldsNumberOfSpecies; i++){
-       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
-       StellarAbundances[i] = NULL;
-     }
+     int num_extra = 0;
 
-     i = StellarYieldsNumberOfSpecies;
-     if (IndividualStarTrackAGBMetalDensity){
+     if (IndividualStarTrackAGBMetalDensity) num_extra++;
+     if (IndividualStarPopIIIFormation) num_extra++;
+     if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+
+     for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
        if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
        StellarAbundances[i] = NULL;
-       i++;
-     }
-     if (IndividualStarPopIIIFormation){
-       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
-       StellarAbundances[i] = NULL;
-       i++;
-     }
-     if (IndividualStarTrackSNMetalDensity){
-       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i]; // SNIa
-       StellarAbundances[i] = NULL;
-       i++;
-       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i]; // SNII
-       StellarAbundances[i] = NULL;
-//       i++; - make sure to do this if adding more
      }
 
      return;
@@ -1556,24 +1542,14 @@ gradient force to gravitational force for one-zone collapse test. */
               ParticleAttribute[2][n]); // metallicity
 
        int i = 0;
-       for (i = 0; i < StellarYieldsNumberOfSpecies; i++){
-         printf("     %"ESYM,StellarAbundances[i][n]);
-       }
+       int num_extra = 0;
 
-       i = StellarYieldsNumberOfSpecies;
-       if (IndividualStarTrackAGBMetalDensity){
+       if (IndividualStarTrackAGBMetalDensity) num_extra++;
+       if (IndividualStarPopIIIFormation) num_extra++;
+       if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+
+       for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
          printf("     %"ESYM,StellarAbundances[i][n]);
-         i++;
-       }
-       if (IndividualStarPopIIIFormation){
-         printf("     %"ESYM,StellarAbundances[i][n]);
-         i++;
-       }
-       if (IndividualStarTrackSNMetalDensity){
-         printf("     %"ESYM,StellarAbundances[i][n]); // SNIa
-         i++;
-         printf("     %"ESYM,StellarAbundances[i][n]); // SNII
-//         i++; - make sure to do this if adding more
        }
 
        printf("\n");
@@ -1632,29 +1608,15 @@ gradient force to gravitational force for one-zone collapse test. */
 
    void AllocateStellarAbundances(int NumberOfNewParticles){
      int i = 0;
-     for (i = 0; i < StellarYieldsNumberOfSpecies; i++){
+     int num_extra = 0;
+
+     if (IndividualStarTrackAGBMetalDensity) num_extra++;
+     if (IndividualStarPopIIIFormation) num_extra++;
+     if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+
+     for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
        StellarAbundances[i] = new float[NumberOfNewParticles];
      }
-
-     i = StellarYieldsNumberOfSpecies;
-     if (IndividualStarTrackAGBMetalDensity){
-       StellarAbundances[i] = new float[NumberOfNewParticles];
-       i++;
-     }
-
-     if (IndividualStarPopIIIFormation){
-       StellarAbundances[i] = new float[NumberOfNewParticles];
-       i++;
-     }
-
-     if (IndividualStarTrackSNMetalDensity){
-       StellarAbundances[i] = new float[NumberOfNewParticles]; // SNIa
-       i++;
-       StellarAbundances[i] = new float[NumberOfNewParticles]; // SNII
-//       i++; - make sure to do this if adding more
-     }
-
-
 
      return;
    };
