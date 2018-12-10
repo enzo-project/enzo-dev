@@ -734,7 +734,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   MetallicityField = (MetalNum != -1 || SNColourNum != -1);
 
-  if (MetalNum != -1 && SNColourNum != -1) {
+
+  if (MetalNum != -1 && SNColourNum != -1 && !STARMAKE_METHOD(INDIVIDUAL_STAR)) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
       TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
