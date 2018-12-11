@@ -224,6 +224,132 @@ int InitializeStellarYields(void){
     fclose(fptr_popIII);
   }
 
+  /* If we are doing artificial injection events */
+  if (MetalMixingExperiment) {
+
+   MixingExperimentData.NumberOfEvents = 0;
+
+   MixingExperimentData.xpos = new float[MAX_TIME_ACTIONS];
+   MixingExperimentData.ypos = new float[MAX_TIME_ACTIONS];
+   MixingExperimentData.zpos = new float[MAX_TIME_ACTIONS];
+
+   MixingExperimentData.M_ej = new float[MAX_TIME_ACTIONS];
+   MixingExperimentData.E_ej = new float[MAX_TIME_ACTIONS];
+
+   MixingExperimentData.anums = new int[StellarYieldsNumberOfSpecies];
+   MixingExperimentData.yield = new float*[MAX_TIME_ACTIONS];
+
+   /* Zero everything */
+   for (int i = 0; i < MAX_TIME_ACTIONS; i++){
+
+     MixingExperimentData.time[i] = -1.0;
+
+     MixingExperimentData.xpos[i] = -1.0;
+     MixingExperimentData.ypos[i] = -1.0;
+     MixingExperimentData.zpos[i] = -1.0;
+
+     MixingExperimentData.M_ej[i] = 0.0;
+     MixingExperimentData.E_ej[i] = 0.0;
+
+     MixingExperimentData.yield[i] = new float[StellarYieldsNumberOfSpecies];
+     for (int j = 0; j < StellarYieldsNumberOfSpecies; j ++){
+       MixingExperimentData.yield[i][j] = 0.0; // MASS (not mass fraction of event)
+     }
+   }
+
+   for (int j = 0; j < StellarYieldsNumberOfSpecies; j ++){
+     MixingExperimentData.anums[j] = -1;
+   }
+
+    FILE *fptr_mix = fopen("mixing_events.in", "r");
+    if (fptr_mstar == NULL){
+      ENZO_FAIL("Error opening metal mixing experiment events file, 'mixing_events.in'");
+    }
+
+    const int max_column_number = 87; /* bad to hard code this */
+    float *dummy = new float[max_column_number];
+
+    char line[MAX_LINE_LENGTH];
+
+    int i = 0, d = 0;
+    while ( fgets(line, MAX_LINE_LENGTH, fptr_mix) != NULL){
+      if (line[0] != '#'){
+
+        // just to be sure, reset dumyy variable every time
+        for (d = 0; d < max_column_number; d++){
+          dummy[d] = -1.0;
+        }
+
+        unpack_line_to_yields(line, dummy);
+
+        MixingExperimentData.time[i] = dummy[0];     // time of event in code units
+
+        TimeActionTime[i]            = MixingExperimentData.time[i];
+        TimeActionType[i]            = 4;                            // hard coded for this experiment
+        TimeActionParameter[i]       = 0.0;     // does not actually need to be set
+        // TimeActionRedshift[i]     = 0.0;     // not currently used
+
+        /* Positions are in code units */
+        MixingExperimentData.xpos[i] = dummy[1];
+        MixingExperimentData.ypos[i] = dummy[2];
+        MixingExperimentData.zpos[i] = dummy[3];
+
+        MixingExperimentData.M_ej[i] = dummy[4];    // Assumed to be in solar masses
+        MixingExperimentData.E_ej[i] = dummy[5];    // Assumed to be in erg
+
+
+        // for remaining fields, alternate between atomic number and
+        // corresponding
+        d = 6;
+        while(dummy[d] > 0){
+
+          int anum = dummy[d];
+
+          // match index of stellar abundance with index of
+          // species in global atomic numbers list just to keep things easier
+          // when using current feedback injection machinery. All other
+          // species followed but not listed in events table file will
+          // have ejection masses of zero
+          int index = -1;
+          for (int j = 0; j < StellarYieldsNumberOfSpecies; j++){
+            if (anum == StellarYieldsAtomicNumbers[j]) index = j;
+          }
+
+          // save all atomic numbers used for this experiment
+          for (int count = 0; count < StellarYieldsNumberOfSpecies; count++){
+            if (anum == MixingExperimentData.anums[count]){
+              break;
+            } else if (MixingExperimentData.anums[count] < 0){
+              MixingExperimentData.anums[count] = anum;
+            }
+          }
+
+          if (index < 0) ENZO_FAIL("Error initializing MetalMixingExperiment. Yield does not exist\n");
+
+          MixingExperimentData.yield[i][index] = dummy[d+1]; // yield - assumed to be in Msun
+
+          d += 2;
+        }
+
+        MixingExperimentData.NumberOfEvents++;
+        i++;
+      }
+    }
+
+    if (debug){
+      fprintf(stdout,"Succesfully initialized Metal mixing experiment with %"ISYM" events\n", MixingExperimentData.NumberOfEvents);
+      for(int i = 0; i < MixingExperimentData.NumberOfEvents; i ++){
+        for(int j = 0; j < StellarYieldsNumberOfSpecies; j++){
+          fprintf(stdout, " %"ESYM, MixingExperimentData.yield[i][j]);
+        }
+      }
+      fprintf(stdout,"\n");
+    }
+
+
+    fclose(fptr_mix);
+  }
+
   return SUCCESS;
 }
 
@@ -321,5 +447,3 @@ void fill_table(StellarYieldsDataType *table, FILE *fptr){
 
   return;
 }
-
-

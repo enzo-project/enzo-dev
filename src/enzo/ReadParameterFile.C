@@ -1108,6 +1108,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
     /* AJE Individual Star */
+    ret += sscanf(line, "MetalMixingExperiment = %"ISYM,
+                        &MetalMixingExperiment);
     ret += sscanf(line, "IndividualStarRefineToLevel = %"ISYM,
                         &IndividualStarRefineToLevel);
     ret += sscanf(line, "IndividualStarRefineBufferSize = %"ISYM,

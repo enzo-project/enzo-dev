@@ -761,6 +761,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PISNLowerMass   = 140.0;
   PISNUpperMass   = 260.0;
 
+  MetalMixingExperiment                =    0;     // turn on to add by-hand injection events to examine enrichment (see )
   IndividualStarRefineToLevel          =   -1;
   IndividualStarRefineBufferSize       =    4;
   /* IndividualStar: Star Formation */

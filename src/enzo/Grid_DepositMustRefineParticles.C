@@ -96,12 +96,28 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
    *    4) save particles and number of refinement required particles -
    *       send this # to cic so only need to loop over the "yes"'s
    * ---------------------------------------------------------------------- */
+
+  /* AJE: This is a bit of a hack --- want to make sure injection regions
+          in metal mixing experiment are refined to highest level AND in the
+          same was as it would be done for star particles for consistency. Hack
+          this here, rather than write a new routine...
+  */
+  int num_events = 0;
+  if (MetalMixingExperiment){
+    // count the number of events that will go off this timestep:
+    for (i = 0; i < MAX_TIME_ACTIONS; i++){
+      if (MetaData->Time >= TimeActionTime[i] && TimeActionTime[i] > 0){
+        num_events++;
+      }
+    }
+  }
+
   int *IsParticleMustRefine;
   FLOAT *StarPosX, *StarPosY, *StarPosZ;
-  IsParticleMustRefine = new int[MetaData->NumberOfParticles];
-  StarPosX = new FLOAT[MetaData->NumberOfParticles];
-  StarPosY = new FLOAT[MetaData->NumberOfParticles];
-  StarPosZ = new FLOAT[MetaData->NumberOfParticles];
+  IsParticleMustRefine = new int[MetaData->NumberOfParticles + num_events];
+  StarPosX = new FLOAT[MetaData->NumberOfParticles + num_events];
+  StarPosY = new FLOAT[MetaData->NumberOfParticles + num_events];
+  StarPosZ = new FLOAT[MetaData->NumberOfParticles + num_events];
 
 /*
   for (i = 0; i < MetaData->NumberOfParticles; i++){
@@ -115,6 +131,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   int NumberOfMustRefineStars = 0;
   FLOAT *pos;
   Star *cstar;
+
   for (cstar = AllStars, i = 0; cstar; cstar = cstar->NextStar) {
     float end_of_life = cstar->ReturnBirthTime() + cstar->ReturnLifetime();
     bool near_end_of_life = fabs(this->Time - end_of_life) < (IndividualStarLifeRefinementFactor * this->dtFixed * POW(2,level)); // factor of root grid, estimate root $
@@ -148,6 +165,26 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       i++;
     }
     else{
+    }
+  }
+
+  if (MetalMixingExperiment){
+
+    for (int j = 0; j < MAX_TIME_ACTIONS; j++){
+      if (MetaData->Time > TimeActionTime[j] && TimeActionTime[j] > 0){
+
+        // NOTE: known bug - indeces will not be correct b/t
+        //       TimeAction and Data struct if multiple action types used....
+
+        if (TimeActionType[j] == 4){
+          IsParticleMustRefine[i] = 1; // still need to set this
+          // assuming code units!!!!
+          StarPosX[i] = MixingExperimentData.xpos[j];
+          StarPosY[i] = MixingExperimentData.ypos[j];
+          StarPosZ[i] = MixingExperimentData.zpos[j];
+          i++;
+        }
+      }
     }
   }
 

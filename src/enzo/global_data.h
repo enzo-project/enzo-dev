@@ -1166,10 +1166,12 @@ EXTERN float PhotoelectricHeatingDustModelEfficiency;
 EXTERN int   PhotoelectricHeatingDustModel;
 
 /* For stellar yields data tables */
+EXTERN int MetalMixingExperiment;
 EXTERN StellarYieldsDataType          StellarYieldsSNData;
 EXTERN StellarYieldsDataType          StellarYieldsWindData;
 EXTERN StellarYieldsDataType          StellarYieldsMassiveStarData;
 EXTERN StellarYieldsDataType          StellarYieldsPopIIIData;
+EXTERN MetalMixingExperimentDataType  MixingExperimentData;
 EXTERN int StellarYieldsAtomicNumbers[MAX_STELLAR_YIELDS];
 EXTERN int StellarYieldsResetAtomicNumbers[MAX_STELLAR_YIELDS];
 EXTERN int StellarYieldsNumberOfSpecies;

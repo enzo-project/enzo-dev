@@ -2798,7 +2798,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
   if (metal_mass == NULL && (cstar)){
     injected_metal_mass[0] = cstar->ReturnMetallicity() * m_eject;
-  } else {
+  } else if (metal_mass == NULL){
     injected_metal_mass[0] = 0.0;
   }
 
@@ -2839,8 +2839,19 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
         if (injection_factor < 0) {ENZO_FAIL("injection factor < 0");}
 
-        if (IndividualStarFollowStellarYields && cstar){
+        if (IndividualStarFollowStellarYields && (cstar || metal_mass==NULL)){
           for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
+
+            // Hack  - remove contribution from stars to experiment fields
+            //          remember, im = 0 is the total metal mass field
+            if ((cstar) && (im > 0) && MetalMixingExperiment){
+              for (int j = 0; j < StellarYieldsNumberOfSpecies; j++){
+                if (StellarYieldsAtomicNumbers[im-1] == MixingExperimentData.anums[j] ){
+                  injection_factor = 0.0; // zero out these fields to limit to just mixing experiments events ONLY
+                }
+              }
+            }
+
             injected_metal_mass[im] = metal_mass[im]*injection_factor;
           }
         }
@@ -2903,6 +2914,9 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
             } // end if tracking yield source modes
 
+          } else if (metal_mass){
+            BaryonField[field_num][index] += injected_metal_mass[0];
+
           } else {
             // keep same fraction if using artificial SN generaotr
             BaryonField[field_num][index] += delta_mass *
@@ -2914,7 +2928,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
           for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
                                                               StellarYieldsAtomicNumbers[im]);
-            if (cstar){
+            if (cstar || metal_mass){
               BaryonField[field_num][index] += injected_metal_mass[1 + im];
             } else { // keep same fraction if using artificial SN generator
               BaryonField[field_num][index] += delta_mass *
@@ -2926,7 +2940,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
           int field_num;
           this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0); // gives metallicity field
 
-          if (cstar){
+          if (cstar || metal_mass){
             BaryonField[field_num][index] += injected_metal_mass[0];
           } else{
             BaryonField[field_num][index] += delta_mass *
@@ -2940,7 +2954,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
 
   // print SN stats to check if resolved if desired
-  if (IndividualStarPrintSNStats && (!stellar_wind_mode) && (cstar)){
+  if (IndividualStarPrintSNStats && (!stellar_wind_mode) && (cstar || metal_mass)){
     // Column order: Grid ID, Particle ID, M_now, M_eject, Sphere Volume
 
     float average_metallicity;
@@ -2960,10 +2974,18 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
     /* compute Sedov-Taylor phase radius (R_dps) */
 
-    printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
-          this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), m_eject,
-          cells_this_grid, volume, total_volume_fraction, total_mass_injected, total_energy_injected,
-          total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
+    if (cstar){
+      printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
+            this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), m_eject,
+            cells_this_grid, volume, total_volume_fraction, total_mass_injected, total_energy_injected,
+            total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
+    } else {
+      printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
+            this->ID, -1.0, this->Time, -1.0, -1.0, -1.0, m_eject,
+            cells_this_grid, volume, total_volume_fraction, total_mass_injected, total_energy_injected,
+            total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
+
+    }
   }
 
 
