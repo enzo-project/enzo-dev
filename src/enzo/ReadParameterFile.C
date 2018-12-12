@@ -1110,6 +1110,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* AJE Individual Star */
     ret += sscanf(line, "MetalMixingExperiment = %"ISYM,
                         &MetalMixingExperiment);
+    ret += sscanf(line, "ResetStellarAbundances = %"ISYM,
+                        &ResetStellarAbundances); // read only - no write
     ret += sscanf(line, "IndividualStarRefineToLevel = %"ISYM,
                         &IndividualStarRefineToLevel);
     ret += sscanf(line, "IndividualStarRefineBufferSize = %"ISYM,
