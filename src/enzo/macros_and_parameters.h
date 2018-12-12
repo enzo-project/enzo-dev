@@ -76,7 +76,7 @@
 
 #define MAX_NUMBER_OF_PARTICLE_TABLE_POSITIONS   7
 
-#define MAX_TIME_ACTIONS                   10
+#define MAX_TIME_ACTIONS                   21
 
 #define MAX_CUBE_DUMPS                     50
 
