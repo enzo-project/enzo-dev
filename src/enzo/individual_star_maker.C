@@ -2839,7 +2839,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
         if (injection_factor < 0) {ENZO_FAIL("injection factor < 0");}
 
-        if (IndividualStarFollowStellarYields && (cstar || metal_mass==NULL)){
+        if (IndividualStarFollowStellarYields && (cstar || metal_mass)){
           for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
 
             // Hack  - remove contribution from stars to experiment fields
