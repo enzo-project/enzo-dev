@@ -61,10 +61,10 @@ int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
     ExistingTypes[i] = FieldUndefined;
 
   for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
-    if(StellarYieldsAtomicNumbers[yield_i] > 2){
+    //if(StellarYieldsAtomicNumbers[yield_i] > 2){
       TypesToAdd[FieldsToAdd++] =
                      ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i]);
-    }
+    //}
   } // loop over tracer fields to add
 
   for (int i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
@@ -118,10 +118,10 @@ int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
   }
 
   for (int i = 0; i < FieldsToAdd; i ++){
-   if(StellarYieldsAtomicNumbers[i] > 2){
+   //if(StellarYieldsAtomicNumbers[i] > 2){
      DataLabel[OldNumberOfBaryonFields+i] =\
           ChemicalSpeciesBaryonFieldLabelByFieldType(TypesToAdd[i]);
-   }
+   //}
   }
 
   return SUCCESS;

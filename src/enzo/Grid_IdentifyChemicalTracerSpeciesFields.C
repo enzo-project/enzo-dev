@@ -46,7 +46,7 @@ int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number){
   switch(atomic_number){
     case 1 :
     case 2 :
-      if (TestProblemData.MultiSpecies == 0){
+      if (TestProblemData.MultiSpecies == 0 && MultiMetals == 0){
         ENZO_FAIL("ChemicalSpeciesBaryonFieldNumber: Multispecies must be ON to track H and He yields");
       }
       break;
