@@ -52,7 +52,7 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 
 int IndividualStarProperties_Initialize(TopGridData &MetaData);
 int IndividualStarRadiationProperties_Initialize(void);
-int InitializeStellarYields(void);
+int InitializeStellarYields(const float &time);
 
 int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                                     TopGridData &MetaData)
@@ -195,7 +195,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   // initialize star properties
   IndividualStarProperties_Initialize(MetaData);
   IndividualStarRadiationProperties_Initialize();
-  InitializeStellarYields();
+  InitializeStellarYields(MetaData.Time);
 
 
 

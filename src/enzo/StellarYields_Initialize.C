@@ -127,7 +127,7 @@ int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
   return SUCCESS;
 }
 
-int InitializeStellarYields(void){
+int InitializeStellarYields(const float &time){
   /* ------------------------------------------------------
    * InitializeStellarYields
    * -------------------------------------------------------
@@ -229,6 +229,8 @@ int InitializeStellarYields(void){
 
    MixingExperimentData.NumberOfEvents = 0;
 
+   MixingExperimentData.time = new float[MAX_TIME_ACTIONS];
+
    MixingExperimentData.xpos = new float[MAX_TIME_ACTIONS];
    MixingExperimentData.ypos = new float[MAX_TIME_ACTIONS];
    MixingExperimentData.zpos = new float[MAX_TIME_ACTIONS];
@@ -262,7 +264,7 @@ int InitializeStellarYields(void){
    }
 
     FILE *fptr_mix = fopen("mixing_events.in", "r");
-    if (fptr_mstar == NULL){
+    if (fptr_mix == NULL){
       ENZO_FAIL("Error opening metal mixing experiment events file, 'mixing_events.in'");
     }
 
@@ -284,7 +286,9 @@ int InitializeStellarYields(void){
 
         MixingExperimentData.time[i] = dummy[0];     // time of event in code units
 
-        TimeActionTime[i]            = MixingExperimentData.time[i];
+        // set time to negative if current time > event time (otherwise they will happen again on restars
+        TimeActionTime[i]            = (time >= MixingExperimentData.time[i]) ?
+                                       -MixingExperimentData.time[i] : MixingExperimentData.time[i];
         TimeActionType[i]            = 4;                            // hard coded for this experiment
         TimeActionParameter[i]       = 0.0;     // does not actually need to be set
         // TimeActionRedshift[i]     = 0.0;     // not currently used
@@ -342,8 +346,8 @@ int InitializeStellarYields(void){
         for(int j = 0; j < StellarYieldsNumberOfSpecies; j++){
           fprintf(stdout, " %"ESYM, MixingExperimentData.yield[i][j]);
         }
-      }
       fprintf(stdout,"\n");
+      }
     }
 
 

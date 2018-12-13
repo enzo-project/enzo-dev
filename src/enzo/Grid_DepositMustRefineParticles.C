@@ -50,6 +50,13 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   if (!(AllStars)) return 0;
 
+  float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
+    TimeUnits = 1, VelocityUnits = 1;
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+               &TimeUnits, &VelocityUnits, Time) == FAIL) {
+        ENZO_FAIL("Error in GetUnits.");
+  }
+
   /* error check */
 
   if (ParticleMassFlaggingField == NULL) {
@@ -106,7 +113,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   if (MetalMixingExperiment){
     // count the number of events that will go off this timestep:
     for (i = 0; i < MAX_TIME_ACTIONS; i++){
-      if (MetaData->Time >= TimeActionTime[i] && TimeActionTime[i] > 0){
+      if ((MetaData->Time >= (TimeActionTime[i] - 0.5*3.154E13/TimeUnits))
+            && TimeActionTime[i] > 0){
         num_events++;
       }
     }
@@ -171,7 +179,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   if (MetalMixingExperiment){
 
     for (int j = 0; j < MAX_TIME_ACTIONS; j++){
-      if (MetaData->Time > TimeActionTime[j] && TimeActionTime[j] > 0){
+      if ( (MetaData->Time >= (TimeActionTime[j] - 0.5*3.154E13/TimeUnits))
+          && TimeActionTime[j] > 0){
 
         // NOTE: known bug - indeces will not be correct b/t
         //       TimeAction and Data struct if multiple action types used....
@@ -186,6 +195,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
         }
       }
     }
+
+
   }
 
   NumberOfMustRefineStars = i; // save number of stars

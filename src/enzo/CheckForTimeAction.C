@@ -77,11 +77,11 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
         float SNPosition[3];
 
-        /* Tabulated positions are in code units */
+        // Tabulated positions are in code units 
 
-        SNPosition[0] = MixingExperimentData.xpos[i]; //*3.086E18/LengthUnits - 0.5;
-        SNPosition[1] = MixingExperimentData.ypos[i]; //*3.086E18/LengthUnits - 0.5;
-        SNPosition[2] = MixingExperimentData.zpos[i]; //*3.086E18/LengthUnits - 0.5;
+        SNPosition[0] = MixingExperimentData.xpos[i]; //3.086E18/LengthUnits - 0.5;
+        SNPosition[1] = MixingExperimentData.ypos[i]; //3.086E18/LengthUnits - 0.5;
+        SNPosition[2] = MixingExperimentData.zpos[i]; //3.086E18/LengthUnits - 0.5;
 
         for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++){
           LevelHierarchyEntry *Temp = LevelArray[level];
@@ -100,13 +100,13 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
             metal_mass = new float[StellarYieldsNumberOfSpecies + 1]; // extra for metallicity as 0th element
 
             for (int iyield = 1; iyield < StellarYieldsNumberOfSpecies+1; iyield++){
-              metal_mass[iyield] = MixingExperimentData.yield[i][iyield] * 1.989E33 / MassUnits
+              metal_mass[iyield] = MixingExperimentData.yield[i][iyield-1] * 1.989E33 / MassUnits
                                        / (dx*dx*dx);
 
               metal_mass[0]     += metal_mass[iyield]; // sum of all metals - can set to zero if issue...
             }
 
-            if (Temp->GridData->isLocal() &
+            if (Temp->GridData->isLocal() &&
                 IsParticleFeedbackInGrid(SNPosition, IndividualStarFeedbackStencilSize,
                                          Temp)){
               if (Temp->GridData->IndividualStarInjectSphericalFeedback(NULL,
@@ -117,6 +117,9 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
             } // end if local
 
+
+            Temp = Temp->NextGridThisLevel;
+
           } // end while
 
         } // end loop over hierarchy
@@ -124,6 +127,18 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
         // set to negative to make sure we don't explode again
         TimeActionTime[i] *= -1.0;
 
+        for (level = MaximumRefinementLevel; level > 0; level--){
+          LevelHierarchyEntry *Temp = LevelArray[level];
+          while (Temp != NULL) {
+            if (Temp->GridData->ProjectSolutionToParentGrid(*Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL){
+              fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid\n");
+              return FAIL;
+            }
+            Temp = Temp->NextGridThisLevel;
+          }
+
+
+        }
 
       } else if (TimeActionType[i] == 3){ // individual star SN
 
