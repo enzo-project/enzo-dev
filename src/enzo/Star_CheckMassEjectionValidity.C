@@ -47,6 +47,9 @@ void Star::CheckMassEjectionValidity(void){
        total_sn_mass_ejection = this->InterpolateYield(0, -1);
     }
 
+  } else if (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD &&
+             this->Mass == 0.0){
+      total_sn_mass_ejection = StellarYields_SNIaYieldsByNumber(-1); // total ejecta in solar masses
   }
 
 //StellarYieldsInterpolateYield(0, this->yield_table_position[0],

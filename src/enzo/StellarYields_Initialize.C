@@ -61,10 +61,10 @@ int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
     ExistingTypes[i] = FieldUndefined;
 
   for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
-    //if(StellarYieldsAtomicNumbers[yield_i] > 2){
+    if(StellarYieldsAtomicNumbers[yield_i] > 2){
       TypesToAdd[FieldsToAdd++] =
                      ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i]);
-    //}
+    }
   } // loop over tracer fields to add
 
   for (int i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
@@ -95,10 +95,15 @@ int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
     FieldsToAdd++;
 
   // Add the fields
-  if (FieldsToAdd > 0 && debug)
+  if (FieldsToAdd > 0 && debug){
     fprintf(stdout, "InitializeStellarYieldsFields: Increasing baryon fields "
              "from %"ISYM" to %"ISYM"\n", OldNumberOfBaryonFields,
               OldNumberOfBaryonFields + FieldsToAdd);
+    fprintf(stdout, "Adding:   \n");
+    for (int k = 0; k < FieldsToAdd; k ++){
+      fprintf(stdout, "Field Number  %"ISYM"\n", TypesToAdd[k]);
+    }
+  }
 
   // Add an extra one?? (copied over from RT, but do I actually need the +1?)
   if (OldNumberOfBaryonFields+FieldsToAdd+1 > MAX_NUMBER_OF_BARYON_FIELDS)
@@ -118,10 +123,10 @@ int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
   }
 
   for (int i = 0; i < FieldsToAdd; i ++){
-   //if(StellarYieldsAtomicNumbers[i] > 2){
+//   if(StellarYieldsAtomicNumbers[i] > 2){
      DataLabel[OldNumberOfBaryonFields+i] =\
           ChemicalSpeciesBaryonFieldLabelByFieldType(TypesToAdd[i]);
-   //}
+//   }
   }
 
   return SUCCESS;
