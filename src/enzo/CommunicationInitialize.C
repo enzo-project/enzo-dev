@@ -34,6 +34,11 @@
 /* function prototypes */
 void my_exit(int exit_status);
 
+#ifdef USE_MPI
+void CommunicationErrorHandlerFn(MPI_Comm *comm, MPI_Arg *err, ...);
+#endif
+
+
 int CommunicationInitialize(Eint32 *argc, char **argv[])
 {
  
@@ -43,10 +48,13 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
 
   MPI_Arg mpi_rank;
   MPI_Arg mpi_size;
+  MPI_Comm comm = MPI_COMM_WORLD;
 
   MPI_Init(argc, argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
   MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+  MPI_Comm_create_errhandler(CommunicationErrorHandlerFn, &CommunicationErrorHandler);
+  MPI_Comm_set_errhandler(comm, CommunicationErrorHandler);
 
   MyProcessorNumber = mpi_rank;
   NumberOfProcessors = mpi_size;
@@ -75,6 +83,7 @@ int CommunicationFinalize()
 {
  
 #ifdef USE_MPI
+  MPI_Errhandler_free(&CommunicationErrorHandler);
   MPI_Finalize();
 #endif /* USE_MPI */
  
