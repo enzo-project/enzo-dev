@@ -120,6 +120,8 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
             Temp = Temp->NextGridThisLevel;
 
+            delete [] metal_mass;
+
           } // end while
 
         } // end loop over hierarchy
