@@ -533,22 +533,3 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
 #endif /* USE_MPI */
   return SUCCESS;
 }
-
-/**********************************************************************/
-
-#ifdef USE_MPI
-void CommunicationErrorHandlerFn(MPI_Comm *comm, MPI_Arg *err, ...)
-{
-  char error_string[1024];
-  MPI_Arg length, error_class;
-  if (*err != MPI_ERR_OTHER) {
-      MPI_Error_class(*err, &error_class);
-      MPI_Error_string(error_class, error_string, &length);
-      fprintf(stderr, "P%"ISYM": %s\n", MyProcessorNumber, error_string);
-      MPI_Error_string(*err, error_string, &length);
-      fprintf(stderr, "P%"ISYM": %s\n", MyProcessorNumber, error_string);
-      ENZO_FAIL("MPI communication error.");
-  } // ENDIF MPI_ERROR
-  return;
-}
-#endif /* USE_MPI */
