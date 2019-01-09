@@ -127,14 +127,14 @@ static void Rotate_Vector(FLOAT v_z[3], FLOAT v_sn[3], FLOAT v_to_rotate[3]) {
 
 snsf_source_terms SuperNova::getSourceTerms(double dx, double dy, double dz, double enzoTime){
 	// ------------------------------------------------------------------- //
-	// Inputs: (1) distances to current cell, dx, dy, dz                             //
+	// Inputs: (1) distances to current cell, dx, dy, dz                   //
 	//         (2) current time of the simulation                          //
 	//                                                                     //
-	// Output: (1) A struct of source terms corresponding to the given	   //
-	//             supernova							               //
-	//          (i)   x,y,z components of time derivative of B-field   //
-	//          (ii)  time derivative of magnetic energy density	   //
-	//    (iii) time derivative of total energy density		   //
+	// Output: (1) A struct of source terms corresponding to the given     //
+	//             supernova					       //
+	//          (i)   x,y,z components of time derivative of B-field       //
+	//          (ii)  time derivative of magnetic energy density	       //
+	//    (iii) time derivative of total energy density		       //
 	// ------------------------------------------------------------------- //
 	
 	FLOAT phi[3], zhat_cell[3];
@@ -180,6 +180,9 @@ snsf_source_terms SuperNova::getSourceTerms(double dx, double dy, double dz, dou
 	
 	FLOAT r_scale = (r_cyl/characteristicLength)*\
 				exp(- r_s*r_s /(characteristicLength*characteristicLength));
+
+	FLOAT db_r_scale = (r_cyl/characteristicLength)*\
+	                        exp(- r_s*r_s /(2.0*characteristicLength*characteristicLength));
 	FLOAT t_exp = exp(-t_s/characteristicTime);
 	
 	FLOAT db_t_exp = t_exp / characteristicTime;

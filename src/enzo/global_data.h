@@ -1114,9 +1114,9 @@ EXTERN float GalaxySimulationPreWindTotalEnergy;
 EXTERN float GalaxySimulationPreWindVelocity[MAX_DIMENSION];
 
 /* Supernova magnetic seed field */
-EXTERN int UseSupernovaSeedFieldSourceTerms;
-EXTERN float SupernovaSeedFieldRadius;
-EXTERN float SupernovaSeedFieldDuration;
-EXTERN float SupernovaSeedFieldEnergy;
+EXTERN int UseMagneticSupernovaFeedback;
+EXTERN float MagneticSupernovaRadius;
+EXTERN float MagneticSupernovaDuration;
+EXTERN float MagneticSupernovaEnergy;
 
 #endif

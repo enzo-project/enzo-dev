@@ -1285,10 +1285,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
 
     // Parameters for magnetic feedback from supernovae
-    ret += sscanf(line, "UseSupernovaSeedFieldSourceTerms = %"ISYM, &UseSupernovaSeedFieldSourceTerms);
-    ret += sscanf(line,"SupernovaSeedFieldRadius = %"FSYM, &SupernovaSeedFieldRadius);
-    ret += sscanf(line,"SupernovaSeedFieldEnergy = %"FSYM, &SupernovaSeedFieldEnergy);
-    ret += sscanf(line,"SupernovaSeedFieldDuration = %"FSYM, &SupernovaSeedFieldDuration);
+    ret += sscanf(line, "UseMagneticSupernovaFeedback = %"ISYM, &UseMagneticSupernovaFeedback);
+    ret += sscanf(line,"MagneticSupernovaRadius = %"FSYM, &MagneticSupernovaRadius);
+    ret += sscanf(line,"MagneticSupernovaEnergy = %"FSYM, &MagneticSupernovaEnergy);
+    ret += sscanf(line,"MagneticSupernovaDuration = %"FSYM, &MagneticSupernovaDuration);
 
     /* If the dummy char space was used, then make another. */
  
@@ -1657,6 +1657,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (initialize_chemistry_data(&grackle_units) == FAIL) {
       ENZO_FAIL("Error in Grackle initialize_chemistry_data.\n");
     }
+
+    // Need to set these after initialize_chemistry_data since
+    // that function sets them automatically based on the tables.
+    if (FinalRedshift < grackle_data->UVbackground_redshift_off) {
+      grackle_data->UVbackground_redshift_off = FinalRedshift;
+      grackle_data->UVbackground_redshift_drop = FinalRedshift;
+    }
+
   }  // if (grackle_data->use_grackle == TRUE)
 
   else {
