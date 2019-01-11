@@ -486,7 +486,8 @@ typedef long long int   HDF5_hid_t;
 
 #define CHILDRENPERPARENT           12
 
-/* You probably don't want to do this too often */
+/* Splitting particles more than 4 times can induce numerical
+   artifacts */
 
 #define MAX_SPLIT_ITERATIONS        4
 
