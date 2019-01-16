@@ -45,6 +45,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
   FinalRedshift        = 0;
   CosmologyTableNumberOfBins = 1000;
   CosmologyTableLogt   = NULL;
+  CosmologyTableLoga   = NULL;
   CosmologyTableLogaInitial = -6.0;
   CosmologyTableLogaFinal = 0.0;
   CosmologyTableLogtIndex = 0;

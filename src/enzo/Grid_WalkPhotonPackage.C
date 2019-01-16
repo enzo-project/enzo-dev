@@ -245,15 +245,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   // solid angle associated with package (= 4 Pi/N_package[on this level])
   uint64_t Hlevel = (*PP)->level, res = 2L, BRP = 12L;
-  uint64_t Nlevel = (BRP * (res << (res*Hlevel-1)));
+  uint64_t Nlevel = BRP * (1L << (res*Hlevel));
   double n_on_this_level = Nlevel;
   double omega_package=4*pi/(n_on_this_level);
   double dtheta = sqrt(omega_package);
   if(n_on_this_level <= 0.0  || omega_package == INFINITY)  {
     fprintf(stdout, "%s: level = %llu\n", __FUNCTION__, level);
     fprintf(stdout, "%s: 2*(*PP)->level-1 = %llu\n", __FUNCTION__, res*(*PP)->level-1);
-    fprintf(stdout, "%s: 12 * (2 << (2*(*PP)->level-1)) = %llu\n", __FUNCTION__, 
-	    BRP * (res << (res*(*PP)->level-1)));
+    fprintf(stdout, "%s: 12 * (1 << (2*(*PP)->level)) = %llu\n", __FUNCTION__, 
+	    BRP * (1L << (res*(*PP)->level)));
     fprintf(stdout, "%s: Hlevel = %llu\n", __FUNCTION__, Hlevel);
     fprintf(stdout, "%s: Nlevel = %llu\n", __FUNCTION__, Nlevel);
     fprintf(stdout, "%s: n_on_this_level = %lf\n", __FUNCTION__, n_on_this_level);
