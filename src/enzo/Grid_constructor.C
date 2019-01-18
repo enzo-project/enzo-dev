@@ -205,12 +205,11 @@ grid::grid()
       MagneticDims[field][dim] = -100;
     }}
 
-
   /* For once-per-rootgrid-timestep star formation, the following flag
      determines whether SF is about to occur or not. It's currently
      (April 2012) only implemented for H2REG_STAR and completely
      ignored for all other star makers. */
   MakeStars = 0;
-    if (UseSupernovaSeedFieldSourceTerms == 1)  List<SuperNova>  SuperNovaList;
 
+  if (UseMagneticSupernovaFeedback)  std::vector<SuperNova>  MagneticSupernovaList;
 }

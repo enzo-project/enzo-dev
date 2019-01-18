@@ -803,10 +803,6 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
   MPI_Arg RecvCount;
   MPI_Arg Source;
   MPI_Arg Dest;
-  MPI_Arg error_code;
-  char error_string[1024];
-  MPI_Arg length_of_error_string, error_class;
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
  
 #ifdef DEBUG_NONBLOCKCT
     fprintf(stderr, "CT(%"ISYM"): start From=%"ISYM"  To=%"ISYM"\n", 
@@ -1043,25 +1039,6 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 #ifdef DEBUG_NONBLOCKCT
 	  printf("P%d: CompletedRequests = %d/%d\n", MyProcessorNumber, 
 		 CompletedRequests, NumberOfRequests);
-#endif
-
-	  /* Check for any errors */
-
-#ifdef UNUSED
-	  for (i = 0; i < NumberOfRequests; i++) {
-	    index = ListOfIndices[i];
-	    if (ListOfStatuses[index].MPI_ERROR != 0) {
-	      fprintf(stderr, "CommunicationTranspose: MPI Error on request %d, "
-		      "n = %d, error = %d\n", i, n, ListOfStatuses[i].MPI_ERROR);
-	      MPI_Error_class(ListOfStatuses[index].MPI_ERROR, &error_class);
-	      MPI_Error_string(error_class, error_string, &length_of_error_string);
-	      fprintf(stderr, "P%d: %s\n", MyProcessorNumber, error_string);
-	      MPI_Error_string(ListOfStatuses[index].MPI_ERROR, error_string, 
-			       &length_of_error_string);
-	      fprintf(stderr, "P%d: %s\n", MyProcessorNumber, error_string);
-	      ENZO_FAIL("MPI Error in CommunicationTranspose!\n");
-	    }
-	  }
 #endif
 
 	} // ENDIF n > 0

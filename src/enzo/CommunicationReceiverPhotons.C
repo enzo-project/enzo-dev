@@ -33,8 +33,6 @@
 #ifdef USE_MPI
 static Eint32 PH_ListOfIndices[MAX_PH_RECEIVE_BUFFERS];
 static MPI_Status PH_ListOfStatuses[MAX_PH_RECEIVE_BUFFERS];
-void CommunicationCheckForErrors(int NumberOfStatuses, MPI_Status *statuses,
-				 char *msg=NULL);
 int CommunicationFindOpenRequest(MPI_Request *requests, Eint32 last_free,
 				 Eint32 nrequests, Eint32 index, 
 				 Eint32 &max_index);
@@ -93,7 +91,6 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 #endif
 
   NumberOfCompletedRequests = 0;
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 
   /* Wait for >1 receives */
 
@@ -113,11 +110,6 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 	 PH_ListOfIndices[0], PH_ListOfIndices[1], PH_ListOfIndices[2]);
   fflush(stdout);
 #endif
-
-  if (NumberOfCompletedRequests > 0)
-    CommunicationCheckForErrors(TotalReceives, PH_ListOfStatuses,
-				"CommunicationReceiverPhotons");
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
 
   /* Get grid lists */
 
