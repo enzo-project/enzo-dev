@@ -664,8 +664,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
      by total baryonic density).  At the end we will multiply by the new
      density so that species fractions are maintained. */
 
- /* AJE TO DO Will need to add code here for chemical tracers */
-
   for (field = 0; field < NumberOfBaryonFields; field++){
     if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
 	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity){
@@ -728,12 +726,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   /* If both metal fields exist, make a total metal field */
 
-  float *MetalPointer;
+  float *MetalPointer = NULL;
   float *TotalMetals = NULL;
   int MetallicityField;
 
   MetallicityField = (MetalNum != -1 || SNColourNum != -1);
 
+#ifndef INDIVIDUALSTAR
   if (MetalNum != -1 && SNColourNum != -1) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
@@ -746,6 +745,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     else if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
+#endif // INDIVIDUALSTAR
 
   //printf("Star type \n");
   /* Set the units. */
