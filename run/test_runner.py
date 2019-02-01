@@ -502,7 +502,7 @@ class EnzoTestRun(object):
         
         os.chdir(self.run_dir)
         # Download data if requested
-        if 'hub_download' in self.test_data:
+        if self.test_data['hub_download'] is not None:
             command = "girder-cli --api-url %s download %s" % \
                       (hub_url, self.test_data['hub_download'])
             os.system(command)
