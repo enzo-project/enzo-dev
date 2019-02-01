@@ -584,7 +584,7 @@ if __name__ == "__main__":
                       default=False, help="Drop into debugger on errors")
     parser.add_option("--changeset", dest="changeset", default=None, metavar='str',
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
-    parser.add_option("--jcompile", dest="jcompile", default=1, metavar='int',
+    parser.add_option("--jcompile", dest="jcompile", default=1, metavar='int', type=int,
                       help="Number of cores to use when recompiling")
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
                       help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
