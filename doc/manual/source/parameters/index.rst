@@ -1889,14 +1889,17 @@ Particle Parameters
 ``ParticleSplitterMustRefine`` (external)
     Set to 1 to mark the split particles as must-refine particles. The
     user must also set associated must-refine parameters to enable its
-    machinery. Default: 0
+    machinery that can be used to restrict AMR only to the must-refine
+    particles. Default: 0
 ``ParticleSplitterMustRefineIDFile`` (external)
     Filename for the HDF5 file that has a dataset containing the
     particle IDs that should be marked as must-refine.  All other
     particles within the region marked for splitting will retain their
-    original types.  This must be used in conjunction with
-    ``ParticleSplitterMustRefine = 1``.  The dataset must be named
-    ``particle_identifier`` in the base group.  Default: (null).
+    original types.  If not set, all particles within the must-refine
+    region will be must-refine particles.  This must be used in
+    conjunction with ``ParticleSplitterMustRefine = 1``.  The dataset
+    must be named ``particle_identifier`` in the base group.  Default:
+    (null).
 
     An example yt script is provided below, selecting the particles in
     a sphere centered at [0.5, 0.5, 0.5] with a radius 0.05 in code
@@ -1918,10 +1921,11 @@ Particle Parameters
 ``ParticleSplitterFraction`` (external)
     An array of four values that represent the width of the splitting
     region in units of the original refine region set by
-    ``RefineRegionLeftEdge`` and ``RefineRegionRightEdge``.  Each
+    ``RefineRegionLeftEdge`` and ``RefineRegionRightEdge``.  The
+    splitting region is centered on the refine region center.  Each
     successive value represents the next nested split region.  Valid
-    up to ``ParticleSplitterIterations`` times. Default: 1.0 (all 4
-    values)
+    up to ``ParticleSplitterIterations`` times.  Cannot be used with
+    ``ParticleSplitterCenterRegion``.  Default: 1.0 (all 4 values)
 ``ParticleSplitterCenter`` (external)
     The center of split region in code units.  Specify if the split
     region does not correspond to the center of the refine region.
@@ -1929,13 +1933,14 @@ Particle Parameters
 ``ParticleSplitterCenterRegion`` (external)
     The width of the split region in code units.  Must be used in
     conjunction with ``ParticleSplitterCenter``.  Each successive
-    value represents the next nested split region.  Valid up to
+    value represents the next nested split region.  Cannot be used
+    with ``ParticleSplitterFraction``. Valid up to
     ``ParticleSplitterIterations`` times.  Not used if
     negative. Default: -1.0 (all 4 values)
 ``ParticleSplitterChildrenParticleSeparation`` (external)
     This is the spacing between the child particles placed on a
-    hexagonal close-packed (HCP) array. In units of a cell size
-    which the parent particle resides in. Default: 1.0
+    hexagonal close-packed (HCP) array. In units of a cell size which
+    the parent particle resides in. Default: 1.0
 
 .. _starparticleparameters:
 
