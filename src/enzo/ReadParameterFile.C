@@ -1263,6 +1263,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &ParticleSplitterRandomSeed);
     ret += sscanf(line, "ParticleSplitterChildrenParticleSeparation = %"FSYM,
 		  &ParticleSplitterChildrenParticleSeparation);
+    ret += sscanf(line, "ParticleSplitterMustRefine = %"ISYM,
+		  &ParticleSplitterMustRefine);
+    if (sscanf(line, "ParticleSplitterMustRefineIDFile = %s", dummy) == 1)
+      ParticleSplitterMustRefineIDFile = dummy;
+    ret += sscanf(line, "ParticleSplitterFraction    = %"FSYM" %"FSYM" %"FSYM" %"FSYM"",
+                  ParticleSplitterFraction+0, ParticleSplitterFraction+1, ParticleSplitterFraction+2,
+                  ParticleSplitterFraction+3);
+    ret += sscanf(line, "ParticleSplitterCenter    = %"PSYM" %"PSYM" %"PSYM"",
+                  ParticleSplitterCenter+0, ParticleSplitterCenter+1, ParticleSplitterCenter+2);
+    ret += sscanf(line, "ParticleSplitterCenterRegion  = %"FSYM" %"FSYM" %"FSYM" %"FSYM"",
+                  ParticleSplitterCenterRegion+0, ParticleSplitterCenterRegion+1,
+		  ParticleSplitterCenterRegion+2, ParticleSplitterCenterRegion+3);
     ret += sscanf(line, "ResetMagneticField = %"ISYM,
 		  &ResetMagneticField);
     ret += sscanf(line, "ResetMagneticFieldAmplitude  =  %"GSYM" %"GSYM" %"GSYM, 

@@ -3,7 +3,7 @@ wget --quiet https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.
 bash ./Miniconda2-latest-Linux-x86_64.sh -b -p ./enzo-conda -f
 export PATH=$PWD/enzo-conda/bin:$PATH
 conda install -q -y mercurial cython h5py matplotlib sympy numpy!=1.14.0 pytest flake8 yt nose
-pip install python-hglib
+pip install python-hglib girder-client
 
 # install OS dependencies
 sudo apt-get update
@@ -46,6 +46,8 @@ make -j 4
 
 # Generate the gold standard results.
 cd $BITBUCKET_CLONE_DIR/run
+# First, download the ICs for the cosmology simulation tests from the yt hub
+girder-cli --api-url https://girder.hub.yt/api/v1 download 5af9ef42ec1bd30001fcd001 CosmologySimulation
 python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-store --answer-name=push_suite  --local --strict=high --verbose
 
 # Build the tip version.

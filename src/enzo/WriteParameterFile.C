@@ -624,6 +624,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  ParticleSplitterRandomSeed);
   fprintf(fptr, "ParticleSplitterChildrenParticleSeparation     = %"FSYM"\n",
 	  ParticleSplitterChildrenParticleSeparation);
+  fprintf(fptr, "ParticleSplitterFraction         =  ");
+  WriteListOfFloats(fptr, MAX_SPLIT_ITERATIONS, ParticleSplitterFraction);
+  fprintf(fptr, "ParticleSplitterCenter         =  ");
+  WriteListOfFloats(fptr, 3, ParticleSplitterCenter);
+  fprintf(fptr, "ParticleSplitterCenterRegion         =  ");
+  WriteListOfFloats(fptr, MAX_SPLIT_ITERATIONS, ParticleSplitterCenterRegion);
+  fprintf(fptr, "ParticleSplitterMustRefine       = %"ISYM"\n",
+	  ParticleSplitterMustRefine);
+  fprintf(fptr, "ParticleSplitterMustRefineIDFile = %s\n",
+	  ParticleSplitterMustRefineIDFile);
   fprintf(fptr, "ResetMagneticField               = %"ISYM"\n",
 	  ResetMagneticField);
   fprintf(fptr, "ResetMagneticFieldAmplitude      = %"GSYM" %"GSYM" %"GSYM"\n", 

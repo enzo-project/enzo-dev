@@ -17,16 +17,16 @@ RightFaceBoundaryCondition = 3 3 3
 #
 # problem parameters
 #
-CosmologySimulationOmegaBaryonNow       = 0.0441
-CosmologySimulationOmegaCDMNow          = 0.2239
-CosmologySimulationDensityName          = GridDensity
-CosmologySimulationVelocity1Name        = GridVelocities
-CosmologySimulationVelocity2Name        = GridVelocities
-CosmologySimulationVelocity3Name        = GridVelocities
-CosmologySimulationParticlePositionName = ParticlePositions
-CosmologySimulationParticleVelocityName = ParticleVelocities
-CosmologySimulationNumberOfInitialGrids = 1
-CosmologySimulationUseMetallicityField  = 1
+CosmologySimulationOmegaBaryonNow       = 0.0
+CosmologySimulationOmegaCDMNow          = 0.268
+CosmologySimulationParticleVelocity1Name = ParticleVelocities_x
+CosmologySimulationParticleVelocity2Name = ParticleVelocities_y
+CosmologySimulationParticleVelocity3Name = ParticleVelocities_z
+CosmologySimulationParticleDisplacement1Name = ParticleDisplacements_x
+CosmologySimulationParticleDisplacement2Name = ParticleDisplacements_y
+CosmologySimulationParticleDisplacement3Name = ParticleDisplacements_z
+CosmologySimulationCalculatePositions    = 1
+CosmologySimulationNumberOfInitialGrids  = 1
 
 #
 # cosmology parameters
@@ -44,22 +44,11 @@ GravitationalConstant      = 1
 #
 # I/O and stop/start parameters
 #
-dtDataDump       = 5
+dtDataDump       = 25
 RedshiftDumpName = RD
 RedshiftDumpDir  = RD
 DataDumpName     = DD
 DataDumpDir      = DD
-
-CosmologyOutputRedshift[0] = 0.100
-CosmologyOutputRedshift[1] = 0.089
-CosmologyOutputRedshift[2] = 0.078
-CosmologyOutputRedshift[3] = 0.067
-CosmologyOutputRedshift[4] = 0.057
-CosmologyOutputRedshift[5] = 0.047
-CosmologyOutputRedshift[6] = 0.037
-CosmologyOutputRedshift[7] = 0.027
-CosmologyOutputRedshift[8] = 0.017
-CosmologyOutputRedshift[9] = 0.007
 
 #
 # hydro parameters
@@ -87,28 +76,6 @@ CellFlaggingMethod                    = 2 4
 MinimumOverDensityForRefinement       = 8.0 8.0
 MinimumMassForRefinementLevelExponent = 0.0 0.0
 MinimumEfficiency                     = 0.35
-
-#
-# microphysics parameters
-#
-MultiSpecies       = 0
-RadiativeCooling   = 1
-RadiationFieldType = 0
-
-#
-# star formation parameters
-#
-StarParticleCreation          = 1
-StarParticleFeedback          = 1
-StarMakerOverDensityThreshold = 100
-StarMakerMinimumMass          = 1e6
-StarMakerMinimumDynamicalTime = 1e6
-StarMakerMassEfficiency       = 0.1
-StarMassEjectionFraction      = 0.25
-StarMetalYield                = 0.1
-StarEnergyToThermalFeedback   = 1e-5
-StarFeedbackDistRadius        = 1
-StarFeedbackDistCellStep      = 3
 
 #
 # some global parameters

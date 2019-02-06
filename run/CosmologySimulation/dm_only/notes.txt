@@ -1,0 +1,15 @@
+This is a dark-matter-only version of the amr_cosmology simulation. It
+consists of a 32 Mpc/h box with 32^3 dark matter particles and 5
+levels of AMR. This simulation will run to z = 0 in less than a minute
+on a single core.
+
+To generate the ICs with MUSIC:
+./MUSIC dm_only.conf
+
+Initial conditions can also be downloaded from the "Enzo test data"
+collection on the yt Hub (hub.yt), or do:
+pip install girder-client
+girder-cli --api-url https://girder.hub.yt/api/v1 download 5afb0145ec1bd30001fcd024
+
+To run the simulation:
+./enzo.exe -d dm_only.enzo
