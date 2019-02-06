@@ -19,7 +19,7 @@ import hglib
 known_categories = [
     "Cooling",
     "Cosmology",
-    "CosmoSim",
+    "CosmologySimulation",
     "DrivenTurbulence3D",
     "FLD",
     "GravitySolver",
@@ -73,6 +73,7 @@ varspec = dict(
     mhd = (bool, False),
     gravity = (bool, False),
     cosmology = (bool, False),
+    cosmology_simulation = (bool, False),
     chemistry = (bool, False),
     cooling = (bool, False),
     AMR = (bool, False),
@@ -83,7 +84,8 @@ varspec = dict(
     quicksuite = (bool, False),
     pushsuite = (bool, False),
     fullsuite = (bool, False),
-    problematic = (bool, False)
+    problematic = (bool, False),
+    hub_download = (str, None)
 )
 
 known_variables = dict( [(k, v[0]) for k, v in varspec.items()] )
@@ -108,6 +110,7 @@ template_vars = {'N_PROCS'   : 'nprocs',
 
 results_filename = 'test_results.txt'
 version_filename = 'version.txt'
+hub_url = 'https://girder.hub.yt/api/v1'
 
 # Files to be included when gathering results.
 results_gather = ['results', version_filename]
@@ -294,7 +297,7 @@ class EnzoTestCollection(object):
         shutil.copy(exe_path, output_dir)
         exe_path = os.path.join(output_dir, os.path.basename(exe_path))
         results_path = os.path.join(self.output_dir, results_filename)
-        
+
         if interleaved:
             for i, my_test in enumerate(self.tests):
                 print("Preparing test: %s." % my_test['name'])
@@ -498,6 +501,12 @@ class EnzoTestRun(object):
             return True
         
         os.chdir(self.run_dir)
+        # Download data if requested
+        if self.test_data['hub_download'] is not None:
+            command = "girder-cli --api-url %s download %s" % \
+                      (hub_url, self.test_data['hub_download'])
+            os.system(command)
+
         command = "%s %s" % (machines[self.machine]['command'], 
                              machines[self.machine]['script'])
         sim_start_time = time.time()
@@ -575,6 +584,8 @@ if __name__ == "__main__":
                       default=False, help="Drop into debugger on errors")
     parser.add_option("--changeset", dest="changeset", default=None, metavar='str',
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
+    parser.add_option("--jcompile", dest="jcompile", default=1, metavar='int', type=int,
+                      help="Number of cores to use when recompiling")
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
                       help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
     parser.add_option("", "--bitwise",
@@ -623,6 +634,16 @@ if __name__ == "__main__":
     parser.add_option_group(testproblem_group)
     options, args = parser.parse_args()
 
+    # The cosmology tests change behavior based on environment variables,
+    # so set those based on the related run time arguments.
+    os.environ["COSMO_TEST_GENERATE"] = str(int(options.store_results))
+    if options.output_dir is None:
+        test_data_dir = "."
+    else:
+        test_data_dir = options.output_dir
+    if options.answer_name is not None:
+        test_data_dir = os.path.join(test_data_dir, options.answer_name)
+    os.environ["COSMO_TEST_DATA_DIR"] = test_data_dir
 
     if options.pdb:
         pdb_plugin.enabled = True
@@ -754,7 +775,7 @@ if __name__ == "__main__":
     # Same with MHD2DRotorTest
     ignore_list = ('GravityTest', 'ProtostellarCollapse_Std',
                    'ZeldovichPancake', 'AMRZeldovichPancake',
-                   'MHD2DRotorTest', 'Toro-6-ShockTube', 'MHDCTOrszagTangAMR', 'MHDCTOrszagTang')
+                   'MHD2DRotorTest', 'Toro-6-ShockTube', 'MHDCTOrszagTangAMR', 'MHDCTOrszagTang','dm_only')
     
     template = open("test_type.py.template").read()
     

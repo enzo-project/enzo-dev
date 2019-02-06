@@ -1,0 +1,20 @@
+This is a variation of the amr_cosmology simulation with 1 level of
+initial refinement and must-refine-particles. The simulation uses Cen
+& Ostriker star formation/feedback, cooling with Grackle, and initial
+conditions made with MUSIC. The nested refinement zooms in on the most
+massive halo in the box at z = 1.8. Must-refine-particles are used to
+allow AMR only for particles that end up within 3 virial radii of the
+most massive halo at z = 1.8. The simulation will run in about 1
+minute on a single core.
+
+The zoom initial conditions with must-refine-particle flagging was
+created using the method outlined in
+https://bitbucket.org/jwise77/enzo-mrp-music
+
+Initial conditions can be downloaded from the "Enzo test data"
+collection on the yt Hub (hub.yt), or do:
+pip install girder-client
+girder-cli --api-url https://girder.hub.yt/api/v1 download 5afef79bec1bd30001fcd07e
+
+To run the simulation:
+./enzo.exe -d amr_nested_cosmology.enzo
