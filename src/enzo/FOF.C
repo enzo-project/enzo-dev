@@ -150,8 +150,8 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 void set_units(FOFData &AllVars) {
 
   AllVars.UnitLength_in_cm	   = kpc_cm;
-  AllVars.UnitMass_in_g		   = 1.989e43;
-  AllVars.UnitVelocity_in_cm_per_s = 1.0e5;
+  AllVars.UnitMass_in_g		   = SolarMass * 1.0E10;
+  AllVars.UnitVelocity_in_cm_per_s = km_cm;
 
   AllVars.Theta = 0.8;  /* opening angle for potential computation */
   AllVars.DesDensityNgb = 32;
