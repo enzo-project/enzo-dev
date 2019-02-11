@@ -98,5 +98,6 @@ EXTERN grid        *CommunicationReceiveGridTwo[MAX_RECEIVE_BUFFERS];
 EXTERN int          CommunicationReceiveDependsOn[MAX_RECEIVE_BUFFERS];
 EXTERN FLOAT CommunicationReceiveArgument[MAX_DIMENSION][MAX_RECEIVE_BUFFERS];
 EXTERN int CommunicationReceiveArgumentInt[MAX_DIMENSION][MAX_RECEIVE_BUFFERS];
+EXTERN MPI_Errhandler CommunicationErrorHandler;
 
 #endif /* USE_MPI */

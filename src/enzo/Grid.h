@@ -11,6 +11,7 @@
 ************************************************************************/
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
+#include <vector>
 #include "ProtoSubgrid.h"
 #include "ListOfParticles.h"
 #include "region.h"
@@ -20,7 +21,6 @@
 #include "Star.h"
 #include "FOF_allvars.h"
 #include "MemoryPool.h"
-#include "list.h"
 #include "hydro_rk/SuperNova.h"
 #ifdef ECUDA
 #include "hydro_rk/CudaMHD.h"
@@ -2445,13 +2445,15 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 /* Particle splitter routine. */
 
-  int ParticleSplitter(int level);
+  int ParticleSplitter(int level, int iter, int NumberOfIDs,
+		       long *MustRefineIDs);
 
   int CreateChildParticles(float dx, int NumberOfParticles, float *ParticleMass,
 			   int *ParticleType, FLOAT *ParticlePosition[],
 			   float *ParticleVelocity[], float *ParticleAttribute[],
 			   FLOAT *CellLeftEdge[], int *GridDimension, 
-			   int MaximumNumberOfNewParticles, int *NumberOfNewParticles);
+                           int MaximumNumberOfNewParticles, int iter, 
+			   int *NumberOfNewParticles);
 
 /* Magnetic field resetting routine. */
 
@@ -3047,11 +3049,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHDCT_ConvertEnergyToConservedS();
   int MHDCT_ConvertEnergyToSpecificS();
 
-  //List of SuperNova objects that each grid needs to keep track of                                                                      
-  
-  List<SuperNova> SuperNovaList;
-  
-
+  // used if UseMagneticSupernovaFeedback is turned on
+  int AddMagneticSupernovaeToList();
+  //List of SuperNova objects that each grid needs to keep track of
+  std::vector<SuperNova> MagneticSupernovaList;
 };
 
 // inline int grid::ReadRandomForcingFields (FILE *main_file_pointer);

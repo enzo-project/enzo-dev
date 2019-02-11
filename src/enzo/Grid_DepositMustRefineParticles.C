@@ -80,25 +80,60 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     FlaggingField[i] = 0;
 
   float UniformParticleMass = 0.0;
-  if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3)
+  if (ProblemType == 30 &&
+      (MustRefineParticlesCreateParticles == 3 ||
+       MustRefineParticlesCreateParticles == 4))
     UniformParticleMass = OmegaDarkMatterNow / OmegaMatterNow;
 
   /* Loop over all particles, marking wich ones are must refine
      To add rules, modify number of rules here and add to loop below */
-  bool *rules;
+  bool *rules, rule0;
   const int NumberOfRules = 2;
   rules = new bool[NumberOfRules];
 
+  // Rules to prevent refinement, cancelling out the above rules.
+  bool *antirules;
+  int *AntiFlaggingField;
+  int NumberOfAntiRules = 0;
+  antirules = new bool[NumberOfAntiRules];
+
+  // Add an antirule to unflag over-refined dark matter particles.
+  if (MustRefineParticlesCreateParticles == 4) {
+    NumberOfAntiRules++;
+  }
+
+  if (NumberOfAntiRules > 0) {
+    antirules = new bool[NumberOfAntiRules];
+    AntiFlaggingField = new int[size];
+    for (i = 0; i < size; i++)
+      AntiFlaggingField[i] = 0;
+  }
+
   // Flag particles as must refine particles
-  int *IsParticleMustRefine;
+  int *IsParticleMustRefine, *IsParticleNotMustRefine;
+  bool OriginalParticle;
   IsParticleMustRefine = new int[NumberOfParticles];
+  if (NumberOfAntiRules > 0) {
+    IsParticleNotMustRefine = new int[NumberOfParticles];
+  }
   for (i = 0; i < NumberOfParticles; i ++){
     IsParticleMustRefine[i] = 1;
+    if (NumberOfParticleAttributes > 0)
+      OriginalParticle = (ParticleAttribute[0][i] <= 0.0);
+    else
+      OriginalParticle = true;
+
+    // check particle type and uniform mass. Also check particle
+    // creation time for DM particles that are positive, indicating
+    // that they are either inert stellar remnants or "leftovers" from
+    // particle merging
 
     // check particle type and uniform mass
-    rules[0] = (ParticleType[i] == PARTICLE_TYPE_MUST_REFINE ||
+    rule0    = (ParticleType[i] == PARTICLE_TYPE_MUST_REFINE ||
                 ParticleType[i] == PARTICLE_TYPE_MBH) ||
-               (ParticleMass[i] < UniformParticleMass);
+      (ParticleMass[i] < UniformParticleMass &&
+       ParticleType[i] == PARTICLE_TYPE_DARK_MATTER && OriginalParticle);
+    rules[0] = rule0;
 
     // check particle mass greater than minimum mass
     rules[1] = (ParticleMass[i] > MustRefineParticlesMinimumMass);
@@ -110,6 +145,17 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     // set flag for this particle
     for (int j = 0; j < NumberOfRules; j++)
       IsParticleMustRefine[i] *= rules[j];
+
+    // anti-rules
+    if (NumberOfAntiRules > 0) {
+      IsParticleNotMustRefine[i] = 1;
+      // check for over-refined dark matter particles
+      antirules[0] = !rule0;
+    }
+
+    // set antiflag for this particle
+    for (int j = 0; j < NumberOfAntiRules; j++)
+      IsParticleNotMustRefine[i] *= antirules[j];
   }
 
   PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
@@ -117,6 +163,18 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 	   &GridRank, &NumberOfParticles, FlaggingField,
 	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
 	   &CellSize, &ParticleBufferSize);
+
+  if (NumberOfAntiRules > 0) {
+    PFORTRAN_NAME(cic_flag)(IsParticleNotMustRefine,
+	   ParticlePosition[0], ParticlePosition[1], ParticlePosition[2],
+	   &GridRank, &NumberOfParticles, AntiFlaggingField,
+	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
+	   &CellSize, &ParticleBufferSize);
+
+    for (i = 0;i < size;i++) {
+      FlaggingField[i] *= !(AntiFlaggingField[i]);
+    }
+  }
 
   /* Increase particle mass flagging field for definite refinement */
 
@@ -131,7 +189,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
      particles, and don't use the particle mass field. */
   
   int NumberOfFlaggedCells = 0;
-  if (!(ProblemType == 30 && MustRefineParticlesCreateParticles == 3 &&
+  if (!(ProblemType == 30 &&
+        (MustRefineParticlesCreateParticles == 3 ||
+         MustRefineParticlesCreateParticles == 4) &&
 	level == MustRefineParticlesRefineToLevel)) {
     for (i = 0; i < size; i++)
       if (FlaggingField[i]) {
@@ -159,6 +219,12 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   delete [] IsParticleMustRefine;
   delete [] rules;
+
+  if (NumberOfAntiRules > 0) {
+    delete [] AntiFlaggingField;
+    delete [] IsParticleNotMustRefine;
+    delete [] antirules;
+  }
 
   return NumberOfFlaggedCells;
  

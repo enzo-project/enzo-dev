@@ -1,0 +1,20 @@
+This is a cosmology simulation with Cen & Ostriker star
+formation/feedback, cooling with Grackle, and initial conditions made
+with MUSIC. It consists of a 32 Mpc/h box with 32^3 root grid cells
+and dark matter particles and 5 levels of AMR.
+
+This simulation will run to z = 0 in about 10 minutes on a single
+core. To run this, you will need to copy the file,
+CloudyData_UVB=HM2012.h5, from the input directory of your Grackle
+source, to the run directory of the simulation.
+
+To generate the ICs with MUSIC:
+./MUSIC amr_cosmology.conf
+
+Initial conditions can also be downloaded from the "Enzo test data"
+collection on the yt Hub (hub.yt), or do:
+pip install girder-client
+girder-cli --api-url https://girder.hub.yt/api/v1 download 5afb0040ec1bd30001fcd002
+
+To run the simulation:
+./enzo.exe -d amr_cosmology.enzo

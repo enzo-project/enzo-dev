@@ -89,12 +89,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
-  FLOAT dir_vec[3], sigma[H2II + 1]; //Accounts for all of the cross sections needed
+  FLOAT sigma[H2II + 1]; //Accounts for all of the cross sections needed
   FLOAT ddr, dP, dP1, dp2,EndTime;
   FLOAT dPi[H_SPECIES + 1], dPXray[H_SPECIES + 1];  //+ 1 is to account for Compton
   FLOAT thisDensity, min_dr;
   FLOAT ce[3], nce[3];
-  FLOAT s[3], u[3], f[3], u_inv[3], r[3], dri[3];
+  FLOAT s[3], f[3], u_inv[3], r[3], dri[3];
+  double dir_vec[3], u[3];
   static int secondary_flag = 1, compton_flag = 1;
   static int photoncounter = 0;
 
@@ -244,15 +245,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   // solid angle associated with package (= 4 Pi/N_package[on this level])
   uint64_t Hlevel = (*PP)->level, res = 2L, BRP = 12L;
-  uint64_t Nlevel = (BRP * (res << (res*Hlevel-1)));
+  uint64_t Nlevel = BRP * (1L << (res*Hlevel));
   double n_on_this_level = Nlevel;
   double omega_package=4*M_PI/(n_on_this_level);
   double dtheta = sqrt(omega_package);
   if(n_on_this_level <= 0.0  || omega_package == INFINITY)  {
     fprintf(stdout, "%s: level = %llu\n", __FUNCTION__, level);
     fprintf(stdout, "%s: 2*(*PP)->level-1 = %llu\n", __FUNCTION__, res*(*PP)->level-1);
-    fprintf(stdout, "%s: 12 * (2 << (2*(*PP)->level-1)) = %llu\n", __FUNCTION__, 
-	    BRP * (res << (res*(*PP)->level-1)));
+    fprintf(stdout, "%s: 12 * (1 << (2*(*PP)->level)) = %llu\n", __FUNCTION__, 
+	    BRP * (1L << (res*(*PP)->level)));
     fprintf(stdout, "%s: Hlevel = %llu\n", __FUNCTION__, Hlevel);
     fprintf(stdout, "%s: Nlevel = %llu\n", __FUNCTION__, Nlevel);
     fprintf(stdout, "%s: n_on_this_level = %lf\n", __FUNCTION__, n_on_this_level);

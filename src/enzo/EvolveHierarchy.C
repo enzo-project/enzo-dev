@@ -270,20 +270,26 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 */
 
 
+  /* Particle Splitter. Split particles into 13 (=1+12) child
+     particles. The hierarchy is rebuilt inside this routine. */
+  
+  if (MetaData.FirstTimestepAfterRestart == TRUE &&
+      ParticleSplitterIterations > 0) {
+
+    ParticleSplitter(LevelArray, 0, &MetaData);
+
+  } else {
+
   /* Do the first grid regeneration. */
  
-  if(CheckpointRestart == FALSE) {
-    RebuildHierarchy(&MetaData, LevelArray, 0);
-  }
+    if(CheckpointRestart == FALSE) {
+      RebuildHierarchy(&MetaData, LevelArray, 0);
+    }
+
+  } // ENDELSE particle splitting
 
   PrintMemoryUsage("1st rebuild");
  
-  /* Particle Splitter. Split particles into 13 (=1+12) child particles */
-  
-  if (MetaData.FirstTimestepAfterRestart == TRUE &&
-      ParticleSplitterIterations > 0)
-    ParticleSplitter(LevelArray, 0, &MetaData);
-
   /* Reset magnetic fields if requested. */
   
   if (MetaData.FirstTimestepAfterRestart == TRUE &&

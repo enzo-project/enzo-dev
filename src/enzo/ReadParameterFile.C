@@ -1279,6 +1279,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &ParticleSplitterRandomSeed);
     ret += sscanf(line, "ParticleSplitterChildrenParticleSeparation = %"FSYM,
 		  &ParticleSplitterChildrenParticleSeparation);
+    ret += sscanf(line, "ParticleSplitterMustRefine = %"ISYM,
+		  &ParticleSplitterMustRefine);
+    if (sscanf(line, "ParticleSplitterMustRefineIDFile = %s", dummy) == 1)
+      ParticleSplitterMustRefineIDFile = dummy;
+    ret += sscanf(line, "ParticleSplitterFraction    = %"FSYM" %"FSYM" %"FSYM" %"FSYM"",
+                  ParticleSplitterFraction+0, ParticleSplitterFraction+1, ParticleSplitterFraction+2,
+                  ParticleSplitterFraction+3);
+    ret += sscanf(line, "ParticleSplitterCenter    = %"PSYM" %"PSYM" %"PSYM"",
+                  ParticleSplitterCenter+0, ParticleSplitterCenter+1, ParticleSplitterCenter+2);
+    ret += sscanf(line, "ParticleSplitterCenterRegion  = %"FSYM" %"FSYM" %"FSYM" %"FSYM"",
+                  ParticleSplitterCenterRegion+0, ParticleSplitterCenterRegion+1,
+		  ParticleSplitterCenterRegion+2, ParticleSplitterCenterRegion+3);
     ret += sscanf(line, "ResetMagneticField = %"ISYM,
 		  &ResetMagneticField);
     ret += sscanf(line, "ResetMagneticFieldAmplitude  =  %"GSYM" %"GSYM" %"GSYM, 
@@ -1290,10 +1302,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
 
     // Parameters for magnetic feedback from supernovae
-    ret += sscanf(line, "UseSupernovaSeedFieldSourceTerms = %"ISYM, &UseSupernovaSeedFieldSourceTerms);
-    ret += sscanf(line,"SupernovaSeedFieldRadius = %"FSYM, &SupernovaSeedFieldRadius);
-    ret += sscanf(line,"SupernovaSeedFieldEnergy = %"FSYM, &SupernovaSeedFieldEnergy);
-    ret += sscanf(line,"SupernovaSeedFieldDuration = %"FSYM, &SupernovaSeedFieldDuration);
+    ret += sscanf(line, "UseMagneticSupernovaFeedback = %"ISYM, &UseMagneticSupernovaFeedback);
+    ret += sscanf(line,"MagneticSupernovaRadius = %"FSYM, &MagneticSupernovaRadius);
+    ret += sscanf(line,"MagneticSupernovaEnergy = %"FSYM, &MagneticSupernovaEnergy);
+    ret += sscanf(line,"MagneticSupernovaDuration = %"FSYM, &MagneticSupernovaDuration);
 
     /* If the dummy char space was used, then make another. */
  
@@ -1696,6 +1708,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (initialize_chemistry_data(&grackle_units) == FAIL) {
       ENZO_FAIL("Error in Grackle initialize_chemistry_data.\n");
     }
+
+    // Need to set these after initialize_chemistry_data since
+    // that function sets them automatically based on the tables.
+    if (FinalRedshift < grackle_data->UVbackground_redshift_off) {
+      grackle_data->UVbackground_redshift_off = FinalRedshift;
+      grackle_data->UVbackground_redshift_drop = FinalRedshift;
+    }
+
   }  // if (grackle_data->use_grackle == TRUE)
 
   else {

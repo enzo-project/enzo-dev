@@ -979,6 +979,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParticleSplitterIterations = FALSE;
   ParticleSplitterChildrenParticleSeparation = 1.0;
   ParticleSplitterRandomSeed = 131180;
+  ParticleSplitterMustRefine = FALSE;
+  ParticleSplitterMustRefineIDFile = NULL;
+  for(int i = 0; i < MAX_SPLIT_ITERATIONS; i++)
+    ParticleSplitterFraction[i] = 1.0;
+  for(int i = 0; i < MAX_DIMENSION; i++)
+    ParticleSplitterCenter[i] = -1.0;
+  for(int i = 0; i < MAX_SPLIT_ITERATIONS; i++)
+    ParticleSplitterCenterRegion[i] = -1.0;
 
   /* Magnetic Field Resetter */
 
@@ -995,12 +1003,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseGasDrag = 0;
   GasDragCoefficient = 0.;
 
-  /* Supernova magnetic seed field */
+  /* Supernova magnetic feedback */
   /* Default == 0 -> no magnetic field contribution */
-  UseSupernovaSeedFieldSourceTerms = 0;
-  SupernovaSeedFieldRadius = 0.0;
-  SupernovaSeedFieldDuration = 0.0;
-  SupernovaSeedFieldEnergy = 0.0;
+  UseMagneticSupernovaFeedback = 0;   // 0 = off; 1+ = on;  2 = Radius and duration calculated during runtime
+  MagneticSupernovaRadius = 300.0;      // Total injection radius of magnetic field in parsecs
+  MagneticSupernovaDuration = 5e4  ;    // Total duration of magnetic feedback in years
+  MagneticSupernovaEnergy = 1.0e51;    // Total energy (ergs) injected per star particle (supernova)
 
   return SUCCESS;
 }

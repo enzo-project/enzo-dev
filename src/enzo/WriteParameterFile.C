@@ -637,6 +637,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  ParticleSplitterRandomSeed);
   fprintf(fptr, "ParticleSplitterChildrenParticleSeparation     = %"FSYM"\n",
 	  ParticleSplitterChildrenParticleSeparation);
+  fprintf(fptr, "ParticleSplitterFraction         =  ");
+  WriteListOfFloats(fptr, MAX_SPLIT_ITERATIONS, ParticleSplitterFraction);
+  fprintf(fptr, "ParticleSplitterCenter         =  ");
+  WriteListOfFloats(fptr, 3, ParticleSplitterCenter);
+  fprintf(fptr, "ParticleSplitterCenterRegion         =  ");
+  WriteListOfFloats(fptr, MAX_SPLIT_ITERATIONS, ParticleSplitterCenterRegion);
+  fprintf(fptr, "ParticleSplitterMustRefine       = %"ISYM"\n",
+	  ParticleSplitterMustRefine);
+  fprintf(fptr, "ParticleSplitterMustRefineIDFile = %s\n",
+	  ParticleSplitterMustRefineIDFile);
   fprintf(fptr, "ResetMagneticField               = %"ISYM"\n",
 	  ResetMagneticField);
   fprintf(fptr, "ResetMagneticFieldAmplitude      = %"GSYM" %"GSYM" %"GSYM"\n", 
@@ -1213,10 +1223,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "CorrectParentBoundaryFlux          = %d\n", CorrectParentBoundaryFlux);
 
   /* Supernova magnetic seed field */
-  fprintf(fptr, "UseSupernovaSeedFieldSourceTerms = %"ISYM"\n", UseSupernovaSeedFieldSourceTerms);
-  fprintf(fptr, "SupernovaSeedFieldRadius = %"GSYM"\n", SupernovaSeedFieldRadius);
-  fprintf(fptr,"SupernovaSeedFieldEnergy = %"GSYM"\n",SupernovaSeedFieldEnergy);
-  fprintf(fptr,"SupernovaSeedFieldDuration = %"GSYM"\n",SupernovaSeedFieldDuration);
+  fprintf(fptr, "UseMagneticSupernovaFeedback = %"ISYM"\n", UseMagneticSupernovaFeedback);
+  fprintf(fptr, "MagneticSupernovaRadius = %"GSYM"\n", MagneticSupernovaRadius);
+  fprintf(fptr,"MagneticSupernovaEnergy = %"GSYM"\n",MagneticSupernovaEnergy);
+  fprintf(fptr,"MagneticSupernovaDuration = %"GSYM"\n",MagneticSupernovaDuration);
 
   /* Output current time */
   time_t ID;
