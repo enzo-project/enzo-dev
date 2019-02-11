@@ -80,8 +80,8 @@ void grid::SGSAddEMFNLemfComprTerm(float **EMF) {
 
 
     // the combined prefactor
-    float CDeltaSqr = 1./12. * SGScoeffNLemfCompr * pow(SGSFilterWidth,2.) *
-        pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
+    float CDeltaSqr = 1./12. * SGScoeffNLemfCompr * POW(SGSFilterWidth,2.) *
+        POW(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
 
     int igrid, ip1, im1, jp1, jm1, kp1, km1;
     float facX = 1. / (2. * CellWidth[0][0]);
@@ -173,8 +173,8 @@ void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
 
 
     // the combined prefactor
-    float MinusCDeltaSqr = -SGScoeffERS2M2Star * pow(SGSFilterWidth,2.) *
-        pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
+    float MinusCDeltaSqr = -SGScoeffERS2M2Star * POW(SGSFilterWidth,2.) *
+        POW(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
 
     int igrid;
 
@@ -190,21 +190,21 @@ void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
                 traceSthird = (JacVel[SGSX][SGSX][igrid] + JacVel[SGSY][SGSY][igrid] + JacVel[SGSZ][SGSZ][igrid])/3.;
                 traceMthird = (JacB[SGSX][SGSX][igrid] + JacB[SGSY][SGSY][igrid] + JacB[SGSZ][SGSZ][igrid])/3.;
 
-                sqrtS2StarplusM2overRho = pow(
-                        2.*(pow(JacVel[SGSX][SGSX][igrid]-traceSthird,2.) +
-                            pow(JacVel[SGSY][SGSY][igrid]-traceSthird,2.) +
-                            pow(JacVel[SGSZ][SGSZ][igrid]-traceSthird,2.)
+                sqrtS2StarplusM2overRho = POW(
+                        2.*(POW(JacVel[SGSX][SGSX][igrid]-traceSthird,2.) +
+                            POW(JacVel[SGSY][SGSY][igrid]-traceSthird,2.) +
+                            POW(JacVel[SGSZ][SGSZ][igrid]-traceSthird,2.)
                            )
-                        + pow(JacVel[SGSX][SGSY][igrid] + JacVel[SGSY][SGSX][igrid],2.)
-                        + pow(JacVel[SGSY][SGSZ][igrid] + JacVel[SGSZ][SGSY][igrid],2.)
-                        + pow(JacVel[SGSX][SGSZ][igrid] + JacVel[SGSZ][SGSX][igrid],2.)
-                        + (2.*(pow(JacB[SGSX][SGSX][igrid]-traceMthird,2.) +
-                                pow(JacB[SGSY][SGSY][igrid]-traceMthird,2.) +
-                                pow(JacB[SGSZ][SGSZ][igrid]-traceMthird,2.)
+                        + POW(JacVel[SGSX][SGSY][igrid] + JacVel[SGSY][SGSX][igrid],2.)
+                        + POW(JacVel[SGSY][SGSZ][igrid] + JacVel[SGSZ][SGSY][igrid],2.)
+                        + POW(JacVel[SGSX][SGSZ][igrid] + JacVel[SGSZ][SGSX][igrid],2.)
+                        + (2.*(POW(JacB[SGSX][SGSX][igrid]-traceMthird,2.) +
+                                POW(JacB[SGSY][SGSY][igrid]-traceMthird,2.) +
+                                POW(JacB[SGSZ][SGSZ][igrid]-traceMthird,2.)
                               )
-                            + pow(JacB[SGSX][SGSY][igrid] + JacB[SGSY][SGSX][igrid],2.)
-                            + pow(JacB[SGSY][SGSZ][igrid] + JacB[SGSZ][SGSY][igrid],2.)
-                            + pow(JacB[SGSX][SGSZ][igrid] + JacB[SGSZ][SGSX][igrid],2.)
+                            + POW(JacB[SGSX][SGSY][igrid] + JacB[SGSY][SGSX][igrid],2.)
+                            + POW(JacB[SGSY][SGSZ][igrid] + JacB[SGSZ][SGSY][igrid],2.)
+                            + POW(JacB[SGSX][SGSZ][igrid] + JacB[SGSZ][SGSX][igrid],2.)
                           )/rho[igrid],1./2.);
 
                 EMF[SGSX][igrid] += MinusCDeltaSqr * sqrtS2StarplusM2overRho * 

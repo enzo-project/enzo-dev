@@ -75,8 +75,8 @@ void grid::SGSAddTauNLuTerm(float **Tau) {
 
 
   // the combined prefactor
-  float CDeltaSqr = 1./12. * SGScoeffNLu * pow(SGSFilterWidth,2.) *
-    pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
+  float CDeltaSqr = 1./12. * SGScoeffNLu * POW(SGSFilterWidth,2.) *
+    POW(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
 
   int igrid;
 
@@ -142,8 +142,8 @@ void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
   }
 
   // the combined prefactor
-  float TwoCDeltaSqr = 2. * SGScoeffNLuNormedEnS2Star * pow(SGSFilterWidth,2.) *
-    pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
+  float TwoCDeltaSqr = 2. * SGScoeffNLuNormedEnS2Star * POW(SGSFilterWidth,2.) *
+    POW(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
   float traceSthird;
   float SStarSqr;
   float JacNorm;
@@ -160,13 +160,13 @@ void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
         traceSthird = (JacVel[SGSX][SGSX][igrid] + JacVel[SGSY][SGSY][igrid] + JacVel[SGSZ][SGSZ][igrid])/3.;
 
         SStarSqr = (
-            2.*(pow(JacVel[SGSX][SGSX][igrid]-traceSthird,2.) +
-              pow(JacVel[SGSY][SGSY][igrid]-traceSthird,2.) +
-              pow(JacVel[SGSZ][SGSZ][igrid]-traceSthird,2.)
+            2.*(POW(JacVel[SGSX][SGSX][igrid]-traceSthird,2.) +
+              POW(JacVel[SGSY][SGSY][igrid]-traceSthird,2.) +
+              POW(JacVel[SGSZ][SGSZ][igrid]-traceSthird,2.)
               )
-            + pow(JacVel[SGSX][SGSY][igrid] + JacVel[SGSY][SGSX][igrid],2.)
-            + pow(JacVel[SGSY][SGSZ][igrid] + JacVel[SGSZ][SGSY][igrid],2.)
-            + pow(JacVel[SGSX][SGSZ][igrid] + JacVel[SGSZ][SGSX][igrid],2.));
+            + POW(JacVel[SGSX][SGSY][igrid] + JacVel[SGSY][SGSX][igrid],2.)
+            + POW(JacVel[SGSY][SGSZ][igrid] + JacVel[SGSZ][SGSY][igrid],2.)
+            + POW(JacVel[SGSX][SGSZ][igrid] + JacVel[SGSZ][SGSX][igrid],2.));
 
         JacNorm = 0.;
         for (int l = 0; l < MAX_DIMENSION; l++)
@@ -215,8 +215,8 @@ void grid::SGSAddTauNLbTerm(float **Tau) {
 
 
   // the combined prefactor
-  float CDeltaSqr = 1./12. * SGScoeffNLb * pow(SGSFilterWidth,2.) * 
-    pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
+  float CDeltaSqr = 1./12. * SGScoeffNLb * POW(SGSFilterWidth,2.) *
+    POW(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
 
   int igrid;
   float turbMagPres;
@@ -298,11 +298,11 @@ void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
 
 
   // the combined prefactor of the deviatoric part
-  float Minus2C1DeltaSqr = -2. * SGScoeffEVStarEnS2Star * pow(SGSFilterWidth,2.) *
-    pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
+  float Minus2C1DeltaSqr = -2. * SGScoeffEVStarEnS2Star * POW(SGSFilterWidth,2.) *
+    POW(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
   // the combined prefactor of the isotropic part
-  float TwoThirdC2DeltaSqr = 2./3. * SGScoeffEnS2StarTrace * pow(SGSFilterWidth,2.) *
-    pow(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
+  float TwoThirdC2DeltaSqr = 2./3. * SGScoeffEnS2StarTrace * POW(SGSFilterWidth,2.) *
+    POW(CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0],2./3.);
 
   int igrid;
   float traceSthird;
@@ -317,27 +317,27 @@ void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
         traceSthird = (JacVel[SGSX][SGSX][igrid] + JacVel[SGSY][SGSY][igrid] + JacVel[SGSZ][SGSZ][igrid])/3.;
 
         SStarSqr = (
-            2.*(pow(JacVel[SGSX][SGSX][igrid]-traceSthird,2.) +
-              pow(JacVel[SGSY][SGSY][igrid]-traceSthird,2.) +
-              pow(JacVel[SGSZ][SGSZ][igrid]-traceSthird,2.)
+            2.*(POW(JacVel[SGSX][SGSX][igrid]-traceSthird,2.) +
+              POW(JacVel[SGSY][SGSY][igrid]-traceSthird,2.) +
+              POW(JacVel[SGSZ][SGSZ][igrid]-traceSthird,2.)
               )
-            + pow(JacVel[SGSX][SGSY][igrid] + JacVel[SGSY][SGSX][igrid],2.)
-            + pow(JacVel[SGSY][SGSZ][igrid] + JacVel[SGSZ][SGSY][igrid],2.)
-            + pow(JacVel[SGSX][SGSZ][igrid] + JacVel[SGSZ][SGSX][igrid],2.));
+            + POW(JacVel[SGSX][SGSY][igrid] + JacVel[SGSY][SGSX][igrid],2.)
+            + POW(JacVel[SGSY][SGSZ][igrid] + JacVel[SGSZ][SGSY][igrid],2.)
+            + POW(JacVel[SGSX][SGSZ][igrid] + JacVel[SGSZ][SGSX][igrid],2.));
 
 
-        Tau[SGSXX][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+        Tau[SGSXX][igrid] += Minus2C1DeltaSqr * rho[igrid] * POW(SStarSqr,1./2.) * (
             JacVel[SGSX][SGSX][igrid] - traceSthird) + TwoThirdC2DeltaSqr * rho[igrid] * SStarSqr;
-        Tau[SGSYY][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+        Tau[SGSYY][igrid] += Minus2C1DeltaSqr * rho[igrid] * POW(SStarSqr,1./2.) * (
             JacVel[SGSY][SGSY][igrid] - traceSthird) + TwoThirdC2DeltaSqr * rho[igrid] * SStarSqr;
-        Tau[SGSZZ][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+        Tau[SGSZZ][igrid] += Minus2C1DeltaSqr * rho[igrid] * POW(SStarSqr,1./2.) * (
             JacVel[SGSZ][SGSZ][igrid] - traceSthird) + TwoThirdC2DeltaSqr * rho[igrid] * SStarSqr;
 
-        Tau[SGSXY][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+        Tau[SGSXY][igrid] += Minus2C1DeltaSqr * rho[igrid] * POW(SStarSqr,1./2.) * (
             JacVel[SGSX][SGSY][igrid] + JacVel[SGSY][SGSX][igrid])/2.;
-        Tau[SGSYZ][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+        Tau[SGSYZ][igrid] += Minus2C1DeltaSqr * rho[igrid] * POW(SStarSqr,1./2.) * (
             JacVel[SGSY][SGSZ][igrid] + JacVel[SGSZ][SGSY][igrid])/2.;
-        Tau[SGSZX][igrid] += Minus2C1DeltaSqr * rho[igrid] * pow(SStarSqr,1./2.) * (
+        Tau[SGSZX][igrid] += Minus2C1DeltaSqr * rho[igrid] * POW(SStarSqr,1./2.) * (
             JacVel[SGSZ][SGSX][igrid] + JacVel[SGSX][SGSZ][igrid])/2.;
 
       }

@@ -82,45 +82,48 @@ int grid::SGSUtil_FilterFields() {
     int igrid, ifilter;
     float totalWeight;
 
-    for (int k = StartIndex[2]; k <= EndIndex[2]; k++)
-    for (int j = StartIndex[1]; j <= EndIndex[1]; j++)
-    for (int i = StartIndex[0]; i <= EndIndex[0]; i++) {
+    for (int k = StartIndex[2]; k <= EndIndex[2]; k++) {
+      for (int j = StartIndex[1]; j <= EndIndex[1]; j++) {
+        for (int i = StartIndex[0]; i <= EndIndex[0]; i++) {
         
-        igrid = i + (j+k*GridDimension[1])*GridDimension[0];
+          igrid = i + (j+k*GridDimension[1])*GridDimension[0];
 
-        for (int l = 0; l < NumFilteredFields; l++)
+          for (int l = 0; l < NumFilteredFields; l++)
             FilteredFields[l][igrid] = 0.;
 
-        for (int  l = -N; l <= N; l++)
-        for (int  m = -N; m <= N; m++)
-        for (int  n = -N; n <= N; n++) {
+          for (int  l = -N; l <= N; l++) {
+            for (int  m = -N; m <= N; m++) {
+              for (int  n = -N; n <= N; n++) {
 
 
-            ifilter = i + l + (j + m + (k+n)*GridDimension[1])*GridDimension[0];
-            totalWeight =  SGSFilterWeights[ABS(l)] * SGSFilterWeights[ABS(m)] * SGSFilterWeights[ABS(n)];
+                ifilter = i + l + (j + m + (k+n)*GridDimension[1])*GridDimension[0];
+                totalWeight =  SGSFilterWeights[ABS(l)] * SGSFilterWeights[ABS(m)] * SGSFilterWeights[ABS(n)];
             
-            // rho
-            FilteredFields[0][igrid] += totalWeight * BaryonField[DensNum][ifilter];
+                // rho
+                FilteredFields[0][igrid] += totalWeight * BaryonField[DensNum][ifilter];
             
-            // prepare mass weighted velocity fields
-            FilteredFields[1][igrid] += totalWeight * BaryonField[DensNum][ifilter]*BaryonField[Vel1Num][ifilter];
-            FilteredFields[2][igrid] += totalWeight * BaryonField[DensNum][ifilter]*BaryonField[Vel2Num][ifilter];
-            FilteredFields[3][igrid] += totalWeight * BaryonField[DensNum][ifilter]*BaryonField[Vel3Num][ifilter];
+                // prepare mass weighted velocity fields
+                FilteredFields[1][igrid] += totalWeight * BaryonField[DensNum][ifilter]*BaryonField[Vel1Num][ifilter];
+                FilteredFields[2][igrid] += totalWeight * BaryonField[DensNum][ifilter]*BaryonField[Vel2Num][ifilter];
+                FilteredFields[3][igrid] += totalWeight * BaryonField[DensNum][ifilter]*BaryonField[Vel3Num][ifilter];
             
-            // magnetic fields
-            if (UseMHD) {
-              FilteredFields[4][igrid] += totalWeight * BaryonField[B1Num][ifilter];
-              FilteredFields[5][igrid] += totalWeight * BaryonField[B2Num][ifilter];
-              FilteredFields[6][igrid] += totalWeight * BaryonField[B3Num][ifilter];
+                // magnetic fields
+                if (UseMHD) {
+                  FilteredFields[4][igrid] += totalWeight * BaryonField[B1Num][ifilter];
+                  FilteredFields[5][igrid] += totalWeight * BaryonField[B2Num][ifilter];
+                  FilteredFields[6][igrid] += totalWeight * BaryonField[B3Num][ifilter];
+                }
+              }
             }
+          } // end of innter triple for
+
+          // now that the density is filtered, we can finalize mass-weighted filtering
+          FilteredFields[1][igrid] /= FilteredFields[0][igrid];
+          FilteredFields[2][igrid] /= FilteredFields[0][igrid];
+          FilteredFields[3][igrid] /= FilteredFields[0][igrid];
         }
-
-        // now that the density is filtered, we can finalize mass-weighted filtering
-        FilteredFields[1][igrid] /= FilteredFields[0][igrid];
-        FilteredFields[2][igrid] /= FilteredFields[0][igrid];
-        FilteredFields[3][igrid] /= FilteredFields[0][igrid];
-    }
-
+      }
+    } // end of outer triple for
 
     return SUCCESS;
 }
@@ -261,63 +264,65 @@ int grid::SGSUtil_ComputeMixedFilteredQuantities() {
     float totalWeight;
 
     /* this is !highly! inefficient, just making sure it's working */
-    for (int k = StartIndex[2]; k <= EndIndex[2]; k++)
-    for (int j = StartIndex[1]; j <= EndIndex[1]; j++)
-    for (int i = StartIndex[0]; i <= EndIndex[0]; i++) {
+    for (int k = StartIndex[2]; k <= EndIndex[2]; k++) {
+      for (int j = StartIndex[1]; j <= EndIndex[1]; j++) {
+        for (int i = StartIndex[0]; i <= EndIndex[0]; i++) {
         
-        igrid = i + (j+k*GridDimension[1])*GridDimension[0];
+          igrid = i + (j+k*GridDimension[1])*GridDimension[0];
 
-        for (int l = 0; l < 6; l++) {
+          for (int l = 0; l < 6; l++) {
             FltrhoUU[l][igrid] = 0.;
             FltBB[l][igrid] = 0.;
-        }
-        for (int l = 0; l < 3; l++) 
+          }
+          for (int l = 0; l < 3; l++)
             FltUB[l][igrid] = 0.;
 
-        for (int  l = -N; l <= N; l++)
-        for (int  m = -N; m <= N; m++)
-        for (int  n = -N; n <= N; n++) {
+          for (int  l = -N; l <= N; l++) {
+            for (int  m = -N; m <= N; m++) {
+              for (int  n = -N; n <= N; n++) {
 
 
-            ifilter = i + l + (j + m + (k+n)*GridDimension[1])*GridDimension[0];
-            totalWeight =  SGSFilterWeights[ABS(l)] * SGSFilterWeights[ABS(m)] * SGSFilterWeights[ABS(n)];
+                ifilter = i + l + (j + m + (k+n)*GridDimension[1])*GridDimension[0];
+                  totalWeight =  SGSFilterWeights[ABS(l)] * SGSFilterWeights[ABS(m)] * SGSFilterWeights[ABS(n)];
             
-            FltrhoUU[SGSXX][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
-                BaryonField[Vel1Num][ifilter] * BaryonField[Vel1Num][ifilter];
-            FltrhoUU[SGSYY][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
-                BaryonField[Vel2Num][ifilter] * BaryonField[Vel2Num][ifilter];
-            FltrhoUU[SGSZZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
-                BaryonField[Vel3Num][ifilter] * BaryonField[Vel3Num][ifilter];
-            FltrhoUU[SGSXY][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
-                BaryonField[Vel1Num][ifilter] * BaryonField[Vel2Num][ifilter];
-            FltrhoUU[SGSYZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
-                BaryonField[Vel2Num][ifilter] * BaryonField[Vel3Num][ifilter];
-            FltrhoUU[SGSXZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] * 
-                BaryonField[Vel1Num][ifilter] * BaryonField[Vel3Num][ifilter];
+                FltrhoUU[SGSXX][igrid] += totalWeight * BaryonField[DensNum][ifilter] *
+                  BaryonField[Vel1Num][ifilter] * BaryonField[Vel1Num][ifilter];
+                FltrhoUU[SGSYY][igrid] += totalWeight * BaryonField[DensNum][ifilter] *
+                  BaryonField[Vel2Num][ifilter] * BaryonField[Vel2Num][ifilter];
+                FltrhoUU[SGSZZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] *
+                  BaryonField[Vel3Num][ifilter] * BaryonField[Vel3Num][ifilter];
+                FltrhoUU[SGSXY][igrid] += totalWeight * BaryonField[DensNum][ifilter] *
+                  BaryonField[Vel1Num][ifilter] * BaryonField[Vel2Num][ifilter];
+                FltrhoUU[SGSYZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] *
+                  BaryonField[Vel2Num][ifilter] * BaryonField[Vel3Num][ifilter];
+                FltrhoUU[SGSXZ][igrid] += totalWeight * BaryonField[DensNum][ifilter] *
+                  BaryonField[Vel1Num][ifilter] * BaryonField[Vel3Num][ifilter];
 
-            if (!UseMHD)
-              continue;
+                if (!UseMHD)
+                  continue;
             
-            FltBB[SGSXX][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B1Num][ifilter];
-            FltBB[SGSYY][igrid] += totalWeight * BaryonField[B2Num][ifilter] * BaryonField[B2Num][ifilter];
-            FltBB[SGSZZ][igrid] += totalWeight * BaryonField[B3Num][ifilter] * BaryonField[B3Num][ifilter];
-            FltBB[SGSXY][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B2Num][ifilter];
-            FltBB[SGSYZ][igrid] += totalWeight * BaryonField[B2Num][ifilter] * BaryonField[B3Num][ifilter];
-            FltBB[SGSXZ][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B3Num][ifilter];
+                FltBB[SGSXX][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B1Num][ifilter];
+                FltBB[SGSYY][igrid] += totalWeight * BaryonField[B2Num][ifilter] * BaryonField[B2Num][ifilter];
+                FltBB[SGSZZ][igrid] += totalWeight * BaryonField[B3Num][ifilter] * BaryonField[B3Num][ifilter];
+                FltBB[SGSXY][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B2Num][ifilter];
+                FltBB[SGSYZ][igrid] += totalWeight * BaryonField[B2Num][ifilter] * BaryonField[B3Num][ifilter];
+                FltBB[SGSXZ][igrid] += totalWeight * BaryonField[B1Num][ifilter] * BaryonField[B3Num][ifilter];
             
-            FltUB[SGSX][igrid] += totalWeight * (
-                BaryonField[Vel2Num][ifilter] * BaryonField[B3Num][ifilter] -
-                BaryonField[Vel3Num][ifilter] * BaryonField[B2Num][ifilter]);
-            FltUB[SGSY][igrid] += totalWeight * (
-                BaryonField[Vel3Num][ifilter] * BaryonField[B1Num][ifilter] -
-                BaryonField[Vel1Num][ifilter] * BaryonField[B3Num][ifilter]);
-            FltUB[SGSZ][igrid] += totalWeight * (
-                BaryonField[Vel1Num][ifilter] * BaryonField[B2Num][ifilter] -
-                BaryonField[Vel2Num][ifilter] * BaryonField[B1Num][ifilter]);
-            
+                FltUB[SGSX][igrid] += totalWeight * (
+                  BaryonField[Vel2Num][ifilter] * BaryonField[B3Num][ifilter] -
+                  BaryonField[Vel3Num][ifilter] * BaryonField[B2Num][ifilter]);
+                FltUB[SGSY][igrid] += totalWeight * (
+                  BaryonField[Vel3Num][ifilter] * BaryonField[B1Num][ifilter] -
+                  BaryonField[Vel1Num][ifilter] * BaryonField[B3Num][ifilter]);
+                FltUB[SGSZ][igrid] += totalWeight * (
+                  BaryonField[Vel1Num][ifilter] * BaryonField[B2Num][ifilter] -
+                  BaryonField[Vel2Num][ifilter] * BaryonField[B1Num][ifilter]);
+              }
+            }
+          } // end of inner triple for
         }
-
-    }
+      }
+    } // end of outer triple for
 
     return SUCCESS;
 }
