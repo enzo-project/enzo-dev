@@ -481,6 +481,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
+  use_grackle = FALSE;
 #ifdef USE_GRACKLE
     // Grackle chemistry data structure.
   chemistry_data *my_chemistry;
