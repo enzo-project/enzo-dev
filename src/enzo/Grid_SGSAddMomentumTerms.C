@@ -40,7 +40,7 @@
  * the derivation.
  */
 void grid::SGSAddTauNLuTerm(float **Tau) {
-  if (debug)
+  if (debug1)
     printf("[%"ISYM"] grid::SGSAddTauNLuTerm start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -108,7 +108,7 @@ void grid::SGSAddTauNLuTerm(float **Tau) {
  * See equation (43) and (13) in Grete2016a for details (such as coefficient values)
  */
 void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
-  if (debug)
+  if (debug1)
     printf("[%"ISYM"] grid::SGSAddTauNLuNormedEnS2StarTerm start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -197,7 +197,7 @@ void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
  * the derivation.
  */
 void grid::SGSAddTauNLbTerm(float **Tau) {
-  if (debug)
+  if (debug1)
     printf("[%"ISYM"] grid::SGSAddTauNLbTerm start\n",MyProcessorNumber);
 
   int size = 1;
@@ -263,7 +263,7 @@ void grid::SGSAddTauNLbTerm(float **Tau) {
  * values) or (in practice) equations (8), (10) and (12) in Grete2017.
  */
 void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
-  if (debug)
+  if (debug1)
     printf("[%"ISYM"] grid::SGSAddTauEVEnS2StarTerm start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -351,7 +351,7 @@ void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
  * See equation (30) in Grete2016a for details (such as coefficient values)
  */
 void grid::SGSAddTauSSuTerm(float **Tau) {
-  if (debug)
+  if (debug1)
     printf("[%"ISYM"] grid::SGSAddTauSSuTerm start\n",MyProcessorNumber);
 
   int size = 1;
@@ -401,7 +401,7 @@ void grid::SGSAddTauSSuTerm(float **Tau) {
  * See equation (31) in Grete2016a for details (such as coefficient values)
  */
 void grid::SGSAddTauSSbTerm(float **Tau) {
-  if (debug)
+  if (debug1)
     printf("[%"ISYM"] grid::SGSAddTauSSbTerm start\n",MyProcessorNumber);
 
   int size = 1;
@@ -457,7 +457,7 @@ int grid::SGSAddMomentumTerms(float **dU) {
   if (Time == 0.)
     return SUCCESS;
 
-  if (debug)
+  if (debug1)
     printf("[%"ISYM"] grid::SGSAddMomentumTerms start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;

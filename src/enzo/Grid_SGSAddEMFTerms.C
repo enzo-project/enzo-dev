@@ -38,7 +38,7 @@
  * the derivation.
  */
 void grid::SGSAddEMFNLemfComprTerm(float **EMF) {
-    if (debug)
+    if (debug1)
         printf("[%"ISYM"] grid::SGSAddEMFNLemfComprTerm start\n",MyProcessorNumber);
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -138,7 +138,7 @@ void grid::SGSAddEMFNLemfComprTerm(float **EMF) {
  * See equation (23) and (13) in Grete2016a for details (such as coefficient values)
  */
 void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
-    if (debug)
+    if (debug1)
         printf("[%"ISYM"] grid::SGSAddEMFERS2M2StarTerm start\n",MyProcessorNumber);
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -225,7 +225,7 @@ void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
  * See equation (32) in Grete2016a for details (such as coefficient values)
  */
 void grid::SGSAddEMFSSTerm(float **EMF) {
-    if (debug)
+    if (debug1)
         printf("[%"ISYM"] grid::SGSAddEMFSSTerm start\n",MyProcessorNumber);
 
     int size = 1;
@@ -277,7 +277,7 @@ int grid::SGSAddEMFTerms(float **dU) {
     if (Time == 0.)
         return SUCCESS;
 
-    if (debug)
+    if (debug1)
         printf("[%"ISYM"] grid::SGSAddEMFTerms start\n",MyProcessorNumber);
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -346,7 +346,7 @@ int grid::SGSAddEMFTerms(float **dU) {
                 dU[iEtot][n] += EtotIncr;
             }
 
-    if (debug)
+    if (debug1)
         printf("[%"ISYM"] grid::SGSAddEMFTerms end, last incr: %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
                 MyProcessorNumber,BxIncr,ByIncr,BzIncr,EtotIncr);
 
