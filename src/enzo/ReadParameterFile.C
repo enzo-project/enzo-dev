@@ -1599,7 +1599,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   /* If using Grackle chemistry and cooling library, override all other 
      cooling machinery and do a translation of some of the parameters. */
   if (use_grackle == TRUE) {
-    // grackle_data->use_grackle already set
     // grackle_data->with_radiative_cooling already set
     // grackle_data->grackle_data_file already set
     // grackle_data->UVbackground already set
