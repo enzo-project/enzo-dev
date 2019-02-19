@@ -8,9 +8,11 @@
 #include <stdio.h>
 #include <math.h>
 
+#define ENZO_CMODE
 #define ENZO_PYTHON_IMPORTED
 #include "macros_and_parameters.h"
 #undef ENZO_PYTHON_IMPORTED
+#undef ENZO128_CMODE
 
 /* Table of constant values */
 

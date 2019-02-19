@@ -1,12 +1,16 @@
 #ifndef __macros_and_parameters_h_
 #define __macros_and_parameters_h_
 #include "string.h"
+
+#ifndef ENZO_CMODE
 #include <iostream>
 #include <iomanip>
 #include <vector>
 #include <algorithm>
 #include <map>
 #include <cassert>
+#endif
+
 /***********************************************************************
 /  
 / MACRO DEFINITIONS AND PARAMETERS
