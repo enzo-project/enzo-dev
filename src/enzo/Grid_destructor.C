@@ -71,7 +71,7 @@ grid::~grid()
       }
 
       if (JacB[i][j] != NULL) {
-        delete [] JacB[j][i];
+        delete [] JacB[i][j];
         JacB[i][j] = NULL;
     }
   }
