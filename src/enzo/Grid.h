@@ -2413,20 +2413,19 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     int SGSUtil_FilterFields();
     
     // the general functions that add the SGS terms to the dynamic eqns.
-    int SGSAddEMFTerms(float **dU);
-    int SGSAddMomentumTerms(float **dU);
+    int SGS_AddEMFTerms(float **dU);
+    int SGS_AddMomentumTerms(float **dU);
     
     // the different SGS models
-    void SGSAddEMFERS2J2Term(float **EMF);
-    void SGSAddEMFERS2M2StarTerm(float **EMF);
-    void SGSAddEMFNLemfComprTerm(float **EMF);
-    void SGSAddTauNLuTerm(float **Tau);
-    void SGSAddTauNLuNormedEnS2StarTerm(float **Tau);
-    void SGSAddTauNLbTerm(float **Tau);
-    void SGSAddTauEVEnS2StarTerm(float **Tau);
-    void SGSAddTauSSuTerm(float **Tau);
-    void SGSAddTauSSbTerm(float **Tau);
-    void SGSAddEMFSSTerm(float **EMF);
+    void SGS_AddEMF_eddy_resistivity(float **EMF);
+    void SGS_AddEMF_nonlinear_compressive(float **EMF);
+    void SGS_AddMom_nonlinear_kinetic(float **Tau);
+    void SGS_AddMom_nonlinear_kinetic_scaled(float **Tau);
+    void SGS_AddMom_nonliner_magnetic(float **Tau);
+    void SGS_AddMom_eddy_viscosity_scaled(float **Tau);
+    void SGS_AddMom_scale_similarity_kinetic(float **Tau);
+    void SGS_AddMom_scale_similarity_magnetic(float **Tau);
+    void SGS_AddEMF_scale_similarity(float **EMF);
     
     /* END Subgrid-scale modeling framework by P. Grete */
 

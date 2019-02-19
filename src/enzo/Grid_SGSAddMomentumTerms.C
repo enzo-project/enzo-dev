@@ -39,9 +39,9 @@
  * or Vlaykov et al 2016 Phys. Plasmas 23 062316 doi: 10.1063/1.4954303 for
  * the derivation.
  */
-void grid::SGSAddTauNLuTerm(float **Tau) {
+void grid::SGS_AddMom_nonlinear_kinetic(float **Tau) {
   if (debug1)
-    printf("[%"ISYM"] grid::SGSAddTauNLuTerm start\n",MyProcessorNumber);
+    printf("[%"ISYM"] grid::SGS_AddMom_nonlinear_kinetic start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   int B1Num, B2Num, B3Num, PhiNum;
@@ -107,9 +107,9 @@ void grid::SGSAddTauNLuTerm(float **Tau) {
  *
  * See equation (43) and (13) in Grete2016a for details (such as coefficient values)
  */
-void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
+void grid::SGS_AddMom_nonlinear_kinetic_scaled(float **Tau) {
   if (debug1)
-    printf("[%"ISYM"] grid::SGSAddTauNLuNormedEnS2StarTerm start\n",MyProcessorNumber);
+    printf("[%"ISYM"] grid::SGS_AddMom_nonlinear_kinetic_scaled start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   int B1Num, B2Num, B3Num, PhiNum;
@@ -196,9 +196,9 @@ void grid::SGSAddTauNLuNormedEnS2StarTerm(float **Tau) {
  * or Vlaykov et al 2016 Phys. Plasmas 23 062316 doi: 10.1063/1.4954303 for
  * the derivation.
  */
-void grid::SGSAddTauNLbTerm(float **Tau) {
+void grid::SGS_AddMom_nonliner_magnetic(float **Tau) {
   if (debug1)
-    printf("[%"ISYM"] grid::SGSAddTauNLbTerm start\n",MyProcessorNumber);
+    printf("[%"ISYM"] grid::SGS_AddMom_nonliner_magnetic start\n",MyProcessorNumber);
 
   int size = 1;
   int StartIndex[MAX_DIMENSION];
@@ -262,9 +262,9 @@ void grid::SGSAddTauNLbTerm(float **Tau) {
  * See equation (10), (21) and (13) in Grete2016a for details (such as coefficient 
  * values) or (in practice) equations (8), (10) and (12) in Grete2017.
  */
-void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
+void grid::SGS_AddMom_eddy_viscosity_scaled(float **Tau) {
   if (debug1)
-    printf("[%"ISYM"] grid::SGSAddTauEVEnS2StarTerm start\n",MyProcessorNumber);
+    printf("[%"ISYM"] grid::SGS_AddMom_eddy_viscosity_scaled start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   int B1Num, B2Num, B3Num, PhiNum;
@@ -350,9 +350,9 @@ void grid::SGSAddTauEVEnS2StarTerm(float **Tau) {
  *
  * See equation (30) in Grete2016a for details (such as coefficient values)
  */
-void grid::SGSAddTauSSuTerm(float **Tau) {
+void grid::SGS_AddMom_scale_similarity_kinetic(float **Tau) {
   if (debug1)
-    printf("[%"ISYM"] grid::SGSAddTauSSuTerm start\n",MyProcessorNumber);
+    printf("[%"ISYM"] grid::SGS_AddMom_scale_similarity_kinetic start\n",MyProcessorNumber);
 
   int size = 1;
   int StartIndex[MAX_DIMENSION];
@@ -400,9 +400,9 @@ void grid::SGSAddTauSSuTerm(float **Tau) {
  *
  * See equation (31) in Grete2016a for details (such as coefficient values)
  */
-void grid::SGSAddTauSSbTerm(float **Tau) {
+void grid::SGS_AddMom_scale_similarity_magnetic(float **Tau) {
   if (debug1)
-    printf("[%"ISYM"] grid::SGSAddTauSSbTerm start\n",MyProcessorNumber);
+    printf("[%"ISYM"] grid::SGS_AddMom_scale_similarity_magnetic start\n",MyProcessorNumber);
 
   int size = 1;
   int StartIndex[MAX_DIMENSION];
@@ -449,7 +449,7 @@ void grid::SGSAddTauSSbTerm(float **Tau) {
  * Finally, the divergence of the tensor is added to the dU vector used by
  * the MUSCL framework in hydro_rk/Grid_MHDSourceTerms.C 
  */
-int grid::SGSAddMomentumTerms(float **dU) {
+int grid::SGS_AddMomentumTerms(float **dU) {
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }
@@ -458,7 +458,7 @@ int grid::SGSAddMomentumTerms(float **dU) {
     return SUCCESS;
 
   if (debug1)
-    printf("[%"ISYM"] grid::SGSAddMomentumTerms start\n",MyProcessorNumber);
+    printf("[%"ISYM"] grid::SGS_AddMomentumTerms start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   int B1Num, B2Num, B3Num, PhiNum;
@@ -493,22 +493,22 @@ int grid::SGSAddMomentumTerms(float **dU) {
 
   // the individual terms are added/activated by a non-zero coefficient
   if (SGScoeffNLu != 0.) 
-    SGSAddTauNLuTerm(Tau);
+    SGS_AddMom_nonlinear_kinetic(Tau);
 
   if (SGScoeffNLb != 0.) 
-    SGSAddTauNLbTerm(Tau);
+    SGS_AddMom_nonliner_magnetic(Tau);
 
   if ((SGScoeffEVStarEnS2Star != 0.) || (SGScoeffEnS2StarTrace != 0.))
-    SGSAddTauEVEnS2StarTerm(Tau);
+    SGS_AddMom_eddy_viscosity_scaled(Tau);
 
   if (SGScoeffNLuNormedEnS2Star != 0.)
-    SGSAddTauNLuNormedEnS2StarTerm(Tau);
+    SGS_AddMom_nonlinear_kinetic_scaled(Tau);
   
   if (SGScoeffSSu != 0.) 
-    SGSAddTauSSuTerm(Tau);
+    SGS_AddMom_scale_similarity_kinetic(Tau);
   
   if (SGScoeffSSb != 0.) 
-    SGSAddTauSSbTerm(Tau);
+    SGS_AddMom_scale_similarity_magnetic(Tau);
 
 
   int n = 0;

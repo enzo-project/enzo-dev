@@ -37,9 +37,9 @@
  * or Vlaykov et al 2016 Phys. Plasmas 23 062316 doi: 10.1063/1.4954303 for
  * the derivation.
  */
-void grid::SGSAddEMFNLemfComprTerm(float **EMF) {
+void grid::SGS_AddEMF_nonlinear_compressive(float **EMF) {
     if (debug1)
-        printf("[%"ISYM"] grid::SGSAddEMFNLemfComprTerm start\n",MyProcessorNumber);
+        printf("[%"ISYM"] grid::SGS_AddEMF_nonlinear_compressive start\n",MyProcessorNumber);
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     int B1Num, B2Num, B3Num, PhiNum;
@@ -137,9 +137,9 @@ void grid::SGSAddEMFNLemfComprTerm(float **EMF) {
  *
  * See equation (23) and (13) in Grete2016a for details (such as coefficient values)
  */
-void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
+void grid::SGS_AddEMF_eddy_resistivity(float **EMF) {
     if (debug1)
-        printf("[%"ISYM"] grid::SGSAddEMFERS2M2StarTerm start\n",MyProcessorNumber);
+        printf("[%"ISYM"] grid::SGS_AddEMF_eddy_resistivity start\n",MyProcessorNumber);
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     int B1Num, B2Num, B3Num, PhiNum;
@@ -224,9 +224,9 @@ void grid::SGSAddEMFERS2M2StarTerm(float **EMF) {
  *
  * See equation (32) in Grete2016a for details (such as coefficient values)
  */
-void grid::SGSAddEMFSSTerm(float **EMF) {
+void grid::SGS_AddEMF_scale_similarity(float **EMF) {
     if (debug1)
-        printf("[%"ISYM"] grid::SGSAddEMFSSTerm start\n",MyProcessorNumber);
+        printf("[%"ISYM"] grid::SGS_AddEMF_scale_similarity start\n",MyProcessorNumber);
 
     int size = 1;
     int StartIndex[MAX_DIMENSION];
@@ -269,7 +269,7 @@ void grid::SGSAddEMFSSTerm(float **EMF) {
  * Finally, the curl of the EMF is added to the dU vector used by
  * the MUSCL framework in hydro_rk/Grid_MHDSourceTerms.C 
  */
-int grid::SGSAddEMFTerms(float **dU) {
+int grid::SGS_AddEMFTerms(float **dU) {
     if (ProcessorNumber != MyProcessorNumber) {
         return SUCCESS;
     }
@@ -278,7 +278,7 @@ int grid::SGSAddEMFTerms(float **dU) {
         return SUCCESS;
 
     if (debug1)
-        printf("[%"ISYM"] grid::SGSAddEMFTerms start\n",MyProcessorNumber);
+        printf("[%"ISYM"] grid::SGS_AddEMFTerms start\n",MyProcessorNumber);
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     int B1Num, B2Num, B3Num, PhiNum;
@@ -302,13 +302,13 @@ int grid::SGSAddEMFTerms(float **dU) {
 
     // the individual terms are added/activated by a non-zero coefficient
     if (SGScoeffERS2M2Star != 0.) 
-        SGSAddEMFERS2M2StarTerm(EMF);
+        SGS_AddEMF_eddy_resistivity(EMF);
 
     if (SGScoeffNLemfCompr != 0.) 
-        SGSAddEMFNLemfComprTerm(EMF);
+        SGS_AddEMF_nonlinear_compressive(EMF);
 
     if (SGScoeffSSemf != 0.) 
-        SGSAddEMFSSTerm(EMF);
+        SGS_AddEMF_scale_similarity(EMF);
 
     int n = 0;
     int igrid, ip1, im1, jp1, jm1, kp1, km1;
@@ -347,7 +347,7 @@ int grid::SGSAddEMFTerms(float **dU) {
             }
 
     if (debug1)
-        printf("[%"ISYM"] grid::SGSAddEMFTerms end, last incr: %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
+        printf("[%"ISYM"] grid::SGS_AddEMFTerms end, last incr: %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
                 MyProcessorNumber,BxIncr,ByIncr,BzIncr,EtotIncr);
 
     for (int dim = 0; dim < MAX_DIMENSION; dim++) {

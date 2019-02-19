@@ -341,13 +341,13 @@ int grid::MHDSourceTerms(float **dU)
       }
     }
 
-    if (this->SGSAddMomentumTerms(dU) == FAIL) {
-      fprintf(stderr, "grid::MHDSourceTerms: Error in SGSAddMomentumTerms(dU).\n");
+    if (this->SGS_AddMomentumTerms(dU) == FAIL) {
+      fprintf(stderr, "grid::MHDSourceTerms: Error in SGS_AddMomentumTerms(dU).\n");
       return FAIL;
     }
 
-    if (this->SGSAddEMFTerms(dU) == FAIL) {
-      fprintf(stderr, "grid::MHDSourceTerms: Error in SGSAddEMFTerms(dU).\n");
+    if (this->SGS_AddEMFTerms(dU) == FAIL) {
+      fprintf(stderr, "grid::MHDSourceTerms: Error in SGS_AddEMFTerms(dU).\n");
       return FAIL;
     }
   }

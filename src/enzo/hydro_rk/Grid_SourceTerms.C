@@ -302,8 +302,8 @@ int grid::SourceTerms(float **dU)
       }
     }
 
-    if (this->SGSAddMomentumTerms(dU) == FAIL) {
-      fprintf(stderr, "grid::SourceTerms: Error in SGSAddMomentumTerms(dU).\n");
+    if (this->SGS_AddMomentumTerms(dU) == FAIL) {
+      fprintf(stderr, "grid::SourceTerms: Error in SGS_AddMomentumTerms(dU).\n");
       return FAIL;
     }
   }
