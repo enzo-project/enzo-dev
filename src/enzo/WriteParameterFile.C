@@ -483,9 +483,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "DrivenFlowProfile              = %"ISYM"\n", DrivenFlowProfile);
   if (DrivenFlowProfile)
     Forcing.WriteParameters(fptr);
+  fprintf(fptr, "use_grackle                 = %"ISYM"\n", use_grackle);
 #ifdef USE_GRACKLE
   /* Grackle chemistry parameters */
-  fprintf(fptr, "use_grackle                 = %d\n", grackle_data->use_grackle);
   fprintf(fptr, "with_radiative_cooling      = %d\n", grackle_data->with_radiative_cooling);
   fprintf(fptr, "use_volumetric_heating_rate = %d\n", grackle_data->use_volumetric_heating_rate);
   fprintf(fptr, "use_specific_heating_rate   = %d\n", grackle_data->use_specific_heating_rate);

@@ -523,9 +523,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "DrivenFlowAutoCorrl = %"FSYM"%"FSYM"%"FSYM,
                      DrivenFlowAutoCorrl, DrivenFlowAutoCorrl+1, DrivenFlowAutoCorrl+2);
 
+    ret += sscanf(line, "use_grackle = %"ISYM, &use_grackle);
 #ifdef USE_GRACKLE
     /* Grackle chemistry parameters */
-    ret += sscanf(line, "use_grackle = %d", &grackle_data->use_grackle);
     ret += sscanf(line, "with_radiative_cooling = %d",
                   &grackle_data->with_radiative_cooling);
     ret += sscanf(line, "use_volumetric_heating_rate = %d",
@@ -1598,14 +1598,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #ifdef USE_GRACKLE
   /* If using Grackle chemistry and cooling library, override all other 
      cooling machinery and do a translation of some of the parameters. */
-  if (grackle_data->use_grackle == TRUE) {
-    // grackle_data->use_grackle already set
+  if (use_grackle == TRUE) {
     // grackle_data->with_radiative_cooling already set
     // grackle_data->grackle_data_file already set
     // grackle_data->UVbackground already set
     // grackle_data->Compton_xray_heating already set
     // grackle_data->LWbackground_intensity already set
     // grackle_data->LWbackground_sawtooth_suppression already set
+    grackle_data->use_grackle                    = (Eint32) use_grackle;
     grackle_data->Gamma                          = (double) Gamma;
     grackle_data->primordial_chemistry           = (Eint32) MultiSpecies;
     grackle_data->metal_cooling                  = (Eint32) MetalCooling;
@@ -1668,6 +1668,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }  // if (grackle_data->use_grackle == TRUE)
 
   else {
+#else
+    if (use_grackle == TRUE) {
+      ENZO_FAIL("Error: Enzo must be compiled with 'make grackle-yes' to run with use_grackle = 1.\n");
+    }
 #endif // USE_GRACKLE
 
     /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
