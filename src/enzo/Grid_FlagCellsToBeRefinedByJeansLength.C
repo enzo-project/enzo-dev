@@ -15,7 +15,6 @@
  
 #include <stdio.h>
 #include <math.h>
-#include "phys_constants.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -25,6 +24,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "hydro_rk/EOS.h"
+#include "phys_constants.h"
 
 /* function prototypes */
  
