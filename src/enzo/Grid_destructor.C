@@ -63,39 +63,42 @@ grid::~grid()
   if (PhaseFctInitEven != NULL) delete[] PhaseFctInitEven;
   if (PhaseFctInitOdd != NULL) delete[] PhaseFctInitOdd;
 
-  for (i = 0; i < MAX_DIMENSION; i++) 
-    for (j = 0; j < MAX_DIMENSION; j++) {
-      if (JacVel[i][j] != NULL) {
-        delete [] JacVel[i][j];
-        JacVel[i][j] = NULL;
+  if (UseSGSModel == 1) {
+    for (i = 0; i < MAX_DIMENSION; i++) {
+      for (j = 0; j < MAX_DIMENSION; j++) {
+        if (JacVel[i][j] != NULL) {
+          delete [] JacVel[i][j];
+          JacVel[i][j] = NULL;
+        }
+
+        if (JacB[i][j] != NULL) {
+          delete [] JacB[i][j];
+          JacB[i][j] = NULL;
+        }
       }
-
-      if (JacB[i][j] != NULL) {
-        delete [] JacB[i][j];
-        JacB[i][j] = NULL;
     }
-  }
 
-  for (i = 0; i < 7; i++) {
-    if (FilteredFields[i] != NULL)
+    for (i = 0; i < 7; i++) {
+      if (FilteredFields[i] != NULL)
         delete [] FilteredFields[i];
-    FilteredFields[i] = NULL;
-  }
+      FilteredFields[i] = NULL;
+    }
 
-  for (i = 0; i < 6; i++) {
+    for (i = 0; i < 6; i++) {
       if (FltrhoUU[i] != NULL)
-          delete [] FltrhoUU[i];
+        delete [] FltrhoUU[i];
       FltrhoUU[i] = NULL;
       
       if (FltBB[i] != NULL)
-          delete [] FltBB[i];
+        delete [] FltBB[i];
       FltBB[i] = NULL;
-  }    
+    }
   
-  for (i = 0; i < 3; i++) {
+    for (i = 0; i < 3; i++) {
       if (FltUB[i] != NULL)
-          delete [] FltUB[i];
+        delete [] FltUB[i];
       FltUB[i] = NULL;
+    }
   }
 
   delete ParticleAcceleration[MAX_DIMENSION];
