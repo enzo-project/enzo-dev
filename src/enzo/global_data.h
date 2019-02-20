@@ -384,7 +384,6 @@ EXTERN int SGSNeedJacobians;
 EXTERN int SGSNeedMixedFilteredQuantities;
 EXTERN float SGSFilterWidth;
 EXTERN float SGSFilterWeights[4];
-EXTERN float SGScoeffERS2J2;
 EXTERN float SGScoeffERS2M2Star;
 EXTERN float SGScoeffEVStarEnS2Star;
 EXTERN float SGScoeffEnS2StarTrace;

@@ -405,7 +405,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   for (i = 0; i < 4; i++)
     // discrete filter weights of explicit filter
     SGSFilterWeights[i] = 0.;
-  SGScoeffERS2J2 = 0.0; // off
   SGScoeffERS2M2Star = 0.0; // off
   SGScoeffEVStarEnS2Star = 0.0; // off
   SGScoeffEnS2StarTrace = 0.0; // off

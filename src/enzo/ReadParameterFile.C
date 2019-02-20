@@ -528,7 +528,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SGSFilterWidth = %"FSYM, &SGSFilterWidth);
     ret += sscanf(line, "SGSFilterWeights = %"FSYM"%"FSYM"%"FSYM"%"FSYM,
         &SGSFilterWeights[0],&SGSFilterWeights[1],&SGSFilterWeights[2],&SGSFilterWeights[3]);
-    ret += sscanf(line, "SGScoeffERS2J2 = %"FSYM, &SGScoeffERS2J2);
     ret += sscanf(line, "SGScoeffERS2M2Star = %"FSYM, &SGScoeffERS2M2Star);
     ret += sscanf(line, "SGScoeffEVStarEnS2Star = %"FSYM, &SGScoeffEVStarEnS2Star);
     ret += sscanf(line, "SGScoeffEnS2StarTrace = %"FSYM, &SGScoeffEnS2StarTrace);
@@ -1436,8 +1435,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   
   // all these models are calculated based on the partial derivatives of
   // the primitive quantities
-  if (SGScoeffERS2J2 != 0. || 
-      SGScoeffERS2M2Star != 0. ||
+  if (SGScoeffERS2M2Star != 0. ||
       SGScoeffEVStarEnS2Star != 0. ||
       SGScoeffEnS2StarTrace != 0. || 
       SGScoeffNLemfCompr != 0. || 
@@ -1457,7 +1455,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (! (HydroMethod == MHD_Li || HydroMethod == MHD_RK) && (
     SGScoeffNLemfCompr != 0. ||
     SGScoeffNLb != 0. ||
-    SGScoeffERS2J2 != 0. ||
     SGScoeffERS2M2Star != 0. ||
     SGScoeffSSb != 0. ||
     SGScoeffSSemf != 0))
