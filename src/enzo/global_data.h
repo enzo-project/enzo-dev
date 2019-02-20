@@ -349,6 +349,7 @@ EXTERN float RootGridCourantSafetyNumber;
 EXTERN int RadiativeCooling;
 EXTERN CoolDataType CoolData;
 EXTERN int RadiativeCoolingModel;
+EXTERN int use_grackle;
 
 /* Cloudy cooling parameters and data. */
 
