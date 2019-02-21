@@ -39,6 +39,7 @@
 #include "TopGridData.h"
 #include "hydro_rk/EOS.h" 
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
@@ -1615,7 +1616,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	MinimumMassForRefinement[i] /= MassUnits;
       }
     if (GravitationalConstant > 12.49 && GravitationalConstant < 12.61) {
-      GravitationalConstant = 4.0 * 3.1415926 * 6.6726e-8 * DensityUnits * pow(TimeUnits,2);
+      GravitationalConstant = 4.0 * pi * GravConst * DensityUnits * pow(TimeUnits,2);
       printf("Gravitational Constant recalculated from 4pi to 4piG in code units\n");
     }
 

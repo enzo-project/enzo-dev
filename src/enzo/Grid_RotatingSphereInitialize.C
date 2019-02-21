@@ -33,6 +33,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int FindField(int field, int farray[], int numfields);
 
@@ -87,13 +88,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 // Physical Constants
 const float VIRIAL_COEFFICIENT = 200.0; // Use r_200
-const float SOLAR_MASS_IN_GRAMS = 1.9891e+33;
-
-const float G_CGS = 6.67259e-8;
 const float AMU_CGS = 1.6605402e-24;
-const float KB_CGS = 1.380658e-16;
-const float CM_PER_KM = 1.0e5;
-const float CM_PER_MEGAPARSEC = 3.085677581e24;
 
 // Cosmological parameters, used for computing the critical density
 // and setting up the NFW halo. The setup should not be very sensitive
@@ -172,28 +167,28 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
 
    // Set the gravitational constant that Enzo uses.
    // This is 4 pi G_Cgs in code units.
-   GravitationalConstant = 4.0 * M_PI * G_CGS * DensityUnits * pow(TimeUnits, 2.0);
+   GravitationalConstant = 4.0 * pi * GravConst * DensityUnits * pow(TimeUnits, 2.0);
 
    // Set up the NFW halo.
    float g_code, nfw_mvir_code, critical_density_code, c, nfw_scale_density, nfw_scale_radius;
    float nfw_v_circular, nfw_temp, nfw_cs;
 
-   g_code = G_CGS * DensityUnits * pow(TimeUnits, 2.0);
+   g_code = GravConst * DensityUnits * pow(TimeUnits, 2.0);
 
-   nfw_mvir_code = RotatingSphereNFWMass * SOLAR_MASS_IN_GRAMS / MassUnits;
+   nfw_mvir_code = RotatingSphereNFWMass * SolarMass / MassUnits;
    critical_density_code = get_critical_density(RotatingSphereRedshift);
 
    c = RotatingSphereNFWConcentration;
 
    nfw_scale_density = (VIRIAL_COEFFICIENT / 3.0) * critical_density_code * pow(c, 3.0) / (log(1.0+c) - c/(1.0+c));
-   nfw_scale_radius = nfw_mvir_code / (4.0 * M_PI * nfw_scale_density * (log(1.0+c) - (c/(1.0+c))));
+   nfw_scale_radius = nfw_mvir_code / (4.0 * pi * nfw_scale_density * (log(1.0+c) - (c/(1.0+c))));
    nfw_scale_radius = pow(nfw_scale_radius, 1.0/3.0);
 
    // These are in code units. At the end of initialization,
    // they get changed to cgs units, since that is what is used in 
    // Grid_ComputeAccelerationFieldExternal.
    PointSourceGravity = 2;
-   PointSourceGravityConstant = 4.0 * M_PI * nfw_scale_density * pow(nfw_scale_radius, 3.0) * (log(2.0) - 0.5);
+   PointSourceGravityConstant = 4.0 * pi * nfw_scale_density * pow(nfw_scale_radius, 3.0) * (log(2.0) - 0.5);
    PointSourceGravityCoreRadius = nfw_scale_radius;
 
    nfw_v_circular = sqrt(g_code * nfw_mvir_code / (nfw_scale_radius * c));
@@ -813,7 +808,7 @@ float dTdr(float r, float T, float core_radius, float core_density, float core_e
    amu_code = AMU_CGS / (DensityUnits * pow(LengthUnits, 3.0));
 
    // Convert kb (in cm^2 g s^-2 K^-1) to code units
-   kb_code = KB_CGS / (pow(LengthUnits, 5.0) * DensityUnits / pow(TimeUnits, 2.0));
+   kb_code = kboltz / (pow(LengthUnits, 5.0) * DensityUnits / pow(TimeUnits, 2.0));
 
    density = get_gas_density(r, core_radius, core_density, core_exponent, outer_exponent, redshift);
    grav_accel = get_grav_accel(r);
@@ -845,7 +840,7 @@ float get_grav_accel(float r) {
 
    // Calculate G (in cm^3 g^-1 s^-2) code units
    float g_code;
-   g_code = G_CGS * DensityUnits * pow(TimeUnits, 2.0);
+   g_code = GravConst * DensityUnits * pow(TimeUnits, 2.0);
 
    dm_mass = PointSourceGravityConstant
              * (log(1.0 + r / PointSourceGravityCoreRadius) - r / (r + PointSourceGravityCoreRadius))
@@ -873,14 +868,14 @@ float get_critical_density(float redshift) {
 
    // Calculate G (in cm^3 g^-1 s^-2) code units
    float g_code, h_code;
-   g_code = G_CGS / (1.0 / (DensityUnits * pow(TimeUnits, 2.0)));
+   g_code = GravConst / (1.0 / (DensityUnits * pow(TimeUnits, 2.0)));
 
-   h_code = HUBBLE_CONSTANT_NOW * (CM_PER_KM / CM_PER_MEGAPARSEC); // Now in cgs
+   h_code = HUBBLE_CONSTANT_NOW * (km_cm / Mpc_cm); // Now in cgs
    h_code *= TimeUnits; // Now in code units
 
    float E = sqrt(OMEGA_MATTER * pow(1.0 + redshift, 3.0) + OMEGA_LAMBDA);
 
-   return 3.0 * pow(h_code * E, 2.0) / (8.0 * M_PI * g_code);
+   return 3.0 * pow(h_code * E, 2.0) / (8.0 * pi * g_code);
 }
 
 /* Integrates the gas density and dark matter profile to find the gas mass,
@@ -905,7 +900,7 @@ float* integrate_mass_energy(float r_final,
 
    float* mass_energy = new float[3];
 
-   mass_energy[0] = (4.0 * M_PI * core_density) * pow(r, 3.0) * pow(r/core_radius, -core_exponent) / (3.0 - core_exponent);
+   mass_energy[0] = (4.0 * pi * core_density) * pow(r, 3.0) * pow(r/core_radius, -core_exponent) / (3.0 - core_exponent);
    mass_energy[1] = PointSourceGravityConstant * (log((r + PointSourceGravityCoreRadius) / PointSourceGravityCoreRadius) - r / (r+PointSourceGravityCoreRadius)) / (log(2) - 0.5);
    mass_energy[2] = 0.0; // Not important
 
@@ -1057,21 +1052,21 @@ float* mass_energy_derivs(float r,
 
    // Calculate G (in cm^3 g^-1 s^-2) code units
    float g_code;
-   g_code = G_CGS * DensityUnits * pow(TimeUnits, 2.0);
+   g_code = GravConst * DensityUnits * pow(TimeUnits, 2.0);
 
    // Calculate the dark matter density at r
    float dm_scale_density, rho_dm, r_hat;
 
    r_hat = r / PointSourceGravityCoreRadius;
-   dm_scale_density = PointSourceGravityConstant / (4.0 * M_PI * pow(PointSourceGravityCoreRadius, 3.0) * (log(2.0) - 0.5));
+   dm_scale_density = PointSourceGravityConstant / (4.0 * pi * pow(PointSourceGravityCoreRadius, 3.0) * (log(2.0) - 0.5));
    rho_dm =  dm_scale_density * pow(r_hat, -1.0) * pow(1.0 + r_hat, -2.0);
 
    // Calculate the derivatives
    float* derivs = new float[3];
 
-   derivs[0] = 4.0 * M_PI * pow(r, 2.0) * get_gas_density(r, core_radius, core_density, core_exponent, outer_exponent, redshift);
-   derivs[1] = 4.0 * M_PI * pow(r, 2.0) * (get_gas_density(r, core_radius, core_density, core_exponent, outer_exponent, redshift) + rho_dm);
-   derivs[2] = - g_code * mass_energy[1] * 4.0 * M_PI * r * get_gas_density(r, core_radius, core_density, core_exponent, outer_exponent, redshift);
+   derivs[0] = 4.0 * pi * pow(r, 2.0) * get_gas_density(r, core_radius, core_density, core_exponent, outer_exponent, redshift);
+   derivs[1] = 4.0 * pi * pow(r, 2.0) * (get_gas_density(r, core_radius, core_density, core_exponent, outer_exponent, redshift) + rho_dm);
+   derivs[2] = - g_code * mass_energy[1] * 4.0 * pi * r * get_gas_density(r, core_radius, core_density, core_exponent, outer_exponent, redshift);
 
    return derivs;
 }

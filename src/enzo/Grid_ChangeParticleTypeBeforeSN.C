@@ -23,6 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -40,7 +41,6 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
   if (Stars == NULL)
     return SUCCESS;
 
-  const float pc = 3.086e18, mh = 1.673e-24, Msun = 1.989e33;
   const float PISNLowerMass = 140.0, PISNUpperMass = 260.0;
   const float StartRefineAtTime = 0.99;  // Percentage of stellar lifetime
   const float EndRefineAtTime = 1.0;
@@ -98,7 +98,7 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
 		if (factor < 1) {
 
 		  Diameter = 2 * BufferZone * PopIIISupernovaRadius * 
-		    (pc/LengthUnits);
+		    (pc_cm/LengthUnits);
 
 		} 
 
@@ -166,9 +166,6 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
   
   /* ASSUMES POP III PAIR-INSTABILITY SUPERNOVA FOR ENERGY */
 
-  const float pc = 3.086e18, mh = 1.673e-24, Msun = 1.989e33;
-  const float kb = 1.38e-16;
-
   FLOAT StartTime, SoundCrossingTime;
   float HeliumCoreMass, TransitionTime, ShockVelocity, STradius;
   float BlastWaveRadius, SoundSpeed, SNTemperature;
@@ -183,14 +180,14 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
   
   // With a constant shock velocity, calculate time it takes for
   // blastwave to travel from r=0 to r=PopIIISupernovaRadius
-  ShockVelocity = 1.165 * sqrt(2.0 * SNenergy / (Mass * Msun));
-  StartTime = PopIIISupernovaRadius * pc / ShockVelocity;
+  ShockVelocity = 1.165 * sqrt(2.0 * SNenergy / (Mass * SolarMass));
+  StartTime = PopIIISupernovaRadius * pc_cm / ShockVelocity;
 
   // Because we inject thermal energy, the blastwave is delayed by a
   // sound crossing time.
-  SNTemperature = min(double(Mass*Msun) / double(mh) / kb, 1e8);
-  SoundSpeed = sqrt(kb * SNTemperature / (0.6*mh));
-  SoundCrossingTime = PopIIISupernovaRadius * pc / SoundSpeed;
+  SNTemperature = min(double(Mass*SolarMass) / double(mh) / kboltz, 1e8);
+  SoundSpeed = sqrt(kboltz * SNTemperature / (0.6*mh));
+  SoundCrossingTime = PopIIISupernovaRadius * pc_cm / SoundSpeed;
 
   // units in cm
   STradius = 3.62e19 * powf(Mass/100., 1./3.) * powf(n0, -1./3.);
@@ -212,7 +209,7 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
   // it slows by a factor of 2 near the transition to the ST phase)
   if (Time < TransitionTime) {
 
-    BlastWaveRadius = PopIIISupernovaRadius * pc + ShockVelocity * Time;
+    BlastWaveRadius = PopIIISupernovaRadius * pc_cm + ShockVelocity * Time;
     printf("Free expansion\n");
 
   } // ENDIF Free expansion phase

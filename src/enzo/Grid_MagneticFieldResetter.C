@@ -26,6 +26,7 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 /* function prototypes */
  
@@ -83,7 +84,7 @@ int grid::MagneticFieldResetter(int level)
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
         ENZO_FAIL("Error in GetUnits.");
   }
-  float MagneticUnits = sqrt(DensityUnits*4.0*M_PI)*VelocityUnits;
+  float MagneticUnits = sqrt(DensityUnits*4.0*pi)*VelocityUnits;
 
   /* Convert magnetic amplitude into code unit */
 

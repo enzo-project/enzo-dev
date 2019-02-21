@@ -30,6 +30,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 #define CONVERGE 0.001
 
@@ -65,7 +66,6 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Light crossing time */
 
-  const float clight = 2.9979e10;
 
   float LightCrossingTime = (VelocityUnits) / 
     (clight * RadiativeTransferPropagationSpeedFraction);

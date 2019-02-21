@@ -29,12 +29,12 @@
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
 #include "Star.h"
+#include "phys_constants.h"
 #ifdef FUTUREAP
 #include "ActiveParticle.h"
 #include "ActiveParticle_RadiationParticle.h"
 #include "ActiveParticle_SmartStar.h"
 #endif
-#include "phys_constants.h"
 
 #define THRESHOLD_DENSITY_DB36 1e14
 #define THRESHOLD_DENSITY_DB37 5e14
@@ -59,6 +59,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
+
   double l_char = 0.0, N_H2 = 0.0;
   double H2ISigma = 3.71e-18;
 
@@ -130,7 +131,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
   // where the gas is fully molecular.  If the solver still breaks,
   // then this parameter can be safely increased to ~100 AU or turning
   // on H2 self-shielding with RadiationShield = 2.
-  float dilutionRadius = 4.848e-6 * pc / (double) LengthUnits;  // 1 AU
+  float dilutionRadius = 4.848e-6 * pc_cm / (double) LengthUnits;  // 1 AU
   float dilRadius2 = dilutionRadius * dilutionRadius;
   float LightTravelDist = TimeUnits * clight / LengthUnits;
 
@@ -196,9 +197,9 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	int TemperatureField = 0;
 	/* Pre-compute some quantities to speed things up */
 	TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
-	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * M_PI));
-	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * M_PI));
-	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * M_PI));
+	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
+	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
+	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
 	for (k = 0; k < ActiveDims[2]; k++) {
 	  for (j = 0; j < ActiveDims[1]; j++) {
 	    radius2_yz = ddr2[1][j] + ddr2[2][k];
@@ -291,7 +292,8 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 
       double radius2, radius2_yz;
 
-      kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * M_PI));
+      kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
+
       for (k = 0; k < ActiveDims[2]; k++) {
 	for (j = 0; j < ActiveDims[1]; j++) {
 	  radius2_yz = ddr2[1][j] + ddr2[2][k];
@@ -365,9 +367,9 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	int TemperatureField = 0;
 	/* Pre-compute some quantities to speed things up */
 	TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
-	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * M_PI));
-	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * M_PI));
-	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * M_PI));
+	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
+	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
+	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
 	for (k = 0; k < ActiveDims[2]; k++) {
 	  for (j = 0; j < ActiveDims[1]; j++) {
 	    radius2_yz = ddr2[1][j] + ddr2[2][k];
@@ -455,7 +457,7 @@ static double JeansLength(float T, float dens, float density_units)
 {
   float jeans_length = 0.0;
 
-  jeans_length = 15*kboltz*T/(4.0*M_PI*GravConst*mh*dens*density_units);
+  jeans_length = 15*kboltz*T/(4.0*pi*GravConst*mh*dens*density_units);
   return sqrt(jeans_length);
 }
   

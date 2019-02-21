@@ -6,7 +6,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
-
+#include "phys_constants.h"
 #include "FOF_allvars.h"
 #include "FOF_proto.h"
 
@@ -134,7 +134,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
     // kpc^3, as is rho_crit.
     e2 = D.OmegaLambda + D.Omega * pow(D.Time, -3.0);
     // 1/a^3 factor converts comoving radius to proper.
-    factor = 1e10 / (4*M_PI/3.0) * pow(D.Time, -3.0);
+    factor = 1e10 / (4*pi/3.0) * pow(D.Time, -3.0);
     rho178 = 178.0 * D.RhoCritical0 * e2;
     len4 = len/4;
 

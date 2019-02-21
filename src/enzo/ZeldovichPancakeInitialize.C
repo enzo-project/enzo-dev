@@ -1,3 +1,4 @@
+
 /***********************************************************************
 /
 /  INITIALIZE A ZELDOVICH PANCAKE
@@ -29,6 +30,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
  
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 
@@ -126,7 +128,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
         ENZO_FAIL("Error in GetUnits.");
   }
   PressureUnits = DensityUnits * (LengthUnits/TimeUnits)*(LengthUnits/TimeUnits);
-  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+  MagneticUnits = sqrt(PressureUnits*4.0*pi);
 
  
   for (int dim = 0; dim < MAX_DIMENSION; dim++) 

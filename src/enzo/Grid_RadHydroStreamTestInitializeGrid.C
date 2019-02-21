@@ -24,7 +24,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-
+#include "phys_constants.h"
 
 #define DEFAULT_MU 0.6   // mean molecular mass for temperature field
 
@@ -106,10 +106,8 @@ int grid::RadHydroStreamTestInitializeGrid(float DensityConstant,
     // set fluid density, total energy, [internal energy,] velocities, 
     // radiation energy, electron density, chemical species
     int i, j, k;
-    float pi = 4.0*atan(1.0);
     float StBz = 5.6704e-5;
-    float c = 2.99792458e10;
-    float IEConstant = 1.0/(Gamma-1.0)/DEFAULT_MU*sqrt(sqrt((0.25*c*EgConstant/StBz)));
+    float IEConstant = 1.0/(Gamma-1.0)/DEFAULT_MU*sqrt(sqrt((0.25*clight*EgConstant/StBz)));
     float TEConstant = IEConstant;
     float eUnits = VelocityUnits*VelocityUnits;
     float EUnits = DensityUnits*eUnits;

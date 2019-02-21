@@ -23,7 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
- 
+#include "phys_constants.h" 
  
 int grid::TestGravitySphereInitializeGrid(float SphereInteriorDensity,
 					  float SphereExteriorDensity,
@@ -35,7 +35,7 @@ int grid::TestGravitySphereInitializeGrid(float SphereInteriorDensity,
   /* declarations */
  
   int dim, i, j, k, size, vel;
-  float phi, r, theta, pi = 3.14159;
+  float phi, r, theta;
  
   if (UseBaryons) {
  

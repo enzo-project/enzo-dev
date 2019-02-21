@@ -26,6 +26,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "RadiativeTransferHealpixRoutines64.h"
+#include "phys_constants.h"
+
 #define MAX_HEALPIX_LEVEL 29
 
 
@@ -59,7 +61,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
      the ray normal (always beamed in the polar coordinate). */
 
   if (RS->Type == Beamed)
-    min_beam_zvec = cos(M_PI * RadiativeTransferSourceBeamAngle / 180.0);
+    min_beam_zvec = cos(pi * RadiativeTransferSourceBeamAngle / 180.0);
 
   int stype = RS->EnergyBins;
 

@@ -44,6 +44,7 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "phys_constants.h"
+
 // #include "CommunicationUtilities.h"
 
 #define USE
@@ -80,11 +81,9 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double	jeansthresh, jlsquared, dx2, dist2, total_density, nearestdx2;
   FLOAT		xpos, ypos, zpos, delx, dely, delz;
   double        DensityFloor;
-  double        Pi = 3.1415926;
   float nx_cell[MAX_SUPERCELL_NUMBER], 
     ny_cell[MAX_SUPERCELL_NUMBER], nz_cell[MAX_SUPERCELL_NUMBER];
-  double msun = 1.989e33;
-  double umass = (*d1)*POW(*x1,3)/msun;
+  double umass = (*d1)*POW(*x1,3)/SolarMass;
 
   //printf("Star Maker 9 running.......\n");
 
@@ -95,8 +94,8 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   dx2 = (*dx)*(*dx);
   //printf("Star Maker 8: densthresh = %g\n", densthresh);
   if (*jlrefine > 0) {
-    jlsquared = ((double)((*gamma) * 3.14159 * 1.38e-16 / 6.673e-08) / 
-		 ((double)(*d1) * 1.673e-24)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
+    jlsquared = ((double)((*gamma) * pi * kboltz / GravConst) /
+		 ((double)(*d1) * mh)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
   }
 
   /* Set new particle index to number of created star particles */

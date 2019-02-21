@@ -23,6 +23,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
  
 #define TOLERANCE 1.0e-6
  
@@ -46,7 +47,6 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
   float Amplitude, AmplitudeVel, kx, xLagrange, xEulerian, xEulerianOld;
   int   dim, field, i, index;
-  const float Pi = 3.14159;
  
   /* error check */
  
@@ -124,8 +124,8 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
   Amplitude    = (1+ZeldovichPancakeCollapseRedshift) / (1+InitialRedshift);
   AmplitudeVel = -sqrt(2.0/3.0)*(1.0+ZeldovichPancakeCollapseRedshift) /
-                 ((1.0+InitialRedshift) * 2.0*Pi);
-  kx           = 2*Pi/float(NumberOfZones);
+                 ((1.0+InitialRedshift) * 2.0*pi);
+  kx           = 2*pi/float(NumberOfZones);
  
   /* set density, total energy and velocity in problem dimension */
  

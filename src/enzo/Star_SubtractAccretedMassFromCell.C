@@ -29,6 +29,7 @@
 #include "CosmologyParameters.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 int FindField(int field, int farray[], int numfields);
 
@@ -46,7 +47,6 @@ int Star::SubtractAccretedMassFromCell(void)
     return SUCCESS;
 
   int dim, igrid[MAX_DIMENSION], index, size;
-  double Msun = 1.989e33;
   FLOAT time = CurrentGrid->Time;
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
@@ -96,7 +96,7 @@ int Star::SubtractAccretedMassFromCell(void)
      igrid[0] + CurrentGrid->GridStartIndex[0];
 
   float MassConversion = (float) (pow(LengthUnits * CurrentGrid->CellWidth[0][0], 3.0)
-				  * double(DensityUnits) / Msun);
+				  * double(DensityUnits));
   float densgrid, ugrid, vgrid, wgrid, denssink, usink, vsink, wsink, drho;
   double OldDensity, NewDensity, factor;
 

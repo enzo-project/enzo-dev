@@ -108,17 +108,17 @@ c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
       INTG_PREC i, j, k, n, ic, jc, kc, stepk, stepj, cellstep
-      R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
+      R_PREC mform, tfactor, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio,
      &     distmass, delta_z
-      parameter (clight = c_light, msolar_e51 = 1800._RKIND)
+      parameter (msolar_e51 = 1800._RKIND)
 c     TSK variables for stellar feedback fitting formula      
       R_PREC EdotSNII, EdotSNIa, EdotPN
       R_PREC MdotSNII, MdotSNIa, MdotPN
       R_PREC Edota, Edotb, Mdota, Mdotb, dvol
       R_PREC tau, rmf, dtt, madd, madd_cell, delta_e, tmid, tnow
-      real*8 msolar, esnIa, eSNII
-      parameter (tau=1.0e9_RKIND,  msolar=1.989D33) ! tau in years
+      real*8 esnIa, eSNII
+      parameter (tau=1.0e9_RKIND) ! tau in years
       parameter (eSNIa=5.D-6, eSNII=5.D-6) 
 c-----------------------------------------------------------------------
 c
@@ -178,9 +178,9 @@ c        mp/mloss_SNII = 1./0.15
 c        PN wind has a velocity of 10 km/sec
 c        The unit of Energy input is ergs
 c
-c         EdotSNII = eSNII/0.150081 * MdotSNII*(clight/v1)**2
+c         EdotSNII = eSNII/0.150081 * MdotSNII*(c_light/v1)**2
          if (imetalSNIa .eq. 1) then
-            EdotSNIa = eSNIa/1.234e-3_RKIND * MdotSNIa*(clight/v1)**2
+            EdotSNIa = eSNIa/1.234e-3_RKIND * MdotSNIa*(c_light/v1)**2
          else
             EdotSNIa = 0._RKIND
          endif

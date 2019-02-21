@@ -33,6 +33,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -43,9 +44,6 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
 					double &EjectaDensity, double &EjectaMetalDensity,
 					double &EjectaThermalEnergy)
 {
-
-  const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   float AvgVelocity[MAX_DIMENSION], MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0;
   float OneOverRSquaredSum, initialRadius; 
@@ -145,10 +143,10 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
       AvgVelocity[dim] /= MassEnclosed;
 
     MBHFeedbackThermalRadiusTooSmall = 
-      (MassEnclosed < 4*M_PI/3.0*pow(-MBHFeedbackThermalRadius, 3)); 
+      (MassEnclosed < 4*pi/3.0*pow(-MBHFeedbackThermalRadius, 3)); 
 
 //    fprintf(stdout, "RecalibrateMFTR: MassEnclosed = %g, MassEnclosedTarget = %g, Radius = %g\n", 
-//	    MassEnclosed, 4*M_PI/3.0*pow(-MBHFeedbackThermalRadius, 3), Radius); 
+//	    MassEnclosed, 4*pi/3.0*pow(-MBHFeedbackThermalRadius, 3), Radius); 
     
   }  // ENDWHILE (too little mass)
 
@@ -168,11 +166,11 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
 #endif
 
 #ifdef CONSTANT_SPECIFIC
-  EjectaThermalEnergy *= 4*M_PI/3.0*pow(-MBHFeedbackThermalRadius, 3)/MassEnclosed;
+  EjectaThermalEnergy *= 4*pi/3.0*pow(-MBHFeedbackThermalRadius, 3)/MassEnclosed;
 #endif
 
 //  fprintf(stdout, "RecalibrateMFTR: OneOverRSquaredSum = %g\n", OneOverRSquaredSum); 
-//  fprintf(stdout, "RecalibrateMFTR: Radius = %g -> %g, EjectaThermalEnergy = %g -> %g, MassEnclosed = %g Msun\n", 
+//  fprintf(stdout, "RecalibrateMFTR: Radius = %g -> %g, EjectaThermalEnergy = %g -> %g, MassEnclosed = %g SolarMass\n", 
 //	  initialRadius, Radius, EjectaThermalEnergy/pow(initialRadius/Radius,3), 
 //	  EjectaThermalEnergy, MassEnclosed); 
 

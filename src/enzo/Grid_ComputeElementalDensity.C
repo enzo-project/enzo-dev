@@ -37,6 +37,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -316,9 +317,9 @@ int grid::ComputeElementalDensity(float *temperature,
   }
  
   /* Loop over grid and compute emissivity
-     (fh is hydrogen fraction by mass; 1.67e-24 is proton mass). */
+     (fh is hydrogen fraction by mass; mh is proton mass). */
  
-  float fh = 0.76, ConvertToNumberDensity = DensityUnits/1.67e-24;
+  float fh = 0.76, ConvertToNumberDensity = DensityUnits/mh;
   float nElement, nH, LogFraction, Metallicity, Fraction,
         deld, delt, logd, logt, dd, dt;
   int ilogd, ilogt;

@@ -73,7 +73,6 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float RotatingCylinderOverdensity = 20.0;
   float RotatingCylinderDensity = 1.0;
   float RotatingCylinderTotalEnergy = 1.0;
-  float Pi                      = 3.14159;
 
   /* set no subgrids by default. */
  

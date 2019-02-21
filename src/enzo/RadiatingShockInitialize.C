@@ -44,6 +44,7 @@
 #define DEFINE_STORAGE
 #include "RadiatingShockGlobalData.h"
 #undef DEFINE_STORAGE
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -119,7 +120,6 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   for(i=0; i<MAX_DIMENSION; i++)
     RadiatingShockCenterPosition[i] = 0.5;  // right in the middle of the box
 
-  float Pi                      = 3.14159;
   float RadiatingShockVelocity[3]   = {0.0, 0.0, 0.0};   // gas initally at rest
   float RadiatingShockPressure      = 1e-5;
   float RadiatingShockInnerDensity             = 1.0;
@@ -326,14 +326,14 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
     // 2D
     if(MetaData.TopGridRank==2){
-      numberInjectionCells = Pi * pow(RadiatingShockSpreadOverNumZones,2);
+      numberInjectionCells = pi * pow(RadiatingShockSpreadOverNumZones,2);
     }
     // 3D
     else {
-      numberInjectionCells = (4./3.) * Pi * pow(RadiatingShockSpreadOverNumZones,3);
+      numberInjectionCells = (4./3.) * pi * pow(RadiatingShockSpreadOverNumZones,3);
     }
 
-    InjectionMass2Density_scaleFactor = 1.989e33 / 
+    InjectionMass2Density_scaleFactor = SolarMass / 
       (MassUnits * numberInjectionCells * 
        pow((dx*POW(RefineBy,-MaximumRefinementLevel)),3));
 
@@ -366,7 +366,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   // BWO: modified to include the idea that the inner region might have more gas
   float RadiatingShockInnerPressure = 3.0*(Gamma-1.0)*RadiatingShockEnergy*RadiatingShockInnerDensity/
                                   (MetaData.TopGridRank + 1.0)/
-                                  POW(dr,MetaData.TopGridRank)/Pi;
+                                  POW(dr,MetaData.TopGridRank)/pi;
  
   /* Check the self-similarity condition: p2/p1 >> (gamma+1)/(gamma-1). */
  
@@ -398,18 +398,18 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
     if(MetaData.TopGridRank==2){  // cylindrical supernova (2D)
 
-      MassZero = Pi * POW(dr,2.0) * RadiatingShockInnerDensity; // Mzero in code units (actually mass per unit length)
+      MassZero = pi * POW(dr,2.0) * RadiatingShockInnerDensity; // Mzero in code units (actually mass per unit length)
 
-      RadiatingShockRhoZero = MassZero / (2.0*Pi/3.0* POW(dr,2.0) );  // this is really density
+      RadiatingShockRhoZero = MassZero / (2.0*pi/3.0* POW(dr,2.0) );  // this is really density
 
       // units actually work out to velocity (assuming input energy is really energy per unit length)
       RadiatingShockVelocityZero = POW( 10.0/3.0 * (RadiatingShockEnergy*RadiatingShockKineticEnergyFraction) / MassZero, 0.5 );
 
     } else {  // spherical supernova (3D)
 
-      MassZero = 1.3333 * Pi * POW(dr,3.0) * RadiatingShockInnerDensity;  // Mzero in code units
+      MassZero = 1.3333 * pi * POW(dr,3.0) * RadiatingShockInnerDensity;  // Mzero in code units
 
-      RadiatingShockRhoZero = MassZero / Pi / POW(dr,3.0);
+      RadiatingShockRhoZero = MassZero / pi / POW(dr,3.0);
 
       fprintf(stderr,"SBI: RadiatingShockKineticEnergyFraction is %e\n",RadiatingShockKineticEnergyFraction);
 

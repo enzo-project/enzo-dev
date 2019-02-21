@@ -33,6 +33,7 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 /* function prototypes */
 
@@ -148,8 +149,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
 	   &VelocityUnits, &MassUnits, 1.0);
 
-  double Msun = 1.989e33;
-  if(UsePhysicalUnit) MassUnits = DensityUnits*pow(LengthUnits,3)/Msun;
+  if(UsePhysicalUnit) MassUnits = DensityUnits*pow(LengthUnits,3)/SolarMass;
 
   /*
   if (debug) {

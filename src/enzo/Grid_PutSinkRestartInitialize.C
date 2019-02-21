@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
  int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -63,15 +64,15 @@ int grid::PutSinkRestartInitialize(int level, int *NumberOfCellsSet)
     NumberOfParticleAttributes = 3;
     if (StellarWindFeedback) NumberOfParticleAttributes = 6;
     this->AllocateNewParticles(NumberOfParticles);
-    double mass_m = 3.415*1.989e33; //Mass of massive stars
-    double mass_s = 0.01*1.989e33; //Mass of small stars
+    double mass_m = 3.415*SolarMass; //Mass of massive stars
+    double mass_s = 0.01*SolarMass; //Mass of small stars
     mass_m /= MassUnits;
     mass_s /= MassUnits;
     double dx = CellWidth[0][0];
     double den_m = mass_m / pow(dx,3);
     double den_s = mass_s / pow(dx,3);
-    double t_dyn_m = sqrt(3*M_PI/(6.672e-8*den_m*DensityUnits));
-    double t_dyn_s = sqrt(3*M_PI/(6.672e-8*den_s*DensityUnits));
+    double t_dyn_m = sqrt(3*pi/(GravConst*den_m*DensityUnits));
+    double t_dyn_s = sqrt(3*pi/(GravConst*den_s*DensityUnits));
     t_dyn_m /= TimeUnits;
     t_dyn_s /= TimeUnits;
     double dxm = dx / pow(RefineBy, MaximumRefinementLevel);

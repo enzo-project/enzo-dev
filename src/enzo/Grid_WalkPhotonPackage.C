@@ -128,13 +128,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float ConvertToProperNumberDensity = DensityUnits/mh;
   // Only split photons within this radius if specified
   SplitWithinRadius = (RadiativeTransferSplitPhotonRadius > 0) ?
-    RadiativeTransferSplitPhotonRadius * (3.086e21 / LengthUnits) : 2.0;
+    RadiativeTransferSplitPhotonRadius * (kpc_cm / LengthUnits) : 2.0;
 
   /* Convert escape fraction radius into code units */
 
   for (i = 0; i < 3; i++)
     PhotonEscapeRadius[i] = EscapeRadiusFractions[i] * 
-      RadiativeTransferPhotonEscapeRadius * (3.086e21f / LengthUnits);
+      RadiativeTransferPhotonEscapeRadius * (kpc_cm / LengthUnits);
 
   // speed of light in code units. note this one is independent of a(t)
   c = LightSpeed;
@@ -247,7 +247,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   uint64_t Hlevel = (*PP)->level, res = 2L, BRP = 12L;
   uint64_t Nlevel = BRP * (1L << (res*Hlevel));
   double n_on_this_level = Nlevel;
-  double omega_package=4*M_PI/(n_on_this_level);
+  double omega_package=4*pi/(n_on_this_level);
   double dtheta = sqrt(omega_package);
   if(n_on_this_level <= 0.0  || omega_package == INFINITY)  {
     fprintf(stdout, "%s: level = %llu\n", __FUNCTION__, level);

@@ -30,6 +30,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int grid::KHInitializeGridRamp(float KHInnerDensity, 
                                float KHOuterDensity,
@@ -73,7 +74,7 @@ int grid::KHInitializeGridRamp(float KHInnerDensity,
     y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
 
     /* everywhere set the sinusoidal perturbation in v_y */
-    BaryonField[Vel2Num][n] = KHPerturbationAmplitude * sin(4.0 * M_PI * x);
+    BaryonField[Vel2Num][n] = KHPerturbationAmplitude * sin(4.0 * pi * x);
 
     /* set density and velocity fields in "inner region" */
     if (y > 0.25 && y < 0.75) { 

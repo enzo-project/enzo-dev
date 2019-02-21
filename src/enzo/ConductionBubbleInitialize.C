@@ -29,6 +29,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -108,7 +109,7 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
      total energy (that's not done automatically, since we don't know for sure
      what the user is going to do). */
   if (HydroMethod == MHD_RK){
-    float MagneticUnits = sqrt(DensityUnits*4.0*M_PI)*VelocityUnits;
+    float MagneticUnits = sqrt(DensityUnits*4.0*pi)*VelocityUnits;
     ConductionBubbleInitialUniformBField[0] /= MagneticUnits;
     ConductionBubbleInitialUniformBField[1] /= MagneticUnits;
     ConductionBubbleInitialUniformBField[2] /= MagneticUnits;

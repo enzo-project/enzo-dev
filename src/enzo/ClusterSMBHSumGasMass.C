@@ -84,7 +84,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
   float ColdGasMassMsun=ClusterSMBHColdGasMass*MassUnits/SolarMass;
   if (ClusterSMBHCalculateGasMass >1 ){   //2-calculate&remove,3-calculate&remove&re-orient,4-Bondi
     if (ClusterSMBHCalculateGasMass == 3){
-       ClusterSMBHJetDim = floor(Time*TimeUnits/(1.0e6*3.1557e7*ClusterSMBHJetPrecessionPeriod));   //ClusterSMBHJetPrecessionPeriod is now the Dim changing period.
+       ClusterSMBHJetDim = floor(Time*TimeUnits/(1.0e6*yr_s*ClusterSMBHJetPrecessionPeriod));   //ClusterSMBHJetPrecessionPeriod is now the Dim changing period.
     }
     if (ColdGasMassMsun  > 0.000001) {
        ClusterSMBHFeedbackSwitch = TRUE;
@@ -94,7 +94,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
          } 
          else {
        ClusterSMBHJetMdot = (ColdGasMassMsun/(ClusterSMBHAccretionTime*1e6))/2.0;  // AccretionTime from Myr to yr; reset Mdot, still in Msun/yr. Devide it by 2 because Mdot is for only one jet.
-       ClusterSMBHJetEdot = (ClusterSMBHAccretionEpsilon*ClusterSMBHJetMdot * SolarMass/3.1557e7) * POW(clight,2)/1.0e44;   //for one jet
+       ClusterSMBHJetEdot = (ClusterSMBHAccretionEpsilon*ClusterSMBHJetMdot * SolarMass/yr_s) * POW(clight,2)/1.0e44;   //for one jet
        }
       }
     else
@@ -108,7 +108,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
        ClusterSMBHFeedbackSwitch = (ColdGasMassMsun <= ClusterSMBHEnoughColdGas && LastClusterSMBHFeedbackSwitch == FALSE) ? FALSE : TRUE;
 
     if (LastClusterSMBHFeedbackSwitch == FALSE && ClusterSMBHFeedbackSwitch == TRUE) {
-       ClusterSMBHStartTime = Time + ClusterSMBHTramp*1.0e6*3.1557e7/TimeUnits;
+       ClusterSMBHStartTime = Time + ClusterSMBHTramp*1.0e6*yr_s/TimeUnits;
        if (ClusterSMBHJetPrecessionPeriod < 0.00001 & ClusterSMBHJetPrecessionPeriod > -0.00001)  //if precession off (set to 0), change the angle of the jets
        ClusterSMBHJetAnglePhi += 0.5;
     if (ClusterSMBHJetPrecessionPeriod < -0.00001)  //if precession negative, change the jet dimension

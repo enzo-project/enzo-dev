@@ -24,6 +24,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int FindField(int field, int farray[], int numfields);
 
@@ -82,7 +83,7 @@ int grid::RotatingCylinderInitializeGrid(FLOAT RotatingCylinderRadius,
   outside_rho =  BaryonField[DensNum][0];
 
   // updated to include correct gravitational constant and more accurate constant (corrections by J-H Choi, U. Kentucky)
-  omega = RotatingCylinderLambda * sqrt((GravitationalConstant / (4.0*M_PI)) * RotatingCylinderOverdensity * outside_rho) / 0.146;
+  omega = RotatingCylinderLambda * sqrt((GravitationalConstant / (4.0*pi)) * RotatingCylinderOverdensity * outside_rho) / 0.146;
 
   if(HydroMethod==2){  // ZEUS
 

@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 // Grid Initializer
 int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int PulseType, FLOAT PulseCenter[MAX_DIMENSION], int FieldGeometry, float BField) {
@@ -109,7 +110,7 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 	  
 	} else if(PulseType == 3){  // sinusoidal pulse with values along x-axis
 
-	  val = 1.0 + PulseHeight + PulseHeight * sin(2.0 * 3.14158 * x / PulseWidth);
+	  val = 1.0 + PulseHeight + PulseHeight * sin(2.0 * pi * x / PulseWidth);
 	  
 	} else if(PulseType == 4){  // square pulse with smoothed edges (as suggested by A. Kravtsov)
 

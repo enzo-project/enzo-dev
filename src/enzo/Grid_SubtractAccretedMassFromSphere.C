@@ -27,6 +27,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 int FindField(int field, int farray[], int numfields);
 
@@ -35,9 +36,6 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
 					 float TemperatureUnits, float TimeUnits, double Subtraction, 
 					 int &CellsModified)
 {
-
-  const double Msun = 1.989e33;
-  const double c = 3.0e10;
 
   int dim, i, j, k, index;
   FLOAT delx, dely, delz, radius2, Radius, DomainWidth[MAX_DIMENSION];
@@ -102,7 +100,7 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
   // Correct if the volume with 27 cells is larger than the bubble volume 
   // from which we subtract the mass
   float BoxVolume = 27 * CellWidth[0][0] * CellWidth[0][0] * CellWidth[0][0];
-  float BubbleVolume = (4.0 * M_PI / 3.0) * radius * radius * radius;
+  float BubbleVolume = (4.0 * pi / 3.0) * radius * radius * radius;
   if (BoxVolume > BubbleVolume) {
     fprintf(stdout, "grid::SAMFS: level(%d) probably too coarse, rescaling Subtraction!\n", level);
     Subtraction *= BubbleVolume/BoxVolume;
@@ -198,9 +196,9 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
   }  // END k-direction
 
 
-//  printf("grid::SAMFS: radius (pc) = %lf, increase = %lf, mass subtracted (Msun) = %lf\n", 
-//	 radius * LengthUnits / 3.086e18, increase, 
-//	 Subtraction * (4*M_PI/3.0 * pow(radius*LengthUnits, 3)) * DensityUnits / Msun); 
+//  printf("grid::SAMFS: radius (pc) = %lf, increase = %lf, mass subtracted (SolarMass) = %lf\n", 
+//	 radius * LengthUnits / pc, increase, 
+//	 Subtraction * (4*pi/3.0 * pow(radius*LengthUnits, 3)) * DensityUnits / SolarMass); 
   
   return SUCCESS;
 

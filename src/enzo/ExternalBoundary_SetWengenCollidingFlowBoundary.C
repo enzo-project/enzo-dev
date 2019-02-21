@@ -27,6 +27,7 @@
 #include "Grid.h"
 #include "MHD2DTestGlobalData.h"
 #include "hydro_rk/EOS.h"
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -117,7 +118,7 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	    EOSSoundSpeed*EOSSoundSpeed*rho ; 
 	  EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1); // compute eintl
 	  ramp =  1./(1.+exp(-2/RampWidth*(y-0.5)));
-	  f = cos(2.*M_PI*x*10.)*exp(-fabs(y-0.5)*10.)*cos(2.*M_PI*x*3);
+	  f = cos(2.*pi*x*10.)*exp(-fabs(y-0.5)*10.)*cos(2.*pi*x*3);
 	  vx = f * (vxl + ramp*(vxu-vxl)) ;
 	  vy = vyl + ramp*(vyu - vyl);
 	  bx = (Bxl+ ramp*(Bxu-Bxl))  ;
@@ -152,7 +153,7 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	    EOSSoundSpeed*EOSSoundSpeed*rho ; 
 	  EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1); // compute eintl
 	  ramp =  1./(1.+exp(-2/RampWidth*(y-0.5)));
-	  f = cos(2.*M_PI*x*10.)*exp(-fabs(y-0.5)*10.)*cos(2.*M_PI*x*3);
+	  f = cos(2.*pi*x*10.)*exp(-fabs(y-0.5)*10.)*cos(2.*pi*x*3);
 	  vx = f * (vxl + ramp*(vxu-vxl)) ;
 	  vy = vyl + ramp*(vyu - vyl);
 	  bx = (Bxl+ ramp*(Bxu-Bxl))  ;

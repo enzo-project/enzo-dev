@@ -25,6 +25,7 @@
 #include "ExternalBoundary.h"
 #include "CosmologyParameters.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 extern "C" void FORTRAN_NAME(projplane)(
           float *grid1, float *grid2, float *flaggrid, int *iflag, 
@@ -168,9 +169,6 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
     LuminosityConversion = CellLength;
   float TemperatureUnits, DensityUnits, LengthUnits, 
         VelocityUnits, TimeUnits;
-  double sigma_thompson = 6.65e-25, mh = 1.67e-24, me = 9.11e-28,
-    kboltz = 1.38e-16, clight = 3.00e10, csquared = 8.99e20;
-  const double SolarMass = 1.989e33, Mpc = 3.0824e24;
   
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
@@ -188,8 +186,8 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   DensityConversion *= dom;
   //DensityConversion *= float(double(dom)*double(LengthUnits));
   XrayConversion *= float(1.0e-20*pow(double(DensityUnits),2)
-			  /pow(SolarMass,2)*pow(Mpc,6)
-			  *double(LengthUnits)/Mpc);
+			  /pow(SolarMass,2)*pow(Mpc_cm,6)
+			  *double(LengthUnits)/Mpc_cm);
   TempXrayConversion = XrayConversion;
   LuminosityConversion *= LengthUnits;
   CellVolume = pow(double(CellLength) * double(LengthUnits), 3);
@@ -415,7 +413,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
       pow((1 + CurrentRedshift)/11, -2.5) * dom;
 
     prefactor = t_star * CellLength * LengthUnits * dom *
-      (3 * (clight*clight) * A_em) / (32 * M_PI * nu0 * nu0);
+      (3 * (clight*clight) * A_em) / (32 * pi * nu0 * nu0);
 
     for (i = 0; i < size; i++) {
 

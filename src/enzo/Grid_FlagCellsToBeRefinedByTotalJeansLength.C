@@ -190,18 +190,18 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   /* Compute constant for Jean's length computation.
      l_j = sqrt((pi*k*T) / (G \rho m_p))  . */
  
-  FLOAT JLSquared = (double(3.14159*1.38e-16/6.67e-8)/
-		     (double(DensityUnits)*double(1.67e-24))) /
+  FLOAT JLSquared = (double(pi*kboltz/GravConst)/
+		     (double(DensityUnits)*double(mh))) /
     (double(LengthUnits)*double(LengthUnits));
  
   if (ProblemType == 60 || ProblemType == 61)
-    JLSquared = double(4.0*3.14159*3.14159)/GravitationalConstant; //AK
+    JLSquared = double(4.0*pi*pi)/GravitationalConstant; //AK
 
   if (EOSType > 0)
     {
       float cs,dpdrho,dpde, eint, h, rho, p;
       EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1) ;
-      JLSquared = cs*cs*M_PI/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
+      JLSquared = cs*cs*pi/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
     };
   //  printf("JLSquared %g\n", JLSquared);
 

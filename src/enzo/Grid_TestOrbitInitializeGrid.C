@@ -23,6 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -84,7 +85,7 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
   /* Compute the circular velocity, first in cgs units, and then divide
      by code units to get the correct velocity. */
 
-  double BigGee = GravitationalConstant/(4.0*M_PI);  // big G is the constant/4pi
+  double BigGee = GravitationalConstant/(4.0*pi);  // big G is the constant/4pi
   double MassCGS = CentralMass*MassUnits;
 
 /* JRT 09/13/06  replace following line by */

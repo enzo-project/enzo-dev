@@ -25,7 +25,7 @@
 #include "Grid.h"
 #include "hydro_rk/EOS.h"
 #include "phys_constants.h"
- 
+
 /* function prototypes */
  
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -98,13 +98,13 @@ int grid::FlagCellsToBeRefinedByJeansLength()
                 (double(LengthUnits)*double(LengthUnits));
  
   if (ProblemType == 60 || ProblemType == 61)
-    JLSquared = double(4.0*3.14159*3.14159)/GravitationalConstant; //AK
+    JLSquared = double(4.0*pi*pi)/GravitationalConstant; //AK
 
   if (EOSType > 0)
     {
       float cs,dpdrho,dpde, eint, h, rho, p;
       EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1) ;
-      JLSquared = cs*cs*M_PI/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
+      JLSquared = cs*cs*pi/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
     }
 
   /* This is the safety factor to decrease the Jean's length by. */

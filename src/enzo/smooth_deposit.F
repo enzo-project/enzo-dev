@@ -55,14 +55,13 @@ c  locals
 c     
       INTG_PREC i, j, k, n
       P_PREC xpos, ypos, zpos, rsmsqr, rsqr
-      R_PREC    coef, pi
-      parameter (pi = pi_val)
+      R_PREC    coef
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
       rsmsqr = rsmooth**2
-      coef   = 3._RKIND/pi*(cellsize/rsmooth)**3
+      coef   = 3._RKIND/pi_val*(cellsize/rsmooth)**3
 c
       if (ndim .ne. 3) then
          write(6,*) 'SMOOTH_DEPOSIT: only ndim=3 supported.'

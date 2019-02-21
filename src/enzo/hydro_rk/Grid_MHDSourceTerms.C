@@ -432,7 +432,7 @@ int grid::MHDSourceTerms(float **dU)
     }
 
     // Converting radius from parsecs to cm, then internal units   
-    float sn_radius = MagneticSupernovaRadius * pc / LengthUnits;
+    float sn_radius = MagneticSupernovaRadius * pc_cm / LengthUnits;
 
     active_x = GridDimension[0] - 2*NumberOfGhostZones; 
     active_y = GridDimension[1] - 2*NumberOfGhostZones;
