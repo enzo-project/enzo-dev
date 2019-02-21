@@ -53,13 +53,13 @@ int grid::PrepareGreensFunction()
  
   /* Set the constant to be used. */
  
-  float GravitationalConstant;
+  float GravConst_factor;
   if (GridRank == 3)
-    GravitationalConstant = -GravConst/(4.0*pi);
+    GravConst_factor = -GravitationalConstant/(4.0*pi);
   if (GridRank == 2)
-    GravitationalConstant = -GravConst*0.5/pi;
+    GravConst_factor = -GravitationalConstant*0.5/pi;
   if (GridRank == 1)
-    GravitationalConstant = -GravConst*0.5;
+    GravConst_factor = -GravitationalConstant*0.5;
  
   /* Set Greens' function. */
  
@@ -78,12 +78,12 @@ int grid::PrepareGreensFunction()
 	r = max(r, GravitatingMassFieldCellSize);
 	r *= GravitatingMassFieldCellSize;
 	if (GridRank == 3)
-	  PotentialField[n] = GravitationalConstant/r;
+	  PotentialField[n] = GravConst_factor/r;
 	if (GridRank == 2)
-	  PotentialField[n] = GravitationalConstant*log(r);
+	  PotentialField[n] = GravConst_factor*log(r);
 	if (GridRank == 1)
 
-	  PotentialField[n] = GravitationalConstant*r;
+	  PotentialField[n] = GravConst_factor*r;
  
       }
     }
