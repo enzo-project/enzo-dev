@@ -45,16 +45,13 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
   /* declarations */
  
   float Amplitude, AmplitudeVel, kx, xLagrange, xEulerian, xEulerianOld;
-  int   dim, field, i, index;
+  int   dim, field, i, j, k, index;
   const float Pi = 3.14159;
  
   /* error check */
  
   if (ZeldovichPancakeDirection < 0 || ZeldovichPancakeDirection >= GridRank) {
     ENZO_FAIL("ZeldovichPancakeDirection is improperly set.\n");
-  }
-  if (ZeldovichPancakeOmegaCDMNow != 0) {
-    ENZO_FAIL("Dark matter not yet supported.\n");
   }
  
   /* create fields */
@@ -103,9 +100,11 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
   /* Determine the size of the fields. */
  
-  int size = 1;
-  for (dim = 0; dim < GridRank; dim++)
+  int size = 1, activesize = 1;
+  for (dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
+    activesize *= GridEndIndex[dim] - GridStartIndex[dim] + 1;
+  }
  
   /* Allocate space for the fields. */
  
@@ -119,7 +118,14 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
   int NumberOfZones = GridEndIndex[ZeldovichPancakeDirection] -
                       GridStartIndex[ZeldovichPancakeDirection] + 1;
- 
+
+  /* Set up particles */
+
+  if (ZeldovichPancakeOmegaCDMNow > 0) {
+    this->AllocateNewParticles(NumberOfZones);
+    this->NumberOfParticles = NumberOfZones;
+  }
+
   /* Compute the amplitude of perturbations. */
  
   Amplitude    = (1+ZeldovichPancakeCollapseRedshift) / (1+InitialRedshift);
@@ -196,8 +202,8 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
     if (HydroMethod == MHD_RK) {
       BaryonField[iPhi ][i] = 0.0;
     }
-  }
- 
+    
+  } // ENDFOR zones
 
   /* set transverse velocities (i.e. erase any incorrectly set velocities). */
  
@@ -205,6 +211,38 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
     if (field != ZeldovichPancakeDirection+vel)
       for (i = 0; i < size; i++)
 	BaryonField[field][i] = 0.0;
+
+  /* Set up particles if needed */    
+  
+  if (ZeldovichPancakeOmegaCDMNow > 0) {
+
+    int ipart = 0;
+    FLOAT pos0[MAX_DIMENSION], dr[MAX_DIMENSION];
+    for (dim = 0 ; dim < GridRank; dim++)
+      dr[dim] = (GridRank > dim) ? CellWidth[dim][0] :
+	DomainRightEdge[dim] - DomainLeftEdge[dim];
+
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      pos0[2] = GridLeftEdge[2] + (0.5+k-GridStartIndex[2]) * dr[2];
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	pos0[1] = GridLeftEdge[1] + (0.5+j-GridStartIndex[1]) * dr[1];
+	index = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	  pos0[0] = GridLeftEdge[0] + (0.5+i-GridStartIndex[0]) * dr[0];
+	  ParticleMass[ipart] = ZeldovichPancakeOmegaCDMNow;
+	  ParticleNumber[ipart] = ipart;
+	  ParticleType[ipart] = PARTICLE_TYPE_DARK_MATTER;
+	  for (dim = 0; dim < GridRank; dim++) {
+	    ParticlePosition[dim][ipart] = pos0[dim] +
+	      BaryonField[vel+dim][index] * InitialTimeInCodeUnits;
+	    ParticleVelocity[dim][ipart] = BaryonField[vel+dim][index];
+	  }
+	  ipart++;
+	} // ENDFOR i
+      } // ENDFOR j
+    } // ENDFOR k
+    
+  } // ENDIF particles
  
   return SUCCESS;
 }
