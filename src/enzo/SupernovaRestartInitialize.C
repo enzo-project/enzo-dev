@@ -33,6 +33,7 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "fortran.def"
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -157,15 +158,15 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   if (ComovingCoordinates) {
  
-    LengthConversion = 3.08e18;     // pc
-    MassConversion   = 2e33;        // solar masses
+    LengthConversion = pc_cm;     // pc
+    MassConversion   = SolarMass;        // solar masses
     EnergyConversion = 1.0e51;      // 10^51 erg
  
   }
  
   float EjectaRadius = SupernovaRestartEjectaRadius * LengthConversion;
   float EjectaDensity = SupernovaRestartEjectaMass * MassConversion/
-                        (4.0/3.0*3.14159*POW(EjectaRadius, 3));
+                        (4.0/3.0*pi*POW(EjectaRadius, 3));
   float EjectaThermalEnergy = SupernovaRestartEjectaEnergy * EnergyConversion /
         (SupernovaRestartEjectaMass * MassConversion);
  

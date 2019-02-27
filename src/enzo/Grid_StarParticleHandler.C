@@ -30,6 +30,8 @@
 #include "fortran.def"
 #include "CosmologyParameters.h"
 
+#include "phys_constants.h"
+
 /* function prototypes */
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -539,7 +541,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   int CRNum;
-  const double m_h = 1.673e-24;
 
   /* Find Multi-species fields. */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
@@ -738,7 +739,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   float OverDensityThreshold;
   if (PopIIIOverDensityThreshold < 0) {
-    OverDensityThreshold = -PopIIIOverDensityThreshold * 1.673e-24 / DensityUnits;
+    OverDensityThreshold = -PopIIIOverDensityThreshold * mh / DensityUnits;
     if (OverDensityThreshold < 1)
       OverDensityThreshold = huge_number;
   }
@@ -1050,7 +1051,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       // The user provides an o.d. threshold in particles/cc. This converts to code units for comparison w/ Density.
       // We used to include a factor of Mu here (first in the denominator, then I changed it to the numerator...),
       // but it seems like maybe Mu is hard-coded to be 7/5?
-      float odthresh = StarMakerOverDensityThreshold * m_h /  DensityUnits;
+      float odthresh = StarMakerOverDensityThreshold * mh /  DensityUnits;
 
       // Only form stars on the maximum refinement level
 
@@ -1099,7 +1100,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
       // change the unit for StarMakerOverDensity for cosmological run
       if (ComovingCoordinates)
-	StarMakerOverDensityThreshold *= m_h / DensityUnits;   
+	StarMakerOverDensityThreshold *= mh / DensityUnits;   
 
       FORTRAN_NAME(star_maker7)(
        GridDimension, GridDimension+1, GridDimension+2,
@@ -1126,7 +1127,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
       // make it back to original 
       if (ComovingCoordinates)
-	StarMakerOverDensityThreshold /= m_h / DensityUnits;  
+	StarMakerOverDensityThreshold /= mh / DensityUnits;  
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
@@ -1827,7 +1828,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
                           soonestExplosion[i] = delayTime;
                       }
                   }
-                  if( relativeTime < delayTime + 3.15e12/TimeUnits) {
+                  if( relativeTime < delayTime + 0.1 * Myr_s/TimeUnits) {
                       // refine!
                       ParticleType[i] = PARTICLE_TYPE_MUST_REFINE; 
                   } 
@@ -1900,8 +1901,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
     //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF)
 
-      double pc = 3.086e18;
-      float mbhradius = MBHFeedbackThermalRadius * pc / LengthUnits; 
+      float mbhradius = MBHFeedbackThermalRadius * pc_cm / LengthUnits; 
  
       FORTRAN_NAME(star_feedback7)(
        GridDimension, GridDimension+1, GridDimension+2,

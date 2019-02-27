@@ -24,6 +24,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
+#include "phys_constants.h"
+
 
 // function prototypes
 int GetUnits(float *DensityUnits, float *LengthUnits, 
@@ -133,15 +135,14 @@ int grid::RHIonizationClumpInitializeGrid(int NumChemicals,
     // set fluid density, total energy, [internal energy,] velocities, 
     // radiation energy, electron density, chemical species
     int i, j, k;
-    float mp = 1.67262171e-24;    // proton mass [g]
     float TEConstIn = (IEConstIn + 0.5*(VxConst*VxConst + 
 					VyConst*VyConst + 
 					VzConst*VzConst));
     float TEConstOut = (IEConstOut + 0.5*(VxConst*VxConst + 
 					  VyConst*VyConst + 
 					  VzConst*VzConst));
-    float RhoConstIn    = NumDensityIn * mp;
-    float RhoConstOut   = NumDensityOut * mp;
+    float RhoConstIn    = NumDensityIn * mh;
+    float RhoConstOut   = NumDensityOut * mh;
     float HIIConstIn    = InitFracHII * HMassFrac * RhoConstIn;
     float HIIConstOut   = InitFracHII * HMassFrac * RhoConstOut;
     float HIConstIn     = HMassFrac * RhoConstIn - HIIConstIn;

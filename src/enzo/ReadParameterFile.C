@@ -39,6 +39,7 @@
 #include "TopGridData.h"
 #include "hydro_rk/EOS.h" 
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
@@ -522,10 +523,26 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   DrivenFlowVelocity, DrivenFlowVelocity+1, DrivenFlowVelocity+2);
     ret += sscanf(line, "DrivenFlowAutoCorrl = %"FSYM"%"FSYM"%"FSYM,
                      DrivenFlowAutoCorrl, DrivenFlowAutoCorrl+1, DrivenFlowAutoCorrl+2);
+    
+    ret += sscanf(line, "UseSGSModel = %"ISYM, &UseSGSModel);
+    ret += sscanf(line, "SGSFilterStencil = %"ISYM, &SGSFilterStencil);
+    ret += sscanf(line, "SGSFilterWidth = %"FSYM, &SGSFilterWidth);
+    ret += sscanf(line, "SGSFilterWeights = %"FSYM"%"FSYM"%"FSYM"%"FSYM,
+        &SGSFilterWeights[0],&SGSFilterWeights[1],&SGSFilterWeights[2],&SGSFilterWeights[3]);
+    ret += sscanf(line, "SGScoeffERS2M2Star = %"FSYM, &SGScoeffERS2M2Star);
+    ret += sscanf(line, "SGScoeffEVStarEnS2Star = %"FSYM, &SGScoeffEVStarEnS2Star);
+    ret += sscanf(line, "SGScoeffEnS2StarTrace = %"FSYM, &SGScoeffEnS2StarTrace);
+    ret += sscanf(line, "SGScoeffNLemfCompr = %"FSYM, &SGScoeffNLemfCompr);
+    ret += sscanf(line, "SGScoeffNLu = %"FSYM, &SGScoeffNLu);
+    ret += sscanf(line, "SGScoeffNLuNormedEnS2Star = %"FSYM, &SGScoeffNLuNormedEnS2Star);
+    ret += sscanf(line, "SGScoeffNLb =%"FSYM, &SGScoeffNLb);
+    ret += sscanf(line, "SGScoeffSSu = %"FSYM, &SGScoeffSSu);
+    ret += sscanf(line, "SGScoeffSSb =%"FSYM, &SGScoeffSSb);
+    ret += sscanf(line, "SGScoeffSSemf = %"FSYM, &SGScoeffSSemf);
 
+    ret += sscanf(line, "use_grackle = %"ISYM, &use_grackle);
 #ifdef USE_GRACKLE
     /* Grackle chemistry parameters */
-    ret += sscanf(line, "use_grackle = %d", &grackle_data->use_grackle);
     ret += sscanf(line, "with_radiative_cooling = %d",
                   &grackle_data->with_radiative_cooling);
     ret += sscanf(line, "use_volumetric_heating_rate = %d",
@@ -1413,6 +1430,38 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                  DrivenFlowSeed);
   }
 
+  /* In order to use filtered fields we need additional ghost zones */
+  if (SGSFilterStencil/2 + 2 > NumberOfGhostZones)
+    ENZO_FAIL("SGS filtering needs additional ghost zones!\n");
+  
+  // all these models are calculated based on the partial derivatives of
+  // the primitive quantities
+  if (SGScoeffERS2M2Star != 0. ||
+      SGScoeffEVStarEnS2Star != 0. ||
+      SGScoeffEnS2StarTrace != 0. || 
+      SGScoeffNLemfCompr != 0. || 
+      SGScoeffNLu != 0. || 
+      SGScoeffNLuNormedEnS2Star != 0. || 
+      SGScoeffNLb != 0.)
+
+      SGSNeedJacobians = 1;
+
+  // the scale-similarity type models need filtered mixed quantities
+  if (SGScoeffSSu != 0. ||
+      SGScoeffSSb != 0. ||
+      SGScoeffSSemf != 0.)
+
+      SGSNeedMixedFilteredQuantities = 1;
+
+  if (! (HydroMethod == MHD_Li || HydroMethod == MHD_RK) && (
+    SGScoeffNLemfCompr != 0. ||
+    SGScoeffNLb != 0. ||
+    SGScoeffERS2M2Star != 0. ||
+    SGScoeffSSb != 0. ||
+    SGScoeffSSemf != 0))
+    ENZO_FAIL("SGS terms related to MHD should be set to 0 for hydro sims.\n");
+
+
 
   /* Now we know which hydro solver we're using, we can assign the
      default Riemann solver and flux reconstruction methods.  These
@@ -1567,7 +1616,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	MinimumMassForRefinement[i] /= MassUnits;
       }
     if (GravitationalConstant > 12.49 && GravitationalConstant < 12.61) {
-      GravitationalConstant = 4.0 * 3.1415926 * 6.6726e-8 * DensityUnits * pow(TimeUnits,2);
+      GravitationalConstant = 4.0 * pi * GravConst * DensityUnits * pow(TimeUnits,2);
       printf("Gravitational Constant recalculated from 4pi to 4piG in code units\n");
     }
 
@@ -1598,14 +1647,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #ifdef USE_GRACKLE
   /* If using Grackle chemistry and cooling library, override all other 
      cooling machinery and do a translation of some of the parameters. */
-  if (grackle_data->use_grackle == TRUE) {
-    // grackle_data->use_grackle already set
+  if (use_grackle == TRUE) {
     // grackle_data->with_radiative_cooling already set
     // grackle_data->grackle_data_file already set
     // grackle_data->UVbackground already set
     // grackle_data->Compton_xray_heating already set
     // grackle_data->LWbackground_intensity already set
     // grackle_data->LWbackground_sawtooth_suppression already set
+    grackle_data->use_grackle                    = (Eint32) use_grackle;
     grackle_data->Gamma                          = (double) Gamma;
     grackle_data->primordial_chemistry           = (Eint32) MultiSpecies;
     grackle_data->metal_cooling                  = (Eint32) MetalCooling;
@@ -1668,6 +1717,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }  // if (grackle_data->use_grackle == TRUE)
 
   else {
+#else
+    if (use_grackle == TRUE) {
+      ENZO_FAIL("Error: Enzo must be compiled with 'make grackle-yes' to run with use_grackle = 1.\n");
+    }
 #endif // USE_GRACKLE
 
     /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies

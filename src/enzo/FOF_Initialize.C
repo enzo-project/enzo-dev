@@ -33,6 +33,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 #include "FOF_allvars.h"
 #include "FOF_nrutil.h"
@@ -82,13 +83,13 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     D.Time = a / (1 + InitialRedshift);
   }
   else {
-    D.BoxSize = LengthUnits / 3.086e21;
+    D.BoxSize = LengthUnits / kpc_cm;
     D.Time = 1.0;
   }
 
   // Critical density in units of Msun / kpc^3
   D.RhoCritical0 = 1.4775867e31 * 
-    ((3 * pow(100 * HubbleConstantNow / 3.086e19, 2)) / (8 * M_PI * GRAVITY));
+    ((3.0 * POW(100 * HubbleConstantNow / 3.086e19, 2)) / (8.0 * pi * GRAVITY));
   //D.RhoCritical /= pow(D.Time, 3);
 
   // Sometimes MassUnits is infinite (in cgs) when using single

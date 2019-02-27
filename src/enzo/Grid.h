@@ -2394,6 +2394,41 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
     int FTStochasticForcing(int FieldDim); // WS
 
+
+    /* START Subgrid-scale modeling framework by P. Grete */
+
+    // Jacobians to be used in SGS model
+    float *JacVel[MAX_DIMENSION][MAX_DIMENSION];
+    float *JacB[MAX_DIMENSION][MAX_DIMENSION];
+
+    float *FilteredFields[7]; // filtered fields: rho, xyz-vel, Bxyz
+    
+    // the scale-similarity model needs mixed filtered quantities
+    float *FltrhoUU[6];
+    float *FltBB[6];
+    float *FltUB[3];
+
+    int SGSUtil_ComputeJacobian(float *Jac[][MAX_DIMENSION],float* field1,float* field2,float* field3);
+    int SGSUtil_ComputeMixedFilteredQuantities();
+    int SGSUtil_FilterFields();
+    
+    // the general functions that add the SGS terms to the dynamic eqns.
+    int SGS_AddEMFTerms(float **dU);
+    int SGS_AddMomentumTerms(float **dU);
+    
+    // the different SGS models
+    void SGS_AddEMF_eddy_resistivity(float **EMF);
+    void SGS_AddEMF_nonlinear_compressive(float **EMF);
+    void SGS_AddMom_nonlinear_kinetic(float **Tau);
+    void SGS_AddMom_nonlinear_kinetic_scaled(float **Tau);
+    void SGS_AddMom_nonliner_magnetic(float **Tau);
+    void SGS_AddMom_eddy_viscosity_scaled(float **Tau);
+    void SGS_AddMom_scale_similarity_kinetic(float **Tau);
+    void SGS_AddMom_scale_similarity_magnetic(float **Tau);
+    void SGS_AddEMF_scale_similarity(float **EMF);
+    
+    /* END Subgrid-scale modeling framework by P. Grete */
+
 /* Comoving coordinate expansion terms. */
 
   int ComovingExpansionTerms();

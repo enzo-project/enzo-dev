@@ -26,6 +26,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "phys_constants.h"
 
 #define DEF_MU 0.5  // fully ionized hydrogen gas
 
@@ -105,8 +106,6 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
     }
 
   // set some physical constants
-  float mp     = 1.67262171e-24;    // proton mass [g]
-  float kb     = 1.3806504e-16;     // boltzmann constant [erg/K]
   float rc_lab = 137.20172;         // radiation constant [erg/cc/eV^4] 
   float rc_ast = 7.56e-15;          // radiation constant [erg/cc/K^4]
   float Cv     = 2.218056e+12;      // specific heat [erg/g/eV]  (From Lowrie setup)
@@ -115,7 +114,7 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
   // density (erg/cc) from input temperatures
   float gas_pressure;
   if ( CGSType == 1 ) 
-    gas_pressure  = DensityConstant * kb * GasTempConstant / DEF_MU / mp;
+    gas_pressure  = DensityConstant * kboltz * GasTempConstant / DEF_MU / mh;
   if ( CGSType == 2 ) 
     gas_pressure  = (Gamma - 1.0) * Cv * DensityConstant * GasTempConstant;
 

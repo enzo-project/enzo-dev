@@ -30,6 +30,7 @@
 #include "LevelHierarchy.h"
 #include "Star.h"
 #include "CommunicationUtilities.h"
+#include "phys_constants.h"
 
 extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 //int LastTimestepUseHII = FALSE;
@@ -213,7 +214,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 
   if (RadiativeTransferAdaptiveTimestep == FALSE && debug)
     printf("RadiativeTransfer: Setting dtPhoton = %g = %g years\n",
-	   dtPhoton, dtPhoton*TimeUnits/3.1557e7);
+	   dtPhoton, dtPhoton*TimeUnits/yr_s);
   
   return SUCCESS;
 

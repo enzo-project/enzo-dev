@@ -56,6 +56,7 @@
 ************************************************************************/
 #ifdef TRANSFER
 #include "gFLDSplit.h"
+#include "phys_constants.h"
 
  
  
@@ -66,11 +67,9 @@ int gFLDSplit::ComputeRadiationIntegrals()
   if (debug)  printf("Entering gFLDSplit::ComputeRadiationIntegrals\n");
 
   // set necessary constants
-  float h = 6.6260693e-27;               // Planck's constant [ergs*s]
-  float ev2erg = 1.60217653e-12;         // conversion constant from eV to ergs
-  float nu0_HI = hnu0_HI*ev2erg/h;       // ionization threshold of HI (hz)
-  float nu0_HeI = hnu0_HeI*ev2erg/h;     // ionization threshold of HeI (hz)
-  float nu0_HeII = hnu0_HeII*ev2erg/h;   // ionization threshold of HeII (hz)
+  float nu0_HI = hnu0_HI*erg_eV/h_planck;       // ionization threshold of HI (hz)
+  float nu0_HeI = hnu0_HeI*erg_eV/h_planck;     // ionization threshold of HeI (hz)
+  float nu0_HeII = hnu0_HeII*erg_eV/h_planck;   // ionization threshold of HeII (hz)
   float epsilon = 1.0;                   // floating point roundoff
   float nuMoray = 5.0777776e+15;         // 21 eV photon frequency (Hz)
   while ((1.0 + epsilon) > 1.0)  epsilon*=0.5;

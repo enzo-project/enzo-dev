@@ -28,6 +28,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 #ifdef CONFIG_BFLOAT_4
 #define TOLERANCE 1e-06
@@ -51,8 +52,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 {
 
   const float WhalenMaxVelocity = 35;		// km/s
-  const double Msun = 1.989e33;
-  const double c = 3.0e10;
 
   int dim, i, j, k, index;
   int sx, sy, sz;
@@ -117,7 +116,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
     MetalNum = SNColourNum;
 
-  float BubbleVolume = (4.0 * M_PI / 3.0) * radius * radius * radius;
+  float BubbleVolume = (4.0 * pi / 3.0) * radius * radius * radius;
 
   /***********************************************************************
                                 SUPERNOVAE
@@ -144,7 +143,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   // Correct if the volume with 27 cells is larger than the energy bubble volume
 #ifdef UNUSED
   float BoxVolume = 27 * CellWidth[0][0] * CellWidth[0][0] * CellWidth[0][0];
-  float BubbleVolume = (4.0 * M_PI / 3.0) * radius * radius * radius;
+  float BubbleVolume = (4.0 * pi / 3.0) * radius * radius * radius;
   //printf("BoxVolume = %lg, BubbleVolume = %lg\n", BoxVolume, BubbleVolume);
   if (BoxVolume > BubbleVolume) {
     //printf("Reducing ejecta density by %g\n", BubbleVolume / BoxVolume);
@@ -174,7 +173,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 //    printf("grid::AFS: before: cstar->Mass = %lf\n", cstar->Mass); 
     if (cstar->FeedbackFlag != SUPERNOVA) {
       float old_mass = (float)(cstar->Mass);
-      cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+      cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / SolarMass;  
       float frac = old_mass / cstar->Mass;
       cstar->vel[0] *= frac;
       cstar->vel[1] *= frac;
@@ -466,7 +465,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     metallicity_inside = 0.0, colour_inside = 0.0, rho_inside, rho_metal_inside, rho_colour_inside;
   float m_cell_edge = 0.0, metal_cell_edge = 0.0, colour_cell_edge = 0.0, 
     metallicity_edge = 0.0, colour_edge = 0.0, rho_jet, rho_metal_jet, rho_colour_jet;
-  float L_x, L_y, L_z, L_s, nx_L = 0.0, ny_L = 0.0, nz_L = 0.0, costheta = cos(3.1415926/3.9);
+  float L_x, L_y, L_z, L_s, nx_L = 0.0, ny_L = 0.0, nz_L = 0.0, costheta = cos(pi/3.9);
   float EjectaMass, EjectaMetalMass, MBHJetsVelocity;
 
   if (cstar->FeedbackFlag == MBH_JETS) {
@@ -492,7 +491,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     /* Calculate mass that has accumulated thus far; since EjectaDensity is calculated 
        for isotropic MBH_THERMAL, we use it only to compute EjectaMass, not apply it directly. */
 
-    cstar->NotEjectedMass += EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+    cstar->NotEjectedMass += EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / SolarMass;  
 
 //    fprintf(stdout, "d1, d2, d3, i, j, k = %d %d %d / %d %d %d\n", 
 //	    GridDimension[0], GridDimension[1], GridDimension[2], i,j,k);
@@ -526,7 +525,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     
     /* Find ejecta mass */
 
-    EjectaMass = cstar->NotEjectedMass * Msun / DensityUnits / pow(LengthUnits,3.0); 
+    EjectaMass = cstar->NotEjectedMass * SolarMass / DensityUnits / pow(LengthUnits,3.0); 
     EjectaMetalMass = EjectaMass * MBHFeedbackMetalYield;
     OutputWhenJetsHaveNotEjected = FALSE; 
 
@@ -561,8 +560,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
       //add random noise to theta and phi
       srand(time(NULL));
-      theta += MaximumNoiseAngle * M_PI / 180.0 * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0);  
-      phi   += MaximumNoiseAngle * M_PI / 180.0 * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0);
+      theta += MaximumNoiseAngle * pi / 180.0 * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0);  
+      phi   += MaximumNoiseAngle * pi / 180.0 * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0);
 
       //get back to Cartesian coordinate; some tricks needed to preserve the signs of nx_L and ny_L
       nx_L = sign(nx_L) * fabs(cos(theta))*sin(phi);  
@@ -620,7 +619,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       }  // END jj-direction
     }  // END kk-direction
 
-//    printf("EjectaM in Msun = %g, EjectaM = %g, EjectaMetalM = %g, m_cell_edge = %g, n_cell_edge = %d\n",
+//    printf("EjectaM in SolarMass = %g, EjectaM = %g, EjectaMetalM = %g, m_cell_edge = %g, n_cell_edge = %d\n",
 //	   cstar->NotEjectedMass, EjectaMass, EjectaMetalMass, m_cell_edge, n_cell_edge); 
 
     /* Calculate the jet density */
@@ -654,13 +653,13 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
        Note that EjectaThermalEnergy is never used; MBHFeedbackEnergyCoupling 
        should now be calculated considering gravitational redshift (Kim et al. 2010) */
 
-    MBHJetsVelocity = c * sqrt( 2 * MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency 
+    MBHJetsVelocity = clight * sqrt( 2 * MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency 
 				      / MBHFeedbackMassEjectionFraction ) / VelocityUnits;
 
-    if (MBHJetsVelocity * VelocityUnits > 0.99*c) {
+    if (MBHJetsVelocity * VelocityUnits > 0.99*clight) {
       ENZO_VFAIL("grid::AddFS: MBHJetsVelocity is ultra-relativistic! (%g/ %g/ %g/ %g c)\n",
 		 MBHFeedbackEnergyCoupling, MBHFeedbackRadiativeEfficiency, 
-		 MBHFeedbackMassEjectionFraction, MBHJetsVelocity * VelocityUnits / c);
+		 MBHFeedbackMassEjectionFraction, MBHJetsVelocity * VelocityUnits / clight);
     }
 
     /* Finally, add the jet feedback at the edges (outer part of the supercell) */
@@ -757,7 +756,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 //	    old_mass, cstar->Mass, old_vel1, cstar->vel[1]);  
 
     fprintf(stdout, "grid::AddFS: jets injected (EjectaM = %g Ms, JetsVelocity = %g, grid v = %g, rho_jet = %g) along n_L = (%g, %g, %g)\n", 
-	    EjectaMass * DensityUnits * pow(LengthUnits,3.0) / Msun,
+	    EjectaMass * DensityUnits * pow(LengthUnits,3.0) / SolarMass,
 	    MBHJetsVelocity, BaryonField[Vel3Num][n_cell_edge-1], rho_jet, nx_L, ny_L, nz_L); 
 
   }  // END MBH_JETS
@@ -854,7 +853,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
     float kph, kheat;
     sigma_HI *= (double) TimeUnits / ((double)LengthUnits * (double)LengthUnits) 
-      / (4.0 * M_PI);
+      / (4.0 * pi);
     kph = (float) (Q_HI * sigma_HI);
     kheat = kph * deltaE;
 
@@ -988,7 +987,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   /* Now it's done, unmark. */
 
   //cstar->FeedbackFlag = NO_FEEDBACK;
-     
+
 
   return SUCCESS;
 

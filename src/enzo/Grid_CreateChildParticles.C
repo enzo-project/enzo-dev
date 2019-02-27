@@ -32,6 +32,7 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 #define DEBUG_PS
 
@@ -195,7 +196,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 	   *  Step[I-1]: 6 children on the same x-y plane as the parent 
 	   *  (counter-clockwise; again, here we assume the parent is at the origin)
 	   */
-	  sin60 = sin(M_PI/3.0);
+	  sin60 = sin(pi/3.0);
 	  NewPos[0][0] = rad;
 	  NewPos[1][0] = 0.0;
 	  NewPos[2][0] = 0.0;
@@ -275,7 +276,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 	  {
 	      therandominteger = mt_random();
 	      therandomfraction =  float((therandominteger%32768)) /  32768.0;
-	      alpha[m] = (float)(therandomfraction*M_PI*2.0);
+	      alpha[m] = (float)(therandomfraction*pi*2.0);
 	  }
 	  
 	  /* 

@@ -23,6 +23,7 @@
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
 #include "Star.h"
+#include "phys_constants.h"
 
 #define MIN_OPENING_ANGLE 0.2  // 0.2 = arctan(11.3 deg)
 
@@ -37,8 +38,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int grid::AddH2DissociationFromTree(void)
 {
-
-  const double pc = 3.086e18, clight = 3e10;
 
   int i, j, k, index, dim, ci;
   FLOAT pos[MAX_DIMENSION];
@@ -77,7 +76,7 @@ int grid::AddH2DissociationFromTree(void)
   H2ISigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
 
   // Dilution factor (prevent breaking in the rate solver near the star)
-  float dilutionRadius = 10.0 * pc / (double) LengthUnits;
+  float dilutionRadius = 10.0 * pc_cm / (double) LengthUnits;
   float dilRadius2 = dilutionRadius * dilutionRadius;
 
   // Convert from #/s to RT units
@@ -87,7 +86,7 @@ int grid::AddH2DissociationFromTree(void)
   /* Find sources in the tree that contribute to the cells */
 
   SuperSourceEntry *Leaf;
-  float factor = LConv_inv * H2ISigma / (4.0 * M_PI);
+  float factor = LConv_inv * H2ISigma / (4.0 * pi);
   float angle;
 
   Leaf = SourceClusteringTree;

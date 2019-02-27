@@ -23,6 +23,7 @@
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
 #include "Star.h"
+#include "phys_constants.h"
 
 int FindField(int f, int farray[], int n);
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -32,8 +33,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int grid::AddRadiationImpulse(int field, double Luminosity, double sigma, 
 			      FLOAT BirthTime, FLOAT* pos)
 {
-
-  const double pc = 3.086e19, clight = 3e10;
 
   int i, j, k, index, dim, FieldNum;
   float kdiss_r2;
@@ -62,7 +61,7 @@ int grid::AddRadiationImpulse(int field, double Luminosity, double sigma,
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
 
   // Dilution factor (prevent breaking in the rate solver near the star)
-  float dilutionRadius = 10.0 * pc / (double) LengthUnits;
+  float dilutionRadius = 10.0 * pc_cm / (double) LengthUnits;
   float dilRadius2 = dilutionRadius * dilutionRadius;
   float LightTravelDist = TimeUnits * clight / LengthUnits;
 
@@ -73,7 +72,7 @@ int grid::AddRadiationImpulse(int field, double Luminosity, double sigma,
   /* Loop over cells */
 
   index = 0;
-  kdiss_r2 = (float) (Luminosity * sigma / (4.0 * M_PI));
+  kdiss_r2 = (float) (Luminosity * sigma / (4.0 * pi));
   for (k = 0; k < GridDimension[2]; k++) {
     delz = fabs(CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - pos[2]);
     delz = min(delz, DomainWidth[2]-delz);

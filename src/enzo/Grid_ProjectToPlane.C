@@ -26,6 +26,8 @@
 #include "ExternalBoundary.h"
 #include "CosmologyParameters.h"
 #include "Grid.h"
+
+#include "phys_constants.h"
  
 extern "C" void FORTRAN_NAME(projplane)(
           float *grid1, float *grid2, float *flaggrid, int *iflag,
@@ -141,12 +143,11 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
     ENZO_FAIL("Error in GetUnits.\n");
   }
   if (ComovingCoordinates) {
-    const double SolarMass = 1.989e33, Mpc = 3.0824e24;
     DensityConversion *= float(double(DensityUnits)*double(LengthUnits)/
-			       SolarMass*Mpc*Mpc);
+			       SolarMass*Mpc_cm*Mpc_cm);
     XrayConversion *= float(1.0e-20*POW(double(DensityUnits),2)
-			      /POW(SolarMass,2)*POW(Mpc,6)
-			    *double(LengthUnits)/Mpc);
+			      /POW(SolarMass,2)*POW(Mpc_cm,6)
+			    *double(LengthUnits)/Mpc_cm);
     TempXrayConversion = XrayConversion;
   }
  
@@ -349,11 +350,8 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
     for (i = 0; i < size; i++)
       sz[i] = BaryonField[DensNum][i]*temperature[i];
  
-    double sigma_thompson = 6.65e-25, mh = 1.67e-24, me = 9.11e-28,
-           kboltz = 1.38e-16, clight = 3.00e10, csquared = 8.99e20;
- 
     ConversionFactor = double(DensityUnits)*0.88/mh
-                       *kboltz/(me*csquared)*sigma_thompson
+                       *kboltz/(me*clight*clight)*sigma_thompson
 		       *double(LengthUnits)*CellLength;
  
     if (NumberOfBaryonFields > 0)

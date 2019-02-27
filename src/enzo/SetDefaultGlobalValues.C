@@ -22,6 +22,7 @@
 #include "global_data.h"
 #include "TopGridData.h"
 #include "StarParticleData.h"
+#include "phys_constants.h"
  
 /* character strings */
  
@@ -50,7 +51,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
  
   /* declarations */
  
-  const float Pi = 3.14159;
   int dim, i, j;
  
   huge_number               = 1.0e+20;
@@ -361,7 +361,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   AccretionKernal             = FALSE;             // off
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
-  GravitationalConstant       = 4*Pi;              // G = 1
+  GravitationalConstant       = 4*pi;              // G = 1
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
@@ -396,6 +396,22 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     DrivenFlowVelocity[dim] = 0.0;
     DrivenFlowDomainLength[dim] = 0.0;
   }
+
+  UseSGSModel = 0; // off
+  SGSFilterStencil = 0; // the one-dimensional stencil of the complete filter 
+  SGSNeedJacobians = 0; // set automatically in ReadParameter file 
+  SGSNeedMixedFilteredQuantities = 0; // set automatically in ReadParameter file
+  SGSFilterWidth = 0.; // off, i.e. use grid-scale quantities
+  for (i = 0; i < 4; i++)
+    // discrete filter weights of explicit filter
+    SGSFilterWeights[i] = 0.;
+  SGScoeffERS2M2Star = 0.0; // off
+  SGScoeffEVStarEnS2Star = 0.0; // off
+  SGScoeffEnS2StarTrace = 0.0; // off
+  SGScoeffNLemfCompr = 0.0; // off
+  SGScoeffNLu = 0.0; // off
+  SGScoeffNLuNormedEnS2Star = 0.0; // off
+  SGScoeffNLb = 0.0; // off
 
   RadiativeCooling            = FALSE;             // off
   RadiativeCoolingModel       = 1;                 //1=cool_rates.in table lookup
@@ -481,6 +497,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
+  use_grackle = FALSE;
 #ifdef USE_GRACKLE
     // Grackle chemistry data structure.
   chemistry_data *my_chemistry;

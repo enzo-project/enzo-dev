@@ -26,6 +26,8 @@
 #include "global_data.h"
 #include "CosmologyParameters.h"
 
+#include "phys_constants.h"
+
 int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits, 
 			  float aUnits, float DensityUnits, float TimeUnits, 
 			  float aye)
@@ -102,7 +104,6 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 
   /* Convert to code units (a la calc_rates.src) */
 
-  const double mh = 1.673e-24;
   double tbase1, xbase1, dbase1, coolunit;
 
   tbase1 = TimeUnits;

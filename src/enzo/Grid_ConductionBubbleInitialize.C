@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 // Function prototypes
 int GetUnits (float *DensityUnits, float *LengthUnits,
@@ -43,7 +44,6 @@ static double *rad,*nofr,*Tofr, g, bunch_of_constants, dKdr,
 static int ncells;
 
 #define KEV_KELVIN 1.1604e+7
-#define KPC_CGS 3.0857e+21
 #define DEFAULT_MU 0.6  // we assume total ionization
 
 // Grid Initializer: all input values are in Enzo internal units _except_ 
@@ -127,7 +127,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   nofr = new double[ncells];
   Tofr = new double[ncells];
 
-  dKdr_cgs = dKdr * KEV_KELVIN / KPC_CGS;
+  dKdr_cgs = dKdr * KEV_KELVIN / kpc_cm;
   r_mid_cgs = r_mid * LengthUnits;
   r_max_cgs = 2.0*r_mid_cgs;
 
@@ -147,7 +147,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   // convert 1D arrays into Enzo internal units.
   for(i=0; i<ncells; i++){
     rad[i] /= LengthUnits;  // convert to enzo distance
-    nofr[i] *= DEFAULT_MU * 1.67e-24 / DensityUnits;  // convert to enzo-unit density (from number density)
+    nofr[i] *= DEFAULT_MU * mh / DensityUnits;  // convert to enzo-unit density (from number density)
     Tofr[i] /= (TemperatureUnits*(Gamma-1.0)*DEFAULT_MU);  // convert from temp to internal energy
   }
 
@@ -331,9 +331,9 @@ static void get_dens_temp(void){
 
 
 
-  // g*mu*mp/kb;
+  // g*mu*mp/kboltz;
 
-  bunch_of_constants = g*DEFAULT_MU*(1.67e-24)/(1.38e-16);
+  bunch_of_constants = g*DEFAULT_MU*(mh)/(kboltz);
 
   /*
   printf("n_mid, bunch_of_constants:  %e %e %e\n",n_mid,bunch_of_constants,g);

@@ -21,6 +21,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 void InsertStarAfter(Star * &Node, Star * &NewNode);
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -73,14 +74,13 @@ int grid::FindAllStarParticles(int level)
 #endif /* RESET_BH_LIFETIMES */
 
 #ifdef RESET_MBH_MASS // Edit MBH Mass; only for test purpose
-	const double Msun = 1.989e33;
 	float MassConversion, DensityUnits, LengthUnits, TemperatureUnits, 
 	  TimeUnits, VelocityUnits;
 	GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 		 &TimeUnits, &VelocityUnits, this->Time);
 
 	double dx = LengthUnits * this->CellWidth[0][0];
-	MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
+	MassConversion = (float) (dx*dx*dx * double(DensityUnits) / SolarMass);
 
 	if (ParticleType[i] == PARTICLE_TYPE_MBH)
 	  ParticleMass[i] = 1.0e5 / MassConversion;

@@ -197,6 +197,22 @@ const forcing_type
   Parabolic  = 2,
   Band       = 3;
 
+const enum_type
+/* indices used for vectors/Jacobians in SGS model */
+  SGSX   = 0,
+  SGSY   = 1,
+  SGSZ   = 2,
+/* indices used for symmetric tensors */
+  SGSXX  = 0,
+  SGSYY  = 1,
+  SGSZZ  = 2,
+  SGSXY  = 3,
+  SGSYZ  = 4,
+  SGSXZ  = 5,
+  SGSYX  = 3,
+  SGSZY  = 4,
+  SGSZX  = 5;
+
 /* These are the different types of fluid boundary conditions. */
 
 const boundary_type

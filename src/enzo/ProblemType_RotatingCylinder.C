@@ -115,7 +115,6 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
       this->RotatingCylinderOverdensity = 20.0;
       this->RotatingCylinderDensity = 1.0;
       this->RotatingCylinderTotalEnergy = 1.0;
-      float Pi                      = 3.14159;
 
       /* set no subgrids by default. */
 

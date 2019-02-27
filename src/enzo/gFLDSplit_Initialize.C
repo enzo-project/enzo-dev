@@ -24,6 +24,9 @@
 #ifdef TRANSFER
 #include "gFLDSplit.h"
 #include "CosmologyParameters.h"
+
+#include "phys_constants.h"
+
 // #ifdef _OPENMP
 // #include <omp.h>
 // #endif
@@ -580,13 +583,12 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // if performing chemistry in this module, un-scale rates for use 
   // within RadHydro solver (handles its own units) 
   if (RadiativeCooling == 0) {
-    float mp = 1.67262171e-24;   // Mass of a proton [g]
     float tbase1 = TimeUnits;
     float xbase1 = LenUnits/(a*aUnits);
     float dbase1 = DenUnits*a*a*a*aUnits*aUnits*aUnits;
-    float kunit  = (aUnits*aUnits*aUnits*mp) / (dbase1*tbase1);
-    float kunit_3bdy  = kunit * (aUnits*aUnits*aUnits*mp) / dbase1;
-    float coolunit = (aUnits*aUnits*aUnits*aUnits*aUnits*xbase1*xbase1*mp*mp) 
+    float kunit  = (aUnits*aUnits*aUnits*mh) / (dbase1*tbase1);
+    float kunit_3bdy  = kunit * (aUnits*aUnits*aUnits*mh) / dbase1;
+    float coolunit = (aUnits*aUnits*aUnits*aUnits*aUnits*xbase1*xbase1*mh*mh) 
                      / (tbase1*tbase1*tbase1*dbase1);
     for (i=0; i<CoolData.NumberOfTemperatureBins; i++) {
       RateData.k1[i]      *= kunit;

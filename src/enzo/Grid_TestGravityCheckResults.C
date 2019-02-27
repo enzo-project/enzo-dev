@@ -23,6 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
  
 int grid::TestGravityCheckResults(FILE *fptr, grid *TopGrid)
 {
@@ -34,7 +35,7 @@ int grid::TestGravityCheckResults(FILE *fptr, grid *TopGrid)
  
   int dim, i;
   float dist[MAX_DIMENSION], Middle[MAX_DIMENSION], Width[MAX_DIMENSION];
-  float r, fanalytic, fradial, ftang, pi = 3.14159;
+  float r, fanalytic, fradial, ftang;
  
   /* Set constants. */
  

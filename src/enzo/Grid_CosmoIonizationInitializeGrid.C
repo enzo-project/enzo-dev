@@ -24,6 +24,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
  
 // function prototypes
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -132,7 +133,6 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
     float TEConstant = (IEConstant + 0.5*(VxConstant*VxConstant + 
 					  VyConstant*VyConstant + 
 					  VzConstant*VzConstant));
-    float mp = 1.67262171e-24;      // proton mass [g]
     float rhoConstant = OmegaBaryonNow/OmegaMatterNow*DensityUnits;
     float HIIConstant = rhoConstant*InitialFractionHII*HydrogenMassFraction;
     float HIConstant = rhoConstant*HydrogenMassFraction - HIIConstant;

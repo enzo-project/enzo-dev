@@ -96,17 +96,14 @@ c  Locals:
 c
       INTG_PREC  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
       R_PREC   div, tdyn, dtot, wgt
-      R_PREC   pi, G, sndspdC, m1
+      R_PREC   sndspdC, m1
       R_PREC   isosndsp2, bmass, jeanmass, lum
-      real*8 msolar, mh
-      parameter (pi=pi_val, G=GravConst, 
-     &           sndspdC=1.3095e8_RKIND,
-     &           msolar=SolarMass, mh=mass_h)
+      parameter (sndspdC=1.3095e8_RKIND)
 c
       ii = np
 c
 c     calculate how many solar masses are in d1*x1^3
-      m1 = dble(x1*dx)**3 * dble(d1) / msolar
+      m1 = dble(x1*dx)**3 * dble(d1) / SolarMass
 c
 c  for each zone, : a primordial "star" particle is created if answers
 c  to all the following questions are affirmative:

@@ -31,6 +31,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 Star *PopStar(Star * &Node);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
@@ -47,7 +48,6 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   float rmerge2, rmerge2o, dx, dx2;
   FLOAT TimeNow;
   int dim, level;
-  const float pc = 3.086e18;
 
   /* Get the time at the finest level */
   
@@ -66,7 +66,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
   /* Merge all yet-to-be born stars within r_merge */
 
-  rmerge2o = powf(StarClusterCombineRadius * pc / LengthUnits, 2.0f);
+  rmerge2o = powf(StarClusterCombineRadius * pc_cm / LengthUnits, 2.0f);
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
     if (ThisStar->IsActive() || ThisStar->MarkedToDelete())
@@ -105,7 +105,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
      binaries.  Set StarClusterCombineRadius => 0 to ignore this. */
 
   // Should be a parameter (10 kyr).  Used in StarParticleRadTransfer.C.
-  const float PopIIIRampTime = 3.1557e11 / TimeUnits;
+  const float PopIIIRampTime = 0.01 * Myr_s / TimeUnits;
 
 #define NO_POP3_BINARIES
 #ifdef NO_POP3_BINARIES

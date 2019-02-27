@@ -26,6 +26,7 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 #define THRESHOLD_DENSITY_DB36 1e14
 #define THRESHOLD_DENSITY_DB37 5e14
@@ -86,8 +87,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
     float b5 = 0;
     float x = 0;
     float alpha = 1.1;
-    float kb = 1.3806504e-16;        //erg K^-1
-    float H2mass = 2.0*1.672623e-24; //grams
+    float H2mass = 2.0*mh; //grams
     float shield1_db = 1.0, shield2_db = 1.0;
     /*
      * The Wallcott-Green 2011 paper indicates that  a modified form
@@ -96,7 +96,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
      */
    
     
-    b = sqrt(2.0*kb*BaryonField[TemperatureField][cellindex]/H2mass); // cm s^-1
+    b = sqrt(2.0*kboltz*BaryonField[TemperatureField][cellindex]/H2mass); // cm s^-1
     b5 = b/1e5;                                    // cm s^-1
     if ((*PP)->ColumnDensity < THRESHOLD_DENSITY_DB37) {
       shield1 = 1;

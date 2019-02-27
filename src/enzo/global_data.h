@@ -349,6 +349,7 @@ EXTERN float RootGridCourantSafetyNumber;
 EXTERN int RadiativeCooling;
 EXTERN CoolDataType CoolData;
 EXTERN int RadiativeCoolingModel;
+EXTERN int use_grackle;
 
 /* Cloudy cooling parameters and data. */
 
@@ -375,6 +376,24 @@ EXTERN float DrivenFlowBandWidth[MAX_DIMENSION];
 EXTERN float DrivenFlowAutoCorrl[MAX_DIMENSION];
 EXTERN float DrivenFlowVelocity[MAX_DIMENSION];
 EXTERN float DrivenFlowDomainLength[MAX_DIMENSION];
+
+/* Subgrid-scale model variables */
+EXTERN int UseSGSModel;
+EXTERN int SGSFilterStencil;
+EXTERN int SGSNeedJacobians;
+EXTERN int SGSNeedMixedFilteredQuantities;
+EXTERN float SGSFilterWidth;
+EXTERN float SGSFilterWeights[4];
+EXTERN float SGScoeffERS2M2Star;
+EXTERN float SGScoeffEVStarEnS2Star;
+EXTERN float SGScoeffEnS2StarTrace;
+EXTERN float SGScoeffNLemfCompr;
+EXTERN float SGScoeffNLu;
+EXTERN float SGScoeffNLuNormedEnS2Star;
+EXTERN float SGScoeffNLb;
+EXTERN float SGScoeffSSu;
+EXTERN float SGScoeffSSb;
+EXTERN float SGScoeffSSemf;
 
 /* Multi-species rate equation flag and associated data. */
 

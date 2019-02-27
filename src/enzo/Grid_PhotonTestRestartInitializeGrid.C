@@ -22,6 +22,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
+
  int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -82,10 +84,6 @@ int grid::PhotonTestRestartInitialize(int level, int *NumberOfCellsSet)
   PhotonPackages-> NextPackage= NULL;
 
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-               pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16;
-
- 
   /* Initialize radiation fields - not needed in restart?? */
 
 //   if (this->InitializeRadiativeTransferFields() == FAIL) {

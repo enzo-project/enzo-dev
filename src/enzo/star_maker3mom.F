@@ -91,12 +91,9 @@ c  Locals:
 c
       INTG_PREC  i, j, k, ii
       R_PREC   div, tdyn, dtot
-      R_PREC   pi, G, sndspdC
+      R_PREC   sndspdC
       R_PREC   isosndsp2, starmass, starfraction, bmass, jeanmass
-      real*8 msolar
-      parameter (pi=pi_val, G=GravConst, 
-     &           sndspdC=1.3095e8_RKIND,
-     &           msolar=SolarMass)
+      parameter (sndspdC=1.3095e8_RKIND)
 c
       ii = np
 
@@ -142,7 +139,7 @@ c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*dunits
-               tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
+               tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/GravConst/dtot)/t1
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
      &             temp(i,j,k) .gt. 1.1e4_RKIND) goto 10
@@ -153,10 +150,10 @@ c                 implies that the dark matter velocity dispersion is >>
 c                 the sound speed.  This will be true for small perturbations
 c                 within large halos).
 c
-               bmass = d(i,j,k)*dble(dunits)*dble(x1*dx)**3 / msolar
+               bmass = d(i,j,k)*dble(dunits)*dble(x1*dx)**3 / SolarMass
                isosndsp2 = sndspdC * temp(i,j,k)
-               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(dunits))) *
-     &                    dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
+               jeanmass = pi_val/(6._RKIND*sqrt(d(i,j,k)*dble(dunits))) *
+     &                    dble(pi_val * isosndsp2 / GravConst)**1.5_RKIND / SolarMass
 
 c
 c  THIS IS COMMENTED OUT - NO JEANS MASS CRITERION IN THIS ALGORITHM!!!
@@ -377,7 +374,7 @@ c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
       INTG_PREC n, ic, jc, kc, ip, jp, kp,
      &     iface, jface, kface, i, j, k
-      R_PREC mform, clight, energy, sn_param, msolar_e51,
+      R_PREC mform, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, 
      &     dist_mass_cells, dist_mom_cells, mass_per_cell, te_per_cell,
      &     thermal_energy_per_cell, kinetic_energy_per_cell,
@@ -393,10 +390,8 @@ c
      &     ke_before(4,4,4)
       R_PREC Zsol, d_ave, num_d, energy_51, eunits, R_PDS, t_PDS, 
      &	   R_resolve, KE_rem, e_const, ergs_51, realmass, mu_cell, fbuff
-      double precision msolar, mH
-      parameter (clight = c_light, msolar_e51 = 1800._RKIND, 
-     &           msolar = SolarMass,
-     &	         mH = mass_h, e_const = 2.71828_RKIND,
+      parameter (msolar_e51 = 1800._RKIND, 
+     &	         e_const = 2.71828_RKIND,
      &	         ergs_51 = 52.57_RKIND)
 c
 c-----------------------------------------------------------------------
@@ -494,7 +489,7 @@ c
 c           Calculate how much of the star formation in this
 c           timestep would have gone into supernova energy.
 c            
-            energy = sn_param * mform * (clight/vunits)**2_IKIND
+            energy = sn_param * mform * (c_light/vunits)**2_IKIND
             energy_per_cell = energy / dist_mass_cells
 
             if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
@@ -591,7 +586,7 @@ c     Calculate variable kinf based on R_PDS from
 c     Cioffi et al. 1988
 c
                realmass = mform * dunits * dx * x1 *dx *x1 *dx *x1
-               realmass = realmass /msolar
+               realmass = realmass /SolarMass
                energy_51 = sn_param * msolar_e51 * realmass
 c
                Zsol = 0._RKIND
@@ -609,7 +604,7 @@ c               write(6,*) 'averaging over patch'
                         Zsol = Zsol + 
      &                       metal(ic+i,jc+j,kc+k)/0.02_RKIND
                         num_d = num_d + 
-     &                       d(ic+i,jc+j,kc+k)*dunits/mu_cell/mH
+     &                       d(ic+i,jc+j,kc+k)*dunits/mu_cell/mass_h
                         d_ave = d_ave + d(ic+i,jc+j,kc+k)*dunits
                      enddo
                   enddo
@@ -644,7 +639,7 @@ c
      &                    * num_d**(-3._RKIND/7._RKIND)
      &                    * Zsol**(-1._RKIND/7._RKIND)
                endif
-               R_resolve = dx*x1/pc
+               R_resolve = dx*x1/pc_cm
                if (R_PDS .gt. 4.5*R_resolve) then
                   kinf = 0._RKIND
 #ifdef FORTRAN_DEBUG
@@ -652,7 +647,7 @@ c
      &                 energy_51,R_PDS,R_resolve, realmass
 #endif
                else                  
-                  kinf = 3.97133e-6_RKIND * (d_ave/mH) 
+                  kinf = 3.97133e-6_RKIND * (d_ave/mass_h) 
      &                 * (R_resolve**(-2._RKIND)) 
      &                 * (R_PDS**7._RKIND) * (t_PDS**(-2._RKIND)) 
      &                 * (energy_51**(-1._RKIND))

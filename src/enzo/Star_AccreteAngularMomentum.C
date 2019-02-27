@@ -26,6 +26,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -49,7 +50,6 @@ int Star::AccreteAngularMomentum(void)
   FLOAT CellVolume = 1, BoxSize = 1, DensityConversion = 1, VelocityConversion = 1;
   FLOAT a = 1, dadt;
   FLOAT delx, dely, delz, velx, vely, velz, time = CurrentGrid->Time;
-  const double Msun = 1.989e33, Mpc = 3.086e24;
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -63,9 +63,9 @@ int Star::AccreteAngularMomentum(void)
     CosmologyComputeExpansionFactor(time, &a, &dadt);
     BoxSize = ComovingBoxSize/HubbleConstantNow*a/(1+InitialRedshift);
   } else
-    BoxSize = LengthUnits/Mpc; // to Mpc
+    BoxSize = LengthUnits/Mpc_cm; // to Mpc
 
-  DensityConversion = FLOAT(double(DensityUnits) / Msun * pow(Mpc, 3)); // to Msun/Mpc^3
+  DensityConversion = FLOAT(double(DensityUnits) / SolarMass * pow(Mpc_cm, 3)); // to SolarMass/Mpc^3
   VelocityConversion = FLOAT(double(VelocityUnits) / 1.0e5); // to km/s
 
   float CellWidthTemp = float(CurrentGrid->CellWidth[0][0]);
@@ -105,14 +105,14 @@ int Star::AccreteAngularMomentum(void)
 
 	index = i+ii+(j+jj+(k+kk)*CurrentGrid->GridDimension[1])*CurrentGrid->GridDimension[0];
 	gas_mass = CurrentGrid->BaryonField[DensNum][index] * 
-	  DensityConversion * CellVolume; // in Msun
+	  DensityConversion * CellVolume; // in SolarMass
 
 	// relative velocity
 	velx = (CurrentGrid->BaryonField[Vel1Num][index] - vel[0]) * VelocityConversion; // in km/s
 	vely = (CurrentGrid->BaryonField[Vel2Num][index] - vel[1]) * VelocityConversion;
 	velz = (CurrentGrid->BaryonField[Vel3Num][index] - vel[2]) * VelocityConversion;
 	
-	// store gas angular momentum in: Msun * Mpc * km/s
+	// store gas angular momentum in: SolarMass * Mpc * km/s
 	gas_angmom[0] += gas_mass * ( vely*delz - velz*dely); 
 	gas_angmom[1] += gas_mass * (-velx*delz + velz*delx);
 	gas_angmom[2] += gas_mass * ( velx*dely - vely*delx);
@@ -128,7 +128,7 @@ int Star::AccreteAngularMomentum(void)
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     gas_angmom[dim] /= total_gas_mass;
 
-  // finally store angular momentum onto MBH in: Msun * Mpc * km/s
+  // finally store angular momentum onto MBH in: SolarMass * Mpc * km/s
   for (dim = 0; dim < MAX_DIMENSION; dim++) 
     this->accreted_angmom[dim] += (float)(this->DeltaMass * gas_angmom[dim]);
 
