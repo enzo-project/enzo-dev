@@ -40,13 +40,14 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
 				      float ZeldovichPancakeOmegaCDMNow,
 				      float ZeldovichPancakeCollapseRedshift,
 				      float ZeldovichPancakeInitialTemperature,
+				      float ZeldovichPancakeInitialGasVelocity,
 				      float ZeldovichPancakeInitialUniformBField[]
 					 )
 {
   /* declarations */
  
   float Amplitude, AmplitudeVel, kx, xLagrange, xEulerian, xEulerianOld;
-  int   dim, field, i, index;
+  int   dim, field, i, j, k, index;
  
   /* error check */
  
@@ -132,8 +133,10 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
   AmplitudeVel = -sqrt(2.0/3.0)*(1.0+ZeldovichPancakeCollapseRedshift) /
                  ((1.0+InitialRedshift) * 2.0*pi);
   kx           = 2*pi/float(NumberOfZones);
- 
+
   /* set density, total energy and velocity in problem dimension */
+
+  float bulkv = ZeldovichPancakeInitialGasVelocity*km_cm / VelocityUnits;
  
   for (i = 0; i < size; i++) {
  
@@ -174,16 +177,16 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
     if (DualEnergyFormalism)
       BaryonField[iTE+1][i] = BaryonField[iTE][i];
     if (HydroMethod != Zeus_Hydro)
-      BaryonField[iTE][i]  += 0.5*POW(AmplitudeVel*sin(kx*xEulerian),2);
+      BaryonField[iTE][i]  += 0.5*POW(AmplitudeVel*sin(kx*xEulerian) + bulkv,2);
  
     /* Set velocities (some may be set to zero later -- see below). */
  
     if (HydroMethod == Zeus_Hydro) xEulerian -= 0.5; // only approximate
-    BaryonField[vel][i]     = AmplitudeVel * sin(kx*xEulerian);
+    BaryonField[vel][i]     = AmplitudeVel * sin(kx*xEulerian) + bulkv;
     if ( MaxVelocityIndex > 1)
-      BaryonField[vel+1][i] = AmplitudeVel * sin(kx*xEulerian);
+      BaryonField[vel+1][i] = AmplitudeVel * sin(kx*xEulerian) + bulkv;
     if ( MaxVelocityIndex > 2)
-      BaryonField[vel+2][i] = AmplitudeVel * sin(kx*xEulerian);
+      BaryonField[vel+2][i] = AmplitudeVel * sin(kx*xEulerian) + bulkv;
 
     if ( UseMHD ) {
       BaryonField[iBx  ][i] = ZeldovichPancakeInitialUniformBField[0];
@@ -236,6 +239,8 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
 	    ParticlePosition[dim][ipart] = pos0[dim] +
 	      BaryonField[vel+dim][index] * InitialTimeInCodeUnits;
 	    ParticleVelocity[dim][ipart] = BaryonField[vel+dim][index];
+	    if (dim == ZeldovichPancakeDirection)
+	      ParticleVelocity[dim][ipart] -= bulkv;
 	  }
 	  ipart++;
 	} // ENDFOR i

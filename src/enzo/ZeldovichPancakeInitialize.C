@@ -79,6 +79,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
   float ZeldovichPancakeOmegaCDMNow        = 0.0;  // no dark matter
   float ZeldovichPancakeCollapseRedshift   = 1.0;  // free parameter
   float ZeldovichPancakeInitialTemperature = 100;  // whatever
+  float ZeldovichPancakeInitialGasVelocity = 0.0;  // km/s
   float ZeldovichPancakeInitialUniformBField[MAX_DIMENSION];  // in Gauss
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -106,6 +107,8 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 		  &ZeldovichPancakeCollapseRedshift);
     ret += sscanf(line, "ZeldovichPancakeInitialTemperature = %"FSYM,
 		  &ZeldovichPancakeInitialTemperature);
+    ret += sscanf(line, "ZeldovichPancakeInitialGasVelocity = %"FSYM,
+		  &ZeldovichPancakeInitialGasVelocity);
     ret += sscanf(line, "ZeldovichPancakeInitialUniformBField = %"FSYM" %"FSYM" %"FSYM,
 		  ZeldovichPancakeInitialUniformBField,
 		  ZeldovichPancakeInitialUniformBField+1,
@@ -144,6 +147,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 					  ZeldovichPancakeOmegaCDMNow,
 					  ZeldovichPancakeCollapseRedshift,
 					  ZeldovichPancakeInitialTemperature,
+					  ZeldovichPancakeInitialGasVelocity,
 					  ZeldovichPancakeInitialUniformBField
 						       ) == FAIL) {
     ENZO_FAIL("Error in ZeldovichPancakeInitializeGrid.\n");

@@ -4075,6 +4075,11 @@ Zeldovich Pancake (20)
     x-axis)
 ``ZeldovichPancakeInitialTemperature`` (external)
     Initial gas temperature. Units: degrees Kelvin. Default: 100
+``ZeldovichPancakeInitialGasVelocity`` (external)
+    Initial bulk gas velocity in the direction of the pancake
+    collapse. Units: km/s. Default: 0.0
+``ZeldovichPancakeInitialUniformBField`` (external)
+    Initial magnetic field. Units: Gauss. Default: 0.0 0.0 0.0
 ``ZeldovichPancakeOmegaBaryonNow`` (external)
     Omega Baryon at redshift z=0; standard setting. Default: 1.0
 ``ZeldovichPancakeOmegaCDMNow`` (external)

@@ -1947,6 +1947,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float ZeldovichPancakeOmegaCDMNow,
 				     float ZeldovichPancakeCollapseRedshift,
 				     float ZeldovichPancakeInitialTemperature,
+				     float ZeldovichPancakeInitialGasVelocity,
 				     float ZeldovichPancakeInitialUniformBField[]);
 
 /* 1D Pressureless Collapse: initialize grid. */
