@@ -65,7 +65,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
     /* Set boundaries (with and without ghost zones) */
 
-    int StartIndex[] = {1,1,1}, EndIndex[] = {1,1,1};
+    int StartIndex[] = {0,0,0}, EndIndex[] = {0,0,0};
     if (IncludeGhostZones)
       for (dim = 0; dim < GridRank; dim++) {
 	StartIndex[dim] = 0;
@@ -87,9 +87,9 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
       /* Compute index of particle position. */
  
       i0 = int((ParticlePosition[0][i] - CellLeftEdge[0][0])/CellWidth[0][0]);
-      if (GridRank > 0)
-       j0 = int((ParticlePosition[1][i] - CellLeftEdge[1][0])/CellWidth[1][0]);
       if (GridRank > 1)
+       j0 = int((ParticlePosition[1][i] - CellLeftEdge[1][0])/CellWidth[1][0]);
+      if (GridRank > 2)
        k0 = int((ParticlePosition[2][i] - CellLeftEdge[2][0])/CellWidth[2][0]);
  
       i0 = max(min(EndIndex[0], i0), StartIndex[0]);
