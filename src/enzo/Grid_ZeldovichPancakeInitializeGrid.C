@@ -221,8 +221,8 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
 
     int ipart = 0;
     FLOAT pos0[MAX_DIMENSION], dr[MAX_DIMENSION];
-    for (dim = 0 ; dim < GridRank; dim++)
-      dr[dim] = (GridRank > dim) ? CellWidth[dim][0] :
+    for (dim = 0 ; dim < MAX_DIMENSION; dim++)
+      dr[dim] = (dim < GridRank) ? CellWidth[dim][0] :
 	DomainRightEdge[dim] - DomainLeftEdge[dim];
 
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
