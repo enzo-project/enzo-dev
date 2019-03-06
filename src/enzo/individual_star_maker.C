@@ -2479,7 +2479,7 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
       for(int i = -integer_sep; i <= integer_sep; i++){
 
 /* + 1 to - 1 here - be careful */
-
+// AE: Feb 2019 - I believe indexes here are wrong? will update if modified
         for(int i_loc = i - 1; i_loc <= i; i_loc++){
           float dxf_loc, dxc_loc;
 
