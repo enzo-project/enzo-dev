@@ -82,7 +82,7 @@ int grid::SetParticleMassFlaggingField(
 
   if (CommunicationDirection == COMMUNICATION_SEND) {
 
-    int method, NumberOfFlaggedCells;
+    int method, NumberOfFlaggedCells = 0;
     bool KeepFlaggingField;
 
     /* Calculate the flagging field only if 
