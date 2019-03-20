@@ -273,7 +273,8 @@ class perform:
                 line_value = np.array([cycle] + line_list[1:],dtype='float64') 
                 line_value = np.nan_to_num(line_value)  # error checking
     
-                data[line_key][i] = line_value
+                # new numpy requires this to be cast as a tuple
+                data[line_key][i] = to_tuple(line_value)
 
         ### Make sure all cycles are set for all keys, even those that 
         ### didn't output every cycle
@@ -987,6 +988,14 @@ class perform:
         pl.savefig(filename)
         pl.clf()
         
+def to_tuple(a):
+    """
+    Convert an array to a tuple
+    """
+    try:
+        return tuple(to_tuple(i) for i in a)
+    except TypeError:
+        return a
         
 ### *** DEFAULT COMMAND LINE BEHAVIOR ***
 
