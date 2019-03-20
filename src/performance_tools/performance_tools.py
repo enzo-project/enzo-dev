@@ -652,7 +652,7 @@ class perform:
 
         ### Filter out field_label's for which the data is all zeros
         ### (e.g. Group_WriteAllData if no cycles had outputs)
-        field_label = filter(lambda x: sum(data[x]["Min Time"] + data[x]["Max Time"]) > 0.0, field_label)
+        field_label = [x for x in field_label if sum(data[x]["Min Time"] + data[x]["Max Time"]) > 0.0]
     
         num_fields = len(field_label)
         field_label.sort()
