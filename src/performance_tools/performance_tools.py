@@ -871,7 +871,7 @@ class perform:
         ### there are including any that were defined in the original 
         ### field_label argument.
         if repeated_field:
-            key_list = data.keys()
+            key_list = list(data.keys())
             if repeated_field == "All":
                 field_label = key_list
 
@@ -892,7 +892,7 @@ class perform:
 
         ### Filter out field_label's for which the data is all zeros
         ### (e.g. Group_WriteAllData if no cycles had outputs)
-        field_label = filter(lambda x: sum(data[x]["Min Time"] + data[x]["Max Time"]) > 0.0, field_label)
+        field_label = [x for x in field_label if sum(data[x]["Min Time"] + data[x]["Max Time"]) > 0.0]
 
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
