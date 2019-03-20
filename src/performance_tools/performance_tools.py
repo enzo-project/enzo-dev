@@ -40,6 +40,10 @@ def is_listlike(obj):
     """
     Checks to see if an object is listlike (but not a string)
     """
+    try:
+        basestring
+    except NameError:
+        basestring = str
     return not isinstance(obj, basestring)
     
 def preserve_extrema(extrema, xdata, ydata):
