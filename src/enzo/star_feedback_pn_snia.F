@@ -180,7 +180,8 @@ c        The unit of Energy input is ergs
 c
 c         EdotSNII = eSNII/0.150081 * MdotSNII*(c_light/v1)**2
          if (imetalSNIa .eq. 1) then
-            EdotSNIa = eSNIa/1.234e-3_RKIND * MdotSNIa*(c_light/v1)**2
+            EdotSNIa = eSNIa/1.234e-3_RKIND * MdotSNIa*
+     &                 (c_light/v1)**2
          else
             EdotSNIa = 0._RKIND
          endif

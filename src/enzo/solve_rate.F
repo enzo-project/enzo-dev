@@ -127,7 +127,8 @@ c
       tbase1   = utim
       xbase1   = uxyz/(aye*uaye)    ! uxyz is [x]*a      = [x]*[a]*a'        '
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
-      coolunit = (uaye**5 * xbase1**2 * mass_h**2) / (tbase1**3 * dbase1)
+      coolunit = (uaye**5 * xbase1**2 * mass_h**2) /
+     &           (tbase1**3 * dbase1)
 c
 c     Set log values of start and end of lookup tables
 c

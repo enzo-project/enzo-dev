@@ -270,7 +270,8 @@
       tbase1   = utim
       xbase1   = uxyz/(aye*uaye)    ! uxyz is [x]*a      = [x]*[a]*a'        '
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
-      coolunit = (uaye**5 * xbase1**2 * mass_h**2) / (tbase1**3 * dbase1)
+      coolunit = (uaye**5 * xbase1**2 * mass_h**2) /
+     &           (tbase1**3 * dbase1)
       uvel     = uxyz / utim
 c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mass_h)   ! 4.5 eV per H2 formed
       chunit = (ev2erg)/(2._RKIND*uvel*uvel*mass_h)   ! 1 eV per H2 formed
