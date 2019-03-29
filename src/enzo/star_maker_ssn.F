@@ -139,11 +139,14 @@ c              2) Calculate useful intermediate values.
 c
 
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/GravConst/dtot)/t1
+               tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/
+     &                      GravConst/dtot)/t1
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / SolarMass
                isosndsp2 = sndspdC * temp(i,j,k)
-               jeanmass = pi_val/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
-     &           dble(pi_val * isosndsp2 / GravConst)**1.5_RKIND / SolarMass
+               jeanmass = pi_val/(6._RKIND*
+     &              sqrt(d(i,j,k)*dble(d1))) *
+     &              dble(pi_val * isosndsp2 /
+     &              GravConst)**1.5_RKIND / SolarMass
 
                if (jeanmass > bmass) then
                   goto 10
@@ -423,13 +426,15 @@ c           Case B recombination, assuming T = 10^4 K.
 
             num = d(i,j,k) * d1 / mu / mass_h
             stromgren_radius = (
-     &           (3._RKIND*s49_tot(n)*1d49)/(4._RKIND*pi_val*alpha*num**2)
-     &           )**(1._RKIND/3._RKIND)
-            stromgren_volume =
-     &         (4._RKIND/3._RKIND)*pi_val*stromgren_radius**3
+     &           (3._RKIND*s49_tot(n)*1d49)/
+     &           (4._RKIND*pi_val*alpha*num**2)
+     &                          )**(1._RKIND/3._RKIND)
+            stromgren_volume = (4._RKIND/3._RKIND)*
+     &           pi_val*stromgren_radius**3
             cell_volume = dx*x1*dx*x1*dx*x1
 
-            ionized = kboltz*1e4 / mu / mass_h / x1**2 * t1**2
+            ionized = kboltz*1e4 / mu / mass_h /
+     &           x1**2 * t1**2
             if (stromgren_volume .le. cell_volume) then
                ionized = ionized * stromgren_volume/cell_volume
             endif

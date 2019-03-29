@@ -40,6 +40,10 @@ def is_listlike(obj):
     """
     Checks to see if an object is listlike (but not a string)
     """
+    try:
+        basestring
+    except NameError:
+        basestring = str
     return not isinstance(obj, basestring)
     
 def preserve_extrema(extrema, xdata, ydata):
@@ -124,19 +128,19 @@ def smooth(x, window_len=11, window='hanning'):
     >>> x_smooth = smooth(x_noisy)
     """
     if x.ndim != 1:
-        raise ValueError, "smooth only accepts 1 dimension arrays."
+        raise ValueError("smooth only accepts 1 dimension arrays.")
 
     if x.size < window_len:
-        raise ValueError, "Input vector needs to be bigger than window size."
+        raise ValueError("Input vector needs to be bigger than window size.")
 
     if window_len<3:
         return x
 
     if window_len%2 == 0:
-        raise ValueError, "smooth requires an odd-valued window_len." 
+        raise ValueError("smooth requires an odd-valued window_len.")
 
     if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
-        raise ValueError, "Window is one of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
+        raise ValueError("Window is one of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'")
 
     s = np.r_[x[window_len-1:0:-1], x, x[-1:-window_len:-1]]
     if window == 'flat': # moving average
@@ -273,7 +277,8 @@ class perform:
                 line_value = np.array([cycle] + line_list[1:],dtype='float64') 
                 line_value = np.nan_to_num(line_value)  # error checking
     
-                data[line_key][i] = line_value
+                # new numpy requires this to be cast as a tuple
+                data[line_key][i] = to_tuple(line_value)
 
         ### Make sure all cycles are set for all keys, even those that 
         ### didn't output every cycle
@@ -647,7 +652,7 @@ class perform:
 
         ### Filter out field_label's for which the data is all zeros
         ### (e.g. Group_WriteAllData if no cycles had outputs)
-        field_label = filter(lambda x: sum(data[x]["Min Time"] + data[x]["Max Time"]) > 0.0, field_label)
+        field_label = [x for x in field_label if sum(data[x]["Min Time"] + data[x]["Max Time"]) > 0.0]
     
         num_fields = len(field_label)
         field_label.sort()
@@ -866,7 +871,7 @@ class perform:
         ### there are including any that were defined in the original 
         ### field_label argument.
         if repeated_field:
-            key_list = data.keys()
+            key_list = list(data.keys())
             if repeated_field == "All":
                 field_label = key_list
 
@@ -887,7 +892,7 @@ class perform:
 
         ### Filter out field_label's for which the data is all zeros
         ### (e.g. Group_WriteAllData if no cycles had outputs)
-        field_label = filter(lambda x: sum(data[x]["Min Time"] + data[x]["Max Time"]) > 0.0, field_label)
+        field_label = [x for x in field_label if sum(data[x]["Min Time"] + data[x]["Max Time"]) > 0.0]
 
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
@@ -987,6 +992,14 @@ class perform:
         pl.savefig(filename)
         pl.clf()
         
+def to_tuple(a):
+    """
+    Convert an array to a tuple
+    """
+    try:
+        return tuple(to_tuple(i) for i in a)
+    except TypeError:
+        return a
         
 ### *** DEFAULT COMMAND LINE BEHAVIOR ***
 

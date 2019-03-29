@@ -163,8 +163,8 @@ c     note: minus sign is because 'coolrate' is actual backwards: when
 c     coolrate is negative, gas is cooling (which is the opposite of how
 c     it's defined in springel & Hernquist 2003, MNRAS, 339, 289, eqn. 16
                y = -1._RKIND*tstar*coolrate(i,j,k)/(d(i,j,k)*dble(d1))/
-     &              (beta*usn-(1._RKIND-beta)*1.5_RKIND*kboltz*temp(i,j,k)/
-     &              0.6_RKIND/mass_h) !Eq(16)
+     &              (beta*usn-(1._RKIND-beta)*1.5_RKIND*kboltz*
+     &              temp(i,j,k)/ 0.6_RKIND/mass_h) !Eq(16)
 
 c	       Calculate the fraction of mass in cold clouds
                if (y .le. 0._RKIND) then

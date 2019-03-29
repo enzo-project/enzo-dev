@@ -191,7 +191,8 @@ c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/GravConst/dtot)/t1
+               tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/
+     &                      GravConst/dtot)/t1
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
      &             temp(i,j,k) .gt. 1.1e4_RKIND) goto 10   
@@ -207,8 +208,10 @@ c                 within large halos).
 c
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / SolarMass
                isosndsp2 = sndspdC * temp(i,j,k)
-               jeanmass = pi_val/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
-     &                    dble(pi_val * isosndsp2 / GravConst)**1.5_RKIND / SolarMass
+               jeanmass = pi_val/(6._RKIND*
+     &              sqrt(d(i,j,k)*dble(d1))) *
+     &              dble(pi_val * isosndsp2 /
+     &              GravConst)**1.5_RKIND / SolarMass
 c
 c               if (bmass .lt. jeanmass) goto 10
 c

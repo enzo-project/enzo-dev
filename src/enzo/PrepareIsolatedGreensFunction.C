@@ -91,13 +91,13 @@ int PrepareIsolatedGreensFunction(region *GreensFunction, int proc,
 
   /* Set the constant to be used. */
 
-  float GravitationalConstant;
+  float GravConst_factor;
   if (GridRank == 3) 
-    GravitationalConstant = -GravConst*RealCellVolume/(4.0*pi);
+    GravConst_factor = -GravitationalConstant*RealCellVolume/(4.0*pi);
   if (GridRank == 2)
-    GravitationalConstant = GravConst*RealCellVolume/(2.0*pi);
+    GravConst_factor = GravitationalConstant*RealCellVolume/(2.0*pi);
   if (GridRank == 1)
-    GravitationalConstant = GravConst*RealCellVolume/2.0;
+    GravConst_factor = GravitationalConstant*RealCellVolume/2.0;
 
   /* Set Greens' function. */
 
@@ -122,11 +122,11 @@ int PrepareIsolatedGreensFunction(region *GreensFunction, int proc,
 	r = max(r, 0.38*RealCellWidth[0]);
 	//	r *= GravitatingMassFieldCellSize;
 	if (GridRank == 3)
-	  GreensFunction->Data[n] = GravitationalConstant/r;
+	  GreensFunction->Data[n] = GravConst_factor/r;
 	if (GridRank == 2)
-	  GreensFunction->Data[n] = GravitationalConstant*log(r);
+	  GreensFunction->Data[n] = GravConst_factor*log(r);
 	if (GridRank == 1)
-	  GreensFunction->Data[n] = GravitationalConstant*r;
+	  GreensFunction->Data[n] = GravConst_factor*r;
       }
     }
   }
