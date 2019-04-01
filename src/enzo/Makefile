@@ -320,7 +320,7 @@ verbose: $(EXE).exe
 #-----------------------------------------------------------------------
 
 .PHONY: autogen
-autogen: auto_show_config.C auto_show_flags.C auto_show_version.C auto_show_compile_options.C
+autogen: auto_show_config.C auto_show_flags.C auto_show_version.C
 
 # Force update of auto_show_config.C
 
@@ -342,12 +342,6 @@ auto_show_flags.C:
 auto_show_version.C:
 	-@$(MAKE) -s show-version  >& temp.show-version
 	-@awk 'BEGIN {print "#include <stdio.h>\nvoid auto_show_version(FILE *fp) {"}; {print "   fprintf (fp,\""$$0"\\n\");"}; END {print "}"}' < temp.show-version > auto_show_version.C
-
-# Force update of auto_show_compile_options.C
-
-.PHONY: auto_show_compile_options.C
-auto_show_compile_options.C:
-	-@python create_config_info.py
 
 #-----------------------------------------------------------------------
 # Generate dependency file
