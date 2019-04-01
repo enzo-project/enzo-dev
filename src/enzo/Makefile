@@ -49,8 +49,6 @@ ETAGS_COMMAND = "0"
 
 LFLAGS=--header-file=libconfig/scanner.h --prefix=libconfig_yy
 
-SVN      = hg
-
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 
 # configuration settings.
@@ -143,8 +141,8 @@ MACHNOTES:
 	@(if [ -e $@ ] ; then  \
 		echo "Success!" ; \
 		echo "Compiled enzo from " ; \
-		echo "Mercurial Branch   `$(SVN) identify -b`" ; \
-		echo "Mercurial Revision `$(SVN) identify -i`" ; \
+		echo "Mercurial Branch   `git rev-parse --abbrev-ref HEAD`" ; \
+		echo "Mercurial Revision `git rev-parse HEAD`" ; \
 		if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
 		if [ "$(CONFIG_OPT)" == "debug" ]; then \
 		echo "Compiled with opt-debug (OPT_FLAGS = $(ASSEMBLE_OPT_FLAGS))."; \

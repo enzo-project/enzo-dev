@@ -228,7 +228,7 @@ int OutputDustTemperatureOnly(char *ParameterFile,
 
 
 void CommunicationAbort(int);
-void auto_show_compile_options(void);
+void WriteConfigure(FILE *fp);
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
 	int WroteData=1, int FOFOnly=FALSE);
 
@@ -356,8 +356,12 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   ExternalBoundaryValueIO = FALSE;
 #endif
 
-  if (MyProcessorNumber == ROOT_PROCESSOR)
-    auto_show_compile_options();
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    FILE *opf;
+    opf = fopen("Enzo_Build", "w");
+    WriteConfigure(opf);
+    fclose(opf);
+  }
 
   // Main declarations
  
