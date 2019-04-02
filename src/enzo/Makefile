@@ -141,8 +141,8 @@ MACHNOTES:
 	@(if [ -e $@ ] ; then  \
 		echo "Success!" ; \
 		echo "Compiled enzo from " ; \
-		echo "Mercurial Branch   `git rev-parse --abbrev-ref HEAD`" ; \
-		echo "Mercurial Revision `git rev-parse HEAD`" ; \
+		echo "Git Branch   `git rev-parse --abbrev-ref HEAD`" ; \
+		echo "Git Revision `git rev-parse HEAD`" ; \
 		if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
 		if [ "$(CONFIG_OPT)" == "debug" ]; then \
 		echo "Compiled with opt-debug (OPT_FLAGS = $(ASSEMBLE_OPT_FLAGS))."; \
