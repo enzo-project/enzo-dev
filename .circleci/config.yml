@@ -139,7 +139,7 @@ jobs:
 
       - build-and-test:
           tag: tip
-          skipfile: ~/enzo_test/push_suite/push_suite.db
+          skipfile: ~/enzo_test/push_suite/push_suite
           flags: --answer-store
 
       - save_cache:
