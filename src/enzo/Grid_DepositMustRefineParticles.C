@@ -85,10 +85,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   /* Loop over all the particles, using only particles marked as
      must-refine particles. */
 
-  float UniformParticleMass = 0.0;
-  if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3)
-    UniformParticleMass = OmegaDarkMatterNow / OmegaMatterNow;
-
   /* need to do the following, either:
    *    1) Make flagging field and particle arrays at size of star particles
    *    2) Check if particle position overlaps with grid z
@@ -164,32 +160,18 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   float MustRefineMass = 
     1.001*MinimumMassForRefinement[pmethod] * 
     POW(RefineBy, level * MinimumMassForRefinementLevelExponent[pmethod]);
-  if (ProblemType == 28)
-    MustRefineMass = 0;
 
-  /* Special case on level == MustRefineParticlesRefineToLevel when we
-     restrict the additional AMR to regions with must-refine
-     particles, and don't use the particle mass field. */
-  
   int NumberOfFlaggedCells = 0;
-  if (!(ProblemType == 30 && MustRefineParticlesCreateParticles == 3 &&
-	level == IndividualStarRefineToLevel)) {
-    for (i = 0; i < size; i++)
-      if (FlaggingField[i]) {
-	ParticleMassFlaggingField[i] = MustRefineMass;
-	NumberOfFlaggedCells++;
-      }
+  for (i = 0; i < size; i++){
+    if (FlaggingField[i]) {
+      ParticleMassFlaggingField[i] = MustRefineMass;
+      NumberOfFlaggedCells++;
+    }
   }
 
   if (debug1)
     printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
 	   level,NumberOfFlaggedCells);
-
-  /* If refining region before supernova, change particle type back to
-     its original value. */
-
-  if (PopIIISupernovaMustRefine == TRUE)
-    this->ChangeParticleTypeBeforeSN(PARTICLE_TYPE_RESET, level);
 
   /* Clean up */
 
@@ -257,31 +239,67 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
      must-refine particles. */
 
   float UniformParticleMass = 0.0;
-  if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3)
+  if (ProblemType == 30 && 
+      (MustRefineParticlesCreateParticles == 3 ||
+       MustRefineParticlesCreateParticles == 4))
     UniformParticleMass = OmegaDarkMatterNow / OmegaMatterNow;
 
   /* Loop over all particles, marking wich ones are must refine
      To add rules, modify number of rules here and add to loop below */
-  bool *rules;
+  bool *rules, rule0;
   const int NumberOfRules = 2;
   rules = new bool[NumberOfRules];
 
+  // Rules to prevent refinement, cancelling out the above rules.
+  bool *antirules;
+  int *AntiFlaggingField;
+  int NumberOfAntiRules = 0;
+  antirules = new bool[NumberOfAntiRules];
+
+  // Add an antirule to unflag over-refined dark matter particles.
+  if (MustRefineParticlesCreateParticles == 4) {
+    NumberOfAntiRules++;
+  }
+
+  if (NumberOfAntiRules > 0) {
+    antirules = new bool[NumberOfAntiRules];
+    AntiFlaggingField = new int[size];
+    for (i = 0; i < size; i++)
+      AntiFlaggingField[i] = 0;
+  }
+
   // Flag particles as must refine particles
-  int *IsParticleMustRefine;
+  int *IsParticleMustRefine, *IsParticleNotMustRefine;
   IsParticleMustRefine = new int[NumberOfParticles];
+  if (NumberOfAntiRules > 0) {
+    IsParticleNotMustRefine = new int[NumberOfParticles];
+  }
+
   for (i = 0; i < NumberOfParticles; i ++){
     IsParticleMustRefine[i] = 1;
 
     // check particle type and uniform mass
-    rules[0] = (ParticleType[i] == PARTICLE_TYPE_MUST_REFINE ||
+    rule0 = (ParticleType[i] == PARTICLE_TYPE_MUST_REFINE ||
                 ParticleType[i] == PARTICLE_TYPE_MBH) ||
-               (ParticleMass[i] < UniformParticleMass);
+               ((ParticleMass[i] < UniformParticleMass) && (ParticleType[i] < PARTICLE_TYPE_INDIVIDUAL_STAR));
+    rules[0] = rule0;
 
     // check particle mass greater than minimum mass
     rules[1] = (ParticleMass[i] > MustRefineParticlesMinimumMass);
 
     for (int j = 0; j < NumberOfRules; j++)
       IsParticleMustRefine[i] *= rules[j];
+
+    // anti-rules
+    if (NumberOfAntiRules > 0) {
+      IsParticleNotMustRefine[i] = 1;
+      // check for over-refined dark matter particles
+      antirules[0] = !rule0;
+    }
+
+    // set antiflag for this particle
+    for (int j = 0; j < NumberOfAntiRules; j++)
+      IsParticleNotMustRefine[i] *= antirules[j];
 
     // printf("Checked if we should refine, the answer is %"ISYM"\n", IsParticleMustRefine[i]);
     // printf("rule 0 = %"ISYM" rule 1 = %"ISYM" rule 2 = %"ISYM"\n",rules[0],rules[1],rules[2]);
@@ -292,6 +310,19 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 	   &GridRank, &NumberOfParticles, FlaggingField,
 	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
 	   &CellSize, &ParticleBufferSize);
+
+  if (NumberOfAntiRules > 0){
+    PFORTRAN_NAME(cic_flag)(IsParticleNotMustRefine,
+           ParticlePosition[0], ParticlePosition[1], ParticlePosition[2],
+	   &GridRank, &NumberOfParticles, AntiFlaggingField,
+	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
+	   &CellSize, &ParticleBufferSize);
+
+    for (i = 0;i < size;i++) {
+      FlaggingField[i] *= !(AntiFlaggingField[i]);
+    }
+  }
+ 
 
   /* Increase particle mass flagging field for definite refinement */
 
@@ -306,7 +337,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
      particles, and don't use the particle mass field. */
   
   int NumberOfFlaggedCells = 0;
-  if (!(ProblemType == 30 && MustRefineParticlesCreateParticles == 3 &&
+  if (!(ProblemType == 30 && 
+        (MustRefineParticlesCreateParticles == 3 ||
+         MustRefineParticlesCreateParticles == 4) &&
 	level == MustRefineParticlesRefineToLevel)) {
     for (i = 0; i < size; i++)
       if (FlaggingField[i]) {
@@ -334,6 +367,12 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   delete [] IsParticleMustRefine;
   delete [] rules;
+
+  if (NumberOfAntiRules > 0) {
+    delete [] AntiFlaggingField;
+    delete [] IsParticleNotMustRefine;
+    delete [] antirules;
+  }
 
   return NumberOfFlaggedCells;
  
