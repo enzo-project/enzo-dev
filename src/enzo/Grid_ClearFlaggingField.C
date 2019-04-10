@@ -33,7 +33,7 @@ void grid::ClearFlaggingField()
   /* error check */
  
   if (FlaggingField != NULL) {
-    fprintf(stderr, "ClearFlaggingField: Warning, field already present.\n");
+    // fprintf(stderr, "ClearFlaggingField: Warning, field already present.\n");
     delete [] FlaggingField;
   }
  
