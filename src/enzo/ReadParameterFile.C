@@ -1108,6 +1108,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
     /* AJE Individual Star */
+    ret += sscanf(line, "UseFUVBackground = %"ISYM,
+                        &UseFUVBackground);
     ret += sscanf(line, "IndividualStarRefineToLevel = %"ISYM,
                         &IndividualStarRefineToLevel);
     ret += sscanf(line, "IndividualStarRefineBufferSize = %"ISYM,
@@ -1264,6 +1266,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &PhotoelectricHeatingDustModel);
     ret += sscanf(line, "PhotoelectricHeatingDustModelEfficiency =%"FSYM,
                         &PhotoelectricHeatingDustModelEfficiency);
+
+    ret += sscanf(line, "TypeIILowerMass =%"FSYM,
+                        &TypeIILowerMass);
+    ret += sscanf(line, "TypeIIUpperMass =%"FSYM,
+                        &TypeIIUpperMass);
+    ret += sscanf(line, "PISNLowerMass =%"FSYM,
+                        &PISNLowerMass);
+    ret += sscanf(line, "PISNUpperMass =%"FSYM,
+                        &PISNUpperMass);
+    ret += sscanf(line, "PopIIIPISNEnergy =%"FSYM,
+                        &PopIIIPISNEnergy);
 
     ret += sscanf(line, "StellarYieldsAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM " %"ISYM" %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM,
                   StellarYieldsAtomicNumbers+0, StellarYieldsAtomicNumbers+1, StellarYieldsAtomicNumbers+2, StellarYieldsAtomicNumbers+3,

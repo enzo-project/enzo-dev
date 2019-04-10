@@ -1162,6 +1162,7 @@ EXTERN IndividualStarRadDataType        IndividualStarRadData;
 EXTERN IndividualStarPropertiesDataType IndividualStarPropertiesData;
 
 /* fuv */
+EXTERN int   UseFUVBackground;
 EXTERN float PhotoelectricHeatingDustModelEfficiency;
 EXTERN int   PhotoelectricHeatingDustModel;
 

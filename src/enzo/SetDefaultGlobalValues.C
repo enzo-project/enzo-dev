@@ -760,7 +760,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TypeIIUpperMass = 40.0;
   PISNLowerMass   = 140.0;
   PISNUpperMass   = 260.0;
+  PopIIIPISNEnergy = -1.0;
 
+  UseFUVBackground                     =    1; // apply FUV background from UVB for Pe heating - only HM2012
   IndividualStarRefineToLevel          =   -1;
   IndividualStarRefineBufferSize       =    4;
   /* IndividualStar: Star Formation */

@@ -604,7 +604,9 @@ void grid::ZeroPhotoelectricHeatingField(void){
     }
 
     /* Interpolate with current redshift */
-    if (CurrentRedshift > z_background_HM2012[num_z_bins-1]){
+    if (!(UseFUVBackground)){
+      G_background = 0.0;
+    } else if (CurrentRedshift > z_background_HM2012[num_z_bins-1]){
       G_background = 0.0; // turn it off at very high z... no dust anyway
     } else if ( CurrentRedshift <= z_background_HM2012[0]) {
       G_background = G_background_HM2012[0]; // leave at z = 0 value

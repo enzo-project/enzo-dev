@@ -221,6 +221,6 @@ SPEXTERN float *SecondaryIMFData;
 
 SPEXTERN float TypeIILowerMass, TypeIIUpperMass;
 SPEXTERN float PISNLowerMass, PISNUpperMass;
-
+SPEXTERN float PopIIIPISNEnergy;
 
 #endif

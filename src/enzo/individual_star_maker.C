@@ -826,6 +826,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
           index = i + ( j + k * (ny)) * nx;
 
+          if (ProblemType == 30){
+            if ( BaryonField[NumberOfBaryonFields][index] != 0) continue; // not highest refined zone of this region
+          }
+
           /* if distributed star formation */
           // check center cell's SF condition, if met, do SF
           /* loop and sum over all*/
@@ -888,9 +892,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
             //                 much less than the local baryon density... this should be fixed
             //                 if used in low resolution simulations
 
+            dtot = ( BaryonField[DensNum][index] + dm[index] ) * (DensityUnits);         // total density
+            tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (TimeUnits);            // in code units
+
             if (StarMakerUseJeansMass){
-              dtot = ( BaryonField[DensNum][index] + dm[index] ) * (DensityUnits);         // total density
-              tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (TimeUnits);            // in code units
               isosndsp2 = sndspdC * temp[index] ;
               jeansmass = pi / (6.0 * sqrt(BaryonField[DensNum][index]*DensityUnits) *
                               POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
@@ -3012,12 +3017,18 @@ void IndividualStarSetPopIIISupernovaProperties(Star *cstar, float &m_eject, flo
 
     /* Set energy for normal SN */
     if (birth_mass <= TypeIIUpperMass){
-      E_thermal = IndividualStarSupernovaEnergy;
+      E_thermal = IndividualStarSupernovaEnergy * 1.0E51;
     } else {
-      // taken from pop3_maker.F (heger and woosley??)
-      float he_core    = (13.0 / 24.0) * (birth_mass - 20.0);
-      float sne_factor = 5.0 + 1.304 * (he_core - 64.0);
-      E_thermal = sne_factor * 1.0E51;
+
+      if (PopIIIPISNEnergy < 0.0){
+        // taken from pop3_maker.F (heger and woosley??)
+        float he_core    = (13.0 / 24.0) * (birth_mass - 20.0);
+        float sne_factor = 5.0 + 1.304 * (he_core - 64.0);
+        E_thermal = sne_factor * 1.0E51;
+      } else {
+        E_thermal = PopIIIPISNEnergy * 1.0E51;
+      }
+
     }
 
   } else {

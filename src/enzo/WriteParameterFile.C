@@ -1081,6 +1081,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "H2StarMakerColdGasTemperature      = %"GSYM"\n\n", H2StarMakerColdGasTemperature);
 
   /* AJE Indiviudal Star */
+  fprintf(fptr, "UseFUVBackground = %"ISYM"\n", UseFUVBackground);
   fprintf(fptr, "IndividualStarRefineToLevel   = %"ISYM"\n", IndividualStarRefineToLevel);
   fprintf(fptr, "IndividualStarRefineBufferSize = %"ISYM"\n", IndividualStarRefineBufferSize);
   fprintf(fptr, "IndividualStarICSupernovaRate = %"ESYM"\n", IndividualStarICSupernovaRate);
@@ -1138,7 +1139,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarSaveTablePositions = %"ISYM"\n", IndividualStarSaveTablePositions);
   fprintf(fptr, "IndividualStarFeedbackStencilSize = %"FSYM"\n", IndividualStarFeedbackStencilSize);
   fprintf(fptr, "IndividualStarBlackBodyOnly = %"ISYM"\n", IndividualStarBlackBodyOnly);
-  fprintf(fptr, "IndividualStarSupernovaEnergy = %"FSYM"\n", IndividualStarSupernovaEnergy);
+  fprintf(fptr, "IndividualStarSupernovaEnergy = %"ESYM"\n", IndividualStarSupernovaEnergy);
   fprintf(fptr, "IndividualStarStellarWindVelocity = %"FSYM"\n", IndividualStarStellarWindVelocity);
   fprintf(fptr, "IndividualStarLWRadiation = %"ISYM"\n", IndividualStarLWRadiation);
   fprintf(fptr, "IndividualStarFUVHeating = %"ISYM"\n", IndividualStarFUVHeating);
@@ -1151,6 +1152,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarFUVTemperatureCutoff = %"FSYM"\n", IndividualStarFUVTemperatureCutoff);
   fprintf(fptr, "IndividualStarTemperatureLimit = %"ESYM"\n", IndividualStarTemperatureLimit);
   fprintf(fptr, "IndividualStarTemperatureLimitFactor = %"FSYM"\n", IndividualStarTemperatureLimitFactor);
+
+  fprintf(fptr, "TypeIILowerMass = %"FSYM"\n", TypeIILowerMass);
+  fprintf(fptr, "TypeIIUpperMass = %"FSYM"\n", TypeIIUpperMass);
+  fprintf(fptr, "PISNLowerMass = %"FSYM"\n", PISNLowerMass);
+  fprintf(fptr, "PISNUpperMass = %"FSYM"\n", PISNUpperMass);
+  fprintf(fptr, "PopIIIPISNEnergy = %"ESYM"\n", PopIIIPISNEnergy);
 
   fprintf(fptr, "IndividualStarBlackBodyq0Factors  = ");
   WriteListOfFloats(fptr, 2, IndividualStarBlackBodyq0Factors);
