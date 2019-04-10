@@ -240,7 +240,7 @@ int IsParticleFeedbackInGrid(float *pos, int ncell, LevelHierarchyEntry *Temp){
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
 
   Temp->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
-  CellWidth = (RightEdge[0] - LeftEdge[0]) / (1.0*Dims[0]);
+  CellWidth = (RightEdge[0] - LeftEdge[0]) / (1.0 * Dims[0]);
 
   float fudge = 1.0;
 

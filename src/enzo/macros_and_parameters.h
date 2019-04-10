@@ -1,5 +1,12 @@
 #ifndef __macros_and_parameters_h_
 #define __macros_and_parameters_h_
+#include "string.h"
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <algorithm>
+#include <map>
+#include <cassert>
 /***********************************************************************
 /
 / MACRO DEFINITIONS AND PARAMETERS
@@ -40,7 +47,7 @@
 
 #define MAX_LINE_LENGTH                   2000 /* AJE: for stellar yields */
 
-#define MAX_STELLAR_YIELDS                20
+#define MAX_STELLAR_YIELDS                21
 
 #define MAX_NAME_LENGTH                   512
 
@@ -76,7 +83,7 @@
 
 #define MAX_NUMBER_OF_PARTICLE_TABLE_POSITIONS   7
 
-#define MAX_TIME_ACTIONS                   10
+#define MAX_TIME_ACTIONS                   21
 
 #define MAX_CUBE_DUMPS                     50
 
@@ -536,6 +543,8 @@ typedef long long int   HDF5_hid_t;
 #define MBH_JETS 8
 #define COLOR_FIELD 9
 
+#define SUPERNOVA_SEEDFIELD 11
+
 #define FEEDBACK_INDIVIDUAL_STAR 12
 #define INDIVIDUAL_STAR_STELLAR_WIND 13
 #define INDIVIDUAL_STAR_SNII 14
@@ -543,8 +552,6 @@ typedef long long int   HDF5_hid_t;
 #define INDIVIDUAL_STAR_WIND_AND_SN 16
 #define INDIVIDUAL_STAR_POPIIISN 17
 #define INDIVIDUAL_STAR_SN_COMPLETE 18
-
-#define SUPERNOVA_SEEDFIELD 11
 
 /* Sink particle accretion modes */
 

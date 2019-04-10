@@ -1143,10 +1143,10 @@ EXTERN float GalaxySimulationPreWindVelocity[MAX_DIMENSION];
 EXTERN int GalaxySimulationInitialStellarDist;
 
 /* Supernova magnetic seed field */
-EXTERN int UseSupernovaSeedFieldSourceTerms;
-EXTERN float SupernovaSeedFieldRadius;
-EXTERN float SupernovaSeedFieldDuration;
-EXTERN float SupernovaSeedFieldEnergy;
+EXTERN int UseMagneticSupernovaFeedback;
+EXTERN float MagneticSupernovaRadius;
+EXTERN float MagneticSupernovaDuration;
+EXTERN float MagneticSupernovaEnergy;
 
 /* For setting up the chemical evolution test */
 EXTERN int   ChemicalEvolutionTestNumberOfStars;
@@ -1167,10 +1167,12 @@ EXTERN float PhotoelectricHeatingDustModelEfficiency;
 EXTERN int   PhotoelectricHeatingDustModel;
 
 /* For stellar yields data tables */
+EXTERN int MetalMixingExperiment;
 EXTERN StellarYieldsDataType          StellarYieldsSNData;
 EXTERN StellarYieldsDataType          StellarYieldsWindData;
 EXTERN StellarYieldsDataType          StellarYieldsMassiveStarData;
 EXTERN StellarYieldsDataType          StellarYieldsPopIIIData;
+EXTERN MetalMixingExperimentDataType  MixingExperimentData;
 EXTERN int StellarYieldsAtomicNumbers[MAX_STELLAR_YIELDS];
 EXTERN int StellarYieldsResetAtomicNumbers[MAX_STELLAR_YIELDS];
 EXTERN int StellarYieldsNumberOfSpecies;

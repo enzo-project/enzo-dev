@@ -11,6 +11,7 @@
 ************************************************************************/
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
+#include <vector>
 #include "ProtoSubgrid.h"
 #include "ListOfParticles.h"
 #include "region.h"
@@ -20,7 +21,6 @@
 #include "Star.h"
 #include "FOF_allvars.h"
 #include "MemoryPool.h"
-#include "list.h"
 #include "hydro_rk/SuperNova.h"
 #ifdef ECUDA
 #include "hydro_rk/CudaMHD.h"
@@ -1516,29 +1516,15 @@ gradient force to gravitational force for one-zone collapse test. */
 //     if(!StellarAbundances) return;
 
      int i;
-     for (i = 0; i < StellarYieldsNumberOfSpecies; i++){
-       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
-       StellarAbundances[i] = NULL;
-     }
+     int num_extra = 0;
 
-     i = StellarYieldsNumberOfSpecies;
-     if (IndividualStarTrackAGBMetalDensity){
+     if (IndividualStarTrackAGBMetalDensity) num_extra++;
+     if (IndividualStarPopIIIFormation) num_extra++;
+     if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+
+     for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
        if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
        StellarAbundances[i] = NULL;
-       i++;
-     }
-     if (IndividualStarPopIIIFormation){
-       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
-       StellarAbundances[i] = NULL;
-       i++;
-     }
-     if (IndividualStarTrackSNMetalDensity){
-       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i]; // SNIa
-       StellarAbundances[i] = NULL;
-       i++;
-       if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i]; // SNII
-       StellarAbundances[i] = NULL;
-//       i++; - make sure to do this if adding more
      }
 
      return;
@@ -1556,24 +1542,14 @@ gradient force to gravitational force for one-zone collapse test. */
               ParticleAttribute[2][n]); // metallicity
 
        int i = 0;
-       for (i = 0; i < StellarYieldsNumberOfSpecies; i++){
-         printf("     %"ESYM,StellarAbundances[i][n]);
-       }
+       int num_extra = 0;
 
-       i = StellarYieldsNumberOfSpecies;
-       if (IndividualStarTrackAGBMetalDensity){
+       if (IndividualStarTrackAGBMetalDensity) num_extra++;
+       if (IndividualStarPopIIIFormation) num_extra++;
+       if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+
+       for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
          printf("     %"ESYM,StellarAbundances[i][n]);
-         i++;
-       }
-       if (IndividualStarPopIIIFormation){
-         printf("     %"ESYM,StellarAbundances[i][n]);
-         i++;
-       }
-       if (IndividualStarTrackSNMetalDensity){
-         printf("     %"ESYM,StellarAbundances[i][n]); // SNIa
-         i++;
-         printf("     %"ESYM,StellarAbundances[i][n]); // SNII
-//         i++; - make sure to do this if adding more
        }
 
        printf("\n");
@@ -1632,29 +1608,15 @@ gradient force to gravitational force for one-zone collapse test. */
 
    void AllocateStellarAbundances(int NumberOfNewParticles){
      int i = 0;
-     for (i = 0; i < StellarYieldsNumberOfSpecies; i++){
+     int num_extra = 0;
+
+     if (IndividualStarTrackAGBMetalDensity) num_extra++;
+     if (IndividualStarPopIIIFormation) num_extra++;
+     if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+
+     for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
        StellarAbundances[i] = new float[NumberOfNewParticles];
      }
-
-     i = StellarYieldsNumberOfSpecies;
-     if (IndividualStarTrackAGBMetalDensity){
-       StellarAbundances[i] = new float[NumberOfNewParticles];
-       i++;
-     }
-
-     if (IndividualStarPopIIIFormation){
-       StellarAbundances[i] = new float[NumberOfNewParticles];
-       i++;
-     }
-
-     if (IndividualStarTrackSNMetalDensity){
-       StellarAbundances[i] = new float[NumberOfNewParticles]; // SNIa
-       i++;
-       StellarAbundances[i] = new float[NumberOfNewParticles]; // SNII
-//       i++; - make sure to do this if adding more
-     }
-
-
 
      return;
    };
@@ -3284,11 +3246,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHDCT_ConvertEnergyToConservedS();
   int MHDCT_ConvertEnergyToSpecificS();
 
+  // used if UseMagneticSupernovaFeedback is turned on
+  int AddMagneticSupernovaeToList();
   //List of SuperNova objects that each grid needs to keep track of
-
-  List<SuperNova> SuperNovaList;
-
-
+  std::vector<SuperNova> MagneticSupernovaList;
 };
 
 // inline int grid::ReadRandomForcingFields (FILE *main_file_pointer);

@@ -30,3 +30,19 @@ struct StellarYieldsDataType
 };
 
 
+struct MetalMixingExperimentDataType
+{
+  int NumberOfEvents;
+
+  float *time;
+
+  float *xpos;
+  float *ypos;
+  float *zpos;
+
+  float *M_ej;
+  float *E_ej;
+
+  int *anums;
+  float **yield;     // MAX_STELLAR_ABUND length for each action
+};

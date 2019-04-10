@@ -38,7 +38,7 @@ void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
 int StarParticleIndividual_IMFInitialize(void);
 int IndividualStarProperties_Initialize(TopGridData &MetaData);
 int IndividualStarRadiationProperties_Initialize(void);
-int InitializeStellarYields(void);
+int InitializeStellarYields(const float & time);
 
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
@@ -86,7 +86,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     }
 
     /* StellarYields */
-    InitializeStellarYields();
+    InitializeStellarYields(MetaData->Time);
 
   }
 

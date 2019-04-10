@@ -60,4 +60,7 @@
 #define kpc                             3.0857e21
 #define pc                              3.0857e18
 
+/* Time units */
+#define SecondsPerYear                  3.1556952e7
+
 #endif

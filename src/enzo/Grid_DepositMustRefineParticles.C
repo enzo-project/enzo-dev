@@ -50,6 +50,13 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   if (!(AllStars)) return 0;
 
+  float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
+    TimeUnits = 1, VelocityUnits = 1;
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+               &TimeUnits, &VelocityUnits, Time) == FAIL) {
+        ENZO_FAIL("Error in GetUnits.");
+  }
+
   /* error check */
 
   if (ParticleMassFlaggingField == NULL) {
@@ -92,12 +99,29 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
    *    4) save particles and number of refinement required particles -
    *       send this # to cic so only need to loop over the "yes"'s
    * ---------------------------------------------------------------------- */
+
+  /* AJE: This is a bit of a hack --- want to make sure injection regions
+          in metal mixing experiment are refined to highest level AND in the
+          same was as it would be done for star particles for consistency. Hack
+          this here, rather than write a new routine...
+  */
+  int num_events = 0;
+  if (MetalMixingExperiment){
+    // count the number of events that will go off this timestep:
+    for (i = 0; i < MAX_TIME_ACTIONS; i++){
+      if ((MetaData->Time >= (TimeActionTime[i] - 0.5*3.154E13/TimeUnits))
+            && TimeActionTime[i] > 0){
+        num_events++;
+      }
+    }
+  }
+
   int *IsParticleMustRefine;
   FLOAT *StarPosX, *StarPosY, *StarPosZ;
-  IsParticleMustRefine = new int[MetaData->NumberOfParticles];
-  StarPosX = new FLOAT[MetaData->NumberOfParticles];
-  StarPosY = new FLOAT[MetaData->NumberOfParticles];
-  StarPosZ = new FLOAT[MetaData->NumberOfParticles];
+  IsParticleMustRefine = new int[MetaData->NumberOfParticles + num_events];
+  StarPosX = new FLOAT[MetaData->NumberOfParticles + num_events];
+  StarPosY = new FLOAT[MetaData->NumberOfParticles + num_events];
+  StarPosZ = new FLOAT[MetaData->NumberOfParticles + num_events];
 
 /*
   for (i = 0; i < MetaData->NumberOfParticles; i++){
@@ -111,6 +135,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   int NumberOfMustRefineStars = 0;
   FLOAT *pos;
   Star *cstar;
+
   for (cstar = AllStars, i = 0; cstar; cstar = cstar->NextStar) {
     float end_of_life = cstar->ReturnBirthTime() + cstar->ReturnLifetime();
     bool near_end_of_life = fabs(this->Time - end_of_life) < (IndividualStarLifeRefinementFactor * this->dtFixed * POW(2,level)); // factor of root grid, estimate root $
@@ -145,6 +170,29 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     }
     else{
     }
+  }
+
+  if (MetalMixingExperiment){
+
+    for (int j = 0; j < MAX_TIME_ACTIONS; j++){
+      if ( (MetaData->Time >= (TimeActionTime[j] - 0.5*3.154E13/TimeUnits))
+          && TimeActionTime[j] > 0){
+
+        // NOTE: known bug - indeces will not be correct b/t
+        //       TimeAction and Data struct if multiple action types used....
+
+        if (TimeActionType[j] == 4){
+          IsParticleMustRefine[i] = 1; // still need to set this
+          // assuming code units!!!!
+          StarPosX[i] = MixingExperimentData.xpos[j];
+          StarPosY[i] = MixingExperimentData.ypos[j];
+          StarPosZ[i] = MixingExperimentData.zpos[j];
+          i++;
+        }
+      }
+    }
+
+
   }
 
   NumberOfMustRefineStars = i; // save number of stars
@@ -239,7 +287,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
      must-refine particles. */
 
   float UniformParticleMass = 0.0;
-  if (ProblemType == 30 && 
+  if (ProblemType == 30 &&
       (MustRefineParticlesCreateParticles == 3 ||
        MustRefineParticlesCreateParticles == 4))
     UniformParticleMass = OmegaDarkMatterNow / OmegaMatterNow;
@@ -271,10 +319,10 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   // Flag particles as must refine particles
   int *IsParticleMustRefine, *IsParticleNotMustRefine;
   IsParticleMustRefine = new int[NumberOfParticles];
+
   if (NumberOfAntiRules > 0) {
     IsParticleNotMustRefine = new int[NumberOfParticles];
   }
-
   for (i = 0; i < NumberOfParticles; i ++){
     IsParticleMustRefine[i] = 1;
 
@@ -303,7 +351,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
     // printf("Checked if we should refine, the answer is %"ISYM"\n", IsParticleMustRefine[i]);
     // printf("rule 0 = %"ISYM" rule 1 = %"ISYM" rule 2 = %"ISYM"\n",rules[0],rules[1],rules[2]);
-  }
 
   PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
 	   ParticlePosition[0], ParticlePosition[1], ParticlePosition[2],
@@ -322,7 +369,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       FlaggingField[i] *= !(AntiFlaggingField[i]);
     }
   }
- 
 
   /* Increase particle mass flagging field for definite refinement */
 

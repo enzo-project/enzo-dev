@@ -58,7 +58,7 @@ void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
 
 int IndividualStarProperties_Initialize(TopGridData &MetaData);
 int IndividualStarRadiationProperties_Initialize(void);
-int InitializeStellarYields(void);
+int InitializeStellarYields(const float &time);
 
 
 int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, 
@@ -597,7 +597,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       // initialize star properties
       IndividualStarProperties_Initialize(MetaData);
       IndividualStarRadiationProperties_Initialize();
-      InitializeStellarYields();
+      InitializeStellarYields(MetaData.Time);
 
       Temp = &TopGrid;
       int TotalNumberOfNewParticles = 0;

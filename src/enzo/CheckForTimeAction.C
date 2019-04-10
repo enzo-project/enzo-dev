@@ -13,7 +13,7 @@
 /
 ************************************************************************/
 
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
 #include "ErrorExceptions.h"
@@ -44,22 +44,105 @@ int search_lower_bound(float *arr, float value, int low, int high, int total);
 int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 		       TopGridData &MetaData)
 {
- 
+
   /* Declarations. */
- 
+
   int i, level;
- 
+
   /* Check for time against list of actions. */
- 
+
   for (i = 0; i < MAX_TIME_ACTIONS; i++){
     if (MetaData.Time >= TimeActionTime[i] && TimeActionTime[i] > 0) {
- 
+
       if (debug)
 	printf("Applying TimeAction %"ISYM" at t=%"GOUTSYM"\n", i, TimeActionTime[i]);
 
 
       /* Following Miao's time action SN injection */
-      if (TimeActionType[i] == 3){ // individual star SN
+      if (TimeActionType[i] == 4){
+
+        // NOTE: known bug - indeces will not be correct b/t
+        //       TimeAction and MixingExperimentData struct if
+        //       multiple action types used. Implicitly assumes 1-to-1
+        //       correspondance and that this is the ONLY type of event used
+
+
+        float DensityUnits, LengthUnits,TemperatureUnits, TimeUnits,VelocityUnits;
+        double MassUnits;
+        if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+                  &TimeUnits, &VelocityUnits, MetaData.Time) == FAIL) {
+          ENZO_FAIL("Error in GetUnits in CheckForTimeAction.C.");
+        }
+        MassUnits = DensityUnits * LengthUnits * LengthUnits * LengthUnits;
+
+        float SNPosition[3];
+
+        // Tabulated positions are in code units 
+
+        SNPosition[0] = MixingExperimentData.xpos[i]; //3.086E18/LengthUnits - 0.5;
+        SNPosition[1] = MixingExperimentData.ypos[i]; //3.086E18/LengthUnits - 0.5;
+        SNPosition[2] = MixingExperimentData.zpos[i]; //3.086E18/LengthUnits - 0.5;
+
+        for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++){
+          LevelHierarchyEntry *Temp = LevelArray[level];
+
+          while (Temp != NULL){
+            float dx = float(Temp->GridData->ReturnCellWidth());
+
+            float m_eject = MixingExperimentData.M_ej[i] * 1.989E33 / MassUnits
+                                  / (dx*dx*dx);
+
+            float e_eject = MixingExperimentData.E_ej[i] * 1.0E51 /
+                         (MassUnits*VelocityUnits*VelocityUnits) / (dx*dx*dx);
+
+            float *metal_mass;
+
+            metal_mass = new float[StellarYieldsNumberOfSpecies + 1]; // extra for metallicity as 0th element
+
+            for (int iyield = 1; iyield < StellarYieldsNumberOfSpecies+1; iyield++){
+              metal_mass[iyield] = MixingExperimentData.yield[i][iyield-1] * 1.989E33 / MassUnits
+                                       / (dx*dx*dx);
+
+              metal_mass[0]     += metal_mass[iyield]; // sum of all metals - can set to zero if issue...
+            }
+
+            if (Temp->GridData->isLocal() &&
+                IsParticleFeedbackInGrid(SNPosition, IndividualStarFeedbackStencilSize,
+                                         Temp)){
+              if (Temp->GridData->IndividualStarInjectSphericalFeedback(NULL,
+                  SNPosition[0], SNPosition[1], SNPosition[2], m_eject, e_eject,
+                  metal_mass, 0) == FAIL){
+                ENZO_FAIL("Error in grid->IndividualStarInjectSphericalFeedback called from CheckForTimeAction\n");
+              }
+
+            } // end if local
+
+
+            Temp = Temp->NextGridThisLevel;
+
+            delete [] metal_mass;
+
+          } // end while
+
+        } // end loop over hierarchy
+
+        // set to negative to make sure we don't explode again
+        TimeActionTime[i] *= -1.0;
+
+        for (level = MaximumRefinementLevel; level > 0; level--){
+          LevelHierarchyEntry *Temp = LevelArray[level];
+          while (Temp != NULL) {
+            if (Temp->GridData->ProjectSolutionToParentGrid(*Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL){
+              fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid\n");
+              return FAIL;
+            }
+            Temp = Temp->NextGridThisLevel;
+          }
+
+
+        }
+
+      } else if (TimeActionType[i] == 3){ // individual star SN
 
         float DensityUnits, LengthUnits,TemperatureUnits, TimeUnits,VelocityUnits;
         double MassUnits;
@@ -182,7 +265,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
 
         float m_eject   = 10.0 * 1.989E33 / MassUnits; // need to divide by dx before sending
-        float E_thermal = IndividualStarSupernovaEnergy * 1.0E51 / (MassUnits*VelocityUnits*VelocityUnits); 
+        float E_thermal = IndividualStarSupernovaEnergy * 1.0E51 / (MassUnits*VelocityUnits*VelocityUnits);
 
         for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++){
           LevelHierarchyEntry *Temp = LevelArray[level];
@@ -276,4 +359,3 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
   return SUCCESS;
 }
-

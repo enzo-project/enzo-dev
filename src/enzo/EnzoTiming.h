@@ -29,8 +29,15 @@
 #include <cstring>
 #include <map>
 
-#define min(A,B) ((A) < (B) ? (A) : (B))
-#define max(A,B) ((A) > (B) ? (A) : (B))
+template <typename T>
+bool min(const T& A, const T& B) {
+  return A < B ? A : B;
+}
+
+template <typename T>
+bool max(const T& A, const T& B) {
+  return A > B ? A : B;
+}
 
 double ReturnWallTime(void);
 void Reduce_Times(double time, double *time_array);

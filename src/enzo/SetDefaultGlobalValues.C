@@ -763,6 +763,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIPISNEnergy = -1.0;
 
   UseFUVBackground                     =    1; // apply FUV background from UVB for Pe heating - only HM2012
+  MetalMixingExperiment                =    0;     // turn on to add by-hand injection events to examine enrichment (see )
   IndividualStarRefineToLevel          =   -1;
   IndividualStarRefineBufferSize       =    4;
   /* IndividualStar: Star Formation */
@@ -1180,12 +1181,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseGasDrag = 0;
   GasDragCoefficient = 0.;
 
-  /* Supernova magnetic seed field */
+  /* Supernova magnetic feedback */
   /* Default == 0 -> no magnetic field contribution */
-  UseSupernovaSeedFieldSourceTerms = 0;
-  SupernovaSeedFieldRadius = 0.0;
-  SupernovaSeedFieldDuration = 0.0;
-  SupernovaSeedFieldEnergy = 0.0;
+  UseMagneticSupernovaFeedback = 0;   // 0 = off; 1+ = on;  2 = Radius and duration calculated during runtime
+  MagneticSupernovaRadius = 300.0;      // Total injection radius of magnetic field in parsecs
+  MagneticSupernovaDuration = 5e4  ;    // Total duration of magnetic feedback in years
+  MagneticSupernovaEnergy = 1.0e51;    // Total energy (ergs) injected per star particle (supernova)
 
   return SUCCESS;
 }

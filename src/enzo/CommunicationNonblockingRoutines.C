@@ -33,8 +33,6 @@ int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Tar
 			      int Tag, MPI_Comm CommWorld, int BufferSize);
 int CommunicationFindOpenRequest(MPI_Request *requests, Eint32 last_free,
 				 Eint32 nrequests, Eint32 index, Eint32 &max_index);
-void CommunicationCheckForErrors(int NumberOfStatuses, MPI_Status *statuses,
-				 char *msg=NULL);
 int KeepTransportingSend(int keep_transporting);
 int KeepTransportingCheck(char* &kt_global, int &keep_transporting);
 int InitializePhotonMessages(void);
@@ -178,26 +176,16 @@ int FinalizePhotonCommunication(void)
 
   /* Wait until all of the requests are cancelled */
 
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-
 #ifdef NONBLOCKING_RT
   MPI_Waitall(PhotonMessageMaxIndex, PhotonMessageRequest, 
 	      PH_ListOfStatuses);
-  CommunicationCheckForErrors(PhotonMessageMaxIndex, PH_ListOfStatuses,
-			      "Waitall photon message cancels");
   MPI_Waitall(KeepTransMessageMaxIndex, KeepTransMessageRequest, 
 	      PH_ListOfStatuses);
-  CommunicationCheckForErrors(KeepTransMessageMaxIndex, PH_ListOfStatuses,
-			      "Waitall KT message cancels");
 #endif /* NONBLOCKING_RT */
 
   MPI_Waitall(PH_CommunicationReceiveMaxIndex, 
 	      PH_CommunicationReceiveMPI_Request,
 	      PH_ListOfStatuses);
-  CommunicationCheckForErrors(PH_CommunicationReceiveMaxIndex, PH_ListOfStatuses,
-			      "Waitall KT message cancels");
-
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
 
   /* Cancel all buffered header sends */
 
@@ -331,7 +319,6 @@ int InitializePhotonReceive(int max_size, bool local_transport,
   /* Receive MPI messages that contain how many messages with the
      actual photon data that we'll be receiving from each process. */
 
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
   if (local_transport)
     MPI_Testsome(PhotonMessageMaxIndex, PhotonMessageRequest, &NumberOfReceives,
 		 PH_ListOfIndices, PH_ListOfStatuses);
@@ -340,10 +327,6 @@ int InitializePhotonReceive(int max_size, bool local_transport,
 		PH_ListOfStatuses);
     NumberOfReceives = PhotonMessageMaxIndex;
   }
-  if (NumberOfReceives > 0)
-    CommunicationCheckForErrors(PhotonMessageMaxIndex, PH_ListOfStatuses,
-				"Testsome InitializePhotonReceive");
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
 
   if (DEBUG && NumberOfReceives > 0)
     printf("P%"ISYM": Received %"ISYM" header messages, Index/MaxIndex = %"ISYM"/%"ISYM".\n", 
@@ -384,8 +367,6 @@ int InitializePhotonReceive(int max_size, bool local_transport,
 	       MPI_STATUS_IGNORE);
 
       if (MessageReceived) {
-//	CommunicationCheckForErrors(1, &status, 
-//				    "InitializePhotonReceive immediate");
 	PostPhotonReceives(PhotonMessageIndex, RecvProc, max_size, MPI_PhotonType);
       }
 
@@ -432,13 +413,8 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
 //    printf("P%"ISYM": keep_transporting(before) = %"ISYM", KTMaxIndex = %"ISYM"\n", 
 //	   MyProcessorNumber, keep_transporting, KeepTransMessageMaxIndex);
 
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
   MPI_Testsome(KeepTransMessageMaxIndex, KeepTransMessageRequest,
 	       &NumberOfReceives, PH_ListOfIndices, PH_ListOfStatuses);
-  if (NumberOfReceives > 0)
-    CommunicationCheckForErrors(KeepTransMessageMaxIndex, PH_ListOfStatuses,
-				"KTCheck Testsome");
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
 
   if (DEBUG && NumberOfReceives > 0)
     printf("P%"ISYM": Received %"ISYM" KT messages, Index/MaxIndex = %"ISYM"/%"ISYM".\n", 
@@ -490,8 +466,6 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
       MPI_Test(KeepTransMessageRequest + KeepTransMessageIndex, 
 	       &MessageReceived, MPI_STATUS_IGNORE);
       if (MessageReceived) {
-//	CommunicationCheckForErrors(1, &status, 
-//				    "KT immediate");
 	if (PingRequired) {
 	  AcceptMessage = 
 	    (KeepTransMessageBuffer[KeepTransMessageIndex] == RECV_DATA);
@@ -559,33 +533,3 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
 #endif /* USE_MPI */
   return SUCCESS;
 }
-
-/**********************************************************************/
-
-#ifdef USE_MPI
-void CommunicationCheckForErrors(int NumberOfStatuses, MPI_Status *statuses,
-				 char *msg)
-{
-  int i;
-  char error_string[1024];
-  MPI_Arg length, error_class, datasize;
-  for (i = 0; i < NumberOfStatuses; i++)
-    if (statuses[i].MPI_ERROR != 0) {
-      MPI_Get_count(statuses+i, MPI_BYTE, &datasize);
-      fprintf(stderr, "MPI Error %"ISYM" processor %"ISYM"\n",
-	      statuses[i].MPI_ERROR, MyProcessorNumber);
-      fprintf(stderr, "\t MPI_TAG = %"ISYM", MPI_SOURCE = %"ISYM", datasize = %"ISYM" bytes\n",
-	      statuses[i].MPI_TAG, statuses[i].MPI_SOURCE, datasize);
-      if (msg != NULL)
-	fprintf(stderr, "P%"ISYM": error occurred at %s\n", MyProcessorNumber, msg);
-      MPI_Error_class(statuses[i].MPI_ERROR, &error_class);
-      MPI_Error_string(error_class, error_string, &length);
-      fprintf(stderr, "P%"ISYM": %s\n", MyProcessorNumber, error_string);
-      MPI_Error_string(statuses[i].MPI_ERROR, error_string, &length);
-      fprintf(stderr, "P%"ISYM": %s\n", MyProcessorNumber, error_string);
-      ENZO_FAIL("MPI communication error!");
-
-    } // ENDIF MPI_ERROR
-  return;
-}
-#endif /* USE_MPI */

@@ -40,13 +40,13 @@ int grid::MoveParticleAbundances(int NumberOfGrids, grid* FromGrid[]){
   if (IndividualStarPopIIIFormation)      offset++;  // PopIII Metal Tracer - ExtraField1
   if (IndividualStarTrackSNMetalDensity)  offset = offset + 2; // MetalSNIaDensity, MetalSNIIDensity
 
-
   for (grid = 0; grid < NumberOfGrids; grid++){
     for (j = 0; j < StellarYieldsNumberOfSpecies + offset; j++){
       for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++){
         StellarAbundances[j][Index+i] = FromGrid[grid]->StellarAbundances[j][i];
       }
     }
+
     Index += FromGrid[grid]->NumberOfParticles;
   }
 
