@@ -70,6 +70,16 @@
 
 #define SolarMass                       1.9891e33
 
+/* Solar Radius [cm] */
+
+#define SolarRadius                     6.96e10
+
+/* Solar Luminosity [erg/s] */
+
+#define SolarLuminosity                 3.9e33
+
+
+
 /* Megaparsec [cm] */
 
 #define Mpc_cm                             3.0857e24

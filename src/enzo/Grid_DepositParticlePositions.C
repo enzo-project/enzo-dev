@@ -32,6 +32,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "ActiveParticle.h"
 #include "communication.h"
  
 /* function prototypes */
@@ -71,7 +72,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
   /* Return if this doesn't concern us. */
  
   if (TargetGrid->CommunicationMethodShouldExit(this) ||
-      NumberOfParticles == 0)
+      (NumberOfParticles == 0 && NumberOfActiveParticles == 0))
     return SUCCESS;
  
 //  fprintf(stderr, "----DPP: MyPN = %"ISYM", PN = %"ISYM", TGPN = %"ISYM", DIR (R=1,S=2) = %"ISYM", NP = %"ISYM"\n",
@@ -82,7 +83,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
   int dim, i, j, k, size, index1, index2;
   int Dimension[] = {1,1,1};
   int OriginalDimension[] = {1,1,1};
-  int Offset[] = {0,0,0};
+  long_int Offset[] = {0,0,0};
   float MassFactor = 1.0, *ParticleMassTemp, *ParticleMassPointer, CellSize, CloudSize;
   float *ParticleMassPointerSink;    
   float TimeDifference = 0;
@@ -165,8 +166,8 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 
     size = 1;
     for (dim = 0; dim < GridRank; dim++) {
-      LeftEdge[dim] = (int(GridLeftEdge[dim]/CellSize)-2)*CellSize;
-      Offset[dim] = nint((LeftEdge[dim] - OriginalLeftEdge[dim])/CellSize);
+      LeftEdge[dim] = (long_int(GridLeftEdge[dim]/CellSize)-2)*CellSize;
+      Offset[dim] = nlongint((LeftEdge[dim] - OriginalLeftEdge[dim])/CellSize);
       if (Offset[dim] < 0) {
 	fprintf(stderr, "P(%d)(1): dx=%"GOUTSYM"/%"GOUTSYM" = %"GOUTSYM"\n",
 		MyProcessorNumber, CellSize, CellWidth[0][0], 
@@ -182,13 +183,14 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 		GridRightEdge[2]);
 	fprintf(stderr, "P(%d)(5): %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",
 		MyProcessorNumber, LeftEdge[0], LeftEdge[1], LeftEdge[2]);
-	fprintf(stderr, "P(%d)(6): %d %d %d - %d %d %d\n",
+	fprintf(stderr, "P(%d)(6): %ld %ld %ld - %d %d %d\n",
 		MyProcessorNumber, Offset[0], Offset[1], Offset[2],
 		Dimension[0], Dimension[1], Dimension[2]);
-	fprintf(stderr, "P(%d)(7): %"GOUTSYM" %d\n",
-		MyProcessorNumber, (int(GridLeftEdge[dim]/CellSize)-2)*CellSize, 
-		int(GridLeftEdge[dim]/CellSize));
-
+	fprintf(stderr, "P(%d)(7): %"GOUTSYM" %ld\n",
+		MyProcessorNumber, (long_int(GridLeftEdge[dim]/CellSize)-2)*CellSize, 
+		long_int(GridLeftEdge[dim]/CellSize));
+	fprintf(stderr, "GetLevel = %d\t TargetGrid->GetLevel = %d\n", GetLevel(), 
+		TargetGrid->GetLevel());
 	ENZO_VFAIL("Offset[%d] = %d < 0\n", dim, Offset[dim])
       }
       Dimension[dim] = int((GridRightEdge[dim] - LeftEdge[dim])/CellSize) + 3;

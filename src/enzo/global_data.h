@@ -1022,6 +1022,14 @@ EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
 EXTERN char *MBHInsertLocationFilename;
 EXTERN int OutputWhenJetsHaveNotEjected;
 
+/* Star Class Radiation Particle IO (PARTICLE_TYPE_RAD) */
+EXTERN char *RadiationSourcesFileName;
+EXTERN int   NumberOfRadiationParticles;
+EXTERN double PhotonsPerSecond;
+EXTERN int   NumberOfEnergyBins;
+EXTERN float RadiationEnergyInBin[255];
+EXTERN float RadiationBinSED[255];
+
 /* Vorticity Calculations */
 
 EXTERN int VelAnyl;
@@ -1109,6 +1117,25 @@ EXTERN char *MHDeUnits[3];
 EXTERN char *DatabaseLocation;
 EXTERN int ExtraOutputs[MAX_EXTRA_OUTPUTS];
 EXTERN int CorrectParentBoundaryFlux;
+
+/* Active particles */
+class ActiveParticleType_info;
+EXTERN ActiveParticleType_info *EnabledActiveParticles[MAX_ACTIVE_PARTICLE_TYPES];
+EXTERN int EnabledActiveParticlesCount;
+EXTERN float ActiveParticleDensityThreshold;
+EXTERN int SmartStarFeedback;
+EXTERN int SmartStarEddingtonCap;
+EXTERN int SmartStarBHFeedback;
+EXTERN int SmartStarBHJetFeedback;
+EXTERN int SmartStarBHThermalFeedback;
+EXTERN int SmartStarBHRadiativeFeedback;
+EXTERN int SmartStarStellarRadiativeFeedback;
+EXTERN float SmartStarFeedbackEnergyCoupling;
+EXTERN float SmartStarFeedbackJetsThresholdMass;
+EXTERN float SmartStarJetVelocity;
+EXTERN float SmartStarSpin; 
+EXTERN int SmartStarSuperEddingtonAdjustment;
+EXTERN float SmartStarSMSLifetime;
 
 /* For EnzoTiming Behavior */
 EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
