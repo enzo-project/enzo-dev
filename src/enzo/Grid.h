@@ -2581,7 +2581,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			       float TimeUnits, float LengthUnits);
   
   /* Find the minumum of the potential in a given region */
-  float FindMinimumPotential(FLOAT *cellpos, FLOAT radius, FLOAT *PotentialField);
+  float FindMinimumPotential(FLOAT *cellpos, FLOAT radius, float *PotentialField);
 
   /* Find the Jeans mass for the grid */
   float CalculateJeansMass(int DensNum, float *T, float DensityUnits);
@@ -2609,6 +2609,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   /* Returns averaged velocity from the 6 neighbor cells and itself */
 
   float* AveragedVelocityAtCell(int index, int DensNum, int Vel1Num);
+
+  /* Find the minumum of the angular momentum in a given region */
+  float FindAngularMomentumMinimum(FLOAT *cellpos, FLOAT radius, int DensNum, int Vel1Num,
+				   int Vel2Num, int Vel3Num);
+
   
 /* Particle splitter routine. */
 

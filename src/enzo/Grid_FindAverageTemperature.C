@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  FIND THE AVERGAE TEMPERATURE IN THE CONTROL REGION
+/  FIND THE AVERAGE TEMPERATURE IN THE CONTROL REGION
 /
 /  written by: John Regan
 /  date:       February 2017

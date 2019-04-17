@@ -34,7 +34,7 @@
 #define ACCRETIONRADIUS  4
 #define NUMRADIATIONBINS 5
 #define CRITICAL_ACCRETION_RATE 0.04 //Msolar/yr
-#define TIMEGAP            50 //900   //yrs
+#define TIMEGAP            900   //yrs
 /* Prototypes */
 
 int GetUnits(float *DensityUnits, float *LengthUnits,

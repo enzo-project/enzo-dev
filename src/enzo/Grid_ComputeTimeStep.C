@@ -356,7 +356,7 @@ float grid::ComputeTimeStep()
  
   /* 2) Calculate dt from particles. */
  
-  if (NumberOfParticles > 0) {
+  if (NumberOfParticles > 0 || NumberOfActiveParticles > 0) {
  
     /* Compute dt constraint from particle velocities. */
  
@@ -365,6 +365,10 @@ float grid::ComputeTimeStep()
       for (i = 0; i < NumberOfParticles; i++) {
         dtTemp = dCell/max(fabs(ParticleVelocity[dim][i]), tiny_number);
 	dtParticles = min(dtParticles, dtTemp);
+      }
+      for (i = 0; i < NumberOfActiveParticles; i++) {
+    dtTemp = dCell/max(fabs(ActiveParticles[i]->ReturnVelocity()[dim]), tiny_number);
+    dtParticles = min(dtParticles, dtTemp);
       }
     }
  

@@ -21,7 +21,7 @@
 #include "Hierarchy.h"
 #include "phys_constants.h"
 
-float grid::FindMinimumPotential(FLOAT *cellpos, FLOAT radius, FLOAT *PotentialField)
+float grid::FindMinimumPotential(FLOAT *cellpos, FLOAT radius, float *PotentialField)
 {
 
   int i = 0, j = 0, k = 0;

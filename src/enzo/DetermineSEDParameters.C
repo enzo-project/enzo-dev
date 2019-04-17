@@ -138,13 +138,13 @@ int DetermineSEDParameters(ActiveParticleType_SmartStar *SS, FLOAT Time, FLOAT d
       return SUCCESS;
     }
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits, MassUnits;
+    VelocityUnits;
+  double MassUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
   MassUnits = DensityUnits * POW(LengthUnits,3);
-  float MassConversion = (float) (dx*dx*dx * double(MassUnits));  //convert to g from a density
-  float ParticleMass =  SS->ReturnMass()*MassConversion/SolarMass; //In solar masses
-   
+  double MassConversion = (float) (dx*dx*dx * double(MassUnits));  //convert to g from a density
+  double ParticleMass =  SS->ReturnMass()*MassConversion/SolarMass; //In solar masses
 
 #if STELLAR
   static float ptime=0.0;
@@ -206,29 +206,29 @@ int DetermineSEDParameters(ActiveParticleType_SmartStar *SS, FLOAT Time, FLOAT d
    */
   else if(SS->ParticleClass == BH && SmartStarBHRadiativeFeedback == TRUE) {
     SS->RadiationLifetime = 1e14*3.154e7/TimeUnits; //code time
-    float accrate = (SS->AccretionRate[SS->TimeIndex]*(MassUnits/SolarMass)/TimeUnits)*3.154e7; //Msolar/yr
-    float BHMass = ParticleMass;
+    double accrate = (SS->AccretionRate[SS->TimeIndex]*(MassUnits/SolarMass)/TimeUnits)*3.154e7; //Msolar/yr
+    double BHMass = ParticleMass;
     float epsilon = SS->eta_disk;
-    float eddrate = 4*M_PI*GravConst*BHMass*SolarMass*mh/(epsilon*clight*sigma_thompson); // g/s
+    double eddrate = 4*M_PI*GravConst*BHMass*SolarMass*mh/(epsilon*clight*sigma_thompson); // g/s
     eddrate = eddrate*3.154e7/SolarMass; //in Msolar/yr
     accrate = max(accrate, 1e-6);
     BHMass = min(BHMass, 1.0);
-    int arrayindex = CalculateArrayIndex(ParticleMass, accrate);
-    SS->LuminosityPerSolarMass = BHArray[arrayindex][0]/ParticleMass; //erg/s/msun
+    int arrayindex = CalculateArrayIndex(BHMass, accrate);
+    SS->LuminosityPerSolarMass = BHArray[arrayindex][0]/BHMass; //erg/s/msun
     
     if(SmartStarSuperEddingtonAdjustment == TRUE) {
       if(accrate > eddrate) {
 	//printf("%s: Super Eddington Accretion rate detected (%f Medd) - need to modify feedback!!!!!!!!!\n", __FUNCTION__, accrate/eddrate);
 	float mue = 1.22, a = 0.5;
-	float Ledd = 4*M_PI*GravConst*BHMass*SolarMass*mh*mue*clight/sigma_thompson; //cgs
-	float medddot = 16.0*Ledd/(clight*clight); //cgs
-	float accrate_cgs = accrate*SolarMass/3.154e7; 
+	double Ledd = 4*M_PI*GravConst*BHMass*SolarMass*mh*mue*clight/sigma_thompson; //cgs
+	double medddot = 16.0*Ledd/(clight*clight); //cgs
+	double accrate_cgs = accrate*SolarMass/3.154e7; 
 	/* Apply Madau fit to calculate Luminosity */
-	float LSuperEdd = Ledd*MadauFit(a, accrate*SolarMass/3.154e7, medddot); 
+	double LSuperEdd = Ledd*MadauFit(a, accrate*SolarMass/3.154e7, medddot); 
 	//printf("LuminosityPerSolarMass in Superdd Case is %e erg/s/msun\n", LSuperEdd/ParticleMass);
 	epsilon = LSuperEdd/(accrate_cgs*clight*clight);
 	//printf("epsilon updated to %f\n", epsilon);
-	SS->LuminosityPerSolarMass = LSuperEdd/ParticleMass;
+	SS->LuminosityPerSolarMass = LSuperEdd/BHMass;
       }
     }
  

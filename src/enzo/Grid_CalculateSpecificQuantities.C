@@ -47,11 +47,11 @@ int grid::CalculateSpecificQuantities(FLOAT *SinkParticlePos, FLOAT *CLEdge,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
         ENZO_FAIL("Error in GetUnits.");
   }
-  FLOAT SpecificAngularMomentum[3][N*N*N];
-  FLOAT SpecificEnergy[N*N*N];
+  double SpecificAngularMomentum[3][N*N*N];
+  double SpecificEnergy[N*N*N];
   FLOAT xpos = 0.0, ypos = 0.0, zpos = 0.0;
   int dim = 0, i = 0, j = 0, k = 0, index = 0;
-  float Gcode = GravConst*DensityUnits*TimeUnits*TimeUnits;
+  double Gcode = GravConst*DensityUnits*TimeUnits*TimeUnits;
   /* Set to zero. */
  for(index = 0; index < N*N*N; index++) {
    SpecificEnergy[index] = 0.0;
@@ -59,19 +59,19 @@ int grid::CalculateSpecificQuantities(FLOAT *SinkParticlePos, FLOAT *CLEdge,
       SpecificAngularMomentum[dim][index] = 0.0;
     }
   }
- 
+ double A = 0.0, B = 0.0;
   /* Compute Angular Momentum for the baryons. */
- FLOAT jspec = 0.0, espec = 0.0;
+ double jspec = 0.0, espec = 0.0;
  FLOAT deltax = CellWidth[0][0]/ (FLOAT)N;
- FLOAT xvel = 0.0, yvel = 0.0, zvel = 0.0;
+ double xvel = 0.0, yvel = 0.0, zvel = 0.0;
   for(k = 0; k < N; k++) {
-    zpos = CLEdge[2] - SinkParticlePos[2] + k*deltax;
+    zpos = SinkParticlePos[2] - (CLEdge[2] + k*deltax);
     zvel = vsink[2] - vgas[2];
     for(j = 0; j < N; j++) {
-      ypos = CLEdge[1] - SinkParticlePos[1] + j*deltax;
+      ypos = SinkParticlePos[1] - (CLEdge[1] + j*deltax);
       yvel = vsink[1] - vgas[1];
       for(i = 0; i < N; i++) {
-	xpos = CLEdge[0] - SinkParticlePos[0] + i*deltax;
+	xpos = SinkParticlePos[0] - (CLEdge[0] + i*deltax);
 	xvel = vsink[0] - vgas[0];
 	index = k*N*N + j*N + i;
 	
@@ -88,18 +88,33 @@ int grid::CalculateSpecificQuantities(FLOAT *SinkParticlePos, FLOAT *CLEdge,
 				 zvel*zvel);
 	
 	/* plus PE */
-	FLOAT r = sqrt(xpos*xpos * ypos*ypos + zpos*zpos);
+	double r = sqrt(xpos*xpos * ypos*ypos + zpos*zpos);
 	SpecificEnergy[index] -= Gcode*msink/r;
 	espec = SpecificEnergy[index];
-	FLOAT rmin = 0.0;
+	
+	double rmin = 0.0;
 	if(espec > 0.0) /* The point is not bound to the sink */
 	  rmin = huge_number;
 	else {
-	  FLOAT A = (1.0 - sqrt(1 + 2*jspec*espec/((Gcode*msink)*(Gcode*msink))));
+	  B = 2*jspec*espec/((Gcode*msink)*(Gcode*msink));
+	  B = max(-1.0, B);
+	  A = (1.0 - sqrt(1 + B));
 	  rmin = -Gcode*msink*A/(2.0*espec);
 	}
-
-	if(rmin <= (FLOAT)CellWidth[0][0]/4.0) /* going to be counted */
+	if(rmin != huge_number){
+	  // printf("espec = %e\t", espec);
+	  // printf("rmin = %e\t CellWidth[0][0]/4.0 = %e\n", rmin, CellWidth[0][0]/4.0);
+	  // printf("Gcode = %e\n", Gcode);
+	  // printf("A = %e\n", A);
+	  // printf("msink = %e\n", msink);
+	  // printf("jspec = %e\n", jspec);
+	  // printf("2*jspec*espec = %e\n", 2*jspec*espec);
+	  // printf("((Gcode*msink)*(Gcode*msink)) = %e\n", ((Gcode*msink)*(Gcode*msink)));
+	  // printf("2*jspec*espec/((Gcode*msink)*(Gcode*msink))) = %e\n",
+	  // 	 2*jspec*espec/((Gcode*msink)*(Gcode*msink)));
+	  // printf("B = %e\n", B);
+	}
+	if(rmin <= (double)CellWidth[0][0]/4.0) /* going to be counted */
 	  *numpoints++;
       }
     }

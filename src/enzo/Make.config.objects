@@ -471,6 +471,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FindMassinRegion.o \
 	Grid_FindMinimumPotential.o \
 	Grid_FindAllStarParticles.o \
+	Grid_FindAngularMomentumMinimum.o \
 	Grid_FindAverageTemperature.o \
 	Grid_FindMassiveParticles.o \
 	Grid_FindMinimumParticleMass.o \

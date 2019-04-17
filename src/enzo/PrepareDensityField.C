@@ -42,6 +42,7 @@
 #include "communication.h"
 #include "CommunicationUtilities.h"
 #include "phys_constants.h"
+#include "ActiveParticle.h"
 
 /* function prototypes */
  
@@ -52,6 +53,10 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				int NumberOfSubgrids[] = NULL,
 				int FluxFlag = FALSE,
 				TopGridData* MetaData = NULL);
+
+int ActiveParticleDepositMass(HierarchyEntry *Grids[], TopGridData *MetaData,
+               int NumberOfGrids, LevelHierarchyEntry *LevelArray[],
+               int level);
  
 int PrepareGravitatingMassField1(HierarchyEntry *Grid);
 #ifdef FAST_SIB
@@ -371,6 +376,14 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #endif
 
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
+
+  /************************************************************************/
+  /* Here Active particles have the opportunity to deposit mass into the
+     temporary mass buffers.
+   */
+  
+  ActiveParticleDepositMass(Grids, MetaData, NumberOfGrids, LevelArray,
+                            level);
  
   /************************************************************************/
   /* Compute the potential for the top grid. */

@@ -26,7 +26,8 @@
 #include "ActiveParticle_SmartStar.h"
 #define UPDATE_SS_VELOCITY 1
 #define NO_DEBUG_AP
-#define ACCRETE_DEBUG 1
+#define ACCRETE_DEBUG 0
+#define NO_ACCRETION 0
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -83,6 +84,9 @@ int grid::AccreteOntoSmartStarParticle(
   *AccretionRate = CalculateSmartStarAccretionRate(ThisParticle, AccretionRadius,
 						   &KernelRadius, &SumOfWeights);
 
+#if NO_ACCRETION
+  *AccretionRate = 0.0;
+#endif
   /*
    * 1. Calculate the accretion rate
    * 2a. Calculate how much goes into the black hole: Mdot_BH = AccRate*(1 - eta_disk) ~ 0.9*AccRate
@@ -182,8 +186,10 @@ int grid::AccreteOntoSmartStarParticle(
     float accretion_ratio = mdot_total/(*AccretionRate);
     SS->epsilon_deltat = min(1.0, accretion_ratio*(1.0/(1.0 - SS->eta_disk))*(1.0/(1.0 + SS->beta_jet)));
     SS->MassToBeEjected = 0.0;
+#if  ACCRETE_DEBUG
     printf("%s: Eddrate = %e Msolar/yr AccRate = %e Msolar/yr\t Ratio = %f\n", __FUNCTION__,
 	   eddrate, accrate_msolar, accrate_msolar/eddrate);
+#endif
     if(accrate_msolar > eddrate) {
       
       *AccretionRate *= SS->epsilon_deltat;
@@ -205,9 +211,13 @@ int grid::AccreteOntoSmartStarParticle(
 	     (*AccretionRate/SS->epsilon_deltat)*3.154e7*MassConversion/(SolarMass*TimeUnits));
 #endif
     }
-    else
+    else {
+#if  ACCRETE_DEBUG
       printf("%s: AccrateionRateRatio = %f. No jets this time\n", __FUNCTION__,
 	     accrate_msolar/eddrate);
+#endif
+      ;
+    }
   }
   
   AccretedMass = (*AccretionRate)*this->dtFixed;

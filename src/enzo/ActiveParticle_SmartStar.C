@@ -954,13 +954,18 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
     if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+#if SSDEBUG
       printf("%s: deltatime = %f years\t TIMEGAP = %0.2f years\n",
 	     __FUNCTION__, (ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/3.154e7, 
 	     (float)TIMEGAP);
+#endif
       //We should update when the time between stored rates exceeds TIMEGAP
       if(ctime - SS->AccretionRateTime[SS->TimeIndex] > (TIMEGAP*3.154e7/TimeUnits)) {
 	float omass = SS->oldmass;
 	float cmass = ParticleList[i]->ReturnMass();
+	if(cmass - omass < 0.0) { //Can happen after a restart due to rounding
+	  break;
+	}
 	SS->TimeIndex++;
 	
 	int timeindex = (SS->TimeIndex)%NTIMES;

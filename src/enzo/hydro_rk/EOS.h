@@ -16,6 +16,7 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
        6: minimum pressure similar (but not equal to)
           http://adsabs.harvard.edu/abs/2004ApJ...606...32R
           equation 4
+       7: Burkert & Bodenheimer Test. Fedderath et al. (2010) Eqn 
 
      mode:  
        1: given p and rho, calculate others.
@@ -143,6 +144,38 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
 
   }
 
+  /* Only works in mode 1 and only updates internal energy */
+  if (eostype == 7) {
+    float lenu, denu, tu, velu, tempu;
+    GetUnits(&denu, &lenu, &tempu, &tu, &velu, 1);
+    double rho_cr = 1e-15;
+    double new_gamma = 0.0;
+    double c_s = EOSSoundSpeed;
+    rho_cr /= denu;
+    
+    if(rho/rho_cr <= 0.25) {
+      new_gamma = Gamma;
+      cs = c_s*pow(rho/rho_cr, new_gamma);
+    }
+    else if(rho/rho_cr <= 5.0) {
+      new_gamma = 1.1;
+      cs = c_s*pow(rho/rho_cr, new_gamma);
+    }
+    else {
+      new_gamma = 4.0/3.0;
+      cs = c_s*pow(rho/rho_cr, new_gamma);
+    }
+    
+    p = rho*cs*cs;
+    e = p / ((new_gamma-1.0)*rho);
+    dpdrho = 1;
+    dpde = 1;
+    h = e + p/rho;
 
+
+
+
+    
+  }
 
 }

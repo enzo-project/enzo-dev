@@ -752,14 +752,13 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   
   if (NumberOfParticles > 0) {
 
-    if (ParticleGroupID == h5_error) {
-        ParticleGroupID = H5Gcreate(group_id, "Particles", 0);
-    }
-
-    hid_t dm_group_id = H5Gcreate(ParticleGroupID, "DarkMatter", 0);
     /* Sort particles according to their identifier. */
 
-    this->SortParticlesByNumber();
+    if (OutputParticleTypeGrouping)
+      this->SortParticlesByType();
+    else
+      this->SortParticlesByNumber();
+
     this->SortActiveParticlesByNumber();
 
     /* Create a temporary buffer (64 bit). */
@@ -773,35 +772,23 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
     for (dim = 0; dim < GridRank; dim++) {
       this->write_dataset(1, TempIntArray, ParticlePositionLabel[dim],
-          dm_group_id, HDF5_FILE_PREC, (VOIDP) ParticlePosition[dim], FALSE);
-      H5Lcreate_hard(dm_group_id, ParticlePositionLabel[dim],
-                     group_id, ParticlePositionLabel[dim],
-                     H5P_DEFAULT, H5P_DEFAULT);
+          group_id, HDF5_FILE_PREC, (VOIDP) ParticlePosition[dim], FALSE);
     }
 
     /* Copy particle velocities to temp and write them. */
 
     for (dim = 0; dim < GridRank; dim++) {
       this->write_dataset(1, TempIntArray, ParticleVelocityLabel[dim],
-          dm_group_id, HDF5_REAL, (VOIDP) ParticleVelocity[dim], FALSE);
-      H5Lcreate_hard(dm_group_id, ParticleVelocityLabel[dim],
-                     group_id, ParticleVelocityLabel[dim],
-                     H5P_DEFAULT, H5P_DEFAULT);
+          group_id, HDF5_REAL, (VOIDP) ParticleVelocity[dim], FALSE);
     }
 
     /* Copy mass to temp and write it. */
 
     this->write_dataset(1, TempIntArray, "particle_mass",
-        dm_group_id, HDF5_REAL, (VOIDP) ParticleMass, FALSE);
-    H5Lcreate_hard(dm_group_id, "particle_mass",
-                   group_id, "particle_mass",
-                   H5P_DEFAULT, H5P_DEFAULT);
+        group_id, HDF5_REAL, (VOIDP) ParticleMass, FALSE);
 
     this->write_dataset(1, TempIntArray, "particle_index",
-        dm_group_id, HDF5_PINT, (VOIDP) ParticleNumber, FALSE);
-    H5Lcreate_hard(dm_group_id, "particle_index",
-                   group_id, "particle_index",
-                   H5P_DEFAULT, H5P_DEFAULT);
+        group_id, HDF5_PINT, (VOIDP) ParticleNumber, FALSE);
 
     /* Copy type to temp and write it. */
 
@@ -816,14 +803,14 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
       if( file_dsp_id == h5_error ){ENZO_FAIL("Can't create particle_type dataspace");}
 
-      dset_id =  H5Dcreate(dm_group_id, "particle_type", HDF5_FILE_INT, file_dsp_id, H5P_DEFAULT);
+      dset_id =  H5Dcreate(group_id, "particle_type", HDF5_FILE_INT, file_dsp_id, H5P_DEFAULT);
       if( dset_id == h5_error ){ENZO_FAIL("Can't create particle_type dataset");}
 
       h5_status = H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
           (VOIDP) ParticleType);
       if( h5_status == h5_error ){ENZO_FAIL("Can't write particle_type");}
 
-      if (OutputParticleTypeGrouping)
+      if(OutputParticleTypeGrouping)
         this->CreateParticleTypeGrouping(dset_id, file_dsp_id, group_id, file_id);
 
       h5_status = H5Sclose(file_dsp_id);
@@ -837,24 +824,25 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
     /* Copy particle attributes to temp and write them. */
 
-    /* clean up */
+    for (j = 0; j < NumberOfParticleAttributes; j++) {
 
-    H5Gclose(dm_group_id);
+      this->write_dataset(1, TempIntArray, ParticleAttributeLabel[j],
+          group_id, HDF5_REAL, (VOIDP) ParticleAttribute[j], FALSE);
+    }
+
+    /* clean up */
 
     delete [] temp;
 
   } // end: if (NumberOfParticles > 0)
 
-  /* ------------------------------------------------------------------- */
+    /* ------------------------------------------------------------------- */
   /* 4) Save active particle quantities. */
 
   if (NumberOfActiveParticles > 0) {
     /* Iterate over the enabled active particle types */
 
-    if (ParticleGroupID == h5_error) {
-        ParticleGroupID = H5Gcreate(group_id, "Particles", 0);
-    }
-
+    ParticleGroupID = H5Gcreate(group_id, "Active Particles", 0);
     for (i = 0; i < EnabledActiveParticlesCount; i++)
       {
 
@@ -872,28 +860,23 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
       }
 
-
+    h5_status = H5Gclose(ParticleGroupID);
   }  // end: if (NumberOfActiveParticles > 0)
 
-  if (ParticleGroupID != h5_error) {
-    H5Gclose(ParticleGroupID);
-  }
-
   /* Close HDF group and file. */
-
+ 
   if (WriteEverything == TRUE) this->WriteAllFluxes(group_id);
   h5_status = H5Gclose(group_id);
 
   /* 4) Save Gravity info. */
-
+ 
   /* Clean up. */
-
+ 
   delete [] name;
   delete [] procfilename;
   delete [] groupfilename;
-
   return SUCCESS;
-
+ 
 }
 #endif
 

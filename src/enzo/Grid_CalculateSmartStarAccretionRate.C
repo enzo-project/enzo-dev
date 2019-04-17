@@ -124,15 +124,15 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
     LengthUnits*TimeUnits;
   FLOAT BondiHoyleRadius = CalculateBondiHoyleRadius(mparticle, vparticle, Temperature); 
  
-  printf("%s:  BondiHoyleRadius = %e pc\n", __FUNCTION__,  BondiHoyleRadius*LengthUnits/pc_cm);
-  printf("%s:  AccretionRadius = %e pc\n", __FUNCTION__,  AccretionRadius*LengthUnits/pc_cm);
+  //printf("%s:  BondiHoyleRadius = %e pc\n", __FUNCTION__,  BondiHoyleRadius*LengthUnits/pc_cm);
+  //printf("%s:  AccretionRadius = %e pc\n", __FUNCTION__,  AccretionRadius*LengthUnits/pc_cm);
   /* Impose a kernel radius that regulates the weighting cells get as a function of radius */
   if (BondiHoyleRadius < CellWidth[0][0]/4.0) {  /* For BHs whose Bondi radius is not resolved */
-    printf("%s: Setting kernel radius to CellWidth, BH not resolved\n", __FUNCTION__);
+    //printf("%s: Setting kernel radius to CellWidth, BH not resolved\n", __FUNCTION__);
     *KernelRadius = CellWidth[0][0]*2.0;
   }
   else { /*Accrete out to the BH radius */
-    printf("%s: Setting kernel radius to BondiHoyleRadius\n", __FUNCTION__);
+    //printf("%s: Setting kernel radius to BondiHoyleRadius\n", __FUNCTION__);
     *KernelRadius = max(BondiHoyleRadius, AccretionRadius);
   }
 
@@ -180,7 +180,9 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    */
   if(MBHAccretion == SPHERICAL_BONDI_HOYLE_FORMALISM ||
      MBHAccretion == SPHERICAL_BONDI_HOYLE_FORMALISM_WITH_VORTICITY) {
+#ifdef DEBUG_AP
     printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM, MBHAccretion = %d\n", MBHAccretion);
+#endif
     RhoInfinity = AverageDensity /
       bondi_alpha(1.2*CellWidth[0][0] / BondiHoyleRadius);
 
@@ -189,8 +191,10 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
 			 sqrt(POW(lambda_c*cInfinity,2) + POW(vInfinity,2)));
     /* Include Vorticity component if specified */
     if(SPHERICAL_BONDI_HOYLE_FORMALISM_WITH_VORTICITY == MBHAccretion) {
+#ifdef DEBUG_AP
       printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM_WIDTH_VORTICITY, MBHAccretion = %d\n",
 	     MBHAccretion);
+#endif
       /* Include Vorticity Component */
       FLOAT vorticity[3] = {0.0, 0.0, 0.0};
       GetVorticityComponent(xparticle, vorticity);
@@ -212,7 +216,9 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    * account the angular momentum transport of gas on scales below the grid scale. 
    */
   if(MBHAccretion == VISCOUS_ANGULAR_MOMENTUM_TRANSPORT) {
+#ifdef DEBUG_AP
     printf("Doing VISCOUS_ANGULAR_MOMENTUM_TRANSPORT, MBHAccretion = %d\n", MBHAccretion);
+#endif
   float alpha = 0.1;
   float c_s = sqrt(Gamma * kboltz * AverageT / (Mu * mh)) /
     LengthUnits*TimeUnits;
@@ -229,7 +235,9 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    * explaining why BH feedback can not overwhelm a galaxy. 
    */
   if(MBHAccretion == ALPHA_DISK_CEN_2012) {
+#ifdef DEBUG_AP
      printf("Doing ALPHA_DISK_CEN_2012, MBHAccretion = %d\n", MBHAccretion);
+#endif
     AccretionRate = CenAccretionRate(AverageDensity, AccretionRadius,
 				     xparticle, vparticle, mparticle);
   }
@@ -240,7 +248,9 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    * bondi-hoyle radius. 
    */
   if(MBHAccretion == ANGULAR_MOMENTUM_LIMITED_ACCRETION) {
+#ifdef DEBUG_AP
     printf("Doing ANGULAR_MOMENTUM_LIMITED_ACCRETION, MBHAccretion = %d\n", MBHAccretion);
+#endif
     float c_s = sqrt(Gamma * kboltz * AverageT / (Mu * mh))*TimeUnits/LengthUnits;
     float V_phi = CalculateCirculisationSpeed(Vel1Num, AccretionRadius, xparticle, vparticle);
     /* Bondi Hoyle */
@@ -265,11 +275,15 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    *
    */
   if(MBHAccretion ==  CONVERGING_MASS_FLOW) {
+#ifdef DEBUG_AP
     printf("Doing CONVERGING_MASS_FLOW, MBHAccretion = %d\n", MBHAccretion);
+#endif
     AccretionRate = ConvergentMassFlow(DensNum, Vel1Num, AccretionRadius, xparticle, vparticle, 
 				       mparticle, Gcode, GENum);
+#ifdef DEBUG_AP
     printf("%s: Calculated (mass flux) accretion rate is %e Msolar/yr\n", __FUNCTION__, 
 	   AccretionRate*3.154e7*MassUnits/(SolarMass*TimeUnits));
+#endif
   }
   
   return AccretionRate;
@@ -531,8 +545,10 @@ float grid::ConvergentMassFlow(int DensNum, int Vel1Num, FLOAT AccretionRadius,
   }
   // mdot = -4*pi*rho*R^2*V_radial
   mdot = fabs(4*M_PI*mdot); //return the accretion rate as a positive quantity
+#ifdef DEBUG_AP
   printf("%s: Num InFlow cells = %d\t Num OutflowCells = %d\t mdot = %e\n", __FUNCTION__, numincells,
 	 numoutcells, mdot);
+#endif
   return mdot;
 }
 
@@ -631,10 +647,12 @@ FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *
   float cInfinity = sqrt(Gamma * kboltz * CellTemperature / (Mu * mh)) /
     LengthUnits*TimeUnits;
   float Gcode = GravConst*DensityUnits*TimeUnits*TimeUnits;
+#ifdef DEBUG_AP
   printf("%s: vInfinity = %f km/s\n", __FUNCTION__,  (vInfinity*LengthUnits/TimeUnits)/1e5);
   printf("%s: cInfinity = %f km/s\n", __FUNCTION__,  (cInfinity*LengthUnits/TimeUnits)/1e5);
   printf("%s: CellTemperature = %f K\n", __FUNCTION__, CellTemperature);
   printf("%s: Celllength = %e pc\n", __FUNCTION__, CellWidth[0][0]*LengthUnits/pc_cm);
+#endif
   return Gcode*mparticle/
     (pow(vInfinity,2) + pow(cInfinity,2));
 }
