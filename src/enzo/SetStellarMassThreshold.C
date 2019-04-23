@@ -35,7 +35,7 @@ int SetStellarMassThreshold(FLOAT time)
 {
 
   int timestep, i;
-  FLOAT a, dadt, redshift;
+  FLOAT a, dadt, redshift=0.0;
   float early_mass, late_mass, current_mass;
 
   /* Return if not used */
@@ -61,11 +61,11 @@ int SetStellarMassThreshold(FLOAT time)
     }
 
     /* set current stellar minimum mass threshold */
-    if(time < StarMakerMinimumMassRampStartTime){
+    if(time <= StarMakerMinimumMassRampStartTime){ // if time is before ramp start time, use early mass
       current_mass = early_mass;
-    } else if (time > StarMakerMinimumMassRampEndTime){
+    } else if (time >= StarMakerMinimumMassRampEndTime){ // if time is after ramp end time, use late mass
       current_mass = late_mass;
-    } else {
+    } else {  // otherwise, linearly interpolate between start and end
       current_mass = early_mass + (time - StarMakerMinimumMassRampStartTime)
 	* (late_mass-early_mass)/(StarMakerMinimumMassRampEndTime-StarMakerMinimumMassRampStartTime);  
     }
@@ -89,11 +89,11 @@ int SetStellarMassThreshold(FLOAT time)
     }
 
     /* set current stellar minimum mass threshold */
-    if(redshift > StarMakerMinimumMassRampStartTime){
+    if(redshift >= StarMakerMinimumMassRampStartTime){ // if redshift is prior to ramp start redshift, use early mass
       current_mass = early_mass;
-    } else if (redshift < StarMakerMinimumMassRampEndTime){
+    } else if (redshift <= StarMakerMinimumMassRampEndTime){ // if redshift is after ramp end redshift, use late mass
       current_mass = late_mass;
-    } else {
+    } else {  // otherwise, linearly interpolate between start and end
       current_mass = early_mass + (redshift - StarMakerMinimumMassRampStartTime)
 	* (late_mass-early_mass)/(StarMakerMinimumMassRampEndTime-StarMakerMinimumMassRampStartTime);
     }
