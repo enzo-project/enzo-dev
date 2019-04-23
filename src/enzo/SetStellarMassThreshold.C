@@ -25,6 +25,7 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "CosmologyParameters.h"
+#include "StarParticleData.h"
 
 void my_exit(int status);
 
@@ -109,7 +110,7 @@ int SetStellarMassThreshold(FLOAT time)
     my_exit(EXIT_FAILURE);
   }
 
-  if(debut){
+  if(debug){
     printf("SetStellarMassThreshold:  StarMakerMinimumMass set to %"FSYM" at time %"PSYM"\n",
 	   StarMakerMinimumMass,time);
   }

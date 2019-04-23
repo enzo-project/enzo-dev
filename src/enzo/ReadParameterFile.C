@@ -2100,7 +2100,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
        StarMakerMinimumMassRampStartMass == FLOAT_UNDEFINED ||
        StarMakerMinimumMassRampEndTime   == FLOAT_UNDEFINED ||
        StarMakerMinimumMassRampEndMass   == FLOAT_UNDEFINED){
-      fprintf("You're using StarMakerMinimumMassRamp but need to set ALL of your start and end times and masses!\n");
+      fprintf(stderr,"You're using StarMakerMinimumMassRamp but need to set ALL of your start and end times and masses!\n");
       my_exit(EXIT_FAILURE);
     }
   } // if(StarMakerMinimumMassRamp > 0)
