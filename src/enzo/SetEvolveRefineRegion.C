@@ -3,7 +3,7 @@
   By John Wise
 
   History:
-     03 May 2005 : JHW -- Created
+     03 May 2005 : JHW -- Created 
 ------------------------------------------------------------------------*/
 
 #include <stdlib.h>
