@@ -229,9 +229,9 @@ int SetEvolveRefineRegion (FLOAT time)
       time = redshift;
 
       /* Check to see if the current redshift is within the bounds of the given time file.  This assumes
-	 that EvolveRefineRegionTime[0] is the highest redshift and the last output is the lowest (for the 
+	 that EvolveCoolingRefineRegionTime[0] is the highest redshift and the last output is the lowest (for the 
 	 given track file).  */
-      if(time > EvolveRefineRegionTime[0] || time < EvolveRefineRegionTime[EvolveRefineRegionNtimes-1]){
+      if(time > EvolveCoolingRefineRegionTime[0] || time < EvolveCoolingRefineRegionTime[EvolveCoolingRefineRegionNtimes-1]){
 	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation redshift is outside of range of track file redshifts!  (Cooling time box)");
 	my_exit(EXIT_FAILURE);
       }
@@ -246,7 +246,7 @@ int SetEvolveRefineRegion (FLOAT time)
       /* Check to see if the current time is within the bounds of the given time file.  This assumes
 	 that EvolveRefineRegionTime[0] is the earliest time and the last output is the latest time (for
 	 the given track file). */
-      if(time > EvolveRefineRegionTime[0] || time < EvolveRefineRegionTime[EvolveRefineRegionNtimes-1]){
+      if(time < EvolveCoolingRefineRegionTime[0] || time > EvolveCoolingRefineRegionTime[EvolveCoolingRefineRegionNtimes-1]){
 	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation redshift is outside of range of track file redshifts! (Cooling time box)");
 	my_exit(EXIT_FAILURE);
       }
@@ -267,7 +267,7 @@ int SetEvolveRefineRegion (FLOAT time)
       CoolingRefineRegionLeftEdge[i] = EvolveCoolingRefineRegionLeftEdge[timestep][i];
       CoolingRefineRegionRightEdge[i] = EvolveCoolingRefineRegionRightEdge[timestep][i];
 
-      /* If we're at the last timestep in our EvolveRefineRegion track, just use that;
+      /* If we're at the last timestep in our EvolveCoolingRefineRegion track, just use that;
 	 otherwise, linearly interpolate between this time and the next time to avoid
 	 the refinement region jumping around. */
       if(timestep == EvolveCoolingRefineRegionNtimes-1){
