@@ -792,6 +792,7 @@ OBJS_CONFIG_LIB = \
         SetDefaultGlobalValues.o \
         SetLevelTimeStep.o \
         SetEvolveRefineRegion.o \
+        SetSetStellarMassThreshold.o \
         sgi_st1_fft64.o \
         ShearingBoxInitialize.o \
         ShearingBox2DInitialize.o \
@@ -890,11 +891,6 @@ OBJS_CONFIG_LIB = \
         uuid/unpack.o \
         uuid/unparse.o \
         uuid/uuid_time.o \
-		libconfig/grammar.o \
-		libconfig/libconfig.o \
-		libconfig/scanctx.o \
-		libconfig/scanner.o \
-		libconfig/strbuf.o \
         wall_clock.o \
         WavePoolInitialize.o \
         wrapper1d.o \

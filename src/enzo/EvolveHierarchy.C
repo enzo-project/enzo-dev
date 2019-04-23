@@ -128,6 +128,8 @@ int MagneticFieldResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 void PrintMemoryUsage(char *str);
 int SetEvolveRefineRegion(FLOAT time);
 
+int SetStellarMassThreshold(FLOAT time);
+
 #ifdef MEM_TRACE
 Eint64 mused(void);
 #endif
@@ -461,6 +463,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     if ((RefineRegionTimeType == 1) || (RefineRegionTimeType == 0)) {
         if (SetEvolveRefineRegion(MetaData.Time) == FAIL) 
 	  ENZO_FAIL("Error in SetEvolveRefineRegion.");
+    }
+
+    /* If required, set evolving stellar mass threshold */
+    if (StarMakerMinimumMassRamp > 0) {
+        if (SetStellarMassThreshold(MetaData.Time) == FAIL) 
+	  ENZO_FAIL("Error in SetStellarMassThreshold.");
     }
 
     /* Evolve the stochastic forcing spectrum and add
