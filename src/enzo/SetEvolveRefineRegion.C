@@ -94,15 +94,36 @@ int SetEvolveRefineRegion (FLOAT time)
 
     for (i = 0; i < MAX_DIMENSION; i++)
       if (staticRegion < 0) {
-	RefineRegionLeftEdge[i] = EvolveRefineRegionLeftEdge[timestep][i];
-	RefineRegionRightEdge[i] = EvolveRefineRegionRightEdge[timestep][i];
+
+	/* If we're at the last timestep in our EvolveRefineRegion track, just use that;
+	   otherwise, linearly interpolate between this time and the next time to avoid
+	   the refinement region jumping around. */
+	if(timestep == EvolveRefineRegionNtimes-1){
+
+	  RefineRegionLeftEdge[i] = EvolveRefineRegionLeftEdge[timestep][i];
+	  RefineRegionRightEdge[i] = EvolveRefineRegionRightEdge[timestep][i];
+
+	} else {
+
+	  RefineRegionLeftEdge[i] = EvolveRefineRegionLeftEdge[timestep][i] +
+	    (time - EvolveRefineRegionTime[timestep])
+	    *(EvolveRefineRegionLeftEdge[timestep+1][i]-EvolveRefineRegionLeftEdge[timestep][i])
+	    / (EvolveRefineRegionTime[timestep+1] - EvolveRefineRegionTime[timestep]);
+
+	  RefineRegionRightEdge[i] = EvolveRefineRegionRightEdge[timestep][i] +
+	    (time - EvolveRefineRegionTime[timestep])
+	    *(EvolveRefineRegionRightEdge[timestep+1][i]-EvolveRefineRegionRightEdge[timestep][i])
+	    / (EvolveRefineRegionTime[timestep+1] - EvolveRefineRegionTime[timestep]);
+
+	} // if(timestep == EvolveRefineRegionNtimes-1)
+
       } else {
 	RefineRegionLeftEdge[i] = max(EvolveRefineRegionLeftEdge[timestep][i],
 				      StaticRefineRegionLeftEdge[staticRegion][i]);
 	RefineRegionRightEdge[i] = 
 	  min(EvolveRefineRegionRightEdge[timestep][i],
 	      StaticRefineRegionRightEdge[staticRegion][i]);
-      }
+      } // if (staticRegion < 0) {
 
     if (debug1)
       fprintf(stdout, "SetEvolveRefineRegion: EvolveRegion: %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM"\n",
