@@ -15,6 +15,8 @@
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
+void my_exit(int status);
+
 int SetEvolveRefineRegion (FLOAT time) 
 {
 
@@ -47,14 +49,33 @@ int SetEvolveRefineRegion (FLOAT time)
   
     /* Find closest time step with <time */
     /* Set time=redshift if that's what we're doing. */
-    if (RefineRegionTimeType == 1) {
+    if (RefineRegionTimeType == 1) {  // redshift
+
       time = redshift;
+
+      /* Check to see if the current redshift is within the bounds of the given time file.  This assumes
+	 that EvolveRefineRegionTime[0] is the highest redshift and the last output is the lowest (for the 
+	 given track file).  */
+      if(time > EvolveRefineRegionTime[0] || time < EvolveRefineRegionTime[EvolveRefineRegionNtimes-1]){
+	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation redshift is outside of range of track file redshifts!");
+	my_exit(EXIT_FAILURE);
+      }
+
       for(timestep=0; timestep<EvolveRefineRegionNtimes; timestep++){
 	if( time > EvolveRefineRegionTime[timestep] ){
 	  break;
 	}
       }
-    }else{
+    }else{  // code time
+
+      /* Check to see if the current time is within the bounds of the given time file.  This assumes
+	 that EvolveRefineRegionTime[0] is the earliest time and the last output is the latest time (for
+	 the given track file). */
+      if(time > EvolveRefineRegionTime[0] || time < EvolveRefineRegionTime[EvolveRefineRegionNtimes-1]){
+	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation redshift is outside of range of track file redshifts!");
+	my_exit(EXIT_FAILURE);
+      }
+
       for(timestep=0; timestep<EvolveRefineRegionNtimes; timestep++){
 	if( time < EvolveRefineRegionTime[timestep] ){
 	  break;
@@ -149,14 +170,32 @@ int SetEvolveRefineRegion (FLOAT time)
   
     /* Find closest time step with <time */
     /* Set time=redshift if that's what we're doing. */
-    if (CoolingRefineRegionTimeType == 1) {
+    if (CoolingRefineRegionTimeType == 1) {  // redshift
       time = redshift;
+
+      /* Check to see if the current redshift is within the bounds of the given time file.  This assumes
+	 that EvolveRefineRegionTime[0] is the highest redshift and the last output is the lowest (for the 
+	 given track file).  */
+      if(time > EvolveRefineRegionTime[0] || time < EvolveRefineRegionTime[EvolveRefineRegionNtimes-1]){
+	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation redshift is outside of range of track file redshifts!  (Cooling time box)");
+	my_exit(EXIT_FAILURE);
+      }
+
       for(timestep=0; timestep<EvolveCoolingRefineRegionNtimes; timestep++){
 	if( time > EvolveCoolingRefineRegionTime[timestep] ){
 	  break;
 	}
       }
-    }else{
+    }else{  // code time
+
+      /* Check to see if the current time is within the bounds of the given time file.  This assumes
+	 that EvolveRefineRegionTime[0] is the earliest time and the last output is the latest time (for
+	 the given track file). */
+      if(time > EvolveRefineRegionTime[0] || time < EvolveRefineRegionTime[EvolveRefineRegionNtimes-1]){
+	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation redshift is outside of range of track file redshifts! (Cooling time box)");
+	my_exit(EXIT_FAILURE);
+      }
+
       for(timestep=0; timestep<EvolveCoolingRefineRegionNtimes; timestep++){
 	if( time < EvolveCoolingRefineRegionTime[timestep] ){
 	  break;
