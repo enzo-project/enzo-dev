@@ -229,9 +229,33 @@ int SetEvolveRefineRegion (FLOAT time)
     /* Set CoolingRefineRegion to EvolveCoolingRefineRegion */
 
     for (i = 0; i < MAX_DIMENSION; i++){
+
+      CoolingRefineRegionLeftEdge[i] = EvolveCoolingRefineRegionLeftEdge[timestep][i];
+      CoolingRefineRegionRightEdge[i] = EvolveCoolingRefineRegionRightEdge[timestep][i];
+
+      /* If we're at the last timestep in our EvolveRefineRegion track, just use that;
+	 otherwise, linearly interpolate between this time and the next time to avoid
+	 the refinement region jumping around. */
+      if(timestep == EvolveCoolingRefineRegionNtimes-1){
+
 	CoolingRefineRegionLeftEdge[i] = EvolveCoolingRefineRegionLeftEdge[timestep][i];
 	CoolingRefineRegionRightEdge[i] = EvolveCoolingRefineRegionRightEdge[timestep][i];
-    }
+
+      } else {
+
+	CoolingRefineRegionLeftEdge[i] = EvolveCoolingRefineRegionLeftEdge[timestep][i] +
+	  (time - EvolveCoolingRefineRegionTime[timestep])
+	  *(EvolveCoolingRefineRegionLeftEdge[timestep+1][i]-EvolveCoolingRefineRegionLeftEdge[timestep][i])
+	  / (EvolveCoolingRefineRegionTime[timestep+1] - EvolveCoolingRefineRegionTime[timestep]);
+
+	CoolingRefineRegionRightEdge[i] = EvolveCoolingRefineRegionRightEdge[timestep][i] +
+	  (time - EvolveCoolingRefineRegionTime[timestep])
+	  *(EvolveCoolingRefineRegionRightEdge[timestep+1][i]-EvolveCoolingRefineRegionRightEdge[timestep][i])
+	  / (EvolveCoolingRefineRegionTime[timestep+1] - EvolveCoolingRefineRegionTime[timestep]);
+
+      } // if(timestep == EvolveCoolingRefineRegionNtimes-1)
+
+    } // for (i = 0; i < MAX_DIMENSION; i++){
 
     if (debug1)
       fprintf(stdout, "SetEvolveRefineRegion: EvolveCoolingRefineRegion: %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM"\n",
