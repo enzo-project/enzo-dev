@@ -361,6 +361,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "MustRefineRegionRightEdge  = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineRegionRightEdge);
   fprintf(fptr, "RefineRegionTimeType   = %d\n", RefineRegionTimeType);
+  fprintf(fptr, "MustRefineRegionTimeType   = %d\n", MustRefineRegionTimeType);
   fprintf(fptr, "MustRefineParticlesLeftEdge   = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineParticlesLeftEdge);
   fprintf(fptr, "MustRefineParticlesRightEdge  = ");
@@ -368,6 +369,19 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "\n");
   if (RefineRegionFile != NULL)
     fprintf(fptr, "RefineRegionFile       = %s\n", RefineRegionFile);
+  if (MustRefineRegionFile != NULL)
+    fprintf(fptr, "MustRefineRegionFile       = %s\n", MustRefineRegionFile);
+
+  fprintf(fptr, "UseCoolingRefineRegion    = %"ISYM"\n", UseCoolingRefineRegion);
+  fprintf(fptr, "EvolveCoolingRefineRegion = %"ISYM"\n", EvolveCoolingRefineRegion);
+  fprintf(fptr, "CoolingRefineRegionLeftEdge   = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, CoolingRefineRegionLeftEdge);
+  fprintf(fptr, "CoolingRefineRegionRightEdge  = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, CoolingRefineRegionRightEdge);
+  fprintf(fptr, "CoolingRefineRegionTimeType   = %d\n", CoolingRefineRegionTimeType);
+  if (CoolingRefineRegionFile != NULL)
+    fprintf(fptr, "CoolingRefineRegionFile     = %s\n", CoolingRefineRegionFile);
+
   fprintf(fptr, "\n");
   fprintf(fptr, "\n");
 
@@ -375,7 +389,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
     fprintf(fptr, "DatabaseLocation       = %s\n", DatabaseLocation);
   fprintf(fptr, "\n");
   fprintf(fptr, "\n");
- 
+
   for (dim = 0; dim < MAX_NUMBER_OF_BARYON_FIELDS; dim++) {
     if (DataLabel[dim])
       fprintf(fptr, "DataLabel[%"ISYM"]              = %s\n", dim, DataLabel[dim]);
