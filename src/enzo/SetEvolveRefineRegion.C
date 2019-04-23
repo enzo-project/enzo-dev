@@ -71,8 +71,8 @@ int SetEvolveRefineRegion (FLOAT time)
       /* Check to see if the current time is within the bounds of the given time file.  This assumes
 	 that EvolveRefineRegionTime[0] is the earliest time and the last output is the latest time (for
 	 the given track file). */
-      if(time > EvolveRefineRegionTime[0] || time < EvolveRefineRegionTime[EvolveRefineRegionNtimes-1]){
-	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation redshift is outside of range of track file redshifts!");
+      if(time < EvolveRefineRegionTime[0] || time > EvolveRefineRegionTime[EvolveRefineRegionNtimes-1]){
+	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation time is outside of range of track file redshifts!");
 	my_exit(EXIT_FAILURE);
       }
 
@@ -149,14 +149,33 @@ int SetEvolveRefineRegion (FLOAT time)
   
     /* Find closest time step with <time */
     /* Set time=redshift if that's what we're doing. */
-    if (MustRefineRegionTimeType == 1) {
+    if (MustRefineRegionTimeType == 1) {  // redshift
       time = redshift;
+
+      /* Check to see if the current redshift is within the bounds of the given time file.  This assumes
+	 that EvolveMustRefineRegionTime[0] is the highest redshift and the last output is the lowest (for the 
+	 given track file).  */
+      if(time > EvolveMustRefineRegionTime[0] || time < EvolveMustRefineRegionTime[EvolveMustRefineRegionNtimes-1]){
+	fprintf(stderr,"SetEvolveRefineRegion ERROR for EvolveMustRefineRegions: current simulation redshift is outside of range of track file redshifts!");
+	my_exit(EXIT_FAILURE);
+      }
+
+      
       for(timestep=0; timestep<EvolveMustRefineRegionNtimes; timestep++){
 	if( time > EvolveMustRefineRegionTime[timestep] ){
 	  break;
 	}
       }
-    }else{
+    }else{ // code time
+
+      /* Check to see if the current time is within the bounds of the given time file.  This assumes
+	 that EvolveMustRefineRegionTime[0] is the earliest time and the last output is the latest time (for
+	 the given track file). */
+      if(time < EvolveMustRefineRegionTime[0] || time > EvolveMustRefineRegionTime[EvolveMustRefineRegionNtimes-1]){
+	fprintf(stderr,"SetEvolveRefineRegion ERROR for EvolveMustRefineRegion: current simulation time is outside of range of track file redshifts!");
+	my_exit(EXIT_FAILURE);
+      }
+
       for(timestep=0; timestep<EvolveMustRefineRegionNtimes; timestep++){
 	if( time < EvolveMustRefineRegionTime[timestep] ){
 	  break;
@@ -169,9 +188,24 @@ int SetEvolveRefineRegion (FLOAT time)
     /* Set MustRefineRegion to EvolveMustRefineRegion */
 
     for (i = 0; i < MAX_DIMENSION; i++){
+
+      if(timestep==EvolveMustRefineRegionNtimes-1){
 	MustRefineRegionLeftEdge[i] = EvolveMustRefineRegionLeftEdge[timestep][i];
 	MustRefineRegionRightEdge[i] = EvolveMustRefineRegionRightEdge[timestep][i];
-    }
+      } else {
+
+	  MustRefineRegionLeftEdge[i] = EvolveMustRefineRegionLeftEdge[timestep][i] +
+	    (time - EvolveMustRefineRegionTime[timestep])
+	    *(EvolveMustRefineRegionLeftEdge[timestep+1][i]-EvolveMustRefineRegionLeftEdge[timestep][i])
+	    / (EvolveMustRefineRegionTime[timestep+1] - EvolveMustRefineRegionTime[timestep]);
+
+	  MustRefineRegionRightEdge[i] = EvolveMustRefineRegionRightEdge[timestep][i] +
+	    (time - EvolveMustRefineRegionTime[timestep])
+	    *(EvolveMustRefineRegionRightEdge[timestep+1][i]-EvolveMustRefineRegionRightEdge[timestep][i])
+	    / (EvolveMustRefineRegionTime[timestep+1] - EvolveMustRefineRegionTime[timestep]);
+
+      }
+    } // for (i = 0; i < MAX_DIMENSION; i++)
 
     MustRefineRegionMinRefinementLevel = EvolveMustRefineRegionMinLevel[timestep];
 
