@@ -990,7 +990,11 @@ Hierarchy Control Parameters
     or evolves until after the latest time in the file. There is a maximum of 8000 lines in the file and there is no
     comment header line. Default: None.
 ``UseCoolingRefineRegion`` (external)
-    1 if using a CoolingRefineRegion; 0 if not.  Default: 0
+    1 if using a CoolingRefineRegion; 0 if not. If this is set, then the
+    CoolingRefineRegion is a rectilinear region in which refinement
+    can based on the cooling time  (``CellFlaggingMethod`` 7 must be
+    set) but refinement based on the cooling time will not occur
+    outside of this region. Default: 0
 ``EvolveCoolingRefineRegion`` (external)
     1 if the CoolingRefineRegion is evolving; 0 if not. Default: 0
 ``CoolingRefineRegionLeftEdge`` (external)
