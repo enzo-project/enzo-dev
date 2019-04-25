@@ -2094,7 +2094,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   CheckShearingBoundaryConsistency(MetaData);
 
-  /* Check that all of the parameters are set for minimum mass ramp*/
+  /* Check that all of the parameters are set for minimum stellar mass ramp --
+     if all of them are NOT set, things will behave oddly. */
   if(StarMakerMinimumMassRamp > 0){
     if(StarMakerMinimumMassRampStartTime == FLOAT_UNDEFINED ||
        StarMakerMinimumMassRampStartMass == FLOAT_UNDEFINED ||
