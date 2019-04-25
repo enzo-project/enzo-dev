@@ -989,7 +989,26 @@ Hierarchy Control Parameters
     will crash if the simulation starts before the earliest time given
     or evolves until after the latest time in the file. There is a maximum of 8000 lines in the file and there is no
     comment header line. Default: None.
-``StaticRefineRegionLevel[#]`` (external)
+``UseCoolingRefineRegion`` (external)
+    1 if using a CoolingRefineRegion; 0 if not.  Default: 0
+``EvolveCoolingRefineRegion`` (external)
+    1 if the CoolingRefineRegion is evolving; 0 if not. Default: 0
+``CoolingRefineRegionLeftEdge`` / ``CoolingRefineRegionRightEdge`` (external)
+    Bottom-left and top-right corners of the
+    CoolingRefineRegion. Ideally, these will correspond to the corners in the
+    ``CoolingRefineRefineRegionFile`` (see below) at this output
+    time. Default: None.
+``CoolingRefineRegionTimeType`` (external)
+    If set, this controls how the first column of a ``CoolingRefineRegionFile`` (see below) is interpreted, 0 for code time, 1 for redshift. Default: -1, which is equivalent to ‘off’.
+``CoolingRefineRegionFile`` (external)
+    The name of a text file containing the corners of the
+    time-evolving cooling
+    refinement region. The file format is the same as for a
+    ``MustRefineRegionFile``, but though the final column (refinement
+    level) must be included, it is currently ignored by the code and
+    the cooling refinement level is instead set to the
+    ``MaximumRefinementLevel``. Default: None.
+ ``StaticRefineRegionLevel[#]`` (external)
     This parameter is used to specify regions of the problem that are
     to be statically refined, regardless of other parameters. This is mostly
     used as an internal mechanism to keep the initial grid hierarchy in
