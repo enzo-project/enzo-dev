@@ -465,7 +465,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 	  ENZO_FAIL("Error in SetEvolveRefineRegion.");
     }
 
-    /* If required, set evolving stellar mass threshold */
+    /* Set evolving stellar mass threshold */
     if (StarMakerMinimumMassRamp > 0) {
         if (SetStellarMassThreshold(MetaData.Time) == FAIL) 
 	  ENZO_FAIL("Error in SetStellarMassThreshold.");

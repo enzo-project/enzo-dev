@@ -12,9 +12,9 @@
      StarMakerMinimumMassRamp = 3 is exponential evolution of mass in time
      StarMakerMinimumMassRamp = 4 is exponential evolution of mass in redshift
   
-  If StarMakerMinimumMassRamp > 0, all values of the ramp parameters are set in
-  ReadParameterFile.C and tests are made to ensure that they're not the standard
-  values!
+  If StarMakerMinimumMassRamp > 0, all values of the ramp parameters (starting and
+  ending times and masses) are set in ReadParameterFile.C, and tests are made there 
+  to ensure that the user has set them.
 
 ------------------------------------------------------------------------*/
 
@@ -42,8 +42,7 @@ int SetStellarMassThreshold(FLOAT time)
   if (StarMakerMinimumMassRamp == 0)
     return SUCCESS;
 
-  /* If TimeType is redshift, calculate redshift */
-
+  /* Calculate redshift */
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(time, &a, &dadt);
     redshift = (1 + InitialRedshift)/a - 1;
@@ -51,7 +50,7 @@ int SetStellarMassThreshold(FLOAT time)
 
   if(StarMakerMinimumMassRamp == 1 || StarMakerMinimumMassRamp == 3){  // interpolation in time
 
-    /* set early and late masses in linear or log */
+    /* Set early and late masses in linear or log */
     if(StarMakerMinimumMassRamp == 1){ // mass evolution linear in time
       early_mass = StarMakerMinimumMassRampStartMass;
       late_mass = StarMakerMinimumMassRampEndMass;
