@@ -1012,14 +1012,9 @@ Hierarchy Control Parameters
 ``CoolingRefineRegionTimeType`` (external)
     If set, this controls how the first column of a ``CoolingRefineRegionFile`` (see below) is interpreted, 0 for code time, 1 for redshift. Default: -1, which is equivalent to ‘off’.
 ``CoolingRefineRegionFile`` (external)
-    The name of a text file containing the corners of the
-    time-evolving cooling
-    refinement region. The file format is the same as for a
-    ``MustRefineRegionFile``, but though the final column (refinement
-    level) must be included, it is currently ignored by the code and
-    the cooling refinement level is instead set to the
-    ``MaximumRefinementLevel``. Default: None.
-
+    The name of a text file containing the corners of the time-evolving cooling refinement region. The file format is the same as for a
+    ``MustRefineRegionFile``, but though the final column (refinement level) must be included, it is currently ignored by the code and
+    the cooling refinement level is instead set to the ``MaximumRefinementLevel``. Default: None.
 ``StaticRefineRegionLevel[#]`` (external)
     This parameter is used to specify regions of the problem that are
     to be statically refined, regardless of other parameters. This is mostly
