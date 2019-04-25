@@ -951,10 +951,44 @@ Hierarchy Control Parameters
     refined to at all times. (No default setting)
 ``MustRefineRegionLeftEdge`` (external)
     Bottom-left corner of refinement region. Must be within the overall
-    refinement region. Default: 0.0 0.0 0.0
+    refinement region. If using a moving refinement region, this will
+    ideally correspond to the bottom-left corner in the
+    ``MustRefineRegionFile`` at this output time. If these parameters are not set, then the code will likely try to
+    refine the entire domain to the forced refinement level before
+    only doing it within the MustRefineRegion, which can take a long
+    time.  Default: 0.0 0.0 0.0
 ``MustRefineRegionRightEdge`` (external)
     Top-right corner of refinement region. Must be within the overall
-    refinement region. Default: 1.0 1.0 1.0
+    refinement region.  If using a moving refinement region, this will
+    ideally correspond to the bottom-left corner in the
+    ``MustRefineRegionFile`` at this output time. If these parameters are not set, then the code will likely try to
+    refine the entire domain to the forced refinement level before
+    only doing it within the MustRefineRegion, which can take a long
+    time.  Default: 1.0 1.0 1.0
+``MustRefineRegionTimeType`` (external)
+    If set, this controls how the first column of a ``MustRefineRegionFile`` (see below) is interpreted, 0 for code time, 1 for redshift. Default: -1, which is equivalent to ‘off’.
+``MustRefineRegionFile`` (external)
+    The name of a text file containing the corners of the time-evolving
+    refinement region. The lines in the file change the values of
+    ``MustRefineRegionLeft/RightEdge`` during the course of the simulation, and
+    the lines are ordered in the file from early times to late times.
+    The first column of data is the time index (in code units or
+    redshift, see the parameter above) for the next six columns, which
+    are the values of ``MustRefineRegionLeft/RightEdge``, followed by
+    a column giving the level of refinement. For example, this
+    might be two lines from the text file when time is indexed by
+    redshift:
+    ::
+       
+        2.05 0.493102 0.488106 0.501109 0.495102 0.490106 0.503109 10
+	2.00 0.493039 0.487908 0.501189 0.495039 0.489908 0.503189 10
+
+    In this case, the MustRefineRegion is refined to 10 levels of
+    refinement, starting at the z=2.05 value and
+    moves via linear interpolation until the z=2.00 value. The code
+    will crash if the simulation starts before the earliest time given
+    or evolves until after the latest time in the file. There is a maximum of 8000 lines in the file and there is no
+    comment header line. Default: None.
 ``StaticRefineRegionLevel[#]`` (external)
     This parameter is used to specify regions of the problem that are
     to be statically refined, regardless of other parameters. This is mostly
@@ -1086,6 +1120,9 @@ Hierarchy Control Parameters
 ``RebuildHierarchyCycleSkip`` (external)
     Set the number of cycles at a given level before rebuilding the hierarchy.  Example: RebuildHierarchyCycleSkip[1] = 4
 
+
+
+    
 .. _gravity_parameters:
 
 Gravity Parameters
