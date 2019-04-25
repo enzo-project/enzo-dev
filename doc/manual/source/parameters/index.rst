@@ -1019,7 +1019,8 @@ Hierarchy Control Parameters
     level) must be included, it is currently ignored by the code and
     the cooling refinement level is instead set to the
     ``MaximumRefinementLevel``. Default: None.
- ``StaticRefineRegionLevel[#]`` (external)
+
+``StaticRefineRegionLevel[#]`` (external)
     This parameter is used to specify regions of the problem that are
     to be statically refined, regardless of other parameters. This is mostly
     used as an internal mechanism to keep the initial grid hierarchy in
