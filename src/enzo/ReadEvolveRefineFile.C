@@ -1,12 +1,25 @@
 /*------------------------------------------------------------------------
+
   READ EVOLVING REFINE REGION FILE
   By John Wise
 
   File format: 
-    (time or redshift) x_left y_left z_left x_right y_right z_right
+    EvolveRefineRegion:        (time or redshift) x_left y_left z_left x_right y_right z_right
+    EvolveMustRefineRegion:    (time or redshift) x_left y_left z_left x_right y_right z_right min_level
+    EvolveCoolingRefineRegion: (time or redshift) x_left y_left z_left x_right y_right z_right min_level
+
+  Notes:  A "RefineRegion" adjusts the boundaries of the rectangular solid area within which 
+          refinement based on any refinement criteria is allowed to occur.  A "MustRefineRegion"
+	  forces refinement to min_level, and within that region additional refinement can occur,
+	  up to MaximumRefinementLevel, based on any refinement criteria.  A CoolingRefineRegion
+	  restricts refinement based on the cooling time to only a subvolume of the simulation, 
+	  and is useful because the cooling time criterion can result in very aggressive refinement
+	  in some circumstances.  **IN PRINCIPLE ALL OF THESE CAN BE USED SIMULTANEOUSLY**
 
   History:
      03 May 2005 : JHW -- Created
+     26 April 2019: BWO -- Added evolving MustRefine and CoolingRefine regions.
+
 ------------------------------------------------------------------------*/
 
 #include <stdlib.h>
@@ -20,6 +33,7 @@ int ReadEvolveRefineFile(void)
 
   FILE *fptr;
 
+  /* Read in data file for an evolving RefineRegion */
   if((RefineRegionTimeType == 0) || (RefineRegionTimeType == 1)){
     
     if ((fptr = fopen(RefineRegionFile, "r")) == NULL) {
@@ -57,11 +71,9 @@ int ReadEvolveRefineFile(void)
     
   }
 
-  /* READ IN MustRefineRegion information */
+  /* Read in data file for an evolving MustRefineRegion  */
   if((MustRefineRegionTimeType == 0) || (MustRefineRegionTimeType == 1)){
 
-    fprintf(stderr,"ReadEvolveRefineFile: I am reading in a MustRefineRegion time evolution file!\n");
-    
     if ((fptr = fopen(MustRefineRegionFile, "r")) == NULL) {
       fprintf(stderr, "Error opening MustRefine region file %s.\n", MustRefineRegionFile);
       return FAIL;
@@ -80,7 +92,7 @@ int ReadEvolveRefineFile(void)
 		    &(EvolveMustRefineRegionRightEdge[i][1]),
 		    &(EvolveMustRefineRegionRightEdge[i][2]),
       		    &(EvolveMustRefineRegionMinLevel[i]));
-      if(debug && MyProcessorNumber == ROOT_PROCESSOR){
+      if(debug1 && MyProcessorNumber == ROOT_PROCESSOR){
          fprintf(stderr,"Here is the line (MustRefineRegion): %s \n",line);
          fprintf(stderr,". . . and here is the value (MustRefineRegion): %i \n",EvolveMustRefineRegionMinLevel[i]);
          } 
@@ -100,16 +112,15 @@ int ReadEvolveRefineFile(void)
       return FAIL;
     }
 
-    
-    if(debug && MyProcessorNumber == ROOT_PROCESSOR){
+    /* print out debugging information for evolving MustRefine region */
+    if(debug1 && MyProcessorNumber == ROOT_PROCESSOR){
 
-      printf("ReadEvolveRefineFile: I have a MustRefineRegion with TimeType %"ISYM" \n",
+      printf("ReadEvolveMustRefineFile: I have a MustRefineRegion with TimeType %"ISYM" \n",
 	     MustRefineRegionTimeType);
       
       printf("ReadEvolveRefineFile: And here is what I think my times, edges, and minimum levels are:\n");
 
       for(int i=0; i<EvolveMustRefineRegionNtimes; i++){
-
 	printf("ReadEvolveRefineFile (MustRefineRegion): %"FSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"ISYM"\n",
 	       EvolveMustRefineRegionTime[i],
 	       EvolveMustRefineRegionLeftEdge[i][0],
@@ -119,24 +130,21 @@ int ReadEvolveRefineFile(void)
 	       EvolveMustRefineRegionRightEdge[i][1],
 	       EvolveMustRefineRegionRightEdge[i][2],
 	       EvolveMustRefineRegionMinLevel[i]);
-
       } // for loop
 
       fflush(stdout);
 
-    } // if(debug && MyProcessorNumber == ROOT_PROCESSOR)
+    } // if(debug1 && MyProcessorNumber == ROOT_PROCESSOR)
 
   } // if((MustRefineRegionTimeType == 0) || (MustRefineRegionTimeType == 1))
 
 
-
-  /* READ IN CoolingRefineRegion information.  Note that this requires a file that is 
+  /* Read in CoolingRefineRegion information.  Note that this requires a file that is 
      EXACTLY like the MustRefineRegion file, which includes a level as the last entry in 
-     each row of the file.  This is NOT USED but must be there.  */
+     each row of the file.  This is NOT USED but must be there, and is done because we often use
+     the same file for both criteria.  */
   if((CoolingRefineRegionTimeType == 0) || (CoolingRefineRegionTimeType == 1)){
 
-    fprintf(stderr,"ReadEvolveRefineFile: I am reading in a CoolingRefineRegion time evolution file!\n");
-    
     if ((fptr = fopen(CoolingRefineRegionFile, "r")) == NULL) {
       fprintf(stderr, "Error opening CoolingRefine region file %s.\n", CoolingRefineRegionFile);
       return FAIL;
@@ -155,7 +163,7 @@ int ReadEvolveRefineFile(void)
 		    &(EvolveCoolingRefineRegionRightEdge[i][1]),
 		    &(EvolveCoolingRefineRegionRightEdge[i][2]),
       		    &dummy);
-      if(debug && MyProcessorNumber == ROOT_PROCESSOR){
+      if(debug1 && MyProcessorNumber == ROOT_PROCESSOR){
          fprintf(stderr,"Here is the line (CoolingRefineRegion): %s \n",line);
          fprintf(stderr,". . . and here is the value (CoolingRefineRegion): %i \n",dummy);
          } 
@@ -175,8 +183,8 @@ int ReadEvolveRefineFile(void)
       return FAIL;
     }
 
-    
-    if(debug && MyProcessorNumber == ROOT_PROCESSOR){
+    /* print out debugging information for evolving MustRefine region */
+    if(debug1 && MyProcessorNumber == ROOT_PROCESSOR){
 
       printf("ReadEvolveRefineFile: I have a CoolingRefineRegion with TimeType %"ISYM" \n",
 	     CoolingRefineRegionTimeType);
@@ -184,7 +192,6 @@ int ReadEvolveRefineFile(void)
       printf("ReadEvolveRefineFile: And here is what I think my times, edges, and minimum levels are:\n");
 
       for(int i=0; i<EvolveCoolingRefineRegionNtimes; i++){
-
 	printf("ReadEvolveRefineFile (CoolingRefineRegion): %"FSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM"\n",
 	       EvolveCoolingRefineRegionTime[i],
 	       EvolveCoolingRefineRegionLeftEdge[i][0],
@@ -193,18 +200,14 @@ int ReadEvolveRefineFile(void)
 	       EvolveCoolingRefineRegionRightEdge[i][0],
 	       EvolveCoolingRefineRegionRightEdge[i][1],
 	       EvolveCoolingRefineRegionRightEdge[i][2]);
-
       } // for loop
 
       fflush(stdout);
 
-    } // if(debug && MyProcessorNumber == ROOT_PROCESSOR)
+    } // if(debug1 && MyProcessorNumber == ROOT_PROCESSOR)
 
   } // if((CoolingRefineRegionTimeType == 0) || (CoolingRefineRegionTimeType == 1))
 
-  
-  
-  
-  return SUCCESS;
 
+  return SUCCESS;
 }

@@ -4,6 +4,8 @@
 
   History:
      03 May 2005 : JHW -- Created 
+     26 April 2019: BWO -- updated for MustRefine and CoolingRefine regions,
+                           added linear interpolation between times for all regions.
 ------------------------------------------------------------------------*/
 
 #include <stdlib.h>
