@@ -36,7 +36,7 @@ int SetStellarMassThreshold(FLOAT time)
 
   int timestep, i;
   FLOAT a, dadt, redshift=0.0;
-  float early_mass, late_mass, current_mass;
+  float early_mass, late_mass, current_mass,float_redshift=0.0;
 
   /* Return if not used */
   if (StarMakerMinimumMassRamp == 0)
@@ -48,6 +48,8 @@ int SetStellarMassThreshold(FLOAT time)
     redshift = (1 + InitialRedshift)/a - 1;
   }
 
+  float_redshift = (float) redshift;
+  
   if(StarMakerMinimumMassRamp == 1 || StarMakerMinimumMassRamp == 3){  // interpolation in time
 
     /* Set early and late masses in linear or log */
@@ -88,12 +90,12 @@ int SetStellarMassThreshold(FLOAT time)
     }
 
     /* set current stellar minimum mass threshold */
-    if(redshift >= StarMakerMinimumMassRampStartTime){ // if redshift is prior to ramp start redshift, use early mass
+    if(float_redshift >= StarMakerMinimumMassRampStartTime){ // if redshift is prior to ramp start redshift, use early mass
       current_mass = early_mass;
-    } else if (redshift <= StarMakerMinimumMassRampEndTime){ // if redshift is after ramp end redshift, use late mass
+    } else if (float_redshift <= StarMakerMinimumMassRampEndTime){ // if redshift is after ramp end redshift, use late mass
       current_mass = late_mass;
     } else {  // otherwise, linearly interpolate between start and end
-      current_mass = early_mass + (redshift - StarMakerMinimumMassRampStartTime)
+      current_mass = early_mass + (float_redshift - StarMakerMinimumMassRampStartTime)
 	* (late_mass-early_mass)/(StarMakerMinimumMassRampEndTime-StarMakerMinimumMassRampStartTime);
     }
 
@@ -110,8 +112,12 @@ int SetStellarMassThreshold(FLOAT time)
   }
 
   if(debug){
+    printf("SetStellarMassThreshold: %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",early_mass,late_mass,
+	   current_mass,StarMakerMinimumMass,StarMakerMinimumMassRampStartTime,StarMakerMinimumMassRampEndTime,float_redshift);
+  
+  if(debug){
     printf("SetStellarMassThreshold:  StarMakerMinimumMass set to %"FSYM" at time %"PSYM" (redshift %"PSYM")\n",
-	   StarMakerMinimumMass,time,redshift);
+	   StarMakerMinimumMass,time,float_redshift);
   }
   
   return SUCCESS;
