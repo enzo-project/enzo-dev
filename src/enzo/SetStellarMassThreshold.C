@@ -112,7 +112,7 @@ int SetStellarMassThreshold(FLOAT time)
   }
 
   if(debug){
-    printf("SetStellarMassThreshold: %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",early_mass,late_mass,
+    printf("SetStellarMassThreshold: %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",early_mass,late_mass,
 	   current_mass,StarMakerMinimumMass,StarMakerMinimumMassRampStartTime,StarMakerMinimumMassRampEndTime,float_redshift);
   }
   
