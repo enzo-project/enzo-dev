@@ -960,7 +960,7 @@ Hierarchy Control Parameters
 ``MustRefineRegionRightEdge`` (external)
     Top-right corner of refinement region. Must be within the overall
     refinement region.  If using a moving refinement region, this will
-    ideally correspond to the bottom-left corner in the
+    ideally correspond to the top-right corner in the
     ``MustRefineRegionFile`` at this output time. If these parameters are not set, then the code will likely try to
     refine the entire domain to the forced refinement level before
     only doing it within the MustRefineRegion, which can take a long
@@ -993,11 +993,22 @@ Hierarchy Control Parameters
     1 if using a CoolingRefineRegion; 0 if not.  Default: 0
 ``EvolveCoolingRefineRegion`` (external)
     1 if the CoolingRefineRegion is evolving; 0 if not. Default: 0
-``CoolingRefineRegionLeftEdge`` / ``CoolingRefineRegionRightEdge`` (external)
-    Bottom-left and top-right corners of the
-    CoolingRefineRegion. Ideally, these will correspond to the corners in the
-    ``CoolingRefineRefineRegionFile`` (see below) at this output
-    time. Default: None.
+``CoolingRefineRegionLeftEdge`` (external)
+    Bottom-left corner of refinement region. Must be within the overall
+    refinement region.  If using a moving refinement region, this will
+    ideally correspond to the bottom-left corner in the
+    ``CoolingRefineRegionFile`` at this output time. If these parameters are not set, then the code will likely try to
+    refine the entire domain to the forced refinement level before
+    only doing it within the CoolingRefineRegion, which can take a long
+    time.  Default: 0.0 0.0 0.0
+``CoolingRefineRegionRightEdge`` (external)
+    Top-right corner of refinement region. Must be within the overall
+    refinement region.  If using a moving refinement region, this will
+    ideally correspond to the top-right corner in the
+    ``CoolingRefineRegionFile`` at this output time. If these parameters are not set, then the code will likely try to
+    refine the entire domain to the forced refinement level before
+    only doing it within the CoolingRefineRegion, which can take a long
+    time.  Default: 1.0 1.0 1.0
 ``CoolingRefineRegionTimeType`` (external)
     If set, this controls how the first column of a ``CoolingRefineRegionFile`` (see below) is interpreted, 0 for code time, 1 for redshift. Default: -1, which is equivalent to ‘off’.
 ``CoolingRefineRegionFile`` (external)
