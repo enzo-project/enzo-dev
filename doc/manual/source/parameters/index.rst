@@ -992,7 +992,7 @@ Hierarchy Control Parameters
 ``UseCoolingRefineRegion`` (external)
     1 if using a CoolingRefineRegion; 0 if not. If this is set, then the
     CoolingRefineRegion is a rectilinear region in which refinement
-    can based on the cooling time  (``CellFlaggingMethod`` 7 must be
+    can be based on the cooling time  (``CellFlaggingMethod`` 7 must be
     set) but refinement based on the cooling time will not occur
     outside of this region. Default: 0
 ``EvolveCoolingRefineRegion`` (external)
