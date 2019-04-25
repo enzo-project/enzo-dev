@@ -100,7 +100,7 @@ int SetStellarMassThreshold(FLOAT time)
     }
 
     /* set StarMakerMinimumMass correctly */
-    if(StarMakerMinimumMassRamp == 3){
+    if(StarMakerMinimumMassRamp == 2){
       StarMakerMinimumMass = current_mass;
     } else {
       StarMakerMinimumMass = POW(10.0,current_mass);
