@@ -36,7 +36,7 @@ int SetStellarMassThreshold(FLOAT time)
 
   int timestep, i;
   FLOAT a, dadt, redshift=0.0;
-  float early_mass, late_mass, current_mass,float_redshift=0.0;
+  float early_mass, late_mass, current_mass, float_time=0.0, float_redshift=0.0;
 
   /* Return if not used */
   if (StarMakerMinimumMassRamp == 0)
@@ -48,7 +48,10 @@ int SetStellarMassThreshold(FLOAT time)
     redshift = (1 + InitialRedshift)/a - 1;
   }
 
+  /* recast redshift and time to be the same precision as everything else; only important if
+     the two different floating-point precisions are different. */
   float_redshift = (float) redshift;
+  float_time = (float) time;
   
   if(StarMakerMinimumMassRamp == 1 || StarMakerMinimumMassRamp == 3){  // interpolation in time
 
@@ -62,12 +65,12 @@ int SetStellarMassThreshold(FLOAT time)
     }
 
     /* set current stellar minimum mass threshold */
-    if(time <= StarMakerMinimumMassRampStartTime){ // if time is before ramp start time, use early mass
+    if(float_time <= StarMakerMinimumMassRampStartTime){ // if time is before ramp start time, use early mass
       current_mass = early_mass;
-    } else if (time >= StarMakerMinimumMassRampEndTime){ // if time is after ramp end time, use late mass
+    } else if (float_time >= StarMakerMinimumMassRampEndTime){ // if time is after ramp end time, use late mass
       current_mass = late_mass;
     } else {  // otherwise, linearly interpolate between start and end
-      current_mass = early_mass + (time - StarMakerMinimumMassRampStartTime)
+      current_mass = early_mass + (float_time - StarMakerMinimumMassRampStartTime)
 	* (late_mass-early_mass)/(StarMakerMinimumMassRampEndTime-StarMakerMinimumMassRampStartTime);  
     }
 
@@ -110,15 +113,10 @@ int SetStellarMassThreshold(FLOAT time)
     fprintf(stderr,"SetStellarMassThreshold:  StarMakerMinimumMassRamp improperly set!\n");
     my_exit(EXIT_FAILURE);
   }
-
-  if(debug){
-    printf("SetStellarMassThreshold: %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",early_mass,late_mass,
-	   current_mass,StarMakerMinimumMass,StarMakerMinimumMassRampStartTime,StarMakerMinimumMassRampEndTime,float_redshift);
-  }
   
   if(debug){
     printf("SetStellarMassThreshold:  StarMakerMinimumMass set to %"FSYM" at time %"PSYM" (redshift %"PSYM")\n",
-	   StarMakerMinimumMass,time,float_redshift);
+	   StarMakerMinimumMass, time, redshift);
   }
   
   return SUCCESS;
