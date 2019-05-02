@@ -135,10 +135,10 @@ jobs:
 
       - restore_cache:
           name: "Restore test answers."
-          key: test-answers-v1
+          key: test-answers-v12
 
       - build-and-test:
-          tag: tip
+          tag: gold-standard-v12
           skipfile: ~/enzo_test/push_suite/push_suite
           flags: --answer-store
 
