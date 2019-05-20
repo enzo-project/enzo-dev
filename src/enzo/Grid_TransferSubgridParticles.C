@@ -11,7 +11,11 @@
 /  PURPOSE:
 /
 ************************************************************************/
- 
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 
@@ -32,7 +36,18 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 				   int CopyDirection, int IncludeGhostZones,
 				   int CountOnly)
 {
- 
+	int ParticleCounter=0;
+	return this->TransferSubgridParticles(Subgrids, NumberOfSubgrids,
+		NumberToMove, ParticleCounter, StartIndex, EndIndex, List, KeepLocal, ParticlesAreLocal,
+		CopyDirection, IncludeGhostZones, CountOnly);
+}
+int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids, 
+				   int* &NumberToMove, int &ParticleCounter, int StartIndex, 
+				   int EndIndex, particle_data* &List, 
+				   bool KeepLocal, bool ParticlesAreLocal,
+				   int CopyDirection, int IncludeGhostZones,
+				   int CountOnly)
+{ 
   /* Declarations. */
 
   int i, j, index, dim, n1, grid, proc;
@@ -149,29 +164,33 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
       /* Move particles (mark those moved by setting mass = FLOAT_UNDEFINED). */
 
-      n1 = PreviousTotalToMove;
+#pragma omp critical
+{
+	for (i = 0; i < NumberOfParticles; i++) {
+	  if (subgrid[i] >= 0) {
+	    if (KeepLocal)
+	      proc = MyProcessorNumber;
+	    else
+	      proc = Subgrids[subgrid[i]]->ReturnProcessorNumber();
 
-      for (i = 0; i < NumberOfParticles; i++) {
-	if (subgrid[i] >= 0) {
-	  if (KeepLocal)
-	    proc = MyProcessorNumber;
-	  else
-	    proc = Subgrids[subgrid[i]]->ReturnProcessorNumber();
-	  for (dim = 0; dim < GridRank; dim++) {
-	    List[n1].pos[dim] = ParticlePosition[dim][i];
-	    List[n1].vel[dim] = ParticleVelocity[dim][i];
-	  }
-	  List[n1].mass = ParticleMass[i] * MassIncrease;
-	  List[n1].id = ParticleNumber[i];
-	  List[n1].type = ParticleType[i];
-	  for (j = 0; j < NumberOfParticleAttributes; j++)
-	    List[n1].attribute[j] = ParticleAttribute[j][i];
-	  List[n1].grid = subgrid[i];
-	  List[n1].proc = proc;
-	  ParticleMass[i] = FLOAT_UNDEFINED;
-	  n1++;
-	} // ENDIF move to subgrid
-      } // ENDFOR particles
+		n1 = ParticleCounter;
+	    for (dim = 0; dim < GridRank; dim++) {
+	      List[n1].pos[dim] = ParticlePosition[dim][i];
+	      List[n1].vel[dim] = ParticleVelocity[dim][i];
+	    }
+
+	    List[n1].mass = ParticleMass[i] * MassIncrease;
+	    List[n1].id = ParticleNumber[i];
+	    List[n1].type = ParticleType[i];
+	    for (j = 0; j < NumberOfParticleAttributes; j++)
+	      List[n1].attribute[j] = ParticleAttribute[j][i];
+	    List[n1].grid = subgrid[i];
+	    List[n1].proc = proc;
+	    ParticleMass[i] = FLOAT_UNDEFINED;
+		ParticleCounter++;
+	  } // ENDIF move to subgrid
+	} // ENDFOR particles
+}//omp end critical
 
       if (TotalToMove != PreviousTotalToMove)
 	this->CleanUpMovedParticles();
