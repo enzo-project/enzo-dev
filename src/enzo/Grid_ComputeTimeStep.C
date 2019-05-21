@@ -145,11 +145,8 @@ float grid::ComputeTimeStep()
     /* Compute the pressure. */
  
     float *pressure_field = new float[size];
-    if(!QuantumPressure){
     this->ComputePressure(Time, pressure_field,0,1); // Note: Force use of CRs to get sound speed correct
-      } else {
-        for (i=0; i<size; i++){pressure_field[i]=tiny_number;}
-      }
+
 #ifdef UNUSED
     int Zero[3] = {0,0,0}, TempInt[3] = {0,0,0};
     for (dim = 0; dim < GridRank; dim++)

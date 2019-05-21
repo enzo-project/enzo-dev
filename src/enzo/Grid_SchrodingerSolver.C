@@ -68,6 +68,11 @@ int rk4(double *repsi, double *impsi,
          double dt, double dx[], double dy[], double dz[],
          double hmcoef);
 
+int sv2(int nhy, double *repsi, double *impsi,
+         int in, int jn, int kn, int rank,
+         double dt, double dx[], double dy[], double dz[],
+         double hmcoef);
+
 int SchrdingerAddPotential(double *repsi, double *impsi,
          int in, int jn, int kn, int rank,
          int gin, int gjn, int gkn,
@@ -245,52 +250,49 @@ for (int dim = 0; dim < GridRank; dim++) {
     }
   }
 
- /* cache wave-function before TVD-RK */
-  /*for (int i=0; i<size; i++){
-    repsi0[i] = repsi[i];
-    impsi0[i] = impsi[i];
-  }
 
-  // 1st step of rk3tvd
-  
-    if (rk3tvd(repsi, impsi, repsi0, impsi0, 0.0, 1.0,
-     GridDimension[0], GridDimension[1], GridDimension[2],
-     GridRank, 
-     is, ie, js, je, ks, ke, 
-     dtFixed, dx, dy, dz, hmcoef, gravity, PotentialField) == FAIL) {
-    fprintf(stderr, "P(%"ISYM"): Error in rk3tvd on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
-      nhy, dtFixed);
-    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
-    ENZO_FAIL("Error in rk3tvd 1st step!\n");
-    }
+  // Add point source potential
+  if (PointSourceGravity > 0) {
+  FLOAT a = 1.0, potential, auxre, auxim, radius, rcubed, rsquared, xpos, ypos = 0.0, zpos = 0.0, rcore,x ;
 
-  // 2nd step of rk3tvd 
-    if (rk3tvd(repsi, impsi, repsi0, impsi0, 0.75, 0.25,
-     GridDimension[0], GridDimension[1], GridDimension[2],
-     GridRank, 
-     is, ie, js, je, ks, ke, 
-     dtFixed, dx, dy, dz, hmcoef, gravity, PotentialField) == FAIL) {
-    fprintf(stderr, "P(%"ISYM"): Error in rk3tvd on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
-      nhy, dtFixed);
-    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
-    ENZO_FAIL("Error in rk3tvd 2nd step!\n");
-    }
+       int n = 0;
+      
+      for (k = 0; k < GridDimension[2]; k++) {
+  if (GridRank > 2)
+    zpos = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] -
+      PointSourceGravityPosition[2];
+    
+  for (j = 0; j < GridDimension[1]; j++) {
+    if (GridRank > 1)
+      ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] -
+        PointSourceGravityPosition[1];
+      
+    for (i = 0; i < GridDimension[0]; i++, n++) {
+      xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] -
+        PointSourceGravityPosition[0];
 
-  // final step of rk3tvd
-    if (rk3tvd(repsi, impsi, repsi0, impsi0, 1./3., 2./3.,
-     GridDimension[0], GridDimension[1], GridDimension[2],
-     GridRank, 
-     is, ie, js, je, ks, ke, 
-     dtFixed, dx, dy, dz, hmcoef, gravity, PotentialField) == FAIL) {
-    fprintf(stderr, "P(%"ISYM"): Error in rk3tvd on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
-      nhy, dtFixed);
-    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
-    ENZO_FAIL("Error in rk3tvd 3rd step!\n");
-    }
-  // Clean up 
-  delete [] repsi0;
-  delete [] impsi0;
-    */
+      /* Compute distance from center. */
+ 
+      rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
+      radius = sqrt(rsquared);
+      rcore = PointSourceGravityCoreRadius;
+      /* Compute potential from point source */
+
+      potential = -min(PointSourceGravityConstant/radius, PointSourceGravityConstant/rcore);
+        
+      auxre = cos(potential / hmcoef * dtFixed ) * repsi[n] 
+              + sin(potential / hmcoef * dtFixed ) * impsi[n];
+
+      auxim = cos(potential / hmcoef * dtFixed ) * impsi[n] 
+              - sin(potential / hmcoef * dtFixed ) * repsi[n];
+
+      repsi[n] = auxre;
+      impsi[n] = auxim;
+
+    } // end: loop over i
+  } // end: loop over j
+      } // end: loop over k
+  } // end: if point source
 
   // Runge-Kutta 4th order
   if ( rk4(repsi, impsi, 
@@ -301,6 +303,16 @@ for (int dim = 0; dim < GridRank; dim++) {
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
     ENZO_FAIL("Error in 4th runge kutta advance\n");
     }
+
+  // Stormer-Verlet 2nd order
+  /*if ( sv2(nhy,repsi, impsi, 
+          GridDimension[0], GridDimension[1], GridDimension[2], GridRank, 
+          dtFixed, CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2], hmcoef) == FAIL){
+    fprintf(stderr, "P(%"ISYM"): Error in rk4 on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
+      nhy, dtFixed);
+    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+    ENZO_FAIL("Error in 4th runge kutta advance\n");
+    }*/
 
 
   // Add half gravity after the TVD-RK
@@ -322,6 +334,13 @@ for (int dim = 0; dim < GridRank; dim++) {
 
   for (int i=0; i<size; i++){
     d[i] = repsi[i]*repsi[i]+impsi[i]*impsi[i];
+    /*
+    // add a few dissipation, dens acts as absorbing layer, only work for FDMCollapse !!
+    repsi[i] = repsi[i] - repsi[i]*dtFixed*dens[i];
+    impsi[i] = impsi[i] - impsi[i]*dtFixed*dens[i];
+    d[i] = repsi[i]*repsi[i]+impsi[i]*impsi[i];
+    // finished, above should be commented out when run cosmology
+    */
   }
 
   

@@ -250,10 +250,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
     if (!ComovingCoordinates)
       BaryonMeanDensity = 1.0;
 
-    // FDM: lower background density
-    //if (QuantumPressure)
-      //BaryonMeanDensity = 1e-1;
-
     if (ParticleMeanDensity == FLOAT_UNDEFINED)
       ParticleMeanDensity = 1.0 - BaryonMeanDensity;
     else

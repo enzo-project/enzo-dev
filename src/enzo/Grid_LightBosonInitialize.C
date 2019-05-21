@@ -29,15 +29,21 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
   FieldType[NumberOfBaryonFields++] = FDMDensity;
 
 
-  
-  if (ProcessorNumber != MyProcessorNumber) {
-    return SUCCESS;
-  }
-
-
   int size = 1, index, dim;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
+
+   /* Return if this doesn't concern us. */
+  int UseParticles = 1;
+  FLOAT ParticleMeanDensity = .1;
+  static int CollapseTestParticleCount = 0;
+  int ParticleCount = 0;
+  if (ProcessorNumber != MyProcessorNumber) {
+    NumberOfParticles = (UseParticles > 0) ? 1 : 0;
+    for (dim = 0; dim < GridRank; dim++)
+      NumberOfParticles *= (GridEndIndex[dim] - GridStartIndex[dim] + 1);
+    return SUCCESS;
+  }
 
   int field;
   for (field = 0; field < NumberOfBaryonFields; field++)
@@ -61,21 +67,23 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
 
   float coef = (5.9157166856e27*TimeUnits/pow(LengthUnits,2));
 
-  FLOAT x;
+  FLOAT x=0,y=0,z=0;
   float xv;
 
   //float a = 1./(1.+2.);
   float alpha = 1./500;
-  float initialtime=0.0;
+  float initialtime=-0.1;
   float sumsquare = pow(alpha,2)+pow(coef*initialtime,2);
 
   float a = 0.1;
   float expa, expb;
   float pi = 3.1415927;
+  float k1 = 2*pi;
+  float k2 = 2*pi;
 
-  int i;
-  for (int k = 0; k < GridDimension[2]; k++) {
-  for (int j = 0; j < GridDimension[1]; j++) {
+  int i,j,k;
+  for (k = 0; k < GridDimension[2]; k++) {
+  for (j = 0; j < GridDimension[1]; j++) {
   for (i = 0; i < GridDimension[0]; i++) {
 
     x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - CenterPosition;
@@ -86,11 +94,20 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
     // set up an initial Gaussian density profile, v=0
 
 // 1) Gaussian Density Field
-      //BaryonField[iden ][index] = 1*exp(-alpha*pow(x,2)/sumsquare)/pow(sumsquare,0.5)/5; 
-      //BaryonField[RePsiNum][index] = sqrt(BaryonField[iden ][index]);
-      //BaryonField[ImPsiNum][index] = 0;
+      float r1,i1,phase,r2,i2;
+      phase = -pow(x,2)/sumsquare/2*coef*initialtime;
+      r1 = cos(phase);
+      i1 = -sin(phase);
+      r2 = sqrt((sqrt(sumsquare)+alpha)/2.);
+      i2 = -sqrt((sqrt(sumsquare)-alpha)/2.);
+      BaryonField[iden ][index] = 1*exp(-alpha*pow(x,2)/sumsquare)/pow(sumsquare,0.5)/5; 
+      BaryonField[RePsiNum][index] = 1*exp(-alpha*pow(x,2)/sumsquare/2.)/sqrt(sumsquare)*(r1*r2-i1*i2); //sqrt(BaryonField[iden ][index]);
+      BaryonField[ImPsiNum][index] = 1*exp(-alpha*pow(x,2)/sumsquare/2.)/sqrt(sumsquare)*(r1*i2+i1*r2);
+      BaryonField[FDMDensNum][index] = BaryonField[RePsiNum][index]*BaryonField[RePsiNum][index] + BaryonField[ImPsiNum][index]*BaryonField[ImPsiNum][index];
+
       //BaryonField[ivx ][index] = 1.e-4*exp(-alpha*pow(x,2)/sumsquare); // Gaussian Density Field
-      //BaryonField[ivx  ][index] = xv/sumsquare*coef*coef*initialtime;
+      BaryonField[ivx  ][index] = xv/sumsquare*coef*coef*initialtime;
+      BaryonField[ietot][index] = 100; 
 // 2) Fresnel solution
     /*if( x>0){
       BaryonField[iden ][index] = 6.;
@@ -123,16 +140,14 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
       }*/
 
 //  4) Two colliding Gaussian packets
-    expa = exp(-alpha*pow((x+a),2)/sumsquare/2.);
-    expb = exp(-alpha*pow((x-a),2)/sumsquare/2.);
-    float k1 = 2*pi*10;
-    float k2 = 2*pi*10;
+    /*expa = exp(-alpha*pow((x+a),2)/sumsquare/2.)*50;
+    expb = exp(-alpha*pow((x-a),2)/sumsquare/2.)*50;
     float rho = expa*expa + expb*expb + expa*expb*2*cos(2*k*x);
 
-    BaryonField[RePsiNum][index] = expa*cos(k1*(x+a)) + expb*cos(k2*(x-a));
-    BaryonField[ImPsiNum][index] = expa*sin(k1*(x+a)) - expb*sin(k2*(x-a));
+    BaryonField[RePsiNum][index] = 25+sin(16*pi*x);//expa*cos(k1*(x+a)) + expb*cos(k2*(x-a)) ;
+    BaryonField[ImPsiNum][index] = 0;//expa*sin(k1*(x+a)) - expb*sin(k2*(x-a)) ;
     BaryonField[FDMDensNum][index] = BaryonField[RePsiNum][index]*BaryonField[RePsiNum][index] + BaryonField[ImPsiNum][index]*BaryonField[ImPsiNum][index];
-    //BaryonField[iden][index] = BaryonField[RePsiNum][index]*BaryonField[RePsiNum][index] + BaryonField[ImPsiNum][index]*BaryonField[ImPsiNum][index];
+    BaryonField[iden][index] = BaryonField[RePsiNum][index]*BaryonField[RePsiNum][index] + BaryonField[ImPsiNum][index]*BaryonField[ImPsiNum][index];
 
     BaryonField[ivx][index] = coef*(k1*(expa*expa-expb*expb)-2*a*alpha/sumsquare*expa*expb*sin(2*k*x))/rho;
 
@@ -140,14 +155,93 @@ int grid::LightBosonInitializeGrid(float CenterPosition)
       //BaryonField[ivx  ][index] = 0*(xv-CenterPosition)/sumsquare*coef*coef*initialtime;
       BaryonField[ivy  ][index] = 0;
       BaryonField[ivz  ][index] = 0;
-      BaryonField[ietot][index] = 100; 
+      BaryonField[ietot][index] = 100; */
   }
   }
   }
 
-   /*if (this->ComputeQuantumPressure(Time) == FAIL) {
-    ENZO_FAIL("Error in ComputeQuantumPressure!\n");
-  }*/
+  // set particles
+  int SetupLoopCount, npart = 0;
+  fprintf(stderr, "initialize particles \n" );
+  for (SetupLoopCount = 0; SetupLoopCount < 1+min(UseParticles, 1); SetupLoopCount++) {
+
+    /* Set particles. */
+
+    if (UseParticles > 0 && SetupLoopCount > 0) {
+
+      /* If particles already exist (coarse particles), then delete. */
+
+      if (NumberOfParticles > 0) this->DeleteParticles();
+
+      /* Use count from previous loop to set particle number. */
+
+      NumberOfParticles = npart;
+      npart = 0;
+
+      /* Allocate space. */
+
+      this->AllocateNewParticles(NumberOfParticles);
+
+      /* Particle values will be set below. */
+
+    } // end: particle initialization
+            
+
+/* Set particles if being used (generate a number of particle
+       proportional to density). */
+    for (k = 0; k < GridDimension[2]; k++)
+      for (j = 0; j < GridDimension[1]; j++)
+  for (i = 0; i < GridDimension[0]; i++) {
+
+    /* Compute position */
+    index = GRIDINDEX_NOGHOST(i,j,k); 
+
+    x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+    if (GridRank > 1)
+      y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+    if (GridRank > 2)
+      z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+    if (UseParticles)
+      if (i >= GridStartIndex[0] && i <= GridEndIndex[0] &&
+    j >= GridStartIndex[1] && j <= GridEndIndex[1] &&
+    k >= GridStartIndex[2] && k <= GridEndIndex[2]  ) {
+        ParticleCount += int(BaryonField[FDMDensNum][index]/ParticleMeanDensity*0.1);
+        while (ParticleCount >= 1) {
+    if (SetupLoopCount > 0) {
+      ParticleMass[npart] = ParticleMeanDensity;
+      ParticleNumber[npart] = CollapseTestParticleCount++;
+      ParticleType[npart] = PARTICLE_TYPE_DARK_MATTER;
+      //fprintf(stderr, "%d %d %d %d %f %f \n", i,j,npart,ParticleCount , BaryonField[FDMDensNum][index],ParticleMeanDensity);
+
+      /* Set random position within cell. */
+
+      ParticlePosition[0][npart] = x + CellWidth[0][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+      //ParticlePosition[1][npart] = y + CellWidth[1][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+      //ParticlePosition[2][npart] = z + CellWidth[2][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+
+
+      /* Set bulk velocity. */
+          
+      for (dim = 0; dim < GridRank; dim++){
+           ParticleVelocity[dim][npart] = (ParticlePosition[0][npart]-0.5)/sumsquare*coef*coef*initialtime; 
+      }
+      /* Add random velocity; */
+
+      /*if (sigma != 0)
+        for (dim = 0; dim < GridRank; dim++)
+          ParticleVelocity[dim][npart] += 
+      gasdev()*sigma/VelocityUnits;*/
+
+    }
+    npart++;
+    ParticleCount -= 1.0;
+        }
+      } // end: if statement
+
+  } // end loop over grid
+  } // end loop SetupLoopCount
+
+
 
   return SUCCESS;
 }
