@@ -72,7 +72,11 @@
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
- 
+
+#ifdef _OPENMP
+#include "omp.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -276,6 +280,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int dbx = 0;
 
   FLOAT When, GridTime;
+  double _mpi_time;
   //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
   //float dtThisLevelSoFar = 0.0, dtThisLevel;
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
@@ -301,6 +306,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
   RunEventHooks("EvolveLevelTop", Grids, *MetaData);
 
+  bool thread_grid_loop = false;
+#ifdef _OPENMP
+  if (HybridParallelRootGridSplit)
+    thread_grid_loop = true;
+  else
+    thread_grid_loop = (level > 0) && 
+      (NumberOfGrids > NumberOfProcessors*omp_get_num_threads());
+#endif
+  
   /* Create a SUBling list of the subgrids */
   LevelHierarchyEntry **SUBlingList;
 
@@ -347,6 +361,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      put them into the SubgridFluxesEstimate array. */
  
   if(CheckpointRestart == TRUE) {
+#pragma omp parallel for if(thread_grid_loop) schedule(dynamic)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       if (Grids[grid1]->GridData->FillFluxesFromStorage(
         &NumberOfSubgrids[grid1],
@@ -356,6 +371,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
   } else {
+#pragma omp parallel for if(thread_grid_loop) schedule(dynamic)    
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
       Grids[grid1]->GridData->ClearBoundaryFluxes();
       if ( level > 0 )
@@ -489,6 +505,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
 
+#pragma omp parallel for if(thread_grid_loop) schedule(dynamic) private(_mpi_time)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
         CallProblemSpecificRoutines(MetaData, Grids[grid1], grid1, &norm, 
@@ -533,6 +550,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
             Exterior, LevelArray[level], LevelCycleCount[level]);
 
+#pragma omp parallel for if(thread_grid_loop) schedule(dynamic) private(_mpi_time)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 #endif //SAB.
         /* Copy current fields (with their boundaries) to the old fields
@@ -759,7 +777,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
- 
+#pragma omp parallel for if(thread_grid_loop) schedule(static)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
