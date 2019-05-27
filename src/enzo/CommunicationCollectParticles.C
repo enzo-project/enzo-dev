@@ -208,12 +208,10 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 	if (GridHierarchyPointer[j]->GridData->ReturnNumberOfParticles() == 0 &&
 	    GridHierarchyPointer[j]->GridData->ReturnNumberOfStars() == 0)
 	  continue;
-/*printf("--Thread %d Calling into TransferSubgridParticles\n", omp_get_thread_num());
+
 	GridHierarchyPointer[j]->GridData->TransferSubgridParticles
 	    (SubgridPointers, NumberOfSubgrids, NumberToMove, ParticleCounter, Zero, Zero, 
-	     SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, FALSE);*/
-//printf("--Thread %d TransferSubgridParticles finished\n", omp_get_thread_num());
- 
+	     SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, FALSE);
       } // ENDIF subgrids exist
 //end omp parallel for
 

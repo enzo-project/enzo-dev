@@ -55,10 +55,10 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
  
   /* Declarations. */
 
-#ifdef _OPENMP
-  static int ThreadStart[MAX_THREADS];
-  static int ThreadCount[MAX_THREADS];
-#endif
+// #ifdef _OPENMP
+//   static int ThreadStart[MAX_THREADS];
+//   static int ThreadCount[MAX_THREADS];
+// #endif
 
   int i, j, index, dim, n1, grid, proc;
   int i0, j0, k0;

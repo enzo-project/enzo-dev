@@ -608,7 +608,8 @@ int RebuildHierarchy(TopGridData *MetaData,
       }
  
       /* 3g) loop over parent, and copy particles to new grids. */
- 
+
+      // This should remain commented
 //#pragma omp parallel for schedule(guided) private(k, ToGrids)
       for (j = 0; j < grids; j++)
  

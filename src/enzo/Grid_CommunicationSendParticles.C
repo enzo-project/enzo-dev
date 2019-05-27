@@ -86,7 +86,7 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
   if (MyProcessorNumber == ProcessorNumber) {
 
     int FromEnd = FromStart + FromNumber;
-#pragma omp parallel for schedule(static) private(index, dim, j)    
+    #pragma omp parallel for schedule(static) private(index, dim, j)    
     for (i = FromStart; i < FromEnd; i++) {
       index = i - FromStart;
       for (dim = 0; dim < GridRank; dim++) {
@@ -143,9 +143,9 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
  
     if (ToStart == -1) {
 
-#pragma omp parallel private(dim,j)
+      #pragma omp parallel private(dim,j)
     {
-#pragma omp for nowait schedule(static)
+      #pragma omp for nowait schedule(static)
       for (i = 0; i < ToGrid->NumberOfParticles; i++) {
 	ToGrid->ParticleNumber[i] = TempNumber[i];
 	ToGrid->ParticleMass[i]   = TempMass[i];
@@ -153,14 +153,14 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
       }
 
       for (dim = 0; dim < GridRank; dim++)
-#pragma omp for nowait schedule(static)
+	#pragma omp for nowait schedule(static)
 	for (i = 0; i < ToGrid->NumberOfParticles; i++) {
 	  ToGrid->ParticlePosition[dim][i] = TempPos[dim][i];
 	  ToGrid->ParticleVelocity[dim][i] = TempVel[dim][i];
 	}
 
       for (j = 0; j < NumberOfParticleAttributes; j++)
-#pragma omp for nowait schedule(static)
+	#pragma omp for nowait schedule(static)
 	for (i = 0; i < ToGrid->NumberOfParticles; i++)
 	  ToGrid->ParticleAttribute[j][i] = TempAttribute[j][i];
 

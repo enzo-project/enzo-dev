@@ -182,6 +182,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
   }
   SendList = new particle_data[TotalNumber];
 }// end omp single
+ 
 #pragma omp for reduction(+:NumberToMove[:NumberOfProcessors])
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
