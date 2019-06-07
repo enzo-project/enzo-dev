@@ -122,7 +122,7 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 # Libraries
 #-----------------------------------------------------------------------
 
-LOCAL_LIBS_MACH   = -L/opt/local/lib/libgcc -lgfortran.3 
+LOCAL_LIBS_MACH   = -L/opt/local/lib/libgcc -lgfortran.5 
                     #-L$(HOME)/yt/enzolib/enzolib -lproblemtype_handler
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 $(MACH_DEFINES)
 LOCAL_LIBS_PYTHON = -lpython2.6

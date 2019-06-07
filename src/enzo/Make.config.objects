@@ -974,7 +974,6 @@ OBJS_CONFIG_LIB = \
         Zeus_zTransport_FDM.o \
 	Grid_SchrodingerSolver.o \
 	rk4.o\
-	sv2.o\
 	SchrodingerAddPotential.o\
 	FDMCollapse.o\
 	Grid_FDMCollapse.o
