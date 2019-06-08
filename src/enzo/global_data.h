@@ -607,10 +607,6 @@ EXTERN float MinimumPressureJumpForRefinement, MinimumEnergyRatioForRefinement;
 
 EXTERN float RefineByJeansLengthSafetyFactor;
 
-/* FDM: velocity divergence refinement safety factor */
-
-EXTERN float RefineByVelDivSafetyFactor;
-
 /* If > 0, this will be used instead of the temperature at all locations */
 
 EXTERN float JeansRefinementColdTemperature;

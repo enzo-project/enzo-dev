@@ -26,7 +26,7 @@
 extern float DepositParticleMaximumParticleMass;
  
  
-int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level, int MaximumCurrentLevel)
+int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 {
  
   /* Return if this doesn't concern us. */

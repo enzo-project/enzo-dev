@@ -75,35 +75,14 @@ c
 c     a) 1D
 c
       if (ndim .eq. 1) then
-c take logarithm // xinyu        
-        do i=i1,i2
-          source(i,1,1)  = log(source(i,1,1))
-        enddo
-
          call spline_make(source(i1,1,1), i2-i1+1_IKIND, work1, work4)
          call spline_eval(source(i1,1,1), i2-i1+1_IKIND, work1,
      &                    refine1, dest(1,1,1))
-c take exponential //xinyu
-        do i=i1,i2
-          source(i,1,1)  = exp(source(i,1,1))
-        enddo
-
-        do i = 1,ddim1
-          dest(i,1,1) = exp(dest(i,1,1))
-        enddo
-
       endif
 c
 c     b) 2D
 c
       if (ndim .eq. 2) then
-c take logarithm //xinyu
-        do i = i1,i2
-          do j=j1,j2
-            source(i,j,1)  = log(source(i,j,1))
-          enddo
-        enddo
-
          do j=j1, j2
             call spline_make(source(i1,j,1), i2-i1+1_IKIND, work1,work4)
             call spline_eval(source(i1,j,1), i2-i1+1_IKIND, work1,
@@ -118,18 +97,9 @@ c
             call spline_eval(work1, j2-j1+1_IKIND, work2, refine2,work3)
      &                          
             do j=1, ddim2
-c  //xinyu        
-c               dest(i,j,1) = work3(j)
-               dest(i,j,1) = exp(work3(j))
+               dest(i,j,1) = work3(j)
             enddo
          enddo
-c take exponential
-         do i = i1,i2
-          do j=j1,j2
-            source(i,j,1)  = exp(source(i,j,1))
-          enddo
-        enddo
-      
       endif
 c
 c     c) 3D
@@ -138,15 +108,6 @@ c
 c
 c        Loop over k-slices and generate splined slices
 c
-c take logarithm //xinyu
-        do i = i1,i2
-          do j=j1,j2
-          do k = k1,k2
-            source(i,j,k)  = log(source(i,j,k))
-          enddo
-        enddo
-      enddo
-
          do k=k1, k2
             do j=j1, j2
                call spline_make(source(i1,j,k), i2-i1+1_IKIND, work1, 
@@ -178,21 +139,11 @@ c
                call spline_eval(work1, k2-k1+1_IKIND, work2, refine3, 
      &              work3)
                do k=1, ddim3
-c //xinyu               
-c                  dest(i,j,k) = work3(k)
-                dest(i,j,k) = exp(work3(k))
+                  dest(i,j,k) = work3(k)
                enddo
             enddo
          enddo
-c take logarithm //xinyu
-        do i = i1,i2
-          do j=j1,j2
-          do k = k1,k2
-            source(i,j,k)  = exp(source(i,j,k))
-          enddo
-        enddo
-      enddo
-
+c 
       endif
 c
       return

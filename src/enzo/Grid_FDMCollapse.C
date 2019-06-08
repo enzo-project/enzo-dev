@@ -2,11 +2,11 @@
 /
 /  GRID CLASS (INITIALIZE THE GRID FOR A COLLAPSE TEST)
 /
-/  written by: Greg Bryan
-/  date:       May, 1998
+/  written by: Xinyu Li
+/  date:       May, 2019
 /  modified1:
 /
-/  PURPOSE:
+/  PURPOSE: set up problem to collapse a FDM halo
 /
 /  RETURNS: FAIL or SUCCESS
 /

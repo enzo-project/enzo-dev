@@ -86,7 +86,7 @@ float grid::ComputeTimeStep()
   float dtCR           = huge_number;
   float dtGasDrag      = huge_number;
   float dtCooling      = huge_number;
-  float dtQuant        = huge_number;  //FDM
+  float dtQuantum        = huge_number;  //FDM
 
   int dim, i, j, k, index, result;
  
@@ -451,11 +451,6 @@ float grid::ComputeTimeStep()
    /*FDM:  Calculate minimum dt due to quantum pressure. */
 
   if(QuantumPressure){
-  /*  if (this->ComputeQuantumTimeStep(dtQuant) == FAIL) 
-      ENZO_FAIL("Error in ComputeQuantumTimeStep.");
-
-    dtQuant *= CourantSafetyNumber;  // for stability */
-  // QuantumTest
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
   float VelocityUnits = 1.0, TimeUnits = 1.0, aUnits = 1.0;
   double MassUnits = 1.0;
@@ -479,20 +474,15 @@ float grid::ComputeTimeStep()
          dx = min( dx, CellWidth[2][0]*afloat);
         }
 
-  
-      //dtQuant = CourantSafetyNumber/dtBaryons + 2*hmcoef/pow(dx,2);
+      dtQuantum = pow(dx,2)/hmcoef/2.;
 
-      //dtQuant = CourantSafetyNumber/dtQuant; 
-      dtQuant = pow(dx,2)/hmcoef/2.;
-
-      dtQuant *= CourantSafetyNumber;
+      dtQuantum *= CourantSafetyNumber;
 
       if (SelfGravity && (PotentialField != NULL)){
         int gsize = GravitatingMassFieldDimension[0]*GravitatingMassFieldDimension[1]*GravitatingMassFieldDimension[2];
 
         for (int i=0; i<gsize; ++i){
-          dtQuant = min(dtQuant, fabs(hmcoef*1./(PotentialField[i])));
-          //printf("time from potential %f %f %f\n", hmcoef,dtQuant,PotentialField[i]);
+          dtQuantum = min(dtQuantum, fabs(hmcoef*1./(PotentialField[i])));
         }
       }
 
@@ -509,7 +499,7 @@ float grid::ComputeTimeStep()
   dt = min(dt, dtCR);
   dt = min(dt, dtGasDrag);
   dt = min(dt, dtCooling);
-  dt = min(dt, dtQuant); //FDM
+  dt = min(dt, dtQuantum); //FDM
 
 
 #ifdef TRANSFER
@@ -588,7 +578,7 @@ float grid::ComputeTimeStep()
     if (UseGasDrag)
       printf("Drag = %"ESYM" ",(dtGasDrag));
     if (QuantumPressure)
-      printf("Quantum = %"ESYM" ",(dtQuant));//FDM
+      printf("Quantum = %"ESYM" ",(dtQuantum));//FDM
     printf(")\n");
   }
  

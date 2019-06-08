@@ -42,7 +42,7 @@
 void AddLevel(LevelHierarchyEntry *LevelArray[], HierarchyEntry *Grid,
 	      int level);
 int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
-		 int &FlaggedGrids, int MaximumCurrentLevel);
+		 int &FlaggedGrids);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int ReportMemoryUsage(char *header = NULL);
 int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
@@ -328,12 +328,11 @@ int RebuildHierarchy(TopGridData *MetaData,
  
     /* 2) Clean up (delete excess baggage) all grids on this level and below.
           And delete the old hierarchy entries at the same time. */
-    int MaximumCurrentLevel = 0;
+
     for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++) {
       Temp = TempLevelArray[i];
  
       while (Temp != NULL) {
-  MaximumCurrentLevel++;
 	Temp->GridData->CleanUp();
 	if (i > level)
 	  delete Temp->GridHierarchyEntry;
@@ -402,7 +401,7 @@ int RebuildHierarchy(TopGridData *MetaData,
       tt0 = ReturnWallTime();
       TotalFlaggedCells = FlaggedGrids = 0;
       for (j = 0; j < grids; j++)
-	FindSubgrids(GridHierarchyPointer[j], i, TotalFlaggedCells, FlaggedGrids,MaximumCurrentLevel);
+	FindSubgrids(GridHierarchyPointer[j], i, TotalFlaggedCells, FlaggedGrids);
       CommunicationSumValues(&TotalFlaggedCells, 1);
       CommunicationSumValues(&FlaggedGrids, 1);
       if (debug)

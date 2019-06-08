@@ -528,6 +528,7 @@ int grid::CosmologySimulationInitializeGrid(
     }
   } // ENDIF UseMetallicityField
 
+
 #ifdef EMISSIVITY
     // If using an emissivity field, initialize to zero
     if ((StarMakerEmissivityField > 0) && ReadData)
@@ -600,8 +601,7 @@ int grid::CosmologySimulationInitializeGrid(
               }                               
       }  // if(UseMHDCT == TRUE)              
     }
-
-  } // end: if (CosmologySimulationDensityName != NULL && ReadData)
+  }
 
   } // end: if (NumberOfBaryonFields > 0)
  

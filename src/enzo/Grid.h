@@ -824,7 +824,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Set boolean flagging field */
 
-   int SetFlaggingField(int &NumberOfFlaggedCells, int level, int MaximumCurrentLevel);
+   int SetFlaggingField(int &NumberOfFlaggedCells, int level);
 
 
 /* Set flagging field from refine regions */
@@ -935,12 +935,6 @@ gradient force to gravitational force for one-zone collapse test. */
    Flagged cells in the boundary zones and within one zone of the boundary. */
 
    int FlagBufferZones();
-
-/* FDM: new refinement criteria */
-/* FDM: Jean's scale */
-   int FlagCellsToBeRefinedByQuantumJeansLength();
-/* FDM: 2nd order derivative of sqrt */
-   int FlagCellsToBeRefinedBySqrtSecondDeriv();
 
 /* Identify new subgrids for this grid (and prove Fermat's last theorem too)
    (gg #5) */

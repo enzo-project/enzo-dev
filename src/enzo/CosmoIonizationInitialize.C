@@ -66,8 +66,6 @@ int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,
   char *HeIIName  = "HeII_Density";
   char *HeIIIName = "HeIII_Density";
   char *DeName    = "Electron_Density";
-  char *RePsiName = "Re_Psi"; 
-  char *ImPsiName = "Im_Psi"; 
  
   // local declarations
   char  line[MAX_LINE_LENGTH];
@@ -209,10 +207,6 @@ int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,
     }
     if (MultiSpecies > 1)
       DataLabel[BaryonField++] = kdissH2IName;
-  }
-    if (QuantumPressure) {
-    DataLabel[BaryonField++] = RePsiName;
-    DataLabel[BaryonField++] = ImPsiName;
   }
 
   for (int i=0; i<BaryonField; i++) 

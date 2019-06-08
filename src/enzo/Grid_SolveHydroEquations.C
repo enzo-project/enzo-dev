@@ -546,13 +546,13 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     }
 
     if (HydroMethod == Zeus_Hydro){
-        if (this->ZeusSolver(GammaField, UseGammaField, CycleNumber, 
+      if (this->ZeusSolver(GammaField, UseGammaField, CycleNumber, 
                CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2],
                GravityOn, NumberOfSubgrids, GridGlobalStart,
                SubgridFluxes,
                NumberOfColours, colnum, LowestLevel,
                MinimumSupportEnergyCoefficient) == FAIL)
-	             ENZO_FAIL("ZeusSolver() failed!\n");
+	     ENZO_FAIL("ZeusSolver() failed!\n");
   }
 	
 

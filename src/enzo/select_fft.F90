@@ -267,45 +267,45 @@
 
         if( method == 2 ) then
 
-!          select case ( choice )
+          select case ( choice )
 
-!            case default
-!             write(0,'("1D Stride 1 call to S90 FFT")')
-!              call wrapper1d(x, rank, dim1, dim2, dim3, dir, s90_st1)
-!
-!            case ("power")
-!             write(0,'("1D Stride 1 call to IBM ESSL FFT")')
-!              call wrapper1d(x, rank, dim1, dim2, dim3, dir, ibm_st1)
-
-!            case ("altix")
-!             write(0,'("1D Stride 1 call to ALTIX SCSL FFT")')
-!              call wrapper1d(x, rank, dim1, dim2, dim3, dir, sgi_st1)
-
-!            case ("acml")
-!             write(0,'("1D Stride 1 call to ACML SCSL FFT")')
-!              call wrapper1d(x, rank, dim1, dim2, dim3, dir, acml_st1)
-
-!            case ("mkl")
-!             write(0,'("1D Stride 1 call to MKL FFT")')
-!              call wrapper1d(x, rank, dim1, dim2, dim3, dir, mkl_st1)
-
-!            case ("ffte")
-!             write(0,'("1D Stride 1 call to FFTE")')
-!              call wrapper1d(x, rank, dim1, dim2, dim3, dir, ffte_st1)
-
-!            case ("s90")
-!             write(0,'("1D Stride 1 call to S90 FFT")')
+            case default
+             write(0,'("1D Stride 1 call to S90 FFT")')
               call wrapper1d(x, rank, dim1, dim2, dim3, dir, s90_st1)
 
-!            case ("s66")
-!             write(0,'("1D Stride 1 call to S66 FFT")')
-!              call wrapper1d(x, rank, dim1, dim2, dim3, dir, s66_st1)
+            case ("power")
+             write(0,'("1D Stride 1 call to IBM ESSL FFT")')
+              call wrapper1d(x, rank, dim1, dim2, dim3, dir, ibm_st1)
 
-!            case ("nr")
-!             write(0,'("1D Stride 1 call to Numerical Recipes FFT")')
-!              call wrapper1d(x, rank, dim1, dim2, dim3, dir, nr_st1)
+            case ("altix")
+             write(0,'("1D Stride 1 call to ALTIX SCSL FFT")')
+              call wrapper1d(x, rank, dim1, dim2, dim3, dir, sgi_st1)
 
-!          end select
+            case ("acml")
+             write(0,'("1D Stride 1 call to ACML SCSL FFT")')
+              call wrapper1d(x, rank, dim1, dim2, dim3, dir, acml_st1)
+
+            case ("mkl")
+             write(0,'("1D Stride 1 call to MKL FFT")')
+              call wrapper1d(x, rank, dim1, dim2, dim3, dir, mkl_st1)
+
+            case ("ffte")
+             write(0,'("1D Stride 1 call to FFTE")')
+              call wrapper1d(x, rank, dim1, dim2, dim3, dir, ffte_st1)
+
+            case ("s90")
+             write(0,'("1D Stride 1 call to S90 FFT")')
+              call wrapper1d(x, rank, dim1, dim2, dim3, dir, s90_st1)
+
+            case ("s66")
+             write(0,'("1D Stride 1 call to S66 FFT")')
+              call wrapper1d(x, rank, dim1, dim2, dim3, dir, s66_st1)
+
+            case ("nr")
+             write(0,'("1D Stride 1 call to Numerical Recipes FFT")')
+              call wrapper1d(x, rank, dim1, dim2, dim3, dir, nr_st1)
+
+          end select
 
         end if
 

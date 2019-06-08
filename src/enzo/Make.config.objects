@@ -966,7 +966,6 @@ OBJS_CONFIG_LIB = \
    Grid_Phases.o \
 	LightBosonInitialize.o\
 	Grid_LightBosonInitialize.o\
-        Grid_ComputeQuantumTimeStep.o\
         QuantumGetUnits.o \
 	ZeusFDM.o\
         Zeus_xTransport_FDM.o \

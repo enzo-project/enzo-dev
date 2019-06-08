@@ -106,7 +106,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
   int dim, i, j, k, m, field, sphere, size;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum;
-  int RePsiNum, ImPsiNum;
   float xdist,ydist,zdist;
 
   /* create fields */
@@ -146,10 +145,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
   int ColourNum = NumberOfBaryonFields;
   if (SphereUseColour)
     FieldType[NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
-  if (QuantumPressure){
-    FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
-    FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
-  }
 
   /* Return if this doesn't concern us. */
 
@@ -1030,19 +1025,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	} // end loop over grid
 
   } // end loop SetupLoopCount
-
-  if (QuantumPressure){
-
-      printf("Initializing Wave Function...\n");
-
-      for (int i=1; i<size; i++){
-        BaryonField[RePsiNum][i] = sqrt(BaryonField[0][i]);
-        BaryonField[ImPsiNum][i] = 0;
-      }
-      printf("Wave Function Initialized.\n");
-
-
-    }
 
   if (SphereUseParticles && debug)
     printf("CollapseTestInitialize: NumberOfParticles = %"ISYM"\n", 
