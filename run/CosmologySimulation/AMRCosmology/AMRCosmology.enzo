@@ -8,7 +8,7 @@
 #
 ProblemType                = 30      // cosmology simulation
 TopGridRank                = 3
-TopGridDimensions          = 64 64 64
+TopGridDimensions          = 32 32 32
 SelfGravity                = 1       // gravity on
 TopGridGravityBoundary     = 0       // Periodic BC for gravity
 LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
@@ -18,14 +18,14 @@ NumberOfGhostZones         = 8
 #
 # problem parameters
 #
-CosmologySimulationOmegaBaryonNow       = 0.2239
+CosmologySimulationOmegaBaryonNow       = 0.0441
 CosmologySimulationOmegaCDMNow          = 0.2239
-CosmologySimulationDensityName          = GridDensity.new
-#CosmologySimulationVelocity1Name        = GridVelocities_x
-#CosmologySimulationVelocity2Name        = GridVelocities_y
-#CosmologySimulationVelocity3Name        = GridVelocities_z
-#CosmologySimulationParticlePositionName = ParticlePositions
-#CosmologySimulationParticleVelocityName = ParticleVelocities
+CosmologySimulationDensityName          = GridDensity
+CosmologySimulationVelocity1Name        = GridVelocities_x
+CosmologySimulationVelocity2Name        = GridVelocities_y
+CosmologySimulationVelocity3Name        = GridVelocities_z
+CosmologySimulationParticlePositionName = ParticlePositions
+CosmologySimulationParticleVelocityName = ParticleVelocities
 CosmologySimulationNumberOfInitialGrids = 1
 CosmologySimulationUseMetallicityField  = 1
 
@@ -36,7 +36,7 @@ ComovingCoordinates        = 1
 CosmologyOmegaMatterNow    = 0.268
 CosmologyOmegaLambdaNow    = 0.732
 CosmologyHubbleConstantNow = 0.704
-CosmologyComovingBoxSize   = 2.0
+CosmologyComovingBoxSize   = 32.0
 CosmologyMaxExpansionRate  = 0.02
 CosmologyInitialRedshift   = 50
 CosmologyFinalRedshift     = 0
@@ -45,7 +45,7 @@ GravitationalConstant      = 1
 #
 # I/O and stop/start parameters
 #
-dtDataDump       = 0.5
+dtDataDump       = 5
 RedshiftDumpName = RD
 RedshiftDumpDir  = RD
 DataDumpName     = DD
@@ -65,26 +65,21 @@ CosmologyOutputRedshift[9] = 0.007
 #
 # hydro parameters
 #
-HydroMethod                 = 2       // PPM
+HydroMethod                 = 0       // PPM
 Gamma                       = 1.6667
 PPMDiffusionParameter       = 0       // diffusion off
-DualEnergyFormalism         = 0       // use total & internal energy
+DualEnergyFormalism         = 1       // use total & internal energy
 InterpolationMethod         = 1       // SecondOrderA
-FluxCorrection              = 0
-ConservativeInterpolation   = 0
-CourantSafetyNumber         = 0.4
+FluxCorrection              = 1
+ConservativeInterpolation   = 1
+CourantSafetyNumber         = 0.5
 ParticleCourantSafetyNumber = 0.8
 UseMinimumPressureSupport   = 0
-
-QuantumPressure            = 1
-PressureFree                = 1
-ZEUSQuadraticArtificialViscosity = 0.0
-FDMMass = 1.0
 
 #
 # grid refinement parameters
 #
-StaticHierarchy                       = 1
+StaticHierarchy                       = 0
 MaximumRefinementLevel                = 5
 MaximumGravityRefinementLevel         = 5
 MaximumParticleRefinementLevel        = 5
@@ -98,7 +93,7 @@ MinimumEfficiency                     = 0.35
 # microphysics parameters
 #
 MultiSpecies       = 0
-RadiativeCooling   = 0
+RadiativeCooling   = 1
 RadiationFieldType = 0
 
 #
@@ -122,5 +117,3 @@ StarFeedbackDistCellStep      = 3
 GreensFunctionMaxNumber = 40
 ParallelRootGridIO      = 1
 ParallelParticleIO      = 1
-PartitionNestedGrids    = 1
-Debug1 = 1
