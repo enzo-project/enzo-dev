@@ -33,7 +33,7 @@
 
 #include <locale.h>
 
-//#define HAVE_XLOCALE_H
+#define HAVE_XLOCALE_H
 #ifdef HAVE_XLOCALE_H
 #include <xlocale.h>
 #else
