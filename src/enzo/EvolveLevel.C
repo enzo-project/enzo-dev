@@ -539,6 +539,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
            in preparation for the new step. */
 
         Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
+        
+ /* Call schrodinger solver. */
+  if (QuantumPressure == 1)
+  {
+  Grids[grid1]->GridData->SchrodingerSolver(LevelCycleCount[level]);
+  }
 
 	// Find recently-supernova stars to add them the MagneticSupernovaList 
 	if ((UseMagneticSupernovaFeedback) && (level == MaximumRefinementLevel))
@@ -586,9 +592,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
             PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
 
-
             for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-
                 /* Gravity: compute acceleration field for grid and particles. */
                 if (RK2SecondStepBaryonDeposit && SelfGravity) {
                     int Dummy;

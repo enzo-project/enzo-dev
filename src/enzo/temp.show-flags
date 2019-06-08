@@ -1,0 +1,21 @@
+
+CPP = /opt/local/bin/cpp
+CC  = /opt/local/bin/mpicc
+CXX = /opt/local/bin/mpicxx
+FC  = /opt/local/bin/gfortran
+F90 = /opt/local/bin/gfortran
+LD  = /opt/local/bin/mpicxx
+
+DEFINES = -DLINUX -DH5_USE_16_API   -D__max_subgrids=100000 -D__max_baryons=30 -D__max_cpu_per_node=8 -D__memory_pool_size=100000 -DINITS64 -DLARGE_INTS -DCONFIG_PINT_8 -DIO_32    -DUSE_MPI   -DCONFIG_PFLOAT_8 -DCONFIG_BFLOAT_8  -DUSE_HDF5_GROUPS   -DTRANSFER   -DNEW_GRID_IO -DFAST_SIB      -DENZO_PERFORMANCE    -DSAB
+
+INCLUDES = -I/opt/hdf5/include -I/Developer/CUDA/common/inc -I/opt/local/include           -I.
+
+CPPFLAGS = -P -traditional 
+CFLAGS   =  -g
+CXXFLAGS =  -g
+FFLAGS   = -fno-second-underscore -m64 -g
+F90FLAGS = -fno-second-underscore -m64 -g
+LDFLAGS  =  -g
+
+LIBS     = -L/opt/hdf5/lib -lhdf5 -DLINUX -DH5_USE_16_API  -L/opt/local/lib/libgcc -lgfortran.5          
+

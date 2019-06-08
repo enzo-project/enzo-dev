@@ -196,7 +196,7 @@ c
      &        gdims(1)/refine(1)+1_IKIND, 
      &        gdims(2)/refine(2)+1_IKIND,
      &        gdims(3)/refine(3)+1_IKIND, iposflag)
-c
+
       endif
 c
 c  D) SecondOrderC

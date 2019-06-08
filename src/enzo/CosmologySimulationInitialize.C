@@ -814,7 +814,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = PSTempName;
       DataLabel[i++] = PSDenName;
     }
-  } 
+  }
 
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;

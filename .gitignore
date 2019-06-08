@@ -6,7 +6,11 @@ syntax: glob
 *.f90
 *~
 *.pyc
+*.ipynb
+*.out
+*.mp4
 
+.DS_Store
 bin/enzo
 bin/inits
 TAGS

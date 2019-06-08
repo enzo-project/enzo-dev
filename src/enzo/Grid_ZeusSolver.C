@@ -91,10 +91,22 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
 	       int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
 	       int bottom, float minsupecoef, int CRModel, float CRgamma);
 
+int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
+         int in, int jn, int kn, int rank,
+         int is, int ie, int js, int je, int ks, int ke, 
+         float C1, float C2, float *gamma, float dt, float dx[], float dy[], float dz[],
+         int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
+         float minsupecoef, float lapcoef);
+
 int GetUnits (float *DensityUnits, float *LengthUnits,
          float *TemperatureUnits, float *TimeUnits,
          float *VelocityUnits, double *MassUnits, FLOAT Time);
 int FindField(int field, int farray[], int numfields);
+int QuantumGetUnits(float *DensityUnits, float *LengthUnits,
+       float *TemperatureUnits, float *TimeUnits,
+       float *VelocityUnits, FLOAT Time);
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+
 
 int grid::ZeusSolver(float *gamma, int igamfield, int nhy, 
 		     float dx[], float dy[], float dz[], 
@@ -139,6 +151,8 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   u = BaryonField[Vel1Num];
   v = BaryonField[Vel2Num];
   w = BaryonField[Vel3Num];
+  //for (i=0;i<size;i++)
+    //printf("i,e=%"ISYM",%"GSYM"\n",TENum,BaryonField[TENum][100]);
   if (GridRank < 2) {
     v = new float[size];
     for (i = 0; i < size; i++)
@@ -161,7 +175,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   ke = GridEndIndex[2];
 
   //  If NumberOfGhostZones is set to 4, then use the extra space
-
+/*
   if (is == 4) {
     is = is - 1;
     ie = ie + 1;
@@ -173,7 +187,16 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   if (ks == 4) {
     ks = ks - 1;
     ke = ke + 1;
-  }
+  }*/
+
+  /* FDM: if use more ghost zones */  
+  ie = ie+max(0,is-3);
+  je = je+max(0,js-3);
+  ke = ke+max(0,ks-3);
+  is = is-max(0,is-3);
+  js = js-max(0,js-3);
+  ks = ks-max(0,ks-3);
+
 
   /* Set minimum pressure (better if it were a parameter) */
 
@@ -192,6 +215,45 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   }
 		 
   /*   1) Add source terms */
+  /* FDM: if FDM is used */
+  if (QuantumPressure){
+    // get code units
+  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
+    VelocityUnits = 1, TimeUnits = 1;
+
+  if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+         &TimeUnits, &VelocityUnits, Time) == FAIL) {
+    ENZO_FAIL("Error in GetUnits.");
+  }
+
+  FLOAT a = 1, dadt;
+  if (ComovingCoordinates)
+      if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
+    == FAIL) {
+  ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
+      }
+  // calculate hbar/m
+  float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
+  //(hbar/m)^2/2
+  float lapcoef = pow(hmcoef,2)/2.;
+  
+    if (ZeusFDM(d, e, u, v, w, p,
+     GridDimension[0], GridDimension[1], GridDimension[2],
+     GridRank, 
+     is, ie, js, je, ks, ke, 
+     ZEUSLinearArtificialViscosity,
+     ZEUSQuadraticArtificialViscosity,
+     gamma, dtFixed, dx, dy, dz,
+     gravity, AccelerationField[0], AccelerationField[1],
+     AccelerationField[2],
+     minsupecoef,lapcoef) == FAIL) {
+    fprintf(stderr, "P(%"ISYM"): Error in ZeusFDM on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
+      nhy, dtFixed);
+    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+    ENZO_FAIL("Error in ZeusFDM!\n");
+    }
+
+  } else {
 
   if (ZeusSource(d, e, u, v, w, p, cr, 
 		 GridDimension[0], GridDimension[1], GridDimension[2],
@@ -208,6 +270,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
     ENZO_FAIL("Error in ZeusSource!\n");
   }
+}
 
   /* Error check */
   
@@ -290,7 +353,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 	      MyProcessorNumber, n % GridRank, nhy, dtFixed);
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
       ENZO_FAIL("Error in ZeusSource!\n");
-    }
+      }
   
   } // end loop over n
 

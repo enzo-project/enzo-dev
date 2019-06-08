@@ -328,7 +328,7 @@ int RebuildHierarchy(TopGridData *MetaData,
  
     /* 2) Clean up (delete excess baggage) all grids on this level and below.
           And delete the old hierarchy entries at the same time. */
- 
+
     for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++) {
       Temp = TempLevelArray[i];
  
@@ -338,7 +338,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  delete Temp->GridHierarchyEntry;
 	Temp = Temp->NextGridThisLevel;
       } // end: if (i > level)
- 
+
     } // end: loop over levels
  
 //    if (debug) ReportMemoryUsage("Memory usage report: Rebuild 3");
