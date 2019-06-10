@@ -145,7 +145,7 @@ jobs:
 
       - save_cache:
           name: "Save test answers cache."
-          key: test-answers-v1
+          key: test-answers-v12
           paths:
             - ~/enzo_test/push_suite
 
