@@ -45,7 +45,8 @@ int CreateFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
 
 
     /* For each grid, compute the number of it's subgrids. */
- 
+
+#pragma omp parallel for schedule(static) private(NextGrid, counter)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       NextGrid = Grids[grid1]->NextGridNextLevel;
       counter = 0;
@@ -59,6 +60,8 @@ int CreateFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
     }
 
 
+#pragma omp parallel for schedule(static) \
+  private(subgrid, counter, RefinementFactors, NextGrid)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
       /* Allocate the subgrid fluxes for this grid. */
