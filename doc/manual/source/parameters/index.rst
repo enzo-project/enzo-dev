@@ -1009,7 +1009,7 @@ Hierarchy Control Parameters
 ``CoolingRefineRegionRightEdge`` (external)
     Top-right corner of refinement region. Must be within the overall
     refinement region.  If using a moving refinement region, this will
-     correspond to the top-right corner in the
+    correspond to the top-right corner in the
     ``CoolingRefineRegionFile`` at this output time. If these parameters are not set, then the code will likely try to
     refine the entire domain to the forced refinement level before
     only doing it within the CoolingRefineRegion, which can take a long
