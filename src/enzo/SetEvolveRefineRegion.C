@@ -74,7 +74,7 @@ int SetEvolveRefineRegion (FLOAT time)
 	 that EvolveRefineRegionTime[0] is the earliest time and the last output is the latest time (for
 	 the given track file). */
       if(time < EvolveRefineRegionTime[0] || time > EvolveRefineRegionTime[EvolveRefineRegionNtimes-1]){
-	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation time is outside of range of track file redshifts!");
+	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation time is outside of range of track file times!");
 	my_exit(EXIT_FAILURE);
       }
 
@@ -174,7 +174,7 @@ int SetEvolveRefineRegion (FLOAT time)
 	 that EvolveMustRefineRegionTime[0] is the earliest time and the last output is the latest time (for
 	 the given track file). */
       if(time < EvolveMustRefineRegionTime[0] || time > EvolveMustRefineRegionTime[EvolveMustRefineRegionNtimes-1]){
-	fprintf(stderr,"SetEvolveRefineRegion ERROR for EvolveMustRefineRegion: current simulation time is outside of range of track file redshifts!");
+	fprintf(stderr,"SetEvolveRefineRegion ERROR for EvolveMustRefineRegion: current simulation time is outside of range of track file times!");
 	my_exit(EXIT_FAILURE);
       }
 
@@ -191,7 +191,7 @@ int SetEvolveRefineRegion (FLOAT time)
 
     for (i = 0; i < MAX_DIMENSION; i++){
 
-      if(timestep==EvolveMustRefineRegionNtimes-1){
+      if(timestep == EvolveMustRefineRegionNtimes-1){
 	MustRefineRegionLeftEdge[i] = EvolveMustRefineRegionLeftEdge[timestep][i];
 	MustRefineRegionRightEdge[i] = EvolveMustRefineRegionRightEdge[timestep][i];
       } else {
@@ -249,7 +249,7 @@ int SetEvolveRefineRegion (FLOAT time)
 	 that EvolveRefineRegionTime[0] is the earliest time and the last output is the latest time (for
 	 the given track file). */
       if(time < EvolveCoolingRefineRegionTime[0] || time > EvolveCoolingRefineRegionTime[EvolveCoolingRefineRegionNtimes-1]){
-	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation redshift is outside of range of track file redshifts! (Cooling time box)");
+	fprintf(stderr,"SetEvolveRefineRegion ERROR: current simulation time is outside of range of track file times! (Cooling time box)");
 	my_exit(EXIT_FAILURE);
       }
 
