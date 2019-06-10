@@ -78,9 +78,6 @@ int grid::FDMCollapseInitializeGrid()
   //printf("%d \n", NumberOfBaryonFields);
 
   /* Set various units. */
-
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-    pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16, LightSpeed = 2.9979e10;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
 
@@ -135,10 +132,6 @@ if(QuantumPressure){
   }
 
   }
-
-  /*for (int i=0; i<size; i++){
-    //BaryonField[0][i] = 1.;
-    printf("%f\n", BaryonField[ImPsiNum][i]);}*/
 
 
   return SUCCESS;

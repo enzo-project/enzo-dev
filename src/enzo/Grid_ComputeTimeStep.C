@@ -454,7 +454,7 @@ float grid::ComputeTimeStep()
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
   float VelocityUnits = 1.0, TimeUnits = 1.0, aUnits = 1.0;
   double MassUnits = 1.0;
-  float hmcoef=1.0;
+  float hmcoef=1.0; // hbar/m
 
 
       if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
@@ -462,7 +462,7 @@ float grid::ComputeTimeStep()
        }
 
 
-      hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
+      hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass; // 5.916e27 is hbar/m with m=1e-22eV, FDMMass is in unit of 1e-22eV.
 
       FLOAT dx = CellWidth[0][0]*afloat;
 

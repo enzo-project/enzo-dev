@@ -1,16 +1,16 @@
 /***********************************************************************
 /
-/  COMPUTE AND RETURN THE COSMOLOGY UNITS
+/  COMPUTE AND RETURN THE UNITS FOR CALCULATING HBAR
 /
-/  written by: Greg Bryan
-/  date:       April, 1995
+/  written by: Xinyu Li
+/  date:       May, 2019
 /  modified1:
 /
 /  PURPOSE:  Returns the cosmology units:
 /
-/         time:        utim = 1 / sqrt(4 * \pi * G * \rho_0 * (1+zri)^3)
+/         time:        utim = 1 / sqrt(4 * \pi * G * \rho_0
 /         density:     urho = \rho_0 * (1+z)^3
-/         length:      uxyz = (1 Mpc) * box / h / (1+z)
+/         length:      uxyz = (1 Mpc) * box / h
 /         velocity:    uvel = uaye * uxyz / utim  (since u = a * dx/dt)
 /    (*)  temperature: utem = m_H * \mu / k * uvel**2
 /         a(t):        uaye = 1 / (1 + zri)
@@ -21,16 +21,7 @@
 /             \rho_0  = 3*\Omega_0*H_0^2/(8*\pi*G)
 /             Omega_0 - the fraction of non-relativistic matter at z=0
 /
-/           Note that two definitions are dependent on redshift (urho
-/             and uxyz) so make sure to call this routine immediately
-/             before writing.
-/
-/           * - the utem given below assumes that \mu = 1, so you must
-/               multiply the resulting temperature field by \mu.
-/
-/
-/
-/  NOTE:
+/   NOTE: the units are calculated at a=1 (initial redshift)
 /
 ************************************************************************/
  
@@ -89,14 +80,12 @@ int QuantumCosmologyGetUnits(float *DensityUnits, float *LengthUnits,
 int QuantumGetUnits(float *DensityUnits, float *LengthUnits,
        float *TemperatureUnits, float *TimeUnits,
        float *VelocityUnits, double *MassUnits, FLOAT Time)
-
 {
   /* If using cosmology, get cosmology units */
   if (ComovingCoordinates) {
-    //fprintf(stderr, "Using CosmologyCoordinates.\n");
     if (QuantumCosmologyGetUnits(DensityUnits, LengthUnits, TemperatureUnits,
                           TimeUnits, VelocityUnits, Time) == FAIL) {
-      ENZO_FAIL("Error in CosmologyGetUnits.\n");
+      ENZO_FAIL("Error in QuantumCosmologyGetUnits.\n");
     }
   }
   else {
@@ -123,7 +112,7 @@ int QuantumGetUnits(float *DensityUnits, float *LengthUnits,
     if (QuantumCosmologyGetUnits(DensityUnits, LengthUnits, TemperatureUnits,
 
                           TimeUnits, VelocityUnits, Time) == FAIL) {
-      fprintf(stderr, "Error in CosmologyGetUnits.\n");
+      fprintf(stderr, "Error in QuantumCosmologyGetUnits.\n");
       return FAIL;
     }
   }
@@ -137,7 +126,6 @@ int QuantumGetUnits(float *DensityUnits, float *LengthUnits,
     }
   return SUCCESS;
 }
-
 
 
 

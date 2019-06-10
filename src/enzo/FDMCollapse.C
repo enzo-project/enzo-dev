@@ -68,7 +68,7 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
   /* set up grid */
 
   if (TopGrid.GridData->FDMCollapseInitializeGrid() == FAIL) {
-    ENZO_FAIL("Error in CollapseTestInitializeGrid.");
+    ENZO_FAIL("Error in FDMCollapseInitializeGrid.");
   }
 
 
@@ -89,74 +89,6 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
 
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;
-
-  /* Write parameters to parameter output file */
-
-  /*if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "CollapseTestNumberOfSpheres    = %"ISYM"\n",
-	    CollapseTestNumberOfSpheres);
-    fprintf(Outfptr, "CollapseTestRefineAtStart      = %"ISYM"\n",
-	    CollapseTestRefineAtStart);
-    fprintf(Outfptr, "CollapseTestUseParticles       = %"ISYM"\n",
-	    CollapseTestUseParticles);
-    fprintf(Outfptr, "CollapseTestUseColour          = %"ISYM"\n",
-	    CollapseTestUseColour);
-    fprintf(Outfptr, "CollapseTestUseMetals          = %"ISYM"\n",
-	    CollapseTestUseMetals);
-    fprintf(Outfptr, "CollapseTestInitialTemperature = %"FSYM"\n",
-	    CollapseTestInitialTemperature);
-    fprintf(Outfptr, "CollapseTestInitialDensity     = %"FSYM"\n",
-	    CollapseTestInitialDensity);
-    fprintf(Outfptr, "CollapseTestUniformVelocity    = %"FSYM" %"FSYM" %"FSYM"\n",
-	    CollapseTestUniformVelocity[0], CollapseTestUniformVelocity[1],
-	    CollapseTestUniformVelocity[2]);
-    for (sphere = 0; sphere < CollapseTestNumberOfSpheres; sphere++) {
-      fprintf(Outfptr, "CollapseTestSphereType[%"ISYM"] = %"ISYM"\n", sphere,
-	      CollapseTestSphereType[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
-	      CollapseTestSphereRadius[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereCoreRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
-	      CollapseTestSphereCoreRadius[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereDensity[%"ISYM"] = %"FSYM"\n", sphere,
-	      CollapseTestSphereDensity[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereTemperature[%"ISYM"] = %"FSYM"\n", sphere,
-	      CollapseTestSphereTemperature[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereMetallicity[%"ISYM"] = %"FSYM"\n", sphere,
-	      CollapseTestSphereMetallicity[sphere]);
-      fprintf(Outfptr, "CollapseTestSpherePosition[%"ISYM"] = ", sphere);
-      WriteListOfFloats(Outfptr, MetaData.TopGridRank,
-			CollapseTestSpherePosition[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereVelocity[%"ISYM"] = ", sphere);
-      WriteListOfFloats(Outfptr, MetaData.TopGridRank,
-			CollapseTestSphereVelocity[sphere]);
-      fprintf(Outfptr, "CollapseTestFracKeplerianRot[%"ISYM"] = %"GOUTSYM"\n", sphere,
-              CollapseTestFracKeplerianRot[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereTurbulence[%"ISYM"] = %"GOUTSYM"\n", sphere,
-              CollapseTestSphereTurbulence[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereCutOff[%"ISYM"] = %"GOUTSYM"\n", sphere,
-              CollapseTestSphereCutOff[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereAng1[%"ISYM"] = %"GOUTSYM"\n", sphere,
-              CollapseTestSphereAng1[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereAng2[%"ISYM"] = %"GOUTSYM"\n", sphere,
-              CollapseTestSphereAng2[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereNumShells[%"ISYM"] = %"ISYM"\n", sphere,
-              CollapseTestSphereNumShells[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereConstantPressure[%"ISYM"] = %"ISYM"\n", sphere,
-	      CollapseTestSphereConstantPressure[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereSmoothSurface[%"ISYM"] = %"ISYM"\n", sphere,
-	      CollapseTestSphereSmoothSurface[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereSmoothRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
-	      CollapseTestSphereSmoothRadius[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereHIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
-	      CollapseTestSphereHIIFraction[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereHeIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
-	      CollapseTestSphereHeIIFraction[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereHeIIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
-	      CollapseTestSphereHeIIIFraction[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereH2IFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
-	      CollapseTestSphereH2IFraction[sphere]);
-    }
-  }*/
 
   return SUCCESS;
 

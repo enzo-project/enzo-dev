@@ -12073,13 +12073,13 @@ makedepend: warning:  PutSinkRestartInitialize.C, line 23: cannot find include f
 	not in /opt/local/include/math.h
 	not in ./math.h
 	not in /usr/include/math.h
-makedepend: warning:  QuantumGetUnits.C, line 37: cannot find include file "stdio.h"
+makedepend: warning:  QuantumGetUnits.C, line 28: cannot find include file "stdio.h"
 	not in /opt/hdf5/include/stdio.h
 	not in /Developer/CUDA/common/inc/stdio.h
 	not in /opt/local/include/stdio.h
 	not in ./stdio.h
 	not in /usr/include/stdio.h
-makedepend: warning:  QuantumGetUnits.C, line 38: cannot find include file "math.h"
+makedepend: warning:  QuantumGetUnits.C, line 29: cannot find include file "math.h"
 	not in /opt/hdf5/include/math.h
 	not in /Developer/CUDA/common/inc/math.h
 	not in /opt/local/include/math.h

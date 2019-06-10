@@ -21,9 +21,9 @@ MACH_FILE  = Make.mach.ubuntu-hardy
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL = /mnt/xfs1/home/xinyuli/hdf5
+LOCAL_HDF5_INSTALL = 
 
-LOCAL_GRACKLE_INSTALL  = /mnt/xfs1/home/emerick/local
+LOCAL_GRACKLE_INSTALL =
 
 
 #-----------------------------------------------------------------------

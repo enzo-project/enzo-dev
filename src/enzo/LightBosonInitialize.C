@@ -41,12 +41,6 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   char *ImPsiName = "ImPsi";
   char *FDMDensityName = "FDMDensity";
 
-
-
-
-
-
-
   /* declarations */
  
   char line[MAX_LINE_LENGTH];
@@ -66,25 +60,6 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
     ret += sscanf(line, "LightBosonCenter = %"PSYM, &LightBosonCenter);
  
-    /*ret += sscanf(line, "ShockInABoxLeftDensity = %"ESYM,
-		  &ShockInABoxDensity[0]);
-    ret += sscanf(line, "ShockInABoxLeftPressure = %"ESYM,
-		  &ShockInABoxPressure[0]);
-    ret += sscanf(line, "ShockInABoxLeftVelocity = %"ESYM,
-		  &ShockInABoxVelocity[0]);
- 
-    ret += sscanf(line, "ShockInABoxRightDensity = %"ESYM,
-		  &ShockInABoxDensity[1]);
-    ret += sscanf(line, "ShockInABoxRightPressure = %"ESYM,
-		  &ShockInABoxPressure[1]);
-    ret += sscanf(line, "ShockInABoxRightVelocity = %"ESYM,
-		  &ShockInABoxVelocity[1]);
- 
-    ret += sscanf(line, "ShockInABoxSubgridLeft = %"PSYM,
-		  &ShockInABoxSubgridLeft);
-    ret += sscanf(line, "ShockInABoxSubgridRight = %"PSYM,
-		  &ShockInABoxSubgridRight);*/
- 
     /* if the line is suspicious, issue a warning */
  
     if (ret == 0 && strstr(line, "=") && strstr(line, "LightBoson"))
@@ -101,7 +76,6 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
     /* set up field names and units */
 
-
   DataLabel[0] = DensName;
   DataLabel[1] = Vel1Name;
   DataLabel[2] = Vel2Name;
@@ -110,10 +84,6 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataLabel[5] = RePsiName;
   DataLabel[6] = ImPsiName;
   DataLabel[7] = FDMDensityName;
-
-
-
-
  
   DataUnits[0] = NULL;
   DataUnits[1] = NULL;
@@ -124,27 +94,11 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataUnits[6] = NULL;
   DataUnits[7] = NULL;
 
-
   
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-
     fprintf(Outfptr, "LightBosonCenter     = %"PSYM"\n", LightBosonCenter);
-    /*fprintf(Outfptr, "ShockInABoxBoundary      = %"GOUTSYM"\n\n",
-	    ShockInABoxBoundary);
- 
-    fprintf(Outfptr, "ShockInABoxLeftDensity   = %"ESYM"\n", ShockInABoxDensity[0]);
-    fprintf(Outfptr, "ShockInABoxLeftPressure  = %"ESYM"\n",
-	    ShockInABoxPressure[0]);
-    fprintf(Outfptr, "ShockInABoxLeftVelocity  = %"ESYM"\n\n",
-	    ShockInABoxVelocity[0]);
- 
-    fprintf(Outfptr, "ShockInABoxRightDensity  = %"ESYM"\n", ShockInABoxDensity[1]);
-    fprintf(Outfptr, "ShockInABoxRightPressure = %"ESYM"\n",
-	    ShockInABoxPressure[1]);
-    fprintf(Outfptr, "ShockInABoxRightVelocity = %"ESYM"\n\n",
-	    ShockInABoxVelocity[1]);*/
   }
  
   return SUCCESS;
