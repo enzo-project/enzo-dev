@@ -1,5 +1,5 @@
 /***********************************************************************                                                
-/                                                                                                                       
+/                                                                                                                        
 /  FIND DEAD STAR PARTICLES AND ADD THEM TO MAGNETIC SUPERNOVA LIST
 /                                                                                                                       
 /  written by: Iryna Butsky                                                                                                
@@ -44,7 +44,8 @@ int grid::AddMagneticSupernovaeToList()
   float random_u, random_v, random_phi, random_theta, phi_x, phi_y, phi_z;
   float sn_birthtime, sn_duration, sn_radius, sn_energy, star_birthtime, star_lifetime;
 
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits, EnergyUnits;
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, EnergyUnits;
+  double  MassUnits;
   if (GetUnits(&DensityUnits, &LengthUnits,&TemperatureUnits, &TimeUnits,
                &VelocityUnits, &MassUnits, Time) == FAIL){
     fprintf(stderr, "Error in GetUnits.\n");
