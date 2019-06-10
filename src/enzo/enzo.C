@@ -264,6 +264,8 @@ void PrintMemoryUsage(char *str);
 Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 {
 
+  printf("hey kid, I'm an Enzo!\n");
+
   int i;
 
   // Initialize Communications
