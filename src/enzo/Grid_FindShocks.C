@@ -70,7 +70,7 @@ int grid::FindShocks()
   /* Compute size (in floats) of the current grid. */
   int size = 1;
   for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
+    size += GridDimension[dim];
   
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
@@ -272,7 +272,7 @@ int grid::FindShocks()
 	    if( ((k+(int)(num*gradtz)) > (GridDimension[2]-1))  ||
 		((k+(int)(num*gradtz)) < 0) )
 	      break;
-	    posti += ((int)(num*gradtz))*GridDimension[0]*GridDimension[1];
+	    posti -= ((int)(num*gradtz))*GridDimension[0]*GridDimension[1];
 	  }
 
 	  //If we haven't gone anywhere, increment num.
