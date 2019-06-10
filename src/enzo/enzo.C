@@ -12,7 +12,7 @@
 /    This is main() for the amr code.  It interprets the arguments and
 /    then calls the appropriate routines depending on whether we are
 /    doing a new run, a restart, an extraction, or a projection.
-/
+/ 
 ************************************************************************/
 
 #include "preincludes.h"
