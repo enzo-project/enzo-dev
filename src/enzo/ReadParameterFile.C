@@ -24,11 +24,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
-
-#ifdef CONFIG_USE_LIBCONFIG
-#include <libconfig.h++>
-#endif
- 
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -68,7 +63,7 @@ void get_uuid(char *buffer);
 
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {
-#ifndef CONFIG_USE_LIBCONFIG
+
   /* declarations */
 
   
@@ -2084,5 +2079,5 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   CheckShearingBoundaryConsistency(MetaData);
 
   return SUCCESS;
-#endif /* ndef CONFIG_USE_LIBCONFIG */
+
 }
