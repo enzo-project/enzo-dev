@@ -82,6 +82,7 @@ class grid
                                        //   (zero based)
   int GridEndIndex[MAX_DIMENSION];     // stoping index of the active region
                                        //   (zero based)
+  int   hello;
   FLOAT GridLeftEdge[MAX_DIMENSION];   // starting pos (active problem space)
   FLOAT GridRightEdge[MAX_DIMENSION];  // ending pos (active problem space)
   float dtFixed;                       // current (fixed) timestep
