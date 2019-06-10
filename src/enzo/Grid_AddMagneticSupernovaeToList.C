@@ -1,5 +1,5 @@
 /***********************************************************************                                                
-/                                                                                                                       
+/                                                                                                                        
 /  FIND DEAD STAR PARTICLES AND ADD THEM TO MAGNETIC SUPERNOVA LIST
 /                                                                                                                       
 /  written by: Iryna Butsky                                                                                                
