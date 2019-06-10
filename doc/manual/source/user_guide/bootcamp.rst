@@ -31,15 +31,12 @@ clone the repository using Mercurial:
 
 ::
 
-    $ hg clone https://bitbucket.org/enzo/enzo-dev
+    $ git clone https://github.com/enzo-project/enzo-dev
 
 
-Mercurial (hg) is a revision-control system that is available on many
-platforms (see `www.mercurial-scm.org
-<http://www.mercurial-scm.org>`_).  Note that when you download enzo
-in this way, you will be suing the stable version of the code; if you
-wish to use the more cutting-edge development version, see the full
-documentation.
+Git (git) is a revision-control system that is available on many
+platforms (see `git-scm.org
+<http://git-scm.org>`_).  
 
 You can then use a pre-existing Makefile (if one exists for your
 machine) or modify one to point to either the system-wide installation
