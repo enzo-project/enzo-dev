@@ -10,6 +10,7 @@ commands:
           echo 'export ANSWER_NAME="push_suite"' >> $BASH_ENV
           echo 'export HYPRE=hypre-2.11.2' >> $BASH_ENV
           # tag the tip so we can go back to it
+          git fetch --tags origin
           git tag tip
 
   install-dependencies:
@@ -144,7 +145,7 @@ jobs:
 
       - save_cache:
           name: "Save test answers cache."
-          key: test-answers-v1
+          key: test-answers-v12
           paths:
             - ~/enzo_test/push_suite
 
