@@ -471,6 +471,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       DataUnits[dim] = dummy;
  
     ret += sscanf(line, "StoreDomainBoundaryMassFlux  = %"ISYM, &StoreDomainBoundaryMassFlux);
+    if (sscanf(line, "BoundaryMassFluxFilename = %s", dummy) == 1) {
+      BoundaryMassFluxFilename = dummy;
+      ret++;
+    }
 
     if (sscanf(line, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM, &dim, &int_dummy)){
       BoundaryMassFluxFieldNumbers[dim] = int_dummy; ret++;
