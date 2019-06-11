@@ -763,6 +763,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerH2FloorInColdGas = 0.0;
   H2StarMakerColdGasTemperature = 1e4;
 
+  StarMakerMinimumMassRamp = 0;
+  StarMakerMinimumMassRampStartTime = FLOAT_UNDEFINED;
+  StarMakerMinimumMassRampStartMass = FLOAT_UNDEFINED;
+  StarMakerMinimumMassRampEndTime   = FLOAT_UNDEFINED;
+  StarMakerMinimumMassRampEndMass   = FLOAT_UNDEFINED;
+      
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
   LastSupernovaTime                = FLOAT_UNDEFINED;

@@ -136,4 +136,11 @@ SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
 SPEXTERN float *IMFData;
 
+/* for star particle minimum mass ramp */
+SPEXTERN int StarMakerMinimumMassRamp;
+SPEXTERN float StarMakerMinimumMassRampStartTime;
+SPEXTERN float StarMakerMinimumMassRampStartMass;
+SPEXTERN float StarMakerMinimumMassRampEndTime;
+SPEXTERN float StarMakerMinimumMassRampEndMass;
+
 #endif
