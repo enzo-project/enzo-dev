@@ -11,6 +11,8 @@ commands:
           echo 'export HYPRE=hypre-2.11.2' >> $BASH_ENV
           # tag the tip so we can go back to it
           git fetch --tags origin
+          # also get tags from the main repository (for the current gold standard)
+          git fetch --tags https://github.com/enzo-project/enzo-dev
           git tag tip
 
   install-dependencies:
@@ -95,7 +97,7 @@ commands:
             make clean
             make -j 4
             cd ../../run
-            python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=$ANSWER_NAME --local --strict=high --verbose << parameters.flags >>
+            python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=$ANSWER_NAME --local --strict=high --verbose --time-multiplier=2 << parameters.flags >>
           fi
 
   build-docs:
