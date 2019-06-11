@@ -11,6 +11,7 @@ commands:
           echo 'export HYPRE=hypre-2.11.2' >> $BASH_ENV
           # get tags from the main repository (for the current gold standard)
           git fetch --tags https://github.com/enzo-project/enzo-dev
+          # tag the tip so we can go back to it
           git tag tip
 
   install-dependencies:
