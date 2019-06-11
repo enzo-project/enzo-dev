@@ -22,7 +22,7 @@ compiler, the following libraries are necessary:
    * `MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, for multi-processor parallel
      jobs.  Note that Enzo will compile without MPI, but it's fine to compile
      with MPI and only run on a single processor.
-   * `git <https://git-scm.org/>`_, a free, distributed
+   * `git <https://git-scm.org/>`__, a free, distributed
      source control management tool.
    * `yt <http://yt-project.org>`_, the yt visualization and analysis suite.  
      While it is not required to run enzo, ``yt`` enables the easiest analysis
