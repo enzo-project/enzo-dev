@@ -157,6 +157,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     /* Next, send data and process grids on the same processor. */
 
     CommunicationDirection = COMMUNICATION_SEND;
+#pragma omp parallel for
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       DepositParticleMassField(Grids[grid1], EvaluateTime);
 
@@ -252,10 +253,12 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 
     CommunicationDirection = COMMUNICATION_SEND;
 #ifdef FAST_SIB
+#pragma omp parallel for 
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       PrepareGravitatingMassField2a(Grids[grid1], grid1, SiblingList,
 				   MetaData, level, When);
 #else
+#pragma omp parallel for 
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       PrepareGravitatingMassField2a(Grids[grid1], MetaData, LevelArray,
 				   level, When);
@@ -405,7 +408,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       if (iterate > 0)
 	CopyPotentialFieldAverage = 2;
 
- 
+#pragma omp parallel for schedule(guided) 
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 	Grids[grid1]->GridData->SolveForPotential(level, EvaluateTime);
 	if (CopyGravPotential)
@@ -522,6 +525,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
        (but only if there is at least a subgrid -- it should be only
        if there is a subgrrid on reallevel, but this is ok). */
  
+#pragma omp parallel for schedule(guided)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       if (Grids[grid1]->NextGridNextLevel != NULL) {
 	Grids[grid1]->GridData->SolveForPotential(MaximumGravityRefinementLevel);

@@ -41,8 +41,8 @@
  
 void AddLevel(LevelHierarchyEntry *LevelArray[], HierarchyEntry *Grid,
 	      int level);
-int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
-		 int &FlaggedGrids);
+int FindSubgrids(HierarchyEntry *Grid, ProtoSubgrid *SubgridList[],
+		 int level, int &TotalFlaggedCells, int &FlaggedGrids);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int ReportMemoryUsage(char *header = NULL);
 int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
@@ -154,7 +154,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   HierarchyEntry *GridParent[MAX_NUMBER_OF_SUBGRIDS];
   grid           *GridPointer[MAX_NUMBER_OF_SUBGRIDS];
   grid           *ContigiousGridList[MAX_NUMBER_OF_SUBGRIDS];
-
+  ProtoSubgrid   *SubgridList[MAX_NUMBER_OF_SUBGRIDS];
 
   /* Because we're storing particles in "empty" grids that are local
      to the subgrid, keep track of the number of particles stored
@@ -400,8 +400,10 @@ int RebuildHierarchy(TopGridData *MetaData,
 
       tt0 = ReturnWallTime();
       TotalFlaggedCells = FlaggedGrids = 0;
+#pragma omp parallel for schedule(guided) private(SubgridList)	\
+  reduction(+:TotalFlaggedCells, FlaggedGrids)
       for (j = 0; j < grids; j++)
-	FindSubgrids(GridHierarchyPointer[j], i, TotalFlaggedCells, FlaggedGrids);
+	FindSubgrids(GridHierarchyPointer[j], SubgridList, i, TotalFlaggedCells, FlaggedGrids);
       CommunicationSumValues(&TotalFlaggedCells, 1);
       CommunicationSumValues(&FlaggedGrids, 1);
       if (debug)
@@ -488,6 +490,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	 Overlap counter, deleting the grid which it reaches zero. */
       
       tt0 = ReturnWallTime();
+#pragma omp parallel for schedule(guided)
       for (j = 0; j < subgrids; j++) {
 	SubgridHierarchyPointer[j]->ParentGrid->GridData->
 	  DebugCheck("Rebuild parent");
