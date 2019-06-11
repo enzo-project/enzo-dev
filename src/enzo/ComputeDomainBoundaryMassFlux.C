@@ -10,12 +10,11 @@
 /   This routine sums up the external boundary mass flux for each
 /   field assigned in Grid_PrepareBoundaryMassFluxFieldNumbers.
 /
-/   NOTE: This is done assuming outflowing grid boundaries in each
-/         direction, with no checks to ensure this is correct. In
-/         addition, the Grid_ComputeDomainBoundaryMassFlux assumes
+/   NOTE: If no outflow boundaries are set, this will just give
+/         zeros for all fields. Grid_ComputeDomainBoundaryMassFlux assumes
 /         mass flux for each field, reporting the mass that leaves
 /         the grid in solar masses. However, this could (in principle)
-/         be generalized.
+/         be generalized to compute flux of any quantity in any units
 /
 /*********************************************************************/
 
