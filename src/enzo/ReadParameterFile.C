@@ -433,6 +433,33 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++;
     }
 
+    /* Read evolving MustRefineRegion */
+
+    ret += sscanf(line, "MustRefineRegionTimeType = %"ISYM, &MustRefineRegionTimeType);
+    if (sscanf(line, "MustRefineRegionFile = %s", dummy) == 1) {
+      MustRefineRegionFile = dummy;
+      ret++;
+    }
+
+    /* cooling refinement region inputs */
+
+    ret += sscanf(line, "UseCoolingRefineRegion        = %"ISYM, &UseCoolingRefineRegion);
+    ret += sscanf(line, "EvolveCoolingRefineRegion     = %"ISYM, &EvolveCoolingRefineRegion);
+
+    ret += sscanf(line, "CoolingRefineRegionLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+		  CoolingRefineRegionLeftEdge, CoolingRefineRegionLeftEdge+1,
+		  CoolingRefineRegionLeftEdge+2);
+    ret += sscanf(line, "CoolingRefineRegionRightEdge  = %"PSYM" %"PSYM" %"PSYM,
+		  CoolingRefineRegionRightEdge, CoolingRefineRegionRightEdge+1,
+		  CoolingRefineRegionRightEdge+2);
+
+    ret += sscanf(line, "CoolingRefineRegionTimeType = %"ISYM, &CoolingRefineRegionTimeType);
+    if (sscanf(line, "CoolingRefineRegionFile = %s", dummy) == 1) {
+      CoolingRefineRegionFile = dummy;
+      ret++;
+    }
+
+
     if (sscanf(line, "DatabaseLocation = %s", dummy) == 1) {
       DatabaseLocation = dummy;
       ret++;
@@ -1632,12 +1659,19 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
   */
   
-  /* If RefineRegionTimeType is 0 or 1, read in the input file. */
-  if ((RefineRegionTimeType == 0) || (RefineRegionTimeType == 1)) {
+  /* If TimeType is 0 or 1 for RefineRegion, MustRefineRegion, or CoolingRefineRegion, read in the input file. */
+  if ((RefineRegionTimeType == 0) || (RefineRegionTimeType == 1)
+      || (MustRefineRegionTimeType == 0) || (MustRefineRegionTimeType == 1)
+      || (CoolingRefineRegionTimeType == 0) || (CoolingRefineRegionTimeType == 1)) {
       if (ReadEvolveRefineFile() == FAIL) {
         ENZO_FAIL("Error in ReadEvolveRefineFile.");
       }
   }
+
+  if( ((RefineRegionTimeType==1) || (MustRefineRegionTimeType==1) || (CoolingRefineRegionTimeType==1)) && (ComovingCoordinates==0)){
+    ENZO_FAIL("You cannot have ComovingCoordinates turned off if your RegionTimeType is set to 1!");
+  }
+
 
 #ifdef USE_GRACKLE
   /* If using Grackle chemistry and cooling library, override all other 
