@@ -8,7 +8,7 @@ to running an example problem and looking at its output.
 Before we get going too far, here are some websites that contain
 useful information or useful tools:
  
-* `bitbucket.org/enzo/enzo-dev <http://bitbucket.org/enzo/enzo-dev>`_
+* `github.com/enzo-project/enzo-dev <http://github.com/enzo-project/enzo-dev>`_
 * `yt-project.org <http://yt-project.org>`_
 * `jacques.enzotools.org <http://jacques.enzotools.org>`_
 
@@ -27,7 +27,7 @@ Getting Enzo
 ------------
 
 The simplest way to get a copy of the current stable source code is to
-clone the repository using Mercurial:
+clone the repository using git:
 
 ::
 

@@ -41,7 +41,7 @@ more about the code and different installation methods.  To directly access the 
 code, you can visit the `Enzo Github page <https://github.com/enzo-project>`_.
 
 If you already have Fortran, C, C++ compilers, 
-`Mercurial <http://mercurial.selenic.com>`_, 
+`git <http://git-scm.com>`_,
 `MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, and 
 `HDF5 <http://www.hdfgroup.org/HDF5/>`_ installed, then installation of
 Enzo should be straightforward.  Simply run the following at the command line 
