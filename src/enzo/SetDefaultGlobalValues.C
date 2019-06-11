@@ -245,6 +245,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MustRefineRegionRightEdge[dim]  = 1.0;
     MustRefineParticlesLeftEdge[dim] = 0.0;
     MustRefineParticlesRightEdge[dim] = 0.0;
+    CoolingRefineRegionLeftEdge[dim]   = 0.0;
+    CoolingRefineRegionRightEdge[dim]  = 1.0;
     DiskGravityPosition[dim]        = 0.0;
     DiskGravityAngularMomentum[dim] = 0.0;
     GalaxySimulationRPSWindVelocity[dim] = 0.0;
@@ -289,6 +291,35 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
       EvolveRefineRegionRightEdge[i][j] = FLOAT_UNDEFINED;
     }
   }
+
+  /* for cooling refinement regions. */
+
+  UseCoolingRefineRegion = FALSE;
+  EvolveCoolingRefineRegion = FALSE;
+  CoolingRefineRegionFile = NULL;
+  CoolingRefineRegionTimeType = -1; /* 0=time bins 1=redshift bins*/
+
+  for (i = 0; i < MAX_REFINE_REGIONS; i++) {
+    EvolveCoolingRefineRegionTime[i] = FLOAT_UNDEFINED;
+    for (j = 0; j < MAX_DIMENSION; j++) {
+      EvolveCoolingRefineRegionLeftEdge[i][j]  = FLOAT_UNDEFINED;
+      EvolveCoolingRefineRegionRightEdge[i][j] = FLOAT_UNDEFINED;
+    }
+  }
+
+
+  /* For evolving MustRefine regions. */
+  MustRefineRegionFile = NULL;
+  MustRefineRegionTimeType = -1; /* 0=time bins 1=redshift bins*/
+  for (i = 0; i < MAX_REFINE_REGIONS; i++) {
+    EvolveMustRefineRegionTime[i] = FLOAT_UNDEFINED;
+    EvolveMustRefineRegionMinLevel[i] = INT_UNDEFINED;
+    for (j = 0; j < MAX_DIMENSION; j++) {
+      EvolveMustRefineRegionLeftEdge[i][j]  = FLOAT_UNDEFINED;
+      EvolveMustRefineRegionRightEdge[i][j] = FLOAT_UNDEFINED;
+    }
+  }
+
 
   DatabaseLocation = NULL;
 

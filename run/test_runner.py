@@ -3,7 +3,6 @@
 
 from __future__ import print_function
 
-import imp
 import optparse
 import os.path
 import os
@@ -14,7 +13,6 @@ import sys
 import time
 import tarfile
 import logging
-import hglib
 
 known_categories = [
     "Cooling",
@@ -116,21 +114,21 @@ hub_url = 'https://girder.hub.yt/api/v1'
 results_gather = ['results', version_filename]
 
 # If we are able to, let's grab the ~/.enzo/machine_config.py file.
-try:
-    f, filename, desc = imp.find_module("machine_config",
-                          [os.path.expanduser("~/.enzo/")])
-    machine_config = imp.load_module("machine_config", f, filename, desc)
-except ImportError:
-    machine_config = None
+# try:
+#     f, filename, desc = imp.find_module("machine_config",
+#                           [os.path.expanduser("~/.enzo/")])
+#     machine_config = imp.load_module("machine_config", f, filename, desc)
+# except ImportError:
+machine_config = None
 
 def _get_hg_version(path):
 
-    client = hglib.open(path)
+    # client = hglib.open(path)
 
-    # this is a horrifying string but is necessary to be both Python2
-    # and 3 compatible
-    rev = str(client.tip().node.decode('utf-8'))[:12]
-    
+    # # this is a horrifying string but is necessary to be both Python2
+    # # and 3 compatible
+    # rev = str(client.tip().node.decode('utf-8'))[:12]
+    rev = "fixme"
     return rev
 
 def _to_walltime(ts):
@@ -146,8 +144,8 @@ def version_swap(repository, changeset, jcompile):
     """Updates *repository* to *changeset*,
     then does make; make -j *jcompile* enzo"""
 
-    client = hglib.open(options.repository)
-    client.update(rev=changeset)
+    # client = hglib.open(options.repository)
+    # client.update(rev=changeset)
     
     command = "cd %s/src/enzo; pwd; "%options.repository
     command += "make clean && make -j %d enzo.exe"%jcompile
@@ -653,7 +651,7 @@ if __name__ == "__main__":
     # the answer testing plugin.
     options.repository = os.path.expanduser(options.repository)
     hg_current = _get_hg_version(options.repository)
-    rev_hash = hg_current.split()[0]
+    rev_hash = "fixme"
 
     if options.run_suffix:
         rev_hash += options.run_suffix

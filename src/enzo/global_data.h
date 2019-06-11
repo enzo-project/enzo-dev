@@ -512,6 +512,32 @@ EXTERN FLOAT EvolveRefineRegionTime[MAX_REFINE_REGIONS]; // time bins
 EXTERN FLOAT EvolveRefineRegionLeftEdge[MAX_REFINE_REGIONS][3]; // left corners
 EXTERN FLOAT EvolveRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right corners
 
+/* Evolving MustRefine region. */
+EXTERN char *MustRefineRegionFile;
+EXTERN int MustRefineRegionTimeType; // 0=time 1=redshift
+EXTERN int EvolveMustRefineRegionNtimes;
+EXTERN FLOAT EvolveMustRefineRegionTime[MAX_REFINE_REGIONS]; // time bins
+EXTERN FLOAT EvolveMustRefineRegionLeftEdge[MAX_REFINE_REGIONS][3]; // left corners
+EXTERN FLOAT EvolveMustRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right corners
+EXTERN int EvolveMustRefineRegionMinLevel[MAX_REFINE_REGIONS]; // minimum allowable level
+
+/* Cooling refinement region. */
+
+// user parameters for cooling refinement region
+EXTERN int UseCoolingRefineRegion;
+EXTERN int EvolveCoolingRefineRegion;
+EXTERN FLOAT CoolingRefineRegionLeftEdge[MAX_DIMENSION];  // left edge
+EXTERN FLOAT CoolingRefineRegionRightEdge[MAX_DIMENSION];  // right edge
+EXTERN char *CoolingRefineRegionFile;
+EXTERN int CoolingRefineRegionTimeType; // 0=time 1=redshift
+
+// internal parameters for cooling refinement region
+EXTERN int EvolveCoolingRefineRegionNtimes;
+EXTERN FLOAT EvolveCoolingRefineRegionTime[MAX_REFINE_REGIONS]; // time bins
+EXTERN FLOAT EvolveCoolingRefineRegionLeftEdge[MAX_REFINE_REGIONS][3]; // left corners
+EXTERN FLOAT EvolveCoolingRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right corners
+
+
 /* Processor identifier for this thread/processor */
 
 EXTERN int MyProcessorNumber;
