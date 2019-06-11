@@ -8,7 +8,7 @@ Here are some benefits of using ReST + Sphinx:
 
 - ReST is very readable in its raw form. It has minimal mark-up
   and is in plain text.
-- Now that the documents are included in the Enzo mecurial repository,
+- Now that the documents are included in the Enzo GitHub repository,
   wherever you are (Plane, Train, Automobile), all the documents are there
   without needing access to the internet.
 - Sphinx can parse the documents into many convenient formats, most notably HTML
