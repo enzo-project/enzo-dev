@@ -97,7 +97,7 @@ Citing Enzo
 -----------
 
 Guidelines for citing enzo are available in the ``CITATION`` file in the root of
-the enzo mercurial repository.
+the enzo GitHub repository.
 
 If you use Enzo for a scientific publication, we ask that you cite the code in
 the following way in the acknowledgments of your paper::
