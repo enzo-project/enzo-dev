@@ -123,6 +123,17 @@ int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, TopGridData
     // Add NumberOfOtherParticles attribute to the root group
     HDF5_WriteAttribute(file_id, "NumberOfOtherParticles", NumberOfOtherParticles, log_fptr);
   }
+
+  if (EnabledActiveParticlesCount > 0) {
+    // Add NumberOfActiveParticles attribute to the root group
+    HDF5_WriteAttribute(file_id, "NumberOfActiveParticles", NumberOfActiveParticles, log_fptr);
+
+    // Add NumberOfOtherParticles attribute to the root group
+    HDF5_WriteAttribute(file_id, "NumberOfOtherParticles", NumberOfOtherParticles, log_fptr);
+
+    // Add NextActiveParticleID attribute to the root group
+    HDF5_WriteAttribute(file_id, "NextActiveParticleID", NumberOfOtherParticles, log_fptr);
+  }
   
   // find finest level with grids
   for(level = MAX_DEPTH_OF_HIERARCHY-1; LevelArray[level]==NULL; level--)

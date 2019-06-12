@@ -1672,7 +1672,7 @@ Because many of the following parameters are not actively being tested and maint
 ``Coordinate`` (external)
     Coordinate systems to be used in hydro_rk/EvolveLevel_RK.C.  Currently implemented are Cartesian and Spherical for HD_RK, and Cartesian and Cylindrical for MHD_RK.  See Grid_(MHD)SourceTerms.C.  Default: Cartesian
 ``EOSType`` (external)
-    Types of Equation of State used in hydro_rk/EvolveLevel_RK.C (0 - ideal gas, 1 - polytropic EOS, 2 - another polytropic EOS, 3 - isothermal, 4 - pseudo cooling, 5 - another pseudo cooling, 6 - minimum pressure); see hydro_rk/EOS.h. Default: 0
+    Types of Equation of State used in hydro_rk/EvolveLevel_RK.C (0 - ideal gas, 1 - polytropic EOS, 2 - another polytropic EOS, 3 - isothermal, 4 - pseudo cooling, 5 - another pseudo cooling, 6 - minimum pressure, 7 - Fedderath et al. 2010); see hydro_rk/EOS.h. Default: 0
 ``EOSSoundSpeed`` (external)
     Sound speed to be used in EOS.h for EOSType = 1, 2, 3, 4, 5.  Default: 2.65e4
 ``EOSCriticalDensity`` (external)

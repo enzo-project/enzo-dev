@@ -306,3 +306,13 @@ int grid::IdentifyPotentialField(int &PotenNum, int &Acce1Num, int &Acce2Num, in
 
   return SUCCESS;
 }
+
+int grid::IdentifyPotentialField(int &PotenNum)
+{
+  PotenNum = 0;
+
+  if ((PotenNum = FindField(GravPotential, FieldType, NumberOfBaryonFields)) < 0) {
+    ENZO_FAIL("Cannot find PotentialField.");
+  }
+  return SUCCESS;
+}

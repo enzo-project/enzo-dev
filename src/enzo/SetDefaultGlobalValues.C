@@ -1036,6 +1036,29 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   BAnyl                       = 0;
   WriteExternalAccel          = 0;
 
+  for (i = 0; i < MAX_ACTIVE_PARTICLE_TYPES; i++)
+    EnabledActiveParticles[i] = NULL;
+  EnabledActiveParticlesCount = 0;
+  UnfulfilledStarFormationMass = 0;
+  NextActiveParticleID = INT_UNDEFINED;
+  NumberOfActiveParticles = 0;
+  ActiveParticleDensityThreshold = 1e8; //in cm^-3
+  //SmartStar Feedback modes
+  SmartStarFeedback = FALSE;
+  SmartStarEddingtonCap = FALSE;
+  SmartStarBHFeedback = FALSE;
+  SmartStarBHRadiativeFeedback = FALSE;
+  SmartStarBHJetFeedback = FALSE;
+  SmartStarBHThermalFeedback = FALSE;
+  SmartStarStellarRadiativeFeedback = FALSE;
+  
+  //SmartStar Feedback parameters - should be as minimal as possible
+  SmartStarFeedbackEnergyCoupling = 0.016666;
+  SmartStarFeedbackJetsThresholdMass = 1.0;
+  SmartStarJetVelocity = 1e-1; //as a fraction of clight
+  SmartStarSuperEddingtonAdjustment = TRUE;
+  SmartStarSpin = 0.7;
+  SmartStarSMSLifetime = 1e6; //1 Myr
   /* Gas drag parameters */
   UseGasDrag = 0;
   GasDragCoefficient = 0.;

@@ -10,6 +10,7 @@
 /  modified4:  Robert Harkness, April 2008
 /  modified5:  Matthew Turk, September 2009 for refactoring and removing IO_TYPE
 /  modified6:  Michael Kuhlen, October 2010, HDF5 hierarchy
+/  modified7:  Nathan Goldbaum, November 2011, Active Particle Support
 /
 /  PURPOSE:
 /
@@ -34,6 +35,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "ActiveParticle.h"
+
 void my_exit(int status);
  
 #ifdef PROTO /* Remove troublesome HDF PROTO declaration. */
@@ -60,7 +63,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
   int i, j, k, field, size, active_size, dim;
   char name[MAX_LINE_LENGTH], dummy[MAX_LINE_LENGTH];
-  char logname[MAX_LINE_LENGTH];
+  char logname[MAX_LINE_LENGTH], unused_string[MAX_LINE_LENGTH];
   char procfilename[MAX_LINE_LENGTH];
  
   char id[MAX_GROUP_TAG_SIZE];
@@ -194,8 +197,18 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if (fscanf(fptr, "NumberOfParticles = %"ISYM"\n", &NumberOfParticles) != 1) {
             ENZO_FAIL("error reading NumberOfParticles.");
     }
- 
-    if (NumberOfParticles > 0) {
+
+    if (fscanf(fptr, "NumberOfActiveParticles = %"ISYM"\n", &NumberOfActiveParticles) != 1) {
+      // Ugly hack to support restart files from before active particle support
+      NumberOfActiveParticles = 0;
+    }
+
+    // We read these in but don't use them (yet?). Therefore we won't error
+    // out if we can't read them in.
+    fgets(unused_string, MAX_LINE_LENGTH, fptr);
+    fgets(unused_string, MAX_LINE_LENGTH, fptr);
+
+    if ((NumberOfParticles > 0) || (NumberOfActiveParticles > 0)) {
  
       /* Read particle file name. */
     
@@ -536,7 +549,59 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
 
   } // end: if (NumberOfParticles > 0) && ReadData && (MyProcessorNumber == ProcessorNumber)
- 
+
+    if (NumberOfActiveParticles > 0 && ReadData && (MyProcessorNumber == ProcessorNumber)) {
+
+    /* Open file if not already done (note: particle name must = grid name). */
+
+    if ((NumberOfBaryonFields == 0 || ReadParticlesOnly) && NumberOfParticles == 0) {
+
+#ifndef SINGLE_HDF5_OPEN_ON_INPUT
+      file_id = H5Fopen(procfilename, H5F_ACC_RDONLY, H5P_DEFAULT);
+      if( file_id == h5_error )ENZO_VFAIL("Error opening file %s", name)
+#endif
+
+      group_id = H5Gopen(file_id, name);
+      if( group_id == h5_error )ENZO_VFAIL("Error opening group %s", name)
+
+    }
+
+    /* Open the active particles group */
+
+    hid_t ActiveParticleGroupID = H5Gopen(group_id, "Active Particles");
+
+    /* Loop over enabled active particle types */
+
+    int offset = 0;
+
+    for (i = 0; i < EnabledActiveParticlesCount; i++)
+    {
+
+      /* Instantiate an active particle helper of this type
+         This class contains the function that allows us to read from disk */
+
+      ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
+
+      ActiveParticleTypeToEvaluate->ReadParticles(
+          this->ActiveParticles, offset,
+          ActiveParticleTypeToEvaluate->particle_name,
+          ActiveParticleGroupID);
+
+    } // end: for EnabledActiveParticlesCount
+
+       /* Assign the active particle buffer to this grid. */
+
+    float dx = (GridRightEdge[0] - GridLeftEdge[0]) /
+      (GridEndIndex[0] - GridStartIndex[0] + 1);
+    int level = nint(logf(TopGridDx[0]/dx) / logf(RefineBy));
+
+    for (i = 0; i < NumberOfActiveParticles; i++) {
+      this->ActiveParticles[i]->AssignCurrentGrid(this); // this->ID not defined yet
+      this->ActiveParticles[i]->SetLevel(level);
+    }
+
+  } // end: if (NumberOfActiveParticles > 0) && ReadData && (MyProcessorNumber == ProcessorNumber)
+  
   /* Close file. */
  
   if ( (MyProcessorNumber == ProcessorNumber) &&
