@@ -179,8 +179,7 @@ public:
   //float acc[3];
   int ParticleClass;
 
-  float AccretionRate[NTIMES];  //In would be nice to make this a vector
-  //std::vector<float> AccretionRateTime;
+  float AccretionRate[NTIMES];
   float AccretionRateTime[NTIMES];
   int TimeIndex;
   float oldmass; //To calculate accmass do accmass = mass - oldmass; oldmass = mass;
@@ -327,7 +326,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
     int SmartStarID)
 {
 
-  /* Accreting particles live on the maximum refinement level.  If we are on a lower level, this does not concern us */
+  /* SmartStar particles live on the maximum refinement level.  If we are on a lower level, this does not concern us */
 
   if (ThisLevel == MaximumRefinementLevel)
     {
@@ -340,7 +339,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
         ParticleList);
 
-      /* Return if there are no accreting particles */
+      /* Return if there are no smartstar particles */
       
       if (nParticles == 0)
         return SUCCESS;
@@ -411,7 +410,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
      
       if (Accrete(nParticles, ParticleList, accradius, dx, LevelArray, 
               ThisLevel) == FAIL)
-        ENZO_FAIL("Accreting Particle accretion failed. \n");
+        ENZO_FAIL("SmartStar Particle accretion failed. \n");
 
       if(UpdateAccretionRateStats(nParticles, ParticleList, dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("Failed to update accretion rate stats. \n");

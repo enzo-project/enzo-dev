@@ -103,7 +103,7 @@ int ActiveParticleType_Skeleton::EvaluateFormation(grid *thisgrid_orig, ActivePa
 
         // Physics goes here.
 
-        if (false)
+        if (true)
         {
           ActiveParticleType_Skeleton *np = new ActiveParticleType_Skeleton();
           data.NumberOfNewParticles++;

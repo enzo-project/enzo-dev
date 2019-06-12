@@ -30,6 +30,7 @@
 #endif
 #include "CosmologyParameters.h"
 
+#define DEBUG 0
 void CollectParticleTypes(char **active_particle_types, int numparticles);
 
 int ActiveParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
@@ -54,8 +55,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 		       int CheckpointDump = FALSE);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level);
+
 #ifdef TRANSFER
 int RadiativeTransferReadParameters(FILE *fptr);
 #endif
@@ -155,6 +155,7 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
   if(MyProcessorNumber == ROOT_PROCESSOR)
     printf("%s: Number of particles found = %d\n", __FUNCTION__, global_active_particles);
 
+#if DEBUG
   /* Now lets collect up the active particle types */
   //CollectParticleTypes(active_particle_types, global_active_particles);
   //if(MyProcessorNumber == ROOT_PROCESSOR)    {
@@ -162,7 +163,7 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
   //   fprintf(stdout, "P%d: particle type[%d] =  %s\n", MyProcessorNumber, 
   //	      i, active_particle_types[i]);
   //}
-
+#endif
   /* Copy the active particle names into the arrays mapped from the particle numbers */
   for(int i = 0; i < MAX_ACTIVE_PARTICLE_TYPES; i++) {
     if(RMasterarray[i]) {

@@ -109,7 +109,7 @@ int ActiveParticleType_SpringelHernquist::EvaluateFormation
 	  continue;
 
 	// Calculate star formation timescale. Eq 21.
-	tstar =  31556926.0 * MinimumDynamicalTime * 
+	tstar =  yr_s * MinimumDynamicalTime * 
 	  pow(density[index] * supp_data.DensityUnits / PhysicalDensityThreshold, -0.5);
 
 	/* note: minus sign is because 'coolrate' is actual backwards: when coolrate is 

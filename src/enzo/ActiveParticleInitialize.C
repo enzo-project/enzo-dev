@@ -28,8 +28,6 @@
 #define NO_DEBUG
 
 int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
-void RecordTotalActiveParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
-				    int TotalActiveParticleCountPrevious[]);
 
 int ActiveParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			     int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 

@@ -6,7 +6,7 @@
 /  date:       September, 2012
 /  modified1:
 /
-/  PURPOSE:
+/  PURPOSE: Check for overlap in active zones of grids. 
 /
 /  INPUTS:
 /

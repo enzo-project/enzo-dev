@@ -6,7 +6,7 @@
 /  date:       March, 2009
 /  modified1:  November, 2011 (converting into active particles)
 /
-/  PURPOSE: Instead of restricting star particles to the typical 
+/  PURPOSE: Instead of restricting active particles to the typical 
 /           particle attributes, this class gives more functionality 
 /           to them.
 /
@@ -223,6 +223,10 @@ void ActiveParticleType::SetPositionPeriod(FLOAT period[])
   return;
 }
 
+
+/*
+ * Merge active particles 
+ */
 void ActiveParticleType::Merge(ActiveParticleType *a)
 {
   int dim;
@@ -233,13 +237,9 @@ void ActiveParticleType::Merge(ActiveParticleType *a)
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     pos[dim] = ratio1 * pos[dim] + ratio2 * a->pos[dim];
     vel[dim] = ratio1 * vel[dim] + ratio2 * a->vel[dim];
-    //accreted_angmom[dim] = ratio1 * accreted_angmom[dim] + ratio2 * a.accreted_angmom[dim];
   }
   Mass += a->Mass;
-  //FinalMass += a.FinalMass;
-  //DeltaMass += a.DeltaMass;
-  //last_accretion_rate += a.last_accretion_rate;
-  //NotEjectedMass += a.NotEjectedMass;
+
   return;
 }
 
@@ -297,6 +297,10 @@ bool ActiveParticleType::MergableMBH(ActiveParticleType *a)
 }
 #endif
 
+/*
+ * Return the square of the separation between two active 
+ * particles
+ */
 float ActiveParticleType::Separation2(ActiveParticleType *a)
 {
   int dim;
@@ -308,6 +312,10 @@ float ActiveParticleType::Separation2(ActiveParticleType *a)
   return result;
 }
 
+/*
+ * Return the the separation between two active 
+ * particles
+ */
 float ActiveParticleType::Separation(ActiveParticleType *a)  { return sqrt(this->Separation2(a)); }
 
 float ActiveParticleType::RelativeVelocity2(ActiveParticleType *a)
@@ -323,7 +331,6 @@ float ActiveParticleType::RelativeVelocity2(ActiveParticleType *a)
 
 void ActiveParticleType::UpdatePositionVelocity(void)
 {
-  LCAPERF_START("star_UpdatePositionVelocity");
   int i, dim;
   int _id = -1;
   if (CurrentGrid != NULL && type >= 0) { // on local processor and active
@@ -339,7 +346,6 @@ void ActiveParticleType::UpdatePositionVelocity(void)
       vel[dim] = CurrentGrid->ParticleVelocity[dim][_id];
     }
   }
-  LCAPERF_STOP("star_UpdatePositionVelocity");
   return;
 }
 

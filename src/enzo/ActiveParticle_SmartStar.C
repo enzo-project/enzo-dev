@@ -286,61 +286,24 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #ifdef GRAVENERGY
 	static int mincount = 0;
 	/* 5. Jeans Instability Check */
-	// printf("Pos = (%f, %f, %f)\n", centralpos[0], centralpos[1], centralpos[2]);
-	// printf("GENum = %d\t GravPotentialNum = %d\t DensNum = %d\n", data.GENum,
-	//        data.GravPotentialNum, data.DensNum);
-	// printf("Total Energy = %1.20g\n", thisGrid->BaryonField[data.TENum][index]);
-	// printf("Thermal Energy = %1.20g\n", thisGrid->BaryonField[data.GENum][index]);
-	// printf("Total - Thermal = %g\n", thisGrid->BaryonField[data.TENum][index] -
-	//        thisGrid->BaryonField[data.GENum][index]);
-	// float vel = pow(velx[index], 2.0) + pow(vely[index], 2.0) + pow(velz[index], 2.0);
-	// printf("Kinetic Energy =  %1.20g\n", 0.5*vel);
-	// printf("Total - Thermal - Kinetic = %g\n", thisGrid->BaryonField[data.TENum][index] -
-	//        thisGrid->BaryonField[data.GENum][index] - 0.5*vel);
-	// printf("Gravitational Energy = %1.20g\n", thisGrid->BaryonField[data.GravPotentialNum][index]);
-	// printf("Potential Field = %1.20g\n", thisGrid->PotentialField[index]);
-	// printf("mass = %g\n", mass);
-	
+
 	/* This is the internal energy of the gas */
 	ThermalEnergy = thisGrid->FindTotalThermalEnergy(centralpos, LinkingLength*dx,
 							 data.GENum);
 	/* This is the internal energy plus the kinetic energy */
 	CalcTotalEnergy = thisGrid->FindTotalEnergy(centralpos, LinkingLength*dx,
 						data.TENum);
-	/* This is the gravitational energy of the gas - this is probably unnecessary. Only the 
-	 * potential at the minimum will be relevant since that is effectively the potential due to 
-	 * the surrounding matter distribution. 
-	 */
-	// GravitationalEnergy = thisGrid->FindTotalGravitationalEnergy(centralpos, AccretionRadius*dx,
-	// 							     data.GravPotentialNum,
-	// 							     data.DensNum,
-	// 							     data.DensityUnits,
-	// 							     data.LengthUnits,
-	// 							     data.VelocityUnits);
+	
 	GravitationalEnergy += gpot[index];
 	
-	//
-	// exit(-99);
 	if(fabs(GravitationalEnergy) <= 2*ThermalEnergy) continue;
 
-
-	// printf("Min Potential = %g\n", gpot[index]);
-	
-	// exit(-99);
 	/* 6. Bound state check */
 	KineticEnergy = thisGrid->FindTotalKineticEnergy(centralpos, LinkingLength*dx,
 							 data.DensNum, data.Vel1Num, data.Vel2Num,
 							 data.Vel3Num);
 	if(KineticEnergy + ThermalEnergy + GravitationalEnergy >= 0.0) continue;
-	printf("Bound State check passed %d....\n "\
-	       " sink particle! density = %g (g / cm^3)\n" \
-	       "GravitationalEnergy = %1.20g\n "		    \
-	       "ThermalEnergy = %1.20g\n KineticEnergy = %1.20g\n " \
-	       "TotalEnergy = %1.20g\n KE+ThermalE+GravitationalEnergy = %1.20g\n",
-	       mincount++,
-	       density[index]*data.DensityUnits,
-	       GravitationalEnergy, ThermalEnergy, KineticEnergy, CalcTotalEnergy,
-	       ThermalEnergy+KineticEnergy+GravitationalEnergy);
+	
 #endif
 
 	
@@ -400,7 +363,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	       data.H2Fraction[index],  PopIIIH2CriticalFraction);
 #endif
 	np->ParticleClass = SMS;      //1
-	np->RadiationLifetime=SmartStarSMSLifetime*3.154e7/data.TimeUnits;
+	np->RadiationLifetime=SmartStarSMSLifetime*yr_s/data.TimeUnits;
 	np->NotEjectedMass = 0.0;
 	density[index] = DensityThreshold;
 	//printf("%s: Particle Created!\n", __FUNCTION__);
@@ -476,8 +439,8 @@ int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
     float StarMass = ThisParticle->Mass * MassConversion / SolarMass;
     /* Accretion Rate in units of Msolar/s */
     float AccretionRate = ThisParticle->AccretionRate[ThisParticle->TimeIndex]*MassUnits/(SolarMass*TimeUnits);
-    if(AccretionRate*3.154e7 < 1e-30) /* Takes care of any negative accretion rates */
-      AccretionRate = 1e-30/3.154e7;
+    if(AccretionRate*yr_s < 1e-30) /* Takes care of any negative accretion rates */
+      AccretionRate = 1e-30/yr_s;
     /* Star Radius in units of Rsolar */
     float StarRadius = GetStellarRadius(StarMass, AccretionRate);
     float LThisTimestep=0.0, sn_nrg_thistimestep = 0.0;
@@ -488,7 +451,7 @@ int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
 #if SSDEBUG
       printf("%s: dx = %e\t MassConversion = %e\n", __FUNCTION__, dx, MassConversion);
       printf("%s: AccretionRate = %e Msolar/yr (Code = %e)\n", __FUNCTION__,
-	     AccretionRate*3.154e7, ThisParticle->AccretionRate[ThisParticle->TimeIndex]);
+	     AccretionRate*yr_s, ThisParticle->AccretionRate[ThisParticle->TimeIndex]);
       printf("%s: Mass = %e Msolar\n", __FUNCTION__, StarMass);
       printf("%s: Radius = %e Rsolar\n", __FUNCTION__, StarRadius);
       printf("%s: SpecificL Total = %e Lsolar\n", __FUNCTION__, SpecificL*LumConvert * StarMass * SolarMass/SolarLuminosity);
@@ -499,15 +462,15 @@ int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
       printf("%s: StarFeedbackDistTotalCells = %f\n", __FUNCTION__,
 	     float(StarFeedbackDistTotalCells));
       printf("%s: dt = %e yrs\n", __FUNCTION__,
-	     dt*TimeUnits/3.154e7);
+	     dt*TimeUnits/yr_s);
       printf("%s: L Total = %e Lsolar [ergs]\n", __FUNCTION__,
 	     LThisTimestep*(StarMass * SolarMass));
 #endif   
       
       float Age = Time - ThisParticle->BirthTime;
 #if SSDEBUG      
-      printf("%s: Star Age = %e yrs\n", __FUNCTION__, Age*TimeUnits/3.154e7);
-      printf("%s: Radiation Lifetime =  %e yrs\n", __FUNCTION__, ThisParticle->RadiationLifetime*TimeUnits/3.154e7);
+      printf("%s: Star Age = %e yrs\n", __FUNCTION__, Age*TimeUnits/yr_s);
+      printf("%s: Radiation Lifetime =  %e yrs\n", __FUNCTION__, ThisParticle->RadiationLifetime*TimeUnits/yr_s);
       printf("%s: Particle Class = %d\t POPIII = %d\n", __FUNCTION__, ThisParticle->ParticleClass, POPIII);
 #endif
       /* Check for star death and transition to BH */
@@ -526,8 +489,8 @@ int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
 #endif
 	printf("%s: !!!!!!!!!!!!!!!Transition from %d particle to BH (Particle Type = %d)\n", 
 	       __FUNCTION__, ThisParticle->ParticleClass, BH); fflush(stdout);
-	printf("%s: Star Age = %e yrs\n", __FUNCTION__, Age*TimeUnits/3.154e7);
-	printf("%s: Radiation Lifetime =  %e yrs\n", __FUNCTION__, ThisParticle->RadiationLifetime*TimeUnits/3.154e7);
+	printf("%s: Star Age = %e yrs\n", __FUNCTION__, Age*TimeUnits/yr_s);
+	printf("%s: Radiation Lifetime =  %e yrs\n", __FUNCTION__, ThisParticle->RadiationLifetime*TimeUnits/yr_s);
 	ThisParticle->ParticleClass = BH;
       }
     }
@@ -614,6 +577,9 @@ void ActiveParticleType_SmartStar::DescribeSupplementalData(ActiveParticleFormat
 }
 
 
+/*
+ * Do feedback before evolving the level forward 
+ */
 template <class active_particle_class>
 int ActiveParticleType_SmartStar::BeforeEvolveLevel
 (HierarchyEntry *Grids[], TopGridData *MetaData,
@@ -685,7 +651,7 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 	  printf("TimeIndex = %d\n", ThisParticle->TimeIndex);
 	  printf("%s: BH Mass = %e Msolar AccretionRate = %e Msolar/yr\n", __FUNCTION__,
 		 ThisParticle->Mass * MassConversion, 
-		 (ThisParticle->AccretionRate[ThisParticle->TimeIndex]*MassConversion/TimeUnits)*3.154e7);
+		 (ThisParticle->AccretionRate[ThisParticle->TimeIndex]*MassConversion/TimeUnits)*yr_s);
 	  printf("%s: ParticleClass = %d\t SEDs = [%f, %f, %f, %f, %f]\n", __FUNCTION__,
 		 ThisParticle->ParticleClass, ThisParticle->RadiationSED[0], ThisParticle->RadiationSED[1],
 		 ThisParticle->RadiationSED[2], ThisParticle->RadiationSED[3],
@@ -956,11 +922,11 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
 #if SSDEBUG
       printf("%s: deltatime = %f years\t TIMEGAP = %0.2f years\n",
-	     __FUNCTION__, (ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/3.154e7, 
+	     __FUNCTION__, (ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/yr_s, 
 	     (float)TIMEGAP);
 #endif
       //We should update when the time between stored rates exceeds TIMEGAP
-      if(ctime - SS->AccretionRateTime[SS->TimeIndex] > (TIMEGAP*3.154e7/TimeUnits)) {
+      if(ctime - SS->AccretionRateTime[SS->TimeIndex] > (TIMEGAP*yr_s/TimeUnits)) {
 	float omass = SS->oldmass;
 	float cmass = ParticleList[i]->ReturnMass();
 	if(cmass - omass < 0.0) { //Can happen after a restart due to rounding
@@ -988,9 +954,9 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	fprintf(stdout, "old_mass = %e Msolar\t cmass = %e Msolar\n", omass*MassConversion,
 		cmass*MassConversion);
 	fprintf(stdout, "accrate = %e Msolar/yr\t accratetime = %e yrs \t deltatime = %f yrs\t index = %d\t Particle Mass = %e Msolar\t Class = %d\n",
-		(SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*3.154e7/SolarMass,
-		(SS->AccretionRateTime[timeindex]*TimeUnits)/3.154e7,
-		deltatime*TimeUnits/3.154e7,
+		(SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass,
+		(SS->AccretionRateTime[timeindex]*TimeUnits)/yr_s,
+		deltatime*TimeUnits/yr_s,
 		SS->TimeIndex,
 		SS->ReturnMass()*MassConversion,
 		SS->ParticleClass);
@@ -999,19 +965,17 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	   * Using the time-averaged accretion rates determine if the SMS is accreting fast enough or
 	   * if it is falling onto the main sequence.
 	   */
-	  if((SS->AccretionRate[SS->TimeIndex]*MassUnits/TimeUnits)*3.154e7/SolarMass
+	  if((SS->AccretionRate[SS->TimeIndex]*MassUnits/TimeUnits)*yr_s/SolarMass
 	     > CRITICAL_ACCRETION_RATE) {
-	    //printf("%s: WARNING: ParticleClass switching from %d to SMS (deltatime = %f kyrs)\n", __FUNCTION__, 
-	    //	   SS->ParticleClass, deltatime*TimeUnits/3.154e10);
 	    SS->ParticleClass = SMS;
 	  }
 	  else {
 	    float Age = Time - SS->BirthTime;
-	    if(Age*TimeUnits/3.154e7 > 1e4) { /* Don't do this at very start */
+	    if(Age*TimeUnits/yr_s > 1e4) { /* Don't do this at very start */
 	      printf("%s: WARNING: ParticleClass switching from SMS to POPIII (deltatime = %f kyrs)\n", __FUNCTION__,
-		     deltatime*TimeUnits/3.154e10);
+		     deltatime*TimeUnits/(yr_s*1e3));
 	      printf("%s: WARNING: Accretion Rate = %f Msolar/yr. Critical rate = %f Msolar/yr\n", __FUNCTION__,
-		     (SS->AccretionRate[SS->TimeIndex]*MassUnits/TimeUnits)*3.154e7/SolarMass,
+		     (SS->AccretionRate[SS->TimeIndex]*MassUnits/TimeUnits)*yr_s/SolarMass,
 		     CRITICAL_ACCRETION_RATE);
 	      SS->ParticleClass = POPIII;
 	    }

@@ -2,9 +2,12 @@
 #include "macros_and_parameters.h"
 
 
-/* Routine to return alpha, defined as rho/rho_inf, for a critical
+/* 
+   Routine to return alpha, defined as rho/rho_inf, for a critical
    Bondi accretion solution.  The argument is x = r / rBondiHoyle. 
-   Adapted from Orion, courtesy of Mark Krumholz */
+   Adapted from Orion, courtesy of Mark Krumholz. 
+   Details can be found in https://ui.adsabs.harvard.edu/abs/2004ApJ...611..399K)
+*/
 
 float bondi_alpha(float x) {
 

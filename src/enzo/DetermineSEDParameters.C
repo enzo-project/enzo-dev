@@ -149,7 +149,7 @@ int DetermineSEDParameters(ActiveParticleType_SmartStar *SS, FLOAT Time, FLOAT d
 #if STELLAR
   static float ptime=0.0;
   if(SS->ParticleClass == POPIII || SS->ParticleClass == SMS) {
-    SS->RadiationLifetime = 1e6*3.154e7/TimeUnits; //Code Time
+    SS->RadiationLifetime = 1e6*yr_s/TimeUnits; //Code Time
     SS->LuminosityPerSolarMass = 6.696798e49/40.0; //In physical units
 
     float smdot, dt_enzo, slum, rad;
@@ -174,7 +174,7 @@ int DetermineSEDParameters(ActiveParticleType_SmartStar *SS, FLOAT Time, FLOAT d
    * Luminosity is NOT in ergs/s but in photons/s 
    */
   if(SS->ParticleClass == POPIII) {
-    SS->RadiationLifetime = SmartStarSMSLifetime*3.154e7/TimeUnits; //Code Time
+    SS->RadiationLifetime = SmartStarSMSLifetime*yr_s/TimeUnits; //Code Time
     SS->LuminosityPerSolarMass = 6.696798e49/40.0; //In physical units
     /* Ideally we call SLUG here. Hardcoded for now */
     for(int bin = 0; bin < NUMRADIATIONBINS; bin++) {
@@ -188,7 +188,7 @@ int DetermineSEDParameters(ActiveParticleType_SmartStar *SS, FLOAT Time, FLOAT d
    * Luminosity is NOT in ergs/s but in photons/s 
    */
   else if (SS->ParticleClass == SMS) {
-    SS->RadiationLifetime = SmartStarSMSLifetime*3.154e7/TimeUnits; //Code Times
+    SS->RadiationLifetime = SmartStarSMSLifetime*yr_s/TimeUnits; //Code Times
     SS->LuminosityPerSolarMass = 1.4e51/500.0;
     /* Ideally we call SLUG here. Hardcoded for now */
     for(int bin = 0; bin < NUMRADIATIONBINS; bin++) {
@@ -205,12 +205,12 @@ int DetermineSEDParameters(ActiveParticleType_SmartStar *SS, FLOAT Time, FLOAT d
    * hole masses from 1e0 to 1e9 and accretion rates from 1e-7 to 1e2
    */
   else if(SS->ParticleClass == BH && SmartStarBHRadiativeFeedback == TRUE) {
-    SS->RadiationLifetime = 1e14*3.154e7/TimeUnits; //code time
-    double accrate = (SS->AccretionRate[SS->TimeIndex]*(MassUnits/SolarMass)/TimeUnits)*3.154e7; //Msolar/yr
+    SS->RadiationLifetime = 1e14*yr_s/TimeUnits; //code time
+    double accrate = (SS->AccretionRate[SS->TimeIndex]*(MassUnits/SolarMass)/TimeUnits)*yr_s; //Msolar/yr
     double BHMass = ParticleMass;
     float epsilon = SS->eta_disk;
     double eddrate = 4*M_PI*GravConst*BHMass*SolarMass*mh/(epsilon*clight*sigma_thompson); // g/s
-    eddrate = eddrate*3.154e7/SolarMass; //in Msolar/yr
+    eddrate = eddrate*yr_s/SolarMass; //in Msolar/yr
     accrate = max(accrate, 1e-6);
     BHMass = min(BHMass, 1.0);
     int arrayindex = CalculateArrayIndex(BHMass, accrate);
@@ -222,9 +222,9 @@ int DetermineSEDParameters(ActiveParticleType_SmartStar *SS, FLOAT Time, FLOAT d
 	float mue = 1.22, a = 0.5;
 	double Ledd = 4*M_PI*GravConst*BHMass*SolarMass*mh*mue*clight/sigma_thompson; //cgs
 	double medddot = 16.0*Ledd/(clight*clight); //cgs
-	double accrate_cgs = accrate*SolarMass/3.154e7; 
+	double accrate_cgs = accrate*SolarMass/yr_s; 
 	/* Apply Madau fit to calculate Luminosity */
-	double LSuperEdd = Ledd*MadauFit(a, accrate*SolarMass/3.154e7, medddot); 
+	double LSuperEdd = Ledd*MadauFit(a, accrate*SolarMass/yr_s, medddot); 
 	//printf("LuminosityPerSolarMass in Superdd Case is %e erg/s/msun\n", LSuperEdd/ParticleMass);
 	epsilon = LSuperEdd/(accrate_cgs*clight*clight);
 	//printf("epsilon updated to %f\n", epsilon);
@@ -233,7 +233,7 @@ int DetermineSEDParameters(ActiveParticleType_SmartStar *SS, FLOAT Time, FLOAT d
     }
  
     /* Employ some ramping to stop numerical meltdown */
-    float Age = (Time - SS->ReturnBirthTime())*TimeUnits/3.154e7;
+    float Age = (Time - SS->ReturnBirthTime())*TimeUnits/yr_s;
     //printf("%s: BH Age = %e yrs\n", __FUNCTION__, Age);
     if(Age < RAMPAGE) {
       float ramp = (Age/RAMPAGE);

@@ -148,7 +148,6 @@ void ActiveParticleType::ConstructData(grid *_grid,
 
   int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num,H2INum, H2IINum;
-  const double m_h = 1.673e-24;
 
   /* Compute size (in floats) of the current grid. */
 

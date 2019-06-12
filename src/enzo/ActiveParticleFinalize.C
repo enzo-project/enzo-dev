@@ -6,7 +6,7 @@
 /  date:       March, 2009
 /  modified1:  November, 2011 (JHW) -- converting to active particles
 /
-/  PURPOSE: Contains all routines to finalize the star particles.
+/  PURPOSE: Contains all routines to finalize the active particles.
 /
 ************************************************************************/
 #ifdef USE_MPI
@@ -48,7 +48,7 @@ int ActiveParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   LCAPERF_START("ActiveParticleFinalize");
 
-  /* Update the star particle counters. */
+  /* Update the active particle counters. */
 
   CommunicationUpdateActiveParticleCount(Grids, MetaData, NumberOfGrids,
 					 NumberOfNewActiveParticles);

@@ -48,10 +48,7 @@ float grid::FindAngularMomentumMinimum(FLOAT *cellpos, FLOAT radius, int DensNum
 	/* Use only values within the control volume */
 	if(sqrt((cellpos[0] - pos[0])*(cellpos[0] - pos[0]) +
 		(cellpos[1] - pos[1])*(cellpos[1] - pos[1]) +
-		(cellpos[2] - pos[2])*(cellpos[2] - pos[2])) <= radius){
-	  ;
-	}
-	else {
+		(cellpos[2] - pos[2])*(cellpos[2] - pos[2])) > radius){
 	  continue;
 	}
 	rhocell = BaryonField[DensNum][index];
