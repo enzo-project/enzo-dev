@@ -2190,6 +2190,30 @@ The parameters below are considered in ``StarParticleCreation`` method
     the particle creation time by this amount.  This value is in units of Myrs.  If set
     to a negative value, energy, mass and metals are injected gradually in the same way as is
     done for ``StarParticleFeedback`` method = 1.  Default -1.
+``StarMakerMinimumMassRamp`` (external)
+     Sets the Minimum Stellar Mass (otherwise given by StarMakerMinimumMass to 
+     ramp up over time, so that a small mass can be used early in the calculation
+     and a higher mass later on, or vice versa. The minimum mass is "ramped" 
+     up or down starting at StarMakerMinimumMassRampStartTime and ending 
+     at StarMakerMinimumMassRampEndTime. The acceptable values are: 
+     (1) linear evolution of mass in time
+     (2) linear evolution of mass in redshift
+     (3) exponential evolution of mass in time
+     (4) exponential evolution of mass in redshift
+``StarMakerMinimumMassRampStartTime`` (external) 
+     The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
+     Before this time the minimum mass will have a constant value given 
+     by StarMakerMinimumMassRampStartMass
+``StarMakerMinimumMassRampEndTime`` (external) 
+     The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
+     After this time the minimum mass will have a constant value given 
+     by StarMakerMinimumMassRampEndMass
+``StarMakerMinimumMassRampStartMass`` (external) 
+     The mass at which to start the ramp in the minimum stellar mass. This mass 
+     will be used at all times before StarMakerMinimumMassRampStartTime as well. 
+``StarMakerMinimumMassRampEndMass`` (external) 
+     The mass at which to end the ramp in the minimum stellar mass. This mass 
+     will be used at all times after StarMakerMinimumMassRampEndTime as well. 
 
 .. _molecular_hydrogen_regulated_star_formation_parameters:
 

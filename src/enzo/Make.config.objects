@@ -857,6 +857,7 @@ OBJS_CONFIG_LIB = \
         SetDefaultGlobalValues.o \
         SetLevelTimeStep.o \
         SetEvolveRefineRegion.o \
+        SetStellarMassThreshold.o \
         sgi_st1_fft64.o \
         ShearingBoxInitialize.o \
         ShearingBox2DInitialize.o \

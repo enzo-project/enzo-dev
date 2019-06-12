@@ -1095,6 +1095,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "H2StarMakerColdGasTemperature = %"FSYM,
 		  &H2StarMakerColdGasTemperature);
 
+    ret += sscanf(line, "StarMakerMinimumMassRamp = %"ISYM,
+		  &StarMakerMinimumMassRamp);
+    ret += sscanf(line, "StarMakerMinimumMassRampStartTime = %"FSYM,
+		  &StarMakerMinimumMassRampStartTime);
+    ret += sscanf(line, "StarMakerMinimumMassRampStartMass = %"FSYM,
+		  &StarMakerMinimumMassRampStartMass);
+    ret += sscanf(line, "StarMakerMinimumMassRampEndTime = %"FSYM,
+		  &StarMakerMinimumMassRampEndTime);
+    ret += sscanf(line, "StarMakerMinimumMassRampEndMass = %"FSYM,
+		  &StarMakerMinimumMassRampEndMass);
+
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
@@ -2147,6 +2158,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   CheckShearingBoundaryConsistency(MetaData);
 
+  /* Check that all of the parameters are set for minimum stellar mass ramp --
+     if all of them are NOT set, things will behave oddly. */
+  if(StarMakerMinimumMassRamp > 0){
+    if(StarMakerMinimumMassRampStartTime == FLOAT_UNDEFINED ||
+       StarMakerMinimumMassRampStartMass == FLOAT_UNDEFINED ||
+       StarMakerMinimumMassRampEndTime   == FLOAT_UNDEFINED ||
+       StarMakerMinimumMassRampEndMass   == FLOAT_UNDEFINED){
+      fprintf(stderr,"You're using StarMakerMinimumMassRamp but need to set ALL of your start and end times and masses!\n");
+      my_exit(EXIT_FAILURE);
+    }
+  } // if(StarMakerMinimumMassRamp > 0)
+
+  
+  
   return SUCCESS;
 
 }
