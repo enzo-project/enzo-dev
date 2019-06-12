@@ -4,7 +4,7 @@ Doing a Release
 ===============
 
 Periodically, the Enzo community creates an "official" release of the Enzo
-codebase.  While running off of the Enzo GitHub repository is in general
+codebase.  While running off of the Enzo git repository is in general
 quite stable, doing official releases has other benefits.  By doing releases, we
 acoomplish the following goals:
 

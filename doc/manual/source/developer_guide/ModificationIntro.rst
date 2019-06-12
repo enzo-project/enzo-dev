@@ -3,10 +3,18 @@
 Introduction to Enzo Modification
 =================================
 
-.. note:: This is not a comprehensive document, but it does cover some of the
-          grounds of modifying Enzo.  Please don't hesitate to email the users'
-          mailing list with any further questions about Enzo, GitHub, or how
-          to write and execute new test problems.
+.. note:: This document was written when Enzo was hosted on BitBucket and maintained
+          with the mercurial version control system. This is outdated and will be 
+          updated in the future. Enzo is now hosted on GitHub and maintained with git. 
+          Please do not use mercurial to fork or clone the repository on BitBucket. 
+          The code on BitBucket is no longer maintained. All Enzo development is done
+          with git on GitHub. Information about the git version control system can be 
+          found in a git tutorial such as `this one <https://git-scm.com/docs/gittutorial>`_.
+          
+          This is not a comprehensive document, but it does cover some of the
+          grounds of modifying Enzo. Please don't hesitate to email the users'
+          mailing list with any further questions about Enzo, git, or how
+          to write and execute new test problems. 
 
 If this is the first time you've opened the hood to Enzo, welcome.  If you're
 an old hand and have already added new physics to it, welcome back.
@@ -30,22 +38,20 @@ at least read in order, as doing complex things with the code require the
 ability to do the simpler things.
 
 We are very happy to accept patches, features, and bugfixes from any member of
-the community!  Enzo is developed using GitHub, primarily because it enables
+the community!  Enzo is developed using mercurial, primarily because it enables
 very easy and straightforward submission of changesets.  We're eager to hear
 from you, and if you are developing Enzo, please subscribe to the users'
 mailing list:
 
 http://groups.google.com/group/enzo-users
 
-This document describes how to use GitHub to make changes to Enzo, how to
+This document describes how to use mercurial to make changes to Enzo, how to
 send those changes upstream, and how to navigate the Enzo source tree.
 
 .. highlight:: none
 
 Mercurial Introduction
 ----------------------
-
-[This should be updated to refer to Git.]
 
 If you're new to Mercurial, these three resources are pretty great for learning
 the ins and outs:
@@ -123,8 +129,6 @@ slower, more carefully curated, and inclusions in it are well-tested.
 How To Share Changes
 --------------------
 
-[This should be updated to refer to Git, not Mercurial]
-
 Sharing your changes to Enzo is easy with Mercurial and the BitBucket
 repository.
 
@@ -148,9 +152,6 @@ Mailing List <http://groups.google.com/group/enzo-users>`_.
 
 How To Use Branching
 --------------------
-
-[This should be updated to refer to Git, not Mercurial]
-
 
 .. warning:: In most cases, you do *not* need to make a new named branch!  Do
    so with care, as it lives forever.
