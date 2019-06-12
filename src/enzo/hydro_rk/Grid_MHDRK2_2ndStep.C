@@ -81,17 +81,24 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
 
   this->ReturnHydroRKPointers(Prim, true);  //##### added! because Hydro3D needs fractions for species
 
+  float MinimumSupportEnergyCoefficient = 0;
+  if (UseMinimumPressureSupport && level == MaximumRefinementLevel)
+    if (this->SetMinimumSupport(MinimumSupportEnergyCoefficient) == FAIL) {
+      ENZO_FAIL("Error in grid->SetMinimumSupport");
+    }
+
+
   /* Compute dU */
 
   int fallback = 0;
   if (this->MHD3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 
-		  0.5, fallback) == FAIL) {
+		  0.5, MinimumSupportEnergyCoefficient, fallback) == FAIL) {
     return FAIL;
   }
 
   /* Add source terms */
 
-  this->MHDSourceTerms(dU);
+    this->MHDSourceTerms(dU, MinimumSupportEnergyCoefficient);
 
   /* Update primitive variables */
 
@@ -110,10 +117,10 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
     this->ZeroFluxes(SubgridFluxes, NumberOfSubgrids);
     fallback = 1;
     if (this->MHD3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 
-                    0.5, fallback) == FAIL) {
+                    0.5, MinimumSupportEnergyCoefficient, fallback) == FAIL) {
       return FAIL;
     }
-    this->MHDSourceTerms(dU);
+      this->MHDSourceTerms(dU, MinimumSupportEnergyCoefficient);
     if (this->UpdateMHDPrim(dU, 0.5, 0.5) == FAIL) {
       fprintf(stderr, "Grid_MHDRK2_2ndStep: Fallback failed, give up...\n");
       return FAIL;

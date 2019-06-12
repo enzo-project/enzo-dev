@@ -2754,7 +2754,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int UpdatePrim(float **dU, float c1, float c2);
   int Hydro3D(float **Prim, float **dU, float dt,
 	      fluxes *SubgridFluxes[], int NumberOfSubgrids,
-	      float fluxcoef, int fallback);
+	      float fluxcoef, float min_coeff, int fallback);
   int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 			       float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
 			       int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, 
@@ -2778,7 +2778,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			       int   sphere_type,
 			       float rho_medium, float p_medium);
   int AddSelfGravity(float coef);
-  int SourceTerms(float **dU);
+  int SourceTerms(float **dU, float min_coeff);
   int MHD1DTestInitializeGrid(float rhol, float rhor,
 			      float vxl,  float vxr,
 			      float vyl,  float vyr,
@@ -2873,8 +2873,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		     ExternalBoundary *Exterior);
   int MHD3D(float **Prim, float **dU, float dt,
 	    fluxes *SubgridFluxes[], int NumberOfSubgrids,
-	    float fluxcoef, int fallback);
-  int MHDSourceTerms(float **dU);
+	    float fluxcoef, float min_coeff, int fallback);
+  int MHDSourceTerms(float **dU, float min_coeff);
   int UpdateMHDPrim(float **dU, float c1, float c2);
   int SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
 			   float *Flux3D[], int flux, float fluxcoef, float dt);
