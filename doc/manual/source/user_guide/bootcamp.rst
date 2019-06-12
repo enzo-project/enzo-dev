@@ -8,7 +8,7 @@ to running an example problem and looking at its output.
 Before we get going too far, here are some websites that contain
 useful information or useful tools:
  
-* `bitbucket.org/enzo/enzo-dev <http://bitbucket.org/enzo/enzo-dev>`_
+* `github.com/enzo-project/enzo-dev <http://github.com/enzo-project/enzo-dev>`_
 * `yt-project.org <http://yt-project.org>`_
 * `jacques.enzotools.org <http://jacques.enzotools.org>`_
 
@@ -27,19 +27,16 @@ Getting Enzo
 ------------
 
 The simplest way to get a copy of the current stable source code is to
-clone the repository using Mercurial:
+clone the repository using git:
 
 ::
 
-    $ hg clone https://bitbucket.org/enzo/enzo-dev
+    $ git clone https://github.com/enzo-project/enzo-dev
 
 
-Mercurial (hg) is a revision-control system that is available on many
-platforms (see `www.mercurial-scm.org
-<http://www.mercurial-scm.org>`_).  Note that when you download enzo
-in this way, you will be suing the stable version of the code; if you
-wish to use the more cutting-edge development version, see the full
-documentation.
+Git (git) is a revision-control system that is available on many
+platforms (see `git-scm.org
+<http://git-scm.org>`_).  
 
 You can then use a pre-existing Makefile (if one exists for your
 machine) or modify one to point to either the system-wide installation
