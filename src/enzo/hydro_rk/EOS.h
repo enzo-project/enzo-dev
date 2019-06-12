@@ -167,7 +167,7 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
       cs = c_s*pow(rho/rho_cr, new_gamma);
     }
     
-    p = rho*cs*cs;
+    p = rho*c_s*cs;
     e = p / ((new_gamma-1.0)*rho);
     dpdrho = 1;
     dpde = 1;
