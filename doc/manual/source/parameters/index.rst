@@ -96,6 +96,8 @@ common convention of 0 meaning false or off and 1 for true or on.
    
    * `Sink Formation and Feedback`_
 
+   * `Magnetic Supernova Feedback`_
+
 * `Radiation Parameters`_
    
    * `Background Radiation Parameters`_
@@ -2405,6 +2407,22 @@ Because many of the following parameters are not actively being tested and maint
     [not used]
 ``SinkMergeMass``
     [not used]
+
+.. _magnetic_supernova_feedback_parameters:
+
+Magnetic Supernova Feedback
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The parameters below are currently considered in StarParticleCreation methods 0 and 1.
+
+``UseMagneticSupernovaFeedback`` (external)
+This parameter is used to turn on magnetic supernova feedback. Currently implemented values are: 1 - the user needs to specify the desired supernova radius and duration. If none are specified, the default values will be used (see below), 2 - the supernova radius and duration will be calculated during runtime based on the grid resolution and timestep.  Default: 0
+``MagneticSupernovaEnergy`` (external)
+The total amount of magnetic energy to be injected by a single supernova event (in units of ergs). Default: 1e51
+``MagneticSupernovaRadius`` (external)
+The radius of the sphere (in parsecs) over which to inject supernova energy. This value should be at least 1.5 times the minimum cell width in the simulation. Default: 300
+``MagneticSupernovaDuration`` (external)
+The duration (in years) over which the total magnetic supernova energy is injected. This should be set to at least 5 times the minimum timestep of the simulation. Default: 5e4
 
 .. _radiation_parameters:
 
