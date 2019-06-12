@@ -6,7 +6,8 @@
 /  date:       March, 2009
 /  modified1:  November, 2011 (JHW) -- Converted to active particles.
 /
-/  PURPOSE: Contains all routines to initialize the star particles.
+/  PURPOSE: Prepare the active particles before going through the main
+/  EvolveLevel grid loop.
 /
 ************************************************************************/
 

@@ -33,8 +33,9 @@
 #define MAX_ENERGY 1e7
 #define DENSITY_WEIGHTED 1
 #define RAMPTIME 1e4
-/* We need to make sure that we can operate on the grid, so this dance is
- * necessary to make sure that grid is 'friend' to this particle type. */
+/* We need to make sure that SmartStars can operate on the grid, so this dance is
+ * necessary to make sure that grid is 'friend' to this particle type that can 
+ * access the private variables and routines inside the grid class. */
 
 class SmartStarGrid : private grid {
   friend class ActiveParticleType_SmartStar;
@@ -159,30 +160,15 @@ active_particle_class *ActiveParticleType::copy(void)
   return a;
 }
 
-void ActiveParticleType::ConvertAllMassesToSolar(void)
-{
-  const double Msun = 1.989e33;
-  double dx;
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits, MassConversion;
-  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, CurrentGrid->Time);
-  dx = LengthUnits * CurrentGrid->CellWidth[0][0];
-  MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
-  this->Mass *= MassConversion;
-  return;
-}
-
 void ActiveParticleType::ConvertMassToSolar(void)
 {
-  const double Msun = 1.989e33;
   double dx;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits, MassConversion;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, CurrentGrid->Time);
   dx = LengthUnits * CurrentGrid->CellWidth[0][0];
-  MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
+  MassConversion = (float) (dx*dx*dx * double(DensityUnits) / SolarMass);
   this->Mass *= MassConversion;
   return;
 }
