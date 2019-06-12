@@ -45,6 +45,8 @@ send those changes upstream, and how to navigate the Enzo source tree.
 Mercurial Introduction
 ----------------------
 
+[This should be updated to refer to Git.]
+
 If you're new to Mercurial, these three resources are pretty great for learning
 the ins and outs:
 
@@ -121,6 +123,8 @@ slower, more carefully curated, and inclusions in it are well-tested.
 How To Share Changes
 --------------------
 
+[This should be updated to refer to Git, not Mercurial]
+
 Sharing your changes to Enzo is easy with Mercurial and the BitBucket
 repository.
 
@@ -144,6 +148,9 @@ Mailing List <http://groups.google.com/group/enzo-users>`_.
 
 How To Use Branching
 --------------------
+
+[This should be updated to refer to Git, not Mercurial]
+
 
 .. warning:: In most cases, you do *not* need to make a new named branch!  Do
    so with care, as it lives forever.
