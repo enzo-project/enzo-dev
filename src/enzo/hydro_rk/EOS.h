@@ -1,5 +1,4 @@
-
-
+void my_exit(int status);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -147,6 +146,9 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
 
   /* Only works in mode 1 and only updates internal energy */
   if (eostype == 7) {
+    if (mode == 2) {
+        my_exit(EXIT_FAILURE);
+    }
     float lenu, denu, tu, velu, tempu;
     GetUnits(&denu, &lenu, &tempu, &tu, &velu, 1);
     double rho_cr = 1e-15;
