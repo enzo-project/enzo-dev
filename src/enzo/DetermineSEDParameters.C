@@ -176,7 +176,6 @@ int DetermineSEDParameters(ActiveParticleType_SmartStar *SS, FLOAT Time, FLOAT d
   if(SS->ParticleClass == POPIII) {
     SS->RadiationLifetime = SmartStarSMSLifetime*yr_s/TimeUnits; //Code Time
     SS->LuminosityPerSolarMass = 6.696798e49/40.0; //In physical units
-    /* Ideally we call SLUG here. Hardcoded for now */
     for(int bin = 0; bin < NUMRADIATIONBINS; bin++) {
       SS->RadiationEnergyBins[bin] = PopIIIEnergyBins[bin];
       SS->RadiationSED[bin] = PopIIISEDFracBins[bin];
