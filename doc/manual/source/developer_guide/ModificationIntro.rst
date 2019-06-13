@@ -257,6 +257,13 @@ the changes to be accepted.::
 
       $ git push -f origin <branch name>
 
+If you envision a decent number of conflicts, instead of rebasing, it may
+be better to do::
+
+      $ git merge master
+
+commit the merge, then push the changes to your fork.
+
 
 The Patch Directory
 --------------------
