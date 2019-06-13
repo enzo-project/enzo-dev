@@ -47,6 +47,8 @@ void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int ReportMemoryUsage(char *header = NULL);
 int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 				     int level, bool AllLocal);
+int DepositActiveParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
+                                           int level, int TopGridDims[]);
 int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[], int grids,
 			    int ShareParticles = TRUE); 
 int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
@@ -60,6 +62,8 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
 				   int TopGridDims[]);
 int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
 			       int TopGridDims[]);
+int CommunicationTransferActiveParticles(grid *GridPointer[], int NumberOfGrids,
+                                         int TopGridDims[]);
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[], int level,
 				  bool ParticlesAreLocal,
 				  bool SyncNumberOfParticles, 
@@ -164,8 +168,9 @@ int RebuildHierarchy(TopGridData *MetaData,
   for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++)
     for (Temp = LevelArray[i]; Temp; Temp = Temp->NextGridThisLevel)
       if (MyProcessorNumber != Temp->GridData->ReturnProcessorNumber()) {
-	Temp->GridData->SetNumberOfParticles(0);
-	Temp->GridData->SetNumberOfStars(0);
+        Temp->GridData->SetNumberOfParticles(0);
+        Temp->GridData->SetNumberOfStars(0);
+        Temp->GridData->SetNumberOfActiveParticles(0);
       }
 
   /* The dynamic grids should be distributed enough to store the
@@ -274,6 +279,8 @@ int RebuildHierarchy(TopGridData *MetaData,
 
     CommunicationTransferParticles(GridPointer, grids, MetaData->TopGridDims);
     CommunicationTransferStars(GridPointer, grids, MetaData->TopGridDims);
+    CommunicationTransferActiveParticles(GridPointer, grids,
+                                         MetaData->TopGridDims);
 
     /* We need to collect particles again */
 
@@ -392,6 +399,19 @@ int RebuildHierarchy(TopGridData *MetaData,
 
       tt0 = ReturnWallTime();
       DepositParticleMassFlaggingField(LevelArray, i, ParticlesAreLocal);
+      tt1 = ReturnWallTime();
+      RHperf[3] += tt1-tt0;
+
+      /* Deposit flagging field for active particles.
+
+     NJG:  This is a hack so that the accretion zone of sink particles are
+           resolved at all times.  While this will work fine for small number of
+           particles, there will be scaling issues if one tries to do nonlocal
+           refinement on large numbers of particles
+       */
+      
+      tt0 = ReturnWallTime();
+      DepositActiveParticleMassFlaggingField(LevelArray,i,MetaData->TopGridDims);
       tt1 = ReturnWallTime();
       RHperf[3] += tt1-tt0;
 
@@ -658,7 +678,11 @@ int RebuildHierarchy(TopGridData *MetaData,
 
 	    ToGrids[k] = SubgridHierarchyPointer[k]->GridData;
 	  }
- 
+
+      if (GridHierarchyPointer[j]->GridData->MoveSubgridActiveParticles(
+                 subgrids, ToGrids, FALSE) == FAIL)
+        ENZO_FAIL("Error in grid->MoveSubgridActiveParticles.");
+      
 	  if (GridHierarchyPointer[j]->GridData->MoveSubgridStars(
 				 subgrids, ToGrids, FALSE) == FAIL)
 	    ENZO_FAIL("Error in grid->MoveSubgridStars.");
@@ -690,6 +714,12 @@ int RebuildHierarchy(TopGridData *MetaData,
   for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++)
     for (Temp = LevelArray[i], j = 0; Temp; Temp = Temp->NextGridThisLevel, j++)
       Temp->GridData->SetGridID(j);
+
+#ifdef DEBUG_AP
+  for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++)
+    for (Temp = LevelArray[i], j = 0; Temp; Temp = Temp->NextGridThisLevel, j++)
+      Temp->GridData->DebugActiveParticles(i);
+#endif /* DEBUG_AP */
 
   /* update all SubgridMarkers */
 

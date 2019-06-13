@@ -70,7 +70,7 @@ If you are encountering a bug that is not already tracked there, please `open a
 new issue <https://github.com/enzo-project/enzo-dev/issues/new>`__.
 
 Contributing to Enzo with Git and Github
--------------------------------------------
+----------------------------------------
 
 We provide a brief introduction to submitting changes here.  We encourage
 contributions from any user. If you are new to Git and/or GitHub, there are

@@ -30,11 +30,6 @@
 #include "CosmologyParameters.h"
 #include "Star.h"
 #include "phys_constants.h"
-#ifdef FUTUREAP
-#include "ActiveParticle.h"
-#include "ActiveParticle_RadiationParticle.h"
-#include "ActiveParticle_SmartStar.h"
-#endif
 
 #define THRESHOLD_DENSITY_DB36 1e14
 #define THRESHOLD_DENSITY_DB37 5e14
@@ -101,13 +96,8 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 //  for (i = 0; i < size; i++)
 //    BaryonField[kdissH2INum][i] = 0;
   
-  if (AllStars == NULL && ProblemType != 50
-#if FUTUREAP
-    && EnabledActiveParticlesCount == 0)
-#else
-    )
-#endif
-      return SUCCESS;
+  if (AllStars == NULL && ProblemType != 50 && EnabledActiveParticlesCount == 0)
+    return SUCCESS;
 
   /* If using cosmology, get units. */
 
@@ -311,7 +301,6 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
     } // ENDFOR stars
 
   } // ENDELSE AllStars
-#if FUTUREAP
   /* The APs should be hooked into the Global Radiation Sources. */
   else if (EnabledActiveParticlesCount > 0) { 
     RadiationSourceEntry *RS;
@@ -423,7 +412,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
       }
     } //end loop over sources
   } //end loop over APs
-#endif
+
   for (dim = 0; dim < GridRank; dim++)
     delete [] ddr2[dim];
 

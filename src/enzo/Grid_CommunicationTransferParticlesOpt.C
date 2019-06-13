@@ -220,7 +220,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
     float *Velocity[MAX_DIMENSION], *Mass,
       *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
     PINT *Number;
-    int *Type;
+    int *Type = NULL;
 
     if (TotalNumberOfParticles > 0) {
  

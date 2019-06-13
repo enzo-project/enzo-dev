@@ -32,6 +32,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "ActiveParticle.h"
 #include "communication.h"
  
 /* function prototypes */
@@ -71,7 +72,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
   /* Return if this doesn't concern us. */
  
   if (TargetGrid->CommunicationMethodShouldExit(this) ||
-      NumberOfParticles == 0)
+      (NumberOfParticles == 0 && NumberOfActiveParticles == 0))
     return SUCCESS;
  
 //  fprintf(stderr, "----DPP: MyPN = %"ISYM", PN = %"ISYM", TGPN = %"ISYM", DIR (R=1,S=2) = %"ISYM", NP = %"ISYM"\n",
@@ -82,8 +83,9 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
   int dim, i, j, k, size, index1, index2;
   int Dimension[] = {1,1,1};
   int OriginalDimension[] = {1,1,1};
-  int Offset[] = {0,0,0};
-  float MassFactor = 1.0, *ParticleMassTemp, *ParticleMassPointer, CellSize, CloudSize;
+  long_int Offset[] = {0,0,0};
+  float MassFactor = 1.0, *ParticleMassTemp, *ParticleMassPointer; 
+  FLOAT CellSize, CloudSize;
   float *ParticleMassPointerSink;    
   float TimeDifference = 0;
   FLOAT LeftEdge[MAX_DIMENSION], OriginalLeftEdge[MAX_DIMENSION];
@@ -95,8 +97,8 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
     if (TargetGrid->GravitatingMassFieldCellSize <= 0)
       TargetGrid->InitializeGravitatingMassField(RefineBy);
     DepositFieldPointer = TargetGrid->GravitatingMassField;
-    CellSize            = float(TargetGrid->GravitatingMassFieldCellSize);
-    CloudSize           = float(CellWidth[0][0]);
+    CellSize            = TargetGrid->GravitatingMassFieldCellSize;
+    CloudSize           = CellWidth[0][0];
     for (dim = 0; dim < GridRank; dim++) {
       LeftEdge[dim]  = TargetGrid->GravitatingMassFieldLeftEdge[dim];
       Dimension[dim] = TargetGrid->GravitatingMassFieldDimension[dim];
@@ -109,8 +111,8 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
     if (TargetGrid->GravitatingMassFieldParticlesCellSize <= 0)
       TargetGrid->InitializeGravitatingMassFieldParticles(RefineBy);
     DepositFieldPointer = TargetGrid->GravitatingMassFieldParticles;
-    CellSize            = float(TargetGrid->CellWidth[0][0]);
-    CloudSize            = float(CellWidth[0][0]);
+    CellSize            = TargetGrid->CellWidth[0][0];
+    CloudSize            = CellWidth[0][0];
     for (dim = 0; dim < GridRank; dim++) {
       LeftEdge[dim]  = TargetGrid->GravitatingMassFieldParticlesLeftEdge[dim];
       Dimension[dim] = TargetGrid->GravitatingMassFieldParticlesDimension[dim];
@@ -121,8 +123,8 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
  
   else if (DepositField == MASS_FLAGGING_FIELD) {
     DepositFieldPointer = TargetGrid->MassFlaggingField;
-    CellSize            = float(TargetGrid->CellWidth[0][0]);
-    CloudSize           = float(CellWidth[0][0]);
+    CellSize            = TargetGrid->CellWidth[0][0];
+    CloudSize           = CellWidth[0][0];
     for (dim = 0; dim < GridRank; dim++) {
       LeftEdge[dim]  = TargetGrid->CellLeftEdge[dim][0];
       Dimension[dim] = TargetGrid->GridDimension[dim];
@@ -165,8 +167,8 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 
     size = 1;
     for (dim = 0; dim < GridRank; dim++) {
-      LeftEdge[dim] = (int(GridLeftEdge[dim]/CellSize)-2)*CellSize;
-      Offset[dim] = nint((LeftEdge[dim] - OriginalLeftEdge[dim])/CellSize);
+      LeftEdge[dim] = (long_int((FLOAT)GridLeftEdge[dim]/CellSize)-2)*CellSize;
+      Offset[dim] = nlongint((LeftEdge[dim] - OriginalLeftEdge[dim])/CellSize);
       if (Offset[dim] < 0) {
 	fprintf(stderr, "P(%d)(1): dx=%"GOUTSYM"/%"GOUTSYM" = %"GOUTSYM"\n",
 		MyProcessorNumber, CellSize, CellWidth[0][0], 
@@ -182,10 +184,10 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 		GridRightEdge[2]);
 	fprintf(stderr, "P(%d)(5): %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",
 		MyProcessorNumber, LeftEdge[0], LeftEdge[1], LeftEdge[2]);
-	fprintf(stderr, "P(%d)(6): %d %d %d - %d %d %d\n",
+	fprintf(stderr, "P(%d)(6): %ld %ld %ld - %ld %ld %ld\n",
 		MyProcessorNumber, Offset[0], Offset[1], Offset[2],
 		Dimension[0], Dimension[1], Dimension[2]);
-	fprintf(stderr, "P(%d)(7): %"GOUTSYM" %d\n",
+	fprintf(stderr, "P(%d)(7): %"GOUTSYM" %ld\n",
 		MyProcessorNumber, (int(GridLeftEdge[dim]/CellSize)-2)*CellSize, 
 		int(GridLeftEdge[dim]/CellSize));
 
@@ -280,6 +282,14 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
     //MyProcessor == Target->ProcessorNumber != this->ProcessorNumber
     this->UpdateParticlePosition(TimeDifference, TRUE);
 
+    /*
+
+      Right now all active particles are unsmoothed.
+      Will need to come back to this to optionally add smoothing.
+
+    */
+    float FCellSize = (float)CellSize;
+    float FCloudSize = (float)CloudSize;
     /* If using sink particles, then create a second field of unsmoothed sink particles
        (since we don't want sink particles smoothed -- they are stellar sized). */
 
@@ -299,17 +309,17 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 
       /* Deposit sink particles (only) to field using CIC or NGP. 
          (only use NGP if cellsize > cloudsize - i.e. source is subgrid) */
-
+      
       if (ParticleSubgridDepositMode == NGP_DEPOSIT && CellSize > 1.5*CloudSize) {
 	PFORTRAN_NAME(ngp_deposit)(
            ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
 	   &GridRank, &NumberOfParticles, ParticleMassPointerSink, DepositFieldPointer, 
-	   LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize);
+	   LeftEdge, Dimension, Dimension+1, Dimension+2, &FCellSize);
       } else {
 	PFORTRAN_NAME(cic_deposit)(
            ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
 	   &GridRank, &NumberOfParticles, ParticleMassPointerSink, DepositFieldPointer, 
-	   LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize, &CloudSize);
+	   LeftEdge, Dimension, Dimension+1, Dimension+2, &FCellSize, &FCloudSize);
       }
 
       delete [] ParticleMassPointerSink;
@@ -329,12 +339,12 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 	PFORTRAN_NAME(ngp_deposit)
 	  (ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
 	   &GridRank, &NumberOfParticles, ParticleMassPointer, DepositFieldPointer, 
-	   LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize);
+	   LeftEdge, Dimension, Dimension+1, Dimension+2, &FCellSize);
       } else {
 	PFORTRAN_NAME(cic_deposit)
 	(ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
 	 &GridRank, &NumberOfParticles, ParticleMassPointer, DepositFieldPointer, 
-	 LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize, &CloudSize);
+	 LeftEdge, Dimension, Dimension+1, Dimension+2, &FCellSize, &FCloudSize);
       }
 
     } else {
@@ -347,20 +357,61 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
       PFORTRAN_NAME(smooth_deposit)
 	(ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], &GridRank,
 	 &NumberOfParticles, ParticleMassPointer, DepositFieldPointer, LeftEdge, 
-	 Dimension, Dimension+1, Dimension+2, &CellSize, 
+	 Dimension, Dimension+1, Dimension+2, &FCellSize, 
 	 &DepositPositionsParticleSmoothRadius);
     }
     
     if ((this->ReturnNumberOfStarParticles() > 0) && 
-	(StarParticleCreation == (1 << SINK_PARTICLE)) && SmoothField == TRUE) {
+        (StarParticleCreation == (1 << SINK_PARTICLE)) && SmoothField == TRUE) {
       for (i = 0; i < NumberOfParticles; i++) {
-	if (ParticleType[i] == PARTICLE_TYPE_STAR) {
-	  ParticleMassPointer[i] = ParticleMassPointerSink[i];
-	}
+        if (ParticleType[i] == PARTICLE_TYPE_STAR) {
+          ParticleMassPointer[i] = ParticleMassPointerSink[i];
+        }
       }
       delete [] ParticleMassPointerSink;
     }
 
+    if (NumberOfActiveParticles > 0) {
+      FLOAT** ActiveParticlePosition = new FLOAT*[GridRank];
+      for (dim = 0; dim < GridRank; dim++)
+        ActiveParticlePosition[dim] = new FLOAT[NumberOfActiveParticles];
+      this->GetActiveParticlePosition(ActiveParticlePosition);
+      
+      float* ActiveParticleMassPointer = new float[NumberOfActiveParticles];
+      for (i = 0; i < NumberOfActiveParticles; i++) {
+        if ((MassFactor != 1.0) || (SmoothField == TRUE))
+          ActiveParticleMassPointer[i] = ActiveParticles[i]->ReturnMass()*MassFactor;
+        else
+          ActiveParticleMassPointer[i] = ActiveParticles[i]->ReturnMass();
+        
+        if (DepositField == MASS_FLAGGING_FIELD &&
+            DepositParticleMaximumParticleMass > 0 && MassFactor != 1.0)
+          ActiveParticleMassPointer[i] = min(DepositParticleMaximumParticleMass,
+                                             ParticleMassPointer[i]);
+      }
+
+            if (SmoothField == FALSE) {
+
+    PFORTRAN_NAME(cic_deposit)(
+      ActiveParticlePosition[0], ActiveParticlePosition[1], ActiveParticlePosition[2],
+      &GridRank, &NumberOfActiveParticles, ActiveParticleMassPointer, DepositFieldPointer,
+      LeftEdge, Dimension, Dimension+1, Dimension+2, &FCellSize, &FCloudSize);
+
+      }
+      else {
+
+    PFORTRAN_NAME(smooth_deposit)(
+      ActiveParticlePosition[0], ActiveParticlePosition[1], ActiveParticlePosition[2],
+      &GridRank, &NumberOfActiveParticles, ActiveParticleMassPointer, DepositFieldPointer,
+      LeftEdge, Dimension, Dimension+1, Dimension+2, &FCellSize,
+      &DepositPositionsParticleSmoothRadius);
+      }
+
+      for (dim = 0; dim < GridRank; dim++)
+        delete [] ActiveParticlePosition[dim];
+      delete [] ActiveParticlePosition;
+      delete [] ActiveParticleMassPointer;
+    }
 
   } // ENDIF this processor
  

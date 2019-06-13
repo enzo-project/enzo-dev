@@ -59,8 +59,8 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 
     /* Convert star particles into radiation sources only if we're going
        into EvolvePhotons */
-
-    StarParticleRadTransfer(LevelArray, level, AllStars);
+    if(AllStars != NULL)
+      StarParticleRadTransfer(LevelArray, level, AllStars);
 
   } // ENDIF
   
