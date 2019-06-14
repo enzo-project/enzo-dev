@@ -63,7 +63,6 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 				  bool SyncNumberOfParticles, 
 				  bool MoveStars, int CollectMode)
 {
-
   /* Create pointer arrays and count grids */
 
   int NumberOfGrids = 0, NumberOfSubgrids = 0;
@@ -100,7 +99,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
   particle_data *SharedList = NULL;
   star_data *StarSendList = NULL;
   star_data *StarSharedList = NULL;
-
+  
   int NumberOfReceives, StarNumberOfReceives, TotalNumber;
   int *NumberToMove = new int[NumberOfProcessors];
   int *StarsToMove = new int[NumberOfProcessors];
