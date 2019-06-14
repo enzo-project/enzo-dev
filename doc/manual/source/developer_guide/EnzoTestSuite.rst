@@ -105,15 +105,8 @@ libraries available, then you can set:
 3.  **Get the correct yt version** The enzo tests are generated and compared
 using the yt analysis suite.  You must be using yt 3.3.0 or newer in order for
 the test suite to work.  If you do not yet have yt, visit
-http://yt-project.org/#getyt for installation instructions.  If you already have
-yt and yt is in your path, make sure you are using the latest verion of yt by
-running the following commands:
+https://yt-project.org/docs/dev/installing.html for installation instructions.
 
-::
-
-    $ cd /path/to/yt_repository
-    $ git update yt
-    $ python setup.py develop
 
 4. **Generate answers to test with.** Run the test suite with these flags within
 the ``run/`` subdirectory in the enzo source hierarchy:
