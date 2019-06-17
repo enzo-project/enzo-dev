@@ -198,15 +198,23 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
             ENZO_FAIL("error reading NumberOfParticles.");
     }
 
+    int ActiveParticlesExist = 0;
+
     if (fscanf(fptr, "NumberOfActiveParticles = %"ISYM"\n", &NumberOfActiveParticles) != 1) {
       // Ugly hack to support restart files from before active particle support
       NumberOfActiveParticles = 0;
+    } else {
+      // But we still need to know that active particles do NOT exist (see immediately below)
+      ActiveParticlesExist = 1;
     }
 
     // We read these in but don't use them (yet?). Therefore we won't error
-    // out if we can't read them in.
-    fgets(unused_string, MAX_LINE_LENGTH, fptr);
-    fgets(unused_string, MAX_LINE_LENGTH, fptr);
+    // out if we can't read them in.  BUT, don't read them in if this parameter
+    // file predates the active particle code!
+    if(ActiveParticlesExist>0){
+      fgets(unused_string, MAX_LINE_LENGTH, fptr);
+      fgets(unused_string, MAX_LINE_LENGTH, fptr);
+    }
 
     if ((NumberOfParticles > 0) || (NumberOfActiveParticles > 0)) {
  
