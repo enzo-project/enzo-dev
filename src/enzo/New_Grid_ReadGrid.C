@@ -200,7 +200,12 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
     int ActiveParticlesExist = 0;
 
-    if (fscanf(fptr, "NumberOfActiveParticles = %"ISYM"\n", &NumberOfActiveParticles) != 1) {
+     if (fscanf(fptr, "NumberOfActiveParticles = %"ISYM"\n", &NumberOfActiveParticles) == 1) {
+       fgets(unused_string, MAX_LINE_LENGTH, fptr);
+       fgets(unused_string, MAX_LINE_LENGTH, fptr);
+     } else {
+       NumberOfActiveParticles = 0;
+     }
       // Ugly hack to support restart files from before active particle support
       NumberOfActiveParticles = 0;
     } else {
