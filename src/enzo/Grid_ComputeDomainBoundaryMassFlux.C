@@ -43,13 +43,21 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
   PrepareBoundaryMassFluxFieldNumbers(); //  this should be put somewhere else
 
   /* get units */
-  const float msolar = 1.989e33;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
                &TimeUnits, &VelocityUnits, this->Time) == FAIL){
       ENZO_FAIL("Error in GetUnits");
   }
   MassUnits   = DensityUnits*LengthUnits*LengthUnits*LengthUnits; // mass unit
+
+  /* get colour fields */
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
+    MetalIaNum, MetalIINum;
+
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum,
+              MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
+    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
+
 
   /* Is this grid on the edge of the domain */
   int GridOffsetLeft[MAX_DIMENSION], GridOffsetRight[MAX_DIMENSION];
@@ -75,8 +83,19 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
   if (MultiSpecies > 2)
     NumberOfBoundaryMassFields += 3; // D, D+, HD
 
-  if (MultiMetals > 0)
-    NumberOfBoundaryMassFields += 1; // metallicity
+  if (MetalNum != -1){
+    NumberOfBoundaryMassFields++;   // metallicity
+    if (MultiMetals || TestProblemData.MultiMetals) {
+      NumberOfBoundaryMassFields += 2;  // ExtraType0 and ExtraType1
+    }
+  }
+
+  if (MetalIaNum       != -1) NumberOfBoundaryMasFields++;
+  if (MetalIINum       != -1) NumberOfBoundaryMasFields++;
+  if (SNColourNum      != -1) NumberOfBoundaryMasFields++;
+  if (MBHColourNum     != -1) NumberOfBoundaryMasFields++;
+  if (Galaxy1ColourNum != -1) NumberOfBoundaryMasFields++;
+  if (Galaxy2ColourNum != -1) NumberOfBoundaryMasFields++;
 
   for (int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i ++){
     grid_BoundaryMassFluxContainer[i] = 0.0;
@@ -96,7 +115,7 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
                 BoundaryFluxes->LeftFluxStartGlobalIndex[dim][j] + 1;
 
     /* (convert from dt * flux (density / area)  to mass in solar masses) */
-    conversion = POW( this->CellWidth[dim][0] , 3) * MassUnits / msolar;
+    conversion = POW( this->CellWidth[dim][0] , 3) * MassUnits / SolarMass;
 
     /* if here, we are at a domain boundary */
     if (MetaData->LeftFaceBoundaryCondition[dim] == outflow) {
