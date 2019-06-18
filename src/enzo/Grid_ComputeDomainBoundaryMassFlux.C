@@ -41,7 +41,7 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
-  PrepareBoundaryMassFluxFieldNumbers(); //  this should be put somewhere else
+  this->PrepareBoundaryMassFluxFieldNumbers();
 
   /* get units */
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
@@ -50,15 +50,6 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
       ENZO_FAIL("Error in GetUnits");
   }
   MassUnits   = DensityUnits*LengthUnits*LengthUnits*LengthUnits; // mass unit
-
-  /* get colour fields */
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-    MetalIaNum, MetalIINum;
-
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum,
-              MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
-    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-
 
   /* Is this grid on the edge of the domain */
   int GridOffsetLeft[MAX_DIMENSION], GridOffsetRight[MAX_DIMENSION];
@@ -73,33 +64,10 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
     }
   }
 
-  int NumberOfBoundaryMassFields   = 1; // density always
-
-  if (MultiSpecies > 0)
-    NumberOfBoundaryMassFields += 5; // HI, HII, HeI, HeII, HeIII
-
-  if (MultiSpecies > 1)
-    NumberOfBoundaryMassFields += 3; // H2, H2I, HM
-
-  if (MultiSpecies > 2)
-    NumberOfBoundaryMassFields += 3; // D, D+, HD
-
-  if (MetalNum != -1){
-    NumberOfBoundaryMassFields++;   // metallicity
-    if (MultiMetals || TestProblemData.MultiMetals) {
-      NumberOfBoundaryMassFields += 2;  // ExtraType0 and ExtraType1
-    }
-  }
-
-  if (MetalIaNum       != -1) NumberOfBoundaryMassFields++;
-  if (MetalIINum       != -1) NumberOfBoundaryMassFields++;
-  if (SNColourNum      != -1) NumberOfBoundaryMassFields++;
-  if (MBHColourNum     != -1) NumberOfBoundaryMassFields++;
-  if (Galaxy1ColourNum != -1) NumberOfBoundaryMassFields++;
-  if (Galaxy2ColourNum != -1) NumberOfBoundaryMassFields++;
-
+  int NumberOfBoundaryMassFields=0;
   for (int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i ++){
     grid_BoundaryMassFluxContainer[i] = 0.0;
+    if (BoundaryMassFluxFieldNumbers[i] != -1) NumberOfBoundaryMassFields++;
   }
 
   /* conversion factor to go from flux to actual mass */
