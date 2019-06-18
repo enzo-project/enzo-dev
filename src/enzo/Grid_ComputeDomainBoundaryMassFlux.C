@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "phys_constants.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -90,12 +91,12 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
     }
   }
 
-  if (MetalIaNum       != -1) NumberOfBoundaryMasFields++;
-  if (MetalIINum       != -1) NumberOfBoundaryMasFields++;
-  if (SNColourNum      != -1) NumberOfBoundaryMasFields++;
-  if (MBHColourNum     != -1) NumberOfBoundaryMasFields++;
-  if (Galaxy1ColourNum != -1) NumberOfBoundaryMasFields++;
-  if (Galaxy2ColourNum != -1) NumberOfBoundaryMasFields++;
+  if (MetalIaNum       != -1) NumberOfBoundaryMassFields++;
+  if (MetalIINum       != -1) NumberOfBoundaryMassFields++;
+  if (SNColourNum      != -1) NumberOfBoundaryMassFields++;
+  if (MBHColourNum     != -1) NumberOfBoundaryMassFields++;
+  if (Galaxy1ColourNum != -1) NumberOfBoundaryMassFields++;
+  if (Galaxy2ColourNum != -1) NumberOfBoundaryMassFields++;
 
   for (int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i ++){
     grid_BoundaryMassFluxContainer[i] = 0.0;
