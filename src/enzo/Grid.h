@@ -440,6 +440,11 @@ public:
    int ConductHeat();			     /* Conduct Heat */
    float ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
 
+/* FDM: functions for lightboson dark matter */
+  int ComputeQuantumTimeStep(float &dt); /* Estimate quantum time-step */
+  /* Solver for Schrodinger Equation */ 
+  int SchrodingerSolver( int nhy);
+
 /* Member functions for dealing with Cosmic Ray Diffusion */
 
    int ComputeCRDiffusion(); // CR Diffusion Method 
@@ -2664,6 +2669,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
 				int InitialMagneticFieldConfiguration);
+
+/* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
+  int LightBosonInitializeGrid(float CenterPosition);
+/* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
+  int FDMCollapseInitializeGrid();
 // -------------------------------------------------------------------------
 // Analysis functions for AnalysisBaseClass and it's derivatives.
 //

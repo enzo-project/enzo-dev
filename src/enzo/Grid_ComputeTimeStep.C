@@ -41,6 +41,9 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+int QuantumGetUnits (float *DensityUnits, float *LengthUnits,
+        float *TemperatureUnits, float *TimeUnits,
+        float *VelocityUnits, double *MassUnits, FLOAT Time);//FDM
 extern "C" void PFORTRAN_NAME(calc_dt)(
                   int *rank, int *idim, int *jdim, int *kdim,
                   int *i1, int *i2, int *j1, int *j2, int *k1, int *k2,
@@ -84,7 +87,8 @@ float grid::ComputeTimeStep()
   float dtGasDrag      = huge_number;
   float dtCooling      = huge_number;
   int dim, i, j, k, index, result;
- 
+  float dtQuantum        = huge_number;  //FDM
+
   /* Compute the field size. */
  
   int size = 1;
@@ -447,6 +451,46 @@ float grid::ComputeTimeStep()
     delete [] cooling_time;
   }
 
+   /*FDM:  Calculate minimum dt due to quantum pressure. */
+
+  if(QuantumPressure){
+  float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
+  float VelocityUnits = 1.0, TimeUnits = 1.0, aUnits = 1.0;
+  double MassUnits = 1.0;
+  float hmcoef=1.0; // hbar/m
+
+
+      if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+    ENZO_FAIL("Error in GetUnits.");
+       }
+
+
+      hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass; // 5.916e27 is hbar/m with m=1e-22eV, FDMMass is in unit of 1e-22eV.
+
+      FLOAT dx = CellWidth[0][0]*afloat;
+
+      if (GridRank>1) {
+        dx = min( dx, CellWidth[1][0]*afloat);
+      }
+  
+       if (GridRank>2) {
+         dx = min( dx, CellWidth[2][0]*afloat);
+        }
+
+      dtQuantum = pow(dx,2)/hmcoef/2.;
+
+      dtQuantum *= CourantSafetyNumber;
+
+      if (SelfGravity && (PotentialField != NULL)){
+        int gsize = GravitatingMassFieldDimension[0]*GravitatingMassFieldDimension[1]*GravitatingMassFieldDimension[2];
+
+        for (int i=0; i<gsize; ++i){
+          dtQuantum = min(dtQuantum, fabs(hmcoef*1./(PotentialField[i])));
+        }
+      }
+
+  }
+
   /* 8) calculate minimum timestep */
  
   dt = min(dtBaryons, dtParticles);
@@ -458,7 +502,8 @@ float grid::ComputeTimeStep()
   dt = min(dt, dtCR);
   dt = min(dt, dtGasDrag);
   dt = min(dt, dtCooling);
-
+  dt = min(dt, dtQuantum); //FDM
+  
 #ifdef TRANSFER
 
   float TemperatureUnits, DensityUnits, LengthUnits, 
@@ -534,6 +579,8 @@ float grid::ComputeTimeStep()
       printf("Cond = %"ESYM" ",(dtConduction));
     if (UseGasDrag)
       printf("Drag = %"ESYM" ",(dtGasDrag));
+    if (QuantumPressure)
+      printf("Quantum = %"ESYM" ",(dtQuantum));//FDM
     printf(")\n");
   }
  

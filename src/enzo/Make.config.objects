@@ -1032,7 +1032,19 @@ OBJS_CONFIG_LIB = \
    Grid_Phases.o \
    Grid_SGSUtilities.o \
    Grid_SGSAddEMFTerms.o \
-   Grid_SGSAddMomentumTerms.o 
+   Grid_SGSAddMomentumTerms.o \
+   LightBosonInitialize.o \
+   Grid_LightBosonInitialize.o \
+   QuantumGetUnits.o \
+   ZeusFDM.o \
+   Zeus_xTransport_FDM.o \
+   Zeus_yTransport_FDM.o \
+   Zeus_zTransport_FDM.o \
+   Grid_SchrodingerSolver.o \
+   rk4.o \
+   SchrodingerAddPotential.o \
+   FDMCollapse.o \
+   Grid_FDMCollapse.o
 
 
 #-----------------------------------------------------------------------
