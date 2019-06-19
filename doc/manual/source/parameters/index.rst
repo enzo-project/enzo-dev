@@ -126,6 +126,8 @@ common convention of 0 meaning false or off and 1 for true or on.
 
 * `Subgrid-scale (SGS) turbulence model`_
 
+* `Fuzzy Dark matter model`_
+
 * `Inline Analysis`_
    
    * `Inline Halo Finding`_
@@ -3449,7 +3451,20 @@ Scale-similarity model
     Recommended: 0.89;
 
 
+.. _fdm_parameters:
 
+Fuzzy Dark matter model
+~~~~~~~~~~~~~~~~~~~~~~~
+
+``QuantumPressure`` (external)
+    Flag to turn on quantum pressure machinery (see Li, Hui &
+    Bryan 2019)
+    Default: 0;
+
+``FDMMass`` (external)
+    If QuantumPressure is used, this indicates the mass of the FDM
+    particle in units of 1e-22 eV.
+    Default: 1;
 
 .. _other_parameters:
 

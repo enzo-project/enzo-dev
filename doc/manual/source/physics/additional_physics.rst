@@ -23,6 +23,12 @@ Subgrid Turbulence Models
 This will be updated soon.
 
 
+Fuzzy Dark Matter Model
+-----------------------
+
+This module was written by Xinyu Li and is described in `Li, Hui &
+Bryan (2019) <https://ui.adsabs.harvard.edu/abs/2019PhRvD..99f3509L/abstract>`_.
+
 Turbulence Driving Modules
 --------------------------
 
