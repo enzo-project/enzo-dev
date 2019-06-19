@@ -598,7 +598,7 @@ algorithm, use Method 1.
 .. _active_particles:
 
 Active Particle Framework
-__________________________
+-------------------------
 
 To be added.
 
