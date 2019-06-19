@@ -44,7 +44,8 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
   this->PrepareBoundaryMassFluxFieldNumbers();
 
   /* get units */
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
+  double MassUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
                &TimeUnits, &VelocityUnits, this->Time) == FAIL){
       ENZO_FAIL("Error in GetUnits");
