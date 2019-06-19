@@ -228,6 +228,7 @@ This method is reserved for future use.
 
 
 .. _method_7:
+
 Method 7: Cen & Ostriker with no delay in formation
 ---------------------------------------------------
 Select this method by setting ``StarParticleCreation = 128``.
@@ -251,6 +252,7 @@ not in overdensity like the other methods.
 
 
 .. _method_8:
+
 Method 8: Springel & Hernquist
 ------------------------------
 Select this method by setting ``StarParticleCreation = 256``.
@@ -337,6 +339,7 @@ star formula.
 
 
 .. _method_9:
+
 Method 9: Massive Black Holes
 -----------------------------
 Select this method by setting ``StarParticleCreation = 512``.
@@ -348,6 +351,7 @@ See Massive Black Hole Particle Formation in :ref:`StarParticleParameters`.
 
 
 .. _method_10:
+
 Method 10: Population III stellar tracers
 -----------------------------------------
 Select this method by setting ``StarParticleCreation = 1024``.
@@ -449,6 +453,7 @@ should select one of the feedback schemes associated with the other
 star makers (StarParticleFeedback = 4 comes to mind).
 
 .. _method_14:
+
 Method 14: Kinetic Feedback
 -------------------------------------------------------
 Select this method by setting ``StarParticleCreation = 16384`` and
@@ -525,6 +530,7 @@ equivalent to only one or a few supernovae.
 
 
 .. _restarting:
+
 Restarting a Simulation With Star Formation or Feedback
 -------------------------------------------------------
 
@@ -597,6 +603,7 @@ __________________________
 To be added.
 
 .. _magnetic_feedback:
+
 Magnetic Supernova Feedback
 ----------------------------
 *Source: hydro_rk/SuperNovaSeedField.C*
