@@ -21,13 +21,13 @@ parameter link above for more information.
    :maxdepth: 2
 
 * `Method 0: Cen & Ostriker`_
-* `Method 1: Cen & Ostriker w/ Stochastic Star Formation`_
+* `Method 1: Cen & Ostriker with Stochastic Star Formation`_
 * `Method 2: Global Schmidt Law`_
 * `Method 3: Population III Stars`_
 * `Method 4: Sink Particles`_
 * `Method 5: Radiative Stellar Clusters`_
 * `Method 6: Reserved for future use`_
-* `Method 7: Cen & Ostriker w/ no delay in formation`_
+* `Method 7: Cen & Ostriker with no delay in formation`_
 * `Method 8: Springel & Hernquist`_
 * `Method 9: Massive Black Holes`_
 * `Method 10: Population III stellar tracers`_
