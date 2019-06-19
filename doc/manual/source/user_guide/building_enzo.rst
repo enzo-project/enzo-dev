@@ -22,7 +22,7 @@ compiler, the following libraries are necessary:
    * `MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, for multi-processor parallel
      jobs.  Note that Enzo will compile without MPI, but it's fine to compile
      with MPI and only run on a single processor.
-   * `hg <https://www.mercurial-scm.org/>`_, a free, distributed
+   * `git <https://git-scm.org/>`__, a free, distributed
      source control management tool.
    * `yt <http://yt-project.org>`_, the yt visualization and analysis suite.  
      While it is not required to run enzo, ``yt`` enables the easiest analysis
@@ -38,10 +38,10 @@ to the community of enzo users and developers.
 
 Please visit the `Enzo Project home page <http://enzo-project.org>`_ to learn
 more about the code and different installation methods.  To directly access the source
-code, you can visit the `Enzo Bitbucket page <https://bitbucket.org/enzo>`_.
+code, you can visit the `Enzo Github page <https://github.com/enzo-project>`_.
 
 If you already have Fortran, C, C++ compilers, 
-`Mercurial <http://mercurial.selenic.com>`_, 
+`git <http://git-scm.com>`_,
 `MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, and 
 `HDF5 <http://www.hdfgroup.org/HDF5/>`_ installed, then installation of
 Enzo should be straightforward.  Simply run the following at the command line 
@@ -53,43 +53,26 @@ computer in the current directory:
 
 ::
 
-    ~ $ hg clone https://bitbucket.org/enzo/enzo-dev ./enzo
+    ~ $ git clone https://github.com/enzo-project/enzo-dev.git
 
 Later on, if you want to update your code and get any additional modifications 
 which may have occurred since you originally cloned the source repository, 
 you will have to ``pull`` them from the server and then ``update`` your 
 local copy (in this example, no new changes have occurred):
 
-By default, after you clone enzo you will be on the ``stable`` branch.  If you
-wish to use the latest development version, you must update to the
-``week-of-code`` branch:
-
-.. highlight:: none
-
-::
-
-  ~/ $ cd enzo
-  ~/enzo $ hg update week-of-code
-
-.. highlight:: none
-
 Enzo development continues regularly, and if you wish to use the
 latest changes, you can update the code as follows:
 	       
 ::
 
-    ~/enzo $ hg pull
-    pulling from https://bitbucket.org/enzo/enzo-dev
-    searching for changes
-    no changes found
-
-    ~/enzo $ hg update
-    0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+    ~/enzo $ git fetch
+    ~/enzo $ git merge
+    Already up to date.
 
 This covers the basics, but for more information about interacting with the
-mercurial version control system please peruse the :ref:`developers_guide`,
-the `Mercurial Documentation <http://mercurial.selenic.com/>`_, and/or 
-this entertaining `tutorial on Mercurial <http://hginit.com>`_.
+git version control system please peruse the :ref:`developers_guide`,
+and any git tutorial such as `this one <https://git-scm.com/docs/gittutorial>`_.
+
 
 Building Enzo
 -------------

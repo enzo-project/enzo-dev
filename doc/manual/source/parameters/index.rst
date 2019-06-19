@@ -96,6 +96,8 @@ common convention of 0 meaning false or off and 1 for true or on.
    
    * `Sink Formation and Feedback`_
 
+   * `Magnetic Supernova Feedback`_
+
 * `Radiation Parameters`_
    
    * `Background Radiation Parameters`_
@@ -1683,7 +1685,7 @@ Because many of the following parameters are not actively being tested and maint
 ``Coordinate`` (external)
     Coordinate systems to be used in hydro_rk/EvolveLevel_RK.C.  Currently implemented are Cartesian and Spherical for HD_RK, and Cartesian and Cylindrical for MHD_RK.  See Grid_(MHD)SourceTerms.C.  Default: Cartesian
 ``EOSType`` (external)
-    Types of Equation of State used in hydro_rk/EvolveLevel_RK.C (0 - ideal gas, 1 - polytropic EOS, 2 - another polytropic EOS, 3 - isothermal, 4 - pseudo cooling, 5 - another pseudo cooling, 6 - minimum pressure); see hydro_rk/EOS.h. Default: 0
+    Types of Equation of State used in hydro_rk/EvolveLevel_RK.C (0 - ideal gas, 1 - polytropic EOS, 2 - another polytropic EOS, 3 - isothermal, 4 - pseudo cooling, 5 - another pseudo cooling, 6 - minimum pressure, 7 - Fedderath et al. 2010); see hydro_rk/EOS.h. Default: 0
 ``EOSSoundSpeed`` (external)
     Sound speed to be used in EOS.h for EOSType = 1, 2, 3, 4, 5.  Default: 2.65e4
 ``EOSCriticalDensity`` (external)
@@ -2201,6 +2203,30 @@ The parameters below are considered in ``StarParticleCreation`` method
     the particle creation time by this amount.  This value is in units of Myrs.  If set
     to a negative value, energy, mass and metals are injected gradually in the same way as is
     done for ``StarParticleFeedback`` method = 1.  Default -1.
+``StarMakerMinimumMassRamp`` (external)
+     Sets the Minimum Stellar Mass (otherwise given by StarMakerMinimumMass to 
+     ramp up over time, so that a small mass can be used early in the calculation
+     and a higher mass later on, or vice versa. The minimum mass is "ramped" 
+     up or down starting at StarMakerMinimumMassRampStartTime and ending 
+     at StarMakerMinimumMassRampEndTime. The acceptable values are: 
+     (1) linear evolution of mass in time
+     (2) linear evolution of mass in redshift
+     (3) exponential evolution of mass in time
+     (4) exponential evolution of mass in redshift
+``StarMakerMinimumMassRampStartTime`` (external) 
+     The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
+     Before this time the minimum mass will have a constant value given 
+     by StarMakerMinimumMassRampStartMass
+``StarMakerMinimumMassRampEndTime`` (external) 
+     The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
+     After this time the minimum mass will have a constant value given 
+     by StarMakerMinimumMassRampEndMass
+``StarMakerMinimumMassRampStartMass`` (external) 
+     The mass at which to start the ramp in the minimum stellar mass. This mass 
+     will be used at all times before StarMakerMinimumMassRampStartTime as well. 
+``StarMakerMinimumMassRampEndMass`` (external) 
+     The mass at which to end the ramp in the minimum stellar mass. This mass 
+     will be used at all times after StarMakerMinimumMassRampEndTime as well. 
 
 .. _molecular_hydrogen_regulated_star_formation_parameters:
 
@@ -2392,6 +2418,22 @@ Because many of the following parameters are not actively being tested and maint
     [not used]
 ``SinkMergeMass``
     [not used]
+
+.. _magnetic_supernova_feedback_parameters:
+
+Magnetic Supernova Feedback
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The parameters below are currently considered in ``StarParticleCreation`` methods 0 and 1.
+
+``UseMagneticSupernovaFeedback`` (external)
+    This parameter is used to turn on magnetic supernova feedback. Currently implemented values are: 1 - the user needs to specify the desired supernova radius and duration. If none are specified, the default values will be used (see below), 2 - the supernova radius and duration will be calculated during runtime based on the grid resolution and timestep.  Default: 0
+``MagneticSupernovaEnergy`` (external)
+    The total amount of magnetic energy to be injected by a single supernova event (in units of ergs). Default: 1e51
+``MagneticSupernovaRadius`` (external)
+    The radius of the sphere (in parsecs) over which to inject supernova energy. This value should be at least 1.5 times the minimum cell width in the simulation. Default: 300
+``MagneticSupernovaDuration`` (external)
+    The duration (in years) over which the total magnetic supernova energy is injected. This should be set to at least 5 times the minimum timestep of the simulation. Default: 5e4
 
 .. _radiation_parameters:
 

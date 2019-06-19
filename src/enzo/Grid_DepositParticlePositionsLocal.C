@@ -45,7 +45,7 @@ int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField,
  
   /* If there are no particles, don't deposit anything. */
  
-  if (NumberOfParticles == 0)
+  if (NumberOfParticles == 0 && NumberOfActiveParticles == 0)
     return SUCCESS;
  
   /* If the Target is this grid and the DepositField is MassFlaggingField,
@@ -65,16 +65,33 @@ int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField,
     ParticleMassPointer = ParticleMassTemp;
   } else
     ParticleMassPointer = ParticleMass;
+
+  /* Allocate and fill the ActiveParticleMassPointer, obtain
+     ActiveParticlePosition from the grid object */
+  
+  float* ActiveParticleMassPointer = new float[NumberOfActiveParticles];
+  for (i = 0; i < NumberOfActiveParticles; i++)
+    ActiveParticleMassPointer[i] = ActiveParticles[i]->ReturnMass()*MassFactor;
+
+  FLOAT** ActiveParticlePosition = new FLOAT*[GridRank];
+  for (dim = 0; dim < GridRank; dim++)
+    ActiveParticlePosition[dim] = new FLOAT[NumberOfActiveParticles];
+
+  this->GetActiveParticlePosition(ActiveParticlePosition);
  
   /* If the target field is MASS_FLAGGING_FIELD, then set masses of
      particles which are too large to zero (to prevent run-away refinement). */
  
   if ((DepositField == MASS_FLAGGING_FIELD ||
        DepositField == PARTICLE_MASS_FLAGGING_FIELD) &&
-      DepositParticleMaximumParticleMass > 0 && MassFactor != 1.0)
+      DepositParticleMaximumParticleMass > 0 && MassFactor != 1.0) {
     for (i = 0; i < NumberOfParticles; i++)
       ParticleMassPointer[i] = min(DepositParticleMaximumParticleMass,
-				   ParticleMassPointer[i]);
+                                   ParticleMassPointer[i]);
+    for (i = 0; i < NumberOfActiveParticles; i++)
+      ActiveParticleMassPointer[i] = min(DepositParticleMaximumParticleMass,
+                                         ActiveParticleMassPointer[i]);
+  }
  
   /* Compute difference between current time and DepositTime. */
  
@@ -90,6 +107,11 @@ int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField,
  
   if (this->DepositPositions(ParticlePosition, ParticleMassPointer,
 			     NumberOfParticles, DepositField) == FAIL) {
+    ENZO_FAIL("Error in grid->DepositPositions\n");
+  }
+
+  if (this->DepositPositions(ActiveParticlePosition, ActiveParticleMassPointer,
+                 NumberOfActiveParticles, DepositField) == FAIL) {
     ENZO_FAIL("Error in grid->DepositPositions\n");
   }
 
@@ -120,6 +142,13 @@ int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField,
 	DepositFieldPointer[i] = 0.0;
   }
   
+  /* Delete the ActiveParticlePosition array */
+
+  for (dim = 0; dim < GridRank; dim++)
+    delete [] ActiveParticlePosition[dim];
+  delete [] ActiveParticlePosition;
+  delete [] ActiveParticleMassPointer;
+ 
   /* If necessary, delete the particle mass temporary. */
  
   if (MassFactor != 1.0)
@@ -129,7 +158,7 @@ int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField,
     delete [] FlaggingField;
     FlaggingField = NULL;
   }
- 
+
   /* Return particles to positions at Time. */
  
   this->UpdateParticlePosition(-TimeDifference);

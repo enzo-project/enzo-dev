@@ -99,23 +99,14 @@ libraries available, then you can set:
 
 
 2.  **Install the necessary Python libraries**  The test suite works
-    with both Python 2.x and Python 3.x, but requires python-hglib
-    (https://pypi.python.org/pypi/python-hglib) to access Mercurial.
-    This should be installable via pip.
+    with both Python 2.x and Python 3.x
     
    
 3.  **Get the correct yt version** The enzo tests are generated and compared
 using the yt analysis suite.  You must be using yt 3.3.0 or newer in order for
 the test suite to work.  If you do not yet have yt, visit
-http://yt-project.org/#getyt for installation instructions.  If you already have
-yt and yt is in your path, make sure you are using the latest verion of yt by
-running the following commands:
+https://yt-project.org/docs/dev/installing.html for installation instructions.
 
-::
-
-    $ cd /path/to/yt_mercurial_repository
-    $ hg update yt
-    $ python setup.py develop
 
 4. **Generate answers to test with.** Run the test suite with these flags within
 the ``run/`` subdirectory in the enzo source hierarchy:
@@ -430,6 +421,8 @@ to include in a particular run of the testing suite.
 
 How to track down which changeset caused your test failure
 ----------------------------------------------------------
+
+[This section refers to a feature which is not currently working.]
 
 In order to identify changesets that caused problems, we have 
 provided the ``--bisect`` flag.  This runs hg bisect on revisions 

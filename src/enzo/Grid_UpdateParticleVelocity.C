@@ -37,14 +37,17 @@ int grid::UpdateParticleVelocity(float TimeStep)
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  
-  if (NumberOfParticles == 0 || ParticleAcceleration[0] == NULL) return SUCCESS;
+  if ((NumberOfParticles == 0 && NumberOfActiveParticles == 0) || ParticleAcceleration[0] == NULL)
+    return SUCCESS;
  
   FLOAT a = 1.0, dadt;
 #if defined(VELOCITY_METHOD1) || defined(VELOCITY_METHOD2)
   float VelocityMidStep;
 #endif
-  int i;
- 
+  int i, dim , dim1;
+
+  FLOAT coef, coef1, coef2;
+
   /* If using comoving coordinates, divide by a(t) first. */
  
   if (ComovingCoordinates)
@@ -67,9 +70,9 @@ int grid::UpdateParticleVelocity(float TimeStep)
  
     if (ComovingCoordinates) {
  
-      FLOAT coef = 0.5*dadt/a*TimeStep;
-      FLOAT coef1 = 1.0 - coef;
-      FLOAT coef2 = 1.0 / (1.0 + coef);
+      coef = 0.5*dadt/a*TimeStep;
+      coef1 = 1.0 - coef;
+      coef2 = 1.0 / (1.0 + coef);
  
       /* If using comoving coordinates, subtract the (time-centered)
 	 drag-like term and add the acceleration. The acceleration has
@@ -128,6 +131,69 @@ int grid::UpdateParticleVelocity(float TimeStep)
 	     ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
              ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i]);
 
+    if (NumberOfActiveParticles > 0) {
+      if (ComovingCoordinates) {
+        if (CosmologyComputeExpansionFactor(Time + TimeStep, &a, &dadt)
+            == FAIL) {
+          ENZO_FAIL("Error in CsomologyComputeExpansionFactors.");
+        }
+        
+        for (i = 0; i < NumberOfActiveParticles; i++) {
+
+          float* apvel = ActiveParticles[i]->ReturnVelocity();
+          
+          for (dim = 0; dim < GridRank; dim++) {
+            
+#ifdef VELOCITY_METHOD1
+
+      /* i) partially time-centered. */
+            
+            VelocityMidStep = apvel[dim] +
+              ActiveParticleAcceleration[dim][i]*0.5*TimeStep;
+
+            apvel[dim] +=
+              (-VelocityMidStep*dadt/a + ActiveParticleAcceleration[dim][i]) * TimeStep;
+
+#endif /* VELOCITY_METHOD1 */
+
+#ifdef VELOCITY_METHOD2
+
+            /* ii) partially backward. */
+            
+            VelocityMidStep = apvel[dim];
+
+            apvel[dim] +=
+              (-VelocityMidStep*dadt/a + ActiveParticleAcceleration[dim][i]) * TimeStep;
+
+#endif /* VELOCITY_METHOD2 */
+
+#ifdef VELOCITY_METHOD3
+
+            /* iii) Semi-implicit way */
+            
+            apvel[dim] = (coef1*apvel[dim] + ActiveParticleAcceleration[dim][i]*TimeStep)*coef2;
+
+
+#endif /* VELOCITY_METHOD3 */
+
+          }
+          ActiveParticles[i]->SetVelocity(apvel);
+        }
+      }
+      else {
+      
+      /* Otherwise, just add the acceleration. */
+      
+        for (i = 0; i < NumberOfActiveParticles; i++) {
+          float* apvel = ActiveParticles[i]->ReturnVelocity();
+          
+          for (dim = 0; dim < GridRank; dim++)
+            apvel[dim] += ActiveParticleAcceleration[dim][i] * TimeStep;
+        
+          ActiveParticles[i]->SetVelocity(apvel);
+        }
+      }
+    }
  
-  return SUCCESS;
+    return SUCCESS;
 }
