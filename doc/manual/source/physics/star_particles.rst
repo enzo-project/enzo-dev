@@ -1,7 +1,7 @@
 .. _star_particles:
 
 
-Star, Black Hole, Sink, and Active Particles
+Star, Black Hole and Sink Particles
 ============================================
 
 There are many different subgrid models of star formation and feedback
