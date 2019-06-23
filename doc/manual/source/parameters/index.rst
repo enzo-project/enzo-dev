@@ -294,6 +294,17 @@ Initialization Parameters
     by specifying a file which contains the information in the
     appropriate format. This is too involved to go into here. Default:
     none
+``StoreDomainBoundaryMassFlux`` (external)
+    When turned on, this stores the cumulative mass (in solar masses)
+    of density fields (density, species fields, metallicity) that 
+    outflows from the simulation domain. This is stored directly
+    in the output parameter files as the ``BoundaryMassFluxFieldNumbers``
+    and ``BoundaryMassFluxContainer`` parameters, as well as
+    the cycle-by-cycle mass outflow in ``BoundaryMassFluxFilename``.
+    Default : 0 (off)
+``BoundaryMassFluxFilename`` (external)
+    The filename to output the cycle-by-cyle mass outflow from the 
+    grid domain when the above parameter is ON. Default : 'boundary_mass_flux.dat'
 ``InitialTime`` (internal)
     The time, in code units, of the current step. For cosmology the
     units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem

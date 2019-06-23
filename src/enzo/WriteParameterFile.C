@@ -1261,6 +1261,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "CorrectParentBoundaryFlux          = %d\n", CorrectParentBoundaryFlux);
 
+  fprintf(fptr, "StoreDomainBoundaryMassFlux = %"ISYM"\n", StoreDomainBoundaryMassFlux);
+  fprintf(fptr, "BoundaryMassFluxFilename = %s\n", BoundaryMassFluxFilename);
+  for (dim = 0; dim < MAX_NUMBER_OF_BARYON_FIELDS; dim++){
+    if (BoundaryMassFluxFieldNumbers[dim] >= 0){
+      fprintf(fptr, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM"\n", dim, BoundaryMassFluxFieldNumbers[dim]);
+      fprintf(fptr, "BoundaryMassFluxContainer[%"ISYM"]        = %"ESYM"\n", dim, BoundaryMassFluxContainer[dim]);
+    }
+  }
+
   /* Supernova magnetic seed field */
   fprintf(fptr, "UseMagneticSupernovaFeedback = %"ISYM"\n", UseMagneticSupernovaFeedback);
   fprintf(fptr, "MagneticSupernovaRadius = %"GSYM"\n", MagneticSupernovaRadius);

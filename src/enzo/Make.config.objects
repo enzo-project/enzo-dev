@@ -116,6 +116,7 @@ OBJS_CONFIG_LIB = \
         CommunicationUpdateActiveParticleCount.o \
         CommunicationUpdateStarParticleCount.o \
         CommunicationUtilities.o \
+        ComputeDomainBoundaryMassFlux.o \
 	ConductionBubbleInitialize.o \
 	ConductionCloudInitialize.o \
 	ConductionTestInitialize.o \
@@ -407,6 +408,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeCoolingTime.o \
         Grid_ComputeCRDiffusion.o \
         Grid_ComputeCRDiffusionTimeStep.o \
+        Grid_ComputeDomainBoundaryMassFlux.o \
 	Grid_ComputeDustTemperatureField.o \
 	Grid_ComputeElementalDensity.o \
 	Grid_ComputeEnergy.o \
@@ -566,6 +568,7 @@ OBJS_CONFIG_LIB = \
         Grid_PoissonSolverCGA.o                 \
         Grid_PoissonSolverTestInitializeGrid.o  \
         Grid_PrepareBoundaryFluxes.o \
+        Grid_PrepareBoundaryMassFluxFieldNumbers.o \
         Grid_PrepareFFT.o \
         Grid_PrepareGreensFunction.o \
         Grid_PrepareGridDerivedQuantities.o \

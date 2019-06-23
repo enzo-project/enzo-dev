@@ -105,6 +105,7 @@ class grid
   int    FieldType[MAX_NUMBER_OF_BARYON_FIELDS];
   FLOAT *CellLeftEdge[MAX_DIMENSION];
   FLOAT *CellWidth[MAX_DIMENSION];
+  float  grid_BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS]; // locally stores mass flux across domain boundary
   fluxes *BoundaryFluxes;
 
   // For restart dumps
@@ -1289,6 +1290,11 @@ gradient force to gravitational force for one-zone collapse test. */
    FLOAT GetGridRightEdge(int Dimension) {return GridRightEdge[Dimension];}
    FLOAT GetCellWidth(int Dimension, int index) {return CellWidth[Dimension][index];}
    FLOAT GetCellLeftEdge(int Dimension, int index) {return CellLeftEdge[Dimension][index];}
+
+
+  int PrepareBoundaryMassFluxFieldNumbers();
+  int ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer,
+                                    TopGridData *MetaData);
 
 #ifdef TRANSFER
 // -------------------------------------------------------------------------
