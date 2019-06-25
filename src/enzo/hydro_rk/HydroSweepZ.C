@@ -30,7 +30,7 @@ int HydroLine(float **Prim, float **priml, float **primr,
 	      float dtdx, char direc, int ij, int ik, int fallback);
 
 int HydroSweepZ(float **Prim, float **Flux3D, int GridDimension[], 
-		int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback)
+		int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback)
   /*
     Input: U[NEQ_HYDRO][GridDimension^3].
            Prim[NEQ_HYDRO+1][GridDimension^3].
@@ -68,15 +68,6 @@ int HydroSweepZ(float **Prim, float **Flux3D, int GridDimension[],
 
   for (int field = 0; field < NColor; field ++) {
     colors[field] = new float[Zactivesize+1];
-  }
-
-
- 
-  float min_coeff = 0.0;
-  if (UseMinimumPressureSupport) {
-    min_coeff = GravitationalConstant/(4.0*pi) / (pi * (Gamma*(Gamma-1.0))) *
-      MinimumPressureSupportParameter *
-      CellWidth[0][0] * CellWidth[0][0];
   }
 
   float etot, vx, vy, vz, v2, p;

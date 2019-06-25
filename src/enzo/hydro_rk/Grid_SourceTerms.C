@@ -32,7 +32,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-int grid::SourceTerms(float **dU)
+int grid::SourceTerms(float **dU, float min_coeff)
 {
 
   if (ProcessorNumber != MyProcessorNumber) {
@@ -68,11 +68,6 @@ int grid::SourceTerms(float **dU)
 	dtdy = (GridRank > 1) ? 0.5*dtFixed/CellWidth[1][0]/a : 0.0,
 	dtdz = (GridRank > 2) ? 0.5*dtFixed/CellWidth[2][0]/a : 0.0;
       float rho, eint, p, divVdt, h, cs, dpdrho, dpde;
-      float min_coeff = 0.0;
-      if (UseMinimumPressureSupport) {
-	min_coeff = MinimumPressureSupportParameter*
-	  0.48999*pow(CellWidth[0][0],2)/(Gamma*(Gamma-1.0));
-      }
       int n = 0;
       for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {

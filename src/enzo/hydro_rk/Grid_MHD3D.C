@@ -24,16 +24,16 @@
 #include "Grid.h"
 
 int MHDSweepX(float **Prim,  float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback);
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback);
 int MHDSweepY(float **Prim,  float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback);
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback);
 int MHDSweepZ(float **Prim,  float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback);
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int grid::MHD3D(float **Prim, float **dU, float dt,
 		fluxes *SubgridFluxes[], int NumberOfSubgrids, 
-		float fluxcoef, int fallback)
+		float fluxcoef, float min_coeff, int fallback)
   /* 
      Input:  U[NEQ_SRHYDRO][GridDimension^3]: the conserved variables vector 
                                               including ghost zones.
@@ -97,7 +97,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
 
   // compute flux at cell faces in x direction
   FLOAT dtdx = dt/(a*CellWidth[0][0]);
-  if (MHDSweepX(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, fallback) 
+  if (MHDSweepX(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback) 
       == FAIL) {
     return FAIL;
   }
@@ -157,7 +157,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
   if (GridRank > 1) {
     dtdx = dt/(a*CellWidth[1][0]);
     // compute flux in y direction
-    if (MHDSweepY(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, fallback) 
+    if (MHDSweepY(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback) 
 	== FAIL)
       return FAIL;
 
@@ -192,7 +192,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
   if (GridRank > 2) {
     dtdx = dt/(a*CellWidth[2][0]);
     // compute flux in z direction
-    if (MHDSweepZ(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, fallback) 
+    if (MHDSweepZ(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback) 
 	== FAIL)
       return FAIL;
 
