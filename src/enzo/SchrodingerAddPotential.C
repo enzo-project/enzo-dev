@@ -40,7 +40,7 @@ c
 #define GIDX(a,b,c) ( ((c)*gjn + (b))*gin + (a) )
 
 
-int SchrdingerAddPotential(double *repsi, double *impsi,
+int SchrodingerAddPotential(double *repsi, double *impsi,
          int in, int jn, int kn, int rank,
          int gin, int gjn, int gkn,
          double dt, 
@@ -56,17 +56,6 @@ int SchrdingerAddPotential(double *repsi, double *impsi,
 
   /* ======================================================================= */
 
-  /* Compute varients on start indexes */
-
-  /*jsm1 = max(js-1, 0);
-  jsm2 = max(js-2, 0);
-  jep1 = min(je+1, jn-1);
-  jep2 = min(je+2, jn-1);
-  ksm1 = max(ks-1, 0);
-  ksm2 = max(ks-2, 0);
-  kep1 = min(ke+1, kn-1);
-  kep2 = min(ke+2, kn-1);*/
-
   double auxre, auxim;  
 
   for (k = 0; k < kn; k++) {
@@ -80,8 +69,6 @@ int SchrdingerAddPotential(double *repsi, double *impsi,
 
         repsi[IDX(i,j,k)] = auxre;
         impsi[IDX(i,j,k)] = auxim;
-        //printf("potential %d %d %d\n", i+start1, j+start2, k+start3);
-          
 
       }// end loop over i
     } // end loop over j

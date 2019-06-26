@@ -1,5 +1,3 @@
-#;-*-C-*-
-
 # AMR PROBLEM DEFINITION FILE: Cosmology Simulation
 # This is a small cosmology simulation that runs to z = 0.
 # The redshift outputs can be used to create a light-cone out to z = 0.1.

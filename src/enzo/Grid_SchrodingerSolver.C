@@ -73,7 +73,7 @@ int sv2(int nhy, double *repsi, double *impsi,
          double dt, double dx[], double dy[], double dz[],
          double hmcoef);
 
-int SchrdingerAddPotential(double *repsi, double *impsi,
+int SchrodingerAddPotential(double *repsi, double *impsi,
          int in, int jn, int kn, int rank,
          int gin, int gjn, int gkn,
          double dt, 
@@ -97,8 +97,6 @@ int grid::SchrodingerSolver( int nhy )
     return SUCCESS;
 
   int i, ie, is, j, je, js, k, ks, ke, n, ixyz, ret;
-  //int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  //float *d, *e, *u, *v, *w;
   int dim;
 
   /* compute global start index for left edge of entire grid 
@@ -109,15 +107,15 @@ int grid::SchrodingerSolver( int nhy )
       GridGlobalStart[dim] = nlongint((GridLeftEdge[dim]-DomainLeftEdge[dim])/(*(CellWidth[dim]))) -
   GridStartIndex[dim];
 
-    /* fix grid quantities so they are defined to at least 3 dims */
+  /* fix grid quantities so they are defined to at least 3 dims */
 
-    for (i = GridRank; i < 3; i++) {
-      GridDimension[i]   = 1;
-      GridStartIndex[i]  = 0;
-      GridEndIndex[i]    = 0;
-      GridVelocity[i]    = 0.0;
-      GridGlobalStart[i] = 0;
-    }
+  for (i = GridRank; i < 3; i++) {
+    GridDimension[i]   = 1;
+    GridStartIndex[i]  = 0;
+    GridEndIndex[i]    = 0;
+    GridVelocity[i]    = 0.0;
+    GridGlobalStart[i] = 0;
+  }
 
   FLOAT a = 1, dadt;
   if (ComovingCoordinates)
@@ -126,26 +124,26 @@ int grid::SchrodingerSolver( int nhy )
   ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
       }
 
-    /* Create a cell width array to pass (and convert to absolute coords). */
+  /* Create a cell width array to pass (and convert to absolute coords). */
 
-    float *CellWidthTemp[MAX_DIMENSION];
-    for (dim = 0; dim < MAX_DIMENSION; dim++) {
-      CellWidthTemp[dim] = new float[GridDimension[dim]];
-      for (i = 0; i < GridDimension[dim]; i++)
-  if (dim < GridRank)
-    CellWidthTemp[dim][i] = float(a*CellWidth[dim][i]);
-  else
-    CellWidthTemp[dim][i] = 1.0;
-    }
+  float *CellWidthTemp[MAX_DIMENSION];
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    CellWidthTemp[dim] = new float[GridDimension[dim]];
+    for (i = 0; i < GridDimension[dim]; i++)
+      if (dim < GridRank)
+	CellWidthTemp[dim][i] = float(a*CellWidth[dim][i]);
+      else
+	CellWidthTemp[dim][i] = 1.0;
+  }
 
-      /* Prepare Gravity. */
+  /* Prepare Gravity. */
 
   int GravityOn = 0, FloatSize = sizeof(float);
-    if (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity || ExternalGravity )
-      GravityOn = 1;
+  if (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity || ExternalGravity )
+    GravityOn = 1;
 #ifdef TRANSFER
-    if (RadiationPressure)
-      GravityOn = 1;
+  if (RadiationPressure)
+    GravityOn = 1;
 #endif  
 
   /* Error Check */
@@ -159,58 +157,28 @@ int grid::SchrodingerSolver( int nhy )
 
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
 
-  //float *repsi0 = new float[size];
-  //float *impsi0 = new float[size];
-  
-  /* Find fields: density, total energy, velocity1-3 and set pointers to them
-     Create zero fields for velocity2-3 for low-dimension runs because solver
-     assumes they exist. */
-
-  /*this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum );
-  
-  d = BaryonField[DensNum];
-  e = BaryonField[TENum];
-  u = BaryonField[Vel1Num];
-  v = BaryonField[Vel2Num];
-  w = BaryonField[Vel3Num]; */
-
-  /*  Set grid start and end indicies */
-
-  /*is = GridStartIndex[0];
-  js = GridStartIndex[1];
-  ks = GridStartIndex[2];
-  ie = GridEndIndex[0];
-  je = GridEndIndex[1];
-  ke = GridEndIndex[2];*/
-
-  /* if use more ghost zones */  
-  /*ie = ie+max(0,is-3);
-  je = je+max(0,js-3);
-  ke = ke+max(0,ks-3);
-  is = is-max(0,is-3);
-  js = js-max(0,js-3);
-  ks = ks-max(0,ks-3);*/
-
-		 
   /*   1) Add source terms */  
-    // get code units
+
+  /* get code units */
+
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
     VelocityUnits = 1, TimeUnits = 1;
-
   if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
          &TimeUnits, &VelocityUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
 
-// set poteitial offset  
-int Offset[MAX_DIMENSION] = {0,0,0};
-for (int dim = 0; dim < GridRank; dim++) {
+  // set potential offset  
+
+  int Offset[MAX_DIMENSION] = {0,0,0};
+  for (int dim = 0; dim < GridRank; dim++) {
     Offset[dim] = nint((CellLeftEdge[dim][0] -
-      GravitatingMassFieldLeftEdge[dim])/ CellWidth[dim][0]);
+			GravitatingMassFieldLeftEdge[dim])/ CellWidth[dim][0]);
     //printf("offset %d %d\n", dim , GravitatingMassFieldDimension[dim]);
   }
 
   // calculate hbar/m
+
   float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
   //printf("hmcoef %f \n", hmcoef);
 
@@ -225,20 +193,21 @@ for (int dim = 0; dim < GridRank; dim++) {
   d = BaryonField[FDMDensNum];
 
   // Add half gravity before the TVD-RK
+
   if (GravityOn && (PotentialField != NULL) ){
     if (nhy == 0 ){ // Add half step of potential at the beginning
-    if(SchrdingerAddPotential(repsi, impsi,
-         GridDimension[0], GridDimension[1], GridDimension[2],
+      if(SchrodingerAddPotential(repsi, impsi,
+	 GridDimension[0], GridDimension[1], GridDimension[2],
          GridRank, 
          GravitatingMassFieldDimension[0],GravitatingMassFieldDimension[1],GravitatingMassFieldDimension[2],
          dtFixed/2., hmcoef,
          PotentialField, 
          Offset[0], Offset[1], Offset[2]) == FAIL){
          ENZO_FAIL("Error in Add poteitial before RK!\n"); 
-         }
-     } else {
+      }
+    } else {
 
-    if(SchrdingerAddPotential(repsi, impsi,
+      if (SchrodingerAddPotential(repsi, impsi,
          GridDimension[0], GridDimension[1], GridDimension[2],
          GridRank, 
          GravitatingMassFieldDimension[0],GravitatingMassFieldDimension[1],GravitatingMassFieldDimension[2],
@@ -246,55 +215,58 @@ for (int dim = 0; dim < GridRank; dim++) {
          PotentialField, 
          Offset[0], Offset[1], Offset[2]) == FAIL){
          ENZO_FAIL("Error in Add poteitial before RK!\n");
-         }
+      }
     }
   }
 
-
   // Add point source potential
+
   if (PointSourceGravity > 0) {
-  FLOAT a = 1.0, potential, auxre, auxim, radius, rcubed, rsquared, xpos, ypos = 0.0, zpos = 0.0, rcore,x ;
 
-       int n = 0;
+    FLOAT a = 1.0, potential, auxre, auxim, radius, rcubed, rsquared, xpos, ypos = 0.0, zpos = 0.0, rcore,x ;
+
+    int n = 0;
       
-      for (k = 0; k < GridDimension[2]; k++) {
-  if (GridRank > 2)
-    zpos = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] -
-      PointSourceGravityPosition[2];
+    for (k = 0; k < GridDimension[2]; k++) {
+      if (GridRank > 2)
+	zpos = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] -
+	  PointSourceGravityPosition[2];
     
-  for (j = 0; j < GridDimension[1]; j++) {
-    if (GridRank > 1)
-      ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] -
-        PointSourceGravityPosition[1];
+      for (j = 0; j < GridDimension[1]; j++) {
+	if (GridRank > 1)
+	  ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] -
+	    PointSourceGravityPosition[1];
       
-    for (i = 0; i < GridDimension[0]; i++, n++) {
-      xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] -
-        PointSourceGravityPosition[0];
+	for (i = 0; i < GridDimension[0]; i++, n++) {
+	  xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] -
+	    PointSourceGravityPosition[0];
 
-      /* Compute distance from center. */
+	  /* Compute distance from center. */
  
-      rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
-      radius = sqrt(rsquared);
-      rcore = PointSourceGravityCoreRadius;
-      /* Compute potential from point source */
+	  rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
+	  radius = sqrt(rsquared);
+	  rcore = PointSourceGravityCoreRadius;
 
-      potential = -min(PointSourceGravityConstant/radius, PointSourceGravityConstant/rcore);
+	  /* Compute potential from point source */
+
+	  potential = -min(PointSourceGravityConstant/radius, PointSourceGravityConstant/rcore);
         
-      auxre = cos(potential / hmcoef * dtFixed ) * repsi[n] 
-              + sin(potential / hmcoef * dtFixed ) * impsi[n];
+	  auxre = cos(potential / hmcoef * dtFixed ) * repsi[n] 
+	        + sin(potential / hmcoef * dtFixed ) * impsi[n];
 
-      auxim = cos(potential / hmcoef * dtFixed ) * impsi[n] 
-              - sin(potential / hmcoef * dtFixed ) * repsi[n];
+	  auxim = cos(potential / hmcoef * dtFixed ) * impsi[n] 
+                - sin(potential / hmcoef * dtFixed ) * repsi[n];
 
-      repsi[n] = auxre;
-      impsi[n] = auxim;
+	  repsi[n] = auxre;
+	  impsi[n] = auxim;
 
-    } // end: loop over i
-  } // end: loop over j
-      } // end: loop over k
+	} // end: loop over i
+      } // end: loop over j
+    } // end: loop over k
   } // end: if point source
 
   // Runge-Kutta 4th order
+
   if ( rk4(repsi, impsi, 
           GridDimension[0], GridDimension[1], GridDimension[2], GridRank, 
           dtFixed, CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2], hmcoef) == FAIL){
@@ -302,9 +274,10 @@ for (int dim = 0; dim < GridRank; dim++) {
       nhy, dtFixed);
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
     ENZO_FAIL("Error in 4th runge kutta advance\n");
-    }
+  }
 
-  // Stormer-Verlet 2nd order
+  // Stormer-Verlet 2nd order (This should be kept for testing purposes - replaces rk4 above)
+
   /*if ( sv2(nhy,repsi, impsi, 
           GridDimension[0], GridDimension[1], GridDimension[2], GridRank, 
           dtFixed, CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2], hmcoef) == FAIL){
@@ -314,10 +287,10 @@ for (int dim = 0; dim < GridRank; dim++) {
     ENZO_FAIL("Error in 4th runge kutta advance\n");
     }*/
 
-
   // Add half gravity after the TVD-RK
+
   /*if (GravityOn && (PotentialField != NULL) ){
-    if(SchrdingerAddPotential(repsi, impsi,
+    if(SchrodingerAddPotential(repsi, impsi,
          GridDimension[0], GridDimension[1], GridDimension[2],
          GridRank, 
          GravitatingMassFieldDimension[0],GravitatingMassFieldDimension[1],GravitatingMassFieldDimension[2],
@@ -329,11 +302,11 @@ for (int dim = 0; dim < GridRank; dim++) {
     }
   }*/
 
-
   // Update New Density
 
   for (int i=0; i<size; i++){
     d[i] = repsi[i]*repsi[i]+impsi[i]*impsi[i];
+
     /*
     // add a few dissipation, dens acts as absorbing layer, only work for FDMCollapse !!
     repsi[i] = repsi[i] - repsi[i]*dtFixed*dens[i];
@@ -342,8 +315,6 @@ for (int dim = 0; dim < GridRank; dim++) {
     // finished, above should be commented out when run cosmology
     */
   }
-
-  
   
   return SUCCESS;
 

@@ -54,12 +54,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
   float gamma1 = gamma[0];
   float  deltav, dt1, e1;
   float *logd = new float[size];
-  //float *visx = new float[size];
-  //float *visy = new float[size];
-  //float *visz = new float[size];
   float q[ijk];
-
-
 
   /* ======================================================================= */
 
@@ -87,84 +82,87 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
   }
 
   /* Compute the quantum pressure */
-  
+
+#define QP_4TH_ORDER
 
   for (k = 0; k < kn; k++) {
     for (j = 0; j < jn; j++) {
       for (i = 0; i < in; i++){
 
-          //p[IDX(i,j,k)] = (pow(d[IDX(max(i-1,0),j,k)],0.5)-2.0*pow(d[IDX(i,j,k)],0.5)+pow(d[IDX(min(i+1,in-1),j,k)],0.5))/pow(dx[i],2);
+	  //1st order differentiaion - keep just in case it is useful to explore this
+#ifdef QP_1ST_ORDER
+	p[IDX(i,j,k)] = (pow(d[IDX(max(i-1,0),j,k)],0.5)-2.0*pow(d[IDX(i,j,k)],0.5)+pow(d[IDX(min(i+1,in-1),j,k)],0.5))/pow(dx[i],2);
+#endif
 
-          //2nd order differentiation
-          //p[IDX(i,j,k)] = (logd[IDX(max(i-1,0),j,k)]-2.0*logd[IDX(i,j,k)]+logd[IDX(min(i+1,in-1),j,k)])/(dx[i]*dx[i])/2.;
-          //p[IDX(i,j,k)] = p[IDX(i,j,k)] + pow((logd[IDX(min(i+1,in-1),j,k)]-logd[IDX(max(i-1,0),j,k)])/(dx[i]*2.),2)/4.;
+          //2nd order differentiation - keep just in case it is useful to explore this
+#ifdef QP_2ND_ORDER
+	p[IDX(i,j,k)] = (logd[IDX(max(i-1,0),j,k)]-2.0*logd[IDX(i,j,k)]+logd[IDX(min(i+1,in-1),j,k)])/(dx[i]*dx[i])/2.;
+	p[IDX(i,j,k)] = p[IDX(i,j,k)] + pow((logd[IDX(min(i+1,in-1),j,k)]-logd[IDX(max(i-1,0),j,k)])/(dx[i]*2.),2)/4.;
+#endif
 
-
-          //4th order differentiation
+          //4th order differentiation - use this
+#ifdef QP_4TH_ORDER
           p[IDX(i,j,k)] = (-1./12.*(logd[IDX(max(i-2,0),j,k)]+logd[IDX(min(i+2,in-1),j,k)])
           				  +4./3.*(logd[IDX(max(i-1,0),j,k)]+logd[IDX(min(i+1,in-1),j,k)])
           				  -5./2.*logd[IDX(i,j,k)])/(dx[i]*dx[i])/2.;
           p[IDX(i,j,k)] = p[IDX(i,j,k)] 
           				+ pow((1./12.*(logd[IDX(max(i-2,0),j,k)]-logd[IDX(min(i+2,in-1),j,k)])
           				  -2./3.*(logd[IDX(max(i-1,0),j,k)]-logd[IDX(min(i+1,in-1),j,k)]))/dx[i],2)/4.;
+#endif /* QP_4TH_ORDER */
 
           //visx[IDX(i,j,k)] = u[IDX(max(i-1,0),j,k)]-2.0*u[IDX(i,j,k)]+u[IDX(min(i+1,in-1),j,k)];
 
           if (rank > 1) {
-          //p[IDX(i,j,k)] = p[IDX(i,j,k)] + (pow(d[IDX(i,max(j-1,0),k)],0.5)-2.0*pow(d[IDX(i,j,k)],0.5)+pow(d[IDX(i,min(j+1,jn-1),k)],0.5))/pow(dy[j],2);
-		 
-          //p[IDX(i,j,k)] = p[IDX(i,j,k)] + (logd[IDX(i,max(j-1,0),k)]-2.0*logd[IDX(i,j,k)]+logd[IDX(i,min(j+1,jn-1),k)])/(dy[j]*dy[j])/2.;
-          //p[IDX(i,j,k)] = p[IDX(i,j,k)] + pow((logd[IDX(i,min(j+1,jn-1),k)]-logd[IDX(i,max(j-1,0),k)])/(dy[j]*2.),2)/4.;
+#ifdef QP_1ST_ORDER
+	    p[IDX(i,j,k)] = p[IDX(i,j,k)] + (pow(d[IDX(i,max(j-1,0),k)],0.5)-2.0*pow(d[IDX(i,j,k)],0.5)+pow(d[IDX(i,min(j+1,jn-1),k)],0.5))/pow(dy[j],2);
+#endif
 
-          	//4th order differentiation
-          p[IDX(i,j,k)] = p[IDX(i,j,k)]
+#ifdef QP_2ND_ORDER
+	    p[IDX(i,j,k)] = p[IDX(i,j,k)] + (logd[IDX(i,max(j-1,0),k)]-2.0*logd[IDX(i,j,k)]+logd[IDX(i,min(j+1,jn-1),k)])/(dy[j]*dy[j])/2.;
+	    p[IDX(i,j,k)] = p[IDX(i,j,k)] + pow((logd[IDX(i,min(j+1,jn-1),k)]-logd[IDX(i,max(j-1,0),k)])/(dy[j]*2.),2)/4.;
+#endif
+
+	    //4th order differentiation
+#ifdef QP_4TH_ORDER
+	    p[IDX(i,j,k)] = p[IDX(i,j,k)]
           				  +(-1./12.*(logd[IDX(i,max(j-2,0),k)]+logd[IDX(i,min(j+2,jn-1),k)])
           				  +4./3.*(logd[IDX(i,max(j-1,0),k)]+logd[IDX(i,min(j+1,jn-1),k)])
           				  -5./2.*logd[IDX(i,j,k)])/(dy[j]*dy[j])/2.;
-          p[IDX(i,j,k)] = p[IDX(i,j,k)] 
+	    p[IDX(i,j,k)] = p[IDX(i,j,k)] 
           				+ pow((1./12.*(logd[IDX(i,max(j-2,0),k)]-logd[IDX(i,min(j+2,jn-1),k)])
           				  -2./3.*(logd[IDX(i,max(j-1,0),k)]-logd[IDX(i,min(j+1,jn-1),k)]))/dy[j],2)/4.;
-
-          //visy[IDX(i,j,k)] = v[IDX(max(i-1,0),j,k)]-2.0*v[IDX(i,j,k)]+v[IDX(min(i+1,in-1),j,k)];
-
-          //visx[IDX(i,j,k)] += u[IDX(i,max(j-1,0),k)]-2.0*u[IDX(i,j,k)]+u[IDX(i,min(j+1,jn-1),k)];
-          //visy[IDX(i,j,k)] += v[IDX(i,max(j-1,0),k)]-2.0*v[IDX(i,j,k)]+v[IDX(i,min(j+1,jn-1),k)];
-
-
+#endif /* QP_4TH_ORDER */
 
           }// end rank > 1
-          if (rank > 2) {
-          //p[IDX(i,j,k)] = p[IDX(i,j,k)] + (pow(d[IDX(i,j,max(k-1,0))],0.5)-2.0*pow(d[IDX(i,j,k)],0.5)+pow(d[IDX(i,j,min(k+1,kn-1))],0.5))/pow(dz[k],2);
-		
-          //p[IDX(i,j,k)] = p[IDX(i,j,k)] + (logd[IDX(i,j,max(k-1,0))]-2.0*logd[IDX(i,j,k)]+logd[IDX(i,j,min(k+1,kn-1))])/(dz[k]*dz[k])/2.;
-          //p[IDX(i,j,k)] = p[IDX(i,j,k)] + pow((logd[IDX(i,j,min(k+1,kn-1))]-logd[IDX(i,j,max(k-1,0))])/(dz[k]*2.),2)/4.;
 
+          if (rank > 2) {
+#ifdef QP_1ST_ORDER
+	    p[IDX(i,j,k)] = p[IDX(i,j,k)] + (pow(d[IDX(i,j,max(k-1,0))],0.5)-2.0*pow(d[IDX(i,j,k)],0.5)+pow(d[IDX(i,j,min(k+1,kn-1))],0.5))/pow(dz[k],2);
+#endif
+		
+#ifdef QP_2ND_ORDER
+	    p[IDX(i,j,k)] = p[IDX(i,j,k)] + (logd[IDX(i,j,max(k-1,0))]-2.0*logd[IDX(i,j,k)]+logd[IDX(i,j,min(k+1,kn-1))])/(dz[k]*dz[k])/2.;
+	    p[IDX(i,j,k)] = p[IDX(i,j,k)] + pow((logd[IDX(i,j,min(k+1,kn-1))]-logd[IDX(i,j,max(k-1,0))])/(dz[k]*2.),2)/4.;
+#endif
+	    
           //4th order differentiation
-          p[IDX(i,j,k)] = p[IDX(i,j,k)]
+#ifdef QP_4TH_ORDER
+	    p[IDX(i,j,k)] = p[IDX(i,j,k)]
           				  +(-1./12.*(logd[IDX(i,j,max(k-2,0))]+logd[IDX(i,j,min(k+2,kn-1))])
           				  +4./3.*(logd[IDX(i,j,max(k-1,0))]+logd[IDX(i,j,min(k+1,kn-1))])
           				  -5./2.*logd[IDX(i,j,k)])/(dz[k]*dz[k])/2.;
-          p[IDX(i,j,k)] = p[IDX(i,j,k)] 
+	    p[IDX(i,j,k)] = p[IDX(i,j,k)] 
           				+ pow((1./12.*(logd[IDX(i,j,max(k-2,0))]-logd[IDX(i,j,min(k+2,kn-1))])
           				  -2./3.*(logd[IDX(i,j,max(k-1,0))]-logd[IDX(i,j,min(k+1,kn-1))]))/dz[k],2)/4.;
-
-          //visz[IDX(i,j,k)] = w[IDX(max(i-1,0),j,k)]-2.0*w[IDX(i,j,k)]+w[IDX(min(i+1,in-1),j,k)];
-
-          //visz[IDX(i,j,k)] += w[IDX(i,max(j-1,0),k)]-2.0*w[IDX(i,j,k)]+w[IDX(i,min(j+1,jn-1),k)];
-
-          //visx[IDX(i,j,k)] += u[IDX(i,j,max(k-1,0))]-2.0*u[IDX(i,j,k)]+u[IDX(i,j,min(k+1,kn-1))];
-          //visy[IDX(i,j,k)] += v[IDX(i,j,max(k-1,0))]-2.0*v[IDX(i,j,k)]+v[IDX(i,j,min(k+1,kn-1))];
-          //visz[IDX(i,j,k)] += w[IDX(i,j,max(k-1,0))]-2.0*w[IDX(i,j,k)]+w[IDX(i,j,min(k+1,kn-1))];
-
+#endif /* QP_4TH_ORDER */
 
           }// end rank > 2
 
-          //p[IDX(i,j,k)] = p[IDX(i,j,k)]/pow(d[IDX(i,j,k)],0.5)*lapcoef;
-          
           p[IDX(i,j,k)] = p[IDX(i,j,k)]*lapcoef;
           
           e[IDX(i,j,k)] = 1e3;          
-                  }// end loop over i
+
+      }// end loop over i
     } // end loop over j
   } // end loop over k 
 
@@ -175,49 +173,38 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
     for (j = jsm1; j <= jep2; j++) {
       for (i = is-1; i <= ie+2; i++) {
       		
-          deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i-1,j,k)])/dx[i];// + visx[IDX(i,j,k)]* 1e-1;
-		      u[IDX(i,j,k)] = u[IDX(i,j,k)] + deltav;
+	deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i-1,j,k)])/dx[i];
+	u[IDX(i,j,k)] = u[IDX(i,j,k)] + deltav;
 
-      if (rank > 1) {
-      		deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i,j-1,k)])/dy[j];// + visy[IDX(i,j,k)]* 1e-1;
+	if (rank > 1) {
+	  deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i,j-1,k)])/dy[j];
       	  v[IDX(i,j,k)] = v[IDX(i,j,k)] + deltav;
-          }// end rank >1
+	}// end rank >1
 
-      if (rank > 2) {
-      		deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i,j,k-1)])/dz[k];// + visz[IDX(i,j,k)]* 1e-1;
+	if (rank > 2) {
+	  deltav =  dt*(p[IDX(i,j,k)]-p[IDX(i,j,k-1)])/dz[k];
       	  w[IDX(i,j,k)] = w[IDX(i,j,k)] + deltav;
         }// end rank>2
 
-      /* Update velocities with acceleration */
+	/* Update velocities with acceleration */
 
         if(gravity ==1 ){
 
     	  u[IDX(i,j,k)] = u[IDX(i,j,k)] + dt*gr_xacc[IDX(i,j,k)];
 
-	     if (rank > 1)
-  	       v[IDX(i,j,k)] = v[IDX(i,j,k)] + dt*gr_yacc[IDX(i,j,k)];
+	  if (rank > 1)
+	    v[IDX(i,j,k)] = v[IDX(i,j,k)] + dt*gr_yacc[IDX(i,j,k)];
 
-	     if (rank > 2)
-	         w[IDX(i,j,k)] = w[IDX(i,j,k)] + dt*gr_zacc[IDX(i,j,k)];
-       }
-       e[IDX(i,j,k)] = 1e3;
-       //fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
-        //u[i],v[i],w[i],d[i],p[i], dx[0], dt);
+	  if (rank > 2)
+	    w[IDX(i,j,k)] = w[IDX(i,j,k)] + dt*gr_zacc[IDX(i,j,k)];
+	}
+	e[IDX(i,j,k)] = 1e3;
 
       }// end loop over i
     } // end: loop over j
   } // end: loop over k
 
-
-
-
-delete [] logd;
-
-//delete [] visx;
-//delete [] visy;
-//delete [] visz;
-
-
+  delete [] logd;
 
   return SUCCESS;
 }

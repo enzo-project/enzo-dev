@@ -477,7 +477,7 @@ float grid::ComputeTimeStep()
          dx = min( dx, CellWidth[2][0]*afloat);
         }
 
-      dtQuantum = pow(dx,2)/hmcoef/2.;
+      dtQuantum = POW(dx,2)/hmcoef/2.;
 
       dtQuantum *= CourantSafetyNumber;
 

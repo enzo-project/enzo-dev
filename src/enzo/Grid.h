@@ -2671,7 +2671,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				int InitialMagneticFieldConfiguration);
 
 /* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
-  int LightBosonInitializeGrid(float CenterPosition);
+  int LightBosonInitializeGrid(float CenterPosition, int LightBosonProblemType);
 /* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
   int FDMCollapseInitializeGrid();
 // -------------------------------------------------------------------------

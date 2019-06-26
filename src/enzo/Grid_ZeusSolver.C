@@ -173,7 +173,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   ke = GridEndIndex[2];
 
   //  If NumberOfGhostZones is set to 4, then use the extra space
-/*
+
   if (is == 4) {
     is = is - 1;
     ie = ie + 1;
@@ -185,7 +185,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   if (ks == 4) {
     ks = ks - 1;
     ke = ke + 1;
-  }*/
+  }
 
   /* FDM: if use more ghost zones */
   if (QuantumPressure) {
@@ -215,42 +215,43 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   }
 		 
   /*   1) Add source terms */
+
   /* FDM: if FDM is used */
-  if (QuantumPressure){
-    // get code units
-  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-    VelocityUnits = 1, TimeUnits = 1;
 
-  if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-         &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    ENZO_FAIL("Error in GetUnits.");
-  }
+  if (QuantumPressure) {
+  
+    float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
+      VelocityUnits = 1, TimeUnits = 1;
 
-  FLOAT a = 1, dadt;
-  if (ComovingCoordinates)
-      if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
-    == FAIL) {
-  ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
+    if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+			&TimeUnits, &VelocityUnits, Time) == FAIL) {
+      ENZO_FAIL("Error in GetUnits.");
+    }
+
+    FLOAT a = 1, dadt;
+    if (ComovingCoordinates)
+      if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) == FAIL) {
+	ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
       }
-  // calculate hbar/m
-  float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass;
-  //(hbar/m)^2/2
-  float lapcoef = pow(hmcoef,2)/2.;
+
+    // calculate hbar/m
+    double hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits,2)/FDMMass;
+    //(hbar/m)^2/2
+    double lapcoef = POW(hmcoef,2)/2.;
   
     if (ZeusFDM(d, e, u, v, w, p,
-     GridDimension[0], GridDimension[1], GridDimension[2],
-     GridRank, 
-     is, ie, js, je, ks, ke, 
-     ZEUSLinearArtificialViscosity,
-     ZEUSQuadraticArtificialViscosity,
-     gamma, dtFixed, dx, dy, dz,
-     gravity, AccelerationField[0], AccelerationField[1],
-     AccelerationField[2],
-     minsupecoef,lapcoef) == FAIL) {
-    fprintf(stderr, "P(%"ISYM"): Error in ZeusFDM on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
-      nhy, dtFixed);
-    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
-    ENZO_FAIL("Error in ZeusFDM!\n");
+		GridDimension[0], GridDimension[1], GridDimension[2],
+		GridRank, 
+		is, ie, js, je, ks, ke, 
+		ZEUSLinearArtificialViscosity,
+		ZEUSQuadraticArtificialViscosity,
+		gamma, dtFixed, dx, dy, dz,
+		gravity, AccelerationField[0], AccelerationField[1],
+		AccelerationField[2],
+		minsupecoef,lapcoef) == FAIL) {
+      fprintf(stderr, "P(%"ISYM"): Error in ZeusFDM on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber, nhy, dtFixed);
+      fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+      ENZO_FAIL("Error in ZeusFDM!\n");
     }
 
   } else {
@@ -347,7 +348,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 			    SubgridFluxes, DensNum, TENum,
 			    Vel1Num, Vel2Num, Vel3Num, BaryonField,
 			    NumberOfColours, colnum);
-
+  
     if (ret == FAIL) {
       fprintf(stderr, "P(%"ISYM"): Error on ZeusTransport dim=%"ISYM" (Cycle = %"ISYM", dt=%"GSYM")\n", 
 	      MyProcessorNumber, n % GridRank, nhy, dtFixed);
@@ -356,14 +357,12 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       }
   
   } // end loop over n
-
+  
   /* Clean up */
 
   delete [] p;
   if (GridRank < 2) delete [] v;
   if (GridRank < 3) delete [] w;
-
-  
   
   return SUCCESS;
 

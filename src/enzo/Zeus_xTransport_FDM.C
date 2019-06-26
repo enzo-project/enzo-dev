@@ -57,7 +57,6 @@ int Zeus_xTransport_FDM(float *d, float *e, float *u, float *v, float *w,
   float dnew, q[ijk], div[ijk], f2[ijk], f3[ijk], f4[ijk], 
         dstar[ijk], estar[ijk], ustar[ijk], vstar[ijk], wstar[ijk],
         uavgi[ijk], uavgj[ijk], uavgk[ijk], df, ueff[ijk];
-//  float *colstar[MAX_COLOR];
   int ip1, im2, im3, ip2;
 
 //=======================================================================
@@ -65,11 +64,6 @@ int Zeus_xTransport_FDM(float *d, float *e, float *u, float *v, float *w,
   /* Set the index for the in-scan (dim) off-scan (i,jdim) dimensions */
 
   dim = 0, idim = 1, jdim = 2;
-
-  /* Allocate space for colstar. */
-
-//  for (ic = 0; ic < ncolor; ic++)
-//    colstar[ic] = new float[in];
 
 // 1) Transport step - x direction
 
@@ -111,29 +105,6 @@ int Zeus_xTransport_FDM(float *d, float *e, float *u, float *v, float *w,
 
       for (i = 0; i < in; i++)
 	ueff[i] = u[IDX(i,j,k)];
-
-//    Interpolate energy
-
-//      vanlr1_zc(e, in, jn, kn, is-1, ie+2, j, k, dx, dt, ueff, estar);
-
-//    Compute color flux (assuming it is density-like) and advect
-//           color variables (zone-centered)
-
-//      for (ic = 0; ic < ncolor; ic++) {
-
-//	vanlr1_zc(BaryonField[colnum[ic]], in, jn, kn, is-1, ie+2, j, k, dx, dt, ueff, colstar[ic]);
-
-//	for (i = is-2; i <= ie+3; i++)
-//	  colstar[ic][i] *= ueff[i];
-	    
-//	for (i = is-2; i <= ie+2; i++) 
-//	  BaryonField[colnum[ic]][IDX(i,j,k)] += dt*(colstar[ic][i] - colstar[ic][i+1])/dx[i];
- //     }
-
-//    Compute energy flux
-
-//      for (i = is-2; i <= ie+3; i++)
-//	f5[i] = estar[i]*f1[IDX(i,j,k)];
 
 //    Make appropriately-averaged quanitities for advection
 
@@ -189,8 +160,6 @@ int Zeus_xTransport_FDM(float *d, float *e, float *u, float *v, float *w,
 	  printf("zeus_x d warning: d,dnew=%"GSYM",%"GSYM"  i,j,k=%"ISYM",%"ISYM",%"ISYM"  f1=%"GSYM",%"GSYM"\n",
 		 d[IDX(i,j,k)],dnew,i,j,k,f1[IDX(i,j,k)],f1[IDX(i+1,j,k)]);
 
-//	e[IDX(i,j,k)] = (e[IDX(i,j,k)]*d[IDX(i,j,k)] + dt*(f5[i] - f5[i+1])/dx[i])/dnew;
-
 	if ( dnew <= 0.0) {
 	  ENZO_VFAIL("zeus_x negative d error: d,e,dnew,dt=%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n",d[IDX(i,j,k)],e[IDX(i,j,k)],dnew,dt)
 	}
@@ -239,22 +208,6 @@ int Zeus_xTransport_FDM(float *d, float *e, float *u, float *v, float *w,
 	  i2 = rface;
 	  SubgridFluxes[n]->LeftFluxes[DensNum][0][offset]  = f1[IDX(i1,j,k)]*dt/dx[i1];
 	  SubgridFluxes[n]->RightFluxes[DensNum][0][offset] = f1[IDX(i2,j,k)]*dt/dx[i2];
-//	  SubgridFluxes[n]->LeftFluxes[TENum][0][offset]    = f5[i1]*dt;
-//        SubgridFluxes[n]->RightFluxes[TENum][0][offset]   = f5[i2]*dt;
-//	  SubgridFluxes[n]->LeftFluxes[Vel1Num][0][offset]  = f2[i1]*dt;
-//        SubgridFluxes[n]->RightFluxes[Vel1Num][0][offset] = f2[i2]*dt
-//        if (rank > 1) {
-//	    SubgridFluxes[n]->LeftFluxes[Vel2Num][0][offset]  = f3[i1]*dt;
-//          SubgridFluxes[n]->RightFluxes[Vel2Num][0][offset] = f3[i2]*dt;
-//        }
-//        if (rank > 2) {
-//	    SubgridFluxes[n]->LeftFluxes[Vel3Num][0][offset]  = f4[i1]*dt;
-//          SubgridFluxes[n]->RightFluxes[Vel3Num][0][offset] = f4[i2]*dt;
-//        }
-	  //for (ic=0; ic < ncolor; ic++) {
-	    //SubgridFluxes[n]->LeftFluxes[colnum[ic]][0][offset] = colstar[ic][i1]*dt;
-	    //SubgridFluxes[n]->RightFluxes[colnum[ic]][0][offset] = colstar[ic][i2]*dt;
-	  //}
 	}
       } // end loop over subgrids
 
@@ -286,12 +239,6 @@ int Zeus_xTransport_FDM(float *d, float *e, float *u, float *v, float *w,
       } // end: loop over j
     } // end: loop over k
   } // end: if (rank > 1)
-
-
-  /* Cleanup */
-
-  //for (ic = 0; ic < ncolor; ic++)
-    //delete [] colstar[ic];
 
   return SUCCESS;
 
