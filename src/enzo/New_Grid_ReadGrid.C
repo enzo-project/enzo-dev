@@ -65,6 +65,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
   char name[MAX_LINE_LENGTH], dummy[MAX_LINE_LENGTH];
   char logname[MAX_LINE_LENGTH], unused_string[MAX_LINE_LENGTH];
   char procfilename[MAX_LINE_LENGTH];
+  float dx;
  
   char id[MAX_GROUP_TAG_SIZE];
   char pid[MAX_TASK_TAG_SIZE];
@@ -223,10 +224,18 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     /* 4) Read gravity info */
  
-    if (SelfGravity)
+    if (SelfGravity) {
       if (fscanf(fptr, "GravityBoundaryType = %"ISYM"\n",&GravityBoundaryType) != 1) {
-		ENZO_FAIL("Error reading GravityBoundaryType.");
+	// If turning on self gravity in a restart, then determine
+	// whether topgrid or not and then set this value if a
+	// subgrid. We don't have access to MetaData so set it
+	// in ReadDataHierarchy.
+	dx = (GridRightEdge[0] - GridLeftEdge[0]) / (GridEndIndex[0] - GridStartIndex[0]);
+	if (dx < 0.99*TopGridDx[0])
+	  GravityBoundaryType = SubGridIsolated;
+	//ENZO_FAIL("Error reading GravityBoundaryType.");
       }
+    }
 
     // If HierarchyFile has different Ghostzones (which should be a parameter not a macro ...)
     // (useful in a restart with different hydro/mhd solvers) 
