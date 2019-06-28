@@ -4,11 +4,15 @@
 Active Particles
 ============================================
 
-Active Particles (APs) were introduced into Enzo in version 2.6. They were originally part of the
+Active Particles (APs) were introduced into Enzo in version 2.6. They were originally part
 of the Enzo-3.0 effort and were developed by a number of authors including Nathan Goldbaum,
-Matt Turk, John Wise, John Regan, Oliver Hahn and others. Their design philosophy was that the
+Matt Turk, John Wise, John Regan, Oliver Hahn, Greg Meece, Brian Crosby and others. Their design philosophy was that the
 APs would be highly extensible, have robust feedback capabilities and be very much object orientated.
-They were designed to replace the star object class. 
+They were designed to replace the star object class.
+
+Compared to the star objects the APs can more easily connect with the radiative trasfer solver this making the
+framework more extensible in that context. Other feedback mechanisms (e.g. mechanical and thermal) are
+also easily implemented. 
 
 Using Active Particles
 ______________________
@@ -42,16 +46,21 @@ Star Object particle implementation described in :ref:`star_particles`.
 Current Limitations of Active Particles
 _______________________________________
 
-Most of the AP types have not been tested - though in principle do work correctly. Caution and some testing of the particle types is advisable for now.
-Multiple AP types can not currently be run together. 
+Most of the AP types have not been tested - though in principle do work correctly. Caution and some testing of the particle
+types is advisable for now.
+
+**Multiple AP types can not currently be run together.** This isn't a fundamental limitation. In principle multiple APs can work
+together without difficulty. Some communication work needs to be undertaken to make this work. 
 
 SmartStar Active Particle Type
 ______________________________
 
-The ``SmartStar`` particle is built on top of the ``AccretingParticle`` type with additional feedback, accretion and physical
-particle type included. The ``SmartStar`` particle was designed to be a single particle type that could adjust to the environment
+The ``SmartStar`` particle is built on top of the ``AccretingParticle`` type with additional feedback and accretion protocols attached.
+The ``SmartStar`` particle was designed to be a single particle type that could adjust to the environment
 in which it finds itself. Currently it can represent a PopIII star,
-a super-massive star or a black hole. However, there is no inherent limit to the physical object it can represent.
+a super-massive star or a black hole. However, there is no inherent limit to the physical object it can represent. In that sense
+it may be suitable to augment the ``SmartStar`` particle with your required feature rather than implmenting a new feature. You
+will also be able to build on ``SmartStar`` tests and documentation too rather than starting from scratch. 
 
 To allow for the creation of a ``SmartStar`` particle in an Enzo simulation the following line must be included in the parameter file:
 ``AppendActiveParticleType = SmartStar``
