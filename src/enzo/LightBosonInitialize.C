@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  INITIALIZE A SHOCK IN A BOX
+/  INITIALIZE 
 /
 /  written by: Greg Bryan
 /  date:       November, 1994
@@ -103,6 +103,6 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     fprintf(Outfptr, "LightBosonCenter     = %"PSYM"\n", LightBosonCenter);
     fprintf(Outfptr, "LightBosonProblemType = %"ISYM"\n", LightBosonProblemType);
   }
- 
+
   return SUCCESS;
 }

@@ -1,7 +1,7 @@
 import h5py as h5
 import numpy as np
 from scipy import *
-# Read Baryon density
+# This script generates a 3D Gaussian density field and then compute the real and imaginary portions of the wave function, writing it out to files that can be read in by Enzo's FDM Collapse problem.
 
 rank = 3
 dim  = 64
@@ -12,12 +12,13 @@ attr = {'Component_Rank':1, 'Component_Size':dim**rank, 'Dimensions':[dim]*rank,
 dens = 1e-6*np.ones([dim]*rank)
 xdim,ydim,zdim = dens.shape
 
+# This should be sped up with meshgrid()
 for i in range(xdim):
 	for j in range(ydim):
 		for k in range(zdim):
 			dis = sqrt((i/xdim-0.5)**2 + (j/ydim-0.5)**2 + (k/zdim-0.5)**2)
 			#if (dis<0.4):
-			dens[i,j,k] += exp(- (dis/0.1)**2) 
+			dens[i,j,k] += exp(- (dis/0.1)**2)
 
 # write out new density to new file
 f1 = h5.File('./GridDensity.new', 'w')

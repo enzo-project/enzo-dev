@@ -1035,7 +1035,6 @@ OBJS_CONFIG_LIB = \
    Grid_SGSAddMomentumTerms.o \
    LightBosonInitialize.o \
    Grid_LightBosonInitialize.o \
-   QuantumGetUnits.o \
    ZeusFDM.o \
    Zeus_xTransport_FDM.o \
    Zeus_yTransport_FDM.o \

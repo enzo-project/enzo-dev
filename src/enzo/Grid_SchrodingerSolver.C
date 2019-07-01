@@ -82,11 +82,8 @@ int SchrodingerAddPotential(double *repsi, double *impsi,
 
 int GetUnits (float *DensityUnits, float *LengthUnits,
          float *TemperatureUnits, float *TimeUnits,
-         float *VelocityUnits, double *MassUnits, FLOAT Time);
+         float *VelocityUnits, FLOAT Time);
 int FindField(int field, int farray[], int numfields);
-int QuantumGetUnits(float *DensityUnits, float *LengthUnits,
-       float *TemperatureUnits, float *TimeUnits,
-       float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 
@@ -163,7 +160,7 @@ int grid::SchrodingerSolver( int nhy )
 
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
     VelocityUnits = 1, TimeUnits = 1;
-  if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
          &TimeUnits, &VelocityUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }

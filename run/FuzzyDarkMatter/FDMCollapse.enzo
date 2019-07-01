@@ -1,10 +1,11 @@
 # AMR PROBLEM DEFINITION FILE: FDMCollapse
-# This is a small cosmology simulation that runs to z = 0.
-# The redshift outputs can be used to create a light-cone out to z = 0.1.
+# This test problem can read in a set of initial fields and evolve them
+#    using the FDM solver (Schrodinger+Poisson).  Initial fields can be
+#    generated using run/FuzzyDarkMatter/init.py
 #
 # define problem
 #
-ProblemType                = 191      // cosmology simulation
+ProblemType                = 191      // FDM Collapse Simulation
 TopGridRank                = 3
 TopGridDimensions          = 64 64 64
 SelfGravity                = 0       // gravity on

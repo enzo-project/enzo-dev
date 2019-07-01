@@ -81,7 +81,7 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
     }
   }
 
-  /* Compute the quantum pressure */
+  /* Compute the quantum pressure (this could be optimized) */
 
 #define QP_4TH_ORDER
 

@@ -1,3 +1,18 @@
+/***********************************************************************
+/
+/  GRID CLASS (INITIALIZE THE GRID FOR ONE OF FOUR FDM TESTS)
+/
+/  written by: Xinyu Li
+/  date:       May, 2019
+/  modified1:
+/
+/  PURPOSE: set up grid for FDM tests -- type is controlled by parameter
+/             LightBosonProblemType (1-4, see below for details)
+/
+/  RETURNS: FAIL or SUCCESS
+/
+************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -12,7 +27,7 @@
 #include "CosmologyParameters.h"
 #include "phys_constants.h"
 
-int QuantumGetUnits(float *DensityUnits, float *LengthUnits,
+int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *TemperatureUnits, float *TimeUnits,
 		      float *VelocityUnits, FLOAT Time);
 
@@ -54,7 +69,7 @@ int grid::LightBosonInitializeGrid(float CenterPosition, int LightBosonProblemTy
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
     VelocityUnits = 1, TimeUnits = 1;
 
-  if (QuantumGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
          &TimeUnits, &VelocityUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
