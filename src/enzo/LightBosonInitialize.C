@@ -1,9 +1,9 @@
 /***********************************************************************
 /
-/  INITIALIZE 
+/  INITIALIZE AN FDM SIMULATION FOR A 1D TEST
 /
-/  written by: Greg Bryan
-/  date:       November, 1994
+/  written by: Xinyu Li
+/  date:       
 /  modified1:
 /
 /  PURPOSE:
