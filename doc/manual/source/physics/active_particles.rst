@@ -10,7 +10,7 @@ Matt Turk, John Wise, John Regan, Oliver Hahn, Greg Meece, Brian Crosby and othe
 APs would be highly extensible, have robust feedback capabilities and be very much object orientated.
 They were designed to replace the star object class.
 
-Compared to the star objects the APs can more easily connect with the radiative trasfer solver this making the
+Compared to the star objects the APs can more easily connect with the radiative transfer solver thus making the
 framework more extensible in that context. Other feedback mechanisms (e.g. mechanical and thermal) are
 also easily implemented. 
 
