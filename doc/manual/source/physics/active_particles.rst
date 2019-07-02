@@ -25,8 +25,8 @@ where ``<YourActiveParticleType>`` is one of the currently available AP types.
 Types of Active Particles
 _________________________
 
-At the moment there are a number of AP type implementations. However, with the exception of the "SmartStar"
-AP type none of the implementations have been (robustly) tested.
+At the moment there are a number of AP type implementations. However, with the exception of the "SmartStar" and the
+"Cen-Ostriker" AP type none of the implementations have been (robustly) tested.
 
 * SmartStar
 * Accreting Particle
