@@ -17,6 +17,27 @@ particle creation routines can be used simultaneously with the
 ``StarParticleCreation`` parameter, as it uses a bitmask - see the
 parameter link above for more information.
 
+.. toctree::
+   :maxdepth: 2
+
+* `Method 0: Cen & Ostriker`_
+* `Method 1: Cen & Ostriker with Stochastic Star Formation`_
+* `Method 2: Global Schmidt Law`_
+* `Method 3: Population III Stars`_
+* `Method 4: Sink Particles`_
+* `Method 5: Radiative Stellar Clusters`_
+* `Method 6: Reserved for future use`_
+* `Method 7: Cen & Ostriker with no delay in formation`_
+* `Method 8: Springel & Hernquist`_
+* `Method 9: Massive Black Holes`_
+* `Method 10: Population III stellar tracers`_
+* `Method 11: Molecular Hydrogen Regulated Star Formation`_
+* `Method 14: Kinetic Feedback`_
+* `Restarting a Simulation With Star Formation or Feedback`_
+* `Active Particle Framework`_
+* `Magnetic Supernova Feedback`_
+
+.. _method_0:
 
 Method 0: Cen & Ostriker
 ------------------------
@@ -73,6 +94,8 @@ star particle mass and creation time, respectively.
   Z\ :sub:`star` is the star particle metallicity.  This formulation
   accounts for gas recycling back into the stars.
 
+.. _method_1:
+
 Method 1: Cen & Ostriker with Stochastic Star Formation
 -------------------------------------------------------
 Select this method by setting ``StarParticleCreation = 2``.
@@ -94,6 +117,8 @@ same manner as Method 1 except
   velocity as in Method 1.
 
 * Support for multiple metal fields.
+
+.. _method_2:
 
 Method 2: Global Schmidt Law
 ----------------------------
@@ -117,6 +142,8 @@ mass.  Here the dynamical time is in *units of years*.
 Stellar feedback is accomplished in the same way as Method 1 (Cen &
 Ostriker) but M\ :sub:`form` = ``StarMakerEjectionFraction`` * (star
 particle mass).
+
+.. _method_3:
 
 Method 3: Population III Stars
 ------------------------------
@@ -149,6 +176,8 @@ the stellar mass and is deposited in a sphere with radius
 ``PopIIISupernovaRadius`` in *units of pc*.  To track metal
 enrichment, turn on the parameter ``PopIIISupernovaUseColour``.
 
+.. _method_4:
+
 Method 4: Sink particles
 ------------------------
 Select this method by setting ``StarParticleCreation = 16``.
@@ -161,6 +190,8 @@ They require a completely different set of parameters to turn on such as ``BigSt
 see Grid_StarParticleHandler.C and :ref:`StarParticleParameters`.
 
 *Source: star_maker8.C, star_maker9.C*
+
+.. _method_5:
 
 Method 5: Radiative Stellar Clusters
 ------------------------------------
@@ -187,11 +218,16 @@ instantaneously created and returns its luminosity for 20 Myr.  In the
 case when it's Jeans unresolved, the stellar mass follows the Cen &
 Ostriker prescription.
 
+
+.. _method_6:
+
 Method 6: Reserved for future use
 ---------------------------------
 
 This method is reserved for future use.
 
+
+.. _method_7:
 
 Method 7: Cen & Ostriker with no delay in formation
 ---------------------------------------------------
@@ -213,6 +249,9 @@ for more details.  It can be used to represent single molecular clouds.
 
 The ``StarMakerOverDensity`` is in units of particles/cm\ :sup:`3` and
 not in overdensity like the other methods.
+
+
+.. _method_8:
 
 Method 8: Springel & Hernquist
 ------------------------------
@@ -299,6 +338,8 @@ affects the probability of making a star. In a similar way, a small value of
 star formula.
 
 
+.. _method_9:
+
 Method 9: Massive Black Holes
 -----------------------------
 Select this method by setting ``StarParticleCreation = 512``.
@@ -308,6 +349,8 @@ See Massive Black Hole Particle Formation in :ref:`StarParticleParameters`.
 
 *Source: mbh_maker.C*
 
+
+.. _method_10:
 
 Method 10: Population III stellar tracers
 -----------------------------------------
@@ -409,6 +452,8 @@ star maker, so don't set StarParticleFeedback = 2048. Instead the user
 should select one of the feedback schemes associated with the other
 star makers (StarParticleFeedback = 4 comes to mind).
 
+.. _method_14:
+
 Method 14: Kinetic Feedback
 -------------------------------------------------------
 Select this method by setting ``StarParticleCreation = 16384`` and
@@ -484,6 +529,8 @@ are intended for use with low mass star particles which produce energy
 equivalent to only one or a few supernovae.
 
 
+.. _restarting:
+
 Restarting a Simulation With Star Formation or Feedback
 -------------------------------------------------------
 
@@ -547,6 +594,15 @@ The routines included in ``star_maker1.F`` are obsolete and not
 compiled into the executable.  For a more stable version of the
 algorithm, use Method 1.
 
+
+.. _active_particles:
+
+Active Particle Framework
+-------------------------
+
+To be added.
+
+.. _magnetic_feedback:
 
 Magnetic Supernova Feedback
 ----------------------------

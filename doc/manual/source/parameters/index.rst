@@ -95,6 +95,8 @@ common convention of 0 meaning false or off and 1 for true or on.
    * `Massive Black Hole Particle Formation`_
    
    * `Sink Formation and Feedback`_
+   
+   * `Active Particle Framework`_
 
    * `Magnetic Supernova Feedback`_
 
@@ -2418,6 +2420,14 @@ Because many of the following parameters are not actively being tested and maint
     [not used]
 ``SinkMergeMass``
     [not used]
+
+.. _active_particle_framework:
+
+Active Particle Framework
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The parameters below are used in the Active Particle setup.
+
 
 .. _magnetic_supernova_feedback_parameters:
 
