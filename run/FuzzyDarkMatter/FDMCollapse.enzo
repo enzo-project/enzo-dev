@@ -1,0 +1,64 @@
+# AMR PROBLEM DEFINITION FILE: FDMCollapse
+# This test problem can read in a set of initial fields and evolve them
+#    using the FDM solver (Schrodinger+Poisson).  Initial fields can be
+#    generated using run/FuzzyDarkMatter/init.py
+#
+# define problem
+#
+ProblemType                = 191      // FDM Collapse Simulation
+TopGridRank                = 3
+TopGridDimensions          = 64 64 64
+SelfGravity                = 0       // gravity on
+TopGridGravityBoundary     = 0       // Periodic BC for gravity
+LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+NumberOfGhostZones         = 8
+#
+# cosmology parameters
+#
+ComovingCoordinates        = 0
+GravitationalConstant      = 1
+
+#
+# I/O and stop/start parameters
+#
+StopTime               = 4.
+dtDataDump       = 0.1
+DataDumpName     = DD
+DataDumpDir      = DD
+
+
+#
+# hydro parameters
+#
+UseHydro                    = 0
+
+# FDM parameters
+# flag to use FDM
+QuantumPressure            = 1
+# FDM mass in unit of 1e-22eV
+FDMMass                    = 1.0
+
+#
+# grid refinement parameters
+#
+StaticHierarchy                       = 1
+MaximumRefinementLevel                = 5
+MaximumGravityRefinementLevel         = 5
+MaximumParticleRefinementLevel        = 5
+RefineBy                              = 2
+CellFlaggingMethod                    = 2 4
+MinimumOverDensityForRefinement       = 8.0 8.0
+MinimumMassForRefinementLevelExponent = 0.0 0.0
+MinimumEfficiency                     = 0.35
+
+DensityUnits = 1.8788e-29
+LengthUnits = 1.542839e+24
+#LengthUnits = 3.08567758e+24
+TimeUnits = 2.519445e+17
+
+#
+# some global parameters
+#
+
+Debug1 = 0

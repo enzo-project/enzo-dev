@@ -128,6 +128,8 @@ common convention of 0 meaning false or off and 1 for true or on.
 
 * `Subgrid-scale (SGS) turbulence model`_
 
+* `Fuzzy Dark matter model`_
+
 * `Inline Analysis`_
    
    * `Inline Halo Finding`_
@@ -3459,7 +3461,20 @@ Scale-similarity model
     Recommended: 0.89;
 
 
+.. _fdm_parameters:
 
+Fuzzy Dark matter model
+~~~~~~~~~~~~~~~~~~~~~~~
+
+``QuantumPressure`` (external)
+    Flag to turn on quantum pressure machinery (see Li, Hui &
+    Bryan 2019)
+    Default: 0;
+
+``FDMMass`` (external)
+    If QuantumPressure is used, this indicates the mass of the FDM
+    particle in units of 1e-22 eV.
+    Default: 1;
 
 .. _other_parameters:
 
@@ -3678,7 +3693,9 @@ Problem Type Description and Parameter List
 102          :ref:`1dcollapse_param`
 106          :ref:`mhdhydro_param`
 107          :ref:`putsink_param`
-108          :ref:`clustercoolingflow_param` 
+108          :ref:`clustercoolingflow_param`
+190          :ref:`light_boson`
+191          :ref:`fdm_collapse`
 200          :ref:`mhd1d_param`
 201          :ref:`mhd2d_param`
 202          :ref:`mhd3d_param`
@@ -5179,6 +5196,31 @@ Cluster Cooling Flow (108)
 ``SNIaFeedbackEnergy`` (external)
     Energy feedback from evolved stars (Type Ia SN). Default: 1.0
 
+    
+.. _light_boson:
+
+Light Boson Initialize
+^^^^^^^^^^^^^^^^^^^^^^
+
+``LightBosonProblemType`` (external)
+    Indicates the type of test to be run for a 1D Schrodinger problem
+    (FDM).  Options are: (1) A single Gaussian density field; (2) A
+    Fresnel test problem; (3) a Zeldovich collapse test; (4) two
+    colliding Gaussian packets.  Default: 1
+``LightBosonCenter`` (external)
+    Specifies center position for the tests.  Default: 0.5
+   
+.. _fdm_collapse:
+
+FDM Collapse
+^^^^^^^^^^^^
+
+No parameters.  Assumes there are files called `GridDensity.new`
+containing the density field, and `GridRePsi` and `GridImPsi` which
+contain the real and imaginary parts of the wave function.  There is a
+python code in run/FuzzyDarkMatter/init.py which generates a
+
+    
 .. _mhd1d_param:
 
 1D MHD Test (200)

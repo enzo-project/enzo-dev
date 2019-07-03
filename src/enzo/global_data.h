@@ -124,6 +124,14 @@ EXTERN float Gamma;
 
 EXTERN int PressureFree;
 
+/* FDM: Flag indicating if fuzzy dark matter is turned on, using quantum pressure */
+
+EXTERN int QuantumPressure;
+
+/* FDM: Parameter for FDM Mass, in unit of 1e-22 eV */
+
+EXTERN float FDMMass;
+
 /* Factor to refine by */
 
 EXTERN int RefineBy;

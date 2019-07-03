@@ -554,6 +554,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
         Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
+	/* Call Schrodinger solver. */
+
+	if (QuantumPressure == 1)
+	  Grids[grid1]->GridData->SchrodingerSolver(LevelCycleCount[level]);
+
 	// Find recently-supernova stars to add them the MagneticSupernovaList 
 	if ((UseMagneticSupernovaFeedback) && (level == MaximumRefinementLevel))
 	  Grids[grid1]->GridData->AddMagneticSupernovaeToList();
