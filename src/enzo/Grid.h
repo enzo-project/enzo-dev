@@ -105,6 +105,7 @@ class grid
   int    FieldType[MAX_NUMBER_OF_BARYON_FIELDS];
   FLOAT *CellLeftEdge[MAX_DIMENSION];
   FLOAT *CellWidth[MAX_DIMENSION];
+  float  grid_BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS]; // locally stores mass flux across domain boundary
   fluxes *BoundaryFluxes;
 
   // For restart dumps
@@ -438,6 +439,11 @@ public:
    int ComputeHeat(float dedt[]);	     /* Compute Heat */
    int ConductHeat();			     /* Conduct Heat */
    float ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
+
+/* FDM: functions for lightboson dark matter */
+  int ComputeQuantumTimeStep(float &dt); /* Estimate quantum time-step */
+  /* Solver for Schrodinger Equation */ 
+  int SchrodingerSolver( int nhy);
 
 /* Member functions for dealing with Cosmic Ray Diffusion */
 
@@ -1289,6 +1295,11 @@ gradient force to gravitational force for one-zone collapse test. */
    FLOAT GetGridRightEdge(int Dimension) {return GridRightEdge[Dimension];}
    FLOAT GetCellWidth(int Dimension, int index) {return CellWidth[Dimension][index];}
    FLOAT GetCellLeftEdge(int Dimension, int index) {return CellLeftEdge[Dimension][index];}
+
+
+  int PrepareBoundaryMassFluxFieldNumbers();
+  int ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer,
+                                    TopGridData *MetaData);
 
 #ifdef TRANSFER
 // -------------------------------------------------------------------------
@@ -2658,6 +2669,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
 				int InitialMagneticFieldConfiguration);
+
+/* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
+  int LightBosonInitializeGrid(float CenterPosition, int LightBosonProblemType);
+/* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
+  int FDMCollapseInitializeGrid();
 // -------------------------------------------------------------------------
 // Analysis functions for AnalysisBaseClass and it's derivatives.
 //
@@ -2970,7 +2986,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int UpdatePrim(float **dU, float c1, float c2);
   int Hydro3D(float **Prim, float **dU, float dt,
 	      fluxes *SubgridFluxes[], int NumberOfSubgrids,
-	      float fluxcoef, int fallback);
+	      float fluxcoef, float min_coeff, int fallback);
   int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 			       float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
 			       int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, 
@@ -2994,7 +3010,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			       int   sphere_type,
 			       float rho_medium, float p_medium);
   int AddSelfGravity(float coef);
-  int SourceTerms(float **dU);
+  int SourceTerms(float **dU, float min_coeff);
   int MHD1DTestInitializeGrid(float rhol, float rhor,
 			      float vxl,  float vxr,
 			      float vyl,  float vyr,
@@ -3089,8 +3105,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		     ExternalBoundary *Exterior);
   int MHD3D(float **Prim, float **dU, float dt,
 	    fluxes *SubgridFluxes[], int NumberOfSubgrids,
-	    float fluxcoef, int fallback);
-  int MHDSourceTerms(float **dU);
+	    float fluxcoef, float min_coeff, int fallback);
+  int MHDSourceTerms(float **dU, float min_coeff);
   int UpdateMHDPrim(float **dU, float c1, float c2);
   int SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
 			   float *Flux3D[], int flux, float fluxcoef, float dt);

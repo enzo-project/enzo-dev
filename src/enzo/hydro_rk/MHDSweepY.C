@@ -29,7 +29,7 @@ int MHDLine(float **Prim, float **priml, float **primr,
 	    float dtdx, char direc, int jj, int kk, int fallback);
 
 int MHDSweepY(float **Prim, float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback)
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback)
   /*
     Input: U[NEQ_MHD][GridDimension^3].
            Prim[NEQ_MHD+1][GridDimension^3].
@@ -66,12 +66,6 @@ int MHDSweepY(float **Prim, float **Flux3D, int GridDimension[],
 
   for (int field = 0; field < NColor; field ++) {
     colors[field] = new float[Yactivesize+1];
-  }
-
-  float min_coeff = 0.0;
-  if (UseMinimumPressureSupport) {
-    min_coeff = MinimumPressureSupportParameter*
-      0.32*pow(CellWidth[1][0],2)/(Gamma*(Gamma-1.0));
   }
 
   float etot, vx, vy, vz, v2, p, Bx, By, Bz, B2, rho;

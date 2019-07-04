@@ -95,6 +95,8 @@ common convention of 0 meaning false or off and 1 for true or on.
    * `Massive Black Hole Particle Formation`_
    
    * `Sink Formation and Feedback`_
+   
+   * `Active Particle Framework`_
 
    * `Magnetic Supernova Feedback`_
 
@@ -127,6 +129,8 @@ common convention of 0 meaning false or off and 1 for true or on.
 * `Conduction`_
 
 * `Subgrid-scale (SGS) turbulence model`_
+
+* `Fuzzy Dark matter model`_
 
 * `Inline Analysis`_
    
@@ -296,6 +300,17 @@ Initialization Parameters
     by specifying a file which contains the information in the
     appropriate format. This is too involved to go into here. Default:
     none
+``StoreDomainBoundaryMassFlux`` (external)
+    When turned on, this stores the cumulative mass (in solar masses)
+    of density fields (density, species fields, metallicity) that 
+    outflows from the simulation domain. This is stored directly
+    in the output parameter files as the ``BoundaryMassFluxFieldNumbers``
+    and ``BoundaryMassFluxContainer`` parameters, as well as
+    the cycle-by-cycle mass outflow in ``BoundaryMassFluxFilename``.
+    Default : 0 (off)
+``BoundaryMassFluxFilename`` (external)
+    The filename to output the cycle-by-cyle mass outflow from the 
+    grid domain when the above parameter is ON. Default : 'boundary_mass_flux.dat'
 ``InitialTime`` (internal)
     The time, in code units, of the current step. For cosmology the
     units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
@@ -2410,6 +2425,14 @@ Because many of the following parameters are not actively being tested and maint
 ``SinkMergeMass``
     [not used]
 
+.. _active_particle_framework:
+
+Active Particle Framework
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The parameters below are used in the Active Particle setup.
+
+
 .. _magnetic_supernova_feedback_parameters:
 
 Magnetic Supernova Feedback
@@ -3558,7 +3581,20 @@ Scale-similarity model
     Recommended: 0.89;
 
 
+.. _fdm_parameters:
 
+Fuzzy Dark matter model
+~~~~~~~~~~~~~~~~~~~~~~~
+
+``QuantumPressure`` (external)
+    Flag to turn on quantum pressure machinery (see Li, Hui &
+    Bryan 2019)
+    Default: 0;
+
+``FDMMass`` (external)
+    If QuantumPressure is used, this indicates the mass of the FDM
+    particle in units of 1e-22 eV.
+    Default: 1;
 
 .. _other_parameters:
 
@@ -3777,7 +3813,9 @@ Problem Type Description and Parameter List
 102          :ref:`1dcollapse_param`
 106          :ref:`mhdhydro_param`
 107          :ref:`putsink_param`
-108          :ref:`clustercoolingflow_param` 
+108          :ref:`clustercoolingflow_param`
+190          :ref:`light_boson`
+191          :ref:`fdm_collapse`
 200          :ref:`mhd1d_param`
 201          :ref:`mhd2d_param`
 202          :ref:`mhd3d_param`
@@ -5278,6 +5316,31 @@ Cluster Cooling Flow (108)
 ``SNIaFeedbackEnergy`` (external)
     Energy feedback from evolved stars (Type Ia SN). Default: 1.0
 
+    
+.. _light_boson:
+
+Light Boson Initialize
+^^^^^^^^^^^^^^^^^^^^^^
+
+``LightBosonProblemType`` (external)
+    Indicates the type of test to be run for a 1D Schrodinger problem
+    (FDM).  Options are: (1) A single Gaussian density field; (2) A
+    Fresnel test problem; (3) a Zeldovich collapse test; (4) two
+    colliding Gaussian packets.  Default: 1
+``LightBosonCenter`` (external)
+    Specifies center position for the tests.  Default: 0.5
+   
+.. _fdm_collapse:
+
+FDM Collapse
+^^^^^^^^^^^^
+
+No parameters.  Assumes there are files called `GridDensity.new`
+containing the density field, and `GridRePsi` and `GridImPsi` which
+contain the real and imaginary parts of the wave function.  There is a
+python code in run/FuzzyDarkMatter/init.py which generates a
+
+    
 .. _mhd1d_param:
 
 1D MHD Test (200)
