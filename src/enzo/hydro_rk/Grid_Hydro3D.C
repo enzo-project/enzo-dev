@@ -26,15 +26,15 @@
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int HydroSweepX(float **Prim,  float **Flux3D, int GridDimension[], 
-		int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback);
+		int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback);
 int HydroSweepY(float **Prim,  float **Flux3D, int GridDimension[], 
-		int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback);
+		int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback);
 int HydroSweepZ(float **Prim,  float **Flux3D, int GridDimension[], 
-		int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback);
+		int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback);
 
 int grid::Hydro3D(float **Prim, float **dU, float dt,
 		  fluxes *SubgridFluxes[], int NumberOfSubgrids, 
-		  float fluxcoef, int fallback)
+		  float fluxcoef, float min_coeff, int fallback)
   /* 
      Input:  U[NEQ_SRHYDRO][GridDimension^3]: the conserved variables vector 
                                               including ghost zones.
@@ -90,7 +90,7 @@ int grid::Hydro3D(float **Prim, float **dU, float dt,
 
   // compute flux at cell faces in x direction
   float dtdx = dt/(a*CellWidth[0][0]);
-  if (HydroSweepX(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, fallback) == FAIL) {
+  if (HydroSweepX(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback) == FAIL) {
     return FAIL;
   }
 
@@ -145,7 +145,7 @@ int grid::Hydro3D(float **Prim, float **dU, float dt,
   if (GridRank > 1) {
     dtdx = dt/(a*CellWidth[1][0]);
     // compute flux in y direction
-    if (HydroSweepY(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, fallback) == FAIL)
+    if (HydroSweepY(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback) == FAIL)
       return FAIL;
 
     // Update dU
@@ -204,7 +204,7 @@ int grid::Hydro3D(float **Prim, float **dU, float dt,
   if (GridRank > 2) {
     dtdx = dt/(a*CellWidth[2][0]);
     // compute flux in z direction
-    if (HydroSweepZ(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, fallback) == FAIL)
+    if (HydroSweepZ(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback) == FAIL)
       return FAIL;
 
     // Update dU

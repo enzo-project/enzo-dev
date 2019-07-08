@@ -319,6 +319,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "tiny_number            = %"FSYM, &tiny_number);
     ret += sscanf(line, "Gamma                  = %"FSYM, &Gamma);
     ret += sscanf(line, "PressureFree           = %"ISYM, &PressureFree);
+
+/* FDM: read FDM parameters */
+    ret += sscanf(line, "QuantumPressure          = %"ISYM, &QuantumPressure);
+    ret += sscanf(line, "FDMMass          = %"FSYM, &FDMMass);
+
     ret += sscanf(line, "RefineBy               = %"ISYM, &RefineBy);
     ret += sscanf(line, "MaximumRefinementLevel = %"ISYM,
 		  &MaximumRefinementLevel);
@@ -474,6 +479,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       DataLabel[dim] = dummy;
     if (sscanf(line, "DataUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
       DataUnits[dim] = dummy;
+ 
+    ret += sscanf(line, "StoreDomainBoundaryMassFlux  = %"ISYM, &StoreDomainBoundaryMassFlux);
+    if (sscanf(line, "BoundaryMassFluxFilename = %s", dummy) == 1) {
+      BoundaryMassFluxFilename = dummy;
+      ret++;
+    }
+
+    if (sscanf(line, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM, &dim, &int_dummy)){
+      BoundaryMassFluxFieldNumbers[dim] = int_dummy; ret++;
+    }
+
+    if (sscanf(line, "BoundaryMassFluxContainer[%"ISYM"]        = %"FSYM, &dim, &float_dummy)){
+       BoundaryMassFluxContainer[dim] = float_dummy; ret++;
+    }
  
     ret += sscanf(line, "UniformGravity          = %"ISYM, &UniformGravity);
     ret += sscanf(line, "UniformGravityDirection = %"ISYM,
@@ -1750,10 +1769,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     grackle_data->HydrogenFractionByMass         = (double) CoolData.HydrogenFractionByMass;
     grackle_data->DeuteriumToHydrogenRatio       = (double) CoolData.DeuteriumToHydrogenRatio;
     grackle_data->SolarMetalFractionByMass       = (double) CoolData.SolarMetalFractionByMass;
+    grackle_data->UVbackground_redshift_on       = (double) CoolData.RadiationRedshiftOn;
+    grackle_data->UVbackground_redshift_off      = (double) CoolData.RadiationRedshiftOff;
+    grackle_data->UVbackground_redshift_fullon   = (double) CoolData.RadiationRedshiftFullOn;
+    grackle_data->UVbackground_redshift_drop     = (double) CoolData.RadiationRedshiftDropOff;
     grackle_data->use_radiative_transfer         = (Eint32) RadiativeTransfer;
     // grackle_data->radiative_transfer_coupled_rate_solver set in RadiativeTransferReadParameters
     // grackle_data->radiative_transfer_hydrogen_only set in RadiativeTransferReadParameters
-
+    
     // Initialize units structure.
     FLOAT a_value, dadt;
     a_value = 1.0;

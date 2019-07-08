@@ -116,6 +116,7 @@ OBJS_CONFIG_LIB = \
         CommunicationUpdateActiveParticleCount.o \
         CommunicationUpdateStarParticleCount.o \
         CommunicationUtilities.o \
+        ComputeDomainBoundaryMassFlux.o \
 	ConductionBubbleInitialize.o \
 	ConductionCloudInitialize.o \
 	ConductionTestInitialize.o \
@@ -407,6 +408,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeCoolingTime.o \
         Grid_ComputeCRDiffusion.o \
         Grid_ComputeCRDiffusionTimeStep.o \
+        Grid_ComputeDomainBoundaryMassFlux.o \
 	Grid_ComputeDustTemperatureField.o \
 	Grid_ComputeElementalDensity.o \
 	Grid_ComputeEnergy.o \
@@ -566,6 +568,7 @@ OBJS_CONFIG_LIB = \
         Grid_PoissonSolverCGA.o                 \
         Grid_PoissonSolverTestInitializeGrid.o  \
         Grid_PrepareBoundaryFluxes.o \
+        Grid_PrepareBoundaryMassFluxFieldNumbers.o \
         Grid_PrepareFFT.o \
         Grid_PrepareGreensFunction.o \
         Grid_PrepareGridDerivedQuantities.o \
@@ -1029,7 +1032,18 @@ OBJS_CONFIG_LIB = \
    Grid_Phases.o \
    Grid_SGSUtilities.o \
    Grid_SGSAddEMFTerms.o \
-   Grid_SGSAddMomentumTerms.o 
+   Grid_SGSAddMomentumTerms.o \
+   LightBosonInitialize.o \
+   Grid_LightBosonInitialize.o \
+   ZeusFDM.o \
+   Zeus_xTransport_FDM.o \
+   Zeus_yTransport_FDM.o \
+   Zeus_zTransport_FDM.o \
+   Grid_SchrodingerSolver.o \
+   rk4.o \
+   SchrodingerAddPotential.o \
+   FDMCollapse.o \
+   Grid_FDMCollapse.o
 
 
 #-----------------------------------------------------------------------

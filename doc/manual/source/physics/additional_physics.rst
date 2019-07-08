@@ -23,6 +23,16 @@ Subgrid Turbulence Models
 This will be updated soon.
 
 
+Fuzzy Dark Matter Model
+-----------------------
+
+This module was written by Xinyu Li and is described in `Li, Hui &
+Bryan (2019) <https://ui.adsabs.harvard.edu/abs/2019PhRvD..99f3509L/abstract>`_.
+There are a few 1D tests (LightBoson) and a facility to generate and
+read in a Gaussian density with wavefunction (FDMCollapse).  There is
+also a framework to read in cosmology fields if one had a mechanism
+to generate them, but no cosmological field generator is provided.
+
 Turbulence Driving Modules
 --------------------------
 

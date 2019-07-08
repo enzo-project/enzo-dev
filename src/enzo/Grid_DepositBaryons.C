@@ -67,16 +67,16 @@ extern "C" void FORTRAN_NAME(dep_grid_ngp)(
 int RK2SecondStepBaryonDeposit = 0;
 
 /* InterpolateBoundaryFromParent function */
+int FindField(int field, int farray[], int numfields);
  
 int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
 {
  
   /* If this doesn't concern us, return. */
- 
   if (TargetGrid->CommunicationMethodShouldExit(this) ||
       NumberOfBaryonFields == 0)
     return SUCCESS;
- 
+
   TargetGrid->DebugCheck("DepositBaryons_target");
   this->DebugCheck("DepositBaryons_this");
  
@@ -213,8 +213,12 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
        velocity field. */
  
 //  fprintf(stderr, "Grid_DepositBaryons - call dep_grid_cic\n");
-
-    float *input_density = BaryonField[DensNum];
+    int c_size = 1;
+    for (dim = 0; dim < GridRank; dim++) c_size *= GridDimension[dim];
+    float *input_density = new float[c_size];
+	for (int i = 0; i < c_size; i++){
+		input_density[i] = BaryonField[DensNum][i];
+	} 
     float *input_velx    = BaryonField[Vel1Num];
     float *input_vely    = BaryonField[Vel2Num];
     float *input_velz    = BaryonField[Vel3Num];
@@ -234,8 +238,28 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
       } else 	
 	av_dens = BaryonField[DensNum];
 
-      input_density = av_dens;
+      for (int i = 0; i < current_size; i++) {
+      	input_density[i] = av_dens[i];
+      }
+  }
+
+  /* add FDM density to the gravitating mass field */
+  if (QuantumPressure == 1){
+    int current_size = 1;
+    for (dim = 0; dim < GridRank; dim++) current_size *= GridDimension[dim];
+    //printf("Deposit FDM\n");
+    int FDMDensNum;
+    FDMDensNum = FindField(FDMDensity, FieldType, NumberOfBaryonFields);
+    if (!UseHydro){
+      for (int i=0; i<current_size; i++) {
+      input_density[i] = BaryonField[FDMDensNum][i];
+      }
+    } else {
+      for (int i=0; i<current_size; i++) {
+        input_density[i] += BaryonField[FDMDensNum][i];
+      }
     }
+  }
 
     //    printf("DepositBaryons, %i\n", RK2SecondStepBaryonDeposit);
 
@@ -270,6 +294,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     if ( RK2SecondStepBaryonDeposit ) 
       if (OldBaryonField[DensNum] != NULL) 
 	delete [] av_dens;
+  delete [] input_density;
     
  
   } // end: if (ProcessorNumber == MyProcessorNumber)

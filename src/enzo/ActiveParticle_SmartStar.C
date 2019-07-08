@@ -476,7 +476,8 @@ int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
       /* Check for star death and transition to BH */
       if(ThisParticle->RadiationLifetime < Age) {/* Star needs to go supernovae and change type */
 #ifdef SNEFEEDBACK
-	/* Based on the stellar mass calculate the SN energy and ejecta mass */
+	/* Based on the stellar mass calculate the SN energy and ejecta mass.
+       Fitted from Heger & Woosley (2002) */
 	if(POPIII == ThisParticle->ParticleClass) {
 	  float he_core = (13.0/24.0) * (StarMass - 20.0);
 	  sn_nrg_thistimestep = (5.0 + 1.304 * (he_core - 64.0)) * 1e51; //ergs
