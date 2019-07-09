@@ -2,7 +2,7 @@
 
 
 Active Particles
-============================================
+================
 
 Active Particles (APs) were introduced into Enzo in version 2.6. They were originally part
 of the Enzo-3.0 effort and were developed by a number of authors including Nathan Goldbaum,
@@ -40,7 +40,7 @@ At the moment there are a number of AP type implementations. However, with the e
 * SpringelHernquist
 * Skeleton
 
-The ``Skeleton`` particle is simply an example particle heavily commented so allow a user/developer to develop their
+The ``Skeleton`` particle is simply an example particle heavily commented to allow a user/developer to develop their
 own AP. All the other particles with the exception of the ``AccretingParticle`` and the ``SmartStar`` particle were ported from the
 Star Object particle implementation described in :ref:`star_particles`.
 

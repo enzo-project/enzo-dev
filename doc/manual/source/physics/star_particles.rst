@@ -2,7 +2,7 @@
 
 
 Star, Black Hole and Sink Particles
-============================================
+===================================
 
 There are many different subgrid models of star formation and feedback
 in the astrophysical literature, and we have included several of them
