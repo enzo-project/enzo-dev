@@ -1,13 +1,14 @@
 #=======================================================================
 #
-# FILE:        Make.mach.xeon-phi
+# FILE:        Make.mach.xeonphi-gcc
 #
 # DESCRIPTION: Makefile settings for the VizLab XeonPhi machine
+#              This file uses the gcc compilers
 #
 # AUTHOR:      John Wise (jwise@gatech.edu) 
 #              CJ Llorente (cjllorente3@gatech.edu)
 #
-# DATE:        2017-07-14
+# DATE:        2019-07-07
 #
 #=======================================================================
 
@@ -26,17 +27,14 @@ LOCAL_HDF5   = /usr
 # Compiler settings
 #-----------------------------------------------------------------------
 
-export OMPI_CC=icc
-export OMPI_CXX=icpc
-
 MACH_CPP       = cpp # C preprocessor command
 
 # With MPI
 
 MACH_CC_MPI    = mpicc # C compiler when using MPI
 MACH_CXX_MPI   = mpic++ # C++ compiler when using MPI
-MACH_FC_MPI    = ifort # Fortran 77 compiler when using MPI
-MACH_F90_MPI   = ifort # Fortran 90 compiler when using MPI
+MACH_FC_MPI    = mpifort # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = mpifort # Fortran 90 compiler when using MPI
 MACH_LD_MPI    = mpic++ # Linker when using MPI
 
 # Without MPI
@@ -66,7 +64,7 @@ MACH_CXXFLAGS = -DMPICH_IGNORE_CXX_SEEK
 MACH_FFLAGS   = 
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = 
-MACH_OPENMP   = -openmp
+MACH_OPENMP   = -fopenmp
 
 
 #-----------------------------------------------------------------------
@@ -113,7 +111,7 @@ LOCAL_LIBS_PAPI   = # PAPI libraries
 
 # Machine-dependent libraries
 #LOCAL_LIBS_MACH   = -lifcore -limf -lifport -liomp5
-LOCAL_LIBS_MACH   = -lm -lgfortran
+LOCAL_LIBS_MACH   = -lm -lgfortran --verbose
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)

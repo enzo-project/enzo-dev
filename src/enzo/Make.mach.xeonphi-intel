@@ -3,6 +3,7 @@
 # FILE:        Make.mach.xeonphi-intel
 #
 # DESCRIPTION: Makefile settings for the VizLab XeonPhi machine
+#              This file uses the intel compilers
 #
 # AUTHOR:      John Wise (jwise@gatech.edu) 
 #              CJ Llorente (cjllorente3@gatech.edu)
@@ -26,18 +27,15 @@ LOCAL_HDF5   = /usr
 # Compiler settings
 #-----------------------------------------------------------------------
 
-export OMPI_CC=icc
-export OMPI_CXX=icpc
-
 MACH_CPP       = cpp # C preprocessor command
 
 # With MPI
 
-MACH_CC_MPI    = mpicc # C compiler when using MPI
-MACH_CXX_MPI   = mpic++ # C++ compiler when using MPI
-MACH_FC_MPI    = ifort # Fortran 77 compiler when using MPI
-MACH_F90_MPI   = ifort # Fortran 90 compiler when using MPI
-MACH_LD_MPI    = mpic++ # Linker when using MPI
+MACH_CC_MPI    = mpiicc # C compiler when using MPI
+MACH_CXX_MPI   = mpiicpc # C++ compiler when using MPI
+MACH_FC_MPI    = mpiifort # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = mpiifort # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = mpiicpc # Linker when using MPI
 
 # Without MPI
 
