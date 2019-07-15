@@ -922,10 +922,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    }
 
 	    if (SNColourNum > 0)
-	      BaryonField[SNColourNum][index] *= factor;
+	      BaryonField[SNColourNum][index] = metallicity * BaryonField[DensNum][index];
 	    if (Metal2Num > 0)
-	      BaryonField[Metal2Num][index] *= factor;
-
+	      BaryonField[Metal2Num][index] = metallicity * BaryonField[DensNum][index];
+	    
 	    CellsModified++;
 
 	  }  // END if inside radius
