@@ -168,9 +168,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       StarPosZ[i] = pos[2];
       i++;
     }
-    else{
-    }
-  }
+//    else{
+//    }
+  } // end for
 
   if (MetalMixingExperiment){
 
@@ -348,6 +348,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     // set antiflag for this particle
     for (int j = 0; j < NumberOfAntiRules; j++)
       IsParticleNotMustRefine[i] *= antirules[j];
+  }
 
     // printf("Checked if we should refine, the answer is %"ISYM"\n", IsParticleMustRefine[i]);
     // printf("rule 0 = %"ISYM" rule 1 = %"ISYM" rule 2 = %"ISYM"\n",rules[0],rules[1],rules[2]);
