@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -44,7 +45,13 @@ void CommunicationErrorHandlerFn(MPI_Comm *comm, MPI_Arg *err, ...);
 
 int CommunicationInitialize(Eint32 *argc, char **argv[])
 {
- 
+
+  // int i = 0;
+  // printf("PID %d ready to attach", getpid());
+  // fflush(stdout);
+  // while(i==0)
+  //   sleep(5);
+  
 #ifdef USE_MPI
  
   /* Initialize MPI and get info. */

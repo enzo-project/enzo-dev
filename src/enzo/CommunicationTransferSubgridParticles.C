@@ -258,9 +258,6 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
     }
  }
 
-  for(j = 0; j<ParticleIterations; j++)
-  	printf("---->jstart[%d]= %d | jend[%d] = %d\n", j,jstart[j], j, jend[j]);
-
   ParticleCounter1 = 0;
   ParticleCounter2 = 0;
 #pragma omp parallel

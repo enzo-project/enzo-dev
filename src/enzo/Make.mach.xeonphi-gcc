@@ -111,7 +111,7 @@ LOCAL_LIBS_PAPI   = # PAPI libraries
 
 # Machine-dependent libraries
 #LOCAL_LIBS_MACH   = -lifcore -limf -lifport -liomp5
-LOCAL_LIBS_MACH   = -lm -lgfortran --verbose
+LOCAL_LIBS_MACH   = -lm -lgfortran
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
