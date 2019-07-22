@@ -310,7 +310,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     my_fields.grid_start     = g_grid_start;
     my_fields.grid_end       = g_grid_end;
     my_fields.grid_dx        = this->CellWidth[0][0];
-    my_fields.time           = this->Time * TimeUnits; // in seconds
+    // my_fields.time           = this->Time * TimeUnits; // in seconds
 
     /* now add in the baryon fields */
     my_fields.density         = density;
