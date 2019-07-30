@@ -99,9 +99,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	
       CommunicationDirection = COMMUNICATION_POST_RECEIVE;
       CommunicationReceiveIndex = 0;
-#pragma omp parallel default(shared) 
-{
-#pragma omp for
+
       for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
 	
 	/* a) Interpolate boundaries from the parent grid or set external
@@ -121,10 +119,10 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	/* -------------- SECOND PASS ----------------- */
 	/* Now we generate all the sends, and do all the computation
 	   for grids which are on the same processor as well. */
-#pragma omp single
+
       CommunicationDirection = COMMUNICATION_SEND;
 
-#pragma omp for
+
       for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
 
 	/* a) Interpolate boundaries from the parent grid or set
@@ -136,7 +134,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
             
       }
       // ENDFOR grids
-} //end omp parallel section
+
 
 	//Grids[StartGrid]->GridData->PrintToScreenBoundaries(0);
 
