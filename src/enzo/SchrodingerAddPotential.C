@@ -40,12 +40,12 @@ c
 #define GIDX(a,b,c) ( ((c)*gjn + (b))*gin + (a) )
 
 
-int SchrodingerAddPotential(double *repsi, double *impsi,
+int SchrodingerAddPotential(float *repsi, float *impsi,
          int in, int jn, int kn, int rank,
          int gin, int gjn, int gkn,
-         double dt, 
+         float dt, 
          double hmcoef,
-         double *p, int start1, int start2, int start3)
+         float *p, int start1, int start2, int start3)
 {
   int ijk = MAX_ANY_SINGLE_DIRECTION;
 
@@ -56,7 +56,7 @@ int SchrodingerAddPotential(double *repsi, double *impsi,
 
   /* ======================================================================= */
 
-  double auxre, auxim;  
+  float auxre, auxim;  
 
   for (k = 0; k < kn; k++) {
     for (j = 0; j < jn; j++) {
