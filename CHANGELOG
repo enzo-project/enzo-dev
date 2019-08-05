@@ -1,5 +1,74 @@
 = Enzo Changelog =
 
+== Version 2.6 == 
+
+_Release Date - 8-2-2019
+
+ * New Feature: Conversion from Mercurial+BitBucket to Git+GitHub
+ * New Feature: Automated testing on GitHub with CircleCI (GH PR #55)
+ * New Feature: Fuzzy dark matter evolution module + test problems (GH PR #61)
+ * New Feature: Subgrid-scale turbulence modeling framework (BB PR #407)
+ * New Feature: Magnetic supernova feedback (BB PR #346)
+ * New Feature: Active particle framework + docs (GH PR #57, PR #83, PR #85)
+
+ * Enhancement: Two new types of refinement regions: “Must refine” and “cooling-based refinement” regions, both of which move.  (GH PR #59)
+ * Enhancement: Star particle mass ramp added (GH PR #68)
+ * Enhancement: Zeldovich Pancake includes dark matter particles (BB PR #435)
+ * Enhancement: Python scripts in repository upgraded to Python 3 (BB PR #351, PR #363, PR #437)
+ * Enhancement: All physical constants consolidated into a single header file (BB PR #417, 428, )
+ * Enhancement: Cosmology simulations added to test suite (BB PR #419)
+ * Enhancement: Test suite provides more information about running and crashing tests (BB PR #339)
+ * Enhancement: Particle splitter has many new features (BB PR #426)
+ * Enhancement: Updated MPI error handler to MPI 2+ standards (BB PR #430)
+ * Enhancement: Additional must-refine particle capabilities: cell de-refinement (BB PR #424), ability for more complex conditionals (BB PR #369)
+ * Enhancement: Adjust Grackle UV background treatment at high redshift (BB PR #423)
+ * Enhancement: H- and H2II photodetachment added to radiation transport and transport chemistry network and tests (BB PR #390, PR #401, PR 409, PR #410)
+ * Enhancement: EvolveLevel and EvolveLevel_RK combined (BB PR #364)
+ * Enhancement: Problem initializers now all use AllocatedGrids (BB PR #404)
+ * Enhancement: All test problems now use power-of-two refinement factor (BB PR #340)
+ * Enhancement: Expansion parameter/redshift now use tables, enabling non-standard cosmologies (BB PR #393)
+ * Enhancement: Added stellar wind option to CollapseTest (BB PR #388)
+ * Enhancement: Expanded feedback options in idealized SMBH and elliptical galaxy simulations (BB PR #387)
+ * Enhancement: Grackle updated to use H2 self-shielding approximation (BB PR #349)
+ * Enhancement: Grackle supports user-supplied redshift in non-cosmological simulations (BB PR #334)
+ * Enhancement: Updated Grackle interface to support Grackle 3.x (Grackle 2.x support discontinued)  (BB PR #347)
+ * Enhancement: Test suite updated to work with yt-3 (BB PR #304)
+ * Enhancement: Particles supported in GalaxySimulation when using DiskGravity (BB PR #336)
+ * Enhancement: Improved documentation:
+    Dedner MHD (BB PR #415)
+    Enzo flowchart update (BB PR #418)
+    Recombined Enzo parameter list and expansion of physics/analysis capabilities section (BB PR #412)
+    Added MUSIC IC description (BB PR #376) 
+    Updated Quick-start guide (BB PR #376)
+    Updated FAQ including table of contents (BB PR #377)
+    Updated parameter descriptions (BB PR #367)
+    Updated tutorial (BB PR #372)
+
+ * Bugfix: Fixes to map RadiationRedshift* parameters to Grackle (GH PR #81)
+ * Bugfix: Small tweak to hierarchy file reader - patch for pre-AP simulations (GH PR #80)
+ * Bugfix: Documentation updated to reflect hg->git conversion (GH PR #63)
+ * Bugfix: Makefile hg->git conversion (GH PR #58)
+ * Bugfix: Test that boundary condition files are correctly read  (GH PR #58)
+ * Bugfix: Magnetic supernovae function with mixed precision  (GH PR #58)
+ * Bugfix: Libconfig removed (GH PR #67)
+ * Bugfix: 128-bit particles compilation errors fixed (BB PR #433), 32-bit compilation errors fixed (BB PR #416, PR #425)
+ * Bugfix: Memory leak in magnetic supernovae (BB PR #421)
+ * Bugfix: Misc. small runtime bug fixes (BB PR #427, PR #429, PR #382, PR #355, PR #353, PR #348)
+ * Bugfix: Cooling time calculation should include ghost zones (BB PR #414)
+ * Bugfix: Unused parameters removed (BB PR #408, PR #385, PR #378, PR #367, PR #342)
+ * Bugfix: ErrorException.h cleanup (BB PR #411)
+ * Bugfix: MHD-RK memory fix (BB PR #405)
+ * Bugfix: Grackle + radiation transport timestep fix (BB PR #391, PR #354)
+ * Bugfix: Many small compilation bugs fixed (BB PR #380, PR #332, PR #328)
+ * Bugfix: Removal of many uncompiled files (BB PR #386)
+ * Bugfix: CT MHD color species advection fixed (BB PR #361)
+ * Bugfix: HDF5 1.10 compatibility fix (BB PR #371)
+ * Bugfix: Fix Ray tracing load balance crash (BB PR #370)
+ * Bugfix: Conduction timestep properly saved (BB PR #341)
+ * Bugfix: Fixed rarefaction fan calculation in flux_twoshock.F (BB PR #338)
+ * Bugfix: Density floor in PPM solver (euler.F) changed from hard-coded to using pre-existing SmallRho parameter (BB PR #333)
+
+
 == Version 2.5 ==
 
 _Release date - 3-10-2016

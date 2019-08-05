@@ -16,7 +16,7 @@ Enzo is developed in the open on github.com:
 
 Documentation, including instructions for compilation, can be found at:
 
- * http://enzo-project.org/docs/2.5/
+ * http://enzo-project.org/docs/2.6/
 
 Please subscribe to the Enzo Users' mailing list at:
 
@@ -26,10 +26,6 @@ If you are interested in Enzo development, you may want to sign up for
 the Enzo Developer's mailing list as well:
 
  * https://groups.google.com/forum/#!forum/enzo-dev
-
-You can also follow the Enzo Project on google+ at:
-
- * https://plus.google.com/115923030596894217717
 
 If you have received this source code through an archive, rather than the
 git version control system, we highly encourage you to upgrade to the
@@ -45,33 +41,44 @@ list of the people who have recently contributed, in alphabetical order:
    * Gabriel Altay          gabriel.altay@gmail.com
    * James Bordner          jobordner@ucsd.edu
    * Greg Bryan             gbryan@astro.columbia.edu
+   * Corey Brummel-Smith    cdbs3@gatech.edu
    * Iryna Butsky           ibutsky@uw.edu
    * Renyue Cen             cen@astro.princeton.edu
+   * Duncan Christie        duncanchristie@gmail.com
    * Dave Collins           dcollins4096@gmail.com
+   * Lauren Corlies         lcorlies@lsst.org
    * Brian Crosby           crosby.bd@gmail.com
    * Philipp Edelmann	    pedelmann@mpa-garching.mpg.de
-   * Andrew Emerick	    aemerick11@gmail.com
+   * Andrew Emerick         aemerick11@gmail.com
+   * Forrest Glines         forrestglines@gmail.com
    * Nathan Goldbaum        ngoldbau@ucsc.edu
    * Philipp Grete          grete@pa.msu.edu 
    * John Forbes            jcforbes@ucsc.edu
+   * Yusuke Fujimoto        yusuke.fujimoto.jp@gmail.com
    * Oliver Hahn            hahn@phys.ethz.ch
    * Robert Harkness        harkness@sdsc.edu
    * Elizabeth Harper-Clark h-clark@astro.utoronto.ca
    * Cameron Hummels        chummels@gmail.com
+   * Peter Iannucci         iannucii@mit.edu
    * Ji-hoon Kim            mornkr@tapir.caltech.edu
    * Daegene Koh            dkoh30@gatech.edu
-   * Shuo Kong		    skong.astro@gmail.com
+   * Shuo Kong              skong.astro@gmail.com
+   * Claire Kopenhafer      clairekope@gmail.com
    * Alexei Kritsuk         akritsuk@ucsd.edu
    * Michael Kuhlen         kuhlen@gmail.com
    * James Larrue           james.larrue@diopolis.com
    * Eve Lee                elee@cita.utoronto.ca
-   * Miao Li		    ml3322@columbia
+   * Miao Li                ml3322@columbia.edu
+   * Xinyu Li		    suniverse@gmail.com
    * Yuan Li                yuan@astro.columbia.edu
    * Greg Meece             meecegre@msu.edu
+   * Yuu Niino              yuuniino@ioa.s.u-tokyo.ac.jp
    * Michael Norman         mlnorman@ucsd.edu
    * JS Oishi               jsoishi@gmail.com
+   * Boon Kiat Oh           bkoh@roe.ac.uk
    * Brian O'Shea           oshea@msu.edu
    * Pascal Paschos         ppaschos@minbari.ucsd.edu
+   * Molly Peeples          molly@stsci.edu
    * Carolyn Peruta         perutaca@msu.edu
    * John Regan             johnanthonyregan@gmail.com
    * Alex Razoumov          razoumov@gmail.com
@@ -84,11 +91,12 @@ list of the people who have recently contributed, in alphabetical order:
    * Britton Smith          brittonsmith@gmail.com
    * Geoffrey So            gsiisg@gmail.com
    * Elizabeth Tasker       tasker@astro1.sci.hokudai.ac.jp
+   * Pascal Terjan          pterjan@gmail.com
+   * Jason Tumlinson        tumlinson@stsci.edu
    * Matthew Turk           matthewturk@gmail.com
    * Rick Wagner            rwagner@physics.ucsd.edu
    * Peng Wang              penwang@nvidia.com
    * John Wise              jwise@physics.gatech.edu
-   * Hao Xu                 haxu@ucsd.edu
+   * Hao Xu                 haoxu.physics@gmail.com
+   * Alvaro Zamora          alvarozamora@stanford.edu  
    * Fen Zhao               fenzhao@stanford.edu
-
-
