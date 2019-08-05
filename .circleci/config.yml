@@ -113,7 +113,8 @@ commands:
           for prec in 32 64
           do for part in 32 64 128
           do
-          if [ $prec == $part ]; then
+          # skip the test-suite configuration
+          if [[ $prec == 64 && $part == 64 ]]; then
           continue
           fi
           make precision-$prec
@@ -122,12 +123,14 @@ commands:
           make -j 4
           done ; done
           # return this to default
+          make precision-64
           make particles-64
           # test various integer/particle-id precisions
           for inte in 32 64
           do for pids in 32 64
           do
-          if [ $inte == $pids ]; then
+          # skip the test-suite configuration
+          if [[ $inte == 32 && $pids == 32 ]]; then
           continue
           fi
           make integers-$inte
