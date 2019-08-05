@@ -99,6 +99,47 @@ commands:
             python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=$ANSWER_NAME --local --strict=high --verbose << parameters.flags >>
           fi
 
+  compile-test:
+    description: "Test that enzo compiles in a few different configurations."
+    steps:
+      - run: |
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          ./configure
+          cd src/enzo
+          make machine-linux-gnu
+          make load-config-test-suite
+          # test various baryon/particle precisions
+          for prec in 32 64
+          do for part in 32 64 128
+          do
+          if [ $prec == $part ]; then
+          continue
+          fi
+          make precision-$prec
+          make particles-$part
+          make clean
+          make -j 4
+          done ; done
+          # return this to default
+          make particles-64
+          # test various integer/particle-id precisions
+          for inte in 32 64
+          do for pids in 32 64
+          do
+          if [ $inte == $pids ]; then
+          continue
+          fi
+          make integers-$inte
+          make particle-id-$pids
+          make clean
+          make -j 4
+          done ; done
+          # test without mpi
+          make use-mpi-no
+          make clean
+          make -j 4
+
   build-docs:
     description: "Test the docs build."
     steps:
@@ -155,6 +196,33 @@ jobs:
           skipfile: notafile
           flags: --clobber
 
+  test-compile-options:
+    docker:
+      - image: circleci/python:3.7.2
+
+    working_directory: ~/enzo-dev
+
+    steps:
+      - checkout
+      - set-env
+
+      - restore_cache:
+          name: "Restore dependencies cache."
+          key: dependencies-v1
+
+      - install-dependencies
+
+      - save_cache:
+          name: "Save dependencies cache"
+          key: dependencies-v1
+          paths:
+            - ~/.cache/pip
+            - ~/venv
+            - ~/local
+
+      - install-grackle
+      - compile-test
+
   docs-build:
     docker:
       - image: circleci/python:3.7.2
@@ -171,5 +239,6 @@ workflows:
 
    tests:
      jobs:
+       - test-compile-options
        - test-suite
        - docs-build
