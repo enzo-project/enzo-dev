@@ -20,7 +20,7 @@ commands:
       - run: |
           source $BASH_ENV
           sudo apt-get update
-          sudo apt-get install -y csh libhdf5-serial-dev libopenmpi-dev openmpi-bin gfortran libtool-bin
+          sudo apt-get install -y libhdf5-serial-dev libopenmpi-dev openmpi-bin gfortran libtool-bin
           python3 -m venv $HOME/venv
           source $HOME/venv/bin/activate
           pip install --upgrade pip
