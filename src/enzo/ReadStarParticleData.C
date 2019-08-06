@@ -25,6 +25,7 @@
 
 // defined in Grid_ReadHierarchyInformationHDF5.C 
 int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, int &Attribute, FILE *log_fptr);
+int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, PINT &Attribute, FILE *log_fptr);
 
 int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr)
 {
@@ -52,7 +53,7 @@ int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr)
                  &NumberOfActiveParticles) != 1) {
         //      ENZO_FAIL("Error reading NumberOfActiveParticles.\n");
       }
-      if (fscanf(fptr, "NextActiveParticleID = %"ISYM"\n",
+      if (fscanf(fptr, "NextActiveParticleID = %"PISYM"\n",
                  &NextActiveParticleID) != 1) {
         //      ENZO_FAIL("Error reading NumberOfActiveParticles.\n");
       }
