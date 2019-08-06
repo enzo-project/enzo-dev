@@ -63,22 +63,17 @@ int rk3tvd(float *repsi, float *impsi, float *repsi0, float *impsi0,
 	       float hmcoef,
          int gravity, double *p);
 
-int rk4(double *repsi, double *impsi,
+int rk4(float *repsi, float *impsi,
          int in, int jn, int kn, int rank,
-         double dt, double dx[], double dy[], double dz[],
+         float dt, float dx[], float dy[], float dz[],
          double hmcoef);
 
-int sv2(int nhy, double *repsi, double *impsi,
-         int in, int jn, int kn, int rank,
-         double dt, double dx[], double dy[], double dz[],
-         double hmcoef);
-
-int SchrodingerAddPotential(double *repsi, double *impsi,
+int SchrodingerAddPotential(float *repsi, float *impsi,
          int in, int jn, int kn, int rank,
          int gin, int gjn, int gkn,
-         double dt, 
+         float dt, 
          double hmcoef,
-         double *p, int start1, int start2, int start3);
+         float *p, int start1, int start2, int start3);
 
 int GetUnits (float *DensityUnits, float *LengthUnits,
          float *TemperatureUnits, float *TimeUnits,
