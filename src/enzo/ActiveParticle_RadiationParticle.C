@@ -401,6 +401,7 @@ int* ActiveParticleType_RadiationParticle::GetGridIndices(FLOAT *position, FLOAT
 
 void ActiveParticleType_RadiationParticle::SetRadiationDefaults()
 {
+#ifdef TRANSFER
   if (RadiativeTransfer == TRUE) {
      
     if(RadiativeTransferInitialHEALPixLevel == 0)
@@ -426,6 +427,7 @@ void ActiveParticleType_RadiationParticle::SetRadiationDefaults()
     
   }
   return;
+#endif
 }
 
 bool ActiveParticleType_RadiationParticle::IsARadiationSource(FLOAT Time)
