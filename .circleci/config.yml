@@ -105,6 +105,7 @@ commands:
       - run: |
           source $BASH_ENV
           source $HOME/venv/bin/activate
+          alias build-enzo='make -j 4 || (make show-config ; exit 1)'
           ./configure
           cd src/enzo
           make machine-linux-gnu
@@ -119,7 +120,7 @@ commands:
           make precision-$prec
           make particles-$part
           make clean
-          make -j 4 || make show-config
+          build-enzo
           done ; done
           # return this to default
           make precision-64
@@ -135,12 +136,12 @@ commands:
           make integers-$inte
           make particle-id-$pids
           make clean
-          make -j 4 || make show-config
+          build-enzo
           done ; done
           # test without mpi
           make use-mpi-no
           make clean
-          make -j 4 || make show-config
+          build-enzo
 
   build-docs:
     description: "Test the docs build."
