@@ -19,7 +19,9 @@
 #define __PARTICLE_ATTRIBUTE_HANDLER_H
 
 /* http://www.gamedev.net/topic/474803-c-template-pointer-to-member/ */
+#ifdef USE_MPI
 #include <mpi.h>
+#endif
 #include <hdf5.h>
 class ActiveParticleType;
 
