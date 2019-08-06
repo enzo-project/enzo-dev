@@ -145,7 +145,7 @@ commands:
           make -j 4 || (make show-config ; exit 1)
           make use-mpi-yes
           # test ray-tracing
-          make use-photon-no
+          make photon-no
           make clean
           make -j 4 || (make show-config ; exit 1)
 
