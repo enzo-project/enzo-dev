@@ -108,7 +108,6 @@ commands:
           ./configure
           cd src/enzo
           make machine-linux-gnu
-          make load-config-test-suite
           # test various baryon/particle precisions
           for prec in 32 64
           do for part in 32 64 128
