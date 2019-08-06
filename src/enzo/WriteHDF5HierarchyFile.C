@@ -101,7 +101,7 @@ int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, TopGridData
   // open the file
   if (io_log) fprintf(log_fptr, "Calling H5Fcreate with Name = %s\n", FileName);
   file_id = H5Fcreate(FileName, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-  if (io_log) fprintf(log_fptr, "H5Fcreate id: %"ISYM"\n", file_id);
+  if (io_log) fprintf(log_fptr, "H5Fcreate id: %d\n", file_id);
 
   
   // Calculate CurrentRedshift and add as attribute (if Cosmology)
