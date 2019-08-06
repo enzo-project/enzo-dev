@@ -149,11 +149,13 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
 	Masterarray[i] = 1;
       }
     }
+#ifdef USE_MPI
   MPI_Allreduce(&numtypes, &global_active_particles, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
   MPI_Allreduce(Masterarray, RMasterarray, MAX_ACTIVE_PARTICLE_TYPES, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
   if(MyProcessorNumber == ROOT_PROCESSOR)
     printf("%s: Number of particles found = %d\n", __FUNCTION__, global_active_particles);
+#endif
 
 #if DEBUG
   /* Now lets collect up the active particle types */
@@ -197,10 +199,12 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
 
   }
 
+#ifdef USE_MPI
   MPI_Allreduce(&TotalNumberOfNewParticles, &GlobalTotalNumberOfNewParticles, 1, MPI_INT, MPI_SUM, 
 		MPI_COMM_WORLD);
   if(GlobalTotalNumberOfNewParticles && MyProcessorNumber == ROOT_PROCESSOR)
     printf("%s: TotalNumberOfNewParticles = %d\n", __FUNCTION__, GlobalTotalNumberOfNewParticles);
+#endif
   /* 
    * The new active particle types have now been created and the star objects destroyed.
    * Write the particles and active particles back to disk
@@ -214,9 +218,9 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
   return SUCCESS;
 }
 
-
 void CollectParticleTypes(char **active_particle_types, int global_active_particles)
 {
+#ifdef USE_MPI
   Eint32 my_gsize = 0;
   char **ap_types;
   char **ap_types2;
@@ -270,4 +274,5 @@ void CollectParticleTypes(char **active_particle_types, int global_active_partic
   }
  
   return;
+#endif
 }
