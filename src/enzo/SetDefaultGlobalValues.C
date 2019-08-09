@@ -677,7 +677,17 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StellarWindDensity               = 1.0; // in code unit
   StellarWindRadius                = 0.01;  // in code unit
   StellarWindTemperature           = 100.0;  // in K
-
+/* mechanical feedback parameters */
+  StellarWinds                     = 1;
+  SingleSN                         = 1;
+  StarMakerMaximumFormationMass    = 1e4;
+  StarMakerMaximumMass             = 1e5;
+  DepositUnresolvedEnergyAsThermal = 1;
+  StarMakeLevel                    = MaximumRefinementLevel;
+  NEvents                          = 0;
+  AnalyticSNRShellMass             = 1;
+  UnrestrictedSN                     = 0; // false by default
+  
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
   PythonReloadScript               = FALSE;

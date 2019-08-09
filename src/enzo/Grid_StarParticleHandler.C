@@ -830,7 +830,18 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
     } 
+    if (STARMAKE_METHOD(MECHANICAL)){
+       NumberOfNewParticlesSoFar = NumberOfParticles;
 
+       NumberOfNewParticles = MechStars_Creation(tg, temperature,
+            dmfield, level, cooling_time, MaximumNumberOfNewParticles,
+            &NumberOfNewParticles);
+
+      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
+          tg->ParticleType[i] = NormalStarType;
+
+
+    }
     if (STARMAKE_METHOD(MOM_STAR)) {
 
       //---- UNIGRID ALGORITHM (NO JEANS MASS)
@@ -1430,11 +1441,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
 
     /* Move any new particles into their new homes. */
- 
     if (NumberOfNewParticles > 0) {
  
       if (debug)
-	printf("Grid_StarParticleHandler: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
  
       /* Set the particle numbers.  The correct indices will be assigned in 
 	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
@@ -1544,7 +1553,40 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
  
   } // end: if NORMAL_STAR
- 
+  if (STARFEED_METHOD(MECHANICAL)){
+   float mu_field [size];
+   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	  
+	         index = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
+	         mu_field[index] = 0.0;
+	         // calculate mu
+
+	         if (MultiSpecies == 0) {
+	            mu_field[index] = Mu;
+	         } else {
+
+	            if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+				         HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+	               ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+	            }
+
+	         mu_field[index] = BaryonField[DeNum][index] + BaryonField[HINum][index] + BaryonField[HIINum][index] +
+	               (BaryonField[HeINum][index] + BaryonField[HeIINum][index] + BaryonField[HeIIINum][index])/4.0;
+	         if (MultiSpecies > 1) {
+	            mu_field[index] += BaryonField[HMNum][index] + (BaryonField[H2INum][index] + BaryonField[H2IINum][index])/2.0;
+	         }
+	         if (MultiSpecies > 2) {
+	            mu_field[index] += (BaryonField[DINum][index] + BaryonField[DIINum][index])/2.0 + (BaryonField[HDINum][index]/3.0);
+	         }
+	    
+	      }
+	   }
+   }
+   }
+      MechStars_FeedbackRoutine(level, &mu_field[0]);
+  }
   if (STARFEED_METHOD(MOM_STAR)) {
 
     //---- UNIGRID (NON-JEANS MASS) VERSION WITH MOMENTUM

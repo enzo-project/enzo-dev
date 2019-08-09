@@ -1124,7 +1124,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarMakerMinimumMassRampEndTime);
     ret += sscanf(line, "StarMakerMinimumMassRampEndMass = %"FSYM,
 		  &StarMakerMinimumMassRampEndMass);
-
+    /* mechanical feedback parameters */
+    ret += sscanf(line, "StellarWinds = %"ISYM, &StellarWinds);
+    ret += sscanf(line, "SingleSN = %"ISYM, &SingleSN);
+    ret += sscanf(line, "StarMakerMaximumFormationMass = %"FSYM, 
+      &StarMakerMaximumFormationMass);
+    ret += sscanf(line, "StarMakerMaximumMass = %"FSYM, &StarMakerMaximumMass);
+    ret += sscanf(line, "DepositUnresolvedEnergyAsThermal = %"ISYM,
+       &DepositUnresolvedEnergyAsThermal);
+    ret += sscanf(line, "StarMakerMinimumRefinementLevel = %"ISYM, 
+      &StarMakeLevel);
+    ret += sscanf(line, "NEvents = %"ISYM, &NEvents);
+    ret += sscanf(line, "AnalyticSNRShellMass = %"ISYM, 
+      &AnalyticSNRShellMass);
+    ret += sscanf(line, "UnrestrictedSN = %"ISYM, &UnrestrictedSN);
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
