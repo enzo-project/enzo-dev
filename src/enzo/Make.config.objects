@@ -76,6 +76,7 @@ OBJS_CONFIG_LIB = \
         CheckShearingBoundaryConsistency.o \
 	chtable.o \
         cic_deposit.o \
+        cic_deposit_mech_stars.o \
         cic_deposit_c.o \
         cic_flag.o \
         cic_flag_c.o \
@@ -545,6 +546,9 @@ OBJS_CONFIG_LIB = \
 	Grid_KHInitializeGrid.o \
 	Grid_KHInitializeGridRamp.o \
         Grid_MagneticFieldResetter.o \
+        Grid_MechStarsCreation.o\
+        Grid_MechStarsDepositFeedback.o\
+        Grid_MechStarsFeedbackRoutine.o\
 	Grid_MirrorStarParticles.o \
 	Grid_MoveAllParticles.o \
 	Grid_MoveAllStars.o \
@@ -733,6 +737,10 @@ OBJS_CONFIG_LIB = \
         mbh_maker.o \
         mcooling.o \
         MakeFieldConservative.o\
+        MechStars_checkCreationCriteria.o\
+        MechStars_determineSN.o\
+        MechStars_determineWinds.o\
+        MechStars_transformComovingWithStar.o\
         MemoryAllocationRoutines.o \
 	MemoryPoolRoutines.o \
 	MersenneTwister.o \
