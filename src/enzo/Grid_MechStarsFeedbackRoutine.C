@@ -190,7 +190,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
             /* determine how many supernova events */
             if (SingleSN)
             {   
-                fprintf(stdout,"Checking for SN\n");
+                fprintf(stdout,"Checking for SN age = %f\n", age);
                 determineSN(age, &nSNII, &nSNIA, ParticleMass[pIndex]*MassUnits,
                             TimeUnits, dtFixed);
                 numSN += nSNII+nSNIA;

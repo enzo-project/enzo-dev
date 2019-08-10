@@ -235,10 +235,10 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     /* Hopkins uses ratio of masses to determine how to couple.
         Radius here is well-known and fixed, so we use that instead */
     if (dxRatio > 1.0){ 
-        if (ejectaEnergy < 1e5 || dxRatio > 100){
-            coupledEnergy = 0.0;
-            coupledMomenta = 0.0;
-        }else{
+        // if (ejectaEnergy < 1e5 || dxRatio > 100){
+        //     coupledEnergy = 0.0;
+        //     coupledMomenta = 0.0;
+        // }else{
             coupledEnergy = ejectaEnergy*pow(dxRatio, -6.5);
             usePt = 1;
             
@@ -249,10 +249,17 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             if (dxRatio > 4) Efactor = coupledEnergy/ejectaEnergy*pow(dxRatio,3);
             coupledMomenta = 4.8e5*pow(nmean, -1.0/7.0)
                 * pow(ejectaEnergy/1e51, 13.0/14.0) * fz; //Msun*km/s
-        }
+        // }
     } else {
         if (debug)fprintf(stdout, "Directly calculating momenta using energy = %e and mass = %e ", 
                     ejectaEnergy, ejectaMass);
+
+                    /*
+                    The multiplicative factor tacked on the end of the momentum here
+                    ensures a smooth connection from p = sqrt(2*m*e) to the p=pt at r_cool
+                    above.  Without it, there are large discontinuities where the different 
+                    forms of momenta meet (dx=r_cool)
+                     */
         coupledMomenta = pow(2.0*ejectaEnergy*(ejectaMass*SolarMass), 0.5) 
                                 * pow(1.0+dxRatio, 3.75*pow(nmean, -1./14.))/SolarMass/1e5; //Msun*km/s
         if (debug)fprintf(stdout, "Calculated p = %e ", coupledMomenta);
