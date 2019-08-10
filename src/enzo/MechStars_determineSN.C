@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -25,6 +26,8 @@ int determineSN(float age, int* nSNII, int* nSNIA,
     }
     /* else, calculate SN rate, probability and determine number of events */
     int seed = clock();
+    *nSNII = 0;
+    *nSNIA = 0;
     float RII=0, RIA=0, PII=0, PIA=0, random = 0;
     if (SingleSN == 1 && NEvents < 0)
     {   
@@ -35,12 +38,12 @@ int determineSN(float age, int* nSNII, int* nSNIA,
             RII = 0.0;
             RIA = 0.0;
         }
-        if (3.401 <= age < 10.37)
+        if (3.401 <= age && age< 10.37)
         {
                 RII = 5.408e-4;
                 RIA = 0.0;
         }
-        if (10.37 <= age < 37.53)
+        if (10.37 <= age && age < 37.53)
         {
                 RII = 2.516e-4;
                 RIA = 0.0;
@@ -50,7 +53,7 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 RII = 0.0;
                 RIA = 5.2e-8+1.6e-5*exp(-1.0*pow((age-50.0)/10.0, 2)/2.0);
         }
-        // printf("Rates: %f %f %f\n", age, RII, RIA);
+        // fprintf(stdout, "Rates: %f %f %f\n", age, RII, RIA);
         /* rates -> probabilities */
         if (RII > 0){
             srand(seed);
@@ -61,6 +64,9 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 int round = (int)PII;
                 *nSNII = round;
                 PII -= round;
+            }
+            if (PII > 1.0 && !UnrestrictedSN){
+                ENZO_FAIL("PII too large!");
             }
             int psn = *nSNII;
             if (random < PII){
