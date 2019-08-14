@@ -1,5 +1,5 @@
 /*
-    Routine to determine feedback quantities and couple them to the 
+    Routine to determine feedback quantities and couple them to the
     Grid.  Coupling follows the implementation of Hopkins 2017 with
     modification for Enzo's fixed grid
 
@@ -22,16 +22,16 @@
 #include "phys_constants.h"
 
 
-    int determineSN(float age, int* nSNII, int* nSNIA, float massMsun, 
+    int determineSN(float age, int* nSNII, int* nSNIA, float massMsun,
                     float TimeUnits, float dtFixed);
     int determineWinds(float age, float* eWinds, float* zWinds, float* mWinds,
                         float massMsun, float zZsun, float TimeUnits, float dtFixed);
     int checkCreationCriteria(float* Density, float* Metals,
                         float* Temperature,float* DMField,
-                        float* Vel1, float* Vel2, float* Vel3, 
+                        float* Vel1, float* Vel2, float* Vel3,
                         float* CoolingTime, int GridDim,
-                        float* shieldedFraction, float* freeFallTime, 
-                        float* dynamicalTime, int i, int j, int k, 
+                        float* shieldedFraction, float* freeFallTime,
+                        float* dynamicalTime, int i, int j, int k,
                         float Time, float* RefinementField, float CellWidth);
     int FindField(int field, int farray[], int numfields);
     int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -45,16 +45,16 @@
 int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
 {
 
-    // fprintf(stdout,"IN FEEDBACK ROUTINE\n  %d   %d   %d\n", 
+    // fprintf(stdout,"IN FEEDBACK ROUTINE\n  %d   %d   %d\n",
         // SingleSN, StellarWinds, UnrestrictedSN);
     float stretchFactor = 1.4;//1/sqrt(2) to cover cell diagonal
     /* Get units to use */
 
     int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-    
+
     /* Compute size (in floats) of the current grid. */
-    
+
     size = 1;
     for (dim = 0; dim < GridRank; dim++)
         size *= GridDimension[dim];
@@ -73,11 +73,11 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
     if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
             &TimeUnits, &VelocityUnits, &MassUnits, this->Time) == FAIL) {
         fprintf(stderr, "Error in GetUnits.\n");
-        return FAIL;    
-    } 
-    double dx = CellWidth[0][0];    
+        return FAIL;
+    }
+    double dx = CellWidth[0][0];
     MassUnits = DensityUnits*pow(LengthUnits*dx, 3)/SolarMass;
-    /* 
+    /*
         get metallicity field and set flag; assumed true thoughout feedback
         since so many quantities are metallicity dependent
      */
@@ -87,7 +87,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
         MetallicityField = TRUE;
     else
         MetalNum = 0;
-    
+
     int numSN = 0;
 
     /* Begin Iteration of all particles */
@@ -103,7 +103,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
         if (ParticleType[pIndex] == PARTICLE_TYPE_STAR
                 && ParticleMass[pIndex] > 0.0
                 && ParticleAttribute[0][pIndex] > 0.0){
-                
+
             // if (StarMakerAgeCutoff)
             //     if ((Time-ParticleAttribute[0][pIndex])
             //         *TimeUnits/(150*3.1557e7) > 150)
@@ -127,10 +127,10 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
             float gridDx = GridDimension[0]*dx;
             float gridDy = GridDimension[1]*dx;
             float gridDz = GridDimension[2]*dx;
-          /* Keep particle 2 cells from edge since we cant transfer to 
+          /* Keep particle 2 cells from edge since we cant transfer to
                 neighboring grids */
             float borderDx = (stretchFactor+1)*dx;
-            if (xp > CellLeftEdge[0][0]+gridDx 
+            if (xp > CellLeftEdge[0][0]+gridDx
                 || xp < CellLeftEdge[0][0]
                 || yp > CellLeftEdge[1][0]+gridDy
                 || yp < CellLeftEdge[1][0]
@@ -169,14 +169,14 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
             }
             if (shifted > 0){
             if (debug)
-                    fprintf(stderr, "Particle position shifted away from edge: %e: %f %f %f\n%f %f %f\n", 
+                    fprintf(stderr, "Particle position shifted away from edge: %e: %f %f %f\n%f %f %f\n",
                             age,xp, yp, zp, CellLeftEdge[0][0]+borderDx, CellLeftEdge[1][0]+borderDx, CellLeftEdge[2][0]+borderDx);
             int ip = (xp-CellLeftEdge[0][0]-0.5*dx)/dx;
             int jp = (yp-CellLeftEdge[1][0]-0.5*dx)/dx;
             int kp = (zp-CellLeftEdge[2][0]-0.5*dx)/dx;
             }
             /* REMOVED: Check for continual formation, i guess. Only really done because
-                Hopkins did it.  We can just make more stars next timestep I guess. 
+                Hopkins did it.  We can just make more stars next timestep I guess.
                 On the other hand, the function is already written... */
                 /* create some stuff.  This is a lot of overhead for something
                 optional... */
@@ -189,55 +189,50 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
             // printf("Checking particle:  %f    %e \n", age, ParticleMass[pIndex]*MassUnits);
             /* determine how many supernova events */
             if (SingleSN)
-            {   
-                fprintf(stdout,"Checking for SN age = %f\n", age);
+            {
+                // fprintf(stdout,"Checking for SN age = %f\n", age);
                 determineSN(age, &nSNII, &nSNIA, ParticleMass[pIndex]*MassUnits,
                             TimeUnits, dtFixed);
                 numSN += nSNII+nSNIA;
-                if (true) if (nSNII > 0 || nSNIA > 0)
-                    fprintf(stdout,"\n\nSUPERNOVAE!!!! %d %d level = %d\n\n", nSNII, nSNIA, level);
+		        if ((nSNII > 0 || nSNIA > 0) && debug)
+                    fprintf(stdout,"SUPERNOVAE!!!! %d %d level = %d\n", nSNII, nSNIA, level);
                 if (nSNII > 0 || nSNIA > 0){
                     /* set feedback qtys based on number and types of events */
                         /* 1e51 erg per sn */
                     float energySN = (nSNII + nSNIA)*1e51;
-                
+
                         /*10.5 Msun ejecta for type II and IA*/
                     SNMassEjected = (nSNII+nSNIA)*10.5;
                         /* Metal yeilds from starburst 99 */
                     float zZsun = min(BaryonField[MetalNum][index]/BaryonField[DensNum][index]/0.02, 1e-4);
                     SNMetalEjected = nSNII*(1.91+0.0479*max(zZsun, 1.65));
-                    SNMetalEjected += nSNIA*(1.4);
+                    SNMetalEjected += nSNIA*(1.4); // this metal should get coupled to SNIA field if its being used
                     MechStars_DepositFeedback(energySN, SNMassEjected, SNMetalEjected,
                                 &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
                                 &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
                                 ip, jp, kp, size, mu_field, 0);
                 }
             }
-            
+
             float windEnergy=0, windMass=0, windMetals=0;
             /* Do the same for winds. Cooling Radius is very small,
             So almost no energy is coupled, but some mass may be. */
-            
-            
+
+
             if (StellarWinds)
             {
                 // printf("Checking Winds\n");
                 float zZsun = min(BaryonField[MetalNum][index]/BaryonField[DensNum][index]/0.02, 1e-8);
-                determineWinds(age, &windEnergy, &windMass, &windMetals, 
+                determineWinds(age, &windEnergy, &windMass, &windMetals,
                                 ParticleMass[pIndex]*MassUnits, zZsun,
                                 TimeUnits, dtFixed);
 
-                if (windMass > 1e-5 && windEnergy > 1e10){
-                    MechStars_DepositFeedback(windEnergy, windMass, windMetals,
+                MechStars_DepositFeedback(windEnergy, windMass, windMetals,
                             &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
                             &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
                             ip, jp, kp, size, mu_field, 1);
-                } else {
-                    windMass = 0.0;
-                    windEnergy= 0.0;
-                    windMetals = 0.0;
-                }
-                
+
+
             }
             if (windMass > 0.0 || SNMassEjected > 0){
                 if (debug) printf("Subtracting off mass %e\n",(windMass+SNMassEjected));

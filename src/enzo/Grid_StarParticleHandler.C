@@ -832,15 +832,17 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     } 
     if (STARMAKE_METHOD(MECHANICAL)){
        NumberOfNewParticlesSoFar = NumberOfParticles;
-
-       NumberOfNewParticles = MechStars_Creation(tg, temperature,
+         int nRetStars = 0;
+         nRetStars = MechStars_Creation(tg, temperature,
             dmfield, level, cooling_time, MaximumNumberOfNewParticles,
             &NumberOfNewParticles);
+         //fprintf(stdout, "Created %d new stars!", NumberOfNewParticles);
+         if (nRetStars != NumberOfNewParticles) fprintf(stdout, "star count return and pointer mismatch!\n");
+         for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++){
+            tg->ParticleType[i] = NormalStarType;
+            //fprintf(stdout, "Set star %d type %d", i, NormalStarType);
 
-      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
-          tg->ParticleType[i] = NormalStarType;
-
-
+         }
     }
     if (STARMAKE_METHOD(MOM_STAR)) {
 
@@ -1443,14 +1445,27 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     /* Move any new particles into their new homes. */
     if (NumberOfNewParticles > 0) {
  
-      if (debug)
+
  
       /* Set the particle numbers.  The correct indices will be assigned in 
 	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
  
-      for (i = 0; i < NumberOfNewParticles; i++)
- 	tg->ParticleNumber[i] = INT_UNDEFINED;
- 
+      for (i = 0; i < NumberOfNewParticles; i++){
+ 	      tg->ParticleNumber[i] = INT_UNDEFINED;
+         fprintf(stdout,"Created star: %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f\n",
+                        i, 
+                        tg->ParticleType[i], 
+                        tg->ParticleMass[i], 
+                        tg->ParticleAttribute[0][i], 
+                        tg->ParticleAttribute[1][i],
+                        tg->ParticleAttribute[2][i],
+                        tg->ParticlePosition[0][i],
+                        tg->ParticlePosition[1][i],
+                        tg->ParticlePosition[2][i],
+                        tg->ParticleVelocity[0][i],
+                        tg->ParticleVelocity[1][i],
+                        tg->ParticleVelocity[2][i]);
+      }
       /* Move Particles into this grid (set cell size) using the fake grid. */
  
       tg->NumberOfParticles = NumberOfNewParticles;

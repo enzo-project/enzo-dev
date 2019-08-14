@@ -48,12 +48,12 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 RII = 2.516e-4;
                 RIA = 0.0;
         }
-        if (37.52 <= age)
+        if (37.53 <= age)
         {
                 RII = 0.0;
                 RIA = 5.2e-8+1.6e-5*exp(-1.0*pow((age-50.0)/10.0, 2)/2.0);
         }
-        // fprintf(stdout, "Rates: %f %f %f\n", age, RII, RIA);
+	//        fprintf(stdout, "Rates: %f %f %f\n", age, RII, RIA);
         /* rates -> probabilities */
         if (RII > 0){
             srand(seed);

@@ -31,6 +31,7 @@ int checkCreationCriteria(float* Density, float* Metals,
                         float* dynamicalTime, int i, int j, int k, 
                         float Time, float* RefinementField, float CellWidth)
 {  
+    bool debug = false;
     bool status = PASS;
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
                 TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
@@ -61,8 +62,8 @@ int checkCreationCriteria(float* Density, float* Metals,
     {
         status =  FAIL;
     }
-    if (debug && status) fprintf(stdout, "Passed Density: %e: %e\n", 
-        dmean,StarMakerOverDensityThreshold);
+    //if (debug && status) fprintf(stdout, "Passed Density: %e: %e\n", 
+    //  dmean,StarMakerOverDensityThreshold);
     /* in addition to the converging flow check, we check
         the virial parameter of the gas to see if it is 
         locally gravitationally bound*/
@@ -110,10 +111,11 @@ int checkCreationCriteria(float* Density, float* Metals,
 
     if (Temperature[index] > 1e4)
     {
+        status = FAIL; //no hot gas forming stars!
         float totalDensity = Density[index]
                 +DMField[index]*DensityUnits;
-        float Tdyn = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5);
-        if (Tdyn/TimeUnits < CoolingTime[index]) status = FAIL;   
+        *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5);
+        if (*dynamicalTime/TimeUnits < CoolingTime[index]) status = FAIL;   
     }
     /* is gas mass > critical jeans mass? */
 
@@ -147,7 +149,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     if (*shieldedFraction < 0) status = FAIL;
 
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits;
-    if (status) fprintf(stdout, "passed creation criteria\n");
+    //if (status && debug) fprintf(stdout, "passed creation criteria\n");
     return status;
 
 }

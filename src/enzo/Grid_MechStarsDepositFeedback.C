@@ -42,8 +42,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         and all have radius dx from the source particle. 
         Each vertex particle will then be CIC deposited to the grid!
     */
-    bool debug = true;
-    bool criticalDebug = true;
+    bool debug = false;
+    bool criticalDebug = false;
     int index = ip+jp*GridDimension[0]+kp*GridDimension[0]*GridDimension[1];
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     
@@ -99,11 +99,11 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         of all quantities and be coupled to the grid after the cic deposition. */
     float density [size];
     float metals [size];
-    float *u = new float [size];
-    float *v = new float[size];
-    float *w = new float [size];
-    float *totalEnergy =new float [size];
-    float *gasEnergy =new float[size];
+    float u [size];
+    float v [size];
+    float w [size];
+    float totalEnergy  [size];
+    float gasEnergy [size];
     for (int i=0; i<size; i++){
         density[i] = 0.0;
         metals[i] = 0.0;
@@ -162,7 +162,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 CloudParticleVectorY[cpInd] /= norm;
                 CloudParticleVectorX[cpInd] /= norm;  
             }
-    /* Each particle gets 1/12 of energy, momenta, mass, and metal.  There
+    /* Each particle gets 1/32 of energy, momenta, mass, and metal.  There
     are no varying vector / scalar weights to worry about.  The momenta coupled
     is simply \hat(r_ba) p/12 for r_ba the vector from source to coupled
     particle.  */
@@ -243,10 +243,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             usePt = 1;
             
         /* Determine coupled momenta if rc < dx 
-        else couple p_ej*(1+dx/r_cool)**4 */
+        else couple p_ejecta */
             if(debug)fprintf(stdout, "Using P_t with Nb = %f, E= %e",nmean, coupledEnergy/1e51);
-            float Efactor = 1.0;
-            if (dxRatio > 4) Efactor = coupledEnergy/ejectaEnergy*pow(dxRatio,3);
             coupledMomenta = 4.8e5*pow(nmean, -1.0/7.0)
                 * pow(ejectaEnergy/1e51, 13.0/14.0) * fz; //Msun*km/s
         // }
@@ -272,7 +270,6 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         Analytic SNR shell mass is on, adjust the shell mass 
         Shell is limited on upper end by 1/1000 mass of 
             cell with mean density*/
-    float maxShellMass = 1.0*DensityUnits*MassUnits/1000; // large shell mass evacuates too efficently... muField-> 0.0 and NaN ensues!
     if (dxRatio <= 50 && dxRatio >= 0.1 && coupledEnergy > 0
         && AnalyticSNRShellMass){
             shellVelocity = 413.0 *pow(nmean, 1.0/7.0)
@@ -284,7 +281,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 can only contribute to the mass if the shell velocity is 
                 higher than the gas velocity.*/
             if (shellVelocity > vmean){ 
-                shellMass = max(1e3, coupledMomenta/shellVelocity); //Msun
+                shellMass = max(8e3, coupledMomenta/shellVelocity); //Msun
                 
                 /* cant let host cells evacuate completely!  
                     Shell mass will be evacuated from central cells by CIC a negative mass,
@@ -309,38 +306,12 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     eKinetic = coupledMomenta*coupledMomenta
                     /(2.0*coupledMass)*SolarMass*1e10;
 
-    /*  rescale momenta if it results in too much energy */
-    
-    // if (eKinetic > coupledEnergy && !usePt){
-    //     float fact = coupledEnergy/eKinetic;
-    //     if (debug)fprintf(stdout, "recalculating momenta: e_k > e_cpl: e_k = %e e_cpl = %e factor = %e ",
-    //         eKinetic, coupledEnergy, fact);
-    //     coupledMomenta = pow(fact*2.0*ejectaEnergy*(coupledMass*SolarMass), 0.5)
-    //                             * pow(1.0+dxRatio, 3.75*pow(nmean, -1./14.))/SolarMass/1e5;
-    //     eKinetic = coupledMomenta*coupledMomenta
-    //                 /(2.0*coupledMass)*SolarMass*1e10; 
-    // if (debug)fprintf(stdout, "new e_k = %e p = %e\n",eKinetic, coupledMomenta);
-    // }
-
-    // // // /* If p_t gives too much kinetic energy, reduce it
-    // // //     to preserve energy conservation */
-
-    // if (eKinetic > coupledEnergy && usePt){
-    //     float fact = pow(coupledEnergy/eKinetic,14.0/13.0);
-    //     if (debug)fprintf(stdout, "recalculating momenta: e_k > e_cpl e_k = %e e_cpl = %e ",
-    //         eKinetic, coupledEnergy);
-    //     coupledMomenta = pow(dxRatio, -3)*4.8e5*pow(nmean, -1.0/7.0)
-    //             * pow(ejectaEnergy/1e51, 13.0/14.0) * fz;
-    //     eKinetic = coupledMomenta*coupledMomenta
-    //                 /(2.0*coupledMass)*SolarMass*1e10;
-    // if (debug)fprintf(stdout, "new e_k = %e p = %e\n",eKinetic, coupledMomenta);
-    // }
 
     float coupledGasEnergy = max(ejectaEnergy-eKinetic, 0);
     if (debug)fprintf(stdout, "Coupled Gas Energy = %e\n",coupledGasEnergy);
-    if (dxRatio > 1.0)
-        coupledGasEnergy *= pow(dxRatio, -6.5);
-    /* rescale momentum for new shell */
+    // if (dxRatio > 1.0)
+    //     coupledGasEnergy *= pow(dxRatio, -6.5);
+   
     float shellMetals = zZsun*0.02 * shellMass;
     float coupledMetals = ejectaMetal + shellMetals;
 
@@ -348,9 +319,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (debug) fprintf(stdout, "Coupled Momentum: %e\n", coupledMomenta/float(nCouple));
     /* Reduce coupled quantities to per-particle quantity and convert to 
-        code quantities.
+        code units.
         Hopkins has complicated weights due to complicated geometry. 
-            This is more simple since our coupled particles are 
+            This implementation is simple since our coupled particles are 
             spherically symmetric about the feedback particle*/
     
     coupledEnergy /= float(nCouple);
@@ -358,13 +329,17 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     coupledMass /= float(nCouple);
     coupledMetals /= float(nCouple);
     coupledMomenta /= float(nCouple);
+
     /* Transform coupled quantities to code units */
+
     coupledEnergy /= EnergyUnits;
     coupledGasEnergy /= EnergyUnits;
     coupledMass /= MassUnits;
     coupledMetals /= MassUnits;
     coupledMomenta /= MomentaUnits;
+
     /* CIC deposit the particles with their respective quantities */
+
     float LeftEdge[3] = {CellLeftEdge[0][0], CellLeftEdge[1][0], CellLeftEdge[2][0]};
     for (int n = 0; n < nCouple; n++){
 
@@ -381,24 +356,24 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &dx);
         if (pX != 0.0){
             FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                &CloudParticlePositionZ[n], &GridRank, &np,&pX, u, LeftEdge, 
+                &CloudParticlePositionZ[n], &GridRank, &np,&pX, &u[0], LeftEdge, 
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &dx);
         }
         if (pY != 0.0)
             FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                &CloudParticlePositionZ[n], &GridRank,&np,&pY, v, LeftEdge, 
+                &CloudParticlePositionZ[n], &GridRank,&np,&pY, &v[0], LeftEdge, 
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &dx);
         if (pZ != 0.0)
             FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                &CloudParticlePositionZ[n], &GridRank,&np,&pZ, w, LeftEdge, 
+                &CloudParticlePositionZ[n], &GridRank,&np,&pZ, &w[0], LeftEdge, 
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &dx);
         if (coupledEnergy > 0 && DualEnergyFormalism)
             FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                &CloudParticlePositionZ[n], &GridRank,&np,&coupledEnergy, totalEnergy, LeftEdge, 
+                &CloudParticlePositionZ[n], &GridRank,&np,&coupledEnergy, &totalEnergy[0], LeftEdge, 
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &dx);
         if (coupledGasEnergy > 0)
             FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                &CloudParticlePositionZ[n], &GridRank,&np,&coupledGasEnergy, gasEnergy, LeftEdge, 
+                &CloudParticlePositionZ[n], &GridRank,&np,&coupledGasEnergy, &gasEnergy[0], LeftEdge, 
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &dx); 
     }
     /* Deposit one negative mass particle centered on star to account for 
@@ -520,6 +495,6 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                         GridDimension[2], -1);
 
 
-    delete [] u,v,w, gasEnergy, totalEnergy;
+    // delete [] u,v,w, gasEnergy, totalEnergy;
     return SUCCESS;
 }
