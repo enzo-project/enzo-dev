@@ -49,8 +49,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     
     /* Compute size (in floats) of the current grid. */
     float stretchFactor =1.;//1.5/sin(M_PI/10.0);  // How far should cloud particles be from their host
-                                // in units of dx
-    int usePt = 0;
+                                // in units of dx. Since the cloud forms a sphere shell, stretchFactor > 1 is not recommended
     size = 1;
     for (int dim = 0; dim < GridRank; dim++)
         size *= GridDimension[dim];
@@ -90,7 +89,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         MetalNum = 0;
 
     /* set other units that we need */
-    MassUnits = DensityUnits*pow(LengthUnits*dx, 3)/SolarMass;
+    MassUnits = DensityUnits*pow(LengthUnits*dx, 3)/SolarMass; //Msun!
     float EnergyUnits = DensityUnits*pow(LengthUnits*dx, 3) 
                     * VelocityUnits*VelocityUnits;//[g cm^2/s^2] -> code_energy
     float MomentaUnits = VelocityUnits;  
@@ -217,7 +216,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float zZsun = max(zmean, 1e-8);
     float fz = (zZsun < 0.01)? (2.0): (pow(zZsun, -0.14));
 
-    /* conversions */
+    /* Cooling radius as in Hopkins, but as an average over cells */
     float CoolingRadius = 28.4 *
         pow(max(0.001,nmean), -3.0/7.0)
         *pow(ejectaEnergy/1.0e51, 2.0/7.0)* fz;
@@ -232,51 +231,33 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     float coupledMomenta = 0.0;
     float eKinetic = 0.0;
-    /* Hopkins uses ratio of masses to determine how to couple.
-        Radius here is well-known and fixed, so we use that instead */
-    if (dxRatio > 1.0){ 
-        // if (ejectaEnergy < 1e5 || dxRatio > 100){
-        //     coupledEnergy = 0.0;
-        //     coupledMomenta = 0.0;
-        // }else{
-            coupledEnergy = ejectaEnergy*pow(dxRatio, -6.5);
-            usePt = 1;
-            
-        /* Determine coupled momenta if rc < dx 
-        else couple p_ejecta */
-            if(debug)fprintf(stdout, "Using P_t with Nb = %f, E= %e",nmean, coupledEnergy/1e51);
-            coupledMomenta = 4.8e5*pow(nmean, -1.0/7.0)
-                * pow(ejectaEnergy/1e51, 13.0/14.0) * fz; //Msun*km/s
-        // }
-    } else {
-        if (debug)fprintf(stdout, "Directly calculating momenta using energy = %e and mass = %e ", 
-                    ejectaEnergy, ejectaMass);
+    /* termninal momentum */
+    float pTerminal = 4.8e5*pow(nmean, -1.0/7.0)
+                * pow(ejectaEnergy/1e51, 13.0/14.0) * fz;
+    /* analytic momentum for resolved cooling radii */
+    float pEjectMod = pow(2.0*ejectaEnergy*(ejectaMass*SolarMass), 0.5) 
+                                * pow(1+dmean*MassUnits/ejectaMass/SolarMass, 0.5)/SolarMass/1e5;;
 
-                    /*
-                    The multiplicative factor tacked on the end of the momentum here
-                    ensures a smooth connection from p = sqrt(2*m*e) to the p=pt at r_cool
-                    above.  Without it, there are large discontinuities where the different 
-                    forms of momenta meet (dx=r_cool)
-                     */
-        coupledMomenta = pow(2.0*ejectaEnergy*(ejectaMass*SolarMass), 0.5) 
-                                * pow(1.0+dxRatio, 3.75*pow(nmean, -1./14.))/SolarMass/1e5; //Msun*km/s
-        if (debug)fprintf(stdout, "Calculated p = %e ", coupledMomenta);
-        if (debug)fprintf(stdout, "Ekinetic = %e\n", coupledMomenta*coupledMomenta
+    /* Select the lower momenta to couple */
+    coupledMomenta = min(pEjectMod, pTerminal);
+
+    if (debug)fprintf(stdout, "Calculated p = %e ", coupledMomenta);
+    if (debug)fprintf(stdout, "Ekinetic = %e\n", coupledMomenta*coupledMomenta
                     /(2.0*ejectaMass)*SolarMass*1e10);
 
-    }
+    
     float shellMass = 0.0, shellVelocity = 0.0;
     /* If resolution is in a range compared to Rcool and
         Analytic SNR shell mass is on, adjust the shell mass 
-        Shell is limited on upper end by 1/1000 mass of 
-            cell with mean density*/
+        Shell mass calculation is limited by considering the local gas
+        velocity */
     if (dxRatio <= 50 && dxRatio >= 0.1 && coupledEnergy > 0
         && AnalyticSNRShellMass){
             shellVelocity = 413.0 *pow(nmean, 1.0/7.0)
                 *pow(zZsun, 3.0/14.0)*pow(coupledEnergy/EnergyUnits/1e51, 1.0/14.0)
                 *pow(dxRatio, -7.0/3.0);//km/s
-            /* Underdense regions can have large momenta with 
-                low velocity, leading to shell mass instability.  
+            /* Underdense regions can have large coupled momenta with 
+                low velocity (due to large r_cool), leading to shell mass instability.  
                 The shell velocity is compared to gas velocity, and 
                 can only contribute to the mass if the shell velocity is 
                 higher than the gas velocity.*/
@@ -304,13 +285,13 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
          ENZO_FAIL("SM_deposit: 252");}
     float coupledMass = shellMass+ejectaMass;
     eKinetic = coupledMomenta*coupledMomenta
-                    /(2.0*coupledMass)*SolarMass*1e10;
+                    /(2.0*dmean*MassUnits)*SolarMass*1e10;
 
 
     float coupledGasEnergy = max(ejectaEnergy-eKinetic, 0);
     if (debug)fprintf(stdout, "Coupled Gas Energy = %e\n",coupledGasEnergy);
-    // if (dxRatio > 1.0)
-    //     coupledGasEnergy *= pow(dxRatio, -6.5);
+    if (dxRatio > 1.0)
+         coupledGasEnergy = (DepositUnresolvedEnergyAsThermal)?(coupledGasEnergy):(coupledGasEnergy*pow(dxRatio, -6.5));
    
     float shellMetals = zZsun*0.02 * shellMass;
     float coupledMetals = ejectaMetal + shellMetals;
@@ -324,7 +305,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             This implementation is simple since our coupled particles are 
             spherically symmetric about the feedback particle*/
     
-    coupledEnergy /= float(nCouple);
+    coupledEnergy = eKinetic/float(nCouple);
     coupledGasEnergy /= float(nCouple);
     coupledMass /= float(nCouple);
     coupledMetals /= float(nCouple);
@@ -377,7 +358,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &dx); 
     }
     /* Deposit one negative mass particle centered on star to account for 
-        shell mass leaving host cells */
+        shell mass leaving host cells .  Same for metals that were evacuated*/
     int np = 1;
     shellMass *= -1/MassUnits;
     FORTRAN_NAME(cic_deposit)(xp, yp, zp, &GridRank,&np,&shellMass, &density[0], LeftEdge, 
