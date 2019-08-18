@@ -42,13 +42,13 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         and all have radius dx from the source particle. 
         Each vertex particle will then be CIC deposited to the grid!
     */
-    bool debug = false;
-    bool criticalDebug = false;
+    bool debug = true;
+    bool criticalDebug = true;
     int index = ip+jp*GridDimension[0]+kp*GridDimension[0]*GridDimension[1];
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     
     /* Compute size (in floats) of the current grid. */
-    float stretchFactor =1.;//1.5/sin(M_PI/10.0);  // How far should cloud particles be from their host
+    float stretchFactor =1.25;//1.5/sin(M_PI/10.0);  // How far should cloud particles be from their host
                                 // in units of dx. Since the cloud forms a sphere shell, stretchFactor > 1 is not recommended
     size = 1;
     for (int dim = 0; dim < GridRank; dim++)
@@ -228,24 +228,61 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (debug)fprintf(stdout, "Dx [pc] = %f\n", dx*LengthUnits/pc_cm);
     float dxRatio = stretchFactor*dx*LengthUnits/pc_cm/CoolingRadius;
+    float pEjectMod = pow(2.0*ejectaEnergy*(ejectaMass*SolarMass), 0.5)/SolarMass/1e5;
+    /* We want to couple one of four phases: free expansion, Sedov-taylor, shell formation, or terminal 
+    The first three phases are take forms from Kim & Ostriker 2015, the last from Cioffi 1988*/
+    float cellwidth = dx*LengthUnits/pc_cm;
+    float p_free = 0.0;//sqrt(ejectaMass*SolarMass*ejectaEnergy)/SolarMass/1e5;//1.73e4*sqrt(ejectaMass*ejectaEnergy/1e51/3.); // free exp. momentum eq 15
+    float r_free = 2.75*pow(ejectaMass/3/nmean, 1./3.); // free exp radius eq 2
+    
+    
+    // assuming r_sedov == dx, solve for t3
+    float t3_sedov = pow( cellwidth*pc_cm
+            /(5.0*pc_cm*pow(ejectaEnergy/1e51/nmean, 1.0/5.0)), 5./2.); 
+    float p_sedov = 2.21e4*pow(ejectaEnergy/1e51, 4./5.)
+            * pow(nmean, 1./5.)* pow(t3_sedov, 3./5.); // eq 16
+
+      // shell formation radius eq 8
+    float r_shellform = 22.6*pow(ejectaEnergy/1e51, 0.29)*pow(nmean, -0.42); 
+    // p_sf = m_sf*v_sf eq 9,11
+    float p_shellform = 3.3936e5*pow(ejectaEnergy/1e51, 0.94)*pow(nmean, -0.13) ; // p_sf = m_sf*v_sf eq 9,11
+  
+    /* termninal momentum */
+    float pTerminal = 4.8e5*pow(nmean, -1.0/7.0)
+                * pow(ejectaEnergy/1e51, 13.0/14.0) * fz; // cioffi 1988, as written in Hopkins 2018
 
     float coupledMomenta = 0.0;
     float eKinetic = 0.0;
-    /* termninal momentum */
-    float pTerminal = 4.8e5*pow(nmean, -1.0/7.0)
-                * pow(ejectaEnergy/1e51, 13.0/14.0) * fz;
-    /* analytic momentum for resolved cooling radii */
-    float pEjectMod = pow(2.0*ejectaEnergy*(ejectaMass*SolarMass), 0.5) 
-                                * pow(1+dmean*MassUnits/ejectaMass/SolarMass, 0.5)/SolarMass/1e5;;
-
-    /* Select the lower momenta to couple */
-    coupledMomenta = min(pEjectMod, pTerminal);
-
-    if (debug)fprintf(stdout, "Calculated p = %e ", coupledMomenta);
-    if (debug)fprintf(stdout, "Ekinetic = %e\n", coupledMomenta*coupledMomenta
-                    /(2.0*ejectaMass)*SolarMass*1e10);
-
+    fprintf(stdout, "RADII: %e %e %e t_3=%e\n", r_free, r_shellform, CoolingRadius, t3_sedov);
     
+    /* Select the mode of coupling */
+
+    if (cellwidth < r_free){
+        coupledMomenta = p_free;
+        fprintf(stdout, "Coupling free expansion\n");}
+    if (cellwidth > r_free && cellwidth < r_shellform){
+        coupledMomenta = p_sedov;
+        fprintf(stdout, "Coupling S-T phase\n");}
+    if (cellwidth > r_shellform && cellwidth < CoolingRadius){
+        coupledMomenta = min(p_shellform*cellwidth/r_shellform, pTerminal);
+        fprintf(stdout, "Coupling shell-forming stage\n");}
+    if (cellwidth > CoolingRadius){
+        coupledMomenta = pTerminal;
+        fprintf(stdout, "Coupling terminal momenta\n");}
+    if (debug)fprintf(stdout, "Calculated p = %e\n", coupledMomenta);
+
+
+    /* fading radius of a SNR */
+    float *temperature = new float[size];
+    this->ComputeTemperatureField(temperature);
+    float Gcode = GravConst*DensityUnits*pow(TimeUnits,2);
+    float KBcode = kboltz*MassUnits/(LengthUnits*dx)/pow(TimeUnits,2);
+    float cSound = sqrt(5/3*kboltz*temperature[index]/mh/muField[index])/1e5; //km/s
+    float r_fade = 66.0*pow(ejectaEnergy/1e51, 0.32)*pow(nmean, -0.37)*pow(min(cSound/10, .1), -2.0/5.0);
+    fprintf(stdout, "Rfade = %e cs = %e \n", r_fade, cSound);
+    delete [] temperature;
+
+    coupledMomenta = (cellwidth > r_fade)?(coupledMomenta*pow(r_fade/cellwidth,3)):(coupledMomenta);
     float shellMass = 0.0, shellVelocity = 0.0;
     /* If resolution is in a range compared to Rcool and
         Analytic SNR shell mass is on, adjust the shell mass 
@@ -286,19 +323,22 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float coupledMass = shellMass+ejectaMass;
     eKinetic = coupledMomenta*coupledMomenta
                     /(2.0*dmean*MassUnits)*SolarMass*1e10;
+    if (debug)fprintf(stdout, "Ekinetic = %e\n", eKinetic);
 
 
     float coupledGasEnergy = max(ejectaEnergy-eKinetic, 0);
     if (debug)fprintf(stdout, "Coupled Gas Energy = %e\n",coupledGasEnergy);
-    if (dxRatio > 1.0)
-         coupledGasEnergy = (DepositUnresolvedEnergyAsThermal)?(coupledGasEnergy):(coupledGasEnergy*pow(dxRatio, -6.5));
+    if (dxRatio > 2.0)
+         coupledGasEnergy = (DepositUnresolvedEnergyAsThermal)
+                            ?(coupledGasEnergy)
+                            :(coupledGasEnergy*pow(dxRatio, -6.5));
    
     float shellMetals = zZsun*0.02 * shellMass;
     float coupledMetals = ejectaMetal + shellMetals;
 
 
 
-    if (debug) fprintf(stdout, "Coupled Momentum: %e\n", coupledMomenta/float(nCouple));
+    if (debug) fprintf(stdout, "Coupled Momentum: %e\n", coupledMomenta);
     /* Reduce coupled quantities to per-particle quantity and convert to 
         code units.
         Hopkins has complicated weights due to complicated geometry. 
@@ -349,6 +389,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 &CloudParticlePositionZ[n], &GridRank,&np,&pZ, &w[0], LeftEdge, 
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &dx);
         if (coupledEnergy > 0 && DualEnergyFormalism)
+            coupledEnergy += coupledGasEnergy;
             FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
                 &CloudParticlePositionZ[n], &GridRank,&np,&coupledEnergy, &totalEnergy[0], LeftEdge, 
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &dx);
