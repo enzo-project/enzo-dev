@@ -48,7 +48,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     
     /* Compute size (in floats) of the current grid. */
-    float stretchFactor =1.25;//1.5/sin(M_PI/10.0);  // How far should cloud particles be from their host
+    float stretchFactor =1.15;//1.5/sin(M_PI/10.0);  // How far should cloud particles be from their host
                                 // in units of dx. Since the cloud forms a sphere shell, stretchFactor > 1 is not recommended
     size = 1;
     for (int dim = 0; dim < GridRank; dim++)
@@ -245,7 +245,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
       // shell formation radius eq 8
     float r_shellform = 22.6*pow(ejectaEnergy/1e51, 0.29)*pow(nmean, -0.42); 
     // p_sf = m_sf*v_sf eq 9,11
-    float p_shellform = 3.3936e5*pow(ejectaEnergy/1e51, 0.94)*pow(nmean, -0.13) ; // p_sf = m_sf*v_sf eq 9,11
+    float p_shellform = 3.1e5*pow(ejectaEnergy/1e51, 0.94)*pow(nmean, -0.13) ; // p_sf = m_sf*v_sf eq 9,11
   
     /* termninal momentum */
     float pTerminal = 4.8e5*pow(nmean, -1.0/7.0)
@@ -261,10 +261,10 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         coupledMomenta = p_free;
         fprintf(stdout, "Coupling free expansion\n");}
     if (cellwidth > r_free && cellwidth < r_shellform){
-        coupledMomenta = p_sedov;
+        coupledMomenta = min(p_sedov, p_shellform*cellwidth/r_shellform);
         fprintf(stdout, "Coupling S-T phase\n");}
     if (cellwidth > r_shellform && cellwidth < CoolingRadius){
-        coupledMomenta = min(p_shellform*cellwidth/r_shellform, pTerminal);
+        coupledMomenta = min(p_shellform+(cellwidth-r_shellform)*(pTerminal-p_shellform)/(CoolingRadius-r_shellform), pTerminal);
         fprintf(stdout, "Coupling shell-forming stage\n");}
     if (cellwidth > CoolingRadius){
         coupledMomenta = pTerminal;
@@ -288,7 +288,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         Analytic SNR shell mass is on, adjust the shell mass 
         Shell mass calculation is limited by considering the local gas
         velocity */
-    if (dxRatio <= 50 && dxRatio >= 0.1 && coupledEnergy > 0
+    if (cellwidth > r_shellform && coupledEnergy > 0
         && AnalyticSNRShellMass){
             shellVelocity = 413.0 *pow(nmean, 1.0/7.0)
                 *pow(zZsun, 3.0/14.0)*pow(coupledEnergy/EnergyUnits/1e51, 1.0/14.0)
@@ -307,8 +307,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 for (int ind = -1; ind<=1; ind++){
                         float minD = min(BaryonField[DensNum][index+ind],BaryonField[DensNum][index+GridDimension[0]*ind]);
                         minD = min(minD,BaryonField[DensNum][index+GridDimension[0]*GridDimension[1]*ind]);
-                        if (shellMass >= 0.05*minD*MassUnits)
-                        shellMass = 0.05*minD*MassUnits;
+                        if (shellMass >= 0.25*minD*MassUnits)
+                        shellMass = 0.25*minD*MassUnits;
                 }
                     
                          
