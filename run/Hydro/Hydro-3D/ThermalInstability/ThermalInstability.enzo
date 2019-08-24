@@ -1,0 +1,84 @@
+# Thermal Instability in Turbulent Box
+#
+# Initializes a 3D grid of turbulent density perturbations in 
+# pressure equilibrium
+
+# Initialization Parameters
+ProblemType                = 417
+TopGridRank                = 3
+
+TopGridDimensions          = 128 128 128
+DomainLeftEdge             = 0 0 0
+DomainRightEdge            = 1 1 1
+
+LeftFaceBoundaryCondition  = 3 3 3 # 3 = Periodic, 0 = reflecting
+RightFaceBoundaryCondition = 3 3 3 # 3 = Periodic, 0 = reflecting
+TopGridGravityBoundary = 0  # 1 = Isolated
+
+# Hierarchy Control Parameters
+StaticHierarchy            = 1 # 0 = AMR, 1 = No AMR
+UnigridTranspose           = 0
+MaximumRefinementLevel     = 2
+RefineBy                   = 2
+CellFlaggingMethod = 12
+#MinimumOverDensityForRefinement = 8.0
+#MustRefineRegionMinRefinementLevel = 2
+#MustRefineRegionLeftEdge = -16.0 -16.0 -16.0
+#MustRefineRegionRightEdge = 16.0 16.0 16.0
+
+# I/O Parameters
+StopCycle = 1000000
+InitialTime = 0.0
+StopTime = 1.0     # 1e5 years
+dtDataDump = 0.1   # 1e4 years
+DataDumpDir                = DD
+DataDumpName = DD
+OutputTemperature          = 1 
+OutputCoolingTime          = 1
+
+# Units Parameters
+DensityUnits               = 3.00659536547e-32 
+LengthUnits                = 3.08567758135e+21  # 1 code_unit  = 1 kpc
+TimeUnits                  = 3.15576e+12        # 1 code_time unit = 1e5 years
+GravitationalConstant      = 2.5112618467095116e-13  # 4*pi*G*DensityUnits*TimeUnits^2
+
+# Gravity Parameters
+SelfGravity                = 1
+
+# Hydrodynamic Parameters
+UseHydro                   = 1
+HydroMethod                = 4  # 0 = PPM, 2 = ZEUS, 4 = Dedner MHD
+RiemannSolver 		   = 3  # 3 = LLF
+FluxCorrection             = 1
+DualEnergyFormalism        = 1 
+Gamma                      = 1.66666666667
+CourantSafetyNumber        = 0.4
+
+# Acceleration Parameters
+# Dedner and MUSCL solvers use "ConstantAcceleration" code
+# Zeus and PPM solvers use "UniformGravity" code
+# but both are set to have a constant downward acceleration in the z-direction
+# The normalization for our units appears to be 1 ~ 1e-3 cm/s/yr
+UseConstantAcceleration    = 0
+ConstantAcceleration       = 0 0 -1e5
+UniformGravity             = 0
+UniformGravityDirection    = 2
+UniformGravityConstant     = -1e5
+
+# Parameters for Additional Physics
+RadiativeCooling = 1
+MultiSpecies = 0
+MetalCooling = 0  #### turn on Cloudy cooling! --Set this to 0 to test.
+CIECooling = 0
+
+# Global Parameters
+tiny_number                = 1.0e-10
+MinimumEfficiency          = 0.4
+
+Mu = 1.22
+
+# Problem-specific Parameters
+TIMeanDensity                   = 1e-28      # g/cc
+TIMeanTemperature               = 1e6    # Kelvin
+TIDensityPerturbationAmplitude  = 0.01
+TestProblemUseMetallicityField  = 0
