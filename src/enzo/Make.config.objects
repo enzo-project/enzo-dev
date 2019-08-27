@@ -403,11 +403,14 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeAccelerationField.o \
 	Grid_ComputeAccelerations.o \
 	Grid_ComputeAccelerationsFromExternalPotential.o \
+        Grid_ComputeAnisotropicCRDiffusion.o \
 	Grid_ComputeCellCenteredField.o \
 	Grid_ComputeConductionTimeStep.o \
 	Grid_ComputeCoolingTime.o \
         Grid_ComputeCRDiffusion.o \
         Grid_ComputeCRDiffusionTimeStep.o \
+        Grid_ComputeCRStreaming.o \
+        Grid_ComputeCRStreamingTimeStep.o \
         Grid_ComputeDomainBoundaryMassFlux.o \
 	Grid_ComputeDustTemperatureField.o \
 	Grid_ComputeElementalDensity.o \

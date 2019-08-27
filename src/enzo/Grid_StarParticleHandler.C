@@ -314,7 +314,7 @@ extern "C" void FORTRAN_NAME(star_feedback2)(int *nx, int *ny, int *nz,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type,
-			float *justburn);
+	     float *justburn, int *crmodel, float *crfeedback, float *cr);
  
 extern "C" void FORTRAN_NAME(star_feedback3mom)(int *nx, int *ny, int *nz,
 						float *d, float *mu, float *dm, float *te, float *ge, float *u, float *v,
@@ -1541,7 +1541,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticleVelocity[0], ParticleVelocity[1],
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
-       ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+       ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation, 
+       &CRModel, &CRFeedback, (CRModel?BaryonField[CRNum]:NULL));
  
   } // end: if NORMAL_STAR
  
