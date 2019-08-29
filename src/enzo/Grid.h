@@ -1533,13 +1533,20 @@ gradient force to gravitational force for one-zone collapse test. */
    void OutputStellarAbundances(int * indeces){
 
      for (int n = 0; n < NumberOfParticles; n++){
-       if (indeces[n] < 0) break;
+       // indeces array contains list of indexes
+       // for the new particles - negative value
+       // in indeces array marks end of new particles
 
-       printf("StellarAbundances P(%"ISYM"): %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM,
+       int index = indeces[n];
+       if (index < 0) break;
+
+       printf("StellarAbundances P(%"ISYM"): %"ISYM" %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM,
               MyProcessorNumber,
-              this->ID, ParticleNumber[n], ParticleMass[n],
-              ParticleAttribute[3][n], // BirthMass
-              ParticleAttribute[2][n]); // metallicity
+              this->ID, ParticleNumber[index], ParticleType[index], 
+              ParticlePosition[0][index], ParticlePosition[1][index], ParticlePosition[2][index],
+              ParticleMass[index],
+              ParticleAttribute[3][index], // BirthMass
+              ParticleAttribute[2][index]); // metallicity
 
        int i = 0;
        int num_extra = 0;
@@ -1549,7 +1556,7 @@ gradient force to gravitational force for one-zone collapse test. */
        if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
 
        for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
-         printf("     %"ESYM,StellarAbundances[i][n]);
+         printf("     %"ESYM,StellarAbundances[i][index]);
        }
 
        printf("\n");

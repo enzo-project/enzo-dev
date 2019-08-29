@@ -162,6 +162,18 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 #endif
   }
 
+/*
+Attempting a bug fix ... may need to do this here ...
+ --- bug fix in Grid.h seems to be working (Aug 2019)
+ --- just had an index error
+#ifdef INDIVIDUALSTAR
+  for (grid = 0; grid < NumberOfGrids; grid++) {
+    Grids[grid]->GridData->
+    Grids[grid]->GridData->DeleteStellarAbundances();
+  }
+#endif
+*/
+
 #ifdef UNUSED
   fprintf(stdout, "\nin CUSPC.C \n", MetaData->NumberOfParticles); 
   fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles); 
