@@ -2,9 +2,13 @@
 
 
 Gravity
-======================================
+=======
 
-The current implementation of self-gravity in Enzo uses a fast Fourier
+
+The Multigrid solver
+--------------------
+
+The default implementation of self-gravity in Enzo uses a fast Fourier
 technique (`Hockney & Eastwood 1988 <http://adsabs.harvard.edu/abs/1988csup.book.....H>`_)
 to solve Poisson’s equation on the
 root grid on each timestep. The advantage of using this method is that
@@ -24,3 +28,13 @@ number of options for specifying static gravitational fields
 galactic disks, and point sources).  Enzo
 parameters relating to gravity can be found in
 :ref:`gravity_parameters`, and a brief description .
+
+The APM solver
+--------------
+
+Self-gravity can also be solved the Adaptive Particle-Mesh (APM) technique from
+`Passy & Bryan 2014 <https://ui.adsabs.harvard.edu/abs/2014ApJS..215....8P/abstract>`_.
+The general idea is to split the gravitational force between a long-range component
+and one or more short-range components that are non-zero only for a narrow range of wavenumbers.
+More details on the algorithm can be found in the paper above.
+Enzo parameters related to the APM solver are listed and briefly described in :ref:`gravity_parameters`.

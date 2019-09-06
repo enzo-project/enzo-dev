@@ -34,6 +34,8 @@ c
 #include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
 #include "fortran.def"
 
 #define IDX(a,b,c) ( ((c)*jn + (b))*in + (a) )
@@ -146,18 +148,31 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
       /* Update velocities with acceleration */
 
       if (gravity == 1) {
+        if (GravitySolverType == GRAVITY_SOLVER_FAST) {
+          for (i = is-2; i <= ie+3; i++)
+            u[IDX(i,j,k)] = u[IDX(i,j,k)] + dt*gr_xacc[IDX(i,j,k)];
 
-	for (i = is-2; i <= ie+3; i++)
-	  u[IDX(i,j,k)] = u[IDX(i,j,k)] + dt*gr_xacc[IDX(i,j,k)];
+          if (rank > 1)
+            for (i = is-2; i <= ie+3; i++)
+              v[IDX(i,j,k)] = v[IDX(i,j,k)] + dt*gr_yacc[IDX(i,j,k)];
 
-	if (rank > 1)
-	  for (i = is-2; i <= ie+3; i++)
-	    v[IDX(i,j,k)] = v[IDX(i,j,k)] + dt*gr_yacc[IDX(i,j,k)];
+          if (rank > 2)
+            for (i = is-2; i <= ie+3; i++)
+              w[IDX(i,j,k)] = w[IDX(i,j,k)] + dt*gr_zacc[IDX(i,j,k)];
 
-	if (rank > 2)
-	  for (i = is-2; i <= ie+3; i++)
-	    w[IDX(i,j,k)] = w[IDX(i,j,k)] + dt*gr_zacc[IDX(i,j,k)];
+        } else if (GravitySolverType == GRAVITY_SOLVER_APM) { // APM
+          for (i = is-2; i <= ie+3; i++)
+            u[IDX(i,j,k)] = u[IDX(i,j,k)] + dt*0.5*(gr_xacc[IDX(i,j,k)]+gr_xacc[IDX(i-1,j,k)]);
 
+          if (rank > 1)
+            for (i = is-2; i <= ie+3; i++)
+              v[IDX(i,j,k)] = v[IDX(i,j,k)] + dt*0.5*(gr_yacc[IDX(i,j,k)]+gr_yacc[IDX(i,j-1,k)]);
+
+          if (rank > 2)
+            for (i = is-2; i <= ie+3; i++)
+              w[IDX(i,j,k)] = w[IDX(i,j,k)] + dt*0.5*(gr_zacc[IDX(i,j,k)]+gr_zacc[IDX(i,j,k-1)]);
+
+        } // end if (GravitySolverType == GRAVITY_SOLVER_FAST)
       }
     } // end: loop over j
   } // end: loop over k

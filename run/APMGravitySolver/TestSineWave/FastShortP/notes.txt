@@ -1,0 +1,1 @@
+Fast solver computing the acceleration field created by a sine wave with a short perdiod.

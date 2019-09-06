@@ -1,0 +1,48 @@
+#
+# AMR PROBLEM DEFINITION FILE: Test Self Force Problem
+#
+#  define problem
+#
+ProblemType            = 47      
+TopGridRank            = 3
+TopGridDimensions      = 16 16 16
+SelfGravity            = 1       // gravity on
+TopGridGravityBoundary = 1       // Isolated BCs
+UnigridTranspose       = 0
+GravitySolverType      = 1
+DepositAlsoParentGridAndSiblingsParticles = 1
+ParticleSubgridDepositMode = 0
+#
+# Particle position and velocity
+#
+TestSelfForcePartciclePosition = 0.15 0.15 0.15
+TestSelfForcePartcicleVelocity = 1.0 1.0 1.0
+#  set I/O and stop/start parameters
+#
+StopTime                = 0.4
+MaximumTopGridTimeStep  = 3e-3    // no subcycle=3e-3, subcycles=2.5e-2
+dtDataDump              = 0.41
+#
+HydroMethod            = 0
+#
+ParticleCourantSafetyNumber = 0.4
+#
+#  set grid refinement parameters
+#
+CellFlaggingMethod        = 0
+StaticHierarchy           = 0    // dynamic hierarchy
+MaximumRefinementLevel    = 3    // use up to this many extra levels
+RefineBy                  = 2    // refinement factor
+StaticRefineRegionLevel[0] = 0
+StaticRefineRegionLeftEdge[0] = 0.1875 0.1875 0.1875
+StaticRefineRegionRightEdge[0] = 0.8125 0.8125 0.8125
+StaticRefineRegionLevel[1] = 1
+StaticRefineRegionLeftEdge[1] = 0.3125 0.3125 0.3125
+StaticRefineRegionRightEdge[1] = 0.6875 0.6875 0.6875
+StaticRefineRegionLevel[2] = 2
+StaticRefineRegionLeftEdge[2] = 0.40625 0.40625 0.40625
+StaticRefineRegionRightEdge[2] = 0.59375 0.59375 0.59375
+#
+#  set some global parameters
+#
+tiny_number            = 1.0e-10 // fixes velocity slope problem

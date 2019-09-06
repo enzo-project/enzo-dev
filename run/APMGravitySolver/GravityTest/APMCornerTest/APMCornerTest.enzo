@@ -1,0 +1,43 @@
+#
+# AMR PROBLEM DEFINITION FILE: Gravity Test Problem - APM
+#
+#  define problem
+#
+ProblemType            = 123      // Gravity test - APM
+TopGridRank            = 3
+TopGridDimensions      = 32 32 32
+SelfGravity            = 1       // gravity on
+TopGridGravityBoundary = 1       // Isolated BCs
+UnigridTranspose       = 0
+PressureFree           = 1       // turn off pressure
+S2ParticleSize         = 3.4
+GravityResolution      = 1.0
+GravitySolverType      = 1
+DepositAlsoParentGridAndSiblingsParticles = 1
+#
+TestGravityCentralParticlePosition = 0.5 0.5 0.5
+TestGravityNumberOfParticles = 5000
+TestGravitySubgridLeft       = 0.5   // start of subgrid
+TestGravitySubgridRight      = 0.5625   // end of subgrid
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 1e-10
+dtDataDump             = 1e-10
+#
+#  set hydro parameters
+#
+HydroMethod            = 0
+CourantSafetyNumber    = 0.5     //
+PPMDiffusionParameter  = 0       // diffusion off
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // dynamic hierarchy
+MaximumRefinementLevel    = 1    // use up to 2 levels
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 0
+#
+#  set some global parameters
+#
+tiny_number            = 1.0e-10 // fixes velocity slope problem

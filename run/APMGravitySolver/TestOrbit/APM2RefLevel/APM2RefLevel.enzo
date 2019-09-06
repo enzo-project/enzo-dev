@@ -1,0 +1,43 @@
+#
+# AMR PROBLEM DEFINITION FILE: Orbit Test Problem
+#
+#  define problem
+#
+ProblemType            = 29      // orbit test
+TopGridRank            = 3
+TopGridDimensions      = 16 16 16
+SelfGravity            = 1       // gravity on
+TopGridGravityBoundary = 1       // Isolated BCs
+UnigridTranspose       = 0
+GravitySolverType      = 1
+DepositAlsoParentGridAndSiblingsParticles = 1
+ParticleSubgridDepositMode = 0
+#
+#  set problem parameters
+#
+TestOrbitRadius      = 0.3
+TestOrbitCentralMass = 1.0
+TestOrbitTestMass    = 0.1
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 5.0
+MaximumTopGridTimeStep = 3e-3
+dtDataDump             = 5.01
+#
+HydroMethod            = 0
+#
+TimeSteppingRefinementCondition = 0 // Extra condition dt(l+1) = dt(l)/refinement 
+ParticleCourantSafetyNumber = 0.4
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // dynamic hierarchy
+MaximumRefinementLevel    = 2    // use up to this many extra levels
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 4
+MinimumMassForRefinement  = 1e-4
+#
+#  set some global parameters
+#
+tiny_number            = 1.0e-10 // fixes velocity slope problem

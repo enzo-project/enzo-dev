@@ -54,7 +54,7 @@ the following two papers:
    two space dimensions. I - The hydrodynamic algorithms and tests.
    <http://adsabs.harvard.edu/abs/1992ApJS...80..753S>`__ by Stone and Norman,
    Astrophysical Journal Supplement Series (ISSN 0067-0049), vol. 80, no. 2,
-   June 1992, p. 753-790. 
+   June 1992, p. 753-790.
    `Bibtex Entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=1992ApJS...80..753S&data_type=BIBTEX&db_key=AST&nocookieset=1>`__
 
 The extension of PPM to cosmology can be found here:
@@ -88,7 +88,13 @@ The YT paper can be found here:
 
 * `yt: A Multi-code Analysis Toolkit for Astrophysical Simulation Data
   <http://adsabs.harvard.edu/abs/2011ApJS..192....9T>`__, by Turk, M. J.;
-  Smith, B. D.; Oishi, J. S.; Skory, S.; Skillman, S. W.; Abel, T.; and 
+  Smith, B. D.; Oishi, J. S.; Skory, S.; Skillman, S. W.; Abel, T.; and
   Norman, M. L. The Astrophysical Journal Supplement, Volume 192, Issue 1,
   article id. 9 (2011)
   `Bibtex Entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2011ApJS..192....9T&data_type=BIBTEX&db_key=AST&nocookieset=1>`__.
+
+The paper describing the adaptive particle-mesh (APM) gravity solver can be found here:
+
+ * `An Adaptive Particle-mesh Gravity Solver for ENZO <http://adsabs.harvard.edu/abs/2014ApJS..215....8P>`__,
+   Passy, J. C.; Bryan, G. L. The Astrophysical Journal Supplement, Volume 215, Issue 1, article id. 8, 9 pp.
+   `Bibtex Entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2014ApJS..215....8P&data_type=BIBTEX&db_key=AST&nocookieset=1>`__.

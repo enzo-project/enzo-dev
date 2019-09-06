@@ -1,0 +1,45 @@
+#
+# AMR PROBLEM DEFINITION FILE: Poisson Sine Wave Test Problem
+# AUthor: JC Passy
+#
+#  define problem
+#
+ProblemType            = 44      // Poisson Sine Wave
+TopGridRank            = 3
+TopGridDimensions      = 64 64 64
+SelfGravity            = 1       // gravity on
+TopGridGravityBoundary = 0       // periodic BCs
+GravitySolverType      = 0
+DepositAlsoParentGridAndSiblingsParticles = 0
+#
+#  set problem parameters
+#
+TestGravitySineWaveAmplitude = 1.0
+TestGravitySineWavePeriod    = 0.2
+TestGravitySineWaveAngle     = 0.0 // degrees
+TestGravitySineWaveRefineAtStart = 1
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 1e-10
+StopCycle              = 1
+dtDataDump             = 1e-10
+WritePotential         = 1
+#
+#  set grid refinement parameters
+#
+HydroMethod               = 0
+StaticHierarchy           = 0    // dynamic hierarchy
+MaximumRefinementLevel    = 2    // use up to this many extra levels
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 0
+StaticRefineRegionLevel[0] = 0
+StaticRefineRegionLeftEdge[0] = 0.35 0.0 0.0
+StaticRefineRegionRightEdge[0] = 0.65 1.0 1.0
+StaticRefineRegionLevel[1] = 1
+StaticRefineRegionLeftEdge[1] = 0.425 0.0 0.0
+StaticRefineRegionRightEdge[1] = 0.575 1.0 1.0
+#
+#  set some global parameters
+#
+tiny_number            = 1.0e-10 // fixes velocity slope problem

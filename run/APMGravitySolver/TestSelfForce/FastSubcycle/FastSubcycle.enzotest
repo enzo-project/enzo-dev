@@ -1,0 +1,13 @@
+name = 'FastSubcycle'
+answer_testing_script = None
+nprocs = 4
+runtime = 'short'
+hydro = False
+gravity = True
+AMR = True
+dimensionality = 3
+author = 'Jean-Claude Passy'
+max_time_minutes = 1
+fullsuite = True
+pushsuite = True
+quicksuite = True

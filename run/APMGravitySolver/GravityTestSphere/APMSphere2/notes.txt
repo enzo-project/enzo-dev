@@ -1,0 +1,1 @@
+Running APM solver with Plummer sphere

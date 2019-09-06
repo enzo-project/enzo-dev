@@ -15,6 +15,7 @@ import tarfile
 import logging
 
 known_categories = [
+    "APMGravitySolver",
     "Cooling",
     "Cosmology",
     "CosmologySimulation",
@@ -39,7 +40,7 @@ from nose.plugins.xunit import Xunit
 
 from yt.config import ytcfg
 ytcfg["yt","suppressStreamLogging"] = "True"
-ytcfg["yt","__command_line"] = "True" 
+ytcfg["yt","__command_line"] = "True"
 from yt.mods import *
 
 from yt.utilities.command_line import get_yt_version
@@ -128,7 +129,7 @@ def _get_current_version(path):
 
 def _to_walltime(ts):
     return "%02d:%02d:%02d" % \
-        ((ts / 3600), ((ts % 3600) / 60), 
+        ((ts / 3600), ((ts % 3600) / 60),
          (ts % 60))
 
 def add_files(my_list, dirname, fns):
@@ -213,19 +214,19 @@ class ResultsSummary(Plugin):
                 print('(Try rerunning each/all with --time-multiplier=2)')
                 outfile.write('Simulations which did not finish in allocated time:\n')
                 outfile.write('(Try rerunning each/all with --time-multiplier=2)\n')
-                for notfin in sims_not_finished: 
+                for notfin in sims_not_finished:
                     print(notfin)
                     outfile.write(notfin + '\n')
                 outfile.write('\n')
 
             outfile.write('Tests that passed: \n')
-            for suc in self.successes: 
+            for suc in self.successes:
                 outfile.write(suc)
                 outfile.write('\n')
             outfile.write('\n')
 
             outfile.write('Tests that failed:\n')
-            for fail in self.failures: 
+            for fail in self.failures:
                 for li, line in enumerate(fail.split('\\n')):
                     if li > 0: outfile.write('    ')
                     outfile.write(line)
@@ -233,7 +234,7 @@ class ResultsSummary(Plugin):
             outfile.write('\n')
 
             outfile.write('Tests that errored:\n')
-            for err in self.errors: 
+            for err in self.errors:
                 for li, line in enumerate(err.split('\\n')):
                     if li > 0: outfile.write('    ')
                     outfile.write(line)
@@ -282,7 +283,7 @@ class EnzoTestCollection(object):
         if interleaved:
             for i, my_test in enumerate(self.tests):
                 print("Preparing test: %s." % my_test['name'])
-                self.test_container.append(EnzoTestRun(output_dir, my_test, 
+                self.test_container.append(EnzoTestRun(output_dir, my_test,
                                                        machine, exe_path,
                                                        args=self.args,
                                                        plugins=self.plugins))
@@ -308,7 +309,7 @@ class EnzoTestCollection(object):
         print("Preparing all tests.")
         for my_test in self.tests:
             print("Preparing test: %s." % my_test['name'])
-            self.test_container.append(EnzoTestRun(output_dir, my_test, 
+            self.test_container.append(EnzoTestRun(output_dir, my_test,
                                                    machine, exe_path,
                                                    args = self.args,
                                                    plugins = self.plugins))
@@ -334,17 +335,17 @@ class EnzoTestCollection(object):
         # its environment variables from it.
         local_vars = {}
 
-        # python 2/3 compatibility 
+        # python 2/3 compatibility
         if sys.version_info[0] > 2:
             exec(open(fn).read(), {}, local_vars)
         else:
             execfile(fn, {}, local_vars)
-        
+
         test_spec = variable_defaults.copy()
         test_spec['fullpath'] = fn
         test_spec['fulldir'] = os.path.dirname(fn)
         test_spec['run_par_file'] = os.path.basename(test_spec['fulldir']) + ".enzo"
-        test_spec['run_walltime'] = _to_walltime(60 * test_spec['max_time_minutes'] * 
+        test_spec['run_walltime'] = _to_walltime(60 * test_spec['max_time_minutes'] *
                                                  options.time_multiplier)
         for var, val in local_vars.items():
             if var in known_variables:
@@ -396,7 +397,7 @@ class EnzoTestCollection(object):
 
     def save_test_summary(self):
         f = open(os.path.join(self.output_dir, results_filename), 'w')
-        self.plugins[1].finalize(None, outfile=f, sims_not_finished=self.sims_not_finished, 
+        self.plugins[1].finalize(None, outfile=f, sims_not_finished=self.sims_not_finished,
                                  sim_only=self.sim_only)
         f.close()
 
@@ -441,7 +442,7 @@ class EnzoTestRun(object):
                 shutil.copy(os.path.join(self.test_dir, version_filename),
                             os.path.join(self.run_dir, version_filename))
                 if self.exe_path is not None:
-                    os.symlink(os.path.realpath(self.exe_path), 
+                    os.symlink(os.path.realpath(self.exe_path),
                                os.path.join(self.run_dir, self.local_exe))
             else:
                 print("%s already exists. Skipping directory." % self.test_data['name'])
@@ -457,14 +458,14 @@ class EnzoTestRun(object):
                 os.symlink(os.path.realpath(self.exe_path), symlink_path)
 
     def _create_run_script(self):
-        template_path = os.path.join(os.path.dirname(__file__), 
+        template_path = os.path.join(os.path.dirname(__file__),
                                      run_template_dir, machines[self.machine]['script'])
         template_dest = os.path.join(self.run_dir, machines[self.machine]['script'])
         f = open(template_path, 'r')
         template = f.read()
         f.close()
         for var in template_vars.keys():
-            template = template.replace(('${%s}' % var), 
+            template = template.replace(('${%s}' % var),
                                         str(self.test_data[template_vars[var]]))
         template = template.replace('${EXECUTABLE}', "./%s" % self.local_exe)
         for var, value in sorted(getattr(machine_config, self.machine, {}).items()):
@@ -480,7 +481,7 @@ class EnzoTestRun(object):
         if os.path.exists(os.path.join(self.run_dir, 'RunFinished')):
             print("%s run already completed, continuing..." % self.test_data['name'])
             return True
-        
+
         os.chdir(self.run_dir)
         # Download data if requested
         if self.test_data['hub_download'] is not None:
@@ -488,11 +489,11 @@ class EnzoTestRun(object):
                       (hub_url, self.test_data['hub_download'])
             os.system(command)
 
-        command = "%s %s" % (machines[self.machine]['command'], 
+        command = "%s %s" % (machines[self.machine]['command'],
                              machines[self.machine]['script'])
         sim_start_time = time.time()
         # Run the command.
-        proc = subprocess.Popen(command, shell=True, close_fds=True, 
+        proc = subprocess.Popen(command, shell=True, close_fds=True,
                                 preexec_fn=os.setsid)
 
         print("Simulation started on %s with maximum run time of %d seconds." % \
@@ -508,7 +509,7 @@ class EnzoTestRun(object):
                 self.finished = False
             running += 1
             time.sleep(1)
-        
+
         sim_stop_time = time.time()
         if os.path.exists(os.path.join(self.run_dir, 'RunFinished')):
             f = open(os.path.join(self.run_dir, 'run_time'), 'w')
@@ -541,9 +542,9 @@ unknown = UnspecifiedParameter()
 if __name__ == "__main__":
     parser = optparse.OptionParser()
     parser.add_option("--clobber", dest='clobber', default=False,
-                      action="store_true", 
+                      action="store_true",
                       help="Recopies tests and tests from scratch.")
-    parser.add_option("--interleave", action='store_true', dest='interleave', 
+    parser.add_option("--interleave", action='store_true', dest='interleave',
                       default=False,
                       help="Option to interleave preparation, running, and testing.")
     parser.add_option("-m", "--machine", dest='machine', default='local', metavar='str',
@@ -552,9 +553,9 @@ if __name__ == "__main__":
                       help="Where to place the run directory")
     parser.add_option("--repo", dest='repository', default="../",
                       help="Path to repository being tested.", metavar='str')
-    parser.add_option("--sim-only", dest='sim_only', action="store_true", 
+    parser.add_option("--sim-only", dest='sim_only', action="store_true",
                       default=False, help="Only run simulations.")
-    parser.add_option("--test-only", dest='test_only', action="store_true", 
+    parser.add_option("--test-only", dest='test_only', action="store_true",
                       default=False, help="Only perform tests.")
     parser.add_option("--time-multiplier", dest='time_multiplier',
                       default=1.0, type=float, metavar='int',
@@ -568,7 +569,7 @@ if __name__ == "__main__":
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
                       help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
     parser.add_option("", "--bitwise",
-                      dest="bitwise", default=None, action="store_true", 
+                      dest="bitwise", default=None, action="store_true",
                       help="run bitwise comparison of fields? (trumps strict)")
     parser.add_option("", "--tolerance",
                       dest="tolerance", default=None, metavar='int',
@@ -587,7 +588,7 @@ if __name__ == "__main__":
 
     # Set up a dummy env for xunit to parse. Note we are using nose's xunit,
     # not the one bundled in yt
-    env = {"NOSE_XUNIT_FILE": "nosetests.xml"} 
+    env = {"NOSE_XUNIT_FILE": "nosetests.xml"}
     xunit_plugin.options(parser, env)
 
     answer_plugin = AnswerTesting()
@@ -643,7 +644,7 @@ if __name__ == "__main__":
     answer_plugin.configure(options, None)
     reporting_plugin.configure(options, None)
 
-    # Break out if no valid strict set 
+    # Break out if no valid strict set
     if options.strict not in all_strict:
         sys.exit("Error: %s is not a valid strict, try --strict=[%s]" % (options.strict, ", ".join(all_strict)))
 
@@ -693,10 +694,10 @@ if __name__ == "__main__":
     # the path to the executable we're testing
     exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
 
-    # If strict is set, then use it to set tolerance and bitwise 
-    # values for later use when the nosetests get called in 
+    # If strict is set, then use it to set tolerance and bitwise
+    # values for later use when the nosetests get called in
     # answer_testing_support.py
-    # N.B. Explicitly setting tolerance and/or bitwise trumps 
+    # N.B. Explicitly setting tolerance and/or bitwise trumps
     # the strict values
 
     if options.strict == 'high':
@@ -731,32 +732,39 @@ if __name__ == "__main__":
     print("")
 
     # Before starting nose test, we must create the standard
-    # test problems (the old ./make_new_tests.py) by copying 
+    # test problems (the old ./make_new_tests.py) by copying
     # the testing template out to each Test Problem
     # subdirectory.
-    
+
     # Do not run the standard tests on these test problems.
     # --GravityTest is ignored for now because it generates randomly
-    # placed test particles, which makes comparison from run to run 
+    # placed test particles, which makes comparison from run to run
     # difficult
     # --ProtostellarCollapse_Std needs to be updated to current Enzo
     # --(AMR)ZeldovichPancake is a symmetric collapse along the x-axis, so the
-    # projection along it is analytically 0, but builds up noise in 
+    # projection along it is analytically 0, but builds up noise in
     # different ways on different systems.  There are 'test_almost_standard"s
-    # in Zeldovichs's directories which are just like standard without x-vel 
+    # in Zeldovichs's directories which are just like standard without x-vel
     # field comparisons, which is why we leave them out here.
     # Same with MHD2DRotorTest
     ignore_list = ('GravityTest', 'ProtostellarCollapse_Std',
                    'ZeldovichPancake', 'AMRZeldovichPancake',
-                   'MHD2DRotorTest', 'Toro-6-ShockTube', 'MHDCTOrszagTangAMR', 'MHDCTOrszagTang','dm_only')
-    
+                   'MHD2DRotorTest', 'Toro-6-ShockTube', 'MHDCTOrszagTangAMR', 'MHDCTOrszagTang','dm_only',
+                   'GravityTest', 'GravityTestSphere', 'TestOrbit', 'TestSelfForce', 'TestSineWave',
+                   'CoolingTest_Cloudy', 'CoolingTest_Grackle', 'CoolingTest_JHW', 'OneZoneFreeFallTest',
+                   'AdiabaticExpansion', 'AMRZeldovichPancake', 'AMRZeldovichPancake_Streaming', 'MHDAdiabaticExpansion_CT', 'MHDAdiabaticExpansion_Dedner', 'MHDZeldovichPancake', 'MHDZeldovichPancake_2_CT', 'MHDZeldovichPancake_2_Dedner', 'SphericalInfall', 'ZeldovichPancake',
+                   'DrivenTurbulence3D',
+                   'FLD',
+                   'FuzzyDarkMatter')
+
     template = open("test_type.py.template").read()
-    
+
     test_standard_files = []
+    filtered_tests = []
     for root, dirs, files in os.walk("."):
         for fn in files:
-            if fn.endswith(".enzotest") and \
-            os.path.basename(fn)[:-9] not in ignore_list:
+            if fn.endswith(".enzotest") and ('RefLevel' in fn):
+                filtered_tests.append(fn.split('.')[0])
                 simname = os.path.splitext(fn)[0]
                 simpath = root
                 testname = os.path.basename(fn)[:-9]
@@ -766,9 +774,14 @@ if __name__ == "__main__":
                 # save the destination filename to remove it later
                 test_standard_files.append(oname)
 
+    #import ipdb; ipdb.set_trace()
+
+    etc2.tests = [x for x in etc2.tests if x['name'] in filtered_tests]
+
+    #import ipdb; ipdb.set_trace()
     # Run the simulations and the tests
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
-            sim_only=options.sim_only, 
+            sim_only=options.sim_only,
             test_only=options.test_only)
 
     # Now that the work has been done, get rid of all those pesky

@@ -4,9 +4,9 @@
 /
 /  written by: John Wise
 /  date:       May, 2009
-/  modified1:  
+/  modified1:
 /
-/  PURPOSE:    This routine sums the particle mass flagging field in a 
+/  PURPOSE:    This routine sums the particle mass flagging field in a
 /              non-blocking fashion.
 /
 ************************************************************************/
@@ -14,7 +14,7 @@
 #ifdef USE_MPI
 #include "mpi.h"
 #endif
- 
+
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
@@ -34,10 +34,10 @@ int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Tar
 int Return_MPI_Tag(int grid_num, int proc);
 
 /* The following is defined in Grid_DepositParticlePositions.C. */
- 
+
 extern float DepositParticleMaximumParticleMass;
- 
-int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level, 
+
+int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 				       int ParticleMassMethod, int MustRefineMethod,
 				       int *SendProcs, int NumberOfSends)
 {
@@ -60,8 +60,8 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
     return SUCCESS;
 
 //  printf("--> SetPMFlag[P%"ISYM"/%"ISYM"]: level %"ISYM", grid %"ISYM", "
-//	 "comm_dir = %"ISYM", npart = %"ISYM"\n", 
-//	 MyProcessorNumber, ProcessorNumber, level, GridNum, 
+//	 "comm_dir = %"ISYM", npart = %"ISYM"\n",
+//	 MyProcessorNumber, ProcessorNumber, level, GridNum,
 //	 CommunicationDirection, NumberOfParticles);
 
 #ifdef USE_MPI
@@ -80,9 +80,9 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
     int method, NumberOfFlaggedCells;
     bool KeepFlaggingField;
 
-    /* Calculate the flagging field only if 
+    /* Calculate the flagging field only if
        1) this grid belongs to this grid and it's the first pass, or
-       2) this grid isn't local and this processor is between StartProc 
+       2) this grid isn't local and this processor is between StartProc
           and EndProc
     */
 
@@ -107,18 +107,18 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
        occupied by the high-resolution region is not refined.  Thus,
        must-refine flagging must be done first.
     */
-  
+
     /* Allocate and clear mass flagging field. */
- 
+
     this->ClearParticleMassFlaggingField();
 
     /* ==== METHOD 8: BY POSITION OF MUST-REFINE PARTICLES  ==== */
- 
+
     if (MustRefineMethod >= 0 &&
 	level <= MustRefineParticlesRefineToLevel) {
 
       KeepFlaggingField = (level == MustRefineParticlesRefineToLevel);
-      NumberOfFlaggedCells = 
+      NumberOfFlaggedCells =
 	this->DepositMustRefineParticles(ParticleMassMethod, level,
 					 KeepFlaggingField);
 
@@ -127,7 +127,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
       }
 
     } // ENDIF MustRefineMethod
-    
+
     /* ==== METHOD 4: BY PARTICLE MASS ==== */
 
     if (ParticleMassMethod >= 0 &&
@@ -136,19 +136,19 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 
       and_flag = (level == MustRefineParticlesRefineToLevel &&
 		  MustRefineParticlesCreateParticles > 0);
-      
+
       /* Set the maximum particle mass to be deposited (cleared below). */
-      
-      DepositParticleMaximumParticleMass =
-	0.99999*MinimumMassForRefinement[ParticleMassMethod]*POW(RefineBy,
- 	 level*MinimumMassForRefinementLevelExponent[ParticleMassMethod]);
- 
+      if (ProblemType != 29) // not for the TestOrbit
+        DepositParticleMaximumParticleMass =
+    0.99999*MinimumMassForRefinement[ParticleMassMethod]*POW(RefineBy,
+    level*MinimumMassForRefinementLevelExponent[ParticleMassMethod]);
+
       /* Deposit particles in this grid to MassFlaggingField. */
- 
+
       this->DepositParticlePositionsLocal(this->ReturnTime(),
 					  PARTICLE_MASS_FLAGGING_FIELD,
 					  and_flag);
-      
+
       DepositParticleMaximumParticleMass = 0;
 
     } // ENDIF ParticleMassMethod
@@ -164,7 +164,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 //      printf("----> SetPMFlag[P%"ISYM"/%"ISYM"]: sending %"ISYM" floats.\n",
 //	     MyProcessorNumber, ProcessorNumber, size);
       CommunicationBufferedSend(ParticleMassFlaggingField, size, DataType,
-				ProcessorNumber, MPI_SENDPMFLAG_TAG, 
+				ProcessorNumber, MPI_SENDPMFLAG_TAG,
 				MPI_COMM_WORLD, size*sizeof(float));
       delete [] ParticleMassFlaggingField;
       ParticleMassFlaggingField = NULL;
@@ -200,7 +200,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 
       if (Source >= StartProc && Source < EndProc) {
 	buffer = new float[size];
-	MPI_Irecv(buffer, Count, DataType, Source, MPI_SENDPMFLAG_TAG, MPI_COMM_WORLD, 
+	MPI_Irecv(buffer, Count, DataType, Source, MPI_SENDPMFLAG_TAG, MPI_COMM_WORLD,
 		  CommunicationReceiveMPI_Request+CommunicationReceiveIndex);
 
 	CommunicationReceiveGridOne[CommunicationReceiveIndex] = this;
@@ -219,9 +219,9 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
   } // ENDIF post receive
 
 #endif /* USE_MPI */
-   
+
   return SUCCESS;
- 
+
 }
 
 /************************************************************************/
