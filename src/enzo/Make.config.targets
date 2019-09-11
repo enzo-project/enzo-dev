@@ -538,23 +538,6 @@ CONFIG_USE-MPI-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
-VALID_OBJECT-MODE = object-mode-32 object-mode-64
-.PHONY: $(VALID_OBJECT-MODE)
-
-object-mode-32: CONFIG_OBJECT-MODE-32
-object-mode-64: CONFIG_OBJECT-MODE-64
-object-mode-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_OBJECT-MODE)]\n\n"
-CONFIG_OBJECT-MODE-%: suggest-clean
-	@tmp=.config.temp; \
-        grep -v CONFIG_OBJECT_MODE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_OBJECT_MODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_OBJECT_MODE; \
-	echo
-
-#-----------------------------------------------------------------------
-
 VALID_TASKMAP = taskmap-yes taskmap-no
 .PHONY: $(VALID_TASKMAP)
 
