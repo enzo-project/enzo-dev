@@ -240,20 +240,55 @@ script, you should be able to execute this command:
 
 This will take three slices through the center of the domain along
 each axis, as sliced through the very first output. The images will be
-saved to the subdirectory frames .
+saved to the subdirectory frames. Here is a plot of the outputs that can be
+expected from the DD0000 snapshots:
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0000_Slice_x_density.png
+    :width: 30%
+ 
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0000_Slice_y_density.png
+    :width: 30%
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0000_Slice_z_density.png
+    :width: 30%
+
+
+
 
 Now let's take a look at DD0010 :
-
-
+   
 ::
 
     $ yt plot DD0010/DD0010
 
 
-By this point the simulation has not collapsed very far. Feel free to
-check later outputs.
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0010_Slice_x_density.png
+    :width: 30%
+ 
 
-Another handy command is yt stats , which will describe the current
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0010_Slice_y_density.png
+    :width: 30%
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0010_Slice_z_density.png
+    :width: 30%
+
+
+By this point the simulation has not collapsed very far. Feel free to
+check later outputs (e.g. the yt output from DD0070 shown below)
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0070_Slice_x_density.png
+    :width: 30%
+ 
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0070_Slice_y_density.png
+    :width: 30%
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0070_Slice_z_density.png
+    :width: 30%
+
+
+Another handy command is yt stats, which will describe the current
 state of the simulation in a couple metrics.
 
 
