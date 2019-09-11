@@ -19,12 +19,10 @@ MACH_FILE  = Make.mach.cuda
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_GRACKLE_INSTALL = $(HOME)/local
-LOCAL_HYPRE_INSTALL = $(HOME)/local
-#LOCAL_SERIAL_HDF5_INSTALL = /PATH/TO/LOCAL/SERIAL-HDF5/INSTALL
-LOCAL_SERIAL_HDF5_INSTALL = /opt/software/HDF5/1.10.1-foss-2018a
-#LOCAL_CUDA_INSTALL = /PATH/TO/LOCAL/CUDA/INSTALL
-LOCAL_CUDA_INSTALL = /opt/software/CUDA/9.2.88
+LOCAL_GRACKLE_INSTALL = /PATH/TO/LOCAL/GRACKLE/INSTALL
+LOCAL_HYPRE_INSTALL = /PATH/TO/LOCAL/HYPRE/INSTALL
+LOCAL_SERIAL_HDF5_INSTALL = /PATH/TO/LOCAL/SERIAL-HDF5/INSTALL
+LOCAL_CUDA_INSTALL = /PATH/TO/LOCAL/CUDA/INSTALL
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -76,8 +74,7 @@ MACH_OPT_WARN        = -Wall -g
 MACH_OPT_DEBUG       = -g
 MACH_OPT_HIGH        = -O2
 MACH_OPT_AGGRESSIVE  = -O3 -g
-#MACH_OPT_CUDA        = -arch=YOUR_TARGET_ARCH -O3 
-MACH_OPT_CUDA        = -arch=sm_70 -O3 
+MACH_OPT_CUDA        = -arch=YOUR_TARGET_ARCH -O3
 
 #-----------------------------------------------------------------------
 # Includes
