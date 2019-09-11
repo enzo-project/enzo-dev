@@ -75,11 +75,6 @@ help-config:
 	@echo "      gmake use-mpi-yes"
 	@echo "      gmake use-mpi-no"
 	@echo
-	@echo "   Set address/pointer size"
-	@echo
-	@echo "      gmake object-mode-32"
-	@echo "      gmake object-mode-64"
-	@echo
 	@echo "   Set whether to use unigrid taskmap performance mod"
 	@echo
 	@echo "      gmake taskmap-yes"
@@ -262,7 +257,6 @@ show-config:
 	@echo "   CONFIG_INITS  [inits-{32,64}]                             : $(CONFIG_INITS)"
 	@echo "   CONFIG_IO  [io-{32,64}]                                   : $(CONFIG_IO)"
 	@echo "   CONFIG_USE_MPI  [use-mpi-{yes,no}]                        : $(CONFIG_USE_MPI)"
-	@echo "   CONFIG_OBJECT_MODE  [object-mode-{32,64}]                 : $(CONFIG_OBJECT_MODE)"
 	@echo "   CONFIG_TASKMAP  [taskmap-{yes,no}]                        : $(CONFIG_TASKMAP)"
 	@echo "   CONFIG_PACKED_AMR  [packed-amr-{yes,no}]                  : $(CONFIG_PACKED_AMR)"
 	@echo "   CONFIG_PACKED_MEM  [packed-mem-{yes,no}]                  : $(CONFIG_PACKED_MEM)"
