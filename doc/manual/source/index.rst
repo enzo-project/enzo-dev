@@ -11,8 +11,11 @@ grid-based hybrid code (hydro + N-Body) which is designed to do simulations of
 cosmological structure formation. Links to documentation and downloads for all
 versions of Enzo from 1.0 on are available. 
 
-Enzo development is supported by grants AST-0808184 and OCI-0832662 from the
-National Science Foundation. 
+Enzo development has been primarily supported by the US National Science
+Foundation, National Aeronautics and Space Administration, and Department
+of Energy.  In addition, significant funding has been contriubuted by
+a large number of academic institutions, private foundations, and other
+funding agencies across the globe. 
 
 .. toctree::
    :maxdepth: 2
