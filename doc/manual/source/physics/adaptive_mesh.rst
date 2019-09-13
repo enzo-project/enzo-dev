@@ -13,7 +13,7 @@ grids" (with the ratio of resolutions typically, but not necessarily,
 being 2).  This method is distinct from cell-based AMR codes in that
 cells are aggregated into grids, and distinct from oct-tree block
 structured AMR in that the grids that are created can be of arbitrary
-size and aspect ratio (i.e., each grid dimension can differe, rather
+size and aspect ratio (i.e., each grid dimension can differ, rather
 than being a cube) and can be located at arbitrary locations within
 the parent grid rather than in octants of the parent grid.  Enzo does
 not implement the full Berger and Colella method - for the sake of
