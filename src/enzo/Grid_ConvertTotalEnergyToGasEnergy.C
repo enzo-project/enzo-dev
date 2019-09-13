@@ -57,7 +57,7 @@ int grid::ConvertTotalEnergyToGasEnergy()
       //printf("BaryonField[TENum][2] = %g, BaryonField[Vel1Num] = %g, BaryonField[Vel2Num] = %g, BaryonField[Vel3Num] = %g  \n",BaryonField[TENum][2], BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num]); 
 
       BaryonField[TENum][i] -= 0.5*BaryonField[Vel1Num+dim][i]*BaryonField[Vel1Num+dim][i];
-      if(BaryonField[TENum][i] < 0.0) 
+      if((BaryonField[TENum][i] < 0.0) &(!QuantumPressure))
 
 	printf(" PROBLEM!!!! BaryonField[TENum][i] = %g, BaryonField[Vel1Num] = %g, BaryonField[Vel2Num] = %g, BaryonField[Vel3Num] = %g  \n",BaryonField[TENum][i], BaryonField[Vel1Num][i], BaryonField[Vel2Num][i], BaryonField[Vel3Num][i]);
     }

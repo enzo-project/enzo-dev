@@ -193,6 +193,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HydroMethod               = PPM_DirectEuler;   //
   Gamma                     = 5.0/3.0;           // 5/3
   PressureFree              = FALSE;             // use pressure (duh)
+  QuantumPressure           = FALSE;             // FDM: no fuzzy dark matter
+  FDMMass           = 1.0;             // FDM: FDM mass 1e-22 eV
+
   RefineBy                  = 2;                 // Refinement factor
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
@@ -320,10 +323,16 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     }
   }
 
+  /* For storing mass of density fields living domain */
+  StoreDomainBoundaryMassFlux = 0;
+  BoundaryMassFluxFilename    = "boundary_mass_flux.dat";
+  for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
+    BoundaryMassFluxFieldNumbers[i] = -1;
+    BoundaryMassFluxContainer[i] = 0.0;
+  }
 
   DatabaseLocation = NULL;
 
- 
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;
   Unigrid                     = FALSE;

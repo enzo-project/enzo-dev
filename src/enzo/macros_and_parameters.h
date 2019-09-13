@@ -104,7 +104,7 @@
 
 #define ROOT_PROCESSOR                      0
 
-#define VERSION                             2.5  /* current version number */
+#define VERSION                             2.6  /* current version number */
 
 #define NUMBER_ENZO_PARTICLE_TYPES           3  /* Dark Matter, Stars, Active Particles */
 

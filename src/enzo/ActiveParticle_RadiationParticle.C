@@ -107,7 +107,7 @@ int ActiveParticleType_RadiationParticle::BeforeEvolveLevel
   
   float creation_redshift = 0.0;
   float current_redshift = 0.0;
-  double  a = 0.0, dadt = 0.0;
+  FLOAT  a = 0.0, dadt = 0.0;
   InitData *node = Root;
   ActiveParticleList<ActiveParticleType> RadiationParticleList;
   int nParticles = 0, ipart = 0, j = 0;
@@ -389,7 +389,7 @@ void ActiveParticleType_RadiationParticle::DescribeSupplementalData(ActivePartic
 /*
  * Get the Cell indices given the positions and the cell bounds. 
  */
-int* ActiveParticleType_RadiationParticle::GetGridIndices(double *position, FLOAT *GridLeftEdge, float CellWidth)
+int* ActiveParticleType_RadiationParticle::GetGridIndices(FLOAT *position, FLOAT *GridLeftEdge, float CellWidth)
 {
   static int ind[3];
   ind[0] = (int) ((position[0] - GridLeftEdge[0]) / CellWidth);
@@ -401,6 +401,7 @@ int* ActiveParticleType_RadiationParticle::GetGridIndices(double *position, FLOA
 
 void ActiveParticleType_RadiationParticle::SetRadiationDefaults()
 {
+#ifdef TRANSFER
   if (RadiativeTransfer == TRUE) {
      
     if(RadiativeTransferInitialHEALPixLevel == 0)
@@ -426,6 +427,7 @@ void ActiveParticleType_RadiationParticle::SetRadiationDefaults()
     
   }
   return;
+#endif
 }
 
 bool ActiveParticleType_RadiationParticle::IsARadiationSource(FLOAT Time)
@@ -479,7 +481,7 @@ int ActiveParticleType_RadiationParticle::ReadRadiationParameterFile()
 		     &(cnode->Position[2]), &(cnode->Redshift), &(cnode->Redshift_end)) < NUMPARAMS) {
 	    fprintf(stderr, "%s: Unrecognised line found in %s - ignoring\n", 
 		    __FUNCTION__, RadiationSourcesFileName);
-	    fprintf(stderr, "%s: line = %s\t length = %"ISYM"\n", __FUNCTION__, line, 
+	    fprintf(stderr, "%s: line = %s\t length = %u\n", __FUNCTION__, line, 
 		    strlen(line));
 	    continue;
 	  }

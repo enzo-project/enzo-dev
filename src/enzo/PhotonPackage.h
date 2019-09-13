@@ -57,7 +57,7 @@ public:
     for (int dim = 0; dim < 3; dim++) 
       r[dim] = SourcePosition[dim] + u[dim] * Radius;
     printf("Photons = %g, Type = %"ISYM", Radius = %"PSYM"\n", Photons, Type, Radius);
-    printf("ipix = %lld, level = %"ISYM"\n", ipix, level);
+    printf("ipix = %lld, level = %ld\n", ipix, level);
     printf("normal = %"PSYM" %"PSYM" %"PSYM"\n", u[0], u[1], u[2]);
     printf("SourcePosition = %"PSYM" %"PSYM" %"PSYM"\n",
 	   SourcePosition[0], SourcePosition[1], SourcePosition[2]);

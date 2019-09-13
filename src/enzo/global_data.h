@@ -124,6 +124,14 @@ EXTERN float Gamma;
 
 EXTERN int PressureFree;
 
+/* FDM: Flag indicating if fuzzy dark matter is turned on, using quantum pressure */
+
+EXTERN int QuantumPressure;
+
+/* FDM: Parameter for FDM Mass, in unit of 1e-22 eV */
+
+EXTERN float FDMMass;
+
 /* Factor to refine by */
 
 EXTERN int RefineBy;
@@ -739,6 +747,11 @@ EXTERN int   ExternalBoundaryTypeIO;
 EXTERN int   ExternalBoundaryValueIO;
 EXTERN int   ExternalBoundaryField;
 EXTERN int   SimpleConstantBoundary;
+
+EXTERN int   StoreDomainBoundaryMassFlux;
+EXTERN int   BoundaryMassFluxFieldNumbers[MAX_NUMBER_OF_BARYON_FIELDS];
+EXTERN float BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS];
+EXTERN char *BoundaryMassFluxFilename;
 
 EXTERN Eint64 TaskMemory[MAX_NUMBER_OF_TASKS];
 EXTERN int    TaskMap[MAX_NUMBER_OF_TASKS];

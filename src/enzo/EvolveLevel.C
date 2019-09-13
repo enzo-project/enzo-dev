@@ -244,6 +244,10 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 			     ImplicitProblemABC *ImplicitSolver);
 #endif
 
+int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level,
+                                  int NumberOfGrids,
+                                  TopGridData *MetaData);
+
 int SetLevelTimeStep(HierarchyEntry *Grids[],
         int NumberOfGrids, int level,
         float *dtThisLevelSoFar, float *dtThisLevel,
@@ -549,6 +553,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
            in preparation for the new step. */
 
         Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
+
+	/* Call Schrodinger solver. */
+
+	if (QuantumPressure == 1)
+	  Grids[grid1]->GridData->SchrodingerSolver(LevelCycleCount[level]);
 
 	// Find recently-supernova stars to add them the MagneticSupernovaList 
 	if ((UseMagneticSupernovaFeedback) && (level == MaximumRefinementLevel))
@@ -889,6 +898,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     EXTRA_OUTPUT_MACRO(51, "After SBC")
 
     FinalizeFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
+
+    /* Check for mass flux across outer boundaries of domain */
+    ComputeDomainBoundaryMassFlux(Grids, level, NumberOfGrids, MetaData);
+
 
     /* Recompute radiation field, if requested. */
     RadiationFieldUpdate(LevelArray, level, MetaData);

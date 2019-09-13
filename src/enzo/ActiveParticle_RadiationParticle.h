@@ -197,7 +197,7 @@ public:
   static int InitializeParticleType();
   bool IsARadiationSource(FLOAT Time);
   static void SetRadiationDefaults();
-  static int* GetGridIndices(double *position, FLOAT *GridLeftEdge, float CellWidth);
+  static int* GetGridIndices(FLOAT *position, FLOAT *GridLeftEdge, float CellWidth);
   static int ReadRadiationParameterFile();
 
   static int ResetAcceleration(float *ActiveParticleAcceleration);

@@ -32,9 +32,7 @@ int SetGlobalGridID(int &GlobalID, HierarchyEntry *Grid);
 // the following HDF5 helper routines are defined in
 // Grid_WriteHierarchyInformationHDF5.C
 int HDF5_WriteAttribute(hid_t group_id, const char *AttributeName, int Attribute, FILE *log_fptr);
-#ifdef SMALL_INTS
-int HDF5_WriteAttribute(hid_t group_id, const char *AttributeName, Eint64 Attribute, FILE *log_fptr);
-#endif
+int HDF5_WriteAttribute(hid_t group_id, const char *AttributeName, PINT Attribute, FILE *log_fptr);
 int HDF5_WriteAttribute(hid_t group_id, const char *AttributeName, FLOAT Attribute, FILE *log_fptr);
 int HDF5_WriteDataset(hid_t group_id, const char *DatasetName, int *Dataset, int NumberOfElements, FILE *log_fptr);
 
@@ -101,7 +99,7 @@ int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, TopGridData
   // open the file
   if (io_log) fprintf(log_fptr, "Calling H5Fcreate with Name = %s\n", FileName);
   file_id = H5Fcreate(FileName, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-  if (io_log) fprintf(log_fptr, "H5Fcreate id: %"ISYM"\n", file_id);
+  if (io_log) fprintf(log_fptr, "H5Fcreate id: %d\n", file_id);
 
   
   // Calculate CurrentRedshift and add as attribute (if Cosmology)

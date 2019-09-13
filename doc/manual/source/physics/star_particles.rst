@@ -1,8 +1,8 @@
 .. _star_particles:
 
 
-Star, Black Hole, Sink, and Active Particles
-============================================
+Star, Black Hole and Sink Particles
+===================================
 
 There are many different subgrid models of star formation and feedback
 in the astrophysical literature, and we have included several of them
@@ -595,7 +595,7 @@ compiled into the executable.  For a more stable version of the
 algorithm, use Method 1.
 
 
-.. _active_particles:
+.. _active_particles_dk:
 
 Active Particle Framework
 -------------------------
