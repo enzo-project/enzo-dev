@@ -11,7 +11,7 @@ rectangular solid "child grid" patches with cells whose spatial resolution are
 an integer multiple more finely resolved than their coarser "parent
 grids" (with the ratio of resolutions typically, but not necessarily,
 being 2).  This method is distinct from cell-based AMR codes in that
-cells are aggretated into grids, and distinct from oct-tree block
+cells are aggregated into grids, and distinct from oct-tree block
 structured AMR in that the grids that are created can be of arbitrary
 size and aspect ratio (i.e., each grid dimension can differe, rather
 than being a cube) and can be located at arbitrary locations within
