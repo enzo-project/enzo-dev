@@ -13,7 +13,7 @@ versions of Enzo from 1.0 on are available.
 
 Enzo development has been primarily supported by the US National Science
 Foundation, National Aeronautics and Space Administration, and Department
-of Energy.  In addition, significant funding has been contriubuted by
+of Energy.  In addition, significant funding has been contributed by
 a large number of academic institutions, private foundations, and other
 funding agencies across the globe. 
 
