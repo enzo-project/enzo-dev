@@ -46,7 +46,7 @@ commands:
           cd $HOME/grackle
           ./configure
           cd src/clib
-          make machine-ubuntu
+          make machine-linux-gnu
           make
           make install
 
