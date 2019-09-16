@@ -4,7 +4,7 @@ Enzo Test Problems
 ===================
 
 The following is a list of the test problems that are available in the 
-run directory found in the Enzo repository. These problems are also the
+``run`` subdirectory found in the Enzo repository. These problems are also the
 same set of problems used in the test suite. They are listed in broad
 categories following the directory structure.
 
@@ -204,7 +204,7 @@ The test problem specific  parameters can be found in the :ref:`parameters`.
 
    * `MHD_Metal_Advection_Dedner`_
 
-* `MHD/2D`
+* `MHD/2D`_
 
    * `LoopAdvection_CT`_
 
@@ -226,7 +226,7 @@ The test problem specific  parameters can be found in the :ref:`parameters`.
 
    * `Wengen2-CollidingFlow`_
 
-* `MHD/3D`
+* `MHD/3D`_
 
    * `ShearingBox`_
 
