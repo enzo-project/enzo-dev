@@ -11,7 +11,7 @@ categories following the directory structure.
 This list however is not a complete list of all the ProblemTypes that 
 are available in Enzo.
 
-The test problem specific  parameters can be found in the Parameter List.
+The test problem specific  parameters can be found in the :ref:`parameters`.
 
 .. toctree::
    :maxdepth: 2
@@ -154,7 +154,7 @@ The test problem specific  parameters can be found in the Parameter List.
 
    * `RampedKelvinHelmholtz2D`_
 
-   * `SedovBlasti`_
+   * `SedovBlast`_
 
    * `SedovBlastAMR`_
 
@@ -308,7 +308,7 @@ The test problem specific  parameters can be found in the Parameter List.
 * `StarParticle`_
 
 
-.. _Cooling:
+.. _CoolingProblems:
 
 Cooling
 ~~~~~~~
@@ -326,14 +326,12 @@ type did not exist in Enzo 1.5, so there is no comparison.
 The cooling tests will run in a few minutes on a single processor.
 
 The three parameter files are:
-CoolingTest_Cloudy.enzo - uses Cloudy cooling along with the 
-			       	      	    MultiSpecies = 1 chemistry.  The input data 
-					    provided is a three dimensional table that 
-					    varies in density, metallicity, and temperature.
+CoolingTest_Cloudy.enzo - uses Cloudy cooling along with the MultiSpecies = 1 chemistry.  
+The input data provided is a three dimensional table that varies in density, metallicity, 
+and temperature.
 
 Cooling data files:
-primordial_cie.dat - CIE cooling rates for atomic H and He taken from 
-		     	 	 Black (1981).
+primordial_cie.dat - CIE cooling rates for atomic H and He taken from Black (1981).
 solar_2008_3D_metals.h5 - input data for Cloudy cooling.
 
 The script plot.py will plot cooling rates from the cooling test 
@@ -354,11 +352,11 @@ The cooling tests will run in a few minutes on a single processor.
 
 The three parameter files are:
 CoolingTest_Grackle.enzo - uses Grackle cooling along with the 
-                           non-equilibrium atomic H/He chemistry.
+non-equilibrium atomic H/He chemistry.
 
 Cooling data files:
 primordial_cie.dat - CIE cooling rates for atomic H and He taken from 
-		     	 	 Black (1981).
+Black (1981).
 CloudyData_UVB=HM2012.h5 - input data for Grackle cooling.
 
 The script plot.py will plot cooling rates from the cooling test 
@@ -380,13 +378,13 @@ The cooling tests will run in a few minutes on a single processor.
 
 The three parameter files are:
 CoolingTest_JHW.enzo - uses John Wise's metal cooling along with 
-		       	    	 	the MultiSpecies = 1 chemitry.
+the MultiSpecies = 1 chemitry.
 
 Cooling data files:
 primordial_cie.dat - CIE cooling rates for atomic H and He taken from 
-		     	 	 Black (1981).
+Black (1981).
 cool_rates.in - analytic cooling rates for Z = 0.5 and 1 Zsun from 
-	      		Sarazin & White (1987).
+Sarazin & White (1987).
 metal_cool.dat - input data for John Wise's metal cooling.
 
 The script plot.py will plot cooling rates from the cooling test
@@ -409,7 +407,7 @@ dust grains, set dust=True on line 10.  Run this script like this:
 
 python plot.py OneZoneFreefallTest.enzo
 
-.. _Cosmology:
+.. _CosmologyProblems:
 
 Cosmology
 ~~~~~~~~~
@@ -613,6 +611,7 @@ girder-cli --api-url https://girder.hub.yt/api/v1 download 5afef79bec1bd30001fcd
 
 To run the simulation:
 ./enzo.exe -d amr_nested_cosmology.enzo
+
 .. _dm_only:
 
 dm_only
@@ -632,7 +631,9 @@ girder-cli --api-url https://girder.hub.yt/api/v1 download 5afb0145ec1bd30001fcd
 
 To run the simulation:
 ./enzo.exe -d dm_only.enzo
+
 .. _ReionizationHydro:
+
 ReionizationHydro
 ^^^^^^^^^^^^^^^^^
 This is a cosmology simulation that simulates reionization using the 
@@ -643,6 +644,7 @@ Usage:
 ./inits.exe -d ReionizationHydro.inits
 mpirun -np 2 ./ring.exe pv ParticlePositions ParticleVelocities
 mpirun -np 2 ./enzo.exe -d ReionizationHydro.enzo
+
 .. _ReionizationRadHydro:
 
 ReionizationRadHydro
@@ -658,6 +660,7 @@ mpirun -np 2 ./ring.exe pv ParticlePositions ParticleVelocities
 mpirun -np 2 ./enzo.exe -d ReionizationRadHydro.enzo
 
 .. _DrivenTurbulence3D:
+
 DrivenTurbulence3D
 ~~~~~~~~~~~~~~~~~~
 
@@ -669,19 +672,22 @@ Set UseDrivingField = 1 to use the driving with HydroMethod 3 or 4 (hydro/MHD)
 Only decaying is implemeted for HydroMethod < 3 (Zeus & standard PPM)
 
 .. _FLD:
+
 FLD
 ~~~
 
 .. _FuzzyDarkMatter:
 
 FuzzyDarkMatter
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 .. _Gravity Solver:
+
 Gravity Solver
 ~~~~~~~~~~~~~~
 
 .. _BinaryCollapse:
+
 BinaryCollapse
 ^^^^^^^^^^^^^^
 (Stephen Skory, June 2010)
@@ -704,6 +710,7 @@ I removed the magnetic field, and I changed the stop time so this test takes
 roughly 1 hour on 8 cores. As it was written before, it would have taken many
 hours to reach completion, and I am fundamentally against test problems take more than 1 hour.
 .. _BinaryCollapseMHDCT:
+
 BinaryCollapseMHDCT
 ^^^^^^^^^^^^^^^^^^^
 
@@ -713,10 +720,12 @@ This is an update to the test in run/GravitySolver/BinaryCollapse, to include
 MHDCT.  A shorter test to ensure MHDCT runs.  This runs in less than 5 minutes.
 
 .. _GravityStripTest:
+
 GravityStripTest
 ^^^^^^^^^^^^^^^^
 
 .. _GravityTest:
+
 GravityTest
 ^^^^^^^^^^^
 (Greg Bryan, July 2010)
@@ -757,7 +766,9 @@ conceivably escape undetected (e.g. those having to do
 with force errors at small and large radii); however, the problem
 with a bitwise comparison is that the positions of
 the 5000 particles are random (with no setable seed).
+
 .. _GravityTestSphere:
+
 GravityTestSphere
 ^^^^^^^^^^^^^^^^^
 (Greg Bryan, July 2010)
@@ -772,6 +783,7 @@ be done to compare to an analytic solution.
 
 
 .. _MaximumGravityRefinementTest:
+
 MaximumGravityRefinementTest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This test must be run on 2 cores, otherwise the problem isn't triggered.
@@ -804,6 +816,7 @@ For the test to run with enzo 1.5 compile with:
   make unigrid-transpose-no
 
 .. _TestOrbitMRP:
+
 TestOrbitMRP
 ^^^^^^^^^^^^
 Orbit Test Problem with MRPs (MustRefineParticles)
@@ -816,10 +829,12 @@ function of orbit!
 
 
 .. _Hydro/Hydro-1D:
+
 Hydro/Hydro-1D
 ~~~~~~~~~~~~~~
 
 .. _FreeExpansion:
+
 FreeExpansion
 ^^^^^^^^^^^^^
 (John Wise, July 2010)
@@ -837,6 +852,7 @@ The initial setup is taken from Truelove & McKee, 1999, ApJS, 120,
 299.
 
 .. _InteractingBlastWaves:
+
 InteractingBlastWaves
 ^^^^^^^^^^^^^^^^^^^^^
 Two interacting blast waves
@@ -848,21 +864,25 @@ boundaries are reflecting.  One can see the solution by ATHENA in
 Stone et al. (2008), ApJS, 178, 137.
 
 .. _PressurelessCollapse:
+
 PressurelessCollapse
 ^^^^^^^^^^^^^^^^^^^^
 
 .. _ShockInABox:
+
 ShockInABox
 ^^^^^^^^^^^
 
 
 .. _SodShockTube:
+
 SodShockTube
 ^^^^^^^^^^^^
 This is a fairly mild test. The solution consists of left
 rarefaction wave, a contact discontinuity, and a right shock.
 
 .. _Toro-1-ShockTube:
+
 Toro-1-ShockTube
 ^^^^^^^^^^^^^^^^
 This is Problem #1 from Chapter 10.8 in Toro's "Riemann Solvers and
@@ -874,11 +894,13 @@ shock. It is useful for assessing the entropy satisfaction property
 of numerical methods.
 
 .. _Toro-1-ShockTubeAMR:
+
 Toro-1-ShockTubeAMR
 ^^^^^^^^^^^^^^^^^^^
 AMR Version of Toro Problem #1
 
 .. _Toro-2-ShockTube:
+
 Toro-2-ShockTube
 ^^^^^^^^^^^^^^^^
 
@@ -892,11 +914,13 @@ testing the numerical performance for low density flows.
 
 
 .. _Toro-2-ShockTubeAMR:
+
 Toro-2-ShockTubeAMR
 ^^^^^^^^^^^^^^^^^^^
 AMR Version of Toro Problem #2
 
 .. _Toro-3-ShockTube:
+
 Toro-3-ShockTube
 ^^^^^^^^^^^^^^^^
 This is Problem #3 from Chapter 10.8 in Toro's "Riemann Solvers and
@@ -908,12 +932,14 @@ contact discontinuity, and a strong right shock wave (shock Mach
 number 198).
 
 .. _Toro-3-ShockTubeAMR:
+
 Toro-3-ShockTubeAMR
 ^^^^^^^^^^^^^^^^^^^
 
 AMR Version of Toro Problem #3
 
 .. _Toro-4-ShockTube:
+
 Toro-4-ShockTube
 ^^^^^^^^^^^^^^^^
 This is Problem #4 from Chapter 10.8 in Toro's "Riemann Solvers and
@@ -926,12 +952,14 @@ strong shocks results in three right travelling discontinuities: a
 slow left shock, a contact discontinuity, and a right shock.
 
 .. _Toro-4-ShockTubeAMR:
+
 Toro-4-ShockTubeAMR
 ^^^^^^^^^^^^^^^^^^^
 
 AMR Version of Toro Problem #4
 
 .. _Toro-5-ShockTube:
+
 Toro-5-ShockTube
 ^^^^^^^^^^^^^^^^
 This is Problem #5 from Chapter 10.8 in Toro's "Riemann Solvers and
@@ -943,12 +971,14 @@ left rarefaction wave, a right travelling shock, and a stationary
 contact discontinuity.
 
 .. _Toro-5-ShockTubeAMR:
+
 Toro-5-ShockTubeAMR
 ^^^^^^^^^^^^^^^^^^^
 
 AMR Version of Toro Problem #5
 
 .. _Toro-6-ShockTube:
+
 Toro-6-ShockTube
 ^^^^^^^^^^^^^^^^
 This is Problem #6 from Chapter 10.8 in Toro's "Riemann Solvers and
@@ -960,6 +990,7 @@ solver in capturing stationary and slowly moving contact
 waves (see also Toro-7-ShockTube).
 
 .. _Toro-7-ShockTube:
+
 Toro-7-ShockTube
 ^^^^^^^^^^^^^^^^
 This is Problem #7 from Chapter 10.8 in Toro's "Riemann Solvers and
@@ -971,21 +1002,25 @@ over the HLL solver in capturing stationary and slowly moving
 contact waves (see also Toro-6-ShockTube).
 
 .. _WavePool:
+
 WavePool
 ^^^^^^^^
 
 
 .. _Hydro/Hydro-2D:
+
 Hydro/Hydro-2D
 ~~~~~~~~~~~~~~
 
 .. _AMRShockPool2D:
+
 AMRShockPool2D
 ^^^^^^^^^^^^^^
 
 2D Shock Propagation Test (AMR Version)
 
 .. _Athena-RayleighTaylor:
+
 Athena-RayleighTaylor
 ^^^^^^^^^^^^^^^^^^^^^
  
@@ -996,6 +1031,7 @@ compare to
 http://www.astro.princeton.edu/~jstone/tests/rt/rt.html
 
 .. _DoubleMachReflection:
+
 DoubleMachReflection
 ^^^^^^^^^^^^^^^^^^^^
 Double Mach Reflection test (see WC84, Section IVc)
@@ -1011,6 +1047,7 @@ Most of the required parameters were hardwired, see DoubleMachInitialize.C.
 
 
 .. _FreeExpansionAMR:
+
 FreeExpansionAMR
 ^^^^^^^^^^^^^^^^
 (John Wise, July 2010)
@@ -1033,6 +1070,7 @@ The initial setup is taken from Truelove & McKee, 1999, ApJS, 120,
 299.
 
 .. _HDMHD2DCheckOddEvenCouplingOfRiemannSolver:
+
 HDMHD2DCheckOddEvenCouplingOfRiemannSolver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Standing shock with slight density perturbation. 
@@ -1044,6 +1082,7 @@ HydroMethod = 3/RiemanSolver = 4 (HLLC) shows this strongly, so does PPM (HM=0)
 HM=3 wit RiemanSolver 1 (HLL) or 3 (LLF) pass this better and so does Zeus
 
 .. _Implosion:
+
 Implosion
 ^^^^^^^^^
 
@@ -1056,11 +1095,13 @@ Jim Stone's Athena test page
 http://www.astro.princeton.edu/~jstone/tests/implode/Implode.html
 
 .. _ImplosionAMR:
+
 ImplosionAMR
 ^^^^^^^^^^^^
 AMR Version of Implosion test
 
 .. _KelvinHelmholtz:
+
 KelvinHelmholtz
 ^^^^^^^^^^^^^^^
 The KH Test problem creates two fluids moving antiparallel to each other
@@ -1075,6 +1116,7 @@ those instabilities.  --Cameron Hummels, 2013
 
 
 .. _KelvinHelmholtzAMR:
+
 KelvinHelmholtzAMR
 ^^^^^^^^^^^^^^^^^^
 This version incorporates 1 level of AMR using the shear criterion on the
@@ -1082,6 +1124,7 @@ interface between the two fluids.  --Cameron Hummels, 2013
 
 
 .. _NohProblem2D:
+
 NohProblem2D
 ^^^^^^^^^^^^
 NohProblem2D (See Noh (1987) J. Comp. Phys. 72, 78)
@@ -1115,39 +1158,46 @@ near the origin that seriously affects the results obtained with
 Lagrangian schemes. Numerically, this is a difficult problem.
 
 .. _NohProblem2DAMR:
+
 NohProblem2DAMR
 ^^^^^^^^^^^^^^^
 
 AMR Version of NohProblem2D
 
 .. _RadiatingShockWave:
+
 RadiatingShockWave
 ^^^^^^^^^^^^^^^^^^
 
 A 2D explosion test problem which includes radiative cooling.
 
 .. _RampedKelvinHelmholtz2D:
+
 RampedKelvinHelmholtz2D
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Kelvin Helmholtz with a ramp
 
 .. _SedovBlast:
+
 SedovBlast
 ^^^^^^^^^^
 A 2d explosion test problem
 
 .. _SedovBlastAMR:
+
 SedovBlastAMR
 ^^^^^^^^^^^^^
 AMR version of SedovBlast 
 .. _ShockPool2D:
+
 ShockPool2D
 ^^^^^^^^^^^
 
 2D Shock Propagation Test
 
 .. _ValidatedNonlinearKelvinHelmholtz:
+
 ValidatedNonlinearKelvinHelmholtz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Implements initial condition generator for 
@@ -1169,10 +1219,12 @@ a convergence study.
 
 
 .. _Hydro/Hydro-3D:
+
 Hydro/Hydro-3D
 ~~~~~~~~~~~~~~
 
 .. _AgoraGalaxy:
+
 AgoraGalaxy
 ^^^^^^^^^^^
 The initial conditions for this problem depend on star and dark matter particle
@@ -1199,6 +1251,7 @@ interval (1 Myr of physical time per output by default).  The simulation should
 finish in approximately 12 hours when run on 16 cores.  Of course, your mileage
 may vary for the amount of wallclock time necessary.
 .. _Athena-RayleighTaylor3D:
+
 Athena-RayleighTaylor3D
 ^^^^^^^^^^^^^^^^^^^^^^^
 classic Raleigh Taylor setup with sharp contact 
@@ -1208,6 +1261,7 @@ compare to
 http://www.astro.princeton.edu/~jstone/tests/rt/rt.html
 
 .. _CollapseTestNonCosmological:
+
 CollapseTestNonCosmological
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1227,15 +1281,18 @@ However, the default number of potential iteration in Enzo 1.5 is 0 and there is
 no parameter to change this.  For a direct comparison, Enzo 1.5 must be compiled 
 with MAX_POTENTIAL_ITERATIONS (in macros_and_parameters.h) set to 4.
 .. _CollideTest:
+
 CollideTest
 ^^^^^^^^^^^
 
 
 .. _ExtremeAdvectionTest:
+
 ExtremeAdvectionTest
 ^^^^^^^^^^^^^^^^^^^^
 
 .. _GalaxySimulation:
+
 GalaxySimulation
 ^^^^^^^^^^^^^^^^
 This problem sets up a galaxy disk using code written by Stephanie
@@ -1256,6 +1313,7 @@ problem.
 
 
 .. _NFWCoolCoreCluster:
+
 NFWCoolCoreCluster
 ^^^^^^^^^^^^^^^^^^
 The NFW Cool-Core Cluster is a simulation of the cooling flow in an idealized
@@ -1279,6 +1337,7 @@ region) at late times along z axis which is the direction of
 the initial angular momentum of the gas.  
 
 .. _NohProblem3D:
+
 NohProblem3D
 ^^^^^^^^^^^^
 The Noh Problem test sets up a a uniform gas of density of 1.0 that
@@ -1308,15 +1367,18 @@ Lagrangian schemes. Numerically, this is a difficult problem.
 
 
 .. _NohProblem3DAMR:
+
 NohProblem3DAMR
 ^^^^^^^^^^^^^^^
 AMR version of NohProblem3D
 
 .. _ProtostellarCollapse_Std:
+
 ProtostellarCollapse_Std
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. _RotatingCylinder:
+
 RotatingCylinder
 ^^^^^^^^^^^^^^^^
 The rotating cylinder is a test of the conservation of the
@@ -1332,28 +1394,35 @@ settling.
 The results signify correctness if the net change in the total angular
 momentum of the system is low (< 5%). The percentage change per output
 should be less than 1% and should decrease over time as the collapse
- reaches equilibrium. 
+reaches equilibrium. 
 
 In plots.py, we image slices in the x-direction and plot the angular
 momentum evolution of the system. 
+
 .. _RotatingSphere:
+
 RotatingSphere
 ^^^^^^^^^^^^^^
 
 .. _ShockPool3D:
+
 ShockPool3D
 ^^^^^^^^^^^
 
 A 3D Shock Propagation Test
 
 .. _StripTest:
+
 StripTest
 ^^^^^^^^^
 
 .. _MHD/1D:
+
 MHD/1D
 ~~~~~~~~~~
+
 .. _BrioWu-MHD-1D:
+
 BrioWu-MHD-1D
 ^^^^^^^^^^^^^
 From
@@ -1375,12 +1444,15 @@ Wu (1988) or Figure 15 of Wang & Abel (2009)
 Success in test_briowu.py is determined by nearly exact match (5e-3) in Density and By. 
 
 .. _BrioWu-MHD-1D-MHDCT:
+
 BrioWu-MHD-1D-MHDCT
 ^^^^^^^^^^^^^^^^^^^
+
 This also serves as an Example of how to do 1D HD/MHD tests with the myriad 
 of shock tube problems defined in the literature
 
 .. _CR-ShockTube:
+
 CR-ShockTube
 ^^^^^^^^^^^^
 
@@ -1390,23 +1462,27 @@ rarefaction wave, a contact discontinuity, and a right shock.
 See Pfrommer et al 2006 for information on the analytic sol'tn
 
 .. _MHD_Metal_Advection_CT:
+
 MHD_Metal_Advection_CT
 ^^^^^^^^^^^^^^^^^^^^^^
 Square wave advection with a single species field.
 The metals are offset by 0.25 from the density. 
-python plot.py 
-will make a plot.  
+python plot.py will make a plot.  
+
 .. _MHD_Metal_Advection_Dedner:
+
 MHD_Metal_Advection_Dedner
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Square wave advection with a single species field.
 The metals are offset by 0.25 from the density.
 
 .. _MHD/2D:
+
 MHD/2D
 ~~~~~~~~~~
 
 .. _LoopAdvection_CT:
+
 LoopAdvection_CT
 ^^^^^^^^^^^^^^^^
 
@@ -1416,6 +1492,7 @@ Originally described by Gardiner & Stone 2005 (Journal of Computational Physics,
 the field loop severely deforms for many CT schemes.  
 
 .. _LoopAdvection_Dedner:
+
 LoopAdvection_Dedner
 ^^^^^^^^^^^^^^^^^^^^
 Advection of a magnetic field loop.
@@ -1424,6 +1501,7 @@ Originally described by Gardiner & Stone 2005 (Journal of Computational Physics,
 the field loop severely deforms for many CT schemes. 
 
 .. _MHD2DRotorTest:
+
 MHD2DRotorTest
 ^^^^^^^^^^^^^^
 From
@@ -1455,18 +1533,22 @@ This test generates 11 outputs, and snapshots for the 4 above fields for each
 snapshot.  The 11th snapshot should be compared to figure 18 from Toth (2000)
 
 .. _MHDCTOrszagTang:
+
 MHDCTOrszagTang
 ^^^^^^^^^^^^^^^
 
 .. _MHDCTOrszagTangAMR:
+
 MHDCTOrszagTangAMR
 ^^^^^^^^^^^^^^^^^^
 
 .. _MHDDednerOrszagTang:
+
 MHDDednerOrszagTang
 ^^^^^^^^^^^^^^^^^^^
 
 .. _RayleighTaylor_CT_Suppressed:
+
 RayleighTaylor_CT_Suppressed
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 MHD suppresses the Rayleigh Taylor instability (in 2D)
@@ -1476,7 +1558,9 @@ secondary instability.
 
 Fun things to try include reducing the field strength and changing the
 direction!  
+
 .. _SedovBlast-MHD-2D-Fryxell:
+
 SedovBlast-MHD-2D-Fryxell
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 From
@@ -1511,6 +1595,7 @@ Success in test_fryxell.py is determined by nearly exact match (3e-5) in Density
 Pressure. 
 
 .. _SedovBlast-MHD-2D-Gardiner:
+
 SedovBlast-MHD-2D-Gardiner
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 From
@@ -1538,6 +1623,7 @@ Success in test_gardiner.py is determined by nearly exact match (3e-5) in Densit
 Pressure, Bx, and By. 
 
 .. _Wengen2-CollidingFlow:
+
 Wengen2-CollidingFlow
 ^^^^^^^^^^^^^^^^^^^^^
 Wengen 2 colliding flow
@@ -1547,18 +1633,20 @@ Tom Abel September 2010
 Also works with magnetic fields. 
 
 .. _MHD/3D:
+
 MHD/3D
 ~~~~~~~~~~
 
 .. _ShearingBox:
+
 ShearingBox
 ^^^^^^^^^^^
 
 .. _StochasticForcing:
+
 StochasticForcing
 ^^^^^^^^^^^^^^^^^
-MHD/HD turbulence problem with stochastic forcing
-     with subgrid-scale (SGS) turbulence model
+MHD/HD turbulence problem with stochastic forcing with subgrid-scale (SGS) turbulence model
 Philipp Grete 2014
 
 Typical "turbulence-in-a-box" problem with non-static driving field.
@@ -1573,10 +1661,12 @@ For MHD use HydroMethod 4
 For MHDCT use HydroMethod 6
 
 .. _RadiationTransport:
+
 RadiationTransport
 ~~~~~~~~~~~~~~~~~~
 
 .. _PhotonShadowing:
+
 PhotonShadowing
 ^^^^^^^^^^^^^^^
 This problem tests shadowing capabilities of the ray tracing module
@@ -1597,6 +1687,7 @@ clump in each output, (2) gives line cuts through the clump center at
 the final time.
 
 .. _PhotonTest:
+
 PhotonTest
 ^^^^^^^^^^
 ** Test 1 from Iliev et al. (2006), MNRAS, 371, 1057 **
@@ -1607,6 +1698,7 @@ PhotonTest
  - Density = 1e-3 cm^-3
 
 .. _PhotonTestAMR:
+
 PhotonTestAMR
 ^^^^^^^^^^^^^
 This problem is the classical HII region expansion in an isothermal
@@ -1623,7 +1715,9 @@ script (1) finds the ionization front radius for each output, (2)
 creates radial profiles at a few times, (3) produces slices at the
 origin in the final output, and (4) computes the deviation in the
 photo-ionization rates from 1/r^2.
+
 .. _PhotonTestMultiFrequency:
+
 PhotonTestMultiFrequency
 ^^^^^^^^^^^^^^^^^^^^^^^^
 This test is derived from the PhotonTest problem which is itself
@@ -1637,115 +1731,148 @@ run in optically thin mode.
 This test runs with Grackle. 
 
 .. _RadiationTransportFLD:
+
 RadiationTransportFLD
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. _CosmoIonization_q05z10:
+
 CosmoIonization_q05z10
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. _CosmoIonization_q05z10_sp:
+
 CosmoIonization_q05z10_sp
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. _CosmoIonization_q05z4:
+
 CosmoIonization_q05z4
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. _CosmoIonization_q05z4_sp:
+
 CosmoIonization_q05z4_sp
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. _CosmoIonization_q5z10:
+
 CosmoIonization_q5z10
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. _CosmoIonization_q5z10_sp:
+
 CosmoIonization_q5z10_sp
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. _CosmoIonization_q5z4:
+
 CosmoIonization_q5z4
 ^^^^^^^^^^^^^^^^^^^^
 
 .. _Grey_Enzochem:
+
 Grey_Enzochem
 ^^^^^^^^^^^^^
 .. _Grey_Split:
+
 Grey_Split
 ^^^^^^^^^^
+
 .. _RadiatingShockLab:
+
 RadiatingShockLab
 ^^^^^^^^^^^^^^^^^
 
 .. _RadiatingShockLab1D:
+
 RadiatingShockLab1D
 ^^^^^^^^^^^^^^^^^^^
 .. _RadiatingShockLab1D_sp:
+
 RadiatingShockLab1D_sp
 ^^^^^^^^^^^^^^^^^^^^^^
 .. _RadiationStream1D:
+
 RadiationStream1D
 ^^^^^^^^^^^^^^^^^
 
 .. _RadiationStream1D_sp:
+
 RadiationStream1D_sp
 ^^^^^^^^^^^^^^^^^^^^
 .. _RadiationStreamX0:
+
 RadiationStreamX0
 ^^^^^^^^^^^^^^^^^
 .. _RadiationStreamX1:
+
 RadiationStreamX1
 ^^^^^^^^^^^^^^^^^
 .. _RadiationStreamX1_sp:
+
 RadiationStreamX1_sp
 ^^^^^^^^^^^^^^^^^^^^
 .. _RadiationStreamY0:
+
 RadiationStreamY0
 ^^^^^^^^^^^^^^^^^
+
 .. _RadiationStreamY0_sp:
+
 RadiationStreamY0_sp
 ^^^^^^^^^^^^^^^^^^^^
 .. _RadiationStreamY1:
+
 RadiationStreamY1
 ^^^^^^^^^^^^^^^^^
 .. _RadiationStreamY1_sp:
+
 RadiationStreamY1_sp
 ^^^^^^^^^^^^^^^^^^^^
 .. _RadiationStreamZ0:
+
 RadiationStreamZ0
 ^^^^^^^^^^^^^^^^^
 .. _RadiationStreamZ0_sp:
+
 RadiationStreamZ0_sp
 ^^^^^^^^^^^^^^^^^^^^
 .. _RadiationStreamZ1:
+
 RadiationStreamZ1
 ^^^^^^^^^^^^^^^^^
 .. _RHIonization1:
+
 RHIonization1
 ^^^^^^^^^^^^^
 .. _RHIonization1_sp:
+
 RHIonization1_sp
 ^^^^^^^^^^^^^^^^
 .. _RHIonization2:
+
 RHIonization2
 ^^^^^^^^^^^^^
 .. _RHIonization2_sp:
+
 RHIonization2_sp
 ^^^^^^^^^^^^^^^^
 
 .. _TurnerStoneEquil1:
+
 TurnerStoneEquil1
 ^^^^^^^^^^^^^^^^^
 
 .. _TurnerStoneEquil2:
+
 TurnerStoneEquil2
 ^^^^^^^^^^^^^^^^^
 
 .. _StarParticle:
+
 StarParticle
 ~~~~~~~~~~~~
-
 
 This test places a single star particle in the center of a box with uniform
 gas density and thermal energy.  The gas is initially at rest.  The particle 
