@@ -48,10 +48,6 @@ from yt.utilities.logger import \
     disable_stream_logging, ufstring
 disable_stream_logging()
 
-# Set the filename for the latest version of the gold standard
-# and for the default local standard output
-ytcfg["yt", "gold_standard_filename"] = str("enzogold0003")
-ytcfg["yt", "local_standard_filename"] = str("enzolocaldev")
 from yt.utilities.answer_testing.framework import \
     AnswerTesting
 
@@ -121,15 +117,14 @@ results_gather = ['results', version_filename]
 # except ImportError:
 machine_config = None
 
-def _get_hg_version(path):
+def _get_current_version(path):
+    try:
+        import git
+    except ModuleNotFoundError:
+        return "unknown"
 
-    # client = hglib.open(path)
-
-    # # this is a horrifying string but is necessary to be both Python2
-    # # and 3 compatible
-    # rev = str(client.tip().node.decode('utf-8'))[:12]
-    rev = "fixme"
-    return rev
+    repo = git.Repo(path)
+    return repo.head.object.hexsha
 
 def _to_walltime(ts):
     return "%02d:%02d:%02d" % \
@@ -139,18 +134,6 @@ def _to_walltime(ts):
 def add_files(my_list, dirname, fns):
     my_list += [os.path.join(dirname, fn) for
                 fn in fns if fn.endswith(".enzotest")]
-
-def version_swap(repository, changeset, jcompile):
-    """Updates *repository* to *changeset*,
-    then does make; make -j *jcompile* enzo"""
-
-    # client = hglib.open(options.repository)
-    # client.update(rev=changeset)
-    
-    command = "cd %s/src/enzo; pwd; "%options.repository
-    command += "make clean && make -j %d enzo.exe"%jcompile
-    status = os.system(command)
-    return status
 
 def parse_results_file(filename):
     """
@@ -580,8 +563,6 @@ if __name__ == "__main__":
                       default=False, help="Slightly more verbose output.")
     parser.add_option("--pdb", action="store_true", dest="pdb",
                       default=False, help="Drop into debugger on errors")
-    parser.add_option("--changeset", dest="changeset", default=None, metavar='str',
-                      help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
     parser.add_option("--jcompile", dest="jcompile", default=1, metavar='int', type=int,
                       help="Number of cores to use when recompiling")
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
@@ -650,12 +631,11 @@ if __name__ == "__main__":
     # Get information about the current repository, set it as the version in
     # the answer testing plugin.
     options.repository = os.path.expanduser(options.repository)
-    hg_current = _get_hg_version(options.repository)
-    rev_hash = "fixme"
+    my_current = _get_current_version(options.repository)
+    rev_hash = my_current
 
     if options.run_suffix:
         rev_hash += options.run_suffix
-
 
     answer_plugin._my_version = rev_hash
 
@@ -671,11 +651,6 @@ if __name__ == "__main__":
     if options.output_dir is None:
         print('Please enter an output directory with -o option')
         sys.exit(1)
-
-    if options.changeset is not None:
-        status = version_swap(options.repository, options.changeset, options.jcompile)
-        if status:
-            sys.exit(status)
 
     etc = EnzoTestCollection(verbose=options.verbose, args=sys.argv[:1],
                              plugins = [answer_plugin, reporting_plugin, pdb_plugin, xunit_plugin])
@@ -711,7 +686,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
     f = open(os.path.join(options.output_dir, version_filename), 'w')
-    f.write('Enzo: %s' % hg_current)
+    f.write('Enzo: %s\n' % my_current)
     f.write('yt: %s\n' % yt_version)
     f.close()
 
@@ -823,7 +798,7 @@ if __name__ == "__main__":
             results.append( dict(name = test.test_data['name'],
                              results = vals) )
         f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
-        f.write("current_set = '%s';\n" % (hg_current.strip()))
+        f.write("current_set = '%s';\n" % (my_current.strip()))
 
     if etc2.any_failures:
         raise AssertionError("Some tests failed or had errors!")
