@@ -22,5 +22,6 @@ Enzo parameters associated with them.
    shock_finding.rst
    cosmic_rays.rst
    additional_physics.rst
+   adaptive_mesh.rst
    analysis_modules.rst
 
