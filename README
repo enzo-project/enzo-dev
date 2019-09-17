@@ -16,7 +16,7 @@ Enzo is developed in the open on github.com:
 
 Documentation, including instructions for compilation, can be found at:
 
- * http://enzo-project.org/docs/2.6/
+ * https://enzo.readthedocs.io/en/latest/
 
 Please subscribe to the Enzo Users' mailing list at:
 
