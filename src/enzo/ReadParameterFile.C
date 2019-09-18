@@ -1138,6 +1138,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "AnalyticSNRShellMass = %"ISYM, 
       &AnalyticSNRShellMass);
     ret += sscanf(line, "UnrestrictedSN = %"ISYM, &UnrestrictedSN);
+    ret += sscanf(line, "MechStarsCriticalMetallicity = %"FSYM, &MechStarsCriticalMetallicity);
+    ret += sscanf(line, "MechStarsSeedField = %"ISYM, &MechStarsSeedField);
+    
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);

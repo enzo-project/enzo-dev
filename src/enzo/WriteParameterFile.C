@@ -1125,7 +1125,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "AnalyticSNRShellMass                  = %"ISYM"\n", AnalyticSNRShellMass);
   fprintf(fptr, "StarMakerMinimumRefinementLevel       = %"ISYM"\n", StarMakeLevel);
   fprintf(fptr, "UnrestrictedSN                        = %"ISYM"\n", UnrestrictedSN);
-
+  fprintf(fptr, "MechStarsCriticalMetallicity          = %"FSYM"\n", MechStarsCriticalMetallicity);
+  fprintf(fptr, "MechStarsSeedField                    = %"ISYM"\n", MechStarsSeedField);
 /* Most Stanford additions: */
 
   fprintf(fptr, "UseHydro                   = %"ISYM"\n", UseHydro);

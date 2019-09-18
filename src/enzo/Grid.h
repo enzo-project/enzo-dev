@@ -2217,6 +2217,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  float CosmologySimulationInitialFractionH2II,
 			  float CosmologySimulationInitialFractionMetal,
 			  float CosmologySimulationInitialFractionMetalIa,
+        float CosmologySimulationInitialFractionMetalII,
 #ifdef TRANSFER
 			  float RadHydroInitialRadiationEnergy,
 #endif
@@ -2273,6 +2274,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  float CosmologySimulationInitialFractionH2II,
 			  float CosmologySimulationInitialFractionMetal,
 			  float CosmologySimulationInitialFractionMetalIa,
+        float CosmologySimulationInitialFractionMetalII,
 			  int   CosmologySimulationUseMetallicityField,
 			  PINT &CurrentNumberOfParticles,
 			  int CosmologySimulationManuallySetParticleMassRatio,
@@ -2889,8 +2891,9 @@ int MechStars_DepositFeedback(float supernovaEnergy,
                         float* up, float* vp, float* wp,
                         float* xp, float* yp, float* zp,
                         int ip, int jp, int kp,
-                        int size, float* mu_field, int winds);
-
+                        int size, float* mu_field, int winds,
+                        int nSNII, int nSNIA, float starMetals, int isP3);
+int MechStars_SeedSupernova();
 
 //------------------------------------------------------------------------
 // Radiative transfer methods that don't fit in the TRANSFER define

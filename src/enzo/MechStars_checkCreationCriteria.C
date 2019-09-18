@@ -29,8 +29,10 @@ int checkCreationCriteria(float* Density, float* Metals,
                         float* CoolingTime, int* GridDim,
                         float* shieldedFraction, float* freeFallTime, 
                         float* dynamicalTime, int i, int j, int k, 
-                        float Time, float* RefinementField, float CellWidth)
+                        float Time, float* RefinementField, float CellWidth,
+                        bool* gridShouldFormStars, bool* notEnoughMetals)
 {  
+    float maxZ = 0.0;
     bool debug = false;
     bool status = PASS;
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
@@ -112,8 +114,8 @@ int checkCreationCriteria(float* Density, float* Metals,
     if (Temperature[index] > 1e4)
     {
         status = FAIL; //no hot gas forming stars!
-        float totalDensity = Density[index]
-                +DMField[index]*DensityUnits;
+        float totalDensity = (Density[index]
+                +DMField[index])*DensityUnits;
         *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5);
         if (*dynamicalTime/TimeUnits < CoolingTime[index]) status = FAIL;   
     }
@@ -140,9 +142,9 @@ int checkCreationCriteria(float* Density, float* Metals,
     float TauFactor = 434.8 *LengthUnits*LengthUnits / MassUnits;
     float Tau = TauFactor * Density[index] *(CellWidth+Density[index]/gradRho);
 
-    float Phi = 0.756*pow(1+3.1*Metals[index]/0.02, 0.365);
+    float Phi = 0.756*pow(1+3.1*Metals[index]/Density[index]/0.02, 0.365);
 
-    float Psi = 0.6*Tau*(0.01+Metals[index]/0.02)/
+    float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/0.02)/
                 log(1+0.6*Phi+0.01*Phi*Phi);
     
     *shieldedFraction = 1 - 3/(1+4*Psi);
@@ -150,6 +152,16 @@ int checkCreationCriteria(float* Density, float* Metals,
 
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits;
     //if (status && debug) fprintf(stdout, "passed creation criteria\n");
+    if (MechStarsSeedField && Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity)
+        *notEnoughMetals = false;
+    if (status && Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity && MechStarsSeedField)
+    {
+        status = FAIL;
+        /* May want to qualify this with H2 fraction/H2 self-shield approximations, but
+        This is really just to give a non-uniform seed-field in Pop3 metals*/
+        *gridShouldFormStars = true;
+        if (Metals[index]/Density[index]/0.02 > maxZ) maxZ = Metals[index]/Density[index]/0.02;
+    }
     return status;
 
 }

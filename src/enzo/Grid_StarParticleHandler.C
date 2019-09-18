@@ -830,7 +830,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
     } 
-    if (STARMAKE_METHOD(MECHANICAL)){
+    if (STARMAKE_METHOD(MECHANICAL) && level >= StarMakeLevel){
        NumberOfNewParticlesSoFar = NumberOfParticles;
          int nRetStars = 0;
          nRetStars = MechStars_Creation(tg, temperature,
@@ -1455,7 +1455,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
          fprintf(stdout,"Created star: %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f\n",
                         i, 
                         tg->ParticleType[i], 
-                        tg->ParticleMass[i], 
+                        tg->ParticleMass[i]*DensityUnits*pow(LengthUnits*CellWidth[0][0], 3)/2e33, 
                         tg->ParticleAttribute[0][i], 
                         tg->ParticleAttribute[1][i],
                         tg->ParticleAttribute[2][i],
@@ -1600,6 +1600,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	   }
    }
    }
+      //fprintf(stdout, "CALLING MECH FEEDBACK\n");
       MechStars_FeedbackRoutine(level, &mu_field[0]);
   }
   if (STARFEED_METHOD(MOM_STAR)) {

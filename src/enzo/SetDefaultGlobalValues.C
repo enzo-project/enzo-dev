@@ -687,7 +687,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NEvents                          = 0;
   AnalyticSNRShellMass             = 1;
   UnrestrictedSN                     = 0; // false by default
-  
+  MechStarsCriticalMetallicity      = 1e-12; // dont check for metals in formation
+  MechStarsSeedField                = 0; // dont seed metals from pop3 imf
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
   PythonReloadScript               = FALSE;

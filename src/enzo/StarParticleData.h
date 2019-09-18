@@ -160,4 +160,7 @@ SPEXTERN int StarMakeLevel;
 SPEXTERN int NEvents;
 SPEXTERN int AnalyticSNRShellMass;
 SPEXTERN int UnrestrictedSN;
+SPEXTERN int MechStarsSeedField;
+SPEXTERN float MechStarsCriticalMetallicity;
+
 #endif

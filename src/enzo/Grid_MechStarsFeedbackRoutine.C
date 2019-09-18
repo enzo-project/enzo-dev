@@ -45,11 +45,11 @@
 int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
 {
 
-    // fprintf(stdout,"IN FEEDBACK ROUTINE\n  %d   %d   %d\n",
-        // SingleSN, StellarWinds, UnrestrictedSN);
-    float stretchFactor = 1.4;//1/sqrt(2) to cover cell diagonal
+    //fprintf(stdout,"IN FEEDBACK ROUTINE\n  %d   %d   %d\n",
+        //SingleSN, StellarWinds, UnrestrictedSN);
+    float stretchFactor = 1.0;//1/sqrt(2) to cover cell diagonal
     /* Get units to use */
-
+    bool debug = false;
     int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
 
@@ -186,7 +186,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
             int nSNII = 0;
             int nSNIA = 0;
             float SNMassEjected = 0, SNMetalEjected = 0;
-            // printf("Checking particle:  %f    %e \n", age, ParticleMass[pIndex]*MassUnits);
+            //fprintf(stdout, "Checking particle:  %f    %e \n", age, ParticleMass[pIndex]*MassUnits);
             /* determine how many supernova events */
             if (SingleSN)
             {
@@ -199,18 +199,23 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
                 if (nSNII > 0 || nSNIA > 0){
                     /* set feedback qtys based on number and types of events */
                         /* 1e51 erg per sn */
+                    ParticleAttribute[1][pIndex] += nSNII + nSNIA;
                     float energySN = (nSNII + nSNIA)*1e51;
 
                         /*10.5 Msun ejecta for type II and IA*/
                     SNMassEjected = (nSNII+nSNIA)*10.5;
                         /* Metal yeilds from starburst 99 */
-                    float zZsun = min(BaryonField[MetalNum][index]/BaryonField[DensNum][index]/0.02, 1e-4);
-                    SNMetalEjected = nSNII*(1.91+0.0479*max(zZsun, 1.65));
-                    SNMetalEjected += nSNIA*(1.4); // this metal should get coupled to SNIA field if its being used
+                    float starMetal = (ParticleAttribute[2][pIndex]/0.02); //determines metal content of SNeII
+                    // if (StarMakerTypeIISNeMetalField)
+                    //     starMetal += ParticleAttribute[4][pIndex]/0.02;
+                    /* Couple these in the deposit routine */
+                    // SNMetalEjected = nSNII*(1.91+0.0479*max(zZsun, 1.65));
+                    // SNMetalEjected += nSNIA*(1.4); // this metal should get coupled to SNIA field if its being used
                     MechStars_DepositFeedback(energySN, SNMassEjected, SNMetalEjected,
                                 &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
                                 &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
-                                ip, jp, kp, size, mu_field, 0);
+                                ip, jp, kp, size, mu_field, 0, nSNII, nSNIA, starMetal, 0);
+                    ParticleAttribute[1][pIndex] += nSNII+nSNIA;
                 }
             }
 
@@ -219,23 +224,24 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
             So almost no energy is coupled, but some mass may be. */
 
 
-            if (StellarWinds)
+            if (StellarWinds && age > 0.001)
             {
                 // printf("Checking Winds\n");
-                float zZsun = min(BaryonField[MetalNum][index]/BaryonField[DensNum][index]/0.02, 1e-8);
+                float zZsun = min(ParticleAttribute[2][pIndex]/0.02, MechStarsCriticalMetallicity);
                 determineWinds(age, &windEnergy, &windMass, &windMetals,
                                 ParticleMass[pIndex]*MassUnits, zZsun,
                                 TimeUnits, dtFixed);
-
+                if (windMass > 10) fprintf(stdout,"Really High Wind Mass!!\n");
+                if (windEnergy > 1e5)
                 MechStars_DepositFeedback(windEnergy, windMass, windMetals,
                             &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
                             &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
-                            ip, jp, kp, size, mu_field, 1);
+                            ip, jp, kp, size, mu_field, 1, 0, 0, 0.0, 0);
 
 
             }
             if (windMass > 0.0 || SNMassEjected > 0){
-                if (debug) printf("Subtracting off mass %e\n",(windMass+SNMassEjected));
+                //if (debug) printf("Subtracting off mass %e\n",(windMass+SNMassEjected));
                 ParticleMass[pIndex] -= (windMass+SNMassEjected)/MassUnits;
             }
             // printf("Post-feedback MP = %e\n", ParticleMass[pIndex]*MassUnits);
