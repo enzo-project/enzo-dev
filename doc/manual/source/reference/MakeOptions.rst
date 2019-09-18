@@ -193,7 +193,6 @@ Global settings
 ~~~~~~~~~~~~~~~
 
 ============================   =====================================
-**object-mode-[32\|64]**       Set address/pointer size to 32-bit or 64-bit object files.  This is an    obsolete setting and is no longer used.
 **testing-[yes\|no]**          Include hooks for the lcatest regression tests
 ============================   =====================================
 

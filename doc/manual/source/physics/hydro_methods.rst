@@ -4,7 +4,10 @@ Hydro and MHD Methods
 =====================
 
 There are four available methods in Enzo for calculating the evolution
-of the gas with and without magnetic fields. Below is a brief
+of the gas with and without magnetic fields.  **At present, Enzo's
+fluid methods only
+support gamma-law equations of state with constant adiabatic
+indices.**  Below is a brief
 description of each method, including the parameters associated with
 each one and a link to further reading. 
 For relevant parameters please also see :ref:`hydrodynamics_parameters`.
