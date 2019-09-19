@@ -23,6 +23,7 @@ funding agencies across the globe.
    EnzoLicense.rst
    user_guide/index.rst
    supplementary_info/index.rst
+   testproblems/index.rst
    parameters/index.rst
    physics/index.rst
    faq/index.rst
