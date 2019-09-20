@@ -58,11 +58,18 @@ re-compiling Enzo, you can just set this variable to 1.
 
 *Quick Note Re: How many Cores You Should Use*
 It may be tempting to just use as many cores as your hardware supports.
-However, Enzo's OpenMP mode shows diminishing returns in performance past 32 threads,
-with the scaling bottoming out at 48 cores. For best results, pick something between
-32-48 cores.
+However, Enzo's OpenMP mode shows rapidly diminishing returns in performance
+with the scaling bottoming out completely at 48 cores. For best results, pick something between
+4-16 cores.
 
+.. image:: scaling.png
+   :scale: 40 %
+   :alt: Graph showing the scaling performance of Enzo. 
 
+Fig.1 Small-scale performance tests of OpenMP-only scaling on the Xeon Phi machine at Georgia Tech (XP)
+and the HPCC cluster (HPCC) at Michigan State. The image on the right shows the normalized results
+for both sets of hardware. 
+	 
 Compiler Support
 ----------------
 
