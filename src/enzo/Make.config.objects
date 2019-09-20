@@ -549,6 +549,7 @@ OBJS_CONFIG_LIB = \
         Grid_MechStarsCreation.o\
         Grid_MechStarsDepositFeedback.o\
         Grid_MechStarsFeedbackRoutine.o\
+        Grid_MechStarsSeedSupernova.o\
 	Grid_MirrorStarParticles.o \
 	Grid_MoveAllParticles.o \
 	Grid_MoveAllStars.o \

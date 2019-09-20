@@ -50,6 +50,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
     float stretchFactor = 1.0;//1/sqrt(2) to cover cell diagonal
     /* Get units to use */
     bool debug = false;
+    float startFB = MPI_Wtime();
     int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
 
@@ -88,8 +89,8 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
     else
         MetalNum = 0;
 
-    int numSN = 0;
-
+    int numSN = 0; // counter of events
+    int c = 0; // counter of particles
     /* Begin Iteration of all particles */
     // printf("\nIterating all particles  ");
     for (int pIndex=0; pIndex < NumberOfParticles; pIndex++){
@@ -103,7 +104,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
         if (ParticleType[pIndex] == PARTICLE_TYPE_STAR
                 && ParticleMass[pIndex] > 0.0
                 && ParticleAttribute[0][pIndex] > 0.0){
-
+            c++;
             // if (StarMakerAgeCutoff)
             //     if ((Time-ParticleAttribute[0][pIndex])
             //         *TimeUnits/(150*3.1557e7) > 150)
@@ -247,6 +248,10 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field)
             // printf("Post-feedback MP = %e\n", ParticleMass[pIndex]*MassUnits);
         }
     }// end iteration over particles
+    if (c > 0){
+        fprintf(stdout, "Ptcl Number = %d Events = %d FeedbackTime = %e Size = %d\n",
+            c, numSN, MPI_Wtime()-startFB, GridDimension[0]*GridDimension[1]*GridDimension[2]);
+    }
 
     return SUCCESS;
 }

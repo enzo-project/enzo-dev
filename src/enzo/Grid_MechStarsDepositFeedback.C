@@ -44,8 +44,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         and all have radius dx from the source particle. 
         Each vertex particle will then be CIC deposited to the grid!
     */
-    bool debug = true;
-    bool criticalDebug = true;
+    bool debug = false;
+    bool criticalDebug = false;
     bool printout = debug && !winds;
     int index = ip+jp*GridDimension[0]+kp*GridDimension[0]*GridDimension[1];
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -147,7 +147,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         int nCouple = 32;
         float A = stretchFactor*dx;
         float cloudSize=stretchFactor*dx;
-        /* Points from HEALPix algorithm; 48 equally dist. points*/
+
+	/* each coupled particle is at the vertex of a compound of a dodecahedron and isocahedron */
+
         FLOAT CloudParticleVectorX [] = //{-1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1};
                                             {1, 1, 1, 1, -1, -1, -1, -1, 0, 0, 0, 0,
                                             iphi, iphi, -iphi, -iphi, phi, phi, -phi, -phi, 
@@ -318,7 +320,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if(printout) fprintf(stdout, "Rfade = %e cs = %e \n", r_fade, cSound);
     delete [] temperature;
 
-    coupledMomenta = (cellwidth > r_fade)?(coupledMomenta*pow(r_fade/cellwidth,3/2)):(coupledMomenta);
+    //    coupledMomenta = (cellwidth > r_fade)?(coupledMomenta*pow(r_fade/cellwidth,3/2)):(coupledMomenta);
     float shellMass = 0.0, shellVelocity = 0.0;
     if(printout) printf("Coupled momentum: %e\n", coupledMomenta);
     /* If resolution is in a range compared to Rcool and
@@ -388,13 +390,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             This implementation is simple since our coupled particles are 
             spherically symmetric about the feedback particle*/
     
-    // coupledEnergy = eKinetic/float(scalarWeight);
-    // coupledGasEnergy /= float(scalarWeight);
-    // coupledMass /= float(scalarWeight);
-    // coupledMetals /= float(scalarWeight);
-    // coupledMomenta /= float(scalarWeight);
 
-    /* Transform coupled quantities to code units */
     coupledEnergy = min(eKinetic, ejectaEnergy);
     coupledEnergy /= EnergyUnits;
     coupledGasEnergy /= EnergyUnits;

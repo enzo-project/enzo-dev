@@ -1452,19 +1452,19 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
       for (i = 0; i < NumberOfNewParticles; i++){
  	      tg->ParticleNumber[i] = INT_UNDEFINED;
-         fprintf(stdout,"Created star: %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f\n",
-                        i, 
-                        tg->ParticleType[i], 
-                        tg->ParticleMass[i]*DensityUnits*pow(LengthUnits*CellWidth[0][0], 3)/2e33, 
-                        tg->ParticleAttribute[0][i], 
-                        tg->ParticleAttribute[1][i],
-                        tg->ParticleAttribute[2][i],
-                        tg->ParticlePosition[0][i],
-                        tg->ParticlePosition[1][i],
-                        tg->ParticlePosition[2][i],
-                        tg->ParticleVelocity[0][i],
-                        tg->ParticleVelocity[1][i],
-                        tg->ParticleVelocity[2][i]);
+         // fprintf(stdout,"Created star: %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f\n",
+         //                i, 
+         //                tg->ParticleType[i], 
+         //                tg->ParticleMass[i]*DensityUnits*pow(LengthUnits*CellWidth[0][0], 3)/2e33, 
+         //                tg->ParticleAttribute[0][i], 
+         //                tg->ParticleAttribute[1][i],
+         //                tg->ParticleAttribute[2][i],
+         //                tg->ParticlePosition[0][i],
+         //                tg->ParticlePosition[1][i],
+         //                tg->ParticlePosition[2][i],
+         //                tg->ParticleVelocity[0][i],
+         //                tg->ParticleVelocity[1][i],
+         //                tg->ParticleVelocity[2][i]);
       }
       /* Move Particles into this grid (set cell size) using the fake grid. */
  
