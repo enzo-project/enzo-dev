@@ -203,7 +203,6 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
             if (MechStarsSeedField){
                     zFraction += BaryonField[SNColourNum][index];
             }
-            zFraction /= BaryonField[DensNum][index];
             if (ParticleMass[pIndex]*MassUnits < StarMakerMaximumMass){
                 int createStar = checkCreationCriteria(BaryonField[DensNum],
                         &zFraction, Temperature, DMField,
@@ -221,30 +220,28 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
                     /* Dont allow negative mass, or taking all gas in cell */
                     if (MassShouldForm < 0 )
                         MassShouldForm = 0;
-                    if (MassShouldForm > 0.1*BaryonField[DensNum][index]*MassUnits)
-                        MassShouldForm = 0.1*BaryonField[DensNum][index]*MassUnits;
+                    if (MassShouldForm > 0.5*BaryonField[DensNum][index]*MassUnits)
+                        MassShouldForm = 0.5*BaryonField[DensNum][index]*MassUnits;
 
                     // Set units and modify particle
                     MassShouldForm /= MassUnits;
                     if (MassShouldForm > 0){
-                        float deltaMass = MassShouldForm/MassUnits/(ParticleMass[pIndex]+MassShouldForm/MassUnits);
+                        float delta = MassShouldForm/(ParticleMass[pIndex]+MassShouldForm);
 
                         /* modify metallicity */
-                        float zFraction = BaryonField[MetalNum][index];
-                        if (MechStarsSeedField){
-                            zFraction += BaryonField[SNColourNum][index];
-                        }
                         zFraction /= BaryonField[DensNum][index];
                         // update mass-weighted metallicity fraction of star particle
-                        ParticleAttribute[2][pIndex] = (ParticleAttribute[2][pIndex]*ParticleMass[pIndex]+zFraction*MassShouldForm)/(ParticleMass[pIndex]+MassShouldForm); 
+                        ParticleAttribute[2][pIndex] = (ParticleAttribute[2][pIndex]*(1.-delta)+zFraction*delta); 
                         // update mass-weighted age of star particle
                         if (age > 3.5) // only update if particle is old enough for SNe
-                            ParticleAttribute[0][pIndex] = (ParticleAttribute[0][pIndex]*ParticleMass[pIndex]+Time*MassShouldForm)/(ParticleMass[pIndex]+MassShouldForm);
+                            ParticleAttribute[0][pIndex] = (ParticleAttribute[0][pIndex]*(1.-delta)+Time*delta);
                         /* Add new formation mass to particle */
                         ParticleMass[pIndex] += MassShouldForm;   
                         printf("added new mass %e + %e = %e newZ = %f newAge = %f\n", 
                             (ParticleMass[pIndex]-MassShouldForm)*MassUnits, MassShouldForm*MassUnits, ParticleMass[pIndex]*MassUnits,
-                            ParticleAttribute[2][pIndex],(Time- ParticleAttribute[0][pIndex])*TimeUnits/3.1557e13);             
+                            ParticleAttribute[2][pIndex],(Time- ParticleAttribute[0][pIndex])*TimeUnits/3.1557e13);
+                        /* Take formed mass out of grid cell */
+                        BaryonField[DensNum][index] -= MassShouldForm;             
                     }
                 }
             }
