@@ -235,7 +235,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
         // grid can host star formation but has no appreciable metals
         fprintf(stdout, "\n\n\n[%d] %d %d %d Creating seed field!\n\n\n\n", 
                 ID,seedIndex[0], seedIndex[1], seedIndex[2]) ;
-        MechStars_SeedSupernova(&totalMetal[0], seedIndex);
+        MechStars_SeedSupernova(&totalMetal[0], Temperature, seedIndex);
         
     }
     //if (nCreated > 0 && debug){

@@ -34,7 +34,7 @@
 
 int grid::MechStars_DepositFeedback(float ejectaEnergy, 
                         float ejectaMass, float ejectaMetal, 
-                        float* totalMetals,
+                        float* totalMetals, float* temperature,
                         float* up, float* vp, float* wp,
                         float* xp, float* yp, float* zp,
                         int ip, int jp, int kp,
@@ -321,15 +321,15 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (printout)fprintf(stdout, "Calculated p = %e\n", coupledMomenta);
 
 
-    /* fading radius of a SNR */
-    float *temperature = new float[size];
-    this->ComputeTemperatureField(temperature);
-    float Gcode = GravConst*DensityUnits*pow(TimeUnits,2);
-    float KBcode = kboltz*MassUnits/(LengthUnits*dx)/pow(TimeUnits,2);
-    float cSound = sqrt(5/3*kboltz*temperature[index]/mh/muField[index])/1e5; //km/s
-    float r_fade = 66.0*pow(ejectaEnergy/1e51, 0.32)*pow(nmean, -0.37)*pow(min(cSound/10, .1), -2.0/5.0);
-    if(printout) fprintf(stdout, "Rfade = %e cs = %e \n", r_fade, cSound);
-    delete [] temperature;
+    /* fading radius of a SNR.  For real scale invariance, the momentum deposited should go to zero for large dx!*/
+    // float *temperature = new float[size];
+    // this->ComputeTemperatureField(temperature);
+    // float Gcode = GravConst*DensityUnits*pow(TimeUnits,2);
+    // float KBcode = kboltz*MassUnits/(LengthUnits*dx)/pow(TimeUnits,2);
+    // float cSound = sqrt(5/3*kboltz*temperature[index]/mh/muField[index])/1e5; //km/s
+    // float r_fade = 66.0*pow(ejectaEnergy/1e51, 0.32)*pow(nmean, -0.37)*pow(min(cSound/10, .1), -2.0/5.0);
+    // if(printout) fprintf(stdout, "Rfade = %e cs = %e \n", r_fade, cSound);
+    // delete [] temperature;
 
     //    coupledMomenta = (cellwidth > r_fade)?(coupledMomenta*pow(r_fade/cellwidth,3/2)):(coupledMomenta);
     float shellMass = 0.0, shellVelocity = 0.0;

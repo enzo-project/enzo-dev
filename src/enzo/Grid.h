@@ -2889,13 +2889,13 @@ int MechStars_FeedbackRoutine(int level, float* mu_field, float* temperature,
                         float* coolingtime, float* dmfield);
 int MechStars_DepositFeedback(float supernovaEnergy, 
                         float ejectaMass, float ejectaMetal,
-                        float* totalMetal,
+                        float* totalMetal, float* temperature,
                         float* up, float* vp, float* wp,
                         float* xp, float* yp, float* zp,
                         int ip, int jp, int kp,
                         int size, float* mu_field, int winds,
                         int nSNII, int nSNIA, float starMetals, int isP3);
-int MechStars_SeedSupernova(float* totalMetal, int* seedIndex);
+int MechStars_SeedSupernova(float* totalMetal, float* temperature, int* seedIndex);
 
 //------------------------------------------------------------------------
 // Radiative transfer methods that don't fit in the TRANSFER define

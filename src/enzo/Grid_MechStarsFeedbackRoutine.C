@@ -280,7 +280,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
                     /* Couple these in the deposit routine */
                     // SNMetalEjected = nSNII*(1.91+0.0479*max(zZsun, 1.65));
                     // SNMetalEjected += nSNIA*(1.4); // this metal should get coupled to SNIA field if its being used
-                    MechStars_DepositFeedback(energySN, SNMassEjected, SNMetalEjected, totalMetal,
+                    MechStars_DepositFeedback(energySN, SNMassEjected, SNMetalEjected, totalMetal, Temperature,
                                 &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
                                 &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
                                 ip, jp, kp, size, mu_field, 0, nSNII, nSNIA, starMetal, 0);
@@ -306,7 +306,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
                 if (windMass > 10) fprintf(stdout,"Really High Wind Mass!!\n");
                 if (windEnergy > 1e5){
                     printf("Winds: M = %e E=%e\n", windMass, windEnergy);
-                    MechStars_DepositFeedback(windEnergy, windMass, windMetals, totalMetal,
+                    MechStars_DepositFeedback(windEnergy, windMass, windMetals, totalMetal, Temperature,
                                         &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
                                         &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
                                         ip, jp, kp, size, mu_field, 1, 0, 0, 0.0, 0);

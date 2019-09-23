@@ -36,7 +36,7 @@ int search_lower_bound(float *arr, float value, int low, int high,
 unsigned_long_int mt_random(void);
 int StarParticlePopIII_IMFInitialize(void);
 
-int grid::MechStars_SeedSupernova(float* totalMetal, int* seedIndex){
+int grid::MechStars_SeedSupernova(float* totalMetal, float* temperature, int* seedIndex){
     debug = true;
     /* Initialize the IMF lookup table if requested and not defined */
     if (debug) fprintf(stdout, "setting IMF\n");
@@ -197,7 +197,7 @@ int grid::MechStars_SeedSupernova(float* totalMetal, int* seedIndex){
     /*  Add this to the grid using MechStars_DepositFeedback */
     float vp=0, up=0, wp=0;
     if (debug) fprintf(stdout, "Calling DepositFeedback!\n");
-    this->MechStars_DepositFeedback(SNEnergy, EjectaMass, EjectaMetal, totalMetal,
+    this->MechStars_DepositFeedback(SNEnergy, EjectaMass, EjectaMetal, totalMetal,temperature,
                             &up, &vp, &wp, &position[0], &position[1], &position[2],
                             ip, jp, kp, size, mu_field, 0, 0, 0, 0, 1);
     
