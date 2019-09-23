@@ -27,7 +27,8 @@
                         float* shieldedFraction, float* freeFallTime,
                         float* dynamicalTime, int i, int j, int k,
                         float Time, float* RefinementField, float CellWidth,
-                        bool* gridShouldFormStars, bool* notEnoughMetals);
+                        bool* gridShouldFormStars, bool* notEnoughMetals, 
+                        int continuingFormation, int* seedIndex);
     int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, float *MassUnits, float Time);
@@ -42,7 +43,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     if (level < StarMakeLevel) return 0;
     bool gridShouldFormStars=false, notEnoughMetals = true;
     float stretchFactor=0.6;
-    bool debug = false;
+    bool debug = true;
 
 
     //get field numbers
@@ -78,10 +79,10 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     int size =1;
     for (int dim = 0; dim < GridRank; dim ++)
         size *= GridDimension[dim];
-    float totalMetal [size];
+    float* totalMetal = new float [size];
     for (int i = 0; i< size; i++){
         totalMetal[i] = BaryonField[MetalNum][i];
-        if (SNColourNum > 0) totalMetal[i] += BaryonField[SNColourNum][i];
+        if (MechStarsSeedField) totalMetal[i] += BaryonField[SNColourNum][i];
     }
     int rank = GridRank;
 
@@ -97,6 +98,9 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 /*      Define MassUnits so that code * mass = physical (Msun)
             and physical(Msun) / MassUnits = code */
     MassUnits = DensityUnits*pow(LengthUnits*CellWidth[0][0], 3)/SolarMass;
+
+    /* Index of last cell that was capable of star formation but has no metals */
+    int *seedIndex = new int [3];
 
     float dx = CellWidth[0][0];
     int GZ = int(NumberOfGhostZones);
@@ -120,18 +124,17 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                 float freeFallTime = 0;
                 float dynamicalTime = 0;
                 float Time = this->Time;
-
                 int createStar = checkCreationCriteria(BaryonField[DensNum],
-                    &totalMetal[0], Temperature, DMField,
+                    totalMetal, Temperature, DMField,
                     BaryonField[Vel1Num], BaryonField[Vel2Num],
                     BaryonField[Vel3Num],
                     CoolingTime, GridDimension, &shieldedFraction,
                     &freeFallTime, &dynamicalTime, i,j,k,Time,
                     BaryonField[NumberOfBaryonFields], CellWidth[0][0],
-                    &gridShouldFormStars, &notEnoughMetals);
+                    &gridShouldFormStars, &notEnoughMetals, 0, seedIndex);
 
 
-                //f (createStar) printf ("SMM Criteria passed!\n");
+                //if (createStar && debug) printf ("SMM Criteria passed!\n");
                 if (createStar){
                     int index = i+ j*GridDimension[0]+k*GridDimension[0]*GridDimension[1];
 
@@ -144,13 +147,10 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         printf("Negative formation mass: %f %f",shieldedFraction, freeFallTime);
                         continue;
                     }
-                    float newMass = min(MassShouldForm,
-                                    StarMakerMaximumFormationMass);
-                    newMass = newMass/MassUnits;
-                    if (newMass > 0.9*BaryonField[DensNum][index] ||
-                        newMass*MassUnits < StarMakerMinimumMass){
-		                    //fprintf(stdout,"NOT ENOUGH MASS IN CELL Mnew = %e f_s = %f Mcell = %e\n",
-                             //   newMass*MassUnits, shieldedFraction, BaryonField[DensNum][index]*MassUnits);
+                    float newMass = min(MassShouldForm/MassUnits, 0.5*BaryonField[DensNum][index]);
+                    if (newMass*MassUnits < StarMakerMinimumMass){
+		                    fprintf(stdout,"NOT ENOUGH MASS IN CELL Mnew = %e f_s = %f Mcell = %e Mmin = %e\n",
+                               newMass*MassUnits, shieldedFraction, BaryonField[DensNum][index]*MassUnits, StarMakerMinimumMass);
 		                    continue;
 		    }
                     float totalDensity = (BaryonField[DensNum][index]+DMField[index])*DensityUnits;
@@ -207,9 +207,10 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                     ParticleArray->ParticlePosition[2][nCreated] = CellLeftEdge[2][0]
                                             +(dx*(float(k)+0.5));
                     if (nCreated >= MaximumNumberOfNewParticles) return nCreated;
-                    if (debug)
-		                fprintf(stdout,"Created star: %d %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f ::: %d %d ::: %d %d %d\n",
-                            level, nCreated,
+                    if (true)
+		                fprintf(stdout,"Created star: %e %e ::: %d %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f ::: %d %d ::: %d %d %d\n",
+                            BaryonField[DensNum][index],BaryonField[DensNum][index]*MassUnits,
+                            level, nCreated+1,
                             ParticleArray->ParticleType[nCreated],
                             ParticleArray->ParticleMass[nCreated]*MassUnits,
                             ParticleArray->ParticleAttribute[0][nCreated],
@@ -227,16 +228,25 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
             }//end for k
         }//end for j
     } // end for i
-    if (gridShouldFormStars && notEnoughMetals && MechStarsSeedField){
-        // set off a p3 supernova at the center of this grid if the
+    /*
+        If the grid has met star formation criteria, but stars are not formed due to lack of metals,
+        we set off a P3 SN event at the last grid cell that could have hosted star formation. Can and will set
+        off multiple events per grid cell if the same cell meets criteria on the next iteration!
+     */
+    if (gridShouldFormStars && MechStarsSeedField && (nCreated == 0)){
+        // set off a p3 supernova at at the last cell that could 
+        // host star formation in the grid if the
         // grid can host star formation but has no appreciable metals
-        fprintf(stdout, "\n\n\nCreating seed field!\n\n\n\n");
-        MechStars_SeedSupernova();
+        fprintf(stdout, "\n\n\n[%d] %d %d %d Creating seed field!\n\n\n\n", 
+                ID,seedIndex[0], seedIndex[1], seedIndex[2]) ;
+        MechStars_SeedSupernova(&totalMetal[0], seedIndex);
         
     }
     //if (nCreated > 0 && debug){
     //  fprintf(stdout, "Created %d star particles\n",nCreated);
     //    }
+    delete [] seedIndex;
+    delete [] totalMetal;
     *NumberOfParticlesSoFar = nCreated;
     return nCreated;
 }

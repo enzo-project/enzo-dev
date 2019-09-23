@@ -1600,8 +1600,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	   }
    }
    }
+       /* Compute the cooling time. */
+ 
+    float *cooling_time = new float[size];
+    this->ComputeCoolingTime(cooling_time);
       //fprintf(stdout, "CALLING MECH FEEDBACK\n");
-      MechStars_FeedbackRoutine(level, &mu_field[0]);
+      MechStars_FeedbackRoutine(level, &mu_field[0], temperature,cooling_time, dmfield);
+      delete [] cooling_time;
   }
   if (STARFEED_METHOD(MOM_STAR)) {
 

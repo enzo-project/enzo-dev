@@ -36,7 +36,7 @@ int search_lower_bound(float *arr, float value, int low, int high,
 unsigned_long_int mt_random(void);
 int StarParticlePopIII_IMFInitialize(void);
 
-int grid::MechStars_SeedSupernova(){
+int grid::MechStars_SeedSupernova(float* totalMetal, int* seedIndex){
     debug = true;
     /* Initialize the IMF lookup table if requested and not defined */
     if (debug) fprintf(stdout, "setting IMF\n");
@@ -67,9 +67,9 @@ int grid::MechStars_SeedSupernova(){
         size *= GridDimension[dim];
 
     /* set feedback to random cell in grid*/
-    int ip = rand() % (GridDimension[0]-2*NumberOfGhostZones)+NumberOfGhostZones ;
-    int jp = rand() % (GridDimension[1]-2*NumberOfGhostZones)+NumberOfGhostZones;
-    int kp = rand() % (GridDimension[2]-2*NumberOfGhostZones)+NumberOfGhostZones;
+    int ip = seedIndex[0];//rand() % (GridDimension[0]-2*NumberOfGhostZones)+NumberOfGhostZones ;
+    int jp = seedIndex[1];//rand() % (GridDimension[1]-2*NumberOfGhostZones)+NumberOfGhostZones;
+    int kp = seedIndex[2];//rand() % (GridDimension[2]-2*NumberOfGhostZones)+NumberOfGhostZones;
     float position[3] = {((float)ip+0.5)*CellWidth[0][0]+CellLeftEdge[0][0], 
                         ((float)jp+0.5)*CellWidth[0][0]+CellLeftEdge[1][0],
                         ((float)kp+0.5)*CellWidth[0][0]+CellLeftEdge[2][0]};
@@ -197,7 +197,7 @@ int grid::MechStars_SeedSupernova(){
     /*  Add this to the grid using MechStars_DepositFeedback */
     float vp=0, up=0, wp=0;
     if (debug) fprintf(stdout, "Calling DepositFeedback!\n");
-    this->MechStars_DepositFeedback(SNEnergy, EjectaMass, EjectaMetal,
+    this->MechStars_DepositFeedback(SNEnergy, EjectaMass, EjectaMetal, totalMetal,
                             &up, &vp, &wp, &position[0], &position[1], &position[2],
                             ip, jp, kp, size, mu_field, 0, 0, 0, 0, 1);
     

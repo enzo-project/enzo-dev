@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <mpi.h>
+#include <string.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -25,13 +26,15 @@
     int transformComovingWithStar(float* Density, float* Metals, 
         float* MetalsSNII, float* MetalsSNIA,
         float* Vel1, float* Vel2, float* Vel3, 
+        float* TE, float* GE,
         float up, float vp, float wp,
         int sizeX, int sizeY, int sizeZ, int direction);
     int FindField(int field, int farray[], int numfields);
 
 
 int grid::MechStars_DepositFeedback(float ejectaEnergy, 
-                        float ejectaMass, float ejectaMetal,
+                        float ejectaMass, float ejectaMetal, 
+                        float* totalMetals,
                         float* up, float* vp, float* wp,
                         float* xp, float* yp, float* zp,
                         int ip, int jp, int kp,
@@ -105,33 +108,38 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     /* Make copys of fields to work with. These will conatin the added deposition
         of all quantities and be coupled to the grid after the cic deposition. */
-    float totalMetals [size];
-    float density [size];
-    float metals [size];
-    float metalsII [size];
-    float metalsIA [size];
-    float metalsIII [size];
-    float u [size];
-    float v [size];
-    float w [size];
-    float totalEnergy  [size];
-    float gasEnergy [size];
-    for (int i=0; i<size; i++){
-        density[i] = 0.0;
-        metals[i] = 0.0;
-        metalsII [i] = 0.0;
-        metalsIA[i] = 0.0;
-        metalsIII[i] = 0.0;
-        u[i] = 0.0;
-        v[i] =0.0;
-        w[i] = 0.0;
-        totalEnergy[i] = 0.0;
-        gasEnergy[i] = 0.0;
-        totalMetals[i] = BaryonField[MetalNum][i];
-        // if (StarMakerTypeIaSNe) totalMetals[i] += BaryonField[MetalIaNum][i]*BaryonField[DensNum][i];
-        // if (StarMakerTypeIISNeMetalField) totalMetals[i] += BaryonField[MetalIINum][i]*BaryonField[DensNum][i];
-        if (PopIIISupernovaUseColour) totalMetals[i] += BaryonField[SNColourNum][i];
-    }
+    float* density = BaryonField[DensNum];
+    float* metals = BaryonField[MetalNum];
+    float* metalsII = BaryonField[MetalIINum];
+    float* metalsIA = BaryonField[MetalIaNum];
+    float* metalsIII =BaryonField[SNColourNum];
+    float* u = BaryonField[Vel1Num];
+    float* v = BaryonField[Vel2Num];
+    float* w = BaryonField[Vel3Num];
+    float* totalEnergy = BaryonField[TENum];
+    float* gasEnergy = BaryonField[GENum];
+    // memset(density, 0, size*sizeof(float));
+    // memset(metals, 0, size*sizeof(float));
+    // memset(metalsII, 0, size*sizeof(float));
+    // memset(metalsIA, 0, size*sizeof(float));
+    // memset(metalsIII, 0, size*sizeof(float));
+    // memset(u, 0, size*sizeof(float));
+    // memset(v, 0, size*sizeof(float));
+    // memset(w, 0, size*sizeof(float));
+    // memset(totalEnergy, 0, size*sizeof(float));
+    // memset(gasEnergy, 0, size*sizeof(float));
+    // for (int i=0; i<size; i++){
+    //     density[i] = 0.0;
+    //     metals[i] = 0.0;
+    //     metalsII [i] = 0.0;
+    //     metalsIA[i] = 0.0;
+    //     metalsIII[i] = 0.0;
+    //     u[i] = 0.0;
+    //     v[i] =0.0;
+    //     w[i] = 0.0;
+    //     totalEnergy[i] = 0.0;
+    //     gasEnergy[i] = 0.0;
+    // }
     /* Transform coordinates so that metals is fraction (rho metal/rho baryon)
         u, v, w -> respective momenta.  Use -1 to reverse transform after.*/
     /* these temp arrays are implicitly comoving with the star! */
@@ -202,11 +210,14 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     is simply \hat(r_ba) p/12 for r_ba the vector from source to coupled
     particle.  */
 
-    /* transform to comoving with the star and take velocities to momenta */
+    /* transform to comoving with the star and take velocities to momenta.
+        Take Energy densities to energy
+     */
 
     transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum], 
                         BaryonField[MetalIINum], BaryonField[MetalIaNum],
                         BaryonField[Vel1Num],BaryonField[Vel2Num],BaryonField[Vel3Num],
+                        BaryonField[TENum], BaryonField[GENum],
                         *up, *vp, *wp, GridDimension[0], GridDimension[1],
                         GridDimension[2], 1);
     /* Use averaged quantities across multiple cells so that deposition is stable.
@@ -384,6 +395,29 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
 
     if (printout) fprintf(stdout, "Coupled Metals: %e %e %e %e %e\n", ejectaMetal, SNIAmetals, SNIImetals, shellMetals, P3metals);
+
+        // printf("Entering Critical printout section\n");
+    /* transform the grid to comoving with star ; wouldnt recommend this on root grid if its too big...*/
+    float preMass = 0, preZ = 0, preP = 0, prePmag=0, preTE = 0, preGE = 0, preZII=0, preZIa = 0;
+    float dsum = 0.0, zsum=0.0, psum=0.0, psqsum =0.0, tesum=0.0, gesum=0.0, kesum=0.0;
+    float postMass = 0, postZ = 0, postP = 0, postPmag = 0, postTE = 0, postGE = 0, postZII=0, postZIa = 0;
+    if (criticalDebug && !winds){
+        for (int i=0; i<size; ++i){
+            preMass += BaryonField[DensNum][i];
+            preZ += BaryonField[MetalNum][i];
+            if (MetalIINum > 0)
+                preZII += BaryonField[MetalIINum][i];
+            if (MetalIaNum > 0)
+                preZIa += BaryonField[MetalIaNum][i];
+           if (SNColourNum > 0) preZ += BaryonField[SNColourNum][i];
+            preP += BaryonField[Vel1Num][i]+BaryonField[Vel2Num][i]+BaryonField[Vel3Num][i];
+            prePmag += pow(BaryonField[Vel1Num][i]*MomentaUnits,2)+
+                pow(BaryonField[Vel2Num][i]*MomentaUnits,2)
+                +pow(BaryonField[Vel3Num][i]*MomentaUnits,2);
+            preTE += BaryonField[TENum][i];
+            preGE += BaryonField[GENum][i];
+        }
+    }
     /* Reduce coupled quantities to per-particle quantity and convert to 
         code units.
         Hopkins has complicated weights due to complicated geometry. 
@@ -404,7 +438,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     float LeftEdge[3] = {CellLeftEdge[0][0], CellLeftEdge[1][0], CellLeftEdge[2][0]};
     // if (printout) fprintf(stdout, "Entering CIC Loop over cloud particles\n");
-    for (int n = 0; n < nCouple; n++){
+    for (int n = 0; n < nCouple; ++n){
         //fprintf(stdout, "Weight %d = %f", n, weightsVector[n]);
         FLOAT pX = coupledMomenta*CloudParticleVectorX[n]*weightsVector[n];
         FLOAT pY = coupledMomenta*CloudParticleVectorY[n]*weightsVector[n];
@@ -475,61 +509,33 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     FORTRAN_NAME(cic_deposit)(xp, yp, zp, &GridRank,&np,&shellMetals, &metals[0], LeftEdge, 
         &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
     
-    // printf("Entering Critical printout section\n");
-    /* transform the grid to comoving with star ; wouldnt recommend this on root grid if its too big...*/
-    float preMass = 0, preZ = 0, preP = 0, prePmag=0, preTE = 0, preGE = 0, preZII=0, preZIa = 0;
-    float dsum = 0.0, zsum=0.0, psum=0.0, psqsum =0.0, tesum=0.0, gesum=0.0, kesum=0.0;
-    float postMass = 0, postZ = 0, postP = 0, postPmag = 0, postTE = 0, postGE = 0, postZII=0, postZIa = 0;
-    if (criticalDebug && !winds){
-        for (int i=0; i<size; i++){
-            preMass += BaryonField[DensNum][i];
-            preZ += BaryonField[MetalNum][i];
-            if (MetalIINum > 0)
-                preZII += BaryonField[MetalIINum][i];
-            if (MetalIaNum > 0)
-                preZIa += BaryonField[MetalIaNum][i];
-           if (SNColourNum > 0) preZ += BaryonField[SNColourNum][i];
-            preP += BaryonField[Vel1Num][i]+BaryonField[Vel2Num][i]+BaryonField[Vel3Num][i];
-            prePmag += pow(BaryonField[Vel1Num][i]*MomentaUnits,2)+
-                pow(BaryonField[Vel2Num][i]*MomentaUnits,2)
-                +pow(BaryonField[Vel3Num][i]*MomentaUnits,2);
-            preTE += BaryonField[TENum][i];
-            preGE += BaryonField[GENum][i];
-        }
-    }
+
 
     /* Couple the faux deposition grids to to the real grids */
-    for (int i = 0; i < size; i++){ 
+    // for (int i = 0; i < size; i++){ 
                 
-        float delta = (BaryonField[DensNum][i])
-                            /(density[i]+BaryonField[DensNum][i]);
-        if (delta < 1){
-            float deltaZ = BaryonField[MetalNum][i]/(metals[i]+BaryonField[MetalNum][i]);
-            /* Couple placeholder fields to the grid, account 
-                for grids that got initialized to -0.0*/
-            BaryonField[DensNum][i] += density[i];
+    //         BaryonField[DensNum][i] += density[i];
 
-            //Metals transformed back to density in transform routine
+    //         //Metals transformed back to fractional forms in transform routine
             
-            BaryonField[MetalNum][i] += metals[i]; 
-            if (StarMakerTypeIaSNe)
-                BaryonField[MetalIaNum][i] += metalsIA[i];
-            if (StarMakerTypeIISNeMetalField)
-                BaryonField[MetalIINum][i] += metalsII[i];
-            if (PopIIISupernovaUseColour && SNColourNum != -1) 
-                BaryonField[SNColourNum][i] += metalsIII[i];
-            if (PopIIISupernovaUseColour && SNColourNum == -1)
-                BaryonField[MetalNum][i] += metalsIII[i]; 
-            BaryonField[TENum][i] +=
-                        totalEnergy[i]/BaryonField[DensNum][i];
+    //         BaryonField[MetalNum][i] += metals[i]; 
+    //         if (StarMakerTypeIaSNe)
+    //             BaryonField[MetalIaNum][i] += metalsIA[i];
+    //         if (StarMakerTypeIISNeMetalField)
+    //             BaryonField[MetalIINum][i] += metalsII[i];
+    //         if (PopIIISupernovaUseColour && SNColourNum != -1) 
+    //             BaryonField[SNColourNum][i] += metalsIII[i];
+    //         if (PopIIISupernovaUseColour && SNColourNum == -1)
+    //             BaryonField[MetalNum][i] += metalsIII[i]; 
+    //         BaryonField[TENum][i] +=
+    //                     totalEnergy[i]/BaryonField[DensNum][i];
             
-            BaryonField[GENum][i] +=
-                        gasEnergy[i]/BaryonField[DensNum][i];
-            BaryonField[Vel1Num][i] += u[i];
-            BaryonField[Vel2Num][i] += v[i];
-            BaryonField[Vel3Num][i] += w[i];
-        }
-    }
+    //         BaryonField[GENum][i] +=
+    //                     gasEnergy[i]/BaryonField[DensNum][i];
+    //         BaryonField[Vel1Num][i] += u[i];
+    //         BaryonField[Vel2Num][i] += v[i];
+    //         BaryonField[Vel3Num][i] += w[i];
+    // }
 
     if (criticalDebug && !winds){
         for (int i = 0; i< size ; i++){
@@ -568,7 +574,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum], 
                         BaryonField[MetalIINum], BaryonField[MetalIaNum],
                         BaryonField[Vel1Num],BaryonField[Vel2Num],
-                        BaryonField[Vel3Num],*up, *vp, *wp, 
+                        BaryonField[Vel3Num],
+                        BaryonField[TENum], BaryonField[GENum],
+                        *up, *vp, *wp, 
                         GridDimension[0], GridDimension[1],
                         GridDimension[2], -1);
 

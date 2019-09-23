@@ -2885,15 +2885,17 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 int MechStars_Creation(grid* ParticleArray, float* Temperature, 
         float *DMField, int level, float* CoolingTime, 
         int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar);
-int MechStars_FeedbackRoutine(int level, float* mu_field);
+int MechStars_FeedbackRoutine(int level, float* mu_field, float* temperature, 
+                        float* coolingtime, float* dmfield);
 int MechStars_DepositFeedback(float supernovaEnergy, 
                         float ejectaMass, float ejectaMetal,
+                        float* totalMetal,
                         float* up, float* vp, float* wp,
                         float* xp, float* yp, float* zp,
                         int ip, int jp, int kp,
                         int size, float* mu_field, int winds,
                         int nSNII, int nSNIA, float starMetals, int isP3);
-int MechStars_SeedSupernova();
+int MechStars_SeedSupernova(float* totalMetal, int* seedIndex);
 
 //------------------------------------------------------------------------
 // Radiative transfer methods that don't fit in the TRANSFER define

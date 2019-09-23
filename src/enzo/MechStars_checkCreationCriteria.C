@@ -30,10 +30,11 @@ int checkCreationCriteria(float* Density, float* Metals,
                         float* shieldedFraction, float* freeFallTime, 
                         float* dynamicalTime, int i, int j, int k, 
                         float Time, float* RefinementField, float CellWidth,
-                        bool* gridShouldFormStars, bool* notEnoughMetals)
+                        bool* gridShouldFormStars, bool* notEnoughMetals, 
+                        int continuingFormation, int* seedIndex)
 {  
     float maxZ = 0.0;
-    bool debug = false;
+    bool debug = true;
     bool status = PASS;
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
                 TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
@@ -64,8 +65,8 @@ int checkCreationCriteria(float* Density, float* Metals,
     {
         status =  FAIL;
     }
-    //if (debug && status) fprintf(stdout, "Passed Density: %e: %e\n", 
-    //  dmean,StarMakerOverDensityThreshold);
+    // if (debug && status) fprintf(stdout, "Passed Density: %e: %e\n", 
+    //           dmean,StarMakerOverDensityThreshold);
     /* in addition to the converging flow check, we check
         the virial parameter of the gas to see if it is 
         locally gravitationally bound*/
@@ -106,7 +107,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     alpha = ((vfactor) + pow(cSound/(CellWidth), 2.0))
             / (8.0 * M_PI* Gcode * Density[index]);
 
-  //  printf("CreationCriteria vf = %e cs = %e Gcode = %e Alpha = %e\n", vfactor, cSound, Gcode, alpha);
+
     
     if (alpha > 1.0) status = FAIL;
     /* Is cooling time < dynamical time or temperature < 1e4 */
@@ -151,16 +152,28 @@ int checkCreationCriteria(float* Density, float* Metals,
     if (*shieldedFraction < 0) status = FAIL;
 
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits;
-    //if (status && debug) fprintf(stdout, "passed creation criteria\n");
+
+    if (status && debug && (Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity || !MechStarsSeedField)){
+        printf("CreationCriteria f_s = %f vf = %e cs = %e Gcode = %e Alpha = %e Z-sun=%e localRho = %f\n", 
+            *shieldedFraction, vfactor, cSound, Gcode, alpha, Metals[index]/Density[index]/0.02, Density[index]);
+            return PASS;
+    }
+    if (status && debug) fprintf(stdout, "passed creation criteria\n");
     if (MechStarsSeedField && Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity)
         *notEnoughMetals = false;
-    if (status && Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity && MechStarsSeedField)
+    if (status && Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity && MechStarsSeedField
+        && !continuingFormation)
     {
+        if (debug) fprintf(stdout,"No metals, criteria passed, but not forming\n");
         status = FAIL;
         /* May want to qualify this with H2 fraction/H2 self-shield approximations, but
         This is really just to give a non-uniform seed-field in Pop3 metals*/
         *gridShouldFormStars = true;
         if (Metals[index]/Density[index]/0.02 > maxZ) maxZ = Metals[index]/Density[index]/0.02;
+        /* Store index of this grid to potentially be center of P3 seed later */
+        seedIndex[0] = i; 
+        seedIndex[1] = j;
+        seedIndex[2] = k;
     }
     return status;
 
