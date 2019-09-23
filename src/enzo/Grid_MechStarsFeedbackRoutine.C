@@ -241,7 +241,11 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
                             (ParticleMass[pIndex]-MassShouldForm)*MassUnits, MassShouldForm*MassUnits, ParticleMass[pIndex]*MassUnits,
                             ParticleAttribute[2][pIndex],(Time- ParticleAttribute[0][pIndex])*TimeUnits/3.1557e13);
                         /* Take formed mass out of grid cell */
-                        BaryonField[DensNum][index] -= MassShouldForm;             
+                        BaryonField[DensNum][index] -= MassShouldForm;
+                        /* Take metals out of host cell too! */
+                        BaryonField[MetalNum][index] -= BaryonField[MetalNum][index]/BaryonField[DensNum][index]*MassShouldForm;
+                        if (MechStarsSeedField)
+                            BaryonField[SNColourNum][index] -= BaryonField[SNColourNum][index]/BaryonField[DensNum][index]*MassShouldForm;             
                     }
                 }
             }
