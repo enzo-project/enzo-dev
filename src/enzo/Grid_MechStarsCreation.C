@@ -37,7 +37,7 @@
 
 /* Creation Routine */
 int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
-        float *DMField, int level, float* CoolingTime,
+        float *DMField, float* totalMetal, int level, float* CoolingTime,
         int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar)
 {
     if (level < StarMakeLevel) return 0;
@@ -79,11 +79,11 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     int size =1;
     for (int dim = 0; dim < GridRank; dim ++)
         size *= GridDimension[dim];
-    float* totalMetal = new float [size];
-    for (int i = 0; i< size; i++){
-        totalMetal[i] = BaryonField[MetalNum][i];
-        if (MechStarsSeedField) totalMetal[i] += BaryonField[SNColourNum][i];
-    }
+    // float* totalMetal = new float [size];
+    // for (int i = 0; i< size; i++){
+    //     totalMetal[i] = BaryonField[MetalNum][i];
+    //     if (MechStarsSeedField) totalMetal[i] += BaryonField[SNColourNum][i];
+    // }
     int rank = GridRank;
 
 
@@ -242,7 +242,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     //  fprintf(stdout, "Created %d star particles\n",nCreated);
     //    }
     delete [] seedIndex;
-    delete [] totalMetal;
+    // delete [] totalMetal;
     *NumberOfParticlesSoFar = nCreated;
     return nCreated;
 }

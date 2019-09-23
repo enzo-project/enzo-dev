@@ -2883,10 +2883,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 
 int MechStars_Creation(grid* ParticleArray, float* Temperature, 
-        float *DMField, int level, float* CoolingTime, 
+        float *DMField, float* totalMetal, int level, float* CoolingTime, 
         int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar);
 int MechStars_FeedbackRoutine(int level, float* mu_field, float* temperature, 
-                        float* coolingtime, float* dmfield);
+                        float* totalMetal, float* coolingtime, float* dmfield);
 int MechStars_DepositFeedback(float supernovaEnergy, 
                         float ejectaMass, float ejectaMetal,
                         float* totalMetal, float* temperature,

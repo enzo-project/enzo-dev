@@ -834,7 +834,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        NumberOfNewParticlesSoFar = NumberOfParticles;
          int nRetStars = 0;
          nRetStars = MechStars_Creation(tg, temperature,
-            dmfield, level, cooling_time, MaximumNumberOfNewParticles,
+            dmfield, TotalMetals, level, cooling_time, MaximumNumberOfNewParticles,
             &NumberOfNewParticles);
          //fprintf(stdout, "Created %d new stars!", NumberOfNewParticles);
          if (nRetStars != NumberOfNewParticles) fprintf(stdout, "star count return and pointer mismatch!\n");
@@ -1605,7 +1605,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     float *cooling_time = new float[size];
     this->ComputeCoolingTime(cooling_time);
       //fprintf(stdout, "CALLING MECH FEEDBACK\n");
-      MechStars_FeedbackRoutine(level, &mu_field[0], temperature,cooling_time, dmfield);
+      MechStars_FeedbackRoutine(level, &mu_field[0], temperature, TotalMetals,cooling_time, dmfield);
       delete [] cooling_time;
   }
   if (STARFEED_METHOD(MOM_STAR)) {
