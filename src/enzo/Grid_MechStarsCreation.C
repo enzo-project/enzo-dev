@@ -168,10 +168,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                     ParticleArray->ParticleType[nCreated] = PARTICLE_TYPE_STAR;
                     BaryonField[DensNum][index] -= newMass;
                     BaryonField[MetalNum][index] -= newMass*totalMetal[index]/BaryonField[DensNum][index];
-                    if (MetalIaNum > 0)
-                        BaryonField[MetalIaNum][index] -= newMass/BaryonField[DensNum][index]*BaryonField[MetalIaNum][index];
-                    if (MetalIINum > 0)
-                        BaryonField[MetalIINum][index] -= newMass/BaryonField[DensNum][index]*BaryonField[MetalIINum][index];
                     if (SNColourNum > 0)
                         BaryonField[SNColourNum][index] -= newMass/BaryonField[DensNum][index]*BaryonField[SNColourNum][index]/BaryonField[DensNum][index];
 
