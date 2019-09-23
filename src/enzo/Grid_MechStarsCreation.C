@@ -204,9 +204,9 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                                             +(dx*(float(k)+0.5));
                     if (nCreated >= MaximumNumberOfNewParticles) return nCreated;
                     if (true)
-		                fprintf(stdout,"Created star: %e %e ::: %d %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f ::: %d %d ::: %d %d %d\n",
-                            BaryonField[DensNum][index],BaryonField[DensNum][index]*MassUnits,
-                            level, nCreated+1,
+		                fprintf(stdout,"Created star: [%f] %e %e ::: %d %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f ::: %d %d ::: %d %d %d\n",
+                            Time*TimeUnits/3.1557e13,BaryonField[DensNum][index],
+                            BaryonField[DensNum][index]*MassUnits, level, nCreated+1,
                             ParticleArray->ParticleType[nCreated],
                             ParticleArray->ParticleMass[nCreated]*MassUnits,
                             ParticleArray->ParticleAttribute[0][nCreated],

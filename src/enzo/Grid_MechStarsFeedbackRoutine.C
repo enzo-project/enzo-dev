@@ -237,8 +237,9 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
                             ParticleAttribute[0][pIndex] = (ParticleAttribute[0][pIndex]*(1.-delta)+Time*delta);
                         /* Add new formation mass to particle */
                         ParticleMass[pIndex] += MassShouldForm;   
-                        printf("added new mass %e + %e = %e newZ = %f newAge = %f\n", 
-                            (ParticleMass[pIndex]-MassShouldForm)*MassUnits, MassShouldForm*MassUnits, ParticleMass[pIndex]*MassUnits,
+                        printf("[%f] added new mass %e + %e = %e newZ = %f newAge = %f\n", 
+                            Time*TimeUnits/3.1557e13, (ParticleMass[pIndex]-MassShouldForm)*MassUnits, 
+                            MassShouldForm*MassUnits, ParticleMass[pIndex]*MassUnits,
                             ParticleAttribute[2][pIndex],(Time- ParticleAttribute[0][pIndex])*TimeUnits/3.1557e13);
                         /* Take formed mass out of grid cell */
                         BaryonField[DensNum][index] -= MassShouldForm;
@@ -303,7 +304,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
                                 ParticleMass[pIndex]*MassUnits, zZsun,
                                 TimeUnits, dtFixed);
                 if (windMass > 10) fprintf(stdout,"Really High Wind Mass!!\n");
-                if (windEnergy > 1e5 && SingleWinds){
+                if (windEnergy > 1e5){
                     printf("Winds: M = %e E=%e\n", windMass, windEnergy);
                     MechStars_DepositFeedback(windEnergy, windMass, windMetals, totalMetal,
                                         &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
