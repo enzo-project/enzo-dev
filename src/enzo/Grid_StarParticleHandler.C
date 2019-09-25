@@ -1077,6 +1077,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       
     }
 
+#ifdef INDIVIDUALSTAR
     if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
 
       // Makes individual stars stochastically via IMF sampling and
@@ -1099,6 +1100,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       } // check refinement level
 
     } // END INDIVIDUAL_STAR
+#endif
 
     if (STARMAKE_METHOD(SINGLE_SUPERNOVA)) {
 
@@ -2043,6 +2045,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   }
 
+#ifdef INDIVIDUALSTAR
   if ( STARFEED_METHOD(INDIVIDUAL_STAR) ) {
     //
     // Actual feedback for these particles is handled via Star particle
@@ -2055,7 +2058,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       ENZO_FAIL("Failure setting indiidual star white dwarf lifetimes");
     }
   }
-
+#endif
 /*
   if (STARFEED_METHOD(INDIVIDUAL_STAR)) {
 

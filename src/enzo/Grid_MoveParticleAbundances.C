@@ -9,7 +9,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-
+#ifdef INDIVIDUALSTAR
 int grid::MoveParticleAbundances(int NumberOfGrids, grid* FromGrid[]){
 
   if (NumberOfGrids < 1) {
@@ -55,3 +55,4 @@ int grid::MoveParticleAbundances(int NumberOfGrids, grid* FromGrid[]){
   return SUCCESS;
 
 }
+#endif

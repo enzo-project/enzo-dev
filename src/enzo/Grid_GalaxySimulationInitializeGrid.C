@@ -536,6 +536,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	   if (dim == 0 || dim == 3)
 	     Velocity[2] = DiskVelocityMag*(AngularMomentum[0]*xhat[1] -
 					    AngularMomentum[1]*xhat[0]);
+
+           BaryonField[vel+dim][n] = Velocity[dim] + UniformVelocity[dim];
+
 	 } // end: loop over dims
 
 	 /* If the density is larger than the background (or the previous
@@ -682,19 +685,19 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
        /* Set Velocities. */
 
-       for (dim = 0; dim < GridRank; dim++){
-	    if( fabs(drcyl*LengthUnits/Mpc_cm) > TruncRadius ){
-	      dens1 = 0.0;
-	      break;
-	    }
-
-	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc_cm*POW(ScaleHeightR*Mpc_cm,2.0)))/DensityUnits;   //Code units (rho_0) 
-
-	    if (PointSourceGravity > 0 )
-	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
-	    else if( DiskGravity > 0 ){
-	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv,
-				    DiskDensity*DensityUnits,ScaleHeightR*Mpc_cm, ScaleHeightz*Mpc_cm, CellWidth[0][0]*LengthUnits);
+//       for (dim = 0; dim < GridRank; dim++){
+//	    if( fabs(drcyl*LengthUnits/Mpc_cm) > TruncRadius ){
+//	      dens1 = 0.0;
+//	      break;
+//	    }
+//
+//	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc_cm*POW(ScaleHeightR*Mpc_cm,2.0)))/DensityUnits;   //Code units (rho_0) 
+///
+//	    if (PointSourceGravity > 0 )
+//	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
+//	    else if( DiskGravity > 0 ){
+//	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv,
+//				    DiskDensity*DensityUnits,ScaleHeightR*Mpc_cm, ScaleHeightz*Mpc_cm, CellWidth[0][0]*LengthUnits);
 
 //         if(GalaxySimulationUseDensityPerturbation){
 
@@ -711,16 +714,16 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
            //                     ((0.25 * sqrt(5.0/pi)) *
              //                    (-POW(x-DiskPosition[0],2) - POW(y-DiskPosition[1],2) + 2.0*POW(z-DiskPosition[2],2))
                //                   /(POW(r,2))));
-	    if (dim == 0) {
-	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv, 
-				    DiskDensity*DensityUnits,ScaleHeightR*Mpc_cm, ScaleHeightz*Mpc_cm, CellWidth[0][0]*LengthUnits);
-	      dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
-	    }
+//	    if (dim == 0) {
+//	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv, 
+//				    DiskDensity*DensityUnits,ScaleHeightR*Mpc_cm, ScaleHeightz*Mpc_cm, CellWidth[0][0]*LengthUnits);
+//	      dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
+//	    }
 
 	    /* If we're above the disk, then exit. */
 
-	    if (dens1 < density)
-	      break;
+//	    if (dens1 < density)
+///	      break;
 
 	    /* Compute velocity magnitude (divided by drad). 
 	       This assumes PointSourceGravityPosition and Disk center 
@@ -728,42 +731,42 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 	    /* Compute velocty: L x r_perp. */
 
-	    if (dim == 0 || dim == 1)
-	      Velocity[0] = DiskVelocityMag*(AngularMomentum[1]*xhat[2] -
-					     AngularMomentum[2]*xhat[1]);
-	    if (dim == 0 || dim == 2)
-	      Velocity[1] = DiskVelocityMag*(AngularMomentum[2]*xhat[0] -
-					     AngularMomentum[0]*xhat[2]);
-	    if (dim == 0 || dim == 3)
-	      Velocity[2] = DiskVelocityMag*(AngularMomentum[0]*xhat[1] -
-					     AngularMomentum[1]*xhat[0]);
+//	    if (dim == 0 || dim == 1)
+//	      Velocity[0] = DiskVelocityMag*(AngularMomentum[1]*xhat[2] -
+//					     AngularMomentum[2]*xhat[1]);
+//	    if (dim == 0 || dim == 2)
+//	      Velocity[1] = DiskVelocityMag*(AngularMomentum[2]*xhat[0] -
+//					     AngularMomentum[0]*xhat[2]);
+//	    if (dim == 0 || dim == 3)
+//	      Velocity[2] = DiskVelocityMag*(AngularMomentum[0]*xhat[1] -
+//					     AngularMomentum[1]*xhat[0]);
 	    
-	  } // end: loop over dims
+//	  } // end: loop over dims
 
 	   	    
 	    /* If the density is larger than the background (or the previous
 	       disk), then set the velocity. */
 
-	  if (dens1 > density && fabs(drcyl*LengthUnits/Mpc_cm) <= TruncRadius ) {
-	    density = dens1;
-	    if (temp1 == init_temp)
-	      temp1 = DiskTemperature;
-	    temperature = temp1;
-	    if( temperature > 1.0e7 )
-	      temperature = init_temp;
-	    if( UseMetallicityField ) // This should be converted to a general color field at some point - this obviously breaks metallicity feature
-	      BaryonField[MetalNum][n] = density;
-	  }
+//	  if (dens1 > density && fabs(drcyl*LengthUnits/Mpc_cm) <= TruncRadius ) {
+//	    density = dens1;
+//	    if (temp1 == init_temp)
+//	      temp1 = DiskTemperature;
+//	    temperature = temp1;
+//	    if( temperature > 1.0e7 )
+//	      temperature = init_temp;
+//	    if( UseMetallicityField ) // This should be converted to a general color field at some point - this obviously breaks metallicity feature
+//	      BaryonField[MetalNum][n] = density;
+//	  }
 
-	} // end: if (r < DiskRadius)
+//	} // end: if (r < DiskRadius)
 	
 	/* Set density. */
 
 //           Velocity[dim] *= (fabs((POW(z-DiskPosition[2],4)*35.0 - 30.0*POW(z-DiskPosition[2],2)*POW(r,2) + 3.0*POW(r,4))/(POW(r,4))) + 24.0/7.0) / (24.0 / 7.0 + 8.0) + perturbation_size;
          //}
 
-         BaryonField[vel+dim][n] = Velocity[dim] + UniformVelocity[dim];
-       }
+//         BaryonField[vel+dim][n] = Velocity[dim] + UniformVelocity[dim];
+//       }
 
        /* Set energy (thermal and then total if necessary). */
 

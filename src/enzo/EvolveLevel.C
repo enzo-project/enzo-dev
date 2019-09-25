@@ -121,9 +121,9 @@ int ComputeDednerWaveSpeeds(TopGridData *MetaData,LevelHierarchyEntry *LevelArra
 
 int  RebuildHierarchy(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level
-#ifdef INDIVIDUALSTAR
+//#ifdef INDIVIDUALSTAR
                       , Star *AllStars = NULL
-#endif
+//#endif
                       );
 
 int  ReportMemoryUsage(char *header = NULL);

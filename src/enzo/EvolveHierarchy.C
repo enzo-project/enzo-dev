@@ -58,15 +58,14 @@
 #endif
  
 // function prototypes
-/*
-int RebuildHierarchy(TopGridData *MetaData,
-                     LevelHierarchyEntry *LevelArray[], int level);
-*/
-#ifdef INDIVIDUALSTAR
+//#ifdef INDIVIDUALSTAR
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level,
                      Star *AllStars = NULL);
-#endif
+//#else
+//int RebuildHierarchy(TopGridData *MetaData,
+//                    LevelHierarchyEntry *LevelArray[], int level);
+//#endif
 
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],

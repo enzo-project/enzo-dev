@@ -134,11 +134,11 @@ int InitializeDoublePowerDarkMatter(void){
 
   float rmin, rmax, dr;
 
-  rmin = log(1.0E-6 * DiskGravityDarkMatterR * Mpc); // in log
+  rmin = log(1.0E-6 * DiskGravityDarkMatterR * Mpc_cm); // in log
 
-  float router = DiskGravityDarkMatterR * Mpc;
+  float router = DiskGravityDarkMatterR * Mpc_cm;
 
-  float temp = DoublePower_rho(DiskGravityDarkMatterR*Mpc);
+  float temp = DoublePower_rho(DiskGravityDarkMatterR*Mpc_cm);
   while ((temp / DoublePower_rho(router)) < f_router){
     router = router * sqrt(10);
   }
@@ -263,8 +263,8 @@ double DoublePower_tau(double r){
   exp3 = (DiskGravityDarkMatterBeta - DiskGravityDarkMatterGamma)/
               DiskGravityDarkMatterAlpha;
 
-  fac1 = POW(r / (DiskGravityDarkMatterR*Mpc), exp1);
-  fac2 = 1.0 + POW(r/(DiskGravityDarkMatterR*Mpc), exp2);
+  fac1 = POW(r / (DiskGravityDarkMatterR*Mpc_cm), exp1);
+  fac2 = 1.0 + POW(r/(DiskGravityDarkMatterR*Mpc_cm), exp2);
   fac3 = POW(fac2,exp3);
 
   return fac1 * fac3;
@@ -282,14 +282,14 @@ double DoublePower_rho(double r){
   } else {
     // Need exponential cutoff
 
-    if (r <= DiskGravityDarkMatterCutoffR*Mpc){
+    if (r <= DiskGravityDarkMatterCutoffR*Mpc_cm){
       return DiskGravityDarkMatterDensity / DoublePower_tau(r);
 
     } else{
-      fac1 = POW( (r / (DiskGravityDarkMatterCutoffR*Mpc)), DiskGravityDarkMatterDelta);
-      fac2 = exp(-(r - (DiskGravityDarkMatterCutoffR*Mpc))/(DiskGravityDarkMatterRDecay*Mpc));
+      fac1 = POW( (r / (DiskGravityDarkMatterCutoffR*Mpc_cm)), DiskGravityDarkMatterDelta);
+      fac2 = exp(-(r - (DiskGravityDarkMatterCutoffR*Mpc_cm))/(DiskGravityDarkMatterRDecay*Mpc_cm));
 
-      return (DiskGravityDarkMatterDensity / DoublePower_tau(DiskGravityDarkMatterCutoffR*Mpc) * fac1 * fac2);
+      return (DiskGravityDarkMatterDensity / DoublePower_tau(DiskGravityDarkMatterCutoffR*Mpc_cm) * fac1 * fac2);
 
     }
   }

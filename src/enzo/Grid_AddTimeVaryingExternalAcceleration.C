@@ -74,18 +74,18 @@ int grid::AddTimeVaryingExternalAcceleration(void){
 
   if (!(DiskGravityDarkMatterUpdateCOM)){
     ExternalGravityPosition[0] = ((1.0 - coeff)*ExternalGravityTimePositions[0][index] +
-                                 (      coeff)*ExternalGravityTimePositions[0][index+1])*kpc/LengthUnits + DiskGravityPosition[0];
+                                 (      coeff)*ExternalGravityTimePositions[0][index+1])*kpc_cm/LengthUnits + DiskGravityPosition[0];
     ExternalGravityPosition[1] = ((1.0 - coeff)*ExternalGravityTimePositions[1][index] +
-                                 (      coeff)*ExternalGravityTimePositions[1][index+1])*kpc/LengthUnits + DiskGravityPosition[1];
+                                 (      coeff)*ExternalGravityTimePositions[1][index+1])*kpc_cm/LengthUnits + DiskGravityPosition[1];
     ExternalGravityPosition[2] = ((1.0 - coeff)*ExternalGravityTimePositions[2][index] +
-                                 (      coeff)*ExternalGravityTimePositions[2][index+1])*kpc/LengthUnits + DiskGravityPosition[2];
+                                 (      coeff)*ExternalGravityTimePositions[2][index+1])*kpc_cm/LengthUnits + DiskGravityPosition[2];
   } else {
     ExternalGravityPosition[0] = ((1.0 - coeff)*ExternalGravityTimePositions[0][index] +
-                                 (      coeff)*ExternalGravityTimePositions[0][index+1])*kpc/LengthUnits + DiskGravityDarkMatterCOM[0];
+                                 (      coeff)*ExternalGravityTimePositions[0][index+1])*kpc_cm/LengthUnits + DiskGravityDarkMatterCOM[0];
     ExternalGravityPosition[1] = ((1.0 - coeff)*ExternalGravityTimePositions[1][index] +
-                                 (      coeff)*ExternalGravityTimePositions[1][index+1])*kpc/LengthUnits + DiskGravityDarkMatterCOM[1];
+                                 (      coeff)*ExternalGravityTimePositions[1][index+1])*kpc_cm/LengthUnits + DiskGravityDarkMatterCOM[1];
     ExternalGravityPosition[2] = ((1.0 - coeff)*ExternalGravityTimePositions[2][index] +
-                                 (      coeff)*ExternalGravityTimePositions[2][index+1])*kpc/LengthUnits + DiskGravityDarkMatterCOM[2];
+                                 (      coeff)*ExternalGravityTimePositions[2][index+1])*kpc_cm/LengthUnits + DiskGravityDarkMatterCOM[2];
   }
 
 
@@ -124,19 +124,19 @@ int grid::AddTimeVaryingExternalAcceleration(void){
 
           if (ExternalGravity == 2){ // NFW
 
-            accel = 4.0 * pi * (GravConst) * ExternalGravityDensity * POW(ExternalGravityRadius*Mpc,3)
-                        * (  log(1.0 + r/(ExternalGravityRadius*Mpc))/r
-                           - 1.0/(ExternalGravityRadius*Mpc + r)
+            accel = 4.0 * pi * (GravConst) * ExternalGravityDensity * POW(ExternalGravityRadius*Mpc_cm,3)
+                        * (  log(1.0 + r/(ExternalGravityRadius*Mpc_cm))/r
+                           - 1.0/(ExternalGravityRadius*Mpc_cm + r)
                           ) / (rsquared);
 
             accel = ( r == 0.0 ? 0.0 : fabs(accel) / AccelUnits);
 
           } else if (ExternalGravity == 3){ // spherical burkert profile
 
-            accel = pi*(GravConst)*ExternalGravityDensity*POW(ExternalGravityRadius*Mpc,3)/(rsquared)
-                      *(- 2.0 * atan(r/(ExternalGravityRadius*Mpc))
-                        + 2.0 *  log(1.0 + r/(ExternalGravityRadius*Mpc))
-                        +        log(1.0 + rsquared / POW(ExternalGravityRadius*Mpc,2))
+            accel = pi*(GravConst)*ExternalGravityDensity*POW(ExternalGravityRadius*Mpc_cm,3)/(rsquared)
+                      *(- 2.0 * atan(r/(ExternalGravityRadius*Mpc_cm))
+                        + 2.0 *  log(1.0 + r/(ExternalGravityRadius*Mpc_cm))
+                        +        log(1.0 + rsquared / POW(ExternalGravityRadius*Mpc_cm,2))
                        );
 
             accel = ( r ==0.0?0.0:fabs(accel) / (r/LengthUnits) / AccelUnits);
@@ -185,19 +185,19 @@ int grid::AddTimeVaryingExternalAcceleration(void){
 
       if (ExternalGravity == 2){
 
-        accel = 4.0 * pi * (GravConst) * ExternalGravityDensity * POW(ExternalGravityRadius*Mpc,3)
-                             * (  log(1.0 + r/(ExternalGravityRadius*Mpc))/r
-                                 - 1.0/(ExternalGravityRadius*Mpc + r) 
+        accel = 4.0 * pi * (GravConst) * ExternalGravityDensity * POW(ExternalGravityRadius*Mpc_cm,3)
+                             * (  log(1.0 + r/(ExternalGravityRadius*Mpc_cm))/r
+                                 - 1.0/(ExternalGravityRadius*Mpc_cm + r) 
                                ) / (rsquared);
 
         accel = ( r == 0.0 ? 0.0 : fabs(accel) / AccelUnits);
 
 
       } else if (ExternalGravity == 3){
-        accel = pi*(GravConst)*ExternalGravityDensity*POW(ExternalGravityRadius*Mpc,3)/(rsquared)
-                  *(- 2.0 * atan(r/(ExternalGravityRadius*Mpc))
-                    + 2.0 *  log(1.0 + r/(ExternalGravityRadius*Mpc))
-                    +        log(1.0 + rsquared / POW(ExternalGravityRadius*Mpc,2))
+        accel = pi*(GravConst)*ExternalGravityDensity*POW(ExternalGravityRadius*Mpc_cm,3)/(rsquared)
+                  *(- 2.0 * atan(r/(ExternalGravityRadius*Mpc_cm))
+                    + 2.0 *  log(1.0 + r/(ExternalGravityRadius*Mpc_cm))
+                    +        log(1.0 + rsquared / POW(ExternalGravityRadius*Mpc_cm,2))
                    );
 
 

@@ -63,7 +63,7 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
 
     int off_grid = 0;
     for(int dim = 0; dim < MAX_DIMENSION; dim ++){
-      DMParticlePosition[dim][i] = DMParticlePosition[dim][i]*pc/LengthUnits + DiskGravityPosition[dim];
+      DMParticlePosition[dim][i] = DMParticlePosition[dim][i]*pc_cm/LengthUnits + DiskGravityPosition[dim];
 
       off_grid += !( (DMParticlePosition[dim][i] > this->CellLeftEdge[dim][NumberOfGhostZones]   )*
                      (DMParticlePosition[dim][i] < this->CellLeftEdge[dim][this->GridDimension[dim] - NumberOfGhostZones]) );

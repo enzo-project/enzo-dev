@@ -1345,8 +1345,6 @@ gradient force to gravitational force for one-zone collapse test. */
   int ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer,
                                     TopGridData *MetaData);
 
-  int PrepareBoundaryMassFluxFieldNumbers();
-  int ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer);
 #ifdef INDIVIDUALSTAR
   int ApplyTemperatureLimit(void);
 #endif

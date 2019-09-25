@@ -324,7 +324,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }
 
   /* For storing mass of density fields living domain */
->>>>>>> d8fd5a56a50dd26d7b99812f020948a2ab069378
   StoreDomainBoundaryMassFlux = 0;
   BoundaryMassFluxFilename    = "boundary_mass_flux.dat";
   for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){

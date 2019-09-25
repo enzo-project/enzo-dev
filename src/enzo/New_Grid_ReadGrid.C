@@ -234,8 +234,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
             ENZO_FAIL("error reading NumberOfParticles.");
     }
 
-    if (NumberOfParticles > 0) {
-
     /* Read in the number of active particles from the next line.  If fscanf returns 1, we have a dataset
        from after the active particles were added and thus we have a couple of extra lines of text that 
        need to be read (but which are not currently used).  If fscanf does not return 1 this particular line 

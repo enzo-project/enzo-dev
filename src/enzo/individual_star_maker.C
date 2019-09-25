@@ -261,9 +261,9 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
   FLOAT cell_volume = this->CellWidth[0][0]*this->CellWidth[0][0]*this->CellWidth[0][0];
   for( i = 0; i < nstar; i++){
 
-    xpos[i] = xpos[i]*pc/LengthUnits + DiskGravityPosition[0];
-    ypos[i] = ypos[i]*pc/LengthUnits + DiskGravityPosition[1];
-    zpos[i] = zpos[i]*pc/LengthUnits + DiskGravityPosition[2];
+    xpos[i] = xpos[i]*pc_cm/LengthUnits + DiskGravityPosition[0];
+    ypos[i] = ypos[i]*pc_cm/LengthUnits + DiskGravityPosition[1];
+    zpos[i] = zpos[i]*pc_cm/LengthUnits + DiskGravityPosition[2];
 
     // make sure particle position is on this grid / processor
     if( !( (xpos[i] > this->CellLeftEdge[0][ibuff]) && (xpos[i] < this->CellLeftEdge[0][nx - ibuff] )) ||
