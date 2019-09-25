@@ -39,6 +39,7 @@
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -66,7 +67,7 @@ int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
   *DensityUnits     = 1.8788e-29*OmegaMatterNow*POW(HubbleConstantNow,2)*
                       POW(1 + CurrentRedshift,3);
  
-  *LengthUnits      = 3.085678e24*ComovingBoxSize/HubbleConstantNow/
+  *LengthUnits      = Mpc_cm*ComovingBoxSize/HubbleConstantNow/
                       (1 + CurrentRedshift);
  
   *TemperatureUnits = 1.81723e6*POW(ComovingBoxSize,2)*OmegaMatterNow*

@@ -26,6 +26,7 @@
 #include "TopGridData.h"
 #include "ProblemType.h"
 #include "EventHooks.h"
+#include "phys_constants.h"
 
 class ProblemType_CollapsingCoolingCloud;
 
@@ -51,10 +52,10 @@ float n_of_r(float r);
 float dn_dr(float r);
 float g_of_r(float r);
 
-#define PC_CGS 3.0857e+18
 #define RADIUS_BINS 2048
 
-double mu = 1.22, mp=1.67e-24, kb=1.38e-16, gravconst=6.67e-8;
+double mu = 1.22;
+
 float n_core, r_core, n0, r0, r_outer, T_center, this_radius;
 float numdens_of_r[RADIUS_BINS],radius_bins[RADIUS_BINS],T_of_r[RADIUS_BINS];
 
@@ -154,7 +155,6 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       this->CollapsingCoolingCloudCentralTemperature = 1000.0;
       this->CollapsingCoolingCloudExternalTemperature = 100.0;
       this->CollapsingCoolingCloudTotalEnergy = 1.0;
-      float Pi                      = 3.14159;
 
       this->CollapsingCoolingCloudUseDensityFluctuations=0;
       this->CollapsingCoolingCloudRandomSeed=123456789;
@@ -260,7 +260,8 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       float EnergyUnits;
       float TempToEnergyConversion;
       EnergyUnits = POW(LengthUnits, 2.0) / POW(TimeUnits, 2.0);
-      TempToEnergyConversion =  kb/((Gamma - 1.0)*mu*mp); 
+      TempToEnergyConversion =  kboltz/((Gamma - 1.0)*mu*mh);
+
       TempToEnergyConversion /= EnergyUnits;  // this times temperature gives you energy units in ENZO UNITS (K -> Enzo)
 
       // returns three arrays:  n(r), T(r), r, in cm^-3, Kelvin, pc respectively.
@@ -268,7 +269,7 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
 
       // convert from number density, Kelvin, parsecs to Enzo internal units.
       for(int i=0; i<RADIUS_BINS;i++){
-	numdens_of_r[i] *= mu*mp/DensityUnits;  // now in Enzo internal density units 
+	numdens_of_r[i] *= mu*mh/DensityUnits;  // now in Enzo internal density units 
 	T_of_r[i] *= TempToEnergyConversion;  // now in internal energy units
 	radius_bins[i] /= LengthUnits;
       }
@@ -281,7 +282,7 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       printf("internal/external density/energy are:  %e/%e   %e/%e\n",numdens_of_r[0], numdens_of_r[RADIUS_BINS-1],
 	     T_of_r[0],T_of_r[RADIUS_BINS-1]);
 
-      CollapsingCoolingCloudRadius *= PC_CGS/LengthUnits;  // now in internal length units
+      CollapsingCoolingCloudRadius *= pc_cm/LengthUnits;  // now in internal length units
 
       this->InitializeUniformGrid(TopGrid.GridData,
 				  ExternalDensity,
@@ -770,13 +771,13 @@ void calculate_radial_profiles(float central_density, float central_temperature,
   double dr, k1, k2, k3, k4, this_temperature;
 
   n0 = 1.0e+3; // particles/cc
-  r0 = 1.0 * PC_CGS;  // in parsecs
+  r0 = 1.0 * pc_cm;  // in parsecs
 
   r_core = r0 * pow( n_core/n0, -1.0/2.2);
 
   printf("n0,n_c, r0, r_c = %e %e    %e %e\n",n0,n_core,r0,r_core);
 
-  dr = (r_outer - 0.0) * PC_CGS / RADIUS_BINS;  // dr in cm 
+  dr = (r_outer - 0.0) * pc_cm / RADIUS_BINS;  // dr in cm 
 
   this_temperature = T_center;
 
@@ -786,7 +787,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
     numdens_of_r[i]=radius_bins[i]=T_of_r[i]= -1.0;
   }
 
-  printf("%e    %e    %e\n", this_radius/PC_CGS, this_temperature, n_of_r(this_radius) );
+  printf("%e    %e    %e\n", this_radius/pc_cm, this_temperature, n_of_r(this_radius) );
 
   int counter=0;
 
@@ -795,7 +796,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
   radius_bins[counter]=this_radius;  // in CGS
   counter++;
 
-  while(this_radius <= r_outer*PC_CGS && counter < RADIUS_BINS){
+  while(this_radius <= r_outer*pc_cm && counter < RADIUS_BINS){
 
     k1 = dTdr(this_radius,          this_temperature);
     k2 = dTdr(this_radius + 0.5*dr, this_temperature + 0.5*dr*k1);
@@ -809,7 +810,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
     numdens_of_r[counter]=n_of_r(this_radius);  // particles/CC
     radius_bins[counter]=this_radius;  // in CGS
 
-    printf("%e    %e    %e   %e  %e  %d\n", this_radius/PC_CGS, this_temperature, n_of_r(this_radius), dr, r_outer*PC_CGS, counter );
+    printf("%e    %e    %e   %e  %e  %d\n", this_radius/pc_cm, this_temperature, n_of_r(this_radius), dr, r_outer*pc_cm, counter );
 
     counter++;
 
@@ -818,7 +819,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
 }
 
 float dTdr(float r, float T){
-  return (-1.0*dn_dr(r) * (T / n_of_r(r)) - g_of_r(r) * mu*mp/kb);
+  return (-1.0*dn_dr(r) * (T / n_of_r(r)) - g_of_r(r) * mu*mh/kboltz);
 }
 
 float n_of_r(float r){
@@ -836,15 +837,15 @@ float dn_dr(float r){
 }
 
 float g_of_r(float r){
-  return -gravconst*Mass_of_r(r)/(r*r);
+  return -GravConst*Mass_of_r(r)/(r*r);
 }
 
 float Mass_of_r(float r){
   if(r <= r_core)
-    return ( (4.0/3.0) * 3.14159 * pow(r, 3.0) * mu * mp * n_core);
-   else 
-    return ( (4.0/3.0) * 3.14159 * pow(r_core, 3.0) * mu * mp * n_core
-	     + 5.0 * 3.14159 * mu * mp * n0 * pow(r0, 2.2) * (pow(r,0.8) - pow(r_core, 0.8) ) );
+    return ( (4.0/3.0) * pi * pow(r, 3.0) * mu * mh * n_core);
+   else
+    return ( (4.0/3.0) * pi * pow(r_core, 3.0) * mu * mh * n_core
+	     + 5.0 * pi * mu * mh * n0 * pow(r0, 2.2) * (pow(r,0.8) - pow(r_core, 0.8) ) );
 }
 
 

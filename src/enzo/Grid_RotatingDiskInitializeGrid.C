@@ -252,17 +252,17 @@ float gas_velocity(FLOAT radius, FLOAT cdensity, FLOAT totaldmmass, FLOAT rscale
   double H = sqrt(HubbleConstant*100*HubbleConstant*100*(OmegaLambda+OmegaMatter*POW(ExpansionFactor,-3)-(OMEGA-1.)*POW(ExpansionFactor,-2)));     
 
   // Virial radius: equation from Navarro, Frank and White, 1997 gives r_200 in kpc. Convert to cm.
-  double r_200 = (1.63e-2*POW(totaldmmass*MassUnits/SolarMass,1./3.)*POW((OmegaLambda+OmegaMatter*POW(ExpansionFactor, -3)-(OMEGA-1.0)*POW(ExpansionFactor,-2)),-1.0/3.0)*ExpansionFactor*POW(H,-2.0/3.0)*POW(100,2.0/3.0))*kpc;
+  double r_200 = (1.63e-2*POW(totaldmmass*MassUnits/SolarMass,1./3.)*POW((OmegaLambda+OmegaMatter*POW(ExpansionFactor, -3)-(OMEGA-1.0)*POW(ExpansionFactor,-2)),-1.0/3.0)*ExpansionFactor*POW(H,-2.0/3.0)*POW(100,2.0/3.0))*kpc_cm;
 
   double massgas, massdm, masstotal, accel, vcirc;
   double fC = log(1.0+DMC)-DMC/(1.0+DMC);
   double rs = r_200/DMC;  //[m]
 
   if (radius < router) 
-    massgas = 4.0*M_PI*double(hscale)*POW(double(rscale),2.0)*double(cdensity)*PEXP(-double(radius/rscale))*(PEXP(double(radius/rscale))-double(radius/rscale)-1.0)*MassUnits; 
+    massgas = 4.0*pi*double(hscale)*POW(double(rscale),2.0)*double(cdensity)*PEXP(-double(radius/rscale))*(PEXP(double(radius/rscale))-double(radius/rscale)-1.0)*MassUnits; 
   
   else // if we're past outer radius
-    massgas = 4.0*M_PI*double(hscale)*POW(double(rscale),2.0)*double(cdensity)*PEXP(-double(router/rscale))*(PEXP(double(router/rscale))-double(router/rscale)-1.0)*MassUnits;
+    massgas = 4.0*pi*double(hscale)*POW(double(rscale),2.0)*double(cdensity)*PEXP(-double(router/rscale))*(PEXP(double(router/rscale))-double(router/rscale)-1.0)*MassUnits;
 
   massdm=(M_200/fC)*(log(1.0+r_cgs/rs)-(r_cgs/rs)/(1.0+r_cgs/rs));
   

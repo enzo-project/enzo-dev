@@ -12,7 +12,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
-
+#include "phys_constants.h"
 #include "FOF_allvars.h"
 #include "FOF_ngbtree.h"
 
@@ -54,7 +54,7 @@ float ngb_treefind(FOF_particle_data *P, double xyz[3], int desngb, float hguess
 	break;
     }
 
-    sr = th->len * pow((3.0/(4*M_PI)*SECFACTOR) * desngb / 
+    sr = th->len * pow((3.0/(4*pi)*SECFACTOR) * desngb / 
 		       ((float)(th->count)), 1.0/3);
 
   } // ENDELSE

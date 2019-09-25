@@ -52,8 +52,13 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     /* If there are no particles to move, we're done. */
 
     if (NumberOfParticles == 0) {
-      delete [] BaryonField[NumberOfBaryonFields];
-      BaryonField[NumberOfBaryonFields] = NULL;
+      // Only delete the subgrid field in the call when we actually
+      // move the particles.  The active particle routine analog needs
+      // this field.
+      if (CountOnly == FALSE) {
+	delete [] BaryonField[NumberOfBaryonFields];
+	BaryonField[NumberOfBaryonFields] = NULL;
+      }
       return SUCCESS;
     }
 
@@ -208,7 +213,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     float *Velocity[MAX_DIMENSION], *Mass,
           *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
     PINT *Number;
-    int  *Type;
+    int  *Type = NULL;
  
     if (TotalNumberOfParticles > 0) {
 

@@ -1,5 +1,5 @@
 /***********************************************************************                                                
-/                                                                                                                       
+/                                                                                                                        
 /  FIND DEAD STAR PARTICLES AND ADD THEM TO MAGNETIC SUPERNOVA LIST
 /                                                                                                                       
 /  written by: Iryna Butsky                                                                                                
@@ -44,7 +44,8 @@ int grid::AddMagneticSupernovaeToList()
   float random_u, random_v, random_phi, random_theta, phi_x, phi_y, phi_z;
   float sn_birthtime, sn_duration, sn_radius, sn_energy, star_birthtime, star_lifetime;
 
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits, EnergyUnits;
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, EnergyUnits;
+  double  MassUnits;
   if (GetUnits(&DensityUnits, &LengthUnits,&TemperatureUnits, &TimeUnits,
                &VelocityUnits, &MassUnits, Time) == FAIL){
     fprintf(stderr, "Error in GetUnits.\n");
@@ -56,22 +57,22 @@ int grid::AddMagneticSupernovaeToList()
   // below based on the resolution of the grid at the highest refinement level
   if (UseMagneticSupernovaFeedback > 1){
     sn_duration = 5.0 * dtFixed;
-    MagneticSupernovaDuration = sn_duration * TimeUnits / SecondsPerYear;
+    MagneticSupernovaDuration = sn_duration * TimeUnits / yr_s;
     sn_radius = 1.5 * this->CellWidth[0][0];
-    MagneticSupernovaRadius = sn_radius * LengthUnits / pc;
+    MagneticSupernovaRadius = sn_radius * LengthUnits / pc_cm;
   }
   else {
     // Converting time from years to seconds, then internal units
-    sn_duration = MagneticSupernovaDuration * SecondsPerYear / TimeUnits;
+    sn_duration = MagneticSupernovaDuration * yr_s / TimeUnits;
     if(sn_duration < 5.0 * dtFixed) {
       printf("WARNING: Magnetic supernova feedback duration is less than the recommended minimum of 5 x dtFixed\n");
-      printf("Current dtFixed = %e years \n", dtFixed * TimeUnits / SecondsPerYear);
+      printf("Current dtFixed = %e years \n", dtFixed * TimeUnits / yr_s);
     }
     // Converting radius from parsecs to cm, then internal units
-    sn_radius = MagneticSupernovaRadius * pc / LengthUnits;
+    sn_radius = MagneticSupernovaRadius * pc_cm / LengthUnits;
     if(sn_radius < 1.5 * this->CellWidth[0][0]){
       printf("WARNING: Magnetic supernova feedback radius is less than the recommended minimum of 1.5 x CellWidth\n"); 
-      printf("Current CellWidth = %e pc \n", this->CellWidth[0][0] * LengthUnits / pc);
+      printf("Current CellWidth = %e pc \n", this->CellWidth[0][0] * LengthUnits / pc_cm);
     }
    
   }
@@ -93,7 +94,7 @@ int grid::AddMagneticSupernovaeToList()
 
 	random_u = (float)(mt_random()%32768)/32768.0; // random variable from 0 to 1                               
         random_v = (float)(mt_random()%32768)/32768.0;
-        random_phi = 2*M_PI*random_u; // 0 to 2pi                                                                   
+        random_phi = 2*pi*random_u; // 0 to 2pi                                                                   
         random_theta = acos(2*random_v-1); // 0 to pi                          
 
 	// Setting up randomly oriented magnetic feedback of supernova                                              

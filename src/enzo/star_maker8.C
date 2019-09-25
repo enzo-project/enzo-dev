@@ -89,7 +89,6 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double	jeansthresh, jlsquared, dx2, dist2, total_density, nearestdx2;
   FLOAT		xpos, ypos, zpos, delx, dely, delz;
   double        DensityFloor;
-  double        Pi = 3.1415926;
   float nx_cell[MAX_SUPERCELL_NUMBER], 
     ny_cell[MAX_SUPERCELL_NUMBER], nz_cell[MAX_SUPERCELL_NUMBER];
 
@@ -117,8 +116,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   dx2 = (*dx)*(*dx);
   //printf("Star Maker 8: densthresh = %g\n", densthresh);
   if (*jlrefine > 0) {
-    jlsquared = ((double)((*gamma) * 3.14159 * 1.38e-16 / 6.673e-08) / 
-		 ((double)(*d1) * 1.673e-24)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
+    jlsquared = ((double)((*gamma) * pi * kboltz / GravConst) / 
+		 ((double)(*d1) * mh)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
   }
 
   /* Set new particle index to number of created star particles */
@@ -155,8 +154,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   /* Merge any sink particles that are close enough to each other - MOVED*/
 
 //   double mfrac_b, mfrac_c, total_mass, mi, mj;
-     double msun = 1.989e33;
-     double umass = (*d1)*POW(*x1,3)/msun;
+     double umass = (*d1)*POW(*x1,3)/SolarMass;
 
 
 
@@ -198,15 +196,15 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       wsink     = wpold[bb];
       // printf("sink velocity = %"FSYM",%"FSYM", %"FSYM" cgs \n", usink*(*v1), vsink*(*v1),  wsink*(*v1) );
       // printf("gas velocity = %g, %g, %g cgs \n", ugrid*(*v1), vgrid*(*v1),  wgrid*(*v1) );
-      csgrid2 = 1.38e-16 * tempgrid / 1.673e-24 / POW(*v1,2); 
+      csgrid2 = kboltz * tempgrid / mh / POW(*v1,2); 
       vrel2 = POW(ugrid-usink,2) + POW(vgrid-vsink,2) + POW(wgrid-wsink,2);
       r_bh = G*msink / (csgrid2 + vrel2);
-      // printf("star_maker8: msink = %g = %g Msun, G = %g, csgrid2 = %g, vrel2 = %g, csgrid = %g cm/s, vrel = %g cm/s \n", msink, msink*umass, G, csgrid2, vrel2, pow(csgrid2,0.5)*(*v1), pow(vrel2,0.5)*(*v1));
-      // printf("star_maker8: Accretion routine, r_bh = %g = %g pc, dx = %g = %g pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
+      // printf("star_maker8: msink = %g = %g SolarMass, G = %g, csgrid2 = %g, vrel2 = %g, csgrid = %g cm/s, vrel = %g cm/s \n", msink, msink*umass, G, csgrid2, vrel2, pow(csgrid2,0.5)*(*v1), pow(vrel2,0.5)*(*v1));
+      // printf("star_maker8: Accretion routine, r_bh = %g = %g pc, dx = %g = %g pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/pc_cm,*dx, *dx*(*x1)/pc_cm, r_bh/(*dx));
       if (r_bh/(*dx) < 0.25) r_k = (*dx)/4.0;
       else if (r_bh/(*dx) <= 2.0 ) r_k = r_bh;
       else r_k = 2*(*dx); 
-      // printf("    star_maker8: Accretion routine, r_k = %g = %g pc, dx = %g = %g pc, r_k/dx = %"FSYM"\n",r_k, r_k*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_k/(*dx));
+      // printf("    star_maker8: Accretion routine, r_k = %g = %g pc, dx = %g = %g pc, r_k/dx = %"FSYM"\n",r_k, r_k*(*x1)/pc_cm,*dx, *dx*(*x1)/pc_cm, r_k/(*dx));
 
       n_cell = 0;      
       m_cell = 0;
@@ -253,12 +251,12 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	vrel2 = vrelc2;
 	printf("\n XXX star_maker8: recalculate r_bh XXX  \n");
 	r_bh = G*msink / (csgrid2 + vrel2);
-	// printf("    star_maker8: msink = %g = %g Msun, G = %g, csgrid2 = %g, vrel2 = %g, csgrid = %g cm/s, vrelc = %g cm/s \n", msink, msink*umass, G, csgrid2, vrelc2, pow(csgrid2,0.5)*(*v1), pow(vrel2,0.5)*(*v1));
-	// printf("    star_maker8: Accretion routine, r_bh = %g = %g pc, dx = %g = %g pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
+	// printf("    star_maker8: msink = %g = %g SolarMass, G = %g, csgrid2 = %g, vrel2 = %g, csgrid = %g cm/s, vrelc = %g cm/s \n", msink, msink*umass, G, csgrid2, vrelc2, pow(csgrid2,0.5)*(*v1), pow(vrel2,0.5)*(*v1));
+	// printf("    star_maker8: Accretion routine, r_bh = %g = %g pc, dx = %g = %g pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/pc_cm,*dx, *dx*(*x1)/pc_cm, r_bh/(*dx));
 	if (r_bh/(*dx) < 0.25) r_k = (*dx)/4.0;
 	else if (r_bh/(*dx) <= 2.0 ) r_k = r_bh;
 	else r_k = 2*(*dx); 
-	// printf("    star_maker8: Accretion routine, r_k = %g = %g pc, dx = %g = %g pc, r_k/dx = %"FSYM"\n",r_k, r_k*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_k/(*dx));
+	// printf("    star_maker8: Accretion routine, r_k = %g = %g pc, dx = %g = %g pc, r_k/dx = %"FSYM"\n",r_k, r_k*(*x1)/pc_cm,*dx, *dx*(*x1)/pc_cm, r_k/(*dx));
 
 	n_cell = 0;      
 	m_cell = 0;
@@ -331,7 +329,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	dens_sum += del_rho;
 	 } 
       /* printf("   star_maker8 CHECK: dens_sum/drho = %"FSYM"\n", dens_sum/drho );
-      printf("star_maker8: Accretion routine, mass added = %g = %g Msun, drho = %g\n",drho*POW(*dx,3),drho*POW(*dx,3)*umass,drho );
+      printf("star_maker8: Accretion routine, mass added = %g = %g SolarMass, drho = %g\n",drho*POW(*dx,3),drho*POW(*dx,3)*umass,drho );
       printf("   star_maker8 CHECK: dens_sum/mpold[bb] = %g\n", dens_sum/mpold[bb] ); */
       upold[bb] = 0.0; //(mpold[bb]*usink + drho*ugridc) / (mpold[bb] + drho);
       vpold[bb] = 0.0; //(mpold[bb]*vsink + drho*vgridc) / (mpold[bb] + drho);
@@ -365,20 +363,20 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       vsink     = vpold[bb];
       wsink     = wpold[bb];
 
-      csgrid2 = 1.38e-16 * tempgrid / 1.673e-24 / POW(*v1,2);
+      csgrid2 = kboltz * tempgrid / mh / POW(*v1,2);
       vrel2 = POW(ugrid-usink,2) + POW(vgrid-vsink,2) + POW(wgrid-wsink,2);
       //printf("star_maker8: Accretion routine, csgrid2 = %"FSYM", vrel2 = %"FSYM", Mach = %"FSYM"\n", csgrid2, vrel2, POW(vrel2/csgrid2,0.5));
       //printf("star_maker8: Accretion routine, CGS csgrid = %"FSYM", vrel = %"FSYM"\n", POW(csgrid2*POW(*v1,2),0.5), POW(vrel2*POW(*v1,2),0.5));
-      //printf("star_maker8: Accretion routine, msink = %"FSYM" = %"FSYM" Msun\n", msink, msink*umass );
+      //printf("star_maker8: Accretion routine, msink = %"FSYM" = %"FSYM" SolarMass\n", msink, msink*umass );
       r_bh = G*msink / (csgrid2 + vrel2);
-      // printf("star_maker8: Accretion routine, r_bh = %"FSYM" = %"FSYM" pc, dx = %"FSYM" = %"FSYM" pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
+      // printf("star_maker8: Accretion routine, r_bh = %"FSYM" = %"FSYM" pc, dx = %"FSYM" = %"FSYM" pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/pc_cm,*dx, *dx*(*x1)/pc_cm, r_bh/(*dx));
       densgrid *= min(POW((*dx)/r_bh, 1.5), 1.0);
       mdot = 4.0 * pi * densgrid * POW(r_bh, 2) * sqrt(1.2544*csgrid2 + vrel2);
       drho = min(mdot * (*dt) / POW(*dx,3), 0.25 * d[index]);
     
       /*maxdens = jlsquared * temp[index] / dx2;
 	drho = max(0.0, d[index] - maxdens);*/        
-      //printf("star_maker8: Accretion routine, mass added = %"FSYM" Msun, drho = %"FSYM"\n",drho*POW(*dx,3)*umass,drho );
+      //printf("star_maker8: Accretion routine, mass added = %"FSYM" SolarMass, drho = %"FSYM"\n",drho*POW(*dx,3)*umass,drho );
 
       upold[bb] = (mpold[bb]*usink + drho*ugrid) / (mpold[bb] + drho);
       vpold[bb] = (mpold[bb]*vsink + drho*vgrid) / (mpold[bb] + drho);
@@ -397,8 +395,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   /* Add stellar wind feedback */
 
-  //  double msun = 1.989e33;
-  //  double umass = (*d1)*POW(*x1,3)/msun;
+  //  double umass = (*d1)*POW(*x1,3)/SolarMass;
   float StellarWindThresholdMass = 22.1;
   float StellarWindMomentumPerStellarMass = 5e6;
   float StellarWindEjectionFraction = 0.2;
@@ -406,7 +403,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   float p_star = StellarWindMomentumPerStellarMass/(*v1);
   float m_wind = StellarWindThresholdMass/umass;
   float p_wind;
-  float b_c, bx_c, by_c, bz_c, costheta = cos(3.1415926/3.9), v_wind, rho_wind,
+  float b_c, bx_c, by_c, bz_c, costheta = cos(pi/3.9), v_wind, rho_wind,
     nx_b, ny_b, nz_b;
   FLOAT r_cell;
 
@@ -426,7 +423,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Decide whether mass increase reached the ejection threshold */
 
       if (dmold[bb] < m_wind) continue;
-      if (mpold[bb]*POW(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*3.1557e7) continue;
+      if (mpold[bb]*POW(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*yr_s) continue;
     printf("Feedback 1 running.........\n");
 
       int first = 0;
@@ -545,7 +542,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Decide whether mass increase reached the ejection threshold */
 
       if (dmold[bb] < m_wind)	continue;
-      if (mpold[bb]*POW(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*3.1557e7)	continue;
+      if (mpold[bb]*POW(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*yr_s)	continue;
   
       
       int first = 0;
@@ -651,7 +648,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   /* StellarWindFeedback 3: Isotropic wind */
 
-  float mdot_wind = 1e-5*(*dt)*(*t1)/(3.1557e7*umass);  /* 10^-5 solar mases per year - this is in code units: density x length^3*/
+  float mdot_wind = 1e-5*(*dt)*(*t1)/(yr_s*umass);  /* 10^-5 solar mases per year - this is in code units: density x length^3*/
   //printf("Adding Stellar wind 3: dt =%e, mdot =%e, Vwind =%e, rho_wind =%e \n",dt,mdot_wind*umass/(*t1),v_wind*(*v1),rho_wind*(*d1));
   float SolidAngle;
   FLOAT mdot_wind1, mdot_wind2;
@@ -668,13 +665,13 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       }
       
       v_wind = 1.e5*(-355.554+892.32*log10(mpold[bb]*POW(*dx,3)*umass - 5.24765))/(*v1);
-      mdot_wind1 = (POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427))*((*t1)*(*dx)/v_wind)/(3.1557e7*umass);
-      mdot_wind2 = (POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427))*(*dt)*(*t1)/(3.1557e7*umass);
+      mdot_wind1 = (POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427))*((*t1)*(*dx)/v_wind)/(yr_s*umass);
+      mdot_wind2 = (POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427))*(*dt)*(*t1)/(yr_s*umass);
       mdot_wind = max(mdot_wind1,mdot_wind2);
-      //(POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427)) - mass loss in Msun/yr (from N. Smith 2006 table 1)
-      mdot_wind = mdot_wind/(4.0*Pi);/* mass Per solid angle */
+      //(POW(10,-9.47)*POW(mpold[bb]*POW(*dx,3)*umass,2.2427)) - mass loss in SolarMass/yr (from N. Smith 2006 table 1)
+      mdot_wind = mdot_wind/(4.0*pi);/* mass Per solid angle */
 
-      printf("\n Mass star = %e Msun, Mdot_wind = %e Msun/yr, and v_wind = %e cm/s \n \n",mpold[bb]*POW(*dx,3)*umass,(4.0*Pi)*mdot_wind/((*dt)*(*t1)/(3.1557e7*umass)), v_wind*(*v1));
+      printf("\n Mass star = %e SolarMass, Mdot_wind = %e SolarMass/yr, and v_wind = %e cm/s \n \n",mpold[bb]*POW(*dx,3)*umass,(4.0*pi)*mdot_wind/((*dt)*(*t1)/(yr_s*umass)), v_wind*(*v1));
       
       i = (xpold[bb] - *xstart)/(*dx);
       j = (ypold[bb] - *ystart)/(*dx);
@@ -726,8 +723,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       float m_wind = 0.0;
       float cells_volume = 0.0;
       for (int ic = 0; ic < n_cell; ic++) {
-	//v_wind = mdot_wind/(4.0*Pi*POW(radius_cell[ic],2)*rho_wind);
-	//rho_wind = mdot_wind/(4.0*Pi*POW(radius_cell[ic],2)*v_wind);
+	//v_wind = mdot_wind/(4.0*pi*POW(radius_cell[ic],2)*rho_wind);
+	//rho_wind = mdot_wind/(4.0*pi*POW(radius_cell[ic],2)*v_wind);
 	// m_wind += rho_wind*POW(*dx,3);;
 	float u1 = u[ind_cell[ic]], 
 	  v1 = v[ind_cell[ic]],
@@ -743,7 +740,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	else if (radius2_cell[ic] == 22.0) SolidAngle = 0.0356113280;
 	else if (radius2_cell[ic] == 27.0) SolidAngle = 0.0302870901;
 	else { 
-	  SolidAngle = 4.*3.1415926/n_cell; 
+	  SolidAngle = 4.*pi/n_cell; 
 	  printf("star_maker8.C line 373: Radius squared is wrong?!? radius =%f, n_cell = %i\n",radius2_cell[ic],n_cell); 
 	 }
 	rho_wind = mdot_wind*SolidAngle/(POW((*dx),3));

@@ -2,18 +2,33 @@
 #
 # FILE:        Make.mach.linux-gnu
 #
-# DESCRIPTION: Makefile settings for a machine running Ubuntu
+# DESCRIPTION: Makefile settings for a linux machine
 #
 # AUTHOR:      Rick Wagner (rick@ucsd.edu)
 #
-# DATE:        2008-09-16
+# DATE:        2008-09-16 (updated 2019-09-11)
 #
-# This configuration assumes that build-essentials, gfortran, 
-# OpenMPI and HDF5 have been installed using apt-get.
+# Depending on your linux distribution several packages need to be installed
+# to satisfy the minimum Enzo requirements (GNU compiler suite with
+# gfortran/gcc/g++, an MPI library for parallel runs, and HDF5 for data outputs).
+#
+# Sample environments
+#
+# Ubuntu/Debian (see also Make.mach.ubuntu): 
+# $ apt-get install build-essentials gfortran libhdf5-10 libopenmpi-dev openmpi-bin
+#
+# Fedora/Redhat:
+# $ yum install make automake gcc gcc-c++ gcc-gfortran kernel-devel openmpi openmpi-devel
+#
+# Arch Linux:
+# $ pacman -S base-devel gcc-fortran openmpi hdf5
 #
 #=======================================================================
 
-MACH_TEXT  = Use apt-get to install csh libhdf5-serial-dev gfortran openmpi-bin libopenmpi-dev
+MACH_TEXT  = Generic GNU/Linux machine file. Requires gfortran/gcc/g++, OpenMPI, and a \
+serial HDF5 library. Make sure to set the correct LOCAL_HDF5_INSTALL path in the \
+machine file (e.g., /usr for a system-wide installation or a custom path for local \
+installations).
 MACH_VALID = 1
 MACH_FILE  = Make.mach.linux-gnu
 
@@ -21,9 +36,9 @@ MACH_FILE  = Make.mach.linux-gnu
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL = /home/aemerick/anaconda2
-LOCAL_GRACKLE_INSTALL  = /home/aemerick/code/local
-#LOCAL_HYPRE_INSTALL = /usr
+LOCAL_HDF5_INSTALL    = /PATH/TO/SERIAL-HDF5/INSTALL # mandatory
+LOCAL_GRACKLE_INSTALL = /PATH/TO/GRACKLE/INSTALL # optional
+LOCAL_HYPRE_INSTALL   = /PATH/TO/HYPRE/INSTALL   # optional
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -79,7 +94,7 @@ MACH_OPT_AGGRESSIVE  = -O3 -g
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = # MPI includes
-LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL) # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include

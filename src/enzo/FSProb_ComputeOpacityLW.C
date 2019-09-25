@@ -21,12 +21,12 @@
 ************************************************************************/
 #ifdef TRANSFER
 #include "FSProb.h"
+#include "phys_constants.h"
 
 int FSProb::ComputeOpacityLW(float *H2Density)
 {
 
   const float H2ISigma = 3.71e-18;  // cm^-2
-  const float mh = 1.673e-24;
   double factor = H2ISigma * (DenUnits/mh);
 
   int i, j, k, dim, size;

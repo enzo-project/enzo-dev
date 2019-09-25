@@ -261,7 +261,13 @@ const field_type
   /* IR photodetachment fields */
   kdissH2II = 181,
   kphHM     = 182,
-  FieldUndefined  = 183;
+
+  /* Real and Imag of Wave Function */
+  RePsi = 183,
+  ImPsi = 184,
+  FDMDensity = 185,
+
+  FieldUndefined  = 186;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -275,7 +281,7 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 */
 
 #define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3) || ((A) == PeHeatingRate) || ((A) == OTLWkdissH2I)) ? FALSE : TRUE)
-#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9) || ((A) == PeHeatingRate) || ((A) == OTLWkdissH2I)) ? TRUE : FALSE)
+#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9) || ((A)==kdissH2II) || ((A)==kpHM) || ((A) == PeHeatingRate) || ((A) == OTLWkdissH2I)) ? TRUE : FALSE)
 #define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments)) || ((A) == OTLWkdissH2I) || ((A) == PeHeatingRate) ? TRUE : FALSE)
 
 /* Different stochastic forcing types */
@@ -284,6 +290,22 @@ const forcing_type
   Peak       = 1,
   Parabolic  = 2,
   Band       = 3;
+
+const enum_type
+/* indices used for vectors/Jacobians in SGS model */
+  SGSX   = 0,
+  SGSY   = 1,
+  SGSZ   = 2,
+/* indices used for symmetric tensors */
+  SGSXX  = 0,
+  SGSYY  = 1,
+  SGSZZ  = 2,
+  SGSXY  = 3,
+  SGSYZ  = 4,
+  SGSXZ  = 5,
+  SGSYX  = 3,
+  SGSZY  = 4,
+  SGSZX  = 5;
 
 /* These are the different types of fluid boundary conditions. */
 
@@ -379,7 +401,11 @@ const star_type
   IndividualStarUnresolved = PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED,
   IndividualStarPopIII     = PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII,
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
-  MBH = PARTICLE_TYPE_MBH;
+  MBH = PARTICLE_TYPE_MBH,
+  RadSource = PARTICLE_TYPE_RAD,
+  Kravtsov = PARTICLE_TYPE_STAR,
+  CenOstriker = PARTICLE_TYPE_STAR,
+  AccretingParticle = PARTICLE_TYPE_MUST_REFINE;
 
 /* Define a float/int union. */
 

@@ -1,5 +1,6 @@
 #ifdef CONFIG_PFLOAT_16
 
+#define ENZO_CMODE
 #define ENZO_PYTHON_IMPORTED
 #include "macros_and_parameters.h"
 #undef ENZO_PYTHON_IMPORTED

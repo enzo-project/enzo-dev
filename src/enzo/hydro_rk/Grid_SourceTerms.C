@@ -32,7 +32,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-int grid::SourceTerms(float **dU)
+int grid::SourceTerms(float **dU, float min_coeff)
 {
 
   if (ProcessorNumber != MyProcessorNumber) {
@@ -68,11 +68,6 @@ int grid::SourceTerms(float **dU)
 	dtdy = (GridRank > 1) ? 0.5*dtFixed/CellWidth[1][0]/a : 0.0,
 	dtdz = (GridRank > 2) ? 0.5*dtFixed/CellWidth[2][0]/a : 0.0;
       float rho, eint, p, divVdt, h, cs, dpdrho, dpde;
-      float min_coeff = 0.0;
-      if (UseMinimumPressureSupport) {
-	min_coeff = MinimumPressureSupportParameter*
-	  0.48999*pow(CellWidth[0][0],2)/(Gamma*(Gamma-1.0));
-      }
       int n = 0;
       for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -259,6 +254,52 @@ int grid::SourceTerms(float **dU)
                 0.5 * dtFixed * (drivex * drivex + drivey * drivey + drivez * drivez)) * DrivingEfficiency;
 	}
       }
+    }
+  }
+  
+  
+  if (UseSGSModel) {
+    // if an explicit filtering operation should be used, otherwise
+    // grid-scale quantities are used
+    if (SGSFilterWidth > 1.) {
+      if (this->SGSUtil_FilterFields() == FAIL) {
+        fprintf(stderr, "grid::SourceTerms: Error in SGSUtil_FilterFields.\n");
+        return FAIL;
+      }
+
+      // if the partial derivatives of primitive variables are required
+      // in the calculation of the SGS models
+      if (SGSNeedJacobians) {
+        // velocity Jacobian
+        if (this->SGSUtil_ComputeJacobian(JacVel,FilteredFields[1],FilteredFields[2],FilteredFields[3]) == FAIL) {
+          fprintf(stderr, "grid::SourceTerms: Error in SGSUtil_ComputeJacobian(Vel).\n");
+          return FAIL;
+        }
+      }
+
+      // Scale-similarity type models need filtered mixed terms, such as flt(u_i u_j), etc.
+      if (SGSNeedMixedFilteredQuantities) {
+        if (this->SGSUtil_ComputeMixedFilteredQuantities() == FAIL) {
+          fprintf(stderr, "grid::SourceTerms: Error in SGSUtil_ComputeMixedFilteredQuantities().\n");
+          return FAIL;
+        }
+      }
+
+      // SGSFilterWidth == 1
+    } else {
+      /* we don't need a special check for SGSNeedJacobians here as all models apart
+       * from the scale-similarity model need Jacbobians and the scale-similarity model
+       * always has SGSFilterWidth > 1.
+       */
+      if (this->SGSUtil_ComputeJacobian(JacVel,BaryonField[Vel1Num],BaryonField[Vel2Num],BaryonField[Vel3Num]) == FAIL) {
+        fprintf(stderr, "grid::SourceTerms: Error in SGSUtil_ComputeJacobian(Vel).\n");
+        return FAIL;
+      }
+    }
+
+    if (this->SGS_AddMomentumTerms(dU) == FAIL) {
+      fprintf(stderr, "grid::SourceTerms: Error in SGS_AddMomentumTerms(dU).\n");
+      return FAIL;
     }
   }
   

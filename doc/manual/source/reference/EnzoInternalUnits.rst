@@ -22,8 +22,10 @@ scaled to the other variables. The four parameters that the user can set are
 or ``MassUnits`` needs to be set, since ``MassUnits`` = ``DensityUnits`` * ``LengthUnits``
 :sup:`3` . Additionally, if the parameter ``SelfGravity`` is turned on (set to 1),
 the parameter ``GravitationalConstant`` must be set to 4\*pi\*G, where G is
-Newton's gravitational constant as a dimensionless quantity (that is, with all
-units scaled out).
+Newton's gravitational constant as a dimensionless quantity; that is, with all
+units scaled out -- see example below (this convention stems from the
+historical choice of implementing the right-hand side of the Poisson equation
+as ``GravitationalConstant`` times density (without the usual 4\*pi).
 
 The primary motivation for using a non-arbitrary set of units is to take
 advantage of Enzo's various chemistry and cooling algorithms, some of which

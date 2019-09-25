@@ -24,6 +24,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 /* function prototypes */
 
@@ -281,8 +282,7 @@ int grid::GrackleWrapper()
                                   kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
   /* unit conversion from Enzo RT units to CGS */
-  const float ev2erg = 1.60217653E-12;
-  float rtunits = ev2erg / TimeUnits;
+  float rtunits = erg_eV / TimeUnits;
 
   if( RadiativeTransfer ){
 

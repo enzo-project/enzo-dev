@@ -3,7 +3,6 @@
 
 from __future__ import print_function
 
-import imp
 import optparse
 import os.path
 import os
@@ -14,12 +13,11 @@ import sys
 import time
 import tarfile
 import logging
-import hglib
 
 known_categories = [
     "Cooling",
     "Cosmology",
-    "CosmoSim",
+    "CosmologySimulation",
     "DrivenTurbulence3D",
     "FLD",
     "GravitySolver",
@@ -50,10 +48,6 @@ from yt.utilities.logger import \
     disable_stream_logging, ufstring
 disable_stream_logging()
 
-# Set the filename for the latest version of the gold standard
-# and for the default local standard output
-ytcfg["yt", "gold_standard_filename"] = str("enzogold0003")
-ytcfg["yt", "local_standard_filename"] = str("enzolocaldev")
 from yt.utilities.answer_testing.framework import \
     AnswerTesting
 
@@ -73,6 +67,7 @@ varspec = dict(
     mhd = (bool, False),
     gravity = (bool, False),
     cosmology = (bool, False),
+    cosmology_simulation = (bool, False),
     chemistry = (bool, False),
     cooling = (bool, False),
     AMR = (bool, False),
@@ -83,7 +78,8 @@ varspec = dict(
     quicksuite = (bool, False),
     pushsuite = (bool, False),
     fullsuite = (bool, False),
-    problematic = (bool, False)
+    problematic = (bool, False),
+    hub_download = (str, None)
 )
 
 known_variables = dict( [(k, v[0]) for k, v in varspec.items()] )
@@ -108,27 +104,27 @@ template_vars = {'N_PROCS'   : 'nprocs',
 
 results_filename = 'test_results.txt'
 version_filename = 'version.txt'
+hub_url = 'https://girder.hub.yt/api/v1'
 
 # Files to be included when gathering results.
 results_gather = ['results', version_filename]
 
 # If we are able to, let's grab the ~/.enzo/machine_config.py file.
-try:
-    f, filename, desc = imp.find_module("machine_config",
-                          [os.path.expanduser("~/.enzo/")])
-    machine_config = imp.load_module("machine_config", f, filename, desc)
-except ImportError:
-    machine_config = None
+# try:
+#     f, filename, desc = imp.find_module("machine_config",
+#                           [os.path.expanduser("~/.enzo/")])
+#     machine_config = imp.load_module("machine_config", f, filename, desc)
+# except ImportError:
+machine_config = None
 
-def _get_hg_version(path):
+def _get_current_version(path):
+    try:
+        import git
+    except ModuleNotFoundError:
+        return "unknown"
 
-    client = hglib.open(path)
-
-    # this is a horrifying string but is necessary to be both Python2
-    # and 3 compatible
-    rev = str(client.tip().node.decode('utf-8'))[:12]
-    
-    return rev
+    repo = git.Repo(path)
+    return repo.head.object.hexsha
 
 def _to_walltime(ts):
     return "%02d:%02d:%02d" % \
@@ -138,18 +134,6 @@ def _to_walltime(ts):
 def add_files(my_list, dirname, fns):
     my_list += [os.path.join(dirname, fn) for
                 fn in fns if fn.endswith(".enzotest")]
-
-def version_swap(repository, changeset, jcompile):
-    """Updates *repository* to *changeset*,
-    then does make; make -j *jcompile* enzo"""
-
-    client = hglib.open(options.repository)
-    client.update(rev=changeset)
-    
-    command = "cd %s/src/enzo; pwd; "%options.repository
-    command += "make clean && make -j %d enzo.exe"%jcompile
-    status = os.system(command)
-    return status
 
 def parse_results_file(filename):
     """
@@ -294,7 +278,7 @@ class EnzoTestCollection(object):
         shutil.copy(exe_path, output_dir)
         exe_path = os.path.join(output_dir, os.path.basename(exe_path))
         results_path = os.path.join(self.output_dir, results_filename)
-        
+
         if interleaved:
             for i, my_test in enumerate(self.tests):
                 print("Preparing test: %s." % my_test['name'])
@@ -498,6 +482,12 @@ class EnzoTestRun(object):
             return True
         
         os.chdir(self.run_dir)
+        # Download data if requested
+        if self.test_data['hub_download'] is not None:
+            command = "girder-cli --api-url %s download %s" % \
+                      (hub_url, self.test_data['hub_download'])
+            os.system(command)
+
         command = "%s %s" % (machines[self.machine]['command'], 
                              machines[self.machine]['script'])
         sim_start_time = time.time()
@@ -573,8 +563,8 @@ if __name__ == "__main__":
                       default=False, help="Slightly more verbose output.")
     parser.add_option("--pdb", action="store_true", dest="pdb",
                       default=False, help="Drop into debugger on errors")
-    parser.add_option("--changeset", dest="changeset", default=None, metavar='str',
-                      help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
+    parser.add_option("--jcompile", dest="jcompile", default=1, metavar='int', type=int,
+                      help="Number of cores to use when recompiling")
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
                       help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
     parser.add_option("", "--bitwise",
@@ -623,6 +613,16 @@ if __name__ == "__main__":
     parser.add_option_group(testproblem_group)
     options, args = parser.parse_args()
 
+    # The cosmology tests change behavior based on environment variables,
+    # so set those based on the related run time arguments.
+    os.environ["COSMO_TEST_GENERATE"] = str(int(options.store_results))
+    if options.output_dir is None:
+        test_data_dir = "."
+    else:
+        test_data_dir = options.output_dir
+    if options.answer_name is not None:
+        test_data_dir = os.path.join(test_data_dir, options.answer_name)
+    os.environ["COSMO_TEST_DATA_DIR"] = test_data_dir
 
     if options.pdb:
         pdb_plugin.enabled = True
@@ -631,12 +631,11 @@ if __name__ == "__main__":
     # Get information about the current repository, set it as the version in
     # the answer testing plugin.
     options.repository = os.path.expanduser(options.repository)
-    hg_current = _get_hg_version(options.repository)
-    rev_hash = hg_current.split()[0]
+    my_current = _get_current_version(options.repository)
+    rev_hash = my_current
 
     if options.run_suffix:
         rev_hash += options.run_suffix
-
 
     answer_plugin._my_version = rev_hash
 
@@ -652,11 +651,6 @@ if __name__ == "__main__":
     if options.output_dir is None:
         print('Please enter an output directory with -o option')
         sys.exit(1)
-
-    if options.changeset is not None:
-        status = version_swap(options.repository, options.changeset, options.jcompile)
-        if status:
-            sys.exit(status)
 
     etc = EnzoTestCollection(verbose=options.verbose, args=sys.argv[:1],
                              plugins = [answer_plugin, reporting_plugin, pdb_plugin, xunit_plugin])
@@ -692,7 +686,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
     f = open(os.path.join(options.output_dir, version_filename), 'w')
-    f.write('Enzo: %s' % hg_current)
+    f.write('Enzo: %s\n' % my_current)
     f.write('yt: %s\n' % yt_version)
     f.close()
 
@@ -754,7 +748,7 @@ if __name__ == "__main__":
     # Same with MHD2DRotorTest
     ignore_list = ('GravityTest', 'ProtostellarCollapse_Std',
                    'ZeldovichPancake', 'AMRZeldovichPancake',
-                   'MHD2DRotorTest', 'Toro-6-ShockTube', 'MHDCTOrszagTangAMR', 'MHDCTOrszagTang')
+                   'MHD2DRotorTest', 'Toro-6-ShockTube', 'MHDCTOrszagTangAMR', 'MHDCTOrszagTang','dm_only')
     
     template = open("test_type.py.template").read()
     
@@ -804,7 +798,7 @@ if __name__ == "__main__":
             results.append( dict(name = test.test_data['name'],
                              results = vals) )
         f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
-        f.write("current_set = '%s';\n" % (hg_current.strip()))
+        f.write("current_set = '%s';\n" % (my_current.strip()))
 
     if etc2.any_failures:
         raise AssertionError("Some tests failed or had errors!")

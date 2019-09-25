@@ -33,7 +33,8 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
- 
+#include "ActiveParticle.h"
+
 // function prototypes
  
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
@@ -48,12 +49,15 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
 				particle_data* &SharedList);
 int CommunicationShareStars(int *NumberToMove, star_data* &SendList,
 			    int &NumberOfReceives, star_data* &SharedList);
+int CommunicationShareActiveParticles(int *NumberToMove,
+        ActiveParticleList<ActiveParticleType> &SendList, int &NumberOfReceives,
+        ActiveParticleList<ActiveParticleType> &SharedList);
 
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level)
 {
 
-  int proc, i, j, k, jstart, jend, TotalNumber, TotalStars;
+  int proc, i, j, k, jstart, jend, TotalNumber, TotalStars, APTotalNumber;
   int particle_data_size, star_data_size;
   int Zero = 0;
 
@@ -69,10 +73,13 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
   particle_data *SharedList = NULL;
   star_data *StarSendList = NULL;
   star_data *StarSharedList = NULL;
+  ActiveParticleList<ActiveParticleType> APSendList;
+  ActiveParticleList<ActiveParticleType> APSharedList;
 
-  int NumberOfReceives, StarNumberOfReceives;
+  int NumberOfReceives=0, StarNumberOfReceives=0, APNumberOfReceives=0;
   int *NumberToMove = new int[NumberOfProcessors];
   int *StarsToMove = new int[NumberOfProcessors];
+  int *APNumberToMove = new int[NumberOfProcessors];
 
   // Needed for TransferSubgridParticles.  This means that the
   // particles can be transferred to grids on other processors.
@@ -84,6 +91,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
   for (i = 0; i < NumberOfProcessors; i++) {
     NumberToMove[i] = 0;
     StarsToMove[i] = 0;
+    APNumberToMove[i] = 0;
   }
 
   /* Generate array of all grids on this level */
@@ -153,6 +161,10 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
       (GridPointers, NumberOfGrids, StarsToMove, Zero, Zero, 
        StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, TRUE);
 
+    Grids[grid1]->GridData->TransferSubgridActiveParticles
+      (GridPointers, NumberOfGrids, APNumberToMove, Zero, Zero,
+       APSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, TRUE);
+
     Grids[grid1]->GridData->TransferSubgridParticles
       (GridPointers, NumberOfGrids, NumberToMove, Zero, Zero, 
        SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, TRUE);
@@ -171,6 +183,14 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
     NumberToMove[j] = 0;  // Zero-out to use in the next step
     StarsToMove[j] = 0;  // Zero-out to use in the next step
   }
+
+  APTotalNumber = 0;
+  for (j = 0; j < NumberOfProcessors; j++) {
+    TotalNumber += NumberToMove[j];
+    APTotalNumber += APNumberToMove[j];
+    NumberToMove[j] = 0;  // Zero-out to use in the next step
+    APNumberToMove[j] = 0;
+  }
   SendList = new particle_data[TotalNumber];
   StarSendList = new star_data[TotalStars];
 
@@ -179,6 +199,10 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
     Grids[grid1]->GridData->TransferSubgridStars
       (GridPointers, NumberOfGrids, StarsToMove, Zero, Zero, 
        StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, FALSE);
+
+    Grids[grid1]->GridData->TransferSubgridActiveParticles
+      (GridPointers, NumberOfGrids, APNumberToMove, Zero, Zero,
+       APSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, FALSE);
 
     Grids[grid1]->GridData->TransferSubgridParticles
       (GridPointers, NumberOfGrids, NumberToMove, Zero, Zero, 
@@ -195,16 +219,20 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 			      SharedList);
   CommunicationShareStars(StarsToMove, StarSendList, StarNumberOfReceives,
 			  StarSharedList);
+  CommunicationShareActiveParticles(APNumberToMove, APSendList, APNumberOfReceives,
+                                    APSharedList);
 
   int TotalNumberOfReceives = NumberOfReceives;
   int TotalStarNumberOfReceives = StarNumberOfReceives;
+  int TotalAPNumberOfReceives = APNumberOfReceives;
   CommunicationSumValues(&TotalNumberOfReceives, 1);
   CommunicationSumValues(&TotalStarNumberOfReceives, 1);
+  CommunicationSumValues(&TotalAPNumberOfReceives, 1);
 
   if (debug)
     printf("TransferSubgridParticles[%"ISYM"]: Moved %"ISYM" particles, "
-	   "%"ISYM" stars.\n", level, TotalNumberOfReceives,
-	   TotalStarNumberOfReceives);
+	   "%"ISYM" stars, %"ISYM" active particles.\n", level, TotalNumberOfReceives,
+           TotalStarNumberOfReceives, TotalAPNumberOfReceives);
 	   
 
   /*******************************************************************/
@@ -260,6 +288,30 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
       jstart = jend;
     } // ENDFOR grids
 
+  /*******************************************************************/
+  /************** Copy Active Particles back to grids. ***************/
+  /*******************************************************************/
+
+  jstart = 0;
+  jend = 0;
+
+  // Copy shared stars to grids, if any
+
+  if (APNumberOfReceives > 0)
+    for (j = 0; j < NumberOfGrids && jend < APNumberOfReceives; j++) {
+      while (APSharedList[jend]->ReturnGridID() <= j) {
+        jend++;
+        if (jend == APNumberOfReceives) break;
+      }
+      
+      GridPointers[j]->TransferSubgridActiveParticles
+                    (GridPointers, NumberOfGrids, APNumberToMove, jstart, jend,
+                     APSharedList, KeepLocal, ParticlesAreLocal, COPY_IN, TRUE);
+      
+      jstart = jend;
+    } // ENDFOR grids
+  
+
   /************************************************************************
      Since the particles and stars are only on the grid's host
      processor, set number of particles so everybody agrees.
@@ -281,7 +333,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 
   delete [] NumberToMove;
   delete [] StarsToMove;
-
+  delete [] APNumberToMove;
   return SUCCESS;
 }
 

@@ -83,9 +83,8 @@ c
       parameter (tolerance = 1.e-10_RKIND)
 #endif
 
-      real*8 everg, mh, e24, e26
-      parameter (everg = ev2erg, mh = mass_h,
-     &           e24 = 13.6_RKIND, e26 = 24.6_RKIND)            ! DPC
+      real*8 e24, e26
+      parameter (e24 = 13.6_RKIND, e26 = 24.6_RKIND)            ! DPC
 c
 c  Locals
 c
@@ -124,11 +123,12 @@ c=======================================================================
 c
 c     Set units
 c
-      dom      = urho*(aye**3)/mh
+      dom      = urho*(aye**3)/mass_h
       tbase1   = utim
       xbase1   = uxyz/(aye*uaye)    ! uxyz is [x]*a      = [x]*[a]*a'        '
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
-      coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
+      coolunit = (uaye**5 * xbase1**2 * mass_h**2) /
+     &           (tbase1**3 * dbase1)
 c
 c     Set log values of start and end of lookup tables
 c
@@ -299,12 +299,12 @@ c
      &              x**0.4092_RKIND)**1.7592_RKIND
                k24shield(i) = k24shield(i) + 
      &              factor*(piHI + 0.08_RKIND*piHeI) / 
-     &              (e24*everg)*coolunit*tbase1
+     &              (e24*ev2erg)*coolunit*tbase1
                factor = 0.0554_RKIND*(1._RKIND - 
      &              x**0.4614_RKIND)**1.666_RKIND
                k26shield(i) = k26shield(i) + 
      &              factor*(piHI/0.08_RKIND + piHeI) / 
-     &              (e26*everg)*coolunit*tbase1
+     &              (e26*ev2erg)*coolunit*tbase1
             enddo
          endif
 c

@@ -120,7 +120,6 @@
 !
 !  PARAMETERS:
 !    itmax   - maximum allowed sub-cycle iterations
-!    mh      - H mass in cgs units
 !
 !-----------------------------------------------------------------------
 
@@ -211,8 +210,6 @@
       parameter (tolerance = 1.e-10_RKIND)
 #endif
 
-      real*8 mh
-      parameter (mh = mass_h)
 
 !  Locals
 
@@ -269,14 +266,15 @@
       
 !     Set units
 
-      dom      = urho*(aye**3)/mh
+      dom      = urho*(aye**3)/mass_h
       tbase1   = utim
       xbase1   = uxyz/(aye*uaye)    ! uxyz is [x]*a      = [x]*[a]*a'        '
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
-      coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
+      coolunit = (uaye**5 * xbase1**2 * mass_h**2) /
+     &           (tbase1**3 * dbase1)
       uvel     = uxyz / utim
-c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 formed
-      chunit = (1.60218e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 1 eV per H2 formed
+c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mass_h)   ! 4.5 eV per H2 formed
+      chunit = (ev2erg)/(2._RKIND*uvel*uvel*mass_h)   ! 1 eV per H2 formed
 
       dx_cgs = dx * xbase1;
       dlogtem = (log(temend) - log(temstart))/REAL(nratec-1,RKIND)
@@ -962,8 +960,8 @@ c -------------------------------------------------------------------
 
 !     Parameters
 
-      real*8 everg, e24, e26
-      parameter(everg = ev2erg, e24 = 13.6_RKIND, 
+      real*8 e24, e26
+      parameter(e24 = 13.6_RKIND, 
      &          e26 = 24.6_RKIND)
 
 !     locals
@@ -1228,11 +1226,11 @@ c               endif
             factor = 0.3908_RKIND*(1._RKIND - 
      &           x**0.4092_RKIND)**1.7592_RKIND
             k24shield(i) = k24shield(i) + factor*(piHI + 
-     &           0.08_RKIND*piHeI)/(e24*everg) *coolunit*tbase1
+     &           0.08_RKIND*piHeI)/(e24*ev2erg) *coolunit*tbase1
             factor = 0.0554_RKIND*(1._RKIND - 
      &           x**0.4614_RKIND)**1.666_RKIND
             k26shield(i) = k26shield(i) + factor*(piHI/0.08_RKIND + 
-     &           piHeI)/(e26*everg) *coolunit*tbase1
+     &           piHeI)/(e26*ev2erg) *coolunit*tbase1
          endif
          enddo
       endif

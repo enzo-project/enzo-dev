@@ -1,10 +1,13 @@
 #
-# PROBLEM DEFINITION FILE: MHD/HD turbulence problem with stochastic forcing 
+# PROBLEM DEFINITION FILE: MHD/HD turbulence problem with stochastic forcing
+#                          with subgrid-scale (SGS) turbulence model
 # Philipp Grete 2014
 #
 # Typical "turbulence-in-a-box" problem with non-static driving field.
 # For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
 # http://dx.doi.org/10.1051/0004-6361:200809967
+# For details on the SGS model, see Grete et al. (2017) Phys. Rev. E. 95 033206
+# https://dx.doi.org/10.1103/PhysRevE.95.033206
 #
 # Works/properly tested only on 3D uniform grids with MUSCL type solvers and MHDCT at this point.
 # For hydro use HydroMethod 3
@@ -25,7 +28,7 @@ RightFaceBoundaryCondition = 3 3 3
 #
 #  set I/O and stop/start parameters
 #
-StopTime            = 0.86
+StopTime            = 0.516
 dtDataDump          = 0.0215
 DataDumpName        = data
 ParallelRootGridIO  = 1
@@ -64,4 +67,23 @@ DrivenFlowDensity    = 1.0        # initial uniform density
 DrivenFlowPressure   = 1.0        # initial uniform pressure
 DrivenFlowMagField  = 3.1622777   # initial uniform field (x direction)
 
+UseSGSModel = 1 # use SGS model
 
+SGSFilterWidth = 2.7110
+SGSFilterStencil = 3
+SGSFilterWeights = 0.40150 0.29925 0.00000 0.0
+
+SGScoeffNLemfCompr = 1.0 # compr. unscaled  nonliner model EMF
+SGScoeffNLu = 1.0 # compr. unscaled nonlinear model tauU
+SGScoeffNLb = 0.0 # compr. unscaled nonlinear model tauB
+#SGScoeffERS2J2 = 0.0 # eddy resistivity EMF model scaled by Smag.
+#energies
+##SGScoeffERS2M2Star = 0.012 # eddy resistivity EMF model scaled by
+#realiz. energies
+##SGScoeffEVStarEnS2Star = 0.01 # eddy viscosity tauUstar scaled by
+#realiz. energies
+##SGScoeffEnS2StarTrace = 0.08 # tauUtrace - SGS energy coeff from
+#realiz. energies
+##SGScoeffSSu = 0.67
+##SGScoeffSSb = 0.9
+##SGScoeffSSemf = 0.89 

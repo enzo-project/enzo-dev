@@ -10,6 +10,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -91,12 +92,9 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 
   /* Set various units. */
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.672e-8,
-               pi = 3.14159, mh = 1.6726e-24, kboltz = 1.3807e-16;
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, MagneticUnits;
   double MassUnits;
-  double G = 6.672e-8, Msun = 1.989e33;
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
@@ -152,9 +150,9 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 	      density = DiskDensity*DiskRadius/(R+DiskHeight);
 	      temperature = DiskTemperature;
 	      double DiskMass = 2.0*M_PI*DiskDensity*DiskHeight*DiskRadius*(R-DiskHeight*log(R/DiskHeight+1))*MassUnits;
-	      double Mass = BlackHoleMass*Msun + DiskMass;
-	      printf("BH=%"GSYM", Disk=%"GSYM", r=%"GSYM"\n", BlackHoleMass, DiskMass/Msun, R);
-	      vrot = sqrt(G*Mass/(max(R,5*CellWidth[0][0])*LengthUnits))/VelocityUnits;
+	      double Mass = BlackHoleMass*SolarMass + DiskMass;
+	      printf("BH=%"GSYM", Disk=%"GSYM", r=%"GSYM"\n", BlackHoleMass, DiskMass/SolarMass, R);
+	      vrot = sqrt(GravConst*Mass/(max(R,5*CellWidth[0][0])*LengthUnits))/VelocityUnits;
 	      Velocity[0] = -vrot*sinphi;
 	      Velocity[1] = vrot*cosphi;
 	      
@@ -172,9 +170,9 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 	      FLOAT a = ExternalGravityRadius/LengthUnits;
 	      double Mdisk = DiskDensity*M_PI*R*R*DiskHeight*MassUnits;
 	      if (R > 0.5*a) {
-		vrot = sqrt(G*(2.0*BlackHoleMass*Msun+Mdisk)/(R*LengthUnits))/VelocityUnits;
+		vrot = sqrt(GravConst*(2.0*BlackHoleMass*SolarMass+Mdisk)/(R*LengthUnits))/VelocityUnits;
 	      } else {
-		vrot = sqrt(G*(2.0*BlackHoleMass*Msun+Mdisk)/(0.5*a*LengthUnits))*R/(0.5*a)/VelocityUnits;
+		vrot = sqrt(GravConst*(2.0*BlackHoleMass*SolarMass+Mdisk)/(0.5*a*LengthUnits))*R/(0.5*a)/VelocityUnits;
 	      }
 	      Velocity[0] = -vrot*sinphi;
 	      Velocity[1] = vrot*cosphi;
@@ -193,9 +191,9 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 	      }
 
 	      if (R > 0.5*a) {
-		vrot = sqrt(G*2.0*BlackHoleMass*Msun/(R*LengthUnits))/VelocityUnits;
+		vrot = sqrt(GravConst*2.0*BlackHoleMass*SolarMass/(R*LengthUnits))/VelocityUnits;
 	      } else {
-		vrot = sqrt(G*2.0*BlackHoleMass*Msun/(0.5*a*LengthUnits))*R/(0.5*a)/VelocityUnits;
+		vrot = sqrt(GravConst*2.0*BlackHoleMass*SolarMass/(0.5*a*LengthUnits))*R/(0.5*a)/VelocityUnits;
 	      }
 	      Velocity[0] = -vrot*sinphi;
 	      Velocity[1] = vrot*cosphi;
@@ -321,7 +319,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 
   if (BlackHoleType == 2) {
 
-    double mass_p = 1.0e8*Msun;
+    double mass_p = 1.0e8*SolarMass;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);

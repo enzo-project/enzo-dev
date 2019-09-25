@@ -39,6 +39,7 @@
 #include "CosmologyParameters.h"
 #include "fortran.def"
 #include "CommunicationUtilities.h"
+#include "phys_constants.h"
 
 // Function prototypes
 
@@ -144,6 +145,9 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *BzName = "Bz";
   char *PhiName = "Phi";
   char *Phi_pName = "Phip";
+  char *RePsiName = "Re_Psi"; 
+  char *ImPsiName = "Im_Psi"; 
+  char *FDMDensityName = "FDMDensity"; 
 
 
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
@@ -409,7 +413,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
         ENZO_FAIL("Error in GetUnits.");
   }
   PressureUnits = DensityUnits * VelocityUnits*VelocityUnits;
-  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+  MagneticUnits = sqrt(PressureUnits*4.0*pi);
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
     if (CosmologySimulationInitialUniformBField[dim] != 0.0 && HydroMethod != 4 && HydroMethod != 6)
@@ -740,6 +744,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   i = 0;
   DataLabel[i++] = DensName;
+
   DataLabel[i++] = Vel1Name;
   if (MetaData.TopGridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
     DataLabel[i++] = Vel2Name;
@@ -835,6 +840,13 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = PSTempName;
       DataLabel[i++] = PSDenName;
     }
+  } 
+
+    // real and imaginary part of wave function
+  if (QuantumPressure) {
+    DataLabel[i++] = (char*) RePsiName;
+    DataLabel[i++] = (char*) ImPsiName;
+    DataLabel[i++] = (char*) FDMDensityName;
   }
 
 

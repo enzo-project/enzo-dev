@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 // Grid Initializer
 int grid::ConductionCloudInitialize (float CloudOverdensity, FLOAT CloudWidth, int CloudType) {
@@ -112,7 +113,7 @@ int grid::ConductionCloudInitialize (float CloudOverdensity, FLOAT CloudWidth, i
 	  
 	} else if(CloudType == 3){  // sinusoidal pulse with values along x-axis
 
-	  val = 1.0 + CloudOverdensity + CloudOverdensity * sin(2.0 * 3.14158 * x / CloudWidth);
+	  val = 1.0 + CloudOverdensity + CloudOverdensity * sin(2.0 * pi * x / CloudWidth);
 	  
 	} else if(CloudType == 4){  // square pulse with smoothed edges (as suggested by A. Kravtsov)
 

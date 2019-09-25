@@ -1,3 +1,4 @@
+
 /***********************************************************************
 /
 /  INITIALIZE A ZELDOVICH PANCAKE
@@ -29,6 +30,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
  
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 
@@ -77,6 +79,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
   float ZeldovichPancakeOmegaCDMNow        = 0.0;  // no dark matter
   float ZeldovichPancakeCollapseRedshift   = 1.0;  // free parameter
   float ZeldovichPancakeInitialTemperature = 100;  // whatever
+  float ZeldovichPancakeInitialGasVelocity = 0.0;  // km/s
   float ZeldovichPancakeInitialUniformBField[MAX_DIMENSION];  // in Gauss
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -104,6 +107,8 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 		  &ZeldovichPancakeCollapseRedshift);
     ret += sscanf(line, "ZeldovichPancakeInitialTemperature = %"FSYM,
 		  &ZeldovichPancakeInitialTemperature);
+    ret += sscanf(line, "ZeldovichPancakeInitialGasVelocity = %"FSYM,
+		  &ZeldovichPancakeInitialGasVelocity);
     ret += sscanf(line, "ZeldovichPancakeInitialUniformBField = %"FSYM" %"FSYM" %"FSYM,
 		  ZeldovichPancakeInitialUniformBField,
 		  ZeldovichPancakeInitialUniformBField+1,
@@ -126,7 +131,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
         ENZO_FAIL("Error in GetUnits.");
   }
   PressureUnits = DensityUnits * (LengthUnits/TimeUnits)*(LengthUnits/TimeUnits);
-  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+  MagneticUnits = sqrt(PressureUnits*4.0*pi);
 
  
   for (int dim = 0; dim < MAX_DIMENSION; dim++) 
@@ -142,6 +147,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 					  ZeldovichPancakeOmegaCDMNow,
 					  ZeldovichPancakeCollapseRedshift,
 					  ZeldovichPancakeInitialTemperature,
+					  ZeldovichPancakeInitialGasVelocity,
 					  ZeldovichPancakeInitialUniformBField
 						       ) == FAIL) {
     ENZO_FAIL("Error in ZeldovichPancakeInitializeGrid.\n");
@@ -189,8 +195,10 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 	    ZeldovichPancakeOmegaCDMNow);
     fprintf(Outfptr, "ZeldovichPancakeCollapseRedshift   = %"FSYM"\n",
 	    ZeldovichPancakeCollapseRedshift);
-    fprintf(Outfptr, "ZeldovichPancakeInitialTemperature = %"FSYM"\n\n",
+    fprintf(Outfptr, "ZeldovichPancakeInitialTemperature = %"FSYM"\n",
 	    ZeldovichPancakeInitialTemperature);
+    fprintf(Outfptr, "ZeldovichPancakeInitialGasVelocity = %"FSYM"\n",
+	    ZeldovichPancakeInitialGasVelocity);
 
     for (int dim = 0; dim < MAX_DIMENSION; dim++) 
       ZeldovichPancakeInitialUniformBField[dim] *= MagneticUnits;

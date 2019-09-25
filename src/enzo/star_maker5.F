@@ -55,7 +55,7 @@ c    ibuff    - number of buffer zones at each end of grid
 c    imethod  - Hydro method (0/1 -- PPM DE/LR, 2 - ZEUS)
 c    odthresh - Overdensity of the cell required to turn on star formation.
 c    shdesn   - Critical density (rho_crit) for star formation, see Springel & Hernquist
-c    smthresh - mass of all stars that are created ~= 7.6e4 (msolar)
+c    smthresh - mass of all stars that are created ~= 7.6e4 (SolarMass)
 c    mintdyn  - timescale for star formation ~= 2.1e9 (yrs)
 c    level - current level of refinement
 c    procnum - processor number (for output)
@@ -112,12 +112,10 @@ c
       R_PREC   tempx, tempy, tempz
       character*15 fname
       R_PREC   usn, tstar, pstar, sqrtepssn, timeconstant
-      R_PREC   mproton, RandomSeed, beta,x ,y, kb
+      R_PREC   RandomSeed, beta,x ,y
       R_PREC   starfraction, bmass, densthresh 
-      real*8 msolar
-      parameter (msolar=SolarMass, mproton=mass_h, 
-     &           beta=0.1_RKIND, sqrtepssn=2.e24, 
-     &           RandomSeed=-123456, kb=kboltz)
+      parameter (beta=0.1_RKIND, sqrtepssn=2.e24, 
+     &           RandomSeed=-123456)
 
       R_PREC random
 
@@ -133,7 +131,7 @@ c      open (unit=1701,file=fname,access="APPEND",status="UNKNOWN")
 
 c     Define the energy output from supernovae
 
-      usn=(1._RKIND-beta)*sqrtepssn/beta/msolar ! Below Eq (2)
+      usn=(1._RKIND-beta)*sqrtepssn/beta/SolarMass ! Below Eq (2)
       usn=usn*sqrtepssn   ! this trick done to avoid floating-point issues (BWO)
 
 c     Loop over all grids
@@ -165,8 +163,8 @@ c     note: minus sign is because 'coolrate' is actual backwards: when
 c     coolrate is negative, gas is cooling (which is the opposite of how
 c     it's defined in springel & Hernquist 2003, MNRAS, 339, 289, eqn. 16
                y = -1._RKIND*tstar*coolrate(i,j,k)/(d(i,j,k)*dble(d1))/
-     &              (beta*usn-(1._RKIND-beta)*1.5_RKIND*kb*temp(i,j,k)/
-     &              0.6_RKIND/mproton) !Eq(16)
+     &              (beta*usn-(1._RKIND-beta)*1.5_RKIND*kboltz*
+     &              temp(i,j,k)/ 0.6_RKIND/mass_h) !Eq(16)
 
 c	       Calculate the fraction of mass in cold clouds
                if (y .le. 0._RKIND) then
@@ -177,7 +175,7 @@ c	       Calculate the fraction of mass in cold clouds
                endif
 
 c              Calculate total baryon mass in the cell               
-               bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3/msolar	     
+               bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3/SolarMass	     
 
 c              Calculate a parameter which is compared to a random number
                pstar=(bmass/smthresh)*
@@ -333,11 +331,11 @@ c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
       INTG_PREC i, j, k, n
-      R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
+      R_PREC mform, tfactor, energy, sn_param, msolar_e51,
      &     yield, minitial, xv1, xv2, dratio, sqrtepssn,
-     &     msolar, beta
-      parameter (clight = c_light, msolar_e51 = 1800._RKIND, 
-     &     msolar=SolarMass, sqrtepssn=2.e24_RKIND, beta=0.1_RKIND)
+     &     beta
+      parameter (msolar_e51 = 1800._RKIND, 
+     &     sqrtepssn=2.e24_RKIND, beta=0.1_RKIND)
 
 c    Basically calculate some of the same stuff from above.
 c    Dump it all into thermal making sure to take care of
@@ -368,7 +366,7 @@ c	    Metal Feedback
             metal(i,j,k) = metal(i,j,k) +
      &            (1._RKIND-beta)*yield*mp(n)/d(i,j,k)		!Eq(40)
 
-            energy = sqrtepssn*mp(n)/msolar/v1/v1/d(i,j,k)  
+            energy = sqrtepssn*mp(n)/SolarMass/v1/v1/d(i,j,k)  
             energy = energy*sqrtepssn    ! this is due to floating-point issues (BWO)
 
             te(i,j,k) = te(i,j,k) + energy

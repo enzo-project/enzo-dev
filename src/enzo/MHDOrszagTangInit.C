@@ -26,16 +26,17 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "phys_constants.h"
+
 
 int MHDCTSetupFieldLabels();
 int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		      TopGridData &MetaData, ExternalBoundary &Exterior){
 
-  float Pi = 3.14159265;
-  float Density = 25.0/(36*Pi); 
-  float Pressure = 5.0/(12*Pi);
+  float Density = 25.0/(36*pi); 
+  float Pressure = 5.0/(12*pi);
   float V0=1.0;
-  float B0=1/sqrt(4*Pi);
+  float B0=1/sqrt(4*pi);
   //The Isothermal initial conditions come from Mignone, JCP, 2007
   if( EquationOfState == 1 ){
     Density = 1;

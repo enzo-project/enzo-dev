@@ -1,12 +1,16 @@
 #ifndef __macros_and_parameters_h_
 #define __macros_and_parameters_h_
 #include "string.h"
+
+#ifndef ENZO_CMODE
 #include <iostream>
 #include <iomanip>
 #include <vector>
 #include <algorithm>
 #include <map>
 #include <cassert>
+#endif
+
 /***********************************************************************
 /
 / MACRO DEFINITIONS AND PARAMETERS
@@ -19,6 +23,10 @@
 #include <Python.h>
 #include "numpy/arrayobject.h"
 #endif
+#endif
+
+#ifdef USE_MPI
+#include "mpi.h"
 #endif
 
 #ifdef ECUDA
@@ -72,7 +80,7 @@
 
 #define MAX_STATIC_REGIONS               1000
 
-#define MAX_REFINE_REGIONS               150
+#define MAX_REFINE_REGIONS               8000
 
 #ifdef WINDS
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
@@ -95,11 +103,15 @@
 
 #define MAX_ENERGY_BINS                    10
 
+#define MAX_ACTIVE_PARTICLE_TYPES          30
+
 #define MAX_CROSS_SECTIONS                  4
 
 #define ROOT_PROCESSOR                      0
 
-#define VERSION                             2.5  /* current version number */
+#define VERSION                             2.6  /* current version number */
+
+#define NUMBER_ENZO_PARTICLE_TYPES           3  /* Dark Matter, Stars, Active Particles */
 
 /* Unmodifiable Parameters */
 
@@ -363,6 +375,15 @@ typedef long long int   HDF5_hid_t;
 #define COS(X) cos((double) (X))
 #define SIN(X) sin((double) (X))
 #define ceil_log2(size) ((size) > 1 ? ((size_t)pow(2, (int)log2(size-1)+1)) : 1 )
+#ifdef CONFIG_PFLOAT_4
+#define MODF(X,Y) modff((X), (Y))
+#elif CONFIG_PFLOAT_8
+#define MODF(X,Y) modf((X), (Y))
+#elif CONFIG_PFLOAT_16
+#define MODF(X,Y) modfl((X), (Y))
+#else
+#define MODF(X,Y) modf((X), (Y))
+#endif
 
 /* Macros for grid indices (with and without ghost zones, and
    vertex-centered data) */
@@ -466,6 +487,15 @@ typedef long long int   HDF5_hid_t;
 #define MPI_SENDMARKER_TAG 24
 #define MPI_SGMARKER_TAG 25
 
+/* The Active Particle tag is this big to ensure that the sends and
+   recvs in grid::CommunicationSendActiveParticles match up and that the AP
+   type index can be added to the tag value without stepping on any other tags.
+   There are N tags related to this, where N is the number of active particle
+   types enabled.
+   This would not be necessary if all APs were sent/received in one go.
+*/
+#define MPI_SENDAP_TAG 2000
+
 // There are 5 tags related to this (1000-1004)
 #define MPI_SENDPARTFIELD_TAG 1000
 
@@ -494,8 +524,15 @@ typedef long long int   HDF5_hid_t;
 #define PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT 13
 #define PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII 14
 #define PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED 15
+#define PARTICLE_TYPE_RAD           16
 
 #define CHILDRENPERPARENT           12
+
+/* Splitting particles more than 4 times can induce numerical
+   artifacts */
+
+#define MAX_SPLIT_ITERATIONS        4
+
 /* Ways to deposit particles from a subgrid. */
 
 #define CIC_DEPOSIT        0

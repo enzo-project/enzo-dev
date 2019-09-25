@@ -65,7 +65,7 @@ int grid::ClusterSMBHEachGridGasMass(int level)
 
   int dim = 0;
   float DiskRadius; //ClusterSMBHDiskRadius = 0.5;  ClusterSMBHDiskRadiu now a parameter.
-  DiskRadius = ClusterSMBHDiskRadius*kpc/LengthUnits; //from kpc to codeunits 
+  DiskRadius = ClusterSMBHDiskRadius*kpc_cm/LengthUnits; //from kpc to codeunits 
   for (dim = 0; dim < GridRank; dim++) {
     DiskCenter[dim] = PointSourceGravityPosition[dim];
     DiskLeftCorner[dim] = PointSourceGravityPosition[dim]- DiskRadius;

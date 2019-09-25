@@ -34,6 +34,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "phys_constants.h"
+
 #define MAX_TEMPERATURE 1e8
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -50,9 +52,6 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 			    LevelHierarchyEntry *LevelArray[], int level, 
 			    Star* &AllStars, bool* &AddedFeedback)
 {
-
-  const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   Star *cstar;
   bool MarkedSubgrids = false;
@@ -232,8 +231,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     } // ENDIF
 
 //    fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
-//	    "Radius = %e pc, changed %"ISYM" cells.\n", 
-//	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc, CellsModified); 
+//	    "Radius = %e pc_cm, changed %"ISYM" cells.\n", 
+//	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc_cm, CellsModified); 
 
     /* Remove mass from the star that is added to grids. Also, because EjectaDensity 
        is added with zero net momentum, increase the particle's velocity accordingly. 
@@ -265,7 +264,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
       if (cstar->ReturnFeedbackFlag() != FORMATION)
 	fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 		"Radius = %"GSYM" pc\n",
-		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
+		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc_cm);
       if (cstar->ReturnFeedbackFlag() == DEATH || 
 
 	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||

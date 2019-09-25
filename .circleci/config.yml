@@ -1,0 +1,253 @@
+version: 2.1
+
+commands:
+  set-env:
+    description: "Set environment variables."
+    steps:
+      - run: |
+          echo 'export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH' >> $BASH_ENV
+          echo 'export ENZOTEST_DIR=$HOME/enzo_test' >> $BASH_ENV
+          echo 'export ANSWER_NAME="push_suite"' >> $BASH_ENV
+          echo 'export HYPRE=hypre-2.11.2' >> $BASH_ENV
+          # get tags from the main repository (for the current gold standard)
+          git fetch --tags https://github.com/enzo-project/enzo-dev
+          # tag the tip so we can go back to it
+          git tag tip
+
+  install-dependencies:
+    description: "Install dependencies."
+    steps:
+      - run: |
+          source $BASH_ENV
+          sudo apt-get update
+          sudo apt-get install -y csh libhdf5-serial-dev libopenmpi-dev openmpi-bin gfortran libtool-bin
+          python3 -m venv $HOME/venv
+          source $HOME/venv/bin/activate
+          pip install --upgrade pip
+          pip install --upgrade wheel
+          pip install --upgrade setuptools
+          pip install Cython numpy h5py matplotlib fastcache flake8 nose yt girder-client
+          # Install hypre
+          mkdir -p $HOME/local
+          if [ ! -f $HOME/local/lib/libHYPRE.a ]; then
+            cd $HOME
+            wget https://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods/download/$HYPRE.tar.gz
+            tar xvfz $HYPRE.tar.gz
+            cd $HYPRE/src
+            ./configure --with-MPI --with-MPI-include=/usr/include/mpi --with-MPI-libs=mpi --with-MPI-lib-dirs=/usr/lib --prefix=$HOME/local
+            make install
+          fi
+
+  install-grackle:
+    description: "Install grackle."
+    steps:
+      - run: |
+          git clone -b master https://github.com/grackle-project/grackle $HOME/grackle
+          cd $HOME/grackle
+          ./configure
+          cd src/clib
+          make machine-linux-gnu
+          make
+          make install
+
+  install-docs-dependencies:
+    description: "Install dependencies for docs build."
+    steps:
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y dvipng texlive-latex-extra
+          python3 -m venv $HOME/venv
+          source $HOME/venv/bin/activate
+          pip install --upgrade pip
+          pip install --upgrade wheel
+          pip install --upgrade setuptools
+          pip install sphinx
+
+  download-test-data:
+    description: "Download test data."
+    steps:
+      - run: |
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          girder-cli --api-url https://girder.hub.yt/api/v1 download 5af9ef42ec1bd30001fcd001 $HOME/enzo-dev/run/CosmologySimulation
+
+  build-and-test:
+    description: "Compile enzo and run tests."
+    parameters:
+      tag:
+        type: string
+        default: tip
+      skipfile:
+        type: string
+        default: ""
+      flags:
+        type: string
+        default: ""
+    steps:
+      - run: |
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          if [ ! -f << parameters.skipfile >> ]; then
+            git checkout << parameters.tag >>
+            ./configure
+            cd src/enzo
+            make machine-ubuntu
+            make load-config-test-suite
+            make clean
+            make -j 4
+            cd ../../run
+            python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=$ANSWER_NAME --local --strict=high --verbose << parameters.flags >>
+          fi
+
+  compile-test:
+    description: "Test that enzo compiles in a few different configurations."
+    steps:
+      - run: |
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          ./configure
+          cd src/enzo
+          make machine-ubuntu
+          # test various baryon/particle precisions
+          for prec in 32 64
+          do for part in 32 64 128
+          do
+          # skip the test-suite configuration
+          if [[ $prec == 64 && $part == 64 ]]; then
+          continue
+          fi
+          make precision-$prec
+          make particles-$part
+          make clean
+          make -j 4 || (make show-config ; exit 1)
+          done ; done
+          # return this to default
+          make precision-64
+          make particles-64
+          # test various integer/particle-id precisions
+          for inte in 32 64
+          do for pids in 32 64
+          do
+          # skip the test-suite configuration
+          if [[ $inte == 32 && $pids == 32 ]]; then
+          continue
+          fi
+          make integers-$inte
+          make particle-id-$pids
+          make clean
+          make -j 4 || (make show-config ; exit 1)
+          done ; done
+          make integers-64
+          make particle-id-64
+          # test without mpi
+          make use-mpi-no
+          make clean
+          make -j 4 || (make show-config ; exit 1)
+          make use-mpi-yes
+          # test ray-tracing
+          make photon-no
+          make clean
+          make -j 4 || (make show-config ; exit 1)
+
+  build-docs:
+    description: "Test the docs build."
+    steps:
+      - run: |
+          source $HOME/venv/bin/activate
+          cd doc/manual/source
+          python -m sphinx -M html "." "_build" -W
+
+jobs:
+  test-suite:
+    docker:
+      - image: circleci/python:3.7.2
+
+    working_directory: ~/enzo-dev
+
+    steps:
+      - checkout
+      - set-env
+
+      - restore_cache:
+          name: "Restore dependencies cache."
+          key: dependencies-v1
+
+      - install-dependencies
+
+      - save_cache:
+          name: "Save dependencies cache"
+          key: dependencies-v1
+          paths:
+            - ~/.cache/pip
+            - ~/venv
+            - ~/local
+
+      - install-grackle
+      - download-test-data
+
+      - restore_cache:
+          name: "Restore test answers."
+          key: test-answers-v12a
+
+      - build-and-test:
+          tag: gold-standard-v12
+          skipfile: ~/enzo_test/push_suite/push_suite
+          flags: --answer-store
+
+      - save_cache:
+          name: "Save test answers cache."
+          key: test-answers-v12a
+          paths:
+            - ~/enzo_test/push_suite
+
+      - build-and-test:
+          tag: tip
+          skipfile: notafile
+          flags: --clobber
+
+  test-compile-options:
+    docker:
+      - image: circleci/python:3.7.2
+
+    working_directory: ~/enzo-dev
+
+    steps:
+      - checkout
+      - set-env
+
+      - restore_cache:
+          name: "Restore dependencies cache."
+          key: dependencies-v1
+
+      - install-dependencies
+
+      - save_cache:
+          name: "Save dependencies cache"
+          key: dependencies-v1
+          paths:
+            - ~/.cache/pip
+            - ~/venv
+            - ~/local
+
+      - install-grackle
+      - compile-test
+
+  docs-build:
+    docker:
+      - image: circleci/python:3.7.2
+
+    working_directory: ~/enzo-dev
+
+    steps:
+      - checkout
+      - install-docs-dependencies
+      - build-docs
+
+workflows:
+   version: 2
+
+   tests:
+     jobs:
+       - test-compile-options
+       - test-suite
+       - docs-build

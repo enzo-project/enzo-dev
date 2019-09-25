@@ -61,7 +61,7 @@ int grid::OldStarFeedback()
   float EnergyUnits;
   EnergyUnits = MassUnits* POW(VelocityUnits, 2.0);
 
-  a=(EllipticalGalaxyRe*3.0856e21/1.8153)/LengthUnits;  // in code unit
+  a=(EllipticalGalaxyRe*kpc_cm/1.8153)/LengthUnits;  // in code unit
 
 
   FLOAT r, x, y = 0, z = 0, rho_star=0;
@@ -84,7 +84,7 @@ int grid::OldStarFeedback()
                    POW(fabs(y-0.5), 2) +
                    POW(fabs(z-0.5), 2) );
         r = max(r, 0.1*CellWidth[0][0]);
-        rho_star=ClusterSMBHBCG*1.989e33*1.0e11*a/(2.0*pi*r*POW((r+a)*LengthUnits,3)); //both r and a are in code units
+        rho_star=ClusterSMBHBCG*SolarMass*1.0e11*a/(2.0*pi*r*POW((r+a)*LengthUnits,3)); //both r and a are in code units
         BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] += (0.000475*rho_star*(dtFixed*TimeUnits)*SNIaFeedbackEnergy  //SNIa
                                                         +rho_star*(dtFixed*TimeUnits)*OldStarFeedbackAlpha*1.0e-19*POW(300.0*1.0e5,2)) //Stellar
                                                         /(EnergyUnits*BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)]);   

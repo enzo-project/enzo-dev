@@ -22,6 +22,7 @@
 #include "global_data.h"
 #include "TopGridData.h"
 #include "StarParticleData.h"
+#include "phys_constants.h"
  
 /* character strings */
  
@@ -49,7 +50,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
  
   /* declarations */
  
-  const float Pi = 3.14159;
   int dim, i, j;
  
   huge_number               = 1.0e+20;
@@ -192,6 +192,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HydroMethod               = PPM_DirectEuler;   //
   Gamma                     = 5.0/3.0;           // 5/3
   PressureFree              = FALSE;             // use pressure (duh)
+  QuantumPressure           = FALSE;             // FDM: no fuzzy dark matter
+  FDMMass           = 1.0;             // FDM: FDM mass 1e-22 eV
+
   RefineBy                  = 2;                 // Refinement factor
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
@@ -244,6 +247,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MustRefineRegionRightEdge[dim]  = 1.0;
     MustRefineParticlesLeftEdge[dim] = 0.0;
     MustRefineParticlesRightEdge[dim] = 0.0;
+    CoolingRefineRegionLeftEdge[dim]   = 0.0;
+    CoolingRefineRegionRightEdge[dim]  = 1.0;
     DiskGravityPosition[dim]        = 0.0;
     DiskGravityAngularMomentum[dim] = 0.0;
     DiskGravityDarkMatterCOM[dim]   = 0.0;
@@ -290,6 +295,36 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     }
   }
 
+  /* for cooling refinement regions. */
+
+  UseCoolingRefineRegion = FALSE;
+  EvolveCoolingRefineRegion = FALSE;
+  CoolingRefineRegionFile = NULL;
+  CoolingRefineRegionTimeType = -1; /* 0=time bins 1=redshift bins*/
+
+  for (i = 0; i < MAX_REFINE_REGIONS; i++) {
+    EvolveCoolingRefineRegionTime[i] = FLOAT_UNDEFINED;
+    for (j = 0; j < MAX_DIMENSION; j++) {
+      EvolveCoolingRefineRegionLeftEdge[i][j]  = FLOAT_UNDEFINED;
+      EvolveCoolingRefineRegionRightEdge[i][j] = FLOAT_UNDEFINED;
+    }
+  }
+
+
+  /* For evolving MustRefine regions. */
+  MustRefineRegionFile = NULL;
+  MustRefineRegionTimeType = -1; /* 0=time bins 1=redshift bins*/
+  for (i = 0; i < MAX_REFINE_REGIONS; i++) {
+    EvolveMustRefineRegionTime[i] = FLOAT_UNDEFINED;
+    EvolveMustRefineRegionMinLevel[i] = INT_UNDEFINED;
+    for (j = 0; j < MAX_DIMENSION; j++) {
+      EvolveMustRefineRegionLeftEdge[i][j]  = FLOAT_UNDEFINED;
+      EvolveMustRefineRegionRightEdge[i][j] = FLOAT_UNDEFINED;
+    }
+  }
+
+  /* For storing mass of density fields living domain */
+>>>>>>> d8fd5a56a50dd26d7b99812f020948a2ab069378
   StoreDomainBoundaryMassFlux = 0;
   BoundaryMassFluxFilename    = "boundary_mass_flux.dat";
   for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
@@ -299,7 +334,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   DatabaseLocation = NULL;
 
- 
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;
   Unigrid                     = FALSE;
@@ -393,7 +427,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   AccretionKernal             = FALSE;             // off
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
-  GravitationalConstant       = 4*Pi;              // G = 1
+  GravitationalConstant       = 4*pi;              // G = 1
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
@@ -430,6 +464,22 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     DrivenFlowVelocity[dim] = 0.0;
     DrivenFlowDomainLength[dim] = 0.0;
   }
+
+  UseSGSModel = 0; // off
+  SGSFilterStencil = 0; // the one-dimensional stencil of the complete filter 
+  SGSNeedJacobians = 0; // set automatically in ReadParameter file 
+  SGSNeedMixedFilteredQuantities = 0; // set automatically in ReadParameter file
+  SGSFilterWidth = 0.; // off, i.e. use grid-scale quantities
+  for (i = 0; i < 4; i++)
+    // discrete filter weights of explicit filter
+    SGSFilterWeights[i] = 0.;
+  SGScoeffERS2M2Star = 0.0; // off
+  SGScoeffEVStarEnS2Star = 0.0; // off
+  SGScoeffEnS2StarTrace = 0.0; // off
+  SGScoeffNLemfCompr = 0.0; // off
+  SGScoeffNLu = 0.0; // off
+  SGScoeffNLuNormedEnS2Star = 0.0; // off
+  SGScoeffNLb = 0.0; // off
 
   RadiativeCooling            = FALSE;             // off
   RadiativeCoolingModel       = 1;                 //1=cool_rates.in table lookup
@@ -515,6 +565,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
+  use_grackle = FALSE;
 #ifdef USE_GRACKLE
     // Grackle chemistry data structure.
   chemistry_data *my_chemistry;
@@ -893,6 +944,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     ChemicalEvolutionTestStarVelocity[dim] = 0.0;
   }
 
+  StarMakerMinimumMassRamp = 0;
+  StarMakerMinimumMassRampStartTime = FLOAT_UNDEFINED;
+  StarMakerMinimumMassRampStartMass = FLOAT_UNDEFINED;
+  StarMakerMinimumMassRampEndTime   = FLOAT_UNDEFINED;
+  StarMakerMinimumMassRampEndMass   = FLOAT_UNDEFINED;
+
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
   LastSupernovaTime                = FLOAT_UNDEFINED;
@@ -1165,6 +1222,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParticleSplitterIterations = FALSE;
   ParticleSplitterChildrenParticleSeparation = 1.0;
   ParticleSplitterRandomSeed = 131180;
+  ParticleSplitterMustRefine = FALSE;
+  ParticleSplitterMustRefineIDFile = NULL;
+  for(int i = 0; i < MAX_SPLIT_ITERATIONS; i++)
+    ParticleSplitterFraction[i] = 1.0;
+  for(int i = 0; i < MAX_DIMENSION; i++)
+    ParticleSplitterCenter[i] = -1.0;
+  for(int i = 0; i < MAX_SPLIT_ITERATIONS; i++)
+    ParticleSplitterCenterRegion[i] = -1.0;
 
   /* Magnetic Field Resetter */
 
@@ -1177,6 +1242,29 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   BAnyl                       = 0;
   WriteExternalAccel          = 0;
 
+  for (i = 0; i < MAX_ACTIVE_PARTICLE_TYPES; i++)
+    EnabledActiveParticles[i] = NULL;
+  EnabledActiveParticlesCount = 0;
+  UnfulfilledStarFormationMass = 0;
+  NextActiveParticleID = INT_UNDEFINED;
+  NumberOfActiveParticles = 0;
+  ActiveParticleDensityThreshold = 1e8; //in cm^-3
+  //SmartStar Feedback modes
+  SmartStarFeedback = FALSE;
+  SmartStarEddingtonCap = FALSE;
+  SmartStarBHFeedback = FALSE;
+  SmartStarBHRadiativeFeedback = FALSE;
+  SmartStarBHJetFeedback = FALSE;
+  SmartStarBHThermalFeedback = FALSE;
+  SmartStarStellarRadiativeFeedback = FALSE;
+  
+  //SmartStar Feedback parameters - should be as minimal as possible
+  SmartStarFeedbackEnergyCoupling = 0.016666;
+  SmartStarFeedbackJetsThresholdMass = 1.0;
+  SmartStarJetVelocity = 1e-1; //as a fraction of clight
+  SmartStarSuperEddingtonAdjustment = TRUE;
+  SmartStarSpin = 0.7;
+  SmartStarSMSLifetime = 1e6; //1 Myr
   /* Gas drag parameters */
   UseGasDrag = 0;
   GasDragCoefficient = 0.;

@@ -26,6 +26,7 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "hydro_rk/EOS.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -90,7 +91,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
   float lengthz=DomainRightEdge[2]-DomainLeftEdge[2];
 
   float h, cs, dpdrho, dpde, H, pressure;  	
-  float bunit=sqrt(4.0*M_PI*rhou*velu*velu);
+  float bunit=sqrt(4.0*pi*rhou*velu*velu);
 
   FLOAT x,y,z;
 
@@ -127,8 +128,8 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
           pressure = c_s*c_s*rho/Gamma;
 	}
 	else if (ShearingBoxProblemType == 1){ 
-	  xVel[ShearingBoundaryDirection]=magnitude*sin(xPos[ShearingOtherDirection]*2.0*ShearingGeometry*M_PI);
-	  xVel[ShearingVelocityDirection]=magnitude/3.*sin(xPos[ShearingVelocityDirection]*2.0*ShearingGeometry*M_PI);
+	  xVel[ShearingBoundaryDirection]=magnitude*sin(xPos[ShearingOtherDirection]*2.0*ShearingGeometry*pi);
+	  xVel[ShearingVelocityDirection]=magnitude/3.*sin(xPos[ShearingVelocityDirection]*2.0*ShearingGeometry*pi);
 	  BaryonField[iden ][n] = rho;
 	}
 	else if (ShearingBoxProblemType == 2){
@@ -140,7 +141,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
            */
           float N_x = 0., N_y = 1., N_z = 4.;
           c_s = 4.08*AngularVelocity;
-          xVel[ShearingBoundaryDirection] = magnitude*sin(2*M_PI*(N_x* xPos[ShearingBoundaryDirection] + N_y * xPos[ShearingVelocityDirection] + N_z * xPos[ShearingOtherDirection]));
+          xVel[ShearingBoundaryDirection] = magnitude*sin(2.0*pi*(N_x* xPos[ShearingBoundaryDirection] + N_y * xPos[ShearingVelocityDirection] + N_z * xPos[ShearingOtherDirection]));
           BaryonField[iden][n] = rho;
           if (EOSType == 3)
             pressure=c_s*c_s*rho/Gamma;
@@ -156,7 +157,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
         }
 
         float realpressure=pressure*PressureUnits;  
-	float InitialBField=sqrt((8*M_PI*realpressure/(ThermalMagneticRatio)))/bunit;
+	float InitialBField=sqrt((8.0*pi*realpressure/(ThermalMagneticRatio)))/bunit;
 	float rhoActual=BaryonField[iden ][n];
 
 	eint=0.0;
@@ -185,7 +186,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	  if (InitialMagneticFieldConfiguration == 0) 
 	    BaryonField[iB[ShearingOtherDirection]][n] = InitialBField;
 	  else if (InitialMagneticFieldConfiguration == 1) 
-	    BaryonField[iB[ShearingOtherDirection]][n] = InitialBField*sin(2*M_PI*xPos[ShearingBoundaryDirection]);
+	    BaryonField[iB[ShearingOtherDirection]][n] = InitialBField*sin(2*pi*xPos[ShearingBoundaryDirection]);
 	  
 	  BaryonField[ietot][n] = eint + 0.5*v2
 	    + 0.5*(BaryonField[iB[ShearingOtherDirection]][n]*

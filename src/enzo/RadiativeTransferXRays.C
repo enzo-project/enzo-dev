@@ -24,9 +24,10 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
-int grid::RadiativeTransferXRays(PhotonPackageEntry **PP, FLOAT *dPXray, int cellindex,
-				 int species, FLOAT ddr, FLOAT tau,  float geo_correction,
+int grid::RadiativeTransferXRays(PhotonPackageEntry **PP, FLOAT *dPXray, int cellindex, 
+				 int species, FLOAT ddr, float tau,  FLOAT geo_correction,
 				 FLOAT photonrate, FLOAT *excessrate, float *ion2_factor,
 				 float heat_factor, const int *kphNum, int gammaNum)
 {  
@@ -57,23 +58,23 @@ int grid::RadiativeTransferXRays(PhotonPackageEntry **PP, FLOAT *dPXray, int cel
 
 #define COMPTON 3
 
-int grid::RadiativeTransferComptonHeating(PhotonPackageEntry **PP, FLOAT *dPXray, int cellindex,
-					  float LengthUnits, float photonrate, 
+int grid::RadiativeTransferComptonHeating(PhotonPackageEntry **PP, FLOAT *dPXray, int cellindex, 
+					  float LengthUnits, FLOAT photonrate, 
 					  int TemperatureField, FLOAT ddr, double dN, 
 					  float geo_correction, int gammaNum)
 {
   FLOAT xE = 0.0, ratioE = 0.0, dP1 = 0.0, xray_sigma = 0.0;
   FLOAT excess_heating = 0.0;
-  const double k_b = 8.62e-5; // eV/K
+
   float tau = 0.0;
   // assume photon energy is much less than the electron rest mass energy 
   // nonrelativistic Klein-Nishina cross-section in Rybicki & Lightman (1979)
   xE = (*PP)->Energy/5.11e5;  // h*nu/(m_e*c^2)
-  xray_sigma = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits; //Equation 7.6a
+  xray_sigma = sigma_thompson * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits; //Equation 7.6a
   
   // also, nonrelativistic energy transfer in Ciotti & Ostriker (2001)
-  excess_heating = photonrate * 4 * k_b * BaryonField[TemperatureField][cellindex] * xE;
-  ratioE = 4 * k_b * BaryonField[TemperatureField][cellindex] * xE / (*PP)->Energy; 
+  excess_heating = photonrate * 4 * kboltz * BaryonField[TemperatureField][cellindex] * xE;
+  ratioE = 4 * kboltz * BaryonField[TemperatureField][cellindex] * xE / (*PP)->Energy; 
   
   tau = dN*xray_sigma;
   
@@ -96,7 +97,7 @@ int grid::RadiativeTransferComptonHeating(PhotonPackageEntry **PP, FLOAT *dPXray
   // a photon loses only a fraction of photon energy in Compton scatering, 
   // and keeps propagating; to model this with monochromatic energy,
   // we instead subtract #photons (dPXray[COMPTON]_new) from PP
-  // (photon energy absorbed) = dPXray[COMPTON]     * (4*k_B*T*xE) 
+  // (photon energy absorbed) = dPXray[COMPTON]     * (4*kboltz*T*xE) 
   //                          = dPXray[COMPTON]_new * (*PP)->Energy
   // See also Kim et al. (2011)
   dPXray[COMPTON] *= ratioE;

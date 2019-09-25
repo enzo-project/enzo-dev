@@ -75,11 +75,6 @@ help-config:
 	@echo "      gmake use-mpi-yes"
 	@echo "      gmake use-mpi-no"
 	@echo
-	@echo "   Set address/pointer size"
-	@echo
-	@echo "      gmake object-mode-32"
-	@echo "      gmake object-mode-64"
-	@echo
 	@echo "   Set whether to use unigrid taskmap performance mod"
 	@echo
 	@echo "      gmake taskmap-yes"
@@ -273,7 +268,6 @@ show-config:
 	@echo "   CONFIG_INITS  [inits-{32,64}]                             : $(CONFIG_INITS)"
 	@echo "   CONFIG_IO  [io-{32,64}]                                   : $(CONFIG_IO)"
 	@echo "   CONFIG_USE_MPI  [use-mpi-{yes,no}]                        : $(CONFIG_USE_MPI)"
-	@echo "   CONFIG_OBJECT_MODE  [object-mode-{32,64}]                 : $(CONFIG_OBJECT_MODE)"
 	@echo "   CONFIG_TASKMAP  [taskmap-{yes,no}]                        : $(CONFIG_TASKMAP)"
 	@echo "   CONFIG_PACKED_AMR  [packed-amr-{yes,no}]                  : $(CONFIG_PACKED_AMR)"
 	@echo "   CONFIG_PACKED_MEM  [packed-mem-{yes,no}]                  : $(CONFIG_PACKED_MEM)"
@@ -313,14 +307,14 @@ suggest-clean:
 
 show-version:
 	@echo
-	@echo "Mercurial Branch   `$(SVN) identify -b`"
-	@echo "Mercurial Revision `$(SVN) identify -i`"
+	@echo "Git Branch   `git rev-parse --abbrev-ref HEAD`"
+	@echo "Git Revision `git rev-parse HEAD`"
 	@echo
 
 #-----------------------------------------------------------------------
 
 show-diff:
-	@$(SVN) diff
+	@git diff
 
 #-----------------------------------------------------------------------
 .PHONY: default
@@ -397,14 +391,14 @@ machine-%: suggest-clean
 
 load-config-%:
 	@if [ -e $(HOME)/.enzo/Make.settings.$* ]; then \
-           @tmp=.config.temp; \
+           tmp=.config.temp; \
 	   cat $(HOME)/.enzo/Make.settings.$* > $(MAKE_CONFIG_OVERRIDE); \
            echo; \
            echo "   CONFIG SETTINGS: $*"; \
 	   $(MAKE) show-config; \
 	   $(MAKE) suggest-clean; \
 	elif [ -e Make.settings.$* ]; then \
-           @tmp=.config.temp; \
+           tmp=.config.temp; \
 	   cat Make.settings.$* > $(MAKE_CONFIG_OVERRIDE); \
            echo; \
            echo "   CONFIG SETTINGS: $*"; \
@@ -547,23 +541,6 @@ CONFIG_USE-MPI-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_USE_MPI = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_USE_MPI; \
-	echo
-
-#-----------------------------------------------------------------------
-
-VALID_OBJECT-MODE = object-mode-32 object-mode-64
-.PHONY: $(VALID_OBJECT-MODE)
-
-object-mode-32: CONFIG_OBJECT-MODE-32
-object-mode-64: CONFIG_OBJECT-MODE-64
-object-mode-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_OBJECT-MODE)]\n\n"
-CONFIG_OBJECT-MODE-%: suggest-clean
-	@tmp=.config.temp; \
-        grep -v CONFIG_OBJECT_MODE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_OBJECT_MODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_OBJECT_MODE; \
 	echo
 
 #-----------------------------------------------------------------------

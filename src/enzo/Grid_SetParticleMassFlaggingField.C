@@ -99,7 +99,7 @@ int grid::SetParticleMassFlaggingField(
     // given range and has particles.
     if (MyProcessorNumber != ProcessorNumber &&
 	(MyProcessorNumber < StartProc || MyProcessorNumber >= EndProc ||
-	 NumberOfParticles == 0))
+	 NumberOfParticles == 0 && NumberOfActiveParticles == 0))
       return SUCCESS;
 
     /***********************************************************************/

@@ -35,8 +35,10 @@ struct ParticleEntry {
 /* Number of Star particles. */
 
 SPEXTERN int NumberOfStarParticles;
+SPEXTERN int NumberOfActiveParticles;
 SPEXTERN int NumberOfDeletedParticles;
 SPEXTERN PINT NumberOfOtherParticles; //all the particles other than type=2
+SPEXTERN PINT NextActiveParticleID;
 SPEXTERN int G_TotalNumberOfStars;
 
 /* Star particle parameters. */
@@ -112,6 +114,8 @@ SPEXTERN float  MBHAccretionFixedTemperature;
 SPEXTERN float  MBHAccretionFixedRate;
 SPEXTERN int    MBHTurnOffStarFormation;
 SPEXTERN float  MBHCombineRadius;
+
+SPEXTERN float UnfulfilledStarFormationMass;
 
 SPEXTERN int    MBHFeedback;
 SPEXTERN float  MBHFeedbackRadiativeEfficiency;
@@ -213,6 +217,9 @@ SPEXTERN int IndividualStarOTRadiationMethod;
 
 SPEXTERN int   IndividualStarPopIIIFormation;
 
+SPEXTERN int AccretingParticleRadiation;
+SPEXTERN double AccretingParticleLuminosity;
+
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
 
@@ -222,5 +229,12 @@ SPEXTERN float *SecondaryIMFData;
 SPEXTERN float TypeIILowerMass, TypeIIUpperMass;
 SPEXTERN float PISNLowerMass, PISNUpperMass;
 SPEXTERN float PopIIIPISNEnergy;
+
+/* for star particle minimum mass ramp */
+SPEXTERN int StarMakerMinimumMassRamp;
+SPEXTERN float StarMakerMinimumMassRampStartTime;
+SPEXTERN float StarMakerMinimumMassRampStartMass;
+SPEXTERN float StarMakerMinimumMassRampEndTime;
+SPEXTERN float StarMakerMinimumMassRampEndMass;
 
 #endif

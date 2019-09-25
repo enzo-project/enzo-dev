@@ -20,6 +20,7 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
   
 int InitializeHM12Photorates()
 {
@@ -37,9 +38,7 @@ int InitializeHM12Photorates()
  
   int index = 0;
   char line[MAX_LINE_LENGTH];
-  double ev2erg;
 
-  ev2erg = 1.60217657e-12;
 
   RateData.HM12NumberOfRedshiftBins = 0;
 
@@ -70,15 +69,15 @@ int InitializeHM12Photorates()
 		 &RateData.HM12Compton[index]) == 8) {
 	
 	RateData.HM12GH1[index] = log10( RateData.HM12GH1[index] ); 
-	RateData.HM12GhH1[index] = log10( RateData.HM12GhH1[index]*ev2erg ); 
+	RateData.HM12GhH1[index] = log10( RateData.HM12GhH1[index]*erg_eV ); 
 
 	RateData.HM12GHe1[index] = log10( RateData.HM12GHe1[index] );
-	RateData.HM12GhHe1[index] = log10( RateData.HM12GhHe1[index]*ev2erg ); 
+	RateData.HM12GhHe1[index] = log10( RateData.HM12GhHe1[index]*erg_eV ); 
 
 	RateData.HM12GHe2[index]  = log10( RateData.HM12GHe2[index] ); 
-	RateData.HM12GhHe2[index] = log10( RateData.HM12GhHe2[index]*ev2erg );  
+	RateData.HM12GhHe2[index] = log10( RateData.HM12GhHe2[index]*erg_eV );  
 
-	RateData.HM12Compton[index] = log10( RateData.HM12Compton[index]*ev2erg ); 
+	RateData.HM12Compton[index] = log10( RateData.HM12Compton[index]*erg_eV ); 
 	
 	index++;
 	

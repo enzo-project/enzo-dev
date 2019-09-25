@@ -19,7 +19,6 @@
 #    CONFIG_INITS
 #    CONFIG_IO
 #    CONFIG_USE_MPI
-#    CONFIG_OBJECT_MODE
 #    CONFIG_TASKMAP
 #    CONFIG_PACKED_AMR
 #    CONFIG_PACKED_MEM
@@ -115,15 +114,6 @@
 #-----------------------------------------------------------------------
 
      CONFIG_USE_MPI = yes
-
-#=======================================================================
-# CONFIG_OBJECT_MODE
-#=======================================================================
-#    32            compile using 32-bit object format
-#    64            compile using 64-bit object format
-#-----------------------------------------------------------------------
-
-     CONFIG_OBJECT_MODE = 64
 
 #=======================================================================
 # CONFIG_TASKMAP

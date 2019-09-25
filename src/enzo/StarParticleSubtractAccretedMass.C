@@ -32,6 +32,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "phys_constants.h"
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -45,9 +47,6 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 				     LevelHierarchyEntry *LevelArray[], int level, 
 				     Star *&AllStars)
 {
-
-  const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   Star *cstar;
   bool MarkedSubgrids = false;
@@ -200,7 +199,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 	if (cstar->ReturnFeedbackFlag() != FORMATION)
 	  fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
 		  "Radius = %"GSYM" pc\n",
-		  cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
+		  cstar->ReturnID(), level, influenceRadius*LengthUnits/pc_cm);
 	fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
 		"changed %"ISYM" cells.\n", 
 		cstar->ReturnID(), level, CellsModified);

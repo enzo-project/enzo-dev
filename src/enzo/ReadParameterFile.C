@@ -24,11 +24,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
-
-#ifdef CONFIG_USE_LIBCONFIG
-#include <libconfig.h++>
-#endif
- 
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -39,6 +34,8 @@
 #include "TopGridData.h"
 #include "hydro_rk/EOS.h" 
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
+#include "ActiveParticle.h"
 
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
@@ -67,7 +64,7 @@ void get_uuid(char *buffer);
 
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {
-#ifndef CONFIG_USE_LIBCONFIG
+
   /* declarations */
 
   
@@ -77,7 +74,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   char *dummy = new char[MAX_LINE_LENGTH];
   dummy[0] = 0;
   int comment_count = 0;
- 
+
+  char **active_particle_types;
+  active_particle_types = new char*[MAX_ACTIVE_PARTICLE_TYPES];
+  int active_particles = 0;
+  
   /* read until out of lines */
 
   rewind(fptr);
@@ -318,6 +319,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "tiny_number            = %"FSYM, &tiny_number);
     ret += sscanf(line, "Gamma                  = %"FSYM, &Gamma);
     ret += sscanf(line, "PressureFree           = %"ISYM, &PressureFree);
+
+/* FDM: read FDM parameters */
+    ret += sscanf(line, "QuantumPressure          = %"ISYM, &QuantumPressure);
+    ret += sscanf(line, "FDMMass          = %"FSYM, &FDMMass);
+
     ret += sscanf(line, "RefineBy               = %"ISYM, &RefineBy);
     ret += sscanf(line, "MaximumRefinementLevel = %"ISYM,
 		  &MaximumRefinementLevel);
@@ -437,6 +443,33 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++;
     }
 
+    /* Read evolving MustRefineRegion */
+
+    ret += sscanf(line, "MustRefineRegionTimeType = %"ISYM, &MustRefineRegionTimeType);
+    if (sscanf(line, "MustRefineRegionFile = %s", dummy) == 1) {
+      MustRefineRegionFile = dummy;
+      ret++;
+    }
+
+    /* cooling refinement region inputs */
+
+    ret += sscanf(line, "UseCoolingRefineRegion        = %"ISYM, &UseCoolingRefineRegion);
+    ret += sscanf(line, "EvolveCoolingRefineRegion     = %"ISYM, &EvolveCoolingRefineRegion);
+
+    ret += sscanf(line, "CoolingRefineRegionLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+		  CoolingRefineRegionLeftEdge, CoolingRefineRegionLeftEdge+1,
+		  CoolingRefineRegionLeftEdge+2);
+    ret += sscanf(line, "CoolingRefineRegionRightEdge  = %"PSYM" %"PSYM" %"PSYM,
+		  CoolingRefineRegionRightEdge, CoolingRefineRegionRightEdge+1,
+		  CoolingRefineRegionRightEdge+2);
+
+    ret += sscanf(line, "CoolingRefineRegionTimeType = %"ISYM, &CoolingRefineRegionTimeType);
+    if (sscanf(line, "CoolingRefineRegionFile = %s", dummy) == 1) {
+      CoolingRefineRegionFile = dummy;
+      ret++;
+    }
+
+
     if (sscanf(line, "DatabaseLocation = %s", dummy) == 1) {
       DatabaseLocation = dummy;
       ret++;
@@ -448,6 +481,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       DataUnits[dim] = dummy;
 
     ret += sscanf(line, "StoreDomainBoundaryMassFlux  = %"ISYM, &StoreDomainBoundaryMassFlux);
+
+    if (sscanf(line, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM, &dim, &int_dummy)){
+      BoundaryMassFluxFieldNumbers[dim] = int_dummy; ret++;
+    }
+
+    if (sscanf(line, "BoundaryMassFluxContainer[%"ISYM"]        = %"FSYM, &dim, &float_dummy)){
+       BoundaryMassFluxContainer[dim] = float_dummy; ret++;
+    }
+ 
+    ret += sscanf(line, "StoreDomainBoundaryMassFlux  = %"ISYM, &StoreDomainBoundaryMassFlux);
+    if (sscanf(line, "BoundaryMassFluxFilename = %s", dummy) == 1) {
+      BoundaryMassFluxFilename = dummy;
+      ret++;
+    }
 
     if (sscanf(line, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM, &dim, &int_dummy)){
       BoundaryMassFluxFieldNumbers[dim] = int_dummy; ret++;
@@ -550,10 +597,26 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   DrivenFlowVelocity, DrivenFlowVelocity+1, DrivenFlowVelocity+2);
     ret += sscanf(line, "DrivenFlowAutoCorrl = %"FSYM"%"FSYM"%"FSYM,
                      DrivenFlowAutoCorrl, DrivenFlowAutoCorrl+1, DrivenFlowAutoCorrl+2);
+    
+    ret += sscanf(line, "UseSGSModel = %"ISYM, &UseSGSModel);
+    ret += sscanf(line, "SGSFilterStencil = %"ISYM, &SGSFilterStencil);
+    ret += sscanf(line, "SGSFilterWidth = %"FSYM, &SGSFilterWidth);
+    ret += sscanf(line, "SGSFilterWeights = %"FSYM"%"FSYM"%"FSYM"%"FSYM,
+        &SGSFilterWeights[0],&SGSFilterWeights[1],&SGSFilterWeights[2],&SGSFilterWeights[3]);
+    ret += sscanf(line, "SGScoeffERS2M2Star = %"FSYM, &SGScoeffERS2M2Star);
+    ret += sscanf(line, "SGScoeffEVStarEnS2Star = %"FSYM, &SGScoeffEVStarEnS2Star);
+    ret += sscanf(line, "SGScoeffEnS2StarTrace = %"FSYM, &SGScoeffEnS2StarTrace);
+    ret += sscanf(line, "SGScoeffNLemfCompr = %"FSYM, &SGScoeffNLemfCompr);
+    ret += sscanf(line, "SGScoeffNLu = %"FSYM, &SGScoeffNLu);
+    ret += sscanf(line, "SGScoeffNLuNormedEnS2Star = %"FSYM, &SGScoeffNLuNormedEnS2Star);
+    ret += sscanf(line, "SGScoeffNLb =%"FSYM, &SGScoeffNLb);
+    ret += sscanf(line, "SGScoeffSSu = %"FSYM, &SGScoeffSSu);
+    ret += sscanf(line, "SGScoeffSSb =%"FSYM, &SGScoeffSSb);
+    ret += sscanf(line, "SGScoeffSSemf = %"FSYM, &SGScoeffSSemf);
 
+    ret += sscanf(line, "use_grackle = %"ISYM, &use_grackle);
 #ifdef USE_GRACKLE
     /* Grackle chemistry parameters */
-    ret += sscanf(line, "use_grackle = %d", &grackle_data->use_grackle);
     ret += sscanf(line, "with_radiative_cooling = %d",
                   &grackle_data->with_radiative_cooling);
     ret += sscanf(line, "use_volumetric_heating_rate = %d",
@@ -1301,6 +1364,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StellarYieldsNumberOfSpecies = %"ISYM, &StellarYieldsNumberOfSpecies);
     ret += sscanf(line, "StellarYieldsScaledSolarInitialAbundances = %"ISYM, &StellarYieldsScaledSolarInitialAbundances);
 
+    ret += sscanf(line, "StarMakerMinimumMassRamp = %"ISYM,
+		  &StarMakerMinimumMassRamp);
+    ret += sscanf(line, "StarMakerMinimumMassRampStartTime = %"FSYM,
+		  &StarMakerMinimumMassRampStartTime);
+    ret += sscanf(line, "StarMakerMinimumMassRampStartMass = %"FSYM,
+		  &StarMakerMinimumMassRampStartMass);
+    ret += sscanf(line, "StarMakerMinimumMassRampEndTime = %"FSYM,
+		  &StarMakerMinimumMassRampEndTime);
+    ret += sscanf(line, "StarMakerMinimumMassRampEndMass = %"FSYM,
+		  &StarMakerMinimumMassRampEndMass);
+
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
@@ -1512,6 +1586,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &ParticleSplitterRandomSeed);
     ret += sscanf(line, "ParticleSplitterChildrenParticleSeparation = %"FSYM,
 		  &ParticleSplitterChildrenParticleSeparation);
+    ret += sscanf(line, "ParticleSplitterMustRefine = %"ISYM,
+		  &ParticleSplitterMustRefine);
+    if (sscanf(line, "ParticleSplitterMustRefineIDFile = %s", dummy) == 1)
+      ParticleSplitterMustRefineIDFile = dummy;
+    ret += sscanf(line, "ParticleSplitterFraction    = %"FSYM" %"FSYM" %"FSYM" %"FSYM"",
+                  ParticleSplitterFraction+0, ParticleSplitterFraction+1, ParticleSplitterFraction+2,
+                  ParticleSplitterFraction+3);
+    ret += sscanf(line, "ParticleSplitterCenter    = %"PSYM" %"PSYM" %"PSYM"",
+                  ParticleSplitterCenter+0, ParticleSplitterCenter+1, ParticleSplitterCenter+2);
+    ret += sscanf(line, "ParticleSplitterCenterRegion  = %"FSYM" %"FSYM" %"FSYM" %"FSYM"",
+                  ParticleSplitterCenterRegion+0, ParticleSplitterCenterRegion+1,
+		  ParticleSplitterCenterRegion+2, ParticleSplitterCenterRegion+3);
     ret += sscanf(line, "ResetMagneticField = %"ISYM,
 		  &ResetMagneticField);
     ret += sscanf(line, "ResetMagneticFieldAmplitude  =  %"GSYM" %"GSYM" %"GSYM, 
@@ -1519,6 +1605,26 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  ResetMagneticFieldAmplitude+1,
 		  ResetMagneticFieldAmplitude+2);
 
+    if (sscanf(line, "AppendActiveParticleType = %s", dummy) == 1) {
+      printf("%s: Found Active Particle %s\n", __FUNCTION__, dummy);
+      active_particle_types[active_particles] = dummy;
+      active_particles++;
+    }
+    ret += sscanf(line, "ActiveParticleDensityThreshold = %"FSYM,
+		  &ActiveParticleDensityThreshold);
+    ret += sscanf(line, "SmartStarFeedback     = %"ISYM, &SmartStarFeedback);
+    ret += sscanf(line, "SmartStarEddingtonCap = %"ISYM, &SmartStarEddingtonCap);
+    ret += sscanf(line, "SmartStarBHFeedback = %"ISYM, &SmartStarBHFeedback);
+    ret += sscanf(line, "SmartStarBHJetFeedback  = %"ISYM, &SmartStarBHJetFeedback);
+    ret += sscanf(line, "SmartStarBHThermalFeedback  = %"ISYM, &SmartStarBHThermalFeedback);
+    ret += sscanf(line, "SmartStarBHRadiativeFeedback = %"ISYM, &SmartStarBHRadiativeFeedback);
+    ret += sscanf(line, "SmartStarStellarRadiativeFeedback = %"ISYM, &SmartStarStellarRadiativeFeedback);
+    
+    ret += sscanf(line, "SmartStarFeedbackEnergyCoupling       = %"FSYM, &SmartStarFeedbackEnergyCoupling);
+    ret += sscanf(line, "SmartStarFeedbackJetsThresholdMass    = %"FSYM, &SmartStarFeedbackJetsThresholdMass);
+    ret += sscanf(line, "SmartStarSMSLifetime                  = %"FSYM, &SmartStarSMSLifetime);
+    ret += sscanf(line, "SmartStarSuperEddingtonAdjustment  = %"ISYM, &SmartStarSuperEddingtonAdjustment);
+    ret += sscanf(line, "SmartStarJetVelocity                  = %"FSYM, &SmartStarJetVelocity);
     ret += sscanf(line, "UseGasDrag = %"ISYM, &UseGasDrag);
     ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
 
@@ -1610,7 +1716,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
   }
 
-
   /* AJE - */
   if (IndividualStarSecondaryOverDensityThreshold < 0){
     IndividualStarSecondaryOverDensityThreshold = StarMakerOverDensityThreshold;
@@ -1638,6 +1743,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   } else if (TestProblemData.MultiMetals){
     MultiMetals = TestProblemData.MultiMetals;
   }
+
+  // Enable the active particles that were selected.
+  for (i = 0;i < active_particles;i++) {
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      fprintf(stdout, "Enabling particle type %s\n", active_particle_types[i]);
+    }
+    EnableActiveParticleType(active_particle_types[i]);
+    delete [] active_particle_types[i];
+  }
+  delete [] active_particle_types;
 
   // HierarchyFile IO sanity check
 
@@ -1680,6 +1795,38 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                  DrivenFlowWeight,
                  DrivenFlowSeed);
   }
+
+  /* In order to use filtered fields we need additional ghost zones */
+  if (SGSFilterStencil/2 + 2 > NumberOfGhostZones)
+    ENZO_FAIL("SGS filtering needs additional ghost zones!\n");
+  
+  // all these models are calculated based on the partial derivatives of
+  // the primitive quantities
+  if (SGScoeffERS2M2Star != 0. ||
+      SGScoeffEVStarEnS2Star != 0. ||
+      SGScoeffEnS2StarTrace != 0. || 
+      SGScoeffNLemfCompr != 0. || 
+      SGScoeffNLu != 0. || 
+      SGScoeffNLuNormedEnS2Star != 0. || 
+      SGScoeffNLb != 0.)
+
+      SGSNeedJacobians = 1;
+
+  // the scale-similarity type models need filtered mixed quantities
+  if (SGScoeffSSu != 0. ||
+      SGScoeffSSb != 0. ||
+      SGScoeffSSemf != 0.)
+
+      SGSNeedMixedFilteredQuantities = 1;
+
+  if (! (HydroMethod == MHD_Li || HydroMethod == MHD_RK) && (
+    SGScoeffNLemfCompr != 0. ||
+    SGScoeffNLb != 0. ||
+    SGScoeffERS2M2Star != 0. ||
+    SGScoeffSSb != 0. ||
+    SGScoeffSSemf != 0))
+    ENZO_FAIL("SGS terms related to MHD should be set to 0 for hydro sims.\n");
+
 
 
   /* Now we know which hydro solver we're using, we can assign the
@@ -1835,7 +1982,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	MinimumMassForRefinement[i] /= MassUnits;
       }
     if (GravitationalConstant > 12.49 && GravitationalConstant < 12.61) {
-      GravitationalConstant = 4.0 * 3.1415926 * 6.6726e-8 * DensityUnits * pow(TimeUnits,2);
+      GravitationalConstant = 4.0 * pi * GravConst * DensityUnits * pow(TimeUnits,2);
       printf("Gravitational Constant recalculated from 4pi to 4piG in code units\n");
     }
 
@@ -1856,24 +2003,32 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
   */
   
-  /* If RefineRegionTimeType is 0 or 1, read in the input file. */
-  if ((RefineRegionTimeType == 0) || (RefineRegionTimeType == 1)) {
+  /* If TimeType is 0 or 1 for RefineRegion, MustRefineRegion, or CoolingRefineRegion, read in the input file. */
+  if ((RefineRegionTimeType == 0) || (RefineRegionTimeType == 1)
+      || (MustRefineRegionTimeType == 0) || (MustRefineRegionTimeType == 1)
+      || (CoolingRefineRegionTimeType == 0) || (CoolingRefineRegionTimeType == 1)) {
       if (ReadEvolveRefineFile() == FAIL) {
         ENZO_FAIL("Error in ReadEvolveRefineFile.");
       }
   }
 
+  if( ((RefineRegionTimeType==1) || (MustRefineRegionTimeType==1) || (CoolingRefineRegionTimeType==1)) && (ComovingCoordinates==0)){
+    ENZO_FAIL("You cannot have ComovingCoordinates turned off if your RegionTimeType is set to 1!");
+  }
+
+
 #ifdef USE_GRACKLE
   /* If using Grackle chemistry and cooling library, override all other 
      cooling machinery and do a translation of some of the parameters. */
-  if (grackle_data->use_grackle == TRUE) {
-    // grackle_data->use_grackle already set
+  if (use_grackle == TRUE) {
     // grackle_data->with_radiative_cooling already set
     // grackle_data->grackle_data_file already set
     // grackle_data->UVbackground already set
     // grackle_data->Compton_xray_heating already set
     // grackle_data->LWbackground_intensity already set
     // grackle_data->LWbackground_sawtooth_suppression already set
+
+    grackle_data->use_grackle                    = (Eint32) use_grackle;
 
     grackle_data->Gamma                          = (double) Gamma;
     grackle_data->primordial_chemistry           = (Eint32) MultiSpecies;
@@ -1895,10 +2050,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     grackle_data->HydrogenFractionByMass         = (double) CoolData.HydrogenFractionByMass;
     grackle_data->DeuteriumToHydrogenRatio       = (double) CoolData.DeuteriumToHydrogenRatio;
     grackle_data->SolarMetalFractionByMass       = (double) CoolData.SolarMetalFractionByMass;
+    grackle_data->UVbackground_redshift_on       = (double) CoolData.RadiationRedshiftOn;
+    grackle_data->UVbackground_redshift_off      = (double) CoolData.RadiationRedshiftOff;
+    grackle_data->UVbackground_redshift_fullon   = (double) CoolData.RadiationRedshiftFullOn;
+    grackle_data->UVbackground_redshift_drop     = (double) CoolData.RadiationRedshiftDropOff;
     grackle_data->use_radiative_transfer         = (Eint32) RadiativeTransfer;
     // grackle_data->radiative_transfer_coupled_rate_solver set in RadiativeTransferReadParameters
     // grackle_data->radiative_transfer_hydrogen_only set in RadiativeTransferReadParameters
-
+    
     // Initialize units structure.
     FLOAT a_value, dadt;
     a_value = 1.0;
@@ -1937,6 +2096,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }  // if (grackle_data->use_grackle == TRUE)
 
   else {
+#else
+    if (use_grackle == TRUE) {
+      ENZO_FAIL("Error: Enzo must be compiled with 'make grackle-yes' to run with use_grackle = 1.\n");
+    }
 #endif // USE_GRACKLE
 
     /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
@@ -2314,6 +2477,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   CheckShearingBoundaryConsistency(MetaData);
 
+  /* Check that all of the parameters are set for minimum stellar mass ramp --
+     if all of them are NOT set, things will behave oddly. */
+  if(StarMakerMinimumMassRamp > 0){
+    if(StarMakerMinimumMassRampStartTime == FLOAT_UNDEFINED ||
+       StarMakerMinimumMassRampStartMass == FLOAT_UNDEFINED ||
+       StarMakerMinimumMassRampEndTime   == FLOAT_UNDEFINED ||
+       StarMakerMinimumMassRampEndMass   == FLOAT_UNDEFINED){
+      fprintf(stderr,"You're using StarMakerMinimumMassRamp but need to set ALL of your start and end times and masses!\n");
+      my_exit(EXIT_FAILURE);
+    }
+  } // if(StarMakerMinimumMassRamp > 0)
+
+  
+  
   return SUCCESS;
-#endif /* ndef CONFIG_USE_LIBCONFIG */
+
 }

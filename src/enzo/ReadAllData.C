@@ -178,7 +178,8 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
-    BRerr = 1;
+    //BRerr = 1;
+    my_exit(EXIT_FAILURE);
   } 
 
   // Try to read external boundaries. If they don't fit grid data we'll set them later below
@@ -188,7 +189,8 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     fprintf(stderr, "Error in ReadExternalBoundary using HDF4  (%s).\n",           
 	    MetaData.BoundaryConditionName);                  
     fprintf(stderr, "Will try HDF5 instead.\n");
-    BRerr = 1;
+    //BRerr = 1;
+    my_exit(EXIT_FAILURE);
   } else ReadHDF4B = 1;
 #endif // HDF4
   if (ReadHDF4B != 1) {
@@ -196,13 +198,15 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
 	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 		MetaData.BoundaryConditionName);
-	BRerr = 1;
+	//BRerr = 1;
+	my_exit(EXIT_FAILURE);
       }
     } else {
       if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
 	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 		MetaData.BoundaryConditionName);
-	BRerr = 1;
+	//BRerr = 1;
+	my_exit(EXIT_FAILURE);
       }
     }
   }
@@ -295,6 +299,11 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   /* We do this after all the grids have been read in case the number of baryon fields 
      etc. was modified in that stage. 
      This allows you to add extra fields etc. and then restart. Proceed with caution.
+
+     Note by BWO, April 2019: This code is NEVER USED based on the usage of BRerr above,
+     because I have replaced all incidences where BRerr is set to 1 and the code passes through
+     to calls to my_exit().  I'm not removing this hunk of code since somebody may find it
+     useful one day, but it should be used with care!
   */
   if (BRerr) {
     fprintf(stderr,"Setting External Boundaries.\n");

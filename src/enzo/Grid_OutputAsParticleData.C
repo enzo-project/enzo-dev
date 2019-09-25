@@ -24,6 +24,7 @@
 #include "ExternalBoundary.h"
 #include "CosmologyParameters.h"
 #include "Grid.h"
+#include "phys_constants.h"
  
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -43,7 +44,6 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
   /* Declarations */
  
   int i,j,k, n, dim, field, findex, start[] = {0,0,0}, stop[] = {0,0,0};
-  const double SolarMass = 1.989e33, Mpc = 3.086e24;
  
   /* Set the Conversion factor for velocity. */
  
@@ -65,8 +65,8 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
        density:   M(solar)/Mpc^3
        velocity:  km/s */
  
-    VelocityConversion = VelocityUnits / 1.0e5;
-    DensityConversion = float(double(DensityUnits) / SolarMass * POW(Mpc, 3));
+    VelocityConversion = VelocityUnits / km_cm;
+    DensityConversion = float(double(DensityUnits) / SolarMass * POW(Mpc_cm, 3));
   }
  
   /* Set number of values for particle lists. */

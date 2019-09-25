@@ -24,6 +24,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
+#include "phys_constants.h"
+
 
 // function prototypes
 int GetUnits(float *DensityUnits, float *LengthUnits, 
@@ -173,7 +175,6 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
     gridx2l -= dx2*(GridStartIndex[2]);
     gridx2r += dx2*(GridDimension[2]-GridEndIndex[2]-1);
     int idx;
-    float mp = 1.67262171e-24;    // proton mass [g]
     float x0l, x0r, x0c, x1l, x1r, x1c, x2l, x2r, x2c;
     float radius, nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne, ndens;
     for (k=0; k<GridDimension[2]; k++) {
@@ -242,14 +243,14 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
 	    nHeIII = nHe*InitialFractionHeIII;
 	    nHeI = nHe - nHeII - nHeIII;
 	    ne = nHII + 0.25*nHeII + 0.5*nHeIII;
-	    BaryonField[HeINum][idx]   = nHeI*mp/DensityUnits;
-	    BaryonField[HeIINum][idx]  = nHeII*mp/DensityUnits;
-	    BaryonField[HeIIINum][idx] = nHeIII*mp/DensityUnits;
+	    BaryonField[HeINum][idx]   = nHeI*mh/DensityUnits;
+	    BaryonField[HeIINum][idx]  = nHeII*mh/DensityUnits;
+	    BaryonField[HeIIINum][idx] = nHeIII*mh/DensityUnits;
 	  }
-	  BaryonField[RhoNum][idx] = nH*mp/DensityUnits;
-	  BaryonField[DeNum][idx]  = ne*mp/DensityUnits;
-	  BaryonField[HINum][idx]  = nHI*mp/DensityUnits;
-	  BaryonField[HIINum][idx] = nHII*mp/DensityUnits;
+	  BaryonField[RhoNum][idx] = nH*mh/DensityUnits;
+	  BaryonField[DeNum][idx]  = ne*mh/DensityUnits;
+	  BaryonField[HINum][idx]  = nHI*mh/DensityUnits;
+	  BaryonField[HIINum][idx] = nHII*mh/DensityUnits;
 	}
       }
     }

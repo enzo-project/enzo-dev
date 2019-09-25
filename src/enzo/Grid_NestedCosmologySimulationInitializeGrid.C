@@ -133,6 +133,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
   int ForbidNum;
   int MachNum, PSTempNum, PSDenNum;
 
+  int RePsiNum, ImPsiNum, FDMDensNum;
+
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
 
@@ -357,6 +359,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
     //  fprintf(stderr, "Create baryon fields for %s on CPU %"ISYM"\n", CosmologySimulationDensityName, MyProcessorNumber);
 
     FieldType[NumberOfBaryonFields++] = Density;
+
   vel = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = Velocity1;
   if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
@@ -455,6 +458,11 @@ int grid::NestedCosmologySimulationInitializeGrid(
     }
   }
 
+  if(QuantumPressure == 1){
+    FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
+    FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
+    FieldType[FDMDensNum = NumberOfBaryonFields++] = FDMDensity;
+  } 
 
   //  fprintf(stderr, "Total Baryon Fields in VVV: %"ISYM" on CPU %"ISYM"\n", NumberOfBaryonFields, MyProcessorNumber);
 
@@ -518,6 +526,28 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	  BaryonField[0][i] = max(BaryonField[0][i], DENSITY_FLOOR);
       }
 
+      // Read wavefunction
+  if(QuantumPressure == 1){
+  if (READFILE("GridRePsi", GridRank, GridDimension,
+         GridStartIndex, GridEndIndex, Offset, BaryonField[RePsiNum],
+         &tempbuffer, 0, 1) == FAIL) {
+    ENZO_FAIL("Error reading real part of wave function.\n");}
+  
+  if (READFILE("GridImPsi", GridRank, GridDimension,
+         GridStartIndex, GridEndIndex, Offset, BaryonField[ImPsiNum],
+         &tempbuffer, 0, 1) == FAIL) {
+    ENZO_FAIL("Error reading imaginary part of wave function.\n");
+    } 
+
+  if (READFILE("GridFDMDensity", GridRank, GridDimension,
+         GridStartIndex, GridEndIndex, Offset, BaryonField[FDMDensNum],
+         &tempbuffer, 0, 1) == FAIL) {
+    ENZO_FAIL("Error reading FDM density.\n");
+    } 
+
+  fprintf(stderr, "Successfully Read Wave Function.\n" );
+  }
+ 
       // Read the total energy field
 
       if (CosmologySimulationTotalEnergyName != NULL && ReadData)

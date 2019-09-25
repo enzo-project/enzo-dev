@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int grid::FreeExpansionInitializeGrid(int FreeExpansionFullBox,
 				      float FreeExpansionDensity,
@@ -38,8 +39,6 @@ int grid::FreeExpansionInitializeGrid(int FreeExpansionFullBox,
 
   const float DensitySlope = 9.0;  // density decreases as (v/vcore)^n
 				   // outside the core.
-  const double Msun = 1.989e33, pc = 3.086e18, G = 6.673e-8;
-  const double mh = 1.673e-24;
 
   int i, j, k, dim, index;
   float delx, dely, delz, r2, radius, router2, speed, density;
@@ -58,9 +57,9 @@ int grid::FreeExpansionInitializeGrid(int FreeExpansionFullBox,
   double M_ej, E_ej;
   
   rho_0 = FreeExpansionDensity * DensityUnits;
-  M_ej = FreeExpansionMass * Msun;
+  M_ej = FreeExpansionMass * SolarMass;
   E_ej = FreeExpansionEnergy;
-  R_M = POW((3 * M_ej) / (4 * M_PI * rho_0), 1.0/3);
+  R_M = POW((3 * M_ej) / (4 * pi * rho_0), 1.0/3);
   r_max = FreeExpansionRadius * LengthUnits;
 
   if (FreeExpansionMaxVelocity == FLOAT_UNDEFINED)
@@ -72,7 +71,7 @@ int grid::FreeExpansionInitializeGrid(int FreeExpansionFullBox,
   BlastTime = (r_max/LengthUnits) / v_max;
   v_core = sqrt( (10.0 * E_ej * (DensitySlope-5)) /
 		 (3.0 * M_ej * (DensitySlope-3)) );
-  normalization = (10.0 * (DensitySlope-5) * E_ej) / (4.0 * M_PI * DensitySlope) /
+  normalization = (10.0 * (DensitySlope-5) * E_ej) / (4.0 * pi * DensitySlope) /
     POW(v_core, 5.0);
     
 

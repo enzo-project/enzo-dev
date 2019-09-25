@@ -185,8 +185,8 @@ int grid::ComputeAccelerationFieldExternal()
                 ((log(1.0+x  )-x  /(1.0+x  )) /
                  (log(1.0+1.0)-1.0/(1.0+1.0))) /
                 POW(radius*LengthUnits, 2.0) / AccelUnits +
-                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc),0.5975)/3.206e-7,0.9) +
-                POW(POW(radius*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
+                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc_cm),0.5975)/3.206e-7,0.9) +
+                POW(POW(radius*LengthUnits/(1.0e-3*Mpc_cm), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
                 GravConst*SolarMass*ClusterSMBHMass / POW(radius*LengthUnits, 2) / AccelUnits; // + BCG + BH mass
                   /*Bondi*/
                 if(ClusterSMBHCalculateGasMass == 4){
@@ -194,8 +194,8 @@ int grid::ComputeAccelerationFieldExternal()
                 ((log(1.0+x  )-x  /(1.0+x  )) /
                  (log(1.0+1.0)-1.0/(1.0+1.0))) /
                 POW(radius*LengthUnits, 2.0) / AccelUnits +
-                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc),0.5975)/3.206e-7,0.9) +
-                POW(POW(radius*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
+                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc_cm),0.5975)/3.206e-7,0.9) +
+                POW(POW(radius*LengthUnits/(1.0e-3*Mpc_cm), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
                 GravConst*SolarMass*ClusterSMBHMass/POW(radius*LengthUnits - 2.0*GravConst*SolarMass/POW(clight,2), 2)/ AccelUnits;
                  }
                   /*Elliptical Galaxy Fixed Gravity*/
@@ -204,7 +204,7 @@ int grid::ComputeAccelerationFieldExternal()
                 ((log(1.0+x  )-x  /(1.0+x  )) /
                  (log(1.0+1.0)-1.0/(1.0+1.0))) /
                 POW(radius*LengthUnits, 2.0) / AccelUnits +
-                GravConst*(ClusterSMBHBCG*SolarMass*1.0e11)/POW(radius*LengthUnits+EllipticalGalaxyRe*1.0e-3*Mpc/1.8153, 2)/AccelUnits +
+                GravConst*(ClusterSMBHBCG*SolarMass*1.0e11)/POW(radius*LengthUnits+EllipticalGalaxyRe*1.0e-3*Mpc_cm/1.8153, 2)/AccelUnits +
                 GravConst*SolarMass*ClusterSMBHMass/POW(radius*LengthUnits - 2.0*GravConst*SolarMass/POW(clight,2), 2)/ AccelUnits;
                  }
               }
@@ -304,8 +304,8 @@ int grid::ComputeAccelerationFieldExternal()
                 ((log(1.0+x  )-x  /(1.0+x  )) /
                  (log(1.0+1.0)-1.0/(1.0+1.0))) /
                 POW(radius*LengthUnits, 2.0) / AccelUnits +
-                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc),0.5975)/3.206e-7,0.9) +
-                POW(POW(radius*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
+                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc_cm),0.5975)/3.206e-7,0.9) +
+                POW(POW(radius*LengthUnits/(1.0e-3*Mpc_cm), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
                 GravConst*SolarMass*ClusterSMBHMass / POW(radius*LengthUnits, 2) / AccelUnits; // + BCG + BH mass
                   /*Bondi*/
                 if(ClusterSMBHCalculateGasMass == 4){
@@ -313,8 +313,8 @@ int grid::ComputeAccelerationFieldExternal()
                 ((log(1.0+x  )-x  /(1.0+x  )) /
                  (log(1.0+1.0)-1.0/(1.0+1.0))) /
                 POW(radius*LengthUnits, 2.0) / AccelUnits +
-                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc),0.5975)/3.206e-7,0.9) +
-                POW(POW(radius*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
+                ClusterSMBHBCG*POW((POW(POW(radius*LengthUnits/(1.0e-3*Mpc_cm),0.5975)/3.206e-7,0.9) +
+                POW(POW(radius*LengthUnits/(1.0e-3*Mpc_cm), 1.849)/1.861e-6, 0.9)), -1.0/0.9) / AccelUnits +
                 GravConst*SolarMass*ClusterSMBHMass/POW(radius*LengthUnits - 2.0*GravConst*SolarMass/POW(clight,2), 2)/ AccelUnits;
                  }
                   /*Elliptical Galaxy Fixed Gravity*/
@@ -323,7 +323,7 @@ int grid::ComputeAccelerationFieldExternal()
                 ((log(1.0+x  )-x  /(1.0+x  )) /
                  (log(1.0+1.0)-1.0/(1.0+1.0))) /
                 POW(radius*LengthUnits, 2.0) / AccelUnits +
-                GravConst*(ClusterSMBHBCG*SolarMass*1.0e11)/POW(radius*LengthUnits+EllipticalGalaxyRe*1.0e-3*Mpc/1.8153, 2)/AccelUnits +
+                GravConst*(ClusterSMBHBCG*SolarMass*1.0e11)/POW(radius*LengthUnits+EllipticalGalaxyRe*1.0e-3*Mpc_cm/1.8153, 2)/AccelUnits +
                 GravConst*SolarMass*ClusterSMBHMass/POW(radius*LengthUnits - 2.0*GravConst*SolarMass/POW(clight,2), 2)/ AccelUnits;
                  }
               }
@@ -428,21 +428,21 @@ int grid::ComputeAccelerationFieldExternal()
             rcyl = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1);
             radius = radius*LengthUnits;
             rcyl = rcyl*LengthUnits;
-            accelsph = (GravConst)*MBulge*SolarMass/POW(radius+rBulge*Mpc,2)
-                     + pi*GravConst*densDMConst*POW(rDMConst*Mpc,3)/POW(radius,2)
-                       *(-2.0*atan(radius/rDMConst/Mpc)
-                         +2.0*log(1.0+radius/rDMConst/Mpc)
-                         +log(1.0+POW(radius/rDMConst/Mpc,2))
+            accelsph = (GravConst)*MBulge*SolarMass/POW(radius+rBulge*Mpc_cm,2)
+                     + pi*GravConst*densDMConst*POW(rDMConst*Mpc_cm,3)/POW(radius,2)
+                       *(-2.0*atan(radius/rDMConst/Mpc_cm)
+                         +2.0*log(1.0+radius/rDMConst/Mpc_cm)
+                         +log(1.0+POW(radius/rDMConst/Mpc_cm,2))
                         );
             accelcylR = GravConst*MSDisk*SolarMass*rcyl/sqrt(POW(POW(rcyl,2)
-                      + POW(SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
-                      + POW(SDiskScaleHeightz*Mpc,2)),2),3));
+                      + POW(SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
+                      + POW(SDiskScaleHeightz*Mpc_cm,2)),2),3));
             accelcylz = GravConst*MSDisk*SolarMass/sqrt(POW(zheight*LengthUnits,2)
-                      + POW(SDiskScaleHeightz*Mpc,2))*zheight*LengthUnits/sqrt(POW(POW(rcyl,2)
-                      + POW(SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
-                      + POW(SDiskScaleHeightz*Mpc,2)),2),3))
-                        *(  SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
-                          + POW(SDiskScaleHeightz*Mpc,2))
+                      + POW(SDiskScaleHeightz*Mpc_cm,2))*zheight*LengthUnits/sqrt(POW(POW(rcyl,2)
+                      + POW(SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
+                      + POW(SDiskScaleHeightz*Mpc_cm,2)),2),3))
+                        *(  SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
+                          + POW(SDiskScaleHeightz*Mpc_cm,2))
                          )/AccelUnits;
 
              accelsph  = (radius ==0.0?0.0:fabs(accelsph )/(radius/LengthUnits)/AccelUnits);
@@ -501,21 +501,21 @@ int grid::ComputeAccelerationFieldExternal()
         radius = radius*LengthUnits;
         rcyl   = rcyl*LengthUnits;
 
-        accelsph = (GravConst)*MBulge*SolarMass/POW(radius+rBulge*Mpc,2)
-                 + pi*GravConst*densDMConst*POW(rDMConst*Mpc,3)/POW(radius,2)
-                 * (-2.0*atan(radius/rDMConst/Mpc)
-                    +2.0*log(1.0+radius/rDMConst/Mpc)
-                    +log(1.0+POW(radius/rDMConst/Mpc,2))
+        accelsph = (GravConst)*MBulge*SolarMass/POW(radius+rBulge*Mpc_cm,2)
+                 + pi*GravConst*densDMConst*POW(rDMConst*Mpc_cm,3)/POW(radius,2)
+                 * (-2.0*atan(radius/rDMConst/Mpc_cm)
+                    +2.0*log(1.0+radius/rDMConst/Mpc_cm)
+                    +log(1.0+POW(radius/rDMConst/Mpc_cm,2))
                    );
         accelcylR = GravConst*MSDisk*SolarMass*rcyl/sqrt(POW(POW(rcyl,2)
-                  + POW(SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
-                  + POW(SDiskScaleHeightz*Mpc,2)),2),3));
+                  + POW(SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
+                  + POW(SDiskScaleHeightz*Mpc_cm,2)),2),3));
         accelcylz = GravConst*MSDisk*SolarMass/sqrt(POW(zheight*LengthUnits,2)
-                  + POW(SDiskScaleHeightz*Mpc,2))*zheight*LengthUnits/sqrt(POW(POW(rcyl,2)
-                  + POW(SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
-                  + POW(SDiskScaleHeightz*Mpc,2)),2),3))
-                    *(  SDiskScaleHeightR*Mpc+sqrt(POW(zheight*LengthUnits,2)
-                      + POW(SDiskScaleHeightz*Mpc,2))
+                  + POW(SDiskScaleHeightz*Mpc_cm,2))*zheight*LengthUnits/sqrt(POW(POW(rcyl,2)
+                  + POW(SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
+                  + POW(SDiskScaleHeightz*Mpc_cm,2)),2),3))
+                    *(  SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
+                      + POW(SDiskScaleHeightz*Mpc_cm,2))
                      )/AccelUnits;
 
         accelsph  = (radius ==0.0?0.0:fabs(accelsph )/(radius/LengthUnits)/AccelUnits);
@@ -563,16 +563,15 @@ int grid::ComputeAccelerationFieldExternal()
     FLOAT xc = 0.5, yc = 0.5, zc = 0.5;
 
     double rs = rvir / c;
-    double Mvir = 4.0*M_PI*rhoc*POW(rs,3)*(log(1.0+c)-c/(1.0+c));
+    double Mvir = 4.0*pi*rhoc*POW(rs,3)*(log(1.0+c)-c/(1.0+c));
     
     float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, 
       TimeUnits = 1.0, VelocityUnits = 1.0;
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	     &TimeUnits, &VelocityUnits, &MassUnits, Time);
     double AccelerationUnits = LengthUnits / POW(TimeUnits,2);
-    double CGSGravConst = 6.672e-8;
 
-    printf("rhoc=%g, rvir=%g, Mvir=%g\n", rhoc, rvir, Mvir/1.989e33);
+    printf("rhoc=%g, rvir=%g, Mvir=%g\n", rhoc, rvir, Mvir/SolarMass);
     
     FLOAT x, y, z, xpos, ypos, zpos, r;
     int n = 0;
@@ -605,12 +604,12 @@ int grid::ComputeAccelerationFieldExternal()
 	  
 	  if (r < rvir/LengthUnits) {
 	    x1 = r*LengthUnits/rs;
-	    M = 4.0*M_PI*rhoc*POW(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
+	    M = 4.0*pi*rhoc*POW(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
 	  }
 	  else {
 	    M = Mvir;
 	  }
-	  g = CGSGravConst*M/POW(r*LengthUnits,2);
+	  g = GravConst*M/POW(r*LengthUnits,2);
 	  g /= AccelerationUnits;
 	  if (dim == 0) { 
 	    AccelerationField[0][n] += -g*xpos/r;
@@ -638,12 +637,12 @@ int grid::ComputeAccelerationFieldExternal()
 
       if (r < rvir/LengthUnits) {
 	x1 = r*LengthUnits/rs;
-	M = 4.0*M_PI*rhoc*POW(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
+	M = 4.0*pi*rhoc*POW(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
       }
       else {
 	M = Mvir;
       }
-      g = CGSGravConst*M/POW(r*LengthUnits,2);
+      g = GravConst*M/POW(r*LengthUnits,2);
       g /= AccelerationUnits;
 
       ParticleAcceleration[0][i] += -g*xpos/r;

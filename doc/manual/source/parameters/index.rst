@@ -96,6 +96,10 @@ common convention of 0 meaning false or off and 1 for true or on.
    
    * `Sink Formation and Feedback`_
 
+   * `Magnetic Supernova Feedback`_
+
+   * `Active Particles`_
+
 * `Radiation Parameters`_
    
    * `Background Radiation Parameters`_
@@ -121,6 +125,10 @@ common convention of 0 meaning false or off and 1 for true or on.
 * `Cosmic Ray Two-Fluid Model Parameters`_
 
 * `Conduction`_
+
+* `Subgrid-scale (SGS) turbulence model`_
+
+* `Fuzzy Dark matter model`_
 
 * `Inline Analysis`_
    
@@ -290,6 +298,17 @@ Initialization Parameters
     by specifying a file which contains the information in the
     appropriate format. This is too involved to go into here. Default:
     none
+``StoreDomainBoundaryMassFlux`` (external)
+    When turned on, this stores the cumulative mass (in solar masses)
+    of density fields (density, species fields, metallicity) that 
+    outflows from the simulation domain. This is stored directly
+    in the output parameter files as the ``BoundaryMassFluxFieldNumbers``
+    and ``BoundaryMassFluxContainer`` parameters, as well as
+    the cycle-by-cycle mass outflow in ``BoundaryMassFluxFilename``.
+    Default : 0 (off)
+``BoundaryMassFluxFilename`` (external)
+    The filename to output the cycle-by-cyle mass outflow from the 
+    grid domain when the above parameter is ON. Default : 'boundary_mass_flux.dat'
 ``InitialTime`` (internal)
     The time, in code units, of the current step. For cosmology the
     units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
@@ -949,10 +968,75 @@ Hierarchy Control Parameters
     refined to at all times. (No default setting)
 ``MustRefineRegionLeftEdge`` (external)
     Bottom-left corner of refinement region. Must be within the overall
-    refinement region. Default: 0.0 0.0 0.0
+    refinement region. If using a moving refinement region, this will
+    correspond to the bottom-left corner in the
+    ``MustRefineRegionFile``
+    at this output time. If these parameters are not set, then the code will
+    likely try to refine the entire domain to the forced refinement level before
+    only doing it within the MustRefineRegion, which can take a long
+    time.  Default: 0.0 0.0 0.0
 ``MustRefineRegionRightEdge`` (external)
     Top-right corner of refinement region. Must be within the overall
-    refinement region. Default: 1.0 1.0 1.0
+    refinement region.  If using a moving refinement region, this will
+    correspond to the top-right corner in the
+    ``MustRefineRegionFile`` at this output time. If these parameters are not set, then the code will likely try to
+    refine the entire domain to the forced refinement level before
+    only doing it within the MustRefineRegion, which can take a long
+    time.  Default: 1.0 1.0 1.0
+``MustRefineRegionTimeType`` (external)
+    If set, this controls how the first column of a ``MustRefineRegionFile`` (see below) is interpreted, 0 for code time, 1 for redshift. Default: -1, which is equivalent to ‘off’.
+``MustRefineRegionFile`` (external)
+    The name of a text file containing the corners of the time-evolving
+    refinement region. The lines in the file change the values of
+    ``MustRefineRegionLeft/RightEdge`` during the course of the simulation, and
+    the lines are ordered in the file from early times to late times.
+    The first column of data is the time index (in code units or
+    redshift, see the parameter above) for the next six columns, which
+    are the values of ``MustRefineRegionLeft/RightEdge``, followed by
+    a column giving the level of refinement. For example, this
+    might be two lines from the text file when time is indexed by
+    redshift:
+    ::
+       
+        2.05 0.493102 0.488106 0.501109 0.495102 0.490106 0.503109 10
+	2.00 0.493039 0.487908 0.501189 0.495039 0.489908 0.503189 10
+
+    In this case, the MustRefineRegion is refined to 10 levels of
+    refinement, starting at the z=2.05 value and
+    moves via linear interpolation until the z=2.00 value. The code
+    will crash if the simulation starts before the earliest time given
+    or evolves until after the latest time in the file. There is a maximum of 8000 lines in the file and there is no
+    comment header line. Default: None.
+``UseCoolingRefineRegion`` (external)
+    1 if using a CoolingRefineRegion; 0 if not. If this is set, then the
+    CoolingRefineRegion is a rectilinear region in which refinement
+    can be based on the cooling time  (``CellFlaggingMethod`` 7 must be
+    set) but refinement based on the cooling time will not occur
+    outside of this region. Default: 0
+``EvolveCoolingRefineRegion`` (external)
+    1 if the CoolingRefineRegion is evolving; 0 if not. Default: 0
+``CoolingRefineRegionLeftEdge`` (external)
+    Bottom-left corner of refinement region. Must be within the overall
+    refinement region.  If using a moving refinement region, this will
+    correspond to the bottom-left corner in the
+    ``CoolingRefineRegionFile`` at this output time. If these parameters are not set, then the code will likely try to
+    refine the entire domain to the forced refinement level before
+    only doing it within the CoolingRefineRegion, which can take a long
+    time.  Default: 0.0 0.0 0.0
+``CoolingRefineRegionRightEdge`` (external)
+    Top-right corner of refinement region. Must be within the overall
+    refinement region.  If using a moving refinement region, this will
+    correspond to the top-right corner in the
+    ``CoolingRefineRegionFile`` at this output time. If these parameters are not set, then the code will likely try to
+    refine the entire domain to the forced refinement level before
+    only doing it within the CoolingRefineRegion, which can take a long
+    time.  Default: 1.0 1.0 1.0
+``CoolingRefineRegionTimeType`` (external)
+    If set, this controls how the first column of a ``CoolingRefineRegionFile`` (see below) is interpreted, 0 for code time, 1 for redshift. Default: -1, which is equivalent to ‘off’.
+``CoolingRefineRegionFile`` (external)
+    The name of a text file containing the corners of the time-evolving cooling refinement region. The file format is the same as for a
+    ``MustRefineRegionFile``, but though the final column (refinement level) must be included, it is currently ignored by the code and
+    the cooling refinement level is instead set to the ``MaximumRefinementLevel``. Default: None.
 ``StaticRefineRegionLevel[#]`` (external)
     This parameter is used to specify regions of the problem that are
     to be statically refined, regardless of other parameters. This is mostly
@@ -1084,6 +1168,9 @@ Hierarchy Control Parameters
 ``RebuildHierarchyCycleSkip`` (external)
     Set the number of cycles at a given level before rebuilding the hierarchy.  Example: RebuildHierarchyCycleSkip[1] = 4
 
+
+
+    
 .. _gravity_parameters:
 
 Gravity Parameters
@@ -1602,7 +1689,7 @@ Because many of the following parameters are not actively being tested and maint
 ``Coordinate`` (external)
     Coordinate systems to be used in hydro_rk/EvolveLevel_RK.C.  Currently implemented are Cartesian and Spherical for HD_RK, and Cartesian and Cylindrical for MHD_RK.  See Grid_(MHD)SourceTerms.C.  Default: Cartesian
 ``EOSType`` (external)
-    Types of Equation of State used in hydro_rk/EvolveLevel_RK.C (0 - ideal gas, 1 - polytropic EOS, 2 - another polytropic EOS, 3 - isothermal, 4 - pseudo cooling, 5 - another pseudo cooling, 6 - minimum pressure); see hydro_rk/EOS.h. Default: 0
+    Types of Equation of State used in hydro_rk/EvolveLevel_RK.C (0 - ideal gas, 1 - polytropic EOS, 2 - another polytropic EOS, 3 - isothermal, 4 - pseudo cooling, 5 - another pseudo cooling, 6 - minimum pressure, 7 - Fedderath et al. 2010); see hydro_rk/EOS.h. Default: 0
 ``EOSSoundSpeed`` (external)
     Sound speed to be used in EOS.h for EOSType = 1, 2, 3, 4, 5.  Default: 2.65e4
 ``EOSCriticalDensity`` (external)
@@ -1879,11 +1966,68 @@ Particle Parameters
     Currently it implicitly assumes that only DM (type=1) and
     conventional star particles (type=2) inside the ``RefineRegion`` get
     split. Other particles, which usually become Star class objects,
-    seem to have no reason to be split. Default: 0
+    seem to have no reason to be split. It is reset to zero after a
+    restart to avoid resplitting in subsequent datasets. It can be set
+    to a maximum of 4. Default: 0
+``ParticleSplitterRandomSeed`` (external)
+    Random seed used when randomly rotating the hexagonal close
+    packed array on whose vertices the split particles are
+    placed. Default: 131180
+``ParticleSplitterMustRefine`` (external)
+    Set to 1 to mark the split particles as must-refine particles. The
+    user must also set associated must-refine parameters to enable its
+    machinery that can be used to restrict AMR only to the must-refine
+    particles. Default: 0
+``ParticleSplitterMustRefineIDFile`` (external)
+    Filename for the HDF5 file that has a dataset containing the
+    particle IDs that should be marked as must-refine.  All other
+    particles within the region marked for splitting will retain their
+    original types.  If not set, all particles within the must-refine
+    region will be must-refine particles.  This must be used in
+    conjunction with ``ParticleSplitterMustRefine = 1``.  The dataset
+    must be named ``particle_identifier`` in the base group.  Default:
+    (null).
+
+    An example yt script is provided below, selecting the particles in
+    a sphere centered at [0.5, 0.5, 0.5] with a radius 0.05 in code
+    length units.
+
+ .. code-block:: python
+
+      import yt
+      import h5py as h5
+
+      ds = yt.load('DD0040/DD0040')
+      center = ds.arr([0.5, 0.5, 0.5], 'code_length')
+      radius = ds.quan(0.05, 'code_length')
+      sp = ds.sphere(center, radius)
+      fp = h5.File('particle-ids.h5', 'w')
+      fp['particle_identifier'] = sp['particle_index'].astype('int')
+      fp.close()
+      
+``ParticleSplitterFraction`` (external)
+    An array of four values that represent the width of the splitting
+    region in units of the original refine region set by
+    ``RefineRegionLeftEdge`` and ``RefineRegionRightEdge``.  The
+    splitting region is centered on the refine region center.  Each
+    successive value represents the next nested split region.  Valid
+    up to ``ParticleSplitterIterations`` times.  Cannot be used with
+    ``ParticleSplitterCenterRegion``.  Default: 1.0 (all 4 values)
+``ParticleSplitterCenter`` (external)
+    The center of split region in code units.  Specify if the split
+    region does not correspond to the center of the refine region.
+    Not used if negative. Default: -1.0 -1.0 -1.0
+``ParticleSplitterCenterRegion`` (external)
+    The width of the split region in code units.  Must be used in
+    conjunction with ``ParticleSplitterCenter``.  Each successive
+    value represents the next nested split region.  Cannot be used
+    with ``ParticleSplitterFraction``. Valid up to
+    ``ParticleSplitterIterations`` times.  Not used if
+    negative. Default: -1.0 (all 4 values)
 ``ParticleSplitterChildrenParticleSeparation`` (external)
     This is the spacing between the child particles placed on a
-    hexagonal close-packed (HCP) array. In the unit of a cell size
-    which the parent particle resides in. Default: 1.0
+    hexagonal close-packed (HCP) array. In units of a cell size which
+    the parent particle resides in. Default: 1.0
 
 .. _starparticleparameters:
 
@@ -2063,6 +2207,30 @@ The parameters below are considered in ``StarParticleCreation`` method
     the particle creation time by this amount.  This value is in units of Myrs.  If set
     to a negative value, energy, mass and metals are injected gradually in the same way as is
     done for ``StarParticleFeedback`` method = 1.  Default -1.
+``StarMakerMinimumMassRamp`` (external)
+     Sets the Minimum Stellar Mass (otherwise given by StarMakerMinimumMass to 
+     ramp up over time, so that a small mass can be used early in the calculation
+     and a higher mass later on, or vice versa. The minimum mass is "ramped" 
+     up or down starting at StarMakerMinimumMassRampStartTime and ending 
+     at StarMakerMinimumMassRampEndTime. The acceptable values are: 
+     (1) linear evolution of mass in time
+     (2) linear evolution of mass in redshift
+     (3) exponential evolution of mass in time
+     (4) exponential evolution of mass in redshift
+``StarMakerMinimumMassRampStartTime`` (external) 
+     The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
+     Before this time the minimum mass will have a constant value given 
+     by StarMakerMinimumMassRampStartMass
+``StarMakerMinimumMassRampEndTime`` (external) 
+     The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
+     After this time the minimum mass will have a constant value given 
+     by StarMakerMinimumMassRampEndMass
+``StarMakerMinimumMassRampStartMass`` (external) 
+     The mass at which to start the ramp in the minimum stellar mass. This mass 
+     will be used at all times before StarMakerMinimumMassRampStartTime as well. 
+``StarMakerMinimumMassRampEndMass`` (external) 
+     The mass at which to end the ramp in the minimum stellar mass. This mass 
+     will be used at all times after StarMakerMinimumMassRampEndTime as well. 
 
 .. _molecular_hydrogen_regulated_star_formation_parameters:
 
@@ -2255,6 +2423,139 @@ Because many of the following parameters are not actively being tested and maint
 ``SinkMergeMass``
     [not used]
 
+.. _magnetic_supernova_feedback_parameters:
+
+Magnetic Supernova Feedback
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The parameters below are currently considered in ``StarParticleCreation`` methods 0 and 1.
+
+``UseMagneticSupernovaFeedback`` (external)
+    This parameter is used to turn on magnetic supernova feedback. Currently implemented values are: 1 - the user needs to specify the desired supernova radius and duration. If none are specified, the default values will be used (see below), 2 - the supernova radius and duration will be calculated during runtime based on the grid resolution and timestep.  Default: 0
+``MagneticSupernovaEnergy`` (external)
+    The total amount of magnetic energy to be injected by a single supernova event (in units of ergs). Default: 1e51
+``MagneticSupernovaRadius`` (external)
+    The radius of the sphere (in parsecs) over which to inject supernova energy. This value should be at least 1.5 times the minimum cell width in the simulation. Default: 300
+``MagneticSupernovaDuration`` (external)
+    The duration (in years) over which the total magnetic supernova energy is injected. This should be set to at least 5 times the minimum timestep of the simulation. Default: 5e4
+
+
+
+.. _active_particles_parameters:
+
+Active Particles
+~~~~~~~~~~~~~~~~
+
+To allow for the creation of an active particle the following line must be added to the parameter file or restart file:
+``AppendActiveParticleType = <ActiveParticleType>``
+See :ref:`active_particles` for the types of active particles that exist.
+
+SmartStar Parameters
+~~~~~~~~~~~~~~~~~~~~
+
+SmartStar Accretion
+^^^^^^^^^^^^^^^^^^^
+
+``SmartStarAccretion`` (external)
+
+Set to 1 to turn on spherical Bondi-Hoyle accretion based on the formalisms
+presented in `Krumholz et al. (2004) <https://iopscience.iop.org/article/10.1086/421935/pdf>`__
+
+Set to 4 to turn on angular momentum limited accretion based on the formalism adopted
+by `Rosas-Guevara et al. (2015) <https://arxiv.org/pdf/1312.0598.pdf>`__.
+
+Set to 5 to again turn on spherical Bondi-Hoyle accretion but this time the
+formalism includes a correction which accounts for the vorticity of the gas
+based on `Krumholz et al. (2005) <https://iopscience.iop.org/article/10.1086/426051/pdf>`__.
+
+Set to 6 to use the viscous angular momentum prescription from `DeBuhr et al. (2010) <https://arxiv.org/pdf/0909.2872.pdf>`__.
+  
+Set to 7 to use a  modified accretion rate based on the alpha-disk model of Shakura & Sunyaev (1973)
+This scheme is based on `Cen et al. <https://iopscience.iop.org/article/10.1088/0004-637X/755/1/28/pdf>`__.
+
+Set to 8 to employ the converging mass flux approach. This is not based on any indirect properties of the
+gas as above and simply measures the flow of gas through the accetion radius of the ``SmartStar``. It is based
+on the accretion mechanism used by `Bleuler <https://arxiv.org/pdf/1409.6528.pdf>`__  in Ramses and in Enzo
+by Regan et al. (`2018 <https://arxiv.org/pdf/1803.04527.pdf>`__, `2019 <https://arxiv.org/pdf/1811.04953.pdf>`__).
+
+Default: 8
+
+
+Accretion is never capped by default but can be capped at the Eddington rate as notes below. 
+   
+
+
+SmartStar Feedback
+^^^^^^^^^^^^^^^^^^
+
+``SmartStarFeedback`` (external)
+    This is the master feedback parameter. Set this to 0 and all feedback
+    is turned off. It's a master switch. Switch it to 1 and then feedback is on but needs to
+    be fine grained by more detailed parameters below. 
+    Default: 0
+
+``SmartStarStellarRadiativeFeedback`` (external)
+    This parameter controls whether stellar feedback is activated or not. For feedback from PopIII or SMSs then this needs to be on.
+    The stellar radiative feedback is divided up into 5 energy bins. The energy bins have energies of 2.0 eV, 12.8 eV, 14.0 eV, 25.0 eV
+    and 200 eV. The fraction of energy assigned to each bin is determined using the PopIII tables from Schaerer et. al 2002 Table 4.
+    The spectrum for a PopIII star and SMS are different. For a PopIII star a spectrum for a 40 Msolar star is assumed and
+    weighted accordingly. For a SMS a 1000 Msolar star is assumed and weighted accordingly.
+    Future improvements to the SEDs employed here are under active investigation. 
+    Default: 0
+
+``SmartStarBHFeedback`` (external)
+    This is a master switch on black hole feedback. Must be turned on if you want black hole feedback. Default: 0
+
+``SmartStarBHRadiativeFeedback`` (external)
+    This parameter controls whether black hole radiative feedback gets turned on or not. When turned on the radiative
+    feedback from a black hole depends both on the mass of the black hole and the accretion rate onto the black hole. Both of these
+    quantities are captured and stored as part of the ``SmartStar``. Details of the SED used can be found in the appendix of
+    `Regan et al. 2019 <https://arxiv.org/abs/1811.04953>`__ and is made from assuming a multi-colour disk for the accretion disk and a corona fit by a
+    power law.  The radiation emitted by the accretion disk is hard-coded is be emitted by 5 bins with energies of
+    2.0 eV, 12.8 eV, 19.1 eV, 217.3 eV and 5190 eV. The fraction of energy assigned to each bin is then determined by the mass of the
+    black hole and the associated accretion rate at a given time. The formalism is valid for black hole masses between 1 Msolar and
+    1e9 Msolar and for accretion rates between 1e-6 Msolar/yr and 1e3 Msolar/yr.  Default: 0
+
+``SmartStarBHThermalFeedback`` (external)
+    This parameter controls whether the black hole thermal feedback gets turned. Thre thermal energy is generated by feedback through the
+    accretion process. If this is turned on then the ``SmartStarBHRadiativeFeedback`` should presumably be turned off unless you have a
+    good reason to include both. The efficiency, epsilon, depends on both the spin of the black hole and the ISCO oribit. In order to
+    calculate this accurately Eqn 32 from Abromowicz & Fragile (2013) is used. See ActiveParticle_SmartStar.h. The feedback is released
+    iostropically in a sphere surrounding the SmartStar particle.  Default: 0
+
+``SmartStarBHJetFeedback`` (external)
+    The methodology for this algorithm is based on that of `Kim et. al (2011) <https://arxiv.org/pdf/1106.4007.pdf>`__. Jets can be activated
+    when a spinning black hole is accreting. The jets are bipolar and are set along the angular momentum vector of the SmartStar. The
+    velocity of the jet(s) is set by a separate parameter below. No other parameters need to be set to activate the jet.  Default: 0
+
+``SmartStarEddingtonCap`` (external)
+    This parameter allows for accretion onto the SmartStar to be capped at the Eddington limit.
+    Default: 0
+
+``SmartStarSpin`` (external)
+    The dimensionless spin of the SmartStar particle. This is a very unconstrained parameter and cannot be readily computed on the fly. This parameter
+    should be set if you want to have jet feedback. Setting this is zero and turning on jet feedback wouldn't make sense. The default is set to be 0.7 and
+    this is probably reasonable. 
+    Default: 0.7
+
+``SmartStarSMSLifetime`` (external)
+    This is the lifetime for a supermassive star in years. After this time has elapsed a SmartStar particle which is behaving like a SMS will collapse
+    directly into a black hole with no supernova event. Default: 1e6
+
+``SmartStarJetVelocity`` (external)
+    The velocity that the jets are ejected at. Typically jets are observed to travel at a substantial fraction of the speed of light -
+    especially those ejected during periods of high accretion. However,
+    as mass gets entrained in the jet it slows down. The units of this parameter are as a fraction of the speed of light. Default: 0.1
+
+``SmartStarFeedbackJetsThresholdMass`` (external)
+    Jets are only ejected once this amount of mass is available for ejection after an accretion event. Therefore, if there is very limited
+    accretion and this parameter is set high then jets will be very infrequent. In units of solar masses. Default: 1.0
+
+``SmartStarSuperEddingtonAdjustment`` (external)
+    As accretion rates exceed the canonical Eddington rate the radiative efficiency of the feedback changes. We use the fits from `Madau et al. <https://arxiv.org/pdf/1402.6995.pdf>`__
+    to adjust the efficiency when accretion enters the super-critical regime. The fits are based on the slim-disk model of accretion which generates inefficient feedback.
+    Default: 1
+    
 .. _radiation_parameters:
 
 Radiation Parameters
@@ -3137,6 +3438,153 @@ star particles, it is highly recommended that you set the parameter,
 ``ConductionDynamicRebuildMinLevel`` (external)
     The minimum level on which the dynamic hierarcy rebuild is performed.  Default: 0.
 
+
+.. _sgs_parameters:
+
+Subgrid-scale (SGS) turbulence model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following parameter allow the use of an SGS turbulence model in
+Enzo, see test problem 
+``run/MHD/3D/StochasticForcing/StochasticForcing.enzo``.
+
+It is recommended to not arbitrarily mix model terms, but either 
+stick to one model family (nonlinear, dissipative, or scale-similarity)
+or conduct additional *a priori* test first.
+
+Best fit model coefficients based on *a priori* testing of compressible
+MHD turbulence for a wide range of sonic Mach numbers (0.2 to 20) can
+be found in Table II in `Grete et al. (2016) Physics of Plasmas 23 062317
+<https://dx.doi.org/10.1063/1.4954304>`_, 
+where all models are presented in more detail.
+
+Overall, the nonlinear model (effectively parameter free) 
+with an explicit 3-point stencil showed the
+best performance in decaying MHD test problem, see 
+`Grete et al. (2017) Phys. Rev. E. 95 033206
+<https://dx.doi.org/10.1103/PhysRevE.95.033206>`_.
+
+
+``UseSGSModel`` (external)
+    This parameter generally turns the SGS machinery on (even though
+    no SGS term is added by default as every term needs a coefficient, 
+    see below). 
+    1: Turn on. Default: 0
+
+Explicit filtering
+^^^^^^^^^^^^^^^^^^
+
+All SGS models rely on the notion that they are calculated based on
+filtered/resolved quantities.
+The spatial discretization itself acts as one filter.
+However, in shock-capturing schemes it is questionable how "resolved"
+quantities are at the grid-scale.
+The following three variables enable the explicit filtering of the grid-scale
+quantites as they are used in the SGS terms.
+
+See Table 1 in `Grete et al. (2017) Phys. Rev. E. 95 033206
+<https://dx.doi.org/10.1103/PhysRevE.95.033206>`_ for coefficients 
+of a discrete box filter.
+The recommended values correspond to a discrete representation of a box filter
+on a 3-point stencil.
+
+
+``SGSFilterWidth`` (external)
+    Width (in units of cell widths) of the discrete filter. 
+    Default: 0; 
+    Recommended: 2.711;
+
+``SGSFilterStencil`` (external)
+    Discrete width of filter stencil in numbers of cells. 
+    Default: 0;
+    Recommended: 3;
+    Maximum: 7;
+
+``SGSFilterWeights`` (external)
+    Symmetic filter weights that are used in the stencil. List of four floats.
+    First number corresponds to weight of central point X_i, 
+    second number corresponds to weight of points X_i+1 and X_i-1, and so on.
+    Default: 0. 0. 0. 0.;
+    Recommended: 0.40150 0.29925 0.00000 0.0;
+
+Nonlinear model
+^^^^^^^^^^^^^^^
+
+``SGScoeffNLu`` (external)
+    Coefficient for nonlinear Reynolds stress model.
+    Default: 0;
+    Recommended: 1;
+    
+``SGScoeffNLb`` (external)
+    Coefficient for nonlinear Maxwell stress (only MHD).
+    Default: 0;
+    Recommended: 1;
+
+``SGScoeffNLemfCompr`` (external)
+    Coefficient for nonlinear compressive EMF model (only MHD).
+    Default: 0;
+    Recommended: 1;
+
+Dissipative model
+^^^^^^^^^^^^^^^^^
+
+``SGScoeffEVStarEnS2Star`` (external)
+    Coefficient for traceless eddy-viscosity Reynolds stress model
+    (scaled by realizability condition in the kinetic SGS energy).
+    Default: 0;
+    Recommended: 0.01;
+
+``SGScoeffEnS2StarTrace`` (external)
+    Coefficient for the trace of the eddy-viscosity Reynolds stress model,
+    i.e., the kinetic SGS energy (derived from realizability condition).
+    Default: 0;
+    Recommended: 0.08;
+
+``SGScoeffERS2M2Star`` (external)
+    Coefficient for eddy-resistivity EMF model (only MHD; scaled by
+    realizable SGS energies)
+    Default: 0;
+    Recommended: 0.012;
+
+``SGScoeffERS2J2`` (external)
+    Coefficient for eddy-resistivity EMF model (only MHD; scaled by
+    Smagorinsky SGS energies)
+    Default: 0;
+
+Scale-similarity model
+^^^^^^^^^^^^^^^^^^^^^^
+
+``SGScoeffSSu`` (external)
+    Coefficient for scale-similarity Reynolds stress model.
+    Default: 0;
+    Recommended: 0.67;
+    
+``SGScoeffSSb`` (external)
+    Coefficient for scale-similarity Maxwell stress (only MHD).
+    Default: 0;
+    Recommended: 0.9;
+
+``SGScoeffNLemfCompr`` (external)
+    Coefficient for scale-similarity EMF model (only MHD).
+    Default: 0;
+    Recommended: 0.89;
+
+
+.. _fdm_parameters:
+
+Fuzzy Dark matter model
+~~~~~~~~~~~~~~~~~~~~~~~
+
+``QuantumPressure`` (external)
+    Flag to turn on quantum pressure machinery (see Li, Hui &
+    Bryan 2019)
+    Default: 0;
+
+``FDMMass`` (external)
+    If QuantumPressure is used, this indicates the mass of the FDM
+    particle in units of 1e-22 eV.
+    Default: 1;
+
 .. _other_parameters:
 
 Other Parameters
@@ -3354,7 +3802,9 @@ Problem Type Description and Parameter List
 102          :ref:`1dcollapse_param`
 106          :ref:`mhdhydro_param`
 107          :ref:`putsink_param`
-108          :ref:`clustercoolingflow_param` 
+108          :ref:`clustercoolingflow_param`
+190          :ref:`light_boson`
+191          :ref:`fdm_collapse`
 200          :ref:`mhd1d_param`
 201          :ref:`mhd2d_param`
 202          :ref:`mhd3d_param`
@@ -3882,6 +4332,11 @@ Zeldovich Pancake (20)
     x-axis)
 ``ZeldovichPancakeInitialTemperature`` (external)
     Initial gas temperature. Units: degrees Kelvin. Default: 100
+``ZeldovichPancakeInitialGasVelocity`` (external)
+    Initial bulk gas velocity in the direction of the pancake
+    collapse. Units: km/s. Default: 0.0
+``ZeldovichPancakeInitialUniformBField`` (external)
+    Initial magnetic field. Units: Gauss. Default: 0.0 0.0 0.0
 ``ZeldovichPancakeOmegaBaryonNow`` (external)
     Omega Baryon at redshift z=0; standard setting. Default: 1.0
 ``ZeldovichPancakeOmegaCDMNow`` (external)
@@ -4850,6 +5305,31 @@ Cluster Cooling Flow (108)
 ``SNIaFeedbackEnergy`` (external)
     Energy feedback from evolved stars (Type Ia SN). Default: 1.0
 
+    
+.. _light_boson:
+
+Light Boson Initialize
+^^^^^^^^^^^^^^^^^^^^^^
+
+``LightBosonProblemType`` (external)
+    Indicates the type of test to be run for a 1D Schrodinger problem
+    (FDM).  Options are: (1) A single Gaussian density field; (2) A
+    Fresnel test problem; (3) a Zeldovich collapse test; (4) two
+    colliding Gaussian packets.  Default: 1
+``LightBosonCenter`` (external)
+    Specifies center position for the tests.  Default: 0.5
+   
+.. _fdm_collapse:
+
+FDM Collapse
+^^^^^^^^^^^^
+
+No parameters.  Assumes there are files called `GridDensity.new`
+containing the density field, and `GridRePsi` and `GridImPsi` which
+contain the real and imaginary parts of the wave function.  There is a
+python code in run/FuzzyDarkMatter/init.py which generates a
+
+    
 .. _mhd1d_param:
 
 1D MHD Test (200)

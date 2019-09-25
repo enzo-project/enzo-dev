@@ -1,0 +1,75 @@
+#
+# AMR PROBLEM DEFINITION FILE: Light Boson test
+#
+#  define problem
+#
+ProblemType            = 190        // Light Boson
+TopGridRank            = 1
+TopGridDimensions      = 512 
+
+LeftFaceBoundaryCondition = 3  // set left faces to periodic 
+RightFaceBoundaryCondition = 3   // set right faces to periodic
+NumberOfGhostZones         = 8
+#WriteGhostZones            = 1
+#WritePotential             = 0
+#
+#  define cosmology parameters
+#
+ComovingCoordinates        = 0       // Expansion ON
+CosmologyHubbleConstantNow = 1.
+CosmologyOmegaMatterNow = 1
+CosmologyOmegaLambdaNow = 0
+CosmologyComovingBoxSize   = 0.1   // 1 Mpc/h
+CosmologyMaxExpansionRate  = 0.05    //
+CosmologyInitialRedshift   = 2      // start at z=2
+CosmologyFinalRedshift     = 0
+GravitationalConstant      = 1       // this must be true for cosmology
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 1.0
+dtDataDump             = 1e-2
+CourantSafetyNumber    = 0.8
+#StopCycle              = 2
+#CycleSkipDataDump = 1
+#RedshiftDumpName = RD
+#RedshiftDumpDir  = RD
+Initialdt = 1e-6
+#WritePotential         = 1
+
+CosmologyOutputRedshift[0] = 2
+CosmologyOutputRedshift[1] = 1.5
+CosmologyOutputRedshift[2] = 1
+CosmologyOutputRedshift[3] = 0.5
+CosmologyOutputRedshift[4] = 0.3
+CosmologyOutputRedshift[5] = 0.1
+CosmologyOutputRedshift[6] = 0
+
+#
+#  set Hydro parameters
+#
+UseHydro                    = 0
+
+#
+# FDM parameters
+#
+QuantumPressure            = 1
+FDMMass = 1.
+SelfGravity                = 1
+#OutputFirstTimeAtLevel      = 1
+
+
+StaticHierarchy                       = 1
+
+
+#DensityUnits = 1.67453400e-24
+#LengthUnits = 3.08567758e+24
+#TimeUnits = 3.15576000e+19
+
+DensityUnits = 1.8788e-29
+LengthUnits = 2.542839e+23
+#LengthUnits = 3.08567758e+24
+TimeUnits = 2.519445e+17
+
+Debug1 = 1

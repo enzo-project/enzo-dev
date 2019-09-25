@@ -314,10 +314,10 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
       fptr = fopen("DiskProfile.out", "w");
       printf("#mdisk= %g, r_disk = %g kpc, T_disk=%g K, central height h_0=%g kpc, \nrho_0=%g [g/cm3], c_s=%g km/s, Sigma_0=%g Msun/pc^2\n", 
 	     DiskMassFraction[sphere]*NFWMass[0]/SolarMass, 
-	     R_D/kpc, DiskTemperature[0], h_0/kpc, rho_0, c_s/1e5, Sigma_0/SolarMass*pc*pc); 
+	     R_D/kpc_cm, DiskTemperature[0], h_0/kpc_cm, rho_0, c_s/1e5, Sigma_0/SolarMass*pc_cm*pc_cm); 
       fprintf(fptr, "#mdisk= %g, r_disk = %g kpc, T_disk=%g K, central height h_0=%g kpc, \nrho_0=%g [g/cm3], c_s=%g km/s, Sigma_0=%g Msun/pc^2\n", 
 	     DiskMassFraction[sphere]*NFWMass[0]/SolarMass, 
-	     R_D/kpc, DiskTemperature[0], h_0/kpc, rho_0, c_s/1e5, Sigma_0/SolarMass*pc*pc); 
+	     R_D/kpc_cm, DiskTemperature[0], h_0/kpc_cm, rho_0, c_s/1e5, Sigma_0/SolarMass*pc_cm*pc_cm); 
 
       fprintf(fptr, "   Radius [kpc]  Sigma(R) [Msun/pc^2]  n(R,z=0) [cm^{-3}]  M_disk(<R) [Msun] M_tot(<R) [Msun]  h(r) [pc] V_rot [km/s] V_dm [km/s] V_disk [km/s]  Vpress [km/s]  Toomre-Q    \n" );
 
@@ -336,8 +336,8 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
 	Omega = Vrot/2/M_PI/R;
 	ToomreQ = c_s*Omega/SigmaR/GravConst;
 	fprintf(fptr, "%"ISYM" %"GOUTSYM"\t %g   \t %g\t  %g\t  %g\t  %g\t       %g\t  %g\t   %g\t %g \t %g\n", 
-		i, R/kpc, SigmaR/SolarMass*pc*pc, rhoc/Mu/mh, Mdr/SolarMass, (NFWMass[i]+Mdr)/SolarMass, 
-		hr/pc, Vrot/1e5, vdm/1e5,  vphidisk/1e5, -vpress/1e5,ToomreQ
+		i, R/kpc_cm, SigmaR/SolarMass*pc_cm*pc_cm, rhoc/Mu/mh, Mdr/SolarMass, (NFWMass[i]+Mdr)/SolarMass, 
+		hr/pc_cm, Vrot/1e5, vdm/1e5,  vphidisk/1e5, -vpress/1e5,ToomreQ
 		  );
 	
       }	
@@ -501,7 +501,7 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
 		for (m = 1; m < NFW_POINTS; m++) {
 		  if (R >= NFWRadius[m]) {
 		    vphi = sqrt(GravConst*(NFWMass[m])/(R*LengthUnits));
-		    // printf("R: %g [kpc] : %g %g %g \n", R*LengthUnits/kpc, vphi, vphidisk, vphiP);
+		    // printf("R: %g [kpc] : %g %g %g \n", R*LengthUnits/kpc_cm, vphi, vphidisk, vphiP);
 		    break;
 		  }
 		}

@@ -221,6 +221,12 @@ int CreateSUBlingList(TopGridData *MetaData,
 int DeleteSUBlingList(int NumberOfGrids,
 		      LevelHierarchyEntry **SUBlingList);
 
+int ActiveParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
+                 int NumberOfGrids, LevelHierarchyEntry *LevelArray[],
+                 int ThisLevel);
+int ActiveParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
+               int NumberOfGrids, LevelHierarchyEntry *LevelArray[],
+               int level, int NumberOfNewActiveParticles[]);
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
@@ -253,7 +259,8 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 #endif
 
 int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level,
-                                  float Time, int CycleNumber, int NumberOfGrids);
+                                  int NumberOfGrids,
+                                  TopGridData *MetaData);
 
 int SetLevelTimeStep(HierarchyEntry *Grids[],
         int NumberOfGrids, int level,
@@ -317,6 +324,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   typedef HierarchyEntry* HierarchyEntryPointer;
   HierarchyEntry **Grids;
   int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+  int *NumberOfNewActiveParticles = new int[NumberOfGrids]();
   int *NumberOfSubgrids = new int[NumberOfGrids];
   fluxes ***SubgridFluxesEstimate = new fluxes **[NumberOfGrids];
   int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
@@ -461,6 +469,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       DeleteStarList(AllStars);
     //Star *AllStars = NULL;
 #else
+
+    ActiveParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
+                             level);
+
     Star *AllStars = NULL;
 #endif
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
@@ -585,6 +597,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
            in preparation for the new step. */
 
         Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
+
+	/* Call Schrodinger solver. */
+
+	if (QuantumPressure == 1)
+	  Grids[grid1]->GridData->SchrodingerSolver(LevelCycleCount[level]);
 
 	// Find recently-supernova stars to add them the MagneticSupernovaList 
 	if ((UseMagneticSupernovaFeedback) && (level == MaximumRefinementLevel))
@@ -732,6 +749,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //      if (Grids[grid1]->GridData->CheckDensity() == FAIL){
   //       printf("Negative densities reached after star particle handler\n");
     ///  }
+      Grids[grid1]->GridData->ActiveParticleHandler
+        (Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove,
+         NumberOfNewActiveParticles[grid1]);
+
       /* Include shock-finding */
 
       Grids[grid1]->GridData->ShocksHandler();
@@ -782,7 +803,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (UseMagneticSupernovaFeedback)
 	Grids[grid1]->GridData->MagneticSupernovaList.clear(); 
 
-   }  // end loop over grids
+    ActiveParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
+                           level, NumberOfNewActiveParticles);
+    } //end loop over grids
 
     /* Finalize (accretion, feedback, etc.) star particles */
 
@@ -949,8 +972,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     FinalizeFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
 
-    ComputeDomainBoundaryMassFlux(Grids, level, MetaData->Time,
-                                  MetaData->CycleNumber, NumberOfGrids);
+
+    /* Check for mass flux across outer boundaries of domain */
+    ComputeDomainBoundaryMassFlux(Grids, level, NumberOfGrids, MetaData);
 
     /* Recompute radiation field, if requested. */
     RadiationFieldUpdate(LevelArray, level, MetaData);
@@ -1044,6 +1068,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Clean up. */
  
   delete [] NumberOfSubgrids;
+  delete [] NumberOfNewActiveParticles;
   delete [] Grids;
   delete [] SubgridFluxesEstimate;
   delete [] TotalStarParticleCountPrevious;

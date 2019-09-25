@@ -12,12 +12,13 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "phys_constants.h"
+
 int MHDLoopInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData, ExternalBoundary &Exterior)
 {
-  float Pi = 3.14159265;
-  float Density = 25.0/(36*Pi); 
-  float Pressure = 5.0/(12*Pi);
+  float Density = 25.0/(36*pi); 
+  float Pressure = 5.0/(12*pi);
   float Vx=0.0, Vy = 0.0, Vz = 0.0;
   float B0=1e-3;
   FLOAT R0 = 0.3;

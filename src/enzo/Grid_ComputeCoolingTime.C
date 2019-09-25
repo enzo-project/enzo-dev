@@ -25,6 +25,7 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
  
 /* This parameter controls whether the cooling function recomputes
    the metal cooling rates.  It is reset by RadiationFieldUpdate. */
@@ -343,8 +344,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 #ifdef TRANSFER
 
     /* unit conversion from Enzo RT units to CGS */
-    const float ev2erg = 1.60217653E-12;
-    float rtunits = ev2erg / TimeUnits;
+    float rtunits = erg_eV / TimeUnits;
 
     if ( RadiativeTransfer ){
       my_fields.RT_HI_ionization_rate = BaryonField[kphHINum];
@@ -549,7 +549,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
        GridDimension,GridDimension+1,
        GridDimension+2, &ComovingCoordinates, &HydroMethod,
        &DualEnergyFormalism, &GridRank,
-       &GridStartIndexX,&GridStartIndexY,&GridStartIndexZ,
+       &GridStartIndexX, &GridStartIndexY, &GridStartIndexZ,
        &GridEndIndexX, &GridEndIndexY, &GridEndIndexZ,&dtFixed,
        &afloat,&CoolData.HydrogenFractionByMass,
        &TemperatureUnits,&LengthUnits,
@@ -567,7 +567,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
           &CoolData.NumberOfTemperatureBins, &ComovingCoordinates,
           &HydroMethod,
        &DualEnergyFormalism, &GridRank, &PhotoelectricHeating,
-       &GridStartIndexX,&GridStartIndexY,&GridStartIndexZ,
+       &GridStartIndexX, &GridStartIndexY, &GridStartIndexZ,
        &GridEndIndexX, &GridEndIndexY, &GridEndIndexZ,
        &dtFixed, &afloat, &CoolData.TemperatureStart,
           &CoolData.TemperatureEnd, &CoolData.HydrogenFractionByMass,

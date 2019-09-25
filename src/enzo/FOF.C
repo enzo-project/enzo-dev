@@ -26,6 +26,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "phys_constants.h"
 
 #include "Fluxes.h"
 #include "GridList.h"
@@ -148,9 +149,9 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 void set_units(FOFData &AllVars) {
 
-  AllVars.UnitLength_in_cm	   = 3.085678e21; 
-  AllVars.UnitMass_in_g		   = 1.989e43;
-  AllVars.UnitVelocity_in_cm_per_s = 1.0e5;
+  AllVars.UnitLength_in_cm	   = kpc_cm;
+  AllVars.UnitMass_in_g		   = SolarMass * 1.0E10;
+  AllVars.UnitVelocity_in_cm_per_s = km_cm;
 
   AllVars.Theta = 0.8;  /* opening angle for potential computation */
   AllVars.DesDensityNgb = 32;
@@ -1395,7 +1396,7 @@ void write_ascii_catalog(char *catalogue_fname, char *fofprop_fname,
   FILE *in, *out;
   int i, Ngroups, *Npart_g;
   float *CM, *Mass;
-  double SolarMass = UnitMass_in_g / 1.989e33;
+  double Msun = UnitMass_in_g / SolarMass;
   float RootBoxSize[3];
 
   if (MyProcessorNumber == 0) {
@@ -1427,7 +1428,7 @@ void write_ascii_catalog(char *catalogue_fname, char *fofprop_fname,
 	    "Halo", "Npart", "Mass [Msun]", "CM(x)", "CM(y)", "CM(z)");
     for (i = 0; i < Ngroups; i++)
       fprintf(out, "%8d %12d %12.6g %12.6f %12.6f %12.6f\n",
-	      i, Npart_g[i], Mass[i]*SolarMass,
+	      i, Npart_g[i], Mass[i]*Msun,
 	      CM[3*i+0] / RootBoxSize[0] + leftEdge[0],
 	      CM[3*i+1] / RootBoxSize[1] + leftEdge[1],
 	      CM[3*i+2] / RootBoxSize[2] + leftEdge[2]);

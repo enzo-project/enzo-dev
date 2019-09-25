@@ -23,6 +23,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
+
  
 int grid::PreparePeriodicGreensFunction(region *GreensRegion)
 {
@@ -30,7 +32,7 @@ int grid::PreparePeriodicGreensFunction(region *GreensRegion)
   /* Declarations. */
  
   int i, j, k, ii, jj, kk, dim, size;
-  const float twopi = 2.0*3.14159;
+  const float twopi = 2.0*pi;
  
   /* Error check. */
  

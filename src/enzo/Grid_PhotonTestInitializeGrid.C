@@ -25,6 +25,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 /********************* PROTOTYPES *********************/
 
@@ -171,8 +172,6 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   /* Set various units. */
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-               pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6, mu_data;
 
@@ -185,7 +184,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     CriticalDensity = 2.78e11*pow(HubbleConstantNow, 2); // in Msolar/Mpc^3
     BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
   } else {
-    BoxLength = LengthUnits / 3.086e24;
+    BoxLength = LengthUnits / Mpc_cm;
   }
 
   /* Compute NFW profile-info. The parameters are SphereCoreRadius (which is
@@ -214,10 +213,10 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     dpdr_old = dpdr;
     dpdr = GravConst * NFWMass[i] * SolarMass * 
            NFWDensity[i] / 
-           pow(NFWRadius[i]*BoxLength*Mpc, 2);
+           pow(NFWRadius[i]*BoxLength*Mpc_cm, 2);
     if (i > 0)
       NFWPressure[i] = NFWPressure[i-1] -
-	0.5*(dpdr+dpdr_old)*(NFWRadius[i]-NFWRadius[i-1])*BoxLength*Mpc;
+	0.5*(dpdr+dpdr_old)*(NFWRadius[i]-NFWRadius[i-1])*BoxLength*Mpc_cm;
     NFWTemp[i] = NFWPressure[i]*mu*mh/(kboltz*NFWDensity[i]); // in K
     NFWSigma[i] = sqrt(kboltz * NFWTemp[i] / (mu * mh));  // in cm/s
     float mean_overdensity = 3.0*SphereDensity[sphere] / (x1*x1*x1) *
@@ -382,7 +381,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   for (sphere = 0; sphere < NumberOfSpheres; sphere++) {
     Scale_Factor[sphere] = SphereCutOff[sphere] / SphereRadius[sphere];
-    HydrostaticTemperature[sphere] = (2*M_PI * GravConst * mh) / 
+    HydrostaticTemperature[sphere] = (2*pi * GravConst * mh) / 
       (3.0*kboltz) * (SphereDensity[sphere] * DensityUnits) * 
       pow(SphereRadius[sphere] * LengthUnits, 2.0);
     if (SphereFracKeplerianRot[sphere] > 0.0) {
@@ -415,7 +414,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	printf("\nSphere Mass (M_sun): %"FSYM"\n", SphereMass/SolarMass);
       }
       
-      VelocityKep = sqrt(6.673e-8*SphereMass/(SphereRadius[sphere]*(LengthUnits)));
+      VelocityKep = sqrt(GravConst*SphereMass/(SphereRadius[sphere]*(LengthUnits)));
       SphereRotationalPeriod[sphere] = 2*pi*SphereRadius[sphere]*(LengthUnits)/
 	(SphereFracKeplerianRot[sphere]*VelocityKep);
       SphereRotationalPeriod[sphere] = SphereRotationalPeriod[sphere]/(TimeUnits);
@@ -521,9 +520,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	      else if (xpos > 0 && ypos < 0)
 		theta = 2*pi + atan(ypos/xpos);
              } else if (xpos == 0 && ypos > 0)
-	      theta = 3.14159 / 2.0;
+	      theta = pi / 2.0;
 	    else if (xpos == 0 && ypos < 0)
-	      theta = (3*3.14159) / 2.0;
+	      theta = (3*pi) / 2.0;
 	    else
 	      theta = 0.0;
 
@@ -602,7 +601,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	      double M_ej, E_ej, r_max, v_max, BlastTime, v_core, normalization,
 		speed;
 
-	      M_ej = SphereDensity[sphere] * (4.0*M_PI/3.0) * 
+	      M_ej = SphereDensity[sphere] * (4.0*pi/3.0) * 
 		POW(SphereRadius[sphere]*LengthUnits, 3.0) * DensityUnits;
 	      E_ej = M_ej * kboltz * SphereTemperature[sphere] / (mh*mu);
 	      r_max = LengthUnits * SphereRadius[sphere];
@@ -615,7 +614,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	      v_core = sqrt( (10.0 * E_ej * (DensitySlope-5)) /
 			     (3.0 * M_ej * (DensitySlope-3)) );
 	      normalization = (10.0 * (DensitySlope-5) * E_ej) / 
-		(4.0 * M_PI * DensitySlope) / POW(v_core, 5.0);
+		(4.0 * pi * DensitySlope) / POW(v_core, 5.0);
 	      printf("v_max = %g\n", v_max * VelocityUnits * 1e-5);
 	      
 	      v_core /= VelocityUnits;
@@ -1027,10 +1026,6 @@ double ph_Ang(double a1, double a2, double R, double r)
 
 double ph_Maxwellian(double c_tilda, double vel_unit, double mu, double gamma)
 {
-   // Set constants
-   double mh = 1.67e-24;
-   double kboltz = 1.38e-16;
-   double pi = 3.14159;
 
    // Compute temperature in cgs units
    double c = c_tilda*vel_unit;

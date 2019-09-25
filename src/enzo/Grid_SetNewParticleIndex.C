@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "ActiveParticle.h"
 
 void grid::SetNewParticleIndex(int &NumberCount1, PINT &NumberCount2)
 {
@@ -64,6 +65,27 @@ void grid::SetNewParticleIndex(int &NumberCount1, PINT &NumberCount2)
 
   delete [] newstars;
 #endif
+
+  return;
+}
+
+#define NO_DEBUG
+
+void grid::SetNewActiveParticleIndex(PINT &next_id)
+{
+
+  int n, abstype;
+  int ori_count = next_id;
+
+  for (n = 0; n < NumberOfActiveParticles; n++)
+    if (ActiveParticles[n]->Identifier == INT_UNDEFINED) {
+      ActiveParticles[n]->Identifier = next_id++;
+#ifdef DEBUG
+      std::cout << "SNPI[" << MyProcessorNumber << "] " << "GridID: "
+        << this->ID << " APID: " << ActiveParticles[n]->Identifier
+        << std::endl;
+#endif
+    }
 
   return;
 }

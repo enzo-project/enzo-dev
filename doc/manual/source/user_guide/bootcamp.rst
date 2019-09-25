@@ -1,16 +1,16 @@
 Quickstart Guide to Enzo
 ========================
 
-This is an unofficial quickstart guide to using Enzo, starting from
+This is the quickstart guide to using Enzo, starting from
 checking out the Enzo and YT sources, through to building them, then
 to running an example problem and looking at its output.
 
 Before we get going too far, here are some websites that contain
 useful information or useful tools:
  
-* `bitbucket.org/enzo/enzo-dev <http://bitbucket.org/enzo/enzo-dev>`_
+* `github.com/enzo-project/enzo-dev <http://github.com/enzo-project/enzo-dev>`_
 * `yt-project.org <http://yt-project.org>`_
-* `jacques.enzotools.org <http://jacques.enzotools.org>`_
+
 
 If you ever get stuck, please email `enzo-users
 <https://groups.google.com/forum/#!forum/enzo-users>`_. This is not
@@ -21,25 +21,30 @@ interlocking modules, unusual combinations of parameters may require
 some care, and the individual developers that have created those
 modules will be able to discuss them with you.
 
-
+Getting YT
+------------
+YT was initially developed to allow fast and easy analysis of Enzo output. Since it's
+original inception YT has grown to be a powerful tool capable of analysing
+many different astrophysical simulation code outputs and also non-astro
+simulation outputs too.
+To get your hands on YT (which you will need to complete this quickstart tutorial)
+then go to the `YT installation page <https://yt-project.org/doc/installing.html>`_
+and install YT locally.
 
 Getting Enzo
 ------------
 
 The simplest way to get a copy of the current stable source code is to
-clone the repository using Mercurial:
+clone the repository using git:
 
 ::
 
-    $ hg clone https://bitbucket.org/enzo/enzo-dev
+    $ git clone https://github.com/enzo-project/enzo-dev
 
 
-Mercurial (hg) is a revision-control system that is available on many
-platforms (see `www.mercurial-scm.org
-<http://www.mercurial-scm.org>`_).  Note that when you download enzo
-in this way, you will be suing the stable version of the code; if you
-wish to use the more cutting-edge development version, see the full
-documentation.
+Git (git) is a revision-control system that is available on many
+platforms (see `git-scm.org
+<http://git-scm.org>`_).  
 
 You can then use a pre-existing Makefile (if one exists for your
 machine) or modify one to point to either the system-wide installation
@@ -243,20 +248,55 @@ script, you should be able to execute this command:
 
 This will take three slices through the center of the domain along
 each axis, as sliced through the very first output. The images will be
-saved to the subdirectory frames .
+saved to the subdirectory frames. Here is a plot of the outputs that can be
+expected from the DD0000 snapshots:
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0000_Slice_x_density.png
+    :width: 30%
+ 
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0000_Slice_y_density.png
+    :width: 30%
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0000_Slice_z_density.png
+    :width: 30%
+
+
+
 
 Now let's take a look at DD0010 :
-
-
+   
 ::
 
     $ yt plot DD0010/DD0010
 
 
-By this point the simulation has not collapsed very far. Feel free to
-check later outputs.
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0010_Slice_x_density.png
+    :width: 30%
+ 
 
-Another handy command is yt stats , which will describe the current
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0010_Slice_y_density.png
+    :width: 30%
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0010_Slice_z_density.png
+    :width: 30%
+
+
+By this point the simulation has not collapsed very far. Feel free to
+check later outputs (e.g. the yt output from DD0070 shown below)
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0070_Slice_x_density.png
+    :width: 30%
+ 
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0070_Slice_y_density.png
+    :width: 30%
+
+.. image:: ../../../../run/Hydro/Hydro-3D/CollapseTestNonCosmological/frames/DD0070_Slice_z_density.png
+    :width: 30%
+
+
+Another handy command is yt stats, which will describe the current
 state of the simulation in a couple metrics.
 
 

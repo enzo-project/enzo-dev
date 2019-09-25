@@ -26,6 +26,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 #define NO_MEAN_ENERGY
 
@@ -38,8 +39,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 {
 
   /* If photon test simulation, don't change the radiation sources. */
-
-  if (ProblemType == 50)
+  if (ProblemType == 50 || ProblemType == 27)
     return SUCCESS;
 
   int i, j, nShine, nbins;
@@ -76,7 +76,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
   double LConv = (double) TimeUnits / pow(LengthUnits,3);
 
   // Convert to years
-  float TimeInYears = 3.1557e7 / TimeUnits;
+  float TimeInYears = yr_s / TimeUnits;
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 

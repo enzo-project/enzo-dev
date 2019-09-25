@@ -23,8 +23,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
-#define MH 1.67e-24
 #define DEFAULT_MU 0.6
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -140,10 +140,10 @@ int grid::CoolingTestInitializeGrid()
 
 	index = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
 
-	BaryonField[0][index] = MH * pow(10,((HNumberDensitySlope * (i-GridStartIndex[0])) + log10(TestProblemData.MinimumHNumberDensity))) /
+	BaryonField[0][index] =mh * POW(10,((HNumberDensitySlope * (i-GridStartIndex[0])) + log10(TestProblemData.MinimumHNumberDensity))) /
 	  TestProblemData.HydrogenFractionByMass / DensityUnits;
 
-	BaryonField[MetalNum][index] = pow(10,((metallicitySlope * (j-GridStartIndex[1])) + log10(TestProblemData.MinimumMetallicity))) *
+	BaryonField[MetalNum][index] = POW(10,((metallicitySlope * (j-GridStartIndex[1])) + log10(TestProblemData.MinimumMetallicity))) *
 	  CoolData.SolarMetalFractionByMass * BaryonField[0][index];
 
       }
@@ -249,7 +249,7 @@ int grid::CoolingTestInitializeGrid()
 	  mu = BaryonField[0][index] / mu;
 	}
 
-	BaryonField[1][index] = pow(10,((temperatureSlope * (k-GridStartIndex[2])) + log10(TestProblemData.MinimumTemperature))) /
+	BaryonField[1][index] = POW(10,((temperatureSlope * (k-GridStartIndex[2])) + log10(TestProblemData.MinimumTemperature))) /
 	  TemperatureUnits / mu / (Gamma-1.0);
 
 	if (DualEnergyFormalism)

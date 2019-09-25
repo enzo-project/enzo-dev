@@ -1,3 +1,19 @@
+/***********************************************************************
+/
+/  GRID CLASS (INITIALIZE CONTAINERS FOR COUNTING DOMAIN BOUNDARY MASS FLUX)
+/
+/  written by: Andrew Emerick
+/  date:       2018-ish
+/
+/  PURPOSE:
+/           Sets up the container that keeps track of how much mass
+/           in each of the mass-density fields move across the external
+/           boundary
+/
+/  RETURNS: FAIL or SUCCESS
+/
+************************************************************************/
+
 #include <stdio.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -36,9 +52,13 @@ int grid::PrepareBoundaryMassFluxFieldNumbers(){
                           HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
   }
 
-  /* get metallicity tracer field number */
-  int MetalNum;
-  MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
+  /* identify colour fields if they exist */
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
+    MetalIaNum, MetalIINum;
+
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum,
+              MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
+    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
   /* pre-compute field numbers so we only need to do this once */
   int count = 0;
@@ -66,10 +86,20 @@ int grid::PrepareBoundaryMassFluxFieldNumbers(){
     BoundaryMassFluxFieldNumbers[count++] = HDINum;
   }
 
-  /* metal density */
-  if (MultiMetals > 0){
-    BoundaryMassFluxFieldNumbers[count++] = MetalNum;
+  if (MetalNum != -1){
+    BoundaryMassFluxFieldNumbers[count++] = MetalNum;     // metallicity
+    if (MultiMetals || TestProblemData.MultiMetals) {
+      BoundaryMassFluxFieldNumbers[count++] = MetalNum+1; // ExtraType0
+      BoundaryMassFluxFieldNumbers[count++] = MetalNum+2; // ExtraType1
+    }
   }
+
+  if (MetalIaNum       != -1) BoundaryMassFluxFieldNumbers[count++] = MetalIaNum;
+  if (MetalIINum       != -1) BoundaryMassFluxFieldNumbers[count++] = MetalIINum;
+  if (SNColourNum      != -1) BoundaryMassFluxFieldNumbers[count++] = SNColourNum;
+  if (MBHColourNum     != -1) BoundaryMassFluxFieldNumbers[count++] = MBHColourNum;
+  if (Galaxy1ColourNum != -1) BoundaryMassFluxFieldNumbers[count++] = Galaxy1ColourNum;
+  if (Galaxy2ColourNum != -1) BoundaryMassFluxFieldNumbers[count++] = Galaxy2ColourNum;
 
   /* stellar yields tracers */
   if (MultiMetals > 1 && STARMAKE_METHOD(INDIVIDUAL_STAR)){

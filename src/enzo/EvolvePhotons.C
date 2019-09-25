@@ -265,6 +265,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	TempGridList = TempGridList->NextGrid;
       }
     }
+    if (NumberOfSources == 0) {
+      PhotonTime += dtPhoton;
+      continue;
+    }
 
     if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
 

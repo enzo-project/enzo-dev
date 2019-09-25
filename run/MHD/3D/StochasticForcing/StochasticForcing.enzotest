@@ -9,5 +9,5 @@ AMR = False
 dimensionality = 3
 max_time_minutes = 20
 fullsuite = True
-pushsuite = False
+pushsuite = True
 quicksuite = False

@@ -27,6 +27,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 #define LIFETIME_IN_TDYN 12.0
 
@@ -448,14 +449,13 @@ Star *Star::copy(void)
 
 void Star::ConvertAllMassesToSolar(void)
 {
-  const double Msun = 1.989e33;
   double dx;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits, MassConversion;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, CurrentGrid->Time);
   dx = LengthUnits * CurrentGrid->CellWidth[0][0];
-  MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
+  MassConversion = (float) (dx*dx*dx * double(DensityUnits) / SolarMass);
   this->Mass *= MassConversion;
   this->FinalMass *= MassConversion;
   //this->BirthMass *= MassConversion; - for now, this is always in solar
@@ -464,14 +464,13 @@ void Star::ConvertAllMassesToSolar(void)
 
 void Star::ConvertMassToSolar(void)
 {
-  const double Msun = 1.989e33;
   double dx;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits, MassConversion;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, CurrentGrid->Time);
   dx = LengthUnits * CurrentGrid->CellWidth[0][0];
-  MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
+  MassConversion = (float) (dx*dx*dx * double(DensityUnits) / SolarMass);
   this->Mass *= MassConversion;
   return;
 }

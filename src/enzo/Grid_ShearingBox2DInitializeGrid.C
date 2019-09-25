@@ -26,6 +26,7 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "hydro_rk/EOS.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -37,14 +38,10 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
 
  // 1 to 5 :2D shearing box
     // 1 = hydro shearing box
-    // 2 = KH instablity (v_y= Omega*sin(2.*3.1415927*ShearingGeometry*y)*fraction)
+    // 2 = KH instablity (v_y= Omega*sin(2.*pi*ShearingGeometry*y)*fraction)
     // 3 = sheared sphere (radius= ShearingGeometry)
     // 4 = rotating sphere, uniform density  (radius= ShearingGeometry)
     // 5 = rotating sphere, ramped density  (radius= ShearingGeometry)
-
-
-  float Pi= 3.14159;
-
 
 
  /* declarations */
@@ -83,7 +80,7 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
     TimeUnits = 1.0, VelocityUnits = 1.0;
   if (UsePhysicalUnit)
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, Time);
-  float MagneticUnits = sqrt(4.0*Pi*DensityUnits)*VelocityUnits;
+  float MagneticUnits = sqrt(4.0*pi*DensityUnits)*VelocityUnits;
   
   /* Problem parameters */
   float rho = 1.0;
@@ -95,7 +92,7 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
   float rhou, lenu, tempu, tu, velu;
   GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
   float PressureUnits = rhou*pow(velu,2);
-  float bunit=sqrt(4.0*3.14159*rhou*velu*velu);
+  float bunit=sqrt(4.0*pi*rhou*velu*velu);
  
   const float q = VelocityGradient;
   const float Omega = AngularVelocity;
@@ -148,7 +145,7 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
 	  float drho=deltaRho*ramp;
 	 
 	  BaryonField[ivy][n]+=(x*q*Omega)*ramp;
-	  BaryonField[ivx][n]+=Omega*sin(2.*3.1415927*ShearingGeometry*y)*fraction;
+	  BaryonField[ivx][n]+=Omega*sin(2.*pi*ShearingGeometry*y)*fraction;
 	  BaryonField[iden][n]+= drho;
  
 	}
@@ -173,7 +170,7 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
 	  FLOAT delx = radius * 0.1;
 	  float r=sqrt(x*x+y*y);
 	  float theta=atan2(y,x);
-	  //if (theta<0) theta=theta+3.1415927*2;
+	  //if (theta<0) theta=theta+pi*2;
 
 	  float vx=r*sin(theta);
 	  float vy=r*cos(theta);
@@ -231,9 +228,9 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
 	  float rhoActual=BaryonField[iden ][n];
 	  float pressure=c_s*c_s*rhoActual/Gamma;
 	  float realpressure=pressure*PressureUnits;  
-	  float InitialBField=sqrt((8*3.14159*realpressure/(ThermalMagneticRatio)))/bunit;
+	  float InitialBField=sqrt((8*pi*realpressure/(ThermalMagneticRatio)))/bunit;
 	  if (InitialMagneticFieldConfiguration == 0) Bnaught = InitialBField;
-	  else if (InitialMagneticFieldConfiguration == 1) Bnaught = InitialBField*sin(2*3.14159*x);
+	  else if (InitialMagneticFieldConfiguration == 1) Bnaught = InitialBField*sin(2*pi*x);
 
 
 	  BaryonField[iBz][n] = Bnaught;
@@ -251,8 +248,8 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
     /* ProblemType 1: Vortex wave.
        Reference: B. M. Johnson & C. F. Gammie, ApJ, 2005, 626, 978. */
 
-    const FLOAT kx0 = (-8.0*2.0*Pi/Lx)/(8.0);
-    const FLOAT ky = 2.0*2.0*Pi/Ly;
+    const FLOAT kx0 = (-8.0*2.0*pi/Lx)/(8.0);
+    const FLOAT ky = 2.0*2.0*pi/Ly;
     const float vx0 = 1e-4; // in unit of cs
     n = 0;  
     for (int k = 0; k < GridDimension[2]; k++) {

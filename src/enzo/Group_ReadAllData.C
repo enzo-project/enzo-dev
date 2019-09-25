@@ -230,25 +230,22 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
-    return FAIL;
+    my_exit(EXIT_FAILURE);
   }
 
-  // Below, ENZO_FAIL is changed to "return FAIL" to deal with various data formats including HDF4, HDF5, packed-HDF5
-  // because boundary should be the one that distinguishes these different data formats.
-  // This will allow a graceful exit when the dataformat is not packed-HDF5.
-  // - Ji-hoon Kim
-  // Try to read external boundaries. If they don't fit grid data we'll set them later below
+  /* Try to read external boundaries. If they don't fit grid data we'll set them later below.
+     If this doesn't work, do a hard quit using my_exit() */
     if(LoadGridDataAtStart){    
       if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
 	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 		MetaData.BoundaryConditionName);
-	return FAIL;
+	my_exit(EXIT_FAILURE);
       }
     }else{
       if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
 	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 		MetaData.BoundaryConditionName);
-	return FAIL;
+	my_exit(EXIT_FAILURE);
       }
     }
 
@@ -463,6 +460,10 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   /* We do this after all the grids have been read in case the number of baryon fields 
      etc. was modified in that stage. 
      This allows you to add extra fields etc. and then restart. Proceed with caution.
+
+     Note by BWO, April 2019: This code is NEVER USED based on the usage of BRerr above
+     (where it is initialized to 0 and then never modified).  I'm not removing this code
+     since somebody may find it useful one day, but it should be used with care!
   */
   if (BRerr) {
     fprintf(stderr,"Setting External Boundaries.\n");

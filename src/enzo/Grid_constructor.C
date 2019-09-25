@@ -60,6 +60,7 @@ grid::grid()
     ParticlePosition[i]              = NULL;
     ParticleVelocity[i]              = NULL;
     ParticleAcceleration[i]          = NULL;
+    ActiveParticleAcceleration[i]    = NULL;
     AccelerationField[i]             = NULL;
     GravitatingMassFieldDimension[i] = 0;
     RandomForcingField[i]            = NULL;
@@ -69,7 +70,26 @@ grid::grid()
   PhaseFctInitEven = NULL; // WS
   PhaseFctInitOdd  = NULL; // WS
 
+  if (UseSGSModel == 1) {
+    for (i = 0; i < MAX_DIMENSION; i++) 
+      for (j = 0; j < MAX_DIMENSION; j++) {
+        JacVel[i][j] = NULL;
+        JacB[i][j] = NULL;
+      }
+
+    for (i = 0; i < 7; i++)
+      FilteredFields[i] = NULL;
+
+    for (i = 0; i < 6; i++) {
+      FltrhoUU[i] = NULL;
+      FltBB[i] = NULL;
+    }
+    for (i = 0; i < 3; i++) 
+      FltUB[i] = NULL;
+  }
+
   ParticleAcceleration[MAX_DIMENSION]      = NULL;
+  ActiveParticleAcceleration[MAX_DIMENSION] = NULL;	
  
   /* clear MAX_NUMBER_OF_BARYON_FIELDS vectors & [][MAX_DIMENSION] matricies */
  
@@ -172,6 +192,11 @@ grid::grid()
   NumberOfStars = 0;
   Stars = NULL;
 
+  NumberOfActiveParticles = 0;
+  for (i=0; i<MAX_ACTIVE_PARTICLE_TYPES; i++) {
+    ActiveParticleTypeCount[i] = 0;
+  }
+  
   for(i=0;i<3;i++){
     MagneticField[i] = NULL;
     ElectricField[i] = NULL;

@@ -31,6 +31,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#include "phys_constants.h"
 
 int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			     float &Radius, double &EjectaDensity, double &EjectaThermalEnergy,
@@ -46,8 +47,6 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     return SUCCESS;
   }
 
-  const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   float values[7];
   float AccretedMass, DynamicalTime = 0, AvgDensity, AvgVelocity[MAX_DIMENSION];
@@ -73,7 +72,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   StarType = ABS(this->type);
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     AvgVelocity[dim] = 0.0;
-  tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr);
+  tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
 
   // If there is already enough mass from accretion, create it
   // without removing a sphere of material.  It was already done in
@@ -83,7 +82,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       (StarType == PopIII && FeedbackFlag == FORMATION &&
        Mass >= this->FinalMass)) {
     if (debug)
-      printf("StarParticle[%"ISYM"]: Accreted mass = %"GSYM" Msun.\n", Identifier, Mass);
+      printf("StarParticle[%"ISYM"]: Accreted mass = %"GSYM" SolarMass.\n", Identifier, Mass);
     SkipMassRemoval = TRUE;
     return SUCCESS;
   }
@@ -225,9 +224,9 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     case PopII:  // Star Cluster Formation
       AvgDensity = (float) 
-	(double(Msun * (MassEnclosed + Mass)) / 
-	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)));
-      DynamicalTime = sqrt((3.0 * M_PI) / (32.0 * gravConst * AvgDensity)) /
+	(double(SolarMass * (MassEnclosed + Mass)) / 
+	 double(4*pi/3.0 * pow(Radius*LengthUnits, 3)));
+      DynamicalTime = sqrt((3.0 * pi) / (32.0 * GravConst * AvgDensity)) /
 	TimeUnits;
       ColdGasFraction = ColdGasMass / (MassEnclosed + float(Mass));
       AccretedMass = ColdGasFraction * StarClusterFormEfficiency * MassEnclosed;
@@ -241,13 +240,13 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     case MBH:  
 #ifdef UNUSED
       /* This is to enlarge Radius so that the thermal feedback affects the constant mass 
-	 as the AGN bubble expands, not the constant radius.  MassEnclosed in Msun. 
-	 assuming initial density around MBH ~ 1 Msun/pc^3 = 40/cm3, which is close to 
-	 the density in Ostriker & McKee test problem (1 Msun/pc^3 = 6.77e-23 g/cm3 = 40/cm3) */
+	 as the AGN bubble expands, not the constant radius.  MassEnclosed in SolarMass. 
+	 assuming initial density around MBH ~ 1 SolarMass/pc^3 = 40/cm3, which is close to 
+	 the density in Ostriker & McKee test problem (1 SolarMass/pc^3 = 6.77e-23 g/cm3 = 40/cm3) */
       MBHFeedbackThermalRadiusTooSmall = MassEnclosed < 
-	4*M_PI/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0; 
+	4*pi/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0; 
       fprintf(stderr, "MassEnclosed = %g\n", MassEnclosed);
-      fprintf(stderr, "MassEnclosed_ought_to_be = %g\n", 4*M_PI/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0);
+      fprintf(stderr, "MassEnclosed_ought_to_be = %g\n", 4*pi/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0);
       fprintf(stderr, "Radius = %g\n", Radius);
 #endif
       break;
@@ -259,8 +258,8 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       // the I-front passes through it.
       //EjectaDensity = (MassEnclosed - AccretedMass) / MassEnclosed;
       EjectaDensity = (float) 
-	(double(Msun * (MassEnclosed - AccretedMass)) / 
-	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
+	(double(SolarMass * (MassEnclosed - AccretedMass)) / 
+	 double(4.0*pi/3.0 * POW(Radius*LengthUnits, 3)) /
 	 DensityUnits);
     
     else 
@@ -318,15 +317,15 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     if (debug) {
       printf("StarParticle[birth]: L%"ISYM", r = %"GSYM" pc, M = %"GSYM
 	     ", Z2/Z3 = %"GSYM"/%"GSYM"\n",
-	     level, Radius*LengthUnits/pc, MassEnclosed, Metallicity2,
+	     level, Radius*LengthUnits/pc_cm, MassEnclosed, Metallicity2,
 	     Metallicity3);
       if (StarType == PopII || StarType == PopIII)
-	printf("\t mass = %"GSYM" (%"GSYM"%% cold) Msun, \n"
+	printf("\t mass = %"GSYM" (%"GSYM"%% cold) SolarMass, \n"
 	       "\t rho = %"GSYM" g/cm3, tdyn = %"GSYM" Myr\n"
 	       "\t vel = %"FSYM" %"FSYM" %"FSYM" (%"FSYM" %"FSYM" %"FSYM")\n"
 	       "\t pos = %"PSYM" %"PSYM" %"PSYM"\n",
 	       this->Mass+AccretedMass, 100*ColdGasFraction, 
-	       AvgDensity, DynamicalTime*TimeUnits/Myr,
+	       AvgDensity, DynamicalTime*TimeUnits/Myr_s,
 	       AvgVelocity[0], AvgVelocity[1], AvgVelocity[2],
 	       vel[0], vel[1], vel[2],
 	       pos[0], pos[1], pos[2]);
@@ -349,7 +348,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       if (debug) 
 	printf("star::FindFeedbackSphere: Old protostar: lived %g yr. "
 	       "Particle mass = %g. Star particle %"PISYM".  Turning on.\n",
-	       (Time-this->BirthTime)*TimeUnits/yr, this->Mass, this->Identifier);
+	       (Time-this->BirthTime)*TimeUnits/yr_s, this->Mass, this->Identifier);
       this->BirthTime = Time;
       this->type = PopII;
     }

@@ -5,24 +5,6 @@ Building Enzo
 -------------
 
 
-**Q: I’m getting a compilation error that looks something like:**
-::
-
- Grid_ComputeCoolingTime.C(201): error: expression must have class type
-    if (grackle_data.use_grackle == TRUE)
-
-**what does this mean?**
-
-
-A: Check what branch you are on using with Enzo (``$ hg branch``). This issue is
-likely related to a version conflict between Enzo and Grackle 2.0 and Grackle
-3.0. Currently the stable branch only works with Grackle 2.0, and the
-development branch (``$ hg checkout week-of-code``) works with Grackle 3.0. We
-recommend switching to using the development branch and using the most recent
-version of  Grackle 3.0 instead of using Grackle 2.0 if you need Grackle for
-your simulations.
-
-
 **Q: I’m getting a compilation error related to HDF5. What is HDF5 and how to I get it?**
 
 A: HDF5 is a data format with accompanying library for writing very large

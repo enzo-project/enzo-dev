@@ -23,6 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
  
 int grid::PrepareGreensFunction()
 {
@@ -52,13 +53,13 @@ int grid::PrepareGreensFunction()
  
   /* Set the constant to be used. */
  
-  float GravConst, pi = 3.14159;
+  float GravConst_factor;
   if (GridRank == 3)
-    GravConst = -GravitationalConstant/(4.0*pi);
+    GravConst_factor = -GravitationalConstant/(4.0*pi);
   if (GridRank == 2)
-    GravConst = -GravitationalConstant*0.5/pi;
+    GravConst_factor = -GravitationalConstant*0.5/pi;
   if (GridRank == 1)
-    GravConst = -GravitationalConstant*0.5;
+    GravConst_factor = -GravitationalConstant*0.5;
  
   /* Set Greens' function. */
  
@@ -77,12 +78,12 @@ int grid::PrepareGreensFunction()
 	r = max(r, GravitatingMassFieldCellSize);
 	r *= GravitatingMassFieldCellSize;
 	if (GridRank == 3)
-	  PotentialField[n] = GravConst/r;
+	  PotentialField[n] = GravConst_factor/r;
 	if (GridRank == 2)
-	  PotentialField[n] = GravConst*log(r);
+	  PotentialField[n] = GravConst_factor*log(r);
 	if (GridRank == 1)
 
-	  PotentialField[n] = GravConst*r;
+	  PotentialField[n] = GravConst_factor*r;
  
       }
     }

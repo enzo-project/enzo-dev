@@ -23,6 +23,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -56,7 +57,6 @@ int grid::GetEnclosedMass(Star *star, float radius, float &mass,
 
   /* Set the units. */
 
-  const double Msun = 1.989e33;
   float DensityUnits, LengthUnits, TemperatureUnits, 
     TimeUnits, VelocityUnits;
 
@@ -68,7 +68,7 @@ int grid::GetEnclosedMass(Star *star, float radius, float &mass,
   float MassConversion = (float) (double(LengthUnits*CellWidthTemp) *
 				  double(LengthUnits*CellWidthTemp) *
 				  double(LengthUnits*CellWidthTemp) *
-				  double(DensityUnits) / Msun);
+				  double(DensityUnits) / SolarMass);
 
   int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
   int Vel1Num = FindField(Velocity1, FieldType, NumberOfBaryonFields);
@@ -201,7 +201,6 @@ int grid::GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
 
   /* Set the units. */
 
-  const double Msun = 1.989e33;
   float DensityUnits, LengthUnits, TemperatureUnits, 
     TimeUnits, VelocityUnits;
 
@@ -213,7 +212,7 @@ int grid::GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
   float MassConversion = (float) (double(LengthUnits*CellWidthTemp) *
 				  double(LengthUnits*CellWidthTemp) *
 				  double(LengthUnits*CellWidthTemp) *
-				  double(DensityUnits) / Msun);
+				  double(DensityUnits) / SolarMass);
 
   int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
   int Vel1Num = FindField(Velocity1, FieldType, NumberOfBaryonFields);

@@ -10,12 +10,11 @@
 /   This routine sums up the external boundary mass flux for each
 /   field assigned in Grid_PrepareBoundaryMassFluxFieldNumbers.
 /
-/   NOTE: This is done assuming outflowing grid boundaries in each
-/         direction, with no checks to ensure this is correct. In
-/         addition, the Grid_ComputeDomainBoundaryMassFlux assumes
+/   NOTE: If no outflow boundaries are set, this will just give
+/         zeros for all fields. Grid_ComputeDomainBoundaryMassFlux assumes
 /         mass flux for each field, reporting the mass that leaves
 /         the grid in solar masses. However, this could (in principle)
-/         be generalized.
+/         be generalized to compute flux of any quantity in any units
 /
 /*********************************************************************/
 
@@ -44,30 +43,31 @@
 
 
 int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level,
-                                  float Time, int CycleNumber, int NumberOfGrids){
+                                  int NumberOfGrids,
+                                  TopGridData *MetaData){
 
   if (!StoreDomainBoundaryMassFlux) return SUCCESS;
 
-  // if (level != 0) return SUCCESS; // only do for root grid
+  if (level != 0) return SUCCESS; // only do for root grid
 
   int grid1;
 
   float allgrid_BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS];
   for (int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i ++) allgrid_BoundaryMassFluxContainer[i] = 0.0;
 
-  if (level == 0){
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
+  for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
 
-      if( Grids[grid1]->GridData->ComputeDomainBoundaryMassFlux(allgrid_BoundaryMassFluxContainer) == FAIL)
-        ENZO_FAIL("Error in grid->ComputeDomainBoundaryMassFlux.\n");
-    }
+    if( Grids[grid1]->GridData->ComputeDomainBoundaryMassFlux(allgrid_BoundaryMassFluxContainer,
+                                                              MetaData) == FAIL)
+      ENZO_FAIL("Error in grid->ComputeDomainBoundaryMassFlux.\n");
   }
 
   /* now communicate */
   CommunicationSumValues(allgrid_BoundaryMassFluxContainer, MAX_NUMBER_OF_BARYON_FIELDS);
 
   /* now store total in root grid for output */
-  if (MyProcessorNumber == ROOT_PROCESSOR && level == 0){
+
+  if (MyProcessorNumber == ROOT_PROCESSOR){
 
     FILE *fptr;
 
@@ -95,7 +95,7 @@ int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level,
       ENZO_VFAIL("Error opening file %s\n", BoundaryMassFluxFilename);
     }
 
-    fprintf(fptr, "%"ISYM" %"GSYM" ", CycleNumber, Time);
+    fprintf(fptr, "%"ISYM" %"GSYM" ", MetaData->CycleNumber, MetaData->Time);
     for (int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
       if( BoundaryMassFluxFieldNumbers[i] < 0) break;
       fprintf(fptr, "%"GSYM" ", allgrid_BoundaryMassFluxContainer[i]);
