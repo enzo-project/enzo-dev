@@ -34,7 +34,8 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
 			       int* &NumberToMove, int StartIndex, 
 			       int EndIndex, star_data* &List, 
 			       bool KeepLocal, bool ParticlesAreLocal,
-			       int CopyDirection, int IncludeGhostZones)
+			       int CopyDirection, int IncludeGhostZones,
+                               int CountOnly)
 {
  
   /* Declarations. */
@@ -42,7 +43,6 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
   int i, j, index, dim, n1, grid, proc;
   int i0, j0, k0;
   Star *cstar, *MoveStar;
-  StarBuffer *TempBuffer;
 
   /* ----------------------------------------------------------------- */
   /* Copy stars out of grid. */
@@ -120,6 +120,11 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
       
     } // ENDFOR stars
 
+    if (CountOnly == TRUE) {
+      delete [] subgrid;
+      return SUCCESS;
+    }
+
     /* Allocate space. */
  
     int TotalToMove = 0;
@@ -127,14 +132,6 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
       TotalToMove += NumberToMove[proc];
  
     if (TotalToMove > PreviousTotalToMove) {
-
-      // Increase the size of the list to include the stars from
-      // this grid
-
-      star_data *NewList = new star_data[TotalToMove];
-      memcpy(NewList, List, PreviousTotalToMove * sizeof(star_data));
-      delete [] List;
-      List = NewList;
 
       /* Move stars */
 
@@ -148,10 +145,9 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
 	MoveStar = PopStar(cstar); // also advances to NextStar
 
 	if (subgrid[i] >= 0) {
-	  TempBuffer = MoveStar->StarListToBuffer(1);
+          MoveStar->StarToBuffer(&List[n1].data);
 	  delete MoveStar;
 
-	  List[n1].data = *TempBuffer;
 	  List[n1].grid = subgrid[i];
 	  List[n1].proc = (KeepLocal) ? MyProcessorNumber :
 	    Subgrids[subgrid[i]]->ReturnProcessorNumber();
