@@ -44,7 +44,7 @@ int checkCreationCriteria(float* Density, float* Metals,
 
 
 
-int grid::MechStars_FeedbackRoutine(int level, float* mu_field, 
+int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMetal,
             float* Temperature, float* CoolingTime, float* DMField)
 {
 
@@ -95,12 +95,12 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
         MetalNum = 0;
     if (MechStarsSeedField) 
         SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
-    float* totalMetal = new float [size];
-    for (int i = 0; i < size; i++){
-        totalMetal[i] = BaryonField[MetalNum][i];
-        if (MechStarsSeedField)
-            totalMetal[i] += BaryonField[SNColourNum][i];
-    }
+    // float* totalMetal = new float [size];
+    // for (int i = 0; i < size; i++){
+    //     totalMetal[i] = BaryonField[MetalNum][i];
+    //     if (MechStarsSeedField)
+    //         totalMetal[i] += BaryonField[SNColourNum][i];
+    // }
     int numSN = 0; // counter of events
     int c = 0; // counter of particles
     float maxD = 0.0;
@@ -199,10 +199,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
 
             float shieldedFraction = 0, dynamicalTime = 0, freeFallTime = 0;
             bool gridShouldFormStars = true, notEnoughMetals=false;
-            float zFraction = BaryonField[MetalNum][index];
-            if (MechStarsSeedField){
-                    zFraction += BaryonField[SNColourNum][index];
-            }
+            float zFraction = totalMetal[index];
             if (ParticleMass[pIndex]*MassUnits < StarMakerMaximumMass){
                 int createStar = checkCreationCriteria(BaryonField[DensNum],
                         &zFraction, Temperature, DMField,
@@ -231,7 +228,8 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
                         /* modify metallicity */
                         zFraction /= BaryonField[DensNum][index];
                         // update mass-weighted metallicity fraction of star particle
-                        ParticleAttribute[2][pIndex] = (ParticleAttribute[2][pIndex]*(1.-delta)+zFraction*delta); 
+                        ParticleAttribute[2][pIndex] = (ParticleAttribute[2][pIndex]*ParticleMass[pIndex]+zFraction*MassShouldForm)/
+                                                (ParticleMass[pIndex] + MassShouldForm); 
                         // update mass-weighted age of star particle
                         if (age > 3.5) // only update if particle is old enough for SNe
                             ParticleAttribute[0][pIndex] = (ParticleAttribute[0][pIndex]*(1.-delta)+Time*delta);
@@ -326,6 +324,6 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field,
     }
     /* to avoid iterating deposition over 10k particles, do ONE winds feedback that is summed all wind feedback in the region, 
         centered on the most massive cell in the grid*/
-    delete [] totalMetal;
+    // delete [] totalMetal;
     return SUCCESS;
 }
