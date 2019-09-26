@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
-
+#include "StarParticleData.h"
 
 int transformComovingWithStar(float* Density, float* Metals, 
         float* MetalsSNII, float* MetalsSNIA,
@@ -27,8 +27,10 @@ int transformComovingWithStar(float* Density, float* Metals,
                     Vel2[ind] = (preV-vp)*mult;
                     preV = Vel3[ind];
                     Vel3[ind] = (preV-wp)*mult;
-                    MetalsSNIA[ind] = MetalsSNIA[ind]*mult;
-                    MetalsSNII[ind] = Metals[ind]*mult;
+                    if(StarMakerTypeIaSNe)
+                        MetalsSNIA[ind] = MetalsSNIA[ind]*mult;
+                    if(StarMakerTypeIISNeMetalField)
+                        MetalsSNII[ind] = Metals[ind]*mult;
 
         }
     }
@@ -42,8 +44,10 @@ int transformComovingWithStar(float* Density, float* Metals,
                     Vel1[ind] = Vel1[ind]*mult+up;
                     Vel2[ind] = Vel2[ind]*mult+vp;
                     Vel3[ind] = Vel3[ind]*mult+wp;
-                    MetalsSNIA[ind] = MetalsSNIA[ind]*mult;
-                    MetalsSNII[ind] = Metals[ind]*mult;
+                    if(StarMakerTypeIaSNe)
+                        MetalsSNIA[ind] = MetalsSNIA[ind]*mult;
+                    if(StarMakerTypeIISNeMetalField)
+                        MetalsSNII[ind] = Metals[ind]*mult;
         }
     }
     return SUCCESS;

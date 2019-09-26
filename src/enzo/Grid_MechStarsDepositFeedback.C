@@ -47,10 +47,12 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         and all have radius dx from the source particle. 
         Each vertex particle will then be CIC deposited to the grid!
     */
+    printf("In Feedback deposition\n");
     bool debug = false;
     bool criticalDebug = false;
     bool printout = debug && !winds;
     int index = ip+jp*GridDimension[0]+kp*GridDimension[0]*GridDimension[1];
+    if (printout) printf("Host index = %d", index);
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     
     /* Compute size (in floats) of the current grid. */
@@ -80,14 +82,14 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     FLOAT dx = CellWidth[0][0];        
 
     if (printout)
-        fprintf(stdout, "depositing quantities: Energy %e, Mass %e, Metals %e\n",
+        printf("depositing quantities: Energy %e, Mass %e, Metals %e\n",
             ejectaEnergy, ejectaMass, ejectaMetal);
 
     /* 
         get metallicity field and set flag; assumed true thoughout feedback
         since so many quantities are metallicity dependent
      */
-    int MetallicityField = FALSE, MetalNum, MetalIaNum, MetalIINum, SNColourNum;
+    int MetallicityField = FALSE, MetalNum, MetalIaNum=-1, MetalIINum=-1, SNColourNum=-1;
     if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
         != -1)
         MetallicityField = TRUE;
@@ -96,16 +98,20 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         ENZO_FAIL("Grid_MechStarsDepositFeedback: 91");
         MetalNum = 0;
     }
-    MetalIaNum = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
-    MetalIINum = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
-    SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
-    if (PopIIISupernovaUseColour && SNColourNum==-1) ENZO_FAIL("Cant use Seed Field without SNColour field");
+    if(StarMakerTypeIaSNe)
+        MetalIaNum = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
+    if (StarMakerTypeIISNeMetalField)
+        MetalIINum = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
+    if (MechStarsSeedField)
+        SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
+    
+    if (MechStarsSeedField && SNColourNum<0) ENZO_FAIL("Cant use Seed Field without SNColour field");
     /* set other units that we need */
     MassUnits = DensityUnits*pow(LengthUnits*dx, 3)/SolarMass; //Msun!
     float EnergyUnits = DensityUnits*pow(LengthUnits*dx, 3) 
                     * VelocityUnits*VelocityUnits;//[g cm^2/s^2] -> code_energy
     float MomentaUnits = MassUnits*VelocityUnits;  
-
+    if (printout) printf("Making pointer copies\n");
     /* Make copys of fields to work with. These will conatin the added deposition
         of all quantities and be coupled to the grid after the cic deposition. */
     float* density = BaryonField[DensNum];
@@ -151,10 +157,10 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     
     /* A DODECAHEDRON+ISOCAHEDRON */
-
         int nCouple = 32;
         float A = stretchFactor*dx;
         float cloudSize=stretchFactor*dx;
+        if (printout) printf("Making cloud n=%d", nCouple);
 
 	/* each coupled particle is at the vertex of a compound of a dodecahedron and isocahedron */
 
@@ -213,7 +219,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     /* transform to comoving with the star and take velocities to momenta.
         Take Energy densities to energy
      */
-
+    if (printout) printf("Calling transform\n");
     transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum], 
                         BaryonField[MetalIINum], BaryonField[MetalIaNum],
                         BaryonField[Vel1Num],BaryonField[Vel2Num],BaryonField[Vel3Num],
@@ -224,6 +230,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         vmean is used to determine whether the supernova shell calculation should proceed:
             M_shell > 0 iff v_shell > v_gas */
     float zmean=0, dmean=0, nmean=0, vmean;
+    if (printout) fprintf(stdout, "Generating local mean information\n");
     for (int ind = -1; ind <= 1; ind++){
         zmean += totalMetals[index+ind]*BaryonField[DensNum][index+ind];
         zmean += totalMetals[index+GridDimension[0]*ind]*BaryonField[DensNum][index+GridDimension[0]*ind];
@@ -334,20 +341,18 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     //    coupledMomenta = (cellwidth > r_fade)?(coupledMomenta*pow(r_fade/cellwidth,3/2)):(coupledMomenta);
     float shellMass = 0.0, shellVelocity = 0.0;
     if(printout) printf("Coupled momentum: %e\n", coupledMomenta);
-    /* If resolution is in a range compared to Rcool and
+    /* 
+        If resolution is in a range comparable to Rcool and
         Analytic SNR shell mass is on, adjust the shell mass 
-        Shell mass calculation is limited by considering the local gas
-        velocity */
+        upper range of applicability for shell mass is determined by
+        local average gas velocity (v_shell ~ v_gas = no shell)
+    */
     if (cellwidth > r_shellform && coupledEnergy > 0
         && AnalyticSNRShellMass){
             shellVelocity = 413.0 *pow(nmean, 1.0/7.0)
                 *pow(zZsun, 3.0/14.0)*pow(coupledEnergy/EnergyUnits/1e51, 1.0/14.0)
                 *pow(dxRatio, -7.0/3.0);//km/s
-            /* Underdense regions can have large coupled momenta with 
-                low velocity (due to large r_cool), leading to shell mass instability.  
-                The shell velocity is compared to gas velocity, and 
-                can only contribute to the mass if the shell velocity is 
-                higher than the gas velocity.*/
+            
             if (shellVelocity > vmean){ 
                 shellMass = max(8e3, coupledMomenta/shellVelocity); //Msun
                 
@@ -369,7 +374,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (shellMass < 0.0){
        fprintf(stdout, "Shell mass = %e Velocity= %e P = %e",
             shellMass, shellVelocity, coupledMomenta);
-         ENZO_FAIL("SM_deposit: 252");}
+         ENZO_FAIL("SM_deposit: 252");
+    }
     float coupledMass = shellMass+ejectaMass;
     eKinetic = coupledMomenta*coupledMomenta
                     /(2.0*dmean*pow(LengthUnits*CellWidth[0][0], 3)/SolarMass)*SolarMass*1e10;
@@ -389,15 +395,21 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float coupledMetals = 0.0, SNIAmetals = 0.0, SNIImetals = 0.0, P3metals = 0.0;
     if (winds) coupledMetals = ejectaMetal ;//+ shellMetals; // winds only couple to metallicity
     SNIAmetals = (StarMakerTypeIaSNe) ? nSNIA * 1.4 : 0.0;
+    if (!StarMakerTypeIaSNe && nSNIA > 0)
+        coupledMetals += nSNIA*1.4;
     SNIImetals = (StarMakerTypeIISNeMetalField)? nSNII*(1.91+0.0479*max(starMetal, 1.65)) : 0.0;
-    if (isP3) P3metals = ejectaMetal;
+    if (!StarMakerTypeIISNeMetalField && nSNII > 0)
+        coupledMetals += nSNII*(1.91+0.0479*max(starMetal, 1.65));
+    if (isP3 && MechStarsSeedField) P3metals = ejectaMetal;
 
 
 
     if (printout) fprintf(stdout, "Coupled Metals: %e %e %e %e %e\n", ejectaMetal, SNIAmetals, SNIImetals, shellMetals, P3metals);
 
-        // printf("Entering Critical printout section\n");
-    /* transform the grid to comoving with star ; wouldnt recommend this on root grid if its too big...*/
+    /* 
+        Critical debug compares the pre-feedback and post-feedback field sums.  Note that this doesn't 
+        work well on vector quantities outside of an ideal test.
+    */
     float preMass = 0, preZ = 0, preP = 0, prePmag=0, preTE = 0, preGE = 0, preZII=0, preZIa = 0;
     float dsum = 0.0, zsum=0.0, psum=0.0, psqsum =0.0, tesum=0.0, gesum=0.0, kesum=0.0;
     float postMass = 0, postZ = 0, postP = 0, postPmag = 0, postTE = 0, postGE = 0, postZII=0, postZIa = 0;
@@ -405,11 +417,12 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         for (int i=0; i<size; ++i){
             preMass += BaryonField[DensNum][i];
             preZ += BaryonField[MetalNum][i];
-            if (MetalIINum > 0)
+            if (StarMakerTypeIISNeMetalField)
                 preZII += BaryonField[MetalIINum][i];
-            if (MetalIaNum > 0)
+            if (StarMakerTypeIaSNe)
                 preZIa += BaryonField[MetalIaNum][i];
-           if (SNColourNum > 0) preZ += BaryonField[SNColourNum][i];
+            if (MechStarsSeedField) 
+               preZ += BaryonField[SNColourNum][i];
             preP += BaryonField[Vel1Num][i]+BaryonField[Vel2Num][i]+BaryonField[Vel3Num][i];
             prePmag += pow(BaryonField[Vel1Num][i]*MomentaUnits,2)+
                 pow(BaryonField[Vel2Num][i]*MomentaUnits,2)
@@ -437,7 +450,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     /* CIC deposit the particles with their respective quantities */
 
     float LeftEdge[3] = {CellLeftEdge[0][0], CellLeftEdge[1][0], CellLeftEdge[2][0]};
-    // if (printout) fprintf(stdout, "Entering CIC Loop over cloud particles\n");
+    if (printout) fprintf(stdout, "Entering CIC Loop over cloud particles\n");
+
     for (int n = 0; n < nCouple; ++n){
         //fprintf(stdout, "Weight %d = %f", n, weightsVector[n]);
         FLOAT pX = coupledMomenta*CloudParticleVectorX[n]*weightsVector[n];
@@ -456,8 +470,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             &CloudParticlePositionZ[n], &GridRank, &np,&mCouple, &density[0], LeftEdge, 
             &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
         
-        // if (!winds) 
-        zCouple += zIICouple + zIACouple;
+        if (StarMakerTypeIaSNe && StarMakerTypeIISNeMetalField) 
+            zCouple += zIICouple + zIACouple;
         // printf("Zcpl = %e", zCouple);
         FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
             &CloudParticlePositionZ[n], &GridRank, &np,&zCouple, &metals[0], LeftEdge, 
@@ -484,15 +498,15 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
                 &CloudParticlePositionZ[n], &GridRank,&np,&geCouple, &gasEnergy[0], LeftEdge, 
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize); 
-        if (zIICouple > 0.0)
+        if (StarMakerTypeIISNeMetalField && zIICouple > 0.0)
             FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
                 &CloudParticlePositionZ[n], &GridRank,&np,&zIICouple, &metalsII[0], LeftEdge, 
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);             
-        if (zIACouple > 0.0)
+        if (StarMakerTypeIaSNe && zIACouple > 0.0)
             FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
                 &CloudParticlePositionZ[n], &GridRank,&np,&zIACouple, &metalsIA[0], LeftEdge, 
                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);  
-        if (p3Couple > 0.0){
+        if (MechStarsSeedField && p3Couple > 0.0){
             if (printout)printf("Coupling %f to pIII metals %d\n",p3Couple*MassUnits, n);
             FORTRAN_NAME(cic_deposit)(&CloudParticlePositionX[n], &CloudParticlePositionY[n],
                 &CloudParticlePositionZ[n], &GridRank,&np,&p3Couple, &metalsIII[0], LeftEdge, 

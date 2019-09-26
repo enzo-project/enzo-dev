@@ -682,10 +682,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SingleSN                         = 1;
   StarMakerMaximumFormationMass    = 1e4;
   StarMakerMaximumMass             = 1e5;
-  DepositUnresolvedEnergyAsThermal = 1;
+  DepositUnresolvedEnergyAsThermal = 0;
   StarMakeLevel                    = MaximumRefinementLevel;
   NEvents                          = 0;
-  AnalyticSNRShellMass             = 1;
+  AnalyticSNRShellMass             = 0;
   UnrestrictedSN                     = 0; // false by default
   MechStarsCriticalMetallicity      = 1e-12; // dont check for metals in formation
   MechStarsSeedField                = 0; // dont seed metals from pop3 imf
