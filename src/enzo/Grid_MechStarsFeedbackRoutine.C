@@ -152,9 +152,13 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
                 || yp < CellLeftEdge[1][0]
                 || zp > CellLeftEdge[2][0]+gridDz
                 || zp < CellLeftEdge[2][0]){
-                fprintf(stderr, "Particle %d out of grid!\nage: %d, pos: %f, %f, %f GridEdge: %f %f %f", pIndex,
-                    age, xp, yp, zp, CellLeftEdge[0][0], CellLeftEdge[1][0], CellLeftEdge[2][0]
-                    );
+                fprintf(stderr, "Particle %d  with type %d out of grid! Mass: %e\nage: %d, pos: %f, %f, %f Vel: %f %f %f\nGridEdge: %f %f %f\nGridEdge: %f %f %f\n", pIndex,
+                    ParticleType[pIndex], age, ParticleMass[pIndex]*MassUnits,
+                    xp, yp, zp, CellLeftEdge[0][0], CellLeftEdge[1][0], CellLeftEdge[2][0],
+                    ParticleVelocity[0][pIndex], ParticleVelocity[1][pIndex], ParticleVelocity[2][pIndex],
+                    CellLeftEdge[0][0]*GridDimension[0]*CellWidth[0][0],
+                    CellLeftEdge[1][0]*GridDimension[1]*CellWidth[0][0],
+                    CellLeftEdge[2][0]*GridDimension[2]*CellWidth[0][0]);
                 EnzoFatalException("Star Maker Mechanical: particle out of grid!\n");
                 }
             int shifted = 0;
@@ -187,9 +191,9 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
             if (debug)
                     fprintf(stderr, "Particle position shifted away from edge: %e: %f %f %f\n%f %f %f\n",
                             age,xp, yp, zp, CellLeftEdge[0][0]+borderDx, CellLeftEdge[1][0]+borderDx, CellLeftEdge[2][0]+borderDx);
-            int ip = (xp-CellLeftEdge[0][0]-0.5*dx)/dx;
-            int jp = (yp-CellLeftEdge[1][0]-0.5*dx)/dx;
-            int kp = (zp-CellLeftEdge[2][0]-0.5*dx)/dx;
+                            int ip = (xp-CellLeftEdge[0][0]-0.5*dx)/dx;
+                            int jp = (yp-CellLeftEdge[1][0]-0.5*dx)/dx;
+                            int kp = (zp-CellLeftEdge[2][0]-0.5*dx)/dx;
             }
             /* Check for continual formation.  Continually forming new mass allows the 
                 star particle count to stay lower, ultimately reducing runtime by having 
@@ -303,7 +307,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
                                 TimeUnits, dtFixed);
                 if (windMass > 10) fprintf(stdout,"Really High Wind Mass!!\n");
                 if (windEnergy > 1e5){
-                    printf("Winds: M = %e E=%e\n", windMass, windEnergy);
+                    //printf("Winds: M = %e E=%e\n", windMass, windEnergy);
                     MechStars_DepositFeedback(windEnergy, windMass, windMetals, totalMetal, Temperature,
                                         &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
                                         &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],

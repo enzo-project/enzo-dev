@@ -149,8 +149,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                     }
                     float newMass = min(MassShouldForm/MassUnits, 0.5*BaryonField[DensNum][index]);
                     if (newMass*MassUnits < StarMakerMinimumMass){
-		                    fprintf(stdout,"NOT ENOUGH MASS IN CELL Mnew = %e f_s = %f Mcell = %e Mmin = %e\n",
-                               newMass*MassUnits, shieldedFraction, BaryonField[DensNum][index]*MassUnits, StarMakerMinimumMass);
+		                    //fprintf(stdout,"NOT ENOUGH MASS IN CELL Mnew = %e f_s = %f Mcell = %e Mmin = %e\n",
+                            //   newMass*MassUnits, shieldedFraction, BaryonField[DensNum][index]*MassUnits, StarMakerMinimumMass);
 		                    continue;
 		    }
                     float totalDensity = (BaryonField[DensNum][index]+DMField[index])*DensityUnits;
@@ -189,10 +189,10 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                                 vY += BaryonField[Vel2Num][ind];
                                 vZ += BaryonField[Vel3Num][ind];
                             }
-
-                    ParticleArray->ParticleVelocity[0][nCreated] = vX/125.0;
-                    ParticleArray->ParticleVelocity[1][nCreated] = vY/125.0;
-                    ParticleArray->ParticleVelocity[2][nCreated] = vZ/125.0;
+                    float MaxVelocity = 250.*1.0e5/VelocityUnits;
+                    ParticleArray->ParticleVelocity[0][nCreated] = (abs(vX/125.) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX/125.);
+                    ParticleArray->ParticleVelocity[1][nCreated] = (abs(vY/125.) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY/125.);
+                    ParticleArray->ParticleVelocity[2][nCreated] = (abs(vZ/125.) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ/125.);;
 
                     /* give it position at center of host cell */
 

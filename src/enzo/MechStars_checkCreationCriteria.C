@@ -154,17 +154,17 @@ int checkCreationCriteria(float* Density, float* Metals,
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits;
 
     if (status && debug && (Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity || !MechStarsSeedField)){
-        printf("CreationCriteria f_s = %f vf = %e cs = %e Gcode = %e Alpha = %e Z-sun=%e localRho = %f\n", 
-            *shieldedFraction, vfactor, cSound, Gcode, alpha, Metals[index]/Density[index]/0.02, Density[index]);
+        //printf("CreationCriteria f_s = %f vf = %e cs = %e Gcode = %e Alpha = %e Z-sun=%e localRho = %f\n", 
+          //  *shieldedFraction, vfactor, cSound, Gcode, alpha, Metals[index]/Density[index]/0.02, Density[index]);
             return PASS;
     }
-    if (status && debug) fprintf(stdout, "passed creation criteria\n");
+    //if (status && debug) fprintf(stdout, "passed creation criteria\n");
     if (MechStarsSeedField && Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity)
         *notEnoughMetals = false;
     if (status && Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity && MechStarsSeedField
         && !continuingFormation)
     {
-        if (debug) fprintf(stdout,"No metals, criteria passed, but not forming\n");
+      //  if (debug) fprintf(stdout,"No metals, criteria passed, but not forming\n");
         status = FAIL;
         /* May want to qualify this with H2 fraction/H2 self-shield approximations, but
         This is really just to give a non-uniform seed-field in Pop3 metals*/

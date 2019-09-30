@@ -47,7 +47,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         and all have radius dx from the source particle. 
         Each vertex particle will then be CIC deposited to the grid!
     */
-    printf("In Feedback deposition\n");
+    //printf("In Feedback deposition\n");
     bool debug = false;
     bool criticalDebug = false;
     bool printout = debug && !winds;
