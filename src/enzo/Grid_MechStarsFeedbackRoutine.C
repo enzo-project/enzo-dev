@@ -26,7 +26,7 @@
                     float TimeUnits, float dtFixed);
     int determineWinds(float age, float* eWinds, float* zWinds, float* mWinds,
                         float massMsun, float zZsun, float TimeUnits, float dtFixed);
-int checkCreationCriteria(float* Density, float* Metals,
+    int checkCreationCriteria(float* Density, float* Metals,
                         float* Temperature,float* DMField,
                         float* Vel1, float* Vel2, float* Vel3, 
                         float* CoolingTime, int* GridDim,
@@ -39,7 +39,8 @@ int checkCreationCriteria(float* Density, float* Metals,
     int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, float *MassUnits, FLOAT Time);
-
+    int MechStars_depositEmissivityField(int index, float cellwidth,
+                float* emissivity0, float age, float mass);
 
 
 
@@ -50,10 +51,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
 
     //fprintf(stdout,"IN FEEDBACK ROUTINE\n  %d   %d   %d\n",
         //SingleSN, StellarWinds, UnrestrictedSN);
-    float stretchFactor = 1.0;//1/sqrt(2) to cover cell diagonal
-    /* Get units to use */
-    bool SingleWinds = true; // flag to consolidate wind feedback into one event centered on most massive cell in grid
-            // I wouldn't recommend this for unigrid runs...
+    float stretchFactor = 1.0;// radius from star particle to feedback cloud particle (in units of dx)
     bool debug = true;
     float startFB = MPI_Wtime();
     int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
@@ -95,12 +93,19 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
         MetalNum = 0;
     if (MechStarsSeedField) 
         SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
-    // float* totalMetal = new float [size];
-    // for (int i = 0; i < size; i++){
-    //     totalMetal[i] = BaryonField[MetalNum][i];
-    //     if (MechStarsSeedField)
-    //         totalMetal[i] += BaryonField[SNColourNum][i];
-    // }
+
+    /* Find and set emissivity field if being used */
+    int EmisNum = -1;
+    if (StarMakerEmissivityField){
+        EmisNum = FindField(Emissivity0, FieldType, NumberOfBaryonFields);
+    }
+    if (EmisNum > 0)
+    {
+        /* Zero the emissivity first, as we dont want to to accumulate */
+        for (int i = 0; i < size; ++i)
+            BaryonField[EmisNum][i] = 0.0;
+    }
+
     int numSN = 0; // counter of events
     int c = 0; // counter of particles
     float maxD = 0.0;
@@ -109,21 +114,11 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
     /* Begin Iteration of all particles */
     // printf("\nIterating all particles  ");
     for (int pIndex=0; pIndex < NumberOfParticles; pIndex++){
-        // if (ParticleType[pIndex] != 1 && debug)
-        // fprintf(stdout,"PARTICLE: %d %d %e %f\n", ParticleType[pIndex],
-            // ParticleNumber[pIndex],
-            // ParticleMass[pIndex],
-            // ParticleAttribute[0][pIndex]);
-        /* Selection criteria */
 
         if (ParticleType[pIndex] == PARTICLE_TYPE_STAR
                 && ParticleMass[pIndex] > 0.0
                 && ParticleAttribute[0][pIndex] > 0.0){
             c++;
-            // if (StarMakerAgeCutoff)
-            //     if ((Time-ParticleAttribute[0][pIndex])
-            //         *TimeUnits/(150*3.1557e7) > 150)
-            //         continue;
 
             /* get index of cell hosting particle */
             float xp = ParticlePosition[0][pIndex];
@@ -243,9 +238,13 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
                             Time*TimeUnits/3.1557e13, (ParticleMass[pIndex]-MassShouldForm)*MassUnits, 
                             MassShouldForm*MassUnits, ParticleMass[pIndex]*MassUnits,
                             ParticleAttribute[2][pIndex],(Time- ParticleAttribute[0][pIndex])*TimeUnits/3.1557e13);
+                        
                         /* Take formed mass out of grid cell */
+                        
                         BaryonField[DensNum][index] -= MassShouldForm;
+                        
                         /* Take metals out of host cell too! */
+
                         BaryonField[MetalNum][index] -= BaryonField[MetalNum][index]/BaryonField[DensNum][index]*MassShouldForm;
                         if (MechStarsSeedField)
                             BaryonField[SNColourNum][index] -= BaryonField[SNColourNum][index]/BaryonField[DensNum][index]*MassShouldForm;             
@@ -318,6 +317,10 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
             if (windMass > 0.0 || SNMassEjected > 0){
                 //if (debug) printf("Subtracting off mass %e\n",(windMass+SNMassEjected));
                 ParticleMass[pIndex] -= (windMass+SNMassEjected)/MassUnits;
+            }
+            if (StarMakerEmissivityField){
+                MechStars_depositEmissivityField(index, CellWidth[0][0], BaryonField[EmisNum], 
+                                                age, ParticleMass[pIndex]*MassUnits);
             }
             // printf("Post-feedback MP = %e\n", ParticleMass[pIndex]*MassUnits);
         }

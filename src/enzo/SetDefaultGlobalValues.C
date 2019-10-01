@@ -689,6 +689,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UnrestrictedSN                     = 0; // false by default
   MechStarsCriticalMetallicity      = 1e-12; // dont check for metals in formation
   MechStarsSeedField                = 0; // dont seed metals from pop3 imf
+  MechStarsRadiationSpectrum        = 0; // no field by default!
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
   PythonReloadScript               = FALSE;

@@ -124,28 +124,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float* w = BaryonField[Vel3Num];
     float* totalEnergy = BaryonField[TENum];
     float* gasEnergy = BaryonField[GENum];
-    // memset(density, 0, size*sizeof(float));
-    // memset(metals, 0, size*sizeof(float));
-    // memset(metalsII, 0, size*sizeof(float));
-    // memset(metalsIA, 0, size*sizeof(float));
-    // memset(metalsIII, 0, size*sizeof(float));
-    // memset(u, 0, size*sizeof(float));
-    // memset(v, 0, size*sizeof(float));
-    // memset(w, 0, size*sizeof(float));
-    // memset(totalEnergy, 0, size*sizeof(float));
-    // memset(gasEnergy, 0, size*sizeof(float));
-    // for (int i=0; i<size; i++){
-    //     density[i] = 0.0;
-    //     metals[i] = 0.0;
-    //     metalsII [i] = 0.0;
-    //     metalsIA[i] = 0.0;
-    //     metalsIII[i] = 0.0;
-    //     u[i] = 0.0;
-    //     v[i] =0.0;
-    //     w[i] = 0.0;
-    //     totalEnergy[i] = 0.0;
-    //     gasEnergy[i] = 0.0;
-    // }
+
     /* Transform coordinates so that metals is fraction (rho metal/rho baryon)
         u, v, w -> respective momenta.  Use -1 to reverse transform after.*/
     /* these temp arrays are implicitly comoving with the star! */
@@ -236,9 +215,6 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         zmean += totalMetals[index+GridDimension[0]*ind]*BaryonField[DensNum][index+GridDimension[0]*ind];
         zmean += totalMetals[index+GridDimension[0]*GridDimension[1]*ind]*BaryonField[DensNum][index+GridDimension[0]*GridDimension[1]*ind];
 
-        // if (printout) fprintf(stdout, "MuField = %f %f %f\nmax = %d ; %d %d %d\n",
-        //     muField[index+ind], muField[index+GridDimension[0]*ind], muField[index+ind*GridDimension[0]*GridDimension[1]], GridDimension[0]*GridDimension[1]*GridDimension[2],
-        //     index+ind, index+GridDimension[0]*ind, index+ind*GridDimension[0]*GridDimension[1]);
         nmean += BaryonField[DensNum][index+ind]*BaryonField[DensNum][index+ind]*DensityUnits/mh/max(0.6,muField[index+ind]);
         nmean += BaryonField[DensNum][index+GridDimension[0]*ind]*
             BaryonField[DensNum][index+GridDimension[0]*ind]*DensityUnits/mh/max(muField[index+GridDimension[0]*ind],0.6);
@@ -272,33 +248,40 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float fz = (zZsun < 0.01)? (2.0): (pow(zZsun, -0.14));
 
     /* Cooling radius as in Hopkins, but as an average over cells */
+    
     float CoolingRadius = 28.4 *
         pow(max(0.001,nmean), -3.0/7.0)
         *pow(ejectaEnergy/1.0e51, 2.0/7.0)* fz;
     if (printout)fprintf(stdout, "cooling radius [pc] = %e\n %f %e %f %e %e \n", 
             CoolingRadius, nmean, ejectaEnergy/1e51, fz, zmean, dmean);
-    /* Calculate coupled energy scaled by reduction to account for unresolved
-    cooling, then use that energy to calculate momenta*/
+    
     float coupledEnergy = ejectaEnergy;
 
     if (printout)fprintf(stdout, "Dx [pc] = %f\n", dx*LengthUnits/pc_cm);
+    
     float dxRatio = stretchFactor*dx*LengthUnits/pc_cm/CoolingRadius;
     if (winds) dxRatio = min(stretchFactor*dx*LengthUnits/pc_cm/CoolingRadius, 20);
     float pEjectMod = pow(2.0*ejectaEnergy*(ejectaMass*SolarMass), 0.5)/SolarMass/1e5;
+    
     /* We want to couple one of four phases: free expansion, Sedov-taylor, shell formation, or terminal 
     The first three phases are take forms from Kim & Ostriker 2015, the last from Cioffi 1988*/
+    
     float cellwidth = stretchFactor*dx*LengthUnits/pc_cm;
+    
+    // if we resolve free expansion, all energy is thermally coupled
+
     float p_free = 0.0;//sqrt(ejectaMass*SolarMass*ejectaEnergy)/SolarMass/1e5;//1.73e4*sqrt(ejectaMass*ejectaEnergy/1e51/3.); // free exp. momentum eq 15
     float r_free = 2.75*pow(ejectaMass/3/nmean, 1./3.); // free exp radius eq 2
     
     
     // assuming r_sedov == dx, solve for t3
+    
     float t3_sedov = pow( cellwidth*pc_cm
             /(5.0*pc_cm*pow(ejectaEnergy/1e51/nmean, 1.0/5.0)), 5./2.); 
     float p_sedov = 2.21e4*pow(ejectaEnergy/1e51, 4./5.)
             * pow(nmean, 1./5.)* pow(t3_sedov, 3./5.); // eq 16
 
-      // shell formation radius eq 8
+    // shell formation radius eq 8
     float r_shellform = 22.6*pow(ejectaEnergy/1e51, 0.29)*pow(nmean, -0.42); 
     // p_sf = m_sf*v_sf eq 9,11
     float p_shellform = 3.1e5*pow(ejectaEnergy/1e51, 0.94)*pow(nmean, -0.13) ; // p_sf = m_sf*v_sf eq 9,11
