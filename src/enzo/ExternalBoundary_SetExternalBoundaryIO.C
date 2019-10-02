@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <math.h>
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -55,8 +55,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  
   /* declarations */
  
-  int i, j, k, dim, Sign, bindex;
-  float *index;
+  int i, j, k, dim, Sign, sign, bindex;
+  float *index, q1, q2, q3;
 
 #ifdef OOC_BOUNDARY
   hid_t       file_id, dset_id, attr_id;
@@ -667,6 +667,21 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	    break;
 	  case BoundaryUndefined:
             break;
+	  case extrapolate:
+	    q1 = *(Field + i + j*GridDims[0] + StartIndex[2]*GridDims[1]*GridDims[0]);
+            q2 = *(Field + i + j*GridDims[0] + (StartIndex[2]+1)*GridDims[1]*GridDims[0]);
+            q3 = *(Field + i + j*GridDims[0] + (StartIndex[2]+2)*GridDims[1]*GridDims[0]);
+
+	    *index = q1 + (StartIndex[2]-k)*(q1-q2) + 
+	      (StartIndex[2]-k)*(StartIndex[2]-k)*(q1-2*q2+q3)/2.;
+
+            if (FieldType == Density && q1 > 0 && q2 > 0) {
+		q1 = log10(q1);
+		q2 = log10(q2);
+		*index = pow(10, q1 + (StartIndex[2]-k)*(q1-q2));
+	      }
+            if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
+	    break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (z-left).\n",
 		    BoundaryType[field][2][0][bindex])
@@ -773,6 +788,20 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	    break;
  	  case BoundaryUndefined:
             break;
+	  case extrapolate:
+	    q1 = *(Field + i + j*GridDims[0] + EndIndex[2]*GridDims[1]*GridDims[0]);
+            q2 = *(Field + i + j*GridDims[0] + (EndIndex[2]-1)*GridDims[1]*GridDims[0]);
+            q3 = *(Field + i + j*GridDims[0] + (EndIndex[2]-2)*GridDims[1]*GridDims[0]);
+
+            *index = q1 + (k+1)*(q1-q2) + (k+1)*(k+1)*(q1-2*q2+q3)/2.;
+	    
+            if (FieldType == Density  && q1 >0 && q2 > 0) {
+              q1 = log10(q1);
+              q2 = log10(q2);
+	      *index = pow(10, q1 + (k+1)*(q1-q2));
+            }
+	    if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;	    
+	    break;
 	  default:
 	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (z-right).\n",
 		    BoundaryType[field][2][1][bindex]);
