@@ -227,7 +227,8 @@ const boundary_type
   inflow            = 2,
   periodic          = 3,
   shearing          = 4,
-  BoundaryUndefined = 5;
+  BoundaryUndefined = 5,
+  extrapolate       = 6;
 
 // enum boundary_type {reflecting, outflow, inflow, periodic, BoundaryUndefined};
 

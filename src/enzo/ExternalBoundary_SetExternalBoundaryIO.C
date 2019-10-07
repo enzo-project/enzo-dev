@@ -240,6 +240,22 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	    break;
 	  case BoundaryUndefined:
             break;
+          case extrapolate:
+            q1 = *(Field + StartIndex[0] +     j*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            q2 = *(Field + StartIndex[0] + 1 + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            q3 = *(Field + StartIndex[0] + 2 + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
+
+            *index = q1 + (StartIndex[0]-i)*(q1-q2) +
+              (StartIndex[0]-i)*(StartIndex[0]-i)*(q1-2*q2+q3)/2.;
+
+            if (FieldType == Density && q1*q2 > 0) {
+	      q1 = log10(q1);
+	      q2 = log10(q2);
+	      *index = pow(10, q1 + (StartIndex[0]-i)*(q1-q2));
+	    }
+            if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
+            break;
+
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (x-left).\n",
 		    BoundaryType[field][0][0][bindex])
@@ -345,6 +361,20 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	    *index = *(index - (EndIndex[0] - StartIndex[0] + 1));
  	    break;
 	  case BoundaryUndefined:
+            break;
+	  case extrapolate:
+            q1 = *(Field + (EndIndex[0]    ) + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            q2 = *(Field + (EndIndex[0] - 1) + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            q3 = *(Field + (EndIndex[0] - 2) + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
+
+            *index = q1 + (i+1)*(q1-q2) + (i+1)*(i+1)*(q1-2*q2+q3)/2.;
+
+            if (FieldType == Density  && q1*q2 >0){
+              q1 = log10(q1);
+              q2 = log10(q2);
+              *index = pow(10, q1 + (i+1)*(q1-q2));
+            }
+            if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
             break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (x-right).\n",
@@ -454,6 +484,21 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	    break;
 	  case BoundaryUndefined:
             break;
+          case extrapolate:
+            q1 = *(Field + i + (StartIndex[1]    )*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            q2 = *(Field + i + (StartIndex[1] + 1)*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            q3 = *(Field + i + (StartIndex[1] + 2)*GridDims[0] + k*GridDims[1]*GridDims[0]);
+
+            *index = q1 + (StartIndex[1]-j)*(q1-q2) +
+              (StartIndex[1]-j)*(StartIndex[1]-j)*(q1-2*q2+q3)/2.;
+
+            if (FieldType == Density && q1*q2 > 0) {
+	      q1 = log10(q1);
+	      q2 = log10(q2);
+	      *index = pow(10, q1 + (StartIndex[1]-j)*(q1-q2));
+	    }
+	    if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
+            break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (y-left).\n",
 		    BoundaryType[field][1][0][bindex])
@@ -560,6 +605,20 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	    *index = *(index - (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
  	    break;
 	  case BoundaryUndefined:
+            break;
+	  case extrapolate:
+            q1 = *(Field + i +(EndIndex[1]    )*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            q2 = *(Field + i +(EndIndex[1] - 1)*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            q3 = *(Field + i +(EndIndex[1] - 2)*GridDims[0] + k*GridDims[1]*GridDims[0]);
+
+            *index = q1 + (j+1)*(q1-q2) + (j+1)*(j+1)*(q1-2*q2+q3)/2.;
+
+            if (FieldType == Density  && q1*q2 >0){
+              q1 = log10(q1);
+              q2 = log10(q2);
+              *index = pow(10, q1 + (j+1)*(q1-q2));
+            }
+            if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
             break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (y-right).\n",
@@ -668,14 +727,14 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  case BoundaryUndefined:
             break;
 	  case extrapolate:
-	    q1 = *(Field + i + j*GridDims[0] + StartIndex[2]*GridDims[1]*GridDims[0]);
+	    q1 = *(Field + i + j*GridDims[0] + (StartIndex[2]  )*GridDims[1]*GridDims[0]);
             q2 = *(Field + i + j*GridDims[0] + (StartIndex[2]+1)*GridDims[1]*GridDims[0]);
             q3 = *(Field + i + j*GridDims[0] + (StartIndex[2]+2)*GridDims[1]*GridDims[0]);
 
 	    *index = q1 + (StartIndex[2]-k)*(q1-q2) + 
 	      (StartIndex[2]-k)*(StartIndex[2]-k)*(q1-2*q2+q3)/2.;
 
-            if (FieldType == Density && q1 > 0 && q2 > 0) {
+            if (FieldType == Density && q1*q2 > 0) {
 		q1 = log10(q1);
 		q2 = log10(q2);
 		*index = pow(10, q1 + (StartIndex[2]-k)*(q1-q2));
@@ -789,13 +848,13 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case BoundaryUndefined:
             break;
 	  case extrapolate:
-	    q1 = *(Field + i + j*GridDims[0] + EndIndex[2]*GridDims[1]*GridDims[0]);
+	    q1 = *(Field + i + j*GridDims[0] + (EndIndex[2]  )*GridDims[1]*GridDims[0]);
             q2 = *(Field + i + j*GridDims[0] + (EndIndex[2]-1)*GridDims[1]*GridDims[0]);
             q3 = *(Field + i + j*GridDims[0] + (EndIndex[2]-2)*GridDims[1]*GridDims[0]);
 
             *index = q1 + (k+1)*(q1-q2) + (k+1)*(k+1)*(q1-2*q2+q3)/2.;
 	    
-            if (FieldType == Density  && q1 >0 && q2 > 0) {
+            if (FieldType == Density  && q1*q2 > 0) {
               q1 = log10(q1);
               q2 = log10(q2);
 	      *index = pow(10, q1 + (k+1)*(q1-q2));
