@@ -173,7 +173,13 @@ const field_type
   /* IR photodetachment fields */
   kdissH2II = 98,
   kphHM     = 99,
-  FieldUndefined  = 100;
+
+  /* Real and Imag of Wave Function */
+  RePsi = 101,
+  ImPsi = 102,
+  FDMDensity = 103,
+
+  FieldUndefined  = 104;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -302,7 +308,11 @@ const star_type
   SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
-  MBH = PARTICLE_TYPE_MBH;
+  MBH = PARTICLE_TYPE_MBH,
+  RadSource = PARTICLE_TYPE_RAD,
+  Kravtsov = PARTICLE_TYPE_STAR,
+  CenOstriker = PARTICLE_TYPE_STAR,
+  AccretingParticle = PARTICLE_TYPE_MUST_REFINE;
 
 /* Define a float/int union. */
 

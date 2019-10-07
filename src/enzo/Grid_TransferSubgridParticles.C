@@ -67,8 +67,13 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     /* If there are no particles to move, we're done. */
 
     if (NumberOfParticles == 0) {
-      delete [] BaryonField[NumberOfBaryonFields];
-      BaryonField[NumberOfBaryonFields] = NULL;
+      // Only delete the subgrid field in the call when we actually
+      // move the particles.  The active particle routine analog needs
+      // this field.
+      if (CountOnly == FALSE) {
+	delete [] BaryonField[NumberOfBaryonFields];
+	BaryonField[NumberOfBaryonFields] = NULL;
+      }
       return SUCCESS;
     }
 
@@ -80,7 +85,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
     /* Set boundaries (with and without ghost zones) */
 
-    int StartIndex[] = {0,0,0}, EndIndex[] = {0,0,0};
+    int StartIndex[] = {1,1,1}, EndIndex[] = {1,1,1};
     if (IncludeGhostZones)
       for (dim = 0; dim < GridRank; dim++) {
 	StartIndex[dim] = 0;
@@ -102,9 +107,9 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
       /* Compute index of particle position. */
  
       i0 = int((ParticlePosition[0][i] - CellLeftEdge[0][0])/CellWidth[0][0]);
-      if (GridRank > 1)
+      if (GridRank > 0)
        j0 = int((ParticlePosition[1][i] - CellLeftEdge[1][0])/CellWidth[1][0]);
-      if (GridRank > 2)
+      if (GridRank > 1)
        k0 = int((ParticlePosition[2][i] - CellLeftEdge[2][0])/CellWidth[2][0]);
  
       i0 = max(min(EndIndex[0], i0), StartIndex[0]);
@@ -227,7 +232,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     float *Velocity[MAX_DIMENSION], *Mass,
           *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
     PINT *Number;
-    int  *Type;
+    int  *Type = NULL;
  
     if (TotalNumberOfParticles > 0) {
 

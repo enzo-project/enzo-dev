@@ -43,6 +43,7 @@ struct RadiationSourceEntry  {
   float *Orientation;             // Direction for one cone of beamed rad.
   bool  AddedEmissivity;          // flag to show that we've added
                                   // emissivity for FS solver.
+  bool  IsActiveParticle;         //Is the source an ActiveParticle?
 };
 
 struct SuperSourceData {

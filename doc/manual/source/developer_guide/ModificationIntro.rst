@@ -3,9 +3,9 @@
 Introduction to Enzo Modification
 =================================
 
-.. note:: This is not a comprehensive document, but it does cover some of the
-          grounds of modifying Enzo.  Please don't hesitate to email the users'
-          mailing list with any further questions about Enzo, Mercurial, or how
+.. note:: This is not a comprehensive document, but it does cover some of the 
+          grounds of modifying Enzo. Please don't hesitate to email the users' 
+          mailing list with any further questions about Enzo, Git, or how
           to write and execute new test problems.
 
 If this is the first time you've opened the hood to Enzo, welcome.  If you're
@@ -37,145 +37,233 @@ mailing list:
 
 http://groups.google.com/group/enzo-users
 
-This document describes how to use Mercurial to make changes to Enzo, how to
-send those changes upstream, and how to navigate the Enzo source tree.
+.. _contributing-code:
 
-.. highlight:: none
+How to Develop Enzo
+===================
 
-Mercurial Introduction
-----------------------
+Enzo is a community project!
 
-If you're new to Mercurial, these three resources are pretty great for learning
-the ins and outs:
+We are very happy to accept patches, features, and bugfixes from any member of
+the community!  Enzo is developed using Git, primarily because of how well
+it enables open-source, community contribution. We're eager to hear from you.
 
-   * http://hginit.com
-   * http://hgbook.red-bean.com/read/
-   * http://mercurial.selenic.com/
+.. note:: If you are already familiar with Git and `GitHub <https://github.com>`_,
+   the best way to contribute is to fork the `main Enzo repository
+   <https://github.com/enzo-project/enzo-dev.git>`__, make your changes, push them
+   to your fork, and issue a pull request. The rest of this document is just an
+   explanation of how to do that. Enzo was previously hosted on BitBucket and 
+   maintained with mercurial but has since transitioned to git and GitHub. 
+   Please do not fork or clone the repository on BitBucket. The code on BitBucket
+   is no longer maintained.
 
-The major difference between Mercurial (and other distributed version control
-systems) and centralized version control systems (like CVS, RCS, SVN) is that
-of the directed acyclic graph (DAG).  Rather than having a single timeline of
-modifications, Mercurial (or "hg") can have multiple, independent streams of
-development.
+Keep in touch, and happy hacking!
 
-There are a few concepts in Mercurial to take note of:
+.. _open-issues:
 
-Changesets
-   Every point in the history of the code is referred to as a changeset.  These
-   are specific states of the code, which can be recovered at any time in *any*
-   checkout of the repository.  These are analagous to revisions in Subversion.
-Children
-   If a changeset has changesets that were created from its state, those are
-   called children.  A changeset can have many children; this is how the graph
-   of development branches.
-Heads
-   Every changeset that has no children is called a head.
-Branches
-   Every time the DAG branches, these are branches.  Enzo also uses "named
-   branches," where the branches have specific identifiers that refer to the
-   feature under development or some other characteristic of a line of
-   development.
+Open Issues
+-----------
 
-When you check out the Enzo repository, you receive a full and complete copy of
-the entire history of that repository; you can update between revisions at
-will without ever touching the network again.  This allows not only for
-network-disconnected development, but it also means that if you are creating
-some new feature on top of Enzo you can (and should!) conduct local version
-control on your development.  Until you choose explicitly to share changes,
-they will remain private to your checkout of the repository.
+If you're interested in participating in Enzo development, take a look at the
+`issue tracker on GitHub <https://github.com/enzo-project/enzo-dev/issues>`_.
+If you are encountering a bug that is not already tracked there, please `open a
+new issue <https://github.com/enzo-project/enzo-dev/issues/new>`__.
 
-Enzo Source Trees
------------------
+Contributing to Enzo with Git and Github
+----------------------------------------
 
-Enzo has two primary repositories, the "stable" repository which is curated and
-carefully modified, and the "development" repository which is where active
-development occurs.  Please note that while we test and verify the results of
-the "stable" repository, the "unstable" repository is not guaranteed to be
-tested, verified, or even to provide correct answers.
+We provide a brief introduction to submitting changes here.  We encourage
+contributions from any user. If you are new to Git and/or GitHub, there are
+excellent guides available at `guides.github.com <https://guides.github.com/>`_,
+specifically the `Git Handbook
+<https://guides.github.com/introduction/git-handbook/>`__, and the `GitHub
+Hello World <https://guides.github.com/activities/hello-world/>`__. We are also
+happy to provide guidance on the mailing list or in our slack channel.
 
-.. note:: The "stable" Enzo source tree is *not* for general development.  If
-   you want to contribute to Enzo, make your changes to a fork of the
-   development repository!
+Licensing
++++++++++
 
-To conceptually -- and technically! -- separate these two repositories, they
-also live in different places.  We keep both the stable repository 
-and the development repository at BitBucket.  Enzo is (as of 2.4) developed in
-a relatively simple fashion:
+Enzo is under a BSD-like license.
 
-  #. On BitBucket, developers "fork" the primary development repository.
-  #. When a piece of work is ready to be shared, a "pull request" is issued.
-     This notifies the current set of Enzo curators that a new feature has been
-     suggested for inclusion.
-  #. After these features have been accepted, they are pulled into the
-     development branch.  New features will be aggregated into patch
-     releases on the "stable" branch.
-  #. When a new patch release is issued, the current development branch is
-     pushed to the "enzo-dev" repository on Bitbucket.
+All contributed code must be BSD-compatible.  If you'd rather not license in
+this manner, but still want to contribute, please consider creating an external
+package, which we'll happily link to in the Enzo documentation.
 
-The idea here is that there is a double firewall: the development branch is
-very high-cadence and with high-turnover, but the stable branch is much
-slower, more carefully curated, and inclusions in it are well-tested.
+How To Get The Source Code For Editing
+++++++++++++++++++++++++++++++++++++++
 
- * code lives at: http://bitbucket.org/enzo/enzo-dev
+Enzo is hosted on GitHub. In order to modify the source code for Enzo,
+we ask that you make a "fork" of the main Enzo repository on GitHub.  A
+fork is simply an exact copy of the main repository (along with its history)
+that you will now own and can make modifications as you please.  You can create
+a personal fork by visiting the Enzo GitHub webpage at
+https://github.com/enzo-project/enzo-dev/.  After logging in, you should see an
+option near the top right labeled "fork".  You now have a forked copy of
+the Enzo repository for your own personal modification.
 
-How To Share Changes
---------------------
+This forked copy exists on GitHub under your username, so in order to access
+it locally, follow the instructions at the top of that webpage for that
+forked repository:
 
-Sharing your changes to Enzo is easy with Mercurial and the BitBucket
-repository.
+.. code-block:: bash
 
-Go here:
+   $ git clone http://github.com/<USER>/<REPOSITORY_NAME>
 
-http://bitbucket.org/enzo/enzo-dev/fork
+This downloads that new forked repository to your local machine, so that you can
+access it, read it, make modifications, etc.  It will put the repository in a
+local directory of the same name as the repository in the current working
+directory.
 
-Now, clone your new repository.  Make your changes there.  Now go back and
-issue a pull request.  For instance, you might do something like this:
+.. code-block:: bash
 
- #. Clone Enzo, make a few changes, commit them, and decide you want to share.
- #. Fork the main enzo repository at that link.
- #. Now, edit ``.hg/hgrc`` to add a new path, and push to that path.
- #. Go to the BitBucket URL for your new repository and click "Pull Request".
-    Fill it out, including a summary of your changes, and then submit.  It will
-    get evaluted -- and it might not get accepted right away, but the response
-    will definitely include comments and suggestions.
+   $ cd enzo_dev
 
-That's it!  If you run into any problems, drop us a line on the `Enzo Users'
-Mailing List <http://groups.google.com/group/enzo-users>`_.
+Verify that you are on the master branch of Enzo by running:
 
-How To Use Branching
---------------------
+.. code-block:: bash
 
-.. warning:: In most cases, you do *not* need to make a new named branch!  Do
-   so with care, as it lives forever.
+   $ git branch
 
-If you are planning on making a large change to the code base that may not be
-ready for many, many commits, or if you are planning on breaking some
-functionality and rewriting it, you can create a new named branch.  You can
-mark the current repository as a new named branch by executing: ::
+If you're not on the master branch, you can get to it with:
 
-   $ hg branch new_feature_name
+.. code-block:: bash
 
-To merge changes in from another branch, you would execute: ::
+   $ git checkout master
 
-   $ hg merge some_other_branch
+You can see any past state of the code by using the git log command.
+For example, the following command would show you the last 5 revisions
+(modifications to the code) that were submitted to that repository.
 
-Note also that you can use revision specifiers instead of "some_other_branch".
-When you are ready to merge back into the main branch, execute this process: ::
+.. code-block:: bash
 
-   $ hg merge name_of_main_branch
-   $ hg commit --close-branch
-   $ hg up -C name_of_main_branch
-   $ hg merge name_of_feature_branch
-   $ hg commit
+   $ git log -n 5
 
-When you execute the merge you may have to resolve conflicts.  Once you resolve
-conflicts in a file, you can mark it as resolved by doing: ::
+Using the revision specifier (the number or hash identifier next to each
+changeset), you can update the local repository to any past state of the
+code (a previous changeset or version) by executing the command:
 
-   $ hg resolve -m path/to/conflicting/file.py
+.. code-block:: bash
 
-Please be careful when resolving conflicts in files.
+   $ git checkout revision_specifier
 
-Once your branch has been merged in, mark it as closed on the wiki page.
+.. _sharing-changes:
+
+Making and Sharing Changes
+--------------------------
+
+The simplest way to submit changes to Enzo is to do the following:
+
+#. Fork the main repository.
+#. Clone your fork.
+#. Make some changes and commit them.
+#. Push the changesets to your fork.
+#. Issue a pull request.
+
+Here's a more detailed flowchart of how to submit changes.
+
+#. Fork Enzo on GitHub.  (This step only has to be done once.)  You can do
+   this by clicking on the **fork** button in the top-right corner of `the main
+   repository <https://github.com/enzo-project/enzo-dev>`__.
+#. Create a new branch in which to make your changes by doing ``git
+   checkout -b <new branch name>``. This will make it easy to move back and
+   forth between the main branch of the code and your changes.
+#. Edit the source file you are interested in and test your changes.
+#. Use ``git add <files>`` to stage files to be committed.
+#. Commit your changes with ``git commit``. This will open a text editor so you
+   can write a commit message. To add your message inline, do
+   ``git commit -m "<commit message>"``. You can list specific file to be
+   committed.
+#. Remember that this is a large development effort and to keep the code
+   accessible to everyone, good documentation is a must.  Add in source code
+   comments for what you are doing.  Add documentation to the appropriate
+   section of the online docs so that people other than yourself know how
+   to use your new code.
+#. If your changes include new functionality or cover an untested area of the
+   code, add a test. Commit these changes as well.
+#. Push your changes to your new fork using the command::
+
+      $ git push origin <branch name>
+
+   .. note::
+     Note that the above approach uses HTTPS as the transfer protocol
+     between your machine and GitHub.  If you prefer to use SSH - or
+     perhaps you're behind a proxy that doesn't play well with SSL via
+     HTTPS - you may want to set up an `SSH key
+     <https://help.github.com/articles/connecting-to-github-with-ssh/>`__
+     on GitHub.  Then, you use
+     the syntax ``ssh://git@github.com/<USER>/enzo_dev``, or equivalent, in
+     place of ``https://github.com/<USER>/enzo_dev`` in git commands.
+     For consistency, all commands we list in this document will use the HTTPS
+     protocol.
+
+#. Issue a pull request by going to the main repository and clicking on the
+   green button that says **Compare & pull request**. This will open up a page
+   that will allow you to enter a description of the changes to be merged. Once
+   submitted, a series of automated tests will run and their status will be
+   reported on the pull request page.
+
+During the course of your pull request you may be asked to make changes.  These
+changes may be related to style issues, correctness issues, or requesting
+tests.  The process for responding to pull request code review is relatively
+straightforward.
+
+#. Make requested changes, or leave a comment on the pull request page on
+   GitHub indicating why you don't think they should be made.
+#. Commit those changes to your local repository.
+#. Push the changes to your fork::
+
+      $ git push origin <branch name>
+
+#. Your pull request will be automatically updated.
+
+Once your pull request has been accepted, you can safely delete your
+branch::
+
+      $ git branch --delete <branch name>
+
+Updating Your Branch
+++++++++++++++++++++
+
+If your branch or pull request has been open for some time, it may be useful
+to keep it up to date with the latest changes from the main repository. This
+can be done by `rebasing your changes <https://git-scm.com/docs/git-rebase>`__.
+Before doing this, you will need to be able to pull the latest changes from
+the main repository.
+
+#. Add the main repository as a remote::
+
+      $ git remote add enzo_dev https://github.com/enzo-project/enzo-dev
+
+   You can verify that it has been added by doing ``git remote -v``. This
+   only needs to be done once.
+
+#. Go back to the master branch and pull the changes::
+
+      $ git checkout master
+      $ git pull enzo_dev master
+
+#. Return to your branch and rebase your changes onto the head of the master
+   branch::
+
+      $ git checkout <branch name>
+      $ git rebase master
+
+This should go smoothly unless changes have been made to the same lines in
+the source, in which case you will need to fix conflicts. After rebasing,
+you will get an error when trying to push your branch to your fork. This is
+because you have changed the order of commits and git does not like that.
+In this case, you will need to add "-f" to your push command to force
+the changes to be accepted.::
+
+      $ git push -f origin <branch name>
+
+If you envision a decent number of conflicts, instead of rebasing, it may
+be better to do::
+
+      $ git merge master
+
+commit the merge, then push the changes to your fork.
+
 
 The Patch Directory
 --------------------
@@ -208,3 +296,4 @@ test file should consist of:
  * (optional) Scripts to plot the output of the new parameter file.
 
 Please drop a line to the mailing list if you run into any problems!
+

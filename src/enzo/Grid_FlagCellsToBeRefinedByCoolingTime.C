@@ -46,7 +46,24 @@ int grid::FlagCellsToBeRefinedByCoolingTime()
     fprintf(stderr, "Flagging Field is undefined.\n");
     return -1;
   }
- 
+
+  // are we using a cooling time refinement region?  If not, keep on going!
+  if(UseCoolingRefineRegion){
+
+    /* If we ARE using a cooling time refinement region, check to see if this grid overlaps
+       with our CoolingRefineRegion by looping over dimensions.  For each dimension, check
+       to see if the grid is at least partially within our CoolingRefineRegion.  If it is NOT
+       inside that region, return SUCCESS. */
+    for (dim = 0; dim < GridRank; dim++){
+
+      if(   !((GridRightEdge[dim] > CoolingRefineRegionLeftEdge[dim]) &&
+	      (GridLeftEdge[dim] < CoolingRefineRegionRightEdge[dim])) )
+	return SUCCESS;
+    }
+
+  }  // if(UseCoolingRefineRegion)
+
+
   /* If using comoving coordinates, compute the expansion factor a.  Otherwise,
      set it to one. */
  
@@ -103,7 +120,7 @@ int grid::FlagCellsToBeRefinedByCoolingTime()
  
   /* clean up */
  
-  delete cooling_time;
+  delete [] cooling_time;
  
   /* Count number of flagged Cells. */
  

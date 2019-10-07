@@ -125,14 +125,20 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
 
   this->ReturnHydroRKPointers(Prim, true);  //##### added! because Hydro3D needs fractions for species
 
+  float MinimumSupportEnergyCoefficient = 0;
+  if (UseMinimumPressureSupport == TRUE && level == MaximumRefinementLevel)
+    if (this->SetMinimumSupport(MinimumSupportEnergyCoefficient) == FAIL) {
+      ENZO_FAIL("Error in grid->SetMinimumSupport");
+    }
+
   // compute dU
   int fallback = 0;
   if (this->Hydro3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 
-		    0.5, fallback) == FAIL) {
+		    0.5, MinimumSupportEnergyCoefficient, fallback) == FAIL) {
       return FAIL;
   }
 
-  this->SourceTerms(dU);
+  this->SourceTerms(dU, MinimumSupportEnergyCoefficient);
 
   if (this->UpdatePrim(dU, 1.0, 1.0) == FAIL) {
     printf("Falling back to zero order at RK 1st step\n");
@@ -147,10 +153,10 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
     this->ZeroFluxes(SubgridFluxes, NumberOfSubgrids);
     fallback = 1;
     if (this->Hydro3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids,
-		      0.5, fallback) == FAIL) {
+		      0.5, MinimumSupportEnergyCoefficient, fallback) == FAIL) {
       return FAIL;
     }
-    this->SourceTerms(dU);
+    this->SourceTerms(dU, MinimumSupportEnergyCoefficient);
     if (this->UpdatePrim(dU, 1.0, 1.0) == FAIL) {
       printf("Fallback failed, give up...\n");
       return FAIL;

@@ -268,7 +268,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 
   // Initialize Communications
 
-  CommunicationInitialize(&argc, &argv);
+  CommunicationInitialize(&argc, &argv); 
 
   //#define DEBUG_MPI
 #ifdef DEBUG_MPI

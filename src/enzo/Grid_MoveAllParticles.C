@@ -18,6 +18,7 @@
 //
  
 #include <stdio.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -26,6 +27,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "ActiveParticle.h"
 
 int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
 {
@@ -37,22 +39,30 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   /* Determine total number of local particles. */
 
   int NumberOfSubgridParticles = 0;
+  int NumberOfSubgridActiveParticles = 0;
   int TotalNumberOfParticles = NumberOfParticles;
+  int TotalNumberOfActiveParticles = NumberOfActiveParticles;
   int i, j, grid, dim, *Type;
   PINT *Number;
  
   for (grid = 0; grid < NumberOfGrids; grid++)
-    if (MyProcessorNumber == FromGrid[grid]->ProcessorNumber)
+    if (MyProcessorNumber == FromGrid[grid]->ProcessorNumber) {
       NumberOfSubgridParticles += FromGrid[grid]->NumberOfParticles;
-  if (NumberOfSubgridParticles == 0) 
+      NumberOfSubgridActiveParticles += FromGrid[grid]->NumberOfActiveParticles;
+    }
+  if (NumberOfSubgridParticles + NumberOfSubgridActiveParticles == 0) 
     return SUCCESS;
   
   TotalNumberOfParticles += NumberOfSubgridParticles;
+  TotalNumberOfActiveParticles += NumberOfSubgridActiveParticles;
  
   /* Debugging info. */
 
-  if (debug1) printf("MoveAllParticles: %"ISYM" (before: ThisGrid = %"ISYM").\n",
-		     TotalNumberOfParticles, NumberOfParticles);
+  if (debug1)
+    printf("MoveAllParticles: %"ISYM",%"ISYM
+           " (before: ThisGrid = %"ISYM",%"ISYM").\n",
+           TotalNumberOfParticles, TotalNumberOfActiveParticles,
+           NumberOfParticles, NumberOfActiveParticles);
  
   /* Allocate space for the particles. */
  
@@ -158,6 +168,26 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
     FromGrid[grid]->NumberOfParticles = 0;
     FromGrid[grid]->DeleteParticles();
   }
+
+  /******************** ACTIVE PARTICLES ********************/
+
+  ActiveParticleList<ActiveParticleType> MoveParticles(NumberOfSubgridActiveParticles);
+
+  int dlevel = nint(logf(RefinementFactors[0]) / logf(RefineBy));  /* Fix by JHW */
+  //int dlevel = logf(RefinementFactors[0]) / logf(RefineBy);
+
+  for (grid = 0; grid < NumberOfGrids; grid++) {
+    for (i = 0; i < FromGrid[grid]->NumberOfActiveParticles; i++) {
+      FromGrid[grid]->ActiveParticles[i]->AdjustMassByFactor(MassDecrease);
+      FromGrid[grid]->ActiveParticles[i]->ReduceLevel(dlevel);
+      FromGrid[grid]->ActiveParticles[i]->AssignCurrentGrid(this);
+      FromGrid[grid]->ActiveParticles[i]->SetGridID(this->ID);
+      MoveParticles.copy_and_insert(*(FromGrid[grid]->ActiveParticles[i]));
+    }
+    FromGrid[grid]->DeleteActiveParticles();
+  }
+
+  this->AddActiveParticles(MoveParticles, 0, NumberOfSubgridActiveParticles);
  
   return SUCCESS;
 }

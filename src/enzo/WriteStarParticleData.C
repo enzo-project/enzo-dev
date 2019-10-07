@@ -32,7 +32,7 @@
 int WriteStarParticleData(FILE *fptr, TopGridData &MetaData)
 {
  
-  if (StarParticleCreation == FALSE)
+  if (StarParticleCreation == FALSE && EnabledActiveParticlesCount == 0)
     return SUCCESS;
   
   if (MyProcessorNumber == ROOT_PROCESSOR) {
@@ -41,6 +41,8 @@ int WriteStarParticleData(FILE *fptr, TopGridData &MetaData)
 
     fprintf(fptr, "\n");    
     fprintf(fptr, "NumberOfStarParticles      = %"ISYM"\n", NumberOfStarParticles);
+    fprintf(fptr, "NumberOfActiveParticles    = %"ISYM"\n", NumberOfActiveParticles);
+    fprintf(fptr, "NextActiveParticleID       = %"ISYM"\n", NextActiveParticleID);
     fprintf(fptr, "NumberOfOtherParticles     = %"ISYM"\n", NumberOfOtherParticles); 
 
     /* mqk 12/04/2010: moved MBH particle data output to

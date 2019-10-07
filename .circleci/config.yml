@@ -9,6 +9,8 @@ commands:
           echo 'export ENZOTEST_DIR=$HOME/enzo_test' >> $BASH_ENV
           echo 'export ANSWER_NAME="push_suite"' >> $BASH_ENV
           echo 'export HYPRE=hypre-2.11.2' >> $BASH_ENV
+          # get tags from the main repository (for the current gold standard)
+          git fetch --tags https://github.com/enzo-project/enzo-dev
           # tag the tip so we can go back to it
           git tag tip
 
@@ -89,13 +91,63 @@ commands:
             git checkout << parameters.tag >>
             ./configure
             cd src/enzo
-            make machine-linux-gnu
+            make machine-ubuntu
             make load-config-test-suite
             make clean
             make -j 4
             cd ../../run
             python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=$ANSWER_NAME --local --strict=high --verbose << parameters.flags >>
           fi
+
+  compile-test:
+    description: "Test that enzo compiles in a few different configurations."
+    steps:
+      - run: |
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          ./configure
+          cd src/enzo
+          make machine-ubuntu
+          # test various baryon/particle precisions
+          for prec in 32 64
+          do for part in 32 64 128
+          do
+          # skip the test-suite configuration
+          if [[ $prec == 64 && $part == 64 ]]; then
+          continue
+          fi
+          make precision-$prec
+          make particles-$part
+          make clean
+          make -j 4 || (make show-config ; exit 1)
+          done ; done
+          # return this to default
+          make precision-64
+          make particles-64
+          # test various integer/particle-id precisions
+          for inte in 32 64
+          do for pids in 32 64
+          do
+          # skip the test-suite configuration
+          if [[ $inte == 32 && $pids == 32 ]]; then
+          continue
+          fi
+          make integers-$inte
+          make particle-id-$pids
+          make clean
+          make -j 4 || (make show-config ; exit 1)
+          done ; done
+          make integers-64
+          make particle-id-64
+          # test without mpi
+          make use-mpi-no
+          make clean
+          make -j 4 || (make show-config ; exit 1)
+          make use-mpi-yes
+          # test ray-tracing
+          make photon-no
+          make clean
+          make -j 4 || (make show-config ; exit 1)
 
   build-docs:
     description: "Test the docs build."
@@ -135,7 +187,7 @@ jobs:
 
       - restore_cache:
           name: "Restore test answers."
-          key: test-answers-v12
+          key: test-answers-v12a
 
       - build-and-test:
           tag: gold-standard-v12
@@ -144,7 +196,7 @@ jobs:
 
       - save_cache:
           name: "Save test answers cache."
-          key: test-answers-v1
+          key: test-answers-v12a
           paths:
             - ~/enzo_test/push_suite
 
@@ -152,6 +204,33 @@ jobs:
           tag: tip
           skipfile: notafile
           flags: --clobber
+
+  test-compile-options:
+    docker:
+      - image: circleci/python:3.7.2
+
+    working_directory: ~/enzo-dev
+
+    steps:
+      - checkout
+      - set-env
+
+      - restore_cache:
+          name: "Restore dependencies cache."
+          key: dependencies-v1
+
+      - install-dependencies
+
+      - save_cache:
+          name: "Save dependencies cache"
+          key: dependencies-v1
+          paths:
+            - ~/.cache/pip
+            - ~/venv
+            - ~/local
+
+      - install-grackle
+      - compile-test
 
   docs-build:
     docker:
@@ -169,5 +248,6 @@ workflows:
 
    tests:
      jobs:
+       - test-compile-options
        - test-suite
        - docs-build

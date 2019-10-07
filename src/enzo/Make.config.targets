@@ -75,11 +75,6 @@ help-config:
 	@echo "      gmake use-mpi-yes"
 	@echo "      gmake use-mpi-no"
 	@echo
-	@echo "   Set address/pointer size"
-	@echo
-	@echo "      gmake object-mode-32"
-	@echo "      gmake object-mode-64"
-	@echo
 	@echo "   Set whether to use unigrid taskmap performance mod"
 	@echo
 	@echo "      gmake taskmap-yes"
@@ -385,14 +380,14 @@ machine-%: suggest-clean
 
 load-config-%:
 	@if [ -e $(HOME)/.enzo/Make.settings.$* ]; then \
-           @tmp=.config.temp; \
+           tmp=.config.temp; \
 	   cat $(HOME)/.enzo/Make.settings.$* > $(MAKE_CONFIG_OVERRIDE); \
            echo; \
            echo "   CONFIG SETTINGS: $*"; \
 	   $(MAKE) show-config; \
 	   $(MAKE) suggest-clean; \
 	elif [ -e Make.settings.$* ]; then \
-           @tmp=.config.temp; \
+           tmp=.config.temp; \
 	   cat Make.settings.$* > $(MAKE_CONFIG_OVERRIDE); \
            echo; \
            echo "   CONFIG SETTINGS: $*"; \
@@ -550,23 +545,6 @@ CONFIG_OPENMP-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_OPENMP = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_OPENMP; \
-	echo
-
-#-----------------------------------------------------------------------
-
-VALID_OBJECT-MODE = object-mode-32 object-mode-64
-.PHONY: $(VALID_OBJECT-MODE)
-
-object-mode-32: CONFIG_OBJECT-MODE-32
-object-mode-64: CONFIG_OBJECT-MODE-64
-object-mode-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_OBJECT-MODE)]\n\n"
-CONFIG_OBJECT-MODE-%: suggest-clean
-	@tmp=.config.temp; \
-        grep -v CONFIG_OBJECT_MODE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_OBJECT_MODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_OBJECT_MODE; \
 	echo
 
 #-----------------------------------------------------------------------

@@ -37,7 +37,7 @@ int FindField(int field, int farray[], int numfields);
 void mt_init(unsigned_int seed);
 unsigned_long_int mt_random();
 
-int grid::MHDSourceTerms(float **dU)
+int grid::MHDSourceTerms(float **dU, float min_coeff)
 {
 
   if (ProcessorNumber != MyProcessorNumber) {
@@ -65,11 +65,6 @@ int grid::MHDSourceTerms(float **dU)
     FLOAT dtdx = coef*dtFixed/CellWidth[0][0]/a,
       dtdy = (GridRank > 1) ? coef*dtFixed/CellWidth[1][0]/a : 0.0,
       dtdz = (GridRank > 2) ? coef*dtFixed/CellWidth[2][0]/a : 0.0;
-    float min_coeff = 0.0;
-    if (UseMinimumPressureSupport) {
-      min_coeff = MinimumPressureSupportParameter*
-	0.32*pow(CellWidth[0][0],2)/(Gamma*(Gamma-1.0));
-    }
     float rho, eint, p, divVdt, h, cs, dpdrho, dpde;
     int n = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
