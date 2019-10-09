@@ -238,9 +238,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  case shearing:
  	    *index = *(index + (EndIndex[0] - StartIndex[0] + 1));
 	    break;
-	  case BoundaryUndefined:
-            break;
-          case extrapolate:
+          case hydrostatic:
             q1 = *(Field + StartIndex[0] +     j*GridDims[0] + k*GridDims[1]*GridDims[0]);
             q2 = *(Field + StartIndex[0] + 1 + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
             q3 = *(Field + StartIndex[0] + 2 + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
@@ -255,7 +253,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	    }
             if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
             break;
-
+          case BoundaryUndefined:
+            break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (x-left).\n",
 		    BoundaryType[field][0][0][bindex])
@@ -360,9 +359,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index - (EndIndex[0] - StartIndex[0] + 1));
  	    break;
-	  case BoundaryUndefined:
-            break;
-	  case extrapolate:
+	  case hydrostatic:
             q1 = *(Field + (EndIndex[0]    ) + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
             q2 = *(Field + (EndIndex[0] - 1) + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
             q3 = *(Field + (EndIndex[0] - 2) + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
@@ -375,6 +372,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
               *index = pow(10, q1 + (i+1)*(q1-q2));
             }
             if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
+            break;
+          case BoundaryUndefined:
             break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (x-right).\n",
@@ -482,9 +481,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index + (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
  	    break;
-	  case BoundaryUndefined:
-            break;
-          case extrapolate:
+          case hydrostatic:
             q1 = *(Field + i + (StartIndex[1]    )*GridDims[0] + k*GridDims[1]*GridDims[0]);
             q2 = *(Field + i + (StartIndex[1] + 1)*GridDims[0] + k*GridDims[1]*GridDims[0]);
             q3 = *(Field + i + (StartIndex[1] + 2)*GridDims[0] + k*GridDims[1]*GridDims[0]);
@@ -498,6 +495,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	      *index = pow(10, q1 + (StartIndex[1]-j)*(q1-q2));
 	    }
 	    if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
+            break;
+          case BoundaryUndefined:
             break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (y-left).\n",
@@ -604,9 +603,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index - (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
  	    break;
-	  case BoundaryUndefined:
-            break;
-	  case extrapolate:
+	  case hydrostatic:
             q1 = *(Field + i +(EndIndex[1]    )*GridDims[0] + k*GridDims[1]*GridDims[0]);
             q2 = *(Field + i +(EndIndex[1] - 1)*GridDims[0] + k*GridDims[1]*GridDims[0]);
             q3 = *(Field + i +(EndIndex[1] - 2)*GridDims[0] + k*GridDims[1]*GridDims[0]);
@@ -619,6 +616,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
               *index = pow(10, q1 + (j+1)*(q1-q2));
             }
             if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
+            break;
+          case BoundaryUndefined:
             break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (y-right).\n",
@@ -724,9 +723,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index + (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
  	    break;
-	  case BoundaryUndefined:
-            break;
-	  case extrapolate:
+	  case hydrostatic:
 	    q1 = *(Field + i + j*GridDims[0] + (StartIndex[2]  )*GridDims[1]*GridDims[0]);
             q2 = *(Field + i + j*GridDims[0] + (StartIndex[2]+1)*GridDims[1]*GridDims[0]);
             q3 = *(Field + i + j*GridDims[0] + (StartIndex[2]+2)*GridDims[1]*GridDims[0]);
@@ -741,6 +738,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	      }
             if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
 	    break;
+          case BoundaryUndefined:
+            break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (z-left).\n",
 		    BoundaryType[field][2][0][bindex])
@@ -845,9 +844,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index - (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
  	    break;
- 	  case BoundaryUndefined:
-            break;
-	  case extrapolate:
+	  case hydrostatic:
 	    q1 = *(Field + i + j*GridDims[0] + (EndIndex[2]  )*GridDims[1]*GridDims[0]);
             q2 = *(Field + i + j*GridDims[0] + (EndIndex[2]-1)*GridDims[1]*GridDims[0]);
             q3 = *(Field + i + j*GridDims[0] + (EndIndex[2]-2)*GridDims[1]*GridDims[0]);
@@ -859,8 +856,10 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
               q2 = log10(q2);
 	      *index = pow(10, q1 + (k+1)*(q1-q2));
             }
-	    if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;	    
+	    if (FieldType == Velocity1 || FieldType == Velocity2 || FieldType == Velocity3) *index = 0;
 	    break;
+          case BoundaryUndefined:
+            break;
 	  default:
 	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (z-right).\n",
 		    BoundaryType[field][2][1][bindex]);
