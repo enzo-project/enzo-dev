@@ -91,6 +91,14 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
       ParticleAttribute[1][0] = 1.0;
     else
       ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
+  if (STARFEED_METHOD(MECHANICAL)){
+    if (StarParticleRadiativeFeedback){
+        ParticleAttribute[1][0] = 1000*Myr_s/TimeUnits; // need infinite lifetime for radiation according to FIRE-2 algorithm
+    }
+    else{
+      ParticleAttribute[1][0] = 0.0; // track num SNe in TDP field
+    }
+  }
   
   ParticleAttribute[2][0] = 0.0;  // Metal fraction
   ParticleAttribute[3][0] = 0.0;  // metalfSNIa

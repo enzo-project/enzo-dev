@@ -114,11 +114,12 @@ int checkCreationCriteria(float* Density, float* Metals,
 
     if (Temperature[index] > 1e4)
     {
-        status = FAIL; //no hot gas forming stars!
+        if (MultiSpecies > 0) status = FAIL; //no hot gas forming stars!
         float totalDensity = (Density[index]
                 +DMField[index])*DensityUnits;
         *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5);
-        if (*dynamicalTime/TimeUnits < CoolingTime[index]) status = FAIL;   
+        if (*dynamicalTime/TimeUnits < CoolingTime[index]) 
+            status = FAIL;   
     }
     /* is gas mass > critical jeans mass? */
 
@@ -130,6 +131,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     float jeansMass = pi/(6.0*pow(Density[index]*DensityUnits, 0.5))
             *pow(pi*IsoSndSpeed/GravConst, 1.5)/SolarMass;
     if (jeansMass > max(baryonMass, 1e3)) status =  FAIL;
+    
     /* Is self Shielded fraction > 0.0 by Krumholz & Gnedin */
 
     float gradRho = (Density[index+1]-Density[index-1])

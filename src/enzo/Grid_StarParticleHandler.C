@@ -663,10 +663,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Convert the species densities into fractional densities (i.e. divide
      by total baryonic density).  At the end we will multiply by the new
      density so that species fractions are maintained. */
- 
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
-	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity)
+   if (!STARFEED_METHOD(MECHANICAL)){
+      for (field = 0; field < NumberOfBaryonFields; field++)
+         if (((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
+	         FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity))
+            {    //fractional density doesnt play nice with CIC used in MechStars
 #ifdef EMISSIVITY
       /* 
          it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
@@ -674,14 +675,15 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
          so the values will scale inside StarParticleHandler 
       */
 #endif
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	  index = (k*GridDimension[1] + j)*GridDimension[0] +
-	    GridStartIndex[0];
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
-	    BaryonField[field][index] /= BaryonField[DensNum][index];
-	}
-
+            for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+	            for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	               index = (k*GridDimension[1] + j)*GridDimension[0] +
+	                        GridStartIndex[0];
+	               for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+	                  BaryonField[field][index] /= BaryonField[DensNum][index];
+	            }
+            }
+   }
   /* If creating primordial stars, make a total H2 density field */
 
   float *h2field = NULL;
@@ -718,7 +720,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   else {
     if (MetalNum != -1)
       MetalPointer = BaryonField[MetalNum];
-    else if (SNColourNum != -1)
+    if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
 
@@ -834,7 +836,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        NumberOfNewParticlesSoFar = NumberOfParticles;
          int nRetStars = 0;
          nRetStars = MechStars_Creation(tg, temperature,
-            dmfield, TotalMetals, level, cooling_time, MaximumNumberOfNewParticles,
+            dmfield, MetalPointer, level, cooling_time, MaximumNumberOfNewParticles,
             &NumberOfNewParticles);
          //fprintf(stdout, "Created %d new stars!", NumberOfNewParticles);
          if (nRetStars != NumberOfNewParticles) fprintf(stdout, "star count return and pointer mismatch!\n");
@@ -1570,11 +1572,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   } // end: if NORMAL_STAR
   if (STARFEED_METHOD(MECHANICAL)){
    float mu_field [size];
-   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+   for (index = 0; index < size; ++index) {
 	  
-	         index = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
 	         mu_field[index] = 0.0;
 	         // calculate mu
 
@@ -1594,9 +1593,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	         }
 	         if (MultiSpecies > 2) {
 	            mu_field[index] += (BaryonField[DINum][index] + BaryonField[DIINum][index])/2.0 + (BaryonField[HDINum][index]/3.0);
-	         }
 	    
-	      }
 	   }
    }
    }
@@ -1605,7 +1602,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     float *cooling_time = new float[size];
     this->ComputeCoolingTime(cooling_time);
       //fprintf(stdout, "CALLING MECH FEEDBACK\n");
-      MechStars_FeedbackRoutine(level, &mu_field[0], temperature, TotalMetals,cooling_time, dmfield);
+      MechStars_FeedbackRoutine(level, &mu_field[0], temperature, MetalPointer, cooling_time, dmfield);
       delete [] cooling_time;
   }
   if (STARFEED_METHOD(MOM_STAR)) {
@@ -2068,10 +2065,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   }
 
   /* Convert the species back from fractional densities to real densities. */
- 
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
-	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity) {
+   if (!STARFEED_METHOD(MECHANICAL))
+      for (field = 0; field < NumberOfBaryonFields; field++) {
+         if (((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
+         	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity) ) // fractional things do not play nice with CIC
+            {
 #ifdef EMISSIVITY
       /* 
          it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
@@ -2079,17 +2077,17 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
          so the values will scale inside StarParticleHandler 
       */
 #endif
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	  index = (k*GridDimension[1] + j)*GridDimension[0] +
-	    GridStartIndex[0];
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
-	    BaryonField[field][index] *= BaryonField[DensNum][index];
-	  }
-	}
+            for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	            for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	               index = (k*GridDimension[1] + j)*GridDimension[0] +
+	                  GridStartIndex[0];
+	               for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	                  BaryonField[field][index] *= BaryonField[DensNum][index];
+	               }
+	            }
+            }
+            }
       }
-    }
-  }
  
   /* Clean up. */
  

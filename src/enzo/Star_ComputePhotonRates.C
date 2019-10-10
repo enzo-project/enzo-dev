@@ -30,8 +30,10 @@
 #include "LevelHierarchy.h"
 
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
+int MechStars_calcPhotonRates(Star* star, const float Time);
 
-int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[])
+int Star::ComputePhotonRates(const float TimeUnits, const float Time, 
+                              int &nbins, float E[], double Q[], float dtForThisStar)
 {
 
 
@@ -188,11 +190,20 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[0] = 21.0;  // Good for [Z/H] > -1.3  (Schaerer 2003)
     // Calculate Delta(M_SF) for Cen & Ostriker star particles
 #ifdef TRANSFER
+    if (FeedbackFlag == MECHANICAL){
+      E[0] = 13.6; // H ionizing radiation
+      L_UV = MechStars_calcPhotonRates(this, Time);// returns [L_UV] = L_sun/M_sun
+      cgs_convert = SolarMass/TimeUnits;
+      
+      Q[0] = L_UV*eV_erg*SolarLuminosity/E[0]* this->Mass*(dtPhoton);
+    }
+    else{
     Mform = this->CalculateMassLoss(dtPhoton) / StarMassEjectionFraction;
     // units of Msun/(time in code units)
     L_UV = 4 * pi * StarEnergyToStellarUV * Mform * clight * clight / dtPhoton;
     cgs_convert = SolarMass / TimeUnits;
     Q[0] = cgs_convert * L_UV * eV_erg / E[0]; // ph/s
+    }
 #else
     Q[0] = 0.0;
 #endif

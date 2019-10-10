@@ -104,6 +104,10 @@ int grid::MechStars_SeedSupernova(float* totalMetal, float* temperature, int* se
         printf("Mass Outside Supernova Range!\n");
         return SUCCESS;
     }
+    if (FinalMass > 0.1*BaryonField[DensNum][index]*MassUnits){
+        printf("Cell too small for PIII star!");
+        return FAIL;
+    }
     /* Now, calculate feedback parameters as in Star_CalculateFeedbackParameters.C */
 
     // parameters of supernovae //
@@ -126,13 +130,13 @@ int grid::MechStars_SeedSupernova(float* totalMetal, float* temperature, int* se
     float SNEnergy = 0;
     float EjectaMetal = 0;
     float EjectaMass = FinalMass;
-    if (BaryonField[DensNum][index]*DensityUnits*pow(LengthUnits*CellWidth[0][0],3) < 5.0*FinalMass){
-        /* Should probably remove from larger area if host cell is too small,
-            but should only matter at VERY high resolution: M_cell < 50 M_sun*/
-        if (debug) fprintf(stdout, "Not enough mass in cell for Seed Supernova: %f < %f", 
-                BaryonField[DensNum][index]*DensityUnits*pow(LengthUnits*CellWidth[0][0],3), FinalMass);
-        return FAIL;
-        }
+    // if (BaryonField[DensNum][index]*DensityUnits*pow(LengthUnits*CellWidth[0][0],3) < 5.0*FinalMass){
+    //     /* Should probably remove from larger area if host cell is too small,
+    //         but should only matter at VERY high resolution: M_cell < 50 M_sun*/
+    //     if (debug) fprintf(stdout, "Not enough mass in cell for Seed Supernova: %f < %f", 
+    //             BaryonField[DensNum][index]*DensityUnits*pow(LengthUnits*CellWidth[0][0],3), FinalMass);
+    //     return FAIL;
+    //     }
     /* Reverse CIC out the star mass */
     int np = 1; float MassRem = -1*EjectaMass;
     float LeftEdge[3] = {CellLeftEdge[0][0], CellLeftEdge[1][0], CellLeftEdge[2][0]};

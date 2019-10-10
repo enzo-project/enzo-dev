@@ -40,7 +40,8 @@
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, float *MassUnits, FLOAT Time);
     int MechStars_depositEmissivityField(int index, float cellwidth,
-                float* emissivity0, float age, float mass);
+                float* emissivity0, float age, float mass, 
+                float TimeUnits, float dt);
 
 
 
@@ -111,7 +112,6 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
     float maxD = 0.0;
     int maxI=0, maxJ=0, maxK=0;
     int maxindex=0;
-    /* Begin Iteration of all particles */
     // printf("\nIterating all particles  ");
     for (int pIndex=0; pIndex < NumberOfParticles; pIndex++){
 
@@ -199,7 +199,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
             float shieldedFraction = 0, dynamicalTime = 0, freeFallTime = 0;
             bool gridShouldFormStars = true, notEnoughMetals=false;
             float zFraction = totalMetal[index];
-            if (ParticleMass[pIndex]*MassUnits < StarMakerMaximumMass){
+            if (ParticleMass[pIndex]*MassUnits < StarMakerMaximumMass && ProblemType != 90){
                 int createStar = checkCreationCriteria(BaryonField[DensNum],
                         &zFraction, Temperature, DMField,
                         BaryonField[Vel1Num], BaryonField[Vel2Num],
@@ -212,7 +212,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
                     float MassShouldForm =min((shieldedFraction * BaryonField[DensNum][index]
                                         * MassUnits / freeFallTime * this->dtFixed*TimeUnits/3.1557e13),
                                         0.5*BaryonField[DensNum][index]*MassUnits);
-                    printf("Adding new mass %e\n",MassShouldForm);
+                    //printf("Adding new mass %e\n",MassShouldForm);
                     /* Dont allow negative mass, or taking all gas in cell */
                     if (MassShouldForm < 0 )
                         MassShouldForm = 0;
@@ -230,24 +230,26 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
                         ParticleAttribute[2][pIndex] = (ParticleAttribute[2][pIndex]*ParticleMass[pIndex]+zFraction*MassShouldForm)/
                                                 (ParticleMass[pIndex] + MassShouldForm); 
                         // update mass-weighted age of star particle
-                        if (age > 3.5) // only update if particle is old enough for SNe
-                            ParticleAttribute[0][pIndex] = (ParticleAttribute[0][pIndex]*(1.-delta)+Time*delta);
+                        // if (age > 3.5) // only update if particle is old enough for SNe
+                        //     ParticleAttribute[0][pIndex] = (ParticleAttribute[0][pIndex]*(1.-delta)+Time*delta);
                         /* Add new formation mass to particle */
-                        ParticleMass[pIndex] += MassShouldForm;   
-                        printf("[%f] added new mass %e + %e = %e newZ = %f newAge = %f\n", 
-                            Time*TimeUnits/3.1557e13, (ParticleMass[pIndex]-MassShouldForm)*MassUnits, 
-                            MassShouldForm*MassUnits, ParticleMass[pIndex]*MassUnits,
-                            ParticleAttribute[2][pIndex],(Time- ParticleAttribute[0][pIndex])*TimeUnits/3.1557e13);
-                        
-                        /* Take formed mass out of grid cell */
-                        
-                        BaryonField[DensNum][index] -= MassShouldForm;
-                        
-                        /* Take metals out of host cell too! */
+                        if (MassShouldForm < 0.5*BaryonField[DensNum][index]){
+                            ParticleMass[pIndex] += MassShouldForm;   
+                            printf("[%f] added new mass %e + %e = %e newZ = %f newAge = %f\n", 
+                                Time*TimeUnits/3.1557e13, (ParticleMass[pIndex]-MassShouldForm)*MassUnits, 
+                                MassShouldForm*MassUnits, ParticleMass[pIndex]*MassUnits,
+                                ParticleAttribute[2][pIndex],(Time- ParticleAttribute[0][pIndex])*TimeUnits/3.1557e13);
+                            
+                            /* Take formed mass out of grid cell */
+                            
+                            BaryonField[DensNum][index] -= MassShouldForm;
+                            
+                            /* Take metals out of host cell too! */
 
-                        BaryonField[MetalNum][index] -= BaryonField[MetalNum][index]/BaryonField[DensNum][index]*MassShouldForm;
-                        if (MechStarsSeedField)
-                            BaryonField[SNColourNum][index] -= BaryonField[SNColourNum][index]/BaryonField[DensNum][index]*MassShouldForm;             
+                            BaryonField[MetalNum][index] -= BaryonField[MetalNum][index]/BaryonField[DensNum][index]*MassShouldForm;
+                            if (MechStarsSeedField)
+                                BaryonField[SNColourNum][index] -= BaryonField[SNColourNum][index]/BaryonField[DensNum][index]*MassShouldForm;             
+                        }
                     }
                 }
             }
@@ -265,27 +267,23 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
                             TimeUnits, dtFixed);
                 numSN += nSNII+nSNIA;
 		        if ((nSNII > 0 || nSNIA > 0) && debug)
-                    fprintf(stdout,"SUPERNOVAE!!!! %d %d level = %d\n", nSNII, nSNIA, level);
+                    fprintf(stdout,"SUPERNOVAE!!!! %d %d level = %d age = %f\n", nSNII, nSNIA, level, age);
                 if (nSNII > 0 || nSNIA > 0){
                     /* set feedback qtys based on number and types of events */
                         /* 1e51 erg per sn */
-                    ParticleAttribute[1][pIndex] += nSNII + nSNIA;
                     float energySN = (nSNII + nSNIA)*1e51;
 
                         /*10.5 Msun ejecta for type II and IA*/
                     SNMassEjected = (nSNII+nSNIA)*10.5;
-                        /* Metal yeilds from starburst 99 */
                     float starMetal = (ParticleAttribute[2][pIndex]/0.02); //determines metal content of SNeII
-                    // if (StarMakerTypeIISNeMetalField)
-                    //     starMetal += ParticleAttribute[4][pIndex]/0.02;
-                    /* Couple these in the deposit routine */
-                    // SNMetalEjected = nSNII*(1.91+0.0479*max(zZsun, 1.65));
-                    // SNMetalEjected += nSNIA*(1.4); // this metal should get coupled to SNIA field if its being used
+
                     MechStars_DepositFeedback(energySN, SNMassEjected, SNMetalEjected, totalMetal, Temperature,
                                 &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
                                 &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
                                 ip, jp, kp, size, mu_field, 0, nSNII, nSNIA, starMetal, 0);
-                    ParticleAttribute[1][pIndex] += nSNII+nSNIA;
+                    // can only track number of events in dynamical time if not using it to determine lifetime
+                    if (!StarParticleRadiativeFeedback)
+                        ParticleAttribute[1][pIndex] += nSNII+nSNIA;
                 }
             }
 
@@ -315,12 +313,14 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
 
             }
             if (windMass > 0.0 || SNMassEjected > 0){
-                //if (debug) printf("Subtracting off mass %e\n",(windMass+SNMassEjected));
                 ParticleMass[pIndex] -= (windMass+SNMassEjected)/MassUnits;
             }
+            /* if these stars are used in conjunction with FLDImplicit or FLDSplit.  This 
+                functionality has not been verified
+            */
             if (StarMakerEmissivityField){
                 MechStars_depositEmissivityField(index, CellWidth[0][0], BaryonField[EmisNum], 
-                                                age, ParticleMass[pIndex]*MassUnits);
+                                                age, ParticleMass[pIndex]*MassUnits, TimeUnits, dtFixed);
             }
             // printf("Post-feedback MP = %e\n", ParticleMass[pIndex]*MassUnits);
         }

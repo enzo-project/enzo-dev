@@ -157,7 +157,10 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                     dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5);
                     // fprintf(stdout, "DynamicalTime = %e\n", dynamicalTime);
                     ParticleArray->ParticleMass[nCreated] = newMass;
-                    ParticleArray->ParticleAttribute[1][nCreated] = 0.0; // Tracking SNE in TDP field dynamicalTime/TimeUnits;
+                    if (StarParticleRadiativeFeedback)
+                        ParticleArray->ParticleAttribute[1][nCreated] = huge_number; // need infinite lifetime for radiative feedback i think?
+                    else
+                        ParticleArray->ParticleAttribute[1][nCreated] = 0.0; // Tracking SNE in TDP field dynamicalTime/TimeUnits;
                     ParticleArray->ParticleAttribute[0][nCreated] = Time;
 
                     ParticleArray->ParticleAttribute[2][nCreated] = totalMetal[index]

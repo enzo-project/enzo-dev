@@ -60,31 +60,8 @@ int MechStars_calcPhotonRates(Star* star, const float Time)
             Psi_fuv = 572.*pow(age/3.4, -1.5);
         }
         // convert to better units
-        Psi_ion *= star->ReturnMass(); // L_sun
+        //Psi_ion *= star->ReturnMass(); // L_sun
         return Psi_ion;
-        // Psi_ion *= LsunToErg/TimeUnits*dt; // erg/code_time
-        // /* 
-        //     assuming all those photons are in the HI ionization range, the number
-        //     of photons is 
-        //  */
-        // float NGammaDot = Psi_ion / h_nu0;
-        
-
-        // /*
-        //     Select spectrum scaling based on parameters 
-        //     (probably just HI radiation for now)
-        //     This routine only works with HI radiation for now, as the 
-        //     rest of the rates would require another Starburst99 sim to get
-        //  */
-        // if (MechStarsRadiationSpectrum != -1){
-        //     ENZO_FAIL("MechStars only implemented for RadHydroESpectrum = -1\n");
-        // }
-        // const float specconst = 1.0;    
-        
-        // /*
-        //     Apply selected to Emissivity0 in the form of etaconst.  
-        //  */
-        // emissivity0[index] += pow(cellwidth, 3.0)*specconst*NGammaDot*h_nu0;
 
         return SUCCESS;
 }

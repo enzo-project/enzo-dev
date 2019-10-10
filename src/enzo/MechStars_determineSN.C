@@ -57,6 +57,7 @@ int determineSN(float age, int* nSNII, int* nSNIA,
         /* rates -> probabilities */
         if (RII > 0){
             srand(seed);
+        // printf("Zcpl = %e", zCouple);
             PII = RII * massMsun / 3.1557e13 *TimeUnits*dt;
             // printf("PII =%f\n %f %e %f\n", PII, RII, massMsun, age);
             random = float(rand())/float(RAND_MAX);
