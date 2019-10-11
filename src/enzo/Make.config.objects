@@ -742,6 +742,8 @@ OBJS_CONFIG_LIB = \
         MechStars_determineSN.o\
         MechStars_determineWinds.o\
         MechStars_transformComovingWithStar.o\
+        MechStars_depositEmissivity.o\
+        MechStars_calcPhotonRates.o\
         MemoryAllocationRoutines.o \
 	MemoryPoolRoutines.o \
 	MersenneTwister.o \
