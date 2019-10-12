@@ -127,6 +127,9 @@ int grid::ComputePressure(FLOAT time, float *pressure,
 	      + pow(BaryonField[B2Num][i],2)
 	      + pow(BaryonField[B3Num][i],2);
 	    BaryonField[TENum][i] += OneHalf * B2 / density;
+
+	    if (CRModel)
+	      BaryonField[TENum][i] += BaryonField[CRNum][i] / density;
 	  }
 	
 	} else { 
@@ -141,6 +144,9 @@ int grid::ComputePressure(FLOAT time, float *pressure,
 	        + pow(BaryonField[B2Num][i],2)
 	        + pow(BaryonField[B3Num][i],2);
 	      gas_energy -= OneHalf * B2 / density;
+	 
+	      if (CRModel)
+		gas_energy -=  BaryonField[CRNum][i] / density;
 	    }
 	  } else {
 	    gas_energy = BaryonField[GENum][i];
@@ -205,6 +211,8 @@ int grid::ComputePressure(FLOAT time, float *pressure,
 	    float B2 = pow(BaryonField[B1Num][i],2) 
 	      + pow(BaryonField[B2Num][i],2) + pow(BaryonField[B3Num][i],2);
 	    BaryonField[TENum][i] += OneHalf * B2 / density;
+	    if (CRModel)
+	      BaryonField[TENum][i] +=  BaryonField[CRNum][i] / density;
 	  }
 	  
 	} else {
@@ -219,6 +227,8 @@ int grid::ComputePressure(FLOAT time, float *pressure,
 	      float B2 = pow(BaryonField[B1Num][i],2) 
 	        + pow(BaryonField[B2Num][i],2) + pow(BaryonField[B3Num][i],2);
 	      gas_energy -= OneHalf * B2 / density;
+	      if (CRModel)
+		gas_energy -= BaryonField[CRNum][i] / density;
 	    }
 	  } else {
 	    gas_energy =  coef * BaryonField[GENum][i]

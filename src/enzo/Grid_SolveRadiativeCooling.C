@@ -111,7 +111,7 @@ int grid::SolveRadiativeCooling()
  
   /* Declarations */
  
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num, CRNum;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
   FLOAT a = 1.0, dadt;
@@ -128,7 +128,10 @@ int grid::SolveRadiativeCooling()
 				       Vel3Num, TENum, B1Num, B2Num, B3Num ) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
- 
+  if (CRModel) {
+    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+      ENZO_FAIL("Cannot Find Cosmic Rays");
+  }
   /* Find Multi-species fields. */
  
   DeNum = HINum = HIINum = HeINum = HeIINum = HeIIINum = HMNum = H2INum = 
@@ -163,6 +166,8 @@ int grid::SolveRadiativeCooling()
     for (int n=0; n<size; n++) {
       B2 = pow(BaryonField[B1Num][n],2) + pow(BaryonField[B2Num][n],2) + pow(BaryonField[B3Num][n],2);
       totalenergy[n] = BaryonField[TENum][n] - 0.5*B2/BaryonField[DensNum][n];
+      if (CRModel)
+	  totalenergy[n] -= BaryonField[CRNum][n]/BaryonField[DensNum][n];
     }
   }
   else {
@@ -362,6 +367,9 @@ int grid::SolveRadiativeCooling()
 	v2 = pow(BaryonField[Vel1Num][n],2) + 
 	  pow(BaryonField[Vel2Num][n],2) + pow(BaryonField[Vel3Num][n],2);
 	BaryonField[TENum][n] = gasenergy[n] + 0.5*v2 + 0.5*B2/BaryonField[DensNum][n];
+
+	if(CRModel)
+	  BaryonField[TENum][n] += BaryonField[CRNum][n]/ BaryonField[DensNum][n];
       }
       else {
 	BaryonField[TENum][n] = totalenergy[n] + 0.5*B2/BaryonField[DensNum][n];

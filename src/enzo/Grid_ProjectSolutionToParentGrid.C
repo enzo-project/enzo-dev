@@ -102,10 +102,14 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
  
   /* Find fields: density, total energy, velocity1-3. */
  
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, CRNum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     ENZO_FAIL("Error in grid->IdentifyPhysicalQuantities.\n");
+  }
+  if (CRModel) {
+    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+      ENZO_FAIL("Cannot Find Cosmic Rays");
   }
  
   /* Compute the ratio Volume[ThisGridCell]/Volume[ParentCell]. */
@@ -444,7 +448,13 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
       	         pow(ParentGrid.BaryonField[B2Num][i1],2) +
 	         pow(ParentGrid.BaryonField[B3Num][i1],2);
 	    ParentGrid.BaryonField[TENum][i1] += 
-	      0.5 * B2 / ParentGrid.BaryonField[DensNum][i1];  
+	      0.5 * B2 / ParentGrid.BaryonField[DensNum][i1]; 
+	  }
+	} 
+	if (CRModel){
+	  i1 = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
+	  for (i = ParentStartIndex[0]; i <= ParentEndIndex[0]; i++, i1++){
+	    ParentGrid.BaryonField[TENum][i1] += ParentGrid.BaryonField[CRNum][i1] / ParentGrid.BaryonField[DensNum][i1];
 	  }
 	}
 

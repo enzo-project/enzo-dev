@@ -91,10 +91,15 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
  
     /* Find fields: density, total energy, velocity1-3. */
  
-    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
+    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, CRNum;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 					 Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
             ENZO_FAIL("Error in grid->IdentifyPhysicalQuantities.");
+    }
+
+    if (CRModel) {
+      if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+        ENZO_FAIL("Cannot Find Cosmic Rays");
     }
 
     //dcc kludge:  Just remove a(t)? 09/06/05 
@@ -840,7 +845,10 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      POW(BaryonField[B3Num][i2],2);
 		    BaryonField[TENum][i2] += 0.5 * B2 / BaryonField[DensNum][i2];
 		  }
-
+                  if (CRModel){
+		    BaryonField[TENum][i1] += BaryonField[CRNum][i1] / BaryonField[DensNum][i1];
+		    BaryonField[TENum][i2] += BaryonField[CRNum][i2] / BaryonField[DensNum][i2];
+                  }
 		
 		}		
 	      } // end: loop over faces
