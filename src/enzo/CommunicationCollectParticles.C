@@ -109,7 +109,8 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
   ActiveParticleList<ActiveParticleType> APSendList;
   ActiveParticleList<ActiveParticleType> APSharedList;
 
-  int NumberOfReceives, APNumberOfReceives, StarNumberOfReceives, TotalNumber, TotalStars, APTotalNumber;
+  int NumberOfReceives, APNumberOfReceives, StarNumberOfReceives,
+      TotalNumber, TotalStars, APTotalNumber;
   int *NumberToMove = new int[NumberOfProcessors];
   int *StarsToMove = new int[NumberOfProcessors];
   int *APNumberToMove = new int[NumberOfProcessors];
@@ -194,7 +195,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
         if (MoveStars)
           GridHierarchyPointer[j]->GridData->TransferSubgridStars
             (SubgridPointers, NumberOfSubgrids, StarsToMove, Zero, Zero, 
-             StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT);
+             StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, TRUE);
         
         GridHierarchyPointer[j]->GridData->TransferSubgridActiveParticles
           (SubgridPointers, NumberOfSubgrids, APNumberToMove, Zero, Zero,
@@ -215,13 +216,10 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     TotalStars = 0;
     for (j = 0; j < NumberOfProcessors; j++) {
       TotalNumber += NumberToMove[j];
-
       TotalStars += StarsToMove[j];
-      NumberToMove[j] = 0;  // Zero-out to use in the next step
-      StarsToMove[j] = 0;  // Zero-out to use in the next step
-
       APTotalNumber += APNumberToMove[j];
       NumberToMove[j] = 0;  // Zero-out to use in the next step
+      StarsToMove[j] = 0;  // Zero-out to use in the next step
       APNumberToMove[j] = 0;
     }
     SendList = new particle_data[TotalNumber];

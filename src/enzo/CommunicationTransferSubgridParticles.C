@@ -177,18 +177,13 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 
   TotalNumber = 0;
   TotalStars = 0;
-  for (j = 0; j < NumberOfProcessors; j++) {
-    TotalNumber += NumberToMove[j];
-    TotalStars += StarsToMove[j];
-    NumberToMove[j] = 0;  // Zero-out to use in the next step
-    StarsToMove[j] = 0;  // Zero-out to use in the next step
-  }
-
   APTotalNumber = 0;
   for (j = 0; j < NumberOfProcessors; j++) {
     TotalNumber += NumberToMove[j];
+    TotalStars += StarsToMove[j];
     APTotalNumber += APNumberToMove[j];
     NumberToMove[j] = 0;  // Zero-out to use in the next step
+    StarsToMove[j] = 0;  // Zero-out to use in the next step
     APNumberToMove[j] = 0;
   }
   SendList = new particle_data[TotalNumber];
