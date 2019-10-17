@@ -184,9 +184,10 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
 
   if (NumberOfNewParticles > 0) {
     this->NumberOfParticles = NumberOfNewParticles;
-  } else if (ChemicalEvolutionTestNumberOfStars > 0) {
-    ENZO_FAIL("Was not able to deposit stars in chemical evolution test\n");
-  } // end: if (NumberOfNewParticles > 0)
+  }
+//  } else if (ChemicalEvolutionTestNumberOfStars > 0) {
+//    ENZO_FAIL("Was not able to deposit stars in chemical evolution test\n");
+//  } // end: if (NumberOfNewParticles > 0)
 
 
 
