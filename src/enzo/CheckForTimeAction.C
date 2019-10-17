@@ -290,7 +290,9 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
               } // end if on grid
 
-            } else if (IndividualStarICSupernovaInjectionMethod == 2){ // Simpson et. al. thermal + kinetic
+            } 
+/*
+ else if (IndividualStarICSupernovaInjectionMethod == 2){ // Simpson et. al. thermal + kinetic
 
               if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(SNPosition,
                                                                            IndividualStarFeedbackStencilSize*2,
@@ -316,6 +318,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
               } // if on grid
 
             } // feedback injection method
+*/
 
             Temp = Temp->NextGridThisLevel;
           } // end while
