@@ -2591,7 +2591,7 @@ void AddFeedbackToGridCells(float *pu, float *pv, float *pw,
 }
 
 
-int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, int mode){
+int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, const int mode){
 
 /*
      General function to add feedback for a given star in a spherical region
@@ -2609,8 +2609,8 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, int mode){
 
   float m_eject, E_thermal;
 
-  float mproj = cstar->ReturnBirthMass();
-  float lifetime = cstar->ReturnLifetime();
+  const float mproj = cstar->ReturnBirthMass();
+  const float lifetime = cstar->ReturnLifetime();
 
   const double msolar = 1.989E33;
 
@@ -2708,9 +2708,9 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, int mode){
 }
 
 int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
-                                                FLOAT xp, FLOAT yp, FLOAT zp,
-                                                float m_eject, float E_thermal,
-                                                float *metal_mass, int stellar_wind_mode){
+                                                const FLOAT xp, const FLOAT yp, const FLOAT zp,
+                                                const float m_eject, const float E_thermal,
+                                                const float *metal_mass, const int stellar_wind_mode){
 
   float dx = float(this->CellWidth[0][0]); // for convenience
 
@@ -2763,27 +2763,24 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         ystart = this->CellLeftEdge[1][0],
         zstart = this->CellLeftEdge[2][0];
 
-  int nx = *(this->GridDimension), ny = *(this->GridDimension+1), nz = *(this->GridDimension+2);
-  int size = nx*ny*nz;
-  int number_of_cells;
-
-  float xpos, ypos, zpos;
-  int ic, jc, kc;
+  const int nx = *(this->GridDimension), ny = *(this->GridDimension+1), nz = *(this->GridDimension+2);
+  const int size = nx*ny*nz;
 
   //
   // find position and index for grid zone
   // nearest to particle
   //
-  xpos = (xp - xstart)/dx;
-  ypos = (yp - ystart)/dx;
-  zpos = (zp - zstart)/dx;
+  const float xpos = (xp - xstart)/dx;
+  const float ypos = (yp - ystart)/dx;
+  const float zpos = (zp - zstart)/dx;
 
-  ic   = ((int) floor(xpos ));
-  jc   = ((int) floor(ypos ));
-  kc   = ((int) floor(zpos ));
+  const int ic   = ((int) floor(xpos ));
+  const int jc   = ((int) floor(ypos ));
+  const int kc   = ((int) floor(zpos ));
 
   float * temperature;
   temperature = new float[size];
+
 
   if(  this->ComputeTemperatureField(temperature) == FAIL ){
     ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
@@ -2794,10 +2791,10 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   // now move outward from particle computing
   // fractional volume to inject
   //
-  float radius = IndividualStarFeedbackStencilSize * dx;    // code length
-  float volume = 4.0 * pi * radius * radius * radius / 3.0; // (code length)**3
-  int   r_int  = ceil(IndividualStarFeedbackStencilSize);     // int of farthest cell in any dir.
-  float cell_volume_fraction = dx*dx*dx / volume;           // fraction of vol for each cell
+  const float radius = IndividualStarFeedbackStencilSize * dx;    // code length
+  const float volume = 4.0 * pi * radius * radius * radius / 3.0; // (code length)**3
+  const int   r_int  = ceil(IndividualStarFeedbackStencilSize);     // int of farthest cell in any dir.
+  const float cell_volume_fraction = dx*dx*dx / volume;           // fraction of vol for each cell
 
   float injected_metal_mass[StellarYieldsNumberOfSpecies+1];
 
@@ -2815,8 +2812,11 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
   // loop over cells, compute fractional volume, inject feedback
   for(int k = kc - r_int; k <= kc + r_int; k++){
+    if ( (k<0) || (k>=nz) ) continue;
     for(int j = jc - r_int; j <= jc + r_int; j++){
+      if ( (j<0) || (j>=ny) ) continue;
       for(int i = ic - r_int; i <= ic + r_int; i++){
+        if ( (i<0) || (i>=nx) ) continue;
 
         int index = i + (j + k*ny)*nx;
         float fractional_overlap = 1.0;
@@ -2962,8 +2962,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   if (IndividualStarPrintSNStats && (!stellar_wind_mode) && (cstar || metal_mass)){
     // Column order: Grid ID, Particle ID, M_now, M_eject, Sphere Volume
 
-    float average_metallicity;
-
     average_density_on_grid = total_grid_mass / (1.0 * cells_this_grid); // Sum Density / # cells
 
     /* convert to CGS */
@@ -2971,23 +2969,23 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
     total_mass_injected     *= dx*dx*dx * MassUnits;
     total_energy_injected   *= dx*dx*dx * EnergyUnits;
     total_metal_mass        *= dx*dx*dx * MassUnits;
-    volume                  /= (LengthUnits * LengthUnits * LengthUnits);
+    const float volume_cgs   = volume / (LengthUnits * LengthUnits * LengthUnits);
     max_density_on_grid     *= DensityUnits;
     average_density_on_grid *= DensityUnits;
-    m_eject                 *= dx*dx*dx * MassUnits;
-    average_metallicity      = total_metal_mass / (total_mass_injected + total_grid_mass);
+    const float m_eject_cgs  = m_eject * dx*dx*dx * MassUnits;
+    const float average_metallicity      = total_metal_mass / (total_mass_injected + total_grid_mass);
 
     /* compute Sedov-Taylor phase radius (R_dps) */
 
     if (cstar){
       printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
-            this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), m_eject,
-            cells_this_grid, volume, total_volume_fraction, total_mass_injected, total_energy_injected,
+            this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), m_eject_cgs,
+            cells_this_grid, volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
             total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
     } else {
       printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
-            this->ID, -1.0, this->Time, -1.0, -1.0, -1.0, m_eject,
-            cells_this_grid, volume, total_volume_fraction, total_mass_injected, total_energy_injected,
+            this->ID, -1.0, this->Time, -1.0, -1.0, -1.0, m_eject_cgs,
+            cells_this_grid, volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
             total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
 
     }
