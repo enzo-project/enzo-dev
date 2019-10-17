@@ -49,8 +49,6 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   float HeI_ionizing_energy = 24.5874; // eV
   float R;
 
-  int *se_table_position, *rad_table_position;
-
   if ( (ABS(this->type) == IndividualStar) || (ABS(this->type) == IndividualStarPopIII)){
     _mass = this->BirthMass;
   } else if (this->Mass < 0.1){  // Not "born" yet
