@@ -30,6 +30,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
@@ -180,10 +181,6 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
    * ---------------------------------------------------------------------------------------------------------
    */
 
-  const double m_e = 9.109E-28; // in g
-  const double m_h = 1.673E-24; // in g
-  const double pi  = 3.14159265358979;
-  const double c_light = 2.99792458E10; // cgs
   const double H2ISigma = 3.71e-18;
   const double LW_energy = 12.8 / 6.241509E11; // LW band energy in erg
   float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, TimeUnits, EnergyUnits, MassUnits;
@@ -360,7 +357,7 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
 
             float speed = (sqrt(rsqr) * LengthUnits) / ((this->Time - ts_star[sp]) * TimeUnits);
 
-            if ( speed <= c_light ){
+            if ( speed <= clight ){
                     local_fuv_flux += L_fuv_star[sp] / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
                     local_lw_flux  += L_lw_star[sp]  / (4.0 * pi * rsqr * LengthUnits * LengthUnits);
             }
@@ -378,9 +375,9 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
             }
 
 
-            n_H *= DensityUnits / m_h;
+            n_H *= DensityUnits / mh;
 
-            n_e  = this->BaryonField[ElectronNum][index] * DensityUnits / m_e;
+            n_e  = this->BaryonField[ElectronNum][index] * DensityUnits / me;
 
             Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
@@ -570,8 +567,6 @@ void grid::ZeroPhotoelectricHeatingField(void){
 
   //if(UseUVBackgroundFUVRate){
   if (TRUE){
-    const double m_e = 9.109E-28; // in g
-    const double m_h = 1.673E-24; // in g
 
     // ---- get units ------
     float TemperatureUnits, DensityUnits, LengthUnits,
@@ -641,9 +636,9 @@ void grid::ZeroPhotoelectricHeatingField(void){
         }
 
 
-        n_H *= DensityUnits / m_h;
+        n_H *= DensityUnits / mh;
 
-        n_e  = this->BaryonField[ElectronNum][i] * DensityUnits / m_e;
+        n_e  = this->BaryonField[ElectronNum][i] * DensityUnits / me;
 
         Z    = this->BaryonField[MetalNum][i] / this->BaryonField[DensNum][i]; // metal dens / dens
 

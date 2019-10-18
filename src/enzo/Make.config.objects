@@ -1156,6 +1156,7 @@ POBJS_CONFIG_LIB = \
 	RadiativeTransferIR.o \
 	RadiativeTransferIonization.o \
 	RadiativeTransferXRays.o \
+        RadiativeTransferFUVPEHeating.o \
         ReadPhotonSources.o \
         ReadRadiativeTransferSpectrumTable.o \
         ReassignSuperSources.o \

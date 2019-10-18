@@ -7,7 +7,7 @@
 /
 /  written by: John Regan - based on the previous work of John Wise
 /  date:     September 2014
-/  modified1: 
+/  modified1:
 /
 /  PURPOSE: Calculate the dissociation rate due to Lyman Werner radiation
 /
@@ -24,9 +24,12 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
-int grid::RadiativeTransferLW(PhotonPackageEntry **PP, FLOAT &dPLW, int cellindex, 
-			      float tau, FLOAT photonrate, 
+int FindField(int f, int farray[], int n);
+
+int grid::RadiativeTransferLW(PhotonPackageEntry **PP, FLOAT &dPLW, int cellindex,
+			      float tau, FLOAT photonrate,
 			      float geo_correction, int kdissH2INum)
 {
   // at most use all photons for photo-ionizations
@@ -36,15 +39,29 @@ int grid::RadiativeTransferLW(PhotonPackageEntry **PP, FLOAT &dPLW, int cellinde
     dPLW = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
   else //Optically thin case
     dPLW = min((*PP)->Photons*tau, (*PP)->Photons);
-  
-  //dPLW is the number of absorptions due to H2I 
+
+  //dPLW is the number of absorptions due to H2I
   dPLW = dPLW * geo_correction;
-  
+
   // contributions to the photoionization rate is over whole timestep
   // Units = (1/CodeTime)*(1/LengthUnits^3)
-  // BaryonField[kdissH2INum] needs to be normalised - see 
+  // BaryonField[kdissH2INum] needs to be normalised - see
   // Grid_FinalizeRadiationFields.C
   BaryonField[kdissH2INum][cellindex] += dPLW*photonrate;
- 
+
+
+  /// AJE Add leftover photons to PE flux bin:
+  ///   simplify these ifs in the future:
+  if ( (!RadiativeTransferOpticallyThinFUV) &&
+       (IndividualStarFUVHeating)
+     ){
+       const int FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
+       const FLOAT dx2 = this->CellWidth[0][0] * this->CellWidth[0][0];
+       const double LW_energy = 11.2 * eV_erg;
+       // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
+       BaryonField[FUVRateNum][cellindex] +=
+                         ((*PP)->Photons - dPLW)*photonrate*LW_energy/(4.0*pi*dx2);
+  }
+
   return SUCCESS;
 }

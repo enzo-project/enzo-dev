@@ -56,7 +56,7 @@
 int SplitPhotonPackage(PhotonPackageEntry *PP);
 FLOAT FindCrossSection(int type, float energy);
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
-static void CalculateCrossSection(PhotonPackageEntry **PP, FLOAT *sigma, float LengthUnits, 
+static void CalculateCrossSection(PhotonPackageEntry **PP, FLOAT *sigma, float LengthUnits,
 				  float &nSecondaryHII, float &nSecondaryHeII);
 static void ResetdPi(FLOAT *dPi);
 
@@ -64,9 +64,11 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-int grid::WalkPhotonPackage(PhotonPackageEntry **PP, 
-			    grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid, 
-			    grid **Grids0, int nGrids0, int &DeleteMe, 
+float NormalizedDustToGasRatio(const float &Z);
+
+int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
+			    grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid,
+			    grid **Grids0, int nGrids0, int &DeleteMe,
 			    int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 			    float LightSpeed, int level, float MinimumPhotonFlux) {
 
@@ -76,7 +78,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
   int i, index, dim, splitMe, direction;
-  int keep_walking, count, H2Thin, TemperatureField; 
+  int keep_walking, count, H2Thin, TemperatureField;
   int type = (*PP)->Type;
   int g[3], celli[3], u_dir[3], u_sign[3];
   int cindex;
@@ -113,7 +115,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	    (*PP), (*PP)->PreviousPackage, PhotonPackages)
   }
   /* Get units. */
-  float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
+  float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits,
     DensityUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
@@ -133,7 +135,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   /* Convert escape fraction radius into code units */
 
   for (i = 0; i < 3; i++)
-    PhotonEscapeRadius[i] = EscapeRadiusFractions[i] * 
+    PhotonEscapeRadius[i] = EscapeRadiusFractions[i] *
       RadiativeTransferPhotonEscapeRadius * (kpc_cm / LengthUnits);
 
   // speed of light in code units. note this one is independent of a(t)
@@ -143,8 +145,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   /* Calculate the normal direction (HEALPix) */
   pix2vec_nest64((int64_t) (1 << (*PP)->level), (*PP)->ipix, dir_vec);
 
-  if (DEBUG) 
-    fprintf(stderr,"grid::WalkPhotonPackage: %"GSYM" %"GSYM" %"GSYM". \n", 
+  if (DEBUG)
+    fprintf(stderr,"grid::WalkPhotonPackage: %"GSYM" %"GSYM" %"GSYM". \n",
 	    dir_vec[0], dir_vec[1], dir_vec[2]);
 
   /***********************************************************************/
@@ -169,7 +171,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     r[dim] = s[dim] + (*PP)->Radius * u[dim]; // Ray position
 
     // Current cell in integer and floating point
-    g[dim] = GridStartIndex[dim] + 
+    g[dim] = GridStartIndex[dim] +
       nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
 
     /* Check whether photon is inside the ghost zones.  They can exist
@@ -196,13 +198,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
   if (SubgridMarker[cindex] != this) {
     FindPhotonNewGrid(cindex, r, u, g, *PP, *MoveToGrid,
-		      DeltaLevel, DomainWidth, DeleteMe, 
+		      DeltaLevel, DomainWidth, DeleteMe,
 		      ParentGrid);
     return SUCCESS;
   }
 
   /* Compute the photon distance that corresponds to a distance =
-     R_merge away from the super source. 
+     R_merge away from the super source.
      | (PauseRadius * dir_vec) + (vector_between_source_and_super) | = R_merge
      solve for PauseRadius, which results in a quadratic equation.
 
@@ -237,9 +239,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float nSecondaryHII = 1, nSecondaryHeII = 1;
   float xx, heat_factor = 1.0;
   float ion2_factor[] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
- 
+
   CalculateCrossSection(PP, sigma, LengthUnits, nSecondaryHII, nSecondaryHeII);  //sigma in cm^2 * LengthUnits
-  
+
   MinTauIfront = MIN_TAU_IFRONT / (sigma[type] / LengthUnits);  // absorb sigma
   tau_delete = TAU_DELETE_PHOTON / (sigma[type] / LengthUnits); // and make dimensions cm^-2
 
@@ -252,7 +254,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   if(n_on_this_level <= 0.0  || omega_package == INFINITY)  {
     fprintf(stdout, "%s: level = %llu\n", __FUNCTION__, level);
     fprintf(stdout, "%s: 2*(*PP)->level-1 = %llu\n", __FUNCTION__, res*(*PP)->level-1);
-    fprintf(stdout, "%s: 12 * (1 << (2*(*PP)->level)) = %llu\n", __FUNCTION__, 
+    fprintf(stdout, "%s: 12 * (1 << (2*(*PP)->level)) = %llu\n", __FUNCTION__,
 	    BRP * (1L << (res*(*PP)->level)));
     fprintf(stdout, "%s: Hlevel = %llu\n", __FUNCTION__, Hlevel);
     fprintf(stdout, "%s: Nlevel = %llu\n", __FUNCTION__, Nlevel);
@@ -260,16 +262,16 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     ENZO_VFAIL("Computation of the number of pixels failed.\n"
 	       "\t level = %llu\n", (*PP)->level);
   }
- 
+
   if (RadiativeTransferAdaptiveTimestep)
     EndTime = PhotonTime + LightCrossingTime;
   else
     EndTime = PhotonTime + dtPhoton;
-  
+
   /* Find fields: density, total energy, velocity1-3. */
 
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
@@ -278,10 +280,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     DINum, DIINum, HDINum;
   IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 			HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
-  
+
   /* Find radiative transfer fields. */
   int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
-  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
 				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
   const int kphNum[] = {kphHINum, kphHeINum, kphHeIINum};  //MultiSpecies = 1
   /* Find the pressure fields */
@@ -299,6 +301,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 		       BaryonField[HIINum],                                 //HII  = 4
 		       (MultiSpecies > 1) ? BaryonField[HMNum]   : NULL,    //HM   = 5
 		       (MultiSpecies > 1) ? BaryonField[H2IINum] : NULL};   //H2II = 6
+  // no fields for FUV
 
   /* Pre-compute some quantities to speed things up */
 
@@ -306,6 +309,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   if(RadiativeTransferH2ShieldType == 1) {
     TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
   }
+
+  int MetalNum = -1;
+	if(IndividualStarFUVHeating && !(RadiativeTransferOpticallyThinFUV)){
+		MetalNum = this->FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
+	}
 
   dx = CellWidth[0][0];
   dx2 = dx*dx;
@@ -318,16 +326,16 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT emission_dt_inv = 1.0 / (*PP)->EmissionTimeInterval;
   FLOAT factor1 = emission_dt_inv;
   FLOAT ExcessEnergyfactor[5]; //Includes iHI, iHeI, iHeII, LW & IR
-   
+
   /* For X-ray photons, we do heating and ionization for HI/HeI/HeII
      in one shot; see Table 2 of Shull & van Steenberg (1985) */
   if ((*PP)->Type == XRAYS) {
-    for (i = 0; i < 3; i++) //Loop over IONISING_HI -> IONISING_HeII 
+    for (i = 0; i < 3; i++) //Loop over IONISING_HI -> IONISING_HeII
       if (RadiationXRaySecondaryIon)
 	ExcessEnergyfactor[i] = factor1 * (*PP)->Energy;
       else
 	ExcessEnergyfactor[i] = factor1 * ((*PP)->Energy - EnergyThresholds[i]);
-    if (RadiationXRayComptonHeating) 
+    if (RadiationXRayComptonHeating)
       TemperatureField = this->GetTemperatureFieldNumberForComptonHeating();
   }
   else if ((*PP)->Type != TRACINGSPECTRUM) {
@@ -364,7 +372,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      actually calculate acceleration due to radiation pressure, (all
      unit conversions are in []),
 
-     dA = dMomentum * emission_dt_inv / Mass 
+     dA = dMomentum * emission_dt_inv / Mass
         = (N_absorbed * Energy / c) * emission_dt_inv / (CellVolume * Density) * r_hat
      ---  N_absorbed = dP * [L^3] / [t]
      dA = (dP * [L^3] / [t] * Energy / c) * emission_dt_inv / (CellVolume * Density) * r_hat
@@ -408,7 +416,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     if (SubgridMarker[cindex] != this) {
       FindPhotonNewGrid(cindex, r, u, g, *PP, *MoveToGrid,
-			DeltaLevel, DomainWidth, DeleteMe, 
+			DeltaLevel, DomainWidth, DeleteMe,
 			ParentGrid);
       break;
     }
@@ -431,7 +439,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     oldr = (*PP)->Radius;
     min_dr = 1e20;
-       
+
     /****** next cell edge crossing radii ******/
 
     // This and the next cell edge
@@ -478,13 +486,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     solid_angle = radius * radius * omega_package;
     splitMe = (solid_angle > SplitCriteron);
 
-    if (splitMe && radius < SplitWithinRadius && 
+    if (splitMe && radius < SplitWithinRadius &&
 	(*PP)->level < MAX_HEALPIX_LEVEL) {
 
       // split the package
       int return_value = SplitPhotonPackage((*PP));
 
-      // discontinue parent ray 
+      // discontinue parent ray
       (*PP)->Photons = -1;
 
       DeleteMe = TRUE;
@@ -492,8 +500,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       return return_value;
 
     }  // if (splitting condition)
-    
-    if (DEBUG > 1) 
+
+    if (DEBUG > 1)
       fprintf(stdout, "%x %"ISYM" %"ISYM" %"ISYM" %"GSYM" %"GSYM"\t|\n",
 	      (*PP), g[0], g[1], g[2], (*PP)->Radius, dr);
 
@@ -513,7 +521,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       //fraction = 1.0;
       ddr *= fraction;
       cdt *= fraction;
-      if (DEBUG > 1) 
+      if (DEBUG > 1)
 	fprintf(stderr, "PAUSE: PP->Photons: %"GSYM"  PP->Radius: %"GSYM"\n",
 		(*PP)->Photons, (*PP)->Radius);
       PauseMe = TRUE;
@@ -547,7 +555,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     // Adjust length and energy due to cosmological expansion
     // assumes that da/a=dl/l=2/3 dt/t which is strictly only true for OmegaM=1
-    // note that we only uses this locally though. 
+    // note that we only uses this locally though.
 
     /*
     if (ComovingCoordinates) {
@@ -555,7 +563,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       LengthUnits  = (LengthUnits + (1+daovera) * LengthUnits)/2;
       (*PP)->Energy  -= daovera * (*PP)->Energy;
     }
-      
+
     */
 
     /* Calculate the absorption.  There are three different cases:
@@ -565,7 +573,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      * 0/1/2. Single ionizations (HI, HeI and HeII)
      * 3. H2 dissociation in the Lyman Werner band
      * 4. Infrared Radiation
-     * 5. X-rays. 
+     * 5. X-rays.
      * 6. A Tracing Spectrum
      * 7. A Full Spectrum including IR, LW, UV Ionising radiation and XRAYS
      *
@@ -585,11 +593,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       ResetdPi(dPi);
       /* Loop over absorbers - type = 0 or 1 or 2 */
       for (i = 0; i <= type; i++) {
-	thisDensity = PopulationFractions[i] * fields[i][index] * 
+	thisDensity = PopulationFractions[i] * fields[i][index] *
 	  ConvertToProperNumberDensity; //[cm^-3] for species i
 	taua = thisDensity * ddr * sigma[i];  //in cgs
-      if(FAIL == RadiativeTransferIonization(PP, dPi, index, i, taua, factor1, 
-					     ExcessEnergyfactor, slice_factor2, kphNum, 
+      if(FAIL == RadiativeTransferIonization(PP, dPi, index, i, taua, factor1,
+					     ExcessEnergyfactor, slice_factor2, kphNum,
 					     gammaNum))
 	{
 	  fprintf(stderr, "Failed to calculate the ionizing radiation");
@@ -597,8 +605,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	}
       // Exit the loop if everything's been absorbed
       if (taua > 20.0) break;
-	
-    } 
+
+    }
 
     for (i = 0; i <= type; i++) dP += dPi[i];
     (*PP)->ColumnDensity += thisDensity * ddr * LengthUnits; //in cgs
@@ -612,11 +620,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       if(MultiSpecies < 2)
 	break;
       dP = 0;
-      thisDensity = PopulationFractions[H2IField] * fields[H2IField][index] * 
+      thisDensity = PopulationFractions[H2IField] * fields[H2IField][index] *
 	  ConvertToProperNumberDensity;
       //Use either shielding due to Draine & Bertoldi (1996) or Wolcott-Green et al. (2011)
-      if(RadiativeTransferUseH2Shielding) { 
-	if(FAIL == RadiativeTransferLWShielding(PP, dP, thisDensity, ddr, index, 
+      if(RadiativeTransferUseH2Shielding) {
+	if(FAIL == RadiativeTransferLWShielding(PP, dP, thisDensity, ddr, index,
 						LengthUnits, kdissH2INum, TemperatureField,
 						slice_factor2)) {
 	  fprintf(stderr, "Failed to calculate the LW radiation");
@@ -627,12 +635,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	dN = thisDensity * ddr;
 	tau = dN*sigma[LW];  //[dimensionless]
 
-	if(FAIL == RadiativeTransferLW(PP, dP, index, tau, factor1, 
+	if(FAIL == RadiativeTransferLW(PP, dP, index, tau, factor1,
 				       slice_factor2, kdissH2INum)) {
 	  fprintf(stderr, "Failed to calculate the LW radiation");
 	  return FAIL;
 	}
-	
+
 	(*PP)->ColumnDensity += dN * LengthUnits; //update Column Density
 
       }
@@ -640,60 +648,60 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
 
      if(RadiativeTransferH2IIDiss == TRUE) {
-	/* 
+	/*
 	 * A further consideration in this waveband is the dissociation of H2II.
 	 */
-	thisDensity = PopulationFractions[H2IIField] * fields[H2IIField][index] * 
+	thisDensity = PopulationFractions[H2IIField] * fields[H2IIField][index] *
 	  ConvertToProperNumberDensity;
 	dN = thisDensity * ddr;
 
 	tau = dN * sigma[H2II];  //[dimensionless]
-	
-	if(FAIL == RadiativeTransferH2II(PP, index, tau, factor1, 
+
+	if(FAIL == RadiativeTransferH2II(PP, index, tau, factor1,
 					 slice_factor2, kdissH2IINum)) {
 	  fprintf(stderr, "Failed to calculate the LW radiation");
 	  return FAIL;
 	}
       }
-   
+
       break;
-      
+
       /************************************************************/
       /* IR radiation  Type 4 */
       /************************************************************/
     case IR:
       if(MultiSpecies < 2)
 	break;
-      thisDensity = PopulationFractions[HMField] * fields[HMField][index] * 
+      thisDensity = PopulationFractions[HMField] * fields[HMField][index] *
 	ConvertToProperNumberDensity;
       dN = thisDensity * ddr;
       tau = dN*sigma[IR];  //[dimensionless]
 
-     
-      if(FAIL == RadiativeTransferIR(PP,dP, index, tau, factor1, 
-				     ExcessEnergyfactor, slice_factor2, 
+
+      if(FAIL == RadiativeTransferIR(PP,dP, index, tau, factor1,
+				     ExcessEnergyfactor, slice_factor2,
 				     kphHMNum, gammaNum)) {
 	fprintf(stderr, "Failed to calculate the IR radiation");
 	return FAIL;
       }
-      
+
       if(RadiativeTransferH2IIDiss == TRUE) {
-	/* 
+	/*
 	 * A further consideration in this waveband is the dissociation of H2II.
 	 */
-	thisDensity = PopulationFractions[H2IIField] * fields[H2IIField][index] * 
+	thisDensity = PopulationFractions[H2IIField] * fields[H2IIField][index] *
 	  ConvertToProperNumberDensity;
 	dN = thisDensity * ddr;
 
 	tau = dN * sigma[H2II];  //[dimensionless]
-	if(FAIL == RadiativeTransferH2II(PP, index, tau, factor1, 
+	if(FAIL == RadiativeTransferH2II(PP, index, tau, factor1,
 					 slice_factor2, kdissH2IINum)) {
 	  fprintf(stderr, "Failed to calculate the IR radiation");
 	  return FAIL;
 	}
       }
       break;
-	
+
       /************************************************************/
       /* X-rays (HI/HeI/HeII all in one!) - Type 5*/
       /************************************************************/
@@ -701,13 +709,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
       // Shull & van Steenberg (1985)
       if (RadiationXRaySecondaryIon) {
-	xx = max(fields[HIIField][index] / 
+	xx = max(fields[HIIField][index] /
 		 (fields[HIIField][index] + fields[HIIField][index]), 1e-4);
 	heat_factor    = 0.9971 * (1 - powf(1 - powf(xx, 0.2663f), 1.3163));
 
-	ion2_factor[HIField] = 0.3908 * nSecondaryHII * 
+	ion2_factor[HIField] = 0.3908 * nSecondaryHII *
 	  powf(1 - powf(xx, 0.4092f), 1.7592f);
-	ion2_factor[HeIField] = 0.0554 * nSecondaryHeII * 
+	ion2_factor[HeIField] = 0.0554 * nSecondaryHeII *
 	  powf(1 - powf(xx, 0.4614f), 1.6660f);
       }
       else {
@@ -716,7 +724,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  secondary_flag = 0;
 	}
       }
-      dP = 0.0; 
+      dP = 0.0;
       ResetdPi(dPi);
 
       /* Loop over absorbers */
@@ -724,13 +732,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
 	thisDensity = PopulationFractions[i] * fields[i][index] *
 	  ConvertToProperNumberDensity;
-	
+
 	// optical depth of ray segment
 	dN = thisDensity * ddr;
 	tau = dN*sigma[i];
 
-	if(FAIL == RadiativeTransferXRays(PP, dPi, index, i, ddr, tau, 
-					  slice_factor2, factor1, ExcessEnergyfactor, 
+	if(FAIL == RadiativeTransferXRays(PP, dPi, index, i, ddr, tau,
+					  slice_factor2, factor1, ExcessEnergyfactor,
 					  ion2_factor, heat_factor, kphNum, gammaNum))
 	  {
 	     fprintf(stderr, "Failed to calculate the LW radiation\n");
@@ -740,12 +748,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       /* Update Column Densities from all species */
       (*PP)->ColumnDensity += dN * LengthUnits;
 
-      if (RadiationXRayComptonHeating) {  
+      if (RadiationXRayComptonHeating) {
 
 	thisDensity = BaryonField[DeNum][index] * ConvertToProperNumberDensity;
 	dN = thisDensity * ddr;
-	if(FAIL == RadiativeTransferComptonHeating(PP, dPi, index, LengthUnits, factor1, 
-						   TemperatureField, ddr, dN, slice_factor2, 
+	if(FAIL == RadiativeTransferComptonHeating(PP, dPi, index, LengthUnits, factor1,
+						   TemperatureField, ddr, dN, slice_factor2,
 						   gammaNum))
 	  {
 	     fprintf(stderr, "Failed to calculate the Compton Heating\n");
@@ -758,9 +766,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  compton_flag = 0;
 	}
       }
-      
+
       // find the total absorbed number of photons including Compton heating
-      for (i = 0; i < H_SPECIES + 1; i++) 
+      for (i = 0; i < H_SPECIES + 1; i++)
 	dP += dPi[i] * slice_factor2;
 
       break;
@@ -768,7 +776,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       /************************************************************/
       /* tracing spectrum (HI/HeI/HeII all in one!) - Type 6 */
       /************************************************************/
-      // instead of calculating the optical depth (tau), ColumnDensity will 
+      // instead of calculating the optical depth (tau), ColumnDensity will
       // give all the necessary information of the photon spectrum: dP, min E
       // at the moment, secondary ionization is ignored (Alvarez & Kim 2010)
     case TRACINGSPECTRUM:
@@ -776,26 +784,26 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      dP = dN = 0.0;
       for (i = 0; i < 4; i++) dPXray[i] = 0.0;
 
-      // calculate dColumnDensity of this ray segment (only for the main absorber, HI)     
-      thisDensity = PopulationFractions[HIField] * fields[HIField][index] * 
-	ConvertToProperNumberDensity; 
+      // calculate dColumnDensity of this ray segment (only for the main absorber, HI)
+      thisDensity = PopulationFractions[HIField] * fields[HIField][index] *
+	ConvertToProperNumberDensity;
       dColumnDensity = thisDensity * ddr * LengthUnits;
-      
+
       /* Loop over absorbers */
       for (i = 0; i < 3; i++) {   //##### for TraceSpectrum test 3 -> 1
 
 	// the spectrum table returns the fraction of photons absorbed at this column density
-	dPXray[i] = (*PP)->Photons * 
+	dPXray[i] = (*PP)->Photons *
 	  ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, i);
 	dP1 = dPXray[i] * slice_factor2;
 
 	// units are 1/s *TimeUnits
-	BaryonField[kphNum[i]][index] += dP1 * factor1; 
-	
+	BaryonField[kphNum[i]][index] += dP1 * factor1;
+
 	// units are eV/s *TimeUnits;
 	// the spectrum table returns the mean energy of the spectrum at this column density
-	BaryonField[gammaNum][index] += dP1 * factor1 * 
-	  ( ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, 3) - 
+	BaryonField[gammaNum][index] += dP1 * factor1 *
+	  ( ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, 3) -
 	    EnergyThresholds[i] );
 
       }
@@ -803,10 +811,47 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       // update column density
       (*PP)->ColumnDensity += dColumnDensity;
 
-      // find the total absorbed number of photons 
+      // find the total absorbed number of photons
       for (i = 0; i < 4; i++) dP += dPXray[i] * slice_factor2;
 
       break;
+
+    /* Account for contributions to PE heating in FUV band */
+
+    case FUVPEHEATING:
+        // tau = gamma * A_v (FERVENT + refs therein)
+				//  A_v = (NH2 + NH + NH+) / (1.87E-21 cm^-2)  * f_d_to_g
+				//    Draine + Bertoldi 1996
+        dP = 0;
+
+				const double gamma = 3.5;
+
+        thisDensity = PopulationFractions[HIField]*BaryonField[HINum][index]+
+				              PopulationFractions[HIIField]*BaryonField[HIINum][index]+
+				             (MultiSpecies>1) ?
+										 2.0*(PopulationFractions[H2INum] *BaryonField[H2INum ][index]+
+										      PopulationFractions[H2IINum]*BaryonField[H2IINum][index]): 0.0;
+			  thisDensity *= ConvertToProperNumberDensity;
+
+        const double dN_H = thisDensity * ddr; // in cgs !!!
+
+			  const double Z = BaryonField[MetalNum][index]/BaryonField[DensNum][index];
+        const double f_d_g = NormalizedDustToGasRatio(Z);
+        const double dust_crs = (1.87E-21 * LengthUnits*LengthUnits);
+			  const double A_v = dN_H / (dust_crs) * f_d_g;
+
+        tau = A_v * gamma;
+
+				if(FAIL==RadiativeTransferFUVPEHeating(PP, dP,
+					                                     index,tau,factor1,
+				                                       slice_factor2,FUVRateNum)){
+				   fprintf(stderr,"Failed to calculate the FUV PE heating rate field");
+					 return FAIL;
+				}
+
+				(*PP)->ColumnDensity += thisDensity*ddr*LengthUnits; // in cgs
+        break;
+
     default:
       printf("Photon type = %d, radius = %g, pos = %"FSYM" %"FSYM" %"FSYM"\n",
 	     type, radius, r[0], r[1], r[2]);
@@ -828,15 +873,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  } // ENDIF max
 	} // ENDIF tau > min_tau (I-front)
       } // ENDIF type==iHI || Xrays
-      
+
     /* Acceleration due to radiation pressure */
 
     // Remember:  dA = [~] * dP * Energy / Density * r_hat
-    if (RadiationPressure && 
+    if (RadiationPressure &&
 	(*PP)->Radius >= (*PP)->SourcePositionDiff)
       for (dim = 0; dim < MAX_DIMENSION; dim++)
-	BaryonField[RPresNum1+dim][index] += 
-	  RadiationPressureConversion * RadiationPressureScale * dP * (*PP)->Energy / 
+	BaryonField[RPresNum1+dim][index] +=
+	  RadiationPressureConversion * RadiationPressureScale * dP * (*PP)->Energy /
 	  density[index] * dir_vec[dim];
 
     (*PP)->CurrentTime += cdt;
@@ -853,14 +898,14 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       return SUCCESS;
 
     // return in case we're out of photons
-    if ((*PP)->Photons < MinimumPhotonFlux*(solid_angle*Area_inv) || 
+    if ((*PP)->Photons < MinimumPhotonFlux*(solid_angle*Area_inv) ||
 	(*PP)->ColumnDensity > tau_delete) {
       if (DEBUG > 1) {
 	fprintf(stderr, "PP-Photons: %"GSYM" (%"GSYM"), PP->Radius: %"GSYM
 		"PP->CurrentTime: %"FSYM"\n",
-		(*PP)->Photons, MinimumPhotonFlux*solid_angle*Area_inv, 
+		(*PP)->Photons, MinimumPhotonFlux*solid_angle*Area_inv,
 		(*PP)->Radius, (*PP)->CurrentTime);
-	fprintf(stderr, "\tdP: %"GSYM"\tddr: %"GSYM"\t cdt: %"GSYM"\t tau: %"GSYM"\n", 
+	fprintf(stderr, "\tdP: %"GSYM"\tddr: %"GSYM"\t cdt: %"GSYM"\t tau: %"GSYM"\n",
 		dP, ddr, cdt, tau);
       }
       (*PP)->Photons = -1;
@@ -883,8 +928,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	DeleteMe = TRUE;
 	return SUCCESS;
       }
-    
-    // are we done ? 
+
+    // are we done ?
     if (((*PP)->CurrentTime) >= EndTime) {
       if (RadiativeTransferAdaptiveTimestep) {
 	(*PP)->Photons = -1;
@@ -894,35 +939,35 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     }
 
     count++;
-    
+
     g[direction] += u_sign[direction];
     cindex += u_sign[direction] * offset[direction];
-    
+
   } // while keep walking
 
   return SUCCESS;
 }
 /*
- * Set cross sections for the photo rates. 
- * The H2I cross section is taken from a fit to the 
- * Stancil et al. (1994) data. The data is a function of both 
- * temperature and frequency and so I fit the data to a 
+ * Set cross sections for the photo rates.
+ * The H2I cross section is taken from a fit to the
+ * Stancil et al. (1994) data. The data is a function of both
+ * temperature and frequency and so I fit the data to a
  * temperature close to 5000K. The fit is shown below.
- * A significantly more accurate treatment of the cross section 
- * can be obtained by using a look-up table (provided) by setting USE_H2II_LOOKUP 
+ * A significantly more accurate treatment of the cross section
+ * can be obtained by using a look-up table (provided) by setting USE_H2II_LOOKUP
  * to be true in RadiativeTransferH2IILoopUpTable.h
  * This comes with a (substantial) computational cost. Currently Disabled.
  */
-static void CalculateCrossSection(PhotonPackageEntry **PP, 
-				  FLOAT *sigma, float LengthUnits, 
+static void CalculateCrossSection(PhotonPackageEntry **PP,
+				  FLOAT *sigma, float LengthUnits,
 				  float &nSecondaryHII, float &nSecondaryHeII)
 {
-  int i = 0; 
+  int i = 0;
   float X = 0.0;
   float A = 3.486e-16;
   float a = 3.35485518, b = 0.93891875, c = -0.01176537;
   /* If Radiation is ionising radiation (type = 0 or 1 or 2)*/
-  if ((*PP)->Type == iHI || (*PP)->Type == iHeI || 
+  if ((*PP)->Type == iHI || (*PP)->Type == iHeI ||
       (*PP)->Type == iHeII) {
     for (i = 0; i <= (*PP)->Type; i++)
       if (i == (*PP)->Type)
@@ -941,7 +986,7 @@ static void CalculateCrossSection(PhotonPackageEntry **PP,
     for (i = 0; i < 3; i++)
       sigma[i] = FindCrossSection(i, (*PP)->Energy) * LengthUnits; //fits from Verner et al. 1996
     nSecondaryHII = (*PP)->Energy / 13.6;
-    nSecondaryHeII = (*PP)->Energy / 24.6; 
+    nSecondaryHeII = (*PP)->Energy / 24.6;
   } /* If radiation is in the IR (type = 4) */
   else if (((*PP)->Type == IR)) {
     /* Fit taken from Tegmark et al. (1997) */
@@ -962,4 +1007,3 @@ static void ResetdPi(FLOAT *dPi)
   }
   return;
 }
-

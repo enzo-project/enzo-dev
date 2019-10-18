@@ -32,6 +32,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
+int FindField(int f, int farray[], int n);
+
 int grid::FinalizeRadiationFields(void)
 {
 
@@ -93,6 +95,26 @@ int grid::FinalizeRadiationFields(void)
 	    0.25 * factor * BaryonField[HeIINum][index];
 	} // ENDFOR i
       } // ENDFOR j
+
+   if (IndividualStarFUVHeating && !RadiativeTransferOpticallyThinFUV){
+     int FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
+     int PENum      = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+
+     const double MassUnits = DensityUnits*LengthUnits*LengthUnits*LengthUnits;
+     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+         index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
+         for (i = GridStartIndex[0]; i <= GridStartIndex[0]; i++){
+           // AJE: I don't think I need more unit conversions here, but need to make sure !!!
+           BaryonField[FUVRateNum][index] *= (MassUnits*VelocityUnits*VelocityUnits);
+
+           BaryonField[PENum][index] = 0.0; // this->ComputePeHeatingRate(FUV_flux) -- need this function!!!
+
+         }
+       }
+     } // end k
+
+   }
   
    if (MultiSpecies > 1 && !RadiativeTransferFLD)
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)

@@ -44,7 +44,7 @@
 #include "TopGridData.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
-
+#include "phys_constants.h"
 
 
 #include "StarParticleData.h"
@@ -214,9 +214,8 @@ float IndividualStarSurfaceGravity(const float &mp, const float &R){
    * Given stellar mass (solar) and radius (cm), compute
    * the star's surface gravity (cgs).
    * ---------------------------------------------------*/
-  const double G = 6.67259E-8;
 
-  return G*(mp * SOLAR_MASS) / ( R*R );
+  return GravConst*(mp * SOLAR_MASS) / ( R*R );
 }
 
 int IndividualStarInterpolateLWFlux(float &LW_flux,
@@ -405,7 +404,6 @@ int IndividualStarComputeLWLuminosity(float &L_Lw, //Star *cstar){
 
 
   float LW_flux;
-  const double pi = 3.141592653689393;
 /*
   int * se_table_pos = cstar->ReturnSETablePosition();
   int * rad_table_pos = cstar->ReturnRadTablePosition();
@@ -459,7 +457,6 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv,
                                        const float & Z){
 
   float Fuv;
-  const double pi = 3.141592653689393;
 /*
   int * se_table_pos = cstar->ReturnSETablePosition();
   int * rad_table_pos = cstar->ReturnRadTablePosition();
@@ -512,7 +509,6 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv,
 int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const float &metallicity){
 
   float Teff, R, g, Fuv;
-  const double pi = 3.141592653589393;
 
   IndividualStarInterpolateProperties(Teff, R, mp, metallicity);
   g = IndividualStarSurfaceGravity(mp, R);
@@ -559,11 +555,6 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
 
   const double E_ion_HI   = 13.5984; // eV
   const double E_ion_He   = 24.5874; // eV
-  const double k_boltz = 1.380658E-16;
-  const double c       = 2.99792458E10;
-  const double h       = 6.6260755E-27;
-  const double eV_erg  = 6.24150934326E11; // eV in one erg
-
 
   if (IndividualStarBlackBodyOnly == FALSE){
     if(IndividualStarInterpolateRadData(q0, q1,
@@ -578,13 +569,13 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
   // body to compute radiation:
   float x;
 
-  x = (E_ion_HI / eV_erg) / (k_boltz * (Teff));
+  x = (E_ion_HI / eV_erg) / (kboltz * (Teff));
   // compute the black body radiance in unitless numbers
   if( (PhotonRadianceBlackBody(q0, x)) == FAIL){
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
 
-  x = (E_ion_He / eV_erg) / (k_boltz * (Teff));
+  x = (E_ion_He / eV_erg) / (kboltz * (Teff));
   if ( PhotonRadianceBlackBody(q1, x) == FAIL ){
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
@@ -608,8 +599,8 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
   }
 
 
-  float A = 2.0 * k_boltz * k_boltz * k_boltz * (Teff*Teff*Teff) /
-                               (h*h*h*c*c);
+  float A = 2.0 * kboltz * kboltz * kboltz * (Teff*Teff*Teff) /
+                               (h_planck*h_planck*h_planck*clight*clight);
 
   // convert to units of # / s / m-2 / sr-1
   q0 = A * (q0);
@@ -674,11 +665,6 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
   */
   const double E_ion_HI   = 13.5984; // eV
   const double E_ion_He   = 24.5874; // eV
-  const double k_boltz = 1.380658E-16;
-  const double c       = 2.99792458E10;
-  const double h       = 6.6260755E-27;
-  const double eV_erg  = 6.24150934326E11; // eV in one erg
-
 
   if (IndividualStarBlackBodyOnly == FALSE){
     if(IndividualStarInterpolateRadData(q0, q1, Teff, g, metallicity) == SUCCESS){
@@ -690,13 +676,13 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
   // body to compute radiation:
   float x;
 
-  x = (E_ion_HI / eV_erg) / (k_boltz * (Teff));
+  x = (E_ion_HI / eV_erg) / (kboltz * (Teff));
   // compute the black body radiance in unitless numbers
   if( (PhotonRadianceBlackBody(q0, x)) == FAIL){
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
 
-  x = (E_ion_He / eV_erg) / (k_boltz * (Teff));
+  x = (E_ion_He / eV_erg) / (kboltz * (Teff));
   if ( PhotonRadianceBlackBody(q1, x) == FAIL ){
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
@@ -720,8 +706,8 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
   }
 
 
-  float A = 2.0 * k_boltz * k_boltz * k_boltz * (Teff*Teff*Teff) /
-                               (h*h*h*c*c);
+  float A = 2.0 * kboltz * kboltz * kboltz * (Teff*Teff*Teff) /
+                               (h_planck*h_planck*h_planck*clight*clight);
 
    // convert to units of # / s / m-2 / sr-1
   q0 = A * (q0);
@@ -1185,18 +1171,15 @@ int ComputeBlackBodyFlux(float &flux, const float &Teff, const float &e_min, con
    * Computation is done by integrating black body curve using series approx
    * ==============================================================================*/
 
-  const double c       = 2.99792458E10;
-  const double k        = 1.380658E-16;
-  const double h       = 6.6260755E-27;
-
   float x1, x2, A;
 
-  x1 = (e_min) / (k * Teff);
-  x2 = (e_max) / (k * Teff);
+  x1 = (e_min) / (kboltz * Teff);
+  x2 = (e_max) / (kboltz * Teff);
 
   BlackBodyFlux(flux, x1, x2);
 
-  A = 2.0 * k*k*k*k * Teff*Teff*Teff*Teff / (h*h*h*c*c);
+  A = 2.0 * kboltz*kboltz*kboltz*kboltz * Teff*Teff*Teff*Teff / 
+           (h_planck*h_planck*h_planck*clight*clight);
 
   flux *= A;
 
@@ -1216,17 +1199,12 @@ int ComputeAverageEnergy(float &energy, const float &e_i, const float &Teff){
    * ==========================================================================
    */
 
-  const double sigma   = 5.60751E-5;
-  const double pi      = 3.14159265358979;
-  const double c       = 2.99792458E10;
-  const double k_boltz = 1.380658E-16;
-  const double h       = 6.6260755E-27;
 
   // compute the number of photons
   float xmax;
 
   // convert wavelength to unitless energy
-  xmax = e_i /(k_boltz*(Teff));
+  xmax = e_i /(kboltz*(Teff));
 
 //  printf("ISP: Energy %"ESYM" xmax %"ESYM" Teff %"ESYM"\n",*e_i, xmax, *Teff);
   if(AverageEnergyBlackBody(energy, xmax)==FAIL){
@@ -1235,7 +1213,7 @@ int ComputeAverageEnergy(float &energy, const float &e_i, const float &Teff){
 
 //  printf("ISP: Avg energy unitless %"ESYM"\n", *energy);
   // converto from unitless energy to cgs
-  energy = (energy) * (k_boltz) * (Teff);
+  energy = (energy) * (kboltz) * (Teff);
 
 //  printf("ISP: Energy cgs %"ESYM"\n", *energy);
 

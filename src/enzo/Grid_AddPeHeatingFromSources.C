@@ -24,6 +24,7 @@
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
 #include "Star.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
@@ -48,11 +49,6 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
-  const double pc = 3.086e18, clight = 3e10;
-  const double eV_erg = 6.241509e11;
-  const double m_e = 9.109E-28; // in g
-  const double m_h = 1.673E-24; // in g
-
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -60,6 +56,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   this->DebugCheck((char*) "Grid_AddPeHeating");
 
   /* Find Multi-species fields. */
+  this->ZeroPhotoelectricHeatingField();
 
   if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
                                   HeIIINum, HMNum, H2INum, H2IINum, DINum, 
@@ -118,11 +115,10 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   }
 
   // Dilution factor to prevent breaking of rate solver near the star
-  float dilutionRadius = 0.125 * this->CellWidth[0][0];
-  float dilRadius2     = dilutionRadius * dilutionRadius;
-  float LightTravelDist = TimeUnits * clight / LengthUnits;
+  const float dilutionRadius = 0.25 * this->CellWidth[0][0];
+  const float dilRadius2     = dilutionRadius * dilutionRadius;
 
-  float PeConversion = 1.0 / (EnergyUnits / TimeUnits);
+  const float PeConversion = 1.0 / (EnergyUnits / TimeUnits);
   float FUVLuminosity = 0.0;
 
   if (ProblemType == 50) ENZO_FAIL("Ptype = 50 not implemented in PeHeating");
@@ -151,7 +147,9 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
       ENZO_FAIL("Error in ComputePhotonRates from AddPeHeatingFromSources.\n");
     }
     /* this->Luminosity is photon / s, energies is in eV */
-    FUVLuminosity = (Luminosity[4]*energies[4]) / (4.0 * M_PI * eV_erg);
+    cstar->ComputeFUVLuminosity(FUVLuminosity);
+    // (Luminosity[4]*energies[4]) / (4.0 * M_PI * eV_erg);
+
 
     /* Pre-calculate distances from cells to source */
     for (dim = 0; dim < GridRank; dim++)
@@ -169,7 +167,8 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
    /* Loop over cells */
 
     double radius2, radius2_yz;
-    double FUVflux;
+    double FUVflux = FUVLuminosity / (4.0 * pi * LengthUnits * LengthUnits); // mostly converted to flux
+    const double clight_code = clight * TimeUnits / LengthUnits;
     for (k = 0; k < ActiveDims[2]; k++) {
       for (j = 0; j < ActiveDims[1]; j++) {
         radius2_yz = ddr2[1][j] + ddr2[2][k];
@@ -177,10 +176,14 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
         for (i = 0; i < ActiveDims[0]; i++, index++) {
           radius2 = radius2_yz + ddr2[0][i];
 
+          float max_distance = (this->Time - cstar->ReturnBirthTime()) / clight_code;
+
+          if ( sqrt(radius2) > max_distance) continue; // does not contribute
+
           if (radius2 < dilRadius2) // need r^2 in cgs
-            FUVflux = FUVLuminosity / (dilRadius2 * LengthUnits * LengthUnits);
+            FUVflux = FUVflux / (dilRadius2);
           else
-            FUVflux = FUVLuminosity / (radius2 * LengthUnits * LengthUnits);
+            FUVflux = FUVflux / (radius2);
 
           float n_H, n_e, Z;
 
@@ -192,9 +195,9 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           }
 
 
-          n_H *= DensityUnits / m_h;
+          n_H *= DensityUnits / mh;
 
-          n_e  = this->BaryonField[DeNum][index] * DensityUnits / m_e;
+          n_e  = this->BaryonField[DeNum][index] * DensityUnits / me;
 
           Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 

@@ -11,7 +11,7 @@
 /  1 : HeI
 /  2 : HeII
 /  3 : Lyman-Werner (H2)
-/ 
+/
 ************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
@@ -69,7 +69,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   case PopIII:
     nbins = (PopIIIHeliumIonization &&
 	     !RadiativeTransferHydrogenOnly) ? 3 : 1;
-#ifdef TRANSFER    
+#ifdef TRANSFER
     if (!RadiativeTransferOpticallyThinH2) nbins++;
 #endif
     E[0] = 28.0;
@@ -141,17 +141,25 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     /* compute optically thin rates */
     if( (IndividualStarFUVHeating || IndividualStarLWRadiation) &&
        IndividualStarOTRadiationMethod == 1){
-      nbins = 5; // + LW and + FUV
+         // AJE NEED BETTER IF STATEMENTS HERE
+
+      nbins = 8 ; // + LW and + FUV
 
       E[3] = 12.8; // LW radiation
-      E[4] = 9.8;  // FUV radiation - average of 6 eV to 13.6 eV range
+      // For now, no IR, Xray, or spectrum types
+      E[4] = 0.0; E[5] = 0.0; E[6] = 0.0;
+      Q[4] = 0.0; Q[5] = 0.0; Q[6] = 0.0;
+
+      // FUV in the 5.6 - 11.2 eV band --- 11.2 to 13.6 is in LW
+      //      - set to 9.8 eV for convenience
+      E[7] = 8.4;  // FUV radiation - average of 5.6 to 11.2 eV range
 
       if(IndividualStarFUVHeating && M > IndividualStarOTRadiationMass){
           float l_fuv;
           this->ComputeFUVLuminosity(l_fuv);
-          Q[4] = l_fuv / (E[4] / eV_erg);
+          Q[7] = l_fuv / (E[7] / eV_erg); // photon rate 
       } else{
-          Q[4] = 0.0;
+          Q[7] = 0.0;
       }
 
       if(IndividualStarLWRadiation && M > IndividualStarOTRadiationMass){
@@ -169,9 +177,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     /* Average energy from Schaerer (2003) */
 
   case PopII:
-    nbins = (StarClusterHeliumIonization && 
+    nbins = (StarClusterHeliumIonization &&
 	     !RadiativeTransferHydrogenOnly) ? 3 : 1;
-#ifdef TRANSFER    
+#ifdef TRANSFER
     if (!RadiativeTransferOpticallyThinH2 &&
 	MultiSpecies > 1) nbins++;
 #endif
@@ -216,7 +224,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     Q[3] = EnergyFractionLW * (E[0]/MeanEnergy) * Q[0];
     break;
 
-    /* Average quasar SED by Sazonov et al.(2004), where associated 
+    /* Average quasar SED by Sazonov et al.(2004), where associated
        spectral temperature is 2 keV, for accreting massive BH */
 
   case MBH:
@@ -226,20 +234,20 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[1] = 0.0;
     E[2] = 0.0;
     E[3] = 0.0;
-    // 1.99e33g/Ms * (3e10cm/s)^2 * 6.24e11eV/ergs = 1.12e66 eV/Ms 
+    // 1.99e33g/Ms * (3e10cm/s)^2 * 6.24e11eV/ergs = 1.12e66 eV/Ms
     Q[0] = 1.12e66 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction *
-      this->last_accretion_rate / E[0]; 
+      this->last_accretion_rate / E[0];
     Q[1] = 0.0;
     Q[2] = 0.0;
-    Q[3] = 0.0;  
+    Q[3] = 0.0;
 
 #define NOT_HII_REGION_TEST
 #ifdef HII_REGION_TEST
     Q[0] = 1.0e45 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction / E[0];
 #endif
-    
-//    fprintf(stdout, "star::ComputePhotonRates: this->last_accretion_rate = %g, Q[0]=%g\n", 
-//    	    this->last_accretion_rate, Q[0]); 
+
+//    fprintf(stdout, "star::ComputePhotonRates: this->last_accretion_rate = %g, Q[0]=%g\n",
+//    	    this->last_accretion_rate, Q[0]);
 
 #ifdef TRANSFER
 
@@ -258,7 +266,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
       //better check the initial mean energy when tracing spectrum
       if (MyProcessorNumber == ROOT_PROCESSOR)
-	fprintf(stdout, "star::CPP: check initial mean E of photon SED: E[0] = %g\n", E[0]); 
+	fprintf(stdout, "star::CPP: check initial mean E of photon SED: E[0] = %g\n", E[0]);
     }
 
 #endif

@@ -6,7 +6,7 @@
 /
 /  written by: John Regan - based on the previous work of John Wise
 /  date:     April 2015
-/  modified1: 
+/  modified1:
 /
 /  PURPOSE: Calculate the dissociation rate due to Lyman Werner radiation
 /
@@ -23,8 +23,11 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
-int grid::RadiativeTransferH2II(PhotonPackageEntry **PP, int cellindex, 
+int FindField(int f, int farray[], int n);
+
+int grid::RadiativeTransferH2II(PhotonPackageEntry **PP, int cellindex,
 				float tau, FLOAT photonrate, float geo_correction,
 				int kdissH2IINum)
 {
@@ -36,18 +39,31 @@ int grid::RadiativeTransferH2II(PhotonPackageEntry **PP, int cellindex,
     dPH2II = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
   else //Optically thin case
     dPH2II = min((*PP)->Photons*tau, (*PP)->Photons);
-  
+
   //dPH2II is the number of absorptions due to H2II
   dPH2II = dPH2II * geo_correction;
   // contributions to the photoionization rate is over whole timestep
   // Units = (1/CodeTime)*(1/LengthUnits^3)
-  // BaryonField[kdissH2IINum] needs to be normalised - see 
+  // BaryonField[kdissH2IINum] needs to be normalised - see
   // Grid_FinalizeRadiationFields.C
   BaryonField[kdissH2IINum][cellindex] += dPH2II*photonrate;
   if(BaryonField[kdissH2IINum][cellindex] < tiny_number)
     {
       BaryonField[kdissH2IINum][cellindex] = tiny_number;
     }
-      
+
+  /// AJE Add leftover photons to PE flux bin:
+  ///   simplify these ifs in the future:
+  if ( (!RadiativeTransferOpticallyThinFUV) &&
+       (IndividualStarFUVHeating)
+     ){
+    const int FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
+    const FLOAT dx2 = this->CellWidth[0][0] * this->CellWidth[0][0];
+    const double LW_energy = 11.2 * eV_erg;
+    // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
+    BaryonField[FUVRateNum][cellindex] +=
+		    ((*PP)->Photons - dPH2II)*photonrate*LW_energy/(4.0*pi*dx2);
+  }
+
   return SUCCESS;
 }
