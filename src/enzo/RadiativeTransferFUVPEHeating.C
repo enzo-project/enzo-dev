@@ -36,18 +36,17 @@ int grid::RadiativeTransferFUVPEHeating(PhotonPackageEntry **PP,
                                         FLOAT &dP_FUV,
                                         const int cellindex, const float tau,
                                         const FLOAT photonrate,
-                                        flaot geo_correction, int FUVRateNum)
+                                        float geo_correction, int FUVRateNum)
 {
 
    const double FUV_energy = 8.4 * eV_erg; // 5.6 - 11.2 eV average
    // be careful with this value !!! See Star_ComputePhotonRates
 
   // attenuation of the 5.6 - 11.2 eV band
-  FLOAT dP_FUV = 0.0;
   if (tau > 2.e1){
     dP_FUV = (1.0+BFLOAT_EPSILON) * (*PP)->Photons;
   } else if (tau > 1.0E-4){
-    dP_FUV = min((*PP)->Photons*(1-expf(-tau)), (*PP->Photons));
+    dP_FUV = min((*PP)->Photons*(1-expf(-tau)), ((*PP)->Photons));
   } else { // optically thin
     dP_FUV = min((*PP)->Photons*tau, (*PP)->Photons);
   }

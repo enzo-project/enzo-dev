@@ -310,10 +310,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
   }
 
-  int MetalNum = -1;
-	if(IndividualStarFUVHeating && !(RadiativeTransferOpticallyThinFUV)){
-		MetalNum = this->FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
-	}
+  int MetalNum = -1, FUVRateNum = -1;
+  if(IndividualStarFUVHeating && !(RadiativeTransferOpticallyThinFUV)){
+    FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
+    MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
+  }
 
   dx = CellWidth[0][0];
   dx2 = dx*dx;
@@ -819,39 +820,42 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     /* Account for contributions to PE heating in FUV band */
 
     case FUVPEHEATING:
+    {
         // tau = gamma * A_v (FERVENT + refs therein)
-				//  A_v = (NH2 + NH + NH+) / (1.87E-21 cm^-2)  * f_d_to_g
-				//    Draine + Bertoldi 1996
+	//  A_v = (NH2 + NH + NH+) / (1.87E-21 cm^-2)  * f_d_to_g
+	//    Draine + Bertoldi 1996
         dP = 0;
 
-				const double gamma = 3.5;
+        const double gamma = 3.5;
 
         thisDensity = PopulationFractions[HIField]*BaryonField[HINum][index]+
-				              PopulationFractions[HIIField]*BaryonField[HIINum][index]+
-				             (MultiSpecies>1) ?
-										 2.0*(PopulationFractions[H2INum] *BaryonField[H2INum ][index]+
-										      PopulationFractions[H2IINum]*BaryonField[H2IINum][index]): 0.0;
-			  thisDensity *= ConvertToProperNumberDensity;
+	              PopulationFractions[HIIField]*BaryonField[HIINum][index]+
+	              ((MultiSpecies>1) ?
+	               2.0*(PopulationFractions[H2INum] *BaryonField[H2INum ][index]+
+		            PopulationFractions[H2IINum]*BaryonField[H2IINum][index]): 0.0) ;
+        
+        thisDensity *= ConvertToProperNumberDensity;
 
-        const double dN_H = thisDensity * ddr; // in cgs !!!
+        double dN_H = thisDensity * ddr; // in cgs !!!
 
-			  const double Z = BaryonField[MetalNum][index]/BaryonField[DensNum][index];
-        const double f_d_g = NormalizedDustToGasRatio(Z);
+	double Z = BaryonField[MetalNum][index]/BaryonField[DensNum][index];
+        double f_d_g = NormalizedDustToGasRatio(Z);
         const double dust_crs = (1.87E-21 * LengthUnits*LengthUnits);
-			  const double A_v = dN_H / (dust_crs) * f_d_g;
+        double A_v = dN_H / (dust_crs) * f_d_g;
 
         tau = A_v * gamma;
 
-				if(FAIL==RadiativeTransferFUVPEHeating(PP, dP,
-					                                     index,tau,factor1,
-				                                       slice_factor2,FUVRateNum)){
-				   fprintf(stderr,"Failed to calculate the FUV PE heating rate field");
-					 return FAIL;
-				}
+	if(FAIL==RadiativeTransferFUVPEHeating(PP, dP,
+	                                       index,tau,factor1,
+	                                        slice_factor2,FUVRateNum)){
+	  fprintf(stderr,"Failed to calculate the FUV PE heating rate field");
+	  return FAIL;
+	}
 
-				(*PP)->ColumnDensity += thisDensity*ddr*LengthUnits; // in cgs
+	(*PP)->ColumnDensity += thisDensity*ddr*LengthUnits; // in cgs
         break;
 
+    }
     default:
       printf("Photon type = %d, radius = %g, pos = %"FSYM" %"FSYM" %"FSYM"\n",
 	     type, radius, r[0], r[1], r[2]);
