@@ -122,29 +122,38 @@ int grid::GrackleWrapper()
 
     int PeNum = FindField( PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
 
-    /* zero heating rate when temperature is above threshold */
-    float *temperature;
-    temperature = new float[size];
-
-    if(this->ComputeTemperatureField(temperature) == FAIL){
-      ENZO_FAIL("Error in compute temperature in Grid_GrackleWrapper");
-    }
-
     /* send to Grackle in CGS */
     volumetric_heating_rate = new float[size];
     specific_heating_rate   = NULL;
 
-    /* change heating to zero in high temperature regions */
-    for( i = 0; i < size; i ++){
+    /* zero heating rate when temperature is above threshold */
+    if ( (!RadiativeTransferOpticallyThinFUV) && IndividualStarOTRadiationMethod==1){
+      float *temperature;
+      temperature = new float[size];
 
-      if ( temperature[i] >= IndividualStarFUVTemperatureCutoff){
-        volumetric_heating_rate[i] = 0.0;
-      } else {
-        volumetric_heating_rate[i] = BaryonField[PeNum][i] * (EnergyUnits/TimeUnits); // convert to CGS
+      if(this->ComputeTemperatureField(temperature) == FAIL){
+        ENZO_FAIL("Error in compute temperature in Grid_GrackleWrapper");
       }
+
+      /* change heating to zero in high temperature regions */
+      for( i = 0; i < size; i ++){
+
+        if ( temperature[i] >= IndividualStarFUVTemperatureCutoff){
+          volumetric_heating_rate[i] = 0.0;
+        } else {
+          volumetric_heating_rate[i] = BaryonField[PeNum][i] * (EnergyUnits/TimeUnits); // convert to CGS
+        }
+      }
+
+      delete [] temperature;
+
+    } else {
+      // if here, FUV is followed with RT and PE computed in Grid_FinalizeRadiattionFields. Temperature
+      // threshold is applied there.
+      for (i = 0; i < size; i++) volumetric_heating_rate[i] = BaryonField[PeNum][i]*(EnergyUnits/TimeUnits);
+
     }
 
-    delete [] temperature;
 
   }
 

@@ -44,7 +44,7 @@ int search_lower_bound(float *arr, float value, int low, int high, int total);
 
 
 /* internal prototypes */
-float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, 
+float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
                                       // const float &T,
                                       const float &Z, const float &G, const float &dx);
 
@@ -197,7 +197,7 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
     size *= this->GridDimension[dim];
   }
 
-//  Current model doesn't need temperature field - 
+//  Current model doesn't need temperature field -
 //  float *temperature;
 //  temperature = new float[size];
 //  if(  this->ComputeTemperatureField(temperature) == FAIL ){
@@ -245,20 +245,20 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
     FLOAT rsqr, rcenter, width; // distance to cell center
     for (int sp = 0; sp < max_number_of_ot_stars; sp++){
       rsqr = (xs[sp] - xcenter)*(xs[sp]-xcenter) +
-             (ys[sp] - ycenter)*(ys[sp]-ycenter) + 
+             (ys[sp] - ycenter)*(ys[sp]-ycenter) +
              (zs[sp] - zcenter)*(zs[sp]-zcenter);
 
       // if ratio between distance to cell center and max grid width > 10, we get 20% error
       width = (this->GridDimension[0]*this->CellWidth[0][0])*(this->GridDimension[0]*this->CellWidth[0][0])+
               (this->GridDimension[1]*this->CellWidth[0][0])*(this->GridDimension[1]*this->CellWidth[0][0])+
               (this->GridDimension[2]*this->CellWidth[0][0])*(this->GridDimension[2]*this->CellWidth[0][0]);
-      
+
       float flux_ratio = width / rsqr;
 
 /*
     for (int sp = 0; sp < max_number_of_ot_stars; sp++){
       FLOAT min_rsqr = huge_number, max_rsqr = tiny_number, avg_rsqr = 0.0;
-      // check rsqr values at corner points and find max variation over grid 
+      // check rsqr values at corner points and find max variation over grid
       for(int k = 0; k < this->GridDimension[2]; k += this->GridDimension[2]-1){
         FLOAT zcell = this->CellLeftEdge[2][k] + 0.5 * this->CellWidth[2][k];
 
@@ -280,12 +280,12 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
           }
         }
       } // end z loop
-*/    
+*/
 
 //      float inv_avg_rsqr = 1.0 / (avg_rsqr / (8.0)); // there are 8 corner points
 
       // compute flux difference in min and max cell
-//      float flux_ratio = fmax( fabs( (1.0/min_rsqr - inv_avg_rsqr)/inv_avg_rsqr), 
+//      float flux_ratio = fmax( fabs( (1.0/min_rsqr - inv_avg_rsqr)/inv_avg_rsqr),
 //                               fabs( (1.0/max_rsqr- inv_avg_rsqr)/inv_avg_rsqr));
 
       // make shorter threshold name
@@ -382,7 +382,7 @@ void grid::AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_
             Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
             // assign heating rate from model - adds to existing background (if present)
-            BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e, 
+            BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e,
                                                                         // temperature[index],
                                                                          Z, local_fuv_flux,
                                                                          dx*LengthUnits) / (EnergyUnits/TimeUnits);
@@ -450,7 +450,7 @@ float NormalizedDustToGasRatio(const float &Z){
 
 
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
-                                      //const float &T,   
+                                      //const float &T,
                                       const float &Z,
                                       const float &G, const float &dx){
   /* ---------------------------------------------------------------------------------
@@ -463,6 +463,10 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
    * heating rate is a function of hydrogen and electron number density, temperature,
    * and the FUV flux.
    *
+   * If PhotoelectricHeatingDustModel = 1, heating will be scaled with local
+   * dust model that is linear with metallicity at high Z, and falls sharply
+   * with metallicity at low Z. Local attenuation is computed if dx > 0 (dx <= 0
+   * will durn off attenuation approximation.)
    * ----------------------------------------------------------------------------------
    */
 
@@ -510,7 +514,7 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
     // following Hu et. al. 2016, and Bergin et. al. 2004
     float D = NormalizedDustToGasRatio(Z);
 
-    float attenuation = exp( -1.33E-21 * D * dx * n_H); // dx and n_H in cgs
+    float attenuation = exp( -1.33E-21 * D * max(dx,0.0) * n_H); // dx and n_H in cgs
 
     flux = 1.3E-24 * n_H * epsilon * G_o * D * attenuation;
 
@@ -520,6 +524,61 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
 
   return flux;
 }
+
+
+void grid::ComputeBackgroundFUV(float &G_background){
+
+  const int num_z_bins = 25;
+  const float G_background_HM2012[num_z_bins] = { 3.15769E-6, 5.72059E-6, 1.02168E-5, 1.76486E-5,
+                                      2.93557E-5, 4.71664E-5, 7.27080E-5, 1.07841E-4,
+                                      1.52265E-4, 2.05013E-4, 2.63426E-4, 3.06212E-4,
+                                      3.24639E-4, 3.19161E-4, 2.97805E-4, 2.69064E-4,
+                                      2.37392E-4, 2.06384E-4, 1.79090E-4, 1.54363E-4,
+                                      1.31442E-4, 1.09434E-4, 8.71460E-5, 6.04930E-5,
+                                      2.42234E-5};
+
+  const float z_background_HM2012[num_z_bins] = { 0.00000E0 , 1.22020E-1, 2.58930E-1, 4.42540E-1,
+                                      5.84890E-1, 7.78280E-1, 9.95260E-1, 1.23870E0 ,
+                                      1.51190E0 , 1.81840E0 , 2.16230E0 , 2.54810E0 ,
+                                      2.98110E0 , 3.46680E0 , 4.01190E0 , 4.62340E0 ,
+                                      5.30960E0 , 6.07950E0 , 6.94330E0 , 7.91250E0 ,
+                                      9.00000E0 , 1.02200E1 , 1.15890E1 , 1.31250E1 ,
+                                      1.48490E1};
+
+  FLOAT CurrentRedshift = RadiationFieldRedshift;
+
+  if (ComovingCoordinates){
+    FLOAT a, dadt, aUnits;
+
+    /* Compute the current redshift (for information only). */
+    CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt);
+    aUnits = 1.0 / (1.0 + InitialRedshift);
+    CurrentRedshift = (1.0)/(a*aUnits) - 1.0;
+  }
+
+  /* Interpolate with current redshift */
+  if (!(UseFUVBackground)){
+    G_background = 0.0;
+  } else if (CurrentRedshift > z_background_HM2012[num_z_bins-1]){
+    G_background = 0.0; // turn it off at very high z... no dust anyway
+  } else if ( CurrentRedshift <= z_background_HM2012[0]) {
+    G_background = G_background_HM2012[0]; // leave at z = 0 value
+  } else{
+      /* linear interpolate */
+
+    int index = search_lower_bound((float*)z_background_HM2012,
+                                   CurrentRedshift, 0, num_z_bins, num_z_bins);
+
+    float t = (CurrentRedshift - z_background_HM2012[index]) /
+              (z_background_HM2012[index+1] - z_background_HM2012[index]);
+
+    G_background = (1.0 - t) * G_background_HM2012[index] + t *G_background_HM2012[index+1];
+
+  }
+
+  return;
+}
+
 
 void grid::ZeroPhotoelectricHeatingField(void){
  /* ----------------------------------------------
@@ -643,7 +702,7 @@ void grid::ZeroPhotoelectricHeatingField(void){
         Z    = this->BaryonField[MetalNum][i] / this->BaryonField[DensNum][i]; // metal dens / dens
 
         // assign heating rate from model
-        BaryonField[PeNum][i]  = ComputeHeatingRateFromDustModel(n_H, n_e, 
+        BaryonField[PeNum][i]  = ComputeHeatingRateFromDustModel(n_H, n_e,
                                                                 // 100.0, // temperature doesn't matter
                                                                      Z, G_background,
                                                               (this->CellWidth[0][0])*LengthUnits);
@@ -690,4 +749,3 @@ void grid::ZeroOTLWRadiationField(void){
   }
 
 }
-

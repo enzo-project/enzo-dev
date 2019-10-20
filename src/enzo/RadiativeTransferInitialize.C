@@ -66,6 +66,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   const char    *Rad1Name      = "Radiation1";
   const char    *Rad2Name      = "Radiation2";
   const char    *Rad3Name      = "Radiation3";
+  const char    *FUVRateName   = "FUV_FluxDensity";
 
   int i, j, k, level;
   FILE *fptr;
@@ -78,7 +79,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
     /* Check for radiation fields and delete them */
 
-    NumberOfObsoleteFields = 13;
+    NumberOfObsoleteFields = 14;
     ObsoleteFields[0] = kphHI;
     ObsoleteFields[1] = PhotoGamma;
     ObsoleteFields[2] = kphHeI;
@@ -92,6 +93,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ObsoleteFields[10] = RadPressure0;
     ObsoleteFields[11] = RadPressure1;
     ObsoleteFields[12] = RadPressure2;
+    ObsoleteFields[13] = FUVRate;
 
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
@@ -209,6 +211,12 @@ int RadiativeTransferInitialize(char *ParameterFile,
       if (RadiativeTransferLoadBalance)
 	TypesToAdd[FieldsToAdd++] = RaySegments;
     }
+
+    if (!(RadiativeTransferOpticallyThinFUV) &&
+          IndividualStarOTRadiationMethod == 1){
+      TypesToAdd[FieldsToAdd++] = FUVRate;
+    }
+
     // Add metallicity if Pop II star feedback
     if (StarParticleFeedback > 0 && 
 	StarParticleFeedback != (1 << POP3_STAR) && 
@@ -355,6 +363,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
       break;
     case RaySegments:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) RaySegName;
+      break;
+    case FUVRate:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) FUVRateName;
       break;
     } // ENDSWITCH
     if (debug) 

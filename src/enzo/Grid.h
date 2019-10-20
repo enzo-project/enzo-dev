@@ -460,7 +460,7 @@ public:
 
 /* FDM: functions for lightboson dark matter */
   int ComputeQuantumTimeStep(float &dt); /* Estimate quantum time-step */
-  /* Solver for Schrodinger Equation */ 
+  /* Solver for Schrodinger Equation */
   int SchrodingerSolver( int nhy);
 
 /* Member functions for dealing with Cosmic Ray Diffusion */
@@ -928,7 +928,7 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Particles: deposit regions in the feedback zone to ensure flagging */
 
    int DepositRefinementZone(int level, FLOAT* ParticlePosition, FLOAT RefinementRadius);
-  
+
 /* baryons: add baryon density to mass flaggin field (so the mass flagging
             field contains the mass in the cell (not the density)
             (gg #3) */
@@ -1616,7 +1616,7 @@ iveParticles;};
 
        printf("StellarAbundances P(%"ISYM"): %"ISYM" %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM,
               MyProcessorNumber,
-              this->ID, ParticleNumber[index], ParticleType[index], 
+              this->ID, ParticleNumber[index], ParticleType[index],
               ParticlePosition[0][index], ParticlePosition[1][index], ParticlePosition[2][index],
               ParticleMass[index],
               ParticleAttribute[3][index], // BirthMass
@@ -2497,6 +2497,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   void ZeroPhotoelectricHeatingField(void);
   void ZeroOTLWRadiationField(void);
+  void ComputeBackgroundFUV(float &G_background);
+  
   void AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_lw,
                                          const float *xs, const float *ys, const float *zs,
                                          const float *ts, const int &number_of_fuv_stars);
@@ -2748,7 +2750,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     float *JacB[MAX_DIMENSION][MAX_DIMENSION];
 
     float *FilteredFields[7]; // filtered fields: rho, xyz-vel, Bxyz
-    
+
     // the scale-similarity model needs mixed filtered quantities
     float *FltrhoUU[6];
     float *FltBB[6];
@@ -2757,11 +2759,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     int SGSUtil_ComputeJacobian(float *Jac[][MAX_DIMENSION],float* field1,float* field2,float* field3);
     int SGSUtil_ComputeMixedFilteredQuantities();
     int SGSUtil_FilterFields();
-    
+
     // the general functions that add the SGS terms to the dynamic eqns.
     int SGS_AddEMFTerms(float **dU);
     int SGS_AddMomentumTerms(float **dU);
-    
+
     // the different SGS models
     void SGS_AddEMF_eddy_resistivity(float **EMF);
     void SGS_AddEMF_nonlinear_compressive(float **EMF);
@@ -2772,7 +2774,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     void SGS_AddMom_scale_similarity_kinetic(float **Tau);
     void SGS_AddMom_scale_similarity_magnetic(float **Tau);
     void SGS_AddEMF_scale_similarity(float **EMF);
-    
+
     /* END Subgrid-scale modeling framework by P. Grete */
 
 /* Comoving coordinate expansion terms. */
@@ -2818,7 +2820,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Calculate the potential across the grid. */
   void CalculatePotentialField(float *PotentialField, int DensNum, float DensityUnits,
 			       float TimeUnits, float LengthUnits);
-  
+
   /* Find the minumum of the potential in a given region */
   float FindMinimumPotential(FLOAT *cellpos, FLOAT radius, float *PotentialField);
 
@@ -2836,7 +2838,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* Find the average temperature in the control region */
   float FindAverageTemperatureinRegion(float *temperature, FLOAT *cellpos, FLOAT radius);
-  
+
   /* Find the total gravitational energy in a given region */
   float FindTotalGravitationalEnergy(FLOAT *cellpos, FLOAT radius, int gpotNum, int densNum,
 				     float DensityUnits, float LengthUnits, float VelocityUnits);
@@ -2844,7 +2846,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   /* Find the total kinetic energy in a given region */
   float FindTotalKineticEnergy(FLOAT *cellpos, FLOAT radius, int densNum,
 			       int vel1Num, int vel2Num, int vel3Num);
-  
+
   /* Returns averaged velocity from the 6 neighbor cells and itself */
 
   float* AveragedVelocityAtCell(int index, int DensNum, int Vel1Num);
@@ -2853,7 +2855,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   float FindAngularMomentumMinimum(FLOAT *cellpos, FLOAT radius, int DensNum, int Vel1Num,
 				   int Vel2Num, int Vel3Num);
 
-  
+
 /* Particle splitter routine. */
 
   int ParticleSplitter(int level, int iter, int NumberOfIDs,
@@ -2862,8 +2864,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int CreateChildParticles(float dx, int NumberOfParticles, float *ParticleMass,
 			   int *ParticleType, FLOAT *ParticlePosition[],
 			   float *ParticleVelocity[], float *ParticleAttribute[],
-			   FLOAT *CellLeftEdge[], int *GridDimension, 
-                           int MaximumNumberOfNewParticles, int iter, 
+			   FLOAT *CellLeftEdge[], int *GridDimension,
+                           int MaximumNumberOfNewParticles, int iter,
 			   int *NumberOfNewParticles);
 
 /* Magnetic field resetting routine. */
@@ -3037,7 +3039,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int RemoveParticle(int ID, bool disable=false);
 
   int RemoveActiveParticle(PINT ID, int NewProcessorNumber);
-  
+
   int AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits,
 			float LengthUnits, float VelocityUnits,
 			float TemperatureUnits, float TimeUnits, double EjectaDensity,
@@ -3077,20 +3079,20 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int ReturnStarStatistics(int &Number, float &minLife);
 
-  int AccreteOntoAccretingParticle(ActiveParticleType* ThisParticle, 
+  int AccreteOntoAccretingParticle(ActiveParticleType* ThisParticle,
       FLOAT AccretionRadius,
       float* AccretionRate);
-  
-  int AccreteOntoSmartStarParticle(ActiveParticleType* ThisParticle, 
+
+  int AccreteOntoSmartStarParticle(ActiveParticleType* ThisParticle,
       FLOAT AccretionRadius,
       float* AccretionRate);
 
   float CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
-					FLOAT AccretionRadius, 
+					FLOAT AccretionRadius,
 					FLOAT *KernelRadius,
 					FLOAT *SumOfWeights);
   int CalculateSpecificQuantities(FLOAT *SinkParticlePos, FLOAT *CLEdge,
-				  float *vgas, float msink,  
+				  float *vgas, float msink,
 				  float *vsink, int *numpoints);
   int RemoveMassFromGrid(ActiveParticleType* ThisParticle,
 			 FLOAT AccretionRadius, float AccretionRate,
@@ -3106,12 +3108,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				    FLOAT *pos, float *vel);
   FLOAT CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *Temperature);
   int AddMassAndMomentumToAccretingParticle(float GlobalSubtractedMass,
-					    float GlobalSubtractedMomentum[], 
+					    float GlobalSubtractedMomentum[],
 					    ActiveParticleType* ThisParticle,
 					    LevelHierarchyEntry *LevelArray[]);
 
   int ApplyGalaxyParticleFeedback(ActiveParticleType** ThisParticle);
-  
+
   int ApplyGalaxyParticleGravity(ActiveParticleType** ThisParticle);
 
   int ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle);
@@ -3151,9 +3153,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
       }
   }
 
-  void ConvertColorFieldsToFractions(); 
-  void ConvertColorFieldsFromFractions(); 
-  
+  void ConvertColorFieldsToFractions();
+  void ConvertColorFieldsFromFractions();
+
 //-----------------------------------------------------------------------
 //  Returns radiative cooling by component
 //-----------------------------------------------------------------------
@@ -3224,7 +3226,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int Hydro3D(float **Prim, float **dU, float dt,
 	      fluxes *SubgridFluxes[], int NumberOfSubgrids,
 	      float fluxcoef, float min_coeff, int fallback);
-  int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
+  int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius,
 			       float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
 			       int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink,
 			       int level, int SetBaryonFields);
