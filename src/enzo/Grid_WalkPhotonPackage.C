@@ -818,42 +818,44 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       break;
 
     /* Account for contributions to PE heating in FUV band */
+		/************************************************************/
+		/* FUV band radiation for PE heating - Type 8 */
+		/************************************************************/
 
     case FUVPEHEATING:
     {
         // tau = gamma * A_v (FERVENT + refs therein)
 	//  A_v = (NH2 + NH + NH+) / (1.87E-21 cm^-2)  * f_d_to_g
 	//    Draine + Bertoldi 1996
-        dP = 0;
+      dP = 0;
 
-        const double gamma = 3.5;
-
-        thisDensity = PopulationFractions[HIField]*BaryonField[HINum][index]+
+      const double gamma = 3.5;
+      thisDensity = PopulationFractions[HIField]*BaryonField[HINum][index]+
 	              PopulationFractions[HIIField]*BaryonField[HIINum][index]+
 	              ((MultiSpecies>1) ?
 	               2.0*(PopulationFractions[H2INum] *BaryonField[H2INum ][index]+
 		            PopulationFractions[H2IINum]*BaryonField[H2IINum][index]): 0.0) ;
-        
-        thisDensity *= ConvertToProperNumberDensity;
 
-        double dN_H = thisDensity * ddr; // in cgs !!!
+      thisDensity *= ConvertToProperNumberDensity;
 
-	double Z = BaryonField[MetalNum][index]/BaryonField[DensNum][index];
-        double f_d_g = NormalizedDustToGasRatio(Z);
-        const double dust_crs = (1.87E-21 * LengthUnits*LengthUnits);
-        double A_v = dN_H / (dust_crs) * f_d_g;
+      double dN_H = thisDensity * ddr; // in cgs !!!
 
-        tau = A_v * gamma;
+    	double Z = BaryonField[MetalNum][index]/BaryonField[DensNum][index];
+      double f_d_g = NormalizedDustToGasRatio(Z);
+      const double dust_crs = (1.87E-21 * LengthUnits*LengthUnits);
+      double A_v = dN_H / (dust_crs) * f_d_g;
 
-	if(FAIL==RadiativeTransferFUVPEHeating(PP, dP,
-	                                       index,tau,factor1,
-	                                        slice_factor2,FUVRateNum)){
-	  fprintf(stderr,"Failed to calculate the FUV PE heating rate field");
-	  return FAIL;
-	}
+      tau = A_v * gamma;
 
-	(*PP)->ColumnDensity += thisDensity*ddr*LengthUnits; // in cgs
-        break;
+      if(FAIL==RadiativeTransferFUVPEHeating(PP, dP,
+                                             index,tau,factor1,
+	                                           slice_factor2,FUVRateNum)){
+	      fprintf(stderr,"Failed to calculate the FUV PE heating rate field");
+	      return FAIL;
+	    }
+
+	    (*PP)->ColumnDensity += thisDensity*ddr*LengthUnits; // in cgs
+      break;
 
     }
     default:
