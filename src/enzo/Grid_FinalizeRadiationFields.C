@@ -104,7 +104,7 @@ int grid::FinalizeRadiationFields(void)
 
    if (IndividualStarFUVHeating && !RadiativeTransferOpticallyThinFUV){
      const int FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
-     const int PENum      = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+     const int PeNum      = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
      const int DensNum    = FindField(Density, this->FieldType, this->NumberOfBaryonFields);
 		 const int MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
      const double MassUnits = DensityUnits*LengthUnits*LengthUnits*LengthUnits;
@@ -112,19 +112,27 @@ int grid::FinalizeRadiationFields(void)
 		 float *temperature;
 		 int size = 1;
 		 for (dim=0;dim<GridRank;dim++) size *= this->GridDimension[dim];
-		 
+
 		 temperature = new float[size];
 
 		 if(this->ComputeTemperatureField(temperature) == FAIL){
 			 ENZO_FAIL("Error in compute temperature in Grid_GrackleWrapper");
 		 }
 
+     const float EnergyUnits = (MassUnits*VelocityUnits*VelocityUnits);
+		 const float EnergyUnits_inv = 1.0 / EnergyUnits;
+
+     const float FluxConv = EnergyUnits / TimeUnits / LengthUnits / LengthUnits;
+		 const float FluxConv_inv = 1.0 / FluxConv;
+
+     const float PeConversion = 1.0 / (EnergyUnits/TimeUnits/POW(LengthUnits,3)); 
+
      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
        for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
          index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
-         for (i = GridStartIndex[0]; i <= GridStartIndex[0]; i++){
+         for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
            // AJE: I don't think I need more unit conversions here, but need to make sure !!!
-           BaryonField[FUVRateNum][index] *= (MassUnits*VelocityUnits*VelocityUnits);
+           BaryonField[FUVRateNum][index] *= (EnergyUnits_inv * POW(LengthUnits,3));
 
 					 float n_H, n_e, Z;
 
@@ -141,15 +149,16 @@ int grid::FinalizeRadiationFields(void)
            float G_background = 0.0;
            this->ComputeBackgroundFUV(G_background);
 
-					 BaryonField[FUVRateNum][index] += G_background;
+					 BaryonField[FUVRateNum][index] += (G_background * FluxConv_inv);
 
 					 if (temperature[index] >= IndividualStarFUVTemperatureCutoff){
-						 BaryonField[PENum][index] = 0.0;
+						 BaryonField[PeNum][index] = 0.0;
 					 } else {
-             BaryonField[PENum][index] = ComputeHeatingRateFromDustModel(
+
+             BaryonField[PeNum][index] = ComputeHeatingRateFromDustModel(
 						                                    n_H, n_e, Z,
-					                                      BaryonField[FUVRateNum][index],
-								  														  -1.0); // set dx < 0 to turn off self-shielding approx
+					                                      BaryonField[FUVRateNum][index]*FluxConv,
+								  														  -1.0) * PeConversion; // set dx < 0 to turn off self-shielding approx
 					 }
 
          }

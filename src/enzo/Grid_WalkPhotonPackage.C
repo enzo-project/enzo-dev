@@ -847,6 +847,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
       tau = A_v * gamma;
 
+      // printf("FUV:  %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",thisDensity, dN_H, A_v, tau);
+
       if(FAIL==RadiativeTransferFUVPEHeating(PP, dP,
                                              index,tau,factor1,
 	                                           slice_factor2,FUVRateNum)){

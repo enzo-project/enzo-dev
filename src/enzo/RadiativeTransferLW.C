@@ -57,7 +57,7 @@ int grid::RadiativeTransferLW(PhotonPackageEntry **PP, FLOAT &dPLW, int cellinde
      ){
        const int FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
        const FLOAT dx2 = this->CellWidth[0][0] * this->CellWidth[0][0];
-       const double LW_energy = 11.2 * eV_erg;
+       const double LW_energy = 11.2 * erg_eV;
        // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
        BaryonField[FUVRateNum][cellindex] +=
                          ((*PP)->Photons - dPLW)*photonrate*LW_energy/(4.0*pi*dx2);

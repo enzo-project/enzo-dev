@@ -39,9 +39,9 @@ int grid::RadiativeTransferFUVPEHeating(PhotonPackageEntry **PP,
                                         float geo_correction, int FUVRateNum)
 {
 
-   const double FUV_energy = 8.4 * eV_erg; // 5.6 - 11.2 eV average
+   const double FUV_energy = 8.4 * erg_eV; // 5.6 - 11.2 eV average
    // be careful with this value !!! See Star_ComputePhotonRates
-
+  dP_FUV = 0.0;
   // attenuation of the 5.6 - 11.2 eV band
   if (tau > 2.e1){
     dP_FUV = (1.0+BFLOAT_EPSILON) * (*PP)->Photons;
@@ -57,12 +57,13 @@ int grid::RadiativeTransferFUVPEHeating(PhotonPackageEntry **PP,
 
   // for this cell, however, we want to know ALL photons. This is because
   // PE heating rate calculation is computed using full FUV ISRF flux
-
   // convert photon count to luminosity to energy flux density
   const FLOAT dx2 = this->CellWidth[0][0] * this->CellWidth[0][0];
   // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
   BaryonField[FUVRateNum][cellindex] +=
                 ((*PP)->Photons * photonrate * (FUV_energy)) / (4.0*pi*dx2);
+//  printf(" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",dP_FUV, photonrate, (*PP)->Photons,
+  //                                    BaryonField[FUVRateNum][cellindex]);
 
   return SUCCESS;
 }
