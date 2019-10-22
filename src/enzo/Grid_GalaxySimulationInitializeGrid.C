@@ -100,7 +100,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   int dim, i, j, k, m, disk, size, MetalNum, MetalIaNum, vel;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum, PeHeatingNum, OTLWkdissH2INum;
+      DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
 
   float DiskDensity, DiskVelocityMag;
 
@@ -201,15 +201,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
       }
     } // loop over yeilds
   } // done setting multimetals
-
-
-  // Restricted to use with individual star feedback for now - can be changed
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-    FieldType[PeHeatingNum = NumberOfBaryonFields++] = PeHeatingRate;
-  }
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-    FieldType[OTLWkdissH2INum = NumberOfBaryonFields++] = OTLWkdissH2I;
-  }
 
  /* Return if this doesn't concern us. */
 
@@ -335,17 +326,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
      }
    } // end for loop
  } // end MM == 2 check
-
- if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-   for (i = 0; i < size; i++){
-     BaryonField[PeHeatingNum][i] = 0.0;
-   }
- }
- if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-   for(i = 0; i < size; i ++){
-     BaryonField[OTLWkdissH2INum][i] = 0.0;
-   }
- }
 
  /* Loop over the mesh. */
 

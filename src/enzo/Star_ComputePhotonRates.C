@@ -140,12 +140,13 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
     /* compute optically thin rates */
     if( (IndividualStarFUVHeating || IndividualStarLWRadiation) &&
-       IndividualStarOTRadiationMethod == 1){
+        (M >= IndividualStarOTRadiationMass)){
          // AJE NEED BETTER IF STATEMENTS HERE
 
       nbins = 8 ; // + LW and + FUV
 
-      E[3] = 12.8; // LW radiation
+      E[3] = 12.8; // LW-band radiation (11.2 - 13.6 eV)
+
       // For now, no IR, Xray, or spectrum types
       E[4] = 0.0; E[5] = 0.0; E[6] = 0.0;
       Q[4] = 0.0; Q[5] = 0.0; Q[6] = 0.0;

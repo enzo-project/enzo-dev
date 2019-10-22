@@ -2496,7 +2496,6 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int IndividualStarSetWDLifetime(void);
 
   void ZeroPhotoelectricHeatingField(void);
-  void ZeroOTLWRadiationField(void);
   void ComputeBackgroundFUV(float &G_background);
   
   void AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_lw,

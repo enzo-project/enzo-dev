@@ -128,7 +128,7 @@ int grid::CosmologySimulationInitializeGrid(
 
   int idim, dim, i, j, vel, OneComponentPerFile, ndim, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum, OTLWkdissH2INum, PeHeatingNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum;
 #ifdef TRANSFER
   int EgNum;
 #endif
@@ -315,15 +315,6 @@ int grid::CosmologySimulationInitializeGrid(
       }
 #endif
     }
-
-#ifdef INDIVIDUALSTAR
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-    FieldType[PeHeatingNum = NumberOfBaryonFields++] = PeHeatingRate;
-  }
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-    FieldType[OTLWkdissH2INum = NumberOfBaryonFields++] = OTLWkdissH2I;
-  }
-#endif
 
     if(STARMAKE_METHOD(COLORED_POP3_STAR)){
       fprintf(stderr, "Initializing Forbidden Refinement color field\n");
@@ -580,20 +571,6 @@ int grid::CosmologySimulationInitializeGrid(
         BaryonField[ForbidNum][i] = 0.0;
     }
   } // ENDIF UseMetallicityField
-
-#ifdef INDIVIDUALSTAR
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating && ReadData){
-    for (i = 0; i < size; i++){
-      BaryonField[PeHeatingNum][i] = 0.0;
-    }
-  }
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation && ReadData){
-    for(i = 0; i < size; i ++){
-      BaryonField[OTLWkdissH2INum][i] = 0.0;
-    }
-  }
-#endif
-
 
 #ifdef EMISSIVITY
     // If using an emissivity field, initialize to zero

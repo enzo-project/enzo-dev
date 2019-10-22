@@ -152,11 +152,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
 
-  #ifdef INDIVIDUALSTAR
-    char *PeHeatingRateName = "Pe_heating_rate";
-    char *OTLWkdissH2IName  = "OTLW_kdissH2I";
-  #endif
-
   // Declarations
 
   char line[MAX_LINE_LENGTH];
@@ -816,16 +811,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       }
 #endif
   }
-
-#ifdef INDIVIDUALSTAR
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-    DataLabel[i++] = PeHeatingRateName;
-  }
-
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-    DataLabel[i++] = OTLWkdissH2IName;
-  }
-#endif
 
   if(STARMAKE_METHOD(COLORED_POP3_STAR)){
     DataLabel[i++] = ForbidName;

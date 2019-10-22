@@ -240,9 +240,6 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars,
 			 int TotalStarParticleCountPrevious[], int &OutputNow);
-int StarParticleOpticallyThinRadiation(TopGridData *MetaData,
-                                       LevelHierarchyEntry *LevelArray[], int level,
-                                       Star* &AllStars);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
 int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level);
@@ -477,8 +474,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
-
-    StarParticleOpticallyThinRadiation(MetaData, LevelArray, level, AllStars);
 
     /* Calculate ClusterSMBHColdGasMass */
 

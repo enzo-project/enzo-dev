@@ -40,10 +40,9 @@ int grid::InitializeRadiativeTransferFields()
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
                                   kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
-  int OTLWkdissH2INum, PeNum, FUVRateNum;
+  int PeNum, FUVRateNum;
 
   PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
-  OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
   FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
 
 
@@ -113,23 +112,7 @@ int grid::InitializeRadiativeTransferFields()
   */
 
   TIMER_START("InitializeOTFields");
-  if (IndividualStarOTRadiationMethod == 1 &&
-      RadiativeTransferOpticallyThinH2     &&
-      IndividualStarLWRadiation){
-    if (OTLWkdissH2INum < 0) ENZO_FAIL("Failure to identify OTLWkdiss in InitializeRadiativeTransferFields\n");
-
-    for (k = 0; k < GridDimension[2]; k++){
-      for (j = 0; j < GridDimension[1]; j++) {
-        index = (k*GridDimension[1] + j)*GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, index++){
-          BaryonField[OTLWkdissH2INum][index] = 0.0;
-        }
-      }
-    }
-  }
-
-  if (IndividualStarOTRadiationMethod == 1 &&
-      RadiativeTransferOpticallyThinFUV    &&
+  if (RadiativeTransferOpticallyThinFUV    &&
       IndividualStarFUVHeating){
     if (PeNum < 0) ENZO_FAIL("Failure to identify PeHeatingRate in InitializeRadiativeTransferFields\n");
     for ( k = 0; k < GridDimension[2]; k++){
@@ -142,10 +125,8 @@ int grid::InitializeRadiativeTransferFields()
     }
   }
 
-  if (IndividualStarOTRadiationMethod == 1 &&
-      !RadiativeTransferOpticallyThinFUV   &&
+  if (!RadiativeTransferOpticallyThinFUV   &&
       IndividualStarFUVHeating){
-
     for ( k = 0; k < GridDimension[2]; k++){
       for( j = 0; j < GridDimension[1]; j++){
         index = (k*GridDimension[1] + j)*GridDimension[0];

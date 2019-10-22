@@ -58,18 +58,3 @@ int grid::CheckDensity(void){
 }
 
 
-int grid::CheckOTRadiation(void){
-
-  if (NumberOfBaryonFields == 0) return SUCCESS;
-
-  int OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
-  int PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
-
-  int err = SUCCESS;
-  if (PeNum > 0) err *= this->CheckField(PeNum);
-  if (OTLWkdissH2INum > 0) err *= this->CheckField(OTLWkdissH2INum);
-
-  return err;
-
-}
-

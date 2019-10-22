@@ -256,19 +256,18 @@ const field_type
   BiDensity = 178,
 
   PeHeatingRate = 179,
-  OTLWkdissH2I  = 180,
 
   /* IR photodetachment fields */
-  kdissH2II = 181,
-  kphHM     = 182,
-  FUVRate   = 183, /* FUV energy flux density */
+  kdissH2II = 180,
+  kphHM     = 181,
+  FUVRate   = 182, /* FUV energy flux density */
 
   /* Real and Imag of Wave Function */
-  RePsi = 184,
-  ImPsi = 185,
-  FDMDensity = 186,
+  RePsi = 183,
+  ImPsi = 184,
+  FDMDensity = 185,
 
-  FieldUndefined  = 187;
+  FieldUndefined  = 186;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -281,9 +280,9 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
                  FieldUndefined};
 */
 
-#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3) || ((A) == PeHeatingRate) || ((A) == OTLWkdissH2I)) || ((A)>=kdissH2II && (A)<=FUVRate) ? FALSE : TRUE)
-#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9) || ((A)==kdissH2II) || ((A)==kphHM) || ((A)==FUVRate) || ((A) == PeHeatingRate) || ((A) == OTLWkdissH2I)) ? TRUE : FALSE)
-#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments)) || ((A) == OTLWkdissH2I) || ((A) == PeHeatingRate) ? TRUE : FALSE)
+#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3) || ((A) == PeHeatingRate) || ((A)>=kdissH2II && (A)<=FUVRate)) ? FALSE : TRUE)
+#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9) || ((A)==kdissH2II) || ((A)==kphHM) || ((A)==FUVRate) || ((A) == PeHeatingRate)) ? TRUE : FALSE)
+#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments)) || ((A) == PeHeatingRate) ? TRUE : FALSE)
 
 /* Different stochastic forcing types */
 const forcing_type

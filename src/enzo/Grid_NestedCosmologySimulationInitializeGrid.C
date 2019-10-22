@@ -126,7 +126,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 
   int idim, ndim, dim, i, j, vel, OneComponentPerFile, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum, OTLWkdissH2INum, PeHeatingNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum, PeHeatingNum;
 
   int iTE = ietot;
   int ExtraField[4];
@@ -438,9 +438,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
     if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
       FieldType[PeHeatingNum = NumberOfBaryonFields++] = PeHeatingRate;
     }
-    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-      FieldType[OTLWkdissH2INum = NumberOfBaryonFields++] = OTLWkdissH2I;
-    }
 #endif
 
     if (WritePotential)
@@ -723,11 +720,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
    if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating && ReadData){
      for (i = 0; i < size; i++){
        BaryonField[PeHeatingNum][i] = 0.0;
-     }
-   }
-   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation && ReadData){
-     for(i = 0; i < size; i ++){
-       BaryonField[OTLWkdissH2INum][i] = 0.0;
      }
    }
 #endif

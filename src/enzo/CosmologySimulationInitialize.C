@@ -155,12 +155,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *EtaName    = "Emissivity";
 #endif
 
-#ifdef INDIVIDUALSTAR
-  char *PeHeatingRateName = "Pe_heating_rate";
-  char *OTLWkdissH2IName  = "OTLW_kdissH2I";
-#endif
-
-
   char line[MAX_LINE_LENGTH];
   int i, j, dim, gridnum, ret, SubgridsAreStatic, region;
   HierarchyEntry *Subgrid;
@@ -851,16 +845,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 #endif
   }
 
-
-#ifdef INDIVIDUALSTAR
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-    DataLabel[i++] = PeHeatingRateName;
-  }
-
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-    DataLabel[i++] = OTLWkdissH2IName;
-  }
-#endif
 
   if(STARMAKE_METHOD(COLORED_POP3_STAR)){
     DataLabel[i++] = ForbidName;

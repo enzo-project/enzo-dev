@@ -54,7 +54,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
   }
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum, MetalNum, PeNum, OTLWkdissH2INum;
+      DINum, DIINum, HDINum, MetalNum;
 
   if(MultiSpecies){
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
@@ -69,19 +69,6 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
   } else {
     MetalNum = 0;
     printf("ChemicalEvolutionTest: Metallicity Field not found.\n");
-  }
-
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-    PeNum = FindField(PeHeatingRate, FieldType, NumberOfBaryonFields);
-    if (PeNum <= 0){
-      ENZO_FAIL("Error identifying pe heating rate field\n");
-    }
-  }
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-    OTLWkdissH2INum = FindField(OTLWkdissH2I, FieldType, NumberOfBaryonFields);
-    if (OTLWkdissH2INum <= 0){
-      ENZO_FAIL("Error identifying kdissH2I field\n");
-    }
   }
 
   int size = 1, i;
@@ -159,18 +146,6 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
     } // loop over yields
 
   } // MULTI METALS
-
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-    for(i = 0; i < size; i ++){
-      BaryonField[PeNum][i] = 0.0;
-    }
-  }
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-    for(i = 0; i < size; i ++){
-      BaryonField[OTLWkdissH2INum][i] = 0.0;
-    }
-  }
-
 
   /* now go through and initialize the particles */
   int MaximumNumberOfNewParticles = 10000;

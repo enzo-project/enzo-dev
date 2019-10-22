@@ -127,7 +127,7 @@ int grid::GrackleWrapper()
     specific_heating_rate   = NULL;
 
     /* zero heating rate when temperature is above threshold */
-    if ( (!RadiativeTransferOpticallyThinFUV) && IndividualStarOTRadiationMethod==1){
+    if ( (!RadiativeTransferOpticallyThinFUV)){
       float *temperature;
       temperature = new float[size];
 
@@ -310,10 +310,6 @@ int grid::GrackleWrapper()
 
     my_fields.RT_heating_rate = BaryonField[gammaNum];
 
-    if(IndividualStarLWRadiation){
-      int OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
-      my_fields.RT_H2_dissociation_rate = BaryonField[OTLWkdissH2INum];
-    }
   }
 #endif // TRANSFER
 

@@ -66,6 +66,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   const char    *Rad1Name      = "Radiation1";
   const char    *Rad2Name      = "Radiation2";
   const char    *Rad3Name      = "Radiation3";
+  const char    *PeHeatingName = "Pe_heating_rate";
   const char    *FUVRateName   = "FUV_FluxDensity";
 
   int i, j, k, level;
@@ -79,7 +80,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
     /* Check for radiation fields and delete them */
 
-    NumberOfObsoleteFields = 14;
+    NumberOfObsoleteFields = 15;
     ObsoleteFields[0] = kphHI;
     ObsoleteFields[1] = PhotoGamma;
     ObsoleteFields[2] = kphHeI;
@@ -93,7 +94,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ObsoleteFields[10] = RadPressure0;
     ObsoleteFields[11] = RadPressure1;
     ObsoleteFields[12] = RadPressure2;
-    ObsoleteFields[13] = FUVRate;
+    ObsoleteFields[13] = PeHeatingRate;
+    ObsoleteFields[14] = FUVRate;
 
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
@@ -212,8 +214,11 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	TypesToAdd[FieldsToAdd++] = RaySegments;
     }
 
-    if (!(RadiativeTransferOpticallyThinFUV) &&
-          IndividualStarOTRadiationMethod == 1){
+    if (IndividualStarFUVHeating){ // better if needed
+      TypesToAdd[FieldsToAdd++] = PeHeatingRate;
+    }
+
+    if (!(RadiativeTransferOpticallyThinFUV)){
       TypesToAdd[FieldsToAdd++] = FUVRate;
     }
 
@@ -363,6 +368,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
       break;
     case RaySegments:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) RaySegName;
+      break;
+    case PeHeatingRate:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) PeHeatingName;
       break;
     case FUVRate:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) FUVRateName;

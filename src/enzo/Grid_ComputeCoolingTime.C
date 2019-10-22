@@ -363,11 +363,6 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 
     }
 
-    if(IndividualStarLWRadiation){
-      int OTLWkdissH2INum = FindField(OTLWkdissH2I, this->FieldType, this->NumberOfBaryonFields);
-      my_fields.RT_H2_dissociation_rate = BaryonField[OTLWkdissH2INum];
-    }
-
 #endif // TRANSFER
 
     if (calculate_cooling_time(&grackle_units, &my_fields, cooling_time) == FAIL) {

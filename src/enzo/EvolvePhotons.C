@@ -602,14 +602,14 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     TIMER_START("StarParticlePhotoelectricHeating");
     START_PERF();
-    if (RadiativeTransferOpticallyThinH2 && IndividualStarOTRadiationMethod == 1)
+    if (RadiativeTransferOpticallyThinH2)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
     END_PERF(10);
 
     /* Set the FUV photoelectric heating rates */
-    if (RadiativeTransferOpticallyThinFUV && IndividualStarOTRadiationMethod == 1)
+    if (RadiativeTransferOpticallyThinFUV)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
         for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
           Temp->GridData->AddPeHeating(AllStars, NumberOfSources);

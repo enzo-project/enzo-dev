@@ -147,8 +147,6 @@ public:
     char *ByName = "By";
     char *BzName = "Bz";
     char *PhiName = "Phi";
-    char *PeHeatingRateName = "Pe_heating_rate";
-    char *OTLWkdissH2IName  = "OTLW_kdissH2I";
 
     /* local declarations */
 
@@ -442,13 +440,6 @@ public:
       } // yields loop
     }
 
-    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-      DataLabel[count++] = PeHeatingRateName;
-    }
-    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-      DataLabel[count++] = OTLWkdissH2IName;
-    }
-
     for (i = 0; i < count; i++)
       DataUnits[i] = NULL;
 
@@ -604,11 +595,6 @@ public:
       MetallicityField = TRUE;
     else
       MetalNum = 0;
-
-    int PeHeatingNum = FindField( PeHeatingRate, thisgrid->FieldType,
-                                  thisgrid->NumberOfBaryonFields);
-    int OTLWkdissH2INum = FindField( OTLWkdissH2I, thisgrid->FieldType,
-                                     thisgrid->NumberOfBaryonFields);
 
     //
     int dim, i, j, k, n, size, index=0, nx, ny, nz;
@@ -984,13 +970,6 @@ public:
             }
           } // end for loop
         } // end MM == 2 check
-
-        if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-          thisgrid->BaryonField[PeHeatingNum][i] = 0.0;
-        }
-        if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarLWRadiation){
-          thisgrid->BaryonField[OTLWkdissH2INum][index] = 0.0;
-        }
 
 
               if (HydroMethod == MHD_RK)
