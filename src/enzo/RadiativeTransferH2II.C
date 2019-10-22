@@ -59,7 +59,9 @@ int grid::RadiativeTransferH2II(PhotonPackageEntry **PP, int cellindex,
      ){
     const int FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
     const FLOAT dx2 = this->CellWidth[0][0] * this->CellWidth[0][0];
-    const double LW_energy = 11.2 * erg_eV;
+		// for individual stars, make sure below is consistent with
+		// Star_ComputePhotonRates energies (should probably just make this a param)		
+    const double LW_energy = 12.8 * erg_eV;
     // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
     BaryonField[FUVRateNum][cellindex] +=
 		    ((*PP)->Photons - dPH2II)*photonrate*LW_energy/(4.0*pi*dx2);
