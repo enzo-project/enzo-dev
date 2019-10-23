@@ -31,6 +31,8 @@
 #define THRESHOLD_DENSITY_DB36 1e14
 #define THRESHOLD_DENSITY_DB37 5e14
 
+#define DEVCODE 1
+
 int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP, 
 				       FLOAT thisDensity, FLOAT ddr,
 				       int cellindex, float LengthUnits, int kdissH2INum, 
@@ -147,6 +149,8 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
   
   BaryonField[kdissH2INum][cellindex] += geo_correction * (*PP)->Photons * 
     dissrate;
+
+#if !DEVCODE
    if(BaryonField[kdissH2INum][cellindex] < tiny_number)
     {
 #if DEBUG
@@ -155,6 +159,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
 #endif
       BaryonField[kdissH2INum][cellindex] = tiny_number;
     }
+#endif
       
   return SUCCESS;
 }

@@ -27,6 +27,8 @@
 
 int FindField(int f, int farray[], int n);
 
+#define DEVCODE 1
+
 int grid::RadiativeTransferH2II(PhotonPackageEntry **PP, int cellindex,
 				float tau, FLOAT photonrate, float geo_correction,
 				int kdissH2IINum)
@@ -47,10 +49,13 @@ int grid::RadiativeTransferH2II(PhotonPackageEntry **PP, int cellindex,
   // BaryonField[kdissH2IINum] needs to be normalised - see
   // Grid_FinalizeRadiationFields.C
   BaryonField[kdissH2IINum][cellindex] += dPH2II*photonrate;
+
+#if !DEVCODE
   if(BaryonField[kdissH2IINum][cellindex] < tiny_number)
     {
       BaryonField[kdissH2IINum][cellindex] = tiny_number;
     }
+#endif
 
   /// AJE Add leftover photons to PE flux bin:
   ///   simplify these ifs in the future:
