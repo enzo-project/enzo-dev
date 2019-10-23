@@ -179,7 +179,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       continue;
 
     /* If we are doing simple H2I, H2II and HM rates continue here. */
-    if(RS->Energy[ebin] <= 13.6 && RadiativeTransferOpticallyThinH2 == 1)
+    if(RS->Energy[ebin] <= 13.6 &&
+       (RadiativeTransferOpticallyThinH2 == 1) && (RadiativeTransferOpticallyThinFUV==1))
       continue;
 
     photons_per_package = RampPercent * RS->Luminosity *
