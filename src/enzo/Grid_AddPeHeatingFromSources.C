@@ -123,6 +123,8 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
   if (ProblemType == 50) ENZO_FAIL("Ptype = 50 not implemented in PeHeating");
 
+  const double clight_code = clight * TimeUnits / LengthUnits;
+
   for (cstar = AllStars; cstar; cstar = cstar->NextStar){
 
     // Skip if not 'living'
@@ -138,7 +140,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
     } else {
       if (!(cstar->FeedbackFlag == NO_FEEDBACK ||
-          cstar->FeedbackFlag == CONT_SUPERNOVA))
+            cstar->FeedbackFlag == CONT_SUPERNOVA))
       continue;
     }
 
@@ -149,7 +151,6 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
     /* this->Luminosity is photon / s, energies is in eV */
     cstar->ComputeFUVLuminosity(FUVLuminosity);
     // (Luminosity[4]*energies[4]) / (4.0 * M_PI * eV_erg);
-
 
     /* Pre-calculate distances from cells to source */
     for (dim = 0; dim < GridRank; dim++)
@@ -168,7 +169,6 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
     double radius2, radius2_yz;
     double FUVflux = FUVLuminosity / (4.0 * pi * LengthUnits * LengthUnits); // mostly converted to flux
-    const double clight_code = clight * TimeUnits / LengthUnits;
     for (k = 0; k < ActiveDims[2]; k++) {
       for (j = 0; j < ActiveDims[1]; j++) {
         radius2_yz = ddr2[1][j] + ddr2[2][k];
@@ -176,14 +176,16 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
         for (i = 0; i < ActiveDims[0]; i++, index++) {
           radius2 = radius2_yz + ddr2[0][i];
 
-          float max_distance = (this->Time - cstar->ReturnBirthTime()) / clight_code;
-
+          float max_distance = (this->Time - cstar->ReturnBirthTime()) * clight_code;
+           
           if ( sqrt(radius2) > max_distance) continue; // does not contribute
 
-          if (radius2 < dilRadius2) // need r^2 in cgs
-            FUVflux = FUVflux / (dilRadius2);
-          else
-            FUVflux = FUVflux / (radius2);
+          double LocalFUVflux = 0.0;
+          if (radius2 < dilRadius2){ // need r^2 in cgs
+            LocalFUVflux = FUVflux / (dilRadius2);
+          } else{
+            LocalFUVflux = FUVflux / (radius2);
+          }
 
           float n_H, n_e, Z;
 
@@ -201,10 +203,9 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
           Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
-
           BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, 
                                                                // temperature[index],
-                                                                       Z, FUVflux,
+                                                                       Z, LocalFUVflux,
                                                                        this->CellWidth[0][0]*LengthUnits) * PeConversion;
             //} // ENDIF
         } // END: i-direction
