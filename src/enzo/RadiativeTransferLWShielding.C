@@ -160,6 +160,22 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
       BaryonField[kdissH2INum][cellindex] = tiny_number;
     }
 #endif
-      
+
+
+  /// AJE Add leftover photons to PE flux bin:
+  ///   simplify these ifs in the future:
+  if ( (!RadiativeTransferOpticallyThinFUV) &&
+       (IndividualStarFUVHeating)
+     ){
+       const int FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
+                         // for individual stars, make sure below is consistent with
+                         // Star_ComputePhotonRates energies (should probably just make this a param)
+       const double LW_energy = 12.8 * erg_eV;
+       // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
+       BaryonField[FUVRateNum][cellindex] +=
+                         ((*PP)->Photons - dP)*emission_dt_inv*LW_energy/(4.0*pi*dx2);
+  }
+
+
   return SUCCESS;
 }
