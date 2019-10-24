@@ -102,7 +102,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     M   = this->BirthMass;   // interpolate grids on initial ZAMS mass
     Z   = this->Metallicity;
     tau = this->LifeTime;
-    R   = this->Radius;
+    R   = this->ReturnRadius();
     tau = tau * (TimeUnits); // convert to cgs
 
 
@@ -127,6 +127,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       Q[0] = Q[0] * 4.0 * pi * R*R;
       Q[1] = Q[1] * 4.0 * pi * R*R;
       Q[2] = 0.0; // do not track
+
     } else{
       E[0] = 21.0; //irrelevant
       E[1] = 30.0; //irrelevant
@@ -155,20 +156,18 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       //      - set to 9.8 eV for convenience
       E[7] = 8.4;  // FUV radiation - average of 5.6 to 11.2 eV range
 
-      if(IndividualStarFUVHeating && M > IndividualStarOTRadiationMass){
+      Q[7] = 0.0;
+      if(IndividualStarFUVHeating){
           float l_fuv;
           this->ComputeFUVLuminosity(l_fuv);
-          Q[7] = l_fuv / (E[7] / eV_erg); // photon rate 
-      } else{
-          Q[7] = 0.0;
+          Q[7] = l_fuv / (E[7] / eV_erg); // photon rate
       }
 
-      if(IndividualStarLWRadiation && M > IndividualStarOTRadiationMass){
+      Q[3] = 0.0;
+      if(IndividualStarLWRadiation){
         float l_lw;
         this->ComputeLWLuminosity(l_lw);
         Q[3] = l_lw / (E[3] / eV_erg);
-      } else{
-        Q[3] = 0.0;
       }
 
     } // end optically thin radiation
