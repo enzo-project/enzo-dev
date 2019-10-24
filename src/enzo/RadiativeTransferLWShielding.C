@@ -5,13 +5,13 @@
 /  Calculate the effect of LW radiation on H2 molecules
 /
 /  written by: John Wise
-/  date:     
+/  date:
 /  modified1: John Regan
 /             Moved to its own function and file from
 /             WalkPhotonPackage
 /
-/  PURPOSE: Calculate the photodissociation rate 
-/           of H2 due to radiation in the Lyman Werner band. 
+/  PURPOSE: Calculate the photodissociation rate
+/           of H2 due to radiation in the Lyman Werner band.
 /
 /  RETURNS: FAIL or SUCCESS
 /
@@ -33,9 +33,9 @@
 
 #define DEVCODE 1
 
-int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP, 
+int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
 				       FLOAT thisDensity, FLOAT ddr,
-				       int cellindex, float LengthUnits, int kdissH2INum, 
+				       int cellindex, float LengthUnits, int kdissH2INum,
 				       int TemperatureField, float geo_correction)
 {
   int H2Thin = 0;
@@ -46,8 +46,8 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
-  if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
-				  HeIIINum, HMNum, H2INum, H2IINum, DINum, 
+  if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum,
+				  HeIIINum, HMNum, H2INum, H2IINum, DINum,
 				  DIINum, HDINum) == FAIL) {
     ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
   }
@@ -59,8 +59,8 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
   Area_inv = ddr / dx3;
   //Calculate the dissociation rate per cell area
   //Units = cm^2*LengthUnits/(CodeLength^2*CodeTime)
-  FLOAT dissrate = emission_dt_inv*cross_section*Area_inv; 
- 
+  FLOAT dissrate = emission_dt_inv*cross_section*Area_inv;
+
   if(RadiativeTransferH2ShieldType == 0) {
     /* We treat H2 dissociation with the shielding function from
        Draine & Bertoldi (1996) */
@@ -71,7 +71,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
       shield1 = pow((*PP)->ColumnDensity / THRESHOLD_DENSITY_DB36, -0.75);
       H2Thin = FALSE;
     }
-    
+
     (*PP)->ColumnDensity += thisDensity * ddr * LengthUnits;
     if ((*PP)->ColumnDensity < THRESHOLD_DENSITY_DB36) {
       shield2 = 1;
@@ -81,8 +81,8 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
     }
   }
   else if (RadiativeTransferH2ShieldType == 1) {
-    /* We treat H2 dissociation with the shielding function from 
-     * Equation 37 from Draine & Beltoldi with the exception that the 
+    /* We treat H2 dissociation with the shielding function from
+     * Equation 37 from Draine & Beltoldi with the exception that the
      * power in the first term is 1.1 as per Wolcott-Green 2011
      */
     float b = 0;                      //doppler parameter
@@ -93,11 +93,11 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
     float shield1_db = 1.0, shield2_db = 1.0;
     /*
      * The Wallcott-Green 2011 paper indicates that  a modified form
-     * of the Draine & Bertoldi fitting formaula for H2 self shielding may be 
-     * more appropriate 
+     * of the Draine & Bertoldi fitting formaula for H2 self shielding may be
+     * more appropriate
      */
-   
-    
+
+
     b = sqrt(2.0*kboltz*BaryonField[TemperatureField][cellindex]/H2mass); // cm s^-1
     b5 = b/1e5;                                    // cm s^-1
     if ((*PP)->ColumnDensity < THRESHOLD_DENSITY_DB37) {
@@ -106,18 +106,18 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
     }
     else {
       x = (*PP)->ColumnDensity/(THRESHOLD_DENSITY_DB37);
-      shield1 = 0.965/pow(1 + x/b5, alpha) + 
+      shield1 = 0.965/pow(1 + x/b5, alpha) +
 	(0.035/(pow(1 + x, 0.5)))*exp((-8.5e-4)*(pow(1 + x, 0.5)));
       H2Thin = FALSE;
     }
-    
+
     (*PP)->ColumnDensity += thisDensity * ddr * LengthUnits;
     if ((*PP)->ColumnDensity < THRESHOLD_DENSITY_DB37) {
       shield2 = 1;
-    } 
+    }
     else {
       x = (*PP)->ColumnDensity/(THRESHOLD_DENSITY_DB37);
-      shield2 = 0.965/pow(1 + x/b5, alpha) 
+      shield2 = 0.965/pow(1 + x/b5, alpha)
 	+ (0.035/(pow(1 + x, 0.5)))*exp((-8.5e-4)*(pow(1 + x, 0.5)));
       H2Thin = FALSE;
     }
@@ -128,26 +128,26 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
 	      "fitting function - abort\n", __FUNCTION__);
       return FAIL;
     }
-  
+
   if (H2Thin == TRUE) {
     dP = 0;
   }
-  else {	
+  else {
     dP = (*PP)->Photons * (1 - shield2/shield1);
-    if (MYPROC && DEBUG) 
+    if (MYPROC && DEBUG)
       {
 	fprintf(stdout, "%s: Column Density = %e\t dP(D&B) = %e\n", __FUNCTION__,
 		(*PP)->ColumnDensity, dP);
 	fprintf(stdout, "%s: shield = %g\n",  __FUNCTION__, shield2);
       }
   }
-  
+
   /* [geo_correction] = None (unitless)
    * [(*PP)->Photons] = 1/(LengthUnits^3)
    * [dissrate] = cm^2*CodeLength/(CodeLength^2*CodeTime)
    /* Units = 1/(CodeTime) */
-  
-  BaryonField[kdissH2INum][cellindex] += geo_correction * (*PP)->Photons * 
+
+  BaryonField[kdissH2INum][cellindex] += geo_correction * (*PP)->Photons *
     dissrate;
 
 #if !DEVCODE
@@ -173,7 +173,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
        const double LW_energy = 12.8 * erg_eV;
        // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
        BaryonField[FUVRateNum][cellindex] +=
-                         ((*PP)->Photons - dP)*emission_dt_inv*LW_energy/(4.0*pi*dx2);
+          ((*PP)->Photons*geo_correction - dP)*emission_dt_inv*LW_energy/(dx2);
   }
 
 

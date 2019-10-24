@@ -63,9 +63,8 @@ int grid::RadiativeTransferFUVPEHeating(PhotonPackageEntry **PP,
   const FLOAT dx2 = this->CellWidth[0][0] * this->CellWidth[0][0];
   // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
   BaryonField[FUVRateNum][cellindex] +=
-                ((*PP)->Photons * photonrate * (FUV_energy)) / (4.0*pi*dx2);
-//  printf(" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",dP_FUV, photonrate, (*PP)->Photons,
-  //                                    BaryonField[FUVRateNum][cellindex]);
+                ((*PP)->Photons * photonrate * (FUV_energy) * geo_correction)
+                / (dx2);
 
   return SUCCESS;
 }
