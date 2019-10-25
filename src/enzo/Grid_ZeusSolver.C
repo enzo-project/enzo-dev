@@ -225,7 +225,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       ENZO_FAIL("Error in GetUnits.");
     }
 
-    float a = 1, dadt;
+    FLOAT a = 1, dadt;
     if (ComovingCoordinates)
       if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) == FAIL) {
 	ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
