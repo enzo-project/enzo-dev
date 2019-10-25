@@ -170,10 +170,7 @@ int grid::SchrodingerSolver( int nhy )
   }
 
   // calculate hbar/m
-  float afloat = 1;
-  if (ComovingCoordinates){
-    CosmologyComputeExpansionFactor(Time, &afloat, &dadt);
-  }
+  float afloat = float(a);
   float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits/afloat,2)/FDMMass;
 
   //printf("hmcoef %f \n", hmcoef);
