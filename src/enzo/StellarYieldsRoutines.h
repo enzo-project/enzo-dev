@@ -10,6 +10,11 @@
 #endif
 
 
+float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
+                                                    const int   &atomic_number);
+                                                    
+float StellarYields_SolarAbundancesByNumber(const int &atomic_number);
+
 float StellarYields_SNIaYieldsByNumber(const int &atomic_number);
 
 // float StellarYields_PopIIIYieldsByNumber(const int &atomic_number);

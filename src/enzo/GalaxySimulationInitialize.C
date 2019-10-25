@@ -37,7 +37,7 @@
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
 #include "CommunicationUtilities.h"
-
+#include "phys_constants.h"
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
@@ -100,10 +100,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char  line[MAX_LINE_LENGTH];
   int   dim, ret, level, disk, i;
 
-  const double pi     = 3.14159265358979323846;
-  const double msolar = 1.9891E33;
-  const double mpc    = 3.0856E24;
-
   /* make sure it is 3D */
 
   if (MetaData.TopGridRank != 3) {
@@ -162,15 +158,15 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationInitialTemperature = 1000.0;
   GalaxySimulationDiskRadius         = 0.2;      // CODE UNITS
   GalaxySimulationDiskTemperature    = 1.e4;     // [K]
-  GalaxySimulationDiskScaleHeightz   = 325e-6;   // Mpc
-  GalaxySimulationDiskScaleHeightR   = 3500e-6;  // Mpc
-  GalaxySimulationTruncationRadius   = .026; // [ Mpc ]
+  GalaxySimulationDiskScaleHeightz   = 325e-6;   // Mpc_cm
+  GalaxySimulationDiskScaleHeightR   = 3500e-6;  // Mpc_cm
+  GalaxySimulationTruncationRadius   = .026; // [ Mpc_cm ]
   GalaxySimulationDarkMatterConcentrationParameter = 12;
   GalaxySimulationGasMass            = 4.0e10;
   GalaxySimulationGalaxyMass         = 1.0e12;
   GalaxySimulationDiskTemperature    = 1000.0;   // AJE whhy is this repeated??
   GalaxySimulationGasHalo            = 0; // uniform halo w/ densicm and UniformTemperature
-  GalaxySimulationGasHaloScaleRadius = .001; // Mpc
+  GalaxySimulationGasHaloScaleRadius = .001; // Mpc_cm
   GalaxySimulationGasHaloDensity     = 1.8e-27; // cgs
   GalaxySimulationInflowTime         = -1;
   GalaxySimulationInflowDensity      = 0;
@@ -461,8 +457,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     // set central density if DM mass given
     if( DiskGravityDarkMatterDensity < 0){
       float xtemp = DiskGravityDarkMatterMassInteriorR / DiskGravityDarkMatterR; // convenience for below
-      DiskGravityDarkMatterDensity = DiskGravityDarkMatterMassInterior*msolar /
-                                     ( (2.0 * pi * POW(DiskGravityDarkMatterR*mpc,3.0) ) *
+      DiskGravityDarkMatterDensity = DiskGravityDarkMatterMassInterior*SolarMass /
+                                     ( (2.0 * pi * POW(DiskGravityDarkMatterR*Mpc_cm,3.0) ) *
                                        (0.5 * log(1.0 + xtemp*xtemp) + log(1.0 + xtemp) - atan(xtemp)));
 
     }
@@ -781,9 +777,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   if (IndividualStarICSupernovaRate > 0){ // save galaxy properties for SN driving if used
     if (IndividualStarICSupernovaR < 0) 
-      IndividualStarICSupernovaR = GalaxySimulationDiskScaleHeightR; // in Mpc
+      IndividualStarICSupernovaR = GalaxySimulationDiskScaleHeightR; // in Mpc_cm
     if (IndividualStarICSupernovaZ < 0)
-      IndividualStarICSupernovaZ = GalaxySimulationDiskScaleHeightz; // in Mpc
+      IndividualStarICSupernovaZ = GalaxySimulationDiskScaleHeightz; // in Mpc_cm
   }
 
  /* set up field names and units */

@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "performance.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -163,6 +165,13 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     EndTime = PhotonTime+dtPhoton-PFLOAT_EPSILON;
 
   while (PP != NULL) {
+
+    bool stop_fuv_timer = FALSE;
+    if ((PP)->Type == FUVPEHEATING || (PP)->Type == LW){
+      stop_fuv_timer = TRUE;
+      TIMER_START("RadiativeTrasnferFUVandLW");
+    }
+
     int retval = 0;
     if (PP->PreviousPackage == NULL)
       printf("Bad package.\n");
@@ -207,6 +216,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
       // Insert in paused photon list if it belongs in this grid.
       if (MoveToGrid == NULL && DeleteMe == FALSE) {
 	SavedPP = PopPhoton(PP);
+
 	PP = PP->NextPackage;
 	InsertPhotonAfter(PausedPP, SavedPP);
 	AdvancePhotonPointer = FALSE;
@@ -217,6 +227,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     if (DeleteMe == TRUE) {
       if (DEBUG > 1) fprintf(stdout, "delete photon %x\n", PP);
       dcount++;
+
       PP = DeletePhotonPackage(PP);
       MoveToGrid = NULL;
     } 
@@ -249,12 +260,18 @@ int grid::TransportPhotonPackages(int level, int finest_level,
 		   NewEntry->ToProcessor)
       }
 
+
       if (PP->PreviousPackage != NULL) 
 	PP->PreviousPackage->NextPackage = PP->NextPackage;
       if (PP->NextPackage != NULL) 
 	PP->NextPackage->PreviousPackage = PP->PreviousPackage;
       trcount++;
     } // ENDIF MoveToGrid
+
+    if (stop_fuv_timer){
+      TIMER_STOP("RadiativeTrasnferFUVandLW");
+    }
+
 
     if (AdvancePhotonPointer == TRUE)
       PP = PP->NextPackage;

@@ -28,7 +28,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
-
+#include "phys_constants.h"
 
 /* function prototypes */
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -89,7 +89,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
           while (Temp != NULL){
             float dx = float(Temp->GridData->ReturnCellWidth());
 
-            float m_eject = MixingExperimentData.M_ej[i] * 1.989E33 / MassUnits
+            float m_eject = MixingExperimentData.M_ej[i] * SolarMass / MassUnits
                                   / (dx*dx*dx);
 
             float e_eject = MixingExperimentData.E_ej[i] * 1.0E51 /
@@ -100,7 +100,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
             metal_mass = new float[StellarYieldsNumberOfSpecies + 1]; // extra for metallicity as 0th element
 
             for (int iyield = 1; iyield < StellarYieldsNumberOfSpecies+1; iyield++){
-              metal_mass[iyield] = MixingExperimentData.yield[i][iyield-1] * 1.989E33 / MassUnits
+              metal_mass[iyield] = MixingExperimentData.yield[i][iyield-1] * SolarMass / MassUnits
                                        / (dx*dx*dx);
 
               metal_mass[0]     += metal_mass[iyield]; // sum of all metals - can set to zero if issue...
@@ -152,12 +152,8 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
         }
         MassUnits = DensityUnits * LengthUnits * LengthUnits * LengthUnits;
 
-        float Myr = 3.1556E13;
-        float Mpc = 3.086E24;
-        float pi  = 3.14156926;
-
         // in Myr
-        float sntime = IndividualStarICSupernovaTime*Myr/TimeUnits;
+        float sntime = IndividualStarICSupernovaTime*Myr_s/TimeUnits;
 
 
         if (IndividualStarICSupernovaFromFile){ //  interpolate along tabulated rates
@@ -166,7 +162,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
              TimeActionParameter[i] = -1;
              TimeActionTime[i]      = -1;
            } else {
-             float time_now = MetaData.Time * TimeUnits / Myr;
+             float time_now = MetaData.Time * TimeUnits / Myr_s;
 
              int index = search_lower_bound(ICSupernovaTimeArray, time_now, 0,
                                             ICSupernovaNumberOfPoints, ICSupernovaNumberOfPoints);
@@ -177,7 +173,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
                                          + ICSupernovaSNRArray[index];
              TimeActionParameter[i] = 1.0 / TimeActionParameter[i];
 
-             TimeActionTime[i] += TimeActionParameter[i] * 3.1556E7 / TimeUnits;
+             TimeActionTime[i] += TimeActionParameter[i] * yr_s / TimeUnits;
 
            }
 
@@ -190,7 +186,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 
           } else {
             TimeActionParameter[i] = 1.0 / IndividualStarICSupernovaRate;
-            TimeActionTime[i]     += TimeActionParameter[i] * 3.1556E7 / TimeUnits;
+            TimeActionTime[i]     += TimeActionParameter[i] * yr_s / TimeUnits;
           }
 
         } else{
@@ -208,7 +204,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
           if (MetaData.Time >= sntime){
               TimeActionTime[i] = -1;
           } else{
-              TimeActionTime[i] += TimeActionParameter[i] * 3.1556E7 / TimeUnits;
+              TimeActionTime[i] += TimeActionParameter[i] * yr_s / TimeUnits;
               TimeActionTime[i] = min(TimeActionTime[i], sntime);
           }
 
@@ -221,8 +217,8 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
         for(int i = 0; i < 3; i++)
           SNPosition[i] = IndividualStarICSupernovaPos[i];
 
-        float rmax = IndividualStarICSupernovaR * Mpc / LengthUnits;
-        float zmax = IndividualStarICSupernovaZ * Mpc / LengthUnits;
+        float rmax = IndividualStarICSupernovaR * Mpc_cm / LengthUnits;
+        float zmax = IndividualStarICSupernovaZ * Mpc_cm / LengthUnits;
 
         if (MyProcessorNumber == ROOT_PROCESSOR){
           float theta, z;
@@ -264,7 +260,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
           printf("SNPosition = %f     %f     %f\n",SNPosition[0],SNPosition[1],SNPosition[2]);
 
 
-        float m_eject   = 10.0 * 1.989E33 / MassUnits; // need to divide by dx before sending
+        float m_eject   = 10.0 * SolarMass / MassUnits; // need to divide by dx before sending
         float E_thermal = IndividualStarSupernovaEnergy * 1.0E51 / (MassUnits*VelocityUnits*VelocityUnits);
 
         for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++){

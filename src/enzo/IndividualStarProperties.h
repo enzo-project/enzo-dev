@@ -8,7 +8,8 @@
 #else /*Define storage*/
 # define ISEXTERN extern
 #endif
-                                         // INPUT - OUTPUT
+
+
 // mass input always in solar masses, everything else always cgs (in and out)
 float IndividualStarSurfaceGravity(const float &mp, const float &R);
 
@@ -60,6 +61,29 @@ int IndividualStarInterpolateProperties(float &Teff, float &R,
 
 int IndividualStarInterpolateLifetime(float & tau, const float &M, const float &metallicity, const int &mode);
 
+/* Function for feedback and end-of-life events */
+
+
+void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
+                                            const float &dtFixed, const float &TimeUnits,
+                                            float &m_eject, float &E_thermal,
+                                            float *metal_mass);
+
+void IndividualStarSetCoreCollapseSupernovaProperties(Star *cstar,
+                                                      float &m_eject, float &E_thermal, float *metal_mass);
+
+void IndividualStarSetPopIIISupernovaProperties(Star *cstar, float &m_eject, float &E_thermal, float *metal_mass);
+
+void IndividualStarSetTypeIaSupernovaProperties(float &m_eject, float &E_thermal, float *metal_mass);
+
+float SNIaProbability(const float &current_time, const float &formation_time,
+                      const float &lifetime, const float &TimeUnits);
+int SetWDLifetime(float &WD_lifetime,
+                  const float &current_time, const float &formation_time,
+                  const float &lifetime, const float &TimeUnits);
+void ComputeStellarWindVelocity(Star *cstar, float *v_wind);
+void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity,
+                                                      float *dMdt);
 
 /* Functions for radiation data */
 int IndividualStarComputeIonizingRates(float &q0, float &q1,

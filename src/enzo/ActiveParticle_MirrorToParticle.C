@@ -20,6 +20,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "ActiveParticle.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -31,7 +32,6 @@ void ActiveParticleType::MirrorToParticle(void)
   if (CurrentGrid == NULL)
     return;
 
-  const double Msun = 1.989e33;
   int i, dim, place = -1;
   float MassConversion;
 
@@ -41,7 +41,7 @@ void ActiveParticleType::MirrorToParticle(void)
 	   &TimeUnits, &VelocityUnits, CurrentGrid->Time);
 
   double dx = LengthUnits * CurrentGrid->CellWidth[0][0];
-  MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
+  MassConversion = (float) (dx*dx*dx * double(DensityUnits) / SolarMass);
 
   // Find where this star particle is stored in main arrays
   for (i = 0; i < CurrentGrid->NumberOfParticles; i++) 

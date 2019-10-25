@@ -49,8 +49,6 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
   }
   MassUnits   = DensityUnits*LengthUnits*LengthUnits*LengthUnits; // mass units
 
-  const float msolar = 1.989E33;
-
   int count = 0;
   FLOAT cell_volume = this->CellWidth[0][0]*this->CellWidth[0][0]*this->CellWidth[0][0];
 
@@ -91,7 +89,7 @@ int grid::GalaxySimulationInitializeParticles(int NumberOfDMParticles,
         ParticleVelocity[dim][i] = DMParticleVelocity[dim][particle_index[i]] * 1.0E5 / VelocityUnits;
       }
    
-      ParticleMass[i] = DMParticleMass[particle_index[i]] * msolar / MassUnits / (cell_volume);
+      ParticleMass[i] = DMParticleMass[particle_index[i]] * SolarMass / MassUnits / (cell_volume);
 
       ParticleAttribute[0][i] = this->Time;
       ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;

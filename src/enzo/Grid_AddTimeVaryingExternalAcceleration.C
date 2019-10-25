@@ -38,10 +38,7 @@ int grid::AddTimeVaryingExternalAcceleration(void){
   MassUnits  = DensityUnits * LengthUnits * LengthUnits * LengthUnits;
   AccelUnits = LengthUnits/TimeUnits/TimeUnits;
 
-  const float myr  = 3.15576E13;
-  const float Msun = 1.989E33;
-
-  float time_myr = this->Time * TimeUnits / myr;
+  float time_myr = this->Time * TimeUnits / Myr_s;
 
   if( this->Time < ExternalGravityTimeOn ||
       this->Time > ExternalGravityTimeOff ){
@@ -63,7 +60,7 @@ int grid::AddTimeVaryingExternalAcceleration(void){
   float coeff;
 
   /* Normalize time to start of external graivty file */
-  time_myr = time_myr  - ExternalGravityTimeOn * TimeUnits / myr;
+  time_myr = time_myr  - ExternalGravityTimeOn * TimeUnits / Myr_s;
 
   index = search_lower_bound(ExternalGravityTime, time_myr, 0, ExternalGravityNumberofTimePoints - 1,
                                                                EXTERNAL_GRAVITY_ENTRIES);
@@ -144,7 +141,7 @@ int grid::AddTimeVaryingExternalAcceleration(void){
           } else if (ExternalGravity == 4) {
             // point mass with
 
-            accel = (GravConst) * (ExternalGravityMass * Msun / MassUnits);
+            accel = (GravConst) * (ExternalGravityMass * SolarMass / MassUnits);
 
             accel = ( r==0.0?0.0:fabs(accel) / (rsquared*r/(LengthUnits*LengthUnits*LengthUnits)) /AccelUnits);
 
@@ -205,7 +202,7 @@ int grid::AddTimeVaryingExternalAcceleration(void){
       } else if (ExternalGravity == 4) {
         // point mass with
 
-        accel = (GravConst) * (ExternalGravityMass * Msun / MassUnits);
+        accel = (GravConst) * (ExternalGravityMass * SolarMass / MassUnits);
 
         accel = ( r==0.0?0.0:fabs(accel) / (rsquared*r/(LengthUnits*LengthUnits*LengthUnits)) /AccelUnits);
 

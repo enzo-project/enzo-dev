@@ -167,8 +167,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
   }
 
   /* for converting from Enzo RT heating to cgs */
-  const float ev2erg = 1.60217653E-12;
-  float rtunits = ev2erg / TimeUnits;
+  float rtunits = erg_eV / TimeUnits;
 
   float afloat = float(a);
 
