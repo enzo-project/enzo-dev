@@ -48,6 +48,11 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
   float XRayLuminosityFraction = 0.43;
   Star *cstar;
 
+  for (i = 0; i < MAX_ENERGY_BINS; i++){
+    Q[i] = 0.0;
+    energies[i] = 0.0;
+  }
+
   /* If sources exist, delete them */
 
   RadiationSourceEntry *dummy;
