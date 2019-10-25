@@ -461,7 +461,7 @@ float grid::ComputeTimeStep()
 
   if(QuantumPressure){
 
-    double hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits,2)/FDMMass; // 5.916e27 is hbar/m with m=1e-22eV, FDMMass is in unit of 1e-22eV.
+    double hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits/afloat,2)/FDMMass; // 5.916e27 is hbar/m with m=1e-22eV, FDMMass is in unit of 1e-22eV.
 
     FLOAT dx = CellWidth[0][0]*afloat;
 
