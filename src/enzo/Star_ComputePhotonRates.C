@@ -126,48 +126,36 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       // Convert to ionizing photon rate
       Q[0] = Q[0] * 4.0 * pi * R*R;
       Q[1] = Q[1] * 4.0 * pi * R*R;
-      Q[2] = 0.0; // do not track
+      Q[2] = 0.0; // not tracked in this model
 
-    } else{
-      E[0] = 21.0; //irrelevant
-      E[1] = 30.0; //irrelevant
-      E[2] = 60.0; //irrelevant
-
-      Q[0] = 0.0; Q[1] = 0.0; Q[2] = 0.0;
-    } // end ionizing radiation
-
-    E[3] = 0.0;
-    Q[3] = 0.0;
+    }
 
     /* compute optically thin rates */
     if( (IndividualStarFUVHeating || IndividualStarLWRadiation) &&
         (M >= IndividualStarOTRadiationMass)){
-         // AJE NEED BETTER IF STATEMENTS HERE
 
       nbins = 8 ; // + LW and + FUV
 
       E[3] = 12.8; // LW-band radiation (11.2 - 13.6 eV)
 
-      // For now, no IR, Xray, or spectrum types
-      E[4] = 0.0; E[5] = 0.0; E[6] = 0.0;
-      Q[4] = 0.0; Q[5] = 0.0; Q[6] = 0.0;
+      // For now, no IR, Xray, or spectrum types (no need to actually zero)
+      // E[4] = 0.0; E[5] = 0.0; E[6] = 0.0;
+      // Q[4] = 0.0; Q[5] = 0.0; Q[6] = 0.0;
 
       // FUV in the 5.6 - 11.2 eV band --- 11.2 to 13.6 is in LW
       //      - set to 9.8 eV for convenience
       E[7] = 8.4;  // FUV radiation - average of 5.6 to 11.2 eV range
 
-      Q[7] = 0.0;
-      if(IndividualStarFUVHeating){
-          float l_fuv;
-          this->ComputeFUVLuminosity(l_fuv);
-          Q[7] = l_fuv / (E[7] / eV_erg); // photon rate
-      }
-
-      Q[3] = 0.0;
       if(IndividualStarLWRadiation){
         float l_lw;
         this->ComputeLWLuminosity(l_lw);
         Q[3] = l_lw / (E[3] / eV_erg);
+      }
+
+      if(IndividualStarFUVHeating){
+          float l_fuv;
+          this->ComputeFUVLuminosity(l_fuv);
+          Q[7] = l_fuv / (E[7] / eV_erg); // photon rate
       }
 
     } // end optically thin radiation
