@@ -85,36 +85,6 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
       size *= BoundaryFluxes->LeftFluxEndGlobalIndex[dim][j] -
                 BoundaryFluxes->LeftFluxStartGlobalIndex[dim][j] + 1;
 
-/* <<<<<<< HEAD
-    // dx**2 * dt * dx**3  (convert from dt * flux (density / area)  to mass in solar masses) 
-    conversion = POW( this->CellWidth[dim][0] , 5) * MassUnits / msolar;
-
-    if (GridOffsetLeft[dim] != 0 && GridOffsetRight[dim] != 0) continue; // not at any domain boundary
-
-    // if here, we are at a domain boundary 
-    for (int i = 0; i < NumberOfBoundaryMassFields; i++){
-      float left_mass = 0.0, right_mass = 0.0;
-
-      int field_num = BoundaryMassFluxFieldNumbers[i];
-      for (int index = 0; index < size; index ++){
-        if (GridOffsetLeft[dim] == 0)
-          left_mass += max(-1.0 * this->BoundaryFluxes->LeftFluxes[field_num][dim][index], 0.0);
-
-        if (GridOffsetRight[dim] == 0)
-          right_mass += max(this->BoundaryFluxes->RightFluxes[field_num][dim][index], 0.0);
-      }
-
-      // only keep outflow (left < 0 = outflow, multiply by -1)
-      grid_BoundaryMassFluxContainer[i] += (left_mass + right_mass)*conversion ; //max( -1.0*left_mass, 0.0) + max(right_mass, 0.0);
-
-      // add into global container on this processor
-      allgrid_BoundaryMassFluxContainer[i] += grid_BoundaryMassFluxContainer[i];
-
-//      if (grid_BoundaryMassFluxContainer[i] > 0) printf("field_num = %"ISYM" mass = %"ESYM"\n", field_num, grid_BoundaryMassFluxContainer[i]);
-
-    } // end loop over fields
-=======
-*/
     /* (convert from dt * flux (density / area)  to mass in solar masses) */
     conversion = POW( this->CellWidth[dim][0] , 3) * MassUnits / SolarMass;
 
@@ -151,8 +121,6 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
         allgrid_BoundaryMassFluxContainer[i] += grid_BoundaryMassFluxContainer[i];
       }
     } // if right
-
-//      if (grid_BoundaryMassFluxContainer[i] > 0) printf("field_num = %"ISYM" mass = %"ESYM"\n", field_num, grid_BoundaryMassFluxContainer[i]);
 
   } // end loop over dim
 
