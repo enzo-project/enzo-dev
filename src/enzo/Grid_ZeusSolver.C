@@ -225,13 +225,13 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       ENZO_FAIL("Error in GetUnits.");
     }
 
-    FLOAT a = 1, dadt;
+    float a = 1, dadt;
     if (ComovingCoordinates)
       if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) == FAIL) {
 	ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
       }
     // calculate hbar/m
-    double hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits/a,2)/FDMMass;
+    float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits/a,2)/FDMMass;
     //(hbar/m)^2/2
     double lapcoef = POW(hmcoef,2)/2.;
   
