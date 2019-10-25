@@ -232,7 +232,11 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       }
 
     // calculate hbar/m
-    double hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits,2)/FDMMass;
+    float afloat = 1;
+  if (ComovingCoordinates){
+    CosmologyComputeExpansionFactor(Time, &afloat, &dadt);
+  }
+  float hmcoef = 5.9157166856e27*TimeUnits/pow(LengthUnits/afloat,2)/FDMMass;
     //(hbar/m)^2/2
     double lapcoef = POW(hmcoef,2)/2.;
   
