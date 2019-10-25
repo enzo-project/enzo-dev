@@ -134,13 +134,24 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       RadSource->EnergyBins     = nbins;
       RadSource->Energy         = new float[nbins];
       RadSource->SED            = new float[nbins];
+
+      // NOTE: RadSource->LWLuminosity and RadSource->FUVLuminosity
+      //       are currently only used when applying optically thin
+      //       (1/r^2) radiation profiles in Grid_AddH2Dissociation
+      //       and Grid_AddPeHeating, AND only when running with
+      //       RadiativeTransferOpticallyThinSourceClustering ON.
+      //       (see CreateSourceClusteringTree). Otherwise,
+      //       energy / photon bins are used for RT methods to create
+      //       photon packages, and star particle lists are used
+      //       (instead of RadSource) to compute luminosities in
+      //       optically thin case without source clustering:
       if (RadiativeTransferOpticallyThinH2)
 	RadSource->LWLuminosity = Q[3] * LConv;
       else
 	RadSource->LWLuminosity = 0.0;
 
       if (RadiativeTransferOpticallyThinFUV)
-        RadSource->FUVLuminosity = Q[4] * LConv * energies[4]; // NOTE: actual Luminosity - not photon luminosity
+        RadSource->FUVLuminosity = Q[7] * LConv * energies[4]; // NOTE: actual Luminosity - not photon luminosity
       else
         RadSource->FUVLuminosity = 0.0;
 
