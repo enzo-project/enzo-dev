@@ -23,6 +23,7 @@
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
 #include "Star.h"
+#include "phys_constants.h"
 
 #define MIN_OPENING_ANGLE 0.2  // 0.2 = arctan(11.3 deg)
 
@@ -44,8 +45,6 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
 
 int grid::AddPeHeatingFromTree(void)
 {
-
-  const double pc = 3.086e18, clight = 3e10;
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -108,9 +107,6 @@ int grid::AddPeHeatingFromTree(void)
 
   /* Find sources in the tree that contribute to the cells */
   SuperSourceEntry *Leaf;
-  const float eV_erg = 6.241509e11;
-  const double m_e = 9.109E-28; // in g
-  const double m_h = 1.673E-24; // in g
   double LConv = (double) TimeUnits / pow(LengthUnits,3); // this is silly - unconvert a conversion
   double PeConversion = 1.0 / ((double) EnergyUnits / TimeUnits);
   float factor = 1.0 / ( LConv * eV_erg * (4.0 * M_PI) *LengthUnits * LengthUnits);
@@ -152,9 +148,9 @@ int grid::AddPeHeatingFromTree(void)
         }
 
 
-        n_H *= DensityUnits / m_h;
+        n_H *= DensityUnits / mh;
 
-        n_e  = this->BaryonField[ElectronNum][index] * DensityUnits / m_e;
+        n_e  = this->BaryonField[ElectronNum][index] * DensityUnits / me;
 
         Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
