@@ -197,9 +197,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
 
     /* transform to comoving with the star and take velocities to momenta.
-        Take Energy densities to energy
+        Take Energy densities to energy.  winds are ngp unless VERY high resolution
      */
-    if (!winds)
+    if (!winds || dx*LengthUnits/pc_cm < 0.1)
         transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum], 
                         BaryonField[MetalIINum], BaryonField[MetalIaNum],
                         BaryonField[Vel1Num],BaryonField[Vel2Num],BaryonField[Vel3Num],
@@ -456,9 +456,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float eCouple, geCouple, mCouple, zCouple, zIICouple, zIACouple, p3Couple;
     /*
     As a computational compromize, supernova are deposited CIC, but winds are 
-    deposited NGP 
+    deposited NGP.  At VERY high resolution, well still do CIC for winds
      */
-    if (!winds){
+    if (!winds || dx*LengthUnits/pc_cm < 0.1){
         for (int n = 0; n < nCouple; ++n){
             pX = coupledMomenta*CloudParticleVectorX[n]*weightsVector[n];
             pY = coupledMomenta*CloudParticleVectorY[n]*weightsVector[n];
@@ -541,7 +541,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         the momentum goes uncoupled.  Since the cooling radius is so small for wind enrgy (~10^15 erg),
         this is totally appropriate for simulations with dx > 0.25pccm or so.
     */
-    if (winds){
+    if (winds && dx*LengthUnits/pc_cm > 0.1){
         float dm = coupledMass/(density[index]+coupledMass);
         density[index] += coupledMass;
         metals[index] += coupledMetals;
@@ -586,8 +586,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         }
     }
 
-    /* Transform the grid back */
-    if (!winds)
+    /* Transform the grid back. Skip for winds, unless VERY high resolution*/
+    if (!winds || dx*LengthUnits/pc_cm < 0.1)
         transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum], 
                         BaryonField[MetalIINum], BaryonField[MetalIaNum],
                         BaryonField[Vel1Num],BaryonField[Vel2Num],

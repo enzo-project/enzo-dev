@@ -119,7 +119,7 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
                 && ParticleMass[pIndex] > 100.0
                 && ParticleAttribute[0][pIndex] > 0.0){
             FLOAT age = (Time-ParticleAttribute[0][pIndex])*TimeUnits/3.1557e13;// Myr
-            if (age > 500) continue;
+            //if (age > 1000) continue;
             c++;
 
             /* get index of cell hosting particle */
