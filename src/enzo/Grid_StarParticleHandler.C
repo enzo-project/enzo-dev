@@ -1585,14 +1585,14 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 				         HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
 	               ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
 	            }
-
-	         mu_field[index] = BaryonField[DeNum][index] + BaryonField[HINum][index] + BaryonField[HIINum][index] +
-	               (BaryonField[HeINum][index] + BaryonField[HeIINum][index] + BaryonField[HeIIINum][index])/4.0;
+            float mult = 1.0/BaryonField[DensNum][index];
+	         mu_field[index] = BaryonField[DeNum][index]*mult + BaryonField[HINum][index]*mult + BaryonField[HIINum][index]*mult +
+	               (BaryonField[HeINum][index]*mult + BaryonField[HeIINum][index]*mult + BaryonField[HeIIINum][index]*mult)/4.0;
 	         if (MultiSpecies > 1) {
-	            mu_field[index] += BaryonField[HMNum][index] + (BaryonField[H2INum][index] + BaryonField[H2IINum][index])/2.0;
+	            mu_field[index] += BaryonField[HMNum][index]*mult + (BaryonField[H2INum][index]*mult + BaryonField[H2IINum][index]*mult)/2.0;
 	         }
 	         if (MultiSpecies > 2) {
-	            mu_field[index] += (BaryonField[DINum][index] + BaryonField[DIINum][index])/2.0 + (BaryonField[HDINum][index]/3.0);
+	            mu_field[index] += (BaryonField[DINum][index]*mult + BaryonField[DIINum][index]*mult)/2.0 + (BaryonField[HDINum][index]*mult/3.0);
 	    
 	   }
    }

@@ -116,8 +116,10 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
     for (int pIndex=0; pIndex < NumberOfParticles; pIndex++){
 
         if (ParticleType[pIndex] == PARTICLE_TYPE_STAR
-                && ParticleMass[pIndex] > 0.0
+                && ParticleMass[pIndex] > 100.0
                 && ParticleAttribute[0][pIndex] > 0.0){
+            FLOAT age = (Time-ParticleAttribute[0][pIndex])*TimeUnits/3.1557e13;// Myr
+            if (age > 500) continue;
             c++;
 
             /* get index of cell hosting particle */
@@ -133,7 +135,6 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
 
             /* error check particle position; Cant be on the border or outside grid
                 If on border, reposition to within grid for CIC deposit */
-            FLOAT age = (Time-ParticleAttribute[0][pIndex])*TimeUnits/3.1557e13;// Myr
 
             float gridDx = GridDimension[0]*dx;
             float gridDy = GridDimension[1]*dx;
@@ -182,14 +183,14 @@ int grid::MechStars_FeedbackRoutine(int level, float* mu_field, float* totalMeta
                 zp = CellLeftEdge[2][0]+gridDx-borderDx-0.5*dx;
                 shifted = 1;
             }
-            if (shifted > 0){
-            if (debug)
-                    fprintf(stderr, "Particle position shifted away from edge: %e: %f %f %f\n%f %f %f\n",
-                            age,xp, yp, zp, CellLeftEdge[0][0]+borderDx, CellLeftEdge[1][0]+borderDx, CellLeftEdge[2][0]+borderDx);
-                            int ip = (xp-CellLeftEdge[0][0]-0.5*dx)/dx;
-                            int jp = (yp-CellLeftEdge[1][0]-0.5*dx)/dx;
-                            int kp = (zp-CellLeftEdge[2][0]-0.5*dx)/dx;
-            }
+            // if (shifted > 0){
+            // if (debug)
+            //         fprintf(stderr, "Particle position shifted away from edge: %e: %f %f %f\n%f %f %f\n",
+            //                 age,xp, yp, zp, CellLeftEdge[0][0]+borderDx, CellLeftEdge[1][0]+borderDx, CellLeftEdge[2][0]+borderDx);
+            //                 int ip = (xp-CellLeftEdge[0][0]-0.5*dx)/dx;
+            //                 int jp = (yp-CellLeftEdge[1][0]-0.5*dx)/dx;
+            //                 int kp = (zp-CellLeftEdge[2][0]-0.5*dx)/dx;
+            // }
             /* Check for continual formation.  Continually forming new mass allows the 
                 star particle count to stay lower, ultimately reducing runtime by having 
                 fewer particles to iterate. 

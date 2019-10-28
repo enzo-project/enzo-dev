@@ -55,7 +55,7 @@ int determineWinds(float age, float* eWinds, float* mWinds, float* zWinds,
                 windM, massMsun, age, zZsun);
             windM = 0.125*massMsun; // limit loss to huge if necessary.
         }
-        windZ = max(zZsun, 0.016+0.0041*max(zZsun, 1.65)+0.0118)*windM;
+        windZ = max(0.02, 0.016+0.0041*max(zZsun, 1.65)+0.0118)*windM;
         windE = e_factor * 1e12 * windM;
         //fprintf(stdout, "Age = %e Ewinds = %e Mwinds = %e Zwinds = %e  Zsun = %e\n",
           //          age, windE, windM, windZ, zZsun);
