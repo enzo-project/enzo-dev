@@ -1769,10 +1769,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     grackle_data->HydrogenFractionByMass         = (double) CoolData.HydrogenFractionByMass;
     grackle_data->DeuteriumToHydrogenRatio       = (double) CoolData.DeuteriumToHydrogenRatio;
     grackle_data->SolarMetalFractionByMass       = (double) CoolData.SolarMetalFractionByMass;
-    grackle_data->UVbackground_redshift_on       = (double) CoolData.RadiationRedshiftOn;
-    grackle_data->UVbackground_redshift_off      = (double) CoolData.RadiationRedshiftOff;
-    grackle_data->UVbackground_redshift_fullon   = (double) CoolData.RadiationRedshiftFullOn;
-    grackle_data->UVbackground_redshift_drop     = (double) CoolData.RadiationRedshiftDropOff;
+    //grackle_data->UVbackground_redshift_on       = (double) CoolData.RadiationRedshiftOn;
+    //grackle_data->UVbackground_redshift_off      = (double) CoolData.RadiationRedshiftOff;
+    //grackle_data->UVbackground_redshift_fullon   = (double) CoolData.RadiationRedshiftFullOn;
+    //grackle_data->UVbackground_redshift_drop     = (double) CoolData.RadiationRedshiftDropOff;
     grackle_data->use_radiative_transfer         = (Eint32) RadiativeTransfer;
     // grackle_data->radiative_transfer_coupled_rate_solver set in RadiativeTransferReadParameters
     // grackle_data->radiative_transfer_hydrogen_only set in RadiativeTransferReadParameters

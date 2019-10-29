@@ -379,8 +379,8 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       
       ParticleList.clear();
       
-      if (debug)
-        printf("Number of particles after merging: %"ISYM"\n",NumberOfMergedParticles);
+      //if (debug)
+      //  printf("Number of particles after merging: %"ISYM"\n",NumberOfMergedParticles);
       
       /* Assign local particles to grids */
       
