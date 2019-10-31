@@ -129,7 +129,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                     I limit star particle creation to 1/grid/step to 
                     keep feedback affecting the grid region
                  */
-                if (nCreated == 0){
+
                     createStar = checkCreationCriteria(BaryonField[DensNum],
                         totalMetal, Temperature, DMField,
                         BaryonField[Vel1Num], BaryonField[Vel2Num],
@@ -229,7 +229,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                                 ParticleArray->ParticleVelocity[2][nCreated]*VelocityUnits/1e5,
                                 index, GridDimension[0]*GridDimension[2]*GridDimension[3], i,j,k);
                         nCreated ++;
-                    } //end if (nCreated == 0)
                 }
             }//end for k
         }//end for j
