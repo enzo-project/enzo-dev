@@ -40,9 +40,11 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
         float *DMField, float* totalMetal, int level, float* CoolingTime,
         int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar)
 {
-    if (level < StarMakeLevel) return 0;
+    /* If limiting timesteps for SNe, return if not the right level */
+    if (level < StarMakeLevel && !UnrestrictedSN) return 0;
+    /* these flags are used to determine if we should set off a seed SNe */
     bool gridShouldFormStars=false, notEnoughMetals = true;
-    float stretchFactor=0.6;
+
     bool debug = true;
 
 
@@ -125,10 +127,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                 float dynamicalTime = 0;
                 float Time = this->Time;
                 int createStar = false;
-                /* 
-                    I limit star particle creation to 1/grid/step to 
-                    keep feedback affecting the grid region
-                 */
+        
 
                     createStar = checkCreationCriteria(BaryonField[DensNum],
                         totalMetal, Temperature, DMField,
@@ -140,7 +139,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         &gridShouldFormStars, &notEnoughMetals, 0, seedIndex);
 
 
-                    //if (createStar && debug) printf ("SMM Criteria passed!\n");
                     if (createStar){
                         int index = i+ j*GridDimension[0]+k*GridDimension[0]*GridDimension[1];
 
@@ -153,10 +151,10 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             printf("Negative formation mass: %f %f",shieldedFraction, freeFallTime);
                             continue;
                         }
+
+                        /* limit new mass to 1/2 gas in cell */
                         float newMass = min(MassShouldForm/MassUnits, 0.5*BaryonField[DensNum][index]);
                         if (newMass*MassUnits < StarMakerMinimumMass){
-                                //fprintf(stdout,"NOT ENOUGH MASS IN CELL Mnew = %e f_s = %f Mcell = %e Mmin = %e\n",
-                                //   newMass*MassUnits, shieldedFraction, BaryonField[DensNum][index]*MassUnits, StarMakerMinimumMass);
                                 continue;
                         }
                         float totalDensity = (BaryonField[DensNum][index]+DMField[index])*DensityUnits;

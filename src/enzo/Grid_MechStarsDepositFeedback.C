@@ -50,6 +50,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     //printf("In Feedback deposition\n");
     bool debug = false;
     bool criticalDebug = false;
+    float min_winds = 1.0;
     bool printout = debug && !winds;
     int index = ip+jp*GridDimension[0]+kp*GridDimension[0]*GridDimension[1];
     if (printout) printf("Host index = %d\n", index);
@@ -199,7 +200,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     /* transform to comoving with the star and take velocities to momenta.
         Take Energy densities to energy.  winds are ngp unless VERY high resolution
      */
-    if (!winds || dx*LengthUnits/pc_cm < 2)
+    if (!winds || dx*LengthUnits/pc_cm < min_winds)
         transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum], 
                         BaryonField[MetalIINum], BaryonField[MetalIaNum],
                         BaryonField[Vel1Num],BaryonField[Vel2Num],BaryonField[Vel3Num],
@@ -414,7 +415,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float preMass = 0, preZ = 0, preP = 0, prePmag=0, preTE = 0, preGE = 0, preZII=0, preZIa = 0;
     float dsum = 0.0, zsum=0.0, psum=0.0, psqsum =0.0, tesum=0.0, gesum=0.0, kesum=0.0;
     float postMass = 0, postZ = 0, postP = 0, postPmag = 0, postTE = 0, postGE = 0, postZII=0, postZIa = 0;
-    if (criticalDebug){
+    if (criticalDebug && !winds){
         for (int i=0; i<size; ++i){
             preMass += BaryonField[DensNum][i];
             preZ += BaryonField[MetalNum][i];
@@ -458,7 +459,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     As a computational compromize, supernova are deposited CIC, but winds are 
     deposited NGP.  At VERY high resolution, well still do CIC for winds
      */
-    if (!winds || dx*LengthUnits/pc_cm < 2){
+    if (!winds || dx*LengthUnits/pc_cm < min_winds){
         for (int n = 0; n < nCouple; ++n){
             pX = coupledMomenta*CloudParticleVectorX[n]*weightsVector[n];
             pY = coupledMomenta*CloudParticleVectorY[n]*weightsVector[n];
@@ -541,7 +542,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         the momentum goes uncoupled.  Since the cooling radius is so small for wind enrgy (~10^15 erg),
         this is totally appropriate for simulations with dx > 0.25pccm or so.
     */
-    if (winds && dx*LengthUnits/pc_cm > 2){
+    if (winds && dx*LengthUnits/pc_cm > min_winds){
         float dm = coupledMass/(density[index]+coupledMass);
         density[index] += coupledMass;
         metals[index] += coupledMetals;
@@ -549,7 +550,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         BaryonField[GENum][index] += dm*coupledEnergy/coupledMass;
     }
 
-    if (criticalDebug){
+    if (criticalDebug && !winds){
         for (int i = 0; i< size ; i++){
             postMass += BaryonField[DensNum][i];
             postZ += BaryonField[MetalNum][i];
@@ -587,7 +588,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     }
 
     /* Transform the grid back. Skip for winds, unless VERY high resolution*/
-    if (!winds || dx*LengthUnits/pc_cm < 2)
+    if (!winds || dx*LengthUnits/pc_cm < min_winds)
         transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum], 
                         BaryonField[MetalIINum], BaryonField[MetalIaNum],
                         BaryonField[Vel1Num],BaryonField[Vel2Num],
