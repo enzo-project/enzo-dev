@@ -91,7 +91,7 @@ commands:
             git checkout << parameters.tag >>
             ./configure
             cd src/enzo
-            make machine-linux-gnu
+            make machine-ubuntu
             make load-config-test-suite
             make clean
             make -j 4
@@ -107,7 +107,7 @@ commands:
           source $HOME/venv/bin/activate
           ./configure
           cd src/enzo
-          make machine-linux-gnu
+          make machine-ubuntu
           # test various baryon/particle precisions
           for prec in 32 64
           do for part in 32 64 128
@@ -187,16 +187,16 @@ jobs:
 
       - restore_cache:
           name: "Restore test answers."
-          key: test-answers-v12a
+          key: test-answers-v13
 
       - build-and-test:
-          tag: gold-standard-v12
+          tag: gold-standard-v13
           skipfile: ~/enzo_test/push_suite/push_suite
           flags: --answer-store
 
       - save_cache:
           name: "Save test answers cache."
-          key: test-answers-v12a
+          key: test-answers-v13
           paths:
             - ~/enzo_test/push_suite
 

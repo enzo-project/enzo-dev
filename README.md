@@ -1,10 +1,10 @@
-= ENZO =
+# ENZO
 
 ENZO IS AN OPEN SOURCE CODE.  We encourage you to take it, inspect it, use it,
 and contribute back any changes you have made.  We strive to make the the Enzo
 community a community of *developers*.
 
-== RESOURCES ==
+## RESOURCES
 
 Enzo's main webpage is:
 
@@ -16,7 +16,7 @@ Enzo is developed in the open on github.com:
 
 Documentation, including instructions for compilation, can be found at:
 
- * http://enzo-project.org/docs/2.6/
+ * https://enzo.readthedocs.io/en/latest/
 
 Please subscribe to the Enzo Users' mailing list at:
 
@@ -32,7 +32,23 @@ git version control system, we highly encourage you to upgrade to the
 version controlled source, as no support can be provided for archived
 ("tarball") sources.
 
-== DEVELOPERS ==
+## REQUIREMENTS
+
+Mandatory:
+
+- C/C++ and Fortan90 compiler
+- MPI (such as OpenMPI, MPICH, or IntelMPI) for multi-processor parallel jobs
+- [HDF5](https://www.hdfgroup.org/) (serial version) for data outputs
+
+Optional:
+
+- [yt](https://yt-project.org/) for data analysis and visualization (highly recommended)
+- [Grackle](https://github.com/grackle-project/grackle), a chemistry and radiative 
+cooling library with support for Enzo
+- [KROME](http://www.kromepackage.org/), a chemistry and microphysics library with
+support for Enzo
+
+## DEVELOPERS
 
 Many people have contributed to the development of Enzo -- here's just a short
 list of the people who have recently contributed, in alphabetical order:
