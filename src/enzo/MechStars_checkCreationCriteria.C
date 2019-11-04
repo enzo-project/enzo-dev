@@ -1,4 +1,4 @@
-/*
+ /*
     Routine actually checks to see whether the input grid 
     is capable of star formation
 
@@ -161,7 +161,7 @@ int checkCreationCriteria(float* Density, float* Metals,
             return PASS;
     }
     //if (status && debug) fprintf(stdout, "passed creation criteria\n");
-    if (MechStarsSeedField && Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity)
+    if (MechStarsSeedField && Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity && !continuingFormation)
         *notEnoughMetals = false;
     if (status && Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity && MechStarsSeedField
         && !continuingFormation)
