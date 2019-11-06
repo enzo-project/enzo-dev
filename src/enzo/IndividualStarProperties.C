@@ -44,6 +44,7 @@
 #include "TopGridData.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
+#include "CosmologyParameters.h"
 #include "phys_constants.h"
 
 
@@ -88,7 +89,13 @@ float SNIaProbability(const float &current_time, const float &formation_time,
  */
 
   float  dPdt = IndividualStarSNIaFraction;
-  const float hubble_time = 4.408110831E17;
+  float hubble_time;
+  if (ComovingCoordinates){
+    hubble_time = (1.0/HubbleConstantNow)*1.0E4 * Myr_s;
+  } else{
+    hubble_time = (1.0/0.701)*1.0E4*Myr_s;
+  }
+
 
 
   if (IndividualStarDTDSlope == 1.0){
@@ -129,7 +136,13 @@ int SetWDLifetime(float &WD_lifetime,
   float x  = (float) (random_int % max_random) / ((float) (max_random));
 
   const int size = 1000; // number of table entries
-  const float hubble_time = 4.408110831E17; // Hard coded redshift 0
+  float hubble_time;
+
+  if (ComovingCoordinates){
+    hubble_time = (1.0/HubbleConstantNow)*1.0E4 * Myr_s;
+  } else{
+    hubble_time = (1.0/0.701)*1.0E4*Myr_s;
+  }
 
   float tabulated_probability [size];
   float time [size];
