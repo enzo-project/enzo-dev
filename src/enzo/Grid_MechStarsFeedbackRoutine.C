@@ -115,7 +115,6 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
         if (ParticleType[pIndex] == PARTICLE_TYPE_STAR && ParticleMass[pIndex] > 00.0 && ParticleAttribute[0][pIndex] > 0.0)
         {
             float age = (Time - ParticleAttribute[0][pIndex]) * TimeUnits / 3.1557e13; // Myr
-            if (age > 2500) continue; //Let really old particles become inert
             c++;
 
             /* get index of cell hosting particle */
@@ -153,61 +152,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                         ParticleAttribute[2][pIndex],
                         ParticleAttribute[1][pIndex]);
                 // EnzoFatalException("Star Maker Mechanical: particle out of grid!\n");
-                FLOAT epsilon = dx;
-                FLOAT diff = 0.0;
-                /*
-                    TEST!!!!
-                        if the particle is only just out of grid, forcibly shift
-                        it back to the grid.  Ie., does this error compound and continue, or
-                        is it a one-off calculation mistake??
-                
-                 */
-                if (xp > CellLeftEdge[0][0] + gridDx)
-                {
-                    diff = (xp - CellLeftEdge[0][0] - gridDx) / dx;
-                    // kill if the particle is too
-                    // far out of grid, thats a bigger problem
-                    if (diff > 5)
-                        raise(SIGABRT);
-                    ParticlePosition[0][pIndex] = CellLeftEdge[0][0] + gridDx - dx;
-                }
-                if (xp < CellLeftEdge[0][0])
-                {
-                    diff = (CellLeftEdge[0][0] - xp) / dx;
-                    if (diff > 5)
-                        raise(SIGABRT);
-                    ParticlePosition[0][pIndex] = CellLeftEdge[0][0] + (dx);
-                }
-                // update to y,z terms
-                if (yp > CellLeftEdge[1][0] + gridDy)
-                {
-                    diff = (yp - CellLeftEdge[1][0] - gridDy) / dx;
-                    if (diff > 5)
-                        raise(SIGABRT);
-                    ParticlePosition[1][pIndex] = CellLeftEdge[1][0] + gridDy - dx;
-                }
-                if (yp < CellLeftEdge[1][0])
-                {
-                    diff = (CellLeftEdge[1][0] - yp) / dx;
-                    if (diff > 5)
-                        raise(SIGABRT);
-                    ParticlePosition[1][pIndex] = CellLeftEdge[1][0] + (dx);
-                }
-
-                if (zp > CellLeftEdge[2][0] + gridDz)
-                {
-                    diff = (zp - CellLeftEdge[2][0] - gridDz) / dx;
-                    if (diff > 5)
-                        raise(SIGABRT);
-                    ParticlePosition[2][pIndex] = CellLeftEdge[2][0] + gridDz - dx;
-                }
-                if (zp < CellLeftEdge[2][0])
-                {
-                    diff = (CellLeftEdge[2][0] - zp) / dx;
-                    if (diff > 5)
-                        raise(SIGABRT);
-                    ParticlePosition[2][pIndex] = CellLeftEdge[2][0] + (dx);
-                }
+                raise(SIGABRT); // fails more quickly and puts out a core dump for analysis
             }
             int shifted = 0;
 
