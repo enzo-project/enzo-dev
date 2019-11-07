@@ -145,15 +145,17 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       //       photon packages, and star particle lists are used
       //       (instead of RadSource) to compute luminosities in
       //       optically thin case without source clustering:
-      if (RadiativeTransferOpticallyThinH2)
+      if (RadiativeTransferOpticallyThinH2){
 	RadSource->LWLuminosity = Q[3] * LConv;
-      else
+      } else{
 	RadSource->LWLuminosity = 0.0;
+      }
 
-      if (RadiativeTransferOpticallyThinFUV)
-        RadSource->FUVLuminosity = Q[7] * LConv * energies[4]; // NOTE: actual Luminosity - not photon luminosity
-      else
+      if (RadiativeTransferOpticallyThinFUV){
+        RadSource->FUVLuminosity = Q[7] * LConv * energies[7]; // NOTE: actual Luminosity (erg/s) - not photon luminosity
+      } else{
         RadSource->FUVLuminosity = 0.0;
+      }
 
       for (j = 0; j < nbins; j++) {
 	RadSource->Energy[j] = energies[j];

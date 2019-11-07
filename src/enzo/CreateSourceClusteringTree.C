@@ -57,7 +57,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     return SUCCESS;
 
   const int LymanWernerBin = 3;
-  const int FUVBin         = 4;
+  const int FUVBin         = 7;
 
   int i, j, LR_leaf_flag[2], dim, sort_dim, median, nleft, nright;
   bool top_level = false;

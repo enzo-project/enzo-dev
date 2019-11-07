@@ -91,28 +91,15 @@ int grid::AddPeHeatingFromTree(void)
            &TimeUnits, &VelocityUnits, PhotonTime);
   EnergyUnits = DensityUnits * VelocityUnits * VelocityUnits;
 
-  /* get temperature field */
-  //float *temperature;
-  int size = 1;
-  for (int dim = 0; dim < MAX_DIMENSION; dim++) {
-    size *= this->GridDimension[dim];
-  }
-
-//  temperature = new float[size];
-//  if(  this->ComputeTemperatureField(temperature) == FAIL ){
-//    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
-//  }
-
-
   // Dilution factor (prevent breaking in rate solver near star)
-  float dilutionRadius = this->CellWidth[0][0] / 8.0;
+  float dilutionRadius = this->CellWidth[0][0] * 0.25;
   float dilRadius2     = dilutionRadius * dilutionRadius;
 
   /* Find sources in the tree that contribute to the cells */
   SuperSourceEntry *Leaf;
   double LConv = (double) TimeUnits / pow(LengthUnits,3); // this is silly - unconvert a conversion
   double PeConversion = 1.0 / ((double) EnergyUnits / TimeUnits);
-  float factor = 1.0 / ( LConv * eV_erg * (4.0 * M_PI) *LengthUnits * LengthUnits);
+  float factor = 1.0 / ( LConv * eV_erg * (4.0 * pi) *LengthUnits * LengthUnits);
   float angle;
   FLOAT pos[MAX_DIMENSION];
 
@@ -123,7 +110,7 @@ int grid::AddPeHeatingFromTree(void)
   // so we multiply the angle by merge radius
   angle = MIN_OPENING_ANGLE * RadiativeTransferPhotonMergeRadius;
 
-  float FUVLuminosity = 0.0;
+  float FUVflux = 0.0;
 
   // AJE: Not inconsistency here (same as defined elsewhere, but different form. 
   //      need to fix this....
@@ -144,8 +131,9 @@ int grid::AddPeHeatingFromTree(void)
            calculation */
 
         /* FUV from tree should be returning energy flux in RT units,
-           so after the conversion factor, this should be Flux in erg / s / cm^2 */
-        FUVLuminosity = CalculateFUVFromTree(pos, angle, Leaf, dilRadius2, 0) * factor;
+           so after the conversion factor, this should be Flux in erg / s / cm^2,
+           which is what is needed for computing the PE heating rate */
+        FUVflux = CalculateFUVFromTree(pos, angle, Leaf, dilRadius2, 0) * factor;
 
         float n_H, n_e, Z;
 
@@ -164,13 +152,13 @@ int grid::AddPeHeatingFromTree(void)
         Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
         if (FUVRateNum > 0){
-          BaryonField[FUVRateNum][index] += FUVLuminosity * FluxConv_inv;
+          BaryonField[FUVRateNum][index] += (FUVflux * FluxConv_inv);
         }
 
         // assign heating rate from model
         BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e, 
                                                                      // temperature[index],
-                                                                     Z, FUVLuminosity,
+                                                                     Z, FUVflux,
                                                                      this->CellWidth[0][0]*LengthUnits) * PeConversion;
 
       }
