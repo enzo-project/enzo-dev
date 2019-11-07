@@ -11,7 +11,7 @@
 /
 /  RETURNS: FAIL or SUCCESS
 /
-************************************************************************/
+w************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -44,7 +44,6 @@ int grid::InitializeRadiativeTransferFields()
 
   PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
   FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
-
 
   int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
 
@@ -114,28 +113,13 @@ int grid::InitializeRadiativeTransferFields()
   TIMER_START("InitializeOTFields");
   if (RadiativeTransferOpticallyThinFUV    &&
       IndividualStarFUVHeating){
-    if (PeNum < 0) ENZO_FAIL("Failure to identify PeHeatingRate in InitializeRadiativeTransferFields\n");
-    for ( k = 0; k < GridDimension[2]; k++){
-      for( j = 0; j < GridDimension[1]; j++){
-        index = (k*GridDimension[1] + j)*GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, index++){
-          BaryonField[PeNum][index] = 0.0;
-        }
-      }
-    }
+      if (PeNum < 0) ENZO_FAIL("Failure to identify PeHeatingRate in InitializeRadiativeTransferFields\n");
+      this->ZeroPhotoelectricHeatingField();
   }
 
   if (!RadiativeTransferOpticallyThinFUV   &&
       IndividualStarFUVHeating){
-    for ( k = 0; k < GridDimension[2]; k++){
-      for( j = 0; j < GridDimension[1]; j++){
-        index = (k*GridDimension[1] + j)*GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, index++){
-          BaryonField[PeNum][index] = 0.0;
-          BaryonField[FUVRateNum][index] = 0.0;
-        }
-      }
-    }
+      this->ZeroPhotoelectricHeatingField();
   }
 
 // -- end AJE comments

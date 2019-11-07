@@ -248,14 +248,9 @@ void grid::ZeroPhotoelectricHeatingField(void){
 
   int PeNum;
   PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+  const int FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
 
-  if (PeNum < 0) return; // not enabled - no need to zero
-
-  int size = 1;
-  for (int dim = 0; dim < this->GridRank; dim++){
-    size *= this->GridDimension[dim];
-  }
-
+  if ((PeNum < 0) && (FUVRateNum < 0)) return; // not enabled - no need to zero
 
   //if(UseUVBackgroundFUVRate){
   if (TRUE){
@@ -317,39 +312,65 @@ void grid::ZeroPhotoelectricHeatingField(void){
 
     float n_H, n_e, Z;
 
+
+    // AJE: Not inconsistency here (same as defined elsewhere, but different form. 
+    //      need to fix this....
+    const float FluxConv = EnergyUnits / TimeUnits * LengthUnits;
+    const float FluxConv_inv = 1.0 / FluxConv;
+
+
     if (G_background > 0.0){
-      for( int i = 0; i < size; i++){ // apply background heating rate
-
-        n_H = (this->BaryonField[HINum][i] + this->BaryonField[HIINum][i]);
-
-        if ( MultiSpecies > 1){ /* include H2 */
-           n_H += this->BaryonField[HMNum][i] +
-             0.5 * (this->BaryonField[H2INum][i] + this->BaryonField[H2IINum][i]);
-        }
+      for (int k = 0; k < GridDimension[2]; k++){
+        for(int j = 0; j < GridDimension[1]; j++){
+          int index = (k*GridDimension[1] + j)*GridDimension[0];
+          for (int i = 0; i < GridDimension[0]; i++, index++){
 
 
-        n_H *= DensityUnits / mh;
 
-        n_e  = this->BaryonField[ElectronNum][i] * DensityUnits / me;
+              n_H = (this->BaryonField[HINum][index] + this->BaryonField[HIINum][index]);
 
-        Z    = this->BaryonField[MetalNum][i] / this->BaryonField[DensNum][i]; // metal dens / dens
+              if ( MultiSpecies > 1){ /* include H2 */
+                n_H += this->BaryonField[HMNum][index] +
+               0.5 * (this->BaryonField[H2INum][index] + this->BaryonField[H2IINum][index]);
+              }
+              n_H *= DensityUnits / mh;
 
-        // assign heating rate from model
-        BaryonField[PeNum][i]  = ComputeHeatingRateFromDustModel(n_H, n_e,
+              n_e  = this->BaryonField[ElectronNum][index] * DensityUnits / me;
+              Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
+
+              if (FUVRateNum > 0) BaryonField[FUVRateNum][index] = G_background * FluxConv_inv;
+
+              // assign heating rate from model
+              BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e,
                                                                 // 100.0, // temperature doesn't matter
                                                                      Z, G_background,
                                                               (this->CellWidth[0][0])*LengthUnits);
-        BaryonField[PeNum][i] /= (EnergyUnits / TimeUnits);
-      } // end loop
+              BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
+          } // end k
+        }
+      } // end i
     } else { /* background is zero */
-      for( int i = 0; i < size; i ++) BaryonField[PeNum][i] = 0.0;
+      for (int k = 0; k < GridDimension[2]; k++){
+        for(int j = 0; j < GridDimension[1]; j++){
+          int index = (k*GridDimension[1] + j)*GridDimension[0];
+          for (int i = 0; i < GridDimension[0]; i++, index++){
+            BaryonField[PeNum][index] = 0.0;
+            if (FUVRateNum > 0) BaryonField[FUVRateNum][index] = 0.0;
+          }
+        }
+      }
     }
 
   } else{
-
-    for(int i = 0; i < size; i++){
-      this->BaryonField[PeNum][i] = 0.0;
-    }
+      for (int k = 0; k < GridDimension[2]; k++){
+        for(int j = 0; j < GridDimension[1]; j++){
+          int index = (k*GridDimension[1] + j)*GridDimension[0];
+          for (int i = 0; i < GridDimension[0]; i++, index++){
+            BaryonField[PeNum][index] = 0.0;
+            if (FUVRateNum > 0) BaryonField[FUVRateNum][index] = 0.0;
+          }
+        }
+      }
   }
 
   return;

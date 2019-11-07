@@ -56,7 +56,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   this->DebugCheck((char*) "Grid_AddPeHeating");
 
   /* Find Multi-species fields. */
-  this->ZeroPhotoelectricHeatingField();
+// done in RT initialize  this->ZeroPhotoelectricHeatingField();
 
   if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
                                   HeIIINum, HMNum, H2INum, H2IINum, DINum, 
@@ -98,6 +98,9 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   /* get metallicity tracer field number */
   int MetalNum;
   MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
+  int FUVRateNum = -1;
+  FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
+
 
   /* get temperature field */
 //  float *temperature;
@@ -120,6 +123,11 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
   const float PeConversion = 1.0 / (EnergyUnits / TimeUnits);
   float FUVLuminosity = 0.0;
+  // AJE: Not inconsistency here (same as defined elsewhere, but different form. 
+  //      need to fix this....
+  const float FluxConv = EnergyUnits / TimeUnits * LengthUnits;
+  const float FluxConv_inv = 1.0 / FluxConv;
+
 
   if (ProblemType == 50) ENZO_FAIL("Ptype = 50 not implemented in PeHeating");
 
@@ -202,6 +210,11 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           n_e  = this->BaryonField[DeNum][index] * DensityUnits / me;
 
           Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
+
+          if (FUVRateNum > 0){
+            BaryonField[FUVRateNum][index] += LocalFUVflux * FluxConv_inv;
+          }
+
 
           BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, 
                                                                // temperature[index],

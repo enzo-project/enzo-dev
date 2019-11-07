@@ -106,26 +106,27 @@ int grid::FinalizeRadiationFields(void)
      const int FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
      const int PeNum      = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
      const int DensNum    = FindField(Density, this->FieldType, this->NumberOfBaryonFields);
-		 const int MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
+     const int MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
      const double MassUnits = DensityUnits*LengthUnits*LengthUnits*LengthUnits;
 
-		 float *temperature;
-		 int size = 1;
-		 for (dim=0;dim<GridRank;dim++) size *= this->GridDimension[dim];
+     float *temperature;
+     int size = 1;
+     for (dim=0;dim<GridRank;dim++) size *= this->GridDimension[dim];
+     temperature = new float[size];
 
-		 temperature = new float[size];
-
-		 if(this->ComputeTemperatureField(temperature) == FAIL){
-			 ENZO_FAIL("Error in compute temperature in Grid_GrackleWrapper");
-		 }
+     if(this->ComputeTemperatureField(temperature) == FAIL){
+         ENZO_FAIL("Error in compute temperature in Grid_GrackleWrapper");
+     }
 
      const float EnergyUnits = (MassUnits*VelocityUnits*VelocityUnits);
-		 const float EnergyUnits_inv = 1.0 / EnergyUnits;
+     const float EnergyUnits_inv = 1.0 / EnergyUnits;
 
      const float FluxConv = EnergyUnits / TimeUnits / LengthUnits / LengthUnits;
-		 const float FluxConv_inv = 1.0 / FluxConv;
-
+     const float FluxConv_inv = 1.0 / FluxConv;
      const float PeConversion = 1.0 / (EnergyUnits/TimeUnits/POW(LengthUnits,3)); 
+
+//     float G_background = 0.0;
+//     this->ComputeBackgroundFUV(G_background);
 
      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
        for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
@@ -134,38 +135,33 @@ int grid::FinalizeRadiationFields(void)
            // AJE: I don't think I need more unit conversions here, but need to make sure !!!
            BaryonField[FUVRateNum][index] *= (EnergyUnits_inv * POW(LengthUnits,3));
 
-					 float n_H, n_e, Z;
+           float n_H, n_e, Z;
 
-					 n_H = BaryonField[HINum][index]+BaryonField[HIINum][index];
-					 if(MultiSpecies>1){
-						 n_H += BaryonField[HMNum][index]+
-						         0.5*(BaryonField[H2INum][index]+BaryonField[H2IINum][index]);
-					 }
-
-					 n_H *= DensityConversion;
-					 n_e  = BaryonField[DeNum][index]*DensityUnits/me;
+           n_H = BaryonField[HINum][index]+BaryonField[HIINum][index];
+           if(MultiSpecies>1){
+	     n_H += BaryonField[HMNum][index]+
+	            0.5*(BaryonField[H2INum][index]+BaryonField[H2IINum][index]);
+           }
+           n_H *= DensityConversion;
+           n_e  = BaryonField[DeNum][index]*DensityUnits/me;
            Z    = BaryonField[MetalNum][index]/BaryonField[DensNum][index];
 
-           float G_background = 0.0;
-           this->ComputeBackgroundFUV(G_background);
+//         This is now done in initialization of RT fields
+//           BaryonField[FUVRateNum][index] += (G_background * FluxConv_inv);
 
-					 BaryonField[FUVRateNum][index] += (G_background * FluxConv_inv);
-
-					 if (temperature[index] >= IndividualStarFUVTemperatureCutoff){
-						 BaryonField[PeNum][index] = 0.0;
-					 } else {
-
-             BaryonField[PeNum][index] = ComputeHeatingRateFromDustModel(
-						                                    n_H, n_e, Z,
-					                                      BaryonField[FUVRateNum][index]*FluxConv,
-								  														  -1.0) * PeConversion; // set dx < 0 to turn off self-shielding approx
-					 }
+	   if (temperature[index] >= IndividualStarFUVTemperatureCutoff){
+	     BaryonField[PeNum][index] = 0.0;
+           } else {
+             BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, Z,
+                                                                         BaryonField[FUVRateNum][index]*FluxConv,
+                                                                         -1.0) * PeConversion; // set dx < 0 to turn off self-shielding approx
+           }
 
          }
        }
      } // end k
 
-		 delete [] temperature;
+     delete [] temperature;
 
    } // end FUV PE heating
 

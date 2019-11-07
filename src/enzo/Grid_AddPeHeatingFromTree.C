@@ -59,6 +59,9 @@ int grid::AddPeHeatingFromTree(void)
   int PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
   int ElectronNum = FindField(ElectronDensity, this->FieldType, this->NumberOfBaryonFields);
 
+  int FUVRateNum = -1;
+  FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
+
   /* obtain baryon field indexes */
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
@@ -122,6 +125,12 @@ int grid::AddPeHeatingFromTree(void)
 
   float FUVLuminosity = 0.0;
 
+  // AJE: Not inconsistency here (same as defined elsewhere, but different form. 
+  //      need to fix this....
+  const float FluxConv = EnergyUnits / TimeUnits * LengthUnits;
+  const float FluxConv_inv = 1.0 / FluxConv;
+
+
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
     pos[2] = CellLeftEdge[2][k] + 0.5 * CellWidth[2][k];
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
@@ -154,8 +163,12 @@ int grid::AddPeHeatingFromTree(void)
 
         Z    = this->BaryonField[MetalNum][index] / this->BaryonField[DensNum][index]; // metal dens / dens
 
+        if (FUVRateNum > 0){
+          BaryonField[FUVRateNum][index] += FUVLuminosity * FluxConv_inv;
+        }
+
         // assign heating rate from model
-        BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e, 
+        BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e, 
                                                                      // temperature[index],
                                                                      Z, FUVLuminosity,
                                                                      this->CellWidth[0][0]*LengthUnits) * PeConversion;
