@@ -35,12 +35,11 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 
 int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
-			    Star *AllStars)
+			    Star *AllStars, float Time)
 {
 
   /* If photon test simulation, don't change the radiation sources. */
-
-  if (ProblemType == 50)
+  if (ProblemType == 50 || ProblemType == 27)
     return SUCCESS;
 
   int i, j, nShine, nbins;
@@ -83,9 +82,10 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 
     // Check the rules if this star particle is radiative
     if (cstar->IsARadiationSource(PhotonTime)) {
+         float dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
 
       // Calculate photon luminosity
-      if (cstar->ComputePhotonRates(TimeUnits, nbins, energies, Q) == FAIL) {
+      if (cstar->ComputePhotonRates(TimeUnits, Time, nbins, energies, Q, dtForThisStar) == FAIL) {
 	ENZO_FAIL("Error in ComputePhotonRates.\n");
       }
       

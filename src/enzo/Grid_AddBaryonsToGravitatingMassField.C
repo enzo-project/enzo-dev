@@ -64,7 +64,12 @@ int grid::AddBaryonsToGravitatingMassField()
 
     }
   }
- 
+  /* Quantum: Check whether FDM is turned on */
+  int FDMDensNum;
+  if (QuantumPressure ==1){
+      FDMDensNum = FindField(FDMDensity, FieldType, NumberOfBaryonFields);
+  }
+
   /* Loop over mesh, adding to field. */
  
   int gmfindex, index = 0;
@@ -78,7 +83,11 @@ int grid::AddBaryonsToGravitatingMassField()
 		     Offset[0];
       for (i = 0; i < GridDimension[0]; i++, index++, gmfindex++)
 	GravitatingMassField[gmfindex] += BaryonField[DensNum][index];
+  // Add FDM density
+  if (QuantumPressure ==1){
+      GravitatingMassField[gmfindex] += BaryonField[FDMDensNum][index];
     }
+  }
  
 #else  /* INCLUDE_GHOST_ZONES */
  
@@ -91,6 +100,10 @@ int grid::AddBaryonsToGravitatingMassField()
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++,
 	     index++, gmfindex++)
 	GravitatingMassField[gmfindex] += BaryonField[DensNum][index];
+  // Add FDM density
+  if (QuantumPressure ==1){
+      GravitatingMassField[gmfindex] += BaryonField[FDMDensNum][index];
+    }
     }
  
 #endif /* INCLUDE_GHOST_ZONES */

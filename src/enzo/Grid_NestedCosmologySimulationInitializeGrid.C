@@ -104,6 +104,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
                           float CosmologySimulationInitialFractionH2II,
 			  float CosmologySimulationInitialFractionMetal,
 			  float CosmologySimulationInitialFractionMetalIa,
+			  float CosmologySimulationInitialFractionMetalII,
                           int   UseMetallicityField,
                           PINT &CurrentParticleNumber,
                           int CosmologySimulationManuallySetParticleMassRatio,
@@ -119,12 +120,14 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
   int idim, ndim, dim, i, j, vel, OneComponentPerFile, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum, MetalIINum, SNColourNum;
  
   int iTE = ietot;
   int ExtraField[2];
   int ForbidNum;
   int MachNum, PSTempNum, PSDenNum;
+  int RePsiNum, ImPsiNum, FDMDensNum;
+
  
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
@@ -350,6 +353,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
     //  fprintf(stderr, "Create baryon fields for %s on CPU %"ISYM"\n", CosmologySimulationDensityName, MyProcessorNumber);
  
     FieldType[NumberOfBaryonFields++] = Density;
+
   vel = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = Velocity1;
   if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
@@ -392,10 +396,14 @@ int grid::NestedCosmologySimulationInitializeGrid(
       FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
       if (StarMakerTypeIaSNe)
 	FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
+	if (StarMakerTypeIISNeMetalField)
+		FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
       if(MultiMetals){
 	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
       }
+	if (MechStarsSeedField)
+	  FieldType[SNColourNum = NumberOfBaryonFields++] = SNColour;
     }
     if (WritePotential)
       FieldType[NumberOfBaryonFields++] = GravPotential;
@@ -412,6 +420,11 @@ int grid::NestedCosmologySimulationInitializeGrid(
     }    
   }
 
+  if(QuantumPressure == 1){
+    FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
+    FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
+    FieldType[FDMDensNum = NumberOfBaryonFields++] = FDMDensity;
+  } 
 
   //  fprintf(stderr, "Total Baryon Fields in VVV: %"ISYM" on CPU %"ISYM"\n", NumberOfBaryonFields, MyProcessorNumber);
  
@@ -474,6 +487,29 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	for (i = 0; i < size; i++)
 	  BaryonField[0][i] = max(BaryonField[0][i], DENSITY_FLOOR);
       }
+
+      // Read wavefunction
+  if(QuantumPressure == 1){
+  if (READFILE("GridRePsi", GridRank, GridDimension,
+         GridStartIndex, GridEndIndex, Offset, BaryonField[RePsiNum],
+         &tempbuffer, 0, 1) == FAIL) {
+    ENZO_FAIL("Error reading real part of wave function.\n");}
+  
+  if (READFILE("GridImPsi", GridRank, GridDimension,
+         GridStartIndex, GridEndIndex, Offset, BaryonField[ImPsiNum],
+         &tempbuffer, 0, 1) == FAIL) {
+    ENZO_FAIL("Error reading imaginary part of wave function.\n");
+    } 
+
+  if (READFILE("GridFDMDensity", GridRank, GridDimension,
+         GridStartIndex, GridEndIndex, Offset, BaryonField[FDMDensNum],
+         &tempbuffer, 0, 1) == FAIL) {
+    ENZO_FAIL("Error reading FDM density.\n");
+    } 
+
+  fprintf(stderr, "Successfully Read Wave Function.\n" );
+  }
+ 
  
       // Read the total energy field
  
@@ -591,7 +627,13 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	  for (i = 0; i < size; i++)
 	    BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
 	      * BaryonField[0][i];
-	
+	if (StarMakerTypeIISNeMetalField)
+		for (i = 0; i < size; i++)
+	    	BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalII
+	      		* BaryonField[0][i];
+	if (MechStarsSeedField)
+		for (i = 0; i < size; i++)
+			BaryonField[SNColourNum][i] = CosmologySimulationInitialFractionMetal*BaryonField[0][i];
 	if (MultiMetals) {
 	  for (i = 0; i < size; i++) {
 	    BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal

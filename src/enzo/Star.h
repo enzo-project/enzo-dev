@@ -108,7 +108,7 @@ public:
   void	ConvertMassToSolar(void);
   int   CalculateMassAccretion(float &BondiRadius, float &density);
   float CalculateMassLoss(const float dt);
-  int   ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[]);
+  int   ComputePhotonRates(const float TimeUnits, const float Time, int &nbins, float E[], double Q[], float dtForThisStar);
   int	SetFeedbackFlag(FLOAT Time);
   void  SetFeedbackFlag(int flag);
 #ifdef LARGE_INTS

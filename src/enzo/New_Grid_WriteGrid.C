@@ -9,6 +9,7 @@
 /  modified3:  Robert Harkness, April 2008
 /  modified4:  Matthew Turk, September 2009
 /  modified5:  Michael Kuhlen, October 2010, HDF5 hierarchy
+/  modified6:  Nathan Goldbaum, November 2011, Active Particle Support
 /
 /  PURPOSE:
 /
@@ -34,6 +35,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "ActiveParticle.h"
 
 void my_exit(int status);
  
@@ -206,8 +208,29 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     }
 
     fprintf(fptr, "NumberOfParticles   = %"ISYM"\n", NumberOfParticles);
+    fprintf(fptr, "NumberOfActiveParticles = %"ISYM"\n", NumberOfActiveParticles);
+        // Now write out which kind of active particles we have in this grid.
+    fprintf(fptr, "PresentParticleTypes = ");
+    if (NumberOfParticles)
+      fprintf(fptr, "DarkMatter ");
+    for (int i = 0; i<EnabledActiveParticlesCount; i++){
+      if (ActiveParticleTypeCount[i] > 0) {
+        fprintf(fptr, "%s ", EnabledActiveParticles[i]->particle_name.c_str());
+      }
+    }
+    fprintf(fptr, "\n");
+    // And their counts
+    fprintf(fptr, "ParticleTypeCounts = ");
+    if (NumberOfParticles)
+      fprintf(fptr, "%"ISYM" ", NumberOfParticles);
+    for (int i = 0; i<EnabledActiveParticlesCount; i++){
+      if (ActiveParticleTypeCount[i] > 0) {
+        fprintf(fptr, "%"ISYM" ", ActiveParticleTypeCount[i]);
+      }
+    }
+    fprintf(fptr, "\n");
 
-    if (NumberOfParticles > 0)
+    if ((NumberOfParticles > 0) || (NumberOfActiveParticles > 0))
       fprintf(fptr, "ParticleFileName = %s\n", procfilename); // must be same as above
  
     if (SelfGravity)
@@ -724,7 +747,9 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
   /* ------------------------------------------------------------------- */
   /* 3) Save particle quantities. */
- 
+
+  hid_t ParticleGroupID = h5_error;
+  
   if (NumberOfParticles > 0) {
 
     /* Sort particles according to their identifier. */
@@ -733,6 +758,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       this->SortParticlesByType();
     else
       this->SortParticlesByNumber();
+
+    this->SortActiveParticlesByNumber();
 
     /* Create a temporary buffer (64 bit). */
 
@@ -808,7 +835,34 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     delete [] temp;
 
   } // end: if (NumberOfParticles > 0)
- 
+
+    /* ------------------------------------------------------------------- */
+  /* 4) Save active particle quantities. */
+
+  if (NumberOfActiveParticles > 0) {
+    /* Iterate over the enabled active particle types */
+
+    ParticleGroupID = H5Gcreate(group_id, "Active Particles", 0);
+    for (i = 0; i < EnabledActiveParticlesCount; i++)
+      {
+
+        /* Instantitate an active particle helper of this type
+           This class contains the function that allows us to write to disk */
+
+        ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
+
+        /* Write them to disk */
+
+        ActiveParticleTypeToEvaluate->WriteParticles(
+            this->ActiveParticles, i, NumberOfActiveParticles,
+            ActiveParticleTypeToEvaluate->particle_name,
+            ParticleGroupID);
+
+      }
+
+    h5_status = H5Gclose(ParticleGroupID);
+  }  // end: if (NumberOfActiveParticles > 0)
+
   /* Close HDF group and file. */
  
   if (WriteEverything == TRUE) this->WriteAllFluxes(group_id);
@@ -821,7 +875,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   delete [] name;
   delete [] procfilename;
   delete [] groupfilename;
- 
   return SUCCESS;
  
 }

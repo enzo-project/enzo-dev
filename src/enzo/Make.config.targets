@@ -384,14 +384,14 @@ machine-%: suggest-clean
 
 load-config-%:
 	@if [ -e $(HOME)/.enzo/Make.settings.$* ]; then \
-           @tmp=.config.temp; \
+           tmp=.config.temp; \
 	   cat $(HOME)/.enzo/Make.settings.$* > $(MAKE_CONFIG_OVERRIDE); \
            echo; \
            echo "   CONFIG SETTINGS: $*"; \
 	   $(MAKE) show-config; \
 	   $(MAKE) suggest-clean; \
 	elif [ -e Make.settings.$* ]; then \
-           @tmp=.config.temp; \
+           tmp=.config.temp; \
 	   cat Make.settings.$* > $(MAKE_CONFIG_OVERRIDE); \
            echo; \
            echo "   CONFIG SETTINGS: $*"; \

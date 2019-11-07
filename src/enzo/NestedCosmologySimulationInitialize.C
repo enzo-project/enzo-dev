@@ -81,6 +81,7 @@ static float CosmologySimulationInitialFractionH2I   = 2.0e-20;
 static float CosmologySimulationInitialFractionH2II  = 3.0e-14;
 static float CosmologySimulationInitialFractionMetal = 1.0e-10;
 static float CosmologySimulationInitialFractionMetalIa = 1.0e-12;
+static float CosmologySimulationInitialFractionMetalII = 1.0e-12;
 static int   CosmologySimulationUseMetallicityField  = FALSE;
  
 static int CosmologySimulationManuallySetParticleMassRatio = FALSE;
@@ -123,6 +124,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *GPotName  = "Grav_Potential";
   char *MetalName = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
+  char *MetalIIName = "MetalSNII_Density";
+  char *ColourName  = "SN_Colour";
   char *ForbidName = "ForbiddenRefinement";
   char *MachName   = "Mach";
   char *PSTempName = "PreShock_Temperature";
@@ -132,6 +135,9 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *BzName = "Bz";
   char *PhiName = "Phi";
   char *Phi_pName = "Phip";
+  char *RePsiName = "Re_Psi"; 
+  char *ImPsiName = "Im_Psi"; 
+  char *FDMDensityName = "FDMDensity"; 
 
  
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
@@ -279,6 +285,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &CosmologySimulationInitialFractionMetal);
     ret += sscanf(line, "CosmologySimulationInitialFractionMetalIa = %"FSYM,
 		  &CosmologySimulationInitialFractionMetalIa);
+    ret += sscanf(line, "CosmologySimulationInitialFractionMetalII = %"FSYM,
+		  &CosmologySimulationInitialFractionMetalII);
     ret += sscanf(line, "CosmologySimulationUseMetallicityField = %"ISYM,
 		  &CosmologySimulationUseMetallicityField);
  
@@ -627,6 +635,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationInitialFractionH2II,
 			     CosmologySimulationInitialFractionMetal,
 			     CosmologySimulationInitialFractionMetalIa,
+           CosmologySimulationInitialFractionMetalII,
 			     CosmologySimulationUseMetallicityField,
 			     MetaData.NumberOfParticles,
 			     CosmologySimulationManuallySetParticleMassRatio,
@@ -691,6 +700,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   i = 0;
   DataLabel[i++] = DensName;
+
   DataLabel[i++] = Vel1Name;
   if (MetaData.TopGridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
     DataLabel[i++] = Vel2Name;
@@ -731,9 +741,15 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[i++] = MetalName;
     if (StarMakerTypeIaSNe)
       DataLabel[i++] = MetalIaName;
+    if (StarMakerTypeIISNeMetalField)
+      DataLabel[i++] = MetalIIName;
     if(MultiMetals){
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];
+    }
+    if(MechStarsSeedField){
+      fprintf(stdout, "\nSN_colour set to %d\n", i+1);
+      DataLabel[i++] = ColourName;
     }
   }
  
@@ -751,6 +767,14 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = PSDenName;
     }
   } 
+
+    // real and imaginary part of wave function
+  if (QuantumPressure) {
+    DataLabel[i++] = (char*) RePsiName;
+    DataLabel[i++] = (char*) ImPsiName;
+    DataLabel[i++] = (char*) FDMDensityName;
+  }
+
  
 
   for (j = 0; j < i; j++)
@@ -848,6 +872,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	    CosmologySimulationInitialFractionMetal);
     fprintf(Outfptr, "CosmologySimulationInitialFractionMetalIa = %"GSYM"\n",
 	    CosmologySimulationInitialFractionMetalIa);
+    fprintf(Outfptr, "CosmologySimulationInitialFractionMetalII = %"GSYM"\n",
+	    CosmologySimulationInitialFractionMetalII);
     fprintf(Outfptr, "CosmologySimulationUseMetallicityField  = %"ISYM"\n\n",
 	    CosmologySimulationUseMetallicityField);
 
@@ -1007,6 +1033,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 	   CosmologySimulationInitialFractionH2II,
 	   CosmologySimulationInitialFractionMetal,
 	   CosmologySimulationInitialFractionMetalIa,
+	   CosmologySimulationInitialFractionMetalII,
 	   CosmologySimulationUseMetallicityField,
 	   ParticleCount,
 	   CosmologySimulationManuallySetParticleMassRatio,

@@ -25,11 +25,12 @@
 
 // defined in Grid_ReadHierarchyInformationHDF5.C 
 int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, int &Attribute, FILE *log_fptr);
+int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, PINT &Attribute, FILE *log_fptr);
 
 int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr)
 {
  
-  if (StarParticleCreation == FALSE)
+  if (StarParticleCreation == FALSE && EnabledActiveParticlesCount == 0)
     return SUCCESS;
  
   /* read in number data. */
@@ -38,6 +39,8 @@ int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr)
 
     if (HierarchyFileInputFormat % 2 == 0) {
       HDF5_ReadAttribute(Hfile_id, "NumberOfStarParticles", NumberOfStarParticles, log_fptr);
+      HDF5_ReadAttribute(Hfile_id, "NumberOfActiveParticles", NumberOfActiveParticles, log_fptr);
+      HDF5_ReadAttribute(Hfile_id, "NextActiveParticleID", NextActiveParticleID, log_fptr);
     }
 
     if (HierarchyFileInputFormat == 1) {
@@ -46,10 +49,21 @@ int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr)
 	//      ENZO_FAIL("Error reading NumberOfStarParticles.\n");
 	
       }
+      if (fscanf(fptr, "NumberOfActiveParticles = %"ISYM"\n",
+                 &NumberOfActiveParticles) != 1) {
+        //      ENZO_FAIL("Error reading NumberOfActiveParticles.\n");
+      }
+      if (fscanf(fptr, "NextActiveParticleID = %"PISYM"\n",
+                 &NextActiveParticleID) != 1) {
+        //      ENZO_FAIL("Error reading NumberOfActiveParticles.\n");
+      }
     }
 
-  } else 
+  } else  {
     NumberOfStarParticles = 0;
+    NumberOfActiveParticles = 0;
+    NextActiveParticleID = INT_UNDEFINED;
+  }
   
   NumberOfOtherParticles = 0; 
 

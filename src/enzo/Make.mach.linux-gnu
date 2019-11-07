@@ -13,7 +13,7 @@
 #
 #=======================================================================
 
-MACH_TEXT  = Use apt-get to install csh libhdf5-serial-dev gfortran openmpi-bin libopenmpi-dev
+MACH_TEXT  = Use apt-get to install libhdf5-serial-dev gfortran openmpi-bin libopenmpi-dev
 MACH_VALID = 1
 MACH_FILE  = Make.mach.linux-gnu
 

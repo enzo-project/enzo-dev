@@ -106,6 +106,7 @@ int grid::CosmologySimulationInitializeGrid(
 			  float CosmologySimulationInitialFractionH2II,
 			  float CosmologySimulationInitialFractionMetal,
 			  float CosmologySimulationInitialFractionMetalIa,
+        float CosmologySimulationInitialFractionMetalII,
 #ifdef TRANSFER
 			  float RadHydroRadiation,
 #endif
@@ -119,7 +120,7 @@ int grid::CosmologySimulationInitializeGrid(
  
   int idim, dim, i, j, vel, OneComponentPerFile, ndim, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum, MetalIINum, SNColourNum;
 #ifdef TRANSFER
   int EgNum;
 #endif
@@ -290,10 +291,13 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
       if (StarMakerTypeIaSNe)
 	FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
+  FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
       if(MultiMetals){
 	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
       }
+      if (MechStarsSeedField)
+        FieldType[SNColourNum = NumberOfBaryonFields++] = SNColour;
     }
     if(STARMAKE_METHOD(COLORED_POP3_STAR)){
       fprintf(stderr, "Initializing Forbidden Refinement color field\n");
@@ -515,7 +519,8 @@ int grid::CosmologySimulationInitializeGrid(
       for (i = 0; i < size; i++)
 	BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
 	  * BaryonField[0][i];
-
+  BaryonField[MetalIINum][i] = CosmologySimulationInitialFractionMetalII
+    * BaryonField[0][i];
     if (MultiMetals) {
       for (i = 0; i < size; i++) {
 	BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
@@ -523,6 +528,10 @@ int grid::CosmologySimulationInitializeGrid(
 	BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
 	  * BaryonField[0][i];
       }
+      if (MechStarsSeedField)
+        for (i=0; i< size; i++)
+          BaryonField[SNColourNum][i] = CosmologySimulationInitialFractionMetal
+	* BaryonField[0][i];
     }
 
     if (STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData) {

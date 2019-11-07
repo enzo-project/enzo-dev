@@ -30,7 +30,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     TopGridData *MetaData, float dtLevelAbove,
 				     int level);
 int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
-			    Star *AllStars);
+			    Star *AllStars, float Time);
 int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		   int level, Star *AllStars);
 
@@ -59,8 +59,8 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 
     /* Convert star particles into radiation sources only if we're going
        into EvolvePhotons */
-
-    StarParticleRadTransfer(LevelArray, level, AllStars);
+    if(AllStars != NULL)
+      StarParticleRadTransfer(LevelArray, level, AllStars, GridTime);
 
   } // ENDIF
   

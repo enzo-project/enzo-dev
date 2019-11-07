@@ -124,6 +124,14 @@ EXTERN float Gamma;
 
 EXTERN int PressureFree;
 
+/* FDM: Flag indicating if fuzzy dark matter is turned on, using quantum pressure */
+
+EXTERN int QuantumPressure;
+
+/* FDM: Parameter for FDM Mass, in unit of 1e-22 eV */
+
+EXTERN float FDMMass;
+
 /* Factor to refine by */
 
 EXTERN int RefineBy;
@@ -740,6 +748,11 @@ EXTERN int   ExternalBoundaryValueIO;
 EXTERN int   ExternalBoundaryField;
 EXTERN int   SimpleConstantBoundary;
 
+EXTERN int   StoreDomainBoundaryMassFlux;
+EXTERN int   BoundaryMassFluxFieldNumbers[MAX_NUMBER_OF_BARYON_FIELDS];
+EXTERN float BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS];
+EXTERN char *BoundaryMassFluxFilename;
+
 EXTERN Eint64 TaskMemory[MAX_NUMBER_OF_TASKS];
 EXTERN int    TaskMap[MAX_NUMBER_OF_TASKS];
 
@@ -1048,6 +1061,14 @@ EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
 EXTERN char *MBHInsertLocationFilename;
 EXTERN int OutputWhenJetsHaveNotEjected;
 
+/* Star Class Radiation Particle IO (PARTICLE_TYPE_RAD) */
+EXTERN char *RadiationSourcesFileName;
+EXTERN int   NumberOfRadiationParticles;
+EXTERN double PhotonsPerSecond;
+EXTERN int   NumberOfEnergyBins;
+EXTERN float RadiationEnergyInBin[255];
+EXTERN float RadiationBinSED[255];
+
 /* Vorticity Calculations */
 
 EXTERN int VelAnyl;
@@ -1135,6 +1156,25 @@ EXTERN char *MHDeUnits[3];
 EXTERN char *DatabaseLocation;
 EXTERN int ExtraOutputs[MAX_EXTRA_OUTPUTS];
 EXTERN int CorrectParentBoundaryFlux;
+
+/* Active particles */
+class ActiveParticleType_info;
+EXTERN ActiveParticleType_info *EnabledActiveParticles[MAX_ACTIVE_PARTICLE_TYPES];
+EXTERN int EnabledActiveParticlesCount;
+EXTERN float ActiveParticleDensityThreshold;
+EXTERN int SmartStarFeedback;
+EXTERN int SmartStarEddingtonCap;
+EXTERN int SmartStarBHFeedback;
+EXTERN int SmartStarBHJetFeedback;
+EXTERN int SmartStarBHThermalFeedback;
+EXTERN int SmartStarBHRadiativeFeedback;
+EXTERN int SmartStarStellarRadiativeFeedback;
+EXTERN float SmartStarFeedbackEnergyCoupling;
+EXTERN float SmartStarFeedbackJetsThresholdMass;
+EXTERN float SmartStarJetVelocity;
+EXTERN float SmartStarSpin; 
+EXTERN int SmartStarSuperEddingtonAdjustment;
+EXTERN float SmartStarSMSLifetime;
 
 /* For EnzoTiming Behavior */
 EXTERN int TimingCycleSkip; // Frequency of timing data dumps.

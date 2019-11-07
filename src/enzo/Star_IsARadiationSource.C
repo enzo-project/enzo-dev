@@ -44,11 +44,12 @@ bool Star::IsARadiationSource(FLOAT Time)
   // Particles only marked for nothing or continuous supernova
   rules[0] = (FeedbackFlag == NO_FEEDBACK || 
 	      FeedbackFlag == CONT_SUPERNOVA ||
+        FeedbackFlag == MECHANICAL ||
 	      FeedbackFlag == MBH_THERMAL ||
 	      FeedbackFlag == MBH_JETS);
   
-  // Living
-  rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime && type > 0);
+  // Living, but mechanical stars never die
+  rules[1] = (FeedbackFlag == MECHANICAL)?(Time >= BirthTime && type > 0):(Time >= BirthTime && Time <= BirthTime+LifeTime && type > 0);
 
   // Non-zero BH accretion (usually accretion_rate[] here is NULL - Ji-hoon Kim Sep.2009)
   if ((type == BlackHole || type == MBH) && naccretions > 0)

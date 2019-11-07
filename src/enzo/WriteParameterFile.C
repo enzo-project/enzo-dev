@@ -26,7 +26,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "TopGridData.h"
-
+#include "ActiveParticle.h"
  
 /* function prototypes */
  
@@ -311,6 +311,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "tiny_number                    = %e\n", tiny_number);
   fprintf(fptr, "Gamma                          = %"GSYM"\n", Gamma);
   fprintf(fptr, "PressureFree                   = %"ISYM"\n", PressureFree);
+  /* FDM: write FDM parameters */  
+  fprintf(fptr, "QuantumPressure                = %"ISYM"\n", QuantumPressure);
+  fprintf(fptr, "FDMMass                        = %"FSYM"\n", FDMMass);
+
   fprintf(fptr, "RefineBy                       = %"ISYM"\n", RefineBy);
   fprintf(fptr, "MaximumRefinementLevel         = %"ISYM"\n", MaximumRefinementLevel);
   fprintf(fptr, "MaximumGravityRefinementLevel  = %"ISYM"\n",
@@ -319,6 +323,26 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MaximumParticleRefinementLevel);
   fprintf(fptr, "CellFlaggingMethod             = ");
   WriteListOfInts(fptr, MAX_FLAGGING_METHODS, CellFlaggingMethod);
+  for (int i = 0; i<EnabledActiveParticlesCount; i++){
+    fprintf(fptr, "AppendActiveParticleType = %s\n",
+            EnabledActiveParticles[i]->particle_name.c_str());
+  }  // This needs to be after CellFlaggingMethod to make sure must
+     // refine active particles are configured correctly on restart.
+     // There's probably a better way to do this.
+  fprintf(fptr, "ActiveParticleDensityThreshold = %"GSYM"\n",
+	  ActiveParticleDensityThreshold);
+  fprintf(fptr, "SmartStarFeedback              = %"ISYM"\n", SmartStarFeedback);
+  fprintf(fptr, "SmartStarEddingtonCap          = %"ISYM"\n", SmartStarEddingtonCap);
+  fprintf(fptr, "SmartStarBHFeedback              = %"ISYM"\n", SmartStarBHFeedback);
+  fprintf(fptr, "SmartStarBHRadiativeFeedback        = %"ISYM"\n", SmartStarBHRadiativeFeedback);
+  fprintf(fptr, "SmartStarBHJetFeedback              = %"ISYM"\n", SmartStarBHJetFeedback);
+  fprintf(fptr, "SmartStarBHThermalFeedback              = %"ISYM"\n", SmartStarBHThermalFeedback);
+  fprintf(fptr, "SmartStarStellarRadiativeFeedback        = %"ISYM"\n", SmartStarStellarRadiativeFeedback);
+  fprintf(fptr, "SmartStarFeedbackEnergyCoupling       = %"GSYM"\n", SmartStarFeedbackEnergyCoupling);
+  fprintf(fptr, "SmartStarFeedbackJetsThresholdMass    = %"GSYM"\n", SmartStarFeedbackJetsThresholdMass);
+  fprintf(fptr, "SmartStarJetVelocity                  = %"GSYM"\n", SmartStarJetVelocity);
+  fprintf(fptr, "SmartStarSuperEddingtonAdjustment     = %"ISYM"\n", SmartStarSuperEddingtonAdjustment);
+  fprintf(fptr, "SmartStarSMSLifetime                  = %"GSYM"\n", SmartStarSMSLifetime);
   fprintf(fptr, "FluxCorrection                 = %"ISYM"\n", FluxCorrection);
   fprintf(fptr, "UseCoolingTimestep             = %"ISYM"\n", UseCoolingTimestep);
   fprintf(fptr, "CoolingTimestepSafetyFactor    = %"GSYM"\n", CoolingTimestepSafetyFactor);
@@ -1090,7 +1114,22 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "StarMakerMinimumMassRampEndTime    = %"GSYM"\n", StarMakerMinimumMassRampEndTime);
   fprintf(fptr, "StarMakerMinimumMassRampEndMass    = %"GSYM"\n", StarMakerMinimumMassRampEndMass);
 
-  /* Most Stanford additions: */
+/* mechanical feedback parameters */
+
+  fprintf(fptr, "StellarWinds                          = %"ISYM"\n",StellarWinds);
+  fprintf(fptr, "SingleSN                              = %"ISYM"\n", SingleSN);
+  fprintf(fptr, "StarMakerMaximumFormationMass         = %"FSYM"\n", StarMakerMaximumFormationMass);
+  fprintf(fptr, "StarMakerMaximumMass                  = %"FSYM"\n", StarMakerMaximumMass);
+  fprintf(fptr, "DepositUnresolvedEnergyAsThermal      = %"ISYM"\n", DepositUnresolvedEnergyAsThermal);
+  fprintf(fptr, "NEvents                               = %"ISYM"\n", NEvents);
+  fprintf(fptr, "AnalyticSNRShellMass                  = %"ISYM"\n", AnalyticSNRShellMass);
+  fprintf(fptr, "StarMakerMinimumRefinementLevel       = %"ISYM"\n", StarMakeLevel);
+  fprintf(fptr, "UnrestrictedSN                        = %"ISYM"\n", UnrestrictedSN);
+  fprintf(fptr, "MechStarsCriticalMetallicity          = %"FSYM"\n", MechStarsCriticalMetallicity);
+  fprintf(fptr, "MechStarsSeedField                    = %"ISYM"\n", MechStarsSeedField);
+  fprintf(fptr, "MechStarsRadiationSpectrum            = %"ISYM"\n", MechStarsRadiationSpectrum);
+  
+/* Most Stanford additions: */
 
   fprintf(fptr, "UseHydro                   = %"ISYM"\n", UseHydro);
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);
@@ -1240,6 +1279,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr,"EquationOfState               =%"ISYM"\n",EquationOfState);
 
   fprintf(fptr, "CorrectParentBoundaryFlux          = %d\n", CorrectParentBoundaryFlux);
+
+  fprintf(fptr, "StoreDomainBoundaryMassFlux = %"ISYM"\n", StoreDomainBoundaryMassFlux);
+  fprintf(fptr, "BoundaryMassFluxFilename = %s\n", BoundaryMassFluxFilename);
+  for (dim = 0; dim < MAX_NUMBER_OF_BARYON_FIELDS; dim++){
+    if (BoundaryMassFluxFieldNumbers[dim] >= 0){
+      fprintf(fptr, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM"\n", dim, BoundaryMassFluxFieldNumbers[dim]);
+      fprintf(fptr, "BoundaryMassFluxContainer[%"ISYM"]        = %"ESYM"\n", dim, BoundaryMassFluxContainer[dim]);
+    }
+  }
 
   /* Supernova magnetic seed field */
   fprintf(fptr, "UseMagneticSupernovaFeedback = %"ISYM"\n", UseMagneticSupernovaFeedback);

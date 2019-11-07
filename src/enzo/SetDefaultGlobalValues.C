@@ -193,6 +193,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HydroMethod               = PPM_DirectEuler;   //
   Gamma                     = 5.0/3.0;           // 5/3
   PressureFree              = FALSE;             // use pressure (duh)
+  QuantumPressure           = FALSE;             // FDM: no fuzzy dark matter
+  FDMMass           = 1.0;             // FDM: FDM mass 1e-22 eV
+
   RefineBy                  = 2;                 // Refinement factor
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
@@ -320,10 +323,16 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     }
   }
 
+  /* For storing mass of density fields living domain */
+  StoreDomainBoundaryMassFlux = 0;
+  BoundaryMassFluxFilename    = "boundary_mass_flux.dat";
+  for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
+    BoundaryMassFluxFieldNumbers[i] = -1;
+    BoundaryMassFluxContainer[i] = 0.0;
+  }
 
   DatabaseLocation = NULL;
 
- 
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;
   Unigrid                     = FALSE;
@@ -668,7 +677,19 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StellarWindDensity               = 1.0; // in code unit
   StellarWindRadius                = 0.01;  // in code unit
   StellarWindTemperature           = 100.0;  // in K
-
+/* mechanical feedback parameters */
+  StellarWinds                     = 1;
+  SingleSN                         = 1;
+  StarMakerMaximumFormationMass    = 1e4;
+  StarMakerMaximumMass             = 1e5;
+  DepositUnresolvedEnergyAsThermal = 0;
+  StarMakeLevel                    = MaximumRefinementLevel;
+  NEvents                          = 0;
+  AnalyticSNRShellMass             = 0;
+  UnrestrictedSN                     = 0; // false by default
+  MechStarsCriticalMetallicity      = 1e-12; // dont check for metals in formation
+  MechStarsSeedField                = 0; // dont seed metals from pop3 imf
+  MechStarsRadiationSpectrum        = 0; // no field by default!
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
   PythonReloadScript               = FALSE;
@@ -1036,6 +1057,29 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   BAnyl                       = 0;
   WriteExternalAccel          = 0;
 
+  for (i = 0; i < MAX_ACTIVE_PARTICLE_TYPES; i++)
+    EnabledActiveParticles[i] = NULL;
+  EnabledActiveParticlesCount = 0;
+  UnfulfilledStarFormationMass = 0;
+  NextActiveParticleID = INT_UNDEFINED;
+  NumberOfActiveParticles = 0;
+  ActiveParticleDensityThreshold = 1e8; //in cm^-3
+  //SmartStar Feedback modes
+  SmartStarFeedback = FALSE;
+  SmartStarEddingtonCap = FALSE;
+  SmartStarBHFeedback = FALSE;
+  SmartStarBHRadiativeFeedback = FALSE;
+  SmartStarBHJetFeedback = FALSE;
+  SmartStarBHThermalFeedback = FALSE;
+  SmartStarStellarRadiativeFeedback = FALSE;
+  
+  //SmartStar Feedback parameters - should be as minimal as possible
+  SmartStarFeedbackEnergyCoupling = 0.016666;
+  SmartStarFeedbackJetsThresholdMass = 1.0;
+  SmartStarJetVelocity = 1e-1; //as a fraction of clight
+  SmartStarSuperEddingtonAdjustment = TRUE;
+  SmartStarSpin = 0.7;
+  SmartStarSMSLifetime = 1e6; //1 Myr
   /* Gas drag parameters */
   UseGasDrag = 0;
   GasDragCoefficient = 0.;
