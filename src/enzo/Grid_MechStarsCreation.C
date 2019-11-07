@@ -41,8 +41,13 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
         int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar)
 {
     /* If limiting timesteps for SNe, return if not the right level */
-    if (level < StarMakeLevel && !UnrestrictedSN) return 0;
-    /* these flags are used to determine if we should set off a seed SNe */
+    if (level < StarMakeLevel) return 0;
+
+    /* 
+        these flags are used to determine if we should set off a seed SNe 
+        if (gridShouldFormStars && !notEnoughMetals) at the end, we'll seed 
+        with P3 SNe if requested
+    */
     bool gridShouldFormStars=false, notEnoughMetals = true;
 
     bool debug = true;
@@ -81,12 +86,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     int size =1;
     for (int dim = 0; dim < GridRank; dim ++)
         size *= GridDimension[dim];
-    // float* totalMetal = new float [size];
-    // for (int i = 0; i< size; i++){
-    //     totalMetal[i] = BaryonField[MetalNum][i];
-    //     if (MechStarsSeedField) totalMetal[i] += BaryonField[SNColourNum][i];
-    // }
-    int rank = GridRank;
 
 
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
@@ -97,20 +96,21 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     return FAIL;
     }
 
-/*      Define MassUnits so that code * mass = physical (Msun)
+    /*      
+        ReDefine MassUnits so that code * mass = physical (Msun)
             and physical(Msun) / MassUnits = code */
     MassUnits = DensityUnits*pow(LengthUnits*CellWidth[0][0], 3)/SolarMass;
 
     /* Index of last cell that was capable of star formation but has no metals */
     int *seedIndex = new int [3];
 
-    float dx = CellWidth[0][0];
+    FLOAT dx = CellWidth[0][0];
     int GZ = int(NumberOfGhostZones);
     int nCreated = *NumberOfParticlesSoFar;
     //fprintf(stdout, "Starting creation with %d prior particles\n",nCreated);
-    for (int i = GZ; i < GridDimension[0]-GZ; i++){
+    for (int k = GZ; k< GridDimension[2]-GZ; k++){
         for(int j = GZ; j < GridDimension[1]-GZ; j++){
-            for (int k = GZ; k< GridDimension[2]-GZ; k++){
+            for (int i = GZ; i < GridDimension[0]-GZ; i++){
                 /*
                 Particle creation has several criteria:
 
@@ -144,7 +144,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 
                         /* Determine Mass of new particle */
 
-                        float MassShouldForm =(shieldedFraction * BaryonField[DensNum][index]
+                        float MassShouldForm = (shieldedFraction * BaryonField[DensNum][index]
                                         * MassUnits / freeFallTime * this->dtFixed*TimeUnits/3.1557e13);
 
                         if (MassShouldForm < 0){
@@ -154,6 +154,9 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 
                         /* limit new mass to 1/2 gas in cell */
                         float newMass = min(MassShouldForm/MassUnits, 0.5*BaryonField[DensNum][index]);
+                        
+                        // only if mass is large enough
+
                         if (newMass*MassUnits < StarMakerMinimumMass){
                                 continue;
                         }
@@ -162,7 +165,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         // fprintf(stdout, "DynamicalTime = %e\n", dynamicalTime);
                         ParticleArray->ParticleMass[nCreated] = newMass;
                         if (StarParticleRadiativeFeedback)
-                            ParticleArray->ParticleAttribute[1][nCreated] = huge_number; // need infinite lifetime for radiative feedback i think?
+                            ParticleArray->ParticleAttribute[1][nCreated] = 27*TimeUnits*3.1517e6; // need 27 Myr lifetime for ray tracing feedback
                         else
                             ParticleArray->ParticleAttribute[1][nCreated] = 0.0; // Tracking SNE in TDP field dynamicalTime/TimeUnits;
                         ParticleArray->ParticleAttribute[0][nCreated] = Time;
@@ -188,32 +191,38 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         if (HydroMethod != 0)
                             fprintf(stderr,"Mechanical star maker not tested for anything except HydroMethod = 0\n");
                         /* average particle velocity over 125 cells to prevent runaway */
-                        for (int ip = i-2; ip <= i + 2 ; ip++)
+                        for (int kp = k-2; kp <= k+2; kp++)
                             for (int jp = j-2; jp <= j+2 ; jp++)
-                                for (int kp = k-2; kp <= k+2; kp++){
+                                for (int ip = i-2; ip <= i + 2 ; ip++)
+                                {
                                     int ind = ip + jp*GridDimension[0]+kp*GridDimension[0]+GridDimension[1];
                                     vX += BaryonField[Vel1Num][ind];
                                     vY += BaryonField[Vel2Num][ind];
                                     vZ += BaryonField[Vel3Num][ind];
                                 }
                         float MaxVelocity = 250.*1.0e5/VelocityUnits;
-                        ParticleArray->ParticleVelocity[0][nCreated] = (abs(vX/125.) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX/125.);
-                        ParticleArray->ParticleVelocity[1][nCreated] = (abs(vY/125.) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY/125.);
-                        ParticleArray->ParticleVelocity[2][nCreated] = (abs(vZ/125.) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ/125.);;
+                        ParticleArray->ParticleVelocity[0][nCreated] = 
+                            (abs(vX/125.) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX/125.);
+                        ParticleArray->ParticleVelocity[1][nCreated] = 
+                            (abs(vY/125.) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY/125.);
+                        ParticleArray->ParticleVelocity[2][nCreated] = 
+                            (abs(vZ/125.) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ/125.);
 
                         /* give it position at center of host cell */
 
                         ParticleArray->ParticlePosition[0][nCreated] = CellLeftEdge[0][0]
-                                                +(dx*(float(i)+0.5));
+                                                +(dx*(FLOAT(i)-0.5));
                         ParticleArray->ParticlePosition[1][nCreated] = CellLeftEdge[1][0]
-                                                +(dx*(float(j)+0.5));
+                                                +(dx*(FLOAT(j)-0.5));
                         ParticleArray->ParticlePosition[2][nCreated] = CellLeftEdge[2][0]
-                                                +(dx*(float(k)+0.5));
+                                                +(dx*(FLOAT(k)-0.5));
                         if (nCreated >= MaximumNumberOfNewParticles) return nCreated;
-                        if (true)
-                            fprintf(stdout,"Created star: [%f] %e %e ::: %d %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f ::: %d %d ::: %d %d %d\n",
-                                Time*TimeUnits/3.1557e13,BaryonField[DensNum][index],
-                                BaryonField[DensNum][index]*MassUnits, level, nCreated+1,
+                        if (debug)
+                            fprintf(stdout,"Created star: [%f] %e %e ::: %d %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f \t::: %d %d ::: %d %d %d\n",
+                                Time*TimeUnits/3.1557e13,
+                                BaryonField[DensNum][index],
+                                BaryonField[DensNum][index]*MassUnits, 
+                                level, nCreated+1,
                                 ParticleArray->ParticleType[nCreated],
                                 ParticleArray->ParticleMass[nCreated]*MassUnits,
                                 ParticleArray->ParticleAttribute[0][nCreated],

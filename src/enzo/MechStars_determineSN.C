@@ -92,8 +92,8 @@ int determineSN(float age, int* nSNII, int* nSNIA,
             
             if (random < PIA)
                 *nSNIA = psn+1;
-            if (*nSNIA > 0)
-                fprintf(stdout, "PIA = %f\n", PIA);
+            // if (*nSNIA > 0)
+            //     fprintf(stdout, "PIA = %f\n", PIA);
         }
     }
         return SUCCESS;
