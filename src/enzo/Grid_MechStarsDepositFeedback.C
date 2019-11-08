@@ -475,7 +475,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     As a computational compromize, supernova are deposited CIC, but winds are 
     deposited NGP.  At VERY high resolution, well still do CIC for winds
      */
-    if (!winds || dx * LengthUnits / pc_cm < min_winds)
+    if (!DepositUnresolvedEnergyAsThermal)
     {
         for (int n = 0; n < nCouple; ++n)
         {
@@ -575,7 +575,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         the momentum goes uncoupled.  Since the cooling radius is so small for wind enrgy (~10^15 erg),
         this is totally appropriate for simulations with dx > 0.25pccm or so.
     */
-    if (winds && dx * LengthUnits / pc_cm > min_winds)
+    if (DepositUnresolvedEnergyAsThermal)
     {
         float dm = coupledMass / (density[index] + coupledMass);
         density[index] += coupledMass;
