@@ -97,12 +97,17 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   }
 
   /* set default values for parameters */
-  float GasDensity     = 1.673E-24,
-        GasTemperature = 1.0E4,
-        GasMetallicity = tiny_number;
+  float ChemicalEvolutionTestGasDensity     = 1.673E-24,
+        ChemicalEvolutionTestBackgroundGasDensity = ChemicalEvolutionTestGasDensity,
+        ChemicalEvolutionTestGasTemperature = 1.0E4,
+        ChemicalEvolutionTestBackgroundGasTemperature = ChemicalEvolutionTestGasTemperature,
+        ChemicalEvolutionTestGasMetallicity = tiny_number;
+  ChemicalEvolutionTestGasRadius      = 0.25;         // code units
 
-  int   ChemicalEvolutionTestRefineAtStart  = 1,
-        ChemicalEvolutionTestUseMetals      = 1;
+  int   ChemicalEvolutionTestRefineAtStart   = 1,
+        ChemicalEvolutionTestUseMetals       = 1;
+
+  ChemicalEvolutionTestGasDistribution = 0;
 
   /* MultiSpecies parameters. Ionized, primordial gas */
   TestProblemData.HydrogenFractionByMass   = 0.75;
@@ -123,12 +128,22 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
     ret += sscanf(line, "ChemicalEvolutionTestNumberOfStars = %"ISYM,
                         &ChemicalEvolutionTestNumberOfStars);
-    ret += sscanf(line, "ChemicalEvolutionTestGasDensity = %"FSYM, 
-                        &GasDensity);
+    ret += sscanf(line, "ChemicalEvolutionTestGasDensity = %"FSYM,
+                        &ChemicalEvolutionTestGasDensity);
+    ret += sscanf(line, "ChemicalEvolutionTestBackgroundGasDensity = %"FSYM,
+                        &ChemicalEvolutionTestBackgroundGasDensity);
+
+
+    ret += sscanf(line, "ChemicalEvolutionTestGasDistribution = %"ISYM,
+                        &ChemicalEvolutionTestGasDistribution); // 0: uniform, 1: spherical isothermal
+
     ret += sscanf(line, "ChemicalEvolutionTestGasTemperature = %"FSYM,
-                        &GasTemperature);
+                        &ChemicalEvolutionTestGasTemperature);
+    ret += sscanf(line, "ChemicalEvolutionTestBackgroundGasTemperature = %"FSYM,
+                        &ChemicalEvolutionTestBackgroundGasTemperature);
+
     ret += sscanf(line, "ChemicalEvolutionTestGasMetallicity = %"FSYM,
-                        &GasMetallicity);
+                        &ChemicalEvolutionTestGasMetallicity);
     ret += sscanf(line, "ChemicalEvolutionTestRefineAtStart = %"ISYM,
                         &ChemicalEvolutionTestRefineAtStart);
 
@@ -183,8 +198,10 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     return FAIL;
   }
 
-  GasDensity = GasDensity / DensityUnits;
-  GasTemperature = GasTemperature / TemperatureUnits;
+  ChemicalEvolutionTestGasDensity     /= DensityUnits;
+  ChemicalEvolutionTestBackgroundGasDensity /= DensityUnits;
+  ChemicalEvolutionTestGasTemperature /= TemperatureUnits;
+  ChemicalEvolutionTestBackgroundGasDensity /= TemperatureUnits;
 
 
 
@@ -196,12 +213,21 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
 
   /* set up grid */
+  float BackgroundGasDensity     = ChemicalEvolutionTestGasDensity;
+  float BackgroundGasTemperature = ChemicalEvolutionTestGasTemperature;
+
+  if (ChemicalEvolutionTestGasDistribution == 1){
+    BackgroundGasDensity = ChemicalEvolutionTestBackgroundGasDensity;
+    BackgroundGasTemperature = ChemicalEvolutionTestBackgroundGasTemperature;
+  } else if (ChemicalEvolutionTestGasDistribution > 1){
+    ENZO_FAIL("ChemicalEvolutionTest: incorrect gas distribution type.");
+  }
 
   float uniform_velocity[3]  = {0.0, 0.0, 0.0};
   float uniform_B_field[3]   = {0.0, 0.0, 0.0};
-  float uniform_total_energy = GasTemperature / ((Gamma-1.0)*0.6);
+  float uniform_total_energy = BackgroundGasTemperature / ((Gamma-1.0)*0.6);
 
-  if (TopGrid.GridData->InitializeUniformGrid(GasDensity,
+  if (TopGrid.GridData->InitializeUniformGrid(BackgroundGasDensity,
                                               uniform_total_energy,
                                               uniform_total_energy,
                                               uniform_velocity,
@@ -209,9 +235,9 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
       ENZO_FAIL("Error in InitializeUniformGrid.");
   }
 
-  if (TopGrid.GridData->ChemicalEvolutionTestInitializeGrid(GasDensity,
-                                                        GasTemperature,
-                                                        GasMetallicity) == FAIL){
+  if (TopGrid.GridData->ChemicalEvolutionTestInitializeGrid(ChemicalEvolutionTestGasDensity,
+                                                            ChemicalEvolutionTestGasTemperature,
+                                                            ChemicalEvolutionTestGasMetallicity) == FAIL){
     ENZO_FAIL("Error in ChemicalEvolutionInitialize[Sub]Grid.");
   } // end subgrid if
 
@@ -246,15 +272,15 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
       LevelHierarchyEntry *TempGrid = LevelArray[level+1];
 
       while (TempGrid != NULL) {
-        TempGrid->GridData->InitializeUniformGrid(GasDensity,
+        TempGrid->GridData->InitializeUniformGrid(BackgroundGasDensity,
                                                   uniform_total_energy,
                                                   uniform_total_energy,
                                                   uniform_velocity,
                                                   uniform_B_field);
 
-        TempGrid->GridData->ChemicalEvolutionTestInitializeGrid(GasDensity,
-                                                                GasTemperature,
-                                                                GasMetallicity);
+        TempGrid->GridData->ChemicalEvolutionTestInitializeGrid(ChemicalEvolutionTestGasDensity,
+                                                                ChemicalEvolutionTestGasTemperature,
+                                                                ChemicalEvolutionTestGasMetallicity);
         TempGrid = TempGrid->NextGridThisLevel;
       }
     } // end loop over levels
@@ -339,9 +365,13 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
  /* Write Parameters to parameter output file */
  if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-   fprintf(Outfptr, "ChemicalEvolutionTestGasDensity = %"GSYM"\n", GasDensity);
-   fprintf(Outfptr, "ChemicalEvolutionTestGasTemperature = %"GSYM"\n", GasTemperature);
-   fprintf(Outfptr, "ChemicalEvolutionTestGasMetallicity = %"FSYM"\n", GasMetallicity);
+   fprintf(Outfptr, "ChemicalEvolutionTestGasDensity = %"GSYM"\n", ChemicalEvolutionTestGasDensity);
+   fprintf(Outfptr, "ChemicalEvolutionTestGasTemperature = %"GSYM"\n", ChemicalEvolutionTestGasTemperature);
+   fprintf(Outfptr, "ChemicalEvolutionTestGasMetallicity = %"FSYM"\n", ChemicalEvolutionTestGasMetallicity);
+
+   fprintf(Outfptr, "ChemicalEvolutionTestBackgroundGasDensity = %"GSYM"\n", ChemicalEvolutionTestBackgroundGasDensity);
+   fprintf(Outfptr, "ChemicalEvolutionTestGasBackgroundTemperature = %"GSYM"\n", ChemicalEvolutionTestBackgroundGasTemperature);
+
    fprintf(Outfptr, "ChemicalEvolutionTestRefineAtStart = %"ISYM"\n", ChemicalEvolutionTestRefineAtStart);
 
    fprintf(Outfptr, "ChemicalEvolutionTestMultiMetals = %"ISYM"\n", TestProblemData.MultiMetals);
