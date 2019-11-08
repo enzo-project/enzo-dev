@@ -216,9 +216,6 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
     if (IndividualStarFUVHeating){ // better if needed
       TypesToAdd[FieldsToAdd++] = PeHeatingRate;
-    }
-
-    if (!(RadiativeTransferOpticallyThinFUV)){
       TypesToAdd[FieldsToAdd++] = FUVRate;
     }
 
