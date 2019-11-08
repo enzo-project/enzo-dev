@@ -62,6 +62,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPhotonEscapeRadius         = 0.0;   // kpc
   RadiativeTransferInterpolateField           = FALSE;
   RadiativeTransferSourceClustering           = FALSE;
+  RadiativeTransferOpticallyThinSourceClustering = FALSE;
   RadiativeTransferPhotonMergeRadius          = 10.0;
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
   RadiativeTransferTimestepVelocityLevel      = INT_UNDEFINED;
@@ -127,6 +128,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferInterpolateField);
     ret += sscanf(line, "RadiativeTransferSourceClustering = %"ISYM, 
 		  &RadiativeTransferSourceClustering);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
+                  &RadiativeTransferOpticallyThinSourceClustering);
     ret += sscanf(line, "RadiativeTransferPhotonMergeRadius = %"FSYM, 
 		  &RadiativeTransferPhotonMergeRadius);
     ret += sscanf(line, "RadiativeTransferFLDCallOnLevel = %"ISYM, 
@@ -229,7 +232,19 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
   // If RadiativeTransferFLD > 1, ensure that ImplicitProblem > 0
   if (RadiativeTransferFLD > 1  &&  (ImplicitProblem == 0)) 
-    ENZO_FAIL("Error: RadiativeTransferFLD > 1 requires ImplicitProblem > 0!")
+    ENZO_FAIL("Error: RadiativeTransferFLD > 1 requires ImplicitProblem > 0!");
+
+  // Make sure source clustering is turned on if optically thin source clustering
+  // is to be used. Throw an error just in case.
+  if (!RadiativeTransferSourceClustering && RadiativeTransferOpticallyThinSourceClustering)
+    ENZO_FAIL("Error: RadiativeTransferSourceClustering must be turned on to use optically thin source clustering");
+
+  if (RadiativeTransferOpticallyThinSourceClustering &&
+      (RadiativeTransferPhotonMergeRadius > 5.0)){
+    fprintf(stderr, "Warning: Caution when using optically thin source clustering and "
+                    "values for RadiativeTransferPhotonMergeRadius > 5. This may result in missing "
+                    "radiation near sources.\n");
+  }
 
 #ifdef USE_GRACKLE
   // Set some radiative transfer grackle parameters.
