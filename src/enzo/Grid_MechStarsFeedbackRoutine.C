@@ -135,31 +135,34 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
             /* Keep particle 2 cells from edge since we cant transfer to
                 neighboring grids */
             FLOAT borderDx = (stretchFactor)*dx;
-            if (xp > GridRightEdge[0] 
-            || xp < GridLeftEdge[0] 
-            || yp > GridRightEdge[1]
-            || yp < GridLeftEdge[1] 
-            || zp > GridRightEdge[2] 
-            || zp < GridLeftEdge[2])
-            {
-                fprintf(stderr, "[%d--%e] Particle %" ISYM "  with type %" ISYM " out of grid! Mass: %" GSYM " age: %" FSYM "\npos: %" FSYM ", %" FSYM " %" FSYM ", Vel: %" FSYM " %" FSYM " %f\nLeftEdge: %" FSYM " %" FSYM " %" FSYM "\nRightEdge: %" FSYM " %" FSYM " %" FSYM "\n",
-                        level, dx, pIndex, ParticleType[pIndex], ParticleMass[pIndex] * MassUnits,
-                        age, xp, yp, zp,
-                        ParticleVelocity[0][pIndex],
-                        ParticleVelocity[1][pIndex],
-                        ParticleVelocity[2][pIndex],
-                        GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2],
-                        GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
-                fprintf(stderr, "Particle %d: Ct = %f Zzsun = %f TDP = %f\n",
-                        pIndex, ParticleAttribute[0][pIndex],
-                        ParticleAttribute[2][pIndex],
-                        ParticleAttribute[1][pIndex]);
-                fprintf(stderr, "Accelerations: %"FSYM", %"FSYM", %"FSYM"\n",
-                        ParticleAcceleration[0][pIndex], ParticleAcceleration[1][pIndex],
-                        ParticleAcceleration[2][pIndex]);
-                // EnzoFatalException("Star Maker Mechanical: particle out of grid!\n");
-                raise(SIGABRT); // fails more quickly and puts out a core dump for analysis
-            }
+                if (xp > GridRightEdge[0] 
+                    || xp < GridLeftEdge[0] 
+                    || yp > GridRightEdge[1]
+                    || yp < GridLeftEdge[1] 
+                    || zp > GridRightEdge[2] 
+                    || zp < GridLeftEdge[2])
+                    {
+                    if (debug){
+                        fprintf(stderr, "[%d--%e] Particle %" ISYM "  with type %" ISYM " out of grid! Mass: %" GSYM " age: %" FSYM "\npos: %" FSYM ", %" FSYM " %" FSYM ", Vel: %" FSYM " %" FSYM " %f\nLeftEdge: %" FSYM " %" FSYM " %" FSYM "\nRightEdge: %" FSYM " %" FSYM " %" FSYM "\n",
+                                level, dx, pIndex, ParticleType[pIndex], ParticleMass[pIndex] * MassUnits,
+                                age, xp, yp, zp,
+                                ParticleVelocity[0][pIndex],
+                                ParticleVelocity[1][pIndex],
+                                ParticleVelocity[2][pIndex],
+                                GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2],
+                                GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
+                        fprintf(stderr, "Particle %d: Ct = %f Zzsun = %f TDP = %f\n",
+                                pIndex, ParticleAttribute[0][pIndex],
+                                ParticleAttribute[2][pIndex],
+                                ParticleAttribute[1][pIndex]);
+                        fprintf(stderr, "Accelerations: %"FSYM", %"FSYM", %"FSYM"\n",
+                                ParticleAcceleration[0][pIndex], ParticleAcceleration[1][pIndex],
+                                ParticleAcceleration[2][pIndex]);
+                    }
+                    continue;
+                        // EnzoFatalException("Star Maker Mechanical: particle out of grid!\n");
+                        //raise(SIGABRT); // fails more quickly and puts out a core dump for analysis
+                    }
             int shifted = 0;
 
             if (xp < CellLeftEdge[0][0] + borderDx)
