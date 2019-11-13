@@ -1655,9 +1655,9 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
     ParticlePosition[2][count] = zpos[i];
 
 /*
-    ParticleVelocity[0][i] = (vx[i]*kpc_cm / VelocityUnits);
-    ParticleVelocity[1][i] = (vy[i]*kpc_cm / VelocityUnits);
-    ParticleVelocity[2][i] = (vz[i]*kpc_cm / VelocityUnits);
+    ParticleVelocity[0][i] = (vx[i]*km_cm / VelocityUnits);
+    ParticleVelocity[1][i] = (vy[i]*km_cm / VelocityUnits);
+    ParticleVelocity[2][i] = (vz[i]*km_cm / VelocityUnits);
 */
 
     int ip, jp, kp, index;

@@ -1049,7 +1049,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
       IndividualStarMaximumStellarWindVelocity > 0)
             v_wind = IndividualStarMaximumStellarWindVelocity;
 
-  v_wind *= kpc_cm; // now in cgs
+  v_wind *= km_cm; // now in cgs
 
   /* Now that we have wind lifetime and ejected mass, compute properties of wind*/
 
@@ -1079,8 +1079,8 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
   E_thermal = 1.5 * Teff * (m_eject*SolarMass / (mh)) * kboltz; // current T of wind
 
-  if( v_wind > IndividualStarMaximumStellarWindVelocity * kpc_cm){ // so we don't waste CPU
-    v_wind = IndividualStarMaximumStellarWindVelocity * kpc_cm;
+  if( v_wind > IndividualStarMaximumStellarWindVelocity * km_cm){ // so we don't waste CPU
+    v_wind = IndividualStarMaximumStellarWindVelocity * km_cm;
   }
 
   E_thermal = E_thermal + 0.5 * (m_eject * SolarMass) * v_wind * v_wind; // assume 100% KE thermalization

@@ -559,15 +559,15 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 // sqrt(1/3) to get disp in each component... taking above velocities as the mean
                 rnum  =  (float) (random() % max_random) / (float) (max_random);
                 rsign = rnum>0.5 ? 1:-1;
-                ParticleVelocity[0][istar] = umean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*kpc_cm*(TimeUnits)/(LengthUnits);
+                ParticleVelocity[0][istar] = umean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*km_cm*(TimeUnits)/(LengthUnits);
 
                 rnum  =  (float) (random() % max_random) / (float) (max_random);
                 rsign = rnum>0.5 ? 1:-1;
-                ParticleVelocity[1][istar] = vmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*kpc_cm*(TimeUnits)/(LengthUnits);
+                ParticleVelocity[1][istar] = vmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*km_cm*(TimeUnits)/(LengthUnits);
 
                 rnum  =  (float) (random() % max_random) / (float) (max_random);
                 rsign = rnum>0.5 ? 1:-1;
-                ParticleVelocity[2][istar] = wmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*kpc_cm*(TimeUnits)/(LengthUnits);
+                ParticleVelocity[2][istar] = wmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*km_cm*(TimeUnits)/(LengthUnits);
 
                 // ENSURE MOMENTUM CONSERVATION!!!!!
                 // make running total of momentum in each direction
