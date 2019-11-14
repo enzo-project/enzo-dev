@@ -1246,6 +1246,9 @@ EXTERN int   ChemicalEvolutionTestStarFormed;
 EXTERN FLOAT ChemicalEvolutionTestStarLifetime;
 EXTERN int   ChemicalEvolutionTestGasDistribution;
 EXTERN float ChemicalEvolutionTestGasRadius;
+EXTERN float ChemicalEvolutionTestConcentration;
+EXTERN float ChemicalEvolutionTestBackgroundGasTemperature;
+EXTERN float ChemicalEvolutionTestBackgroundGasDensity;
 
 /* For individual star properties and radiation data */
 EXTERN IndividualStarRadDataType        IndividualStarRadData;

@@ -1,6 +1,6 @@
 /**********************************************************
 //
-//  INITIALIZE CHEMICAL EVOLUTION MODEL TEST 
+//  INITIALIZE CHEMICAL EVOLUTION MODEL TEST
 //
 //
 //  written by : Andrew Emerick
@@ -10,7 +10,7 @@
 //  PURPOSE:
 //   Simple test of coupling star particles to chemical
 //   evolution model. Single star particle of desired mass
-//   is placed at desired position and evolved. Test of 
+//   is placed at desired position and evolved. Test of
 //   metal ejection via stellar winds over particle lifetime
 //   as well as end of life metal ejection (if applicable)
 //
@@ -37,6 +37,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 #include "TopGridData.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -53,6 +54,7 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 int IndividualStarProperties_Initialize(TopGridData &MetaData);
 int IndividualStarRadiationProperties_Initialize(void);
 int InitializeStellarYields(const float &time);
+int InitializeDoublePowerDarkMatter(void);
 
 int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                                     TopGridData &MetaData)
@@ -91,18 +93,20 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   int  dim, ret, level, disk, i; // might not need disk
 
   /* make sure we are in 3D */
-  
+
   if (MetaData.TopGridRank != 3) {
     ENZO_VFAIL("Cannot do ChemicalEvolutionTest in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
   }
 
   /* set default values for parameters */
   float ChemicalEvolutionTestGasDensity     = 1.673E-24,
-        ChemicalEvolutionTestBackgroundGasDensity = ChemicalEvolutionTestGasDensity,
         ChemicalEvolutionTestGasTemperature = 1.0E4,
-        ChemicalEvolutionTestBackgroundGasTemperature = ChemicalEvolutionTestGasTemperature,
         ChemicalEvolutionTestGasMetallicity = tiny_number;
+  ChemicalEvolutionTestConcentration = 10.0;
   ChemicalEvolutionTestGasRadius      = 0.25;         // code units
+
+  ChemicalEvolutionTestBackgroundGasDensity = ChemicalEvolutionTestGasDensity;
+  ChemicalEvolutionTestBackgroundGasTemperature = ChemicalEvolutionTestGasTemperature;
 
   int   ChemicalEvolutionTestRefineAtStart   = 1,
         ChemicalEvolutionTestUseMetals       = 1;
@@ -132,7 +136,10 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
                         &ChemicalEvolutionTestGasDensity);
     ret += sscanf(line, "ChemicalEvolutionTestBackgroundGasDensity = %"FSYM,
                         &ChemicalEvolutionTestBackgroundGasDensity);
-
+    ret += sscanf(line, "ChemicalEvolutionTestConcentration = %"FSYM,
+                        &ChemicalEvolutionTestConcentration);
+    ret += sscanf(line, "ChemicalEvolutionTestGasRadius = %"FSYM,
+                        &ChemicalEvolutionTestGasRadius);
 
     ret += sscanf(line, "ChemicalEvolutionTestGasDistribution = %"ISYM,
                         &ChemicalEvolutionTestGasDistribution); // 0: uniform, 1: spherical isothermal
@@ -201,9 +208,38 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   ChemicalEvolutionTestGasDensity     /= DensityUnits;
   ChemicalEvolutionTestBackgroundGasDensity /= DensityUnits;
   ChemicalEvolutionTestGasTemperature /= TemperatureUnits;
-  ChemicalEvolutionTestBackgroundGasDensity /= TemperatureUnits;
+  ChemicalEvolutionTestBackgroundGasTemperature /= TemperatureUnits;
 
+  if (ExternalGravity == 30){
+    InitializeDoublePowerDarkMatter();
 
+    // this currently does not work for some reason.... possibly
+    // due to problems in computing acceleration from potential? idk...
+    // externalgravity = 1 computes acceleration directly (analytically)...
+    /// probably better anyway....
+
+    if (DiskGravityDarkMatterDensity < 0){
+        const float rho_crit = 9.33E-30; // cgs - make consistent in Grid_ChemicalEvolutionTest
+        const float conc = ChemicalEvolutionTestConcentration; // temp
+        DiskGravityDarkMatterDensity = 200.0 / 3.0 * rho_crit * conc*conc*conc / (log(1.0+conc)+conc/(1.0+conc)); //cgs
+        const float M200 = DiskGravityDarkMatterMassInterior * SolarMass; // cgs
+        DiskGravityDarkMatterCutoffR = POW((3.0*M200/(4.0*pi*200.0*rho_crit)),1.0/3.0) / Mpc_cm;
+        DiskGravityDarkMatterR = DiskGravityDarkMatterCutoffR / conc;
+    }// end if density
+
+  } else if (ExternalGravity == 1){
+
+    const float rho_crit = 9.33E-30; // cgs - make consistent in Grid_ChemicalEvolutionTest
+    const float conc = ChemicalEvolutionTestConcentration;
+    const float M200 = DiskGravityDarkMatterMassInterior * SolarMass; // cgs
+    DiskGravityDarkMatterCutoffR = POW((3.0*M200/(4.0*pi*200.0*rho_crit)),1.0/3.0) / Mpc_cm;
+    DiskGravityDarkMatterR = DiskGravityDarkMatterCutoffR / conc;
+    DiskGravityDarkMatterDensity = 200.0 / 3.0 * rho_crit * conc*conc*conc / (log(1.0+conc)+conc/(1.0+conc)); //cgs
+
+    HaloCentralDensity = DiskGravityDarkMatterDensity; // must be cgs 
+    HaloConcentration  = ChemicalEvolutionTestConcentration;
+    HaloVirialRadius   = DiskGravityDarkMatterCutoffR * Mpc_cm; // cgs
+  }
 
   // initialize star properties
   IndividualStarProperties_Initialize(MetaData);
@@ -370,7 +406,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
    fprintf(Outfptr, "ChemicalEvolutionTestGasMetallicity = %"FSYM"\n", ChemicalEvolutionTestGasMetallicity);
 
    fprintf(Outfptr, "ChemicalEvolutionTestBackgroundGasDensity = %"GSYM"\n", ChemicalEvolutionTestBackgroundGasDensity);
-   fprintf(Outfptr, "ChemicalEvolutionTestGasBackgroundTemperature = %"GSYM"\n", ChemicalEvolutionTestBackgroundGasTemperature);
+   fprintf(Outfptr, "ChemicalEvolutionTestBackgroundGasTemperature = %"GSYM"\n", ChemicalEvolutionTestBackgroundGasTemperature);
 
    fprintf(Outfptr, "ChemicalEvolutionTestRefineAtStart = %"ISYM"\n", ChemicalEvolutionTestRefineAtStart);
 
@@ -400,11 +436,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
    fprintf(Outfptr, "ChemicalEvolutionTestSpeciesFractions   = ");
    WriteListOfFloats(Outfptr, MAX_STELLAR_YIELDS, TestProblemData.ChemicalTracerSpecies_Fractions);
 
- } 
+ }
 
 
 
 }
-
-
-

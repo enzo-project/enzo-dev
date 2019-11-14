@@ -48,6 +48,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
                               &TimeUnits, &VelocityUnits, Time) == FAIL){
       ENZO_FAIL("Error in GetUnits.");
   }
+  float MassUnits = DensityUnits * LengthUnits * LengthUnits * LengthUnits;
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
@@ -79,9 +80,72 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
     size *= GridDimension[dim];
   }
 
+  float *pressure = new float [size];
+
+  if (ChemicalEvolutionTestGasDistribution == 0){
+    for(i=0;i<size;i++) BaryonField[DensNum][i] = GasDensity;
+  } else if (ChemicalEvolutionTestGasDistribution == 1) {
+    /* spherical gas distribution */
+
+    const float rho_crit = 9.33E-30 / DensityUnits; // 3H^2 /(8pi*G) for H = 70.5
+//    const float M200 = DiskGravityDarkMatterMassInterior / MassUnits;
+    const float GravConst_code = GravConst *TimeUnits*TimeUnits*DensityUnits;
+    const float mp_code = mh / MassUnits;
+    const float kboltz_code = kboltz / (MassUnits*VelocityUnits*VelocityUnits) * TemperatureUnits;
+
+    const float R200   = DiskGravityDarkMatterCutoffR * Mpc_cm / LengthUnits;
+//    const float R200 = POW((3.0 * M200 / (4.0*pi*200.0*rho_crit)),1.0/3.0);
+//    const float conc = R200 / bparam;
+    const float rho_scale = DiskGravityDarkMatterDensity / DensityUnits; // 200.0/3.0 * rho_crit * conc*conc*conc/(log(1.0+conc)-conc/(1.0+conc));
+
+    const float conc = ChemicalEvolutionTestConcentration;
+    const float bparam = R200 / conc;
+
+    const float mugas = 0.6; // approx
+
+
+    printf("bparam %"ESYM" %"ESYM" %"ESYM"\n",bparam,R200,conc);
+    printf("gasdensity bgd   %"ESYM" %"ESYM"\n",GasDensity,ChemicalEvolutionTestBackgroundGasDensity);
+    float Cphi = 4.0*pi*GravConst_code*rho_scale*bparam*bparam;
+    Cphi *= mugas * mp_code / (kboltz_code*GasTemperature);
+
+    int index = 0;
+    for (int k = 0; k < GridDimension[2]; k++){
+      for(int j = 0; j < GridDimension[1]; j++){
+        for(i=0;i<GridDimension[0];i++, index++){
+
+          float xpos,ypos,zpos;
+          xpos = CellLeftEdge[0][i]+0.5*CellWidth[0][i];
+          ypos = CellLeftEdge[1][j]+0.5*CellWidth[1][j];
+          zpos = CellLeftEdge[2][k]+0.5*CellWidth[2][k];
+
+          float r = sqrt( POW(xpos-0.5,2) + POW(ypos-0.5,2) + POW(zpos-0.5,2));
+          r = max(r, 0.1*CellWidth[0][0]);
+
+          if (r < ChemicalEvolutionTestGasRadius){
+
+            BaryonField[DensNum][index] = GasDensity*
+                                       exp(-Cphi*(1.0 - log(1.0+r/bparam)/(r/bparam)));
+            pressure[index] = BaryonField[DensNum][index] * kboltz_code / (mp_code*mugas) * GasTemperature;
+
+            BaryonField[1][index] = GasTemperature / ((Gamma-1.0)*0.6);
+            if (DualEnergyFormalism) BaryonField[2][index] = GasTemperature / ((Gamma-1.0)*0.6);
+          } else { // r > gas radius is handled in uniform ICs
+            BaryonField[DensNum][index] = ChemicalEvolutionTestBackgroundGasDensity;
+            BaryonField[1][index] = ChemicalEvolutionTestBackgroundGasTemperature / ((Gamma-1.0)*0.6);
+            if (DualEnergyFormalism) BaryonField[2][index] = BaryonField[1][index];
+          }
+
+        }
+      }
+   }
+
+  }
+
+
   if (TestProblemData.UseMetallicityField){
     for ( i = 0; i < size; i++){
-      BaryonField[MetalNum][i] = GasMetallicity * GasDensity;
+      BaryonField[MetalNum][i] = GasMetallicity * BaryonField[DensNum][i];
     }
   }
 
@@ -89,22 +153,22 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
   if (MultiSpecies){
     // set set background to primordial and 100% ionized (only HII and HeIII)
     for( i = 0; i < size; i++){
-      BaryonField[HIINum][i]   = GasDensity * TestProblemData.HydrogenFractionByMass
+      BaryonField[HIINum][i]   = BaryonField[DensNum][i] * TestProblemData.HydrogenFractionByMass
                                             * TestProblemData.HII_Fraction ;
-      BaryonField[HeIINum][i]  = GasDensity * TestProblemData.HeII_Fraction *
+      BaryonField[HeIINum][i]  = BaryonField[DensNum][i] * TestProblemData.HeII_Fraction *
                                           (1.0 - TestProblemData.HydrogenFractionByMass);
-      BaryonField[HeIIINum][i] = GasDensity * TestProblemData.HeIII_Fraction
+      BaryonField[HeIIINum][i] = BaryonField[DensNum][i] * TestProblemData.HeIII_Fraction
                                             * (1.0 - TestProblemData.HydrogenFractionByMass);
-      BaryonField[HeINum][i]   = (1.0 - TestProblemData.HydrogenFractionByMass) * GasDensity -
+      BaryonField[HeINum][i]   = (1.0 - TestProblemData.HydrogenFractionByMass) * BaryonField[DensNum][i] -
                                  BaryonField[HeIINum][i] - BaryonField[HeIIINum][i];
       if(MultiSpecies > 1){
         BaryonField[HMNum][i]  = TestProblemData.HM_Fraction  * BaryonField[HIINum][i];
-        BaryonField[H2INum][i] = TestProblemData.H2I_Fraction * GasDensity
+        BaryonField[H2INum][i] = TestProblemData.H2I_Fraction * BaryonField[DensNum][i]
                                                    * TestProblemData.HydrogenFractionByMass;
         BaryonField[H2IINum][i] = TestProblemData.H2II_Fraction * 2.0 * BaryonField[HIINum][i];
       }
 
-      BaryonField[HINum][i] = TestProblemData.HydrogenFractionByMass *GasDensity
+      BaryonField[HINum][i] = TestProblemData.HydrogenFractionByMass *BaryonField[DensNum][i]
                                                 - BaryonField[HIINum][i];
 
       if( MultiSpecies > 1){
@@ -142,7 +206,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
         IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[sp]);
 
         for(i = 0; i < size; i++){ // assign initial values
-          BaryonField[field_num][i] = fraction * GasDensity;
+          BaryonField[field_num][i] = fraction * BaryonField[DensNum][i];
         }
       }
     } // loop over yields
@@ -166,7 +230,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
 //    ENZO_FAIL("Was not able to deposit stars in chemical evolution test\n");
 //  } // end: if (NumberOfNewParticles > 0)
 
-
+  delete [] pressure;
 
   return SUCCESS;
 }
@@ -274,9 +338,9 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
       ParticlePosition[1][count] = ypos[i];
       ParticlePosition[2][count] = zpos[i];
 
-      ParticleVelocity[0][count] = xvel[i]*kpc_cm / VelocityUnits;
-      ParticleVelocity[1][count] = yvel[i]*kpc_cm / VelocityUnits;
-      ParticleVelocity[2][count] = zvel[i]*kpc_cm / VelocityUnits;
+      ParticleVelocity[0][count] = xvel[i]*km_cm / VelocityUnits;
+      ParticleVelocity[1][count] = yvel[i]*km_cm / VelocityUnits;
+      ParticleVelocity[2][count] = zvel[i]*km_cm / VelocityUnits;
 
 
       // find grid cell and assign chemical tags
@@ -387,9 +451,9 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
     ParticlePosition[0][0] = ChemicalEvolutionTestStarPosition[0];
     ParticlePosition[1][0] = ChemicalEvolutionTestStarPosition[1];
     ParticlePosition[2][0] = ChemicalEvolutionTestStarPosition[2];
-    ParticleVelocity[0][0] = ChemicalEvolutionTestStarVelocity[0]*kpc_cm / VelocityUnits;
-    ParticleVelocity[1][0] = ChemicalEvolutionTestStarVelocity[1]*kpc_cm / VelocityUnits;
-    ParticleVelocity[2][0] = ChemicalEvolutionTestStarVelocity[2]*kpc_cm / VelocityUnits;
+    ParticleVelocity[0][0] = ChemicalEvolutionTestStarVelocity[0]*km_cm / VelocityUnits;
+    ParticleVelocity[1][0] = ChemicalEvolutionTestStarVelocity[1]*km_cm / VelocityUnits;
+    ParticleVelocity[2][0] = ChemicalEvolutionTestStarVelocity[2]*km_cm / VelocityUnits;
 
      // find grid cell and assign chemical tags
     int ip, jp, kp, n;
