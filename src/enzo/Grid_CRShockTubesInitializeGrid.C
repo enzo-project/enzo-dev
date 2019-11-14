@@ -92,7 +92,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,
       }
       if (HydroMethod == MHD_RK) {
 	B2 = bxl*bxl + byl*byl + bzl*bzl; 
-	BaryonField[ietot][i] += crl/rhol + 0.5*B2/rhol;
+	//	BaryonField[ietot][i] += crl/rhol + 0.5*B2/rhol;
 	BaryonField[iBx][i] = bxl;
 	BaryonField[iBy][i] = byl;
 	BaryonField[iBz][i] = bzl;
@@ -110,7 +110,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,
       }
       if (HydroMethod == MHD_RK) {
         B2 = bxr*bxr + byr*byr + bzr*bzr;
-	BaryonField[ietot][i] += crr/rhor + 0.5*B2/rhor;
+	//	BaryonField[ietot][i] += crr/rhor + 0.5*B2/rhor;
 	BaryonField[iBx][i] = bxr;
 	BaryonField[iBy][i] = byr;
 	BaryonField[iBz][i] = bzr;
@@ -205,7 +205,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       }
       if (HydroMethod == MHD_RK) {
 	B2 = bxl*bxl + byl*byl + bzl*bzl;
-        BaryonField[ietot][i] += crl/rhol + 0.5*B2/rhol;
+	//        BaryonField[ietot][i] += crl/rhol + 0.5*B2/rhol;
         BaryonField[iBx][i] = bxl;
         BaryonField[iBy][i] = byl;
         BaryonField[iBz][i] = bzl;
@@ -223,7 +223,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       }
       if (HydroMethod == MHD_RK) {
 	B2 = bxc*bxc + byc*byc + bzc*bzc;
-        BaryonField[ietot][i] += crc/rhoc + 0.5*B2/rhoc;
+	//        BaryonField[ietot][i] += crc/rhoc + 0.5*B2/rhoc;
         BaryonField[iBx][i] = bxc;
         BaryonField[iBy][i] = byc;
         BaryonField[iBz][i] = bzc;
@@ -242,7 +242,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       }
       if (HydroMethod == MHD_RK) {
 	B2 = bxr*bxr + byr*byr + bzr*bzr;
-        BaryonField[ietot][i] += crr/rhor + 0.5*B2/rhor;
+	//        BaryonField[ietot][i] += crr/rhor + 0.5*B2/rhor;
         BaryonField[iBx][i] = bxr;
         BaryonField[iBy][i] = byr;
         BaryonField[iBz][i] = bzr;

@@ -242,8 +242,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	  v2 = vx*vx + vy*vy + vz*vz;
 	  B2 = Bx_new*Bx_new + By_new*By_new + Bz_new*Bz_new;
 	  etot = eint + 0.5*v2 + 0.5*B2/D_new;
-	  if (CRModel)
-	    etot += ecr/D_new;
 	}
 	
 
@@ -267,8 +265,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	  float emin = SmallT/(Mu*(Gamma-1.0));
 
 	  float eint1 = etot - 0.5*v2 - 0.5*B2/D_new;
-	  if (CRModel)
-	    eint1 -= ecr/D_new;
 	  if (eint1 > 0) {
 	    EOS(p, D_new, eint1, h, cs, dpdrho, dpde, EOSType, 2);
 	  }
@@ -283,8 +279,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	  eint = max(eint, emin);
 	  BaryonField[GENum][igrid] = eint;
 	  BaryonField[TENum][igrid] = eint + 0.5*v2 + 0.5*B2/D_new;
-	  if (CRModel)
-	    BaryonField[TENum][igrid] += ecr/D_new;
 
 	  if (BaryonField[GENum][igrid] < 0.0) {
 	    printf("UpdateMHDPrim: eint < 0, cs2=%"GSYM", eta*v2=%"GSYM", eint=%"GSYM", etot=%"GSYM", 0.5*v2=%"GSYM", p=%"GSYM", rho=%"GSYM",0.5*B2/rho=%"GSYM"\n", 

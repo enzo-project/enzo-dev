@@ -46,7 +46,7 @@ int grid::GrackleWrapper()
   LCAPERF_START("grid_GrackleWrapper");
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRNum;
+    DINum, DIINum, HDINum, DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
 
   double dt_cool = dtFixed;
 #ifdef TRANSFER
@@ -76,11 +76,6 @@ int grid::GrackleWrapper()
 				       Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
-  if (CRModel) {
-    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
-      ENZO_FAIL("Cannot Find Cosmic Rays");
-  }
- 
   /* Find Multi-species fields. */
 
   DeNum = HINum = HIINum = HeINum = HeIINum = HeIIINum = HMNum = H2INum = 
@@ -202,8 +197,6 @@ int grid::GrackleWrapper()
                                     POW(BaryonField[iBz][i], 2.0)) / 
           BaryonField[DensNum][i];
       }
-      if (CRModel  && HydroMethod != ZeusHydro)
-	  themal_energy[i] -= BaryonField[CRNum][i]/BaryonField[DensNum][i];
     } // for (int i = 0; i < size; i++)
   }
 
@@ -300,9 +293,6 @@ int grid::GrackleWrapper()
                                         POW(BaryonField[iBz][i], 2.0)) / 
           BaryonField[DensNum][i];
       }
-      if(CRModel)
-        BaryonField[TENum][i] += BaryonField[CRNum][i]/BaryonField[DensNum][i];
-
     } // for (int i = 0; i < size; i++)
   } // if (HydroMethod != Zeus_Hydro)
 

@@ -461,8 +461,6 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
             float gauss2d = exp(-r2/(2*D));
 	    float crs = 0.1*(1 + (.01 / (2.0*3.14159*D))*gauss2d);
 	    BaryonField[CRNum][igrid] = 0.5*(1 + (.01 / (2.0*3.14159*D))*gauss2d);
-	    //	    printf("CR = %"FSYM", r2 = %"FSYM", D = %"FSYM", gauss2d = %"FSYM"\n", crs, r2, D, gauss2d); 
-	    BaryonField[ietot][igrid] += BaryonField[CRNum][igrid] / rho;
 	  } // end of CRModel
         }
       }  
@@ -529,7 +527,6 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 	  else
 	    BaryonField[CRNum][igrid] = 10.; 
 	  
-	  // BaryonField[ietot][igrid] += BaryonField[CRNum][igrid] / rho;
         }
       }
     }

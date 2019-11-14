@@ -75,7 +75,6 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     Ul[iBz ] = Bz;
     Ul[iPhi] = Phi;
     if (CRModel){
-      Ul[iEtot] += Ecr;
       Ul[iCR]  = Ecr;
     }
 
@@ -93,10 +92,9 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     Fl[iBz] = -vz*Bx + vx*Bz;
     if (CRModel){
       Fl[iS1] += Pcr;
-      Fl[iEtot] += (Ecr + Pcr)*vx;
+      Fl[iEtot] += Pcr*vx;
       Fl[iCR] = Ul[iCR]*vx;
     }
-    //Fl[iPhi] = C_h*C_h*Bx;
 
     // largest and smallest eigenvectors
     if (CRModel)
@@ -153,7 +151,6 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     Ur[iPhi] = Phi;
 
     if (CRModel){
-      Ur[iEtot] += Ecr;
       Ur[iCR] = Ecr;
     }
 
@@ -170,10 +167,9 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     Fr[iBz ] = -vz*Bx + vx*Bz;
     if (CRModel){
       Fr[iS1] += Pcr; 
-      Fr[iEtot] += (Ecr + Pcr) * vx;
+      Fr[iEtot] += Pcr*vx;
       Fr[iCR] = Ur[iCR] * vx;
     }
-    //Fr[iPhi] = C_h*C_h*Bx;
 
     // largest and smallest eigenvectors
     if (CRModel)
@@ -189,8 +185,6 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
 
     ap = Max(Zero, lp_l, lp_r);
     am = Max(Zero, -lm_l, -lm_r);
-    //ap = max(Zero, lp_r);
-    //am = max(Zero, -lm_l);
 
     float a0 = max(ap, am);
     
@@ -216,10 +210,6 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
       return FAIL;
       }*/
   }
-
-  /*for (int n = 0; n < ActiveSize+1; n++) {
-    FluxLine[iBx][n] = 0.0;
-    }*/
 
   return SUCCESS;
 }

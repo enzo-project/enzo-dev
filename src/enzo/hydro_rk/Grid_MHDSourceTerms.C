@@ -46,6 +46,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
     B1Num, B2Num, B3Num, PhiNum, CRNum;
+
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
 				   TENum, B1Num, B2Num, B3Num, PhiNum, CRNum);
   if (CRModel) {
@@ -91,6 +92,9 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
           if (CRModel){
             Pcr = (CRgamma - 1.0) * BaryonField[CRNum][igrid];
             dU[iCR][n] -= Pcr*divVdt;
+	    dU[iEint][n] +=Pcr*divVdt;
+	    dU[iEtot][n] += Pcr*divVdt;
+	    
           }
 	}
       }
@@ -146,6 +150,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 
           dU[iCR][n] -= fabs(dHeatCR);
           dU[iEint][n] += fabs(dHeatCR);
+	  dU[iEtot][n] += fabs(dHeatCR);
 
 	}
       }

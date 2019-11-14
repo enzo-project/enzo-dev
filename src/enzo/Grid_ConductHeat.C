@@ -40,7 +40,7 @@ int grid::ConductHeat(){
 
   // Some locals
   int size = 1, idx, i,j,k, Nsub=0; 
-  int DensNum, TENum, GENum, Vel1Num, Vel2Num, Vel3Num, CRNum;
+  int DensNum, TENum, GENum, Vel1Num, Vel2Num, Vel3Num;
   float *e, eold;
   float dtSubcycle, dtSoFar;
 
@@ -59,11 +59,6 @@ int grid::ConductHeat(){
     iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
     iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
     iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);  
-  }
-
-  if (CRModel) {
-    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
-      ENZO_FAIL("Cannot Find Cosmic Rays");
   }
 
   // figure out what is actually internal energy and set it.  If we
@@ -120,8 +115,6 @@ int grid::ConductHeat(){
 	
 	e[i] -= 0.5*(POW(BaryonField[iBx][i],2.0) + POW(BaryonField[iBy][i],2.0) + POW(BaryonField[iBz][i],2.0))/BaryonField[DensNum][i];
 	
-	if( CRModel)
-	  e[i] -= BaryonField[CRNum][i] / BaryonField[DensNum][i];
       }
     }
 
@@ -175,9 +168,6 @@ int grid::ConductHeat(){
 	      BaryonField[TENum][idx] += 0.5*(POW(BaryonField[iBx][idx],2.0) + 
 					      POW(BaryonField[iBy][idx],2.0) + 
 					      POW(BaryonField[iBz][idx],2.0))/BaryonField[DensNum][idx];
-	    if (CRModel)
-	      BaryonField[TENum][idx] += BaryonField[CRNum][idx] / BaryonField[DensNum][idx];
-
 	  } // if(HydroMethod != Zeus_Hydro)
 
 	} // triple for loop

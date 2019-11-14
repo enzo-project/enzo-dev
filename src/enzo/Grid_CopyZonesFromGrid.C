@@ -261,7 +261,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
   // If DualEnergyFormalism is turned off, subtract v and b from Etotal to get Eint
 
-  int iden, ivx, ivy, ivz, ietot, ieint, iBx, iBy, iBz, CRNum;
+  int iden, ivx, ivy, ivz, ietot, ieint, iBx, iBy, iBz;
   if (isShearing){
 
     iden=FindField(Density, FieldType, NumberOfBaryonFields);
@@ -276,10 +276,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
       iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
       if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
       }
-    if (CRModel) {
-      if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
-	ENZO_FAIL("Cannot Find Cosmic Rays");
-    }
   }
     
 
@@ -344,12 +340,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 		if (loop==0) val1=val1- 0.5*v2 - 0.5*b2/rho;
 		else if (loop==1) val2=val2- 0.5*v2 - 0.5*b2/rho;
 
-                if (CRModel){
-                  if(loop==0)
-                    val1 -= OtherGrid->BaryonField[CRNum][iLoop]/rho;
-                  else if (loop==1) val2 -= OtherGrid->BaryonField[CRNum][iLoop]/rho;
-                }
-	
 	      }  
 	    }
 	    
@@ -398,8 +388,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	  if  (DualEnergyFormalism==0){
 	   
 		BaryonField[ietot][thisindex] = BaryonField[ietot][thisindex] + 0.5*v2 +0.5*b2/rho;
-		if (CRModel)
-                  BaryonField[ietot][thisindex] += BaryonField[CRNum][thisindex]/rho;
 	  }
 	  else{
 	
