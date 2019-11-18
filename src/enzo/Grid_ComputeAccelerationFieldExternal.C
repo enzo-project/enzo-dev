@@ -571,7 +571,7 @@ int grid::ComputeAccelerationFieldExternal()
 	     &TimeUnits, &VelocityUnits, &MassUnits, Time);
     double AccelerationUnits = LengthUnits / POW(TimeUnits,2);
 
-    printf("rhoc=%g, rvir=%g, Mvir=%g\n", rhoc, rvir, Mvir/SolarMass);
+    //printf("rhoc=%g, rvir=%g, Mvir=%g\n", rhoc, rvir, Mvir/SolarMass);
     
     FLOAT x, y, z, xpos, ypos, zpos, r;
     int n = 0;
