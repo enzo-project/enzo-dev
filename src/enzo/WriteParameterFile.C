@@ -490,6 +490,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ExternalGravityTimeOff = %"FSYM"\n", ExternalGravityTimeOff); 
   fprintf(fptr, "ExternalGravityMass    = %"GSYM"\n", ExternalGravityMass);
 
+  fprintf(fptr, "HaloCentralDensity = %"GSYM"\n", HaloCentralDensity);
+  fprintf(fptr, "HaloConcentration = %"FSYM"\n", HaloConcentration);
+  fprintf(fptr, "HaloVirialRadius = %"GSYM"\n",HaloVirialRadius);
+
   fprintf(fptr, "SelfGravity                    = %"ISYM"\n", SelfGravity);
   fprintf(fptr, "SelfGravityGasOff              = %"ISYM"\n", SelfGravityGasOff);
   fprintf(fptr, "AccretionKernal                = %"ISYM"\n", AccretionKernal);

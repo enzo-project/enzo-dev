@@ -562,6 +562,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ExternalGravityTimeOff = %"FSYM, &ExternalGravityTimeOff);
     ret += sscanf(line, "ExternalGravityMass    = %"FSYM, &ExternalGravityMass);
 
+    ret += sscanf(line, "HaloCentralDensity = %"FSYM, &HaloCentralDensity);
+    ret += sscanf(line, "HaloConcentration = %"FSYM, &HaloConcentration);
+    ret += sscanf(line, "HaloVirialRadius = %"FSYM, &HaloVirialRadius);
+
     ret += sscanf(line, "SelfGravity           = %"ISYM, &SelfGravity);
     ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
     ret += sscanf(line, "AccretionKernal       = %"ISYM, &AccretionKernal);
