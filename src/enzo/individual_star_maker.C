@@ -705,10 +705,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               // this is not completely physical, as pre-SF and post-SF gas vel is the same
               sum_mass = sum_mass * SolarMass / MassUnits; // in code units
 
+              px_excess = px - umean * sum_mass;
+              py_excess = py - vmean * sum_mass;
+              pz_excess = pz - wmean * sum_mass;
 
-              px_excess = umean * sum_mass + px;
-              py_excess = vmean * sum_mass + py;
-              pz_excess = wmean * sum_mass + pz;
 
               // remove or add momentum evenly from each star if needed
               if ( abs(px_excess) > tiny_number) {
