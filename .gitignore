@@ -48,6 +48,7 @@ src/mpgrafic/mpgrafic-0.2/src/mpgrafic
 src/mpgrafic/mpgrafic-0.2/src/*.dat
 src/mpgrafic/mpgrafic-0.2/stamp-h1
 src/mpgrafic/degraf/autom4te.cache/
+src/enzo/Make.mach.mymac
 
 src/P-GroupFinder/P-GroupFinder
 
