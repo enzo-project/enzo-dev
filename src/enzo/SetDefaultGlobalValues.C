@@ -1067,7 +1067,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmartStarJetVelocity = 1e-1; //as a fraction of clight
   SmartStarSuperEddingtonAdjustment = TRUE;
   SmartStarSpin = 0.7;
-  SmartStarSMSLifetime = 1e6; //1 Myr
+  SmartStarSMSLifetime = 2e6; //2 Myr
   /* Gas drag parameters */
   UseGasDrag = 0;
   GasDragCoefficient = 0.;

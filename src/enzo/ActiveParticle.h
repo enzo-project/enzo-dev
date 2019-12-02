@@ -23,7 +23,7 @@
 #include "ParticleAttributeHandler.h"
 #include "h5utilities.h"
 #include <string.h>
-#define NTIMES 2000
+#define NTIMES 10000
 template <class ap_type> class ActiveParticleList;
 struct ActiveParticleFormationData;
 struct ActiveParticleFormationDataFlags;
