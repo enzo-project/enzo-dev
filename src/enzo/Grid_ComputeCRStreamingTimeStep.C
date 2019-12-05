@@ -38,7 +38,7 @@ int grid::ComputeCRStreamingTimeStep (float &dt) {
   this->DebugCheck("ComputeCRDiffusionTimeStep");
 
   // Some locals
-  float eint, p, rho, v_stream, v_gas, h, dpdrho, dpde, B2,dt_est, hc;
+  float rho, v_stream,B2,dt_est;
 
   int size = 1, idx; 
   for (int dim = 0; dim < GridRank; dim++) {size *= GridDimension[dim];};
@@ -71,8 +71,8 @@ int grid::ComputeCRStreamingTimeStep (float &dt) {
 	    + BaryonField[B2Num][idx]*BaryonField[B2Num][idx]
 	    + BaryonField[B3Num][idx]*BaryonField[B3Num][idx];
 	v_stream = CRStreamVelocityFactor*sqrt(B2/rho);
-	hc = CRStreamStabilityFactor * dx; // hard coded
-	dt_est = 0.25 * dx*dx / v_stream / hc;
+
+	dt_est = dx*dx * CRStreamStabilityFactor/ (2.0 * BaryonField[CRNum][idx] * v_stream);
 	dt = min(dt, dt_est);
 
       } // end triple for loop

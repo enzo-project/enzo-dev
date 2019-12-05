@@ -78,7 +78,6 @@ int grid::ComputeCRStreaming(){
     GridStart[dim] = 1;
     GridEnd[dim] = GridDimension[dim]-1;
   }
-  stream_factor = CRStreamStabilityFactor * dx[0]; 
 
   /* Compute CR fluxes at each cell face. */
   for (k = GridStart[2]; k <= GridEnd[2]; k++)
@@ -97,12 +96,12 @@ int grid::ComputeCRStreaming(){
 	va_z = Bz[idx] / sqrt(rho);
 	
 	// Calculate CR flux
-	Fcx[idx] = CRgamma * cr[idx] * fabs(va_x) * tanh(stream_factor*dCRdx / ((cr[idx] == 0.0) ? 1.0 : cr[idx])); 
+	Fcx[idx] = CRgamma * cr[idx] * fabs(va_x) * tanh(dCRdx / CRStreamStabilityFactor);
 	if( GridRank > 1)
-	  Fcy[idx] = CRgamma * cr[idx] * fabs(va_y) * tanh(stream_factor*dCRdy / ((cr[idx] == 0.0) ? 1.0 : cr[idx]));
+	  Fcy[idx] = CRgamma * cr[idx] * fabs(va_y) * tanh(dCRdy / CRStreamStabilityFactor);
 	
 	if( GridRank > 2)
-	  Fcz[idx] = CRgamma * cr[idx] * fabs(va_z) * tanh(stream_factor*dCRdz / ((cr[idx] == 0.0) ? 1.0 : cr[idx]));
+	  Fcz[idx] = CRgamma * cr[idx] * fabs(va_z) * tanh(dCRdz / CRStreamStabilityFactor);
 
       } // end triple for
 
