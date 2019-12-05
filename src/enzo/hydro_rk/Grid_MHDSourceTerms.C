@@ -146,8 +146,8 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
           if(GridRank > 2)
             dHeatCR += va_z*(CRgamma - 1.0)*dEcrdz;
 
-          if (CRStreamingFactor < 1)
-            dHeatCR *= CRStreamingFactor;
+          if (CRStreamVelocityFactor < 1)
+            dHeatCR *= CRStreamVelocityFactor;
 
           dU[iCR][n] -= fabs(dHeatCR);
           dU[iEint][n] += fabs(dHeatCR);

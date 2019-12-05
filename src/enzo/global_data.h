@@ -440,7 +440,8 @@ EXTERN float CRFeedback;
 
 EXTERN int CRHeating; // 0 is off, 1 is on
 EXTERN int CRStreaming; // 0 is off, 1 is on 
-EXTERN float CRStreamingFactor;
+EXTERN float CRStreamVelocityFactor;
+EXTERN float CRStreamStabilityFactor;
 EXTERN float CRkappa;
 EXTERN float CRCourantSafetyNumber;
 EXTERN float CRdensFloor;

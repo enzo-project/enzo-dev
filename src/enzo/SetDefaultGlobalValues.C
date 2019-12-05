@@ -474,7 +474,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CRDiffusion                 = 0;                 // off                                                                          
   CRHeating                   = 0;                 // off                                                                          
   CRStreaming                 = 0;                 // off                                                                          
-  CRStreamingFactor           = 1.0;               // Alfven velocity (only relevant when CRStreaming == 1)                        
+  CRStreamVelocityFactor      = 1.0;               // Alfven velocity (only relevant when CRStreaming == 1)                        
+  CRStreamStabilityFactor     = 1.0;               // check this
   CRkappa                     = 0.0;
   CRCourantSafetyNumber       = 0.5;
   CRFeedback                  = 0.0;               // no stellar feedback into CRs                                                 

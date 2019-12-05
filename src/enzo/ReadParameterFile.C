@@ -638,7 +638,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CRDiffusion = %"ISYM, &CRDiffusion);
     ret += sscanf(line, "CRHeating = %"ISYM, &CRHeating);
     ret += sscanf(line, "CRStreaming = %"ISYM, &CRStreaming);
-    ret += sscanf(line, "CRStreamingFactor = %"FSYM, &CRStreamingFactor);
+    ret += sscanf(line, "CRStreamVelocityFactor = %"FSYM, &CRStreamVelocityFactor);
+    ret += sscanf(line, "CRStreamStabilityFactor = %"FSYM, &CRStreamStabilityFactor);
     ret += sscanf(line, "CRkappa = %"FSYM, &CRkappa);
     ret += sscanf(line, "CRCourantSafetyNumber = %"FSYM, &CRCourantSafetyNumber);
     ret += sscanf(line, "CRFeedback = %"FSYM, &CRFeedback);

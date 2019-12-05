@@ -38,7 +38,7 @@ int grid::ComputeCRStreamingTimeStep (float &dt) {
   this->DebugCheck("ComputeCRDiffusionTimeStep");
 
   // Some locals
-  float eint, p, rho, v_stream, v_gas, h, dpdrho, dpde, B2,dt_est;
+  float eint, p, rho, v_stream, v_gas, h, dpdrho, dpde, B2,dt_est, hc;
 
   int size = 1, idx; 
   for (int dim = 0; dim < GridRank; dim++) {size *= GridDimension[dim];};
@@ -60,29 +60,19 @@ int grid::ComputeCRStreamingTimeStep (float &dt) {
 
   dt = huge_number;
 
-
-  /* timestep is calculated as dt < 0.5 * dx^2 / kappa, where
-     kappa is the cosmic ray diffusion constant.  */ 
- 
   for (int k = GridStart[2]; k <= GridEnd[2]; k++)
     for (int j = GridStart[1]; j <= GridEnd[1]; j++)
       for (int i = GridStart[0]; i <= GridEnd[0]; i++){
        
 	idx = ELT(i,j,k);
-
 	rho = BaryonField[DensNum][idx];
 	
-	v_gas = sqrt(BaryonField[Vel1Num][idx]*BaryonField[Vel1Num][idx]
-		   + BaryonField[Vel2Num][idx]*BaryonField[Vel2Num][idx]
-		     + BaryonField[Vel3Num][idx]*BaryonField[Vel3Num][idx]);
-
 	B2 = BaryonField[B1Num][idx]*BaryonField[B1Num][idx] 
 	    + BaryonField[B2Num][idx]*BaryonField[B2Num][idx]
 	    + BaryonField[B3Num][idx]*BaryonField[B3Num][idx];
-	v_stream = v_gas + CRStreamingFactor*sqrt(B2/rho);
-
-
-	dt_est = dx / v_stream;
+	v_stream = CRStreamVelocityFactor*sqrt(B2/rho);
+	hc = CRStreamStabilityFactor * dx; // hard coded
+	dt_est = 0.25 * dx*dx / v_stream / hc;
 	dt = min(dt, dt_est);
 
       } // end triple for loop
