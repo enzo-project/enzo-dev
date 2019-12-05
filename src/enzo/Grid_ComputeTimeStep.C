@@ -446,7 +446,6 @@ float grid::ComputeTimeStep()
       }
     }
     dtCR *= CRCourantSafetyNumber;
-    dtCR *= float(NumberOfGhostZones);  // for subcycling                                                                          
   }
 
   /* 7) GasDrag time step */
@@ -570,6 +569,8 @@ float grid::ComputeTimeStep()
       printf("Bar = %"ESYM" ", dtBaryons);
     if (HydroMethod == MHD_RK || HydroMethod == MHD_Li)
       printf("dtMHD = %"ESYM" ", dtMHD);
+    if (CRModel)
+      printf("dtCR = %"ESYM" ", dtCR);
     if (HydroMethod == Zeus_Hydro)
       printf("Vis = %"ESYM" ", dtViscous);
     if (ComovingCoordinates)

@@ -90,11 +90,12 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 	  EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);
 	  dU[iEint][n] -= p*divVdt;
           if (CRModel){
+
             Pcr = (CRgamma - 1.0) * BaryonField[CRNum][igrid];
             dU[iCR][n] -= Pcr*divVdt;
 	    dU[iEint][n] +=Pcr*divVdt;
 	    dU[iEtot][n] += Pcr*divVdt;
-	    
+
           }
 	}
       }

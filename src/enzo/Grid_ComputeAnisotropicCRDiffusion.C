@@ -282,7 +282,6 @@ int grid::ComputeAnisotropicCRDiffusion(){
 	    }
 
 	    BaryonField[CRNum][idx] += dCRdt;
-	    BaryonField[TENum][idx] += (dCRdt)/BaryonField[DensNum][idx];  
 
             if((cr[idx] < 0) || isnan(cr[idx])){
               printf("CR < 0 (after diff), dtSubcycle = %"ESYM",i,j,k = (%"ISYM", %"ISYM", %"ISYM"), grid lims = \

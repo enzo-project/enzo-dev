@@ -1951,6 +1951,13 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                  float LeftBz, float RightBz,
                                  float CenterBz);
 
+  int  CRTransportTestInitializeGrid(int test_type, float center,
+                                     float rho, float vx,
+                                     float vy,  float vz,
+                                     float pg,  float ecr,
+                                     float bx,  float by,
+                                     float bz);
+
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
   int InitializeUniformGrid(float UniformDensity, float UniformTotalEnergy,

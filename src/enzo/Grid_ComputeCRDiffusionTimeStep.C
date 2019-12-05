@@ -71,14 +71,12 @@ int grid::ComputeCRDiffusionTimeStep (float &dt) {
 
   /* timestep is calculated as dt < 0.5 * dx^2 / kappa, where
      kappa is the cosmic ray diffusion constant.  */ 
+  kappa = CRkappa / units;
  
   for (int k = GridStart[2]; k <= GridEnd[2]; k++)
     for (int j = GridStart[1]; j <= GridEnd[1]; j++)
       for (int i = GridStart[0]; i <= GridEnd[0]; i++){
 	  
-  	if( 1 == CRDiffusion ) 	// Constant kappa model
-	    kappa = CRkappa/units;
-
 	dt_est = .5 * dx*dx / kappa;
 
 	dt = min(dt, dt_est);

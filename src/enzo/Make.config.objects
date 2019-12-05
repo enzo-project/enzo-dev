@@ -156,6 +156,7 @@ OBJS_CONFIG_LIB = \
         CreateSUBlingList.o \
         CreateFluxes.o \
         CRShockTubesInitialize.o \
+        CRTransportTestInitialize.o \
         InitializeFluxes.o \
         DeleteFluxes.o \
         DeleteSUBlingList.o \
@@ -454,6 +455,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CreateFieldArray.o \
 	Grid_CreateParticleTypeGrouping.o \
 	Grid_CRShockTubesInitializeGrid.o \
+        Grid_CRTransportTestInitialize.o \
     	Grid_DebugActiveParticles.o \
 	Grid_DebugCheck.o \
 	Grid_DeleteAllButParticles.o \

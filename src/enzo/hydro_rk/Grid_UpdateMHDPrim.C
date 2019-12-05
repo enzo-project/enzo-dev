@@ -247,6 +247,12 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 
 	BaryonField[DensNum][igrid] = D_new;
 
+	if (ProblemType == 251) {
+	  vx = 0;
+	  vy = 0; 
+	  vz = 0;
+	}
+
 	BaryonField[Vel1Num][igrid] = vx;
 	BaryonField[Vel2Num][igrid] = vy;
 	BaryonField[Vel3Num][igrid] = vz;
@@ -279,6 +285,14 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	  eint = max(eint, emin);
 	  BaryonField[GENum][igrid] = eint;
 	  BaryonField[TENum][igrid] = eint + 0.5*v2 + 0.5*B2/D_new;
+
+	            if (ProblemType == 251){
+	    BaryonField[DensNum][igrid] = 1;
+	    // BaryonField[GENum][igrid ] = 0;
+            BaryonField[Vel1Num][igrid] = 0;
+            BaryonField[Vel2Num][igrid] = 0;
+            BaryonField[Vel3Num][igrid] = 0;
+	    }
 
 	  if (BaryonField[GENum][igrid] < 0.0) {
 	    printf("UpdateMHDPrim: eint < 0, cs2=%"GSYM", eta*v2=%"GSYM", eint=%"GSYM", etot=%"GSYM", 0.5*v2=%"GSYM", p=%"GSYM", rho=%"GSYM",0.5*B2/rho=%"GSYM"\n", 
