@@ -42,11 +42,10 @@ int grid::ComputeCRStreaming(){
 
 
   // Some locals
-  int size = 1, idx, i,j,k, Nsub=0; 
-  float *cr, *Bx, *By, *Bz, crOld, hc, pcr, rho, dpdrho, dpde, p, h, cs, eint, B2, stream_factor;
-  float dCRdt, dCRdt_alt, dCRdx, dCRdy, dCRdz, oldCRdt;
-  float bx, by, bz, va_x, va_y, va_z, vs_x, vs_y, vs_z, BdotCR; 
-
+  int size = 1, idx, i,j,k; 
+  float *cr, *Bx, *By, *Bz, crOld, rho, stream_factor;
+  float dCRdt, dCRdx, dCRdy, dCRdz, va_x, va_y, va_z;
+  
   float *dx = new float[GridRank];
 
   dx[0] = CellWidth[0][0];
@@ -56,13 +55,9 @@ int grid::ComputeCRStreaming(){
   for (int dim = 0; dim < GridRank; dim++) 
     size *= GridDimension[dim];
 
-  float *Fcx  = new float[size];
+  float *Fcx = new float[size];
   float *Fcy = new float[size];
   float *Fcz = new float[size];
-
-  float *Fcx_alt  = new float[size];
-  float *Fcy_alt = new float[size];
-  float *Fcz_alt = new float[size];
 
   // We obtain the current cr field ...
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRNum, B1Num, B2Num, B3Num, PhiNum;
@@ -83,8 +78,7 @@ int grid::ComputeCRStreaming(){
     GridStart[dim] = 1;
     GridEnd[dim] = GridDimension[dim]-1;
   }
-  hc = 0.007; // value taken from Ruzskowski+ 2017
-  stream_factor = CRStreamStabilityFactor * dx[0]; //*1e-3;
+  stream_factor = CRStreamStabilityFactor * dx[0]; 
 
   /* Compute CR fluxes at each cell face. */
   for (k = GridStart[2]; k <= GridEnd[2]; k++)
@@ -92,44 +86,24 @@ int grid::ComputeCRStreaming(){
       for (i = GridStart[0]; i <= GridEnd[0]; i++) {
 	idx = ELT(i,j,k);
 
-	pcr = (CRgamma - 1.0) * cr[idx];
-	rho = BaryonField[DensNum][idx];
-	    
+	rho = BaryonField[DensNum][idx];	    
 	dCRdx = (cr[idx]-cr[ELT(i-1,j,k)])/dx[0];
 	dCRdy = (cr[idx]-cr[ELT(i,j-1,k)])/dx[1];
 	dCRdz = (cr[idx]-cr[ELT(i,j,k-1)])/dx[2];
 
-	// If anisotropic CR streaming, CRs stream with a velocity proportional                 
-	// to the Alfven velocity     
-	     
+	// CRs stream with a velocity proportional to the Alfven velocity     
 	va_x = Bx[idx] / sqrt(rho);
 	va_y = By[idx] / sqrt(rho);
 	va_z = Bz[idx] / sqrt(rho);
+	
+	// Calculate CR flux
+	Fcx[idx] = CRgamma * cr[idx] * fabs(va_x) * tanh(stream_factor*dCRdx / ((cr[idx] == 0.0) ? 1.0 : cr[idx])); 
+	if( GridRank > 1)
+	  Fcy[idx] = CRgamma * cr[idx] * fabs(va_y) * tanh(stream_factor*dCRdy / ((cr[idx] == 0.0) ? 1.0 : cr[idx]));
+	
+	if( GridRank > 2)
+	  Fcz[idx] = CRgamma * cr[idx] * fabs(va_z) * tanh(stream_factor*dCRdz / ((cr[idx] == 0.0) ? 1.0 : cr[idx]));
 
-	B2 = Bx[idx]*Bx[idx] + By[idx]*By[idx] + Bz[idx]*Bz[idx]; 
-	bx = Bx[idx] / sqrt(B2);
-	by = By[idx] / sqrt(B2);
-	bz = Bz[idx] / sqrt(B2);
-	      
-	// Need this to find the sign of B dot dCR/dx
-        BdotCR = bx*dCRdx;
-	if (GridRank > 1) BdotCR += by*dCRdy;
-	if (GridRank > 2) BdotCR += bz*dCRdz;
- 
-	vs_x = -sign(BdotCR)*va_x;  
-	Fcx[idx] = CRgamma * cr[idx] * vs_x;
-	Fcx_alt[idx] = CRgamma * cr[idx] * fabs(va_x) * tanh(stream_factor*dCRdx / ((cr[idx] == 0.0) ? 1.0 : cr[idx])); 
-	    
-	if( GridRank > 1){
-	  vs_y = -sign(BdotCR)*va_y; 
-	  Fcy[idx] = CRgamma * cr[idx] * vs_y; 
-	  Fcy_alt[idx] = CRgamma * cr[idx] * fabs(va_y) * tanh(stream_factor*dCRdy / ((cr[idx] == 0.0) ? 1.0 : cr[idx]));
-	}
-	if( GridRank > 2){
-	  vs_z = -sign(BdotCR) * va_z; 
-	  Fcz[idx] = CRgamma * cr[idx] * vs_z; 
-	  Fcz_alt[idx] = CRgamma * cr[idx] * fabs(va_z) * tanh(stream_factor*dCRdz / ((cr[idx] == 0.0) ? 1.0 : cr[idx]));
-	}
       } // end triple for
 
   /* Trim GridEnd so that we don't apply fluxes to cells that don't have
@@ -139,8 +113,6 @@ int grid::ComputeCRStreaming(){
     GridEnd[dim]--;
   }
 
-  // And then update the current CR baryon field (Could be combined with step above)
-
   for (k = GridStart[2]; k <= GridEnd[2]; k++) 
     for (j = GridStart[1]; j <= GridEnd[1]; j++) 
       for (i = GridStart[0]; i <= GridEnd[0]; i++) {
@@ -148,45 +120,26 @@ int grid::ComputeCRStreaming(){
 	crOld = cr[idx];
 
 	dCRdt = 0.5 * (Fcx[ELT(i+1,j,k)]-Fcx[ELT(i-1,j,k)])/dx[0]; 
-        dCRdt_alt = 0.5 * (Fcx_alt[ELT(i+1,j,k)]-Fcx_alt[ELT(i-1,j,k)])/dx[0];
-
-	if( GridRank > 1 ){
+	if( GridRank > 1 )
 	  dCRdt +=  0.5 * (Fcy[ELT(i,j+1,k)]-Fcy[ELT(i,j-1,k)])/dx[1];
-	  dCRdt_alt += 0.5*(Fcy_alt[ELT(i,j+1,k)]-Fcy_alt[ELT(i,j-1,k)])/dx[1];
-	}
-	if( GridRank > 2 ){
+	if( GridRank > 2 )
 	  dCRdt += 0.5*(Fcz[ELT(i,j,k+1)]-Fcz[ELT(i,j,k-1)])/dx[2];
-	  dCRdt_alt += 0.5*(Fcz_alt[ELT(i,j,k+1)]-Fcz_alt[ELT(i,j,k-1)])/dx[2];
-	}
 
-	if(((cr[idx] - dCRdt)< 0) || isnan(dCRdt)){
-	  oldCRdt = dCRdt;
-	  dCRdt = dCRdt_alt;
-	} // end err if
-
-	// test: 
-		dCRdt = dCRdt_alt;
 	BaryonField[CRNum][idx] += CRStreamVelocityFactor * dCRdt * dtFixed;
-	if((cr[idx]< 0) || isnan(cr[idx])){
 
+	if((cr[idx]< 0) || isnan(cr[idx])){
 	      printf("CR = %e < 0 (after stream), i,j,k = (%"ISYM", %"ISYM", %"
 		     ISYM"), grid lims = (%"ISYM", %"ISYM", %"ISYM"), (%"ISYM", %"ISYM", %"ISYM")\n",
                      cr[idx], i, j, k, GridStart[0],
                      GridStart[1], GridStart[2], GridEnd[0], GridEnd[1], GridEnd[2]);		  
-	      cr[idx] = tiny_number; 
+	      cr[idx] = CRdensFloor; 
 	}
       } // triple for loop
 
-  if (debug) 
-    printf("Grid::ComputeCRStreaming:  Nsubcycles = %"ISYM", dx=%"ESYM"\n", Nsub, dx[0]); 
 	
   delete [] Fcx;
   delete [] Fcy;
   delete [] Fcz;
-
-  delete [] Fcx_alt;
-  delete [] Fcy_alt;
-  delete [] Fcz_alt;
 
   return SUCCESS;  
 }
