@@ -128,7 +128,6 @@ int grid::SolveRadiativeCooling()
 				       Vel3Num, TENum, B1Num, B2Num, B3Num ) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
- 
   /* Find Multi-species fields. */
  
   DeNum = HINum = HIINum = HeINum = HeIINum = HeIIINum = HMNum = H2INum = 
@@ -362,6 +361,7 @@ int grid::SolveRadiativeCooling()
 	v2 = pow(BaryonField[Vel1Num][n],2) + 
 	  pow(BaryonField[Vel2Num][n],2) + pow(BaryonField[Vel3Num][n],2);
 	BaryonField[TENum][n] = gasenergy[n] + 0.5*v2 + 0.5*B2/BaryonField[DensNum][n];
+
       }
       else {
 	BaryonField[TENum][n] = totalenergy[n] + 0.5*B2/BaryonField[DensNum][n];

@@ -444,10 +444,9 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
       	         pow(ParentGrid.BaryonField[B2Num][i1],2) +
 	         pow(ParentGrid.BaryonField[B3Num][i1],2);
 	    ParentGrid.BaryonField[TENum][i1] += 
-	      0.5 * B2 / ParentGrid.BaryonField[DensNum][i1];  
+	      0.5 * B2 / ParentGrid.BaryonField[DensNum][i1]; 
 	  }
-	}
-
+	} 
       } // end: loop over faces
  
   /* Clean up the fake ParentGrid. */

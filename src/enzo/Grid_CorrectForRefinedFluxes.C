@@ -840,8 +840,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      POW(BaryonField[B3Num][i2],2);
 		    BaryonField[TENum][i2] += 0.5 * B2 / BaryonField[DensNum][i2];
 		  }
-
-		
 		}		
 	      } // end: loop over faces
 	  } // end: if (DualEnergyFormalism)

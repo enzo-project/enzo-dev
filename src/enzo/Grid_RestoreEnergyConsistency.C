@@ -59,7 +59,6 @@ int grid::RestoreEnergyConsistency(int Region)
     fprintf(stderr, "\n");
     ENZO_FAIL("Error in grid->IdentifyPhysicalQuantities.");
   }
- 
   /* a) Correct the entire field. */
  
   if (Region == ENTIRE_REGION) {
@@ -94,7 +93,6 @@ int grid::RestoreEnergyConsistency(int Region)
 	BaryonField[TENum][i] += 0.5 * B2 / BaryonField[DensNum][i];
       }
     }
- 
   } // end: Region == ENTIRE_FIELD
  
   /* b) Correct just the boundary zones. */
@@ -130,8 +128,6 @@ int grid::RestoreEnergyConsistency(int Region)
 		pow(BaryonField[B3Num][n],2);
 	      BaryonField[TENum][n] += 0.5 * B2 / BaryonField[DensNum][n];
 	    }
-
-
 	  }
  
   } // end: Region == BOUNDARY_ONLY

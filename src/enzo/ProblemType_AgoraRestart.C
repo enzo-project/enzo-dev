@@ -83,6 +83,7 @@ private:
   FLOAT VCircRadius[VCIRC_TABLE_LENGTH];
   float VCircVelocity[VCIRC_TABLE_LENGTH];
   int RefineAtStart;
+  float CRDensity;
 
 public:
   ProblemType_AgoraRestart() : EnzoProblemType()
@@ -134,7 +135,7 @@ public:
     char *ByName = "By";
     char *BzName = "Bz";
     char *PhiName = "Phi";
-
+    char *CRName = "CREnergyDensity";
     /* local declarations */
 
     char line[MAX_LINE_LENGTH];
@@ -170,6 +171,7 @@ public:
     this->HaloTemperature     = this->DiskTemperature;
     this->HaloMetallicity     = 0.0;
     this->RefineAtStart       = TRUE;
+    this->CRDensity           = 0.0; 
 
     // set this from global data (kind of a hack)
     TestProblemData.MultiSpecies = MultiSpecies;
@@ -195,6 +197,8 @@ public:
                     &HaloMetallicity);
       ret += sscanf(line, "AgoraRestartMagneticField = %"FSYM" %"FSYM" %"FSYM,
 		    Bfield, Bfield+1, Bfield+2);
+      ret += sscanf(line, "AgoraRestartCREnergyDensity = %"FSYM,
+                    &CRDensity);
 
       ret += sscanf(line, "AgoraRestartRefineAtStart = %"ISYM,
 		    &RefineAtStart);
@@ -255,13 +259,19 @@ public:
     float dummy_total_energy = 1.0;
     float dummy_velocity[3] = {0.0, 0.0, 0.0};
     float dummy_b_field[3] = {1e-20, 1e-20, 1e-20}; // Only set if HydroMethod = mhd_rk
+    float dummy_CR_energy_density = CRDensity; // Only set if CRModel = 1
 
-    if (this->InitializeUniformGrid(
+    /*if (this->InitializeUniformGrid(
 	  TopGrid.GridData, dummy_density, dummy_total_energy,
 	  dummy_gas_energy, dummy_velocity, dummy_b_field) == FAIL)
     {
       ENZO_FAIL("Error in InitializeUniformGrid");
-    }
+      }*/
+    if (TopGrid.GridData->InitializeUniformGrid(dummy_density, dummy_total_energy, dummy_gas_energy, 
+						dummy_velocity, dummy_b_field, dummy_CR_energy_density) == FAIL)
+      {
+	ENZO_FAIL("Error in InitializeUniformGrid");
+      }
 
     this->InitializeGrid(TopGrid.GridData, TopGrid, MetaData);
 
@@ -327,6 +337,9 @@ public:
       DataLabel[count++] = (char*) BzName;
       DataLabel[count++] = (char*) PhiName;
     }
+    if (CRModel){
+      DataLabel[count++] = CRName; 
+    }
 
     if (MultiSpecies)
     {
@@ -383,6 +396,8 @@ public:
 	      HaloTemperature);
       fprintf(Outfptr, "AgoraRestartRefineAtStart           = %"ISYM"\n",
 	      RefineAtStart);
+      fprintf(Outfptr, "AgoraRestartCREnergyDensity         = %"FSYM"\n",
+              CRDensity);
       fprintf(Outfptr, "AgoraRestartHydrogenFractionByMass = %"FSYM"\n",
 	      TestProblemData.HydrogenFractionByMass);
       fprintf(Outfptr, "AgoraRestartHeliumFractionByMass = %"FSYM"\n",
@@ -443,7 +458,7 @@ public:
     }
 
     /* Identify physical quantities */
-    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num, PhiNum, MetalNum;
+    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num, PhiNum, MetalNum, CRNum;
 
     int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
@@ -556,6 +571,7 @@ public:
 
 	  DiskDensity = gauss_mass(RhoZero, x/LengthUnits, y/LengthUnits,
 				   z/LengthUnits, cellwidth) / POW(cellwidth, 3);
+
 
 	  if ( HaloDensity*HaloTemperature > DiskDensity*DiskTemperature )
 	  {
@@ -679,21 +695,38 @@ public:
 		CoolData.DeuteriumToHydrogenRatio * thisgrid->BaryonField[H2INum][index];
 	    }
 	  } // if(TestProblemData.MultiSpecies)
-
+	  
 	    if (HydroMethod == MHD_RK)
 	      {
-		thisgrid->BaryonField[B1Num][index] = Bfield[0];
+		/*float ratio = 1.0; 
+		if (radius > 9.758e21)
+		  ratio = 9.758e21 / radius; 
+		
+                thisgrid->BaryonField[B1Num][index] = -Bfield[0]*ratio*y/xy_radius;   
+                thisgrid->BaryonField[B2Num][index] = Bfield[1]*ratio*x/xy_radius;  
+                thisgrid->BaryonField[B3Num][index] = Bfield[2]; 
+		*/
+	       if((xy_radius <= 6.48e22) && (xy_radius>0) && (fabs(z) <= 6.48e21)){
+		  thisgrid->BaryonField[B1Num][index] = -Bfield[0]*y/xy_radius;
+		  thisgrid->BaryonField[B2Num][index] = Bfield[1]*x/xy_radius;
+		  thisgrid->BaryonField[B3Num][index] = Bfield[2];
+		}
+		else{
+		  thisgrid->BaryonField[B1Num][index] = -1e-15*y/xy_radius;
+		  thisgrid->BaryonField[B2Num][index] = 1e-15*x/xy_radius;
+		  thisgrid->BaryonField[B3Num][index] = 0.0;
+		  }
+		/*		thisgrid->BaryonField[B1Num][index] = Bfield[0];
 		thisgrid->BaryonField[B2Num][index] = Bfield[1];
 		thisgrid->BaryonField[B3Num][index] = Bfield[2];
-
+		*/
 		thisgrid->BaryonField[TENum][index] += 
 		  0.5*(POW(thisgrid->BaryonField[B1Num][index], 2) +
 		       POW(thisgrid->BaryonField[B2Num][index], 2) + 
 		       POW(thisgrid->BaryonField[B3Num][index], 2))/thisgrid->BaryonField[DensNum][index];
 	      }
-
-
-
+	       
+	  
 	} // i
       } // j
     } // k
@@ -816,7 +849,7 @@ public:
     while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
     {
       ret += sscanf(line, "%"PSYM" %"FSYM, &rad, &vcirc);
-      this->VCircRadius[i] = rad*kpc_cm; // 3.08567758e21 = kpc/cm
+      this->VCircRadius[i] = rad*3.08567758e21; // 3.08567758e21 = kpc/cm
       this->VCircVelocity[i] = vcirc*1e5; // 1e5 = (km/s)/(cm/s)
       i += 1;
     }
@@ -864,6 +897,10 @@ public:
       ENZO_FAIL("Error in GetUnits.");
     }
 
+    const FLOAT kpc_cm = 3.08567758e21;
+    const float km_cm = 1e5;
+    const float msun_g = 1.9891e33;
+
     fptr = fopen(fname, "r");
 
     while(fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
@@ -882,7 +919,7 @@ public:
       Velocity[2][c] = vz * km_cm / VelocityUnits;
 
       // Particle masses are actually densities.
-      Mass[c] = mass * 1e9 * SolarMass / MassUnits / dx / dx / dx;
+      Mass[c] = mass * 1e9 * msun_g / MassUnits / dx / dx / dx;
       Type[c] = particle_type;
       Number[c] = c++;
     }

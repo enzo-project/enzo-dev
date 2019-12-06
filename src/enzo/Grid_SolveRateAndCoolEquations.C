@@ -117,7 +117,6 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
 				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
         ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
-
   /* Find Multi-species fields. */
 
   if (MultiSpecies)

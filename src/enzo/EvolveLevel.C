@@ -709,13 +709,27 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	}
       }
 
-      /* Compute and Apply Cosmic Ray Diffusion */
-      if(CRModel && CRDiffusion){
-        if(Grids[grid1]->GridData->ComputeCRDiffusion() == FAIL){
-          fprintf(stderr, "Error in grid->ComputeCRDiffusion.\n");
-          return FAIL;
-        } // end ComputeCRDiffusion if
-      }// end CRDiffusion if
+      /* Compute and Apply Cosmic Ray Diffusion and Streaming*/
+      if(CRModel){
+        if(CRDiffusion == 1){ // isotropic diffusion                                                                               
+          if(Grids[grid1]->GridData->ComputeCRDiffusion() == FAIL){
+            fprintf(stderr, "Error in grid->ComputeExplicitIsotropicCRDiffusion.\n");
+            return FAIL;
+          }
+        }
+        else if(CRDiffusion == 2){ // anisotripic diffusion                                                                        
+          if(Grids[grid1]->GridData->ComputeAnisotropicCRDiffusion() == FAIL){
+            fprintf(stderr, "Error in grid->ComputeAnisotropicCRDiffusion .\n");
+            return FAIL;
+          }
+        }
+        if(CRStreaming){ // cosmic ray streaming                                                                                   
+          if(Grids[grid1]->GridData->ComputeCRStreaming() == FAIL){
+            fprintf(stderr, "Error in grid->ComputeCRStreaming .\n");
+            return FAIL;
+          }
+        }
+      }// end CRModel if 
 
       /* Gravity: clean up AccelerationField. */
 
