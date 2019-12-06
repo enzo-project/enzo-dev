@@ -122,7 +122,8 @@ int grid::CRTransportTestInitializeGrid(int test_type, float center,
 	 }
 
 	 else if (test_type == 2) {
-	   Ecr = 2 - fabs(x); 	   
+	   Ecr = 2 - fabs(x);
+	   Ecr = max(Ecr, 0);
 	 }
 
 	 BaryonField[iden ][igrid] = rho;
