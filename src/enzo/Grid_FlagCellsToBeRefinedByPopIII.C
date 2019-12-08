@@ -87,7 +87,6 @@ int grid::FlagCellsToBeRefinedByPopIII(int level)
         }
         return NumberOfFlaggedCells;
     }
-    float PopIIIMustRefineLifetime = 3; //Myr
     int istar = 0;
     // printf("[%d] Checking particles %d<->%d::%f<->%f\n", level, 2*nCellsPerRadius,                        
     //                 PopIIISupernovaMustRefineResolution, 
@@ -98,7 +97,7 @@ int grid::FlagCellsToBeRefinedByPopIII(int level)
         if (ParticleAttribute[0][istar] > 0.0 && ParticleType[istar] == 5) // if its a star
         {
             /* factor = birthtime + lifetime + refineTime */
-            float factor = (ParticleAttribute[0][istar] + ParticleAttribute[1][istar]) * TimeUnits + PopIIIMustRefineLifetime * 3.1557e13;
+            float factor = (ParticleAttribute[0][istar] + ParticleAttribute[1][istar]) * TimeUnits + PopIIIMustRefineRegionLifetime * 3.1557e13;
             float m = ParticleMass[istar]*(DensityUnits*pow(LengthUnits*CellWidth[0][0], 3))/SolarMass;
             if ((((11 < m && m < 40) || (140 < m && m < 260)) || (m < 1e-10)) && (Time * TimeUnits < factor))
             {

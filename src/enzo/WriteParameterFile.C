@@ -1027,7 +1027,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           PopIIISupernovaMustRefine);
   fprintf(fptr, "PopIIISupernovaMustRefineResolution   = %"ISYM"\n",
           PopIIISupernovaMustRefineResolution);
-
+  fprintf(fptr, "PopIIIMustRefineRegionLifetime        = %"FSYM"\n",
+          PopIIIMustRefineRegionLifetime);
   fprintf(fptr, "PopIIIColorDensityThreshold           = %"GSYM"\n",
           PopIIIColorDensityThreshold);
   fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n",

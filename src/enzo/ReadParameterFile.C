@@ -1052,6 +1052,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIISupernovaMustRefine);
     ret += sscanf(line, "PopIIISupernovaMustRefineResolution = %"ISYM,
 		  &PopIIISupernovaMustRefineResolution);
+    ret += sscanf(line, "PopIIIMustRefineRegionLifetime = %"FSYM, 
+      &PopIIIMustRefineRegionLifetime);
     ret += sscanf(line, "PopIIIHeliumIonization = %"ISYM, 
 		  &PopIIIHeliumIonization);
 
