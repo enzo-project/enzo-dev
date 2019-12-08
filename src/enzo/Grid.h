@@ -973,6 +973,10 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int FlagCellsToBeRefinedByMetalMass(int level);
 
+/* Flag cells surrounding PopIII stars */
+
+   int FlagCellsToBeRefinedByPopIII(int level);
+
 /* Flagging all cell adjacent to a previous flagged cell.  Also, remove all
    Flagged cells in the boundary zones and within one zone of the boundary. */
 
