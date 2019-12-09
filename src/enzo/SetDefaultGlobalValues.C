@@ -475,7 +475,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CRHeating                   = 0;                 // off                                                                          
   CRStreaming                 = 0;                 // off                                                                          
   CRStreamVelocityFactor      = 1.0;                // Alfven velocity (only relevant when CRStreaming == 1)                        
-  CRStreamStabilityFactor     = 1.0;             // This should be small relative to dEcr/dx and calibrated for each simulation
+  CRStreamStabilityFactor     = 1000.0;             // This should be large and calibrated for each simulation
   CRkappa                     = 0.0;
   CRCourantSafetyNumber       = 0.5;
   CRFeedback                  = 0.0;               // no stellar feedback into CRs                                                 

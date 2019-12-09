@@ -72,7 +72,8 @@ int grid::ComputeCRStreamingTimeStep (float &dt) {
 	    + BaryonField[B3Num][idx]*BaryonField[B3Num][idx];
 	v_stream = CRStreamVelocityFactor*sqrt(B2/rho);
 
-	dt_est = dx*dx * CRStreamStabilityFactor/ (2.0 * BaryonField[CRNum][idx] * v_stream);
+	//	dt_est = dx*dx * CRStreamStabilityFactor/ (2.0 * BaryonField[CRNum][idx] * v_stream);
+	dt_est = dx / (2.0 * CRStreamStabilityFactor * v_stream);
 	dt = min(dt, dt_est);
 
       } // end triple for loop
