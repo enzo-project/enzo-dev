@@ -323,6 +323,18 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 //       ENZO_FAIL("Error in WriteAllData.\n");
 //     }
 // #endif
+
+    if (MetaData->NumberOfOutputsBeforeExit){
+      MetaData->OutputsLeftBeforeExit--;
+      if (MetaData->OutputsLeftBeforeExit <= 0){
+        if (MyProcessorNumber == ROOT_PROCESSOR) {
+          fprintf(stderr, "Exiting after writing%"ISYM" datadumps.\n",
+                  MetaData->NumberOfOutputsBeforeExit);
+        }
+        ExitEnzo = TRUE;
+      }
+    }
+
   }//WriteOutput == TRUE
 
   if( ExitEnzo == TRUE ){
