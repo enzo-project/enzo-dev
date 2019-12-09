@@ -69,7 +69,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
     FLOAT dtdx = coef*dtFixed/CellWidth[0][0]/a,
       dtdy = (GridRank > 1) ? coef*dtFixed/CellWidth[1][0]/a : 0.0,
       dtdz = (GridRank > 2) ? coef*dtFixed/CellWidth[2][0]/a : 0.0;
-    float rho, eint, p, divVdt, h, cs, dpdrho, dpde, Pcr;
+    float rho, eint, p, divVdt, h, cs, dpdrho, dpde;
     int n = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -89,29 +89,21 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 	  eint = max(eint, min_coeff*rho);
 	  EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);
 	  dU[iEint][n] -= p*divVdt;
-          if (CRModel){
-
-            Pcr = (CRgamma - 1.0) * BaryonField[CRNum][igrid];
-            dU[iCR][n] -= Pcr*divVdt;
-	    dU[iEint][n] +=Pcr*divVdt;
-	    dU[iEtot][n] += Pcr*divVdt;
-
-          }
 	}
       }
     }
   }
 
-  if (CRModel && CRHeating){
+  if (CRModel){
 
     int igrid, ip1, im1, jp1, jm1, kp1, km1;
-    FLOAT coef = 0.5;
-    FLOAT dtdx = coef*dtFixed/CellWidth[0][0]/a,
-      dtdy = (GridRank > 1) ? coef*dtFixed/CellWidth[1][0]/a : 0.0,
-      dtdz = (GridRank > 2) ? coef*dtFixed/CellWidth[2][0]/a : 0.0;
+    float coef = 0.5;
+    float dtdx = coef*dtFixed/CellWidth[0][0]/a;
+    float dtdy = (GridRank > 1) ? coef*dtFixed/CellWidth[1][0]/a : 0.0;
+    float dtdz = (GridRank > 2) ? coef*dtFixed/CellWidth[2][0]/a : 0.0;
 
-    FLOAT divVadt, dEcr, dEcrdx, dEcrdy, dEcrdz, dHeatCR, ecr, pcr, B2, rho;
-    FLOAT va_x, va_y, va_z, p, eint, h, cs, dpdrho, dpde;
+    FLOAT divVdt, dtdEcrdx, dtdEcrdy, dtdEcrdz, dHeatCR, rho;
+    FLOAT va_x, va_y, va_z;
     int n = 0;
 
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
@@ -126,33 +118,40 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
           km1 = (GridRank > 2) ? i + GridDimension[0]*(j + (k-1)*GridDimension[1]) : 0;
 
           // CR energy density gradient                                                                                            
-          dEcrdx = dtdx*coef*(BaryonField[CRNum][ip1]-BaryonField[CRNum][im1]);
-          if (GridRank > 1)
-            dEcrdy = dtdy*coef*(BaryonField[CRNum][jp1]-BaryonField[CRNum][jm1]);
-          if (GridRank > 2)
-            dEcrdz = dtdz*coef*(BaryonField[CRNum][kp1]-BaryonField[CRNum][km1]);
+          dtdEcrdx = dtdx * (BaryonField[CRNum][ip1]-BaryonField[CRNum][im1]);
+          dtdEcrdy = dtdy * (BaryonField[CRNum][jp1]-BaryonField[CRNum][jm1]);
+          dtdEcrdz = dtdz * (BaryonField[CRNum][kp1]-BaryonField[CRNum][km1]);
+
+          divVdt = dtdx*(BaryonField[Vel1Num][ip1] - BaryonField[Vel1Num][im1])  +
+                   dtdy*(BaryonField[Vel2Num][jp1] - BaryonField[Vel2Num][jm1]) +
+                   dtdz*(BaryonField[Vel3Num][kp1] - BaryonField[Vel3Num][km1]);
 
           rho = BaryonField[DensNum][igrid];
 
-          // components of Alfven velocity                                                                                         
-          va_x = BaryonField[B1Num][igrid]/ sqrt(rho);
-          va_y = BaryonField[B2Num][igrid]/ sqrt(rho);
-          va_z = BaryonField[B3Num][igrid]/ sqrt(rho);
+	  // CR Advection and PdV work on thermal gas
+	  dU[iCR][n] += (CRgamma - 1.0) * (BaryonField[Vel1Num][igrid] * dtdEcrdx + 
+		     BaryonField[Vel2Num][igrid]*dtdEcrdy + BaryonField[Vel3Num][igrid] * dtdEcrdz);
+	  dU[iEtot][n] += (CRgamma - 1.0) * BaryonField[CRNum][igrid] * divVdt; 
+	  if (DualEnergyFormalism)
+	    dU[iEint][n] += (CRgamma - 1.0) * BaryonField[CRNum][igrid] *divVdt;
 
-          // Calculating the heating rate of cosmic rays on the thermal gas:                                                       
-          dHeatCR = va_x*(CRgamma - 1.0)*dEcrdx;
-          if(GridRank > 1)
-            dHeatCR += va_y*(CRgamma - 1.0)*dEcrdy;
-          if(GridRank > 2)
-            dHeatCR += va_z*(CRgamma - 1.0)*dEcrdz;
 
-          if (CRStreamVelocityFactor < 1)
-            dHeatCR *= CRStreamVelocityFactor;
+	  if (CRHeating){
+	    // components of Alfven velocity                                                                                         
+	    va_x = BaryonField[B1Num][igrid]/ sqrt(rho);
+	    va_y = BaryonField[B2Num][igrid]/ sqrt(rho);
+	    va_z = BaryonField[B3Num][igrid]/ sqrt(rho);
 
-          dU[iCR][n] -= fabs(dHeatCR);
-          dU[iEint][n] += fabs(dHeatCR);
-	  dU[iEtot][n] += fabs(dHeatCR);
+	    // Calculating the heating rate of cosmic rays on the thermal gas:                                                       
+	    dHeatCR = (CRgamma - 1.0)*(va_x*dtdEcrdx + va_y*dtdEcrdy +va_z*dtdEcrdz);
 
+	    if (CRStreamVelocityFactor < 1)
+	      dHeatCR *= CRStreamVelocityFactor;
+
+	    dU[iCR][n]   -= fabs(dHeatCR);
+	    dU[iEint][n] += fabs(dHeatCR);
+	    dU[iEtot][n] += fabs(dHeatCR);
+	  }
 	}
       }
     }

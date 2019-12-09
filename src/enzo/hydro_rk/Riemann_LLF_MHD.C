@@ -93,7 +93,7 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     if (CRModel){
       Fl[iS1] += Pcr;
       Fl[iEtot] += Pcr*vx;
-      Fl[iCR] = Ul[iCR]*vx;
+      Fl[iCR] = (Ecr + Pcr)*vx;
     }
 
     // largest and smallest eigenvectors
@@ -168,7 +168,7 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     if (CRModel){
       Fr[iS1] += Pcr; 
       Fr[iEtot] += Pcr*vx;
-      Fr[iCR] = Ur[iCR] * vx;
+      Fr[iCR] = (Ecr + Pcr) * vx;
     }
 
     // largest and smallest eigenvectors
