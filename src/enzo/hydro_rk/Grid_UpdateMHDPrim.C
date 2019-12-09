@@ -287,7 +287,7 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	  BaryonField[TENum][igrid] = eint + 0.5*v2 + 0.5*B2/D_new;
 
 	            if (ProblemType == 251){
-	    BaryonField[DensNum][igrid] = 1;
+		      //    BaryonField[DensNum][igrid] = 1;
 	    // BaryonField[GENum][igrid ] = 0;
             BaryonField[Vel1Num][igrid] = 0;
             BaryonField[Vel2Num][igrid] = 0;

@@ -131,9 +131,9 @@ int grid::CRTransportTestInitializeGrid(int test_type, float center,
 	 // cr streaming bottleneck 1d
 	 // described in appendix of Jiang+Oh 2018
 	 else if (test_type == 3) { 
-	   Rho = 0.1 + (1.0 - 0.1) * (1.0 + tanh((x - 200.)/25.)) * (1.0 + tanh((x - 200) / 25.));
+	   Rho = 0.1 + (1.0 - 0.1) * (1.0 + tanh((x - 200.)/25.)) * (1.0 + tanh((200.-x) / 25.));
 	   Ecr = 1e-6;
-	   if (i <= GridStartIndex[0])
+	   if (i < GridStartIndex[0])
 	     Ecr = 3.0;
 	 }
 
@@ -154,7 +154,7 @@ int grid::CRTransportTestInitializeGrid(int test_type, float center,
 	   BaryonField[iBy][igrid] = By;
 	   BaryonField[iBz][igrid] = Bz;
 	   BaryonField[iPhi][igrid] = 0.0;
-	   BaryonField[iEtot][igrid] += 0.5* B2/rho; 
+	   BaryonField[iEtot][igrid] += 0.5* B2/Rho; 
 	 }
        } 
      }

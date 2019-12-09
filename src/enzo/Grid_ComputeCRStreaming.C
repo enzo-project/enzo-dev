@@ -112,7 +112,6 @@ int grid::ComputeCRStreaming(){
 	  Fcy[idx] = CRgamma * cr[idx] * fabs(va_y) * tanh(stability_factor * dCRdy / ecr);
 	if( GridRank > 2)
 	  Fcz[idx] = CRgamma * cr[idx] * fabs(va_z) * tanh(stability_factor * dCRdz / ecr);
-
       } // end triple for
 
   /* Trim GridEnd so that we don't apply fluxes to cells that don't have
@@ -144,6 +143,17 @@ int grid::ComputeCRStreaming(){
 	      cr[idx] = CRdensFloor; 
 	}
       } // triple for loop
+
+
+  if (ProblemType == 251) {
+    for (k = GridStart[2]; k <= GridEnd[2]; k++)
+      for (j = GridStart[1]; j <= GridEnd[1]; j++)
+	for (i = 0; i <= GridStartIndex[0]; i++) {
+	  idx = ELT(i,j,k);
+	  BaryonField[CRNum][idx] = 3.0;
+      }
+  }
+
 
 	
   delete [] Fcx;
