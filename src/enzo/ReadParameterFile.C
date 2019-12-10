@@ -78,7 +78,54 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   char **active_particle_types;
   active_particle_types = new char*[MAX_ACTIVE_PARTICLE_TYPES];
   int active_particles = 0;
-  
+
+
+#ifdef USE_GRACKLE
+
+  /* check if Grackle is used in this problem */
+  rewind(fptr);
+  while ((fgets(line, MAX_LINE_LENGTH, fptr) != NULL) 
+      && (comment_count < 2)) {
+
+    ret = 0;
+    ret += sscanf(line, "use_grackle = %"ISYM, &use_grackle);
+  }
+
+  // Grackle chemistry data structure.
+  chemistry_data *my_chemistry;
+  my_chemistry = new chemistry_data;
+  if (set_default_chemistry_parameters(my_chemistry) == FAIL) {
+    ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
+  }
+
+  if (use_grackle){
+
+    // Map Grackle defaults to corresponding Enzo parameters
+    Gamma                                 = (float) grackle_data->Gamma;
+    MultiSpecies                          = (int) grackle_data->primordial_chemistry;
+    MetalCooling                          = (int) grackle_data->metal_cooling;
+    H2FormationOnDust                     = (int) grackle_data->h2_on_dust;
+    CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data->cmb_temperature_floor;
+    ThreeBodyRate                         = (int) grackle_data->three_body_rate;
+    CIECooling                            = (int) grackle_data->cie_cooling;
+    H2OpticalDepthApproximation           = (int) grackle_data->h2_optical_depth_approximation;
+    PhotoelectricHeating                  = max((int) grackle_data->photoelectric_heating, 0);  // Grackle default is < 0
+    PhotoelectricHeatingRate              = (float) grackle_data->photoelectric_heating_rate;
+    CoolData.NumberOfTemperatureBins      = (int) grackle_data->NumberOfTemperatureBins;
+    RateData.CaseBRecombination           = (int) grackle_data->CaseBRecombination;
+    CoolData.TemperatureStart             = (float) grackle_data->TemperatureStart;
+    CoolData.TemperatureEnd               = (float) grackle_data->TemperatureEnd;
+    RateData.NumberOfDustTemperatureBins  = (int) grackle_data->NumberOfDustTemperatureBins;
+    RateData.DustTemperatureStart         = (float) grackle_data->DustTemperatureStart;
+    RateData.DustTemperatureEnd           = (float) grackle_data->DustTemperatureEnd;
+    CoolData.HydrogenFractionByMass       = (float) grackle_data->HydrogenFractionByMass;
+    CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data->DeuteriumToHydrogenRatio;
+    CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
+
+  } // end use_grackle
+
+#endif
+
   /* read until out of lines */
 
   rewind(fptr);
@@ -586,7 +633,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SGScoeffSSb =%"FSYM, &SGScoeffSSb);
     ret += sscanf(line, "SGScoeffSSemf = %"FSYM, &SGScoeffSSemf);
 
-    ret += sscanf(line, "use_grackle = %"ISYM, &use_grackle);
 #ifdef USE_GRACKLE
     /* Grackle chemistry parameters */
     ret += sscanf(line, "with_radiative_cooling = %d",
