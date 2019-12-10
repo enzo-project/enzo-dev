@@ -340,6 +340,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 		if (loop==0) val1=val1- 0.5*v2 - 0.5*b2/rho;
 		else if (loop==1) val2=val2- 0.5*v2 - 0.5*b2/rho;
 
+	
 	      }  
 	    }
 	    

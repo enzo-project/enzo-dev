@@ -46,7 +46,7 @@ int grid::GrackleWrapper()
   LCAPERF_START("grid_GrackleWrapper");
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+      DINum, DIINum, HDINum, DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
 
   double dt_cool = dtFixed;
 #ifdef TRANSFER
@@ -76,6 +76,7 @@ int grid::GrackleWrapper()
 				       Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
+ 
   /* Find Multi-species fields. */
 
   DeNum = HINum = HIINum = HeINum = HeIINum = HeIIINum = HMNum = H2INum = 
@@ -85,8 +86,8 @@ int grid::GrackleWrapper()
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
-    } 
-
+    }
+ 
   /* Get easy to handle pointers for each variable. */
  
   float *density     = BaryonField[DensNum];
@@ -293,6 +294,7 @@ int grid::GrackleWrapper()
                                         POW(BaryonField[iBz][i], 2.0)) / 
           BaryonField[DensNum][i];
       }
+
     } // for (int i = 0; i < size; i++)
   } // if (HydroMethod != Zeus_Hydro)
 

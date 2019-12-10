@@ -729,7 +729,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (MaxVelocityIndex > 2)
     DataLabel[i++] = Vel3Name;
   DataLabel[i++] = TEName;
-  if(CRModel)
+	if(CRModel)
     DataLabel[i++] = CRName;
   if (DualEnergyFormalism)
     DataLabel[i++] = GEName;

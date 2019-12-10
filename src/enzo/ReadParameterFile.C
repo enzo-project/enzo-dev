@@ -1940,9 +1940,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
   if (( CRModel ) && ( HydroMethod == 4 )){
-    // to be used with DualEnergyFormalism                                                                                         
-    NEQ_MHD = 11;
-    iCR = 10;
+    NEQ_MHD += 1;
+    if (DualEnergyFormalism)
+      iCR = 10;
+    else iCR = 9;
   }
 
   // Determine color fields (NColor) later inside a grid object.

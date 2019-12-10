@@ -446,6 +446,8 @@ float grid::ComputeTimeStep()
       }
     }
     dtCR *= CRCourantSafetyNumber;
+    if (CRDiffusion == 1)
+      dtCR *= float(NumberOfGhostZones); // for subcycling
   }
 
   /* 7) GasDrag time step */

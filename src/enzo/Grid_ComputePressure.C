@@ -127,7 +127,6 @@ int grid::ComputePressure(FLOAT time, float *pressure,
 	      + pow(BaryonField[B2Num][i],2)
 	      + pow(BaryonField[B3Num][i],2);
 	    BaryonField[TENum][i] += OneHalf * B2 / density;
-
 	  }
 	
 	} else { 
@@ -142,7 +141,6 @@ int grid::ComputePressure(FLOAT time, float *pressure,
 	        + pow(BaryonField[B2Num][i],2)
 	        + pow(BaryonField[B3Num][i],2);
 	      gas_energy -= OneHalf * B2 / density;
-	 
 	    }
 	  } else {
 	    gas_energy = BaryonField[GENum][i];
