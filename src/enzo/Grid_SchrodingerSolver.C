@@ -170,8 +170,8 @@ int grid::SchrodingerSolver( int nhy )
   }
 
   // calculate hbar/m
-  float afloat = double(a);
-  float hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits/afloat,2)/FDMMass;
+  double afloat = double(a);
+  double hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits/afloat,2)/FDMMass;
 
   //printf("hmcoef %f \n", hmcoef);
 
