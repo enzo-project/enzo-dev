@@ -3396,8 +3396,8 @@ For details on the cosmic ray solver in Enzo see :ref:`cosmic_rays`.
 
 ``CRStreamingStabilityFactor`` (external)
     This is used to preserve stability in cosmic ray streaming according to the regularization scheme
-    described in Sharma et al. 2009. This number should be small relative to the gradient of CR energy
-    density in code units and must be calibrated for each simulation. Default: 1.0
+    described in Sharma et al. 2009. This number should be greater than 1 and calibrated for each simulation. 
+    Default: 1e2
 
 ``CRStreamingVelocityFactor`` (external)
     This sets the CR streaming velocity in units of the alfven velocity. Default: 1.0; 
