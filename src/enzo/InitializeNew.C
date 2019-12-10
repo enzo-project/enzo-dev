@@ -157,8 +157,6 @@ int ShearingBox2DInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int ShearingBoxStratifiedInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
-int ThermalInstabilityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
-                                 TopGridData &MetaData);
 #ifdef TRANSFER
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData,
@@ -735,10 +733,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 414/415) Radiation-Hydrodynamics tests 14 & 15 -- Cosmological HI ioniz.
   if ((ProblemType == 414) || (ProblemType == 415))
     ret = CosmoIonizationInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
-
-  // 417 Thermal Instability initializer
-  if (ProblemType == 417)
-    ret = ThermalInstabilityInitialize(fptr, Outfptr, TopGrid, MetaData);
 
   // 450-452) Free-streaming radiation tests
   if ((ProblemType == 450) || (ProblemType == 451) || (ProblemType == 452))

@@ -467,72 +467,6 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
     }
   } // MHD3DProblemType == 5
 
-  if (MHD3DProblemType == 6) { // Anisotropic Diffusion                                                                                                     
-
-    float pres, eintl, eintu, h, cs, dpdrho, dpde;
-    float ecr = .15;
-    pl = 1.0;
-    for (int k = 0; k < GridDimension[2]; k++) {
-      for (int j = 0; j < GridDimension[1]; j++) {
-        for (int i = 0; i < GridDimension[0]; i++) {
-          /* Compute position */
-          igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
-
-	  
-          x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-          y = 0;
-          z = 0;
-          if (GridRank > 1)
-            y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-          if (GridRank > 2)
-            z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
-
-          float rho;
-          rho = 1.;
-	  pl = 0.;
-          pres = rho/Gamma; // sound speed = 1                                                                                                        
-          //          EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);                                                                               
-          // Only internal and magnetic energy. Modify if you have nonzero                                                                            
-          float r2 = (x)*(x) + (y)*(y);
-          float phi = fabs(atan2(y, x));
-          float r = sqrt(r2);
-          Bxl = -(y)/r;
-          Byl = (x)/r;
-	  if (r < 0.01){
-	    Bxl = sign(y)*1.0; 
-	    Byl = 1.0; 
-	  }
-
-          // velocities.                                                                                                                              
-          eintl = 10;//pl / ((Gamma-1.0)*rho);
-          etotl = eintl + 0.5*(Bxl*Bxl+Byl*Byl)/rho;
-          BaryonField[iden ][igrid] = rho;
-          BaryonField[ivx  ][igrid] = 0.0;
-          BaryonField[ivy  ][igrid] = 0.0;
-          BaryonField[ivz  ][igrid] = 0.0;
-
-          BaryonField[ietot][igrid] = etotl;
-          if (DualEnergyFormalism) {
-            BaryonField[ieint][igrid] = eintl;
-          }
-          if (HydroMethod == MHD_RK) {
-            BaryonField[iBx  ][igrid] = Bxl;
-            BaryonField[iBy  ][igrid] = Byl;
-            BaryonField[iBz  ][igrid] = 0.0;
-            BaryonField[iPhi ][igrid] = 0.0;
-          }
-
-          if ((r < 0.7) && (r > 0.5) && (phi < 3.14159/12.0))
-	    BaryonField[CRNum][igrid] = 12.; 
-	  else
-	    BaryonField[CRNum][igrid] = 10.; 
-	  
-        }
-      }
-    }
-  } // MHD3DProblemType == 6 
-
-
   /* Set uniform species fractions */
 
   if (MultiSpecies > 0) {
@@ -559,65 +493,6 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 	  }
 	}
   }
-
-  if (MHD3DProblemType == 7 ){ // CR Streaming                                                                                                        
-
-    float pres, eintl, eintu, h, cs, dpdrho, dpde;
-    //    float ecr = .15;
-    pl = 1.0;
-    for (int k = 0; k < GridDimension[2]; k++) {
-      for (int j = 0; j < GridDimension[1]; j++) {
-        for (int i = 0; i < GridDimension[0]; i++) {
-          /* Compute position */
-          igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
-
-
-          x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-          y = 0;
-          z = 0;
-          if (GridRank > 1)
-            y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-          if (GridRank > 2)
-            z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
-
-          float rho, cs, pres, dpdrho, dpde;
-	  
-          rho = 1.0;
-	  eintl = 1.0; 
-          EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 2);           
-          // Only internal and magnetic energy. Modify if you have nonzero
-	  
-	  Bxl = -1.0;
-
-          etotl = eintl + 0.5*(Bxl*Bxl+Byl*Byl)/rho;
-          BaryonField[iden ][igrid] = rho;
-          BaryonField[ivx  ][igrid] = 0.0;
-          BaryonField[ivy  ][igrid] = 0.0;
-          BaryonField[ivz  ][igrid] = 0.0;
-
-          BaryonField[ietot][igrid] = eintl;
-          if (DualEnergyFormalism) {
-            BaryonField[ieint][igrid] = eintl;
-          }
-          if (HydroMethod == MHD_RK) {
-            BaryonField[iBx  ][igrid] = Bxl;
-            BaryonField[iBy  ][igrid] = 0.0;
-            BaryonField[iBz  ][igrid] = 0.0;
-            BaryonField[iPhi ][igrid] = 0.0;
-          }
-	  float r2 = x*x;
-	  //	  float D = 2.*0.01*0.1;
-	  //	  float D = 1e-5;
-	  float D = 0.05;
-	  float gauss2d = exp(-r2/(2*D));
-	  float crs = 100.*gauss2d; 
-	  BaryonField[CRNum][igrid] = crs;
-          BaryonField[ietot][igrid] += crs/rho;
-
-        }
-      }
-    }
-  } // MHD3DProblemType == 7
 
   if (MultiSpecies > 1) {
     for (k = 0, index = 0; k < GridDimension[2]; k++)

@@ -653,7 +653,6 @@ OBJS_CONFIG_LIB = \
         Grid_TestGravitySphereInitializeGrid.o \
         Grid_TestOrbitInitializeGrid.o \
 	Grid_TestStarParticleInitializeGrid.o \
-        Grid_ThermalInstabilityInitializeGrid.o \
         Grid_TracerParticleCreateParticles.o \
         Grid_TracerParticleOutputData.o \
         Grid_TracerParticleSetVelocity.o \
@@ -942,7 +941,6 @@ OBJS_CONFIG_LIB = \
         TestGravitySphereInitialize.o \
         TestOrbitInitialize.o \
 	TestStarParticleInitialize.o \
-        ThermalInstabilityInitialize.o \
         TracerParticleCreation.o \
 	TransposeRegionOverlap.o \
         tscint1d.o \

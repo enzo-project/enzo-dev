@@ -2115,12 +2115,6 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int TestGravitySphereCheckResults(FILE *fptr);
 
-/* Thermal Instability: initialize grid. */
-
-  int ThermalInstabilityInitializeGrid(float TIMeanDensity,
-                                       float TIDensityPerturbationAmplitude,
-                                       float TIMeanTemperature);
-
 /* Conduction Test: initialize grid. */
 
   int ConductionTestInitialize(float PulseHeight, FLOAT PulseWidth, int PulseType, FLOAT PulseCenter[MAX_DIMENSION], int FieldGeometry, float Bfield);
