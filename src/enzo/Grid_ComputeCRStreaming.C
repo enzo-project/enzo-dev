@@ -43,8 +43,8 @@ int grid::ComputeCRStreaming(){
 
   // Some locals
   int size = 1, idx, i,j,k; 
-  float *cr, *Bx, *By, *Bz, crOld, rho, stream_factor;
-  float dCRdt, dCRdx, dCRdy, dCRdz, va_x, va_y, va_z;
+  float *cr, *Bx, *By, *Bz, crOld, rho, stability_factor;
+  float dCRdt, dCRdx, dCRdy, dCRdz, va_x, va_y, va_z, ecr;
   
   float *dx = new float[GridRank];
 
@@ -71,12 +71,22 @@ int grid::ComputeCRStreaming(){
   Bz = BaryonField[B3Num]; 
 
 
-  int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
+  float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
+  float VelocityUnits = 1.0, TimeUnits = 1.0;
+  double MassUnits = 1.0;
 
+  // Get system of units
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+               &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+    ENZO_FAIL("Error in GetUnits.");
+  }
+  stability_factor = CRStreamStabilityFactor * dx[0]; 
+
+  int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
   /* Set up start and end indexes to cover all of grid except outermost cells. */
   for (int dim = 0; dim<GridRank; dim++ ) {
-    GridStart[dim] = 1;
-    GridEnd[dim] = GridDimension[dim]-1;
+    GridStart[dim] = GridStartIndex[dim] - 1;
+    GridEnd[dim] = GridEndIndex[dim] + 1;
   }
 
   /* Compute CR fluxes at each cell face. */
@@ -95,14 +105,13 @@ int grid::ComputeCRStreaming(){
 	va_y = By[idx] / sqrt(rho);
 	va_z = Bz[idx] / sqrt(rho);
 	
+	ecr = (cr[idx] == 0) ? 1.0 : cr[idx];
 	// Calculate CR flux
-	Fcx[idx] = CRgamma * cr[idx] * fabs(va_x) * tanh(dCRdx / CRStreamStabilityFactor);
+	Fcx[idx] = CRgamma * cr[idx] * fabs(va_x) * tanh(stability_factor * dCRdx / ecr );
 	if( GridRank > 1)
-	  Fcy[idx] = CRgamma * cr[idx] * fabs(va_y) * tanh(dCRdy / CRStreamStabilityFactor);
-	
+	  Fcy[idx] = CRgamma * cr[idx] * fabs(va_y) * tanh(stability_factor * dCRdy / ecr);
 	if( GridRank > 2)
-	  Fcz[idx] = CRgamma * cr[idx] * fabs(va_z) * tanh(dCRdz / CRStreamStabilityFactor);
-
+	  Fcz[idx] = CRgamma * cr[idx] * fabs(va_z) * tanh(stability_factor * dCRdz / ecr);
       } // end triple for
 
   /* Trim GridEnd so that we don't apply fluxes to cells that don't have
@@ -134,6 +143,17 @@ int grid::ComputeCRStreaming(){
 	      cr[idx] = CRdensFloor; 
 	}
       } // triple for loop
+
+
+  if (ProblemType == 251) {
+    for (k = GridStart[2]; k <= GridEnd[2]; k++)
+      for (j = GridStart[1]; j <= GridEnd[1]; j++)
+	for (i = 0; i <= GridStartIndex[0]; i++) {
+	  idx = ELT(i,j,k);
+	  BaryonField[CRNum][idx] = 3.0;
+      }
+  }
+
 
 	
   delete [] Fcx;

@@ -59,7 +59,7 @@ int grid::CRTransportTestInitializeGrid(int test_type, float center,
       BaryonField[field] = new float[size];
   
   /* transform pressure to total energy */
-  float etot, Ecr, v2, Bx, By,Bz, B2, gauss, r2, r, phi;
+  float etot, Ecr, v2, Bx, By,Bz, B2, gauss, r2, r, phi, Rho;
   v2 = vx * vx + vy * vy + vz * vz;
   etot = pg; // / ((Gamma-1.0)*rho) + 0.5*v2;
 
@@ -90,6 +90,7 @@ int grid::CRTransportTestInitializeGrid(int test_type, float center,
 	 Bx = bx;
 	 By = by;
 	 Bz = bz; 
+	 Rho = rho;
 
 	 if (test_type == 0){
 	   Ecr = 1 + ecr*exp(-r2/(2*D));
@@ -120,12 +121,23 @@ int grid::CRTransportTestInitializeGrid(int test_type, float center,
 	   else
 	     Ecr = ecr;
 	 }
-
+	 
+	 // simple cr streaming in 1d
 	 else if (test_type == 2) {
-	   Ecr = 2 - fabs(x); 	   
+	   Ecr = 2 - fabs(x);
+	   Ecr = max(Ecr, 0);
+	 }
+	 
+	 // cr streaming bottleneck 1d
+	 // described in appendix of Jiang+Oh 2018
+	 else if (test_type == 3) { 
+	   Rho = 0.1 + (1.0 - 0.1) * (1.0 + tanh((x - 200.)/25.)) * (1.0 + tanh((200.-x) / 25.));
+	   Ecr = 1e-6;
+	   if (i < GridStartIndex[0])
+	     Ecr = 3.0;
 	 }
 
-	 BaryonField[iden ][igrid] = rho;
+	 BaryonField[iden ][igrid] = Rho;
 	 BaryonField[ivx  ][igrid] = vx;
 	 BaryonField[ivy  ][igrid] = vy;
 	 BaryonField[ivz  ][igrid] = vz;
@@ -142,7 +154,7 @@ int grid::CRTransportTestInitializeGrid(int test_type, float center,
 	   BaryonField[iBy][igrid] = By;
 	   BaryonField[iBz][igrid] = Bz;
 	   BaryonField[iPhi][igrid] = 0.0;
-	   BaryonField[iEtot][igrid] += 0.5* B2/rho; 
+	   BaryonField[iEtot][igrid] += 0.5* B2/Rho; 
 	 }
        } 
      }

@@ -46,7 +46,7 @@ int grid::ComputeAnisotropicCRDiffusion(){
 
 
   // Some locals
-  int size = 1, idx, i,j,k, Nsub=0; 
+  int size = 1, idx, i,j,k;
   float *cr, *Bx, *By, *Bz, B2, crOld, dCRdt, dCRdt_tan, kappa;
   float dEcrdy_x, dEcrdz_x, dEcrdx_y, dEcrdz_y, dEcrdx_z, dEcrdy_z;
   float bx_xface, by_xface, bz_xface;
@@ -71,7 +71,6 @@ int grid::ComputeAnisotropicCRDiffusion(){
   float *bz             = new float[size];
 
 
-  // We obtain the current cr field ...
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRNum, B1Num, B2Num, B3Num, PhiNum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,Vel3Num, TENum,
 					   B1Num, B2Num,B3Num, PhiNum, CRNum) == FAIL) {
@@ -92,18 +91,15 @@ int grid::ComputeAnisotropicCRDiffusion(){
                &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
-
-
   double units = ((double)LengthUnits)*LengthUnits/((double)TimeUnits);
-  int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
-
-   /* Set up start and end indexes to cover all of grid except outermost cells. */
-  for (int dim = 0; dim<GridRank; dim++ ) {
-    GridStart[dim] = 1;
-    GridEnd[dim] = GridDimension[dim]-1;
-  }
   kappa = CRkappa/units;        // Constant Kappa Model  
 
+  int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
+  /* Set up start and end indexes to cover all of grid except outermost cells. */
+  for (int dim = 0; dim<GridRank; dim++ ) {
+    GridStart[dim] = GridStartIndex[dim] - 1;
+    GridEnd[dim] = GridEndIndex[dim] + 1;
+  }
   /* Compute CR fluxes at each cell face. */
   for (k = GridStart[2]; k <= GridEnd[2]; k++)
     for (j = GridStart[1]; j <= GridEnd[1]; j++)
@@ -133,12 +129,12 @@ int grid::ComputeAnisotropicCRDiffusion(){
 	if (GridRank > 1){
 	  dEcrdy_x = mcd( mcd( cr[ELT(i,  j+1,k)] - cr[ELT(i,  j,k)], cr[ELT(i,  j,k)] - cr[ELT(i,  j-1,k)] ),
                           mcd( cr[ELT(i-1,j+1,k)] - cr[ELT(i-1,j,k)], cr[ELT(i-1,j,k)] - cr[ELT(i-1,j-1,k)] ));
-	  dEcrdy_x /= dx[0];
+	  dEcrdy_x /= dx[1];
 	}
 	if (GridRank > 2){
 	  dEcrdz_x = mcd( mcd( cr[ELT(i,  j,k+1)] - cr[ELT(i,  j,k)], cr[ELT(i,  j,k)] - cr[ELT(i,  j,k-1)] ),
                           mcd( cr[ELT(i-1,j,k+1)] - cr[ELT(i-1,j,k)], cr[ELT(i-1,j,k)] - cr[ELT(i-1,j,k-1)] ));
-	  dEcrdz_x /= dx[0];
+	  dEcrdz_x /= dx[2];
 	  
 	}
 	BdotDelEcr[idx] = bx_xface*dEcrdx[idx];
@@ -150,12 +146,12 @@ int grid::ComputeAnisotropicCRDiffusion(){
 	  dEcrdy[idx] = (cr[ELT(i, j, k)] - cr[ELT(i, j-1, k)]) / dx[1];
 	  dEcrdx_y =  mcd( mcd( cr[ELT(i+1,  j,k)] - cr[ELT(i,  j,k)], cr[ELT(i,  j,k)] - cr[ELT(i-1,  j,k)] ),
                            mcd( cr[ELT(i+1,j-1,k)] - cr[ELT(i,j-1,k)], cr[ELT(i,j-1,k)] - cr[ELT(i-1,j-1,k)] ));
-	  dEcrdx_y /= dx[1];
+	  dEcrdx_y /= dx[0];
 
 	  if (GridRank > 2){
 	    dEcrdz_y =  mcd( mcd( cr[ELT(i,  j,k+1)] - cr[ELT(i,  j,k)], cr[ELT(i,  j,k)] - cr[ELT(i,  j,k-1)] ),
                              mcd( cr[ELT(i,j-1,k+1)] - cr[ELT(i,j-1,k)], cr[ELT(i,j-1,k)] - cr[ELT(i,j-1,k-1)] ));
-	    dEcrdz_y /= dx[1];
+	    dEcrdz_y /= dx[2];
 	  }
 	  BdotDelEcr[idx] += by_yface*dEcrdy[idx];
 	  BdotDelEcr_tan[idx] += (bx_yface*dEcrdx_y + bz_yface*dEcrdz_y);
@@ -166,19 +162,17 @@ int grid::ComputeAnisotropicCRDiffusion(){
 	  dEcrdz[idx] = (cr[ELT(i, j, k)] - cr[ELT(i, j, k-1)]) /dx[2];
 	  dEcrdx_z =  mcd( mcd( cr[ELT(i+1,j,  k)] - cr[ELT(i,j,  k)], cr[ELT(i,j,  k)] - cr[ELT(i-1,j,  k)] ),
                            mcd( cr[ELT(i+1,j,k-1)] - cr[ELT(i,j,k-1)], cr[ELT(i,j,k-1)] - cr[ELT(i-1,j,k-1)] ));
-	  dEcrdx_z /= dx[2];
+	  dEcrdx_z /= dx[0];
 
 	  dEcrdy_z = mcd( mcd( cr[ELT(i,j+1,  k)] - cr[ELT(i,j,  k)], cr[ELT(i,j,  k)] - cr[ELT(i,j-1,  k)] ),
                           mcd( cr[ELT(i,j+1,k-1)] - cr[ELT(i,j,k-1)], cr[ELT(i,j,k-1)] - cr[ELT(i,j-1,k-1)] ));
-	  dEcrdy_z /= dx[2];
+	  dEcrdy_z /= dx[1];
+
        	  BdotDelEcr[idx] += bz_zface*dEcrdz[idx];
 	  BdotDelEcr_tan[idx] += (bx_zface*dEcrdx_z + by_zface*dEcrdy_z);
        }	
 
       } // end triple for
-
-  /* Trim GridEnd so that we don't apply fluxes to cells that don't have
-	 them computed on both faces. */
 
   for (int dim = 0; dim<GridRank; dim++) {
     GridEnd[dim]--;
@@ -223,12 +217,14 @@ int grid::ComputeAnisotropicCRDiffusion(){
         if((cr[idx] < 0) || isnan(cr[idx])){
               printf("CR = %e < 0 (after diff), i,j,k = (%"ISYM", %"ISYM", %"ISYM"), \
                       grid lims = (%"ISYM", %"ISYM", %"ISYM"), (%"ISYM", %"ISYM", %"ISYM")\n",
-		     cr[idx], i, j, k, GridStart[0], GridStart[1], GridStart[2], GridEnd[0], GridEnd[1], GridEnd[2]);	      
+		     cr[idx], i, j, k, GridStart[0], GridStart[1], GridStart[2], 
+		     GridEnd[0], GridEnd[1], GridEnd[2]);	      
 	      printf("\t\t>> Old CR: %"ESYM"\n",crOld);
 	      cr[idx] = tiny_number; 
 	} // end err if
       } // triple for loop
-	
+
+  delete [] dx; 
   delete [] dEcrdx;
   delete [] dEcrdy;
   delete [] dEcrdz;
