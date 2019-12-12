@@ -373,7 +373,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 			}		  // END j-direction
 		}			  // END k-direction
 	//	if (debug){
-			fprintf(stdout, "[ %d ]Coupling feedback on level %d for star assigned to level %d\n", cstar->ReturnGridID(), level, cstar->ReturnLevel());
+			fprintf(stdout, "[ %d ]Coupling feedback on level %d for star [%d] assigned to level %d\n", cstar->ReturnGridID(), level, 
+									cstar->ReturnID(), cstar->ReturnLevel());
 			fprintf(stdout, "Deposited Vol = %e\n", depositedVolume*pow(LengthUnits,3));
 			fprintf(stdout, "Deposited Vol/Vold = %f\n", depositedVolume/V_old);
 			fprintf(stdout, "Deposited Vol/Vnew = %f\n", depositedVolume/V_new);
