@@ -30,8 +30,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
-{
+int GrackleSetDefaultParameters(FILE *fptr){
+
+  // Check if Grackle is being used. If so, copy over Grackle's
+  // default parameters to their Enzo equivalents
 
   char line[MAX_LINE_LENGTH];
 
@@ -57,13 +59,6 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
   }
 
   grackle_data->use_grackle = use_grackle;
-  
-  if (use_grackle == FALSE) {
-    return SUCCESS;
-  }
-
-  char *dummy = new char[MAX_LINE_LENGTH];
-  dummy[0] = 0;
 
   /* If we are actually using Grackle, overwrite Enzo's default parameters with
      the Grackle quivalents. This overrides what is set in SetDefaultGlobalValues */
@@ -91,8 +86,29 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
   } // end use_grackle
 
+#endif // end USE_GRACKLE
 
-  // Now, go back through parameter file to check for Grackle-specific
+  return SUCCESS;
+}
+
+int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
+{
+  /* Read Grackle specific parameters and copy over Enzo
+     parameters to their Grackle equivalents. Concludes by
+     setting up grackle_units */
+
+  if (use_grackle == FALSE) {
+    return SUCCESS;
+  }
+
+  char line[MAX_LINE_LENGTH];
+  char *dummy = new char[MAX_LINE_LENGTH];
+  dummy[0] = 0;
+
+
+#ifdef USE_GRACKLE
+
+  // Go back through parameter file to check for Grackle-specific
   // parameters that do not have Enzo equivalents
   rewind(fptr);
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
@@ -130,7 +146,6 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
 
   }
   /* clean up */
-  delete [] dummy;
   rewind(fptr);
 
   // Finally, map all Enzo parameters to their Grackle equivalents. These
@@ -210,6 +225,8 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
   }
 
 #endif // end USE_GRACKLE
+
+  delete [] dummy;
 
   return SUCCESS;
 }

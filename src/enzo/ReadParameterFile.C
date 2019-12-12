@@ -48,6 +48,7 @@ int ReadListOfFloats(FILE *fptr, int N, float floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime);
 int GrackleReadParameters(FILE *fptr, FLOAT InitTime);
+int GrackleSetDefaultParameters(FILE *fptr);
 int ReadUnits(FILE *fptr);
 int InitializeCosmicRayData();
 int InitializeRateData(FLOAT Time);
@@ -79,6 +80,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   char **active_particle_types;
   active_particle_types = new char*[MAX_ACTIVE_PARTICLE_TYPES];
   int active_particles = 0;
+
+#ifdef USE_GRACKLE
+  /* Check if use_grackle is True and copy over default parameters to
+     their Enzo equivalents */
+  if (GrackleSetDefaultParameters(fptr) == FAIL){
+    ENZO_FAIL("Error in GrackleSetDefaultParameters.\n");
+  }
+  rewind(fptr);
+#endif // USE_GRACKLE
 
   /* read until out of lines */
 
@@ -1622,7 +1632,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   // make sure that MHD is turned on if we're trying to use anisotropic conduction.
   // if not, alert user.
   if(AnisotropicConduction==TRUE && UseMHD==0){
-    ENZO_FAIL("AnisotropicConduction can only be used if MHD is turnedf on!\n");
+    ENZO_FAIL("AnisotropicConduction can only be used if MHD is turned on!\n");
   }
   if(AnisotropicConduction==TRUE && MetaData.TopGridRank < 2){
     ENZO_FAIL("AnisotropicConduction can only be used if TopGridRank is >= 2!\n");
