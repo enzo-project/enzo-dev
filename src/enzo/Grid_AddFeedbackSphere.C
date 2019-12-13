@@ -173,7 +173,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		rescale the densities to fill that volume with the correct mass.
  */
 		//1) First loop to calculate number of cells that will be deposited into 
-		outerRadius2 = radius * radius;
+		outerRadius2 = 1.2 * 1.2 * radius * radius;
 		int NumAffectedCells = 0;
 		for (k = 0; k < GridDimension[2]; k++)
 		{
@@ -216,7 +216,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	//	if (debug) 
 		fprintf(stdout, "Prescaled EjectaDensity=%f EjectaMetalDensity=%f\n", EjectaDensity, EjectaMetalDensity);
 		fprintf(stdout, "Prescaled mass = %f metal = %f\n", EjectaDensity*V_old*MassUnits/SolarMass, EjectaMetalDensity*V_old*MassUnits/SolarMass);
-		bool rescale = true;// V_new > V_old;
+		bool rescale = true;//V_new > V_old;
 		EjectaMetalDensity = (rescale)?(EjectaMetalDensity * V_old/V_new): (EjectaMetalDensity);
 		EjectaDensity = (rescale)?(EjectaDensity * V_old/V_new):(EjectaDensity);
 	if (rescale){
@@ -296,7 +296,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 							without a ramp.  The ramp is only applied to the
 							energy*density factor. 
 						*/
-						factor = 0.578704;
+						factor = 1.0;//0.578704;
 
 						OldDensity = BaryonField[DensNum][index];
 						BaryonField[DensNum][index] += factor * EjectaDensity;
@@ -364,8 +364,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 						}
 
 						if (MetallicityField == TRUE){
-							BaryonField[MetalNum][index] += factor*EjectaMetalDensity;
-							depositedMetal += factor*EjectaMetalDensity*pow(CellWidth[0][0],3);
+							BaryonField[MetalNum][index] += EjectaMetalDensity;
+							depositedMetal += EjectaMetalDensity*pow(CellWidth[0][0],3);
 						}
 						CellsModified++;
 
@@ -376,14 +376,14 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	//	if (debug){
 			fprintf(stdout, "[ %d ]Coupling feedback on level %d for star [%d] assigned to level %d\n", cstar->ReturnGridID(), level, 
 									cstar->ReturnID(), cstar->ReturnLevel());
-			fprintf(stdout, "Deposited Vol = %e\n", depositedVolume*pow(LengthUnits,3))*1.2*1.2;
+			fprintf(stdout, "Deposited Vol = %e\n", depositedVolume*pow(LengthUnits,3));
 			fprintf(stdout, "Deposited Vol/Vold = %f\n", depositedVolume/V_old);
 			fprintf(stdout, "Deposited Vol/Vnew = %f\n", depositedVolume/V_new);
 			fprintf(stdout, "Deposited mass = %f\n", depositedMass*MassUnits/SolarMass);
 			fprintf(stdout, "Mass Error = %f\n", 1.0-depositedMass/(EjectaDensity*V_new));
 			fprintf(stdout, "Deposited metal = %f\n", depositedMetal*MassUnits/SolarMass);
 			fprintf(stdout, "Metal Error = %f\n", 1.0-depositedMetal/(EjectaMetalDensity*V_new));
-			fprintf(stdout, "Energy Deposit = %"GSYM"\n", depositedEnergy*MassUnits*MassUnits/pow(CellWidth[0][0],3)/TimeUnits/TimeUnits);
+			fprintf(stdout, "Energy Deposit = %"GSYM"\n", depositedEnergy*DensityUnits*pow(CellWidth[0][0]*LengthUnits,3)*pow(LengthUnits,2)/TimeUnits/TimeUnits);
 			//exit(2);
 	//	}
 	} // END Supernova
