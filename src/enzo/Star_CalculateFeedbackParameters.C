@@ -85,7 +85,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
     Radius = max(Radius, 3.5*StarLevelCellWidth);
     EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);
     EjectaDensity = Mass * SolarMass / EjectaVolume / DensityUnits;
-
     // pair-instability SNe
     if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) {
       HeliumCoreMass = (13./24.) * (Mass - 20);
@@ -117,6 +116,9 @@ void Star::CalculateFeedbackParameters(float &Radius,
     // into some of the surrounding parent grids within the next
     // timestep if we inject the energy into a small radius.
     Radius *= 1.0;
+    fprintf(stdout, "CalculateFeedbackParamaters: V = %g :: rho = %f :: rho_z = %f :: mass = %f :: metal :: %f\n", 
+              EjectaVolume, EjectaDensity, EjectaMetalDensity,EjectaVolume*EjectaDensity*DensityUnits/SolarMass,
+              EjectaMetalDensity*EjectaVolume/SolarMass*DensityUnits);
     
 #define DEBUG
 #ifdef DEBUG
