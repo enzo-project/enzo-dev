@@ -116,9 +116,9 @@ void Star::CalculateFeedbackParameters(float &Radius,
     // into some of the surrounding parent grids within the next
     // timestep if we inject the energy into a small radius.
     Radius *= 1.0;
-    fprintf(stdout, "CalculateFeedbackParamaters: V = %g :: rho = %f :: rho_z = %f :: mass = %f :: metal :: %f\n", 
-              EjectaVolume, EjectaDensity, EjectaMetalDensity,EjectaVolume*EjectaDensity*DensityUnits/SolarMass,
-              EjectaMetalDensity*EjectaVolume/SolarMass*DensityUnits);
+    // fprintf(stdout, "CalculateFeedbackParamaters: V = %g :: rho = %f :: rho_z = %f :: mass = %f :: metal :: %f\n", 
+    //           EjectaVolume, EjectaDensity, EjectaMetalDensity,EjectaVolume*EjectaDensity*DensityUnits/SolarMass,
+    //           EjectaMetalDensity*EjectaVolume/SolarMass*DensityUnits);
     
 #define DEBUG
 #ifdef DEBUG

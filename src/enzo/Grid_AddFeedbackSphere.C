@@ -440,7 +440,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	       depositing a uniform ejecta in a sphere of 1.2*radius
 	       without a ramp.  The ramp is only applied to the
 	       energy*density factor. */
-						factor = 0.578704;
+						factor = 1.0;//0.578704;
 
 						OldDensity = BaryonField[DensNum][index];
 						BaryonField[DensNum][index] += factor * EjectaDensity;
