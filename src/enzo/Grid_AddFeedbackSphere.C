@@ -165,67 +165,15 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		//    EjectaMetalDensity *= 0.1;
 		//    EjectaThermalEnergy *= 0.1;
 		//  }
-/*
-
-		In principle, the feedback metal and mass density are depending on 
-		a sphere with radius = radius.  Since the grid is NOT spherical, 
-		we need to find the actual volume that will be deposited into, and 
-		rescale the densities to fill that volume with the correct mass.
- */
-		//1) First loop to calculate number of cells that will be deposited into 
-		outerRadius2 = 1.2 * 1.2 * radius * radius;
-		int NumAffectedCells = 0;
-		for (k = 0; k < GridDimension[2]; k++)
-		{
-
-			delz = CellLeftEdge[2][k] + 0.5 * CellWidth[2][k] - cstar->pos[2];
-			sz = sign(delz);
-			delz = fabs(delz);
-			delz = min(delz, DomainWidth[2] - delz);
-
-			for (j = 0; j < GridDimension[1]; j++)
-			{
-
-				dely = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j] - cstar->pos[1];
-				sy = sign(dely);
-				dely = fabs(dely);
-				dely = min(dely, DomainWidth[1] - dely);
-
-				index = (k * GridDimension[1] + j) * GridDimension[0];
-				for (i = 0; i < GridDimension[0]; i++, index++)
-				{
-
-					delx = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i] - cstar->pos[0];
-					sx = sign(delx);
-					delx = fabs(delx);
-					delx = min(delx, DomainWidth[0] - delx);
-
-					radius2 = delx * delx + dely * dely + delz * delz;
-					if (radius2 <= outerRadius2)
-					{
-
-						NumAffectedCells++;
-					}
-				}
-			}
-		}
-		//2) rescale EjectaMetalDensity and EjectaDensity
-		FLOAT V_new = NumAffectedCells*pow(CellWidth[0][0],3);
-		FLOAT V_old = 4.0*pi/3.0*radius*radius*radius;
-		float MassUnits = DensityUnits*pow(LengthUnits, 3); // needs factor dx^3 to get to physical mass
-	//	if (debug) 
-		fprintf(stdout, "Prescaled EjectaDensity=%f EjectaMetalDensity=%f\n", EjectaDensity, EjectaMetalDensity);
-		fprintf(stdout, "Prescaled mass = %f metal = %f\n", EjectaDensity*V_old*MassUnits/SolarMass, EjectaMetalDensity*V_old*MassUnits/SolarMass);
-		bool rescale = true;//V_new > V_old;
-		EjectaMetalDensity = (rescale)?(EjectaMetalDensity * V_old/V_new): (EjectaMetalDensity);
-		EjectaDensity = (rescale)?(EjectaDensity * V_old/V_new):(EjectaDensity);
-	if (rescale){
-			fprintf(stdout, "Scaling P3 Feedback: N_aff=%"ISYM" V_new=%"GSYM" V_old=%"GSYM"\n", NumAffectedCells,V_new*pow(LengthUnits,3), 
-									4.0/3.0*pi*pow(radius,3)*pow(LengthUnits,3));
+		FLOAT V_old = radius*radius*radius*4.0*pi/3.0;
+		float MassUnits = DensityUnits*pow(LengthUnits, 3);
+    	if (EjectaDensity > 0){
+			// fprintf(stdout, "Scaling P3 Feedback: N_aff=%"ISYM" V_new=%"GSYM" V_old=%"GSYM"\n", NumAffectedCells,V_new*pow(LengthUnits,3), 
+									// 4.0/3.0*pi*pow(radius,3)*pow(LengthUnits,3));
 			fprintf(stdout, "New EjectaMetalDensity = %"GSYM"\n", EjectaMetalDensity);
 			fprintf(stdout, "New EjectaDensity = %"GSYM"\n",EjectaDensity);
-			fprintf(stdout, "Mass to deposit = %f\n", EjectaDensity*V_new*MassUnits/SolarMass);
-			fprintf(stdout, "Metal to deposit = %f\n", EjectaMetalDensity*V_new*MassUnits/SolarMass);
+			fprintf(stdout, "Mass to deposit = %f\n", EjectaDensity*V_old*MassUnits/SolarMass);
+			fprintf(stdout, "Metal to deposit = %f\n", EjectaMetalDensity*V_old*MassUnits/SolarMass);
 		}
 		//3) Continue on and profit with mass conserving feedback!
 
@@ -374,17 +322,19 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 			}		  // END j-direction
 		}			  // END k-direction
 	//	if (debug){
-			fprintf(stdout, "[ %d ]Coupling feedback on level %d for star [%d] assigned to level %d\n", cstar->ReturnGridID(), level, 
+		if (EjectaDensity > 0){
+			fprintf(stdout, "$$$$$\n[ %d ]Coupled feedback on level %d for star [%d] assigned to level %d ::: ", cstar->ReturnGridID(), level, 
 									cstar->ReturnID(), cstar->ReturnLevel());
-			fprintf(stdout, "Deposited Vol = %e\n", depositedVolume*pow(LengthUnits,3));
-			fprintf(stdout, "Deposited Vol/Vold = %f\n", depositedVolume/V_old);
-			fprintf(stdout, "Deposited Vol/Vnew = %f\n", depositedVolume/V_new);
-			fprintf(stdout, "Deposited mass = %f\n", depositedMass*MassUnits/SolarMass);
-			fprintf(stdout, "Mass Error = %f\n", 1.0-depositedMass/(EjectaDensity*V_new));
-			fprintf(stdout, "Deposited metal = %f\n", depositedMetal*MassUnits/SolarMass);
-			fprintf(stdout, "Metal Error = %f\n", 1.0-depositedMetal/(EjectaMetalDensity*V_new));
-			fprintf(stdout, "Energy Deposit = %"GSYM"\n", depositedEnergy*DensityUnits*pow(CellWidth[0][0]*LengthUnits,3)*pow(LengthUnits,2)/TimeUnits/TimeUnits);
+			fprintf(stdout, "Deposited Vol = %e ::", depositedVolume*pow(LengthUnits,3));
+			// fprintf(stdout, "Deposited Vol/Vold = %f ::", depositedVolume/V_old);
+			// fprintf(stdout, "Deposited Vol/Vnew = %f ::", depositedVolume/V_new);
+			fprintf(stdout, "Deposited mass = %f ::", depositedMass*MassUnits/SolarMass);
+			fprintf(stdout, "Mass Error = %f ::", 1.0-depositedMass/(EjectaDensity*depositedVolume));
+			fprintf(stdout, "Deposited metal = %f ::", depositedMetal*MassUnits/SolarMass);
+			fprintf(stdout, "Metal Error = %f ::", 1.0-depositedMetal/(EjectaMetalDensity*depositedVolume));
+			fprintf(stdout, "Energy Deposit = %"GSYM"\n$$$$$\n", depositedEnergy*DensityUnits*pow(CellWidth[0][0]*LengthUnits,3)*pow(LengthUnits,2)/TimeUnits/TimeUnits);
 			//exit(2);
+		}
 	//	}
 	} // END Supernova
 

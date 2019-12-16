@@ -404,6 +404,8 @@ public:
    FLOAT ReturnTime() {return Time;};
    FLOAT ReturnOldTime() {return OldTime;};
    float ReturnTimeStep() {return dtFixed;};
+   // Get the volume of one cell on this grid
+   float GetVCell() {return CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0];};
 
   /* Return, set grid ID */
 
