@@ -138,7 +138,7 @@ int grid::CosmologySimulationInitializeGrid(
   int MachNum, PSTempNum, PSDenNum;
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, PhotoGammaNum;
 
-  int ExtraField[2];
+  int ExtraField[4];
   int ForbidNum, iTE, iCR;
 
   inits_type *tempbuffer = NULL;
@@ -307,6 +307,21 @@ int grid::CosmologySimulationInitializeGrid(
                                    ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i]);
           }
         } // loop over yeilds
+
+        if (IndividualStarTrackAGBMetalDensity) {
+          FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
+        }
+
+        if (IndividualStarPopIIIFormation){
+          FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
+        }
+
+        if (IndividualStarTrackSNMetalDensity){
+          FieldType[ExtraField[2] = NumberOfBaryonFields++] = MetalSNIaDensity;
+          FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalSNIIDensity;
+        }
+
+
       }
 #else
       if(MultiMetals){
@@ -554,6 +569,29 @@ int grid::CosmologySimulationInitializeGrid(
 
         }
       } // end for loop
+
+      if (IndividualStarTrackAGBMetalDensity){
+        for (i = 0; i < size; i ++)
+          BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
+              * BaryonField[0][i];
+      }
+
+      if (IndividualStarPopIIIFormation){
+        for (i = 0; i < size; i ++)
+          BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
+             * BaryonField[0][i];
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+        for (i = 0; i < size; i++){
+          BaryonField[ExtraField[2]][i] = CosmologySimulationInitialFractionMetal
+             * BaryonField[0][i];
+          BaryonField[ExtraField[3]][i] = CosmologySimulationInitialFractionMetal
+             * BaryonField[0][i];
+        }
+      }
+
+
     }
 #else
     if (MultiMetals) {

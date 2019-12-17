@@ -137,6 +137,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
+  char *AGBMetalName    = "AGB_Metal_Density";
+  char *PopIIIMetalName = "PopIII_Metal_Density";
+  char *SNIIMetalName = "SNII_Metal_Density";
+  char *SNIaMetalName = "SNIa_Metal_Density";
   char *BxName = "Bx";
   char *ByName = "By";
   char *BzName = "Bz";
@@ -835,6 +839,22 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
        DataLabel[i++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[j]);
      }
    } // yields loop
+
+
+      if (IndividualStarTrackAGBMetalDensity){
+        DataLabel[i++] = AGBMetalName;
+      }
+
+      if (IndividualStarPopIIIFormation){
+        DataLabel[i++] = PopIIIMetalName;
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+        DataLabel[i++] = SNIaMetalName;
+        DataLabel[i++] = SNIIMetalName;
+      }
+
+
   }
 
 #else
