@@ -1242,6 +1242,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarIMFSeed);
     ret += sscanf(line, "IndividualStarIMFCalls = %"ISYM,
                         &IndividualStarIMFCalls);
+    ret += sscanf(line, "IndividualStarIgnoreNegativeMass = %"ISYM,
+                        &IndividualStarIgnoreNegativeMass);
     ret += sscanf(line, "IndividualStarIMF = %"ISYM,
                         &IndividualStarIMF);
     ret += sscanf(line, "IndividualStarSalpeterSlope = %"FSYM,

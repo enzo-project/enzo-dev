@@ -169,6 +169,7 @@ SPEXTERN float IndividualStarVelocityDispersion;
 SPEXTERN int   IndividualStarIMFSeed;
 SPEXTERN int   IndividualStarIMF;
 SPEXTERN int   IndividualStarIMFCalls;
+SPEXTERN int   IndividualStarIgnoreNegativeMass;
 SPEXTERN float IndividualStarSalpeterSlope;
 SPEXTERN float IndividualStarKroupaAlpha1;
 SPEXTERN float IndividualStarKroupaAlpha2;

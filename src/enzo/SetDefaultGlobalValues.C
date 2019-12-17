@@ -848,6 +848,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
       // for popIII SF for individual stars, use the same PopIII IMF flags that already exist
       // 
   IndividualStarIMF                  =     0;         // 0: salpeter, 1: kroupa, 2: chabrier
+  IndividualStarIgnoreNegativeMass   = 0; // Experimental!!!
   IndividualStarIMFCalls             =     0;         // Do not touch - number of calls to IMF so far in simulation
   IndividualStarSalpeterSlope        = -1.35;         // slope
   IndividualStarKroupaAlpha1         =  -0.3;         // kroupa slope over mass range
