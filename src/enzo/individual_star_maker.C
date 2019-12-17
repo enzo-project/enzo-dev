@@ -709,8 +709,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               py_excess = py - vmean * sum_mass;
               pz_excess = pz - wmean * sum_mass;
 
+              px_excess = py_excess = pz_excess = 0.0; // TURNED OFF
 
               // remove or add momentum evenly from each star if needed
+/*
               if ( abs(px_excess) > tiny_number) {
                 for (istar = index_presf; istar < ii; istar++){
                   ParticleVelocity[0][istar] += (-1.0 * px_excess) / (ParticleMass[istar] * (float) (ii-index_presf));
@@ -726,7 +728,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                   ParticleVelocity[2][istar] = (-1.0 * pz_excess) / (ParticleMass[istar] * (float) (ii-index_presf));
                 }
               }
-
+*/
               // now remove mass from grid - do not need to do this for tracer fields since they are kept as fractions
               // and will be modified accordingly when converted back to densities in Grid_StarParticleHandler
               l = 0;
