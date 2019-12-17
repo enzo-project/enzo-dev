@@ -208,8 +208,19 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     }
 
     if(cstar->ReturnMass() < 0.0){
-        cstar->PrintInfo();
-        ENZO_FAIL("Particle Mass going negative in IndividualStarParticleAddFeedback");
+
+        if (IndividualStarIgnoreNegativeMass && cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SN_COMPLETE){
+            /* This is experimental and obviously not physically valid. For use when using IMF averaged yields
+               with individual particles which just scale mass ejection based on particle mass fraction which
+               can lead to inconsistencies with mass ejection with winds + SN since they are IMF averaged
+               independently without a consistency check. Fancier averaging would fix this.
+               Setting remnant mass to 20% of birth mass, which is not an unreasonable estimate (maybe a bit high
+               in some cases, but we're not doing a detailed dynamics sim here anyway). */
+            cstar->SetNewMass(  0.2 * cstar->ReturnBirthMass());
+        } else {
+            cstar->PrintInfo();
+            ENZO_FAIL("Particle Mass going negative in IndividualStarParticleAddFeedback");
+        }
     }
 
   } // end stars loop
