@@ -81,14 +81,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   active_particle_types = new char*[MAX_ACTIVE_PARTICLE_TYPES];
   int active_particles = 0;
 
-#ifdef USE_GRACKLE
   /* Check if use_grackle is True and copy over default parameters to
      their Enzo equivalents */
   if (GrackleSetDefaultParameters(fptr) == FAIL){
     ENZO_FAIL("Error in GrackleSetDefaultParameters.\n");
   }
   rewind(fptr);
-#endif // USE_GRACKLE
 
   /* read until out of lines */
 
@@ -1723,7 +1721,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
 
-#ifdef USE_GRACKLE
 
   // Check if Grackle is being used, and read in parameters if so
   if (GrackleReadParameters(fptr, MetaData.Time) == FAIL){
@@ -1733,7 +1730,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (use_grackle == FALSE) {
     /* If Grackle is not being used, handle other possible cooling / chemistry settings  */
-#endif // USE_GRACKLE
 
     /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
     or RadiationFieldType to be on - both are taken care of in
@@ -1788,9 +1784,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	ENZO_FAIL("Error in InitializeRadiationFieldData.");
       }
 
-#ifdef USE_GRACKLE
   } // else (if Grackle == False )
-#endif
 
   /* If using MBHFeedback = 2 to 5 (Star->FeedbackFlag = MBH_JETS),
      you need MBHParticleIO for angular momentum */
