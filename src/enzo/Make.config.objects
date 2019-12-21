@@ -343,6 +343,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AddExternalAcceleration.o \
 	Grid_AddExternalPotentialField.o \
 	Grid_AddFeedbackSphere.o \
+        Grid_StarParticleCalculateFeedbackVolume.o \
 	Grid_AddFieldMassToMassFlaggingField.o \
 	Grid_AddFields.o \
 	Grid_AddMagneticSupernovaeToList.o \

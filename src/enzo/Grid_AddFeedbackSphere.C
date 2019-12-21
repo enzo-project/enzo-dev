@@ -389,7 +389,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 						/* 1/1.2^3 factor to dilute the density since we're
 	       depositing a uniform ejecta in a sphere of 1.2*radius
 	       without a ramp.  The ramp is only applied to the
-	       energy*density factor. */
+	       energy*density factor. 
+		   	Dont need to rescale here, since that is done in the calling routine !AIW */
 						factor = 1.0;//0.578704;
 
 						OldDensity = BaryonField[DensNum][index];
@@ -985,13 +986,15 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 						radius2 = max(radius2, 0.0625 * CellWidth[0][i] * CellWidth[0][i]); // (0.25*dx)^2
 
 						if (MetallicityField == TRUE)
-							metallicity = BaryonField[MetalNum][index] / BaryonField[DensNum][index];
+						/* Use total metallicity from PopIII SN as well if available -AIW */
+							metallicity = (SNColourNum > 0)?(BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])/BaryonField[DensNum][index]
+															:BaryonField[MetalNum][index] / BaryonField[DensNum][index];
 						else
 							metallicity = 0;
 
 						fhz = fh * (1 - metallicity);
 						fhez = (1 - fh) * (1 - metallicity);
-
+						float d0 = BaryonField[DensNum][index];
 						BaryonField[DensNum][index] = EjectaDensity;
 
 						if (MultiSpecies)
@@ -1018,6 +1021,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 							BaryonField[HDINum][index] = tiny_number * BaryonField[DensNum][index];
 						}
 
+						/* factor is initialized to zero and never set--should we be setting the metals to zero?  
+								Why is standard metal_density field never touched?*/
 						if (SNColourNum > 0)
 							BaryonField[SNColourNum][index] *= factor;
 						if (Metal2Num > 0)

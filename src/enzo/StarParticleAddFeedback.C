@@ -51,6 +51,7 @@ FLOAT FindCrossSection(int type, float energy);
 int StarParticleAddFeedback(TopGridData *MetaData,
                             LevelHierarchyEntry *LevelArray[], int level,
                             Star *&AllStars, bool *&AddedFeedback)
+
 {
 
     Star *cstar;
@@ -224,31 +225,36 @@ int StarParticleAddFeedback(TopGridData *MetaData,
             }
             float rho = EjectaDensity;
             float z_rho = EjectaMetalDensity;
-            for (l=level; l < MAX_DEPTH_OF_HIERARCHY; l++){
-                if (cstar->ReturnFeedbackFlag() == SUPERNOVA){
+            for (l=level; l < MAX_DEPTH_OF_HIERARCHY; l++){ // initially l=level; l<MAX; l++
                         if (!LevelArray[l]) continue;
                         /*
                             Spheres interacting with grids isnt consistent; Do a first pass with no deposition
                             to validate the volume we will deposit into, then rescale the deposition accordingly.
+                            --AIW
                         */
                         int nCells = 0;
+ 
+                        /* Get the volume that the sphere interacts with */
+                        FLOAT vol_modified = 0.0;
                         for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
-                            Temp->GridData->AddFeedbackSphere(cstar, l, influenceRadius, DensityUnits, 
+                            nCells += Temp->GridData->StarParticleCalculateFeedbackVolume(
+                                                            cstar, l, influenceRadius, DensityUnits, 
                                                             LengthUnits,
-                                                            VelocityUnits, TemperatureUnits, TimeUnits, 0, 0, 0,
-                                                            Q_HI, sigma, deltaE,
-                                                            nCells);
-                        /* Rescale */
-                        FLOAT vol_modified = nCells * LevelArray[l]->GridData->GetVCell();
+                                                            VelocityUnits, TemperatureUnits, TimeUnits);
                         FLOAT old_vol = influenceRadius * influenceRadius * influenceRadius 
                                             * 4.0 * pi / 3.0;
-//                             NB: Levels > level may not deposit the whole sphere volume. leave those alone
-                        bool rescale = (vol_modified > old_vol);
-                        rho = (rescale) ? (EjectaDensity * old_vol / vol_modified) : EjectaDensity;
-                        z_rho = (rescale) ? EjectaMetalDensity * old_vol / vol_modified : EjectaMetalDensity;
-                        if (rescale) 
-                            fprintf(stdout, "\n\nRescaling volume on level %d v = %g/%g  rho = %g/%g z_rho=%g/%g\n\n\n",
-                                l, vol_modified*pow(LengthUnits,3), 
+                        vol_modified = nCells * LevelArray[l]->GridData->GetVCell();
+//                             NB: Levels > level may not deposit the whole sphere volume. leave those alone; Leave MBH deposition alone
+//                                          because I dont know it. -AIW
+                        float rescale = 1.0;
+                        if (vol_modified > old_vol 
+                                && (cstar->ReturnFeedbackFlag() == SUPERNOVA))
+                                    rescale = (old_vol/vol_modified);
+                        rho = EjectaDensity * rescale;
+                        z_rho = EjectaMetalDensity * rescale;
+                        if (rescale < 1.0) 
+                            fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  rho = %g/%g z_rho=%g/%g\n\n\n",
+                                cstar->ReturnFeedbackFlag(), l, vol_modified*pow(LengthUnits,3), 
                                 old_vol*pow(LengthUnits,3), rho * DensityUnits, EjectaDensity*DensityUnits, 
                                 z_rho * DensityUnits, EjectaMetalDensity*DensityUnits);
                         /* do the real deposition */
@@ -259,17 +265,16 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                                                     VelocityUnits, TemperatureUnits, TimeUnits, rho, z_rho,
                                                     EjectaThermalEnergy, Q_HI, sigma, deltaE,
                                                     CellsModified);
-                }
-                else{
-
-                        for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
-                                Temp->GridData->AddFeedbackSphere(cstar, l, 
-                                                    influenceRadius,            
-                                                    DensityUnits, LengthUnits,
-                                                    VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, EjectaMetalDensity,
-                                                    EjectaThermalEnergy, Q_HI, sigma, deltaE,
-                                                    CellsModified);
-                }
+                // }
+                // else{
+                        // for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
+                        //         Temp->GridData->AddFeedbackSphere(cstar, l, 
+                        //                             influenceRadius,            
+                        //                             DensityUnits, LengthUnits,
+                        //                             VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, EjectaMetalDensity,
+                        //                             EjectaThermalEnergy, Q_HI, sigma, deltaE,
+                        //                             CellsModified);
+                // }
                     
                     }        
 
