@@ -22,7 +22,6 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 							float TemperatureUnits, float TimeUnits)
 {
 
-	const float WhalenMaxVelocity = 35; // km/s
 
 	int dim, i, j, k, index;
 	int sx, sy, sz;
@@ -57,7 +56,7 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 								will be put into.
   ************************************************************************/
 
-	float outerRadius2=1.2*1.2*radius*radius;
+	float outerRadius2=radius*radius;
     FLOAT depositedVolume = 0.0;
     int CellsModified = 0;
 		for (k = 0; k < GridDimension[2]; k++)

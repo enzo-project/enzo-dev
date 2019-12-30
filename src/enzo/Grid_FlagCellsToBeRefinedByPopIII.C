@@ -76,7 +76,7 @@ int grid::FlagCellsToBeRefinedByPopIII(int level)
 
     //If A: no particles or 
     // B: the resolution is such that its already as refined as PopIIISupernovaMustRefineResolution 
-    int nCellsPerRadius = 1.1*float(PopIIISupernovaRadius)/(CellWidth[0][0]*LengthUnits/pc_cm)+0.5;
+    int nCellsPerRadius = 1.4*float(PopIIISupernovaRadius)/(CellWidth[0][0]*LengthUnits/pc_cm)+0.5;
     if (NumberOfParticles == 0 || 2*nCellsPerRadius > PopIIISupernovaMustRefineResolution || level >= MaximumRefinementLevel){
         for (i = 0; i < size; i++)
         {
@@ -103,7 +103,7 @@ int grid::FlagCellsToBeRefinedByPopIII(int level)
             {
                 // fprintf(stdout, "Flagging cells for particle m=%"FSYM" fact=%"FSYM" Time=%"FSYM"\n", m, factor/3.1557e13, Time*TimeUnits/3.1557e13);
                 // refine a radius a*Pop3 SN radius
-                FLOAT radius = 1.1 * PopIIISupernovaRadius * 3.086e18 / LengthUnits;
+                FLOAT radius = 1.4 * PopIIISupernovaRadius * 3.086e18 / LengthUnits;
                 CellSize = FLOAT(CellWidth[0][0]);
 
                 for (k = Start[2]; k <= End[2]; k++)

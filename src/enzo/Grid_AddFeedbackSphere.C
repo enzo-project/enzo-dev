@@ -244,7 +244,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 							without a ramp.  The ramp is only applied to the
 							energy*density factor. 
 						*/
-						factor = 1.0;//0.578704;
+						factor = 0.578704;
 
 						OldDensity = BaryonField[DensNum][index];
 						BaryonField[DensNum][index] += factor * EjectaDensity;
@@ -312,8 +312,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 						}
 
 						if (MetallicityField == TRUE){
-							BaryonField[MetalNum][index] += EjectaMetalDensity;
-							depositedMetal += EjectaMetalDensity*pow(CellWidth[0][0],3);
+							BaryonField[MetalNum][index] += factor*EjectaMetalDensity;
+							depositedMetal += factor*EjectaMetalDensity*pow(CellWidth[0][0],3);
 						}
 						CellsModified++;
 
@@ -322,7 +322,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 			}		  // END j-direction
 		}			  // END k-direction
 	//	if (debug){
-		if (EjectaDensity > 0){
+		if (EjectaDensity > 0 && depositedVolume > 0){
 			fprintf(stdout, "$$$$$\n[ %d ]Coupled feedback on level %d for star [%d] assigned to level %d ::: ", cstar->ReturnGridID(), level, 
 									cstar->ReturnID(), cstar->ReturnLevel());
 			fprintf(stdout, "Deposited Vol = %e ::", depositedVolume*pow(LengthUnits,3));
