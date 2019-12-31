@@ -58,14 +58,23 @@ int checkCreationCriteria(float* Density, float* Metals,
     //if (RefinementField[index] != 0) return FAIL;
     /* Baryon overdensity. Take a local mean, but 
         weight the central cell more*/
-    float dmean = (Density[index]*10.0+Density[iminus]
-                + Density[iplus]+Density[jplus]
-                + Density[jminus]+Density[kminus]
-                + Density[kplus])/17.0;
-    if (dmean < StarMakerOverDensityThreshold) 
-    {
-        return FAIL;
+    if (StarMakerOverDensityThreshold > 0){
+        float dmean = (Density[index]*10.0+Density[iminus]
+                    + Density[iplus]+Density[jplus]
+                    + Density[jminus]+Density[kminus]
+                    + Density[kplus])/17.0;
+        if (dmean < StarMakerOverDensityThreshold) 
+        {
+            return FAIL;
+        }
     }
+    else { // checking number density
+        float nb = Density[index]*DensityUnits/mh/0.6; //Approx using hydrogen only
+        if (nb < -1*StarMakerOverDensityThreshold)
+            return FAIL;
+            
+    }
+
     // if (debug && status) fprintf(stdout, "Passed Density: %e: %e\n", 
     //           dmean,StarMakerOverDensityThreshold);
     /* in addition to the converging flow check, we check
@@ -151,8 +160,8 @@ int checkCreationCriteria(float* Density, float* Metals,
     float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/0.02)/
                 log(1+0.6*Phi+0.01*Phi*Phi);
     *shieldedFraction = 1.0 - 3.0/(1.0+4.0*Psi);
-    fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
-        Tau, Phi, Psi, *shieldedFraction);
+    // fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
+    //     Tau, Phi, Psi, *shieldedFraction);
 
     if (*shieldedFraction < 0) status = FAIL;
 

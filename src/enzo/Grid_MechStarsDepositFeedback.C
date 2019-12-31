@@ -48,7 +48,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         Each vertex particle will then be CIC deposited to the grid!
     */
     //printf("In Feedback deposition\n");
-    bool debug = false;
+    bool debug = true;
     bool criticalDebug = true;
     float min_winds = 1.0;
     bool printout = debug && !winds;
@@ -271,16 +271,15 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (printout)
         fprintf(stdout, "Dx [pc] = %f\n", dx * LengthUnits / pc_cm);
+    float cellwidth = stretchFactor * dx * LengthUnits / pc_cm;
 
-    float dxRatio = stretchFactor * dx * LengthUnits / pc_cm / CoolingRadius;
+    float dxRatio = min(cellwidth / CoolingRadius, 5);
     if (winds)
-        dxRatio = min(stretchFactor * dx * LengthUnits / pc_cm / CoolingRadius, 50);
-    float pEjectMod = pow(2.0 * ejectaEnergy * (ejectaMass * SolarMass), 0.5) / SolarMass / 1e5;
+        dxRatio = min(cellwidth / CoolingRadius, 5);
 
     /* We want to couple one of four phases: free expansion, Sedov-taylor, shell formation, or terminal 
     The first three phases are take forms from Kim & Ostriker 2015, the last from Cioffi 1988*/
 
-    float cellwidth = stretchFactor * dx * LengthUnits / pc_cm;
 
     // if we resolve free expansion, all energy is thermally coupled
 
@@ -307,27 +306,33 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     /* Select the mode of coupling */
 
-    if (cellwidth < r_free)
-    {
-        coupledMomenta = p_free;
-        if (printout)
-            fprintf(stdout, "Coupling free expansion\n");
-    }
-    if (cellwidth > r_free && cellwidth < CoolingRadius)
-    {
-        coupledMomenta = min(p_sedov, pTerminal);
-        if (printout)
-            fprintf(stdout, "Coupling S-T phase\n");
-    }
-    // if (cellwidth > r_shellform && cellwidth < CoolingRadius){
-    //     coupledMomenta = min(p_shellform+(cellwidth-r_shellform)*(pTerminal-p_shellform)/(CoolingRadius-r_shellform), pTerminal);
-    //     if(printout)fprintf(stdout, "Coupling shell-forming stage\n");}
-    if (cellwidth > CoolingRadius)
-    {
-        coupledMomenta = pTerminal;
-        if (printout)
-            fprintf(stdout, "Coupling terminal momenta\n");
-    }
+    // if (cellwidth < r_free)
+    // {
+    //     coupledMomenta = p_free;
+    //     if (printout)
+    //         fprintf(stdout, "Coupling free expansion\n");
+    // }
+    // if (cellwidth > r_free && cellwidth < CoolingRadius)
+    // {
+    //     coupledMomenta = min(p_sedov, pTerminal);
+    //     if (printout)
+    //         fprintf(stdout, "Coupling S-T phase\n");
+    // }
+    // // if (cellwidth > r_shellform && cellwidth < CoolingRadius){
+    //    coupledMomenta = min(p_shellform+(cellwidth-r_shellform)*(pTerminal-p_shellform)/(CoolingRadius-r_shellform), pTerminal);
+    // //     if(printout)fprintf(stdout, "Coupling shell-forming stage\n");}
+    // if (cellwidth > CoolingRadius)
+    // {
+    //     coupledMomenta = pTerminal;
+    //     if (printout)
+    //         fprintf(stdout, "Coupling terminal momenta\n");
+    // }
+
+    float ejectaMomenta = sqrt(2.0*ejectaMass*ejectaEnergy);
+    /* 
+        Select momenta to use (eqn 32).  M_ej/26 is estimate to coupled mass to neighbor
+     */
+    coupledMomenta = ejectaMomenta*min(sqrt(1+dmean/(ejectaMass/MassUnits/26.0)), pTerminal/ejectaMomenta);
     if (printout)
         fprintf(stdout, "Calculated p = %e\n", coupledMomenta);
 
@@ -403,8 +408,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         coupledGasEnergy = (DepositUnresolvedEnergyAsThermal)
                                ? (coupledGasEnergy)
                                : (coupledGasEnergy * pow(dxRatio, -6.5));
-    if (winds)
-        coupledGasEnergy = ejectaEnergy;
+    // if (winds)
+    //     coupledGasEnergy = ejectaEnergy;
     float shellMetals = zZsun * 0.02 * shellMass;
     float coupledMetals = 0.0, SNIAmetals = 0.0, SNIImetals = 0.0, P3metals = 0.0;
     if (winds)
@@ -475,8 +480,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     As a computational compromize, supernova are deposited CIC, but winds are 
     deposited NGP.  At VERY high resolution, well still do CIC for winds
      */
-    if (!DepositUnresolvedEnergyAsThermal)
-    {
+    // if (!(DepositUnresolvedEnergyAsThermal && winds)
+    // {
         for (int n = 0; n < nCouple; ++n)
         {
             pX = coupledMomenta * CloudParticleVectorX[n] * weightsVector[n];
@@ -555,7 +560,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                  &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
             }
         }
-    }
+    // }
     // printf("\n");
     /* Deposit one negative mass particle centered on star to account for 
         shell mass leaving host cells .  Same for metals that were evacuated*/
@@ -575,14 +580,15 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         the momentum goes uncoupled.  Since the cooling radius is so small for wind enrgy (~10^15 erg),
         this is totally appropriate for simulations with dx > 0.25pccm or so.
     */
-    if (DepositUnresolvedEnergyAsThermal)
-    {
-        float dm = coupledMass / (density[index] + coupledMass);
-        density[index] += coupledMass;
-        metals[index] += coupledMetals;
-        BaryonField[TENum][index] += dm * coupledEnergy / coupledMass;
-        BaryonField[GENum][index] += dm * coupledEnergy / coupledMass;
-    }
+    // if (DepositUnresolvedEnergyAsThermal && winds)
+    // {
+    //     printf("depositing winds NGP\n");
+    //     float dm = coupledMass / (density[index] + coupledMass);
+    //     density[index] += coupledMass;
+    //     metals[index] += coupledMetals;
+    //     BaryonField[TENum][index] += dm * coupledEnergy / coupledMass;
+    //     BaryonField[GENum][index] += dm * coupledEnergy / coupledMass;
+    // }
 
     if (criticalDebug && !winds)
     {
