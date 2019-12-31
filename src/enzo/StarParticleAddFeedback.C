@@ -282,8 +282,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                         }
                     if (l > level)
                     {
-                        rho = EjectaDensity*pow(0.578703704,l-level);//*AllVol/AVL0 ;
-                        z_rho = EjectaMetalDensity*pow(0.578703704,l-level);//*AllVol/AVL0;
+                        rho = EjectaDensity*pow(0.578703704,1);//*AllVol/AVL0 ;
+                        z_rho = EjectaMetalDensity*pow(0.578703704,1);//*AllVol/AVL0;
                     }
                     if (rescale < 1.0)
                         fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
