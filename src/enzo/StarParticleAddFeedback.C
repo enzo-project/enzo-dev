@@ -225,73 +225,84 @@ int StarParticleAddFeedback(TopGridData *MetaData,
             }
             float rho = EjectaDensity;
             float z_rho = EjectaMetalDensity;
+            FLOAT AVL0 = 0.0;
             for (l=level; l < MAX_DEPTH_OF_HIERARCHY; l++){ // initially l=level; l<MAX; l++
-                        if (!LevelArray[l]) continue;
-                        /*
-                            Spheres interacting with grids isnt consistent; Do a first pass with no deposition
-                            to validate the volume we will deposit into, then rescale the deposition accordingly.
-                            --AIW
-                        */
-                        int nCells = 0;
- 
-                        /* Get the volume that the sphere interacts with */
+                if (!LevelArray[l]) continue;
 
-                        FLOAT vol_modified = 0.0;
-                        if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
-                            for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
-                                nCells += Temp->GridData->StarParticleCalculateFeedbackVolume(
-                                                            cstar, l, influenceRadius, DensityUnits, 
-                                                            LengthUnits,
-                                                            VelocityUnits, TemperatureUnits, TimeUnits);
-                        FLOAT old_vol = influenceRadius * influenceRadius * influenceRadius 
-                                            * 4.0 * pi / 3.0;
-                        vol_modified = nCells * LevelArray[l]->GridData->GetVCell();
-                        FLOAT AllVol = 0;
-
-                        // sum volume across all processes for this level 
-                        //      (sphere can be across procs as well!) -AIW
-
-                        if (cstar->ReturnFeedbackFlag() == SUPERNOVA){
-                            MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-//                             NB: Levels > level may not deposit the whole sphere volume. leave those alone; Leave MBH deposition alone
-//                                          because I dont know it. -AIW
-
-                            if (vol_modified > 0.0)
-                                printf("level %d Prior Deposition Masses M = %g Z = %g AllVol = %g rankVol = %g\n ",level, 
-                                    AllVol*EjectaDensity*pow(LengthUnits,3)*DensityUnits/SolarMass, 
-                                    AllVol*EjectaMetalDensity*pow(LengthUnits,3)*DensityUnits/SolarMass,
-                                    AllVol*pow(LengthUnits,3), vol_modified*pow(LengthUnits,3));
+                if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
+                {
                                 
-                        }
-                        float rescale = 1.0;
-                        if (AllVol > old_vol
-                              && (cstar->ReturnFeedbackFlag() == SUPERNOVA)){
-                                    rescale = (old_vol/AllVol);
-                                rho = EjectaDensity * rescale;
-                                z_rho = EjectaMetalDensity * rescale;
-                              }
-                        else{
-                            rho = EjectaDensity;
-                            z_rho = EjectaMetalDensity;
-                        }
-                        if (rescale < 1.0 && level == l)
-                            fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
-                                cstar->ReturnFeedbackFlag(), l, vol_modified*pow(LengthUnits,3), 
-                                old_vol*pow(LengthUnits,3), rho * DensityUnits, EjectaDensity*DensityUnits, 
-                                z_rho * DensityUnits, EjectaMetalDensity*DensityUnits, rho*AllVol*DensityUnits*pow(LengthUnits,3)/SolarMass,
-                                z_rho*AllVol*DensityUnits*pow(LengthUnits,3)/SolarMass);
+                    /*
+                        Spheres interacting with grids isnt consistent; Do a first pass with no deposition
+                        to validate the volume we will deposit into, then rescale the deposition accordingly.
+                        --AIW
+                    */
+                    int nCells = 0;
 
+                    /* Get the volume that the sphere interacts with */
+
+                    FLOAT vol_modified = 0.0;
+                    if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
+                        for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
+                            nCells += Temp->GridData->StarParticleCalculateFeedbackVolume(
+                                                        cstar, l, influenceRadius, DensityUnits, 
+                                                        LengthUnits,
+                                                        VelocityUnits, TemperatureUnits, TimeUnits);
+                    FLOAT old_vol = influenceRadius * influenceRadius * influenceRadius 
+                                        * 4.0 * pi / 3.0;
+                    vol_modified = nCells * LevelArray[l]->GridData->GetVCell();
+                    FLOAT AllVol = 0;
+
+                    // sum volume across all processes for this level 
+                    //      (sphere can be across procs as well!) -AIW
+
+                    if (cstar->ReturnFeedbackFlag() == SUPERNOVA){
+                        MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                    if (l == level)
+                        AVL0 = AllVol;
+    //                             NB: Levels > level may not deposit the whole sphere volume. leave those alone; Leave MBH deposition alone
+    //                                          because I dont know it. -AIW
+
+                        if (vol_modified > 0.0)
+                            printf("level %d Prior Deposition Masses M = %g Z = %g AllVol = %g rankVol = %g ratio = %f r_mass = %g r_z = %g\n ",
+                                l, AllVol*EjectaDensity*pow(LengthUnits,3)*DensityUnits/SolarMass, 
+                                AllVol*EjectaMetalDensity*pow(LengthUnits,3)*DensityUnits/SolarMass,
+                                AllVol*pow(LengthUnits,3), vol_modified*pow(LengthUnits,3),
+                                old_vol/AllVol,
+                                vol_modified*EjectaDensity*pow(LengthUnits,3)*DensityUnits/SolarMass, 
+                                vol_modified*EjectaMetalDensity*pow(LengthUnits,3)*DensityUnits/SolarMass
+                                );
+                            
+                    }
+                    float rescale = 1.0;
+                    if (l == level){
+                            rescale = (old_vol/AllVol);
+                            rho = EjectaDensity * rescale;
+                            z_rho = EjectaMetalDensity * rescale;
+                        }
+                    if (l > level)
+                    {
+                        rho = EjectaDensity*pow(0.578703704,l-level);//*AllVol/AVL0 ;
+                        z_rho = EjectaMetalDensity*pow(0.578703704,l-level);//*AllVol/AVL0;
+                    }
+                    if (rescale < 1.0)
+                        fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
+                            cstar->ReturnFeedbackFlag(), l, AllVol*pow(LengthUnits,3), 
+                            old_vol*pow(LengthUnits,3), rho * DensityUnits, EjectaDensity*DensityUnits, 
+                            z_rho * DensityUnits, EjectaMetalDensity*DensityUnits, 
+                            rho*AllVol*DensityUnits*pow(LengthUnits,3)/SolarMass,
+                            z_rho*AllVol*DensityUnits*pow(LengthUnits,3)/SolarMass);
+                }
                         /* do the real deposition */
 
-                            for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
-                                Temp->GridData->AddFeedbackSphere(cstar, l, 
-                                                    influenceRadius,            
-                                                    DensityUnits, LengthUnits,
-                                                    VelocityUnits, TemperatureUnits, TimeUnits, rho, z_rho,
-                                                    EjectaThermalEnergy, Q_HI, sigma, deltaE,
-                                                    CellsModified);
-                    }        
+                for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
+                    Temp->GridData->AddFeedbackSphere(cstar, l, 
+                                        influenceRadius,            
+                                        DensityUnits, LengthUnits,
+                                        VelocityUnits, TemperatureUnits, TimeUnits, rho, z_rho,
+                                        EjectaThermalEnergy, Q_HI, sigma, deltaE,
+                                        CellsModified);
+            }        
 
         } // ENDIF
 

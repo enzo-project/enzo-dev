@@ -59,7 +59,8 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 	float outerRadius2=radius*radius;
     FLOAT depositedVolume = 0.0;
     int CellsModified = 0;
-		for (k = 0; k < GridDimension[2]; k++)
+	int GZ = NumberOfGhostZones;
+		for (k = GZ; k < GridDimension[2]; k++)
 		{
 
 			delz = CellLeftEdge[2][k] + 0.5 * CellWidth[2][k] - cstar->ReturnPosition()[2];
@@ -67,7 +68,7 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 			delz = fabs(delz);
 			delz = min(delz, DomainWidth[2] - delz);
 
-			for (j = 0; j < GridDimension[1]; j++)
+			for (j = GZ; j < GridDimension[1]; j++)
 			{
 
 				dely = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j] - cstar->ReturnPosition()[1];
@@ -76,7 +77,7 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 				dely = min(dely, DomainWidth[1] - dely);
 
 				index = (k * GridDimension[1] + j) * GridDimension[0];
-				for (i = 0; i < GridDimension[0]; i++, index++)
+				for (i = GZ; i < GridDimension[0]; i++, index++)
 				{
 
 					delx = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i] - cstar->ReturnPosition()[0];

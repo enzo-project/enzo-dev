@@ -132,7 +132,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	// 1988 or Tenorio-Tagle 1996).
 
 	//const float MetalRadius = 0.75;
-	const float MetalRadius = 1.0;
+	const float MetalRadius = 1.0/1.2;
 	float ionizedFraction = 0.999; // Assume supernova is ionized
 	float maxGE, MetalRadius2, PrimordialDensity, metallicity, fhz, fhez;
 	float outerRadius2, delta_fz;
@@ -181,7 +181,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		EjectaMetalDensity *= pow(MetalRadius, -3.0);
 		PrimordialDensity = EjectaDensity - EjectaMetalDensity;
 		MetalRadius2 = radius * radius * MetalRadius * MetalRadius;
-		outerRadius2 = radius * radius*1.2*1.2;
+		outerRadius2 = radius * radius;
 
 
 		/* Remove mass from the star that will now be added to grids. 
@@ -204,8 +204,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		} // ENDIF !Supernova
 
 		maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma - 1.0) * 0.6);
-
-		for (k = 0; k < GridDimension[2]; k++)
+		int GZ = 0;//NumberOfGhostZones;
+		for (k = GZ; k < GridDimension[2]; k++)
 		{
 
 			delz = CellLeftEdge[2][k] + 0.5 * CellWidth[2][k] - cstar->pos[2];
@@ -213,7 +213,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 			delz = fabs(delz);
 			delz = min(delz, DomainWidth[2] - delz);
 
-			for (j = 0; j < GridDimension[1]; j++)
+			for (j = GZ; j < GridDimension[1]; j++)
 			{
 
 				dely = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j] - cstar->pos[1];
@@ -222,7 +222,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 				dely = min(dely, DomainWidth[1] - dely);
 
 				index = (k * GridDimension[1] + j) * GridDimension[0];
-				for (i = 0; i < GridDimension[0]; i++, index++)
+				for (i = GZ; i < GridDimension[0]; i++, index++)
 				{
 
 					delx = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i] - cstar->pos[0];
@@ -244,7 +244,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 							without a ramp.  The ramp is only applied to the
 							energy*density factor. 
 						*/
-						factor = 0.578704;
+						factor =1.0;// 0.578704;
 
 						OldDensity = BaryonField[DensNum][index];
 						BaryonField[DensNum][index] += factor * EjectaDensity;
@@ -323,7 +323,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		}			  // END k-direction
 	//	if (debug){
 		if (EjectaDensity > 0 && depositedVolume > 0){
-			fprintf(stdout, "$$$$$\n[ %d ]Coupled feedback on level %d for star [%d] assigned to level %d ::: ", cstar->ReturnGridID(), level, 
+			fprintf(stdout, "$$$$$\n[ %d::%d ]Coupled feedback on level %d for star [%d] assigned to level %d ::: ", 
+									ProcessorNumber, cstar->ReturnGridID(), level, 
 									cstar->ReturnID(), cstar->ReturnLevel());
 			fprintf(stdout, "Deposited Vol = %e ::", depositedVolume*pow(LengthUnits,3));
 			// fprintf(stdout, "Deposited Vol/Vold = %f ::", depositedVolume/V_old);
