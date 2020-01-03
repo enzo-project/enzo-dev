@@ -168,14 +168,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		//  }
 		FLOAT V_old = radius*radius*radius*4.0*pi/3.0;
 		float MassUnits = DensityUnits*pow(LengthUnits, 3);
-    	if (EjectaDensity > 0){
-			// fprintf(stdout, "Scaling P3 Feedback: N_aff=%"ISYM" V_new=%"GSYM" V_old=%"GSYM"\n", NumAffectedCells,V_new*pow(LengthUnits,3), 
-									// 4.0/3.0*pi*pow(radius,3)*pow(LengthUnits,3));
-			fprintf(stdout, "New EjectaMetalDensity = %"GSYM"\n", EjectaMetalDensity);
-			fprintf(stdout, "New EjectaDensity = %"GSYM"\n",EjectaDensity);
-			fprintf(stdout, "Mass to deposit = %f\n", EjectaDensity*V_old*MassUnits/SolarMass);
-			fprintf(stdout, "Metal to deposit = %f\n", EjectaMetalDensity*V_old*MassUnits/SolarMass);
-		}
 		//3) Continue on and profit with mass conserving feedback!
 
 		// Correct for smaller enrichment radius
@@ -322,21 +314,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 				}	 // END i-direction
 			}		  // END j-direction
 		}			  // END k-direction
-	//	if (debug){
-		if (EjectaDensity > 0 && depositedVolume > 0 && cstar->ReturnFeedbackFlag() == SUPERNOVA){
-			fprintf(stdout, "$$$$$\n[ %d::%d ]Coupled feedback on level %d for star [%d] assigned to level %d ::: ", 
-									ProcessorNumber, cstar->ReturnGridID(), level, 
-									cstar->ReturnID(), cstar->ReturnLevel());
-			fprintf(stdout, "Deposited Vol = %e ::", depositedVolume*pow(LengthUnits,3));
-			// fprintf(stdout, "Deposited Vol/Vold = %f ::", depositedVolume/V_old);
-			// fprintf(stdout, "Deposited Vol/Vnew = %f ::", depositedVolume/V_new);
-			fprintf(stdout, "Deposited mass = %f ::", depositedMass*MassUnits/SolarMass);
-			fprintf(stdout, "Mass Error = %f ::", 1.0-depositedMass/(EjectaDensity*depositedVolume));
-			fprintf(stdout, "Deposited metal = %f ::", depositedMetal*MassUnits/SolarMass);
-			fprintf(stdout, "Metal Error = %f ::", 1.0-depositedMetal/(EjectaMetalDensity*depositedVolume));
-			fprintf(stdout, "Energy Deposit = %"GSYM"\n$$$$$\n", depositedEnergy*DensityUnits*pow(CellWidth[0][0]*LengthUnits,3)*pow(LengthUnits,2)/TimeUnits/TimeUnits);
-			//exit(2);
-		}
+
 	//	}
 	} // END Supernova
 
@@ -965,6 +943,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		// hold values of initial mass and metal in grid and new mass
 		float m0 = 0;
 		float z0 = 0;
+		float zNew = 0;
 		float mNew = 0;
 		for (k = 0; k < GridDimension[2]; k++)
 		{
@@ -1038,6 +1017,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 								 *CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
 						if (SNColourNum > 0)
 							BaryonField[SNColourNum][index] = EjectaMetalDensity;//factor;
+						zNew += (BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])
+								 *CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
 						if (Metal2Num > 0)
 							BaryonField[Metal2Num][index] *= factor;
 
@@ -1049,14 +1030,15 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 			}	 // END j-direction
 		}		  // END k-direction
 		// now have total metal erased from grid and density prior to formation; reset metallicity of star to conserve metals
-		
-		for (i = 0; i < NumberOfParticles; i++){
-			if (ParticleNumber[i] == cstar->ReturnID()){
-				printf("Resetting %d metallicity to %g from %g with mass change %g\n", 
-					cstar->ReturnID(), EjectaMetalDensity/EjectaDensity, cstar->ReturnMetallicity(), (m0-mNew)*DensityUnits*pow(LengthUnits,3)/SolarMass);
-				ParticleAttribute[2][i] = EjectaMetalDensity/EjectaDensity; // all the metal must've gone into the star; but only m0-mNew mass went in
+		if (EjectaMetalDensity > 0 && cstar->ReturnType() == 7)
+			for (i = 0; i < NumberOfParticles; i++){
+				if (ParticleNumber[i] == cstar->ReturnID()){
+					printf("Removed %g Msun metal and put %g to star\n", z0-zNew, EjectaMetalDensity/EjectaDensity*cstar->ReturnFinalMass());
+					printf("Resetting %d metallicity to %g from %g with mass change %g\n", 
+						cstar->ReturnID(), EjectaMetalDensity/EjectaDensity, cstar->ReturnMetallicity(), (m0-mNew)*DensityUnits*pow(LengthUnits,3)/SolarMass);
+					ParticleAttribute[2][i] = EjectaMetalDensity/EjectaDensity; // all the metal must've gone into the star; but only m0-mNew mass went in
+				}
 			}
-		}
 	}			  // END star birth
 
 	/***********************************************************************

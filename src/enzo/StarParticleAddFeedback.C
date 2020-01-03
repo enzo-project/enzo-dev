@@ -262,18 +262,18 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                     FLOAT vCell = LevelArray[l]->GridData->GetVCell();
                     FLOAT MassUnits = DensityUnits*pow(LengthUnits,3)/SolarMass; //code -> Msun
                     // if forming mass, need to check that mass accreting from grid is consistent
-                    if (cstar->ReturnFeedbackFlag() == FORMATION && rho == EjectaDensity){
+                    if (cstar->ReturnFeedbackFlag() == FORMATION && rho == EjectaDensity && AVL0 > 0){ // set all this on the first valid pass
                         MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
                         MPI_Allreduce(&mass_dep, &allMass,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
                         MPI_Allreduce(&metal_dep, &allMetal,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
                         // Set the densities to constant value for the interior of Stromgren sphere
                         allMass *= MassUnits;
                         allMetal *= MassUnits;
-                        printf("[%d] AllMass = %g AllZ = %g New FZ = %f volume = %g",
-                                    l, allMass, allMetal, allMetal/allMass, AVL0*pow(LengthUnits,3));
-                        if (allMass > 0 && AVL0 > 0){
+                        printf("[%d--%d] AllMass = %g AllZ = %g z_rho = %g New FZ = %g volume = %g Zstar = %g\n",
+                                    l, cstar->ReturnType(), allMass, allMetal, allMetal/MassUnits*vCell, allMetal/allMass, AVL0*pow(LengthUnits,3), cstar->ReturnMetallicity());
+                        if (allMass > cstar->ReturnFinalMass() && AVL0 > 0){
                             rho = (allMass - cstar->ReturnFinalMass())/MassUnits/AVL0*vCell;
-                            z_rho = max(0.0,(allMetal-(cstar->ReturnFinalMass()*cstar->ReturnMetallicity())/MassUnits)*vCell/AVL0);
+                            z_rho = (allMetal-(cstar->ReturnFinalMass()*cstar->ReturnMetallicity()))/MassUnits*vCell/AVL0;
                             printf("New densities rho=%g z_rho=%g\n",rho,z_rho);
                         }
                         
