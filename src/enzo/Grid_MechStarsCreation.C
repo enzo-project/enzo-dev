@@ -42,7 +42,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 {
     /* If limiting timesteps for SNe, return if not the right level */
     if (level < StarMakeLevel) return 0;
-
     /* 
         these flags are used to determine if we should set off a seed SNe 
         if (gridShouldFormStars && !notEnoughMetals) at the end, we'll seed 
@@ -113,7 +112,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
             for (int i = GZ; i < GridDimension[0]-GZ; i++){
                 /*
                 Particle creation has several criteria:
-
+                    0. is this the finest level for this cell
                     1. Density > overdensity
                     2. is flow converging by finite differences
                     3. is cooling time < dynamical time
@@ -122,6 +121,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                     6. is virial parameter < 1
 
                  */
+                int index = i+ j*GridDimension[0]+k*GridDimension[0]*GridDimension[1];
+                if (BaryonField[NumberOfBaryonFields][index] != 0.0) continue;
                 float shieldedFraction = 0;
                 float freeFallTime = 0;
                 float dynamicalTime = 0;
@@ -140,7 +141,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 
 
                     if (createStar){
-                        int index = i+ j*GridDimension[0]+k*GridDimension[0]*GridDimension[1];
 
                         /* Determine Mass of new particle */
 
