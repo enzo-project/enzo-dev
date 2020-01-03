@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <vector>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -322,7 +323,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 			}		  // END j-direction
 		}			  // END k-direction
 	//	if (debug){
-		if (EjectaDensity > 0 && depositedVolume > 0){
+		if (EjectaDensity > 0 && depositedVolume > 0 && cstar->ReturnFeedbackFlag() == SUPERNOVA){
 			fprintf(stdout, "$$$$$\n[ %d::%d ]Coupled feedback on level %d for star [%d] assigned to level %d ::: ", 
 									ProcessorNumber, cstar->ReturnGridID(), level, 
 									cstar->ReturnID(), cstar->ReturnLevel());
@@ -955,7 +956,16 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		int gammaNum;
 		IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, kphHeIINum,
 										kdissH2INum, kphHMNum, kdissH2IINum);
-
+		/* 
+			Track density and metallicity prior to subtracting to make sure 
+			its conservative.  The Metal fraction in ie., cluster_maker.F is only
+			set according to the host cell, but the metals are coming from many cells 
+			with varying metallicity levels -AIW
+		 */
+		// hold values of initial mass and metal in grid and new mass
+		float m0 = 0;
+		float z0 = 0;
+		float mNew = 0;
 		for (k = 0; k < GridDimension[2]; k++)
 		{
 
@@ -995,9 +1005,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 						fhz = fh * (1 - metallicity);
 						fhez = (1 - fh) * (1 - metallicity);
-						float d0 = BaryonField[DensNum][index];
+						m0 += BaryonField[DensNum][index]*CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
 						BaryonField[DensNum][index] = EjectaDensity;
-
+						mNew += BaryonField[DensNum][index]*CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
 						if (MultiSpecies)
 						{
 							BaryonField[DeNum][index] = BaryonField[DensNum][index] * ionizedFraction;
@@ -1024,8 +1034,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 						/* factor is initialized to zero and never set--should we be setting the metals to zero?  
 								Why is standard metal_density field never touched?*/
+						z0 += (BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])
+								 *CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
 						if (SNColourNum > 0)
-							BaryonField[SNColourNum][index] *= factor;
+							BaryonField[SNColourNum][index] = EjectaMetalDensity;//factor;
 						if (Metal2Num > 0)
 							BaryonField[Metal2Num][index] *= factor;
 
@@ -1036,6 +1048,15 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 				} // END i-direction
 			}	 // END j-direction
 		}		  // END k-direction
+		// now have total metal erased from grid and density prior to formation; reset metallicity of star to conserve metals
+		
+		for (i = 0; i < NumberOfParticles; i++){
+			if (ParticleNumber[i] == cstar->ReturnID()){
+				printf("Resetting %d metallicity to %g from %g with mass change %g\n", 
+					cstar->ReturnID(), EjectaMetalDensity/EjectaDensity, cstar->ReturnMetallicity(), (m0-mNew)*DensityUnits*pow(LengthUnits,3)/SolarMass);
+				ParticleAttribute[2][i] = EjectaMetalDensity/EjectaDensity; // all the metal must've gone into the star; but only m0-mNew mass went in
+			}
+		}
 	}			  // END star birth
 
 	/***********************************************************************

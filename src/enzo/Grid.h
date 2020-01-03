@@ -2818,7 +2818,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radius, float DensityUnits,
 							float LengthUnits, float VelocityUnits,
-							float TemperatureUnits, float TimeUnits);
+							float TemperatureUnits, float TimeUnits, int &nCells, float &depositedMass,
+							float &depositedMetal, FLOAT &depositedVolume);
   
   int AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits,
 			float LengthUnits, float VelocityUnits, 

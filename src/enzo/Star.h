@@ -70,6 +70,7 @@ public:
 
   // Routines
   star_type ReturnType(void) { return type; };
+  float ReturnMetallicity(void) {return Metallicity;};
   int   ReturnID(void) { return Identifier; };
   double ReturnMass(void) { return Mass; };
   float ReturnBirthTime(void) { return BirthTime; };

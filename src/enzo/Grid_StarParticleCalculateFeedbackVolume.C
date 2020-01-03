@@ -19,7 +19,8 @@
 
 int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radius, float DensityUnits,
 							float LengthUnits, float VelocityUnits,
-							float TemperatureUnits, float TimeUnits)
+							float TemperatureUnits, float TimeUnits, int &nCells, float &depositedMass,
+							float &depositedMetal, FLOAT &depositedVolume)
 {
 
 
@@ -45,7 +46,41 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 	for (dim = 0; dim < GridRank; dim++)
 		DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
 
+	int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+	if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+										 Vel3Num, TENum) == FAIL)
+	{
+		ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+	}
 
+	/* Find Multi-species fields. */
+
+	int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+		DINum, DIINum, HDINum;
+	if (MultiSpecies)
+		if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum,
+										HeIIINum, HMNum, H2INum, H2IINum, DINum,
+										DIINum, HDINum) == FAIL)
+		{
+			ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
+		}
+
+
+	/* Find Metallicity or SNColour field and set flag. */
+
+	int SNColourNum, MetalNum, Metal2Num, MBHColourNum, Galaxy1ColourNum,
+		Galaxy2ColourNum, MetalIaNum, MetalIINum;
+	int MetallicityField = FALSE;
+
+	if (this->IdentifyColourFields(SNColourNum, Metal2Num, MetalIaNum,
+								   MetalIINum, MBHColourNum, Galaxy1ColourNum,
+								   Galaxy2ColourNum) == FAIL)
+		ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
+
+	MetalNum = max(Metal2Num, SNColourNum);
+	MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
+	if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
+		MetalNum = SNColourNum;
 
 
 
@@ -57,8 +92,6 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
   ************************************************************************/
 
 	float outerRadius2=radius*radius;
-    FLOAT depositedVolume = 0.0;
-    int CellsModified = 0;
 	int GZ = NumberOfGhostZones;
 		for (k = GZ; k < GridDimension[2]; k++)
 		{
@@ -89,10 +122,12 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 					if (radius2 <= outerRadius2)
 					{
 						depositedVolume += CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
-                        CellsModified ++;
+                        nCells ++;
+						depositedMass += BaryonField[DensNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
+						depositedMetal += BaryonField[SNColourNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
 					} // END if inside radius
 				}	 // END i-direction
 			}		  // END j-direction
 		}			  // END k-direction
-        return CellsModified;
+		return SUCCESS;
 }
