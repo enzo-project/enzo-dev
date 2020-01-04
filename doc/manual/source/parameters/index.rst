@@ -2729,7 +2729,7 @@ Radiative Transfer (Ray Tracing) Parameters
     which is the luminosity weighted center of two sources. This radius
     is in units of the separation of two sources associated with one
     SuperSource. If set too small, there will be angular artifacts in
-    the radiation field. Default: 10.0
+    the radiation field. Default: 3.0
 ``RadiativeTransferSourceBeamAngle`` (external)
     Rays will be emitted within this angle in degrees of the poles from sources with "Beamed" types.  Default: 30
 ``RadiativeTransferPeriodicBoundary`` (external)

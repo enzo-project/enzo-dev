@@ -63,7 +63,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferInterpolateField           = FALSE;
   RadiativeTransferSourceClustering           = FALSE;
   RadiativeTransferOpticallyThinSourceClustering = FALSE;
-  RadiativeTransferPhotonMergeRadius          = 10.0;
+  RadiativeTransferPhotonMergeRadius          = 3.0;
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
   RadiativeTransferTimestepVelocityLevel      = INT_UNDEFINED;
   RadiativeTransferPeriodicBoundary           = FALSE;
