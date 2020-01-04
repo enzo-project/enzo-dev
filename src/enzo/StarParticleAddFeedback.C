@@ -298,15 +298,15 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                     }
                     if (cstar->ReturnFeedbackFlag() == SUPERNOVA){
                         float rescale = 1.0;
-                        if (l == level){
-                                rescale = (old_vol/AllVol);
+                        if (AVL0 > 0 && rescale == 1.0){
+                                rescale = (old_vol/AVL0);
                                 rho = EjectaDensity * rescale;
                                 z_rho = EjectaMetalDensity * rescale;
                             }
                         if (l > level)
                         {
-                            rho = EjectaDensity*pow(0.578703704,1);//*AllVol/AVL0 ;
-                            z_rho = EjectaMetalDensity*pow(0.578703704,1);//*AllVol/AVL0;
+                            rho = EjectaDensity*rescale*0.578703704;//*AllVol/AVL0 ;
+                            z_rho = EjectaMetalDensity*rescale*0.578703704;//*AllVol/AVL0;
                         }
                         if (rescale < 1.0)
                             fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
