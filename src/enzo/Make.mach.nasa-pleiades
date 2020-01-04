@@ -4,9 +4,9 @@
 #
 # DESCRIPTION: Makefile settings for NASA's pleiades
 #
-#    modules: comp-intel/2011.7.256
-#     	      mpi-sgi/mpi.2.04.10789
-#	      A local serial hdf5 install (e.g. the one that comes with yt)
+#    modules: comp-intel/2018.3.222
+#     	      mpi-hpe/mpt.2.17r13
+#	      hdf5/1.8.18_serial
 #
 # AUTHOR:      John Wise
 # DATE:        2010-01-22
@@ -19,6 +19,10 @@
 #
 # MODIFIED3:   Nathan Goldbaum
 # DATE:        2014-04-24
+#
+# MODIFIED3:   Molly Peeples
+# DATE:        2019-10-16
+#
 #=======================================================================
 
 MACH_TEXT  = NASA Pleiades
@@ -27,9 +31,9 @@ MACH_FILE  = Make.mach.nasa-pleiades
 
 MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 	The following modules are needed to compile: \
-	    comp-intel/2013.5.192, \
-	    mpi-sgi/mpt.2.10r6, and \
-	    a serial hdf5 (the one that comes with yt should work) "
+	    comp-intel/2018.3.222, \
+	    mpi-hpe/mpt.2.17r13, and \
+	    hdf5/1.8.18_serial "
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -40,12 +44,18 @@ MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/2.10r6
-LOCAL_HDF5_INSTALL   = /nasa/hdf5/1.8.18_serial
+#LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/2.10r6
+#LOCAL_HDF5_INSTALL   = /nasa/hdf5/1.8.18_serial
 #LOCAL_HDF5_INSTALL   = /u/aemerick/anaconda2
-LOCAL_PYTHON_INSTALL = /u/aemerick/anaconda2
-LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2016.2.181/
-LOCAL_GRACKLE_INSTALL = /u/aemerick/local
+#LOCAL_PYTHON_INSTALL = /u/aemerick/anaconda2
+#LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2016.2.181/
+#LOCAL_GRACKLE_INSTALL = /u/aemerick/local
+
+LOCAL_MPI_INSTALL    = /nasa/hpe/mpt/2.17r13/
+LOCAL_HDF5_INSTALL   = $(YT_DEST)
+LOCAL_PYTHON_INSTALL = $(YT_DEST)
+LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2018.3.222/
+LOCAL_GRACKLE_INSTALL = $(HOME)/local
 
 #-----------------------------------------------------------------------
 # Compiler settings
