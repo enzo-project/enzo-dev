@@ -2819,13 +2819,13 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radius, float DensityUnits,
 							float LengthUnits, float VelocityUnits,
 							float TemperatureUnits, float TimeUnits, int &nCells, float &depositedMass,
-							float &depositedMetal, FLOAT &depositedVolume);
+							float &depositedMetal, float &depositedMetal2, FLOAT &depositedVolume);
   
   int AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits,
 			float LengthUnits, float VelocityUnits, 
 			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
-			double Q_HI, double sigma_HI, float deltaE, int &CellsModified);
+			double Q_HI, double sigma_HI, float deltaE, int &CellsModified, float MetalFraction);
 
   int SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits,
 				     float LengthUnits, float VelocityUnits, 

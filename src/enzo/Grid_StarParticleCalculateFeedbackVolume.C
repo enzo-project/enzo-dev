@@ -20,7 +20,7 @@
 int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radius, float DensityUnits,
 							float LengthUnits, float VelocityUnits,
 							float TemperatureUnits, float TimeUnits, int &nCells, float &depositedMass,
-							float &depositedMetal, FLOAT &depositedVolume)
+							float &depositedMetal, float &depositedMetal2, FLOAT &depositedVolume)
 {
 
 
@@ -124,7 +124,10 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 						depositedVolume += CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
                         nCells ++;
 						depositedMass += BaryonField[DensNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
-						depositedMetal += BaryonField[SNColourNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
+						if (SNColourNum > 0)
+							depositedMetal += BaryonField[SNColourNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
+						if (cstar->ReturnType() != PopIII && MetalNum >0)
+							depositedMetal2 += BaryonField[MetalNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
 					} // END if inside radius
 				}	 // END i-direction
 			}		  // END j-direction

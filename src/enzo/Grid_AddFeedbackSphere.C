@@ -51,7 +51,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 							float LengthUnits, float VelocityUnits,
 							float TemperatureUnits, float TimeUnits, double EjectaDensity,
 							double EjectaMetalDensity, double EjectaThermalEnergy,
-							double Q_HI, double sigma_HI, float deltaE, int &CellsModified)
+							double Q_HI, double sigma_HI, float deltaE, int &CellsModified, float MetalFraction)
 {
 
 	const float WhalenMaxVelocity = 35; // km/s
@@ -1013,32 +1013,44 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 						/* factor is initialized to zero and never set--should we be setting the metals to zero?  
 								Why is standard metal_density field never touched?*/
-						z0 += (BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])
-								 *CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
-						if (SNColourNum > 0)
-							BaryonField[SNColourNum][index] = EjectaMetalDensity;//factor;
-						zNew += (BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])
-								 *CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
-						if (Metal2Num > 0)
-							BaryonField[Metal2Num][index] *= factor;
 
-						CellsModified++;
+						// only do this for P2 star formation; p3 may artificially remove metals from neighboring regions
+						if (cstar->ReturnType() == PopII){
+							z0 += (BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])
+									*CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
+							if (SNColourNum > 0){
+								BaryonField[SNColourNum][index] = EjectaMetalDensity*MetalFraction;//factor;
+								}
+							if (MetalNum > 0)
+								BaryonField[MetalNum][index] = EjectaMetalDensity*(1-MetalFraction);
+							zNew += (BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])
+									*CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
+							if (Metal2Num > 0)
+								BaryonField[Metal2Num][index] *= factor;
 
+							CellsModified++;
+						}
 					} // END if inside radius
 
 				} // END i-direction
 			}	 // END j-direction
 		}		  // END k-direction
-		// now have total metal erased from grid and density prior to formation; reset metallicity of star to conserve metals
-		if (EjectaMetalDensity > 0 && cstar->ReturnType() == 7)
-			for (i = 0; i < NumberOfParticles; i++){
-				if (ParticleNumber[i] == cstar->ReturnID()){
-					printf("Removed %g Msun metal and put %g to star\n", z0-zNew, EjectaMetalDensity/EjectaDensity*cstar->ReturnFinalMass());
-					printf("Resetting %d metallicity to %g from %g with mass change %g\n", 
-						cstar->ReturnID(), EjectaMetalDensity/EjectaDensity, cstar->ReturnMetallicity(), (m0-mNew)*DensityUnits*pow(LengthUnits,3)/SolarMass);
-					ParticleAttribute[2][i] = EjectaMetalDensity/EjectaDensity; // all the metal must've gone into the star; but only m0-mNew mass went in
-				}
+			/* if the metal removed from the grid doesn't jive with the star metal, reset it */
+		if (EjectaMetalDensity > 0 && cstar->ReturnType() == PopII)
+		{
+			printf("[ %d -- %d ] Removed %g(%g) Msun metal with mass change %g Msunn\n",
+				level, cstar->ReturnType(), (z0-zNew)*DensityUnits*pow(LengthUnits,3)/SolarMass,
+				(m0-mNew)*DensityUnits*pow(LengthUnits,3)/SolarMass);
+			if (cstar->ReturnMetallicity() < (z0-zNew)*DensityUnits*pow(LengthUnits,3)/SolarMass/cstar->ReturnFinalMass())
+			{
+				printf("Removed metal mismatch with star; setting star metallicity to %g from %g with mass %g--expected %g Msun\n",
+					(z0-zNew)*DensityUnits*pow(LengthUnits,3)/SolarMass/cstar->ReturnFinalMass(),
+					cstar->ReturnMetallicity(),
+					cstar->ReturnFinalMass()*cstar->ReturnMetallicity(),
+					cstar->ReturnFinalMass());
+				cstar->SetMetallicity((z0-zNew)*DensityUnits*pow(LengthUnits,3)/SolarMass/cstar->ReturnFinalMass());
 			}
+		}
 	}			  // END star birth
 
 	/***********************************************************************

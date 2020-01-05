@@ -226,6 +226,9 @@ int StarParticleAddFeedback(TopGridData *MetaData,
             float rho = EjectaDensity;
             float z_rho = EjectaMetalDensity;
             FLOAT AVL0 = 0.0;
+            float metalAccreted = 0.0;
+            float metalFrac;
+            float rescale = 1.0;
             for (l=level; l < MAX_DEPTH_OF_HIERARCHY; l++){ // initially l=level; l<MAX; l++
                 if (!LevelArray[l]) continue;
 
@@ -237,55 +240,70 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                         to validate the volume we will deposit into, then rescale the deposition accordingly.
                         --AIW
                     */
-
-                    /* Get the volume that the sphere interacts with. for formation also get mass and metal mass of sphere */
+                        // only rescale SN if theyre PopIII single supernova--rescaling PopII is too expensive since
+                        // it happens at every timestep.
+                    bool rescaleSN = cstar->ReturnFeedbackFlag()==SUPERNOVA && (cstar->ReturnType() == PopIII);
                     int nCells = 0;
                     FLOAT vol_modified = 0.0;
                     float mass_dep = 0.0;
-                    float metal_dep = 0.0;
-                    if (cstar->ReturnFeedbackFlag() == SUPERNOVA || cstar->ReturnFeedbackFlag() == FORMATION)
+                    float metal_dep = 0.0; // track P3 metal
+                    float metal2_dep = 0.0; // track p2 metal
+                    if (rescaleSN || cstar->ReturnFeedbackFlag() == FORMATION)
                         for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
                             Temp->GridData->StarParticleCalculateFeedbackVolume(
                                                         cstar, l, influenceRadius, DensityUnits, 
                                                         LengthUnits,
                                                         VelocityUnits, TemperatureUnits, TimeUnits, nCells,
-                                                        mass_dep, metal_dep, vol_modified);
+                                                        mass_dep, metal_dep, metal2_dep, vol_modified);
                     FLOAT AllVol = 0;
                     FLOAT old_vol = influenceRadius * influenceRadius * influenceRadius 
                                         * 4.0 * pi / 3.0;
-                    if (cstar->ReturnFeedbackFlag() == SUPERNOVA || cstar->ReturnFeedbackFlag() == FORMATION){
+                            
+                            // sum volume across all processes for this level 
+                            //      (sphere can be across procs as well!) -AIW
+
+                    if (rescaleSN || cstar->ReturnFeedbackFlag() == FORMATION){
                         MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
                     if (AVL0 == 0)
                         AVL0 = AllVol;
                     float allMass = 0;
-                    float allMetal = 0;
+                    float allMetal = 0; // track p3 metal
+                    float allMetal2 = 0; // track p2 metal
                     FLOAT vCell = LevelArray[l]->GridData->GetVCell();
                     FLOAT MassUnits = DensityUnits*pow(LengthUnits,3)/SolarMass; //code -> Msun
                     // if forming mass, need to check that mass accreting from grid is consistent
                     if (cstar->ReturnFeedbackFlag() == FORMATION && rho == EjectaDensity && AVL0 > 0){ // set all this on the first valid pass
+                        /* sum quantities across tasks */
                         MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
                         MPI_Allreduce(&mass_dep, &allMass,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
                         MPI_Allreduce(&metal_dep, &allMetal,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                        MPI_Allreduce(&metal2_dep, &allMetal2,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
                         // Set the densities to constant value for the interior of Stromgren sphere
                         allMass *= MassUnits;
                         allMetal *= MassUnits;
-                        printf("[%d--%d] AllMass = %g AllZ = %g z_rho = %g New FZ = %g volume = %g Zstar = %g\n",
-                                    l, cstar->ReturnType(), allMass, allMetal, allMetal/MassUnits*vCell, allMetal/allMass, AVL0*pow(LengthUnits,3), cstar->ReturnMetallicity());
+                        allMetal2 *= MassUnits;
+                        metalFrac = allMetal/(allMetal+allMetal2); //fraction of p3/all metals
+                        printf("[L = %d : type = %d] AllMass = %g AllZ = %g z_rho = %g New FZ = %g volume = %g Zstar = %g\n",
+                                    l, cstar->ReturnType(), allMass, allMetal, allMetal/MassUnits*vCell, 
+                                    (allMetal+allMetal2)/allMass, AVL0*pow(LengthUnits,3), cstar->ReturnMetallicity());
                         if (allMass > cstar->ReturnFinalMass() && AVL0 > 0){
                             rho = (allMass - cstar->ReturnFinalMass())/MassUnits/AVL0*vCell;
-                            z_rho = (allMetal-(cstar->ReturnFinalMass()*cstar->ReturnMetallicity()))/MassUnits*vCell/AVL0;
-                            printf("New densities rho=%g z_rho=%g\n",rho,z_rho);
-                        }
+                            z_rho = (allMetal+allMetal2-(cstar->ReturnFinalMass()*cstar->ReturnMetallicity()))/MassUnits*vCell/AVL0;
+                            printf("New densities rho=%g z_rho=%g M = %g Mz = %g\n",rho,z_rho,
+                                   rho*MassUnits/SolarMass*pow(LengthUnits,3)*vCell,
+                                   z_rho*MassUnits/SolarMass*pow(LengthUnits,3)*vCell);
+                            cstar->SetMetallicity((allMetal+allMetal2)/allMass);
                         
+                        }
+                        // if (allMass > cstar->ReturnFinalMass() && level < l){
+                        //     rho *= 0.578703704;
+                        //     z_rho *= 0.578703704;
+                        // }
                     }
 
-                    // sum volume across all processes for this level 
-                    //      (sphere can be across procs as well!) -AIW
 
-    //                             NB: Levels > level may not deposit the whole sphere volume. leave those alone; Leave MBH deposition alone
-    //                                          because I dont know it. -AIW
 
-                        if (vol_modified > 0.0)
+                        if (vol_modified > 0.0 && rescaleSN && debug)
                             printf("level %d Prior Deposition Masses M = %g Z = %g AllVol = %g rankVol = %g ratio = %f r_mass = %g r_z = %g\n ",
                                 l, AllVol*EjectaDensity*pow(LengthUnits,3)*DensityUnits/SolarMass, 
                                 AllVol*EjectaMetalDensity*pow(LengthUnits,3)*DensityUnits/SolarMass,
@@ -296,22 +314,22 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                                 );
                             
                     }
-                    if (cstar->ReturnFeedbackFlag() == SUPERNOVA){
-                        float rescale = 1.0;
-                        if (AVL0 > 0 && rescale == 1.0){
+                    if (rescaleSN){
+                        if (l==level || AVL0 > 0){
                                 rescale = (old_vol/AVL0);
                                 rho = EjectaDensity * rescale;
                                 z_rho = EjectaMetalDensity * rescale;
                             }
+                        // its a damn dirty hack, but it works. 
                         if (l > level)
                         {
-                            rho = EjectaDensity*rescale*0.578703704;//*AllVol/AVL0 ;
-                            z_rho = EjectaMetalDensity*rescale*0.578703704;//*AllVol/AVL0;
+                            rho = EjectaDensity*0.578703704;//*AllVol/AVL0 ;
+                            z_rho = EjectaMetalDensity*0.578703704;//*AllVol/AVL0;
                         }
-                        if (rescale < 1.0)
-                            fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
-                                cstar->ReturnFeedbackFlag(), l, AllVol*pow(LengthUnits,3), 
-                                old_vol*pow(LengthUnits,3), rho * DensityUnits, EjectaDensity*DensityUnits, 
+                        if (rescale < 1.0 && AllVol > 0)
+                            fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  lratio = %f rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
+                                cstar->ReturnFeedbackFlag(), l, AVL0*pow(LengthUnits,3), 
+                                old_vol*pow(LengthUnits,3), AllVol/AVL0, rho * DensityUnits, EjectaDensity*DensityUnits, 
                                 z_rho * DensityUnits, EjectaMetalDensity*DensityUnits, 
                                 rho*AllVol*DensityUnits*pow(LengthUnits,3)/SolarMass,
                                 z_rho*AllVol*DensityUnits*pow(LengthUnits,3)/SolarMass);
@@ -325,7 +343,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                                         DensityUnits, LengthUnits,
                                         VelocityUnits, TemperatureUnits, TimeUnits, rho, z_rho,
                                         EjectaThermalEnergy, Q_HI, sigma, deltaE,
-                                        CellsModified);
+                                        CellsModified, metalFrac);
             }        
 
         } // ENDIF
