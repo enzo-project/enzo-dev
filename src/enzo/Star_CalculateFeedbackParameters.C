@@ -46,7 +46,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
   const double h=0.70;
 
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
+  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.01; // 40.1->40.01 to be consistent with SNExplosionMass bins -AIW
   const float PISNLowerMass = 140, PISNUpperMass = 260;
 
   // From Nomoto et al. (2006)
