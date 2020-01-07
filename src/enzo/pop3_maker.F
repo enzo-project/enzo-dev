@@ -172,7 +172,7 @@ c
                bmass = d(i,j,k) * m1
 c               isosndsp2 = sndspdC * temp(i,j,k)
 c               jeanmass = pi_val/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
-c     &                    dble(pi_val * isosndsp2 / GravConst**1.5_RKIND / SolarMass
+c     &                    dble(pi_val * isosndsp2 / GravConst)**1.5_RKIND / SolarMass
 c
 c               if (bmass .lt. jeanmass) 
 c     &            write(40,*) '2',bmass,jeanmass
