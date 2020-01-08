@@ -304,7 +304,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 							BaryonField[HDINum][index] *= increase;
 						}
 
-						if (MetallicityField == TRUE){
+						if (MetallicityField == TRUE && radius2 <= MetalRadius2){
 							BaryonField[MetalNum][index] += factor*EjectaMetalDensity;
 							depositedMetal += factor*EjectaMetalDensity*pow(CellWidth[0][0],3);
 						}

@@ -323,8 +323,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                         // its a damn dirty hack, but it works. 
                         if (l > level)
                         {
-                            rho = EjectaDensity*0.578703704;//*AllVol/AVL0 ;
-                            z_rho = EjectaMetalDensity*0.578703704;//*AllVol/AVL0;
+                            rho = EjectaDensity*rescale;//*AllVol/AVL0 ;
+                            z_rho = EjectaMetalDensity*rescale;//*AllVol/AVL0;
                         }
                         if (rescale < 1.0 && AllVol > 0)
                             fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  lratio = %f rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
@@ -401,6 +401,16 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     } // ENDFOR stars
 
+    for (level = MaximumRefinementLevel; level > 0; level--){
+            Temp = LevelArray[level];
+            while (Temp != NULL) {
+                if (Temp->GridData->ProjectSolutionToParentGrid(*Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL){
+                fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid\n");
+                return FAIL;
+                }
+                Temp = Temp->NextGridThisLevel;
+            }
+    }
     LCAPERF_STOP("StarParticleAddFeedback");
     return SUCCESS;
 }
