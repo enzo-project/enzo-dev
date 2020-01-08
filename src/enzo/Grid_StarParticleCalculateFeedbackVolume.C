@@ -91,8 +91,8 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 								will be put into.
   ************************************************************************/
 
-	float outerRadius2=radius*radius;
-	int GZ =0;//NumberOfGhostZones;
+	float outerRadius2=radius*radius*1.2*1.2;
+	int GZ =NumberOfGhostZones;
 		for (k = GZ; k < GridDimension[2]; k++)
 		{
 

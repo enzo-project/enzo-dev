@@ -133,7 +133,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	// 1988 or Tenorio-Tagle 1996).
 
 	//const float MetalRadius = 0.75;
-	const float MetalRadius = 1.0/1.2;
+	const float MetalRadius = 1.0;
 	float ionizedFraction = 0.999; // Assume supernova is ionized
 	float maxGE, MetalRadius2, PrimordialDensity, metallicity, fhz, fhez;
 	float outerRadius2, delta_fz;
@@ -174,10 +174,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		EjectaMetalDensity *= pow(MetalRadius, -3.0);
 		PrimordialDensity = EjectaDensity - EjectaMetalDensity;
 		MetalRadius2 = radius * radius * MetalRadius * MetalRadius;
-		outerRadius2 = radius * radius;
+		outerRadius2 = radius * radius*1.2*1.2;
 
 
-		/* Remove mass from the star that will now be added to grids. 
+		/* Remove mass from the star that will now be added to gridMetalRadiuss. 
        Also, because EjectaDensity will be added with zero net momentum, 
        increase the particle's velocity accordingly. - Ji-hoon Kim, Sep.2009 */
 
@@ -304,9 +304,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 							BaryonField[HDINum][index] *= increase;
 						}
 
-						if (MetallicityField == TRUE && radius2 <= MetalRadius2){
-							BaryonField[MetalNum][index] += factor*EjectaMetalDensity;
-							depositedMetal += factor*EjectaMetalDensity*pow(CellWidth[0][0],3);
+						if (MetallicityField == TRUE){
+							//factor = 0.578703704;
+							BaryonField[MetalNum][index] += EjectaMetalDensity;
+							depositedMetal += EjectaMetalDensity*pow(CellWidth[0][0],3);
 						}
 						CellsModified++;
 
@@ -314,9 +315,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 				}	 // END i-direction
 			}		  // END j-direction
 		}			  // END k-direction
-		fprintf(stdout, "[%d] <%d> deposited M=%g M_z=%g v=%g dx = %f pc\n", level,
-			cstar->ReturnID(), depositedMass*MassUnits/SolarMass, depositedMetal*MassUnits/SolarMass,
-			depositedVolume*pow(LengthUnits,3), CellWidth[0][0]*LengthUnits/pc_cm);
+		if (cstar->ReturnType() == PopIII)
+			fprintf(stdout, "[%d] <%d> deposited M=%g M_z=%g v=%g dx = %f pc\n", level,
+				cstar->ReturnID(), depositedMass*MassUnits/SolarMass, depositedMetal*MassUnits/SolarMass,
+				depositedVolume*pow(LengthUnits,3), CellWidth[0][0]*LengthUnits/pc_cm);
 	//	}
 	} // END Supernova
 

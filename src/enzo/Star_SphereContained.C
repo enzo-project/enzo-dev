@@ -56,7 +56,7 @@ int Star::SphereContained(LevelHierarchyEntry *LevelArray[], int level,
 
       // If the bit is true, forward.  If not, reverse.
       direction = (i >> dim & 1) ? 1 : -1;
-      corners[dim][i] = pos[dim] + direction * Radius;
+      corners[dim][i] = pos[dim] + direction * 1.42* Radius;
     }
     cornerDone[i] = 0;
   }

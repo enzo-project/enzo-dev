@@ -229,6 +229,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
             float metalAccreted = 0.0;
             float metalFrac;
             float rescale = 1.0;
+            FLOAT MassUnits = DensityUnits*pow(LengthUnits,3)/SolarMass; //code -> Msun if mult. by cell volume
             for (l=level; l < MAX_DEPTH_OF_HIERARCHY; l++){ // initially l=level; l<MAX; l++
                 if (!LevelArray[l]) continue;
 
@@ -240,17 +241,22 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                         to validate the volume we will deposit into, then rescale the deposition accordingly.
                         --AIW
                     */
+
                         // only rescale SN if theyre PopIII single supernova--rescaling PopII is too expensive since
                         // it happens at every timestep.
                     bool rescaleSN = cstar->ReturnFeedbackFlag()==SUPERNOVA && (cstar->ReturnType() == PopIII);
+                    // Things we'll sum across grids
                     int nCells = 0;
                     FLOAT vol_modified = 0.0;
                     float mass_dep = 0.0;
                     float metal_dep = 0.0; // track P3 metal
                     float metal2_dep = 0.0; // track p2 metal
+
+                    // sum volume across grids in relevant cases
+                    
                     if (rescaleSN || cstar->ReturnFeedbackFlag() == FORMATION)
                         for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
-                            Temp->GridData->StarParticleCalculateFeedbackVolume(
+                            nCells += Temp->GridData->StarParticleCalculateFeedbackVolume(
                                                         cstar, l, influenceRadius, DensityUnits, 
                                                         LengthUnits,
                                                         VelocityUnits, TemperatureUnits, TimeUnits, nCells,
@@ -264,15 +270,20 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
                     if (rescaleSN || cstar->ReturnFeedbackFlag() == FORMATION){
                         MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                    
+                    // set the volume of the lowest level to deposit into
+                            // WHY IS THIS NOT THE HIGHEST VOLUME??
                     if (AVL0 == 0)
                         AVL0 = AllVol;
                     float allMass = 0;
                     float allMetal = 0; // track p3 metal
                     float allMetal2 = 0; // track p2 metal
                     FLOAT vCell = LevelArray[l]->GridData->GetVCell();
-                    FLOAT MassUnits = DensityUnits*pow(LengthUnits,3)/SolarMass; //code -> Msun
                     // if forming mass, need to check that mass accreting from grid is consistent
-                    if (cstar->ReturnFeedbackFlag() == FORMATION && rho == EjectaDensity && AVL0 > 0){ // set all this on the first valid pass
+                    if (cstar->ReturnFeedbackFlag() == FORMATION && rho == EjectaDensity && AVL0 > 0)
+                    { 
+                        // set all this on the first valid pass
+                        
                         /* sum quantities across tasks */
                         MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
                         MPI_Allreduce(&mass_dep, &allMass,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -315,17 +326,13 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                             
                     }// endif rescale or formation
                     if (rescaleSN){
-                        if (l==level || AVL0 > 0){
-                                rescale = (old_vol/AVL0);
+                        if (AVL0 > 0){
+                                // AVL0 set to the volume with 1.2*radius 
+                                rescale = old_vol/AVL0;
                                 rho = EjectaDensity * rescale;
                                 z_rho = EjectaMetalDensity * rescale;
                             }
-                        // its a damn dirty hack, but it works. 
-                        if (l > level)
-                        {
-                            rho = EjectaDensity*rescale;//*AllVol/AVL0 ;
-                            z_rho = EjectaMetalDensity*rescale;//*AllVol/AVL0;
-                        }
+
                         if (rescale < 1.0 && AllVol > 0)
                             fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  lratio = %f rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
                                 cstar->ReturnFeedbackFlag(), l, AVL0*pow(LengthUnits,3), 
