@@ -314,7 +314,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 				}	 // END i-direction
 			}		  // END j-direction
 		}			  // END k-direction
-
+		fprintf(stdout, "[%d] <%d> deposited M=%g M_z=%g v=%g dx = %f pc\n", level,
+			cstar->ReturnID(), depositedMass*MassUnits/SolarMass, depositedMetal*MassUnits/SolarMass,
+			depositedVolume*pow(LengthUnits,3), CellWidth[0][0]*LengthUnits/pc_cm);
 	//	}
 	} // END Supernova
 

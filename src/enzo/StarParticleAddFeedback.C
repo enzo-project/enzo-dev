@@ -288,7 +288,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                                     (allMetal+allMetal2)/allMass, AVL0*pow(LengthUnits,3), cstar->ReturnMetallicity());
                         if (allMass > cstar->ReturnFinalMass() && AVL0 > 0){
                             rho = (allMass - cstar->ReturnFinalMass())/MassUnits/AVL0*vCell;
-                            z_rho = (allMetal+allMetal2-(cstar->ReturnFinalMass()*cstar->ReturnMetallicity()))/MassUnits*vCell/AVL0;
+                            z_rho = max((allMetal+allMetal2-(cstar->ReturnFinalMass()*cstar->ReturnMetallicity()))/MassUnits*vCell/AVL0, 1e-20*rho);
                             printf("New densities rho=%g z_rho=%g M = %g Mz = %g\n",rho,z_rho,
                                    rho*MassUnits/SolarMass*pow(LengthUnits,3)*vCell,
                                    z_rho*MassUnits/SolarMass*pow(LengthUnits,3)*vCell);
@@ -313,7 +313,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                                 vol_modified*EjectaMetalDensity*pow(LengthUnits,3)*DensityUnits/SolarMass
                                 );
                             
-                    }
+                    }// endif rescale or formation
                     if (rescaleSN){
                         if (l==level || AVL0 > 0){
                                 rescale = (old_vol/AVL0);
