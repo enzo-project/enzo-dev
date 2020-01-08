@@ -306,10 +306,6 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                             cstar->SetMetallicity((allMetal+allMetal2)/allMass);
                         
                         }
-                        // if (allMass > cstar->ReturnFinalMass() && level < l){
-                        //     rho *= 0.578703704;
-                        //     z_rho *= 0.578703704;
-                        // }
                     }
 
 
