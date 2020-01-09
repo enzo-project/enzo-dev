@@ -1,9 +1,9 @@
-Enzo Test Problem Parameters 
+Enzo Test Problem Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-=================================== =================================== ======= 
-Directory                           Parameter File                      Source  
-=================================== =================================== ======= 
+=================================== =================================== =======
+Directory                           Parameter File                      Source
+=================================== =================================== =======
 GravitySolver/BinaryCollapse        BinaryCollapse.enzo                 |link0|_
 GravitySolver/GravityTest           GravityTest.enzo                    |link1|_
 GravitySolver/GravityStripTest      GravityStripTest.enzo               |link2|_
@@ -104,7 +104,32 @@ RadiationTransportFLD/TS2_sp        TurnerStoneEquil2_sp.enzo           |link96|
 RadiationTransport/PhotonTestAMR    PhotonTestAMR.enzo                  |link97|_
 RadiationTransport/PhotonShadowing. PhotonShadowing.enzo                |link98|_
 RadiationTransport/PhotonTest       PhotonTest.enzo                     |link99|_
-=================================== =================================== ======= 
+APMGravitySolver/GravityTest/APMCe. APMCenterTest.enzo                  |link100|_
+APMGravitySolver/GravityTest/APMCo. APMCornerTest.enzo                  |link101|_
+APMGravitySolver/GravityTest/FastC. FastCenterTest.enzo                 |link102|_
+APMGravitySolver/GravityTest/FastC. FastCornerTest.enzo                 |link103|_
+APMGravitySolver/GravityTestSphere. APMSphere0.enzo                     |link104|_
+APMGravitySolver/GravityTestSphere. APMSphere1.enzo                     |link105|_
+APMGravitySolver/GravityTestSphere. APMSphere2.enzo                     |link106|_
+APMGravitySolver/GravityTestSphere. FastSphere0.enzo                    |link107|_
+APMGravitySolver/GravityTestSphere. FastSphere1.enzo                    |link108|_
+APMGravitySolver/GravityTestSphere. FastSphere2.enzo                    |link109|_
+APMGravitySolver/TestOrbit/APM1Ref. APM1RefLevel.enzo                   |link110|_
+APMGravitySolver/TestOrbit/APM1Ref. APM1RefLevelExtra.enzo              |link111|_
+APMGravitySolver/TestOrbit/APM2Ref. APM2RefLevel.enzo                   |link112|_
+APMGravitySolver/TestOrbit/APM2Ref. APM2RefLevelExtra.enzo              |link113|_
+APMGravitySolver/TestOrbit/Fast1Re. Fast1RefLevel.enzo                  |link114|_
+APMGravitySolver/TestOrbit/Fast1Re. Fast1RefLevelExtra.enzo             |link115|_
+APMGravitySolver/TestOrbit/Fast2Re. Fast2RefLevel.enzo                  |link116|_
+APMGravitySolver/TestOrbit/Fast2Re. Fast2RefLevelExtra.enzo             |link117|_
+APMGravitySolver/TestSelfForce/APM. APMNoSubcyce.enzo                   |link118|_
+APMGravitySolver/TestSelfForce/APM. APMSubcycle.enzo                    |link119|_
+APMGravitySolver/TestSelfForce/Fas. FastSubcycle.enzo                   |link120|_
+APMGravitySolver/TestSineWave/APML. APMLongP.enzo                       |link121|_
+APMGravitySolver/TestSineWave/APMS. APMShortP.enzo                      |link122|_
+APMGravitySolver/TestSineWave/Fast. FastLongP.enzo                      |link123|_
+APMGravitySolver/TestSineWave/Fast. FastShortP.enzo                     |link124|_
+=================================== =================================== =======
 
 .. |link0| replace:: X
 .. _link0: https://github.com/enzo-project/enzo-dev/tree/master/run/GravitySolver/BinaryCollapse/BinaryCollapse.enzo
@@ -306,3 +331,53 @@ RadiationTransport/PhotonTest       PhotonTest.enzo                     |link99|
 .. _link98: https://github.com/enzo-project/enzo-dev/tree/master/run/RadiationTransport/PhotonShadowing/PhotonShadowing.enzo
 .. |link99| replace:: X
 .. _link99: https://github.com/enzo-project/enzo-dev/tree/master/run/RadiationTransport/PhotonTest/PhotonTest.enzo
+.. |link100| replace:: X
+.. _link100: https://github.com/enzo-project/enzo-dev/tree/master/run/APM/GravityTest/APMCenter/APMCenter.enzo
+.. |link101| replace:: X
+.. _link101: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/GravityTest/APMCorner/APMCorner.enzo
+.. |link102| replace:: X
+.. _link102: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/GravityTest/FastCenter/FastCenter.enzo
+.. |link103| replace:: X
+.. _link103: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/GravityTest/FastCorner/FastCorner.enzo
+.. |link104| replace:: X
+.. _link104: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/GravityTestSphere/APMSphere0/APMSphere0.enzo
+.. |link105| replace:: X
+.. _link105: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/GravityTestSphere/APMSphere1/APMSphere1.enzo
+.. |link106| replace:: X
+.. _link106: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/GravityTestSphere/APMSphere2/APMSphere2.enzo
+.. |link107| replace:: X
+.. _link107: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/GravityTestSphere/FastSphere0/FastSphere0.enzo
+.. |link108| replace:: X
+.. _link108: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/GravityTestSphere/FastSphere1/FastSphere1.enzo
+.. |link109| replace:: X
+.. _link109: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/GravityTestSphere/FastSphere2/FastSphere2.enzo
+.. |link110| replace:: X
+.. _link110: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestOrbit/APM1RefLevel/APM1RefLevel.enzo
+.. |link111| replace:: X
+.. _link111: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestOrbit/APM1RefLevelExtra/APM1RefLevelExtra.enzo
+.. |link112| replace:: X
+.. _link112: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestOrbit/APMwRefLevel/APM2RefLevel.enzo
+.. |link113| replace:: X
+.. _link113: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestOrbit/APM1RefLevelExtra/APM2RefLevelExtra.enzo
+.. |link114| replace:: X
+.. _link114: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestOrbit/Fast1RefLevel/Fast1RefLevel.enzo
+.. |link115| replace:: X
+.. _link115: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestOrbit/Fast1RefLevelExtra/Fast1RefLevelExtra.enzo
+.. |link116| replace:: X
+.. _link116: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestOrbit/Fast2RefLevel/Fast2RefLevel.enzo
+.. |link117| replace:: X
+.. _link117: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestOrbit/Fast2RefLevelExtra/Fast2RefLevelExtra.enzo
+.. |link118| replace:: X
+.. _link118: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestSelfForce/APMNoSubcycle/APMNoSubcycle.enzo
+.. |link119| replace:: X
+.. _link119: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestSelfForce/APMSubcycle/APMSubcycle.enzo
+.. |link120| replace:: X
+.. _link120: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/TestSelfForce/FastSubcycle/FastSubcycle.enzo
+.. |link121| replace:: X
+.. _link121: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/APM/TestSineWave/APMLongP/APMLongP.enzo
+.. |link122| replace:: X
+.. _link122: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/APM/TestSineWave/APMShortP/APMShortP.enzo
+.. |link123| replace:: X
+.. _link123: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/APM/TestSineWave/FastLongP/FastLongP.enzo
+.. |link124| replace:: X
+.. _link124: https://github.com/enzo-project/enzo-dev/tree/master/run/APMGravitySolver/APM/TestSineWave/FastShortP/FastShortP.enzo

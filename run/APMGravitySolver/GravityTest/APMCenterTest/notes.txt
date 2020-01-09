@@ -1,0 +1,1 @@
+Running APM solver with central particle at the center of the subgrid

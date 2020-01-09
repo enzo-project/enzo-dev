@@ -52,7 +52,7 @@ support for Enzo
 
 Many people have contributed to the development of Enzo -- here's just a short
 list of the people who have recently contributed, in alphabetical order:
-   
+
    * Tom Abel               tabel@stanford.edu
    * Gabriel Altay          gabriel.altay@gmail.com
    * James Bordner          jobordner@ucsd.edu
@@ -68,7 +68,7 @@ list of the people who have recently contributed, in alphabetical order:
    * Andrew Emerick         aemerick11@gmail.com
    * Forrest Glines         forrestglines@gmail.com
    * Nathan Goldbaum        ngoldbau@ucsc.edu
-   * Philipp Grete          grete@pa.msu.edu 
+   * Philipp Grete          grete@pa.msu.edu
    * John Forbes            jcforbes@ucsc.edu
    * Yusuke Fujimoto        yusuke.fujimoto.jp@gmail.com
    * Oliver Hahn            hahn@phys.ethz.ch
@@ -94,6 +94,7 @@ list of the people who have recently contributed, in alphabetical order:
    * Boon Kiat Oh           bkoh@roe.ac.uk
    * Brian O'Shea           oshea@msu.edu
    * Pascal Paschos         ppaschos@minbari.ucsd.edu
+   * Jean-Claude Passy      jcpassy@gmail.com
    * Molly Peeples          molly@stsci.edu
    * Carolyn Peruta         perutaca@msu.edu
    * John Regan             johnanthonyregan@gmail.com
@@ -102,7 +103,7 @@ list of the people who have recently contributed, in alphabetical order:
    * Munier Salem           msalem@astro.columbia.edu
    * Devin Silvia           devin.silvia@gmail.com
    * Christine Simpson      csimpson@astro.columbia.edu
-   * Samuel Skillman        samskillman@gmail.com 
+   * Samuel Skillman        samskillman@gmail.com
    * Stephen Skory          s@skory.us
    * Britton Smith          brittonsmith@gmail.com
    * Geoffrey So            gsiisg@gmail.com
@@ -114,5 +115,5 @@ list of the people who have recently contributed, in alphabetical order:
    * Peng Wang              penwang@nvidia.com
    * John Wise              jwise@physics.gatech.edu
    * Hao Xu                 haoxu.physics@gmail.com
-   * Alvaro Zamora          alvarozamora@stanford.edu  
+   * Alvaro Zamora          alvarozamora@stanford.edu
    * Fen Zhao               fenzhao@stanford.edu

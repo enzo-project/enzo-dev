@@ -56,46 +56,46 @@ c     minsupecoef - coefficient for minimum pressure support (0 - not used)
 #include "fortran.def"
 
 
-int Zeus_xTransport(float *d, float *e, float *u, float *v, float *w, 
+int Zeus_xTransport(float *d, float *e, float *u, float *v, float *w,
 		    int in, int jn, int kn, int rank,
 		    int is, int ie, int js, int je, int ks, int ke,
 		    float dt, float dx[], float *f1, int bottom,
 		    int nsubgrids, long_int GridGlobalStart[],
-		    fluxes *SubgridFluxes[], int DensNum, int TENum, 
+		    fluxes *SubgridFluxes[], int DensNum, int TENum,
 		    int Vel1Num, int Vel2Num, int Vel3Num, float *BaryonField[],
 		    int NumberOfColours, int colnum[]);
 
-int Zeus_yTransport(float *d, float *e, float *u, float *v, float *w, 
+int Zeus_yTransport(float *d, float *e, float *u, float *v, float *w,
 		    int in, int jn, int kn, int rank,
 		    int is, int ie, int js, int je, int ks, int ke,
 		    float dt, float dy[], float *f1, int bottom,
 		    int nsubgrids, long_int GridGlobalStart[],
-		    fluxes *SubgridFluxes[], int DensNum, int TENum, 
+		    fluxes *SubgridFluxes[], int DensNum, int TENum,
 		    int Vel1Num, int Vel2Num, int Vel3Num, float *BaryonField[],
 		    int NumberOfColours, int colnum[]);
 
-int Zeus_zTransport(float *d, float *e, float *u, float *v, float *w, 
+int Zeus_zTransport(float *d, float *e, float *u, float *v, float *w,
 		    int in, int jn, int kn, int rank,
 		    int is, int ie, int js, int je, int ks, int ke,
 		    float dt, float dz[], float *f1, int bottom,
 		    int nsubgrids, long_int GridGlobalStart[],
-		    fluxes *SubgridFluxes[], int DensNum, int TENum, 
+		    fluxes *SubgridFluxes[], int DensNum, int TENum,
 		    int Vel1Num, int Vel2Num, int Vel3Num, float *BaryonField[],
 		    int NumberOfColours, int colnum[]);
 
-int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float *cr, 
+int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float *cr,
 	       int in, int jn, int kn, int rank, int igamfield,
-	       int is, int ie, int js, int je, int ks, int ke, 
+	       int is, int ie, int js, int je, int ks, int ke,
 	       float C1, float C2, int ipresfree,
 	       float *gamma, float dt, float pmin, float dx[], float dy[], float dz[],
-	       int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
+	       int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc,
 	       int bottom, float minsupecoef, int CRModel, float CRgamma);
 
 int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
          int in, int jn, int kn, int rank,
-         int is, int ie, int js, int je, int ks, int ke, 
+         int is, int ie, int js, int je, int ks, int ke,
          float C1, float C2, float *gamma, float dt, float dx[], float dy[], float dz[],
-         int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
+         int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc,
          float minsupecoef, float lapcoef);
 
 int GetUnits (float *DensityUnits, float *LengthUnits,
@@ -105,8 +105,8 @@ int FindField(int field, int farray[], int numfields);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 
-int grid::ZeusSolver(float *gamma, int igamfield, int nhy, 
-		     float dx[], float dy[], float dz[], 
+int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
+		     float dx[], float dy[], float dz[],
 		     int gravity, int NumberOfSubgrids, long_int GridGlobalStart[],
 		     fluxes *SubgridFluxes[],
 		     int NumberOfColours, int colnum[], int bottom,
@@ -131,7 +131,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   float *p = new float[size];
-  
+
   /* Find fields: density, total energy, velocity1-3 and set pointers to them
      Create zero fields for velocity2-3 for low-dimension runs because solver
      assumes they exist. */
@@ -142,7 +142,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       ENZO_FAIL("Cannot Find Cosmic Rays");
     cr = BaryonField[CRNum];
   }
-  
+
   d = BaryonField[DensNum];
   e = BaryonField[TENum];
   u = BaryonField[Vel1Num];
@@ -205,18 +205,49 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     if (fabs(u[i]) > dx[0]/dtFixed ||
 	fabs(v[i]) > dy[0]/dtFixed ||
 	fabs(w[i]) > dz[0]/dtFixed) {
-      fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
+      fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n",
 	      u[i],v[i],w[i],d[i],e[i], dx[0], dtFixed);
       ENZO_FAIL("Velocity too fast! (pre-call)\n");
     }
   }
-		 
+
   /*   1) Add source terms */
+  float *AccelerationField0 = AccelerationField[0];
+  float *AccelerationField1 = AccelerationField[1];
+  float *AccelerationField2 = AccelerationField[2];
+
+  // If we use the APM solver, one must add the external contribution
+  float *AccelerationFieldTotalAPMZeus[MAX_DIMENSION];
+  for (int dim = 0; dim < GridRank; dim++) {
+    AccelerationFieldTotalAPMZeus[dim] = NULL;
+    AccelerationFieldTotalAPMZeus[dim] = new float[size];
+  }
+
+  if (GravitySolverType == GRAVITY_SOLVER_APM) {
+    if (ProblemType == 41 || ProblemType == 42 || ProblemType == 43 || ProblemType == 46) {
+
+      for (int dim = 0; dim < GridRank; dim++) {
+
+        // Error check
+        if (AccelerationFieldExternalAPM[dim] == NULL)
+          ENZO_FAIL("External acceleration absent in grid->ZeusSolver.C\n");
+
+        for (i = 0; i < size; i++) {
+          AccelerationFieldTotalAPMZeus[dim][i] =
+            AccelerationField[dim][i] + AccelerationFieldExternalAPM[dim][i];
+        }
+      }
+
+      AccelerationField0 = AccelerationFieldTotalAPMZeus[0];
+      AccelerationField1 = AccelerationFieldTotalAPMZeus[1];
+      AccelerationField2 = AccelerationFieldTotalAPMZeus[2];
+    }
+  }
 
   /* FDM: if FDM is used */
 
   if (QuantumPressure) {
-  
+
     float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
       VelocityUnits = 1, TimeUnits = 1;
 
@@ -235,16 +266,16 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     double hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits,2)/FDMMass;
     //(hbar/m)^2/2
     double lapcoef = POW(hmcoef,2)/2.;
-  
+
     if (ZeusFDM(d, e, u, v, w, p,
 		GridDimension[0], GridDimension[1], GridDimension[2],
-		GridRank, 
-		is, ie, js, je, ks, ke, 
+		GridRank,
+		is, ie, js, je, ks, ke,
 		ZEUSLinearArtificialViscosity,
 		ZEUSQuadraticArtificialViscosity,
 		gamma, dtFixed, dx, dy, dz,
-		gravity, AccelerationField[0], AccelerationField[1],
-		AccelerationField[2],
+		gravity, AccelerationField0, AccelerationField1,
+		AccelerationField2,
 		minsupecoef,lapcoef) == FAIL) {
       fprintf(stderr, "P(%"ISYM"): Error in ZeusFDM on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber, nhy, dtFixed);
       fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
@@ -253,15 +284,15 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 
   } else {
 
-  if (ZeusSource(d, e, u, v, w, p, cr, 
+  if (ZeusSource(d, e, u, v, w, p, cr,
 		 GridDimension[0], GridDimension[1], GridDimension[2],
 		 GridRank, igamfield,
-		 is, ie, js, je, ks, ke, 
+		 is, ie, js, je, ks, ke,
 		 ZEUSLinearArtificialViscosity,
 		 ZEUSQuadraticArtificialViscosity, PressureFree,
 		 gamma, dtFixed, pmin, dx, dy, dz,
-		 gravity, AccelerationField[0], AccelerationField[1],
-		 AccelerationField[2],
+		 gravity, AccelerationField0, AccelerationField1,
+		 AccelerationField2,
 		 bottom, minsupecoef, CRModel, CRgamma) == FAIL) {
     fprintf(stderr, "P(%"ISYM"): Error in ZeusSource on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
 	    nhy, dtFixed);
@@ -271,7 +302,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 }
 
   /* Error check */
-  
+
   float CRcs = 0.0;
   if (CRmaxSoundSpeed != 0.0){
 		  // Get system of units
@@ -282,7 +313,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       ENZO_FAIL("Error in GetUnits.");
     }
 
-    CRsound = CRmaxSoundSpeed/VelocityUnits; 
+    CRsound = CRmaxSoundSpeed/VelocityUnits;
     CRcs = (CRgamma-1.0)/(CRsound*CRsound);
   }
 
@@ -290,16 +321,16 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     if (fabs(u[i]) > dx[0]/dtFixed ||
 	fabs(v[i]) > dy[0]/dtFixed ||
 	fabs(w[i]) > dz[0]/dtFixed) {
-      fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
+      fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n",
 	      u[i],v[i],w[i],d[i],e[i], dx[0], dtFixed);
       ENZO_FAIL("Velocity too fast! (post-call)\n");
     }
-  
+
     /* -- density/TE floor for CR model -- */
 
     if ( CRModel ){
       if ( CRdensFloor != 0.0 && d[i] < CRdensFloor ) d[i] = CRdensFloor;
-      if ( CRcs        != 0.0 && d[i] < CRcs*cr[i]  ) d[i] = CRcs*cr[i];   // Limits sound-speed 
+      if ( CRcs        != 0.0 && d[i] < CRcs*cr[i]  ) d[i] = CRcs*cr[i];   // Limits sound-speed
       if ( e[i] < tiny_number*1e-5                  ) e[i] = tiny_number*1e-5;
     } // end cr model if
   } // end i for
@@ -310,9 +341,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   for(n=ixyz; n <= ixyz+GridRank-1; n++) {
 
     /* Transport step - x direction */
-    
+
     if ((n % GridRank) == 0)
-      ret = Zeus_xTransport(d, e, u, v, w, GridDimension[0], 
+      ret = Zeus_xTransport(d, e, u, v, w, GridDimension[0],
 			    GridDimension[1], GridDimension[2], GridRank,
 			    is, ie, js, je, ks, ke,
 			    dtFixed, dx, p, bottom,
@@ -324,7 +355,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     /*  Transport step - y direction */
 
     if ((n % GridRank) == 1 && GridRank > 1)
-      ret = Zeus_yTransport(d, e, u, v, w, GridDimension[0], 
+      ret = Zeus_yTransport(d, e, u, v, w, GridDimension[0],
 			    GridDimension[1], GridDimension[2], GridRank,
 			    is, ie, js, je, ks, ke,
 			    dtFixed, dy, p, bottom,
@@ -336,7 +367,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     /*  Transport step - z direction */
 
     if ((n % GridRank) == 2 && GridRank > 2)
-      ret = Zeus_zTransport(d, e, u, v, w, GridDimension[0], 
+      ret = Zeus_zTransport(d, e, u, v, w, GridDimension[0],
 			    GridDimension[1], GridDimension[2], GridRank,
 			    is, ie, js, je, ks, ke,
 			    dtFixed, dz, p, bottom,
@@ -344,22 +375,24 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 			    SubgridFluxes, DensNum, TENum,
 			    Vel1Num, Vel2Num, Vel3Num, BaryonField,
 			    NumberOfColours, colnum);
-  
+
     if (ret == FAIL) {
-      fprintf(stderr, "P(%"ISYM"): Error on ZeusTransport dim=%"ISYM" (Cycle = %"ISYM", dt=%"GSYM")\n", 
+      fprintf(stderr, "P(%"ISYM"): Error on ZeusTransport dim=%"ISYM" (Cycle = %"ISYM", dt=%"GSYM")\n",
 	      MyProcessorNumber, n % GridRank, nhy, dtFixed);
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
       ENZO_FAIL("Error in ZeusSource!\n");
       }
-  
+
   } // end loop over n
-  
+
   /* Clean up */
+  for (int dim = 0; dim < GridRank; dim++)
+    delete [] AccelerationFieldTotalAPMZeus[dim];
 
   delete [] p;
   if (GridRank < 2) delete [] v;
   if (GridRank < 3) delete [] w;
-  
+
   return SUCCESS;
 
 }

@@ -54,3 +54,18 @@ src/P-GroupFinder/P-GroupFinder
 doc/manual/build
 
 run/results.js
+
+amr.out
+performance.out
+OutputLog
+Evtime
+Enzo_Build
+OutputLevelInformation.out
+RunFinished
+DD0000/
+DD0001/
+AccelerationField.out*
+TestGravityCheckResults.out*
+01.out
+nosetests.xml
+run/**/*.png

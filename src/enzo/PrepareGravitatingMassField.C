@@ -9,7 +9,7 @@
 /  PURPOSE:
 /
 ************************************************************************/
- 
+
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
@@ -37,9 +37,9 @@ int CopyOverlappingParticleMassFields(grid* CurrentGrid,
 				      int level);
 #endif
 int DepositBaryons(HierarchyEntry *Grid, FLOAT When);
- 
+
 /* EvolveHierarchy function */
- 
+
 
 int PrepareGravitatingMassField1(HierarchyEntry *Grid)
 {
@@ -88,14 +88,14 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
 				 FLOAT When)
 #endif
 {
- 
+
   /* declarations */
- 
+
   int grid2;
   grid *CurrentGrid = Grid->GridData;
- 
+
   /* Baryons: deposit mass into GravitatingMassField. */
- 
+
   // IF STATEMENT HERE TO MAKE IT SO NO GAS CONTRIBUTES TO GRAVITY
   if(!SelfGravityGasOff){
     if (DepositBaryons(Grid, When) == FAIL) {
@@ -103,13 +103,13 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
       printf("      Potential calculated for the gas\n");
     }
   }
- 
+
   /* Particles: go through all the other grids on this level and add all
      their overlapping GravitatingMassFieldParticles to this grid's
      GravitatingMassField.  Handle periodicity properly. */
- 
+
 //  fprintf(stderr, "  PGMF - CopyOverlappingParticleMassField\n");
- 
+
 #ifdef FAST_SIB
   for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
     if (CurrentGrid->CheckForOverlap(SiblingList[grid1].GridList[grid2],
@@ -130,17 +130,17 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
 #endif
 
   /* If we are using comoving coordinates, we must adjust the source term. */
- 
+
   if (CommunicationDirection == COMMUNICATION_SEND ||
       CommunicationDirection == COMMUNICATION_SEND_RECEIVE) {
 
-    if (ComovingCoordinates)
+    if (ComovingCoordinates | (ProblemType == 44 && GravitySolverType == GRAVITY_SOLVER_FAST))
       if (CurrentGrid->ComovingGravitySourceTerm() == FAIL) {
 	ENZO_FAIL("Error in grid->ComovingGravitySourceTerm.\n");
       }
- 
+
   } // end: if (CommunicationDirection != COMMUNICATION_SEND)
- 
+
   return SUCCESS;
 }
 
@@ -148,15 +148,15 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
 
 int PrepareGravitatingMassField2b(HierarchyEntry *Grid, int level)
 {
- 
+
   /* declarations */
- 
+
   grid *CurrentGrid = Grid->GridData;
 
   CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
   if (level > 0)
 
     CurrentGrid->PreparePotentialField(Grid->ParentGrid->GridData);
- 
+
   return SUCCESS;
 }

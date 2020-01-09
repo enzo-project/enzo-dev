@@ -41,59 +41,61 @@ common convention of 0 meaning false or off and 1 for true or on.
 
 * `Initialization Parameters`_
 
-* `I/O Parameters`_ 
-   
-   * `General I/O Parameters`_ 
-   
+* `I/O Parameters`_
+
+   * `General I/O Parameters`_
+
    * `Stopping Parameters`_
-   
+
    * `Streaming Data Format`_
-   
+
    * `Simulation Identifiers and UUIDs`_
 
 * `Hierarchy Control Parameters`_
 
 * `Gravity Parameters`_
-   
+
    * `General Gravity Parameters`_
-   
+
+   * `APM Gravity Parameters`_
+
    * `External Gravity Source`_
 
 * `Hydrodynamics Parameters`_
-   
+
    * `General Hydrodynamics Parameters`_
-   
+
    * `Minimum Pressure Support Parameters`_
-   
+
    * `Magnetohydrodynamics (CT) Parameters`_
-   
+
    * `Magnetohydrodynamics (Dedner) Parameters`_
 
 * `Cooling Parameters`_
-   
+
    * `Simple Cooling Options`_
-   
+
    * `Cloudy Cooling`_
-   
+
    * `The Grackle`_
 
 
 * `Particle Parameters`_
 
 * `Star Formation and Feedback Parameters`_
-   
+
    * `General Star Formation`_
-   
+
    * `Normal Star Formation`_
-   
+
    * `Molecular Hydrogen Regulated Star Formation`_
-   
+
    * `Population III Star Formation`_
-   
+
    * `Radiative Star Cluster Formation`_
-   
+
    * `Massive Black Hole Particle Formation`_
-   
+
    * `Sink Formation and Feedback`_
 
    * `Magnetic Supernova Feedback`_
@@ -101,23 +103,23 @@ common convention of 0 meaning false or off and 1 for true or on.
    * `Active Particles`_
 
 * `Radiation Parameters`_
-   
+
    * `Background Radiation Parameters`_
-   
+
    * `Radiative Transfer (Ray Tracing) Parameters`_
-   
+
    * `Radiative Transfer (FLD) Parameters`_
-   
+
    * `Radiative Transfer (FLD) Implicit Solver Parameters`_
-   
+
    * `Radiative Transfer (FLD) Split Solver Parameters`_
 
 * `Cosmology Parameters`_
 
 * `Massive Black Hole Physics Parameters`_
-   
+
    * `Accretion Physics`_
-   
+
    * `Feedback Physics`_
 
 * `Shock Finding Parameters`_
@@ -131,15 +133,15 @@ common convention of 0 meaning false or off and 1 for true or on.
 * `Fuzzy Dark matter model`_
 
 * `Inline Analysis`_
-   
+
    * `Inline Halo Finding`_
-   
+
    * `Inline Python`_
 
 * `Other Parameters`_
-   
+
    * `Other External Parameters`_
-   
+
    * `Other Internal Parameters`_
 
 * `Problem Type Parameters`_
@@ -171,7 +173,7 @@ common convention of 0 meaning false or off and 1 for true or on.
     * `Rotating Sphere (14)`_
 
     * `Radiating Shock (11)`_
-    
+
     * `Free Expansion (12)`_
 
     * `Rotating Sphere (14)`_
@@ -300,14 +302,14 @@ Initialization Parameters
     none
 ``StoreDomainBoundaryMassFlux`` (external)
     When turned on, this stores the cumulative mass (in solar masses)
-    of density fields (density, species fields, metallicity) that 
+    of density fields (density, species fields, metallicity) that
     outflows from the simulation domain. This is stored directly
     in the output parameter files as the ``BoundaryMassFluxFieldNumbers``
     and ``BoundaryMassFluxContainer`` parameters, as well as
     the cycle-by-cycle mass outflow in ``BoundaryMassFluxFilename``.
     Default : 0 (off)
 ``BoundaryMassFluxFilename`` (external)
-    The filename to output the cycle-by-cyle mass outflow from the 
+    The filename to output the cycle-by-cyle mass outflow from the
     grid domain when the above parameter is ON. Default : 'boundary_mass_flux.dat'
 ``InitialTime`` (internal)
     The time, in code units, of the current step. For cosmology the
@@ -382,7 +384,7 @@ I/O Parameters
 
 .. _general_io_parameters:
 
-General I/O Parameters 
+General I/O Parameters
 ^^^^^^^^^^^^^^^^^^^^^^
 
 There are three ways to specify the frequency of outputs:
@@ -421,10 +423,10 @@ have a look at :ref:`controlling_data_output` for more information.
     becomes 0124). Default: RedshiftOutput
 ``TracerParticleDumpName`` (external)
     The base file name used for tracer particle outputs.
-    Default: 
+    Default:
 ``TracerParticleDumpDir`` (external)
     The dir name used for tracer particle outputs.
-    Default: 
+    Default:
 ``dtRestartDump``
     Reserved for future use.
 ``dtHistoryDump``
@@ -479,8 +481,8 @@ have a look at :ref:`controlling_data_output` for more information.
     root grid. More I/O is required (to split up the grids and
     particles), but it is more balanced in terms of memory.
     ``ParallelRootGridIO`` and ``ParallelParticleIO`` MUST be set to 1 (TRUE)
-    for runs involving > 64 cpus! Default: 0 (FALSE). 
-    See ``ParallelParticleIO`` in :ref:`particle_parameters`.    
+    for runs involving > 64 cpus! Default: 0 (FALSE).
+    See ``ParallelParticleIO`` in :ref:`particle_parameters`.
     See also ``Unigrid`` in :ref:`initialization_parameters`.
 ``OutputTemperature`` (external)
     Set to 1 if you want to output a temperature field in the datasets.
@@ -520,7 +522,7 @@ have a look at :ref:`controlling_data_output` for more information.
 ``WritePotential`` (external)
     When turned on, the gravitational potential is written to file.  Default: 0
 ``WriteGhostZones`` (external)
-    Should ghost zones be written to disk?  Default: 0 
+    Should ghost zones be written to disk?  Default: 0
 ``ReadGhostZones`` (external)
     Are ghost zones present in the files on disk?  Default: 0
 ``VelAnyl`` (external)
@@ -543,13 +545,13 @@ have a look at :ref:`controlling_data_output` for more information.
     integrated emissivity along the line of sight in units of 10\
     :sup:`-23` erg/cm\ :sup:`2`/s. Default: ``XrayLowerCutoffkeV =
     0.5``, ``XrayUpperCutoffkeV = 2.5``.
-``ParticleTypeInFile`` (external)    
+``ParticleTypeInFile`` (external)
     Output ParticleType to disk?  Default: 1
-``OutputParticleTypeGrouping`` (external)   
+``OutputParticleTypeGrouping`` (external)
     In the grid HDF5 groups, particles are sorted by type, and a reference is created to indicate which particle index range corresponds to each type.  Default: 0
-``HierarchyFileInputFormat`` (external) 
+``HierarchyFileInputFormat`` (external)
     See :ref:`controlling_the_hierarhcy_file_output`.
-``HierarchyFileOutputFormat`` (external) 
+``HierarchyFileOutputFormat`` (external)
     See :ref:`controlling_the_hierarhcy_file_output`.
 ``TimingCycleSkip`` (external)
     Controls how many cycles to skip when timing information is collected, reduced, and written out to performance.out.  Default: 1
@@ -559,9 +561,9 @@ have a look at :ref:`controlling_data_output` for more information.
     not recommended for use at this point. Default: 0
 ``CubeDump[]`` (external)
     not recommended for use at this point
-``LocalDir`` (external) 
+``LocalDir`` (external)
     See :ref:`controlling_data_output`.
-``GlobalDir`` (external) 
+``GlobalDir`` (external)
     See :ref:`controlling_data_output`.
 
 .. _stopping_parameters:
@@ -594,7 +596,7 @@ Stopping Parameters
     See ``StopFirstTimeAtMetalEnrichedDensity``.  In units of absolute
     metal fraction.  Default: 1e-8
 ``NumberOfOutputsBeforeExit`` (external)
-    After this many datadumps have been written, the code will exit.  If 
+    After this many datadumps have been written, the code will exit.  If
     set to 0 (default), this option will not be used.  Default: 0.
 ``StopCPUTime`` (external)
     Causes the simulation to stop if the wall time exceeds ``StopCPUTime``.
@@ -819,7 +821,7 @@ Hierarchy Control Parameters
     If ``CellFlaggingMethod`` is 1, and you only want to refine on the
     slopes of certain fields then you can enter the
     :ref:`Field Type IDs <Field_List_Reference>` of the fields you want,
-    separating the IDs with a space. Up to 7 Field Type IDs can be 
+    separating the IDs with a space. Up to 7 Field Type IDs can be
     specified. Default: Refine on slopes of all fields.
 ``MinimumSlopeForRefinement`` (external)
     If ``CellFlaggingMethod`` is 1, then local gradients are used as the
@@ -843,11 +845,11 @@ Hierarchy Control Parameters
 ``MinimumShearForRefinement`` (external)
     It is the minimum shear above which a refinement occurs if the CellFlaggingMethod is appropriately set. Default: 0
 ``OldShearMethod`` (external)
-    If using the shear refinement criterion, setting this variable to 1 enables 
-    the old method for calculating the shear criterion, which actually 
+    If using the shear refinement criterion, setting this variable to 1 enables
+    the old method for calculating the shear criterion, which actually
     calculates it based on shear and vorticity and makes some assumptions
     about the simulations (c_s=1, etc.).  However, this is necessary
-    if you want to reproduce some of the old enzo results 
+    if you want to reproduce some of the old enzo results
     (e.g. Kritsuk et al. 2006).  Default: 0
 ``MetallicityRefinementMinMetallicity`` (external)
     For method 13 (metallicity refinement), this is the threshold
@@ -901,19 +903,19 @@ Hierarchy Control Parameters
     the magnitude of the magnetic field. We make sure this length is
     covered by this number of cells. i.w. The resistive length in a MHD simulation should not be smaller than CellWidth * RefineByResistiveLengthSafetyFactor.  Default: 2.0
 ``MustRefineParticlesCreateParticles`` (external)
-    This parameter will flag dark matter particles in cosmological 
-    initial conditions as ``MustRefineParticles``.  If ``CellFlaggingMethod`` 
-    8 is set, AMR will be restricted to cells surrounding 
+    This parameter will flag dark matter particles in cosmological
+    initial conditions as ``MustRefineParticles``.  If ``CellFlaggingMethod``
+    8 is set, AMR will be restricted to cells surrounding
     ``MustRefineParticles``.  There are several different modes for creating
-    ``MustRefineParticles`` with this parameter described below.  Further 
-    information on how to use dark matter ``MustRefineParticles`` in 
+    ``MustRefineParticles`` with this parameter described below.  Further
+    information on how to use dark matter ``MustRefineParticles`` in
     cosmological simulations can be found here (link).  Default: 0
 
-    1. If the user specifies ``MustRefineParticlesLeftEdge`` and 
-       ``MustRefineParticlesRightEdge``, dark matter particles within the 
-       specified region are flagged.  Otherwise, the code looks for an ascii 
+    1. If the user specifies ``MustRefineParticlesLeftEdge`` and
+       ``MustRefineParticlesRightEdge``, dark matter particles within the
+       specified region are flagged.  Otherwise, the code looks for an ascii
        input file called MustRefineParticlesFlaggingList.in that contains a list
-       of particle ids to be flagged.  The ids in this list must be sorted in 
+       of particle ids to be flagged.  The ids in this list must be sorted in
        ascending order.
     2. For use with ellipsoidal masking in MUSIC initial conditions.  This
        setting uses traditional static grids for intermediate resolution levels
@@ -955,12 +957,12 @@ Hierarchy Control Parameters
 ``MustRefineParticlesMinimumMass`` (external)
     This was an experimental parameter to set a minimum for ``MustRefineParticles``. Default: 0.0
 ``MustRefineParticlesRegionLeftEdge`` (external)
-    Bottom-left corner of a region in which dark matter particles are flagged 
-    as ``MustRefineParticles`` in nested cosmological simulations.  To be used with 
+    Bottom-left corner of a region in which dark matter particles are flagged
+    as ``MustRefineParticles`` in nested cosmological simulations.  To be used with
     ``MustRefineParticlesCreateParticles`` = 1.  Default: 0.0 0.0 0.0
 ``MustRefineParticlesRegionRightEdge`` (external)
-    Top-right corner of a region in which dark matter particles are flagged 
-    as ``MustRefineParticles`` in nested cosmological simulations.  To be used with 
+    Top-right corner of a region in which dark matter particles are flagged
+    as ``MustRefineParticles`` in nested cosmological simulations.  To be used with
     ``MustRefineParticlesCreateParticles`` = 1.  Default: 0.0 0.0 0.0
 ``MustRefineRegionMinRefinementLevel`` (external)
     Minimum level to which the rectangular solid volume defined by
@@ -997,7 +999,7 @@ Hierarchy Control Parameters
     might be two lines from the text file when time is indexed by
     redshift:
     ::
-       
+
         2.05 0.493102 0.488106 0.501109 0.495102 0.490106 0.503109 10
 	2.00 0.493039 0.487908 0.501189 0.495039 0.489908 0.503189 10
 
@@ -1055,38 +1057,38 @@ Hierarchy Control Parameters
     This parameter is used to limit the refinement to this level in a
     rectangular region.  Up to MAX_STATIC_REGIONS regions can be used.
     Default: IND_UNDEFINED
-``AvoidRefineRegionLeftEdge[#]``, ``AvoidRefineRegionRightEdge[#]`` (external) 
+``AvoidRefineRegionLeftEdge[#]``, ``AvoidRefineRegionRightEdge[#]`` (external)
     These two parameters specify the two corners of a region that
     limits refinement to a certain level (see the previous
     parameter). Default: none
 ``MultiRefineRegionGeometry[#]`` (external)
-    This parameter (and the ones following) describe a physical region of the simulation box for which an 
+    This parameter (and the ones following) describe a physical region of the simulation box for which an
     independent refinement maximum and minimum (separate from ``MaximumRefinementLevel``) can be specified.
-``MultiRefineRegionGeometry[#]`` controls the geometry of the refined volume. Currently implemented 
-    geometries are: (0) a rectangular region, (1) a ring of infinite height and (2) a cylinder of infinite 
+``MultiRefineRegionGeometry[#]`` controls the geometry of the refined volume. Currently implemented
+    geometries are: (0) a rectangular region, (1) a ring of infinite height and (2) a cylinder of infinite
     height. Up to 20 multi-refined regions may be defined (number the same as for ``StaticRefineRegion``)
     and each multi-refined region is labelled starting from zero. Default: -1 (no multi-regions)
 ``MultiRefineRegionLeftEdge[#]``, ``MultiRefineRegionRightEdge[#]`` (external)
-    Used when ``MultiRefineRegionGeometry[#] = 0`` and specifies the two corners in code units of a 
+    Used when ``MultiRefineRegionGeometry[#] = 0`` and specifies the two corners in code units of a
     rectangular multi-region with a given maximum and minimum refinement level. Default: none.
 ``MultiRefineRegionCenter[#]`` (external)
-    Used when ``MultiRefineRegionGeometry[#] = 1 or 2`` and specifies the center of the ring or cylinder 
+    Used when ``MultiRefineRegionGeometry[#] = 1 or 2`` and specifies the center of the ring or cylinder
     in code units. Default: none
 ``MultiRefineRegionRadius[#]`` (external)
-    Used when ``MultiRefineRegionGeometry[#] = 1 or 2`` and specifies the radius of the ring or cylinder 
-    in code units. In the case of the ring, this marks the distance to the middle of the ring's thickness. 
+    Used when ``MultiRefineRegionGeometry[#] = 1 or 2`` and specifies the radius of the ring or cylinder
+    in code units. In the case of the ring, this marks the distance to the middle of the ring's thickness.
     The thickness is specified with ``MultiRefineRegionWidth``. Default: none
 ``MultiRefineRegionWidth[#]`` (external)
-    Used when ``MultiRefineRegionGeometry[#] = 1`` and specifies the width (thickness) of the ring in 
+    Used when ``MultiRefineRegionGeometry[#] = 1`` and specifies the width (thickness) of the ring in
     code units. Default: none
 ``MultiRefineRegionOrientation[#]`` (external)
     Used when ``MultiRefineRegionGeometry[#] = 1 or 2`` and is a unit vector pointing along the vertical
     direction of the ring or cylinder. Default: none.
 ``MultiRefineRegionStaggeredRefinement[#]`` (external)
     Used when ``MultiRefineRegionGeometry[#] = 1 or 2``. To avoid a sharp change in refinement at the edge of
-    the ring or cylinder, the allowed refinement is staggered from the maximum allowed value outside the 
-    region, ``MultiRefineRegionOuterMaximumLevel``, to the maximum allowed refinement inside the region, 
-    ``MultiRefineRegionMaximumLevel``. This parameter is the length over which that staggering occurs in 
+    the ring or cylinder, the allowed refinement is staggered from the maximum allowed value outside the
+    region, ``MultiRefineRegionOuterMaximumLevel``, to the maximum allowed refinement inside the region,
+    ``MultiRefineRegionMaximumLevel``. This parameter is the length over which that staggering occurs in
     code units. Default: 0.0 (no staggering)
 ``MultiRefineRegionMaximumLevel[#]``, ``MultiRefineRegionMinimumLevel[#]`` (external)
     Maximum and minimum allowed refinement inside the region. Default: ``MaximumRefinementLevel``, 0
@@ -1111,8 +1113,8 @@ Hierarchy Control Parameters
 ``MaximumSubgridSize`` (external)
     The maximum size (volume) of a subgrid.  See :ref:`running_large_simulations`. Default: 32768
 ``CriticalGridRatio`` (external)
-    Critical grid ratio above which subgrids will be split in half along their 
-    long axis prior to being split by the second derivative of their 
+    Critical grid ratio above which subgrids will be split in half along their
+    long axis prior to being split by the second derivative of their
     signature.  Default: 3.0
 ``SubgridSizeAutoAdjust`` (external)
     See :ref:`running_large_simulations`.  Default: 1 (TRUE)
@@ -1170,7 +1172,7 @@ Hierarchy Control Parameters
 
 
 
-    
+
 .. _gravity_parameters:
 
 Gravity Parameters
@@ -1192,6 +1194,9 @@ General Gravity Parameters
     undergo self-gravity.
 ``SelfGravityGasOff`` (external)
     This parameter is used in conjunction with SelfGravity so that only particles contribute to potential, not gas. Default = False (i.e. gas does contribute)
+``GravitySolverType`` (external)
+    Gravity solver to use (0: Multigrid, 1: APM).
+    Default: 0
 ``GravitationalConstant`` (external)
     This is the gravitational constant to be used in code units. For cgs units it
     should be 4\*pi\*G. For cosmology, this value must be 1 for the
@@ -1244,6 +1249,31 @@ General Gravity Parameters
     set to 0 if using many levels and radiative cooling is on [ignored
     in current version]. Default: 1
 
+.. _apm_gravity_parameters:
+
+APM Gravity Parameters
+^^^^^^^^^^^^^^^^^^^^^^
+
+``DepositAlsoParentGridAndSiblingsParticles`` (external)
+    Deposit particles also from the parent grid and the siblings.
+    This solves issues arising when particles are close to the grid edges.
+    Default: 0
+
+``TimeSteppingRefinementCondition`` (external)
+    Additional condition constraining the time step on level *l+1* to be smaller
+    that the timestep on level *l* divided by the refinenemt factor.
+    Default: 0
+
+``APMAddParentContribution`` (external)
+    Add the parent contribution to potential/acceleration onto the grid.
+    **Never turn this off except for testing/debugging**.
+    Default: TRUE
+
+``S2ParticleSize`` (external)
+    Size of the sphere (in cell size) used to filter the contribution of the
+    smallest scales to the gravitational force.
+    Default: 3.0
+
 .. _external_gravity_source:
 
 External Gravity Source
@@ -1277,15 +1307,15 @@ added to the acceleration field for the baryons and particles.
    This fulfills the same purpose as ``PointSourceGravity`` but is
    more aptly named. ``ExternalGravity = 1`` turns on an alternative
    implementation of the NFW profile with properties
-   defined via the parameters ``HaloCentralDensity``, ``HaloConcentration`` and ``HaloVirialRadius``. Boxsize is assumed to be 1.0 in this case. ``ExternalGravity = 10`` gives a gravitational field defined by the logarithmic potential in Binney & Tremaine, corresponding to a disk with constant circular velocity.  Default: 0 
+   defined via the parameters ``HaloCentralDensity``, ``HaloConcentration`` and ``HaloVirialRadius``. Boxsize is assumed to be 1.0 in this case. ``ExternalGravity = 10`` gives a gravitational field defined by the logarithmic potential in Binney & Tremaine, corresponding to a disk with constant circular velocity.  Default: 0
 ``ExternalGravityConstant`` (external)
     If ``ExternalGravity = 10``, this is the circular velocity of the disk in code units. Default: 0.0
-``ExternalGravityDensity`` 
+``ExternalGravityDensity``
    Reserved for future use.
 ``ExternalGravityPosition`` (external)
     If ``ExternalGravity = 10``, this parameter specifies the center of the gravitational field in code units. Default: 0 0 0
 ``ExternalGravityOrientation`` (external)
-    For ``ExternalGravity = 10``, this is the unit vector of the disk's angular momentum (e.g. a disk whose face-on view is oriented in the x-y plane would have ``ExternalGravityOrientation = 0 0 1``). Default: 0 0 0 
+    For ``ExternalGravity = 10``, this is the unit vector of the disk's angular momentum (e.g. a disk whose face-on view is oriented in the x-y plane would have ``ExternalGravityOrientation = 0 0 1``). Default: 0 0 0
 ``ExternalGravityRadius`` (external)
    If ``ExternalGravity = 10``, this marks the inner radius of the disk in code units within which the velocity drops to zero. Default: 0.0
 ``UniformGravity`` (external)
@@ -1339,7 +1369,7 @@ General Hydrodynamics Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``UseHydro`` (external)
-    This flag (1 - on, 0 - off) controls whether a hydro solver is used.  
+    This flag (1 - on, 0 - off) controls whether a hydro solver is used.
     Default: 1
 ``HydroMethod`` (external)
     This integer specifies the hydrodynamics method that will be used.
@@ -1397,7 +1427,7 @@ General Hydrodynamics Parameters
 
               0 - ThirdOrderA     3 - SecondOrderC
               1 - SecondOrderA    4 - FirstOrderA
-              2 - SecondOrderB  
+              2 - SecondOrderB
 
 ``ConservativeInterpolation`` (external)
     This flag (1 - on, 0 - off) indicates if the interpolation should
@@ -1417,8 +1447,8 @@ General Hydrodynamics Parameters
     2                            [reserved]
     3                3,4         LLF (Local Lax-Friedrichs)
     4                0,3         HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
-    5                0           TwoShock 
-    6                4,6         HLLD 
+    5                0           TwoShock
+    6                4,6         HLLD
     ================ =========== ===========================
 
     Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for
@@ -1434,12 +1464,12 @@ General Hydrodynamics Parameters
     ===================== ============ ===================
     Reconstruction Method HydroMethod  Description
     ===================== ============ ===================
-    0                     0,3,4,6      PLM (piecewise linear) 
+    0                     0,3,4,6      PLM (piecewise linear)
     1                     0            PPM (piecwise parabolic)
     2                                  [reserved]
     3                                  [reserved]
     4                                  [reserved]
-    6                     6            MUSCL-Hancock (Non Runge-Kutta) 
+    6                     6            MUSCL-Hancock (Non Runge-Kutta)
     ===================== ============ ===================
 
     Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
@@ -1510,7 +1540,7 @@ General Hydrodynamics Parameters
     is either on (1) or off (0). Default: 0
 ``SmallRho`` (external)
     Minimum value for density in code units. This is enforced in euler.F
-    when using the PPM solver (``HydroMethod`` = 0) or in 
+    when using the PPM solver (``HydroMethod`` = 0) or in
     hydro_rk/EvolveLevel_RK.C when ``HydroMethod`` is 3 or 4. Not enforced
     in other hydrodynamics methods. Default: 1e-30
 ``ZEUSQuadraticArtificialViscosity`` (external)
@@ -1549,11 +1579,11 @@ Minimum Pressure Support Parameters
 Magnetohydrodynamics (CT) Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``MHD_CT_Method`` (external) 
+``MHD_CT_Method`` (external)
     Method for computing the electric field from the Riemann fluxes
 
     ========== ==========================================================================
-    CT Method   Description  
+    CT Method   Description
     ========== ==========================================================================
     0           None (only for debugging)
     1           Balsara and Spicer 1999. First order average.
@@ -1565,58 +1595,58 @@ Magnetohydrodynamics (CT) Parameters
 
     Default: 3
 
-``CT_AthenaDissipation``  (external) 
+``CT_AthenaDissipation``  (external)
     For the Lax-Friedrichs CT method, this is the maximum wave speed.  (:math:`\alpha` in Gardiner & Stone 2005 eqn. 46). Default: 0.1
 
-``EquationOfState`` (external, ct only) 
+``EquationOfState`` (external, ct only)
     0: standard adiabatic 1: Exactly isothermal
     equation of state.  This flag removes the total energy term completely, instead
     computing pressure as :math:`p = c^2 \rho`. This option only works with
     ``HydroMethod = 6`` and ``RiemannSolver = 6`` (HLLD) as this is the only purely
     isothermal Riemann solver in Enzo.  Default: 0
 
-``IsothermalSoundSpeed`` (external, ct only) 
+``IsothermalSoundSpeed`` (external, ct only)
     When ``EquationOfState = 1``, this is the
     sound speed used for computation of pressure.  Default: 1
 
-``MHDCTSlopeLimiter`` (external, ct only) 
+``MHDCTSlopeLimiter`` (external, ct only)
     For computing derivatives for the reconstruction,
     this switches between zero slope (0), minmod (1), VanLeer (2), and
     characteristic  (3) characteristic with primitive limiting (4).  Default: 1
 
-``ReconstructionMethod`` (external) 
+``ReconstructionMethod`` (external)
     There are two reconstruction methods
     that work with MHDCT: Piecewise Linear Method (PLM) (0) and MUSCL-Hancock (6).  This
     formulation of MUSCL-Hancock is different from the 2nd order Runga Kutta used for
-    ``HydroMethod = 3,4``.     
+    ``HydroMethod = 3,4``.
 
-``RiemannSolver`` (external)  
+``RiemannSolver`` (external)
     As with ``HydroMethod=4``, the preferred solver is
     HLLD (``RiemannSolver=6``).  Other solvers may be released if the DOE approves
     them.
 
 
-``MHDCTUseSpecificEnergy`` (external) 
+``MHDCTUseSpecificEnergy`` (external)
     Either specific energy is used internally
     (1) or conserved energy is used internally (0).  Minor difference in boundary
     condition update, included for comparison to old solutions.  Default: 1
 
 
-``MHDCTDualEnergyMethod`` (external) 
+``MHDCTDualEnergyMethod`` (external)
     When ``DualEnergyFormalism = 1``, this switches
     between a method that solves an additional equation for the internal energy, as
-    in the rest of Enzo, and method that updates the entropy.  
+    in the rest of Enzo, and method that updates the entropy.
 
 
-``MHD_WriteElectric`` (external)  
+``MHD_WriteElectric`` (external)
     Include the electric field in the output.
     Default: 0
 
-``MHD_ProjectB`` (internal)  
+``MHD_ProjectB`` (internal)
     Project magnetic fields from fine to coarse.
-    Should not be done in general, only used for initialization.  
+    Should not be done in general, only used for initialization.
 
-``MHD_ProjectE`` (internal)  
+``MHD_ProjectE`` (internal)
     Project Electric fields from fine to coarse.
     Used for the time evolution of the fields.
 
@@ -1625,13 +1655,13 @@ Magnetohydrodynamics (CT) Parameters
 Magnetohydrodynamics (Dedner) Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following parameters are considered only when ``HydroMethod`` is 3 or 4 (and occasionally only in some test problems).  
+The following parameters are considered only when ``HydroMethod`` is 3 or 4 (and occasionally only in some test problems).
 Because many of the following parameters are not actively being tested and maintained, users are encouraged to carefully examine the code before using it.
 
 ``UsePoissonDivergenceCleaning`` (external)
     Enables additional divergence cleaning by solving a Poisson equation.
     This works on top of the standard mixed hyperbolic/parabolic divergence cleaning
-    and is not necessary for the proper operation of the solver. 
+    and is not necessary for the proper operation of the solver.
     This works on individual grids, i.e., it's *not* a global divergence purge.
     Use with care as this feature is not extensively tested.  No recommendation
     about the use of this option is made by the developers at this time.
@@ -1650,7 +1680,7 @@ Because many of the following parameters are not actively being tested and maint
     cleaning Poisson solver. Default: 0.001
 ``PoissonBoundaryType`` (external)
     Controls the boundary conditions for divergence
-    cleaning Poisson solver. 0 - Neumann (default). 1 - Dirichlet 
+    cleaning Poisson solver. 0 - Neumann (default). 1 - Dirichlet
 ``UseDrivingField`` (external)
     This parameter is used to add external driving force as a source term in some test problems; see hydro_rk/Grid_(MHD)SourceTerms.C. Default: 0
 ``DrivingEfficiency`` (external)
@@ -1658,7 +1688,7 @@ Because many of the following parameters are not actively being tested and maint
 ``UseConstantAcceleration`` (external)
     This parameter is used to add constant acceleration as a source term in some set-ups; see hydro_rk/Grid_(MHD)SourceTerms.C. Default: 0
 ``ConstantAcceleration[]`` (external)
-    This parameter is used to define the value of such acceleration; see hydro_rk/Grid_(MHD)SourceTerms.C. 
+    This parameter is used to define the value of such acceleration; see hydro_rk/Grid_(MHD)SourceTerms.C.
 ``UseViscosity`` (external)
     This parameter is used to add viscosity and thereby update velocity in some set-ups (1 - constant viscosity, 2 - alpha viscosity); see ComputeViscosity in hydro_rk/Grid_AddViscosity.C.  Default: 0
 ``ViscosityCoefficient`` (external)
@@ -1722,9 +1752,9 @@ Simple Cooling Options
 ``RadiativeCooling`` (external)
     This flag (1 - on, 0 - off) controls whether or not a radiative
     cooling module is called for each grid. There are currently several
-    possibilities, controlled by the value of another flag. See :ref:`cooling` 
+    possibilities, controlled by the value of another flag. See :ref:`cooling`
     for more information on the various cooling methods.  Default: 0
-    
+
     -  If the ``MultiSpecies`` flag is off, then equilibrium cooling is
        assumed and one of the following two will happen. If the parameter
        ``GadgetCooling`` is set to 1, the primordial equilibrium code is
@@ -1863,11 +1893,11 @@ creating Cloudy datasets.
 The Grackle
 ^^^^^^^^^^^
 
-The Grackle is an external chemistry and cooling library originally derived from 
-Enzo's MultiSpecies chemistry and Cloudy cooling modules.  See :ref:`here <Grackle>` 
-for a full description, including why you might use this over Enzo's internal 
-chemistry and cooling.  For more information on Grackle parameter, see also the 
-`Grackle documentation <https://grackle.readthedocs.org/>`_.  Note, some Grackle 
+The Grackle is an external chemistry and cooling library originally derived from
+Enzo's MultiSpecies chemistry and Cloudy cooling modules.  See :ref:`here <Grackle>`
+for a full description, including why you might use this over Enzo's internal
+chemistry and cooling.  For more information on Grackle parameter, see also the
+`Grackle documentation <https://grackle.readthedocs.org/>`_.  Note, some Grackle
 parameters have been mapped to Enzo parameters for simplicity.
 
 ``use_grackle`` (int)
@@ -2004,7 +2034,7 @@ Particle Parameters
       fp = h5.File('particle-ids.h5', 'w')
       fp['particle_identifier'] = sp['particle_index'].astype('int')
       fp.close()
-      
+
 ``ParticleSplitterFraction`` (external)
     An array of four values that represent the width of the splitting
     region in units of the original refine region set by
@@ -2047,24 +2077,24 @@ General Star Formation
     1 and 3 are desired, the user would specify 10 (2\ :sup:`1`\  +
     2\ :sup:`3`\ ), or if methods 1, 4 and 7 are wanted, this would be
     146 (2\ :sup:`1`\  + 2\ :sup:`4`\  + 2\ :sup:`7`\ ). Default: 0
-    
+
 ::
 
       0  - Cen & Ostriker (1992)
       1  - Cen & Ostriker (1992) with stocastic star formation
       2  - Global Schmidt Law / Kravstov et al. (2003)
       3  - Population III stars / Abel, Wise & Bryan (2007)
-      4  - Sink particles: Pure sink particle or star particle with wind feedback depending on 
+      4  - Sink particles: Pure sink particle or star particle with wind feedback depending on
            choice for HydroMethod / Wang et al. (2009)
       5  - Radiative star clusters  / Wise & Cen (2009)
       6  - [reserved for future use]
       7  - Cen & Ostriker (1992) with no delay in formation
       8  - Springel & Hernquist (2003)
       9  - Massive Black Hole (MBH) particles insertion by hand / Kim et al. (2010)
-      10 - Population III stellar tracers  
+      10 - Population III stellar tracers
       11 - Molecular hydrogen regulated star formation
       13 - Distributed stellar feedback model (So et al. 2014)
-      14 - Cen & Ostriker (1992) stochastic star formation with kinetic feedback 
+      14 - Cen & Ostriker (1992) stochastic star formation with kinetic feedback
              / Simpson et al. (2015)
 
 ``StarParticleFeedback`` (external)
@@ -2110,7 +2140,7 @@ General Star Formation
     with ``StarParticleCreation`` method = 0, 1, 2, 5, 7, 8, and 13.  Default:
     0.
 
-``StarMakerPlanetaryNebulae`` (external) 
+``StarMakerPlanetaryNebulae`` (external)
     This parameter turns on thermal and chemical feedback from
     planetary nebulae.  The mass loss and luminosity are taken from
     the same `fits from K. Nagamine
@@ -2166,16 +2196,16 @@ The parameters below are considered in ``StarParticleCreation`` method
     formation based on the idea that stars have a non-negligible
     formation and life-time. The unit is years. Default: 1e6
 ``StarMakerTimeIndependentFormation`` (external)
-    When used, the factor of dt / t_dyn is removed from the calculation of 
-    the star particle mass above.  Instead of the local dynamical time, the 
-    timescale over which feedback occurs is a constant set by the parameter 
-    ``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
-    conduction as the timesteps can be very short, which causes the calculated 
-    star particle mass to never exceed reasonable values for 
-    ``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
-    actually forming stars, and when combined with conduction, results in too 
-    much heat being transferred out of hot gas.  When running a cosmological 
-    simulation with conduction and star formation, one must use this otherwise 
+    When used, the factor of dt / t_dyn is removed from the calculation of
+    the star particle mass above.  Instead of the local dynamical time, the
+    timescale over which feedback occurs is a constant set by the parameter
+    ``StarMakerMinimumDynamicalTime``.  This is necessary when running with
+    conduction as the timesteps can be very short, which causes the calculated
+    star particle mass to never exceed reasonable values for
+    ``StarMakerMinimumMass``.  This prevents cold, star-forming gas from
+    actually forming stars, and when combined with conduction, results in too
+    much heat being transferred out of hot gas.  When running a cosmological
+    simulation with conduction and star formation, one must use this otherwise
     bad things will happen.  (1 - ON; 0 - OFF)  Default: 0.
 ``StarMassEjectionFraction`` (external)
     The mass fraction of created stars which is returned to the gas
@@ -2197,7 +2227,7 @@ The parameters below are considered in ``StarParticleCreation`` method
     calculating the radiation background. Default: 5e-6
 ``StarFeedbackKineticFraction`` (external)
     Only valid for ``StarParticleFeedback`` method = 14.  If set to a zero or positive
-    value between 0.0 and 1.0, this is the constant fraction of energy injected in kinetic 
+    value between 0.0 and 1.0, this is the constant fraction of energy injected in kinetic
     form.  If set to -1, then a variable kinetic fraction is used that depends on local
     gas density, metallicity and resolution.  See Simpson et al. 2015
     for details. Note, some failures may occur in -1 mode.  Default 0.0
@@ -2208,29 +2238,29 @@ The parameters below are considered in ``StarParticleCreation`` method
     to a negative value, energy, mass and metals are injected gradually in the same way as is
     done for ``StarParticleFeedback`` method = 1.  Default -1.
 ``StarMakerMinimumMassRamp`` (external)
-     Sets the Minimum Stellar Mass (otherwise given by StarMakerMinimumMass to 
+     Sets the Minimum Stellar Mass (otherwise given by StarMakerMinimumMass to
      ramp up over time, so that a small mass can be used early in the calculation
-     and a higher mass later on, or vice versa. The minimum mass is "ramped" 
-     up or down starting at StarMakerMinimumMassRampStartTime and ending 
-     at StarMakerMinimumMassRampEndTime. The acceptable values are: 
+     and a higher mass later on, or vice versa. The minimum mass is "ramped"
+     up or down starting at StarMakerMinimumMassRampStartTime and ending
+     at StarMakerMinimumMassRampEndTime. The acceptable values are:
      (1) linear evolution of mass in time
      (2) linear evolution of mass in redshift
      (3) exponential evolution of mass in time
      (4) exponential evolution of mass in redshift
-``StarMakerMinimumMassRampStartTime`` (external) 
+``StarMakerMinimumMassRampStartTime`` (external)
      The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
-     Before this time the minimum mass will have a constant value given 
+     Before this time the minimum mass will have a constant value given
      by StarMakerMinimumMassRampStartMass
-``StarMakerMinimumMassRampEndTime`` (external) 
+``StarMakerMinimumMassRampEndTime`` (external)
      The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
-     After this time the minimum mass will have a constant value given 
+     After this time the minimum mass will have a constant value given
      by StarMakerMinimumMassRampEndMass
-``StarMakerMinimumMassRampStartMass`` (external) 
-     The mass at which to start the ramp in the minimum stellar mass. This mass 
-     will be used at all times before StarMakerMinimumMassRampStartTime as well. 
-``StarMakerMinimumMassRampEndMass`` (external) 
-     The mass at which to end the ramp in the minimum stellar mass. This mass 
-     will be used at all times after StarMakerMinimumMassRampEndTime as well. 
+``StarMakerMinimumMassRampStartMass`` (external)
+     The mass at which to start the ramp in the minimum stellar mass. This mass
+     will be used at all times before StarMakerMinimumMassRampStartTime as well.
+``StarMakerMinimumMassRampEndMass`` (external)
+     The mass at which to end the ramp in the minimum stellar mass. This mass
+     will be used at all times after StarMakerMinimumMassRampEndTime as well.
 
 .. _molecular_hydrogen_regulated_star_formation_parameters:
 
@@ -2319,7 +2349,7 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
     Upper limit of the Pop III IMF.  Default: 300
 ``PopIIIInitialMassFunctionSlope`` (external)
     Slope of the Salpeter (high-mass) portion of the Pop III IMF.  Default: -1.3
-``PopIIIInitialMassFunctionCalls`` (internal) 
+``PopIIIInitialMassFunctionCalls`` (internal)
     Number of times a Pop III mass has been drawn from the IMF.  Used for restarts and reproducibility.  Default: 0
 ``PopIIISupernovaMustRefine`` (external)
     When turned on, the region around a star about to go supernova is refined to the maximum AMR level.  Experimental.  Default: 0
@@ -2401,7 +2431,7 @@ The parameters below are considered in ``StarParticleCreation`` method 9.
 Sink Formation and Feedback
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The parameters below are considered in sink creation routines: sink_maker, star_maker8, star_maker9 (and occasionally only in certain set-ups).  
+The parameters below are considered in sink creation routines: sink_maker, star_maker8, star_maker9 (and occasionally only in certain set-ups).
 Because many of the following parameters are not actively being tested and maintained, users are encouraged to carefully examine the code before using it.
 
 ``AccretionKernal`` (external)
@@ -2413,7 +2443,7 @@ Because many of the following parameters are not actively being tested and maint
 ``MSStellarWindTurnOnMass`` (external)
     This parameter is used to decide whether mass increase reached the ejection threshold for StellarWindFeedback = 3 or 6 in star_maker8.C. Default: 10.0
 ``BigStarFormation`` (external)
-    This parameter is used to turn on sink particle creation by star_maker9.C.  
+    This parameter is used to turn on sink particle creation by star_maker9.C.
 ``BigStarFormationDone`` (external)
     In star_maker9.C, this parameter is used when we do not want to form BigStars any more.
 ``BigStarSeparation`` (external)
@@ -2469,7 +2499,7 @@ formalism includes a correction which accounts for the vorticity of the gas
 based on `Krumholz et al. (2005) <https://iopscience.iop.org/article/10.1086/426051/pdf>`__.
 
 Set to 6 to use the viscous angular momentum prescription from `DeBuhr et al. (2010) <https://arxiv.org/pdf/0909.2872.pdf>`__.
-  
+
 Set to 7 to use a  modified accretion rate based on the alpha-disk model of Shakura & Sunyaev (1973)
 This scheme is based on `Cen et al. <https://iopscience.iop.org/article/10.1088/0004-637X/755/1/28/pdf>`__.
 
@@ -2481,8 +2511,8 @@ by Regan et al. (`2018 <https://arxiv.org/pdf/1803.04527.pdf>`__, `2019 <https:/
 Default: 8
 
 
-Accretion is never capped by default but can be capped at the Eddington rate as notes below. 
-   
+Accretion is never capped by default but can be capped at the Eddington rate as notes below.
+
 
 
 SmartStar Feedback
@@ -2491,7 +2521,7 @@ SmartStar Feedback
 ``SmartStarFeedback`` (external)
     This is the master feedback parameter. Set this to 0 and all feedback
     is turned off. It's a master switch. Switch it to 1 and then feedback is on but needs to
-    be fine grained by more detailed parameters below. 
+    be fine grained by more detailed parameters below.
     Default: 0
 
 ``SmartStarStellarRadiativeFeedback`` (external)
@@ -2500,7 +2530,7 @@ SmartStar Feedback
     and 200 eV. The fraction of energy assigned to each bin is determined using the PopIII tables from Schaerer et. al 2002 Table 4.
     The spectrum for a PopIII star and SMS are different. For a PopIII star a spectrum for a 40 Msolar star is assumed and
     weighted accordingly. For a SMS a 1000 Msolar star is assumed and weighted accordingly.
-    Future improvements to the SEDs employed here are under active investigation. 
+    Future improvements to the SEDs employed here are under active investigation.
     Default: 0
 
 ``SmartStarBHFeedback`` (external)
@@ -2535,7 +2565,7 @@ SmartStar Feedback
 ``SmartStarSpin`` (external)
     The dimensionless spin of the SmartStar particle. This is a very unconstrained parameter and cannot be readily computed on the fly. This parameter
     should be set if you want to have jet feedback. Setting this is zero and turning on jet feedback wouldn't make sense. The default is set to be 0.7 and
-    this is probably reasonable. 
+    this is probably reasonable.
     Default: 0.7
 
 ``SmartStarSMSLifetime`` (external)
@@ -2555,7 +2585,7 @@ SmartStar Feedback
     As accretion rates exceed the canonical Eddington rate the radiative efficiency of the feedback changes. We use the fits from `Madau et al. <https://arxiv.org/pdf/1402.6995.pdf>`__
     to adjust the efficiency when accretion enters the super-critical regime. The fits are based on the slim-disk model of accretion which generates inefficient feedback.
     Default: 1
-    
+
 .. _radiation_parameters:
 
 Radiation Parameters
@@ -2576,7 +2606,7 @@ Background Radiation Parameters
     <http://adsabs.harvard.edu/abs/2012ApJ...746..125H />`_. Default: 0
 
    ::
-  
+
      1  - Haardt & Madau spectrum with q_alpha = 1.5
      2  - Haardt & Madau spectrum with q_alpha = 1.8
      3  - Modified Haardt & Madau spectrum to match observations
@@ -2617,20 +2647,20 @@ Background Radiation Parameters
     is calculated.  If a UV radiation background is used in a
     non-cosmological simulation, this needs to be defined. Negative
     redshifts are permitted. Default: (undefined)
-``RadiationRedshiftOn`` (external) 
-    The redshift at which the UV 
+``RadiationRedshiftOn`` (external)
+    The redshift at which the UV
     background turns on. Default: 7.0.
-``RadiationRedshiftFullOn`` (external) 
+``RadiationRedshiftFullOn`` (external)
     The redshift at which the UV
     background is at full strength.  Between z =
-    ``RadiationRedshiftOn`` and z = ``RadiationRedshiftFullOn``, the 
+    ``RadiationRedshiftOn`` and z = ``RadiationRedshiftFullOn``, the
     background is gradually ramped up to full strength. Default: 6.0.
-``RadiationRedshiftDropOff`` (external) 
-    The redshift at which the 
+``RadiationRedshiftDropOff`` (external)
+    The redshift at which the
     strength of the UV background is begins to gradually reduce,
     reaching zero by ``RadiationRedshiftOff``. Default: 0.0.
-``RadiationRedshiftOff`` (external) 
-    The redshift at which the UV 
+``RadiationRedshiftOff`` (external)
+    The redshift at which the UV
     background is fully off. Default: 0.0.
 ``TabulatedLWBackground`` (external)
     When on, the amplitude of the Lyman-Werner background is read from the file LW_J21.in as a function of redshift.  Each line should have the redshift and LW background in units of 1e-21 erg/cm^3/s/Hz/sr.  Default: 0
@@ -2788,7 +2818,7 @@ Radiative Transfer (FLD) Parameters
     ``RadiationFieldType = 0`` to prevent conflicts. Default: 0.
 
     *IMPORTANT*: Set ``RadiativeTransfer = 0`` to avoid conflicts with the ray tracing solver above.
-    Set ``RadiativeTransferOpticallyThinH2 = 0`` to avoid conflicts with the built-in optically-thin H_2 dissociating field from the ray-tracing solver. 
+    Set ``RadiativeTransferOpticallyThinH2 = 0`` to avoid conflicts with the built-in optically-thin H_2 dissociating field from the ray-tracing solver.
 ``ImplicitProblem`` (external)
     Set to 1 to turn on the implicit FLD solver, or 3 to turn on the
     split FLD solver. Default: 0.
@@ -2820,9 +2850,9 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     Type of assumed radiation spectrum for radiation field, Default: 1.
 
    ::
- 
+
     -1 - monochromatic spectrum at frequency h nu_{HI} = 13.6 eV
-    0  - power law spectrum, (nu / nu_{HI} )^(-1.5) 
+    0  - power law spectrum, (nu / nu_{HI} )^(-1.5)
     1  - T = 1e5 blackbody spectrum
 
 ``RadHydroChemistry`` (external)
@@ -2835,7 +2865,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     Default: 1.
 
    ::
- 
+
     1  - chemistry-dependent model, with case-B hydrogen II recombination coefficient.
     2  - chemistry-dependent model, with case-A hydrogen II recombination coefficient.
     4  - chemistry-dependent model, with case-A hydrogen II
@@ -2854,7 +2884,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     hydro time step).
 ``RadHydroDtNorm`` (external)
     type of p-norm to use in estimating time-accuracy for predicting
-    next time step. Default: 2.0.    
+    next time step. Default: 2.0.
 
    ::
 
@@ -2885,7 +2915,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     field. Default: [0 0].
 
    ::
- 
+
     0 - Periodic.
     1 - Dirichlet.
     2 - Neumann.
@@ -2924,7 +2954,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     time-evolved solution. Default: 0.
 
    ::
- 
+
     0 - use the solution from the previous time step (safest).
     1 - use explicit Euler with only spatially-local physics (heating & cooling).
     2 - use explicit Euler with all physics.
@@ -2979,16 +3009,16 @@ Radiative Transfer (FLD) Split Solver Parameters
     Type of assumed radiation spectrum for radiation field, Default: 1.
 
    ::
- 
+
     1  - T=1e5 blackbody spectrum
-    0  - power law spectrum, ( nu / nu_{HI})^(-1.5)` 
+    0  - power law spectrum, ( nu / nu_{HI})^(-1.5)`
     -1 - monochromatic spectrum at frequency h nu_{HI}= 13.6 eV
     -2 - monochromatic spectrum at frequency h nu_{HeI}= 24.6 eV
     -3 - monochromatic spectrum at frequency h nu_{HeII}= 54.4 eV
 
 ``RadHydroChemistry`` (external)
     Use of primordial chemistry in computing opacities and
-    photo-heating/photo-ionization.  Default: 1. 
+    photo-heating/photo-ionization.  Default: 1.
 
    ::
 
@@ -3208,9 +3238,9 @@ Accretion Physics
     fixed rate defined below. Set to 4 to to turn on accretion based on
     the Eddington-limited spherical Bondi-Hoyle formula, but without
     v_rel in the denominator. Set to 5 to turn on accretion based on
-    Krumholz et al.(2006) which takes vorticity into account. Set to 6 
-    to turn on alpha disk formalism based on DeBuhr et al.(2010).  
-    7 and 8 are still failed experiment. Add 10 to each of these options 
+    Krumholz et al.(2006) which takes vorticity into account. Set to 6
+    to turn on alpha disk formalism based on DeBuhr et al.(2010).
+    7 and 8 are still failed experiment. Add 10 to each of these options
     (i.e. 11, 12, 13, 14) to ignore the Eddington limit. See
     ``Star_CalculateMassAccretion.C``. Default: 0 (FALSE)
 ``MBHAccretionRadius`` (external)
@@ -3251,7 +3281,7 @@ Accretion Physics
 ``MBHMinDynamicalTime`` (external)
     Minimum dynamical time (in yr) for a MBH particle. Default: 1e7
 ``MBHMinimumMass`` (external)
-    Minimum mass (in Msun) for a MBH particle. Default: 1e3  
+    Minimum mass (in Msun) for a MBH particle. Default: 1e3
 
 .. _Feedback_physics:
 
@@ -3263,10 +3293,10 @@ Feedback Physics
     - not fully tested). Set to 2 to turn on mechanical feedback of MBH
     particles (``MBH_JETS``, bipolar jets along the total angular momentum
     of gas accreted onto the MBH particle so far). Set to 3 to turn on
-    another version of mechanical feedback of MBH particles (``MBH_JETS``, 
-    always directed along z-axis). Set to 4 to turn on experimental version of 
-    mechanical feedback (`MBH_JETS`, bipolar jets along the total angular 
-    momentum of gas accreted onto the MBH particle so far + 10 degree random 
+    another version of mechanical feedback of MBH particles (``MBH_JETS``,
+    always directed along z-axis). Set to 4 to turn on experimental version of
+    mechanical feedback (`MBH_JETS`, bipolar jets along the total angular
+    momentum of gas accreted onto the MBH particle so far + 10 degree random
     noise).  Set to 5 to turn on experimental version of mechanical feedback
     (``MBH_JETS``, launched at random direction). Note that, even when this
     parameter is set to 0, MBH particles still can be radiation sources
@@ -3274,7 +3304,7 @@ Feedback Physics
     Default: 0 (FALSE)
 
    ::
- 
+
      ``RadiativeTransfer = 0`` & ``MBHFeedback = 0`` : no feedback at all
      ``RadiativeTransfer = 0`` & ``MBHFeedback = 1`` : purely thermal feedback
      ``RadiativeTransfer = 0`` & ``MBHFeedback = 2`` : purely mechanical feedback
@@ -3337,7 +3367,7 @@ For details on shock finding in Enzo see :ref:`shock_finding`.
 
 ``ShockMethod`` (external)
     This parameter controls the use and type of shock finding. Default: 0
-    
+
 ::
 
       0 - Off
@@ -3402,14 +3432,14 @@ Isotropic and anisotropic thermal conduction are implemented using the
 method of Parrish and Stone: namely, using an explicit, forward
 time-centered algorithm.  In the anisotropic conduction, heat can only
 conduct along magnetic field lines.  One can turn on the two types of
-conduction independently, since there are situations where one might 
+conduction independently, since there are situations where one might
 want to use both.  The Spitzer fraction can be also set
-independently for the isotropic and anisotropic conduction.  Running a 
-cosmological simulation with conduction on can be tricky as the timesteps 
-can become very short.  It is recommended that you look carefully at all the 
-available conduction parameters.  Additionally, if you intend to run with 
-star particles, it is highly recommended that you set the parameter, 
-``StarMakerTimeIndependentFormation``.  See the description in 
+independently for the isotropic and anisotropic conduction.  Running a
+cosmological simulation with conduction on can be tricky as the timesteps
+can become very short.  It is recommended that you look carefully at all the
+available conduction parameters.  Additionally, if you intend to run with
+star particles, it is highly recommended that you set the parameter,
+``StarMakerTimeIndependentFormation``.  See the description in
 :ref:`starparticleparameters` for more information.
 
 ``IsotropicConduction`` (external)
@@ -3445,30 +3475,30 @@ Subgrid-scale (SGS) turbulence model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following parameter allow the use of an SGS turbulence model in
-Enzo, see test problem 
+Enzo, see test problem
 ``run/MHD/3D/StochasticForcing/StochasticForcing.enzo``.
 
-It is recommended to not arbitrarily mix model terms, but either 
+It is recommended to not arbitrarily mix model terms, but either
 stick to one model family (nonlinear, dissipative, or scale-similarity)
 or conduct additional *a priori* test first.
 
 Best fit model coefficients based on *a priori* testing of compressible
 MHD turbulence for a wide range of sonic Mach numbers (0.2 to 20) can
 be found in Table II in `Grete et al. (2016) Physics of Plasmas 23 062317
-<https://dx.doi.org/10.1063/1.4954304>`_, 
+<https://dx.doi.org/10.1063/1.4954304>`_,
 where all models are presented in more detail.
 
-Overall, the nonlinear model (effectively parameter free) 
+Overall, the nonlinear model (effectively parameter free)
 with an explicit 3-point stencil showed the
-best performance in decaying MHD test problem, see 
+best performance in decaying MHD test problem, see
 `Grete et al. (2017) Phys. Rev. E. 95 033206
 <https://dx.doi.org/10.1103/PhysRevE.95.033206>`_.
 
 
 ``UseSGSModel`` (external)
     This parameter generally turns the SGS machinery on (even though
-    no SGS term is added by default as every term needs a coefficient, 
-    see below). 
+    no SGS term is added by default as every term needs a coefficient,
+    see below).
     1: Turn on. Default: 0
 
 Explicit filtering
@@ -3483,26 +3513,26 @@ The following three variables enable the explicit filtering of the grid-scale
 quantites as they are used in the SGS terms.
 
 See Table 1 in `Grete et al. (2017) Phys. Rev. E. 95 033206
-<https://dx.doi.org/10.1103/PhysRevE.95.033206>`_ for coefficients 
+<https://dx.doi.org/10.1103/PhysRevE.95.033206>`_ for coefficients
 of a discrete box filter.
 The recommended values correspond to a discrete representation of a box filter
 on a 3-point stencil.
 
 
 ``SGSFilterWidth`` (external)
-    Width (in units of cell widths) of the discrete filter. 
-    Default: 0; 
+    Width (in units of cell widths) of the discrete filter.
+    Default: 0;
     Recommended: 2.711;
 
 ``SGSFilterStencil`` (external)
-    Discrete width of filter stencil in numbers of cells. 
+    Discrete width of filter stencil in numbers of cells.
     Default: 0;
     Recommended: 3;
     Maximum: 7;
 
 ``SGSFilterWeights`` (external)
     Symmetic filter weights that are used in the stencil. List of four floats.
-    First number corresponds to weight of central point X_i, 
+    First number corresponds to weight of central point X_i,
     second number corresponds to weight of points X_i+1 and X_i-1, and so on.
     Default: 0. 0. 0. 0.;
     Recommended: 0.40150 0.29925 0.00000 0.0;
@@ -3514,7 +3544,7 @@ Nonlinear model
     Coefficient for nonlinear Reynolds stress model.
     Default: 0;
     Recommended: 1;
-    
+
 ``SGScoeffNLb`` (external)
     Coefficient for nonlinear Maxwell stress (only MHD).
     Default: 0;
@@ -3558,7 +3588,7 @@ Scale-similarity model
     Coefficient for scale-similarity Reynolds stress model.
     Default: 0;
     Recommended: 0.67;
-    
+
 ``SGScoeffSSb`` (external)
     Coefficient for scale-similarity Maxwell stress (only MHD).
     Default: 0;
@@ -3722,7 +3752,7 @@ Other Internal Parameters
 ``MovieDumpNumber`` (internal)
     The identification number of the next movie output file. Default: 0
 ``TracerParticleDumpNumber`` (internal)
-    The identification number of the next tracer particle output file. Default: 0    
+    The identification number of the next tracer particle output file. Default: 0
 ``RestartDumpNumber``
     Reserved for future use.
 ``HistoryDumpNumber``
@@ -3731,7 +3761,7 @@ Other Internal Parameters
     These are printed out into the restart dump parameter file. One
     Label is produced per baryon field with the name of that baryon
     field. The same labels are used to name data sets in HDF files.
-``DataUnits[#]`` 
+``DataUnits[#]``
     Reserved for future use.
 ``VersionNumber`` (internal)
     Sets the version number of the code which is written out to restart
@@ -3747,7 +3777,7 @@ Problem Type Parameters
     causes the correct problem initializer to be called to set up the
     grid, and also may trigger certain boundary conditions or other
     problem-dependent routines to be called. The possible values are
-    listed below. Default: none. 
+    listed below. Default: none.
 
 For other problem-specific parameters follow the links below.  The problems
 marked with "hydro_rk" originate from the MUSCL solver package in the enzo installation directory
@@ -3789,8 +3819,8 @@ Problem Type Description and Parameter List
 50           :ref:`photontest_param`
 51           Photon Test Restart
 59           :ref:`stochastic_forcing_param`
-60           :ref:`turbulence_param` 
-61           :ref:`protostellar_param` 
+60           :ref:`turbulence_param`
+61           :ref:`protostellar_param`
 62           :ref:`coolingtest_param`
 63           One Zone Free Fall Test
 70           Conduction Test with Hydro Off
@@ -3859,11 +3889,11 @@ Shock Tube (1: unigrid and AMR)
 ``HydroShockTubesInitialDiscontinuity`` (external)
     The position of the initial discontinuity. Default: 0.5
 ``HydroShockTubesSecondDiscontinuity`` (external)
-    The position of the second discontinuity, if a second discontinuity is 
+    The position of the second discontinuity, if a second discontinuity is
     desired. Default: FLOAT_UNDEFINED, i.e. no second discontinuity.
 ``HydroShockTubesLeftDensity``, ``HydroShockTubesRightDensity``, ``HydroShockTubesCenterDensity`` (external)
     The initial gas density to the left and right of the discontinuity,
-    and between the discontinuities if a second discontinuity has been 
+    and between the discontinuities if a second discontinuity has been
     specified with HydroShockTubesSecondDiscontinuity.  Default: 1.0 for each
     value.
 ``HydroShockTubesLeftPressure``, ``HydroShockTubesRightPressure``, ``HydroShockTubesCenterPressure`` (external)
@@ -3873,16 +3903,16 @@ Shock Tube (1: unigrid and AMR)
     each of the left, right, and center regions.
 
 ``HydroShockTubesLeftVelocityX``, ``HydroShockTubesLeftVelocityY``, ``HydroShockTubesLeftVelocityZ`` (external)
-    The initial gas velocity, in the x-, y-, and z-directions to the left of 
+    The initial gas velocity, in the x-, y-, and z-directions to the left of
     the discontinuity.  Default: 0.0 for all directions.
 
 ``HydroShockTubesRightVelocityX``, ``HydroShockTubesRightVelocityY``, ``HydroShockTubesRightVelocityZ`` (external)
-    The initial gas velocity, in the x-, y-, and z-directions to the right of 
+    The initial gas velocity, in the x-, y-, and z-directions to the right of
     the discontinuity.  Default: 0.0 for all directions.
 
 ``HydroShockTubesCenterVelocityX``, ``HydroShockTubesCenterVelocityY``, ``HydroShockTubesCenterVelocityZ`` (external)
-    The initial gas velocity, in the x-, y-, and z-directions between the 
-    discontinuities, used if a second discontinuity has been specified with 
+    The initial gas velocity, in the x-, y-, and z-directions between the
+    discontinuities, used if a second discontinuity has been specified with
     HydroShockTubesSecondDiscontinuity. Default: 1.0 for all directions.
 
 .. _wavepool_param:
@@ -3989,16 +4019,16 @@ Shock in a Box (5)
 
 Implosion (6)
 ^^^^^^^^^^^^^
- 
+
     The implosion test sets up a converging shock problem in a square domain
     (x,y) \in (0, 0.3)x(0, 0.3) with gas initially at rest. Initial
     pressure and density is 1 everywhere except for a triangular region
     (0.15,0)(0.15,0) where d=0.125 and p=0.14. Reflecting boundary conditions
     at all boundaries. Adiabatic index gamma=1.4.
-     
+
     If AMR is used, a hierarchy of subgrids (one per level) will be generated
     at start-up to properly resolve the initial discontinuity.
-                      
+
     REFERENCE: Hui Li and Z. Li, JCP 153, 596, 1999.
                Chang et al. JCP 160, 89, 1999.
 
@@ -4020,10 +4050,10 @@ Implosion (6)
 Sedov Blast (7)
 ^^^^^^^^^^^^^^^
 
-     Self-similar solution: L.I. Sedov (1946); 
+     Self-similar solution: L.I. Sedov (1946);
      see also: Sedov (1959), Similarity and Dimensional Methods
      in Mechanics, pp. 210, 219, 228;
-     see also: Landau & Lifshitz, Fluid Dynamics, Sect. 99 
+     see also: Landau & Lifshitz, Fluid Dynamics, Sect. 99
      "The Propagation of Strong Shock Waves" (1959).
      Experiments, terrestrial/numerical: Taylor (1941, 1949).
 
@@ -4059,17 +4089,17 @@ Kelvin-Helmholtz Instability (8)
 
     Setting ``KHRamp`` to 0, creates the standard KH test problem
     where there is a discontinuous jump between the two fluids in
-    x-velocity and density.  Random perturbations in y-velocity are the seeds 
+    x-velocity and density.  Random perturbations in y-velocity are the seeds
     to the KH instability resulting in growth of multiple modes of the KHI.
 
     Setting ``KHRamp`` to 1 modifies the ICs so that there is a smooth
-    ramp connecting the two fluids in x-velocity and density of width 
+    ramp connecting the two fluids in x-velocity and density of width
     ``KHRampWidth``.  A sinusoidal perturbation in y-velocity is the seed
-    to the KH instability resulting in only growth of k=2 modes.  
-    These results converge in behavior as resolution is increased, whereas 
-    the standard ICs do not.  The ramped ICs are based on Robertson, Kravtsov, 
-    Gnedin, Abel & Rudd 2010, but that work has a typo in the ramp equation, 
-    and this implementation matches Robertson's actual ICs.  
+    to the KH instability resulting in only growth of k=2 modes.
+    These results converge in behavior as resolution is increased, whereas
+    the standard ICs do not.  The ramped ICs are based on Robertson, Kravtsov,
+    Gnedin, Abel & Rudd 2010, but that work has a typo in the ramp equation,
+    and this implementation matches Robertson's actual ICs.
 
 ``KHInnerDensity``, ``KHOuterDensity`` (external)
     Initial density. Default: 2.0 (inner) and 1.0 (outer)
@@ -4080,8 +4110,8 @@ Kelvin-Helmholtz Instability (8)
 ``KHVelocityJump`` (external)
     The difference in velocity between the outer fluid and the inner fluid.
     Inner fluid will have half this value and move to the right (positive),
-    whereas outer fluid will have have this value and move to the left 
-    (negative).  Total fluid velocities will combine this jump with 
+    whereas outer fluid will have have this value and move to the left
+    (negative).  Total fluid velocities will combine this jump with
     KHBulkVelocity.  Default: 1.0
 ``KHPerturbationAmplitude`` (external)
     Default: 0.1
@@ -4100,8 +4130,8 @@ Kelvin-Helmholtz Instability (8)
 
 2D/3D Noh Problem (9)
 ^^^^^^^^^^^^^^^^^^^^^
-     
-    Liska & Wendroff, 2003, SIAM J. Sci. Comput. 25, 995, 
+
+    Liska & Wendroff, 2003, SIAM J. Sci. Comput. 25, 995,
     Section 4.5, Fig. 4.4.
 
 
@@ -4739,7 +4769,7 @@ Cosmology Simulation (30)
 ``CosmologySimulationInitialTemperature`` (external)
     A uniform temperature value at ``InitialRedshift`` (needed if the
     initial gas energy field is not supplied). Default: 550\*((1.0 +
-    ``InitialRedshift``)/201)\ :sup:`2`\ 
+    ``InitialRedshift``)/201)\ :sup:`2`\
 ``CosmologySimulationOmegaBaryonNow`` (external)
     This is the contribution of baryonic matter to the energy density
     at the current epoch (z=0), relative to the value required to
@@ -4999,13 +5029,13 @@ Photon Test (50)
 Turbulence Simulation with Stochastic Forcing (59)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Typical quasi-isothermal "turbulence-in-a-box" problem with non-static driving field.
-    For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
+    For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145
     http://dx.doi.org/10.1051/0004-6361:200809967
 
     3D simulations with MUSCL hydro and MHD solver are tested.
     PPM, ZEUS and MHDCT unsupported at this time.
 
-    Remember that in addition to the problem specific parameters below 
+    Remember that in addition to the problem specific parameters below
     UseDrivingField = 1 has to be turned on!
 
 
@@ -5060,7 +5090,7 @@ Turbulence Simulation (60)
 
 ``TurbulenceSimulationMagneticName`` (external)
 
-``TurbulenceSimulationInitialTemperature`` (external)    
+``TurbulenceSimulationInitialTemperature`` (external)
 
 ``TurbulenceSimulationInitialDensity`` (external)
 
@@ -5242,7 +5272,7 @@ Put Sink from Restart (107)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``PutSinkRestartName`` (external)
-     Filename to restart from. 
+     Filename to restart from.
 
 
 .. _clustercoolingflow_param:
@@ -5305,7 +5335,7 @@ Cluster Cooling Flow (108)
 ``SNIaFeedbackEnergy`` (external)
     Energy feedback from evolved stars (Type Ia SN). Default: 1.0
 
-    
+
 .. _light_boson:
 
 Light Boson Initialize
@@ -5318,7 +5348,7 @@ Light Boson Initialize
     colliding Gaussian packets.  Default: 1
 ``LightBosonCenter`` (external)
     Specifies center position for the tests.  Default: 0.5
-   
+
 .. _fdm_collapse:
 
 FDM Collapse
@@ -5329,7 +5359,7 @@ containing the density field, and `GridRePsi` and `GridImPsi` which
 contain the real and imaginary parts of the wave function.  There is a
 python code in run/FuzzyDarkMatter/init.py which generates a
 
-    
+
 .. _mhd1d_param:
 
 1D MHD Test (200)
@@ -5453,7 +5483,7 @@ Galaxy Disk (207)
 ``HaloRadius[i]`` (external)
     Radius of the halo for the ith sphere. Default: 1 (all)
 ``HaloCoreRadius[i]`` (external)
-    Core radius for the ith sphere. Default: 0.1 (all) 
+    Core radius for the ith sphere. Default: 0.1 (all)
 ``HaloDensity[i]`` (external)
     Density of the halo for the ith sphere. Default: 1 (all)
 ``HaloTemperature[i]`` (external)
@@ -5463,7 +5493,7 @@ Galaxy Disk (207)
 ``HaloSpin[i]`` (external)
     TBD
 ``HaloPosition[i][j]`` (external)
-    Position of the Halo. 
+    Position of the Halo.
 ``HaloVelocity[i][j]`` (external)
     Velocity of the Halo.
 ``DiskRadius[i]`` (external)
@@ -5523,7 +5553,7 @@ CR Shock Tube (250: unigrid and AMR)
 ``HydroShockTubesCenterCREnDensity`` (external)
 
     In addition to setting a shock tube with two constant regions,
-    this version also allows for three constant regions, 
+    this version also allows for three constant regions,
     with a Center region in addition to the Left and Right regions.
     Finally, there are two special cases -- if
     HydroShockTubesCenterCREnDensity is set to 123.4, then the central
@@ -5573,12 +5603,12 @@ Radiation-Hydrodynamics Test 1 - Constant Fields (400)
 ``RadHydroTemperature`` (external)
    Ambient temperature. Default: 1
 ``RadHydroIEnergy`` (external)
-   Ambient internal energy (replaces temperature, if specified).  
+   Ambient internal energy (replaces temperature, if specified).
    Default: -1
 ``RadHydroRadiationEnergy`` (external)
    Ambient radiation energy. Default: 10
 ``RadHydroInitialFractionHII`` (external)
-   Initial fraction of ionized hydrogen (in relation to all hydrogen). 
+   Initial fraction of ionized hydrogen (in relation to all hydrogen).
    Default: 0
 ``RadHydroHFraction`` (external)
    Initial fraction of hydrogen (in relation to the total density).
@@ -5664,8 +5694,8 @@ Radiation-Hydrodynamics Test 5 - Radiating Shock (404/405)
 ``ShockDir`` (external)
    Propagation coordinate for shock. {0,1,2}. Default: 0
 ``CGSType`` (external)
-   1 = Astrophysical Setup Parameters; 
-   2 = "lab" setup parameters, after Lowrie; 
+   1 = Astrophysical Setup Parameters;
+   2 = "lab" setup parameters, after Lowrie;
    Default: 1
 
 .. _rhdtest10_param:
@@ -5682,7 +5712,7 @@ Radiation-Hydrodynamics Tests 10 and 11 - I-Front Tests (410/411)
     radiation-hydrodynamics and chemical ionization," JCP, 2009).
 
 ``RadHydroVelocity`` (external)
-   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all). 
+   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all).
    Example RadHydroVelocity = 0.1 0.1 0.1
 ``RadHydroChemistry`` (external)
    Number of chemical species.  1 implies hydrogen only, 3 implies
@@ -5696,19 +5726,19 @@ Radiation-Hydrodynamics Tests 10 and 11 - I-Front Tests (410/411)
 ``RadHydroTemperature`` (external)
    Ambient temperature. Default: 1
 ``RadHydroIEnergy`` (external)
-   Ambient internal energy (replaces temperature, if specified).  
+   Ambient internal energy (replaces temperature, if specified).
    Default: -1
 ``RadHydroRadiationEnergy`` (external)
    Ambient radiation energy. Default: 10
 ``RadHydroInitialFractionHII`` (external)
-   Initial fraction of ionized hydrogen (in relation to all hydrogen). 
+   Initial fraction of ionized hydrogen (in relation to all hydrogen).
    Default: 0
 ``RadHydroHFraction`` (external)
    Initial fraction of hydrogen (in relation to the total density).
-   Default: 1 
+   Default: 1
 ``RadHydroInitialFractionHeII`` (external)
    Initial fraction of helium II (in relation to the total helium).
-   Default: 0 
+   Default: 0
 ``RadHydroInitialFractionHeIII`` (external)
    Initial fraction of helium III (in relation to the total helium).
    Default: 0
@@ -5720,7 +5750,7 @@ Radiation-Hydrodynamics Tests 10 and 11 - I-Front Tests (410/411)
    Default: 0
 ``EtaCenter`` (external)
    Location of ionization source, in scaled length units, in the x,y,z
-   directions. Default: 0 (all). 
+   directions. Default: 0 (all).
    Example EtaCenter = 0.5 0.5 0.5
 
 .. _rhdtest12_param:
@@ -5755,10 +5785,10 @@ Radiation-Hydrodynamics Test 12 - HI ionization of a clump (412)
 ``RadHydroRadiationEnergy`` (external)
    Ambient radiation energy. Default: 10
 ``RadHydroInitialFractionHII`` (external)
-   Initial fraction of ionized hydrogen (in relation to all hydrogen). 
+   Initial fraction of ionized hydrogen (in relation to all hydrogen).
    Default: 0
 ``ClumpCenter`` (external)
-   Location of clump center, in cm, in the x,y,z directions. 
+   Location of clump center, in cm, in the x,y,z directions.
    Default: 1.54285e22 1.018281e22 1.018281e22
 ``ClumpRadius`` (external)
    Radius of clump, in cm.
@@ -5797,7 +5827,7 @@ Radiation-Hydrodynamics Test 13 - HI ionization of a steep region (413)
 ``RadHydroRadiationEnergy`` (external)
    Ambient radiation energy. Default: 1e-20
 ``RadHydroInitialFractionHII`` (external)
-   Initial fraction of ionized hydrogen (in relation to all hydrogen). 
+   Initial fraction of ionized hydrogen (in relation to all hydrogen).
    Default: 0
 ``EtaCenter`` (external)
    Center of the dense region (and ionization source), in cm, in the
@@ -5834,7 +5864,7 @@ Radiation-Hydrodynamics Tests 14/15 - Cosmological HI ionization (414/415)
 ``RadHydroRadiationEnergy`` (external)
    Ambient radiation energy in erg/cm^3. Default: 1.0e-32
 ``RadHydroInitialFractionHII`` (external)
-   Initial fraction of ionized hydrogen (in relation to all hydrogen). 
+   Initial fraction of ionized hydrogen (in relation to all hydrogen).
    Default: 0
 ``RadHydroOmegaBaryonNow`` (external)
    Default: 0.2
@@ -5843,10 +5873,9 @@ Radiation-Hydrodynamics Tests 14/15 - Cosmological HI ionization (414/415)
    Default: 0
 ``EtaRadius`` (external)
    Radius of ionization source for test 415, in cells (0 implies a
-   single-cell source). 
+   single-cell source).
    Default: 0
 ``EtaCenter`` (external)
    Location of ionization source for test 415, in scaled length units,
    in the x,y,z directions. Default: 0 (all).
    Example EtaCenter = 0.5 0.5 0.5
-

@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
- 
+
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -21,26 +21,34 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
- 
+
 /* function prototypes */
- 
+
 void grid::DeleteAllFields()
 {
- 
+
   int i;
- 
+
   this->DeleteParticles();
- 
+
   for (i = 0; i < MAX_DIMENSION; i++) {
     delete [] ParticleAcceleration[i];
     delete [] AccelerationField[i];
- 
+
     ParticleAcceleration[i]      = NULL;
     AccelerationField[i]         = NULL;
   }
+
+  if (GravitySolverType == GRAVITY_SOLVER_APM) {
+    for (i = 0; i < MAX_DIMENSION; i++) {
+      delete [] AccelerationFieldExternalAPM[i];
+      AccelerationFieldExternalAPM[i] = NULL;
+    }
+  }
+
   delete [] ParticleAcceleration[MAX_DIMENSION];
   ParticleAcceleration[MAX_DIMENSION] = NULL;
- 
+
   for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++) {
     delete [] BaryonField[i];
     delete [] OldBaryonField[i];
@@ -55,7 +63,7 @@ void grid::DeleteAllFields()
       OldAccelerationField[i] = NULL;
     }
 #endif
- 
+
   for(i=0;i<3;i++){
     if(MagneticField[i] != NULL){
       delete [] MagneticField[i];
@@ -83,9 +91,9 @@ void grid::DeleteAllFields()
   delete [] PotentialField;
   delete [] GravitatingMassField;
   delete [] GravitatingMassFieldParticles;
- 
+
   PotentialField                = NULL;
   GravitatingMassField          = NULL;
   GravitatingMassFieldParticles = NULL;
- 
+
 }

@@ -6,9 +6,9 @@
 /  date:       August, 2003
 /  modified1:
 /
-/  PURPOSE: This routine processes the receives stored in the 
-/           CommunicationReceive stack.  Each receive is tagged with a 
-/           type which indicates which method to call 
+/  PURPOSE: This routine processes the receives stored in the
+/           CommunicationReceive stack.  Each receive is tagged with a
+/           type which indicates which method to call
 /           (and a record of the arguments).
 /
 ************************************************************************/
@@ -28,7 +28,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "communication.h"
- 
+
 #ifdef USE_MPI
 static MPI_Arg ListOfIndices[MAX_RECEIVE_BUFFERS];
 static MPI_Status ListOfStatuses[MAX_RECEIVE_BUFFERS];
@@ -79,7 +79,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 
     MPI_Waitsome(TotalReceives, CommunicationReceiveMPI_Request,
 		 &NumberOfCompleteRequests, ListOfIndices, ListOfStatuses);
-//    printf("MPI: %"ISYM" %"ISYM" %"ISYM"\n", TotalReceives, 
+//    printf("MPI: %"ISYM" %"ISYM" %"ISYM"\n", TotalReceives,
 //	   ReceivesCompletedToDate, NumberOfCompleteRequests);
 
     CommunicationTime += ReturnWallTime() - time1;
@@ -101,10 +101,10 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 		  MyProcessorNumber, ListOfStatuses[index].MPI_ERROR, index);
 	  NoErrorSoFar = FALSE;
 	}
-	fprintf(stdout, "P(%"ISYM") index %"ISYM" -- mpi error %"ISYM"\n", 
+	fprintf(stdout, "P(%"ISYM") index %"ISYM" -- mpi error %"ISYM"\n",
 		MyProcessorNumber, index, ListOfStatuses[index].MPI_ERROR);
 	fprintf(stdout, "%"ISYM": Type = %"ISYM", Grid1 = %x, Request = %"ISYM", "
-		"DependsOn = %"ISYM"\n", index, 
+		"DependsOn = %"ISYM"\n", index,
 		CommunicationReceiveCallType[index],
 		CommunicationReceiveGridOne[index],
 		CommunicationReceiveMPI_Request[index],
@@ -128,7 +128,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	}
 
     /* Loop over the receive handles, looking for completed (i.e. null)
-       requests associated with unprocessed (i.e. non-null) grids. 
+       requests associated with unprocessed (i.e. non-null) grids.
        It's insufficient to just loop over newly completed receives because
        there may be some completed receives which were not processed due
        to dependence issues. */
@@ -143,7 +143,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
       if (CommunicationReceiveGridOne[index] != NULL &&
 	  CommunicationReceiveMPI_Request[index] == MPI_REQUEST_NULL) {
 
-	// fprintf(stdout, "::MPI:: %d %d %d %d %d\n", index, 
+	// fprintf(stdout, "::MPI:: %d %d %d %d %d\n", index,
  	// 	CommunicationReceiveCallType[index],
  	// 	CommunicationReceiveGridOne[index],
  	// 	CommunicationReceiveMPI_Request[index],
@@ -151,7 +151,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 
 	/* If this depends on an un-processed receive, then skip it. */
 
-	if (CommunicationReceiveDependsOn[index] != 
+	if (CommunicationReceiveDependsOn[index] !=
 	    COMMUNICATION_NO_DEPENDENCE)
 	  if (CommunicationReceiveGridOne[CommunicationReceiveDependsOn[index]]
 	      != NULL)
@@ -165,7 +165,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 
 	for (dim = 0; dim < MAX_DIMENSION; dim++)
 	  EdgeOffset[dim] = CommunicationReceiveArgument[dim][index];
-	  
+
 	/* Handle the buffers received, calling the appropriate method. */
 
 	switch (CommunicationReceiveCallType[index]) {
@@ -213,16 +213,16 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	case 10:
 	  errcode = grid_one->InterpolateAccelerations(grid_two);
 	  break;
-      
+
 	case 11:  /* Note this one involves two calls. */
 
 	  /* Project subgrid's refined fluxes to the level of this grid. */
 
-	  if (grid_one->GetProjectedBoundaryFluxes(grid_two, 
+	  if (grid_one->GetProjectedBoundaryFluxes(grid_two,
 					       SubgridFluxesRefined) == FAIL) {
 	    ENZO_FAIL("Error in grid->GetProjectedBoundaryFluxes.\n");
 	  }
-	
+
 	  /* Correct this grid for the refined fluxes (step #19)
 	     (this also deletes the fields in SubgridFluxesRefined). */
 
@@ -232,7 +232,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  isubgrid = CommunicationReceiveArgumentInt[1][index];
 	  SUBling = CommunicationReceiveArgumentInt[2][index];
 	  if ((errcode = grid_two->CorrectForRefinedFluxes
-	      (SubgridFluxesEstimate[igrid][isubgrid], &SubgridFluxesRefined, 
+	      (SubgridFluxesEstimate[igrid][isubgrid], &SubgridFluxesRefined,
 	       SubgridFluxesEstimate[igrid][NumberOfSubgrids[igrid] - 1],
 	       SUBling, MetaData)) == FAIL) {
 	    ENZO_FAIL("Error in grid->CorrectForRefinedFluxes.\n");
@@ -279,7 +279,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  break;
 
 	case 18:
-	  errcode = grid_one->CommunicationSendStars(grid_two, 
+	  errcode = grid_one->CommunicationSendStars(grid_two,
 						     MyProcessorNumber);
 	  break;
 
@@ -290,7 +290,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  break;
 
 	case 20:
-	  errcode = grid_one->CommunicationSendSubgridMarker(grid_two, 
+	  errcode = grid_one->CommunicationSendSubgridMarker(grid_two,
 							     MyProcessorNumber);
 	  break;
 #endif
@@ -304,20 +304,28 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	    (grid_two, MyProcessorNumber);
 	  break;
 
+	case 23:
+	  errcode = grid_one->AddParentAccelerationFieldAPM(grid_two);
+	  break;
+
+    case 24:
+      errcode = grid_one->AddParentPotentialFieldAPM(grid_two);
+      break;
+
 	default:
-	  ENZO_VFAIL("Unrecognized call type %"ISYM"\n", 
+	  ENZO_VFAIL("Unrecognized call type %"ISYM"\n",
 		  CommunicationReceiveCallType[index])
 
 	} // end: switch on call type
-    
+
 	/* Report error if there has been one in any of the above calls. */
-    
+
 	if (errcode == FAIL) {
 	  ENZO_VFAIL("Error in CommunicationReceiveHandler, method %"ISYM"\n",
                  CommunicationReceiveCallType[index])
-        
+
         }
-    
+
     /* Mark this receive complete. */
 
     // if this is a g:CSAPs recv, mark ALL g:CSAPs done, including this one.
@@ -330,14 +338,14 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
           ReceivesCompletedToDate++;
         }
       }
-    } else { 
+    } else {
       CommunicationReceiveGridOne[index] = NULL;
       //MPI_Request_free(CommunicationReceiveMPI_Request+index);
       ReceivesCompletedToDate++;
     }
 
       } // end: if statement to check if receive should be processed
-      
+
     } // end: loop over all receives
 
   } // end: while loop waiting for all receives to be processed

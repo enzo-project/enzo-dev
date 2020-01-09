@@ -11,7 +11,7 @@
 /  PURPOSE:
 /    This is the global data, which should be held to a minimum.  Any changes
 /    in this file require changes in: WriteGlobalData,
-/    ReadGlobalData and InitializeNew.  
+/    ReadGlobalData and InitializeNew.
 /    This file is dual-purposed:
 /        1) read with    DEFINE_STORAGE defined for the (single) definition
 /        2) read without DEFINE_STORAGE defined for external linkage
@@ -48,7 +48,7 @@ EXTERN int PreviousMaxTask;
 EXTERN int LoadBalancingMinLevel;
 EXTERN int LoadBalancingMaxLevel;
 
-/* FileDirectedOutput checks for file existence: 
+/* FileDirectedOutput checks for file existence:
    stopNow (writes, stops),   outputNow, subgridcycleCount */
 EXTERN int FileDirectedOutput;
 
@@ -83,7 +83,7 @@ EXTERN int debug2;
 EXTERN int extract;
 
 /* Problem: 00 = None                    01 = ShockTube
-            02 = WavePool                03 = ShockPool  
+            02 = WavePool                03 = ShockPool
 	    04 = Double-Mach reflection  05 = ShockInABox
 	    06 = Implosion               07 = SedovBlast
 	    08 = KelvinHelmholtz instability
@@ -249,12 +249,12 @@ EXTERN char *DataUnits[MAX_NUMBER_OF_BARYON_FIELDS];
 
 /* Region in which refinement is allowed (in problem space). */
 
-EXTERN FLOAT RefineRegionLeftEdge[MAX_DIMENSION], 
+EXTERN FLOAT RefineRegionLeftEdge[MAX_DIMENSION],
              RefineRegionRightEdge[MAX_DIMENSION];
 EXTERN int RefineRegionAutoAdjust;
 
 EXTERN int MultiRefineRegion;
-EXTERN FLOAT MultiRefineRegionLeftEdge[MAX_STATIC_REGIONS][MAX_DIMENSION], 
+EXTERN FLOAT MultiRefineRegionLeftEdge[MAX_STATIC_REGIONS][MAX_DIMENSION],
              MultiRefineRegionRightEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 EXTERN int MultiRefineRegionGeometry[MAX_STATIC_REGIONS];
 EXTERN FLOAT MultiRefineRegionCenter[MAX_STATIC_REGIONS][MAX_DIMENSION];
@@ -297,6 +297,13 @@ EXTERN int SelfGravity;
 EXTERN int SelfGravityGasOff;
 EXTERN int AccretionKernal;
 
+/* Gravity solvers and affiliated */
+
+EXTERN int GravitySolverType;
+EXTERN int APMAddParentContribution;  // Add Acceleration/Potential from parent grid
+EXTERN int TimeSteppingRefinementCondition;
+EXTERN int DepositAlsoParentGridAndSiblingsParticles;
+
 /* CopyGravPotential (TRUE or FALSE) */
 
 EXTERN int CopyGravPotential;
@@ -316,6 +323,17 @@ EXTERN int BaryonSelfGravityApproximation;
 
 EXTERN float GravitationalConstant;
 
+/* S2 Particle size in top grid cell units (usually around 3).  The S2
+   particle is S(r) = A*(a/2-r) (if r < a/2, 0 otherwise).  The constant
+   A depends on the dimension: 1D) 4/a^2,  2D) 24/(Pi*a^3)  3D) 48/(Pi*a^3). */
+
+EXTERN float S2ParticleSize;
+
+/* Gravity resolution factor is a float indicating the comparative resolution
+   of the gravitational computation compared to the grid (1-2 or so). */
+
+EXTERN float GravityResolution;
+
 /* Flag to indicate if gravitational potential field should be computed
    and stored. */
 
@@ -326,12 +344,22 @@ EXTERN int ComputePotential;
 EXTERN int WritePotential;
 
 /* Parameter to control how particles in a subgrid are deposited in
-   the target grid.  Options are: 
+   the target grid.  Options are:
      CIC_DEPOSIT - cloud in cell using cloud size equal to target grid size
      CIC_DEPOSIT_SMALL - CIC using cloud size equal to source grid size
      NGP_DEPOSIT - nearest grid point */
 
 EXTERN int ParticleSubgridDepositMode;
+
+/* Maximum number of GreensFunctions that will be stored in any time.
+   This number must be less than MAX_NUMBER_OF_GREENS_FUNCTIONS. */
+
+EXTERN int GreensFunctionMaxNumber;
+
+/* Maximum number of words associated with GreensFunction storage
+   (Not currently implemented). */
+
+EXTERN int GreensFunctionMaxSize;
 
 /* Dual energy formalism (TRUE or FALSE). */
 
@@ -443,25 +471,25 @@ EXTERN float CosmologySimulationUniformCR; // FIXME
 
 /* Shock Finding Method
  * 0: Off - default
- * 1: temperature unsplit 
- * 2: temperature split 
+ * 1: temperature unsplit
+ * 2: temperature split
  * 3: velocity unsplit
  * 4: velocity split
  */
-EXTERN int ShockMethod; 
+EXTERN int ShockMethod;
 EXTERN float ShockTemperatureFloor;
 EXTERN int StorePreShockFields;
 EXTERN int FindShocksOnlyOnOutput;
 
 
-/* Type of radiation field. 
+/* Type of radiation field.
    0 - none,                    1 - Haardt & Madau alpha=-1.5
-   2 - H&M alpha = -1.8       
+   2 - H&M alpha = -1.8
    10 - homogenous internal radiation field (a la Renyue's work) */
 
 EXTERN int RadiationFieldType;
-EXTERN int AdjustUVBackground; 
-EXTERN int AdjustUVBackgroundHighRedshift; 
+EXTERN int AdjustUVBackground;
+EXTERN int AdjustUVBackgroundHighRedshift;
 EXTERN float SetUVBAmplitude;
 EXTERN float SetHeIIHeatingScale;
 EXTERN RadiationFieldDataType RadiationData;
@@ -610,7 +638,7 @@ EXTERN int SlopeFlaggingFields[MAX_FLAGGING_METHODS];
 /* For CellFlaggingMethod = 2,
    The minimum refined mass for the ByMass refining scheme
    (Usually, user sets OverDensity and code sets MinimumMass but this can be
-    overridden by directely setting MinimumMass). 
+    overridden by directely setting MinimumMass).
    The LevelExponent is used to change the minimum mass with level,
    the formula is MinimumMassForRefinement*pow(RefineBy, level*LevelExponent)*/
 
@@ -640,7 +668,7 @@ EXTERN float JeansRefinementColdTemperature;
 EXTERN int   MustRefineParticlesRefineToLevel;
 
 /* For CellFlaggingMethod = 8,
-   The physical length (in pc) to which the must refine particles apply 
+   The physical length (in pc) to which the must refine particles apply
    The above parameter will be automatically adjusted to match this length */
 
 EXTERN int   MustRefineParticlesRefineToLevelAutoAdjust;
@@ -653,39 +681,39 @@ EXTERN float MustRefineParticlesMinimumMass;
 /* For CellFlaggingMethod = 8,
    region in which particles are flagged as MustRefine particles */
 
-EXTERN FLOAT MustRefineParticlesLeftEdge[MAX_DIMENSION], 
+EXTERN FLOAT MustRefineParticlesLeftEdge[MAX_DIMENSION],
              MustRefineParticlesRightEdge[MAX_DIMENSION];
 
 /* For CellFlaggingMethod = 8,
-   binary switch that allows must refine particles to be created by the 
+   binary switch that allows must refine particles to be created by the
    routines MustRefineParticlesFlagFromList or MustRefineParticlesFlagInRegion*/
 EXTERN int MustRefineParticlesCreateParticles;
 
-/* For CellFlaggingMethod = 9,   
-   The minimum shear (roughly, dv accross two zones) required for 
+/* For CellFlaggingMethod = 9,
+   The minimum shear (roughly, dv accross two zones) required for
    refinement.    */
 
 EXTERN float MinimumShearForRefinement;
 
-/* For CellFlaggingMethod = 9,   
+/* For CellFlaggingMethod = 9,
    Whether to use the old method for calculating shear refinement.    */
 
 EXTERN int OldShearMethod;
 
 /* For CellFlaggingMethod = 11,
-   The number of cells by which the Resistive length abs(B)/abs(curl(B)) 
+   The number of cells by which the Resistive length abs(B)/abs(curl(B))
    should be resolved. */
 
 EXTERN float RefineByResistiveLengthSafetyFactor;
 
-/* For CellFlaggingMethod = 14,   
+/* For CellFlaggingMethod = 14,
    Minimum mach number required for refinement.    */
 
 EXTERN float ShockwaveRefinementMinMach;
 EXTERN float ShockwaveRefinementMinVelocity;
 EXTERN int ShockwaveRefinementMaxLevel;
 
-/* For CellFlaggingMethod = 15,   
+/* For CellFlaggingMethod = 15,
    Minimum second derivative required for refinement.    */
 EXTERN float MinimumSecondDerivativeForRefinement[MAX_FLAGGING_METHODS];
 EXTERN int SecondDerivativeFlaggingFields[MAX_FLAGGING_METHODS];
@@ -803,7 +831,7 @@ EXTERN int MovieVertexCentered;
 EXTERN char *NewMovieName;
 EXTERN int NewMovieDumpNumber;
 EXTERN int NewMovieParticleOn;
-EXTERN FLOAT *StarParticlesOnProcOnLvl_Position[128][3]; 
+EXTERN FLOAT *StarParticlesOnProcOnLvl_Position[128][3];
 EXTERN float *StarParticlesOnProcOnLvl_Velocity[128][3], *StarParticlesOnProcOnLvl_Mass[128];
 EXTERN float *StarParticlesOnProcOnLvl_Attr[128][MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 EXTERN int *StarParticlesOnProcOnLvl_Type[128];
@@ -904,7 +932,7 @@ EXTERN int NBodyDirectSummation;
 EXTERN int UseDrivingField;
 EXTERN float DrivingEfficiency;
 
-/* Parameters to use CUDA extensions */ 
+/* Parameters to use CUDA extensions */
 EXTERN int UseCUDA;
 
 /* End of Stanford block */
@@ -972,7 +1000,7 @@ EXTERN MPool::MemoryPool *PhotonMemoryPool;
    [2]:              1.0           -"-
    [3]:              2.0           -"-
 */
-EXTERN double EscapedPhotonCount[4];  
+EXTERN double EscapedPhotonCount[4];
 EXTERN double TotalEscapedPhotonCount[4];
 EXTERN char *PhotonEscapeFilename;
 EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
@@ -1007,7 +1035,7 @@ EXTERN int RadiativeTransferFLD;
 /* Implicit problem decision flag (only 0 through 3 work for now)
       0 => do not use any implicit solver
       1 => use the gFLDProblem module for single-group coupled FLD
-      2 => use the FSProb module for free-streaming FLD radiation 
+      2 => use the FSProb module for free-streaming FLD radiation
       3 => use the gFLDSplit module for single-group split FLD
       4 => use the MFProb, multi-frequency fully implicit module
       5 => use the MFSplit, multi-frequency split implicit module
@@ -1094,23 +1122,23 @@ EXTERN int SpeedOfLightTimeStepLimit; // TRUE OR FALSE
 
 /* SMBH Feedback in galaxy clusters*/
 EXTERN int ClusterSMBHFeedback;  // TRUE OR FALSE
-EXTERN float ClusterSMBHJetMdot;  // JetMdot in SolarMass/yr 
-EXTERN float ClusterSMBHJetVelocity;  // JetVelocity in km/s 
-EXTERN float ClusterSMBHJetRadius;  // JetRadius in cellwidth 
+EXTERN float ClusterSMBHJetMdot;  // JetMdot in SolarMass/yr
+EXTERN float ClusterSMBHJetVelocity;  // JetVelocity in km/s
+EXTERN float ClusterSMBHJetRadius;  // JetRadius in cellwidth
 EXTERN float ClusterSMBHJetLaunchOffset;  //in cellwidth
-EXTERN float ClusterSMBHStartTime;  // in codeunits, usually is InitialTime of restart 
+EXTERN float ClusterSMBHStartTime;  // in codeunits, usually is InitialTime of restart
 EXTERN float ClusterSMBHTramp;  // in Myr
-EXTERN float ClusterSMBHJetOpenAngleRadius;  // in cellwidth 
-EXTERN float ClusterSMBHFastJetRadius;  // FastJetRadius in cellwidth 
-EXTERN float ClusterSMBHFastJetVelocity;  // FastJetVelocity in km/s 
-EXTERN float ClusterSMBHJetEdot;  // Total feedback Edot in 10^44 ergs/s 
+EXTERN float ClusterSMBHJetOpenAngleRadius;  // in cellwidth
+EXTERN float ClusterSMBHFastJetRadius;  // FastJetRadius in cellwidth
+EXTERN float ClusterSMBHFastJetVelocity;  // FastJetVelocity in km/s
+EXTERN float ClusterSMBHJetEdot;  // Total feedback Edot in 10^44 ergs/s
 EXTERN float ClusterSMBHKineticFraction;  // fraction of kinetic feedback (0-1)
 EXTERN float ClusterSMBHJetAngleTheta;  // from 0 to 1/2, in pi
 EXTERN float ClusterSMBHJetAnglePhi;  // from 0 to 2, in pi
 EXTERN float ClusterSMBHJetPrecessionPeriod;  //in Myr
 EXTERN int ClusterSMBHCalculateGasMass;  // TRUE OR FALSE
 EXTERN int ClusterSMBHFeedbackSwitch;  // TRUE OR FALSE
-EXTERN float ClusterSMBHEnoughColdGas;  // To turn jet on, in SolarMass 
+EXTERN float ClusterSMBHEnoughColdGas;  // To turn jet on, in SolarMass
 EXTERN float ClusterSMBHAccretionTime;  // Used only when CalculateGasMass=2
 EXTERN int ClusterSMBHJetDim;  // Jet dimension
 EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed)*c^2
@@ -1137,7 +1165,7 @@ EXTERN int MHDCTUseSpecificEnergy;
 EXTERN int WriteBoundary;
 EXTERN int WriteAcceleration;
 EXTERN int TracerParticlesAddToRestart;// forces addition of tracer particles to already initialized simulations
-EXTERN int MHD_ProjectThisFace[3]; //Used for determining face projection/communication needs for 
+EXTERN int MHD_ProjectThisFace[3]; //Used for determining face projection/communication needs for
                                    //face centered fields
 EXTERN float CT_AthenaDissipation;
 EXTERN int MHD_WriteElectric;
@@ -1172,7 +1200,7 @@ EXTERN int SmartStarStellarRadiativeFeedback;
 EXTERN float SmartStarFeedbackEnergyCoupling;
 EXTERN float SmartStarFeedbackJetsThresholdMass;
 EXTERN float SmartStarJetVelocity;
-EXTERN float SmartStarSpin; 
+EXTERN float SmartStarSpin;
 EXTERN int SmartStarSuperEddingtonAdjustment;
 EXTERN float SmartStarSMSLifetime;
 
@@ -1182,8 +1210,8 @@ EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
 /* For the galaxy simulation boundary method */
 EXTERN int GalaxySimulationRPSWind;
 /* GalaxySimulationRPSWind
- *   0 - OFF 
- *   1 - Simple Shock w/ angle and delay 
+ *   0 - OFF
+ *   1 - Simple Shock w/ angle and delay
  *   2 - Lookup table of density and velocity
  */
 EXTERN float GalaxySimulationRPSWindShockSpeed;
@@ -1195,7 +1223,7 @@ EXTERN float GalaxySimulationRPSWindVelocity[MAX_DIMENSION];
 EXTERN float GalaxySimulationRPSWindPressure;
 
 EXTERN float GalaxySimulationPreWindDensity;
-EXTERN float GalaxySimulationPreWindTotalEnergy; 
+EXTERN float GalaxySimulationPreWindTotalEnergy;
 EXTERN float GalaxySimulationPreWindVelocity[MAX_DIMENSION];
 
 /* Supernova magnetic seed field */

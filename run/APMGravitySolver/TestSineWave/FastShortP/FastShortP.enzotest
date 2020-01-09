@@ -1,0 +1,13 @@
+name = 'FastShortP'
+answer_testing_script = 'test_gravity'
+nprocs = 4
+runtime = 'short'
+hydro = True
+gravity = True
+AMR = True
+dimensionality = 3
+author = 'Jean-Claude Passy'
+max_time_minutes = 1
+fullsuite = True
+pushsuite = True
+quicksuite = True

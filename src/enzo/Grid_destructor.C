@@ -9,7 +9,7 @@
 /  PURPOSE:
 /
 ************************************************************************/
- 
+
 //
 //  Grid destructor
 //
@@ -23,23 +23,23 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
- 
+
 /* function prototypes */
- 
+
 void DeleteFluxes(fluxes *Fluxes);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 void DeleteStarList(Star * &Node);
 #ifdef TRANSFER
 PhotonPackageEntry*  DeletePhotonPackage(PhotonPackageEntry *PP);
 #endif /* TRANSFER */
- 
+
 grid::~grid()
 {
- 
+
   int i,j;
- 
+
   /* Error check. */
- 
+
 #ifdef UNUSED
   if (NumberOfParticles > 0) {
     fprintf(stderr, "warning: destroying live particles (%"ISYM").\n",
@@ -47,7 +47,7 @@ grid::~grid()
   /* exit(EXIT_FAILURE); */
   }
 #endif /* UNUSED */
- 
+
   for (i = 0; i < MAX_DIMENSION; i++) {
     delete [] CellLeftEdge[i];
     delete [] CellWidth[i];
@@ -58,8 +58,12 @@ grid::~grid()
     delete [] RandomForcingField[i];
     if (PhaseFctMultEven[i] != NULL) delete[] PhaseFctMultEven[i];
     if (PhaseFctMultOdd[i] != NULL) delete[] PhaseFctMultOdd[i];
+
+    // APM solver
+    if (GravitySolverType == GRAVITY_SOLVER_APM)
+      delete [] AccelerationFieldExternalAPM[i];
   }
- 
+
   if (PhaseFctInitEven != NULL) delete[] PhaseFctInitEven;
   if (PhaseFctInitOdd != NULL) delete[] PhaseFctInitOdd;
 
@@ -88,12 +92,12 @@ grid::~grid()
       if (FltrhoUU[i] != NULL)
         delete [] FltrhoUU[i];
       FltrhoUU[i] = NULL;
-      
+
       if (FltBB[i] != NULL)
         delete [] FltBB[i];
       FltBB[i] = NULL;
     }
-  
+
     for (i = 0; i < 3; i++) {
       if (FltUB[i] != NULL)
         delete [] FltUB[i];
@@ -102,7 +106,7 @@ grid::~grid()
   }
 
   delete ParticleAcceleration[MAX_DIMENSION];
- 
+
   for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++) {
     delete [] BaryonField[i];
     delete [] OldBaryonField[i];
@@ -117,10 +121,10 @@ grid::~grid()
     }
   }
 #endif
- 
+
   DeleteFluxes(BoundaryFluxes);
   delete BoundaryFluxes;
- 
+
   delete [] ParticleMass;
   delete [] ParticleNumber;
   delete [] ParticleType;
@@ -130,7 +134,7 @@ grid::~grid()
   delete [] FlaggingField;
   delete [] MassFlaggingField;
   delete [] ParticleMassFlaggingField;
- 
+
   for (i = 0; i < MAX_NUMBER_OF_PARTICLE_ATTRIBUTES; i++)
     delete [] ParticleAttribute[i];
 
@@ -146,15 +150,15 @@ grid::~grid()
   delete [] SubgridMarker;
 #endif
 
-/* 
+/*
   if (debug && GridRank > 0) {
     printf("grid->destructor: deleting grid with dims = ");
     WriteListOfInts(stdout, GridRank, GridDimension);
   }
 */
 
-  //MHD stuff 
- 
+  //MHD stuff
+
   if( UseMHDCT ){
     for(i=0;i<3;i++){
 

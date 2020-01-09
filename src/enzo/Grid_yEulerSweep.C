@@ -109,11 +109,23 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
       for (j = 0; j < GridDimension[1]; j++)
 	vslice[index2+j] = 0;
     
-    if (GravityOn)
+    if (GravityOn) {
       for (j = 0; j < GridDimension[1]; j++) {
 	index3 = (k*GridDimension[1] + j) * GridDimension[0] + i;
 	grslice[index2+j] = AccelerationField[dim][index3];
       }
+      // Add external potential with APM solver.
+      if (GravitySolverType == GRAVITY_SOLVER_APM) {
+        if (ProblemType == 41 || ProblemType == 42 || ProblemType == 43 || ProblemType == 46) {
+          if (AccelerationFieldExternalAPM[dim] == NULL)
+            ENZO_FAIL("Error in grid->yEulerSweep.C: AccelerationFieldExternalAPM is NULL!\n");
+          for (j = 0; j < GridDimension[1]; j++) {
+            index3 = (k*GridDimension[1] + j) * GridDimension[0] + i;
+            grslice[index2+j] += AccelerationFieldExternalAPM[dim][index3];
+          }
+        }
+      }
+    }
 
     if (DualEnergyFormalism)
       for (j = 0; j < GridDimension[1]; j++) {

@@ -1,0 +1,1 @@
+Running fast solver with central particle at the corner of the subgrid

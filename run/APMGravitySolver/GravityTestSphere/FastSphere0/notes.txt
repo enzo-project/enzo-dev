@@ -1,0 +1,1 @@
+Running fast solver with sphere of constant density

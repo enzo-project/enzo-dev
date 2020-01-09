@@ -11,7 +11,7 @@
 /       Determine the timestep for this iteration of the loop.
 /
 ************************************************************************/
- 
+
 #include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -25,7 +25,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
- 
+
 float CommunicationMinValue(float Value);
 
 int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
@@ -38,15 +38,15 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
   LCAPERF_START("SetLevelTimeStep"); // SetTimeStep()
 
   if (level == 0) {
- 
+
     /* For root level, use dtLevelAbove. */
- 
+
     *dtThisLevel      = dtLevelAbove;
     *dtThisLevelSoFar = dtLevelAbove;
     dtActual          = dtLevelAbove;
- 
+
   } else {
- 
+
     /* Calculate timestep without conduction and get conduction separately later. */
 
     int my_isotropic_conduction = IsotropicConduction;
@@ -56,11 +56,11 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
       dtRebuildHierarchy[level] <= 0.0;
 
     if (dynamic_hierarchy_rebuild) {
-      IsotropicConduction = AnisotropicConduction = FALSE;      
+      IsotropicConduction = AnisotropicConduction = FALSE;
     }
 
     /* Compute the mininum timestep for all grids. */
- 
+
     *dtThisLevel = huge_number;
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       dtGrid      = Grids[grid1]->GridData->ComputeTimeStep();
@@ -68,7 +68,11 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
     }
     *dtThisLevel = CommunicationMinValue(*dtThisLevel);
 
-    /* Compute conduction timestep and use to set the number 
+    /* Extra condition dt(l1+1) <= dt(l)/refinement for APM solver */
+    if (TimeSteppingRefinementCondition)
+      *dtThisLevel = min(*dtThisLevel, dtLevelAbove/RefineBy);
+
+    /* Compute conduction timestep and use to set the number
        of iterations without rebuiding the hierarchy. */
 
     if (dynamic_hierarchy_rebuild) {
@@ -81,7 +85,7 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
       float dt_cond_temp;
       dt_conduction = huge_number;
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-        if (Grids[grid1]->GridData->ComputeConductionTimeStep(dt_cond_temp) == FAIL) 
+        if (Grids[grid1]->GridData->ComputeConductionTimeStep(dt_cond_temp) == FAIL)
           ENZO_FAIL("Error in ComputeConductionTimeStep.\n");
 	dt_conduction = min(dt_conduction,dt_cond_temp);
       }
@@ -111,27 +115,27 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
       *dtThisLevel = dtLimit;
 
 #endif
- 
+
     /* Advance dtThisLevelSoFar (don't go over dtLevelAbove). */
- 
+
     if (*dtThisLevelSoFar+*dtThisLevel*1.05 >= dtLevelAbove) {
       *dtThisLevel      = dtLevelAbove - *dtThisLevelSoFar;
       *dtThisLevelSoFar = dtLevelAbove;
     }
     else
       *dtThisLevelSoFar += *dtThisLevel;
- 
+
   }
 
-  if (debug) 
-    printf("Level[%"ISYM"]: dt = %"GSYM"  %"GSYM" (%"GSYM"/%"GSYM")\n", 
+  if (debug)
+    printf("Level[%"ISYM"]: dt = %"GSYM"  %"GSYM" (%"GSYM"/%"GSYM")\n",
 	   level, *dtThisLevel, dtActual, *dtThisLevelSoFar, dtLevelAbove);
- 
+
   /* Set all grid's timestep to this minimum dt. */
- 
+
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     Grids[grid1]->GridData->SetTimeStep(*dtThisLevel);
- 
+
 
   LCAPERF_STOP("SetLevelTimeStep"); // SetTimeStep()
   return SUCCESS;

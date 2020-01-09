@@ -122,10 +122,11 @@ OBJS_CONFIG_LIB = \
 	ConductionTestInitialize.o \
 	ConvertParticles2ActiveParticles.o \
         comp_accel.o \
+        ComputeAccelerationFieldAPMGravity.o \
         ComputePotentialFieldLevelZero.o \
         ComputeRandomForcingNormalization.o \
         ComputeTable.o \
-    ConstructFeedbackZone.o \
+        ConstructFeedbackZone.o \
         Continue.o \
 	cool1d_cloudy.o \
     	cool1d_koyama.o\
@@ -163,6 +164,9 @@ OBJS_CONFIG_LIB = \
         DepositBaryons.o \
         DepositParticleMassField.o \
         DepositParticleMassFlaggingField.o \
+        DepositPositionsTSC1d.o \
+        DepositPositionsTSC2d.o \
+        DepositPositionsTSC3d.o \
 	DetermineNumberOfNodes.o \
 	DetermineParallelism.o \
 	DetermineSubgridSizeExtrema.o \
@@ -225,7 +229,7 @@ OBJS_CONFIG_LIB = \
 	flux_hll.o \
 	flux_hllc.o \
 	flux_twoshock.o \
-    FofLib.o \
+        FofLib.o \
         FOF.o \
         FOF_allocate.o \
         FOF_cmpfunc.o \
@@ -332,6 +336,7 @@ OBJS_CONFIG_LIB = \
 	gFLDSplit_WriteParameters.o \
         GrackleReadParameters.o \
 	GravityEquilibriumTestInitialize.o \
+        GreensFunction.o \
 	Grid_AccelerationBoundaryRoutines.o \
 	Grid_AccessBaryonFields.o \
     	Grid_AccreteOntoAccretingParticle.o \
@@ -349,6 +354,8 @@ OBJS_CONFIG_LIB = \
 	Grid_AddOneParticleFromList.o \
 	Grid_AddOverlappingParticleMassField.o \
 	Grid_AddParticlesFromList.o \
+        Grid_AddParentAccelerationFieldAPM.o \
+        Grid_AddParentPotentialFieldAPM.o \
 	Grid_AddRandomForcing.o \
 	Grid_AddToBoundaryFluxes.o \
 	Grid_AllocateGrids.o \
@@ -402,6 +409,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComovingGravitySourceTerm.o \
 	Grid_ComputeAccelerationFieldExternal.o \
 	Grid_ComputeAccelerationField.o \
+        Grid_ComputeAccelerationFieldAPM.o \
 	Grid_ComputeAccelerations.o \
 	Grid_ComputeAccelerationsFromExternalPotential.o \
 	Grid_ComputeCellCenteredField.o \
@@ -419,6 +427,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeLuminosity.o \
 	Grid_ComputeMetalLineLuminosity.o \
         Grid_ComputeOneZoneCollapseFactor.o \
+        Grid_ComputePotentialFieldAPM.o \
 	Grid_ComputePressure.o \
 	Grid_ComputeRandomForcingFields.o\
 	Grid_ComputeTemperatureField.o \
@@ -562,7 +571,9 @@ OBJS_CONFIG_LIB = \
         Grid_OldStarFeedback.o \
         Grid_AddStellarWind.o \
 	Grid_OneZoneFreefallTestInitializeGrid.o \
-	Grid_OutputAsParticleData.o \
+        Grid_OutputAccelerationField.o \
+        Grid_OutputAsParticleData.o \
+        Grid_OutputGravitatingMassField.o \
 	Grid_OutputStarParticleInformation.o \
         Grid_ParticleSplitter.o \
         Grid_PoissonSolver.o                    \
@@ -571,7 +582,6 @@ OBJS_CONFIG_LIB = \
         Grid_PrepareBoundaryFluxes.o \
         Grid_PrepareBoundaryMassFluxFieldNumbers.o \
         Grid_PrepareFFT.o \
-        Grid_PrepareGreensFunction.o \
         Grid_PrepareGridDerivedQuantities.o \
         Grid_PrepareGrid.o \
         Grid_PreparePeriodicGreensFunction.o \
@@ -628,7 +638,7 @@ OBJS_CONFIG_LIB = \
 	Grid_SolveForPotential.o \
         Grid_SolveHydroEquations.o \
 	Grid_SolveOneZoneFreefall.o \
-  Grid_SolveMHD_Li.o \
+        Grid_SolveMHD_Li.o \
 	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
@@ -642,12 +652,17 @@ OBJS_CONFIG_LIB = \
 	Grid_StratifiedMediumExplosionInitialize.o \
         Grid_SupernovaRestartInitialize.o \
         Grid_SubtractAccretedMassFromSphere.o \
+        Grid_TestGravityAPMInitializeGrid.o \
         Grid_TestGravityCheckResults.o \
+        Grid_TestGravityAPMCheckResults.o \
         Grid_TestGravityInitializeGrid.o \
         Grid_TestGravityMotionInitializeGrid.o \
+        Grid_TestGravitySineWaveInitializeGrid.o \
+        Grid_TestGravitySphereAPMInitializeGrid.o \
         Grid_TestGravitySphereCheckResults.o \
         Grid_TestGravitySphereInitializeGrid.o \
         Grid_TestOrbitInitializeGrid.o \
+        Grid_TestSelfForceInitializeGrid.o \
 	Grid_TestStarParticleInitializeGrid.o \
         Grid_TracerParticleCreateParticles.o \
         Grid_TracerParticleOutputData.o \
@@ -708,11 +723,14 @@ OBJS_CONFIG_LIB = \
         InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
 	InitialLoadBalanceRootGrids.o \
-    init_random_seed.o \
+        init_random_seed.o \
 	interp1d.o \
 	interp2d.o \
 	interp3d.o \
 	interpolate.o \
+        InterpolatePositionsTSC1d.o \
+        InterpolatePositionsTSC2d.o \
+        InterpolatePositionsTSC3d.o \
 	InterpretCommandLine.o \
         inteuler.o \
         intlgrg.o \
@@ -734,6 +752,7 @@ OBJS_CONFIG_LIB = \
         mbh_maker.o \
         mcooling.o \
         MakeFieldConservative.o\
+        make_green.o \
         MemoryAllocationRoutines.o \
 	MemoryPoolRoutines.o \
 	MersenneTwister.o \
@@ -748,6 +767,7 @@ OBJS_CONFIG_LIB = \
         MultigridSolver.o \
         mused.o \
         NestedCosmologySimulationInitialize.o \
+        NextLargestFFTSize.o \
         ngpinterp.o \
         ngp_deposit.o \
         ngp_deposit_c.o \
@@ -758,6 +778,8 @@ OBJS_CONFIG_LIB = \
         nr_st1.o \
 	NullProblem.o \
 	OneZoneFreefallTestInitialize.o \
+        OutputAccelerationField.o \
+        OutputGravitatingMassField.o \
         OutputAsParticleData.o \
 	OutputCoolingTimeOnly.o \
 	OutputDustTemperatureOnly.o \
@@ -926,16 +948,21 @@ OBJS_CONFIG_LIB = \
 	star_maker9.o \
 	star_maker10.o \
 	star_maker_h2reg.o \
-    star_maker_ssn.o \
+        star_maker_ssn.o \
 	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
+        TestGravityAPMInitialize.o \
         TestGravityCheckResults.o \
+        TestGravityAPMCheckResults.o \
         TestGravityInitialize.o \
         TestGravityMotion.o \
+        TestGravitySineWaveInitialize.o \
+        TestGravitySphereAPMInitialize.o \
         TestGravitySphereCheckResults.o \
         TestGravitySphereInitialize.o \
         TestOrbitInitialize.o \
+        TestSelfForceInitialize.o \
 	TestStarParticleInitialize.o \
         TracerParticleCreation.o \
 	TransposeRegionOverlap.o \
@@ -1226,7 +1253,7 @@ OBJS_HYDRO_RK = \
 	hydro_rk/Riemann_HLLD_MHD.o \
 	hydro_rk/Riemann_LLF_MHD.o \
 	hydro_rk/SuperNovaSeedField.o
-	
+
 # Objects for the CUDA GPU-computing support
 OBJS_ECUDA_ALL = \
         hydro_rk/CudaMHD.o \
@@ -1237,6 +1264,4 @@ OBJS_ECUDA_ALL = \
 	hydro_rk/Grid_CudaMHDRK2_2ndStep.o \
 	cuPPM.o \
 	CUDAUtil.o \
-	SaveSubgridFluxCUDA.o 
-
-
+	SaveSubgridFluxCUDA.o

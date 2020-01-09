@@ -1,0 +1,1 @@
+Running fast solver with Plummer sphere

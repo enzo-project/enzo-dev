@@ -1,0 +1,108 @@
+#=======================================================================
+#
+# FILE:        Make.mach.ichbiah_ubuntu_16_04
+#
+# DESCRIPTION: Makefile settings for my desktop machine at the MPI
+#
+# AUTHOR:      Jean-Claude Passy
+#
+# DATE:        2018-02-18
+#
+# This configuration assumes that build-essentials, gfortran,
+# OpenMPI and HDF5 have been installed using apt-get.
+#
+#=======================================================================
+
+MACH_TEXT  = Use apt-get to install csh libhdf5-serial-dev gfortran openmpi-bin libopenmpi-dev
+MACH_VALID = 1
+MACH_FILE  = Make.mach.ichbiah_18_04
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_HDF5_INSTALL = /usr/include/hdf5/openmpi
+LOCAL_GRACKLE_INSTALL = /home/jpassy/Work/Projects/External/enzo/grackle/build
+LOCAL_HYPRE_INSTALL = /home/jpassy/Work/Projects/External/enzo/hypre/build
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = gcc # C preprocessor command
+
+# With MPI
+
+MACH_CC_MPI    = mpicc # C compiler when using MPI
+MACH_CXX_MPI   = mpic++ # C++ compiler when using MPI
+MACH_FC_MPI    = mpif77 # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = mpif90 # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = mpic++ # Linker when using MPI
+
+# Without MPI
+
+MACH_CC_NOMPI  = gcc # C compiler when not using MPI
+MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
+MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = g++ # Linker when not using MPI
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+
+MACH_CPPFLAGS = -P -traditional
+MACH_CFLAGS   =
+MACH_CXXFLAGS =
+MACH_FFLAGS   = -fno-second-underscore -ffixed-line-length-132
+MACH_F90FLAGS = -fno-second-underscore
+MACH_LDFLAGS  =
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g
+MACH_OPT_DEBUG       = -g
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3 -g
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = -I/usr/include/openmpi
+LOCAL_INCLUDES_HDF5   = -I/usr/include/hdf5/openmpi
+LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
+#LOCAL_INCLUDES_PAPI   = # PAPI includes
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+#MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
+MACH_INCLUDES_GRACKLE  = $(LOCAL_INCLUDES_GRACKLE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+
+LOCAL_LIBS_MPI    = -L/usr/lib
+LOCAL_LIBS_HDF5   = -L/usr/include/hdf5/openmpi/lib -lhdf5_openmpi -lz
+LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
+#LOCAL_LIBS_PAPI   = # PAPI libraries
+LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+#MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)
