@@ -282,7 +282,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                     // if forming mass, need to check that mass accreting from grid is consistent
                     if (cstar->ReturnFeedbackFlag() == FORMATION && rho == EjectaDensity && AVL0 > 0)
                     { 
-                        // set all this on the first valid pass
+                        // set all this on the first pass that makes sense.
                         
                         /* sum quantities across tasks */
                         MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -309,17 +309,16 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                         }
                     }
 
-
-
-                        if (vol_modified > 0.0 && rescaleSN && debug)
-                            printf("level %d Prior Deposition Masses M = %g Z = %g AllVol = %g rankVol = %g ratio = %f r_mass = %g r_z = %g\n ",
-                                l, AllVol*EjectaDensity*pow(LengthUnits,3)*DensityUnits/SolarMass, 
-                                AllVol*EjectaMetalDensity*pow(LengthUnits,3)*DensityUnits/SolarMass,
-                                AllVol*pow(LengthUnits,3), vol_modified*pow(LengthUnits,3),
-                                old_vol/AllVol,
-                                vol_modified*EjectaDensity*pow(LengthUnits,3)*DensityUnits/SolarMass, 
-                                vol_modified*EjectaMetalDensity*pow(LengthUnits,3)*DensityUnits/SolarMass
-                                );
+                    /*
+                        Cant afford to do a blocking all-reduce for PopII feedback that happens on every time step
+                        Its less accurate, but rescale the density according to the volume on the least-resolved level
+                     */
+                    bool PopIIRescale = cstar->ReturnFeedbackFlag() == SUPERNOVA && cstar->ReturnType() == PopII;
+                    if (PopIIRescale && AllVol > 0 && rho == EjectaDensity) // rescale on first valid pass
+                    {   
+                        rho = EjectaDensity*old_vol/AllVol;
+                        z_rho = EjectaMetalDensity*old_vol/AllVol;
+                    }
                             
                     }// endif rescale or formation
                     if (rescaleSN){
@@ -329,15 +328,14 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                                 rho = EjectaDensity * rescale;
                                 z_rho = EjectaMetalDensity * rescale;
                             }
-
-                        if (rescale < 1.0 && AllVol > 0)
+                    }
+                    if (rescale < 1.0 && AllVol > 0)
                             fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  lratio = %f rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
                                 cstar->ReturnFeedbackFlag(), l, AVL0*pow(LengthUnits,3), 
                                 old_vol*pow(LengthUnits,3), AllVol/AVL0, rho * DensityUnits, EjectaDensity*DensityUnits, 
                                 z_rho * DensityUnits, EjectaMetalDensity*DensityUnits, 
                                 rho*AllVol*DensityUnits*pow(LengthUnits,3)/SolarMass,
                                 z_rho*AllVol*DensityUnits*pow(LengthUnits,3)/SolarMass);
-                    }
                 }
                         /* do the real deposition */
 
