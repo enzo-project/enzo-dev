@@ -92,8 +92,10 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
   ************************************************************************/
 
 	float outerRadius2 = 0.0;
+	/* Formation section in Grid_AddFeedbackSphere.C uses volume with r=1.0*radius */
 	if (cstar->ReturnFeedbackFlag() == FORMATION)
 		outerRadius2 = radius*radius;
+	/* Feedback uses volume with r=1.2*radius */
 	else if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
 		outerRadius2 =radius*radius*1.2*1.2;
 	int GZ =NumberOfGhostZones;

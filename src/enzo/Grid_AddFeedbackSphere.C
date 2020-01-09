@@ -1040,20 +1040,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 			}	 // END j-direction
 		}		  // END k-direction
 			/* if the metal removed from the grid doesn't jive with the star metal, reset it */
-		if (EjectaMetalDensity > 0 && cstar->ReturnType() == PopII)
+		if (EjectaMetalDensity > 0)
 		{
-			printf("[ %d -- %d ] Removed %g(%g) Msun metal with mass change %g Msunn\n",
-				level, cstar->ReturnType(), (z0-zNew)*DensityUnits*pow(LengthUnits,3)/SolarMass,
-				(m0-mNew)*DensityUnits*pow(LengthUnits,3)/SolarMass);
-			if (cstar->ReturnMetallicity() < (z0-zNew)*DensityUnits*pow(LengthUnits,3)/SolarMass/cstar->ReturnFinalMass())
-			{
-				printf("Removed metal mismatch with star; setting star metallicity to %g from %g with mass %g--expected %g Msun\n",
-					(z0-zNew)*DensityUnits*pow(LengthUnits,3)/SolarMass/cstar->ReturnFinalMass(),
-					cstar->ReturnMetallicity(),
-					cstar->ReturnFinalMass()*cstar->ReturnMetallicity(),
-					cstar->ReturnFinalMass());
-				// cstar->SetMetallicity((z0-zNew)*DensityUnits*pow(LengthUnits,3)/SolarMass/cstar->ReturnFinalMass());
-			}
+			printf("[ %d -- %d ] Removed %g Msun metal with mass change %g Msunn\n",
+				level, cstar->ReturnType(), 
+				(z0*DensityUnits*pow(LengthUnits,3)*CellsModified*GetVCell()/SolarMass-zNew*DensityUnits*pow(LengthUnits,3)*CellsModified*GetVCell()/SolarMass),
+				(m0-mNew)*DensityUnits*pow(LengthUnits,3)*GetVCell()/SolarMass);
 		}
 	}			  // END star birth
 
