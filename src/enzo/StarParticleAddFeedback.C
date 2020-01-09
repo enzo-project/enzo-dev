@@ -298,12 +298,13 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                                     l, cstar->ReturnType(), allMass, allMetal, allMetal/MassUnits*vCell, 
                                     (allMetal+allMetal2)/allMass, AVL0*pow(LengthUnits,3), cstar->ReturnMetallicity());
                         if (allMass > cstar->ReturnFinalMass() && AVL0 > 0){
+                            // adjust by 1.2**3 since volume was taken from radius * 1.2
                             rho = (allMass - cstar->ReturnFinalMass())/MassUnits/AVL0*vCell;
                             z_rho = max((allMetal+allMetal2-(cstar->ReturnFinalMass()*cstar->ReturnMetallicity()))/MassUnits*vCell/AVL0, 1e-20*rho);
                             printf("New densities rho=%g z_rho=%g M = %g Mz = %g\n",rho,z_rho,
                                    rho*MassUnits/SolarMass*pow(LengthUnits,3)*vCell,
                                    z_rho*MassUnits/SolarMass*pow(LengthUnits,3)*vCell);
-                            cstar->SetMetallicity((allMetal+allMetal2)/allMass);
+                           cstar->SetMetallicity((allMetal+allMetal2)/allMass);
                         
                         }
                     }

@@ -974,7 +974,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 					delx = min(delx, DomainWidth[0] - delx);
 
 					radius2 = delx * delx + dely * dely + delz * delz;
-					if (radius2 <= radius * radius)
+					if (radius2 <= radius * radius * 1.2 * 1.2) // use 1.2 radius like feedback routine
 					{
 
 						radius2 = max(radius2, 0.0625 * CellWidth[0][i] * CellWidth[0][i]); // (0.25*dx)^2
@@ -1052,7 +1052,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 					cstar->ReturnMetallicity(),
 					cstar->ReturnFinalMass()*cstar->ReturnMetallicity(),
 					cstar->ReturnFinalMass());
-				cstar->SetMetallicity((z0-zNew)*DensityUnits*pow(LengthUnits,3)/SolarMass/cstar->ReturnFinalMass());
+				// cstar->SetMetallicity((z0-zNew)*DensityUnits*pow(LengthUnits,3)/SolarMass/cstar->ReturnFinalMass());
 			}
 		}
 	}			  // END star birth
