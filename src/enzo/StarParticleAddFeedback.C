@@ -299,7 +299,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                         allMetal2 *= MassUnits;
                         metalFrac = allMetal/(allMetal+allMetal2); //fraction of p3/all metals
 
-                        if (allMass > cstar->ReturnFinalMass() && AVL0 > 0){
+                        if (allMass > cstar->ReturnFinalMass() && vol_modified > 0){
                         // Set the densities to constant value for the interior of Stromgren sphere
                             rho = (allMass - cstar->ReturnFinalMass())/MassUnits/AVL0;
                             z_rho = max((allMetal+allMetal2-(cstar->ReturnFinalMass()*cstar->ReturnMetallicity()))/AVL0/MassUnits, 1e-30*rho);
