@@ -1023,10 +1023,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 							z0 += (BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])
 									*CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
 							if (SNColourNum > 0){
-								BaryonField[SNColourNum][index] = EjectaMetalDensity*MetalFraction;//factor;
+								BaryonField[SNColourNum][index] = 1.0;EjectaMetalDensity*MetalFraction;//factor;
 								}
 							if (MetalNum > 0)
-								BaryonField[MetalNum][index] = EjectaMetalDensity*(1-MetalFraction);
+								BaryonField[MetalNum][index] = EjectaMetalDensity;//*(1-MetalFraction);
 							zNew += (BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])
 									*CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
 							if (Metal2Num > 0)

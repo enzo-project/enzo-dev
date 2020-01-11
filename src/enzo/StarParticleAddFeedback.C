@@ -313,24 +313,16 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                         Cant afford to do a blocking all-reduce for PopII feedback that happens on every time step
                         Its less accurate, but rescale the density according to the volume on the least-resolved level
                      */
-                    if (PopIIRescale && AVL0 > 0) // rescale on first valid pass
-                    {   
-                        rho = min( rho, EjectaDensity*old_vol/AVL0);
-                        z_rho = min(z_rho, EjectaMetalDensity*old_vol/AVL0);
-                    }
                             
                     //}// endif rescale or formation
-                    if (rescaleSN){
+                    if (rescaleSN || PopIIRescale){
                         if (AVL0 > 0){
                                 // AVL0 set to the volume with 1.2*radius 
                                 rescale = old_vol/AVL0;
-                                rho = EjectaDensity * rescale;
-                                z_rho = EjectaMetalDensity * rescale;
+                                rho = min(EjectaDensity * rescale, rho);
+                                z_rho = min(EjectaMetalDensity * rescale, rho);
                             }                    
-                        else{
-                            rho = 0.0;
-                            z_rho = 0.0;
-                        }
+                       
                     }
                     if (rescale < 1.0 && AllVol > 0)
                             fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  lratio = %f rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
