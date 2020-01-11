@@ -242,11 +242,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                         --AIW
                     */
 
-                        // only rescale SN if theyre PopIII single supernova--rescaling PopII is too expensive since
-                        // it happens at every timestep.
                     bool rescaleSN = cstar->ReturnFeedbackFlag()==SUPERNOVA && (cstar->ReturnType() == PopIII);
                     bool PopIIRescale = cstar->ReturnFeedbackFlag() == SUPERNOVA && cstar->ReturnType() == PopII;
+
                     // Things we'll sum across grids
+
                     int nCells = 0;
                     FLOAT vol_modified = 0.0;
                     float mass_dep = 0.0;
@@ -265,26 +265,29 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                     FLOAT AllVol = 0;
                     FLOAT old_vol = influenceRadius * influenceRadius * influenceRadius 
                                         * 4.0 * pi / 3.0;
+                    float allMass = 0;  // track full mass
+                    float allMetal = 0; // track p3 metal
+                    float allMetal2 = 0; // track p2 metal
                             
-                            // sum volume across all processes for this level 
+                            // sum volume and quantities across all processes for this level 
                             //      (sphere can be across procs as well!) -AIW
+                            // IMPROVEMENT: Use the chaining mesh with MPI_GatherV to only
+                            //      sum across adjacent grids
 
                     MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-                
+                    MPI_Allreduce(&mass_dep, &allMass,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                    MPI_Allreduce(&metal_dep, &allMetal,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                    MPI_Allreduce(&metal2_dep, &allMetal2,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD); 
+
                     // set the volume of the lowest level to deposit into
                             // WHY IS THIS NOT THE HIGHEST VOLUME??
                     if (AVL0 == 0)
                         AVL0 = AllVol;
-                    float allMass = 0;
-                    float allMetal = 0; // track p3 metal
-                    float allMetal2 = 0; // track p2 metal
                     FLOAT vCell = LevelArray[l]->GridData->GetVCell();
 
                     // if forming mass, need to check that mass accreting from grid is consistent
                     // MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-                    MPI_Allreduce(&mass_dep, &allMass,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-                    MPI_Allreduce(&metal_dep, &allMetal,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-                    MPI_Allreduce(&metal2_dep, &allMetal2,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);                    
+                   
                     if (cstar->ReturnFeedbackFlag() == FORMATION && rho == EjectaDensity && AVL0 > 0)
                     { 
                         // set all this on the first pass that makes sense.
@@ -310,17 +313,19 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                     } // end if formation
 
                     /*
-                        Cant afford to do a blocking all-reduce for PopII feedback that happens on every time step
-                        Its less accurate, but rescale the density according to the volume on the least-resolved level
-                     */
-                            
-                    //}// endif rescale or formation
+                        if dealing with supernova, rescale the densities according to the 
+                            actual deposition volume on the coarsest level.
+                    */
                     if (rescaleSN || PopIIRescale){
                         if (AVL0 > 0){
                                 // AVL0 set to the volume with 1.2*radius 
                                 rescale = old_vol/AVL0;
-                                rho = min(EjectaDensity * rescale, rho);
-                                z_rho = min(EjectaMetalDensity * rescale, rho);
+                                rho = EjectaDensity*rescale;
+                                z_rho = EjectaMetalDensity * rescale;
+                                if (AllVol > AVL0){
+                                    rho *= AVL0/AllVol;
+                                    z_rho *= AVL0/AllVol;
+                                }
                             }                    
                        
                     }
@@ -329,8 +334,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                                 cstar->ReturnFeedbackFlag(), l, AVL0*pow(LengthUnits,3), 
                                 old_vol*pow(LengthUnits,3), AllVol/AVL0, rho * DensityUnits, EjectaDensity*DensityUnits, 
                                 z_rho * DensityUnits, EjectaMetalDensity*DensityUnits, 
-                                rho*AllVol*DensityUnits*pow(LengthUnits,3)/SolarMass,
-                                z_rho*AllVol*DensityUnits*pow(LengthUnits,3)/SolarMass);
+                                rho*AVL0*DensityUnits*pow(LengthUnits,3)/SolarMass,
+                                z_rho*AVL0*DensityUnits*pow(LengthUnits,3)/SolarMass);
                                 
                 } // endif supernova or formation
                     

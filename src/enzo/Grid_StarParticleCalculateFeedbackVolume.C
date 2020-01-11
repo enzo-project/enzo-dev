@@ -98,8 +98,12 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 	/* Feedback uses volume with r=1.2*radius */
 	else if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
 		outerRadius2 =radius*radius*1.2*1.2;
-	int GZ =NumberOfGhostZones;
-		for (k = GZ; k < GridDimension[2]; k++)
+	
+	// only the volume to actually deposit--counting ghost zones would double-count
+	// the volume overlap between grids
+	int GZ = NumberOfGhostZones;
+	
+	for (k = GZ; k < GridDimension[2]-GZ; k++)
 		{
 
 			delz = CellLeftEdge[2][k] + 0.5 * CellWidth[2][k] - cstar->ReturnPosition()[2];
@@ -107,7 +111,7 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 			delz = fabs(delz);
 			delz = min(delz, DomainWidth[2] - delz);
 
-			for (j = GZ; j < GridDimension[1]; j++)
+			for (j = GZ; j < GridDimension[1]-GZ; j++)
 			{
 
 				dely = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j] - cstar->ReturnPosition()[1];
@@ -116,7 +120,7 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 				dely = min(dely, DomainWidth[1] - dely);
 
 				index = (k * GridDimension[1] + j) * GridDimension[0];
-				for (i = GZ; i < GridDimension[0]; i++, index++)
+				for (i = GZ; i < GridDimension[0]-GZ; i++, index++)
 				{
 
 					delx = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i] - cstar->ReturnPosition()[0];
@@ -129,11 +133,13 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 					{
 						depositedVolume += CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
                         nCells ++;
-						depositedMass += BaryonField[DensNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
-						if (SNColourNum > 0)
-							depositedMetal += BaryonField[SNColourNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
-						if (cstar->ReturnType() != PopIII && MetalNum >0)
-							depositedMetal2 += BaryonField[MetalNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
+						if (cstar->ReturnFeedbackFlag == FORMATION){
+							depositedMass += BaryonField[DensNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
+							if (SNColourNum > 0)
+								depositedMetal += BaryonField[SNColourNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
+							if (cstar->ReturnType() != PopIII && MetalNum >0)
+								depositedMetal2 += BaryonField[MetalNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
+						}
 					} // END if inside radius
 				}	 // END i-direction
 			}		  // END j-direction
