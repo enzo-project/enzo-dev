@@ -812,9 +812,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PISNUpperMass   = 260.0;
   PopIIIPISNEnergy = -1.0;
 
-  UseFUVBackground                     =    1; // apply FUV background from UVB for Pe heating - only HM2012
+  UseFUVBackground                     =    1;     // apply FUV background from UVB for Pe heating - only HM2012
   MetalMixingExperiment                =    0;     // turn on to add by-hand injection events to examine enrichment (see )
-  IndividualStarRefineToLevel          =   -1;
+  IndividualStarRefineToLevel          =   -1;     // Level to force-refine to aroudn star particles (region buffer size in radius)
+  IndividualStarRefineForRadiation     =    0;     // By default, above refine to level ONLY for mass / energy feedback. Also do when stars are ionizing if ON
   IndividualStarRefineBufferSize       =    4;
   /* IndividualStar: Star Formation */
   IndividualStarTemperatureLimit       =   -1;
@@ -921,6 +922,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* Stellar Yields Parameters */
   StellarYieldsNumberOfSpecies       = INT_UNDEFINED; // number of species to follow - optional, calculated automatically if left undefined
   StellarYieldsScaledSolarInitialAbundances = 0;    // use solar abundances to set initial mass fractions, linearly scaled by metalliticy
+
+  StellarAbundancesFilename = NULL;
 
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){
     StellarYieldsAtomicNumbers[i] = -1;

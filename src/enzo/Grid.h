@@ -1614,13 +1614,21 @@ iveParticles;};
        int index = indeces[n];
        if (index < 0) break;
 
-       printf("StellarAbundances P(%"ISYM"): %"ISYM" %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM,
+       FILE *fptr;
+
+       // print star particle properties, grid info, and abundances
+       // this is meant to be enough info that interesting analysis can be done off of this data
+       // file alone, without reference to data dump (e.g. MDFs)
+
+       fprintf(fptr, "StellarAbundances P(%"ISYM"): %"ISYM" %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM,
               MyProcessorNumber,
               this->ID, ParticleNumber[index], ParticleType[index],
               ParticlePosition[0][index], ParticlePosition[1][index], ParticlePosition[2][index],
               ParticleMass[index],
-              ParticleAttribute[3][index], // BirthMass
-              ParticleAttribute[2][index]); // metallicity
+              ParticleAttribute[3][index],  // BirthMass
+              ParticleAttribute[2][index],  // metallicity
+              ParticleAttribute[0][index],  // formation time
+              ParticleAttribute[1][index]); // life time
 
        int i = 0;
        int num_extra = 0;
@@ -1630,10 +1638,10 @@ iveParticles;};
        if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
 
        for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
-         printf("     %"ESYM,StellarAbundances[i][index]);
+         fprintf(fptr,"     %"ESYM,StellarAbundances[i][index]);
        }
 
-       printf("\n");
+       fprintf(fptr,"\n");
      }
      // end output stellar abundances
      return;
