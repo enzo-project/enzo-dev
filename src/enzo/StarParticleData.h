@@ -138,6 +138,7 @@ SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
 
 SPEXTERN int   IndividualStarRefineToLevel;
+SPEXTERN int   IndividualStarRefineForRadiation;
 SPEXTERN int   IndividualStarRefineBufferSize;
 SPEXTERN float IndividualStarTemperatureLimit;
 SPEXTERN float IndividualStarTemperatureLimitFactor;

@@ -216,6 +216,8 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           }
 
 
+          /* Need to make decision on whether or not to place T cut here or in Grackle wrapper */
+
           BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, 
                                                                // temperature[index],
                                                                        Z, LocalFUVflux,

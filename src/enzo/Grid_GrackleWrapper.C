@@ -127,7 +127,10 @@ int grid::GrackleWrapper()
     specific_heating_rate   = NULL;
 
     /* zero heating rate when temperature is above threshold */
-    if ( (!RadiativeTransferOpticallyThinFUV)){
+    //if ( (!RadiativeTransferOpticallyThinFUV)){
+    /* For now, do this in EVERY case. Just to be sure. But likely better
+       to do this when Pe field is created in the first case in case it
+       is needed elsewhere (to limit num of times this is done) */
       float *temperature;
       temperature = new float[size];
 
@@ -147,12 +150,13 @@ int grid::GrackleWrapper()
 
       delete [] temperature;
 
-    } else {
+    //} //
+      // else {
       // if here, FUV is followed with RT and PE computed in Grid_FinalizeRadiattionFields. Temperature
       // threshold is applied there.
-      for (i = 0; i < size; i++) volumetric_heating_rate[i] = BaryonField[PeNum][i]*(EnergyUnits/TimeUnits);
-
-    }
+      //for (i = 0; i < size; i++) volumetric_heating_rate[i] = BaryonField[PeNum][i]*(EnergyUnits/TimeUnits);
+      //
+     //}
 
 
   }

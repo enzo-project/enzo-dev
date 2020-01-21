@@ -144,16 +144,20 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     StarPosX[i] = StarPosY[i] = StarPosZ[i] = -1.;
 
     if (cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR){
-        if (( ( IndividualStarStellarWinds) && (cstar->ReturnMass() > IndividualStarSNIIMassCutoff)  ) || // massive stars always on if winds are on
+        if ((( ( IndividualStarStellarWinds) && (cstar->ReturnMass() > IndividualStarSNIIMassCutoff)  ) || // massive stars always on if winds are on
                    ( (!IndividualStarStellarWinds) && (near_end_of_life)  ) ||  // SNII check if no winds are on
-                   ( ( IndividualStarStellarWinds) && (near_end_of_life) && (cstar->ReturnMass() < IndividualStarSNIIMassCutoff) )){ // AGB wind check
+                   ( ( IndividualStarStellarWinds) && (near_end_of_life) && (cstar->ReturnMass() < IndividualStarSNIIMassCutoff) )) // AGB wind check
+             || (IndividualStarRefineForRadiation && (cstar->ReturnBirthMass()>=IndividualStarIonizingRadiationMinimumMass)){{ // radiation check
 
           IsParticleMustRefine[i] = 1;
         }
     } else if (fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
-      if (near_end_of_life   &&
-          (   ((cstar->ReturnBirthMass()>=TypeIILowerMass)&&(cstar->ReturnBirthMass()<=TypeIIUpperMass)) ||
-              ((cstar->ReturnBirthMass()>=PISNLowerMass)  &&(cstar->ReturnBirthMass()<=PISNUpperMass  ))   )){
+      if  ((near_end_of_life   &&
+            (   ((cstar->ReturnBirthMass()>=TypeIILowerMass)&&(cstar->ReturnBirthMass()<=TypeIIUpperMass)) ||
+                ((cstar->ReturnBirthMass()>=PISNLowerMass)  &&(cstar->ReturnBirthMass()<=PISNUpperMass  ))   ))
+            ) ||
+            (IndividualStarRefineForRadiation && (cstar->ReturnBirthMass()>=IndividualStarIonizingRadiationMinimumMass)){
+
         IsParticleMustRefine[i] = 1;
       }
     } else if (fabs(cstar->ReturnType()) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD ||

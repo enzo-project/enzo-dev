@@ -1181,6 +1181,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &MetalMixingExperiment);
     ret += sscanf(line, "ResetStellarAbundances = %"ISYM,
                         &ResetStellarAbundances); // read only - no write
+    ret += sscanf(line, "IndividualStarRefineForRadiation = "ISYM,
+                        &IndividualStarRefineForRadiation);
     ret += sscanf(line, "IndividualStarRefineToLevel = %"ISYM,
                         &IndividualStarRefineToLevel);
     ret += sscanf(line, "IndividualStarRefineBufferSize = %"ISYM,
@@ -1323,6 +1325,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "IndividualStarIonizingRadiationMinimumMass = %"FSYM,
                         &IndividualStarIonizingRadiationMinimumMass);
+
     ret += sscanf(line, "IndividualStarCreationStencilSize = %"ISYM,
                         &IndividualStarCreationStencilSize);
 
@@ -2261,6 +2264,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
     /* make the last two particle attributes mass counters for wind and SN */
     NumberOfParticleAttributes += 2;
+  }
+
+  if (IndividualStarOutputChemicalTags){
+    StellarAbundancesFilename = new char[80];
+    sprintf(StellarAbundancesFilename, "stellar_abundances_%4.4d.dat",
+            (Eint32) MetaData.DataDumpNumber-1);
   }
 
   /* Use the value in MaximumParticleRefinementLevel to set the smoothing
