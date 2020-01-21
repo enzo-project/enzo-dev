@@ -287,7 +287,8 @@ float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
 
 
 int StellarYieldsGetYieldTablePosition(const StellarYieldsDataType & table,
-                                       int &i, int &j, const float &M, const float &metallicity){
+                                       int &i, int &j, const float &M, const float &metallicity,
+                                       int extrapolate_yields_switch){
 
   int width, bin_number;
 
@@ -297,7 +298,7 @@ int StellarYieldsGetYieldTablePosition(const StellarYieldsDataType & table,
 
   if( (M < table.M[0]) || (M > table.M[table.NumberOfMassBins - 1])){
 
-    if( IndividualStarExtrapolateYields ){
+    if( IndividualStarExtrapolateYields || extrapolate_yields_switch ){
       // scale to most massive star
       interp_M  = table.M[table.NumberOfMassBins - 1] * 0.9999999;
 
@@ -362,7 +363,9 @@ int StellarYieldsGetPopIIIYieldTablePosition(int &i, const float &M){
 
     int j = -1;
 
-    return StellarYieldsGetYieldTablePosition(*table, i, j, M, 0.0);
+    return StellarYieldsGetYieldTablePosition(*table, i, j, M, 0.0, 
+                                                    1 // extrapolate if mass is too big
+                                                     );
 }
 
 float StellarYieldsInterpolatePopIIIYield(const int &i, const float &M, int atomic_number){
