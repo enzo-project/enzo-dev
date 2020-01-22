@@ -117,7 +117,7 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
   } else {
     // power law fit to Wolfire 2003 figure 10b - (hard coded for now)
     // where we are having efficiency scale with local gas density
-    epsilon = 0.01488637246 * POW(n_H, 0.235269059);
+    epsilon = 0.01488637246 * POW(n_H, 0.235269059) / 1.7; // factor of 1.7 to account for draine G = 1.7 vs. G = 1 Habing
   }
 //
 // AJE - 6/17/16
