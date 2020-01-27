@@ -14,9 +14,13 @@
 #include "mpi.h"
 #include <stdlib.h>
 #endif /* USE_MPI */
+#ifdef _OPENMP
+#include "omp.h"
+#endif /* _OPENMP */
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -41,7 +45,13 @@ void CommunicationErrorHandlerFn(MPI_Comm *comm, MPI_Arg *err, ...);
 
 int CommunicationInitialize(Eint32 *argc, char **argv[])
 {
- 
+
+  // int i = 0;
+  // printf("PID %d ready to attach", getpid());
+  // fflush(stdout);
+  // while(i==0)
+  //   sleep(5);
+  
 #ifdef USE_MPI
  
   /* Initialize MPI and get info. */
@@ -50,7 +60,25 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
   MPI_Arg mpi_size;
   MPI_Comm comm = MPI_COMM_WORLD;
 
-  MPI_Init(argc, argv);
+#ifdef _OPENMP
+  MPI_Arg desired = MPI_THREAD_FUNNELED;
+  MPI_Arg provided;
+  MPI_Arg thread;
+  MPI_Init_thread(argc, argv, desired, &provided);
+  if (desired != provided) {
+    thread = omp_get_thread_num();
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    if (mpi_rank == ROOT_PROCESSOR && thread == 0) {
+      fprintf(stderr, "desired = %d, provided = %d\n", desired, provided);
+      fprintf(stderr, "WARNING: Cannot get proper OpenMP/MPI setting MPI_THREAD_FUNNELED!\n"
+	      "--> Hybrid MPI/OpenMPI mode may fail.\n"
+	      "--> Set environment variable MPICH_MAX_THREAD_SAFETY to funneled.\n");
+    }
+  }
+#else
+   MPI_Init(argc, argv);
+#endif
+
   MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
   MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
   MPI_Comm_create_errhandler(CommunicationErrorHandlerFn, &CommunicationErrorHandler);
@@ -68,7 +96,26 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
   NumberOfProcessors = 1;
  
 #endif /* USE_MPI */
- 
+
+  #ifdef _OPENMP
+  int CoresPerProcessor, NumberOfCores;
+  int tid, cid;
+  MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+
+#pragma omp parallel default(shared) private(tid, cid)
+{
+  CoresPerProcessor = omp_get_num_threads();
+  tid = omp_get_thread_num();
+  cid = sched_getcpu();
+  NumberOfCores = CoresPerProcessor * NumberOfProcessors;
+  printf("Hello from rank: %d, thread: %d, affinity: (core = %d) \n", mpi_rank, tid, cid);
+  if (MyProcessorNumber == ROOT_PROCESSOR)
+    printf("MPI_Init: NumberOfCores = %"ISYM"\n", NumberOfCores);
+}
+#else
+  NumberOfCores = NumberOfProcessors;
+#endif  // _OPENMP
+
   CommunicationTime = 0;
  
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;

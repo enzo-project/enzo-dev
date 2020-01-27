@@ -47,6 +47,7 @@ EXTERN int CoresPerNode;
 EXTERN int PreviousMaxTask;
 EXTERN int LoadBalancingMinLevel;
 EXTERN int LoadBalancingMaxLevel;
+EXTERN int HybridParallelRootGridSplit;
 
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */
@@ -550,6 +551,7 @@ EXTERN FLOAT EvolveCoolingRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right
 
 EXTERN int MyProcessorNumber;
 EXTERN int NumberOfProcessors;
+EXTERN int NumberOfCores;
 EXTERN float CommunicationTime;
 
 /* Parameter to indicate if top grid should do parallel IO

@@ -15,3 +15,4 @@ are less commonly used.
    TestProblems.rst
    UsingInits.rst 
    RunCosmologySimulation.rst
+   HybridParallel.rst

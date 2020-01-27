@@ -79,14 +79,6 @@ include $(MAKE_CONFIG_OVERRIDE)
 # include $(ENZO_DIR)/Make.config.override
 
 #-----------------------------------------------------------------------
-# Make.config.assemble takes the settings in the Make.config.settings
-# and Make.config.override, and generates the appropriate make variables
-# required by this makefile.  E.g. $(CXX), $(CXXFLAGS), etc.
-#-----------------------------------------------------------------------
-
-include Make.config.assemble
-
-#-----------------------------------------------------------------------
 # Make.mach.<machine-name> defines all machine-dependent settings.
 #-----------------------------------------------------------------------
 
@@ -94,6 +86,16 @@ MACH_SHARED_EXT=so
 
 -include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
 -include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
+
+#-----------------------------------------------------------------------
+# Make.config.assemble takes the settings in the Make.config.settings
+# and Make.config.override, and generates the appropriate make variables
+# required by this makefile.  E.g. $(CXX), $(CXXFLAGS), etc.
+#-----------------------------------------------------------------------
+
+# OPENMP Settings require including machine file before assembly file
+include Make.config.assemble
+
 
 #=======================================================================
 # OBJECT FILES
