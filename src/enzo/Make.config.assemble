@@ -272,32 +272,6 @@
     ASSEMBLE_CUDAFLAGS = $(MACH_OPT_CUDA)	
 
 #-----------------------------------------------------------------------
-# DETERMINE OBJECT MODE SETTINGS
-#-----------------------------------------------------------------------
-
-    ERROR_OBJECT_MODE = 1
-
-    # Settings for compiling 32-bit object files
-
-    ifeq ($(CONFIG_OBJECT_MODE),32)
-	ERROR_OBJECT_MODE = 0
-    endif
-
-    # Settings for compiling 64-bit object files
-
-    ifeq ($(CONFIG_OBJECT_MODE),64)
-        ERROR_OBJECT_MODE = 0
-    endif
-
-    # error if CONFIG_OBJECT_MODE is incorrect
-
-    ifeq ($(ERROR_OBJECT_MODE),1)
-       .PHONY: error_object_mode
-       error_object_mode:
-	$(error Illegal value '$(CONFIG_OBJECT_MODE)' for $$(CONFIG_OBJECT_MODE))
-    endif
-
-#-----------------------------------------------------------------------
 # DETERMINE TASKMAP SETTINGS
 #-----------------------------------------------------------------------
 

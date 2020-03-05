@@ -329,10 +329,6 @@ thorough explanation of each.
     When a test fails a pdb session is triggered.  Allows interactive inspection
     of failed test data.
 
-``--changeset=str`` default: latest
-    Changeset to use in simulation repo.  If supplied,
-    make clean && make is also run
-
     
 **Flags for storing, comparing against different standards**
 
@@ -422,39 +418,32 @@ to include in a particular run of the testing suite.
 How to track down which changeset caused your test failure
 ----------------------------------------------------------
 
-[This section refers to a feature which is not currently working.]
-
-In order to identify changesets that caused problems, we have 
-provided the ``--bisect`` flag.  This runs hg bisect on revisions 
-between those which are marked as --good and --bad.
-
-hg bisect automatically manipulates the repository as it runs its 
-course, updating it to various past versions of the code and 
-rebuilding.  In order to keep the tests that get run consistent through 
-the course of the bisection, we recommend having two separate enzo
-installations, so that the specified repository (using ``--repo``) where 
-this rebuilding occurs remains distinct from the repository where the 
-testing is run.  
-
-To minimize the number of tests run, bisection is only run on tests 
-for which ``problematic=True``.  This must be set by hand by the user 
-before running bisect.  It is best that this is a single test problem, 
-though if multiple tests match that flag, failures are combined with "or"
-
+The most straightforward way to identify the changeset in
+which problems were introduced is to use the `git bisect
+<https://git-scm.com/docs/git-bisect>`__ command. With
+bisection, one begins by identifying a changeset where
+things are known to be working correctly and a changeset
+where they are not, usually the current changeset. The
+``git bisect`` command then moves to a changeset halfway
+between the good and bad ones. The tests can be rerun,
+and that changeset is identified as either good (working)
+or bad (not working). The process continues until a single
+changeset is identified where things went from working to
+not.
 
 An example of using this method is as follows:
 
 ::
 
-    $ echo "problematic = True" >> Cosmology/Hydro/AdiabaticExpansion/AdiabaticExpansion.enzotest
-    $ ./test_runner.py  --output-dir=/scratch/dcollins/TESTS --repo=/SOMEWHERE_ELSE 
-                        --answer-compare-name=$mylar/ac7a5dacd12b --bisect --good=ac7a5dacd12b 
-                        --bad=30cb5ff3c074 -j 8
-
-To run preliminary tests before bisection, we have also supplied the 
-``--changeset`` flag.  If supplied, ``--repo`` is updated to 
-``--changeset`` and compiled.  Compile errors cause ``test_runner.py`` 
-to return that error, otherwise the tests/bisector is run. 
+    $ git bisect start
+    $ git bisect bad
+    $ git bisect good gold-standard-v9
+    $ ./test_runner.py [options]
+    <TESTS FAIL>
+    $ git bisect bad
+    $ ./test_runner.py [options]
+    <TESTS PASS>
+    $ git bisect good
 
 .. _new_test:
 

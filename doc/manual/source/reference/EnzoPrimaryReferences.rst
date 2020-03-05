@@ -3,11 +3,13 @@
 Enzo Primary References
 =======================
 
-The Enzo method paper is not yet complete. However, there are several papers
-that describe the numerical methods used in Enzo, and this documentation
-contains a brief outline of the essential physics in Enzo, in
-:ref:`EnzoAlgorithms`.  These papers should be considered suitable for
-citations for Enzo in general:
+The Enzo method paper is `ENZO: An Adaptive Mesh Refinement Code for Astrophysics <https://ui.adsabs.harvard.edu/abs/2014ApJS..211...19B/abstract>`__
+by **Bryan et al.**, in The Astrophysical Journal.  This reference
+describes the essential physics and numerical methods in the Enzo code, which are also
+briefly outlined in :ref:`EnzoAlgorithms`.  In addition to the method paper, here are some
+older papers that also discuss earlier versions of the Enzo code
+or some subset of its algorithms:
+
 
 *  `Simulating X-Ray Clusters with Adaptive Mesh Refinement <http://adsabs.harvard.edu/abs/1997ASPC..123..363B>`__
    by **Bryan and Norman.** In "Computational Astrophysics; 12th
