@@ -322,20 +322,23 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                                 rescale = old_vol/AVL0;
                                 rho = EjectaDensity*rescale;
                                 z_rho = EjectaMetalDensity * rescale;
+                                // Just in case the deeper level is somehow larger (unexpected)
                                 if (AllVol > AVL0){
-                                    rho *= AVL0/AllVol;
-                                    z_rho *= AVL0/AllVol;
+                                    rho = EjectaDensity*old_vol/AllVol;
+                                    z_rho = EjectaMetalDensity*old_vol/AllVol;
                                 }
                             }                    
                        
                     }
-                    if (rescale < 1.0 && AllVol > 0)
-                            fprintf(stdout, "\n\n[ %d ]Rescaling volume on level %d v = %g/%g  lratio = %f rho = %g/%g z_rho=%g/%g m_d = %g m_z = %g\n\n\n",
-                                cstar->ReturnFeedbackFlag(), l, AVL0*pow(LengthUnits,3), 
+                    if (rescale < 1.0 && vol_modified > 0)
+                            fprintf(stdout, "\n[ %d ]Rescaling volume on level %d v = %g/%g  lratio = %f rho = %g/%g z_rho=%g/%g m_d = %g/%g m_z = %g/%g\n",
+                                cstar->ReturnLevel(), l, AVL0*pow(LengthUnits,3), 
                                 old_vol*pow(LengthUnits,3), AllVol/AVL0, rho * DensityUnits, EjectaDensity*DensityUnits, 
                                 z_rho * DensityUnits, EjectaMetalDensity*DensityUnits, 
                                 rho*AVL0*DensityUnits*pow(LengthUnits,3)/SolarMass,
-                                z_rho*AVL0*DensityUnits*pow(LengthUnits,3)/SolarMass);
+                                EjectaDensity*old_vol*DensityUnits*pow(LengthUnits, 3)/SolarMass,
+                                z_rho*AVL0*DensityUnits*pow(LengthUnits,3)/SolarMass,
+                                EjectaMetalDensity*old_vol*DensityUnits*pow(LengthUnits, 3)/SolarMass);
                                 
                 } // endif supernova or formation
                     
@@ -405,8 +408,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     } // ENDFOR stars
 
-    for (level = MaximumRefinementLevel; level > 0; level--){
-            Temp = LevelArray[level];
+    // For formation and feedback, project to parents from the bottom to make sure the information gets there as
+    // intended, ie., dont want hydro to evolve before solutions are made consistent across levels.
+    
+    for (l = MaximumRefinementLevel; l > 0; l--){
+            Temp = LevelArray[l];
             while (Temp != NULL) {
                 if (Temp->GridData->ProjectSolutionToParentGrid(*Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL){
                 fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid\n");

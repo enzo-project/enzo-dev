@@ -197,8 +197,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		} // ENDIF !Supernova
 
 		maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma - 1.0) * 0.6);
-		int GZ = 0;//NumberOfGhostZones;
-		for (k = GZ; k < GridDimension[2]; k++)
+		int GZ = NumberOfGhostZones;
+		int maxI = GridDimension[0]-GZ;
+		int maxJ = GridDimension[1]-GZ;
+		int maxK = GridDimension[2]-GZ;
+		
+		for (k = 0; k < GridDimension[2]; k++)
 		{
 
 			delz = CellLeftEdge[2][k] + 0.5 * CellWidth[2][k] - cstar->pos[2];
@@ -206,7 +210,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 			delz = fabs(delz);
 			delz = min(delz, DomainWidth[2] - delz);
 
-			for (j = GZ; j < GridDimension[1]; j++)
+			for (j = 0; j < GridDimension[1]; j++)
 			{
 
 				dely = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j] - cstar->pos[1];
@@ -215,7 +219,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 				dely = min(dely, DomainWidth[1] - dely);
 
 				index = (k * GridDimension[1] + j) * GridDimension[0];
-				for (i = GZ; i < GridDimension[0]; i++, index++)
+				for (i = 0; i < GridDimension[0]; i++, index++)
 				{
 
 					delx = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i] - cstar->pos[0];
@@ -241,7 +245,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 						OldDensity = BaryonField[DensNum][index];
 						BaryonField[DensNum][index] += factor * EjectaDensity;
-						depositedMass += factor*EjectaDensity*pow(CellWidth[0][0],3);
+						if (i< maxI && i >=GZ
+								&& j < maxJ && j > GZ
+								&& k < maxK && k > GZ)
+							depositedMass += factor*EjectaDensity*pow(CellWidth[0][0],3);
 
 						/* Add total energies of spheres together, then divide by
 	       density to get specific energy */
@@ -307,7 +314,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 						if (MetallicityField == TRUE){
 							//factor = 0.578703704;
 							BaryonField[MetalNum][index] += EjectaMetalDensity;
-							depositedMetal += EjectaMetalDensity*pow(CellWidth[0][0],3);
+							if (i< maxI && i >=GZ
+									&& j < maxJ && j > GZ
+									&& k < maxK && k > GZ)
+								depositedMetal += EjectaMetalDensity*pow(CellWidth[0][0],3);
 						}
 						CellsModified++;
 
@@ -1023,10 +1033,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 							z0 += (BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])
 									*CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
 							if (SNColourNum > 0){
-								BaryonField[SNColourNum][index] = 1.0;EjectaMetalDensity*MetalFraction;//factor;
+								BaryonField[SNColourNum][index] = EjectaMetalDensity*MetalFraction;//factor;
 								}
 							if (MetalNum > 0)
-								BaryonField[MetalNum][index] = EjectaMetalDensity;//*(1-MetalFraction);
+								BaryonField[MetalNum][index] = EjectaMetalDensity*(1-MetalFraction);
 							zNew += (BaryonField[SNColourNum][index]+BaryonField[MetalNum][index])
 									*CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
 							if (Metal2Num > 0)

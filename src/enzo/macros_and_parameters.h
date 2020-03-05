@@ -70,7 +70,7 @@
 #define MEMORY_POOL_SIZE  __memory_pool_size
 
 
-#define MAX_NUMBER_OF_OUTPUT_REDSHIFTS    500
+#define MAX_NUMBER_OF_OUTPUT_REDSHIFTS    2500
 
 #define GRAVITY_BUFFER_SIZE                 3
 

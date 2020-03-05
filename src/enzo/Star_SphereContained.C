@@ -56,7 +56,9 @@ int Star::SphereContained(LevelHierarchyEntry *LevelArray[], int level,
 
       // If the bit is true, forward.  If not, reverse.
       direction = (i >> dim & 1) ? 1 : -1;
-      corners[dim][i] = pos[dim] + direction * 1.42* Radius;
+      // feedback uses radius = 1.2*Radius; need to contain a sphere at least
+      // that size --AIW
+      corners[dim][i] = pos[dim] + direction * 1.21* Radius;
     }
     cornerDone[i] = 0;
   }

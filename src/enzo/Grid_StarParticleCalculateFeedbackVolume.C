@@ -133,7 +133,7 @@ int grid::StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radi
 					{
 						depositedVolume += CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
                         nCells ++;
-						if (cstar->ReturnFeedbackFlag == FORMATION){
+						if (cstar->ReturnFeedbackFlag() == FORMATION){
 							depositedMass += BaryonField[DensNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
 							if (SNColourNum > 0)
 								depositedMetal += BaryonField[SNColourNum][index]*CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
