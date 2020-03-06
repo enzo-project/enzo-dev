@@ -20,7 +20,19 @@ MACH_FILE  = Make.mach.sdsc-comet
 
 MACHINE_NOTES = "MACHINE_NOTES for Comet at SDSC/UCSD: \
 	Load these modules, \
-	'module load intel/2018.1.163 mvapich2_ib/2.3.2 hdf5/1.8.21'"
+	'module load intel/2018.1.163 mvapich2_ib/2.3.2 hdf5-serial/1.10.3'
+	Building:
+		./configure 
+		cd src/enzo
+		make machine-sdsc-comet
+		gmake opt-high
+		make show-config
+		make
+		cd ../inits/
+		make
+		cd ../ring/
+		make
+"
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -96,8 +108,8 @@ MACH_OPT_AGGRESSIVE  = -O3 -march=native # Flags for aggressive optimization
 # Includes
 #-----------------------------------------------------------------------
 
-LOCAL_INCLUDES_MPI    =  
-LOCAL_INCLUDES_HDF5   = -I$(LOCAL_MPI_INSTALL)/include -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
+LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include 
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_PYTHON = 
