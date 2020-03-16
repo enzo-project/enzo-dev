@@ -1883,7 +1883,7 @@ int CommunicationTransferActiveParticles(grid* Grids[], int NumberOfGrids,
 			   bool KeepLocal, bool ParticlesAreLocal,
 			   int CopyDirection,
 			   int IncludeGhostZones = FALSE,
-			   int CountOnly = FALSE);
+                           int CountOnly = FALSE);
 
 int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
                      int* &NumberToMove, int StartIndex,

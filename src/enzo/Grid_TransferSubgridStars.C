@@ -124,7 +124,7 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
       delete [] subgrid;
       return SUCCESS;
     }
-    
+
     /* Allocate space. */
  
     int TotalToMove = 0;
@@ -145,7 +145,7 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
 	MoveStar = PopStar(cstar); // also advances to NextStar
 
 	if (subgrid[i] >= 0) {
-	  MoveStar->StarToBuffer(&List[n1].data);
+          MoveStar->StarToBuffer(&List[n1].data);
 	  delete MoveStar;
 
 	  List[n1].grid = subgrid[i];

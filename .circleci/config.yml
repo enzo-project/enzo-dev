@@ -251,3 +251,17 @@ workflows:
        - test-compile-options
        - test-suite
        - docs-build
+
+   weekly:
+     triggers:
+       - schedule:
+           cron: "0 0 * * 1"
+           filters:
+            branches:
+              only:
+                - master
+
+     jobs:
+       - test-compile-options
+       - test-suite
+       - docs-build

@@ -797,13 +797,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       if (UseMagneticSupernovaFeedback)
 	Grids[grid1]->GridData->MagneticSupernovaList.clear(); 
-
-    ActiveParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-                           level, NumberOfNewActiveParticles);
     } //end loop over grids
 
-    /* Finalize (accretion, feedback, etc.) star particles */
+    /* Finalize (accretion, feedback etc) for Active particles. */
+    ActiveParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
+                           level, NumberOfNewActiveParticles);
 
+    /* Finalize (accretion, feedback, etc.) star particles */
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious, OutputNow);
 
