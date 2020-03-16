@@ -52,13 +52,6 @@ EXTERN int RadiativeTransferTimestepVelocityLevel;
 
 EXTERN int RadiativeTransferSourceClustering;
 
-/* If source clustering is turned on (above) this uses the same clustering
-   algorithm for optically thin radiation (if present). By default, this
-   is only used if on and greater than 10 sources are present. Otherwise,
-   reverts to the default source-by-source / cell-by-cell 1/r^2 method */
-
-EXTERN int RadiativeTransferOpticallyThinSourceClustering;
-
 /* Radius to merge rays in units of separation of the two sources
    associated with a super source. */
 

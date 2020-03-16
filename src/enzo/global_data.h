@@ -140,6 +140,7 @@ EXTERN int RefineBy;
 
 EXTERN int MaximumRefinementLevel;
 EXTERN int MaximumGravityRefinementLevel;
+EXTERN float MaximumRefinementLevelPhysicalScale;
 EXTERN int MaximumParticleRefinementLevel;
 EXTERN int FastSiblingLocatorEntireDomain;
 

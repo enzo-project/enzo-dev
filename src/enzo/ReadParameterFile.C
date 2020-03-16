@@ -340,6 +340,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MaximumGravityRefinementLevel);
     ret += sscanf(line, "MaximumParticleRefinementLevel = %"ISYM,
 		  &MaximumParticleRefinementLevel);
+    ret += sscanf(line, "MaximumRefinementLevelPhysicalScale = %"FSYM,
+                  &MaximumRefinementLevelPhysicalScale);
     ret += sscanf(line, "CellFlaggingMethod     = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
 	     CellFlaggingMethod+0, CellFlaggingMethod+1, CellFlaggingMethod+2,
 	     CellFlaggingMethod+3, CellFlaggingMethod+4, CellFlaggingMethod+5,

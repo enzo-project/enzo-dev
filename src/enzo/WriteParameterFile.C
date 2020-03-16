@@ -317,6 +317,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "RefineBy                       = %"ISYM"\n", RefineBy);
   fprintf(fptr, "MaximumRefinementLevel         = %"ISYM"\n", MaximumRefinementLevel);
+  fprintf(fptr, "MaximumRefinementLevelPhysicalScale = %"FSYM"\n", MaximumRefinementLevelPhysicalScale);
   fprintf(fptr, "MaximumGravityRefinementLevel  = %"ISYM"\n",
 	  MaximumGravityRefinementLevel);
   fprintf(fptr, "MaximumParticleRefinementLevel = %"ISYM"\n",

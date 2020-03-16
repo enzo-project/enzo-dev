@@ -837,7 +837,6 @@ void Star::StarListToBuffer(StarBuffer *&result, int n)
     tmp = tmp->NextStar;
   }
   return;
-<<<<<<< HEAD
 }
 
 void Star::StarToBuffer(StarBuffer *result)

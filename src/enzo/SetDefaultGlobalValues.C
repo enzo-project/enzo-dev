@@ -199,6 +199,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
   MaximumParticleRefinementLevel = -1;            // unused if negative
+  MaximumRefinementLevelPhysicalScale = -1.0;     // unused if negative - move max refinement level to match this physical scale (in pc)
   MustRefineRegionMinRefinementLevel = -1;        // unused if negative
   MetallicityRefinementMinLevel = -1;
   MetallicityRefinementMinMetallicity = 1.0e-5;
