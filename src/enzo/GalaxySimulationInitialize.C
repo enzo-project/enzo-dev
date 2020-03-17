@@ -91,6 +91,13 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 //  char *MetallicityName = "Metallicity";
   char *MetalIaName     = "MetalSNIa_Density";
 
+  char *AGBMetalName    = "AGB_Metal_Density";
+  char *PopIIIMetalName = "PopIII_Metal_Density";
+  char *SNIIMetalName   = "SNII_Metal_Density";
+  char *SNIaMetalName   = "SNIa_Metal_Density";
+  char *RProcMetalName  = "RProcess_Metal_Density";
+
+
 
   /* Chemical Tracers */
   /* handled with lookup table - see below */
@@ -845,6 +852,24 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
        DataLabel[count++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[i]);
      }
    } // yields loop
+
+   if (IndividualStarTrackAGBMetalDensity){
+     DataLabel[i++] = AGBMetalName;
+   }
+
+   if (IndividualStarPopIIIFormation){
+     DataLabel[i++] = PopIIIMetalName;
+   }
+
+   if (IndividualStarTrackSNMetalDensity){
+     DataLabel[i++] = SNIaMetalName;
+     DataLabel[i++] = SNIIMetalName;
+   }
+
+   if (IndividualStarRProcessModel){
+     DataLabel[i++] = RProcMetalName;
+   }
+
  }
 
  for (i = 0; i < count; i++)

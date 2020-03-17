@@ -141,6 +141,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *PopIIIMetalName = "PopIII_Metal_Density";
   char *SNIIMetalName = "SNII_Metal_Density";
   char *SNIaMetalName = "SNIa_Metal_Density";
+  char *RProcMetalName = "RProcess_Metal_Density";
   char *BxName = "Bx";
   char *ByName = "By";
   char *BzName = "Bz";
@@ -854,7 +855,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
         DataLabel[i++] = SNIIMetalName;
       }
 
-
+      if (IndividualStarRProcessModel){
+        DataLabel[i++] = RProcMetalName;
+      }
   }
 
 #else

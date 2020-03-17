@@ -137,9 +137,19 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
     if(((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
-      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+      int ii = 0;
+      for(ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+      if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
+      if (IndividualStarPopIIIFormation)      ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+      if (IndividualStarTrackSNMetalDensity){
+          ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
+          ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
+      }
+      if (IndividualStarRProcessModel) ParticleAttributeLabel[4 + ii++] = "rprocess_metal_fraction";
+
+
     }
     if (IndividualStarSaveTablePositions){
       for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes - 2; ii++){

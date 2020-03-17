@@ -188,6 +188,11 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
         if (! IndividualStarOutputChemicalTags){
           NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
+
+          if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
+          if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes++;
+          if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
+          if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
         }
       }
 

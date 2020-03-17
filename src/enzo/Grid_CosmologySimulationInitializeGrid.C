@@ -138,7 +138,7 @@ int grid::CosmologySimulationInitializeGrid(
   int MachNum, PSTempNum, PSDenNum;
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, PhotoGammaNum;
 
-  int ExtraField[4];
+  int ExtraField[5];
   int ForbidNum, iTE, iCR;
 
   inits_type *tempbuffer = NULL;
@@ -319,6 +319,10 @@ int grid::CosmologySimulationInitializeGrid(
         if (IndividualStarTrackSNMetalDensity){
           FieldType[ExtraField[2] = NumberOfBaryonFields++] = MetalSNIaDensity;
           FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalSNIIDensity;
+        }
+
+        if (IndividualStarRProcessModel){
+          FieldType[ExtraField[4] = NumberOfBaryonFields++] = MetalRProcessDensity;
         }
 
 
@@ -591,6 +595,12 @@ int grid::CosmologySimulationInitializeGrid(
         }
       }
 
+      if (IndividualStarRProcessModel){
+        for (i = 0; i < size; i++){
+          BaryonField[ExtraField[4]][i] = CosmologySimulationInitialFractionMetal
+             * BaryonField[0][i];
+        }
+      }
 
     }
 #else

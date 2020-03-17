@@ -1595,6 +1595,7 @@ iveParticles;};
      if (IndividualStarTrackAGBMetalDensity) num_extra++;
      if (IndividualStarPopIIIFormation) num_extra++;
      if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+     if (IndividualStarRProcessModel) num_extra++;
 
      for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
        if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
@@ -1636,6 +1637,7 @@ iveParticles;};
        if (IndividualStarTrackAGBMetalDensity) num_extra++;
        if (IndividualStarPopIIIFormation) num_extra++;
        if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+       if (IndividualStarRProcessModel) num_extra++;
 
        for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
          fprintf(fptr,"     %"ESYM,StellarAbundances[i][index]);
@@ -1711,6 +1713,7 @@ iveParticles;};
      if (IndividualStarTrackAGBMetalDensity) num_extra++;
      if (IndividualStarPopIIIFormation) num_extra++;
      if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+     if (IndividualStarRProcessModel) num_extra++;
 
      for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
        StellarAbundances[i] = new float[NumberOfNewParticles];

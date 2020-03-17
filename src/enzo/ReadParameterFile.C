@@ -1230,6 +1230,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarMassFraction);
     ret += sscanf(line, "IndividualStarAGBThreshold = %"FSYM,
                         &IndividualStarAGBThreshold);
+    ret += sscanf(line, "IndividualStarRProcessModel =%"ISYM,
+                        &IndividualStarRProcessModel);
     ret += sscanf(line, "IndividualStarTrackAGBMetalDensity =%"ISYM,
                         &IndividualStarTrackAGBMetalDensity);
     ret += sscanf(line, "IndividualStarTrackSNMetalDensity =%"ISYM,
@@ -2148,6 +2150,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     NumberOfParticleAttributes = 4;
     if (IndividualStarFollowStellarYields && !IndividualStarOutputChemicalTags){
       NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
+
+      /* and individual species type tracers */
+      if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
+      if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes++;
+      if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
+      if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
+
     }
     ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
 

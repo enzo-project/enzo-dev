@@ -267,7 +267,9 @@ const field_type
   ImPsi = 184,
   FDMDensity = 185,
 
-  FieldUndefined  = 186;
+  MetalRProcessDensity = 186,
+
+  FieldUndefined  = 187;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

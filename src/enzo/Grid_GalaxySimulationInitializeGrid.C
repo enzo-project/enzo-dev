@@ -100,6 +100,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
   int dim, i, j, k, m, disk, size, MetalNum, MetalIaNum, vel;
 
+  int ExtraField[5] = {0,0,0,0,0};
+
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
 
@@ -201,6 +203,23 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
                                ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i]);
       }
     } // loop over yeilds
+
+    if (IndividualStarTrackAGBMetalDensity) {
+      FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
+    }
+
+    if (IndividualStarPopIIIFormation){
+      FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
+    }
+
+    if (IndividualStarTrackSNMetalDensity){
+      FieldType[ExtraField[2] = NumberOfBaryonFields++] = MetalSNIaDensity;
+      FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalSNIIDensity;
+    }
+
+    if (IndividualStarRProcessModel){
+      FieldType[ExtraField[4] = NumberOfBaryonFields++] = MetalRProcessDensity;
+    }
   } // done setting multimetals
 
  /* Return if this doesn't concern us. */
@@ -313,9 +332,10 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  /* set chemical tracers to small density */
         /* For now, init halo chemical tracers density to zero */
  if (TestProblemData.MultiMetals == 2 || MultiMetals == 2){
+   float fraction = 0.0;
    for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
      if(StellarYieldsAtomicNumbers[yield_i] > 2){
-       float fraction = 0.0; int field_num = 0;
+       int field_num = 0;
 
        this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
        fraction = tiny_number;
@@ -326,6 +346,30 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
      }
    } // end for loop
+
+   if (IndividualStarTrackAGBMetalDensity){
+     for (i = 0; i < size; i ++)
+       BaryonField[ExtraField[0]][i] = tiny_number*UniformDensity;
+   }
+
+   if (IndividualStarPopIIIFormation){
+     for (i = 0; i < size; i ++)
+       BaryonField[ExtraField[1]][i] = tiny_number*UniformDensity;
+   }
+
+   if (IndividualStarTrackSNMetalDensity){
+     for (i = 0; i < size; i++){
+       BaryonField[ExtraField[2]][i] = tiny_number*UniformDensity;
+       BaryonField[ExtraField[3]][i] = tiny_number*UniformDensity;
+     }
+   }
+
+   if (IndividualStarRProcessModel){
+     for (i = 0; i < size; i++){
+       BaryonField[ExtraField[4]][i] = tiny_number*UniformDensity;
+     }
+   }
+
  } // end MM == 2 check
 
  /* Loop over the mesh. */
@@ -655,6 +699,29 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
              BaryonField[field_num][n] = density * chemical_species_fraction[ii];
            }
          }
+         if (IndividualStarTrackAGBMetalDensity){
+           for (i = 0; i < size; i ++)
+             BaryonField[ExtraField[0]][i] = tiny_number*density;
+         }
+
+         if (IndividualStarPopIIIFormation){
+           for (i = 0; i < size; i ++)
+             BaryonField[ExtraField[1]][i] = tiny_number*density;
+         }
+
+         if (IndividualStarTrackSNMetalDensity){
+           for (i = 0; i < size; i++){
+             BaryonField[ExtraField[2]][i] = tiny_number*density;
+             BaryonField[ExtraField[3]][i] = tiny_number*density;
+           }
+         }
+
+         if (IndividualStarRProcessModel){
+           for (i = 0; i < size; i++){
+             BaryonField[ExtraField[4]][i] = tiny_number*density;
+           }
+         }
+
        } // end chemical tracer value set
 
 
@@ -1675,7 +1742,13 @@ int grid::GalaxySimulationInitialStars(int *nmax, int *np, float *ParticleMass,
     /* now assign metal abundnace fractions as all tiny numbers if followed */
     if (!IndividualStarOutputChemicalTags){
       if (((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
-        for (int is = 0; is < StellarYieldsNumberOfSpecies; is++){
+        int offset = 0;
+        if (IndividualStarTrackAGBMetalDensity) offset++;
+        if (IndividualStarPopIIIFormation)     offset ++;
+        if (IndividualStarTrackSNMetalDensity) offset += 2;
+        if (IndividualStarRProcessModel)       offset ++;
+
+        for (int is = 0; is < StellarYieldsNumberOfSpecies + offset; is++){
           ParticleAttribute[4 + is][count] = tiny_number;
         }
       }

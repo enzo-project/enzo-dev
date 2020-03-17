@@ -814,6 +814,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarPopIIIFormation      =     0;         // flag to allow for Pop III star formation in gas below a Z threshold
                                                       // also tracks PopIII metal enrichment w/ additional field (but ONLY when tags are written to file)
 
+  IndividualStarRProcessModel        =     0;         // Include an R-process model (TBD) and independent tracer field
   IndividualStarTrackAGBMetalDensity =     0;         // Track separate AGB metal mass field (only for outut chemical tags)
   IndividualStarTrackSNMetalDensity  =     0;         // Track spearate SNII AND SNIa mass fields (only for output chemical tags)
 

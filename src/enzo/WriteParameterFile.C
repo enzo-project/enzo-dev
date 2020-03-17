@@ -1189,6 +1189,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarAGBThreshold = %"FSYM"\n", IndividualStarAGBThreshold);
   fprintf(fptr, "IndividualStarTrackAGBMetalDensity = %"ISYM"\n", IndividualStarTrackAGBMetalDensity);
   fprintf(fptr, "IndividualStarTrackSNMetalDensity = %"ISYM"\n", IndividualStarTrackSNMetalDensity);
+  fprintf(fptr, "IndividualStarRProcessModel = %"ISYM"\n", IndividualStarRProcessModel);
   fprintf(fptr, "IndividualStarAGBWindVelocity = %"FSYM"\n", IndividualStarAGBWindVelocity);
   fprintf(fptr, "IndividualStarWDMinimumMass = %"FSYM"\n", IndividualStarWDMinimumMass);
   fprintf(fptr, "IndividualStarWDMaximumMass = %"FSYM"\n", IndividualStarWDMaximumMass);

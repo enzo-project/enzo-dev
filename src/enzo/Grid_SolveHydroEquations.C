@@ -207,10 +207,11 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
         }
       }
 
-      int PopIIIMetalNum, AGBMetalNum; //, SNIaMetalNum, SNIIMetalNum;
+      int PopIIIMetalNum, AGBMetalNum, RProcMetalNum; //, SNIaMetalNum, SNIIMetalNum;
 
       AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
       PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
+      RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
 //      SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
 //      SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
 
@@ -221,6 +222,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
       if (IndividualStarPopIIIFormation){
         colnum[NumberOfColours++] = PopIIIMetalNum;
+      }
+
+      if (IndividualStarRProcessModel){
+        colnum[NumberOfColours++] = RProcMetalNum;
       }
 
 //      if (IndividualStarTrackSNMetalDensity){  This is already done above!!!!! with MetalIaNum and MetalIINum!!!!
