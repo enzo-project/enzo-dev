@@ -48,7 +48,7 @@ int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
 
 
   if ( !IndividualStarFollowStellarYields ||
-       !(TestProblemData.MultiMetals || MultiMetals)       ||
+       !(MultiMetals)       ||
        !STARMAKE_METHOD(INDIVIDUAL_STAR)){
     return SUCCESS;
   }
@@ -162,11 +162,11 @@ int InitializeStellarYields(const float &time){
   // Useless unless: (as of May 2016)
   //           IndividualStar SF method
   if( !IndividualStarFollowStellarYields ||
-      !TestProblemData.MultiMetals       ||
+      !MultiMetals       ||
       !STARMAKE_METHOD(INDIVIDUAL_STAR)) {
     return SUCCESS;
 
-  } else if (IndividualStarFollowStellarYields && !TestProblemData.MultiMetals){
+  } else if (IndividualStarFollowStellarYields && !MultiMetals){
     printf("Failure in InitializeStellarYields. MultiMetals must be enabled to follow yields\n");
     return FAIL;
   }

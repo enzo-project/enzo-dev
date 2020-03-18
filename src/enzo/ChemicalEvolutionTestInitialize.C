@@ -154,8 +154,6 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     ret += sscanf(line, "ChemicalEvolutionTestRefineAtStart = %"ISYM,
                         &ChemicalEvolutionTestRefineAtStart);
 
-    ret += sscanf(line, "ChemicalEvolutionTestMultiMetals = %"ISYM,
-                        &TestProblemData.MultiMetals);
     ret += sscanf(line, "ChemicalEvolutionTestUseMetals = %"ISYM,
                         &ChemicalEvolutionTestUseMetals);
 
@@ -375,17 +373,11 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     }
   }
 
-  if (TestProblemData.MultiMetals ){
-    MultiMetals = TestProblemData.MultiMetals;
-  } else if (MultiMetals) {
-    TestProblemData.MultiMetals = MultiMetals;
-  }
-
   /* Metallicity and Metals */
   if (TestProblemData.UseMetallicityField){
     DataLabel[count++] = MetalName;
 
-    if(TestProblemData.MultiMetals ==2){
+    if(MultiMetals ==2){
 
       for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
         if(StellarYieldsAtomicNumbers[i] > 2){
@@ -410,7 +402,6 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
    fprintf(Outfptr, "ChemicalEvolutionTestRefineAtStart = %"ISYM"\n", ChemicalEvolutionTestRefineAtStart);
 
-   fprintf(Outfptr, "ChemicalEvolutionTestMultiMetals = %"ISYM"\n", TestProblemData.MultiMetals);
    fprintf(Outfptr, "CHemicalEvolutionTestUseMetals = %"ISYM"\n", ChemicalEvolutionTestUseMetals);
 
    fprintf(Outfptr, "ChemicalEvolutionTestHydryogenFractionByMass = %"FSYM"\n", TestProblemData.HydrogenFractionByMass);

@@ -581,7 +581,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 // We did the metallicity tagging already, but now loop through and
                 // do individual chemical tagging for each species tracked in the simulation
                 // these are stored as particle attributes starting with attr number 5 (index 4)
-                if (((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+                if (MultiMetals == 2){
 //                  if (IndividualStarOutputChemicalTags){
                     // output the particle formation time, birth mass (in SolarMass), and metallicity
 //                    printf(" %"ISYM" %"ESYM" %"ESYM" %"ESYM, ParticleType[istar],
@@ -981,7 +981,7 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, const int mode
   EnergyUnits = MassUnits * VelocityUnits * VelocityUnits;
 
   /* If we are following yields, initialize array to hold ejecta masses */
-  if(IndividualStarFollowStellarYields && ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+  if(IndividualStarFollowStellarYields && MultiMetals == 2){
 
     metal_mass = new float[StellarYieldsNumberOfSpecies + 1];
 
@@ -1026,7 +1026,7 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, const int mode
   m_eject   = m_eject*SolarMass / MassUnits   / (dx*dx*dx);
   E_thermal = E_thermal      / EnergyUnits / (dx*dx*dx);
 
-  if(IndividualStarFollowStellarYields && ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+  if(IndividualStarFollowStellarYields && MultiMetals == 2){
     for(int i = 0; i < StellarYieldsNumberOfSpecies + 1; i++){
       // printf("metal mass species %"ISYM"   = %"ESYM"\n", i, metal_mass[i]);
       metal_mass[i] = metal_mass[i] * SolarMass / MassUnits / (dx*dx*dx);
@@ -1289,7 +1289,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         BaryonField[DensNum][index] += delta_mass;
 
         /* add metal species if we need to */
-        if(((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && IndividualStarFollowStellarYields){
+        if(MultiMetals == 2 && IndividualStarFollowStellarYields){
           int field_num;
           this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0); // gives metallicity field
 
@@ -1447,7 +1447,7 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
 
       /* modify metal abundances here */
       m_ism = m_ism / (dx*dx*dx) / MassUnits;
-      if(((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && IndividualStarFollowStellarYields && m_ism > 0.0){
+      if(MultiMetals == 2 && IndividualStarFollowStellarYields && m_ism > 0.0){
         for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
 
           metal_mass[im] = metal_mass[im] + m_ism * grid_abundances[im]; // ISM abundances

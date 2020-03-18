@@ -284,9 +284,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationAngularMomentum[1],
 		  &GalaxySimulationAngularMomentum[2]);
 
-    ret += sscanf(line, "GalaxySimulationMultiMetals = %"ISYM,
-                        &TestProblemData.MultiMetals);
-
     ret += sscanf(line, "GalaxySimulationUseDensityPerturbation = %"ISYM,
                         &GalaxySimulationUseDensityPerturbation);
     ret += sscanf(line, "GalaxySimulationPerturbationFraction = %"FSYM,
@@ -839,14 +836,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
  if (StarMakerTypeIaSNe)
    DataLabel[count++] = MetalIaName;
 
- /* Chemical tracer set ups */
- if(TestProblemData.MultiMetals){
-   MultiMetals = TestProblemData.MultiMetals;
- } else if (MultiMetals){
-   TestProblemData.MultiMetals = MultiMetals;
- }
-
- if (TestProblemData.MultiMetals == 2 || MultiMetals == 2){
+ if (MultiMetals == 2){
 
    for(int i =0; i < StellarYieldsNumberOfSpecies; i ++){
      if(StellarYieldsAtomicNumbers[i] > 2){
@@ -1013,8 +1003,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
    fprintf(Outfptr, "TestProblemUseMetallicityField = %"ISYM"\n",
            TestProblemData.UseMetallicityField);
-   fprintf(Outfptr, "GalaxySimulationMultiMetals = %"ISYM"\n",
-           TestProblemData.MultiMetals);
 
    fprintf(Outfptr, "GalaxySimulationInitialDiskMetallicity = %"GOUTSYM"\n",
            GalaxySimulationInitialDiskMetallicity);

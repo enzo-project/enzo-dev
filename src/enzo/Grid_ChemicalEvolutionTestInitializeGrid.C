@@ -195,7 +195,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
 
 
   /* Loop over all requested stellar yields species and assign initial values */
-  if (TestProblemData.MultiMetals == 2 || MultiMetals == 2){
+  if (MultiMetals == 2){
     for( int sp = 0; sp < StellarYieldsNumberOfSpecies; sp++){
       if(StellarYieldsAtomicNumbers[sp] > 2){
         int   field_num;
@@ -352,7 +352,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
       n  = ip + (jp + kp * (ny)) * (nx);
 
       /* Metal fields are all in fractions, as set in Grid_StarParticleHandler */
-      if(((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+      if(MultiMetals == 2){
         for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
           if(StellarYieldsAtomicNumbers[ii] > 2){
             int field_num;
@@ -464,7 +464,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
 
     if (! IndividualStarOutputChemicalTags){
       /* Metal fields are all in fractions, as set in Grid_StarParticleHandler */
-      if(((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+      if(MultiMetals == 2){
         for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
           if(StellarYieldsAtomicNumbers[ii] > 2){
             int field_num;

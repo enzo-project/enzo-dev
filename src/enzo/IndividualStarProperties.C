@@ -867,7 +867,7 @@ void IndividualStarSetCoreCollapseSupernovaProperties(Star *cstar,
   int *yield_table_position = cstar->ReturnYieldTablePosition();
 
   /* compute total ejected yield */
-  if ( IndividualStarFollowStellarYields && ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+  if ( IndividualStarFollowStellarYields && MultiMetals == 2){
     // 0 in first argument signifies use CC supernova yield table
     m_eject   = StellarYieldsInterpolateYield(0, yield_table_position[0], yield_table_position[1],
                                               cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), -1);
@@ -888,7 +888,7 @@ void IndividualStarSetCoreCollapseSupernovaProperties(Star *cstar,
   }
 
   /* metal masses for tracer species */
-  if(IndividualStarFollowStellarYields && ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+  if(IndividualStarFollowStellarYields && MultiMetals == 2){
     metal_mass[0] = StellarYieldsInterpolateYield(0, yield_table_position[0], yield_table_position[1],
                                                   cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), 0);
 
@@ -921,7 +921,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 
   float m_eject_total = 0.0;
 
-  if( IndividualStarFollowStellarYields && ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+  if( IndividualStarFollowStellarYields && MultiMetals == 2){
 
     // 1 = wind, -1 = return total mass
     m_eject = StellarYieldsInterpolateYield(1, yield_table_position[0], yield_table_position[1],
@@ -1092,7 +1092,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 //    wind_scaling = 0.0;
 //  }
 
-  if(IndividualStarFollowStellarYields && TestProblemData.MultiMetals==2){
+  if(IndividualStarFollowStellarYields && MultiMetals==2){
 
     metal_mass[0] = StellarYieldsInterpolateYield(1, yield_table_position[0], yield_table_position[1],
                                                      mproj, metallicity, 0); // total metal in SolarMass
@@ -1150,7 +1150,7 @@ void IndividualStarSetPopIIISupernovaProperties(Star *cstar, float &m_eject, flo
   if ( ((birth_mass >= TypeIILowerMass) && (birth_mass <= TypeIIUpperMass)) ||
        ((birth_mass >= PISNLowerMass)   && (birth_mass <= PISNUpperMass)) ){
 
-    if ( IndividualStarFollowStellarYields && ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+    if ( IndividualStarFollowStellarYields && MultiMetals == 2){
       m_eject   = StellarYieldsInterpolatePopIIIYield(yield_table_position[0],
                                                       birth_mass, -1);
     } else{
@@ -1158,7 +1158,7 @@ void IndividualStarSetPopIIISupernovaProperties(Star *cstar, float &m_eject, flo
     }
 
     /* metal masses for tracer species */
-    if(IndividualStarFollowStellarYields && ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+    if(IndividualStarFollowStellarYields && MultiMetals == 2){
       metal_mass[0] = StellarYieldsInterpolatePopIIIYield(yield_table_position[0],
                                                           cstar->ReturnBirthMass(),
                                                           0);
@@ -1222,7 +1222,7 @@ void IndividualStarSetTypeIaSupernovaProperties(float &m_eject, float &E_thermal
   }
 
   /* populate metal species array if needed */
-  if (IndividualStarFollowStellarYields && ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+  if (IndividualStarFollowStellarYields && MultiMetals == 2){
     metal_mass[0] = StellarYields_SNIaYieldsByNumber(0); // total metal mass
 
     for( int i = 0; i < StellarYieldsNumberOfSpecies; i++){

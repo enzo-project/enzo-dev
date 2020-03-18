@@ -108,7 +108,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if( ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
+    if( MultiMetals == 2 && !IndividualStarOutputChemicalTags){
       int ii = 0;
       for(ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);

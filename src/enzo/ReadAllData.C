@@ -149,10 +149,10 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
       if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
 
-      if (TestProblemData.MultiMetals && !IndividualStarOutputChemicalTags){
+      if (MultiMetals && !IndividualStarOutputChemicalTags){
         NumberOfParticleAttributes ++;   // counter offset to get names right
                                          // this is a hack and a waste of memory
-        if(TestProblemData.MultiMetals == 2){
+        if(MultiMetals == 2){
           NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
 
           if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
