@@ -166,7 +166,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
   }
 
-  if ( IndividualStarPopIIIFormation && ((PopIIIMetalNum <= 0) || (PopIIIPISNeMetalNum <= 0)){
+  if ( IndividualStarPopIIIFormation && ((PopIIIMetalNum <= 0) || (PopIIIPISNeMetalNum <= 0))){
     ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
   }
 
@@ -1078,11 +1078,12 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
                           HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
   }
 
-  int PopIIIMetalNum, AGBMetalNum, SNIaMetalNum, SNIIMetalNum, RProcMetalNum;
+  int PopIIIMetalNum, PopIIIPISNeMetalNum,
+      AGBMetalNum, SNIaMetalNum, SNIIMetalNum, RProcMetalNum;
 
   AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
   PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
-  PopIIIPISNeMetalNum = FindField(MetalPISNeMetalDensity, FieldType, NumberOfBaryonFields);
+  PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
   SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
   SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
   RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
@@ -1091,7 +1092,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
     ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
   }
 
-  if ( IndividualStarPopIIIFormation && ((PopIIIMetalNum <= 0) || (PopIIIPISNeMetalNum <=0)){
+  if ( IndividualStarPopIIIFormation && ((PopIIIMetalNum <= 0) || (PopIIIPISNeMetalNum <=0))){
     ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
   }
 

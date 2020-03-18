@@ -268,7 +268,7 @@ const field_type
   FDMDensity = 185,
 
   MetalRProcessDensity = 186,
-  MetalPISNeDensity    = 187;
+  MetalPISNeDensity    = 187,
 
   FieldUndefined  = 188;
 
