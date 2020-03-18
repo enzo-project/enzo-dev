@@ -1157,7 +1157,12 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   float total_metal_mass = 0.0;
   int   cells_this_grid = 0;
 
-  // loop over cells, compute fractional volume, inject feedback
+  const int num_factors = POW(r_int*2+1,3);
+  float injection_factors[ num_factors ] = {0.0};
+
+  // loop over all cells, compute fractional volume to deposit feedback
+  int count = 0;
+  float total_injection_volume=0.0;
   for(int k = kc - r_int; k <= kc + r_int; k++){
     if ( (k<0) || (k>=nz) ) continue;
     for(int j = jc - r_int; j <= jc + r_int; j++){
@@ -1166,11 +1171,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         if ( (i<0) || (i>=nx) ) continue;
 
         int index = i + (j + k*ny)*nx;
-        float fractional_overlap = 1.0;
-
-        // off grid - just means particle is near a boundary
-        // feedback handled appropriately on corresponding grid
-        if( index < 0 || index >= nx*ny*nz) continue;
 
         float xc,yc,zc;
         xc = (i + 0.5) * dx + xstart;
@@ -1178,18 +1178,59 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         zc = (k + 0.5) * dx + zstart;
 
         // do fractional overlap calculation
-        fractional_overlap = ComputeOverlap(1, radius, xp, yp, zp,
+        float fractional_overlap = ComputeOverlap(1, radius, xp, yp, zp,
                                             xc - dx, yc - dx, zc - dx,
                                             xc + dx, yc + dx, zc + dx, IndividualStarFeedbackOverlapSample);
 
-        if(fractional_overlap <= 0.0) continue; // cell is enirely outside sphere
+        injection_factors[count] = cell_volume_fraction * fractional_overlap;
+        total_injection_volume   += injection_factors[count];
+        count++;
+      }
+    }
+  } // end fractional overlap computation
 
-        float injection_factor = cell_volume_fraction * fractional_overlap;
+  // injection_fraction represents fraction of total volume per cell
+  // do some error checking:
+
+  if (total_injection_volume < 1.0){
+    // this will always underestimte the total volume
+    // need to scale up all of the injection fractions
+    // to ensure sum is 1 (and mass + energy conservation)
+    const float total_inv = 1.0 / total_injection_volume;
+
+    for (count = 0; count < num_factors; count++){
+      if (injection_factors[count] < 0) {ENZO_FAIL("injection factor < 0");}
+
+      injection_factors[count] *= total_inv;
+    }
+
+  } else if (total_injection_volume > 1.0){
+    // this really should never happen leave error message here for now
+    // but if this is common, just switch to always dividing by the sum (above)
+    printf("total_injection_volume = %"FSYM"\n", total_injection_volume);
+    ENZO_FAIL("Error in computing feedback injection volume in individual stars. Greater than 1");
+  }
+
+
+  // loop over cells and inject feedback
+  count = 0;
+  for(int k = kc - r_int; k <= kc + r_int; k++){
+    if ( (k<0) || (k>=nz) ) continue;
+    for(int j = jc - r_int; j <= jc + r_int; j++){
+      if ( (j<0) || (j>=ny) ) continue;
+      for(int i = ic - r_int; i <= ic + r_int; i++){
+        if ( (i<0) || (i>=nx) ) continue;
+
+        int index = i + (j + k*ny)*nx;
+
+        float injection_factor = injection_factors[count];
+        count++;
+
+        if (injection_factor <= 0) continue; // no overlap, no feedback
 
         float delta_mass  = m_eject   * injection_factor;
         float delta_therm = E_thermal * injection_factor;
 
-        if (injection_factor < 0) {ENZO_FAIL("injection factor < 0");}
 
         if (IndividualStarFollowStellarYields && (cstar || metal_mass)){
           for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
