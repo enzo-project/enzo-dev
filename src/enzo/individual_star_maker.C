@@ -930,7 +930,10 @@ int grid::IndividualStarSetWDLifetime(void){
     // renormalize so as to keep birth time the original star particle birth time
     //  - original lifetime of progenitor star to WD can be backed out via postprocessing, but not birth time
     //
-    if (result > 0){ // negative result means WD never exploding  -- ensure it is not this timestep
+    if (result > 0){ // negative result means WD never exploding
+      // set lifetime correctly as new_lifetime + main_sequence_lifetime
+      // fmax forces any explosion NOW to happen next 1-2 timesteps
+      // since machinery may not catch appropriately
       ParticleAttribute[1][i] = fmax(new_lifetime,1.5*this->dtFixed) + (this->Time - ParticleAttribute[0][i]);
     }
   }
