@@ -1139,9 +1139,9 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   // fractional volume to inject
   //
   const float radius = IndividualStarFeedbackStencilSize * dx;    // code length
-  const float volume = 4.0 * pi * radius * radius * radius / 3.0; // (code length)**3
+  const float sphere_volume = 4.0 * pi * radius * radius * radius / 3.0; // (code length)**3
   const int   r_int  = ceil(IndividualStarFeedbackStencilSize);     // int of farthest cell in any dir.
-  const float cell_volume_fraction = dx*dx*dx / volume;           // fraction of vol for each cell
+  const float cell_volume_fraction = dx*dx*dx / sphere_volume;           // fraction of vol for each cell
 
   float injected_metal_mass[StellarYieldsNumberOfSpecies+1];
 
@@ -1316,7 +1316,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
     total_mass_injected     *= dx*dx*dx * MassUnits;
     total_energy_injected   *= dx*dx*dx * EnergyUnits;
     total_metal_mass        *= dx*dx*dx * MassUnits;
-    const float volume_cgs   = volume / (LengthUnits * LengthUnits * LengthUnits);
+    const float sphere_volume_cgs   = sphere_volume / (LengthUnits * LengthUnits * LengthUnits);
     max_density_on_grid     *= DensityUnits;
     average_density_on_grid *= DensityUnits;
     const float m_eject_cgs  = m_eject * dx*dx*dx * MassUnits;
@@ -1327,12 +1327,12 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
     if (cstar){
       printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
             this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), m_eject_cgs,
-            cells_this_grid, volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
+            cells_this_grid, sphere_volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
             total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
     } else {
       printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
             this->ID, -1.0, this->Time, -1.0, -1.0, -1.0, m_eject_cgs,
-            cells_this_grid, volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
+            cells_this_grid, sphere_volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
             total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
 
     }
