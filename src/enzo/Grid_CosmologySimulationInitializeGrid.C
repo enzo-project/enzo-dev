@@ -138,7 +138,7 @@ int grid::CosmologySimulationInitializeGrid(
   int MachNum, PSTempNum, PSDenNum;
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, PhotoGammaNum;
 
-  int ExtraField[5];
+  int ExtraField[6] = {0};
   int ForbidNum, iTE, iCR;
 
   inits_type *tempbuffer = NULL;
@@ -314,15 +314,16 @@ int grid::CosmologySimulationInitializeGrid(
 
         if (IndividualStarPopIIIFormation){
           FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
+          FieldType[ExtraField[2] = NumberOfBaryonFields++] = MetalPISNeDensity;
         }
 
         if (IndividualStarTrackSNMetalDensity){
-          FieldType[ExtraField[2] = NumberOfBaryonFields++] = MetalSNIaDensity;
-          FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalSNIIDensity;
+          FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalSNIaDensity;
+          FieldType[ExtraField[4] = NumberOfBaryonFields++] = MetalSNIIDensity;
         }
 
         if (IndividualStarRProcessModel){
-          FieldType[ExtraField[4] = NumberOfBaryonFields++] = MetalRProcessDensity;
+          FieldType[ExtraField[5] = NumberOfBaryonFields++] = MetalRProcessDensity;
         }
 
 
@@ -581,23 +582,26 @@ int grid::CosmologySimulationInitializeGrid(
       }
 
       if (IndividualStarPopIIIFormation){
-        for (i = 0; i < size; i ++)
+        for (i = 0; i < size; i ++){
           BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
              * BaryonField[0][i];
+          BaryonField[ExtraField[2]][i] = CosmologySimulationInitialFractionMetal
+             * BaryonField[0][i];
+        }
       }
 
       if (IndividualStarTrackSNMetalDensity){
         for (i = 0; i < size; i++){
-          BaryonField[ExtraField[2]][i] = CosmologySimulationInitialFractionMetal
-             * BaryonField[0][i];
           BaryonField[ExtraField[3]][i] = CosmologySimulationInitialFractionMetal
+             * BaryonField[0][i];
+          BaryonField[ExtraField[4]][i] = CosmologySimulationInitialFractionMetal
              * BaryonField[0][i];
         }
       }
 
       if (IndividualStarRProcessModel){
         for (i = 0; i < size; i++){
-          BaryonField[ExtraField[4]][i] = CosmologySimulationInitialFractionMetal
+          BaryonField[ExtraField[5]][i] = CosmologySimulationInitialFractionMetal
              * BaryonField[0][i];
         }
       }

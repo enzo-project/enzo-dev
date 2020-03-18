@@ -156,7 +156,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
           NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
 
           if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
-          if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes++;
+          if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes += 2;
           if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
           if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
         }

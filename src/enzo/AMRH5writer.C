@@ -85,7 +85,11 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
       if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
-      if (IndividualStarPopIIIFormation)      ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
+
       if (IndividualStarTrackSNMetalDensity){
           ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
           ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
@@ -498,7 +502,11 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
       if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
-      if (IndividualStarPopIIIFormation)      ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
+
       if (IndividualStarTrackSNMetalDensity){
           ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
           ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
@@ -708,7 +716,11 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
       if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
-      if (IndividualStarPopIIIFormation)      ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
+
       if (IndividualStarTrackSNMetalDensity){
           ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
           ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
@@ -998,7 +1010,11 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
       if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
-      if (IndividualStarPopIIIFormation)      ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
+
       if (IndividualStarTrackSNMetalDensity){
           ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
           ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
@@ -1139,7 +1155,11 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
       if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
-      if (IndividualStarPopIIIFormation)      ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
+
       if (IndividualStarTrackSNMetalDensity){
           ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
           ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";

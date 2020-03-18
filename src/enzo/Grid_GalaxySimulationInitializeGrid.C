@@ -100,7 +100,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
   int dim, i, j, k, m, disk, size, MetalNum, MetalIaNum, vel;
 
-  int ExtraField[5] = {0,0,0,0,0};
+  int ExtraField[6] = {0,0,0,0,0};
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
@@ -210,15 +210,16 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
     if (IndividualStarPopIIIFormation){
       FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
+      FieldType[ExtraField[2] = NumberOfBaryonFields++] = MetalPISNeDensity;
     }
 
     if (IndividualStarTrackSNMetalDensity){
-      FieldType[ExtraField[2] = NumberOfBaryonFields++] = MetalSNIaDensity;
-      FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalSNIIDensity;
+      FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalSNIaDensity;
+      FieldType[ExtraField[4] = NumberOfBaryonFields++] = MetalSNIIDensity;
     }
 
     if (IndividualStarRProcessModel){
-      FieldType[ExtraField[4] = NumberOfBaryonFields++] = MetalRProcessDensity;
+      FieldType[ExtraField[5] = NumberOfBaryonFields++] = MetalRProcessDensity;
     }
   } // done setting multimetals
 
@@ -353,20 +354,22 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    }
 
    if (IndividualStarPopIIIFormation){
-     for (i = 0; i < size; i ++)
+     for (i = 0; i < size; i ++){
        BaryonField[ExtraField[1]][i] = tiny_number*UniformDensity;
+       BaryonField[ExtraField[2]][i] = tiny_number*UniformDensity;
+     }
    }
 
    if (IndividualStarTrackSNMetalDensity){
      for (i = 0; i < size; i++){
-       BaryonField[ExtraField[2]][i] = tiny_number*UniformDensity;
        BaryonField[ExtraField[3]][i] = tiny_number*UniformDensity;
+       BaryonField[ExtraField[4]][i] = tiny_number*UniformDensity;
      }
    }
 
    if (IndividualStarRProcessModel){
      for (i = 0; i < size; i++){
-       BaryonField[ExtraField[4]][i] = tiny_number*UniformDensity;
+       BaryonField[ExtraField[5]][i] = tiny_number*UniformDensity;
      }
    }
 
@@ -705,20 +708,22 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
          }
 
          if (IndividualStarPopIIIFormation){
-           for (i = 0; i < size; i ++)
+           for (i = 0; i < size; i ++){
              BaryonField[ExtraField[1]][i] = tiny_number*density;
+             BaryonField[ExtraField[2]][i] = tiny_number*density;
+           }
          }
 
          if (IndividualStarTrackSNMetalDensity){
            for (i = 0; i < size; i++){
-             BaryonField[ExtraField[2]][i] = tiny_number*density;
              BaryonField[ExtraField[3]][i] = tiny_number*density;
+             BaryonField[ExtraField[4]][i] = tiny_number*density;
            }
          }
 
          if (IndividualStarRProcessModel){
            for (i = 0; i < size; i++){
-             BaryonField[ExtraField[4]][i] = tiny_number*density;
+             BaryonField[ExtraField[5]][i] = tiny_number*density;
            }
          }
 

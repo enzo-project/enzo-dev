@@ -112,10 +112,11 @@ int grid::PrepareBoundaryMassFluxFieldNumbers(){
       BoundaryMassFluxFieldNumbers[count++] = field_num;
     }
 
-    int PopIIIMetalNum, AGBMetalNum, RProcMetalNum; //, SNIaMetalNum, SNIIMetalNum;
+    int PopIIIMetalNum, PopIIIPISNeMetalNum, AGBMetalNum, RProcMetalNum; //, SNIaMetalNum, SNIIMetalNum;
 
     AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
     PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
+    PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
     RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
 
     if (IndividualStarTrackAGBMetalDensity){
@@ -124,6 +125,7 @@ int grid::PrepareBoundaryMassFluxFieldNumbers(){
 
     if (IndividualStarPopIIIFormation){
       BoundaryMassFluxFieldNumbers[count++] = PopIIIMetalNum;
+      BoundaryMassFluxFieldNumbers[count++] = PopIIIPISNeMetalNum;
     }
 
     if (IndividualStarRProcessModel){

@@ -142,7 +142,10 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
       if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
-      if (IndividualStarPopIIIFormation)      ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
       if (IndividualStarTrackSNMetalDensity){
           ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
           ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";

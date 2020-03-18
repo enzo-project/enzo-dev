@@ -1593,7 +1593,7 @@ iveParticles;};
      int num_extra = 0;
 
      if (IndividualStarTrackAGBMetalDensity) num_extra++;
-     if (IndividualStarPopIIIFormation) num_extra++;
+     if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
      if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
      if (IndividualStarRProcessModel) num_extra++;
 
@@ -1635,7 +1635,7 @@ iveParticles;};
        int num_extra = 0;
 
        if (IndividualStarTrackAGBMetalDensity) num_extra++;
-       if (IndividualStarPopIIIFormation) num_extra++;
+       if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
        if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
        if (IndividualStarRProcessModel) num_extra++;
 
@@ -1711,7 +1711,7 @@ iveParticles;};
      int num_extra = 0;
 
      if (IndividualStarTrackAGBMetalDensity) num_extra++;
-     if (IndividualStarPopIIIFormation) num_extra++;
+     if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
      if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
      if (IndividualStarRProcessModel) num_extra++;
 

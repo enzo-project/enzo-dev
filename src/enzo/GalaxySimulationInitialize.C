@@ -93,6 +93,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   char *AGBMetalName    = "AGB_Metal_Density";
   char *PopIIIMetalName = "PopIII_Metal_Density";
+  char *PopIIIPISNeMetalName = "PopIII_PISNe_Metal_Density";
   char *SNIIMetalName   = "SNII_Metal_Density";
   char *SNIaMetalName   = "SNIa_Metal_Density";
   char *RProcMetalName  = "RProcess_Metal_Density";
@@ -859,6 +860,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
    if (IndividualStarPopIIIFormation){
      DataLabel[i++] = PopIIIMetalName;
+     DataLabel[i++] = PopIIIPISNeMetalName;
    }
 
    if (IndividualStarTrackSNMetalDensity){

@@ -268,8 +268,9 @@ const field_type
   FDMDensity = 185,
 
   MetalRProcessDensity = 186,
+  MetalPISNeDensity    = 187;
 
-  FieldUndefined  = 187;
+  FieldUndefined  = 188;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
