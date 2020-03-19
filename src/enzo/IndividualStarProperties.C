@@ -52,6 +52,12 @@
 #include "IndividualStarProperties.h"
 #include "StellarYieldsRoutines.h"
 
+
+
+int GetUnits(float *DensityUnits, float *LengthUnits,
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
+             
 /* internal function prototypes */
 int IndividualStarRadDataEvaluateInterpolation(float &y, float **ya[],
                                                const float &t, const float &u, const float &v,
@@ -109,6 +115,65 @@ float SNIaProbability(const float &current_time, const float &formation_time,
   dPdt = dPdt * POW(current_time, -IndividualStarDTDSlope);
 
   return dPdt;
+}
+
+int grid::IndividualStarSetWDLifetime(void){
+/* --------------------------------------------------
+ * IndividualStarSetWDLifetime
+ * --------------------------------------------------
+ * Updates WD lifetimes if not yet initialized using
+ * DTD SNIa model
+ * --------------------------------------------------
+ */
+
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+              &TimeUnits, &VelocityUnits, this->Time) == FAIL){
+      ENZO_FAIL("Error in GetUnits");
+  }
+
+
+  if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+
+  if (NumberOfParticles == 0)
+    return SUCCESS;
+
+  for (int i = 0; i < NumberOfParticles; i++){
+
+    if( ParticleType[i] != -PARTICLE_TYPE_INDIVIDUAL_STAR_WD ){
+      continue;
+    }
+
+    //
+    // lifetime is set relative to WD formation time (now)
+    //
+    float new_lifetime = -1;
+
+    int result = SetWDLifetime(new_lifetime, this->Time, ParticleAttribute[0][i],
+                                            ParticleAttribute[1][i], TimeUnits);
+
+    ParticleAttribute[1][i] = new_lifetime;
+    ParticleType[i]         = ABS(ParticleType[i]);
+
+    if (ParticleAttribute[1][i] < 0){
+      return FAIL;
+    }
+    //
+    // feedback operates computing death time = lifetime + birth time
+    // renormalize so as to keep birth time the original star particle birth time
+    //  - original lifetime of progenitor star to WD can be backed out via postprocessing, but not birth time
+    //
+    if (result > 0){ // negative result means WD never exploding
+      // set lifetime correctly as new_lifetime + main_sequence_lifetime
+      // fmax forces any explosion NOW to happen next 1-2 timesteps
+      // since machinery may not catch appropriately
+      ParticleAttribute[1][i] = fmax(new_lifetime,1.5*this->dtFixed) + (this->Time - ParticleAttribute[0][i]);
+    }
+  }
+
+
+  return SUCCESS;
 }
 
 int SetWDLifetime(float &WD_lifetime,
