@@ -187,6 +187,7 @@ SPEXTERN float IndividualStarRadiationMinimumMass;
 SPEXTERN int   IndividualStarStellarWinds;
 SPEXTERN float IndividualStarWindTemperature;
 SPEXTERN int   IndividualStarFollowStellarYields;
+SPEXTERN int   IndividualStarSurfaceAbundances;
 SPEXTERN int   IndividualStarOutputChemicalTags;
 SPEXTERN char* IndividualStarChemicalTagFilename;
 SPEXTERN int   IndividualStarSaveTablePositions;

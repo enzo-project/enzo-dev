@@ -54,6 +54,7 @@ class Star
   int rad_table_position[3];
   int yield_table_position[2];
   double Teff, SurfaceGravity, Radius;
+  double abundances[MAX_STELLAR_YIELDS];
 
   double wind_mass_ejected;
   double sn_mass_ejected;
@@ -91,10 +92,14 @@ public:
 // Individual Star
   int* ReturnYieldTablePosition(void){  this->AssertInterpolationPositions(3);
                                         return yield_table_position; };
+
   int* ReturnSETablePosition(void){ this->AssertInterpolationPositions(1);//printf("setable %"ISYM" %"ISYM"\n",se_table_position[0], se_table_position[1]);
                                     return se_table_position; };
+
   int* ReturnRadTablePosition(void){this->AssertInterpolationPositions(2);//printf("radtable %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
                                     return rad_table_position; };
+
+  double* ReturnAbundances(void){ return abundances;};
 
   double ReturnWindMassEjected(void){ return wind_mass_ejected; };
   double ReturnSNMassEjected(void){ return sn_mass_ejected; };

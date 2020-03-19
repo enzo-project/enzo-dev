@@ -46,6 +46,7 @@ struct StarBuffer {
   int se_table_position[2];
   int rad_table_position[3];
   int yield_table_position[2];
+  double abundances[MAX_STELLAR_YIELDS];
 
   double wind_mass_ejected;
   double sn_mass_ejected;

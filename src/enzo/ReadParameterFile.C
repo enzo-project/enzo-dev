@@ -1252,6 +1252,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarStellarWindVelocity);
     ret += sscanf(line, "IndividualStarFollowStellarYields = %"ISYM,
                         &IndividualStarFollowStellarYields);
+    ret += sscanf(line, "IndividualStarSurfaceAbundances = %"ISYM,
+                        &IndividualStarSurfaceAbundances);
     ret += sscanf(line, "IndividualStarSaveTablePositions = %"ISYM,
                         &IndividualStarSaveTablePositions);
     ret += sscanf(line, "IndividualStarOutputChemicalTags = %"ISYM,

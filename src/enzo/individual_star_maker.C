@@ -1022,6 +1022,24 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, const int mode
     stellar_wind_mode = FALSE;
   }
 
+  /* Return surface abundances of stars */
+  if (IndividualStarSurfaceAbundances){
+    // This works under the assumption that yield tables provide just
+    // the amount of each element produced (not production - ambient). By summing
+    // here, we take the amount released for a given element (X) as:
+    // ejected_mass_X = surface_abundance_X * total_ejecta_mass + yield_table_production_for_X
+    //
+    // --- likely this is never really a dominant effect to account for
+    //
+    double *abundances = cstar->ReturnAbundances();
+
+    for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+      metal_mass[i+1] += m_eject * cstar->abundances[i];
+    }
+    metal_mass[0]     += m_eject * cstar->ReturnMetallicity();
+
+  }
+
   /* convert computed parameters to code units */
   m_eject   = m_eject*SolarMass / MassUnits   / (dx*dx*dx);
   E_thermal = E_thermal      / EnergyUnits / (dx*dx*dx);
