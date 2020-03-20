@@ -230,10 +230,10 @@ if(QuantumPressure){
               ParticleVelocity[2][npart] = vz;
             }
            } 
-          }
         npart++;
 	      ParticleCount -= 1.0;
-        }
+        }// end while
+      }
       }// end for loop over grid 
    } // end loop SetupLoopCount
 
