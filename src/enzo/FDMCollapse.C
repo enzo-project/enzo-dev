@@ -87,7 +87,7 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
 
   } 
 
-  if (TopGrid.GridData->FDMCollapseInitializeGrid(CollapseTestUseParticles,CollapseTestParticleMeanDensity) == FAIL) {
+  if (TopGrid.GridData->FDMCollapseInitializeGrid(CollapseTestUseParticles, CollapseTestParticleMeanDensity) == FAIL) {
     ENZO_FAIL("Error in FDMCollapseInitializeGrid.");
   }
 
@@ -100,11 +100,11 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = (char*) Vel2Name;
   DataLabel[count++] = (char*) Vel3Name;
 
-  if (QuantumPressure) {
+  //if (QuantumPressure) {
     DataLabel[count++] = (char*) RePsiName;
     DataLabel[count++] = (char*) ImPsiName;
     DataLabel[count++] = (char*) FDMDensName;
-  }
+  //}
 
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;
