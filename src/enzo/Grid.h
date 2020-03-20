@@ -2673,7 +2673,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
   int LightBosonInitializeGrid(float CenterPosition, int LightBosonProblemType);
 /* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
-  int FDMCollapseInitializeGrid();
+  int FDMCollapseInitializeGrid(int UseParticles, float ParticleMeanDensity);
 // -------------------------------------------------------------------------
 // Analysis functions for AnalysisBaseClass and it's derivatives.
 //

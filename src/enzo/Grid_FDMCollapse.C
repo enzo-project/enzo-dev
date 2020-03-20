@@ -48,7 +48,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 /*******************************************************/
 #define READFILE ReadFile
 
-int grid::FDMCollapseInitializeGrid()
+int grid::FDMCollapseInitializeGrid(int UseParticles, float ParticleMeanDensity)
 {
   /* declarations */
 
@@ -136,9 +136,7 @@ if(QuantumPressure){
   }
 
   // If use particle, initial particles according to the FDM values and turn off QuantumPressure
-  int UseParticles;
-  double ParticleMeanDensity = 1.0;
-  static int CollapseTestParticleCount = 0;
+  int CollapseTestParticleCount = 0;
   int SetupLoopCount, npart = 0;
   int ParticleCount = 0;
   int ind, indxp, indxn, indyp, indyn, indzp, indzn;
