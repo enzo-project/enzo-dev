@@ -1587,7 +1587,7 @@ iveParticles;};
 
 #ifdef INDIVIDUALSTAR
    void DeleteStellarAbundances(){
-//     if(!StellarAbundances) return;
+     if(StellarAbundances == NULL) return;
 
      int i;
      int num_extra = 0;

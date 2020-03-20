@@ -373,6 +373,7 @@ char* ChemicalSpeciesParticleLabel(const int &atomic_number){
 
 
     default:
+      printf("Atomic number %"ISYM"\n",atomic_number);
       ENZO_FAIL("Error in ChemicalSpeciesParticleLabel - Label not found\n");
   }
 

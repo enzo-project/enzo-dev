@@ -32,7 +32,8 @@ void grid::DeleteAllFields()
   this->DeleteParticles();
 
 #ifdef INDIVIDUALSTAR
-  this->DeleteStellarAbundances();
+  if (IndividualStarOutputChemicalTags)
+    this->DeleteStellarAbundances();
 #endif
 
   for (i = 0; i < MAX_DIMENSION; i++) {
