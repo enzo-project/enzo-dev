@@ -86,6 +86,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
   TIMER_START("IndividualStarParticleAddFeedback");
 
   int count = 0;
+  bool any_feedback_added = false;
 
   /* Loop over all stars, checking properties before doing feedback */
   for (cstar = AllStars; cstar; cstar = cstar->NextStar, count++){
@@ -116,11 +117,16 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     }
 
 
+    /* Get Units */
+    float DensityUnits, LengthUnits, TemperatureUnits,
+          TimeUnits, VelocityUnits, MassUnits, EnergyUnits;
+    if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+                 &TimeUnits, &VelocityUnits, MetaData->Time) == FAIL){
+        ENZO_FAIL("Error in GetUnits");
+    }
+
     /* feedback is done in a cic interpolation. This is number of cells
        on eiher side of central cell (i.e. 3x3 CIC -> ncell = 1) */
-//    int ncell = (int) ((IndividualStarFeedbackStencilSize+1)/2.0 - 1);
-
-    int ncell = (int) (IndividualStarFeedbackStencilSize) + 1;
 
     pos = cstar->ReturnPosition();
     vel = cstar->ReturnVelocity();
@@ -135,6 +141,11 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
 
         for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
+
+          int ncell = IndividualStarFeedbackStencilSize+1;
+          if (IndividualStarFeedbackRadius > 0){
+            ncell = (int) ceil(IndividualStarFeedbackRadius*pc_cm/LengthUnits / Temp->GridData->ReturnCellWidth());
+          }
 
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp) ){
             // refresh mass every time to prevent double+ counting loss
@@ -161,6 +172,11 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     if (cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_POPIIISN) {
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l++){
         for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel){
+          int ncell = IndividualStarFeedbackStencilSize+1;
+          if (IndividualStarFeedbackRadius > 0){
+            ncell = (int) ceil(IndividualStarFeedbackRadius*pc_cm/LengthUnits / Temp->GridData->ReturnCellWidth());
+          }
+
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
 
             particle_mass = cstar->ReturnMass();
@@ -186,6 +202,10 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
 
         for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
+          int ncell = IndividualStarFeedbackStencilSize+1;
+          if (IndividualStarFeedbackRadius > 0){
+            ncell = (int) ceil(IndividualStarFeedbackRadius*pc_cm/LengthUnits / Temp->GridData->ReturnCellWidth());
+          }
 
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
             // refresh mass every time to prevent double+ counting
@@ -212,6 +232,10 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNIA){
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
         for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
+          int ncell = IndividualStarFeedbackStencilSize+1;
+          if (IndividualStarFeedbackRadius > 0){
+            ncell = (int) ceil(IndividualStarFeedbackRadius*pc_cm/LengthUnits / Temp->GridData->ReturnCellWidth());
+          }
 
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
             particle_mass = cstar->ReturnMass();
@@ -244,6 +268,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
         }
     }
 
+    if (AddedFeedback[count]) any_feedback_added = true;
+
   } // end stars loop
 
 
@@ -254,6 +280,22 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     }
   }
 
+  /* Ensure injection is valid at all levels */
+/*
+  if (any_feedback_added){
+    for (level = MaximumRefinementLevel; level > 0; level--){
+            Temp = LevelArray[level];
+            while (Temp != NULL) {
+                if (Temp->GridData->ProjectSolutionToParentGrid(*Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL){
+                fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid\n");
+                return FAIL;
+                }
+                Temp = Temp->NextGridThisLevel;
+            }
+    }
+
+  }
+ */
 
   TIMER_STOP("IndividualStarParticleAddFeedback");
   return SUCCESS;
@@ -515,9 +557,18 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   // now move outward from particle computing
   // fractional volume to inject
   //
-  const float radius = IndividualStarFeedbackStencilSize * dx;    // code length
+  float radius = 0.0;
+  int   r_int  = 0;
+
+  if (IndividualStarFeedbackRadius > 0){
+    radius = IndividualStarFeedbackRadius * pc_cm / LengthUnits; // code length
+    r_int  = (int) ceil(radius / dx); // int of farthest cell in any dir.
+  } else {
+    radius = IndividualStarFeedbackStencilSize * dx; // code length
+    r_int  = ceil(IndividualStarFeedbackStencilSize); // int of farthest cell in any dir.
+  }
+
   const float sphere_volume = 4.0 * pi * radius * radius * radius / 3.0; // (code length)**3
-  const int   r_int  = ceil(IndividualStarFeedbackStencilSize);     // int of farthest cell in any dir.
   const float cell_volume_fraction = dx*dx*dx / sphere_volume;           // fraction of vol for each cell
 
   float injected_metal_mass[StellarYieldsNumberOfSpecies+1];

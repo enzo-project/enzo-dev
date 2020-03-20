@@ -836,6 +836,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* IndividualStar: Stellar Feedback (non-radiation) */
   IndividualStarFeedbackOverlapSample = 32;         // number of points per cell to compute fractional overlap in feedback routine
   IndividualStarFeedbackStencilSize   = 3;          // Size of feedback injection region (radius in number of cells)
+  IndividualStarFeedbackRadius        = -1.0;       // Used (over above) if > 0. Feedback radius in pc (not # of grid zones)
 
   IndividualStarStellarWinds          = 1;          // on or off
   IndividualStarWindTemperature       = 1.0E6;      // temperature cap on stellar wind source region (K)
