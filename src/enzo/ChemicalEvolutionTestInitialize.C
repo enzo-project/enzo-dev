@@ -70,6 +70,13 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   char *MetalName   = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
 
+  char *AGBMetalName    = "AGB_Metal_Density";
+  char *PopIIIMetalName = "PopIII_Metal_Density";
+  char *PopIIIPISNeMetalName = "PopIII_PISNe_Metal_Density";
+  char *SNIIMetalName = "SNII_Metal_Density";
+  char *SNIaMetalName = "SNIa_Metal_Density";
+  char *RProcMetalName = "RProcess_Metal_Density";
+
 
   /* Names for Primordial chemistry */
   char *ElectronName = "Electron_Density";
@@ -110,6 +117,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
   int   ChemicalEvolutionTestRefineAtStart   = 1,
         ChemicalEvolutionTestUseMetals       = 1;
+
 
   ChemicalEvolutionTestGasDistribution = 0;
 
@@ -234,7 +242,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     DiskGravityDarkMatterR = DiskGravityDarkMatterCutoffR / conc;
     DiskGravityDarkMatterDensity = 200.0 / 3.0 * rho_crit * conc*conc*conc / (log(1.0+conc)+conc/(1.0+conc)); //cgs
 
-    HaloCentralDensity = DiskGravityDarkMatterDensity; // must be cgs 
+    HaloCentralDensity = DiskGravityDarkMatterDensity; // must be cgs
     HaloConcentration  = ChemicalEvolutionTestConcentration;
     HaloVirialRadius   = DiskGravityDarkMatterCutoffR * Mpc_cm; // cgs
   }
@@ -384,6 +392,24 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
           DataLabel[count++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[i]);
         }
       }
+    }
+
+    if (IndividualStarTrackAGBMetalDensity){
+      DataLabel[count++] = AGBMetalName;
+    }
+
+    if (IndividualStarPopIIIFormation){
+      DataLabel[count++] = PopIIIMetalName;
+      DataLabel[count++] = PopIIIPISNeMetalName;
+    }
+
+    if (IndividualStarTrackSNMetalDensity){
+      DataLabel[count++] = SNIaMetalName;
+      DataLabel[count++] = SNIIMetalName;
+    }
+
+    if (IndividualStarRProcessModel){
+      DataLabel[count++] = RProcMetalName;
     }
   }
 

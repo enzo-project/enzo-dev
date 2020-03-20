@@ -42,7 +42,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
 
-  int ExtraField[2];
+  int ExtraField[6];
 
   /* create fields */
  
@@ -137,6 +137,25 @@ int grid::InitializeUniformGrid(float UniformDensity,
                                ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i]);
         }
       } // end loop over atomic numbers
+
+
+      if (IndividualStarTrackAGBMetalDensity) {
+        FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
+      }
+
+      if (IndividualStarPopIIIFormation){
+        FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
+        FieldType[ExtraField[2] = NumberOfBaryonFields++] = MetalPISNeDensity;
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+        FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalSNIaDensity;
+        FieldType[ExtraField[4] = NumberOfBaryonFields++] = MetalSNIIDensity;
+      }
+
+      if (IndividualStarRProcessModel){
+        FieldType[ExtraField[5] = NumberOfBaryonFields++] = MetalRProcessDensity;
+      }
     } // end mm = 2
 
   } // use metallicity field
@@ -345,6 +364,26 @@ int grid::InitializeUniformGrid(float UniformDensity,
             BaryonField[field_num][i] = fraction * UniformDensity;
           }
         } // yields loop
+
+      if (IndividualStarTrackAGBMetalDensity){
+          BaryonField[ExtraField[0]][i] = tiny_number * UniformDensity;
+      }
+
+      if (IndividualStarPopIIIFormation){
+          BaryonField[ExtraField[1]][i] = tiny_number * UniformDensity;
+          BaryonField[ExtraField[2]][i] = tiny_number * UniformDensity;
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+          BaryonField[ExtraField[3]][i] = tiny_number * UniformDensity;
+          BaryonField[ExtraField[4]][i] = tiny_number * UniformDensity;
+      }
+
+      if (IndividualStarRProcessModel){
+          BaryonField[ExtraField[5]][i] = tiny_number * UniformDensity;
+      }
+
+
       } // if we are doing stellar yields
 
     } // if(TestProblemData.UseMetallicityField)
