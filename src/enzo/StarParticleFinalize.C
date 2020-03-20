@@ -168,6 +168,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       ThisStar->ActivateNewStar(TimeNow, Timestep);
       if (ThisStar->ReturnType() == PopIII && PopIIIOutputOnFeedback == TRUE)
 	OutputNow = TRUE;
+      if (ThisStar->ReturnType() == IndividualStarRemnant && PopIIIOutputOnFeedback == 2)
+        OutputNow = TRUE;
     }
     if (ThisStar->ReturnType() == -IndividualStar ||
         ThisStar->ReturnType() == -IndividualStarRemnant ||
