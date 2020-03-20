@@ -628,7 +628,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
     if (total_injection_volume < 0.8){
 
-      printf("total_injection_volume = "%ESYM"\n",total_injection_volume);
+      printf("total_injection_volume = %"ESYM"\n",total_injection_volume);
       ENZO_FAIL("Total injection volume is small... this is a large correction... make sure nohing is broken");
     }
 
