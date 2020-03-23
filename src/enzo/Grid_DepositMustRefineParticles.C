@@ -155,7 +155,11 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
     } else{
 
-        float lifetime = 0.0;
+      if (ProblemType == 260 && ChemicalEvolutionTestStarLifetime > 0){
+        lifetime = ChemicalEvolutionTestStarLifetime * Myr_s / TimeUnits;
+      } else {
+
+        lifetime = 0.0;
         int mode = 1;
         if (IndividualStarPopIIIFormation && (cstar->ReturnMetallicity() < PopIIIMetalCriticalFraction)) mode = 3;
 
@@ -163,6 +167,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
                                           cstar->ReturnMetallicity(), mode);
 
         lifetime /= TimeUnits;
+      }
     }
 
     end_of_life = cstar->ReturnBirthTime() + lifetime;
