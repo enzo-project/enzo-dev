@@ -279,7 +279,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
   if (TopGrid.GridData->ChemicalEvolutionTestInitializeGrid(ChemicalEvolutionTestGasDensity,
                                                             ChemicalEvolutionTestGasTemperature,
-                                                            ChemicalEvolutionTestGasMetallicity) == FAIL){
+                                                            ChemicalEvolutionTestGasMetallicity,
+                                                            TRUE) == FAIL){
     ENZO_FAIL("Error in ChemicalEvolutionInitialize[Sub]Grid.");
   } // end subgrid if
 
@@ -322,7 +323,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
         TempGrid->GridData->ChemicalEvolutionTestInitializeGrid(ChemicalEvolutionTestGasDensity,
                                                                 ChemicalEvolutionTestGasTemperature,
-                                                                ChemicalEvolutionTestGasMetallicity);
+                                                                ChemicalEvolutionTestGasMetallicity,
+                                                                FALSE);
         TempGrid = TempGrid->NextGridThisLevel;
       }
     } // end loop over levels

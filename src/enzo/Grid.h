@@ -2464,7 +2464,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* Initialization for chemical evolution test */
   int ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTemperature,
-                                          float GasMetallicity);
+                                          float GasMetallicity, bool deposit_stars);
 
   /* AJE Individual star formation and feedback */
   int chemical_evolution_test_star_deposit(int *nmax, int *np,

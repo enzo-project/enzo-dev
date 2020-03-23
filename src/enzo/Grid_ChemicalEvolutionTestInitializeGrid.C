@@ -35,7 +35,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 
 int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTemperature,
-                                              float GasMetallicity){
+                                              float GasMetallicity, bool deposit_stars){
 
   if (ProcessorNumber != MyProcessorNumber){
     return SUCCESS;
@@ -214,17 +214,21 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
   } // MULTI METALS
 
   /* now go through and initialize the particles */
-  int MaximumNumberOfNewParticles = 10000;
-  int NumberOfNewParticles = 0;
-  this->AllocateNewParticles(MaximumNumberOfNewParticles);
 
-  this->chemical_evolution_test_star_deposit(&MaximumNumberOfNewParticles,
+  if (deposit_stars){
+    int MaximumNumberOfNewParticles = 10000;
+    int NumberOfNewParticles = 0;
+    this->AllocateNewParticles(MaximumNumberOfNewParticles);
+
+    this->chemical_evolution_test_star_deposit(&MaximumNumberOfNewParticles,
                                              &NumberOfNewParticles, this->ParticleMass,
                                              this->ParticleType, this->ParticlePosition,
                                              this->ParticleVelocity, this->ParticleAttribute);
 
-  if (NumberOfNewParticles > 0) {
-    this->NumberOfParticles = NumberOfNewParticles;
+
+    if (NumberOfNewParticles > 0) {
+      this->NumberOfParticles = NumberOfNewParticles;
+    }
   }
 //  } else if (ChemicalEvolutionTestNumberOfStars > 0) {
 //    ENZO_FAIL("Was not able to deposit stars in chemical evolution test\n");
