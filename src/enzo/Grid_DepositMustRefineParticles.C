@@ -171,7 +171,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     }
 
     end_of_life = cstar->ReturnBirthTime() + lifetime;
-    printf("refinement %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", cstar->ReturnBirthTime(), lifetime, end_of_life, this->Time, this->Time-end_of_life);
 
     bool near_end_of_life = fabs(this->Time - end_of_life) < IndividualStarRefineTime * Myr_s / TimeUnits;
    //(IndividualStarLifeRefinementFactor * this->dtFixed * POW(2,level)); // factor of root grid, estimate root $
