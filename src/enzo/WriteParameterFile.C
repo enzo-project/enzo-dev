@@ -1161,7 +1161,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   WriteListOfFloats(fptr, 3, IndividualStarICSupernovaPos);
 
   fprintf(fptr, "IndividualStarWDFixedLifetime = %"FSYM"\n", IndividualStarWDFixedLifetime);
-  fprintf(fptr, "IndividualStarLifeRefinementFactor = %"ISYM"\n", IndividualStarLifeRefinementFactor);
+  fprintf(fptr, "IndividualStarRefineTime= %"FSYM"\n", IndividualStarRefineTime);
   fprintf(fptr, "IndividualStarICLifetimeMode = %"ISYM"\n", IndividualStarICLifetimeMode);
   fprintf(fptr, "IndividualStarCheckVelocityDiv = %"ISYM"\n", IndividualStarCheckVelocityDiv);
   fprintf(fptr, "IndividualStarFeedbackOverlapSample = %"ISYM"\n", IndividualStarFeedbackOverlapSample);

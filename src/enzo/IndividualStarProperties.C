@@ -58,6 +58,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
              
+extern "C" void FORTRAN_NAME(pop3_properties)(FLOAT *mass, FLOAT* luminosity,
+                                              FLOAT *lifetime);
+
 /* internal function prototypes */
 int IndividualStarRadDataEvaluateInterpolation(float &y, float **ya[],
                                                const float &t, const float &u, const float &v,
@@ -880,6 +883,16 @@ int IndividualStarInterpolateLifetime(float &tau, const float &M,
   float t, u; // interpolation coefficients
 
   float Z = metallicity;
+
+  if (mode == 3){ /// PopIII
+    float temp_mass=0.0, temp_luminosity = 0.0;
+    temp_mass = M;
+
+    FORTRAN_NAME(pop3_properties)(&temp_mass, &temp_luminosity, &tau);
+
+    tau *= yr_s;
+    return SUCCESS;
+  }
 
   // WARNING: see statement at top of file
   if (Z < IndividualStarPropertiesData.Z[0]){

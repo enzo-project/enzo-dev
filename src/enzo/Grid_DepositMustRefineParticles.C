@@ -25,7 +25,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
@@ -40,6 +40,11 @@ extern "C" void PFORTRAN_NAME(cic_flag)(int* irefflag, FLOAT *posx, FLOAT *posy,
 			int *buffersize);
 
 #ifdef INDIVIDUALSTAR
+
+int IndividualStarInterpolateLifetime(float &tau, const float &M,
+                                      const float &metallicity, const int &mode);
+
+
 // do a separate method to keep things clean, even though a lot will be redundant
 int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField,
                                      TopGridData *MetaData, Star *&AllStars){
@@ -137,8 +142,34 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   Star *cstar;
 
   for (cstar = AllStars, i = 0; cstar; cstar = cstar->NextStar) {
-    float end_of_life = cstar->ReturnBirthTime() + cstar->ReturnLifetime();
-    bool near_end_of_life = fabs(this->Time - end_of_life) < (IndividualStarLifeRefinementFactor * this->dtFixed * POW(2,level)); // factor of root grid, estimate root $
+    float end_of_life = 0.0;
+    float lifetime = 0.0;
+
+
+    if ( !(cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT)){
+        //cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR ||
+        //cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII ||
+        //cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR_WD){
+
+        lifetime = cstar->ReturnLifetime();
+
+    } else{
+
+        float lifetime = 0.0;
+        int mode = 1;
+        if (IndividualStarPopIIIFormation && (cstar->ReturnMetallicity() < PopIIIMetalCriticalFraction)) mode = 3;
+
+        IndividualStarInterpolateLifetime(lifetime, cstar->ReturnBirthMass(),
+                                          cstar->ReturnMetallicity(), mode);
+
+        lifetime /= TimeUnits;
+    }
+
+    end_of_life = cstar->ReturnBirthTime() + lifetime;
+    printf("refinement %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", cstar->ReturnBirthTime(), lifetime, end_of_life, this->Time, this->Time-end_of_life);
+
+    bool near_end_of_life = fabs(this->Time - end_of_life) < IndividualStarRefineTime * Myr_s / TimeUnits;
+   //(IndividualStarLifeRefinementFactor * this->dtFixed * POW(2,level)); // factor of root grid, estimate root $
 
     IsParticleMustRefine[i] = 0;
     StarPosX[i] = StarPosY[i] = StarPosZ[i] = -1.;
