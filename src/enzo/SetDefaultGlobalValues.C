@@ -840,7 +840,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   IndividualStarStellarWinds          = 1;          // on or off
   IndividualStarWindTemperature       = 1.0E6;      // temperature cap on stellar wind source region (K)
-  IndividualStarUseWindMixingModel    = 1;          // account for unresolved mixing at wind/ISM shell interface and allow mass loading
+  IndividualStarUseWindMixingModel    = 0;          // account for unresolved mixing at wind/ISM shell interface and allow mass loading
   IndividualStarStellarWindVelocity   = -1;         // when < 0, use Leithener et. al. model for stellar wind velocities
                                                     // when > 0, uniform wind velocity for all stars in km / s
                                                     // when = 0, use this to do mass deposition without energy injection
