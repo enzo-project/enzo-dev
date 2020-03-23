@@ -69,11 +69,11 @@ int grid::FDMCollapseInitializeGrid(int UseParticles, float ParticleMeanDensity)
   if (GridRank > 2)
     FieldType[NumberOfBaryonFields++] = Velocity3;
 
-  if (QuantumPressure){
+  //if (QuantumPressure){
     FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
     FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
     FieldType[FDMDensNum = NumberOfBaryonFields++] = FDMDensity;
-  }
+  //}
   //printf("%d \n", NumberOfBaryonFields);
 
   /* Set various units. */
@@ -111,7 +111,7 @@ int grid::FDMCollapseInitializeGrid(int UseParticles, float ParticleMeanDensity)
  double afloat = double(a);
  double hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits/afloat,2)/FDMMass;
 
-if(QuantumPressure){
+//if(QuantumPressure){
 // Read Density
 /*  if (READFILE("GridDensity.new", GridRank, GridDimension,
          GridStartIndex, GridEndIndex, Offset, BaryonField[0],
@@ -133,7 +133,7 @@ if(QuantumPressure){
   for (i=0; i<size; i++){
     BaryonField[FDMDensNum][i] = BaryonField[RePsiNum][i] * BaryonField[RePsiNum][i] + BaryonField[ImPsiNum][i] * BaryonField[ImPsiNum][i];
   }
-  }
+ // }
 
   // If use particle, initial particles according to the FDM values and turn off QuantumPressure
   int CollapseTestParticleCount = 0;
@@ -175,70 +175,73 @@ if(QuantumPressure){
 	    if (GridRank > 2)
 	      z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
       
-      ind = GRIDINDEX_NOGHOST(i,j,k);
-      ip = (i+1)%GridDimension[0];
-      indxp = GRIDINDEX_NOGHOST(ip,j,k);
-      in = ((i-1)%GridDimension[0] + GridDimension[0])%GridDimension[0]; 
-      indxn = GRIDINDEX_NOGHOST(in,j,k); 
-      if (GridRank>1){
-        jp = (j+1)%GridDimension[1]; 
-        indyp = GRIDINDEX_NOGHOST(i,jp,k);
-        jn = ((j-1)%GridDimension[1] + GridDimension[1])%GridDimension[1]; 
-        indyn = GRIDINDEX_NOGHOST(i,jn,k); 
-      }
-      if (GridRank>2){
-        kp = (k+1)%GridDimension[2]; 
-        indzp = GRIDINDEX_NOGHOST(i,j,kp);
-        kn = ((k-1)%GridDimension[2] + GridDimension[2])%GridDimension[2]; 
-        indzn = GRIDINDEX_NOGHOST(i,j,kn);
-      }
-  
       if (i >= GridStartIndex[0] && i <= GridEndIndex[0] &&
 		  j >= GridStartIndex[1] && j <= GridEndIndex[1] &&
 		  k >= GridStartIndex[2] && k <= GridEndIndex[2]  ) {
-	      ParticleCount += int(BaryonField[FDMDensNum][ind]/ParticleMeanDensity);
-	      while (ParticleCount > 1) {
+	      ind = GRIDINDEX_NOGHOST(i,j,k);
+          indxp = GRIDINDEX_NOGHOST(i+1,j,k);
+          indxn = GRIDINDEX_NOGHOST(i-1,j,k); 
+          if (GridRank>1){
+            indyp = GRIDINDEX_NOGHOST(i,j+1,k);
+            indyn = GRIDINDEX_NOGHOST(i,j-1,k); 
+          }
+          if (GridRank>2){
+            indzp = GRIDINDEX_NOGHOST(i,j,k+1);
+            indzn = GRIDINDEX_NOGHOST(i,j,k-1);
+          }
+		  //printf("%d %d %d %d \n",size, i,j,k);
+          //printf("x,y,z %f %f %f \n",x,y,z);
+          //printf("%d %d %d \n",ind,indxp,indxn);
+
+		  ParticleCount += int(BaryonField[FDMDensNum][ind]/ParticleMeanDensity);
+	      
+		  while (ParticleCount > 1) {
 		      if (SetupLoopCount > 0) {
 		        ParticleMass[npart] = ParticleMeanDensity;
 		        ParticleNumber[npart] = CollapseTestParticleCount++;
 		        ParticleType[npart] = PARTICLE_TYPE_DARK_MATTER;
 
 		  /* Set random position within cell. */
-      		  ParticlePosition[0][npart] = x + CellWidth[0][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+      		    ParticlePosition[0][npart] = x + CellWidth[0][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
 		        ParticlePosition[1][npart] = y + CellWidth[1][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
 		        ParticlePosition[2][npart] = z + CellWidth[2][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
 
 		  /* Set bulk velocity. */
-      // vx
+          // vx
             vx = (BaryonField[RePsiNum][ind]*(BaryonField[ImPsiNum][indxp]-BaryonField[ImPsiNum][indxn])
                   - BaryonField[ImPsiNum][ind]*(BaryonField[RePsiNum][indxp]-BaryonField[RePsiNum][indxn]))
-                  *hmcoef/BaryonField[FDMDensNum][ind]/(2*CellWidth[0][ind]);
-            vx = max(vx,10);
+                  *hmcoef/BaryonField[FDMDensNum][ind]/(2*CellWidth[0][i]);
+            //vx = max(vx,10);
             ParticleVelocity[0][npart] = vx;
+            //printf("vx %f \n",vx);
             if (GridRank>1){
               vy = (BaryonField[RePsiNum][ind]*(BaryonField[ImPsiNum][indyp]-BaryonField[ImPsiNum][indyn])
                   - BaryonField[ImPsiNum][ind]*(BaryonField[RePsiNum][indyp]-BaryonField[RePsiNum][indyn]))
-                  *hmcoef/BaryonField[FDMDensNum][ind]/(2*CellWidth[0][ind]);
-              vy = max(vy,10);
+                  *hmcoef/BaryonField[FDMDensNum][ind]/(2*CellWidth[1][j]);
+              //vy = max(vy,10);
               ParticleVelocity[1][npart] = vy;
+              //printf("vy %f \n",vy);
             }
             if (GridRank>2){
               vz = (BaryonField[RePsiNum][ind]*(BaryonField[ImPsiNum][indzp]-BaryonField[ImPsiNum][indzn])
                   - BaryonField[ImPsiNum][ind]*(BaryonField[RePsiNum][indzp]-BaryonField[RePsiNum][indzn]))
-                  *hmcoef/BaryonField[FDMDensNum][ind]/(2*CellWidth[0][ind]);
-              vz = max(vz,10);
+                  *hmcoef/BaryonField[FDMDensNum][ind]/(2*CellWidth[2][k]);
+              //vz = max(vz,10);
               ParticleVelocity[2][npart] = vz;
+              //printf("vz %f \n",vz);
             }
            } 
-        npart++;
+          npart++;
 	      ParticleCount -= 1.0;
         }// end while
       }
       }// end for loop over grid 
    } // end loop SetupLoopCount
+   NumberOfParticles = npart;
+   printf("Number of Particles %d \n", NumberOfParticles);
 
   // turn off quantum pressure, do a pure CDM sim
-  QuantumPressure = 0;
+  // QuantumPressure = 0;
   }
   return SUCCESS;
 }
