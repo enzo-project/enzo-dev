@@ -47,6 +47,8 @@
 
 #include "IndividualStarProperties.h"
 
+#define DO_ZEROSOS 0
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
@@ -67,7 +69,8 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
 float ComputeSnIaProbability(const float &current_time, const float &formation_time, const float &lifetime, const float &TimeUnits);
 
 
-int IndividualStarParticleAddFeedback(TopGridData *MetaData,
+int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[],
+                                      TopGridData *MetaData,
                                       LevelHierarchyEntry *LevelArray[],
                                       int level, Star* &AllStars,
                                       bool* &AddedFeedback){
@@ -107,9 +110,11 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
       continue; // skip to next star
     }
 
-    if( cstar->ReturnLevel() > level){
-      continue; // only apply feedback on level of star
-    }
+    // This is fine IF the feedback is fully contained on that grid level
+    //
+    //    if( cstar->ReturnLevel() > level){
+    //      continue; // only apply feedback on level of star
+    //    }
 
     if(cstar->ReturnMass() < 0.0){
         cstar->PrintInfo();
@@ -132,15 +137,15 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     vel = cstar->ReturnVelocity();
 
     double particle_mass;
-
+    int gridnum=0;
     //
     // Check Stellar Winds - Apply if particle on grid and grid local
     //
     if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_STELLAR_WIND ||
         cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN){
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
-
-        for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
+        gridnum=0;
+        for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel,gridnum++){
 
           int ncell = IndividualStarFeedbackStencilSize+1;
           if (IndividualStarFeedbackRadius > 0){
@@ -151,7 +156,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
             // refresh mass every time to prevent double+ counting loss
             particle_mass = cstar->ReturnMass();
 
-            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, &particle_mass, -1); // -1 = wind mode
+            Temp->GridData->IndividualStarAddFeedbackSphere(Temp->GridHierarchyEntry->NextGridNextLevel, cstar, &particle_mass, -1); // -1 = wind mode
 
             AddedFeedback[count] = TRUE;
           }
@@ -171,7 +176,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     // Check Pop III Supernova
     if (cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_POPIIISN) {
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l++){
-        for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel){
+        gridnum=0;
+        for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel, gridnum++){
           int ncell = IndividualStarFeedbackStencilSize+1;
           if (IndividualStarFeedbackRadius > 0){
             ncell = (int) ceil(IndividualStarFeedbackRadius*pc_cm/LengthUnits / Temp->GridData->ReturnCellWidth());
@@ -180,7 +186,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
 
             particle_mass = cstar->ReturnMass();
-            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, &particle_mass, 3); // 3 == popIII mode
+            Temp->GridData->IndividualStarAddFeedbackSphere(Temp->GridHierarchyEntry->NextGridNextLevel, cstar, &particle_mass, 3); // 3 == popIII mode
             AddedFeedback[count] = TRUE;
 
           }
@@ -200,8 +206,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNII ||
         cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_WIND_AND_SN){
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
-
-        for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
+        gridnum=0;
+        for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel,gridnum++){
           int ncell = IndividualStarFeedbackStencilSize+1;
           if (IndividualStarFeedbackRadius > 0){
             ncell = (int) ceil(IndividualStarFeedbackRadius*pc_cm/LengthUnits / Temp->GridData->ReturnCellWidth());
@@ -210,7 +216,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
             // refresh mass every time to prevent double+ counting
             particle_mass = cstar->ReturnMass();
-            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, &particle_mass, 1); // 1 == snII mode
+            Temp->GridData->IndividualStarAddFeedbackSphere(Temp->GridHierarchyEntry->NextGridNextLevel, cstar, &particle_mass, 1); // 1 == snII mode
 
             AddedFeedback[count] = TRUE;
           }
@@ -231,7 +237,8 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
     //
     if( cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SNIA){
       for (int l = level; l < MAX_DEPTH_OF_HIERARCHY; l ++){
-        for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel){
+        gridnum = 0;
+        for (Temp = LevelArray[l]; Temp; Temp = Temp ->NextGridThisLevel,gridnum++){
           int ncell = IndividualStarFeedbackStencilSize+1;
           if (IndividualStarFeedbackRadius > 0){
             ncell = (int) ceil(IndividualStarFeedbackRadius*pc_cm/LengthUnits / Temp->GridData->ReturnCellWidth());
@@ -240,7 +247,7 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
           if(Temp->GridData->isLocal() && IsParticleFeedbackInGrid(pos, ncell, Temp)){
             particle_mass = cstar->ReturnMass();
 
-            Temp->GridData->IndividualStarAddFeedbackSphere(cstar, &particle_mass, 2); // 2 == SNIa
+            Temp->GridData->IndividualStarAddFeedbackSphere(Temp->GridHierarchyEntry->NextGridNextLevel, cstar, &particle_mass, 2); // 2 == SNIa
 
           }
         }
@@ -282,20 +289,19 @@ int IndividualStarParticleAddFeedback(TopGridData *MetaData,
 
   /* Ensure injection is valid at all levels */
 /*
-  if (any_feedback_added){
-    for (level = MaximumRefinementLevel; level > 0; level--){
-            Temp = LevelArray[level];
-            while (Temp != NULL) {
-                if (Temp->GridData->ProjectSolutionToParentGrid(*Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL){
-                fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid\n");
-                return FAIL;
-                }
-                Temp = Temp->NextGridThisLevel;
-            }
+//  if (any_feedback_added){
+    for (int l = level; l > 0; l--){
+      Temp = LevelArray[l];
+      while (Temp != NULL) {
+          if (Temp->GridData->ProjectSolutionToParentGrid(*Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL){
+            fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid\n");
+            return FAIL;
+           }
+            Temp = Temp->NextGridThisLevel;
+      }
     }
-
-  }
- */
+  //}
+*/
 
   TIMER_STOP("IndividualStarParticleAddFeedback");
   return SUCCESS;
@@ -333,7 +339,8 @@ int IsParticleFeedbackInGrid(float *pos, int ncell, LevelHierarchyEntry *Temp){
   return TRUE;
 }
 
-int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, const int mode){
+int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
+                                          Star *cstar, float *mp, const int mode){
 
 /*
      General function to add feedback for a given star in a spherical region
@@ -346,6 +353,18 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, const int mode
 */
   if (this->NumberOfBaryonFields == 0 || !this->isLocal() )
     return SUCCESS;
+
+
+  /* AJE Try something here */
+  /* First, set under_subgrid field */
+  HierarchyEntry *Subgrid;
+  if (FALSE){
+  this->ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
+  for (Subgrid = SubgridPointer; Subgrid; Subgrid = Subgrid->NextGridThisLevel){
+    this->ZeroSolutionUnderSubgrid(Subgrid->GridData, ZERO_UNDER_SUBGRID_FIELD);
+  }
+  }
+  
 
   float dx = this->CellWidth[0][0];
 
@@ -462,6 +481,15 @@ int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, const int mode
   }
 
   delete [] metal_mass;
+
+  /* Maybe? */
+//  HierarchyEntry *Subgrid;
+  if (FALSE){
+  this->ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
+  for (Subgrid = SubgridPointer; Subgrid; Subgrid = Subgrid->NextGridThisLevel){
+    this->ZeroSolutionUnderSubgrid(Subgrid->GridData, ZERO_UNDER_SUBGRID_FIELD);
+  }
+  }
 
   return SUCCESS;
 }
@@ -620,6 +648,14 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   // injection_fraction represents fraction of total volume per cell
   // do some error checking:
 
+  /* AJE: This really only works if particle feedback is contained entirely 
+          within a single grid. Otherwise this correction will over / undercorrect
+          when particle ejects feedback across multiple grids (unless
+          some MPI occurs to share the correction factors... which... woudl be 
+          dumb... could maybe do a check to see if its contained fully in grid
+          and then apply this, but otherwise don't do it (and accept the
+          (~< 1 % error) */
+  if (FALSE){
   if (total_injection_volume < 1.0){
     // this will always underestimte the total volume
     // need to scale up all of the injection fractions
@@ -638,11 +674,12 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
       injection_factors[count] *= total_inv;
     }
 
-  } else if (total_injection_volume > 1.0){
-    // this really should never happen leave error message here for now
+  } else if (total_injection_volume > 1.02){
+    // here for testing
     // but if this is common, just switch to always dividing by the sum (above)
     printf("total_injection_volume = %"FSYM"\n", total_injection_volume);
     ENZO_FAIL("Error in computing feedback injection volume in individual stars. Greater than 1");
+  }
   }
 
 

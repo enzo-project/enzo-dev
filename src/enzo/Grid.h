@@ -2495,7 +2495,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                        const float &metallicity, float *mp, int mode);
 
 
-  int IndividualStarAddFeedbackSphere(Star *cstar, float *mp, const int mode);
+  int IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
+                                      Star *cstar, float *mp, const int mode);
 
   int IndividualStarInjectSphericalFeedback(Star *cstar,
                                             const FLOAT xp, const FLOAT yp, const FLOAT zp,
