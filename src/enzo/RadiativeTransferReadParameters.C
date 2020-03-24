@@ -268,7 +268,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
   if (RadiativeTransferOpticallyThinSourceClustering &&
       (RadiativeTransferPhotonMergeRadius > 5.0)){
-    fprintf(stderr, "Warning: Caution when using optically thin source clustering and "
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning: Caution when using optically thin source clustering and "
                     "values for RadiativeTransferPhotonMergeRadius > 5. This may result in missing "
                     "radiation near sources.\n");
   }
