@@ -267,13 +267,6 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
   float *Velocity[MAX_DIMENSION], *Mass,
         *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 
-#ifdef INDIVIDUALSTAR
-  float *Abundances[MAX_STELLAR_YIELDS];
-  for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
-    Abundances[i] = new float[TotalNumberOfParticles];
-  }
-#endif INDIVIDUALSTAR
-
   if (MyProcessorNumber == ProcessorNumber) {
      Mass = new float[TotalNumberOfParticles];
      Number = new PINT[TotalNumberOfParticles]; 
