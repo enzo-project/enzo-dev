@@ -95,7 +95,12 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
       LocalNumberOfStars += NumberOfStarsInGrids[GridNum];
 
     } // ENDFOR grids
-
+    for (GridNum=0;GridNum<NumberOfGrids;GridNum++){
+      if (MyProcessorNumber == Grids[GridNum]->GridData->ReturnProcessorNumber()){
+        printf("P[%"ISYM"]: level = %"ISYM" NumberOfStarsInGrids = %"ISYM" NumberOfPartilcesInGrids = %"ISYM"\n",MyProcessorNumber, level,
+                                                         NumberOfStarsInGrids[GridNum], Grids[GridNum]->GridData->ReturnNumberOfParticles());
+      }
+    }
     /* Synchronize number of stars across processors */
 
 #ifdef USE_MPI
@@ -108,6 +113,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     delete [] NumberOfStarsInGrids;
 
   } // ENDFOR level
+  printf("P[%"ISYM"]: LocalNumberOfStars= %"ISYM" \n",MyProcessorNumber,LocalNumberOfStars);
 
   /***********************************************/
   /*                                             */
@@ -174,9 +180,13 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	i1 = (MyProcessorNumber < NumberOfProcessors-1) ? 
 	  displace[MyProcessorNumber+1] : TotalNumberOfStars;
 
+        printf("----P[%"ISYM"]  i:  %"ISYM"  i0:  %"ISYM"  i1:  %"ISYM"\n", MyProcessorNumber, i, i0, i1);
 	// local processors from Allgatherv
 	if (i >= i0 && i < i1) {
 	  cstar->AssignCurrentGrid(lstar->ReturnCurrentGrid());
+          printf("----P[%"ISYM"]  lstar: %"ISYM" cstar: %"ISYM"\n",lstar->ReturnCurrentGrid()->ReturnNumberOfParticles(),
+                                                                   cstar->ReturnCurrentGrid()->ReturnNumberOfParticles());
+
 	  lstar = lstar->NextStar;
 	} // ENDIF local
 	else
