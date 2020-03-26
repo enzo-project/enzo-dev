@@ -535,18 +535,21 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "SGScoeffNLb                    = %"FSYM"\n", SGScoeffNLb);
   fprintf(fptr, "use_grackle                 = %"ISYM"\n", use_grackle);
 #ifdef USE_GRACKLE
-  /* Grackle chemistry parameters */
-  fprintf(fptr, "with_radiative_cooling      = %d\n", grackle_data->with_radiative_cooling);
-  fprintf(fptr, "use_volumetric_heating_rate = %d\n", grackle_data->use_volumetric_heating_rate);
-  fprintf(fptr, "use_specific_heating_rate   = %d\n", grackle_data->use_specific_heating_rate);
-  fprintf(fptr, "self_shielding_method       = %d\n", grackle_data->self_shielding_method);
-  fprintf(fptr, "H2_self_shielding           = %d\n", grackle_data->H2_self_shielding);
-  fprintf(fptr, "grackle_data_file           = %s\n", grackle_data->grackle_data_file);
-  fprintf(fptr, "UVbackground                = %d\n", grackle_data->UVbackground);
-  fprintf(fptr, "Compton_xray_heating        = %d\n", grackle_data->Compton_xray_heating);
-  fprintf(fptr, "LWbackground_intensity      = %lf\n", grackle_data->LWbackground_intensity);
-  fprintf(fptr, "LWbackground_sawtooth_suppression = %d\n", grackle_data->LWbackground_sawtooth_suppression);
-  /********************************/
+
+  if (grackle_data->use_grackle){
+    /* Grackle chemistry parameters */
+    fprintf(fptr, "with_radiative_cooling      = %d\n", grackle_data->with_radiative_cooling);
+    fprintf(fptr, "use_volumetric_heating_rate = %d\n", grackle_data->use_volumetric_heating_rate);
+    fprintf(fptr, "use_specific_heating_rate   = %d\n", grackle_data->use_specific_heating_rate);
+    fprintf(fptr, "self_shielding_method       = %d\n", grackle_data->self_shielding_method);
+    fprintf(fptr, "H2_self_shielding           = %d\n", grackle_data->H2_self_shielding);
+    fprintf(fptr, "grackle_data_file           = %s\n", grackle_data->grackle_data_file);
+    fprintf(fptr, "UVbackground                = %d\n", grackle_data->UVbackground);
+    fprintf(fptr, "Compton_xray_heating        = %d\n", grackle_data->Compton_xray_heating);
+    fprintf(fptr, "LWbackground_intensity      = %lf\n", grackle_data->LWbackground_intensity);
+    fprintf(fptr, "LWbackground_sawtooth_suppression = %d\n", grackle_data->LWbackground_sawtooth_suppression);
+    /********************************/
+  }
 #endif
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
   fprintf(fptr, "RadiativeCoolingModel          = %"ISYM"\n", RadiativeCoolingModel);
