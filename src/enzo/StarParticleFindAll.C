@@ -153,7 +153,11 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
         delete [] sendBuffer;
         sendBuffer = new StarBuffer[sendBufferSize];
       }
-      LocalStars->StarListToBuffer(sendBuffer, LocalNumberOfStars);
+
+      if (LocalNumberOfStars > 0)
+        LocalStars->StarListToBuffer(sendBuffer, LocalNumberOfStars);
+      else
+        sendBuffer = NULL;
 
       /* Share all data with all processors */
 
