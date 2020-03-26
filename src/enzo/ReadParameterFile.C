@@ -1714,6 +1714,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
   }
 
+  if (StellarYieldsNumberOfSpecies > MAX_STELLAR_YIELDS){
+    ENZO_FAIL("Number of stellar yields greater than MAX_STELLAR_YIELDS. Increase and recompile\n");
+  }
+
   if (IndividualStarRefineToLevel < 0)
     IndividualStarRefineToLevel = MustRefineParticlesRefineToLevel;
 
