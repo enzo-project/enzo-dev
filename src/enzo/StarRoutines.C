@@ -553,7 +553,7 @@ void Star::UpdatePositionVelocity(void)
   int _id = -1;
   if (CurrentGrid != NULL && type >= 0) { // on local processor and active
     // Search for particle
-		if (CurrentGrid->NumberOfParticles > 0){
+//		if (CurrentGrid->NumberOfParticles > 0){
 
     for (i = 0; i < CurrentGrid->NumberOfParticles; i++)
       if (Identifier == CurrentGrid->ParticleNumber[i]) {
@@ -565,7 +565,7 @@ void Star::UpdatePositionVelocity(void)
       pos[dim] = CurrentGrid->ParticlePosition[dim][_id];
       vel[dim] = CurrentGrid->ParticleVelocity[dim][_id];
     }
-	}
+//	}
   }
   LCAPERF_STOP("star_UpdatePositionVelocity");
   return;
@@ -579,7 +579,7 @@ void Star::UpdateWhiteDwarfProperties(void){
 
   if (CurrentGrid != NULL &&
       this->type == -PARTICLE_TYPE_INDIVIDUAL_STAR_WD){
-		if (CurrentGrid->NumberOfParticles > 0) {
+//		if (CurrentGrid->NumberOfParticles > 0) {
     for(i = 0; i < CurrentGrid->NumberOfParticles; i++){
 
 
@@ -592,7 +592,7 @@ void Star::UpdateWhiteDwarfProperties(void){
 
     this->LifeTime = CurrentGrid->ParticleAttribute[1][_id];
     this->type     = CurrentGrid->ParticleType[_id];
-	}
+//	}
   }
 
   LCAPERF_STOP("star_UpdateWhiteDwarfProperties");
@@ -609,7 +609,7 @@ void Star::UpdateIndividualStarParticleProperties(void)
   int _id = -1;
   if (CurrentGrid != NULL && type >=0) {
     // search for particle
-		if (CurrentGrid->NumberOfParticles > 0){
+//		if (CurrentGrid->NumberOfParticles > 0){
     for (i = 0; i < CurrentGrid->NumberOfParticles; i++){
       if( Identifier == CurrentGrid->ParticleNumber[i]){
          _id = i;
@@ -625,7 +625,7 @@ void Star::UpdateIndividualStarParticleProperties(void)
     wind_mass_ejected = (double)(CurrentGrid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
     sn_mass_ejected   = (double)(CurrentGrid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
     this->ConvertMassToSolar();
-	}
+//	}
   } // end if
 
 
