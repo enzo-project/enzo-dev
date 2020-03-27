@@ -148,11 +148,11 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	float IRSED = 0.0, LWSED = 0.0, H2IISED = 0.0;
 	double LWLuminosity = 0.0, IRLuminosity = 0.0, H2IILuminosity = 0.0;
 	double HMSigma = 0.0, H2IISigma = 0.0;
-	if(RS->Energy[ebin] < 11.2) {
+	if(RS->Energy[ebin] < LW_threshold_energy) {
 	  H2IISED = RS->SED[ebin];
 	  IRSED = RS->SED[ebin];
 	}
-	else if(RS->Energy[ebin] < 13.6) {
+	else if(RS->Energy[ebin] < HI_ionizing_energy) {
 	  H2IISED = RS->SED[ebin];
 	  LWSED = RS->SED[ebin];
 	}
@@ -331,11 +331,11 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	float IRSED = 0.0, LWSED = 0.0, H2IISED = 0.0;
 	double LWLuminosity = 0.0, IRLuminosity = 0.0, H2IILuminosity = 0.0;
 	double HMSigma = 0.0, H2IISigma = 0.0;
-	if(RS->Energy[ebin] < 11.2) {
+	if(RS->Energy[ebin] < LW_threshold_energy) {
 	  H2IISED = RS->SED[ebin];
 	  IRSED = RS->SED[ebin];
 	}
-	else if(RS->Energy[ebin] < 13.6) {
+	else if(RS->Energy[ebin] < HI_ionizing_energy) {
 	  H2IISED = RS->SED[ebin];
 	  LWSED = RS->SED[ebin];
 	}

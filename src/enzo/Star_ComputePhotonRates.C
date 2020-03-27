@@ -45,8 +45,6 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   /* for individual star */
   float Z, M, tau;
   float DensityUnits, LengthUnits, TemperatureUnits, tunits, VelocityUnits;
-  float H_ionizing_energy   = 13.5984; // eV
-  float HeI_ionizing_energy = 24.5874; // eV
   float R;
 
   if ( (ABS(this->type) == IndividualStar) || (ABS(this->type) == IndividualStarPopIII)){
@@ -75,7 +73,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[0] = 28.0;
     E[1] = 30.0;
     E[2] = 58.0;
-    E[3] = 12.8;
+    E[3] = LW_photon_energy;
     _mass = max(min((float)(_mass), 500), 5);
     if (_mass > 9 && _mass <= 500) {
       Q[0] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);
@@ -112,15 +110,13 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       this->ComputeIonizingRates(Q[0], Q[1]);
 
       // compute average energy by integrating over the black body spectrum
-      H_ionizing_energy   /= eV_erg; // convert to ergs
-      HeI_ionizing_energy /= eV_erg; // convert to ergs
-      ComputeAverageEnergy(E[0], H_ionizing_energy, this->Teff);
-      ComputeAverageEnergy(E[1], HeI_ionizing_energy, this->Teff);
+      ComputeAverageEnergy(E[0], (HI_ionizing_energy / eV_erg), this->Teff);
+      ComputeAverageEnergy(E[1], (HeI_ionizing_energy / eV_erg), this->Teff);
 
       // convert to eV from cgs
       E[0] = E[0] * eV_erg;
       E[1] = E[1] * eV_erg;
-      E[2] = 58.0; // HeII
+      E[2] = HeII_ionizing_energy; // HeII
 
       // Functions above return the ionizing flux at stellar surface.
       // Convert to ionizing photon rate
@@ -136,15 +132,15 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
       nbins = 8 ; // + LW and + FUV
 
-      E[3] = 12.8; // LW-band radiation (11.2 - 13.6 eV)
+      E[3] = LW_photon_energy; // LW-band radiation (11.2 - 13.6 eV)
 
       // For now, no IR, Xray, or spectrum types (no need to actually zero)
       // E[4] = 0.0; E[5] = 0.0; E[6] = 0.0;
       // Q[4] = 0.0; Q[5] = 0.0; Q[6] = 0.0;
 
       // FUV in the 5.6 - 11.2 eV band --- 11.2 to 13.6 is in LW
-      //      - set to 9.8 eV for convenience
-      E[7] = 8.4;  // FUV radiation - average of 5.6 to 11.2 eV range
+      //      - set to 8.4 eV for convenience
+      E[7] = FUV_photon_energy ;  // FUV radiation - average of 5.6 to 11.2 eV range
 
       if(IndividualStarLWRadiation){
         float l_lw;
@@ -177,7 +173,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[0] = 21.62; // eV (good for a standard, low-Z IMF)
     E[1] = 30.0;
     E[2] = 60.0;
-    E[3] = 12.8;
+    E[3] = LW_photon_energy;
     Q[0] = StarClusterIonizingLuminosity * _mass;
     if (StarClusterHeliumIonization) {
       Q[1] = EnergyFractionHeI * Q[0];
@@ -201,7 +197,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[0] = 460.0;
     E[1] = 0.0;
     E[2] = 0.0;
-    E[3] = 12.8;
+    E[3] = LW_photon_energy;
     Q[0] = 1.12e66 * PopIIIBHLuminosityEfficiency * XrayLuminosityFraction *
       this->last_accretion_rate / E[0];
 //    Below is wrong!

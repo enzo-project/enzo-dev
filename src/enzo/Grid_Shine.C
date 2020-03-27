@@ -41,7 +41,10 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  const float EnergyThresholds[] = {13.6, 24.6, 54.4, 100.0}; //Only used for determining HI,HeI,HeII
+  const float EnergyThresholds[] = {HI_ionizing_energy,
+                                    HeI_ionizing_energy,
+                                    HeII_ionizing_energy,
+                                    100.0}; //Only used for determining HI,HeI,HeII
 
   RadiationSourceEntry *RS = RadiationSource;
   FLOAT min_beam_zvec, dot_prod;
@@ -149,10 +152,10 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     // Type 3 = H2I_LW
 /*    if ( ( (!RadiativeTransferOpticallyThinH2 && MultiSpecies > 1) ||
            (!RadiativeTransferOpticallyThinFUV))       &&
-	RS->Energy[i] < 13.6){
+	RS->Energy[i] < HI_ionizing_energy){
 
-      if (!RadiativeTransferOpticallyThinH2 && RS->Energy[i] > 11.0) ebin = 3;
-      if (!RadiativeTransferOpticallyThinFUV && RS->Energy[i] < 11.0) ebin = 4;
+      if (!RadiativeTransferOpticallyThinH2 && RS->Energy[i] > LW_threshold_energy) ebin = 3;
+      if (!RadiativeTransferOpticallyThinFUV && RS->Energy[i] < LW_threshold_energy) ebin = 4;
     }*/
 
     /*
@@ -179,7 +182,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       continue;
 
     /* If we are doing simple H2I, H2II and HM rates continue here. */
-    if(RS->Energy[ebin] <= 13.6 &&
+    if(RS->Energy[ebin] <= HI_ionizing_energy &&
        (RadiativeTransferOpticallyThinH2 == 1) && (RadiativeTransferOpticallyThinFUV==1))
       continue;
 
@@ -194,13 +197,13 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
      *   AJE: I don't like these if statements like this...
      *        seems like there should be a better way to handle this...
      */
-    if ((RS->Energy[ebin] > 5.6) && (RS->Energy[ebin]<11.2) && ebin > 4){
+    if ((RS->Energy[ebin] > FUV_threshold_energy) && (RS->Energy[ebin]<LW_threshold_energy) && ebin > 4){
       this_type = FUVPEHEATING;
     }
-    else if(RS->Energy[ebin] >= 0.01 && RS->Energy[ebin] < 11.2) {
+    else if(RS->Energy[ebin] >= 0.01 && RS->Energy[ebin] < LW_threshold_energy) {
       this_type = IR; /* IR Case */
     }
-    else if(RS->Energy[ebin] < 13.6) {
+    else if(RS->Energy[ebin] < HI_ionizing_energy) {
       this_type = LW;  /* LW Case */
     }
     else if (RS->Energy[ebin] < 100.0) { //Set iHI or iHeI or iHeII

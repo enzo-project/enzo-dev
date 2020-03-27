@@ -170,7 +170,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
        const int FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
                          // for individual stars, make sure below is consistent with
                          // Star_ComputePhotonRates energies (should probably just make this a param)
-       const double LW_energy = 12.8 * erg_eV;
+       const double LW_energy = LW_photon_energy * erg_eV;
        // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
        BaryonField[FUVRateNum][cellindex] +=
           ((*PP)->Photons*geo_correction - dP)*emission_dt_inv*LW_energy/(dx2);

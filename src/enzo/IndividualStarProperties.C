@@ -575,8 +575,8 @@ int IndividualStarComputeLWLuminosity(float &L_Lw, //Star *cstar){
   }
 
   /* if we are here it is because we need to do the black body integration */
-  const double lw_emin = 11.2 * erg_eV ; // eV -> cgs
-  const double lw_emax = 13.6 * erg_eV ; // eV -> cgs
+  const double lw_emin = LW_threshold_energy * erg_eV ; // eV -> cgs
+  const double lw_emax = HI_ionizing_energy * erg_eV ; // eV -> cgs
 
   ComputeBlackBodyFlux(LW_flux, Teff, lw_emin, lw_emax);
 
@@ -629,8 +629,8 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv,
   }
 
   /* if we are here it is because we need to do the black body integration */
-  const double fuv_emin =  6.0 * erg_eV ; // eV -> cgs
-  const double fuv_emax = 13.6 * erg_eV ; // eV -> cgs
+  const double fuv_emin = FUV_threshold_energy * erg_eV ; // eV -> cgs
+  const double fuv_emax = HI_ionizing_energy * erg_eV ; // eV -> cgs
 
   ComputeBlackBodyFlux(Fuv, Teff, fuv_emin, fuv_emax);
 
@@ -673,8 +673,8 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const floa
 
 
   /* if we are here it is because we need to do the black body integration */
-  const double fuv_emin =  6.0 * erg_eV ; // eV -> cgs
-  const double fuv_emax = 13.6 * erg_eV ; // eV -> cgs
+  const double fuv_emin = FUV_threshold_energy * erg_eV ; // eV -> cgs
+  const double fuv_emax = HI_ionizing_energy * erg_eV ; // eV -> cgs
 
   ComputeBlackBodyFlux(Fuv, Teff, fuv_emin, fuv_emax);
 
@@ -702,9 +702,6 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
                                        const int &i, const int &j, const int &k,
                                        const float &Teff, const float &g, const float &metallicity){
 
-  const double E_ion_HI   = 13.5984; // eV
-  const double E_ion_He   = 24.5874; // eV
-
   if (IndividualStarBlackBodyOnly == FALSE){
     if(IndividualStarInterpolateRadData(q0, q1,
                                         i, j, k,
@@ -718,13 +715,13 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
   // body to compute radiation:
   float x;
 
-  x = (E_ion_HI / eV_erg) / (kboltz * (Teff));
+  x = (HI_ionizing_energy / eV_erg) / (kboltz * (Teff));
   // compute the black body radiance in unitless numbers
   if( (PhotonRadianceBlackBody(q0, x)) == FAIL){
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
 
-  x = (E_ion_He / eV_erg) / (kboltz * (Teff));
+  x = (HeI_ionizing_energy / eV_erg) / (kboltz * (Teff));
   if ( PhotonRadianceBlackBody(q1, x) == FAIL ){
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
@@ -812,8 +809,6 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
   * use a black body instead
   * ============================================================
   */
-  const double E_ion_HI   = 13.5984; // eV
-  const double E_ion_He   = 24.5874; // eV
 
   if (IndividualStarBlackBodyOnly == FALSE){
     if(IndividualStarInterpolateRadData(q0, q1, Teff, g, metallicity) == SUCCESS){
@@ -825,13 +820,13 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
   // body to compute radiation:
   float x;
 
-  x = (E_ion_HI / eV_erg) / (kboltz * (Teff));
+  x = (HI_ionizing_energy / eV_erg) / (kboltz * (Teff));
   // compute the black body radiance in unitless numbers
   if( (PhotonRadianceBlackBody(q0, x)) == FAIL){
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
 
-  x = (E_ion_He / eV_erg) / (kboltz * (Teff));
+  x = (HeI_ionizing_energy / eV_erg) / (kboltz * (Teff));
   if ( PhotonRadianceBlackBody(q1, x) == FAIL ){
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
