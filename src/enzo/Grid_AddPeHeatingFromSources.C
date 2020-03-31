@@ -133,6 +133,8 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
   const double clight_code = clight * TimeUnits / LengthUnits;
 
+  /* AJE: To Do - convert this to just using rad sources */
+
   for (cstar = AllStars; cstar; cstar = cstar->NextStar){
 
     // Skip if not 'living'
@@ -157,6 +159,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
       ENZO_FAIL("Error in ComputePhotonRates from AddPeHeatingFromSources.\n");
     }
     /* this->Luminosity is photon / s, energies is in eV */
+    // compute FUV uminosity gives FUV luminosity in erg / s
     cstar->ComputeFUVLuminosity(FUVLuminosity);
     // (Luminosity[4]*energies[4]) / (4.0 * M_PI * eV_erg);
 

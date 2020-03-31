@@ -40,6 +40,7 @@ struct RadiationSourceEntry  {
                                   // (only used in optically-thin case)
   float FUVLuminosity;            // FUV photon number luminosity
                                   // (only used in optically-thin case)
+  float IRLuminosity;             // IR photon number luminosity
   float CreationTime;             // When Source is formed in code units
   float LifeTime;                 // LifeTime of source in code units
   float RampTime;                 // Time for the source to reach full luminosity

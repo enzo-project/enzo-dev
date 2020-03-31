@@ -177,8 +177,12 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     if(RS->Energy[ebin] <= 0)
       continue;
 
+    // Don't create IR photons if we're doing an optically-thin approx.
+    if (ebin == 4 && RadiativeTransferOpticallyThinIR)
+      continue;
+
     // Don't create FUV photon packages if we're doing an optically-thin approx.
-    if ((ebin == 4 || ebin==8) && RadiativeTransferOpticallyThinFUV)
+    if (ebin == 7 && RadiativeTransferOpticallyThinFUV)
       continue;
 
     /* If we are doing simple H2I, H2II and HM rates continue here. */

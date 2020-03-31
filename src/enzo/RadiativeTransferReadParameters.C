@@ -55,6 +55,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferCoupledRateSolver          = TRUE;
   RadiativeTransferOpticallyThinH2            = TRUE;
   RadiativeTransferOpticallyThinFUV           = TRUE;
+  RadiativeTransferOpticallyThinIR            = TRUE;
   RadiativeTransferOpticallyThinSourceClustering = FALSE;
   RadiativeTransferOpticallyThinH2CharLength  = 0.25;
   RadiativeTransferFluxBackgroundLimit        = 0.01;
@@ -87,8 +88,9 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferDeletePhotonSourceRadius   = 1.0E20          ; // in code units
 
   if (MultiSpecies == 0){
-    RadiativeTransferOpticallyThinH2 = FALSE;
+    RadiativeTransferOpticallyThinH2  = FALSE;
     RadiativeTransferOpticallyThinFUV = FALSE;
+    RadiativeTransferOpticallyThinIR  = FALSE;
   }
 
   /* read input from file */
@@ -115,6 +117,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferOpticallyThinH2);
     ret += sscanf(line, "RadiativeTransferOpticallyThinFUV = %"ISYM,
                   &RadiativeTransferOpticallyThinFUV);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinIR = %"ISYM,
+                  &RadiativeTransferOpticallyThinIR);
     ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
                   &RadiativeTransferOpticallyThinSourceClustering);
     ret += sscanf(line, "RadiativeTransferOpticallyThinH2CharLength = %"FSYM, 

@@ -156,6 +156,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
           if(RS->Energy[ebin] < FUV_threshold_energy) {
             H2IISED = RS->SED[ebin];
             IRSED = RS->SED[ebin];
+            // AJE: I NEED TO MAKE SURE FUV WORKS SAME WAY AND EVERYTHING ELSE
           }
           else if(RS->Energy[ebin] < LW_threshold_energy) {
             H2IISED = RS->SED[ebin];
