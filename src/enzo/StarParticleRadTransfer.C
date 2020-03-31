@@ -135,6 +135,10 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       RadSource->Energy         = new float[nbins];
       RadSource->SED            = new float[nbins];
 
+      // AJE: new
+      RadSource->LifeTime     = cstar->ReturnLifetime();  // in code (should be?)
+      RadSource->CreationTime = cstar->ReturnBirthTime(); // in code
+
       // NOTE: RadSource->LWLuminosity and RadSource->FUVLuminosity
       //       are currently only used when applying optically thin
       //       (1/r^2) radiation profiles in Grid_AddH2Dissociation

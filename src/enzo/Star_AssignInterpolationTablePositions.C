@@ -38,6 +38,10 @@ void IndividualStarComputeIonizingRates(float &q0, float &q1,
                                         const int &i, const int &j, const int &k,
                                         const float &Teff, const float &g,
                                         const float &metallicity);
+int  IndividualStarComputeIRLuminosity(float &L_IR, const int &i,
+                                       const int &j, const int &k,
+                                       const float &Teff, const float &R,
+                                       const float &g, const float &Z);
 int  IndividualStarComputeLWLuminosity(float &L_LW, const int &i,
                                        const int &j, const int &k,
                                        const float &Teff, const float &R,
@@ -102,6 +106,17 @@ void Star::ComputeIonizingRates(float &Q0, float &Q1){
                                      this->rad_table_position[2],
                                      this->Teff, this->SurfaceGravity,
                                      this->Metallicity);
+  return;
+}
+
+void Star::ComputeIRLuminosity(float &L_IR){
+
+  this->AssertStellarProperties();
+  this->AssertInterpolationPositions(2);
+
+  IndividualStarComputeIRLuminosity(L_IR,
+      this->rad_table_position[0], this->rad_table_position[1], this->rad_table_position[2],
+      this->Teff, this->Radius, this->SurfaceGravity, this->Metallicity);
   return;
 }
 

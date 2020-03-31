@@ -367,6 +367,101 @@ float IndividualStarSurfaceGravity(const float &mp, const float &R){
   return GravConst*(mp * SOLAR_MASS) / ( R*R );
 }
 
+int IndividualStarInterpolateIRFlux(float &IR_flux,
+                                    const int &i, const int &j, const int &k,
+                                    const float &Teff, const float &g, const float &metallicity){
+
+  float t, u, v;
+
+  // convert metallicity to solar
+  float Z = (metallicity) / IndividualStarRadData.Zsolar;
+
+  // WARNING: see statement of metallicity floor at top of file
+  if (Z < IndividualStarRadData.Z[0]){
+    Z = IndividualStarRadData.Z[0];
+  }
+
+  /* not on grid - use black body instead */
+  if( i == -9 || j == -9 || k == -9){
+    return FAIL;
+  }
+
+  // compute coefficients
+  t = LinearInterpolationCoefficient(i, Teff, IndividualStarRadData.T);
+  u = LinearInterpolationCoefficient(j, g   , IndividualStarRadData.g);
+  v = LinearInterpolationCoefficient(k, Z   , IndividualStarRadData.Z);
+
+  // do the interpolation
+  IR_flux = 0.0;
+/*
+  if(IndividualStarRadDataEvaluateInterpolation(IR_flux, IndividualStarRadData.IR_flux,
+                                                t, u, v, i, j, k) == FAIL){
+    printf("IndividualStarLWHeating: outside sample gird points, using black body instead\n");
+    return FAIL;
+  }
+*/
+  return SUCCESS;
+}
+
+int IndividualStarInterpolateIRFlux(float & IR_flux, const float &Teff, const float &g,
+                                    const float &metallicity){
+
+  int i, j, k;    // i,j,k are Teff, g, and Z respectively
+  float t, u ,v;
+
+  // convert metallicity to solar
+  float Z = (metallicity) / IndividualStarRadData.Zsolar;
+
+  // WARNING: see statement of metallicity floor at top of file
+  if (Z < IndividualStarRadData.Z[0]){
+    Z = IndividualStarRadData.Z[0];
+  }
+
+  if( LinearInterpolationCoefficients(t, u ,v, i ,j, k, Teff, g, Z,
+                                      IndividualStarRadData.T, IndividualStarRadData.g,
+                                      IndividualStarRadData.Z,
+                                      IndividualStarRadData.NumberOfTemperatureBins,
+                                      IndividualStarRadData.NumberOfSGBins,
+                                      IndividualStarRadData.NumberOfMetallicityBins) ==FAIL){
+
+    float value, value_min, value_max;
+
+    // if interpolation fails due to temperature, do BB interpolation
+    // otherwise FAIL
+    if (t < 0 || t > 1){
+      return FAIL;
+    }
+
+    printf("IndividualStarInterpolateLWFlux: Failure in interpolation");
+
+    if( t < 0 || t > 1) {
+      printf("Temperature out of bounds ");
+      value = Teff; value_min = IndividualStarRadData.T[0]; value_max = IndividualStarRadData.T[IndividualStarRadData.NumberOfTemperatureBins-1];
+    } else if (u < 0 || u > 1) {
+      printf("Surface Gravity out of bounds ");
+      value = g; value_min = IndividualStarRadData.g[0]; value_max = IndividualStarRadData.g[IndividualStarRadData.NumberOfSGBins-1];
+    } else if (v < 0 || v > 1) {
+      printf("Metallicity out of bounds ");
+      value = Z; value_min = IndividualStarRadData.Z[0]; value_max = IndividualStarRadData.Z[IndividualStarRadData.NumberOfMetallicityBins-1];
+    }
+
+    printf(" with value = %"ESYM" for minimum = %"ESYM" and maximum %"ESYM"\n", value, value_min, value_max);
+    return FAIL;
+  }
+
+  // otherwise, do the interpolation
+  IR_flux = 0.0;
+/*
+  if(IndividualStarRadDataEvaluateInterpolation(IR_flux, IndividualStarRadData.IR_flux,
+                                                t, u, v, i, j, k) == FAIL){
+    printf("IndividualStarIRFlux: outside sample gird points, using black body instead\n");
+    return FAIL;
+  }
+*/
+  return SUCCESS;
+}
+
+
 int IndividualStarInterpolateLWFlux(float &LW_flux,
                                     const int &i, const int &j, const int &k,
                                     const float &Teff, const float &g, const float &metallicity){
@@ -600,6 +695,93 @@ int IndividualStarComputeLWLuminosity(float &L_Lw, //Star *cstar){
 
 }
 
+
+int IndividualStarComputeIRLuminosity(float &L_ir,
+                                       const int &i, const int &j, const int &k,
+                                       const float & Teff, const float &R, const float &g,
+                                       const float & Z){
+
+  float ir;
+
+  if (IndividualStarBlackBodyOnly == FALSE){
+    if(IndividualStarInterpolateIRFlux(ir,
+                                       i, j, k,
+                                       Teff, g, Z) == SUCCESS){
+
+      L_ir = 4.0 * pi * R * R * ir;
+
+      return SUCCESS; // rates computed from table
+    }
+  }
+
+  /* if we are here it is because we need to do the black body integration */
+  const double ir_emin = IR_threshold_energy * erg_eV ; // eV -> cgs
+  const double ir_emax = FUV_threshold_energy * erg_eV ; // eV -> cgs
+
+  ComputeBlackBodyFlux(ir, Teff, ir_emin, ir_emax);
+
+  if (IndividualStarBlackBodyOnly == FALSE){ // adjust to match OSTAR
+      int index;
+      // If we are here because star is below temperature limit, we are a
+      // low mass star and black body vastly overestimates
+      if ( (Teff) < IndividualStarRadData.T[0] ){
+          index = 0;
+      } else { // else we are too hot and black body is even worse
+          index = 1;
+      }
+
+      ir *= IndividualStarBlackBodyIRFactors[index];
+  }
+
+
+  L_ir = 4.0 * pi * R * R * ir;
+
+  return SUCCESS;
+}
+
+int IndividualStarComputeIRLuminosity(float &L_ir, const float &mp, const float &metallicity){
+
+  float Teff, R, g, ir;
+
+  IndividualStarInterpolateProperties(Teff, R, mp, metallicity);
+  g = IndividualStarSurfaceGravity(mp, R);
+
+  if (IndividualStarBlackBodyOnly == FALSE){
+    if(IndividualStarInterpolateIRFlux(ir, Teff, g, metallicity) == SUCCESS){
+
+      L_ir = 4.0 * pi * R * R * ir;
+
+      return SUCCESS; // rates computed from table
+    }
+  }
+
+  /* if we are here it is because we need to do the black body integration */
+  const double ir_emin = IR_threshold_energy * erg_eV ; // eV -> cgs
+  const double ir_emax = FUV_threshold_energy * erg_eV ; // eV -> cgs
+
+  ComputeBlackBodyFlux(ir, Teff, ir_emin, ir_emax);
+
+  if (IndividualStarBlackBodyOnly == FALSE){ // adjust to match OSTAR
+      int index;
+      // If we are here because star is below temperature limit, we are a
+      // low mass star and black body vastly overestimates
+      if ( (Teff) < IndividualStarRadData.T[0] ){
+          index = 0;
+      } else { // else we are too hot and black body is even worse
+          index = 1;
+      }
+
+      ir *= IndividualStarBlackBodyIRFactors[index];
+  }
+
+
+  L_ir = 4.0 * pi * R * R * ir;
+
+  return SUCCESS;
+}
+
+
+
 int IndividualStarComputeFUVLuminosity(float &L_fuv,
                                        const int &i, const int &j, const int &k,
                                        const float & Teff, const float &R, const float &g,
@@ -651,8 +833,6 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv,
   L_fuv = 4.0 * pi * R * R * Fuv;
 
   return SUCCESS;
-
-
 }
 
 int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const float &metallicity){

@@ -874,8 +874,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses - Stars above this are posible rad sources
   IndividualStarOTRadiationMass      = 8.0;         // Solar masses - Stars above this are allowed to have optically thin radiation
   IndividualStarIonizingRadiationMinimumMass = 8.0; // Solar masses - stars above this are allowed ionizing radiation
-  IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens Pe Heating using optically thin FUV
-  IndividualStarLWRadiation          = 0;           // on or off - include optically thin LW photons from stars
+  IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens PE heating (and HM dissociation)
+  IndividualStarLWRadiation          = 0;           // on or off - include LW photons from stars (H2I and H2II dissociation)
+  IndividualStarIRRadiation          = 0;           // on or off - include IR-band radiation for H2II and HM dissociation
   IndividualStarFUVTemperatureCutoff = 2.0E4;       // K - if FUV heating is on, heat up to this temperature
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
 
@@ -884,11 +885,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
   IndividualStarBlackBodyq1Factors[1]  = 4.000 ;    // and second high mass off grid.
 
-  IndividualStarBlackBodyFUVFactors[0] = 1.0;   // same as above, but for FUV luminosities
-  IndividualStarBlackBodyFUVFactors[1] = 1.0;
-
-  IndividualStarBlackBodyLWFactors[0]  = 1.0;     // same, but for LW
-  IndividualStarBlackBodyLWFactors[1]  = 1.0;
+  for (i = 0; i < 2; i++){
+    IndividualStarBlackBodyFUVFactors[i] = 1.0;     // scaling factors for FUV, LW, and IR band black body radiation
+    IndividualStarBlackBodyLWFactors[i]  = 1.0;
+    IndividualStarBlackBodyIRFactors[i]  = 1.0;
+  }
 
   PhotoelectricHeatingDustModel = 1; // 0 - no shielding, linear in metallicity ; 1 - approx local shield, dust to gas ratio model
   PhotoelectricHeatingDustModelEfficiency = 0.0;    // Pe heating efficiency - <= 0 uses fit to Wolfire et. al. 2003 at solar radius

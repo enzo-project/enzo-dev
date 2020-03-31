@@ -56,7 +56,11 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   if (GlobalRadiationSources == NULL)
     return SUCCESS;
 
-  const int LymanWernerBin = 3;
+  /* AJE: This is pretty inconsistent with the rest of the code which
+          relies on the energy to set the type..... */
+
+  const int LymanWernerBin = 3; // bin index starting from 0
+  const int IRBin          = 4;
   const int FUVBin         = 7;
 
   int i, j, LR_leaf_flag[2], dim, sort_dim, median, nleft, nright;
@@ -83,20 +87,27 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     RadSource = GlobalRadiationSources->NextSource;
     for (i = 0; i < nShine; i++) {
       for (dim = 0; dim < MAX_DIMENSION; dim++)
-	SourceList[i].Position[dim] = RadSource->Position[dim];
-      SourceList[i].Luminosity = RadSource->Luminosity;
+        SourceList[i].Position[dim] = RadSource->Position[dim];
+        SourceList[i].Luminosity = RadSource->Luminosity;
       if (RadSource->EnergyBins > LymanWernerBin)
-	SourceList[i].LWLuminosity = RadSource->Luminosity *
-	  RadSource->SED[LymanWernerBin];
+        SourceList[i].LWLuminosity = RadSource->Luminosity *
+                                     RadSource->SED[LymanWernerBin];
       else
-	SourceList[i].LWLuminosity = RadSource->LWLuminosity;
+        SourceList[i].LWLuminosity = RadSource->LWLuminosity;
+
+      if (RadSource->EnergyBins > IRBin)
+        SourceList[i].IRLuminosity = RadSource->Luminosity *
+                                       RadSource->SED[IRBin];
+      else
+        SourceList[i].IRLuminosity = 0.0;
 
       /* This will be silly RT units, but eV/s NOT #/s like above*/
       if (RadSource->EnergyBins > FUVBin)
         SourceList[i].FUVLuminosity = RadSource->Luminosity *
-          RadSource->SED[FUVBin] * RadSource->Energy[FUVBin];
+                                      RadSource->SED[FUVBin] * RadSource->Energy[FUVBin];
       else
         SourceList[i].FUVLuminosity = RadSource->FUVLuminosity;
+
 
       SourceList[i].Source = RadSource;
       RadSource = RadSource->NextSource;
@@ -112,29 +123,34 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     OldSourceClusteringTree = SourceClusteringTree;
     SourceClusteringTree = NULL;
 
-  } // ENDIF SourceList == NULL (first time)  
+  } // ENDIF SourceList == NULL (first time)
 
   /* Calculate "center of light" first and assign it to the tree. */
 
   FLOAT center[MAX_DIMENSION];
   double weight = 0.0;
-  float lw_lum = 0.0, fuv_lum = 0.0;
-  
+  float lw_lum = 0.0, fuv_lum = 0.0, ir_lum = 0.0;
+
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     center[dim] = 0.0;
 
   for (i = 0; i < nShine; i++) {
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       center[dim] += SourceList[i].Position[dim] * SourceList[i].Luminosity;
-    weight += SourceList[i].Luminosity;
-    lw_lum += SourceList[i].LWLuminosity;
+    weight  += SourceList[i].Luminosity;
+    lw_lum  += SourceList[i].LWLuminosity;
     fuv_lum += SourceList[i].FUVLuminosity;
+    ir_lum  += SourceList[i].IRLuminosity;
   }
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     center[dim] /= weight;
 
+/* If we want to support multi-energy LW, FUV, and IR photons (rather than
+   just using the constants) then these need to be weighted here (and
+   added to properties of the source clustering tree) */
+
   /* Now calculate the maximum separation of the center and particles */
-  
+
   FLOAT dx;
   float radius2, max_separation = -1e20;
   for (i = 0; i < nShine; i++) {
@@ -159,6 +175,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   new_leaf->LeafID = loop_count;
   new_leaf->LWLuminosity = lw_lum;
   new_leaf->FUVLuminosity = fuv_lum;
+  new_leaf->IRLuminosity  = ir_lum;
 
   if (SourceClusteringTree == NULL) // top-grid (first time through)
     SourceClusteringTree = new_leaf;
@@ -198,11 +215,11 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   } // ENDSWITCH
   loop_count++;
 
-//  printf("%"ISYM" (%"ISYM", %"ISYM") :: %"FSYM" %"FSYM" %"FSYM"\n", 
+//  printf("%"ISYM" (%"ISYM", %"ISYM") :: %"FSYM" %"FSYM" %"FSYM"\n",
 //	 loop_count-1, sort_dim, nShine,
 //	 center[0], center[1], center[2]);
 //  for (i = 0; i < nShine; i++)
-//    printf("==> %"FSYM" %"FSYM" %"FSYM"\n", SourceList[i].Position[0], 
+//    printf("==> %"FSYM" %"FSYM" %"FSYM"\n", SourceList[i].Position[0],
 //	   SourceList[i].Position[1], SourceList[i].Position[2]);
 
   FLOAT leftdiff, rightdiff;
@@ -226,7 +243,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     nright = nShine-nleft;
   }
   /* Divide into children if there are more than one source */
-  
+
   if (nShine > 2) {
 
     // Left leaf (copy to temp, make tree, copy back)
@@ -239,7 +256,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 	SourceList[i] = temp[i];
       SourceClusteringTree = SourceClusteringTree->ParentSource;
       delete [] temp;
-    } 
+    }
 
     // Right leaf
     if (nright > 1) {
@@ -251,7 +268,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 	SourceList[nleft+i] = temp[i];
       SourceClusteringTree = SourceClusteringTree->ParentSource;
       delete [] temp;
-    } 
+    }
   } // ENDIF nShine > 2
 
   else {
@@ -283,6 +300,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       new_leaf->LeafID = INT_UNDEFINED;
       new_leaf->LWLuminosity = SourceList[i].LWLuminosity;
       new_leaf->FUVLuminosity = SourceList[i].FUVLuminosity;
+      new_leaf->IRLuminosity  = SourceList[i].IRLuminosity;
       new_leaf->ParentSource = SourceClusteringTree;
       SourceClusteringTree->ChildSource[LR_leaf_flag[i]] = new_leaf;
     } // ENDFOR i
@@ -316,7 +334,7 @@ void PrintSourceClusteringTree(SuperSourceEntry *leaf, FILE *fptr)
   if (leaf == NULL)
     return;
 
-  fprintf(fptr, 
+  fprintf(fptr,
 	 "Source clustering[P%"ISYM"]: leaf %"ISYM", SRC = %x, parent = %x,\n"
 	 "                        children = %x %x\n"
 	 "                        pos = %"FSYM" %"FSYM" %"FSYM", cradius = %"GSYM"\n",

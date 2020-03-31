@@ -280,6 +280,15 @@ int RadiativeTransferReadParameters(FILE *fptr)
     grackle_data->radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
     grackle_data->radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
   }
+
+  if (grackle_data->H2_self_shielding && RadiativeTransferUseH2Shielding){
+    ENZO_FAIL("Error: RadiativeTransferUseH2Shielding and Grackle's H2_shelf_shielding parameters are both ON "
+              "       this will result in redundant H2 self-shielding. If H2 dissociating (LW-band) radiation "
+              "       is being followed in the optically thin limit, then either parameter can be turned on, "
+              "       but not both. If H2 dissociating radiation is followed with full RT, then Grackle's "
+              "       H2_self_shielding should be turned OFF.")
+  }
+
 #endif // USE_GRACKLE
 
   delete [] dummy;

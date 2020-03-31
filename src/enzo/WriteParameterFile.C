@@ -1211,6 +1211,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarBlackBodyOnly = %"ISYM"\n", IndividualStarBlackBodyOnly);
   fprintf(fptr, "IndividualStarSupernovaEnergy = %"ESYM"\n", IndividualStarSupernovaEnergy);
   fprintf(fptr, "IndividualStarStellarWindVelocity = %"FSYM"\n", IndividualStarStellarWindVelocity);
+  fprintf(fptr, "IndividualStarIRRadiation = %"ISYM"\n", IndividualStarIRRadiation);
   fprintf(fptr, "IndividualStarLWRadiation = %"ISYM"\n", IndividualStarLWRadiation);
   fprintf(fptr, "IndividualStarFUVHeating = %"ISYM"\n", IndividualStarFUVHeating);
   fprintf(fptr, "IndividualStarOTRadiationMass = %"FSYM"\n", IndividualStarOTRadiationMass);

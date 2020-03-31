@@ -37,6 +37,12 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv, Star *cstar);
 
 int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar);
 
+int IndividualStarComputeIRLuminosity(float &L_IR, Star *cstar);
+
+int IndividualStarInterpolateIRFlux(float &IR_flux,
+                                     const int &i, const int &j, const int &k,
+                                     const float &Teff, const float &g, const float &metallicity);
+
 int IndividualStarInterpolateFUVFlux(float &FUV_flux,
                                      const int &i, const int &j, const int &k,
                                      const float &Teff, const float &g, const float &metallicity);

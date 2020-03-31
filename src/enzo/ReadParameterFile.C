@@ -1295,6 +1295,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarFUVHeating);
     ret += sscanf(line, "IndividualStarLWRadiation = %"ISYM,
                         &IndividualStarLWRadiation);
+    ret += sscanf(line, "IndividualStarIRRadiation = %"ISYM,
+                        &IndividualStarIRRadiation);
 
     ret += sscanf(line, "IndividualStarOTRadiationMass = %"FSYM,
                         &IndividualStarOTRadiationMass);

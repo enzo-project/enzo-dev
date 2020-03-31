@@ -127,6 +127,14 @@
 
 #define FUV_threshold_energy                 5.6
 
+/* Average energy [eV] of IR-band photon (0.75 - 5.6 eV) */
+
+#define IR_photon_energy                     2.0
+
+/* IR-band photon energy threshold [eV] */
+
+#define IR_threshold_energy                 0.76
+
 /* HI ionization threshold energy [eV] */
 
 #define HI_ionizing_energy                13.5984

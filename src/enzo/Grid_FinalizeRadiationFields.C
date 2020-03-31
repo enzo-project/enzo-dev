@@ -165,7 +165,9 @@ int grid::FinalizeRadiationFields(void)
 
    } // end FUV PE heating
 
-   if (MultiSpecies > 1 && !RadiativeTransferFLD)
+
+   // AJE: Added if here, I think this needs to be here--- otherwise conversion is appied where it shouldn't be
+   if (MultiSpecies > 1 && !RadiativeTransferFLD && !RadiativeTransferOpticallyThinH2)
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);

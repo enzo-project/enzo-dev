@@ -52,13 +52,13 @@ int FindSuperSourceByPosition(PhotonPackageEntry **PP)
 	break;
       temp = temp->ChildSource[1];
     } // ENDELSE right left
-    
+
     loop_count++;
 
   } // ENDWHILE
 
   (*PP)->CurrentSource = temp;
-  
+
   return SUCCESS;
 
 }
@@ -138,13 +138,13 @@ int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
 	break;
       temp = temp->ChildSource[1];
     } // ENDELSE right left
-    
+
     loop_count++;
 
   } // ENDWHILE
 
   *result = temp;
-  
+
   return SUCCESS;
 
 }
@@ -161,10 +161,17 @@ inline void vrsqrt(Eflt32* __x, Eflt32* __outrsqrt)
 // *precip = _mm_mul_ss(_mm_set_ss(0.5f), _mm_add_ss(recip, _mm_rcp_ss(_mm_mul_ss(x, recip))));
 }
 
-float CalculateLWFromTree(const FLOAT pos[], 
-			  const float angle, 
-			  const SuperSourceEntry *Leaf, 
-			  const float min_radius, 
+/* AJE: These three functions: CalculateLWFromTree, CalculateFUVFromTree,
+         and CalculateIRFromTree should really be rewritten into a single function
+         that utilizes binned luminosities (SED) for the leaf sources
+         as is done for the RadiationSourceEntry, that way a new function
+         isn't made every time a new band is needed... but unlikely to have much
+         more than IR, FUV, and LW for now anyway */
+
+float CalculateLWFromTree(const FLOAT pos[],
+			  const float angle,
+			  const SuperSourceEntry *Leaf,
+			  const float min_radius,
 			  float result0)
 {
 
@@ -173,7 +180,7 @@ float CalculateLWFromTree(const FLOAT pos[],
   float tan_angle, result;
   Eflt32 temp, radius_inv;
 
-  if (Leaf == NULL) 
+  if (Leaf == NULL)
     return result0;
 
   result = result0;
@@ -210,10 +217,59 @@ float CalculateLWFromTree(const FLOAT pos[],
 
 }
 
-float CalculateFUVFromTree(const FLOAT pos[], 
-                          const float angle, 
-                          const SuperSourceEntry *Leaf, 
-                          const float min_radius, 
+float CalculateIRFromTree(const FLOAT pos[],
+			  const float angle,
+			  const SuperSourceEntry *Leaf,
+			  const float min_radius,
+			  float result0)
+{
+
+  int dim;
+  FLOAT dx, radius2;
+  float tan_angle, result;
+  Eflt32 temp, radius_inv;
+
+  if (Leaf == NULL)
+    return result0;
+
+  result = result0;
+  radius2 = 0.0;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    dx = Leaf->Position[dim] - pos[dim];
+    radius2 += dx*dx;
+  }
+
+  temp = (Eflt32)radius2;
+  temp = max(min_radius, temp);
+  vrsqrt(&temp, &radius_inv);
+  //radius_inv = 1.0 / sqrtf((float)radius2);
+  tan_angle = Leaf->ClusteringRadius * radius_inv;
+
+//  int pid = (Leaf->ParentSource == NULL) ? -1 : Leaf->ParentSource->LeafID;
+//  printf("Leaf->ID = %d (%d), cradius = %g, radius = %g, tan_angle = %g, result0 = %g\n",
+//	 Leaf->LeafID, pid, Leaf->ClusteringRadius, sqrt(radius2), tan_angle, result0);
+
+  // Larger than opening angle -> go to children
+  if (tan_angle > angle) {
+    result = CalculateIRFromTree(pos, angle, Leaf->ChildSource[0], min_radius, result);
+    result = CalculateIRFromTree(pos, angle, Leaf->ChildSource[1], min_radius, result);
+  }
+
+  // Smaller than opening angle -> use this in the calculation
+  else {
+    result += Leaf->IRLuminosity * radius_inv * radius_inv;
+  }
+
+  //printf("\t after[%d] -- result = %g\n", Leaf->LeafID, result);
+
+  return result;
+
+}
+
+float CalculateFUVFromTree(const FLOAT pos[],
+                          const float angle,
+                          const SuperSourceEntry *Leaf,
+                          const float min_radius,
                           float result0)
 {
 
@@ -222,7 +278,7 @@ float CalculateFUVFromTree(const FLOAT pos[],
   float tan_angle, result;
   Eflt32 temp, radius_inv;
 
-  if (Leaf == NULL) 
+  if (Leaf == NULL)
     return result0;
 
   result = result0;
@@ -258,4 +314,3 @@ float CalculateFUVFromTree(const FLOAT pos[],
   return result;
 
 }
-

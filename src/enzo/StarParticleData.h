@@ -203,6 +203,7 @@ SPEXTERN float IndividualStarBlackBodyq0Factors[2];
 SPEXTERN float IndividualStarBlackBodyq1Factors[2];
 SPEXTERN float IndividualStarBlackBodyFUVFactors[2];
 SPEXTERN float IndividualStarBlackBodyLWFactors[2];
+SPEXTERN float IndividualStarBlackBodyIRFactors[2];
 SPEXTERN int   IndividualStarCreationStencilSize;
 SPEXTERN float IndividualStarFeedbackStencilSize;
 SPEXTERN float IndividualStarFeedbackRadius;
@@ -211,6 +212,7 @@ SPEXTERN float IndividualStarStellarWindVelocity;
 SPEXTERN float IndividualStarMaximumStellarWindVelocity;
 SPEXTERN int   IndividualStarFUVHeating;
 SPEXTERN int   IndividualStarLWRadiation;
+SPEXTERN int   IndividualStarIRRadiation;
 SPEXTERN int   IndividualStarPrintSNStats;
 
 SPEXTERN float IndividualStarIonizingRadiationMinimumMass;

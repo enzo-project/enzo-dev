@@ -110,6 +110,7 @@ public:
   int InterpolateLifetime(float &tau, const int &mode);
   void ComputeFUVLuminosity(float &L_FUV);
   void ComputeLWLuminosity(float &L_LW);
+  void ComputeIRLuminosity(float &L_IR);
   void ComputeIonizingRates(float &Q0, float &Q1);
   void AssertStellarProperties(void);
   void InterpolateProperties(void);

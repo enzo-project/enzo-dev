@@ -74,17 +74,20 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[1] = 30.0;
     E[2] = 58.0;
     E[3] = LW_photon_energy;
+    E[4] = IR_photon_energy;
     _mass = max(min((float)(_mass), 500), 5);
     if (_mass > 9 && _mass <= 500) {
       Q[0] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);
       Q[1] = pow(10.0, 42.51 + 5.69*x  - 1.01*x2);
       Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
       Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
+      Q[4] = 0.0;
     } else if (_mass > 5 && _mass <= 9) {
       Q[0] = pow(10.0, 39.29 + 8.55*x);
       Q[1] = pow(10.0, 29.24 + 18.49*x);
       Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
       Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
+      Q[4] = 0.0;
     } // ENDELSE
     else {
       for (i = 0; i < nbins; i++) Q[i] = 0.0;
@@ -138,6 +141,8 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       // E[4] = 0.0; E[5] = 0.0; E[6] = 0.0;
       // Q[4] = 0.0; Q[5] = 0.0; Q[6] = 0.0;
 
+      E[4] = IR_photon_energy; // IR-band radiation (2.0 eV)
+
       // FUV in the 5.6 - 11.2 eV band --- 11.2 to 13.6 is in LW
       //      - set to 8.4 eV for convenience
       E[7] = FUV_photon_energy ;  // FUV radiation - average of 5.6 to 11.2 eV range
@@ -152,6 +157,12 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
           float l_fuv;
           this->ComputeFUVLuminosity(l_fuv);
           Q[7] = l_fuv / (E[7] / eV_erg); // photon rate
+      }
+
+      if(IndividualStarIRRadiation){
+        float l_ir;
+        this->ComputeIRLuminosity(l_ir);
+        Q[4] = l_ir / (E[4] / eV_erg);
       }
 
     } // end optically thin radiation
