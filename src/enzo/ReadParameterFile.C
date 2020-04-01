@@ -1095,6 +1095,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIISupernovaExplosions);
     ret += sscanf(line, "PopIIIOutputOnFeedback = %"ISYM,
 		  &PopIIIOutputOnFeedback);
+    ret += sscanf(line, "PopIIIRadiationModel = %"ISYM,
+                  &PopIIIRadiationModel);
 
     ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
     ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);

@@ -39,7 +39,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
   int i;
   double L_UV, cgs_convert, _mass;
-  float x, x2, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
+  float x, x2, x3, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
   float Mform, EnergyFractionHeI, EnergyFractionHeII;
 
   /* for individual star */
@@ -56,6 +56,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   }
   x = log10((float)(_mass));
   x2 = x*x;
+  x3 = x*x*x;
 
 
 
@@ -70,27 +71,66 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 #ifdef TRANSFER
     if (!RadiativeTransferOpticallyThinH2) nbins++;
 #endif
-    E[0] = 28.0;
-    E[1] = 30.0;
-    E[2] = 58.0;
-    E[3] = LW_photon_energy;
-    E[4] = IR_photon_energy;
-    _mass = max(min((float)(_mass), 500), 5);
-    if (_mass > 9 && _mass <= 500) {
-      Q[0] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);
-      Q[1] = pow(10.0, 42.51 + 5.69*x  - 1.01*x2);
-      Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
-      Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
-      Q[4] = 0.0;
-    } else if (_mass > 5 && _mass <= 9) {
-      Q[0] = pow(10.0, 39.29 + 8.55*x);
-      Q[1] = pow(10.0, 29.24 + 18.49*x);
-      Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
-      Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
-      Q[4] = 0.0;
-    } // ENDELSE
-    else {
-      for (i = 0; i < nbins; i++) Q[i] = 0.0;
+
+    if (PopIIIRadiationModel == 0){
+      E[0] = 28.0;
+      E[1] = 30.0;
+      E[2] = 58.0;
+      E[3] = LW_photon_energy;
+      E[4] = IR_photon_energy;
+      _mass = max(min((float)(_mass), 500), 5);
+      if (_mass > 9 && _mass <= 500) {
+        Q[0] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);
+        Q[1] = pow(10.0, 42.51 + 5.69*x  - 1.01*x2);
+        Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
+        Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
+        Q[4] = 0.0;
+      } else if (_mass > 5 && _mass <= 9) {
+        Q[0] = pow(10.0, 39.29 + 8.55*x);
+        Q[1] = pow(10.0, 29.24 + 18.49*x);
+        Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
+        Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
+        Q[4] = 0.0;
+      } // ENDELSE
+      else {
+        for (i = 0; i < nbins; i++) Q[i] = 0.0;
+      }
+
+    } else if (PopIIIRadiationModel == 1){
+      /* Fits to Heger and Woosley 2010
+          3 degree polynomial fits over 2 mass range leads to
+          typical errors in the 0.1% range and maximal error
+          around 5%  */
+
+      float fit_mass = max(min((float)(_mass), 100.0), 10.0);
+      const float mass_cut = 15.0;
+
+      if ( fit_mass < mass_cut ){
+        Q[0] = pow(10.0, 10.3574*x3  -34.2086*x2 + 39.2123*x + 47.2375);
+        Q[1] = pow(10.0, 10.5994*x3  -36.3156*x2 + 43.8303*x + 43.6579);
+        Q[2] = pow(10.0, 12.0633*x3  -45.5716*x2 + 61.5720*x + 31.0292);
+      } else {
+        Q[0] = pow(10.0, 0.0809*x3  -0.9734*x2 + 3.8892*x + 59.5187);
+        Q[1] = pow(10.0, 0.1045*x3  -1.3872*x2 + 5.3264*x + 57.6942);
+        Q[2] = pow(10.0, 0.2993*x3  -3.2414*x2 + 10.7515*x + 51.3787);
+      }
+
+      E[0] = pow(10.0, 0.0007*x3  -0.0529*x2 + 0.2568*x + 1.0847);
+      E[1] = pow(10.0, -0.0065*x3 + 0.0058*x2 + 0.0952*x + 1.3787);
+      E[2] = pow(10.0, -0.0009*x3  -0.0057*x2 + 0.0558*x + 1.7217);
+
+      if (_mass > 100.0){
+        // scale massive stars assuming fixed photon rate
+        // per unit mass (not a bad assumption for massive stars)
+        for (i = 0; i < nbins; i++){
+          Q[i] *= _mass / 100.0;
+        }
+      }
+
+      /* AJE: Need to do something about stars < 10 Msun since 
+              radiation drops off hard here. Taking them to 10 Msun
+              or even scaling will overestimate */
+
     }
 
     break;
