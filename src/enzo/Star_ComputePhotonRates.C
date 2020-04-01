@@ -100,37 +100,51 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       /* Fits to Heger and Woosley 2010
           3 degree polynomial fits over 2 mass range leads to
           typical errors in the 0.1% range and maximal error
-          around 5%  */
+          around 5% . This fit produces large errors in the IR photon
+          rate because model is not monotonic here at high mass. But fit captures
+          general trend and approximately similar photon count integrated
+          over mass range */
 
-      float fit_mass = max(min((float)(_mass), 100.0), 10.0);
-      const float mass_cut = 15.0;
+      // Stars > the maximum mass will be treated at 100 and scaled
+      // later. Stars below (10Msun) will just be extrapolated using fit
+      float fit_mass = min((float)(_mass), 100.0);
+      const float mass_cut = 35.0; // separation in polynomials
+
+      /* These fits return the TOTAL photons. Need to divide by lifetime */
 
       if ( fit_mass < mass_cut ){
-        Q[0] = pow(10.0, 10.3574*x3  -34.2086*x2 + 39.2123*x + 47.2375);
-        Q[1] = pow(10.0, 10.5994*x3  -36.3156*x2 + 43.8303*x + 43.6579);
-        Q[2] = pow(10.0, 12.0633*x3  -45.5716*x2 + 61.5720*x + 31.0292);
+        Q[0] = pow(10.0,  -1.2618e+00*x3 + 4.8613e+00*x2 -4.4976e+00*x + 6.3507e+01);
+        Q[1] = pow(10.0,  -1.0090e-01*x3 -2.2907e-01*x2 + 3.3247e+00*x + 5.8788e+01);
+        Q[2] = pow(10.0,  3.7096e+00*x3 -1.6701e+01*x2 + 2.8367e+01*x + 4.3733e+01);
+        Q[3] = pow(10.0,  -1.8868e+00*x3 + 7.6565e+00*x2 -8.9860e+00*x + 6.5457e+01);
+        Q[4] = pow(10.0,  -2.7242e+00*x3 + 1.1538e+01*x2 -1.5151e+01*x + 6.8400e+01);
+        Q[7] = pow(10.0,  -2.3146e+00*x3 + 9.6461e+00*x2 -1.2168e+01*x + 6.7769e+01);
+      } else if (fit_mass <= 100.0) {
+        Q[0] = pow(10.0,  1.6675e+00*x3 -9.1524e+00*x2 + 1.7875e+01*x + 5.1583e+01);
+        Q[1] = pow(10.0,  4.1553e-01*x3 -2.8421e+00*x2 + 7.5444e+00*x + 5.6596e+01);
+        Q[2] = pow(10.0,  3.1015e-01*x3 -3.1192e+00*x2 + 1.0218e+01*x + 5.1874e+01);
+        Q[3] = pow(10.0,  4.7327e+00*x3 -2.5093e+01*x2 + 4.5244e+01*x + 3.5422e+01);
+        Q[4] = pow(10.0,  -3.3190e+01*x3 + 1.7386e+02*x2 -2.9988e+02*x + 2.3327e+02);
+        Q[7] = pow(10.0,  -1.3126e+00*x3 + 6.2667e+00*x2 -8.4472e+00*x + 6.6389e+01);
       } else {
-        Q[0] = pow(10.0, 0.0809*x3  -0.9734*x2 + 3.8892*x + 59.5187);
-        Q[1] = pow(10.0, 0.1045*x3  -1.3872*x2 + 5.3264*x + 57.6942);
-        Q[2] = pow(10.0, 0.2993*x3  -3.2414*x2 + 10.7515*x + 51.3787);
+        for (i=0;i<nbins;i++) Q[i]=0.0;
       }
-
-      E[0] = pow(10.0, 0.0007*x3  -0.0529*x2 + 0.2568*x + 1.0847);
-      E[1] = pow(10.0, -0.0065*x3 + 0.0058*x2 + 0.0952*x + 1.3787);
-      E[2] = pow(10.0, -0.0009*x3  -0.0057*x2 + 0.0558*x + 1.7217);
+      E[0] = pow(10.0,  7.1694e-04*x3 -5.2935e-02*x2 + 2.5684e-01*x + 1.0847e+00);
+      E[1] = pow(10.0,  -6.5004e-03*x3 + 5.8389e-03*x2 + 9.5175e-02*x + 1.3787e+00);
+      E[2] = pow(10.0,  -9.2050e-04*x3 -5.7004e-03*x2 + 5.5792e-02*x + 1.7217e+00);
+      E[3] = LW_photon_energy;
+      E[4] = IR_photon_energy;
+      E[7] = 0.8*FUV_photon_energy;
 
       if (_mass > 100.0){
         // scale massive stars assuming fixed photon rate
         // per unit mass (not a bad assumption for massive stars)
-        for (i = 0; i < nbins; i++){
-          Q[i] *= _mass / 100.0;
-        }
+        for (i = 0; i < nbins; i++) Q[i] *= _mass / 100.0;
       }
 
-      /* AJE: Need to do something about stars < 10 Msun since 
-              radiation drops off hard here. Taking them to 10 Msun
-              or even scaling will overestimate */
-
+      // convert from total photons to rate
+      float inv_lifetime = 1.0 / (this->LifeTime*TimeUnits);
+      for(i=0;i<nbins;i++) Q[i] *= inv_lifetime; // now photons / second
     }
 
     break;
