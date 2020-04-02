@@ -177,28 +177,14 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 
     int PeNum = FindField( PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
 
-    /* zero heating rate when temperature is above threshold */
-    float *temperature;
-    temperature = new float[size];
-
-    if(this->ComputeTemperatureField(temperature) == FAIL){
-      ENZO_FAIL("Error in compute temperature in Grid_ComputeCoolingTime");
-    }
-
     // send to Grackle in CGS
     volumetric_heating_rate = new float[size];
-//    volumetric_heating_rate = BaryonField[PeNum];
     specific_heating_rate   = NULL;
 
-    /* change heating to zero in high temperature regions */
+    /* convert to cgs */
     for( i = 0; i < size; i ++){
-      if ( temperature[i]  >= IndividualStarFUVTemperatureCutoff){
-        volumetric_heating_rate[i] = 0.0;
-      } else {
-        volumetric_heating_rate[i] = BaryonField[PeNum][i] * (EnergyUnits/TimeUnits); // convert to CGS
-      }
+      volumetric_heating_rate[i] = BaryonField[PeNum][i] * (EnergyUnits/TimeUnits); // convert to CGS
     }
-    delete [] temperature;
 
   } else{
     volumetric_heating_rate = NULL;

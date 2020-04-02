@@ -252,6 +252,10 @@ void grid::ZeroPhotoelectricHeatingField(void){
 
   if ((PeNum < 0) && (FUVRateNum < 0)) return; // not enabled - no need to zero
 
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+
   //if(UseUVBackgroundFUVRate){
   if (TRUE){
 
@@ -310,6 +314,16 @@ void grid::ZeroPhotoelectricHeatingField(void){
     MetalNum    = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
     ElectronNum = FindField(ElectronDensity, this->FieldType, this->NumberOfBaryonFields);
 
+
+    /* get temperature field */
+    float *temperature;
+    temperature = new float[size];
+    if(  this->ComputeTemperatureField(temperature) == FAIL ){
+      ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
+    }
+
+
+
     float n_H, n_e, Z;
 
 
@@ -341,11 +355,16 @@ void grid::ZeroPhotoelectricHeatingField(void){
               if (FUVRateNum > 0) BaryonField[FUVRateNum][index] = G_background * FluxConv_inv;
 
               // assign heating rate from model
-              BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e,
-                                                                // 100.0, // temperature doesn't matter
-                                                                     Z, G_background,
-                                                              (this->CellWidth[0][0])*LengthUnits);
-              BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
+              if (temperature[index] > IndividualStarFUVTemperatureCutoff){
+                BaryonField[PeNum][index]  = 0.0;
+
+              } else {
+                BaryonField[PeNum][index]  = ComputeHeatingRateFromDustModel(n_H, n_e,
+                                                                  // 100.0, // temperature doesn't matter
+                                                                       Z, G_background,
+                                                                (this->CellWidth[0][0])*LengthUnits);
+                BaryonField[PeNum][index] /= (EnergyUnits / TimeUnits);
+              }
           } // end k
         }
       } // end i
@@ -361,6 +380,8 @@ void grid::ZeroPhotoelectricHeatingField(void){
       }
     }
 
+    delete [] temperature;
+
   } else{
       for (int k = 0; k < GridDimension[2]; k++){
         for(int j = 0; j < GridDimension[1]; j++){
@@ -371,6 +392,7 @@ void grid::ZeroPhotoelectricHeatingField(void){
           }
         }
       }
+
   }
 
   return;

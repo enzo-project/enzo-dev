@@ -103,13 +103,13 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
 
   /* get temperature field */
-//  float *temperature;
+  float *temperature;
 
-//  temperature = new float[size];
+  temperature = new float[size];
 
-//  if(  this->ComputeTemperatureField(temperature) == FAIL ){
-//    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
-//  }
+  if(  this->ComputeTemperatureField(temperature) == FAIL ){
+    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
+  }
 
   for (dim = 0; dim < GridRank; dim++){
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
@@ -219,12 +219,17 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           }
 
 
-          /* Need to make decision on whether or not to place T cut here or in Grackle wrapper */
+          if (temperature[index] > IndividualStarFUVTemperatureCutoff) {
+            BaryonField[PeNum][index] = 0.0;
+          } else {
+            /* Need to make decision on whether or not to place T cut here or in Grackle wrapper */
 
-          BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, 
+            BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, 
                                                                // temperature[index],
                                                                        Z, LocalFUVflux,
                                                                        this->CellWidth[0][0]*LengthUnits) * PeConversion;
+          } // end T check
+
             //} // ENDIF
         } // END: i-direction
       } // END: j-direction
@@ -234,7 +239,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   for (dim = 0; dim < GridRank; dim++)
     delete [] ddr2[dim];
 
-//  delete [] temperature;
+  delete [] temperature;
 
   return SUCCESS;
 
