@@ -151,6 +151,9 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
           float IRSED = 0.0, LWSED = 0.0, H2IISED = 0.0;
           double LWLuminosity = 0.0, IRLuminosity = 0.0, H2IILuminosity = 0.0;
           double HMSigma = 0.0, H2IISigma = 0.0;
+
+          if (RS->Energy[ebin] <= 0.0) continue;
+
           // separating FUV and LW thresholds here is not needed
           // but it is nice to be explicit
           if(RS->Energy[ebin] < FUV_threshold_energy) {
