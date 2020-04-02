@@ -885,6 +885,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarBlackBodyq0Factors[1]  = 3.2 ;      // factors are for q0 and q1 with first
   IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
   IndividualStarBlackBodyq1Factors[1]  = 4.000 ;    // and second high mass off grid.
+  IndividualStarBlackBodyq2Factors[0]  = 0.001 ;
+  IndividualStarBlackBodyq2Factors[1]  = 4.000 ;
 
   for (i = 0; i < 2; i++){
     IndividualStarBlackBodyFUVFactors[i] = 1.0;     // scaling factors for FUV, LW, and IR band black body radiation

@@ -393,13 +393,13 @@ int IndividualStarInterpolateIRFlux(float &IR_flux,
 
   // do the interpolation
   IR_flux = 0.0;
-/*
+
   if(IndividualStarRadDataEvaluateInterpolation(IR_flux, IndividualStarRadData.IR_flux,
                                                 t, u, v, i, j, k) == FAIL){
     printf("IndividualStarLWHeating: outside sample gird points, using black body instead\n");
     return FAIL;
   }
-*/
+
   return SUCCESS;
 }
 
@@ -451,13 +451,14 @@ int IndividualStarInterpolateIRFlux(float & IR_flux, const float &Teff, const fl
 
   // otherwise, do the interpolation
   IR_flux = 0.0;
-/*
+
   if(IndividualStarRadDataEvaluateInterpolation(IR_flux, IndividualStarRadData.IR_flux,
                                                 t, u, v, i, j, k) == FAIL){
     printf("IndividualStarIRFlux: outside sample gird points, using black body instead\n");
     return FAIL;
   }
-*/
+
+
   return SUCCESS;
 }
 
@@ -578,7 +579,7 @@ int IndividualStarInterpolateFUVFlux(float &FUV_flux,
   v = LinearInterpolationCoefficient(k, Z   , IndividualStarRadData.Z);
 
   // do the interpolation
-  if(IndividualStarRadDataEvaluateInterpolation(FUV_flux, IndividualStarRadData.Fuv,
+  if(IndividualStarRadDataEvaluateInterpolation(FUV_flux, IndividualStarRadData.FUV_flux,
                                                 t, u, v, i, j, k) == FAIL){
     printf("IndividualStarLWHeating: outside sample gird points, using black body instead\n");
     return FAIL;
@@ -632,7 +633,7 @@ int IndividualStarInterpolateFUVFlux(float & Fuv, const float &Teff, const float
   }
 
 
-  if( IndividualStarRadDataEvaluateInterpolation(Fuv, IndividualStarRadData.Fuv,
+  if( IndividualStarRadDataEvaluateInterpolation(Fuv, IndividualStarRadData.FUV_flux,
                                                  t, u, v, i, j, k) == FAIL){
     printf("IndividualStarFUVHeating: outside sampled grid points, using black body instead\n");
     return FAIL;
@@ -878,12 +879,12 @@ int IndividualStarComputeFUVLuminosity(float &L_fuv, const float &mp, const floa
 
 }
 
-int IndividualStarComputeIonizingRates(float &q0, float &q1,
+int IndividualStarComputeIonizingRates(float &q0, float &q1, float &q2,
                                        const int &i, const int &j, const int &k,
                                        const float &Teff, const float &g, const float &metallicity){
 
   if (IndividualStarBlackBodyOnly == FALSE){
-    if(IndividualStarInterpolateRadData(q0, q1,
+    if(IndividualStarInterpolateRadData(q0, q1, q2,
                                         i, j, k,
                                         Teff, g, metallicity) == SUCCESS){
       return SUCCESS;
@@ -906,6 +907,12 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
 
+  x = (HeII_ionizing_energy / eV_erg) / (kboltz * (Teff));
+  if ( PhotonRadianceBlackBody(q2, x) == FAIL ){
+    ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
+  }
+
+
   //
   // now adjust the black body curve to be roughly continious
   // with OSTAR, but only do this if OSTAR is actually being used
@@ -922,6 +929,7 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
 
     q0 = (q0) * IndividualStarBlackBodyq0Factors[index];
     q1 = (q1) * IndividualStarBlackBodyq1Factors[index];
+    q2 = (q2) * IndividualStarBlackBodyq2Factors[index];
   }
 
 
@@ -931,6 +939,7 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
   // convert to units of # / s / m-2 / sr-1
   q0 = A * (q0);
   q1 = A * (q1);
+  q2 = A * (q2);
 
   return SUCCESS;
 
@@ -938,7 +947,7 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1,
 
 }
 
-int IndividualStarInterpolateRadData(float &q0, float &q1,
+int IndividualStarInterpolateRadData(float &q0, float &q1, float &q2,
                                      const int &i, const int &j, const int &k,
                                      const float &Teff, const float &g, const float &metallicity){
 
@@ -966,7 +975,9 @@ int IndividualStarInterpolateRadData(float &q0, float &q1,
   if(((IndividualStarRadDataEvaluateInterpolation(q0, IndividualStarRadData.q0,
                                                 t, u, v, i, j, k) == FAIL)) ||
      ((IndividualStarRadDataEvaluateInterpolation(q1, IndividualStarRadData.q1,
-                                                t, u, v, i, j, k) == FAIL))){
+                                                t, u, v, i, j, k) == FAIL)) ||
+     ((IndividualStarRadDataEvaluateInterpolation(q2, IndividualStarRadData.q2,
+                                                t, u, v, i, j, k) == FAIL)) ){
     printf("IndividualStarRadData: outside sample gird points, using black body instead\n");
     return FAIL;
   }
@@ -975,7 +986,7 @@ int IndividualStarInterpolateRadData(float &q0, float &q1,
 
 }
 
-int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
+int IndividualStarComputeIonizingRates(float &q0, float &q1, float &q2, const float &Teff,
                                        const float &g, const float &metallicity){
  /*============================================================
   * IndividualStarComputeIonizingRates
@@ -991,7 +1002,7 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
   */
 
   if (IndividualStarBlackBodyOnly == FALSE){
-    if(IndividualStarInterpolateRadData(q0, q1, Teff, g, metallicity) == SUCCESS){
+    if(IndividualStarInterpolateRadData(q0, q1, q2, Teff, g, metallicity) == SUCCESS){
       return SUCCESS; // rates computed from table
     }
   }
@@ -1011,6 +1022,11 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
     ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
   }
 
+  x = (HeII_ionizing_energy / eV_erg) / (kboltz * (Teff));
+  if ( PhotonRadianceBlackBody(q2, x) == FAIL ){
+    ENZO_FAIL("IndividualStarComputeIonizingRates: Summation of black body integral failed to converge\n");
+  }
+
   //
   // now adjust the black body curve to be roughly continious
   // with OSTAR, but only do this if OSTAR is actually being used
@@ -1027,15 +1043,17 @@ int IndividualStarComputeIonizingRates(float &q0, float &q1, const float &Teff,
 
     q0 = (q0) * IndividualStarBlackBodyq0Factors[index];
     q1 = (q1) * IndividualStarBlackBodyq1Factors[index];
+    q2 = (q2) * IndividualStarBlackBodyq2Factors[index];
   }
 
 
   float A = 2.0 * kboltz * kboltz * kboltz * (Teff*Teff*Teff) /
                                (h_planck*h_planck*h_planck*clight*clight);
 
-   // convert to units of # / s / m-2 / sr-1
+  // convert to units of # / s / m-2 / sr-1
   q0 = A * (q0);
   q1 = A * (q1);
+  q2 = A * (q2);
 
   return SUCCESS;
 }
@@ -1779,7 +1797,7 @@ int IndividualStarInterpolateProperties(float &Teff, float &R,
 }
 
 
-int IndividualStarInterpolateRadData(float &q0, float &q1,
+int IndividualStarInterpolateRadData(float &q0, float &q1, float &q2,
                                      const float &Teff, const float &g, const float &metallicity){
   /* ===================================================================
    * IndividualStarInterpolateRadData
@@ -1839,7 +1857,9 @@ int IndividualStarInterpolateRadData(float &q0, float &q1,
   if( (IndividualStarRadDataEvaluateInterpolation(q0, IndividualStarRadData.q0,
                                                   t, u, v, i, j, k) == FAIL) ||
       (IndividualStarRadDataEvaluateInterpolation(q1, IndividualStarRadData.q1,
-                                                  t, u, v, i, j, k) == FAIL)){
+                                                  t, u, v, i, j, k) == FAIL) ||
+      (IndividualStarRadDataEvaluateInterpolation(q2, IndividualStarRadData.q2,
+                                                  t, u, v, i, j, k) == FAIL) ){
 
     printf("IndividualStarRadData: outside sampled grid points, using black body instead\n");
     return FAIL;

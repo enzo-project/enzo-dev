@@ -34,7 +34,7 @@ void IndividualStarInterpolateProperties(float &Teff, float &R,
 // need to put functions here:
 // IndividualStar etc.
 float IndividualStarSurfaceGravity(const float &mp, const float &R);
-void IndividualStarComputeIonizingRates(float &q0, float &q1,
+void IndividualStarComputeIonizingRates(float &q0, float &q1, float &q2,
                                         const int &i, const int &j, const int &k,
                                         const float &Teff, const float &g,
                                         const float &metallicity);
@@ -95,12 +95,12 @@ void Star::AssertStellarProperties(void){
   return;
 }
 
-void Star::ComputeIonizingRates(float &Q0, float &Q1){
+void Star::ComputeIonizingRates(float &q0, float &q1, float &q2){
 
   this->AssertStellarProperties();       // need Teff, g
   this->AssertInterpolationPositions(2); // need
 
-  IndividualStarComputeIonizingRates(Q0, Q1,
+  IndividualStarComputeIonizingRates(q0, q1, q2,
                                      this->rad_table_position[0],
                                      this->rad_table_position[1],
                                      this->rad_table_position[2],

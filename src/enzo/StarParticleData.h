@@ -202,6 +202,7 @@ SPEXTERN int   IndividualStarUseSNIa;
 SPEXTERN int   IndividualStarBlackBodyOnly;
 SPEXTERN float IndividualStarBlackBodyq0Factors[2];
 SPEXTERN float IndividualStarBlackBodyq1Factors[2];
+SPEXTERN float IndividualStarBlackBodyq2Factors[2];
 SPEXTERN float IndividualStarBlackBodyFUVFactors[2];
 SPEXTERN float IndividualStarBlackBodyLWFactors[2];
 SPEXTERN float IndividualStarBlackBodyIRFactors[2];

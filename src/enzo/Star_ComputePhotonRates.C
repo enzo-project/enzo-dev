@@ -98,6 +98,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
     } else if (PopIIIRadiationModel == 1){
       /* Fits to Heger and Woosley 2010
+
+          https://github.com/aemerick/galaxy_analysis/blob/master/physics_data/Heger_Woosley_2010/Heger_woosley_radiation_fits.ipynb
+
           3 degree polynomial fits over 2 mass range leads to
           typical errors in the 0.1% range and maximal error
           around 5% . This fit produces large errors in the IR photon
@@ -164,22 +167,23 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     /* set ionizing radiation photon rates */
     if (M >= IndividualStarIonizingRadiationMinimumMass){
 
-      this->ComputeIonizingRates(Q[0], Q[1]);
+      this->ComputeIonizingRates(Q[0], Q[1], Q[2]);
 
       // compute average energy by integrating over the black body spectrum
-      ComputeAverageEnergy(E[0], (HI_ionizing_energy / eV_erg), this->Teff);
-      ComputeAverageEnergy(E[1], (HeI_ionizing_energy / eV_erg), this->Teff);
+      ComputeAverageEnergy(E[0],   (HI_ionizing_energy / eV_erg), this->Teff);
+      ComputeAverageEnergy(E[1],  (HeI_ionizing_energy / eV_erg), this->Teff);
+      ComputeAverageEnergy(E[2], (HeII_ionizing_energy / eV_erg), this->Teff);
 
       // convert to eV from cgs
-      E[0] = E[0] * eV_erg;
-      E[1] = E[1] * eV_erg;
-      E[2] = HeII_ionizing_energy; // HeII
+      E[0] = E[0] * eV_erg; // HI
+      E[1] = E[1] * eV_erg; // HeI
+      E[2] = E[2] * eV_erg; // HeII
 
       // Functions above return the ionizing flux at stellar surface.
       // Convert to ionizing photon rate
       Q[0] = Q[0] * 4.0 * pi * R*R;
       Q[1] = Q[1] * 4.0 * pi * R*R;
-      Q[2] = 0.0; // not tracked in this model
+      Q[2] = Q[2] * 4.0 * pi * R*R;
 
     }
 
@@ -192,8 +196,8 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       E[3] = LW_photon_energy; // LW-band radiation (11.2 - 13.6 eV)
 
       // For now, no IR, Xray, or spectrum types (no need to actually zero)
-      // E[4] = 0.0; E[5] = 0.0; E[6] = 0.0;
-      // Q[4] = 0.0; Q[5] = 0.0; Q[6] = 0.0;
+      //  E[5] = 0.0; E[6] = 0.0;
+      //  Q[5] = 0.0; Q[6] = 0.0;
 
       E[4] = IR_photon_energy; // IR-band radiation (2.0 eV)
 
@@ -207,16 +211,16 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
         Q[3] = l_lw / (E[3] / eV_erg);
       }
 
-      if(IndividualStarFUVHeating){
-          float l_fuv;
-          this->ComputeFUVLuminosity(l_fuv);
-          Q[7] = l_fuv / (E[7] / eV_erg); // photon rate
-      }
-
       if(IndividualStarIRRadiation){
         float l_ir;
         this->ComputeIRLuminosity(l_ir);
         Q[4] = l_ir / (E[4] / eV_erg);
+      }
+
+      if(IndividualStarFUVHeating){
+        float l_fuv;
+        this->ComputeFUVLuminosity(l_fuv);
+        Q[7] = l_fuv / (E[7] / eV_erg); // photon rate
       }
 
     } // end optically thin radiation

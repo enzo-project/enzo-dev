@@ -23,7 +23,7 @@ void IndividualStarInterpolateProperties(float &Teff, float &R,
                                          const int &i, const int &j,
                                          const float &M, const float &metallicity);
 
-int IndividualStarInterpolateRadData(float &q0, float &q1,
+int IndividualStarInterpolateRadData(float &q0, float &q1, float &q2,
                                      const int &i, const int &j, const int &k,
                                      const float &Teff, const float &g, const float &metallicity);
 
@@ -33,11 +33,14 @@ void IndividualStarInterpolateLuminosity(float &L, const int &i, const int &j,
 int  IndividualStarInterpolateLifetime(float &tau, const int &i, const int &j,
                                        const float &M, const float &metallicity, const int &mode);
 
-int IndividualStarComputeFUVLuminosity(float &L_fuv, Star *cstar);
 
-int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar);
+/* Compute lumisities in each band given a star particle */
 
 int IndividualStarComputeIRLuminosity(float &L_IR, Star *cstar);
+int IndividualStarComputeFUVLuminosity(float &L_fuv, Star *cstar);
+int IndividualStarComputeLWLuminosity(float &L_Lw, Star *cstar);
+
+/* Obtain fluxes in each band from table interpolation */
 
 int IndividualStarInterpolateIRFlux(float &IR_flux,
                                      const int &i, const int &j, const int &k,
@@ -55,7 +58,7 @@ int IndividualStarEvaluateInterpolation(float &y, float *ya[],
                                         const int &i, const int &j,
                                         const float &t, const float &u);
 
-int IndividualStarComputeIonizingRates(float &q0, float &q1,
+int IndividualStarComputeIonizingRates(float &q0, float &q1, float &q2,
                                        const int &i, const int &j, const int &k,
                                        const float &Teff, const float &g, const float &metallicity);
 
@@ -68,7 +71,6 @@ int IndividualStarInterpolateProperties(float &Teff, float &R,
 int IndividualStarInterpolateLifetime(float & tau, const float &M, const float &metallicity, const int &mode);
 
 /* Function for feedback and end-of-life events */
-
 
 void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
                                             const float &dtFixed, const float &TimeUnits,
@@ -92,10 +94,10 @@ void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity
                                                       float *dMdt);
 
 /* Functions for radiation data */
-int IndividualStarComputeIonizingRates(float &q0, float &q1,
+int IndividualStarComputeIonizingRates(float &q0, float &q1, float &q2,
                                        const float &Teff, const float &g, const float &metallicity);
 
-int IndividualStarInterpolateRadData(float &q0, float &q1,
+int IndividualStarInterpolateRadData(float &q0, float &q1, float &q2,
                                      const float &Teff, const float &g, const float &metallicity);
 
 int PhotonRadianceBlackBody(float &q, const float &x);
