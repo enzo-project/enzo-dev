@@ -1153,7 +1153,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &MetalMixingExperiment);
     ret += sscanf(line, "ResetStellarAbundances = %"ISYM,
                         &ResetStellarAbundances); // read only - no write
-    ret += sscanf(line, "IndividualStarRefineForRadiation = "ISYM,
+    ret += sscanf(line, "IndividualStarRefineForRadiation = %"ISYM,
                         &IndividualStarRefineForRadiation);
     ret += sscanf(line, "IndividualStarRefineToLevel = %"ISYM,
                         &IndividualStarRefineToLevel);
