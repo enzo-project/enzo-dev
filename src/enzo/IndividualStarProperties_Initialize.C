@@ -189,16 +189,16 @@ int IndividualStarRadiationProperties_Initialize(void){
 
   // Metallicities in table are listed from low to high
   // first column in table is z = 0.0, last column is z = 2.0
-  IndividualStarRadData.Z[0] = 2.0;
-  IndividualStarRadData.Z[1] = 1.0;
-  IndividualStarRadData.Z[2] = 0.5;
-  IndividualStarRadData.Z[3] = 0.2;
-  IndividualStarRadData.Z[4] = 0.1;
-  IndividualStarRadData.Z[5] = 1.0/30.0;
-  IndividualStarRadData.Z[6] = 0.02;    // 1 / 50.0
-  IndividualStarRadData.Z[7] = 0.01;
-  IndividualStarRadData.Z[8] = 0.001;
-  IndividualStarRadData.Z[9] = 0.0;
+  IndividualStarRadData.Z[9] = 2.0;
+  IndividualStarRadData.Z[8] = 1.0;
+  IndividualStarRadData.Z[7] = 0.5;
+  IndividualStarRadData.Z[6] = 0.2;
+  IndividualStarRadData.Z[5] = 0.1;
+  IndividualStarRadData.Z[4] = 1.0/30.0;
+  IndividualStarRadData.Z[3] = 0.02;    // 1 / 50.0
+  IndividualStarRadData.Z[2] = 0.01;
+  IndividualStarRadData.Z[1] = 0.001;
+  IndividualStarRadData.Z[0] = 0.0;
 
   // Load the arrays for ionizing radiation and the other bands
   // q's correspond to HI, HeI, and HeII photon fluxes (count / s / cm^2)
