@@ -881,18 +881,19 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarFUVTemperatureCutoff = 2.0E4;       // K - if FUV heating is on, heat up to this temperature
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
 
-  IndividualStarBlackBodyq0Factors[0]  = 0.1 ;      // if OSTAR is ON, adjust black body to be continious
-  IndividualStarBlackBodyq0Factors[1]  = 3.2 ;      // factors are for q0 and q1 with first
-  IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
-  IndividualStarBlackBodyq1Factors[1]  = 4.000 ;    // and second high mass off grid.
-  IndividualStarBlackBodyq2Factors[0]  = 0.001 ;
-  IndividualStarBlackBodyq2Factors[1]  = 4.000 ;
 
-  for (i = 0; i < 2; i++){
-    IndividualStarBlackBodyFUVFactors[i] = 1.0;     // scaling factors for FUV, LW, and IR band black body radiation
-    IndividualStarBlackBodyLWFactors[i]  = 1.0;
-    IndividualStarBlackBodyIRFactors[i]  = 1.0;
-  }
+  IndividualStarBlackBodyq0Factors[0]  = 0.13422;      // if OSTAR is ON, adjust black body to be continious. In truth this
+  IndividualStarBlackBodyq0Factors[1]  = 2.91754;      // varies with metallicity, but these factors are averaged over Z's.
+  IndividualStarBlackBodyq1Factors[0]  = 6.63647E-3;   // First factor applies to lower mass stars, typically below the
+  IndividualStarBlackBodyq1Factors[1]  = 5.10396;      // default 8 Msun limit for tracking these stars, and latter is for
+  IndividualStarBlackBodyq2Factors[0]  = 2.87337E-5;   // higher mass (at higher metallicities, all stars are on-grid). The
+  IndividualStarBlackBodyq2Factors[1]  = 3.68749E-2;   // correction works well over the metallicity range  for all but
+  IndividualStarBlackBodyIRFactors[0]  = 2.32886;      // the HeII band, which varies more with Z than the others
+  IndividualStarBlackBodyIRFactors[1]  = 2.38800;
+  IndividualStarBlackBodyFUVFactors[0] = 3.94039;
+  IndividualStarBlackBodyFUVFactors[1] = 2.68280;
+  IndividualStarBlackBodyLWFactors[0]  = 6.10441;
+  IndividualStarBlackBodyLWFactors[1]  = 2.78500;
 
   PhotoelectricHeatingDustModel = 1; // 0 - no shielding, linear in metallicity ; 1 - approx local shield, dust to gas ratio model
   PhotoelectricHeatingDustModelEfficiency = 0.0;    // Pe heating efficiency - <= 0 uses fit to Wolfire et. al. 2003 at solar radius
