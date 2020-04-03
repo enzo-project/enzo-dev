@@ -55,7 +55,7 @@
 
 #define MAX_LINE_LENGTH                   2000 /* AJE: for stellar yields */
 
-#define MAX_STELLAR_YIELDS                21
+#define MAX_STELLAR_YIELDS                10
 
 #define MAX_NAME_LENGTH                   512
 
@@ -375,6 +375,7 @@ typedef long long int   HDF5_hid_t;
 #define COS(X) cos((double) (X))
 #define SIN(X) sin((double) (X))
 #define ceil_log2(size) ((size) > 1 ? ((size_t)pow(2, (int)log2(size-1)+1)) : 1 )
+
 #ifdef CONFIG_PFLOAT_4
 #define MODF(X,Y) modff((X), (Y))
 #elif CONFIG_PFLOAT_8

@@ -19,13 +19,13 @@ struct IndividualStarRadDataType
   int NumberOfSGBins;
   int NumberOfMetallicityBins;
 
-//  float **q0[INDIVIDUAL_STAR_TEMPERATURE_BINS];
-//  float **q1[INDIVIDUAL_STAR_TEMPERATURE_BINS];
-  float ***q0;
-  float ***q1;
+  float ***q0; // HI photon flux (1/s/cm^2)
+  float ***q1; // HeI photon flux (1/s/cm^2)
+  float ***q2; // HeII photon flux (1/s/cm^2)
 
-  float ***Fuv;     // FUV heating rate
-  float ***LW_flux; // LW flux
+  float ***IR_flux;      // IR  flux (erg/s/cm^2)
+  float ***FUV_flux;     // FUV flux (erg/s/cm^2)
+  float ***LW_flux;      // LW flux  (erg/s/cm^2)
 
   // bin values
   float *T;

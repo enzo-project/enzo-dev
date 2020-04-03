@@ -111,6 +111,26 @@ int grid::PrepareBoundaryMassFluxFieldNumbers(){
       this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, anum);
       BoundaryMassFluxFieldNumbers[count++] = field_num;
     }
+
+    int PopIIIMetalNum, PopIIIPISNeMetalNum, AGBMetalNum, RProcMetalNum; //, SNIaMetalNum, SNIIMetalNum;
+
+    AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
+    PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
+    PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
+    RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
+
+    if (IndividualStarTrackAGBMetalDensity){
+      BoundaryMassFluxFieldNumbers[count++] = AGBMetalNum;
+    }
+
+    if (IndividualStarPopIIIFormation){
+      BoundaryMassFluxFieldNumbers[count++] = PopIIIMetalNum;
+      BoundaryMassFluxFieldNumbers[count++] = PopIIIPISNeMetalNum;
+    }
+
+    if (IndividualStarRProcessModel){
+      BoundaryMassFluxFieldNumbers[count++] = RProcMetalNum;
+    }
   }
 
   return SUCCESS;

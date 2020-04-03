@@ -56,6 +56,7 @@
 #ifdef TRANSFER
 #include "ImplicitProblemABC.h"
 #endif
+#include "phys_constants.h"
  
 // function prototypes
 //#ifdef INDIVIDUALSTAR
@@ -138,6 +139,9 @@ int StellarYieldsResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 
 void PrintMemoryUsage(char *str);
 int SetEvolveRefineRegion(FLOAT time);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
 
 int SetStellarMassThreshold(FLOAT time);
 
@@ -499,6 +503,26 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     if (StarMakerMinimumMassRamp > 0) {
         if (SetStellarMassThreshold(MetaData.Time) == FAIL) 
 	  ENZO_FAIL("Error in SetStellarMassThreshold.");
+    }
+
+    /* Check maximum refinement level */
+    if (MaximumRefinementLevelPhysicalScale > 0) {
+      float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
+      TimeUnits = 1, VelocityUnits = 1;
+      if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+                   &TimeUnits, &VelocityUnits, MetaData.Time) == FAIL) {
+            ENZO_FAIL("Error in GetUnits.");
+      }
+
+
+      FLOAT max_dx = TopGridDx[0] / POW(RefineBy, MaximumRefinementLevel);
+
+      if ( (max_dx * LengthUnits / pc_cm) < MaximumRefinementLevelPhysicalScale){
+        MaximumRefinementLevel++;
+        MaximumGravityRefinementLevel++;
+        MaximumParticleRefinementLevel++;
+        if (IndividualStarRefineToLevel > 0) IndividualStarRefineToLevel++;
+      }
     }
 
     /* Evolve the stochastic forcing spectrum and add

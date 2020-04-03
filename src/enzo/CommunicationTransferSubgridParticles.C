@@ -176,14 +176,14 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
   /* Allocate the memory for the move list and transfer the particles */
 
   TotalNumber = 0;
-  TotalStars = 0;
+  TotalStars  = 0;
   APTotalNumber = 0;
   for (j = 0; j < NumberOfProcessors; j++) {
     TotalNumber += NumberToMove[j];
-    TotalStars += StarsToMove[j];
+    TotalStars  += StarsToMove[j];
     APTotalNumber += APNumberToMove[j];
     NumberToMove[j] = 0;  // Zero-out to use in the next step
-    StarsToMove[j] = 0;  // Zero-out to use in the next step
+    StarsToMove[j]  = 0;
     APNumberToMove[j] = 0;
   }
   SendList = new particle_data[TotalNumber];
@@ -192,7 +192,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
     Grids[grid1]->GridData->TransferSubgridStars
-      (GridPointers, NumberOfGrids, StarsToMove, Zero, Zero, 
+      (GridPointers, NumberOfGrids, StarsToMove, Zero, Zero,
        StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, FALSE);
 
     Grids[grid1]->GridData->TransferSubgridActiveParticles

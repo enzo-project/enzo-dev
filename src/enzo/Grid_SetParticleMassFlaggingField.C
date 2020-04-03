@@ -133,7 +133,7 @@ int grid::SetParticleMassFlaggingField(
       // Call separate routine to loop over star particles and do
       // additional refinement
       KeepFlaggingField = KeepFlaggingField || (level == IndividualStarRefineToLevel);
-      if (level <= IndividualStarRefineToLevel){
+      if (level < IndividualStarRefineToLevel){
         NumberOfFlaggedCells +=
           this->DepositMustRefineParticles(ParticleMassMethod, level,
                                            KeepFlaggingField,

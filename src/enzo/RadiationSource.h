@@ -18,10 +18,13 @@ struct SuperSourceEntry {
   FLOAT Position[MAX_DIMENSION];
   int LeafID;
   float ClusteringRadius;
+  // AJE: This should just get generalized to energy and SED bins
   // Used for computing the Lyman-Werner radiation with the tree.
   float LWLuminosity;
   // Used for computing the FUV radiation with the tree.
   float FUVLuminosity;
+  // Used for computeing IR radiation with the tree
+  float IRLuminosity;
 };
 
 struct RadiationSourceEntry  {
@@ -37,6 +40,7 @@ struct RadiationSourceEntry  {
                                   // (only used in optically-thin case)
   float FUVLuminosity;            // FUV photon number luminosity
                                   // (only used in optically-thin case)
+  float IRLuminosity;             // IR photon number luminosity
   float CreationTime;             // When Source is formed in code units
   float LifeTime;                 // LifeTime of source in code units
   float RampTime;                 // Time for the source to reach full luminosity
@@ -56,6 +60,7 @@ struct SuperSourceData {
   float Luminosity;
   float LWLuminosity;
   float FUVLuminosity;
+  float IRLuminosity;
 };
 
 #endif

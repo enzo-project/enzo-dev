@@ -686,7 +686,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     }
   }
 
-  if(TestProblemData.MultiMetals == 2 || MultiMetals == 2){
+  if(MultiMetals == 2){
     for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
       if(StellarYieldsAtomicNumbers[ii] > 2){
         int field_num;

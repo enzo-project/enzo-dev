@@ -44,38 +44,25 @@
 #endif
 
 /* function prototypes */
+int GetUnits(float *DensityUnits, float *LengthUnits,
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
+int FindField(int f, int farray[], int n);
+unsigned_long_int mt_random(void);
+
+int search_lower_bound(float *arr, float value, int low, int high, int total);
 
 extern "C" void FORTRAN_NAME(pop3_properties)(FLOAT *mass, FLOAT* luminosity,
                                               FLOAT *lifetime);
 
 
-int GetUnits(float *DensityUnits, float *LengthUnits,
-             float *TemperatureUnits, float *TimeUnits,
-             float *VelocityUnits, FLOAT Time);
-
-int FindField(int f, int farray[], int n);
-
+/* Internal */
 float SampleIMF(void);
 float SampleIMF(float * data, const float & lower_mass, const float & upper_mass);
 float SamplePopIII_IMF(void);
 
-float ComputeSnIaProbability(const float &current_time, const float &formation_time, const float &lifetime, const float &TimeUnits);
-unsigned_long_int mt_random(void);
 
 
-
-float ComputeOverlap(const int &i_shape, const float &radius,
-                     const FLOAT &xc, const FLOAT &yc, const FLOAT &zc,
-                     const FLOAT &xl, const FLOAT &yl, const FLOAT &zl,
-                     const FLOAT &xr, const FLOAT &yr, const FLOAT &zr,
-                     const int &nsample);
-
-void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
-                               float MassUnits, float EnergyUnits, float &m_eject,
-                               float &E_thermal, float * metal_mass,
-                               float *grid_abundances);
-
-int search_lower_bound(float *arr, float value, int low, int high, int total);
 
 
 
@@ -152,18 +139,21 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   int MetalNum;
   MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
 
- int PopIIIMetalNum, AGBMetalNum, SNIaMetalNum, SNIIMetalNum;
+ int PopIIIMetalNum, PopIIIPISNeMetalNum, AGBMetalNum,
+     SNIaMetalNum, SNIIMetalNum, RProcMetalNum;
 
   AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
   PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
+  PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
   SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
   SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
+  RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
 
   if ( IndividualStarTrackAGBMetalDensity && (AGBMetalNum <= 0)){
     ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
   }
 
-  if ( IndividualStarPopIIIFormation && (PopIIIMetalNum <= 0)){
+  if ( IndividualStarPopIIIFormation && ((PopIIIMetalNum <= 0) || (PopIIIPISNeMetalNum <= 0))){
     ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
   }
 
@@ -578,14 +568,15 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 // We did the metallicity tagging already, but now loop through and
                 // do individual chemical tagging for each species tracked in the simulation
                 // these are stored as particle attributes starting with attr number 5 (index 4)
-                if (((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+                if (MultiMetals == 2){
 //                  if (IndividualStarOutputChemicalTags){
                     // output the particle formation time, birth mass (in SolarMass), and metallicity
 //                    printf(" %"ISYM" %"ESYM" %"ESYM" %"ESYM, ParticleType[istar],
 //                                                     ParticleAttribute[0][istar], ParticleAttribute[3][istar],
 //                                                     ParticleAttribute[2][istar]);
 //                  }
-                  for( int iyield = 0; iyield < StellarYieldsNumberOfSpecies; iyield++){
+                  int iyield = 0;
+                  for(iyield = 0; iyield < StellarYieldsNumberOfSpecies; iyield++){
                     double temp_fraction = 0.0;
 
                     if(StellarYieldsAtomicNumbers[iyield] > 2){
@@ -633,21 +624,48 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                     int offset = 0;
                     // add two to the stellar abundances for popIII and AGB metals (if tracked)
                     if (IndividualStarTrackAGBMetalDensity){
-                      StellarAbundances[StellarYieldsNumberOfSpecies + 0][istar] = BaryonField[AGBMetalNum][index];
+                      if (IndividualStarOutputChemicalTags){
+                        StellarAbundances[StellarYieldsNumberOfSpecies + 0][istar] = BaryonField[AGBMetalNum][index];
+                      } else {
+                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[AGBMetalNum][index];
+                      }
                       offset++;
                     }
 
                     if (IndividualStarPopIIIFormation){
-                      StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[PopIIIMetalNum][index];
+                      if (IndividualStarOutputChemicalTags){
+                        StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[PopIIIMetalNum][index];
+                        offset++;
+                        StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[PopIIIPISNeMetalNum][index];
+                      } else {
+                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[PopIIIMetalNum][index];
+                        offset++;
+                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[PopIIIPISNeMetalNum][index];
+                      }
                       offset++;
                     }
 
                     if (IndividualStarTrackSNMetalDensity) {
-                      StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[SNIaMetalNum][index];
+                      if (IndividualStarOutputChemicalTags){
+                        StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[SNIaMetalNum][index];
+                        offset++;
+                        StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[SNIIMetalNum][index];
+                      } else {
+                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[SNIaMetalNum][index];
+                        offset++;
+                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[SNIIMetalNum][index];
+                      }
                       offset++;
-                      StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[SNIIMetalNum][index];
-                      // offset++;
                     }
+
+                    if (IndividualStarRProcessModel) {
+                      if (IndividualStarOutputChemicalTags){
+                        StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[RProcMetalNum][index];
+                      } else {
+                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[RProcMetalNum][index];
+                      }
+                    }
+
                   } // if output
 
 //                  if (IndividualStarOutputChemicalTags) printf("\n");
@@ -850,605 +868,4 @@ float SampleIMF(float * data, const float & lower_mass, const float & upper_mass
   IndividualStarIMFCalls++;
 
   return m;
-}
-
-int grid::IndividualStarSetWDLifetime(void){
-/* --------------------------------------------------
- * IndividualStarSetWDLifetime
- * --------------------------------------------------
- * Updates WD lifetimes if not yet initialized using
- * DTD SNIa model
- * --------------------------------------------------
- */
-
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
-  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-              &TimeUnits, &VelocityUnits, this->Time) == FAIL){
-      ENZO_FAIL("Error in GetUnits");
-  }
-
-
-  if (MyProcessorNumber != ProcessorNumber)
-    return SUCCESS;
-
-  if (NumberOfParticles == 0)
-    return SUCCESS;
-
-  for (int i = 0; i < NumberOfParticles; i++){
-
-    if( ParticleType[i] != -PARTICLE_TYPE_INDIVIDUAL_STAR_WD ){
-      continue;
-    }
-
-    //
-    // lifetime is set relative to WD formation time (now)
-    //
-    float new_lifetime = -1;
-
-    int result = SetWDLifetime(new_lifetime, this->Time, ParticleAttribute[0][i],
-                                            ParticleAttribute[1][i], TimeUnits);
-
-    ParticleAttribute[1][i] = new_lifetime;
-    ParticleType[i]         = ABS(ParticleType[i]);
-
-    if (ParticleAttribute[1][i] < 0){
-      return FAIL;
-    }
-    //
-    // feedback operates computing death time = lifetime + birth time
-    // renormalize so as to keep birth time the original star particle birth time
-    //  - original lifetime of progenitor star to WD can be backed out via postprocessing, but not birth time
-    //
-    if (result > 0){ // negative result means WD never exploding  -- ensure it is not this timestep
-      ParticleAttribute[1][i] = fmax(new_lifetime,1.5*this->dtFixed) + (this->Time - ParticleAttribute[0][i]);
-    }
-  }
-
-
-  return SUCCESS;
-}
-
-
-int grid::IndividualStarAddFeedbackSphere(Star *cstar, float *mp, const int mode){
-
-/*
-     General function to add feedback for a given star in a spherical region
-
-     Thermal energy injection ONLY
-
-     mode   :   integer, (Values)
-                switches between stellar wind, core collapse SN, or type ia sn
-
-*/
-  if (this->NumberOfBaryonFields == 0 || !this->isLocal() )
-    return SUCCESS;
-
-  float dx = this->CellWidth[0][0];
-
-  float m_eject, E_thermal;
-
-  const float mproj = cstar->ReturnBirthMass();
-  const float lifetime = cstar->ReturnLifetime();
-
-
-  float *metal_mass; // array of individual species masses
-
-  FLOAT * pos;
-  pos = cstar->ReturnPosition();
-
-  /* Get Units */
-  float DensityUnits, LengthUnits, TemperatureUnits,
-        TimeUnits, VelocityUnits, MassUnits, EnergyUnits;
-  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-               &TimeUnits, &VelocityUnits, this->Time) == FAIL){
-      ENZO_FAIL("Error in GetUnits");
-  }
-  MassUnits   = DensityUnits*LengthUnits*LengthUnits*LengthUnits;
-  EnergyUnits = MassUnits * VelocityUnits * VelocityUnits;
-
-  /* If we are following yields, initialize array to hold ejecta masses */
-  if(IndividualStarFollowStellarYields && ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
-
-    metal_mass = new float[StellarYieldsNumberOfSpecies + 1];
-
-    for (int i = 0; i < StellarYieldsNumberOfSpecies + 1; i ++){
-      metal_mass[i] = 0.0;
-    }
-
-  } else { metal_mass = NULL;}
-
-
-  float cgs_lifetime = lifetime * TimeUnits;
-
-  int stellar_wind_mode = FALSE;
-
-  if( mode < 0 ){  // compute properties for stellar wids
-
-    // mproj needs to be in SolarMass - everything else in CGS
-    IndividualStarSetStellarWindProperties(cstar, this->Time, this->dtFixed, TimeUnits,
-                                           m_eject, E_thermal, metal_mass);
-    stellar_wind_mode = TRUE;
-  } else if (mode == 1){
-
-    // core collapse supernova
-    IndividualStarSetCoreCollapseSupernovaProperties(cstar, m_eject, E_thermal, metal_mass);
-
-    stellar_wind_mode = FALSE;
-  } else if (mode == 2){
-
-    // Type Ia supernova properties
-    IndividualStarSetTypeIaSupernovaProperties(m_eject, E_thermal, metal_mass);
-    // printf("m_eject  for snia = %"FSYM"\n", m_eject);
-    stellar_wind_mode = FALSE;
-
-  } else if (mode == 3){
-
-    IndividualStarSetPopIIISupernovaProperties(cstar, m_eject, E_thermal, metal_mass);
-
-    stellar_wind_mode = FALSE;
-  }
-
-  /* convert computed parameters to code units */
-  m_eject   = m_eject*SolarMass / MassUnits   / (dx*dx*dx);
-  E_thermal = E_thermal      / EnergyUnits / (dx*dx*dx);
-
-  if(IndividualStarFollowStellarYields && ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
-    for(int i = 0; i < StellarYieldsNumberOfSpecies + 1; i++){
-      // printf("metal mass species %"ISYM"   = %"ESYM"\n", i, metal_mass[i]);
-      metal_mass[i] = metal_mass[i] * SolarMass / MassUnits / (dx*dx*dx);
-    }
-  }
-
-  //
-  // now that we've computed the explosion properties
-  // find where we should go off
-  //
-  if( (m_eject > 0) || (E_thermal > 0)){ // can sometimes both be zero for stellar winds due to mass corrections
-    this->IndividualStarInjectSphericalFeedback(cstar, pos[0], pos[1], pos[2], m_eject, E_thermal,
-                                                metal_mass, stellar_wind_mode);
-  }
-
-  float new_mass = (*mp) - m_eject * (dx*dx*dx) * MassUnits / SolarMass; // update mass
-
-  if( *mp < 0 && mode != 2){ // This can happen for Type 1a since using fixed mass model
-    printf("new_mass = %"ESYM" mp = %"ESYM" m_eject =%"ESYM"\n", new_mass, *mp, m_eject*dx*dx*dx*MassUnits/SolarMass);
-    ENZO_FAIL("IndividualStarFeedback: Ejected mass greater than current particle mass - negative particle mass!!!\n");
-  } else if (mode == 2){
-    *mp = 0.0;
-  } else{
-    *mp = new_mass;
-  }
-
-  delete [] metal_mass;
-
-  return SUCCESS;
-}
-
-int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
-                                                const FLOAT xp, const FLOAT yp, const FLOAT zp,
-                                                const float m_eject, const float E_thermal,
-                                                const float *metal_mass, const int stellar_wind_mode){
-
-  float dx = float(this->CellWidth[0][0]); // for convenience
-
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
-
-  this->DebugCheck("StarParticleHandler");
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-                                       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
-  }
-
-  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum;
-
-  if ( MultiSpecies ) {
-    IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
-                          HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
-  }
-
-  int PopIIIMetalNum, AGBMetalNum, SNIaMetalNum, SNIIMetalNum;
-
-  AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
-  PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
-  SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
-  SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
-
-  if ( IndividualStarTrackAGBMetalDensity && (AGBMetalNum <= 0)){
-    ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
-  }
-
-  if ( IndividualStarPopIIIFormation && (PopIIIMetalNum <= 0)){
-    ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
-  }
-
-  if ( IndividualStarTrackSNMetalDensity && ( (SNIIMetalNum <= 0) || (SNIaMetalNum <=0))){
-    ENZO_FAIL("Error in finding SNII and SNIa metal density field in individual_star_maker.");
-  }
-
-  /* Get Units */
-  float DensityUnits, LengthUnits, TemperatureUnits,
-        TimeUnits, VelocityUnits, MassUnits, EnergyUnits;
-  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-               &TimeUnits, &VelocityUnits, this->Time) == FAIL){
-      ENZO_FAIL("Error in GetUnits");
-  }
-  MassUnits   = DensityUnits*LengthUnits*LengthUnits*LengthUnits;
-  EnergyUnits = MassUnits * VelocityUnits * VelocityUnits;
-
-  FLOAT xstart = this->CellLeftEdge[0][0],
-        ystart = this->CellLeftEdge[1][0],
-        zstart = this->CellLeftEdge[2][0];
-
-  const int nx = *(this->GridDimension), ny = *(this->GridDimension+1), nz = *(this->GridDimension+2);
-  const int size = nx*ny*nz;
-
-  //
-  // find position and index for grid zone
-  // nearest to particle
-  //
-  const float xpos = (xp - xstart)/dx;
-  const float ypos = (yp - ystart)/dx;
-  const float zpos = (zp - zstart)/dx;
-
-  const int ic   = ((int) floor(xpos ));
-  const int jc   = ((int) floor(ypos ));
-  const int kc   = ((int) floor(zpos ));
-
-  float * temperature;
-  temperature = new float[size];
-
-
-  if(  this->ComputeTemperatureField(temperature) == FAIL ){
-    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
-  }
-
-  //
-  //
-  // now move outward from particle computing
-  // fractional volume to inject
-  //
-  const float radius = IndividualStarFeedbackStencilSize * dx;    // code length
-  const float volume = 4.0 * pi * radius * radius * radius / 3.0; // (code length)**3
-  const int   r_int  = ceil(IndividualStarFeedbackStencilSize);     // int of farthest cell in any dir.
-  const float cell_volume_fraction = dx*dx*dx / volume;           // fraction of vol for each cell
-
-  float injected_metal_mass[StellarYieldsNumberOfSpecies+1];
-
-  if (metal_mass == NULL && (cstar)){
-    injected_metal_mass[0] = cstar->ReturnMetallicity() * m_eject;
-  } else if (metal_mass == NULL){
-    injected_metal_mass[0] = 0.0;
-  }
-
-  // for printing stats at the end
-  float total_volume_fraction = 0.0, total_grid_mass = 0.0, total_mass_injected = 0.0;
-  float total_energy_injected = 0.0, max_density_on_grid = 0.0, average_density_on_grid = 0.0;
-  float total_metal_mass = 0.0;
-  int   cells_this_grid = 0;
-
-  // loop over cells, compute fractional volume, inject feedback
-  for(int k = kc - r_int; k <= kc + r_int; k++){
-    if ( (k<0) || (k>=nz) ) continue;
-    for(int j = jc - r_int; j <= jc + r_int; j++){
-      if ( (j<0) || (j>=ny) ) continue;
-      for(int i = ic - r_int; i <= ic + r_int; i++){
-        if ( (i<0) || (i>=nx) ) continue;
-
-        int index = i + (j + k*ny)*nx;
-        float fractional_overlap = 1.0;
-
-        // off grid - just means particle is near a boundary
-        // feedback handled appropriately on corresponding grid
-        if( index < 0 || index >= nx*ny*nz) continue;
-
-        float xc,yc,zc;
-        xc = (i + 0.5) * dx + xstart;
-        yc = (j + 0.5) * dx + ystart;
-        zc = (k + 0.5) * dx + zstart;
-
-        // do fractional overlap calculation
-        fractional_overlap = ComputeOverlap(1, radius, xp, yp, zp,
-                                            xc - dx, yc - dx, zc - dx,
-                                            xc + dx, yc + dx, zc + dx, IndividualStarFeedbackOverlapSample);
-
-        if(fractional_overlap <= 0.0) continue; // cell is enirely outside sphere
-
-        float injection_factor = cell_volume_fraction * fractional_overlap;
-
-        float delta_mass  = m_eject   * injection_factor;
-        float delta_therm = E_thermal * injection_factor;
-
-        if (injection_factor < 0) {ENZO_FAIL("injection factor < 0");}
-
-        if (IndividualStarFollowStellarYields && (cstar || metal_mass)){
-          for(int im = 0; im < StellarYieldsNumberOfSpecies+1; im++){
-
-            // Hack  - remove contribution from stars to experiment fields
-            //          remember, im = 0 is the total metal mass field
-            if ((cstar) && (im > 0) && MetalMixingExperiment){
-              for (int j = 0; j < StellarYieldsNumberOfSpecies; j++){
-                if (StellarYieldsAtomicNumbers[im-1] == MixingExperimentData.anums[j] ){
-                  injection_factor = 0.0; // zero out these fields to limit to just mixing experiments events ONLY
-                }
-              }
-            }
-
-            injected_metal_mass[im] = metal_mass[im]*injection_factor;
-          }
-        }
-
-        if(stellar_wind_mode){
-          // Stellar winds are challenging - to avoid both very high velocities
-          // on the grid and superheated gas, modify feedback accordingly
-          ModifyStellarWindFeedback(BaryonField[DensNum][index],
-                                    temperature[index], dx, MassUnits, EnergyUnits,
-                                    delta_mass, delta_therm, injected_metal_mass,
-                                    this->AveragedAbundances);
-        }
-
-        float inv_dens = 1.0 / (BaryonField[DensNum][index] + delta_mass);
-
-        /* record statistics accumulators */
-        cells_this_grid++;
-        total_volume_fraction += injection_factor;
-        total_mass_injected   += delta_mass;
-        total_energy_injected += delta_therm;
-        total_grid_mass       += BaryonField[DensNum][index];
-        max_density_on_grid     = fmax( BaryonField[DensNum][index], max_density_on_grid);
-
-        BaryonField[TENum][index] = (BaryonField[TENum][index] * BaryonField[DensNum][index]
-                                     + delta_therm) * inv_dens;
-        if(DualEnergyFormalism){
-          BaryonField[GENum][index] = (BaryonField[GENum][index] * BaryonField[DensNum][index]
-                                       + delta_therm) * inv_dens;
-        }
-        float old_mass = BaryonField[DensNum][index];
-        BaryonField[DensNum][index] += delta_mass;
-
-        /* add metal species if we need to */
-        if(((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && IndividualStarFollowStellarYields){
-          int field_num;
-          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0); // gives metallicity field
-
-
-          if (cstar){ // is feedback coming from a star particle?
-            BaryonField[field_num][index] += injected_metal_mass[0]; // add to metallicity field
-
-            // Add to separate source fields if they exist
-            if (IndividualStarPopIIIFormation && cstar->ReturnMetallicity() < PopIIIMetalCriticalFraction){
-              BaryonField[PopIIIMetalNum][index] += injected_metal_mass[0];
-
-            } else if (IndividualStarTrackAGBMetalDensity &&
-                      (cstar->ReturnBirthMass() < IndividualStarSNIIMassCutoff) &&
-                      (stellar_wind_mode)){                                 // make sure we are an AGB wind
-              BaryonField[AGBMetalNum][index] += injected_metal_mass[0];
-
-            } else if (IndividualStarTrackSNMetalDensity && !(stellar_wind_mode)){
-
-              if (cstar->ReturnBirthMass() > IndividualStarSNIIMassCutoff){
-                BaryonField[SNIIMetalNum][index] += injected_metal_mass[0];
-
-              } else if (cstar->ReturnBirthMass() < IndividualStarSNIaMaximumMass){
-                BaryonField[SNIaMetalNum][index] += injected_metal_mass[0];
-
-              }
-
-            } // end if tracking yield source modes
-
-          } else if (metal_mass){
-            BaryonField[field_num][index] += injected_metal_mass[0];
-
-          } else {
-            // keep same fraction if using artificial SN generaotr
-            BaryonField[field_num][index] += delta_mass *
-                                             BaryonField[field_num][index] / old_mass;
-          }
-
-            total_metal_mass += BaryonField[field_num][index];
-
-          for(int im = 0; im < StellarYieldsNumberOfSpecies; im++){
-            this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
-                                                              StellarYieldsAtomicNumbers[im]);
-            if (cstar || metal_mass){
-              BaryonField[field_num][index] += injected_metal_mass[1 + im];
-            } else { // keep same fraction if using artificial SN generator
-              BaryonField[field_num][index] += delta_mass *
-                                               BaryonField[field_num][index] / old_mass;
-            }
-          }
-
-        } else{
-          int field_num;
-          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, 0); // gives metallicity field
-
-          if (cstar || metal_mass){
-            BaryonField[field_num][index] += injected_metal_mass[0];
-          } else{
-            BaryonField[field_num][index] += delta_mass *
-                                             BaryonField[field_num][index]/ old_mass;
-          }
-        } // end yields check
-
-      }
-    }
-  }
-
-
-  // print SN stats to check if resolved if desired
-  if (IndividualStarPrintSNStats && (!stellar_wind_mode) && (cstar || metal_mass)){
-    // Column order: Grid ID, Particle ID, M_now, M_eject, Sphere Volume
-
-    average_density_on_grid = total_grid_mass / (1.0 * cells_this_grid); // Sum Density / # cells
-
-    /* convert to CGS */
-    total_grid_mass         *= dx*dx*dx * MassUnits;
-    total_mass_injected     *= dx*dx*dx * MassUnits;
-    total_energy_injected   *= dx*dx*dx * EnergyUnits;
-    total_metal_mass        *= dx*dx*dx * MassUnits;
-    const float volume_cgs   = volume / (LengthUnits * LengthUnits * LengthUnits);
-    max_density_on_grid     *= DensityUnits;
-    average_density_on_grid *= DensityUnits;
-    const float m_eject_cgs  = m_eject * dx*dx*dx * MassUnits;
-    const float average_metallicity      = total_metal_mass / (total_mass_injected + total_grid_mass);
-
-    /* compute Sedov-Taylor phase radius (R_dps) */
-
-    if (cstar){
-      printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
-            this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), m_eject_cgs,
-            cells_this_grid, volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
-            total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
-    } else {
-      printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
-            this->ID, -1.0, this->Time, -1.0, -1.0, -1.0, m_eject_cgs,
-            cells_this_grid, volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
-            total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
-
-    }
-  }
-
-
-  delete [] temperature;
-  // done with spherical injection feedback
-
-  return SUCCESS;
-}
-
-
-void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
-                               float MassUnits, float EnergyUnits, float &m_eject,
-                               float &E_thermal, float * metal_mass,
-                               float *grid_abundances){
-
-/* ----------------------------------------------------------------------------
- * ModifyStellarWindFeedback
- * -----------------------------------------------------------------------------
- * A. Emerick - Sep 2016
- *
- * Stellar winds are very challenging to get right, even at very high resolution.
- * We assume feedback here is used on ~1-5 pc resolution, galaxy scale, Gyr sims,
- * so feedback needs to be modified to be tractable. Inject thermal energy at
- * 100% thermalization of wind KE first (E_thermal_max) using velocities from
- * full wind model. However, if cell temperature gets very hot (~10^6 K, as set
- * by IndividualStarWindTemperature) then employ maximum wind velocity cutoff,
- * changing energy injection to E_thermal_min. If E_thermal_min will large large
- * temperatures above IndividualStarWindTemperature (as happens if soruce region
- * is devoid of gas), we use an ISM mass loading model to account for shell
- * mixing, which will be heineously unresolved at 1 pc resolution (need ~0.01 pc).
- * ----------------------------------------------------------------------------- */
-
-  if (!IndividualStarUseWindMixingModel){
-     return;
-  }
-
-  const float est_mu  = 0.5; // estimated - this is approximate anyway
-
-  float m_ism = 0.0;
-
-  E_thermal = E_thermal * dx *dx *dx * EnergyUnits;
-  m_eject   = m_eject * dx *dx *dx * MassUnits;
-  cell_mass = cell_mass *dx*dx*dx*MassUnits;
-
-  float T_final = (E_thermal + 1.5 * cell_mass * kboltz * T / (est_mu*mh)) *
-                  (2.0 * est_mu * mh/(3.0 * kboltz * (cell_mass + m_eject)));
-
-    if(T_final > IndividualStarWindTemperature || T > IndividualStarWindTemperature){
-      /* Compute the mass that needs to be injected */
-      float E_final = (3.0/2.0) * (cell_mass/(est_mu*mh))*kboltz * T + E_thermal;
-      T_final = fmax(T, IndividualStarWindTemperature);
-      m_ism   = fmax( (E_final * (2.0 * est_mu * mh)/(3.0*kboltz * T_final)) - cell_mass - m_eject, 0.0);
-
-      /* modify metal abundances here */
-      m_ism = m_ism / (dx*dx*dx) / MassUnits;
-      if(((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && IndividualStarFollowStellarYields && m_ism > 0.0){
-        for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
-
-          metal_mass[im] = metal_mass[im] + m_ism * grid_abundances[im]; // ISM abundances
-
-          if(metal_mass[im] < 0.0){
-            printf("metal_mass %"ESYM" %"ISYM" %"ESYM"\n", metal_mass[im], im, grid_abundances[im]);
-            ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0 and m_ism >0");
-          }
-        }
-      } else{
-        for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
-          if(metal_mass[im] < 0.0){
-            printf("metal_mass %"ESYM" %"ISYM"\n", metal_mass[im], im);
-            ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0 and m_ism < 0");
-          }
-        }
-      }
-
-  }
-
-  /* make sure things aren't whacky */
-  if (E_thermal < 0.0 || m_eject < 0.0 || m_ism < 0.0){
-    printf("Error in stellar wind calculation. E_thermal = %"ESYM" m_eject = %"ESYM" m_ism (code) = %"ESYM"\n",E_thermal, m_eject, m_ism);
-    ENZO_FAIL("IndividualStarFeedback: Negative injection values in stellar wind feedback modification\n");
-  }
-
-  /* convert back into code units */
-  E_thermal  = E_thermal / (dx*dx*dx) / EnergyUnits;
-  m_eject    = (m_eject)  / (dx*dx*dx) / MassUnits + m_ism;
-
-}
-
-float ComputeOverlap(const int &i_shape, const float &radius,
-                     const FLOAT &xc, const FLOAT &yc, const FLOAT &zc,
-                     const FLOAT &xl, const FLOAT &yl, const FLOAT &zl,
-                     const FLOAT &xr, const FLOAT &yr, const FLOAT &zr,
-                     const int &nsample){
- /* -------------------------------------------------------------------------
-  * ComputeVolumeOverlap
-  * -------------------------------------------------------------------------
-  * A. Emerick - 9/21/16
-  *
-  * Computes overlap between a given rectangular grid cell and a spherical or
-  * cylindrical volume using a Monte Carlo sampling method.
-  *
-  * Adopted from Joshua Wall's version of David Clarke's method in ZEUS-MP
-  *
-  * INPUTS:
-  *   i_shape    - switch for shape (1 == sphere, 2 == right cylinder)
-  *   xc,yc,zc   - center coordinates of sphere
-  *   xl,yl,zl   - coordinates of lower left corner of grid cell
-  *   xr,yr,zr   - coordinates of upper right corner of grid cell
-  *   nsample    - number of Monte Carlo sample points
-  *
-  * OUTPUTS:
-  *   overal     - fractional volume overlap for given cell
-  * ------------------------------------------------------------------------- */
-
-  float xsq[nsample], ysq[nsample], zsq[nsample];
-
-
-  float factor = 1.0;
-  if (i_shape == 2) factor = 0.0; // cylinder
-
-  //
-  float dx = (xr - xl) / ((float) nsample);
-  float dy = (yr - yl) / ((float) nsample);
-  float dz = (zr - zl) / ((float) nsample);
-
-  for( int i = 0; i < nsample; i++){
-    xsq[i] = (xl + (0.5 + i)*dx - xc)*(xl + (0.5+i)*dx - xc);
-    ysq[i] = (yl + (0.5 + i)*dy - yc)*(yl + (0.5+i)*dy - yc);
-    zsq[i] = (zl + (0.5 + i)*dz - zc)*(zl + (0.5+i)*dz - zc);
-  }
-
-  int inside_count = 0;
-
-  for (int k = 0; k < nsample; k++){
-    for (int j = 0; j < nsample; j++){
-      for (int i = 0; i < nsample; i++){
-       float r = sqrt( factor * xsq[i] + ysq[j] + zsq[k] );
-
-       if ( r <= radius) inside_count++;
-      }
-    }
-  }
-
-
-  return ((float) inside_count) / ((float) nsample*nsample*nsample);
 }

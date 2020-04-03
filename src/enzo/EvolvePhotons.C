@@ -267,6 +267,14 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
     if (NumberOfSources == 0) {
       PhotonTime += dtPhoton;
+
+      /* If we have NO sources, need to zero out optically thin fields */
+      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0; lvl--)
+        for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+          if (Temp->GridData->InitializeRadiativeTransferFields() == FAIL) {
+            ENZO_FAIL("Error in InitializeRadiativeTransferFields.\n");
+          }
+
       continue;
     }
 

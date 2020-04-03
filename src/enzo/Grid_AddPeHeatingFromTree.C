@@ -91,6 +91,17 @@ int grid::AddPeHeatingFromTree(void)
            &TimeUnits, &VelocityUnits, PhotonTime);
   EnergyUnits = DensityUnits * VelocityUnits * VelocityUnits;
 
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+
+  /* get temperature field */
+  float *temperature;
+  temperature = new float[size];
+  if(  this->ComputeTemperatureField(temperature) == FAIL ){
+    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
+  }
+
   // Dilution factor (prevent breaking in rate solver near star)
   float dilutionRadius = this->CellWidth[0][0] * 0.25;
   float dilRadius2     = dilutionRadius * dilutionRadius;
@@ -158,16 +169,20 @@ int grid::AddPeHeatingFromTree(void)
          /* Need to make decision on whether or not to place T cut here or in Grackle wrapper */
 
         // assign heating rate from model
-        BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e, 
-                                                                     // temperature[index],
-                                                                     Z, FUVflux,
-                                                                     this->CellWidth[0][0]*LengthUnits) * PeConversion;
+        if (temperature[index] > IndividualStarFUVTemperatureCutoff){
+          BaryonField[PeNum][index] = 0.0;
+        } else {
+          BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e, 
+                                                                       // temperature[index],
+                                                                       Z, FUVflux,
+                                                                       this->CellWidth[0][0]*LengthUnits) * PeConversion;
+        }
 
       }
     }
   } // end loop
 
-//  delete [] temperature;
+  delete [] temperature;
 
   return SUCCESS;
 }

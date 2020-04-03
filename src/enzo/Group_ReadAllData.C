@@ -182,12 +182,17 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
       AddParticleAttributes = TRUE;
 
       /* Add particle attribute for each chemical tracer species field */
-      if(STARMAKE_METHOD(INDIVIDUAL_STAR) && ((TestProblemData.MultiMetals == 2) || (MultiMetals ==2))){
+      if(STARMAKE_METHOD(INDIVIDUAL_STAR) && MultiMetals ==2){
 
         if(NumberOfParticleAttributes < 4){ NumberOfParticleAttributes = 4;}
 
         if (! IndividualStarOutputChemicalTags){
           NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
+
+          if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
+          if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes += 2;
+          if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
+          if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
         }
       }
 

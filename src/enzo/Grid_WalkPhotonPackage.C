@@ -72,7 +72,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 			    float LightSpeed, int level, float MinimumPhotonFlux) {
 
-  const float EnergyThresholds[] = {13.6, 24.6, 54.4, 11.2, 0.755, 100.0};
+  const float EnergyThresholds[] = {HI_ionizing_energy, HeI_ionizing_energy,
+                                    HeII_ionizing_energy, LW_threshold_energy, 0.755, 100.0};
   const float PopulationFractions[] = {1.0, 0.25, 0.25, 1.0, 1.0, 1.0, 1.0}; //Matches Fields
   const float EscapeRadiusFractions[] = {0.5, 1.0, 2.0};
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
@@ -993,8 +994,8 @@ static void CalculateCrossSection(PhotonPackageEntry **PP,
   else if ((*PP)->Type == XRAYS) {
     for (i = 0; i < 3; i++)
       sigma[i] = FindCrossSection(i, (*PP)->Energy) * LengthUnits; //fits from Verner et al. 1996
-    nSecondaryHII = (*PP)->Energy / 13.6;
-    nSecondaryHeII = (*PP)->Energy / 24.6;
+    nSecondaryHII = (*PP)->Energy / HI_ionizing_energy;
+    nSecondaryHeII = (*PP)->Energy / HeII_ionizing_energy;
   } /* If radiation is in the IR (type = 4) */
   else if (((*PP)->Type == IR)) {
     /* Fit taken from Tegmark et al. (1997) */

@@ -48,7 +48,7 @@ int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
 
 
   if ( !IndividualStarFollowStellarYields ||
-       !(TestProblemData.MultiMetals || MultiMetals)       ||
+       !(MultiMetals)       ||
        !STARMAKE_METHOD(INDIVIDUAL_STAR)){
     return SUCCESS;
   }
@@ -162,11 +162,11 @@ int InitializeStellarYields(const float &time){
   // Useless unless: (as of May 2016)
   //           IndividualStar SF method
   if( !IndividualStarFollowStellarYields ||
-      !TestProblemData.MultiMetals       ||
+      !MultiMetals       ||
       !STARMAKE_METHOD(INDIVIDUAL_STAR)) {
     return SUCCESS;
 
-  } else if (IndividualStarFollowStellarYields && !TestProblemData.MultiMetals){
+  } else if (IndividualStarFollowStellarYields && !MultiMetals){
     printf("Failure in InitializeStellarYields. MultiMetals must be enabled to follow yields\n");
     return FAIL;
   }
@@ -190,8 +190,8 @@ int InitializeStellarYields(const float &time){
   StellarYieldsMassiveStarData.NumberOfMetallicityBins = 12;
   StellarYieldsMassiveStarData.NumberOfYields       = StellarYieldsNumberOfSpecies;
 
-  StellarYieldsPopIIIData.NumberOfMassBins = 7 + 14 ;  //  7 from Nomoto+2016 for Type II (13 < M < 40)
-                                                       // 14 from Heger+Woosley2002 for PISN (60 < M < 130)
+  StellarYieldsPopIIIData.NumberOfMassBins = 120 + 14 ;  // 120 from Heger+Woosley2010 for Type II (10 < M < 100)
+                                                         //  14 from Heger+Woosley2002 for PISN    (140 < M < 260)
   StellarYieldsPopIIIData.NumberOfMetallicityBins = 1;
   StellarYieldsPopIIIData.NumberOfYields = StellarYieldsNumberOfSpecies;
 

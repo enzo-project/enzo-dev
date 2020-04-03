@@ -66,15 +66,15 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 
   /* Find fields: density, total energy, velocity1-3. */
 
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
         ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
 
   /* Find Multi-species fields. */
 
-  if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
-				  HeIIINum, HMNum, H2INum, H2IINum, DINum, 
+  if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum,
+				  HeIIINum, HMNum, H2INum, H2IINum, DINum,
 				  DIINum, HDINum) == FAIL) {
     ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
   }
@@ -83,7 +83,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   int gammaNum;
-  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, kphHeIINum, 
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, kphHeIINum,
 				  kdissH2INum, kphHMNum, kdissH2IINum);
 
   /* For now, initialize H2 photo-dissociation field. */
@@ -95,7 +95,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
   // Now done in Grid_InitializeRadiativeTransferFields.C
 //  for (i = 0; i < size; i++)
 //    BaryonField[kdissH2INum][i] = 0;
-  
+
   /* Exit if no star particles and not Photon Test */
 
   if (AllStars == NULL && ProblemType != 50 && EnabledActiveParticlesCount == 0)
@@ -107,7 +107,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 
   /* If using cosmology, get units. */
 
-  float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, 
+  float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits,
     TimeUnits, aUnits = 1;
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -136,126 +136,149 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 
   /* Loop over radiation sources or star particles in the grid */
 
-  if (ProblemType == 50) {
+  // AJE: Could it really be so simple as to change this if
+  //      statement? Adding lifetime to StarParticleRadTransfer
+  if (ProblemType == 50 ||
+      STARMAKE_METHOD(INDIVIDUAL_STAR) ) {
 
     RadiationSourceEntry *RS;
     for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
 
-      if (PhotonTime < RS->CreationTime && 
-	  PhotonTime > RS->CreationTime + RS->LifeTime)
-	continue;
-       for(int ebin = 0; ebin < RS->EnergyBins; ebin++) {
-	float IRSED = 0.0, LWSED = 0.0, H2IISED = 0.0;
-	double LWLuminosity = 0.0, IRLuminosity = 0.0, H2IILuminosity = 0.0;
-	double HMSigma = 0.0, H2IISigma = 0.0;
-	if(RS->Energy[ebin] < 11.2) {
-	  H2IISED = RS->SED[ebin];
-	  IRSED = RS->SED[ebin];
-	}
-	else if(RS->Energy[ebin] < 13.6) {
-	  H2IISED = RS->SED[ebin];
-	  LWSED = RS->SED[ebin];
-	}
-	HMSigma = CalculateIRCrossSection(RS->Energy[ebin]);
-	H2IISigma = CalculateH2IICrossSection(RS->Energy[ebin]);
-	// Absorb the unit conversions into the cross-section
-	H2IISigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
-	HMSigma*= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
-	IRLuminosity = IRSED * RS->Luminosity / LConv;
-	LWLuminosity = LWSED * RS->Luminosity / LConv;
-	H2IILuminosity = IRLuminosity + LWLuminosity;
-	if(DEBUG) {
-	  printf("%s: E = %f eV\t IRSED = %f\t IRLuminosity = %g\n", __FUNCTION__, RS->Energy[ebin],
-		 IRSED, IRLuminosity);
-	  printf("%s: E = %f eV\t LWSED = %f\t LWLuminosity = %g\n", __FUNCTION__, RS->Energy[ebin],
-		 LWSED, LWLuminosity);
-	}
-	/* Pre-calculate distances from cells to source */
+      if (PhotonTime < RS->CreationTime &&
+    	    PhotonTime > RS->CreationTime + RS->LifeTime)
+        continue;
+        for(int ebin = 0; ebin < RS->EnergyBins; ebin++) {
+          float IRSED = 0.0, LWSED = 0.0, H2IISED = 0.0;
+          double LWLuminosity = 0.0, IRLuminosity = 0.0, H2IILuminosity = 0.0;
+          double HMSigma = 0.0, H2IISigma = 0.0;
 
-	for (dim = 0; dim < GridRank; dim++)
-	  for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim]; 
-	       i++, index++) {
-	    
-	    // Calculate dr_i first, then square it
-	    ddr2[dim][i] = 
-	      fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][0] - 
-		   RS->Position[dim]);
-	    ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
-	    ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
-	  }
+          if (RS->Energy[ebin] <= 0.0) continue;
 
-      /* Loop over cells */
+          // separating FUV and LW thresholds here is not needed
+          // but it is nice to be explicit
+          if(RS->Energy[ebin] < FUV_threshold_energy) {
+            H2IISED = RS->SED[ebin];
+            IRSED = RS->SED[ebin];
+            // AJE: I NEED TO MAKE SURE FUV WORKS SAME WAY AND EVERYTHING ELSE
+          }
+          else if(RS->Energy[ebin] < LW_threshold_energy) {
+            H2IISED = RS->SED[ebin];
+            IRSED   = RS->SED[ebin];
+          }
+          else if(RS->Energy[ebin] < HI_ionizing_energy) {
+            H2IISED = RS->SED[ebin];
+            LWSED = RS->SED[ebin];
+          }
 
-	double radius2, radius2_yz;
-	double colden = 0.0, shield = 1.0, b = 0.0, b5 = 0.0, XN = 0.0;
-	double H2mass = mh*2.0, alpha = 1.1;
-	double kph_hm = 0.0, kdiss_H2II = 0.0;
-	int TemperatureField = 0;
-	/* Pre-compute some quantities to speed things up */
-	TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
-	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
-	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
-	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
-	for (k = 0; k < ActiveDims[2]; k++) {
-	  for (j = 0; j < ActiveDims[1]; j++) {
-	    radius2_yz = ddr2[1][j] + ddr2[2][k];
-	    index = GRIDINDEX(0, j, k);
-	    for (i = 0; i < ActiveDims[0]; i++, index++) {
-	      radius2 = radius2_yz + ddr2[0][i];
-	      //if (radius2 < outerFront2 && radius2 > innerFront2) {
-	      //radius2 = max(radius2, dilRadius2);
-	      if (radius2 < dilRadius2) {
-		BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
-		BaryonField[kdissH2IINum][index] += kdiss_H2II / dilRadius2;
-		BaryonField[kphHMNum][index] += kph_hm / dilRadius2;
-	      }
-	      else {
-		BaryonField[kdissH2IINum][index] += kdiss_H2II / radius2;
-		BaryonField[kphHMNum][index] += kph_hm / radius2;
-		BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
-	      }
-	      /* Include Shielding */
+          HMSigma = CalculateIRCrossSection(RS->Energy[ebin]);
+          H2IISigma = CalculateH2IICrossSection(RS->Energy[ebin]);
+          // Absorb the unit conversions into the cross-section
+          H2IISigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
+          HMSigma*= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
+          IRLuminosity = IRSED * RS->Luminosity / LConv;
+          LWLuminosity = LWSED * RS->Luminosity / LConv;
+          H2IILuminosity = IRLuminosity + LWLuminosity;
+          if(DEBUG) {
+            printf("%s: E = %f eV\t IRSED = %f\t IRLuminosity = %g\n", __FUNCTION__, RS->Energy[ebin],
+                   IRSED, IRLuminosity);
+            printf("%s: E = %f eV\t LWSED = %f\t LWLuminosity = %g\n", __FUNCTION__, RS->Energy[ebin],
+                   LWSED, LWLuminosity);
+          }
 
+          /* Pre-calculate distances from cells to source */
+
+          for (dim = 0; dim < GridRank; dim++)
+            for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim];
+                 i++, index++) {
+
+              // Calculate dr_i first, then square it
+              ddr2[dim][i] =
+                fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][0] -
+                     RS->Position[dim]);
+              ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
+              ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
+            }
+
+                /* Loop over cells */
+
+          double radius2, radius2_yz;
+          double colden = 0.0, shield = 1.0, b = 0.0, b5 = 0.0, XN = 0.0;
+          double H2mass = mh*2.0, alpha = 1.1;
+          double kph_hm = 0.0, kdiss_H2II = 0.0;
+          int TemperatureField = 0;
+          /* Pre-compute some quantities to speed things up */
+          TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
+          kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
+          kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
+          kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
+          for (k = 0; k < ActiveDims[2]; k++) {
+            for (j = 0; j < ActiveDims[1]; j++) {
+              radius2_yz = ddr2[1][j] + ddr2[2][k];
+              index = GRIDINDEX(0, j, k);
+              for (i = 0; i < ActiveDims[0]; i++, index++) {
+                radius2 = radius2_yz + ddr2[0][i];
+                //if (radius2 < outerFront2 && radius2 > innerFront2) {
+                //radius2 = max(radius2, dilRadius2);
+                if (radius2 < dilRadius2) {
+                  BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
+                  BaryonField[kdissH2IINum][index] += kdiss_H2II / dilRadius2;
+                  BaryonField[kphHMNum][index] += kph_hm / dilRadius2;
+                }
+                else {
+                  BaryonField[kdissH2IINum][index] += kdiss_H2II / radius2;
+                  BaryonField[kphHMNum][index] += kph_hm / radius2;
+                  BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
+                }
+                /* Include Shielding */
+#if SHIELD
+                if (RadiativeTransferUseH2Shielding){
 #if JEANS_LENGTH
-	      l_char = JeansLength(BaryonField[TemperatureField][index],
-		BaryonField[DensNum][index], DensityUnits)*RadiativeTransferOpticallyThinH2CharLength; //cm
+                  l_char = JeansLength(BaryonField[TemperatureField][index],
+                  BaryonField[DensNum][index], DensityUnits)*RadiativeTransferOpticallyThinH2CharLength; //cm
 #else
-	      l_char = CellWidth[0][0]*LengthUnits/2.0; //cm
+                  l_char = CellWidth[0][0]*LengthUnits/2.0; //cm
 #endif
-	      N_H2 = BaryonField[H2INum][index]*l_char*DensityUnits/mh;
+                  N_H2 = BaryonField[H2INum][index]*l_char*DensityUnits/mh;
 #if DEBUG
-	      if(l_char/(CellWidth[0][0]*LengthUnits) != 1.0) {
-		printf("l_char/cellwidth = %g\n", l_char/(CellWidth[0][0]*LengthUnits));
-		printf("N_H2 = %g (cm^-2)\n", N_H2);
-		printf("H2I Density[%d] = %g (code)\n", index, BaryonField[H2INum][index]);
-		printf("Local H2I Density = %g (cgs)\n",
-		BaryonField[H2INum][index]*DensityUnits*CellWidth[0][0]*LengthUnits/mh);
-		printf("Temp = %f\n", BaryonField[TemperatureField][index]);
-	      }
+                  if(l_char/(CellWidth[0][0]*LengthUnits) != 1.0) {
+                    printf("l_char/cellwidth = %g\n", l_char/(CellWidth[0][0]*LengthUnits));
+                    printf("N_H2 = %g (cm^-2)\n", N_H2);
+                    printf("H2I Density[%d] = %g (code)\n", index, BaryonField[H2INum][index]);
+                    printf("Local H2I Density = %g (cgs)\n",
+                    BaryonField[H2INum][index]*DensityUnits*CellWidth[0][0]*LengthUnits/mh);
+                    printf("Temp = %f\n", BaryonField[TemperatureField][index]);
+                  }
 #endif
-	      shield = 1.0;
-	      if(N_H2 >= THRESHOLD_DENSITY_DB37) {
-		b = sqrt(2.0*kboltz*BaryonField[TemperatureField][index]/H2mass);
-		b5 = b/1e5;
-		XN = N_H2/THRESHOLD_DENSITY_DB37;
-		shield = 0.965/pow(1+XN/b5, alpha) + (0.035/sqrt(1+XN))*exp(-8.5e-4*sqrt(1+XN));
-#if DEBUG		
-		printf("%s: shield = %g\t kdiss = %g\t kdiss*shield = %g\n", __FUNCTION__, 
-		      shield, BaryonField[kdissH2INum][index], BaryonField[kdissH2INum][index]*shield);
+                  shield = 1.0;
+                  if(N_H2 >= THRESHOLD_DENSITY_DB37) {
+                    b = sqrt(2.0*kboltz*BaryonField[TemperatureField][index]/H2mass);
+                    b5 = b/1e5;
+                    XN = N_H2/THRESHOLD_DENSITY_DB37;
+                    shield = 0.965/pow(1+XN/b5, alpha) + (0.035/sqrt(1+XN))*exp(-8.5e-4*sqrt(1+XN));
+#if DEBUG
+                    printf("%s: shield = %g\t kdiss = %g\t kdiss*shield = %g\n", __FUNCTION__,
+                    shield, BaryonField[kdissH2INum][index], BaryonField[kdissH2INum][index]*shield);
 #endif
-	      }
-	      BaryonField[kdissH2INum][index] *= shield;
-	     
-	    } // END: i-direction
-	  } // END: j-direction
-	} // END: k-direction
+                  }
+                }
+#endif
+                BaryonField[kdissH2INum][index] *= shield;
+
+                } // END: i-direction
+              } // END: j-direction
+            } // END: k-direction
        }
     } // ENDFOR sources
-
   } // ENDIF ProblemType == 50
 
+//-----------------------------------------------
+
   else if (AllStars != NULL) {
-    double LWLuminosity = 0.0;
+    float IRSED = 0.0, LWSED = 0.0, H2IISED = 0.0;
+    double IRLuminosity = 0.0, H2IILuminosity = 0.0, LWLuminosity = 0.0;
+    double HMSigma = 0.0, H2IISigma = 0.0;
+    ENZO_FAIL("AJE: Testing - should not be here");
+    
     for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
       // Skip if not 'living'
@@ -267,34 +290,34 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 
         if ( (cstar->type != PARTICLE_TYPE_INDIVIDUAL_STAR) ||
              (cstar->BirthMass < IndividualStarOTRadiationMass ))
-         continue;
-
-      } else {
+          continue;
+        } else {
         if (!(cstar->FeedbackFlag == NO_FEEDBACK ||
-  	    cstar->FeedbackFlag == CONT_SUPERNOVA)) 
-  	continue;
-      }
+              cstar->FeedbackFlag == CONT_SUPERNOVA))
+          continue;
+        }
 
       /* Determine H2 emission rate */
 
       if (cstar->ComputePhotonRates(TimeUnits, nbins, energies, Luminosity) == FAIL) {
-	ENZO_FAIL("Error in ComputePhotonRates.\n");
+        ENZO_FAIL("Error in ComputePhotonRates.\n");
       }
       LWLuminosity = Luminosity[3];
 
       /* Pre-calculate distances from cells to source */
 
-      for (dim = 0; dim < GridRank; dim++)
-	for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim]; 
-	     i++, index++) {
-	  
-	  // Calculate dr_i first, then square it
-	  ddr2[dim][i] = 
-	    fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][0] -
-		 cstar->pos[dim]);
+      for (dim = 0; dim < GridRank; dim++){
+        for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim];
+             i++, index++) {
+
+	      // Calculate dr_i first, then square it
+	        ddr2[dim][i] =
+	          fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][0] -
+		             cstar->pos[dim]);
 //	  ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
-	  ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
-	}
+          ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
+	      }
+      }
 
       /* Loop over cells */
 
@@ -303,39 +326,39 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
       kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
 
       for (k = 0; k < ActiveDims[2]; k++) {
-	for (j = 0; j < ActiveDims[1]; j++) {
-	  radius2_yz = ddr2[1][j] + ddr2[2][k];
-	  index = GRIDINDEX(0, j, k);
-	  for (i = 0; i < ActiveDims[0]; i++, index++) {
-	    radius2 = radius2_yz + ddr2[0][i];
-	    if (radius2 < dilRadius2)
-	      BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
-	    else
-	      BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
-	    //} // ENDIF
-	  } // END: i-direction
-	} // END: j-direction
+        for (j = 0; j < ActiveDims[1]; j++) {
+          radius2_yz = ddr2[1][j] + ddr2[2][k];
+          index = GRIDINDEX(0, j, k);
+          for (i = 0; i < ActiveDims[0]; i++, index++) {
+            radius2 = radius2_yz + ddr2[0][i];
+            if (radius2 < dilRadius2)
+              BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
+            else
+              BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
+          //} // ENDIF
+          } // END: i-direction
+        } // END: j-direction
       } // END: k-direction
     } // ENDFOR stars
 
   } // ENDELSE AllStars
   /* The APs should be hooked into the Global Radiation Sources. */
-  else if (EnabledActiveParticlesCount > 0) { 
+  else if (EnabledActiveParticlesCount > 0) {
     RadiationSourceEntry *RS;
     for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
-      
-      if (PhotonTime < RS->CreationTime && 
+
+      if (PhotonTime < RS->CreationTime &&
 	  PhotonTime > RS->CreationTime + RS->LifeTime)
 	continue;
       for(int ebin = 0; ebin < RS->EnergyBins; ebin++) {
 	float IRSED = 0.0, LWSED = 0.0, H2IISED = 0.0;
 	double LWLuminosity = 0.0, IRLuminosity = 0.0, H2IILuminosity = 0.0;
 	double HMSigma = 0.0, H2IISigma = 0.0;
-	if(RS->Energy[ebin] < 11.2) {
+	if(RS->Energy[ebin] < LW_threshold_energy) {
 	  H2IISED = RS->SED[ebin];
 	  IRSED = RS->SED[ebin];
 	}
-	else if(RS->Energy[ebin] < 13.6) {
+	else if(RS->Energy[ebin] < HI_ionizing_energy) {
 	  H2IISED = RS->SED[ebin];
 	  LWSED = RS->SED[ebin];
 	}
@@ -356,12 +379,12 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	/* Pre-calculate distances from cells to source */
 
 	for (dim = 0; dim < GridRank; dim++)
-	  for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim]; 
+	  for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim];
 	       i++, index++) {
-	    
+
 	    // Calculate dr_i first, then square it
-	    ddr2[dim][i] = 
-	      fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][0] - 
+	    ddr2[dim][i] =
+	      fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][0] -
 		   RS->Position[dim]);
 	    ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
 	    ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
@@ -435,12 +458,12 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
     delete [] ddr2[dim];
 
   return SUCCESS;
-  
+
 }
 
 static double CalculateH2IICrossSection(float Energy)
 {
-  float X = 0.0;  
+  float X = 0.0;
   float a = 3.35485518, b = 0.93891875, c = -0.01176537;
   /* Fit created from Stancil et al. 1994 */
   X = log(Energy/8.0);
@@ -457,7 +480,7 @@ static double CalculateIRCrossSection(float Energy)
 }
 
 /*
- * Calculate the Jeans Length of a gas cell and return in cgs 
+ * Calculate the Jeans Length of a gas cell and return in cgs
 */
 
 static double JeansLength(float T, float dens, float density_units)
@@ -467,4 +490,3 @@ static double JeansLength(float T, float dens, float density_units)
   jeans_length = 15*kboltz*T/(4.0*pi*GravConst*mh*dens*density_units);
   return sqrt(jeans_length);
 }
-  

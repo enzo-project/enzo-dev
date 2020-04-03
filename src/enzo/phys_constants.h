@@ -105,5 +105,46 @@
 #define yr_s                               3.1556952E7
 
 
+/************************************************/
+
+/* Other constants - physical properties for convenience */
+
+/************************************************/
+
+/* Average energy [eV] of LW-band photon (11.2-13.6 eV) */
+
+#define LW_photon_energy                    12.8
+
+/* LW-band photon energy threshold [eV] */
+
+#define LW_threshold_energy                 11.2
+
+/* Average energy [eV] of FUV-band photon (5.6 - 11.2 eV) */
+
+#define FUV_photon_energy                    8.4
+
+/* FUV-band photon energy threshold [eV] */
+
+#define FUV_threshold_energy                 5.6
+
+/* Average energy [eV] of IR-band photon (0.75 - 5.6 eV) */
+
+#define IR_photon_energy                     2.0
+
+/* IR-band photon energy threshold [eV] */
+
+#define IR_threshold_energy                 0.76
+
+/* HI ionization threshold energy [eV] */
+
+#define HI_ionizing_energy                13.5984
+
+/* HeI ionization threshold energy [eV] */
+
+#define HeI_ionizing_energy               24.5874
+
+/* HeII ionization threshold energy [eV] */
+
+#define HeII_ionizing_energy              54.42
 
 #endif

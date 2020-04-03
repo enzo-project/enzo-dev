@@ -70,6 +70,10 @@ EXTERN int RadiativeTransferOpticallyThinH2;
 
 EXTERN int RadiativeTransferOpticallyThinFUV;
 
+/* Flag to turn on a 1/r^2 IR radiation field */
+
+EXTERN int RadiativeTransferOpticallyThinIR;
+
 /* Flag to turn on source clustering for optically thin radiation */
 
 EXTERN int RadiativeTransferOpticallyThinSourceClustering;

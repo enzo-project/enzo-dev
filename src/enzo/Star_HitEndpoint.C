@@ -137,8 +137,17 @@ int Star::HitEndpoint(FLOAT Time)
 //              this->LifeTime = huge_number ; // very large number
 
               float wd_mass;
+              // Old fit from Salaris+2009
+/*
               if(   mproj < 4.0){ wd_mass = 0.134 * mproj + 0.331;}
               else if (mproj >=4.0){ wd_mass = 0.047 * mproj + 0.679;}
+*/
+              // new fit from Cummings+2019 (MIST model)
+              //   this model has lower / upper bounds of 0.83 and 7.20
+              //   but don't include those here.....
+              if      (mproj < 2.85) wd_mass = 0.080 * mproj + 0.489;
+              else if (mproj < 3.60) wd_mass = 0.187 * mproj + 0.184;
+              else if (mproj > 3.60) wd_mass = 0.107 * mproj + 0.471;
               this->Mass = wd_mass;
 
               this->FeedbackFlag = NO_FEEDBACK;

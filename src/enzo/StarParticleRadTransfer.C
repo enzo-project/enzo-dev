@@ -83,6 +83,11 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
   // Convert to years
   float TimeInYears = yr_s / TimeUnits;
 
+  // bins for computing the luminosity properties (IR, FUV, LW)
+  // for rad sources. this is used in OT methods.
+  //  making as named variables here for clarity
+  const int IRbin=4, FUVbin=7, LWbin=3;
+
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
     // Check the rules if this star particle is radiative
@@ -135,6 +140,10 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       RadSource->Energy         = new float[nbins];
       RadSource->SED            = new float[nbins];
 
+      // AJE: new
+      RadSource->LifeTime     = cstar->ReturnLifetime();  // in code (should be?)
+      RadSource->CreationTime = cstar->ReturnBirthTime(); // in code
+
       // NOTE: RadSource->LWLuminosity and RadSource->FUVLuminosity
       //       are currently only used when applying optically thin
       //       (1/r^2) radiation profiles in Grid_AddH2Dissociation
@@ -145,14 +154,18 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       //       photon packages, and star particle lists are used
       //       (instead of RadSource) to compute luminosities in
       //       optically thin case without source clustering:
+
+      /* AJE: 3/31/20 - I may not really need to zero these if they're ON */
       if (RadiativeTransferOpticallyThinH2){
-	RadSource->LWLuminosity = Q[3] * LConv;
+	RadSource->LWLuminosity = Q[LWbin] * LConv;
+        RadSource->IRLuminosity = Q[IRbin] * LConv;
       } else{
 	RadSource->LWLuminosity = 0.0;
+        RadSource->IRLuminosity = 0.0;
       }
 
       if (RadiativeTransferOpticallyThinFUV){
-        RadSource->FUVLuminosity = Q[7] * LConv * energies[7]; // NOTE: actual Luminosity (erg/s) - not photon luminosity
+        RadSource->FUVLuminosity = Q[FUVbin] * LConv; // AJE: 3/31 make photon! * energies[7]; // NOTE: actual Luminosity (erg/s) - not photon luminosity
       } else{
         RadSource->FUVLuminosity = 0.0;
       }

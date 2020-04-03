@@ -1587,14 +1587,15 @@ iveParticles;};
 
 #ifdef INDIVIDUALSTAR
    void DeleteStellarAbundances(){
-//     if(!StellarAbundances) return;
+     if(StellarAbundances == NULL) return;
 
      int i;
      int num_extra = 0;
 
      if (IndividualStarTrackAGBMetalDensity) num_extra++;
-     if (IndividualStarPopIIIFormation) num_extra++;
+     if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
      if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+     if (IndividualStarRProcessModel) num_extra++;
 
      for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
        if (StellarAbundances[i] != NULL) delete [] StellarAbundances[i];
@@ -1634,8 +1635,9 @@ iveParticles;};
        int num_extra = 0;
 
        if (IndividualStarTrackAGBMetalDensity) num_extra++;
-       if (IndividualStarPopIIIFormation) num_extra++;
+       if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
        if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+       if (IndividualStarRProcessModel) num_extra++;
 
        for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
          fprintf(fptr,"     %"ESYM,StellarAbundances[i][index]);
@@ -1709,8 +1711,9 @@ iveParticles;};
      int num_extra = 0;
 
      if (IndividualStarTrackAGBMetalDensity) num_extra++;
-     if (IndividualStarPopIIIFormation) num_extra++;
+     if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
      if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+     if (IndividualStarRProcessModel) num_extra++;
 
      for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
        StellarAbundances[i] = new float[NumberOfNewParticles];
@@ -1883,7 +1886,7 @@ int CommunicationTransferActiveParticles(grid* Grids[], int NumberOfGrids,
 			   bool KeepLocal, bool ParticlesAreLocal,
 			   int CopyDirection,
 			   int IncludeGhostZones = FALSE,
-			   int CountOnly = FALSE);
+                           int CountOnly = FALSE);
 
 int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
                      int* &NumberToMove, int StartIndex,
@@ -2461,7 +2464,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* Initialization for chemical evolution test */
   int ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTemperature,
-                                          float GasMetallicity);
+                                          float GasMetallicity, bool deposit_stars);
 
   /* AJE Individual star formation and feedback */
   int chemical_evolution_test_star_deposit(int *nmax, int *np,
@@ -2492,7 +2495,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                        const float &metallicity, float *mp, int mode);
 
 
-  int IndividualStarAddFeedbackSphere(Star *cstar, float *mp, const int mode);
+  int IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
+                                      Star *cstar, float *mp, const int mode);
 
   int IndividualStarInjectSphericalFeedback(Star *cstar,
                                             const FLOAT xp, const FLOAT yp, const FLOAT zp,

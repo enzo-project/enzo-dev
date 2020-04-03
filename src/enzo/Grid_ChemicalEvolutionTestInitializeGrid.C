@@ -35,7 +35,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 
 int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTemperature,
-                                              float GasMetallicity){
+                                              float GasMetallicity, bool deposit_stars){
 
   if (ProcessorNumber != MyProcessorNumber){
     return SUCCESS;
@@ -195,7 +195,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
 
 
   /* Loop over all requested stellar yields species and assign initial values */
-  if (TestProblemData.MultiMetals == 2 || MultiMetals == 2){
+  if (MultiMetals == 2){
     for( int sp = 0; sp < StellarYieldsNumberOfSpecies; sp++){
       if(StellarYieldsAtomicNumbers[sp] > 2){
         int   field_num;
@@ -214,17 +214,21 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
   } // MULTI METALS
 
   /* now go through and initialize the particles */
-  int MaximumNumberOfNewParticles = 10000;
-  int NumberOfNewParticles = 0;
-  this->AllocateNewParticles(MaximumNumberOfNewParticles);
 
-  this->chemical_evolution_test_star_deposit(&MaximumNumberOfNewParticles,
+  if (deposit_stars){
+    int MaximumNumberOfNewParticles = 10000;
+    int NumberOfNewParticles = 0;
+    this->AllocateNewParticles(MaximumNumberOfNewParticles);
+
+    this->chemical_evolution_test_star_deposit(&MaximumNumberOfNewParticles,
                                              &NumberOfNewParticles, this->ParticleMass,
                                              this->ParticleType, this->ParticlePosition,
                                              this->ParticleVelocity, this->ParticleAttribute);
 
-  if (NumberOfNewParticles > 0) {
-    this->NumberOfParticles = NumberOfNewParticles;
+
+    if (NumberOfNewParticles > 0) {
+      this->NumberOfParticles = NumberOfNewParticles;
+    }
   }
 //  } else if (ChemicalEvolutionTestNumberOfStars > 0) {
 //    ENZO_FAIL("Was not able to deposit stars in chemical evolution test\n");
@@ -352,7 +356,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
       n  = ip + (jp + kp * (ny)) * (nx);
 
       /* Metal fields are all in fractions, as set in Grid_StarParticleHandler */
-      if(((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+      if(MultiMetals == 2){
         for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
           if(StellarYieldsAtomicNumbers[ii] > 2){
             int field_num;
@@ -464,7 +468,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
 
     if (! IndividualStarOutputChemicalTags){
       /* Metal fields are all in fractions, as set in Grid_StarParticleHandler */
-      if(((TestProblemData.MultiMetals == 2) || (MultiMetals == 2))){
+      if(MultiMetals == 2){
         for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
           if(StellarYieldsAtomicNumbers[ii] > 2){
             int field_num;

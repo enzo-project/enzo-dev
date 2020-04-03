@@ -55,6 +55,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferCoupledRateSolver          = TRUE;
   RadiativeTransferOpticallyThinH2            = TRUE;
   RadiativeTransferOpticallyThinFUV           = TRUE;
+  RadiativeTransferOpticallyThinIR            = TRUE;
   RadiativeTransferOpticallyThinSourceClustering = FALSE;
   RadiativeTransferOpticallyThinH2CharLength  = 0.25;
   RadiativeTransferFluxBackgroundLimit        = 0.01;
@@ -64,7 +65,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPhotonEscapeRadius         = 0.0;   // kpc
   RadiativeTransferInterpolateField           = FALSE;
   RadiativeTransferSourceClustering           = FALSE;
-  RadiativeTransferPhotonMergeRadius          = 10.0;
+  RadiativeTransferOpticallyThinSourceClustering = FALSE;
+  RadiativeTransferPhotonMergeRadius          = 3.0;
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
   RadiativeTransferTimestepVelocityLevel      = INT_UNDEFINED;
   RadiativeTransferPeriodicBoundary           = FALSE;
@@ -86,8 +88,9 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferDeletePhotonSourceRadius   = 1.0E20          ; // in code units
 
   if (MultiSpecies == 0){
-    RadiativeTransferOpticallyThinH2 = FALSE;
+    RadiativeTransferOpticallyThinH2  = FALSE;
     RadiativeTransferOpticallyThinFUV = FALSE;
+    RadiativeTransferOpticallyThinIR  = FALSE;
   }
 
   /* read input from file */
@@ -114,6 +117,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferOpticallyThinH2);
     ret += sscanf(line, "RadiativeTransferOpticallyThinFUV = %"ISYM,
                   &RadiativeTransferOpticallyThinFUV);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinIR = %"ISYM,
+                  &RadiativeTransferOpticallyThinIR);
     ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
                   &RadiativeTransferOpticallyThinSourceClustering);
     ret += sscanf(line, "RadiativeTransferOpticallyThinH2CharLength = %"FSYM, 
@@ -138,6 +143,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferInterpolateField);
     ret += sscanf(line, "RadiativeTransferSourceClustering = %"ISYM, 
 		  &RadiativeTransferSourceClustering);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
+                  &RadiativeTransferOpticallyThinSourceClustering);
     ret += sscanf(line, "RadiativeTransferPhotonMergeRadius = %"FSYM, 
 		  &RadiativeTransferPhotonMergeRadius);
     ret += sscanf(line, "RadiativeTransferFLDCallOnLevel = %"ISYM, 
@@ -256,7 +263,20 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
   // If RadiativeTransferFLD > 1, ensure that ImplicitProblem > 0
   if (RadiativeTransferFLD > 1  &&  (ImplicitProblem == 0)) 
-    ENZO_FAIL("Error: RadiativeTransferFLD > 1 requires ImplicitProblem > 0!")
+    ENZO_FAIL("Error: RadiativeTransferFLD > 1 requires ImplicitProblem > 0!");
+
+  // Make sure source clustering is turned on if optically thin source clustering
+  // is to be used. Throw an error just in case.
+  if (!RadiativeTransferSourceClustering && RadiativeTransferOpticallyThinSourceClustering)
+    ENZO_FAIL("Error: RadiativeTransferSourceClustering must be turned on to use optically thin source clustering");
+
+  if (RadiativeTransferOpticallyThinSourceClustering &&
+      (RadiativeTransferPhotonMergeRadius > 5.0)){
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning: Caution when using optically thin source clustering and "
+                    "values for RadiativeTransferPhotonMergeRadius > 5. This may result in missing "
+                    "radiation near sources.\n");
+  }
 
 #ifdef USE_GRACKLE
   // Set some radiative transfer grackle parameters.
@@ -264,6 +284,15 @@ int RadiativeTransferReadParameters(FILE *fptr)
     grackle_data->radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
     grackle_data->radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
   }
+
+  if (grackle_data->H2_self_shielding && RadiativeTransferUseH2Shielding){
+    ENZO_FAIL("Error: RadiativeTransferUseH2Shielding and Grackle's H2_shelf_shielding parameters are both ON "
+              "       this will result in redundant H2 self-shielding. If H2 dissociating (LW-band) radiation "
+              "       is being followed in the optically thin limit, then either parameter can be turned on, "
+              "       but not both. If H2 dissociating radiation is followed with full RT, then Grackle's "
+              "       H2_self_shielding should be turned OFF.")
+  }
+
 #endif // USE_GRACKLE
 
   delete [] dummy;

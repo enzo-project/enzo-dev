@@ -199,6 +199,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
   MaximumParticleRefinementLevel = -1;            // unused if negative
+  MaximumRefinementLevelPhysicalScale = -1.0;     // unused if negative - move max refinement level to match this physical scale (in pc)
   MustRefineRegionMinRefinementLevel = -1;        // unused if negative
   MetallicityRefinementMinLevel = -1;
   MetallicityRefinementMinMetallicity = 1.0e-5;
@@ -565,36 +566,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
   use_grackle = FALSE;
-#ifdef USE_GRACKLE
-    // Grackle chemistry data structure.
-  chemistry_data *my_chemistry;
-  my_chemistry = new chemistry_data;
-  if (set_default_chemistry_parameters(my_chemistry) == FAIL) {
-    ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
-  }
-
-  // Map Grackle defaults to corresponding Enzo parameters
-  Gamma                                 = (float) grackle_data->Gamma;
-  MultiSpecies                          = (int) grackle_data->primordial_chemistry;
-  MetalCooling                          = (int) grackle_data->metal_cooling;
-  H2FormationOnDust                     = (int) grackle_data->h2_on_dust;
-  CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data->cmb_temperature_floor;
-  ThreeBodyRate                         = (int) grackle_data->three_body_rate;
-  CIECooling                            = (int) grackle_data->cie_cooling;
-  H2OpticalDepthApproximation           = (int) grackle_data->h2_optical_depth_approximation;
-  PhotoelectricHeating                  = (int) grackle_data->photoelectric_heating;
-  PhotoelectricHeatingRate              = (float) grackle_data->photoelectric_heating_rate;
-  CoolData.NumberOfTemperatureBins      = (int) grackle_data->NumberOfTemperatureBins;
-  RateData.CaseBRecombination           = (int) grackle_data->CaseBRecombination;
-  CoolData.TemperatureStart             = (float) grackle_data->TemperatureStart;
-  CoolData.TemperatureEnd               = (float) grackle_data->TemperatureEnd;
-  RateData.NumberOfDustTemperatureBins  = (int) grackle_data->NumberOfDustTemperatureBins;
-  RateData.DustTemperatureStart         = (float) grackle_data->DustTemperatureStart;
-  RateData.DustTemperatureEnd           = (float) grackle_data->DustTemperatureEnd;
-  CoolData.HydrogenFractionByMass       = (float) grackle_data->HydrogenFractionByMass;
-  CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data->DeuteriumToHydrogenRatio;
-  CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
-#endif
 
   OutputCoolingTime = FALSE;
   OutputTemperature = FALSE;
@@ -765,6 +736,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIUseHypernova               = TRUE;         // TRUE for HN yields, FALSE for CCSN
   PopIIISupernovaExplosions        = TRUE;         // TRUE for supernova energy injection
   PopIIIOutputOnFeedback           = FALSE;        // TRUE to output at creation and supernova
+  PopIIIRadiationModel             = 0;            // 0: Schaerer+2012 1: Heger+Woosley 2010
   IMFData                          = NULL;
 
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate, 4: Bondi with v_rel=0, 5: Bondi with v_rel=0 and vorticity
@@ -834,7 +806,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarCreationStencilSize  =     3;         // n x n cell region (on each side) to sample for star formation
   IndividualStarCheckVelocityDiv     =     1;         // use velocity divergence in SF check
   IndividualStarICLifetimeMode       =     0;         // 0 - use interpolated lifetime, 1 - set to now, 2 - from file
-  IndividualStarLifeRefinementFactor  =    3;         // for particles with SNII or SNIa, treat as must refine if end is within this many dT from end of life
+  IndividualStarRefineTime           =    0.1;        // for particles with any SN, treat as must refine for this long after death (in Myr)
   // StarParticleOverdensityThreshold is used as primary density threshold parameter
   IndividualStarSecondaryOverDensityThreshold = -1;  // in cc - if < 0, set to over density thresh in ReadParamFile
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
@@ -843,6 +815,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarPopIIIFormation      =     0;         // flag to allow for Pop III star formation in gas below a Z threshold
                                                       // also tracks PopIII metal enrichment w/ additional field (but ONLY when tags are written to file)
 
+  IndividualStarRProcessModel        =     0;         // Include an R-process model (TBD) and independent tracer field
   IndividualStarTrackAGBMetalDensity =     0;         // Track separate AGB metal mass field (only for outut chemical tags)
   IndividualStarTrackSNMetalDensity  =     0;         // Track spearate SNII AND SNIa mass fields (only for output chemical tags)
 
@@ -862,12 +835,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarIMFSeed              = INT_UNDEFINED; // random number seed for IMF sampling
 
   /* IndividualStar: Stellar Feedback (non-radiation) */
-  IndividualStarFeedbackOverlapSample = 32;         // number of points per cell to compute fractional overlap in feedback routine
+  IndividualStarFeedbackOverlapSample = 16;         // number of points per cell to compute fractional overlap in feedback routine
   IndividualStarFeedbackStencilSize   = 3;          // Size of feedback injection region (radius in number of cells)
+  IndividualStarFeedbackRadius        = -1.0;       // Used (over above) if > 0. Feedback radius in pc (not # of grid zones)
 
   IndividualStarStellarWinds          = 1;          // on or off
   IndividualStarWindTemperature       = 1.0E6;      // temperature cap on stellar wind source region (K)
-  IndividualStarUseWindMixingModel    = 1;          // account for unresolved mixing at wind/ISM shell interface and allow mass loading
+  IndividualStarUseWindMixingModel    = 0;          // account for unresolved mixing at wind/ISM shell interface and allow mass loading
   IndividualStarStellarWindVelocity   = -1;         // when < 0, use Leithener et. al. model for stellar wind velocities
                                                     // when > 0, uniform wind velocity for all stars in km / s
                                                     // when = 0, use this to do mass deposition without energy injection
@@ -891,6 +865,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   /* IndividualStar: Yields Tracking */
   IndividualStarFollowStellarYields  = 0;           // on or off
+  IndividualStarSurfaceAbundances    = 0;           // return surface abundances in addition to yields
   IndividualStarExtrapolateYields    = 0;           // on or off - extrapolate yields from NuGrid set by scaling. If off, use PARSEC wind yields
   IndividualStarOutputChemicalTags   = 0;           // on or off - if ON does not tag particles, but instead outputs them to a file
   IndividualStarChemicalTagFilename  = NULL;        // filename for above
@@ -900,8 +875,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarRadiationMinimumMass = 8.0;         // Solar masses - Stars above this are posible rad sources
   IndividualStarOTRadiationMass      = 8.0;         // Solar masses - Stars above this are allowed to have optically thin radiation
   IndividualStarIonizingRadiationMinimumMass = 8.0; // Solar masses - stars above this are allowed ionizing radiation
-  IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens Pe Heating using optically thin FUV
-  IndividualStarLWRadiation          = 0;           // on or off - include optically thin LW photons from stars
+  IndividualStarFUVHeating           = 0;           // on or off - include Bakes & Tielens PE heating (and HM dissociation)
+  IndividualStarLWRadiation          = 0;           // on or off - include LW photons from stars (H2I and H2II dissociation)
+  IndividualStarIRRadiation          = 0;           // on or off - include IR-band radiation for H2II and HM dissociation
   IndividualStarFUVTemperatureCutoff = 2.0E4;       // K - if FUV heating is on, heat up to this temperature
   IndividualStarBlackBodyOnly        = 0;           // on or off - On = BB spectrum only - Off = OSTAR2002 when applicable
 
@@ -909,12 +885,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarBlackBodyq0Factors[1]  = 3.2 ;      // factors are for q0 and q1 with first
   IndividualStarBlackBodyq1Factors[0]  = 0.001 ;    // applying to low mass stars off of the grid
   IndividualStarBlackBodyq1Factors[1]  = 4.000 ;    // and second high mass off grid.
+  IndividualStarBlackBodyq2Factors[0]  = 0.001 ;
+  IndividualStarBlackBodyq2Factors[1]  = 4.000 ;
 
-  IndividualStarBlackBodyFUVFactors[0] = 1.0;   // same as above, but for FUV luminosities
-  IndividualStarBlackBodyFUVFactors[1] = 1.0;
-
-  IndividualStarBlackBodyLWFactors[0]  = 1.0;     // same, but for LW
-  IndividualStarBlackBodyLWFactors[1]  = 1.0;
+  for (i = 0; i < 2; i++){
+    IndividualStarBlackBodyFUVFactors[i] = 1.0;     // scaling factors for FUV, LW, and IR band black body radiation
+    IndividualStarBlackBodyLWFactors[i]  = 1.0;
+    IndividualStarBlackBodyIRFactors[i]  = 1.0;
+  }
 
   PhotoelectricHeatingDustModel = 1; // 0 - no shielding, linear in metallicity ; 1 - approx local shield, dust to gas ratio model
   PhotoelectricHeatingDustModelEfficiency = 0.0;    // Pe heating efficiency - <= 0 uses fit to Wolfire et. al. 2003 at solar radius

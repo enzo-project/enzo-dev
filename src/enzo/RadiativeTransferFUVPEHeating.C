@@ -41,7 +41,7 @@ int grid::RadiativeTransferFUVPEHeating(PhotonPackageEntry **PP,
 
   // for individual stars, make sure below is consistent with
   // Star_ComputePhotonRates energies (should probably just make this a param)
-   const double FUV_energy = 8.4 * erg_eV; // 5.6 - 11.2 eV average
+   const double FUV_energy = FUV_photon_energy * erg_eV; // 5.6 - 11.2 eV average
    // be careful with this value !!! See Star_ComputePhotonRates
   dP_FUV = 0.0;
   // attenuation of the 5.6 - 11.2 eV band

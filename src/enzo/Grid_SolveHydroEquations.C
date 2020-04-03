@@ -194,7 +194,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (Galaxy2ColourNum != -1) colnum[NumberOfColours++] = Galaxy2ColourNum;
 
     /* Add Chemical tracer species as color fields */
-    if(TestProblemData.MultiMetals == 2 || MultiMetals == 2){
+    if(MultiMetals == 2){
       for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
         if(StellarYieldsAtomicNumbers[yield_i] > 2){
 
@@ -207,10 +207,12 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
         }
       }
 
-      int PopIIIMetalNum, AGBMetalNum; //, SNIaMetalNum, SNIIMetalNum;
+      int PopIIIMetalNum, PopIIIPISNeMetalNum, AGBMetalNum, RProcMetalNum; //, SNIaMetalNum, SNIIMetalNum;
 
       AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
       PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
+      PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
+      RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
 //      SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
 //      SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
 
@@ -221,6 +223,11 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
       if (IndividualStarPopIIIFormation){
         colnum[NumberOfColours++] = PopIIIMetalNum;
+        colnum[NumberOfColours++] = PopIIIPISNeMetalNum;
+      }
+
+      if (IndividualStarRProcessModel){
+        colnum[NumberOfColours++] = RProcMetalNum;
       }
 
 //      if (IndividualStarTrackSNMetalDensity){  This is already done above!!!!! with MetalIaNum and MetalIINum!!!!

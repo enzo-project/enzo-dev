@@ -49,7 +49,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
 
-int IndividualStarParticleAddFeedback(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[], TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                                       int level, Star* &AllStars, bool* &AddedFeedback);
 
 int UpdateAveragedAbundances(TopGridData *MetaData,
@@ -108,7 +108,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     }
 
     UpdateAveragedAbundances(MetaData, LevelArray, level, AllStars);
-    IndividualStarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
+    IndividualStarParticleAddFeedback(Grids, MetaData, LevelArray, level, AllStars, AddedFeedback);
   } else{
 
     /* Apply any stellar feedback onto the grids and add any gas to the
@@ -168,6 +168,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       ThisStar->ActivateNewStar(TimeNow, Timestep);
       if (ThisStar->ReturnType() == PopIII && PopIIIOutputOnFeedback == TRUE)
 	OutputNow = TRUE;
+      if (ThisStar->ReturnType() == IndividualStarRemnant && PopIIIOutputOnFeedback == 2)
+        OutputNow = TRUE;
     }
     if (ThisStar->ReturnType() == -IndividualStar ||
         ThisStar->ReturnType() == -IndividualStarRemnant ||

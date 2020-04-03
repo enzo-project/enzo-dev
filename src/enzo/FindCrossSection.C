@@ -29,6 +29,7 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 FLOAT FindCrossSection(int type, float energy)
 {
@@ -40,7 +41,7 @@ FLOAT FindCrossSection(int type, float energy)
 
     // HI
   case 0:
-    e_th = 13.6;
+    e_th =  HI_ionizing_energy;
     e_max = 5e4;
     e0 = 4.298e-1;
     sigma0 = 5.475e4;
@@ -51,9 +52,9 @@ FLOAT FindCrossSection(int type, float energy)
 
     // HeI
   case 1:
-    e_th = 24.59;
+    e_th = HeI_ionizing_energy;
     e_max = 5e4;
-    e0 = 13.61;
+    e0 = HI_ionizing_energy + 0.01;
     sigma0 = 9.492e2;
     ya = 1.469;
     P = 3.188;
@@ -64,7 +65,7 @@ FLOAT FindCrossSection(int type, float energy)
   
     // HeII
   case 2:
-    e_th = 54.42;
+    e_th = HeII_ionizing_energy;
     e_max = 5e4;
     e0 = 1.720;
     sigma0 = 1.369e4;
@@ -75,8 +76,8 @@ FLOAT FindCrossSection(int type, float energy)
 
     // Lyman-Werner
   case 3:
-    e_th = 11.18;
-    e_max = 13.6;
+    e_th = LW_threshold_energy;
+    e_max = HI_ionizing_energy;
     sigma0 = 3.71;  
     break;
 

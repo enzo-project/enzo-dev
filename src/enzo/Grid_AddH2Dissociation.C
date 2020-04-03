@@ -32,15 +32,10 @@ int grid::AddH2Dissociation(Star *AllStars, int NumberOfSources)
      have more than 10 sources.  With smaller numbers, the overhead
      makes the direct calculation faster. */
 
-// #ifdef LWTREE
-
-  if (RadiativeTransferOpticallyThinSourceClustering == TRUE &&
-      NumberOfSources >= 10){
-      this->AddH2DissociationFromTree();
-  } else{
-//#endif
-      this->AddH2DissociationFromSources(AllStars);
-  }
+  if (RadiativeTransferOpticallyThinSourceClustering == TRUE && NumberOfSources >= 10)
+    this->AddH2DissociationFromTree();
+  else
+    this->AddH2DissociationFromSources(AllStars);
 
   return SUCCESS;
 

@@ -158,7 +158,8 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
     //if (IndividualStarOutputChemicalTags){
     //  Grids[grid]->GridData->OutputStellarAbundances();
     //}
-    Grids[grid]->GridData->DeleteStellarAbundances();
+    if (IndividualStarOutputChemicalTags)
+      Grids[grid]->GridData->DeleteStellarAbundances();
 #endif
   }
 

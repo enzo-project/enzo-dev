@@ -70,6 +70,13 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   char *MetalName   = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
 
+  char *AGBMetalName    = "AGB_Metal_Density";
+  char *PopIIIMetalName = "PopIII_Metal_Density";
+  char *PopIIIPISNeMetalName = "PopIII_PISNe_Metal_Density";
+  char *SNIIMetalName = "SNII_Metal_Density";
+  char *SNIaMetalName = "SNIa_Metal_Density";
+  char *RProcMetalName = "RProcess_Metal_Density";
+
 
   /* Names for Primordial chemistry */
   char *ElectronName = "Electron_Density";
@@ -110,6 +117,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
   int   ChemicalEvolutionTestRefineAtStart   = 1,
         ChemicalEvolutionTestUseMetals       = 1;
+
 
   ChemicalEvolutionTestGasDistribution = 0;
 
@@ -154,8 +162,6 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     ret += sscanf(line, "ChemicalEvolutionTestRefineAtStart = %"ISYM,
                         &ChemicalEvolutionTestRefineAtStart);
 
-    ret += sscanf(line, "ChemicalEvolutionTestMultiMetals = %"ISYM,
-                        &TestProblemData.MultiMetals);
     ret += sscanf(line, "ChemicalEvolutionTestUseMetals = %"ISYM,
                         &ChemicalEvolutionTestUseMetals);
 
@@ -236,7 +242,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     DiskGravityDarkMatterR = DiskGravityDarkMatterCutoffR / conc;
     DiskGravityDarkMatterDensity = 200.0 / 3.0 * rho_crit * conc*conc*conc / (log(1.0+conc)+conc/(1.0+conc)); //cgs
 
-    HaloCentralDensity = DiskGravityDarkMatterDensity; // must be cgs 
+    HaloCentralDensity = DiskGravityDarkMatterDensity; // must be cgs
     HaloConcentration  = ChemicalEvolutionTestConcentration;
     HaloVirialRadius   = DiskGravityDarkMatterCutoffR * Mpc_cm; // cgs
   }
@@ -273,7 +279,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
   if (TopGrid.GridData->ChemicalEvolutionTestInitializeGrid(ChemicalEvolutionTestGasDensity,
                                                             ChemicalEvolutionTestGasTemperature,
-                                                            ChemicalEvolutionTestGasMetallicity) == FAIL){
+                                                            ChemicalEvolutionTestGasMetallicity,
+                                                            TRUE) == FAIL){
     ENZO_FAIL("Error in ChemicalEvolutionInitialize[Sub]Grid.");
   } // end subgrid if
 
@@ -316,7 +323,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
         TempGrid->GridData->ChemicalEvolutionTestInitializeGrid(ChemicalEvolutionTestGasDensity,
                                                                 ChemicalEvolutionTestGasTemperature,
-                                                                ChemicalEvolutionTestGasMetallicity);
+                                                                ChemicalEvolutionTestGasMetallicity,
+                                                                FALSE);
         TempGrid = TempGrid->NextGridThisLevel;
       }
     } // end loop over levels
@@ -375,23 +383,35 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     }
   }
 
-  if (TestProblemData.MultiMetals ){
-    MultiMetals = TestProblemData.MultiMetals;
-  } else if (MultiMetals) {
-    TestProblemData.MultiMetals = MultiMetals;
-  }
-
   /* Metallicity and Metals */
   if (TestProblemData.UseMetallicityField){
     DataLabel[count++] = MetalName;
 
-    if(TestProblemData.MultiMetals ==2){
+    if(MultiMetals ==2){
 
       for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
         if(StellarYieldsAtomicNumbers[i] > 2){
           DataLabel[count++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[i]);
         }
       }
+    }
+
+    if (IndividualStarTrackAGBMetalDensity){
+      DataLabel[count++] = AGBMetalName;
+    }
+
+    if (IndividualStarPopIIIFormation){
+      DataLabel[count++] = PopIIIMetalName;
+      DataLabel[count++] = PopIIIPISNeMetalName;
+    }
+
+    if (IndividualStarTrackSNMetalDensity){
+      DataLabel[count++] = SNIaMetalName;
+      DataLabel[count++] = SNIIMetalName;
+    }
+
+    if (IndividualStarRProcessModel){
+      DataLabel[count++] = RProcMetalName;
     }
   }
 
@@ -410,7 +430,6 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
    fprintf(Outfptr, "ChemicalEvolutionTestRefineAtStart = %"ISYM"\n", ChemicalEvolutionTestRefineAtStart);
 
-   fprintf(Outfptr, "ChemicalEvolutionTestMultiMetals = %"ISYM"\n", TestProblemData.MultiMetals);
    fprintf(Outfptr, "CHemicalEvolutionTestUseMetals = %"ISYM"\n", ChemicalEvolutionTestUseMetals);
 
    fprintf(Outfptr, "ChemicalEvolutionTestHydryogenFractionByMass = %"FSYM"\n", TestProblemData.HydrogenFractionByMass);

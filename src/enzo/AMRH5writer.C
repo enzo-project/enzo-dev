@@ -79,10 +79,24 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(( (TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
-      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+    if(MultiMetals == 2 && !IndividualStarOutputChemicalTags){
+      int ii = 0;
+      for(ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+      if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+          ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
+          ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
+      }
+      if (IndividualStarRProcessModel) ParticleAttributeLabel[4 + ii++] = "rprocess_metal_fraction";
+
+
     }
     if (IndividualStarSaveTablePositions){
       for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
@@ -482,10 +496,24 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(( (TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
-      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+    if(MultiMetals == 2 && !IndividualStarOutputChemicalTags){
+      int ii = 0;
+      for(ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+      if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+          ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
+          ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
+      }
+      if (IndividualStarRProcessModel) ParticleAttributeLabel[4 + ii++] = "rprocess_metal_fraction";
+
+
     }
     if (IndividualStarSaveTablePositions){
       for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
@@ -682,10 +710,24 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(( (TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
-      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+    if( MultiMetals == 2 && !IndividualStarOutputChemicalTags){
+      int ii = 0;
+      for(ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+      if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+          ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
+          ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
+      }
+      if (IndividualStarRProcessModel) ParticleAttributeLabel[4 + ii++] = "rprocess_metal_fraction";
+
+
     }
     if (IndividualStarSaveTablePositions){
       for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
@@ -962,10 +1004,24 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(( (TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
-      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+    if(MultiMetals == 2 && !IndividualStarOutputChemicalTags){
+      int ii = 0;
+      for(ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+      if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+          ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
+          ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
+      }
+      if (IndividualStarRProcessModel) ParticleAttributeLabel[4 + ii++] = "rprocess_metal_fraction";
+
+
     }
     if (IndividualStarSaveTablePositions){
       for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
@@ -1093,10 +1149,24 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
-    if(( (TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
-      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+    if(MultiMetals == 2 && !IndividualStarOutputChemicalTags){
+      int ii = 0;
+      for(ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
         ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
       }
+      if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
+      if (IndividualStarPopIIIFormation){      
+        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+      }
+
+      if (IndividualStarTrackSNMetalDensity){
+          ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
+          ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
+      }
+      if (IndividualStarRProcessModel) ParticleAttributeLabel[4 + ii++] = "rprocess_metal_fraction";
+
+
     }
     if (IndividualStarSaveTablePositions){
       for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){

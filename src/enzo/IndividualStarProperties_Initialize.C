@@ -60,7 +60,7 @@ int IndividualStarProperties_Initialize(TopGridData &MetaData){
   if (IndividualStarOutputChemicalTags){
     IndividualStarChemicalTagFilename = new char[80];
     sprintf(IndividualStarChemicalTagFilename, "star_abundances%4.4d.dat",
-                 (Eint32) MetaData.DataDumpNumber-1); 
+                 (Eint32) MetaData.DataDumpNumber-1);
   }
 
   // read in the data to populate the tables
@@ -132,6 +132,25 @@ int IndividualStarProperties_Initialize(TopGridData &MetaData){
 }
 
 int IndividualStarRadiationProperties_Initialize(void){
+  /*
+     Load and Initialize the radiative properties of the individual stars. This
+     currently uses hard-coded assumptions about the tables that they will
+     be interpolating over effective temperature and surface gravity based on
+     the OSTAR2002 models of stellar SEDs. Constructing these tables is
+     detailed a little more in:
+
+     https://github.com/aemerick/stars/blob/master/radiation/data/extract_sed.py
+
+     and
+
+     https://github.com/aemerick/stars/blob/master/radiation/integrate_SED.py
+
+     NOTE: There was a non-backwards compatable change to this made in April 2020
+           with updated yield tables, changing column ordering, changing
+           files from storing logged to un-logged values, and adding new rates.
+           Input file names were changed to ensure old / new files weren't used
+           with the wrong code.
+  */
 
   if (IndividualStarRadData.q0 != NULL && IndividualStarRadData.q1 != NULL){
     return SUCCESS;
@@ -141,15 +160,13 @@ int IndividualStarRadiationProperties_Initialize(void){
   IndividualStarRadData.NumberOfSGBins          = 0;
   IndividualStarRadData.NumberOfMetallicityBins = 0;
 
-
-
   IndividualStarRadData.Zsolar = 0.017; // see IndividualStarData.h
   // now read in the data to populate the tables
 
   // read in from file
-  FILE *fptrq0 = fopen("q0_rates.in", "r");
+  FILE *fptrq0 = fopen("q0_photon_rates.in", "r");
   if (fptrq0 == NULL){
-    ENZO_FAIL("Error opening q0_rates.in\n");
+    ENZO_FAIL("Error opening q0_photon_rates.in\n");
   }
 
   char line[MAX_LINE_LENGTH];
@@ -170,40 +187,48 @@ int IndividualStarRadiationProperties_Initialize(void){
 
   /* Code here to read in metallicity bins from table */
 
-  // AJE 3/11/16 - Hard code metallicities for now
-  // reverse order from table so they are sorted
+  // Metallicities in table are listed from low to high
+  // first column in table is z = 0.0, last column is z = 2.0
   IndividualStarRadData.Z[9] = 2.0;
   IndividualStarRadData.Z[8] = 1.0;
   IndividualStarRadData.Z[7] = 0.5;
   IndividualStarRadData.Z[6] = 0.2;
   IndividualStarRadData.Z[5] = 0.1;
   IndividualStarRadData.Z[4] = 1.0/30.0;
-  IndividualStarRadData.Z[3] = 0.02;
+  IndividualStarRadData.Z[3] = 0.02;    // 1 / 50.0
   IndividualStarRadData.Z[2] = 0.01;
   IndividualStarRadData.Z[1] = 0.001;
   IndividualStarRadData.Z[0] = 0.0;
 
-  // ionizing radiation arrays
-  IndividualStarRadData.q0  = new float**[IndividualStarRadData.NumberOfTemperatureBins];
-  IndividualStarRadData.q1  = new float**[IndividualStarRadData.NumberOfTemperatureBins];
-  IndividualStarRadData.Fuv = new float**[IndividualStarRadData.NumberOfTemperatureBins];
-  IndividualStarRadData.LW_flux = new float**[IndividualStarRadData.NumberOfTemperatureBins];
+  // Load the arrays for ionizing radiation and the other bands
+  // q's correspond to HI, HeI, and HeII photon fluxes (count / s / cm^2)
+  // while band fluxes are energy fluxes (erg / s / cm^2)
+  IndividualStarRadData.q0       = new float**[IndividualStarRadData.NumberOfTemperatureBins];
+  IndividualStarRadData.q1       = new float**[IndividualStarRadData.NumberOfTemperatureBins];
+  IndividualStarRadData.q2       = new float**[IndividualStarRadData.NumberOfTemperatureBins];
+  IndividualStarRadData.IR_flux  = new float**[IndividualStarRadData.NumberOfTemperatureBins];
+  IndividualStarRadData.FUV_flux = new float**[IndividualStarRadData.NumberOfTemperatureBins];
+  IndividualStarRadData.LW_flux  = new float**[IndividualStarRadData.NumberOfTemperatureBins];
 
   // fill the arrays in all dimensions
   for(int i = 0; i < IndividualStarRadData.NumberOfTemperatureBins; i++){
     IndividualStarRadData.q0[i] = new float*[IndividualStarRadData.NumberOfSGBins];
     IndividualStarRadData.q1[i] = new float*[IndividualStarRadData.NumberOfSGBins];
-    IndividualStarRadData.Fuv[i] = new float*[IndividualStarRadData.NumberOfSGBins];
-    IndividualStarRadData.LW_flux[i] = new float*[IndividualStarRadData.NumberOfSGBins];
+    IndividualStarRadData.q2[i] = new float*[IndividualStarRadData.NumberOfSGBins];
+    IndividualStarRadData.IR_flux[i]  = new float*[IndividualStarRadData.NumberOfSGBins];
+    IndividualStarRadData.FUV_flux[i] = new float*[IndividualStarRadData.NumberOfSGBins];
+    IndividualStarRadData.LW_flux[i]  = new float*[IndividualStarRadData.NumberOfSGBins];
 
     for ( int j = 0; j < IndividualStarRadData.NumberOfSGBins; j ++){
       IndividualStarRadData.q0[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
       IndividualStarRadData.q1[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
-      IndividualStarRadData.Fuv[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
-      IndividualStarRadData.LW_flux[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
+      IndividualStarRadData.q2[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
+      IndividualStarRadData.IR_flux[i][j]  = new float[IndividualStarRadData.NumberOfMetallicityBins];
+      IndividualStarRadData.FUV_flux[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
+      IndividualStarRadData.LW_flux[i][j]  = new float[IndividualStarRadData.NumberOfMetallicityBins];
 
   /* AJE 3/16/16: Need to NULL everything if allow for variable size */
-  //    for ( int k = 0; k < INDIVIDUAL_STAR_METALLICITY_BINS; k ++){ 
+  //    for ( int k = 0; k < INDIVIDUAL_STAR_METALLICITY_BINS; k ++){
   //      IndividualStarq0Data[i][j][k] = NULL;
   //      IndividualStarq1Data[i][j][k] = NULL;
   //    }
@@ -222,22 +247,17 @@ int IndividualStarRadiationProperties_Initialize(void){
       err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
                    &IndividualStarRadData.T[i],
                    &IndividualStarRadData.g[j],
-                   &IndividualStarRadData.q0[i][j][9],
-                   &IndividualStarRadData.q0[i][j][8],
-                   &IndividualStarRadData.q0[i][j][7],
-                   &IndividualStarRadData.q0[i][j][6],
-                   &IndividualStarRadData.q0[i][j][5],
-                   &IndividualStarRadData.q0[i][j][4],
-                   &IndividualStarRadData.q0[i][j][3],
-                   &IndividualStarRadData.q0[i][j][2],
+                   &IndividualStarRadData.q0[i][j][0],
                    &IndividualStarRadData.q0[i][j][1],
-                   &IndividualStarRadData.q0[i][j][0]);
+                   &IndividualStarRadData.q0[i][j][2],
+                   &IndividualStarRadData.q0[i][j][3],
+                   &IndividualStarRadData.q0[i][j][4],
+                   &IndividualStarRadData.q0[i][j][5],
+                   &IndividualStarRadData.q0[i][j][6],
+                   &IndividualStarRadData.q0[i][j][7],
+                   &IndividualStarRadData.q0[i][j][8],
+                   &IndividualStarRadData.q0[i][j][9]);
 
-      // un-log the rate data
-      for (int k = 0; k < IndividualStarRadData.NumberOfMetallicityBins; k++){
-        IndividualStarRadData.q0[i][j][k] =
-                           POW(10.0, IndividualStarRadData.q0[i][j][k]);
-      }
       // increment i and j
       j++;
       if (j >= IndividualStarRadData.NumberOfSGBins){
@@ -250,9 +270,9 @@ int IndividualStarRadiationProperties_Initialize(void){
   fclose(fptrq0);
 
   /* Now do the same for the q1 data */
-  FILE *fptrq1 = fopen("q1_rates.in", "r");
+  FILE *fptrq1 = fopen("q1_photon_rates.in", "r");
   if (fptrq1 == NULL){
-    ENZO_FAIL("Error opening q1_rates.in\n");
+    ENZO_FAIL("Error opening q1_photon_rates.in\n");
   }
 
   i = 0; j = 0;
@@ -261,26 +281,19 @@ int IndividualStarRadiationProperties_Initialize(void){
 
     if(line[0] != '#'){
 
-      // note metallicities are currently listed in reverse order
-
       err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
                    &temp1,
                    &temp2,
-                   &IndividualStarRadData.q1[i][j][9],
-                   &IndividualStarRadData.q1[i][j][8],
-                   &IndividualStarRadData.q1[i][j][7],
-                   &IndividualStarRadData.q1[i][j][6],
-                   &IndividualStarRadData.q1[i][j][5],
-                   &IndividualStarRadData.q1[i][j][4],
-                   &IndividualStarRadData.q1[i][j][3],
-                   &IndividualStarRadData.q1[i][j][2],
+                   &IndividualStarRadData.q1[i][j][0],
                    &IndividualStarRadData.q1[i][j][1],
-                   &IndividualStarRadData.q1[i][j][0]);
-      // un-log the rad data
-      for (int k = 0; k < IndividualStarRadData.NumberOfMetallicityBins; k++){
-        IndividualStarRadData.q1[i][j][k] =
-                           POW(10.0, IndividualStarRadData.q1[i][j][k]);
-      }
+                   &IndividualStarRadData.q1[i][j][2],
+                   &IndividualStarRadData.q1[i][j][3],
+                   &IndividualStarRadData.q1[i][j][4],
+                   &IndividualStarRadData.q1[i][j][5],
+                   &IndividualStarRadData.q1[i][j][6],
+                   &IndividualStarRadData.q1[i][j][7],
+                   &IndividualStarRadData.q1[i][j][8],
+                   &IndividualStarRadData.q1[i][j][9]);
 
       j++;
       if (j >= IndividualStarRadData.NumberOfSGBins){
@@ -292,13 +305,96 @@ int IndividualStarRadiationProperties_Initialize(void){
 
   fclose(fptrq1);
 
+  /* Now do the same for the q2 data */
+  FILE *fptrq2 = fopen("q2_photon_rates.in", "r");
+  if (fptrq2 == NULL){
+    ENZO_FAIL("Error opening q2_photon_rates.in\n");
+  }
 
-  if(IndividualStarFUVHeating){
-    FILE *fptrFuv = fopen("FUV_rates.in", "r");
-    if (fptrFuv == NULL){
-      ENZO_FAIL("Error opening FUV_rates.in");
+  i = 0; j = 0;
+  while( fgets(line, MAX_LINE_LENGTH, fptrq2) != NULL){
+    float temp1, temp2;
+
+    if(line[0] != '#'){
+
+      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                   &temp1,
+                   &temp2,
+                   &IndividualStarRadData.q2[i][j][0],
+                   &IndividualStarRadData.q2[i][j][1],
+                   &IndividualStarRadData.q2[i][j][2],
+                   &IndividualStarRadData.q2[i][j][3],
+                   &IndividualStarRadData.q2[i][j][4],
+                   &IndividualStarRadData.q2[i][j][5],
+                   &IndividualStarRadData.q2[i][j][6],
+                   &IndividualStarRadData.q2[i][j][7],
+                   &IndividualStarRadData.q2[i][j][8],
+                   &IndividualStarRadData.q2[i][j][9]);
+
+      j++;
+      if (j >= IndividualStarRadData.NumberOfSGBins){
+        j = 0;
+        i++;
+      }
+    } // check #
+  } // end while read
+
+  fclose(fptrq2);
+
+  if(IndividualStarIRRadiation){
+    FILE *fptrIR = fopen("IR_energy_rates.in","r");
+    if (fptrIR == NULL){
+      ENZO_FAIL("Error opening IR_energy_rates.in");
     }
 
+
+    /* read in the IR data*/
+    i = 0; j = 0;
+    while( fgets(line, MAX_LINE_LENGTH, fptrIR) != NULL){
+      float temp1, temp2;
+
+      if(line[0] != '#'){
+
+        err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+                     &temp1,
+                     &temp2,
+                     &IndividualStarRadData.IR_flux[i][j][0],
+                     &IndividualStarRadData.IR_flux[i][j][1],
+                     &IndividualStarRadData.IR_flux[i][j][2],
+                     &IndividualStarRadData.IR_flux[i][j][3],
+                     &IndividualStarRadData.IR_flux[i][j][4],
+                     &IndividualStarRadData.IR_flux[i][j][5],
+                     &IndividualStarRadData.IR_flux[i][j][6],
+                     &IndividualStarRadData.IR_flux[i][j][7],
+                     &IndividualStarRadData.IR_flux[i][j][8],
+                     &IndividualStarRadData.IR_flux[i][j][9]);
+
+
+        j++;
+        if (j >= IndividualStarRadData.NumberOfSGBins){
+          j = 0;
+          i++;
+        }
+      }// check #
+    }// end while read
+
+    fclose(fptrIR);
+
+    } else{
+      for(i = 0; i < IndividualStarRadData.NumberOfTemperatureBins; i++){
+        for(j = 0; j < IndividualStarRadData.NumberOfSGBins; j++){
+          for(int k = 0; k < IndividualStarRadData.NumberOfMetallicityBins; k++){
+            IndividualStarRadData.IR_flux[i][j][k] = 0.0;
+          }
+        }
+      }
+    }
+
+  if(IndividualStarFUVHeating){
+    FILE *fptrFuv = fopen("FUV_energy_rates.in", "r");
+    if (fptrFuv == NULL){
+      ENZO_FAIL("Error opening FUV_energy_rates.in");
+    }
 
     /* read in the FUV data*/
     i = 0; j = 0;
@@ -312,16 +408,16 @@ int IndividualStarRadiationProperties_Initialize(void){
         err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
                      &temp1,
                      &temp2,
-                     &IndividualStarRadData.Fuv[i][j][0],
-                     &IndividualStarRadData.Fuv[i][j][1],
-                     &IndividualStarRadData.Fuv[i][j][2],
-                     &IndividualStarRadData.Fuv[i][j][3],
-                     &IndividualStarRadData.Fuv[i][j][4],
-                     &IndividualStarRadData.Fuv[i][j][5],
-                     &IndividualStarRadData.Fuv[i][j][6],
-                     &IndividualStarRadData.Fuv[i][j][7],
-                     &IndividualStarRadData.Fuv[i][j][8],
-                     &IndividualStarRadData.Fuv[i][j][9]);
+                     &IndividualStarRadData.FUV_flux[i][j][0],
+                     &IndividualStarRadData.FUV_flux[i][j][1],
+                     &IndividualStarRadData.FUV_flux[i][j][2],
+                     &IndividualStarRadData.FUV_flux[i][j][3],
+                     &IndividualStarRadData.FUV_flux[i][j][4],
+                     &IndividualStarRadData.FUV_flux[i][j][5],
+                     &IndividualStarRadData.FUV_flux[i][j][6],
+                     &IndividualStarRadData.FUV_flux[i][j][7],
+                     &IndividualStarRadData.FUV_flux[i][j][8],
+                     &IndividualStarRadData.FUV_flux[i][j][9]);
 
 
         j++;
@@ -337,16 +433,16 @@ int IndividualStarRadiationProperties_Initialize(void){
     for(i = 0; i < IndividualStarRadData.NumberOfTemperatureBins; i++){
       for(j = 0; j < IndividualStarRadData.NumberOfSGBins; j++){
         for(int k = 0; k < IndividualStarRadData.NumberOfMetallicityBins; k++){
-          IndividualStarRadData.Fuv[i][j][k] = 0.0;
+          IndividualStarRadData.FUV_flux[i][j][k] = 0.0;
         }
       }
     }
   }
 
   if(IndividualStarLWRadiation){
-    FILE *fptrLW = fopen("LW_rates.in", "r");
+    FILE *fptrLW = fopen("LW_energy_rates.in", "r");
     if (fptrLW == NULL){
-      ENZO_FAIL("Error opening LW_rates.in");
+      ENZO_FAIL("Error opening LW_energy_rates.in");
     }
 
     /* read in LW data */

@@ -91,6 +91,14 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 //  char *MetallicityName = "Metallicity";
   char *MetalIaName     = "MetalSNIa_Density";
 
+  char *AGBMetalName    = "AGB_Metal_Density";
+  char *PopIIIMetalName = "PopIII_Metal_Density";
+  char *PopIIIPISNeMetalName = "PopIII_PISNe_Metal_Density";
+  char *SNIIMetalName   = "SNII_Metal_Density";
+  char *SNIaMetalName   = "SNIa_Metal_Density";
+  char *RProcMetalName  = "RProcess_Metal_Density";
+
+
 
   /* Chemical Tracers */
   /* handled with lookup table - see below */
@@ -275,9 +283,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationAngularMomentum[0],
 		  &GalaxySimulationAngularMomentum[1],
 		  &GalaxySimulationAngularMomentum[2]);
-
-    ret += sscanf(line, "GalaxySimulationMultiMetals = %"ISYM,
-                        &TestProblemData.MultiMetals);
 
     ret += sscanf(line, "GalaxySimulationUseDensityPerturbation = %"ISYM,
                         &GalaxySimulationUseDensityPerturbation);
@@ -831,20 +836,32 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
  if (StarMakerTypeIaSNe)
    DataLabel[count++] = MetalIaName;
 
- /* Chemical tracer set ups */
- if(TestProblemData.MultiMetals){
-   MultiMetals = TestProblemData.MultiMetals;
- } else if (MultiMetals){
-   TestProblemData.MultiMetals = MultiMetals;
- }
-
- if (TestProblemData.MultiMetals == 2 || MultiMetals == 2){
+ if (MultiMetals == 2){
 
    for(int i =0; i < StellarYieldsNumberOfSpecies; i ++){
      if(StellarYieldsAtomicNumbers[i] > 2){
        DataLabel[count++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[i]);
      }
    } // yields loop
+
+   if (IndividualStarTrackAGBMetalDensity){
+     DataLabel[i++] = AGBMetalName;
+   }
+
+   if (IndividualStarPopIIIFormation){
+     DataLabel[i++] = PopIIIMetalName;
+     DataLabel[i++] = PopIIIPISNeMetalName;
+   }
+
+   if (IndividualStarTrackSNMetalDensity){
+     DataLabel[i++] = SNIaMetalName;
+     DataLabel[i++] = SNIIMetalName;
+   }
+
+   if (IndividualStarRProcessModel){
+     DataLabel[i++] = RProcMetalName;
+   }
+
  }
 
  for (i = 0; i < count; i++)
@@ -986,8 +1003,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
    fprintf(Outfptr, "TestProblemUseMetallicityField = %"ISYM"\n",
            TestProblemData.UseMetallicityField);
-   fprintf(Outfptr, "GalaxySimulationMultiMetals = %"ISYM"\n",
-           TestProblemData.MultiMetals);
 
    fprintf(Outfptr, "GalaxySimulationInitialDiskMetallicity = %"GOUTSYM"\n",
            GalaxySimulationInitialDiskMetallicity);

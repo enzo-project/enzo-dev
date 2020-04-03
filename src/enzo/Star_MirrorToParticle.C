@@ -32,6 +32,8 @@ void Star::MirrorToParticle(void)
 
   if (CurrentGrid == NULL)
     return;
+//  if (CurrentGrid->NumberOfParticles==0) // AJE: This is a hack that may be hiding a bad bug
+//    return;
 
   int i, dim, place = -1;
   float MassConversion;

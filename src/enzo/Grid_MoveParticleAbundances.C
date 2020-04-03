@@ -37,7 +37,7 @@ int grid::MoveParticleAbundances(int NumberOfGrids, grid* FromGrid[]){
   int offset = 0;
 
   if (IndividualStarTrackAGBMetalDensity) offset++;  // AGB Metal tracer - ExtraField0
-  if (IndividualStarPopIIIFormation)      offset++;  // PopIII Metal Tracer - ExtraField1
+  if (IndividualStarPopIIIFormation)      offset = offset + 2;  // PopIII Metal Tracer - ExtraField1
   if (IndividualStarTrackSNMetalDensity)  offset = offset + 2; // MetalSNIaDensity, MetalSNIIDensity
 
   for (grid = 0; grid < NumberOfGrids; grid++){

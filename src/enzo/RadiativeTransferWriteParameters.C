@@ -45,6 +45,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferOpticallyThinH2);
   fprintf(fptr, "RadiativeTransferOpticallyThinFUV         = %"ISYM"\n",
           RadiativeTransferOpticallyThinFUV);
+  fprintf(fptr, "RadiativeTransferOpticallyThinIR          = %"ISYM"\n",
+          RadiativeTransferOpticallyThinIR);
   fprintf(fptr, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM"\n",
           RadiativeTransferOpticallyThinSourceClustering);
   fprintf(fptr, "RadiativeTransferOpticallyThinH2CharLength = %"GOUTSYM"\n", 

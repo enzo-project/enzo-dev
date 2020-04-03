@@ -103,13 +103,13 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
 
   /* get temperature field */
-//  float *temperature;
+  float *temperature;
 
-//  temperature = new float[size];
+  temperature = new float[size];
 
-//  if(  this->ComputeTemperatureField(temperature) == FAIL ){
-//    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
-//  }
+  if(  this->ComputeTemperatureField(temperature) == FAIL ){
+    ENZO_FAIL("Error in compute temperature called from PhotoelectricHeatingFromStar");
+  }
 
   for (dim = 0; dim < GridRank; dim++){
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
@@ -132,6 +132,8 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   if (ProblemType == 50) ENZO_FAIL("Ptype = 50 not implemented in PeHeating");
 
   const double clight_code = clight * TimeUnits / LengthUnits;
+
+  /* AJE: To Do - convert this to just using rad sources */
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar){
 
@@ -157,6 +159,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
       ENZO_FAIL("Error in ComputePhotonRates from AddPeHeatingFromSources.\n");
     }
     /* this->Luminosity is photon / s, energies is in eV */
+    // compute FUV uminosity gives FUV luminosity in erg / s
     cstar->ComputeFUVLuminosity(FUVLuminosity);
     // (Luminosity[4]*energies[4]) / (4.0 * M_PI * eV_erg);
 
@@ -216,12 +219,17 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           }
 
 
-          /* Need to make decision on whether or not to place T cut here or in Grackle wrapper */
+          if (temperature[index] > IndividualStarFUVTemperatureCutoff) {
+            BaryonField[PeNum][index] = 0.0;
+          } else {
+            /* Need to make decision on whether or not to place T cut here or in Grackle wrapper */
 
-          BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, 
+            BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, 
                                                                // temperature[index],
                                                                        Z, LocalFUVflux,
                                                                        this->CellWidth[0][0]*LengthUnits) * PeConversion;
+          } // end T check
+
             //} // ENDIF
         } // END: i-direction
       } // END: j-direction
@@ -231,7 +239,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   for (dim = 0; dim < GridRank; dim++)
     delete [] ddr2[dim];
 
-//  delete [] temperature;
+  delete [] temperature;
 
   return SUCCESS;
 

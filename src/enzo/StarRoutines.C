@@ -35,21 +35,6 @@ void DeleteStar(Star * &Node);
 Star *PopStar(Star * &Node);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
 
-/* AJE
-int IndividualStarGetSETablePosition (int &i, int &j, const float &M, const float &metallicity);
-int IndividualStarGetRadTablePosition(int &i, int &j, int &k,
-                                      const float &Teff, const float &g, const float &metallicity);
-int StellarYieldsGetYieldTablePosition(int &i, int &j, const float &M, const float &metallicity);
-*/
-
-//float IndividualStarSurfaceGravity(const float &mp, const float &R);
-
-//void IndividualStarInterpolateProperties(float &Teff, float &R,
-//                                         const int &i, const int &j,
-//                                         const float &M, const float &metallicity);
-
-
-
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -81,6 +66,8 @@ Star::Star(void)
   se_table_position[0] = se_table_position[1] = -1;
   rad_table_position[0] = rad_table_position[1] = rad_table_position[3] = -1;
   yield_table_position[0] = yield_table_position[1] = -1;
+  for (int i = 0; i < MAX_STELLAR_YIELDS; i++)
+    abundances[i] = 0.0;
 
   wind_mass_ejected = sn_mass_ejected = 0.0;
 }
@@ -125,6 +112,13 @@ Star::Star(grid *_grid, int _id, int _level)
       ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED){
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
+    if (!IndividualStarOutputChemicalTags){
+      for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+        abundances[i] = (double)(_grid->ParticleAttribute[4 + i][_id]);
+      }
+    }
+
+
     if (IndividualStarSaveTablePositions){
       int ts = ParticleAttributeTableStartIndex;
       se_table_position[0] = (int)(_grid->ParticleAttribute[ts][_id]);
@@ -141,29 +135,7 @@ Star::Star(grid *_grid, int _id, int _level)
       yield_table_position[0] = yield_table_position[1] = -1.0;
 
     }
-/*
- else if (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR || type < 0){
-      // interpolate table positions if not stored. This is used in feedback and
-      //   evolution routines. Do not do for every star though, only those with
-      //   actual feedback occuring.
 
-      IndividualStarGetSETablePosition(se_table_position[0], se_table_position[1],
-                                        BirthMass, Metallicity);
-
-      if (BirthMass >= IndividualStarRadiationMinimumMass){ // don't bother if non-radiating
-        float Teff, R;
-        IndividualStarInterpolateProperties(Teff, R, se_table_position[0], se_table_position[1],
-                                            BirthMass, Metallicity);
-        float g = IndividualStarSurfaceGravity(BirthMass, R);
-        IndividualStarGetRadTablePosition(rad_table_position[0], rad_table_position[1],
-                                          rad_table_position[2],
-                                          Teff, g, Metallicity);
-      }
-
-      StellarYieldsGetYieldTablePosition(yield_table_position[0], yield_table_position[1],
-                                         BirthMass, Metallicity);
-    }
-*/
     wind_mass_ejected = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
     sn_mass_ejected   = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
 
@@ -221,12 +193,18 @@ Star::Star(StarBuffer *buffer, int n)
   PrevStar = NULL;
 
   /* AJE */
-  for(int i =0; i < 2; i++){
+  for(i =0; i < 2; i++){
     se_table_position[i] = buffer[n].se_table_position[i];
     yield_table_position[i] = buffer[n].yield_table_position[i];
     rad_table_position[i] = buffer[n].rad_table_position[i];
   }
   rad_table_position[2] = buffer[n].rad_table_position[2];
+
+  if (!IndividualStarOutputChemicalTags){
+    for (i = 0; i < StellarYieldsNumberOfSpecies; i++){
+      abundances[i] = buffer[n].abundances[i];
+    }
+  }
 
   wind_mass_ejected = buffer[n].wind_mass_ejected;
   sn_mass_ejected   = buffer[n].sn_mass_ejected;
@@ -276,12 +254,18 @@ Star::Star(StarBuffer buffer)
   PrevStar = NULL;
 
   /* AJE */
-  for(int i =0; i < 2; i++){
+  for(i =0; i < 2; i++){
     se_table_position[i] = buffer.se_table_position[i];
     yield_table_position[i] = buffer.yield_table_position[i];
     rad_table_position[i] = buffer.rad_table_position[i];
   }
   rad_table_position[2] = buffer.rad_table_position[2];
+
+  if (!IndividualStarOutputChemicalTags){
+    for(i=0;i<StellarYieldsNumberOfSpecies;i++){
+      abundances[i] = buffer.abundances[i];
+    }
+  }
 
   wind_mass_ejected = buffer.wind_mass_ejected;
   sn_mass_ejected   = buffer.sn_mass_ejected;
@@ -356,12 +340,18 @@ void Star::operator=(Star a)
   }
 
   /* AJE */
-  for(int i =0; i < 2; i++){
+  for(i=0; i < 2; i++){
     se_table_position[i] = a.se_table_position[i];
     yield_table_position[i] = a.yield_table_position[i];
     rad_table_position[i] = a.rad_table_position[i];
   }
   rad_table_position[2] = a.rad_table_position[2];
+
+  if (!IndividualStarOutputChemicalTags){
+    for(i=0;i<StellarYieldsNumberOfSpecies;i++){
+      abundances[i] = a.abundances[i];
+    }
+  }
 
   wind_mass_ejected = a.wind_mass_ejected;
   sn_mass_ejected   = a.sn_mass_ejected;
@@ -434,12 +424,18 @@ Star *Star::copy(void)
   }
 
   /* AJE */
-  for(int i =0; i < 2; i++){
+  for(i =0; i < 2; i++){
     a->se_table_position[i]    = se_table_position[i];
     a->yield_table_position[i] = yield_table_position[i];
     a->rad_table_position[i]   = rad_table_position[i];
   }
   a->rad_table_position[2] = rad_table_position[2];
+
+  if (!IndividualStarOutputChemicalTags){
+    for(i=0;i<StellarYieldsNumberOfSpecies;i++){
+      a->abundances[i] = abundances[i];
+    }
+  }
 
   a->wind_mass_ejected = wind_mass_ejected;
   a->sn_mass_ejected   = sn_mass_ejected;
@@ -557,6 +553,8 @@ void Star::UpdatePositionVelocity(void)
   int _id = -1;
   if (CurrentGrid != NULL && type >= 0) { // on local processor and active
     // Search for particle
+//		if (CurrentGrid->NumberOfParticles > 0){
+
     for (i = 0; i < CurrentGrid->NumberOfParticles; i++)
       if (Identifier == CurrentGrid->ParticleNumber[i]) {
 	_id = i;
@@ -567,6 +565,7 @@ void Star::UpdatePositionVelocity(void)
       pos[dim] = CurrentGrid->ParticlePosition[dim][_id];
       vel[dim] = CurrentGrid->ParticleVelocity[dim][_id];
     }
+//	}
   }
   LCAPERF_STOP("star_UpdatePositionVelocity");
   return;
@@ -580,6 +579,7 @@ void Star::UpdateWhiteDwarfProperties(void){
 
   if (CurrentGrid != NULL &&
       this->type == -PARTICLE_TYPE_INDIVIDUAL_STAR_WD){
+//		if (CurrentGrid->NumberOfParticles > 0) {
     for(i = 0; i < CurrentGrid->NumberOfParticles; i++){
 
 
@@ -592,6 +592,7 @@ void Star::UpdateWhiteDwarfProperties(void){
 
     this->LifeTime = CurrentGrid->ParticleAttribute[1][_id];
     this->type     = CurrentGrid->ParticleType[_id];
+//	}
   }
 
   LCAPERF_STOP("star_UpdateWhiteDwarfProperties");
@@ -608,6 +609,7 @@ void Star::UpdateIndividualStarParticleProperties(void)
   int _id = -1;
   if (CurrentGrid != NULL && type >=0) {
     // search for particle
+//		if (CurrentGrid->NumberOfParticles > 0){
     for (i = 0; i < CurrentGrid->NumberOfParticles; i++){
       if( Identifier == CurrentGrid->ParticleNumber[i]){
          _id = i;
@@ -623,6 +625,7 @@ void Star::UpdateIndividualStarParticleProperties(void)
     wind_mass_ejected = (double)(CurrentGrid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
     sn_mass_ejected   = (double)(CurrentGrid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
     this->ConvertMassToSolar();
+//	}
   } // end if
 
 
@@ -679,29 +682,13 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
       yield_table_position[0] = yield_table_position[1] = -1.0;
 
     }
-/*
-  else if (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR || type < 0){
-      // if not, need to re-interpolate particle properties. But don't do this
-      // for all individual stars... that would be a large waste
 
-      IndividualStarGetSETablePosition(se_table_position[0], se_table_position[1],
-                                        BirthMass, Metallicity);
-
-      if (BirthMass >= IndividualStarRadiationMinimumMass){ // only if star is radiating
-        float Teff, R;
-        IndividualStarInterpolateProperties(Teff, R, se_table_position[0], se_table_position[1],
-                                            BirthMass, Metallicity);
-        float g = IndividualStarSurfaceGravity(BirthMass, R);
-        IndividualStarGetRadTablePosition(rad_table_position[0], rad_table_position[1],
-                                          rad_table_position[2],
-                                          Teff, g, Metallicity);
+    if (!IndividualStarOutputChemicalTags){
+      for(int i=0;i<StellarYieldsNumberOfSpecies;i++){
+        abundances[0] = (double)(_grid->ParticleAttribute[4+i][_id]);
       }
+    }
 
-      StellarYieldsGetYieldTablePosition(yield_table_position[0], yield_table_position[1],
-                                         BirthMass, Metallicity);
-    } else {
-      // initialize to something
-*/
     wind_mass_ejected = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
     sn_mass_ejected   = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
   }
@@ -830,6 +817,12 @@ void Star::StarListToBuffer(StarBuffer *&result, int n)
     }
     result[count].rad_table_position[2] = tmp->rad_table_position[2];
 
+    if (!IndividualStarOutputChemicalTags){
+      for (i=0;i<StellarYieldsNumberOfSpecies;i++){
+        result[count].abundances[i] = tmp->abundances[i];
+      }
+    }
+
     result[count].wind_mass_ejected = tmp->wind_mass_ejected;
     result[count].sn_mass_ejected   = tmp->sn_mass_ejected;
 
@@ -879,12 +872,18 @@ void Star::StarToBuffer(StarBuffer *result)
   result->AddedEmissivity = tmp->AddedEmissivity;
 
   /* AJE */
-  for(int i =0; i < 2; i++){
+  for(i =0; i < 2; i++){
     result->se_table_position[i] = tmp->se_table_position[i];
     result->yield_table_position[i] = tmp->yield_table_position[i];
     result->rad_table_position[i] = tmp->rad_table_position[i];
   }
   result->rad_table_position[2] = tmp->rad_table_position[2];
+
+  if (!IndividualStarOutputChemicalTags){
+    for(i=0;i<StellarYieldsNumberOfSpecies;i++){
+      result->abundances[i] = tmp->abundances[i];
+    }
+  }
 
   result->wind_mass_ejected = tmp->wind_mass_ejected;
   result->sn_mass_ejected   = tmp->sn_mass_ejected;

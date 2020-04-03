@@ -317,6 +317,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "RefineBy                       = %"ISYM"\n", RefineBy);
   fprintf(fptr, "MaximumRefinementLevel         = %"ISYM"\n", MaximumRefinementLevel);
+  fprintf(fptr, "MaximumRefinementLevelPhysicalScale = %"FSYM"\n", MaximumRefinementLevelPhysicalScale);
   fprintf(fptr, "MaximumGravityRefinementLevel  = %"ISYM"\n",
 	  MaximumGravityRefinementLevel);
   fprintf(fptr, "MaximumParticleRefinementLevel = %"ISYM"\n",
@@ -559,24 +560,22 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "SGScoeffNLuNormedEnS2Star      = %"FSYM"\n", SGScoeffNLuNormedEnS2Star);
   fprintf(fptr, "SGScoeffNLb                    = %"FSYM"\n", SGScoeffNLb);
   fprintf(fptr, "use_grackle                 = %"ISYM"\n", use_grackle);
+
 #ifdef USE_GRACKLE
-  /* Grackle chemistry parameters */
-  fprintf(fptr, "with_radiative_cooling      = %d\n", grackle_data->with_radiative_cooling);
-  fprintf(fptr, "use_volumetric_heating_rate = %d\n", grackle_data->use_volumetric_heating_rate);
-  fprintf(fptr, "use_specific_heating_rate   = %d\n", grackle_data->use_specific_heating_rate);
-  fprintf(fptr, "self_shielding_method       = %d\n", grackle_data->self_shielding_method);
-  fprintf(fptr, "H2_self_shielding           = %d\n", grackle_data->H2_self_shielding);
-// fprintf(fptr, "k27_factor                  = %"ESYM"\n", grackle_data->k27_factor);
-//  fprintf(fptr, "LW_factor                   = %"ESYM"\n", grackle_data->LW_factor);
-  fprintf(fptr, "grackle_data_file           = %s\n", grackle_data->grackle_data_file);
-  fprintf(fptr, "UVbackground                = %d\n", grackle_data->UVbackground);
-  fprintf(fptr, "Compton_xray_heating        = %d\n", grackle_data->Compton_xray_heating);
-  fprintf(fptr, "LWbackground_intensity      = %lf\n", grackle_data->LWbackground_intensity);
-  fprintf(fptr, "LWbackground_sawtooth_suppression = %d\n", grackle_data->LWbackground_sawtooth_suppression);
-//  fprintf(fptr, "RampCooling                 = %d\n", grackle_data->RampCooling);
-//  fprintf(fptr, "RampCooling_time_on         = %"ESYM"\n", grackle_data->RampCooling_time_on);
-//  fprintf(fptr, "RampCooling_time_fullon     = %"ESYM"\n", grackle_data->RampCooling_time_fullon);
-  /********************************/
+  if (grackle_data->use_grackle){
+    /* Grackle chemistry parameters */
+    fprintf(fptr, "with_radiative_cooling      = %d\n", grackle_data->with_radiative_cooling);
+    fprintf(fptr, "use_volumetric_heating_rate = %d\n", grackle_data->use_volumetric_heating_rate);
+    fprintf(fptr, "use_specific_heating_rate   = %d\n", grackle_data->use_specific_heating_rate);
+    fprintf(fptr, "self_shielding_method       = %d\n", grackle_data->self_shielding_method);
+    fprintf(fptr, "H2_self_shielding           = %d\n", grackle_data->H2_self_shielding);
+    fprintf(fptr, "grackle_data_file           = %s\n", grackle_data->grackle_data_file);
+    fprintf(fptr, "UVbackground                = %d\n", grackle_data->UVbackground);
+    fprintf(fptr, "Compton_xray_heating        = %d\n", grackle_data->Compton_xray_heating);
+    fprintf(fptr, "LWbackground_intensity      = %lf\n", grackle_data->LWbackground_intensity);
+    fprintf(fptr, "LWbackground_sawtooth_suppression = %d\n", grackle_data->LWbackground_sawtooth_suppression);
+    /********************************/
+  }
 #endif
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
   fprintf(fptr, "RadiativeCoolingModel          = %"ISYM"\n", RadiativeCoolingModel);
@@ -1070,8 +1069,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           PopIIIColorMass);
   fprintf(fptr, "PopIIIUseHypernova                    = %"ISYM"\n",
           PopIIIUseHypernova);
-  fprintf(fptr, "PopIIIOutputOnFeedback                = %"ISYM"\n\n",
+  fprintf(fptr, "PopIIIOutputOnFeedback                = %"ISYM"\n",
           PopIIIOutputOnFeedback);
+  fprintf(fptr, "PopIIIRadiationModel                  + %"ISYM"\n\n",
+          PopIIIRadiationModel);
 
   fprintf(fptr, "MBHAccretion                          = %"ISYM"\n", MBHAccretion);
   fprintf(fptr, "MBHAccretionRadius                    = %"GSYM"\n", MBHAccretionRadius);
@@ -1162,7 +1163,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   WriteListOfFloats(fptr, 3, IndividualStarICSupernovaPos);
 
   fprintf(fptr, "IndividualStarWDFixedLifetime = %"FSYM"\n", IndividualStarWDFixedLifetime);
-  fprintf(fptr, "IndividualStarLifeRefinementFactor = %"ISYM"\n", IndividualStarLifeRefinementFactor);
+  fprintf(fptr, "IndividualStarRefineTime= %"FSYM"\n", IndividualStarRefineTime);
   fprintf(fptr, "IndividualStarICLifetimeMode = %"ISYM"\n", IndividualStarICLifetimeMode);
   fprintf(fptr, "IndividualStarCheckVelocityDiv = %"ISYM"\n", IndividualStarCheckVelocityDiv);
   fprintf(fptr, "IndividualStarFeedbackOverlapSample = %"ISYM"\n", IndividualStarFeedbackOverlapSample);
@@ -1190,6 +1191,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarAGBThreshold = %"FSYM"\n", IndividualStarAGBThreshold);
   fprintf(fptr, "IndividualStarTrackAGBMetalDensity = %"ISYM"\n", IndividualStarTrackAGBMetalDensity);
   fprintf(fptr, "IndividualStarTrackSNMetalDensity = %"ISYM"\n", IndividualStarTrackSNMetalDensity);
+  fprintf(fptr, "IndividualStarRProcessModel = %"ISYM"\n", IndividualStarRProcessModel);
   fprintf(fptr, "IndividualStarAGBWindVelocity = %"FSYM"\n", IndividualStarAGBWindVelocity);
   fprintf(fptr, "IndividualStarWDMinimumMass = %"FSYM"\n", IndividualStarWDMinimumMass);
   fprintf(fptr, "IndividualStarWDMaximumMass = %"FSYM"\n", IndividualStarWDMaximumMass);
@@ -1203,12 +1205,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarDTDSlope = %"FSYM"\n", IndividualStarDTDSlope);
   fprintf(fptr, "IndividualStarSNIaFraction = %"FSYM"\n", IndividualStarSNIaFraction);
   fprintf(fptr, "IndividualStarFollowStellarYields = %"ISYM"\n", IndividualStarFollowStellarYields);
+  fprintf(fptr, "IndividualStarSurfaceAbundances = %"ISYM"\n", IndividualStarSurfaceAbundances);
   fprintf(fptr, "IndividualStarOutputChemicalTags = %"ISYM"\n", IndividualStarOutputChemicalTags);
   fprintf(fptr, "IndividualStarSaveTablePositions = %"ISYM"\n", IndividualStarSaveTablePositions);
   fprintf(fptr, "IndividualStarFeedbackStencilSize = %"FSYM"\n", IndividualStarFeedbackStencilSize);
+  fprintf(fptr, "IndividualStarFeedackRadius = %"FSYM"\n", IndividualStarFeedbackRadius);
   fprintf(fptr, "IndividualStarBlackBodyOnly = %"ISYM"\n", IndividualStarBlackBodyOnly);
   fprintf(fptr, "IndividualStarSupernovaEnergy = %"ESYM"\n", IndividualStarSupernovaEnergy);
   fprintf(fptr, "IndividualStarStellarWindVelocity = %"FSYM"\n", IndividualStarStellarWindVelocity);
+  fprintf(fptr, "IndividualStarIRRadiation = %"ISYM"\n", IndividualStarIRRadiation);
   fprintf(fptr, "IndividualStarLWRadiation = %"ISYM"\n", IndividualStarLWRadiation);
   fprintf(fptr, "IndividualStarFUVHeating = %"ISYM"\n", IndividualStarFUVHeating);
   fprintf(fptr, "IndividualStarOTRadiationMass = %"FSYM"\n", IndividualStarOTRadiationMass);
@@ -1228,6 +1233,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   WriteListOfFloats(fptr, 2, IndividualStarBlackBodyq0Factors);
   fprintf(fptr, "IndividualStarBlackBodyq1Factors  = ");
   WriteListOfFloats(fptr, 2, IndividualStarBlackBodyq1Factors);
+  fprintf(fptr, "IndividualStarBlackBodyq2Factors  = ");
+  WriteListOfFloats(fptr, 2, IndividualStarBlackBodyq2Factors);
+  fprintf(fptr, "IndividualStarBlackBodyIRFactors = ");
+  WriteListOfFloats(fptr, 2, IndividualStarBlackBodyIRFactors);
   fprintf(fptr, "IndividualStarBlackBodyFUVFactors = ");
   WriteListOfFloats(fptr, 2, IndividualStarBlackBodyFUVFactors);
   fprintf(fptr, "IndividualStarBlackBodyLWFactors = ");

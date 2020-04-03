@@ -149,12 +149,19 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
       if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
 
-      if (TestProblemData.MultiMetals && !IndividualStarOutputChemicalTags){
-        NumberOfParticleAttributes ++; // counter offset to get names right
+      if (MultiMetals && !IndividualStarOutputChemicalTags){
+        NumberOfParticleAttributes ++;   // counter offset to get names right
                                          // this is a hack and a waste of memory
-        if(TestProblemData.MultiMetals == 2){
+        if(MultiMetals == 2){
           NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
+
+          if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
+          if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes += 2;
+          if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
+          if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
         }
+
+
       } // end multi metals
       if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
         if (!IndividualStarSaveTablePositions){

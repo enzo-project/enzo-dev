@@ -212,7 +212,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	cstar->ComputePhotonRates(TimeUnits, nbins, energies, Q);
 	sigma = (double) FindCrossSection(0, energies[0]);  // HI (cm^2)
 	Q_HI = Q[0];
-	deltaE = energies[0] - 13.6;  // eV
+	deltaE = energies[0] - HI_ionizing_energy;  // eV
       } else
 #endif /* TRANSFER */
 	{

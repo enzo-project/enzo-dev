@@ -144,7 +144,6 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
       delete [] List;
       List = NewList;
 
-
       int n1 = PreviousTotalToMove;
 
       cstar = Stars;
@@ -158,7 +157,7 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
 	grid = ToGrid[i];
 
 	if (grid != ThisGridNum) {
-	  MoveStar->StarToBuffer(&List[n1].data);
+          MoveStar->StarToBuffer(&List[n1].data);
 	  List[n1].grid = grid;
 	  List[n1].proc = MyProcessorNumber;
 	  n1++;
