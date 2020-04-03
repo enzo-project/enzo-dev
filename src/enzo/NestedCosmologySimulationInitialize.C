@@ -54,7 +54,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 #ifdef INDIVIDUALSTAR
   char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
-#endif  
+#endif
 
 
 // Cosmology Parameters (that need to be shared)
@@ -147,9 +147,9 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *BzName = "Bz";
   char *PhiName = "Phi";
   char *Phi_pName = "Phip";
-  char *RePsiName = "Re_Psi"; 
-  char *ImPsiName = "Im_Psi"; 
-  char *FDMDensityName = "FDMDensity"; 
+  char *RePsiName = "Re_Psi";
+  char *ImPsiName = "Im_Psi";
+  char *FDMDensityName = "FDMDensity";
 
 
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
@@ -379,6 +379,10 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (CosmologySimulationDensityName == NULL && MultiSpecies+RadiativeCooling > 0) {
     fprintf(stderr, "warning: no density field; setting MultiSpecies/RadiativeCooling = 0\n");
     MultiSpecies = RadiativeCooling = 0;
+  }
+
+  if (MultiMetals && !CosmologySimulationUseMetallicityField){
+    ENZO_FAIL("MultiMetals is ON but CosmologySimulationUseMetallicityField is OFF");
   }
 
   if (CosmologySimulationParticleVelocityNames[0] != NULL &&
@@ -832,7 +836,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = PSTempName;
       DataLabel[i++] = PSDenName;
     }
-  } 
+  }
 
     // real and imaginary part of wave function
   if (QuantumPressure) {

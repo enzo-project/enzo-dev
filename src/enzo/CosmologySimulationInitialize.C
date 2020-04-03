@@ -429,6 +429,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     MultiSpecies = RadiativeCooling = 0;
   }
 
+  if (MultiMetals && !CosmologySimulationUseMetallicityField){
+    ENZO_FAIL("MultiMetals is ON but CosmologySimulationUseMetallicityField is OFF");
+  }  
+
   if (CosmologySimulationParticleVelocityNames[0] != NULL &&
       CosmologySimulationParticlePositionNames[0] == NULL &&
       !CosmologySimulationCalculatePositions) {
