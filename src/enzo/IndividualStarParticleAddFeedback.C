@@ -599,7 +599,9 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   const float sphere_volume = 4.0 * pi * radius * radius * radius / 3.0; // (code length)**3
   const float cell_volume_fraction = dx*dx*dx / sphere_volume;           // fraction of vol for each cell
 
-  float injected_metal_mass[StellarYieldsNumberOfSpecies+1];
+  float * injected_metal_mass;
+  injected_metal_mass = new float [StellarYieldsNumberOfSpecies+1];
+  for(int i =0; i < StellarYieldsNumberOfSpecies+1; i++) injected_metal_mass[i] = 0.0;
 
   if (metal_mass == NULL && (cstar)){
     injected_metal_mass[0] = cstar->ReturnMetallicity() * m_eject;
@@ -614,7 +616,9 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   int   cells_this_grid = 0;
 
   const int num_factors = POW(r_int*2+1,3);
-  float injection_factors[ num_factors ] = {0.0};
+  float * injection_factors;
+  injection_factors = new float[num_factors];
+  for(int i =0; i <num_factors; i++) injection_factors[i]=0.0;
 
   // loop over all cells, compute fractional volume to deposit feedback
   int count = 0;
@@ -856,6 +860,8 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
 
   delete [] temperature;
+  delete [] injection_factors;
+  delete [] injected_metal_mass;
   // done with spherical injection feedback
 
   return SUCCESS;
