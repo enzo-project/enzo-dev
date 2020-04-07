@@ -515,12 +515,14 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       }
 
 
-      FLOAT max_dx = TopGridDx[0] / POW(RefineBy, MaximumRefinementLevel);
+      FLOAT max_dx = TopGridDx[0] / POW(FLOAT(RefineBy), MaximumRefinementLevel);
 
-      if ( (max_dx * LengthUnits / pc_cm) < MaximumRefinementLevelPhysicalScale){
+      // Could make this a while loop, but don't want to bump max level
+      // too much in a single cycle
+      if ( (max_dx * LengthUnits / pc_cm) > MaximumRefinementLevelPhysicalScale){
         MaximumRefinementLevel++;
         MaximumGravityRefinementLevel++;
-        MaximumParticleRefinementLevel++;
+        // MaximumParticleRefinementLevel++;
         if (IndividualStarRefineToLevel > 0) IndividualStarRefineToLevel++;
       }
     }
