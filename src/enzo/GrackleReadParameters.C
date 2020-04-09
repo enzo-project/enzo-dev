@@ -8,7 +8,7 @@
 /
 /  PURPOSE:
 /
-/  NOTE: Handles reading of Grackle-specific parametrs and mapping
+/  NOTE: Handles reading of Grackle-specific parameters and mapping
 /        shared parameters between Enzo and Grackle. Any new Grackle parameters
 /        should be read in here.
 /
@@ -139,6 +139,20 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     ret += sscanf(line, "LWbackground_sawtooth_suppression = %d",
                   &grackle_data->LWbackground_sawtooth_suppression);
 
+    ret += sscanf(line, "local_dust_to_gas_ratio",
+                  &grackle_data->local_dust_to_gas_ratio);
+
+    ret += sscanf(line, "dust_chemistry",
+                  &grackle_data->dust_chemistry);
+
+    /* functionality for below two are not yet implemented but are
+       involved in options for other Grackle settings. Read in
+       here to do error checking to make sure these are not used */
+    ret += sscanf(line, "use_isrf_field",
+                  &grackle_data->use_isrf_field);
+    ret += sscanf(line, "use_dust_density_field",
+                  &grackle_data->use_dust_density_field);
+
     /* If the dummy char space was used, then make another. */
     if (*dummy != 0) {
       dummy = new char[MAX_LINE_LENGTH];
@@ -188,6 +202,17 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
   grackle_data->use_radiative_transfer         = (Eint32) RadiativeTransfer;
   // grackle_data->radiative_transfer_coupled_rate_solver set in RadiativeTransferReadParameters
   // grackle_data->radiative_transfer_hydrogen_only set in RadiativeTransferReadParameters
+
+
+  // Error checking for behavior not implemented
+  if ( (grackle_data->photoelectric_heating == 2) ||
+       (grackle_data->use_isrf_field)){
+    ENZO_FAIL("Photoelectric heating model 2, and ISRF field, in Grackle is not yet implemented.\n");
+  }
+
+  if ( grackle_data->use_dust_density_field ){
+    ENZO_FAIL("Supplying dust density (use_dust_density_field) to Grackle is not yet implemented.\n");
+  }
 
   // Initialize Grackle units structure.
   FLOAT a_value, dadt;

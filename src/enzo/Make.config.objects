@@ -334,6 +334,7 @@ OBJS_CONFIG_LIB = \
 	gFLDSplit_SetupSystem.o \
 	gFLDSplit_WriteParameters.o \
         GrackleReadParameters.o \
+        GrackleWriteParameters.o \
 	GravityEquilibriumTestInitialize.o \
 	Grid_AccelerationBoundaryRoutines.o \
 	Grid_AccessBaryonFields.o \
