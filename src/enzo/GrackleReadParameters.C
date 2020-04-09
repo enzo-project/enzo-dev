@@ -138,12 +138,15 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
                   &grackle_data->LWbackground_intensity);
     ret += sscanf(line, "LWbackground_sawtooth_suppression = %d",
                   &grackle_data->LWbackground_sawtooth_suppression);
+    ret += sscanf(line, "LWbackground_model = %d",
+                  &grackle_data->LWbackground_model);
 
     ret += sscanf(line, "local_dust_to_gas_ratio",
                   &grackle_data->local_dust_to_gas_ratio);
 
     ret += sscanf(line, "dust_chemistry",
                   &grackle_data->dust_chemistry);
+
 
     /* functionality for below two are not yet implemented but are
        involved in options for other Grackle settings. Read in
