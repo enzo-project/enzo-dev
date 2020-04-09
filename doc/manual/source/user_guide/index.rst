@@ -17,12 +17,13 @@ The instructions on
 actually running the code are not comprehensive in that they are not
 machine or platform-specific.  Arguably the most useful and important
 piece of this guide is :ref:`parameters`, which contains
-descriptions of all of the roughly 300 possible input parameters (as
-of September 2008). For more detailed information on the Enzo
+descriptions of all of the roughly 650 possible input parameters (as
+of September 2019). For more detailed information on the Enzo
 algorithms and on running Enzo on different platforms, you should
 refer to the :doc:`building_enzo`. Detailed information on the
-algorithms used in Enzo will be available in the method paper
-(unreleased as of September 2008). In the meantime, see the
+algorithms used in Enzo are available in the method paper,
+`Bryan et al. 2014 <https://ui.adsabs.harvard.edu/abs/2014ApJS..211...19B/abstract>`_.
+In addition, see
 :ref:`EnzoPrimaryReferences` for more concrete Enzo information.
 
 This guide (and Enzo itself) was originally written by Greg

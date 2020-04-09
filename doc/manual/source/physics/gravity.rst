@@ -10,7 +10,10 @@ to solve Poisson’s equation on the
 root grid on each timestep. The advantage of using this method is that
 it is fast, accurate, and naturally allows both periodic and isolated
 boundary conditions for the gravity, choices which are very common in
-astrophysics and cosmology. On subgrids, we interpolate the boundary
+astrophysics and cosmology (with isolated boundary conditions on the
+root grid being implemented with the `James (1977) method
+<https://doi.org/10.1016/0021-9991(77)90013-4>`_).
+On subgrids, we interpolate the boundary
 conditions from the parent grid (either the root grid or some other
 subgrid). The Poisson equation is then solved on every timestep using
 a multigrid technique on one subgrid at a time. Aside from

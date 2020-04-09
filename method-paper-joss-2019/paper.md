@@ -239,7 +239,7 @@ bibliography: paper.bib
 # Summary
 
 Enzo [@EnzoGitRepo] is a block-structured adaptive mesh refinement code that is widely used to simulate astrophysical fluid flows (primarily, but not exclusively, cosmological structure formation, star formation, and turbulence).  The code is a community project with dozens of users, and has contributed to hundreds of peer-reviewed publications in astrophysics, physics, and computer science.
-The code is Cartesian, can be run in one, two, and three dimensions, and supports a wide variety of physics including (magneto)hydrodynamics, the self-gravity of fluids and particles, cosmological expansion, primordial gas chemistry, optically thin radiative plasma cooling, radiation transport, conduction, and models for star formation, stellar feedback, and the feedback from supermassive black holes.
+The code utilizes a Cartesian mesh can be run in one, two, or three dimensions.  It supports a wide variety of physics including (magneto)hydrodynamics, the self-gravity of fluids and particles, cosmological expansion, primordial gas chemistry, optically thin radiative plasma cooling, radiation transport, conduction, and models for star formation, stellar feedback, and the feedback from supermassive black holes.
 
 Enzo's original method paper [@EnzoMethodPaper2014] was published in 2014, and documented Version 2.3.  This paper describes Enzo's most recent public release, Version 2.6 (released on August 2, 2019; see [@EnzoReleaseNotes]).  Since Version 2.3, there have been several new features added to the code:
 
