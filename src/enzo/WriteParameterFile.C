@@ -1055,7 +1055,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           PopIIIUseHypernova);
   fprintf(fptr, "PopIIIOutputOnFeedback                = %"ISYM"\n",
           PopIIIOutputOnFeedback);
-  fprintf(fptr, "PopIIIRadiationModel                  + %"ISYM"\n\n",
+  fprintf(fptr, "PopIIIRadiationModel                  = %"ISYM"\n\n",
           PopIIIRadiationModel);
 
   fprintf(fptr, "MBHAccretion                          = %"ISYM"\n", MBHAccretion);
