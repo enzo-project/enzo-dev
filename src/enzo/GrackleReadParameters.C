@@ -141,19 +141,19 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     ret += sscanf(line, "LWbackground_model = %d",
                   &grackle_data->LWbackground_model);
 
-    ret += sscanf(line, "local_dust_to_gas_ratio",
+    ret += sscanf(line, "local_dust_to_gas_ratio = %f",
                   &grackle_data->local_dust_to_gas_ratio);
 
-    ret += sscanf(line, "dust_chemistry",
+    ret += sscanf(line, "dust_chemistry = %d",
                   &grackle_data->dust_chemistry);
 
 
     /* functionality for below two are not yet implemented but are
        involved in options for other Grackle settings. Read in
        here to do error checking to make sure these are not used */
-    ret += sscanf(line, "use_isrf_field",
+    ret += sscanf(line, "use_isrf_field = %d",
                   &grackle_data->use_isrf_field);
-    ret += sscanf(line, "use_dust_density_field",
+    ret += sscanf(line, "use_dust_density_field = %d",
                   &grackle_data->use_dust_density_field);
 
     /* If the dummy char space was used, then make another. */
