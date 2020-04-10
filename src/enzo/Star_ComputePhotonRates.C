@@ -99,10 +99,12 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
     } else if (PopIIIRadiationModel == 1){
 
+      nbins = 3; // HI,HeI,HeII
+
       if( (IndividualStarFUVHeating || IndividualStarLWRadiation) &&
           (M >= IndividualStarOTRadiationMass)){
 
-        nbins = 8 ; // + LW and + FUV
+        nbins = 8 ; // filler + LW and + FUV + IR
       }
 
       /* Fits to Heger and Woosley 2010
