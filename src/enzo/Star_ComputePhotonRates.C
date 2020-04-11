@@ -102,7 +102,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       nbins = 3; // HI,HeI,HeII
 
       if( (IndividualStarFUVHeating || IndividualStarLWRadiation) &&
-          (M >= IndividualStarOTRadiationMass)){
+          (this->BirthMass >= IndividualStarOTRadiationMass)){
 
         nbins = 8 ; // filler + LW and + FUV + IR
       }
