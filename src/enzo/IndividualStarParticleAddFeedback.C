@@ -762,6 +762,9 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
             BaryonField[field_num][index] += injected_metal_mass[0]; // add to metallicity field
 
             // Add to separate source fields if they exist
+
+            // AJE: Rprocess model goes here 
+
             if (IndividualStarPopIIIFormation && cstar->ReturnMetallicity() < PopIIIMetalCriticalFraction){
               BaryonField[PopIIIMetalNum][index] += injected_metal_mass[0];
 
