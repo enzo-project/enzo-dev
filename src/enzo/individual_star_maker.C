@@ -161,6 +161,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     ENZO_FAIL("Error in finding SNII and SNIa metal density field in individual_star_maker.");
   }
 
+  if ( IndividualStarRProcessModel && ( RProcMetalNum <=0 )){
+    ENZO_FAIL("Error in finding R process metal density field in individual_star_maker.");
+  }
+
   /* get units */
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits, MassUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, this->Time) == FAIL){
