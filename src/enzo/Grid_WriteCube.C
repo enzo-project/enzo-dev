@@ -159,6 +159,8 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
         ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
       }
     }
+    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
+    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
 
   } else {
     ParticleAttributeLabel[3] = "typeia_fraction";
