@@ -2169,7 +2169,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
       /* and individual species type tracers */
       if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
-      if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes++;
+      if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes += 2;
       if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
       if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
 
