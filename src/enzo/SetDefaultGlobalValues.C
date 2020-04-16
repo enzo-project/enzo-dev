@@ -738,6 +738,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIOutputOnFeedback           = FALSE;        // TRUE to output at creation and supernova
   PopIIIRadiationModel             = 0;            // 0: Schaerer+2012 1: Heger+Woosley 2010
   IMFData                          = NULL;
+  SecondaryIMFData                 = NULL;
+  EventDTD                         = NULL;
 
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate, 4: Bondi with v_rel=0, 5: Bondi with v_rel=0 and vorticity
   MBHAccretionRadius               = 50;           // pc
@@ -855,13 +857,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
                                                     // when > 0, constant supernova energy in units of 10^51 erg
   IndividualStarPrintSNStats            = 0;        // print out grid and density info for each SN explosion
 
-  IndividualStarUseSNIa                 = 0;        // on or off
+  IndividualStarSNIaModel               = 2;        // 0: off, 1: power-law DTD, 2: Ruiter+2011
   IndividualStarDTDSlope                = 1.20;     // beta (positive) - Default from Maoz et. al. 2012
   IndividualStarWDMinimumMass           = 1.7;      // Solar masses - min MS projenitor mass that forms WD
   IndividualStarWDMaximumMass           = 8.0;      // solar masses - max MS projenitor mass that forms WD
   IndividualStarSNIaMinimumMass         = 3.0;      // Solar masses - min MS projenitor mass that goes SNIa after WD formation
   IndividualStarSNIaMaximumMass         = 8.0;      // solar masses - max MS projenitor mass that goes SNIa after WD formation
   IndividualStarSNIaFraction            = 0.043;    // Fraction of MS stars that can be SNIa progenitors that will go SNIa in hubble time
+                                                    // If using Kroupa IMF 0.08 - 120 with SNIa model 2 0.1508
 
   /* IndividualStar: Yields Tracking */
   IndividualStarFollowStellarYields  = 0;           // on or off

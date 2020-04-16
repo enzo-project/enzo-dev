@@ -198,7 +198,7 @@ SPEXTERN float IndividualStarSNIaMinimumMass;
 SPEXTERN float IndividualStarSNIaMaximumMass;
 SPEXTERN float IndividualStarDTDSlope;
 SPEXTERN float IndividualStarSNIaFraction;
-SPEXTERN int   IndividualStarUseSNIa;
+SPEXTERN int   IndividualStarSNIaModel;
 SPEXTERN int   IndividualStarBlackBodyOnly;
 SPEXTERN float IndividualStarBlackBodyq0Factors[2];
 SPEXTERN float IndividualStarBlackBodyq1Factors[2];
@@ -231,6 +231,7 @@ SPEXTERN FLOAT LastSupernovaTime;
 
 SPEXTERN float *IMFData;
 SPEXTERN float *SecondaryIMFData;
+SPEXTERN float *EventDTD;
 
 SPEXTERN float TypeIILowerMass, TypeIIUpperMass;
 SPEXTERN float PISNLowerMass, PISNUpperMass;

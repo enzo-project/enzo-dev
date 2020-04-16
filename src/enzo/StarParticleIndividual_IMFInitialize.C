@@ -6,7 +6,7 @@
 / copied from: John Wise - StarParticlePopIII_IMFInitialize.C
 /              in state as of Jan 2016
 /              Copied to new function so does not break PopIII code
-/ written by: Andrew Emerick 
+/ written by: Andrew Emerick
 / date      : January, 2016
 / modified1 :
 **********************************************************/
@@ -32,6 +32,10 @@ void mt_init(unsigned_int seed);
 
 int InitializeIMF(float *& data, const float & lower_mass, const float & upper_mass,
                   const int & IMFtype);
+int InitializeDTD(float *& data);
+
+float Ruiter_SNIa_DTD(float time, const int model);
+
 
 unsigned_long_int mt_random(void);
 
@@ -47,6 +51,46 @@ int StarParticleIndividual_IMFInitialize(void){
     InitializeIMF( SecondaryIMFData, PopIIILowerMassCutoff, PopIIIUpperMassCutoff,
                                      3); // 3 == PopIII IMF
   }
+
+  if (IndividualStarSNIaModel == 2){
+    InitializeDTD( EventDTD );
+  }
+
+  return SUCCESS;
+}
+
+int InitializeDTD(float *& data){
+ /* Initialize cumulative probability distribution from a
+    delay type distribution */
+
+  data = new float[IMF_TABLE_ENTRIES];
+
+  const double min_time = log10(1.0E4); // yr
+  const double max_time = log10(14.0E9); // yr
+  const double dt = (max_time-min_time)/(double(IMF_TABLE_ENTRIES)-1);
+
+  double t=0.0 ,t_prev = 0.0;
+  const double inv_six = 1.0/6.0;
+  double f_a = Ruiter_SNIa_DTD(POW(10.0,(min_time)), 0); // 0 = total
+  data[0] = f_a;
+  for (int i = 1; i < IMF_TABLE_ENTRIES; i++){
+    t = POW(10.0, min_time + dt*i); // time in yr
+
+    double f_b  = Ruiter_SNIa_DTD(t, 0);
+    double f_ab = Ruiter_SNIa_DTD( 0.5*(t + t_prev), 0);
+    data[i] = inv_six*(t - t_prev)*(f_a + 4.0*f_ab + f_b);
+
+    data[i] *= IndividualStarSNIaFraction; // normalize
+    f_a = f_b;
+    t_prev = t;
+  }
+
+  // get cumulative dist
+  for (int i = 1; i < IMF_TABLE_ENTRIES;i++){
+    data[i] += data[i-1];
+  }
+
+
 
   return SUCCESS;
 }
@@ -84,7 +128,7 @@ int InitializeIMF(float *& data, const float & lower_mass, const float & upper_m
       data[i] = total_fn;
 
     } // end tabulate
- 
+
   } else if (IMFtype == 2){ // Kroupa 2001
     for (i = 0; i < IMF_TABLE_ENTRIES; i ++){
       m = POW(10.0, m0 + i*dm);
@@ -140,5 +184,3 @@ int InitializeIMF(float *& data, const float & lower_mass, const float & upper_m
 
   return SUCCESS;
 }
-
-

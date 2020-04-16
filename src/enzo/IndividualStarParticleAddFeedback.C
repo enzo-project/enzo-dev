@@ -66,7 +66,6 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
                                float MassUnits, float EnergyUnits, float &m_eject,
                                float &E_thermal, float * metal_mass,
                                float *grid_abundances);
-float ComputeSnIaProbability(const float &current_time, const float &formation_time, const float &lifetime, const float &TimeUnits);
 
 
 int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[],

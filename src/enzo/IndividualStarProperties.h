@@ -89,6 +89,10 @@ float SNIaProbability(const float &current_time, const float &formation_time,
 int SetWDLifetime(float &WD_lifetime,
                   const float &current_time, const float &formation_time,
                   const float &lifetime, const float &TimeUnits);
+int WDExplosionTime(float &WD_lifetime);
+
+float Ruiter_SNIa_DTD(float time, const int model);
+
 void ComputeStellarWindVelocity(Star *cstar, float *v_wind);
 void ComputeStellarWindMassLossRate(const float &mproj, const float &metallicity,
                                                       float *dMdt);

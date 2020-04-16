@@ -1272,8 +1272,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarDTDSlope);
     ret += sscanf(line, "IndividualStarSNIaFraction = %"FSYM,
                         &IndividualStarSNIaFraction);
-    ret += sscanf(line, "IndividualStarUseSNIa = %"ISYM,
-                        &IndividualStarUseSNIa);
+    ret += sscanf(line, "IndividualStarSNIaModel = %"ISYM,
+                        &IndividualStarSNIaModel);
     ret += sscanf(line, "IndividualStarFeedbackStencilSize = %"FSYM,
                         &IndividualStarFeedbackStencilSize);
     ret += sscanf(line, "IndividualStarFeedbackRadius = %"FSYM,

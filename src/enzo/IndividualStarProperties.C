@@ -57,7 +57,7 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
-             
+
 extern "C" void FORTRAN_NAME(pop3_properties)(FLOAT *mass, FLOAT* luminosity,
                                               FLOAT *lifetime);
 
@@ -84,6 +84,7 @@ int LinearInterpolationCoefficients(float &t, float &u, float &v, int &i, int &j
 int search_lower_bound(float *arr, float value, int low, int high, int total);
 
 unsigned_long_int mt_random(void);
+
 
 float SNIaProbability(const float &current_time, const float &formation_time,
                       const float &lifetime, const float &TimeUnits){
@@ -152,9 +153,82 @@ int grid::IndividualStarSetWDLifetime(void){
     // lifetime is set relative to WD formation time (now)
     //
     float new_lifetime = -1;
+    int result = 0;
+    if (IndividualStarSNIaModel == 0){
+      // no SNIa
+      if (ComovingCoordinates){
+        new_lifetime = 1000.0 * (1.0/HubbleConstantNow)*1.0E4*Myr_s / TimeUnits;
+      } else {
+        new_lifetime = 1000.0 * (1.0/0.701)*1.0E4*Myr_s / TimeUnits;
+      }
+    } else if (IndividualStarSNIaModel == 1){
+      /* power law DTD */
+      result = SetWDLifetime(new_lifetime, this->Time, ParticleAttribute[0][i],
+                                              ParticleAttribute[1][i], TimeUnits);
+      //
+      // feedback operates computing death time = lifetime + birth time
+      // renormalize so as to keep birth time the original star particle birth time
+      //  - original lifetime of progenitor star to WD can be backed out via postprocessing, but not birth time
+      //
+      // negative result means WD never exploding
+      // set lifetime correctly as new_lifetime + main_sequence_lifetime
+      // fmax forces any explosion NOW to happen next 1-2 timesteps
+      // since machinery may not catch appropriately
 
-    int result = SetWDLifetime(new_lifetime, this->Time, ParticleAttribute[0][i],
-                                            ParticleAttribute[1][i], TimeUnits);
+      if (result > 0){
+        // set lifetime to above + MS lifetime
+        //   1.5*dt ensures explodes in next timestep
+        new_lifetime = fmax(new_lifetime,1.5*this->dtFixed) + (this->Time - ParticleAttribute[0][i]);
+      }
+    } else if (IndividualStarSNIaModel == 2){
+
+      // new lifetime is returned as time from MS BIRTH
+      result = WDExplosionTime(new_lifetime);
+
+      if (result > 0){
+        new_lifetime = fmax(new_lifetime,1.5*this->dtFixed);
+
+        // we need to know which type of SNIa this will be given the rates
+        float model_rates[4];
+        // 0 : DTD, 1: sCH, 2: SDS, 3: HeRS (+1 for function since zero is total)
+        float total_rates = Ruiter_SNIa_DTD(new_lifetime,0);
+        for (int j = 0; j < 4; j++){
+          model_rates[j] = Ruiter_SNIa_DTD(new_lifetime,j+1);
+          model_rates[j] /= total_rates;
+        }
+        for (int j = 1; j < 4; j++) model_rates[j] += model_rates[j-1]; // cum sum
+
+        // pick another random number to decide which SN
+        unsigned_long_int random_int = mt_random();
+        const int max_random = (1<<16);
+        float rnum  = (float) (random_int % max_random) / ((float) (max_random));
+
+        int sn_type_index = -1;
+        for(int j = 0; j < 4; j++){
+          if (rnum > model_rates[j]) sn_type_index = j-1;
+        }
+        if (sn_type_index < 0) ENZO_FAIL("FAILED To identify SNIa Type");
+
+        // now that we have the SNIa type chosen, need to assign this somehow
+        // we could choose the SNIa type at explosion time, but this requires
+        // communication to work. To avoid that lets do a hack. Assign the SNIa
+        // type by flagging the abundance fraction field for that type
+
+        // figure out correct index following code throughout
+        int start_index = 4 + (StellarYieldsNumberOfSpecies);
+        if (IndividualStarTrackAGBMetalDensity) start_index++;
+        if (IndividualStarPopIIIFormation) start_index += 2;
+        // start_index = DDS, start_index+1 = sCH, +2 = SDS, +3 = HeRS
+        ParticleAttribute[start_index + sn_type_index][i] *= -1; // flag by making negative
+
+      } // if result > 0
+
+      new_lifetime = (new_lifetime)*yr_s / TimeUnits + ParticleAttribute[0][i];
+
+
+    } else {
+      ENZO_FAIL("SetWDLifetime: This choice of SNIa model Not implemented");
+    }
 
     ParticleAttribute[1][i] = new_lifetime;
     ParticleType[i]         = ABS(ParticleType[i]);
@@ -162,21 +236,46 @@ int grid::IndividualStarSetWDLifetime(void){
     if (ParticleAttribute[1][i] < 0){
       return FAIL;
     }
-    //
-    // feedback operates computing death time = lifetime + birth time
-    // renormalize so as to keep birth time the original star particle birth time
-    //  - original lifetime of progenitor star to WD can be backed out via postprocessing, but not birth time
-    //
-    if (result > 0){ // negative result means WD never exploding
-      // set lifetime correctly as new_lifetime + main_sequence_lifetime
-      // fmax forces any explosion NOW to happen next 1-2 timesteps
-      // since machinery may not catch appropriately
-      ParticleAttribute[1][i] = fmax(new_lifetime,1.5*this->dtFixed) + (this->Time - ParticleAttribute[0][i]);
-    }
   }
 
 
   return SUCCESS;
+}
+
+int WDExplosionTime(float &WD_lifetime){
+
+  // returns WD lifetime (if explodes) in yr
+  // using DTD model from InitailzieDTD
+
+  unsigned_long_int random_int = mt_random();
+  const int max_random = (1<<16);
+  float rnum = (float) (random_int % max_random) / ((float) (max_random));
+
+  // bad to hard code - needs to match InitializeDTD in StarParticleIndividual_IMFInitialize
+  const double min_time = log10(1.0E4); // yr
+  const double max_time = log10(14.0E9); // yr
+  const double dt = (max_time-min_time)/(double(IMF_TABLE_ENTRIES)-1);
+
+  double hubble_time;
+  if (ComovingCoordinates){
+    hubble_time = (1.0/HubbleConstantNow)*1.0E4 * 1.0E6;
+  } else{
+    hubble_time = (1.0/0.701)*1.0E4*1.0E6;
+  }
+
+  if (rnum < EventDTD[0] ){
+    WD_lifetime = POW(10.0,min_time);
+    return 1;
+  } else if (rnum > EventDTD[IMF_TABLE_ENTRIES-1]){
+    WD_lifetime = 1000.0 * hubble_time;
+    return 0;
+  } else {
+    int bin_number = search_lower_bound(EventDTD, rnum, 0, IMF_TABLE_ENTRIES, IMF_TABLE_ENTRIES);
+    WD_lifetime = POW(10.0, min_time + dt*bin_number);
+    return 1;
+  }
+
+  return 0;
 }
 
 int SetWDLifetime(float &WD_lifetime,
@@ -282,6 +381,72 @@ int SetWDLifetime(float &WD_lifetime,
   }
 
   return FAIL;
+}
+
+float Ruiter_SNIa_DTD(float time, const int model){
+/*
+  SNIa Rate model from Ruiter+2011:
+      https://ui.adsabs.harvard.edu/abs/2011MNRAS.417..408R/abstract
+
+  Rates adopted use Model A1 ("standard") model from that work which includes
+  SNIa from the double degenerate, sub-Ch, single degenerate, and He RS accretion
+  channels
+
+  Time must be supplied in units of yr. Returned is rate in units of
+  number of SNIa per yr per Msun of total star formation.
+
+  Model is generated very approximately by interpolating over points in top
+  panel of Figure 1 using additional interpolation points from a plot
+  digitizer as compared to the values in the Table.
+*/
+
+
+  if (model >= 5){
+    ENZO_VFAIL("Ruiter SNIa model =%"ISYM" not understood.\n", model+0);
+  }
+
+  float rate = 0.0;
+  const int npoints = 46;
+  const int n_models = 5; // 4 + 1 for total
+  float model_times[npoints] = { 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0};
+  // rates are stored as log10(1/yr/Msun)
+  const float model_rates[n_models][npoints] = {
+  { -12.823, -12.647, -12.309, -12.213, -12.377, -12.551, -12.637, -12.558, -12.393, -12.349, -12.375, -12.456, -12.536, -12.614, -12.687, -12.735, -12.779, -12.822, -12.864, -12.902, -12.942, -12.942, -13.098, -13.201, -13.336, -13.436, -13.498, -13.615, -13.645, -13.705, -13.757, -13.821, -13.879, -13.950, -14.019, -14.068, -14.150, -14.217, -14.204, -14.212, -14.276, -14.384, -14.385, -14.487, -14.727, -14.946},
+  { -12.946, -12.946, -12.571, -12.366, -12.485, -12.605, -12.724, -12.844, -12.924, -12.982, -13.040, -13.097, -13.155, -13.206, -13.243, -13.279, -13.316, -13.353, -13.389, -13.411, -13.429, -13.429, -13.515, -13.602, -13.688, -13.725, -13.783, -13.934, -13.957, -13.971, -14.024, -14.099, -14.162, -14.226, -14.265, -14.301, -14.413, -14.465, -14.449, -14.447, -14.478, -14.530, -14.570, -14.634, -14.817, -15.000},
+  { -13.449, -12.956, -12.656, -12.762, -13.145, -14.330, -13.701, -12.934, -12.566, -12.479, -12.494, -12.581, -12.668, -12.755, -12.842, -12.894, -12.941, -12.988, -13.035, -13.082, -13.129, -13.129, -13.328, -13.440, -13.620, -13.775, -13.862, -13.923, -13.988, -14.085, -14.147, -14.176, -14.226, -14.342, -14.425, -14.497, -14.578, -14.642, -14.642, -14.657, -14.783, -15.026, -14.908, -15.111, -15.555, -16.000},
+  { -15.392, -15.392, -15.392, -15.392, -15.129, -14.801, -14.635, -14.594, -14.663, -14.732, -14.783, -14.820, -14.857, -14.881, -14.881, -14.881, -14.887, -14.938, -14.990, -15.023, -15.036, -15.036, -14.651, -14.788, -14.779, -15.000, -14.817, -15.160, -14.870, -15.080, -15.043, -15.327, -15.415, -15.148, -15.425, -15.427, -15.244, -15.451, -15.376, -15.452, -15.485, -15.637, -15.704, -15.788, -16.144, -16.500},
+  { -14.949, -14.949, -14.949, -14.076, -13.690, -13.574, -13.709, -13.844, -13.945, -14.027, -14.110, -14.195, -14.305, -14.415, -14.528, -14.653, -14.704, -14.649, -14.594, -14.575, -14.731, -14.731, -16.086, -17.560, -19.035, -20.509, -21.984, -23.459, -24.933, -26.408, -27.882, -29.357, -30.831, -32.306, -33.780, -35.255, -36.729, -38.204, -39.678, -41.153, -42.627, -44.102, -45.576, -47.051, -48.525, -50.000}
+  };
+
+  // just do dumb linear interpolation
+  float slope = 0.0, b = 0.0;
+  int i = -1;
+
+  time = time / 1.0E9; // convert from yr to Gyr
+
+  if (time > model_times[IMF_TABLE_ENTRIES-1]){
+     // extrapolate
+     i = IMF_TABLE_ENTRIES - 1;
+     slope = (model_rates[model][i] - model_rates[model][i-1])/
+             (model_times[i]-model_times[i-1]);
+      b    = model_rates[model][i] - slope * model_times[i];
+
+      rate = slope*time + b;
+
+  } else if (time < model_times[0]){
+
+    rate = 0.0; // assume zero
+
+  } else {
+    i = search_lower_bound(model_times, time, 0, npoints, npoints);
+
+    float t = LinearInterpolationCoefficient(i, time, model_times);
+
+    rate = t * model_rates[model][i+1] + (1.0-t)*model_rates[model][i];
+
+  }
+
+  return POW(10.0,rate);
 }
 
 void ComputeStellarWindVelocity(Star *cstar, float *v_wind){
@@ -2143,8 +2308,6 @@ int LinearInterpolationCoefficients(float &t, int &i,
    * to compute linear interpolation coefficients for that value.
    * ------------------------------------------------------------
    */
-
-  int width, bin_number;
 
   /* make sure value is within the bounds - FAIL if not */
   if( ( x1 < x1a[0] ) || ( x1 > x1a[x1a_size -1] )){
