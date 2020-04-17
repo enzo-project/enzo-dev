@@ -343,7 +343,7 @@ void Star::operator=(Star a)
   level = a.level;
   GridID = a.GridID;
   type = a.type;
-  SNIaType = a.type;
+  SNIaType = a.SNIaType;
   AddedEmissivity = a.AddedEmissivity;
   if (accretion_rate != NULL)
     delete [] accretion_rate;
