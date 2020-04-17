@@ -41,8 +41,7 @@ void my_exit(int status);
 int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
 
-char* ChemicalSpeciesParticleLabel(const int &atomic_number);
-char* IndividualStarTableIDLabel(const int &num);
+void GetParticleAttributeLabels(char * ParticleAttributeLabel);
 
 // extern int ParticleTypeInFile; // declared and set in ReadParameterFile
 
@@ -81,61 +80,9 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
     {"particle_position_x", "particle_position_y", "particle_position_z"};
   char *ParticleVelocityLabel[] =
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-#ifdef WINDS
-    char *ParticleAttributeLabel[] =
-      {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x",
-       "particle_jet_y", "particle_jet_z", "typeia_fraction"};
-#else
-//    char *ParticleAttributeLabel[] =
-//      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+
   char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  ParticleAttributeLabel[0] = "creation_time";
-  ParticleAttributeLabel[1] = "dynamical_time";
-  ParticleAttributeLabel[2] = "metallicity_fraction";
-
-
-  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
-    ParticleAttributeLabel[3] = "birth_mass";
-    if( MultiMetals == 2 && !IndividualStarOutputChemicalTags){
-      int ii = 0;
-      for(ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
-        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
-      }
-
-      if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
-      if (IndividualStarPopIIIFormation){      
-        ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
-        ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
-      }
-      if (IndividualStarTrackSNMetalDensity){
-          ParticleAttributeLabel[4 + ii++] = "snia_metal_fraction";
-          ParticleAttributeLabel[4 + ii++] = "snii_metal_fraction";
-      }
-      if (IndividualStarRProcessModel) ParticleAttributeLabel[4 + ii++] = "rprocess_metal_fraction";
-
-
-    }
-    if (IndividualStarSaveTablePositions){
-      for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes - 2; ii++){
-        ParticleAttributeLabel[ii] = IndividualStarTableIDLabel(ii - ParticleAttributeTableStartIndex);
-      }
-    }
-    ParticleAttributeLabel[NumberOfParticleAttributes-2] = "wind_mass_ejected";
-    ParticleAttributeLabel[NumberOfParticleAttributes-1] = "sn_mass_ejected";
-
-
-  } else {
-    ParticleAttributeLabel[3] = "typeia_fraction";
-  }
-
-
-/*
-  const char *ParticleAttributeLabel[] =
-      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction",
-       "CI_fraction", "NI_fraction", "OI_fraction", "MgI_fraction", "SiI_fraction", "FeI_fraction",
-       "YI_fraction", "BaI_fraction", "LaI_fraction", "EuI_fraction"};
-*/
-#endif
+  GetParticleAttributeLabels(*ParticleAttributeLabel);
 
 #ifdef USE_HDF4
   Eint32 TempIntArray2[MAX_DIMENSION];

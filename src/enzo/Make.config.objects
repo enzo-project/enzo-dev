@@ -280,6 +280,7 @@ OBJS_CONFIG_LIB = \
 	GenerateGridArray.o \
 	GetNodeFreeMemory.o \
 	GetUnits.o \
+        GetParticleAttributeLabels.o \
 	gFLDProblem_AnalyticalEqns.o \
 	gFLDProblem_ChemistrySource.o \
 	gFLDProblem_ComputeRHS.o \
