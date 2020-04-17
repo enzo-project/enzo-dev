@@ -313,7 +313,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
     fclose(fptr);
 
     int count = 0; // total number of stars formed on this processor
-    printf("nstar = %"ISYM"\n");
+    printf("nstar = %"ISYM"\n",nstar);
     for (i = 0; i < nstar; i++){
 
       // make sure particle position is on this grid / processor
