@@ -44,7 +44,7 @@ int FindCube(char *cube_name);
 int FindField(int f, int farray[], int n);
 int WriteStringAttr(hid_t dset_id, char *Alabel, char *String, FILE *log_fptr);
 
-void GetParticleAttributeLabels(char * ParticleAttributeLabel);
+void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabel);
 
 
 int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
@@ -120,9 +120,8 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
   char *ParticleTypeLabel = "particle_type";
   char *ParticleIndexLabel = "particle_index";
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
-
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
 #ifdef IO_LOG
   int         io_log = 1;
@@ -1282,17 +1281,17 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
 
     for (j = 0; j < NumberOfParticleAttributes; j++) {
 
-      output_cube = FindCube(ParticleAttributeLabel[j]);
+      output_cube = FindCube(ParticleAttributeLabel[j].c_str());
 
       if ( output_cube > -1 ) {
 
       for (i = 0; i < NumberOfParticles; i++)
 	temp[i] = float32(ParticleAttribute[j][i]);
 
-      strcpy(PartName, ParticleAttributeLabel[j]);
+      strcpy(PartName, ParticleAttributeLabel[j].c_str());
       strcpy(GlueFile, base_name);
       strcat(GlueFile, ".");
-      strcat(GlueFile, ParticleAttributeLabel[j]);
+      strcat(GlueFile, ParticleAttributeLabel[j].c_str());
 
       if (io_log) fprintf(log_fptr, "Field name = %s\n", PartName);
       if (io_log) fprintf(log_fptr, "GlueFile name = %s\n", GlueFile);

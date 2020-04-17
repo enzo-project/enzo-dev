@@ -33,7 +33,8 @@
 #include "Grid.h"
 void my_exit(int status);
 
-void GetParticleAttributeLabels(char* ParticleAttributeLabel);
+void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabel);
+
 // HDF5 function prototypes
 
 
@@ -92,8 +93,8 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
   char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
   char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
 			     "Particle_x-velocity", "Particle_y-velocity",
@@ -1152,9 +1153,9 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
         if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
 
-      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n",ParticleAttributeLabel[j]);
+      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n",ParticleAttributeLabel[j].c_str());
 
-      dset_id =  H5Dcreate(file_id, ParticleAttributeLabel[j], file_type_id, file_dsp_id, H5P_DEFAULT);
+      dset_id =  H5Dcreate(file_id, ParticleAttributeLabel[j].c_str(), file_type_id, file_dsp_id, H5P_DEFAULT);
         if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
         if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
 

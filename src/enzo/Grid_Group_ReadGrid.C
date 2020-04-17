@@ -47,7 +47,8 @@ void my_exit(int status);
 int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
 
-void GetParticleAttributeLabels(char * ParticleAttributeLabel);
+void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabel);
+
 
 static int GridReadDataGridCounter = 0;
 
@@ -90,8 +91,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
   char *ParticleVelocityLabel[] =
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
 #ifdef IO_LOG
   int         io_log = 1;
@@ -839,7 +840,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     for (j = 0; j < NumberOfParticleAttributes; j++) {
 
       H5E_BEGIN_TRY{
-	dset_id = H5Dopen(group_id, ParticleAttributeLabel[j]);
+	dset_id = H5Dopen(group_id, ParticleAttributeLabel[j].c_str());
       }H5E_END_TRY;
 
       if (dset_id != h5_error) {
@@ -850,9 +851,9 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
       if( file_dsp_id == h5_error ){ENZO_FAIL("Error in IO");}
 
-      if (io_log) fprintf(log_fptr,"H5Dopen with Name = %s\n",ParticleAttributeLabel[j]);
+      if (io_log) fprintf(log_fptr,"H5Dopen with Name = %s\n",ParticleAttributeLabel[j].c_str());
 
-      dset_id =  H5Dopen(group_id, ParticleAttributeLabel[j]);
+      dset_id =  H5Dopen(group_id, ParticleAttributeLabel[j].c_str());
       if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
       if( dset_id == h5_error ){ENZO_FAIL("Error in IO");}
 

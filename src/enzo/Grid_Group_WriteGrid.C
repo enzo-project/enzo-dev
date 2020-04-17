@@ -46,7 +46,7 @@ void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int WriteStringAttr(hid_t dset_id, char *Alabel, char *String, FILE *log_fptr);
 int FindField(int field, int farray[], int numfields);
 
-void GetParticleAttributeLabels(char * ParticleAttributeLabel);
+void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabel);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -146,9 +146,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
-
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
   char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
 			     "Particle_x-velocity", "Particle_y-velocity",
@@ -1377,9 +1376,9 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
         if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
 
-      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n",ParticleAttributeLabel[j]);
+      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n",ParticleAttributeLabel[j].c_str());
 
-      dset_id =  H5Dcreate(group_id, ParticleAttributeLabel[j], file_type_id, file_dsp_id, H5P_DEFAULT);
+      dset_id =  H5Dcreate(group_id, ParticleAttributeLabel[j].c_str(), file_type_id, file_dsp_id, H5P_DEFAULT);
         if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
         if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
 

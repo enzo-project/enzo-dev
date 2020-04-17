@@ -36,8 +36,7 @@ AMRHDF5Writer::AMRHDF5Writer() :
 };
 
 
-void GetParticleAttributeLabels(char * ParticleAttributeLabel);
-
+void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabel);
 
 void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
 				   const int*       relativeRefinement,
@@ -66,8 +65,8 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
     {"particle_type", "particle_index", "particle_mass"};
 
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
   int i;
 
@@ -118,7 +117,7 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
     for (i = 0; i < 3; i++)
       strcpy(HDF5_FieldNames[iField++], ParticleOtherLabel[i]);
     for (i = 0; i < nParticleAttr; i++)
-      strcpy(HDF5_FieldNames[iField++], ParticleAttributeLabel[i]);
+      strcpy(HDF5_FieldNames[iField++], ParticleAttributeLabel[i].c_str());
   } // ENDIF ParticlesOn
 
   /* Write global attributes */
@@ -434,8 +433,8 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
   const char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
   sprintf(gridDataName, "/grid-%d", gridId);
   if (nBaryonFields > 0)
@@ -518,7 +517,7 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
   // Attributes
   for (i = 0; i < nAttributes; i++) {
     dataspace = H5Screate_simple(1, &hdims, &hdims);
-    dataset = H5Dcreate(gridGrp, ParticleAttributeLabel[i], h5DataType,
+    dataset = H5Dcreate(gridGrp, ParticleAttributeLabel[i].c_str(), h5DataType,
 			dataspace, H5P_DEFAULT);
     H5Dwrite(dataset, h5DataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, attr[i]);
     H5Dclose(dataset);
@@ -596,8 +595,8 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
   const char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
   /* if there's no particle, don't bother,
      but if this is a root-level grid, print them anyway --> for Ralf's visualization purpose! */
@@ -719,7 +718,7 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
 
     // Attributes
     for (i = 0; i < nAttributes; i++) {
-      dataset = H5Dcreate(gridGrp, ParticleAttributeLabel[i], h5DataType,
+      dataset = H5Dcreate(gridGrp, ParticleAttributeLabel[i].c_str(), h5DataType,
 			  dataspace, H5P_DEFAULT);
       H5Dwrite(dataset, h5DataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, attr[i]);
       H5Dclose(dataset);
@@ -782,7 +781,7 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
 
     // Attributes
     for (i = 0; i < nAttributes; i++) {
-      dataset = H5Dopen(gridGrp, ParticleAttributeLabel[i]);
+      dataset = H5Dopen(gridGrp, ParticleAttributeLabel[i].c_str());
       H5Dwrite(dataset, h5DataType, dataspace2, dataspace, H5P_DEFAULT, attr[i]);
       H5Dclose(dataset);
     } // ENDFOR attributes
@@ -838,8 +837,8 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
   const char *ParticleOtherLabel[] =
     {"particle_type", "particle_index", "particle_mass"};
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
   int i;
 
@@ -877,7 +876,7 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
     for (i = 0; i < 3; i++)
       strcpy(HDF5_FieldNames[iField++], ParticleOtherLabel[i]);
     for (i = 0; i < nParticleAttr; i++)
-      strcpy(HDF5_FieldNames[iField++], ParticleAttributeLabel[i]);
+      strcpy(HDF5_FieldNames[iField++], ParticleAttributeLabel[i].c_str());
   } // ENDIF ParticlesOn
 
   /* Write global attributes */
@@ -931,8 +930,8 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
   const char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
   if (nPart == 0)
     return 0;
@@ -1037,7 +1036,7 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
 
     // Attributes
     for (i = 0; i < nAttributes; i++) {
-      dataset = H5Dcreate(partGrp, ParticleAttributeLabel[i], h5DataType,
+      dataset = H5Dcreate(partGrp, ParticleAttributeLabel[i].c_str(), h5DataType,
 			  dataspace, H5P_DEFAULT);
       H5Dwrite(dataset, h5DataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, attr[i]);
       H5Dclose(dataset);
@@ -1100,7 +1099,7 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
 
     // Attributes
     for (i = 0; i < nAttributes; i++) {
-      dataset = H5Dopen(partGrp, ParticleAttributeLabel[i]);
+      dataset = H5Dopen(partGrp, ParticleAttributeLabel[i].c_str());
       H5Dwrite(dataset, h5DataType, dataspace2, dataspace, H5P_DEFAULT, attr[i]);
       H5Dclose(dataset);
     } // ENDFOR attributes

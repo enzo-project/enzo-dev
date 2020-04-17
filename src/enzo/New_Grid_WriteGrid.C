@@ -40,7 +40,7 @@
 void my_exit(int status);
 
 
-void GetParticleAttributeLabels(char * ParticleAttributeLabel);
+void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabel);
 
 // HDF5 function prototypes
 
@@ -101,9 +101,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
-
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
   char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
 			     "Particle_x-velocity", "Particle_y-velocity",
@@ -826,7 +825,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
     for (j = 0; j < NumberOfParticleAttributes; j++) {
 
-      this->write_dataset(1, TempIntArray, ParticleAttributeLabel[j],
+      this->write_dataset(1, TempIntArray, ParticleAttributeLabel[j].c_str(),
           group_id, HDF5_REAL, (VOIDP) ParticleAttribute[j], FALSE);
     }
 

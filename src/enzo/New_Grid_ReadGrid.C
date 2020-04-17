@@ -50,7 +50,7 @@ void my_exit(int status);
 int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
 
-void GetParticleAttributeLabels(char * ParticleAttributeLabel);
+void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabel);
 
 void MHDCTSetupFieldLabels(void);
 static int GridReadDataGridCounter = 0;
@@ -94,8 +94,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
   char *ParticleVelocityLabel[] =
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 
-  char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-  GetParticleAttributeLabels(*ParticleAttributeLabel);
+  std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+  GetParticleAttributeLabels(ParticleAttributeLabel);
 
   int ReadOnlyActive = TRUE;
   if ((ReadEverything == TRUE) || (ReadGhostZones == TRUE)) {
@@ -528,12 +528,12 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     for (j = 0; j < NumberOfParticleAttributes; j++) {
 
       H5E_BEGIN_TRY{
-	dset_id = H5Dopen(group_id, ParticleAttributeLabel[j]);
+	dset_id = H5Dopen(group_id, ParticleAttributeLabel[j].c_str());
       }H5E_END_TRY;
 
       if (dset_id != h5_error) {
 	H5Dclose(dset_id);
-	this->read_dataset(1, TempIntArray, ParticleAttributeLabel[j],
+	this->read_dataset(1, TempIntArray, ParticleAttributeLabel[j].c_str(),
 			   group_id, HDF5_REAL, (VOIDP) ParticleAttribute[j],
 			   FALSE);
       } else {

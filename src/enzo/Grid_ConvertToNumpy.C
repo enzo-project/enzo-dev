@@ -29,7 +29,7 @@
 #include "CosmologyParameters.h"
 
 
-void GetParticleAttributeLabels(char * ParticleAttributeLabel);
+void GetParticleAttributeLabels(std::vector<std::string> ParticleAttributeLabels);
 
 void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, int level, FLOAT WriteTime)
 {
@@ -39,8 +39,8 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
     char *ParticleVelocityLabel[] =
        {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 
-    char *ParticleAttributeLabel[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES] = {};
-    GetParticleAttributeLabels(*ParticleAttributeLabel);
+    std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+    GetParticleAttributeLabels(ParticleAttributeLabel);
 
     this->DebugCheck("Converting to NumPy arrays");
 
@@ -182,7 +182,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
             if( ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
                 dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                            1, dims, ENPY_BFLOAT, ParticleAttribute[3]);
-                PyDict_SetItemString(grid_data, ParticleAttributeLabels[3], (PyObject*) da$
+                PyDict_SetItemString(grid_data, ParticleAttributeLabels[3].c_str(), (PyObject*) da$
                 PyDECREF(dataset);
 
               for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
@@ -191,7 +191,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 
                   dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                              1, dims, ENPY_BFLOAT, ParticleAttribute[4 + yield_i]);
-                  PyDict_SetItemString(grid_data, ParticleAttributeLabels[4 + yield_i], (PyObject*) dataset);
+                  PyDict_SetItemString(grid_data, ParticleAttributeLabels[4 + yield_i].c_str(), (PyObject*) dataset);
                   PyDECREF(dataset);
                 }
               }
@@ -201,7 +201,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
                 for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
                   dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                                 1, dims, ENPY_BFLOAT, ParticleAttribute[ii]);
-                  PyDict_SetItemString(grid_data, ParticleAttributeLabels[ii], (PyObject*) dataset);
+                  PyDict_SetItemString(grid_data, ParticleAttributeLabels[ii].c_str(), (PyObject*) dataset);
                   PyDECREF(dataset);
                 }
               }
