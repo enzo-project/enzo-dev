@@ -357,7 +357,26 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
 
       /* Metal fields are all in fractions, as set in Grid_StarParticleHandler */
       if(MultiMetals == 2){
-        for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+
+         int offset = 0;
+         if (IndividualStarTrackAGBMetalDensity) ParticleAttribute[4 + offset++][count] = tiny_number;
+         if (IndividualStarPopIIIFormation){
+           ParticleAttribute[4 + offset++][count] = tiny_number;
+           ParticleAttribute[4 + offset++][count] = tiny_number;
+         }
+         if (IndividualStarTrackSNMetalDensity){
+           ParticleAttribute[4 + offset++][count] = tiny_number;
+           if (IndividualStarSNIaModel == 2){
+             ParticleAttribute[4 + offset++][count] = tiny_number;
+             ParticleAttribute[4 + offset++][count] = tiny_number;
+             ParticleAttribute[4 + offset++][count] = tiny_number;
+           }
+           ParticleAttribute[4 + offset++][count] = tiny_number;
+         }
+         if (IndividualStarRProcessModel) ParticleAttribute[4+offset++][count] = tiny_number;
+
+
+        for( int ii = offset; ii < StellarYieldsNumberOfSpecies + offset; ii++){
           if(StellarYieldsAtomicNumbers[ii] > 2){
             int field_num;
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
@@ -380,37 +399,39 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
         } // end loop over species
       } // end species tagging
 
-      /* now go trough and assign the interpolation table positions so we don't have to again */
-      int tstart = ParticleAttributeTableStartIndex;
+      if (IndividualStarSaveTablePositions){
+        /* now go trough and assign the interpolation table positions so we don't have to again */
+        int tstart = ParticleAttributeTableStartIndex;
 
-      // stellar evolution table (attr 3 = birth mass, attr 2 = metallicity)
-      int t_i = -1, t_j = -1, t_k = -1;
-      IndividualStarGetSETablePosition(t_i, t_j,
+        // stellar evolution table (attr 3 = birth mass, attr 2 = metallicity)
+        int t_i = -1, t_j = -1, t_k = -1;
+        IndividualStarGetSETablePosition(t_i, t_j,
                                        ParticleAttribute[3][count], ParticleAttribute[2][count]);
-      ParticleAttribute[tstart    ][count] = t_i;
-      ParticleAttribute[tstart + 1][count] = t_j;
-      // radiation properties table (only do if particle can radiate - saves time)
-      if( ParticleAttribute[3][count] >= IndividualStarRadiationMinimumMass){
-        float Teff, R;
-        IndividualStarInterpolateProperties(Teff, R, (int)ParticleAttribute[tstart][count],
+        ParticleAttribute[tstart    ][count] = t_i;
+        ParticleAttribute[tstart + 1][count] = t_j;
+        // radiation properties table (only do if particle can radiate - saves time)
+        if( ParticleAttribute[3][count] >= IndividualStarRadiationMinimumMass){
+          float Teff, R;
+          IndividualStarInterpolateProperties(Teff, R, (int)ParticleAttribute[tstart][count],
                                             (int)ParticleAttribute[tstart+1][count],
                                             ParticleAttribute[3][count], ParticleAttribute[2][count]);
-        float g = IndividualStarSurfaceGravity(ParticleAttribute[3][count], R);
-
-        t_i = -1; t_j = -1; t_k = -1;
-        IndividualStarGetRadTablePosition(t_i, t_j, t_k,
+          float g = IndividualStarSurfaceGravity(ParticleAttribute[3][count], R);
+ 
+          t_i = -1; t_j = -1; t_k = -1;
+          IndividualStarGetRadTablePosition(t_i, t_j, t_k,
                                          Teff, g, ParticleAttribute[2][count]);
-        ParticleAttribute[tstart + 2][count] = t_i;
-        ParticleAttribute[tstart + 3][count] = t_j;
-        ParticleAttribute[tstart + 4][count] = t_k;
-      }
-       // yields table position
-      t_i = -1 ; t_j = -1;
-      StellarYieldsGetYieldTablePosition(t_i, t_j,
-                                         ParticleAttribute[3][count], ParticleAttribute[2][count]);
-      ParticleAttribute[tstart + 5][count] = t_i;
-      ParticleAttribute[tstart + 6][count] = t_j;
+          ParticleAttribute[tstart + 2][count] = t_i;
+          ParticleAttribute[tstart + 3][count] = t_j;
+          ParticleAttribute[tstart + 4][count] = t_k;
+        }
+         // yields table position
+        t_i = -1 ; t_j = -1;
+        StellarYieldsGetYieldTablePosition(t_i, t_j,
+                                           ParticleAttribute[3][count], ParticleAttribute[2][count]);
+        ParticleAttribute[tstart + 5][count] = t_i;
+        ParticleAttribute[tstart + 6][count] = t_j;
 
+      }
       ParticleAttribute[NumberOfParticleAttributes-2][count] = 0.0; // wind mass ejected
       ParticleAttribute[NumberOfParticleAttributes-1][count] = 0.0; // sn mass ejected
 
