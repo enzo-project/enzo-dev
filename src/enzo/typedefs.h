@@ -267,10 +267,14 @@ const field_type
   ImPsi = 184,
   FDMDensity = 185,
 
+  /* Below currently used in Individual Star Model */
   MetalRProcessDensity = 186,
   MetalPISNeDensity    = 187,
+  ExtraMetalField0 = 188,
+  ExtraMetalField1 = 189,
+  ExtraMetalField2 = 190,
 
-  FieldUndefined  = 188;
+  FieldUndefined  = 191;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

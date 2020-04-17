@@ -62,6 +62,13 @@ void GetParticleAttributeLabels(char * ParticleAttributeLabel){
 
       if (IndividualStarTrackSNMetalDensity){
         strcpy(&ParticleAttributeLabel[4 + ii++],"snia_metal_fraction");
+
+        if (IndividualStarSNIaModel == 2){
+          strcpy(&ParticleAttributeLabel[4 + ii++], "snia_sch_metal_fraction");
+          strcpy(&ParticleAttributeLabel[4 + ii++], "snia_sds_metal_fraction");
+          strcpy(&ParticleAttributeLabel[4 + ii++], "snia_hers_metal_fraction");
+        }
+
         strcpy(&ParticleAttributeLabel[4 + ii++],"snii_metal_fraction");
       }
       if (IndividualStarRProcessModel) strcpy(&ParticleAttributeLabel[4 + ii++],"rprocess_metal_fraction");
