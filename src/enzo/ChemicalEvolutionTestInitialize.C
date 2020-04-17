@@ -411,9 +411,9 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     if (IndividualStarTrackSNMetalDensity){
       DataLabel[count++] = SNIaMetalName;
       if (IndividualStarSNIaModel == 2){
-        DataLabel[i++] = ExtraMetalName0;
-        DataLabel[i++] = ExtraMetalName1;
-        DataLabel[i++] = ExtraMetalName2;
+        DataLabel[count++] = ExtraMetalName0;
+        DataLabel[count++] = ExtraMetalName1;
+        DataLabel[count++] = ExtraMetalName2;
       }
       DataLabel[count++] = SNIIMetalName;
     }
