@@ -195,18 +195,23 @@ int grid::IndividualStarSetWDLifetime(void){
         float total_rates = Ruiter_SNIa_DTD(new_lifetime,0);
         for (int j = 0; j < 4; j++){
           model_rates[j] = Ruiter_SNIa_DTD(new_lifetime,j+1);
-          model_rates[j] /= total_rates;
         }
+
         for (int j = 1; j < 4; j++) model_rates[j] += model_rates[j-1]; // cum sum
-        printf("total and model_rates %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",total_rates,model_rates[0],model_rates[1],model_rates[2],model_rates[3]);
+        for (int j = 0; j < 4; j++) model_rates[j] /= model_rates[3];   // normalize to 1
+
         // pick another random number to decide which SN
         unsigned_long_int random_int = mt_random();
         const int max_random = (1<<16);
         float rnum  = (float) (random_int % max_random) / ((float) (max_random));
 
         int sn_type_index = -1;
+
         for(int j = 0; j < 4; j++){
-          if (rnum > model_rates[j]) sn_type_index = j-1;
+          if (rnum < model_rates[j]){
+            sn_type_index = j;
+            break;
+          }
         }
         if (sn_type_index < 0) ENZO_FAIL("FAILED To identify SNIa Type");
 
@@ -446,8 +451,6 @@ float Ruiter_SNIa_DTD(float time, const int model){
     rate = t * model_rates[model][i+1] + (1.0-t)*model_rates[model][i];
 
   }
-
-  printf("Ruiter : %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",time, i, t, rate, slope, b);
 
   return POW(10.0,rate);
 }
