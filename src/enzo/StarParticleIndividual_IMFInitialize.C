@@ -80,7 +80,7 @@ int InitializeDTD(float *& data){
     double f_ab = Ruiter_SNIa_DTD( 0.5*(t + t_prev), 0);
     data[i] = inv_six*(t - t_prev)*(f_a + 4.0*f_ab + f_b);
 
-    data[i] *= IndividualStarSNIaFraction; // normalize
+//    data[i] *= IndividualStarSNIaFraction; // normalize
     f_a = f_b;
     t_prev = t;
   }
@@ -90,6 +90,10 @@ int InitializeDTD(float *& data){
     data[i] += data[i-1];
   }
 
+  // normalize
+  for (int i = 0; i < IMF_TABLE_ENTRIES;i++){
+    data[i] *= (IndividualStarSNIaFraction/data[IMF_TABLE_ENTRIES-1]);
+  }
 
 
   return SUCCESS;
