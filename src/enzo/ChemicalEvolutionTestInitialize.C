@@ -76,6 +76,9 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   char *SNIIMetalName = "SNII_Metal_Density";
   char *SNIaMetalName = "SNIa_Metal_Density";
   char *RProcMetalName = "RProcess_Metal_Density";
+  char *ExtraMetalName0    = "SNIa_sCh_Metal_Density";
+  char *ExtraMetalName1    = "SNIa_SDS_Metal_Density";
+  char *ExtraMetalName2    = "SNIa_HeRS_Metal_Density";
 
 
   /* Names for Primordial chemistry */
@@ -407,6 +410,11 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
     if (IndividualStarTrackSNMetalDensity){
       DataLabel[count++] = SNIaMetalName;
+      if (IndividualStarSNIaModel == 2){
+        DataLabel[i++] = ExtraMetalName0;
+        DataLabel[i++] = ExtraMetalName1;
+        DataLabel[i++] = ExtraMetalName2;
+      }
       DataLabel[count++] = SNIIMetalName;
     }
 

@@ -192,6 +192,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
           if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
           if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes += 2;
           if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
+          if (IndividualStarSNIaModel == 2)       NumberOfParticleAttributes += 3;
           if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
         }
       }

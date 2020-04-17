@@ -603,7 +603,7 @@ int grid::CosmologySimulationInitializeGrid(
              * BaryonField[0][i];
         }
 
-        if (IndividualStarSNIaModel) {
+        if (IndividualStarSNIaModel == 2) {
           for (i = 0; i < size; i++){
             BaryonField[ExtraField[4]][i] = CosmologySimulationInitialFractionMetal
               * BaryonField[0][i];

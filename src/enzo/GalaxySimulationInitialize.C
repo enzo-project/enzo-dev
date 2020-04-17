@@ -98,6 +98,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *SNIaMetalName   = "SNIa_Metal_Density";
   char *RProcMetalName  = "RProcess_Metal_Density";
 
+  char *ExtraMetalName0    = "SNIa_sCh_Metal_Density";
+  char *ExtraMetalName1    = "SNIa_SDS_Metal_Density";
+  char *ExtraMetalName2    = "SNIa_HeRS_Metal_Density";
 
 
   /* Chemical Tracers */
@@ -855,6 +858,13 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
    if (IndividualStarTrackSNMetalDensity){
      DataLabel[i++] = SNIaMetalName;
+
+     if (IndividualStarSNIaModel == 2){
+      DataLabel[i++] = ExtraMetalName0;
+      DataLabel[i++] = ExtraMetalName1;
+      DataLabel[i++] = ExtraMetalName2;
+     }
+
      DataLabel[i++] = SNIIMetalName;
    }
 

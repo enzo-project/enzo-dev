@@ -144,9 +144,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *SNIaMetalName = "SNIa_Metal_Density";
   char *RProcMetalName = "RProcess_Metal_Density";
 
-  char *ExtraMetal0    = "SNIa_sCh_Metal_Density";
-  char *ExtraMetal1    = "SNIa_SDS_Metal_Density";
-  char *ExtraMetal2    = "SNIa_HeRS_Metal_Density";
+  char *ExtraMetalName0    = "SNIa_sCh_Metal_Density";
+  char *ExtraMetalName1    = "SNIa_SDS_Metal_Density";
+  char *ExtraMetalName2    = "SNIa_HeRS_Metal_Density";
 
   char *BxName = "Bx";
   char *ByName = "By";
@@ -864,9 +864,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       if (IndividualStarTrackSNMetalDensity){
         DataLabel[i++] = SNIaMetalName;
         if (IndividualStarSNIaModel == 2){
-          DataLabel[i++] = ExtraMetal0;
-          DataLabel[i++] = ExtraMetal1;
-          DataLabel[i++] = ExtraMetal2;
+          DataLabel[i++] = ExtraMetalName0;
+          DataLabel[i++] = ExtraMetalName1;
+          DataLabel[i++] = ExtraMetalName2;
         }
         DataLabel[i++] = SNIIMetalName;
       }

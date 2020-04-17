@@ -517,7 +517,8 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   }
 
   int PopIIIMetalNum, PopIIIPISNeMetalNum,
-      AGBMetalNum, SNIaMetalNum, SNIIMetalNum, RProcMetalNum;
+      AGBMetalNum, SNIaMetalNum, SNIIMetalNum, RProcMetalNum,
+      ExtraMetalNum0, ExtraMetalNum1, ExtraMetalNum2;
 
   AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
   PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
@@ -525,6 +526,10 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
   SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
   RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
+
+  ExtraMetalNum0 = FindField(ExtraMetalField0, FieldType, NumberOfBaryonFields);
+  ExtraMetalNum1 = FindField(ExtraMetalField1, FieldType, NumberOfBaryonFields);
+  ExtraMetalNum2 = FindField(ExtraMetalField2, FieldType, NumberOfBaryonFields);
 
   if ( IndividualStarTrackAGBMetalDensity && (AGBMetalNum <= 0)){
     ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
@@ -540,6 +545,12 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
   if ( IndividualStarRProcessModel && (RProcMetalNum <= 0)) {
     ENZO_FAIL("Error in finding R Process model metal density field in individual_star_maker.");
+  }
+
+  if (IndividualStarSNIaModel == 2){
+    if ( (ExtraMetalNum0 <= 0) || (ExtraMetalNum1 <= 0) || (ExtraMetalNum2 <= 0)){
+      ENZO_FAIL("Error in finding all SNIa fields needed for model 2.");
+    }
   }
 
   /* Get Units */
@@ -782,7 +793,19 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
                 BaryonField[SNIIMetalNum][index] += injected_metal_mass[0];
 
               } else if (cstar->ReturnBirthMass() < IndividualStarSNIaMaximumMass){
-                BaryonField[SNIaMetalNum][index] += injected_metal_mass[0];
+
+                if (IndividualStarSNIaModel == 1){
+
+                  BaryonField[SNIaMetalNum][index] += injected_metal_mass[0];
+
+                } else if (IndividualStarSNIaModel == 2){
+
+                  // 0 : DDS, 1: sCh, 2: SDS, 3 :HeRS
+                  const int fields[4] = {SNIaMetalNum, ExtraMetalNum0, ExtraMetalNum1, ExtraMetalNum2};
+
+                  BaryonField[fields[cstar->ReturnSNIaType()]][index] += injected_metal_mass[0];
+
+                }
 
               }
 

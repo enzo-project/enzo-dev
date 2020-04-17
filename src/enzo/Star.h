@@ -49,6 +49,8 @@ class Star
   double         NotEjectedMass;                  // Msun, used for MBH_JETS feedback
   double         BirthMass; // Msun - AJE
 
+  int            SNIaType;  // for individual stars
+
   /* AJE: for individual stars - yield table numbers */
   int se_table_position[2];
   int rad_table_position[3];
@@ -88,6 +90,7 @@ public:
   double ReturnFinalMass(void) { return FinalMass; };
   double ReturnBirthMass(void) { return BirthMass; };
   double ReturnMetallicity(void) { return Metallicity; };
+  int ReturnSNIaType(void) {return SNIaType; };
 
 // Individual Star
   int* ReturnYieldTablePosition(void){  this->AssertInterpolationPositions(3);

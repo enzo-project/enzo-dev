@@ -140,7 +140,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   MetalNum   = FindField(Metallicity, this->FieldType, this->NumberOfBaryonFields);
 
  int PopIIIMetalNum, PopIIIPISNeMetalNum, AGBMetalNum,
-     SNIaMetalNum, SNIIMetalNum, RProcMetalNum;
+     SNIaMetalNum, SNIIMetalNum, RProcMetalNum, ExtraMetalNum0,
+     ExtraMetalNum1, ExtraMetalNum2;
 
   AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
   PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
@@ -148,6 +149,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
   SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
   RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
+
+  ExtraMetalNum0 = FindField(ExtraMetalField0, FieldType, NumberOfBaryonFields);
+  ExtraMetalNum1 = FindField(ExtraMetalField1, FieldType, NumberOfBaryonFields);
+  ExtraMetalNum2 = FindField(ExtraMetalField2, FieldType, NumberOfBaryonFields);
 
   if ( IndividualStarTrackAGBMetalDensity && (AGBMetalNum <= 0)){
     ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
@@ -163,6 +168,12 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
   if ( IndividualStarRProcessModel && ( RProcMetalNum <=0 )){
     ENZO_FAIL("Error in finding R process metal density field in individual_star_maker.");
+  }
+
+  if ( IndividualStarSNIaModel == 2){
+    if ((ExtraMetalNum0<=0) || (ExtraMetalNum1<=0) || (ExtraMetalNum2<=0)){
+      ENZO_FAIL("Error in identifying all needed SNIa tracer fields");
+    }
   }
 
   /* get units */
@@ -653,10 +664,29 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                       if (IndividualStarOutputChemicalTags){
                         StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[SNIaMetalNum][index];
                         offset++;
+
+                        if (IndividualStarSNIaModel == 2){
+                          StellarAbundances[StellarYieldsNumberOfSpecies+offset][istar] = BaryonField[ExtraMetalNum0][index];
+                          offset++;
+                          StellarAbundances[StellarYieldsNumberOfSpecies+offset][istar] = BaryonField[ExtraMetalNum1][index];
+                          offset++;
+                          StellarAbundances[StellarYieldsNumberOfSpecies+offset][istar] = BaryonField[ExtraMetalNum2][index];
+                          offset++;
+                        }
+
                         StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[SNIIMetalNum][index];
                       } else {
                         ParticleAttribute[4 + iyield + offset][istar] = BaryonField[SNIaMetalNum][index];
                         offset++;
+
+                        if (IndividualStarSNIaModel == 2){
+                          ParticleAttribute[4+iyield+offset][istar] = BaryonField[ExtraMetalNum0][index];
+                          offset++;
+                          ParticleAttribute[4+iyield+offset][istar] = BaryonField[ExtraMetalNum1][index];
+                          offset++;
+                          ParticleAttribute[4+iyield+offset][istar] = BaryonField[ExtraMetalNum2][index];
+                          offset++;
+                        }
                         ParticleAttribute[4 + iyield + offset][istar] = BaryonField[SNIIMetalNum][index];
                       }
                       offset++;

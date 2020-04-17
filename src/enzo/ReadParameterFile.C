@@ -2164,6 +2164,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
     NumberOfParticleAttributes = 4;
+
+    /* For right now, this model requires using a hack on the abundances */
+    if (IndividualStarSNIaModel == 2 && IndividualStarOutputChemicalTags){
+      ENZO_FAIL("Currently cannot use SNIa model 2 without tracking stellar abundances\n");
+    }
+
     if (IndividualStarFollowStellarYields && !IndividualStarOutputChemicalTags){
       NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
 
@@ -2171,6 +2177,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
       if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes += 2;
       if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
+      if (IndividualStarSNIaModel == 2)       NumberOfParticleAttributes += 3;
       if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
 
     }

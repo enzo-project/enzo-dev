@@ -59,6 +59,7 @@ Star::Star(void)
     last_accretion_rate = NotEjectedMass = Metallicity = deltaZ =
     Radius = SurfaceGravity = Teff = 0.0;
   FeedbackFlag = Identifier = level = GridID = type = naccretions = 0;
+  SNIaType = 0;
   AddedEmissivity = false;
 
   // Init to bad values to cause failure if trying to use before set
@@ -105,7 +106,7 @@ Star::Star(grid *_grid, int _id, int _level)
   Identifier = _grid->ParticleNumber[_id];
   Mass = FinalMass = BirthMass = (double)(_grid->ParticleMass[_id]);
   BirthTime = _grid->ParticleAttribute[0][_id];
-
+  SNIaType = 0;
   Metallicity = (double)(_grid->ParticleAttribute[2][_id]);
 
   if( ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR  &&
@@ -118,6 +119,24 @@ Star::Star(grid *_grid, int _id, int _level)
       }
     }
 
+    // look through abundances and check to see which one is
+    // negative. This corresponds to the Ia type for this star
+    if ((IndividualStarSNIaModel == 2) && (BirthMass < IndividualStarSNIaMaximumMass) &&
+        (BirthMass > IndividualStarSNIaMinimumMass) &&
+        (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD) ){
+
+      // find first index (of 4 fields) that is negative
+      int start_index = 4 + (StellarYieldsNumberOfSpecies);
+      if (IndividualStarTrackAGBMetalDensity) start_index++;
+      if (IndividualStarPopIIIFormation) start_index += 2;
+
+      for (int i = 0; i < 4; i++){
+        if ( _grid->ParticleAttribute[start_index+i] < 0){
+          SNIaType = i;
+          break;
+        }
+      }
+    }
 
     if (IndividualStarSaveTablePositions){
       int ts = ParticleAttributeTableStartIndex;
@@ -189,6 +208,7 @@ Star::Star(StarBuffer *buffer, int n)
   GridID = buffer[n].GridID;
   type = buffer[n].type;
   AddedEmissivity = buffer[n].AddedEmissivity;
+  SNIaType = buffer[n].SNIaType;
   NextStar = NULL;
   PrevStar = NULL;
 
@@ -250,6 +270,7 @@ Star::Star(StarBuffer buffer)
   level = buffer.level;
   GridID = buffer.GridID;
   type = buffer.type;
+  SNIaType = buffer.SNIaType;
   NextStar = NULL;
   PrevStar = NULL;
 
@@ -322,6 +343,7 @@ void Star::operator=(Star a)
   level = a.level;
   GridID = a.GridID;
   type = a.type;
+  SNIaType = a.type;
   AddedEmissivity = a.AddedEmissivity;
   if (accretion_rate != NULL)
     delete [] accretion_rate;
@@ -410,6 +432,7 @@ Star *Star::copy(void)
   a->level = level;
   a->GridID = GridID;
   a->type = type;
+  a->SNIaType = SNIaType;
   a->AddedEmissivity = AddedEmissivity;
   if (naccretions > 0) {
     a->accretion_rate = new float[naccretions];
@@ -592,6 +615,24 @@ void Star::UpdateWhiteDwarfProperties(void){
 
     this->LifeTime = CurrentGrid->ParticleAttribute[1][_id];
     this->type     = CurrentGrid->ParticleType[_id];
+
+    if ((IndividualStarSNIaModel == 2) && (BirthMass < IndividualStarSNIaMaximumMass) &&
+        (BirthMass > IndividualStarSNIaMinimumMass) &&
+        (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD) ){
+
+      // find first index (of 4 fields) that is negative
+      int start_index = 4 + (StellarYieldsNumberOfSpecies);
+      if (IndividualStarTrackAGBMetalDensity) start_index++;
+      if (IndividualStarPopIIIFormation) start_index += 2;
+
+      for (int i = 0; i < 4; i++){
+        if ( CurrentGrid->ParticleAttribute[start_index+i] < 0){
+          this->SNIaType = i; 
+          break;
+        }
+      } 
+    }
+
 //	}
   }
 
@@ -664,6 +705,29 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
       ABS(type) <= PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED){
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
+    if (!IndividualStarOutputChemicalTags){
+      for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+        abundances[i] = (double)(_grid->ParticleAttribute[4 + i][_id]);
+      }
+    }
+
+    if ((IndividualStarSNIaModel == 2) && (BirthMass < IndividualStarSNIaMaximumMass) &&
+        (BirthMass > IndividualStarSNIaMinimumMass) &&
+        (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD) ){
+
+      // find first index (of 4 fields) that is negative
+      int start_index = 4 + (StellarYieldsNumberOfSpecies);
+      if (IndividualStarTrackAGBMetalDensity) start_index++;
+      if (IndividualStarPopIIIFormation) start_index += 2;
+
+      for (int i = 0; i < 4; i++){
+        if ( _grid->ParticleAttribute[start_index+i] < 0){
+          SNIaType = i; 
+          break;
+        }
+      } 
+    }
+
     // check if using this optimization
     if (IndividualStarSaveTablePositions){
 
@@ -730,6 +794,7 @@ void Star::PrintInfo(void)
   printf("\t mass = %"GSYM", dmass = %"GSYM", fmass = %"GSYM", bmass = %"GSYM" type = %"ISYM", grid %"ISYM","
 	 " lvl %"ISYM"\n", Mass, DeltaMass, FinalMass, BirthMass, type, GridID, level);
   printf("\t FeedbackFlag = %"ISYM"\n", FeedbackFlag);
+  printf("\t SNIaType = %"ISYM"\n", SNIaType);
   printf("\t accreted_angmom = %"FSYM" %"FSYM" %"FSYM"\n", accreted_angmom[0],
 	 accreted_angmom[1], accreted_angmom[2]);
   printf("\t SE table = %"ISYM" %"ISYM"\n", se_table_position[0], se_table_position[1]);
@@ -808,6 +873,7 @@ void Star::StarListToBuffer(StarBuffer *&result, int n)
     result[count].level = tmp->level;
     result[count].GridID = tmp->GridID;
     result[count].type = tmp->type;
+    result[count].SNIaType = tmp->SNIaType;
     result[count].AddedEmissivity = tmp->AddedEmissivity;
 
     for (i = 0; i < 2; i++){
@@ -869,6 +935,7 @@ void Star::StarToBuffer(StarBuffer *result)
   result->level = tmp->level;
   result->GridID = tmp->GridID;
   result->type = tmp->type;
+  result->SNIaType = tmp->SNIaType;
   result->AddedEmissivity = tmp->AddedEmissivity;
 
   /* AJE */

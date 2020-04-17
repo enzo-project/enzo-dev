@@ -321,6 +321,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
           if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
           if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes += 2;
           if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
+          if (IndividualStarSNIaModel == 2)       NumberOfParticleAttributes += 3;
           if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
 
         }

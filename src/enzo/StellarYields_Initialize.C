@@ -67,19 +67,6 @@ int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
     }
   } // loop over tracer fields to add
 
-/*
-  if (IndividualStarTrackAGBMetalDensity) {
-    TypesToAdd[FieldsToAdd++] = ExtraType0;
-  }
-  if (IndividualStarPopIIIFormation){
-    TypesToAdd[FieldsToAdd++] = ExtraType1;
-  }
-  if (IndividualStarTrackSNMetalDensity){
-    TypesToAdd[FieldsToAdd++] = MetalSNIaDensity;
-    TypesToAdd[FieldsToAdd++] = MetalSNIIDensity;
-  }
-*/
-
   for (int i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
     TypesToAdd[i] = FieldUndefined;
   }
