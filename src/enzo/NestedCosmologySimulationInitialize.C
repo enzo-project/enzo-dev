@@ -210,8 +210,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
 #ifdef INDIVIDUALSTAR
   for (i = 0; i < MAX_STELLAR_YIELDS; i ++){
-    CosmologySimulationInitialChemicalSpeciesFractions[i] =
-                    1.0E-02*CosmologySimulationInitialFractionMetal;
+    CosmologySimulationInitialChemicalSpeciesFractions[i] = -1.0;
   }
 #endif
 
@@ -361,6 +360,14 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
 
   // More error checking
+
+#ifdef INDIVIDUALSTAR
+  for (i = 0; i < MAX_STELLAR_YIELDS; i ++){
+    if (CosmologySimulationInitialChemicalSpeciesFractions[i]<0){
+      CosmologySimulationInitialChemicalSpeciesFractions[i] = CosmologySimulationInitialFractionMetal;
+    }
+  }
+#endif
 
   if (CosmologySimulationDensityName == NULL &&
       (CosmologySimulationParticlePositionName == NULL &&

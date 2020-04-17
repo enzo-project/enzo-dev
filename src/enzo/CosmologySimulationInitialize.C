@@ -218,8 +218,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
 #ifdef INDIVIDUALSTAR
   for (i = 0; i < MAX_STELLAR_YIELDS; i ++){
-    CosmologySimulationInitialChemicalSpeciesFractions[i] =
-                    1.0E-02*CosmologySimulationInitialFractionMetal;
+    CosmologySimulationInitialChemicalSpeciesFractions[i] = -1.0;
   }
 #endif
 
@@ -403,6 +402,14 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       }
   }
 
+#endif
+
+#ifdef INDIVIDUALSTAR
+  for (i = 0; i < MAX_STELLAR_YIELDS; i ++){
+    if (CosmologySimulationInitialChemicalSpeciesFractions[i]<0){
+      CosmologySimulationInitialChemicalSpeciesFractions[i] = CosmologySimulationInitialFractionMetal;
+    }
+  }
 #endif
 
   // More error checking
