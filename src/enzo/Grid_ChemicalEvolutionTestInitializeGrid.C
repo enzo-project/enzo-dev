@@ -357,26 +357,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
 
       /* Metal fields are all in fractions, as set in Grid_StarParticleHandler */
       if(MultiMetals == 2){
-
-         int offset = 0;
-         if (IndividualStarTrackAGBMetalDensity) ParticleAttribute[4 + offset++][count] = tiny_number;
-         if (IndividualStarPopIIIFormation){
-           ParticleAttribute[4 + offset++][count] = tiny_number;
-           ParticleAttribute[4 + offset++][count] = tiny_number;
-         }
-         if (IndividualStarTrackSNMetalDensity){
-           ParticleAttribute[4 + offset++][count] = tiny_number;
-           if (IndividualStarSNIaModel == 2){
-             ParticleAttribute[4 + offset++][count] = tiny_number;
-             ParticleAttribute[4 + offset++][count] = tiny_number;
-             ParticleAttribute[4 + offset++][count] = tiny_number;
-           }
-           ParticleAttribute[4 + offset++][count] = tiny_number;
-         }
-         if (IndividualStarRProcessModel) ParticleAttribute[4+offset++][count] = tiny_number;
-
-
-        for( int ii = offset; ii < StellarYieldsNumberOfSpecies + offset; ii++){
+        for( int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
           if(StellarYieldsAtomicNumbers[ii] > 2){
             int field_num;
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
@@ -397,6 +378,25 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
 
           }
         } // end loop over species
+
+         int offset = StellarYieldsNumberOfSpecies;
+         if (IndividualStarTrackAGBMetalDensity) ParticleAttribute[4 + offset++][count] = tiny_number;
+         if (IndividualStarPopIIIFormation){
+           ParticleAttribute[4 + offset++][count] = tiny_number;
+           ParticleAttribute[4 + offset++][count] = tiny_number;
+         }
+         if (IndividualStarTrackSNMetalDensity){
+           ParticleAttribute[4 + offset++][count] = tiny_number;
+           if (IndividualStarSNIaModel == 2){
+             ParticleAttribute[4 + offset++][count] = tiny_number;
+             ParticleAttribute[4 + offset++][count] = tiny_number;
+             ParticleAttribute[4 + offset++][count] = tiny_number;
+           }
+           ParticleAttribute[4 + offset++][count] = tiny_number;
+         }
+         if (IndividualStarRProcessModel) ParticleAttribute[4+offset++][count] = tiny_number;
+
+
       } // end species tagging
 
       if (IndividualStarSaveTablePositions){

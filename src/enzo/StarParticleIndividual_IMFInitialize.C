@@ -52,7 +52,7 @@ int StarParticleIndividual_IMFInitialize(void){
                                      3); // 3 == PopIII IMF
   }
 
-  if (IndividualStarSNIaModel == 2){
+  if (IndividualStarSNIaModel == 2 && EventDTD == NULL){
     InitializeDTD( EventDTD );
   }
 
@@ -65,7 +65,7 @@ int InitializeDTD(float *& data){
 
   data = new float[IMF_TABLE_ENTRIES];
 
-  const double min_time = log10(1.0E4); // yr
+  const double min_time = log10(1.0E6); // yr
   const double max_time = log10(14.0E9); // yr
   const double dt = (max_time-min_time)/(double(IMF_TABLE_ENTRIES)-1);
 

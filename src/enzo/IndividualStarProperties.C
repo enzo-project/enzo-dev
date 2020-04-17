@@ -183,6 +183,7 @@ int grid::IndividualStarSetWDLifetime(void){
     } else if (IndividualStarSNIaModel == 2){
 
       // new lifetime is returned as time from MS BIRTH
+      // in yr
       result = WDExplosionTime(new_lifetime);
 
       if (result > 0){
@@ -197,7 +198,7 @@ int grid::IndividualStarSetWDLifetime(void){
           model_rates[j] /= total_rates;
         }
         for (int j = 1; j < 4; j++) model_rates[j] += model_rates[j-1]; // cum sum
-
+        printf("total and model_rates %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",total_rates,model_rates[0],model_rates[1],model_rates[2],model_rates[3]);
         // pick another random number to decide which SN
         unsigned_long_int random_int = mt_random();
         const int max_random = (1<<16);
@@ -252,7 +253,7 @@ int WDExplosionTime(float &WD_lifetime){
   float rnum = (float) (random_int % max_random) / ((float) (max_random));
 
   // bad to hard code - needs to match InitializeDTD in StarParticleIndividual_IMFInitialize
-  const double min_time = log10(1.0E4); // yr
+  const double min_time = log10(1.0E6); // yr
   const double max_time = log10(14.0E9); // yr
   const double dt = (max_time-min_time)/(double(IMF_TABLE_ENTRIES)-1);
 
@@ -419,14 +420,14 @@ float Ruiter_SNIa_DTD(float time, const int model){
   };
 
   // just do dumb linear interpolation
-  float slope = 0.0, b = 0.0;
+  float slope = 0.0, b = 0.0, t = 0.0;
   int i = -1;
 
   time = time / 1.0E9; // convert from yr to Gyr
 
-  if (time > model_times[IMF_TABLE_ENTRIES-1]){
+  if (time > model_times[npoints-1]){
      // extrapolate
-     i = IMF_TABLE_ENTRIES - 1;
+     i = npoints - 1;
      slope = (model_rates[model][i] - model_rates[model][i-1])/
              (model_times[i]-model_times[i-1]);
       b    = model_rates[model][i] - slope * model_times[i];
@@ -440,11 +441,13 @@ float Ruiter_SNIa_DTD(float time, const int model){
   } else {
     i = search_lower_bound(model_times, time, 0, npoints, npoints);
 
-    float t = LinearInterpolationCoefficient(i, time, model_times);
+    t = LinearInterpolationCoefficient(i, time, model_times);
 
     rate = t * model_rates[model][i+1] + (1.0-t)*model_rates[model][i];
 
   }
+
+  printf("Ruiter : %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",time, i, t, rate, slope, b);
 
   return POW(10.0,rate);
 }
