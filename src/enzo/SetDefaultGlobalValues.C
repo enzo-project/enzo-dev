@@ -136,6 +136,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   FileDirectedOutput = 1;
 
+  FreezeParticles = 0; // do not update particle velocity
+
   // Default Hierarchy File IO settings (1 = ASCII; 2 = HDF5+ASCII)
   HierarchyFileInputFormat = 1;
   HierarchyFileOutputFormat = 1;

@@ -342,6 +342,10 @@ EXTERN int ComputePotential;
 
 EXTERN int WritePotential;
 
+/* Flag to skip updating particle velocity - debugging */
+
+EXTERN int FreezeParticles;
+
 /* Parameter to control how particles in a subgrid are deposited in
    the target grid.  Options are: 
      CIC_DEPOSIT - cloud in cell using cloud size equal to target grid size

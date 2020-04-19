@@ -133,6 +133,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "TimeLastHistoryDump = %"GOUTSYM"\n", MetaData.TimeLastHistoryDump);
   fprintf(fptr, "dtHistoryDump       = %"GOUTSYM"\n\n", MetaData.dtHistoryDump);
  
+  fprintf(fptr, "FreezeParticles            = %"ISYM"\n", FreezeParticles);
   fprintf(fptr, "TracerParticleOn           = %"ISYM"\n", TracerParticleOn);
   fprintf(fptr, "TracerParticleOutputVelocity           = %"ISYM"\n", TracerParticleOutputVelocity);
 

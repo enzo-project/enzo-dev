@@ -124,7 +124,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "TimeLastHistoryDump = %"PSYM,
 		  &MetaData.TimeLastHistoryDump);
     ret += sscanf(line, "dtHistoryDump       = %"PSYM, &MetaData.dtHistoryDump);
-
+    ret += sscanf(line, "FreezeParticles = %"ISYM, &FreezeParticles);
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
     ret += sscanf(line, "TracerParticleOutputVelocity  = %"ISYM, &TracerParticleOutputVelocity);
     ret += sscanf(line, "WriteGhostZones = %"ISYM, &WriteGhostZones);
@@ -2162,6 +2162,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     StarParticleCreation -= 1 << POP3_STAR;
   }
 
+  /* Set particle attributes appropriately for individual star model with
+     birth mass field and abundance tracers */
   if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
     NumberOfParticleAttributes = 4;
 
@@ -2188,6 +2190,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
     /* make the last two particle attributes mass counters for wind and SN */
     NumberOfParticleAttributes += 2;
+  }
+
+  if (NumberOfParticleAttributes > MAX_NUMBER_OF_PARTICLE_ATTRIBUTES){
+    ENZO_VFAIL("Number of necessary particle attributes (%"ISYM") greater than"
+              " MAX_NUMBER_OF_PARTICLE_ATTRIBUTES. Change and re-compile.\n",NumberOfParticleAttributes);
   }
 
   if (IndividualStarOutputChemicalTags){
