@@ -289,7 +289,11 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 
 #define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= PeHeatingRate && (A) <= FUVRate) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3) ) ? FALSE : TRUE)
 #define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9) || ((A)==kdissH2II) || ((A)==kphHM) || ((A)==FUVRate) || ((A) == PeHeatingRate)) ? TRUE : FALSE)
-#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments)) || ((A) == PeHeatingRate) ? TRUE : FALSE)
+#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments) || ((A) == PeHeatingRate)) ? TRUE : FALSE)
+#define FieldTypeIsSpeciesDensity(A) (( (((A) >= ElectronDensity) && ((A) <= ExtraType1)) || ( ((A) >= LiDensity) && ((A) <= BiDensity)) || ((A) == MetalSNIaDensity ) || ( (A) == MetalSNIIDensity) || ( ((A) >= MetalRProcessDensity) && ( (A) <= ExtraMetalField2))) ? TRUE : FALSE)
+
+/* Is field a species density which is stored as a mass density but represents an advected colour / fraction field */
+
 
 /* Different stochastic forcing types */
 const forcing_type

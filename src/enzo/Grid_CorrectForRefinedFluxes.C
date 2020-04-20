@@ -365,10 +365,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
       // like density, total energy, and internal energy
       if (FluxCorrection == 2){
         for (field = 0; field < NumberOfBaryonFields; field++) {
-          if ((FieldType[field] >= ElectronDensity &&
-              FieldType[field] <= ExtraType1) ||
-              (FieldType[field] >= LiDensity &&
-               FieldType[field] <= BiDensity) ) {
+          if ( (FieldTypeIsSpeciesDensity(FieldType[field])) == TRUE){
             fieldNumberList.push_back(field);
           }
         }
@@ -401,18 +398,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
         // see the next comment).  This ensures that the species are changed
         // to keep the same fractional density.
         if (FluxCorrection == 1) { // Skip this routine when FluxCorrection = 2
-        if (
-          (
-            (FieldType[field] >= ElectronDensity
-              && FieldType[field] <= ExtraType1
-            )
-            || (FieldType[field] >= LiDensity &&
-                FieldType[field] <= BiDensity)
-            || FieldType[field] == MetalSNIaDensity
-            || FieldType[field] == MetalSNIIDensity
-          )
-          && FieldTypeNoInterpolate(FieldType[field]) == FALSE
-          && FieldTypeIsRadiation(FieldType[field]) == FALSE
+        if ( (FieldTypeIsSpeciesDensity(FieldType[field]) == TRUE)
+          && (FieldTypeNoInterpolate(FieldType[field]) == FALSE)
+          && (FieldTypeIsRadiation(FieldType[field]) == FALSE)
         ) {
           for (k = Start[2]; k <= End[2]; k++) {
             for (j = Start[1]; j <= End[1]; j++) {
@@ -546,14 +534,10 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      } // else /* if( SUBlingGrid == FALSE ) */
 		    } // if(CorrectRightBaryonField)
 		
-		    if ((FieldTypeIsDensity(FieldType[field]) == TRUE ||
-			 FieldType[field] == TotalEnergy ||
-			 FieldType[field] == InternalEnergy ||
-                         ( FieldType[field] >= ElectronDensity &&
-                           FieldType[field] <= ExtraType1 ) ||
-                         (FieldType[field] >= LiDensity &&
-                          FieldType[field] <= BiDensity)
-                         )) {
+		    if ((FieldTypeIsDensity(FieldType[field]) == TRUE) ||
+                        (FieldTypeIsSpeciesDensity(FieldType[field]) == TRUE) ||
+			 (FieldType[field] == TotalEnergy) ||
+             		 (FieldType[field] == InternalEnergy)){
 
 		      /* If new density & energy is < 0 then undo the
 			 flux correction. */
@@ -726,12 +710,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		if ((FieldType[field] == Density || 
 		     FieldType[field] == TotalEnergy ||
 		     FieldType[field] == InternalEnergy  ||
-                     ( FieldType[field] >= ElectronDensity &&
-                       FieldType[field] <= ExtraType1 ) ||
-                     (FieldType[field] >= LiDensity &&
-                       FieldType[field] <= BiDensity)
-                    ) &&
-		    BaryonField[field][FieldIndex] <= 0) {
+                     (FieldTypeIsSpeciesDensity(FieldType[field]) == TRUE))
+                     &&
+		     BaryonField[field][FieldIndex] <= 0) {
 		  /*if (debug) {
 		    printf("CFRFl warn: %e %e %e %d %d %d %d [%d]\n",
 			   BaryonField[field][FieldIndex],
@@ -755,10 +736,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		if ((FieldType[field] == Density || 
 		     FieldType[field] == TotalEnergy ||
 		     FieldType[field] == InternalEnergy ||
-                     ( FieldType[field] >= ElectronDensity &&
-                       FieldType[field] <= ExtraType1 ) ||
-                     (FieldType[field] >= LiDensity &&
-                       FieldType[field] <= BiDensity)
+                     ( FieldTypeIsSpeciesDensity(FieldType[field]) == TRUE)
                     ) &&
 		    BaryonField[field][FieldIndex + Offset] <= 0.0) {
 		  /*if (debug) {
@@ -861,10 +839,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
           if (FluxCorrection == 1) {
 	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if ( ((FieldType[field] >= ElectronDensity &&
-		   FieldType[field] <= ExtraType1) ||
-		  FieldType[field] == MetalSNIaDensity ||
-		  FieldType[field] == MetalSNIIDensity) &&
+	    if ( (FieldTypeIsSpeciesDensity(FieldType[field])==TRUE) &&
 		 FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		 FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)
