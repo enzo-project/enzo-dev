@@ -604,13 +604,14 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time);
 
-      if (this->ComputeCoolingTime(cooling_time) == FAIL) {
+      if (this->ComputeCoolingTime(cooling_time, FALSE, FALSE) == FAIL) {
 		ENZO_FAIL("Error in grid->ComputeCoolingTime.");
       }
 
       // Make all cooling time values positive and convert to seconds.
+      // AJE: Turning off fabs
       for (i = 0;i < size;i++) {
-	cooling_time[i] = fabs(cooling_time[i]) * TimeUnits;
+	cooling_time[i] *= TimeUnits; // fabs(cooling_time[i]) * TimeUnits;
       }
 
       if(CopyOnlyActive == TRUE) {
