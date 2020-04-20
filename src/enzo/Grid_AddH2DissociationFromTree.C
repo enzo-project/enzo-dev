@@ -118,9 +118,10 @@ int grid::AddH2DissociationFromTree(void)
 
   // all cross sections include the above RT conversion factor for simplicity
   // in looping over sources below
+  const double conv = (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
   for (int n = 0; n < 3; n++){
-    H2IICrossSection[n] = factor * CalculateH2IICrossSection(PhotonEnergy[n]);
-    HMCrossSection[n]   = factor * CalculateIRCrossSection(PhotonEnergy[n]);
+    H2IICrossSection[n] = factor * CalculateH2IICrossSection(PhotonEnergy[n]) * conv;
+    HMCrossSection[n]   = factor * CalculateIRCrossSection(PhotonEnergy[n]) * conv;
   }
 
   // We want to use the source separation instead of the merging
