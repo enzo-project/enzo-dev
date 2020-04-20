@@ -33,6 +33,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
 
+extern "C" void FORTRAN_NAME(pop3_properties)(FLOAT *mass, FLOAT* luminosity,
+                                              FLOAT *lifetime);
+
 
 int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTemperature,
                                               float GasMetallicity, bool deposit_stars){
@@ -329,9 +332,20 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
       ParticleAttribute[0][count] = this->Time;
       ParticleNumber[count] = i; // unique ID
 
-      // last arg tells function to return total stellar lifetime
-      if(IndividualStarInterpolateLifetime(ParticleAttribute[1][i], mass[i], z[i], 1) == FAIL){
-          ENZO_FAIL("Failure in stellar lifetime interpolation");
+      if (abs(ParticleType[count]) == PARTICLE_TYPE_INDIVIDUAL_STAR){
+        // last arg tells function to return total stellar lifetime
+        if(IndividualStarInterpolateLifetime(ParticleAttribute[1][i], mass[i], z[i], 1) == FAIL){
+            ENZO_FAIL("Failure in stellar lifetime interpolation");
+        }
+      } else if (abs(ParticleType[count]) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+
+          float temp_mass, temp_lifetime, temp_luminosity;
+          temp_mass = 1.0 * mass[i];
+
+          FORTRAN_NAME(pop3_properties)(&temp_mass, &temp_luminosity, &temp_lifetime);
+
+          ParticleAttribute[1][count] = temp_lifetime * yr_s; // in seconds
+
       }
 
       ParticleAttribute[1][count] /= TimeUnits; // convert from s to code units
