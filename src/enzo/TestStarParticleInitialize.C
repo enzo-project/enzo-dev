@@ -67,8 +67,8 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float TestStarParticleStarMass    = 1000.0;
   int TestProblemUseMetallicityField = 1;
   float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
-  int NumberOfTestStars = 10;
-  float clusterRadius = 0.125;
+  int NumberOfTestStars = 1;
+  float clusterRadius = 0.0;
 
 
 
