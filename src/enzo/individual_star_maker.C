@@ -154,12 +154,22 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   ExtraMetalNum1 = FindField(ExtraMetalField1, FieldType, NumberOfBaryonFields);
   ExtraMetalNum2 = FindField(ExtraMetalField2, FieldType, NumberOfBaryonFields);
 
+  // for PopIII SF model
+  int CDensityNum = FindField(CDensity, FieldType, NumberOfBaryonFields);
+  int FeDensityNum = FindField(FeDensity, FieldType, NumberOfBaryonFields);
+
+  // error checking - move these somewhere else to only be called once per run
   if ( IndividualStarTrackAGBMetalDensity && (AGBMetalNum <= 0)){
     ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
   }
 
   if ( IndividualStarPopIIIFormation && ((PopIIIMetalNum <= 0) || (PopIIIPISNeMetalNum <= 0))){
     ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
+  }
+
+  if ( IndividualStarPopIIIFormation && (PopIIIMetalCriticalFraction < 0) &&
+       ( (CDensityNum<0) || (FeDensityNum<0))){
+    ENZO_FAIL("Need to follow C and Fe if Chiaki+2017 model used (PopIIIMetalCriticalFraction<0)");
   }
 
   if ( IndividualStarTrackSNMetalDensity && ( (SNIIMetalNum <= 0) || (SNIaMetalNum <=0))){
@@ -387,8 +397,49 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                 if ( rnum < pstar){ // form stars until mass runs out - keep star if too much is made
 
-                  form_popIII_stars = ((IndividualStarPopIIIFormation) *\
-                                       ((metal_mass/bmass) <= PopIIIMetalCriticalFraction) ); // critial metallicity
+                  form_popIII_stars = (IndividualStarPopIIIFormation);
+
+                  if (form_popIII_stars) {
+                    if (PopIIIMetalCriticalFraction > 0){
+                        form_popIII_stars *= ((metal_mass/bmass) <= PopIIIMetalCriticalFraction); // critial metallicity
+                    } else {
+                        // use Chiaki+2017 model which relies on C and Fe abundances
+                        // PopII above 10^([C/H] - 2.30) + 10^([Fe/H]) > 10^([5.07])
+                        //
+                        const double Chiaki_threshold = POW(10.0,5.07);
+
+                        // compute the H mass fraction
+                        double H_fraction = BaryonField[HINum][index] + BaryonField[HIINum][index];
+                        if (MultiSpecies > 1){
+                          H_fraction += (BaryonField[H2INum][index] + BaryonField[H2IINum][index] + BaryonField[HMNum][index]);
+                        }
+
+                        double C_fraction  = BaryonField[CDensityNum][index];
+                        double Fe_fraction = BaryonField[FeDensityNum][index];
+
+                        // not the actual true abundances, but this is OK since
+                        // we are computing ratios. Values are the molecular
+                        // weight of each element in AMU (actually AMU_CGS conversion
+                        // is not needed either)....
+                        double H_abund  = H_fraction  / (1.00790 * AMU_CGS);
+                        double C_abund  = C_fraction  / (12.0107 * AMU_CGS);
+                        double Fe_abund = Fe_fraction / (55.8450 * AMU_CGS);
+
+                        // from Asplund + 2009
+                        const double C_H_SOLAR  = 8.43 - 12.0;
+                        const double Fe_H_SOLAR = 7.50 - 12.0;
+
+                        double C_H  = log10(C_abund/H_abund) - C_H_SOLAR; // [C/H]
+                        double Fe_H = log10(Fe_abund/H_abund) - Fe_H_SOLAR; // [Fe/H]
+
+                        double local_C_Fe = POW(10.0,C_H-2.3)+POW(10.0,Fe_H);
+
+                        form_popIII_stars *= (local_C_Fe <= Chiaki_threshold);
+
+
+
+                    }
+                  }
 
                   if (form_popIII_stars){
 

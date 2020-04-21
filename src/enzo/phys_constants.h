@@ -31,6 +31,10 @@
 
 #define me                              9.10938215e-28
 
+/* Atomic mass unit */
+
+#define AMU_CGS                         1.6605402E-24
+
 /* Pi */
 
 #define pi                              3.14159265358979323846

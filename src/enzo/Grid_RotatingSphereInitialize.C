@@ -88,7 +88,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 // Physical Constants
 const float VIRIAL_COEFFICIENT = 200.0; // Use r_200
-const float AMU_CGS = 1.6605402e-24;
 
 // Cosmological parameters, used for computing the critical density
 // and setting up the NFW halo. The setup should not be very sensitive
