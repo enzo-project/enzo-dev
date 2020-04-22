@@ -49,14 +49,15 @@ class Star
   double         NotEjectedMass;                  // Msun, used for MBH_JETS feedback
   double         BirthMass; // Msun - AJE
 
-  int            SNIaType;  // for individual stars
+  int            SNIaType;     // for individual stars
+  int            PopIIIStar;   // if popIII at any point
 
   /* AJE: for individual stars - yield table numbers */
   int se_table_position[2];
   int rad_table_position[3];
   int yield_table_position[2];
   double Teff, SurfaceGravity, Radius;
-  double abundances[MAX_STELLAR_YIELDS];
+  double abundances[MAX_STAR_ABUNDANCES];
 
   double wind_mass_ejected;
   double sn_mass_ejected;
@@ -91,6 +92,10 @@ public:
   double ReturnBirthMass(void) { return BirthMass; };
   double ReturnMetallicity(void) { return Metallicity; };
   int ReturnSNIaType(void) {return SNIaType; };
+
+  int IsPopIII(void) { return PopIIIStar; };
+  void DetermineSNIaType();
+  void DetermineIfPopIIIStar();
 
 // Individual Star
   int* ReturnYieldTablePosition(void){  this->AssertInterpolationPositions(3);

@@ -397,16 +397,14 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                 if ( rnum < pstar){ // form stars until mass runs out - keep star if too much is made
 
-                  form_popIII_stars = (IndividualStarPopIIIFormation);
+                  if (IndividualStarPopIIIFormation) {
 
-                  if (form_popIII_stars) {
+                    form_popIII_stars = IndividualStarPopIIIFormation;
+
                     if (PopIIIMetalCriticalFraction > 0){
                         form_popIII_stars *= ((metal_mass/bmass) <= PopIIIMetalCriticalFraction); // critial metallicity
+
                     } else {
-                        // use Chiaki+2017 model which relies on C and Fe abundances
-                        // PopII above 10^([C/H] - 2.30) + 10^([Fe/H]) > 10^([5.07])
-                        //
-                        const double Chiaki_threshold = POW(10.0,5.07);
 
                         // compute the H mass fraction
                         double H_fraction = BaryonField[HINum][index] + BaryonField[HIINum][index];
@@ -414,29 +412,12 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                           H_fraction += (BaryonField[H2INum][index] + BaryonField[H2IINum][index] + BaryonField[HMNum][index]);
                         }
 
-                        double C_fraction  = BaryonField[CDensityNum][index];
-                        double Fe_fraction = BaryonField[FeDensityNum][index];
+                        // returns whether or not cell is above the PopIII->PopII transition threshold
+                        int is_above = CheckPopIIIMetallicityThreshold(BaryonField[CDensityNum][index],
+                                                                       BaryonField[FeDensityNum][index],
+                                                                       H_fraction);
 
-                        // not the actual true abundances, but this is OK since
-                        // we are computing ratios. Values are the molecular
-                        // weight of each element in AMU (actually AMU_CGS conversion
-                        // is not needed either)....
-                        double H_abund  = H_fraction  / (1.00790 * AMU_CGS);
-                        double C_abund  = C_fraction  / (12.0107 * AMU_CGS);
-                        double Fe_abund = Fe_fraction / (55.8450 * AMU_CGS);
-
-                        // from Asplund + 2009
-                        const double C_H_SOLAR  = 8.43 - 12.0;
-                        const double Fe_H_SOLAR = 7.50 - 12.0;
-
-                        double C_H  = log10(C_abund/H_abund) - C_H_SOLAR; // [C/H]
-                        double Fe_H = log10(Fe_abund/H_abund) - Fe_H_SOLAR; // [Fe/H]
-
-                        double local_C_Fe = POW(10.0,C_H-2.3)+POW(10.0,Fe_H);
-
-                        form_popIII_stars *= (local_C_Fe <= Chiaki_threshold);
-
-
+                        form_popIII_stars *= ( !(is_above));
 
                     }
                   }

@@ -161,7 +161,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
         lifetime = 0.0;
         int mode = 1;
-        if (IndividualStarPopIIIFormation && (cstar->ReturnMetallicity() < PopIIIMetalCriticalFraction)) mode = 3;
+        if (IndividualStarPopIIIFormation && (cstar->IsPopIII())) mode = 3;
 
         IndividualStarInterpolateLifetime(lifetime, cstar->ReturnBirthMass(),
                                           cstar->ReturnMetallicity(), mode);

@@ -455,6 +455,49 @@ float Ruiter_SNIa_DTD(float time, const int model){
   return POW(10.0,rate);
 }
 
+
+int CheckPopIIIMetallicityThreshold(const double & C_fraction,
+                                    const double & Fe_fraction,
+                                    const double & H_fraction){
+  //
+  // Check if we are above the PopIII -> PopII critical metallicity
+  //
+  // use Chiaki+2017 model which relies on C and Fe abundances
+  // https://ui.adsabs.harvard.edu/abs/2017MNRAS.472L.115C/abstract
+  // PopII above 10^([C/H] - 2.30) + 10^([Fe/H]) > 10^([5.07])
+  //
+  // species fractions can be passed as mass fractions, masses, or
+  // densities in any units as long as they are consistent. This is
+  // because we are computing ratios (so the conversions will divide out)
+
+  const double Chiaki_threshold = POW(10.0,5.07);
+
+  // not the actual true abundances, but this is OK since
+  // we are computing ratios. Values are the molecular
+  // weight of each element in AMU (actually AMU_CGS conversion
+  // is not needed either)....
+
+  const double H_abund  = H_fraction  / (1.00790) ; // * AMU_CGS);
+  const double C_abund  = C_fraction  / (12.0107); // * AMU_CGS);
+  const double Fe_abund = Fe_fraction / (55.8450); // * AMU_CGS);
+
+  // Solar abundances from Asplund + 2009
+  const double C_H_SOLAR  = 8.43 - 12.0;
+  const double Fe_H_SOLAR = 7.50 - 12.0;
+
+  double C_H  = log10(C_abund/H_abund) - C_H_SOLAR; // [C/H]
+  double Fe_H = log10(Fe_abund/H_abund) - Fe_H_SOLAR; // [Fe/H]
+
+  double local_C_Fe = POW(10.0,C_H-2.3)+POW(10.0,Fe_H);
+
+  if (local_C_Fe >= Chiaki_threshold){
+    return TRUE;
+  } else {
+    return FALSE;
+  }
+}
+
+
 void ComputeStellarWindVelocity(Star *cstar, float *v_wind){
  /* ------------------------------------------------------------------
   * ComputeStellarWindVelocity

@@ -39,6 +39,13 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
+
+// IndividualStars 
+int CheckPopIIIMetallicityThreshold(const double & C_fraction,
+                                    const double &Fe_fraction,
+                                    const double & H_fraction);
+
+
 /*******************************
 
    CONSTRUCTORS AND DESTRUCTOR
@@ -60,6 +67,7 @@ Star::Star(void)
     Radius = SurfaceGravity = Teff = 0.0;
   FeedbackFlag = Identifier = level = GridID = type = naccretions = 0;
   SNIaType = 0;
+  PopIIIStar = 0;
   AddedEmissivity = false;
 
   // Init to bad values to cause failure if trying to use before set
@@ -67,7 +75,7 @@ Star::Star(void)
   se_table_position[0] = se_table_position[1] = -1;
   rad_table_position[0] = rad_table_position[1] = rad_table_position[3] = -1;
   yield_table_position[0] = yield_table_position[1] = -1;
-  for (int i = 0; i < MAX_STELLAR_YIELDS; i++)
+  for (int i = 0; i < MAX_STAR_ABUNDANCES; i++)
     abundances[i] = 0.0;
 
   wind_mass_ejected = sn_mass_ejected = 0.0;
@@ -107,6 +115,7 @@ Star::Star(grid *_grid, int _id, int _level)
   Mass = FinalMass = BirthMass = (double)(_grid->ParticleMass[_id]);
   BirthTime = _grid->ParticleAttribute[0][_id];
   SNIaType = 0;
+  PopIIIStar = 0;
   Metallicity = (double)(_grid->ParticleAttribute[2][_id]);
 
   if( ABS(type) >= PARTICLE_TYPE_INDIVIDUAL_STAR  &&
@@ -114,29 +123,22 @@ Star::Star(grid *_grid, int _id, int _level)
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
     if (!IndividualStarOutputChemicalTags){
-      for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+      int end_index = 0;
+      if (IndividualStarTrackAGBMetalDensity) end_index++;
+      if (IndividualStarPopIIIFormation) end_index += 2;
+      if (IndividualStarTrackSNMetalDensity){
+        end_index += 2;
+        if (IndividualStarSNIaModel == 2) end_index += 3;
+      }
+      if (IndividualStarRProcessModel) end_index += 1;
+
+      for (int i = 0; i < StellarYieldsNumberOfSpecies+end_index; i++){
         abundances[i] = (double)(_grid->ParticleAttribute[4 + i][_id]);
       }
     }
 
-    // look through abundances and check to see which one is
-    // negative. This corresponds to the Ia type for this star
-    if ((IndividualStarSNIaModel == 2) && (BirthMass < IndividualStarSNIaMaximumMass) &&
-        (BirthMass > IndividualStarSNIaMinimumMass) &&
-        (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD) ){
-
-      // find first index (of 4 fields) that is negative
-      int start_index = 4 + (StellarYieldsNumberOfSpecies);
-      if (IndividualStarTrackAGBMetalDensity) start_index++;
-      if (IndividualStarPopIIIFormation) start_index += 2;
-
-      for (int i = 0; i < 4; i++){
-        if ( _grid->ParticleAttribute[start_index+i] < 0){
-          SNIaType = i;
-          break;
-        }
-      }
-    }
+    this->DetermineIfPopIIIStar();
+    this->DetermineSNIaType();
 
     if (IndividualStarSaveTablePositions){
       int ts = ParticleAttributeTableStartIndex;
@@ -209,6 +211,7 @@ Star::Star(StarBuffer *buffer, int n)
   type = buffer[n].type;
   AddedEmissivity = buffer[n].AddedEmissivity;
   SNIaType = buffer[n].SNIaType;
+  PopIIIStar = buffer[n].PopIIIStar;
   NextStar = NULL;
   PrevStar = NULL;
 
@@ -221,7 +224,7 @@ Star::Star(StarBuffer *buffer, int n)
   rad_table_position[2] = buffer[n].rad_table_position[2];
 
   if (!IndividualStarOutputChemicalTags){
-    for (i = 0; i < StellarYieldsNumberOfSpecies; i++){
+    for (i = 0; i < MAX_STAR_ABUNDANCES; i++){
       abundances[i] = buffer[n].abundances[i];
     }
   }
@@ -271,6 +274,7 @@ Star::Star(StarBuffer buffer)
   GridID = buffer.GridID;
   type = buffer.type;
   SNIaType = buffer.SNIaType;
+  PopIIIStar = buffer.PopIIIStar;
   NextStar = NULL;
   PrevStar = NULL;
 
@@ -283,7 +287,7 @@ Star::Star(StarBuffer buffer)
   rad_table_position[2] = buffer.rad_table_position[2];
 
   if (!IndividualStarOutputChemicalTags){
-    for(i=0;i<StellarYieldsNumberOfSpecies;i++){
+    for(i=0;i<MAX_STAR_ABUNDANCES;i++){
       abundances[i] = buffer.abundances[i];
     }
   }
@@ -344,6 +348,7 @@ void Star::operator=(Star a)
   GridID = a.GridID;
   type = a.type;
   SNIaType = a.SNIaType;
+  PopIIIStar = a.PopIIIStar;
   AddedEmissivity = a.AddedEmissivity;
   if (accretion_rate != NULL)
     delete [] accretion_rate;
@@ -370,7 +375,7 @@ void Star::operator=(Star a)
   rad_table_position[2] = a.rad_table_position[2];
 
   if (!IndividualStarOutputChemicalTags){
-    for(i=0;i<StellarYieldsNumberOfSpecies;i++){
+    for(i=0;i<MAX_STAR_ABUNDANCES;i++){
       abundances[i] = a.abundances[i];
     }
   }
@@ -433,6 +438,7 @@ Star *Star::copy(void)
   a->GridID = GridID;
   a->type = type;
   a->SNIaType = SNIaType;
+  a->PopIIIStar = PopIIIStar;
   a->AddedEmissivity = AddedEmissivity;
   if (naccretions > 0) {
     a->accretion_rate = new float[naccretions];
@@ -455,7 +461,7 @@ Star *Star::copy(void)
   a->rad_table_position[2] = rad_table_position[2];
 
   if (!IndividualStarOutputChemicalTags){
-    for(i=0;i<StellarYieldsNumberOfSpecies;i++){
+    for(i=0;i<MAX_STAR_ABUNDANCES;i++){
       a->abundances[i] = abundances[i];
     }
   }
@@ -627,10 +633,10 @@ void Star::UpdateWhiteDwarfProperties(void){
 
       for (int i = 0; i < 4; i++){
         if ( CurrentGrid->ParticleAttribute[start_index+i] < 0){
-          this->SNIaType = i; 
+          this->SNIaType = i;
           break;
         }
-      } 
+      }
     }
 
 //	}
@@ -706,27 +712,29 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
     if (!IndividualStarOutputChemicalTags){
-      for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+
+      int end_index = 0;
+      if (IndividualStarTrackAGBMetalDensity) end_index++;
+      if (IndividualStarPopIIIFormation) end_index += 2;
+      if (IndividualStarTrackSNMetalDensity){
+        end_index += 2;
+        if (IndividualStarSNIaModel == 2) end_index += 3;
+      }
+      if (IndividualStarRProcessModel) end_index += 1;
+
+      if (StellarYieldsNumberOfSpecies+end_index > MAX_STAR_ABUNDANCES){
+        ENZO_FAIL("Star::: Need to increase maximum number of abundances");
+      }
+
+      for (int i = 0; i < StellarYieldsNumberOfSpecies+end_index; i++){
         abundances[i] = (double)(_grid->ParticleAttribute[4 + i][_id]);
       }
+
+
     }
 
-    if ((IndividualStarSNIaModel == 2) && (BirthMass < IndividualStarSNIaMaximumMass) &&
-        (BirthMass > IndividualStarSNIaMinimumMass) &&
-        (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD) ){
-
-      // find first index (of 4 fields) that is negative
-      int start_index = 4 + (StellarYieldsNumberOfSpecies);
-      if (IndividualStarTrackAGBMetalDensity) start_index++;
-      if (IndividualStarPopIIIFormation) start_index += 2;
-
-      for (int i = 0; i < 4; i++){
-        if ( _grid->ParticleAttribute[start_index+i] < 0){
-          SNIaType = i; 
-          break;
-        }
-      } 
-    }
+    this->DetermineIfPopIIIStar();
+    this->DetermineSNIaType();
 
     // check if using this optimization
     if (IndividualStarSaveTablePositions){
@@ -747,17 +755,88 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
 
     }
 
-    if (!IndividualStarOutputChemicalTags){
-      for(int i=0;i<StellarYieldsNumberOfSpecies;i++){
-        abundances[0] = (double)(_grid->ParticleAttribute[4+i][_id]);
-      }
-    }
+    //if (!IndividualStarOutputChemicalTags){
+    //  for(int i=0;i<StellarYieldsNumberOfSpecies;i++){
+    //    abundances[i] = (double)(_grid->ParticleAttribute[4+i][_id]);
+    //  }
+    //}
 
     wind_mass_ejected = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-2][_id]);
     sn_mass_ejected   = (double)(_grid->ParticleAttribute[NumberOfParticleAttributes-1][_id]);
   }
 
   return;
+}
+
+void Star::DetermineSNIaType(void){
+
+  // look through abundances and check to see which one is
+  // negative. This corresponds to the Ia type for this star
+
+  if (!IndividualStarOutputChemicalTags) ENZO_FAIL("DetermineSNIaTYpe: Must save abundances as attributes");
+
+  if ((IndividualStarSNIaModel == 2) && (BirthMass < IndividualStarSNIaMaximumMass) &&
+     (BirthMass > IndividualStarSNIaMinimumMass) &&
+      (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD) ){
+
+    // find first index (of 4 fields) that is negative
+    int start_index = (StellarYieldsNumberOfSpecies);
+    if (IndividualStarTrackAGBMetalDensity) start_index++;
+    if (IndividualStarPopIIIFormation) start_index += 2;
+    for (int i = 0; i < 4; i++){
+      if ( this->abundances[start_index+i] < 0){
+        SNIaType = i;
+        break;
+      }
+    }
+  }
+}
+
+void Star::DetermineIfPopIIIStar(void){
+
+  if (!IndividualStarOutputChemicalTags) ENZO_FAIL("DetermineIfPopIIIStar: Must save abundances as attributes");
+
+  // Check if this is a popIII star (or was) and flag appropriately
+  if (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+     PopIIIStar = TRUE;
+  } else if (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT && IndividualStarPopIIIFormation){
+     // could be a popIII star. Need to check
+
+     if (PopIIIMetalCriticalFraction > 0){
+        PopIIIStar = Metallicity < PopIIIMetalCriticalFraction;
+     } else { // using Chiaki yields
+
+       double C_f  = -1;
+       double Fe_f = -1;
+       double H_f  = -1;
+       for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+
+         switch(StellarYieldsAtomicNumbers[i]){
+           case 1:
+             H_f = abundances[i];
+             break;
+           case 6:
+             C_f = abundances[i];
+             break;
+           case 26:
+             Fe_f = abundances[i];
+             break;
+           default:
+              // do nothing
+              break;
+         }
+       }
+
+       if ((C_f < 0) || (Fe_f < 0) || (H_f < 0)){
+         this->PrintInfo();
+         ENZO_FAIL("Trying to get C,Fe and H abundances in StarParticle but failing");
+       }
+
+       // returns TRUE if above threshold (and not a PopIII star)
+       PopIIIStar = !(CheckPopIIIMetallicityThreshold(C_f, Fe_f, H_f));
+
+     } // end popIII check for non-popIII type
+  } // end popIII check
 }
 
 void Star::DeleteCopyInGrid(void)
@@ -795,6 +874,7 @@ void Star::PrintInfo(void)
 	 " lvl %"ISYM"\n", Mass, DeltaMass, FinalMass, BirthMass, type, GridID, level);
   printf("\t FeedbackFlag = %"ISYM"\n", FeedbackFlag);
   printf("\t SNIaType = %"ISYM"\n", SNIaType);
+  printf("\t PopIIIStar = %"ISYM"\n", PopIIIStar);
   printf("\t accreted_angmom = %"FSYM" %"FSYM" %"FSYM"\n", accreted_angmom[0],
 	 accreted_angmom[1], accreted_angmom[2]);
   printf("\t SE table = %"ISYM" %"ISYM"\n", se_table_position[0], se_table_position[1]);
@@ -874,6 +954,7 @@ void Star::StarListToBuffer(StarBuffer *&result, int n)
     result[count].GridID = tmp->GridID;
     result[count].type = tmp->type;
     result[count].SNIaType = tmp->SNIaType;
+    result[count].PopIIIStar = tmp->PopIIIStar;
     result[count].AddedEmissivity = tmp->AddedEmissivity;
 
     for (i = 0; i < 2; i++){
@@ -884,7 +965,8 @@ void Star::StarListToBuffer(StarBuffer *&result, int n)
     result[count].rad_table_position[2] = tmp->rad_table_position[2];
 
     if (!IndividualStarOutputChemicalTags){
-      for (i=0;i<StellarYieldsNumberOfSpecies;i++){
+
+      for (i=0;i<MAX_STAR_ABUNDANCES;i++){
         result[count].abundances[i] = tmp->abundances[i];
       }
     }
@@ -936,6 +1018,7 @@ void Star::StarToBuffer(StarBuffer *result)
   result->GridID = tmp->GridID;
   result->type = tmp->type;
   result->SNIaType = tmp->SNIaType;
+  result->PopIIIStar = tmp->PopIIIStar;
   result->AddedEmissivity = tmp->AddedEmissivity;
 
   /* AJE */
@@ -947,7 +1030,7 @@ void Star::StarToBuffer(StarBuffer *result)
   result->rad_table_position[2] = tmp->rad_table_position[2];
 
   if (!IndividualStarOutputChemicalTags){
-    for(i=0;i<StellarYieldsNumberOfSpecies;i++){
+    for(i=0;i<MAX_STAR_ABUNDANCES;i++){
       result->abundances[i] = tmp->abundances[i];
     }
   }

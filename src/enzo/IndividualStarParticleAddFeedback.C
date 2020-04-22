@@ -775,7 +775,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
             // AJE: Rprocess model goes here 
 
-            if (IndividualStarPopIIIFormation && cstar->ReturnMetallicity() < PopIIIMetalCriticalFraction){
+            if (IndividualStarPopIIIFormation && cstar->IsPopIII() ){
               BaryonField[PopIIIMetalNum][index] += injected_metal_mass[0];
 
               if ((cstar->ReturnBirthMass() > PISNLowerMass) && (cstar->ReturnBirthMass() < PISNUpperMass)){

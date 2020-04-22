@@ -25,7 +25,7 @@ void Star::CheckMassEjectionValidity(void){
 
   float total_wind_mass_ejection = 0.0, total_sn_mass_ejection = 0.0;
 
-  if ( ((this->Metallicity > PopIIIMetalCriticalFraction) && IndividualStarPopIIIFormation) || !IndividualStarPopIIIFormation){
+  if ( ( !this->IsPopIII() && IndividualStarPopIIIFormation) || !IndividualStarPopIIIFormation){
     total_wind_mass_ejection = this->InterpolateYield(1, -1);
 
     if (this->BirthMass > IndividualStarSNIIMassCutoff &&
@@ -39,8 +39,7 @@ void Star::CheckMassEjectionValidity(void){
 //StellarYieldsInterpolateYield(1, this->yield_table_position[0],
 //                                                                    this->yield_table_position[1],
 //                                                                    this->BirthMass, this->Metallicity, -1);
-  if (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII ||
-        (( IndividualStarPopIIIFormation) && (this->Metallicity < PopIIIMetalCriticalFraction))){
+  if (this->IsPopIII()){
 
     if ( ((this->BirthMass >= TypeIILowerMass) && (this->BirthMass <= TypeIIUpperMass)) ||
          ((this->BirthMass >= PISNLowerMass  ) && (this->BirthMass <= PISNUpperMass )) ){

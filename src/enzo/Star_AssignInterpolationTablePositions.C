@@ -173,7 +173,7 @@ float Star::InterpolateYield(int yield_type, int atomic_number){
   this->AssertInterpolationPositions(3);
 
   if (  ( this->type == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII) ||
-        ((IndividualStarPopIIIFormation) && (this->Metallicity < PopIIIMetalCriticalFraction))){
+        ((IndividualStarPopIIIFormation) && this->IsPopIII() )){
 
     return StellarYieldsInterpolatePopIIIYield(this->yield_table_position[0],
                                                this->BirthMass, atomic_number);
@@ -238,7 +238,7 @@ void Star::AssignSETablePosition(void){
   /* find stellar properties - used for winds, SN, and radiation */
   if ( (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII)  ||
        (ABS(this->type) == PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED) ||
-       (IndividualStarPopIIIFormation && (this->Metallicity < PopIIIMetalCriticalFraction))){
+       (IndividualStarPopIIIFormation && this->IsPopIII() )){
     // We do not need these for PopIII stars. Set separately
     // using hard-coded routines in pop3_properties.F and
     // ComputePhotonRates. Set to INT_UNDEFINED so it is > 0
@@ -272,7 +272,7 @@ void Star::AssignRadTablePosition(void){
 void Star::AssignYieldTablePosition(void){
 
   if ((ABS(this->type) == IndividualStarPopIII)   ||
-      ((IndividualStarPopIIIFormation) && (this->Metallicity <= PopIIIMetalCriticalFraction))) {
+      ((IndividualStarPopIIIFormation) && this->IsPopIII() )) {
     StellarYieldsGetPopIIIYieldTablePosition(this->yield_table_position[0], this->BirthMass);
     this->yield_table_position[1] = 0;
   } else {

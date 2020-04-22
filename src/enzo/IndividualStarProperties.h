@@ -80,6 +80,10 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
 void IndividualStarSetCoreCollapseSupernovaProperties(Star *cstar,
                                                       float &m_eject, float &E_thermal, float *metal_mass);
 
+int CheckPopIIIMetallicityThreshold(const double & C_fraction,
+                                     const double &Fe_fraction,
+                                     const double & H_fraction);
+
 void IndividualStarSetPopIIISupernovaProperties(Star *cstar, float &m_eject, float &E_thermal, float *metal_mass);
 
 void IndividualStarSetTypeIaSupernovaProperties(float &m_eject, float &E_thermal, float *metal_mass);
