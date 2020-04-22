@@ -485,10 +485,10 @@ int CheckPopIIIMetallicityThreshold(const double & C_fraction,
   const double C_H_SOLAR  = 8.43 - 12.0;
   const double Fe_H_SOLAR = 7.50 - 12.0;
 
-  double C_H  = log10(C_abund/H_abund) - C_H_SOLAR; // [C/H]
-  double Fe_H = log10(Fe_abund/H_abund) - Fe_H_SOLAR; // [Fe/H]
+  const double C_H  = log10(C_abund/H_abund) - C_H_SOLAR; // [C/H]
+  const double Fe_H = log10(Fe_abund/H_abund) - Fe_H_SOLAR; // [Fe/H]
 
-  double local_C_Fe = POW(10.0,C_H-2.3)+POW(10.0,Fe_H);
+  const double local_C_Fe = POW(10.0,C_H-2.3)+POW(10.0,Fe_H);
 
   if (local_C_Fe >= Chiaki_threshold){
     return TRUE;
