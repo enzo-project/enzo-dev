@@ -1,4 +1,4 @@
-/***********************************************************************
+/**********************************************************************
 /
 /  GRID CLASS
 /
@@ -133,7 +133,7 @@ class grid
   float *ParticleAttribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 
 #ifdef INDIVIDUALSTAR
-  float *StellarAbundances[MAX_STELLAR_YIELDS]; // to temporarily tag new stars before output to file
+  float *StellarAbundances[MAX_STAR_ABUNDANCES]; // to temporarily tag new stars before output to file
 #endif
 
 //
@@ -1594,7 +1594,10 @@ iveParticles;};
 
      if (IndividualStarTrackAGBMetalDensity) num_extra++;
      if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
-     if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+     if (IndividualStarTrackSNMetalDensity){
+       num_extra = num_extra + 2;
+       if (IndividualStarSNIaModel == 2){ num_extra += 3;}
+     }
      if (IndividualStarRProcessModel) num_extra++;
 
      for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
@@ -1636,7 +1639,10 @@ iveParticles;};
 
        if (IndividualStarTrackAGBMetalDensity) num_extra++;
        if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
-       if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+       if (IndividualStarTrackSNMetalDensity){
+         num_extra = num_extra + 2;
+         if (IndividualStarSNIaModel == 2){ num_extra += 3;}
+       }
        if (IndividualStarRProcessModel) num_extra++;
 
        for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
@@ -1712,7 +1718,10 @@ iveParticles;};
 
      if (IndividualStarTrackAGBMetalDensity) num_extra++;
      if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
-     if (IndividualStarTrackSNMetalDensity) num_extra = num_extra + 2;
+     if (IndividualStarTrackSNMetalDensity){
+        num_extra = num_extra + 2;
+        if (IndividualStarSNIaModel == 2){ num_extra += 3;}
+     }
      if (IndividualStarRProcessModel) num_extra++;
 
      for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){

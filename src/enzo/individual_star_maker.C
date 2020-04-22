@@ -616,13 +616,12 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 // do individual chemical tagging for each species tracked in the simulation
                 // these are stored as particle attributes starting with attr number 5 (index 4)
                 if (MultiMetals == 2){
-//                  if (IndividualStarOutputChemicalTags){
-                    // output the particle formation time, birth mass (in SolarMass), and metallicity
-//                    printf(" %"ISYM" %"ESYM" %"ESYM" %"ESYM, ParticleType[istar],
-//                                                     ParticleAttribute[0][istar], ParticleAttribute[3][istar],
-//                                                     ParticleAttribute[2][istar]);
-//                  }
+
+                /* This code block is a bit ugly with the check for if we are outputting
+                   abundances vs. saving as attributes */
+
                   int iyield = 0;
+                  // loop through elements
                   for(iyield = 0; iyield < StellarYieldsNumberOfSpecies; iyield++){
                     double temp_fraction = 0.0;
 
@@ -631,7 +630,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                       this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[iyield]);
 
                       if (IndividualStarOutputChemicalTags){
-//                        printf(" %"ESYM, BaryonField[field_num][index]);
                         StellarAbundances[iyield][istar]     = BaryonField[field_num][index];
                       } else {
                         ParticleAttribute[4 + iyield][istar] = BaryonField[field_num][index];
@@ -648,18 +646,17 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                       }
 
                       if (IndividualStarOutputChemicalTags){
-//                        printf(" %"ESYM, temp_fraction);
                         StellarAbundances[iyield][istar]     = temp_fraction;
                       } else {
                         ParticleAttribute[4 + iyield][istar] = temp_fraction;
                       }
+
                     } else if (StellarYieldsAtomicNumbers[iyield] == 2){
                       // Again, total amount of Helium - probably not necessary, should all be HeI anyway
                       temp_fraction = BaryonField[HeINum][index] + BaryonField[HeIINum][index] +
                                       BaryonField[HeIIINum][index];
 
                       if (IndividualStarOutputChemicalTags){
-//                        printf(" %"ESYM, temp_fraction);
                         StellarAbundances[iyield][istar]     = temp_fraction;
                       } else{
                         ParticleAttribute[4 + iyield][istar] = temp_fraction;
@@ -667,76 +664,66 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                     }
                   }// loop over yields
 
-                  if (IndividualStarOutputChemicalTags){
-                    int offset = 0;
-                    // add two to the stellar abundances for popIII and AGB metals (if tracked)
-                    if (IndividualStarTrackAGBMetalDensity){
-                      if (IndividualStarOutputChemicalTags){
-                        StellarAbundances[StellarYieldsNumberOfSpecies + 0][istar] = BaryonField[AGBMetalNum][index];
-                      } else {
-                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[AGBMetalNum][index];
-                      }
-                      offset++;
+                  /* Done with individual metal species. Now save the site tracers */
+
+                  int offset = 0;
+                  if (IndividualStarTrackAGBMetalDensity){
+                    if (IndividualStarOutputChemicalTags){
+                      StellarAbundances[StellarYieldsNumberOfSpecies + offset++][istar] = BaryonField[AGBMetalNum][index];
+                    } else {
+                      ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[AGBMetalNum][index];
                     }
+                  }
 
-                    if (IndividualStarPopIIIFormation){
-                      if (IndividualStarOutputChemicalTags){
-                        StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[PopIIIMetalNum][index];
-                        offset++;
-                        StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[PopIIIPISNeMetalNum][index];
-                      } else {
-                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[PopIIIMetalNum][index];
-                        offset++;
-                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[PopIIIPISNeMetalNum][index];
-                      }
-                      offset++;
+                  // check for PopIII Tracers
+                  if (IndividualStarPopIIIFormation){
+                    if (IndividualStarOutputChemicalTags){
+                      StellarAbundances[StellarYieldsNumberOfSpecies + offset++][istar] = BaryonField[PopIIIMetalNum][index];
+                      StellarAbundances[StellarYieldsNumberOfSpecies + offset++][istar] = BaryonField[PopIIIPISNeMetalNum][index];
+                    } else {
+                      ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[PopIIIMetalNum][index];
+                      ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[PopIIIPISNeMetalNum][index];
                     }
+                  }
 
-                    if (IndividualStarTrackSNMetalDensity) {
-                      if (IndividualStarOutputChemicalTags){
-                        StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[SNIaMetalNum][index];
-                        offset++;
+                  // check for SNII and SNIa tracers
+                  if (IndividualStarTrackSNMetalDensity) {
+                    if (IndividualStarOutputChemicalTags){
+                      StellarAbundances[StellarYieldsNumberOfSpecies + offset++][istar] = BaryonField[SNIaMetalNum][index];
 
-                        if (IndividualStarSNIaModel == 2){
-                          StellarAbundances[StellarYieldsNumberOfSpecies+offset][istar] = BaryonField[ExtraMetalNum0][index];
-                          offset++;
-                          StellarAbundances[StellarYieldsNumberOfSpecies+offset][istar] = BaryonField[ExtraMetalNum1][index];
-                          offset++;
-                          StellarAbundances[StellarYieldsNumberOfSpecies+offset][istar] = BaryonField[ExtraMetalNum2][index];
-                          offset++;
-                        }
-
-                        StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[SNIIMetalNum][index];
-                      } else {
-                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[SNIaMetalNum][index];
-                        offset++;
-
-                        if (IndividualStarSNIaModel == 2){
-                          ParticleAttribute[4+iyield+offset][istar] = BaryonField[ExtraMetalNum0][index];
-                          offset++;
-                          ParticleAttribute[4+iyield+offset][istar] = BaryonField[ExtraMetalNum1][index];
-                          offset++;
-                          ParticleAttribute[4+iyield+offset][istar] = BaryonField[ExtraMetalNum2][index];
-                          offset++;
-                        }
-                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[SNIIMetalNum][index];
+                      if (IndividualStarSNIaModel == 2){
+                        StellarAbundances[StellarYieldsNumberOfSpecies+offset++][istar] = BaryonField[ExtraMetalNum0][index];
+                        StellarAbundances[StellarYieldsNumberOfSpecies+offset++][istar] = BaryonField[ExtraMetalNum1][index];
+                        StellarAbundances[StellarYieldsNumberOfSpecies+offset++][istar] = BaryonField[ExtraMetalNum2][index];
                       }
-                      offset++;
-                    }
 
-                    if (IndividualStarRProcessModel) {
-                      if (IndividualStarOutputChemicalTags){
-                        StellarAbundances[StellarYieldsNumberOfSpecies + offset][istar] = BaryonField[RProcMetalNum][index];
-                      } else {
-                        ParticleAttribute[4 + iyield + offset][istar] = BaryonField[RProcMetalNum][index];
+                      StellarAbundances[StellarYieldsNumberOfSpecies + offset++][istar] = BaryonField[SNIIMetalNum][index];
+                    } else {
+                      ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[SNIaMetalNum][index];
+
+                      if (IndividualStarSNIaModel == 2){
+                        ParticleAttribute[4+iyield+offset++][istar] = BaryonField[ExtraMetalNum0][index];
+                        ParticleAttribute[4+iyield+offset++][istar] = BaryonField[ExtraMetalNum1][index];
+                        ParticleAttribute[4+iyield+offset++][istar] = BaryonField[ExtraMetalNum2][index];
                       }
+                      ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[SNIIMetalNum][index];
                     }
+                  }
 
-                  } // if output
+                  if (IndividualStarRProcessModel) {
+                    if (IndividualStarOutputChemicalTags){
+                      StellarAbundances[StellarYieldsNumberOfSpecies + offset++][istar] = BaryonField[RProcMetalNum][index];
+                    } else {
+                      ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[RProcMetalNum][index];
+                    }
+                  }
 
-//                  if (IndividualStarOutputChemicalTags) printf("\n");
-                } // check multimetals
+                } // check multimetals for saving abundances
 
+                //
+                // If desired, svae yield table interpolation positions for particles to speed
+                // up interpolation 
+                //
                 if (IndividualStarSaveTablePositions && (ParticleType[istar] == -IndividualStar)){
                   int tstart = ParticleAttributeTableStartIndex;
 
