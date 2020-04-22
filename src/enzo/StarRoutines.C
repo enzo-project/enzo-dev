@@ -773,7 +773,7 @@ void Star::DetermineSNIaType(void){
   // look through abundances and check to see which one is
   // negative. This corresponds to the Ia type for this star
 
-  if (!IndividualStarOutputChemicalTags) ENZO_FAIL("DetermineSNIaTYpe: Must save abundances as attributes");
+  if (IndividualStarOutputChemicalTags) ENZO_FAIL("DetermineSNIaTYpe: Must save abundances as attributes");
 
   if ((IndividualStarSNIaModel == 2) && (BirthMass < IndividualStarSNIaMaximumMass) &&
      (BirthMass > IndividualStarSNIaMinimumMass) &&
@@ -794,7 +794,7 @@ void Star::DetermineSNIaType(void){
 
 void Star::DetermineIfPopIIIStar(void){
 
-  if (!IndividualStarOutputChemicalTags) ENZO_FAIL("DetermineIfPopIIIStar: Must save abundances as attributes");
+  if (IndividualStarOutputChemicalTags) ENZO_FAIL("DetermineIfPopIIIStar: Must save abundances as attributes");
 
   // Check if this is a popIII star (or was) and flag appropriately
   if (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
@@ -833,7 +833,7 @@ void Star::DetermineIfPopIIIStar(void){
        }
 
        // returns TRUE if above threshold (and not a PopIII star)
-       PopIIIStar = !(CheckPopIIIMetallicityThreshold(C_f, Fe_f, H_f));
+       PopIIIStar = (int)(!(CheckPopIIIMetallicityThreshold(C_f, Fe_f, H_f)));
 
      } // end popIII check for non-popIII type
   } // end popIII check
