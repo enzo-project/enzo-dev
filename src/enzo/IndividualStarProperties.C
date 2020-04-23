@@ -477,13 +477,16 @@ int CheckPopIIIMetallicityThreshold(const double & C_fraction,
   // weight of each element in AMU (actually AMU_CGS conversion
   // is not needed either)....
 
-  const double H_abund  = H_fraction  / (1.00790) ; // * AMU_CGS);
-  const double C_abund  = C_fraction  / (12.0107); // * AMU_CGS);
-  const double Fe_abund = Fe_fraction / (55.8450); // * AMU_CGS);
+  const double H_abund  = H_fraction  / (StellarYields_MMW(1)) ; // * AMU_CGS);
+  const double C_abund  = C_fraction  / (StellarYields_MMW(6)); // * AMU_CGS);
+  const double Fe_abund = Fe_fraction / (StellarYields_MMW(26)); // * AMU_CGS);
 
   // Solar abundances from Asplund + 2009
-  const double C_H_SOLAR  = 8.43 - 12.0;
-  const double Fe_H_SOLAR = 7.50 - 12.0;
+  const double solar_H    = StellarYields_SolarAbundancesByNumber(1);
+  const double C_H_SOLAR  = StellarYields_SolarAbundancesByNumber(6) -\
+                            solar_H;
+  const double Fe_H_SOLAR = StellarYields_SolarAbundancesByNumber(26) -\
+                            solar_H;
 
   const double C_H  = log10(C_abund/H_abund) - C_H_SOLAR; // [C/H]
   const double Fe_H = log10(Fe_abund/H_abund) - Fe_H_SOLAR; // [Fe/H]
