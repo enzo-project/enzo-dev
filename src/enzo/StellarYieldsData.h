@@ -12,6 +12,23 @@
 ****************************************************************/
 
 // may not need any includes
+struct StellarYieldsDataType1D
+{
+  int NumberOfMassBins;
+  int NumberOfMetallicityBins;
+  int NumberOfYields;
+
+  int size;
+
+  float *M;
+  float *Z;
+
+  int *atomic_number;
+
+  float  *Mtot;
+  float  *Metal_Mtot;
+  float  *Yields;
+};
 
 struct StellarYieldsDataType
 {

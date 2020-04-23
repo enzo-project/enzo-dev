@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h> // maybe don't need
+#include "hdf5.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -38,6 +39,7 @@ void fill_table(StellarYieldsDataType *table, FILE *fptr);
 int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
 char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num);
 
+int read_dataset(hid_t file_id, const char *dset_name, double *buffer);
 
 
 int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
@@ -387,6 +389,38 @@ void unpack_line_to_yields( char *line, float *dummy){
                    &dummy[81], &dummy[82], &dummy[83], &dummy[84], &dummy[85], &dummy[86]);
 }
 
+void initialize_table_1D(StellarYieldsDataType1D* table){
+
+  /* fill table in 1D - makes lookup faster*/
+
+  const int Nm = table->NumberOfMassBins;
+  const int Nz = table->NumberOfMetallicityBins;
+  const int Ny = table->NumberOfYields;
+
+  table->M    = new float[Nm];
+  table->Z    = new float[Nz];
+  table->Mtot = new float[Nm*Nz];
+  table->Metal_Mtot = new float [Nm*Nz];
+  table->Yields = new float [Nm*Nz*Ny];
+
+  for (int i = 0; i < Nm; i++){
+    table->M[i] = 0.0;
+
+    for (int j = 0; j < Nz; j++){
+      table->Z[j] = 0.0;
+
+      table->Mtot[i + j*Nm] = 0.0;
+      table->Metal_Mtot[i + j*Nm] = 0.0;
+
+      for (int k =0; k < Ny; k++){
+        table->Yields[i + (j + k*Nz)*Nm] = 0.0;
+      }
+    }
+  }
+
+  return;
+}
+
 void initialize_table(StellarYieldsDataType* table){
   /* -----------------------------------------------
    * fill_table
@@ -409,6 +443,189 @@ void initialize_table(StellarYieldsDataType* table){
       table->Yields[i][j] = new float [table->NumberOfYields];
     }
   }
+
+  return;
+}
+
+void H5_fill_table(StellarYieldsDataType1D *table,
+                   std::string filename,
+                   std::string dname){
+
+  /* Read an HDF5 table */
+
+  hid_t    file_id, dset_id, dspace_id;
+  herr_t   status;
+  herr_t   h5_error = -1;
+
+  file_id = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+
+  // Read Info dataset
+
+/*
+  dset_id = H5Dopen(file_id, "/Info");
+  if (dset_id == h5error){
+    ENZO_VFAIL("Can't open 'Info' in dataset in %s.\n",
+               filename.c_str());
+  }
+
+  int strlen = (int)(H5Dget_storage_size(dset_id));
+  char
+*/
+
+  // Set yields to load (don't load all available elements!)
+
+  table->NumberOfYields = StellarYieldsNumberOfSpecies;
+
+  // Find mass bins in desired dataset
+
+  dset_id = H5Dopen(file_id, ("/"+dname+"/M").c_str());
+  if (dset_id == h5_error){
+    ENZO_VFAIL("Can't open 'M' in %s in file %s.\n",dname.c_str(),
+                                                    filename.c_str());
+  }
+
+  dspace_id = H5Dget_space(dset_id);
+  if (dspace_id == h5_error){
+    ENZO_VFAIL("Can't open 'M' dataspace in %s in file %s.\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  table->NumberOfMassBins = H5Sget_simple_extent_npoints(dspace_id);
+  if (table->NumberOfMassBins <= 0) {
+    ENZO_VFAIL("Cannot propertly read mass bins ('M') in %s in %s.\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  H5Sclose(dspace_id);
+  H5Dclose(dset_id);
+
+  // Find metallicity bins in desired dataset
+
+  dset_id = H5Dopen(file_id, ("/"+dname+"/Z").c_str());
+  if (dset_id == h5_error){
+    ENZO_VFAIL("Can't open 'Z' in %s in file %s.\n",dname.c_str(),
+                                                    filename.c_str());
+  }
+
+  dspace_id = H5Dget_space(dset_id);
+  if (dspace_id == h5_error){
+    ENZO_VFAIL("Can't open 'Z' dataspace in %s in file %s.\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  table->NumberOfMetallicityBins = H5Sget_simple_extent_npoints(dspace_id);
+  if (table->NumberOfMetallicityBins <= 0) {
+    ENZO_VFAIL("Cannot propertly read Z bins ('Z') in %s in %s.\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  H5Sclose(dspace_id);
+  H5Dclose(dset_id);
+
+  // Find total number of available yields in the dataset
+
+  dset_id = H5Dopen(file_id, ("/"+dname+"/yield_names").c_str());
+  if (dset_id == h5_error){
+    ENZO_VFAIL("Can't open 'yield_names' in %s in file %s.\n",dname.c_str(),
+                                                    filename.c_str());
+  }
+
+  dspace_id = H5Dget_space(dset_id);
+  if (dspace_id == h5_error){
+    ENZO_VFAIL("Can't open 'yield_names' dataspace in %s in file %s.\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  int Nyields = H5Sget_simple_extent_npoints(dspace_id);
+  if (Nyields <= 0) {
+    ENZO_VFAIL("Cannot propertly read number of yields in %s in %s.\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  H5Sclose(dspace_id);
+  H5Dclose(dset_id);
+
+  table->size = table->NumberOfMassBins * table->NumberOfMetallicityBins *\
+               table->NumberOfYields;
+
+  // allocate space for table
+
+  initialize_table_1D(table);
+
+  // Now read in yields
+
+  if(! read_dataset(file_id, ("/"+dname+"/M").c_str(),
+                    table->M)){
+    ENZO_VFAIL("Error reading dataset 'M' in %s in %s.\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  if( !read_dataset(file_id, ("/"+dname+"/Z").c_str(),
+                    table->Z)){
+    ENZO_VFAIL("Error reading dataset 'Z' in %s in %s.\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  // now, allocate a temporary array to load in ALL yields
+  // from the table
+
+  int temp_size = table->NumberOfMassBins * table->NumberOfMetallicityBins *
+                   Nyields;
+
+  float *temp_yields = new float [temp_size];
+  for(int i = 0 ; i < temp_size; i++) temp_yields[i] = 0.0;
+
+  dset_id = H5Dopen(file_id, ("/"+dname+"/yields").c_str());
+  if (dset_id == h5_error){
+    ENZO_VFAIL("Error opening yields for %s in %s\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  status = H5Dread(dset_id, HDF5_R8, H5S_ALL, H5S_ALL, H5P_DEFAULT, temp_yields);
+  if (status == h5_error){
+    ENZO_VFAIL("Error reading yields dataset for %s in %s\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  // first column of yields is the total mass ejected
+  // second column is the total metals
+  for(int j =0; j < table->NumberOfMetallicityBins; j++){
+    for(int i =0; i < table->NumberOfMassBins; i++){
+      table->Mtot[i + j*table->NumberOfMassBins] =
+          temp_yields[i + (j + 0)*table->NumberOfMassBins];
+      table->Metal_Mtot[i + j*table->NumberOfMassBins] =
+          temp_yields[i + (j + 1)*table->NumberOfMassBins];
+    }
+  }
+
+  // now loop through and grab the elements we need
+  for (int k = 0; k < table->NumberOfYields; k++){
+
+    // atomic number we want
+    int anum = *(StellarYieldsAtomicNumbers+k);
+
+    for (int j = 0; j < table->NumberOfMetallicityBins; j++){
+      for(int i = 0; i < table->NumberOfMassBins; i++){
+
+        int iyield = i + (j + k*table->NumberOfMetallicityBins)*table->NumberOfMassBins;
+        // anum+1 is appropriate shift to account for 0 and 1
+        // are total mass and total metals, and col 2 is Hydrogen
+        // (so anum + 1 give correct column)
+        int itemp  = i + (j + (anum+1)*table->NumberOfMetallicityBins)*table->NumberOfMassBins;
+
+        table->Yields[iyield] = temp_yields[itemp];
+      }
+    }
+  }
+
+  status = H5Dclose(dset_id);
+  if (status == h5_error){
+    ENZO_VFAIL("Error closing yields dataset in %s in %s\n",
+               dname.c_str(), filename.c_str());
+  }
+
+  /* Delete temporary yields */
+  delete [] temp_yields;
 
   return;
 }
@@ -456,3 +673,28 @@ void fill_table(StellarYieldsDataType *table, FILE *fptr){
 
   return;
 }
+
+int read_dataset(hid_t file_id, const char *dset_name, double *buffer) {
+  hid_t dset_id;
+  herr_t status;
+  herr_t h5_error = -1;
+
+  dset_id =  H5Dopen(file_id, dset_name);
+  if (dset_id == h5_error) {
+    fprintf(stderr, "Failed to open dataset 'z'.\n");
+    return FAIL;
+  }
+
+  status = H5Dread(dset_id, HDF5_R8, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer);
+  if (status == h5_error) {
+    fprintf(stderr, "Failed to read dataset 'z'.\n");
+    return FAIL;
+  }
+ 
+  H5Dclose(dset_id);
+
+  return SUCCESS;
+}
+
+
+
