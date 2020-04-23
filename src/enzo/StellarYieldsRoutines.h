@@ -15,6 +15,8 @@ float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
                                                     
 float StellarYields_SolarAbundancesByNumber(const int &atomic_number);
 
+float StellarYields_MMW(const int &atomic_number);
+
 float StellarYields_SNIaYieldsByNumber(const int &atomic_number);
 
 // float StellarYields_PopIIIYieldsByNumber(const int &atomic_number);

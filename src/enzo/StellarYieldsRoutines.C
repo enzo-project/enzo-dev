@@ -23,7 +23,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
-
+#include "phys_constants.h"
 #include "StellarYieldsRoutines.h"
 #include "StarParticleData.h"
 
@@ -158,9 +158,7 @@ float StellarYields_MMW(const int &atomic_number){
 }
 
 float StellarYields_AtomicMassByNumber(const int &atomic_number){
-  const float amu = 1.66054E-24;
-
-  return StellarYields_MMW(atomic_number) * amu;
+  return StellarYields_MMW(atomic_number) * AMU_CGS;
 }
 
 float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
