@@ -470,7 +470,7 @@ int CheckPopIIIMetallicityThreshold(const double & C_fraction,
   // densities in any units as long as they are consistent. This is
   // because we are computing ratios (so the conversions will divide out)
 
-  const double Chiaki_threshold = POW(10.0,5.07);
+  const double Chiaki_threshold = POW(10.0,-5.07);
 
   // not the actual true abundances, but this is OK since
   // we are computing ratios. Values are the molecular
