@@ -33,8 +33,16 @@
 /* function prototypes */
 void unpack_line_to_yields( char *line, float *dummy);
 void initialize_table(StellarYieldsDataType* table);
-void fill_table(StellarYieldsDataType *table, FILE *fptr);
 
+#ifdef NEWYIELDTABLES
+int fill_table(hid_t file_id,
+               StellarYieldsDataType *table,
+               std::string filename,
+               std::string dname,
+               int null_if_no_group = FALSE);
+#else
+void fill_table(StellarYieldsDataType *table, FILE *fptr);
+#endif
 
 int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
 char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num);
@@ -163,10 +171,36 @@ int InitializeStellarYields(const float &time){
   }
 
 #ifdef NEWYIELDTABLES
-  fill_table(&StellarYieldsSNData, "IndividualStarYields.h5", "SN");
-  fill_table(&StellarYieldsWindData, "IndividualStarYields.h5", "Wind");
-  fill_table(&StellarYieldsMassiveStarData, "IndividualStarYields.h5", "Massive_star");
-  fill_table(&StellarYieldsPopIIIData, "IndividualStarYields.h5", "PopIII");
+
+  std::string filename = "IndividualStarYields.h5";
+
+  hid_t file_id = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+
+  fill_table(file_id, &StellarYieldsSNData,           filename, "SN");
+  fill_table(file_id, &StellarYieldsWindData,         filename, "Wind");
+  fill_table(file_id, &StellarYieldsPopIIIData,       filename, "PopIII");
+
+// treat these two a little differently for now so this is backwards compatabile
+// with original model.
+  int agb_check     = fill_table(file_id, &StellarYieldsAGBData,          filename, "AGB", TRUE);
+  int massive_check = fill_table(file_id, &StellarYieldsMassiveStarData,  filename, "Massive_star", TRUE);
+
+  if (agb_check && massive_check){
+    ENZO_FAIL("Yield table has both AGB and Massive Star data. Do not know how to handle this.");
+  } else if ( !(agb_check) && !(massive_check)){
+    ENZO_FAIL("Yield table does not have either AGB or Massive_star data. Do not know how to handle this.");
+  }
+
+  // if agb_check is true, AGB yields are present and we are using the new methods
+  // if massive_check is true, massive star stellar wind yields are available and we
+  //     are using the old methods. In this case, the Wind yields contain both
+  //     AGB stars and stars up to 25 Msun. Massive_star contains winds for stars above 25 Msun.
+
+  herr_t status = H5Fclose (file_id);
+  herr_t h5_error = -1;
+  if (status == h5_error){
+    ENZO_VFAIL("Error closing %s \n", filename.c_str());
+  }
 
 #else
 
@@ -467,25 +501,33 @@ void initialize_table(StellarYieldsDataType* table){
 
 #ifdef NEWYIELDTABLES
 
-void fill_table(StellarYieldsDataType *table,
-                   std::string filename,
-                   std::string dname){
+int fill_table(hid_t file_id,
+               StellarYieldsDataType *table,
+               std::string filename,
+               std::string dname,
+               int null_if_no_group /*Default FALSE */
+               ){
 
   /*
     Generic routine to read in stellar yields from an
     HDF5 file. Yields are assumed to be the mass yield (in Msun)
     for grid points in stellar mass (Msun) and metallicity (fraction),
     requiring 2D interpolation.
+
+    If null_if_no_group is TRUE, checks to see if the group exists first
+    and fills the struct pointers with NULL if it does not, returning FAIL.
+
+    If FALSE (default) calls ENZO_FAIL if it cannot find group.
+
   */
 
 
   /* Read an HDF5 table */
 
-  hid_t    file_id, dset_id, dspace_id;
+  hid_t    dset_id, dspace_id;
   herr_t   status;
   herr_t   h5_error = -1;
 
-  file_id = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Read Info dataset
   //  (not necessary)
@@ -504,6 +546,35 @@ void fill_table(StellarYieldsDataType *table,
 
   table->Ny = StellarYieldsNumberOfSpecies;
 
+  // Check if desired group exists
+
+  status = H5Gget_objinfo(file_id, ("/"+dname).c_str(), 0, NULL);
+  if (status == h5_error){
+
+    if (null_if_no_group){
+      // Allow code to keep working, but set table pointers to NULL
+      printf("Group name %s not found in %s. Continuing anyway\n",dname.c_str(),filename.c_str());
+
+      table->Nm = -1; table->Nz = -1; table->Ny = -1;
+
+      table->dm = 0; table->dy = 0; table->dz = 0;
+
+      table->M  = NULL;
+      table->Z  = NULL;
+      table->Mtot = NULL;
+      table->Metal_Mtot = NULL;
+      table->Yields = NULL;
+
+      return FAIL;
+
+    } else {
+      ENZO_VFAIL("No group %s found in %s\n", dname.c_str(), filename.c_str());
+    }
+  }
+
+  if (null_if_no_group){
+
+  }
   // Find mass bins in desired dataset
 
   dset_id = H5Dopen(file_id, ("/"+dname+"/M").c_str());
@@ -717,7 +788,7 @@ void fill_table(StellarYieldsDataType *table,
   delete [] temp_yields;
   delete [] temp_anum;
 
-  return;
+  return SUCCESS;
 }
 
 #else
