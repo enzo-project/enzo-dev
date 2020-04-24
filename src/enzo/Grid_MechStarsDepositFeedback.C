@@ -49,7 +49,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     */
     //printf("In Feedback deposition\n");
     bool debug = false;
-    bool criticalDebug = true;
+    bool criticalDebug = false;
     float min_winds = 1.0;
     bool printout = debug && !winds;
     int index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];

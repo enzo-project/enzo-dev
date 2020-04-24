@@ -37,7 +37,7 @@ unsigned_long_int mt_random(void);
 int StarParticlePopIII_IMFInitialize(void);
 
 int grid::MechStars_SeedSupernova(float* totalMetal, float* temperature, int* seedIndex){
-    debug = true;
+    debug = false;
     /* Initialize the IMF lookup table if requested and not defined */
     if (debug) fprintf(stdout, "setting IMF\n");
     if (PopIIIInitialMassFunction)

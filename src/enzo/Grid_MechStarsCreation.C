@@ -49,7 +49,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     */
     bool gridShouldFormStars=false, notEnoughMetals = true;
 
-    bool debug = true;
+    bool debug = false;
 
 
     //get field numbers

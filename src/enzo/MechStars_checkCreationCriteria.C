@@ -34,7 +34,7 @@ int checkCreationCriteria(float* Density, float* Metals,
                         int continuingFormation, int* seedIndex)
 {  
     float maxZ = 0.0;
-    bool debug = true;
+    bool debug = false;
     bool status = PASS;
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
                 TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;

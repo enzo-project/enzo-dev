@@ -1,4 +1,6 @@
 /*
+
+    *** CURRENTLY UNTESTED AND UNUSED ***
     Couples the mechanical stars to the radiation machinery in ENZO by filling
     in the emissivity0 field.  
     Code must be compiled with "make emissivity-yes" and "make photon-yes".

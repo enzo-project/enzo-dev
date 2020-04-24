@@ -17,7 +17,7 @@
 int determineWinds(float age, float* eWinds, float* mWinds, float* zWinds,
                         float massMsun, float zZsun, float TimeUnits, float dtFixed){
 
-    bool oldEnough = (age < 0.01)?(false):(true);
+    bool oldEnough = (age < 0.0001)?(false):(true);
     float windE = 0,  windM = 0, windZ = 0.0;
     float wind_factor = 0.0;
     float e_factor = 0.0;
