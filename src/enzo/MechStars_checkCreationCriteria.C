@@ -151,7 +151,8 @@ int checkCreationCriteria(float* Density, float* Metals,
     float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/0.02)/
                 log(1+0.6*Phi+0.01*Phi*Phi);
     *shieldedFraction = 1.0 - 3.0/(1.0+4.0*Psi);
-    fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
+    if (debug)
+        fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
         Tau, Phi, Psi, *shieldedFraction);
 
     if (*shieldedFraction < 0) status = FAIL;
