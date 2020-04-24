@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <hdf5.h>
 #include <time.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"

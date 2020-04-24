@@ -1,7 +1,10 @@
 #ifndef __STELLAR_YIELD_ROUTINES_H
 #define __STELLAR_YIELD_ROUTINES_H
 
-#include "typedefs.h"
+// #include <hdf5.h>
+
+
+//#include "typedefs.h"
 
 #ifdef DEFINE_STORAGE
 # define ISEXTERN
@@ -12,7 +15,7 @@
 
 float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
                                                     const int   &atomic_number);
-                                                    
+
 float StellarYields_SolarAbundancesByNumber(const int &atomic_number);
 
 float StellarYields_MMW(const int &atomic_number);

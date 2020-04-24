@@ -15,7 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h> // maybe don't need
-#include "hdf5.h"
+//#include <hdf5.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -163,10 +163,10 @@ int InitializeStellarYields(const float &time){
   }
 
 #ifdef NEWYIELDTABLES
-  fill_table(&StellarYieldsSNData2, "test_yields.h5", "SN");
-  fill_table(&StellarYieldsWindData2, "IndividualStarYields.h5", "winds");
-  fill_table(&StellarYieldsMassiveStarData2, "IndividualStarYields.h5", "massive_star");
-  fill_table(&StellarYieldsPopIIIData2, "IndividualStarYields.h5", "popIII");
+  fill_table(&StellarYieldsSNData, "IndividualStarYields.h5", "SN");
+  fill_table(&StellarYieldsWindData, "IndividualStarYields.h5", "Wind");
+  fill_table(&StellarYieldsMassiveStarData, "IndividualStarYields.h5", "Massive_star");
+  fill_table(&StellarYieldsPopIIIData, "IndividualStarYields.h5", "PopIII");
 
 #else
 
@@ -573,12 +573,11 @@ void fill_table(StellarYieldsDataType *table,
   H5Sclose(dspace_id);
   H5Dclose(dset_id);
 
-  table->size = table->Nm * table->Nz *\
-               table->Ny;
+  table->size = table->Nm * table->Nz * table->Ny;
 
   // allocate space for table
 
-  initialize_table_1D(table);
+  initialize_table(table);
 
   // Now read in yields
 
@@ -599,16 +598,16 @@ void fill_table(StellarYieldsDataType *table,
   //   are the codes for total mass (-1) and metal mass (0)
   //   which should be first two columns in yields
 
-  int temp_anum = new int [Nyields];
+  int * temp_anum = new int [Nyields];
   for (int i = 0; i < Nyields; i++) temp_anum[i] = -1;
 
   dset_id = H5Dopen(file_id, ("/"+dname+"/atomic_numbers").c_str());
   if (dset_id == h5_error){
     ENZO_VFAIL("Error opening atomic_numbers for %s in %s\n",
-               dname.c_str(), fname.c_str());
+               dname.c_str(), filename.c_str());
   }
 
-  status = H5Dread(dset_id, HDF5_I4, H5S_ALL, H5S_ALL, H5P_DEFAULT, temp_anum);
+  status = H5Dread(dset_id, HDF5_I8, H5S_ALL, H5S_ALL, H5P_DEFAULT, temp_anum);
   if (status == h5_error){
     ENZO_VFAIL("Error reading in atomic_numbers for %s in %s\n",
                dname.c_str(), filename.c_str());
@@ -644,7 +643,7 @@ void fill_table(StellarYieldsDataType *table,
   for(int j =0; j < table->Nz; j++){
     for(int i =0; i < table->Nm; i++){
 
-      int index = YIELD_INDEX(i,j,0,table->Nm,table->Nz)
+      int index = YIELD_INDEX(i,j,0,table->Nm,table->Nz);
 
       table->Mtot[index] =
          temp_yields[0 + (j + i*table->Nz)*Nyields];
@@ -658,11 +657,12 @@ void fill_table(StellarYieldsDataType *table,
   for (int k = 0; k < table->Ny; k++){
 
     // atomic number we want
-    int anum = *(StellarYieldsAtomicNumbers+k);
+    int anum = StellarYieldsAtomicNumbers[k];
 
     // corresponding yield column in array
     // assume yield table is in atomic number order
-    for(int kk = temp_k; kk < Nyields; kk++){
+    int kk;
+    for(kk = temp_k; kk < Nyields; kk++){
       if (anum == temp_anum[kk]){
         temp_k = kk;
         break;
@@ -678,7 +678,7 @@ void fill_table(StellarYieldsDataType *table,
              dname.c_str(), filename.c_str(), anum);
 
       for (int j =0; j < table->Nz; j++){
-        for(int i = 0; i < table->Nm, i++){
+        for(int i = 0; i < table->Nm; i++){
           table->Yields[YIELD_INDEX(i,j,k,table->Nm,table->Nz)] = 0.0;
         }
       }
@@ -720,7 +720,7 @@ void fill_table(StellarYieldsDataType *table,
   return;
 }
 
-#else 
+#else
 
 void fill_table(StellarYieldsDataType *table, FILE *fptr){
 
@@ -785,11 +785,9 @@ int read_dataset(hid_t file_id, const char *dset_name, double *buffer) {
     fprintf(stderr, "Failed to read dataset 'z'.\n");
     return FAIL;
   }
- 
+
   H5Dclose(dset_id);
 
   return SUCCESS;
 }
 #endif
-
-
