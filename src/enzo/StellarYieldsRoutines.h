@@ -41,4 +41,14 @@ int StellarYieldsGetPopIIIYieldTablePosition(int &i, const float &M);
 
 int GetYieldIndex(const int &number_of_yields, const int &Z);
 
+
+#ifdef NEWYIELDTABLES
+int read_dataset(hid_t file_id, const char *dset_name, double *buffer);
+void initialize_table_1D(StellarYieldsDataType table);
+void fill_table(StellarYieldsDataType *table,
+                   std::string filename,
+                   std::string dname);
+#endif
+
+
 #endif

@@ -231,7 +231,7 @@ float StellarYields_SNIaYieldsByNumber(const int &atomic_number){
    * Thieleman et. al. 1986 table (see Table 5)
    *
    * Table 5 in Thielemann et. al. 1986 has yields for multiple
-   * isotopes for each species. 
+   * isotopes for each species.
    * -------------------------------------------------------------*/
 
   float yield = -1.0;
@@ -294,35 +294,35 @@ int StellarYieldsGetYieldTablePosition(const StellarYieldsDataType & table,
 
   float interp_M = M;
 
-  if( (M < table.M[0]) || (M > table.M[table.NumberOfMassBins - 1])){
+  if( (M < table.M[0]) || (M > table.M[table.Nm - 1])){
 
     if( IndividualStarExtrapolateYields || extrapolate_yields_switch ){
       // scale to most massive star
-      interp_M  = table.M[table.NumberOfMassBins - 1] * 0.9999999;
+      interp_M  = table.M[table.Nm - 1] * 0.9999999;
 
     } else{
       printf("StellarYieldsInterpolateYield: Mass out of bounds\n");
-      printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, table.M[0], table.M[table.NumberOfMassBins-1]);
+      printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, table.M[0], table.M[table.Nm-1]);
       return FAIL;
     }
 
   }
 
-  if( (Z < table.Z[0]) || (Z > table.Z[table.NumberOfMetallicityBins - 1])){
+  if( (Z < table.Z[0]) || (Z > table.Z[table.Nz - 1])){
 
     if ( Z < table.Z[0] ){ // WARNING: see statement at top of file
       Z = table.Z[0];
     } else {
 
       printf("StellarYieldsInterpolateYield: Metallicity out of bounds\n");
-      printf("Z = %"ESYM" for minimum Z = %"ESYM" and maximum Z = %"ESYM"\n", Z, table.Z[0], table.Z[table.NumberOfMetallicityBins-1]);
+      printf("Z = %"ESYM" for minimum Z = %"ESYM" and maximum Z = %"ESYM"\n", Z, table.Z[0], table.Z[table.Nz-1]);
 
       return FAIL;
     }
   }
 
-  i = search_lower_bound(table.M, interp_M, 0, table.NumberOfMassBins, table.NumberOfMassBins);
-  j = search_lower_bound(table.Z, Z, 0, table.NumberOfMetallicityBins, table.NumberOfMetallicityBins);
+  i = search_lower_bound(table.M, interp_M, 0, table.Nm, table.Nm);
+  j = search_lower_bound(table.Z, Z, 0, table.Nz, table.Nz);
 
   if( (interp_M > table.M[i+1]) || interp_M < (table.M[i])){
     printf("interp_m = %"ESYM" i = %"ISYM" j = %"ISYM"\n", interp_M, i, j);
@@ -342,11 +342,11 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
   /* interpolate table */
   StellarYieldsDataType * table;
 
-  if (M <= StellarYieldsSNData.M[StellarYieldsSNData.NumberOfMassBins - 1]){
+  if (M <= StellarYieldsSNData.M[StellarYieldsSNData.Nm - 1]){
     // if mass is on NuGrid data set (M <= 25) use this table
     table = &StellarYieldsSNData;
   } else if (( M >= StellarYieldsMassiveStarData.M[0]) &&
-            ( M <= StellarYieldsMassiveStarData.M[StellarYieldsMassiveStarData.NumberOfMassBins-1])){
+            ( M <= StellarYieldsMassiveStarData.M[StellarYieldsMassiveStarData.Nm-1])){
     // use massive star data from PARSEC models (massive stars only! and wind only!)
 
     table = &StellarYieldsMassiveStarData;
@@ -361,7 +361,7 @@ int StellarYieldsGetPopIIIYieldTablePosition(int &i, const float &M){
 
     int j = -1;
 
-    return StellarYieldsGetYieldTablePosition(*table, i, j, M, 0.0, 
+    return StellarYieldsGetYieldTablePosition(*table, i, j, M, 0.0,
                                                     1 // extrapolate if mass is too big
                                                      );
 }
@@ -376,8 +376,8 @@ float StellarYieldsInterpolatePopIIIYield(const int &i, const float &M, int atom
 
   if (M < table->M[0]){
     interp_M = table->M[0]*1.00001;
-  } else if (M > table->M[table->NumberOfMassBins - 1]){
-    interp_M = table->M[table->NumberOfMassBins-1]*0.99999;
+  } else if (M > table->M[table->Nm - 1]){
+    interp_M = table->M[table->Nm-1]*0.99999;
   }
 
   float t,u;
@@ -387,19 +387,38 @@ float StellarYieldsInterpolatePopIIIYield(const int &i, const float &M, int atom
   if (atomic_number > 0) { // interpolate yields given atomic number
 
     int yield_index;
-    yield_index     = GetYieldIndex(table->NumberOfYields, atomic_number);
+    yield_index     = GetYieldIndex(table->Ny, atomic_number);
 
+#ifdef NEWYIELDTABLES
+    int index = YIELD_INDEX(i,0,yield_index,table->Nm,table->Nz);
+    ll = table->Yields[index];
+    ul = table->Yields[index + table->dm];
+#else
     ll = table->Yields[i  ][0][yield_index];
     ul = table->Yields[i+1][0][yield_index];
+#endif
 
   } else if (atomic_number == 0){ // interpolate total metal mass
+
+#ifdef NEWYIELDTABLES
+    int index = YIELD_INDEX(i,0,0,table->Nm,table->Nz);
+    ll = table->Metal_Mtot[index];
+    ul = table->Metal_Mtot[index + table->dm];
+#else
     ll = table->Metal_Mtot[i  ][0];
     ul = table->Metal_Mtot[i+1][0];
+#endif
 
   } else if (atomic_number < 0 ){ // interpolate total mass
 
+#ifdef NEWYIELDTABLES
+    int index = YIELD_INDEX(i,0,0,table->Nm,table->Nz);
+    ll = table->Mtot[index];
+    ul = table->Mtot[index + table->dm];
+#else
     ll = table->Mtot[i  ][0];
     ul = table->Mtot[i+1][0];
+#endif
 
   }
 
@@ -428,18 +447,23 @@ float StellarYieldsInterpolateYield(int yield_type,
 
     table = &StellarYieldsSNData;
 
-    if( M > table->M[table->NumberOfMassBins - 1]){
+    if( M > table->M[table->Nm - 1]){
 
       ENZO_FAIL("StellarYieldsInterpolateYield: No yields available for massive stars. Assuming all do direct collapse.");
     }
   } else if (yield_type == 1){     // do stellar wind yields
 
+//#ifdef NEWYIELDTABLES
+    // make new table here
+
+//#else
     /* use NuGrid wind data if star is on grid, else use PARSEC massive star winds */
-    if ( M > StellarYieldsWindData.M[StellarYieldsWindData.NumberOfMassBins - 1]){
+    if ( M > StellarYieldsWindData.M[StellarYieldsWindData.Nm - 1]){
       table = &StellarYieldsMassiveStarData;
     } else{
       table = &StellarYieldsWindData;
     }
+//#endif
 
   } else if (yield_type == 2){
     table = &StellarYieldsPopIIIData;
@@ -451,16 +475,17 @@ float StellarYieldsInterpolateYield(int yield_type,
 
   float interp_M = M;
 
-  if( (M < table->M[0]) || (M > table->M[table->NumberOfMassBins - 1])){
+  if( (M < table->M[0]) || (M > table->M[table->Nm - 1])){
     if( IndividualStarExtrapolateYields ){
-      // scale to most massive star
-      interp_M  = table->M[table->NumberOfMassBins - 1] * 0.9999999;
+      // scale to most or least massive star
+      interp_M  = (M < table->M[0]) ? table->M[0]*1.00000001 : table->M[table->Nm - 1] * 0.9999999;
+
     } else{
        ENZO_FAIL("Interpolation mass off of yields table\n");
     }
   }
 
-  if( (Z < table->Z[0]) || (Z > table->Z[table->NumberOfMetallicityBins - 1])){
+  if( (Z < table->Z[0]) || (Z > table->Z[table->Nz - 1])){
     if ( Z < table->Z[0] ){ // WARNING: see statement at top of file
       Z = table->Z[0];
     } else{
@@ -481,25 +506,57 @@ float StellarYieldsInterpolateYield(int yield_type,
   if (atomic_number > 0) { // interpolate yields given atomic number
 
     int yield_index;
-    yield_index     = GetYieldIndex(table->NumberOfYields, atomic_number);
+    yield_index     = GetYieldIndex(table->Ny, atomic_number);
 
+#ifdef NEWYIELDTABLES
+    int index = YIELD_INDEX(i,j,yield_index,table->Nm,table->Nz);
+
+    ll = table->Yields[index];
+    lr = table->Yields[index + table->dz];
+    ur = table->Yields[index + table->dm + table->dz];
+    ul = table->Yields[index + table->dm];
+
+#else
     ll = table->Yields[i  ][j  ][yield_index];
     lr = table->Yields[i  ][j+1][yield_index];
     ur = table->Yields[i+1][j+1][yield_index];
     ul = table->Yields[i+1][j  ][yield_index];
+#endif
 
   } else if (atomic_number == 0){ // interpolate total metal mass
+
+#ifdef NEWYIELDTABLES
+    int index = YIELD_INDEX(i,j,0,table->Nm,table->Nz);
+
+    ll = table->Metal_Mtot[index];
+    lr = table->Metal_Mtot[index + table->dz];
+    ur = table->Metal_Mtot[index + table->dm + table->dz];
+    ul = table->Metal_Mtot[index + table->dm];
+
+#else
     ll = table->Metal_Mtot[i  ][j  ];
     lr = table->Metal_Mtot[i  ][j+1];
     ur = table->Metal_Mtot[i+1][j+1];
     ul = table->Metal_Mtot[i+1][j  ];
+#endif
 
   } else if (atomic_number < 0 ){ // interpolate total mass
 
+#ifdef NEWYIELDTABLES
+    int index = YIELD_INDEX(i,j,0,table->Nm,table->Nz);
+
+    ll = table->Mtot[index];
+    lr = table->Mtot[index + table->dz];
+    ur = table->Mtot[index + table->dm + table->dz];
+    ul = table->Mtot[index + table->dm];
+
+#else
     ll = table->Mtot[i  ][j  ];
     lr = table->Mtot[i  ][j+1];
     ur = table->Mtot[i+1][j+1];
     ul = table->Mtot[i+1][j  ];
+#endif
+
   }
 
   return ((1.0 - t)*(1.0 - u) * (ll)   +
@@ -524,13 +581,13 @@ float StellarYieldsInterpolateYield(int yield_type,
 
     table = &StellarYieldsSNData;
 
-    if( M > table->M[table->NumberOfMassBins - 1]){
+    if( M > table->M[table->Nm - 1]){
       ENZO_FAIL("StellarYieldsInterpolateYield: No yields available for massive stars. Assuming all do direct collapse.");
     }
   } else if (yield_type == 1){     // do stellar wind yields
 
     /* use NuGrid wind data if star is on grid, else use PARSEC massive star winds */
-    if ( M > StellarYieldsWindData.M[StellarYieldsWindData.NumberOfMassBins - 1]){
+    if ( M > StellarYieldsWindData.M[StellarYieldsWindData.Nm - 1]){
       table = &StellarYieldsMassiveStarData;
     } else{
       table = &StellarYieldsWindData;
@@ -547,73 +604,36 @@ float StellarYieldsInterpolateYield(int yield_type,
 
   float interp_M = M;
 
-  if( (M < table->M[0]) || (M > table->M[table->NumberOfMassBins - 1])){
+  if( (M < table->M[0]) || (M > table->M[table->Nm - 1])){
     if( IndividualStarExtrapolateYields ){
       // scale to most massive star
-      interp_M  = table->M[table->NumberOfMassBins - 1] * 0.9999999;
+      interp_M  = table->M[table->Nm - 1] * 0.9999999;
     } else{
       printf("StellarYieldsInterpolateYield: Mass out of bounds\n");
-      printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, table->M[0], table->M[table->NumberOfMassBins-1]);
+      printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, table->M[0], table->M[table->Nm-1]);
       return FAIL;
     }
   }
 
-  if( (Z < table->Z[0]) || (Z > table->Z[table->NumberOfMetallicityBins - 1])){
+  if( (Z < table->Z[0]) || (Z > table->Z[table->Nz - 1])){
 
     if ( Z < table->Z[0] ){ // WARNING: see statement at top of file
       Z = table->Z[0];
     } else {
 
       printf("StellarYieldsInterpolateYield: Metallicity out of bounds\n");
-      printf("Z = %"ESYM" for minimum Z = %"ESYM" and maximum Z = %"ESYM"\n", Z, table->Z[0], table->Z[table->NumberOfMetallicityBins-1]);
+      printf("Z = %"ESYM" for minimum Z = %"ESYM" and maximum Z = %"ESYM"\n", Z, table->Z[0], table->Z[table->Nz-1]);
 
       return FAIL;
     }
   }
 
-  i = search_lower_bound(table->M, interp_M, 0, table->NumberOfMassBins, table->NumberOfMassBins);
-  j = search_lower_bound(table->Z, Z, 0, table->NumberOfMetallicityBins, table->NumberOfMetallicityBins);
+  i = search_lower_bound(table->M, interp_M, 0, table->Nm, table->Nm);
+  j = search_lower_bound(table->Z, Z, 0, table->Nz, table->Nz);
 
-  float t, u;
+  return StellarYieldsInterpolateYield(yield_type,i,j,M,Z,atomic_number);
 
-  t = (interp_M - table->M[i]) / (table->M[i+1] - table->M[i]);
-  u = (Z  - table->Z[j]) / (table->Z[j+1] - table->Z[j]);
-
-  float ll, lr, ur, ul; // lower left, lower right, upper right, upper left points
-  if (atomic_number > 0) { // interpolate yields given atomic number
-
-    int yield_index;
-    yield_index     = GetYieldIndex(table->NumberOfYields, atomic_number);
-
-    ll = table->Yields[i  ][j  ][yield_index];
-    lr = table->Yields[i  ][j+1][yield_index];
-    ur = table->Yields[i+1][j+1][yield_index];
-    ul = table->Yields[i+1][j  ][yield_index];
-
-  } else if (atomic_number == 0){ // interpolate total metal mass
-    ll = table->Metal_Mtot[i  ][j  ];
-    lr = table->Metal_Mtot[i  ][j+1];
-    ur = table->Metal_Mtot[i+1][j+1];
-    ul = table->Metal_Mtot[i+1][j  ];
-
-  } else if (atomic_number < 0 ){ // interpolate total mass
-
-    ll = table->Mtot[i  ][j  ];
-    lr = table->Mtot[i  ][j+1];
-    ur = table->Mtot[i+1][j+1];
-    ul = table->Mtot[i+1][j  ];
-  }
-
-//  printf("t u ll lr ur ul M im %"ESYM" %"ESYM" %"ESYM " %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",t,u,ll,lr,ur,ul,M,interp_M);
-  return ((1.0 - t)*(1.0 - u) * (ll)   +
-          (1.0 - t)*(      u) * (lr)   +
-          (      t)*(      u) * (ur)   +
-          (      t)*(1.0 - u) * (ul) ) * M / interp_M ;
 }
-
-
-
-
 
 int GetYieldIndex(const int &number_of_yields, const int &Z){
 /* --------------------------------------------------------
@@ -639,4 +659,3 @@ int GetYieldIndex(const int &number_of_yields, const int &Z){
 
   return index;
 }
-

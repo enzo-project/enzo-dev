@@ -52,8 +52,8 @@ int IndividualStarProperties_Initialize(TopGridData &MetaData){
     return SUCCESS; // already initialized
   }
 
-  IndividualStarPropertiesData.NumberOfMassBins        = 0;
-  IndividualStarPropertiesData.NumberOfMetallicityBins = 0;
+  IndividualStarPropertiesData.Nm        = 0;
+  IndividualStarPropertiesData.Nz = 0;
 
   IndividualStarPropertiesData.Zsolar = 0.01524; // see IndividualStarData.h
 
@@ -70,27 +70,27 @@ int IndividualStarProperties_Initialize(TopGridData &MetaData){
   }
 
   char line[MAX_LINE_LENGTH];
-  IndividualStarPropertiesData.NumberOfMassBins        = 26; // hard code for now
-  IndividualStarPropertiesData.NumberOfMetallicityBins = 11;
+  IndividualStarPropertiesData.Nm        = 26; // hard code for now
+  IndividualStarPropertiesData.Nz = 11;
 
   /* store bin values (not evenly spaced) */
-  IndividualStarPropertiesData.M = new float[IndividualStarPropertiesData.NumberOfMassBins];
-  IndividualStarPropertiesData.Z = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
+  IndividualStarPropertiesData.M = new float[IndividualStarPropertiesData.Nm];
+  IndividualStarPropertiesData.Z = new float[IndividualStarPropertiesData.Nz];
 
   /* arrays for data */
-  IndividualStarPropertiesData.Teff = new float*[IndividualStarPropertiesData.NumberOfMassBins];
-  IndividualStarPropertiesData.R    = new float*[IndividualStarPropertiesData.NumberOfMassBins];
-  IndividualStarPropertiesData.L    = new float*[IndividualStarPropertiesData.NumberOfMassBins];
-  IndividualStarPropertiesData.lifetime    = new float*[IndividualStarPropertiesData.NumberOfMassBins];
-  IndividualStarPropertiesData.agb_start = new float*[IndividualStarPropertiesData.NumberOfMassBins];
+  IndividualStarPropertiesData.Teff = new float*[IndividualStarPropertiesData.Nm];
+  IndividualStarPropertiesData.R    = new float*[IndividualStarPropertiesData.Nm];
+  IndividualStarPropertiesData.L    = new float*[IndividualStarPropertiesData.Nm];
+  IndividualStarPropertiesData.lifetime    = new float*[IndividualStarPropertiesData.Nm];
+  IndividualStarPropertiesData.agb_start = new float*[IndividualStarPropertiesData.Nm];
 
   /* fill arrays in each dimension */
-  for (int i = 0; i < IndividualStarPropertiesData.NumberOfMassBins; i++){
-    IndividualStarPropertiesData.Teff[i] = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
-    IndividualStarPropertiesData.R[i]    = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
-    IndividualStarPropertiesData.L[i]    = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
-    IndividualStarPropertiesData.lifetime[i]    = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
-    IndividualStarPropertiesData.agb_start[i] = new float[IndividualStarPropertiesData.NumberOfMetallicityBins];
+  for (int i = 0; i < IndividualStarPropertiesData.Nm; i++){
+    IndividualStarPropertiesData.Teff[i] = new float[IndividualStarPropertiesData.Nz];
+    IndividualStarPropertiesData.R[i]    = new float[IndividualStarPropertiesData.Nz];
+    IndividualStarPropertiesData.L[i]    = new float[IndividualStarPropertiesData.Nz];
+    IndividualStarPropertiesData.lifetime[i]    = new float[IndividualStarPropertiesData.Nz];
+    IndividualStarPropertiesData.agb_start[i] = new float[IndividualStarPropertiesData.Nz];
 
     /* need to do NULL things if I move away from hard coding sizes above */
   }
@@ -118,7 +118,7 @@ int IndividualStarProperties_Initialize(TopGridData &MetaData){
       IndividualStarPropertiesData.agb_start[i][j] = agb_start;
 
       j++;
-      if ( j >= IndividualStarPropertiesData.NumberOfMetallicityBins){
+      if ( j >= IndividualStarPropertiesData.Nz){
         j = 0;
         i++;
       }
@@ -156,9 +156,9 @@ int IndividualStarRadiationProperties_Initialize(void){
     return SUCCESS;
   }
 
-  IndividualStarRadData.NumberOfTemperatureBins = 0;
-  IndividualStarRadData.NumberOfSGBins          = 0;
-  IndividualStarRadData.NumberOfMetallicityBins = 0;
+  IndividualStarRadData.Nt = 0;
+  IndividualStarRadData.Ng          = 0;
+  IndividualStarRadData.Nz = 0;
 
   IndividualStarRadData.Zsolar = 0.017; // see IndividualStarData.h
   // now read in the data to populate the tables
@@ -176,14 +176,14 @@ int IndividualStarRadiationProperties_Initialize(void){
   For now, just going to hard code the sizes rather than worrying about
   how to do this... unlikely variable sizes will be needed anyway...
 */
-  IndividualStarRadData.NumberOfTemperatureBins = INDIVIDUAL_STAR_TEMPERATURE_BINS;
-  IndividualStarRadData.NumberOfMetallicityBins = INDIVIDUAL_STAR_METALLICITY_BINS;
-  IndividualStarRadData.NumberOfSGBins = INDIVIDUAL_STAR_SG_BINS;
+  IndividualStarRadData.Nt = INDIVIDUAL_STAR_TEMPERATURE_BINS;
+  IndividualStarRadData.Nz = INDIVIDUAL_STAR_METALLICITY_BINS;
+  IndividualStarRadData.Ng = INDIVIDUAL_STAR_SG_BINS;
 
   /* bin values - not evenly spaced, cannot just store spacing and start */
-  IndividualStarRadData.T    = new float[IndividualStarRadData.NumberOfTemperatureBins];
-  IndividualStarRadData.g    = new float[IndividualStarRadData.NumberOfSGBins];
-  IndividualStarRadData.Z    = new float[IndividualStarRadData.NumberOfMetallicityBins];
+  IndividualStarRadData.T    = new float[IndividualStarRadData.Nt];
+  IndividualStarRadData.g    = new float[IndividualStarRadData.Ng];
+  IndividualStarRadData.Z    = new float[IndividualStarRadData.Nz];
 
   /* Code here to read in metallicity bins from table */
 
@@ -203,29 +203,29 @@ int IndividualStarRadiationProperties_Initialize(void){
   // Load the arrays for ionizing radiation and the other bands
   // q's correspond to HI, HeI, and HeII photon fluxes (count / s / cm^2)
   // while band fluxes are energy fluxes (erg / s / cm^2)
-  IndividualStarRadData.q0       = new float**[IndividualStarRadData.NumberOfTemperatureBins];
-  IndividualStarRadData.q1       = new float**[IndividualStarRadData.NumberOfTemperatureBins];
-  IndividualStarRadData.q2       = new float**[IndividualStarRadData.NumberOfTemperatureBins];
-  IndividualStarRadData.IR_flux  = new float**[IndividualStarRadData.NumberOfTemperatureBins];
-  IndividualStarRadData.FUV_flux = new float**[IndividualStarRadData.NumberOfTemperatureBins];
-  IndividualStarRadData.LW_flux  = new float**[IndividualStarRadData.NumberOfTemperatureBins];
+  IndividualStarRadData.q0       = new float**[IndividualStarRadData.Nt];
+  IndividualStarRadData.q1       = new float**[IndividualStarRadData.Nt];
+  IndividualStarRadData.q2       = new float**[IndividualStarRadData.Nt];
+  IndividualStarRadData.IR_flux  = new float**[IndividualStarRadData.Nt];
+  IndividualStarRadData.FUV_flux = new float**[IndividualStarRadData.Nt];
+  IndividualStarRadData.LW_flux  = new float**[IndividualStarRadData.Nt];
 
   // fill the arrays in all dimensions
-  for(int i = 0; i < IndividualStarRadData.NumberOfTemperatureBins; i++){
-    IndividualStarRadData.q0[i] = new float*[IndividualStarRadData.NumberOfSGBins];
-    IndividualStarRadData.q1[i] = new float*[IndividualStarRadData.NumberOfSGBins];
-    IndividualStarRadData.q2[i] = new float*[IndividualStarRadData.NumberOfSGBins];
-    IndividualStarRadData.IR_flux[i]  = new float*[IndividualStarRadData.NumberOfSGBins];
-    IndividualStarRadData.FUV_flux[i] = new float*[IndividualStarRadData.NumberOfSGBins];
-    IndividualStarRadData.LW_flux[i]  = new float*[IndividualStarRadData.NumberOfSGBins];
+  for(int i = 0; i < IndividualStarRadData.Nt; i++){
+    IndividualStarRadData.q0[i] = new float*[IndividualStarRadData.Ng];
+    IndividualStarRadData.q1[i] = new float*[IndividualStarRadData.Ng];
+    IndividualStarRadData.q2[i] = new float*[IndividualStarRadData.Ng];
+    IndividualStarRadData.IR_flux[i]  = new float*[IndividualStarRadData.Ng];
+    IndividualStarRadData.FUV_flux[i] = new float*[IndividualStarRadData.Ng];
+    IndividualStarRadData.LW_flux[i]  = new float*[IndividualStarRadData.Ng];
 
-    for ( int j = 0; j < IndividualStarRadData.NumberOfSGBins; j ++){
-      IndividualStarRadData.q0[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
-      IndividualStarRadData.q1[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
-      IndividualStarRadData.q2[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
-      IndividualStarRadData.IR_flux[i][j]  = new float[IndividualStarRadData.NumberOfMetallicityBins];
-      IndividualStarRadData.FUV_flux[i][j] = new float[IndividualStarRadData.NumberOfMetallicityBins];
-      IndividualStarRadData.LW_flux[i][j]  = new float[IndividualStarRadData.NumberOfMetallicityBins];
+    for ( int j = 0; j < IndividualStarRadData.Ng; j ++){
+      IndividualStarRadData.q0[i][j] = new float[IndividualStarRadData.Nz];
+      IndividualStarRadData.q1[i][j] = new float[IndividualStarRadData.Nz];
+      IndividualStarRadData.q2[i][j] = new float[IndividualStarRadData.Nz];
+      IndividualStarRadData.IR_flux[i][j]  = new float[IndividualStarRadData.Nz];
+      IndividualStarRadData.FUV_flux[i][j] = new float[IndividualStarRadData.Nz];
+      IndividualStarRadData.LW_flux[i][j]  = new float[IndividualStarRadData.Nz];
 
   /* AJE 3/16/16: Need to NULL everything if allow for variable size */
   //    for ( int k = 0; k < INDIVIDUAL_STAR_METALLICITY_BINS; k ++){
@@ -260,7 +260,7 @@ int IndividualStarRadiationProperties_Initialize(void){
 
       // increment i and j
       j++;
-      if (j >= IndividualStarRadData.NumberOfSGBins){
+      if (j >= IndividualStarRadData.Ng){
         j = 0;
         i++;
       }
@@ -296,7 +296,7 @@ int IndividualStarRadiationProperties_Initialize(void){
                    &IndividualStarRadData.q1[i][j][9]);
 
       j++;
-      if (j >= IndividualStarRadData.NumberOfSGBins){
+      if (j >= IndividualStarRadData.Ng){
         j = 0;
         i++;
       }
@@ -332,7 +332,7 @@ int IndividualStarRadiationProperties_Initialize(void){
                    &IndividualStarRadData.q2[i][j][9]);
 
       j++;
-      if (j >= IndividualStarRadData.NumberOfSGBins){
+      if (j >= IndividualStarRadData.Ng){
         j = 0;
         i++;
       }
@@ -371,7 +371,7 @@ int IndividualStarRadiationProperties_Initialize(void){
 
 
         j++;
-        if (j >= IndividualStarRadData.NumberOfSGBins){
+        if (j >= IndividualStarRadData.Ng){
           j = 0;
           i++;
         }
@@ -381,9 +381,9 @@ int IndividualStarRadiationProperties_Initialize(void){
     fclose(fptrIR);
 
     } else{
-      for(i = 0; i < IndividualStarRadData.NumberOfTemperatureBins; i++){
-        for(j = 0; j < IndividualStarRadData.NumberOfSGBins; j++){
-          for(int k = 0; k < IndividualStarRadData.NumberOfMetallicityBins; k++){
+      for(i = 0; i < IndividualStarRadData.Nt; i++){
+        for(j = 0; j < IndividualStarRadData.Ng; j++){
+          for(int k = 0; k < IndividualStarRadData.Nz; k++){
             IndividualStarRadData.IR_flux[i][j][k] = 0.0;
           }
         }
@@ -421,7 +421,7 @@ int IndividualStarRadiationProperties_Initialize(void){
 
 
         j++;
-        if (j >= IndividualStarRadData.NumberOfSGBins){
+        if (j >= IndividualStarRadData.Ng){
           j = 0;
           i++;
         }
@@ -430,9 +430,9 @@ int IndividualStarRadiationProperties_Initialize(void){
     fclose(fptrFuv);
 
   } else{
-    for(i = 0; i < IndividualStarRadData.NumberOfTemperatureBins; i++){
-      for(j = 0; j < IndividualStarRadData.NumberOfSGBins; j++){
-        for(int k = 0; k < IndividualStarRadData.NumberOfMetallicityBins; k++){
+    for(i = 0; i < IndividualStarRadData.Nt; i++){
+      for(j = 0; j < IndividualStarRadData.Ng; j++){
+        for(int k = 0; k < IndividualStarRadData.Nz; k++){
           IndividualStarRadData.FUV_flux[i][j][k] = 0.0;
         }
       }
@@ -469,7 +469,7 @@ int IndividualStarRadiationProperties_Initialize(void){
 
 
         j++;
-        if (j >= IndividualStarRadData.NumberOfSGBins){
+        if (j >= IndividualStarRadData.Ng){
           j = 0;
           i++;
         }
@@ -480,9 +480,9 @@ int IndividualStarRadiationProperties_Initialize(void){
 
     fclose(fptrLW);
   } else{
-    for(i = 0; i < IndividualStarRadData.NumberOfTemperatureBins; i++){
-      for(j = 0; j < IndividualStarRadData.NumberOfSGBins; j++){
-        for(int k = 0; k < IndividualStarRadData.NumberOfMetallicityBins; k++){
+    for(i = 0; i < IndividualStarRadData.Nt; i++){
+      for(j = 0; j < IndividualStarRadData.Ng; j++){
+        for(int k = 0; k < IndividualStarRadData.Nz; k++){
           IndividualStarRadData.LW_flux[i][j][k] = 0.0;
         }
       }
@@ -490,7 +490,7 @@ int IndividualStarRadiationProperties_Initialize(void){
   }
 
   // convert surface gravity values to linear scale
-  for( j = 0; j < IndividualStarRadData.NumberOfSGBins; j++){
+  for( j = 0; j < IndividualStarRadData.Ng; j++){
     IndividualStarRadData.g[j] = POW(10.0, IndividualStarRadData.g[j]);
   }
 

@@ -12,39 +12,64 @@
 ****************************************************************/
 
 // may not need any includes
-struct StellarYieldsDataType1D
+
+
+// i_m = mass, i_z = metallicity, i_y = yield
+
+#ifdef NEWYIELDTABLES
+
+#define YIELD_INDEX(i_m, i_z, i_y, Nm, Nz) (i_m + (i_z + i_y*Nz)*Nm)
+
+#define YIELD_INDEX_DM(Nm,Nz) (1)
+#define YIELD_INDEX_DZ(Nm,Nz) (Nm)
+#define YIELD_INDEX_DY(Nm,Nz) (Nm*Nz)
+
+struct StellarYieldsDataType
 {
-  int NumberOfMassBins;
-  int NumberOfMetallicityBins;
-  int NumberOfYields;
+  int Nm; // Number of mass bins
+  int Nz; // Number of metallicity bins
+  int Ny; // Number of Yields
+
+  int dm; // Next mass   (fixed Z, yield)
+  int dz; // Next metallicity (fixed M, yield)
+  int dy; // Next yield (field M, Z)
 
   int size;
 
   float *M;
   float *Z;
 
-  int *atomic_number;
+  // arrays are 1D representations of multi-D arrays
+  float  *Mtot;       // 2D  (NmxNz)
+  float  *Metal_Mtot; // 2D  (NmxNz)
+  float  *Yields;     // 3D  (NmxNzxNy)
 
-  float  *Mtot;
-  float  *Metal_Mtot;
-  float  *Yields;
+  // indexes are:
+  //
+  //    2D (NmxNz)    :   i + j*Nm
+  //    3D (NmxNzxNy) :   i + (j + k*Nz)*Nm
+  //
+  //    where i iterates over mass, j over Z, k over yield
 };
+
+
+#else
 
 struct StellarYieldsDataType
 {
-  int NumberOfMassBins;
-  int NumberOfMetallicityBins;
-  int NumberOfYields;
+  int Nm;
+  int Nz;
+  int Ny;
 
   float *M;
   float *Z;
-
-  int *atomic_number;
 
   float  **Mtot;
   float  **Metal_Mtot;
   float ***Yields;
 };
+
+#endif
 
 
 struct MetalMixingExperimentDataType

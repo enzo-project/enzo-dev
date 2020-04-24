@@ -39,8 +39,6 @@ void fill_table(StellarYieldsDataType *table, FILE *fptr);
 int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
 char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num);
 
-int read_dataset(hid_t file_id, const char *dset_name, double *buffer);
-
 
 int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
                                  TopGridData &MetaData,
@@ -164,25 +162,34 @@ int InitializeStellarYields(const float &time){
     return SUCCESS; // already initialized
   }
 
+#ifdef NEWYIELDTABLES
+  fill_table(&StellarYieldsSNData2, "test_yields.h5", "SN");
+  fill_table(&StellarYieldsWindData2, "IndividualStarYields.h5", "winds");
+  fill_table(&StellarYieldsMassiveStarData2, "IndividualStarYields.h5", "massive_star");
+  fill_table(&StellarYieldsPopIIIData2, "IndividualStarYields.h5", "popIII");
+
+#else
+
+
   // AJE: Hard code he number of bins for now
   //     - I want to fix this but this is not priority -
   //     - unfixed as of April 2016 -
-  StellarYieldsSNData.NumberOfMassBins        = 12;
-  StellarYieldsSNData.NumberOfMetallicityBins =  5;
-  StellarYieldsSNData.NumberOfYields          = StellarYieldsNumberOfSpecies;
+  StellarYieldsSNData.Nm        = 12;
+  StellarYieldsSNData.Nz =  5;
+  StellarYieldsSNData.Ny          = StellarYieldsNumberOfSpecies;
 
-  StellarYieldsWindData.NumberOfMassBins        = 12;
-  StellarYieldsWindData.NumberOfMetallicityBins =  5;
-  StellarYieldsWindData.NumberOfYields          = StellarYieldsNumberOfSpecies;
+  StellarYieldsWindData.Nm        = 12;
+  StellarYieldsWindData.Nz =  5;
+  StellarYieldsWindData.Ny          = StellarYieldsNumberOfSpecies;
 
-  StellarYieldsMassiveStarData.NumberOfMassBins        = 30;
-  StellarYieldsMassiveStarData.NumberOfMetallicityBins = 12;
-  StellarYieldsMassiveStarData.NumberOfYields       = StellarYieldsNumberOfSpecies;
+  StellarYieldsMassiveStarData.Nm        = 30;
+  StellarYieldsMassiveStarData.Nz = 12;
+  StellarYieldsMassiveStarData.Ny       = StellarYieldsNumberOfSpecies;
 
-  StellarYieldsPopIIIData.NumberOfMassBins = 120 + 14 ;  // 120 from Heger+Woosley2010 for Type II (10 < M < 100)
+  StellarYieldsPopIIIData.Nm = 120 + 14 ;  // 120 from Heger+Woosley2010 for Type II (10 < M < 100)
                                                          //  14 from Heger+Woosley2002 for PISN    (140 < M < 260)
-  StellarYieldsPopIIIData.NumberOfMetallicityBins = 1;
-  StellarYieldsPopIIIData.NumberOfYields = StellarYieldsNumberOfSpecies;
+  StellarYieldsPopIIIData.Nz = 1;
+  StellarYieldsPopIIIData.Ny = StellarYieldsNumberOfSpecies;
 
   // read in data from files - one table for each yield type:
   //   1) core collapse supernova
@@ -230,6 +237,10 @@ int InitializeStellarYields(const float &time){
     fill_table(&StellarYieldsPopIIIData, fptr_popIII);
     fclose(fptr_popIII);
   }
+
+
+#endif
+
 
   /* If we are doing artificial injection events */
   if (MetalMixingExperiment) {
@@ -389,13 +400,15 @@ void unpack_line_to_yields( char *line, float *dummy){
                    &dummy[81], &dummy[82], &dummy[83], &dummy[84], &dummy[85], &dummy[86]);
 }
 
-void initialize_table_1D(StellarYieldsDataType1D* table){
+
+#ifdef NEWYIELDTABLES
+void initialize_table(StellarYieldsDataType* table){
 
   /* fill table in 1D - makes lookup faster*/
 
-  const int Nm = table->NumberOfMassBins;
-  const int Nz = table->NumberOfMetallicityBins;
-  const int Ny = table->NumberOfYields;
+  const int Nm = table->Nm;
+  const int Nz = table->Nz;
+  const int Ny = table->Ny;
 
   table->M    = new float[Nm];
   table->Z    = new float[Nz];
@@ -421,35 +434,50 @@ void initialize_table_1D(StellarYieldsDataType1D* table){
   return;
 }
 
+#else
+
 void initialize_table(StellarYieldsDataType* table){
   /* -----------------------------------------------
-   * fill_table
+   * Initialize table
    * -----------------------------------------------
    */
 
-  table->M    = new float[table->NumberOfMassBins];
-  table->Z    = new float[table->NumberOfMetallicityBins];
-  table->Mtot = new float*[table->NumberOfMassBins];
-  table->Metal_Mtot = new float*[table->NumberOfMassBins];
-  table->Yields = new float**[table->NumberOfMassBins];
+  table->M    = new float[table->Nm];
+  table->Z    = new float[table->Nz];
+  table->Mtot = new float*[table->Nm];
+  table->Metal_Mtot = new float*[table->Nm];
+  table->Yields = new float**[table->Nm];
 
-  for (int i = 0; i < table->NumberOfMassBins; i++){
-    table->Yields[i] = new float*[table->NumberOfMetallicityBins];
+  for (int i = 0; i < table->Nm; i++){
+    table->Yields[i] = new float*[table->Nz];
 
-    table->Mtot[i] = new float[table->NumberOfMetallicityBins];
-    table->Metal_Mtot[i] = new float[table->NumberOfMetallicityBins];
+    table->Mtot[i] = new float[table->Nz];
+    table->Metal_Mtot[i] = new float[table->Nz];
 
-    for (int j = 0; j < table->NumberOfMetallicityBins; j++){
-      table->Yields[i][j] = new float [table->NumberOfYields];
+    for (int j = 0; j < table->Nz; j++){
+      table->Yields[i][j] = new float [table->Ny];
     }
   }
 
   return;
 }
 
-void H5_fill_table(StellarYieldsDataType1D *table,
+#endif
+
+
+#ifdef NEWYIELDTABLES
+
+void fill_table(StellarYieldsDataType *table,
                    std::string filename,
                    std::string dname){
+
+  /*
+    Generic routine to read in stellar yields from an
+    HDF5 file. Yields are assumed to be the mass yield (in Msun)
+    for grid points in stellar mass (Msun) and metallicity (fraction),
+    requiring 2D interpolation.
+  */
+
 
   /* Read an HDF5 table */
 
@@ -460,7 +488,7 @@ void H5_fill_table(StellarYieldsDataType1D *table,
   file_id = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Read Info dataset
-
+  //  (not necessary)
 /*
   dset_id = H5Dopen(file_id, "/Info");
   if (dset_id == h5error){
@@ -474,7 +502,7 @@ void H5_fill_table(StellarYieldsDataType1D *table,
 
   // Set yields to load (don't load all available elements!)
 
-  table->NumberOfYields = StellarYieldsNumberOfSpecies;
+  table->Ny = StellarYieldsNumberOfSpecies;
 
   // Find mass bins in desired dataset
 
@@ -490,8 +518,8 @@ void H5_fill_table(StellarYieldsDataType1D *table,
                dname.c_str(), filename.c_str());
   }
 
-  table->NumberOfMassBins = H5Sget_simple_extent_npoints(dspace_id);
-  if (table->NumberOfMassBins <= 0) {
+  table->Nm = H5Sget_simple_extent_npoints(dspace_id);
+  if (table->Nm <= 0) {
     ENZO_VFAIL("Cannot propertly read mass bins ('M') in %s in %s.\n",
                dname.c_str(), filename.c_str());
   }
@@ -513,8 +541,8 @@ void H5_fill_table(StellarYieldsDataType1D *table,
                dname.c_str(), filename.c_str());
   }
 
-  table->NumberOfMetallicityBins = H5Sget_simple_extent_npoints(dspace_id);
-  if (table->NumberOfMetallicityBins <= 0) {
+  table->Nz = H5Sget_simple_extent_npoints(dspace_id);
+  if (table->Nz <= 0) {
     ENZO_VFAIL("Cannot propertly read Z bins ('Z') in %s in %s.\n",
                dname.c_str(), filename.c_str());
   }
@@ -524,29 +552,29 @@ void H5_fill_table(StellarYieldsDataType1D *table,
 
   // Find total number of available yields in the dataset
 
-  dset_id = H5Dopen(file_id, ("/"+dname+"/yield_names").c_str());
+  dset_id = H5Dopen(file_id, ("/"+dname+"/atomic_numbers").c_str());
   if (dset_id == h5_error){
-    ENZO_VFAIL("Can't open 'yield_names' in %s in file %s.\n",dname.c_str(),
+    ENZO_VFAIL("Can't open 'atomic_numbers' in %s in file %s.\n",dname.c_str(),
                                                     filename.c_str());
   }
 
   dspace_id = H5Dget_space(dset_id);
   if (dspace_id == h5_error){
-    ENZO_VFAIL("Can't open 'yield_names' dataspace in %s in file %s.\n",
+    ENZO_VFAIL("Can't open 'atomic_numbers' dataspace in %s in file %s.\n",
                dname.c_str(), filename.c_str());
   }
 
   int Nyields = H5Sget_simple_extent_npoints(dspace_id);
   if (Nyields <= 0) {
-    ENZO_VFAIL("Cannot propertly read number of yields in %s in %s.\n",
+    ENZO_VFAIL("Cannot propertly read number of yields from 'atomic_numbers' in %s in %s.\n",
                dname.c_str(), filename.c_str());
   }
 
   H5Sclose(dspace_id);
   H5Dclose(dset_id);
 
-  table->size = table->NumberOfMassBins * table->NumberOfMetallicityBins *\
-               table->NumberOfYields;
+  table->size = table->Nm * table->Nz *\
+               table->Ny;
 
   // allocate space for table
 
@@ -566,10 +594,30 @@ void H5_fill_table(StellarYieldsDataType1D *table,
                dname.c_str(), filename.c_str());
   }
 
+  // Find list of atomic numbers in the dataset
+  //   list *should* start with -1 and 0 since these
+  //   are the codes for total mass (-1) and metal mass (0)
+  //   which should be first two columns in yields
+
+  int temp_anum = new int [Nyields];
+  for (int i = 0; i < Nyields; i++) temp_anum[i] = -1;
+
+  dset_id = H5Dopen(file_id, ("/"+dname+"/atomic_numbers").c_str());
+  if (dset_id == h5_error){
+    ENZO_VFAIL("Error opening atomic_numbers for %s in %s\n",
+               dname.c_str(), fname.c_str());
+  }
+
+  status = H5Dread(dset_id, HDF5_I4, H5S_ALL, H5S_ALL, H5P_DEFAULT, temp_anum);
+  if (status == h5_error){
+    ENZO_VFAIL("Error reading in atomic_numbers for %s in %s\n",
+               dname.c_str(), filename.c_str());
+  }
+
   // now, allocate a temporary array to load in ALL yields
   // from the table
 
-  int temp_size = table->NumberOfMassBins * table->NumberOfMetallicityBins *
+  int temp_size = table->Nm * table->Nz *
                    Nyields;
 
   float *temp_yields = new float [temp_size];
@@ -589,34 +637,75 @@ void H5_fill_table(StellarYieldsDataType1D *table,
 
   // first column of yields is the total mass ejected
   // second column is the total metals
-  for(int j =0; j < table->NumberOfMetallicityBins; j++){
-    for(int i =0; i < table->NumberOfMassBins; i++){
-      table->Mtot[i + j*table->NumberOfMassBins] =
-          temp_yields[i + (j + 0)*table->NumberOfMassBins];
-      table->Metal_Mtot[i + j*table->NumberOfMassBins] =
-          temp_yields[i + (j + 1)*table->NumberOfMassBins];
+  /* We want the table to be constructed such that adjacent
+     values are adjacent in mass at fixed Z and element. They
+     are read-in in reversed order, however */
+
+  for(int j =0; j < table->Nz; j++){
+    for(int i =0; i < table->Nm; i++){
+
+      int index = YIELD_INDEX(i,j,0,table->Nm,table->Nz)
+
+      table->Mtot[index] =
+         temp_yields[0 + (j + i*table->Nz)*Nyields];
+
+      table->Metal_Mtot[index] =
+         temp_yields[1 + (j + i*table->Nz)*Nyields];
     }
   }
-
   // now loop through and grab the elements we need
-  for (int k = 0; k < table->NumberOfYields; k++){
+  int temp_k = 0;
+  for (int k = 0; k < table->Ny; k++){
 
     // atomic number we want
     int anum = *(StellarYieldsAtomicNumbers+k);
 
-    for (int j = 0; j < table->NumberOfMetallicityBins; j++){
-      for(int i = 0; i < table->NumberOfMassBins; i++){
-
-        int iyield = i + (j + k*table->NumberOfMetallicityBins)*table->NumberOfMassBins;
-        // anum+1 is appropriate shift to account for 0 and 1
-        // are total mass and total metals, and col 2 is Hydrogen
-        // (so anum + 1 give correct column)
-        int itemp  = i + (j + (anum+1)*table->NumberOfMetallicityBins)*table->NumberOfMassBins;
-
-        table->Yields[iyield] = temp_yields[itemp];
+    // corresponding yield column in array
+    // assume yield table is in atomic number order
+    for(int kk = temp_k; kk < Nyields; kk++){
+      if (anum == temp_anum[kk]){
+        temp_k = kk;
+        break;
       }
     }
+
+    if (kk >= Nyields){
+
+      // this means that the yield is not present
+      // print a warning and set value to zero below
+
+      printf("Yield set %s in yield table %s does not have anum = %i. Setting to 0 \n",
+             dname.c_str(), filename.c_str(), anum);
+
+      for (int j =0; j < table->Nz; j++){
+        for(int i = 0; i < table->Nm, i++){
+          table->Yields[YIELD_INDEX(i,j,k,table->Nm,table->Nz)] = 0.0;
+        }
+      }
+
+      temp_k = 0; // reset
+
+    } else {
+
+      for (int j = 0; j < table->Nz; j++){
+        for(int i = 0; i < table->Nm; i++){
+
+          // get index in saved table yield set
+          int index = YIELD_INDEX(i,j,k,table->Nm,table->Nz);
+
+          // get index in temporary yield set
+          int itemp  = (temp_k) + (j + i*table->Nz)*Nyields;
+
+          table->Yields[index] = temp_yields[itemp];
+        }
+      }
+    } // else if available
   }
+
+  /* Save index offsets for next item in each dimension for convenience */
+  table->dm = 1;                     // next mass
+  table->dz = table->Nm;             // next metallicity
+  table->dy = table->Nm * table->Nz; // next yield
 
   status = H5Dclose(dset_id);
   if (status == h5_error){
@@ -624,11 +713,14 @@ void H5_fill_table(StellarYieldsDataType1D *table,
                dname.c_str(), filename.c_str());
   }
 
-  /* Delete temporary yields */
+  /* Delete temporary yields and atomic numbers */
   delete [] temp_yields;
+  delete [] temp_anum;
 
   return;
 }
+
+#else 
 
 void fill_table(StellarYieldsDataType *table, FILE *fptr){
 
@@ -658,13 +750,13 @@ void fill_table(StellarYieldsDataType *table, FILE *fptr){
       // file column numbers are atomic numbers + 1,
       // if first column is 0. Loop over number of yields
       // and pick only the ones we want
-      for (int k = 0; k < table->NumberOfYields; k++){
+      for (int k = 0; k < table->Ny; k++){
         table->Yields[i][j][k] = dummy[3 + *(StellarYieldsAtomicNumbers+k)];
       }
 
       // iterate counters and reset if needed
       j++;
-      if( j >= table->NumberOfMetallicityBins){
+      if( j >= table->Nz){
         j=0;
         i++;
       }
@@ -674,6 +766,9 @@ void fill_table(StellarYieldsDataType *table, FILE *fptr){
   return;
 }
 
+#endif
+
+#ifdef NEWYIELDTABLES
 int read_dataset(hid_t file_id, const char *dset_name, double *buffer) {
   hid_t dset_id;
   herr_t status;
@@ -695,6 +790,6 @@ int read_dataset(hid_t file_id, const char *dset_name, double *buffer) {
 
   return SUCCESS;
 }
-
+#endif
 
 

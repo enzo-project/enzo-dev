@@ -43,6 +43,7 @@
 #    CONFIG_ENZO_PERFORMANCE
 #    CONFIG_GRACKLE
 #    CONFIG_INDIVIDUALSTAR
+#    CONFIG_NEWYIELDTABLES
 #    CONFIG_MEMORYPOOL
 #
 #=======================================================================
@@ -326,6 +327,16 @@
 #----------------------------------------------------------------------- 
  
      CONFIG_LOG2ALLOC = no
+
+
+#=======================================================================
+# CONFIG_NEWYIELDTABLES
+#=======================================================================
+#     yes          Compile with new yield tables (single HDF5)
+#     no           Use old tables (individual ASCII)
+#-----------------------------------------------------------------------
+
+     CONFIG_NEWYIELDTABLES = no
 
 #=======================================================================
 # CONFIG_INDIVIDUALSTAR

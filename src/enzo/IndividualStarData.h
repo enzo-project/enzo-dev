@@ -15,9 +15,9 @@
 struct IndividualStarRadDataType
 {
 
-  int NumberOfTemperatureBins;
-  int NumberOfSGBins;
-  int NumberOfMetallicityBins;
+  int Nt; // Temperature
+  int Ng; // surface gravity
+  int Nz; // metallicity
 
   float ***q0; // HI photon flux (1/s/cm^2)
   float ***q1; // HeI photon flux (1/s/cm^2)
@@ -40,8 +40,8 @@ struct IndividualStarRadDataType
 struct IndividualStarPropertiesDataType
 {
 
-  int NumberOfMassBins;
-  int NumberOfMetallicityBins;
+  int Nm;
+  int Nz;
 
   // interpolation values
   float **Teff;
