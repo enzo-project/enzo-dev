@@ -254,6 +254,7 @@ int InitializeStellarYields(const float &time){
   fill_table(&StellarYieldsWindData, fptr_wind);
   fill_table(&StellarYieldsMassiveStarData, fptr_mstar);
 
+
   /* close files */
   fclose(fptr_sn);
   fclose(fptr_wind);

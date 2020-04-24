@@ -298,8 +298,9 @@ int StellarYieldsGetYieldTablePosition(const StellarYieldsDataType & table,
   if( (M < table.M[0]) || (M > table.M[table.Nm - 1])){
 
     if( IndividualStarExtrapolateYields || extrapolate_yields_switch ){
-      // scale to most massive star
-      interp_M  = table.M[table.Nm - 1] * 0.9999999;
+      // use nearest mass bin
+      const float fudge = 0.000001; // mass needs to be within bounds
+      interp_M  = (M < table.M[0]) ? table.M[0]*(1.0+fudge): table.M[table.Nm - 1] * (1.0-fudge);
 
     } else{
       printf("StellarYieldsInterpolateYield: Mass out of bounds\n");
@@ -339,9 +340,50 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
  * StellarYieldsGetYieldTablePosition
  * ------------------------------------------------------------------------
  * Interpolation function which finds the position in the yield table (i and j)
+ *
+ * This function tries to guess which yield table is relevant. For backwards
+ * compatability, this has a few extra if statements
  * -------------------------------------------------------------------------*/
   /* interpolate table */
   StellarYieldsDataType * table;
+
+
+#ifdef NEWYIELDTABLES
+  /* In new yield tables */
+
+  if (M <= IndividualStarAGBThreshold){
+
+    if (StellarYieldsAGBData.M == NULL){
+      //  This is done for backwards compatability
+      //  In original tables, winds contained AGB stars
+      table = &StellarYieldsWindData;
+
+    } else {
+      // otherwise we are doig the new style
+      table = &StellarYieldsAGBData;
+    }
+
+  } else{
+
+    if (StellarYieldsMassiveStarData.M != NULL){
+      // this is the OLD style for backwards compatability
+      if (M <= StellarYieldsSNData.M[StellarYieldsSNData.Nm-1]){
+        table = &StellarYieldsSNData;
+      } else if (( M >= StellarYieldsMassiveStarData.M[0]) &&
+                 ( M <= StellarYieldsMassiveStarData.M[StellarYieldsMassiveStarData.Nm-1])){
+         // use massive star data from PARSEC models (massive stars only! and wind only!)
+
+         table = &StellarYieldsMassiveStarData;
+       }
+
+    } else {
+      // in the new model, both the SN table and the winds tables have
+      // the same mass bins. In this case, it doesn't matter which we pick
+      table = &StellarYieldsWindData;
+    }
+  }
+
+#else
 
   if (M <= StellarYieldsSNData.M[StellarYieldsSNData.Nm - 1]){
     // if mass is on NuGrid data set (M <= 25) use this table
@@ -352,6 +394,7 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
 
     table = &StellarYieldsMassiveStarData;
   }
+#endif
 
   return StellarYieldsGetYieldTablePosition(*table, i, j, M, metallicity);
 }
@@ -375,11 +418,9 @@ float StellarYieldsInterpolatePopIIIYield(const int &i, const float &M, int atom
 
   float interp_M = M;
 
-  if (M < table->M[0]){
-    interp_M = table->M[0]*1.00001;
-  } else if (M > table->M[table->Nm - 1]){
-    interp_M = table->M[table->Nm-1]*0.99999;
-  }
+  const float fudge = 0.000001; // mass needs to be within bounds
+  interp_M  = (M < table->M[0]) ? table->M[0]*(1.0+fudge): table->M[table->Nm - 1] * (1.0-fudge);
+
 
   float t,u;
   t = (interp_M - table->M[i]) / (table->M[i+1] - table->M[i]);
@@ -454,17 +495,34 @@ float StellarYieldsInterpolateYield(int yield_type,
     }
   } else if (yield_type == 1){     // do stellar wind yields
 
-//#ifdef NEWYIELDTABLES
-    // make new table here
+#ifdef NEWYIELDTABLES
+    if (StellarYieldsAGBData.M == NULL){
+      // use the old method
+      if (M > StellarYieldsWindData.M[StellarYieldsWindData.Nm-1]){
+        table = &StellarYieldsMassiveStarData;
+      } else {
+        table = &StellarYieldsWindData;
+      }
+    } else {
+      /* New method picking between AGB and massive star */
 
-//#else
+      if (M > IndividualStarAGBThreshold){
+        table = &StellarYieldsWindData;
+      } else {
+        table = &StellarYieldsAGBData;
+      }
+
+    } // end AGB == NULL
+
+#else
     /* use NuGrid wind data if star is on grid, else use PARSEC massive star winds */
+
     if ( M > StellarYieldsWindData.M[StellarYieldsWindData.Nm - 1]){
       table = &StellarYieldsMassiveStarData;
     } else{
       table = &StellarYieldsWindData;
     }
-//#endif
+#endif
 
   } else if (yield_type == 2){
     table = &StellarYieldsPopIIIData;
@@ -478,8 +536,8 @@ float StellarYieldsInterpolateYield(int yield_type,
 
   if( (M < table->M[0]) || (M > table->M[table->Nm - 1])){
     if( IndividualStarExtrapolateYields ){
-      // scale to most or least massive star
-      interp_M  = (M < table->M[0]) ? table->M[0]*1.00000001 : table->M[table->Nm - 1] * 0.9999999;
+      const float fudge = 0.000001; // mass needs to be within bounds
+      interp_M  = (M < table->M[0]) ? table->M[0]*(1.0+fudge): table->M[table->Nm - 1] * (1.0-fudge);
 
     } else{
        ENZO_FAIL("Interpolation mass off of yields table\n");
@@ -578,6 +636,40 @@ float StellarYieldsInterpolateYield(int yield_type,
 
   StellarYieldsDataType * table;
 
+#ifdef NEWYIELDTABLES
+  if (M <= IndividualStarAGBThreshold){
+
+    if (StellarYieldsAGBData.M == NULL){
+      //  This is done for backwards compatability
+      //  In original tables, winds contained AGB stars
+      table = &StellarYieldsWindData;
+
+    } else {
+      // otherwise we are doig the new style
+      table = &StellarYieldsAGBData;
+    }
+
+  } else{
+
+    if (StellarYieldsMassiveStarData.M != NULL){
+      // this is the OLD style for backwards compatability
+      if (M <= StellarYieldsSNData.M[StellarYieldsSNData.Nm-1]){
+        table = &StellarYieldsSNData;
+      } else if (( M >= StellarYieldsMassiveStarData.M[0]) &&
+                 ( M <= StellarYieldsMassiveStarData.M[StellarYieldsMassiveStarData.Nm-1])){
+         // use massive star data from PARSEC models (massive stars only! and wind only!)
+
+         table = &StellarYieldsMassiveStarData;
+       }
+
+    } else {
+      // in the new model, both the SN table and the winds tables have
+      // the same mass bins. In this case, it doesn't matter which we pick
+      table = &StellarYieldsWindData;
+    }
+  }
+
+# else
   if (yield_type == 0){            // do supernova / end of life yields
 
     table = &StellarYieldsSNData;
@@ -595,7 +687,7 @@ float StellarYieldsInterpolateYield(int yield_type,
     }
 
   } // another if for SN1a
-
+#endif
   /* interpolate table */
 
   int i, j;
@@ -608,7 +700,8 @@ float StellarYieldsInterpolateYield(int yield_type,
   if( (M < table->M[0]) || (M > table->M[table->Nm - 1])){
     if( IndividualStarExtrapolateYields ){
       // scale to most massive star
-      interp_M  = table->M[table->Nm - 1] * 0.9999999;
+      const float fudge = 0.000001; // mass needs to be within bounds
+      interp_M  = (M < table->M[0]) ? table->M[0]*(1.0+fudge): table->M[table->Nm - 1] * (1.0-fudge);
     } else{
       printf("StellarYieldsInterpolateYield: Mass out of bounds\n");
       printf("M = %"ESYM" for minimum M = %"ESYM" and maximum M = %"ESYM"\n", M, table->M[0], table->M[table->Nm-1]);
