@@ -68,6 +68,9 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
                                float *grid_abundances);
 
 
+float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
+                                                    const int &atomic_number);
+
 int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[],
                                       TopGridData *MetaData,
                                       LevelHierarchyEntry *LevelArray[],
@@ -441,10 +444,21 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     //
     double *abundances = cstar->ReturnAbundances();
 
+    // this should vary with yield table assumptions of Z_solar and solar abund !!!
+    const double z_solar = 0.0134; // Asplund+2009
+    const double z_ratio = cstar->ReturnMetallicity() / z_solar;
+    float dm_total = 0.0;
     for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
-      metal_mass[i+1] += m_eject * cstar->abundances[i];
+      double a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
+                                                                     StellarYieldsAtomicNumbers[i]);
+      double mass_change        = (cstar->abundances[i] - a_solar*z_ratio)*m_eject;
+      metal_mass[i+1] += mass_change;
+      dm_total += mass_change;
     }
-    metal_mass[0]     += m_eject * cstar->ReturnMetallicity();
+
+    /* strictly speaking this should be conserved if we follow ALL species
+       but we don't. Unsure if I should leave as += 0 or += dm */
+    metal_mass[0]     += dm_total ; // (cstar->ReturnMetallicity() - z_solar*z_ratio)*m_eject;
 
   }
 
