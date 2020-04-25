@@ -1265,6 +1265,9 @@ EXTERN float PhotoelectricHeatingDustModelEfficiency;
 EXTERN int   PhotoelectricHeatingDustModel;
 
 /* For stellar yields data tables */
+#ifdef NEWYIELDTABLES
+EXTERN char* StellarYieldsFilename;
+#endif
 EXTERN int MetalMixingExperiment;
 EXTERN StellarYieldsDataType          StellarYieldsSNData;   // SNe
 EXTERN StellarYieldsDataType          StellarYieldsWindData; // Winds from stars above AGB threshold (same dim as above)

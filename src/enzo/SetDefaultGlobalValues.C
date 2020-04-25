@@ -44,7 +44,6 @@ char DefaultTracerParticleDir[] = "TD";
 char DefaultExtraName[] = "ExtraDumpXX";
 char DefaultExtraDir[]="ED00";
  
- 
 int SetDefaultGlobalValues(TopGridData &MetaData)
 {
  
@@ -904,6 +903,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PhotoelectricHeatingDustModelEfficiency = 0.0;    // Pe heating efficiency - <= 0 uses fit to Wolfire et. al. 2003 at solar radius
 
   /* Stellar Yields Parameters */
+#ifdef NEWYIELDTABLES
+  StellarYieldsFilename              = "IndividualStarYields.h5";
+#endif
   StellarYieldsNumberOfSpecies       = INT_UNDEFINED; // number of species to follow - optional, calculated automatically if left undefined
   StellarYieldsScaledSolarInitialAbundances = 0;    // use solar abundances to set initial mass fractions, linearly scaled by metalliticy
 

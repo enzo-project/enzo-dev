@@ -172,7 +172,7 @@ int InitializeStellarYields(const float &time){
 
 #ifdef NEWYIELDTABLES
 
-  std::string filename = "IndividualStarYields.h5";
+  std::string filename = std::string(StellarYieldsFilename);
 
   hid_t file_id = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
