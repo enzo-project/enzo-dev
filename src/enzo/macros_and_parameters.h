@@ -634,7 +634,7 @@ typedef long long int   HDF5_hid_t;
 
 /* Number of entries in the Pop III IMF lookup table */
 
-#define IMF_TABLE_ENTRIES 1000
+#define IMF_TABLE_ENTRIES 2000
 
 /* Maximum number of entries in the time varying external gravity position */
 
