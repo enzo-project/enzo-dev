@@ -459,6 +459,21 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     /* strictly speaking this should be conserved if we follow ALL species
        but we don't. Unsure if I should leave as += 0 or += dm */
     metal_mass[0]     += dm_total ; // (cstar->ReturnMetallicity() - z_solar*z_ratio)*m_eject;
+    m_eject += dm_total;
+
+    if(TRUE){
+      for (int i = 0; i < StellarYieldsNumberOfSpecies+1; i++){
+        if ((metal_mass[i] <= 0) || (metal_mass[i] > metal_mass[0])){
+            /* if any fail here, print all and exit */
+          printf("Total mass = %"FSYM"\n", m_eject);
+          for(int j=0;j<StellarYieldsNumberOfSpecies+1;j++){
+            printf(" %"FSYM,metal_mass[j]);
+          }
+          printf("\n");
+          ENZO_FAIL("Negative mass or too much mass in surface abundance return");
+        }
+      }
+    }
 
   }
 
