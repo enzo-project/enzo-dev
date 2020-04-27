@@ -1234,6 +1234,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarAGBThreshold);
     ret += sscanf(line, "IndividualStarRProcessModel =%"ISYM,
                         &IndividualStarRProcessModel);
+    ret += sscanf(line, "IndividualStarRProcessMinMass = %"FSYM,
+                        &IndividualStarRProcessMinMass);
+    ret += sscanf(line, "IndividualStarRProcessMaxMass = %"FSYM,
+                        &IndividualStarRProcessMaxMass);
     ret += sscanf(line, "IndividualStarTrackAGBMetalDensity =%"ISYM,
                         &IndividualStarTrackAGBMetalDensity);
     ret += sscanf(line, "IndividualStarTrackSNMetalDensity =%"ISYM,

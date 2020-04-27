@@ -738,9 +738,11 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
         int index = i + (j + k*ny)*nx;
 
         float injection_factor = injection_factors[count];
-        count++;
 
-        if (injection_factor <= 0) continue; // no overlap, no feedback
+        if (injection_factor <= 0){
+          count++;
+          continue; // no overlap, no feedback
+        }
 
         float delta_mass  = m_eject   * injection_factor;
         float delta_therm = E_thermal * injection_factor;
@@ -802,8 +804,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
             // Add to separate source fields if they exist
 
-            // AJE: Rprocess model goes here 
-
             if (IndividualStarPopIIIFormation && cstar->IsPopIII() ){
               BaryonField[PopIIIMetalNum][index] += injected_metal_mass[0];
 
@@ -817,6 +817,18 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
               BaryonField[AGBMetalNum][index] += injected_metal_mass[0];
 
             } else if (IndividualStarTrackSNMetalDensity && !(stellar_wind_mode)){
+
+              if (IndividualStarRProcessModel){
+
+                if ( (cstar->ReturnBirthMass() >= IndividualStarRProcessMinMass) &&
+                     (cstar->ReturnBirthMass() <= IndividualStarRProcessMaxMass) ){
+
+                  const float RProcModelMass = (1.0 * SolarMass) / MassUnits; // fully arbitrary
+
+                  BaryonField[RProcMetalNum][index] += RProcModelMass * injection_factors[count]; //need to do correct value here
+
+                }
+              }
 
               if (cstar->ReturnBirthMass() > IndividualStarSNIIMassCutoff){
                 BaryonField[SNIIMetalNum][index] += injected_metal_mass[0];
@@ -874,6 +886,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
           }
         } // end yields check
 
+        count++; //increment injection factor index
       }
     }
   }

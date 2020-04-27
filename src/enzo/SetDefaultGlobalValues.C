@@ -819,6 +819,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
                                                       // also tracks PopIII metal enrichment w/ additional field (but ONLY when tags are written to file)
 
   IndividualStarRProcessModel        =     0;         // Include an R-process model (TBD) and independent tracer field
+  IndividualStarRProcessMinMass      = 24.37;         // Minimum mass of stars for r-prcess tracing. Default is 1% for Kroupa IMF
+  IndividualStarRProcessMaxMass      = 25.00;         // assuming SNe explode from 8 to 25 Msun
   IndividualStarTrackAGBMetalDensity =     0;         // Track separate AGB metal mass field (only for outut chemical tags)
   IndividualStarTrackSNMetalDensity  =     0;         // Track spearate SNII AND SNIa mass fields (only for output chemical tags)
 
