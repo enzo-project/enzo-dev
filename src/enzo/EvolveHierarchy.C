@@ -522,7 +522,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       if ( (max_dx * LengthUnits / pc_cm) > MaximumRefinementLevelPhysicalScale){
         MaximumRefinementLevel++;
         MaximumGravityRefinementLevel++;
-        // MaximumParticleRefinementLevel++;
+        MaximumParticleRefinementLevel++;
         if (IndividualStarRefineToLevel > 0) IndividualStarRefineToLevel++;
       }
     }
