@@ -67,7 +67,8 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
                                float &E_thermal, float * metal_mass,
                                float *grid_abundances);
 
-
+float StellarYields_SolarAbundancesByNumber(const int &atomic_number);
+float StellarYields_MMW(const int &atomic_number);
 float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
                                                     const int &atomic_number);
 
@@ -448,13 +449,43 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     const double z_solar = 0.0134; // Asplund+2009
     const double z_ratio = cstar->ReturnMetallicity() / z_solar;
     float dm_total = 0.0;
+
+    const double Fe_H = StellarYields_SolarAbundancesByNumber(26);
+
     for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
 
       if ((StellarYieldsAtomicNumbers[i] <= 2)) continue; // no H or He adjustments
 
-      double a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
+      double a_solar;
+
+      if (LimongiAbundances && Fe_H <= -1.0){
+        double enhancement = 0.0;
+
+        switch (StellarYieldsAtomicNumbers[i]){
+          /* At Fe/H < solar, these abundances are enhanced by the following
+             [X/Fe] values */
+          case  6: enhancement = 0.18; break;
+          case  8: enhancement = 0.47; break;
+          case 12: enhancement = 0.27; break; // paper has 0.0.27 ...
+          case 14: enhancement = 0.37; break;
+          case 16: enhancement = 0.35; break;
+          case 18: enhancement = 0.35; break;
+          case 20: enhancement = 0.33; break;
+          case 23: enhancement = 0.23; break;
+
+          default:
+            enhancement = 0.0;
+        }
+
+        a_solar = z_ratio * POW(10.0, enhancement + Fe_H) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[i]) /
+                                                          StellarYields_MMW(1));
+
+      } else{
+        a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
                                                                        StellarYieldsAtomicNumbers[i]);
-      double mass_change        = (cstar->abundances[i] - a_solar*z_ratio)*m_eject;
+      }
+      // abundances in stars are really mass fractions, so scale this apprpraitely.
+      double mass_change        = (cstar->abundances[i] - a_solar)*m_eject; // *z_ratio)*m_eject;
       metal_mass[i+1] += mass_change;
       dm_total += mass_change;
     }

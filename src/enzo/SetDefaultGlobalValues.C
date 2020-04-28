@@ -872,6 +872,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* IndividualStar: Yields Tracking */
   IndividualStarFollowStellarYields  = 0;           // on or off
   IndividualStarSurfaceAbundances    = 0;           // return surface abundances in addition to yields
+  LimongiAbundances                  = 0;           // set to 1 if using Limongi+ yields and surface abundance return
   IndividualStarExtrapolateYields    = 0;           // on or off - extrapolate yields from NuGrid set by scaling. If off, use PARSEC wind yields
   IndividualStarOutputChemicalTags   = 0;           // on or off - if ON does not tag particles, but instead outputs them to a file
   IndividualStarChemicalTagFilename  = NULL;        // filename for above
