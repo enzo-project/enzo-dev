@@ -185,7 +185,7 @@ float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
   // Asplund abundances are reported as log(e_x) = log(N_x/N_H) + 12.0
   // where LHS is the value in table, need to remove 12 scaling to get
   // actual abundance
-  float e_x = POW(10.0, solar_abundance - 12.0);
+  float e_x = POW(10.0, solar_abundance - StellarYields_SolarAbundancesByNumber(1));
 
   // solar mass fraction
   float f_x = e_x * solar_H_mass_fraction * (StellarYields_MMW(atomic_number) /
