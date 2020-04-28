@@ -435,7 +435,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
   }
 
   /* Return surface abundances of stars */
-  if (IndividualStarSurfaceAbundances){
+  if (IndividualStarSurfaceAbundances && !cstar->IsPopIII()){
     // This works under the assumption that yield tables provide just
     // the amount of each element produced (not production - ambient). By summing
     // here, we take the amount released for a given element (X) as:
@@ -450,7 +450,9 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     const double z_ratio = cstar->ReturnMetallicity() / z_solar;
     float dm_total = 0.0;
 
-    const double Fe_H = StellarYields_SolarAbundancesByNumber(26);
+    /* Solar [Fe/H] */
+    const double Fe_H_solar = StellarYields_SolarAbundancesByNumber(26) -
+                              StellarYields_SolarAbundancesByNumber(1);
 
     for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
 
@@ -458,12 +460,13 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
 
       double a_solar;
 
-      if (LimongiAbundances && Fe_H <= -1.0){
+      if (LimongiAbundances && cstar->ReturnMetallicity() <= 3.236E-3){
         double enhancement = 0.0;
 
         switch (StellarYieldsAtomicNumbers[i]){
-          /* At Fe/H < solar, these abundances are enhanced by the following
-             [X/Fe] values */
+          /* At [Fe/H] <= -1, these abundances are enhanced by the following
+             [X/Fe] values. Therefore, rather than [X/H] = [Fe/H] always,
+             initial models have [X/H] = [X/Fe]_enchancement + [Fe/H].  */
           case  6: enhancement = 0.18; break;
           case  8: enhancement = 0.47; break;
           case 12: enhancement = 0.27; break; // paper has 0.0.27 ...
@@ -476,8 +479,9 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
           default:
             enhancement = 0.0;
         }
-
-        a_solar = z_ratio * POW(10.0, enhancement + Fe_H) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[i]) /
+        // 0.7381 is the H mass fraction in Asplund+2009. Strictly speaking this needs to change by
+        // a couple percent for changes in He and metals... ignoring this...
+        a_solar = z_ratio * POW(10.0, enhancement + Fe_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[i]) /
                                                           StellarYields_MMW(1));
 
       } else{
