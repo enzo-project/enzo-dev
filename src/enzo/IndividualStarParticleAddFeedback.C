@@ -449,8 +449,11 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     const double z_ratio = cstar->ReturnMetallicity() / z_solar;
     float dm_total = 0.0;
     for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+
+      if ((StellarYieldsAtomicNumbers[i] <= 2)) continue; // no H or He adjustments
+
       double a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
-                                                                     StellarYieldsAtomicNumbers[i]);
+                                                                       StellarYieldsAtomicNumbers[i]);
       double mass_change        = (cstar->abundances[i] - a_solar*z_ratio)*m_eject;
       metal_mass[i+1] += mass_change;
       dm_total += mass_change;
