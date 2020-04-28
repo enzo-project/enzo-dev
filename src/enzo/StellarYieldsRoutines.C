@@ -418,8 +418,10 @@ float StellarYieldsInterpolatePopIIIYield(const int &i, const float &M, int atom
 
   float interp_M = M;
 
-  const float fudge = 0.000001; // mass needs to be within bounds
-  interp_M  = (M < table->M[0]) ? table->M[0]*(1.0+fudge): table->M[table->Nm - 1] * (1.0-fudge);
+  if ((M < table->M[0]) || (M > table->M[table->Nm-1])){
+    const float fudge = 0.000001; // mass needs to be within bounds
+    interp_M  = (M < table->M[0]) ? table->M[0]*(1.0+fudge): table->M[table->Nm - 1] * (1.0-fudge);
+  }
 
 
   float t,u;
