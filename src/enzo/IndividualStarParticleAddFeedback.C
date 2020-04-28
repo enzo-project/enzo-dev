@@ -484,8 +484,17 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
         a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
                                                                        StellarYieldsAtomicNumbers[i]);
       }
-      // abundances in stars are really mass fractions, so scale this apprpraitely.
+      // abundances in stars are really mass fractions, so a_solar should be the scaled solar mass
+      // fraction of the element (which is what is calculated above)
       double mass_change        = (cstar->abundances[i] - a_solar)*m_eject; // *z_ratio)*m_eject;
+      if (TRUE) { // debugging
+        if (ABS(mass_change) >= metal_mass[i+1]){
+          printf("WARNING - SURFACE ABUNDANCES PRODUCING BIZZARE RESULTS\N");
+          printf("Total mass change = %"ESYM" from initial = %"ESYM" and total ejection of %"ESYM"\n", mass_change, metal_mass[i+1], m_eject);
+          printf("For element %"ISYM" with abundance %"ESYM" and scaled solar abundance %"ESYM"\n",StellarYieldsAtomicNumbers[i],cstar->abundances[i],a_solar);
+          printf("NEED TO DOUBLE CHECK THESE VALUES");
+        }
+      }
       metal_mass[i+1] += mass_change;
       dm_total += mass_change;
     }
