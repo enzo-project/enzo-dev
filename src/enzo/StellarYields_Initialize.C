@@ -549,12 +549,18 @@ int fill_table(hid_t file_id,
 
   // Check if desired group exists
 
+  status = H5Eset_auto(NULL,NULL); // turns errors OFF. Should be OK since
+                                   // everything that would throw an error in H5
+                                   // gets caught in this function anyway (probably)
   status = H5Gget_objinfo(file_id, ("/"+dname).c_str(), 0, NULL);
   if (status == h5_error){
 
     if (null_if_no_group){
+
       // Allow code to keep working, but set table pointers to NULL
-      printf("Group name %s not found in %s. Continuing anyway\n",dname.c_str(),filename.c_str());
+      if (MyProcessorNumber == ROOT_PROCESSOR){
+        printf("Group name %s not found in %s. Assuming this is OK behavior and continuing anyway\n",dname.c_str(),filename.c_str());
+      }
 
       table->Nm = -1; table->Nz = -1; table->Ny = -1;
 
