@@ -1235,13 +1235,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "PhotoelectricHeatingDustModel = %"ISYM"\n", PhotoelectricHeatingDustModel);
   fprintf(fptr, "PhotoelectricHeatingDustModelEfficiency = %"FSYM"\n", PhotoelectricHeatingDustModelEfficiency);
 
-  fprintf(fptr, "ChemicalEvolutionTestStarPosition = ");
-  WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarPosition);
-  fprintf(fptr, "ChemicalEvolutionTestStarVelocity = ");
-  WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarVelocity);
-  fprintf(fptr, "ChemicalEvolutionTestStarMass = %"FSYM"\n", ChemicalEvolutionTestStarMass);
-  fprintf(fptr, "ChemicalEvolutionTestStarMetallicity = %"FSYM"\n", ChemicalEvolutionTestStarMetallicity);
-  fprintf(fptr, "ChemicalEvolutionTestStarLifetime = %"FSYM"\n", ChemicalEvolutionTestStarLifetime);
   fprintf(fptr, "ChemicalEvolutionTestStarFormed = %"ISYM"\n\n", ChemicalEvolutionTestStarFormed);
 
 #ifdef NEWYIELDTABLES

@@ -376,7 +376,19 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
             int field_num;
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
 
-            ParticleAttribute[4 + ii][count] = BaryonField[field_num][n];
+            if (ChemicalEvolutionTestScaledSolarAbundances){
+
+              ParticleAttribute[4 + ii][count] =
+                   StellarYields_ScaledSolarMassFractionByNumber( ParticleAttribute[2][count],
+                                                                  StellarYieldsAtomicNumbers[ii]);
+
+            } else {
+
+              ParticleAttribute[4 + ii][count] = BaryonField[field_num][n] / BaryonField[DensNum][n];
+
+            }
+
+
           } else if (StellarYieldsAtomicNumbers[ii] == 1){
             /* Take H and He fractions as TOTAL amount of H and He species in the cell */
             ParticleAttribute[4 + ii][count] = BaryonField[HINum][n] + BaryonField[HIINum][n];
@@ -384,12 +396,12 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
               ParticleAttribute[4 + ii][count] += BaryonField[HMNum][n] +
                                      BaryonField[H2INum][n] + BaryonField[H2IINum][n];
             }
-
+            ParticleAttribute[4 + ii][count] /= BaryonField[DensNum][n];
           } else if (StellarYieldsAtomicNumbers[ii] == 2){
 
             ParticleAttribute[4 + ii][count] = BaryonField[HeINum][n]  +
                                                BaryonField[HeIINum][n] + BaryonField[HeIIINum][n];
-
+            ParticleAttribute[4 + ii][count] /= BaryonField[DensNum][n];
           }
         } // end loop over species
 
@@ -508,19 +520,36 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
           if(StellarYieldsAtomicNumbers[ii] > 2){
             int field_num;
              this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii]);
-             ParticleAttribute[4 + ii][0] = BaryonField[field_num][n];
-           } else if (StellarYieldsAtomicNumbers[ii] == 1){
-            /* Take H and He fractions as TOTAL amount of H and He species in the cell */
-           ParticleAttribute[4 + ii][0] = BaryonField[HINum][n] + BaryonField[HIINum][n];
-             if (MultiSpecies > 1){
-              ParticleAttribute[4 + ii][0] += BaryonField[HMNum][n] +
-                                           BaryonField[H2INum][n] + BaryonField[H2IINum][n];
+
+            if (ChemicalEvolutionTestScaledSolarAbundances){
+
+              ParticleAttribute[4 + ii][0] =
+                   StellarYields_ScaledSolarMassFractionByNumber( ParticleAttribute[2][0],
+                                                                  StellarYieldsAtomicNumbers[ii]);
+
+            } else {
+
+              ParticleAttribute[4 + ii][0] = BaryonField[field_num][n] / BaryonField[DensNum][n];
+
             }
+
+
+           } else if (StellarYieldsAtomicNumbers[ii] == 1){
+             /* Take H and He fractions as TOTAL amount of H and He species in the cell */
+             ParticleAttribute[4 + ii][0] = BaryonField[HINum][n] + BaryonField[HIINum][n];
+             if (MultiSpecies > 1){
+               ParticleAttribute[4 + ii][0] += BaryonField[HMNum][n] +
+                                            BaryonField[H2INum][n] + BaryonField[H2IINum][n];
+             }
+             ParticleAttribute[4+ii][0]/=BaryonField[DensNum][n];
+
            } else if (StellarYieldsAtomicNumbers[ii] == 2){
-             ParticleAttribute[4 + ii][0] = BaryonField[HeINum][n]  +
+            ParticleAttribute[4 + ii][0] = BaryonField[HeINum][n]  +
                                            BaryonField[HeIINum][n] + BaryonField[HeIIINum][n];
-           }
+            ParticleAttribute[4+ii][0] /= BaryonField[DensNum][n];
+          }
         }
+
       }
     } // check if we are saving chemical tags
 

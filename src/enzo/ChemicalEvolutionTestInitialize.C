@@ -197,6 +197,21 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
                         TestProblemData.ChemicalTracerSpecies_Fractions + 8,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 9);
 
+    ret += sscanf(line, "ChemicalEvolutionTestScaledSolarAbundances = %"ISYM,
+                        &ChemicalEvolutionTestScaledSolarAbundances);
+
+    ret += sscanf(line, "ChemicalEvolutionTestStarPosition = %"PSYM" %"PSYM" %"PSYM,
+                       ChemicalEvolutionTestStarPosition, ChemicalEvolutionTestStarPosition+1, ChemicalEvolutionTestStarPosition+2);
+    ret += sscanf(line, "ChemicalEvolutionTestStarVelocity = %"PSYM" %"PSYM" %"PSYM,
+                     ChemicalEvolutionTestStarVelocity, ChemicalEvolutionTestStarVelocity+1,ChemicalEvolutionTestStarVelocity+2);
+    ret += sscanf(line, "ChemicalEvolutionTestStarMass = %"FSYM,
+                       &ChemicalEvolutionTestStarMass);
+    ret += sscanf(line, "ChemicalEvolutionTestStarMetallicity = %"FSYM,
+                       &ChemicalEvolutionTestStarMetallicity);
+    ret += sscanf(line, "ChemicalEvolutionTestStarLifetime = %"FSYM,
+                       &ChemicalEvolutionTestStarLifetime);
+
+
     if (ret == 0 && strstr(line, "=") && strstr(line, "ChemicalEvolutionTest")
                  && line[0] != '#' && !strstr(line, "ChemicalEvolutionTestStar")){
       fprintf(stderr, "warning: the following parameter line was not interpretd:\n%s\n",line);
@@ -440,6 +455,16 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
    fprintf(Outfptr, "CHemicalEvolutionTestUseMetals = %"ISYM"\n", ChemicalEvolutionTestUseMetals);
 
+   fprintf(fptr, "ChemicalEvolutionTestStarPosition = ");
+   WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarPosition);
+   fprintf(fptr, "ChemicalEvolutionTestStarVelocity = ");
+   WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarVelocity);
+   fprintf(fptr, "ChemicalEvolutionTestStarMass = %"FSYM"\n", ChemicalEvolutionTestStarMass);
+   fprintf(fptr, "ChemicalEvolutionTestStarMetallicity = %"FSYM"\n", ChemicalEvolutionTestStarMetallicity);
+   fprintf(fptr, "ChemicalEvolutionTestStarLifetime = %"FSYM"\n", ChemicalEvolutionTestStarLifetime);
+   fprintf(fptr, "ChemicalEvolutionTestScaledSolarAbundances = %"ISYM"\n", ChemicalEvolutionTestScaledSolarAbundances);
+
+
    fprintf(Outfptr, "ChemicalEvolutionTestHydryogenFractionByMass = %"FSYM"\n", TestProblemData.HydrogenFractionByMass);
    fprintf(Outfptr, "ChemicalEvolutionTestHIIFraction = %"FSYM"\n", TestProblemData.HII_Fraction );
    fprintf(Outfptr, "ChemicalEvolutionTestHeIIFraction = %"FSYM"\n", TestProblemData.HeII_Fraction);
@@ -459,6 +484,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
    fprintf(Outfptr, "ChemicalEvolutionTestBaIFraction = %"FSYM"\n", TestProblemData.BaI_Fraction );
    fprintf(Outfptr, "ChemicalEvolutionTestYIFraction = %"FSYM"\n", TestProblemData.YI_Fraction );
    fprintf(Outfptr, "ChemicalEvolutionTestEuIFraction = %"FSYM"\n", TestProblemData.EuI_Fraction );
+
+
 
    fprintf(Outfptr, "ChemicalEvolutionTestSpeciesFractions   = ");
    WriteListOfFloats(Outfptr, MAX_STELLAR_YIELDS, TestProblemData.ChemicalTracerSpecies_Fractions);
