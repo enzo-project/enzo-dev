@@ -481,8 +481,12 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
         }
         // 0.7381 is the H mass fraction in Asplund+2009. Strictly speaking this needs to change by
         // a couple percent for changes in He and metals... ignoring this...
-        a_solar = z_ratio * POW(10.0, enhancement + Fe_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[i]) /
-                                                          StellarYields_MMW(1));
+        if (enhancement > 0){
+          a_solar = z_ratio * POW(10.0, enhancement + Fe_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[i]) /
+                                                            StellarYields_MMW(1));
+        } else {
+          a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),StellarYieldsAtomicNumbers[i]);
+        }
 
       } else{
         a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
@@ -510,11 +514,58 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
 
     if(TRUE){
       for (int i = 0; i < StellarYieldsNumberOfSpecies+1; i++){
-        if ((metal_mass[i] <= 0) || (metal_mass[i] > metal_mass[0])){
+        if ((metal_mass[i] <= 0) || ((StellarYieldsAtomicNumbers[i]>2) && (metal_mass[i] > metal_mass[0]))  ){
             /* if any fail here, print all and exit */
-          printf("Total mass = %"FSYM"\n", m_eject);
+          printf("Total mass = %"FSYM" --- DM total = %"FSYM"\n", m_eject,dm_total);
+          printf("Abundances: ");
+          for(int j=0;j<StellarYieldsNumberOfSpecies;j++){
+            printf(" %"ESYM,cstar->abundances[j]);
+          }
+          printf("\n");
+
+          printf("Solar Values: ");
+          for(int j =2; j<StellarYieldsNumberOfSpecies;j++){
+            double a_solar = 0.0;
+      if (LimongiAbundances && cstar->ReturnMetallicity() <= 3.236E-3){
+        double enhancement = 0.0;
+
+        switch (StellarYieldsAtomicNumbers[j]){
+          /* At [Fe/H] <= -1, these abundances are enhanced by the following
+             [X/Fe] values. Therefore, rather than [X/H] = [Fe/H] always,
+             initial models have [X/H] = [X/Fe]_enchancement + [Fe/H].  */
+          case  6: enhancement = 0.18; break;
+          case  8: enhancement = 0.47; break;
+          case 12: enhancement = 0.27; break; // paper has 0.0.27 ...
+          case 14: enhancement = 0.37; break;
+          case 16: enhancement = 0.35; break;
+          case 18: enhancement = 0.35; break;
+          case 20: enhancement = 0.33; break;
+          case 23: enhancement = 0.23; break;
+
+          default:
+            enhancement = 0.0;
+        }
+        // 0.7381 is the H mass fraction in Asplund+2009. Strictly speaking this needs to change by
+        // a couple percent for changes in He and metals... ignoring this...
+        if (enhancement > 0){
+          a_solar = z_ratio * POW(10.0, enhancement + Fe_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[j]) /
+                                                            StellarYields_MMW(1));
+        } else {
+          a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),StellarYieldsAtomicNumbers[j]);
+        }
+
+      } else{
+        a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
+                                                                       StellarYieldsAtomicNumbers[j]);
+      }
+
+           printf(" %"ESYM, a_solar);
+          }
+          printf("\n");
+
+          printf("Metal Masses: ");
           for(int j=0;j<StellarYieldsNumberOfSpecies+1;j++){
-            printf(" %"FSYM,metal_mass[j]);
+            printf(" %"ESYM,metal_mass[j]);
           }
           printf("\n");
           ENZO_FAIL("Negative mass or too much mass in surface abundance return");
