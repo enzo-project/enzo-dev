@@ -480,6 +480,8 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
         }
         // 0.7381 is the H mass fraction in Asplund+2009. Strictly speaking this needs to change by
         // a couple percent for changes in He and metals... ignoring this...
+        //   since we are scaling by metallicity with z_ratio, the [Fe/H] is indeed the solar ratio
+        //   of Fe abundance (N_Fe / N_H), not the [Fe/H] of this particular star
         if (enhancement > 0){
           a_solar = z_ratio * POW(10.0, enhancement + Fe_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[i]) /
                                                             StellarYields_MMW(1));
