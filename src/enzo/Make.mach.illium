@@ -70,7 +70,7 @@ MACH_LDFLAGS  = -lstdc++ -lc
 #-----------------------------------------------------------------------
 
 MACH_OPT_WARN        = -Wall -g
-MACH_OPT_DEBUG       = -g
+MACH_OPT_DEBUG       = -O0 -g -ggdb
 MACH_OPT_HIGH        = -O2
 MACH_OPT_AGGRESSIVE  = -O3 -g
 
