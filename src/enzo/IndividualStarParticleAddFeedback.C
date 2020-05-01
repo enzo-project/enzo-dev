@@ -354,9 +354,8 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
                 switches between stellar wind, core collapse SN, or type ia sn
 
 */
-  if (this->NumberOfBaryonFields == 0 || !this->isLocal() )
+  if (this->NumberOfBaryonFields == 0 || !this->isLocal())
     return SUCCESS;
-
 
   /* AJE Try something here */
   /* First, set under_subgrid field */
@@ -367,7 +366,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     this->ZeroSolutionUnderSubgrid(Subgrid->GridData, ZERO_UNDER_SUBGRID_FIELD);
   }
   }
-  
+
 
   float dx = this->CellWidth[0][0];
 
@@ -496,13 +495,17 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
       // fraction of the element (which is what is calculated above)
       double mass_change        = (cstar->abundances[i] - a_solar)*m_eject; // *z_ratio)*m_eject;
       if (TRUE) { // debugging
-        if (ABS(mass_change) >= metal_mass[i+1]){
-          printf("WARNING - SURFACE ABUNDANCES PRODUCING BIZZARE RESULTS\N");
+        if (ABS(mass_change) > metal_mass[i+1]){
+          printf("WARNING - SURFACE ABUNDANCES PRODUCING BIZZARE RESULTS\n");
           printf("Total mass change = %"ESYM" from initial = %"ESYM" and total ejection of %"ESYM"\n", mass_change, metal_mass[i+1], m_eject);
           printf("For element %"ISYM" with abundance %"ESYM" and scaled solar abundance %"ESYM"\n",StellarYieldsAtomicNumbers[i],cstar->abundances[i],a_solar);
           printf("NEED TO DOUBLE CHECK THESE VALUES");
         }
       }
+
+      // correct to ensure no negative mass ejection (can happen if abundances are VERY low -- should be rare / never)
+      mass_change = ((metal_mass[i+i] + mass_change) < 0) ? -1.0*metal_mass[i+1] : mass_change;
+
       metal_mass[i+1] += mass_change;
       dm_total += mass_change;
     }
@@ -510,13 +513,18 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     /* strictly speaking this should be conserved if we follow ALL species
        but we don't. Unsure if I should leave as += 0 or += dm */
     metal_mass[0]     += dm_total ; // (cstar->ReturnMetallicity() - z_solar*z_ratio)*m_eject;
-    m_eject += dm_total;
+    m_eject           += dm_total;
 
-    if(TRUE){
-      for (int i = 0; i < StellarYieldsNumberOfSpecies+1; i++){
-        if ((metal_mass[i] <= 0) || ((StellarYieldsAtomicNumbers[i]>2) && (metal_mass[i] > metal_mass[0]))  ){
+    if ((metal_mass[0] < 0) || (m_eject < 0)){
+      ENZO_VFAIL("Failure in surface abundances. Total metal mass (%"FSYM") / total ejected mass (%"FSYM")are negative\n",metal_mass[0], m_eject);
+    }
+
+
+    if(FALSE){ // more detailed error checking
+      for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+        if ((metal_mass[0] < 0) || (metal_mass[i+1] < 0) || ((StellarYieldsAtomicNumbers[i]>2) && (metal_mass[i+1] > metal_mass[0]))  ){
             /* if any fail here, print all and exit */
-          printf("Total mass = %"FSYM" --- DM total = %"FSYM"\n", m_eject,dm_total);
+          printf("Total mass = %"FSYM" --- DM total = %"ESYM"\n", m_eject,dm_total);
           printf("Abundances: ");
           for(int j=0;j<StellarYieldsNumberOfSpecies;j++){
             printf(" %"ESYM,cstar->abundances[j]);
@@ -526,40 +534,41 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
           printf("Solar Values: ");
           for(int j =2; j<StellarYieldsNumberOfSpecies;j++){
             double a_solar = 0.0;
-      if (LimongiAbundances && cstar->ReturnMetallicity() <= 3.236E-3){
-        double enhancement = 0.0;
 
-        switch (StellarYieldsAtomicNumbers[j]){
-          /* At [Fe/H] <= -1, these abundances are enhanced by the following
-             [X/Fe] values. Therefore, rather than [X/H] = [Fe/H] always,
-             initial models have [X/H] = [X/Fe]_enchancement + [Fe/H].  */
-          case  6: enhancement = 0.18; break;
-          case  8: enhancement = 0.47; break;
-          case 12: enhancement = 0.27; break; // paper has 0.0.27 ...
-          case 14: enhancement = 0.37; break;
-          case 16: enhancement = 0.35; break;
-          case 18: enhancement = 0.35; break;
-          case 20: enhancement = 0.33; break;
-          case 23: enhancement = 0.23; break;
+            if (LimongiAbundances && cstar->ReturnMetallicity() <= 3.236E-3){
+              double enhancement = 0.0;
 
-          default:
-            enhancement = 0.0;
-        }
-        // 0.7381 is the H mass fraction in Asplund+2009. Strictly speaking this needs to change by
-        // a couple percent for changes in He and metals... ignoring this...
-        if (enhancement > 0){
-          a_solar = z_ratio * POW(10.0, enhancement + Fe_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[j]) /
-                                                            StellarYields_MMW(1));
-        } else {
-          a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),StellarYieldsAtomicNumbers[j]);
-        }
+              switch (StellarYieldsAtomicNumbers[j]){
+                /* At [Fe/H] <= -1, these abundances are enhanced by the following
+                   [X/Fe] values. Therefore, rather than [X/H] = [Fe/H] always,
+                  initial models have [X/H] = [X/Fe]_enchancement + [Fe/H].  */
+                case  6: enhancement = 0.18; break;
+                case  8: enhancement = 0.47; break;
+                case 12: enhancement = 0.27; break; // paper has 0.0.27 ...
+                case 14: enhancement = 0.37; break;
+                case 16: enhancement = 0.35; break;
+                case 18: enhancement = 0.35; break;
+                case 20: enhancement = 0.33; break;
+                case 23: enhancement = 0.23; break;
 
-      } else{
-        a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
-                                                                       StellarYieldsAtomicNumbers[j]);
-      }
+                default:
+                  enhancement = 0.0;
+              }
+              // 0.7381 is the H mass fraction in Asplund+2009. Strictly speaking this needs to change by
+              // a couple percent for changes in He and metals... ignoring this...
+              if (enhancement > 0){
+                a_solar = z_ratio * POW(10.0, enhancement + Fe_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[j]) /
+                                                                  StellarYields_MMW(1));
+              } else {
+                a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),StellarYieldsAtomicNumbers[j]);
+              }
 
-           printf(" %"ESYM, a_solar);
+            } else{
+              a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
+                                                                             StellarYieldsAtomicNumbers[j]);
+            }
+
+            printf(" %"ESYM, a_solar);
           }
           printf("\n");
 
@@ -568,12 +577,14 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
             printf(" %"ESYM,metal_mass[j]);
           }
           printf("\n");
-          ENZO_FAIL("Negative mass or too much mass in surface abundance return");
-        }
-      }
-    }
 
-  }
+
+          ENZO_FAIL("Negative mass or too much mass in surface abundance return");
+        } //
+      } // if weird answers
+    } // loop over species
+
+  } // hard-coded if for debugging
 
   /* convert computed parameters to code units */
   m_eject   = m_eject*SolarMass / MassUnits   / (dx*dx*dx);
@@ -789,10 +800,10 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   // injection_fraction represents fraction of total volume per cell
   // do some error checking:
 
-  /* AJE: This really only works if particle feedback is contained entirely 
+  /* AJE: The below really only works if particle feedback is contained entirely
           within a single grid. Otherwise this correction will over / undercorrect
           when particle ejects feedback across multiple grids (unless
-          some MPI occurs to share the correction factors... which... woudl be 
+          some MPI occurs to share the correction factors... which... would be
           dumb... could maybe do a check to see if its contained fully in grid
           and then apply this, but otherwise don't do it (and accept the
           (~< 1 % error) */
