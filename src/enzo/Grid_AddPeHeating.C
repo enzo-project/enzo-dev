@@ -35,7 +35,7 @@ int grid::AddPeHeating(Star *AllStars, int NumberOfSources)
 
 //#ifdef FUVTREE
   if (RadiativeTransferOpticallyThinSourceClustering == TRUE 
-      && NumberOfSources >= 10){
+      && NumberOfSources >= RadiativeTransferSourceClusteringCount){
     this->AddPeHeatingFromTree();
   } else{
 //#endif

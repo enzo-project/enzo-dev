@@ -78,6 +78,10 @@ EXTERN int RadiativeTransferOpticallyThinIR;
 
 EXTERN int RadiativeTransferOpticallyThinSourceClustering;
 
+/* Number of sources to use source clustering when above is ON */
+
+EXTERN int RadiativeTransferSourceClusteringCount;
+
 /* Sets the characteristic length for the self-shielding of Lyman-Werner Radiation */
 
 EXTERN float RadiativeTransferOpticallyThinH2CharLength;

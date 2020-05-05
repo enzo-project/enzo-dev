@@ -56,7 +56,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferOpticallyThinH2            = TRUE;
   RadiativeTransferOpticallyThinFUV           = TRUE;
   RadiativeTransferOpticallyThinIR            = TRUE;
-  RadiativeTransferOpticallyThinSourceClustering = FALSE;
+  RadiativeTransferSourceClusteringCount      = 10;
   RadiativeTransferOpticallyThinH2CharLength  = 0.25;
   RadiativeTransferFluxBackgroundLimit        = 0.01;
   RadiativeTransferSplitPhotonRadius          = FLOAT_UNDEFINED; // kpc
@@ -121,6 +121,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
                   &RadiativeTransferOpticallyThinIR);
     ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
                   &RadiativeTransferOpticallyThinSourceClustering);
+    ret += sscanf(line, "RadiativeTransferSourceClusteringCount = %"ISYM,
+                  &RadiativeTransferSourceClusteringCount);
     ret += sscanf(line, "RadiativeTransferOpticallyThinH2CharLength = %"FSYM, 
 		  &RadiativeTransferOpticallyThinH2CharLength);
     ret += sscanf(line, "RadiativeTransferPeriodicBoundary = %"ISYM, 
@@ -143,8 +145,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferInterpolateField);
     ret += sscanf(line, "RadiativeTransferSourceClustering = %"ISYM, 
 		  &RadiativeTransferSourceClustering);
-    ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
-                  &RadiativeTransferOpticallyThinSourceClustering);
+    ret += sscanf(line, "RadiativeTransferSourceClusteringCount = %"ISYM,
+                  &RadiativeTransferSourceClusteringCount);
     ret += sscanf(line, "RadiativeTransferPhotonMergeRadius = %"FSYM, 
 		  &RadiativeTransferPhotonMergeRadius);
     ret += sscanf(line, "RadiativeTransferFLDCallOnLevel = %"ISYM, 
