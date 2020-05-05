@@ -29,8 +29,10 @@ int DetermineNumberOfAbundanceAttributes(void){
   int n = StellarYieldsNumberOfSpecies;
 
   if (IndividualStarTrackAGBMetalDensity) n++;
-  if (IndividualStarPopIIIFormation) n += 2;
-  if (IndividualStarPopIIISeparateYields) n += (StellarYieldsNumberOfSpecies -2);
+  if (IndividualStarPopIIIFormation){
+    n += 2;
+    if (IndividualStarPopIIISeparateYields) n += (StellarYieldsNumberOfSpecies -2);
+  }
   if (IndividualStarTrackWindDensity) n+= 1;
   if (IndividualStarTrackSNMetalDensity){
     n += 2;
