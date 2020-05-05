@@ -410,7 +410,23 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
          if (IndividualStarPopIIIFormation){
            ParticleAttribute[4 + offset++][count] = tiny_number;
            ParticleAttribute[4 + offset++][count] = tiny_number;
+           if (IndividualStarPopIIISeparateYields){
+             for( int j = 0; j < StellarYieldsNumberOfSpecies; j++){
+               if(StellarYieldsAtomicNumbers[j] > 2){
+                 int field_num;
+                 this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[j],0,2);
+                 ParticleAttribute[4+offset++][count] = BaryonField[field_num][n] / BaryonField[DensNum][n];
+               }
+             }
+           } // separate pop III yields
          }
+
+
+         if (IndividualStarTrackWindDensity){
+           ParticleAttribute[4 + offset++][count] = tiny_number;
+         }
+
+
          if (IndividualStarTrackSNMetalDensity){
            ParticleAttribute[4 + offset++][count] = tiny_number;
            if (IndividualStarSNIaModel == 2){
@@ -442,7 +458,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
                                             (int)ParticleAttribute[tstart+1][count],
                                             ParticleAttribute[3][count], ParticleAttribute[2][count]);
           float g = IndividualStarSurfaceGravity(ParticleAttribute[3][count], R);
- 
+
           t_i = -1; t_j = -1; t_k = -1;
           IndividualStarGetRadTablePosition(t_i, t_j, t_k,
                                          Teff, g, ParticleAttribute[2][count]);

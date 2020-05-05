@@ -73,6 +73,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   char *AGBMetalName    = "AGB_Metal_Density";
   char *PopIIIMetalName = "PopIII_Metal_Density";
   char *PopIIIPISNeMetalName = "PopIII_PISNe_Metal_Density";
+  char *WindMetalName = "Wind_Metal_Density";
   char *SNIIMetalName = "SNII_Metal_Density";
   char *SNIaMetalName = "SNIa_Metal_Density";
   char *RProcMetalName = "RProcess_Metal_Density";
@@ -421,7 +422,17 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     if (IndividualStarPopIIIFormation){
       DataLabel[count++] = PopIIIMetalName;
       DataLabel[count++] = PopIIIPISNeMetalName;
+
+      if (IndividualStarPopIIISeparateYields){
+        for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
+          if(StellarYieldsAtomicNumbers[i] > 2){
+            DataLabel[count++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[i],2);
+          }
+        }
+      }
     }
+
+    if (IndividualStarTrackWindDensity) DataLabel[count++] = WindMetalName;
 
     if (IndividualStarTrackSNMetalDensity){
       DataLabel[count++] = SNIaMetalName;
