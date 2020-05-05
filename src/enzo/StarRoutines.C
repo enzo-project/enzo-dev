@@ -627,8 +627,10 @@ void Star::UpdateWhiteDwarfProperties(void){
       // this kind of hard-coded order searching is prone to bugs!!
       int start_index = 4 + (StellarYieldsNumberOfSpecies);
       if (IndividualStarTrackAGBMetalDensity) start_index++;
-      if (IndividualStarPopIIIFormation) start_index += 2;
-      if (IndividualStarPopIIISeparateYields) start_index += StellarYieldsNumberOfSpecies -2;
+      if (IndividualStarPopIIIFormation){
+        start_index += 2;
+        if (IndividualStarPopIIISeparateYields) start_index += (StellarYieldsNumberOfSpecies -2);
+      }
       if (IndividualStarTrackWindDensity) start_index += 1;
 
       for (int i = 0; i < 4; i++){
@@ -777,8 +779,10 @@ void Star::DetermineSNIaType(void){
     // this kind of hard-coded order searching is prone to bugs!!
     int start_index = (StellarYieldsNumberOfSpecies);
     if (IndividualStarTrackAGBMetalDensity) start_index++;
-    if (IndividualStarPopIIIFormation) start_index += 2;
-    if (IndividualStarPopIIISeparateYields) start_index += StellarYieldsNumberOfSpecies -2;
+    if (IndividualStarPopIIIFormation){
+       start_index += 2;
+      if (IndividualStarPopIIISeparateYields) start_index += (StellarYieldsNumberOfSpecies -2);
+    }
     if (IndividualStarTrackWindDensity) start_index += 1;
     for (int i = 0; i < 4; i++){
       if ( this->abundances[start_index+i] < 0){
