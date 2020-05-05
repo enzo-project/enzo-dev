@@ -55,7 +55,7 @@
 
 #define MAX_LINE_LENGTH                   2000 /* AJE: for stellar yields */
 
-#define MAX_STELLAR_YIELDS                10
+#define MAX_STELLAR_YIELDS                12
 
 #define MAX_NAME_LENGTH                   512
 
