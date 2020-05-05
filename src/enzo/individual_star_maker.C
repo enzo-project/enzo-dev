@@ -692,18 +692,18 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
 
                     if (IndividualStarPopIIISeparateYields){
-                        for(iyield = 0; iyield < StellarYieldsNumberOfSpecies; iyield++){
-                          if (StellarYieldsAtomicNumbers[iyield] <= 2) continue;
+                        for(int jyield = 0; jyield < StellarYieldsNumberOfSpecies; jyield++){
+                          if (StellarYieldsAtomicNumbers[jyield] <= 2) continue;
                           int field_num;
                           this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
-                                                                            StellarYieldsAtomicNumbers[iyield],
+                                                                            StellarYieldsAtomicNumbers[jyield],
                                                                             0, 2 // flag to get second set of elements
                                                                             );
 
                           if (IndividualStarOutputChemicalTags){
-                            StellarAbundances[iyield][istar]     = BaryonField[field_num][index];
+                            StellarAbundances[StellarYieldsNumberOfSpecies + offset++][istar]     = BaryonField[field_num][index];
                           } else {
-                            ParticleAttribute[4 + iyield][istar] = BaryonField[field_num][index];
+                            ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[field_num][index];
                           }
 
                         }
