@@ -658,11 +658,12 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
   int PopIIIMetalNum, PopIIIPISNeMetalNum,
       AGBMetalNum, SNIaMetalNum, SNIIMetalNum, RProcMetalNum,
-      ExtraMetalNum0, ExtraMetalNum1, ExtraMetalNum2;
+      ExtraMetalNum0, ExtraMetalNum1, ExtraMetalNum2, WindMetalNum;
 
   AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
   PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
   PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
+  WindMetalNum   = FindField(MetalWindDensity, FieldType, NumberOfBaryonFields);
   SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
   SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
   RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
@@ -672,19 +673,23 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   ExtraMetalNum2 = FindField(ExtraMetalField2, FieldType, NumberOfBaryonFields);
 
   if ( IndividualStarTrackAGBMetalDensity && (AGBMetalNum <= 0)){
-    ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
+    ENZO_FAIL("Error in finding AGB metal density field in individual star feedback");
   }
 
   if ( IndividualStarPopIIIFormation && ((PopIIIMetalNum <= 0) || (PopIIIPISNeMetalNum <=0))){
-    ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
+    ENZO_FAIL("Error in finding Pop III metal density field in individual star feedback");
+  }
+
+  if (IndividualStarTrackWindDensity && WindMetalNum <= 0){
+    ENZO_FAIL("Error in finding wind metal density field in individual star feedback");
   }
 
   if ( IndividualStarTrackSNMetalDensity && ( (SNIIMetalNum <= 0) || (SNIaMetalNum <=0))){
-    ENZO_FAIL("Error in finding SNII and SNIa metal density field in individual_star_maker.");
+    ENZO_FAIL("Error in finding SNII and SNIa metal density field in individual star feedback.");
   }
 
   if ( IndividualStarRProcessModel && (RProcMetalNum <= 0)) {
-    ENZO_FAIL("Error in finding R Process model metal density field in individual_star_maker.");
+    ENZO_FAIL("Error in finding R Process model metal density field in individual star feedback.");
   }
 
   if (IndividualStarSNIaModel == 2){
@@ -923,9 +928,14 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
               }
 
             } else if (IndividualStarTrackAGBMetalDensity &&
-                      (cstar->ReturnBirthMass() < IndividualStarSNIIMassCutoff) &&
+                      (cstar->ReturnBirthMass() < IndividualStarAGBThreshold) &&
                       (stellar_wind_mode)){                                 // make sure we are an AGB wind
               BaryonField[AGBMetalNum][index] += injected_metal_mass[0];
+
+            } else if ( IndividualStarTrackWindDensity && stellar_wind_mode &&
+                        (cstar->ReturnBirthMass() > IndividualStarAGBThreshold)){
+
+              BaryonField[WindMetalNum][index] += injected_metal_mass[0]; // massive star winds
 
             } else if (IndividualStarTrackSNMetalDensity && !(stellar_wind_mode)){
 
@@ -934,9 +944,9 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
                 if ( (cstar->ReturnBirthMass() >= IndividualStarRProcessMinMass) &&
                      (cstar->ReturnBirthMass() <= IndividualStarRProcessMaxMass) ){
 
-                  const float RProcModelMass = (1.0 * SolarMass) / MassUnits; // fully arbitrary
+                  const float RProcModelMass = (1.0 * SolarMass) / MassUnits / (dx*dx*dx); // fully arbitrary
 
-                  BaryonField[RProcMetalNum][index] += RProcModelMass * injection_factors[count]; //need to do correct value here
+                  BaryonField[RProcMetalNum][index] += RProcModelMass * injection_factor; //need to do correct value here
 
                 }
               }
@@ -978,12 +988,28 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
             this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
                                                               StellarYieldsAtomicNumbers[im]);
             if (cstar || metal_mass){
+              // 1 offset since first value is for total metal mass (done above)
               BaryonField[field_num][index] += injected_metal_mass[1 + im];
+
             } else { // keep same fraction if using artificial SN generator
               BaryonField[field_num][index] += delta_mass *
                                                BaryonField[field_num][index] / old_mass;
             }
           }
+
+          if (IndividualStarPopIIISeparateYields && (cstar)){
+            if (cstar->IsPopIII()){
+              for (int im = 0; im < StellarYieldsNumberOfSpecies; im++){
+                if (StellarYieldsAtomicNumbers[im] <= 2) continue; // don't double inject into H and He
+
+                this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[im],
+                                                                  0,2);
+                // 1 offset is same as above
+                BaryonField[field_num][index] += injected_metal_mass[1 + im];
+
+              }
+            }
+          } // deposit pop III yields into separate popIII tracers as well
 
         } else{
           int field_num;
