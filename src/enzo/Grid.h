@@ -61,6 +61,7 @@ struct HierarchyEntry;
 //};
 
 
+int DetermineNumberOfAbundanceAttributes(void);
 
 
 extern int CommunicationDirection;
@@ -1594,6 +1595,8 @@ iveParticles;};
 
      if (IndividualStarTrackAGBMetalDensity) num_extra++;
      if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
+     if (IndividualStarPopIIISeparateYields) num_extra += StellarYieldsNumberOfSpecies-2; // minus H He
+     if (IndividualStarTrackWindDensity) num_extra += 1;
      if (IndividualStarTrackSNMetalDensity){
        num_extra = num_extra + 2;
        if (IndividualStarSNIaModel == 2){ num_extra += 3;}
@@ -1639,6 +1642,8 @@ iveParticles;};
 
        if (IndividualStarTrackAGBMetalDensity) num_extra++;
        if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
+       if (IndividualStarPopIIISeparateYields) num_extra += StellarYieldsNumberOfSpecies-2; // minus H He
+       if (IndividualStarTrackWindDensity) num_extra += 1;
        if (IndividualStarTrackSNMetalDensity){
          num_extra = num_extra + 2;
          if (IndividualStarSNIaModel == 2){ num_extra += 3;}
@@ -1714,17 +1719,10 @@ iveParticles;};
 
    void AllocateStellarAbundances(int NumberOfNewParticles){
      int i = 0;
-     int num_extra = 0;
 
-     if (IndividualStarTrackAGBMetalDensity) num_extra++;
-     if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
-     if (IndividualStarTrackSNMetalDensity){
-        num_extra = num_extra + 2;
-        if (IndividualStarSNIaModel == 2){ num_extra += 3;}
-     }
-     if (IndividualStarRProcessModel) num_extra++;
+     int num_abundances = DetermineNumberOfAbundanceAttributes();
 
-     for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
+     for (i = 0; i < num_abundances; i++){
        StellarAbundances[i] = new float[NumberOfNewParticles];
      }
 
@@ -1993,11 +1991,10 @@ int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
   int IdentifyShockSpeciesFields(int &MachNum,int &PSTempNum, int &PSDenNum);
 
   /* Identify chemical tracer fields */
-  int IdentifyChemicalTracerSpeciesFieldsByNumber( int &field_num, const int &atomic_number);
-
   int IdentifyChemicalTracerSpeciesFieldsByNumber( int &field_num,
                                                    const int &atomic_number,
-                                                   const int &ion_level);
+                                                   int ion_level = 0,
+                                                   int element_set = 1);
   /*
   int IdentifyChemicalTracerSpeciesFields(int  &CINum, int  &NINum, int  &OINum,
                                           int &MgINum, int &SiINum, int &FeINum,
@@ -2518,7 +2515,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   void ZeroPhotoelectricHeatingField(void);
   void ComputeBackgroundFUV(float &G_background);
-  
+
   void AddOpticallyThinRadiationFromStar(const float *L_fuv, const float *L_lw,
                                          const float *xs, const float *ys, const float *zs,
                                          const float *ts, const int &number_of_fuv_stars);

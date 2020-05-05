@@ -181,6 +181,7 @@ SPEXTERN float IndividualStarSNIIMassCutoff;
 SPEXTERN float IndividualStarAGBThreshold;
 SPEXTERN int   IndividualStarTrackAGBMetalDensity;
 SPEXTERN int   IndividualStarTrackSNMetalDensity;
+SPEXTERN int   IndividualStarTrackWindDensity;
 SPEXTERN int   IndividualStarRProcessModel;
 SPEXTERN float IndividualStarRProcessMinMass;
 SPEXTERN float IndividualStarRProcessMaxMass;
@@ -225,6 +226,7 @@ SPEXTERN float IndividualStarOTRadiationMass;
 SPEXTERN float IndividualStarFUVTemperatureCutoff;
 
 SPEXTERN int   IndividualStarPopIIIFormation;
+SPEXTERN int   IndividualStarPopIIISeparateYields;
 
 SPEXTERN int AccretingParticleRadiation;
 SPEXTERN double AccretingParticleLuminosity;

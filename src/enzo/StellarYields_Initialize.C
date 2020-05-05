@@ -44,8 +44,8 @@ int fill_table(hid_t file_id,
 void fill_table(StellarYieldsDataType *table, FILE *fptr);
 #endif
 
-int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
-char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num);
+int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number, int element_set = 1);
+char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num, int element_set = 1);
 
 
 int InitializeStellarYieldFields(HierarchyEntry &TopGrid,

@@ -16,10 +16,10 @@
 /  PURPOSE:
 /
 ************************************************************************/
- 
+
 // This function reads in the data hierarchy (TopGrid), the External
 //   Boundary (Exterior), the TopGridData, and the global_data.
- 
+
 #ifdef USE_MPI
 #include <mpi.h>
 #endif
@@ -39,24 +39,25 @@
 #include "TopGridData.h"
 #include "CommunicationUtilities.h"
 void my_exit(int status);
- 
+
 /* function prototypes */
- 
+
 int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *TopGrid, int GridID, HierarchyEntry *ParentGrid, FILE *log_fptr);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
 int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr);
 int ReadRadiationData(FILE *fptr);
 int AssignGridToTaskMap(Eint64 *GridIndex, Eint64 *Mem, int Ngrids);
+int DetermineNumberOfParticleAttributes(void);
 int mt_read(char *fname);
- 
+
 extern char RadiationSuffix[];
 extern char HierarchySuffix[];
 extern char hdfsuffix[];
 extern char TaskMapSuffix[];
-extern char MemoryMapSuffix[]; 
+extern char MemoryMapSuffix[];
 extern char ForcingSuffix[];
 extern char MTSuffix[];
- 
+
 //#define IO_LOG
 #ifdef IO_LOG
 int io_log = 1;
@@ -71,11 +72,11 @@ int HDF5_ReadDataset(hid_t group_id, const char *DatasetName, int Dataset[], FIL
 
 int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 		ExternalBoundary *Exterior, float *Initialdt)
- 
+
 {
- 
+
   /* declarations */
- 
+
   char pid[MAX_TASK_TAG_SIZE];
   char hierarchyname[MAX_LINE_LENGTH], radiationname[MAX_LINE_LENGTH];
   char mtname[MAX_LINE_LENGTH], forcingname[MAX_LINE_LENGTH];
@@ -104,17 +105,17 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   CommunicationBarrier();
 
   /* Read TopGrid data. */
- 
+
   if ((fptr = fopen(name, "r")) == NULL) {
     ENZO_VFAIL("Error opening input file %s.\n", name)
   }
   if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
         ENZO_FAIL("Error in ReadParameterFile.");
   }
- 
+
   /* Close main file. */
   fprintf(stderr, "fclose: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
- 
+
   fclose(fptr);
 
   if (DrivenFlowProfile) {
@@ -126,7 +127,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
           fprintf(stderr, "Error in ReadSpectrum.\n");
           return FAIL;
      }
-      
+
      /* Load state of RNG */
       strcpy(mtname, name);
       strcat(mtname, MTSuffix);
@@ -139,46 +140,14 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   }
 
 
- 
+
   /* Set the number of particle attributes, if left unset. */
 
   if (NumberOfParticleAttributes == INT_UNDEFINED ||
       NumberOfParticleAttributes == 0) {
-    if (StarParticleCreation || StarParticleFeedback) {
-      NumberOfParticleAttributes = 3;
-      if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
-      if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
-
-      if (MultiMetals && !IndividualStarOutputChemicalTags){
-        NumberOfParticleAttributes ++;   // counter offset to get names right
-                                         // this is a hack and a waste of memory
-        if(MultiMetals == 2){
-          NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
-
-          if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
-          if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes += 2;
-          if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
-          if (IndividualStarSNIaModel == 2)       NumberOfParticleAttributes += 3;
-          if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
-        }
-
-
-      } // end multi metals
-      if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
-        if (!IndividualStarSaveTablePositions){
-          ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
-          NumberOfParticleAttributes += NumberOfParticleTableIDs;
-        }
-        NumberOfParticleAttributes += 2; // counters for mass loss
-      }
-
-      AddParticleAttributes = TRUE;
-    } else {
-      NumberOfParticleAttributes = 0;
-    }
-
+    NumberOfParticleAttributes = DetermineNumberOfParticleAttributes();
+    AddParticleAttributes = TRUE;
   }
-
   if (NumberOfParticleAttributes > MAX_NUMBER_OF_PARTICLE_ATTRIBUTES){
     ENZO_VFAIL("Number of necessary particle attributes (%"ISYM") greater than"
               " MAX_NUMBER_OF_PARTICLE_ATTRIBUTES. Change and re-compile.\n",NumberOfParticleAttributes);
@@ -186,28 +155,28 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   /* Read Boundary condition info. */
   fprintf(stderr, "fopen: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
- 
+
   int BRerr = 0 ;
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
     //BRerr = 1;
     my_exit(EXIT_FAILURE);
-  } 
+  }
 
   // Try to read external boundaries. If they don't fit grid data we'll set them later below
   int ReadHDF4B = 0;
 #ifdef USE_HDF4
-  if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
-    fprintf(stderr, "Error in ReadExternalBoundary using HDF4  (%s).\n",           
-	    MetaData.BoundaryConditionName);                  
+  if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {
+    fprintf(stderr, "Error in ReadExternalBoundary using HDF4  (%s).\n",
+	    MetaData.BoundaryConditionName);
     fprintf(stderr, "Will try HDF5 instead.\n");
     //BRerr = 1;
     my_exit(EXIT_FAILURE);
   } else ReadHDF4B = 1;
 #endif // HDF4
   if (ReadHDF4B != 1) {
-    if(LoadGridDataAtStart) {    
+    if(LoadGridDataAtStart) {
       if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
 	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 		MetaData.BoundaryConditionName);
@@ -236,7 +205,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 #ifdef USE_MPI
   sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
 #endif
- 
+
   /* Read the memory map */
 
   CommunicationBarrier();
@@ -266,18 +235,18 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   strcpy(hierarchyname, name);
   strcat(hierarchyname, HierarchySuffix);
- 
+
   //  if (HierarchyFileInputFormat == 0) {
   if (HierarchyFileInputFormat % 2 == 0) {
     sprintf(HDF5hierarchyname,"%s.hdf5",hierarchyname);
-    
+
     if (io_log) {
       char logname[MAX_LINE_LENGTH];
       sprintf(logname,"%s.in_log",HDF5hierarchyname);
-      
+
       log_fptr = fopen(logname,"w");
     }
-    
+
     Hfile_id = H5Fopen(HDF5hierarchyname, H5F_ACC_RDONLY, H5P_DEFAULT);
     if( Hfile_id == h5_error )
       ENZO_VFAIL("Error opening HDF5 hierarchy file: %s",HDF5hierarchyname)
@@ -285,15 +254,15 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     // read TotalNumberOfGrids attribute
     HDF5_ReadAttribute(Hfile_id, "TotalNumberOfGrids", TotalNumberOfGrids, log_fptr);
 
-    
+
     // read LevelLookupTable
     LevelLookupTable = new int[TotalNumberOfGrids];
     HDF5_ReadDataset(Hfile_id, "LevelLookupTable", LevelLookupTable, log_fptr);
-    
+
 //     if(MyProcessorNumber == ROOT_PROCESSOR)
 //       for(int i=0;i<TotalNumberOfGrids;i++)
 // 	fprintf(stderr,"LevelLookupTable[%d] = %d\n",i,LevelLookupTable[i]);
-  } 
+  }
 
   if (HierarchyFileInputFormat == 1) {
     if ((fptr = fopen(hierarchyname, "r")) == NULL) {
@@ -301,7 +270,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 	}
   }
 
-  /* Read Data Hierarchy. */ 
+  /* Read Data Hierarchy. */
 
   GridID = 1;
   if (ReadDataHierarchy(fptr, Hfile_id, TopGrid, GridID, NULL, log_fptr) == FAIL) {
@@ -309,8 +278,8 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   }
 
   /* If there was trouble reading the boundary file attempt to sanely set them now. */
-  /* We do this after all the grids have been read in case the number of baryon fields 
-     etc. was modified in that stage. 
+  /* We do this after all the grids have been read in case the number of baryon fields
+     etc. was modified in that stage.
      This allows you to add extra fields etc. and then restart. Proceed with caution.
 
      Note by BWO, April 2019: This code is NEVER USED based on the usage of BRerr above,
@@ -325,18 +294,18 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       Dummy[dim] = 0.0;
     fprintf(stderr, "Because of trouble in reading the boundary we reset it now.\n");
-    
+
     SimpleConstantBoundary = TRUE;
-    
+
     for (dim = 0; dim < MetaData.TopGridRank; dim++) {
       if (MetaData.LeftFaceBoundaryCondition[dim] != periodic ||
 	  MetaData.RightFaceBoundaryCondition[dim] != periodic) {
 	SimpleConstantBoundary = FALSE;
       }
     }
-    
+
     Exterior->Prepare(TopGrid->GridData);
-    
+
     for (dim = 0; dim < MetaData.TopGridRank; dim++) {
       Exterior->InitializeExternalBoundaryFace(dim,
 					       MetaData.LeftFaceBoundaryCondition[dim],
@@ -345,11 +314,11 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       fprintf(stderr, " %i  %i \n", MetaData.LeftFaceBoundaryCondition[dim],
 	      MetaData.RightFaceBoundaryCondition[dim]);
     }
-    
+
     Exterior->InitializeExternalBoundaryParticles(
 						  MetaData.ParticleBoundaryType);
-    
-    
+
+
     /*
     HierarchyEntry *NextGrid;
     NextGrid = TopGrid->NextGridThisLevel;
@@ -359,18 +328,18 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       NextGrid = NextGrid->NextGridThisLevel;
     }
     */
-    
+
   } /* Setting External Boundary */
 
   /* Read StarParticle data. */
- 
+
   if (ReadStarParticleData(fptr, Hfile_id, log_fptr) == FAIL) {
         ENZO_FAIL("Error in ReadStarParticleData.");
   }
- 
+
   /* Create radiation name and read radiation data. */
- 
-  if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) || 
+
+  if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) ||
       (RadiationData.RadiationShield == TRUE && RadiationFieldType != 12)) {
     FILE *Radfptr;
     strcpy(radiationname, name);
@@ -384,20 +353,20 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     }
     fclose(Radfptr);
   }
- 
- 
+
+
   //  if (HierarchyFileInputFormat == 0) {
   if (HierarchyFileInputFormat % 2 == 0) {
     h5_status = H5Fclose(Hfile_id);
     if (h5_status == h5_error)
-      ENZO_FAIL("Error closing HDF5 hierarchy file.");    
+      ENZO_FAIL("Error closing HDF5 hierarchy file.");
 
     delete [] LevelLookupTable;
   }
-  
+
   if (HierarchyFileInputFormat == 1)
     fclose(fptr);
-  
+
   /* If we added new particle attributes, unset flag so we don't carry
      this parameter to later data. */
 

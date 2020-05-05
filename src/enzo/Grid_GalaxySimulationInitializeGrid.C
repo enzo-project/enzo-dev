@@ -42,7 +42,7 @@ int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
+int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number, int element_set = 1);
 
 double DoublePowerInterpolateMass(double r);
 

@@ -135,6 +135,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *AGBMetalName    = "AGB_Metal_Density";
   char *PopIIIMetalName = "PopIII_Metal_Density";
   char *PopIIIPISNeMetalName = "PopIII_PISNe_Metal_Density";
+  char *WindMetalName = "Wind_Metal_Density";
   char *SNIIMetalName = "SNII_Metal_Density";
   char *SNIaMetalName = "SNIa_Metal_Density";
   char *RProcMetalName = "RProcess_Metal_Density";
@@ -812,7 +813,21 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       if (IndividualStarPopIIIFormation){
         DataLabel[i++] = PopIIIMetalName;
         DataLabel[i++] = PopIIIPISNeMetalName;
+
+
+        if (IndividualStarPopIIISeparateYields){
+          for(j =0; j < StellarYieldsNumberOfSpecies; j++){
+            if(StellarYieldsAtomicNumbers[j] > 2){
+              std::string temp = "PopIII_";
+              temp += ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[j]);
+              DataLabel[i++] = const_cast<char* > (temp.c_str());
+            }
+          }
+        } // yields loop      }
       }
+
+      if (IndividualStarTrackWindDensity) DataLabel[i++] = WindMetalName;
+
 
       if (IndividualStarTrackSNMetalDensity){
         DataLabel[i++] = SNIaMetalName;

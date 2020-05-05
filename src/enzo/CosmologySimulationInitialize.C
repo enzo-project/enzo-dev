@@ -140,6 +140,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *AGBMetalName    = "AGB_Metal_Density";
   char *PopIIIMetalName = "PopIII_Metal_Density";
   char *PopIIIPISNeMetalName = "PopIII_PISNe_Metal_Density";
+  char *WindMetalName = "Wind_Metal_Density";
   char *SNIIMetalName = "SNII_Metal_Density";
   char *SNIaMetalName = "SNIa_Metal_Density";
   char *RProcMetalName = "RProcess_Metal_Density";
@@ -169,6 +170,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char line[MAX_LINE_LENGTH];
   int i, j, dim, gridnum, ret, SubgridsAreStatic, region;
   HierarchyEntry *Subgrid;
+
+  std::vector<std::string> DL2(MAX_NUMBER_OF_BARYON_FIELDS);
 
   char *DensityName = NULL, *TotalEnergyName = NULL, *GasEnergyName = NULL,
     *ParticlePositionName = NULL, *ParticleVelocityName = NULL,
@@ -443,7 +446,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   if (MultiMetals && !CosmologySimulationUseMetallicityField){
     ENZO_FAIL("MultiMetals is ON but CosmologySimulationUseMetallicityField is OFF");
-  }  
+  }
 
   if (CosmologySimulationParticleVelocityNames[0] != NULL &&
       CosmologySimulationParticlePositionNames[0] == NULL &&
@@ -866,7 +869,26 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       if (IndividualStarPopIIIFormation){
         DataLabel[i++] = PopIIIMetalName;
         DataLabel[i++] = PopIIIPISNeMetalName;
-      }
+        if (IndividualStarPopIIISeparateYields){
+          for(j =0; j < StellarYieldsNumberOfSpecies; j++){
+            if(StellarYieldsAtomicNumbers[j] > 2){
+              std::string temp = "PopIII_";
+              printf("data label1 = %s \n", temp.c_str());
+
+              temp = temp + ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[j]);
+
+              printf("data label2 = %s \n", temp.c_str());
+
+              DataLabel[i++] = (char*) (temp.c_str());
+              printf("data label3 = %s \n", DataLabel[i++]);
+              DL2[0] = temp;
+      //        DataLabel[i++] = temp.c_str();
+            }
+          }
+        } // pop III separate
+      } // pop III
+
+      if (IndividualStarTrackWindDensity) DataLabel[i++] = WindMetalName;
 
       if (IndividualStarTrackSNMetalDensity){
         DataLabel[i++] = SNIaMetalName;
@@ -932,7 +954,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       MHDeUnits[1] = "None";
       MHDeUnits[2] = "None";
   }
-
 
   // Write parameters to parameter output file
 

@@ -60,6 +60,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int ReadEvolveRefineFile(void);
+int DetermineNumberOfParticleAttributes(void);
 
 int CheckShearingBoundaryConsistency(TopGridData &MetaData);
 void get_uuid(char *buffer);
@@ -540,7 +541,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "DiskGravityDarkMatterMassInterior  = %"FSYM,&DiskGravityDarkMatterMassInterior);
     ret += sscanf(line, "DiskGravityDarkMatterMassInteriorR = %"FSYM,&DiskGravityDarkMatterMassInteriorR);
     ret += sscanf(line, "DiskGravityDarkMatterUpdateCOM     = %"ISYM,&DiskGravityDarkMatterUpdateCOM);
-    ret += sscanf(line, "DiskGravityDarkMatterRefineCore    = %"FSYM,&DiskGravityDarkMatterRefineCore);	
+    ret += sscanf(line, "DiskGravityDarkMatterRefineCore    = %"FSYM,&DiskGravityDarkMatterRefineCore);
 
     ret += sscanf(line, "DiskGravityDoublePower = %"ISYM, &DiskGravityDoublePower);
     ret += sscanf(line, "DiskGravityDarkMatterCutoffR = %"FSYM, &DiskGravityDarkMatterCutoffR);
@@ -974,7 +975,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
          GalaxySimulationPreWindVelocity,GalaxySimulationPreWindVelocity+1,GalaxySimulationPreWindVelocity+2);
 
     ret += sscanf(line, "GalaxySimulationInitialStellarDist = %"ISYM, &GalaxySimulationInitialStellarDist);
- 
+
     /* Read chemical evolution test parameters */
     ret += sscanf(line, "ChemicalEvolutionTestStarFormed = %"ISYM,
                        &ChemicalEvolutionTestStarFormed);
@@ -1194,6 +1195,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarTemperatureThreshold);
     ret += sscanf(line, "IndividualStarPopIIIFormation = %"ISYM,
                         &IndividualStarPopIIIFormation);
+    ret += sscanf(line, "IndividualStarPopIIISeparateYields = %"ISYM,
+                        &IndividualStarPopIIISeparateYields);
     ret += sscanf(line, "IndividualStarIMFUpperMassCutoff = %"FSYM,
                         &IndividualStarIMFUpperMassCutoff);
     ret += sscanf(line, "IndividualStarIMFLowerMassCutoff = %"FSYM,
@@ -1230,6 +1233,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarRProcessMaxMass);
     ret += sscanf(line, "IndividualStarTrackAGBMetalDensity =%"ISYM,
                         &IndividualStarTrackAGBMetalDensity);
+    ret += sscanf(line, "IndividualStarTrackWindDensity = %"ISYM,
+                        &IndividualStarTrackWindDensity);
     ret += sscanf(line, "IndividualStarTrackSNMetalDensity =%"ISYM,
                         &IndividualStarTrackSNMetalDensity);
     ret += sscanf(line, "IndividualStarAGBWindVelocity = %"FSYM,
@@ -1666,7 +1671,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TracerParticleCreation")) ret++;
     if (strstr(line, "TurbulenceSimulation")) ret++;
     if (strstr(line, "ProtostellarCollapse")) ret++;
-    if (strstr(line, "GalaxySimulation") 
+    if (strstr(line, "GalaxySimulation")
 			&& !strstr(line,"RPSWind") && !strstr(line,"PreWind")  && !strstr(line,"InitialStellar")) ret++;
     if (strstr(line, "AgoraRestart")) ret++;
     if (strstr(line, "ConductionTest")) ret++;
@@ -2095,8 +2100,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* Set some star feedback parameters. */
 
-  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR) || 
-       STARFEED_METHOD(INDIVIDUAL_STAR)) && 
+  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR) ||
+       STARFEED_METHOD(INDIVIDUAL_STAR)) &&
       (StarFeedbackDistRadius > 0)) {
 
     // Calculate number of cells in the shape over which to distribute feedback.
@@ -2166,39 +2171,21 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     StarParticleCreation -= 1 << POP3_STAR;
   }
 
+  if ( (NumberOfParticleAttributes == 0) || (NumberOfParticleAttributes==INT_UNDEFINED)){
+    NumberOfParticleAttributes = DetermineNumberOfParticleAttributes();
+  }
+  if (NumberOfParticleAttributes > MAX_NUMBER_OF_PARTICLE_ATTRIBUTES){
+    ENZO_VFAIL("Number of necessary particle attributes (%"ISYM") greater than"
+              " MAX_NUMBER_OF_PARTICLE_ATTRIBUTES. Change and re-compile.\n",NumberOfParticleAttributes);
+  }  
+
   /* Set particle attributes appropriately for individual star model with
      birth mass field and abundance tracers */
   if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
-    NumberOfParticleAttributes = 4;
-
     /* For right now, this model requires using a hack on the abundances */
     if (IndividualStarSNIaModel == 2 && IndividualStarOutputChemicalTags){
       ENZO_FAIL("Currently cannot use SNIa model 2 without tracking stellar abundances\n");
     }
-
-    if (IndividualStarFollowStellarYields && !IndividualStarOutputChemicalTags){
-      NumberOfParticleAttributes += StellarYieldsNumberOfSpecies;
-
-      /* and individual species type tracers */
-      if (IndividualStarTrackAGBMetalDensity) NumberOfParticleAttributes++;
-      if (IndividualStarPopIIIFormation)      NumberOfParticleAttributes += 2;
-      if (IndividualStarTrackSNMetalDensity)  NumberOfParticleAttributes += 2;
-      if (IndividualStarSNIaModel == 2)       NumberOfParticleAttributes += 3;
-      if (IndividualStarRProcessModel)        NumberOfParticleAttributes++;
-
-    }
-    ParticleAttributeTableStartIndex = NumberOfParticleAttributes;
-
-    if (IndividualStarSaveTablePositions){
-      NumberOfParticleAttributes += NumberOfParticleTableIDs;
-    }
-    /* make the last two particle attributes mass counters for wind and SN */
-    NumberOfParticleAttributes += 2;
-  }
-
-  if (NumberOfParticleAttributes > MAX_NUMBER_OF_PARTICLE_ATTRIBUTES){
-    ENZO_VFAIL("Number of necessary particle attributes (%"ISYM") greater than"
-              " MAX_NUMBER_OF_PARTICLE_ATTRIBUTES. Change and re-compile.\n",NumberOfParticleAttributes);
   }
 
   if (IndividualStarOutputChemicalTags){

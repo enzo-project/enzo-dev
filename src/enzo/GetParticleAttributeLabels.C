@@ -27,6 +27,7 @@
 char* ChemicalSpeciesParticleLabel(const int &atomic_number);
 char* IndividualStarTableIDLabel(const int &num);
 
+
 void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabel){
 
 
@@ -59,6 +60,17 @@ void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabe
       if (IndividualStarPopIIIFormation){
         ParticleAttributeLabel[4 + ii++] = "popIII_metal_fraction";
         ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
+
+        if (IndividualStarPopIIISeparateYields){
+          for(ii = 2; ii < StellarYieldsNumberOfSpecies; ii++){ // skip H and He
+            ParticleAttributeLabel[4 + ii] = "popIII_";
+            ParticleAttributeLabel[4 + ii] += ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+          }
+        }
+      }
+
+      if (IndividualStarTrackWindDensity){
+        ParticleAttributeLabel[4 + ii++] = "wind_metal_fraction";
       }
 
       if (IndividualStarTrackSNMetalDensity){

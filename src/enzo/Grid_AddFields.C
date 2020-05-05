@@ -47,7 +47,7 @@ int grid::AddFields(int TypesToAdd[], int NumberOfFields)
       }
       BaryonField[n] = new float[size];
 
-      if ((TypesToAdd[i] >= LiDensity && TypesToAdd[i] <= BiDensity) || ((TypesToAdd[i] >= MetalPISNeDensity) &&
+      if ((TypesToAdd[i] >= LiDensity && TypesToAdd[i] <= BiDensity2) || ((TypesToAdd[i] >= MetalPISNeDensity) &&
          (TypesToAdd[i] <= ExtraMetalField2))){
 
         for (j = 0; j < size; j++)

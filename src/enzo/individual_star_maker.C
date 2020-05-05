@@ -141,11 +141,12 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
  int PopIIIMetalNum, PopIIIPISNeMetalNum, AGBMetalNum,
      SNIaMetalNum, SNIIMetalNum, RProcMetalNum, ExtraMetalNum0,
-     ExtraMetalNum1, ExtraMetalNum2;
+     ExtraMetalNum1, ExtraMetalNum2, WindMetalNum;
 
   AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
   PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
   PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
+  WindMetalNum   = FindField(MetalWindDensity, FieldType, NumberOfBaryonFields);
   SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
   SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
   RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
@@ -165,6 +166,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
   if ( IndividualStarPopIIIFormation && ((PopIIIMetalNum <= 0) || (PopIIIPISNeMetalNum <= 0))){
     ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
+  }
+
+  if (IndividualStarTrackWindDensity && WindMetalNum <=0){
+    ENZO_FAIL("Error in finding wind density field in individual_star_maker");
   }
 
   if ( IndividualStarPopIIIFormation && (PopIIIMetalCriticalFraction < 0) &&
@@ -684,6 +689,33 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                       ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[PopIIIMetalNum][index];
                       ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[PopIIIPISNeMetalNum][index];
                     }
+
+
+                    if (IndividualStarPopIIISeparateYields){
+                        for(iyield = 0; iyield < StellarYieldsNumberOfSpecies; iyield++){
+                          if (StellarYieldsAtomicNumbers[iyield] <= 2) continue;
+                          int field_num;
+                          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
+                                                                            StellarYieldsAtomicNumbers[iyield],
+                                                                            0, 2 // flag to get second set of elements
+                                                                            );
+
+                          if (IndividualStarOutputChemicalTags){
+                            StellarAbundances[iyield][istar]     = BaryonField[field_num][index];
+                          } else {
+                            ParticleAttribute[4 + iyield][istar] = BaryonField[field_num][index];
+                          }
+
+                        }
+                    } // if second set of pop III yields
+                  } // end if pop III
+
+                  if (IndividualStarTrackWindDensity){
+                    if (IndividualStarOutputChemicalTags){
+                      StellarAbundances[StellarYieldsNumberOfSpecies+offset++][istar]=BaryonField[WindMetalNum][index];
+                    } else {
+                      ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[WindMetalNum][index];
+                    }
                   }
 
                   // check for SNII and SNIa tracers
@@ -722,7 +754,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                 //
                 // If desired, svae yield table interpolation positions for particles to speed
-                // up interpolation 
+                // up interpolation
                 //
                 if (IndividualStarSaveTablePositions && (ParticleType[istar] == -IndividualStar)){
                   int tstart = ParticleAttributeTableStartIndex;

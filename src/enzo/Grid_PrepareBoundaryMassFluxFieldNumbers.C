@@ -112,12 +112,13 @@ int grid::PrepareBoundaryMassFluxFieldNumbers(){
       BoundaryMassFluxFieldNumbers[count++] = field_num;
     }
 
-    int PopIIIMetalNum, PopIIIPISNeMetalNum, AGBMetalNum, RProcMetalNum; //, SNIaMetalNum, SNIIMetalNum;
+    int PopIIIMetalNum, PopIIIPISNeMetalNum, AGBMetalNum, RProcMetalNum, WindMetalNum; //, SNIaMetalNum, SNIIMetalNum;
     int ExtraMetalNum0, ExtraMetalNum1, ExtraMetalNum2;
 
     AGBMetalNum         = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
     PopIIIMetalNum      = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
     PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
+    WindMetalNum        = FindField(MetalWindDensity, FieldType, NumberOfBaryonFields);
     RProcMetalNum       = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
 
     ExtraMetalNum0 = FindField(ExtraMetalField0, FieldType, NumberOfBaryonFields);
@@ -131,6 +132,23 @@ int grid::PrepareBoundaryMassFluxFieldNumbers(){
     if (IndividualStarPopIIIFormation){
       BoundaryMassFluxFieldNumbers[count++] = PopIIIMetalNum;
       BoundaryMassFluxFieldNumbers[count++] = PopIIIPISNeMetalNum;
+
+      if (IndividualStarPopIIISeparateYields){
+        for (int yield = 0; yield < StellarYieldsNumberOfSpecies; yield++){
+          int anum = StellarYieldsAtomicNumbers[yield];
+          if (anum == 1 || anum == 2) continue; // ignore entirely here
+
+          int field_num;
+          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, anum, 0, 2);
+          BoundaryMassFluxFieldNumbers[count++] = field_num;
+        }
+      }
+    }
+
+
+
+    if (IndividualStarTrackWindDensity){
+      BoundaryMassFluxFieldNumbers[count++] = WindMetalNum;
     }
 
     if (IndividualStarTrackSNMetalDensity && IndividualStarSNIaModel == 2){

@@ -669,6 +669,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
 	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity ||
         FieldType[field] == MetalRProcessDensity || FieldType[field] == MetalPISNeDensity ||
+        FieldType[field] == MetalWindDensity ||
         ((FieldType[field] >= ExtraMetalField0) && (FieldType[field]<=ExtraMetalField2)) ){
 #ifdef EMISSIVITY
       /* 
@@ -706,6 +707,26 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
       }
     }
+    if (IndividualStarPopIIIFormation && IndividualStarPopIIISeparateYields){
+      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+        if(StellarYieldsAtomicNumbers[ii] > 2){
+          int field_num;
+
+          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii],0,2);
+
+          for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+            for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+              index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+              for( i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
+                  BaryonField[field_num][index] /= BaryonField[DensNum][index];
+              }
+            }
+          }
+
+        }
+      }
+
+    } // end pop III multi elements
   } // end multi metals conversion
 
   /* If creating primordial stars, make a total H2 density field */
@@ -2106,6 +2127,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
 	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity || 
         FieldType[field] == MetalRProcessDensity || FieldType[field] == MetalPISNeDensity ||
+        FieldType[field] == MetalWindDensity ||
         ((FieldType[field] >= ExtraMetalField0) && (FieldType[field]<=ExtraMetalField2)) ){
 #ifdef EMISSIVITY
       /* 
@@ -2144,7 +2166,28 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
         }
 
       }
-    }
+    } // for loop
+
+    if (IndividualStarPopIIIFormation && IndividualStarPopIIISeparateYields){
+      for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
+        if(StellarYieldsAtomicNumbers[ii] > 2){
+          int field_num;
+
+          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[ii],0,2);
+
+          for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
+            for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
+              index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+              for( i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
+                  BaryonField[field_num][index] *= BaryonField[DensNum][index];
+              }
+            }
+          }
+
+        }
+      }
+
+    } // end pop III multi elements
   } // end multi metals conversion
 
 

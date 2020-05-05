@@ -817,12 +817,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarSFGasMassThreshold   = 200.0;         // for SF algorithm 1, size of mass chunk that will be 100% converted to stars
   IndividualStarPopIIIFormation      =     0;         // flag to allow for Pop III star formation in gas below a Z threshold
                                                       // also tracks PopIII metal enrichment w/ additional field (but ONLY when tags are written to file)
+  IndividualStarPopIIISeparateYields =     0;         // in addition to above, track whole separate set of stellar yields for each element
 
   IndividualStarRProcessModel        =     0;         // Include an R-process model (TBD) and independent tracer field
   IndividualStarRProcessMinMass      = 24.37;         // Minimum mass of stars for r-prcess tracing. Default is 1% for Kroupa IMF
   IndividualStarRProcessMaxMass      = 25.00;         // assuming SNe explode from 8 to 25 Msun
-  IndividualStarTrackAGBMetalDensity =     0;         // Track separate AGB metal mass field (only for outut chemical tags)
-  IndividualStarTrackSNMetalDensity  =     0;         // Track spearate SNII AND SNIa mass fields (only for output chemical tags)
+  IndividualStarTrackAGBMetalDensity =     0;         // Track separate AGB metal mass field
+  IndividualStarTrackWindDensity     =     0;         // Track separate wind metal mass field (non-AGB)
+  IndividualStarTrackSNMetalDensity  =     0;         // Track spearate SNII AND SNIa mass fields
 
       // for popIII SF for individual stars, use the same PopIII IMF flags that already exist
       // 

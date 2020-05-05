@@ -11,7 +11,7 @@
 /  RETURNS: FAIL or SUCCESS
 /
 ************************************************************************/
- 
+
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
@@ -23,29 +23,29 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
+int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number, int element_set = 1);
 
 int grid::InitializeUniformGrid(float UniformDensity,
 				float UniformTotalEnergy,
 				float UniformInternalEnergy,
-				float UniformVelocity[], 
+				float UniformVelocity[],
 				float UniformBField[],
 				float UniformCR)
 {
   /* declarations */
- 
+
   int dim, i, j, k, index, size, field, GCM, MM;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum, CRNum;
 
-  int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
+  int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum,
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
 
-  int ExtraField[9];
+  int ExtraField[10];
 
   /* create fields */
- 
+
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
@@ -114,13 +114,13 @@ int grid::InitializeUniformGrid(float UniformDensity,
   //      4    : 3 + r-process
   //             Eu   (Y, Ba, La as well but already defined above)
   //
-  //  Full element names used to keep these distinct from 
-  //  Simon Glover's chemistry models (see below)          
+  //  Full element names used to keep these distinct from
+  //  Simon Glover's chemistry models (see below)
   if (TestProblemData.UseMetallicityField) {
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
 
     MM = TestProblemData.MultiMetals; // for convenience
-  
+
     if (StarMakerTypeIaSNe)
       FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
 
@@ -146,22 +146,34 @@ int grid::InitializeUniformGrid(float UniformDensity,
       if (IndividualStarPopIIIFormation){
         FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
         FieldType[ExtraField[2] = NumberOfBaryonFields++] = MetalPISNeDensity;
+        if (IndividualStarPopIIISeparateYields){
+          for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+            if(StellarYieldsAtomicNumbers[yield_i] > 2){
+              FieldType[NumberOfBaryonFields++] =
+                                     ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i],2);
+            }
+          } // loop over yeilds
+        }
+      }
+
+      if (IndividualStarTrackWindDensity){
+        FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalWindDensity;
       }
 
       if (IndividualStarTrackSNMetalDensity){
-        FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalSNIaDensity;
+        FieldType[ExtraField[4] = NumberOfBaryonFields++] = MetalSNIaDensity;
 
         if (IndividualStarSNIaModel == 2){
-          FieldType[ExtraField[4] = NumberOfBaryonFields++] = ExtraMetalField0;
-          FieldType[ExtraField[5] = NumberOfBaryonFields++] = ExtraMetalField1;
-          FieldType[ExtraField[6] = NumberOfBaryonFields++] = ExtraMetalField2;
+          FieldType[ExtraField[5] = NumberOfBaryonFields++] = ExtraMetalField0;
+          FieldType[ExtraField[6] = NumberOfBaryonFields++] = ExtraMetalField1;
+          FieldType[ExtraField[7] = NumberOfBaryonFields++] = ExtraMetalField2;
         }
 
-        FieldType[ExtraField[7] = NumberOfBaryonFields++] = MetalSNIIDensity;
+        FieldType[ExtraField[8] = NumberOfBaryonFields++] = MetalSNIIDensity;
       }
 
       if (IndividualStarRProcessModel){
-        FieldType[ExtraField[8] = NumberOfBaryonFields++] = MetalRProcessDensity;
+        FieldType[ExtraField[9] = NumberOfBaryonFields++] = MetalRProcessDensity;
       }
     } // end mm = 2
 
@@ -230,42 +242,42 @@ int grid::InitializeUniformGrid(float UniformDensity,
   } //   if(TestProblemData.GloverChemistryModel)
 
   /* Return if this doesn't concern us. */
- 
+
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
- 
+
   /* compute size of fields */
- 
+
   size = 1;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
- 
+
   /* allocate fields */
- 
+
   this->AllocateGrids();
 
   /* set density, total energy */
- 
+
   for (i = 0; i < size; i++) {
     BaryonField[0][i] = UniformDensity;
     BaryonField[1][i] = UniformTotalEnergy;
     if ( CRModel ) BaryonField[CRNum][i] = UniformCR;
   }
- 
+
   /* set velocities */
- 
+
   for (dim = 0; dim < GridRank; dim++)
     for (i = 0; i < size; i++)
       BaryonField[vel+dim][i] = UniformVelocity[dim];
- 
+
   /* Set internal energy if necessary. */
- 
+
   if (DualEnergyFormalism)
     for (i = 0; i < size; i++)
       BaryonField[2][i] = UniformInternalEnergy;
 
   if (UseMHD) {
-    for (dim = 0; dim < 3; dim++) 
+    for (dim = 0; dim < 3; dim++)
       for (i = 0; i < size; i++)
         BaryonField[B1Num+dim][i] = UniformBField[dim];
     if (HydroMethod == MHD_RK){
@@ -274,7 +286,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
     }
   }
 
-   /* set density of color fields to user-specified values (if user doesn't specify, 
+   /* set density of color fields to user-specified values (if user doesn't specify,
      the defaults are set in SetDefaultGlobalValues.  Do some minimal amount of error
      checking to try to ensure charge conservation when appropriate */
   for (i = 0; i < size; i++){
@@ -284,9 +296,9 @@ int grid::InitializeUniformGrid(float UniformDensity,
     // using the method in CosmologySimulationInitializeGrid.C
     if(TestProblemData.MultiSpecies){
 
-      BaryonField[HIINum][i] = TestProblemData.HII_Fraction * 
+      BaryonField[HIINum][i] = TestProblemData.HII_Fraction *
 	TestProblemData.HydrogenFractionByMass * UniformDensity;
- 
+
       BaryonField[HeIINum][i] =  TestProblemData.HeII_Fraction *
 	UniformDensity * (1.0-TestProblemData.HydrogenFractionByMass);
 
@@ -377,23 +389,46 @@ int grid::InitializeUniformGrid(float UniformDensity,
       }
 
       if (IndividualStarPopIIIFormation){
-          BaryonField[ExtraField[1]][i] = tiny_number * UniformDensity;
-          BaryonField[ExtraField[2]][i] = tiny_number * UniformDensity;
+        BaryonField[ExtraField[1]][i] = tiny_number * UniformDensity;
+        BaryonField[ExtraField[2]][i] = tiny_number * UniformDensity;
+        if (IndividualStarPopIIISeparateYields){
+          for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
+            /* > 2 b/c H and He initialization is handled by MultiSpecies */
+            if(StellarYieldsAtomicNumbers[yield_i] > 2){
+              float fraction  = 0.0;
+              int   field_num = 0;
+
+              this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num,
+                                                                StellarYieldsAtomicNumbers[yield_i],
+                                                                0, 2 // separate elements
+                                                                );
+
+              /* We need to make the assumption that the fractions are placed IN ORDER */
+              fraction = TestProblemData.ChemicalTracerSpecies_Fractions[yield_i];
+
+              BaryonField[field_num][i] = fraction * UniformDensity;
+            }
+          }
+        } // PopIII yields separate
+      } // PopIII
+
+      if (IndividualStarTrackWindDensity){
+        BaryonField[ExtraField[3]][i] = tiny_number * UniformDensity;
       }
 
       if (IndividualStarTrackSNMetalDensity){
-          BaryonField[ExtraField[3]][i] = tiny_number * UniformDensity;
+          BaryonField[ExtraField[4]][i] = tiny_number * UniformDensity;
           if (IndividualStarSNIaModel == 2){
-            BaryonField[ExtraField[4]][i] = tiny_number * UniformDensity;
             BaryonField[ExtraField[5]][i] = tiny_number * UniformDensity;
             BaryonField[ExtraField[6]][i] = tiny_number * UniformDensity;
+            BaryonField[ExtraField[7]][i] = tiny_number * UniformDensity;
           }
 
-          BaryonField[ExtraField[7]][i] = tiny_number * UniformDensity;
+          BaryonField[ExtraField[8]][i] = tiny_number * UniformDensity;
       }
 
       if (IndividualStarRProcessModel){
-          BaryonField[ExtraField[8]][i] = tiny_number * UniformDensity;
+          BaryonField[ExtraField[9]][i] = tiny_number * UniformDensity;
       }
 
 
@@ -408,7 +443,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
       GCM = TestProblemData.GloverChemistryModel;  // purely for convenience
 
-      BaryonField[HIINum][i] = TestProblemData.HII_Fraction * 
+      BaryonField[HIINum][i] = TestProblemData.HII_Fraction *
 	TestProblemData.HydrogenFractionByMass * UniformDensity;
       BaryonField[H2INum][i] = TestProblemData.H2I_Fraction *
 	  BaryonField[0][i] * TestProblemData.HydrogenFractionByMass;
@@ -462,7 +497,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
       }
 
     } // if(TestProblemData.GloverChemistryModel)
-    
+
 
   } // for (i = 0; i < size; i++)
 

@@ -35,12 +35,14 @@ void DeleteStar(Star * &Node);
 Star *PopStar(Star * &Node);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
 
+int DetermineNumberOfAbundanceAttributes();
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
 
-// IndividualStars 
+// IndividualStars
 int CheckPopIIIMetallicityThreshold(const double & C_fraction,
                                     const double &Fe_fraction,
                                     const double & H_fraction);
@@ -123,16 +125,10 @@ Star::Star(grid *_grid, int _id, int _level)
     BirthMass = (double)(_grid->ParticleAttribute[3][_id]);
 
     if (!IndividualStarOutputChemicalTags){
-      int end_index = 0;
-      if (IndividualStarTrackAGBMetalDensity) end_index++;
-      if (IndividualStarPopIIIFormation) end_index += 2;
-      if (IndividualStarTrackSNMetalDensity){
-        end_index += 2;
-        if (IndividualStarSNIaModel == 2) end_index += 3;
-      }
-      if (IndividualStarRProcessModel) end_index += 1;
 
-      for (int i = 0; i < StellarYieldsNumberOfSpecies+end_index; i++){
+      int num_abundances = DetermineNumberOfAbundanceAttributes();
+
+      for (int i = 0; i < num_abundances; i++){
         abundances[i] = (double)(_grid->ParticleAttribute[4 + i][_id]);
       }
     }
@@ -627,9 +623,13 @@ void Star::UpdateWhiteDwarfProperties(void){
         (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD) ){
 
       // find first index (of 4 fields) that is negative
+      // this finds attribute index corresponding to first SNIa tracer field
+      // this kind of hard-coded order searching is prone to bugs!!
       int start_index = 4 + (StellarYieldsNumberOfSpecies);
       if (IndividualStarTrackAGBMetalDensity) start_index++;
       if (IndividualStarPopIIIFormation) start_index += 2;
+      if (IndividualStarPopIIISeparateYields) start_index += StellarYieldsNumberOfSpecies -2;
+      if (IndividualStarTrackWindDensity) start_index += 1;
 
       for (int i = 0; i < 4; i++){
         if ( CurrentGrid->ParticleAttribute[start_index+i] < 0){
@@ -713,20 +713,13 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
 
     if (!IndividualStarOutputChemicalTags){
 
-      int end_index = 0;
-      if (IndividualStarTrackAGBMetalDensity) end_index++;
-      if (IndividualStarPopIIIFormation) end_index += 2;
-      if (IndividualStarTrackSNMetalDensity){
-        end_index += 2;
-        if (IndividualStarSNIaModel == 2) end_index += 3;
-      }
-      if (IndividualStarRProcessModel) end_index += 1;
+      int num_abundances = DetermineNumberOfAbundanceAttributes();
 
-      if (StellarYieldsNumberOfSpecies+end_index > MAX_STAR_ABUNDANCES){
+      if (num_abundances > MAX_STAR_ABUNDANCES){
         ENZO_FAIL("Star::: Need to increase maximum number of abundances");
       }
 
-      for (int i = 0; i < StellarYieldsNumberOfSpecies+end_index; i++){
+      for (int i = 0; i < num_abundances; i++){
         abundances[i] = (double)(_grid->ParticleAttribute[4 + i][_id]);
       }
 
@@ -780,9 +773,13 @@ void Star::DetermineSNIaType(void){
       (ABS(type) == PARTICLE_TYPE_INDIVIDUAL_STAR_WD) ){
 
     // find first index (of 4 fields) that is negative
+    // this finds attribute index corresponding to first SNIa tracer field
+    // this kind of hard-coded order searching is prone to bugs!!
     int start_index = (StellarYieldsNumberOfSpecies);
     if (IndividualStarTrackAGBMetalDensity) start_index++;
     if (IndividualStarPopIIIFormation) start_index += 2;
+    if (IndividualStarPopIIISeparateYields) start_index += StellarYieldsNumberOfSpecies -2;
+    if (IndividualStarTrackWindDensity) start_index += 1;
     for (int i = 0; i < 4; i++){
       if ( this->abundances[start_index+i] < 0){
         SNIaType = i;

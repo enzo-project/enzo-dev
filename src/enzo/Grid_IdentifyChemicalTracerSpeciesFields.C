@@ -38,105 +38,211 @@
 
 int FindField(int f, int farray[], int n);
 
-int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number){
+int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number, int element_set = 1);
+char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num, int element_set = 1);
+
+
+int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number,
+                                     int element_set // default 1
+                                    ){
 
   int field_num;
 
   /* Look up and return field index defined in typedefs.h */
-  switch(atomic_number){
-    case 1 :
-    case 2 :
-      if (TestProblemData.MultiSpecies == 0 && MultiMetals == 0){
-        ENZO_FAIL("ChemicalSpeciesBaryonFieldNumber: Multispecies must be ON to track H and He yields");
-      }
-      break;
+  if (element_set == 1){
+    switch(atomic_number){
+      case 1 :
+      case 2 :
+        if (TestProblemData.MultiSpecies == 0 && MultiMetals == 0){
+          ENZO_FAIL("ChemicalSpeciesBaryonFieldNumber: Multispecies must be ON to track H and He yields");
+        }
+        break;
 
-    case  3 : field_num = LiDensity; break;
-    case  4 : field_num = BeDensity; break;
-    case  5 : field_num = BDensity; break;
-    case  6 : field_num = CDensity; break;
-    case  7 : field_num = NDensity; break;
-    case  8 : field_num = ODensity; break;
-    case  9 : field_num = FDensity; break;
-    case 10 : field_num = NeDensity; break;
-    case 11 : field_num = NaDensity; break;
-    case 12 : field_num = MgDensity; break;
-    case 13 : field_num = AlDensity; break;
-    case 14 : field_num = SiDensity; break;
-    case 15 : field_num = PDensity; break;
-    case 16 : field_num = SDensity; break;
-    case 17 : field_num = ClDensity; break;
-    case 18 : field_num = ArDensity; break;
-    case 19 : field_num = KDensity; break;
-    case 20 : field_num = CaDensity; break;
-    case 21 : field_num = ScDensity; break;
-    case 22 : field_num = TiDensity; break;
-    case 23 : field_num = VDensity; break;
-    case 24 : field_num = CrDensity; break;
-    case 25 : field_num = MnDensity; break;
-    case 26 : field_num = FeDensity; break;
-    case 27 : field_num = CoDensity; break;
-    case 28 : field_num = NiDensity; break;
-    case 29 : field_num = CuDensity; break;
-    case 30 : field_num = ZnDensity; break;
-    case 31 : field_num = GaDensity; break;
-    case 32 : field_num = GeDensity; break;
-    case 33 : field_num = AsDensity; break;
-    case 34 : field_num = SeDensity; break;
-    case 35 : field_num = BrDensity; break;
-    case 36 : field_num = KrDensity; break;
-    case 37 : field_num = RbDensity; break;
-    case 38 : field_num = SrDensity; break;
-    case 39 : field_num = YDensity; break;
-    case 40 : field_num = ZrDensity; break;
-    case 41 : field_num = NbDensity; break;
-    case 42 : field_num = MoDensity; break;
-    case 43 : field_num = TcDensity; break;
-    case 44 : field_num = RuDensity; break;
-    case 45 : field_num = RhDensity; break;
-    case 46 : field_num = PdDensity; break;
-    case 47 : field_num = AgDensity; break;
-    case 48 : field_num = CdDensity; break;
-    case 49 : field_num = InDensity; break;
-    case 50 : field_num = SnDensity; break;
-    case 51 : field_num = SbDensity; break;
-    case 52 : field_num = TeDensity; break;
-    case 53 : field_num =  IDensity; break;
-    case 54 : field_num = XeDensity; break;
-    case 55 : field_num = CsDensity; break;
-    case 56 : field_num = BaDensity; break;
-    case 57 : field_num = LaDensity; break;
-    case 58 : field_num = CeDensity; break;
-    case 59 : field_num = PrDensity; break;
-    case 60 : field_num = NdDensity; break;
-    case 61 : field_num = PmDensity; break;
-    case 62 : field_num = SmDensity; break;
-    case 63 : field_num = EuDensity; break;
-    case 64 : field_num = GdDensity; break;
-    case 65 : field_num = TbDensity; break;
-    case 66 : field_num = DyDensity; break;
-    case 67 : field_num = HoDensity; break;
-    case 68 : field_num = ErDensity; break;
-    case 69 : field_num = TmDensity; break;
-    case 70 : field_num = YbDensity; break;
-    case 71 : field_num = LuDensity; break;
-    case 72 : field_num = HfDensity; break;
-    case 73 : field_num = TaDensity; break;
-    case 74 : field_num =  WDensity; break;
-    case 75 : field_num = ReDensity; break;
-    case 76 : field_num = OsDensity; break;
-    case 77 : field_num = IrDensity; break;
-    case 78 : field_num = PtDensity; break;
-    case 79 : field_num = AuDensity; break;
-    case 80 : field_num = HgDensity; break;
-    case 81 : field_num = TlDensity; break;
-    case 82 : field_num = PbDensity; break;
-    case 83 : field_num = BiDensity; break;
+      case  3 : field_num = LiDensity; break;
+      case  4 : field_num = BeDensity; break;
+      case  5 : field_num = BDensity; break;
+      case  6 : field_num = CDensity; break;
+      case  7 : field_num = NDensity; break;
+      case  8 : field_num = ODensity; break;
+      case  9 : field_num = FDensity; break;
+      case 10 : field_num = NeDensity; break;
+      case 11 : field_num = NaDensity; break;
+      case 12 : field_num = MgDensity; break;
+      case 13 : field_num = AlDensity; break;
+      case 14 : field_num = SiDensity; break;
+      case 15 : field_num = PDensity; break;
+      case 16 : field_num = SDensity; break;
+      case 17 : field_num = ClDensity; break;
+      case 18 : field_num = ArDensity; break;
+      case 19 : field_num = KDensity; break;
+      case 20 : field_num = CaDensity; break;
+      case 21 : field_num = ScDensity; break;
+      case 22 : field_num = TiDensity; break;
+      case 23 : field_num = VDensity; break;
+      case 24 : field_num = CrDensity; break;
+      case 25 : field_num = MnDensity; break;
+      case 26 : field_num = FeDensity; break;
+      case 27 : field_num = CoDensity; break;
+      case 28 : field_num = NiDensity; break;
+      case 29 : field_num = CuDensity; break;
+      case 30 : field_num = ZnDensity; break;
+      case 31 : field_num = GaDensity; break;
+      case 32 : field_num = GeDensity; break;
+      case 33 : field_num = AsDensity; break;
+      case 34 : field_num = SeDensity; break;
+      case 35 : field_num = BrDensity; break;
+      case 36 : field_num = KrDensity; break;
+      case 37 : field_num = RbDensity; break;
+      case 38 : field_num = SrDensity; break;
+      case 39 : field_num = YDensity; break;
+      case 40 : field_num = ZrDensity; break;
+      case 41 : field_num = NbDensity; break;
+      case 42 : field_num = MoDensity; break;
+      case 43 : field_num = TcDensity; break;
+      case 44 : field_num = RuDensity; break;
+      case 45 : field_num = RhDensity; break;
+      case 46 : field_num = PdDensity; break;
+      case 47 : field_num = AgDensity; break;
+      case 48 : field_num = CdDensity; break;
+      case 49 : field_num = InDensity; break;
+      case 50 : field_num = SnDensity; break;
+      case 51 : field_num = SbDensity; break;
+      case 52 : field_num = TeDensity; break;
+      case 53 : field_num =  IDensity; break;
+      case 54 : field_num = XeDensity; break;
+      case 55 : field_num = CsDensity; break;
+      case 56 : field_num = BaDensity; break;
+      case 57 : field_num = LaDensity; break;
+      case 58 : field_num = CeDensity; break;
+      case 59 : field_num = PrDensity; break;
+      case 60 : field_num = NdDensity; break;
+      case 61 : field_num = PmDensity; break;
+      case 62 : field_num = SmDensity; break;
+      case 63 : field_num = EuDensity; break;
+      case 64 : field_num = GdDensity; break;
+      case 65 : field_num = TbDensity; break;
+      case 66 : field_num = DyDensity; break;
+      case 67 : field_num = HoDensity; break;
+      case 68 : field_num = ErDensity; break;
+      case 69 : field_num = TmDensity; break;
+      case 70 : field_num = YbDensity; break;
+      case 71 : field_num = LuDensity; break;
+      case 72 : field_num = HfDensity; break;
+      case 73 : field_num = TaDensity; break;
+      case 74 : field_num =  WDensity; break;
+      case 75 : field_num = ReDensity; break;
+      case 76 : field_num = OsDensity; break;
+      case 77 : field_num = IrDensity; break;
+      case 78 : field_num = PtDensity; break;
+      case 79 : field_num = AuDensity; break;
+      case 80 : field_num = HgDensity; break;
+      case 81 : field_num = TlDensity; break;
+      case 82 : field_num = PbDensity; break;
+      case 83 : field_num = BiDensity; break;
 
-    default:
-      ENZO_FAIL("ChemicalSpeciesBaryonFieldNumber: Cannot find field");
+      default:
+        ENZO_FAIL("ChemicalSpeciesBaryonFieldNumber: Cannot find field");
 
-  }
+    }
+
+  } else if (element_set == 2){
+    switch(atomic_number){
+      case 1 :
+      case 2 :
+        if (TestProblemData.MultiSpecies == 0 && MultiMetals == 0){
+          ENZO_FAIL("ChemicalSpeciesBaryonFieldNumber: Multispecies must be ON to track H and He yields");
+        }
+        break;
+
+      case  3 : field_num = LiDensity2; break;
+      case  4 : field_num = BeDensity2; break;
+      case  5 : field_num = BDensity2; break;
+      case  6 : field_num = CDensity2; break;
+      case  7 : field_num = NDensity2; break;
+      case  8 : field_num = ODensity2; break;
+      case  9 : field_num = FDensity2; break;
+      case 10 : field_num = NeDensity2; break;
+      case 11 : field_num = NaDensity2; break;
+      case 12 : field_num = MgDensity2; break;
+      case 13 : field_num = AlDensity2; break;
+      case 14 : field_num = SiDensity2; break;
+      case 15 : field_num = PDensity2; break;
+      case 16 : field_num = SDensity2; break;
+      case 17 : field_num = ClDensity2; break;
+      case 18 : field_num = ArDensity2; break;
+      case 19 : field_num = KDensity2; break;
+      case 20 : field_num = CaDensity2; break;
+      case 21 : field_num = ScDensity2; break;
+      case 22 : field_num = TiDensity2; break;
+      case 23 : field_num = VDensity2; break;
+      case 24 : field_num = CrDensity2; break;
+      case 25 : field_num = MnDensity2; break;
+      case 26 : field_num = FeDensity2; break;
+      case 27 : field_num = CoDensity2; break;
+      case 28 : field_num = NiDensity2; break;
+      case 29 : field_num = CuDensity2; break;
+      case 30 : field_num = ZnDensity2; break;
+      case 31 : field_num = GaDensity2; break;
+      case 32 : field_num = GeDensity2; break;
+      case 33 : field_num = AsDensity2; break;
+      case 34 : field_num = SeDensity2; break;
+      case 35 : field_num = BrDensity2; break;
+      case 36 : field_num = KrDensity2; break;
+      case 37 : field_num = RbDensity2; break;
+      case 38 : field_num = SrDensity2; break;
+      case 39 : field_num = YDensity2; break;
+      case 40 : field_num = ZrDensity2; break;
+      case 41 : field_num = NbDensity2; break;
+      case 42 : field_num = MoDensity2; break;
+      case 43 : field_num = TcDensity2; break;
+      case 44 : field_num = RuDensity2; break;
+      case 45 : field_num = RhDensity2; break;
+      case 46 : field_num = PdDensity2; break;
+      case 47 : field_num = AgDensity2; break;
+      case 48 : field_num = CdDensity2; break;
+      case 49 : field_num = InDensity2; break;
+      case 50 : field_num = SnDensity2; break;
+      case 51 : field_num = SbDensity2; break;
+      case 52 : field_num = TeDensity2; break;
+      case 53 : field_num =  IDensity2; break;
+      case 54 : field_num = XeDensity2; break;
+      case 55 : field_num = CsDensity2; break;
+      case 56 : field_num = BaDensity2; break;
+      case 57 : field_num = LaDensity2; break;
+      case 58 : field_num = CeDensity2; break;
+      case 59 : field_num = PrDensity2; break;
+      case 60 : field_num = NdDensity2; break;
+      case 61 : field_num = PmDensity2; break;
+      case 62 : field_num = SmDensity2; break;
+      case 63 : field_num = EuDensity2; break;
+      case 64 : field_num = GdDensity2; break;
+      case 65 : field_num = TbDensity2; break;
+      case 66 : field_num = DyDensity2; break;
+      case 67 : field_num = HoDensity2; break;
+      case 68 : field_num = ErDensity2; break;
+      case 69 : field_num = TmDensity2; break;
+      case 70 : field_num = YbDensity2; break;
+      case 71 : field_num = LuDensity2; break;
+      case 72 : field_num = HfDensity2; break;
+      case 73 : field_num = TaDensity2; break;
+      case 74 : field_num =  WDensity2; break;
+      case 75 : field_num = ReDensity2; break;
+      case 76 : field_num = OsDensity2; break;
+      case 77 : field_num = IrDensity2; break;
+      case 78 : field_num = PtDensity2; break;
+      case 79 : field_num = AuDensity2; break;
+      case 80 : field_num = HgDensity2; break;
+      case 81 : field_num = TlDensity2; break;
+      case 82 : field_num = PbDensity2; break;
+      case 83 : field_num = BiDensity2; break;
+
+      default:
+        ENZO_FAIL("ChemicalSpeciesBaryonFieldNumber: Cannot find field");
+
+    }
+
+
+  } else { ENZO_FAIL("Incorrect element set"); }
 
   return field_num;
 
@@ -245,17 +351,22 @@ char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
   return label;
 }
 
-char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num){
+char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num, int element_set // default 1
+                                                 ){
   /* Just does a conversion from field type to atomic number
      this is possible since they are contiguous field numbers beginning
      at LiDensity and ending at BiDensity */
 
-  if ((field_num < LiDensity) || (field_num > BiDensity)){
+  if (!( ( (field_num >=  LiDensity) && (field_num <= BiDensity )) ||
+         ( (field_num >= LiDensity2) && (field_num <= BiDensity2)) )) {
+
     ENZO_FAIL("ChemicalSpeciesBaryonFieldLabelByFieldType: Requesting atomic "
               "number for a field that is not a elemental tracer species field");
   }
 
-  int atomic_number = field_num - LiDensity + 3; // Li = atomic number 3
+  int atomic_number = field_num;
+  if   (element_set == 1)    atomic_number -= LiDensity  + 3; // Li = atomic number 3
+  else if (element_set == 2) atomic_number -= LiDensity2 + 3;
 
   return ChemicalSpeciesBaryonFieldLabel(atomic_number);
 
@@ -380,141 +491,235 @@ char* ChemicalSpeciesParticleLabel(const int &atomic_number){
   return label;
 }
 
-
-int grid::IdentifyChemicalTracerSpeciesFieldsByNumber(int &field_num, const int &atomic_number){
+/*
+int grid::IdentifyChemicalTracerSpeciesFieldsByNumber(int &field_num, const int &atomic_number,
+                                                      int element_set // default 1
+                                                      ){
   // overloaded function for the below. This was done so one could in principle
   // write code to return fields with specific ionization levels when they do exist.
   // currently this only makes sense for the varius H and He fields. having "0" in the
   // last argument below means you don't care about the ionization state or there isn't
   // one to care about in the first place.
 
-  this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, atomic_number, 0);
+  this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, atomic_number, 0, element_set);
 
 }
-
+*/
 int grid::IdentifyChemicalTracerSpeciesFieldsByNumber(int &field_num,
                                                       const int &atomic_number,
-                                                      const int &ion_level){
+                                                      int ion_level, // default 0
+                                                      int element_set // default 1
+                                                      ){
  /* -------------------------------------------------------------------------------------
   * IdentifyChemicalTracerSpeciesByNumber
   * ------------------------------------------------------------------------------------
   * Author: A. Emerick - 04/21/16
   *
   * Lookup table function to grab the baryon field index number corresponding to
-  * the desired chemical species tracer fields (inlcuding H and He). Elements are 
+  * the desired chemical species tracer fields (inlcuding H and He). Elements are
   * found by atomic number. If H or He are requested, last parameter is used (optional)
   * ---------------------------------------------------------------------------------- */
 
   field_num = -1;
 
+  if (atomic_number <= 2){
+    switch(atomic_number){
+        /* Probably will never be used, but allow atomic number of 0 to refer to metallicity */
+        case  0: field_num = FindField( Metallicity, FieldType, NumberOfBaryonFields); break;
 
-  switch(atomic_number){
+        case  1: // Hydrogen a little complicated since we can track ionization
+          switch( ion_level ){
+            case 1 : field_num = FindField( HIDensity, FieldType, NumberOfBaryonFields); break;
+            case 0 : // if ion_level is default value, assume ionized
+            case 2 : field_num = FindField(HIIDensity, FieldType, NumberOfBaryonFields); break;
+          }
+          break; // end H case
 
-    /* Probably will never be used, but allow atomic number of 0 to refer to metallicity */
-    case  0: field_num = FindField( Metallicity, FieldType, NumberOfBaryonFields); break;
+        case  2: // Helium a little complicated since we can track ionization
+          switch( ion_level ){
+            case 1 : field_num = FindField(  HeIDensity, FieldType, NumberOfBaryonFields); break;
+            case 2 : field_num = FindField( HeIIDensity, FieldType, NumberOfBaryonFields); break;
+            case 0 : // if default, assume ionized
+            case 3 : field_num = FindField(HeIIIDensity, FieldType, NumberOfBaryonFields); break;
+          }
+          break; // end He case
+    }
+  } else if (element_set == 1){
+    switch(atomic_number){
+      /* only one case for all other species */
 
-    case  1: // Hydrogen a little complicated since we can track ionization
-      switch( ion_level ){
-        case 1 : field_num = FindField( HIDensity, FieldType, NumberOfBaryonFields); break;
-        case 0 : // if ion_level is default value, assume ionized
-        case 2 : field_num = FindField(HIIDensity, FieldType, NumberOfBaryonFields); break;
-      }
-      break; // end H case
+      /* for all other cases can do field_num = FindField(ChemicalSpeciesBaryonFieldNumber(atomic_number), FieldType, NumberO */
+      case  3 : field_num = FindField( LiDensity, FieldType, NumberOfBaryonFields); break;
+      case  4 : field_num = FindField( BeDensity, FieldType, NumberOfBaryonFields); break;
+      case  5 : field_num = FindField( BDensity, FieldType, NumberOfBaryonFields); break;
+      case  6 : field_num = FindField( CDensity, FieldType, NumberOfBaryonFields); break;
+      case  7 : field_num = FindField( NDensity, FieldType, NumberOfBaryonFields); break;
+      case  8 : field_num = FindField( ODensity, FieldType, NumberOfBaryonFields); break;
+      case  9 : field_num = FindField( FDensity, FieldType, NumberOfBaryonFields); break;
+      case 10 : field_num = FindField( NeDensity, FieldType, NumberOfBaryonFields); break;
+      case 11 : field_num = FindField( NaDensity, FieldType, NumberOfBaryonFields); break;
+      case 12 : field_num = FindField( MgDensity, FieldType, NumberOfBaryonFields); break;
+      case 13 : field_num = FindField( AlDensity, FieldType, NumberOfBaryonFields); break;
+      case 14 : field_num = FindField( SiDensity, FieldType, NumberOfBaryonFields); break;
+      case 15 : field_num = FindField( PDensity, FieldType, NumberOfBaryonFields); break;
+      case 16 : field_num = FindField( SDensity, FieldType, NumberOfBaryonFields); break;
+      case 17 : field_num = FindField( ClDensity, FieldType, NumberOfBaryonFields); break;
+      case 18 : field_num = FindField( ArDensity, FieldType, NumberOfBaryonFields); break;
+      case 19 : field_num = FindField( KDensity, FieldType, NumberOfBaryonFields); break;
+      case 20 : field_num = FindField( CaDensity, FieldType, NumberOfBaryonFields); break;
+      case 21 : field_num = FindField( ScDensity, FieldType, NumberOfBaryonFields); break;
+      case 22 : field_num = FindField( TiDensity, FieldType, NumberOfBaryonFields); break;
+      case 23 : field_num = FindField( VDensity, FieldType, NumberOfBaryonFields); break;
+      case 24 : field_num = FindField( CrDensity, FieldType, NumberOfBaryonFields); break;
+      case 25 : field_num = FindField( MnDensity, FieldType, NumberOfBaryonFields); break;
+      case 26 : field_num = FindField( FeDensity, FieldType, NumberOfBaryonFields); break;
+      case 27 : field_num = FindField( CoDensity, FieldType, NumberOfBaryonFields); break;
+      case 28 : field_num = FindField( NiDensity, FieldType, NumberOfBaryonFields); break;
+      case 29 : field_num = FindField( CuDensity, FieldType, NumberOfBaryonFields); break;
+      case 30 : field_num = FindField( ZnDensity, FieldType, NumberOfBaryonFields); break;
+      case 31 : field_num = FindField( GaDensity, FieldType, NumberOfBaryonFields); break;
+      case 32 : field_num = FindField( GeDensity, FieldType, NumberOfBaryonFields); break;
+      case 33 : field_num = FindField( AsDensity, FieldType, NumberOfBaryonFields); break;
+      case 34 : field_num = FindField( SeDensity, FieldType, NumberOfBaryonFields); break;
+      case 35 : field_num = FindField( BrDensity, FieldType, NumberOfBaryonFields); break;
+      case 36 : field_num = FindField( KrDensity, FieldType, NumberOfBaryonFields); break;
+      case 37 : field_num = FindField( RbDensity, FieldType, NumberOfBaryonFields); break;
+      case 38 : field_num = FindField( SrDensity, FieldType, NumberOfBaryonFields); break;
+      case 39 : field_num = FindField( YDensity, FieldType, NumberOfBaryonFields); break;
+      case 40 : field_num = FindField( ZrDensity, FieldType, NumberOfBaryonFields); break;
+      case 41 : field_num = FindField( NbDensity, FieldType, NumberOfBaryonFields); break;
+      case 42 : field_num = FindField( MoDensity, FieldType, NumberOfBaryonFields); break;
+      case 43 : field_num = FindField( TcDensity, FieldType, NumberOfBaryonFields); break;
+      case 44 : field_num = FindField( RuDensity, FieldType, NumberOfBaryonFields); break;
+      case 45 : field_num = FindField( RhDensity, FieldType, NumberOfBaryonFields); break;
+      case 46 : field_num = FindField( PdDensity, FieldType, NumberOfBaryonFields); break;
+      case 47 : field_num = FindField( AgDensity, FieldType, NumberOfBaryonFields); break;
+      case 48 : field_num = FindField( CdDensity, FieldType, NumberOfBaryonFields); break;
+      case 49 : field_num = FindField( InDensity, FieldType, NumberOfBaryonFields); break;
+      case 50 : field_num = FindField( SnDensity, FieldType, NumberOfBaryonFields); break;
+      case 51 : field_num = FindField( SbDensity, FieldType, NumberOfBaryonFields); break;
+      case 52 : field_num = FindField( TeDensity, FieldType, NumberOfBaryonFields); break;
+      case 53 : field_num = FindField( IDensity, FieldType, NumberOfBaryonFields); break;
+      case 54 : field_num = FindField( XeDensity, FieldType, NumberOfBaryonFields); break;
+      case 55 : field_num = FindField( CsDensity, FieldType, NumberOfBaryonFields); break;
+      case 56 : field_num = FindField( BaDensity, FieldType, NumberOfBaryonFields); break;
+      case 57 : field_num = FindField( LaDensity, FieldType, NumberOfBaryonFields); break;
+      case 58 : field_num = FindField( CeDensity, FieldType, NumberOfBaryonFields); break;
+      case 59 : field_num = FindField( PrDensity, FieldType, NumberOfBaryonFields); break;
+      case 60 : field_num = FindField( NdDensity, FieldType, NumberOfBaryonFields); break;
+      case 61 : field_num = FindField( PmDensity, FieldType, NumberOfBaryonFields); break;
+      case 62 : field_num = FindField( SmDensity, FieldType, NumberOfBaryonFields); break;
+      case 63 : field_num = FindField( EuDensity, FieldType, NumberOfBaryonFields); break;
+      case 64 : field_num = FindField( GdDensity, FieldType, NumberOfBaryonFields); break;
+      case 65 : field_num = FindField( TbDensity, FieldType, NumberOfBaryonFields); break;
+      case 66 : field_num = FindField( DyDensity, FieldType, NumberOfBaryonFields); break;
+      case 67 : field_num = FindField( HoDensity, FieldType, NumberOfBaryonFields); break;
+      case 68 : field_num = FindField( ErDensity, FieldType, NumberOfBaryonFields); break;
+      case 69 : field_num = FindField( TmDensity, FieldType, NumberOfBaryonFields); break;
+      case 70 : field_num = FindField( YbDensity, FieldType, NumberOfBaryonFields); break;
+      case 71 : field_num = FindField( LuDensity, FieldType, NumberOfBaryonFields); break;
+      case 72 : field_num = FindField( HfDensity, FieldType, NumberOfBaryonFields); break;
+      case 73 : field_num = FindField( TaDensity, FieldType, NumberOfBaryonFields); break;
+      case 74 : field_num = FindField( WDensity, FieldType, NumberOfBaryonFields); break;
+      case 75 : field_num = FindField( ReDensity, FieldType, NumberOfBaryonFields); break;
+      case 76 : field_num = FindField( OsDensity, FieldType, NumberOfBaryonFields); break;
+      case 77 : field_num = FindField( IrDensity, FieldType, NumberOfBaryonFields); break;
+      case 78 : field_num = FindField( PtDensity, FieldType, NumberOfBaryonFields); break;
+      case 79 : field_num = FindField( AuDensity, FieldType, NumberOfBaryonFields); break;
+      case 80 : field_num = FindField( HgDensity, FieldType, NumberOfBaryonFields); break;
+      case 81 : field_num = FindField( TlDensity, FieldType, NumberOfBaryonFields); break;
+      case 82 : field_num = FindField( PbDensity, FieldType, NumberOfBaryonFields); break;
+      case 83 : field_num = FindField( BiDensity, FieldType, NumberOfBaryonFields); break;
 
-    case  2: // Helium a little complicated since we can track ionization
-      switch( ion_level ){
-        case 1 : field_num = FindField(  HeIDensity, FieldType, NumberOfBaryonFields); break;
-        case 2 : field_num = FindField( HeIIDensity, FieldType, NumberOfBaryonFields); break;
-        case 0 : // if default, assume ionized
-        case 3 : field_num = FindField(HeIIIDensity, FieldType, NumberOfBaryonFields); break;
-      }
-      break; // end He case
+    }
+  } else if (element_set == 2){
+    switch(atomic_number){
+      /* only one case for all other species */
 
-    /* only one case for all other species */
+      /* for all other cases can do field_num = FindField(ChemicalSpeciesBaryonFieldNumber(atomic_number), FieldType, NumberO */
+      case  3 : field_num = FindField( LiDensity2, FieldType, NumberOfBaryonFields); break;
+      case  4 : field_num = FindField( BeDensity2, FieldType, NumberOfBaryonFields); break;
+      case  5 : field_num = FindField( BDensity2, FieldType, NumberOfBaryonFields); break;
+      case  6 : field_num = FindField( CDensity2, FieldType, NumberOfBaryonFields); break;
+      case  7 : field_num = FindField( NDensity2, FieldType, NumberOfBaryonFields); break;
+      case  8 : field_num = FindField( ODensity2, FieldType, NumberOfBaryonFields); break;
+      case  9 : field_num = FindField( FDensity2, FieldType, NumberOfBaryonFields); break;
+      case 10 : field_num = FindField( NeDensity2, FieldType, NumberOfBaryonFields); break;
+      case 11 : field_num = FindField( NaDensity2, FieldType, NumberOfBaryonFields); break;
+      case 12 : field_num = FindField( MgDensity2, FieldType, NumberOfBaryonFields); break;
+      case 13 : field_num = FindField( AlDensity2, FieldType, NumberOfBaryonFields); break;
+      case 14 : field_num = FindField( SiDensity2, FieldType, NumberOfBaryonFields); break;
+      case 15 : field_num = FindField( PDensity2, FieldType, NumberOfBaryonFields); break;
+      case 16 : field_num = FindField( SDensity2, FieldType, NumberOfBaryonFields); break;
+      case 17 : field_num = FindField( ClDensity2, FieldType, NumberOfBaryonFields); break;
+      case 18 : field_num = FindField( ArDensity2, FieldType, NumberOfBaryonFields); break;
+      case 19 : field_num = FindField( KDensity2, FieldType, NumberOfBaryonFields); break;
+      case 20 : field_num = FindField( CaDensity2, FieldType, NumberOfBaryonFields); break;
+      case 21 : field_num = FindField( ScDensity2, FieldType, NumberOfBaryonFields); break;
+      case 22 : field_num = FindField( TiDensity2, FieldType, NumberOfBaryonFields); break;
+      case 23 : field_num = FindField( VDensity2, FieldType, NumberOfBaryonFields); break;
+      case 24 : field_num = FindField( CrDensity2, FieldType, NumberOfBaryonFields); break;
+      case 25 : field_num = FindField( MnDensity2, FieldType, NumberOfBaryonFields); break;
+      case 26 : field_num = FindField( FeDensity2, FieldType, NumberOfBaryonFields); break;
+      case 27 : field_num = FindField( CoDensity2, FieldType, NumberOfBaryonFields); break;
+      case 28 : field_num = FindField( NiDensity2, FieldType, NumberOfBaryonFields); break;
+      case 29 : field_num = FindField( CuDensity2, FieldType, NumberOfBaryonFields); break;
+      case 30 : field_num = FindField( ZnDensity2, FieldType, NumberOfBaryonFields); break;
+      case 31 : field_num = FindField( GaDensity2, FieldType, NumberOfBaryonFields); break;
+      case 32 : field_num = FindField( GeDensity2, FieldType, NumberOfBaryonFields); break;
+      case 33 : field_num = FindField( AsDensity2, FieldType, NumberOfBaryonFields); break;
+      case 34 : field_num = FindField( SeDensity2, FieldType, NumberOfBaryonFields); break;
+      case 35 : field_num = FindField( BrDensity2, FieldType, NumberOfBaryonFields); break;
+      case 36 : field_num = FindField( KrDensity2, FieldType, NumberOfBaryonFields); break;
+      case 37 : field_num = FindField( RbDensity2, FieldType, NumberOfBaryonFields); break;
+      case 38 : field_num = FindField( SrDensity2, FieldType, NumberOfBaryonFields); break;
+      case 39 : field_num = FindField( YDensity2, FieldType, NumberOfBaryonFields); break;
+      case 40 : field_num = FindField( ZrDensity2, FieldType, NumberOfBaryonFields); break;
+      case 41 : field_num = FindField( NbDensity2, FieldType, NumberOfBaryonFields); break;
+      case 42 : field_num = FindField( MoDensity2, FieldType, NumberOfBaryonFields); break;
+      case 43 : field_num = FindField( TcDensity2, FieldType, NumberOfBaryonFields); break;
+      case 44 : field_num = FindField( RuDensity2, FieldType, NumberOfBaryonFields); break;
+      case 45 : field_num = FindField( RhDensity2, FieldType, NumberOfBaryonFields); break;
+      case 46 : field_num = FindField( PdDensity2, FieldType, NumberOfBaryonFields); break;
+      case 47 : field_num = FindField( AgDensity2, FieldType, NumberOfBaryonFields); break;
+      case 48 : field_num = FindField( CdDensity2, FieldType, NumberOfBaryonFields); break;
+      case 49 : field_num = FindField( InDensity2, FieldType, NumberOfBaryonFields); break;
+      case 50 : field_num = FindField( SnDensity2, FieldType, NumberOfBaryonFields); break;
+      case 51 : field_num = FindField( SbDensity2, FieldType, NumberOfBaryonFields); break;
+      case 52 : field_num = FindField( TeDensity2, FieldType, NumberOfBaryonFields); break;
+      case 53 : field_num = FindField( IDensity2, FieldType, NumberOfBaryonFields); break;
+      case 54 : field_num = FindField( XeDensity2, FieldType, NumberOfBaryonFields); break;
+      case 55 : field_num = FindField( CsDensity2, FieldType, NumberOfBaryonFields); break;
+      case 56 : field_num = FindField( BaDensity2, FieldType, NumberOfBaryonFields); break;
+      case 57 : field_num = FindField( LaDensity2, FieldType, NumberOfBaryonFields); break;
+      case 58 : field_num = FindField( CeDensity2, FieldType, NumberOfBaryonFields); break;
+      case 59 : field_num = FindField( PrDensity2, FieldType, NumberOfBaryonFields); break;
+      case 60 : field_num = FindField( NdDensity2, FieldType, NumberOfBaryonFields); break;
+      case 61 : field_num = FindField( PmDensity2, FieldType, NumberOfBaryonFields); break;
+      case 62 : field_num = FindField( SmDensity2, FieldType, NumberOfBaryonFields); break;
+      case 63 : field_num = FindField( EuDensity2, FieldType, NumberOfBaryonFields); break;
+      case 64 : field_num = FindField( GdDensity2, FieldType, NumberOfBaryonFields); break;
+      case 65 : field_num = FindField( TbDensity2, FieldType, NumberOfBaryonFields); break;
+      case 66 : field_num = FindField( DyDensity2, FieldType, NumberOfBaryonFields); break;
+      case 67 : field_num = FindField( HoDensity2, FieldType, NumberOfBaryonFields); break;
+      case 68 : field_num = FindField( ErDensity2, FieldType, NumberOfBaryonFields); break;
+      case 69 : field_num = FindField( TmDensity2, FieldType, NumberOfBaryonFields); break;
+      case 70 : field_num = FindField( YbDensity2, FieldType, NumberOfBaryonFields); break;
+      case 71 : field_num = FindField( LuDensity2, FieldType, NumberOfBaryonFields); break;
+      case 72 : field_num = FindField( HfDensity2, FieldType, NumberOfBaryonFields); break;
+      case 73 : field_num = FindField( TaDensity2, FieldType, NumberOfBaryonFields); break;
+      case 74 : field_num = FindField( WDensity2, FieldType, NumberOfBaryonFields); break;
+      case 75 : field_num = FindField( ReDensity2, FieldType, NumberOfBaryonFields); break;
+      case 76 : field_num = FindField( OsDensity2, FieldType, NumberOfBaryonFields); break;
+      case 77 : field_num = FindField( IrDensity2, FieldType, NumberOfBaryonFields); break;
+      case 78 : field_num = FindField( PtDensity2, FieldType, NumberOfBaryonFields); break;
+      case 79 : field_num = FindField( AuDensity2, FieldType, NumberOfBaryonFields); break;
+      case 80 : field_num = FindField( HgDensity2, FieldType, NumberOfBaryonFields); break;
+      case 81 : field_num = FindField( TlDensity2, FieldType, NumberOfBaryonFields); break;
+      case 82 : field_num = FindField( PbDensity2, FieldType, NumberOfBaryonFields); break;
+      case 83 : field_num = FindField( BiDensity2, FieldType, NumberOfBaryonFields); break;
 
-    /* for all other cases can do field_num = FindField(ChemicalSpeciesBaryonFieldNumber(atomic_number), FieldType, NumberO */
-    case  3 : field_num = FindField( LiDensity, FieldType, NumberOfBaryonFields); break;
-    case  4 : field_num = FindField( BeDensity, FieldType, NumberOfBaryonFields); break;
-    case  5 : field_num = FindField( BDensity, FieldType, NumberOfBaryonFields); break;
-    case  6 : field_num = FindField( CDensity, FieldType, NumberOfBaryonFields); break;
-    case  7 : field_num = FindField( NDensity, FieldType, NumberOfBaryonFields); break;
-    case  8 : field_num = FindField( ODensity, FieldType, NumberOfBaryonFields); break;
-    case  9 : field_num = FindField( FDensity, FieldType, NumberOfBaryonFields); break;
-    case 10 : field_num = FindField( NeDensity, FieldType, NumberOfBaryonFields); break;
-    case 11 : field_num = FindField( NaDensity, FieldType, NumberOfBaryonFields); break;
-    case 12 : field_num = FindField( MgDensity, FieldType, NumberOfBaryonFields); break;
-    case 13 : field_num = FindField( AlDensity, FieldType, NumberOfBaryonFields); break;
-    case 14 : field_num = FindField( SiDensity, FieldType, NumberOfBaryonFields); break;
-    case 15 : field_num = FindField( PDensity, FieldType, NumberOfBaryonFields); break;
-    case 16 : field_num = FindField( SDensity, FieldType, NumberOfBaryonFields); break;
-    case 17 : field_num = FindField( ClDensity, FieldType, NumberOfBaryonFields); break;
-    case 18 : field_num = FindField( ArDensity, FieldType, NumberOfBaryonFields); break;
-    case 19 : field_num = FindField( KDensity, FieldType, NumberOfBaryonFields); break;
-    case 20 : field_num = FindField( CaDensity, FieldType, NumberOfBaryonFields); break;
-    case 21 : field_num = FindField( ScDensity, FieldType, NumberOfBaryonFields); break;
-    case 22 : field_num = FindField( TiDensity, FieldType, NumberOfBaryonFields); break;
-    case 23 : field_num = FindField( VDensity, FieldType, NumberOfBaryonFields); break;
-    case 24 : field_num = FindField( CrDensity, FieldType, NumberOfBaryonFields); break;
-    case 25 : field_num = FindField( MnDensity, FieldType, NumberOfBaryonFields); break;
-    case 26 : field_num = FindField( FeDensity, FieldType, NumberOfBaryonFields); break;
-    case 27 : field_num = FindField( CoDensity, FieldType, NumberOfBaryonFields); break;
-    case 28 : field_num = FindField( NiDensity, FieldType, NumberOfBaryonFields); break;
-    case 29 : field_num = FindField( CuDensity, FieldType, NumberOfBaryonFields); break;
-    case 30 : field_num = FindField( ZnDensity, FieldType, NumberOfBaryonFields); break;
-    case 31 : field_num = FindField( GaDensity, FieldType, NumberOfBaryonFields); break;
-    case 32 : field_num = FindField( GeDensity, FieldType, NumberOfBaryonFields); break;
-    case 33 : field_num = FindField( AsDensity, FieldType, NumberOfBaryonFields); break;
-    case 34 : field_num = FindField( SeDensity, FieldType, NumberOfBaryonFields); break;
-    case 35 : field_num = FindField( BrDensity, FieldType, NumberOfBaryonFields); break;
-    case 36 : field_num = FindField( KrDensity, FieldType, NumberOfBaryonFields); break;
-    case 37 : field_num = FindField( RbDensity, FieldType, NumberOfBaryonFields); break;
-    case 38 : field_num = FindField( SrDensity, FieldType, NumberOfBaryonFields); break;
-    case 39 : field_num = FindField( YDensity, FieldType, NumberOfBaryonFields); break;
-    case 40 : field_num = FindField( ZrDensity, FieldType, NumberOfBaryonFields); break;
-    case 41 : field_num = FindField( NbDensity, FieldType, NumberOfBaryonFields); break;
-    case 42 : field_num = FindField( MoDensity, FieldType, NumberOfBaryonFields); break;
-    case 43 : field_num = FindField( TcDensity, FieldType, NumberOfBaryonFields); break;
-    case 44 : field_num = FindField( RuDensity, FieldType, NumberOfBaryonFields); break;
-    case 45 : field_num = FindField( RhDensity, FieldType, NumberOfBaryonFields); break;
-    case 46 : field_num = FindField( PdDensity, FieldType, NumberOfBaryonFields); break;
-    case 47 : field_num = FindField( AgDensity, FieldType, NumberOfBaryonFields); break;
-    case 48 : field_num = FindField( CdDensity, FieldType, NumberOfBaryonFields); break;
-    case 49 : field_num = FindField( InDensity, FieldType, NumberOfBaryonFields); break;
-    case 50 : field_num = FindField( SnDensity, FieldType, NumberOfBaryonFields); break;
-    case 51 : field_num = FindField( SbDensity, FieldType, NumberOfBaryonFields); break;
-    case 52 : field_num = FindField( TeDensity, FieldType, NumberOfBaryonFields); break;
-    case 53 : field_num = FindField( IDensity, FieldType, NumberOfBaryonFields); break;
-    case 54 : field_num = FindField( XeDensity, FieldType, NumberOfBaryonFields); break;
-    case 55 : field_num = FindField( CsDensity, FieldType, NumberOfBaryonFields); break;
-    case 56 : field_num = FindField( BaDensity, FieldType, NumberOfBaryonFields); break;
-    case 57 : field_num = FindField( LaDensity, FieldType, NumberOfBaryonFields); break;
-    case 58 : field_num = FindField( CeDensity, FieldType, NumberOfBaryonFields); break;
-    case 59 : field_num = FindField( PrDensity, FieldType, NumberOfBaryonFields); break;
-    case 60 : field_num = FindField( NdDensity, FieldType, NumberOfBaryonFields); break;
-    case 61 : field_num = FindField( PmDensity, FieldType, NumberOfBaryonFields); break;
-    case 62 : field_num = FindField( SmDensity, FieldType, NumberOfBaryonFields); break;
-    case 63 : field_num = FindField( EuDensity, FieldType, NumberOfBaryonFields); break;
-    case 64 : field_num = FindField( GdDensity, FieldType, NumberOfBaryonFields); break;
-    case 65 : field_num = FindField( TbDensity, FieldType, NumberOfBaryonFields); break;
-    case 66 : field_num = FindField( DyDensity, FieldType, NumberOfBaryonFields); break;
-    case 67 : field_num = FindField( HoDensity, FieldType, NumberOfBaryonFields); break;
-    case 68 : field_num = FindField( ErDensity, FieldType, NumberOfBaryonFields); break;
-    case 69 : field_num = FindField( TmDensity, FieldType, NumberOfBaryonFields); break;
-    case 70 : field_num = FindField( YbDensity, FieldType, NumberOfBaryonFields); break;
-    case 71 : field_num = FindField( LuDensity, FieldType, NumberOfBaryonFields); break;
-    case 72 : field_num = FindField( HfDensity, FieldType, NumberOfBaryonFields); break;
-    case 73 : field_num = FindField( TaDensity, FieldType, NumberOfBaryonFields); break;
-    case 74 : field_num = FindField( WDensity, FieldType, NumberOfBaryonFields); break;
-    case 75 : field_num = FindField( ReDensity, FieldType, NumberOfBaryonFields); break;
-    case 76 : field_num = FindField( OsDensity, FieldType, NumberOfBaryonFields); break;
-    case 77 : field_num = FindField( IrDensity, FieldType, NumberOfBaryonFields); break;
-    case 78 : field_num = FindField( PtDensity, FieldType, NumberOfBaryonFields); break;
-    case 79 : field_num = FindField( AuDensity, FieldType, NumberOfBaryonFields); break;
-    case 80 : field_num = FindField( HgDensity, FieldType, NumberOfBaryonFields); break;
-    case 81 : field_num = FindField( TlDensity, FieldType, NumberOfBaryonFields); break;
-    case 82 : field_num = FindField( PbDensity, FieldType, NumberOfBaryonFields); break;
-    case 83 : field_num = FindField( BiDensity, FieldType, NumberOfBaryonFields); break;
-
+    }
   }
 
   if(field_num < 0){
