@@ -53,8 +53,8 @@ void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabe
 
     if(MultiMetals == 2 && !IndividualStarOutputChemicalTags){
       int ii = 0;
-      for(ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
-        ParticleAttributeLabel[4 + ii] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+      for(int j = 0; j < StellarYieldsNumberOfSpecies; j++){
+        ParticleAttributeLabel[4 + ii++] = ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[j]);
       }
       if (IndividualStarTrackAGBMetalDensity) ParticleAttributeLabel[4 + ii++] = "agb_metal_fraction";
       if (IndividualStarPopIIIFormation){
@@ -62,9 +62,9 @@ void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabe
         ParticleAttributeLabel[4 + ii++] = "popIII_pisne_metal_fraction";
 
         if (IndividualStarPopIIISeparateYields){
-          for(ii = 2; ii < StellarYieldsNumberOfSpecies; ii++){ // skip H and He
+          for(int j = 2; j < StellarYieldsNumberOfSpecies; j++){ // skip H and He
             ParticleAttributeLabel[4 + ii] = "popIII_";
-            ParticleAttributeLabel[4 + ii] += ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[ii]);
+            ParticleAttributeLabel[4 + ii++] += ChemicalSpeciesParticleLabel(StellarYieldsAtomicNumbers[j]);
           }
         }
       }

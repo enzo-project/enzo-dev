@@ -30,7 +30,7 @@ int DetermineNumberOfAbundanceAttributes(void){
 
   if (IndividualStarTrackAGBMetalDensity) n++;
   if (IndividualStarPopIIIFormation) n += 2;
-  if (IndividualStarPopIIISeparateYields) n += StellarYieldsNumberOfSpecies -2;
+  if (IndividualStarPopIIISeparateYields) n += (StellarYieldsNumberOfSpecies -2);
   if (IndividualStarTrackWindDensity) n+= 1;
   if (IndividualStarTrackSNMetalDensity){
     n += 2;
@@ -44,7 +44,7 @@ int DetermineNumberOfAbundanceAttributes(void){
 
 int DetermineNumberOfParticleAttributes(void){
 
-  int n;
+  int n=0;
 
   if (StarParticleCreation || StarParticleFeedback) {
 
@@ -70,7 +70,7 @@ int DetermineNumberOfParticleAttributes(void){
 
 
       } // end multi metals
-      if (!IndividualStarSaveTablePositions){
+      if (IndividualStarSaveTablePositions){
         ParticleAttributeTableStartIndex = n;
         n += NumberOfParticleTableIDs;
       }
