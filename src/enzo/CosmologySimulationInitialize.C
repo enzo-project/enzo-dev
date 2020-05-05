@@ -53,7 +53,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 #ifdef INDIVIDUALSTAR
-  char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
+  char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number, int element_set=1);
 #endif
 
 // Cosmology Parameters (that need to be shared)
@@ -872,17 +872,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
         if (IndividualStarPopIIISeparateYields){
           for(j =0; j < StellarYieldsNumberOfSpecies; j++){
             if(StellarYieldsAtomicNumbers[j] > 2){
-              std::string temp = "PopIII_";
-              printf("data label1 = %s \n", temp.c_str());
 
-              temp = temp + ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[j]);
+              DataLabel[i++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[j],2);
 
-              printf("data label2 = %s \n", temp.c_str());
-
-              DataLabel[i++] = (char*) (temp.c_str());
-              printf("data label3 = %s \n", DataLabel[i++]);
-              DL2[0] = temp;
-      //        DataLabel[i++] = temp.c_str();
             }
           }
         } // pop III separate

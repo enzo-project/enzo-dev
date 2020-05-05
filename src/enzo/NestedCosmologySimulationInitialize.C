@@ -53,7 +53,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 
 #ifdef INDIVIDUALSTAR
-  char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
+  char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number, int element_set=1);
 #endif
 
 
@@ -818,9 +818,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
         if (IndividualStarPopIIISeparateYields){
           for(j =0; j < StellarYieldsNumberOfSpecies; j++){
             if(StellarYieldsAtomicNumbers[j] > 2){
-              std::string temp = "PopIII_";
-              temp += ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[j]);
-              DataLabel[i++] = const_cast<char* > (temp.c_str());
+              DataLabel[i++] = ChemicalSpeciesBaryonFieldLabel(StellarYieldsAtomicNumbers[j],2);
             }
           }
         } // yields loop      }

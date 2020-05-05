@@ -42,7 +42,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 inline int nlines(const char* fname);
 
-char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
+char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number, int element_set=1);
 
 
 int nlines(const char* fname) {

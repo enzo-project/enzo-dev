@@ -40,6 +40,7 @@ int FindField(int f, int farray[], int n);
 
 int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number, int element_set = 1);
 char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num, int element_set = 1);
+char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number, int element_set=1);
 
 
 int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number,
@@ -248,104 +249,201 @@ int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number,
 
 }
 
-char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number){
+char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number, int element_set){
 
   char *label = NULL;
 
   /* For a given atomic number, return the name we should assign to the baryon field
      DataLabel */
-  switch(atomic_number){
-    case 1 : // Handled via multispecies - this can be re-worked in the case when MultiSpecies
-    case 2 : // is off, making passive H and He tracers, but why would one do this?
-      if (TestProblemData.MultiSpecies == 0){
-        ENZO_FAIL("ChemicalSpeciesBaryonFieldLabel: MultiSpecies must be ON to track yields for H or He");
-      }
-      break;
 
-    case  3 : label = "Li_Density"; break;
-    case  4 : label = "Be_Density"; break;
-    case  5 : label =  "B_Density"; break;
-    case  6 : label =  "C_Density"; break;
-    case  7 : label =  "N_Density"; break;
-    case  8 : label =  "O_Density"; break;
-    case  9 : label =  "F_Density"; break;
-    case 10 : label = "Ne_Density"; break;
-    case 11 : label = "Na_Density"; break;
-    case 12 : label = "Mg_Density"; break;
-    case 13 : label = "Al_Density"; break;
-    case 14 : label = "Si_Density"; break;
-    case 15 : label =  "P_Density"; break;
-    case 16 : label =  "S_Density"; break;
-    case 17 : label = "Cl_Density"; break;
-    case 18 : label = "Ar_Density"; break;
-    case 19 : label =  "K_Density"; break;
-    case 20 : label = "Ca_Density"; break;
-    case 21 : label = "Sc_Density"; break;
-    case 22 : label = "Ti_Density"; break;
-    case 23 : label =  "V_Density"; break;
-    case 24 : label = "Cr_Density"; break;
-    case 25 : label = "Mn_Density"; break;
-    case 26 : label = "Fe_Density"; break;
-    case 27 : label = "Co_Density"; break;
-    case 28 : label = "Ni_Density"; break;
-    case 29 : label = "Cu_Density"; break;
-    case 30 : label = "Zn_Density"; break;
-    case 31 : label = "Ga_Density"; break;
-    case 32 : label = "Ge_Density"; break;
-    case 33 : label = "As_Density"; break;
-    case 34 : label = "Se_Density"; break;
-    case 35 : label = "Br_Density"; break;
-    case 36 : label = "Kr_Density"; break;
-    case 37 : label = "Rb_Density"; break;
-    case 38 : label = "Sr_Density"; break;
-    case 39 : label =  "Y_Density"; break;
-    case 40 : label = "Zr_Density"; break;
-    case 41 : label = "Nb_Density"; break;
-    case 42 : label = "Mo_Density"; break;
-    case 43 : label = "Tc_Density"; break;
-    case 44 : label = "Ru_Density"; break;
-    case 45 : label = "Rh_Density"; break;
-    case 46 : label = "Pd_Density"; break;
-    case 47 : label = "Ag_Density"; break;
-    case 48 : label = "Cd_Density"; break;
-    case 49 : label = "In_Density"; break;
-    case 50 : label = "Sn_Density"; break;
-    case 51 : label = "Sb_Density"; break;
-    case 52 : label = "Te_Density"; break;
-    case 53 : label =  "I_Density"; break;
-    case 54 : label = "Xe_Density"; break;
-    case 55 : label = "Cs_Density"; break;
-    case 56 : label = "Ba_Density"; break;
-    case 57 : label = "La_Density"; break;
-    case 58 : label = "Ce_Density"; break;
-    case 59 : label = "Pr_Density"; break;
-    case 60 : label = "Nd_Density"; break;
-    case 61 : label = "Pm_Density"; break;
-    case 62 : label = "Sm_Density"; break;
-    case 63 : label = "Eu_Density"; break;
-    case 64 : label = "Gd_Density"; break;
-    case 65 : label = "Tb_Density"; break;
-    case 66 : label = "Dy_Density"; break;
-    case 67 : label = "Ho_Density"; break;
-    case 68 : label = "Er_Density"; break;
-    case 69 : label = "Tm_Density"; break;
-    case 70 : label = "Yb_Density"; break;
-    case 71 : label = "Lu_Density"; break;
-    case 72 : label = "Hf_Density"; break;
-    case 73 : label = "Ta_Density"; break;
-    case 74 : label =  "W_Density"; break;
-    case 75 : label = "Re_Density"; break;
-    case 76 : label = "Os_Density"; break;
-    case 77 : label = "Ir_Density"; break;
-    case 78 : label = "Pt_Density"; break;
-    case 79 : label = "Au_Density"; break;
-    case 80 : label = "Hg_Density"; break;
-    case 81 : label = "Tl_Density"; break;
-    case 82 : label = "Pb_Density"; break;
-    case 83 : label = "Bi_Density"; break;
+  if (element_set == 1){
+    switch(atomic_number){
+      case 1 : // Handled via multispecies - this can be re-worked in the case when MultiSpecies
+      case 2 : // is off, making passive H and He tracers, but why would one do this?
+        if (TestProblemData.MultiSpecies == 0){
+          ENZO_FAIL("ChemicalSpeciesBaryonFieldLabel: MultiSpecies must be ON to track yields for H or He");
+        }
+        break;
 
-    default:
-      ENZO_FAIL("Error in ChemicalSpeciesBaryonFieldLabel - Label not found\n");
+      case  3 : label = "Li_Density"; break;
+      case  4 : label = "Be_Density"; break;
+      case  5 : label =  "B_Density"; break;
+      case  6 : label =  "C_Density"; break;
+      case  7 : label =  "N_Density"; break;
+      case  8 : label =  "O_Density"; break;
+      case  9 : label =  "F_Density"; break;
+      case 10 : label = "Ne_Density"; break;
+      case 11 : label = "Na_Density"; break;
+      case 12 : label = "Mg_Density"; break;
+      case 13 : label = "Al_Density"; break;
+      case 14 : label = "Si_Density"; break;
+      case 15 : label =  "P_Density"; break;
+      case 16 : label =  "S_Density"; break;
+      case 17 : label = "Cl_Density"; break;
+      case 18 : label = "Ar_Density"; break;
+      case 19 : label =  "K_Density"; break;
+      case 20 : label = "Ca_Density"; break;
+      case 21 : label = "Sc_Density"; break;
+      case 22 : label = "Ti_Density"; break;
+      case 23 : label =  "V_Density"; break;
+      case 24 : label = "Cr_Density"; break;
+      case 25 : label = "Mn_Density"; break;
+      case 26 : label = "Fe_Density"; break;
+      case 27 : label = "Co_Density"; break;
+      case 28 : label = "Ni_Density"; break;
+      case 29 : label = "Cu_Density"; break;
+      case 30 : label = "Zn_Density"; break;
+      case 31 : label = "Ga_Density"; break;
+      case 32 : label = "Ge_Density"; break;
+      case 33 : label = "As_Density"; break;
+      case 34 : label = "Se_Density"; break;
+      case 35 : label = "Br_Density"; break;
+      case 36 : label = "Kr_Density"; break;
+      case 37 : label = "Rb_Density"; break;
+      case 38 : label = "Sr_Density"; break;
+      case 39 : label =  "Y_Density"; break;
+      case 40 : label = "Zr_Density"; break;
+      case 41 : label = "Nb_Density"; break;
+      case 42 : label = "Mo_Density"; break;
+      case 43 : label = "Tc_Density"; break;
+      case 44 : label = "Ru_Density"; break;
+      case 45 : label = "Rh_Density"; break;
+      case 46 : label = "Pd_Density"; break;
+      case 47 : label = "Ag_Density"; break;
+      case 48 : label = "Cd_Density"; break;
+      case 49 : label = "In_Density"; break;
+      case 50 : label = "Sn_Density"; break;
+      case 51 : label = "Sb_Density"; break;
+      case 52 : label = "Te_Density"; break;
+      case 53 : label =  "I_Density"; break;
+      case 54 : label = "Xe_Density"; break;
+      case 55 : label = "Cs_Density"; break;
+      case 56 : label = "Ba_Density"; break;
+      case 57 : label = "La_Density"; break;
+      case 58 : label = "Ce_Density"; break;
+      case 59 : label = "Pr_Density"; break;
+      case 60 : label = "Nd_Density"; break;
+      case 61 : label = "Pm_Density"; break;
+      case 62 : label = "Sm_Density"; break;
+      case 63 : label = "Eu_Density"; break;
+      case 64 : label = "Gd_Density"; break;
+      case 65 : label = "Tb_Density"; break;
+      case 66 : label = "Dy_Density"; break;
+      case 67 : label = "Ho_Density"; break;
+      case 68 : label = "Er_Density"; break;
+      case 69 : label = "Tm_Density"; break;
+      case 70 : label = "Yb_Density"; break;
+      case 71 : label = "Lu_Density"; break;
+      case 72 : label = "Hf_Density"; break;
+      case 73 : label = "Ta_Density"; break;
+      case 74 : label =  "W_Density"; break;
+      case 75 : label = "Re_Density"; break;
+      case 76 : label = "Os_Density"; break;
+      case 77 : label = "Ir_Density"; break;
+      case 78 : label = "Pt_Density"; break;
+      case 79 : label = "Au_Density"; break;
+      case 80 : label = "Hg_Density"; break;
+      case 81 : label = "Tl_Density"; break;
+      case 82 : label = "Pb_Density"; break;
+      case 83 : label = "Bi_Density"; break;
+
+      default:
+        ENZO_FAIL("Error in ChemicalSpeciesBaryonFieldLabel - Label not found\n");
+    }
+  } else if (element_set==2){
+    switch(atomic_number){
+      case 1 : // Handled via multispecies - this can be re-worked in the case when MultiSpecies
+      case 2 : // is off, making passive H and He tracers, but why would one do this?
+        if (TestProblemData.MultiSpecies == 0){
+          ENZO_FAIL("ChemicalSpeciesBaryonFieldLabel: MultiSpecies must be ON to track yields for H or He");
+        }
+        break;
+
+      case  3 : label = "Li_Density_2"; break;
+      case  4 : label = "Be_Density_2"; break;
+      case  5 : label =  "B_Density_2"; break;
+      case  6 : label =  "C_Density_2"; break;
+      case  7 : label =  "N_Density_2"; break;
+      case  8 : label =  "O_Density_2"; break;
+      case  9 : label =  "F_Density_2"; break;
+      case 10 : label = "Ne_Density_2"; break;
+      case 11 : label = "Na_Density_2"; break;
+      case 12 : label = "Mg_Density_2"; break;
+      case 13 : label = "Al_Density_2"; break;
+      case 14 : label = "Si_Density_2"; break;
+      case 15 : label =  "P_Density_2"; break;
+      case 16 : label =  "S_Density_2"; break;
+      case 17 : label = "Cl_Density_2"; break;
+      case 18 : label = "Ar_Density_2"; break;
+      case 19 : label =  "K_Density_2"; break;
+      case 20 : label = "Ca_Density_2"; break;
+      case 21 : label = "Sc_Density_2"; break;
+      case 22 : label = "Ti_Density_2"; break;
+      case 23 : label =  "V_Density_2"; break;
+      case 24 : label = "Cr_Density_2"; break;
+      case 25 : label = "Mn_Density_2"; break;
+      case 26 : label = "Fe_Density_2"; break;
+      case 27 : label = "Co_Density_2"; break;
+      case 28 : label = "Ni_Density_2"; break;
+      case 29 : label = "Cu_Density_2"; break;
+      case 30 : label = "Zn_Density_2"; break;
+      case 31 : label = "Ga_Density_2"; break;
+      case 32 : label = "Ge_Density_2"; break;
+      case 33 : label = "As_Density_2"; break;
+      case 34 : label = "Se_Density_2"; break;
+      case 35 : label = "Br_Density_2"; break;
+      case 36 : label = "Kr_Density_2"; break;
+      case 37 : label = "Rb_Density_2"; break;
+      case 38 : label = "Sr_Density_2"; break;
+      case 39 : label =  "Y_Density_2"; break;
+      case 40 : label = "Zr_Density_2"; break;
+      case 41 : label = "Nb_Density_2"; break;
+      case 42 : label = "Mo_Density_2"; break;
+      case 43 : label = "Tc_Density_2"; break;
+      case 44 : label = "Ru_Density_2"; break;
+      case 45 : label = "Rh_Density_2"; break;
+      case 46 : label = "Pd_Density_2"; break;
+      case 47 : label = "Ag_Density_2"; break;
+      case 48 : label = "Cd_Density_2"; break;
+      case 49 : label = "In_Density_2"; break;
+      case 50 : label = "Sn_Density_2"; break;
+      case 51 : label = "Sb_Density_2"; break;
+      case 52 : label = "Te_Density_2"; break;
+      case 53 : label =  "I_Density_2"; break;
+      case 54 : label = "Xe_Density_2"; break;
+      case 55 : label = "Cs_Density_2"; break;
+      case 56 : label = "Ba_Density_2"; break;
+      case 57 : label = "La_Density_2"; break;
+      case 58 : label = "Ce_Density_2"; break;
+      case 59 : label = "Pr_Density_2"; break;
+      case 60 : label = "Nd_Density_2"; break;
+      case 61 : label = "Pm_Density_2"; break;
+      case 62 : label = "Sm_Density_2"; break;
+      case 63 : label = "Eu_Density_2"; break;
+      case 64 : label = "Gd_Density_2"; break;
+      case 65 : label = "Tb_Density_2"; break;
+      case 66 : label = "Dy_Density_2"; break;
+      case 67 : label = "Ho_Density_2"; break;
+      case 68 : label = "Er_Density_2"; break;
+      case 69 : label = "Tm_Density_2"; break;
+      case 70 : label = "Yb_Density_2"; break;
+      case 71 : label = "Lu_Density_2"; break;
+      case 72 : label = "Hf_Density_2"; break;
+      case 73 : label = "Ta_Density_2"; break;
+      case 74 : label =  "W_Density_2"; break;
+      case 75 : label = "Re_Density_2"; break;
+      case 76 : label = "Os_Density_2"; break;
+      case 77 : label = "Ir_Density_2"; break;
+      case 78 : label = "Pt_Density_2"; break;
+      case 79 : label = "Au_Density_2"; break;
+      case 80 : label = "Hg_Density_2"; break;
+      case 81 : label = "Tl_Density_2"; break;
+      case 82 : label = "Pb_Density_2"; break;
+      case 83 : label = "Bi_Density_2"; break;
+
+      default:
+        ENZO_FAIL("Error in ChemicalSpeciesBaryonFieldLabel - Label not found\n");
+    }
   }
 
   return label;
@@ -368,7 +466,7 @@ char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num, int eleme
   if   (element_set == 1)    atomic_number -= LiDensity  + 3; // Li = atomic number 3
   else if (element_set == 2) atomic_number -= LiDensity2 + 3;
 
-  return ChemicalSpeciesBaryonFieldLabel(atomic_number);
+  return ChemicalSpeciesBaryonFieldLabel(atomic_number, element_set);
 
 }
 

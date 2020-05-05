@@ -52,7 +52,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int InitializeDoublePowerDarkMatter(void);
 void FinalizeDoublePowerDarkMatter(void);
 
-char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number);
+char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number, int element_set=1);
 
 void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
 
