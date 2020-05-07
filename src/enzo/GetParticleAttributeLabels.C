@@ -70,7 +70,8 @@ void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabe
       }
 
       if (IndividualStarTrackWindDensity){
-        ParticleAttributeLabel[4 + ii++] = "wind_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "intermediate_wind_metal_fraction";
+        ParticleAttributeLabel[4 + ii++] = "massive_wind_metal_fraction";
       }
 
       if (IndividualStarTrackSNMetalDensity){

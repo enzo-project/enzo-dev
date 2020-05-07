@@ -227,7 +227,7 @@ int grid::IndividualStarSetWDLifetime(void){
           start_index += 2;
           if (IndividualStarPopIIISeparateYields) start_index += (StellarYieldsNumberOfSpecies-2);
         }
-        if (IndividualStarTrackWindDensity) start_index++;
+        if (IndividualStarTrackWindDensity) start_index += 2;
         // start_index = DDS, start_index+1 = sCH, +2 = SDS, +3 = HeRS
         ParticleAttribute[start_index + sn_type_index][i] *= -1; // flag by making negative
 

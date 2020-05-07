@@ -140,7 +140,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *AGBMetalName    = "AGB_Metal_Density";
   char *PopIIIMetalName = "PopIII_Metal_Density";
   char *PopIIIPISNeMetalName = "PopIII_PISNe_Metal_Density";
-  char *WindMetalName = "Wind_Metal_Density";
+  char *WindMetalName = "Intermediate_Wind_Metal_Density";
+  char *WindMetalName2 = "Massive_Wind_Metal_Density";
   char *SNIIMetalName = "SNII_Metal_Density";
   char *SNIaMetalName = "SNIa_Metal_Density";
   char *RProcMetalName = "RProcess_Metal_Density";
@@ -880,7 +881,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
         } // pop III separate
       } // pop III
 
-      if (IndividualStarTrackWindDensity) DataLabel[i++] = WindMetalName;
+      if (IndividualStarTrackWindDensity){
+        DataLabel[i++] = WindMetalName;
+        DataLabel[i++] = WindMetalName2;
+      }
 
       if (IndividualStarTrackSNMetalDensity){
         DataLabel[i++] = SNIaMetalName;

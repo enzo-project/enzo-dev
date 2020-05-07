@@ -631,7 +631,7 @@ void Star::UpdateWhiteDwarfProperties(void){
         start_index += 2;
         if (IndividualStarPopIIISeparateYields) start_index += (StellarYieldsNumberOfSpecies -2);
       }
-      if (IndividualStarTrackWindDensity) start_index += 1;
+      if (IndividualStarTrackWindDensity) start_index += 2;
 
       for (int i = 0; i < 4; i++){
         if ( CurrentGrid->ParticleAttribute[start_index+i] < 0){
@@ -783,7 +783,7 @@ void Star::DetermineSNIaType(void){
        start_index += 2;
       if (IndividualStarPopIIISeparateYields) start_index += (StellarYieldsNumberOfSpecies -2);
     }
-    if (IndividualStarTrackWindDensity) start_index += 1;
+    if (IndividualStarTrackWindDensity) start_index += 2;
     for (int i = 0; i < 4; i++){
       if ( this->abundances[start_index+i] < 0){
         SNIaType = i;

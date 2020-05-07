@@ -352,11 +352,12 @@ const field_type
   MetalRProcessDensity = 267,
   MetalPISNeDensity    = 268,
   MetalWindDensity     = 269,
-  ExtraMetalField0 = 270,
-  ExtraMetalField1 = 271,
-  ExtraMetalField2 = 272,
+  MetalWindDensity2    = 270,
+  ExtraMetalField0 = 271,
+  ExtraMetalField1 = 272,
+  ExtraMetalField2 = 273,
 
-  FieldUndefined  = 273;
+  FieldUndefined  = 274;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

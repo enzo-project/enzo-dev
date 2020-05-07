@@ -424,6 +424,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
 
          if (IndividualStarTrackWindDensity){
            ParticleAttribute[4 + offset++][count] = tiny_number;
+           ParticleAttribute[4 + offset++][count] = tiny_number;
          }
 
 

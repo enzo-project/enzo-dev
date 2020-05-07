@@ -1596,7 +1596,7 @@ iveParticles;};
      if (IndividualStarTrackAGBMetalDensity) num_extra++;
      if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
      if (IndividualStarPopIIISeparateYields) num_extra += StellarYieldsNumberOfSpecies-2; // minus H He
-     if (IndividualStarTrackWindDensity) num_extra += 1;
+     if (IndividualStarTrackWindDensity) num_extra += 2;
      if (IndividualStarTrackSNMetalDensity){
        num_extra = num_extra + 2;
        if (IndividualStarSNIaModel == 2){ num_extra += 3;}
@@ -1643,7 +1643,7 @@ iveParticles;};
        if (IndividualStarTrackAGBMetalDensity) num_extra++;
        if (IndividualStarPopIIIFormation) num_extra = num_extra + 2;
        if (IndividualStarPopIIISeparateYields) num_extra += StellarYieldsNumberOfSpecies-2; // minus H He
-       if (IndividualStarTrackWindDensity) num_extra += 1;
+       if (IndividualStarTrackWindDensity) num_extra += 2;
        if (IndividualStarTrackSNMetalDensity){
          num_extra = num_extra + 2;
          if (IndividualStarSNIaModel == 2){ num_extra += 3;}

@@ -658,12 +658,14 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
   int PopIIIMetalNum, PopIIIPISNeMetalNum,
       AGBMetalNum, SNIaMetalNum, SNIIMetalNum, RProcMetalNum,
-      ExtraMetalNum0, ExtraMetalNum1, ExtraMetalNum2, WindMetalNum;
+      ExtraMetalNum0, ExtraMetalNum1, ExtraMetalNum2, WindMetalNum,
+      WindMetalNum2;
 
   AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
   PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
   PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
   WindMetalNum   = FindField(MetalWindDensity, FieldType, NumberOfBaryonFields);
+  WindMetalNum2  = FindField(MetalWindDensity2, FieldType, NumberOfBaryonFields);
   SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
   SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
   RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
@@ -680,7 +682,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
     ENZO_FAIL("Error in finding Pop III metal density field in individual star feedback");
   }
 
-  if (IndividualStarTrackWindDensity && WindMetalNum <= 0){
+  if (IndividualStarTrackWindDensity && ((WindMetalNum <= 0) || (WindMetalNum2 <= 0))){
     ENZO_FAIL("Error in finding wind metal density field in individual star feedback");
   }
 
@@ -932,10 +934,13 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
                       (stellar_wind_mode)){                                 // make sure we are an AGB wind
               BaryonField[AGBMetalNum][index] += injected_metal_mass[0];
 
-            } else if ( IndividualStarTrackWindDensity && stellar_wind_mode &&
-                        (cstar->ReturnBirthMass() > IndividualStarAGBThreshold)){
+            } else if ( IndividualStarTrackWindDensity && stellar_wind_mode){
 
-              BaryonField[WindMetalNum][index] += injected_metal_mass[0]; // massive star winds
+              if (cstar->ReturnBirthMass() > IndividualStarDirectCollapseThreshold) {
+                BaryonField[WindMetalNum2][index] += injected_metal_mass[0]; // from most massive stars
+              } else if (cstar->ReturnBirthMass() > IndividualStarAGBThreshold){
+                BaryonField[WindMetalNum][index] += injected_metal_mass[0]; // massive star winds from intermediate mass stars
+              } else { ENZO_FAIL("Error in wind density and mass deposition"); }
 
             } else if (IndividualStarTrackSNMetalDensity && !(stellar_wind_mode)){
 

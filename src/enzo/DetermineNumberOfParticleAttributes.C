@@ -33,7 +33,7 @@ int DetermineNumberOfAbundanceAttributes(void){
     n += 2;
     if (IndividualStarPopIIISeparateYields) n += (StellarYieldsNumberOfSpecies -2);
   }
-  if (IndividualStarTrackWindDensity) n+= 1;
+  if (IndividualStarTrackWindDensity) n+= 2;
   if (IndividualStarTrackSNMetalDensity){
     n += 2;
     if (IndividualStarSNIaModel == 2) n += 3;

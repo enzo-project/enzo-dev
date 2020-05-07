@@ -73,7 +73,8 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   char *AGBMetalName    = "AGB_Metal_Density";
   char *PopIIIMetalName = "PopIII_Metal_Density";
   char *PopIIIPISNeMetalName = "PopIII_PISNe_Metal_Density";
-  char *WindMetalName = "Wind_Metal_Density";
+  char *WindMetalName = "Intermediate_Wind_Metal_Density";
+  char *WindMetalName2 = "Massive_Wind_Metal_Density";
   char *SNIIMetalName = "SNII_Metal_Density";
   char *SNIaMetalName = "SNIa_Metal_Density";
   char *RProcMetalName = "RProcess_Metal_Density";
@@ -432,7 +433,10 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
       }
     }
 
-    if (IndividualStarTrackWindDensity) DataLabel[count++] = WindMetalName;
+    if (IndividualStarTrackWindDensity){
+      DataLabel[count++] = WindMetalName;
+      DataLabel[count++] = WindMetalName2;
+    }
 
     if (IndividualStarTrackSNMetalDensity){
       DataLabel[count++] = SNIaMetalName;

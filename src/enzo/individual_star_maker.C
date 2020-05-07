@@ -141,12 +141,13 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
  int PopIIIMetalNum, PopIIIPISNeMetalNum, AGBMetalNum,
      SNIaMetalNum, SNIIMetalNum, RProcMetalNum, ExtraMetalNum0,
-     ExtraMetalNum1, ExtraMetalNum2, WindMetalNum;
+     ExtraMetalNum1, ExtraMetalNum2, WindMetalNum, WindMetalNum2;
 
   AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
   PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
   PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
   WindMetalNum   = FindField(MetalWindDensity, FieldType, NumberOfBaryonFields);
+  WindMetalNum2  = FindField(MetalWindDensity2, FieldType, NumberOfBaryonFields);
   SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
   SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
   RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
@@ -168,7 +169,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
     ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
   }
 
-  if (IndividualStarTrackWindDensity && WindMetalNum <=0){
+  if (IndividualStarTrackWindDensity && ((WindMetalNum <=0) || (WindMetalNum2 <= 0))){
     ENZO_FAIL("Error in finding wind density field in individual_star_maker");
   }
 
@@ -713,8 +714,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                   if (IndividualStarTrackWindDensity){
                     if (IndividualStarOutputChemicalTags){
                       StellarAbundances[StellarYieldsNumberOfSpecies+offset++][istar]=BaryonField[WindMetalNum][index];
+                      StellarAbundances[StellarYieldsNumberOfSpecies+offset++][istar]=BaryonField[WindMetalNum2][index];
                     } else {
                       ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[WindMetalNum][index];
+                      ParticleAttribute[4 + iyield + offset++][istar] = BaryonField[WindMetalNum2][index];
                     }
                   }
 

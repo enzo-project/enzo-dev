@@ -42,7 +42,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum,
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
 
-  int ExtraField[10];
+  int ExtraField[11];
 
   /* create fields */
 
@@ -158,22 +158,23 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
       if (IndividualStarTrackWindDensity){
         FieldType[ExtraField[3] = NumberOfBaryonFields++] = MetalWindDensity;
+        FieldType[ExtraField[4] = NumberOfBaryonFields++] = MetalWindDensity2;
       }
 
       if (IndividualStarTrackSNMetalDensity){
-        FieldType[ExtraField[4] = NumberOfBaryonFields++] = MetalSNIaDensity;
+        FieldType[ExtraField[5] = NumberOfBaryonFields++] = MetalSNIaDensity;
 
         if (IndividualStarSNIaModel == 2){
-          FieldType[ExtraField[5] = NumberOfBaryonFields++] = ExtraMetalField0;
-          FieldType[ExtraField[6] = NumberOfBaryonFields++] = ExtraMetalField1;
-          FieldType[ExtraField[7] = NumberOfBaryonFields++] = ExtraMetalField2;
+          FieldType[ExtraField[6] = NumberOfBaryonFields++] = ExtraMetalField0;
+          FieldType[ExtraField[7] = NumberOfBaryonFields++] = ExtraMetalField1;
+          FieldType[ExtraField[8] = NumberOfBaryonFields++] = ExtraMetalField2;
         }
 
-        FieldType[ExtraField[8] = NumberOfBaryonFields++] = MetalSNIIDensity;
+        FieldType[ExtraField[9] = NumberOfBaryonFields++] = MetalSNIIDensity;
       }
 
       if (IndividualStarRProcessModel){
-        FieldType[ExtraField[9] = NumberOfBaryonFields++] = MetalRProcessDensity;
+        FieldType[ExtraField[10] = NumberOfBaryonFields++] = MetalRProcessDensity;
       }
     } // end mm = 2
 
@@ -414,21 +415,22 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
       if (IndividualStarTrackWindDensity){
         BaryonField[ExtraField[3]][i] = tiny_number * UniformDensity;
+        BaryonField[ExtraField[4]][i] = tiny_number * UniformDensity;
       }
 
       if (IndividualStarTrackSNMetalDensity){
-          BaryonField[ExtraField[4]][i] = tiny_number * UniformDensity;
+          BaryonField[ExtraField[5]][i] = tiny_number * UniformDensity;
           if (IndividualStarSNIaModel == 2){
-            BaryonField[ExtraField[5]][i] = tiny_number * UniformDensity;
             BaryonField[ExtraField[6]][i] = tiny_number * UniformDensity;
             BaryonField[ExtraField[7]][i] = tiny_number * UniformDensity;
+            BaryonField[ExtraField[8]][i] = tiny_number * UniformDensity;
           }
 
-          BaryonField[ExtraField[8]][i] = tiny_number * UniformDensity;
+          BaryonField[ExtraField[9]][i] = tiny_number * UniformDensity;
       }
 
       if (IndividualStarRProcessModel){
-          BaryonField[ExtraField[9]][i] = tiny_number * UniformDensity;
+          BaryonField[ExtraField[10]][i] = tiny_number * UniformDensity;
       }
 
 
