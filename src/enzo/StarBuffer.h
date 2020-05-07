@@ -14,7 +14,7 @@
 
 #define MAX_ACCR 100
 
-const int MAX_STAR_ABUNDANCES = MAX_STELLAR_YIELDS*2 + 10;
+const int MAX_STAR_ABUNDANCES = MAX_STELLAR_YIELDS*2 + 11;
 
 struct StarBuffer {
   FLOAT	pos[MAX_DIMENSION];
