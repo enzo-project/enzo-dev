@@ -1148,6 +1148,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarRefineForRadiation);
     ret += sscanf(line, "IndividualStarRefineToLevel = %"ISYM,
                         &IndividualStarRefineToLevel);
+    ret += sscanf(line, "IndividualStarRefineToPhysicalRadius = %"FSYM,
+                        &IndividualStarRefineToPhysicalRadius);
     ret += sscanf(line, "IndividualStarRefineBufferSize = %"ISYM,
                         &IndividualStarRefineBufferSize);
     ret += sscanf(line, "IndividualStarTemperatureLimit = %"FSYM,

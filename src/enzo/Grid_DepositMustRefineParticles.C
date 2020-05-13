@@ -13,7 +13,7 @@
 /  PURPOSE:
 /
 ************************************************************************/
- 
+
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
@@ -43,7 +43,6 @@ extern "C" void PFORTRAN_NAME(cic_flag)(int* irefflag, FLOAT *posx, FLOAT *posy,
 
 int IndividualStarInterpolateLifetime(float &tau, const float &M,
                                       const float &metallicity, const int &mode);
-
 
 // do a separate method to keep things clean, even though a lot will be redundant
 int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField,
@@ -236,16 +235,25 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   NumberOfMustRefineStars = i; // save number of stars
 
+
+  int refine_buffer_size = IndividualStarRefineBufferSize;
+
+  if (IndividualStarRefineToPhysicalRadius > 0){
+    refine_buffer_size = (int)(ceil((2 * IndividualStarRefineToPhysicalRadius * pc_cm / LengthUnits) / CellSize));
+
+    refine_buffer_size = max(refine_buffer_size, 1); // always 
+  }
+
   PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
 	                  StarPosX, StarPosY, StarPosZ,
       	                  &GridRank, &NumberOfMustRefineStars, FlaggingField,
 	                  LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
-                          &CellSize, &IndividualStarRefineBufferSize);
+                          &CellSize, &refine_buffer_size);
 
   /* Increase particle mass flagging field for definite refinement */
 
-  float MustRefineMass = 
-    1.001*MinimumMassForRefinement[pmethod] * 
+  float MustRefineMass =
+    1.001*MinimumMassForRefinement[pmethod] *
     POW(RefineBy, level * MinimumMassForRefinementLevelExponent[pmethod]);
 
   int NumberOfFlaggedCells = 0;
@@ -257,7 +265,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   }
 
   if (debug1)
-    printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
+    printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n",
 	   level,NumberOfFlaggedCells);
 
   /* Clean up */
@@ -292,7 +300,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
 
   /* error check */
- 
+
   if (ParticleMassFlaggingField == NULL) {
     fprintf(stderr, "Particle Mass Flagging Field is undefined.\n");
     return -1;
@@ -425,8 +433,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   /* Increase particle mass flagging field for definite refinement */
 
-  float MustRefineMass = 
-    1.001*MinimumMassForRefinement[pmethod] * 
+  float MustRefineMass =
+    1.001*MinimumMassForRefinement[pmethod] *
     POW(RefineBy, level * MinimumMassForRefinementLevelExponent[pmethod]);
   if (ProblemType == 28)
     MustRefineMass = 0;
@@ -434,9 +442,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   /* Special case on level == MustRefineParticlesRefineToLevel when we
      restrict the additional AMR to regions with must-refine
      particles, and don't use the particle mass field. */
-  
+
   int NumberOfFlaggedCells = 0;
-  if (!(ProblemType == 30 && 
+  if (!(ProblemType == 30 &&
         (MustRefineParticlesCreateParticles == 3 ||
          MustRefineParticlesCreateParticles == 4) &&
 	level == MustRefineParticlesRefineToLevel)) {
@@ -448,7 +456,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   }
 
   if (debug1)
-    printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
+    printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n",
 	   level,NumberOfFlaggedCells);
 
   /* If refining region before supernova, change particle type back to
@@ -474,6 +482,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   }
 
   return NumberOfFlaggedCells;
- 
+
 }
 //#endif // ifdef INDIVIDUALSTAR

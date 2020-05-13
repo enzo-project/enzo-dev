@@ -790,6 +790,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseFUVBackground                     =    1;     // apply FUV background from UVB for Pe heating - only HM2012
   MetalMixingExperiment                =    0;     // turn on to add by-hand injection events to examine enrichment (see )
   IndividualStarRefineToLevel          =   -1;     // Level to force-refine to aroudn star particles (region buffer size in radius)
+  IndividualStarRefineToPhysicalRadius =   -1;     // Physical radius (in pc) to force refinement around star particles. Refine buffer will be 1.0001 * IndividualStarRefineToPhysicalRadius * 2 (only used if > 0)
   IndividualStarRefineForRadiation     =    0;     // By default, above refine to level ONLY for mass / energy feedback. Also do when stars are ionizing if ON
   IndividualStarRefineBufferSize       =    4;
   /* IndividualStar: Star Formation */
