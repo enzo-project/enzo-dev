@@ -1135,7 +1135,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "MetalMixingExperiment = %"ISYM"\n", MetalMixingExperiment);
 
   fprintf(fptr, "IndividualStarRefineToLevel   = %"ISYM"\n", IndividualStarRefineToLevel);
-  fprintf(fptr, "IndividualStarRefineToPhysicalRadius = %"ISYM"\n", IndividualStarRefineToPhysicalRadius);
+  fprintf(fptr, "IndividualStarRefineToPhysicalRadius = %"FSYM"\n", IndividualStarRefineToPhysicalRadius);
   fprintf(fptr, "IndividualStarRefineForRadiation = %"ISYM"\n", IndividualStarRefineForRadiation);
   fprintf(fptr, "IndividualStarRefineBufferSize = %"ISYM"\n", IndividualStarRefineBufferSize);
   fprintf(fptr, "IndividualStarICSupernovaRate = %"ESYM"\n", IndividualStarICSupernovaRate);
