@@ -459,7 +459,8 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
 
       double a_solar;
 
-      if (LimongiAbundances && cstar->ReturnMetallicity() <= 3.236E-3){
+      if (LimongiAbundances && cstar->ReturnMetallicity() <= 3.236E-3
+          && cstar->ReturnBirthMass() > IndividualStarSNIIMassCutoff){
         double enhancement = 0.0;
 
         switch (StellarYieldsAtomicNumbers[i]){
@@ -490,6 +491,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
         }
 
       } else{
+        /* Else just use Asplund abundances */
         a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
                                                                        StellarYieldsAtomicNumbers[i]);
       }

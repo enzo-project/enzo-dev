@@ -665,11 +665,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
      by total baryonic density).  At the end we will multiply by the new
      density so that species fractions are maintained. */
 
-  for (field = 0; field < NumberOfBaryonFields; field++){
+  for (field = 0; field < NumberOfBaryonFields; field++) {
     if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
 	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity ||
         FieldType[field] == MetalRProcessDensity || FieldType[field] == MetalPISNeDensity ||
-        FieldType[field] == MetalWindDensity ||
+        FieldType[field] == MetalWindDensity || FieldType[field] == MetalWindDensity2 ||
         ((FieldType[field] >= ExtraMetalField0) && (FieldType[field]<=ExtraMetalField2)) ){
 #ifdef EMISSIVITY
       /* 
@@ -678,16 +678,17 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
          so the values will scale inside StarParticleHandler 
       */
 #endif
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  index = (k*GridDimension[1] + j)*GridDimension[0] +
 	    GridStartIndex[0];
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
 	    BaryonField[field][index] /= BaryonField[DensNum][index];
+          } // i loop
 	}
-
-    }
-  }
+      } // k loop
+    } // if field
+  } // field loop
 
   if(MultiMetals == 2){
     for(int ii = 0; ii < StellarYieldsNumberOfSpecies; ii++){
@@ -2125,9 +2126,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
   for (field = 0; field < NumberOfBaryonFields; field++) {
     if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
-	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity || 
+	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity ||
         FieldType[field] == MetalRProcessDensity || FieldType[field] == MetalPISNeDensity ||
-        FieldType[field] == MetalWindDensity ||
+        FieldType[field] == MetalWindDensity || FieldType[field] == MetalWindDensity2 ||
         ((FieldType[field] >= ExtraMetalField0) && (FieldType[field]<=ExtraMetalField2)) ){
 #ifdef EMISSIVITY
       /* 
