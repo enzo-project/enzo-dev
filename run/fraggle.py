@@ -69,6 +69,38 @@ SYSTEM     = 'Stampede2' # what are we on?
 VERBOSE    = True   # use -d command
 
 
+def check_memory_failure(outfile = None):
+    """
+    grep for the std out file and see if there are hints that the last
+    resart failed due to running out of memory. Returns true if this is
+    likely
+    """
+    memory_failure = False
+
+    #
+    # Try and find the .out file
+    #
+
+    jobid = os.getenv("SLURM_JOBID")
+    if not isinstance(jobid, str):
+        jobid = str(jobid)
+
+    # find the file
+    if outfile is None:
+        outfile = (glob.glob("./*" + jobid + "*.err") + glob.glob("./*/*"+jobid+"*.err"))[0]
+
+    if len(outfile) == 0:
+        print("CHECK_MEMORY_FAILURE (Fraggle): Cannot find output file for " + jobid)
+        raise RuntimeError
+
+    with open(outfile,'r') as f:
+        for line in f:
+            if "throwing an instance of 'std::bad_alloc'" in line:
+                memory_failure = True
+                break
+
+    return memory_failure
+
 def get_parameter_file():
     """
     Find the .enzo parameter file
@@ -234,20 +266,28 @@ if __name__ == "__main__":
     #
     # If there are no data dumps, start from the beginning
     #
+    count = 0
     if all_dumps is None:
         start_command = RUN[SYSTEM] + EXEC_FNAME + verbose_str + ' ' + parfile
         call(start_command, shell=True)
+        count = 1
 
     #
     # Otherwise, keep running
     # change count_max to try and do multiple restarts in a single run
     #    this can be helped by forcing Enzo to exit on output
-    count_max = 1
+    count_max = 2
     # 
-    nlast = None; count = 0; n = 0
     prev_restart_name = None
     restart_count = 1
+    n = 0; nlast = 0 # placeholders -- if we want to try going backwards in dumps as well
     while (count < count_max):
+
+        # check for any std::alloc errors
+        if check_memory_failure():
+            print("FRAGGLE-WARN: Failing due to std::alloc() error thrown")
+            print("FRAGGLE-WARN: Not restarting - likely need to increase memory available")
+            break
 
         if count > 0:
             all_dumps = get_all_restart_dumps(parameter_file = parfile)
