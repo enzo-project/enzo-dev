@@ -144,9 +144,10 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
       // zeroed, but saves some time rather than running
       // through loops below
 
-      if ( (cstar->type != PARTICLE_TYPE_INDIVIDUAL_STAR) ||
-           (cstar->BirthMass < IndividualStarOTRadiationMass ))
-       continue;
+      if ( !((cstar->type == PARTICLE_TYPE_INDIVIDUAL_STAR) ||
+             (cstar->type == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII)) ||
+             (cstar->BirthMass < IndividualStarOTRadiationMass) )
+        continue;
 
     } else {
       if (!(cstar->FeedbackFlag == NO_FEEDBACK ||
@@ -160,8 +161,12 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
     }
     /* this->Luminosity is photon / s, energies is in eV */
     // compute FUV uminosity gives FUV luminosity in erg / s
-    cstar->ComputeFUVLuminosity(FUVLuminosity);
-    // (Luminosity[4]*energies[4]) / (4.0 * M_PI * eV_erg);
+
+    if (abs(cstar->type) != IndividualStarPopIII){
+      cstar->ComputeFUVLuminosity(FUVLuminosity);
+    } else {
+      FUVLuminosity = Luminosity[7]*energies[7] / eV_erg; // now in erg/s
+    }
 
     /* Pre-calculate distances from cells to source */
     for (dim = 0; dim < GridRank; dim++)
@@ -172,7 +177,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
         ddr2[dim][i] = 
           fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][index] -
                cstar->pos[dim]);
-//        ddr2[dim][i] = m1in(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
+        ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
         ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
       }
 
