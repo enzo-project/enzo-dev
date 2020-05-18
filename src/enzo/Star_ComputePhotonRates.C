@@ -122,6 +122,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       // later. Stars below (10Msun) will just be extrapolated using fit
       float fit_mass = min((float)(_mass), 100.0);
       const float mass_cut = 35.0; // separation in polynomials
+      x = log10((float)(fit_mass));
+      x2 = x*x;
+      x3 = x*x*x;
 
       /* These fits return the TOTAL photons. Need to divide by lifetime */
 
