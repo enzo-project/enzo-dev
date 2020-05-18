@@ -150,7 +150,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       E[2] = POW(10.0,  -9.2050e-04*x3 -5.7004e-03*x2 + 5.5792e-02*x + 1.7217e+00);
       E[3] = LW_photon_energy;
       E[4] = IR_photon_energy;
-      E[7] = 0.8*FUV_photon_energy;
+      E[7] = FUV_photon_energy;
 
       if (_mass > 100.0){
         // scale massive stars assuming fixed photon rate
