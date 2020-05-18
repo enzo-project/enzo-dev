@@ -121,7 +121,12 @@ void Star::ComputeIRLuminosity(float &L_IR){
 }
 
 void Star::ComputeLWLuminosity(float &L_LW){
-
+/*
+  if (this->type == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+    this->PopIIIComputeLWLuminosity(L_LW);
+    return;
+  }
+ */
   this->AssertStellarProperties();
   this->AssertInterpolationPositions(2);
 
@@ -131,8 +136,25 @@ void Star::ComputeLWLuminosity(float &L_LW){
   return;
 }
 
-void Star::ComputeFUVLuminosity(float &L_FUV){
+/*
+void Star::PopIIIComputeLWLuminosity(float &L_LW){
+  this->Compute
+  return;
+}
 
+void Star::PopIIIComputeFUVLuminosity(float &L_FUV){
+
+
+  return;
+}
+*/
+void Star::ComputeFUVLuminosity(float &L_FUV){
+/*
+  if (this->type == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+    this->PopIIIComputeFUVLuminosity(L_LW);
+    return;
+  }
+*/
   this->AssertStellarProperties();
   this->AssertInterpolationPositions(2);
 
