@@ -197,11 +197,12 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           if ( sqrt(radius2) > max_distance) continue; // does not contribute
 
           double LocalFUVflux = 0.0;
-          if (radius2 < dilRadius2){ // need r^2 in cgs
+          if (radius2 < dilRadius2){ // need r^2 in cgs - this is done above in FUVflux
             LocalFUVflux = FUVflux / (dilRadius2);
           } else{
-            LocalFUVflux = FUVflux / (radius2);
+            LocalFUVflux = FUVflux / (radius2); 
           }
+          // LocalFUVFlux now in cgs units (erg/s/cm^2)
 
           float n_H, n_e, Z;
 
