@@ -31,7 +31,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 int FindField(int f, int farray[], int n);
 
-float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e, 
+float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
                                       // const float &T,
                                       const float &Z, const float &G, const float &dx);
 
@@ -58,8 +58,8 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   /* Find Multi-species fields. */
 // done in RT initialize  this->ZeroPhotoelectricHeatingField();
 
-  if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
-                                  HeIIINum, HMNum, H2INum, H2IINum, DINum, 
+  if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum,
+                                  HeIIINum, HMNum, H2INum, H2IINum, DINum,
                                   DIINum, HDINum) == FAIL) {
     ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
   }
@@ -80,7 +80,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
     return SUCCESS;
 
 
-  float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, 
+  float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits,
     TimeUnits, aUnits = 1, EnergyUnits;
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -123,7 +123,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
   const float PeConversion = 1.0 / (EnergyUnits / TimeUnits);
   float FUVLuminosity = 0.0;
-  // AJE: Not inconsistency here (same as defined elsewhere, but different form. 
+  // AJE: Not inconsistency here (same as defined elsewhere, but different form.
   //      need to fix this....
   const float FluxConv = EnergyUnits / TimeUnits * LengthUnits;
   const float FluxConv_inv = 1.0 / FluxConv;
@@ -170,14 +170,14 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
     /* Pre-calculate distances from cells to source */
     for (dim = 0; dim < GridRank; dim++)
-      for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim]; 
+      for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim];
            i++, index++) {
 
         // Calculate dr_i first, then square it
-        ddr2[dim][i] = 
+        ddr2[dim][i] =
           fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][index] -
                cstar->pos[dim]);
-        ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
+        if (RadiativeTransferPeriodicBoundary) ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
         ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
       }
 
@@ -193,14 +193,14 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           radius2 = radius2_yz + ddr2[0][i];
 
           float max_distance = (this->Time - cstar->ReturnBirthTime()) * clight_code;
-           
+
           if ( sqrt(radius2) > max_distance) continue; // does not contribute
 
           double LocalFUVflux = 0.0;
           if (radius2 < dilRadius2){ // need r^2 in cgs - this is done above in FUVflux
             LocalFUVflux = FUVflux / (dilRadius2);
           } else{
-            LocalFUVflux = FUVflux / (radius2); 
+            LocalFUVflux = FUVflux / (radius2);
           }
           // LocalFUVFlux now in cgs units (erg/s/cm^2)
 
@@ -230,7 +230,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
           } else {
             /* Need to make decision on whether or not to place T cut here or in Grackle wrapper */
 
-            BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e, 
+            BaryonField[PeNum][index] += ComputeHeatingRateFromDustModel(n_H, n_e,
                                                                // temperature[index],
                                                                        Z, LocalFUVflux,
                                                                        this->CellWidth[0][0]*LengthUnits) * PeConversion;

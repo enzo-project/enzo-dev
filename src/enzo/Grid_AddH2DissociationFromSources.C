@@ -195,7 +195,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
               ddr2[dim][i] =
                 fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][0] -
                      RS->Position[dim]);
-              ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
+              if (RadiativeTransferPeriodicBoundary) ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
               ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
             }
 
@@ -278,7 +278,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
     double IRLuminosity = 0.0, H2IILuminosity = 0.0, LWLuminosity = 0.0;
     double HMSigma = 0.0, H2IISigma = 0.0;
     ENZO_FAIL("AJE: Testing - should not be here");
-    
+
     for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
       // Skip if not 'living'
