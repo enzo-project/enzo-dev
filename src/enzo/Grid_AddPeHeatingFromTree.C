@@ -27,8 +27,8 @@
 
 #define MIN_OPENING_ANGLE 0.2  // 0.2 = arctan(11.3 deg)
 
-float CalculateFUVFromTree(const FLOAT pos[], const float angle, 
-                          const SuperSourceEntry *Leaf, const float min_radius, 
+float CalculateFUVFromTree(const FLOAT pos[], const float angle,
+                          const SuperSourceEntry *Leaf, const float min_radius,
                           float result0);
 int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
                               int DEBUG);
@@ -37,7 +37,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 
 float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
-                                      // const float &T,   
+                                      // const float &T,
                                       const float &Z,
                                       const float &G, const float &dx);
 
@@ -110,20 +110,22 @@ int grid::AddPeHeatingFromTree(void)
   SuperSourceEntry *Leaf;
   double LConv = (double) TimeUnits / pow(LengthUnits,3); // this is silly - unconvert a conversion
   double PeConversion = 1.0 / ((double) EnergyUnits / TimeUnits);
-  float factor = 1.0 / ( LConv * eV_erg * (4.0 * pi) *LengthUnits * LengthUnits);
+  /* Need to include FUV photon energy here since FUVLuminosity in below from source clustering tree
+     returns the PHOTON luminosit (1/s) not energy luminosity (erg/s) */
+  float factor = (FUV_photon_energy) / ( LConv * eV_erg * (4.0 * pi) *LengthUnits * LengthUnits);
   float angle;
   FLOAT pos[MAX_DIMENSION];
 
   Leaf = SourceClusteringTree;
 
-  // We want to use the source seperation instead of the merging 
+  // We want to use the source seperation instead of the merging
   // radius. The leaves store the merging radius (ClusteringRadius)
   // so we multiply the angle by merge radius
   angle = MIN_OPENING_ANGLE * RadiativeTransferPhotonMergeRadius;
 
   float FUVflux = 0.0;
 
-  // AJE: Not inconsistency here (same as defined elsewhere, but different form. 
+  // AJE: Not inconsistency here (same as defined elsewhere, but different form.
   //      need to fix this....
   const float FluxConv = EnergyUnits / TimeUnits * LengthUnits;
   const float FluxConv_inv = 1.0 / FluxConv;
@@ -172,7 +174,7 @@ int grid::AddPeHeatingFromTree(void)
         if (temperature[index] > IndividualStarFUVTemperatureCutoff){
           BaryonField[PeNum][index] = 0.0;
         } else {
-          BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e, 
+          BaryonField[PeNum][index]  += ComputeHeatingRateFromDustModel(n_H, n_e,
                                                                        // temperature[index],
                                                                        Z, FUVflux,
                                                                        this->CellWidth[0][0]*LengthUnits) * PeConversion;
