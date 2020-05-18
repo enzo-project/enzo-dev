@@ -101,6 +101,31 @@ def check_memory_failure(outfile = None):
 
     return memory_failure
 
+def cancel_jobs():
+    """
+    Cancels running jobs with SAME job name but different
+    job ID as this one
+    """
+    os.system("squeue -u emerick > emerick_jobs_list.out")
+
+    this_jobID   = os.environ['SLURM_JOBID']
+    this_jobname = os.environ['SLURM_JOB_NAME']
+
+    jobs_list = np.genfromtxt('./emerick_jobs_list.out',
+                              dtype="i8,|U10,|U8,|U7,|U2,|U6,i2,|U14",
+                              names=True)
+
+
+    for i in np.arange(np.size(jobs_list["JOBID"])):
+        if jobs_list["NAME"][i] == this_jobname:
+            print("FRAGGLE: Found a job with the same name : ", this_jobname, this_jobID, jobs_list['NAME'][i], jobs_list['JOBID'][i])
+            if jobs_list["ST"][i] == "R" and jobs_list["JOBID"][i] != this_jobID:
+                print("FRAGGLE: Cancelling job name: %12s with ID: %i"%(jobs_list['NAME'][i], jobs_list['JOBID'][i]))
+                os.system('scancel %i'%(jobs_list["JOBID"][i]))
+
+    return
+
+
 def get_parameter_file():
     """
     Find the .enzo parameter file
@@ -248,6 +273,9 @@ if __name__ == "__main__":
         raise RuntimeError
 
     print("Attempting to run " + EXEC_FNAME + " on system " + SYSTEM)
+
+    print("Cancelling jobs with same name currently running")
+    cancel_jobs()
 
     #
     # find parameter file name
