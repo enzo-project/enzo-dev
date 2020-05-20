@@ -2622,6 +2622,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   float* AveragedVelocityAtCell(int index, int DensNum, int Vel1Num);
 
+  /* Returns averaged velocity from the 26 neighbor cells and itself */
+
+  float* AveragedVelocityAtCell3D(int index, int DensNum, int Vel1Num);
+
   /* Find the minumum of the angular momentum in a given region */
   float FindAngularMomentumMinimum(FLOAT *cellpos, FLOAT radius, int DensNum, int Vel1Num,
 				   int Vel2Num, int Vel3Num);

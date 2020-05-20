@@ -34,7 +34,7 @@
 #define ACCRETIONRADIUS  4
 #define NUMRADIATIONBINS 5
 #define CRITICAL_ACCRETION_RATE 0.04 //Msolar/yr
-#define TIMEGAP            900   //yrs
+#define TIMEGAP            90   //yrs
 /* Prototypes */
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -220,11 +220,8 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
   FLOAT ParticleCoordinates[3*(*nParticles)];
 
   fflush(stdout);
-  /* Particles merge once they come within 4 cells of one another */
-  /* This is OK since we only want to merge particles when they come really
-   * close to one another. Their accretion zones overlapping does 
-   * not necessarily constitute a merger. 
-   */
+  /* Particles merge once they come within 3 accretion radii of one another */
+
   FLOAT MergingRadius = LevelArray[ThisLevel]->GridData->GetCellWidth(0,0)*ACCRETIONRADIUS; 
   MergingRadius = MergingRadius*3.0;
   for (i=0; i<(*nParticles); i++) {

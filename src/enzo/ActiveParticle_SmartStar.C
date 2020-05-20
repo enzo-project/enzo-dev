@@ -17,9 +17,9 @@
 #define MINIMUMPOTENTIAL 1
 #define CALCDIRECTPOTENTIAL 0
 #define JEANSREFINEMENT  1
-#define MASSTHRESHOLDCHECK 1
+#define MASSTHRESHOLDCHECK 0
 #define JEANSLENGTHCALC    1
-#define MASSTHRESHOLD      30                       //Msolar in grid
+#define MASSTHRESHOLD      0.1                       //Msolar in grid
 #define COOLING_TIME       0
 
 int DetermineSEDParameters(ActiveParticleType_SmartStar *SS,FLOAT Time, FLOAT dx);
@@ -114,6 +114,7 @@ int ActiveParticleType_SmartStar::InitializeParticleType()
 int ActiveParticleType_SmartStar::EvaluateFormation
 (grid *thisgrid_orig, ActiveParticleFormationData &data)
 {
+
   // No need to do the rest if we're not on the maximum refinement level.
   if (data.level != MaximumRefinementLevel)
     return SUCCESS;
@@ -149,11 +150,11 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   bool HasMetalField = (data.MetalNum != -1 || data.ColourNum != -1);
   bool JeansRefinement = false;
   bool MassRefinement = false;
-#if CACLDIRECTPOTENTIAL
   float *PotentialField  = NULL;
-#else
-  float *PotentialField = thisGrid->BaryonField[data.GravPotentialNum];
-#endif
+  if(data.GravPotentialNum >= 0)
+    PotentialField = thisGrid->BaryonField[data.GravPotentialNum];
+    
+  //printf("PotentialField = %p\n", PotentialField);
   
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
@@ -188,8 +189,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #if JEANSREFINEMENT
 	if (JeansRefinement) {
 	  CellTemperature = (JeansRefinementColdTemperature > 0) ? JeansRefinementColdTemperature : data.Temperature[index];
+	  int JeansFactor = 1; //RefineByJeansLengthSafetyFactor
 	  JeansDensity = JeansDensityUnitConversion * 1.01 * CellTemperature /
-	    POW(data.LengthUnits*dx*RefineByJeansLengthSafetyFactor,2);
+	    POW(data.LengthUnits*dx*JeansFactor,2);
 
 	  JeansDensity /= data.DensityUnits;
 	  DensityThreshold = min(DensityThreshold,JeansDensity);
@@ -234,7 +236,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #if SSDEBUG
         fprintf(stdout, "%s: Negative Divergence passed\n", __FUNCTION__);
 #endif
-
+	
 	/* We now need to define a control volume - this is the region within 
 	   an accretion radius of the cell identified */
 	centralpos[0] = thisGrid->CellLeftEdge[0][i] + 0.5*thisGrid->CellWidth[0][i];
@@ -281,24 +283,28 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #if SSDEBUG
         fprintf(stdout, "%s: Calculate Gravitational Potential\n", __FUNCTION__);
 #endif
-
-	/* 4. Gravitational Minimum Check */
-	/* 
-	 * Find the minimum of the potential over a Jeans Length. 
-	 */
-	double JLength = JeansLength(CellTemperature, density[index],
-				     data.DensityUnits)/data.LengthUnits;
-	GravitationalMinimum  = thisGrid->FindMinimumPotential(centralpos, JLength*64.0,
-							       PotentialField);
-	if(PotentialField[index] > GravitationalMinimum) {
+	if(PotentialField) {
+	  /* 4. Gravitational Minimum Check */
+	  /* 
+	   * Find the minimum of the potential over a Jeans Length. 
+	   */
+	  double JLength = JeansLength(CellTemperature, density[index],
+				       data.DensityUnits)/data.LengthUnits;
+	  GravitationalMinimum  = thisGrid->FindMinimumPotential(centralpos,
+				  JLength*RefineByJeansLengthSafetyFactor*4.0,
+				  PotentialField);
+	  if(PotentialField[index] > GravitationalMinimum) {
 #if SSDEBUG
-	  printf("FAILURE: GravitationalMinimum = %g\t " \
-	    "PotentialField[index] = %g\n\n", GravitationalMinimum, PotentialField[index]);
+	    printf("FAILURE: GravitationalMinimum = %g\t "		\
+		   "PotentialField[index] = %g\n\n", GravitationalMinimum, PotentialField[index]);
 #endif
-	  continue;
+	    continue;
+	  }
+	  //#if SSDEBUG
+	 fprintf(stdout, "%s: Gravitational Potential Passed!\n", __FUNCTION__);
+	 //#endif
 	}
-
-
+	
 #endif
 #ifdef GRAVENERGY
 	static int mincount = 0;
@@ -343,9 +349,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 
 	float *apvel = new float[MAX_DIMENSION];
 	/* Calculate AP velocity by taking average of 
-	 * surrounding cells 
+	 * surrounding 125 cells 
 	 */
-	apvel = thisGrid->AveragedVelocityAtCell(index, data.DensNum, data.Vel1Num);
+	apvel = thisGrid->AveragedVelocityAtCell3D(index, data.DensNum, data.Vel1Num);
 	np->vel[0] = apvel[0];
 	np->vel[1] = apvel[1];
 	np->vel[2] = apvel[2];
@@ -371,10 +377,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	 * (0.04 Msun/yr) for longer than 1000 yrs then the spectrum needs
 	 * to change to a bluer spectrum.
 	 */
-#if SSDEBUG
-	printf("Forming a SMS - H2Fraction (Threshold) = %e (%e) \n",
-	       data.H2Fraction[index],  PopIIIH2CriticalFraction);
-#endif
+
 	np->ParticleClass = SMS;      //1
 	np->RadiationLifetime=SmartStarSMSLifetime*yr_s/data.TimeUnits;
 	np->NotEjectedMass = 0.0;
@@ -389,7 +392,6 @@ int ActiveParticleType_SmartStar::EvaluateFormation
     printf("Particles (%d) Created and done in Evaulate Formation\n", data.NumberOfNewParticles);
     fflush(stdout);
   }
-
 #if CALCDIRECTPOTENTIAL
   delete [] PotentialField;
 #endif
