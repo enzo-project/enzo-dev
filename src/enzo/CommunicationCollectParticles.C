@@ -235,7 +235,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 	  continue;
 
 
-        GridHierarchyPointer[k]->GridData->TransferSubgridStars
+        GridHierarchyPointer[j]->GridData->TransferSubgridStars
             (SubgridPointers, NumberOfSubgrids, StarsToMove, Zero, Zero,
              StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, FALSE);
 
