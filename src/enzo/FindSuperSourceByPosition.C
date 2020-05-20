@@ -186,7 +186,7 @@ float CalculateLWFromTree(const FLOAT pos[],
   result = result0;
   radius2 = 0.0;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    dx = Leaf->Position[dim] - pos[dim];
+    dx = fabs(Leaf->Position[dim] - pos[dim]);
     if (RadiativeTransferPeriodicBoundary)
       dx = min(dx, (DomainRightEdge[dim]-DomainLeftEdge[dim]) - dx);
     radius2 += dx*dx;
@@ -237,7 +237,7 @@ float CalculateIRFromTree(const FLOAT pos[],
   result = result0;
   radius2 = 0.0;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    dx = Leaf->Position[dim] - pos[dim];
+    dx = fabs(Leaf->Position[dim] - pos[dim]);
     if (RadiativeTransferPeriodicBoundary)
       dx = min(dx, (DomainRightEdge[dim]-DomainLeftEdge[dim]) - dx);    
     radius2 += dx*dx;
@@ -288,8 +288,8 @@ float CalculateFUVFromTree(const FLOAT pos[],
   result = result0;
   radius2 = 0.0;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    dx = Leaf->Position[dim] - pos[dim];
-    if (RadiativeTransferPeriodicBoundary)
+    dx = fabs(Leaf->Position[dim] - pos[dim]);
+    if (RadiativeTransferPeriodicBoundary) 
       dx = min(dx, (DomainRightEdge[dim]-DomainLeftEdge[dim]) - dx);
     radius2 += dx*dx;
   }
