@@ -300,9 +300,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #endif
 	    continue;
 	  }
-	  //#if SSDEBUG
+#if SSDEBUG
 	 fprintf(stdout, "%s: Gravitational Potential Passed!\n", __FUNCTION__);
-	 //#endif
+#endif
 	}
 	
 #endif
@@ -389,7 +389,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
     } // j
   } // k
   if(data.NumberOfNewParticles > 0) {
-    printf("Particles (%d) Created and done in Evaulate Formation\n", data.NumberOfNewParticles);
+    printf("Particles (%d) Created and done in %s\n", data.NumberOfNewParticles, __FUNCTION__);
     fflush(stdout);
   }
 #if CALCDIRECTPOTENTIAL

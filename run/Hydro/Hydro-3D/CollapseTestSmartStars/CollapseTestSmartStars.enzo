@@ -6,7 +6,7 @@
 #
 ProblemType                = 27           // Collapse test
 TopGridRank                = 3
-TopGridDimensions          = 64 64 64
+TopGridDimensions          = 128 128 128
 SelfGravity                = 1            // gravity on
 TopGridGravityBoundary     = 0            // periodic
 LeftFaceBoundaryCondition  = 3 3 3        // periodic
@@ -76,8 +76,8 @@ Mu  			    = 3.0
 #
 #  set grid refinement parameters
 #
-StaticHierarchy           = 0          // dynamic hierarchy
-MaximumRefinementLevel    = 5         // use up to 10 levels
+StaticHierarchy           = 1          // dynamic hierarchy
+MaximumRefinementLevel    = 0         // use up to 10 levels
 RefineBy                  = 2          // refinement factor
 CellFlaggingMethod        = 2 4       // use baryon mass and Truelove criterion for refinement 
 MinimumEfficiency         = 0.3
@@ -100,7 +100,7 @@ WritePotential            = 0
 #
 AppendActiveParticleType = SmartStar
 RadiativeTransfer = 0
-ActiveParticleDensityThreshold = 1e9
+ActiveParticleDensityThreshold = 1e10
 MBHAccretion = 1
 SmartStarSMSLifetime = 1e100
 SmartStarFeedback   = 0    //Sets feedback of any kind
