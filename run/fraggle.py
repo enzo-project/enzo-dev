@@ -47,7 +47,7 @@
 #import sys
 #print sys.path
 
-import os, sys, glob
+import os, sys, glob, time
 import numpy as np
 
 from subprocess import call,check_output,CalledProcessError
@@ -66,7 +66,7 @@ EXEC_FNAME = "./enzo.exe"
 
 SYSTEM     = 'Stampede2' # what are we on?
 
-VERBOSE    = True   # use -d command
+VERBOSE    = False   # use -d command
 
 
 def check_memory_failure(outfile = None):
@@ -106,22 +106,26 @@ def cancel_jobs():
     Cancels running jobs with SAME job name but different
     job ID as this one
     """
-    os.system("squeue -u emerick > emerick_jobs_list.out")
+    os.system('squeue -u emerick -o "%.18i %.9P %.8j %.8u %.2t %.10M %.6D" > emerick_jobs_list.out')
 
-    this_jobID   = os.environ['SLURM_JOBID']
+    this_jobID   = int(os.environ['SLURM_JOBID'])
     this_jobname = os.environ['SLURM_JOB_NAME']
 
     jobs_list = np.genfromtxt('./emerick_jobs_list.out',
-                              dtype="i8,|U10,|U8,|U7,|U2,|U6,i2,|U14",
+                              dtype="i8,|U10,|U8,|U7,|U2,|U6,i2",
                               names=True)
 
 
     for i in np.arange(np.size(jobs_list["JOBID"])):
         if jobs_list["NAME"][i] == this_jobname:
             print("FRAGGLE: Found a job with the same name : ", this_jobname, this_jobID, jobs_list['NAME'][i], jobs_list['JOBID'][i])
-            if jobs_list["ST"][i] == "R" and jobs_list["JOBID"][i] != this_jobID:
+            if jobs_list["ST"][i] == "R" and int(jobs_list["JOBID"][i]) != this_jobID:
                 print("FRAGGLE: Cancelling job name: %12s with ID: %i"%(jobs_list['NAME'][i], jobs_list['JOBID'][i]))
+                time.sleep(3)
+                sys.stdout.flush()
+                time.sleep(3)
                 os.system('scancel %i'%(jobs_list["JOBID"][i]))
+    sys.stdout.flush()
 
     return
 
@@ -296,7 +300,12 @@ if __name__ == "__main__":
     #
     count = 0
     if all_dumps is None:
-        start_command = RUN[SYSTEM] + EXEC_FNAME + verbose_str + ' ' + parfile
+        if VERBOSE:
+            _verbose_str = verbose_str
+        else:
+            _verbose_str = ''
+
+        start_command = RUN[SYSTEM] + EXEC_FNAME + _verbose_str + ' ' + parfile
         call(start_command, shell=True)
         count = 1
 
@@ -304,7 +313,8 @@ if __name__ == "__main__":
     # Otherwise, keep running
     # change count_max to try and do multiple restarts in a single run
     #    this can be helped by forcing Enzo to exit on output
-    count_max = 2
+    count_max = 4
+    same_output_countmax = 3
     # 
     prev_restart_name = None
     restart_count = 1
@@ -317,8 +327,14 @@ if __name__ == "__main__":
             print("FRAGGLE-WARN: Not restarting - likely need to increase memory available")
             break
 
+        if restart_count >= same_output_countmax:
+            print("FRAGGLE-WARN: Failing after attempting the same dump too many times (%i)"%(restart_count) +restart_name)
+            print("FRAGGLE-WARN: Ending run")
+            break
+
         if count > 0:
             all_dumps = get_all_restart_dumps(parameter_file = parfile)
+            print(all_dumps)
 
         restart_name = all_dumps[n]
 
