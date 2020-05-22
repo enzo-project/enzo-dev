@@ -100,7 +100,7 @@ WritePotential            = 0
 #
 AppendActiveParticleType = SmartStar
 RadiativeTransfer = 0
-ActiveParticleDensityThreshold = 1e10
+ActiveParticleDensityThreshold = 1.33e7
 MBHAccretion = 1
 SmartStarSMSLifetime = 1e100
 SmartStarFeedback   = 0    //Sets feedback of any kind

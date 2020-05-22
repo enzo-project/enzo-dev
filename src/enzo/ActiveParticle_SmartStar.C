@@ -9,7 +9,7 @@
 
 #include "ActiveParticle_SmartStar.h"
 #include "phys_constants.h"
-#define SSDEBUG 0
+#define SSDEBUG 1
 #define SSDEBUG_TOTALMASS 0
 
 #define DYNAMIC_ACCRETION_RADIUS 0
@@ -206,11 +206,12 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 
 	if (density[index] <= DensityThreshold)
 	  continue;
+
 #if SSDEBUG
+	printf("Time = %e yr\n", thisGrid->ReturnTime()*data.TimeUnits/yr_s);
 	printf("Density = %g\t DensityThreshold = %g\n", density[index]*data.DensityUnits/mh, DensityThreshold*data.DensityUnits/mh);
 	printf("JeansDensity = %g\t APThreshold = %g\n", JeansDensity*data.DensityUnits/mh, ActiveParticleDensityThreshold);
 #endif
-
 	mass = density[index]*dx*dx*dx;
 #if SSDEBUG
 	fprintf(stdout, "%s: Excellent! Density threshold exceeeded - density = %g cm^-3\n",
@@ -280,10 +281,11 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  thisGrid->CalculatePotentialField(PotentialField, data.DensNum, data.DensityUnits, data.TimeUnits,data.LengthUnits);
 	}
 #endif
-#if SSDEBUG
-        fprintf(stdout, "%s: Calculate Gravitational Potential\n", __FUNCTION__);
-#endif
 	if(PotentialField) {
+
+#if SSDEBUG
+	  fprintf(stdout, "%s: Calculate Gravitational Potential\n", __FUNCTION__);
+#endif
 	  /* 4. Gravitational Minimum Check */
 	  /* 
 	   * Find the minimum of the potential over a Jeans Length. 
@@ -391,6 +393,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   if(data.NumberOfNewParticles > 0) {
     printf("Particles (%d) Created and done in %s\n", data.NumberOfNewParticles, __FUNCTION__);
     fflush(stdout);
+    exit(-99);
   }
 #if CALCDIRECTPOTENTIAL
   delete [] PotentialField;

@@ -468,11 +468,14 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 								      * TimeUnits));
       printf("Temperature = %f K\n", SphereTemperature[sphere]);
       printf("Mu = %f\n", mu);
+      printf("Initial cell width (Domain Width) = %e cm (%e cm)\n", CellWidth[0][0]*LengthUnits,
+	     CellWidth[0][0]*LengthUnits*128.0);
       // Calculate speed of sound for this sphere
       VelocitySound[sphere] = sqrt((SphereTemperature[sphere] * Gamma * kboltz) / 
 				   (mu * mh)) / VelocityUnits;
       printf("\nVelocitySound (km s^-1): %e\n", VelocitySound[sphere] * 
 	     VelocityUnits/1e5);
+     
     } // ENDFOR sphere
     //exit(-99);
     for (k = 0; k < GridDimension[2]; k++)
