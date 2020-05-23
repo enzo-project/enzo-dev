@@ -241,7 +241,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   if (IndividualStarRefineToPhysicalRadius > 0){
     refine_buffer_size = (int)(ceil((2 * IndividualStarRefineToPhysicalRadius * pc_cm / LengthUnits) / CellSize));
 
-    refine_buffer_size = max(refine_buffer_size, 1); // always 
+    refine_buffer_size = max(refine_buffer_size, 1); // always
   }
 
   PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
@@ -349,8 +349,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   bool *antirules;
   int *AntiFlaggingField;
   int NumberOfAntiRules = 0;
-  antirules = new bool[NumberOfAntiRules];
-
+  antirules = NULL;
+  
   // Add an antirule to unflag over-refined dark matter particles.
   if (MustRefineParticlesCreateParticles == 4) {
     NumberOfAntiRules++;
