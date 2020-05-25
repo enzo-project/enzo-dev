@@ -30,7 +30,7 @@
 
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
+		     LevelHierarchyEntry *LevelArray[], int level);
  
 int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
           TopGridData &MetaData)

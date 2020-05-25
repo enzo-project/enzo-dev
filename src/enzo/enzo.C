@@ -166,7 +166,14 @@ int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
 int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
 
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
+		     LevelHierarchyEntry *LevelArray[], int level
+#ifdef INDIVIDUALSTAR
+                     , Star *&AllStars
+#endif
+                     );
+#ifdef INDIVIDUALSTAR
+int RebuildHierarchy(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], int level);
+#endif
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 			 LevelHierarchyEntry *LevelArray[], int level);
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,

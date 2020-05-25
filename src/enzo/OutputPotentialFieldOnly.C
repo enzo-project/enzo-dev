@@ -43,7 +43,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 		       int CheckpointDump = FALSE);
 
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
+		     LevelHierarchyEntry *LevelArray[], int level);
 #ifdef FAST_SIB
 int CreateSiblingList(HierarchyEntry **Grids, int NumberOfGrids, 
 		      SiblingGridList *SiblingList, int StaticLevelZero,

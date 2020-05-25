@@ -37,7 +37,7 @@
  
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
+		     LevelHierarchyEntry *LevelArray[], int level);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
  
 int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,

@@ -27,7 +27,7 @@
 
 /* Set maximum number of receive buffers */
 
-#define MAX_RECEIVE_BUFFERS 150000
+#define MAX_RECEIVE_BUFFERS 300000 // 150000
 
 /* Set the code for the no dependence for the DependsOn element (see below). */
 
@@ -40,7 +40,7 @@
    (in favour of EvolveLevelRoutinesOptimiezed.C).
 
    1) single-phase: COMMUNICATION_SEND_RECEIVE
-      All communication is carried out immediately.  That is, each 
+      All communication is carried out immediately.  That is, each
       communication method is only called once and the function waits until
       the data actually arrives.
 
