@@ -42,7 +42,7 @@
 #define NO_DEBUG_PS
 
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
+		     LevelHierarchyEntry *LevelArray[], int level);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],

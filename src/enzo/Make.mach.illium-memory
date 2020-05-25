@@ -30,7 +30,7 @@ MACH_FILE  = Make.mach.illium-memory
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL = /home/aemerick/anaconda2
+LOCAL_HDF5_INSTALL = /home/aemerick/anaconda3
 LOCAL_GRACKLE_INSTALL  = /home/aemerick/code/local
 #LOCAL_HYPRE_INSTALL = /usr
 
@@ -79,8 +79,8 @@ MACH_LDFLAGS  = -lstdc++ -lc -fsanitize=address
 #-----------------------------------------------------------------------
 
 MACH_OPT_WARN        = -Wall -g
-MACH_OPT_DEBUG       = -g
-MACH_OPT_HIGH        = -O2
+MACH_OPT_DEBUG       = -g -ggdb -O1
+MACH_OPT_HIGH        = -O2 -ggdb
 MACH_OPT_AGGRESSIVE  = -O3 -g
 
 #-----------------------------------------------------------------------

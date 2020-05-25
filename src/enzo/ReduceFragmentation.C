@@ -39,7 +39,7 @@ char LastFileNameWritten[MAX_LINE_LENGTH];
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 			 LevelHierarchyEntry *LevelArray[], int level);
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
+		     LevelHierarchyEntry *LevelArray[], int level);
  
 /*  function */
  

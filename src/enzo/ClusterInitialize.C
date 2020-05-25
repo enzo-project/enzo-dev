@@ -31,7 +31,7 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int RebuildHierarchy(TopGridData *MetaData,
-                     LevelHierarchyEntry *LevelArray[], int level, Star *AllStars = NULL);
+                     LevelHierarchyEntry *LevelArray[], int level);
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
 
 

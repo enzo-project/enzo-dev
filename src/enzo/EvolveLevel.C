@@ -121,10 +121,14 @@ int ComputeDednerWaveSpeeds(TopGridData *MetaData,LevelHierarchyEntry *LevelArra
 
 int  RebuildHierarchy(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level
-//#ifdef INDIVIDUALSTAR
-                      , Star *AllStars = NULL
-//#endif
+#ifdef INDIVIDUALSTAR
+                      , Star *&AllStars
+#endif
                       );
+#ifdef INDIVIDUALSTAR
+int  RebuildHierarchy(TopGridData *MetaData,
+                      LevelHierarchyEntry *LevelArray[], int level);
+#endif
 
 int  ReportMemoryUsage(char *header = NULL);
 int  UpdateParticlePositions(grid *Grid);
