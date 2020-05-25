@@ -27,7 +27,7 @@
 
 /* Set maximum number of receive buffers */
 
-#define MAX_RECEIVE_BUFFERS 300000 // 150000
+#define MAX_RECEIVE_BUFFERS 150000
 
 /* Set the code for the no dependence for the DependsOn element (see below). */
 
