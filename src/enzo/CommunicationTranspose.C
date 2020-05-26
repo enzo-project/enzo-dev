@@ -1049,9 +1049,9 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 	     processed the first call, otherwise always process it. */
 
 	  if (n == 0 && request > 0) break;
-	  if ((RequestHandle[request] == MPI_REQUEST_NULL &&
-	      ReceiveBuffer[request] != NULL) || 
-	      (n == 0 && request == 0)) {
+	  if ( (n == 0 && request == 0) ||
+               (RequestHandle[request] == MPI_REQUEST_NULL &&
+                ReceiveBuffer[request] != NULL)) {
 
 #ifdef DEBUG_NONBLOCKCT
 	    fprintf(stderr, "CT(%"ISYM"): request = %d, receives = %"ISYM"\n", 

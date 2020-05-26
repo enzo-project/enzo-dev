@@ -129,7 +129,15 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
     }
 
     SharedList = new particle_data[NumberOfReceives];
- 
+/*  AJE-memleak: likely only on restart?
+    for (i = 0; i < NumberOfReceives; i++){
+      SharedList[i].grid = INT_UNDEFINED; // AJE-memleak: set to non-nonsense value for safety in std::sort later
+      for(int dim = 0; dim < MAX_DIMENSION; dim++){
+        SharedList[i].vel[dim] = NULL;
+        SharedList[i].pos[dim] = NULL;
+      }
+    }
+*/ 
     /******************************
           Share the particles
     ******************************/
