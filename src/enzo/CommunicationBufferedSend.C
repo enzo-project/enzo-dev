@@ -145,7 +145,6 @@ int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Tar
   /* First, check to see if we should do a scan. */
 
   if (++CallCount % NUMBER_OF_CALLS_BETWEEN_SCANS == 0) {
-    printf("CBS: %"ISYM" %"ISYM"\n",LastActiveIndex+1);
     int NewLastActiveIndex = -1;
     for (i = 0; i < LastActiveIndex+1; i++) {
       if (RequestBuffer[i] != NULL) {
