@@ -77,6 +77,13 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 
     float time1 = ReturnWallTime();
 
+    /* AJE-MEMLEAK: Both address sanitizer and valgrind have a problem with the MPI_Waitsome here
+       Sanitizer crashes outright (sometimes), and valgrind shows a large 
+       number of lost bytes... could possibly be related to specific types of calls but unsure.
+    */
+    if (TotalReceives > MAX_RECEIVE_BUFFERS){
+      ENZO_VFAIL("CommunicationReceiveHandler: TotalReceive > max %"ISYM"\n",TotalReceives);
+    }
     MPI_Waitsome(TotalReceives, CommunicationReceiveMPI_Request,
 		 &NumberOfCompleteRequests, ListOfIndices, ListOfStatuses);
 //    printf("MPI: %"ISYM" %"ISYM" %"ISYM"\n", TotalReceives, 
@@ -93,7 +100,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 #endif
 
     /* Should loop over newly received completions and check error msgs now. */
-    for (index = 0; index < NumberOfCompleteRequests; index++)
+    for (index = 0; index < NumberOfCompleteRequests; index++){
       if (ListOfStatuses[index].MPI_ERROR != 0) {
 	if (NoErrorSoFar) {
 	  fprintf(stderr, "MPI Error on processor %"ISYM". "
@@ -110,6 +117,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 		CommunicationReceiveMPI_Request[index],
 		CommunicationReceiveDependsOn[index]);
       }
+    }
 
     /* Here we loop over the handles looking only for the ones for
        grid::CommunicationSendActiveParticles, and count how many there are,
@@ -298,6 +306,9 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
     case 21:
 	  SendField = CommunicationReceiveArgumentInt[0][index];
 	  errcode = grid_one->CopyActiveZonesFromGrid(grid_two, EdgeOffset, SendField);
+
+        /* AJE: Should there be a break here? */
+        break;
 
 	case 22:
 	  errcode = grid_one->CommunicationSendActiveParticles
