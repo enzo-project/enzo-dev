@@ -100,7 +100,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
   int dim, i, j, k, m, disk, size, MetalNum, MetalIaNum, vel;
 
-  int ExtraField[9] = {0,0,0,0,0};
+  int ExtraField[9] = {0};
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
