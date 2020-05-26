@@ -497,7 +497,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
       }
       // abundances in stars are really mass fractions, so a_solar should be the scaled solar mass
       // fraction of the element (which is what is calculated above)
-      double mass_change        = (cstar->abundances[i] - a_solar)*m_eject; // *z_ratio)*m_eject;
+      float mass_change        = (cstar->abundances[i] - a_solar)*m_eject; // *z_ratio)*m_eject;
       if (TRUE) { // debugging
         if (ABS(mass_change) > metal_mass[i+1]){
           printf("WARNING - SURFACE ABUNDANCES PRODUCING BIZZARE RESULTS\n");
@@ -508,7 +508,11 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
       }
 
       // correct to ensure no negative mass ejection (can happen if abundances are VERY low -- should be rare / never)
-      mass_change = ((metal_mass[i+i] + mass_change) < 0) ? -1.0*metal_mass[i+1] : mass_change;
+      if (mass_change > metal_mass[i+1]){
+          mass_change = (-1.0*metal_mass[i+1]);
+      } else {
+          mass_change = mass_change;
+      }
 
       metal_mass[i+1] += mass_change;
       dm_total += mass_change;
