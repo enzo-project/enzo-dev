@@ -154,7 +154,8 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   Star *cstar = AllStars->NextStar;
   while (cstar != NULL) {
     cstar = cstar->NextStar;
-    if (cstar->IsARadiationSource(MetaData->Time)) NumberOfSources++;
+//    if (cstar->IsARadiationSource(MetaData->Time)) 
+    NumberOfSources++;
   }
 
   if (RadiativeTransferOpticallyThinH2){
