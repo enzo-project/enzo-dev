@@ -1137,6 +1137,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "H2StarMakerColdGasTemperature = %"FSYM,
 		  &H2StarMakerColdGasTemperature);
 
+
     /* AJE Individual Star */
     ret += sscanf(line, "UseFUVBackground = %"ISYM,
                         &UseFUVBackground);
@@ -1343,19 +1344,19 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
 
 
-    ret += sscanf(line, "StellarYieldsAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM " %"ISYM" %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
+    ret += sscanf(line, "StellarYieldsAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM " %"ISYM" %"ISYM ,
                   StellarYieldsAtomicNumbers+0, StellarYieldsAtomicNumbers+1, StellarYieldsAtomicNumbers+2, StellarYieldsAtomicNumbers+3,
                   StellarYieldsAtomicNumbers+4, StellarYieldsAtomicNumbers+5, StellarYieldsAtomicNumbers+6, StellarYieldsAtomicNumbers+7,
-                  StellarYieldsAtomicNumbers+8, StellarYieldsAtomicNumbers+9, StellarYieldsAtomicNumbers+10, StellarYieldsAtomicNumbers+11,
-                  StellarYieldsAtomicNumbers+12, StellarYieldsAtomicNumbers+13, StellarYieldsAtomicNumbers+14, StellarYieldsAtomicNumbers+15, StellarYieldsAtomicNumbers+16,
-                  StellarYieldsAtomicNumbers+17, StellarYieldsAtomicNumbers+18, StellarYieldsAtomicNumbers+19, StellarYieldsAtomicNumbers+20);
+                  StellarYieldsAtomicNumbers+8, StellarYieldsAtomicNumbers+9, StellarYieldsAtomicNumbers+10, StellarYieldsAtomicNumbers+11);
+//                  StellarYieldsAtomicNumbers+12, StellarYieldsAtomicNumbers+13, StellarYieldsAtomicNumbers+14, StellarYieldsAtomicNumbers+15, StellarYieldsAtomicNumbers+16,
+//                  StellarYieldsAtomicNumbers+17, StellarYieldsAtomicNumbers+18, StellarYieldsAtomicNumbers+19, StellarYieldsAtomicNumbers+20);
 
-    ret += sscanf(line, "StellarYieldsResetAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM " %"ISYM" %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
+    ret += sscanf(line, "StellarYieldsResetAtomicNumbers = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM " %"ISYM" %"ISYM ,
                   StellarYieldsResetAtomicNumbers+0, StellarYieldsResetAtomicNumbers+1, StellarYieldsResetAtomicNumbers+2, StellarYieldsResetAtomicNumbers+3,
                   StellarYieldsResetAtomicNumbers+4, StellarYieldsResetAtomicNumbers+5, StellarYieldsResetAtomicNumbers+6, StellarYieldsResetAtomicNumbers+7,
-                  StellarYieldsResetAtomicNumbers+8, StellarYieldsResetAtomicNumbers+9, StellarYieldsResetAtomicNumbers+10, StellarYieldsResetAtomicNumbers+11,
-                  StellarYieldsResetAtomicNumbers+12, StellarYieldsResetAtomicNumbers+13, StellarYieldsResetAtomicNumbers+14, StellarYieldsResetAtomicNumbers+15, StellarYieldsResetAtomicNumbers+16,
-                  StellarYieldsResetAtomicNumbers+17, StellarYieldsResetAtomicNumbers+18, StellarYieldsResetAtomicNumbers+19, StellarYieldsResetAtomicNumbers+20);
+                  StellarYieldsResetAtomicNumbers+8, StellarYieldsResetAtomicNumbers+9, StellarYieldsResetAtomicNumbers+10, StellarYieldsResetAtomicNumbers+11);
+//                 StellarYieldsResetAtomicNumbers+12, StellarYieldsResetAtomicNumbers+13, StellarYieldsResetAtomicNumbers+14, StellarYieldsResetAtomicNumbers+15, StellarYieldsResetAtomicNumbers+16,
+//                  StellarYieldsResetAtomicNumbers+17, StellarYieldsResetAtomicNumbers+18, StellarYieldsResetAtomicNumbers+19, StellarYieldsResetAtomicNumbers+20);
 
 
 
