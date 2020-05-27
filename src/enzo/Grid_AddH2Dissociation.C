@@ -33,10 +33,11 @@ int grid::AddH2Dissociation(Star *AllStars, int NumberOfSources)
      makes the direct calculation faster. */
 
   if (RadiativeTransferOpticallyThinSourceClustering == TRUE && 
-      NumberOfSources >= RadiativeTransferSourceClusteringCount)
+      NumberOfSources >= RadiativeTransferSourceClusteringCount){
     this->AddH2DissociationFromTree();
-  else
+  } else{
     this->AddH2DissociationFromSources(AllStars);
+  }
 
   return SUCCESS;
 
