@@ -254,11 +254,14 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
  
   /* Clean up. */
  
-  if (*OutRegion != strip1)
-    delete [] strip1;
-  if (*OutRegion != strip0)
-
-    delete [] strip0;
+  if (*OutRegion != strip1){
+    if (strip1 != NULL) delete [] strip1;
+    strip1 = NULL;
+  }
+  if (*OutRegion != strip0){
+    if (strip0 != NULL) delete [] strip0;
+    strip0 = NULL;
+  }
 
   PrintMemoryUsage("Exit FFT");
  

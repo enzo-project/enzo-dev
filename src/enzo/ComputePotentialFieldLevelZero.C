@@ -146,7 +146,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   /* Static declarations (for Green's function). */
  
   static int FirstCall = TRUE, NumberOfGreensRegions;
-  static region *GreensRegion;
+  static region *GreensRegion = NULL;
  
   /* Declarations. */
  
@@ -228,9 +228,11 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       }
 
       /* Clean up. */
-      
-      if (GreensRegion != TempRegion)
+       // AJE problem poitn is greens region == strip 0? is greens cleaned up?
+      if (GreensRegion != TempRegion){
 	delete [] TempRegion;
+        TempRegion == NULL;
+      }
 
     } // end: if (Periodic)
  
@@ -416,11 +418,18 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
  
   /* Clean up. */
- 
-  delete [] InitialRegion;
-  if (OutRegion != InitialRegion)
-    delete [] OutRegion;
- 
+
+    if (OutRegion == InitialRegion){
+      if(InitialRegion!=NULL) delete [] InitialRegion;
+    } else {
+      if(OutRegion!=NULL) delete [] OutRegion; // maybe comment out
+      if(InitialRegion!=NULL) delete [] InitialRegion;
+    }
+    OutRegion = NULL; InitialRegion = NULL;
+
+  // I believe this should always happen:
+  //if (GreensRegion != NULL) delete [] GreensRegion;
+
   if (CopyGravPotential)
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
