@@ -161,8 +161,9 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (RadiativeTransferOpticallyThinH2){
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
-	Temp->GridData->InitializeTemperatureFieldForH2Shield();
+        if (RadiativeTransferH2ShieldType==1) Temp->GridData->InitializeTemperatureFieldForH2Shield();
 	Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
+        if (RadiativeTransferH2ShieldType==1) Temp->GridData->FinalizeTemperatureFieldForH2Shield();        
       }
     }
 
