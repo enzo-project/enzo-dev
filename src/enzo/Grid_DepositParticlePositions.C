@@ -84,7 +84,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
   int Dimension[] = {1,1,1};
   int OriginalDimension[] = {1,1,1};
   long_int Offset[] = {0,0,0};
-  float MassFactor = 1.0, *ParticleMassTemp, *ParticleMassPointer; 
+  float MassFactor = 1.0, *ParticleMassTemp=NULL, *ParticleMassPointer=NULL; 
   FLOAT CellSize, CloudSize;
   float *ParticleMassPointerSink;    
   float TimeDifference = 0;
@@ -490,10 +490,12 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 
     /* If necessary, delete the particle mass temporary. */
 
-    if (MassFactor != 1.0)
-
-      delete [] ParticleMassTemp;
-
+    if (MassFactor != 1.0){
+      if (ParticleMassTemp != NULL){
+          delete [] ParticleMassTemp;
+          ParticleMassTemp=NULL;
+      }
+    }
     /* Return particles to positions at Time. */
 
     this->UpdateParticlePosition(-TimeDifference);

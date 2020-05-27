@@ -376,6 +376,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     }
 
+    if (NumberOfColours > MAX_COLOR){
+      ENZO_VFAIL("Too many color fields. Need to raise MAX_COLOR in fortran.def to at least %"ISYM"\n",NumberOfColours);
+    }
+
     /* Set lowest level flag (used on Zeus hydro). */
 
     int LowestLevel = (level > MaximumRefinementLevel-1) ? TRUE : FALSE;
