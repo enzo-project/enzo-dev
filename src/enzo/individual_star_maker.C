@@ -94,8 +94,8 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
   int i, j, k, index, ii=0, istar=0, index_presf=0;
   int xo, yo, zo, rsign=1;
-  float bmass, div, star_mass=0.0, sum_mass=0.0, metal_mass=0.0, H2mass=0.0;
-  float pstar, mass_to_stars, mass_available, tdyn;
+  float bmass, sum_mass=0.0, metal_mass=0.0, H2mass=0.0;
+  float pstar, mass_to_stars, tdyn;
   float dtot, isosndsp2, jeansmass, star_fraction;
   float umean, vmean, wmean, px, py, pz, px_excess, py_excess, pz_excess;
   float rnum;
@@ -108,13 +108,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
   const int max_random = (1<<16);
 
-  int form_method = -1; // tracker for debugging purposes
-
   /* for convenience, rename some grid properties - will likely get optimized out */
   int  nx = this->GridDimension[0], ny = this->GridDimension[1], nz = this->GridDimension[2];
   int  ibuff = NumberOfGhostZones;
 
-  FLOAT xstart = CellLeftEdge[0][0], ystart = CellLeftEdge[1][0], zstart = CellLeftEdge[2][0];
   float   dx   = CellWidth[0][0];
 
   if (! this->isLocal()) return SUCCESS;
@@ -392,7 +389,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 break;
               }
 
-              int add_unresolved_star = FALSE; // only used when IMF mass floor is < imf lower limit
               int form_popIII_stars   = 0;
 
               /* Here is where star formation actually occurs */
@@ -473,7 +469,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                     }
 
                     if (unresolved_mass > 0.0) { // we've formed tiny stars (should always happen).. account for this
-                      add_unresolved_star = TRUE;
                       ParticleMass[ii] = unresolved_mass;
                       ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED;
                       unresolved_counter++;

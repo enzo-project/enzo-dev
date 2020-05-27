@@ -41,10 +41,9 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   Star *cstar;
   FLOAT DomainWidth[MAX_DIMENSION];
   FLOAT *ddr2[MAX_DIMENSION];
-  FLOAT innerFront, outerFront, innerFront2, outerFront2;
   double Luminosity[MAX_ENERGY_BINS];
   float energies[MAX_ENERGY_BINS];
-  int ipart, dim, i, j, k, index, indixe, nbins;
+  int dim, i, j, k, index, nbins;
   int ActiveDims[MAX_DIMENSION];
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;

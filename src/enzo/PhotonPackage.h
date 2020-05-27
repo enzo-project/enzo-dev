@@ -5,7 +5,7 @@
 /  written by: Tom Abel & Greg Bryan
 /  date:       August, 2003
 /  modified1:  February, 2010 by JHW
-/                Converted into a poor man's class with everything 
+/                Converted into a poor man's class with everything
 /                public.  I need a constructor/destructor to use the
 /                MemoryPool to avoid memory fragmentation.
 /
@@ -22,7 +22,7 @@ class PhotonPackageEntry
 public:
   PhotonPackageEntry *NextPackage; // Next Link
   PhotonPackageEntry *PreviousPackage; // Previous Link
-  SuperSourceEntry *CurrentSource;  // Currently used (super)source  
+  SuperSourceEntry *CurrentSource;  // Currently used (super)source
   float Photons;                // number of photons in package
   int   Type;                   // 0 = HI, 1=HeI, 2=HeII, 3=H2I_LW, 4=Xray
   float Energy;                 // Mean energy of photons in this package [eV]
@@ -54,14 +54,14 @@ public:
     FLOAT r[3];
     double u[3];
     pix2vec_nest64((int64_t)(1 << level), ipix, u);
-    for (int dim = 0; dim < 3; dim++) 
+    for (int dim = 0; dim < 3; dim++)
       r[dim] = SourcePosition[dim] + u[dim] * Radius;
-    printf("Photons = %g, Type = %"ISYM", Radius = %"PSYM"\n", Photons, Type, Radius);
+    printf("Photons = %g, Type = %" ISYM ", Radius = %" PSYM "\n", Photons, Type, Radius);
     printf("ipix = %lld, level = %ld\n", ipix, level);
-    printf("normal = %"PSYM" %"PSYM" %"PSYM"\n", u[0], u[1], u[2]);
-    printf("SourcePosition = %"PSYM" %"PSYM" %"PSYM"\n",
+    printf("normal = %" PSYM " %" PSYM " %" PSYM "\n", u[0], u[1], u[2]);
+    printf("SourcePosition = %" PSYM " %" PSYM " %" PSYM "\n",
 	   SourcePosition[0], SourcePosition[1], SourcePosition[2]);
-    printf("RayPosition = %"PSYM" %"PSYM" %"PSYM"\n", r[0], r[1], r[2]);
+    printf("RayPosition = %" PSYM " %" PSYM " %" PSYM "\n", r[0], r[1], r[2]);
     return;
   };
 

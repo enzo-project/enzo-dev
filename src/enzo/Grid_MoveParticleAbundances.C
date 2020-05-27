@@ -23,8 +23,7 @@ int grid::MoveParticleAbundances(int NumberOfGrids, grid* FromGrid[]){
 
   int NumberOfSubgridParticles = 0;
   int TotalNumberOfParticles = NumberOfParticles;
-  int i, j, grid, dim, *Type;
-  PINT *Number;
+  int i, j, grid;
 
   for (grid = 0; grid < NumberOfGrids; grid++)
     if (MyProcessorNumber == FromGrid[grid]->ProcessorNumber)

@@ -112,8 +112,8 @@ public:
   double ReturnWindMassEjected(void){ return wind_mass_ejected; };
   double ReturnSNMassEjected(void){ return sn_mass_ejected; };
 
-  double AddToWindMassEjected(double m){ wind_mass_ejected += m; };
-  double AddToSNMassEjected(double m){ sn_mass_ejected += m; };
+  void AddToWindMassEjected(double m){ wind_mass_ejected += m; };
+  void AddToSNMassEjected(double m){ sn_mass_ejected += m; };
 
   int InterpolateLifetime(float &tau, const int &mode);
   void ComputeFUVLuminosity(float &L_FUV);

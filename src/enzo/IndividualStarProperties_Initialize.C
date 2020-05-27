@@ -102,7 +102,7 @@ int IndividualStarProperties_Initialize(TopGridData &MetaData){
   while( fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
 
     if(line[0] != '#'){
-      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+      err = sscanf(line, "%" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM,
                          &IndividualStarPropertiesData.M[i],
                          &IndividualStarPropertiesData.Z[j],
                          &L,
@@ -244,7 +244,7 @@ int IndividualStarRadiationProperties_Initialize(void){
   while( fgets(line, MAX_LINE_LENGTH, fptrq0) != NULL){
     if(line[0] != '#'){
 
-      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+      err = sscanf(line, "%" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM,
                    &IndividualStarRadData.T[i],
                    &IndividualStarRadData.g[j],
                    &IndividualStarRadData.q0[i][j][0],
@@ -281,7 +281,7 @@ int IndividualStarRadiationProperties_Initialize(void){
 
     if(line[0] != '#'){
 
-      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+      err = sscanf(line, "%" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM,
                    &temp1,
                    &temp2,
                    &IndividualStarRadData.q1[i][j][0],
@@ -317,7 +317,7 @@ int IndividualStarRadiationProperties_Initialize(void){
 
     if(line[0] != '#'){
 
-      err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+      err = sscanf(line, "%" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM,
                    &temp1,
                    &temp2,
                    &IndividualStarRadData.q2[i][j][0],
@@ -355,7 +355,7 @@ int IndividualStarRadiationProperties_Initialize(void){
 
       if(line[0] != '#'){
 
-        err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+        err = sscanf(line, "%" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM,
                      &temp1,
                      &temp2,
                      &IndividualStarRadData.IR_flux[i][j][0],
@@ -405,7 +405,7 @@ int IndividualStarRadiationProperties_Initialize(void){
 
         // note metallicities are currently listed in CORRECT order for FUV file
 
-        err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+        err = sscanf(line, "%" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM,
                      &temp1,
                      &temp2,
                      &IndividualStarRadData.FUV_flux[i][j][0],
@@ -453,7 +453,7 @@ int IndividualStarRadiationProperties_Initialize(void){
       if(line[0] != '#'){
         // note metallicities are currently listed in CORRECT order for FUV file
 
-        err = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+        err = sscanf(line, "%" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM,
                      &temp1,
                      &temp2,
                      &IndividualStarRadData.LW_flux[i][j][0],

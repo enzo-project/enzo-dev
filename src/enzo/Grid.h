@@ -1149,7 +1149,7 @@ gradient force to gravitational force for one-zone collapse test. */
    };
 
    void PrintBaryonFieldValues(int field, int index)
-     {fprintf(stdout, "Baryonfield[field = %"ISYM"][index = %"ISYM"] = %g\n",
+     {fprintf(stdout, "Baryonfield[field = %" ISYM "][index = %" ISYM "] = %g\n",
 	      field, index, BaryonField[field][index]);};
 
 // -------------------------------------------------------------------------
@@ -1627,7 +1627,7 @@ iveParticles;};
        // this is meant to be enough info that interesting analysis can be done off of this data
        // file alone, without reference to data dump (e.g. MDFs)
 
-       fprintf(fptr, "StellarAbundances P(%"ISYM"): %"ISYM" %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM,
+       fprintf(fptr, "StellarAbundances P(%" ISYM "): %" ISYM " %" ISYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM "\n",
               MyProcessorNumber,
               this->ID, ParticleNumber[index], ParticleType[index],
               ParticlePosition[0][index], ParticlePosition[1][index], ParticlePosition[2][index],
@@ -1651,7 +1651,7 @@ iveParticles;};
        if (IndividualStarRProcessModel) num_extra++;
 
        for (i = 0; i < StellarYieldsNumberOfSpecies + num_extra; i++){
-         fprintf(fptr,"     %"ESYM,StellarAbundances[i][index]);
+         fprintf(fptr,"     %" ESYM ,StellarAbundances[i][index]);
        }
 
        fprintf(fptr,"\n");

@@ -84,7 +84,6 @@ int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[],
 
   /* pos and vel for star */
   FLOAT *pos;
-  float *vel;
 
   if (AllStars == NULL)
     return SUCCESS;
@@ -137,7 +136,6 @@ int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[],
        on eiher side of central cell (i.e. 3x3 CIC -> ncell = 1) */
 
     pos = cstar->ReturnPosition();
-    vel = cstar->ReturnVelocity();
 
     double particle_mass;
     int gridnum=0;
@@ -372,7 +370,6 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
 
   float m_eject, E_thermal;
 
-  const float mproj = cstar->ReturnBirthMass();
   const float lifetime = cstar->ReturnLifetime();
 
 
@@ -402,8 +399,6 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
 
   } else { metal_mass = NULL;}
 
-
-  float cgs_lifetime = lifetime * TimeUnits;
 
   int stellar_wind_mode = FALSE;
 
@@ -497,12 +492,12 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
       }
       // abundances in stars are really mass fractions, so a_solar should be the scaled solar mass
       // fraction of the element (which is what is calculated above)
-      float mass_change        = (cstar->abundances[i] - a_solar)*m_eject; // *z_ratio)*m_eject;
+      float mass_change        = (abundances[i] - a_solar)*m_eject; // *z_ratio)*m_eject;
       if (TRUE) { // debugging
         if (ABS(mass_change) > metal_mass[i+1]){
           printf("WARNING - SURFACE ABUNDANCES PRODUCING BIZZARE RESULTS\n");
-          printf("Total mass change = %"ESYM" from initial = %"ESYM" and total ejection of %"ESYM"\n", mass_change, metal_mass[i+1], m_eject);
-          printf("For element %"ISYM" with abundance %"ESYM" and scaled solar abundance %"ESYM"\n",StellarYieldsAtomicNumbers[i],cstar->abundances[i],a_solar);
+          printf("Total mass change = %" ESYM " from initial = %" ESYM " and total ejection of %" ESYM "\n", mass_change, metal_mass[i+1], m_eject);
+          printf("For element %" ISYM " with abundance %" ESYM " and scaled solar abundance %" ESYM "\n",StellarYieldsAtomicNumbers[i],cstar->abundances[i],a_solar);
           printf("NEED TO DOUBLE CHECK THESE VALUES");
         }
       }
@@ -524,7 +519,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     m_eject           += dm_total;
 
     if ((metal_mass[0] < 0) || (m_eject < 0)){
-      ENZO_VFAIL("Failure in surface abundances. Total metal mass (%"FSYM") / total ejected mass (%"FSYM")are negative\n",metal_mass[0], m_eject);
+      ENZO_VFAIL("Failure in surface abundances. Total metal mass (%" FSYM ") / total ejected mass (%" FSYM ")are negative\n",metal_mass[0], m_eject);
     }
 
 
@@ -532,10 +527,10 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
       for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
         if ((metal_mass[0] < 0) || (metal_mass[i+1] < 0) || ((StellarYieldsAtomicNumbers[i]>2) && (metal_mass[i+1] > metal_mass[0]))  ){
             /* if any fail here, print all and exit */
-          printf("Total mass = %"FSYM" --- DM total = %"ESYM"\n", m_eject,dm_total);
+          printf("Total mass = %" FSYM " --- DM total = %" ESYM "\n", m_eject,dm_total);
           printf("Abundances: ");
           for(int j=0;j<StellarYieldsNumberOfSpecies;j++){
-            printf(" %"ESYM,cstar->abundances[j]);
+            printf(" %" ESYM ,cstar->abundances[j]);
           }
           printf("\n");
 
@@ -600,7 +595,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
 
   if(IndividualStarFollowStellarYields && MultiMetals == 2){
     for(int i = 0; i < StellarYieldsNumberOfSpecies + 1; i++){
-      // printf("metal mass species %"ISYM"   = %"ESYM"\n", i, metal_mass[i]);
+      // printf("metal mass species %" ISYM "   = %" ESYM "\n", i, metal_mass[i]);
       metal_mass[i] = metal_mass[i] * SolarMass / MassUnits / (dx*dx*dx);
     }
   }
@@ -617,7 +612,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
   float new_mass = (*mp) - m_eject * (dx*dx*dx) * MassUnits / SolarMass; // update mass
 
   if( *mp < 0 && mode != 2){ // This can happen for Type 1a since using fixed mass model
-    printf("new_mass = %"ESYM" mp = %"ESYM" m_eject =%"ESYM"\n", new_mass, *mp, m_eject*dx*dx*dx*MassUnits/SolarMass);
+    printf("new_mass = %" ESYM " mp = %" ESYM " m_eject =%" ESYM "\n", new_mass, *mp, m_eject*dx*dx*dx*MassUnits/SolarMass);
     ENZO_FAIL("IndividualStarFeedback: Ejected mass greater than current particle mass - negative particle mass!!!\n");
   } else if (mode == 2){
     *mp = 0.0;
@@ -793,8 +788,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
       for(int i = ic - r_int; i <= ic + r_int; i++){
         if ( (i<0) || (i>=nx) ) continue;
 
-        int index = i + (j + k*ny)*nx;
-
         float xc,yc,zc;
         xc = (i + 0.5) * dx + xstart;
         yc = (j + 0.5) * dx + ystart;
@@ -831,7 +824,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
 
     if (total_injection_volume < 0.8){
 
-      printf("total_injection_volume = %"ESYM"\n",total_injection_volume);
+      printf("total_injection_volume = %" ESYM "\n",total_injection_volume);
       ENZO_FAIL("Total injection volume is small... this is a large correction... make sure nohing is broken");
     }
 
@@ -844,7 +837,7 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   } else if (total_injection_volume > 1.02){
     // here for testing
     // but if this is common, just switch to always dividing by the sum (above)
-    printf("total_injection_volume = %"FSYM"\n", total_injection_volume);
+    printf("total_injection_volume = %" FSYM "\n", total_injection_volume);
     ENZO_FAIL("Error in computing feedback injection volume in individual stars. Greater than 1");
   }
   }
@@ -1060,12 +1053,12 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
     /* compute Sedov-Taylor phase radius (R_dps) */
 
     if (cstar){
-      printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
+      printf("IndividualStarSNStats: %" ISYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM "\n",
             this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), m_eject_cgs,
             cells_this_grid, sphere_volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
             total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
     } else {
-      printf("IndividualStarSNStats: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n",
+      printf("IndividualStarSNStats: %" ISYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM "\n",
             this->ID, -1.0, this->Time, -1.0, -1.0, -1.0, m_eject_cgs,
             cells_this_grid, sphere_volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
             total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
@@ -1133,14 +1126,14 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
           metal_mass[im] = metal_mass[im] + m_ism * grid_abundances[im]; // ISM abundances
 
           if(metal_mass[im] < 0.0){
-            printf("metal_mass %"ESYM" %"ISYM" %"ESYM"\n", metal_mass[im], im, grid_abundances[im]);
+            printf("metal_mass %" ESYM " %" ISYM " %" ESYM "\n", metal_mass[im], im, grid_abundances[im]);
             ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0 and m_ism >0");
           }
         }
       } else{
         for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
           if(metal_mass[im] < 0.0){
-            printf("metal_mass %"ESYM" %"ISYM"\n", metal_mass[im], im);
+            printf("metal_mass %" ESYM " %" ISYM "\n", metal_mass[im], im);
             ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0 and m_ism < 0");
           }
         }
@@ -1150,7 +1143,7 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
 
   /* make sure things aren't whacky */
   if (E_thermal < 0.0 || m_eject < 0.0 || m_ism < 0.0){
-    printf("Error in stellar wind calculation. E_thermal = %"ESYM" m_eject = %"ESYM" m_ism (code) = %"ESYM"\n",E_thermal, m_eject, m_ism);
+    printf("Error in stellar wind calculation. E_thermal = %" ESYM " m_eject = %" ESYM " m_ism (code) = %" ESYM "\n",E_thermal, m_eject, m_ism);
     ENZO_FAIL("IndividualStarFeedback: Negative injection values in stellar wind feedback modification\n");
   }
 

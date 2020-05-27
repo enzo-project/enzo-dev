@@ -16,7 +16,7 @@
 /         the grid in solar masses. However, this could (in principle)
 /         be generalized to compute flux of any quantity in any units
 /
-/*********************************************************************/
+/ *********************************************************************/
 
 #ifdef USE_MPI
 #include "mpi.h"
