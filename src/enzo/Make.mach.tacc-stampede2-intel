@@ -114,7 +114,7 @@ MACH_LDFLAGS  = -xCORE-AVX512 -lifcore -lifport -lpthread -ldl
 
 MACH_OPT_WARN        = -warn all -g -O0
 MACH_OPT_DEBUG       = -g -ggdb -O0 
-MACH_OPT_HIGH        = -xCORE-AVX512 -O2
+MACH_OPT_HIGH        = -xCORE-AVX512 -O2 -g -ggdb
 MACH_OPT_AGGRESSIVE  = -xCORE-AVX512 -O3 -ipo -mcmodel=medium -mkl
 
 #-----------------------------------------------------------------------
