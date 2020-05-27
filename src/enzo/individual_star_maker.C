@@ -101,6 +101,11 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   float rnum;
   float inv_metal_mol = 1.0 /MU_METAL;
 
+  /* counters for output at end if stars form */
+  int individualstar_counter=0, unresolved_increment=0, unresolved_counter=0,
+      popiii_counter=0;
+  float total_mass_sf = 0.0, total_unresolved_mass=0.0;
+
   const int max_random = (1<<16);
 
   int form_method = -1; // tracker for debugging purposes
@@ -432,7 +437,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                     if ( (H2mass/bmass) > PopIIIH2CriticalFraction){ // must check this separately
                       float mass_counter    = IndividualStarSFGasMassThreshold;
-                      float unresolved_mass = 0.0;
 
                       while( mass_counter > 0.0){
                         float temp_mass = SamplePopIII_IMF();
@@ -440,6 +444,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                         ParticleMass[ii] = temp_mass;
                         ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII;
                         ii++;
+                        popiii_counter++;
                         sum_mass += temp_mass;
                         mass_counter -= temp_mass;
                       }
@@ -455,9 +460,12 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                         // these particles and dump into a single particle at the very end.
                         if ( (temp_mass >= IndividualStarIMFLowerMassCutoff) && (temp_mass < IndividualStarIMFMassFloor)){
                           unresolved_mass  += temp_mass;
+                          unresolved_increment++;
+                          total_unresolved_mass += temp_mass;
                         } else{
                           ParticleMass[ii]  = temp_mass;
                           ParticleType[ii]  = -PARTICLE_TYPE_INDIVIDUAL_STAR;
+                          individualstar_counter++;
                           ii++;
                         }
                         sum_mass         += temp_mass;
@@ -468,6 +476,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                       add_unresolved_star = TRUE;
                       ParticleMass[ii] = unresolved_mass;
                       ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED;
+                      unresolved_counter++;
                       ii++;
                     }
                   } // check if doing popIII or normal SF
@@ -561,7 +570,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                   if(IndividualStarInterpolateLifetime(ParticleAttribute[1][istar], ParticleMass[istar],
                                                                                     ParticleAttribute[2][istar], 1) == FAIL){
-                    printf(" %"ESYM"  %"ESYM"  %"ESYM"\n",ParticleAttribute[1][istar], ParticleMass[istar], ParticleAttribute[2][istar]);
+                    printf(" %" ESYM "  %" ESYM "  %" ESYM "\n",ParticleAttribute[1][istar], ParticleMass[istar], ParticleAttribute[2][istar]);
                   ENZO_FAIL("Error in stellar lifetime interpolation");
                   }
 
@@ -809,6 +818,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               // should be equal to the total momentum of the stars
               // compute excess momentum and modify star velocity evenly (mass weighted)
               // this is not completely physical, as pre-SF and post-SF gas vel is the same
+              total_mass_sf += sum_mass;
               sum_mass = sum_mass * SolarMass / MassUnits; // in code units
 
               px_excess = px - umean * sum_mass;
@@ -883,10 +893,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
     // Done forming stars!!! Output and exit
     if (ii > 0){
-      printf("P(%"ISYM"): individual_star_maker[add]: %"ISYM" new star particles\n", MyProcessorNumber, ii);
+      printf("P(%" ISYM "): individual_star_maker[add]: %" ISYM " new star particles. PopIII = %" ISYM " Unresolved = %" ISYM " UnresolvedInc = %" ISYM " Individual(PopII/PopI) = %" ISYM " - Total Mass (Msun) = %" ESYM " Unresolved Mass = %" ESYM "\n", MyProcessorNumber, ii, popiii_counter, unresolved_counter, unresolved_increment, individualstar_counter, total_mass_sf, total_unresolved_mass);
     }
     if (ii >= *nmax){
-      fprintf(stdout, "individual_star_maker: reached max new particle count!! Available: %"ISYM". Made: %"ISYM"\n", *nmax, ii);
+      fprintf(stdout, "individual_star_maker: reached max new particle count!! Available: %" ISYM ". Made: %" ISYM "\n", *nmax, ii);
 
     }
 
