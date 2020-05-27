@@ -440,7 +440,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	     total number density summed over ionization, etc.) */
 	
 	  if (Coordinate == Cartesian) {
-        for (int index = 0; index < fieldNumberList.size(); ++index) {
+        for (std::size_t index = 0; index < fieldNumberList.size(); ++index) {
           field = fieldNumberList[index];
           for (k = Start[2]; k <= End[2]; k++) {
             for (j = Start[1]; j <= End[1]; j++) {
@@ -554,7 +554,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
 				   CorrectionAmountLeft,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -576,7 +576,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
 				   CorrectionAmountLeft,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -604,7 +604,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][FluxIndex],
 				   CorrectionAmountRight,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -626,7 +626,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
 				   CorrectionAmountRight,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -651,7 +651,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 
       if (Coordinate == Cylindrical) {
         FLOAT xr, xl, xc, geofacr, geofacl;
-        for (int index = 0; index < fieldNumberList.size(); ++index) {
+        for (std::size_t index = 0; index < fieldNumberList.size(); ++index) {
           field = fieldNumberList[index];
 	  for (k = Start[2]; k <= End[2]; k++) {
 	    for (j = Start[1]; j <= End[1]; j++) {
@@ -721,7 +721,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			   i, j, k, dim, field);
 			   }*/
 		  /* If new density & energy is < 0 then undo the flux correction. */
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
             if (undoIndex <= index) {
               BaryonField[ffield][FieldIndex] -= (
@@ -747,7 +747,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			   i, j, k, dim, Offset, field);
 			   }*/
 		  /* If new density & energy is < 0 then undo the flux correction. */
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
             if (undoIndex <= index) {
               BaryonField[ffield][FieldIndex + Offset] += (

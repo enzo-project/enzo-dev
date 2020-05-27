@@ -94,22 +94,24 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
   int i, j, k, index, ii=0, istar=0, index_presf=0;
   int xo, yo, zo, rsign=1;
-  float bmass, div, star_mass=0.0, sum_mass=0.0, metal_mass=0.0, H2mass=0.0;
-  float pstar, mass_to_stars, mass_available, tdyn;
+  float bmass, sum_mass=0.0, metal_mass=0.0, H2mass=0.0;
+  float pstar, mass_to_stars, tdyn;
   float dtot, isosndsp2, jeansmass, star_fraction;
   float umean, vmean, wmean, px, py, pz, px_excess, py_excess, pz_excess;
   float rnum;
   float inv_metal_mol = 1.0 /MU_METAL;
 
-  const int max_random = (1<<16);
+  /* counters for output at end if stars form */
+  int individualstar_counter=0, unresolved_increment=0, unresolved_counter=0,
+      popiii_counter=0;
+  float total_mass_sf = 0.0, total_unresolved_mass=0.0;
 
-  int form_method = -1; // tracker for debugging purposes
+  const int max_random = (1<<16);
 
   /* for convenience, rename some grid properties - will likely get optimized out */
   int  nx = this->GridDimension[0], ny = this->GridDimension[1], nz = this->GridDimension[2];
   int  ibuff = NumberOfGhostZones;
 
-  FLOAT xstart = CellLeftEdge[0][0], ystart = CellLeftEdge[1][0], zstart = CellLeftEdge[2][0];
   float   dx   = CellWidth[0][0];
 
   if (! this->isLocal()) return SUCCESS;
@@ -387,7 +389,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                 break;
               }
 
-              int add_unresolved_star = FALSE; // only used when IMF mass floor is < imf lower limit
               int form_popIII_stars   = 0;
 
               /* Here is where star formation actually occurs */
@@ -432,7 +433,6 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                     if ( (H2mass/bmass) > PopIIIH2CriticalFraction){ // must check this separately
                       float mass_counter    = IndividualStarSFGasMassThreshold;
-                      float unresolved_mass = 0.0;
 
                       while( mass_counter > 0.0){
                         float temp_mass = SamplePopIII_IMF();
@@ -440,6 +440,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                         ParticleMass[ii] = temp_mass;
                         ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII;
                         ii++;
+                        popiii_counter++;
                         sum_mass += temp_mass;
                         mass_counter -= temp_mass;
                       }
@@ -455,9 +456,12 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                         // these particles and dump into a single particle at the very end.
                         if ( (temp_mass >= IndividualStarIMFLowerMassCutoff) && (temp_mass < IndividualStarIMFMassFloor)){
                           unresolved_mass  += temp_mass;
+                          unresolved_increment++;
+                          total_unresolved_mass += temp_mass;
                         } else{
                           ParticleMass[ii]  = temp_mass;
                           ParticleType[ii]  = -PARTICLE_TYPE_INDIVIDUAL_STAR;
+                          individualstar_counter++;
                           ii++;
                         }
                         sum_mass         += temp_mass;
@@ -465,9 +469,9 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                     }
 
                     if (unresolved_mass > 0.0) { // we've formed tiny stars (should always happen).. account for this
-                      add_unresolved_star = TRUE;
                       ParticleMass[ii] = unresolved_mass;
                       ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED;
+                      unresolved_counter++;
                       ii++;
                     }
                   } // check if doing popIII or normal SF
@@ -561,7 +565,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
                   if(IndividualStarInterpolateLifetime(ParticleAttribute[1][istar], ParticleMass[istar],
                                                                                     ParticleAttribute[2][istar], 1) == FAIL){
-                    printf(" %"ESYM"  %"ESYM"  %"ESYM"\n",ParticleAttribute[1][istar], ParticleMass[istar], ParticleAttribute[2][istar]);
+                    printf(" %" ESYM "  %" ESYM "  %" ESYM "\n",ParticleAttribute[1][istar], ParticleMass[istar], ParticleAttribute[2][istar]);
                   ENZO_FAIL("Error in stellar lifetime interpolation");
                   }
 
@@ -809,6 +813,7 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
               // should be equal to the total momentum of the stars
               // compute excess momentum and modify star velocity evenly (mass weighted)
               // this is not completely physical, as pre-SF and post-SF gas vel is the same
+              total_mass_sf += sum_mass;
               sum_mass = sum_mass * SolarMass / MassUnits; // in code units
 
               px_excess = px - umean * sum_mass;
@@ -883,10 +888,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
     // Done forming stars!!! Output and exit
     if (ii > 0){
-      printf("P(%"ISYM"): individual_star_maker[add]: %"ISYM" new star particles\n", MyProcessorNumber, ii);
+      printf("P(%" ISYM "): individual_star_maker[add]: %" ISYM " new star particles. PopIII = %" ISYM " Unresolved = %" ISYM " UnresolvedInc = %" ISYM " Individual(PopII/PopI) = %" ISYM " - Total Mass (Msun) = %" ESYM " Unresolved Mass = %" ESYM "\n", MyProcessorNumber, ii, popiii_counter, unresolved_counter, unresolved_increment, individualstar_counter, total_mass_sf, total_unresolved_mass);
     }
     if (ii >= *nmax){
-      fprintf(stdout, "individual_star_maker: reached max new particle count!! Available: %"ISYM". Made: %"ISYM"\n", *nmax, ii);
+      fprintf(stdout, "individual_star_maker: reached max new particle count!! Available: %" ISYM ". Made: %" ISYM "\n", *nmax, ii);
 
     }
 

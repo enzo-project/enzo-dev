@@ -859,29 +859,29 @@ void Star::DeleteCopyInGrid(void)
 
 void Star::PrintInfo(void)
 {
-  printf("[P%d] Star %"ISYM": pos = %"PSYM" %"PSYM" %"PSYM", vel = %"FSYM" %"FSYM" %"FSYM"\n",
+  printf("[P%d] Star %" ISYM ": pos = %" PSYM " %" PSYM " %" PSYM ", vel = %" FSYM " %" FSYM " %" FSYM "\n",
 	 MyProcessorNumber, Identifier, pos[0], pos[1], pos[2], vel[0], vel[1], vel[2]);
-  printf("\t delta_vel = %"FSYM" %"FSYM" %"FSYM"\n", delta_vel[0], delta_vel[1],
+  printf("\t delta_vel = %" FSYM " %" FSYM " %" FSYM "\n", delta_vel[0], delta_vel[1],
 	 delta_vel[2]);
-  printf("\t naccr = %"ISYM, naccretions);
+  printf("\t naccr = %" ISYM , naccretions);
   if (naccretions > 0)
-    printf(", accr_rate[0] = %"GSYM", accr_time[0] = %"GSYM"\n",
+    printf(", accr_rate[0] = %" GSYM ", accr_time[0] = %" GSYM "\n",
 	   accretion_rate[0], accretion_time[0]);
   else
     printf("\n");
-  printf("\t birthtime = %"FSYM", lifetime = %"FSYM"\n", BirthTime, LifeTime);
-  printf("\t Z = %"GSYM", deltaZ = %"GSYM"\n", Metallicity, deltaZ);
-  printf("\t mass = %"GSYM", dmass = %"GSYM", fmass = %"GSYM", bmass = %"GSYM" type = %"ISYM", grid %"ISYM","
-	 " lvl %"ISYM"\n", Mass, DeltaMass, FinalMass, BirthMass, type, GridID, level);
-  printf("\t FeedbackFlag = %"ISYM"\n", FeedbackFlag);
-  printf("\t SNIaType = %"ISYM"\n", SNIaType);
-  printf("\t PopIIIStar = %"ISYM"\n", PopIIIStar);
-  printf("\t accreted_angmom = %"FSYM" %"FSYM" %"FSYM"\n", accreted_angmom[0],
+  printf("\t birthtime = %" FSYM ", lifetime = %" FSYM "\n", BirthTime, LifeTime);
+  printf("\t Z = %" GSYM ", deltaZ = %" GSYM "\n", Metallicity, deltaZ);
+  printf("\t mass = %" GSYM ", dmass = %" GSYM ", fmass = %" GSYM ", bmass = %" GSYM " type = %" ISYM ", grid %" ISYM ","
+	 " lvl %" ISYM "\n", Mass, DeltaMass, FinalMass, BirthMass, type, GridID, level);
+  printf("\t FeedbackFlag = %" ISYM "\n", FeedbackFlag);
+  printf("\t SNIaType = %" ISYM "\n", SNIaType);
+  printf("\t PopIIIStar = %" ISYM "\n", PopIIIStar);
+  printf("\t accreted_angmom = %" FSYM " %" FSYM " %" FSYM "\n", accreted_angmom[0],
 	 accreted_angmom[1], accreted_angmom[2]);
-  printf("\t SE table = %"ISYM" %"ISYM"\n", se_table_position[0], se_table_position[1]);
-  printf("\t Rad table = %"ISYM" %"ISYM" %"ISYM"\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
-  printf("\t Yield table = %"ISYM" %"ISYM"\n", yield_table_position[0], yield_table_position[1]);
-  printf("\t Wind Mass Ejected = %"ESYM"   SN Mass Ejected %"ESYM"\n", wind_mass_ejected, sn_mass_ejected);
+  printf("\t SE table = %" ISYM " %" ISYM "\n", se_table_position[0], se_table_position[1]);
+  printf("\t Rad table = %" ISYM " %" ISYM " %" ISYM "\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
+  printf("\t Yield table = %" ISYM " %" ISYM "\n", yield_table_position[0], yield_table_position[1]);
+  printf("\t Wind Mass Ejected = %" ESYM "   SN Mass Ejected %" ESYM "\n", wind_mass_ejected, sn_mass_ejected);
   printf("\t this = %x, PrevStar = %x, NextStar = %x\n", this, PrevStar, NextStar);
   return;
 }

@@ -620,9 +620,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   int MBHParticleType = PARTICLE_TYPE_MBH;
   int ColorStar = PARTICLE_TYPE_COLOR_STAR;
   int SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE;
-  int IndividualStarType = PARTICLE_TYPE_INDIVIDUAL_STAR;
-
-
 
   /* Compute the redshift. */
  

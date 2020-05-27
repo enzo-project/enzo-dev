@@ -194,7 +194,7 @@ int grid::CalculateAverageAbundances(int mode){
       if(mass_counter[im] <= 0.0  && mass_counter_hot[im] > 0.0){
         mass_counter[im] = mass_counter_hot[im];
       } else if (mass_counter[im] <= 0.0) {
-        printf("Grid_UpdateAverageAbundances: Failing for species number %"ISYM" %"ESYM" %"ESYM" in list (where 0 = total metals)\n", im, mass_counter[im], mass_counter_hot[im]);
+        printf("Grid_UpdateAverageAbundances: Failing for species number %" ISYM " %" ESYM " %" ESYM " in list (where 0 = total metals)\n", im, mass_counter[im], mass_counter_hot[im]);
         ENZO_FAIL("Grid_UpdateAverageAbundances: No tracer species mass found on grid");
       }
     }

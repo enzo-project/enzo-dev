@@ -102,12 +102,12 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 
   /* declarations */
   char line[MAX_LINE_LENGTH];
-  int  dim, ret, level, disk, i; // might not need disk
+  int  ret;
 
   /* make sure we are in 3D */
 
   if (MetaData.TopGridRank != 3) {
-    ENZO_VFAIL("Cannot do ChemicalEvolutionTest in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
+    ENZO_VFAIL("Cannot do ChemicalEvolutionTest in %" ISYM " dimension(s)\n", MetaData.TopGridRank)
   }
 
   /* set default values for parameters */
@@ -143,51 +143,51 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
     ret = 0;
 
-    ret += sscanf(line, "ChemicalEvolutionTestNumberOfStars = %"ISYM,
+    ret += sscanf(line, "ChemicalEvolutionTestNumberOfStars = %" ISYM ,
                         &ChemicalEvolutionTestNumberOfStars);
-    ret += sscanf(line, "ChemicalEvolutionTestGasDensity = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestGasDensity = %" FSYM,
                         &ChemicalEvolutionTestGasDensity);
-    ret += sscanf(line, "ChemicalEvolutionTestBackgroundGasDensity = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestBackgroundGasDensity = %" FSYM,
                         &ChemicalEvolutionTestBackgroundGasDensity);
-    ret += sscanf(line, "ChemicalEvolutionTestConcentration = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestConcentration = %" FSYM,
                         &ChemicalEvolutionTestConcentration);
-    ret += sscanf(line, "ChemicalEvolutionTestGasRadius = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestGasRadius = %" FSYM,
                         &ChemicalEvolutionTestGasRadius);
 
-    ret += sscanf(line, "ChemicalEvolutionTestGasDistribution = %"ISYM,
+    ret += sscanf(line, "ChemicalEvolutionTestGasDistribution = %" ISYM ,
                         &ChemicalEvolutionTestGasDistribution); // 0: uniform, 1: spherical isothermal
 
-    ret += sscanf(line, "ChemicalEvolutionTestGasTemperature = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestGasTemperature = %" FSYM,
                         &ChemicalEvolutionTestGasTemperature);
-    ret += sscanf(line, "ChemicalEvolutionTestBackgroundGasTemperature = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestBackgroundGasTemperature = %" FSYM,
                         &ChemicalEvolutionTestBackgroundGasTemperature);
 
-    ret += sscanf(line, "ChemicalEvolutionTestGasMetallicity = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestGasMetallicity = %" FSYM,
                         &ChemicalEvolutionTestGasMetallicity);
-    ret += sscanf(line, "ChemicalEvolutionTestRefineAtStart = %"ISYM,
+    ret += sscanf(line, "ChemicalEvolutionTestRefineAtStart = %" ISYM ,
                         &ChemicalEvolutionTestRefineAtStart);
 
-    ret += sscanf(line, "ChemicalEvolutionTestUseMetals = %"ISYM,
+    ret += sscanf(line, "ChemicalEvolutionTestUseMetals = %" ISYM ,
                         &ChemicalEvolutionTestUseMetals);
 
-    ret += sscanf(line, "ChemicalEvolutionTestHFraction = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestHFraction = %" FSYM,
                         &TestProblemData.HydrogenFractionByMass);
-    ret += sscanf(line, "ChemicalEvolutionTestHIIFraction = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestHIIFraction = %" FSYM,
                         &TestProblemData.HII_Fraction);
-    ret += sscanf(line, "ChemicalEvolutionTestHeIIFraction = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestHeIIFraction = %" FSYM,
                         &TestProblemData.HeII_Fraction);
-    ret += sscanf(line, "ChemicalEvolutionTestHeIIIFraction = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestHeIIIFraction = %" FSYM,
                         &TestProblemData.HeIII_Fraction);
-    ret += sscanf(line, "ChemicalEvolutionTestHMFraction = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestHMFraction = %" FSYM,
                         &TestProblemData.HM_Fraction);
-    ret += sscanf(line, "ChemicalEvolutionTestH2IFraction = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestH2IFraction = %" FSYM,
                         &TestProblemData.H2I_Fraction);
-    ret += sscanf(line, "ChemicalEvolutionTestH2IIFraction = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestH2IIFraction = %" FSYM,
                         &TestProblemData.H2II_Fraction);
-    ret += sscanf(line, "ChemicalEvolutionTestDeuteriumToHydrogenRatio = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestDeuteriumToHydrogenRatio = %" FSYM,
                         &TestProblemData.DeuteriumToHydrogenRatio);
 
-    ret += sscanf(line, "ChemicalEvolutionTestSpeciesFractions = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestSpeciesFractions = %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM " %" FSYM ,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 0,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 1,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 2,
@@ -199,18 +199,18 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
                         TestProblemData.ChemicalTracerSpecies_Fractions + 8,
                         TestProblemData.ChemicalTracerSpecies_Fractions + 9);
 
-    ret += sscanf(line, "ChemicalEvolutionTestScaledSolarAbundances = %"ISYM,
+    ret += sscanf(line, "ChemicalEvolutionTestScaledSolarAbundances = %" ISYM ,
                         &ChemicalEvolutionTestScaledSolarAbundances);
 
-    ret += sscanf(line, "ChemicalEvolutionTestStarPosition = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestStarPosition = %" PSYM " %" PSYM " %" PSYM ,
                        ChemicalEvolutionTestStarPosition, ChemicalEvolutionTestStarPosition+1, ChemicalEvolutionTestStarPosition+2);
-    ret += sscanf(line, "ChemicalEvolutionTestStarVelocity = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestStarVelocity = %" PSYM " %" PSYM " %" PSYM ,
                      ChemicalEvolutionTestStarVelocity, ChemicalEvolutionTestStarVelocity+1,ChemicalEvolutionTestStarVelocity+2);
-    ret += sscanf(line, "ChemicalEvolutionTestStarMass = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestStarMass = %" FSYM ,
                        &ChemicalEvolutionTestStarMass);
-    ret += sscanf(line, "ChemicalEvolutionTestStarMetallicity = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestStarMetallicity = %" FSYM ,
                        &ChemicalEvolutionTestStarMetallicity);
-    ret += sscanf(line, "ChemicalEvolutionTestStarLifetime = %"FSYM,
+    ret += sscanf(line, "ChemicalEvolutionTestStarLifetime = %" FSYM ,
                        &ChemicalEvolutionTestStarLifetime);
 
 
@@ -321,7 +321,7 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
     /* Restart each level once created */
 
     for (int level = 0; level < MaximumRefinementLevel; level++){
-      printf("In level %"ISYM"\n", level);
+      printf("In level %" ISYM "\n", level);
 
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL){
         fprintf(stderr, "Error in RebuildHierarchy.\n");
@@ -459,46 +459,46 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
  /* Write Parameters to parameter output file */
  if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-   fprintf(Outfptr, "ChemicalEvolutionTestGasDensity = %"GSYM"\n", ChemicalEvolutionTestGasDensity);
-   fprintf(Outfptr, "ChemicalEvolutionTestGasTemperature = %"GSYM"\n", ChemicalEvolutionTestGasTemperature);
-   fprintf(Outfptr, "ChemicalEvolutionTestGasMetallicity = %"FSYM"\n", ChemicalEvolutionTestGasMetallicity);
+   fprintf(Outfptr, "ChemicalEvolutionTestGasDensity = %" GSYM "\n", ChemicalEvolutionTestGasDensity);
+   fprintf(Outfptr, "ChemicalEvolutionTestGasTemperature = %" GSYM "\n", ChemicalEvolutionTestGasTemperature);
+   fprintf(Outfptr, "ChemicalEvolutionTestGasMetallicity = %" FSYM "\n", ChemicalEvolutionTestGasMetallicity);
 
-   fprintf(Outfptr, "ChemicalEvolutionTestBackgroundGasDensity = %"GSYM"\n", ChemicalEvolutionTestBackgroundGasDensity);
-   fprintf(Outfptr, "ChemicalEvolutionTestBackgroundGasTemperature = %"GSYM"\n", ChemicalEvolutionTestBackgroundGasTemperature);
+   fprintf(Outfptr, "ChemicalEvolutionTestBackgroundGasDensity = %" GSYM "\n", ChemicalEvolutionTestBackgroundGasDensity);
+   fprintf(Outfptr, "ChemicalEvolutionTestBackgroundGasTemperature = %" GSYM "\n", ChemicalEvolutionTestBackgroundGasTemperature);
 
-   fprintf(Outfptr, "ChemicalEvolutionTestRefineAtStart = %"ISYM"\n", ChemicalEvolutionTestRefineAtStart);
+   fprintf(Outfptr, "ChemicalEvolutionTestRefineAtStart = %" ISYM "\n", ChemicalEvolutionTestRefineAtStart);
 
-   fprintf(Outfptr, "CHemicalEvolutionTestUseMetals = %"ISYM"\n", ChemicalEvolutionTestUseMetals);
+   fprintf(Outfptr, "CHemicalEvolutionTestUseMetals = %" ISYM "\n", ChemicalEvolutionTestUseMetals);
 
    fprintf(fptr, "ChemicalEvolutionTestStarPosition = ");
    WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarPosition);
    fprintf(fptr, "ChemicalEvolutionTestStarVelocity = ");
    WriteListOfFloats(fptr, MetaData.TopGridRank, ChemicalEvolutionTestStarVelocity);
-   fprintf(fptr, "ChemicalEvolutionTestStarMass = %"FSYM"\n", ChemicalEvolutionTestStarMass);
-   fprintf(fptr, "ChemicalEvolutionTestStarMetallicity = %"FSYM"\n", ChemicalEvolutionTestStarMetallicity);
-   fprintf(fptr, "ChemicalEvolutionTestStarLifetime = %"FSYM"\n", ChemicalEvolutionTestStarLifetime);
-   fprintf(fptr, "ChemicalEvolutionTestScaledSolarAbundances = %"ISYM"\n", ChemicalEvolutionTestScaledSolarAbundances);
+   fprintf(fptr, "ChemicalEvolutionTestStarMass = %" FSYM "\n", ChemicalEvolutionTestStarMass);
+   fprintf(fptr, "ChemicalEvolutionTestStarMetallicity = %" FSYM "\n", ChemicalEvolutionTestStarMetallicity);
+   fprintf(fptr, "ChemicalEvolutionTestStarLifetime = %" FSYM "\n", ChemicalEvolutionTestStarLifetime);
+   fprintf(fptr, "ChemicalEvolutionTestScaledSolarAbundances = %" ISYM "\n", ChemicalEvolutionTestScaledSolarAbundances);
 
 
-   fprintf(Outfptr, "ChemicalEvolutionTestHydryogenFractionByMass = %"FSYM"\n", TestProblemData.HydrogenFractionByMass);
-   fprintf(Outfptr, "ChemicalEvolutionTestHIIFraction = %"FSYM"\n", TestProblemData.HII_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestHeIIFraction = %"FSYM"\n", TestProblemData.HeII_Fraction);
-   fprintf(Outfptr, "ChemicalEvolutionTestHeIIIFraction = %"FSYM"\n", TestProblemData.HeIII_Fraction);
-   fprintf(Outfptr, "ChemicalEvolutionTestHMFraction = %"FSYM"\n", TestProblemData.HM_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestH2IFraction = %"FSYM"\n", TestProblemData.H2I_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestH2IIFraction = %"FSYM"\n", TestProblemData.H2II_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestDeuteriumToHydrogenRatio = %"FSYM"\n", TestProblemData.DeuteriumToHydrogenRatio );
+   fprintf(Outfptr, "ChemicalEvolutionTestHydryogenFractionByMass = %" FSYM "\n", TestProblemData.HydrogenFractionByMass);
+   fprintf(Outfptr, "ChemicalEvolutionTestHIIFraction = %" FSYM "\n", TestProblemData.HII_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestHeIIFraction = %" FSYM "\n", TestProblemData.HeII_Fraction);
+   fprintf(Outfptr, "ChemicalEvolutionTestHeIIIFraction = %" FSYM "\n", TestProblemData.HeIII_Fraction);
+   fprintf(Outfptr, "ChemicalEvolutionTestHMFraction = %" FSYM "\n", TestProblemData.HM_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestH2IFraction = %" FSYM "\n", TestProblemData.H2I_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestH2IIFraction = %" FSYM "\n", TestProblemData.H2II_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestDeuteriumToHydrogenRatio = %" FSYM "\n", TestProblemData.DeuteriumToHydrogenRatio );
 
-   fprintf(Outfptr, "ChemicalEvolutionTestCIFraction = %"FSYM"\n", TestProblemData.CI_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestOIFraction = %"FSYM"\n", TestProblemData.OI_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestNIFraction = %"FSYM"\n", TestProblemData.NI_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestMgIFraction = %"FSYM"\n", TestProblemData.MgI_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestSiIFraction = %"FSYM"\n", TestProblemData.SiI_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestFeIFraction = %"FSYM"\n", TestProblemData.FeI_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestLaIFraction = %"FSYM"\n", TestProblemData.LaI_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestBaIFraction = %"FSYM"\n", TestProblemData.BaI_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestYIFraction = %"FSYM"\n", TestProblemData.YI_Fraction );
-   fprintf(Outfptr, "ChemicalEvolutionTestEuIFraction = %"FSYM"\n", TestProblemData.EuI_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestCIFraction = %" FSYM "\n", TestProblemData.CI_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestOIFraction = %" FSYM "\n", TestProblemData.OI_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestNIFraction = %" FSYM "\n", TestProblemData.NI_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestMgIFraction = %" FSYM "\n", TestProblemData.MgI_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestSiIFraction = %" FSYM "\n", TestProblemData.SiI_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestFeIFraction = %" FSYM "\n", TestProblemData.FeI_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestLaIFraction = %" FSYM "\n", TestProblemData.LaI_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestBaIFraction = %" FSYM "\n", TestProblemData.BaI_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestYIFraction = %" FSYM "\n", TestProblemData.YI_Fraction );
+   fprintf(Outfptr, "ChemicalEvolutionTestEuIFraction = %" FSYM "\n", TestProblemData.EuI_Fraction );
 
 
 
@@ -508,5 +508,5 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
  }
 
 
-
+ return SUCCESS;
 }
