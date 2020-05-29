@@ -124,10 +124,15 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   FLOAT *StarPosX, *StarPosY, *StarPosZ;
 
   /* Count the number of stars possible */
-  IsParticleMustRefine = new int[this->NumberOfStars + num_events];
-  StarPosX = new FLOAT[this->NumberOfStars + num_events];
-  StarPosY = new FLOAT[this->NumberOfStars + num_events];
-  StarPosZ = new FLOAT[this->NumberOfStars + num_events];
+  int num_stars = 0;
+  Star *cstar;  
+  for (cstar = AllStars; cstar; cstar = cstar->NextStar){
+    num_stars++;
+  }
+  IsParticleMustRefine = new int[num_stars + num_events];
+  StarPosX = new FLOAT[num_stars + num_events];
+  StarPosY = new FLOAT[num_stars + num_events];
+  StarPosZ = new FLOAT[num_stars + num_events];
 
 /*
   for (i = 0; i < MetaData->NumberOfParticles; i++){
@@ -140,7 +145,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   int NumberOfMustRefineStars = 0;
   FLOAT *pos;
-  Star *cstar;
 
   for (cstar = AllStars, i = 0; cstar; cstar = cstar->NextStar) {
     float end_of_life = 0.0;
@@ -250,7 +254,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
 	                  StarPosX, StarPosY, StarPosZ,
-      	                  &GridRank, &(this->NumberOfStars), FlaggingField,
+      	                  &GridRank, &(num_stars), FlaggingField,
 	                  LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
                           &CellSize, &refine_buffer_size);
 
