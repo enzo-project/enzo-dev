@@ -122,10 +122,12 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   int *IsParticleMustRefine;
   FLOAT *StarPosX, *StarPosY, *StarPosZ;
-  IsParticleMustRefine = new int[MetaData->NumberOfParticles + num_events];
-  StarPosX = new FLOAT[MetaData->NumberOfParticles + num_events];
-  StarPosY = new FLOAT[MetaData->NumberOfParticles + num_events];
-  StarPosZ = new FLOAT[MetaData->NumberOfParticles + num_events];
+
+  /* Count the number of stars possible */
+  IsParticleMustRefine = new int[this->NumberOfStars + num_events];
+  StarPosX = new FLOAT[this->NumberOfStars + num_events];
+  StarPosY = new FLOAT[this->NumberOfStars + num_events];
+  StarPosZ = new FLOAT[this->NumberOfStars + num_events];
 
 /*
   for (i = 0; i < MetaData->NumberOfParticles; i++){
@@ -144,7 +146,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
     float end_of_life = 0.0;
     float lifetime = 0.0;
 
-
+    /* Remnants behave differently */
     if ( !(cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT)){
         //cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR ||
         //cstar->ReturnType() == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII ||
@@ -157,6 +159,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
       if (ProblemType == 260 && ChemicalEvolutionTestStarLifetime > 0){
         lifetime = ChemicalEvolutionTestStarLifetime * Myr_s / TimeUnits;
       } else {
+        /* Else, we need to re-compute the main sequence (pre-remnant)
+           lifetime */
 
         lifetime = 0.0;
         int mode = 1;
@@ -246,7 +250,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
 
   PFORTRAN_NAME(cic_flag)(IsParticleMustRefine,
 	                  StarPosX, StarPosY, StarPosZ,
-      	                  &GridRank, &NumberOfMustRefineStars, FlaggingField,
+      	                  &GridRank, &(this->NumberOfStars), FlaggingField,
 	                  LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
                           &CellSize, &refine_buffer_size);
 
@@ -350,7 +354,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   int *AntiFlaggingField;
   int NumberOfAntiRules = 0;
   antirules = NULL;
-  
+
   // Add an antirule to unflag over-refined dark matter particles.
   if (MustRefineParticlesCreateParticles == 4) {
     NumberOfAntiRules++;
