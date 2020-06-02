@@ -503,6 +503,8 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
     ParticleMass[0] = ChemicalEvolutionTestStarMass * SolarMass / MassUnits / (dx*dx*dx);
     ParticleType[0] = - PARTICLE_TYPE_INDIVIDUAL_STAR;
     ParticleAttribute[0][0] = this->Time;
+    ParticleNumber[0] = 0;
+
      // allow user to set lifetime artificially
     if(ChemicalEvolutionTestStarLifetime > 0){
       ParticleAttribute[1][0] = ChemicalEvolutionTestStarLifetime * Myr_s / (TimeUnits);
