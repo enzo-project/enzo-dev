@@ -297,6 +297,8 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
     float xvel[nstar], yvel[nstar], zvel[nstar];
     float mass[nstar], z[nstar];
     int pt[nstar];
+    float lt[nstar]; // lifetime (-1 means compute real lifetime)
+    for (int i =0; i < nstar; i++) lt[i] = -1.0;
 
     FILE *fptr = fopen("ChemicalEvolutionTest.inits", "r");
     if (fptr == NULL){
@@ -308,8 +310,8 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
     int i = 0;
     while( fgets(line, MAX_LINE_LENGTH, fptr) !=NULL){
       if(line[0] != '#'){
-        err = sscanf(line, "%"FSYM " %"FSYM " %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"ISYM,
-                           &xpos[i], &ypos[i], &zpos[i], &xvel[i], &yvel[i], &zvel[i], &mass[i], &z[i], &pt[i]);
+        err = sscanf(line, "%"FSYM " %"FSYM " %"FSYM " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"ISYM" %"FSYM,
+                           &xpos[i], &ypos[i], &zpos[i], &xvel[i], &yvel[i], &zvel[i], &mass[i], &z[i], &pt[i], &lt[i]);
         i++;
       }
     }
@@ -332,20 +334,24 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
       ParticleAttribute[0][count] = this->Time;
       ParticleNumber[count] = i; // unique ID
 
-      if (abs(ParticleType[count]) == PARTICLE_TYPE_INDIVIDUAL_STAR){
-        // last arg tells function to return total stellar lifetime
-        if(IndividualStarInterpolateLifetime(ParticleAttribute[1][i], mass[i], z[i], 1) == FAIL){
-            ENZO_FAIL("Failure in stellar lifetime interpolation");
+      if(lt[i] < 0.0){
+        if (abs(ParticleType[count]) == PARTICLE_TYPE_INDIVIDUAL_STAR){
+          // last arg tells function to return total stellar lifetime
+          if(IndividualStarInterpolateLifetime(ParticleAttribute[1][i], mass[i], z[i], 1) == FAIL){
+              ENZO_FAIL("Failure in stellar lifetime interpolation");
+          }
+        } else if (abs(ParticleType[count]) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
+
+            float temp_mass, temp_lifetime, temp_luminosity;
+            temp_mass = 1.0 * mass[i];
+
+            FORTRAN_NAME(pop3_properties)(&temp_mass, &temp_luminosity, &temp_lifetime);
+
+            ParticleAttribute[1][count] = temp_lifetime * yr_s; // in seconds
+
         }
-      } else if (abs(ParticleType[count]) == PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII){
-
-          float temp_mass, temp_lifetime, temp_luminosity;
-          temp_mass = 1.0 * mass[i];
-
-          FORTRAN_NAME(pop3_properties)(&temp_mass, &temp_luminosity, &temp_lifetime);
-
-          ParticleAttribute[1][count] = temp_lifetime * yr_s; // in seconds
-
+      } else {
+        ParticleAttribute[1][count] = lt[i] * Myr_s;
       }
 
       ParticleAttribute[1][count] /= TimeUnits; // convert from s to code units
