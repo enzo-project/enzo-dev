@@ -34,6 +34,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
+RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
+
 int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 			    Star *AllStars)
 {
