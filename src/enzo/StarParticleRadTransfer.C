@@ -34,6 +34,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
+RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
+
+
 int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 			    Star *AllStars)
 {
@@ -56,10 +59,13 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
   /* If sources exist, delete them */
 
   RadiationSourceEntry *dummy;
-  while (GlobalRadiationSources != NULL) {
-    dummy = GlobalRadiationSources;
-    GlobalRadiationSources = GlobalRadiationSources->NextSource;
-    delete dummy;
+  if (GlobalRadiationSources!=NULL){
+    dummy = GlobalRadiationSources->NextSource;
+    while (dummy != NULL) {
+      //GlobalRadiationSources = GlobalRadiationSources->NextSource;
+      //delete dummy;
+      dummy = DeleteRadiationSource(dummy);
+    }
   }
 
   GlobalRadiationSources = new RadiationSourceEntry;
@@ -97,7 +103,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       if (cstar->ComputePhotonRates(TimeUnits, nbins, energies, Q) == FAIL) {
 	ENZO_FAIL("Error in ComputePhotonRates.\n");
       }
-      
+
       QTotal = 0;
       for (j = 0; j < nbins; j++) QTotal += Q[j];
       for (j = 0; j < nbins; j++) Q[j] /= QTotal;
@@ -181,7 +187,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       if (GlobalRadiationSources->NextSource != NULL)
 	GlobalRadiationSources->NextSource->PreviousSource = RadSource;
       GlobalRadiationSources->NextSource = RadSource;
-      
+
     } // ENDIF is a radiation source?
 
   } // ENDFOR stars
