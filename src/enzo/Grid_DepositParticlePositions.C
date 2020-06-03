@@ -323,6 +323,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
       }
 
       delete [] ParticleMassPointerSink;
+      ParticleMassPointerSink = NULL;
 
     }
  
@@ -369,6 +370,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
         }
       }
       delete [] ParticleMassPointerSink;
+      ParticleMassPointerSink = NULL;
     }
 
     if (NumberOfActiveParticles > 0) {
@@ -411,6 +413,9 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
         delete [] ActiveParticlePosition[dim];
       delete [] ActiveParticlePosition;
       delete [] ActiveParticleMassPointer;
+
+      ActiveParticlePosition = NULL;
+      ActiveParticleMassPointer = NULL;
     }
 
   } // ENDIF this processor
@@ -481,6 +486,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 	}
 
       delete [] DepositFieldPointer;
+      DepositFieldPointer = NULL;
 
     } // end: if (MyProcessorNumber == TargetGrid->ProcessorNumber)
 

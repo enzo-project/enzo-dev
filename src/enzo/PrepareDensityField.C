@@ -605,6 +605,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     // --------------------------------------------------
 
   delete [] Grids;
+  Grids = NULL;
 
   // --------------------------------------------------
 
