@@ -30,7 +30,9 @@
 
 int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
 
+#ifdef TRANSFER
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
+#endif
 
 int ActiveParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			     int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
