@@ -62,8 +62,6 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
   if (GlobalRadiationSources!=NULL){
     dummy = GlobalRadiationSources->NextSource;
     while (dummy != NULL) {
-      //GlobalRadiationSources = GlobalRadiationSources->NextSource;
-      //delete dummy;
       dummy = DeleteRadiationSource(dummy);
     }
   }
