@@ -17,8 +17,8 @@
 /           Parameters:
 /           my_spectral_rank -- dimension of Fouries space = grid rank
 /           my_spect_profile -- shape of forcing power spectrum
-/                               (1: delta peak, 2: band, 
-/                                3: parabolic window) 
+/                               (1: delta peak, 2: parabolic, 
+/                                3: band) 
 /           my_alpha -- ratio of domain length to integral length
 /                       for each dimension (L = X/alpha)
 /           my_band_width -- determines band width of the forcing 
