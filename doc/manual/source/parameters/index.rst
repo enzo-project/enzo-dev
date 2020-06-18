@@ -5020,7 +5020,7 @@ Turbulence Simulation with Stochastic Forcing (59)
 
 
 ``DrivenFlowProfile`` (external)
-    Shape of forcing power spectrum (1: delta peak, 2: band, 3: parabolic window).
+    Shape of forcing power spectrum (1: delta peak, 2: parabolic window, 3: band).
 
 ``DrivenFlowAlpha`` (external)
     Ratio of domain length to integral length for each dimension (L = X/alpha).
