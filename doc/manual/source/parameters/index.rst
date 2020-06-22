@@ -2714,12 +2714,22 @@ Radiative Transfer (Ray Tracing) Parameters
 ``RadiativeTransferSourceClustering`` (external)
     Set to 1 to turn on ray merging from combined virtual sources on a
     binary tree. Default: 0.
+``RadiativeTransferOpticallyThinSourceClustering`` (external)
+    Set to 1 to use the above tree when computing optically thin radiation
+    (``RadiativeTransferSourceClustering`` must be set to 1), which can greatly
+    reduce computational time for many sources / large cell counts. If on, this
+    source clustering is only used when the number of sources is greater than
+    ten. Testing in idealized galaxy simulations has shown that this
+    should be used with some caution. Its behavior is sensitive to
+    the value of ``RadiativeTransferPhotonMergeRadius``. Larger values tend
+    to significantly underestimate radiation near individual sources; it
+    is recommended to first try and use values around 3. Default: 0
 ``RadiativeTransferPhotonMergeRadius`` (external)
     The radius at which the rays will merge from their SuperSource,
     which is the luminosity weighted center of two sources. This radius
     is in units of the separation of two sources associated with one
     SuperSource. If set too small, there will be angular artifacts in
-    the radiation field. Default: 2.5
+    the radiation field. Default: 3.0
 ``RadiativeTransferSourceBeamAngle`` (external)
     Rays will be emitted within this angle in degrees of the poles from sources with "Beamed" types.  Default: 30
 ``RadiativeTransferPeriodicBoundary`` (external)
@@ -5031,7 +5041,7 @@ Turbulence Simulation with Stochastic Forcing (59)
 
 
 ``DrivenFlowProfile`` (external)
-    Shape of forcing power spectrum (1: delta peak, 2: band, 3: parabolic window).
+    Shape of forcing power spectrum (1: delta peak, 2: parabolic window, 3: band).
 
 ``DrivenFlowAlpha`` (external)
     Ratio of domain length to integral length for each dimension (L = X/alpha).
