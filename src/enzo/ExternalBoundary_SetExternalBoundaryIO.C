@@ -50,7 +50,7 @@ int READ_BV(float         *bv_buffer, int field, int dim, int face, int slabsize
 int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 					  int GridOffset[],
 					  int StartIndex[], int EndIndex[],
-					  float *DensField, float *Field, int FieldType)
+					  float *Field, int FieldType)
 {
  
   /* declarations */
