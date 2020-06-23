@@ -125,7 +125,8 @@ int Star::SetFeedbackFlag(FLOAT Time, float dtFixed)
   case IndividualStarWD:
 
     if ( (this->type > 0) &&
-         (Time > this->BirthTime + this->LifeTime) ){
+         (Time > this->BirthTime + this->LifeTime) &&
+         (this->Mass > 0.0) ) {
       this->FeedbackFlag = INDIVIDUAL_STAR_SNIA;
     }
 

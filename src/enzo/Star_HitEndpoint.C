@@ -143,8 +143,10 @@ int Star::HitEndpoint(FLOAT Time)
               else if (mproj >=4.0){ wd_mass = 0.047 * mproj + 0.679;}
 */
               // new fit from Cummings+2019 (MIST model)
-              //   this model has lower / upper bounds of 0.83 and 7.20
-              //   but don't include those here.....
+              //   this model has lower / upper bounds of 0.83 and 7.20 in mproj
+              //   but don't include those bounds here since these masses don't actually
+              //   change the physics (except gravity... so it isn't that big
+              //   of deal if the 7.2 - 8 Msun progenitor masses are off by a little)
               if      (mproj < 2.85) wd_mass = 0.080 * mproj + 0.489;
               else if (mproj < 3.60) wd_mass = 0.187 * mproj + 0.184;
               else if (mproj > 3.60) wd_mass = 0.107 * mproj + 0.471;
@@ -196,9 +198,9 @@ int Star::HitEndpoint(FLOAT Time)
     if ( this->FeedbackFlag == INDIVIDUAL_STAR_SN_COMPLETE){
          //this->FeedbackFlag == INDIVIDUAL_STAR_SNIA ){
       this->Mass         = 0.0;
-      this->LifeTime     = huge_number * this->LifeTime;
+//      this->LifeTime     = huge_number * this->LifeTime;
       this->FeedbackFlag = NO_FEEDBACK;
-    } else{
+    } else if (this->Mass > 0.0) { // flag for when they haven't died yet
       this->FeedbackFlag = INDIVIDUAL_STAR_SNIA;
     }
 
