@@ -1053,13 +1053,13 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
     /* compute Sedov-Taylor phase radius (R_dps) */
 
     if (cstar){
-      printf("IndividualStarSNStats: %" ISYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM "\n",
-            this->ID, cstar->ReturnID(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), m_eject_cgs,
+      printf("IndividualStarSNStats: %" ISYM " %" ISYM " %" ISYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM "\n",
+            this->ID, cstar->ReturnID(), cstar->ReturnType(), cstar->ReturnFeedbackFlag(), this->Time, cstar->ReturnMass(), cstar->ReturnBirthMass(), cstar->ReturnMetallicity(), m_eject_cgs,
             cells_this_grid, sphere_volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
             total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
     } else {
-      printf("IndividualStarSNStats: %" ISYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM "\n",
-            this->ID, -1.0, this->Time, -1.0, -1.0, -1.0, m_eject_cgs,
+      printf("IndividualStarSNStats: %" ISYM " %" ISYM " %" ISYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ISYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM " %" ESYM "\n",
+            this->ID, -1.0, -1.0, -1.0, this->Time, -1.0, -1.0, -1.0, m_eject_cgs,
             cells_this_grid, sphere_volume_cgs, total_volume_fraction, total_mass_injected, total_energy_injected,
             total_grid_mass, max_density_on_grid, average_density_on_grid, total_metal_mass, average_metallicity);
 
