@@ -47,6 +47,15 @@ int grid::GrackleWrapper()
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+#ifdef GRACKLE_MD
+  int HeHIINum, DMNum   , HDIINum
+    , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+    , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+    , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
+    , MgNum   , AlNum   , SNum      , FeNum
+    , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num;
+#endif
 
   double dt_cool = dtFixed;
 #ifdef TRANSFER
@@ -81,12 +90,33 @@ int grid::GrackleWrapper()
 
   DeNum = HINum = HIINum = HeINum = HeIINum = HeIIINum = HMNum = H2INum = 
     H2IINum = DINum = DIINum = HDINum = 0;
+#ifdef GRACKLE_MD 
+    HeHIINum = DMNum     = HDIINum
+  = CINum    =  CIINum   = CONum      = CO2Num    = OINum    = OHNum
+  = H2ONum   =  O2Num    = SiINum     = SiOINum   = SiO2INum
+  = CHNum    =  CH2Num   = COIINum    = OIINum    = OHIINum  = H2OIINum = H3OIINum = O2IINum
+  = MgNum    =  AlNum    = SNum       = FeNum
+  = SiMNum   = FeMNum    = Mg2SiO4Num = MgSiO3Num = Fe3O4Num
+  = ACNum    =  SiO2DNum = MgONum     = FeSNum    = Al2O3Num = 0;
+#endif
  
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
+#ifdef GRACKLE_MD
+    if (IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
+                               , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+                               , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+                               , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum,  H3OIINum,  O2IINum
+                               , MgNum   , AlNum   , SNum      , FeNum
+                               , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+                               , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+                               ) == FAIL) {
+      ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
+    }
+#endif
  
   /* Get easy to handle pointers for each variable. */
  
@@ -221,22 +251,76 @@ int grid::GrackleWrapper()
   my_fields.x_velocity      = velocity1;
   my_fields.y_velocity      = velocity2;
   my_fields.z_velocity      = velocity3;
-  my_fields.HI_density      = BaryonField[HINum];
-  my_fields.HII_density     = BaryonField[HIINum];
-  my_fields.HeI_density     = BaryonField[HeINum];
-  my_fields.HeII_density    = BaryonField[HeIINum];
-  my_fields.HeIII_density   = BaryonField[HeIIINum];
-  my_fields.e_density       = BaryonField[DeNum];
 
-  my_fields.HM_density      = BaryonField[HMNum];
-  my_fields.H2I_density     = BaryonField[H2INum];
-  my_fields.H2II_density    = BaryonField[H2IINum];
+  if(MultiSpecies > 0) {
+    my_fields.e_density       = BaryonField[DeNum];
+    my_fields.HI_density      = BaryonField[HINum];
+    my_fields.HII_density     = BaryonField[HIINum];
+    my_fields.HeI_density     = BaryonField[HeINum];
+    my_fields.HeII_density    = BaryonField[HeIINum];
+    my_fields.HeIII_density   = BaryonField[HeIIINum];
+  }
 
-  my_fields.DI_density      = BaryonField[DINum];
-  my_fields.DII_density     = BaryonField[DIINum];
-  my_fields.HDI_density     = BaryonField[HDINum];
+  if(MultiSpecies > 1) {
+    my_fields.HM_density      = BaryonField[HMNum];
+    my_fields.H2I_density     = BaryonField[H2INum];
+    my_fields.H2II_density    = BaryonField[H2IINum];
+  }
+
+  if(MultiSpecies > 2) {
+    my_fields.DI_density      = BaryonField[DINum];
+    my_fields.DII_density     = BaryonField[DIINum];
+    my_fields.HDI_density     = BaryonField[HDINum];
+  }
 
   my_fields.metal_density   = MetalPointer;
+
+#ifdef GRACKLE_MD
+  if(MultiSpecies > 3) {
+    my_fields.     DM_density = BaryonField[     DMNum];
+    my_fields.   HDII_density = BaryonField[   HDIINum];
+    my_fields.  HeHII_density = BaryonField[  HeHIINum];
+  }
+
+  if(MetalChemistry > 0) {
+    my_fields.     CI_density = BaryonField[     CINum];
+    my_fields.    CII_density = BaryonField[    CIINum];
+    my_fields.     CO_density = BaryonField[     CONum];
+    my_fields.    CO2_density = BaryonField[    CO2Num];
+    my_fields.     OI_density = BaryonField[     OINum];
+    my_fields.     OH_density = BaryonField[     OHNum];
+    my_fields.    H2O_density = BaryonField[    H2ONum];
+    my_fields.     O2_density = BaryonField[     O2Num];
+    my_fields.    SiI_density = BaryonField[    SiINum];
+    my_fields.   SiOI_density = BaryonField[   SiOINum];
+    my_fields.  SiO2I_density = BaryonField[  SiO2INum];
+    my_fields.     CH_density = BaryonField[     CHNum];
+    my_fields.    CH2_density = BaryonField[    CH2Num];
+    my_fields.   COII_density = BaryonField[   COIINum];
+    my_fields.    OII_density = BaryonField[    OIINum];
+    my_fields.   OHII_density = BaryonField[   OHIINum];
+    my_fields.  H2OII_density = BaryonField[  H2OIINum];
+    my_fields.  H3OII_density = BaryonField[  H3OIINum];
+    my_fields.   O2II_density = BaryonField[   O2IINum];
+  }
+
+  if(GrainGrowth) {
+    my_fields.     Mg_density = BaryonField[     MgNum];
+    my_fields.     Al_density = BaryonField[     AlNum];
+    my_fields.      S_density = BaryonField[      SNum];
+    my_fields.     Fe_density = BaryonField[     FeNum];
+    my_fields.    SiM_density = BaryonField[    SiMNum];
+    my_fields.    FeM_density = BaryonField[    FeMNum];
+    my_fields.Mg2SiO4_density = BaryonField[Mg2SiO4Num];
+    my_fields. MgSiO3_density = BaryonField[ MgSiO3Num];
+    my_fields.  Fe3O4_density = BaryonField[  Fe3O4Num];
+    my_fields.     AC_density = BaryonField[     ACNum];
+    my_fields.  SiO2D_density = BaryonField[  SiO2DNum];
+    my_fields.    MgO_density = BaryonField[    MgONum];
+    my_fields.    FeS_density = BaryonField[    FeSNum];
+    my_fields.  Al2O3_density = BaryonField[  Al2O3Num];
+  }
+#endif
 
   my_fields.volumetric_heating_rate = volumetric_heating_rate;
   my_fields.specific_heating_rate   = specific_heating_rate;
@@ -273,11 +357,21 @@ int grid::GrackleWrapper()
 #endif // TRANSFER
 
   /* Call the chemistry solver. */
+//#define CHEM_DEBUG
+#ifdef CHEM_DEBUG
+  printf("Before %d\n", MyProcessorNumber);
+  fflush(stdout);
+//MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
   if (solve_chemistry(&grackle_units, &my_fields, (double) dt_cool) == FAIL){
     fprintf(stderr, "Error in Grackle solve_chemistry.\n");
     return FAIL;
   }
+#ifdef CHEM_DEBUG
+  printf("After %d\n", MyProcessorNumber);
+  fflush(stdout);
+#endif
 
   if (HydroMethod != Zeus_Hydro) {
     for (i = 0; i < size; i++) {
@@ -308,7 +402,7 @@ int grid::GrackleWrapper()
     for(i = 0; i < size; i ++) BaryonField[gammaNum][i] /= rtunits;
 
   }
-#endif TRANSFER
+#endif /* TRANSFER */
 
 
   delete [] TotalMetals;

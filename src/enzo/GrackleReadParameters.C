@@ -68,6 +68,11 @@ int GrackleSetDefaultParameters(FILE *fptr){
     MultiSpecies                          = (int) grackle_data->primordial_chemistry;
     MetalCooling                          = (int) grackle_data->metal_cooling;
     H2FormationOnDust                     = (int) grackle_data->h2_on_dust;
+#ifdef GRACKLE_MD
+    MetalChemistry                        = (int) grackle_data->metal_chemistry;
+    MetalPop3                             = (int) grackle_data->metal_pop3;
+    GrainGrowth                           = (int) grackle_data->grain_growth;
+#endif
     CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data->cmb_temperature_floor;
     ThreeBodyRate                         = (int) grackle_data->three_body_rate;
     CIECooling                            = (int) grackle_data->cie_cooling;
@@ -84,6 +89,32 @@ int GrackleSetDefaultParameters(FILE *fptr){
     CoolData.HydrogenFractionByMass       = (float) grackle_data->HydrogenFractionByMass;
     CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data->DeuteriumToHydrogenRatio;
     CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
+#ifdef GRACKLE_MD
+    CoolData.   CarbonFractionToMetalByMass  = (float) grackle_data->   CarbonFractionToMetalByMass;
+    CoolData.   OxygenFractionToMetalByMass  = (float) grackle_data->   OxygenFractionToMetalByMass;
+    CoolData.MagnesiumFractionToMetalByMass  = (float) grackle_data->MagnesiumFractionToMetalByMass;
+    CoolData.AluminiumFractionToMetalByMass  = (float) grackle_data->AluminiumFractionToMetalByMass;
+    CoolData.  SiliconFractionToMetalByMass  = (float) grackle_data->  SiliconFractionToMetalByMass;
+    CoolData.   SulfurFractionToMetalByMass  = (float) grackle_data->   SulfurFractionToMetalByMass;
+    CoolData.     IronFractionToMetalByMass  = (float) grackle_data->     IronFractionToMetalByMass;
+    CoolData.   CarbonCondensationRate       = (float) grackle_data->   CarbonCondensationRate;
+    CoolData.   OxygenCondensationRate       = (float) grackle_data->   OxygenCondensationRate;
+    CoolData.MagnesiumCondensationRate       = (float) grackle_data->MagnesiumCondensationRate;
+    CoolData.AluminiumCondensationRate       = (float) grackle_data->AluminiumCondensationRate;
+    CoolData.  SiliconCondensationRate       = (float) grackle_data->  SiliconCondensationRate;
+    CoolData.   SulfurCondensationRate       = (float) grackle_data->   SulfurCondensationRate;
+    CoolData.     IronCondensationRate       = (float) grackle_data->     IronCondensationRate;
+    CoolData.MetSiliconFractionToMetalByMass = (float) grackle_data->MetSiliconFractionToMetalByMass;
+    CoolData.   MetIronFractionToMetalByMass = (float) grackle_data->   MetIronFractionToMetalByMass;
+    CoolData.ForsteriteFractionToMetalByMass = (float) grackle_data->ForsteriteFractionToMetalByMass;
+    CoolData. EnstatiteFractionToMetalByMass = (float) grackle_data-> EnstatiteFractionToMetalByMass;
+    CoolData. MagnetiteFractionToMetalByMass = (float) grackle_data-> MagnetiteFractionToMetalByMass;
+    CoolData.   ACarbonFractionToMetalByMass = (float) grackle_data->   ACarbonFractionToMetalByMass;
+    CoolData.    SilicaFractionToMetalByMass = (float) grackle_data->    SilicaFractionToMetalByMass;
+    CoolData.  MagnesiaFractionToMetalByMass = (float) grackle_data->  MagnesiaFractionToMetalByMass;
+    CoolData.  TroiliteFractionToMetalByMass = (float) grackle_data->  TroiliteFractionToMetalByMass;
+    CoolData.   AluminaFractionToMetalByMass = (float) grackle_data->   AluminaFractionToMetalByMass;
+#endif
   } // end use_grackle
 
 #endif // end USE_GRACKLE
@@ -137,6 +168,11 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     ret += sscanf(line, "LWbackground_sawtooth_suppression = %d",
                   &grackle_data->LWbackground_sawtooth_suppression);
 
+#ifdef GRACKLE_MD
+    ret += sscanf(line, "MetalChemistry = %d", &MetalChemistry);
+    ret += sscanf(line, "MetalPop3 = %d", &MetalPop3);
+    ret += sscanf(line, "GrainGrowth = %d", &GrainGrowth);
+#endif
     ret += sscanf(line, "local_dust_to_gas_ratio = %f",
                   &grackle_data->local_dust_to_gas_ratio);
 
@@ -177,6 +213,11 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
   grackle_data->primordial_chemistry           = (Eint32) MultiSpecies;
   grackle_data->metal_cooling                  = (Eint32) MetalCooling;
   grackle_data->h2_on_dust                     = (Eint32) H2FormationOnDust;
+#ifdef GRACKLE_MD
+  grackle_data->metal_chemistry                = (Eint32) MetalChemistry;
+  grackle_data->metal_pop3                     = (Eint32) MetalPop3;
+  grackle_data->grain_growth                   = (Eint32) GrainGrowth;
+#endif
   grackle_data->cmb_temperature_floor          = (Eint32) CloudyCoolingData.CMBTemperatureFloor;
   grackle_data->three_body_rate                = (Eint32) ThreeBodyRate;
   grackle_data->cie_cooling                    = (Eint32) CIECooling;

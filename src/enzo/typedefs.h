@@ -178,8 +178,34 @@ const field_type
   RePsi = 101,
   ImPsi = 102,
   FDMDensity = 103,
+  /* GRACKLE_MD */
+  HeHIIDensity    =104,
+  DMDensity       =105,
+  HDIIDensity     =106,
+  CO2IDensity     =107,
+  SiOIDensity     =108,
+  SiO2IDensity    =109,
+  COIIDensity     =110,
+  OHIIDensity     =111,
+  H2OIIDensity    =112,
+  H3OIIDensity    =113,
+  O2IIDensity     =114,
+  MgDensity       =115,
+  AlDensity       =116,
+  SDensity        =117,
+  FeDensity       =118,
+  SiMDensity      =119,
+  FeMDensity      =120,
+  Mg2SiO4Density  =121,
+  MgSiO3Density   =122,
+  Fe3O4Density    =123,
+  ACDensity       =124,
+  SiO2DDensity    =125,
+  MgODensity      =126,
+  FeSDensity      =127,
+  Al2O3Density    =128,
 
-  FieldUndefined  = 104;
+  FieldUndefined  = 129;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

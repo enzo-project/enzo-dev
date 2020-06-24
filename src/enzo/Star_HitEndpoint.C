@@ -29,6 +29,9 @@ int Star::HitEndpoint(FLOAT Time)
 {
 
   const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
+#ifdef GRACKLE_MD
+  const float FaintSNLowerMass = 11, FaintSNUpperMass = 80.1;
+#endif
   const float PISNLowerMass = 140, PISNUpperMass = 260;
 
   /* First check if the star's past its lifetime and then check other
@@ -45,9 +48,17 @@ int Star::HitEndpoint(FLOAT Time)
   case PopIII:
     // If a Pop III star is going supernova, only kill it after it has
     // applied its feedback sphere
+#if defined(GRACKLE_MD) && defined(UNDER_CONSTRUCTION)
+    if ( ( (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
+  	   (!this->FaintSN && (this->Mass >=  TypeIILowerMass && this->Mass <=  TypeIIUpperMass)) ||
+  	   ( this->FaintSN && (this->Mass >= FaintSNLowerMass && this->Mass <= FaintSNUpperMass)) ) && 
+            PopIIISupernovaExplosions == TRUE )
+#else
     if ((this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
         ((this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass) &&
-            PopIIISupernovaExplosions == TRUE)) {
+            PopIIISupernovaExplosions == TRUE))
+#endif
+         {
 
       // Needs to be non-zero (multiply by a small number to retain
       // memory of mass)

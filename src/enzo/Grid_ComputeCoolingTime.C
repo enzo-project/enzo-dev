@@ -103,6 +103,15 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
  
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+#ifdef GRACKLE_MD
+  int HeHIINum, DMNum   , HDIINum
+    , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+    , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+    , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
+    , MgNum   , AlNum   , SNum      , FeNum
+    , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num;
+#endif
  
   /* Compute the size of the fields. */
  
@@ -128,6 +137,18 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
+#ifdef GRACKLE_MD
+    if (IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
+                               , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+                               , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+                               , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum,  H3OIINum,  O2IINum
+                               , MgNum   , AlNum   , SNum      , FeNum
+                               , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+                               , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+                               ) == FAIL) {
+      ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
+    }
+#endif
  
   /* Find photo-ionization fields */
 
@@ -292,6 +313,52 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     my_fields.DI_density      = BaryonField[DINum];
     my_fields.DII_density     = BaryonField[DIINum];
     my_fields.HDI_density     = BaryonField[HDINum];
+#ifdef GRACKLE_MD
+  if(MultiSpecies > 3) {
+    my_fields.     DM_density = BaryonField[     DMNum];
+    my_fields.   HDII_density = BaryonField[   HDIINum];
+    my_fields.  HeHII_density = BaryonField[  HeHIINum];
+  }
+
+  if(MetalChemistry > 0) {
+    my_fields.     CI_density = BaryonField[     CINum];
+    my_fields.    CII_density = BaryonField[    CIINum];
+    my_fields.     CO_density = BaryonField[     CONum];
+    my_fields.    CO2_density = BaryonField[    CO2Num];
+    my_fields.     OI_density = BaryonField[     OINum];
+    my_fields.     OH_density = BaryonField[     OHNum];
+    my_fields.    H2O_density = BaryonField[    H2ONum];
+    my_fields.     O2_density = BaryonField[     O2Num];
+    my_fields.    SiI_density = BaryonField[    SiINum];
+    my_fields.   SiOI_density = BaryonField[   SiOINum];
+    my_fields.  SiO2I_density = BaryonField[  SiO2INum];
+    my_fields.     CH_density = BaryonField[     CHNum];
+    my_fields.    CH2_density = BaryonField[    CH2Num];
+    my_fields.   COII_density = BaryonField[   COIINum];
+    my_fields.    OII_density = BaryonField[    OIINum];
+    my_fields.   OHII_density = BaryonField[   OHIINum];
+    my_fields.  H2OII_density = BaryonField[  H2OIINum];
+    my_fields.  H3OII_density = BaryonField[  H3OIINum];
+    my_fields.   O2II_density = BaryonField[   O2IINum];
+  }
+
+  if(GrainGrowth) {
+    my_fields.     Mg_density = BaryonField[     MgNum];
+    my_fields.     Al_density = BaryonField[     AlNum];
+    my_fields.      S_density = BaryonField[      SNum];
+    my_fields.     Fe_density = BaryonField[     FeNum];
+    my_fields.    SiM_density = BaryonField[    SiMNum];
+    my_fields.    FeM_density = BaryonField[    FeMNum];
+    my_fields.Mg2SiO4_density = BaryonField[Mg2SiO4Num];
+    my_fields. MgSiO3_density = BaryonField[ MgSiO3Num];
+    my_fields.  Fe3O4_density = BaryonField[  Fe3O4Num];
+    my_fields.     AC_density = BaryonField[     ACNum];
+    my_fields.  SiO2D_density = BaryonField[  SiO2DNum];
+    my_fields.    MgO_density = BaryonField[    MgONum];
+    my_fields.    FeS_density = BaryonField[    FeSNum];
+    my_fields.  Al2O3_density = BaryonField[  Al2O3Num];
+  }
+#endif
 
     my_fields.metal_density   = MetalPointer;
 

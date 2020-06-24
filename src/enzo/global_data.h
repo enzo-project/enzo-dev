@@ -120,6 +120,10 @@ EXTERN float huge_number, tiny_number;
 
 EXTERN float Gamma;
 
+/* Flag to enable variable (non-uniform) gamma */
+
+EXTERN int VariableGamma;
+
 /* Flag indicating if the gas is pressureless. */
 
 EXTERN int PressureFree;
@@ -950,6 +954,11 @@ EXTERN int MetalCooling;
 EXTERN char *MetalCoolingTable;
 EXTERN int CIECooling;
 EXTERN int H2OpticalDepthApproximation;
+#ifdef GRACKLE_MD
+EXTERN int MetalChemistry;
+EXTERN int MetalPop3;
+EXTERN int GrainGrowth;
+#endif
 
 //   1 - Adaptive ray tracing transfer
 //   0 - none

@@ -47,6 +47,9 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const double h=0.70;
 
   const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
+#ifdef GRACKLE_MD
+  const float FaintSNLowerMass = 11, FaintSNUpperMass = 80.1;
+#endif
   const float PISNLowerMass = 140, PISNUpperMass = 260;
 
   // From Nomoto et al. (2006)
@@ -61,6 +64,16 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float *SNExplosionEnergy = (PopIIIUseHypernova ==TRUE) ? 
     HypernovaEnergy : CoreCollapseEnergy;
 
+#ifdef GRACKLE_MD
+  // From Umeda & Nomoto (2002)
+  const float PopIIISNExplosionMass[]   = {13, 20, 25, 30, 170, 200};  // SolarMass
+  const float PopIIISNExplosionEnergy[] = {1, 1, 1, 1, 20, 28};  // 1e51 erg
+  const float PopIIISNExplosionMetals[] = {0.746, 2.564, 3.825, 7.175, 83.400, 113.990};  // SolarMass
+  // From Marassi et al. (2014)
+  const float FaintSNExplosionMass[]   = {13, 15, 50, 80.01};  // Msun
+  const float FaintSNExplosionEnergy[] = {0.5, 0.7, 2.6, 5.2}; // 1e51 erg 
+  const float FaintSNExplosionMetals[] = {0.097, 0.182, 3.540, 4.307}; // Msun
+#endif
   float StarLevelCellWidth, tdyn, frac;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
 
@@ -86,6 +99,59 @@ void Star::CalculateFeedbackParameters(float &Radius,
     EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);
     EjectaDensity = Mass * SolarMass / EjectaVolume / DensityUnits;
 
+#ifdef GRACKLE_MD
+    if(MetalPop3 && this->Metallicity < PopIIIMetalCriticalFraction) {
+#ifdef UNDER_CONSTRUCTION
+      if(this->FaintSN) {
+
+        // faint SNe
+        if(this->Mass >= FaintSNLowerMass && this->Mass <= FaintSNUpperMass) {
+          if(this->Mass < (FaintSNExplosionMass[0] + FaintSNExplosionMass[1]) / 2)
+            bin = 0;
+          else if(this->Mass < (FaintSNExplosionMass[1] + FaintSNExplosionMass[2]) / 2)
+            bin = 1;
+          else if(this->Mass < (FaintSNExplosionMass[2] + FaintSNExplosionMass[3]) / 2)
+            bin = 2;
+          else
+            bin = 3;
+	  SNEnergy = FaintSNExplosionEnergy[bin] * 1e51;
+   	  MetalMass = FaintSNExplosionMetals[bin];
+        }
+
+      } else {
+#endif
+        // normal core-collapse SNe
+        if(this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass) {
+
+          if(this->Mass < (PopIIISNExplosionMass[0] + PopIIISNExplosionMass[1]) / 2)
+            bin = 0;
+          else if(this->Mass < (PopIIISNExplosionMass[1] + PopIIISNExplosionMass[2]) / 2)
+            bin = 1;
+          else if(this->Mass < (PopIIISNExplosionMass[2] + PopIIISNExplosionMass[3]) / 2)
+            bin = 2;
+          else
+            bin = 3;
+	  SNEnergy = PopIIISNExplosionEnergy[bin] * 1e51;
+   	  MetalMass = PopIIISNExplosionMetals[bin];
+
+        // pair-instability SNe
+        } else if(this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) {
+          if(this->Mass < (PopIIISNExplosionMass[4] + PopIIISNExplosionMass[5]) / 2)
+            bin = 4;
+          else
+            bin = 5;
+	  SNEnergy = PopIIISNExplosionEnergy[bin] * 1e51;
+   	  MetalMass = PopIIISNExplosionMetals[bin];
+        }
+#ifdef UNDER_CONSTRUCTION
+      }
+#endif
+      EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
+
+      printf("PopIIISN Mpr = %10.3f Msun, Mmet = %10.3f Msun, Esn = %10.3f B\n"
+          , this->Mass, MetalMass, SNEnergy / 1e51);
+    } else {
+#endif
     // pair-instability SNe
     if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) {
       HeliumCoreMass = (13./24.) * (Mass - 20);
@@ -110,6 +176,11 @@ void Star::CalculateFeedbackParameters(float &Radius,
       }
       EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
     }
+#ifdef GRACKLE_MD
+      printf("PopI  SN Mpr = %10.3f Msun, Mmet = %10.3f Msun, Esn = %10.3f B\n"
+          , this->Mass, MetalMass, SNEnergy / 1e51);
+    }
+#endif
     EjectaThermalEnergy = SNEnergy / (Mass * SolarMass) / VelocityUnits /
       VelocityUnits;
 

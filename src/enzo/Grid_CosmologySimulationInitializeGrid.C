@@ -120,6 +120,23 @@ int grid::CosmologySimulationInitializeGrid(
   int idim, dim, i, j, vel, OneComponentPerFile, ndim, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum;
+#ifdef GRACKLE_MD
+  int HeHIINum, DMNum, HDIINum
+    , CINum,  CIINum,   CONum,      CO2Num,    OINum,   OHNum
+    , H2ONum, O2Num,    SiINum,     SiOINum,   SiO2INum
+    , CHNum,  CH2Num,   COIINum,    OIINum,    OHIINum, H2OIINum, H3OIINum, O2IINum
+    , MgNum,  AlNum,    SNum,       FeNum
+    , SiMNum, FeMNum,   Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+    , ACNum,  SiO2DNum, MgONum,     FeSNum,    Al2O3Num;
+  double f_C_gas , f_O_gas , f_Mg_gas  , f_Al_gas  , f_Si_gas  , f_S_gas , f_Fe_gas ;
+  f_C_gas  = CoolData.   CarbonFractionToMetalByMass * (1.0 - CoolData.   CarbonCondensationRate);
+  f_O_gas  = CoolData.   OxygenFractionToMetalByMass * (1.0 - CoolData.   OxygenCondensationRate);
+  f_Mg_gas = CoolData.MagnesiumFractionToMetalByMass * (1.0 - CoolData.MagnesiumCondensationRate);
+  f_Al_gas = CoolData.AluminiumFractionToMetalByMass * (1.0 - CoolData.AluminiumCondensationRate);
+  f_Si_gas = CoolData.  SiliconFractionToMetalByMass * (1.0 - CoolData.  SiliconCondensationRate);
+  f_S_gas  = CoolData.   SulfurFractionToMetalByMass * (1.0 - CoolData.   SulfurCondensationRate);
+  f_Fe_gas = CoolData.     IronFractionToMetalByMass * (1.0 - CoolData.     IronCondensationRate);
+#endif
 #ifdef TRANSFER
   int EgNum;
 #endif
@@ -285,6 +302,50 @@ int grid::CosmologySimulationInitializeGrid(
 	FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
 	FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
       }
+#ifdef GRACKLE_MD
+      if (MultiSpecies > 3) {
+        FieldType[   HeHIINum = NumberOfBaryonFields++] =   HeHIIDensity;
+        FieldType[      DMNum = NumberOfBaryonFields++] =      DMDensity;
+        FieldType[    HDIINum = NumberOfBaryonFields++] =    HDIIDensity;
+      }
+      if (MetalChemistry > 0) {
+        FieldType[      CINum = NumberOfBaryonFields++] =      CIDensity;
+        FieldType[     CIINum = NumberOfBaryonFields++] =     CIIDensity;
+        FieldType[      CONum = NumberOfBaryonFields++] =     COIDensity;
+        FieldType[     CO2Num = NumberOfBaryonFields++] =    CO2IDensity;
+        FieldType[      OINum = NumberOfBaryonFields++] =      OIDensity;
+        FieldType[      OHNum = NumberOfBaryonFields++] =     OHIDensity;
+        FieldType[     H2ONum = NumberOfBaryonFields++] =    H2OIDensity;
+        FieldType[      O2Num = NumberOfBaryonFields++] =     O2IDensity;
+        FieldType[     SiINum = NumberOfBaryonFields++] =     SiIDensity;
+        FieldType[    SiOINum = NumberOfBaryonFields++] =    SiOIDensity;
+        FieldType[   SiO2INum = NumberOfBaryonFields++] =   SiO2IDensity;
+        FieldType[      CHNum = NumberOfBaryonFields++] =     CHIDensity;
+        FieldType[     CH2Num = NumberOfBaryonFields++] =    CH2IDensity;
+        FieldType[    COIINum = NumberOfBaryonFields++] =    COIIDensity;
+        FieldType[     OIINum = NumberOfBaryonFields++] =     OIIDensity;
+        FieldType[    OHIINum = NumberOfBaryonFields++] =    OHIIDensity;
+        FieldType[   H2OIINum = NumberOfBaryonFields++] =   H2OIIDensity;
+        FieldType[   H3OIINum = NumberOfBaryonFields++] =   H3OIIDensity;
+        FieldType[    O2IINum = NumberOfBaryonFields++] =    O2IIDensity;
+      }
+      if (GrainGrowth) {
+        FieldType[      MgNum = NumberOfBaryonFields++] =      MgDensity;
+        FieldType[      AlNum = NumberOfBaryonFields++] =      AlDensity;
+        FieldType[       SNum = NumberOfBaryonFields++] =       SDensity;
+        FieldType[      FeNum = NumberOfBaryonFields++] =      FeDensity;
+        FieldType[     SiMNum = NumberOfBaryonFields++] =     SiMDensity;
+        FieldType[     FeMNum = NumberOfBaryonFields++] =     FeMDensity;
+        FieldType[ Mg2SiO4Num = NumberOfBaryonFields++] = Mg2SiO4Density;
+        FieldType[  MgSiO3Num = NumberOfBaryonFields++] =  MgSiO3Density;
+        FieldType[   Fe3O4Num = NumberOfBaryonFields++] =   Fe3O4Density;
+        FieldType[      ACNum = NumberOfBaryonFields++] =      ACDensity;
+        FieldType[   SiO2DNum = NumberOfBaryonFields++] =   SiO2DDensity;
+        FieldType[     MgONum = NumberOfBaryonFields++] =     MgODensity;
+        FieldType[     FeSNum = NumberOfBaryonFields++] =     FeSDensity;
+        FieldType[   Al2O3Num = NumberOfBaryonFields++] =   Al2O3Density;
+      }
+#endif
     }
     if (UseMetallicityField) {
       FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
@@ -492,7 +553,16 @@ int grid::CosmologySimulationInitializeGrid(
 	BaryonField[HDINum][i] = 0.75*CoolData.DeuteriumToHydrogenRatio*
 	                             BaryonField[H2INum][i];
       }
- 
+#ifdef GRACKLE_MD
+      if(MultiSpecies > 3){
+        BaryonField[HeHIINum][i] = TestProblemData.HeIII_Fraction *
+	  BaryonField[0][i] * (1.0-TestProblemData.HydrogenFractionByMass);
+	BaryonField[DMNum][i] = CoolData.DeuteriumToHydrogenRatio * BaryonField[HMNum][i];
+	BaryonField[HDIINum][i] = 0.75 * CoolData.DeuteriumToHydrogenRatio * BaryonField[H2IINum][i];
+	BaryonField[DeNum][i] += 0.2*BaryonField[HeHIINum][i] 
+                               - 0.5*BaryonField[DMNum][i] + BaryonField[HDIINum][i]/3.0;
+      }
+#endif 
       //Shock/Cosmic Ray Model
       if (ShockMethod && ReadData) {
 	BaryonField[MachNum][i] = tiny_number;
@@ -524,6 +594,51 @@ int grid::CosmologySimulationInitializeGrid(
 	  * BaryonField[0][i];
       }
     }
+
+#ifdef GRACKLE_MD
+    if (MultiSpecies)
+      for (i = 0; i < size; i++) {
+  
+        if(MetalChemistry > 0) {
+           BaryonField[   CINum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[  CIINum][i] =  f_C_gas * BaryonField[MetalNum][i];
+           BaryonField[   CONum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[  CO2Num][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[   OINum][i] =  f_O_gas * BaryonField[MetalNum][i];
+           BaryonField[   OHNum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[  H2ONum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[   O2Num][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[  SiINum][i] = f_Si_gas * BaryonField[MetalNum][i];
+           BaryonField[ SiOINum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[SiO2INum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[   CHNum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[  CH2Num][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[ COIINum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[  OIINum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[ OHIINum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[H2OIINum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[H3OIINum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[ O2IINum][i] =  1.0e-20 * BaryonField[0][i];
+           BaryonField[   DeNum][i] += BaryonField[CIINum][i]/12.0;
+        }
+        if(GrainGrowth) {
+           BaryonField[   MgNum][i] = f_Mg_gas * BaryonField[MetalNum][i];
+           BaryonField[   AlNum][i] = f_Al_gas * BaryonField[MetalNum][i];
+           BaryonField[    SNum][i] =  f_S_gas * BaryonField[MetalNum][i];
+           BaryonField[   FeNum][i] = f_Fe_gas * BaryonField[MetalNum][i];
+           BaryonField[    SiMNum][i] = CoolData.MetSiliconFractionToMetalByMass * BaryonField[MetalNum][i];
+           BaryonField[    FeMNum][i] = CoolData.   MetIronFractionToMetalByMass * BaryonField[MetalNum][i];
+           BaryonField[Mg2SiO4Num][i] = CoolData.ForsteriteFractionToMetalByMass * BaryonField[MetalNum][i];
+           BaryonField[ MgSiO3Num][i] = CoolData. EnstatiteFractionToMetalByMass * BaryonField[MetalNum][i];
+           BaryonField[  Fe3O4Num][i] = CoolData. MagnetiteFractionToMetalByMass * BaryonField[MetalNum][i];
+           BaryonField[     ACNum][i] = CoolData.   ACarbonFractionToMetalByMass * BaryonField[MetalNum][i];
+           BaryonField[  SiO2DNum][i] = CoolData.    SilicaFractionToMetalByMass * BaryonField[MetalNum][i];
+           BaryonField[    MgONum][i] = CoolData.  MagnesiaFractionToMetalByMass * BaryonField[MetalNum][i];
+           BaryonField[    FeSNum][i] = CoolData.  TroiliteFractionToMetalByMass * BaryonField[MetalNum][i];
+           BaryonField[  Al2O3Num][i] = CoolData.   AluminaFractionToMetalByMass * BaryonField[MetalNum][i];
+        }
+      }
+#endif
 
     if (STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData) {
       for (i = 0; i < size; i++)

@@ -365,8 +365,64 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
       // like density, total energy, and internal energy
       if (FluxCorrection == 2){
         for (field = 0; field < NumberOfBaryonFields; field++) {
+          #ifdef GRACKLE_MD
+          if (FieldType[field] == ElectronDensity
+           || FieldType[field] ==       HIDensity
+           || FieldType[field] ==      HIIDensity
+           || FieldType[field] ==      HeIDensity
+           || FieldType[field] ==     HeIIDensity
+           || FieldType[field] ==    HeIIIDensity
+           || FieldType[field] ==       HMDensity
+           || FieldType[field] ==      H2IDensity
+           || FieldType[field] ==     H2IIDensity
+           || FieldType[field] ==       DIDensity
+           || FieldType[field] ==      DIIDensity
+           || FieldType[field] ==      HDIDensity
+           || FieldType[field] ==    HeHIIDensity
+           || FieldType[field] ==       DMDensity
+           || FieldType[field] ==     HDIIDensity
+           || FieldType[field] ==       CIDensity
+           || FieldType[field] ==      CIIDensity
+           || FieldType[field] ==      COIDensity
+           || FieldType[field] ==     CO2IDensity
+           || FieldType[field] ==       OIDensity
+           || FieldType[field] ==      OHIDensity
+           || FieldType[field] ==     H2OIDensity
+           || FieldType[field] ==      O2IDensity
+           || FieldType[field] ==      SiIDensity
+           || FieldType[field] ==     SiOIDensity
+           || FieldType[field] ==    SiO2IDensity
+           || FieldType[field] ==      CHIDensity
+           || FieldType[field] ==     CH2IDensity
+           || FieldType[field] ==     COIIDensity
+           || FieldType[field] ==      OIIDensity
+           || FieldType[field] ==     OHIIDensity
+           || FieldType[field] ==    H2OIIDensity
+           || FieldType[field] ==    H3OIIDensity
+           || FieldType[field] ==     O2IIDensity
+           || FieldType[field] ==       MgDensity
+           || FieldType[field] ==       AlDensity
+           || FieldType[field] ==        SDensity
+           || FieldType[field] ==       FeDensity
+           || FieldType[field] ==      SiMDensity
+           || FieldType[field] ==      FeMDensity
+           || FieldType[field] ==  Mg2SiO4Density
+           || FieldType[field] ==   MgSiO3Density
+           || FieldType[field] ==    Fe3O4Density
+           || FieldType[field] ==       ACDensity
+           || FieldType[field] ==    SiO2DDensity
+           || FieldType[field] ==      MgODensity
+           || FieldType[field] ==      FeSDensity
+           || FieldType[field] ==    Al2O3Density
+           || FieldType[field] ==     Metallicity
+           || FieldType[field] ==        SNColour
+           || FieldType[field] ==      ExtraType0
+           || FieldType[field] ==      ExtraType1)
+          #else
           if (FieldType[field] >= ElectronDensity &&
-              FieldType[field] <= ExtraType1) {
+              FieldType[field] <= ExtraType1)
+          #endif
+          {
             fieldNumberList.push_back(field);
           }
         }
@@ -401,9 +457,65 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
         if (FluxCorrection == 1) { // Skip this routine when FluxCorrection = 2
         if (
           (
+          #ifdef GRACKLE_MD
+             (FieldType[field] == ElectronDensity
+           || FieldType[field] ==       HIDensity
+           || FieldType[field] ==      HIIDensity
+           || FieldType[field] ==      HeIDensity
+           || FieldType[field] ==     HeIIDensity
+           || FieldType[field] ==    HeIIIDensity
+           || FieldType[field] ==       HMDensity
+           || FieldType[field] ==      H2IDensity
+           || FieldType[field] ==     H2IIDensity
+           || FieldType[field] ==       DIDensity
+           || FieldType[field] ==      DIIDensity
+           || FieldType[field] ==      HDIDensity
+           || FieldType[field] ==    HeHIIDensity
+           || FieldType[field] ==       DMDensity
+           || FieldType[field] ==     HDIIDensity
+           || FieldType[field] ==       CIDensity
+           || FieldType[field] ==      CIIDensity
+           || FieldType[field] ==      COIDensity
+           || FieldType[field] ==     CO2IDensity
+           || FieldType[field] ==       OIDensity
+           || FieldType[field] ==      OHIDensity
+           || FieldType[field] ==     H2OIDensity
+           || FieldType[field] ==      O2IDensity
+           || FieldType[field] ==      SiIDensity
+           || FieldType[field] ==     SiOIDensity
+           || FieldType[field] ==    SiO2IDensity
+           || FieldType[field] ==      CHIDensity
+           || FieldType[field] ==     CH2IDensity
+           || FieldType[field] ==     COIIDensity
+           || FieldType[field] ==      OIIDensity
+           || FieldType[field] ==     OHIIDensity
+           || FieldType[field] ==    H2OIIDensity
+           || FieldType[field] ==    H3OIIDensity
+           || FieldType[field] ==     O2IIDensity
+           || FieldType[field] ==       MgDensity
+           || FieldType[field] ==       AlDensity
+           || FieldType[field] ==        SDensity
+           || FieldType[field] ==       FeDensity
+           || FieldType[field] ==      SiMDensity
+           || FieldType[field] ==      FeMDensity
+           || FieldType[field] ==  Mg2SiO4Density
+           || FieldType[field] ==   MgSiO3Density
+           || FieldType[field] ==    Fe3O4Density
+           || FieldType[field] ==       ACDensity
+           || FieldType[field] ==    SiO2DDensity
+           || FieldType[field] ==      MgODensity
+           || FieldType[field] ==      FeSDensity
+           || FieldType[field] ==    Al2O3Density
+           || FieldType[field] ==     Metallicity
+           || FieldType[field] ==        SNColour
+           || FieldType[field] ==      ExtraType0
+           || FieldType[field] ==      ExtraType1
+            )
+          #else
             (FieldType[field] >= ElectronDensity
               && FieldType[field] <= ExtraType1
             )
+          #endif
             || FieldType[field] == MetalSNIaDensity
             || FieldType[field] == MetalSNIIDensity
           )
@@ -545,8 +657,63 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    if ((FieldTypeIsDensity(FieldType[field]) == TRUE ||
 			 FieldType[field] == TotalEnergy ||
 			 FieldType[field] == InternalEnergy ||
+                      #ifdef GRACKLE_MD
+                        (FieldType[field] == ElectronDensity
+                      || FieldType[field] ==       HIDensity
+                      || FieldType[field] ==      HIIDensity
+                      || FieldType[field] ==      HeIDensity
+                      || FieldType[field] ==     HeIIDensity
+                      || FieldType[field] ==    HeIIIDensity
+                      || FieldType[field] ==       HMDensity
+                      || FieldType[field] ==      H2IDensity
+                      || FieldType[field] ==     H2IIDensity
+                      || FieldType[field] ==       DIDensity
+                      || FieldType[field] ==      DIIDensity
+                      || FieldType[field] ==      HDIDensity
+                      || FieldType[field] ==    HeHIIDensity
+                      || FieldType[field] ==       DMDensity
+                      || FieldType[field] ==     HDIIDensity
+                      || FieldType[field] ==       CIDensity
+                      || FieldType[field] ==      CIIDensity
+                      || FieldType[field] ==      COIDensity
+                      || FieldType[field] ==     CO2IDensity
+                      || FieldType[field] ==       OIDensity
+                      || FieldType[field] ==      OHIDensity
+                      || FieldType[field] ==     H2OIDensity
+                      || FieldType[field] ==      O2IDensity
+                      || FieldType[field] ==      SiIDensity
+                      || FieldType[field] ==     SiOIDensity
+                      || FieldType[field] ==    SiO2IDensity
+                      || FieldType[field] ==      CHIDensity
+                      || FieldType[field] ==     CH2IDensity
+                      || FieldType[field] ==     COIIDensity
+                      || FieldType[field] ==      OIIDensity
+                      || FieldType[field] ==     OHIIDensity
+                      || FieldType[field] ==    H2OIIDensity
+                      || FieldType[field] ==    H3OIIDensity
+                      || FieldType[field] ==     O2IIDensity
+                      || FieldType[field] ==       MgDensity
+                      || FieldType[field] ==       AlDensity
+                      || FieldType[field] ==        SDensity
+                      || FieldType[field] ==       FeDensity
+                      || FieldType[field] ==      SiMDensity
+                      || FieldType[field] ==      FeMDensity
+                      || FieldType[field] ==  Mg2SiO4Density
+                      || FieldType[field] ==   MgSiO3Density
+                      || FieldType[field] ==    Fe3O4Density
+                      || FieldType[field] ==       ACDensity
+                      || FieldType[field] ==    SiO2DDensity
+                      || FieldType[field] ==      MgODensity
+                      || FieldType[field] ==      FeSDensity
+                      || FieldType[field] ==    Al2O3Density
+                      || FieldType[field] ==     Metallicity
+                      || FieldType[field] ==        SNColour
+                      || FieldType[field] ==      ExtraType0
+                      || FieldType[field] ==      ExtraType1)
+                      #else
                          ( FieldType[field] >= ElectronDensity &&
                            FieldType[field] <= ExtraType1 )
+                      #endif
                          )) {
 
 		      /* If new density & energy is < 0 then undo the
@@ -556,6 +723,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			  BaryonField[field][FieldIndex] <= 0) {
 
 			if (SUBlingGrid == FALSE) {
+#ifdef TEMPORARY
 			  if (debug)
 			    printf("P(%d) -- CFRFl warn: %e %e %e %e %"ISYM
 				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
@@ -564,6 +732,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
 				   CorrectionAmountLeft,
 				   i, j, k, dim, field);
+#endif
 			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
@@ -578,6 +747,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
               }
 			} else {
+#ifdef TEMPORARY
 			  if (debug)
 			    printf("P(%d) -- CFRFlS warn: %e %e %e %e %"ISYM
 				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
@@ -586,6 +756,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
 				   CorrectionAmountLeft,
 				   i, j, k, dim, field);
+#endif
 			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
@@ -606,6 +777,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			  BaryonField[field][FieldIndex+Offset] <= 0) {
 
 			if (SUBlingGrid == FALSE) {
+#ifdef TEMPORARY
 			  if (debug)
 			    printf("P(%d) -- CFRFr warn: %e %e %e %e %"ISYM
 				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
@@ -614,6 +786,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][FluxIndex],
 				   CorrectionAmountRight,
 				   i, j, k, dim, field);
+#endif
 			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
@@ -628,6 +801,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
               }
 			} else {
+#ifdef TEMPORARY
 			  if (debug)
 			    printf("P(%d) -- CFRFrS warn: %e %e %e %e %"ISYM
 				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
@@ -636,6 +810,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
 				   CorrectionAmountRight,
 				   i, j, k, dim, field);
+#endif
 			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
@@ -720,8 +895,63 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		if ((FieldType[field] == Density || 
 		     FieldType[field] == TotalEnergy ||
 		     FieldType[field] == InternalEnergy  ||
+                      #ifdef GRACKLE_MD
+                      (FieldType[field] == ElectronDensity
+                    || FieldType[field] ==       HIDensity
+                    || FieldType[field] ==      HIIDensity
+                    || FieldType[field] ==      HeIDensity
+                    || FieldType[field] ==     HeIIDensity
+                    || FieldType[field] ==    HeIIIDensity
+                    || FieldType[field] ==       HMDensity
+                    || FieldType[field] ==      H2IDensity
+                    || FieldType[field] ==     H2IIDensity
+                    || FieldType[field] ==       DIDensity
+                    || FieldType[field] ==      DIIDensity
+                    || FieldType[field] ==      HDIDensity
+                    || FieldType[field] ==    HeHIIDensity
+                    || FieldType[field] ==       DMDensity
+                    || FieldType[field] ==     HDIIDensity
+                    || FieldType[field] ==       CIDensity
+                    || FieldType[field] ==      CIIDensity
+                    || FieldType[field] ==      COIDensity
+                    || FieldType[field] ==     CO2IDensity
+                    || FieldType[field] ==       OIDensity
+                    || FieldType[field] ==      OHIDensity
+                    || FieldType[field] ==     H2OIDensity
+                    || FieldType[field] ==      O2IDensity
+                    || FieldType[field] ==      SiIDensity
+                    || FieldType[field] ==     SiOIDensity
+                    || FieldType[field] ==    SiO2IDensity
+                    || FieldType[field] ==      CHIDensity
+                    || FieldType[field] ==     CH2IDensity
+                    || FieldType[field] ==     COIIDensity
+                    || FieldType[field] ==      OIIDensity
+                    || FieldType[field] ==     OHIIDensity
+                    || FieldType[field] ==    H2OIIDensity
+                    || FieldType[field] ==    H3OIIDensity
+                    || FieldType[field] ==     O2IIDensity
+                    || FieldType[field] ==       MgDensity
+                    || FieldType[field] ==       AlDensity
+                    || FieldType[field] ==        SDensity
+                    || FieldType[field] ==       FeDensity
+                    || FieldType[field] ==      SiMDensity
+                    || FieldType[field] ==      FeMDensity
+                    || FieldType[field] ==  Mg2SiO4Density
+                    || FieldType[field] ==   MgSiO3Density
+                    || FieldType[field] ==    Fe3O4Density
+                    || FieldType[field] ==       ACDensity
+                    || FieldType[field] ==    SiO2DDensity
+                    || FieldType[field] ==      MgODensity
+                    || FieldType[field] ==      FeSDensity
+                    || FieldType[field] ==    Al2O3Density
+                    || FieldType[field] ==     Metallicity
+                    || FieldType[field] ==        SNColour
+                    || FieldType[field] ==      ExtraType0
+                    || FieldType[field] ==      ExtraType1)
+                      #else
                      ( FieldType[field] >= ElectronDensity &&
                        FieldType[field] <= ExtraType1 )
+                      #endif
                     ) &&
 		    BaryonField[field][FieldIndex] <= 0) {
 		  /*if (debug) {
@@ -747,8 +977,63 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		if ((FieldType[field] == Density || 
 		     FieldType[field] == TotalEnergy ||
 		     FieldType[field] == InternalEnergy ||
+                      #ifdef GRACKLE_MD
+                      (FieldType[field] == ElectronDensity
+                    || FieldType[field] ==       HIDensity
+                    || FieldType[field] ==      HIIDensity
+                    || FieldType[field] ==      HeIDensity
+                    || FieldType[field] ==     HeIIDensity
+                    || FieldType[field] ==    HeIIIDensity
+                    || FieldType[field] ==       HMDensity
+                    || FieldType[field] ==      H2IDensity
+                    || FieldType[field] ==     H2IIDensity
+                    || FieldType[field] ==       DIDensity
+                    || FieldType[field] ==      DIIDensity
+                    || FieldType[field] ==      HDIDensity
+                    || FieldType[field] ==    HeHIIDensity
+                    || FieldType[field] ==       DMDensity
+                    || FieldType[field] ==     HDIIDensity
+                    || FieldType[field] ==       CIDensity
+                    || FieldType[field] ==      CIIDensity
+                    || FieldType[field] ==      COIDensity
+                    || FieldType[field] ==     CO2IDensity
+                    || FieldType[field] ==       OIDensity
+                    || FieldType[field] ==      OHIDensity
+                    || FieldType[field] ==     H2OIDensity
+                    || FieldType[field] ==      O2IDensity
+                    || FieldType[field] ==      SiIDensity
+                    || FieldType[field] ==     SiOIDensity
+                    || FieldType[field] ==    SiO2IDensity
+                    || FieldType[field] ==      CHIDensity
+                    || FieldType[field] ==     CH2IDensity
+                    || FieldType[field] ==     COIIDensity
+                    || FieldType[field] ==      OIIDensity
+                    || FieldType[field] ==     OHIIDensity
+                    || FieldType[field] ==    H2OIIDensity
+                    || FieldType[field] ==    H3OIIDensity
+                    || FieldType[field] ==     O2IIDensity
+                    || FieldType[field] ==       MgDensity
+                    || FieldType[field] ==       AlDensity
+                    || FieldType[field] ==        SDensity
+                    || FieldType[field] ==       FeDensity
+                    || FieldType[field] ==      SiMDensity
+                    || FieldType[field] ==      FeMDensity
+                    || FieldType[field] ==  Mg2SiO4Density
+                    || FieldType[field] ==   MgSiO3Density
+                    || FieldType[field] ==    Fe3O4Density
+                    || FieldType[field] ==       ACDensity
+                    || FieldType[field] ==    SiO2DDensity
+                    || FieldType[field] ==      MgODensity
+                    || FieldType[field] ==      FeSDensity
+                    || FieldType[field] ==    Al2O3Density
+                    || FieldType[field] ==     Metallicity
+                    || FieldType[field] ==        SNColour
+                    || FieldType[field] ==      ExtraType0
+                    || FieldType[field] ==      ExtraType1)
+                      #else
                      ( FieldType[field] >= ElectronDensity &&
                        FieldType[field] <= ExtraType1 )
+                      #endif
                     ) &&
 		    BaryonField[field][FieldIndex + Offset] <= 0.0) {
 		  /*if (debug) {
@@ -851,8 +1136,64 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
           if (FluxCorrection == 1) {
 	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if ( ((FieldType[field] >= ElectronDensity &&
+	    if ( (
+                  #ifdef GRACKLE_MD
+                  (FieldType[field] == ElectronDensity
+                || FieldType[field] ==       HIDensity
+                || FieldType[field] ==      HIIDensity
+                || FieldType[field] ==      HeIDensity
+                || FieldType[field] ==     HeIIDensity
+                || FieldType[field] ==    HeIIIDensity
+                || FieldType[field] ==       HMDensity
+                || FieldType[field] ==      H2IDensity
+                || FieldType[field] ==     H2IIDensity
+                || FieldType[field] ==       DIDensity
+                || FieldType[field] ==      DIIDensity
+                || FieldType[field] ==      HDIDensity
+                || FieldType[field] ==    HeHIIDensity
+                || FieldType[field] ==       DMDensity
+                || FieldType[field] ==     HDIIDensity
+                || FieldType[field] ==       CIDensity
+                || FieldType[field] ==      CIIDensity
+                || FieldType[field] ==      COIDensity
+                || FieldType[field] ==     CO2IDensity
+                || FieldType[field] ==       OIDensity
+                || FieldType[field] ==      OHIDensity
+                || FieldType[field] ==     H2OIDensity
+                || FieldType[field] ==      O2IDensity
+                || FieldType[field] ==      SiIDensity
+                || FieldType[field] ==     SiOIDensity
+                || FieldType[field] ==    SiO2IDensity
+                || FieldType[field] ==      CHIDensity
+                || FieldType[field] ==     CH2IDensity
+                || FieldType[field] ==     COIIDensity
+                || FieldType[field] ==      OIIDensity
+                || FieldType[field] ==     OHIIDensity
+                || FieldType[field] ==    H2OIIDensity
+                || FieldType[field] ==    H3OIIDensity
+                || FieldType[field] ==     O2IIDensity
+                || FieldType[field] ==       MgDensity
+                || FieldType[field] ==       AlDensity
+                || FieldType[field] ==        SDensity
+                || FieldType[field] ==       FeDensity
+                || FieldType[field] ==      SiMDensity
+                || FieldType[field] ==      FeMDensity
+                || FieldType[field] ==  Mg2SiO4Density
+                || FieldType[field] ==   MgSiO3Density
+                || FieldType[field] ==    Fe3O4Density
+                || FieldType[field] ==       ACDensity
+                || FieldType[field] ==    SiO2DDensity
+                || FieldType[field] ==      MgODensity
+                || FieldType[field] ==      FeSDensity
+                || FieldType[field] ==    Al2O3Density
+                || FieldType[field] ==     Metallicity
+                || FieldType[field] ==        SNColour
+                || FieldType[field] ==      ExtraType0
+                || FieldType[field] ==      ExtraType1) ||
+                 #else
+                  (FieldType[field] >= ElectronDensity &&
 		   FieldType[field] <= ExtraType1) ||
+                 #endif
 		  FieldType[field] == MetalSNIaDensity ||
 		  FieldType[field] == MetalSNIIDensity) &&
 		 FieldTypeNoInterpolate(FieldType[field]) == FALSE &&

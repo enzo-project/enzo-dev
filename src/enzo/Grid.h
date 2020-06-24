@@ -1821,6 +1821,18 @@ int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
 			    int &HeINum, int &HeIINum, int &HeIIINum,
 			    int &HMNum, int &H2INum, int &H2IINum,
                             int &DINum, int &DIINum, int &HDINum);
+#ifdef GRACKLE_MD
+  int IdentifySpeciesFieldsMD( int &HeHIINum , int &DMNum   , int &HDIINum
+                             , int &CINum    , int &CIINum  , int &CONum     , int &CO2Num
+                             , int &OINum    , int &OHNum   , int &H2ONum    , int &O2Num
+                             , int &SiINum   , int &SiOINum , int &SiO2INum
+                             , int &CHNum    , int &CH2Num  , int &COIINum   , int &OIINum
+                             , int &OHIINum  , int &H2OIINum, int &H3OIINum  , int &O2IINum
+                             , int &MgNum    , int &AlNum   , int &SNum      , int &FeNum
+                             , int &SiMNum   , int &FeMNum  , int &Mg2SiO4Num
+                             , int &MgSiO3Num, int &Fe3O4Num, int &ACNum
+                             , int &SiO2DNum , int &MgONum  , int &FeSNum    , int &Al2O3Num);
+#endif
 
   /* Identify shock fields. */
   int IdentifyShockSpeciesFields(int &MachNum,int &PSTempNum, int &PSDenNum);
@@ -1864,6 +1876,25 @@ int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
 		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
+
+/* VariableGamma */
+int SolvePPM_DE_vg(float *gamma, int CycleNumber, int NumberOfSubgrids, 
+                fluxes *SubgridFluxes[], float *CellWidthTemp[],
+                Elong_int GridGlobalStart[], int GravityOn,
+                int NumberOfColours, int colnum[],
+                float MinimumSupportEnergyCoefficient);
+
+int xEulerSweep_vg(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure, float *gamma);
+
+int yEulerSweep_vg(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure, float *gamma);
+
+int zEulerSweep_vg(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure, float *gamma);
 
 // AccelerationHack
 

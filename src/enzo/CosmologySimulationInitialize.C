@@ -123,6 +123,44 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *DIName    = "DI_Density";
   char *DIIName   = "DII_Density";
   char *HDIName   = "HDI_Density";
+#ifdef GRACKLE_MD
+  char *   HeHIIName =   "HeHII_Density";
+  char *      DMName =      "DM_Density";
+  char *    HDIIName =    "HDII_Density";
+  char *      CIName =      "CI_Density";
+  char *     CIIName =     "CII_Density";
+  char *      COName =      "CO_Density";
+  char *     CO2Name =     "CO2_Density";
+  char *      OIName =      "OI_Density";
+  char *      OHName =      "OH_Density";
+  char *     H2OName =     "H2O_Density";
+  char *      O2Name =      "O2_Density";
+  char *     SiIName =     "SiI_Density";
+  char *    SiOIName =    "SiOI_Density";
+  char *   SiO2IName =   "SiO2I_Density";
+  char *      CHName =      "CH_Density";
+  char *     CH2Name =     "CH2_Density";
+  char *    COIIName =    "COII_Density";
+  char *     OIIName =     "OII_Density";
+  char *    OHIIName =    "OHII_Density";
+  char *   H2OIIName =   "H2OII_Density";
+  char *   H3OIIName =   "H3OII_Density";
+  char *    O2IIName =    "O2II_Density";
+  char *      MgName =      "Mg_Density";
+  char *      AlName =      "Al_Density";
+  char *       SName =       "S_Density";
+  char *      FeName =      "Fe_Density";
+  char *     SiMName =     "SiM_Density";
+  char *     FeMName =     "FeM_Density";
+  char * Mg2SiO4Name = "Mg2SiO4_Density";
+  char *  MgSiO3Name =  "MgSiO3_Density";
+  char *   Fe3O4Name =   "Fe3O4_Density";
+  char *      ACName =      "AC_Density";
+  char *   SiO2DName =   "SiO2D_Density";
+  char *     MgOName =     "MgO_Density";
+  char *     FeSName =     "FeS_Density";
+  char *   Al2O3Name =   "Al2O3_Density";
+#endif
   char *MetalName = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
   char *GPotName  = "Grav_Potential";
@@ -786,6 +824,50 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = DIIName;
       DataLabel[i++] = HDIName;
     }
+#ifdef GRACKLE_MD
+    if (MultiSpecies > 3) {
+      DataLabel[i++] = HeHIIName;
+      DataLabel[i++] = DMName;
+      DataLabel[i++] = HDIIName;
+    }
+    if (MetalChemistry > 0) {
+      DataLabel[i++] = CIName;
+      DataLabel[i++] = CIIName;
+      DataLabel[i++] = COName;
+      DataLabel[i++] = CO2Name;
+      DataLabel[i++] = OIName;
+      DataLabel[i++] = OHName;
+      DataLabel[i++] = H2OName;
+      DataLabel[i++] = O2Name;
+      DataLabel[i++] = SiIName;
+      DataLabel[i++] = SiOIName;
+      DataLabel[i++] = SiO2IName;
+      DataLabel[i++] = CHName;
+      DataLabel[i++] = CH2Name;
+      DataLabel[i++] = COIIName;
+      DataLabel[i++] = OIIName;
+      DataLabel[i++] = OHIIName;
+      DataLabel[i++] = H2OIIName;
+      DataLabel[i++] = H3OIIName;
+      DataLabel[i++] = O2IIName;
+    }
+    if (GrainGrowth) {
+      DataLabel[i++] = MgName;
+      DataLabel[i++] = AlName;
+      DataLabel[i++] = SName;
+      DataLabel[i++] = FeName;
+      DataLabel[i++] = SiMName;
+      DataLabel[i++] = FeMName;
+      DataLabel[i++] = Mg2SiO4Name;
+      DataLabel[i++] = MgSiO3Name;
+      DataLabel[i++] = Fe3O4Name;
+      DataLabel[i++] = ACName;
+      DataLabel[i++] = SiO2DName;
+      DataLabel[i++] = MgOName;
+      DataLabel[i++] = FeSName;
+      DataLabel[i++] = Al2O3Name;
+    }
+#endif
   }
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;

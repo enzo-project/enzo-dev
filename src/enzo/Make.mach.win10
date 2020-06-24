@@ -36,9 +36,9 @@ MACH_FILE  = Make.mach.linux-gnu
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL    = /usr/local
+LOCAL_HDF5_INSTALL = $(HOME)/usr/local
 LOCAL_GRACKLE_INSTALL = $(HOME)/usr/local
-LOCAL_HYPRE_INSTALL   = /usr/local
+LOCAL_HYPRE_INSTALL = /usr/local
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -66,7 +66,7 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API 
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
@@ -94,7 +94,7 @@ MACH_OPT_AGGRESSIVE  = -O3 -g
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = # MPI includes
-LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
 LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include

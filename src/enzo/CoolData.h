@@ -25,6 +25,35 @@ struct CoolDataType
   float DeuteriumToHydrogenRatio;
   float SolarMetalFractionByMass;
 
+#ifdef GRACKLE_MD
+  float    CarbonFractionToMetalByMass;
+  float    OxygenFractionToMetalByMass;
+  float MagnesiumFractionToMetalByMass;
+  float AluminiumFractionToMetalByMass;
+  float   SiliconFractionToMetalByMass;
+  float    SulfurFractionToMetalByMass;
+  float      IronFractionToMetalByMass;
+
+  float    CarbonCondensationRate;
+  float    OxygenCondensationRate;
+  float MagnesiumCondensationRate;
+  float AluminiumCondensationRate;
+  float   SiliconCondensationRate;
+  float    SulfurCondensationRate;
+  float      IronCondensationRate;
+
+  float MetSiliconFractionToMetalByMass;
+  float    MetIronFractionToMetalByMass;
+  float ForsteriteFractionToMetalByMass;
+  float  EnstatiteFractionToMetalByMass;
+  float  MagnetiteFractionToMetalByMass;
+  float    ACarbonFractionToMetalByMass;
+  float     SilicaFractionToMetalByMass;
+  float   MagnesiaFractionToMetalByMass;
+  float   TroiliteFractionToMetalByMass;
+  float    AluminaFractionToMetalByMass;
+#endif
+
   /* Equilibrium rates */
 
   float *EquilibriumRate;
