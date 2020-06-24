@@ -31,7 +31,7 @@
 int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
 
 #ifdef TRANSFER
-RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
+void DeleteGlobalRadiationSources(void);
 #endif
 
 int ActiveParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
@@ -59,15 +59,9 @@ int ActiveParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 #ifdef TRANSFER
   /* If radiation sources exist, delete them */
   if (RadiativeTransfer == TRUE) {
-    RadiationSourceEntry *dummy;
-    if (GlobalRadiationSources!=NULL){
-      dummy = GlobalRadiationSources->NextSource;
-      while (dummy != NULL) {
-        dummy = DeleteRadiationSource(dummy);
-      }
-      delete GlobalRadiationSources;
-      GlobalRadiationSources = NULL;
-    }
+
+    DeleteGlobalRadiationSources();
+
     GlobalRadiationSources = new RadiationSourceEntry;
     GlobalRadiationSources->NextSource = NULL;
     GlobalRadiationSources->PreviousSource = NULL;
