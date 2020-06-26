@@ -386,7 +386,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
 
               ParticleAttribute[4 + ii][count] =
                    StellarYields_ScaledSolarMassFractionByNumber( ParticleAttribute[2][count],
-                                                                  StellarYieldsAtomicNumbers[ii]);
+                                                                  StellarYieldsAtomicNumbers[ii], 0);
 
             } else {
 
@@ -550,7 +550,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
 
               ParticleAttribute[4 + ii][0] =
                    StellarYields_ScaledSolarMassFractionByNumber( ParticleAttribute[2][0],
-                                                                  StellarYieldsAtomicNumbers[ii]);
+                                                                  StellarYieldsAtomicNumbers[ii], 0);
 
             } else {
 

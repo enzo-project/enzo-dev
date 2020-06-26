@@ -67,10 +67,10 @@ void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
                                float &E_thermal, float * metal_mass,
                                float *grid_abundances);
 
-float StellarYields_SolarAbundancesByNumber(const int &atomic_number);
+float StellarYields_SolarAbundancesByNumber(const int &atomic_number, const int table);
 float StellarYields_MMW(const int &atomic_number);
 float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
-                                                    const int &atomic_number);
+                                                    const int &atomic_number, const int table = 0);
 
 int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[],
                                       TopGridData *MetaData,
@@ -437,16 +437,23 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     //
     // --- likely this is never really a dominant effect to account for
     //
+
+    // Decide which table to use. Lodders+ for AGB winds, Asplund otherwise
+    int table = 0;
+    if (mode == 0 && cstar->ReturnBirthMass() < IndividualStarAGBThreshold) { // maybe AGB
+      table = 1; // use Lodders+2003
+    }
+
     double *abundances = cstar->ReturnAbundances();
 
     // this should vary with yield table assumptions of Z_solar and solar abund !!!
-    const double z_solar = 0.0134; // Asplund+2009
+    const double z_solar = StellarYields_SolarAbundancesByNumber(0, table);
     const double z_ratio = cstar->ReturnMetallicity() / z_solar;
     float dm_total = 0.0;
 
     /* Solar [Fe/H] */
-    const double Fe_H_solar = StellarYields_SolarAbundancesByNumber(26) -
-                              StellarYields_SolarAbundancesByNumber(1);
+    const double Fe_H_solar = StellarYields_SolarAbundancesByNumber(26, table) -
+                              StellarYields_SolarAbundancesByNumber(1, table);
 
     for(int i = 0; i < StellarYieldsNumberOfSpecies; i++){
 
@@ -480,19 +487,19 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
 
         //
         if (enhancement > 0){
-          const double element_H_solar = StellarYields_SolarAbundancesByNumber(StellarYieldsAtomicNumbers[i]) -
-                                   StellarYields_SolarAbundancesByNumber(1);
+          const double element_H_solar = StellarYields_SolarAbundancesByNumber(StellarYieldsAtomicNumbers[i],table) -
+                                   StellarYields_SolarAbundancesByNumber(1,table);
 
           a_solar = z_ratio * POW(10.0, enhancement + element_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[i]) /
                                                             StellarYields_MMW(1));
         } else {
-          a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),StellarYieldsAtomicNumbers[i]);
+          a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),StellarYieldsAtomicNumbers[i], table);
         }
 
       } else{
         /* Else just use Asplund abundances */
         a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
-                                                                       StellarYieldsAtomicNumbers[i]);
+                                                                       StellarYieldsAtomicNumbers[i], table);
       }
       // abundances in stars are really mass fractions, so a_solar should be the scaled solar mass
       // fraction of the element (which is what is calculated above)
@@ -515,7 +522,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
 
       metal_mass[i+1] += mass_change;
       dm_total += mass_change;
-    }
+    } // end loop ove rspecies
 
     /* strictly speaking this should be conserved if we follow ALL species
        but we don't. Unsure if I should leave as += 0 or += dm */
@@ -526,11 +533,11 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
       ENZO_VFAIL("Failure in surface abundances. Total metal mass (%" FSYM ") / total ejected mass (%" FSYM ")are negative\n",metal_mass[0], m_eject);
     }
 
-
+/*
     if(FALSE){ // more detailed error checking
       for (int i = 0; i < StellarYieldsNumberOfSpecies; i++){
         if ((metal_mass[0] < 0) || (metal_mass[i+1] < 0) || ((StellarYieldsAtomicNumbers[i]>2) && (metal_mass[i+1] > metal_mass[0]))  ){
-            /* if any fail here, print all and exit */
+          // if any fail here, print all and exit 
           printf("Total mass = %" FSYM " --- DM total = %" ESYM "\n", m_eject,dm_total);
           printf("Abundances: ");
           for(int j=0;j<StellarYieldsNumberOfSpecies;j++){
@@ -546,9 +553,9 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
               double enhancement = 0.0;
 
               switch (StellarYieldsAtomicNumbers[j]){
-                /* At [Fe/H] <= -1, these abundances are enhanced by the following
-                   [X/Fe] values. Therefore, rather than [X/H] = [Fe/H] always,
-                  initial models have [X/H] = [X/Fe]_enchancement + [Fe/H].  */
+                /// At [Fe/H] <= -1, these abundances are enhanced by the following
+                //   [X/Fe] values. Therefore, rather than [X/H] = [Fe/H] always,
+                //  initial models have [X/H] = [X/Fe]_enchancement + [Fe/H].  
                 case  6: enhancement = 0.18; break;
                 case  8: enhancement = 0.47; break;
                 case 12: enhancement = 0.27; break; // paper has 0.0.27 ...
@@ -564,15 +571,15 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
               // 0.7381 is the H mass fraction in Asplund+2009. Strictly speaking this needs to change by
               // a couple percent for changes in He and metals... ignoring this...
               if (enhancement > 0){
-                a_solar = z_ratio * POW(10.0, enhancement + Fe_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[j]) /
+                a_solar = z_ratio * POW(10.0, enhancement + element_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[j]) /
                                                                   StellarYields_MMW(1));
               } else {
-                a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),StellarYieldsAtomicNumbers[j]);
+                a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),StellarYieldsAtomicNumbers[j], table);
               }
 
             } else{
               a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),
-                                                                             StellarYieldsAtomicNumbers[j]);
+                                                                             StellarYieldsAtomicNumbers[j], table);
             }
 
             printf(" %"ESYM, a_solar);
@@ -590,8 +597,9 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
         } //
       } // if weird answers
     } // loop over species
+*/
+  } // surface abundances 
 
-  } // hard-coded if for debugging
 
   /* convert computed parameters to code units */
   m_eject   = m_eject*SolarMass / MassUnits   / (dx*dx*dx);

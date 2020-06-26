@@ -486,10 +486,11 @@ int CheckPopIIIMetallicityThreshold(const double & C_fraction,
   const double Fe_abund = Fe_fraction / (StellarYields_MMW(26)); // * AMU_CGS);
 
   // Solar abundances from Asplund + 2009
-  const double solar_H    = StellarYields_SolarAbundancesByNumber(1);
-  const double C_H_SOLAR  = StellarYields_SolarAbundancesByNumber(6) -\
+  const int table = 0; // select Asplund
+  const double solar_H    = StellarYields_SolarAbundancesByNumber(1, table);
+  const double C_H_SOLAR  = StellarYields_SolarAbundancesByNumber(6, table) -\
                             solar_H;
-  const double Fe_H_SOLAR = StellarYields_SolarAbundancesByNumber(26) -\
+  const double Fe_H_SOLAR = StellarYields_SolarAbundancesByNumber(26, table) -\
                             solar_H;
 
   const double C_H  = log10(C_abund/H_abund) - C_H_SOLAR; // [C/H]
