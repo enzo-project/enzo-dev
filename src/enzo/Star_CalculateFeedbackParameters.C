@@ -148,8 +148,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
 #endif
       EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
 
-      printf("PopIIISN Mpr = %10.3f Msun, Mmet = %10.3f Msun, Esn = %10.3f B\n"
-          , this->Mass, MetalMass, SNEnergy / 1e51);
     } else {
 #endif
     // pair-instability SNe
@@ -177,12 +175,19 @@ void Star::CalculateFeedbackParameters(float &Radius,
       EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
     }
 #ifdef GRACKLE_MD
-      printf("PopI  SN Mpr = %10.3f Msun, Mmet = %10.3f Msun, Esn = %10.3f B\n"
-          , this->Mass, MetalMass, SNEnergy / 1e51);
     }
 #endif
     EjectaThermalEnergy = SNEnergy / (Mass * SolarMass) / VelocityUnits /
       VelocityUnits;
+
+      printf("PopIIISN Mpr = %10.3f Msun, Mmet = %10.3f Msun, Esn = %10.3f B\n"
+          , this->Mass, MetalMass, SNEnergy / 1e51);
+      printf("Radius %10.3f pc, Rmin %10.3f pc\n"
+           , PopIIISupernovaRadius, 3.5*StarLevelCellWidth * LengthUnits / pc_cm);
+      printf("Gas    Mgas = %10.3f Msun, Veje = %13.5e cc, Dgas = %13.5e g/cc, egas = %13.5e erg/cc\n"
+          ,      Mass, EjectaVolume, EjectaDensity      * DensityUnits, EjectaThermalEnergy * pow(VelocityUnits, 2) * EjectaDensity * DensityUnits);
+      printf("Metal  Mmet = %10.3f Msun, Veje = %13.5e cc, Dmet = %13.5e g/cc\n"
+          , MetalMass, EjectaVolume, EjectaMetalDensity * DensityUnits);
 
     // Exaggerate influence radius because the blastwave will enter
     // into some of the surrounding parent grids within the next

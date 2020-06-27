@@ -321,27 +321,20 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
           /* consider cells overlapping the metal bubble. */
           dr = pow(3.0/4.0/pi * CellWidth[0][i] * CellWidth[1][j] * CellWidth[2][k], 1.0/3.0);
 
-	//if (radius2 <= outerRadius2) 
-	  if (sqrt(radius2) - dr <= sqrt(MetalRadius2)) {
+	  if (radius2 <= outerRadius2) {
 //          printf("SPH %13.5e %13.5e %13.5e %13.5e\n", CellWidth[0][i], CellWidth[1][j], CellWidth[2][k], dr);
 //          printf("RAD %13.5e -> %13.5e <= %13.5e\n", delx*delx + dely*dely + delz*delz, radius2, outerRadius2);
 
-            ramp = 1.0;
-	//  r1 = sqrt(radius2) / radius;
-	//  norm = 0.98;
-	//  ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
+	    r1 = sqrt(radius2) / radius;
+	    norm = 0.98;
+	    ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
 //	    ramp = min(max(1.0 - (r1 - 0.8)/0.4, 0.01), 1.0);
 
 	    /* 1/1.2^3 factor to dilute the density since we're
 	       depositing a uniform ejecta in a sphere of 1.2*radius
 	       without a ramp.  The ramp is only applied to the
 	       energy*density factor. */
-	//  factor = 0.578704;
-            if(sqrt(MetalRadius2) < sqrt(radius2) + dr)
-              factor =        pow(sqrt(MetalRadius2) - sqrt(radius2) + dr, 2) * (-sqrt(MetalRadius2) + sqrt(radius2) + 2.0 * dr)
-                     / (4.0 * pow(dr, 3));
-            else
-              factor = 1.0;
+	    factor = 0.578704;
 
 	    OldDensity = BaryonField[DensNum][index];
 	    BaryonField[DensNum][index] += factor*EjectaDensity;
@@ -376,12 +369,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	    /* Update species and colour fields */
 
-	  //if (MetallicityField == TRUE && radius2 <= MetalRadius2)
-	  //  delta_fz = EjectaMetalDensity / OldDensity;
-	  //else
-	  //  delta_fz = 0.0;
-	    if (MetallicityField == TRUE)
-	      MetalDensity_new = factor * EjectaMetalDensity;
+	 // if (MetallicityField == TRUE && radius2 <= MetalRadius2)
+	 //   delta_fz = EjectaMetalDensity / OldDensity;
+	 // else
+	 //   delta_fz = 0.0;
+	    if (MetallicityField == TRUE && radius2 <= MetalRadius2)
+	      MetalDensity_new = EjectaMetalDensity;
 	    else
 	      MetalDensity_new = 0.0;
             delta_fz = MetalDensity_new / OldDensity;
@@ -453,7 +446,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 #endif
 
 	    if (MetallicityField == TRUE)
-	//    BaryonField[MetalNum][index] += EjectaMetalDensity;
 	      BaryonField[MetalNum][index] += MetalDensity_new;
 
             printf("        %13.5e %13.5e %13.5e %13.5e %13.5e %13.5e %13.5e\n"

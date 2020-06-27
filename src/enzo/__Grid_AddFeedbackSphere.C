@@ -13,18 +13,11 @@
 /
 ************************************************************************/
 
-#ifdef GRACKLE_MD
-#include "preincludes.h"
-#endif
 #include <stdlib.h>
-#ifndef GRACKLE_MD
 #include <stdio.h>
 #include <math.h>
-#endif
 #include <time.h>
-#ifndef GRACKLE_MD
 #include "ErrorExceptions.h"
-#endif
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -67,7 +60,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   float OldDensity;
   float r1, norm, ramp, factor, newGE, fh;
   double increase;
-  FLOAT dr;
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -99,37 +91,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
-#ifdef GRACKLE_MD
-  int HeHIINum, DMNum   , HDIINum
-    , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
-    , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
-    , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
-    , MgNum   , AlNum   , SNum      , FeNum
-    , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
-    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num;
-  double C_frac, O_frac, Mg_frac, Al_frac, Si_frac, S_frac, Fe_frac;
-  double SiM_frac  , FeM_frac  , Mg2SiO4_frac, MgSiO3_frac, Fe3O4_frac
-       , AC_frac   , SiO2D_frac, MgO_frac    , FeS_frac   , Al2O3_frac;
-#endif
   if (MultiSpecies) 
     if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
 				    HeIIINum, HMNum, H2INum, H2IINum, DINum, 
 				    DIINum, HDINum) == FAIL) {
         ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
-#ifdef GRACKLE_MD
-  if (MultiSpecies > 3 || MetalChemistry > 0 || GrainGrowth)
-    if (IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
-                               , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
-                               , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
-                               , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum,  H3OIINum,  O2IINum
-                               , MgNum   , AlNum   , SNum      , FeNum
-                               , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
-                               , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
-                               ) == FAIL) {
-      ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
-    }
-#endif
 
   fh = CoolData.HydrogenFractionByMass;
 
@@ -165,7 +132,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   float ionizedFraction = 0.999;  // Assume supernova is ionized
   float maxGE, MetalRadius2, PrimordialDensity, metallicity, fhz, fhez;
   float outerRadius2, delta_fz;
-  double MetalDensity_new;
 
   if (cstar->FeedbackFlag == SUPERNOVA || 
       cstar->FeedbackFlag == CONT_SUPERNOVA) {
@@ -199,83 +165,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   PrimordialDensity = EjectaDensity - EjectaMetalDensity;
   MetalRadius2 = radius * radius * MetalRadius * MetalRadius;
   outerRadius2 = 1.2 * 1.2 * radius * radius;
-
-#ifdef GRACKLE_MD
-  if (MetalChemistry) {
-#ifdef UNDER_CONSTRUCTION
-    if (MetalPop3) {
-      if (cstar->Mass < 40.01) { // normal core-collapse SN
-        if (cstar->Mass < 16.5) {
-        } else if (cstar->Mass < 22.5) {
-        } else if (cstar->Mass < 27.5) {
-        } else {
-           C_frac = grackle_data->C30_XC  * (1.0 - grackle_data->C30_fC );
-           O_frac = grackle_data->C30_XO  * (1.0 - grackle_data->C30_fO );
-          Mg_frac = grackle_data->C30_XMg * (1.0 - grackle_data->C30_fMg);
-          Al_frac = grackle_data->C30_XAl * (1.0 - grackle_data->C30_fAl);
-          Si_frac = grackle_data->C30_XSi * (1.0 - grackle_data->C30_fSi);
-           S_frac = grackle_data->C30_XS  * (1.0 - grackle_data->C30_fS );
-          Fe_frac = grackle_data->C30_XFe * (1.0 - grackle_data->C30_fFe);
-              SiM_frac = grackle_data->C30_fSiM    ;
-              FeM_frac = grackle_data->C30_fFeM    ;
-          Mg2SiO4_frac = grackle_data->C30_fMg2SiO4;
-           MgSiO3_frac = grackle_data->C30_fMgSiO3 ;
-            Fe3O4_frac = grackle_data->C30_fFe3O4  ;
-               AC_frac = grackle_data->C30_fAC     ;
-            SiO2D_frac = grackle_data->C30_fSiO2D  ;
-              MgO_frac = grackle_data->C30_fMgO    ;
-              FeS_frac = grackle_data->C30_fFeS    ;
-            Al2O3_frac = grackle_data->C30_fAl2O3  ;
-        }
-      }
-      if (cstar->Mass > 140.0) { // pair-instability SN
-        if (cstar->Mass < 185.0) {
-        } else {
-        }
-      }
-    } else {
-#endif
-       C_frac = CoolData.   CarbonFractionToMetalByMass * (1.0 - CoolData.   CarbonCondensationRate);
-       O_frac = CoolData.   OxygenFractionToMetalByMass * (1.0 - CoolData.   OxygenCondensationRate);
-      Mg_frac = CoolData.MagnesiumFractionToMetalByMass * (1.0 - CoolData.MagnesiumCondensationRate);
-      Al_frac = CoolData.AluminiumFractionToMetalByMass * (1.0 - CoolData.AluminiumCondensationRate);
-      Si_frac = CoolData.  SiliconFractionToMetalByMass * (1.0 - CoolData.  SiliconCondensationRate);
-       S_frac = CoolData.   SulfurFractionToMetalByMass * (1.0 - CoolData.   SulfurCondensationRate);
-      Fe_frac = CoolData.     IronFractionToMetalByMass * (1.0 - CoolData.     IronCondensationRate);
-          SiM_frac = CoolData.MetSiliconFractionToMetalByMass;
-          FeM_frac = CoolData.   MetIronFractionToMetalByMass;
-      Mg2SiO4_frac = CoolData.ForsteriteFractionToMetalByMass;
-       MgSiO3_frac = CoolData. EnstatiteFractionToMetalByMass;
-        Fe3O4_frac = CoolData. MagnetiteFractionToMetalByMass;
-           AC_frac = CoolData.   ACarbonFractionToMetalByMass;
-        SiO2D_frac = CoolData.    SilicaFractionToMetalByMass;
-          MgO_frac = CoolData.  MagnesiaFractionToMetalByMass;
-          FeS_frac = CoolData.  TroiliteFractionToMetalByMass;
-        Al2O3_frac = CoolData.   AluminaFractionToMetalByMass;
-#ifdef UNDER_CONSTRUCTION
-    }
-#endif
-  }
-  printf("Ejected metals\n");
-  printf("   C %13.5e %13.5e %13.5e\n", CoolData.   CarbonFractionToMetalByMass, CoolData.   CarbonCondensationRate,  C_frac);
-  printf("   O %13.5e %13.5e %13.5e\n", CoolData.   OxygenFractionToMetalByMass, CoolData.   OxygenCondensationRate,  O_frac);
-  printf("  Mg %13.5e %13.5e %13.5e\n", CoolData.MagnesiumFractionToMetalByMass, CoolData.MagnesiumCondensationRate, Mg_frac);
-  printf("  Al %13.5e %13.5e %13.5e\n", CoolData.AluminiumFractionToMetalByMass, CoolData.AluminiumCondensationRate, Al_frac);
-  printf("  Si %13.5e %13.5e %13.5e\n", CoolData.  SiliconFractionToMetalByMass, CoolData.  SiliconCondensationRate, Si_frac);
-  printf("   S %13.5e %13.5e %13.5e\n", CoolData.   SulfurFractionToMetalByMass, CoolData.   SulfurCondensationRate,  S_frac);
-  printf("  Fe %13.5e %13.5e %13.5e\n", CoolData.     IronFractionToMetalByMass, CoolData.     IronCondensationRate, Fe_frac);
-  printf("Ejected grains\n");
-  printf("     SiM %13.5e\n",     SiM_frac);
-  printf("     FeM %13.5e\n",     FeM_frac);
-  printf(" Mg2SiO4 %13.5e\n", Mg2SiO4_frac);
-  printf("  MgSiO3 %13.5e\n",  MgSiO3_frac);
-  printf("   Fe3O4 %13.5e\n",   Fe3O4_frac);
-  printf("      AC %13.5e\n",      AC_frac);
-  printf("   SiO2D %13.5e\n",   SiO2D_frac);
-  printf("     MgO %13.5e\n",     MgO_frac);
-  printf("     FeS %13.5e\n",     FeS_frac);
-  printf("   Al2O3 %13.5e\n",   Al2O3_frac);
-#endif
 
     /* Remove mass from the star that will now be added to grids. 
        Also, because EjectaDensity will be added with zero net momentum, 
@@ -316,32 +205,18 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	  delx = min(delx, DomainWidth[0]-delx);
 
 	  radius2 = delx*delx + dely*dely + delz*delz;
+	  if (radius2 <= outerRadius2) {
 
-          /* approximate the cell as a sphere with the same volume */
-          /* consider cells overlapping the metal bubble. */
-          dr = pow(3.0/4.0/pi * CellWidth[0][i] * CellWidth[1][j] * CellWidth[2][k], 1.0/3.0);
-
-	//if (radius2 <= outerRadius2) 
-	  if (sqrt(radius2) - dr <= sqrt(MetalRadius2)) {
-//          printf("SPH %13.5e %13.5e %13.5e %13.5e\n", CellWidth[0][i], CellWidth[1][j], CellWidth[2][k], dr);
-//          printf("RAD %13.5e -> %13.5e <= %13.5e\n", delx*delx + dely*dely + delz*delz, radius2, outerRadius2);
-
-            ramp = 1.0;
-	//  r1 = sqrt(radius2) / radius;
-	//  norm = 0.98;
-	//  ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
+	    r1 = sqrt(radius2) / radius;
+	    norm = 0.98;
+	    ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
 //	    ramp = min(max(1.0 - (r1 - 0.8)/0.4, 0.01), 1.0);
 
 	    /* 1/1.2^3 factor to dilute the density since we're
 	       depositing a uniform ejecta in a sphere of 1.2*radius
 	       without a ramp.  The ramp is only applied to the
 	       energy*density factor. */
-	//  factor = 0.578704;
-            if(sqrt(MetalRadius2) < sqrt(radius2) + dr)
-              factor =        pow(sqrt(MetalRadius2) - sqrt(radius2) + dr, 2) * (-sqrt(MetalRadius2) + sqrt(radius2) + 2.0 * dr)
-                     / (4.0 * pow(dr, 3));
-            else
-              factor = 1.0;
+	    factor = 0.578704;
 
 	    OldDensity = BaryonField[DensNum][index];
 	    BaryonField[DensNum][index] += factor*EjectaDensity;
@@ -376,15 +251,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	    /* Update species and colour fields */
 
-	  //if (MetallicityField == TRUE && radius2 <= MetalRadius2)
-	  //  delta_fz = EjectaMetalDensity / OldDensity;
-	  //else
-	  //  delta_fz = 0.0;
-	    if (MetallicityField == TRUE)
-	      MetalDensity_new = factor * EjectaMetalDensity;
+	    if (MetallicityField == TRUE && radius2 <= MetalRadius2)
+	      delta_fz = EjectaMetalDensity / OldDensity;
 	    else
-	      MetalDensity_new = 0.0;
-            delta_fz = MetalDensity_new / OldDensity;
+	      delta_fz = 0.0;
 	    increase = BaryonField[DensNum][index] / OldDensity - delta_fz;
 
 	    if (MultiSpecies) {
@@ -405,66 +275,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[DIINum][index] *= increase;
 	      BaryonField[HDINum][index] *= increase;
 	    }
-#ifdef GRACKLE_MD
-	    if (MultiSpecies > 3) {
-              BaryonField[   HeHIINum][index] *= increase;
-              BaryonField[      DMNum][index] *= increase;
-              BaryonField[    HDIINum][index] *= increase;
-	    }
-            if (MetalChemistry > 0) {
-              BaryonField[      CINum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[     CIINum][index] +=   C_frac * MetalDensity_new;
-              BaryonField[      CONum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[     CO2Num][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[      OINum][index] +=   O_frac * MetalDensity_new;
-              BaryonField[      OHNum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[     H2ONum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[      O2Num][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[     SiINum][index] +=  Si_frac * MetalDensity_new;
-              BaryonField[    SiOINum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[   SiO2INum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[      CHNum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[     CH2Num][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[    COIINum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[     OIINum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[    OHIINum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[   H2OIINum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[   H3OIINum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[    O2IINum][index] +=  1.0e-20 * MetalDensity_new;
-              BaryonField[      DeNum][index] +=   C_frac * MetalDensity_new/12.0;
-            }
-            if (GrainGrowth) {
-              BaryonField[      MgNum][index] +=  Mg_frac * MetalDensity_new;
-              BaryonField[      AlNum][index] +=  Al_frac * MetalDensity_new;
-              BaryonField[       SNum][index] +=   S_frac * MetalDensity_new;
-              BaryonField[      FeNum][index] +=  Fe_frac * MetalDensity_new;
-              BaryonField[     SiMNum][index] +=     SiM_frac * MetalDensity_new;
-              BaryonField[     FeMNum][index] +=     FeM_frac * MetalDensity_new;
-              BaryonField[ Mg2SiO4Num][index] += Mg2SiO4_frac * MetalDensity_new;
-              BaryonField[  MgSiO3Num][index] +=  MgSiO3_frac * MetalDensity_new;
-              BaryonField[   Fe3O4Num][index] +=   Fe3O4_frac * MetalDensity_new;
-              BaryonField[      ACNum][index] +=      AC_frac * MetalDensity_new;
-              BaryonField[   SiO2DNum][index] +=   SiO2D_frac * MetalDensity_new;
-              BaryonField[     MgONum][index] +=     MgO_frac * MetalDensity_new;
-              BaryonField[     FeSNum][index] +=     FeS_frac * MetalDensity_new;
-              BaryonField[   Al2O3Num][index] +=   Al2O3_frac * MetalDensity_new;
-            }
-
-#endif
 
 	    if (MetallicityField == TRUE)
-	//    BaryonField[MetalNum][index] += EjectaMetalDensity;
-	      BaryonField[MetalNum][index] += MetalDensity_new;
-
-            printf("        %13.5e %13.5e %13.5e %13.5e %13.5e %13.5e %13.5e\n"
-             ,(CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - cstar->pos[0])*LengthUnits
-             ,(CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - cstar->pos[1])*LengthUnits
-             ,(CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - cstar->pos[2])*LengthUnits
-             , BaryonField[DensNum][index] * DensityUnits
-             , BaryonField[MetalNum][index] * DensityUnits
-	     , BaryonField[TENum][index] * pow(VelocityUnits, 2) * BaryonField[DensNum][index] * DensityUnits
-             , CellWidth[0][i]*LengthUnits * CellWidth[1][j]*LengthUnits * CellWidth[2][k]*LengthUnits
-                );
+	      BaryonField[MetalNum][index] += EjectaMetalDensity;
 
 	    CellsModified++;
 
@@ -1075,14 +888,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	  radius2 = delx*delx + dely*dely + delz*delz;
 	  if (radius2 <= radius*radius) {
 
-//          printf("0 %3d %3d %3d %23.15f %23.15f %23.15f %13.5e\n"
-//           , i+1, j+1, k+1
-//           , CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - cstar->pos[0]
-//           , CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - cstar->pos[1]
-//           , CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - cstar->pos[2]
-//           , BaryonField[DensNum][index] * DensityUnits / 1.6726e-24
-//              );
-
 	    radius2 = max(radius2, 0.0625*CellWidth[0][i]*CellWidth[0][i]); // (0.25*dx)^2
 
 	    if (MetallicityField == TRUE)
@@ -1093,13 +898,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    fhz = fh * (1-metallicity);
 	    fhez = (1-fh) * (1-metallicity);
 
-#ifdef GRACKLE_MD
-            OldDensity = BaryonField[DensNum][index];
-#endif
 	    BaryonField[DensNum][index] = EjectaDensity;
-#ifdef GRACKLE_MD
-            factor = BaryonField[DensNum][index] / OldDensity;
-#endif
 
 	    if (MultiSpecies) {
 	      BaryonField[DeNum][index] = BaryonField[DensNum][index] * ionizedFraction;
@@ -1121,76 +920,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		CoolData.DeuteriumToHydrogenRatio * ionizedFraction;
 	      BaryonField[HDINum][index] = tiny_number * BaryonField[DensNum][index];
 	    }
-#ifdef GRACKLE_MD
-	    if (MultiSpecies > 3) {
-	      BaryonField[HeHIINum][index] = 1e-10 * BaryonField[DensNum][index];
-	      BaryonField[DMNum][index]    = tiny_number * BaryonField[DensNum][index];
-	      BaryonField[HDIINum][index]  = tiny_number * BaryonField[DensNum][index];
-	    }
-            if(MetalChemistry > 0) {
-               BaryonField[   CINum][index] *= factor;
-               BaryonField[  CIINum][index] *= factor;
-               BaryonField[   CONum][index] *= factor;
-               BaryonField[  CO2Num][index] *= factor;
-               BaryonField[   OINum][index] *= factor;
-               BaryonField[   OHNum][index] *= factor;
-               BaryonField[  H2ONum][index] *= factor;
-               BaryonField[   O2Num][index] *= factor;
-               BaryonField[  SiINum][index] *= factor;
-               BaryonField[ SiOINum][index] *= factor;
-               BaryonField[SiO2INum][index] *= factor;
-               BaryonField[   CHNum][index] *= factor;
-               BaryonField[  CH2Num][index] *= factor;
-               BaryonField[ COIINum][index] *= factor;
-               BaryonField[  OIINum][index] *= factor;
-               BaryonField[ OHIINum][index] *= factor;
-               BaryonField[H2OIINum][index] *= factor;
-               BaryonField[H3OIINum][index] *= factor;
-               BaryonField[ O2IINum][index] *= factor;
-            }
-            if(GrainGrowth) {
-               BaryonField[     MgNum][index] *= factor;
-               BaryonField[     AlNum][index] *= factor;
-               BaryonField[      SNum][index] *= factor;
-               BaryonField[     FeNum][index] *= factor;
-               BaryonField[    SiMNum][index] *= factor;
-               BaryonField[    FeMNum][index] *= factor;
-               BaryonField[Mg2SiO4Num][index] *= factor;
-               BaryonField[ MgSiO3Num][index] *= factor;
-               BaryonField[  Fe3O4Num][index] *= factor;
-               BaryonField[     ACNum][index] *= factor;
-               BaryonField[  SiO2DNum][index] *= factor;
-               BaryonField[    MgONum][index] *= factor;
-               BaryonField[    FeSNum][index] *= factor;
-               BaryonField[  Al2O3Num][index] *= factor;
-            }
-#endif
-	    if (MultiSpecies)
-               BaryonField[DeNum][index] =
-                    BaryonField[  HIINum][index]/1.0
-                  + BaryonField[ HeIINum][index]/4.0
-                  + BaryonField[HeIIINum][index]/2.0;
-	    if (MultiSpecies > 1)
-               BaryonField[DeNum][index] = BaryonField[DeNum][index]
-                  - BaryonField[   HMNum][index]/1.0
-                  + BaryonField[ H2IINum][index]/2.0;
-	    if (MultiSpecies > 2)
-               BaryonField[DeNum][index] = BaryonField[DeNum][index]
-                  + BaryonField[  DIINum][index]/2.0;
-	    if (MultiSpecies > 3)
-               BaryonField[DeNum][index] = BaryonField[DeNum][index]
-                  - BaryonField[   DMNum][index]/2.0
-                  + BaryonField[ HDIINum][index]/3.0
-                  + BaryonField[HeHIINum][index]/5.0;
-	    if (MetalChemistry > 0)
-               BaryonField[DeNum][index] = BaryonField[DeNum][index]
-                  + BaryonField[  CIINum][index]/12.0
-                  + BaryonField[ COIINum][index]/28.0
-                  + BaryonField[  OIINum][index]/16.0
-                  + BaryonField[ OHIINum][index]/17.0
-                  + BaryonField[H2OIINum][index]/18.0
-                  + BaryonField[H3OIINum][index]/19.0
-                  + BaryonField[ O2IINum][index]/32.0;
 
 	    if (SNColourNum > 0)
 	      BaryonField[SNColourNum][index] *= factor;
