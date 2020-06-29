@@ -14,17 +14,15 @@
 ************************************************************************/
 
 #ifdef GRACKLE_MD
-#include "preincludes.h"
+extern "C" {
+#include <grackle.h>
+}
 #endif
 #include <stdlib.h>
-#ifndef GRACKLE_MD
 #include <stdio.h>
 #include <math.h>
-#endif
 #include <time.h>
-#ifndef GRACKLE_MD
 #include "ErrorExceptions.h"
-#endif
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -144,6 +142,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 				 Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
+  int ExtraType0Num, ExtraType1Num, ExtraType2Num;
+  if (MultiMetals)
+    if (this->IdentifyExtraTypeFields(ExtraType0Num, ExtraType1Num, ExtraType2Num
+               ) == FAIL)
+      ENZO_FAIL("Error in grid->IdentifyExtraTypeFields.\n");
+
   MetalNum = max(Metal2Num, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
   if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
@@ -166,6 +170,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   float maxGE, MetalRadius2, PrimordialDensity, metallicity, fhz, fhez;
   float outerRadius2, delta_fz;
   double MetalDensity_new;
+  int SNMassBin;
 
   if (cstar->FeedbackFlag == SUPERNOVA || 
       cstar->FeedbackFlag == CONT_SUPERNOVA) {
@@ -202,20 +207,23 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 #ifdef GRACKLE_MD
   if (MetalChemistry) {
-#ifdef UNDER_CONSTRUCTION
+
     if (MetalPop3) {
       if (cstar->Mass < 40.01) { // normal core-collapse SN
         if (cstar->Mass < 16.5) {
+           SNMassBin = 0;
         } else if (cstar->Mass < 22.5) {
+           SNMassBin = 1;
         } else if (cstar->Mass < 27.5) {
+           SNMassBin = 2;
         } else {
-           C_frac = grackle_data->C30_XC  * (1.0 - grackle_data->C30_fC );
-           O_frac = grackle_data->C30_XO  * (1.0 - grackle_data->C30_fO );
-          Mg_frac = grackle_data->C30_XMg * (1.0 - grackle_data->C30_fMg);
-          Al_frac = grackle_data->C30_XAl * (1.0 - grackle_data->C30_fAl);
-          Si_frac = grackle_data->C30_XSi * (1.0 - grackle_data->C30_fSi);
-           S_frac = grackle_data->C30_XS  * (1.0 - grackle_data->C30_fS );
-          Fe_frac = grackle_data->C30_XFe * (1.0 - grackle_data->C30_fFe);
+           C_frac = grackle_data->C30_fC ;
+           O_frac = grackle_data->C30_fO ;
+          Mg_frac = grackle_data->C30_fMg;
+          Al_frac = grackle_data->C30_fAl;
+          Si_frac = grackle_data->C30_fSi;
+           S_frac = grackle_data->C30_fS ;
+          Fe_frac = grackle_data->C30_fFe;
               SiM_frac = grackle_data->C30_fSiM    ;
               FeM_frac = grackle_data->C30_fFeM    ;
           Mg2SiO4_frac = grackle_data->C30_fMg2SiO4;
@@ -226,44 +234,48 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
               MgO_frac = grackle_data->C30_fMgO    ;
               FeS_frac = grackle_data->C30_fFeS    ;
             Al2O3_frac = grackle_data->C30_fAl2O3  ;
+           SNMassBin = 3;
         }
       }
       if (cstar->Mass > 140.0) { // pair-instability SN
         if (cstar->Mass < 185.0) {
+           SNMassBin = 4;
         } else {
+           SNMassBin = 5;
         }
       }
+
     } else {
-#endif
-       C_frac = CoolData.   CarbonFractionToMetalByMass * (1.0 - CoolData.   CarbonCondensationRate);
-       O_frac = CoolData.   OxygenFractionToMetalByMass * (1.0 - CoolData.   OxygenCondensationRate);
-      Mg_frac = CoolData.MagnesiumFractionToMetalByMass * (1.0 - CoolData.MagnesiumCondensationRate);
-      Al_frac = CoolData.AluminiumFractionToMetalByMass * (1.0 - CoolData.AluminiumCondensationRate);
-      Si_frac = CoolData.  SiliconFractionToMetalByMass * (1.0 - CoolData.  SiliconCondensationRate);
-       S_frac = CoolData.   SulfurFractionToMetalByMass * (1.0 - CoolData.   SulfurCondensationRate);
-      Fe_frac = CoolData.     IronFractionToMetalByMass * (1.0 - CoolData.     IronCondensationRate);
-          SiM_frac = CoolData.MetSiliconFractionToMetalByMass;
-          FeM_frac = CoolData.   MetIronFractionToMetalByMass;
-      Mg2SiO4_frac = CoolData.ForsteriteFractionToMetalByMass;
-       MgSiO3_frac = CoolData. EnstatiteFractionToMetalByMass;
-        Fe3O4_frac = CoolData. MagnetiteFractionToMetalByMass;
-           AC_frac = CoolData.   ACarbonFractionToMetalByMass;
-        SiO2D_frac = CoolData.    SilicaFractionToMetalByMass;
-          MgO_frac = CoolData.  MagnesiaFractionToMetalByMass;
-          FeS_frac = CoolData.  TroiliteFractionToMetalByMass;
-        Al2O3_frac = CoolData.   AluminaFractionToMetalByMass;
-#ifdef UNDER_CONSTRUCTION
+
+       C_frac = grackle_data->loc_fC ;
+       O_frac = grackle_data->loc_fO ;
+      Mg_frac = grackle_data->loc_fMg;
+      Al_frac = grackle_data->loc_fAl;
+      Si_frac = grackle_data->loc_fSi;
+       S_frac = grackle_data->loc_fS ;
+      Fe_frac = grackle_data->loc_fFe;
+          SiM_frac = grackle_data->loc_fSiM    ;
+          FeM_frac = grackle_data->loc_fFeM    ;
+      Mg2SiO4_frac = grackle_data->loc_fMg2SiO4;
+       MgSiO3_frac = grackle_data->loc_fMgSiO3 ;
+        Fe3O4_frac = grackle_data->loc_fFe3O4  ;
+           AC_frac = grackle_data->loc_fAC     ;
+        SiO2D_frac = grackle_data->loc_fSiO2D  ;
+          MgO_frac = grackle_data->loc_fMgO    ;
+          FeS_frac = grackle_data->loc_fFeS    ;
+        Al2O3_frac = grackle_data->loc_fAl2O3  ;
+      SNMassBin = -1;
+
     }
-#endif
   }
-  printf("Ejected metals\n");
-  printf("   C %13.5e %13.5e %13.5e\n", CoolData.   CarbonFractionToMetalByMass, CoolData.   CarbonCondensationRate,  C_frac);
-  printf("   O %13.5e %13.5e %13.5e\n", CoolData.   OxygenFractionToMetalByMass, CoolData.   OxygenCondensationRate,  O_frac);
-  printf("  Mg %13.5e %13.5e %13.5e\n", CoolData.MagnesiumFractionToMetalByMass, CoolData.MagnesiumCondensationRate, Mg_frac);
-  printf("  Al %13.5e %13.5e %13.5e\n", CoolData.AluminiumFractionToMetalByMass, CoolData.AluminiumCondensationRate, Al_frac);
-  printf("  Si %13.5e %13.5e %13.5e\n", CoolData.  SiliconFractionToMetalByMass, CoolData.  SiliconCondensationRate, Si_frac);
-  printf("   S %13.5e %13.5e %13.5e\n", CoolData.   SulfurFractionToMetalByMass, CoolData.   SulfurCondensationRate,  S_frac);
-  printf("  Fe %13.5e %13.5e %13.5e\n", CoolData.     IronFractionToMetalByMass, CoolData.     IronCondensationRate, Fe_frac);
+  printf("Ejected metals (gas phase)\n");
+  printf("   C %13.5e\n",  C_frac);
+  printf("   O %13.5e\n",  O_frac);
+  printf("  Mg %13.5e\n", Mg_frac);
+  printf("  Al %13.5e\n", Al_frac);
+  printf("  Si %13.5e\n", Si_frac);
+  printf("   S %13.5e\n",  S_frac);
+  printf("  Fe %13.5e\n", Fe_frac);
   printf("Ejected grains\n");
   printf("     SiM %13.5e\n",     SiM_frac);
   printf("     FeM %13.5e\n",     FeM_frac);
@@ -452,16 +464,23 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 #endif
 
-	    if (MetallicityField == TRUE)
+	    if (MetallicityField == TRUE) {
 	//    BaryonField[MetalNum][index] += EjectaMetalDensity;
 	      BaryonField[MetalNum][index] += MetalDensity_new;
+              if (MultiMetals) {
+                if (SNMassBin == -1) 
+	          BaryonField[ExtraType0Num][index] += MetalDensity_new;
+                if (SNMassBin == 3) 
+	          BaryonField[ExtraType1Num][index] += MetalDensity_new;
+              }
+            }
 
             printf("        %13.5e %13.5e %13.5e %13.5e %13.5e %13.5e %13.5e\n"
              ,(CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - cstar->pos[0])*LengthUnits
              ,(CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - cstar->pos[1])*LengthUnits
              ,(CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - cstar->pos[2])*LengthUnits
              , BaryonField[DensNum][index] * DensityUnits
-             , BaryonField[MetalNum][index] * DensityUnits
+             , BaryonField[SNColourNum][index] * DensityUnits
 	     , BaryonField[TENum][index] * pow(VelocityUnits, 2) * BaryonField[DensNum][index] * DensityUnits
              , CellWidth[0][i]*LengthUnits * CellWidth[1][j]*LengthUnits * CellWidth[2][k]*LengthUnits
                 );

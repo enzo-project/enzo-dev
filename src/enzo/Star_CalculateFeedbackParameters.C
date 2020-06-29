@@ -103,19 +103,21 @@ void Star::CalculateFeedbackParameters(float &Radius,
     if(MetalPop3 && this->Metallicity < PopIIIMetalCriticalFraction) {
 #ifdef UNDER_CONSTRUCTION
       if(this->FaintSN) {
-
         // faint SNe
         if(this->Mass >= FaintSNLowerMass && this->Mass <= FaintSNUpperMass) {
-          if(this->Mass < (FaintSNExplosionMass[0] + FaintSNExplosionMass[1]) / 2)
-            bin = 0;
-          else if(this->Mass < (FaintSNExplosionMass[1] + FaintSNExplosionMass[2]) / 2)
-            bin = 1;
-          else if(this->Mass < (FaintSNExplosionMass[2] + FaintSNExplosionMass[3]) / 2)
-            bin = 2;
-          else
-            bin = 3;
-	  SNEnergy = FaintSNExplosionEnergy[bin] * 1e51;
-   	  MetalMass = FaintSNExplosionMetals[bin];
+          if(this->Mass < 14.0) {
+	    SNEnergy = 0.5e51;
+   	    MetalMass = 0.097;
+          } else if(this->Mass < 32.5) {
+	    SNEnergy = 0.7e51;
+   	    MetalMass = 0.182;
+          } else if(this->Mass < 65.0) {
+	    SNEnergy = 2.6e51;
+   	    MetalMass = 3.540;
+          } else {
+	    SNEnergy = 5.2e51;
+   	    MetalMass = 4.307;
+          }
         }
 
       } else {
@@ -123,29 +125,35 @@ void Star::CalculateFeedbackParameters(float &Radius,
         // normal core-collapse SNe
         if(this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass) {
 
-          if(this->Mass < (PopIIISNExplosionMass[0] + PopIIISNExplosionMass[1]) / 2)
-            bin = 0;
-          else if(this->Mass < (PopIIISNExplosionMass[1] + PopIIISNExplosionMass[2]) / 2)
-            bin = 1;
-          else if(this->Mass < (PopIIISNExplosionMass[2] + PopIIISNExplosionMass[3]) / 2)
-            bin = 2;
-          else
-            bin = 3;
-	  SNEnergy = PopIIISNExplosionEnergy[bin] * 1e51;
-   	  MetalMass = PopIIISNExplosionMetals[bin];
-
-        // pair-instability SNe
-        } else if(this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) {
-          if(this->Mass < (PopIIISNExplosionMass[4] + PopIIISNExplosionMass[5]) / 2)
-            bin = 4;
-          else
-            bin = 5;
-	  SNEnergy = PopIIISNExplosionEnergy[bin] * 1e51;
-   	  MetalMass = PopIIISNExplosionMetals[bin];
+          if(this->Mass < 16.5) {
+	    SNEnergy = 1e51;
+   	    MetalMass = 0.746;
+          } else if(this->Mass < 22.5) {
+	    SNEnergy = 1e51;
+   	    MetalMass = 2.564;
+          } else if(this->Mass < 27.5) {
+	    SNEnergy = 1e51;
+   	    MetalMass = 3.825;
+          } else {
+	    SNEnergy = 1e51;
+   	    MetalMass = 7.175;
+          }
         }
 #ifdef UNDER_CONSTRUCTION
       }
 #endif
+
+      // pair-instability SNe
+      if(this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) {
+        if(this->Mass < 185.0) {
+          SNEnergy = 20e51;
+          MetalMass = 83.400;
+        } else {
+          SNEnergy = 28e51;
+          MetalMass = 113.990;
+        }
+      }
+
       EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
 
     } else {

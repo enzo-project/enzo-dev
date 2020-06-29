@@ -196,6 +196,12 @@ int grid::GrackleWrapper()
     else if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
+
+  int ExtraType0Num, ExtraType1Num, ExtraType2Num;
+  if (MetalFieldPresent && MultiMetals)
+    if (this->IdentifyExtraTypeFields(ExtraType0Num, ExtraType1Num, ExtraType2Num
+               ) == FAIL)
+      ENZO_FAIL("Error in grid->IdentifyExtraTypeFields.\n");
  
   int temp_thermal = FALSE;
   float *thermal_energy;
@@ -274,6 +280,11 @@ int grid::GrackleWrapper()
   }
 
   my_fields.metal_density   = MetalPointer;
+  if(MultiMetals) {
+    my_fields.metal_loc = BaryonField[ExtraType0Num];
+    my_fields.metal_C30 = BaryonField[ExtraType1Num];
+    my_fields.metal_F13 = BaryonField[ExtraType2Num];
+  }
 
 #ifdef GRACKLE_MD
   if(MultiSpecies > 3) {

@@ -89,32 +89,6 @@ int GrackleSetDefaultParameters(FILE *fptr){
     CoolData.HydrogenFractionByMass       = (float) grackle_data->HydrogenFractionByMass;
     CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data->DeuteriumToHydrogenRatio;
     CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
-#ifdef GRACKLE_MD
-    CoolData.   CarbonFractionToMetalByMass  = (float) grackle_data->   CarbonFractionToMetalByMass;
-    CoolData.   OxygenFractionToMetalByMass  = (float) grackle_data->   OxygenFractionToMetalByMass;
-    CoolData.MagnesiumFractionToMetalByMass  = (float) grackle_data->MagnesiumFractionToMetalByMass;
-    CoolData.AluminiumFractionToMetalByMass  = (float) grackle_data->AluminiumFractionToMetalByMass;
-    CoolData.  SiliconFractionToMetalByMass  = (float) grackle_data->  SiliconFractionToMetalByMass;
-    CoolData.   SulfurFractionToMetalByMass  = (float) grackle_data->   SulfurFractionToMetalByMass;
-    CoolData.     IronFractionToMetalByMass  = (float) grackle_data->     IronFractionToMetalByMass;
-    CoolData.   CarbonCondensationRate       = (float) grackle_data->   CarbonCondensationRate;
-    CoolData.   OxygenCondensationRate       = (float) grackle_data->   OxygenCondensationRate;
-    CoolData.MagnesiumCondensationRate       = (float) grackle_data->MagnesiumCondensationRate;
-    CoolData.AluminiumCondensationRate       = (float) grackle_data->AluminiumCondensationRate;
-    CoolData.  SiliconCondensationRate       = (float) grackle_data->  SiliconCondensationRate;
-    CoolData.   SulfurCondensationRate       = (float) grackle_data->   SulfurCondensationRate;
-    CoolData.     IronCondensationRate       = (float) grackle_data->     IronCondensationRate;
-    CoolData.MetSiliconFractionToMetalByMass = (float) grackle_data->MetSiliconFractionToMetalByMass;
-    CoolData.   MetIronFractionToMetalByMass = (float) grackle_data->   MetIronFractionToMetalByMass;
-    CoolData.ForsteriteFractionToMetalByMass = (float) grackle_data->ForsteriteFractionToMetalByMass;
-    CoolData. EnstatiteFractionToMetalByMass = (float) grackle_data-> EnstatiteFractionToMetalByMass;
-    CoolData. MagnetiteFractionToMetalByMass = (float) grackle_data-> MagnetiteFractionToMetalByMass;
-    CoolData.   ACarbonFractionToMetalByMass = (float) grackle_data->   ACarbonFractionToMetalByMass;
-    CoolData.    SilicaFractionToMetalByMass = (float) grackle_data->    SilicaFractionToMetalByMass;
-    CoolData.  MagnesiaFractionToMetalByMass = (float) grackle_data->  MagnesiaFractionToMetalByMass;
-    CoolData.  TroiliteFractionToMetalByMass = (float) grackle_data->  TroiliteFractionToMetalByMass;
-    CoolData.   AluminaFractionToMetalByMass = (float) grackle_data->   AluminaFractionToMetalByMass;
-#endif
   } // end use_grackle
 
 #endif // end USE_GRACKLE

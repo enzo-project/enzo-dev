@@ -204,8 +204,9 @@ const field_type
   MgODensity      =126,
   FeSDensity      =127,
   Al2O3Density    =128,
+  ExtraType2      =129,
 
-  FieldUndefined  = 129;
+  FieldUndefined  = 130;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

@@ -23,6 +23,11 @@
 #ifdef USE_MPI
 #include "mpi.h"
 #endif
+#ifdef GRACKLE_MD
+extern "C" {
+#include <grackle.h>
+}
+#endif
  
 #include <hdf5.h>
 #include <stdio.h>
@@ -128,18 +133,30 @@ int grid::NestedCosmologySimulationInitializeGrid(
     , MgNum,  AlNum,    SNum,       FeNum
     , SiMNum, FeMNum,   Mg2SiO4Num, MgSiO3Num, Fe3O4Num
     , ACNum,  SiO2DNum, MgONum,     FeSNum,    Al2O3Num;
-  double f_C_gas , f_O_gas , f_Mg_gas  , f_Al_gas  , f_Si_gas  , f_S_gas , f_Fe_gas ;
-  f_C_gas  = CoolData.   CarbonFractionToMetalByMass * (1.0 - CoolData.   CarbonCondensationRate);
-  f_O_gas  = CoolData.   OxygenFractionToMetalByMass * (1.0 - CoolData.   OxygenCondensationRate);
-  f_Mg_gas = CoolData.MagnesiumFractionToMetalByMass * (1.0 - CoolData.MagnesiumCondensationRate);
-  f_Al_gas = CoolData.AluminiumFractionToMetalByMass * (1.0 - CoolData.AluminiumCondensationRate);
-  f_Si_gas = CoolData.  SiliconFractionToMetalByMass * (1.0 - CoolData.  SiliconCondensationRate);
-  f_S_gas  = CoolData.   SulfurFractionToMetalByMass * (1.0 - CoolData.   SulfurCondensationRate);
-  f_Fe_gas = CoolData.     IronFractionToMetalByMass * (1.0 - CoolData.     IronCondensationRate);
+  double C_frac, O_frac, Mg_frac, Al_frac, Si_frac, S_frac, Fe_frac;
+  double SiM_frac  , FeM_frac  , Mg2SiO4_frac, MgSiO3_frac, Fe3O4_frac
+   , AC_frac   , SiO2D_frac, MgO_frac    , FeS_frac   , Al2O3_frac;
+   C_frac = grackle_data->loc_fC ;
+   O_frac = grackle_data->loc_fO ;
+  Mg_frac = grackle_data->loc_fMg;
+  Al_frac = grackle_data->loc_fAl;
+  Si_frac = grackle_data->loc_fSi;
+   S_frac = grackle_data->loc_fS ;
+  Fe_frac = grackle_data->loc_fFe;
+      SiM_frac = grackle_data->loc_fSiM    ;
+      FeM_frac = grackle_data->loc_fFeM    ;
+  Mg2SiO4_frac = grackle_data->loc_fMg2SiO4;
+   MgSiO3_frac = grackle_data->loc_fMgSiO3 ;
+    Fe3O4_frac = grackle_data->loc_fFe3O4  ;
+       AC_frac = grackle_data->loc_fAC     ;
+    SiO2D_frac = grackle_data->loc_fSiO2D  ;
+      MgO_frac = grackle_data->loc_fMgO    ;
+      FeS_frac = grackle_data->loc_fFeS    ;
+    Al2O3_frac = grackle_data->loc_fAl2O3  ;
 #endif
  
   int iTE = ietot;
-  int ExtraField[2];
+  int ExtraField[3];
   int ForbidNum;
   int MachNum, PSTempNum, PSDenNum;
   int RePsiNum, ImPsiNum, FDMDensNum;
@@ -459,6 +476,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
       if(MultiMetals){
 	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
+	FieldType[ExtraField[2] = NumberOfBaryonFields++] = ExtraType2;
       }
     }
     if (WritePotential)
@@ -700,8 +718,55 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	      * BaryonField[0][i];
 	    BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
 	      * BaryonField[0][i];
+	    BaryonField[ExtraField[2]][i] = CosmologySimulationInitialFractionMetal
+	      * BaryonField[0][i];
 	  }
 	}
+
+#ifdef GRACKLE_MD
+        if (MultiSpecies)
+          for (i = 0; i < size; i++) {
+      
+            if(MetalChemistry > 0) {
+               BaryonField[   CINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[  CIINum][i] =  C_frac * BaryonField[MetalNum][i];
+               BaryonField[   CONum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[  CO2Num][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[   OINum][i] =  O_frac * BaryonField[MetalNum][i];
+               BaryonField[   OHNum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[  H2ONum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[   O2Num][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[  SiINum][i] = Si_frac * BaryonField[MetalNum][i];
+               BaryonField[ SiOINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[SiO2INum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[   CHNum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[  CH2Num][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[ COIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[  OIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[ OHIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[H2OIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[H3OIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[ O2IINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+               BaryonField[   DeNum][i] += BaryonField[CIINum][i]/12.0;
+            }
+            if(GrainGrowth) {
+               BaryonField[   MgNum][i] = Mg_frac * BaryonField[MetalNum][i];
+               BaryonField[   AlNum][i] = Al_frac * BaryonField[MetalNum][i];
+               BaryonField[    SNum][i] =  S_frac * BaryonField[MetalNum][i];
+               BaryonField[   FeNum][i] = Fe_frac * BaryonField[MetalNum][i];
+               BaryonField[    SiMNum][i] =     SiM_frac * BaryonField[MetalNum][i];
+               BaryonField[    FeMNum][i] =     FeM_frac * BaryonField[MetalNum][i];
+               BaryonField[Mg2SiO4Num][i] = Mg2SiO4_frac * BaryonField[MetalNum][i];
+               BaryonField[ MgSiO3Num][i] =  MgSiO3_frac * BaryonField[MetalNum][i];
+               BaryonField[  Fe3O4Num][i] =   Fe3O4_frac * BaryonField[MetalNum][i];
+               BaryonField[     ACNum][i] =      AC_frac * BaryonField[MetalNum][i];
+               BaryonField[  SiO2DNum][i] =   SiO2D_frac * BaryonField[MetalNum][i];
+               BaryonField[    MgONum][i] =     MgO_frac * BaryonField[MetalNum][i];
+               BaryonField[    FeSNum][i] =     FeS_frac * BaryonField[MetalNum][i];
+               BaryonField[  Al2O3Num][i] =   Al2O3_frac * BaryonField[MetalNum][i];
+            }
+          }
+#endif
 
 	if (STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData) {
 	  for (i = 0; i < size; i++)

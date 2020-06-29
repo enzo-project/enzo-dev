@@ -168,7 +168,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MachName   = "Mach";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
-  char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
+  char *ExtraNames[3] = {"Z_Field0", "Z_Field1", "Z_Field2"};
   char *BxName = "Bx";
   char *ByName = "By";
   char *BzName = "Bz";
@@ -876,6 +876,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     if(MultiMetals){
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];
+      DataLabel[i++] = ExtraNames[2];
     }
   }
   if(STARMAKE_METHOD(COLORED_POP3_STAR)){

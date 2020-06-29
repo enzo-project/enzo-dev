@@ -53,3 +53,13 @@ int grid::IdentifyColourFields(int &SNColourNum, int &MetalNum,
   return SUCCESS;
 }
 
+int grid::IdentifyExtraTypeFields(int &ExtraType0Num, int &ExtraType1Num, int &ExtraType2Num)
+{
+  ExtraType0Num = ExtraType1Num = ExtraType2Num = 0;
+
+  ExtraType0Num = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
+  ExtraType1Num = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
+  ExtraType2Num = FindField(ExtraType2, FieldType, NumberOfBaryonFields);
+
+  return SUCCESS;
+}

@@ -225,6 +225,12 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
  
+  int ExtraType0Num, ExtraType1Num, ExtraType2Num;
+  if (MetalFieldPresent && MultiMetals)
+    if (this->IdentifyExtraTypeFields(ExtraType0Num, ExtraType1Num, ExtraType2Num
+               ) == FAIL)
+      ENZO_FAIL("Error in grid->IdentifyExtraTypeFields.\n");
+ 
 #ifdef USE_GRACKLE
   if (grackle_data->use_grackle == TRUE) {
 
@@ -361,6 +367,11 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 #endif
 
     my_fields.metal_density   = MetalPointer;
+  if(MultiMetals) {
+    my_fields.metal_loc = BaryonField[ExtraType0Num];
+    my_fields.metal_C30 = BaryonField[ExtraType1Num];
+    my_fields.metal_F13 = BaryonField[ExtraType2Num];
+  }
 
     my_fields.volumetric_heating_rate  = volumetric_heating_rate;
     my_fields.specific_heating_rate    = specific_heating_rate;

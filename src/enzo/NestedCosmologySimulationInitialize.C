@@ -175,7 +175,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *FDMDensityName = "FDMDensity"; 
 
  
-  char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
+  char *ExtraNames[3] = {"Z_Field0", "Z_Field1", "Z_Field2"};
  
   // Declarations
  
@@ -820,6 +820,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     if(MultiMetals){
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];
+      DataLabel[i++] = ExtraNames[2];
     }
   }
  

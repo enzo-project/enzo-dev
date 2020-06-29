@@ -266,12 +266,22 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
                 MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
       ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
+    int ExtraType0Num, ExtraType1Num, ExtraType2Num;
+    if (this->IdentifyExtraTypeFields(ExtraType0Num, ExtraType1Num, ExtraType2Num
+               ) == FAIL)
+      ENZO_FAIL("Error in grid->IdentifyExtraTypeFields.\n");
+
     if (MetalNum != -1) {
       colnum[NumberOfColours++] = MetalNum;
       if (MultiMetals || TestProblemData.MultiMetals) {
-	colnum[NumberOfColours++] = MetalNum+1; //ExtraType0
-	colnum[NumberOfColours++] = MetalNum+2; //ExtraType1
+	colnum[NumberOfColours++] = ExtraType0Num;
+	colnum[NumberOfColours++] = ExtraType1Num;
+	colnum[NumberOfColours++] = ExtraType2Num;
       }
+//    if (MultiMetals || TestProblemData.MultiMetals) {
+//      colnum[NumberOfColours++] = MetalNum+1; //ExtraType0
+//      colnum[NumberOfColours++] = MetalNum+2; //ExtraType1
+//    }
     }
 
     if (MetalIaNum       != -1) colnum[NumberOfColours++] = MetalIaNum;

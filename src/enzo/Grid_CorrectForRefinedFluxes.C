@@ -417,7 +417,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
            || FieldType[field] ==     Metallicity
            || FieldType[field] ==        SNColour
            || FieldType[field] ==      ExtraType0
-           || FieldType[field] ==      ExtraType1)
+           || FieldType[field] ==      ExtraType1
+           || FieldType[field] ==      ExtraType2)
           #else
           if (FieldType[field] >= ElectronDensity &&
               FieldType[field] <= ExtraType1)
@@ -510,6 +511,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
            || FieldType[field] ==        SNColour
            || FieldType[field] ==      ExtraType0
            || FieldType[field] ==      ExtraType1
+           || FieldType[field] ==      ExtraType2
             )
           #else
             (FieldType[field] >= ElectronDensity
@@ -709,7 +711,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
                       || FieldType[field] ==     Metallicity
                       || FieldType[field] ==        SNColour
                       || FieldType[field] ==      ExtraType0
-                      || FieldType[field] ==      ExtraType1)
+                      || FieldType[field] ==      ExtraType1
+                      || FieldType[field] ==      ExtraType2)
                       #else
                          ( FieldType[field] >= ElectronDensity &&
                            FieldType[field] <= ExtraType1 )
@@ -947,7 +950,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
                     || FieldType[field] ==     Metallicity
                     || FieldType[field] ==        SNColour
                     || FieldType[field] ==      ExtraType0
-                    || FieldType[field] ==      ExtraType1)
+                    || FieldType[field] ==      ExtraType1
+                    || FieldType[field] ==      ExtraType2)
                       #else
                      ( FieldType[field] >= ElectronDensity &&
                        FieldType[field] <= ExtraType1 )
@@ -1029,7 +1033,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
                     || FieldType[field] ==     Metallicity
                     || FieldType[field] ==        SNColour
                     || FieldType[field] ==      ExtraType0
-                    || FieldType[field] ==      ExtraType1)
+                    || FieldType[field] ==      ExtraType1
+                    || FieldType[field] ==      ExtraType2)
                       #else
                      ( FieldType[field] >= ElectronDensity &&
                        FieldType[field] <= ExtraType1 )
@@ -1189,7 +1194,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
                 || FieldType[field] ==     Metallicity
                 || FieldType[field] ==        SNColour
                 || FieldType[field] ==      ExtraType0
-                || FieldType[field] ==      ExtraType1) ||
+                || FieldType[field] ==      ExtraType1
+                || FieldType[field] ==      ExtraType2) ||
                  #else
                   (FieldType[field] >= ElectronDensity &&
 		   FieldType[field] <= ExtraType1) ||
