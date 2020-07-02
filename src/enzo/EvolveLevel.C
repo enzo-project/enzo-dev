@@ -672,9 +672,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       UpdateParticlePositions(Grids[grid1]->GridData);
 
     /*Trying after solving for radiative transfer */
-#ifdef EMISSIVITY
-    /*                                                                                                           
-        clear the Emissivity of the level below, after the level below                                            
+#ifdef EMISSIVITY                                                                                                           
+    /*    clear the Emissivity of the level below, after the level below                                            
         updated the current level (it's parent) and before the next
         timestep at the current level.                                                                            
     */
@@ -687,16 +686,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
       }*/
 #endif
-
-
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
 	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove, TopGridTimeStep);
 
+      // MetaData added by DP
       Grids[grid1]->GridData->ActiveParticleHandler
-        (Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove,
-         NumberOfNewActiveParticles[grid1]);
+        (Grids[grid1]->NextGridNextLevel, level , MetaData, 
+         dtLevelAbove, NumberOfNewActiveParticles[grid1]);
 
       /* Include shock-finding */
 
@@ -743,9 +741,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (UseMagneticSupernovaFeedback)
 	Grids[grid1]->GridData->MagneticSupernovaList.clear(); 
 
+    //ActiveParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
+    //                       level, NumberOfNewActiveParticles);
+    } //end loop over grids
+
+    //Modification Added by Deovrat Prasad
+    // Finalize (accretion, feedback, etc. ) Active Particles.
     ActiveParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
                            level, NumberOfNewActiveParticles);
-    } //end loop over grids
+
     /* Finalize (accretion, feedback, etc.) star particles */
 
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,

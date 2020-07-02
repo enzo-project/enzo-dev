@@ -222,6 +222,7 @@ class grid
   friend class Star;
   friend class ActiveParticleType;
   friend class ActiveParticleType_AccretingParticle;
+  friend class ActiveParticleType_AGNParticle;
   friend class ActiveParticleType_CenOstriker;
   friend class ActiveParticleType_GalaxyParticle;
   friend class ActiveParticleType_Kravtsov;
@@ -401,7 +402,7 @@ public:
 
 /* Return time, timestep */
 
-   FLOAT ReturnTime() {return Time;};
+   float ReturnTime() {return Time;};
    FLOAT ReturnOldTime() {return OldTime;};
    float ReturnTimeStep() {return dtFixed;};
 
@@ -2559,9 +2560,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 			  float dtLevelAbove, float TopGridTimeStep);
-
+  // TopGridData added by DP
   int ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
-                float dtLevelAbove, int &NumberOfNewActiveParticles);
+                TopGridData *MetaData, float dtLevelAbove, int &NumberOfNewActiveParticles);
 
   int ActiveParticleHandler_Convert(HierarchyEntry* SubgridPointer, int level,
                 int gridnum, int &NumberOfNewActiveParticles);
@@ -2844,6 +2845,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
       FLOAT AccretionRadius,
       float* AccretionRate);
   
+  int DoAGNFeedback(ActiveParticleType* ThisParticle); //added by Deovrat Prasad  
+  float AGNParticleGetColdMassRate(ActiveParticleType* ); //added by DP
+  int AGNParticleCylinderFeedback(ActiveParticleType* , float, float); //added by DP
+  int AGNParticleDiskJet(ActiveParticleType* , float, float); // added by DP
+  int AGNParticleMassWeightedJet(ActiveParticleType* ,float, float); //added by DP
+
   int AccreteOntoSmartStarParticle(ActiveParticleType* ThisParticle, 
       FLOAT AccretionRadius,
       float* AccretionRate);

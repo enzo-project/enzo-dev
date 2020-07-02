@@ -3,60 +3,104 @@
 /  A "skeleton" active particle that compiles but doesn't do much.
 /
 ************************************************************************/
-
 #include "preincludes.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "units.h"
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "Hierarchy.h"
+#include "LevelHierarchy.h"
 #include "TopGridData.h"
 #include "EventHooks.h"
 #include "ActiveParticle.h"
+#include "TopGridData.h"
+#include "communication.h"
+#include "CommunicationUtilities.h"
+#include "phys_constants.h"
 
-class ActiveParticleType_Skeleton : public ActiveParticleType
+class ActiveParticleType_AGNParticle : public ActiveParticleType
 {
 public:
-  /*
-   * Static variables should be defined here.  Since they are static, there is
-   * only one copy of these variables for all instances of the class.  This is
-   * useful for storing the value of a runtime parameter, for example.
-   */
-  static float OverdensityThreshold, MassEfficiency;
 
-  /*
-   * Instance variables should be defined here. Each instance of the particle
-   * class will have its own version of these variables.
-   */
-  float AccretionRate;
-
-  // void constructor (no arguments)
-  ActiveParticleType_Skeleton(void) : ActiveParticleType()
+  // Default constructor (no arguments)
+  // All AGNParticle attributes are set to their default values.
+  ActiveParticleType_AGNParticle(void) : ActiveParticleType()
     {
       // Initialize any instance (i.e. not static) member variables here
+      CoolingRadius        = 1.0;
+      FeedbackRadius       = 1.0;
+      CondensationFraction = 0.1;
+      FeedbackEfficiency   = 1.0e-3;
+      TimescaleThreshold   = 10.0;
+      KineticFraction      = 1.0;
+      JetAngle             = (10.0/360.0) * 2.0 * M_PI;
+      JetPhi               = (20.0/360.0) * 2.0 * M_PI;
+      JetTheta             = 2.0 * M_PI;
+      StoredEnergy         = 0.0;
+      StoredMass           = 0.0;
+      FixedJetIsOn         = 0;
+      TimeOfLastShock      = 0.0;
     };
 
   // copy constructor
-  ActiveParticleType_Skeleton(ActiveParticleType_Skeleton* part) :
+  ActiveParticleType_AGNParticle(ActiveParticleType_AGNParticle* part) :
     ActiveParticleType(static_cast<ActiveParticleType*>(part))
     {
-      // Copy values of instance members using data from the particle instance
-      // that is passed as an argument to this function
-    }
+      CondensationFraction = part->CondensationFraction;
+      FeedbackEfficiency   = part -> FeedbackEfficiency;
+      JetAngle             = part -> JetAngle;
+      TimescaleThreshold   = part -> TimescaleThreshold;
+      KineticFraction      = part -> KineticFraction;
+      CoolingRadius        = part -> CoolingRadius;
+      FeedbackRadius       = part -> FeedbackRadius;
+      JetPhi               = part -> JetPhi;
+      JetTheta             = part -> JetTheta;
+      Edot                 = part -> Edot;
+      StoredEnergy         = part -> StoredEnergy;
+      StoredMass           = part -> StoredMass;
+      FixedJetIsOn         = part -> FixedJetIsOn;
+      TimeOfLastShock      = part -> TimeOfLastShock;
+    };
   
   // Needed to Create a copy of a particle when only a pointer to the base
   // class is available.
   ActiveParticleType* clone() 
     {
       return static_cast<ActiveParticleType*>(
-          new ActiveParticleType_Skeleton(this)
+          new ActiveParticleType_AGNParticle(this)
         );
     }
-  
+   // AGNParticle data members
+   float CondensationFraction;
+   float FeedbackEfficiency;
+   float JetAngle;
+   float TimescaleThreshold;
+   float KineticFraction;
+   float CoolingRadius;
+   float FeedbackRadius;
+   float JetPhi;
+   float JetTheta;
+   float Edot;
+
+   int FixedJetIsOn;
+
+   float TimeOfLastShock;
+
+   float StoredEnergy;
+   float StoredMass;
+
+   float AccretionHistoryTime[256];
+   float AccretionHistoryRate[256];
+
+   // These two need to be static as they are used to construct the feedback
+   // zone
+   static float static_cooling_radius;
+   static float static_feedback_radius;
 
   /*
    * Run an algorithm to determine whether a particle forms in a grid.
@@ -106,18 +150,16 @@ public:
   template <class active_particle_class>
   static int BeforeEvolveLevel(HierarchyEntry *Grids[], TopGridData *MetaData,
       int NumberOfGrids, LevelHierarchyEntry *LevelArray[],
-      int ThisLevel, bool CallEvolvePhotons, int TotalActiveParticleCountPrevious[],
-      int SkeletonID)
-    {
-      return SUCCESS;
-    };
+      int ThisLevel, bool CallEvolvePhotons,
+      int TotalActiveParticleCountPrevious[],
+      int AGNParticleID);
 
   /*
    * Perform distributed operations on the hierarchy.  This function can
    * access the entire grid hierarchy and can in principle make arbitrary
    * modifications to any grid.
    *
-   * This funcion and the corresponding AfterEvolveLevel function are the best
+   * This function and the corresponding BeforeEvolveLevel function are the best
    * place to implement any feedback or subgrid physics algorithm that needs
    * information outside of the grid a particle lives on.  These functions
    * have access to the full AMR hierarchy and can arbitrarily change the
@@ -130,15 +172,11 @@ public:
    * Note that this is a template function so it must be implemented in a header
    * file.
    */
-  template <class active_particle_class>
-  static int AfterEvolveLevel(HierarchyEntry *Grids[], TopGridData *MetaData,
+   template <class active_particle_class>
+   static int AfterEvolveLevel(HierarchyEntry *Grids[], TopGridData *MetaData,
 				int NumberOfGrids, LevelHierarchyEntry *LevelArray[],
 				int ThisLevel, int TotalActiveParticleCountPrevious[],
-				int SkeletonID)
-    {
-      return SUCCESS;
-    };
-
+				int AGNParticleID);
   /*
    * This function allows fine-grained control over how an active particle is
    * deposited onto the GravitatingMassField.  If your particle represents an
@@ -154,7 +192,7 @@ public:
   template <class active_particle_class>
     static int DepositMass(HierarchyEntry *Grids[], TopGridData *MetaData,
 				int NumberOfGrids, LevelHierarchyEntry *LevelArray[],
-				int ThisLevel, int GalaxyParticleID) {return SUCCESS; };
+				int ThisLevel, int AGNParticleID) {return SUCCESS; };
 
   /*
    * This function allows fine-grained control over grid refinement.  If for
@@ -187,15 +225,16 @@ public:
    * This is called inside the EnableActiveParticleType function which is itself
    * called inside ReadParameterFile.
    */
-  static int InitializeParticleType();
-
+   static int InitializeParticleType();
   /*
    * This must appear unchanged in all particle types.  It is a macro that
    * returns a unique ID for the particle type.  The ID may be different from
    * simulation to simulation.
    */
-  ENABLED_PARTICLE_ID_ACCESSOR
+   ENABLED_PARTICLE_ID_ACCESSOR
 
+   static int Handle_AGN_Feedback(int nParticles, ActiveParticleList<ActiveParticleType>& ParticleList,
+                      FLOAT dx, LevelHierarchyEntry *LevelArray[], int ThisLevel);
   /*
    * The AttributeHandler is used to save active particles to output files and
    * communitcate active particles over MPI.  Instance variables need to be
@@ -203,3 +242,82 @@ public:
    */
   static std::vector<ParticleAttributeHandler *> AttributeHandlers;
 };
+
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+                      HierarchyEntry **Grids[]);
+int AssignActiveParticlesToGrids(
+    ActiveParticleList<ActiveParticleType>& ParticleList, int nParticles,
+    LevelHierarchyEntry *LevelArray[]);
+/* Before EvolveLevel
+ * Gets called before Evolve level.
+ * AGN feedback is being here.
+ * */
+template <class active_particle_class>
+int ActiveParticleType_AGNParticle::BeforeEvolveLevel(HierarchyEntry *Grids[], TopGridData *MetaData,
+        int NumberOfGrids, LevelHierarchyEntry *LevelArray[],
+        int ThisLevel, bool CallEvolvePhotons, int TotalActiveParticleCountPrevious[],
+        int AGNParticleID)
+{
+   if (debug)
+      printf("Entering BeforeEvolveLevel [%"ISYM"]\n", MyProcessorNumber);
+
+   int i, nParticles, nMergedParticles;
+   ActiveParticleList<ActiveParticleType> ParticleList;
+
+   if (ThisLevel == MaximumRefinementLevel)
+   {  
+       //ActiveParticleList<ActiveParticleType> ParticleList; 
+       // Get a list of AGN particles
+       ActiveParticleFindAll(LevelArray, &nParticles, AGNParticleID, ParticleList);
+       TotalAGNParticlesCreated = nParticles;
+       
+       if (nParticles == 0)
+           return SUCCESS;
+
+       // Calculate the cell size
+       // This assumes a cubic box and may not work for simulations with MinimumMassForRefinementLevelExponent
+       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
+                  (MetaData->TopGridDims[0] * POW(FLOAT(RefineBy), FLOAT(MaximumRefinementLevel)));
+       // Calls Do AGN feedback
+       if (Handle_AGN_Feedback(nParticles, ParticleList, dx, LevelArray, ThisLevel) == FAIL)
+           ENZO_FAIL("AGN Particle feedback failed. \n");
+
+       // Get rid of particles that are no longer on this processor
+       for (i = 0; i < nParticles; i++)
+           if (ParticleList[i] != NULL) {
+              if (ParticleList[i]->ReturnCurrentGrid()->ReturnProcessorNumber() != MyProcessorNumber) {
+                  delete ParticleList[i];
+                  ParticleList[i] = NULL;
+               }
+	   }
+
+      //delete [] ParticleList;
+      //ParticleList.clear();
+   }
+   ParticleList.clear();
+   if (debug)
+      printf("Leaving BeforeEvolveLevel [%"ISYM"]\n", MyProcessorNumber);
+
+   return SUCCESS;
+}
+
+/* After EvolveLevel
+ * Gets called after EvolveLevel
+ * Currently no action is being taken.
+ *    */
+template <class active_particle_class>
+int ActiveParticleType_AGNParticle::AfterEvolveLevel(HierarchyEntry *Grids[], TopGridData *MetaData,
+        int NumberOfGrids, LevelHierarchyEntry *LevelArray[],
+        int ThisLevel, int TotalStarParticleCountPrevious[],
+        int AGNParticleID)
+{
+   //if (debug)
+   //   printf("Entering AfterEvolveLevel [%"ISYM"]\n", MyProcessorNumber);
+
+
+   // All finished
+   //if (debug)
+   //   printf("Leaving AfterEvolveLevel [%"ISYM"]\n", MyProcessorNumber);
+   
+   return SUCCESS;
+   }

@@ -502,6 +502,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 */
 #endif
+// Opening the AGNEdot file for writting output AGN energy.
+// Added by Deovrat Prasad
+    if (AGNEdotFile == NULL)
+       AGNEdotFile = fopen("edot_log.dat","a");
+    
  
     if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
 #ifdef TRANSFER
@@ -704,7 +709,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
         StoppedByOutput = TRUE;
       }
     }
-
+// Closing the AGNEdotFile. Added by Deovrat Prasad.
+    fclose(AGNEdotFile);
+    AGNEdotFile = NULL;
   } // ===== end of main loop ====
 
 #ifdef USE_LCAPERF

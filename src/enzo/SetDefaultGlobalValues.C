@@ -669,6 +669,64 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ClusterSMBHBCG                   = 1.0;
   ClusterSMBHMass                  = 0.0;
 
+  AGNParticleFeedbackEfficiency       = 1.0e-3;
+  AGNParticleKineticFraction          = 0.9;
+  AGNParticleAccretionRadiusKpc       = 1.0;
+  AGNParticleAccretionRadialExponent  = 0.0;
+  AGNParticleFeedbackRadiusKpc        = 4.0;
+  AGNParticleCondensationFraction     = 1.0;
+
+  AGNParticleInjectionTemperature     = 1.0e8;
+
+  AGNParticleColdMassTemp             = 3.0e+4;
+  AGNParticleColdMassDelay            = 5.0e+6;
+
+  AGNParticleJetPower                 = 1.0e+46; // erg/s
+  AGNParticleFixedWaitForCold         = 0; // 0 Means off
+  AGNParticleCycleLength              = 100.0; // Myr
+  AGNParticleActiveFraction           = 1.0; // What fraction of the time the AGN is 'on'
+
+  AGNParticleBondiBoostFactor         = 1.0;
+  AGNParticleBSBondiDensityCGS        = 1.6733e-25;
+  AGNParticleBSBondiBeta              = 2.0;
+
+  AGNParticleAccretionDelayTime       = 0.001;
+
+  AGNParticleFeedbackType             = 0;
+  AGNParticleFeedbackWeight           = 0;
+
+  AGNCylinderHeightKpc                = 1.0;
+  AGNCylinderRadiusKpc                = 1.0;
+  AGNCylinderDistanceKpc              = 1.0;
+
+  AGNTracerCyl = 0;
+  AGNTracerZkpc = 5.0;
+  AGNTracerHkpc = 1.0;
+  AGNTracerRInnerkpc = 1.0;
+  AGNTracerROuterkpc = 3.0;
+  AGNTracerFrequencyMyr = 5.0;
+  AGNTracerNextTimeMyr = 0.0;
+
+  AGNPrecessionAngleRad = 0.00;
+  AGNEdotFile = NULL;
+
+  AGNParticleHighPower = 1.0e+46;
+  AGNParticleLowPower = 1.0e+42;
+
+  AGNParticleHighPowerTime = 0.05;
+  AGNParticleLowPowerTime = 0.05;
+
+  AGNParticleDiskRadius = 1.0e-3;
+  AGNParticleDiskDistance = 1.0e-3;
+  AGNParticleDiskOpeningAngle = 0.0;
+
+  AGNUseTracer = 0;
+  AGNTracerInjectionTime = 0.0;
+  AGNTracerMinRadiusKPC = 1.0;
+  AGNTracerShellWidthKPC = 2.0;
+
+  AGNParticleShockFraction = 0.1;
+
   EllipticalGalaxyRe               = 0.0;
   OldStarFeedbackAlpha             = 0.0;
   SNIaFeedbackEnergy               = 1.0;

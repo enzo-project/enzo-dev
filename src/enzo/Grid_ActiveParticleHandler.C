@@ -36,9 +36,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 int FindField(int field, int farray[], int numfields);
- 
+
+//TopGrid MetaData added by DP 
 int grid::ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
-                                float dtLevelAbove, int &NumberOfNewParticles)
+                                TopGridData *MetaData, float dtLevelAbove, int &NumberOfNewParticles)
 {
 
   if (EnabledActiveParticlesCount == 0) return SUCCESS;
@@ -84,7 +85,7 @@ int grid::ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
   {
     ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
     ActiveParticleTypeToEvaluate->EvaluateFormation(
-                                this, supplemental_data);
+                                this, MetaData, supplemental_data); //MetaData added by DP
     NumberOfNewParticles += supplemental_data.NumberOfNewParticles;
     
   }

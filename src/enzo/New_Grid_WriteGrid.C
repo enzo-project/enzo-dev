@@ -842,7 +842,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   if (NumberOfActiveParticles > 0) {
     /* Iterate over the enabled active particle types */
 
-    ParticleGroupID = H5Gcreate(group_id, "Active Particles", 0);
+    ParticleGroupID = H5Gcreate(group_id, "ActiveParticles", 0);
     for (i = 0; i < EnabledActiveParticlesCount; i++)
       {
 
