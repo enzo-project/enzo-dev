@@ -59,7 +59,7 @@ MAX_TIME_STEP = 5.0 # does nothing now
 # Dictionary of system-dependent run commands
 #
 
-RUN        = {'Stampede2' : 'ibrun mem_affinity '}
+RUN        = {'Stampede2' : 'ibrun '} # mem_affinity '}
 
 # default exectable filename
 EXEC_FNAME = "./enzo.exe"
@@ -106,13 +106,13 @@ def cancel_jobs():
     Cancels running jobs with SAME job name but different
     job ID as this one
     """
-    os.system('squeue -u emerick -o "%.18i %.9P %.8j %.8u %.2t %.10M %.6D" > emerick_jobs_list.out')
+    os.system('squeue -u emerick -o "%.10i %.10P %.10j %.8u %.2t %.10M %.6D" > emerick_jobs_list.out')
 
     this_jobID   = int(os.environ['SLURM_JOBID'])
     this_jobname = os.environ['SLURM_JOB_NAME']
 
     jobs_list = np.genfromtxt('./emerick_jobs_list.out',
-                              dtype="i8,|U10,|U8,|U7,|U2,|U6,i2",
+                              dtype="i8,|U10,|U10,|U7,|U2,|U6,i2",
                               names=True)
 
 
