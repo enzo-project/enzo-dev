@@ -95,7 +95,7 @@ public:
 
   int IsPopIII(void) { return PopIIIStar; };
   void DetermineSNIaType();
-  void DetermineIfPopIIIStar();
+  void DetermineIfPopIIIStar(int verbose=0);
 
 // Individual Star
   int* ReturnYieldTablePosition(void){  this->AssertInterpolationPositions(3);
