@@ -75,7 +75,7 @@ Star::Star(void)
   // Init to bad values to cause failure if trying to use before set
   //      used for Individual Star feedback only
   se_table_position[0] = se_table_position[1] = -1;
-  rad_table_position[0] = rad_table_position[1] = rad_table_position[3] = -1;
+  rad_table_position[0] = rad_table_position[1] = rad_table_position[2] = -1;
   yield_table_position[0] = yield_table_position[1] = -1;
   for (int i = 0; i < MAX_STAR_ABUNDANCES; i++)
     abundances[i] = 0.0;
