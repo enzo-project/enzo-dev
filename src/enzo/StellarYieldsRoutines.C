@@ -43,9 +43,9 @@ float StellarYields_SolarAbundancesByNumber(const int &atomic_number,
     float value = 0.0;
 
     if (table == 0){ // use Asplund 2009
-        StellarYields_SolarAbundancesByNumber_Asplund(atomic_number);
+        value = StellarYields_SolarAbundancesByNumber_Asplund(atomic_number);
     } else if (table == 1){
-        StellarYields_SolarAbundancesByNumber_Lodders(atomic_number);
+        value = StellarYields_SolarAbundancesByNumber_Lodders(atomic_number);
     } else {
       ENZO_VFAIL("Error loading solar abundance table - incorrect table number\n.");
     }
@@ -106,7 +106,7 @@ float StellarYields_SolarAbundancesByNumber_Lodders(const int &atomic_number){
     case 82: abund =  2.13; break;    case 83: abund =  0.76; break;
 
     default:
-      ENZO_FAIL("Failure in StellarYields_SolarAbundancesByNumber_Asplund: Wrong atomic number");
+      ENZO_FAIL("Failure in StellarYields_SolarAbundancesByNumber_Lodders: Wrong atomic number");
   }
 
   return abund;
