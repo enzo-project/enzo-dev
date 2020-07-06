@@ -481,7 +481,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
           default:
             enhancement = 0.0;
         }
-        // 0.7381 is the H mass fraction in Asplund+2009. Strictly speaking this needs to change by
+        // (f_H) (0.7381 in Asplund+2009) is the H mass fraction. Strictly speaking this needs to change by
         // a couple percent for changes in He and metals... ignoring this...
         //   since we are scaling by metallicity with z_ratio, 
 
@@ -490,7 +490,9 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
           const double element_H_solar = StellarYields_SolarAbundancesByNumber(StellarYieldsAtomicNumbers[i],table) -
                                    StellarYields_SolarAbundancesByNumber(1,table);
 
-          a_solar = z_ratio * POW(10.0, enhancement + element_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[i]) /
+          const double f_H = StellarYields_SolarAbundancesByNumber(-1,table); // H mass fraction
+
+          a_solar = z_ratio * POW(10.0, enhancement + element_H_solar) * f_H * (StellarYields_MMW(StellarYieldsAtomicNumbers[i]) /
                                                             StellarYields_MMW(1));
         } else {
           a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),StellarYieldsAtomicNumbers[i], table);
@@ -571,7 +573,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
               // 0.7381 is the H mass fraction in Asplund+2009. Strictly speaking this needs to change by
               // a couple percent for changes in He and metals... ignoring this...
               if (enhancement > 0){
-                a_solar = z_ratio * POW(10.0, enhancement + element_H_solar) * 0.7381 * (StellarYields_MMW(StellarYieldsAtomicNumbers[j]) /
+                a_solar = z_ratio * POW(10.0, enhancement + element_H_solar) * f_H * (StellarYields_MMW(StellarYieldsAtomicNumbers[j]) /
                                                                   StellarYields_MMW(1));
               } else {
                 a_solar = StellarYields_ScaledSolarMassFractionByNumber(cstar->ReturnMetallicity(),StellarYieldsAtomicNumbers[j], table);
