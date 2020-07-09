@@ -218,7 +218,8 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
   code_units grackle_units;
   grackle_units.a_units = 1.0;
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0,
-    TimeUnits = 1.0, VelocityUnits = 1.0, MassUnits = 1.0;
+    TimeUnits = 1.0, VelocityUnits = 1.0;
+  double MassUnits = 1.0;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
                &TimeUnits, &VelocityUnits, &MassUnits, InitTime) == FAIL) {
     ENZO_FAIL("Error in GetUnits.\n");
