@@ -30,6 +30,7 @@ char* IndividualStarTableIDLabel(const int &num);
 
 void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabel){
 
+  if (NumberOfParticleAttributes == 0) return;
 
 #ifdef WINDS
   const char *temp_labels[] =
