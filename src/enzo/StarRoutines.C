@@ -75,7 +75,7 @@ Star::Star(void)
   // Init to bad values to cause failure if trying to use before set
   //      used for Individual Star feedback only
   se_table_position[0] = se_table_position[1] = -1;
-  rad_table_position[0] = rad_table_position[1] = rad_table_position[3] = -1;
+  rad_table_position[0] = rad_table_position[1] = rad_table_position[2] = -1;
   yield_table_position[0] = yield_table_position[1] = -1;
   for (int i = 0; i < MAX_STAR_ABUNDANCES; i++)
     abundances[i] = 0.0;
@@ -793,7 +793,7 @@ void Star::DetermineSNIaType(void){
   }
 }
 
-void Star::DetermineIfPopIIIStar(void){
+void Star::DetermineIfPopIIIStar(int verbose){
 
   if (IndividualStarOutputChemicalTags) ENZO_FAIL("DetermineIfPopIIIStar: Must save abundances as attributes");
 
@@ -834,7 +834,13 @@ void Star::DetermineIfPopIIIStar(void){
        }
 
        // returns TRUE if above threshold (and not a PopIII star)
-       PopIIIStar = (int)(!(CheckPopIIIMetallicityThreshold(C_f, Fe_f, H_f)));
+       PopIIIStar = CheckPopIIIMetallicityThreshold(C_f, Fe_f, H_f) == 0;
+
+       if (verbose){
+           printf("Chiaki Check: %"ISYM" %"ISYM" %"ESYM" %"ESYM" %"ESYM"\n", PopIIIStar,
+                                                                             CheckPopIIIMetallicityThreshold(C_f,Fe_f,H_f), C_f, Fe_f, H_f);
+
+       }
 
      } // end popIII check for non-popIII type
   } // end popIII check
@@ -875,13 +881,23 @@ void Star::PrintInfo(void)
 	 " lvl %" ISYM "\n", Mass, DeltaMass, FinalMass, BirthMass, type, GridID, level);
   printf("\t FeedbackFlag = %" ISYM "\n", FeedbackFlag);
   printf("\t SNIaType = %" ISYM "\n", SNIaType);
-  printf("\t PopIIIStar = %" ISYM "\n", PopIIIStar);
+  printf("\t PopIIIStar = %" ISYM "\n",PopIIIStar);
   printf("\t accreted_angmom = %" FSYM " %" FSYM " %" FSYM "\n", accreted_angmom[0],
 	 accreted_angmom[1], accreted_angmom[2]);
+#ifdef INDIVIDUAL_STAR
   printf("\t SE table = %" ISYM " %" ISYM "\n", se_table_position[0], se_table_position[1]);
   printf("\t Rad table = %" ISYM " %" ISYM " %" ISYM "\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
   printf("\t Yield table = %" ISYM " %" ISYM "\n", yield_table_position[0], yield_table_position[1]);
   printf("\t Wind Mass Ejected = %" ESYM "   SN Mass Ejected %" ESYM "\n", wind_mass_ejected, sn_mass_ejected);
+  if (!IndividualStarOutputChemicalTags){
+    const int num_abundances = DetermineNumberOfAbundanceAttributes();
+    printf("\t Abundances: ");
+    for (int i=0;i<num_abundances;i++){
+      printf(" %"ESYM, abundances[i]);
+    }
+    printf("\n");
+  }
+#endif
   printf("\t this = %x, PrevStar = %x, NextStar = %x\n", this, PrevStar, NextStar);
   return;
 }
