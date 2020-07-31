@@ -110,7 +110,8 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
     , MgNum   , AlNum   , SNum      , FeNum
     , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
-    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num;
+    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+    , DustNum ;
 #endif
  
   /* Compute the size of the fields. */
@@ -145,7 +146,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
                                , MgNum   , AlNum   , SNum      , FeNum
                                , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
                                , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
-                               ) == FAIL) {
+                               , DustNum ) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
     }
 #endif
@@ -346,32 +347,46 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     my_fields.  H2OII_density = BaryonField[  H2OIINum];
     my_fields.  H3OII_density = BaryonField[  H3OIINum];
     my_fields.   O2II_density = BaryonField[   O2IINum];
+    if(GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        my_fields.     Mg_density = BaryonField[     MgNum];
+      }
+      if (DustSpecies > 1) {
+        my_fields.     Al_density = BaryonField[     AlNum];
+        my_fields.      S_density = BaryonField[      SNum];
+        my_fields.     Fe_density = BaryonField[     FeNum];
+      }
+    }
   }
 
-  if(GrainGrowth) {
-    my_fields.     Mg_density = BaryonField[     MgNum];
-    my_fields.     Al_density = BaryonField[     AlNum];
-    my_fields.      S_density = BaryonField[      SNum];
-    my_fields.     Fe_density = BaryonField[     FeNum];
-    my_fields.    SiM_density = BaryonField[    SiMNum];
-    my_fields.    FeM_density = BaryonField[    FeMNum];
-    my_fields.Mg2SiO4_density = BaryonField[Mg2SiO4Num];
-    my_fields. MgSiO3_density = BaryonField[ MgSiO3Num];
-    my_fields.  Fe3O4_density = BaryonField[  Fe3O4Num];
-    my_fields.     AC_density = BaryonField[     ACNum];
-    my_fields.  SiO2D_density = BaryonField[  SiO2DNum];
-    my_fields.    MgO_density = BaryonField[    MgONum];
-    my_fields.    FeS_density = BaryonField[    FeSNum];
-    my_fields.  Al2O3_density = BaryonField[  Al2O3Num];
+  if(GrainGrowth || DustSublimation) {
+    if (DustSpecies > 0) {
+      my_fields. MgSiO3_density = BaryonField[ MgSiO3Num];
+      my_fields.     AC_density = BaryonField[     ACNum];
+    }
+    if (DustSpecies > 1) {
+      my_fields.    SiM_density = BaryonField[    SiMNum];
+      my_fields.    FeM_density = BaryonField[    FeMNum];
+      my_fields.Mg2SiO4_density = BaryonField[Mg2SiO4Num];
+      my_fields.  Fe3O4_density = BaryonField[  Fe3O4Num];
+      my_fields.  SiO2D_density = BaryonField[  SiO2DNum];
+      my_fields.    MgO_density = BaryonField[    MgONum];
+      my_fields.    FeS_density = BaryonField[    FeSNum];
+      my_fields.  Al2O3_density = BaryonField[  Al2O3Num];
+    }
   }
+
 #endif
 
     my_fields.metal_density   = MetalPointer;
-  if(MultiMetals) {
-    my_fields.metal_loc = BaryonField[ExtraType0Num];
-    my_fields.metal_C30 = BaryonField[ExtraType1Num];
-    my_fields.metal_F13 = BaryonField[ExtraType2Num];
-  }
+    if(MultiMetals) {
+      my_fields.metal_loc = BaryonField[ExtraType0Num];
+      my_fields.metal_C30 = BaryonField[ExtraType1Num];
+      my_fields.metal_F13 = BaryonField[ExtraType2Num];
+    }
+
+    if (UseDustDensityField)
+      my_fields.dust_density = BaryonField[DustNum];
 
     my_fields.volumetric_heating_rate  = volumetric_heating_rate;
     my_fields.specific_heating_rate    = specific_heating_rate;

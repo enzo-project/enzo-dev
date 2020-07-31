@@ -104,7 +104,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
     , MgNum   , AlNum   , SNum      , FeNum
     , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
-    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num;
+    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+    , DustNum ;
   double C_frac, O_frac, Mg_frac, Al_frac, Si_frac, S_frac, Fe_frac;
   double SiM_frac  , FeM_frac  , Mg2SiO4_frac, MgSiO3_frac, Fe3O4_frac
        , AC_frac   , SiO2D_frac, MgO_frac    , FeS_frac   , Al2O3_frac;
@@ -116,7 +117,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
         ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
 #ifdef GRACKLE_MD
-  if (MultiSpecies > 3 || MetalChemistry > 0 || GrainGrowth)
+  if (MultiSpecies > 3 || MetalChemistry > 0 || GrainGrowth || DustSublimation)
     if (IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
                                , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
                                , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
@@ -124,7 +125,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
                                , MgNum   , AlNum   , SNum      , FeNum
                                , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
                                , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
-                               ) == FAIL) {
+                               , DustNum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
     }
 #endif
@@ -208,85 +209,96 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 #ifdef GRACKLE_MD
   if (MetalChemistry) {
 
-    if (MetalPop3) {
+    if(MultiMetals == 0) {
+
+      SNMassBin = MetalAbundances;
+
+    } else {
+
       if (cstar->Mass < 40.01) { // normal core-collapse SN
         if (cstar->Mass < 16.5) {
-           SNMassBin = 0;
-        } else if (cstar->Mass < 22.5) {
            SNMassBin = 1;
-        } else if (cstar->Mass < 27.5) {
+        } else if (cstar->Mass < 22.5) {
            SNMassBin = 2;
-        } else {
-           C_frac = grackle_data->C30_fC ;
-           O_frac = grackle_data->C30_fO ;
-          Mg_frac = grackle_data->C30_fMg;
-          Al_frac = grackle_data->C30_fAl;
-          Si_frac = grackle_data->C30_fSi;
-           S_frac = grackle_data->C30_fS ;
-          Fe_frac = grackle_data->C30_fFe;
-              SiM_frac = grackle_data->C30_fSiM    ;
-              FeM_frac = grackle_data->C30_fFeM    ;
-          Mg2SiO4_frac = grackle_data->C30_fMg2SiO4;
-           MgSiO3_frac = grackle_data->C30_fMgSiO3 ;
-            Fe3O4_frac = grackle_data->C30_fFe3O4  ;
-               AC_frac = grackle_data->C30_fAC     ;
-            SiO2D_frac = grackle_data->C30_fSiO2D  ;
-              MgO_frac = grackle_data->C30_fMgO    ;
-              FeS_frac = grackle_data->C30_fFeS    ;
-            Al2O3_frac = grackle_data->C30_fAl2O3  ;
+        } else if (cstar->Mass < 27.5) {
            SNMassBin = 3;
+        } else {
+           SNMassBin = 4;
         }
       }
       if (cstar->Mass > 140.0) { // pair-instability SN
         if (cstar->Mass < 185.0) {
-           SNMassBin = 4;
-        } else {
            SNMassBin = 5;
+        } else {
+           SNMassBin = 6;
         }
       }
+    } /* MultiMetals */
 
-    } else {
-
-       C_frac = grackle_data->loc_fC ;
-       O_frac = grackle_data->loc_fO ;
-      Mg_frac = grackle_data->loc_fMg;
-      Al_frac = grackle_data->loc_fAl;
-      Si_frac = grackle_data->loc_fSi;
-       S_frac = grackle_data->loc_fS ;
-      Fe_frac = grackle_data->loc_fFe;
-          SiM_frac = grackle_data->loc_fSiM    ;
-          FeM_frac = grackle_data->loc_fFeM    ;
-      Mg2SiO4_frac = grackle_data->loc_fMg2SiO4;
-       MgSiO3_frac = grackle_data->loc_fMgSiO3 ;
-        Fe3O4_frac = grackle_data->loc_fFe3O4  ;
-           AC_frac = grackle_data->loc_fAC     ;
-        SiO2D_frac = grackle_data->loc_fSiO2D  ;
-          MgO_frac = grackle_data->loc_fMgO    ;
-          FeS_frac = grackle_data->loc_fFeS    ;
-        Al2O3_frac = grackle_data->loc_fAl2O3  ;
-      SNMassBin = -1;
-
+     C_frac = grackle_data->SN0_fC [SNMassBin];
+     O_frac = grackle_data->SN0_fO [SNMassBin];
+    Si_frac = grackle_data->SN0_fSi[SNMassBin];
+    if (GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        Mg_frac = grackle_data->SN0_fMg[SNMassBin];
+      }
+      if (DustSpecies > 1) {
+        Al_frac = grackle_data->SN0_fAl[SNMassBin];
+         S_frac = grackle_data->SN0_fS [SNMassBin];
+        Fe_frac = grackle_data->SN0_fFe[SNMassBin];
+      }
     }
-  }
-  printf("Ejected metals (gas phase)\n");
-  printf("   C %13.5e\n",  C_frac);
-  printf("   O %13.5e\n",  O_frac);
-  printf("  Mg %13.5e\n", Mg_frac);
-  printf("  Al %13.5e\n", Al_frac);
-  printf("  Si %13.5e\n", Si_frac);
-  printf("   S %13.5e\n",  S_frac);
-  printf("  Fe %13.5e\n", Fe_frac);
-  printf("Ejected grains\n");
-  printf("     SiM %13.5e\n",     SiM_frac);
-  printf("     FeM %13.5e\n",     FeM_frac);
-  printf(" Mg2SiO4 %13.5e\n", Mg2SiO4_frac);
-  printf("  MgSiO3 %13.5e\n",  MgSiO3_frac);
-  printf("   Fe3O4 %13.5e\n",   Fe3O4_frac);
-  printf("      AC %13.5e\n",      AC_frac);
-  printf("   SiO2D %13.5e\n",   SiO2D_frac);
-  printf("     MgO %13.5e\n",     MgO_frac);
-  printf("     FeS %13.5e\n",     FeS_frac);
-  printf("   Al2O3 %13.5e\n",   Al2O3_frac);
+    if (GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+       MgSiO3_frac = grackle_data->SN0_fMgSiO3 [SNMassBin];
+           AC_frac = grackle_data->SN0_fAC     [SNMassBin];
+      }
+      if (DustSpecies > 1) {
+          SiM_frac = grackle_data->SN0_fSiM    [SNMassBin];
+          FeM_frac = grackle_data->SN0_fFeM    [SNMassBin];
+      Mg2SiO4_frac = grackle_data->SN0_fMg2SiO4[SNMassBin];
+        Fe3O4_frac = grackle_data->SN0_fFe3O4  [SNMassBin];
+        SiO2D_frac = grackle_data->SN0_fSiO2D  [SNMassBin];
+          MgO_frac = grackle_data->SN0_fMgO    [SNMassBin];
+          FeS_frac = grackle_data->SN0_fFeS    [SNMassBin];
+        Al2O3_frac = grackle_data->SN0_fAl2O3  [SNMassBin];
+      }
+    }
+
+    printf("Ejected metals (gas phase)\n");
+    printf("   C %13.5e\n",  C_frac);
+    printf("   O %13.5e\n",  O_frac);
+    printf("  Si %13.5e\n", Si_frac);
+    if (GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        printf("  Mg %13.5e\n", Mg_frac);
+      }
+      if (DustSpecies > 1) {
+        printf("  Al %13.5e\n", Al_frac);
+        printf("   S %13.5e\n",  S_frac);
+        printf("  Fe %13.5e\n", Fe_frac);
+      }
+    }
+    if (GrainGrowth || DustSublimation) {
+      printf("Ejected grains\n");
+      if (DustSpecies > 0) {
+        printf("  MgSiO3 %13.5e\n",  MgSiO3_frac);
+        printf("      AC %13.5e\n",      AC_frac);
+      }
+      if (DustSpecies > 1) {
+        printf("     SiM %13.5e\n",     SiM_frac);
+        printf("     FeM %13.5e\n",     FeM_frac);
+        printf(" Mg2SiO4 %13.5e\n", Mg2SiO4_frac);
+        printf("   Fe3O4 %13.5e\n",   Fe3O4_frac);
+        printf("   SiO2D %13.5e\n",   SiO2D_frac);
+        printf("     MgO %13.5e\n",     MgO_frac);
+        printf("     FeS %13.5e\n",     FeS_frac);
+        printf("   Al2O3 %13.5e\n",   Al2O3_frac);
+      }
+    }
+
+  } /* MetalChemistry */
+
 #endif
 
     /* Remove mass from the star that will now be added to grids. 
@@ -444,22 +456,32 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
               BaryonField[   H3OIINum][index] +=  1.0e-20 * MetalDensity_new;
               BaryonField[    O2IINum][index] +=  1.0e-20 * MetalDensity_new;
               BaryonField[      DeNum][index] +=   C_frac * MetalDensity_new/12.0;
+              if (GrainGrowth || DustSublimation) {
+                if (DustSpecies > 0) {
+                  BaryonField[      MgNum][index] +=  Mg_frac * MetalDensity_new;
+                }
+                if (DustSpecies > 1) {
+                  BaryonField[      AlNum][index] +=  Al_frac * MetalDensity_new;
+                  BaryonField[       SNum][index] +=   S_frac * MetalDensity_new;
+                  BaryonField[      FeNum][index] +=  Fe_frac * MetalDensity_new;
+                }
+              }
             }
-            if (GrainGrowth) {
-              BaryonField[      MgNum][index] +=  Mg_frac * MetalDensity_new;
-              BaryonField[      AlNum][index] +=  Al_frac * MetalDensity_new;
-              BaryonField[       SNum][index] +=   S_frac * MetalDensity_new;
-              BaryonField[      FeNum][index] +=  Fe_frac * MetalDensity_new;
-              BaryonField[     SiMNum][index] +=     SiM_frac * MetalDensity_new;
-              BaryonField[     FeMNum][index] +=     FeM_frac * MetalDensity_new;
-              BaryonField[ Mg2SiO4Num][index] += Mg2SiO4_frac * MetalDensity_new;
-              BaryonField[  MgSiO3Num][index] +=  MgSiO3_frac * MetalDensity_new;
-              BaryonField[   Fe3O4Num][index] +=   Fe3O4_frac * MetalDensity_new;
-              BaryonField[      ACNum][index] +=      AC_frac * MetalDensity_new;
-              BaryonField[   SiO2DNum][index] +=   SiO2D_frac * MetalDensity_new;
-              BaryonField[     MgONum][index] +=     MgO_frac * MetalDensity_new;
-              BaryonField[     FeSNum][index] +=     FeS_frac * MetalDensity_new;
-              BaryonField[   Al2O3Num][index] +=   Al2O3_frac * MetalDensity_new;
+            if (GrainGrowth || DustSublimation) {
+              if (DustSpecies > 0) {
+                BaryonField[  MgSiO3Num][index] +=  MgSiO3_frac * MetalDensity_new;
+                BaryonField[      ACNum][index] +=      AC_frac * MetalDensity_new;
+              }
+              if (DustSpecies > 1) {
+                BaryonField[     SiMNum][index] +=     SiM_frac * MetalDensity_new;
+                BaryonField[     FeMNum][index] +=     FeM_frac * MetalDensity_new;
+                BaryonField[ Mg2SiO4Num][index] += Mg2SiO4_frac * MetalDensity_new;
+                BaryonField[   Fe3O4Num][index] +=   Fe3O4_frac * MetalDensity_new;
+                BaryonField[   SiO2DNum][index] +=   SiO2D_frac * MetalDensity_new;
+                BaryonField[     MgONum][index] +=     MgO_frac * MetalDensity_new;
+                BaryonField[     FeSNum][index] +=     FeS_frac * MetalDensity_new;
+                BaryonField[   Al2O3Num][index] +=   Al2O3_frac * MetalDensity_new;
+              }
             }
 
 #endif
@@ -468,10 +490,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	//    BaryonField[MetalNum][index] += EjectaMetalDensity;
 	      BaryonField[MetalNum][index] += MetalDensity_new;
               if (MultiMetals) {
-                if (SNMassBin == -1) 
+                if (SNMassBin == 0) 
 	          BaryonField[ExtraType0Num][index] += MetalDensity_new;
-                if (SNMassBin == 3) 
+                if (SNMassBin == 4) 
 	          BaryonField[ExtraType1Num][index] += MetalDensity_new;
+                if (SNMassBin == 5) 
+	          BaryonField[ExtraType2Num][index] += MetalDensity_new;
               }
             }
 
@@ -1147,41 +1171,51 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[HDIINum][index]  = tiny_number * BaryonField[DensNum][index];
 	    }
             if(MetalChemistry > 0) {
-               BaryonField[   CINum][index] *= factor;
-               BaryonField[  CIINum][index] *= factor;
-               BaryonField[   CONum][index] *= factor;
-               BaryonField[  CO2Num][index] *= factor;
-               BaryonField[   OINum][index] *= factor;
-               BaryonField[   OHNum][index] *= factor;
-               BaryonField[  H2ONum][index] *= factor;
-               BaryonField[   O2Num][index] *= factor;
-               BaryonField[  SiINum][index] *= factor;
-               BaryonField[ SiOINum][index] *= factor;
-               BaryonField[SiO2INum][index] *= factor;
-               BaryonField[   CHNum][index] *= factor;
-               BaryonField[  CH2Num][index] *= factor;
-               BaryonField[ COIINum][index] *= factor;
-               BaryonField[  OIINum][index] *= factor;
-               BaryonField[ OHIINum][index] *= factor;
-               BaryonField[H2OIINum][index] *= factor;
-               BaryonField[H3OIINum][index] *= factor;
-               BaryonField[ O2IINum][index] *= factor;
+              BaryonField[   CINum][index] *= factor;
+              BaryonField[  CIINum][index] *= factor;
+              BaryonField[   CONum][index] *= factor;
+              BaryonField[  CO2Num][index] *= factor;
+              BaryonField[   OINum][index] *= factor;
+              BaryonField[   OHNum][index] *= factor;
+              BaryonField[  H2ONum][index] *= factor;
+              BaryonField[   O2Num][index] *= factor;
+              BaryonField[  SiINum][index] *= factor;
+              BaryonField[ SiOINum][index] *= factor;
+              BaryonField[SiO2INum][index] *= factor;
+              BaryonField[   CHNum][index] *= factor;
+              BaryonField[  CH2Num][index] *= factor;
+              BaryonField[ COIINum][index] *= factor;
+              BaryonField[  OIINum][index] *= factor;
+              BaryonField[ OHIINum][index] *= factor;
+              BaryonField[H2OIINum][index] *= factor;
+              BaryonField[H3OIINum][index] *= factor;
+              BaryonField[ O2IINum][index] *= factor;
+              if (GrainGrowth || DustSublimation) {
+                if (DustSpecies > 0) {
+                  BaryonField[   MgNum][index] *= factor;
+                }
+                if (DustSpecies > 1) {
+                  BaryonField[   AlNum][index] *= factor;
+                  BaryonField[    SNum][index] *= factor;
+                  BaryonField[   FeNum][index] *= factor;
+                }
+              }
             }
-            if(GrainGrowth) {
-               BaryonField[     MgNum][index] *= factor;
-               BaryonField[     AlNum][index] *= factor;
-               BaryonField[      SNum][index] *= factor;
-               BaryonField[     FeNum][index] *= factor;
-               BaryonField[    SiMNum][index] *= factor;
-               BaryonField[    FeMNum][index] *= factor;
-               BaryonField[Mg2SiO4Num][index] *= factor;
-               BaryonField[ MgSiO3Num][index] *= factor;
-               BaryonField[  Fe3O4Num][index] *= factor;
-               BaryonField[     ACNum][index] *= factor;
-               BaryonField[  SiO2DNum][index] *= factor;
-               BaryonField[    MgONum][index] *= factor;
-               BaryonField[    FeSNum][index] *= factor;
-               BaryonField[  Al2O3Num][index] *= factor;
+            if (GrainGrowth || DustSublimation) {
+              if (DustSpecies > 0) {
+                BaryonField[ MgSiO3Num][index] *= factor;
+                BaryonField[     ACNum][index] *= factor;
+              }
+              if (DustSpecies > 1) {
+                BaryonField[    SiMNum][index] *= factor;
+                BaryonField[    FeMNum][index] *= factor;
+                BaryonField[Mg2SiO4Num][index] *= factor;
+                BaryonField[  Fe3O4Num][index] *= factor;
+                BaryonField[  SiO2DNum][index] *= factor;
+                BaryonField[    MgONum][index] *= factor;
+                BaryonField[    FeSNum][index] *= factor;
+                BaryonField[  Al2O3Num][index] *= factor;
+              }
             }
 #endif
 	    if (MultiSpecies)

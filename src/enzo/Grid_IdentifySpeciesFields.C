@@ -95,7 +95,8 @@ int grid::IdentifySpeciesFieldsMD( int &HeHIINum , int &DMNum   , int &HDIINum
                                  , int &MgNum    , int &AlNum   , int &SNum      , int &FeNum
                                  , int &SiMNum   , int &FeMNum  , int &Mg2SiO4Num
                                  , int &MgSiO3Num, int &Fe3O4Num, int &ACNum
-                                 , int &SiO2DNum , int &MgONum  , int &FeSNum    , int &Al2O3Num)
+                                 , int &SiO2DNum , int &MgONum  , int &FeSNum    , int &Al2O3Num
+                                 , int &DustNum)
 {
 
     HeHIINum = DMNum     = HDIINum
@@ -105,7 +106,7 @@ int grid::IdentifySpeciesFieldsMD( int &HeHIINum , int &DMNum   , int &HDIINum
   = MgNum    =  AlNum    = SNum       = FeNum
   = SiMNum   =  FeMNum   = Mg2SiO4Num = MgSiO3Num = Fe3O4Num
   = ACNum    =  SiO2DNum = MgONum     = FeSNum    = Al2O3Num
-  = 0;
+  = DustNum  = 0;
 
   if (MultiSpecies > 3) {
     HeHIINum   = FindField(HeHIIDensity  , FieldType, NumberOfBaryonFields);
@@ -147,33 +148,57 @@ int grid::IdentifySpeciesFieldsMD( int &HeHIINum , int &DMNum   , int &HDIINum
     if(CHNum  < 0 || CH2Num   < 0 || COIINum    < 0 || OIINum    < 0 || OHIINum  < 0 || H2OIINum < 0 || H3OIINum < 0 || O2IINum < 0 ) {
       ENZO_FAIL("C related field missing.\n");
     }
+
+    if (GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        MgNum      = FindField(MgDensity     , FieldType, NumberOfBaryonFields);
+        if(MgNum  < 0) {
+          ENZO_FAIL("Mg field missing.\n");
+        }
+      }
+      if (DustSpecies > 1) {
+        AlNum      = FindField(AlDensity     , FieldType, NumberOfBaryonFields);
+        SNum       = FindField(SDensity      , FieldType, NumberOfBaryonFields);
+        FeNum      = FindField(FeDensity     , FieldType, NumberOfBaryonFields);
+        if(MgNum  < 0 || AlNum    < 0 || SNum       < 0 || FeNum < 0 ) {
+          ENZO_FAIL("Al, S, and Fe fields missing.\n");
+        }
+      }
+    }
   }
 
-  if (GrainGrowth) {
-    MgNum      = FindField(MgDensity     , FieldType, NumberOfBaryonFields);
-    AlNum      = FindField(AlDensity     , FieldType, NumberOfBaryonFields);
-    SNum       = FindField(SDensity      , FieldType, NumberOfBaryonFields);
-    FeNum      = FindField(FeDensity     , FieldType, NumberOfBaryonFields);
-    if(MgNum  < 0 || AlNum    < 0 || SNum       < 0 || FeNum < 0 ) {
-      ENZO_FAIL("Metal related field missing.\n");
+  if (GrainGrowth || DustSublimation) {
+    if (DustSpecies > 0) {
+      MgSiO3Num  = FindField(MgSiO3Density , FieldType, NumberOfBaryonFields);
+      ACNum      = FindField(ACDensity     , FieldType, NumberOfBaryonFields);
+      if(MgSiO3Num < 0 || ACNum < 0 ) {
+        ENZO_FAIL("Dust related field missing.\n");
+      }
     }
 
-    SiMNum     = FindField(SiMDensity    , FieldType, NumberOfBaryonFields);
-    FeMNum     = FindField(FeMDensity    , FieldType, NumberOfBaryonFields);
-    Mg2SiO4Num = FindField(Mg2SiO4Density, FieldType, NumberOfBaryonFields);
-    MgSiO3Num  = FindField(MgSiO3Density , FieldType, NumberOfBaryonFields);
-    Fe3O4Num   = FindField(Fe3O4Density  , FieldType, NumberOfBaryonFields);
-    if(SiMNum < 0 || FeMNum   < 0 || Mg2SiO4Num < 0 || MgSiO3Num < 0 || Fe3O4Num < 0 ) {
-      ENZO_FAIL("Dust related field missing.\n");
+    if (DustSpecies > 1) {
+      SiMNum     = FindField(SiMDensity    , FieldType, NumberOfBaryonFields);
+      FeMNum     = FindField(FeMDensity    , FieldType, NumberOfBaryonFields);
+      Mg2SiO4Num = FindField(Mg2SiO4Density, FieldType, NumberOfBaryonFields);
+      Fe3O4Num   = FindField(Fe3O4Density  , FieldType, NumberOfBaryonFields);
+      if(SiMNum < 0 || FeMNum   < 0 || Mg2SiO4Num < 0 || Fe3O4Num < 0 ) {
+        ENZO_FAIL("Dust related field missing.\n");
+      }
+      
+      SiO2DNum   = FindField(SiO2DDensity  , FieldType, NumberOfBaryonFields);
+      MgONum     = FindField(MgODensity    , FieldType, NumberOfBaryonFields);
+      FeSNum     = FindField(FeSDensity    , FieldType, NumberOfBaryonFields);
+      Al2O3Num   = FindField(Al2O3Density  , FieldType, NumberOfBaryonFields);
+      if(SiO2DNum < 0 || MgONum     < 0 || FeSNum    < 0 || Al2O3Num < 0 ) {
+        ENZO_FAIL("Dust related field missing.\n");
+      }
     }
+  }
 
-    ACNum      = FindField(ACDensity     , FieldType, NumberOfBaryonFields);
-    SiO2DNum   = FindField(SiO2DDensity  , FieldType, NumberOfBaryonFields);
-    MgONum     = FindField(MgODensity    , FieldType, NumberOfBaryonFields);
-    FeSNum     = FindField(FeSDensity    , FieldType, NumberOfBaryonFields);
-    Al2O3Num   = FindField(Al2O3Density  , FieldType, NumberOfBaryonFields);
-    if(ACNum  < 0 || SiO2DNum < 0 || MgONum     < 0 || FeSNum    < 0 || Al2O3Num < 0 ) {
-      ENZO_FAIL("Dust related field missing.\n");
+  if (UseDustDensityField) {
+    DustNum = FindField(DustDensity, FieldType, NumberOfBaryonFields);
+    if(DustNum < 0) {
+      ENZO_FAIL("Dust density field missing.\n");
     }
   }
 

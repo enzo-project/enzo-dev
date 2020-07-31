@@ -49,9 +49,13 @@ int GrackleWriteParameters(FILE *fptr)
   fprintf(fptr, "use_isrf_field              = %d\n",  grackle_data->use_isrf_field);
   fprintf(fptr, "use_dust_density_field      = %d\n",  grackle_data->use_dust_density_field);
 #ifdef GRACKLE_MD
+  fprintf(fptr, "UseDustDensityField         = %d\n", grackle_data->use_dust_density_field);
   fprintf(fptr, "MetalChemistry              = %d\n", grackle_data->metal_chemistry);
-  fprintf(fptr, "MetalPop3                   = %d\n", grackle_data->metal_pop3);
   fprintf(fptr, "GrainGrowth                 = %d\n", grackle_data->grain_growth);
+  fprintf(fptr, "MetalAbundances             = %d\n", grackle_data->metal_abundances);
+  fprintf(fptr, "DustSpecies                 = %d\n", grackle_data->dust_species);
+  fprintf(fptr, "DustTemperatureMulti        = %d\n", grackle_data->dust_temperature_multi);
+  fprintf(fptr, "DustSublimation             = %d\n", grackle_data->dust_sublimation);
 #endif
 
 #endif

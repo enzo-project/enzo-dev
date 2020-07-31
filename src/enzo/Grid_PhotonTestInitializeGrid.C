@@ -12,6 +12,9 @@
 /
 ************************************************************************/
 
+extern "C" {
+#include <grackle.h>
+}
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -94,6 +97,20 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     kphHeIINum, kdissH2INum, kdissH2IINum, kphHMNum, RPresNum1, RPresNum2, RPresNum3; 
   float *density_field = NULL, *HII_field = NULL, *HeII_field = NULL, 
     *HeIII_field = NULL, *Temperature_field = NULL;
+  int HeHIINum, DMNum, HDIINum
+    , CINum,  CIINum,   CONum,      CO2Num,    OINum,   OHNum
+    , H2ONum, O2Num,    SiINum,     SiOINum,   SiO2INum
+    , CHNum,  CH2Num,   COIINum,    OIINum,    OHIINum, H2OIINum, H3OIINum, O2IINum
+    , MgNum,  AlNum,    SNum,       FeNum
+    , SiMNum, FeMNum,   Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+    , ACNum,  SiO2DNum, MgONum,     FeSNum,    Al2O3Num
+    , DustNum;
+  int ISRFNum;
+  double MgSiO3_frac, AC_frac;
+
+  /* include metal/dust abundances of Yajima et al. (2017) */
+   MgSiO3_frac = grackle_data->SN0_fMgSiO3 [11];
+       AC_frac = grackle_data->SN0_fAC     [11];
 
   /* create fields */
   NumberOfBaryonFields = 0;
@@ -124,10 +141,24 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
       FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
     }
+    if (GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        FieldType[MgSiO3Num = NumberOfBaryonFields++] = MgSiO3Density;
+        FieldType[ACNum     = NumberOfBaryonFields++] = ACDensity;
+      }
+    }
   }
-  int ColourNum = NumberOfBaryonFields;
+//int ColourNum = NumberOfBaryonFields;
+//if (SphereUseColour)
+//  FieldType[NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
+  int ColourNum;
   if (SphereUseColour)
-    FieldType[NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
+    FieldType[ColourNum = NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
+  if (UseDustDensityField)
+    FieldType[DustNum = NumberOfBaryonFields++] = DustDensity;
+
+  if (grackle_data->use_isrf_field)
+    FieldType[ISRFNum = NumberOfBaryonFields++] = ISRFHabing;
 
   if (RadiativeTransfer && (MultiSpecies < 1)) {
     ENZO_FAIL("Grid_PhotonTestInitialize: Radiative Transfer but not MultiSpecies set");
@@ -480,7 +511,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
 	H2I_Fraction = PhotonTestInitialFractionH2I;
 	sigma = sigma1 = 0;
-	colour = 1.0e-10;
+//	colour = 1.0e-10;
 	for (dim = 0; dim < MAX_DIMENSION; dim++)
 	  Velocity[dim] = 0;
 
@@ -748,7 +779,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		for (dim = 0; dim < GridRank; dim++)
 		  Velocity[dim] = SphereVelocity[sphere][dim];
 	      if (sphere == 0)
-		colour = dens1; /* only mark first sphere */
+//		colour = dens1; /* only mark first sphere */
 	      HII_Fraction = SphereHII[sphere];
 	      HeII_Fraction = SphereHeII[sphere];
 	      HeIII_Fraction = SphereHeIII[sphere];
@@ -833,11 +864,30 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    BaryonField[H2INum][n];
 	}
 	
-	
 	/* If there is a colour field, set it. */
 	
 	if (SphereUseColour)
-	  BaryonField[ColourNum][n] = colour;
+//	  BaryonField[ColourNum][n] = colour;
+  	  BaryonField[ColourNum][n] = CoolData.SolarMetalFractionByMass * BaryonField[0][n];
+                 /* Solar metallicity (later parametrize) */
+
+        if (GrainGrowth || DustSublimation) {
+          if (DustSpecies > 0) {
+	    BaryonField[MgSiO3Num][n] = MgSiO3_frac * BaryonField[ColourNum][n];
+	    BaryonField[ACNum    ][n] =     AC_frac * BaryonField[ColourNum][n];
+	  }
+	}
+
+        if (UseDustDensityField) {
+	  BaryonField[DustNum][n] = 
+                   BaryonField[MgSiO3Num][n]
+                 + BaryonField[ACNum    ][n];
+        }
+
+        /* Set isrf field to calculate dust temperature */
+        /* just initialize arrays */
+        if (grackle_data->use_isrf_field)
+          BaryonField[ISRFNum][n] = 0.0;
 	
 	/* Set Velocities. */
 	
@@ -860,7 +910,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	  mu_data = mu;
 
 	BaryonField[1][n] = temperature/TemperatureUnits/
-	  ((Gamma-1.0)*mu_data);
+	  ((Gamma-1.0)*mu_data) * 1.0e3;
 	
 	if (DualEnergyFormalism)
 	  BaryonField[2][n] = BaryonField[1][n];

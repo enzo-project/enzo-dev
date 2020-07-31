@@ -100,7 +100,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     EjectaDensity = Mass * SolarMass / EjectaVolume / DensityUnits;
 
 #ifdef GRACKLE_MD
-    if(MetalPop3 && this->Metallicity < PopIIIMetalCriticalFraction) {
+    if(this->Metallicity < PopIIIMetalCriticalFraction) {
 #ifdef UNDER_CONSTRUCTION
       if(this->FaintSN) {
         // faint SNe

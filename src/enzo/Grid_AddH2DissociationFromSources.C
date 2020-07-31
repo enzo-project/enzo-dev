@@ -2,7 +2,6 @@
 #define DEBUG 0
 
 #define JEANS_LENGTH 1
-#define SHIELD 1
 /***********************************************************************
 /
 /  ADD H2 DISSOCIATION EMISSION FROM SHINING PARTICLES
@@ -186,7 +185,9 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	double kph_hm = 0.0, kdiss_H2II = 0.0;
 	int TemperatureField = 0;
 	/* Pre-compute some quantities to speed things up */
-	TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
+	if (RadiativeTransferH2ShieldType > 0) {
+		TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
+	}
 	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
 	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
 	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
@@ -210,6 +211,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	      }
 	      /* Include Shielding */
 
+		if (RadiativeTransferH2ShieldType > 0) {
 #if JEANS_LENGTH
 	      l_char = JeansLength(BaryonField[TemperatureField][index],
 		BaryonField[DensNum][index], DensityUnits)*RadiativeTransferOpticallyThinH2CharLength; //cm
@@ -239,7 +241,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 #endif
 	      }
 	      BaryonField[kdissH2INum][index] *= shield;
-	     
+		} // ENDIF: H2 shielding
 	    } // END: i-direction
 	  } // END: j-direction
 	} // END: k-direction
@@ -355,7 +357,9 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	double kph_hm = 0.0, kdiss_H2II = 0.0;
 	int TemperatureField = 0;
 	/* Pre-compute some quantities to speed things up */
-	TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
+	if (RadiativeTransferH2ShieldType > 0) {
+		TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
+	}
 	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
 	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
 	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
@@ -379,7 +383,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	      }
 	      /* Include Shielding */
 	      //printf("%s: kdissH2I = %e for Grid %p\n", __FUNCTION__, BaryonField[kdissH2INum][index], this);
-#if SHIELD
+		if (RadiativeTransferH2ShieldType > 0) {
 #if(JEANS_LENGTH)
 	      l_char = JeansLength(BaryonField[TemperatureField][index],
 		BaryonField[DensNum][index], DensityUnits)*RadiativeTransferOpticallyThinH2CharLength; //cm
@@ -405,7 +409,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 		shield = 0.965/pow(1+XN/b5, alpha) + (0.035/sqrt(1+XN))*exp(-8.5e-4*sqrt(1+XN));
 	      }
 	      BaryonField[kdissH2INum][index] *= shield;
-#endif
+		} // end H2 shield
 	    } //end i loop
 	  } //end j loop
 	} //end k loop

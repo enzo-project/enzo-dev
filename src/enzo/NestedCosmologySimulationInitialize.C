@@ -161,6 +161,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *GPotName  = "Grav_Potential";
   char *MetalName = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
+  char *DustName = "Dust_Density";
   char *ForbidName = "ForbiddenRefinement";
   char *MachName   = "Mach";
   char *PSTempName = "PreShock_Temperature";
@@ -793,22 +794,32 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = H2OIIName;
       DataLabel[i++] = H3OIIName;
       DataLabel[i++] = O2IIName;
+      if (GrainGrowth || DustSublimation) {
+        if (DustSpecies > 0) {
+          DataLabel[i++] = MgName;
+        }
+        if (DustSpecies > 1) {
+          DataLabel[i++] = AlName;
+          DataLabel[i++] = SName;
+          DataLabel[i++] = FeName;
+        }
+      }
     }
-    if (GrainGrowth) {
-      DataLabel[i++] = MgName;
-      DataLabel[i++] = AlName;
-      DataLabel[i++] = SName;
-      DataLabel[i++] = FeName;
-      DataLabel[i++] = SiMName;
-      DataLabel[i++] = FeMName;
-      DataLabel[i++] = Mg2SiO4Name;
-      DataLabel[i++] = MgSiO3Name;
-      DataLabel[i++] = Fe3O4Name;
-      DataLabel[i++] = ACName;
-      DataLabel[i++] = SiO2DName;
-      DataLabel[i++] = MgOName;
-      DataLabel[i++] = FeSName;
-      DataLabel[i++] = Al2O3Name;
+    if (GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        DataLabel[i++] = MgSiO3Name;
+        DataLabel[i++] = ACName;
+      }
+      if (DustSpecies > 1) {
+        DataLabel[i++] = SiMName;
+        DataLabel[i++] = FeMName;
+        DataLabel[i++] = Mg2SiO4Name;
+        DataLabel[i++] = Fe3O4Name;
+        DataLabel[i++] = SiO2DName;
+        DataLabel[i++] = MgOName;
+        DataLabel[i++] = FeSName;
+        DataLabel[i++] = Al2O3Name;
+      }
     }
 #endif
   }
@@ -822,6 +833,10 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = ExtraNames[1];
       DataLabel[i++] = ExtraNames[2];
     }
+  }
+
+  if (UseDustDensityField) {
+    DataLabel[i++] = DustName;
   }
  
   if(STARMAKE_METHOD(COLORED_POP3_STAR)){

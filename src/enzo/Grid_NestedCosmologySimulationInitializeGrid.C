@@ -132,27 +132,30 @@ int grid::NestedCosmologySimulationInitializeGrid(
     , CHNum,  CH2Num,   COIINum,    OIINum,    OHIINum, H2OIINum, H3OIINum, O2IINum
     , MgNum,  AlNum,    SNum,       FeNum
     , SiMNum, FeMNum,   Mg2SiO4Num, MgSiO3Num, Fe3O4Num
-    , ACNum,  SiO2DNum, MgONum,     FeSNum,    Al2O3Num;
+    , ACNum,  SiO2DNum, MgONum,     FeSNum,    Al2O3Num
+    , DustNum;
   double C_frac, O_frac, Mg_frac, Al_frac, Si_frac, S_frac, Fe_frac;
   double SiM_frac  , FeM_frac  , Mg2SiO4_frac, MgSiO3_frac, Fe3O4_frac
    , AC_frac   , SiO2D_frac, MgO_frac    , FeS_frac   , Al2O3_frac;
-   C_frac = grackle_data->loc_fC ;
-   O_frac = grackle_data->loc_fO ;
-  Mg_frac = grackle_data->loc_fMg;
-  Al_frac = grackle_data->loc_fAl;
-  Si_frac = grackle_data->loc_fSi;
-   S_frac = grackle_data->loc_fS ;
-  Fe_frac = grackle_data->loc_fFe;
-      SiM_frac = grackle_data->loc_fSiM    ;
-      FeM_frac = grackle_data->loc_fFeM    ;
-  Mg2SiO4_frac = grackle_data->loc_fMg2SiO4;
-   MgSiO3_frac = grackle_data->loc_fMgSiO3 ;
-    Fe3O4_frac = grackle_data->loc_fFe3O4  ;
-       AC_frac = grackle_data->loc_fAC     ;
-    SiO2D_frac = grackle_data->loc_fSiO2D  ;
-      MgO_frac = grackle_data->loc_fMgO    ;
-      FeS_frac = grackle_data->loc_fFeS    ;
-    Al2O3_frac = grackle_data->loc_fAl2O3  ;
+
+  /* include metal/dust abundances of C30 */
+   C_frac = grackle_data->SN0_fC [4];
+   O_frac = grackle_data->SN0_fO [4];
+  Mg_frac = grackle_data->SN0_fMg[4];
+  Al_frac = grackle_data->SN0_fAl[4];
+  Si_frac = grackle_data->SN0_fSi[4];
+   S_frac = grackle_data->SN0_fS [4];
+  Fe_frac = grackle_data->SN0_fFe[4];
+      SiM_frac = grackle_data->SN0_fSiM    [4];
+      FeM_frac = grackle_data->SN0_fFeM    [4];
+  Mg2SiO4_frac = grackle_data->SN0_fMg2SiO4[4];
+   MgSiO3_frac = grackle_data->SN0_fMgSiO3 [4];
+    Fe3O4_frac = grackle_data->SN0_fFe3O4  [4];
+       AC_frac = grackle_data->SN0_fAC     [4];
+    SiO2D_frac = grackle_data->SN0_fSiO2D  [4];
+      MgO_frac = grackle_data->SN0_fMgO    [4];
+      FeS_frac = grackle_data->SN0_fFeS    [4];
+    Al2O3_frac = grackle_data->SN0_fAl2O3  [4];
 #endif
  
   int iTE = ietot;
@@ -450,22 +453,32 @@ int grid::NestedCosmologySimulationInitializeGrid(
         FieldType[   H2OIINum = NumberOfBaryonFields++] =   H2OIIDensity;
         FieldType[   H3OIINum = NumberOfBaryonFields++] =   H3OIIDensity;
         FieldType[    O2IINum = NumberOfBaryonFields++] =    O2IIDensity;
+        if (GrainGrowth || DustSublimation) {
+          if (DustSpecies > 0) {
+            FieldType[    MgNum = NumberOfBaryonFields++] =      MgDensity;
+          }
+          if (DustSpecies > 1) {
+            FieldType[    AlNum = NumberOfBaryonFields++] =      AlDensity;
+            FieldType[     SNum = NumberOfBaryonFields++] =       SDensity;
+            FieldType[    FeNum = NumberOfBaryonFields++] =      FeDensity;
+          }
+        }
       }
-      if (GrainGrowth) {
-        FieldType[      MgNum = NumberOfBaryonFields++] =      MgDensity;
-        FieldType[      AlNum = NumberOfBaryonFields++] =      AlDensity;
-        FieldType[       SNum = NumberOfBaryonFields++] =       SDensity;
-        FieldType[      FeNum = NumberOfBaryonFields++] =      FeDensity;
-        FieldType[     SiMNum = NumberOfBaryonFields++] =     SiMDensity;
-        FieldType[     FeMNum = NumberOfBaryonFields++] =     FeMDensity;
-        FieldType[ Mg2SiO4Num = NumberOfBaryonFields++] = Mg2SiO4Density;
-        FieldType[  MgSiO3Num = NumberOfBaryonFields++] =  MgSiO3Density;
-        FieldType[   Fe3O4Num = NumberOfBaryonFields++] =   Fe3O4Density;
-        FieldType[      ACNum = NumberOfBaryonFields++] =      ACDensity;
-        FieldType[   SiO2DNum = NumberOfBaryonFields++] =   SiO2DDensity;
-        FieldType[     MgONum = NumberOfBaryonFields++] =     MgODensity;
-        FieldType[     FeSNum = NumberOfBaryonFields++] =     FeSDensity;
-        FieldType[   Al2O3Num = NumberOfBaryonFields++] =   Al2O3Density;
+      if (GrainGrowth || DustSublimation) {
+        if (DustSpecies > 0) {
+          FieldType[  MgSiO3Num = NumberOfBaryonFields++] =  MgSiO3Density;
+          FieldType[      ACNum = NumberOfBaryonFields++] =      ACDensity;
+        }
+        if (DustSpecies > 1) {
+          FieldType[     SiMNum = NumberOfBaryonFields++] =     SiMDensity;
+          FieldType[     FeMNum = NumberOfBaryonFields++] =     FeMDensity;
+          FieldType[ Mg2SiO4Num = NumberOfBaryonFields++] = Mg2SiO4Density;
+          FieldType[   Fe3O4Num = NumberOfBaryonFields++] =   Fe3O4Density;
+          FieldType[   SiO2DNum = NumberOfBaryonFields++] =   SiO2DDensity;
+          FieldType[     MgONum = NumberOfBaryonFields++] =     MgODensity;
+          FieldType[     FeSNum = NumberOfBaryonFields++] =     FeSDensity;
+          FieldType[   Al2O3Num = NumberOfBaryonFields++] =   Al2O3Density;
+        }
       }
 #endif
     }
@@ -478,6 +491,9 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
 	FieldType[ExtraField[2] = NumberOfBaryonFields++] = ExtraType2;
       }
+    }
+    if (UseDustDensityField) {
+      FieldType[DustNum = NumberOfBaryonFields++] = DustDensity;
     }
     if (WritePotential)
       FieldType[NumberOfBaryonFields++] = GravPotential;
@@ -728,45 +744,77 @@ int grid::NestedCosmologySimulationInitializeGrid(
           for (i = 0; i < size; i++) {
       
             if(MetalChemistry > 0) {
-               BaryonField[   CINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[  CIINum][i] =  C_frac * BaryonField[MetalNum][i];
-               BaryonField[   CONum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[  CO2Num][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[   OINum][i] =  O_frac * BaryonField[MetalNum][i];
-               BaryonField[   OHNum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[  H2ONum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[   O2Num][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[  SiINum][i] = Si_frac * BaryonField[MetalNum][i];
-               BaryonField[ SiOINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[SiO2INum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[   CHNum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[  CH2Num][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[ COIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[  OIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[ OHIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[H2OIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[H3OIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[ O2IINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
-               BaryonField[   DeNum][i] += BaryonField[CIINum][i]/12.0;
+              BaryonField[   CINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[  CIINum][i] =  C_frac * BaryonField[MetalNum][i];
+              BaryonField[   CONum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[  CO2Num][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[   OINum][i] =  O_frac * BaryonField[MetalNum][i];
+              BaryonField[   OHNum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[  H2ONum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[   O2Num][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[  SiINum][i] = Si_frac * BaryonField[MetalNum][i];
+              BaryonField[ SiOINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[SiO2INum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[   CHNum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[  CH2Num][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[ COIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[  OIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[ OHIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[H2OIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[H3OIINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[ O2IINum][i] = 1.0e-20 * BaryonField[MetalNum][i];
+              BaryonField[   DeNum][i] += BaryonField[CIINum][i]/12.0;
+              if (GrainGrowth || DustSublimation) {
+                if (DustSpecies > 0) {
+                   BaryonField[   MgNum][i] = Mg_frac * BaryonField[MetalNum][i];
+                }
+                if (DustSpecies > 1) {
+                   BaryonField[   AlNum][i] = Al_frac * BaryonField[MetalNum][i];
+                   BaryonField[    SNum][i] =  S_frac * BaryonField[MetalNum][i];
+                   BaryonField[   FeNum][i] = Fe_frac * BaryonField[MetalNum][i];
+                }
+              }
             }
-            if(GrainGrowth) {
-               BaryonField[   MgNum][i] = Mg_frac * BaryonField[MetalNum][i];
-               BaryonField[   AlNum][i] = Al_frac * BaryonField[MetalNum][i];
-               BaryonField[    SNum][i] =  S_frac * BaryonField[MetalNum][i];
-               BaryonField[   FeNum][i] = Fe_frac * BaryonField[MetalNum][i];
-               BaryonField[    SiMNum][i] =     SiM_frac * BaryonField[MetalNum][i];
-               BaryonField[    FeMNum][i] =     FeM_frac * BaryonField[MetalNum][i];
-               BaryonField[Mg2SiO4Num][i] = Mg2SiO4_frac * BaryonField[MetalNum][i];
-               BaryonField[ MgSiO3Num][i] =  MgSiO3_frac * BaryonField[MetalNum][i];
-               BaryonField[  Fe3O4Num][i] =   Fe3O4_frac * BaryonField[MetalNum][i];
-               BaryonField[     ACNum][i] =      AC_frac * BaryonField[MetalNum][i];
-               BaryonField[  SiO2DNum][i] =   SiO2D_frac * BaryonField[MetalNum][i];
-               BaryonField[    MgONum][i] =     MgO_frac * BaryonField[MetalNum][i];
-               BaryonField[    FeSNum][i] =     FeS_frac * BaryonField[MetalNum][i];
-               BaryonField[  Al2O3Num][i] =   Al2O3_frac * BaryonField[MetalNum][i];
+            if (GrainGrowth || DustSublimation) {
+              if (DustSpecies > 0) {
+                 BaryonField[ MgSiO3Num][i] =  MgSiO3_frac * BaryonField[MetalNum][i];
+                 BaryonField[     ACNum][i] =      AC_frac * BaryonField[MetalNum][i];
+              }
+              if (DustSpecies > 1) {
+                 BaryonField[    SiMNum][i] =     SiM_frac * BaryonField[MetalNum][i];
+                 BaryonField[    FeMNum][i] =     FeM_frac * BaryonField[MetalNum][i];
+                 BaryonField[Mg2SiO4Num][i] = Mg2SiO4_frac * BaryonField[MetalNum][i];
+                 BaryonField[  Fe3O4Num][i] =   Fe3O4_frac * BaryonField[MetalNum][i];
+                 BaryonField[  SiO2DNum][i] =   SiO2D_frac * BaryonField[MetalNum][i];
+                 BaryonField[    MgONum][i] =     MgO_frac * BaryonField[MetalNum][i];
+                 BaryonField[    FeSNum][i] =     FeS_frac * BaryonField[MetalNum][i];
+                 BaryonField[  Al2O3Num][i] =   Al2O3_frac * BaryonField[MetalNum][i];
+              }
             }
           }
 #endif
+
+        if (UseDustDensityField && ReadData) {
+          for (i = 0; i < size; i++) {
+            BaryonField[DustNum][i] = 0.0;
+            if (DustSpecies > 0) {
+              BaryonField[DustNum][i] +=
+                 BaryonField[ MgSiO3Num][i]
+               + BaryonField[     ACNum][i];
+            }
+            if (DustSpecies > 1) {
+              BaryonField[DustNum][i] +=
+                 BaryonField[    SiMNum][i];
+               + BaryonField[    FeMNum][i];
+               + BaryonField[Mg2SiO4Num][i];
+               + BaryonField[  Fe3O4Num][i];
+               + BaryonField[  SiO2DNum][i];
+               + BaryonField[    MgONum][i];
+               + BaryonField[    FeSNum][i];
+               + BaryonField[  Al2O3Num][i];
+            }
+          }
+        }
 
 	if (STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData) {
 	  for (i = 0; i < size; i++)

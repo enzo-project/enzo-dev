@@ -1833,7 +1833,8 @@ int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
                              , int &MgNum    , int &AlNum   , int &SNum      , int &FeNum
                              , int &SiMNum   , int &FeMNum  , int &Mg2SiO4Num
                              , int &MgSiO3Num, int &Fe3O4Num, int &ACNum
-                             , int &SiO2DNum , int &MgONum  , int &FeSNum    , int &Al2O3Num);
+                             , int &SiO2DNum , int &MgONum  , int &FeSNum    , int &Al2O3Num
+                             , int &DustNum );
 #endif
 
   /* Identify shock fields. */

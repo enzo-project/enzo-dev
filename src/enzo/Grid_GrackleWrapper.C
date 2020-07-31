@@ -54,7 +54,8 @@ int grid::GrackleWrapper()
     , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
     , MgNum   , AlNum   , SNum      , FeNum
     , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
-    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num;
+    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+    , DustNum ;
 #endif
 
   double dt_cool = dtFixed;
@@ -97,7 +98,8 @@ int grid::GrackleWrapper()
   = CHNum    =  CH2Num   = COIINum    = OIINum    = OHIINum  = H2OIINum = H3OIINum = O2IINum
   = MgNum    =  AlNum    = SNum       = FeNum
   = SiMNum   = FeMNum    = Mg2SiO4Num = MgSiO3Num = Fe3O4Num
-  = ACNum    =  SiO2DNum = MgONum     = FeSNum    = Al2O3Num = 0;
+  = ACNum    =  SiO2DNum = MgONum     = FeSNum    = Al2O3Num
+  = DustNum  = 0;
 #endif
  
   if (MultiSpecies)
@@ -113,7 +115,7 @@ int grid::GrackleWrapper()
                                , MgNum   , AlNum   , SNum      , FeNum
                                , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
                                , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
-                               ) == FAIL) {
+                               , DustNum ) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
     }
 #endif
@@ -286,6 +288,9 @@ int grid::GrackleWrapper()
     my_fields.metal_F13 = BaryonField[ExtraType2Num];
   }
 
+  if(UseDustDensityField)
+    my_fields.dust_density = BaryonField[DustNum];
+
 #ifdef GRACKLE_MD
   if(MultiSpecies > 3) {
     my_fields.     DM_density = BaryonField[     DMNum];
@@ -313,23 +318,33 @@ int grid::GrackleWrapper()
     my_fields.  H2OII_density = BaryonField[  H2OIINum];
     my_fields.  H3OII_density = BaryonField[  H3OIINum];
     my_fields.   O2II_density = BaryonField[   O2IINum];
+    if (GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        my_fields.   Mg_density = BaryonField[     MgNum];
+      }
+      if (DustSpecies > 1) {
+        my_fields.   Al_density = BaryonField[     AlNum];
+        my_fields.    S_density = BaryonField[      SNum];
+        my_fields.   Fe_density = BaryonField[     FeNum];
+      }
+    }
   }
 
-  if(GrainGrowth) {
-    my_fields.     Mg_density = BaryonField[     MgNum];
-    my_fields.     Al_density = BaryonField[     AlNum];
-    my_fields.      S_density = BaryonField[      SNum];
-    my_fields.     Fe_density = BaryonField[     FeNum];
-    my_fields.    SiM_density = BaryonField[    SiMNum];
-    my_fields.    FeM_density = BaryonField[    FeMNum];
-    my_fields.Mg2SiO4_density = BaryonField[Mg2SiO4Num];
-    my_fields. MgSiO3_density = BaryonField[ MgSiO3Num];
-    my_fields.  Fe3O4_density = BaryonField[  Fe3O4Num];
-    my_fields.     AC_density = BaryonField[     ACNum];
-    my_fields.  SiO2D_density = BaryonField[  SiO2DNum];
-    my_fields.    MgO_density = BaryonField[    MgONum];
-    my_fields.    FeS_density = BaryonField[    FeSNum];
-    my_fields.  Al2O3_density = BaryonField[  Al2O3Num];
+  if (GrainGrowth || DustSublimation) {
+    if (DustSpecies > 0) {
+      my_fields. MgSiO3_density = BaryonField[ MgSiO3Num];
+      my_fields.     AC_density = BaryonField[     ACNum];
+    }
+    if (DustSpecies > 1) {
+      my_fields.    SiM_density = BaryonField[    SiMNum];
+      my_fields.    FeM_density = BaryonField[    FeMNum];
+      my_fields.Mg2SiO4_density = BaryonField[Mg2SiO4Num];
+      my_fields.  Fe3O4_density = BaryonField[  Fe3O4Num];
+      my_fields.  SiO2D_density = BaryonField[  SiO2DNum];
+      my_fields.    MgO_density = BaryonField[    MgONum];
+      my_fields.    FeS_density = BaryonField[    FeSNum];
+      my_fields.  Al2O3_density = BaryonField[  Al2O3Num];
+    }
   }
 #endif
 
@@ -367,22 +382,29 @@ int grid::GrackleWrapper()
   }
 #endif // TRANSFER
 
+  int ISRFNum;
+
+  if (grackle_data->use_isrf_field) {
+    
+    ISRFNum = FindField(ISRFHabing, FieldType, NumberOfBaryonFields);
+
+    for( i = 0; i < size; i++) {
+      BaryonField[ISRFNum][i] = BaryonField[kphHINum][i]
+          / grackle_units.time_units            /* convert to CGS [1/s] */
+          * (1.60217653e-12 * 13.6) / 6.30e-18  /* estimate flux */
+          / 5.3e-3;                             /* convert to Habing units */
+    }
+
+    my_fields.isrf_habing = BaryonField[ISRFNum];
+
+  }
+
   /* Call the chemistry solver. */
-//#define CHEM_DEBUG
-#ifdef CHEM_DEBUG
-  printf("Before %d\n", MyProcessorNumber);
-  fflush(stdout);
-//MPI_Barrier(MPI_COMM_WORLD);
-#endif
 
   if (solve_chemistry(&grackle_units, &my_fields, (double) dt_cool) == FAIL){
     fprintf(stderr, "Error in Grackle solve_chemistry.\n");
     return FAIL;
   }
-#ifdef CHEM_DEBUG
-  printf("After %d\n", MyProcessorNumber);
-  fflush(stdout);
-#endif
 
   if (HydroMethod != Zeus_Hydro) {
     for (i = 0; i < size; i++) {

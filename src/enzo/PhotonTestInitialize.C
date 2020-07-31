@@ -15,6 +15,9 @@
 
 // This routine intializes a new simulation based on the parameter file.
 //
+extern "C" {
+#include <grackle.h>
+}
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -59,6 +62,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *Vel2Name = "y-velocity";
   const char *Vel3Name = "z-velocity";
   const char *ColourName = "colour";
+  const char *DustName = "Dust_Density";
   const char *ElectronName = "Electron_Density";
   const char *HIName    = "HI_Density";
   const char *HIIName   = "HII_Density";
@@ -71,6 +75,9 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *DIName    = "DI_Density";
   const char *DIIName   = "DII_Density";
   const char *HDIName   = "HDI_Density";
+  const char *MgSiO3Name = "MgSiO3_Density";
+  const char *ACName = "AC_Density";
+  const char *ISRFName = "ISRF_Habing";
   const char *kphHIName    = "HI_kph";
   const char *gammaName  = "PhotoGamma";
   const char *kphHeIName   = "HeI_kph";   
@@ -530,9 +537,19 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[count++] = (char*) DIIName;
       DataLabel[count++] = (char*) HDIName;
     }
+    if (GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        DataLabel[count++] = (char*) MgSiO3Name;
+        DataLabel[count++] = (char*) ACName;
+      }
+    }
   }  // if Multispecies
   if (PhotonTestUseColour)
     DataLabel[count++] = (char*) ColourName;
+  if (UseDustDensityField)
+    DataLabel[count++] = (char*) DustName;
+  if (grackle_data->use_isrf_field)
+    DataLabel[count++] = (char*) ISRFName;
   
   if (RadiativeTransfer)
     if (MultiSpecies) {

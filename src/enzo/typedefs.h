@@ -205,8 +205,10 @@ const field_type
   FeSDensity      =127,
   Al2O3Density    =128,
   ExtraType2      =129,
+  DustDensity     =130,
+  ISRFHabing      =131,
 
-  FieldUndefined  = 130;
+  FieldUndefined  = 132;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

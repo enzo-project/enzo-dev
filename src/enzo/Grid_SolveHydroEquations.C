@@ -97,7 +97,8 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       , CHNum,  CH2Num,   COIINum,    OIINum,    OHIINum, H2OIINum, H3OIINum, O2IINum
       , MgNum,  AlNum,    SNum,       FeNum
       , SiMNum, FeMNum,   Mg2SiO4Num, MgSiO3Num, Fe3O4Num
-      , ACNum,  SiO2DNum, MgONum,     FeSNum,    Al2O3Num;
+      , ACNum,  SiO2DNum, MgONum,     FeSNum,    Al2O3Num
+      , DustNum;
 #endif
 
     // use different color fields for RadiativeTransferFLD problems
@@ -116,7 +117,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
                                  , MgNum   , AlNum   , SNum      , FeNum
                                  , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
                                  , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
-                                 ) == FAIL) {
+                                 , DustNum ) == FAIL) {
         ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
       }
 
@@ -161,22 +162,32 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
         if(   H2OIINum != -1) colnum[NumberOfColours++] =   H2OIINum;
         if(   H3OIINum != -1) colnum[NumberOfColours++] =   H3OIINum;
         if(    O2IINum != -1) colnum[NumberOfColours++] =    O2IINum;
+        if (GrainGrowth || DustSublimation) {
+          if (DustSpecies > 0) {
+            if(  MgNum != -1) colnum[NumberOfColours++] =      MgNum;
+          }
+          if (DustSpecies > 1) {
+            if(  AlNum != -1) colnum[NumberOfColours++] =      AlNum;
+            if(   SNum != -1) colnum[NumberOfColours++] =       SNum;
+            if(  FeNum != -1) colnum[NumberOfColours++] =      FeNum;
+          }
+        }
       }
-      if (GrainGrowth) {
-        if(      MgNum != -1) colnum[NumberOfColours++] =      MgNum;
-        if(      AlNum != -1) colnum[NumberOfColours++] =      AlNum;
-        if(       SNum != -1) colnum[NumberOfColours++] =       SNum;
-        if(      FeNum != -1) colnum[NumberOfColours++] =      FeNum;
-        if(     SiMNum != -1) colnum[NumberOfColours++] =     SiMNum;
-        if(     FeMNum != -1) colnum[NumberOfColours++] =     FeMNum;
-        if( Mg2SiO4Num != -1) colnum[NumberOfColours++] = Mg2SiO4Num;
-        if(  MgSiO3Num != -1) colnum[NumberOfColours++] =  MgSiO3Num;
-        if(   Fe3O4Num != -1) colnum[NumberOfColours++] =   Fe3O4Num;
-        if(      ACNum != -1) colnum[NumberOfColours++] =      ACNum;
-        if(   SiO2DNum != -1) colnum[NumberOfColours++] =   SiO2DNum;
-        if(     MgONum != -1) colnum[NumberOfColours++] =     MgONum;
-        if(     FeSNum != -1) colnum[NumberOfColours++] =     FeSNum;
-        if(   Al2O3Num != -1) colnum[NumberOfColours++] =   Al2O3Num;
+      if (GrainGrowth || DustSublimation) {
+        if (DustSpecies > 0) {
+          if(  MgSiO3Num != -1) colnum[NumberOfColours++] =  MgSiO3Num;
+          if(      ACNum != -1) colnum[NumberOfColours++] =      ACNum;
+        }
+        if (DustSpecies > 1) {
+          if(     SiMNum != -1) colnum[NumberOfColours++] =     SiMNum;
+          if(     FeMNum != -1) colnum[NumberOfColours++] =     FeMNum;
+          if( Mg2SiO4Num != -1) colnum[NumberOfColours++] = Mg2SiO4Num;
+          if(   Fe3O4Num != -1) colnum[NumberOfColours++] =   Fe3O4Num;
+          if(   SiO2DNum != -1) colnum[NumberOfColours++] =   SiO2DNum;
+          if(     MgONum != -1) colnum[NumberOfColours++] =     MgONum;
+          if(     FeSNum != -1) colnum[NumberOfColours++] =     FeSNum;
+          if(   Al2O3Num != -1) colnum[NumberOfColours++] =   Al2O3Num;
+        }
       }
 #else
       NumberOfColours = 6 + 3*(MultiSpecies-1);
@@ -291,6 +302,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
     if (Galaxy2ColourNum != -1) colnum[NumberOfColours++] = Galaxy2ColourNum;
 
+    if (DustNum          != -1) colnum[NumberOfColours++] = DustNum;
 
     /* Add Simon Glover's chemistry species as color fields */
 
