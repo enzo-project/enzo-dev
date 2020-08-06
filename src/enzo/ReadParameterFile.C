@@ -1846,8 +1846,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     iPhi = 9;
     iEint = 5;
   }
-
   if (( CRModel ) && ( HydroMethod == 4 )){
+    // Along with the variables above, iCR is a hard-coded index used in arrays generated
+    // in the hydro_rk riemann solvers
     NEQ_MHD += 1;
     if (DualEnergyFormalism)
       iCR = 10;

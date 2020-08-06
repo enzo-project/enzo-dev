@@ -5,6 +5,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "phys_constants.h"
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
@@ -283,7 +284,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
     for (i = 0; i < GridDimension[0]; i++) {
       x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];		
       x = x - x0;	// translate gaussian to center
-      BaryonField[iCRD][i] = 1.0/sqrt(4.0*3.14159*CRkappa*t0)
+      BaryonField[iCRD][i] = 1.0/sqrt(4.0*pi*CRkappa*t0)
 	* PEXP( -x*x/(4.0*CRkappa*t0));
     } // end i for
   } // end if

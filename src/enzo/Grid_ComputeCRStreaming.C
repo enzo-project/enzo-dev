@@ -43,7 +43,7 @@ int grid::ComputeCRStreaming(){
 
   // Some locals
   int size = 1, idx, i,j,k; 
-  float *cr, *Bx, *By, *Bz, crOld, rho, stability_factor;
+  float *cr, *Bx, *By, *Bz, crOld, rho, inv_sqrt_rho,  stability_factor;
   float dCRdt, dCRdx, dCRdy, dCRdz, va_x, va_y, va_z, ecr;
   
   float *dx = new float[GridRank];
@@ -101,9 +101,10 @@ int grid::ComputeCRStreaming(){
 	dCRdz = (cr[idx]-cr[ELT(i,j,k-1)])/dx[2];
 
 	// CRs stream with a velocity proportional to the Alfven velocity     
-	va_x = Bx[idx] / sqrt(rho);
-	va_y = By[idx] / sqrt(rho);
-	va_z = Bz[idx] / sqrt(rho);
+	inv_sqrt_rho = 1.0 / sqrt(rho);
+	va_x = Bx[idx] * inv_sqrt_rho;
+	va_y = By[idx] * inv_sqrt_rho;
+	va_z = Bz[idx] * inv_sqrt_rho;
 	
 	ecr = (cr[idx] == 0) ? 1.0 : cr[idx];
 	// Calculate CR flux
@@ -159,6 +160,7 @@ int grid::ComputeCRStreaming(){
   delete [] Fcx;
   delete [] Fcy;
   delete [] Fcz;
+  delete [] dx; 
 
   return SUCCESS;  
 }

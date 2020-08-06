@@ -3386,8 +3386,8 @@ For details on the cosmic ray solver in Enzo see :ref:`cosmic_rays`.
     Switches on diffusion of the cosmic ray energy density. Default: 0
 
     0. Off
-    1. On; Isotropic diffusion with constant coefficient (``CRkappa``)
-    2. On; Anisotropic diffusion around magnetic field lines with constant coefficient (``CRkappa``)
+    1. On; Isotropic diffusion with constant coefficient (``CRkappa``). Compatible with HydroMethod = 2 or 4.
+    2. On; Anisotropic diffusion around magnetic field lines with constant coefficient (``CRkappa``). Compatible with HydroMethod = 4. 
 
 
 ``CRkappa`` (external)
@@ -3397,11 +3397,11 @@ For details on the cosmic ray solver in Enzo see :ref:`cosmic_rays`.
     Switches on streaming of the cosmic ray energy density. Default: 0
    
    0. Off
-   1. On; Anisotropic streaming around magnetic field lines.
+   1. On; Anisotropic streaming around magnetic field lines. Compatible with HydroMethod = 4. 
 
 ``CRHeatng`` (external)
     Models momentum transfer from streaming cosmic rays to the thermal gas. Physically, this should
-    only be turned on for runs with cosmic ray streaming. However, this will for any combination of CR
+    only be turned on for runs with cosmic ray streaming. However, this will work for any combination of CR
     parameters. Only compatible with HydroMethod = 4. Default: 0. 
 
 ``CRStreamingStabilityFactor`` (external)

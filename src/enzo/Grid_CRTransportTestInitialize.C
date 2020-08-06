@@ -3,6 +3,7 @@
 #include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
+#include "phys_constants.h"
 #include "typedefs.h"
 #include "global_data.h"
 #include "Fluxes.h"
@@ -116,7 +117,7 @@ int grid::CRTransportTestInitializeGrid(int test_type, float center,
 	     By = by;
 	   }
 	   
-	   if ((r < 0.7) && (r > 0.5) && (phi < 3.14159/12.0))
+	   if ((r < 0.7) && (r > 0.5) && (phi < pi/12.0))
 	     Ecr = ecr * 1.2;
 	   else
 	     Ecr = ecr;

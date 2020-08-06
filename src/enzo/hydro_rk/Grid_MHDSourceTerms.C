@@ -102,7 +102,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
     float dtdy = (GridRank > 1) ? coef*dtFixed/CellWidth[1][0]/a : 0.0;
     float dtdz = (GridRank > 2) ? coef*dtFixed/CellWidth[2][0]/a : 0.0;
 
-    FLOAT divVdt, dtdEcrdx, dtdEcrdy, dtdEcrdz, dHeatCR, rho;
+    FLOAT divVdt, dtdEcrdx, dtdEcrdy, dtdEcrdz, dHeatCR, rho, inv_sqrt_rho;
     FLOAT va_x, va_y, va_z;
     int n = 0;
 
@@ -137,10 +137,11 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 
 
 	  if (CRHeating){
-	    // components of Alfven velocity                                                                                         
-	    va_x = BaryonField[B1Num][igrid]/ sqrt(rho);
-	    va_y = BaryonField[B2Num][igrid]/ sqrt(rho);
-	    va_z = BaryonField[B3Num][igrid]/ sqrt(rho);
+	    // components of Alfven velocity
+            inv_sqrt_rho = 1.0 / sqrt(rho);
+	    va_x = BaryonField[B1Num][igrid] * inv_sqrt_rho;
+	    va_y = BaryonField[B2Num][igrid] * inv_sqrt_rho;
+	    va_z = BaryonField[B3Num][igrid] * inv_sqrt_rho;
 
 	    // Calculating the heating rate of cosmic rays on the thermal gas:                                                       
 	    dHeatCR = (CRgamma - 1.0)*(va_x*dtdEcrdx + va_y*dtdEcrdy +va_z*dtdEcrdz);

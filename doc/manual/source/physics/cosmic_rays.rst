@@ -10,7 +10,7 @@ Bryan 2014 <http://adsabs.harvard.edu/abs/2014MNRAS.437.3312S>`_ .
 The implementation of anisotropic cosmic ray physics is described and tested
 in `Butsky and Quinn 2018 <https://ui.adsabs.harvard.edu/abs/2018ApJ...868..108B/abstract>`_.
 For relevant parameters, please also see
-:ref:`cosmic_ray_two_fluid_model_parameters`.  The bulk of the code itself can be found in *Grid_ZeusSolver.C*
+:ref:`cosmic_ray_two_fluid_model_parameters`.  The bulk of the advection code itself can be found in *Grid_ZeusSolver.C* and *hydro_rk/Riemann_LLF_MHD.C*. Cosmic ray transport is solved in *Grid_ComputeCRDiffusion.C*, *Grid_ComputeAnisotropicCRDiffusion.C*, and *Grid_ComputeCRStreaming.C*. 
 
 
 This module models the dynamical role of cosmic rays via a set of two-fluid hydro equations
@@ -23,15 +23,15 @@ star formation. See :ref:`cosmic_ray_two_fluid_model_parameters` for information
 these options. But most important are:
 
 
-  - ``CRModel`` - Switches on the CR physics (0 = off, 1 = on)
+  - ``CRModel`` - Switches on the CR physics (0 = off, 1 = on). Compatible with HydroMethod = 2 or 4.
 
   - ``CRgamma`` - For polytropic equation of state. 4/3 = relativistic, adiabatic gas (default)
 
-  - ``CRDiffusion`` - Turns on diffusion of CREnergyDensity field (0 = off, 1 = isotropic, 2 = anisotropic)
+  - ``CRDiffusion`` - Turns on diffusion of CREnergyDensity field (0 = off, 1 = isotropic, 2 = anisotropic). CRDiffusion = 2 is only Compatible with HydroMethod = 4. 
 
   - ``CRkappa`` - Diffusion coefficient (currently constant, isotropic)
 
-  - ``CRStreaming`` - Turns on CR streaming along mangetic field lines (0 = off, 1 = on)
+  - ``CRStreaming`` - Turns on CR streaming along mangetic field lines (0 = off, 1 = on). Compatible with HydroMethod = 4. 
 
   - ``CRFeedback`` - Controls production of rays in star forming regions (0 = off, 1 = on) 
 
