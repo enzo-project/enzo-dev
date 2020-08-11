@@ -138,24 +138,26 @@ int grid::NestedCosmologySimulationInitializeGrid(
   double SiM_frac  , FeM_frac  , Mg2SiO4_frac, MgSiO3_frac, Fe3O4_frac
    , AC_frac   , SiO2D_frac, MgO_frac    , FeS_frac   , Al2O3_frac;
 
-  /* include metal/dust abundances of C30 */
-   C_frac = grackle_data->SN0_fC [4];
-   O_frac = grackle_data->SN0_fO [4];
-  Mg_frac = grackle_data->SN0_fMg[4];
-  Al_frac = grackle_data->SN0_fAl[4];
-  Si_frac = grackle_data->SN0_fSi[4];
-   S_frac = grackle_data->SN0_fS [4];
-  Fe_frac = grackle_data->SN0_fFe[4];
-      SiM_frac = grackle_data->SN0_fSiM    [4];
-      FeM_frac = grackle_data->SN0_fFeM    [4];
-  Mg2SiO4_frac = grackle_data->SN0_fMg2SiO4[4];
-   MgSiO3_frac = grackle_data->SN0_fMgSiO3 [4];
-    Fe3O4_frac = grackle_data->SN0_fFe3O4  [4];
-       AC_frac = grackle_data->SN0_fAC     [4];
-    SiO2D_frac = grackle_data->SN0_fSiO2D  [4];
-      MgO_frac = grackle_data->SN0_fMgO    [4];
-      FeS_frac = grackle_data->SN0_fFeS    [4];
-    Al2O3_frac = grackle_data->SN0_fAl2O3  [4];
+  if (grackle_data->use_grackle) {
+    /* include metal/dust abundances of C30 */
+     C_frac = grackle_data->SN0_fC [4];
+     O_frac = grackle_data->SN0_fO [4];
+    Mg_frac = grackle_data->SN0_fMg[4];
+    Al_frac = grackle_data->SN0_fAl[4];
+    Si_frac = grackle_data->SN0_fSi[4];
+     S_frac = grackle_data->SN0_fS [4];
+    Fe_frac = grackle_data->SN0_fFe[4];
+        SiM_frac = grackle_data->SN0_fSiM    [4];
+        FeM_frac = grackle_data->SN0_fFeM    [4];
+    Mg2SiO4_frac = grackle_data->SN0_fMg2SiO4[4];
+     MgSiO3_frac = grackle_data->SN0_fMgSiO3 [4];
+      Fe3O4_frac = grackle_data->SN0_fFe3O4  [4];
+         AC_frac = grackle_data->SN0_fAC     [4];
+      SiO2D_frac = grackle_data->SN0_fSiO2D  [4];
+        MgO_frac = grackle_data->SN0_fMgO    [4];
+        FeS_frac = grackle_data->SN0_fFeS    [4];
+      Al2O3_frac = grackle_data->SN0_fAl2O3  [4];
+  }
 #endif
  
   int iTE = ietot;
