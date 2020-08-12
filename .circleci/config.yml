@@ -171,13 +171,13 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v1
+          key: dependencies-v2
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v1
+          key: dependencies-v2
           paths:
             - ~/.cache/pip
             - ~/venv
