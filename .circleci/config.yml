@@ -26,7 +26,8 @@ commands:
           pip install --upgrade pip
           pip install --upgrade wheel
           pip install --upgrade setuptools
-          pip install Cython numpy h5py matplotlib fastcache flake8 nose yt girder-client
+          pip install 'matplotlib<3.3.0'
+          pip install Cython numpy h5py fastcache flake8 nose yt girder-client
           # Install hypre
           mkdir -p $HOME/local
           if [ ! -f $HOME/local/lib/libHYPRE.a ]; then
@@ -160,7 +161,7 @@ commands:
 jobs:
   test-suite:
     docker:
-      - image: circleci/python:3.7.2
+      - image: circleci/python:3.8.5
 
     working_directory: ~/enzo-dev
 
@@ -207,7 +208,7 @@ jobs:
 
   test-compile-options:
     docker:
-      - image: circleci/python:3.7.2
+      - image: circleci/python:3.8.5
 
     working_directory: ~/enzo-dev
 
@@ -234,7 +235,7 @@ jobs:
 
   docs-build:
     docker:
-      - image: circleci/python:3.7.2
+      - image: circleci/python:3.8.5
 
     working_directory: ~/enzo-dev
 
