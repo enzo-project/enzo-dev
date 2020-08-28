@@ -3,7 +3,7 @@ The beginnings of a mechanism for interacting with Enzo through Python
 
 Author: Matthew Turk <matthewturk@gmail.com>
 Affiliation: NSF / Columbia University
-Homepage: http://yt.enzotools.org/
+Homepage: https://yt-project.org/
 License:
   Copyright (C) 2011 Matthew Turk.  All Rights Reserved.
 

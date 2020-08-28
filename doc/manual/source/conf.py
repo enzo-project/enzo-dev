@@ -224,7 +224,6 @@ intersphinx_mapping = {'http://docs.python.org/': None,
                        'http://ipython.org/ipython-doc/stable/': None,
                        'http://docs.scipy.org/doc/numpy/': None,
                        'http://matplotlib.sourceforge.net/': None,
-                       'http://yt.enzotools.org/doc': None,
                        }
 
 
