@@ -161,7 +161,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 #endif
  
   int iTE = ietot;
-  int ExtraField[3];
+  int ExtraField[12];
   int ForbidNum;
   int MachNum, PSTempNum, PSDenNum;
   int RePsiNum, ImPsiNum, FDMDensNum;
@@ -492,6 +492,15 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
 	FieldType[ExtraField[2] = NumberOfBaryonFields++] = ExtraType2;
+	FieldType[ExtraField[3] = NumberOfBaryonFields++] = ExtraType3;
+	FieldType[ExtraField[4] = NumberOfBaryonFields++] = ExtraType4;
+	FieldType[ExtraField[5] = NumberOfBaryonFields++] = ExtraType5;
+	FieldType[ExtraField[6] = NumberOfBaryonFields++] = ExtraType6;
+	FieldType[ExtraField[7] = NumberOfBaryonFields++] = ExtraType7;
+	FieldType[ExtraField[8] = NumberOfBaryonFields++] = ExtraType8;
+	FieldType[ExtraField[9] = NumberOfBaryonFields++] = ExtraType9;
+	FieldType[ExtraField[10]= NumberOfBaryonFields++] = ExtraType10;
+	FieldType[ExtraField[11]= NumberOfBaryonFields++] = ExtraType11;
       }
     }
     if (UseDustDensityField) {
@@ -732,12 +741,18 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	
 	if (MultiMetals) {
 	  for (i = 0; i < size; i++) {
-	    BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
-	      * BaryonField[0][i];
-	    BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
-	      * BaryonField[0][i];
-	    BaryonField[ExtraField[2]][i] = CosmologySimulationInitialFractionMetal
-	      * BaryonField[0][i];
+	    BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[2]][i] = CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[3]][i] = CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[4]][i] = CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[5]][i] = CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[6]][i] = CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[7]][i] = CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[8]][i] = CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[9]][i] = CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[10]][i]= CosmologySimulationInitialFractionMetal * BaryonField[0][i];
+	    BaryonField[ExtraField[11]][i]= CosmologySimulationInitialFractionMetal * BaryonField[0][i];
 	  }
 	}
 

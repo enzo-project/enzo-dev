@@ -169,7 +169,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MachName   = "Mach";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
-  char *ExtraNames[3] = {"Z_Field0", "Z_Field1", "Z_Field2"};
+  char *ExtraNames[12] = {"Z_Field0", "Z_Field1", "Z_Field2", "Z_Field3"
+                        , "Z_Field4", "Z_Field5", "Z_Field6", "Z_Field7"
+                        , "Z_Field8", "Z_Field9", "Z_Field10","Z_Field11"};
   char *BxName = "Bx";
   char *ByName = "By";
   char *BzName = "Bz";
@@ -888,6 +890,15 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];
       DataLabel[i++] = ExtraNames[2];
+      DataLabel[i++] = ExtraNames[3];
+      DataLabel[i++] = ExtraNames[4];
+      DataLabel[i++] = ExtraNames[5];
+      DataLabel[i++] = ExtraNames[6];
+      DataLabel[i++] = ExtraNames[7];
+      DataLabel[i++] = ExtraNames[8];
+      DataLabel[i++] = ExtraNames[9];
+      DataLabel[i++] = ExtraNames[10];
+      DataLabel[i++] = ExtraNames[11];
     }
   }
 

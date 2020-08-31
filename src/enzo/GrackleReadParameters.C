@@ -68,15 +68,14 @@ int GrackleSetDefaultParameters(FILE *fptr){
     MultiSpecies                          = (int) grackle_data->primordial_chemistry;
     MetalCooling                          = (int) grackle_data->metal_cooling;
     H2FormationOnDust                     = (int) grackle_data->h2_on_dust;
-#ifdef GRACKLE_MD
     MetalChemistry                        = (int) grackle_data->metal_chemistry;
+    MultiMetals                           = (int) grackle_data->multi_metals;
     UseDustDensityField                   = (int) grackle_data->use_dust_density_field;
     GrainGrowth                           = (int) grackle_data->grain_growth;
     MetalAbundances                       = (int) grackle_data->metal_abundances;
     DustSpecies                           = (int) grackle_data->dust_species;
     DustTemperatureMulti                  = (int) grackle_data->dust_temperature_multi;
     DustSublimation                       = (int) grackle_data->dust_sublimation;
-#endif
     CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data->cmb_temperature_floor;
     ThreeBodyRate                         = (int) grackle_data->three_body_rate;
     CIECooling                            = (int) grackle_data->cie_cooling;
@@ -146,7 +145,6 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     ret += sscanf(line, "LWbackground_sawtooth_suppression = %d",
                   &grackle_data->LWbackground_sawtooth_suppression);
 
-#ifdef GRACKLE_MD
     ret += sscanf(line, "MetalChemistry = %d", &MetalChemistry);
     ret += sscanf(line, "UseDustDensityField = %d", &UseDustDensityField);
     ret += sscanf(line, "GrainGrowth = %d", &GrainGrowth);
@@ -154,7 +152,6 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     ret += sscanf(line, "DustSpecies = %d", &DustSpecies);
     ret += sscanf(line, "DustTemperatureMulti = %d", &DustTemperatureMulti);
     ret += sscanf(line, "DustSublimation = %d", &DustSublimation);
-#endif
     ret += sscanf(line, "local_dust_to_gas_ratio = %f",
                   &grackle_data->local_dust_to_gas_ratio);
 
@@ -195,15 +192,14 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
   grackle_data->primordial_chemistry           = (Eint32) MultiSpecies;
   grackle_data->metal_cooling                  = (Eint32) MetalCooling;
   grackle_data->h2_on_dust                     = (Eint32) H2FormationOnDust;
-#ifdef GRACKLE_MD
   grackle_data->metal_chemistry                = (Eint32) MetalChemistry;
+  grackle_data->multi_metals                   = (Eint32) MultiMetals;
   grackle_data->use_dust_density_field         = (Eint32) UseDustDensityField;
   grackle_data->grain_growth                   = (Eint32) GrainGrowth;
   grackle_data->metal_abundances               = (Eint32) MetalAbundances;
   grackle_data->dust_species                   = (Eint32) DustSpecies;
   grackle_data->dust_temperature_multi         = (Eint32) DustTemperatureMulti;
   grackle_data->dust_sublimation               = (Eint32) DustSublimation;
-#endif
   grackle_data->cmb_temperature_floor          = (Eint32) CloudyCoolingData.CMBTemperatureFloor;
   grackle_data->three_body_rate                = (Eint32) ThreeBodyRate;
   grackle_data->cie_cooling                    = (Eint32) CIECooling;

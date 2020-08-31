@@ -199,9 +199,12 @@ int grid::GrackleWrapper()
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
 
-  int ExtraType0Num, ExtraType1Num, ExtraType2Num;
+  int ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num
+    , ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num;
   if (MetalFieldPresent && MultiMetals)
-    if (this->IdentifyExtraTypeFields(ExtraType0Num, ExtraType1Num, ExtraType2Num
+    if (this->IdentifyExtraTypeFields(
+      ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num,
+      ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num
                ) == FAIL)
       ENZO_FAIL("Error in grid->IdentifyExtraTypeFields.\n");
  
@@ -284,8 +287,17 @@ int grid::GrackleWrapper()
   my_fields.metal_density   = MetalPointer;
   if(MultiMetals) {
     my_fields.metal_loc = BaryonField[ExtraType0Num];
-    my_fields.metal_C30 = BaryonField[ExtraType1Num];
-    my_fields.metal_F13 = BaryonField[ExtraType2Num];
+    my_fields.metal_C13 = BaryonField[ExtraType1Num];
+    my_fields.metal_C20 = BaryonField[ExtraType2Num];
+    my_fields.metal_C25 = BaryonField[ExtraType3Num];
+    my_fields.metal_C30 = BaryonField[ExtraType4Num];
+    my_fields.metal_F13 = BaryonField[ExtraType5Num];
+    my_fields.metal_F15 = BaryonField[ExtraType6Num];
+    my_fields.metal_F50 = BaryonField[ExtraType7Num];
+    my_fields.metal_F80 = BaryonField[ExtraType8Num];
+    my_fields.metal_P170= BaryonField[ExtraType9Num];
+    my_fields.metal_P200= BaryonField[ExtraType10Num];
+    my_fields.metal_Y19 = BaryonField[ExtraType11Num];
   }
 
   if(UseDustDensityField)

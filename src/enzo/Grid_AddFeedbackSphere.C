@@ -51,7 +51,7 @@ int FindField(int field, int farray[], int numfields);
 
 int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits, 
 			    float LengthUnits, float VelocityUnits, 
-			    float TemperatureUnits, float TimeUnits, double EjectaDensity, 
+			    float TemperatureUnits, FLOAT Time, float TimeUnits, double EjectaDensity, 
 			    double EjectaMetalDensity, double EjectaThermalEnergy, 
 			    double Q_HI, double sigma_HI, float deltaE, int &CellsModified)
 {
@@ -143,9 +143,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 				 Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
-  int ExtraType0Num, ExtraType1Num, ExtraType2Num;
+  int ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num
+    , ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num;
   if (MultiMetals)
-    if (this->IdentifyExtraTypeFields(ExtraType0Num, ExtraType1Num, ExtraType2Num
+    if (this->IdentifyExtraTypeFields(
+      ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num,
+      ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num
                ) == FAIL)
       ENZO_FAIL("Error in grid->IdentifyExtraTypeFields.\n");
 
@@ -172,6 +175,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   float outerRadius2, delta_fz;
   double MetalDensity_new;
   int SNMassBin;
+  float tdyn;
+  const float tlife[] = 
+           {  2.54502e+07,  9.27383e+06,  6.69605e+06,  5.58739e+06
+           ,  4.21361e+06,  2.43907e+06,  2.28077e+06,  2.12901e+06  };
+             // lifetime of PopII stars [year]
+             // approximate Pop III stellar lifetime (Schaerer 2002)
 
   if (cstar->FeedbackFlag == SUPERNOVA || 
       cstar->FeedbackFlag == CONT_SUPERNOVA) {
@@ -215,24 +224,53 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
     } else {
 
-      if (cstar->Mass < 40.01) { // normal core-collapse SN
-        if (cstar->Mass < 16.5) {
-           SNMassBin = 1;
-        } else if (cstar->Mass < 22.5) {
-           SNMassBin = 2;
-        } else if (cstar->Mass < 27.5) {
-           SNMassBin = 3;
-        } else {
-           SNMassBin = 4;
+      /* Pop III */
+      if (cstar->FeedbackFlag == SUPERNOVA) {
+        if (cstar->Mass < 140) { // faint core-collapse SN
+          if (cstar->Mass < 14.0) {
+             SNMassBin = 5;
+          } else if (cstar->Mass < 32.5) {
+             SNMassBin = 6;
+          } else if (cstar->Mass < 65.0) {
+             SNMassBin = 7;
+          } else {
+             SNMassBin = 8;
+          }
+        }
+
+        if (cstar->Mass > 140.0) { // pair-instability SN
+          if (cstar->Mass < 185.0) {
+             SNMassBin = 9;
+          } else {
+             SNMassBin = 10;
+          }
         }
       }
-      if (cstar->Mass > 140.0) { // pair-instability SN
-        if (cstar->Mass < 185.0) {
-           SNMassBin = 5;
+
+      /* Pop II */
+      if (cstar->FeedbackFlag == CONT_SUPERNOVA) {
+        tdyn = (Time - cstar->BirthTime) * (TimeUnits/yr_s); // year
+        if( tdyn > tlife[7] && cstar->Mass > 260.0 ) {
+          return SUCCESS;
+        } else if( tdyn > tlife[6] && cstar->Mass > 185.0 ) {
+          SNMassBin = 10;
+        } else if( tdyn > tlife[5] && cstar->Mass > 140.0 ) {
+          SNMassBin = 9;
+        } else if( tdyn > tlife[4] && cstar->Mass > 40.0 ) {
+          return SUCCESS;
+        } else if( tdyn > tlife[3] && cstar->Mass > 27.5 ) {
+          SNMassBin = 4;
+        } else if( tdyn > tlife[2] && cstar->Mass > 22.5 ) {
+          SNMassBin = 3;
+        } else if( tdyn > tlife[1] && cstar->Mass > 16.5 ) {
+          SNMassBin = 2;
+        } else if( tdyn > tlife[0] && cstar->Mass > 8.0 ) {
+          SNMassBin = 1;
         } else {
-           SNMassBin = 6;
+          return SUCCESS;
         }
       }
+
     } /* MultiMetals */
 
      C_frac = grackle_data->SN0_fC [SNMassBin];
@@ -265,6 +303,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       }
     }
 
+    printf("SN model %3d\n", SNMassBin);
     printf("Ejected metals (gas phase)\n");
     printf("   C %13.5e\n",  C_frac);
     printf("   O %13.5e\n",  O_frac);
@@ -307,12 +346,14 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 //    printf("grid::AFS: before: cstar->Mass = %lf\n", cstar->Mass); 
     if (cstar->FeedbackFlag != SUPERNOVA) {
+    if (!MetalChemistry) {
       float old_mass = (float)(cstar->Mass);
       cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / SolarMass;  
       float frac = old_mass / cstar->Mass;
       cstar->vel[0] *= frac;
       cstar->vel[1] *= frac;
       cstar->vel[2] *= frac;
+    }
     } // ENDIF !Supernova
 
     maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
@@ -492,10 +533,28 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
               if (MultiMetals) {
                 if (SNMassBin == 0) 
 	          BaryonField[ExtraType0Num][index] += MetalDensity_new;
-                if (SNMassBin == 4) 
+                if (SNMassBin == 1) 
 	          BaryonField[ExtraType1Num][index] += MetalDensity_new;
-                if (SNMassBin == 5) 
+                if (SNMassBin == 2) 
 	          BaryonField[ExtraType2Num][index] += MetalDensity_new;
+                if (SNMassBin == 3) 
+	          BaryonField[ExtraType3Num][index] += MetalDensity_new;
+                if (SNMassBin == 4) 
+	          BaryonField[ExtraType4Num][index] += MetalDensity_new;
+                if (SNMassBin == 5) 
+	          BaryonField[ExtraType5Num][index] += MetalDensity_new;
+                if (SNMassBin == 6) 
+	          BaryonField[ExtraType6Num][index] += MetalDensity_new;
+                if (SNMassBin == 7) 
+	          BaryonField[ExtraType7Num][index] += MetalDensity_new;
+                if (SNMassBin == 8) 
+	          BaryonField[ExtraType8Num][index] += MetalDensity_new;
+                if (SNMassBin == 9) 
+	          BaryonField[ExtraType9Num][index] += MetalDensity_new;
+                if (SNMassBin ==10) 
+	          BaryonField[ExtraType10Num][index] += MetalDensity_new;
+                if (SNMassBin ==11) 
+	          BaryonField[ExtraType11Num][index] += MetalDensity_new;
               }
             }
 
@@ -1249,6 +1308,20 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[SNColourNum][index] *= factor;
 	    if (Metal2Num > 0)
 	      BaryonField[Metal2Num][index] *= factor;
+            if (MultiMetals) {
+	      BaryonField[ExtraType0Num][index] *= factor;
+	      BaryonField[ExtraType1Num][index] *= factor;
+	      BaryonField[ExtraType2Num][index] *= factor;
+	      BaryonField[ExtraType3Num][index] *= factor;
+	      BaryonField[ExtraType4Num][index] *= factor;
+	      BaryonField[ExtraType5Num][index] *= factor;
+	      BaryonField[ExtraType6Num][index] *= factor;
+	      BaryonField[ExtraType7Num][index] *= factor;
+	      BaryonField[ExtraType8Num][index] *= factor;
+	      BaryonField[ExtraType9Num][index] *= factor;
+	      BaryonField[ExtraType10Num][index]*= factor;
+	      BaryonField[ExtraType11Num][index]*= factor;
+            }
 
 	    CellsModified++;
 

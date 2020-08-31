@@ -8,9 +8,6 @@
 #
 # DATE:        17 Sept 2015
 #
-# DATE:        10 Dec 2019
-#              Updated to new compilers/hdf5 version
-#
 #
 #=======================================================================
 
@@ -20,29 +17,17 @@ MACH_FILE  = Make.mach.sdsc-comet
 
 MACHINE_NOTES = "MACHINE_NOTES for Comet at SDSC/UCSD: \
 	Load these modules, \
-	'module load intel/2018.1.163 mvapich2_ib/2.3.2 hdf5-serial/1.10.3'
-	Building:
-		./configure 
-		cd src/enzo
-		make machine-sdsc-comet
-		gmake opt-high
-		make show-config
-		make
-		cd ../inits/
-		make
-		cd ../ring/
-		make
-"
+	'module add intel/2013_sp1.2.144 mvapich2_ib/2.1 hdf5/1.8.14'"
 
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
 #LOCAL_PYTHON_INSTALL = /usr
-LOCAL_COMPILER = ${INTELHOME}/compiler
-LOCAL_MPI_INSTALL = ${MPIHOME}
-LOCAL_HDF5_INSTALL = ${HDF5HOME}
+LOCAL_COMPILER = /opt/intel/composer_xe_2013_sp1.2.144/compiler
+LOCAL_HDF5_INSTALL = $(HDF5HOME)
 LOCAL_HYPRE_INSTALL = 
+LOCAL_GRACKLE_INSTALL = $(HOME)/usr/local
 
 # With MPI
 
@@ -108,16 +93,18 @@ MACH_OPT_AGGRESSIVE  = -O3 -march=native # Flags for aggressive optimization
 # Includes
 #-----------------------------------------------------------------------
 
-LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include 
+LOCAL_INCLUDES_MPI    = 
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_PYTHON = 
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_GRACKLE = $(LOCAL_INCLUDES_GRACKLE)
 
 #-----------------------------------------------------------------------
 # Libraries
@@ -127,6 +114,7 @@ LOCAL_LIBS_MPI    =
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz # HDF5 libraries
 LOCAL_LIBS_HYPRE  = 
 LOCAL_LIBS_PYTHON  = 
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
 
 LOCAL_LIBS_MACH  = -L$(LOCAL_COMPILER)/lib/intel64 -lcilkrts -lifcore -lifport
 
@@ -135,3 +123,4 @@ MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)

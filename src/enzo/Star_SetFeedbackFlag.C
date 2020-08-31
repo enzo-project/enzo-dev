@@ -48,10 +48,9 @@ void Star::SetFeedbackFlag(Eint32 flag)
 int Star::SetFeedbackFlag(FLOAT Time)
 {
 
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
-#ifdef GRACKLE_MD
-  const float FaintSNLowerMass = 11, FaintSNUpperMass = 80.1;
-#endif
+//const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
+  const float TypeIILowerMass  = 8, TypeIIUpperMass  = 40.1;
+  const float FaintSNLowerMass = 8, FaintSNUpperMass = 140;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
   const float StarClusterSNeStart = 4.0;   // Myr after cluster is born
   const float StarClusterSNeEnd = 20.0; // Myr (lifetime of a 8 SolarMass star)
@@ -71,16 +70,13 @@ int Star::SetFeedbackFlag(FLOAT Time)
     if (this->type < 0) // birth
       this->FeedbackFlag = FORMATION;
     else if (Time > this->BirthTime + this->LifeTime) // endpoint
-#if defined(GRACKLE_MD) && defined(UNDER_CONSTRUCTION)
-      if ( ( (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
-    	   (!this->FaintSN && (this->Mass >=  TypeIILowerMass && this->Mass <=  TypeIIUpperMass)) ||
-    	   ( this->FaintSN && (this->Mass >= FaintSNLowerMass && this->Mass <= FaintSNUpperMass)) ) &&
-          PopIIISupernovaExplosions == TRUE )
-#else
-      if (((this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
-	   (this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass)) &&
+      if(((MetalChemistry == 0 &&
+          ((this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
+	   (this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass))) ||
+          (MetalChemistry >  0 &&
+           (((this->Metallicity <  PopIIIMetalCriticalFraction) && (this->Mass >= FaintSNLowerMass && this->Mass <= FaintSNUpperMass)) ||
+            ((this->Metallicity >= PopIIIMetalCriticalFraction) && (this->Mass >= TypeIILowerMass  && this->Mass <= TypeIIUpperMass ))))) &&
 	  PopIIISupernovaExplosions == TRUE)
-#endif
 	this->FeedbackFlag = SUPERNOVA;
       else
 	this->FeedbackFlag = NO_FEEDBACK; // BH formation
@@ -95,11 +91,14 @@ int Star::SetFeedbackFlag(FLOAT Time)
   case PopII:
     AgeInMyr = (Time - BirthTime) * TimeUnits / Myr_s;
     if (this->type > 0)
-      if ((AgeInMyr > StarClusterSNeStart && AgeInMyr < StarClusterSNeEnd) ||
-	  StarClusterUnresolvedModel)
-	this->FeedbackFlag = CONT_SUPERNOVA;
+      if (MetalChemistry == 0)
+        if ((AgeInMyr > StarClusterSNeStart && AgeInMyr < StarClusterSNeEnd) ||
+	    StarClusterUnresolvedModel)
+	  this->FeedbackFlag = CONT_SUPERNOVA;
+        else
+	  this->FeedbackFlag = NO_FEEDBACK;
       else
-	this->FeedbackFlag = NO_FEEDBACK;
+	this->FeedbackFlag = CONT_SUPERNOVA;
     else
       this->FeedbackFlag = FORMATION;
     break;

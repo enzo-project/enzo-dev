@@ -88,7 +88,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
        (note: the solver has been modified to treat these as density vars). */
 
     int NumberOfColours = 0, ColourNum;
-#ifdef GRACKLE_MD
+
     int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
     int HeHIINum, DMNum, HDIINum
@@ -99,12 +99,23 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       , SiMNum, FeMNum,   Mg2SiO4Num, MgSiO3Num, Fe3O4Num
       , ACNum,  SiO2DNum, MgONum,     FeSNum,    Al2O3Num
       , DustNum;
-#endif
 
     // use different color fields for RadiativeTransferFLD problems
     //   first, the standard Enzo color field advection
     if (MultiSpecies > 0 && RadiativeTransferFLD != 2) {
-#ifdef GRACKLE_MD
+//    NumberOfColours = 6 + 3*(MultiSpecies-1);
+
+//    if ((ColourNum =
+//         FindField(ElectronDensity, FieldType, NumberOfBaryonFields)) < 0) {
+//      ENZO_FAIL("Could not find ElectronDensity.");
+//    }
+
+//    /* Generate an array of field numbers corresponding to the colour fields
+//       (here assumed to start with ElectronDensity and continue in order). */
+
+//    for (i = 0; i < NumberOfColours; i++)
+//      colnum[i] = ColourNum+i;
+
       if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                                 HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
         ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
@@ -189,21 +200,6 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
           if(   Al2O3Num != -1) colnum[NumberOfColours++] =   Al2O3Num;
         }
       }
-#else
-      NumberOfColours = 6 + 3*(MultiSpecies-1);
-
-      if ((ColourNum =
-           FindField(ElectronDensity, FieldType, NumberOfBaryonFields)) < 0) {
-        ENZO_FAIL("Could not find ElectronDensity.");
-      }
-
-      /* Generate an array of field numbers corresponding to the colour fields
-	 (here assumed to start with ElectronDensity and continue in order). */
-
-      for (i = 0; i < NumberOfColours; i++)
-        colnum[i] = ColourNum+i;
-
-#endif
     }
     // second, the color field advection if using RadiativeTransferFLD for 
     // a radiation propagation problem (i.e. not using ray-tracing)
@@ -277,22 +273,32 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
                 MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
       ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
-    int ExtraType0Num, ExtraType1Num, ExtraType2Num;
-    if (this->IdentifyExtraTypeFields(ExtraType0Num, ExtraType1Num, ExtraType2Num
+    int ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num
+      , ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num;
+    if (this->IdentifyExtraTypeFields(
+        ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num,
+        ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num
                ) == FAIL)
       ENZO_FAIL("Error in grid->IdentifyExtraTypeFields.\n");
 
     if (MetalNum != -1) {
       colnum[NumberOfColours++] = MetalNum;
       if (MultiMetals || TestProblemData.MultiMetals) {
+//      colnum[NumberOfColours++] = MetalNum+1; //ExtraType0
+//      colnum[NumberOfColours++] = MetalNum+2; //ExtraType1
 	colnum[NumberOfColours++] = ExtraType0Num;
 	colnum[NumberOfColours++] = ExtraType1Num;
 	colnum[NumberOfColours++] = ExtraType2Num;
+	colnum[NumberOfColours++] = ExtraType3Num;
+	colnum[NumberOfColours++] = ExtraType4Num;
+	colnum[NumberOfColours++] = ExtraType5Num;
+	colnum[NumberOfColours++] = ExtraType6Num;
+	colnum[NumberOfColours++] = ExtraType7Num;
+	colnum[NumberOfColours++] = ExtraType8Num;
+	colnum[NumberOfColours++] = ExtraType9Num;
+	colnum[NumberOfColours++] = ExtraType10Num;
+	colnum[NumberOfColours++] = ExtraType11Num;
       }
-//    if (MultiMetals || TestProblemData.MultiMetals) {
-//      colnum[NumberOfColours++] = MetalNum+1; //ExtraType0
-//      colnum[NumberOfColours++] = MetalNum+2; //ExtraType1
-//    }
     }
 
     if (MetalIaNum       != -1) colnum[NumberOfColours++] = MetalIaNum;

@@ -666,6 +666,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
   for (field = 0; field < NumberOfBaryonFields; field++)
     if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
+        (FieldType[field] >= CIDensity       && FieldType[field] <= O2IDensity) ||
+        (FieldType[field] >= HeHIIDensity    && FieldType[field] <= DustDensity) ||
 	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity)
 #ifdef EMISSIVITY
       /* 
@@ -2008,6 +2010,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
   for (field = 0; field < NumberOfBaryonFields; field++) {
     if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
+        (FieldType[field] >= CIDensity       && FieldType[field] <= O2IDensity) ||
+        (FieldType[field] >= HeHIIDensity    && FieldType[field] <= DustDensity) ||
 	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity) {
 #ifdef EMISSIVITY
       /* 

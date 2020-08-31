@@ -48,6 +48,7 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
       FLOAT Center[] = {0,0,0}, CenterOfMass[3], DMCofM[3];
       ThisGrid->GridData->CalculateAngularMomentum
 	(Center, AM, MeanVelocity, DMVelocity, CenterOfMass, DMCofM);
+#ifdef TEMPORARY
       fprintf(stdout, 
 	      "level = %"ISYM" %"ISYM" %"ISYM"  "
 	      "Vel %"FSYM" %"FSYM" %"FSYM"  "
@@ -59,6 +60,7 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 	      DMVelocity[0], DMVelocity[1], DMVelocity[2],
 	      -CenterOfMass[0], -CenterOfMass[1], -CenterOfMass[2],
 	      DMCofM[0], DMCofM[1], DMCofM[2]);
+#endif
     }
     if (StellarWindSpeed > 0)
       ThisGrid->GridData->AddStellarWind();

@@ -1815,7 +1815,11 @@ int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
 			   int &MetalIaNum, int &MetalIINum, int &MBHColourNum,
 		           int &Galaxy1ColourNum, int &Galaxy2ColourNum);
 
-  int IdentifyExtraTypeFields(int &ExtraType0Num, int &ExtraType1Num, int &ExtraType2Num);
+  int IdentifyExtraTypeFields(
+      int &ExtraType0Num, int &ExtraType1Num, int &ExtraType2Num, int &ExtraType3Num,
+      int &ExtraType4Num, int &ExtraType5Num, int &ExtraType6Num, int &ExtraType7Num,
+      int &ExtraType8Num, int &ExtraType9Num, int &ExtraType10Num,int &ExtraType11Num
+        );
 
   /* Identify Multi-species fields. */
 
@@ -2843,7 +2847,7 @@ int zEulerSweep_vg(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   
   int AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits,
 			float LengthUnits, float VelocityUnits, 
-			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
+			float TemperatureUnits, FLOAT Time, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
 			double Q_HI, double sigma_HI, float deltaE, int &CellsModified);
 
