@@ -9,7 +9,9 @@
 #rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/CosmologySimulation/test64-L2_grackle_PopII/
 #rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/CosmologySimulation/test64-L2_grackle_multiSN/
 
- rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/CosmologySimulation/test64/
+#rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/CosmologySimulation/test64/
+
+ rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/CosmologySimulation/test512/
 
 #rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/Hydro/Hydro-3D/CollapseTest_sf
 

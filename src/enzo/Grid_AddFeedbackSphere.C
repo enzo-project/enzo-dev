@@ -46,6 +46,7 @@ extern "C" {
 #endif
 
 #define MAX_TEMPERATURE 1e8
+#define SN_GEOMETRICAL_CORRECTION
 
 int FindField(int field, int farray[], int numfields);
 
@@ -381,33 +382,37 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	  delx = min(delx, DomainWidth[0]-delx);
 
 	  radius2 = delx*delx + dely*dely + delz*delz;
-
+#ifdef SN_GEOMETRICAL_CORRECTION
           /* approximate the cell as a sphere with the same volume */
           /* consider cells overlapping the metal bubble. */
           dr = pow(3.0/4.0/pi * CellWidth[0][i] * CellWidth[1][j] * CellWidth[2][k], 1.0/3.0);
 
-	//if (radius2 <= outerRadius2) 
-	  if (sqrt(radius2) - dr <= sqrt(MetalRadius2)) {
-//          printf("SPH %13.5e %13.5e %13.5e %13.5e\n", CellWidth[0][i], CellWidth[1][j], CellWidth[2][k], dr);
-//          printf("RAD %13.5e -> %13.5e <= %13.5e\n", delx*delx + dely*dely + delz*delz, radius2, outerRadius2);
-
+	  if (sqrt(radius2) - dr <= sqrt(MetalRadius2))
+#else
+	  if (radius2 <= outerRadius2) 
+#endif
+          {
+#ifdef SN_GEOMETRICAL_CORRECTION
             ramp = 1.0;
-	//  r1 = sqrt(radius2) / radius;
-	//  norm = 0.98;
-	//  ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
+#else
+	    r1 = sqrt(radius2) / radius;
+	    norm = 0.98;
+	    ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
 //	    ramp = min(max(1.0 - (r1 - 0.8)/0.4, 0.01), 1.0);
-
+#endif
 	    /* 1/1.2^3 factor to dilute the density since we're
 	       depositing a uniform ejecta in a sphere of 1.2*radius
 	       without a ramp.  The ramp is only applied to the
 	       energy*density factor. */
-	//  factor = 0.578704;
+#ifdef SN_GEOMETRICAL_CORRECTION
             if(sqrt(MetalRadius2) < sqrt(radius2) + dr)
               factor =        pow(sqrt(MetalRadius2) - sqrt(radius2) + dr, 2) * (-sqrt(MetalRadius2) + sqrt(radius2) + 2.0 * dr)
                      / (4.0 * pow(dr, 3));
             else
               factor = 1.0;
-
+#else
+	    factor = 0.578704;
+#endif
 	    OldDensity = BaryonField[DensNum][index];
 	    BaryonField[DensNum][index] += factor*EjectaDensity;
 
@@ -440,13 +445,13 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    } //end if(GENum >= 0 && DualEnergyFormalism)
 
 	    /* Update species and colour fields */
-
-	  //if (MetallicityField == TRUE && radius2 <= MetalRadius2)
-	  //  delta_fz = EjectaMetalDensity / OldDensity;
-	  //else
-	  //  delta_fz = 0.0;
+#ifdef SN_GEOMETRICAL_CORRECTION
 	    if (MetallicityField == TRUE)
 	      MetalDensity_new = factor * EjectaMetalDensity;
+#else
+	    if (MetallicityField == TRUE && radius2 <= MetalRadius2)
+	      MetalDensity_new = EjectaMetalDensity;
+#endif
 	    else
 	      MetalDensity_new = 0.0;
             delta_fz = MetalDensity_new / OldDensity;
@@ -528,37 +533,60 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 #endif
 
 	    if (MetallicityField == TRUE) {
-	//    BaryonField[MetalNum][index] += EjectaMetalDensity;
 	      BaryonField[MetalNum][index] += MetalDensity_new;
               if (MultiMetals) {
                 if (SNMassBin == 0) 
 	          BaryonField[ExtraType0Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType0Num][index] *= increase;
                 if (SNMassBin == 1) 
 	          BaryonField[ExtraType1Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType1Num][index] *= increase;
                 if (SNMassBin == 2) 
 	          BaryonField[ExtraType2Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType2Num][index] *= increase;
                 if (SNMassBin == 3) 
 	          BaryonField[ExtraType3Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType3Num][index] *= increase;
                 if (SNMassBin == 4) 
 	          BaryonField[ExtraType4Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType4Num][index] *= increase;
                 if (SNMassBin == 5) 
 	          BaryonField[ExtraType5Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType5Num][index] *= increase;
                 if (SNMassBin == 6) 
 	          BaryonField[ExtraType6Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType6Num][index] *= increase;
                 if (SNMassBin == 7) 
 	          BaryonField[ExtraType7Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType7Num][index] *= increase;
                 if (SNMassBin == 8) 
 	          BaryonField[ExtraType8Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType8Num][index] *= increase;
                 if (SNMassBin == 9) 
 	          BaryonField[ExtraType9Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType9Num][index] *= increase;
                 if (SNMassBin ==10) 
 	          BaryonField[ExtraType10Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType10Num][index] *= increase;
                 if (SNMassBin ==11) 
 	          BaryonField[ExtraType11Num][index] += MetalDensity_new;
+                else
+	          BaryonField[ExtraType11Num][index] *= increase;
               }
             }
 
-            printf("        %13.5e %13.5e %13.5e %13.5e %13.5e %13.5e %13.5e\n"
+            printf("        %13.5e %13.5e %13.5e %13.5e %13.5e %13.5e %13.5e "
              ,(CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - cstar->pos[0])*LengthUnits
              ,(CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - cstar->pos[1])*LengthUnits
              ,(CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - cstar->pos[2])*LengthUnits
@@ -566,6 +594,22 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
              , BaryonField[SNColourNum][index] * DensityUnits
 	     , BaryonField[TENum][index] * pow(VelocityUnits, 2) * BaryonField[DensNum][index] * DensityUnits
              , CellWidth[0][i]*LengthUnits * CellWidth[1][j]*LengthUnits * CellWidth[2][k]*LengthUnits
+                );
+            printf("%13.5e %13.5e %13.5e %13.5e %13.5e %13.5e "
+             , BaryonField[ExtraType0Num][index] / BaryonField[DensNum][index] / 0.01295
+             , BaryonField[ExtraType1Num][index] / BaryonField[DensNum][index] / 0.01295
+             , BaryonField[ExtraType2Num][index] / BaryonField[DensNum][index] / 0.01295
+             , BaryonField[ExtraType3Num][index] / BaryonField[DensNum][index] / 0.01295
+             , BaryonField[ExtraType4Num][index] / BaryonField[DensNum][index] / 0.01295
+             , BaryonField[ExtraType5Num][index] / BaryonField[DensNum][index] / 0.01295
+                );
+            printf("%13.5e %13.5e %13.5e %13.5e %13.5e %13.5e\n"
+             , BaryonField[ExtraType6Num][index] / BaryonField[DensNum][index] / 0.01295
+             , BaryonField[ExtraType7Num][index] / BaryonField[DensNum][index] / 0.01295
+             , BaryonField[ExtraType8Num][index] / BaryonField[DensNum][index] / 0.01295
+             , BaryonField[ExtraType9Num][index] / BaryonField[DensNum][index] / 0.01295
+             , BaryonField[ExtraType10Num][index] / BaryonField[DensNum][index] / 0.01295
+             , BaryonField[ExtraType11Num][index] / BaryonField[DensNum][index] / 0.01295
                 );
 
 	    CellsModified++;
