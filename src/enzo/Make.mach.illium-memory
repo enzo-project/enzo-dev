@@ -79,7 +79,7 @@ MACH_LDFLAGS  = -lstdc++ -lc -fsanitize=address
 #-----------------------------------------------------------------------
 
 MACH_OPT_WARN        = -Wall -g
-MACH_OPT_DEBUG       = -g -ggdb -O1
+MACH_OPT_DEBUG       = -g -ggdb -O0
 MACH_OPT_HIGH        = -O2 -ggdb
 MACH_OPT_AGGRESSIVE  = -O3 -g
 
