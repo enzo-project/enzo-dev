@@ -186,6 +186,11 @@ int grid::GrackleWrapper()
   float *MetalPointer = NULL;
   float *TotalMetals = NULL;
 
+  if (MultiMetals) {
+    /* For MetalNum, future implementation */
+    if (SNColourNum != -1)
+      MetalPointer = BaryonField[SNColourNum];
+  } else {
   if (MetalNum != -1 && SNColourNum != -1) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
@@ -198,6 +203,7 @@ int grid::GrackleWrapper()
     else if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
+  } // MultiMetals
 
   int ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num
     , ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num;

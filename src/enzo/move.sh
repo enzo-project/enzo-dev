@@ -29,3 +29,10 @@
 #ls -ltr Grid_xEulerSweep.C        
 #ls -ltr Grid_yEulerSweep.C        
 #ls -ltr Grid_zEulerSweep.C        
+
+ mv Grid_CorrectForRefinedFluxes_printf.C  ~/temp_enzo/
+ mv Grid_GrackleWrapper_skipgrackle.C      ~/temp_enzo/
+ mv Grid_CorrectForRefinedFluxes_skipCF.C  ~/temp_enzo/
+ mv EvolveLevel_printf.C                   ~/temp_enzo/
+ mv Grid_printf.h                          ~/temp_enzo/
+ mv Grid_SolveHydroEquations_printf.C      ~/temp_enzo/
