@@ -35,6 +35,8 @@
 #define NUMRADIATIONBINS 5
 #define CRITICAL_ACCRETION_RATE 0.04 //Msolar/yr
 #define TIMEGAP            90   //yrs
+#define POPIII_RESOLUTION  0.001 //pc
+#define SMS_RESOLUTION     0.1   //pc
 /* Prototypes */
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -46,6 +48,7 @@ static float R_ISCO(float a);
 #define POPIII 0
 #define SMS    1
 #define BH     2
+#define POPII  3
 
 //Accretion Modes
 #define SPHERICAL_BONDI_HOYLE_FORMALISM 1

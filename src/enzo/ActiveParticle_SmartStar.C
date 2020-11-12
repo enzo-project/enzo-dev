@@ -392,8 +392,6 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   } // k
   if(data.NumberOfNewParticles > 0) {
     printf("Particles (%d) Created and done in %s\n", data.NumberOfNewParticles, __FUNCTION__);
-    fflush(stdout);
-    exit(-99);
   }
 #if CALCDIRECTPOTENTIAL
   delete [] PotentialField;
@@ -746,10 +744,50 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
 
   for (i = 0; i < nParticles; i++) {
+
+
+    /* 
+     * Accretion is only allowed if it makes sense:
+     * 1. Black Holes in general are always allowed to accrete.
+     * 2. SMS can accrete if there is sufficient resolution to do so 
+     * 3. PopIII stars can accrete if there is sufficient resolution
+     * 4. PopII stars never accrete
+     */
+
+    
     float MassInSolar = ParticleList[i]->ReturnMass()*MassConversion/SolarMass;
     AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
     int pclass = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ParticleClass;
+    FLOAT dx_pc = dx*LengthUnits/pc_cm;   //in pc
+    if(pclass == POPIII) {
+      /* 
+       * We only accrete onto POPIII stars if our maximum 
+       * spatial resolution is better than 1e-3 pc
+       */
+      if(dx_pc > POPIII_RESOLUTION) //we don't have sufficient resolution
+	continue;
+    }
+    else if(pclass == SMS) {
+       /* 
+       * We only accrete onto SMSs if our maximum 
+       * spatial resolution is better than 1e-1 pc
+       */
+      if(dx_pc > SMS_RESOLUTION) //we don't have sufficient resolution
+	continue;
+      
+    }
+    else if(pclass == BH) {
+      /* We always accrete onto BHs */
+      ;
+    }
+    else if(pclass == POPII) {
+      /* We never accrete onto POPII stars */
+      continue;
 
+    }
+
+    printf("Accreting: Particle Class %d\n", pclass);
+    exit(-99);
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx),
 					       dx, Grids, NumberOfGrids, ALL_FIELDS);
     grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
