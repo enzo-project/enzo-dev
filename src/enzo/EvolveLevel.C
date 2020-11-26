@@ -571,11 +571,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
          */
            
 
+     if( UseHydro) {
         if( HydroMethod != HD_RK && HydroMethod != MHD_RK ){
             Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
                     NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
         }else{
-            if( UseHydro ) {
                 if (HydroMethod == HD_RK)
                     Grids[grid1]->GridData->RungeKutta2_1stStep
                         (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
@@ -583,8 +583,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                     Grids[grid1]->GridData->MHDRK2_1stStep
                         (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
                 }
-            }//use hydro
-        }//hydro method
+            }//hydro method
+        }//usehydro
     }//grids
 
     if( HydroMethod == HD_RK || HydroMethod == MHD_RK ){
