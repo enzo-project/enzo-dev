@@ -2802,10 +2802,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
 		      float &metallicity, float &coldgas_mass, 
 		      float AvgVelocity[], float &OneOverRSquaredSum);
-  int GetEnclosedMassInShell(Star *star, float radius0, float radius1, 
+  int GetEnclosedMassInShell(FLOAT *pos, float radius0, float radius1, 
 			     float &mass, float &metallicity2, 
 			     float &metallicity3,
-			     float &coldgas_mass, float AvgVelocity[]);
+			     float &coldgas_mass, float AvgVelocity[],
+			     int feedback_flag);
 
   int RemoveParticle(int ID, bool disable=false);
 
@@ -2865,6 +2866,13 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			 float *AccretedMass, float *DeltaV,
 			 FLOAT KernelRadius, FLOAT SumOfWeights, float MaxAccretionRate);
 
+  int RemoveMassFromGridAfterFormation(FLOAT* starpos, int ParticleClass,
+				       FLOAT AccretionRadius,
+				       float particle_mass,
+				       int cellindex,
+				       float newcelldensity,
+				       float original_pmass);
+  
   int GetVorticityComponent(FLOAT *pos, FLOAT *vorticity);
   float CenAccretionRate(float density, FLOAT AccretionRadius,
 			 FLOAT *pos, float *vel, float mparticle);
@@ -2883,7 +2891,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ApplyGalaxyParticleGravity(ActiveParticleType** ThisParticle);
 
   int ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle);
-
+  int ApplySphericalFeedbackToGrid(ActiveParticleType** ThisParticle,
+				   float EjectaDenity, 
+				   float EjectaThermalEnergy,
+				   float EjectaMetalDensity);
 //------------------------------------------------------------------------
 // Radiative transfer methods that don't fit in the TRANSFER define
 //------------------------------------------------------------------------

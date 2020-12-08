@@ -34,12 +34,17 @@
 #define IMPOSETHRESHOLD 1
 #define THRESHOLDFRACTION 1   //Solarmasses ejected per jet event
 #define OPENING_ANGLE pi/360.0  //pi/3.9
+
+int search_lower_bound(float *arr, float value, int low, int high, 
+		       int total);
+
 int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 
   /* Return if this doesn't involve us */
   if (MyProcessorNumber != ProcessorNumber) 
     return SUCCESS;
- 
+  if(SmartStarFeedback == FALSE)
+    return SUCCESS;
   if(SmartStarBHFeedback == FALSE)
     return SUCCESS;
   if (SmartStarBHJetFeedback == FALSE && SmartStarBHThermalFeedback == FALSE) {
@@ -47,8 +52,21 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
   }
 
   ActiveParticleType_SmartStar *SS = static_cast<ActiveParticleType_SmartStar*>(* ThisParticle);
-  if(SS->ParticleClass != BH)
-    return SUCCESS;
+  const float PISNLowerMass = 140, PISNUpperMass = 260;
+  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
+  
+  // From Nomoto et al. (2006)
+  const float HypernovaMetals[] = {3.36, 3.53, 5.48, 7.03, 8.59}; // SolarMass
+  const float HypernovaEnergy[] = {10, 10, 20, 25, 30}; // 1e51 erg 
+  const float CoreCollapseMetals[] = {3.63, 4.41, 6.71, 8.95, 11.19}; // SolarMass
+  const float CoreCollapseEnergy[] = {1, 1, 1, 1, 1}; // 1e51 erg
+
+  const float SNExplosionMass[] = {19.99, 25, 30, 35, 40.01};  // SolarMass
+  const float *SNExplosionMetals = (PopIIIUseHypernova ==TRUE) ? 
+    HypernovaMetals : CoreCollapseMetals;
+  const float *SNExplosionEnergy = (PopIIIUseHypernova ==TRUE) ? 
+    HypernovaEnergy : CoreCollapseEnergy;
+  
   /* Check whether the cube that circumscribes the accretion zone intersects with this grid */
 
    FLOAT *pos = SS->ReturnPosition();
@@ -66,13 +84,15 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
   /* Set the units. */
  
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
-    TimeUnits = 1, VelocityUnits = 1, MassUnits = 1,
+    TimeUnits = 1, VelocityUnits = 1,
     PressureUnits = 0, GEUnits = 0, VelUnits = 0;
+  double MassUnits = 1.0;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, this->ReturnTime()) == FAIL) {
         ENZO_FAIL("Error in GetUnits.");
   }
   MassUnits = DensityUnits * POW(LengthUnits,3);
+  double MassConversion = (double) (dx*dx*dx * MassUnits);  //convert to g      
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
          Vel3Num, TENum) == FAIL) {
@@ -91,43 +111,114 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
     }
   if(SS->AccretionRate[SS->TimeIndex] <= 0.0) {
     float mdot = SS->AccretionRate[SS->TimeIndex];  //CodeMass/CodeTime
-    float MassConversion = (float) (dx*dx*dx * double(MassUnits));  //convert to g         
+      
     float accrate = mdot*MassUnits/(SolarMass*TimeUnits)*3.154e7; //in Msolar/s      
     printf("%s: AccretionRate = %e Msolar/yr %e (code)\n", __FUNCTION__,
            accrate, SS->AccretionRate[SS->TimeIndex]);
     printf("%s: Returning until accretion rate is updated\n", __FUNCTION__);
     return SUCCESS;
   }
+  
+  /***********************************************************************
+                                SUPERNOVAE
+  ************************************************************************/
+
+  // Assume that the remnant is still in the free expansion stage and
+  // hasn't had any radiative losses.  In this case, the ejecta will
+  // be at 3/4 the radius of the shock front (see Ostriker & McKee
+  // 1988 or Tenorio-Tagle 1996).
+  
+  float ionizedFraction = 0.999;  // Assume supernova is ionized
+  FLOAT Time = this->ReturnTime();
+  if(SS->ParticleClass == POPIII)
+    {
+      float Age = Time - SS->BirthTime;
+     
+      if(SS->RadiationLifetime < Age) {/* Star needs to go supernovae and change type */
+	double StellarMass = SS->Mass*MassConversion/SolarMass; /* In Msolar */
+	double SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
+	FLOAT Radius = PopIIISupernovaRadius * pc_cm / LengthUnits;
+	float StarLevelCellWidth = this->CellWidth[0][0];
+	Radius = max(Radius, 3.5*StarLevelCellWidth);
+	float EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);
+	float EjectaDensity = StellarMass * SolarMass / EjectaVolume / DensityUnits;
+	float EjectaMetalDensity = 0.0, EjectaThermalEnergy = 0.0;
+	 // pair-instability SNe
+	if (StellarMass >= PISNLowerMass && StellarMass <= PISNUpperMass) {
+	  HeliumCoreMass = (13./24.) * (StellarMass - 20);
+ 	  SNEnergy = (5.0 + 1.304 * (HeliumCoreMass - 64)) * 1e51;
+	  EjectaMetalDensity = HeliumCoreMass * SolarMass / EjectaVolume / 
+	    DensityUnits;
+	} 
+	  // Type II SNe
+	else if (StellarMass >= TypeIILowerMass && StellarMass <= TypeIIUpperMass) {
+	  if (StellarMass < 20.0) { // Normal Type II
+	    SNEnergy = 1e51;
+	    MetalMass = 0.1077 + 0.3383 * (StellarMass - 11.0);  // Fit to Nomoto+06
+	  } else { // Hypernova (should we add the "failed" SNe?)
+	    int bin = search_lower_bound((float*)SNExplosionMass, StellarMass, 0, 5, 5);
+	    float frac = (SNExplosionMass[bin+1] - StellarMass) / 
+	      (SNExplosionMass[bin+1] - SNExplosionMass[bin]);
+	    SNEnergy = 1e51 * (SNExplosionEnergy[bin] + 
+			       frac * (SNExplosionEnergy[bin+1] - SNExplosionEnergy[bin]));
+	    MetalMass = (SNExplosionMetals[bin] + 
+			 frac * (SNExplosionMetals[bin+1] - SNExplosionMetals[bin]));
+	  }
+	  EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
+	}
+	EjectaThermalEnergy = SNEnergy / (StellarMass * SolarMass) / VelocityUnits /
+	  VelocityUnits;
+
+	this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
+					   EjectaMetalDensity);
+
+      }
+    }
+  
+  if(SS->ParticleClass == POPII)
+    {
+      float Age = Time - SS->BirthTime;
+      float StarLevelCellWidth = this->CellWidth[0][0];
+      FLOAT Radius = StarClusterSNRadius * pc_cm / LengthUnits;
+      if (Radius < 2*StarLevelCellWidth) {
+	Radius = 2*StarLevelCellWidth;
+      }
+      float dtForThisStar = this->ReturnTimeStep();
+      double StellarMass = SS->Mass*MassConversion/SolarMass; /* In Msolar */
+      double Delta_SF = StarMassEjectionFraction * StellarMass * dtForThisStar * 
+	TimeUnits / (16.0*Myr_s);
+      float EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);   
+      float EjectaDensity = Delta_SF * SolarMass / EjectaVolume / DensityUnits;   
+      float EjectaMetalDensity = EjectaDensity * StarMetalYield;
+      float EjectaThermalEnergy = StarClusterSNEnergy / SolarMass /   
+	(VelocityUnits * VelocityUnits);
+      this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
+					   EjectaMetalDensity);
+    }
   /***********************************************************************
                                 MBH_THERMAL
   ************************************************************************/
-  int CellsModified = 0;
+
   // Similar to Supernova, but here we assume the followings:
   // EjectaDensity = 0.0
   // EjectaMetalDensity = 0.0
+  float  EjectaDensity = 0.0, EjectaMetalDensity = 0.0;
   // The unit of EjectaThermalEnergy = ergs/cm^3, not ergs/g
   if (SmartStarBHThermalFeedback == TRUE) {
     float epsilon = SS->eta_disk;
-    FLOAT outerRadius2 = POW(1.2*rad, 2.0);
+    
     /* find mdot */
     float mdot = SS->AccretionRate[SS->TimeIndex];  //CodeMass/CodeTime
-    
-     /* Debug */
-    float MassConversion = (float) (dx*dx*dx * double(MassUnits));  //convert to g                                                                    
     float accrate = mdot*MassUnits/(SolarMass*TimeUnits)*3.154e7; //in Msolar/yr
     float mdot_cgs = mdot*MassUnits/TimeUnits; //g/s
     //printf("%s: dx = %e\t MassConversion = %e\n", __FUNCTION__, dx, MassConversion);
     printf("%s: AccretionRate = %e Msolar/yr %e (code) TimeIndex = %d\n", __FUNCTION__,
            accrate, SS->AccretionRate[SS->TimeIndex], SS->TimeIndex);
     /*end Debug*/
-    float newGE = 0.0, oldGE = 0.0;
-    float maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
-   
-    FLOAT radius2 = 0.0;
+ 
     float EjectaVolumeCGS = 4.0/3.0 * PI * pow(SS->AccretionRadius*LengthUnits, 3);
     float EjectaVolume = 4.0/3.0 * PI * pow(SS->AccretionRadius, 3);
-    printf("%s: OuterRadius = %e\n", __FUNCTION__, sqrt(outerRadius2)*LengthUnits/pc_cm);
-    CellsModified = 0;
+
     float BHMass =  SS->ReturnMass()*MassConversion/SolarMass; //In solar masses
     float eddrate = 4*M_PI*GravConst*BHMass*mh/(SS->eta_disk*clight*sigma_thompson); // Msolar/s
     eddrate = eddrate*3.154e7; //in Msolar/yr
@@ -164,203 +255,109 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	printf("BH Age = %f yrs, ramp = %f\n", Age, Age/(float)RAMPTIME);
 	EjectaThermalEnergy *= Age/(float)RAMPTIME;
       }
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	int index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
-	
-	  radius2 = POW(CellLeftEdge[0][i] + 0.5*dx - pos[0],2.0) +
-	    POW(CellLeftEdge[1][j] + 0.5*dx - pos[1],2.0) +
-	    POW(CellLeftEdge[2][k] + 0.5*dx - pos[2],2.0);
-	  if (radius2 < outerRadius2) {
-	    float r1 = sqrt(radius2) / rad;
-	    float norm = 0.98;
-	    float ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
-	    /* 1/1.2^3 factor to dilute the density since we're
-	       depositing a uniform ejecta in a sphere of 1.2*radius
-	       without a ramp.  The ramp is only applied to the
-	       energy*density factor. */
-	    float factor = 0.578704;
-	    
-	    float Density = this->BaryonField[DensNum][index];
-	    /* Get specific energy */
-	    if (GENum >= 0 && DualEnergyFormalism) {
 
-	      /* When injected energy is uniform throughout the volume;
-		 EjectaThermalEnergy in EnergyUnits/VolumeUnits */
-	      oldGE =  this->BaryonField[GENum][index];
-	      newGE = (Density * this->BaryonField[GENum][index] +
-		       ramp * factor * EjectaThermalEnergy) / Density;
+    this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
+				       EjectaMetalDensity);
 
-	      newGE = min(newGE, maxGE);  
-	      //printf("%s: Energy Before = %e\t Energy injected = %e\t Increase = %e\n", __FUNCTION__, 
-	      //	     oldGE,ramp * factor * EjectaThermalEnergy / Density, (newGE - oldGE)/oldGE);
-	      fflush(stdout);
-	      
-	      this->BaryonField[GENum][index] = newGE;
-	      this->BaryonField[TENum][index] = newGE;
-
-	      for (int dim = 0; dim < GridRank; dim++)
-		this->BaryonField[TENum][index] += 
-		  0.5 * this->BaryonField[Vel1Num+dim][index] * 
-		  this->BaryonField[Vel1Num+dim][index];
-
-	      //printf("%s: Increase in GE energy is %e\n", __FUNCTION__, (newGE - oldGE)/oldGE);
-	      
-	    } else {
-
-	      newGE = (Density * this->BaryonField[TENum][index] +
-		       ramp * factor * EjectaThermalEnergy) / Density;
-
-	      newGE = min(newGE, maxGE);  
-	      this->BaryonField[TENum][index] = newGE;
-
-	    } //end if(GENum >= 0 && DualEnergyFormalism)
-
-	    /* Update species and colour fields */
-
-	    float fh = CoolData.HydrogenFractionByMass;
-	    float fhez = (1-fh);
-	    float ionizedFraction = 0.999;
-	    if (MultiSpecies) {
-	      this->BaryonField[DeNum][index] =
-		this->BaryonField[DensNum][index] * ionizedFraction;
-	      this->BaryonField[HINum][index] = 
-		this->BaryonField[DensNum][index] * fh * (1-ionizedFraction);
-	      this->BaryonField[HIINum][index] =
-		this->BaryonField[DensNum][index] * fh * ionizedFraction;
-	      this->BaryonField[HeINum][index] =
-		0.5*this->BaryonField[DensNum][index] * fhez * (1-ionizedFraction);
-	      this->BaryonField[HeIINum][index] =
-		0.5*this->BaryonField[DensNum][index] * fhez * (1-ionizedFraction);
-	      this->BaryonField[HeIIINum][index] =
-		this->BaryonField[DensNum][index] * fhez * ionizedFraction;
-	    }
-#ifdef IDONTSEEWHYTHESEELEMENTSAREEFFECTED
-	    if (MultiSpecies > 1) {
-	      this->BaryonField[HMNum][index] = tiny_number * this->BaryonField[DensNum][index];
-	      this->BaryonField[H2INum][index] = 
-	      	tiny_number * this->BaryonField[DensNum][index];
-	      this->BaryonField[H2IINum][index] = 
-	      	tiny_number * this->BaryonField[DensNum][index];
-	    }
-	    if (MultiSpecies > 2) {
-	      this->BaryonField[DINum][index] = this->BaryonField[DensNum][index] * fh *
-		CoolData.DeuteriumToHydrogenRatio * (1-ionizedFraction);
-	      this->BaryonField[DIINum][index] = this->BaryonField[DensNum][index] * fh *
-		CoolData.DeuteriumToHydrogenRatio * ionizedFraction;
-	      this->BaryonField[HDINum][index] = 
-		tiny_number * this->BaryonField[DensNum][index];
-	    }
-#endif
-	    CellsModified++;
-	    
-	  } // END if inside radius
-	}  // END i-direction
-      }  // END j-direction
-    }  // END k-direction
-    //printf("CellsModified = %d\n", CellsModified);
-
-  }  // END MBH_THERMAL
-  
-  CellsModified = 0;
-   /***********************************************************************
-                                 MBH_JETS
-  ************************************************************************/
-
-  // Inject bipolar jets along the direction of the angular momentum 
-  // vector L of the MBH particle (angular momentum accreted thus far)
-  // or along the z-axis  - Ji-hoon Kim, Nov.2009
-  int i = 0, j = 0, k = 0;
-  #define MAX_SUPERCELL_NUMBER 1000
-  int SUPERCELL = 1; //2 for supercell of 5 cells wide = 5^3  
-  int ind_cell_inside[MAX_SUPERCELL_NUMBER], ind_cell_edge[MAX_SUPERCELL_NUMBER];
-  float nx_cell_edge[MAX_SUPERCELL_NUMBER], ny_cell_edge[MAX_SUPERCELL_NUMBER], 
-    nz_cell_edge[MAX_SUPERCELL_NUMBER], anglefactor[MAX_SUPERCELL_NUMBER] = {0};
-  int n_cell_inside = 0, n_cell_edge = 0, ibuff = NumberOfGhostZones;
-  int ii = 0, jj = 0, kk = 0, r_s = 0, ic = 0, sign = 0;
-  float m_cell_inside = 0.0, m_cell_edge = 0.0;
-  float L_x, L_y, L_z, L_s, nx_L = 0.0, ny_L = 0.0, nz_L = 0.0, costheta = cos(OPENING_ANGLE);
-  float SSMass = SS->ReturnMass();
-  float totalenergybefore = 0.0, totalenergyafter = 0.0, totalenergyadded = 0.0;
-  float sumkeadded = 0.0;
- 
-  if (SmartStarBHJetFeedback == FALSE || SS->MassToBeEjected*MassUnits/SolarMass < 1e-10) {
-    return SUCCESS;
   }
+  if(SmartStarBHJetFeedback == TRUE) {
+    /***********************************************************************
+                                 MBH_JETS
+    ************************************************************************/
+    
+    // Inject bipolar jets along the direction of the angular momentum 
+    // vector L of the MBH particle (angular momentum accreted thus far)
+    // or along the z-axis  - Ji-hoon Kim, Nov.2009
+    int i = 0, j = 0, k = 0;
+#define MAX_SUPERCELL_NUMBER 1000
+    int SUPERCELL = 1; //2 for supercell of 5 cells wide = 5^3  
+    int ind_cell_inside[MAX_SUPERCELL_NUMBER], ind_cell_edge[MAX_SUPERCELL_NUMBER];
+    float nx_cell_edge[MAX_SUPERCELL_NUMBER], ny_cell_edge[MAX_SUPERCELL_NUMBER], 
+      nz_cell_edge[MAX_SUPERCELL_NUMBER], anglefactor[MAX_SUPERCELL_NUMBER] = {0};
+    int n_cell_inside = 0, n_cell_edge = 0, ibuff = NumberOfGhostZones;
+    int ii = 0, jj = 0, kk = 0, r_s = 0, ic = 0, sign = 0;
+    float m_cell_inside = 0.0, m_cell_edge = 0.0;
+    float L_x, L_y, L_z, L_s, nx_L = 0.0, ny_L = 0.0, nz_L = 0.0, costheta = cos(OPENING_ANGLE);
+    float SSMass = SS->ReturnMass();
+    float totalenergybefore = 0.0, totalenergyafter = 0.0, totalenergyadded = 0.0;
+    float sumkeadded = 0.0;
+    
+    if (SmartStarBHJetFeedback == FALSE || SS->MassToBeEjected*MassUnits/SolarMass < 1e-10) {
+      return SUCCESS;
+    }
  
-  /* i, j, k are the number of cells from the edge of the grid to the smartstar*/
-  i = (int)((pos[0] - this->CellLeftEdge[0][0]) / dx);
-  j = (int)((pos[1] - this->CellLeftEdge[1][0]) / dx);
-  k = (int)((pos[2] - this->CellLeftEdge[2][0]) / dx);
-
-  /* Note that we need to inject feedback only for the finest grid the SS belongs to */
-
-  if (i < ibuff || i > this->GridDimension[0]-ibuff-1 ||
-      j < ibuff || j > this->GridDimension[1]-ibuff-1 || 
-      k < ibuff || k > this->GridDimension[2]-ibuff-1 ||
+    /* i, j, k are the number of cells from the edge of the grid to the smartstar*/
+    i = (int)((pos[0] - this->CellLeftEdge[0][0]) / dx);
+    j = (int)((pos[1] - this->CellLeftEdge[1][0]) / dx);
+    k = (int)((pos[2] - this->CellLeftEdge[2][0]) / dx);
+    
+    /* Note that we need to inject feedback only for the finest grid the SS belongs to */
+    
+    if (i < ibuff || i > this->GridDimension[0]-ibuff-1 ||
+	j < ibuff || j > this->GridDimension[1]-ibuff-1 || 
+	k < ibuff || k > this->GridDimension[2]-ibuff-1 ||
 	this == NULL ||
 	SS->level < MaximumRefinementLevel) {
       fprintf(stdout, "grid::AddFS: MBH_JETS - MBH doesn't belong to this grid.\n"); 
       return SUCCESS;
-  }
+    }
     
-  float MassConversion = (float) (dx*dx*dx * double(MassUnits));  //convert to g      
-  /* find mdot */
-  float mdot = SS->AccretionRate[SS->TimeIndex];
-  float BHMass =  SS->ReturnMass()*MassConversion/SolarMass; //In solar masses
-  float eddrate = 4*M_PI*GravConst*BHMass*SolarMass*mh/(SS->eta_disk*clight*sigma_thompson); // g/s
-  eddrate = eddrate*3.154e7/SolarMass; //in Msolar/yr
 
-  float AccretionRate = mdot*MassUnits/(SolarMass*TimeUnits); //in Msolar/s
-  /* 
-   * Now in the case where we are subgriding the accretion formalism
-   * re-calculate the actual accretion rate and check if we are in the correct band
-   */
-  //AccretionRate *= SS->epsilon_deltat;
-
-  /* Debug */
-  printf("%s: Eddrate = %e Msolar/yr AccRate = %e Msolar/yr\t Ratio = %f\n", __FUNCTION__,
-         eddrate, AccretionRate*3.154e7, AccretionRate*3.154e7/eddrate);
-  printf("%s: dx = %e\t MassConversion = %e\n", __FUNCTION__, dx, MassConversion);
-  printf("%s: AccretionRate (*deltat) = %e Msolar/yr %e (code) TimeIndex = %d\n", __FUNCTION__,
-	 AccretionRate*3.154e7, SS->AccretionRate[SS->TimeIndex], SS->TimeIndex);
-  float MassEjected = SS->NotEjectedMass + SS->MassToBeEjected; //code mass    
-
-
-  SS->NotEjectedMass = MassEjected;
+    /* find mdot */
+    float mdot = SS->AccretionRate[SS->TimeIndex];
+    float BHMass =  SS->ReturnMass()*MassConversion/SolarMass; //In solar masses
+    float eddrate = 4*M_PI*GravConst*BHMass*SolarMass*mh/(SS->eta_disk*clight*sigma_thompson); // g/s
+    eddrate = eddrate*3.154e7/SolarMass; //in Msolar/yr
+    
+    float AccretionRate = mdot*MassUnits/(SolarMass*TimeUnits); //in Msolar/s
+    /* 
+     * Now in the case where we are subgriding the accretion formalism
+     * re-calculate the actual accretion rate and check if we are in the correct band
+     */
+    //AccretionRate *= SS->epsilon_deltat;
+    
+    /* Debug */
+    printf("%s: Eddrate = %e Msolar/yr AccRate = %e Msolar/yr\t Ratio = %f\n", __FUNCTION__,
+	   eddrate, AccretionRate*3.154e7, AccretionRate*3.154e7/eddrate);
+    printf("%s: dx = %e\t MassConversion = %e\n", __FUNCTION__, dx, MassConversion);
+    printf("%s: AccretionRate (*deltat) = %e Msolar/yr %e (code) TimeIndex = %d\n", __FUNCTION__,
+	   AccretionRate*3.154e7, SS->AccretionRate[SS->TimeIndex], SS->TimeIndex);
+    float MassEjected = SS->NotEjectedMass + SS->MassToBeEjected; //code mass    
+    
+    
+    SS->NotEjectedMass = MassEjected;
 #if IMPOSETHRESHOLD
 #if SSFEED_DEBUG
-  printf("SSFEED_DEBUG: %s: Mass Accumulated thus far = %e Msolar (Threshold = %e Msolar)\n",
-	 __FUNCTION__, SS->NotEjectedMass*MassUnits/SolarMass, SS->EjectedMassThreshold);
+    printf("SSFEED_DEBUG: %s: Mass Accumulated thus far = %e Msolar (Threshold = %e Msolar)\n",
+	   __FUNCTION__, SS->NotEjectedMass*MassUnits/SolarMass, SS->EjectedMassThreshold);
 #endif
-  if (SS->NotEjectedMass*MassUnits/SolarMass <= SS->EjectedMassThreshold) {
-    fprintf(stdout, "grid::AddFS: MBH_JETS - accumulated mass (%f Msolar) not passed threshold (%f Msolar).\n",
-	    SS->NotEjectedMass*MassUnits/SolarMass, SS->EjectedMassThreshold);
-    return SUCCESS;
-  }
-#endif
-
-  if(AccretionRate*3.154e7/eddrate < 1e-30 || AccretionRate*3.154e7/eddrate > 1.0)
-    {
-      printf("%s: AccrateionRateRatio = %f. We are in the right band to release jets\n", __FUNCTION__,
-	     AccretionRate*3.154e7/eddrate);
-    }
-  else
-    {
-      printf("%s: AccrateionRateRatio = %f. No jets this time\n", __FUNCTION__,
-	     AccretionRate*3.154e7/eddrate);
+    if (SS->NotEjectedMass*MassUnits/SolarMass <= SS->EjectedMassThreshold) {
+      fprintf(stdout, "grid::AddFS: MBH_JETS - accumulated mass (%f Msolar) not passed threshold (%f Msolar).\n",
+	      SS->NotEjectedMass*MassUnits/SolarMass, SS->EjectedMassThreshold);
       return SUCCESS;
     }
-  /*end Debug*/
-
-  
-#if SSFEED_DEBUG
- 
-  printf("SSFEED_DEBUG: %s: Mass Accreted = %e Msolar\t Mass to be Ejected  = %e Msolar\n",
-	 __FUNCTION__, mdot*dt*MassUnits/SolarMass, MassEjected*MassUnits/SolarMass);
 #endif
-
+    
+    if(AccretionRate*3.154e7/eddrate < 1e-30 || AccretionRate*3.154e7/eddrate > 1.0)
+      {
+	printf("%s: AccrateionRateRatio = %f. We are in the right band to release jets\n", __FUNCTION__,
+	       AccretionRate*3.154e7/eddrate);
+      }
+    else
+      {
+	printf("%s: AccrateionRateRatio = %f. No jets this time\n", __FUNCTION__,
+	       AccretionRate*3.154e7/eddrate);
+	return SUCCESS;
+      }
+    /*end Debug*/
+  
+    
+#if SSFEED_DEBUG
+    
+    printf("SSFEED_DEBUG: %s: Mass Accreted = %e Msolar\t Mass to be Ejected  = %e Msolar\n",
+	   __FUNCTION__, mdot*dt*MassUnits/SolarMass, MassEjected*MassUnits/SolarMass);
+#endif
+    
     if (i < ibuff+SUPERCELL || i > this->GridDimension[0]-ibuff-SUPERCELL-1 || 
 	j < ibuff+SUPERCELL || j > this->GridDimension[1]-ibuff-SUPERCELL-1 ||
 	k < ibuff+SUPERCELL || k > this->GridDimension[2]-ibuff-SUPERCELL-1) {
@@ -650,7 +647,6 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	this->BaryonField[HDINum][index] *= increase;
       }
 
-      CellsModified++;
 
     }
 #if IMPOSETHRESHOLD  
@@ -668,7 +664,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
     SS->NotEjectedMass = 0.0;
 #endif
 
-    CellsModified = 0;
+  }
     return SUCCESS;
 }
 

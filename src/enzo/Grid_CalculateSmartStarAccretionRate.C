@@ -522,13 +522,17 @@ float grid::ConvergentMassFlow(int DensNum, int Vel1Num, FLOAT AccretionRadius,
 	  float accrate = 0.0; 
 	  if(radialvelocity < 0) {
 #if USEBOUNDEDNESS
-	    float ke = pow(gasvelx[index], 2.0) + pow(gasvely[index], 2.0) + pow(gasvelz[index], 2.0);
-	    float te = BaryonField[GENum][index];
-	    FLOAT dist = sqrt(radius2);
-	    float ge = Gcode*SSmass/dist;
-	    if(ke+te-ge<0) { /*Only add if we are bound */
-	      continue;
+	    if(SSMass > 0.0){
+	      float ke = pow(gasvelx[index], 2.0) + pow(gasvely[index], 2.0) + pow(gasvelz[index], 2.0);
+	      float te = BaryonField[GENum][index];
+	      FLOAT dist = sqrt(radius2);
+	      float ge = Gcode*SSmass/dist;
+	      if(ke+te-ge<0) { /*Only add if we are bound */
+		continue;
+	      }
 	    }
+	    else
+	      ;
 #endif
 	    numincells++;
 	    accrate = density[index]*relposmag*relposmag*radialvelocity;

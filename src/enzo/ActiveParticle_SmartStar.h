@@ -33,7 +33,7 @@
 #define MAXACCRETIONRADIUS  128 /* Times the minimum cell width */
 #define ACCRETIONRADIUS  4
 #define NUMRADIATIONBINS 5
-#define CRITICAL_ACCRETION_RATE 0.04 //Msolar/yr
+#define CRITICAL_ACCRETION_RATE 0.001 //Msolar/yr (Haemerlee et al (2018))
 #define TIMEGAP            90   //yrs
 #define POPIII_RESOLUTION  0.001 //pc
 #define SMS_RESOLUTION     0.1   //pc
@@ -45,10 +45,12 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 static FLOAT Dist(FLOAT *tempPos, FLOAT *tempPos1);
 static float R_ISCO(float a);
 //Particle Classes
+
 #define POPIII 0
 #define SMS    1
 #define BH     2
 #define POPII  3
+
 
 //Accretion Modes
 #define SPHERICAL_BONDI_HOYLE_FORMALISM 1
@@ -71,6 +73,7 @@ public:
     mass_in_accretion_sphere = 0;
     epsilon_deltat = 1.0;
     beta_jet = 0.0;
+    InfluenceRadius = 0.0;
     for(int i = 0; i < 3; i++)
       {
 	Accreted_angmom[i] = 0.0;
@@ -135,6 +138,8 @@ public:
       int TopGridDims[], 
       int ActiveParticleID);
 
+  
+  
   static int SmartStarParticleFeedback(
              int nParticles, 
              ActiveParticleList<ActiveParticleType>& ParticleList,
@@ -145,9 +150,11 @@ public:
   static int CreateParticle(grid *thisgrid_orig, ActiveParticleFormationData &supp_data,
 			    int particle_index);
   static int InitializeParticleType();
-  void   SmartMerge(ActiveParticleType_SmartStar *a);
+  void SmartMerge(ActiveParticleType_SmartStar *a);
+  void AssignMassFromIMF();
   int CalculateAccretedAngularMomentum();
   int SmartStarAddFeedbackSphere();
+  int DetermineSEDParameters(FLOAT Time, FLOAT dx);
   ENABLED_PARTICLE_ID_ACCESSOR
   bool IsARadiationSource(FLOAT Time);
   
@@ -170,7 +177,9 @@ public:
 				      FLOAT dx, 
 				      LevelHierarchyEntry *LevelArray[], int ThisLevel);
 
- 
+  static int  RemoveMassFromGridAfterFormation(int nParticles, 
+					       ActiveParticleList<ActiveParticleType>& ParticleList,
+					       LevelHierarchyEntry *LevelArray[], int ThisLevel);
   static float EjectedMassThreshold;
   FLOAT AccretionRadius;   // in units of CellWidth on the maximum refinement level
   static int RadiationParticle;
@@ -191,6 +200,7 @@ public:
   float NotEjectedMass, eta_disk, mass_in_accretion_sphere, MassToBeEjected;
   float beta_jet, epsilon_deltat;
   float Accreted_angmom[MAX_DIMENSION];
+  float InfluenceRadius;
   static std::vector<ParticleAttributeHandler *> AttributeHandlers;
 };
 
@@ -350,6 +360,16 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(MaximumRefinementLevel)));
 
+      /* Remove mass from grid from newly formed particles */
+      RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
+				       LevelArray, ThisLevel);
+
+      
+	//thisGrid->RemoveMassFromGridAfterFormation(np->pos, np->ParticleClass, np->AccretionRadius,
+	//						   np->Mass, 
+	//						   index, DensityThreshold, ExtraDensity);
+
+      
       /* Do Merging   */
 
       ActiveParticleList<active_particle_class> MergedParticles;
