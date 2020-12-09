@@ -37,25 +37,8 @@
 #  define PAPI_NULL 0
 #endif
 
-// *********************************************************************
-// <<< OLD
-
-typedef std::vector<long long> OldCountersType;
-typedef std::map<std::string,OldCountersType> RegionCountersType;
-typedef std::stack<std::string> FrameType;
-typedef std::map<std::string,int> StateType;
-
-// OLD >>>
-// *********************************************************************
-
-
-// *********************************************************************
-// <<< NEW
 
 typedef std::map<std::string,class Counter *> CountersType;
-
-// NEW >>>
-// *********************************************************************
 
 extern long long lcampi_global_calls_;
 extern long long lcampi_global_recv_bytes_;

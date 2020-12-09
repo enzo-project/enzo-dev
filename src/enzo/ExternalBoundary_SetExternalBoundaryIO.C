@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <math.h>
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -55,8 +55,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  
   /* declarations */
  
-  int i, j, k, dim, Sign, bindex;
-  float *index;
+  int i, j, k, dim, Sign, bindex, sign_12, sign_23, area;
+  float *index, q1, q2, q3, temp_index, rho, rho1, rho2, rho3;
 
 #ifdef OOC_BOUNDARY
   hid_t       file_id, dset_id, attr_id;
@@ -166,7 +166,19 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
     if (ExternalBoundaryValueIO)
       READ_BV(bv_buffer, field, dim, face, slabsize, BoundaryDimension, BoundaryRank, NumberOfBaryonFields);
 
-    for (i = 0; i < StartIndex[0]; i++)
+    for (i = 0; i < StartIndex[0]; i++){
+      // calculate y/z averaged field values for hydrostatic boundary
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[1] * GridDims[2];
+      for (j = 0; j < GridDims[1]; j++){
+        for (k = 0; k < GridDims[2]; k++) {
+	  q1 += *(Field + StartIndex[0] +     j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	  q2 += *(Field + StartIndex[0] + 1 + j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	  q3 += *(Field + StartIndex[0] + 2 + j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+        }
+      }
       for (j = 0; j < GridDims[1]; j++)
         for (k = 0; k < GridDims[2]; k++) {
 
@@ -200,6 +212,30 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
   	  case shearing:
 	     *index = *(index + (EndIndex[0] - StartIndex[0] + 1));
  	    break;
+          case hydrostatic:
+            // set magnetic By, Bz, Phi to their values at the x-boundary                                                             
+            if (FieldType == Bfield2 || FieldType == Bfield3 ||  FieldType == PhiField)
+              *index = *(Field + StartIndex[0] + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            // set Bx, vx = 0 at the x-boundary                                                                                       
+            else if (FieldType == Bfield1 || FieldType == Velocity1)
+              *index = 0;
+            // otherwise extrapolate the boundary values from the average values near the boundary                                    
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+
+              // if average field doesn't flip signs near boundary, use quadratic                                                     
+              if (sign_12 * sign_23 > 0)
+                *index = q1 + (StartIndex[0]-i)*(q1-q2) +
+                  (StartIndex[0]-i)*(StartIndex[0]-i)*(q1-2*q2+q3)/2.;
+              // otherwise, use linear                                                                                                
+              else
+                *index = q1 + (StartIndex[0]-i)*(q1-q2);
+
+              if (*index < tiny_number || isnan(*index))
+		*index = q1;
+            }
+            break;
           case BoundaryUndefined:
             break;
           default:
@@ -210,10 +246,22 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           }
 
         }
-
+    }
 #else
  
-    for (i = 0; i < StartIndex[0]; i++)
+    for (i = 0; i < StartIndex[0]; i++){
+      // calculate y/z averaged field values for hydrostatic boundary 
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[1] * GridDims[2];
+      for (j = 0; j < GridDims[1]; j++){
+	for (k = 0; k < GridDims[2]; k++) {
+	  q1 += *(Field + StartIndex[0] +     j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	  q2 += *(Field + StartIndex[0] + 1 + j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	  q3 += *(Field + StartIndex[0] + 2 + j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	}
+      }
       for (j = 0; j < GridDims[1]; j++)
 	for (k = 0; k < GridDims[2]; k++) {
 
@@ -238,14 +286,38 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  case shearing:
  	    *index = *(index + (EndIndex[0] - StartIndex[0] + 1));
 	    break;
-	  case BoundaryUndefined:
+          case hydrostatic:
+            // set magnetic By, Bz, Phi to their values at the x-boundary
+            if (FieldType == Bfield2 || FieldType == Bfield3 ||  FieldType == PhiField)
+              *index = *(Field + StartIndex[0] + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            // set Bx, vx = 0 at the x-boundary 
+            else if (FieldType == Bfield1 || FieldType == Velocity1)
+              *index = 0;
+            // otherwise extrapolate the boundary values from the average values near the boundary
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+
+              // if average field doesn't flip signs near boundary, use quadratic
+              if (sign_12 * sign_23 > 0)
+                *index = q1 + (StartIndex[0]-i)*(q1-q2) +
+                  (StartIndex[0]-i)*(StartIndex[0]-i)*(q1-2*q2+q3)/2.;
+              // otherwise, use linear
+              else
+                *index = q1 + (StartIndex[0]-i)*(q1-q2);
+
+              if (*index < tiny_number || isnan(*index))
+                *index = q1;
+            }
+            break;
+          case BoundaryUndefined:
             break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (x-left).\n",
 		    BoundaryType[field][0][0][bindex])
 	  }
-
 	}
+    }
 
 #endif
 
@@ -270,7 +342,19 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
     if (ExternalBoundaryValueIO)
       READ_BV(bv_buffer, field, dim, face, slabsize, BoundaryDimension, BoundaryRank, NumberOfBaryonFields);
 
-    for (i = 0; i < GridDims[0]-EndIndex[0]-1; i++)
+    for (i = 0; i < GridDims[0]-EndIndex[0]-1; i++){
+      // calculate y/z averaged field values for hydrostatic boundary
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[1] * GridDims[2];
+      for (j = 0; j < GridDims[1]; j++){
+        for (k = 0; k < GridDims[2]; k++) {
+	  q1 += *(Field + (EndIndex[0]    ) + j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	  q2 += *(Field + (EndIndex[0] - 1) + j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	  q3 += *(Field + (EndIndex[0] - 2) + j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+        }
+      }
       for (j = 0; j < GridDims[1]; j++)
         for (k = 0; k < GridDims[2]; k++) {
 
@@ -305,6 +389,30 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	     *index = *(index - (EndIndex[0] - StartIndex[0] + 1));
  	    break;
+          case hydrostatic:
+            // set magnetic By, Bz, Phi to their values at the x-boundary                                                                                      
+	    if (FieldType == Bfield2 || FieldType == Bfield3 ||  FieldType == PhiField)
+	      *index = *(Field + EndIndex[0] + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
+	    // set Bx, vx = 0 at the x-boundary                                                                                                                
+	    else if (FieldType == Bfield1 || FieldType == Velocity1)
+	      *index = 0;
+	    // otherwise extrapolate the boundary values from the average values near the boundary                                                             
+	    else {
+	      sign_12 = sign(q2-q1);
+	      sign_23 = sign(q3-q2);
+	      
+	      // if average field doesn't flip signs near boundary, use quadratic                                                                              
+	      if (sign_12 * sign_23 > 0)
+		*index = q1 + (i+1)*(q1-q2) +
+		  (i+1)*(i+1)*(q1-2*q2+q3)/2.;
+	      // otherwise, use linear                                                                                                                         
+	      else
+		*index = q1 + (i+1)*(q1-q2);
+	      
+	      if (*index < tiny_number || isnan(*index))
+		*index = q1;
+	    }
+	    break;
           case BoundaryUndefined:
             break;
           default:
@@ -313,12 +421,24 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
             ENZO_FAIL("Unrecognized IO BoundaryType!\n");
           }
-
         }
+    }
 
 #else
  
-    for (i = 0; i < GridDims[0]-EndIndex[0]-1; i++)
+    for (i = 0; i < GridDims[0]-EndIndex[0]-1; i++){
+      // calculate y/z averaged field values for hydrostatic boundary   
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[1] * GridDims[2];
+      for (j = 0; j < GridDims[1]; j++){
+        for (k = 0; k < GridDims[2]; k++) {
+          q1 += *(Field + (EndIndex[0]    ) + j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+          q2 += *(Field + (EndIndex[0] - 1) + j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+          q3 += *(Field + (EndIndex[0] - 2) + j*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+        }
+      }
       for (j = 0; j < GridDims[1]; j++)
 	for (k = 0; k < GridDims[2]; k++) {
 
@@ -344,14 +464,38 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index - (EndIndex[0] - StartIndex[0] + 1));
  	    break;
-	  case BoundaryUndefined:
+	  case hydrostatic:
+            // set magnetic By, Bz, Phi to their values at the x-boundary
+            if (FieldType == Bfield2 || FieldType == Bfield3 ||  FieldType == PhiField)
+              *index = *(Field + EndIndex[0] + j*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            // set Bx, vx = 0 at the x-boundary                                                                                                                
+            else if (FieldType == Bfield1 || FieldType == Velocity1)
+              *index = 0;
+            // otherwise extrapolate the boundary values from the average values near the boundary                                                             
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+	      
+              // if average field doesn't flip signs near boundary, use quadratic                                                                              
+              if (sign_12 * sign_23 > 0)
+                *index = q1 + (i+1)*(q1-q2) +
+                  (i+1)*(i+1)*(q1-2*q2+q3)/2.;
+              // otherwise, use linear                                                                                                                         
+              else
+                *index = q1 + (i+1)*(q1-q2);
+	      
+              if (*index < tiny_number || isnan(*index))
+                *index = q1;
+            }
+            break;
+          case BoundaryUndefined:
             break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (x-right).\n",
 		    BoundaryType[field][0][1][bindex])
 	  }
-
 	}
+    }
 
 #endif
 
@@ -379,7 +523,19 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
     if (ExternalBoundaryValueIO)
       READ_BV(bv_buffer, field, dim, face, slabsize, BoundaryDimension, BoundaryRank, NumberOfBaryonFields);
 
-    for (j = 0; j < StartIndex[1]; j++)
+    for (j = 0; j < StartIndex[1]; j++){
+      // calculate x/z averaged field values for hydrostatic boundary 
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[0] * GridDims[2];
+      for (i = 0; i < GridDims[0]; i++){
+        for (k = 0; k < GridDims[2]; k++) {
+	  q1 += *(Field + i + (StartIndex[1]    )*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	  q2 += *(Field + i + (StartIndex[1] + 1)*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	  q3 += *(Field + i + (StartIndex[1] + 2)*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+        }
+      }
       for (i = 0; i < GridDims[0]; i++)
         for (k = 0; k < GridDims[2]; k++) {
 
@@ -413,6 +569,29 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index + (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
 	    break;
+          case hydrostatic:
+            // set magnetic Bx, Bz, Phi to their values at the y-boundary    
+            if (FieldType == Bfield1 || FieldType == Bfield3 ||  FieldType == PhiField)
+              *index = *(Field + i + StartIndex[1]*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            // set By, vy = 0 at the y-boundary                                                                                                                
+            else if (FieldType == Bfield2 || FieldType == Velocity2)
+              *index = 0;
+            // otherwise extrapolate the boundary values from the average values near the boundary
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+
+              // if average field doesn't flip signs near boundary, use quadratic  
+              if (sign_12 * sign_23 > 0)
+                *index = q1 + (StartIndex[1]-j)*(q1-q2) +
+                  (StartIndex[1]-j)*(StartIndex[1]-j)*(q1-2*q2+q3)/2.;
+              // otherwise, use linear    
+              else
+                *index = q1 + (StartIndex[1]-j)*(q1-q2);
+              if (*index < tiny_number || isnan(*index))
+                *index = q1;
+            }
+            break;
           case BoundaryUndefined:
             break;
           default:
@@ -422,12 +601,24 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
             ENZO_FAIL("Unrecognized IO BoundaryType!\n");
           }
-
         }
+    }
 
 #else
  
-    for (j = 0; j < StartIndex[1]; j++)
+    for (j = 0; j < StartIndex[1]; j++){
+      // calculate x/z averaged field values for hydrostatic boundary
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[0] * GridDims[2];
+      for (i = 0; i < GridDims[0]; i++){
+        for (k = 0; k < GridDims[2]; k++) {
+          q1 += *(Field + i + (StartIndex[1]    )*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+          q2 += *(Field + i + (StartIndex[1] + 1)*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+          q3 += *(Field + i + (StartIndex[1] + 2)*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+        }
+      }
       for (i = 0; i < GridDims[0]; i++)
 	for (k = 0; k < GridDims[2]; k++) {
 
@@ -452,14 +643,37 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index + (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
  	    break;
-	  case BoundaryUndefined:
+          case hydrostatic:
+            // set magnetic Bx, Bz, Phi to their values at the y-boundary   
+            if (FieldType == Bfield1 || FieldType == Bfield3 ||  FieldType == PhiField)
+              *index = *(Field + i + StartIndex[1]*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            // set By, vy = 0 at the y-boundary                                                                 
+            else if (FieldType == Bfield2 || FieldType == Velocity2)
+              *index = 0;
+            // otherwise extrapolate the boundary values from the average values near the boundary 
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+
+              // if average field doesn't flip signs near boundary, use quadratic
+              if (sign_12 * sign_23 > 0)
+                *index = q1 + (StartIndex[1]-j)*(q1-q2) +
+                  (StartIndex[1]-j)*(StartIndex[1]-j)*(q1-2*q2+q3)/2.;
+              // otherwise, use linear
+              else
+                *index = q1 + (StartIndex[1]-j)*(q1-q2);
+              if (*index < tiny_number || isnan(*index))
+                *index = q1;
+            }
+            break;
+          case BoundaryUndefined:
             break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (y-left).\n",
 		    BoundaryType[field][1][0][bindex])
 	  }
-
 	}
+    }
 
 #endif
 
@@ -484,7 +698,19 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
     if (ExternalBoundaryValueIO)
       READ_BV(bv_buffer, field, dim, face, slabsize, BoundaryDimension, BoundaryRank, NumberOfBaryonFields);
 
-    for (j = 0; j < GridDims[1]-EndIndex[1]-1; j++)
+    for (j = 0; j < GridDims[1]-EndIndex[1]-1; j++){
+      // calculate x/z averaged field values for hydrostatic boundary  
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[0] * GridDims[2];
+      for (i = 0; i < GridDims[0]; i++){
+        for (k = 0; k < GridDims[2]; k++) {
+	  q1 += *(Field + i +(EndIndex[1]    )*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	  q2 += *(Field + i +(EndIndex[1] - 1)*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+	  q3 += *(Field + i +(EndIndex[1] - 2)*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+        }
+      }
       for (i = 0; i < GridDims[0]; i++)
         for (k = 0; k < GridDims[2]; k++) {
 
@@ -519,6 +745,29 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index - (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
  	    break;
+          case hydrostatic:
+            // set magnetic Bx, Bz, Phi to their values at the y-boundary  
+            if (FieldType == Bfield1 || FieldType == Bfield3 ||  FieldType == PhiField)
+              *index = *(Field + i + EndIndex[1]*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            // set By, vy = 0 at the y-boundary 
+            else if (FieldType == Bfield2 || FieldType == Velocity2)
+              *index = 0;
+            // otherwise extrapolate the boundary values from the average values near the boundary
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+
+              // if average field doesn't flip signs near boundary, use quadratic 
+              if (sign_12 * sign_23 > 0)
+                *index = q1 + (j+1)*(q1-q2) +
+                  (j+1)*(j+1)*(q1-2*q2+q3)/2.;
+              // otherwise, use linear       
+              else
+                *index = q1 + (StartIndex[1]-j)*(q1-q2);
+              if (*index < tiny_number || isnan(*index))
+                *index = q1;
+            }
+            break;
           case BoundaryUndefined:
             break;
           default:
@@ -528,12 +777,24 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
             ENZO_FAIL("Unrecognized IO BoundaryType!\n");
           }
-
         }
+    }
 
 #else
  
-    for (j = 0; j < GridDims[1]-EndIndex[1]-1; j++)
+    for (j = 0; j < GridDims[1]-EndIndex[1]-1; j++){
+      // calculate x/z averaged field values for hydrostatic boundary
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[0] * GridDims[2];
+      for (i = 0; i < GridDims[0]; i++){
+        for (k = 0; k < GridDims[2]; k++) {
+          q1 += *(Field + i +(EndIndex[1]    )*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+          q2 += *(Field + i +(EndIndex[1] - 1)*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+          q3 += *(Field + i +(EndIndex[1] - 2)*GridDims[0] + k*GridDims[1]*GridDims[0]) / area;
+        }
+      }
       for (i = 0; i < GridDims[0]; i++)
 	for (k = 0; k < GridDims[2]; k++) {
 
@@ -559,14 +820,37 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index - (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
  	    break;
-	  case BoundaryUndefined:
+	  case hydrostatic:
+            // set magnetic Bx, Bz, Phi to their values at the y-boundary
+            if (FieldType == Bfield1 || FieldType == Bfield3 ||  FieldType == PhiField)
+              *index = *(Field + i + EndIndex[1]*GridDims[0] + k*GridDims[1]*GridDims[0]);
+            // set By, vy = 0 at the y-boundary
+            else if (FieldType == Bfield2 || FieldType == Velocity2)
+              *index = 0;
+            // otherwise extrapolate the boundary values from the average values near the boundary
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+
+              // if average field doesn't flip signs near boundary, use quadratic
+              if (sign_12 * sign_23 > 0)
+                *index = q1 + (j+1)*(q1-q2) +
+                  (j+1)*(j+1)*(q1-2*q2+q3)/2.;
+              // otherwise, use linear
+              else
+                *index = q1 + (StartIndex[1]-j)*(q1-q2);
+              if (*index < tiny_number || isnan(*index))
+                *index = q1;
+            }
+            break;
+          case BoundaryUndefined:
             break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (y-right).\n",
 		    BoundaryType[field][1][1][bindex])
 	  }
-
 	}
+    }
 
 #endif
 
@@ -594,7 +878,19 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
     if (ExternalBoundaryValueIO)
       READ_BV(bv_buffer, field, dim, face, slabsize, BoundaryDimension, BoundaryRank, NumberOfBaryonFields);
 
-    for (k = 0; k < StartIndex[2]; k++)
+    for (k = 0; k < StartIndex[2]; k++){
+      // calculate x/y averaged field values for hydrostatic boundary                                                  
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[0] * GridDims[1];
+      for (i = 0; i < GridDims[0]; i++){
+        for (j = 0; j < GridDims[1]; j++) {
+          q1 += *(Field + i + j*GridDims[0] + (StartIndex[2]  )*GridDims[1]*GridDims[0]) / area;
+          q2 += *(Field + i + j*GridDims[0] + (StartIndex[2]+1)*GridDims[1]*GridDims[0]) / area;
+          q3 += *(Field + i + j*GridDims[0] + (StartIndex[2]+2)*GridDims[1]*GridDims[0]) / area;
+        }
+      }
       for (i = 0; i < GridDims[0]; i++)
         for (j = 0; j < GridDims[1]; j++) {
 
@@ -628,6 +924,30 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index + (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
  	    break;
+          case hydrostatic:
+	    // set magnetic Bx, By, Phi to their values at the z-boundary
+            if (FieldType == Bfield1 || FieldType == Bfield2 ||  FieldType == PhiField)
+              *index = *(Field + i + j*GridDims[0] + (StartIndex[2])*GridDims[1]*GridDims[0]);
+	    // set Bz, vz = 0 at the z-boundary
+            else if (FieldType == Bfield3 || FieldType == Velocity3)
+              *index = 0;
+	    // otherwise extrapolate the boundary values from the average values near the boundary
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+
+              // if average field doesn't flip signs near boundary, use quadratic    
+              if (sign_12 * sign_23 > 0)
+                *index = q1 + (StartIndex[2]-k)*(q1-q2) +
+		  (StartIndex[2]-k)*(StartIndex[2]-k)*(q1-2*q2+q3)/2.;
+	      // otherwise, use linear
+              else
+                *index = q1 + (StartIndex[2]-k)*(q1-q2);
+
+              if (*index < tiny_number || isnan(*index))
+                *index = q1;
+	    }
+            break;
           case BoundaryUndefined:
             break;
           default:
@@ -637,11 +957,24 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
             ENZO_FAIL("Unrecognized IO BoundaryType");
           }
         }
+    }
 
 #else
  
-    for (k = 0; k < StartIndex[2]; k++)
-      for (i = 0; i < GridDims[0]; i++)
+    for (k = 0; k < StartIndex[2]; k++){
+      // calculate x/y averaged field values for hydrostatic boundary                                                  
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[0] * GridDims[1];
+      for (i = 0; i < GridDims[0]; i++){
+        for (j = 0; j < GridDims[1]; j++) {
+          q1 += *(Field + i + j*GridDims[0] + (StartIndex[2]  )*GridDims[1]*GridDims[0]) / area;
+          q2 += *(Field + i + j*GridDims[0] + (StartIndex[2]+1)*GridDims[1]*GridDims[0]) / area;
+          q3 += *(Field + i + j*GridDims[0] + (StartIndex[2]+2)*GridDims[1]*GridDims[0]) / area;
+        }
+      }
+      for (i = 0; i < GridDims[0]; i++){
 	for (j = 0; j < GridDims[1]; j++) {
 
 	  index = Field + i + j*GridDims[0] + k*GridDims[1]*GridDims[0];
@@ -665,19 +998,46 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index + (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
  	    break;
-	  case BoundaryUndefined:
+	  case hydrostatic:
+            // set magnetic Bx, By, Phi to their values at the z-boundary 
+            if (FieldType == Bfield1 || FieldType == Bfield2 ||  FieldType == PhiField)
+              *index = *(Field + i + j*GridDims[0] + (StartIndex[2])*GridDims[1]*GridDims[0]);
+            // set Bz, vz = 0 at the z-boundary 
+            else if (FieldType == Bfield3 || FieldType == Velocity3)
+              *index = 0;
+           // otherwise extrapolate the boundary values from the average values near the boundary 
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+
+              // if average field doesn't flip signs near boundary, use quadratic 
+              if (sign_12 * sign_23 > 0)
+                *index = q1 + (StartIndex[2]-k)*(q1-q2) +
+                  (StartIndex[2]-k)*(StartIndex[2]-k)*(q1-2*q2+q3)/2.;
+              // otherwise, use linear 
+              else
+                *index = q1 + (StartIndex[2]-k)*(q1-q2);
+
+              if (*index < tiny_number || isnan(*index))
+                *index = q1;
+            }
+            break;
+          case BoundaryUndefined:
             break;
 	  default:
 	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (z-left).\n",
 		    BoundaryType[field][2][0][bindex])
-	  }
-
+	      }
 	}
+      }
+    }
+
 
 #endif
 
-  }
- 
+  } 
+  
+  
   if (BoundaryDimension[2] > 1 && GridOffset[2]+GridDims[2] == BoundaryDimension[2]) {
  
     /* set z outer (right) face */
@@ -697,7 +1057,19 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
     if (ExternalBoundaryValueIO)
       READ_BV(bv_buffer, field, dim, face, slabsize, BoundaryDimension, BoundaryRank, NumberOfBaryonFields);
 
-    for (k = 0; k < GridDims[2]-EndIndex[2]-1; k++)
+    for (k = 0; k < GridDims[2]-EndIndex[2]-1; k++){
+      // calculate x/y averaged field values for hydrostatic boundary                                                                      
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[0] * GridDims[1];
+      for (i = 0; i < GridDims[0]; i++){
+        for (j = 0; j < GridDims[1]; j++) {
+          q1 += *(Field + i + j*GridDims[0] + (EndIndex[2]  )*GridDims[1]*GridDims[0]) / area;
+          q2 += *(Field + i + j*GridDims[0] + (EndIndex[2]-1)*GridDims[1]*GridDims[0]) / area;
+          q3 += *(Field + i + j*GridDims[0] + (EndIndex[2]-2)*GridDims[1]*GridDims[0]) / area;
+        }
+      }
       for (i = 0; i < GridDims[0]; i++)
         for (j = 0; j < GridDims[1]; j++) {
 
@@ -732,6 +1104,28 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index - (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
  	    break;
+          case hydrostatic:
+            // set magnetic Bx, By, Phi to their values at the z-boundary  
+            if (FieldType == Bfield1 || FieldType == Bfield2 ||  FieldType == PhiField)
+              *index =  *(Field + i + j*GridDims[0] + (EndIndex[2]  )*GridDims[1]*GridDims[0]);
+            // set Bz, vz = 0 at the z-boundary 
+            else if (FieldType == Bfield3 || FieldType == Velocity3)
+              *index = 0;
+            // otherwise extrapolate the boundary values from the average values near the boundary
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+	      // if average field doesn't flip signs near boundary, use quadratic  
+              if (sign_12 * sign_23 > 0)
+		*index = q1 + (k+1)*(q1-q2) + (k+1)*(k+1)*(q1-2*q2+q3)/2.;
+	      // otherwise, use linear
+              else
+		*index = q1 + (k+1)*(q1-q2);
+
+              if (*index < tiny_number || isnan(*index))
+                *index = q1;	      
+            }
+            break;
           case BoundaryUndefined:
             break;
           default:
@@ -742,11 +1136,24 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           }
 
         }
+    }
 
 #else
  
-    for (k = 0; k < GridDims[2]-EndIndex[2]-1; k++)
-      for (i = 0; i < GridDims[0]; i++)
+    for (k = 0; k < GridDims[2]-EndIndex[2]-1; k++){
+      // calculate x/y averaged field values for hydrostatic boundary                                                  
+      q1 = 0;
+      q2 = 0;
+      q3 = 0;
+      area = GridDims[0] * GridDims[1];
+      for (i = 0; i < GridDims[0]; i++){
+        for (j = 0; j < GridDims[1]; j++) {
+          q1 += *(Field + i + j*GridDims[0] + (EndIndex[2]  )*GridDims[1]*GridDims[0]) / area;
+          q2 += *(Field + i + j*GridDims[0] + (EndIndex[2]-1)*GridDims[1]*GridDims[0]) / area;
+          q3 += *(Field + i + j*GridDims[0] + (EndIndex[2]-2)*GridDims[1]*GridDims[0]) / area;
+        }
+      }
+      for (i = 0; i < GridDims[0]; i++){
 	for (j = 0; j < GridDims[1]; j++) {
 
 	  index = Field + i + j*GridDims[0] +
@@ -771,7 +1178,29 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
  	  case shearing:
  	    *index = *(index - (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
  	    break;
- 	  case BoundaryUndefined:
+	  case hydrostatic:
+            // set magnetic Bx, By, Phi to their values at the z-boundary
+            if (FieldType == Bfield1 || FieldType == Bfield2 ||  FieldType == PhiField)
+              *index =  *(Field + i + j*GridDims[0] + (EndIndex[2]  )*GridDims[1]*GridDims[0]);
+            // set Bz, vz = 0 at the z-boundary
+            else if (FieldType == Bfield3 || FieldType == Velocity3)
+              *index = 0;
+            // otherwise extrapolate the boundary values from the average values near the boundary
+            else {
+              sign_12 = sign(q2-q1);
+              sign_23 = sign(q3-q2);
+              // if average field doesn't flip signs near boundary, use quadratic
+              if (sign_12 * sign_23 > 0)
+                *index = q1 + (k+1)*(q1-q2) + (k+1)*(k+1)*(q1-2*q2+q3)/2.;
+              // otherwise, use linear
+              else
+                *index = q1 + (k+1)*(q1-q2);
+
+              if (*index < tiny_number || isnan(*index))
+                *index = q1;
+            }
+            break;
+          case BoundaryUndefined:
             break;
 	  default:
 	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (z-right).\n",
@@ -782,6 +1211,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  }
 
 	}
+      }
+    }
 
 #endif
 
