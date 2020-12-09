@@ -12,30 +12,30 @@
 /  RETURNS: SUCCESS or FAIL
 /
 ************************************************************************/
- 
+
 // This routine intializes a new simulation based on the parameter file.
 //
 
-#include "preincludes.h" 
+#include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
 #include "TopGridData.h"
 #include "StarParticleData.h"
 #include "phys_constants.h"
- 
+
 /* character strings */
- 
+
 char DefaultDimUnits[] = "cm";
 char *DefaultDimLabel[] = {"x", "y", "z"};
- 
+
 char DefaultRestartName[] = "restart";
 char DefaultDataName[] = "data";
 char DefaultHistoryName[] = "history";
 char DefaultRedshiftName[] = "RedshiftOutput";
 char DefaultNewMovieName[] = "MoviePack";
 char DefaultTracerParticleName[] = "TracerOutput";
- 
+
 char DefaultRestartDir[] = "RS";
 char DefaultDataDir[] = "DD";
 char DefaultHistoryDir[] = "HD";
@@ -43,31 +43,31 @@ char DefaultRedshiftDir[] = "RD";
 char DefaultTracerParticleDir[] = "TD";
 char DefaultExtraName[] = "ExtraDumpXX";
 char DefaultExtraDir[]="ED00";
- 
+
 int SetDefaultGlobalValues(TopGridData &MetaData)
 {
- 
+
   /* declarations */
- 
+
   int dim, i, j;
- 
+
   huge_number               = 1.0e+20;
   tiny_number               = 1.0e-20;
 
   /* set the default MetaData values. */
- 
+
   MetaData.CycleNumber     = 0;
   MetaData.SubcycleNumber     = 0;
   MetaData.Time            = 0.0;
   MetaData.CPUTime         = 0.0;
- 
+
   MetaData.StopTime        = FLOAT_UNDEFINED;  // This must be set be the user
   MetaData.StopCycle       = 100000;            // 10000 timesteps
   MetaData.StopSteps       = 10000;            // 10000 timesteps
   MetaData.StopCPUTime     = 720.0*3600.0;     // 30 days
   MetaData.ResubmitOn      = FALSE;
   MetaData.ResubmitCommand = NULL;
- 
+
   MetaData.MaximumTopGridTimeStep = huge_number;
 
   MetaData.TimeLastRestartDump = 0.0;
@@ -81,7 +81,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.TimeLastInterpolatedDataDump    = FLOAT_UNDEFINED;
   MetaData.dtInterpolatedDataDump          = 0.0;
   MetaData.WroteData           = FALSE;
- 
+
   MetaData.CycleLastRestartDump = 0;
   MetaData.CycleSkipRestartDump = 0;
   MetaData.CycleLastDataDump    = INT_UNDEFINED;
@@ -91,10 +91,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.CycleLastHistoryDump = INT_UNDEFINED;
   MetaData.CycleSkipHistoryDump = 0;
   MetaData.CycleSkipGlobalDataDump = 0; //AK
- 
+
   MetaData.OutputFirstTimeAtLevel = 0; // zero is off
   MetaData.StopFirstTimeAtLevel   = 0; // zero is off
- 
+
   MetaData.NumberOfOutputsBeforeExit = 0;
   MetaData.OutputsLeftBeforeExit     = 0;
 
@@ -153,14 +153,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     TimeActionTime[i]      = 0;
     TimeActionParameter[i] = FLOAT_UNDEFINED;
   }
- 
+
   for (i = 0; i < MAX_CUBE_DUMPS; i++) {
     CubeDumps[i] = NULL;
   }
- 
+
   MetaData.StaticHierarchy     = TRUE;
   FastSiblingLocatorEntireDomain = TRUE;
- 
+
   MetaData.TopGridRank = INT_UNDEFINED;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     MetaData.TopGridDims[dim]                = INT_UNDEFINED;
@@ -168,23 +168,23 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MetaData.RightFaceBoundaryCondition[dim] = reflecting;
   }
   MetaData.BoundaryConditionName = NULL;
- 
+
   MetaData.GravityBoundary        = TopGridPeriodic;
 
 #ifdef TRANSFER
   MetaData.RadHydroParameterFname = NULL;
 #endif
- 
+
   MetaData.ParticleBoundaryType   = periodic;  // only one implemented!
   MetaData.NumberOfParticles      = 0;         // no particles
- 
+
   MetaData.CourantSafetyNumber    = 0.6;
   MetaData.PPMFlatteningParameter = 0;    // off
   MetaData.PPMDiffusionParameter  = 0;    // off
   MetaData.PPMSteepeningParameter = 0;    // off
 
   MetaData.FirstTimestepAfterRestart = TRUE;
- 
+
   /* set the default global data. */
   CheckpointRestart         = 0;
 
@@ -220,7 +220,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SubgridSizeAutoAdjust     = TRUE; // true for adjusting maxsize and minedge
   OptimalSubgridsPerProcessor = 16;    // Subgrids per processor
   NumberOfBufferZones       = 1;
- 
+
   for (i = 0; i < MAX_FLAGGING_METHODS; i++) {
     MinimumSlopeForRefinement[i]= 0.3;
     SlopeFlaggingFields[i] = INT_UNDEFINED;
@@ -232,7 +232,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     SecondDerivativeFlaggingFields[i] = INT_UNDEFINED;
   }
   SecondDerivativeEpsilon = 1.0e-2;
- 
+
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     DomainLeftEdge[dim]             = 0.0;
     DomainRightEdge[dim]            = 1.0;
@@ -258,14 +258,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     GalaxySimulationPreWindVelocity[dim] = 0.0;
     StellarWindCenterPosition[dim] = 0.5;
   }
-  if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0; 
+  if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0;
 
   MultiRefineRegionMaximumOuterLevel = INT_UNDEFINED;
   MultiRefineRegionMinimumOuterLevel = INT_UNDEFINED;
   for (i = 0; i < MAX_STATIC_REGIONS; i++) {
     MultiRefineRegionMaximumLevel[i] = INT_UNDEFINED;
     MultiRefineRegionMinimumLevel[i] = 0;
-    MultiRefineRegionGeometry[i] = -1; 
+    MultiRefineRegionGeometry[i] = -1;
     MultiRefineRegionRadius[i] = INT_UNDEFINED;
     MultiRefineRegionWidth[i] = 3.0;
     MultiRefineRegionStaggeredRefinement[i] = 0.0;
@@ -376,7 +376,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   First_Pass                  = 0;
 
   MemoryLimit                 = 4000000000L;
- 
+
   ExternalGravity             = FALSE;             // off
   ExternalGravityDensity      = 0.0;
   ExternalGravityRadius       = 0.0;
@@ -394,7 +394,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UniformGravity              = FALSE;             // off
   UniformGravityDirection     = 0;                 // x-direction
   UniformGravityConstant      = 1.0;
- 
+
   PointSourceGravity           = FALSE;             // off
   PointSourceGravityConstant   = 1.0;
   PointSourceGravityCoreRadius = 0.0;
@@ -467,8 +467,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }
 
   UseSGSModel = 0; // off
-  SGSFilterStencil = 0; // the one-dimensional stencil of the complete filter 
-  SGSNeedJacobians = 0; // set automatically in ReadParameter file 
+  SGSFilterStencil = 0; // the one-dimensional stencil of the complete filter
+  SGSNeedJacobians = 0; // set automatically in ReadParameter file
   SGSNeedMixedFilteredQuantities = 0; // set automatically in ReadParameter file
   SGSFilterWidth = 0.; // off, i.e. use grid-scale quantities
   for (i = 0; i < 4; i++)
@@ -505,13 +505,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CRCourantSafetyNumber       = 0.5;
   CRFeedback                  = 0.0;               // no stellar feedback into CRs
   CRdensFloor                 = 0.0;               // off
-  CRmaxSoundSpeed             = 0.0;               // off 
+  CRmaxSoundSpeed             = 0.0;               // off
   CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
   CosmologySimulationUniformCR= 1e-20;             // FIXME
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
-  FindShocksOnlyOnOutput      = 0;                 // Find at every cycle and 
+  FindShocksOnlyOnOutput      = 0;                 // Find at every cycle and
                                                    // during output by default.
   RadiationFieldType          = 0;
   RadiationFieldRedshift      = FLOAT_UNDEFINED;
@@ -539,11 +539,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.DeuteriumToHydrogenRatio = 2.0*3.4e-5; // Burles & Tytler 1998
 
   /*
-     Previously, the solar metal mass fraction was 0.02041.  
-     This is close to 0.0194 of Anders & Grevesse (1989), but significantly 
+     Previously, the solar metal mass fraction was 0.02041.
+     This is close to 0.0194 of Anders & Grevesse (1989), but significantly
      higher than the more recent value of 0.0122 from Asplund et al. (2005).
-     Now, the solar metal mass fraction has been set to 0.01295, 
-     which is consistent with the abundances used in Cloudy when generating the 
+     Now, the solar metal mass fraction has been set to 0.01295,
+     which is consistent with the abundances used in Cloudy when generating the
      Grackle cooling tables.
   */
   CoolData.SolarMetalFractionByMass = 0.01295; // Cloudy v13 abundances
@@ -581,10 +581,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ZEUSQuadraticArtificialViscosity = 2.0;
   UseMinimumPressureSupport        = FALSE;
   MinimumPressureSupportParameter  = 100.0;
- 
+
   //MinimumSlopeForRefinement        = 0.3;          // 30% change in value
   MinimumShearForRefinement        = 1.0;          //AK
-  OldShearMethod                   = 0;            
+  OldShearMethod                   = 0;
   MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
   MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
   RefineByJeansLengthSafetyFactor  = 4.0;
@@ -592,7 +592,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RefineByResistiveLengthSafetyFactor  = 2.0;
   ShockwaveRefinementMinMach = 1.3; // Only above M=1.3
   ShockwaveRefinementMinVelocity = 1.0e7; //1000 km/s
-  ShockwaveRefinementMaxLevel = 0; 
+  ShockwaveRefinementMaxLevel = 0;
   MustRefineParticlesRefineToLevel = 0;
   MustRefineParticlesCreateParticles = 0;
   MustRefineParticlesRefineToLevelAutoAdjust = FALSE;
@@ -684,7 +684,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
   PythonReloadScript               = FALSE;
-  
+
   // EnzoTiming Dump Frequency
   TimingCycleSkip                  = 1;
 
@@ -712,9 +712,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     StarClusterRegionLeftEdge[dim] = 0.0;
     StarClusterRegionRightEdge[dim] = 1.0;
   }
- 
+
   MixSpeciesAndColors           = 1;            //Enable SNColour field to be advected as species in MHD
- 
+
   PopIIIStarMass                   = 100;
   PopIIIInitialMassFunction        = FALSE;
   PopIIIInitialMassFunctionSeed    = INT_UNDEFINED;
@@ -789,7 +789,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   UseFUVBackground                     =    1;     // apply FUV background from UVB for Pe heating - only HM2012
   MetalMixingExperiment                =    0;     // turn on to add by-hand injection events to examine enrichment (see )
-  IndividualStarRefineToLevel          =   -1;     // Level to force-refine to aroudn star particles (region buffer size in radius)
+  IndividualStarRefineToLevel          =   -1;     // Level to force-refine to around star particles (region buffer size in radius)
   IndividualStarRefineToPhysicalRadius =   -1;     // Physical radius (in pc) to force refinement around star particles. Refine buffer will be 1.0001 * IndividualStarRefineToPhysicalRadius * 2 (only used if > 0)
   IndividualStarRefineForRadiation     =    0;     // By default, above refine to level ONLY for mass / energy feedback. Also do when stars are ionizing if ON
   IndividualStarRefineBufferSize       =    4;
@@ -801,7 +801,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarICSupernovaR           =   -1.0;     // radius limit for SN - set to galaxy scale radius
   IndividualStarICSupernovaZ           =   -1.0;     // vertical height limit for supernova - set to Galaxy scale height
   IndividualStarICSupernovaMethod      =     1;     // 1: uniform disk with R and Z - 2: uniform sphere using R only
-  IndividualStarICSupernovaFromFile    =     0;     // if ON, loads SNR as a function of time from a file.
   IndividualStarICSupernovaInjectionMethod = 1;   // 1 = thermal only, spherical ball - 2: thermal and kinetic mix - Simpson et. al. 2015
   for (i = 0; i < 3; i ++)
       IndividualStarICSupernovaPos[i] = 0.5;
@@ -828,13 +827,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarTrackSNMetalDensity  =     0;         // Track spearate SNII AND SNIa mass fields
 
       // for popIII SF for individual stars, use the same PopIII IMF flags that already exist
-      // 
+      //
   IndividualStarIMF                  =     0;         // 0: salpeter, 1: kroupa, 2: chabrier
   IndividualStarIgnoreNegativeMass   = 0; // Experimental!!!
   IndividualStarIMFCalls             =     0;         // Do not touch - number of calls to IMF so far in simulation
   IndividualStarSalpeterSlope        = -1.35;         // slope
   IndividualStarKroupaAlpha1         =  -0.3;         // kroupa slope over mass range
-  IndividualStarKroupaAlpha2         =  -1.3;         // '' over 
+  IndividualStarKroupaAlpha2         =  -1.3;         // '' over
   IndividualStarKroupaAlpha3         =  -2.3;         // '' over
   IndividualStarIMFLowerMassCutoff   =   1.0;         // Solar masses
   IndividualStarIMFUpperMassCutoff   = 100.0;         // Solar masses
@@ -1032,7 +1031,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.HydrogenFractionByMass = 0.76;
 
   /* The DToHRatio is by mass in the code, so multiply by 2. */
-  TestProblemData.DeuteriumToHydrogenRatio = 2.0*3.4e-5; // Burles & Tytler 1998 
+  TestProblemData.DeuteriumToHydrogenRatio = 2.0*3.4e-5; // Burles & Tytler 1998
 
   // multispecies default values assume completely neutral gas with primordial D/H ratio
   TestProblemData.MultiSpecies = 0;
@@ -1181,7 +1180,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   VelocityGradient=1.0;
   ShearingBoundaryDirection=-1;
   ShearingVelocityDirection=-1;
-  ShearingBoxProblemType = 0; 
+  ShearingBoxProblemType = 0;
   UseMHD=0;
   MaxVelocityIndex = 3;
 
@@ -1228,7 +1227,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ResetMagneticField = FALSE;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     ResetMagneticFieldAmplitude[dim] = 0.0;   // in Gauss
-  }  
+  }
 
   VelAnyl                     = 0;
   BAnyl                       = 0;
@@ -1249,7 +1248,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmartStarBHJetFeedback = FALSE;
   SmartStarBHThermalFeedback = FALSE;
   SmartStarStellarRadiativeFeedback = FALSE;
-  
+
   //SmartStar Feedback parameters - should be as minimal as possible
   SmartStarFeedbackEnergyCoupling = 0.016666;
   SmartStarFeedbackJetsThresholdMass = 1.0;

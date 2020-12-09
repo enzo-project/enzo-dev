@@ -154,8 +154,6 @@ SPEXTERN int   IndividualStarICSupernovaFromFile;
 SPEXTERN float IndividualStarWDFixedLifetime;
 SPEXTERN float IndividualStarRefineTime;
 SPEXTERN int   ICSupernovaNumberOfPoints;
-SPEXTERN float ICSupernovaTimeArray[500];
-SPEXTERN float ICSupernovaSNRArray[500];
 SPEXTERN float IndividualStarICSupernovaPos[MAX_DIMENSION];
 SPEXTERN int   IndividualStarCheckVelocityDiv;
 SPEXTERN int   IndividualStarICLifetimeMode;

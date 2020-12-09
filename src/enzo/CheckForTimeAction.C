@@ -156,29 +156,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
         float sntime = IndividualStarICSupernovaTime*Myr_s/TimeUnits;
 
 
-        if (IndividualStarICSupernovaFromFile){ //  interpolate along tabulated rates
-           // interpolate along icsupernovarate - icsupernovatime arrays
-           if(MetaData.Time > sntime){
-             TimeActionParameter[i] = -1;
-             TimeActionTime[i]      = -1;
-           } else {
-             float time_now = MetaData.Time * TimeUnits / Myr_s;
-
-             int index = search_lower_bound(ICSupernovaTimeArray, time_now, 0,
-                                            ICSupernovaNumberOfPoints, ICSupernovaNumberOfPoints);
-             float slope = (ICSupernovaSNRArray[index+1] - ICSupernovaSNRArray[index])/
-                             (ICSupernovaTimeArray[index+1] - ICSupernovaTimeArray[index]);
-
-             TimeActionParameter[i] = slope*(time_now - ICSupernovaTimeArray[index])
-                                         + ICSupernovaSNRArray[index];
-             TimeActionParameter[i] = 1.0 / TimeActionParameter[i];
-
-             TimeActionTime[i] += TimeActionParameter[i] * yr_s / TimeUnits;
-
-           }
-
-
-        } else if (IndividualStarICSupernovaTime <= 0){ // go until stars form
+        if (IndividualStarICSupernovaTime <= 0){ // go until stars form
 
           if (MetaData.NumberOfParticles > 0){ // turn off SN
             TimeActionParameter[i] = -1;
