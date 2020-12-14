@@ -1356,8 +1356,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 //                 StellarYieldsResetAtomicNumbers+12, StellarYieldsResetAtomicNumbers+13, StellarYieldsResetAtomicNumbers+14, StellarYieldsResetAtomicNumbers+15, StellarYieldsResetAtomicNumbers+16,
 //                  StellarYieldsResetAtomicNumbers+17, StellarYieldsResetAtomicNumbers+18, StellarYieldsResetAtomicNumbers+19, StellarYieldsResetAtomicNumbers+20);
 
-
-
     ret += sscanf(line, "StellarYieldsNumberOfSpecies = %"ISYM, &StellarYieldsNumberOfSpecies);
     ret += sscanf(line, "StellarYieldsScaledSolarInitialAbundances = %"ISYM, &StellarYieldsScaledSolarInitialAbundances);
 
@@ -2178,7 +2176,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (NumberOfParticleAttributes > MAX_NUMBER_OF_PARTICLE_ATTRIBUTES){
     ENZO_VFAIL("Number of necessary particle attributes (%"ISYM") greater than"
               " MAX_NUMBER_OF_PARTICLE_ATTRIBUTES. Change and re-compile.\n",NumberOfParticleAttributes);
-  }  
+  }
 
   /* Set particle attributes appropriately for individual star model with
      birth mass field and abundance tracers */
@@ -2189,11 +2187,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
   }
 
-  if (IndividualStarOutputChemicalTags){
-    StellarAbundancesFilename = new char[80];
-    sprintf(StellarAbundancesFilename, "stellar_abundances_%4.4d.dat",
-            (Eint32) MetaData.DataDumpNumber-1);
-  }
 
   /* Use the value in MaximumParticleRefinementLevel to set the smoothing
      radius for the particles, to be used to Grid_DepositPositions. */

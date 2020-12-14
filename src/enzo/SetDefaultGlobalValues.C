@@ -793,6 +793,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarRefineToPhysicalRadius =   -1;     // Physical radius (in pc) to force refinement around star particles. Refine buffer will be 1.0001 * IndividualStarRefineToPhysicalRadius * 2 (only used if > 0)
   IndividualStarRefineForRadiation     =    0;     // By default, above refine to level ONLY for mass / energy feedback. Also do when stars are ionizing if ON
   IndividualStarRefineBufferSize       =    4;
+  IndividualStarRefineTime           =    0.1;        // for particles with any SN, treat as must refine for this long after death (in Myr)
+
   /* IndividualStar: Star Formation */
   IndividualStarTemperatureLimit       =   -1;
   IndividualStarTemperatureLimitFactor =    2;
@@ -805,11 +807,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   for (i = 0; i < 3; i ++)
       IndividualStarICSupernovaPos[i] = 0.5;
 
-  IndividualStarWDFixedLifetime      =  -1.0;         // debugging parameter - fixed lifetime in Myr before SNIa if > 0
+  IndividualStarWDFixedLifetime      =  -1.0;         // debugging parameter - fixed lifetime iRn Myr before SNIa if > 0
   IndividualStarCreationStencilSize  =     3;         // n x n cell region (on each side) to sample for star formation
   IndividualStarCheckVelocityDiv     =     1;         // use velocity divergence in SF check
   IndividualStarICLifetimeMode       =     0;         // 0 - use interpolated lifetime, 1 - set to now, 2 - from file
-  IndividualStarRefineTime           =    0.1;        // for particles with any SN, treat as must refine for this long after death (in Myr)
   // StarParticleOverdensityThreshold is used as primary density threshold parameter
   IndividualStarSecondaryOverDensityThreshold = -1;  // in cc - if < 0, set to over density thresh in ReadParamFile
   IndividualStarTemperatureThreshold = 1.0E4;       // threshold for star formation (T < T_thresh)
@@ -819,7 +820,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
                                                       // also tracks PopIII metal enrichment w/ additional field (but ONLY when tags are written to file)
   IndividualStarPopIIISeparateYields =     0;         // in addition to above, track whole separate set of stellar yields for each element
 
-  IndividualStarRProcessModel        =     0;         // Include an R-process model (TBD) and independent tracer field
+  IndividualStarRProcessModel        =     0;         // Include an R-process model and independent tracer field
   IndividualStarRProcessMinMass      = 24.37;         // Minimum mass of stars for r-prcess tracing. Default is 1% for Kroupa IMF
   IndividualStarRProcessMaxMass      = 25.00;         // assuming SNe explode from 8 to 25 Msun
   IndividualStarTrackAGBMetalDensity =     0;         // Track separate AGB metal mass field
@@ -914,8 +915,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StellarYieldsNumberOfSpecies       = INT_UNDEFINED; // number of species to follow - optional, calculated automatically if left undefined
   StellarYieldsScaledSolarInitialAbundances = 0;    // use solar abundances to set initial mass fractions, linearly scaled by metalliticy
 
-  StellarAbundancesFilename = NULL;
-
   for (i = 0; i < MAX_STELLAR_YIELDS; i++){
     StellarYieldsAtomicNumbers[i] = -1;
   }
@@ -925,10 +924,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ResetStellarAbundances = 0;
 
   // chemical evolution test star
-  ChemicalEvolutionTestNumberOfStars   = 1;
+  ChemicalEvolutionTestNumberOfStars   = 1      ; // if 1, reads stellar parameters from parameter file. Else uses input text file
   ChemicalEvolutionTestStarMass        = 20.0   ; // solar masses
-  ChemicalEvolutionTestStarMetallicity = 0.0001 ;
-  ChemicalEvolutionTestStarFormed      = FALSE  ;
+  ChemicalEvolutionTestStarMetallicity = 0.0001 ; // metal mass fraction
+  ChemicalEvolutionTestStarFormed      = FALSE  ; // internal flag
   ChemicalEvolutionTestStarLifetime    = 0      ; // 0 is off > 0 lifetime in Myr
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     ChemicalEvolutionTestStarPosition[dim] = 0.5; // code units - center of box
