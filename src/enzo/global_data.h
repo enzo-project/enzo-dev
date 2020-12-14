@@ -1286,7 +1286,6 @@ EXTERN int StellarYieldsResetAtomicNumbers[MAX_STELLAR_YIELDS];
 EXTERN int StellarYieldsNumberOfSpecies;
 EXTERN int StellarYieldsScaledSolarInitialAbundances;
 EXTERN int ResetStellarAbundances;
-EXTERN char * StellarAbundancesFilename;
 
 
 #endif
