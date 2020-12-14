@@ -178,7 +178,7 @@ int InitializeStellarYields(const float &time){
 
   fill_table(file_id, &StellarYieldsSNData,           filename, "SN");
   fill_table(file_id, &StellarYieldsWindData,         filename, "Wind");
-  fill_table(file_id, &StellarYieldsPopIIIData,       filename, "PopIII");
+  fill_table(file_id, &StellarYieldsPopIIIData,       filename, "PopIII", TRUE);
 
 // treat these two a little differently for now so this is backwards compatabile
 // with original model.
