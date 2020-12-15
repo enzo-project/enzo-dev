@@ -531,9 +531,11 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     metal_mass[0]     += dm_total ; // (cstar->ReturnMetallicity() - z_solar*z_ratio)*m_eject;
     m_eject           += dm_total;
 
-    if ((metal_mass[0] < 0) || (m_eject < 0)){
-      ENZO_VFAIL("Failure in surface abundances. Total metal mass (%" FSYM ") / total ejected mass (%" FSYM ")are negative\n",metal_mass[0], m_eject);
+    if ((metal_mass[0] < -1.0E-5) || (m_eject < -1.0E-5)){
+      ENZO_VFAIL("Failure in surface abundances. Total metal mass (%" ESYM ") / total ejected mass (%" ESYM ")are negative\n",metal_mass[0], m_eject);
     }
+    metal_mass[0] = max(metal_mass[0],0.0);
+    m_eject = max(m_eject, 0.0);
 
 /*
     if(FALSE){ // more detailed error checking
