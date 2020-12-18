@@ -1307,7 +1307,7 @@ added to the acceleration field for the baryons and particles.
 ``ExternalGravityHaloConcentration`` (external)
    If ``ExternalGravity = 1``, this sets the concentration of the NFW profile. Default : 0.0
 ``ExternalGravityHaloVirialRadius`` (external)
-  If ``ExternalGravity = 1``, this sets the virial radius of the NFW profile (in cm). Default : 0.0 
+  If ``ExternalGravity = 1``, this sets the virial radius of the NFW profile (in cm). Default : 0.0
 ``UniformGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a uniform
     gravitational field. Default: 0
@@ -2040,7 +2040,15 @@ Particle Parameters
     TestGravitySphere where it is the number of test points. Default: 0
 ``NumberOfParticleAttributes`` (internal)
     It is set to 3 if either ``StarParticleCreation`` or
-    ``StarParticleFeedback`` is set to 1 (TRUE). Default: 0
+    ``StarParticleFeedback`` is set to 1 (TRUE). This is computed automatically
+    for the individual star star formation and chemical evolution routines to
+    account for the additional stellar abundances (if present). Default: 0
+``ParticleAttributeTableStartIndex`` (internal)
+    Relevant only in the individual star formation and chemical evolution model,
+    a placeholder to keep track of the particle attribute index where the
+    interpolation table positions are saved (after the physical particle
+    attributes) if ``IndividualStarSaveTablePositions`` is on.
+    This is done for convenience. Default : 0
 ``ParallelParticleIO`` (external)
     Normally, for the mpi version, the particle data are read into the
     root processor and then distributed to separate processors.
