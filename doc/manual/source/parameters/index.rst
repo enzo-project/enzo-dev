@@ -707,6 +707,17 @@ Hierarchy Control Parameters
     This is the lowest (most refined) depth that the code will produce.
     It is zero based, so the total number of levels (including the root
     grid) is one more than this value. Default: 2
+``MaximumRefinementLevelPhysicalScale`` (external)
+    In cosmological simulations, fixing the maximum refinement level implies
+    an evolving maximum physical resolution, decreasing over time with
+    cosmological expansion. In some cases it may be beneficial to fix the maximum
+    refinement level to a physical resolution, which can be done by setting this
+    parameter to some value (in pc). This will ensure the maximum refinement level
+    always corresponds to a physical resolution between 0.5 and 1
+    ``MaximumRefinementLevelPhysicalScale`` by increasing ``MaximumRefinementLevel``
+    and ``MaximumGravityRefinementLevel`` as the simulation evolves. This should be
+    used with caution as it can lead to the sudden refinement of large regions,
+    the effects of which are not well tested. Default (off) : -1
 ``CellFlaggingMethod`` (external)
     The method(s) used to specify when a cell should be refined. This
     is a list of integers, up to 9, as described by the following
@@ -1291,6 +1302,12 @@ added to the acceleration field for the baryons and particles.
     For ``ExternalGravity = 10``, this is the unit vector of the disk's angular momentum (e.g. a disk whose face-on view is oriented in the x-y plane would have ``ExternalGravityOrientation = 0 0 1``). Default: 0 0 0
 ``ExternalGravityRadius`` (external)
    If ``ExternalGravity = 10``, this marks the inner radius of the disk in code units within which the velocity drops to zero. Default: 0.0
+``ExternalGravityHaloCentralDensity`` (external)
+   If ``ExternalGravity = 1``, this sets the central density of the NFW profile (in cgs). Default : 0.0
+``ExternalGravityHaloConcentration`` (external)
+   If ``ExternalGravity = 1``, this sets the concentration of the NFW profile. Default : 0.0
+``ExternalGravityHaloVirialRadius`` (external)
+  If ``ExternalGravity = 1``, this sets the virial radius of the NFW profile (in cm). Default : 0.0 
 ``UniformGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a uniform
     gravitational field. Default: 0
@@ -1312,10 +1329,10 @@ added to the acceleration field for the baryons and particles.
 ``DiskGravityStellarDiskMass`` (external)
     Total mass of stellar disk (in solar masses)
     Default: 1e11
-``DiskGravityDiskScaleHeightR`` (external)
+``DiskGravityStellarDiskScaleHeightR`` (external)
     Disk scale length in radius (in Mpc)
     Default: 4.0e-3
-``DiskGravityDiskScaleHeightz`` (external)
+``DiskGravityStellarDiskScaleHeightz`` (external)
     Disk scale height in z (in Mpc)
     Default: 2.5e-4
 ``DiskGravityStellarBulgeMass`` (external)
@@ -1330,6 +1347,15 @@ added to the acceleration field for the baryons and particles.
 ``DiskGravityDarkMatterDensity`` (external)
     Dark matter effective density (in cgs)
     Default: 3.81323e-25
+``DiskGravityDarkMatterMassInterior`` (external)
+    As an alternative to supplying ``DiskGravityDarkMatterDensity``,
+    you can specify the dark matter mass (in solar masses) interior to some
+    radius (below). Used only if this and the blow are greater than 0. Default : 0.0
+``DiskGravityDarkMatterMassInteriorR`` (external)
+    The radius (in Mpc) at which the total dark matter mass is specified given the above.
+    Used only if this and the above are greater than 0. Default : 0.0
+``DiskGravityDarkMatterCuttoffR`` (external)
+    Optional, the dark matter virial radius (in Mpc). Default : 0.0
 
 .. _hydrodynamics_parameters:
 
