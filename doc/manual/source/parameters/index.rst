@@ -1307,7 +1307,7 @@ added to the acceleration field for the baryons and particles.
 ``ExternalGravityHaloConcentration`` (external)
    If ``ExternalGravity = 1``, this sets the concentration of the NFW profile. Default : 0.0
 ``ExternalGravityHaloVirialRadius`` (external)
-  If ``ExternalGravity = 1``, this sets the virial radius of the NFW profile (in cm). Default : 0.0
+  If ``ExternalGravity = 1``, this sets the virial radius of the NFW profile (in cm). Default : 0.0  
 ``UniformGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a uniform
     gravitational field. Default: 0

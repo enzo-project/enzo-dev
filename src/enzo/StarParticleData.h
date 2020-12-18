@@ -64,7 +64,6 @@ SPEXTERN float StarEnergyToQuasarUV;
 SPEXTERN int StarFeedbackDistRadius;
 SPEXTERN int StarFeedbackDistCellStep;
 SPEXTERN int StarFeedbackDistTotalCells;
-SPEXTERN int StarFeedbackPreSN;
 SPEXTERN float StarFeedbackKineticFraction;
 SPEXTERN float StarMakerExplosionDelayTime;
 SPEXTERN int StarMakerUseJeansMass;
