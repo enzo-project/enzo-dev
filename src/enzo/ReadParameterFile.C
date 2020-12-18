@@ -125,7 +125,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "TimeLastHistoryDump = %"PSYM,
 		  &MetaData.TimeLastHistoryDump);
     ret += sscanf(line, "dtHistoryDump       = %"PSYM, &MetaData.dtHistoryDump);
-    ret += sscanf(line, "FreezeParticles = %"ISYM, &FreezeParticles);
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
     ret += sscanf(line, "TracerParticleOutputVelocity  = %"ISYM, &TracerParticleOutputVelocity);
     ret += sscanf(line, "WriteGhostZones = %"ISYM, &WriteGhostZones);
