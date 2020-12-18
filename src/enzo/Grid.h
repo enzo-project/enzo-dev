@@ -1305,9 +1305,6 @@ gradient force to gravitational force for one-zone collapse test. */
      }
    };
 
-/* Gravity: Add moving, time varying external acceleration field */
-   int AddTimeVaryingExternalAcceleration(void);
-
 /* Gravity: Add fixed, external acceleration to baryons & particles. */
 
    int AddExternalAcceleration();

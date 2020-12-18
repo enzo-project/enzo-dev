@@ -889,13 +889,6 @@ EXTERN FLOAT ExternalGravityPosition[MAX_DIMENSION];
 EXTERN double ExternalGravityRadius;
 EXTERN FLOAT ExternalGravityOrientation[MAX_DIMENSION];
 
-EXTERN int   ExternalGravityNumberofTimePoints;
-EXTERN float ExternalGravityTimeOn;
-EXTERN float ExternalGravityTimeOff;
-EXTERN float *ExternalGravityTime;
-EXTERN float ExternalGravityMass;
-EXTERN FLOAT *ExternalGravityTimePositions[MAX_DIMENSION];
-
 /* Poisson Clean */
 
 EXTERN int UsePoissonDivergenceCleaning;
