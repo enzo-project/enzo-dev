@@ -1307,7 +1307,7 @@ added to the acceleration field for the baryons and particles.
 ``ExternalGravityHaloConcentration`` (external)
    If ``ExternalGravity = 1``, this sets the concentration of the NFW profile. Default : 0.0
 ``ExternalGravityHaloVirialRadius`` (external)
-  If ``ExternalGravity = 1``, this sets the virial radius of the NFW profile (in cm). Default : 0.0  
+  If ``ExternalGravity = 1``, this sets the virial radius of the NFW profile (in cm). Default : 0.0
 ``UniformGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a uniform
     gravitational field. Default: 0
@@ -2420,6 +2420,9 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
     Lower limit of the Pop III IMF.  Default: 1
 ``PopIIIUpperMassCutoff`` (external)
     Upper limit of the Pop III IMF.  Default: 300
+``PopIIIMassRange`` (external)
+    Alternatively, specify ``PopIIILowerMassCutoff`` and ``PopIIIUpperMassCutoff``
+    in one line here. Default : ``PopIIILowerMassCutoff``, ``PopIIIUpperMassCutoff``.
 ``PopIIIInitialMassFunctionSlope`` (external)
     Slope of the Salpeter (high-mass) portion of the Pop III IMF.  Default: -1.3
 ``PopIIIInitialMassFunctionCalls`` (internal)
@@ -2689,7 +2692,11 @@ The overdensity threhsold for this star formation routine is controlled by
 ``IndividualStarPopIIISeparateYields`` (external)
   If turned on, adds additional metal tracer fields for each individual metal species
   tracking the fraction of that species comprised of metals from Pop III stars. Default : 0
-
+``IndividualStarPopIIIRadiationModel`` (external)
+  If set to 0, uses fits to the Schaerer + 2002 Pop III star photon rates (as
+  used in the Wise + 2012 simulations). If set to 1 (preferred), uses fits to the
+  Heger + Woosley 2010 rates; here, stars above 100 solar masses are assumed to
+  have a constant mass to light ratio. Default : 1
 
 ``IndividualStarIMF`` (external)
   Sets which IMF to sample. 0 : Salpeter, 1 : Kroupa, 2 : Chabrier.
@@ -3178,10 +3185,16 @@ Radiative Transfer (Ray Tracing) Parameters
 ``RadiativeTransferOpticallyThinH2`` (external)
     Set to 1 to include an optically-thin H_2 dissociating
     (Lyman-Werner) radiation field. This also causes the HM and H2II
-    to be dissociated in an opticall thin fashion.
+    to be dissociated in an optically thin fashion.
     Only used if ``MultiSpecies`` > 1.  If ``MultiSpecies`` > 1 and
     this option is off, the Lyman-Werner radiation
     field will be calculated with ray tracing. Default: 1.
+``RadiativeTransferOpticallyThinFUV`` (external)
+    Set to 1 to include optically-thin FUV radiation field, analogous to the
+    above. Default : 1
+``RadiativeTransferOpticallyThinIR`` (external)
+    Set to 1 to include optically-thin IR radiation field, analogous to the
+    above. Default : 1
 ``RadiativeTransferOpticallyThinH2CharLength`` (external)
     This parameter controls the length over which the Jeans length self shielding
     prescription is performed. The default value is 0.25 which means that the
@@ -3192,6 +3205,21 @@ Radiative Transfer (Ray Tracing) Parameters
     Once photons are past this radius, they can no longer split. In
     units of kpc. If this value is negative (by default), photons can
     always split. Default: ``FLOAT_UNDEFINED``.
+``RadiativeTransferSplitPhotonRadius`` (external)
+    The physical radius (from the domain center) beyond which photons are no
+    longer split (in kpc). Default : -99999
+``RadiativeTransferDeletPhotonByPosition`` (external)
+    If on, deletes photons once they have traveled a specified distance from
+    either the computational domain center or the source position (below).
+    Default : 0
+``RadiativeTransferDeletePhotonRadius`` (external)
+    If ``RadiativeTransferDeletePhotonByPosition = 1``, deletes photons once they
+    have traveled this distance (in code units) from the domain center. Unused
+    if negative. Default : -99999
+``RadiativeTransferDeletePhotonSourceRadius`` (external)
+  If ``RadiativeTransferDeletePhotonByPosition = 1``, deletes photons once they
+  have traveled this distance (in code units) from their source center. Unused
+  if negative. Default : 1.0E20
 ``RadiativeTransferHubbleTimeFraction`` (external)
     Photon packages are deleted when its associated photo-ionization
     timescale, considering the limit when all photons are absorbed in
@@ -3221,6 +3249,10 @@ Radiative Transfer (Ray Tracing) Parameters
     the value of ``RadiativeTransferPhotonMergeRadius``. Larger values tend
     to significantly underestimate radiation near individual sources; it
     is recommended to first try and use values around 3. Default: 0
+``RadiativeTransferSourceClusteringCount`` (external)
+    The minimum number of sources present before source clustering is used. For
+    small numbers of sources, clustering does not lead to improvements
+    in computational speed. Default : 10
 ``RadiativeTransferPhotonMergeRadius`` (external)
     The radius at which the rays will merge from their SuperSource,
     which is the luminosity weighted center of two sources. This radius
