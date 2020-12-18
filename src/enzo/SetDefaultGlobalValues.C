@@ -716,7 +716,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIUseHypernova               = TRUE;         // TRUE for HN yields, FALSE for CCSN
   PopIIISupernovaExplosions        = TRUE;         // TRUE for supernova energy injection
   PopIIIOutputOnFeedback           = FALSE;        // TRUE to output at creation and supernova
-  PopIIIRadiationModel             = 0;            // 0: Schaerer+2012 1: Heger+Woosley 2010
   IMFData                          = NULL;
   SecondaryIMFData                 = NULL;
   EventDTD                         = NULL;
@@ -798,7 +797,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarPopIIIFormation      =     0;         // flag to allow for Pop III star formation in gas below a Z threshold
                                                       // also tracks PopIII metal enrichment w/ additional field (but ONLY when tags are written to file)
   IndividualStarPopIIISeparateYields =     0;         // in addition to above, track whole separate set of stellar yields for each element
-
+  IndividualStarPopIIIRadiationModel =     1;            // 0: Schaerer+2012 1: Heger+Woosley 2010
   IndividualStarRProcessModel        =     0;         // Include an R-process model and independent tracer field
   IndividualStarRProcessMinMass      = 24.37;         // Minimum mass of stars for r-prcess tracing. Default is 1% for Kroupa IMF
   IndividualStarRProcessMaxMass      = 25.00;         // assuming SNe explode from 8 to 25 Msun

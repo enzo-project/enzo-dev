@@ -66,7 +66,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
 
   case IndividualStarPopIII:
   {
-    if (PopIIIRadiationModel == 0){
+    if (IndividualStarPopIIIRadiationModel == 0){
       nbins = (PopIIIHeliumIonization &&
              !RadiativeTransferHydrogenOnly) ? 3 : 1;
 #ifdef TRANSFER
@@ -97,7 +97,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
         for (i = 0; i < nbins; i++) Q[i] = 0.0;
       }
 
-    } else if (PopIIIRadiationModel == 1){
+    } else if (IndividualStarPopIIIRadiationModel == 1){
 
       nbins = 3; // HI,HeI,HeII
 

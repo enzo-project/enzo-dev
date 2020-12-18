@@ -1041,8 +1041,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           PopIIIUseHypernova);
   fprintf(fptr, "PopIIIOutputOnFeedback                = %"ISYM"\n",
           PopIIIOutputOnFeedback);
-  fprintf(fptr, "PopIIIRadiationModel                  = %"ISYM"\n\n",
-          PopIIIRadiationModel);
 
   fprintf(fptr, "MBHAccretion                          = %"ISYM"\n", MBHAccretion);
   fprintf(fptr, "MBHAccretionRadius                    = %"GSYM"\n", MBHAccretionRadius);
@@ -1145,6 +1143,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarSecondaryOverDensityThreshold = %"FSYM"\n", IndividualStarSecondaryOverDensityThreshold);
   fprintf(fptr, "IndividualStarPopIIIFormation = %"ISYM"\n", IndividualStarPopIIIFormation);
   fprintf(fptr, "IndividualStarPopIIISeparateYields = %"ISYM"\n", IndividualStarPopIIISeparateYields);
+  fprintf(fptr, "IndividualStarPopIIIRadiationModel                  = %"ISYM"\n\n", IndividualStarPopIIIRadiationModel);
   fprintf(fptr, "IndividualStarIMFUpperMassCutoff = %"FSYM"\n", IndividualStarIMFUpperMassCutoff);
   fprintf(fptr, "IndividualStarIMFLowerMassCutoff = %"FSYM"\n", IndividualStarIMFLowerMassCutoff);
   fprintf(fptr, "IndividualStarIMFMassFloor = %"FSYM"\n", IndividualStarIMFMassFloor);

@@ -1073,8 +1073,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIISupernovaExplosions);
     ret += sscanf(line, "PopIIIOutputOnFeedback = %"ISYM,
 		  &PopIIIOutputOnFeedback);
-    ret += sscanf(line, "PopIIIRadiationModel = %"ISYM,
-                  &PopIIIRadiationModel);
+
+    // Note: IndividualStarPopIIIRadiationModel defined below and reads `PopIIIRadiationModel` as well
 
     ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
     ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);
@@ -1185,6 +1185,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarPopIIIFormation);
     ret += sscanf(line, "IndividualStarPopIIISeparateYields = %"ISYM,
                         &IndividualStarPopIIISeparateYields);
+    ret += sscanf(line, "PopIIIRadiationModel = %"ISYM,                    // for backwards compatability
+                        &IndividualStarPopIIIRadiationModel);
+    ret += sscanf(line, "IndividualStarPopIIIRadiationModel = %"ISYM,
+                        &IndividualStarPopIIIRadiationModel);
     ret += sscanf(line, "IndividualStarIMFUpperMassCutoff = %"FSYM,
                         &IndividualStarIMFUpperMassCutoff);
     ret += sscanf(line, "IndividualStarIMFLowerMassCutoff = %"FSYM,
