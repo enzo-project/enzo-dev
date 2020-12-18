@@ -294,19 +294,7 @@ EXTERN float DiskGravityDarkMatterR;
 EXTERN float DiskGravityDarkMatterDensity;
 EXTERN float DiskGravityDarkMatterMassInterior;
 EXTERN float DiskGravityDarkMatterMassInteriorR;
-EXTERN int   DiskGravityDarkMatterUpdateCOM;
-EXTERN float DiskGravityDarkMatterRefineCore;
-
-EXTERN int DiskGravityDoublePower;
-EXTERN float *DiskGravityDoublePowerMass;
-EXTERN float *DiskGravityDoublePowerR;
-EXTERN float *DiskGravityDoublePowerPot;
 EXTERN float DiskGravityDarkMatterCutoffR;
-EXTERN float DiskGravityDarkMatterAlpha;
-EXTERN float DiskGravityDarkMatterBeta;
-EXTERN float DiskGravityDarkMatterGamma;
-EXTERN float DiskGravityDarkMatterDelta;
-EXTERN float DiskGravityDarkMatterRDecay;
 
 /* SelfGravity (TRUE or FALSE) */
 
@@ -892,11 +880,9 @@ EXTERN int UseResistivity;
 
 /* Gravity parameters */
 
-EXTERN double HaloMass;
-EXTERN float HaloConcentration;
-EXTERN float HaloRedshift;
-EXTERN double HaloCentralDensity;
-EXTERN double HaloVirialRadius;
+EXTERN float ExternalGravityHaloConcentration;
+EXTERN double ExternalGravityHaloCentralDensity;
+EXTERN double ExternalGravityHaloVirialRadius;
 EXTERN float ExternalGravityConstant;
 EXTERN float ExternalGravityDensity;
 EXTERN FLOAT ExternalGravityPosition[MAX_DIMENSION];

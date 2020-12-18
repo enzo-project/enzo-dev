@@ -171,8 +171,6 @@ OBJS_CONFIG_LIB = \
 	DetermineSEDParameters.o \
     	DistributeFeedbackZone.o \
         DoubleMachInitialize.o \
-        DoublePowerLawDiskGravity.o \
-        DiskGravityUpdateParticleCOM.o \
         E_ColumnFormat.o \
         ealFloat.o \
         ealInt.o \

@@ -539,16 +539,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "DiskGravityDarkMatterDensity       = %"FSYM,&DiskGravityDarkMatterDensity);
     ret += sscanf(line, "DiskGravityDarkMatterMassInterior  = %"FSYM,&DiskGravityDarkMatterMassInterior);
     ret += sscanf(line, "DiskGravityDarkMatterMassInteriorR = %"FSYM,&DiskGravityDarkMatterMassInteriorR);
-    ret += sscanf(line, "DiskGravityDarkMatterUpdateCOM     = %"ISYM,&DiskGravityDarkMatterUpdateCOM);
-    ret += sscanf(line, "DiskGravityDarkMatterRefineCore    = %"FSYM,&DiskGravityDarkMatterRefineCore);
-
-    ret += sscanf(line, "DiskGravityDoublePower = %"ISYM, &DiskGravityDoublePower);
     ret += sscanf(line, "DiskGravityDarkMatterCutoffR = %"FSYM, &DiskGravityDarkMatterCutoffR);
-    ret += sscanf(line, "DiskGravityDarkMatterAlpha = %"FSYM, &DiskGravityDarkMatterAlpha);
-    ret += sscanf(line, "DiskGravityDarkMatterBeta = %"FSYM, &DiskGravityDarkMatterBeta);
-    ret += sscanf(line, "DiskGravityDarkMatterGamma = %"FSYM, &DiskGravityDarkMatterGamma);
-    ret += sscanf(line, "DiskGravityDarkMatterDelta = %"FSYM, &DiskGravityDarkMatterDelta);
-    ret += sscanf(line, "DiskGravityDarkMatterRDecay = %"FSYM, &DiskGravityDarkMatterRDecay);
 
 
     ret += sscanf(line, "ExternalGravity         = %"ISYM,&ExternalGravity);
@@ -565,9 +556,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ExternalGravityTimeOff = %"FSYM, &ExternalGravityTimeOff);
     ret += sscanf(line, "ExternalGravityMass    = %"FSYM, &ExternalGravityMass);
 
-    ret += sscanf(line, "HaloCentralDensity = %"FSYM, &HaloCentralDensity);
-    ret += sscanf(line, "HaloConcentration = %"FSYM, &HaloConcentration);
-    ret += sscanf(line, "HaloVirialRadius = %"FSYM, &HaloVirialRadius);
+    ret += sscanf(line, "ExternalGravityHaloCentralDensity = %"FSYM, &ExternalGravityHaloCentralDensity);
+    ret += sscanf(line, "ExternalGravityHaloConcentration = %"FSYM, &ExternalGravityHaloConcentration);
+    ret += sscanf(line, "ExternalGravityHaloVirialRadius = %"FSYM, &ExternalGravityHaloVirialRadius);
 
     ret += sscanf(line, "SelfGravity           = %"ISYM, &SelfGravity);
     ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);

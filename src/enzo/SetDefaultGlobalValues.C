@@ -379,6 +379,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ExternalGravityDensity      = 0.0;
   ExternalGravityRadius       = 0.0;
 
+  ExternalGravityHaloVirialRadius     = 0.0; // ExternalGravity = 1 - in 
+  ExternalGravityHaloConcentration    = 0.0;
+  ExternalGravityHaloCentralDensity   = 0.0;
+
   // for externalgravity type 2 - 4
   ExternalGravityTimeOn       = 0.0;               // time in code units to turn on time varying external potential
   ExternalGravityTimeOff      = huge_number;       // time in code units to turn off time varying external potential
@@ -407,19 +411,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityDarkMatterDensity       = 3.81323E-25; // CGS
   DiskGravityDarkMatterMassInterior  = 0.0;         // solar masses - Only used when above is -1
   DiskGravityDarkMatterMassInteriorR = 0.0;         // Mpc - Only used in conjuction with above
-  DiskGravityDarkMatterUpdateCOM     = 0;           // when live DM is used, compute COM every root time step
-  DiskGravityDarkMatterRefineCore    = 0;           // if > 0, update must refine region to be around halo center with this being 1/2 side length in code units
-
-  DiskGravityDoublePower             = FALSE;       // use general doubnle power law DM dis - use with particles
-  DiskGravityDoublePowerR            = NULL;
-  DiskGravityDoublePowerMass         = NULL;
-  DiskGravityDoublePowerPot          = NULL;
   DiskGravityDarkMatterCutoffR       = huge_number;
-  DiskGravityDarkMatterAlpha         = 1.0;
-  DiskGravityDarkMatterBeta          = 3.0;
-  DiskGravityDarkMatterGamma         = 1.0;
-  DiskGravityDarkMatterDelta         = -1.0;
-  DiskGravityDarkMatterRDecay        = huge_number;
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off

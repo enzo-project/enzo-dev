@@ -349,7 +349,7 @@ int grid::ComputeAccelerationFieldExternal()
  *     Reference: Burkert 1995, Mori & Burkert 2000
  *------------------------------------------------------------------------*/
 
-  if (DiskGravity > 0 && !(DiskGravityDoublePower)) {
+  if (DiskGravity > 0) {
 
 
     double accel, radius, rsquared, xpos, ypos = 0, zpos = 0, rcore,rcyl;
@@ -557,9 +557,9 @@ int grid::ComputeAccelerationFieldExternal()
     /* Specify NFW parameters by hand here 
        Should move to parameter file in the future */
     
-    double rhoc = HaloCentralDensity,
-      c = HaloConcentration, 
-      rvir = HaloVirialRadius;
+    double rhoc = ExternalGravityHaloCentralDensity,
+      c = ExternalGravityHaloConcentration, 
+      rvir = ExternalGravityHaloVirialRadius;
     FLOAT xc = 0.5, yc = 0.5, zc = 0.5;
 
     double rs = rvir / c;

@@ -31,8 +31,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
        	      float *TemperatureUnits, float *TimeUnits,
        	      float *VelocityUnits, double *MassUnits, FLOAT Time);
 
-double DoublePowerInterpolatePotential(double r);
-
 int grid::AddExternalPotentialField(float *potential)
 {
 
@@ -118,11 +116,6 @@ int grid::AddExternalPotentialField(float *potential)
 
 	potential[GINDEX(i,j,k)] = float(ExternalPotential/PotentialUnits);
 
-
-        if (ExternalGravity == 30){
-          rsquared = (xpos*xpos+ypos*ypos+zpos*zpos)*LengthUnits*LengthUnits;
-          potential[GINDEX(i,j,k)] = float(-DoublePowerInterpolatePotential(sqrt(rsquared))) / PotentialUnits;
-        }
 
       }
     }

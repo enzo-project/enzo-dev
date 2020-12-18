@@ -468,17 +468,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "DiskGravityDarkMatterDensity       = %"GSYM"\n",DiskGravityDarkMatterDensity);
   fprintf(fptr, "DiskGravityDarkMatterMassInterior  = %"GSYM"\n",DiskGravityDarkMatterMassInterior);
   fprintf(fptr, "DiskGravityDarkMatterMassInteriorR = %"GSYM"\n",DiskGravityDarkMatterMassInteriorR);
-  fprintf(fptr, "DiskGravityDarkMatterUpdateCOM     = %"ISYM"\n",DiskGravityDarkMatterUpdateCOM);
-  fprintf(fptr, "DiskGravityDarkMatterRefineCore    = %"FSYM"\n",DiskGravityDarkMatterRefineCore);
-
-  fprintf(fptr, "DiskGravityDoublePower = %"ISYM"\n", DiskGravityDoublePower);
   fprintf(fptr, "DiskGravityDarkMatterCutoffR = %"GSYM"\n", DiskGravityDarkMatterCutoffR);
-  fprintf(fptr, "DiskGravityDarkMatterAlpha = %"GSYM"\n", DiskGravityDarkMatterAlpha);
-  fprintf(fptr, "DiskGravityDarkMatterBeta = %"GSYM"\n", DiskGravityDarkMatterBeta);
-  fprintf(fptr, "DiskGravityDarkMatterGamma = %"GSYM"\n", DiskGravityDarkMatterGamma);
-  fprintf(fptr, "DiskGravityDarkMatterDelta = %"GSYM"\n", DiskGravityDarkMatterDelta);
-  fprintf(fptr, "DiskGravityDarkMatterRDecay = %"GSYM"\n", DiskGravityDarkMatterRDecay);
-
 
   fprintf(fptr, "ExternalGravity           = %"ISYM"\n",ExternalGravity);
   fprintf(fptr, "ExternalGravityConstant     = %"FSYM"\n",ExternalGravityConstant);
@@ -492,9 +482,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ExternalGravityTimeOff = %"FSYM"\n", ExternalGravityTimeOff);
   fprintf(fptr, "ExternalGravityMass    = %"GSYM"\n", ExternalGravityMass);
 
-  fprintf(fptr, "HaloCentralDensity = %"GSYM"\n", HaloCentralDensity);
-  fprintf(fptr, "HaloConcentration = %"FSYM"\n", HaloConcentration);
-  fprintf(fptr, "HaloVirialRadius = %"GSYM"\n",HaloVirialRadius);
+  fprintf(fptr, "ExternalGravityHaloCentralDensity = %"GSYM"\n", ExnternalGravityHaloCentralDensity);
+  fprintf(fptr, "ExternalGravityHaloConcentration = %"FSYM"\n", ExternalGravityHaloConcentration);
+  fprintf(fptr, "ExternalGravityHaloVirialRadius = %"GSYM"\n",ExternalGravityHaloVirialRadius);
 
   fprintf(fptr, "SelfGravity                    = %"ISYM"\n", SelfGravity);
   fprintf(fptr, "SelfGravityGasOff              = %"ISYM"\n", SelfGravityGasOff);

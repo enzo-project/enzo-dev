@@ -49,9 +49,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
        float *TemperatureUnits, float *TimeUnits,
        float *VelocityUnits, double *MassUnits, FLOAT Time);
 
-int InitializeDoublePowerDarkMatter(void);
-void FinalizeDoublePowerDarkMatter(void);
-
 char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number, int element_set=1);
 
 void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
@@ -472,8 +469,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     }
 
 
-    if (DiskGravityDoublePower) InitializeDoublePowerDarkMatter() ;
-
   } // end DiskGravity if
 
   /* set up grid */
@@ -516,7 +511,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   } // end top grid loop
 
   /* If we are using dark matter particles, loop through grids depositing the particles */
-  if (DiskGravityDoublePower && GalaxySimulationDarkMatterParticles){
+  if (GalaxySimulationDarkMatterParticles){
     const int MAXIMUM_NUMBER_OF_INITIAL_PARTICLES = 2000000;
 
     /* Read in the particles */
@@ -734,11 +729,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     }
 
   } // end: if (GalaxySimulationRefineAtStart)
-
-  /* clean up dark matter interpolation arrays that we don't need anymore */
-  if (DiskGravityDoublePower){
-    FinalizeDoublePowerDarkMatter();
-  }
 
   /* If Galaxy is Subject to ICM Wind, Initialize the exterior */
 

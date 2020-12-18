@@ -44,8 +44,6 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number, int element_set = 1);
 
-double DoublePowerInterpolateMass(double r);
-
 /* Internal routines */
 
 float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor,
@@ -1061,8 +1059,6 @@ double DiskPotentialDarkMatterMass(FLOAT R){
  FLOAT  R0 = DiskGravityDarkMatterR*Mpc_cm, x=R/R0*LengthUnits;
  double M0 = pi*DiskGravityDarkMatterDensity*R0*R0*R0;
 
- if (DiskGravityDoublePower) return DoublePowerInterpolateMass(R*LengthUnits);
-
  return M0*(-2.0*atan(x)+2.0*log(1+x)+log(1.0+x*x));
 } // end DiskPotentialDarkMatterMass
 
@@ -1323,16 +1319,11 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
   FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/denuse;
 
   /* Calculate Gravity = Fg_DM + Fg_StellarDisk + Fg_StellaDiskGravityStellarBulgeR */
-  if (DiskGravityDoublePower){
-    FtotR = -GravConst * drcyl*LengthUnits * DoublePowerInterpolateMass(drcyl*LengthUnits)/
-                  (drcyl*drcyl*drcyl*LengthUnits*LengthUnits*LengthUnits);
-  } else{
-    FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*
+  FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*
           POW(DiskGravityDarkMatterR*Mpc_cm,3)/POW(rsph,3)*drcyl*LengthUnits
 	  *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc_cm) +
 	    2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc_cm) +
 	    log(1.0+POW(rsph/DiskGravityDarkMatterR/Mpc_cm,2)));
-  }
 
   FtotR += -GravConst*DiskGravityStellarDiskMass*SolarMass*drcyl*LengthUnits
 	  /sqrt(POW(POW(drcyl*LengthUnits,2) +
@@ -1497,16 +1488,12 @@ double PDMComp_general(double rvalue, double zint){
   // if double power law use this instead:
 
   // looks like you take the acceleration in the |z| direction
-  if (DiskGravityDoublePower){
-    F = -fabs(zint) * GravConst * DoublePowerInterpolateMass(rsph) / (rsph*rsph*rsph); // i think this is cubed
-  } else {
-    /* fabs(zint) is because this is the force in the direction downward */
-    F    = (-pi)*GravConst*DiskGravityDarkMatterDensity*
+  /* fabs(zint) is because this is the force in the direction downward */
+   F    = (-pi)*GravConst*DiskGravityDarkMatterDensity*
              POW(DiskGravityDarkMatterR*Mpc_cm,3)/POW(rsph,3) * fabs(zint)
             *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc_cm) +
             2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc_cm) +
             log(1.0+POW(rsph/DiskGravityDarkMatterR/Mpc_cm,2)));
-  }
 
   return gas_density * F;
 }

@@ -54,7 +54,6 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 int IndividualStarProperties_Initialize(TopGridData &MetaData);
 int IndividualStarRadiationProperties_Initialize(void);
 int InitializeStellarYields(const float &time);
-int InitializeDoublePowerDarkMatter(void);
 
 int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                                     TopGridData &MetaData)
@@ -236,43 +235,10 @@ int ChemicalEvolutionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
   ChemicalEvolutionTestGasTemperature /= TemperatureUnits;
   ChemicalEvolutionTestBackgroundGasTemperature /= TemperatureUnits;
 
-  if (ExternalGravity == 30){
-    InitializeDoublePowerDarkMatter();
-
-    // this currently does not work for some reason.... possibly
-    // due to problems in computing acceleration from potential? idk...
-    // externalgravity = 1 computes acceleration directly (analytically)...
-    /// probably better anyway....
-
-    if (DiskGravityDarkMatterDensity < 0){
-        const float rho_crit = 9.33E-30; // cgs - make consistent in Grid_ChemicalEvolutionTest
-        const float conc = ChemicalEvolutionTestConcentration; // temp
-        DiskGravityDarkMatterDensity = 200.0 / 3.0 * rho_crit * conc*conc*conc / (log(1.0+conc)+conc/(1.0+conc)); //cgs
-        const float M200 = DiskGravityDarkMatterMassInterior * SolarMass; // cgs
-        DiskGravityDarkMatterCutoffR = POW((3.0*M200/(4.0*pi*200.0*rho_crit)),1.0/3.0) / Mpc_cm;
-        DiskGravityDarkMatterR = DiskGravityDarkMatterCutoffR / conc;
-    }// end if density
-
-  } else if (ExternalGravity == 1){
-
-    const float rho_crit = 9.33E-30; // cgs - make consistent in Grid_ChemicalEvolutionTest
-    const float conc = ChemicalEvolutionTestConcentration;
-    const float M200 = DiskGravityDarkMatterMassInterior * SolarMass; // cgs
-    DiskGravityDarkMatterCutoffR = POW((3.0*M200/(4.0*pi*200.0*rho_crit)),1.0/3.0) / Mpc_cm;
-    DiskGravityDarkMatterR = DiskGravityDarkMatterCutoffR / conc;
-    DiskGravityDarkMatterDensity = 200.0 / 3.0 * rho_crit * conc*conc*conc / (log(1.0+conc)+conc/(1.0+conc)); //cgs
-
-    HaloCentralDensity = DiskGravityDarkMatterDensity; // must be cgs
-    HaloConcentration  = ChemicalEvolutionTestConcentration;
-    HaloVirialRadius   = DiskGravityDarkMatterCutoffR * Mpc_cm; // cgs
-  }
-
   // initialize star properties
   IndividualStarProperties_Initialize(MetaData);
   IndividualStarRadiationProperties_Initialize();
   InitializeStellarYields(MetaData.Time);
-
-
 
   /* set up grid */
   float BackgroundGasDensity     = ChemicalEvolutionTestGasDensity;
