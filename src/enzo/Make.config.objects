@@ -354,7 +354,6 @@ OBJS_CONFIG_LIB = \
 	Grid_AddOverlappingParticleMassField.o \
 	Grid_AddParticlesFromList.o \
 	Grid_AddRandomForcing.o \
-        Grid_AddTimeVaryingExternalAcceleration.o \
 	Grid_AddToBoundaryFluxes.o \
 	Grid_AllocateGrids.o \
 	Grid_AnalyzeTrackPeaks.o \
@@ -725,7 +724,6 @@ OBJS_CONFIG_LIB = \
         InitializeRadiationFieldData.o \
         InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
-        InitializeTimeVaryingExternalAcceleration.o \
 	InitialLoadBalanceRootGrids.o \
         init_random_seed.o \
 	interp1d.o \
