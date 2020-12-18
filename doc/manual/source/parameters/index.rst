@@ -77,6 +77,7 @@ common convention of 0 meaning false or off and 1 for true or on.
 
    * `The Grackle`_
 
+* `Stellar Yields Parameters`_
 
 * `Particle Parameters`_
 
@@ -97,6 +98,8 @@ common convention of 0 meaning false or off and 1 for true or on.
    * `Sink Formation and Feedback`_
 
    * `Magnetic Supernova Feedback`_
+
+   * `Individual Star Formation and Feedback Parameters`_
 
    * `Active Particles`_
 
@@ -1790,9 +1793,11 @@ Simple Cooling Options
     and Anninos. Default: 0
 ``MultiMetals`` (external)
     This was added so that the user could turn on or off additional
-    metal fields - currently there is the standard metallicity field
+    metal fields. 1: enables the standard metallicity field
     (Metal_Density) and two additional metal fields (Z_Field1 and
-    Z_Field2). Acceptable values are 1 or 0, Default: 0 (off).
+    Z_Field2). 2: enables the multi-species and multi-channel stellar yields
+    model described in :ref:`stellar_yields_parameters`, currently used only with the individual
+    star star formation and stellar feedback model. Acceptable values are 1, 2, or 0, Default: 0 (off).
 ``ThreeBodyRate`` (external)
     Which Three Body rate should be used for H2 formation?: 0 = Abel, Bryan, Norman 2002, 1 = PSS83, 2= CW83, 3 = FH07, 4= G08.  (See `Turk et al 2011 <http://adsabs.harvard.edu/abs/2011ApJ...726...55T>`)
 ``CIECooling`` (external)
@@ -1925,6 +1930,70 @@ parameters have been mapped to Enzo parameters for simplicity.
 
 ``LWbackground_sawtooth_suppression`` (int)
     Flag to enable suppression of Lyman-Werner flux due to Lyman-series absorption (giving a sawtooth pattern), taken from `Haiman & Abel, & Rees (2000) <http://adsabs.harvard.edu/abs/2000ApJ...534...11H>`_.  Default: 0.
+
+.. _stellar_yields_parameters:
+
+Stellar Yields Parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes the parameters required for the tracking of stellar yields
+from multiple metal species and their associated passive scalar tracer
+fields. Currently, this works only with the individual star star
+formation and stellar feedback model, but could be extended to other models
+without too much difficulty. Requires setting ``MultiMetals = 2``.
+
+``StellarYieldsFilename`` (external)
+    HDF5 file containing the stellar yields table to use. The format of the HDF5
+    file must contain groups labeled "AGB", "SN", "Wind", and "PopIII" (optional).
+    Each group must contain arrays labeled "M" and "Z" as the mass and metal mass
+    fraction grid points for each model star, an array "atomic_numbers" and
+    "yield_names" which give the atomic number and element name of each yield,
+    where the first two atomic numbers must be "-1" and "0" referring to the
+    total yield of all elements and the total metal yield, respectively. Finally,
+    each must contain a three dimensional array "yields", which gives the total
+    mass yields (in solar masses) for each star for each species, with dimensions
+    of (N\ :sub:`M`\ , N\ :sub:`Z`\ , N\ :sub:`Y`\ ) where
+    N\ :sub:`M`\  is the number of mass grid points, N\ :sub:`Z`\  is the number
+    of metal mass fraction grid points, and N\ :sub:`Y`\  is the number
+    of species in the yield table (each element plus the total yield and total
+    metal yield). "AGB" gives the yields for the AGB phase of stars, "SN" gives the
+    core collapse supernova yield, "Wind" gives the stellar wind yield of massive
+    (non-AGB) stars, and "PopIII" (if provided) gives the supernova yields for
+    PopIII stars ("PopIII" should have N\ :sub:`Z`\  = 1). The number of grid points
+    and species followed does not have to be the same across groups.
+    Default: "IndividualStarYields.h5".
+``StellarYieldsAtomicNumbers`` (external)
+    The list of atomic numbers to follow. If ``MultiSpecies`` is on, this must
+    contain H and He (1 and 2). By default, the maximum number of stellar yields
+    that can be followed (including H and He) is 12. This can be increased by
+    changed the value of ``MAX_STELLAR_YIELDS`` in ``macros_and_parameters.h``
+    and editing the lines for this parameter in ``ReadParamaterFile.C`` and
+    ``WriteParameterFile.C``. Default : NULL
+``StellarYieldsNumberOfSpecies`` (external)
+    Number of stellar yields to follow (optional, computed automatically).
+    Default : INT_UNDEFINED
+``StellarYieldsScaledSolarInitialAbundances`` (external)
+    By default, the initial abundances of each followed species is set to a
+    constant mass fraction across all species. This leads to unusual initial
+    abundance ratios for elements. Use this parameter to set the initial abundances
+    to the scaled solar abundance given the total metallicity of the gas (which
+    may be better in some applications). Default : 0
+
+``ResetStellarAbundances`` (internal)
+    A flag for testing / experimentation to allow the abundances of specified
+    metal species to be reset to zero when restarting a simulation. This
+    parameter is intentionally not written to the output parameter file to
+    ensure that it cannot be turned on by accident and to ensure that, if on,
+    it will only reset the abundances once. Use ``StellarYieldsResetAtomicNumbers``
+    to set which species to reset. Default : 0
+``StellarYieldsResetAtomicNumbers`` (external)
+    Like ``StellarYieldsAtomicNumbers``,
+    but a list of atomic numbers whose abundances should be cleared and reset.
+    This is intended to be set during a restart if doing testing or controlled
+    experiments and should be used with caution. This is ONLY done if
+    ``ResetStellarAbundances`` is also turned on. Unlike ``ResetStellarAbundances``,
+    these are written to the output parameter files to maintain a record of
+    the species that have been reset at some point. Default : NULL
 
 .. _particle_parameters:
 
@@ -2331,6 +2400,18 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
     Above this density, a Pop III "color" particle forms, and it will populate the surrounding region with a color field.  Units: mean density. Default: 1e6
 ``PopIIIColorMass`` (external)
     A Pop III "color" particle will populate the surrounding region with a mass of PopIIIColorMass.  Units: solar masses.  Default: 1e6
+``TypeIILowerMass`` (external)
+    The minimum stellar mass above which Pop III stars explode as core collapse supernovae Units: solar masses. Default: 11.0
+``TypeIIUpperMass`` (external)
+    The maximum stellar mass below which Pop III stars explode as core collapse supernovae. Units: solar masses. Default: 40.0
+``PISNLowerMass`` (external)
+    The minimum stellar mass above which Pop III stars explode as pair instability supernovae. Units: solar masses. Default: 140.0
+``PISNUpperMass`` (external)
+    The maximum stellar mass below which Pop III stars explode as pair instability supernovae. Units: solar masses. Default: 260.0
+``PopIIIPISNEnergy`` (external)
+    Only implemented for the Pop III model used in the individual star formation and stellar feedback model.
+    The energy which which Pop III pair instability supernovae explode. If < 0, uses the model
+    from Heger and Woosley, as default in Pop III star formation in Enzo. Units: 1.0E51 erg Default: -1
 
 .. _radiative_star_cluster_formation_parameters:
 
@@ -2439,7 +2520,389 @@ The parameters below are currently considered in ``StarParticleCreation`` method
 ``MagneticSupernovaDuration`` (external)
     The duration (in years) over which the total magnetic supernova energy is injected. This should be set to at least 5 times the minimum timestep of the simulation. Default: 5e4
 
+.. _individual_star_formation_parameters:
 
+Individual Star Formation and Feedback Parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The parameters below are currently considered in ``StarParticleCreation`` and
+``StarParticleFeedback`` methods 12. These are the parameters for the star formation
+and stellar feedback methods that govern the stochastic star formation and Feedback
+of individual stars sampled randomly from an assumed IMF. This method has not been
+tested for use in conjunction with other star particle creation / feedback methods.
+
+``IndividualStarRefineToLevel`` (external)
+  Mimicking the behavior of ``MustRefineParticlesRefineToLevel``, the refinement level
+  to force-refine to around each star particle with active mass/energy feedback (stellar winds or supernovae).
+  By default this does not do refinement for particles without active wind or supernova feedback
+  (but see ``IndividualStarRefineForRadiation``).
+  Default : -1
+``IndividualStarRefineTime`` (external)
+  Catch to ensure that supernova events are successfully refined without sudden refinement /
+  de-refinement of the feedback region, and to ensure refinement for particles that don't have active
+  stellar winds before explosion. Time (in Myr) before and after the explosion event to
+  mark particle as a must refine particle. Default : 0.1
+``IndividualStarRefineForRadiation`` (external)
+  If turned on (> 0), flags stars with active radiation feedback as must refine particles
+  even if they do not have an active wind or upcoming supernova event. Intended to turn on
+  if Pop III star formation is followed. Default : 0
+``IndividualStarRefineBufferSize`` (external)
+  Operates the same as ``MustRefineParticlesBufferSize``, defining the region around
+  the particles to mark for refinement. However, it is strongly suggested to use
+  ``IndividualStarRefineToPhysicalRadius`` instead. Default : 4
+``IndividualStarRefineToPhysicalRadius`` (external)
+  Physical radius to mark for refinement around each star particle. By default
+  this is turned off (< 0) and the fixed-cell ``IndividualStarRefineBufferSize``
+  is used, but it is strongly recommended to use this instead. Default : -1
+
+``IndividualStarTemperatureLimit`` (external)
+  To be renamed. Sets a maximum temperature limit in attempts to eliminate
+  very diffuse, very hot gas (which is generally dynamically insignificant) that
+  can arise under certain hydrodynamics solver conditions. This gas can often lead
+  to excruciatingly small time steps in high-refinement zones. Care should be taken
+  when using this parameter. 1E8 K is a reasonable limit to start, but can likely be
+  lowered even to 8E6 - 1E7 K in certain applications.
+  Default : -1
+``IndividualStarTemperatureLimitFactor`` (external)
+  To be renamed. This parameter can likely be removed, but limits the factor with which
+  temperature is adjusted when rising above ``IndividualStarTemperatureLimit``
+  in case stability issues arise. This can be safely set to 100-1000. Default : 2
+
+``IndividualStarICSupernovaRate`` (external)
+  These parameters are intended to provide initial supernova driving in high-resolution
+  isolated galaxy simulations. ``IndividualStarICSupernovaRate`` turns on initial supernova
+  driving (in units of 1/yr).  Default : 0
+``IndividualStarICSuperNovaTime`` (external)
+  Length of time (in Myr) with initial supernova driving. SNR declines linearly
+  to 0 starting at 1/2 this time if ``IndividualStarICSupernovaRate`` is used.
+  If set to
+  some value < 0, this will keep SN driving on until the first star particle
+  is formed (does not work if start particles exist at initialization). Default : 10
+``IndividualStarICSupernovaInjectionMethod`` (external)
+  Which feedback method to use to inject the supernovae. Set to 1 (default) uses
+  the same supernova feedback method as the individual star feedback routines, injecting
+  thermal energy in a sphere around the SN site. Set to 2 to use the Simpson et. al. 2010
+  kinetic and thermal energy mix. Default : 1
+``IndividualStarSupernovaMethod`` (external)
+  How to distribute the supernova. Set to 1 (default) to distribute them randomly in
+  a disk (defined with below), or 0 to distribute randomly in a sphere using only
+  the radius (below).  Default : 1
+``IndividualStarICSupernovaR`` (external)
+  Maximum radius to distribute initial supernovae (in Mpc). If set to < 0, uses
+  ``GalaxySimulationDiskScaleHeightR``.   Default : -1
+``IndividualStarICSupernovaZ`` (external)
+  Maximum vertical distance (above/below disk) to distribute initial supernovae
+  (in Mpc). If set to <0, uses ``GalaxySimulationDiskScaleHeightz``. Default : -1
+``IndividualStarICSupernovaPos`` (external)
+  Coordinates (in code units) to center disk / sphere of initial supernova
+  driving. Default : 0.5, 0.5, 0.5
+
+``IndividualStarICLifetimeMode`` (external)
+  Used in GalaxySimulation problems for testing. If set to 0, uses the interpolated lifetime from the
+  stellar evolution tables, if set to 1 sets lifetime to the current time + 1.5*dt, if
+  set to 2 sets lifetime using the input file of stellar positions.   Default : 0
+``IndividualStarWDFixedLifetime`` (external)
+  For testing purposes. If > 0, sets all the lifetime of white dwarf particles that will
+  go SNIa to this value (in Myr). Default : -1
+
+Individual Star Star Formation Parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In this star formation routine, the star formation thresholds are checked against
+a central cell, but mass used to form stars is sources from a grid of cells
+this number of cells on a side (controlled by ``IndividualStarCreationStencilSize``).
+The overdensity threhsold for this star formation routine is controlled by
+``StarMakerOverDensityThreshold``.
+
+``IndividualStarCreationStencilSize`` (external)
+  The size of the region (in number of cells on a side) to source mass from
+  in a star formation event. Mass is only sourced from the central cell if set to 1
+  (must be an odd number). Properties of the formed stars (like abundances) are
+  set using the mass weighted average of the sourced cells. Default : 3
+``IndividualStarCheckVelocityDiv`` (external)
+  Check if the velocity divergence around the central cell is < 0 to form
+  stars. Default : 1
+``IndividualStarSecondaryOverDensityThreshold`` (external)
+  An optional secondary density threshold to apply to the cells
+  around the central cell (which is evaluated with ``StarMakerOverDensityThreshold``).
+  This is intended to avoid potential (but unlikely) edge cases where diffuse gas at
+  the edge of a star forming cloud would otherwise be sourced for mass for the star
+  formation. It is recommended to set this to some value within a factor of a few below or up to
+  ``StarMakerOverDensityThreshold``. Default : -1
+``IndividualStarTemperatureThreshold`` (external)
+  The maximum temperature of a star forming cell (K). Default : 1.0E4
+``IndividualStarMassFraction`` (external)
+  The maximum fraction (by mass) of gas to convert into stars in the star forming
+  region. The closer to 1.0 the more likely you will run into numerical instabilities
+  with the hydrodynamics solver. It is recommended to stay below about 0.8, but
+  keep in mind that too low may make this more restrictive of a criterion than the
+  overdensity threshold parameter, so this should be set with consideration to the values for
+  ``StarMakerOverDensityThreshold``, ``IndividualStarCreationStencilSize``,
+  ``IndividualStarSFGasMassThreshold``, and the maximum resolution. Default : 0.5
+``IndividualStarSFGasMassThreshold`` (external)
+  The minimum mass off gas in the star formation region (in solar masses)
+  beyond which stars can form. See also the description of ``IndividualStarMassFraction``.
+  This must be set such that the maximum star mass (``IndividualStarIMFUpperMassCutoff``) is
+  less than this value times ``IndividualStarMassFraction``. Currently no error checking
+  occurs to ensure this is true.  Default : 200.0
+``IndividualStarPopIIIFormation`` (external)
+  Allow for the formation of Pop III stars following the previously existing Pop III
+  star formation model, though with a new implementation to ensure consistency with the
+  rest of the individual star formation methods. If turned on, also enables tracking
+  of total metallicity from Pop III stars as separate fields. To control the Pop III
+  formation model, see ``PopIIILowerMassCutoff``, ``PopIIIUpperMassCutoff``,
+  ``PopIIIH2CriticalFraction``, and ``PopIIIMetalCriticalFraction``. Default : 0
+``IndividualStarPopIIISeparateYields`` (external)
+  If turned on, adds additional metal tracer fields for each individual metal species
+  tracking the fraction of that species comprised of metals from Pop III stars. Default : 0
+
+
+``IndividualStarIMF`` (external)
+  Sets which IMF to sample. 0 : Salpeter, 1 : Kroupa, 2 : Chabrier.
+  Parameters for each are below. Default : 0
+``IndividualStarSalpeterSlope`` (external)
+  Slope when ``IndividualStarIMF = 1``. Default : -1.35
+``IndividualStarKroupaAlpha1`` (external)
+  Low-mass slope for the Kroupa IMF. Default : -0.3
+``IndividualStarKroupaAlpha2`` (external)
+  Intermediate mass slope for the Kroupa IMF. Default : -1.3
+``IndividualStarKroupaAlpha3`` (external)
+  High mass slope for the Kroupa IMF Default : -2.3
+``IndividualStarIMFLowerMassCutoff`` (external)
+  Minimum mass of the IMF (in solar masses). Note this is not
+  the same as the smallest mass individual star particle, and note
+  that Pop III stars are handled separately. Default : 1.0
+``IndividualStarIMFUpperMassCutoff`` (external)
+  Maximum mass of the IMF (in solar masses). This is also the maximum
+  mass individual star (again, note that Pop III stars are treated
+  separately). Default : 100.0
+``IndividualStarIMFMassFloor`` (external)
+  The minimum individual star particle mass (in solar masses). When set to
+  the default, all stars are followed individually. If greater than this value,
+  all stars between the ``IndividualStarIMFLowerMassCutoff`` and this value
+  in a single star formation event are aggregated together into a single
+  "unresolved" particle which has no feedback, which is useful to
+  have as long-lived tracers of stellar abundances without the computational expense
+  of following all stars. Default : ``IndividualStarIMFLowerMassCutoff``
+``IndividualStarVelocityDispersion`` (external)
+  Stars are formed with some dispersion (in km/s) about the mass-weighted average
+  bulk velocity of the star forming region. Default : 1.0
+``IndividualStarIMFSeed`` (external)
+  Random number seed controlling the IMF sampling Default :
+``IndividualStarIMFCalls`` (internal)
+  Internal counter for the random number generator to keep track
+  of the number of times the IMF has been sampled. Default : 0
+
+
+``IndividualStarFeedbackRadius`` (external)
+  Individual star stellar feedback is injected into a spherical region centered
+  on the star particle and mapped onto the grid. This defines the radius of that
+  region (in pc). If < 0, ``IndividualStarFeedbackStencilSize`` is used, but it is
+  strongly recommended to set this instead. Default : -1.0
+``IndividualStarFeedbackStencilSize`` (external)
+  This parameter exists for backwards compatibility, but it is very strongly
+  recommended to use ``IndividualStarFeedbackRadius`` instead.
+  Sets the feedback radius as this multiple of the number of zones of the grid hosting
+  the star particle. This works poorly for stars near level boundaries. Default : 3.0
+``IndividualStarFeedbackOverlapSample`` (external)
+  The spherical feedback region is mapped onto the cartesian grid using a Monte-Carlo sampling
+  method to compute the fractional volume for each potential overlapping cell that is contained
+  within the sphere. This sets the cube-root of the number of randomly chosen sample
+  points in each checked cell. Large values slow down the feedback routine noticeably,
+  but good accuracy can be achieved for values around 10-16. Smaller values can be adopted when
+  less care is needed for metal mass conservation. Default : 16
+
+``IndividualStarStellarWinds`` (external)
+  Use stellar winds from massive stars, including both mass, energy, and metal
+  deposition. Default : -1
+``IndividualStarWindTemperature`` (external)
+  The target temperature (in K) for the massive star stellar winds. Default : 1.0e6
+``IndividualStarUseWindMixingModel`` (external)
+  A failed attempt at constructing a sub-grid model to account for the dynamic effect of
+  mixing at the wind-bubble boundary which can contribute significant mass into the wind
+  bubble and regulate the bubble temperature. This was implemented to address the issue of
+  runaway temperatures in the bubble region when using a full-velocity wind model, but does
+  not always work well and creates issues with metal abundance conservation. Default : 0
+``IndividualStarStellarWindVelocity`` (external)
+  If < 0, adopts the stellar wind velocity using the Starburst 99 model. Otherwise
+  if >= 0, all stellar winds adopt this constant wind velocity (in km/s). Default : -1
+``IndividualStarMaximumStellarWindVelocity`` (external)
+  The maximum allowed stellar wind velocity (in km/s). Default : 3000.0
+``IndividualStarAGBWindVelocity`` (external)
+  AGB winds are treated with a constant velocity over their lifetimes, controlled by
+  this value (in km/s). Default : 20.0
+
+``IndividualStarAGBThreshold`` (external)
+  The mass below which stars are able to have AGB phases. This is treated independently
+  of the underlying stellar evolution model, and should be revisited if this is changed
+  or if it is desired to have the stellar evolution model control this more directly. Default : 8.0
+``IndividualStarSNIIMassCutoff`` (external)
+  The mass above which stars are able to explode as core collapse supernoavae at the end
+  of their life (in Msun). See note in ``IndividualStarAGBThreshold``. Default : 8.0
+``IndividualStarDirectCollapseThreshold`` (external)
+  The maximum mass below which stars can explode as core collapse supernovae and above which
+  stars are assumed to direct collapse with no mass or energy return. See note in
+  ``IndividualStarAGBThreshold``. Default : 25.0
+``IndividualStarSupernovaEnergy`` (external)
+  The total thermal energy output of a supernova (in 1E51 erg). Default : 1.0
+
+``IndividualStarPrintSNStats`` (external)
+  Writes summary output about each supernova event and the cell it occurs in
+  directly to stdout. See code in ``IndividualStarParticleAddFeedback.C`` for
+  details of what is computed and written out. Recommended to turn on. Default : 0
+
+``IndividualStarSNIaModel`` (external)
+  Individual stars are followed through the end of their lives. SNIa are sourced
+  directly from the formed white dwarfs (see below) using this model. If 0 : no SNIa,
+  1 : power-law DTD using the below slope and one tracer field (if ``IndividualStarTrackSNMetalDensity`` is on),
+  2 : a more complex model following 4 different SNIa sources from Ruiter+2011. In practice,
+  method 2 treats each SNIa the same in-simulation, using identical thermal energy injection
+  and total yields injection, but treats them separately with separate mass tracer fields
+  for each species. Knowing the number of SNIa events of each type have occurred and given
+  the fixed SNIa yield, different yields for each type can be post-processed. Default : 2
+``IndividualStarDTDSlope`` (external)
+  If ``IndividualStarSNIaModel = 1``, the power law slope of the delay time
+  distribution. Default : 1.20
+``IndividualStarWDMinimumMass`` (external)
+  The minimum initial mass (in solar masses) of stars that form white dwarfs at the end of their lives. This
+  should be < ``IndividualStarSNIaMinimumMass``. Default : 1.7
+``IndividualStarWDMaximumMass`` (external)
+  The maximum initial mass (in solar masses) of stars that form white dwarfs at the end of their lives.
+  This should be > ``IndividualStarSNIaMaximumMass``. Default : 8.0
+``IndividualStarSNIaMinimumMass`` (external)
+  The minimum initial mass (in solar masses) of stars that form white dwarfs that are flagged as being posible
+  SNIa candidates. Default : 3.0
+``IndividualStarSNIaMaximumMass`` (external)
+  The maximum initial mass (in solar masses) of stars that form white dwarfs that are flagged as being posible
+  SNIa candidates. Default : 3.0Default : 8.0
+``IndividualStarSNIaFraction`` (external)
+  The fraction of main sequence stars that can be SNIa progenitors that will explode
+  within a Hubble time. If using a Kroupa IMF over 0.08 - 120 Msun and SNIa model 2,
+  this should be 0.1508. Default : 0.043
+
+``IndividualStarFollowStellarYields`` (external)
+  If set to 1 enables use of all of the machinery to track the individual elemental
+  yields for each star. Not well tested if left off. Default : 0
+``IndividualStarSurfaceAbundances`` (external)
+  Include surface abundance in stellar winds. Recommended to turn on. return Default : 0
+``LimongiAbundances`` (external)
+  This should be generalized and renamed, but set to 1 if the underlying individual
+  star abundances source from the Limongi+ yields which use non-solar initial abundance
+  ratios for some of their yield models. Default : 0
+
+``IndividualStarRProcessModel`` (external)
+  If turned on, includes an approximate r-process model which has no dynamical impact,
+  but simply adds an additional metal tracer field tied to the explosion of a specified
+  range of the IMF. (see below) Default : 0
+``IndividualStarRProcessMinMass`` (external)
+  The minimum mass of the IMF (in solar masses) for supernovae to additionally deposit
+  into the r-process field. The default value is set such that 1% of all supernovae
+  in a Kroupa IMF from 0.08 - 120 Msun (where supernovae occur for stars between 8 and 25 Msun)
+  will deposit into the r-process field. Default : 24.37
+``IndividualStarRProcessMaxMass`` (external)
+  The maximum mass of the IMF (in solar masses) for supernovae to additionally deposit
+  into the r-process field (see above) Default : 25.00
+``IndividualStarTrackAGBMetalDensity`` (external)
+  If turned on, adds an additional metal tracer field to separately track the AGB
+  wind contribution to the total metallicity. Default : 0
+``IndividualStarTrackWindDensity`` (external)
+  If turned on, adds two additional metal tracer fields to separately track
+  the stellar wind contribution to the total metallicity, separately for massive stars
+  (non-AGB) that do go supernovae and do not go supernovae. Default : 0
+``IndividualStarTrackSNMetalDensity`` (external)
+  If turned on, adds two additional metal tracer fields to separately track
+  the core collapse supernovae and Type Ia supernovae contributions to the
+  total metallicity (but see ``IndividualStarSNIaModel``) Default : 0
+
+``IndividualStarExtrapolateYields`` (external)
+  Ideally the stellar masses in the chemical evolution model used
+  should bound the stellar masses of stars that eject mass through stellar winds
+  or supernovae. If not, the code will throw an error. However, if a mass is out
+  of bounds from the yield tables it may be sensible to adopt the abundance ratios
+  of the closest grid point in the table, and linearly scale the total mass ejected.
+  Turn this extrapolation on setting this value to 1. Default : 0
+``IndividualStarOutputChemicalTags`` (external)
+  By default the individual metal abundances for all stars are saved as particle
+  attributes on each particle, but this does increase the memory requirements for runs,
+  particularly if dark matter is present since dark matter particles will also have
+  these same attributes. But this is not strictly necessary beyond total metallicity
+  since they do not (currently) have any dynamic effects or control feedback behavior.
+  If this is set to 1, particle abundances are instead
+  saved to file (along with particle ID) to cross-match later. However, it is
+  recommended to leave this as 0 for convenience sake. Even in the case where
+  it increases the memory overhead in dark matter runs, it is far more likely that this
+  is a small increase over the existing grid memory requirements. Default : 0
+``IndividualStarChemicalTagFilename`` (external)
+  The filename to save stellar abundances if ``IndividualStarOutputChemicalTags``
+  is on. Default : NULL
+``IndividualStarSaveTablePositions`` (external)
+  To speed up interpolations in interpolating stellar properties in the stellar
+  evolution tables (used for radiation and feedback properties) and the chemical
+  evolution tables, save the position of each star in these tables (in M and Z)
+  as particle attributes to remove the need to constantly refind this for
+  each particle (as the tables are often not evenly sampled in M and Z). Increases
+  memory overhead somewhat, but likely worth the speed improvements. Default : 1
+
+``IndividualStarRadiationMinimumMass`` (external)
+  The minimum mass (in solar masses) required for the star to have any ionizing or
+  optically thin (IR, FUV, LW) radiation feedback. Lowering below 8.0 can
+  dramatically increase computational expense. Default : 8.0
+``IndividualStarOTRadiationMass`` (external)
+  Similar to the above, a separate threshold for the radiation channels followed
+  (by default) in the optically thin limit (IR, FUV, and LW). Each channel can
+  separately be turned on/off using the ``IndividualStarIRRadiation``,
+  ``IndividualStarLWRadiation``, and ``IndividualStarFUVHeating`` parameters.
+  In spite of the name of this parameter, each band can be followed using the full
+  radiative transfer solver by turning the ``RadiativeTransferOpticallyThinIR``,
+  ``RadiativeTransferOpticallyThinFUV``, and ``RadiativeTransferOpticallyThinH2``
+  parameters off. However, using these bands in the full radiative transfer calculation
+  is not well tested. Default : 8.0
+``IndividualStarIonizingRadiationMinimumMass`` (external)
+  Similar to the above, a separate threshold for the ionizing radiation
+  alone, followed in 3 bands (HI, HeI, and HeII). Default : 8.0
+
+``IndividualStarFUVHeating`` (external)
+  If on, stars above ``IndividualStarOTRadiationMass`` will radiate in the FUV
+  band leading to photoelectric heating. This is followed using an optically thin
+  approximation by default, but  can be used with full radiative transfer
+  by turning ``RadiativeTransferOpticallyThinFUV`` off. However, this is not well
+  tested. Default : 0
+``IndividualStarLWRadiation`` (external)
+  If on, stars above ``IndividualStarOTRadiationMass`` will radiate in the Lyman-Werner
+  band. This is followed using an optically thin approximation by default, but
+  can be used with full radiative transfer by turning ``RadiativeTransferOpticallyThinH2``
+  off. However, this is not well tested. Default : 0
+``IndividualStarIRRadiation`` (external)
+  If on, stars above ``IndividualStarOTRadiationMass`` will radiate in the IR
+  band. This is followed using an optically thin approximation by default, but
+  can be used with full radiative transfer by turning ``RadiativeTransferOpticallyThinIR``
+  off. However, this is not well tested. Default : 0
+``IndividualStarFUVTemperatureCutoff`` (external)
+  Maximum gas temperature (in K) to which photoelectric heating from FUV radiation is
+  applied (approximately the temperature at which dust can no longer exist).
+  Default : 2.0E4
+``IndividualStarBlackBodyOnly`` (external)
+  By default, photon rates for each band are computed using the OSTAR2002 model.
+  Turn this on to instead adopt the black body photon rates for each star,
+  given their temperature and radius from the stellar evolution table. Default : 0
+``IndividualStarBlackBodyFactors`` (external)
+  By default, photon rates each band are computed using the OSTAR2002 models. However,
+  this does not have full coverage over the stellar mass / metallicities of interest
+  in these simulations (or, more correctly, the stellar temperatures, surface gravity,
+  and metallicities). Photon counts for stars outside this band are computed using
+  a black body approximation, but this leads to significant discontinuities in photon counts
+  as a function of mass and metallicity. These are manually computed correction
+  factors to account for this, with two factors per band, one for stars below
+  and one for stars above the table grid points. This should only be modified if the
+  input photon rates table(s) are changed. See Emerick + 2019, Figure B.1.
+  Default : See ``SetDefaultGlobalValues``
+
+``IndividualStarIgnoreNegativeMass`` (external)
+  For testing / experimentation purposes only. Ignores negative masses if they arise
+  in stellar mass loss from stellar feedback, setting the stellar mass instead to
+  some hard-coded birth mass fraction. This was initially implemented as a hacky
+  way to implement a uniform (in time), IMF-averaged yield for each star.
+  Default : 0
 
 .. _active_particles_parameters:
 
@@ -2555,196 +3018,6 @@ SmartStar Feedback
     As accretion rates exceed the canonical Eddington rate the radiative efficiency of the feedback changes. We use the fits from `Madau et al. <https://arxiv.org/pdf/1402.6995.pdf>`__
     to adjust the efficiency when accretion enters the super-critical regime. The fits are based on the slim-disk model of accretion which generates inefficient feedback.
     Default: 1
-
-.. _individual_star_parameters:
-
-Individual Star Formation and Feedback
-^^^^^^^^^^^^^^^^^^
-
-The parameters below are currently considered in ``StarParticleCreation`` and
-``StarParticleFeedback`` methods 12. These are the parameters for the star formation
-and stellar feedback methods that govern the stochastic star formation and Feedback
-of individual stars sampled randomly from an assumed IMF. This method has not been
-tested in conjuction with any other star particle creation / feedback method.
-
-``IndividualStarRefineToLevel`` (external)
-  Default : -1
-``IndividualStarRefineToPhysicalRadius`` (external)
-  Default : -1
-``IndividualStarRefineForRadiation`` (external)
-  Default : 0
-``IndividualStarRefineBufferSize`` (external)
-  Default : 4
-``IndividualStarTemperatureLimit`` (external)
-  Default : -1
-``IndividualStarTemperatureLimitFactor`` (external)
-  Default : 2
-
-``IndividualStarICSupernovaRate`` (external)
-  Default : 0
-``IndividualStarICSuperNovaTime`` (external)
-  Default : 10
-``IndividualStarICSupernovaR`` (external)
-  Default : -1
-``IndividualStarICSupernovaZ`` (external)
-  Default : -1
-``IndividualStarSupernovaMethod`` (external)
-  Default : 1
-``IndividualStarICSupernovaFromFile`` (external)
-  Default : 0
-``IndividualStarICSupernovaPos`` (external)
-  Default : 0.5
-``IndividualStarICLifetimeMode`` (external)
-  Default : 0
-
-``IndividualStarWDFixedLifetime`` (external)
-  Default : -1
-``IndividualStarCreationStencilSize`` (external)
-  Default : 3
-``IndividualStarCheckVelocityDiv`` (external)
-  Default : 1
-``IndividualStarRefineTime`` (external)
-  Default : 0.1
-
-``IndividualStarSecondaryOverDensityThreshold`` (external)
-  Default : -1
-``IndividualStarTemperatureThreshold`` (external)
-  Default : 1.0E4
-``IndividualStarMassFraction`` (external)
-  Default : 0.5
-``IndividualStarSFGasMassThreshold`` (external)
-  Default : 200.0
-``IndividualStarPopIIIFormation`` (external)
-  Default : 0
-``IndividualStarPopIIISeparateYields`` (external)
-  Default : 0
-
-``IndividualStarRProcessModel`` (external)
-  Default : 0
-``IndividualStarRProcessMinMass`` (external)
-  Default : 24.37
-``IndividualStarRProcessMaxMass`` (external)
-  Default : 25.00
-``IndividualStarTrackAGBMetalDensity`` (external)
-  Default : 0
-``IndividualStarTrackWindDensity`` (external)
-  Default : 0
-``IndividualStarTrackSNMetalDensity`` (external)
-  Default : 0
-
-``IndividualStarIMF`` (external)
-  Default : 0
-``IndividualStarIMFCalls`` (external)
-  Default : 0
-``IndividualStarSalpeterSlope`` (external)
-  Default : -1.35
-``IndividualStarKroupaAlpha1`` (external)
-  Default : -0.3
-``IndividualStarKroupaAlpha2`` (external)
-  Default : -1.3
-``IndividualStarKroupaAlpha3`` (external)
-  Default : -2.3
-``IndividualStarIMFLowerMassCutoff`` (external)
-  Default : 1.0
-``IndividualStarIMFUpperMassCutoff`` (external)
-  Default : 100.0
-``IndividualStarIMFMassFloor`` (external)
-  Default : ``IndividualStarIMFLowerMassCutoff``
-``IndividualStarVelocityDispersion`` (external)
-  Default : 1.0
-``IndividualStarIMFSeed`` (external)
-  Default :
-``IndividualStarIgnoreNegativeMass`` (external)
-  Default : 0
-
-``IndividualStarFeedbackOverlapSample`` (external)
-  Default : 16
-``IndividualStarFeedbackStencilSize`` (external)
-  Default 3
-``IndividualStarFeedbackRadius`` (external)
-  Default : -1.0
-
-``IndividualStarStellarWinds`` (external)
-  Default : -1
-``IndividualStarWindTemperature`` (external)
-  Default : 1.0e6
-``IndividualStarUseWindMixingModel`` (external)
-  Default : 0
-``IndividualStarStellarWindVelocity`` (external)
-  Default : -1
-
-``IndividualStarMaximumStellarWindVelocity`` (external)
-  Default : 3000.0
-
-``IndividualStarAGBWindVelocity`` (external)
-  Default : 20.0
-
-``IndividualStarAGBThreshold`` (external)
-  Default : 8.0
-``IndividualStarSNIIMassCutoff`` (external)
-  Default : 8.0
-``IndividualStarDirectCollapseThreshold`` (external)
-  Default : 25.0
-``IndividualStarSupernovaEnergy`` (external)
-  Default : 1.0
-
-``IndividualStarPrintSNStats`` (external)
-  Default : 0
-
-``IndividualStarSNIaModel`` (external)
-  Default : 2
-
-``IndividualStarDTDSlope`` (external)
-  Default : 1.20
-``IndividualStarWDMinimumMass`` (external)
-  Default : 1.7
-``IndividualStarWDMaximumMass`` (external)
-  Default : 8.0
-``IndividualStarSNIaMinimumMass`` (external)
-  Default : 3.0
-``IndividualStarSNIaMaximumMass`` (external)
-  Default : 8.0
-``IndividualStarSNIaFraction`` (external)
-  Default : 0.043
-
-``IndividualStarFollowStellarYields`` (external)
-  Default : 0
-``IndividualStarSurfaceAbundances`` (external)
-  Default : 0
-``LimongiAbundances`` (external)
-  Default : 0
-
-``IndividualStarExtrapolateYields`` (external)
-  Default : 0
-``IndividualStarOutputChemicalTags`` (external)
-  Default : 0
-``IndividualStarChemicalTagFilename`` (external)
-  Default : NULL
-``IndividualStarSaveTablePositions`` (external)
-  Default : 1
-
-``IndividualStarRadiationMinimumMass`` (external)
-  Default : 8.0
-``IndividualStarOTRadiationMass`` (external)
-  Default : 8.0
-``IndividualStarIonizingRadiationMinimumMass`` (external)
-  Default : 8.0
-
-``IndividualStarFUVHeating`` (external)
-  Default : 0
-``IndividualStarLWRadiation`` (external)
-  Default : 0
-``IndividualStarIRRadiation`` (external)
-  Default : 0
-``IndividualStarFUVTemperatureCutoff`` (external)
-  Default : 2.0E4
-``IndividualStarBlackBodyOnly`` (external)
-  Default : 0
-
-`IndividualStarBlackBodyFactors`` (external)
-  Group of parameters to serve as correction factors
-  Default (various values)
-
 
 .. _radiation_parameters:
 
