@@ -59,6 +59,7 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
   const char *RePsiName = "Re_Psi"; 
   const char *ImPsiName = "Im_Psi"; 
   const char *FDMDensName = "FDMDensity"; 
+  const char *GravPotName = "GravPotential";
   int CollapseTestUseParticles    = FALSE;
   float CollapseTestParticleMeanDensity = FLOAT_UNDEFINED;
 
@@ -105,6 +106,8 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[count++] = (char*) ImPsiName;
     DataLabel[count++] = (char*) FDMDensName;
   //}
+  if(WritePotential)
+	DataLabel[count++] = (char*) GravPotName;
 
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;

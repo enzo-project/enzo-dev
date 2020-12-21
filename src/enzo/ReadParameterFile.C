@@ -331,6 +331,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 /* FDM: read FDM parameters */
     ret += sscanf(line, "QuantumPressure          = %"ISYM, &QuantumPressure);
+    ret += sscanf(line, "FDMCollapseAbsorbingBoundary          = %"ISYM, &FDMCollapseAbsorbingBoundary);
     ret += sscanf(line, "FDMMass          = %"FSYM, &FDMMass);
 
     ret += sscanf(line, "RefineBy               = %"ISYM, &RefineBy);
