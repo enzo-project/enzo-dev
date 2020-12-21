@@ -294,19 +294,23 @@ int grid::SchrodingerSolver( int nhy )
          ENZO_FAIL("Error in Add poteitial after TVD-RK!\n");
     }
   }*/
-
+ // add a few dissipation, dens acts as absorbing layer, only work for FDMCollapse !!
+	if (FDMCollapseAbsorbingBoundary){
+      int DensNum;
+      float *dens;
+      DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
+      dens = BaryonField[DensNum];
+     
+      for (int i=0; i<size; i++){
+	    repsi[i] = repsi[i] - repsi[i]*dtFixed*dens[i];
+        impsi[i] = impsi[i] - impsi[i]*dtFixed*dens[i];
+	  }
+	}
+    
   // Update New Density
 
   for (int i=0; i<size; i++){
     d[i] = repsi[i]*repsi[i]+impsi[i]*impsi[i];
-
-    /*
-    // add a few dissipation, dens acts as absorbing layer, only work for FDMCollapse !!
-    repsi[i] = repsi[i] - repsi[i]*dtFixed*dens[i];
-    impsi[i] = impsi[i] - impsi[i]*dtFixed*dens[i];
-    d[i] = repsi[i]*repsi[i]+impsi[i]*impsi[i];
-    // finished, above should be commented out when run cosmology
-    */
   }
   
   return SUCCESS;
