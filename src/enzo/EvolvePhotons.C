@@ -216,9 +216,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int NumberOfSources = 0;
   bool DeleteSources = FALSE;
 
-  int NumberOfSources = 0;
-  bool DeleteSources = FALSE;
-
   while (GridTime > PhotonTime) {
 
     /* Recalculate timestep if this isn't the first loop.  We already
