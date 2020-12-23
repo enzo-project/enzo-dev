@@ -1824,6 +1824,26 @@ Simple Cooling Options
     Z_Field2). 2: enables the multi-species and multi-channel stellar yields
     model described in :ref:`stellar_yields_parameters`, currently used only with the individual
     star star formation and stellar feedback model. Acceptable values are 1, 2, or 0, Default: 0 (off).
+``MetalMixingExperiment`` (external)
+    When ``MultiMetals = 2``, this parameter can be turned on for experimentation purposes to
+    artificially inject enrichment events at specified locations and times in the domain which pollute a single
+    existing metal species field. The intent is to be able to inject tracers during a simulation restart
+    and relies on existing metal abundance fields to do so, rather than creating a new field at
+    restart (a more complex procedure). This is intended to be used in conjunction with ``ResetStellarAbundances`` which
+    can be used to zero these fields during a simulation restart. If used, mixing events are
+    specified in the file ``mixing_events.in`` which columns giving the event time (in code units), the event
+    xpos, ypos, zpos (in code units), the total ejection mass (in solar masses), and the ejection energy (in 10\ :sup:`51` erg).
+    The remaining columns (at least two, but up to two times the number of stellar abundances followed) list the
+    atomic number and mass yield (in solar masses) for each event. For example, the lines below will inject one
+    event with total ejecta mass of 1 solar mass, 0.5 in Hydrogen, 0.25 in the Oxygen field, 0.25 in the Iron field, and one event
+    with 0.25 solar masses of ejecta, all in Iron. Both events occur at domain center.
+    The species fields must already exist in the simulation. Default : 0
+
+::
+
+    0.1 0.5 0.5 0.5 1.00 0.1 1 0.5 6 0.25 26 0.25
+    0.2 0.5 0.5 0.5 0.25 0.1 26 0.25
+
 ``ThreeBodyRate`` (external)
     Which Three Body rate should be used for H2 formation?: 0 = Abel, Bryan, Norman 2002, 1 = PSS83, 2= CW83, 3 = FH07, 4= G08.  (See `Turk et al 2011 <http://adsabs.harvard.edu/abs/2011ApJ...726...55T>`)
 ``CIECooling`` (external)
