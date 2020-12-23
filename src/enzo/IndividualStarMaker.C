@@ -61,11 +61,6 @@ float SampleIMF(void);
 float SampleIMF(float * data, const float & lower_mass, const float & upper_mass);
 float SamplePopIII_IMF(void);
 
-
-
-
-
-
 int grid::IndividualStarMaker(float *dm, float *temp, int *nmax, float *mu, int *np,
                                 float *ParticleMass,
                                 int *ParticleType, FLOAT *ParticlePosition[],

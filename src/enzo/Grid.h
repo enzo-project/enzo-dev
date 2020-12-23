@@ -109,9 +109,6 @@ class grid
   float  grid_BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS]; // locally stores mass flux across domain boundary
   fluxes *BoundaryFluxes;
 
-  // grid averaged abundances
-  float AveragedAbundances[MAX_STELLAR_YIELDS];
-
   // For restart dumps
 
   int NumberOfSubgrids;

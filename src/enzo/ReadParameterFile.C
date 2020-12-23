@@ -1169,10 +1169,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarICLifetimeMode);
     ret += sscanf(line, "IndividualStarFeedbackOverlapSample = %"ISYM,
                         &IndividualStarFeedbackOverlapSample);
-    ret += sscanf(line, "IndividualStarUseWindMixingModel = %"ISYM,
-                        &IndividualStarUseWindMixingModel);
-    ret += sscanf(line, "IndividualStarWindTemperature = %"FSYM,
-                        &IndividualStarWindTemperature);
     ret += sscanf(line, "IndividualStarExtrapolateYields = %"ISYM,
                         &IndividualStarExtrapolateYields);
     ret += sscanf(line, "IndividualStarSFGasMassThreshold = %"FSYM,

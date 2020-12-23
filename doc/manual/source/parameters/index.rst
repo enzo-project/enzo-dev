@@ -2756,15 +2756,6 @@ The overdensity threhsold for this star formation routine is controlled by
 ``IndividualStarStellarWinds`` (external)
   Use stellar winds from massive stars, including both mass, energy, and metal
   deposition. Default : -1
-``IndividualStarWindTemperature`` (external)
-  The target temperature (in K) for the massive star stellar winds. Default : 1.0e6
-``IndividualStarUseWindMixingModel`` (external)
-  A failed attempt at constructing a sub-grid model to account for the dynamic effect of
-  mixing at the wind-bubble boundary which can contribute significant mass into the wind
-  bubble and regulate the bubble temperature. This was implemented to address the issue of
-  runaway temperatures in the bubble region when using a full-velocity wind model, but does
-  not always work well and creates issues with metal abundance conservation. Default : 0
-``IndividualStarStellarWindVelocity`` (external)
   If < 0, adopts the stellar wind velocity using the Starburst 99 model. Otherwise
   if >= 0, all stellar winds adopt this constant wind velocity (in km/s). Default : -1
 ``IndividualStarMaximumStellarWindVelocity`` (external)

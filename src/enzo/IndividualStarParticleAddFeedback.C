@@ -62,11 +62,6 @@ float ComputeOverlap(const int &i_shape, const float &radius,
                      const FLOAT &xr, const FLOAT &yr, const FLOAT &zr,
                      const int &nsample);
 
-void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
-                               float MassUnits, float EnergyUnits, float &m_eject,
-                               float &E_thermal, float * metal_mass,
-                               float *grid_abundances);
-
 float StellarYields_SolarAbundancesByNumber(const int &atomic_number, const int table);
 float StellarYields_MMW(const int &atomic_number);
 float StellarYields_ScaledSolarMassFractionByNumber(const float &metallicity,
@@ -898,15 +893,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
           }
         }
 
-        if(stellar_wind_mode){
-          // Stellar winds are challenging - to avoid both very high velocities
-          // on the grid and superheated gas, modify feedback accordingly
-          ModifyStellarWindFeedback(BaryonField[DensNum][index],
-                                    temperature[index], dx, MassUnits, EnergyUnits,
-                                    delta_mass, delta_therm, injected_metal_mass,
-                                    this->AveragedAbundances);
-        }
-
         float inv_dens = 1.0 / (BaryonField[DensNum][index] + delta_mass);
 
         /* record statistics accumulators */
@@ -1089,84 +1075,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
   // done with spherical injection feedback
 
   return SUCCESS;
-}
-
-void ModifyStellarWindFeedback(float cell_mass, float T, float dx,
-                               float MassUnits, float EnergyUnits, float &m_eject,
-                               float &E_thermal, float * metal_mass,
-                               float *grid_abundances){
-
-/* ----------------------------------------------------------------------------
- * ModifyStellarWindFeedback
- * -----------------------------------------------------------------------------
- * A. Emerick - Sep 2016
- *
- * Stellar winds are very challenging to get right, even at very high resolution.
- * We assume feedback here is used on ~1-5 pc resolution, galaxy scale, Gyr sims,
- * so feedback needs to be modified to be tractable. Inject thermal energy at
- * 100% thermalization of wind KE first (E_thermal_max) using velocities from
- * full wind model. However, if cell temperature gets very hot (~10^6 K, as set
- * by IndividualStarWindTemperature) then employ maximum wind velocity cutoff,
- * changing energy injection to E_thermal_min. If E_thermal_min will large large
- * temperatures above IndividualStarWindTemperature (as happens if soruce region
- * is devoid of gas), we use an ISM mass loading model to account for shell
- * mixing, which will be heineously unresolved at 1 pc resolution (need ~0.01 pc).
- * ----------------------------------------------------------------------------- */
-
-  if (!IndividualStarUseWindMixingModel){
-     return;
-  }
-
-  const float est_mu  = 0.5; // estimated - this is approximate anyway
-
-  float m_ism = 0.0;
-
-  E_thermal = E_thermal * dx *dx *dx * EnergyUnits;
-  m_eject   = m_eject * dx *dx *dx * MassUnits;
-  cell_mass = cell_mass *dx*dx*dx*MassUnits;
-
-  float T_final = (E_thermal + 1.5 * cell_mass * kboltz * T / (est_mu*mh)) *
-                  (2.0 * est_mu * mh/(3.0 * kboltz * (cell_mass + m_eject)));
-
-    if(T_final > IndividualStarWindTemperature || T > IndividualStarWindTemperature){
-      /* Compute the mass that needs to be injected */
-      float E_final = (3.0/2.0) * (cell_mass/(est_mu*mh))*kboltz * T + E_thermal;
-      T_final = fmax(T, IndividualStarWindTemperature);
-      m_ism   = fmax( (E_final * (2.0 * est_mu * mh)/(3.0*kboltz * T_final)) - cell_mass - m_eject, 0.0);
-
-      /* modify metal abundances here */
-      m_ism = m_ism / (dx*dx*dx) / MassUnits;
-      if(MultiMetals == 2 && IndividualStarFollowStellarYields && m_ism > 0.0){
-        for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
-
-          metal_mass[im] = metal_mass[im] + m_ism * grid_abundances[im]; // ISM abundances
-
-          if(metal_mass[im] < 0.0){
-            printf("metal_mass %" ESYM " %" ISYM " %" ESYM "\n", metal_mass[im], im, grid_abundances[im]);
-            ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0 and m_ism >0");
-          }
-        }
-      } else{
-        for (int im = 0; im < StellarYieldsNumberOfSpecies + 1; im++){
-          if(metal_mass[im] < 0.0){
-            printf("metal_mass %" ESYM " %" ISYM "\n", metal_mass[im], im);
-            ENZO_FAIL("IndividualStarFeedback: Metal mass correction < 0 and m_ism < 0");
-          }
-        }
-      }
-
-  }
-
-  /* make sure things aren't whacky */
-  if (E_thermal < 0.0 || m_eject < 0.0 || m_ism < 0.0){
-    printf("Error in stellar wind calculation. E_thermal = %" ESYM " m_eject = %" ESYM " m_ism (code) = %" ESYM "\n",E_thermal, m_eject, m_ism);
-    ENZO_FAIL("IndividualStarFeedback: Negative injection values in stellar wind feedback modification\n");
-  }
-
-  /* convert back into code units */
-  E_thermal  = E_thermal / (dx*dx*dx) / EnergyUnits;
-  m_eject    = (m_eject)  / (dx*dx*dx) / MassUnits + m_ism;
-
 }
 
 float ComputeOverlap(const int &i_shape, const float &radius,

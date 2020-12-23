@@ -379,7 +379,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ExternalGravityDensity      = 0.0;
   ExternalGravityRadius       = 0.0;
 
-  ExternalGravityHaloVirialRadius     = 0.0; // ExternalGravity = 1 - in 
+  ExternalGravityHaloVirialRadius     = 0.0; // ExternalGravity = 1 - in
   ExternalGravityHaloConcentration    = 0.0;
   ExternalGravityHaloCentralDensity   = 0.0;
 
@@ -826,8 +826,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarFeedbackRadius        = -1.0;       // Used (over above) if > 0. Feedback radius in pc (not # of grid zones)
 
   IndividualStarStellarWinds          = 1;          // on or off
-  IndividualStarWindTemperature       = 1.0E6;      // temperature cap on stellar wind source region (K)
-  IndividualStarUseWindMixingModel    = 0;          // account for unresolved mixing at wind/ISM shell interface and allow mass loading
   IndividualStarStellarWindVelocity   = -1;         // when < 0, use Leithener et. al. model for stellar wind velocities
                                                     // when > 0, uniform wind velocity for all stars in km / s
                                                     // when = 0, use this to do mass deposition without energy injection
