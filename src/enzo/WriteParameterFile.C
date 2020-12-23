@@ -480,7 +480,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   WriteListOfFloats(fptr, MetaData.TopGridRank, ExternalGravityOrientation);
   fprintf(fptr, "ExternalGravityMass    = %"GSYM"\n", ExternalGravityMass);
 
-  fprintf(fptr, "ExternalGravityHaloCentralDensity = %"GSYM"\n", ExnternalGravityHaloCentralDensity);
+  fprintf(fptr, "ExternalGravityHaloCentralDensity = %"GSYM"\n", ExternalGravityHaloCentralDensity);
   fprintf(fptr, "ExternalGravityHaloConcentration = %"FSYM"\n", ExternalGravityHaloConcentration);
   fprintf(fptr, "ExternalGravityHaloVirialRadius = %"GSYM"\n",ExternalGravityHaloVirialRadius);
 
@@ -1223,9 +1223,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "ChemicalEvolutionTestStarFormed = %"ISYM"\n\n", ChemicalEvolutionTestStarFormed);
 
-#ifdef NEWYIELDTABLES
   fprintf(fptr, "StellarYieldsFilename = %s\n", StellarYieldsFilename);
-#endif
   fprintf(fptr, "StellarYieldsNumberOfSpecies        = %"ISYM"\n", StellarYieldsNumberOfSpecies);
   fprintf(fptr, "StellarYieldsScaledSolarInitialAbundances = %"ISYM"\n", StellarYieldsScaledSolarInitialAbundances);
   fprintf(fptr, "StellarYieldsAtomicNumbers          = ");

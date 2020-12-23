@@ -914,28 +914,6 @@
 	$(error Illegal value '$(CONFIG_ENZO_PERFORMANCE)' for $$(CONFIG_ENZO_PERFORMANCE))
     endif
 
-
-#
-#
-#
-    ERROR_NEWYIELDTABLES = 1
-
-    ifeq ($(CONFIG_NEWYIELDTABLES),yes)
-        ERROR_NEWYIELDTABLES = 0
-        ASSEMBLE_NEWYIELDTABLES_DEFINES = -DNEWYIELDTABLES
-    endif
-
-    ifeq ($(CONFIG_NEWYIELDTABLES),no)
-        ERROR_NEWYIELDTABLES = 0
-        ASSEMBLE_NEWYIELDTABLES_DEFINES =
-    endif
-
-    ifeq ($(ERROR_NEWYIELDTABLES),1)
-        .PHONY: error_compilers
-        error_compilers:
-         $(error Illegal value '$(CONFIG_NEWYIELDTABLES)' for $$(CONFIG_NEWYIELDTABLES))
-    endif
-
 #----------------------------------------------------------------------
 # DETERMINE USE INDIVIDUALSTAR
 #----------------------------------------------------------------------
@@ -1103,7 +1081,6 @@
               $(ASSEMBLE_LOG2ALLOC_DEFINES) \
               $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES) \
               $(ASSEMBLE_INDIVIDUALSTAR_DEFINES) \
-              $(ASSEMBLE_NEWYIELDTABLES_DEFINES) \
 	      $(ASSEMBLE_MEMORYPOOL_DEFINES)
 
 

@@ -34,15 +34,11 @@
 void unpack_line_to_yields( char *line, float *dummy);
 void initialize_table(StellarYieldsDataType* table);
 
-#ifdef NEWYIELDTABLES
 int fill_table(hid_t file_id,
                StellarYieldsDataType *table,
                std::string filename,
                std::string dname,
                int null_if_no_group = FALSE);
-#else
-void fill_table(StellarYieldsDataType *table, FILE *fptr);
-#endif
 
 int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number, int element_set = 1);
 char* ChemicalSpeciesBaryonFieldLabelByFieldType(const int &field_num, int element_set = 1);
@@ -170,8 +166,6 @@ int InitializeStellarYields(const float &time){
     return SUCCESS; // already initialized
   }
 
-#ifdef NEWYIELDTABLES
-
   std::string filename = std::string(StellarYieldsFilename);
 
   hid_t file_id = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
@@ -201,81 +195,6 @@ int InitializeStellarYields(const float &time){
   if (status == h5_error){
     ENZO_VFAIL("Error closing %s \n", filename.c_str());
   }
-
-#else
-
-
-  // AJE: Hard code he number of bins for now
-  //     - I want to fix this but this is not priority -
-  //     - unfixed as of April 2016 -
-  StellarYieldsSNData.Nm        = 12;
-  StellarYieldsSNData.Nz =  5;
-  StellarYieldsSNData.Ny          = StellarYieldsNumberOfSpecies;
-
-  StellarYieldsWindData.Nm        = 12;
-  StellarYieldsWindData.Nz =  5;
-  StellarYieldsWindData.Ny          = StellarYieldsNumberOfSpecies;
-
-  StellarYieldsMassiveStarData.Nm        = 30;
-  StellarYieldsMassiveStarData.Nz = 12;
-  StellarYieldsMassiveStarData.Ny       = StellarYieldsNumberOfSpecies;
-
-  StellarYieldsPopIIIData.Nm = 120 + 14 ;  // 120 from Heger+Woosley2010 for Type II (10 < M < 100)
-                                                         //  14 from Heger+Woosley2002 for PISN    (140 < M < 260)
-  StellarYieldsPopIIIData.Nz = 1;
-  StellarYieldsPopIIIData.Ny = StellarYieldsNumberOfSpecies;
-
-  // read in data from files - one table for each yield type:
-  //   1) core collapse supernova
-  //   2) stellar winds
-  //   3) Massive star tables
-  //
-  FILE *fptr_sn = fopen("stellar_yields_sn.in", "r");
-  if (fptr_sn == NULL){
-    ENZO_FAIL("Error opening stellar yields SN file, 'stellar_yields_sn.in");
-  }
-  FILE *fptr_wind = fopen("stellar_yields_wind.in", "r");
-  if (fptr_wind == NULL){
-    ENZO_FAIL("Error opening stellar yields wind file, 'stellar_yields_wind.in'");
-  }
-
-  FILE *fptr_mstar = fopen("stellar_yields_massive_star.in", "r");
-  if (fptr_mstar == NULL){
-    ENZO_FAIL("Error opening stellar yields massive stars, 'stellar_yields_massive_star.in'");
-  }
-
-  /* Initialize tables with empty pointers */
-  initialize_table(&StellarYieldsSNData);
-  initialize_table(&StellarYieldsWindData);
-  initialize_table(&StellarYieldsMassiveStarData);
-
-  /* Now fill the tables with data from respective files */
-  fill_table(&StellarYieldsSNData, fptr_sn);
-  fill_table(&StellarYieldsWindData, fptr_wind);
-  fill_table(&StellarYieldsMassiveStarData, fptr_mstar);
-
-
-  /* close files */
-  fclose(fptr_sn);
-  fclose(fptr_wind);
-  fclose(fptr_mstar);
-
-  if (IndividualStarPopIIIFormation){
-
-    FILE *fptr_popIII = fopen("popIII_yields.in", "r");
-
-    if (fptr_popIII == NULL){
-      ENZO_FAIL("Error opening stellar yields for pop III stars, 'popIII_yields.in'");
-    }
-
-    initialize_table(&StellarYieldsPopIIIData);
-    fill_table(&StellarYieldsPopIIIData, fptr_popIII);
-    fclose(fptr_popIII);
-  }
-
-
-#endif
-
 
   /* If we are doing artificial injection events */
   if (MetalMixingExperiment) {
@@ -436,7 +355,6 @@ void unpack_line_to_yields( char *line, float *dummy){
 }
 
 
-#ifdef NEWYIELDTABLES
 void initialize_table(StellarYieldsDataType* table){
 
   /* fill table in 1D - makes lookup faster*/
@@ -468,39 +386,6 @@ void initialize_table(StellarYieldsDataType* table){
 
   return;
 }
-
-#else
-
-void initialize_table(StellarYieldsDataType* table){
-  /* -----------------------------------------------
-   * Initialize table
-   * -----------------------------------------------
-   */
-
-  table->M    = new float[table->Nm];
-  table->Z    = new float[table->Nz];
-  table->Mtot = new float*[table->Nm];
-  table->Metal_Mtot = new float*[table->Nm];
-  table->Yields = new float**[table->Nm];
-
-  for (int i = 0; i < table->Nm; i++){
-    table->Yields[i] = new float*[table->Nz];
-
-    table->Mtot[i] = new float[table->Nz];
-    table->Metal_Mtot[i] = new float[table->Nz];
-
-    for (int j = 0; j < table->Nz; j++){
-      table->Yields[i][j] = new float [table->Ny];
-    }
-  }
-
-  return;
-}
-
-#endif
-
-
-#ifdef NEWYIELDTABLES
 
 int fill_table(hid_t file_id,
                StellarYieldsDataType *table,
@@ -798,55 +683,6 @@ int fill_table(hid_t file_id,
   return SUCCESS;
 }
 
-#else
-
-void fill_table(StellarYieldsDataType *table, FILE *fptr){
-
-  const int max_column_number = 87;
-  float *dummy = new float[max_column_number];
-
-  char line[MAX_LINE_LENGTH];
-
-  int i,j;
-  i = 0; j = 0;
-  while ( fgets(line, MAX_LINE_LENGTH, fptr) != NULL){
-    if (line[0] != '#'){
-
-      // just to be sure, reset dumyy variable every time
-      for (int d = 0; d < max_column_number; d++){
-        dummy[d] = 0.0;
-      }
-
-      unpack_line_to_yields(line, dummy);
-
-      table->M[i] = dummy[0];
-      table->Z[j] = dummy[1];
-      table->Mtot[i][j]       = dummy[2];
-      table->Metal_Mtot[i][j] = dummy[3];
-
-
-      // file column numbers are atomic numbers + 1,
-      // if first column is 0. Loop over number of yields
-      // and pick only the ones we want
-      for (int k = 0; k < table->Ny; k++){
-        table->Yields[i][j][k] = dummy[3 + *(StellarYieldsAtomicNumbers+k)];
-      }
-
-      // iterate counters and reset if needed
-      j++;
-      if( j >= table->Nz){
-        j=0;
-        i++;
-      }
-    } // end if
-  }
-
-  return;
-}
-
-#endif
-
-#ifdef NEWYIELDTABLES
 int read_dataset(hid_t file_id, const char *dset_name, double *buffer) {
   hid_t dset_id;
   herr_t status;
@@ -868,4 +704,3 @@ int read_dataset(hid_t file_id, const char *dset_name, double *buffer) {
 
   return SUCCESS;
 }
-#endif

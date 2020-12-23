@@ -887,6 +887,7 @@ EXTERN float ExternalGravityConstant;
 EXTERN float ExternalGravityDensity;
 EXTERN FLOAT ExternalGravityPosition[MAX_DIMENSION];
 EXTERN double ExternalGravityRadius;
+EXTERN double ExternalGravityMass;
 EXTERN FLOAT ExternalGravityOrientation[MAX_DIMENSION];
 
 /* Poisson Clean */
@@ -1241,17 +1242,12 @@ EXTERN float PhotoelectricHeatingDustModelEfficiency;
 EXTERN int   PhotoelectricHeatingDustModel;
 
 /* For stellar yields data tables */
-#ifdef NEWYIELDTABLES
 EXTERN char* StellarYieldsFilename;
-#endif
 EXTERN int MetalMixingExperiment;
 EXTERN StellarYieldsDataType          StellarYieldsSNData;   // SNe
 EXTERN StellarYieldsDataType          StellarYieldsWindData; // Winds from stars above AGB threshold (same dim as above)
-#ifdef NEWYIELDTABLES
 EXTERN StellarYieldsDataType          StellarYieldsAGBData;  // AGB yields
-#endif
 EXTERN StellarYieldsDataType          StellarYieldsPopIIIData; // PopIII stars
-
 EXTERN StellarYieldsDataType          StellarYieldsMassiveStarData; // here for backwards compatability with original yields ONLY
 
 

@@ -16,8 +16,6 @@
 
 // i_m = mass, i_z = metallicity, i_y = yield
 
-#ifdef NEWYIELDTABLES
-
 #define YIELD_INDEX(i_m, i_z, i_y, Nm, Nz) (i_m + (i_z + i_y*Nz)*Nm)
 
 #define YIELD_INDEX_DM(Nm,Nz) (1)
@@ -51,26 +49,6 @@ struct StellarYieldsDataType
   //
   //    where i iterates over mass, j over Z, k over yield
 };
-
-
-#else
-
-struct StellarYieldsDataType
-{
-  int Nm;
-  int Nz;
-  int Ny;
-
-  float *M;
-  float *Z;
-
-  float  **Mtot;
-  float  **Metal_Mtot;
-  float ***Yields;
-};
-
-#endif
-
 
 struct MetalMixingExperimentDataType
 {

@@ -437,10 +437,6 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
   /* interpolate table */
   StellarYieldsDataType * table;
 
-
-#ifdef NEWYIELDTABLES
-  /* In new yield tables */
-
   if (M <= IndividualStarAGBThreshold){
 
     if (StellarYieldsAGBData.M == NULL){
@@ -472,19 +468,6 @@ int StellarYieldsGetYieldTablePosition(int &i, int &j,
       table = &StellarYieldsWindData;
     }
   }
-
-#else
-
-  if (M <= StellarYieldsSNData.M[StellarYieldsSNData.Nm - 1]){
-    // if mass is on NuGrid data set (M <= 25) use this table
-    table = &StellarYieldsSNData;
-  } else if (( M >= StellarYieldsMassiveStarData.M[0]) &&
-            ( M <= StellarYieldsMassiveStarData.M[StellarYieldsMassiveStarData.Nm-1])){
-    // use massive star data from PARSEC models (massive stars only! and wind only!)
-
-    table = &StellarYieldsMassiveStarData;
-  }
-#endif
 
   return StellarYieldsGetYieldTablePosition(*table, i, j, M, metallicity);
 }
@@ -523,36 +506,21 @@ float StellarYieldsInterpolatePopIIIYield(const int &i, const float &M, int atom
     int yield_index;
     yield_index     = GetYieldIndex(table->Ny, atomic_number);
 
-#ifdef NEWYIELDTABLES
     int index = YIELD_INDEX(i,0,yield_index,table->Nm,table->Nz);
     ll = table->Yields[index];
     ul = table->Yields[index + table->dm];
-#else
-    ll = table->Yields[i  ][0][yield_index];
-    ul = table->Yields[i+1][0][yield_index];
-#endif
 
   } else if (atomic_number == 0){ // interpolate total metal mass
 
-#ifdef NEWYIELDTABLES
     int index = YIELD_INDEX(i,0,0,table->Nm,table->Nz);
     ll = table->Metal_Mtot[index];
     ul = table->Metal_Mtot[index + table->dm];
-#else
-    ll = table->Metal_Mtot[i  ][0];
-    ul = table->Metal_Mtot[i+1][0];
-#endif
 
   } else if (atomic_number < 0 ){ // interpolate total mass
 
-#ifdef NEWYIELDTABLES
     int index = YIELD_INDEX(i,0,0,table->Nm,table->Nz);
     ll = table->Mtot[index];
     ul = table->Mtot[index + table->dm];
-#else
-    ll = table->Mtot[i  ][0];
-    ul = table->Mtot[i+1][0];
-#endif
 
   }
 
@@ -587,7 +555,6 @@ float StellarYieldsInterpolateYield(int yield_type,
     }
   } else if (yield_type == 1){     // do stellar wind yields
 
-#ifdef NEWYIELDTABLES
     if (StellarYieldsAGBData.M == NULL){
       // use the old method
       if (M > StellarYieldsWindData.M[StellarYieldsWindData.Nm-1]){
@@ -605,16 +572,6 @@ float StellarYieldsInterpolateYield(int yield_type,
       }
 
     } // end AGB == NULL
-
-#else
-    /* use NuGrid wind data if star is on grid, else use PARSEC massive star winds */
-
-    if ( M > StellarYieldsWindData.M[StellarYieldsWindData.Nm - 1]){
-      table = &StellarYieldsMassiveStarData;
-    } else{
-      table = &StellarYieldsWindData;
-    }
-#endif
 
   } else if (yield_type == 2){
     table = &StellarYieldsPopIIIData;
@@ -659,7 +616,6 @@ float StellarYieldsInterpolateYield(int yield_type,
     int yield_index;
     yield_index     = GetYieldIndex(table->Ny, atomic_number);
 
-#ifdef NEWYIELDTABLES
     int index = YIELD_INDEX(i,j,yield_index,table->Nm,table->Nz);
 
     ll = table->Yields[index];
@@ -667,16 +623,8 @@ float StellarYieldsInterpolateYield(int yield_type,
     ur = table->Yields[index + table->dm + table->dz];
     ul = table->Yields[index + table->dm];
 
-#else
-    ll = table->Yields[i  ][j  ][yield_index];
-    lr = table->Yields[i  ][j+1][yield_index];
-    ur = table->Yields[i+1][j+1][yield_index];
-    ul = table->Yields[i+1][j  ][yield_index];
-#endif
-
   } else if (atomic_number == 0){ // interpolate total metal mass
 
-#ifdef NEWYIELDTABLES
     int index = YIELD_INDEX(i,j,0,table->Nm,table->Nz);
 
     ll = table->Metal_Mtot[index];
@@ -684,29 +632,14 @@ float StellarYieldsInterpolateYield(int yield_type,
     ur = table->Metal_Mtot[index + table->dm + table->dz];
     ul = table->Metal_Mtot[index + table->dm];
 
-#else
-    ll = table->Metal_Mtot[i  ][j  ];
-    lr = table->Metal_Mtot[i  ][j+1];
-    ur = table->Metal_Mtot[i+1][j+1];
-    ul = table->Metal_Mtot[i+1][j  ];
-#endif
-
   } else if (atomic_number < 0 ){ // interpolate total mass
 
-#ifdef NEWYIELDTABLES
     int index = YIELD_INDEX(i,j,0,table->Nm,table->Nz);
 
     ll = table->Mtot[index];
     lr = table->Mtot[index + table->dz];
     ur = table->Mtot[index + table->dm + table->dz];
     ul = table->Mtot[index + table->dm];
-
-#else
-    ll = table->Mtot[i  ][j  ];
-    lr = table->Mtot[i  ][j+1];
-    ur = table->Mtot[i+1][j+1];
-    ul = table->Mtot[i+1][j  ];
-#endif
 
   }
 
@@ -728,7 +661,6 @@ float StellarYieldsInterpolateYield(int yield_type,
 
   StellarYieldsDataType * table;
 
-#ifdef NEWYIELDTABLES
   if (M <= IndividualStarAGBThreshold){
 
     if (StellarYieldsAGBData.M == NULL){
@@ -761,25 +693,6 @@ float StellarYieldsInterpolateYield(int yield_type,
     }
   }
 
-# else
-  if (yield_type == 0){            // do supernova / end of life yields
-
-    table = &StellarYieldsSNData;
-
-    if( M > table->M[table->Nm - 1]){
-      ENZO_FAIL("StellarYieldsInterpolateYield: No yields available for massive stars. Assuming all do direct collapse.");
-    }
-  } else if (yield_type == 1){     // do stellar wind yields
-
-    /* use NuGrid wind data if star is on grid, else use PARSEC massive star winds */
-    if ( M > StellarYieldsWindData.M[StellarYieldsWindData.Nm - 1]){
-      table = &StellarYieldsMassiveStarData;
-    } else{
-      table = &StellarYieldsWindData;
-    }
-
-  } // another if for SN1a
-#endif
   /* interpolate table */
 
   int i, j;

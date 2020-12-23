@@ -90,7 +90,6 @@ SPEXTERN float PopIIIColorMass;
 SPEXTERN int   PopIIIUseHypernova;
 SPEXTERN int   PopIIISupernovaExplosions;
 SPEXTERN int   PopIIIOutputOnFeedback;
-SPEXTERN int   PopIIIRadiationModel;
 
 SPEXTERN int    StarClusterUseMetalField;
 SPEXTERN int    StarClusterHeliumIonization;
@@ -225,6 +224,7 @@ SPEXTERN float IndividualStarFUVTemperatureCutoff;
 
 SPEXTERN int   IndividualStarPopIIIFormation;
 SPEXTERN int   IndividualStarPopIIISeparateYields;
+SPEXTERN int   IndividualStarPopIIIRadiationModel;
 
 SPEXTERN int AccretingParticleRadiation;
 SPEXTERN double AccretingParticleLuminosity;

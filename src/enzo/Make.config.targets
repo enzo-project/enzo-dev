@@ -297,7 +297,6 @@ show-config:
 	@echo "   CONFIG_GRACKLE  [grackle-{yes,no}]                        : $(CONFIG_GRACKLE)"
 	@echo "   CONFIG_LOG2ALLOC  [log2alloc-{yes,no}]                    : $(CONFIG_LOG2ALLOC)"
 	@echo "   CONFIG_INDIVIDUALSTAR [individualstar-{yes,no}]           : $(CONFIG_INDIVIDUALSTAR)"
-	@echo "   CONFIG_NEWYIELDTABLES [new-yield-tables-{yes,no}]         : $(CONFIG_NEWYIELDTABLES)"
 	@echo "   CONFIG_MEMORYPOOL [memorypool-{yes,no}]                   : $(CONFIG_MEMORYPOOL)"
 	@echo
 
@@ -945,23 +944,6 @@ CONFIG_GRACKLE-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_GRACKLE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_GRACKLE; \
-	echo
-
-#---------------------------------------------------------------------
-
-VALID_NEWYIELDTABLES = new-yield-tables-yes new-yield-tables-no
-.PHONY: $(VALID_NEWYIELDTABLES)
-
-new-yield-tables-yes: CONFIG_NEWYIELDTABLES-yes
-new-yield-tables-no: CONFIG_NEWYIELDTABLES-no
-new-yield-tables-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_NEWYIELDTABLES)]\n\n"
-CONFIG_NEWYIELDTABLES-%: suggest-clean
-	@tmp=.config.temp; \
-	grep -v CONFIG_NEWYIELDTABLES $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-	echo "CONFIG_NEWYIELDTABLES = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_NEWYIELDTABLES; \
 	echo
 
 #----------------------------------------------------------------------
