@@ -38,10 +38,7 @@ int Return_MPI_Tag(int grid_num, int proc);
 extern float DepositParticleMaximumParticleMass;
 
 
-int grid::SetParticleMassFlaggingField(
-#ifdef INDIVIDUALSTAR
-                                       TopGridData *MetaData, Star *&AllStars,
-#endif
+int grid::SetParticleMassFlaggingField(TopGridData *MetaData, Star *&AllStars,
                                        int StartProc, int EndProc, int level,
 				       int ParticleMassMethod, int MustRefineMethod,
 				       int *SendProcs, int NumberOfSends)
@@ -129,18 +126,18 @@ int grid::SetParticleMassFlaggingField(
                                                                  level, KeepFlaggingField);
       }
 
-#ifdef INDIVIDUALSTAR
       // Call separate routine to loop over star particles and do
       // additional refinement
-      KeepFlaggingField = KeepFlaggingField || (level == IndividualStarRefineToLevel);
-      if (level < IndividualStarRefineToLevel){
-        NumberOfFlaggedCells +=
-          this->DepositMustRefineParticles(ParticleMassMethod, level,
-                                           KeepFlaggingField,
-                                           MetaData, AllStars
-                                         );
+      if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+        KeepFlaggingField = KeepFlaggingField || (level == IndividualStarRefineToLevel);
+        if (level < IndividualStarRefineToLevel){
+          NumberOfFlaggedCells +=
+            this->IndividualStarDepositMustRefineParticles(ParticleMassMethod, level,
+                                             KeepFlaggingField,
+                                             MetaData, AllStars
+                                           );
+        }
       }
-#endif
 
 
       if (NumberOfFlaggedCells < 0) {
@@ -273,8 +270,6 @@ void InitializeParticleMassFlaggingFieldCommunication(void)
 #endif
 
 
-#ifdef INDIVIDUALSTAR
-
 void DeleteStarList(Star *&Node);
 
 int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level, 
@@ -290,5 +285,4 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
   return val;
 
 }
-#endif
 

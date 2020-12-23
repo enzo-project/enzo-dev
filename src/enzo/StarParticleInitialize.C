@@ -43,10 +43,8 @@ int InitializeStellarYields(const float & time);
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
-			   int TotalStarParticleCountPrevious[]
-#ifdef INDIVIDUALSTAR
-                           , int SkipFeedbackFlag = 0
-#endif
+			   int TotalStarParticleCountPrevious[],
+                           int SkipFeedbackFlag = 0
                            )
 
 
@@ -142,26 +140,19 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //      cstar->PrintInfo();
 //  }
 
-#ifdef INDIVIDUALSTAR
   if (SkipFeedbackFlag){
-#endif
-  for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
-    float dtForThisStar   = LevelArray[ThisLevel]->GridData->ReturnTimeStep();
+    for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
+      float dtForThisStar   = LevelArray[ThisLevel]->GridData->ReturnTimeStep();
 
-    cstar->SetFeedbackFlag(TimeNow, dtForThisStar);
-    cstar->CopyToGrid();
-    cstar->MirrorToParticle();
+      cstar->SetFeedbackFlag(TimeNow, dtForThisStar);
+      cstar->CopyToGrid();
+      cstar->MirrorToParticle();
 
-    if(STARMAKE_METHOD(INDIVIDUAL_STAR))
-      cstar->AssertInterpolationPositions(); // should be set at init, but double check
-//      cstar->AssignInterpolationTablePositions();
+      if(STARMAKE_METHOD(INDIVIDUAL_STAR))
+        cstar->AssertInterpolationPositions(); // should be set at init, but double check
 
-
+    }
   }
-#ifdef INDIVIDUALSTAR
-  }
-#endif
-
 
 //  fprintf(stdout, "\nin StarParticleInitialize.C \n", MetaData->NumberOfParticles); 
 //  fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles); 

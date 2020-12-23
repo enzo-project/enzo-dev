@@ -1192,8 +1192,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IndividualStarIonizingRadiationMinimumMass = %"FSYM"\n", IndividualStarIonizingRadiationMinimumMass);
   fprintf(fptr, "IndividualStarCreationStencilSize = %"ISYM"\n", IndividualStarCreationStencilSize);
   fprintf(fptr, "IndividualStarFUVTemperatureCutoff = %"FSYM"\n", IndividualStarFUVTemperatureCutoff);
-  fprintf(fptr, "IndividualStarTemperatureLimit = %"ESYM"\n", IndividualStarTemperatureLimit);
-  fprintf(fptr, "IndividualStarTemperatureLimitFactor = %"FSYM"\n", IndividualStarTemperatureLimitFactor);
 
   fprintf(fptr, "TypeIILowerMass = %"FSYM"\n", TypeIILowerMass);
   fprintf(fptr, "TypeIIUpperMass = %"FSYM"\n", TypeIIUpperMass);
@@ -1263,6 +1261,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "UseConstantAcceleration    = %d\n", UseConstantAcceleration);
   fprintf(fptr, "ConstantAcceleration       = %g %g %g\n", ConstantAcceleration[0],
 	  ConstantAcceleration[1], ConstantAcceleration[2]);
+  fprintf(fptr, "TemperatureLimit = %"ESYM"\n", TemperatureLimit);
+  fprintf(fptr, "TemperatureLimitFactor = %"FSYM"\n", TemperatureLimitFactor);
+
 
   fprintf(fptr, "UseDrivingField            = %d\n", UseDrivingField);
   fprintf(fptr, "DrivingEfficiency          = %f\n", DrivingEfficiency);

@@ -217,11 +217,6 @@ help-config:
 	@echo "      gmake log2alloc-yes"
 	@echo "      gmake log2alloc-no"
 	@echo 
-	@echo "   Set whether to compile with individul star particle methods"
-	@echo
-	@echo "      gmake individualstar-yes"
-	@echo "      gmake individualstar-no"
-	@echo
 	@echo "   Set whether to compile with photon package memory pooling"
 	@echo 
 	@echo "      gmake memorypool-yes"
@@ -296,7 +291,6 @@ show-config:
 	@echo "   CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : $(CONFIG_ENZO_PERFORMANCE)"
 	@echo "   CONFIG_GRACKLE  [grackle-{yes,no}]                        : $(CONFIG_GRACKLE)"
 	@echo "   CONFIG_LOG2ALLOC  [log2alloc-{yes,no}]                    : $(CONFIG_LOG2ALLOC)"
-	@echo "   CONFIG_INDIVIDUALSTAR [individualstar-{yes,no}]           : $(CONFIG_INDIVIDUALSTAR)"
 	@echo "   CONFIG_MEMORYPOOL [memorypool-{yes,no}]                   : $(CONFIG_MEMORYPOOL)"
 	@echo
 
@@ -944,23 +938,6 @@ CONFIG_GRACKLE-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_GRACKLE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_GRACKLE; \
-	echo
-
-#----------------------------------------------------------------------
-
-VALID_INDIVIDUALSTAR = individualstar-yes individualstar-no
-.PHONY: $(VALID_INDIVIDUALSTAR)
-
-individualstar-yes: CONFIG_INDIVIDUALSTAR-yes
-individualstar-no: CONFIG_INDIVIDUALSTAR-no
-individualstar-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_INDIVIDUALSTAR)]\n\n"
-CONFIG_INDIVIDUALSTAR-%: suggest-clean
-	@tmp=.config.temp; \
-	grep -v CONFIG_INDIVIDUALSTAR $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-	echo "CONFIG_INDIVIDUALSTAR = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_INDIVIDUALSTAR; \
 	echo
 
 #----------------------------------------------------------------------

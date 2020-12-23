@@ -774,8 +774,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarRefineTime           =    0.1;        // for particles with any SN, treat as must refine for this long after death (in Myr)
 
   /* IndividualStar: Star Formation */
-  IndividualStarTemperatureLimit       =   -1;
-  IndividualStarTemperatureLimitFactor =    2;
   IndividualStarICSupernovaRate        =   0.0;     // rate (# / yr) of supernova for initial driving - off if zero
   IndividualStarICSupernovaTime        =  10.0;     // (Myr) length of time to do SN driving if true - rate dec linearly starting at 1/2 this time
   IndividualStarICSupernovaR           =   -1.0;     // radius limit for SN - set to galaxy scale radius
@@ -968,6 +966,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ViscosityCoefficient       = 0.;
   UseAmbipolarDiffusion	     = 0;
   UseResistivity	     = 0;
+  TemperatureLimit       =   -1;
+  TemperatureLimitFactor =    2;
 
   StringKick = 0;
   StringKickDimension = 0;

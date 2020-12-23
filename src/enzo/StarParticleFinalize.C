@@ -209,11 +209,12 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   StarParticleSetRefinementLevel(AllStars);
 
-  /* Delete the global star particle list, AllStars */
+  /* Delete the global star particle list, AllStars
+     but only if not using individual star routines */
 
-#ifndef INDIVIDUALSTAR
-  DeleteStarList(AllStars);
-#endif
+  if (! STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    DeleteStarList(AllStars);
+  }
 
   delete [] AddedFeedback;
 

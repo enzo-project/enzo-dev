@@ -130,9 +130,7 @@ class grid
   int   *ParticleType;                     // type of particle
   float *ParticleAttribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 
-#ifdef INDIVIDUALSTAR
   float *StellarAbundances[MAX_STAR_ABUNDANCES]; // to temporarily tag new stars before output to file
-#endif
 
 //
 //  Star particle data
@@ -860,14 +858,12 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Sum particle mass flagging fields into ProcessorNumber if particles
    aren't local. */
-#ifdef INDIVIDUALSTAR // NEED TO DO THINS LIKE REBUILD HIERARCHY FUNCTIONS
    int SetParticleMassFlaggingField(
                                     TopGridData *MetaData, Star *&AllStars,
                                     int StartProc=0, int EndProc=0, int level=-1,
 				    int ParticleMassMethod=-1, int MustRefineMethod=-1,
 				    int *SendProcs=NULL,
 				    int NumberOfSends=0);
-#endif
 
    int SetParticleMassFlaggingField(int StartProc=0, int EndProc=0, int level=-1,
                                     int ParticleMassMethod=-1, int MustRefineMethod=-1,
@@ -910,12 +906,10 @@ gradient force to gravitational force for one-zone collapse test. */
 
 //  Need both of these - first one for my individual star refine, but
 //    this can be optimized and combined to a single routine
-#ifdef INDIVIDUALSTAR
-   int DepositMustRefineParticles(int pmethod, int level,
-				  bool KeepFlaggingField
-                                  , TopGridData *MetaData, Star *&AllStars
+   int IndividualStarDepositMustRefineParticles(int pmethod, int level,
+				  bool KeepFlaggingField,
+                                  TopGridData *MetaData, Star *&AllStars
                                   );
-#endif
 
    int DepositMustRefineParticles(int pmethod, int level,
                                   bool KeepFlaggingField
@@ -1340,9 +1334,7 @@ gradient force to gravitational force for one-zone collapse test. */
   int ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer,
                                     TopGridData *MetaData);
 
-#ifdef INDIVIDUALSTAR
   int ApplyTemperatureLimit(void);
-#endif
 
 #ifdef TRANSFER
 // -------------------------------------------------------------------------
@@ -1490,11 +1482,9 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int MoveAllParticlesOld(int NumberOfGrids, grid* TargetGrids[]);
 
-#ifdef INDIVIDUALSTAR
 /* */
    int MoveParticleAbundances(int NumberOfGrids, grid* TargetGrids[]);
 /* */
-#endif
 
 /* Particles: Move particles that lie within this grid from the TargetGrid
               to this grid. */
@@ -1580,7 +1570,6 @@ iveParticles;};
 
    };
 
-#ifdef INDIVIDUALSTAR
    void DeleteStellarAbundances(){
      if(StellarAbundances == NULL) return;
 
@@ -1653,8 +1642,6 @@ iveParticles;};
      // end output stellar abundances
      return;
    };
-#endif
-
 
   void DeleteActiveParticles() {
     NumberOfActiveParticles = 0;
@@ -1685,10 +1672,8 @@ iveParticles;};
 
    void SetParticlePointers(float *Mass, PINT *Number, int *Type,
                             FLOAT *Position[],
-			    float *Velocity[], float *Attribute[]
-#ifdef INDIVIDUALSTAR
-                          , float *Abundances[]
-#endif
+			    float *Velocity[], float *Attribute[],
+                            float *Abundances[]
     ) {
     ParticleMass   = Mass;
     ParticleNumber = Number;
@@ -1702,7 +1687,6 @@ iveParticles;};
 
    };
 
-#ifdef INDIVIDUALSTAR
    void SetParticlePointers(float *Mass, PINT *Number, int *Type,
                             FLOAT *Position[], float *Velocity[],
                             float *Attribute[]){
@@ -1722,7 +1706,6 @@ iveParticles;};
 
      return;
    };
-#endif
 
 
 /* Particles: Set new star particle index. */
@@ -2396,10 +2379,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
 			  int CosmologySimulationCalculatePositions,
-			  float CosmologySimulationInitialUniformBField[]
-#ifdef INDIVIDUALSTAR
-      , float CosmologySimulationInitialChemicalSpeciesFractions[]
-#endif
+			  float CosmologySimulationInitialUniformBField[],
+                          float CosmologySimulationInitialChemicalSpeciesFractions[]
       );
 
   int CosmologyReadParticles3D(
@@ -2455,10 +2436,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  int CosmologySimulationCalculatePositions,
 			  FLOAT SubDomainLeftEdge[],
 			  FLOAT SubDomainRightEdge[],
-			  float CosmologySimulationInitialUniformBField[]
-#ifdef INDIVIDUALSTAR
-        , float CosmologySimulationInitialChemicalSpeciesFractions[]
-#endif
+			  float CosmologySimulationInitialUniformBField[],
+                          float CosmologySimulationInitialChemicalSpeciesFractions[]
       );
 
 

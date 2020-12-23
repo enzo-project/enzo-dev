@@ -140,8 +140,6 @@ SPEXTERN int   IndividualStarRefineToLevel;
 SPEXTERN float IndividualStarRefineToPhysicalRadius;
 SPEXTERN int   IndividualStarRefineForRadiation;
 SPEXTERN int   IndividualStarRefineBufferSize;
-SPEXTERN float IndividualStarTemperatureLimit;
-SPEXTERN float IndividualStarTemperatureLimitFactor;
 SPEXTERN float IndividualStarICSupernovaRate;
 SPEXTERN float IndividualStarICSupernovaTime;
 SPEXTERN float IndividualStarICSupernovaR;

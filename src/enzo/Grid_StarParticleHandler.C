@@ -754,7 +754,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   MetallicityField = (MetalNum != -1 || SNColourNum != -1);
 
-#ifndef INDIVIDUALSTAR
   if (MetalNum != -1 && SNColourNum != -1) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
@@ -767,7 +766,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     else if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
-#endif // INDIVIDUALSTAR
 
   //printf("Star type \n");
   /* Set the units. */
@@ -822,11 +820,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       cooling_time = new float[size];
       this->ComputeCoolingTime(cooling_time);
     }
-#ifdef INDIVIDUALSTAR
     if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarOutputChemicalTags){
       tg->AllocateStellarAbundances(MaximumNumberOfNewParticles);
     }
-#endif
  
     /* Call FORTRAN routine to do the actual work. */
  
@@ -1098,7 +1094,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       
     }
 
-#ifdef INDIVIDUALSTAR
     if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
 
       // Makes individual stars stochastically via IMF sampling and
@@ -1121,7 +1116,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       } // check refinement level
 
     } // END INDIVIDUAL_STAR
-#endif
 
     if (STARMAKE_METHOD(SINGLE_SUPERNOVA)) {
 
@@ -1532,10 +1526,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	tg->CellWidth[dim][0] = CellWidth[dim][0];
       }
 
-#ifdef INDIVIDUALSTAR
-      if(IndividualStarOutputChemicalTags)
+      if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarOutputChemicalTags)
         this->MoveParticleAbundances(1, &tg);
-#endif
+
       this->MoveAllParticles(1, &tg);
 
     } // end: if (NumberOfNewParticles > 0)
@@ -2066,7 +2059,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   }
 
-#ifdef INDIVIDUALSTAR
   if ( STARFEED_METHOD(INDIVIDUAL_STAR) ) {
     //
     // Actual feedback for these particles is handled via Star particle
@@ -2079,7 +2071,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       ENZO_FAIL("Failure setting indiidual star white dwarf lifetimes");
     }
   }
-#endif
 /*
   NOTE: Individual star particle feedback is handled
         in IndividualStarParticleAddFeedback as called from

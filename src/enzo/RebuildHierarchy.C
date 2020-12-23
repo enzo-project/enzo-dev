@@ -46,11 +46,8 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int ReportMemoryUsage(char *header = NULL);
 int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
-				     int level, bool AllLocal
-#ifdef INDIVIDUALSTAR
-                                     , TopGridData *MetaData, Star *&AllStars
-#endif
-                                     );
+				     int level, bool AllLocal,
+                                     TopGridData *MetaData, Star *&AllStars);
 
 int DepositActiveParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
                                            int level, int TopGridDims[]);
@@ -100,12 +97,8 @@ int MustCollectParticlesToLevelZero = FALSE;  // Set only in NestedCosmologySimu
 /* RebuildHierarchy function */
 
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level
-#ifdef INDIVIDUALSTAR
-                     , Star *&AllStars
-#endif
-                     )
-{
+		     LevelHierarchyEntry *LevelArray[], int level,
+                     Star *&AllStars){
 
   if (LevelSubCycleCount[level] % RebuildHierarchyCycleSkip[level]) {
     return SUCCESS;
@@ -407,11 +400,8 @@ int RebuildHierarchy(TopGridData *MetaData,
       MoveParticles = (ParticlesAreLocal) ? TRUE : FALSE;
 
       tt0 = ReturnWallTime();
-      DepositParticleMassFlaggingField(LevelArray, i, ParticlesAreLocal
-#ifdef INDIVIDUALSTAR
-                                       , MetaData, AllStars
-#endif
-                                       );
+      DepositParticleMassFlaggingField(LevelArray, i, ParticlesAreLocal,
+                                       MetaData, AllStars);
       tt1 = ReturnWallTime();
       RHperf[3] += tt1-tt0;
 
@@ -763,19 +753,17 @@ int RebuildHierarchy(TopGridData *MetaData,
 }
 
 
-#ifdef INDIVIDUALSTAR
 void DeleteStarList(Star * &Node);
 
-// do this to avoid having to edit all funtcion calls of rebuild hierarchy
-
+// Overloaded function to avoid having to edit all funtcion calls of rebuild hierarchy
+// to allow the star list to be passed around
 int RebuildHierarchy(TopGridData *MetaData,
                      LevelHierarchyEntry *LevelArray[], int level){
 
   Star *AllStars = nullptr;
-  int val = RebuildHierarchy(MetaData, LevelArray, level, AllStars); //AllStars);
+  int val = RebuildHierarchy(MetaData, LevelArray, level, AllStars);
   DeleteStarList(AllStars);
   return val;
 }
 
-#endif
 

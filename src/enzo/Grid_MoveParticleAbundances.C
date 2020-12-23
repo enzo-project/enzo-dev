@@ -9,8 +9,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-#ifdef INDIVIDUALSTAR
-
 int DetermineNumberOfAbundanceAttributes(void);
 
 int grid::MoveParticleAbundances(int NumberOfGrids, grid* FromGrid[]){
@@ -54,4 +52,3 @@ int grid::MoveParticleAbundances(int NumberOfGrids, grid* FromGrid[]){
   return SUCCESS;
 
 }
-#endif

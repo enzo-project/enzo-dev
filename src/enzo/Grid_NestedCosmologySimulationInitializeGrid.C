@@ -73,9 +73,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
-#ifdef INDIVIDUALSTAR
 int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number, int element_set = 1);
-#endif
 
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 
@@ -115,10 +113,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
                           int CosmologySimulationCalculatePositions,
 			  FLOAT SubDomainLeftEdge[],
 			  FLOAT SubDomainRightEdge[],
-			  float CosmologySimulationInitialUniformBField[]
-#ifdef INDIVIDUALSTAR
-        , float CosmologySimulationInitialChemicalSpeciesFractions[]
-#endif
+			  float CosmologySimulationInitialUniformBField[],
+                          float CosmologySimulationInitialChemicalSpeciesFractions[]
         )
 {
 
@@ -403,8 +399,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
       if (StarMakerTypeIaSNe)
 	FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
 
-#ifdef INDIVIDUALSTAR
-    if (MultiMetals == 2){
+    if (MultiMetals == 2 && (STARMAKE_METHOD(INDIVIDUAL_STAR))){
       for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
         if(StellarYieldsAtomicNumbers[yield_i] > 2){
           FieldType[NumberOfBaryonFields++] =
@@ -450,20 +445,15 @@ int grid::NestedCosmologySimulationInitializeGrid(
         FieldType[ExtraField[10] = NumberOfBaryonFields++] = MetalRProcessDensity;
       }
 
-    }
-#else
-    if(MultiMetals){
+    } else if(MultiMetals){
       FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
   	  FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
     }
-#endif
    }
 
-#ifdef INDIVIDUALSTAR
     if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
       FieldType[PeHeatingNum = NumberOfBaryonFields++] = PeHeatingRate;
     }
-#endif
 
     if (WritePotential)
       FieldType[NumberOfBaryonFields++] = GravPotential;
@@ -687,8 +677,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	    BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
 	      * BaryonField[0][i];
 
-#ifdef INDIVIDUALSTAR
-  if (MultiMetals == 2){
+  if (MultiMetals == 2 && STARMAKE_METHOD(INDIVIDUAL_STAR)){
     for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
       if(StellarYieldsAtomicNumbers[yield_i] > 2){
         int field_num = 0;
@@ -770,9 +759,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 
     }
 
-  }
-#else
-  if (MultiMetals) {
+  } else if (MultiMetals) {
     for (i = 0; i < size; i++) {
     	BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
       	  * BaryonField[0][i];
@@ -780,7 +767,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
       	  * BaryonField[0][i];
     }
   }
-#endif
 
 	  if (STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData) {
 	     for (i = 0; i < size; i++)
@@ -788,13 +774,11 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	  }
    } // ENDIF UseMetallicityField
 
-#ifdef INDIVIDUALSTAR
    if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating && ReadData){
      for (i = 0; i < size; i++){
        BaryonField[PeHeatingNum][i] = 0.0;
      }
    }
-#endif
 
       // If they were not read in above, set the total & gas energy fields now
 

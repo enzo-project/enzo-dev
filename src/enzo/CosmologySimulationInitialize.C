@@ -52,9 +52,8 @@ int InitializeRateData(FLOAT Time);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
-#ifdef INDIVIDUALSTAR
-  char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number, int element_set=1);
-#endif
+
+char* ChemicalSpeciesBaryonFieldLabel(const int &atomic_number, int element_set=1);
 
 // Cosmology Parameters (that need to be shared)
 
@@ -98,9 +97,7 @@ static float CosmologySimulationInitialUniformBField[MAX_DIMENSION];  // in prop
 static float RadHydroInitialRadiationEnergy = 1.0e-32;
 #endif
 
-#ifdef INDIVIDUALSTAR
 static float CosmologySimulationInitialChemicalSpeciesFractions[MAX_STELLAR_YIELDS];
-#endif
 
 #define MAX_INITIAL_GRIDS 10
 
@@ -220,11 +217,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (!SelfGravity)
     fprintf(stderr, "CosmologySimulation: gravity is off!?!\n");
 
-#ifdef INDIVIDUALSTAR
   for (i = 0; i < MAX_STELLAR_YIELDS; i ++){
     CosmologySimulationInitialChemicalSpeciesFractions[i] = -1.0;
   }
-#endif
 
   // Read input from file
 
@@ -343,7 +338,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  CosmologySimulationInitialUniformBField+1,
 		  CosmologySimulationInitialUniformBField+2);
 
-#ifdef INDIVIDUALSTAR
     ret += sscanf(line, "CosmologySimulationInitialChemicalSpeciesFractions = %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
                            CosmologySimulationInitialChemicalSpeciesFractions,
                            CosmologySimulationInitialChemicalSpeciesFractions + 1,
@@ -362,7 +356,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
                            CosmologySimulationInitialChemicalSpeciesFractions + 14,
                            CosmologySimulationInitialChemicalSpeciesFractions + 15,
                            CosmologySimulationInitialChemicalSpeciesFractions + 16 );
-#endif
 
     // If the dummy char space was used, then make another
 
@@ -408,13 +401,11 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
 #endif
 
-#ifdef INDIVIDUALSTAR
   for (i = 0; i < MAX_STELLAR_YIELDS; i ++){
     if (CosmologySimulationInitialChemicalSpeciesFractions[i]<0){
       CosmologySimulationInitialChemicalSpeciesFractions[i] = CosmologySimulationInitialFractionMetal;
     }
   }
-#endif
 
   // More error checking
 
@@ -730,10 +721,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationManuallySetParticleMassRatio,
 			     CosmologySimulationManualParticleMassRatio,
 			     CosmologySimulationCalculatePositions,
-			     CosmologySimulationInitialUniformBField
-#ifdef INDIVIDUALSTAR
-         ,CosmologySimulationInitialChemicalSpeciesFractions
-#endif
+			     CosmologySimulationInitialUniformBField,
+                             CosmologySimulationInitialChemicalSpeciesFractions
 						       ) == FAIL) {
       ENZO_FAIL("Error in grid->CosmologySimulationInitializeGrid.\n");
     }
@@ -854,7 +843,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     if (StarMakerTypeIaSNe)
       DataLabel[i++] = MetalIaName;
 
-#ifdef INDIVIDUALSTAR
+  // For individual star feedback and chemical evolution
   if (MultiMetals == 2){
    for(j =0; j < StellarYieldsNumberOfSpecies; j++){
      if(StellarYieldsAtomicNumbers[j] > 2){
@@ -899,14 +888,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       if (IndividualStarRProcessModel){
         DataLabel[i++] = RProcMetalName;
       }
-  }
-
-#else
-    if(MultiMetals){
+  } else if(MultiMetals){
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];
     }
-#endif
   }
 
 
@@ -1197,10 +1182,8 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 			     CosmologySimulationManuallySetParticleMassRatio,
 			     CosmologySimulationManualParticleMassRatio,
 			     CosmologySimulationCalculatePositions,
-			     CosmologySimulationInitialUniformBField
-#ifdef INDIVIDUALSTAR
-           ,CosmologySimulationInitialChemicalSpeciesFractions
-#endif
+			     CosmologySimulationInitialUniformBField,
+                             CosmologySimulationInitialChemicalSpeciesFractions
            ) == FAIL) {
       ENZO_FAIL("Error in grid->CosmologySimulationInitializeGrid.\n");
     }

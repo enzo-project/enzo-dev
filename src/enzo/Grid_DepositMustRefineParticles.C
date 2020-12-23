@@ -39,14 +39,13 @@ extern "C" void PFORTRAN_NAME(cic_flag)(int* irefflag, FLOAT *posx, FLOAT *posy,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
 			int *buffersize);
 
-#ifdef INDIVIDUALSTAR
 
 int IndividualStarInterpolateLifetime(float &tau, const float &M,
                                       const float &metallicity, const int &mode);
 
 // do a separate method to keep things clean, even though a lot will be redundant
-int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField,
-                                     TopGridData *MetaData, Star *&AllStars){
+int grid::IndividualStarDepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField,
+                                                   TopGridData *MetaData, Star *&AllStars){
 
   /* declarations */
   int i, dim, size = 1;
@@ -292,9 +291,6 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   return NumberOfFlaggedCells;
 
 }
-#endif
-
-//#else
 
 int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField)
 {
@@ -493,4 +489,3 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   return NumberOfFlaggedCells;
 
 }
-//#endif // ifdef INDIVIDUALSTAR

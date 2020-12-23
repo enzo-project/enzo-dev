@@ -59,22 +59,10 @@
 #include "phys_constants.h"
  
 // function prototypes
-//#ifdef INDIVIDUALSTAR
 int RebuildHierarchy(TopGridData *MetaData,
-                     LevelHierarchyEntry *LevelArray[], int level
-#ifdef INDIVIDUALSTAR
-                     , Star *&AllStars
-#endif
-                     );
-#ifdef INDIVIDUALSTAR
+                     LevelHierarchyEntry *LevelArray[], int level, Star *&AllStars);
+
 int RebuildHierarchy(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], int level);
-#endif
-
-//#else
-//int RebuildHierarchy(TopGridData *MetaData,
-//                    LevelHierarchyEntry *LevelArray[], int level);
-//#endif
-
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior
@@ -160,19 +148,16 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
 #define NO_REDUCE_FRAGMENTATION
 
-#ifdef INDIVIDUALSTAR
-  int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
-                             int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
-                             int ThisLevel, Star *&AllStars,
-                             int TotalStarParticleCountPrevious[],
-                             int SkipFeedbackFlag = 0);
+int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
+                           int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
+                           int ThisLevel, Star *&AllStars,
+                           int TotalStarParticleCountPrevious[],
+                           int SkipFeedbackFlag = 0);
 
-  void DeleteStarList(Star *&Node);
+void DeleteStarList(Star *&Node);
 
-  int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
-                        HierarchyEntry **Grids[]);
-
-#endif
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+                      HierarchyEntry **Grids[]);
 
 
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
@@ -637,31 +622,30 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     PrintMemoryUsage("Pre loop rebuild");
 
-#ifdef INDIVIDUALSTAR
     /* make a list of stars for must refine particle refinement */
-    Star *AllStars = NULL;
-    HierarchyEntry **Grids;
-    int NumberOfGrids = GenerateGridArray(LevelArray, 0, &Grids);
-    int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
+      Star *AllStars = NULL;
+      HierarchyEntry **Grids;
+      int NumberOfGrids = GenerateGridArray(LevelArray, 0, &Grids);
+      int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
 
-    StarParticleInitialize(Grids, &MetaData, NumberOfGrids, LevelArray,
-                           0, AllStars, TotalStarParticleCountPrevious, 1); //last arg, don't set flags
+      StarParticleInitialize(Grids, &MetaData, NumberOfGrids, LevelArray,
+                             0, AllStars, TotalStarParticleCountPrevious, 1); //last arg, don't set flags
 
-    if (ProblemType != 25 && Restart == FALSE)
-      RebuildHierarchy(&MetaData, LevelArray, 0, AllStars);
+      if (ProblemType != 25 && Restart == FALSE)
+        RebuildHierarchy(&MetaData, LevelArray, 0, AllStars);
+
+      delete [] TotalStarParticleCountPrevious;
+      delete [] Grids;
+      DeleteStarList(AllStars);
+
+    } else {
+      if (ProblemType != 25 && Restart == FALSE)
+        RebuildHierarchy(&MetaData, LevelArray, 0);
+
+    }
 
     PrintMemoryUsage("Post loop rebuild");
-
-    delete [] TotalStarParticleCountPrevious;
-    delete [] Grids;
-    DeleteStarList(AllStars);
-
-#else
-    if (ProblemType != 25 && Restart == FALSE)
-      RebuildHierarchy(&MetaData, LevelArray, 0);
-
-    PrintMemoryUsage("Post loop rebuild");
-#endif
 
 #ifdef USE_MPI
     treb1 = MPI_Wtime();

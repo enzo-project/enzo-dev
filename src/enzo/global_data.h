@@ -877,6 +877,8 @@ EXTERN int UseViscosity;
 EXTERN float ViscosityCoefficient;
 EXTERN int UseAmbipolarDiffusion;
 EXTERN int UseResistivity;
+EXTERN float TemperatureLimit;
+EXTERN float TemperatureLimitFactor;
 
 /* Gravity parameters */
 

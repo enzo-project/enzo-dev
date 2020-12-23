@@ -74,9 +74,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-#ifdef INDIVIDUALSTAR
 int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number, int element_set = 1);
-#endif
 
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 
@@ -118,11 +116,8 @@ int grid::CosmologySimulationInitializeGrid(
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
 			  int   CosmologySimulationCalculatePositions,
-			  float CosmologySimulationInitialUniformBField[]
-#ifdef INDIVIDUALSTAR
-        , float CosmologySimulationInitialChemicalSpeciesFractions[]
-#endif
-
+			  float CosmologySimulationInitialUniformBField[],
+                          float CosmologySimulationInitialChemicalSpeciesFractions[]
       )
 {
 
@@ -299,8 +294,7 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
       if (StarMakerTypeIaSNe)
 	FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
-#ifdef INDIVIDUALSTAR
-      if (MultiMetals == 2){
+      if (MultiMetals == 2 && STARMAKE_METHOD(INDIVIDUAL_STAR)){
         for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
           if(StellarYieldsAtomicNumbers[yield_i] > 2){
             FieldType[NumberOfBaryonFields++] =
@@ -345,13 +339,10 @@ int grid::CosmologySimulationInitializeGrid(
         }
 
 
-      }
-#else
-      if(MultiMetals){
+      } else if(MultiMetals){
 	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
       }
-#endif
     }
 
     if(STARMAKE_METHOD(COLORED_POP3_STAR)){
@@ -576,8 +567,7 @@ int grid::CosmologySimulationInitializeGrid(
 	  * BaryonField[0][i];
 
 
-#ifdef INDIVIDUALSTAR
-    if (MultiMetals == 2){
+    if (MultiMetals == 2 && STARMAKE_METHOD(INDIVIDUAL_STAR)){
       for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
         if(StellarYieldsAtomicNumbers[yield_i] > 2){
           int field_num = 0;
@@ -664,9 +654,7 @@ int grid::CosmologySimulationInitializeGrid(
         }
       }
 
-    }
-#else
-    if (MultiMetals) {
+    } else if (MultiMetals) {
       for (i = 0; i < size; i++) {
 	BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
 	  * BaryonField[0][i];
@@ -674,7 +662,6 @@ int grid::CosmologySimulationInitializeGrid(
 	  * BaryonField[0][i];
       }
     }
-#endif
 
     if (STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData) {
       for (i = 0; i < size; i++)

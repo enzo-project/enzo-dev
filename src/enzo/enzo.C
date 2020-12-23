@@ -166,14 +166,10 @@ int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
 int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
 
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level
-#ifdef INDIVIDUALSTAR
-                     , Star *&AllStars
-#endif
-                     );
-#ifdef INDIVIDUALSTAR
+		     LevelHierarchyEntry *LevelArray[], int level, Star *&AllStars);
+
 int RebuildHierarchy(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], int level);
-#endif
+
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 			 LevelHierarchyEntry *LevelArray[], int level);
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
@@ -252,12 +248,10 @@ int RadiativeTransferInitialize(char *ParameterFile,
 				LevelHierarchyEntry *LevelArray[]);
 #endif
 
-#ifdef INDIVIDUALSTAR
 int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
                                  TopGridData &MetaData,
                                  ExternalBoundary &Exterior,
                                  LevelHierarchyEntry *LevelArray[]);
-#endif
 
 #ifdef USE_LCAPERF
 void lcaperfInitialize (int max_level);
@@ -798,13 +792,11 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   }
 #endif
 
-#ifdef INDIVIDUALSTAR
   if (InitializeStellarYieldFields(TopGrid, MetaData, Exterior,
                                    LevelArray) == FAIL){
     fprintf(stderr, "Error in StellarYieldsInitialize.\n");
     my_exit(EXIT_FAILURE);
   }
-#endif
 
   PrintMemoryUsage("Call evolve hierarchy");
 

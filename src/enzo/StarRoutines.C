@@ -884,20 +884,22 @@ void Star::PrintInfo(void)
   printf("\t PopIIIStar = %" ISYM "\n",PopIIIStar);
   printf("\t accreted_angmom = %" FSYM " %" FSYM " %" FSYM "\n", accreted_angmom[0],
 	 accreted_angmom[1], accreted_angmom[2]);
-#ifdef INDIVIDUAL_STAR
-  printf("\t SE table = %" ISYM " %" ISYM "\n", se_table_position[0], se_table_position[1]);
-  printf("\t Rad table = %" ISYM " %" ISYM " %" ISYM "\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
-  printf("\t Yield table = %" ISYM " %" ISYM "\n", yield_table_position[0], yield_table_position[1]);
-  printf("\t Wind Mass Ejected = %" ESYM "   SN Mass Ejected %" ESYM "\n", wind_mass_ejected, sn_mass_ejected);
-  if (!IndividualStarOutputChemicalTags){
-    const int num_abundances = DetermineNumberOfAbundanceAttributes();
-    printf("\t Abundances: ");
-    for (int i=0;i<num_abundances;i++){
-      printf(" %"ESYM, abundances[i]);
+
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    printf("\t SE table = %" ISYM " %" ISYM "\n", se_table_position[0], se_table_position[1]);
+    printf("\t Rad table = %" ISYM " %" ISYM " %" ISYM "\n", rad_table_position[0], rad_table_position[1], rad_table_position[2]);
+    printf("\t Yield table = %" ISYM " %" ISYM "\n", yield_table_position[0], yield_table_position[1]);
+    printf("\t Wind Mass Ejected = %" ESYM "   SN Mass Ejected %" ESYM "\n", wind_mass_ejected, sn_mass_ejected);
+    if (!IndividualStarOutputChemicalTags){
+      const int num_abundances = DetermineNumberOfAbundanceAttributes();
+      printf("\t Abundances: ");
+      for (int i=0;i<num_abundances;i++){
+        printf(" %"ESYM, abundances[i]);
+      }
+      printf("\n");
     }
-    printf("\n");
   }
-#endif
+
   printf("\t this = %x, PrevStar = %x, NextStar = %x\n", this, PrevStar, NextStar);
   return;
 }

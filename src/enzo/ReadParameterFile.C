@@ -1141,9 +1141,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "IndividualStarRefineBufferSize = %"ISYM,
                         &IndividualStarRefineBufferSize);
     ret += sscanf(line, "IndividualStarTemperatureLimit = %"FSYM,
-                        &IndividualStarTemperatureLimit);
+                        &TemperatureLimit);
     ret += sscanf(line, "IndividualStarTemperatureLimitFactor = %"FSYM,
-                        &IndividualStarTemperatureLimitFactor);
+                        &TemperatureLimitFactor);
     ret += sscanf(line, "IndividualStarICSupernovaRate = %"FSYM,
                         &IndividualStarICSupernovaRate);
     ret += sscanf(line, "IndividualStarICSupernovaTime = %"FSYM,
@@ -1476,6 +1476,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PositiveReconstruction = %"ISYM, &PositiveReconstruction);
     ret += sscanf(line, "ReconstructionMethod = %"ISYM, &ReconstructionMethod);
     ret += sscanf(line, "MixSpeciesAndColors = %"ISYM"", &MixSpeciesAndColors);
+    ret += sscanf(line, "TemperatureLimit = %"FSYM, &TemperatureLimit);
+    ret += sscanf(line, "TemperatureLimitFactor = %"FSYM, &TemperatureLimitFactor);
 
     ret += sscanf(line, "EOSType = %"ISYM, &EOSType);
     ret += sscanf(line, "EOSSoundSpeed = %"FSYM, &EOSSoundSpeed);

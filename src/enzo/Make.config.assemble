@@ -914,37 +914,11 @@
 	$(error Illegal value '$(CONFIG_ENZO_PERFORMANCE)' for $$(CONFIG_ENZO_PERFORMANCE))
     endif
 
-#----------------------------------------------------------------------
-# DETERMINE USE INDIVIDUALSTAR
-#----------------------------------------------------------------------
-
-    ERROR_INDIVIDUALSTAR = 1
-
-    # compilers and settings if INDIVIDUALSTAR is yes
-    
-    ifeq ($(CONFIG_INDIVIDUALSTAR),yes)
-        ERROR_INDIVIDUALSTAR = 0
-        ASSEMBLE_INDIVIDUALSTAR_DEFINES = -DINDIVIDUALSTAR
-    endif
-
-    ifeq ($(CONFIG_INDIVIDUALSTAR),no)
-        ERROR_INDIVIDUALSTAR = 0
-        ASSEMBLE_INDIVIDUALSTAR_DEFINES =
-    endif
-
-    ifeq ($(ERROR_INDIVIDUALSTAR),1)
-        .PHONY: error_compilers
-        error_compilers:
-         $(error Illegal value '$(CONFIG_INDIVIDUALSTAR)' for $$(CONFIG_INDIVIDUALSTAR))
-    endif
-
 #-----------------------------------------------------------------------
 # DETERMINE USE MEMORY POOL
 #-----------------------------------------------------------------------
 
     ERROR_MEMORYPOOL = 1
-
-    # compilers and settings if INDIVIDUALSTAR is yes
 
     ifeq ($(CONFIG_MEMORYPOOL),yes)
         ERROR_MEMORYPOOL = 0
@@ -1080,7 +1054,6 @@
               $(ASSEMBLE_GRACKLE_DEFINES) \
               $(ASSEMBLE_LOG2ALLOC_DEFINES) \
               $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES) \
-              $(ASSEMBLE_INDIVIDUALSTAR_DEFINES) \
 	      $(ASSEMBLE_MEMORYPOOL_DEFINES)
 
 

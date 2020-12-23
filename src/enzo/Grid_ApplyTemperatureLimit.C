@@ -6,6 +6,7 @@
 /  modified1:
 /
 /  PURPOSE:
+/          Enforce a maximum temperature
 /
 /  RETURNS:
 /     SUCCESS or FAIL
@@ -27,13 +28,12 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 
 
-#ifdef INDIVIDUALSTAR
 int grid::ApplyTemperatureLimit(void){
 
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
-  if (IndividualStarTemperatureLimit < 0)
+  if (TemperatureLimit < 0)
     return SUCCESS;
 
   // else, go through and instill density / temperature thresh
@@ -72,11 +72,11 @@ int grid::ApplyTemperatureLimit(void){
   float high_density_threshold = 1.0E-26 / DensityUnits;
 
   for(int i = 0; i < size; i ++){
-    if( (temperature[i] > IndividualStarTemperatureLimit) &&
+    if( (temperature[i] > TemperatureLimit) &&
         ((BaryonField[DensNum][i] > low_density_threshold) &&
          (BaryonField[DensNum][i] < high_density_threshold))  ){
-      float factor = min(temperature[i] / IndividualStarTemperatureLimit,
-                         IndividualStarTemperatureLimitFactor);
+      float factor = min(temperature[i] / TemperatureLimit,
+                         TemperatureLimitFactor);
       float old_dens = BaryonField[DensNum][i];
 
       BaryonField[DensNum][i] *= factor;
@@ -104,4 +104,3 @@ int grid::ApplyTemperatureLimit(void){
 
   return SUCCESS;
 }
-#endif INDIVIDUALSTAR

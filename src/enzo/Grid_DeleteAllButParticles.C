@@ -30,10 +30,8 @@ void grid::DeleteAllButParticles()
   int i;
  
   //  this->DeleteParticles();
-#ifdef INDIVIDUALSTAR
-  if (IndividualStarOutputChemicalTags)
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarOutputChemicalTags)
     this->DeleteStellarAbundances();
-#endif
 
   for (i = 0; i < MAX_DIMENSION; i++) {
     delete [] ParticleAcceleration[i];
