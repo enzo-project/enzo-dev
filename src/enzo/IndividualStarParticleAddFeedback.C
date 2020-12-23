@@ -350,7 +350,6 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
   if (this->NumberOfBaryonFields == 0 || !this->isLocal())
     return SUCCESS;
 
-  /* AJE Try something here */
   /* First, set under_subgrid field */
   HierarchyEntry *Subgrid;
   if (FALSE){
@@ -815,44 +814,6 @@ int grid::IndividualStarInjectSphericalFeedback(Star *cstar,
       }
     }
   } // end fractional overlap computation
-
-  // injection_fraction represents fraction of total volume per cell
-  // do some error checking:
-
-  /* AJE: The below really only works if particle feedback is contained entirely
-          within a single grid. Otherwise this correction will over / undercorrect
-          when particle ejects feedback across multiple grids (unless
-          some MPI occurs to share the correction factors... which... would be
-          dumb... could maybe do a check to see if its contained fully in grid
-          and then apply this, but otherwise don't do it (and accept the
-          (~< 1 % error) */
-  if (FALSE){
-  if (total_injection_volume < 1.0){
-    // this will always underestimte the total volume
-    // need to scale up all of the injection fractions
-    // to ensure sum is 1 (and mass + energy conservation)
-    const float total_inv = 1.0 / total_injection_volume;
-
-    if (total_injection_volume < 0.8){
-
-      printf("total_injection_volume = %" ESYM "\n",total_injection_volume);
-      ENZO_FAIL("Total injection volume is small... this is a large correction... make sure nohing is broken");
-    }
-
-    for (count = 0; count < num_factors; count++){
-      if (injection_factors[count] < 0) {ENZO_FAIL("injection factor < 0");}
-
-      injection_factors[count] *= total_inv;
-    }
-
-  } else if (total_injection_volume > 1.02){
-    // here for testing
-    // but if this is common, just switch to always dividing by the sum (above)
-    printf("total_injection_volume = %" FSYM "\n", total_injection_volume);
-    ENZO_FAIL("Error in computing feedback injection volume in individual stars. Greater than 1");
-  }
-  }
-
 
   // loop over cells and inject feedback
   count = 0;

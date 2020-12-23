@@ -1113,7 +1113,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "H2StarMakerH2FloorInColdGas        = %"GSYM"\n\n", H2StarMakerH2FloorInColdGas);
   fprintf(fptr, "H2StarMakerColdGasTemperature      = %"GSYM"\n\n", H2StarMakerColdGasTemperature);
 
-  /* AJE Indiviudal Star */
   fprintf(fptr, "UseFUVBackground = %"ISYM"\n", UseFUVBackground);
   fprintf(fptr, "MetalMixingExperiment = %"ISYM"\n", MetalMixingExperiment);
 

@@ -172,7 +172,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationDarkMatterConcentrationParameter = 12;
   GalaxySimulationGasMass            = 4.0e10;
   GalaxySimulationGalaxyMass         = 1.0e12;
-  GalaxySimulationDiskTemperature    = 1000.0;   // AJE whhy is this repeated??
+  GalaxySimulationDiskTemperature    = 1000.0;
   GalaxySimulationGasHalo            = 0; // uniform halo w/ densicm and UniformTemperature
   GalaxySimulationGasHaloScaleRadius = .001; // Mpc_cm
   GalaxySimulationGasHaloDensity     = 1.8e-27; // cgs

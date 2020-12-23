@@ -1125,7 +1125,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerColdGasTemperature);
 
 
-    /* AJE Individual Star */
+    /* Individual Star */
     ret += sscanf(line, "UseFUVBackground = %"ISYM,
                         &UseFUVBackground);
     ret += sscanf(line, "MetalMixingExperiment = %"ISYM,
@@ -1697,7 +1697,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   }
 
-  /* AJE - */
   if (IndividualStarSecondaryOverDensityThreshold < 0){
     IndividualStarSecondaryOverDensityThreshold = StarMakerOverDensityThreshold;
   }
@@ -1706,7 +1705,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ENZO_FAIL("Are you sure you want to have initial random supernova driving and a stellar population\n");
   }
 
-  /* AJE  - Count up the number of species we are following if not set manually by user*/
+  /* Count up the number of species we are following if not set manually by user*/
   if (StellarYieldsNumberOfSpecies == INT_UNDEFINED){
     StellarYieldsNumberOfSpecies = 0;
     for(int species = 0; species < MAX_STELLAR_YIELDS; species++){

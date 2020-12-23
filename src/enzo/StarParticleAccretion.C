@@ -52,7 +52,7 @@ int StarParticleAccretion(TopGridData *MetaData,
   LCAPERF_START("StarParticleAccretion");
 
   if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
-    return SUCCESS; // AJE-memleak
+    return SUCCESS;
   }
 
   Star *ThisStar;

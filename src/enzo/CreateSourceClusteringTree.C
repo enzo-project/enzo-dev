@@ -56,9 +56,6 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   if (GlobalRadiationSources == NULL)
     return SUCCESS;
 
-  /* AJE: This is pretty inconsistent with the rest of the code which
-          relies on the energy to set the type..... */
-
   const int LymanWernerBin = 3; // bin index starting from 0
   const int IRBin          = 4;
   const int FUVBin         = 7;
@@ -101,10 +98,10 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       else
         SourceList[i].IRLuminosity = RadSource->IRLuminosity;
 
-      /* This will be silly RT units, but eV/s NOT #/s like above*/
+      /* This will be RT units, but eV/s NOT #/s like above*/
       if (RadSource->EnergyBins > FUVBin)
         SourceList[i].FUVLuminosity = RadSource->Luminosity *
-                                      RadSource->SED[FUVBin]; // AJE: 3/31 - changed to photon lum
+                                      RadSource->SED[FUVBin]; // photon luminosity!
       else
         SourceList[i].FUVLuminosity = RadSource->FUVLuminosity;
 
@@ -239,7 +236,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   } else {
     median = nShine/2;
     nleft = (nShine+1)/2;
-    if (nleft > median) nleft = median; // AJE - may need to change
+    if (nleft > median) nleft = median;
     nright = nShine-nleft;
   }
   /* Divide into children if there are more than one source */
@@ -287,7 +284,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       }
     } else {
       LR_leaf_flag[0] = 0;
-      LR_leaf_flag[1] = 0; // AJE - may be wrong
+      LR_leaf_flag[1] = 0;
     }
     for (i = 0; i < nShine; i++) {
       new_leaf = new SuperSourceEntry;

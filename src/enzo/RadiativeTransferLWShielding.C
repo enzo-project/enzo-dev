@@ -162,7 +162,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
 #endif
 
 
-  /// AJE Add leftover photons to PE flux bin:
+  /// Add leftover photons to PE flux bin:
   ///   simplify these ifs in the future:
   if ( (!RadiativeTransferOpticallyThinFUV) &&
        (IndividualStarFUVHeating)
@@ -171,7 +171,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
                          // for individual stars, make sure below is consistent with
                          // Star_ComputePhotonRates energies (should probably just make this a param)
        const double LW_energy = LW_photon_energy * erg_eV;
-       // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
+       // Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
        BaryonField[FUVRateNum][cellindex] +=
           ((*PP)->Photons*geo_correction - dP)*emission_dt_inv*LW_energy/(dx2);
   }

@@ -41,7 +41,7 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
   PINT MergeID, MergeIndex;
 
   /* Pick only the star particles  -- June 30 2011 Eve*/
-  /* And don't do for individual star particles -- Feb 8 2016 AJE */
+  /* And don't do for individual star particles  */
   int starn = 0;
   for (int i = 0; i < Size; i++){
       if (List[i].Type != PARTICLE_TYPE_DARK_MATTER &&
@@ -147,7 +147,7 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
   int NumberOfRemainingSmallParticles = 0;
   for (int i = 0; i < Size; i++){
     //if (List[i].Mass < MergeMass && Flag[i] == -1) //Jul 5 2011 Eve
-    /* do not merge individual star particles - AJE Feb 8 2016 */
+    /* do not merge individual star particles */
     if (List[i].Mass < MergeMass && Flag[i] == -1 && List[i].Type != PARTICLE_TYPE_DARK_MATTER
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR
                                                   && List[i].Type != PARTICLE_TYPE_INDIVIDUAL_STAR_WD

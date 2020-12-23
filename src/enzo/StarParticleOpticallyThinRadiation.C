@@ -120,7 +120,6 @@ float ComputeHeatingRateFromDustModel(const float &n_H, const float &n_e,
     epsilon = 0.01488637246 * POW(n_H, 0.235269059) / 1.7; // factor of 1.7 to account for draine G = 1.7 vs. G = 1 Habing
   }
 //
-// AJE - 6/17/16
 //     Taking out full model for now. Would need to be able to compute n_e accurately
 //     at all n and T, which we cannot do with just primordial chemistry. Turn this
 //     back on if / when a model that includes contributions of C, dust, and PAH
@@ -327,7 +326,7 @@ void grid::ZeroPhotoelectricHeatingField(void){
     float n_H, n_e, Z;
 
 
-    // AJE: Not inconsistency here (same as defined elsewhere, but different form. 
+    // Note inconsistency here (same as defined elsewhere, but different form. 
     //      need to fix this....
     const float FluxConv = EnergyUnits / TimeUnits * LengthUnits;
     const float FluxConv_inv = 1.0 / FluxConv;

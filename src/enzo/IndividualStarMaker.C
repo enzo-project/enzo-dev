@@ -291,13 +291,6 @@ int grid::IndividualStarMaker(float *dm, float *temp, int *nmax, float *mu, int 
             // star formation may be possible
             // compute values and check jeans mass unstable
 
-            // AJE: Feb 2017 - Apparently the dm field is only computed for dm particles, and not
-            //                 computed for the static background used in the isolated galaxy sims.
-            //                 This *shouldn't* be an issue if the density threshold is high, as the SF
-            //                 regions should be dom by self-gravity and the local DM density should be
-            //                 much less than the local baryon density... this should be fixed
-            //                 if used in low resolution simulations
-
             dtot = ( BaryonField[DensNum][index] + dm[index] ) * (DensityUnits);         // total density
             tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (TimeUnits);            // in code units
 
@@ -896,7 +889,7 @@ int grid::IndividualStarMaker(float *dm, float *temp, int *nmax, float *mu, int 
     ParticleMass[counter]   = ParticleMass[counter] / (dx*dx*dx); // code units / cell volume
   }
 
-  *np = ii; // number of stars formed : AJE 2/29 check if this is a bug with the -1
+  *np = ii; // number of stars formed
 
 
   delete[] ke_before;

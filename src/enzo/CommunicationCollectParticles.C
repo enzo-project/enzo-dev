@@ -515,8 +515,6 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 
     /* Count the number of particles needed to move */
 
-    /* AJE-memleak: Valgrind has a problem with SendList here... says some of it
-       isn't getting initialized and is causes use issues later */
     SendList = new particle_data[TotalNumberToMove];
     StarSendList = new star_data[TotalStarsToMove];
 

@@ -626,11 +626,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
             for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
 
-      // AJE-density-check
-//      if ( Grids[grid1]->GridData->CheckDensity() == FAIL){
- //         printf("Negative densities reached before solve hydro equations\n");
-   //   }
-
       /* Call hydro solver and save fluxes around subgrids. */
 	Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);

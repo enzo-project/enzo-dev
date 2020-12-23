@@ -211,7 +211,6 @@ Star::Star(StarBuffer *buffer, int n)
   NextStar = NULL;
   PrevStar = NULL;
 
-  /* AJE */
   for(i =0; i < 2; i++){
     se_table_position[i] = buffer[n].se_table_position[i];
     yield_table_position[i] = buffer[n].yield_table_position[i];
@@ -274,7 +273,6 @@ Star::Star(StarBuffer buffer)
   NextStar = NULL;
   PrevStar = NULL;
 
-  /* AJE */
   for(i =0; i < 2; i++){
     se_table_position[i] = buffer.se_table_position[i];
     yield_table_position[i] = buffer.yield_table_position[i];
@@ -362,7 +360,6 @@ void Star::operator=(Star a)
     accretion_time = NULL;
   }
 
-  /* AJE */
   for(i=0; i < 2; i++){
     se_table_position[i] = a.se_table_position[i];
     yield_table_position[i] = a.yield_table_position[i];
@@ -448,7 +445,6 @@ Star *Star::copy(void)
     a->accretion_time = NULL;
   }
 
-  /* AJE */
   for(i =0; i < 2; i++){
     a->se_table_position[i]    = se_table_position[i];
     a->yield_table_position[i] = yield_table_position[i];
@@ -651,7 +647,6 @@ void Star::UpdateWhiteDwarfProperties(void){
 
 void Star::UpdateIndividualStarParticleProperties(void)
 {
- /* AJE - particle properties modified self consistently in feedback routines */
  /* make sure updates are carried forward */
   LCAPERF_START("star_UpdateIndividualStarParticleProperties");
   int i , dim;
@@ -1040,7 +1035,6 @@ void Star::StarToBuffer(StarBuffer *result)
   result->PopIIIStar = tmp->PopIIIStar;
   result->AddedEmissivity = tmp->AddedEmissivity;
 
-  /* AJE */
   for(i =0; i < 2; i++){
     result->se_table_position[i] = tmp->se_table_position[i];
     result->yield_table_position[i] = tmp->yield_table_position[i];

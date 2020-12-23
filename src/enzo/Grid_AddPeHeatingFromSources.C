@@ -122,8 +122,7 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
 
   const float PeConversion = 1.0 / (EnergyUnits / TimeUnits);
   float FUVLuminosity = 0.0;
-  // AJE: Not inconsistency here (same as defined elsewhere, but different form.
-  //      need to fix this....
+  // Note inconsistency here (same as defined elsewhere, but different form.
   const float FluxConv = EnergyUnits / TimeUnits * LengthUnits;
   const float FluxConv_inv = 1.0 / FluxConv;
 
@@ -131,8 +130,6 @@ int grid::AddPeHeatingFromSources(Star *AllStars)
   if (ProblemType == 50) ENZO_FAIL("Ptype = 50 not implemented in PeHeating");
 
   const double clight_code = clight * TimeUnits / LengthUnits;
-
-  /* AJE: To Do - convert this to just using rad sources */
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar){
 

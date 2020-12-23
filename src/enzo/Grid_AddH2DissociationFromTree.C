@@ -143,7 +143,7 @@ int grid::AddH2DissociationFromTree(void)
 
         // Compute IR, FUV, and LW bands as all three can affect H2 or HM
         double IRLuminosity  = CalculateIRFromTree (pos, angle, Leaf, dilRadius2, 0);
-        double FUVLuminosity = CalculateFUVFromTree(pos, angle, Leaf, dilRadius2, 0); // AJE: Need to make sure this is consistent with everything (photon vs energy luminosity)
+        double FUVLuminosity = CalculateFUVFromTree(pos, angle, Leaf, dilRadius2, 0);
         double LWLuminosity  = CalculateLWFromTree (pos, angle, Leaf, dilRadius2, 0);
 
         // H2I dissociation only from LW radiationn
@@ -152,9 +152,9 @@ int grid::AddH2DissociationFromTree(void)
 
         // H2II and HM dissociation can occur from multiple bands.
         // need to compute this for each band:
-        //     AJE:    hard coding energies here is generally bad
-        //             this really should be set up to be gaurunteed to
-        //             match RadiationSourceEntry
+        //     hard coding energies here is generally bad
+        //     this really should be set up to be gaurunteed to
+        //     match RadiationSourceEntry
 
 
         // H2II dissociation from LW, FUV, and IR

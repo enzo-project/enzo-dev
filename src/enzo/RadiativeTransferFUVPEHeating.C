@@ -61,7 +61,7 @@ int grid::RadiativeTransferFUVPEHeating(PhotonPackageEntry **PP,
   // PE heating rate calculation is computed using full FUV ISRF flux
   // convert photon count to luminosity to energy flux density
   const FLOAT dx2 = this->CellWidth[0][0] * this->CellWidth[0][0];
-  // AJE: Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
+  // Need to multiply FUVRate field by EnergyUnits in Grid_FinalizeRadiationField
   BaryonField[FUVRateNum][cellindex] +=
                 ((*PP)->Photons * photonrate * (FUV_energy) * geo_correction)
                 / (dx2);

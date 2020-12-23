@@ -1048,7 +1048,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.MultiMetalsField1_Fraction = tiny_number;
   TestProblemData.MultiMetalsField2_Fraction = tiny_number;
 
-  // AJE alpha process, iron, s and r process elements
+  // alpha process, iron, s and r process elements
   TestProblemData.NI_Fraction  = tiny_number;
   TestProblemData.MgI_Fraction = tiny_number;
   TestProblemData.FeI_Fraction = tiny_number;

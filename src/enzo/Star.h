@@ -47,12 +47,12 @@ class Star
   star_type	 type;
   float          accreted_angmom[MAX_DIMENSION];  // used for MBH_JETS feedback
   double         NotEjectedMass;                  // Msun, used for MBH_JETS feedback
-  double         BirthMass; // Msun - AJE
+  double         BirthMass;                       // Msun
 
   int            SNIaType;     // for individual stars
   int            PopIIIStar;   // if popIII at any point
 
-  /* AJE: for individual stars - yield table numbers */
+  /* for individual stars - yield table numbers */
   int se_table_position[2];
   int rad_table_position[3];
   int yield_table_position[2];
@@ -232,7 +232,7 @@ public:
   RadiationSourceEntry* RadiationSourceInitialize(void);
 #endif
 
-  /* AJE */
+  // for individual stars:
   void AssignInterpolationTablePositions(void);
   void AssignRadTablePosition(void);
   void AssignSETablePosition(void);

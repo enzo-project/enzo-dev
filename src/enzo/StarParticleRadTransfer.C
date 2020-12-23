@@ -137,7 +137,6 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       RadSource->Energy         = new float[nbins];
       RadSource->SED            = new float[nbins];
 
-      // AJE: new
       RadSource->LifeTime     = cstar->ReturnLifetime();  // in code (should be?)
       RadSource->CreationTime = cstar->ReturnBirthTime(); // in code
 
@@ -152,7 +151,6 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       //       (instead of RadSource) to compute luminosities in
       //       optically thin case without source clustering:
 
-      /* AJE: 3/31/20 - I may not really need to zero these if they're ON */
       if (RadiativeTransferOpticallyThinH2){
 	RadSource->LWLuminosity = Q[LWbin] * LConv;
         RadSource->IRLuminosity = Q[IRbin] * LConv;
@@ -162,7 +160,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       }
 
       if (RadiativeTransferOpticallyThinFUV){
-        RadSource->FUVLuminosity = Q[FUVbin] * LConv; // AJE: 3/31 make photon! * energies[7]; // NOTE: actual Luminosity (erg/s) - not photon luminosity
+        RadSource->FUVLuminosity = Q[FUVbin] * LConv;
       } else{
         RadSource->FUVLuminosity = 0.0;
       }

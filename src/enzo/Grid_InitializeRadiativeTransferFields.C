@@ -105,11 +105,6 @@ int grid::InitializeRadiativeTransferFields()
 	  BaryonField[RaySegNum][index] = 0.0;
       }  // loop over grid
 
-  /* This is a litte rough for now, but going through testing -
-     this can be distilled to just a couple params once
-     done - Dec 2016 - AJE
-  */
-
   TIMER_START("InitializeOTFields");
   if (RadiativeTransferOpticallyThinFUV    &&
       IndividualStarFUVHeating){
@@ -121,8 +116,6 @@ int grid::InitializeRadiativeTransferFields()
       IndividualStarFUVHeating){
       this->ZeroPhotoelectricHeatingField();
   }
-
-// -- end AJE comments
 
   TIMER_STOP("InitializeOTFields");
 

@@ -228,7 +228,6 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       }
 
       /* Clean up. */
-       // AJE problem poitn is greens region == strip 0? is greens cleaned up?
       if (GreensRegion != TempRegion){
 	delete [] TempRegion;
         TempRegion == NULL;

@@ -77,10 +77,6 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 
     float time1 = ReturnWallTime();
 
-    /* AJE-MEMLEAK: Both address sanitizer and valgrind have a problem with the MPI_Waitsome here
-       Sanitizer crashes outright (sometimes), and valgrind shows a large 
-       number of lost bytes... could possibly be related to specific types of calls but unsure.
-    */
     if (TotalReceives > MAX_RECEIVE_BUFFERS){
       ENZO_VFAIL("CommunicationReceiveHandler: TotalReceive > max %"ISYM"\n",TotalReceives);
     }
@@ -303,11 +299,10 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  break;
 #endif
 
-    case 21:
-	  SendField = CommunicationReceiveArgumentInt[0][index];
-	  errcode = grid_one->CopyActiveZonesFromGrid(grid_two, EdgeOffset, SendField);
+        case 21:
+          SendField = CommunicationReceiveArgumentInt[0][index];
+          errcode = grid_one->CopyActiveZonesFromGrid(grid_two, EdgeOffset, SendField);
 
-        /* AJE: Should there be a break here? */
         break;
 
 	case 22:

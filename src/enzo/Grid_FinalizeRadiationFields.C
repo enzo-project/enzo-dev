@@ -125,14 +125,12 @@ int grid::FinalizeRadiationFields(void)
      const float FluxConv_inv = 1.0 / FluxConv;
      const float PeConversion = 1.0 / (EnergyUnits/TimeUnits/POW(LengthUnits,3)); 
 
-//     float G_background = 0.0;
-//     this->ComputeBackgroundFUV(G_background);
 
      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++){
        for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++){
          index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++){
-           // AJE: I don't think I need more unit conversions here, but need to make sure !!!
+
            BaryonField[FUVRateNum][index] *= (EnergyUnits_inv * POW(LengthUnits,3));
 
            float n_H, n_e, Z;
@@ -166,7 +164,6 @@ int grid::FinalizeRadiationFields(void)
    } // end FUV PE heating
 
 
-   // AJE: Added if here, I think this needs to be here--- otherwise conversion is appied where it shouldn't be
    if (MultiSpecies > 1 && !RadiativeTransferFLD && !RadiativeTransferOpticallyThinH2)
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {

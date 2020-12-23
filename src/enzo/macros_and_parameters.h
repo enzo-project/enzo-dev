@@ -53,7 +53,7 @@
 
 #define MAX_DEPTH_OF_HIERARCHY             50
 
-#define MAX_LINE_LENGTH                   2000 /* AJE: for stellar yields */
+#define MAX_LINE_LENGTH                   2000
 
 #define MAX_STELLAR_YIELDS                12
 
@@ -85,8 +85,7 @@
 #ifdef WINDS
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
 #else
-//#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES __max_particle_attr // AJE may need to do something different
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES __max_particle_attr
 #endif
 
 #define MAX_NUMBER_OF_PARTICLE_TABLE_POSITIONS   7

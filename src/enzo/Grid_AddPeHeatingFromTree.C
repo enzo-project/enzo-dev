@@ -125,8 +125,7 @@ int grid::AddPeHeatingFromTree(void)
 
   float FUVflux = 0.0;
 
-  // AJE: Not inconsistency here (same as defined elsewhere, but different form.
-  //      need to fix this....
+  // Note inconsistency here (same as defined elsewhere, but different form.
   const float FluxConv = EnergyUnits / TimeUnits * LengthUnits;
   const float FluxConv_inv = 1.0 / FluxConv;
 

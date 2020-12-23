@@ -37,7 +37,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
 				       float VelocityUnits, float dtForThisStar,
 				       FLOAT Time, bool &SphereCheck)
 {
-  // AJE-memleak
   if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
     return;
   }

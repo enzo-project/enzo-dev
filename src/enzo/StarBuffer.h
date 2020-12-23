@@ -46,7 +46,7 @@ struct StarBuffer {
   double SurfaceGravity;
   double Teff;
 
-  /* AJE: for individual stars - yield table numbers */
+  /* for individual stars - yield table numbers */
   int se_table_position[2];
   int rad_table_position[3];
   int yield_table_position[2];

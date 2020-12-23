@@ -64,7 +64,6 @@ struct TestProblemDataType
   float MultiMetalsField1_Fraction;
   float MultiMetalsField2_Fraction;
 
-  /* AJE */
   float NI_Fraction;
   float MgI_Fraction;
   float FeI_Fraction;
@@ -73,7 +72,6 @@ struct TestProblemDataType
   float LaI_Fraction;
   float EuI_Fraction;
 
-  /* AJE */
   // allow for a second set of initial chemical tracer values
   // initial idea is first set for galaxy disk, second for halo
   float  CI_Fraction_2;

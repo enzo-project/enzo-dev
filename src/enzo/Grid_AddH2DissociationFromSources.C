@@ -136,8 +136,6 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 
   /* Loop over radiation sources or star particles in the grid */
 
-  // AJE: Could it really be so simple as to change this if
-  //      statement? Adding lifetime to StarParticleRadTransfer
   if (ProblemType == 50 ||
       STARMAKE_METHOD(INDIVIDUAL_STAR) ) {
 
@@ -159,7 +157,6 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
           if(RS->Energy[ebin] < FUV_threshold_energy) {
             H2IISED = RS->SED[ebin];
             IRSED = RS->SED[ebin];
-            // AJE: I NEED TO MAKE SURE FUV WORKS SAME WAY AND EVERYTHING ELSE
           }
           else if(RS->Energy[ebin] < LW_threshold_energy) {
             H2IISED = RS->SED[ebin];
@@ -277,7 +274,6 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
     float IRSED = 0.0, LWSED = 0.0, H2IISED = 0.0;
     double IRLuminosity = 0.0, H2IILuminosity = 0.0, LWLuminosity = 0.0;
     double HMSigma = 0.0, H2IISigma = 0.0;
-    ENZO_FAIL("AJE: Testing - should not be here");
 
     for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 

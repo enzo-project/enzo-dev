@@ -100,22 +100,6 @@ int grid::InitializeUniformGrid(float UniformDensity,
     }
   }
 
-  //  Metal fields as defined by MultiMetals: (AJE 1/21/16)
-  //      0    : Standard metallicity field
-  //      1    : Above + two extra blank fields
-  //      --- Values > 2 meant to be coupled to stellar
-  //                   chemical evolution models + ejecta
-  //      These numbers are additive, meanting to include the elements
-  //      from 2 and 3 use 5. Use 9 to include all
-  //      2    : Metallicity field + alpha elements and Iron:
-  //             C, N, O, Mg, Si, Fe
-  //      3    : same as 2 + s-process
-  //             Y, Ba, La
-  //      4    : 3 + r-process
-  //             Eu   (Y, Ba, La as well but already defined above)
-  //
-  //  Full element names used to keep these distinct from
-  //  Simon Glover's chemistry models (see below)
   if (TestProblemData.UseMetallicityField) {
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
 
@@ -351,7 +335,6 @@ int grid::InitializeUniformGrid(float UniformDensity,
     } // if(TestProblemData.MultiSpecies)
 
     // metallicity fields (including 'extra' metal fields)
-    // AJE 1/21/19
     if(TestProblemData.UseMetallicityField){
       BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction* UniformDensity;
 

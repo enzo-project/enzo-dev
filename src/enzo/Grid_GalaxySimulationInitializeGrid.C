@@ -587,7 +587,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	 if (dens1 > density && fabs(drcyl*LengthUnits/Mpc_cm) <= TruncRadius ) {
 
 	   density = dens1;
-           // this is confusing: (comment by A.E.)
            //     -temp1 is set in DiskPotentialCircularVelocity call above (if using DiskGravity)
            //            but is initially set to the same as init_temp. If it is unchanged,
            //            then behavior is to set temperature to the user defined DiskTemperature
@@ -1301,9 +1300,6 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
   Picm = HaloGasDensity(rsph_icm)*kboltz*HaloGasTemperature(rsph_icm)/(0.6*mh);
 
-    /* AJE: Need to account for DM in pressure. Also, need to
-            add in computation to get correct Mu  (Jan 2018: DM is taken care of but mu is not... not totally needed)*/
-
   if (FALSE){ // useSmaug
     temperature = GalaxySimulationDiskTemperature;
     Pressure    = Pressure - temperature*kboltz*denuse/(0.6*mh); // correct pressure
@@ -1313,7 +1309,6 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
   /* Calculate pressure gradient */
 
-  // is this a bug? should density be denuse???? Jan 2018 AE
 
   //  FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/density;
   FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/denuse;

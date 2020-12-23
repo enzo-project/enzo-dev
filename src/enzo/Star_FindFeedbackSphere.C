@@ -42,7 +42,6 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			     bool &MarkedSubgrids)
 {
 
-  // AJE-memleak
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     return SUCCESS;
   }

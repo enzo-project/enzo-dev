@@ -227,11 +227,6 @@ int IndividualStarRadiationProperties_Initialize(void){
       IndividualStarRadData.FUV_flux[i][j] = new float[IndividualStarRadData.Nz];
       IndividualStarRadData.LW_flux[i][j]  = new float[IndividualStarRadData.Nz];
 
-  /* AJE 3/16/16: Need to NULL everything if allow for variable size */
-  //    for ( int k = 0; k < INDIVIDUAL_STAR_METALLICITY_BINS; k ++){
-  //      IndividualStarq0Data[i][j][k] = NULL;
-  //      IndividualStarq1Data[i][j][k] = NULL;
-  //    }
     }
   } // loop over to initialize
 

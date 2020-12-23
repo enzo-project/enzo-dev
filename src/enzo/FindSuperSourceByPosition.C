@@ -161,12 +161,12 @@ inline void vrsqrt(Eflt32* __x, Eflt32* __outrsqrt)
 // *precip = _mm_mul_ss(_mm_set_ss(0.5f), _mm_add_ss(recip, _mm_rcp_ss(_mm_mul_ss(x, recip))));
 }
 
-/* AJE: These three functions: CalculateLWFromTree, CalculateFUVFromTree,
-         and CalculateIRFromTree should really be rewritten into a single function
-         that utilizes binned luminosities (SED) for the leaf sources
-         as is done for the RadiationSourceEntry, that way a new function
-         isn't made every time a new band is needed... but unlikely to have much
-         more than IR, FUV, and LW for now anyway */
+/* These three functions: CalculateLWFromTree, CalculateFUVFromTree,
+   and CalculateIRFromTree should really be rewritten into a single function
+   that utilizes binned luminosities (SED) for the leaf sources
+   as is done for the RadiationSourceEntry, that way a new function
+   isn't made every time a new band is needed... but unlikely to have much
+   more than IR, FUV, and LW for now anyway */
 
 float CalculateLWFromTree(const FLOAT pos[],
 			  const float angle,

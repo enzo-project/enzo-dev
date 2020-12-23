@@ -141,7 +141,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
    * Type4: Infrared Radiation (HM Photodetachment)
    * Type5: XRAYS (which heat and ionise HI, HeI and HeII also)
    * Type6:
-   * Type8: FUV for PE heating  (AJE)
+   * Type8: FUV for PE heating
    */
   for (ebin=0; ebin < stype; ebin++) {
 
@@ -157,18 +157,6 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       if (!RadiativeTransferOpticallyThinH2 && RS->Energy[i] > LW_threshold_energy) ebin = 3;
       if (!RadiativeTransferOpticallyThinFUV && RS->Energy[i] < LW_threshold_energy) ebin = 4;
     }*/
-
-    /*
-     The below two lines may present a problem if running with optically
-     thin H2 off and optically thin FUV off.... really I need to be running
-     with both ON at all times, even when using the other method for calculating
-     them..... OR just disable H2 and FUV in hard code permanantly for now.
-
-     This could be the reason why I'm getting SOOOO many photon packages
-
-       Jan 2017 - AJE
-    */
-
 
     // Don't create LW photon packages if we're doing an optically-thin approx.
     if (ebin == 3 && RadiativeTransferOpticallyThinH2)
@@ -198,8 +186,6 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
     /*
      * Associate Energy Bin with type e.g. IR -> XRAYS
-     *   AJE: I don't like these if statements like this...
-     *        seems like there should be a better way to handle this...
      */
     if ((RS->Energy[ebin] > FUV_threshold_energy) && (RS->Energy[ebin]<LW_threshold_energy) && ebin > 4){
       this_type = FUVPEHEATING;

@@ -860,7 +860,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       }
 
       // Make all cooling time values positive and convert to seconds.
-      // AJE: Turn off fabs
       for (i = 0;i < size;i++) {
 	cooling_time[i] *= TimeUnits; // fabs(cooling_time[i]) * TimeUnits;
       }
