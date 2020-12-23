@@ -5,7 +5,7 @@
 /  written by: Andrew Emerick
 /  date:       Feb, 2016
 /
-/  PURPOSE: Plain, uniform gas grid. Star is deposited in individual_star_maker
+/  PURPOSE: Plain, uniform gas grid. Star is deposited in IndividualStarMaker
 /           this is a boring set up.
 /
 /  RETURNS: FAIL or SUCCESS
@@ -223,7 +223,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
     int NumberOfNewParticles = 0;
     this->AllocateNewParticles(MaximumNumberOfNewParticles);
 
-    this->chemical_evolution_test_star_deposit(&MaximumNumberOfNewParticles,
+    this->ChemicalEvolutionTestStarDeposit(&MaximumNumberOfNewParticles,
                                              &NumberOfNewParticles, this->ParticleMass,
                                              this->ParticleType, this->ParticlePosition,
                                              this->ParticleVelocity, this->ParticleAttribute);
@@ -243,7 +243,7 @@ int grid::ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTempera
 }
 
 
-int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *ParticleMass,
+int grid::ChemicalEvolutionTestStarDeposit(int *nmax, int *np, float *ParticleMass,
                                                int *ParticleType, FLOAT *ParticlePosition[],
                                                float *ParticleVelocity[], float *ParticleAttribute[]){
 
@@ -502,7 +502,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
         !( (zz > this->CellLeftEdge[2][ibuff ]) && (zz < this->CellLeftEdge[2][nz - ibuff ] )) ) {
       this->Grid_ChemicalEvolutionTestStarFormed = TRUE; // setting this here to avoid doing MPI communication
                                               // on whatever processor the star actually gets placed
-      printf("P(%"ISYM") individual_star_maker: Particle not on this grid. Leaving\n", MyProcessorNumber);
+      printf("P(%"ISYM") ChemicalEvolutionTestStarDeposit: Particle not on this grid. Leaving\n", MyProcessorNumber);
       return SUCCESS;
     }
      // deposit the star by hand
@@ -623,7 +623,7 @@ int grid::chemical_evolution_test_star_deposit(int *nmax, int *np, float *Partic
 
     *np = 1;
     this->Grid_ChemicalEvolutionTestStarFormed = TRUE;
-    printf("individual_star_maker: Formed star ChemicalEvolutionTest. M =  %"FSYM" and Z = %"FSYM". tau = %"ESYM"\n", ParticleMass[0]*(dx*dx*dx)*MassUnits/SolarMass, ParticleAttribute[2][0], ParticleAttribute[1][0]);
+    printf("IndividualStarMaker: Formed star ChemicalEvolutionTest. M =  %"FSYM" and Z = %"FSYM". tau = %"ESYM"\n", ParticleMass[0]*(dx*dx*dx)*MassUnits/SolarMass, ParticleAttribute[2][0], ParticleAttribute[1][0]);
   }
 
   return SUCCESS;

@@ -109,7 +109,7 @@ class grid
   float  grid_BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS]; // locally stores mass flux across domain boundary
   fluxes *BoundaryFluxes;
 
-  // AJE: grid averaged abundances
+  // grid averaged abundances
   float AveragedAbundances[MAX_STELLAR_YIELDS];
 
   // For restart dumps
@@ -2469,8 +2469,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ChemicalEvolutionTestInitializeGrid(float GasDensity, float GasTemperature,
                                           float GasMetallicity, bool deposit_stars);
 
-  /* AJE Individual star formation and feedback */
-  int chemical_evolution_test_star_deposit(int *nmax, int *np,
+  /* Individual star formation and feedback */
+  int ChemicalEvolutionTestStarDeposit(int *nmax, int *np,
                                            float *ParticleMass,
                                            int *ParticleType, FLOAT *ParticlePosition[],
                                            float *ParticleVelocity[], float *ParticleAttribute[]);
@@ -2481,13 +2481,13 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int GalaxySimulationInitialStars(int *nmax, int *np);
 
 
-  int individual_star_maker( float *dm, float *temp, int *nmax, float *mu, int *np,
+  int IndividualStarMaker( float *dm, float *temp, int *nmax, float *mu, int *np,
                              float *ParticleMass,
                              int *ParticleType, FLOAT *ParticlePosition[],
                              float *ParticleVelocity[], float *ParticleAttribute[],
                              float *StellarAbundances[]);
 
-  int individual_star_feedback(int *np, float *ParticleMass, int *ParticleType,
+  int IndividualStarFeedback(int *np, float *ParticleMass, int *ParticleType,
                                FLOAT *ParticlePosition[], float *ParticleVelocity[],
                                float *ParticleAttribute[]);
 

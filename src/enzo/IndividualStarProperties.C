@@ -10,7 +10,7 @@
 /   Contains helper routines to compute star properties used to calculate
 /   radiation properties. Includes interpolation method for trillinear
 /   interpolation of radiation data as well as a gaussian random variable
-/   generator used here and in some random draws in individual_star_maker
+/   generator used here and in some random draws in IndividualStarMaker
 /
 /   WARNING: In every case where interpolation is over metallicity, we institute
 /            a 'metallicity floor' whereby the star's metallicity is set to Z_min

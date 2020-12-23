@@ -702,7 +702,7 @@ OBJS_CONFIG_LIB = \
         I_ColumnFormat.o \
         IdentifyNewSubgridsBySignature.o \
         ImplosionInitialize.o \
-        individual_star_maker.o \
+        IndividualStarMaker.o \
         IndividualStarParticleAddFeedback.o \
         IndividualStarProperties_Initialize.o \
         IndividualStarProperties.o \

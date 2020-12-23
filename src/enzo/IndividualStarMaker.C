@@ -66,7 +66,7 @@ float SamplePopIII_IMF(void);
 
 
 
-int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, int *np,
+int grid::IndividualStarMaker(float *dm, float *temp, int *nmax, float *mu, int *np,
                                 float *ParticleMass,
                                 int *ParticleType, FLOAT *ParticlePosition[],
                                 float *ParticleVelocity[], float *ParticleAttribute[],
@@ -164,15 +164,15 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
   // error checking - move these somewhere else to only be called once per run
   if ( IndividualStarTrackAGBMetalDensity && (AGBMetalNum <= 0)){
-    ENZO_FAIL("Error in finding AGB metal density field in individual_star_maker");
+    ENZO_FAIL("Error in finding AGB metal density field in IndividualStarMaker");
   }
 
   if ( IndividualStarPopIIIFormation && ((PopIIIMetalNum <= 0) || (PopIIIPISNeMetalNum <= 0))){
-    ENZO_FAIL("Error in finding Pop III metal density field in individual_star_maker");
+    ENZO_FAIL("Error in finding Pop III metal density field in IndividualStarMaker");
   }
 
   if (IndividualStarTrackWindDensity && ((WindMetalNum <=0) || (WindMetalNum2 <= 0))){
-    ENZO_FAIL("Error in finding wind density field in individual_star_maker");
+    ENZO_FAIL("Error in finding wind density field in IndividualStarMaker");
   }
 
   if ( IndividualStarPopIIIFormation && (PopIIIMetalCriticalFraction < 0) &&
@@ -181,11 +181,11 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
   }
 
   if ( IndividualStarTrackSNMetalDensity && ( (SNIIMetalNum <= 0) || (SNIaMetalNum <=0))){
-    ENZO_FAIL("Error in finding SNII and SNIa metal density field in individual_star_maker.");
+    ENZO_FAIL("Error in finding SNII and SNIa metal density field in IndividualStarMaker.");
   }
 
   if ( IndividualStarRProcessModel && ( RProcMetalNum <=0 )){
-    ENZO_FAIL("Error in finding R process metal density field in individual_star_maker.");
+    ENZO_FAIL("Error in finding R process metal density field in IndividualStarMaker.");
   }
 
   if ( IndividualStarSNIaModel == 2){
@@ -888,10 +888,10 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
 
     // Done forming stars!!! Output and exit
     if (ii > 0){
-      printf("P(%" ISYM "): individual_star_maker[add]: %" ISYM " new star particles. PopIII = %" ISYM " Unresolved = %" ISYM " UnresolvedInc = %" ISYM " Individual(PopII/PopI) = %" ISYM " - Total Mass (Msun) = %" ESYM " Unresolved Mass = %" ESYM "\n", MyProcessorNumber, ii, popiii_counter, unresolved_counter, unresolved_increment, individualstar_counter, total_mass_sf, total_unresolved_mass);
+      printf("P(%" ISYM "): IndividualStarMaker[add]: %" ISYM " new star particles. PopIII = %" ISYM " Unresolved = %" ISYM " UnresolvedInc = %" ISYM " Individual(PopII/PopI) = %" ISYM " - Total Mass (Msun) = %" ESYM " Unresolved Mass = %" ESYM "\n", MyProcessorNumber, ii, popiii_counter, unresolved_counter, unresolved_increment, individualstar_counter, total_mass_sf, total_unresolved_mass);
     }
     if (ii >= *nmax){
-      fprintf(stdout, "individual_star_maker: reached max new particle count!! Available: %" ISYM ". Made: %" ISYM "\n", *nmax, ii);
+      fprintf(stdout, "IndividualStarMaker: reached max new particle count!! Available: %" ISYM ". Made: %" ISYM "\n", *nmax, ii);
 
     }
 

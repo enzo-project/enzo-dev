@@ -1109,13 +1109,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       if (   ((level == MaximumRefinementLevel) || (ProblemType == 30)) ||
           (ProblemType == 31 && Time <= 0.0 && GalaxySimulationInitialStellarDist)){
         // lets try and form stars
-        if(individual_star_maker(dmfield, temperature,
+        if(IndividualStarMaker(dmfield, temperature,
                                  &MaximumNumberOfNewParticles,
                                  &Mu, &NumberOfNewParticles,
                                  tg->ParticleMass, tg->ParticleType,
                                  tg->ParticlePosition, tg->ParticleVelocity,
                                  tg->ParticleAttribute, tg->StellarAbundances) == FAIL){
-          ENZO_FAIL("Error in individual_star_maker.\n");
+          ENZO_FAIL("Error in IndividualStarMaker.\n");
         } // end call to function 
 
       } // check refinement level
@@ -2081,17 +2081,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   }
 #endif
 /*
-  if (STARFEED_METHOD(INDIVIDUAL_STAR)) {
-
-    if(individual_star_feedback(&NumberOfParticles,
-                                ParticleMass, ParticleType, ParticlePosition,
-                                ParticleVelocity, ParticleAttribute) == FAIL){
-      ENZO_FAIL("Failure in individual star feedback\n");
-    }
-
-  }
-  moved to IndividualStarParticleAddFeedback as called from
-  StarParticleFinalize
+  NOTE: Individual star particle feedback is handled
+        in IndividualStarParticleAddFeedback as called from
+        StarParticleFinalize
 */
   if (StarMakerTypeIaSNe == 1 || StarMakerPlanetaryNebulae == 1) {
 
