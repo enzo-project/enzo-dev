@@ -542,6 +542,7 @@ OBJS_CONFIG_LIB = \
 	Grid_IdentifyRadiativeTransferFields.o \
         Grid_IdentifySpeciesFields.o \
 	Grid_ImplosionInitializeGrid.o \
+        Grid_IndividualStarDepositMustRefineParticles.o \
 	Grid_InheritProperties.o \
 	Grid_InitializeGravitatingMassField.o \
 	Grid_InitializeGravitatingMassFieldParticles.o \
