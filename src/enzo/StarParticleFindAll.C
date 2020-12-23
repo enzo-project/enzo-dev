@@ -6,7 +6,7 @@
 /  date:       March, 2009
 /  modified1:
 /
-/  PURPOSE: First synchronizes particle information in the normal and 
+/  PURPOSE: First synchronizes particle information in the normal and
 /           star particles.  Then we make a global particle list, which
 /           simplifies adding the feedback to the all of the grids.
 /
@@ -129,7 +129,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     Eint32 *nCount = new Eint32[NumberOfProcessors];
     Eint32 *displace = new Eint32[NumberOfProcessors];
 
-    MPI_Allgather(&LocalNumberOfStars, 1, MPI_INT, nCount, 1, MPI_INT, 
+    MPI_Allgather(&LocalNumberOfStars, 1, MPI_INT, nCount, 1, MPI_INT,
 		  MPI_COMM_WORLD);
 
     /* Generate displacement list. */
@@ -153,8 +153,11 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
         delete [] sendBuffer;
         sendBuffer = new StarBuffer[sendBufferSize];
       }
+
       if (LocalNumberOfStars > 0)
         LocalStars->StarListToBuffer(sendBuffer, LocalNumberOfStars);
+      else
+        sendBuffer = NULL;
 
       /* Share all data with all processors */
 
@@ -171,7 +174,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
       lstar = LocalStars;
       for (i = 0; i < TotalNumberOfStars; i++) {
 	i0 = displace[MyProcessorNumber];
-	i1 = (MyProcessorNumber < NumberOfProcessors-1) ? 
+	i1 = (MyProcessorNumber < NumberOfProcessors-1) ?
 	  displace[MyProcessorNumber+1] : TotalNumberOfStars;
 
 	// local processors from Allgatherv
@@ -200,13 +203,13 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   }
 
   /* Find minimum stellar lifetime */
-  
+
   for (cstar = AllStars; cstar; cstar = cstar->NextStar)
     if (cstar->ReturnMass() > 1e-9)
       minStarLifetime = min(minStarLifetime, cstar->ReturnLifetime());
 
   /* Store in global variable */
-  
+
   G_TotalNumberOfStars = TotalNumberOfStars;
 
   return SUCCESS;
