@@ -17,8 +17,8 @@
 /           Parameters:
 /           my_spectral_rank -- dimension of Fouries space = grid rank
 /           my_spect_profile -- shape of forcing power spectrum
-/                               (1: delta peak, 2: band, 
-/                                3: parabolic window) 
+/                               (1: delta peak, 2: parabolic, 
+/                                3: band) 
 /           my_alpha -- ratio of domain length to integral length
 /                       for each dimension (L = X/alpha)
 /           my_band_width -- determines band width of the forcing 
@@ -180,6 +180,7 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
 		    Amplitude[0][i-1] *= Amplitude[0][i-1];
 		} else if (SpectProfile == Band) {
 		    if ((x1 >= 0.0) && (x2 >= 0.0)) Amplitude[0][i-1] = 1.0;
+            else Amplitude[0][i-1] = 0.0;
 		}
 		if (debug) {
 		    printf("i = %"ISYM", a = %"FSYM"\n",i,a);
@@ -229,6 +230,7 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
 			    Amplitude[0][n] *= Amplitude[0][n];
 			} else if (SpectProfile == Band) {
 			    if ((x1 >= 0.0) && (x2 >= 0.0)) Amplitude[0][n] = 1.0;
+                else Amplitude[0][n] = 0.0;
 			}
             
 			if (debug) {
@@ -279,6 +281,7 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
 				    Amplitude[0][n] *= Amplitude[0][n];
 				} else if (SpectProfile == Band) {
 				    if ((x1 >= 0.0) && (x2 >= 0.0)) Amplitude[0][n] = 1.0;
+                    else Amplitude[0][n] = 0.0;
 				}
                 
 				if (debug) {
