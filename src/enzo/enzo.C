@@ -196,6 +196,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 			      HierarchyEntry **NewHierarchyPointer,
 			      FLOAT WriteTime);
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
+void DeleteRateData(void);
 int OutputPotentialFieldOnly(char *ParameterFile,
 			     LevelHierarchyEntry *LevelArray[], 
 			     HierarchyEntry *TopGrid,
@@ -284,17 +285,21 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 
   CommunicationInitialize(&argc, &argv); 
 
-  //#define DEBUG_MPI
+//#define DEBUG_MPI
 #ifdef DEBUG_MPI
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
+  const int DebugProcessor = 78;
+  if (MyProcessorNumber == DebugProcessor) {
     int impi = 0;
     char hostname[256];
-    gethostname(hostname, sizeof(hostname));
+    gethostname(hostname, sizeof(hostname));    
     printf("PID %d on %s ready for debugger attach\n", getpid(), hostname);
     fflush(stdout);
     while (impi == 0)
       sleep(5);
   }
+  char hostname[256];
+  gethostname(hostname, sizeof(hostname));
+  fprintf(stdout, "Proc%03d: PID %d on %s\n", MyProcessorNumber, getpid(), hostname);
 #endif
 
 #ifdef USE_GRACKLE
@@ -837,6 +842,25 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   }
   else
   {
+    // Delete all data to cleanup for memory checkers (e.g. valgrind)
+    LevelHierarchyEntry *Previous, *Temp;
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Cleanup: deleting all grid data\n");
+    for (i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
+      Temp = LevelArray[i];
+      while (Temp != NULL) {
+	delete Temp->GridData;
+	if (Temp->GridHierarchyEntry != &TopGrid)
+	  delete Temp->GridHierarchyEntry;
+	Previous = Temp;
+	Temp = Temp->NextGridThisLevel;
+	// Delete previous level hierarchy entry
+	delete Previous;
+      }
+    }
+    Exterior.CleanUp();
+    delete enzo_timer;
+    DeleteRateData();
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "Successful run, exiting.\n");
     }
@@ -929,7 +953,7 @@ void my_exit(int status)
   // Exit gracefully if successful; abort on error
 #ifdef USE_PYTHON
   FinalizePythonInterface();
-#endif
+#endif  
 
   if (status == EXIT_SUCCESS) {
 
@@ -959,4 +983,3 @@ void my_exit(int status)
 
   }
 }
-

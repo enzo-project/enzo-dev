@@ -198,10 +198,6 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
       MPI_SendListCount[proc] = NumberOfSends[proc];
     }
 
-//    for (i = 0; i < TotalNumberOfSends; i++)
-//      printf("P%"ISYM" -- BB -- SendList[%"ISYM"]: %"ISYM" %"ISYM"\n", 
-//	     MyProcessorNumber, i, SendList[i].grid, SendList[i].proc);
-
     // Sort by grid (destination) processor, then replace the
     // processor number with this processor number because the grid
     // processor needs it to post the receives.
@@ -253,10 +249,6 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
     for (i = 0; i < TotalNumberOfSends; i++)
       SendList[i].proc = MyProcessorNumber;
 
-//    for (i = 0; i < TotalNumberOfSends; i++)
-//      printf("P%"ISYM" -- SendList[%"ISYM"]: %"ISYM" %"ISYM"\n", 
-//	     MyProcessorNumber, i, SendList[i].grid, SendList[i].proc);
-
 #ifdef TIMING
     t0 = ReturnWallTime();
 #endif
@@ -271,10 +263,6 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
     if (MyProcessorNumber == ROOT_PROCESSOR)
       printf("--> DPMFF: After Alltoallv :: %lg seconds\n", t1-t0);
 #endif
-
-//    for (i = 0; i < TotalNumberOfRecv; i++)
-//      printf("P%"ISYM" -- SharedList[%"ISYM"]: %"ISYM" %"ISYM"\n", 
-//	     MyProcessorNumber, i, SharedList[i].grid, SharedList[i].proc);
 
     delete [] NumberOfSends;
     delete [] MPI_SendListCount;

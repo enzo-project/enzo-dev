@@ -214,6 +214,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 
     TotalNumber = 0;
     TotalStars  = 0;
+    APTotalNumber = 0;
     for (j = 0; j < NumberOfProcessors; j++) {
       TotalNumber += NumberToMove[j];
       TotalStars += StarsToMove[j];
@@ -499,7 +500,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 #endif
 
 #ifdef DEBUG_CCP
-      printf("CCP[%d]: Collecting a total of %"ISYM" (%"ISYM" local) "
+    printf("CCP[%d]: Collecting a total of %"ISYM" (%"ISYM" local) "
 	     "particles and %"ISYM" active particles over grids %"ISYM"->%"ISYM".\n", 
          MyProcessorNumber, AllMovedParticles, TotalNumberToMove, TotalActiveParticlesToMove,
 	     StartGrid, EndGrid-1);  

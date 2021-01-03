@@ -248,3 +248,75 @@ int InitializeRateData(FLOAT Time)
 
   return SUCCESS;
 }
+
+void DeleteRateData(void)
+{
+
+  delete [] CoolData.ceHI;
+  delete [] CoolData.ceHeI;
+  delete [] CoolData.ceHeII;
+  delete [] CoolData.ciHI;
+  delete [] CoolData.ciHeI;
+  delete [] CoolData.ciHeIS;
+  delete [] CoolData.ciHeII;
+  delete [] CoolData.reHII;
+  delete [] CoolData.reHeII1;
+  delete [] CoolData.reHeII2;
+  delete [] CoolData.reHeIII;
+  delete [] CoolData.brem;
+  delete [] CoolData.hyd01k;
+  delete [] CoolData.h2k01;
+  delete [] CoolData.vibh;
+  delete [] CoolData.roth;
+  delete [] CoolData.rotl;
+  delete [] CoolData.GP99LowDensityLimit;
+  delete [] CoolData.GP99HighDensityLimit;
+  delete [] CoolData.HDlte;
+  delete [] CoolData.HDlow;
+  delete [] CoolData.HDcool;
+  delete [] CoolData.cieco;
+  delete [] CoolData.GAHI;
+  delete [] CoolData.GAH2;
+  delete [] CoolData.GAHe;
+  delete [] CoolData.GAHp;
+  delete [] CoolData.GAel;
+  delete [] CoolData.gas_grain;
+
+  delete [] RateData.k1;
+  delete [] RateData.k2;
+  delete [] RateData.k3;
+  delete [] RateData.k4;
+  delete [] RateData.k5;
+  delete [] RateData.k6;
+  delete [] RateData.k7;
+  delete [] RateData.k8;
+  delete [] RateData.k9;
+  delete [] RateData.k10;
+  delete [] RateData.k11;
+  delete [] RateData.k12;
+  delete [] RateData.k13;
+  delete [] RateData.k13dd;
+  delete [] RateData.k14;
+  delete [] RateData.k15;
+  delete [] RateData.k16;
+  delete [] RateData.k17;
+  delete [] RateData.k18;
+  delete [] RateData.k19;
+  delete [] RateData.k20;
+  delete [] RateData.k21;
+  delete [] RateData.k22;
+  delete [] RateData.k23;
+  delete [] RateData.k50;
+  delete [] RateData.k51;
+  delete [] RateData.k52;
+  delete [] RateData.k53;
+  delete [] RateData.k54;
+  delete [] RateData.k55;
+  delete [] RateData.k56;
+  delete [] RateData.h2dust;
+  delete [] RateData.n_cr_n;
+  delete [] RateData.n_cr_d1;
+  delete [] RateData.n_cr_d2;
+
+  return;
+}

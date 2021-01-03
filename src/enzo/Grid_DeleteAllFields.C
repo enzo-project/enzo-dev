@@ -36,6 +36,8 @@ void grid::DeleteAllFields()
     this->DeleteStellarAbundances();
 #endif
 
+  this->DeleteActiveParticles();
+ 
   for (i = 0; i < MAX_DIMENSION; i++) {
     delete [] ParticleAcceleration[i];
     delete [] AccelerationField[i];

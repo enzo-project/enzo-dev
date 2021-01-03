@@ -73,6 +73,7 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles,
 
     if (MoveParticles == TRUE)
       this->CommunicationSendActiveParticles(this, ToProcessor);
+
     /* Copy stars */
 
     if (NumberOfStars > 0 && MoveParticles == TRUE)
