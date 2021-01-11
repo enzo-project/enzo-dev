@@ -346,12 +346,13 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     for (i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
       Temp = LevelArray[i];
       while (Temp != NULL) {
-	delete Temp->GridData;
-	delete Temp->GridHierarchyEntry;
-	Previous = Temp;
-	Temp = Temp->NextGridThisLevel;
-	// Delete previous level hierarchy entry
-	delete Previous;
+        delete Temp->GridData;
+        if (Temp->GridHierarchyEntry == NULL)
+          delete Temp->GridHierarchyEntry;
+        Previous = Temp;
+        Temp = Temp->NextGridThisLevel;
+        // Delete previous level hierarchy entry
+        delete Previous;
       }
     }
     if (MovieSkipTimestep != INT_UNDEFINED) {
