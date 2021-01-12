@@ -25,7 +25,7 @@
 #define PASS 1;
 int checkCreationCriteria(float* Density, float* Metals,
                         float* Temperature,float* DMField,
-                        float* Vel1, float* Vel2, float* Vel3, 
+                        float* Vel1, float* Vel2, float* Vel3, float* TotE,
                         float* CoolingTime, int* GridDim,
                         float* shieldedFraction, float* freeFallTime, 
                         float* dynamicalTime, int i, int j, int k, 
@@ -33,8 +33,9 @@ int checkCreationCriteria(float* Density, float* Metals,
                         bool* gridShouldFormStars, bool* notEnoughMetals, 
                         int continuingFormation, int* seedIndex)
 {  
+    float Zsolar = 0.02;
     float maxZ = 0.0;
-    bool debug = false;
+    bool debug = true;
     bool status = PASS;
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
                 TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
@@ -61,7 +62,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     float dmean = (Density[index]*10.0+Density[iminus]
                 + Density[iplus]+Density[jplus]
                 + Density[jminus]+Density[kminus]
-                + Density[kplus])/17.0;
+                + Density[kplus])/17.0 * DensityUnits / (mh/0.6);
     if (dmean < StarMakerOverDensityThreshold) 
     {
         return FAIL;
@@ -102,12 +103,14 @@ int checkCreationCriteria(float* Density, float* Metals,
                     +dzvx*dzvx+dzvy*dzvy+dzvz*dzvz);
     
     /* approximate taking gas as monatomic and mu = 0.6*/
+    /* Gravitational constant [cm3g-1s-2]*/
     float Gcode = GravConst*DensityUnits*pow(TimeUnits,2);
     float KBcode = kboltz*MassUnits/(LengthUnits*CellWidth)/pow(TimeUnits,2);
     cSound = sqrt(5/3*kboltz*Temperature[index]/mh/0.6)/VelocityUnits;
     alpha = ((vfactor) + pow(cSound/(CellWidth), 2.0))
             / (8.0 * M_PI* Gcode * Density[index]);
 
+    float AltAlpha = TotE[index]*MassUnits / (8.0 * M_PI * GravConst/MassUnits);
 
     
     if (alpha > 1.0) return FAIL;
@@ -131,6 +134,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     float IsoSndSpeed = 1.3095e8 * Temperature[index];
     float jeansMass = pi/(6.0*pow(Density[index]*DensityUnits, 0.5))
             *pow(pi*IsoSndSpeed/GravConst, 1.5)/SolarMass;
+    float altJeans = 2 * pow(cSound*VelocityUnits/1e5/0.2, 3) * pow((Density[index]*DensityUnits/(mh/0.6)/1e3), -0.5);
     if (jeansMass > max(baryonMass, 1e3)) return FAIL;
     
     /* Is self Shielded fraction > 0.0 by Krumholz & Gnedin */
@@ -146,9 +150,9 @@ int checkCreationCriteria(float* Density, float* Metals,
     float TauFactor = 434.8/*cm**2/g*/ * MassUnits/pow(LengthUnits*CellWidth, 2); // cm**2/g
     float Tau = TauFactor * Density[index] *(CellWidth+Density[index]/gradRho);
 
-    float Phi = 0.756*pow(1+3.1*Metals[index]/Density[index]/0.02, 0.365);
+    float Phi = 0.756*pow(1+3.1*Metals[index]/Density[index]/Zsolar, 0.365);
 
-    float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/0.02)/
+    float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/Zsolar)/
                 log(1+0.6*Phi+0.01*Phi*Phi);
     *shieldedFraction = 1.0 - 3.0/(1.0+4.0*Psi);
     if (debug)
@@ -157,19 +161,20 @@ int checkCreationCriteria(float* Density, float* Metals,
 
     if (*shieldedFraction < 0) status = FAIL;
 
-    *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits;
+    *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
     if (status && debug)
     {
-        fprintf(stdout, "Check Creation positive! rho = %"GSYM" gradRho = %"GSYM" Fs = %"FSYM" M_j = %"GSYM" VirialPar = %"FSYM" divergence = %"FSYM" Temperature = %"GSYM"\n",
-        Density[index], gradRho, *shieldedFraction, jeansMass, alpha, div, Temperature[index]);
-    }
-    if (status && (Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity || !MechStarsSeedField)){
-            return status;
+        fprintf(stdout, "Check Creation positive! n_b = %"GSYM" M_b = %"GSYM" gradRho = %"GSYM" Fs = %"FSYM" M_j = %"GSYM" VirialPar = %"FSYM" divergence = %"FSYM" Temperature = %"GSYM" cSnd = %"GSYM" AltJeans = %"GSYM" AltAlpha = %"GSYM"\n",
+        dmean, baryonMass, gradRho, *shieldedFraction, jeansMass, alpha, div, Temperature[index], cSound*VelocityUnits/1e5, altJeans);
     }
     //if (status && debug) fprintf(stdout, "passed creation criteria\n");
     if (MechStarsSeedField && Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity && !continuingFormation)
         *notEnoughMetals = false;
-    if (status && Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity && MechStarsSeedField
+    if (status && (Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity)){
+            status = FAIL;
+    }
+
+    else if (status && Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity && MechStarsSeedField
         && !continuingFormation)
     {
       //  if (debug) fprintf(stdout,"No metals, criteria passed, but not forming\n");

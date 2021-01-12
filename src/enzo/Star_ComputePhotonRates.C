@@ -36,7 +36,6 @@ int Star::ComputePhotonRates(const float TimeUnits, const float Time,
                               int &nbins, float E[], double Q[], float dtForThisStar)
 {
 
-
   int i;
   double L_UV, cgs_convert, _mass;
   float x, x2, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
@@ -191,11 +190,27 @@ int Star::ComputePhotonRates(const float TimeUnits, const float Time,
     // Calculate Delta(M_SF) for Cen & Ostriker star particles
 #ifdef TRANSFER
     if (FeedbackFlag == MECHANICAL){
-      E[0] = 13.6; // H ionizing radiation
-      L_UV = MechStars_calcPhotonRates(this, Time);// returns [L_UV] = L_sun/M_sun
-      cgs_convert = SolarMass/TimeUnits;
-      
-      Q[0] = L_UV*eV_erg*SolarLuminosity/E[0]* this->Mass*(dtPhoton);
+        // L_ionization taken from Hopkins 2018,
+        // energy fractions and bins after that are 
+        // taken from the P2 star cluster method
+        EnergyFractionLW   = 1.288;
+        EnergyFractionHeI  = 0.2951;
+        EnergyFractionHeII = 2.818e-4;
+        E[0] = 21.62; // eV (good for a standard, low-Z IMF)
+        E[1] = 30.0;
+        E[2] = 60.0;
+        E[3] = 12.8;
+        L_UV = MechStars_calcPhotonRates(this, Time);// returns [L_UV] = L_sun/M_sun for HI ionizing radiation
+        Q[0] = L_UV * this->Mass * SolarLuminosity * eV_erg / E[0];
+        if (StarClusterHeliumIonization) {
+          Q[1] = EnergyFractionHeI * Q[0];
+          Q[2] = EnergyFractionHeII * Q[0];
+          Q[0] *= 1.0 - EnergyFractionHeI - EnergyFractionHeII;
+        } else {
+          Q[1] = 0.0;
+          Q[2] = 0.0;
+        }
+        Q[3] = EnergyFractionLW * Q[0];
     }
     else{
     Mform = this->CalculateMassLoss(dtPhoton) / StarMassEjectionFraction;

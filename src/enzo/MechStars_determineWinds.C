@@ -16,7 +16,7 @@
 
 int determineWinds(float age, float* eWinds, float* mWinds, float* zWinds,
                         float massMsun, float zZsun, float TimeUnits, float dtFixed){
-
+    float Zsolar = 0.02;
     bool oldEnough = (age < 0.0001)?(false):(true);
     float windE = 0,  windM = 0, windZ = 0.0;
     float wind_factor = 0.0;
@@ -47,7 +47,7 @@ int determineWinds(float age, float* eWinds, float* mWinds, float* zWinds,
             wind_factor = 0.42*pow(age/1000, -1.1)/(19.81/log(age));
         }
         windM = massMsun * wind_factor; //Msun/Gyr
-        windM = windM*dtFixed*TimeUnits/3.1557e16; //Msun
+        windM = windM*dtFixed*TimeUnits/(1e3 * Myr_s); //Msun
         // if (debug) printf("First winds mass = %e\nFrom wf = %f, dt=%f Z = %e\n", windM, wind_factor, dtFixed, zZsun);
         //printf("eFactor = %f age = %f\n", e_factor, age);
         if (windM > massMsun){
@@ -55,7 +55,7 @@ int determineWinds(float age, float* eWinds, float* mWinds, float* zWinds,
                 windM, massMsun, age, zZsun);
             windM = 0.125*massMsun; // limit loss to huge if necessary.
         }
-        windZ = max(0.02, 0.016+0.0041*max(zZsun, 1.65)+0.0118)*windM;
+        windZ = max(Zsolar, 0.016+0.0041*max(zZsun, 1.65)+0.0118)*windM;
         windE = e_factor * 1e12 * windM;
         //fprintf(stdout, "Age = %e Ewinds = %e Mwinds = %e Zwinds = %e  Zsun = %e\n",
           //          age, windE, windM, windZ, zZsun);

@@ -79,7 +79,6 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
   float TimeInYears = yr_s / TimeUnits;
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
-
     // Check the rules if this star particle is radiative
     if (cstar->IsARadiationSource(PhotonTime)) {
          float dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();

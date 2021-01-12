@@ -28,7 +28,7 @@ int determineWinds(float age, float *eWinds, float *zWinds, float *mWinds,
                    float massMsun, float zZsun, float TimeUnits, float dtFixed);
 int checkCreationCriteria(float *Density, float *Metals,
                           float *Temperature, float *DMField,
-                          float *Vel1, float *Vel2, float *Vel3,
+                          float *Vel1, float *Vel2, float *Vel3, float* TotE,
                           float *CoolingTime, int *GridDim,
                           float *shieldedFraction, float *freeFallTime,
                           float *dynamicalTime, int i, int j, int k,
@@ -49,6 +49,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
     //fprintf(stdout,"IN FEEDBACK ROUTINE\n  %d   %d   %d\n",
     //SingleSN, StellarWinds, UnrestrictedSN);
+    float Zsolar = 0.02;
     float stretchFactor = 1.0; // radius from star particle to feedback cloud particle (in units of dx)
     bool debug = false;
     float startFB = MPI_Wtime();
@@ -201,6 +202,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
             float shieldedFraction = 0, dynamicalTime = 0, freeFallTime = 0;
             bool gridShouldFormStars = true, notEnoughMetals = false;
             float zFraction = totalMetal[index];
+            float pmassMsun = ParticleMass[pIndex] * MassUnits;
             if (ParticleMass[pIndex] * MassUnits < StarMakerMaximumMass && ProblemType != 90)
             /* 
                 Check for continual formation.  Continually forming new mass allows the 
@@ -214,25 +216,26 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                     if the age is old, we'd rather form a new particle to get some more
                     supernova and high-power winds popping off.
                  */
-                if (age < 50)
+                if (age < 5)
                     createStar = checkCreationCriteria(BaryonField[DensNum],
                                                        &zFraction, Temperature, DMField,
                                                        BaryonField[Vel1Num], BaryonField[Vel2Num],
-                                                       BaryonField[Vel3Num],
+                                                       BaryonField[Vel3Num], BaryonField[TENum],
                                                        CoolingTime, GridDimension, &shieldedFraction,
                                                        &freeFallTime, &dynamicalTime, ip, jp, kp, Time,
                                                        BaryonField[NumberOfBaryonFields], CellWidth[0][0],
                                                        &gridShouldFormStars, &notEnoughMetals, 1, NULL);
                 if (createStar)
                 {
-                    float MassShouldForm = min((shieldedFraction * BaryonField[DensNum][index] * MassUnits / freeFallTime * this->dtFixed * TimeUnits / 3.1557e13),
+                    float MassShouldForm = min((shieldedFraction * BaryonField[DensNum][index] * MassUnits / (freeFallTime * TimeUnits) * this->dtFixed * Myr_s),
                                                0.5 * BaryonField[DensNum][index] * MassUnits);
+                    MassShouldForm = min(MassShouldForm, StarMakerMaximumMass-pmassMsun); // dont form if the star is already at the top of the mass allowed
                     //printf("Adding new mass %e\n",MassShouldForm);
                     /* Dont allow negative mass, or taking all gas in cell */
                     if (MassShouldForm < 0)
                         MassShouldForm = 0;
-                    if (MassShouldForm > 0.5 * BaryonField[DensNum][index] * MassUnits)
-                        MassShouldForm = 0.5 * BaryonField[DensNum][index] * MassUnits;
+                    // if (MassShouldForm > 0.5 * BaryonField[DensNum][index] * MassUnits)
+                    //     MassShouldForm = 0.5 * BaryonField[DensNum][index] * MassUnits;
 
                     // Set units and modify particle
                     MassShouldForm /= MassUnits;
@@ -294,8 +297,8 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                     float energySN = (nSNII + nSNIA) * 1e51;
 
                     /*10.5 Msun ejecta for type II and IA*/
-                    SNMassEjected = (nSNII + nSNIA) * 10.5;
-                    float starMetal = (ParticleAttribute[2][pIndex] / 0.02); //determines metal content of SNeII
+                    SNMassEjected = nSNII*10.5 + nSNIA * 1.5;
+                    float starMetal = (ParticleAttribute[2][pIndex] / Zsolar); //determines metal content of SNeII
 
                     MechStars_DepositFeedback(energySN, SNMassEjected, SNMetalEjected, totalMetal, Temperature,
                                               &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
@@ -319,7 +322,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
             if (StellarWinds && age > 0.001 && ParticleMass[pIndex] * MassUnits > 1)
             {
                 // printf("Checking Winds\n");
-                float zZsun = min(ParticleAttribute[2][pIndex] / 0.02, MechStarsCriticalMetallicity);
+                float zZsun = min(ParticleAttribute[2][pIndex] / Zsolar, MechStarsCriticalMetallicity);
 
                 determineWinds(age, &windEnergy, &windMass, &windMetals,
                                ParticleMass[pIndex] * MassUnits, zZsun,

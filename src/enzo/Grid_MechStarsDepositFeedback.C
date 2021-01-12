@@ -284,7 +284,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     // if we resolve free expansion, all energy is thermally coupled
 
-    float p_free = 0.0;                                         //sqrt(ejectaMass*SolarMass*ejectaEnergy)/SolarMass/1e5;//1.73e4*sqrt(ejectaMass*ejectaEnergy/1e51/3.); // free exp. momentum eq 15
+    float p_free = sqrt(ejectaMass*SolarMass*ejectaEnergy)/SolarMass/1e5;//1.73e4*sqrt(ejectaMass*ejectaEnergy/1e51/3.); // free exp. momentum eq 15
     float r_free = 2.75 * pow(ejectaMass / 3 / nmean, 1. / 3.); // free exp radius eq 2
 
     // assuming r_sedov == dx, solve for t3

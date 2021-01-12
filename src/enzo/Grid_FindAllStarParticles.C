@@ -92,7 +92,7 @@ int grid::FindAllStarParticles(int level)
 	InsertStarAfter(Stars, NewStar);
 	NumberOfStars++;
 	if (StarParticleFeedback == MECHANICAL){
-		NewStar->SetFeedbackFlag(15);
+		NewStar->SetFeedbackFlag(MECHANICAL);
 		NewStar->LifeTime = huge_number; // Mechanical stars never "die", they can reaccrete or just deposit wind
 	}
 	/* For MBHFeedback = 2 to 5 (FeedbackFlag=MBH_JETS), you need

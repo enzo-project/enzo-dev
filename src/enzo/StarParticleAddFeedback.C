@@ -230,21 +230,44 @@ int StarParticleAddFeedback(TopGridData *MetaData,
             float metalFrac;
             float rescale = 1.0;
             FLOAT MassUnits = DensityUnits*pow(LengthUnits,3)/SolarMass; //code -> Msun if mult. by cell volume
+
+            /*
+                For Pop2 SN, only deposit on grid local to task if not using load balancing.  
+                This way, we avoid the MPI_Allreduce and incur minimal error when the SN bubble overlaps
+                task boundaries
+            */
+            // loop over level heirarchy to find processor number that hosts the stars grid
+            int StarProc = 0;
+            int StarLevel = cstar->ReturnLevel();
+            int StarGrid = cstar->ReturnGridID();
+            for (Temp = LevelArray[StarLevel]; Temp; Temp = Temp->NextGridThisLevel){
+                if (Temp->GridData->GetGridID() == StarGrid){
+                    StarProc = Temp->GridData->ReturnProcessorNumber();
+                    break;
+                }
+            }
+                
+            // printf("star proc: %d, my proc = %d, load_bal = %d",
+            //         StarProc, MyProcessorNumber, 
+            //         LoadBalancing);
+            bool dep_p2_this_task = (LoadBalancing == 0
+                        && cstar->ReturnType() == PopII
+                        && cstar->ReturnFeedbackFlag()==SUPERNOVA); // true when skipping mpi_allreduce
             for (l=level; l < MAX_DEPTH_OF_HIERARCHY; l++){ // initially l=level; l<MAX; l++
                // if (!LevelArray[l]) continue;
 
                 if (cstar->ReturnFeedbackFlag() == SUPERNOVA || cstar->ReturnFeedbackFlag() == FORMATION)
                 {
                                 
-                    /*
+                    /*      
                         Spheres interacting with grids isnt consistent; Do a first pass with no deposition
                         to validate the volume we will deposit into, then rescale the deposition accordingly.
                         --AIW
                     */
-
+                    
                     bool rescaleSN = cstar->ReturnFeedbackFlag()==SUPERNOVA && (cstar->ReturnType() == PopIII);
                     bool PopIIRescale = cstar->ReturnFeedbackFlag() == SUPERNOVA && cstar->ReturnType() == PopII;
-
+                    
                     // Things we'll sum across grids
 
                     int nCells = 0;
@@ -273,12 +296,33 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                             //      (sphere can be across procs as well!) -AIW
                             // IMPROVEMENT: Use the chaining mesh with MPI_GatherV to only
                             //      sum across adjacent grids
+                    // if (!dep_p2_this_task){  // if not load balance and doing p2 deposition, dont sum across tasks.
+                        MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                        MPI_Allreduce(&mass_dep, &allMass,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                        MPI_Allreduce(&metal_dep, &allMetal,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                        MPI_Allreduce(&metal2_dep, &allMetal2,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD); 
+                    // }
 
-                    MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-                    MPI_Allreduce(&mass_dep, &allMass,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-                    MPI_Allreduce(&metal_dep, &allMetal,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-                    MPI_Allreduce(&metal2_dep, &allMetal2,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD); 
-
+                    // int comm_id = MPI_UNDEFINED; // MPI_UNDEFINED get assigned to no communicator
+                    // if (vol_modified > 0.0){
+                    //     comm_id = 1;
+                    // }
+                    // // Define a new comm that only has the tasks with modified volumes
+                    // MPI_Comm vol_mod_comm;
+                    // MPI_Comm_split(MPI_COMM_WORLD, comm_id, MyProcessorNumber, &vol_mod_comm);
+                    // if (comm_id != MPI_UNDEFINED){
+                    //     MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, vol_mod_comm);
+                    //     MPI_Allreduce(&mass_dep, &allMass,1,MPI_DOUBLE, MPI_SUM, vol_mod_comm);
+                    //     MPI_Allreduce(&metal_dep, &allMetal,1,MPI_DOUBLE, MPI_SUM, vol_mod_comm);
+                    //     MPI_Allreduce(&metal2_dep, &allMetal2,1,MPI_DOUBLE, MPI_SUM, vol_mod_comm); 
+                    // }
+                    // // MPI_Comm_free(&vol_mod_comm);
+                    // if not mpi_allreducing, non-star-local task quantities to re-zerod
+                    // if (dep_p2_this_task && StarProc != MyProcessorNumber){
+                    //     allMass = 0;
+                    //     allMetal = 0;
+                    //     allMetal2 = 0;
+                    // }
                     // set the volume of the lowest level to deposit into
                             // WHY IS THIS NOT THE HIGHEST VOLUME??
                     if (AVL0 == 0)

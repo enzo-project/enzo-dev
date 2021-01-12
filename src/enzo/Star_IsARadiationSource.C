@@ -48,8 +48,11 @@ bool Star::IsARadiationSource(FLOAT Time)
 	      FeedbackFlag == MBH_THERMAL ||
 	      FeedbackFlag == MBH_JETS);
   
-  // Living, but mechanical stars never die
-  rules[1] = (FeedbackFlag == MECHANICAL)?(Time >= BirthTime && type > 0):(Time >= BirthTime && Time <= BirthTime+LifeTime && type > 0);
+  // Living
+  if (FeedbackFlag == MECHANICAL) // MechStars radiate ionizing radiation for 25 Myr
+    rules[1] = (Time >= BirthTime) && (Time <= BirthTime+LifeTime) && (type > 0);
+  else // other stars radiate for all time
+    rules[1] = (Time >= BirthTime) &&  (type > 0); 
 
   // Non-zero BH accretion (usually accretion_rate[] here is NULL - Ji-hoon Kim Sep.2009)
   if ((type == BlackHole || type == MBH) && naccretions > 0)

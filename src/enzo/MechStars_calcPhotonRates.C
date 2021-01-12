@@ -1,14 +1,5 @@
 /*
-    Couples the mechanical stars to the radiation machinery in ENZO by filling
-    in the emissivity0 field.  
-    Code must be compiled with "make emissivity-yes" and "make photon-yes".
-    Usage at runtime determined by the StarMakerUseEmissivity flag.
-    Unlike the CIC depositions in the rest of this module, the emissivity is set 
-    solely for the cell hosting the star particle (or its kicked location).
-
-    The radiation deposited here is time varying depending on the age of the particle (and mass).  
-    A better implementation will make the individual bands of radiation  time dependent
-    (more UV early, more IR late).
+    Calculates the luminosity of a mechanical star based on Hopkins 2018
  */
 #include <stdio.h>
 #include <math.h>

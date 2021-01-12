@@ -53,13 +53,13 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 RII = 0.0;
                 RIA = 5.2e-8+1.6e-5*exp(-1.0*pow((age-50.0)/10.0, 2)/2.0);
         }
-	//        fprintf(stdout, "Rates: %f %f %f\n", age, RII, RIA);
+	       fprintf(stdout, "Rates: For age %f Myr, RII = %f; RIA = %f\n", age, RII, RIA);
         /* rates -> probabilities */
         if (RII > 0){
             srand(seed);
         // printf("Zcpl = %e", zCouple);
-            PII = RII * massMsun / 3.1557e13 *TimeUnits*dt;
-            // printf("PII =%f\n %f %e %f\n", PII, RII, massMsun, age);
+            PII = RII * massMsun / Myr_s *TimeUnits*dt;
+            printf("PII =%f\n %f %e %f\n", PII, RII, massMsun, age);
             random = float(rand())/float(RAND_MAX);
             if (PII > 1.0 && UnrestrictedSN == TRUE){
                 int round = (int)PII;
@@ -79,7 +79,7 @@ int determineSN(float age, int* nSNII, int* nSNIA,
         
         if (RIA > 0){
             srand(seed);
-            PIA = RIA*massMsun/3.1557e13*TimeUnits*dt;
+            PIA = RIA*massMsun / Myr_s * TimeUnits * dt;
             float random = float(rand())/float(RAND_MAX);
             
             if (PIA > 1.0 && UnrestrictedSN == TRUE)

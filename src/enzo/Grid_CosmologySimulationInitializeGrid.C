@@ -512,6 +512,8 @@ int grid::CosmologySimulationInitializeGrid(
  
   if (UseMetallicityField && ReadData) {
     for (i = 0; i < size; i++)
+      if (i==0)
+        fprintf(stdout, "Setting initial metals: %12.5e * %12.5e = %12.5e", CosmologySimulationInitialFractionMetal, BaryonField[0][i],CosmologySimulationInitialFractionMetal * BaryonField[0][i] );
       BaryonField[MetalNum][i] = CosmologySimulationInitialFractionMetal
 	* BaryonField[0][i];
 

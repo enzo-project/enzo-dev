@@ -44,11 +44,21 @@ int grid::AddFields(int TypesToAdd[], int NumberOfFields)
 
       }
       BaryonField[n] = new float[size];
-      value = (TypesToAdd[i] == SNColour || TypesToAdd[i] == Metallicity ||
+
+      // added conditional for using a metallicity floor with rad-hydro
+      if (TypesToAdd[i] == Metallicity ){
+        value = 6.475e-6;
+          for (j = 0; j < size; j++)  
+            BaryonField[n][j] = value * BaryonField[0][j];        
+      }
+      else{
+        value = (TypesToAdd[i] == SNColour ||
 	       TypesToAdd[i] == MetalSNIaDensity || TypesToAdd[i]==MetalSNIIDensity) ? tiny_number : 0.0;
+      
       for (j = 0; j < size; j++)
-	BaryonField[n][j] = value;
-    } // ENDIF this processor
+	      BaryonField[n][j] = value;
+          }
+      } // ENDIF this processor
 
   } // ENDFOR i
 
