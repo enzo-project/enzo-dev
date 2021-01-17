@@ -195,8 +195,8 @@ c              8) Check if molecular hydrogren fraction is greater than
 c              critical value and there is no ionizing radiation
 c
                if (h2d(i,j,k) .lt. h2crit) goto 10
-C               if (kph(i,j,k) .gt. tiny) goto 10
-               if ((tdyn*h2diss(i,j,k)) .gt. 1._RKIND) goto 10
+               if (kph(i,j,k) .gt. tiny) goto 10
+C               if ((tdyn*h2diss(i,j,k)) .gt. 1._RKIND) goto 10
 c
 c               write(6,7777) i, j, k
 c               write(6,*) 'pop3:', i,j,k, d(i,j,k), div, tdyn, 
