@@ -85,7 +85,6 @@ int grid::IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum,
   return SUCCESS;
 }
 
-#ifdef GRACKLE_MD
 int grid::IdentifySpeciesFieldsMD( int &HeHIINum , int &DMNum   , int &HDIINum
                                  , int &CINum    , int &CIINum  , int &CONum     , int &CO2Num
                                  , int &OINum    , int &OHNum   , int &H2ONum    , int &O2Num
@@ -205,4 +204,3 @@ int grid::IdentifySpeciesFieldsMD( int &HeHIINum , int &DMNum   , int &HDIINum
   return SUCCESS;
 
 }
-#endif

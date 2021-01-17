@@ -23,11 +23,9 @@
 #ifdef USE_MPI
 #include "mpi.h"
 #endif
-#ifdef GRACKLE_MD
 extern "C" {
 #include <grackle.h>
 }
-#endif
  
 #include <hdf5.h>
 #include <stdio.h>
@@ -125,7 +123,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
   int idim, ndim, dim, i, j, vel, OneComponentPerFile, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum;
-#ifdef GRACKLE_MD
   int HeHIINum, DMNum, HDIINum
     , CINum,  CIINum,   CONum,      CO2Num,    OINum,   OHNum
     , H2ONum, O2Num,    SiINum,     SiOINum,   SiO2INum
@@ -158,7 +155,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
         FeS_frac = grackle_data->SN0_fFeS    [4];
       Al2O3_frac = grackle_data->SN0_fAl2O3  [4];
   }
-#endif
  
   int iTE = ietot;
   int ExtraField[12];
@@ -429,7 +425,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
 	FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
       }
-#ifdef GRACKLE_MD
       if (MultiSpecies > 3) {
         FieldType[   HeHIINum = NumberOfBaryonFields++] =   HeHIIDensity;
         FieldType[      DMNum = NumberOfBaryonFields++] =      DMDensity;
@@ -482,7 +477,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
           FieldType[   Al2O3Num = NumberOfBaryonFields++] =   Al2O3Density;
         }
       }
-#endif
     }
     if (UseMetallicityField) {
       FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
@@ -713,7 +707,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	    BaryonField[HDINum][i] = CoolData.DeuteriumToHydrogenRatio*
 	      BaryonField[H2INum][i];
 	  }
-#ifdef GRACKLE_MD
           if(MultiSpecies > 3){
             BaryonField[HeHIINum][i] = TestProblemData.HeIII_Fraction *
               BaryonField[0][i] * (1.0-TestProblemData.HydrogenFractionByMass);
@@ -722,7 +715,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
             BaryonField[DeNum][i] += 0.2*BaryonField[HeHIINum][i] 
                                    - 0.5*BaryonField[DMNum][i] + BaryonField[HDIINum][i]/3.0;
           }
-#endif 
  
 	} // end: loop over i
       } // end: if (MultiSpecies && ReadData)
@@ -756,7 +748,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	  }
 	}
 
-#ifdef GRACKLE_MD
         if (MultiSpecies)
           for (i = 0; i < size; i++) {
       
@@ -809,7 +800,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
               }
             }
           }
-#endif
 
         if (UseDustDensityField && ReadData) {
           for (i = 0; i < size; i++) {

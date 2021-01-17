@@ -178,7 +178,6 @@ const field_type
   RePsi = 101,
   ImPsi = 102,
   FDMDensity = 103,
-  /* GRACKLE_MD */
   HeHIIDensity    =104,
   DMDensity       =105,
   HDIIDensity     =106,
@@ -217,7 +216,14 @@ const field_type
   DustDensity     =139,
   ISRFHabing      =140,
 
-  FieldUndefined  = 141;
+  kdissHDI        =141,
+  kphCI           =142,
+  kphOI           =143,
+  kdissCO         =144,
+  kdissOH         =145,
+  kdissH2O        =146,
+
+  FieldUndefined  = 147;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -230,8 +236,8 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
                  FieldUndefined};
 */
 
-#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) == kdissH2II) || ((A) == kphHM) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3) || ((A) == ISRFHabing)) ? FALSE : TRUE)
-#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) == kdissH2II) || ((A) == kphHM) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9) || ((A) == ISRFHabing)) ? TRUE : FALSE)
+#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) == kdissH2II) || ((A) == kphHM) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3) || ((A) >= ISRFHabing && (A) <= kdissH2O)) ? FALSE : TRUE)
+#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) == kdissH2II) || ((A) == kphHM) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9) || ((A) >= ISRFHabing && (A) <= kdissH2O)) ? TRUE : FALSE)
 #define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments)) ? TRUE : FALSE)
 
 /* Different stochastic forcing types */
@@ -309,7 +315,9 @@ const hydro_method
 // enum hydro_method {PPM_DirectEuler, PPM_LagrangeRemap, Zeus_Hydro};
 
 const enum_type iHI = 0, iHeI = 1, iHeII = 2, LW = 3, IR = 4, XRAYS = 5, 
-TRACINGSPECTRUM = 6, H2II = 7;
+TRACINGSPECTRUM = 6, H2II = 7, HDIdiss = 8;
+const enum_type CIion = 0, OIion = 1;
+const enum_type COdiss = 0, OHdiss = 1, H2Odiss = 2;
 const enum_type Cartesian = 0, Spherical = 1, Cylindrical = 2;
 const enum_type PLM = 0, PPM = 1, CENO = 2, WENO3 = 3, WENO5 = 4, ZERO = 5;
 const enum_type FluxReconstruction = 0, HLL = 1, Marquina = 2,

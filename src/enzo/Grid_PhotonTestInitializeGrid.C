@@ -74,6 +74,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 			     int   SphereUseParticles,
 			     float UniformVelocity[MAX_DIMENSION],
 			     int   SphereUseColour,
+			     float InitialMetallicity,
 			     float InitialTemperature, int level, 
 			     float PhotonTestInitialFractionHII, 
 			     float PhotonTestInitialFractionHeII,
@@ -95,6 +96,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum,
     kphHeIINum, kdissH2INum, kdissH2IINum, kphHMNum, RPresNum1, RPresNum2, RPresNum3; 
+  int kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum;
   float *density_field = NULL, *HII_field = NULL, *HeII_field = NULL, 
     *HeIII_field = NULL, *Temperature_field = NULL;
   int HeHIINum, DMNum, HDIINum
@@ -106,11 +108,38 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     , ACNum,  SiO2DNum, MgONum,     FeSNum,    Al2O3Num
     , DustNum;
   int ISRFNum;
-  double MgSiO3_frac, AC_frac;
+  double C_frac, O_frac, Mg_frac, Al_frac, Si_frac, S_frac, Fe_frac;
+  double SiM_frac  , FeM_frac  , Mg2SiO4_frac, MgSiO3_frac, Fe3O4_frac
+   , AC_frac   , SiO2D_frac, MgO_frac    , FeS_frac   , Al2O3_frac;
+  int InitialAbundances;
 
-  /* include metal/dust abundances of Yajima et al. (2017) */
-   MgSiO3_frac = grackle_data->SN0_fMgSiO3 [11];
-       AC_frac = grackle_data->SN0_fAC     [11];
+  if (grackle_data->use_grackle) {
+    if(MultiMetals) InitialAbundances = 0;
+    else            InitialAbundances = MetalAbundances;
+    if(MetalChemistry) {
+       C_frac = grackle_data->SN0_fC [InitialAbundances];
+       O_frac = grackle_data->SN0_fO [InitialAbundances];
+      Mg_frac = grackle_data->SN0_fMg[InitialAbundances];
+      Al_frac = grackle_data->SN0_fAl[InitialAbundances];
+      Si_frac = grackle_data->SN0_fSi[InitialAbundances];
+       S_frac = grackle_data->SN0_fS [InitialAbundances];
+      Fe_frac = grackle_data->SN0_fFe[InitialAbundances];
+    }
+    if(DustSpecies > 0) {
+       MgSiO3_frac = grackle_data->SN0_fMgSiO3 [InitialAbundances];
+           AC_frac = grackle_data->SN0_fAC     [InitialAbundances];
+    }
+    if(DustSpecies > 1) {
+          SiM_frac = grackle_data->SN0_fSiM    [InitialAbundances];
+          FeM_frac = grackle_data->SN0_fFeM    [InitialAbundances];
+      Mg2SiO4_frac = grackle_data->SN0_fMg2SiO4[InitialAbundances];
+        Fe3O4_frac = grackle_data->SN0_fFe3O4  [InitialAbundances];
+        SiO2D_frac = grackle_data->SN0_fSiO2D  [InitialAbundances];
+          MgO_frac = grackle_data->SN0_fMgO    [InitialAbundances];
+          FeS_frac = grackle_data->SN0_fFeS    [InitialAbundances];
+        Al2O3_frac = grackle_data->SN0_fAl2O3  [InitialAbundances];
+    }
+  }
 
   /* create fields */
   NumberOfBaryonFields = 0;
@@ -141,10 +170,56 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
       FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
     }
+    if (MultiSpecies > 3) {
+      FieldType[   HeHIINum = NumberOfBaryonFields++] =   HeHIIDensity;
+      FieldType[      DMNum = NumberOfBaryonFields++] =      DMDensity;
+      FieldType[    HDIINum = NumberOfBaryonFields++] =    HDIIDensity;
+    }
+    if (MetalChemistry > 0) {
+      FieldType[      CINum = NumberOfBaryonFields++] =      CIDensity;
+      FieldType[     CIINum = NumberOfBaryonFields++] =     CIIDensity;
+      FieldType[      CONum = NumberOfBaryonFields++] =     COIDensity;
+      FieldType[     CO2Num = NumberOfBaryonFields++] =    CO2IDensity;
+      FieldType[      OINum = NumberOfBaryonFields++] =      OIDensity;
+      FieldType[      OHNum = NumberOfBaryonFields++] =     OHIDensity;
+      FieldType[     H2ONum = NumberOfBaryonFields++] =    H2OIDensity;
+      FieldType[      O2Num = NumberOfBaryonFields++] =     O2IDensity;
+      FieldType[     SiINum = NumberOfBaryonFields++] =     SiIDensity;
+      FieldType[    SiOINum = NumberOfBaryonFields++] =    SiOIDensity;
+      FieldType[   SiO2INum = NumberOfBaryonFields++] =   SiO2IDensity;
+      FieldType[      CHNum = NumberOfBaryonFields++] =     CHIDensity;
+      FieldType[     CH2Num = NumberOfBaryonFields++] =    CH2IDensity;
+      FieldType[    COIINum = NumberOfBaryonFields++] =    COIIDensity;
+      FieldType[     OIINum = NumberOfBaryonFields++] =     OIIDensity;
+      FieldType[    OHIINum = NumberOfBaryonFields++] =    OHIIDensity;
+      FieldType[   H2OIINum = NumberOfBaryonFields++] =   H2OIIDensity;
+      FieldType[   H3OIINum = NumberOfBaryonFields++] =   H3OIIDensity;
+      FieldType[    O2IINum = NumberOfBaryonFields++] =    O2IIDensity;
+      if (GrainGrowth || DustSublimation) {
+        if (DustSpecies > 0) {
+          FieldType[    MgNum = NumberOfBaryonFields++] =      MgDensity;
+        }
+        if (DustSpecies > 1) {
+          FieldType[    AlNum = NumberOfBaryonFields++] =      AlDensity;
+          FieldType[     SNum = NumberOfBaryonFields++] =       SDensity;
+          FieldType[    FeNum = NumberOfBaryonFields++] =      FeDensity;
+        }
+      }
+    }
     if (GrainGrowth || DustSublimation) {
       if (DustSpecies > 0) {
         FieldType[MgSiO3Num = NumberOfBaryonFields++] = MgSiO3Density;
         FieldType[ACNum     = NumberOfBaryonFields++] = ACDensity;
+      }
+      if (DustSpecies > 1) {
+        FieldType[     SiMNum = NumberOfBaryonFields++] =     SiMDensity;
+        FieldType[     FeMNum = NumberOfBaryonFields++] =     FeMDensity;
+        FieldType[ Mg2SiO4Num = NumberOfBaryonFields++] = Mg2SiO4Density;
+        FieldType[   Fe3O4Num = NumberOfBaryonFields++] =   Fe3O4Density;
+        FieldType[   SiO2DNum = NumberOfBaryonFields++] =   SiO2DDensity;
+        FieldType[     MgONum = NumberOfBaryonFields++] =     MgODensity;
+        FieldType[     FeSNum = NumberOfBaryonFields++] =     FeSDensity;
+        FieldType[   Al2O3Num = NumberOfBaryonFields++] =   Al2O3Density;
       }
     }
   }
@@ -177,6 +252,16 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	FieldType[kdissH2INum     = NumberOfBaryonFields++] = kdissH2I;
 	FieldType[kdissH2IINum    = NumberOfBaryonFields++] = kdissH2II;
 	FieldType[kphHMNum        = NumberOfBaryonFields++] = kphHM;
+      }
+      if (MultiSpecies > 2) {
+	FieldType[kdissHDINum     = NumberOfBaryonFields++] = kdissHDI;
+      }
+      if (MetalChemistry) {
+	FieldType[kphCINum        = NumberOfBaryonFields++] = kphCI;
+	FieldType[kphOINum        = NumberOfBaryonFields++] = kphOI;
+	FieldType[kdissCONum      = NumberOfBaryonFields++] = kdissCO;
+	FieldType[kdissOHNum      = NumberOfBaryonFields++] = kdissOH;
+	FieldType[kdissH2ONum     = NumberOfBaryonFields++] = kdissH2O;
       }
     } 
 
@@ -511,7 +596,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
 	H2I_Fraction = PhotonTestInitialFractionH2I;
 	sigma = sigma1 = 0;
-//	colour = 1.0e-10;
+  	colour = InitialMetallicity * CoolData.SolarMetalFractionByMass;
 	for (dim = 0; dim < MAX_DIMENSION; dim++)
 	  Velocity[dim] = 0;
 
@@ -778,7 +863,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		  SphereRotationalPeriod[sphere] <= 0)
 		for (dim = 0; dim < GridRank; dim++)
 		  Velocity[dim] = SphereVelocity[sphere][dim];
-	      if (sphere == 0)
+//	      if (sphere == 0)
 //		colour = dens1; /* only mark first sphere */
 	      HII_Fraction = SphereHII[sphere];
 	      HeII_Fraction = SphereHeII[sphere];
@@ -867,21 +952,75 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	/* If there is a colour field, set it. */
 	
 	if (SphereUseColour)
-//	  BaryonField[ColourNum][n] = colour;
-  	  BaryonField[ColourNum][n] = CoolData.SolarMetalFractionByMass * BaryonField[0][n];
-                 /* Solar metallicity (later parametrize) */
+  	  BaryonField[ColourNum][n] = colour * BaryonField[0][n];
 
+        if(MetalChemistry > 0) {
+          BaryonField[   CINum][n] =  C_frac * BaryonField[ColourNum][n];
+          BaryonField[  CIINum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[   CONum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[  CO2Num][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[   OINum][n] =  O_frac * BaryonField[ColourNum][n];
+          BaryonField[   OHNum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[  H2ONum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[   O2Num][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[  SiINum][n] = Si_frac * BaryonField[ColourNum][n];
+          BaryonField[ SiOINum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[SiO2INum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[   CHNum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[  CH2Num][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[ COIINum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[  OIINum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[ OHIINum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[H2OIINum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[H3OIINum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[ O2IINum][n] = 1.0e-20 * BaryonField[ColourNum][n];
+          BaryonField[   DeNum][n] += BaryonField[CIINum][n]/12.0;
+          if (GrainGrowth || DustSublimation) {
+            if (DustSpecies > 0) {
+               BaryonField[   MgNum][n] = Mg_frac * BaryonField[ColourNum][n];
+            }
+            if (DustSpecies > 1) {
+               BaryonField[   AlNum][n] = Al_frac * BaryonField[ColourNum][n];
+               BaryonField[    SNum][n] =  S_frac * BaryonField[ColourNum][n];
+               BaryonField[   FeNum][n] = Fe_frac * BaryonField[ColourNum][n];
+            }
+          }
+        }
         if (GrainGrowth || DustSublimation) {
           if (DustSpecies > 0) {
 	    BaryonField[MgSiO3Num][n] = MgSiO3_frac * BaryonField[ColourNum][n];
 	    BaryonField[ACNum    ][n] =     AC_frac * BaryonField[ColourNum][n];
 	  }
+          if (DustSpecies > 1) {
+             BaryonField[    SiMNum][n] =     SiM_frac * BaryonField[ColourNum][n];
+             BaryonField[    FeMNum][n] =     FeM_frac * BaryonField[ColourNum][n];
+             BaryonField[Mg2SiO4Num][n] = Mg2SiO4_frac * BaryonField[ColourNum][n];
+             BaryonField[  Fe3O4Num][n] =   Fe3O4_frac * BaryonField[ColourNum][n];
+             BaryonField[  SiO2DNum][n] =   SiO2D_frac * BaryonField[ColourNum][n];
+             BaryonField[    MgONum][n] =     MgO_frac * BaryonField[ColourNum][n];
+             BaryonField[    FeSNum][n] =     FeS_frac * BaryonField[ColourNum][n];
+             BaryonField[  Al2O3Num][n] =   Al2O3_frac * BaryonField[ColourNum][n];
+          }
 	}
 
         if (UseDustDensityField) {
-	  BaryonField[DustNum][n] = 
-                   BaryonField[MgSiO3Num][n]
-                 + BaryonField[ACNum    ][n];
+          BaryonField[DustNum][n] = 0.0;
+          if (DustSpecies > 0) {
+            BaryonField[DustNum][n] +=
+               BaryonField[ MgSiO3Num][n]
+             + BaryonField[     ACNum][n];
+          }
+          if (DustSpecies > 1) {
+            BaryonField[DustNum][n] +=
+               BaryonField[    SiMNum][n];
+             + BaryonField[    FeMNum][n];
+             + BaryonField[Mg2SiO4Num][n];
+             + BaryonField[  Fe3O4Num][n];
+             + BaryonField[  SiO2DNum][n];
+             + BaryonField[    MgONum][n];
+             + BaryonField[    FeSNum][n];
+             + BaryonField[  Al2O3Num][n];
+          }
         }
 
         /* Set isrf field to calculate dust temperature */
@@ -903,14 +1042,16 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    BaryonField[HINum][n]   + BaryonField[HIINum][n]  +
 	    BaryonField[DeNum][n];
 	  if (MultiSpecies > 1)
-	    mu_data += BaryonField[HMNum][i]   +
-	      0.5*(BaryonField[H2INum][i]  + BaryonField[H2IINum][i]);
+	    mu_data += BaryonField[HMNum][n]   +
+	      0.5*(BaryonField[H2INum][n]  + BaryonField[H2IINum][n]);
 	  mu_data = BaryonField[0][n] / mu_data;
 	} else
 	  mu_data = mu;
 
+//	BaryonField[1][n] = temperature/TemperatureUnits/
+//	  ((Gamma-1.0)*mu_data) * 1.0e3;
 	BaryonField[1][n] = temperature/TemperatureUnits/
-	  ((Gamma-1.0)*mu_data) * 1.0e3;
+	  ((5.0/3.0-1.0)*mu_data);
 	
 	if (DualEnergyFormalism)
 	  BaryonField[2][n] = BaryonField[1][n];

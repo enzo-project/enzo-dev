@@ -148,9 +148,10 @@ c               write(6,*) 'b:', d(i,j,k), div, temp(i,j,k), h2d(i,j,k), h2crit
 c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
-               dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/
-     &                      GravConst*dtot)/t1
+C               dtot = ( d(i,j,k) + dm(i,j,k) )*d1
+C               tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/
+C     &                      GravConst/dtot)/t1
+               tdyn = -2._RKIND*dx/div
 c               if (tdyn .lt. cooltime(i,j,k) .and. 
 c     &             temp(i,j,k) .gt. 1.1e4) 
 c     &            write(40,*) '1',tdyn,cooltime(i,j,k),temp(i,j,k)
@@ -160,6 +161,8 @@ c     $              tdyn, cooltime(i,j,k), h2d(i,j,k), h2crit
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
      &             temp(i,j,k) .gt. 1.0e3_RKIND) goto 10
+C               if (tdyn .lt. cooltime(i,j,k) .and. 
+C     &             (d(i,j,k)*d1) .lt. 1.0e-8_RKIND) goto 10
 c
 c              JHW (30 AUG 2005) : REMOVED JEANS MASS CRITERION
 c
@@ -192,7 +195,8 @@ c              8) Check if molecular hydrogren fraction is greater than
 c              critical value and there is no ionizing radiation
 c
                if (h2d(i,j,k) .lt. h2crit) goto 10
-               if (kph(i,j,k) .gt. tiny) goto 10
+C               if (kph(i,j,k) .gt. tiny) goto 10
+               if ((tdyn*h2diss(i,j,k)) .gt. 1._RKIND) goto 10
 c
 c               write(6,7777) i, j, k
 c               write(6,*) 'pop3:', i,j,k, d(i,j,k), div, tdyn, 

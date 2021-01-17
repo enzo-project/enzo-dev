@@ -55,11 +55,33 @@ int grid::FinalizeRadiationFields(void)
     ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
   }
 
+  int HeHIINum, DMNum   , HDIINum
+    , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+    , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+    , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
+    , MgNum   , AlNum   , SNum      , FeNum
+    , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+    , DustNum ;
+  if (IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
+                             , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+                             , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+                             , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum,  H3OIINum,  O2IINum
+                             , MgNum   , AlNum   , SNum      , FeNum
+                             , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+                             , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+                             , DustNum ) == FAIL) {
+    ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
+  }
+
   /* Find radiative transfer fields. */
 
   int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
 				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+
+  int kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum;
+  IdentifyRadiativeTransferFieldsMD(kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum);
 
   /* Get units. */
 
@@ -101,12 +123,44 @@ int grid::FinalizeRadiationFields(void)
 	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
 	  if(!RadiativeTransferUseH2Shielding) {
 	    BaryonField[kdissH2INum][index] /= 
-	     1.0 * factor * BaryonField[H2INum][index];
+	     0.5 * factor * BaryonField[H2INum][index];
 	  }
 	  BaryonField[kphHMNum][index] /= 
 	    1.0 * factor * BaryonField[HMNum][index];
 	  BaryonField[kdissH2IINum][index] /= 
-	    1.0 * factor * BaryonField[H2IINum][index];
+	    0.5 * factor * BaryonField[H2IINum][index];
+	} // ENDFOR i
+      } // ENDFOR j
+
+   if (MultiSpecies > 2)
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	  if(!RadiativeTransferUseH2Shielding) {
+	    BaryonField[kdissHDINum][index] /= 
+	      factor/3.0 * BaryonField[HDINum][index];
+          }
+	} // ENDFOR i
+      } // ENDFOR j
+
+   if (MetalChemistry)
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	  BaryonField[kphCINum][index] /= 
+	    factor/12.0 * BaryonField[CINum][index];
+	  BaryonField[kphOINum][index] /= 
+	    factor/16.0 * BaryonField[OINum][index];
+	  if(!RadiativeTransferUseH2Shielding) {
+	    BaryonField[kdissCONum][index] /= 
+	      factor/28.0 * BaryonField[CONum][index];
+	    BaryonField[kdissOHNum][index] /= 
+	      factor/17.0 * BaryonField[OHNum][index];
+	    BaryonField[kdissH2ONum][index] /= 
+	      factor/18.0 * BaryonField[H2ONum][index];
+          }
 	} // ENDFOR i
       } // ENDFOR j
 

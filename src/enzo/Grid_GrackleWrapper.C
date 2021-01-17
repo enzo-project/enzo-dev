@@ -47,7 +47,6 @@ int grid::GrackleWrapper()
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
-#ifdef GRACKLE_MD
   int HeHIINum, DMNum   , HDIINum
     , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
     , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
@@ -56,7 +55,6 @@ int grid::GrackleWrapper()
     , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
     , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
     , DustNum ;
-#endif
 
   double dt_cool = dtFixed;
 #ifdef TRANSFER
@@ -91,7 +89,6 @@ int grid::GrackleWrapper()
 
   DeNum = HINum = HIINum = HeINum = HeIINum = HeIIINum = HMNum = H2INum = 
     H2IINum = DINum = DIINum = HDINum = 0;
-#ifdef GRACKLE_MD 
     HeHIINum = DMNum     = HDIINum
   = CINum    =  CIINum   = CONum      = CO2Num    = OINum    = OHNum
   = H2ONum   =  O2Num    = SiINum     = SiOINum   = SiO2INum
@@ -100,14 +97,12 @@ int grid::GrackleWrapper()
   = SiMNum   = FeMNum    = Mg2SiO4Num = MgSiO3Num = Fe3O4Num
   = ACNum    =  SiO2DNum = MgONum     = FeSNum    = Al2O3Num
   = DustNum  = 0;
-#endif
  
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
-#ifdef GRACKLE_MD
     if (IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
                                , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
                                , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
@@ -118,7 +113,6 @@ int grid::GrackleWrapper()
                                , DustNum ) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
     }
-#endif
  
   /* Get easy to handle pointers for each variable. */
  
@@ -309,7 +303,6 @@ int grid::GrackleWrapper()
   if(UseDustDensityField)
     my_fields.dust_density = BaryonField[DustNum];
 
-#ifdef GRACKLE_MD
   if(MultiSpecies > 3) {
     my_fields.     DM_density = BaryonField[     DMNum];
     my_fields.   HDII_density = BaryonField[   HDIINum];
@@ -364,7 +357,6 @@ int grid::GrackleWrapper()
       my_fields.  Al2O3_density = BaryonField[  Al2O3Num];
     }
   }
-#endif
 
   my_fields.volumetric_heating_rate = volumetric_heating_rate;
   my_fields.specific_heating_rate   = specific_heating_rate;
@@ -376,6 +368,9 @@ int grid::GrackleWrapper()
 
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
                                   kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+
+  int kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum;
+  IdentifyRadiativeTransferFieldsMD(kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum);
 
   /* unit conversion from Enzo RT units to CGS */
   float rtunits = erg_eV / TimeUnits;
@@ -391,11 +386,42 @@ int grid::GrackleWrapper()
     if (MultiSpecies > 1)
       my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
 
+    if (MultiSpecies > 2)
+      my_fields.RT_HDI_dissociation_rate = BaryonField[kdissHDINum];
+
+    if (MetalChemistry) {
+      my_fields.RT_CI_ionization_rate = BaryonField[kphCINum];
+      my_fields.RT_OI_ionization_rate = BaryonField[kphOINum];
+      my_fields.RT_CO_dissociation_rate  = BaryonField[kdissCONum];
+      my_fields.RT_OH_dissociation_rate  = BaryonField[kdissOHNum];
+      my_fields.RT_H2O_dissociation_rate = BaryonField[kdissH2ONum];
+    }
+
+//  my_fields.RT_HDI_dissociation_rate = new float[size];
+//  my_fields.RT_CI_ionization_rate    = new float[size];
+//  my_fields.RT_OI_ionization_rate    = new float[size];
+//  my_fields.RT_CO_dissociation_rate  = new float[size];
+//  my_fields.RT_OH_dissociation_rate  = new float[size];
+//  my_fields.RT_H2O_dissociation_rate = new float[size];
+//  for( i = 0; i < size; i++) my_fields.RT_HDI_dissociation_rate[i] = 0;
+//  for( i = 0; i < size; i++) my_fields.RT_CI_ionization_rate   [i] = 0;
+//  for( i = 0; i < size; i++) my_fields.RT_OI_ionization_rate   [i] = 0;
+//  for( i = 0; i < size; i++) my_fields.RT_CO_dissociation_rate [i] = 0;
+//  for( i = 0; i < size; i++) my_fields.RT_OH_dissociation_rate [i] = 0;
+//  for( i = 0; i < size; i++) my_fields.RT_H2O_dissociation_rate[i] = 0;
+
     /* need to convert to CGS units */
     for( i = 0; i < size; i++) BaryonField[gammaNum][i] *= rtunits;
 
     my_fields.RT_heating_rate = BaryonField[gammaNum];
     
+//  printf("%13.5e \n", BaryonField[kdissH2INum][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kdissHDINum][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kphCINum   ][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kphOINum   ][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kdissCONum ][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kdissOHNum ][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kdissH2ONum][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
 
   }
 #endif // TRANSFER
@@ -460,6 +486,14 @@ int grid::GrackleWrapper()
   delete [] g_grid_dimension;
   delete [] g_grid_start;
   delete [] g_grid_end;
+//if( RadiativeTransfer ){
+//  delete [] my_fields.RT_HDI_dissociation_rate ;
+//  delete [] my_fields.RT_CI_ionization_rate    ;
+//  delete [] my_fields.RT_OI_ionization_rate    ;
+//  delete [] my_fields.RT_CO_dissociation_rate  ;
+//  delete []  my_fields.RT_OH_dissociation_rate ;
+//  delete []  my_fields.RT_H2O_dissociation_rate;
+//}
 
   LCAPERF_STOP("grid_GrackleWrapper");
 

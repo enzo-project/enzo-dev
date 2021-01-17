@@ -154,6 +154,10 @@ int grid::MergePausedPhotonPackages() {
       NewPack->EmissionTimeInterval += TempPP[i].EmissionTimeInterval * weight;
       //NewPack->Radius += TempPP[i].Radius * weight;
       NewPack->ColumnDensity += TempPP[i].ColumnDensity * weight;
+      NewPack->ColumnDensityHDI += TempPP[i].ColumnDensityHDI * weight;
+      NewPack->ColumnDensityCO  += TempPP[i].ColumnDensityCO  * weight;
+      NewPack->ColumnDensityOH  += TempPP[i].ColumnDensityOH  * weight;
+      NewPack->ColumnDensityH2O += TempPP[i].ColumnDensityH2O * weight;
       this->NumberOfPhotonPackages--;
     } else { // ENDIF match
 
@@ -163,6 +167,10 @@ int grid::MergePausedPhotonPackages() {
 	//NewPack->Radius /= NewPack->Photons;
 	NewPack->EmissionTimeInterval /= NewPack->Photons;
 	NewPack->ColumnDensity /= NewPack->Photons;
+	NewPack->ColumnDensityHDI /= NewPack->Photons;
+	NewPack->ColumnDensityCO  /= NewPack->Photons;
+	NewPack->ColumnDensityOH  /= NewPack->Photons;
+	NewPack->ColumnDensityH2O /= NewPack->Photons;
 	if (DEBUG)
 	  printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
 		 NewPack->Type, NewPack->level,
@@ -183,6 +191,10 @@ int grid::MergePausedPhotonPackages() {
       NewPack->CurrentTime = TempPP[i].CurrentTime;
       NewPack->Radius = TempPP[i].Radius;
       NewPack->ColumnDensity = TempPP[i].ColumnDensity * weight;
+      NewPack->ColumnDensityHDI = TempPP[i].ColumnDensityHDI * weight;
+      NewPack->ColumnDensityCO  = TempPP[i].ColumnDensityCO  * weight;
+      NewPack->ColumnDensityOH  = TempPP[i].ColumnDensityOH  * weight;
+      NewPack->ColumnDensityH2O = TempPP[i].ColumnDensityH2O * weight;
       NewPack->ipix = TempPP[i].ipix;
       NewPack->level = TempPP[i].level;
       NewPack->SourcePositionDiff = 0.0;
@@ -201,6 +213,10 @@ int grid::MergePausedPhotonPackages() {
     //NewPack->Radius /= NewPack->Photons;
     NewPack->EmissionTimeInterval /= NewPack->Photons;
     NewPack->ColumnDensity /= NewPack->Photons;
+    NewPack->ColumnDensityHDI /= NewPack->Photons;
+    NewPack->ColumnDensityCO  /= NewPack->Photons;
+    NewPack->ColumnDensityOH  /= NewPack->Photons;
+    NewPack->ColumnDensityH2O /= NewPack->Photons;
     if (DEBUG)
       printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
 	     NewPack->Type, NewPack->level,

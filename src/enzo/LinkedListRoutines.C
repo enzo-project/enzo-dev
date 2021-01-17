@@ -53,6 +53,10 @@ PhotonPackageEntry *LinkedListToArray(PhotonPackageEntry *Node, int n)
     result[count].CurrentTime = tmp->CurrentTime;
     result[count].Radius = tmp->Radius;
     result[count].ColumnDensity = tmp->ColumnDensity;
+    result[count].ColumnDensityHDI = tmp->ColumnDensityHDI;
+    result[count].ColumnDensityCO  = tmp->ColumnDensityCO;
+    result[count].ColumnDensityOH  = tmp->ColumnDensityOH;
+    result[count].ColumnDensityH2O = tmp->ColumnDensityH2O;
     result[count].ipix = tmp->ipix;
     result[count].level = tmp->level;
     result[count].SourcePositionDiff = tmp->SourcePositionDiff;

@@ -181,8 +181,9 @@ c
 c
 c              4) t_cool < t_free-fall (if T < 8000.0 skip this check)
 c
-               dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
+C               dtot = ( d(i,j,k) + dm(i,j,k) )*d1
+C               tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
+               tdyn = -2._RKIND*dx/div
 c               if (tdyn .gt. cooltime(i,j,k) .or.
 c     &            temp(i,j,k) .lt. 1.1e4) 
 c     &            write(6,*) 'C',i,j,k,tdyn,cooltime(i,j,k),temp(i,j,k)
@@ -238,6 +239,11 @@ c
      $                 this_pos(dim) .gt. formright(dim))
      $                 goto 10
                enddo
+
+c               write(6,7777) i, j, k
+c               write(6,*) 'pop2:', i,j,k, d(i,j,k), div, tdyn, 
+c     &              cooltime(i,j,k)
+c               write(6,*) temp(i,j,k), metal(i,j,k), bmass
 c
 c              Create a star particle
 c

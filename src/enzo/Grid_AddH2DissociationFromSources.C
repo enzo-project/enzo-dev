@@ -33,6 +33,11 @@
 #define THRESHOLD_DENSITY_DB36 1e14
 #define THRESHOLD_DENSITY_DB37 5e14
 #define sigma_unit  2.08854e-4  //convert Msolar pc^-2 -> cm^-2
+#define THRESHOLD_DENSITY_CO_CO   1e13
+#define THRESHOLD_DENSITY_OH_OH   1e15
+#define THRESHOLD_DENSITY_H2O_H2O 1e16
+#define THRESHOLD_DENSITY_CO_H2   1e20
+#define THRESHOLD_DENSITY_OH_H2   1e19
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	       float *VelocityUnits, FLOAT Time);
@@ -53,9 +58,41 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
+  int HeHIINum, DMNum   , HDIINum
+    , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+    , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+    , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
+    , MgNum   , AlNum   , SNum      , FeNum
+    , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+    , DustNum ;
 
   double l_char = 0.0, N_H2 = 0.0;
   double H2ISigma = 3.71e-18;
+
+  double N_HDI = 0.0, N_CO = 0.0, N_OH = 0.0, N_H2O = 0.0;
+  double HDISigma = 4.22276e-18;
+  double COSigma  = 1.74554e-17;
+  double OHSigma  = 3.56213e-18;
+  double H2OSigma = 1.01407e-17;
+
+  double N_CO_CO   = 9.48921e+14 ;//  +/- 3.906e+13    (4.116%)
+  double a_CO_CO   = -0.822589   ;//  +/- 0.003422     (0.416%)
+  double b_CO_CO   = -4.31591e-07;//  +/- 1.743e-08    (4.039%)
+  double N_CO_H2   = 1.01533e+21 ;//  +/- 9.38e+19     (9.239%)
+  double a_CO_H2   = -1.44968    ;//  +/- 0.06207      (4.282%)
+  double b_CO_H2   = -0.171213   ;//  +/- 0.01413      (8.252%)
+  
+  double N_OH_OH   = 1.13614e+17 ;//  +/- 9.017e+15    (7.936%)
+  double a_OH_OH   = -1.08514    ;//  +/- 0.01284      (1.183%)
+  double b_OH_OH   = -0.00162352 ;//  +/- 0.0001285    (7.914%)
+  double N_OH_H2   = 7.18749e+21 ;//  +/- 1.457e+21    (20.27%)
+  double a_OH_H2   = -4.22208    ;//  +/- 0.6456       (15.29%)
+  double b_OH_H2   = -0.901778   ;//  +/- 0.1155       (12.81%)
+  
+  double N_H2O_H2O = 1.02787e+17 ;//  +/- 1.365e+16    (13.28%)
+  double a_H2O_H2O = -1.37727    ;//  +/- 0.02189      (1.589%)
+  /* shielding by H2 is negligible for H2O */
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -78,12 +115,26 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
     ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
   }
 
+  if (this->IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
+                                   , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+                                   , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+                                   , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum,  H3OIINum,  O2IINum
+                                   , MgNum   , AlNum   , SNum      , FeNum
+                                   , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+                                   , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+                                   , DustNum ) == FAIL) {
+    ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
+  }
+
   /* Get photo-ionization fields */
 
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   int gammaNum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, kphHeIINum, 
 				  kdissH2INum, kphHMNum, kdissH2IINum);
+
+  int kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum;
+  IdentifyRadiativeTransferFieldsMD(kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum);
 
   /* For now, initialize H2 photo-dissociation field. */
 
@@ -108,6 +159,10 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 
   // Absorb the unit conversions into the cross-section
   H2ISigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
+  HDISigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
+  COSigma  *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
+  OHSigma  *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
+  H2OSigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
 
   for (dim = 0; dim < GridRank; dim++) {
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
@@ -137,7 +192,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
       if (PhotonTime < RS->CreationTime && 
 	  PhotonTime > RS->CreationTime + RS->LifeTime)
 	continue;
-       for(int ebin = 0; ebin < RS->EnergyBins; ebin++) {
+      for(int ebin = 0; ebin < RS->EnergyBins; ebin++) {
 	float IRSED = 0.0, LWSED = 0.0, H2IISED = 0.0;
 	double LWLuminosity = 0.0, IRLuminosity = 0.0, H2IILuminosity = 0.0;
 	double HMSigma = 0.0, H2IISigma = 0.0;
@@ -184,6 +239,10 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	double H2mass = mh*2.0, alpha = 1.1;
 	double kph_hm = 0.0, kdiss_H2II = 0.0;
 	int TemperatureField = 0;
+
+        double kdiss_HDI = 0.0, kdiss_CO = 0.0, kdiss_OH = 0.0, kdiss_H2O = 0.0;
+        double shieldHDI = 1.0, shieldCO = 1.0, shieldOH = 1.0, shieldH2O = 1.0;
+
 	/* Pre-compute some quantities to speed things up */
 	if (RadiativeTransferH2ShieldType > 0) {
 		TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
@@ -191,61 +250,129 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
 	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
 	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
+        if(MultiSpecies > 2)
+	  kdiss_HDI = (float) (LWLuminosity * HDISigma / (4.0 * pi));
+        if(MetalChemistry) {
+	  kdiss_CO  = (float) (LWLuminosity * COSigma  / (4.0 * pi));
+	  kdiss_OH  = (float) (LWLuminosity * OHSigma  / (4.0 * pi));
+	  kdiss_H2O = (float) (LWLuminosity * H2OSigma / (4.0 * pi));
+        }
 	for (k = 0; k < ActiveDims[2]; k++) {
 	  for (j = 0; j < ActiveDims[1]; j++) {
 	    radius2_yz = ddr2[1][j] + ddr2[2][k];
 	    index = GRIDINDEX(0, j, k);
 	    for (i = 0; i < ActiveDims[0]; i++, index++) {
 	      radius2 = radius2_yz + ddr2[0][i];
-	      //if (radius2 < outerFront2 && radius2 > innerFront2) {
-	      //radius2 = max(radius2, dilRadius2);
 	      if (radius2 < dilRadius2) {
 		BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
 		BaryonField[kdissH2IINum][index] += kdiss_H2II / dilRadius2;
 		BaryonField[kphHMNum][index] += kph_hm / dilRadius2;
+                if(MultiSpecies > 2)
+	          BaryonField[kdissHDINum][index] += kdiss_HDI / dilRadius2;
+                if(MetalChemistry) {
+	          BaryonField[kdissCONum ][index] += kdiss_CO  / dilRadius2;
+	          BaryonField[kdissOHNum ][index] += kdiss_OH  / dilRadius2;
+	          BaryonField[kdissH2ONum][index] += kdiss_H2O / dilRadius2;
+                }
 	      }
 	      else {
 		BaryonField[kdissH2IINum][index] += kdiss_H2II / radius2;
 		BaryonField[kphHMNum][index] += kph_hm / radius2;
 		BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
+                if(MultiSpecies > 2)
+	          BaryonField[kdissHDINum][index] += kdiss_HDI / radius2;
+                if(MetalChemistry) {
+	          BaryonField[kdissCONum ][index] += kdiss_CO  / radius2;
+	          BaryonField[kdissOHNum ][index] += kdiss_OH  / radius2;
+	          BaryonField[kdissH2ONum][index] += kdiss_H2O / radius2;
+                }
 	      }
 	      /* Include Shielding */
 
-		if (RadiativeTransferH2ShieldType > 0) {
+	      if (RadiativeTransferH2ShieldType > 0) {
 #if JEANS_LENGTH
-	      l_char = JeansLength(BaryonField[TemperatureField][index],
-		BaryonField[DensNum][index], DensityUnits)*RadiativeTransferOpticallyThinH2CharLength; //cm
+	        l_char = JeansLength(BaryonField[TemperatureField][index],
+		  BaryonField[DensNum][index], DensityUnits)*RadiativeTransferOpticallyThinH2CharLength; //cm
 #else
-	      l_char = CellWidth[0][0]*LengthUnits/2.0; //cm
+	        l_char = CellWidth[0][0]*LengthUnits/2.0; //cm
 #endif
-	      N_H2 = BaryonField[H2INum][index]*l_char*DensityUnits/mh;
+	        N_H2 = BaryonField[H2INum][index]*l_char*DensityUnits/(2.0*mh);
+                if(MultiSpecies > 2)
+	          N_H2 += BaryonField[HDINum][index]*l_char*DensityUnits/(3.0*mh);
 #if DEBUG
-	      if(l_char/(CellWidth[0][0]*LengthUnits) != 1.0) {
-		printf("l_char/cellwidth = %g\n", l_char/(CellWidth[0][0]*LengthUnits));
-		printf("N_H2 = %g (cm^-2)\n", N_H2);
-		printf("H2I Density[%d] = %g (code)\n", index, BaryonField[H2INum][index]);
-		printf("Local H2I Density = %g (cgs)\n",
-		BaryonField[H2INum][index]*DensityUnits*CellWidth[0][0]*LengthUnits/mh);
-		printf("Temp = %f\n", BaryonField[TemperatureField][index]);
-	      }
+	        if(l_char/(CellWidth[0][0]*LengthUnits) != 1.0) {
+		  printf("l_char/cellwidth = %g\n", l_char/(CellWidth[0][0]*LengthUnits));
+		  printf("N_H2 = %g (cm^-2)\n", N_H2);
+		  printf("H2I Density[%d] = %g (code)\n", index, BaryonField[H2INum][index]);
+		  printf("Local H2I Density = %g (cgs)\n",
+		  BaryonField[H2INum][index]*DensityUnits*CellWidth[0][0]*LengthUnits/mh);
+		  printf("Temp = %f\n", BaryonField[TemperatureField][index]);
+	        }
 #endif
-	      shield = 1.0;
-	      if(N_H2 >= THRESHOLD_DENSITY_DB37) {
-		b = sqrt(2.0*kboltz*BaryonField[TemperatureField][index]/H2mass);
-		b5 = b/1e5;
-		XN = N_H2/THRESHOLD_DENSITY_DB37;
-		shield = 0.965/pow(1+XN/b5, alpha) + (0.035/sqrt(1+XN))*exp(-8.5e-4*sqrt(1+XN));
+	        shield = 1.0;
+                if(MultiSpecies > 2)
+	          shieldHDI = 1.0;
+	        if(N_H2 >= 0.01 * THRESHOLD_DENSITY_DB37) {
+	          b = sqrt(2.0*kboltz*BaryonField[TemperatureField][index]/H2mass);
+	          b5 = b/1e5;
+	          XN = N_H2/THRESHOLD_DENSITY_DB37;
+	          shield = 0.965/pow(1+XN/b5, alpha) + (0.035/sqrt(1+XN))*exp(-8.5e-4*sqrt(1+XN));
+                  if(MultiSpecies > 2)
+	            shieldHDI = 0.965/pow(1+XN/(b5 * 0.8165), alpha) + (0.035/sqrt(1+XN))*exp(-8.5e-4*sqrt(1+XN));
+                         // multiply by sqrt(2/3)
 #if DEBUG		
-		printf("%s: shield = %g\t kdiss = %g\t kdiss*shield = %g\n", __FUNCTION__, 
-		      shield, BaryonField[kdissH2INum][index], BaryonField[kdissH2INum][index]*shield);
+		  printf("%s: shield = %g\t kdiss = %g\t kdiss*shield = %g\n", __FUNCTION__, 
+		        shield, BaryonField[kdissH2INum][index], BaryonField[kdissH2INum][index]*shield);
 #endif
-	      }
-	      BaryonField[kdissH2INum][index] *= shield;
-		} // ENDIF: H2 shielding
+	        }
+	        BaryonField[kdissH2INum][index] *= shield;
+	        BaryonField[kdissHDINum][index] *= shieldHDI;
+	      } // ENDIF: H2 shielding
+
+              if(MetalChemistry) {
+	        N_CO  = BaryonField[CONum ][index]*l_char*DensityUnits/(28.0*mh);
+	        N_OH  = BaryonField[OHNum ][index]*l_char*DensityUnits/(17.0*mh);
+	        N_H2O = BaryonField[H2ONum][index]*l_char*DensityUnits/(18.0*mh);
+
+	        shieldCO  = 1.0;
+	        shieldOH  = 1.0;
+	        shieldH2O = 1.0;
+
+                if (N_CO >= THRESHOLD_DENSITY_CO_CO) {
+                  XN = N_CO / N_CO_CO;
+                  shieldCO = pow(1.0 + XN, a_CO_CO) * exp(b_CO_CO * XN);
+                }
+                if(MultiSpecies > 1) {
+                  if (N_H2 >= THRESHOLD_DENSITY_CO_H2) {
+                    XN = N_H2 / N_CO_H2;
+                    shieldCO *= pow(1.0 + XN, a_CO_H2) * exp(b_CO_H2 * XN);
+                  }
+                }
+
+                if (N_OH >= THRESHOLD_DENSITY_OH_OH) {
+                  XN = N_OH / N_OH_OH;
+                  shieldOH = pow(1.0 + XN, a_OH_OH) * exp(b_OH_OH * XN);
+                }
+                if(MultiSpecies > 1) {
+                  if (N_H2 >= THRESHOLD_DENSITY_OH_H2) {
+                    XN = N_H2 / N_OH_H2;
+                    shieldOH *= pow(1.0 + XN, a_OH_H2) * exp(b_OH_H2 * XN);
+                  }
+                }
+
+                if (N_H2O >= THRESHOLD_DENSITY_H2O_H2O) {
+                  XN = N_H2O / N_H2O_H2O;
+                  shieldH2O = pow(1.0 + XN, a_H2O_H2O);
+                }
+
+	        BaryonField[kdissCONum ][index] *= shieldCO;
+	        BaryonField[kdissOHNum ][index] *= shieldOH;
+	        BaryonField[kdissH2ONum][index] *= shieldH2O;
+              }
 	    } // END: i-direction
 	  } // END: j-direction
 	} // END: k-direction
-       }
+      }
     } // ENDFOR sources
 
   } // ENDIF ProblemType == 50
@@ -296,7 +423,6 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	      BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
 	    else
 	      BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
-	    //} // ENDIF
 	  } // END: i-direction
 	} // END: j-direction
       } // END: k-direction
@@ -356,6 +482,10 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	double H2mass = mh*2.0, alpha = 1.1;
 	double kph_hm = 0.0, kdiss_H2II = 0.0;
 	int TemperatureField = 0;
+
+        double kdiss_HDI = 0.0, kdiss_CO = 0.0, kdiss_OH = 0.0, kdiss_H2O = 0.0;
+        double shieldHDI = 1.0, shieldCO = 1.0, shieldOH = 1.0, shieldH2O = 1.0;
+
 	/* Pre-compute some quantities to speed things up */
 	if (RadiativeTransferH2ShieldType > 0) {
 		TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
@@ -363,53 +493,121 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
 	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
 	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
+        if(MultiSpecies > 2)
+	  kdiss_HDI = (float) (LWLuminosity * HDISigma / (4.0 * pi));
+        if(MetalChemistry) {
+	  kdiss_CO  = (float) (LWLuminosity * COSigma  / (4.0 * pi));
+	  kdiss_OH  = (float) (LWLuminosity * OHSigma  / (4.0 * pi));
+	  kdiss_H2O = (float) (LWLuminosity * H2OSigma / (4.0 * pi));
+        }
 	for (k = 0; k < ActiveDims[2]; k++) {
 	  for (j = 0; j < ActiveDims[1]; j++) {
 	    radius2_yz = ddr2[1][j] + ddr2[2][k];
 	    index = GRIDINDEX(0, j, k);
 	    for (i = 0; i < ActiveDims[0]; i++, index++) {
 	      radius2 = radius2_yz + ddr2[0][i];
-	      //if (radius2 < outerFront2 && radius2 > innerFront2) {
-	      //radius2 = max(radius2, dilRadius2);
 	      if (radius2 < dilRadius2) {
 		BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
 		BaryonField[kdissH2IINum][index] += kdiss_H2II / dilRadius2;
 		BaryonField[kphHMNum][index] += kph_hm / dilRadius2;
+                if(MultiSpecies > 2)
+	          BaryonField[kdissHDINum][index] += kdiss_HDI / dilRadius2;
+                if(MetalChemistry) {
+	          BaryonField[kdissCONum ][index] += kdiss_CO  / dilRadius2;
+	          BaryonField[kdissOHNum ][index] += kdiss_OH  / dilRadius2;
+	          BaryonField[kdissH2ONum][index] += kdiss_H2O / dilRadius2;
+                }
 	      }
 	      else {
 		BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
 		BaryonField[kdissH2IINum][index] += kdiss_H2II / radius2;
 		BaryonField[kphHMNum][index] += kph_hm / radius2;
+                if(MultiSpecies > 2)
+	          BaryonField[kdissHDINum][index] += kdiss_HDI / radius2;
+                if(MetalChemistry) {
+	          BaryonField[kdissCONum ][index] += kdiss_CO  / radius2;
+	          BaryonField[kdissOHNum ][index] += kdiss_OH  / radius2;
+	          BaryonField[kdissH2ONum][index] += kdiss_H2O / radius2;
+                }
 	      }
 	      /* Include Shielding */
 	      //printf("%s: kdissH2I = %e for Grid %p\n", __FUNCTION__, BaryonField[kdissH2INum][index], this);
-		if (RadiativeTransferH2ShieldType > 0) {
+	      if (RadiativeTransferH2ShieldType > 0) {
 #if(JEANS_LENGTH)
-	      l_char = JeansLength(BaryonField[TemperatureField][index],
-		BaryonField[DensNum][index], DensityUnits)*RadiativeTransferOpticallyThinH2CharLength; //cm
+	        l_char = JeansLength(BaryonField[TemperatureField][index],
+		  BaryonField[DensNum][index], DensityUnits)*RadiativeTransferOpticallyThinH2CharLength; //cm
 #else
-	      l_char = CellWidth[0][0]*LengthUnits/2.0; //cm
+	        l_char = CellWidth[0][0]*LengthUnits/2.0; //cm
 #endif
-	      N_H2 = BaryonField[H2INum][index]*l_char*DensityUnits/mh;
+	        N_H2 = BaryonField[H2INum][index]*l_char*DensityUnits/(2.0*mh);
+                if(MultiSpecies > 2)
+	          N_H2 += BaryonField[HDINum][index]*l_char*DensityUnits/(3.0*mh);
 #if(DEBUG)
-		printf("l_char = %g\n", l_char);
-		printf("CellWidth = %g\n", CellWidth[0][0]*LengthUnits);
-		printf("l_char/cellwidth = %g\n", l_char/(CellWidth[0][0]*LengthUnits));
-		printf("N_H2 = %g (cm^-2)\n", N_H2);
-		printf("H2I Density[%d] = %g (code)\n", index, BaryonField[H2INum][index]);
-		printf("Local H2I Density = %g (cgs)\n",
-		BaryonField[H2INum][index]*DensityUnits*CellWidth[0][0]*LengthUnits/mh);
-		printf("Temp = %f\n", BaryonField[TemperatureField][index]);
+		  printf("l_char = %g\n", l_char);
+		  printf("CellWidth = %g\n", CellWidth[0][0]*LengthUnits);
+		  printf("l_char/cellwidth = %g\n", l_char/(CellWidth[0][0]*LengthUnits));
+		  printf("N_H2 = %g (cm^-2)\n", N_H2);
+		  printf("H2I Density[%d] = %g (code)\n", index, BaryonField[H2INum][index]);
+		  printf("Local H2I Density = %g (cgs)\n",
+		  BaryonField[H2INum][index]*DensityUnits*CellWidth[0][0]*LengthUnits/mh);
+		  printf("Temp = %f\n", BaryonField[TemperatureField][index]);
 #endif
-	      shield = 1.0;
-	      if(N_H2 >= THRESHOLD_DENSITY_DB37) {
-		b = sqrt(2.0*kboltz*BaryonField[TemperatureField][index]/H2mass);
-		b5 = b/1e5;
-		XN = N_H2/THRESHOLD_DENSITY_DB37;
-		shield = 0.965/pow(1+XN/b5, alpha) + (0.035/sqrt(1+XN))*exp(-8.5e-4*sqrt(1+XN));
-	      }
-	      BaryonField[kdissH2INum][index] *= shield;
-		} // end H2 shield
+	        shield = 1.0;
+                if(MultiSpecies > 2)
+	          shieldHDI = 1.0;
+	        if(N_H2 >= THRESHOLD_DENSITY_DB37) {
+		  b = sqrt(2.0*kboltz*BaryonField[TemperatureField][index]/H2mass);
+		  b5 = b/1e5;
+		  XN = N_H2/THRESHOLD_DENSITY_DB37;
+		  shield = 0.965/pow(1+XN/b5, alpha) + (0.035/sqrt(1+XN))*exp(-8.5e-4*sqrt(1+XN));
+                  if(MultiSpecies > 2)
+	            shieldHDI = 0.965/pow(1+XN/(b5 * 0.8165), alpha) + (0.035/sqrt(1+XN))*exp(-8.5e-4*sqrt(1+XN));
+                         // multiply by sqrt(2/3)
+	        }
+	        BaryonField[kdissH2INum][index] *= shield;
+	        BaryonField[kdissHDINum][index] *= shieldHDI;
+	      } // end H2 shield
+
+              if(MetalChemistry) {
+	        N_CO  = BaryonField[CONum ][index]*l_char*DensityUnits/(28.0*mh);
+	        N_OH  = BaryonField[OHNum ][index]*l_char*DensityUnits/(17.0*mh);
+	        N_H2O = BaryonField[H2ONum][index]*l_char*DensityUnits/(18.0*mh);
+
+	        shieldCO  = 1.0;
+	        shieldOH  = 1.0;
+	        shieldH2O = 1.0;
+
+                if (N_CO >= THRESHOLD_DENSITY_CO_CO) {
+                  XN = N_CO / N_CO_CO;
+                  shieldCO = pow(1.0 + XN, a_CO_CO) * exp(b_CO_CO * XN);
+                }
+                if(MultiSpecies > 1) {
+                  if (N_H2 >= THRESHOLD_DENSITY_CO_H2) {
+                    XN = N_H2 / N_CO_H2;
+                    shieldCO *= pow(1.0 + XN, a_CO_H2) * exp(b_CO_H2 * XN);
+                  }
+                }
+
+                if (N_OH >= THRESHOLD_DENSITY_OH_OH) {
+                  XN = N_OH / N_OH_OH;
+                  shieldOH = pow(1.0 + XN, a_OH_OH) * exp(b_OH_OH * XN);
+                }
+                if(MultiSpecies > 1) {
+                  if (N_H2 >= THRESHOLD_DENSITY_OH_H2) {
+                    XN = N_H2 / N_OH_H2;
+                    shieldOH *= pow(1.0 + XN, a_OH_H2) * exp(b_OH_H2 * XN);
+                  }
+                }
+
+                if (N_H2O >= THRESHOLD_DENSITY_H2O_H2O) {
+                  XN = N_H2O / N_H2O_H2O;
+                  shieldH2O = pow(1.0 + XN, a_H2O_H2O);
+                }
+
+	        BaryonField[kdissCONum ][index] *= shieldCO;
+	        BaryonField[kdissOHNum ][index] *= shieldOH;
+	        BaryonField[kdissH2ONum][index] *= shieldH2O;
+              }
 	    } //end i loop
 	  } //end j loop
 	} //end k loop

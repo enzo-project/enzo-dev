@@ -50,6 +50,7 @@ static float PhotonTestInitialFractionHeIII = 1.0e-17;
 static float PhotonTestInitialFractionHM    = 2.0e-9;
 static float PhotonTestInitialFractionH2I   = 2.0e-20;
 static float PhotonTestInitialFractionH2II  = 3.0e-14;
+static float PhotonTestInitialMetallicity   = 1.0e-20;
 
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData,
@@ -75,8 +76,42 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *DIName    = "DI_Density";
   const char *DIIName   = "DII_Density";
   const char *HDIName   = "HDI_Density";
-  const char *MgSiO3Name = "MgSiO3_Density";
-  const char *ACName = "AC_Density";
+  const char *   HeHIIName =   "HeHII_Density";
+  const char *      DMName =      "DM_Density";
+  const char *    HDIIName =    "HDII_Density";
+  const char *      CIName =      "CI_Density";
+  const char *     CIIName =     "CII_Density";
+  const char *      COName =      "CO_Density";
+  const char *     CO2Name =     "CO2_Density";
+  const char *      OIName =      "OI_Density";
+  const char *      OHName =      "OH_Density";
+  const char *     H2OName =     "H2O_Density";
+  const char *      O2Name =      "O2_Density";
+  const char *     SiIName =     "SiI_Density";
+  const char *    SiOIName =    "SiOI_Density";
+  const char *   SiO2IName =   "SiO2I_Density";
+  const char *      CHName =      "CH_Density";
+  const char *     CH2Name =     "CH2_Density";
+  const char *    COIIName =    "COII_Density";
+  const char *     OIIName =     "OII_Density";
+  const char *    OHIIName =    "OHII_Density";
+  const char *   H2OIIName =   "H2OII_Density";
+  const char *   H3OIIName =   "H3OII_Density";
+  const char *    O2IIName =    "O2II_Density";
+  const char *      MgName =      "Mg_Density";
+  const char *      AlName =      "Al_Density";
+  const char *       SName =       "S_Density";
+  const char *      FeName =      "Fe_Density";
+  const char *  MgSiO3Name =  "MgSiO3_Density";
+  const char *      ACName =      "AC_Density";
+  const char *     SiMName =     "SiM_Density";
+  const char *     FeMName =     "FeM_Density";
+  const char * Mg2SiO4Name = "Mg2SiO4_Density";
+  const char *   Fe3O4Name =   "Fe3O4_Density";
+  const char *   SiO2DName =   "SiO2D_Density";
+  const char *     MgOName =     "MgO_Density";
+  const char *     FeSName =     "FeS_Density";
+  const char *   Al2O3Name =   "Al2O3_Density";
   const char *ISRFName = "ISRF_Habing";
   const char *kphHIName    = "HI_kph";
   const char *gammaName  = "PhotoGamma";
@@ -85,6 +120,12 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *kphHMName   = "HM_kph";   
   const char *kdissH2IIName  = "H2II_kdiss";
   const char *kdissH2IName = "H2I_kdiss"; 
+  const char *kdissHDIName = "HDI_kdiss"; 
+  const char *kphCIName    = "CI_kph";   
+  const char *kphOIName    = "OI_kph";   
+  const char *kdissCOName  = "CO_kdiss"; 
+  const char *kdissOHName  = "OH_kdiss"; 
+  const char *kdissH2OName = "H2O_kdiss"; 
   const char *RadAccel1Name = "x-RadPressure";
   const char *RadAccel2Name = "y-RadPressure";
   const char *RadAccel3Name = "z-RadPressure";
@@ -190,6 +231,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &PhotonTestUseColour);
     ret += sscanf(line, "PhotonTestInitialTemperature = %"FSYM, 
 		  &PhotonTestInitialTemperature);
+    ret += sscanf(line, "PhotonTestInitialMetallicity = %"FSYM, 
+		  &PhotonTestInitialMetallicity);
     if (sscanf(line, "PhotonTestDensityFilename = %s", dummy) == 1) {
       ret++;
       PhotonTestDensityFilename = new char[MAX_LINE_LENGTH];
@@ -348,7 +391,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestSphereHIIFraction, PhotonTestSphereHeIIFraction,
 	     PhotonTestSphereHeIIIFraction, PhotonTestSphereH2IFraction,
 	     PhotonTestUseParticles,
-             PhotonTestUniformVelocity, PhotonTestUseColour,
+             PhotonTestUniformVelocity, PhotonTestUseColour, PhotonTestInitialMetallicity,
              PhotonTestInitialTemperature, 0, 
 	     PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
@@ -418,7 +461,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestSphereHIIFraction, PhotonTestSphereHeIIFraction,
 	     PhotonTestSphereHeIIIFraction, PhotonTestSphereH2IFraction,
 	     PhotonTestUseParticles,
-	     PhotonTestUniformVelocity, PhotonTestUseColour,
+	     PhotonTestUniformVelocity, PhotonTestUseColour, PhotonTestInitialMetallicity,
 	     PhotonTestInitialTemperature, level+1, 
 	     PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
@@ -473,7 +516,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    PhotonTestSphereHIIFraction, PhotonTestSphereHeIIFraction,
 		    PhotonTestSphereHeIIIFraction, PhotonTestSphereH2IFraction,
 		    PhotonTestUseParticles,
-		    PhotonTestUniformVelocity, PhotonTestUseColour,
+		    PhotonTestUniformVelocity, PhotonTestUseColour, PhotonTestInitialMetallicity,
 		    PhotonTestInitialTemperature, level2+1, 
 		    PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 		    PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
@@ -537,10 +580,56 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[count++] = (char*) DIIName;
       DataLabel[count++] = (char*) HDIName;
     }
+    if (MultiSpecies > 3) {
+      DataLabel[count++] = (char*)HeHIIName;
+      DataLabel[count++] = (char*)DMName;
+      DataLabel[count++] = (char*)HDIIName;
+    }
+    if (MetalChemistry > 0) {
+      DataLabel[count++] = (char*)CIName;
+      DataLabel[count++] = (char*)CIIName;
+      DataLabel[count++] = (char*)COName;
+      DataLabel[count++] = (char*)CO2Name;
+      DataLabel[count++] = (char*)OIName;
+      DataLabel[count++] = (char*)OHName;
+      DataLabel[count++] = (char*)H2OName;
+      DataLabel[count++] = (char*)O2Name;
+      DataLabel[count++] = (char*)SiIName;
+      DataLabel[count++] = (char*)SiOIName;
+      DataLabel[count++] = (char*)SiO2IName;
+      DataLabel[count++] = (char*)CHName;
+      DataLabel[count++] = (char*)CH2Name;
+      DataLabel[count++] = (char*)COIIName;
+      DataLabel[count++] = (char*)OIIName;
+      DataLabel[count++] = (char*)OHIIName;
+      DataLabel[count++] = (char*)H2OIIName;
+      DataLabel[count++] = (char*)H3OIIName;
+      DataLabel[count++] = (char*)O2IIName;
+      if (GrainGrowth || DustSublimation) {
+        if (DustSpecies > 0) {
+          DataLabel[count++] = (char*)MgName;
+        }
+        if (DustSpecies > 1) {
+          DataLabel[count++] = (char*)AlName;
+          DataLabel[count++] = (char*)SName;
+          DataLabel[count++] = (char*)FeName;
+        }
+      }
+    }
     if (GrainGrowth || DustSublimation) {
       if (DustSpecies > 0) {
         DataLabel[count++] = (char*) MgSiO3Name;
         DataLabel[count++] = (char*) ACName;
+      }
+      if (DustSpecies > 1) {
+        DataLabel[count++] = (char*)SiMName;
+        DataLabel[count++] = (char*)FeMName;
+        DataLabel[count++] = (char*)Mg2SiO4Name;
+        DataLabel[count++] = (char*)Fe3O4Name;
+        DataLabel[count++] = (char*)SiO2DName;
+        DataLabel[count++] = (char*)MgOName;
+        DataLabel[count++] = (char*)FeSName;
+        DataLabel[count++] = (char*)Al2O3Name;
       }
     }
   }  // if Multispecies
@@ -561,6 +650,16 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	DataLabel[count++]= (char*) kdissH2IName;
 	DataLabel[count++]= (char*) kdissH2IIName;
 	DataLabel[count++]= (char*) kphHMName;
+      }
+      if (MultiSpecies > 2) {
+	DataLabel[count++]= (char*) kdissHDIName;
+      }
+      if (MetalChemistry) {
+        DataLabel[count++]= (char*) kphCIName;
+        DataLabel[count++]= (char*) kphOIName;
+	DataLabel[count++]= (char*) kdissCOName;
+	DataLabel[count++]= (char*) kdissOHName;
+	DataLabel[count++]= (char*) kdissH2OName;
       }
     } // if RadiativeTransfer
 
@@ -590,6 +689,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(Outfptr, "PhotonTestUniformVelocity    = %"FSYM" %"FSYM" %"FSYM"\n",
 	    PhotonTestUniformVelocity[0], PhotonTestUniformVelocity[1],
 	    PhotonTestUniformVelocity[2]);
+    fprintf(Outfptr, "PhotonTestInitialMetallicity = %"FSYM"\n",
+	    PhotonTestInitialMetallicity);
     for (sphere = 0; sphere < PhotonTestNumberOfSpheres; sphere++) {
       fprintf(Outfptr, "PhotonTestSphereType[%"ISYM"] = %"ISYM"\n", sphere,
 	      PhotonTestSphereType[sphere]);

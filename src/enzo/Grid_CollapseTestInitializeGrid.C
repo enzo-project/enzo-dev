@@ -12,11 +12,9 @@
 /
 ************************************************************************/
 
-#ifdef GRACKLE_MD
 extern "C" {
 #include <grackle.h>
 }
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -113,7 +111,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, ColourNum;
   float xdist,ydist,zdist;
-#ifdef GRACKLE_MD
   int HeHIINum, DMNum, HDIINum
     , CINum,  CIINum,   CONum,      CO2Num,    OINum,   OHNum
     , H2ONum, O2Num,    SiINum,     SiOINum,   SiO2INum
@@ -146,7 +143,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
           FeS_frac = grackle_data->SN0_fFeS    [4];
         Al2O3_frac = grackle_data->SN0_fAl2O3  [4];
   }
-#endif
 
   /* create fields */
 
@@ -178,7 +174,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
       FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
     }
-#ifdef GRACKLE_MD
     if (MultiSpecies > 3) {
       FieldType[   HeHIINum = NumberOfBaryonFields++] =   HeHIIDensity;
       FieldType[      DMNum = NumberOfBaryonFields++] =      DMDensity;
@@ -231,13 +226,18 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
         FieldType[   Al2O3Num = NumberOfBaryonFields++] =   Al2O3Density;
       }
     }
-#endif
   }
+//if (SphereUseMetals)
+//  FieldType[MetalNum = NumberOfBaryonFields++] = SNColour;
+
+//if (SphereUseColour)
+//  FieldType[ColourNum = NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
+
   if (SphereUseMetals)
-    FieldType[MetalNum = NumberOfBaryonFields++] = SNColour;
+    FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
 
   if (SphereUseColour)
-    FieldType[ColourNum = NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
+    FieldType[ColourNum = NumberOfBaryonFields++] = SNColour;
 
   if (UseDustDensityField)
     FieldType[DustNum = NumberOfBaryonFields++] = DustDensity;
@@ -1035,7 +1035,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	      BaryonField[HDINum][n] = CoolData.DeuteriumToHydrogenRatio*
 		BaryonField[H2INum][n];
 	    }
-#ifdef GRACKLE_MD
            if(MultiSpecies > 3){
              BaryonField[DMNum][n] = 1.0e-20 * BaryonField[0][n];
              BaryonField[HDIINum][n] = 1.0e-20 * BaryonField[0][n];
@@ -1043,7 +1042,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
              BaryonField[DeNum][n] += 0.2*BaryonField[HeHIINum][n] 
                                     - 0.5*BaryonField[DMNum][n] + BaryonField[HDIINum][n]/3.0;
             }
-#endif 
 	  }
 
 	  /* If there are metals, set it. */
@@ -1052,7 +1050,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	    BaryonField[MetalNum][n] = metallicity * CoolData.SolarMetalFractionByMass * 
 	      BaryonField[0][n];
 
-#ifdef GRACKLE_MD
           if (MultiSpecies) {
             if(MetalChemistry > 0) {
               BaryonField[   CINum][n] = 1.0e-20 * BaryonField[MetalNum][n];
@@ -1103,7 +1100,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
               }
             }
           }
-#endif
 
 	  /* If there is a colour field, set it. */
 

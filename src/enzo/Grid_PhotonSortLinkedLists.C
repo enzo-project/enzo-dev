@@ -69,6 +69,10 @@ int grid::PhotonSortLinkedLists(void)
     NewPack->CurrentTime = TempPP[count].CurrentTime;
     NewPack->Radius = TempPP[count].Radius;
     NewPack->ColumnDensity = TempPP[count].ColumnDensity;
+    NewPack->ColumnDensityHDI = TempPP[count].ColumnDensityHDI;
+    NewPack->ColumnDensityCO  = TempPP[count].ColumnDensityCO;
+    NewPack->ColumnDensityOH  = TempPP[count].ColumnDensityOH;
+    NewPack->ColumnDensityH2O = TempPP[count].ColumnDensityH2O;
     NewPack->ipix = TempPP[count].ipix;
     NewPack->level = TempPP[count].level;
     NewPack->SourcePositionDiff = TempPP[count].SourcePositionDiff;
@@ -117,6 +121,10 @@ int grid::PhotonSortLinkedLists(void)
     NewPack->CurrentTime = TempPP[count].CurrentTime;
     NewPack->Radius = TempPP[count].Radius;
     NewPack->ColumnDensity = TempPP[count].ColumnDensity;
+    NewPack->ColumnDensityHDI = TempPP[count].ColumnDensityHDI;
+    NewPack->ColumnDensityCO  = TempPP[count].ColumnDensityCO;
+    NewPack->ColumnDensityOH  = TempPP[count].ColumnDensityOH;
+    NewPack->ColumnDensityH2O = TempPP[count].ColumnDensityH2O;
     NewPack->ipix = TempPP[count].ipix;
     NewPack->level = TempPP[count].level;
     NewPack->SourcePositionDiff = TempPP[count].SourcePositionDiff;
@@ -164,6 +172,10 @@ int grid::PhotonSortLinkedLists(void)
     NewPack->CurrentTime = TempPP[count].CurrentTime;
     NewPack->Radius = TempPP[count].Radius;
     NewPack->ColumnDensity = TempPP[count].ColumnDensity;
+    NewPack->ColumnDensityHDI = TempPP[count].ColumnDensityHDI;
+    NewPack->ColumnDensityCO  = TempPP[count].ColumnDensityCO;
+    NewPack->ColumnDensityOH  = TempPP[count].ColumnDensityOH;
+    NewPack->ColumnDensityH2O = TempPP[count].ColumnDensityH2O;
     NewPack->ipix = TempPP[count].ipix;
     NewPack->level = TempPP[count].level;
     NewPack->SourcePositionDiff = TempPP[count].SourcePositionDiff;

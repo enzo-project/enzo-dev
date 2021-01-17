@@ -32,6 +32,10 @@ public:
   FLOAT CurrentTime;            // Current Time
   FLOAT Radius;                 // Distance travelled
   float ColumnDensity;          // Column Density (for shielding functions)
+  float	ColumnDensityHDI;
+  float	ColumnDensityCO;
+  float	ColumnDensityOH;
+  float	ColumnDensityH2O;
   long level;                   // level in HEALPIX terminology
   int64_t ipix;                 // pixel in HEALPIX terminology
   FLOAT SourcePosition[3];      // Position where package was emitted

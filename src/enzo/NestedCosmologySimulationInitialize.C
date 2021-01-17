@@ -120,7 +120,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *DIName    = "DI_Density";
   char *DIIName   = "DII_Density";
   char *HDIName   = "HDI_Density";
-#ifdef GRACKLE_MD
   char *   HeHIIName =   "HeHII_Density";
   char *      DMName =      "DM_Density";
   char *    HDIIName =    "HDII_Density";
@@ -157,7 +156,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *     MgOName =     "MgO_Density";
   char *     FeSName =     "FeS_Density";
   char *   Al2O3Name =   "Al2O3_Density";
-#endif
   char *GPotName  = "Grav_Potential";
   char *MetalName = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
@@ -770,7 +768,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = DIIName;
       DataLabel[i++] = HDIName;
     }
-#ifdef GRACKLE_MD
     if (MultiSpecies > 3) {
       DataLabel[i++] = HeHIIName;
       DataLabel[i++] = DMName;
@@ -823,7 +820,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
         DataLabel[i++] = Al2O3Name;
       }
     }
-#endif
   }
  
   if (CosmologySimulationUseMetallicityField) {

@@ -38,6 +38,10 @@ int SplitPhotonPackage(PhotonPackageEntry *PP)
     NewPack->EmissionTime    = PP->EmissionTime;
     NewPack->CurrentTime     = PP->CurrentTime;
     NewPack->ColumnDensity   = PP->ColumnDensity;
+    NewPack->ColumnDensityHDI= PP->ColumnDensityHDI;
+    NewPack->ColumnDensityCO = PP->ColumnDensityCO;
+    NewPack->ColumnDensityOH = PP->ColumnDensityOH;
+    NewPack->ColumnDensityH2O= PP->ColumnDensityH2O;
     NewPack->Radius          = PP->Radius;
     NewPack->ipix            = nipix++;
     NewPack->level           = PP->level+1;

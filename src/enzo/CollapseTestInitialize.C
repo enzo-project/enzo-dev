@@ -71,7 +71,6 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *DIName    = "DI_Density";
   const char *DIIName   = "DII_Density";
   const char *HDIName   = "HDI_Density";
-#ifdef GRACKLE_MD
   const char *   HeHIIName =   "HeHII_Density";
   const char *      DMName =      "DM_Density";
   const char *    HDIIName =    "HDII_Density";
@@ -108,7 +107,6 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *     MgOName =     "MgO_Density";
   const char *     FeSName =     "FeS_Density";
   const char *   Al2O3Name =   "Al2O3_Density";
-#endif
   const char *MetalName = "Metal_Density";
   const char *DustName  = "Dust_Density";
 
@@ -596,7 +594,6 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[count++] = (char*) DIIName;
       DataLabel[count++] = (char*) HDIName;
     }
-#ifdef GRACKLE_MD
     if (MultiSpecies > 3) {
       DataLabel[count++] = (char*) HeHIIName;
       DataLabel[count++] = (char*) DMName;
@@ -649,7 +646,6 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
         DataLabel[count++] = (char*) Al2O3Name;
       }
     }
-#endif
   }  // if Multispecies
   if (CollapseTestUseColour)
     DataLabel[count++] = (char*) ColourName;

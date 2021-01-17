@@ -13,11 +13,9 @@
 /
 ************************************************************************/
 
-#ifdef GRACKLE_MD
 extern "C" {
 #include <grackle.h>
 }
-#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -98,7 +96,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
-#ifdef GRACKLE_MD
   int HeHIINum, DMNum   , HDIINum
     , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
     , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
@@ -110,14 +107,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   double C_frac, O_frac, Mg_frac, Al_frac, Si_frac, S_frac, Fe_frac;
   double SiM_frac  , FeM_frac  , Mg2SiO4_frac, MgSiO3_frac, Fe3O4_frac
        , AC_frac   , SiO2D_frac, MgO_frac    , FeS_frac   , Al2O3_frac;
-#endif
   if (MultiSpecies) 
     if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
 				    HeIIINum, HMNum, H2INum, H2IINum, DINum, 
 				    DIINum, HDINum) == FAIL) {
         ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
-#ifdef GRACKLE_MD
   if (MultiSpecies > 3 || MetalChemistry > 0 || GrainGrowth || DustSublimation)
     if (IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
                                , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
@@ -129,7 +124,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
                                , DustNum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
     }
-#endif
 
   fh = CoolData.HydrogenFractionByMass;
 
@@ -220,7 +214,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   MetalRadius2 = radius * radius * MetalRadius * MetalRadius;
   outerRadius2 = 1.2 * 1.2 * radius * radius;
 
-#ifdef GRACKLE_MD
   if (MetalChemistry) {
 
     if(MultiMetals == 0) {
@@ -343,7 +336,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   } /* MetalChemistry */
 
-#endif
 
     /* Remove mass from the star that will now be added to grids. 
        Also, because EjectaDensity will be added with zero net momentum, 
@@ -479,7 +471,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[DIINum][index] *= increase;
 	      BaryonField[HDINum][index] *= increase;
 	    }
-#ifdef GRACKLE_MD
 	    if (MultiSpecies > 3) {
               BaryonField[   HeHIINum][index] *= increase;
               BaryonField[      DMNum][index] *= increase;
@@ -549,7 +540,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
                                                   +  Al2O3_frac * MetalDensity_new;
               }
             }
-#endif
 
 	    if (MetallicityField == TRUE) {
               if (MultiMetals)
@@ -1267,13 +1257,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    fhz = fh * (1-metallicity);
 	    fhez = (1-fh) * (1-metallicity);
 
-#ifdef GRACKLE_MD
             OldDensity = BaryonField[DensNum][index];
-#endif
 	    BaryonField[DensNum][index] = EjectaDensity;
-#ifdef GRACKLE_MD
             factor = BaryonField[DensNum][index] / OldDensity;
-#endif
 
 	    if (MultiSpecies) {
 	      BaryonField[DeNum][index] = BaryonField[DensNum][index] * ionizedFraction;
@@ -1295,7 +1281,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		CoolData.DeuteriumToHydrogenRatio * ionizedFraction;
 	      BaryonField[HDINum][index] = tiny_number * BaryonField[DensNum][index];
 	    }
-#ifdef GRACKLE_MD
 	    if (MultiSpecies > 3) {
 	      BaryonField[HeHIINum][index] = 1e-10 * BaryonField[DensNum][index];
 	      BaryonField[DMNum][index]    = tiny_number * BaryonField[DensNum][index];
@@ -1351,7 +1336,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
             if (UseDustDensityField) {
               BaryonField[DustNum][index] *= factor;
             }
-#endif
 	    if (MultiSpecies)
                BaryonField[DeNum][index] =
                     BaryonField[  HIINum][index]/1.0

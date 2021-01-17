@@ -954,7 +954,6 @@ EXTERN int MetalCooling;
 EXTERN char *MetalCoolingTable;
 EXTERN int CIECooling;
 EXTERN int H2OpticalDepthApproximation;
-#ifdef GRACKLE_MD
 EXTERN int UseDustDensityField;
 EXTERN int MetalChemistry;
 EXTERN int GrainGrowth;
@@ -962,7 +961,6 @@ EXTERN int MetalAbundances;
 EXTERN int DustSpecies;
 EXTERN int DustTemperatureMulti;
 EXTERN int DustSublimation;
-#endif
 
 //   1 - Adaptive ray tracing transfer
 //   0 - none

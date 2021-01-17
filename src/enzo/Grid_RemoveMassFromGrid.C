@@ -264,7 +264,6 @@ int grid::RemoveMassFromGrid(ActiveParticleType* ThisParticle,
              || FieldType[field] ==       DIDensity
              || FieldType[field] ==      DIIDensity
              || FieldType[field] ==      HDIDensity
-#ifdef GRACKLE_MD
              || FieldType[field] ==    HeHIIDensity
              || FieldType[field] ==       DMDensity
              || FieldType[field] ==     HDIIDensity
@@ -301,7 +300,6 @@ int grid::RemoveMassFromGrid(ActiveParticleType* ThisParticle,
              || FieldType[field] ==      MgODensity
              || FieldType[field] ==      FeSDensity
              || FieldType[field] ==    Al2O3Density
-#endif
              || FieldType[field] ==     Metallicity
              || FieldType[field] ==        SNColour
                ) {

@@ -1827,7 +1827,7 @@ int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
 			    int &HeINum, int &HeIINum, int &HeIIINum,
 			    int &HMNum, int &H2INum, int &H2IINum,
                             int &DINum, int &DIINum, int &HDINum);
-#ifdef GRACKLE_MD
+
   int IdentifySpeciesFieldsMD( int &HeHIINum , int &DMNum   , int &HDIINum
                              , int &CINum    , int &CIINum  , int &CONum     , int &CO2Num
                              , int &OINum    , int &OHNum   , int &H2ONum    , int &O2Num
@@ -1839,7 +1839,6 @@ int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
                              , int &MgSiO3Num, int &Fe3O4Num, int &ACNum
                              , int &SiO2DNum , int &MgONum  , int &FeSNum    , int &Al2O3Num
                              , int &DustNum );
-#endif
 
   /* Identify shock fields. */
   int IdentifyShockSpeciesFields(int &MachNum,int &PSTempNum, int &PSDenNum);
@@ -2926,6 +2925,12 @@ int zEulerSweep_vg(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				      int &kphHeINum, int &kphHeIINum, 
 				      int &kdissH2INum, int &kphHMNum,
 				      int &kdissH2IINum);
+  int IdentifyRadiativeTransferFieldsMD(int &kdissHDINum,
+					int &kphCINum,
+					int &kphOINum,
+					int &kdissCONum,
+					int &kdissOHNum,
+					int &kdissH2ONum);
 
 #ifdef TRANSFER
 #include "PhotonGrid_Methods.h"
