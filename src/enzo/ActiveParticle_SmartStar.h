@@ -29,12 +29,12 @@
 #include "FofLib.h"
 #define DEBUG 0
 /* Every how many times will the accretion rate be updated */
-#define FREQUENCY 100
+//#define FREQUENCY 100
 #define MAXACCRETIONRADIUS  128 /* Times the minimum cell width */
 #define ACCRETIONRADIUS  4
 #define NUMRADIATIONBINS 5
 #define CRITICAL_ACCRETION_RATE 0.001 //Msolar/yr (Haemerlee et al (2018))
-#define TIMEGAP            90   //yrs
+#define TIMEGAP            100   // * timestep
 #define POPIII_RESOLUTION  0.001 //pc
 #define SMS_RESOLUTION     0.1   //pc
 /* Prototypes */
@@ -182,12 +182,12 @@ public:
 					       LevelHierarchyEntry *LevelArray[], int ThisLevel);
   static float EjectedMassThreshold;
   FLOAT AccretionRadius;   // in units of CellWidth on the maximum refinement level
-  static int RadiationParticle;
+ 
   static double LuminosityPerSolarMass;
   static int RadiationSEDNumberOfBins;
   static float* RadiationEnergyBins;
   static float* RadiationSED;
-  static float RadiationLifetime;
+  double RadiationLifetime;
   //float acc[3];
   int ParticleClass;
 
@@ -195,7 +195,6 @@ public:
   float AccretionRateTime[NTIMES];
   int TimeIndex;
   float oldmass; //To calculate accmass do accmass = mass - oldmass; oldmass = mass;
-
   static int FeedbackDistTotalCells, FeedbackDistRadius, FeedbackDistCellStep;
   float NotEjectedMass, eta_disk, mass_in_accretion_sphere, MassToBeEjected;
   float beta_jet, epsilon_deltat;
@@ -236,7 +235,7 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
   /* Particles merge once they come within 3 accretion radii of one another */
 
   FLOAT MergingRadius = LevelArray[ThisLevel]->GridData->GetCellWidth(0,0)*ACCRETIONRADIUS; 
-  MergingRadius = MergingRadius*3.0;
+  //MergingRadius = MergingRadius*3.0;
   for (i=0; i<(*nParticles); i++) {
     tempPos = ParticleList[i]->ReturnPosition();
     for (dim=0; dim<3; dim++)
@@ -364,7 +363,6 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
 				       LevelArray, ThisLevel);
 
-      
 	//thisGrid->RemoveMassFromGridAfterFormation(np->pos, np->ParticleClass, np->AccretionRadius,
 	//						   np->Mass, 
 	//						   index, DensityThreshold, ExtraDensity);

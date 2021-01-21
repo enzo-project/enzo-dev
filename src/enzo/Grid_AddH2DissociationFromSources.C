@@ -2,10 +2,11 @@
 #define DEBUG 0
 
 #define JEANS_LENGTH 1
-#define SHIELD 1
+
 /***********************************************************************
 /
 /  ADD H2 DISSOCIATION EMISSION FROM SHINING PARTICLES
+/  H2 Shielding is on here always. 
 /
 /  written by: John Wise
 /  date:       March, 2006
@@ -184,9 +185,11 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	double colden = 0.0, shield = 1.0, b = 0.0, b5 = 0.0, XN = 0.0;
 	double H2mass = mh*2.0, alpha = 1.1;
 	double kph_hm = 0.0, kdiss_H2II = 0.0;
+#if JEANS_LENGTH	
 	int TemperatureField = 0;
 	/* Pre-compute some quantities to speed things up */
 	TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
+#endif
 	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
 	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
 	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
@@ -353,9 +356,11 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	double colden = 0.0, shield = 1.0, b = 0.0, b5 = 0.0, XN = 0.0;
 	double H2mass = mh*2.0, alpha = 1.1;
 	double kph_hm = 0.0, kdiss_H2II = 0.0;
+#if(JEANS_LENGTH)
 	int TemperatureField = 0;
 	/* Pre-compute some quantities to speed things up */
 	TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
+#endif
 	kdiss_r2 = (float) (LWLuminosity * H2ISigma / (4.0 * pi));
 	kph_hm = (float) (IRLuminosity * HMSigma / (4.0 * pi));
 	kdiss_H2II = (float) (H2IILuminosity * H2IISigma / (4.0 * pi));
@@ -379,7 +384,6 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	      }
 	      /* Include Shielding */
 	      //printf("%s: kdissH2I = %e for Grid %p\n", __FUNCTION__, BaryonField[kdissH2INum][index], this);
-#if SHIELD
 #if(JEANS_LENGTH)
 	      l_char = JeansLength(BaryonField[TemperatureField][index],
 		BaryonField[DensNum][index], DensityUnits)*RadiativeTransferOpticallyThinH2CharLength; //cm
@@ -405,7 +409,6 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 		shield = 0.965/pow(1+XN/b5, alpha) + (0.035/sqrt(1+XN))*exp(-8.5e-4*sqrt(1+XN));
 	      }
 	      BaryonField[kdissH2INum][index] *= shield;
-#endif
 	    } //end i loop
 	  } //end j loop
 	} //end k loop

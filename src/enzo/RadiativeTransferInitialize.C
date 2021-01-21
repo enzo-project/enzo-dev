@@ -206,8 +206,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	TypesToAdd[FieldsToAdd++] = Metallicity;
 	AddedMetallicity = true;
       }
-      if (StarClusterUseMetalField &&
+      if (StarClusterUseMetalField && 
 	  SmartStarFeedback > 0) {
+	printf("JR: Adding SS field");
 	TypesToAdd[FieldsToAdd++] = Metallicity;
 	AddedMetallicity = true;
       }
@@ -290,6 +291,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	    "from %"ISYM" to %"ISYM"\n", OldNumberOfBaryonFields, 
 	    OldNumberOfBaryonFields+FieldsToAdd);
 
+  printf("JR: OldNumberOfBaryonFields+FieldsToAdd = %d\n", OldNumberOfBaryonFields+FieldsToAdd);
   // Add an extra 1 because we will need it for flagging/marking cells.
   if (OldNumberOfBaryonFields+FieldsToAdd+1 > MAX_NUMBER_OF_BARYON_FIELDS)
     ENZO_FAIL("Exceeds MAX_NUMBER_OF_BARYON_FIELDS.  "

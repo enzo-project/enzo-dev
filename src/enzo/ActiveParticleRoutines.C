@@ -252,6 +252,7 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
  
   }
   if(Mass > a->Mass) {
+    RadiationLifetime = -99.0;
     ;
   }
   else {
@@ -263,6 +264,7 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
 	AccretionRateTime[i] = a->AccretionRateTime[i];
 	AccretionRate[i] = a->AccretionRate[i];	
       }
+    RadiationLifetime = a->RadiationLifetime;
   }
   Mass += a->Mass;
   NotEjectedMass += a->NotEjectedMass;
@@ -528,7 +530,7 @@ void ActiveParticleType_SmartStar::AssignMassFromIMF()
   }
   
   this->Mass = PopIIILowerMassCutoff * POW(10.0, bin_number * dm);
-
+  
   /* Adjust the lifetime (taken from the fit in Schaerer 2002) now we
      know the stellar mass.  It was set to the lifetime of a star with
      M=PopIIILowerMassCutoff in pop3_maker.src as a placeholder. */
@@ -538,5 +540,6 @@ void ActiveParticleType_SmartStar::AssignMassFromIMF()
   // First in years, then convert to code units
   this->RadiationLifetime = POW(10.0, (9.785 - 3.759*logm + 1.413*logm*logm - 
 			      0.186*logm*logm*logm)) / (TimeUnits/yr_s);
-
+  printf("%s: Mass assigned from IMF = %e Msolar\t Lifetime = %e\n", __FUNCTION__, this->Mass,
+	 this->RadiationLifetime*TimeUnits/yr_s);
 }

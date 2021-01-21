@@ -78,7 +78,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferLoadBalance                = FALSE;
   RadiativeTransferRayMaximumLength           = 1.7320508; //sqrt(3.0)
   RadiativeTransferUseH2Shielding             = TRUE;
-  RadiativeTransferH2ShieldType               = 0;
+  RadiativeTransferH2ShieldType               = 1;
   RadiativeTransferH2IIDiss                   = TRUE;
   RadiativeTransferHubbleTimeFraction         = 0.1;
   

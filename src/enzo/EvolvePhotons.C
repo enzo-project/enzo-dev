@@ -298,9 +298,11 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
 	  if (Temp->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {  
 	    ENZO_FAIL("Error in InitializeTemperatureFieldForComptonHeating.\n");
-	  }	
+	  }
+
+    printf("%s: RadiativeTransferH2ShieldType = %d\n", __FUNCTION__, RadiativeTransferH2ShieldType);
     /* Initialize Temperature Field for H2 shielding approximation */
-    if(RadiativeTransferH2ShieldType == 1 || ProblemType == 50) {
+    if(RadiativeTransferH2ShieldType == 1 || ProblemType == 50 || RadiativeTransferOpticallyThinH2) {
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
 	  if (Temp->GridData->InitializeTemperatureFieldForH2Shield() == FAIL) {
@@ -636,7 +638,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (Temp->GridData->FinalizeTemperatureFieldForComptonHeating() == FAIL) {  
 	    ENZO_FAIL("Error in FinalizeTemperatureFieldForComptonHeating.\n");
 	  }	
-    if (RadiativeTransferH2ShieldType == 1 || ProblemType == 50)
+    if (RadiativeTransferH2ShieldType == 1 || ProblemType == 50 || RadiativeTransferOpticallyThinH2)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->FinalizeTemperatureFieldForH2Shield() == FAIL) {  

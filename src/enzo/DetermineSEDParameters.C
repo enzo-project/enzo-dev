@@ -171,10 +171,11 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
 
   float x = log10((float)(_mass));
   float x2 = x*x;
+  printf("%s: _mass = %f\n", __FUNCTION__, _mass);
   if(this->ParticleClass == POPIII) {
 
     float E[NUMRADIATIONBINS] = {2.0, 12.8, 28.0, 30.0, 58.0};
-    float Q[NUMRADIATIONBINS] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double Q[NUMRADIATIONBINS] = {0.0, 0.0, 0.0, 0.0, 0.0};
     
     for(int bin = 0; bin < NUMRADIATIONBINS; bin++) {
       this->RadiationEnergyBins[bin] = E[bin];
@@ -190,8 +191,7 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
 	Q[4] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);      //HeII
       else
 	Q[4] = 0.0;
-
-    } else if (_mass > 5 && _mass <= 9) {
+     } else if (_mass > 5 && _mass <= 9) {
       Q[0] = 0.0;                                       //IR
       Q[1] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);      //LW
       Q[2] = pow(10.0, 39.29 + 8.55*x);                 //HI
@@ -206,14 +206,13 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
     }
 
     
-    float QTotal = 0;
-    for (int bin = 0; bin < NUMRADIATIONBINS; bin++) {
-      this->RadiationSED[bin] = Q[bin];
-
-    }
+    double QTotal = 0;
     for (int bin = 0; bin < NUMRADIATIONBINS; bin++) QTotal += Q[bin];
     for (int bin = 0; bin < NUMRADIATIONBINS; bin++) Q[bin] /= QTotal;
-    this->LuminosityPerSolarMass = QTotal/_mass; 
+    for (int bin = 0; bin < NUMRADIATIONBINS; bin++) {
+      this->RadiationSED[bin] = float(Q[bin]);
+    }
+    this->LuminosityPerSolarMass = QTotal/double(_mass); 
   }
   else if(this->ParticleClass == POPII) {
     float EnergyFractionLW   = 1.288;
@@ -221,8 +220,8 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
     float EnergyFractionHeII = 2.818e-4;
 
     float E[NUMRADIATIONBINS] = {2.0, 12.8, 21.62, 30.0, 60.0};
-    float Q[NUMRADIATIONBINS] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    float Qbase = StarClusterIonizingLuminosity * _mass;
+    double Q[NUMRADIATIONBINS] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double Qbase = StarClusterIonizingLuminosity * _mass;
     Q[0] = 0.0; //IR
     Q[1] = EnergyFractionLW * Qbase; //LW
     if (StarClusterHeliumIonization) {
@@ -234,13 +233,13 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
       Q[4] = 0.0;
     }
 
-    float QTotal = 0;
-    for (int bin = 0; bin < NUMRADIATIONBINS; bin++) {
-      this->RadiationSED[bin] = Q[bin];
-    }
+    double QTotal = 0;
     for (int bin = 0; bin < NUMRADIATIONBINS; bin++) QTotal += Q[bin];
     for (int bin = 0; bin < NUMRADIATIONBINS; bin++) Q[bin] /= QTotal;
-    this->LuminosityPerSolarMass = QTotal/_mass; 
+    for (int bin = 0; bin < NUMRADIATIONBINS; bin++) {
+      this->RadiationSED[bin] = float(Q[bin]);
+    }
+    this->LuminosityPerSolarMass = QTotal/double(_mass); 
     
   }
 

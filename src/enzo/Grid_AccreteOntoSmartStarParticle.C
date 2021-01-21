@@ -24,9 +24,9 @@
 #include "Hierarchy.h"
 #include "ActiveParticle.h"
 #include "ActiveParticle_SmartStar.h"
-#define UPDATE_SS_VELOCITY 1
+
 #define NO_DEBUG_AP
-#define ACCRETE_DEBUG 0
+#define ACCRETE_DEBUG 1
 #define NO_ACCRETION 0
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -133,14 +133,7 @@ int grid::AccreteOntoSmartStarParticle(
   printf("%s: AccretedMass = %e\n", __FUNCTION__, AccretedMass);
 #endif
   float *Vel = SS->vel;
-  /* 
-   * I don't think we should update the velocity of the particle
-   * This breaks conservation of momentum but the momentum is in the subgrid. The
-   * velocity of the accreted gas is placed in the accretion disk and 
-   * radiated back. The black hole itself probably doesn't move in nature. It
-   * should not move here either
-   */
-#if UPDATE_SS_VELOCITY
+ 
   float NewVelocity[3] =
     {
     (Vel[0]+delta_vpart[0]),
@@ -149,7 +142,7 @@ int grid::AccreteOntoSmartStarParticle(
     };
 
   ThisParticle->SetVelocity(NewVelocity);
-#endif
+
   /* 
    * This value is the actual accretion rate onto the SmartStar. It was initially
    * calculated according to some prescription (e.g. Bondi-Hoyle) and then

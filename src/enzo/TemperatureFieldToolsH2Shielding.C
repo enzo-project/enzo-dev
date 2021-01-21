@@ -30,8 +30,8 @@ int grid::InitializeTemperatureFieldForH2Shield()
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  if (RadiativeTransferH2ShieldType != 1)
-    return SUCCESS;
+  //if (RadiativeTransferH2ShieldType != 1)
+  // return SUCCESS;
 
   int TemperatureField, size = 1;
   float *temperature;
@@ -50,8 +50,7 @@ int grid::InitializeTemperatureFieldForH2Shield()
   
   for (int i = 0; i < size; i++)
     BaryonField[TemperatureField][i] = temperature[i];
-
-  delete [] temperature;
+   delete [] temperature;
 
   return SUCCESS;
 }
@@ -62,8 +61,8 @@ int grid::FinalizeTemperatureFieldForH2Shield()
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  if (RadiativeTransferH2ShieldType != 1)
-    return SUCCESS;
+  //if (RadiativeTransferH2ShieldType != 1)
+  // return SUCCESS;
 
   int TemperatureField;
   TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
