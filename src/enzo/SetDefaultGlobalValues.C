@@ -1030,6 +1030,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmartStarBHJetFeedback = FALSE;
   SmartStarBHThermalFeedback = FALSE;
   SmartStarStellarRadiativeFeedback = FALSE;
+  ActiveParticlesIMFSeed = -1;
   
   //SmartStar Feedback parameters - should be as minimal as possible
   SmartStarFeedbackEnergyCoupling = 0.016666;

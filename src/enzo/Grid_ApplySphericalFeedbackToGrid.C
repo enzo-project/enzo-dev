@@ -63,6 +63,9 @@ int grid::ApplySphericalFeedbackToGrid(ActiveParticleType** ThisParticle,
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
   ActiveParticleType_SmartStar *SS = static_cast<ActiveParticleType_SmartStar*>(* ThisParticle);
   FLOAT radius = SS->InfluenceRadius;
+  if(radius == 0.0)
+    radius = 4*this->CellWidth[0][0];
+  printf("%s: radius = %e\n", __FUNCTION__, radius);
   float MetalRadius = 1.0;
   FLOAT MetalRadius2 = radius * radius * MetalRadius * MetalRadius;
   float dx = float(this->CellWidth[0][0]);
@@ -78,6 +81,7 @@ int grid::ApplySphericalFeedbackToGrid(ActiveParticleType** ThisParticle,
 	  FLOAT radius2 = POW(CellLeftEdge[0][i] + 0.5*dx - pos[0],2.0) +
 	    POW(CellLeftEdge[1][j] + 0.5*dx - pos[1],2.0) +
 	    POW(CellLeftEdge[2][k] + 0.5*dx - pos[2],2.0);
+
 	  if (radius2 < outerRadius2) {
 	    float r1 = sqrt(radius2) / radius;
 	    float norm = 0.98;

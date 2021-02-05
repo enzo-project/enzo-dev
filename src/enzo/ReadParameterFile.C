@@ -1453,6 +1453,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stdout, "Enabling particle type %s\n", active_particle_types[i]);
     }
+    ActiveParticlesIMFSeed = MetaData.CycleNumber;
     EnableActiveParticleType(active_particle_types[i]);
     delete [] active_particle_types[i];
   }

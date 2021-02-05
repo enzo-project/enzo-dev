@@ -66,6 +66,8 @@ public:
   // Constructors
   ActiveParticleType_SmartStar(void) : ActiveParticleType() {
     AccretionRadius = -1;
+    RadiationLifetime = 0.0;
+    StellarAge = 0.0;
     ParticleClass = 0;
     NotEjectedMass = 0;
     MassToBeEjected = 0;
@@ -89,12 +91,14 @@ public:
   ActiveParticleType_SmartStar(ActiveParticleType_SmartStar* part) :
     ActiveParticleType(static_cast<ActiveParticleType*>(part)) {   
     AccretionRadius = part->AccretionRadius;
+    RadiationLifetime = part->RadiationLifetime;
+    StellarAge = part->StellarAge;
     ParticleClass = part->ParticleClass;
     for(int i = 0; i < 3; i++) {
       Accreted_angmom[i] = 0.0;
     }
-   
     TimeIndex = part->TimeIndex;
+    
     oldmass = part->oldmass;
     for(int i = 0; i < NTIMES; i++) {
       AccretionRateTime[i] = part->AccretionRateTime[i];
@@ -106,6 +110,7 @@ public:
     epsilon_deltat = part->epsilon_deltat;
     beta_jet = part->beta_jet;
     mass_in_accretion_sphere = part->mass_in_accretion_sphere;
+    InfluenceRadius = part->InfluenceRadius;
     };
   ActiveParticleType* clone() {
     return static_cast<ActiveParticleType*>(
@@ -150,6 +155,7 @@ public:
   static int CreateParticle(grid *thisgrid_orig, ActiveParticleFormationData &supp_data,
 			    int particle_index);
   static int InitializeParticleType();
+
   void SmartMerge(ActiveParticleType_SmartStar *a);
   void AssignMassFromIMF();
   int CalculateAccretedAngularMomentum();
@@ -187,10 +193,10 @@ public:
   static int RadiationSEDNumberOfBins;
   static float* RadiationEnergyBins;
   static float* RadiationSED;
-  double RadiationLifetime;
+  double RadiationLifetime, StellarAge;
   //float acc[3];
   int ParticleClass;
-
+  
   float AccretionRate[NTIMES];
   float AccretionRateTime[NTIMES];
   int TimeIndex;
@@ -232,7 +238,7 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
   FLOAT ParticleCoordinates[3*(*nParticles)];
 
   fflush(stdout);
-  /* Particles merge once they come within 3 accretion radii of one another */
+  /* Particles merge once they come within 1 accretion radii of one another */
 
   FLOAT MergingRadius = LevelArray[ThisLevel]->GridData->GetCellWidth(0,0)*ACCRETIONRADIUS; 
   //MergingRadius = MergingRadius*3.0;
@@ -262,7 +268,7 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
                 MergedParticles[i]->ReturnCurrentGrid()->ReturnProcessorNumber()
               ) == FAIL)
         {
-          ENZO_FAIL("MergeSmartStars: DisableParticle failed!\n");
+          ENZO_FAIL("MergeSmartStars: DisableAParticle failed!\n");
         }
       }
     }
@@ -336,10 +342,10 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 {
 
   /* SmartStar particles live on the maximum refinement level.  If we are on a lower level, this does not concern us */
-
+  
   if (ThisLevel == MaximumRefinementLevel)
     {
-
+      
       /* Generate a list of all sink particles in the simulation box */
       int i = 0, nParticles = 0, NumberOfMergedParticles = 0;
       ActiveParticleList<ActiveParticleType> ParticleList;
@@ -363,13 +369,23 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
 				       LevelArray, ThisLevel);
 
-	//thisGrid->RemoveMassFromGridAfterFormation(np->pos, np->ParticleClass, np->AccretionRadius,
-	//						   np->Mass, 
-	//						   index, DensityThreshold, ExtraDensity);
+      /* Clean any particles marked for deletion */
+      for (i = 0; i<nParticles; i++) {
+	if(ParticleList[i]->ShouldDelete() == true) {
+	  printf("%s: Delete SS %d following RemoveMassFromGridAfterFormation\n", __FUNCTION__,
+		 static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
+	  fflush(stdout);
+	  ParticleList.erase(i);
+	}
+      }
+      /* TEST THIS IS CORRECT*/
+      ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
+      			    ParticleList);
+      //if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
+      //				       LevelArray) == FAIL)
+      // return FAIL;
 
-      
       /* Do Merging   */
-
       ActiveParticleList<active_particle_class> MergedParticles;
       
       /* Generate new merged list of sink particles */
@@ -397,11 +413,12 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       
       ParticleList.clear();
       
-      //if (debug)
-      //  printf("Number of particles after merging: %"ISYM"\n",NumberOfMergedParticles);
+      if (debug)
+        printf("Number of particles after merging: %"ISYM"\n",NumberOfMergedParticles);
       
       /* Assign local particles to grids */
-      
+      /* Do Merging   */
+     
       ParticleList.reserve(NumberOfMergedParticles);
       
       // need to use a bit of redirection because C++ pointer arrays have
@@ -415,17 +432,17 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       if (AssignActiveParticlesToGrids(ParticleList, NumberOfMergedParticles, 
               LevelArray) == FAIL)
         return FAIL;
-      
+
       ParticleList.clear();
       MergedParticles.clear();
-      
+    
       /* Regenerate the global active particle list */
       
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
         ParticleList);
 
       /* Do accretion */
-     
+      
       if (Accrete(nParticles, ParticleList, accradius, dx, LevelArray, 
               ThisLevel) == FAIL)
         ENZO_FAIL("SmartStar Particle accretion failed. \n");
@@ -437,11 +454,16 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       if (SmartStarParticleFeedback(nParticles, ParticleList,
         dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("SmartStar Particle Feedback failed. \n");
+      //ParticleList.clear();
+      /* Regenerate the global active particle list */
+
+      ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
+        ParticleList);
+
       /* This applies all of the updates made above */
-      if (AssignActiveParticlesToGrids(ParticleList, NumberOfMergedParticles, 
+      if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
               LevelArray) == FAIL)
         return FAIL;      
-
       ParticleList.clear();
 
     }

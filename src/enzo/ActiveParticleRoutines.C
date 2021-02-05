@@ -242,7 +242,6 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
 {
   int dim;
   double ratio1, ratio2;
-
   ratio1 = Mass / (Mass + a->Mass);
   ratio2 = 1.0 - ratio1;
   Metallicity = ratio1 * Metallicity + ratio2 * a->Metallicity;
@@ -251,8 +250,8 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
     vel[dim] = ratio1 * vel[dim] + ratio2 * a->vel[dim];
  
   }
+
   if(Mass > a->Mass) {
-    RadiationLifetime = -99.0;
     ;
   }
   else {
@@ -265,10 +264,16 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
 	AccretionRate[i] = a->AccretionRate[i];	
       }
     RadiationLifetime = a->RadiationLifetime;
+    StellarAge = a->StellarAge;
   }
   Mass += a->Mass;
   NotEjectedMass += a->NotEjectedMass;
   ParticleClass = max(ParticleClass, a->ParticleClass);
+  WillDelete = min(WillDelete, a->WillDelete);
+  /* We should update the Lifetime after a merger I think....*/ //TODO
+  //float logm = log10((float)(this->Mass);
+  //RadiationLifetime = POW(10.0, (9.785 - 3.759*logm + 1.413*logm*logm - 
+  //			      0.186*logm*logm*logm)) / (TimeUnits/yr_s);
   return;
 }
 
@@ -507,12 +512,14 @@ void ActiveParticleType_SmartStar::AssignMassFromIMF()
     VelocityUnits, MassConversion;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, CurrentGrid->Time);
+  
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
   float x = (float) (random_int%max_random) / (float) (max_random);
   float dm = log10(PopIIIUpperMassCutoff / PopIIILowerMassCutoff) / 
     (float) (IMF_TABLE_ENTRIES-1);
-
+  
+  printf("%s: random_int = %lld\n x = %f\n", __FUNCTION__, random_int, x);
   /* (binary) search for the mass bin corresponding to the random
      number */
 
@@ -534,12 +541,13 @@ void ActiveParticleType_SmartStar::AssignMassFromIMF()
   /* Adjust the lifetime (taken from the fit in Schaerer 2002) now we
      know the stellar mass.  It was set to the lifetime of a star with
      M=PopIIILowerMassCutoff in pop3_maker.src as a placeholder. */
-
   float logm = log10((float)this->Mass);
 
   // First in years, then convert to code units
   this->RadiationLifetime = POW(10.0, (9.785 - 3.759*logm + 1.413*logm*logm - 
 			      0.186*logm*logm*logm)) / (TimeUnits/yr_s);
-  printf("%s: Mass assigned from IMF = %e Msolar\t Lifetime = %e\n", __FUNCTION__, this->Mass,
-	 this->RadiationLifetime*TimeUnits/yr_s);
+
+  printf("%s: Mass assigned from IMF = %e Msolar\t Lifetime = %1.5f Myr\n", __FUNCTION__, this->Mass,
+	 this->RadiationLifetime*TimeUnits/Myr_s);
+ 
 }

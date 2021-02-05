@@ -7,6 +7,12 @@
 /  date:       December, 2017
 /
 /  note: Based on methods originally implemented by Stephen Skory
+/ 
+/  description: the functions here apply the impact of i) supernova
+/  explosions, ii) the feedback from black hole thermal energy and 
+/  iii) the feedback from black hole jets. 
+/
+/  Radiative feedback is not dealt with here. See ActiveParticle_SmartStar.C instead. 
 ************************************************************************/
 
 #include "preincludes.h"
@@ -105,16 +111,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 				    DIINum, HDINum) == FAIL) {
         ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
-  if(SS->AccretionRate[SS->TimeIndex] <= 0.0) {
-    float mdot = SS->AccretionRate[SS->TimeIndex];  //CodeMass/CodeTime
-      
-    float accrate = mdot*MassUnits/(SolarMass*TimeUnits)*3.154e7; //in Msolar/s      
-    printf("%s: AccretionRate = %e Msolar/yr %e (code)\n", __FUNCTION__,
-           accrate, SS->AccretionRate[SS->TimeIndex]);
-    printf("%s: Returning until accretion rate is updated\n", __FUNCTION__);
-    return SUCCESS;
-  }
-  
+
   /***********************************************************************
                                 SUPERNOVAE
   ************************************************************************/
@@ -129,9 +126,21 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
   if(SS->ParticleClass == POPIII)
     {
       float Age = Time - SS->BirthTime;
-     
-      if(SS->RadiationLifetime < Age) {/* Star needs to go supernovae and change type */
+      if(Age > SS->RadiationLifetime) {/* Star needs to go supernovae and change type */
+
+
+	/* We now need to convert this particle into a Black Hole if appropriate 
+	 * 20 Msolar - 40.1 Msolar -> Type II supernova with BH remnant 
+	 * 40.1 Msolar - 140 Msolar -> DCBH 
+	 * 140 Msolar - 260 Msolar -> PISN -> No remnant (delete particle)
+	 * 260+ Msolar - DCBH
+	 */
+	
+	printf("%s:Star going Supernova!\n", __FUNCTION__);
+	printf("%s: Age = %1.2f Myr\t RadiationLifetime = %1.2f kyr\n", __FUNCTION__,
+	       Age*TimeUnits/Myr_s, SS->RadiationLifetime*TimeUnits/Myr_s);
 	double StellarMass = SS->Mass*MassConversion/SolarMass; /* In Msolar */
+	printf("%s: StellarMass = %lf\n", __FUNCTION__, StellarMass);
 	double SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
 	FLOAT Radius = PopIIISupernovaRadius * pc_cm / LengthUnits;
 	float StarLevelCellWidth = this->CellWidth[0][0];
@@ -145,6 +154,14 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
  	  SNEnergy = (5.0 + 1.304 * (HeliumCoreMass - 64)) * 1e51;
 	  EjectaMetalDensity = HeliumCoreMass * SolarMass / EjectaVolume / 
 	    DensityUnits;
+	  SS->WillDelete = true;
+	  printf("%s: PISN detected. Particle set for deletion.\n", __FUNCTION__);
+	  EjectaThermalEnergy = SNEnergy / (StellarMass * SolarMass) / VelocityUnits /
+	    VelocityUnits;
+
+	  this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
+					     EjectaMetalDensity);
+	  printf("%s: PISN Feedback completed. Delete particle\n", __FUNCTION__);
 	} 
 	  // Type II SNe
 	else if (StellarMass >= TypeIILowerMass && StellarMass <= TypeIIUpperMass) {
@@ -159,16 +176,29 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 			       frac * (SNExplosionEnergy[bin+1] - SNExplosionEnergy[bin]));
 	    MetalMass = (SNExplosionMetals[bin] + 
 			 frac * (SNExplosionMetals[bin+1] - SNExplosionMetals[bin]));
+	   
+	  
 	  }
+	  SS->ParticleClass = BH;
+	  SS->RadiationLifetime = 1e20;
+	  printf("%s: Post-SNe: ParticleClass now %d\t Lifetime = %f Myr\n", __FUNCTION__,
+		 SS->ParticleClass, SS->RadiationLifetime*TimeUnits/Myr_s);
 	  EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
-	}
-	EjectaThermalEnergy = SNEnergy / (StellarMass * SolarMass) / VelocityUnits /
-	  VelocityUnits;
+	  EjectaThermalEnergy = SNEnergy / (StellarMass * SolarMass) / VelocityUnits /
+	    VelocityUnits;
 
-	this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
+	  this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
 					   EjectaMetalDensity);
-
+	}
+	else {//DCBH
+	  SS->ParticleClass = BH;
+	  SS->RadiationLifetime = 1e20;
+	  printf("%s: DCBH Created: ParticleClass now %d\t Lifetime = %f Myr\n", __FUNCTION__,
+		 SS->ParticleClass, SS->RadiationLifetime*TimeUnits/Myr_s);
+	  
+	}
       }
+      return SUCCESS;
     }
   
   if(SS->ParticleClass == POPII)
@@ -190,6 +220,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	(VelocityUnits * VelocityUnits);
       this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
 					   EjectaMetalDensity);
+      return SUCCESS;
     }
   /***********************************************************************
                                 MBH_THERMAL

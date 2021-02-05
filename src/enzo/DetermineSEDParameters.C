@@ -171,7 +171,7 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
 
   float x = log10((float)(_mass));
   float x2 = x*x;
-  printf("%s: _mass = %f\n", __FUNCTION__, _mass);
+
   if(this->ParticleClass == POPIII) {
 
     float E[NUMRADIATIONBINS] = {2.0, 12.8, 28.0, 30.0, 58.0};

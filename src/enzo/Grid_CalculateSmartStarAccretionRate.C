@@ -31,6 +31,7 @@
 #define SMALL_NUMBER         1e-6
 #define ACCRETION_LIMIT     1e-1
 #define C_VISC              2.1e6
+#define DEBUG_AP            0
 float bondi_alpha(float x);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,

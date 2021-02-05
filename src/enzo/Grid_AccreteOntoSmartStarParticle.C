@@ -26,7 +26,7 @@
 #include "ActiveParticle_SmartStar.h"
 
 #define NO_DEBUG_AP
-#define ACCRETE_DEBUG 1
+#define ACCRETE_DEBUG 0
 #define NO_ACCRETION 0
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -42,6 +42,7 @@ int grid::AccreteOntoSmartStarParticle(
     return SUCCESS;
   ActiveParticleType_SmartStar* SS;
   SS = static_cast<ActiveParticleType_SmartStar*>(ThisParticle);
+
   /* Check whether the cube that circumscribes the accretion zone intersects
    * with this grid */
   FLOAT xsink = ThisParticle->ReturnPosition()[0];

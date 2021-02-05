@@ -300,7 +300,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    ENZO_FAIL("Error in InitializeTemperatureFieldForComptonHeating.\n");
 	  }
 
-    printf("%s: RadiativeTransferH2ShieldType = %d\n", __FUNCTION__, RadiativeTransferH2ShieldType);
     /* Initialize Temperature Field for H2 shielding approximation */
     if(RadiativeTransferH2ShieldType == 1 || ProblemType == 50 || RadiativeTransferOpticallyThinH2) {
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
