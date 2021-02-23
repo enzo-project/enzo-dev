@@ -21,15 +21,14 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#include "StarParticleData.h"
+
 #define NO_DEATH 0
 #define KILL_STAR 1
 #define KILL_ALL 2
 
 int Star::HitEndpoint(FLOAT Time)
 {
-
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
-  const float PISNLowerMass = 140, PISNUpperMass = 260;
 
   /* First check if the star's past its lifetime and then check other
      constrains based on its star type */
@@ -99,6 +98,119 @@ int Star::HitEndpoint(FLOAT Time)
     break;
 
   case PopIII_CF:
+    break;
+
+  case NormalStar:
+    break;
+
+  case IndividualStar:
+    {
+      result = NO_DEATH; // never kill these stars
+
+      float mproj;
+      mproj       = this->BirthMass;
+
+      /* check mass */
+      if(mproj > IndividualStarSNIIMassCutoff && mproj < IndividualStarDirectCollapseThreshold){
+
+          if(this->FeedbackFlag == INDIVIDUAL_STAR_SN_COMPLETE){
+             //(this->FeedbackFlag == INDIVIDUAL_STAR_SNII ||
+             //this->FeedbackFlag == INDIVIDUAL_STAR_WIND_AND_SN)){
+              this->LifeTime = huge_number*this->LifeTime; // make to a Hubble time
+              this->type = IndividualStarRemnant;
+              this->FeedbackFlag = NO_FEEDBACK;
+          } else { // havent blown up yet
+              this->FeedbackFlag = INDIVIDUAL_STAR_SNII;
+          }
+
+      } else if (mproj > IndividualStarDirectCollapseThreshold){
+        this->FeedbackFlag = NO_FEEDBACK;
+        this->LifeTime     = huge_number * this->LifeTime;
+        this->type         = IndividualStarRemnant;
+      }
+
+      if(mproj >= IndividualStarWDMinimumMass && mproj <= IndividualStarWDMaximumMass){
+
+          if(this->FeedbackFlag == INDIVIDUAL_STAR_STELLAR_WIND){
+
+              this->type = -IndividualStarWD;           // set negative
+//              this->LifeTime = huge_number ; // very large number
+
+              float wd_mass;
+              // Old fit from Salaris+2009
+/*
+              if(   mproj < 4.0){ wd_mass = 0.134 * mproj + 0.331;}
+              else if (mproj >=4.0){ wd_mass = 0.047 * mproj + 0.679;}
+*/
+              // new fit from Cummings+2019 (MIST model)
+              //   this model has lower / upper bounds of 0.83 and 7.20 in mproj
+              //   but don't include those bounds here since these masses don't actually
+              //   change the physics (except gravity... so it isn't that big
+              //   of deal if the 7.2 - 8 Msun progenitor masses are off by a little)
+              if      (mproj < 2.85) wd_mass = 0.080 * mproj + 0.489;
+              else if (mproj < 3.60) wd_mass = 0.187 * mproj + 0.184;
+              else if (mproj > 3.60) wd_mass = 0.107 * mproj + 0.471;
+              this->Mass = wd_mass;
+
+              this->FeedbackFlag = NO_FEEDBACK;
+          } else{
+
+            // otherwise, we haven't done the last phase of AGB wind yet
+            // keep this particle around for another timestep
+            this->FeedbackFlag = INDIVIDUAL_STAR_STELLAR_WIND;
+
+          }
+
+      } // end WD check
+
+
+      break;
+    }
+
+  case IndividualStarPopIII:
+     {
+     result = NO_DEATH;
+
+     if (((this->BirthMass >= PISNLowerMass && this->BirthMass <= PISNUpperMass) ||
+         (this->BirthMass >= TypeIILowerMass && this->BirthMass <= TypeIIUpperMass)) &&
+             PopIIISupernovaExplosions == TRUE) {
+
+       if (this->FeedbackFlag == INDIVIDUAL_STAR_SN_COMPLETE){
+         this->LifeTime = huge_number * this->LifeTime;
+         this->type     = IndividualStarRemnant;
+         this->FeedbackFlag = NO_FEEDBACK;
+       } else{
+         this->FeedbackFlag = INDIVIDUAL_STAR_POPIIISN;
+       }
+
+    } else{
+       this->FeedbackFlag = NO_FEEDBACK;
+       this->LifeTime     = huge_number * this->LifeTime;
+       this->type         = IndividualStarRemnant;
+    }
+
+    break;
+    }
+  case IndividualStarWD:
+    {
+    result = NO_DEATH;
+
+    if ( this->FeedbackFlag == INDIVIDUAL_STAR_SN_COMPLETE){
+         //this->FeedbackFlag == INDIVIDUAL_STAR_SNIA ){
+      this->Mass         = 0.0;
+//      this->LifeTime     = huge_number * this->LifeTime;
+      this->FeedbackFlag = NO_FEEDBACK;
+    } else if (this->Mass > 0.0) { // flag for when they haven't died yet
+      this->FeedbackFlag = INDIVIDUAL_STAR_SNIA;
+    }
+
+    break;
+    }
+  case IndividualStarRemnant:
+  case IndividualStarUnresolved:
+    result = NO_DEATH; //printf("Individual Star remnamt in hit endpoint\n");
+    this->FeedbackFlag = NO_FEEDBACK;
+    this->LifeTime     = huge_number * this->LifeTime;
     break;
 
   } // ENDSWITCH

@@ -167,9 +167,9 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   EtaCenter[2]       = 0.0;       // z-location
 
   // set default chemistry constants
-  hnu0_HI   = 13.6;      // ionization energy of HI   [eV]
-  hnu0_HeI  = 24.6;      // ionization energy of HeI  [eV]
-  hnu0_HeII = 54.4;      // ionization energy of HeII [eV]
+  hnu0_HI   = HI_ionizing_energy;        // ionization energy of HI   [eV]
+  hnu0_HeI  = HeI_ionizing_energy;       // ionization energy of HeI  [eV]
+  hnu0_HeII = HeII_ionizing_energy;      // ionization energy of HeII [eV]
 
 //   if (debug)  printf("  Initialize: checking input file\n");
 

@@ -43,6 +43,14 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferCoupledRateSolver);
   fprintf(fptr, "RadiativeTransferOpticallyThinH2          = %"ISYM"\n", 
 	  RadiativeTransferOpticallyThinH2);
+  fprintf(fptr, "RadiativeTransferOpticallyThinFUV         = %"ISYM"\n",
+          RadiativeTransferOpticallyThinFUV);
+  fprintf(fptr, "RadiativeTransferOpticallyThinIR          = %"ISYM"\n",
+          RadiativeTransferOpticallyThinIR);
+  fprintf(fptr, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM"\n",
+          RadiativeTransferOpticallyThinSourceClustering);
+  fprintf(fptr, "RadiativeTransferSourceClusteringCount = %"ISYM"\n",
+          RadiativeTransferSourceClusteringCount);
   fprintf(fptr, "RadiativeTransferOpticallyThinH2CharLength = %"GOUTSYM"\n", 
 	  RadiativeTransferOpticallyThinH2CharLength);
   fprintf(fptr, "RadiativeTransferFLDCallOnLevel           = %"ISYM"\n", 
@@ -81,6 +89,12 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferHydrogenOnly);
   fprintf(fptr, "RadiativeTransferTraceSpectrum            = %"ISYM"\n", 
 	  RadiativeTransferTraceSpectrum);
+  fprintf(fptr, "RadiativeTransferDeletePhotonByPosition   = %"ISYM"\n",
+          RadiativeTransferDeletePhotonByPosition);
+  fprintf(fptr, "RadiativeTransferDeletePhotonRadius       = %"FSYM"\n",
+          RadiativeTransferDeletePhotonRadius);
+  fprintf(fptr, "RadiativeTransferDeletePhotonSourceRadius = %"FSYM"\n",
+          RadiativeTransferDeletePhotonSourceRadius);
   fprintf(fptr, "RadiativeTransferRayMaximumLength         = %"FSYM"\n", 
 	  RadiativeTransferRayMaximumLength);
   fprintf(fptr, "RadiativeTransferH2ShieldType             = %"ISYM"\n", 

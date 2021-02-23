@@ -37,6 +37,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
 				       float VelocityUnits, float dtForThisStar,
 				       FLOAT Time, bool &SphereCheck)
 {
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return;
+  }
+
 
   // Parameters for the Stroemgren sphere in Whalen et al. (2004)
   const float	BirthRadius	  = 50;		// pc
@@ -46,8 +50,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
   const double h=0.70;
 
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
-  const float PISNLowerMass = 140, PISNUpperMass = 260;
+//  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
+//  const float PISNLowerMass = 140, PISNUpperMass = 260;
 
   // From Nomoto et al. (2006)
   const float HypernovaMetals[] = {3.36, 3.53, 5.48, 7.03, 8.59}; // SolarMass

@@ -54,6 +54,9 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPropagationDistance        = 0.1;
   RadiativeTransferCoupledRateSolver          = TRUE;
   RadiativeTransferOpticallyThinH2            = TRUE;
+  RadiativeTransferOpticallyThinFUV           = TRUE;
+  RadiativeTransferOpticallyThinIR            = TRUE;
+  RadiativeTransferSourceClusteringCount      = 10;
   RadiativeTransferOpticallyThinH2CharLength  = 0.25;
   RadiativeTransferFluxBackgroundLimit        = 0.01;
   RadiativeTransferSplitPhotonRadius          = FLOAT_UNDEFINED; // kpc
@@ -80,9 +83,15 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferH2ShieldType               = 0;
   RadiativeTransferH2IIDiss                   = TRUE;
   RadiativeTransferHubbleTimeFraction         = 0.1;
-  
-  if (MultiSpecies == 0)
-    RadiativeTransferOpticallyThinH2 = FALSE;
+  RadiativeTransferDeletePhotonByPosition     = FALSE;
+  RadiativeTransferDeletePhotonRadius         = FLOAT_UNDEFINED ; // in code units
+  RadiativeTransferDeletePhotonSourceRadius   = 1.0E20          ; // in code units
+
+  if (MultiSpecies == 0){
+    RadiativeTransferOpticallyThinH2  = FALSE;
+    RadiativeTransferOpticallyThinFUV = FALSE;
+    RadiativeTransferOpticallyThinIR  = FALSE;
+  }
 
   /* read input from file */
 
@@ -106,6 +115,14 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferCoupledRateSolver);
     ret += sscanf(line, "RadiativeTransferOpticallyThinH2 = %"ISYM, 
 		  &RadiativeTransferOpticallyThinH2);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinFUV = %"ISYM,
+                  &RadiativeTransferOpticallyThinFUV);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinIR = %"ISYM,
+                  &RadiativeTransferOpticallyThinIR);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
+                  &RadiativeTransferOpticallyThinSourceClustering);
+    ret += sscanf(line, "RadiativeTransferSourceClusteringCount = %"ISYM,
+                  &RadiativeTransferSourceClusteringCount);
     ret += sscanf(line, "RadiativeTransferOpticallyThinH2CharLength = %"FSYM, 
 		  &RadiativeTransferOpticallyThinH2CharLength);
     ret += sscanf(line, "RadiativeTransferPeriodicBoundary = %"ISYM, 
@@ -128,8 +145,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferInterpolateField);
     ret += sscanf(line, "RadiativeTransferSourceClustering = %"ISYM, 
 		  &RadiativeTransferSourceClustering);
-    ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
-                  &RadiativeTransferOpticallyThinSourceClustering);
+    ret += sscanf(line, "RadiativeTransferSourceClusteringCount = %"ISYM,
+                  &RadiativeTransferSourceClusteringCount);
     ret += sscanf(line, "RadiativeTransferPhotonMergeRadius = %"FSYM, 
 		  &RadiativeTransferPhotonMergeRadius);
     ret += sscanf(line, "RadiativeTransferFLDCallOnLevel = %"ISYM, 
@@ -156,6 +173,12 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferRayMaximumLength);
     ret += sscanf(line, "RadiativeTransferHubbleTimeFraction = %"FSYM, 
 		  &RadiativeTransferHubbleTimeFraction);
+    ret += sscanf(line, "RadiativeTransferDeletePhotonByPosition = %"ISYM,
+                  &RadiativeTransferDeletePhotonByPosition);
+    ret += sscanf(line, "RadiativeTransferDeletePhotonRadius = %"FSYM,
+                  &RadiativeTransferDeletePhotonRadius);
+    ret += sscanf(line, "RadiativeTransferDeletePhotonSourceRadius = %"FSYM,
+                  &RadiativeTransferDeletePhotonSourceRadius);
     if (sscanf(line, "RadiativeTransferTraceSpectrumTable = %s", dummy) == 1)
       RadiativeTransferTraceSpectrumTable = dummy;  
     ret += sscanf(line, "dtPhoton = %"FSYM, &dtPhoton);
@@ -164,6 +187,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
  
     if (*dummy != 0) {
       dummy = new char[MAX_LINE_LENGTH];
+      dummy[0] = 0;
       ret++;
     }
  
@@ -178,6 +202,16 @@ int RadiativeTransferReadParameters(FILE *fptr)
   }
 
   /* Error check */
+
+  /* Check if source clustering is off. If off, make sure optically thin clustering is off */
+  if (RadiativeTransferSourceClustering == FALSE){
+    if (RadiativeTransferOpticallyThinSourceClustering){
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+        fprintf(stderr, "Warning: source clustering is off, but opically thin"
+                "radiation source clustering is on. Setting optically thin clustering to OFF.\n");
+    }
+    RadiativeTransferOpticallyThinSourceClustering = FALSE;
+  }
 
   /* Check if H2 cooling is turned on for Lyman-Werner radiation. */
 
@@ -241,7 +275,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
   if (RadiativeTransferOpticallyThinSourceClustering &&
       (RadiativeTransferPhotonMergeRadius > 5.0)){
-    fprintf(stderr, "Warning: Caution when using optically thin source clustering and "
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning: Caution when using optically thin source clustering and "
                     "values for RadiativeTransferPhotonMergeRadius > 5. This may result in missing "
                     "radiation near sources.\n");
   }
@@ -252,6 +287,15 @@ int RadiativeTransferReadParameters(FILE *fptr)
     grackle_data->radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
     grackle_data->radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
   }
+
+  if (grackle_data->H2_self_shielding && RadiativeTransferUseH2Shielding){
+    ENZO_FAIL("Error: RadiativeTransferUseH2Shielding and Grackle's H2_shelf_shielding parameters are both ON "
+              "       this will result in redundant H2 self-shielding. If H2 dissociating (LW-band) radiation "
+              "       is being followed in the optically thin limit, then either parameter can be turned on, "
+              "       but not both. If H2 dissociating radiation is followed with full RT, then Grackle's "
+              "       H2_self_shielding should be turned OFF.")
+  }
+
 #endif // USE_GRACKLE
 
   delete [] dummy;

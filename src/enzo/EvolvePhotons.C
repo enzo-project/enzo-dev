@@ -5,16 +5,16 @@
 /  written by: Tom Abel
 /  date:       May 2004
 /  modified1:  November 2005 by John Wise (parallelized it)
-/                
+/
 /
 /  PURPOSE:
-/    This routine is the main photon evolution function. 
+/    This routine is the main photon evolution function.
 /    From here we call first the routines that control the emission:
 /    grid::Shine
 /  while (stil_photons_to_update)
 /    transport all photon packages local to a grid
-/    communicate all surviving photon packages to their new parent grids. 
-/  endwhile  
+/    communicate all surviving photon packages to their new parent grids.
+/  endwhile
 /
 ************************************************************************/
 
@@ -48,8 +48,8 @@ int RadiationFieldCalculateRates(FLOAT Time);
 int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 				 bool local_transport,
 				 int &keep_transporting);
-int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[], 
-				 ListOfPhotonsToMove **AllPhotons, 
+int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
+				 ListOfPhotonsToMove **AllPhotons,
 				 char *kt_global,
 				 int &keep_transporting);
 int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGrids);
@@ -75,7 +75,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     TopGridData *MetaData, float dtLevelAbove,
 				     int level);
 int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
-int SetSubgridMarker(TopGridData &MetaData, 
+int SetSubgridMarker(TopGridData &MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level,
 		     int UpdateReplicatedGridsOnly);
 void PrintMemoryUsage(char *str);
@@ -136,7 +136,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
   if (dtPhoton < 0)
-    return SUCCESS;  
+    return SUCCESS;
 
   if (GridTime <= PhotonTime)
     return SUCCESS;
@@ -167,7 +167,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Find the finest grid that hosts each radiation source, and store
      them in a GridList */
 
-  ThinGridList *RS_GridList, *NewNode, *TempGridList, *TailNode, *LastNode, 
+  ThinGridList *RS_GridList, *NewNode, *TempGridList, *TailNode, *LastNode,
     *Destroyer;
   HierarchyEntry **Grids[MAX_DEPTH_OF_HIERARCHY];
   int nGrids[MAX_DEPTH_OF_HIERARCHY];
@@ -183,7 +183,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
     // Search for grid, if not defined. Skip sources that aren't born
     // for PhotonTest
-    if (RS->GridID == INT_UNDEFINED && 
+    if (RS->GridID == INT_UNDEFINED &&
 	!(RS->CreationTime > PhotonTime && ProblemType == 50)) {
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0; lvl--) {
 	for (GridNum = 0; GridNum < nGrids[lvl]; GridNum++) {
@@ -213,7 +213,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /**********************************************************************
                        MAIN RADIATION TRANSPORT LOOP
    **********************************************************************/
-
   int NumberOfSources = 0;
   bool DeleteSources = FALSE;
 
@@ -229,9 +228,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
 
     if (debug && LoopTime == TRUE)
-      printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
+      printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ",
 	     level, dtPhoton, PhotonTime);
-      
+
     /* delete source if we are passed (or before) their lifetime (only
        if not restarting).  We must remove the host grid from the grid
        list as well. */
@@ -243,7 +242,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     DeleteSources = (FirstTime ||
 			  !(RadiativeTransferAdaptiveTimestep == FALSE &&
 			    RadiativeTransferSourceClustering == TRUE));
-			  
+
     while (RS != NULL) {
       if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime) && LoopTime == TRUE &&
 	   DeleteSources) {
@@ -253,7 +252,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		  RS->CreationTime, RS->LifeTime, PhotonTime);
 	}
 	RS = DeleteRadiationSource(RS);
-	
+
 	// Remove the grid from the list
 	LastNode->NextGrid = TempGridList->NextGrid;
 	Destroyer = TempGridList;
@@ -270,17 +269,25 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
     if (NumberOfSources == 0) {
       PhotonTime += dtPhoton;
+
+      /* If we have NO sources, need to zero out optically thin fields */
+      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0; lvl--)
+        for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+          if (Temp->GridData->InitializeRadiativeTransferFields() == FAIL) {
+            ENZO_FAIL("Error in InitializeRadiativeTransferFields.\n");
+          }
+
       continue;
     }
 
-    if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
+    if (debug)  fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
 
   /* Temporarily load balance grids according to the number of ray
      segments.  We'll move the grids back at the end of this
      routine */
 
     if (RadiativeTransferLoadBalance && NumberOfSources > 0) {
-      CommunicationLoadBalancePhotonGrids(Grids, nGrids, 
+      CommunicationLoadBalancePhotonGrids(Grids, nGrids,
 					  MetaData->FirstTimestepAfterRestart);
     }
 
@@ -288,40 +295,40 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     START_PERF();
     for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
-      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
+      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->InitializeRadiativeTransferFields() == FAIL) {
 	  ENZO_FAIL("Error in InitializeRadiativeTransferFields.\n");
 	}
     END_PERF(0);
 
-    /* create temperature fields for Compton heating */  
+    /* create temperature fields for Compton heating */
 
-    if (RadiationXRayComptonHeating)  
+    if (RadiationXRayComptonHeating)
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
-	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
-	  if (Temp->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {  
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  if (Temp->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {
 	    ENZO_FAIL("Error in InitializeTemperatureFieldForComptonHeating.\n");
-	  }	
+	  }
     /* Initialize Temperature Field for H2 shielding approximation */
     if(RadiativeTransferH2ShieldType == 1 || ProblemType == 50) {
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
-	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->InitializeTemperatureFieldForH2Shield() == FAIL) {
 	    ENZO_FAIL("Error in InitializeTemperatureFieldForH2Shield.\n");
 	  }
     }
 
-#if USE_H2II_LOOKUP	
+#if USE_H2II_LOOKUP
     /* Initialize Temperature Field for H2II cross section approximation */
     if(RadiativeTransferH2IIDiss == TRUE) {
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
-	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->InitializeTemperatureFieldForH2IICrossSection() == FAIL) {
 	    ENZO_FAIL("Error in InitializeTemperatureFieldForH2II.\n");
 	  }
     }
 #endif
-    
+
     for (i = 0; i < 4; i++)
       EscapedPhotonCount[i] = 0.0;
 
@@ -331,38 +338,40 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (NumberOfSources == 0) {
       PhotonTime += dtPhoton;
       continue;
-    }    
+    }
 
     /* Create tree that clusters the sources if requested.  While
        creating tree (type SuperSource), compute position of the super
        source in each leaf. */
 
+    TIMER_START("CreateSourceClusteringTree");
     START_PERF();
     if (RadiativeTransferSourceClustering == TRUE) {
       CreateSourceClusteringTree(0, NULL, LevelArray);
     }
     END_PERF(1);
+    TIMER_STOP("CreateSourceClusteringTree");
 
-    // first identify sources and let them radiate 
+    // first identify sources and let them radiate
     RS = GlobalRadiationSources->NextSource;
     TempGridList = RS_GridList->NextGrid;
 
-    START_PERF(); 
+    START_PERF();
     while (RS != NULL) {
       if (TempGridList->ThisGrid != NULL)
 	TempGridList->ThisGrid->Shine(RS);
       TempGridList = TempGridList->NextGrid;
       RS = RS->NextSource;
-    }    // while still sources 
+    }    // while still sources
     END_PERF(2);
 
 #ifdef USE_MPI
     if (RadiativeTransferInterpolateField)
       CommunicationAllReduceValues(FieldsToInterpolate,
 				   MAX_NUMBER_OF_BARYON_FIELDS, MPI_MAX);
-#endif /* USE_MPI */  
+#endif /* USE_MPI */
 
-    /* Initialize interpolated radiation fields */  
+    /* Initialize interpolated radiation fields */
 
     //  if (RadiativeTransferInterpolateField)
     //    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
@@ -373,7 +382,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
     /* Evolve all photons by fixed timestep. */
-  
+
     ListOfPhotonsToMove *PhotonsToMove = new ListOfPhotonsToMove;
     PhotonsToMove->NextPackageToMove = NULL;
 
@@ -406,7 +415,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     initial_call = false;
 #endif
 
-    while (keep_transporting != NO_TRANSPORT && 
+    while (keep_transporting != NO_TRANSPORT &&
 	   keep_transporting != HALT_TRANSPORT) {
 #ifndef NONBLOCKING_RT
       InitializePhotonMessages();
@@ -428,7 +437,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	     Temp; Temp = Temp->NextGridThisLevel, GridNum++) {
 	  //for (GridNum = 0; GridNum < NumberOfGrids; GridNum++) {
 
-	  if (Temp->GridHierarchyEntry->ParentGrid != NULL) 
+	  if (Temp->GridHierarchyEntry->ParentGrid != NULL)
 	    Helper = Temp->GridHierarchyEntry->ParentGrid->GridData;
 	  else
 	    Helper = NULL;
@@ -437,7 +446,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  Temp->GridData->PhotonSortLinkedLists();
 #endif
 	  Temp->GridData->TransportPhotonPackages
-	    (lvl, level, &PhotonsToMove, GridNum, Grids0, nGrids0, Helper, 
+	    (lvl, level, &PhotonsToMove, GridNum, Grids0, nGrids0, Helper,
 	     Temp->GridData);
 
 	} // ENDFOR grids
@@ -457,7 +466,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //	     MyProcessorNumber, keep_transporting, PhotonsToMove->NextPackageToMove);
 
       /* Check if there are any photons leaving this grid.  If so, move them. */
-      
+
       START_PERF();
       TIMER_START("RayCommunication");
       CommunicationTransferPhotons(LevelArray, &PhotonsToMove, kt_global,
@@ -494,7 +503,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     }                           //  end while keep_transporting
 
-#ifdef NONBLOCKING_RT    
+#ifdef NONBLOCKING_RT
     KeepTransportingFinalize(kt_global, keep_transporting);
 #ifdef USE_MPI
     InitializePhotonReceive(PHOTON_BUFFER_SIZE, true, MPI_PhotonList);
@@ -514,10 +523,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        any photons to the next timestep. */
 
     START_PERF();
-    if (RadiativeTransferAdaptiveTimestep)  
+    if (RadiativeTransferAdaptiveTimestep)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	  Temp->GridData->DeletePhotonPackages();  
+	  Temp->GridData->DeletePhotonPackages();
     else
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
@@ -540,7 +549,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if ((fptr = fopen(PhotonEscapeFilename, "w")) == NULL) {
 	    ENZO_VFAIL("Error opening file %s\n", PhotonEscapeFilename)
 	  }
-	  fprintf(fptr, 
+	  fprintf(fptr,
 		  "# Time TotalPhotons fesc(0.5rvir) fesc(rvir) fesc(2rvir)\n");
 	} else {
 	  if ((fptr = fopen(PhotonEscapeFilename, "a")) == NULL) {
@@ -551,10 +560,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	for (i = 0; i < 4; i++)
 	  TotalEscapedPhotonCount[i] += EscapedPhotonCount[i];
 
-	fprintf(fptr, "%"GOUTSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", 
+	fprintf(fptr, "%"GOUTSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
 		PhotonTime, TotalEscapedPhotonCount[0],
-		TotalEscapedPhotonCount[1] / TotalEscapedPhotonCount[0], 
-		TotalEscapedPhotonCount[2] / TotalEscapedPhotonCount[0], 
+		TotalEscapedPhotonCount[1] / TotalEscapedPhotonCount[0],
+		TotalEscapedPhotonCount[2] / TotalEscapedPhotonCount[0],
 		TotalEscapedPhotonCount[3] / TotalEscapedPhotonCount[0]);
 
 	fclose(fptr);
@@ -601,14 +610,21 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Set the optically-thin H2 dissociation rates */
 
+    TIMER_START("StarParticlePhotoelectricHeating");
     START_PERF();
     if (RadiativeTransferOpticallyThinH2)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
-    END_PERF(10);
 
-    START_PERF();
+    /* Set the FUV photoelectric heating rates */
+    if (RadiativeTransferOpticallyThinFUV)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+        for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+          Temp->GridData->AddPeHeating(AllStars, NumberOfSources);
+		END_PERF(10);
+    TIMER_STOP("StarParticlePhotoelectricHeating");
+
     if (RadiativeTransferCoupledRateSolver)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
@@ -618,8 +634,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef USE_GRACKLE
             if (grackle_data->use_grackle == TRUE){
+
               grackle_data->radiative_transfer_intermediate_step = (Eint32) RTCoupledSolverIntermediateStep;
               if (Temp->GridData->GrackleWrapper() == FAIL){
+
                 ENZO_FAIL("Error in GrackleWrapper.\n");
               }
             } else
@@ -636,22 +654,22 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (RadiationXRayComptonHeating)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	  if (Temp->GridData->FinalizeTemperatureFieldForComptonHeating() == FAIL) {  
+	  if (Temp->GridData->FinalizeTemperatureFieldForComptonHeating() == FAIL) {
 	    ENZO_FAIL("Error in FinalizeTemperatureFieldForComptonHeating.\n");
-	  }	
+	  }
     if (RadiativeTransferH2ShieldType == 1 || ProblemType == 50)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	  if (Temp->GridData->FinalizeTemperatureFieldForH2Shield() == FAIL) {  
+	  if (Temp->GridData->FinalizeTemperatureFieldForH2Shield() == FAIL) {
 	    ENZO_FAIL("Error in FinalizeTemperatureFieldForH2Shield.\n");
 	  }
-#if USE_H2II_LOOKUP	
+#if USE_H2II_LOOKUP
     if (RadiativeTransferH2IIDiss == TRUE) {
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	  if (Temp->GridData->FinalizeTemperatureFieldForH2IICrossSection() == FAIL) {  
+	  if (Temp->GridData->FinalizeTemperatureFieldForH2IICrossSection() == FAIL) {
 	    ENZO_FAIL("Error in FinalizeTemperatureFieldForH2Shield.\n");
-	  }	
+	  }
     }
 #endif
     debug = debug_store;
@@ -679,7 +697,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (!LoopTime)
       break;
-    
+
     FirstTime = false;
 
   } // ENDWHILE GridTime >= PhotonTime

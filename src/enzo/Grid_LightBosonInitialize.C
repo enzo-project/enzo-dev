@@ -147,9 +147,9 @@ int grid::LightBosonInitializeGrid(float CenterPosition, int LightBosonProblemTy
     if (LightBosonProblemType == 3) {
       BaryonField[iden  ][index] = 1;
       if ((x<0.5)&&(x>0.4)){
-	BaryonField[iden  ][index] = 1+cos(10*3.1415926536*(x-0.45));
+	BaryonField[iden  ][index] = 1+cos(10*pi*(x-0.45));
       }else if ((x>0.5)&&(x<0.6)){
-	BaryonField[iden  ][index] = 1+cos(10*3.1415926536*(x-0.55));
+	BaryonField[iden  ][index] = 1+cos(10*pi*(x-0.55));
       }
       BaryonField[ivx  ][index] = 0;
       if ((BaryonField[iden ][index]>(1+1e-6))&&(xv<0.5)){

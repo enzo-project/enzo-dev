@@ -365,8 +365,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
       // like density, total energy, and internal energy
       if (FluxCorrection == 2){
         for (field = 0; field < NumberOfBaryonFields; field++) {
-          if (FieldType[field] >= ElectronDensity &&
-              FieldType[field] <= ExtraType1) {
+          if ( (FieldTypeIsSpeciesDensity(FieldType[field])) == TRUE){
             fieldNumberList.push_back(field);
           }
         }
@@ -399,16 +398,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
         // see the next comment).  This ensures that the species are changed
         // to keep the same fractional density.
         if (FluxCorrection == 1) { // Skip this routine when FluxCorrection = 2
-        if (
-          (
-            (FieldType[field] >= ElectronDensity
-              && FieldType[field] <= ExtraType1
-            )
-            || FieldType[field] == MetalSNIaDensity
-            || FieldType[field] == MetalSNIIDensity
-          )
-          && FieldTypeNoInterpolate(FieldType[field]) == FALSE
-          && FieldTypeIsRadiation(FieldType[field]) == FALSE
+        if ( (FieldTypeIsSpeciesDensity(FieldType[field]) == TRUE)
+          && (FieldTypeNoInterpolate(FieldType[field]) == FALSE)
+          && (FieldTypeIsRadiation(FieldType[field]) == FALSE)
         ) {
           for (k = Start[2]; k <= End[2]; k++) {
             for (j = Start[1]; j <= End[1]; j++) {
@@ -448,7 +440,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	     total number density summed over ionization, etc.) */
 	
 	  if (Coordinate == Cartesian) {
-        for (int index = 0; index < fieldNumberList.size(); ++index) {
+        for (std::size_t index = 0; index < fieldNumberList.size(); ++index) {
           field = fieldNumberList[index];
           for (k = Start[2]; k <= End[2]; k++) {
             for (j = Start[1]; j <= End[1]; j++) {
@@ -542,12 +534,10 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      } // else /* if( SUBlingGrid == FALSE ) */
 		    } // if(CorrectRightBaryonField)
 		
-		    if ((FieldTypeIsDensity(FieldType[field]) == TRUE ||
-			 FieldType[field] == TotalEnergy ||
-			 FieldType[field] == InternalEnergy ||
-                         ( FieldType[field] >= ElectronDensity &&
-                           FieldType[field] <= ExtraType1 )
-                         )) {
+		    if ((FieldTypeIsDensity(FieldType[field]) == TRUE) ||
+                        (FieldTypeIsSpeciesDensity(FieldType[field]) == TRUE) ||
+			 (FieldType[field] == TotalEnergy) ||
+             		 (FieldType[field] == InternalEnergy)){
 
 		      /* If new density & energy is < 0 then undo the
 			 flux correction. */
@@ -564,7 +554,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
 				   CorrectionAmountLeft,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -586,7 +576,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
 				   CorrectionAmountLeft,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -614,7 +604,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][FluxIndex],
 				   CorrectionAmountRight,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -636,7 +626,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
 				   CorrectionAmountRight,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -661,7 +651,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 
       if (Coordinate == Cylindrical) {
         FLOAT xr, xl, xc, geofacr, geofacl;
-        for (int index = 0; index < fieldNumberList.size(); ++index) {
+        for (std::size_t index = 0; index < fieldNumberList.size(); ++index) {
           field = fieldNumberList[index];
 	  for (k = Start[2]; k <= End[2]; k++) {
 	    for (j = Start[1]; j <= End[1]; j++) {
@@ -720,10 +710,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		if ((FieldType[field] == Density || 
 		     FieldType[field] == TotalEnergy ||
 		     FieldType[field] == InternalEnergy  ||
-                     ( FieldType[field] >= ElectronDensity &&
-                       FieldType[field] <= ExtraType1 )
-                    ) &&
-		    BaryonField[field][FieldIndex] <= 0) {
+                     (FieldTypeIsSpeciesDensity(FieldType[field]) == TRUE))
+                     &&
+		     BaryonField[field][FieldIndex] <= 0) {
 		  /*if (debug) {
 		    printf("CFRFl warn: %e %e %e %d %d %d %d [%d]\n",
 			   BaryonField[field][FieldIndex],
@@ -732,7 +721,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			   i, j, k, dim, field);
 			   }*/
 		  /* If new density & energy is < 0 then undo the flux correction. */
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
             if (undoIndex <= index) {
               BaryonField[ffield][FieldIndex] -= (
@@ -747,8 +736,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		if ((FieldType[field] == Density || 
 		     FieldType[field] == TotalEnergy ||
 		     FieldType[field] == InternalEnergy ||
-                     ( FieldType[field] >= ElectronDensity &&
-                       FieldType[field] <= ExtraType1 )
+                     ( FieldTypeIsSpeciesDensity(FieldType[field]) == TRUE)
                     ) &&
 		    BaryonField[field][FieldIndex + Offset] <= 0.0) {
 		  /*if (debug) {
@@ -759,7 +747,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			   i, j, k, dim, Offset, field);
 			   }*/
 		  /* If new density & energy is < 0 then undo the flux correction. */
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (std::size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
             if (undoIndex <= index) {
               BaryonField[ffield][FieldIndex + Offset] += (
@@ -851,10 +839,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
           if (FluxCorrection == 1) {
 	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if ( ((FieldType[field] >= ElectronDensity &&
-		   FieldType[field] <= ExtraType1) ||
-		  FieldType[field] == MetalSNIaDensity ||
-		  FieldType[field] == MetalSNIIDensity) &&
+	    if ( (FieldTypeIsSpeciesDensity(FieldType[field])==TRUE) &&
 		 FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		 FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)

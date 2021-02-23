@@ -92,9 +92,9 @@ int gFLDSplit::FillRates(EnzoVector *u, EnzoVector *u0, float *phHI,
    
   // fill photo-heating rate
   float phScale    = clight*TimeUnits/intSigE/VelUnits/VelUnits/mh/rtunits;
-  float GHIconst   = phScale*(intSigESigHI   - 13.6*erg_eV/h_planck*intSigESigHInu);
-  float GHeIconst  = phScale*(intSigESigHeI  - 24.6*erg_eV/h_planck*intSigESigHeInu);
-  float GHeIIconst = phScale*(intSigESigHeII - 54.4*erg_eV/h_planck*intSigESigHeIInu);
+  float GHIconst   = phScale*(intSigESigHI   - HI_ionizing_energy*erg_eV/h_planck*intSigESigHInu);
+  float GHeIconst  = phScale*(intSigESigHeI  - HeI_ionizing_energy*erg_eV/h_planck*intSigESigHeInu);
+  float GHeIIconst = phScale*(intSigESigHeII - HeII_ionizing_energy*erg_eV/h_planck*intSigESigHeIInu);
   if (Nchem == 1)
     for (i=0; i<size; i++)  photogamma[i] = Er[i]*ErUn*GHIconst;
   if (Nchem == 3) {

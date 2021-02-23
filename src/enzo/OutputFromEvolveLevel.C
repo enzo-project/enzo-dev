@@ -337,6 +337,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 
   }//WriteOutput == TRUE
 
+
   if( ExitEnzo == TRUE ){
     if (MovieSkipTimestep != INT_UNDEFINED) {
       fprintf(stderr, "Closing movie file.\n");

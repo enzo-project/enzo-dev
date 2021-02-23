@@ -264,7 +264,7 @@ c
      &                      te1, metalSNII,
      &                      metalfSNII, imetalSNII,
      &                      s49_tot, maxlevel,
-     &                      distrad, diststep, distcells)
+     &                      distrad, diststep, distcells, ipresn)
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c
@@ -313,6 +313,8 @@ c    type  - particle types (currently in the cell)
 c    s49_tot - the ionizing luminosity of the particle, in units
 c              of 10^49 photons per second.
 c    maxlevel - the simulation's maximum refinement level
+c    ipresn   - Flag to turn on / off pre-supernova feedback (wind
+c               energy and radiation energy)
 c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
@@ -349,6 +351,7 @@ c
       INTG_PREC distrad
       INTG_PREC diststep
       INTG_PREC distcells
+      INTG_PREC ipresn
 c
 c  Locals
 c
@@ -414,6 +417,19 @@ c           then do nothing.
                goto 100
            endif
 
+c           In preparation for using upcoming fitting formulae,
+c           compute the current delay time in units of 10^7 yrs
+            td7 = (t-tcp(n))*t1/3.16d14
+            td7p2 = td7*td7
+            td7p4 = td7p2*td7p2
+
+c          If pre-supernova feedback is on, then include 
+c          stellar wind and ionizing radiation energy deposition
+c          (otherwise do SN only)           
+           if (ipresn .gt. 0) then 
+
+
+
 c
 c           Add internal energy to account for photoionization heating.
 c           Energy is added in proportion to the ratio of the stromgren
@@ -444,12 +460,6 @@ c           Case B recombination, assuming T = 10^4 K.
                te(i,j,k) = te(i,j,k) + theDiff
             endif
 
-
-c           In preparation for using upcoming fitting formulae,
-c           compute the current delay time in units of 10^7 yrs
-            td7 = (t-tcp(n))*t1/3.16d14
-            td7p2 = td7*td7
-            td7p4 = td7p2*td7p2
 
 c
 c           Here m_eject is the mass ejection rate in log solar masses per year.
@@ -605,6 +615,15 @@ c           a mass ejection rate by multiplying through by dt in seconds
 
 c           m_eject is now the mass ejected in winds in this timestep in
 c           solar masses.
+
+c
+           else
+               m_eject = 0.0_RKIND
+               wind_energy = 0.0_RKIND
+           endif
+c          End presn check
+
+
 
 c           Now if there's a supernova, add the mass from that.
             m_ejSN = 0.0_RKIND

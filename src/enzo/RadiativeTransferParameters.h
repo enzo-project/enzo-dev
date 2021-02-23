@@ -52,13 +52,6 @@ EXTERN int RadiativeTransferTimestepVelocityLevel;
 
 EXTERN int RadiativeTransferSourceClustering;
 
-/* If source clustering is turned on (above) this uses the same clustering
-   algorithm for optically thin radiation (if present). By default, this
-   is only used if on and greater than 10 sources are present. Otherwise,
-   reverts to the default source-by-source / cell-by-cell 1/r^2 method */
-
-EXTERN int RadiativeTransferOpticallyThinSourceClustering;
-
 /* Radius to merge rays in units of separation of the two sources
    associated with a super source. */
 
@@ -72,6 +65,22 @@ EXTERN float RadiationPressureScale;
 /* Flag to turn on a 1/r^2 Lyman-Werner radiation field */
 
 EXTERN int RadiativeTransferOpticallyThinH2;
+
+/* Flag to turn on a 1/r^2 FUV radiation field */
+
+EXTERN int RadiativeTransferOpticallyThinFUV;
+
+/* Flag to turn on a 1/r^2 IR radiation field */
+
+EXTERN int RadiativeTransferOpticallyThinIR;
+
+/* Flag to turn on source clustering for optically thin radiation */
+
+EXTERN int RadiativeTransferOpticallyThinSourceClustering;
+
+/* Number of sources to use source clustering when above is ON */
+
+EXTERN int RadiativeTransferSourceClusteringCount;
 
 /* Sets the characteristic length for the self-shielding of Lyman-Werner Radiation */
 
@@ -152,3 +161,17 @@ EXTERN int RadiativeTransferH2IIDiss;
    constant. */
 
 EXTERN float RadiativeTransferHubbleTimeFraction;
+
+
+/* Flag to turn on photon deletion for photons that have passed
+   a certain radial distance from the domain center (set by next 
+   parameter) */
+
+EXTERN int RadiativeTransferDeletePhotonByPosition;
+
+/* If above is on, delete photons that go this radial distance from
+   domain center (in code units) */
+
+EXTERN float RadiativeTransferDeletePhotonRadius;
+
+EXTERN float RadiativeTransferDeletePhotonSourceRadius;

@@ -24,6 +24,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 #define NTHETA 1000
 #define NR 1000
@@ -91,7 +92,7 @@ int grid::FDMCollapseInitializeGrid()
     BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
   } else {
     CriticalDensity = 2.78e11*pow(0.74,2); // in Msolar/Mpc^3 for h=0.74
-    BoxLength = LengthUnits / 3.086e24;
+    BoxLength = LengthUnits / Mpc_cm;
     HubbleConstantNow = 1.0;
     OmegaMatterNow = 1.0;
   }

@@ -12,14 +12,14 @@
 #endif
 
 /***********************************************************************
-/  
+/
 / MACRO DEFINITIONS AND PARAMETERS
 /
 ************************************************************************/
 #ifdef USE_PYTHON
 #ifndef ENZO_PYTHON_IMPORTED
 #define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
-#define NO_IMPORT_ARRAY 
+#define NO_IMPORT_ARRAY
 #include <Python.h>
 #include "numpy/arrayobject.h"
 #endif
@@ -53,7 +53,9 @@
 
 #define MAX_DEPTH_OF_HIERARCHY             50
 
-#define MAX_LINE_LENGTH                   512
+#define MAX_LINE_LENGTH                   2000
+
+#define MAX_STELLAR_YIELDS                12
 
 #define MAX_NAME_LENGTH                   512
 
@@ -80,13 +82,15 @@
 
 #define MAX_REFINE_REGIONS               8000
 
-#ifdef WINDS 
+#ifdef WINDS
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
 #else
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES __max_particle_attr
 #endif
 
-#define MAX_TIME_ACTIONS                   10
+#define MAX_NUMBER_OF_PARTICLE_TABLE_POSITIONS   7
+
+#define MAX_TIME_ACTIONS                   21
 
 #define MAX_CUBE_DUMPS                     50
 
@@ -405,10 +409,10 @@ typedef long long int   HDF5_hid_t;
 #define ZERO_ALL_FIELDS          0
 #define ZERO_UNDER_SUBGRID_FIELD 1
 
-/* Definitions for grid::CommunicationSend/ReceiveRegion and 
+/* Definitions for grid::CommunicationSend/ReceiveRegion and
    grid::DepositPositions */
 //If MAX_EXTRA_OUTPUTS neesd to be changed, change statements in ReadParameterFile and WriteParameterFile.
-#define MAX_EXTRA_OUTPUTS                10 
+#define MAX_EXTRA_OUTPUTS                10
 
 #define BARYONS_ELECTRIC                 -13
 #define BARYONS_MAGNETIC                 -12
@@ -501,7 +505,7 @@ typedef long long int   HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 11
+#define NUM_PARTICLE_TYPES 16
 
 #define PARTICLE_TYPE_RESET         -1
 #define PARTICLE_TYPE_GAS            0
@@ -515,7 +519,12 @@ typedef long long int   HDF5_hid_t;
 #define PARTICLE_TYPE_MBH            8
 #define PARTICLE_TYPE_COLOR_STAR     9
 #define PARTICLE_TYPE_SIMPLE_SOURCE 10
-#define PARTICLE_TYPE_RAD           11
+#define PARTICLE_TYPE_INDIVIDUAL_STAR 11
+#define PARTICLE_TYPE_INDIVIDUAL_STAR_WD 12
+#define PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT 13
+#define PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII 14
+#define PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED 15
+#define PARTICLE_TYPE_RAD           16
 
 #define CHILDRENPERPARENT           12
 
@@ -546,9 +555,16 @@ typedef long long int   HDF5_hid_t;
 #define SINGLE_SUPERNOVA 12
 #define DISTR_FEEDBACK 13
 #define MOM_STAR 14
+#define INDIVIDUAL_STAR 15
 
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
+
+
+ // for stellar yields tabulation
+#define MAXIMUM_NUMBER_OF_YIELD_CHEMICALS        20
+#define MAXIMUM_NUMBER_OF_YIELD_MASS_BINS         7
+#define MAXIMUM_NUMBER_OF_YIELD_METALLICITY_BINS 15
 
 /* Feedback modes */
 
@@ -563,6 +579,16 @@ typedef long long int   HDF5_hid_t;
 #define MBH_THERMAL 7
 #define MBH_JETS 8
 #define COLOR_FIELD 9
+
+#define SUPERNOVA_SEEDFIELD 11
+
+#define FEEDBACK_INDIVIDUAL_STAR 12
+#define INDIVIDUAL_STAR_STELLAR_WIND 13
+#define INDIVIDUAL_STAR_SNII 14
+#define INDIVIDUAL_STAR_SNIA 15
+#define INDIVIDUAL_STAR_WIND_AND_SN 16
+#define INDIVIDUAL_STAR_POPIIISN 17
+#define INDIVIDUAL_STAR_SN_COMPLETE 18
 
 /* Sink particle accretion modes */
 
@@ -593,6 +619,11 @@ typedef long long int   HDF5_hid_t;
 #define NON_DM_PARTICLES_MERGED_ALL 4
 #define TEMPERATURE_FIELD 1000
 
+/* Parameters for star particle yields and individual star properties */
+#define INDIVIDUAL_STAR_METALLICITY_BINS 10
+#define INDIVIDUAL_STAR_SG_BINS           8
+#define INDIVIDUAL_STAR_TEMPERATURE_BINS 12
+
 /* Maximum number of leafs per parent in radiation source tree. */
 
 #define MAX_LEAF 2
@@ -602,7 +633,13 @@ typedef long long int   HDF5_hid_t;
 
 /* Number of entries in the Pop III IMF lookup table */
 
-#define IMF_TABLE_ENTRIES 1000
+#define IMF_TABLE_ENTRIES 2000
+
+/* Maximum number of entries in the time varying external gravity position */
+
+#define EXTERNAL_GRAVITY_ENTRIES 5000
+
+#define DOUBLE_POWER_DG_POINTS 1000
 
 #ifdef USE_MPI
 #else /* USE_MPI */

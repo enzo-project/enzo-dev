@@ -91,7 +91,7 @@ extern "C" void FORTRAN_NAME(cool_time)(
 	float *fh, float *utem, float *urho, 
 	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha, float *mu);
  
-int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
+int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly, int ReturnAbsValue)
 {
  
   /* Return if this doesn't concern us. */
@@ -128,16 +128,17 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
- 
+
   /* Find photo-ionization fields */
 
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   int gammaNum;
-  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
 				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
   /* Get easy to handle pointers for each variable. */
- 
+
   float *density     = BaryonField[DensNum];
   float *totalenergy = BaryonField[TENum];
   float *gasenergy   = BaryonField[GENum];
@@ -147,9 +148,9 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 
   float *volumetric_heating_rate = NULL;
   float *specific_heating_rate   = NULL;
- 
+
   /* Compute the cooling time. */
- 
+
   FLOAT a = 1.0, dadt;
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
     VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
@@ -158,16 +159,41 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 	   &TimeUnits, &VelocityUnits, Time);
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt);
- 
+
     aUnits = 1.0/(1.0 + InitialRedshift);
   } else if (RadiationFieldRedshift > -1){
     a       = 1.0 / (1.0 + RadiationFieldRedshift);
     aUnits  = 1.0;
   }
+
+  /* for converting from Enzo RT heating to cgs */
+  float rtunits = erg_eV / TimeUnits;
+
   float afloat = float(a);
- 
+
+  /* assign heating rates - set to Null pointers if not used */
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+    float EnergyUnits = DensityUnits * VelocityUnits * VelocityUnits;
+
+    int PeNum = FindField( PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+
+    // send to Grackle in CGS
+    volumetric_heating_rate = new float[size];
+    specific_heating_rate   = NULL;
+
+    /* convert to cgs */
+    for( i = 0; i < size; i ++){
+      volumetric_heating_rate[i] = BaryonField[PeNum][i] * (EnergyUnits/TimeUnits); // convert to CGS
+    }
+
+  } else{
+    volumetric_heating_rate = NULL;
+    specific_heating_rate   = NULL;
+  }
+
+
   /* Metal cooling codes. */
- 
+
   int MetalNum = 0, SNColourNum = 0;
   int MetalFieldPresent = FALSE;
 
@@ -203,7 +229,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     else if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
- 
+
 #ifdef USE_GRACKLE
   if (grackle_data->use_grackle == TRUE) {
 
@@ -246,7 +272,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
       temp_thermal = TRUE;
       thermal_energy = new float[size];
       for (i = 0; i < size; i++) {
-        thermal_energy[i] = BaryonField[TENum][i] - 
+        thermal_energy[i] = BaryonField[TENum][i] -
           0.5 * POW(BaryonField[Vel1Num][i], 2.0);
         if(GridRank > 1)
           thermal_energy[i] -= 0.5 * POW(BaryonField[Vel2Num][i], 2.0);
@@ -254,9 +280,9 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
           thermal_energy[i] -= 0.5 * POW(BaryonField[Vel3Num][i], 2.0);
 
         if( UseMHD ) {
-          thermal_energy[i] -= 0.5 * (POW(BaryonField[iBx][i], 2.0) + 
-                                      POW(BaryonField[iBy][i], 2.0) + 
-                                      POW(BaryonField[iBz][i], 2.0)) / 
+          thermal_energy[i] -= 0.5 * (POW(BaryonField[iBx][i], 2.0) +
+                                      POW(BaryonField[iBy][i], 2.0) +
+                                      POW(BaryonField[iBz][i], 2.0)) /
             BaryonField[DensNum][i];
         }
       } // for (int i = 0; i < size; i++)
@@ -270,10 +296,12 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     my_fields.grid_start     = g_grid_start;
     my_fields.grid_end       = g_grid_end;
     my_fields.grid_dx        = this->CellWidth[0][0];
+    // my_fields.time           = this->Time * TimeUnits; // in seconds
 
     /* now add in the baryon fields */
     my_fields.density         = density;
     my_fields.internal_energy = thermal_energy;
+
     my_fields.x_velocity      = velocity1;
     my_fields.y_velocity      = velocity2;
     my_fields.z_velocity      = velocity3;
@@ -316,18 +344,20 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 
       /* need to convert to CGS units */
       for( i = 0; i < size; i++) BaryonField[gammaNum][i] *= rtunits;
-
       my_fields.RT_heating_rate = BaryonField[gammaNum];
 
     }
+
 #endif // TRANSFER
 
     if (calculate_cooling_time(&grackle_units, &my_fields, cooling_time) == FAIL) {
       ENZO_FAIL("Error in Grackle calculate_cooling_time.\n");
     }
 
-    for (i = 0; i < size; i++) {
-      cooling_time[i] = fabs(cooling_time[i]);
+    if (ReturnAbsValue){
+      for (i = 0; i < size; i++) {
+        cooling_time[i] = fabs(cooling_time[i]);
+      }
     }
 
     if (temp_thermal == TRUE) {
@@ -335,31 +365,36 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     }
 
 #ifdef TRANSFER
-  if (RadiativeTransfer){
-    /* convert the RT units back to Enzo */
-    for(i = 0; i < size; i ++) BaryonField[gammaNum][i] /= rtunits;
+    if (RadiativeTransfer){
+      /* convert the RT units back to Enzo */
+      for(i = 0; i < size; i ++) BaryonField[gammaNum][i] /= rtunits;
 
-  }
+    }
 #endif // TRANSFER
+
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+      delete [] volumetric_heating_rate;
+    }
 
     delete [] TotalMetals;
     delete [] g_grid_dimension;
     delete [] g_grid_start;
     delete [] g_grid_end;
 
+
     return SUCCESS;
   }
 #endif // USE_GRACKLE
 
   /* Calculate the rates due to the radiation field. */
- 
+
   if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
     ENZO_FAIL("Error in RadiationFieldCalculateRates.\n");
   }
- 
+
   /* Set up information for rates which depend on the radiation field. 
      Precompute factors for self shielding (this is the cross section * dx). */
- 
+
   float HIShieldFactor = RadiationData.HIAveragePhotoHeatingCrossSection *
                          double(LengthUnits) * CellWidth[0][0];
   float HeIShieldFactor = RadiationData.HeIAveragePhotoHeatingCrossSection *
@@ -376,7 +411,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
      criteria so this is done correctly, and thus cooling time needs to be calculated
      in the ghost zones.  Note that we calculate these numbers as unique variables 
      and feed them into the various routines for clarity!  */
-    
+
   int GridStartIndexX,GridStartIndexY,GridStartIndexZ,
     GridEndIndexX,GridEndIndexY,GridEndIndexZ;
 
@@ -431,7 +466,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     // 	   CloudyCoolingData.CloudyCoolingGridDimension[3],
     // 	   CloudyCoolingData.CloudyCoolingGridDimension[4]);
     // printf("  clDataSize =%"ISYM"\n\n",CloudyCoolingData.CloudyDataSize);
-    
+
 
     FORTRAN_NAME(cool_multi_time)(
        density, totalenergy, gasenergy, velocity1, velocity2, velocity3,

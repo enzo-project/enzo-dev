@@ -148,8 +148,15 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 
     }
 
-    //printf("NumberOfStarParticles = %"ISYM"\n", NumberOfStarParticles); 
+    // printf("NumberOfStarParticles = %"ISYM"\n", NumberOfStarParticles);
 
+    /*
+        delete chemical tags since we've output them already
+        this is done when particle IDs are set... in SetNewParticleIndex
+    */
+
+    if (IndividualStarOutputChemicalTags)
+      Grids[grid]->GridData->DeleteStellarAbundances();
   }
 
 #ifdef UNUSED

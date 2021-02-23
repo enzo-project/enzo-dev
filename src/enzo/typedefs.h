@@ -17,6 +17,8 @@
 #include "RateData.h"
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
+#include "IndividualStarData.h"
+#include "StellarYieldsData.h"
 
 /* These are the different types of baryon fields. */
 
@@ -48,7 +50,7 @@ typedef int mhd_ct_method;
 typedef long_int forcing_type;
 #endif
 
-const field_type 
+const field_type
   Density         = 0,
   TotalEnergy     = 1,
   InternalEnergy  = 2,
@@ -88,7 +90,7 @@ const field_type
   RadPressure2    = 36,
   Emissivity0     = 37,
 
-/* these pseudo-fields are used to access grid data 
+/* these pseudo-fields are used to access grid data
    the "g" prefix is to avoid namespace conflict */
 
   gParticlePosition     = 37,
@@ -109,14 +111,14 @@ const field_type
   Bfield3               = 51,
   PhiField              = 52,
   Phi_pField            = 53,
-  DebugField            = 54, 
+  DebugField            = 54,
 
-  DrivingField1         = 55, 
-  DrivingField2         = 56, 
+  DrivingField1         = 55,
+  DrivingField2         = 56,
   DrivingField3         = 57,
 
-  AccelerationField1    = 58, 
-  AccelerationField2    = 59, 
+  AccelerationField1    = 58,
+  AccelerationField2    = 59,
   AccelerationField3    = 60,
 
   Galaxy1Colour          = 61,
@@ -124,13 +126,13 @@ const field_type
 /* these are required for Sam Skillman's Shock/Cosmic ray models. */
   Mach            = 63,
   PreShockTemperature = 64,
-  PreShockDensity = 65,  
+  PreShockDensity = 65,
 
 /* these are required for Simon Glover's chemistry (which also needs some of the
    other fields, which are used for MultiSpecies) */
   CIDensity       = 66,
-  CIIDensity      = 67, 
-  OIDensity       = 68, 
+  CIIDensity      = 67,
+  OIDensity       = 68,
   OIIDensity      = 69,
   SiIDensity      = 70,
   SiIIDensity     = 71,
@@ -148,7 +150,7 @@ const field_type
   MBHColour       = 82,
   ForbiddenRefinement = 83,
 
-/* FLD radiation module stuff (D. Reynolds) */ 
+/* FLD radiation module stuff (D. Reynolds) */
   RadiationFreq0  = 84,
   RadiationFreq1  = 85,
   RadiationFreq2  = 86,
@@ -169,32 +171,212 @@ const field_type
 
   /* Cosmic Ray Energy Density */
   CRDensity = 97,
- 
+
+  /* Chemical Evolution Element Densities */
+  LiDensity = 98,
+  BeDensity = 99,
+  BDensity = 100,
+  CDensity = 101,
+  NDensity = 102,
+  ODensity = 103,
+  FDensity = 104,
+  NeDensity = 105,
+  NaDensity = 106,
+  MgDensity = 107,
+  AlDensity = 108,
+  SiDensity = 109,
+  PDensity = 110,
+  SDensity = 111,
+  ClDensity = 112,
+  ArDensity = 113,
+  KDensity = 114,
+  CaDensity = 115,
+  ScDensity = 116,
+  TiDensity = 117,
+  VDensity = 118,
+  CrDensity = 119,
+  MnDensity = 120,
+  FeDensity = 121,
+  CoDensity = 122,
+  NiDensity = 123,
+  CuDensity = 124,
+  ZnDensity = 125,
+  GaDensity = 126,
+  GeDensity = 127,
+  AsDensity = 128,
+  SeDensity = 129,
+  BrDensity = 130,
+  KrDensity = 131,
+  RbDensity = 132,
+  SrDensity = 133,
+  YDensity = 134,
+  ZrDensity = 135,
+  NbDensity = 136,
+  MoDensity = 137,
+  TcDensity = 138,
+  RuDensity = 139,
+  RhDensity = 140,
+  PdDensity = 141,
+  AgDensity = 142,
+  CdDensity = 143,
+  InDensity = 144,
+  SnDensity = 145,
+  SbDensity = 146,
+  TeDensity = 147,
+  IDensity = 148,
+  XeDensity = 149,
+  CsDensity = 150,
+  BaDensity = 151,
+  LaDensity = 152,
+  CeDensity = 153,
+  PrDensity = 154,
+  NdDensity = 155,
+  PmDensity = 156,
+  SmDensity = 157,
+  EuDensity = 158,
+  GdDensity = 159,
+  TbDensity = 160,
+  DyDensity = 161,
+  HoDensity = 162,
+  ErDensity = 163,
+  TmDensity = 164,
+  YbDensity = 165,
+  LuDensity = 166,
+  HfDensity = 167,
+  TaDensity = 168,
+  WDensity = 169,
+  ReDensity = 170,
+  OsDensity = 171,
+  IrDensity = 172,
+  PtDensity = 173,
+  AuDensity = 174,
+  HgDensity = 175,
+  TlDensity = 176,
+  PbDensity = 177,
+  BiDensity = 178,
+  LiDensity2 = 179,
+  BeDensity2 = 180,
+  BDensity2 = 181,
+  CDensity2 = 182,
+  NDensity2 = 183,
+  ODensity2 = 184,
+  FDensity2 = 185,
+  NeDensity2 = 186,
+  NaDensity2 = 187,
+  MgDensity2 = 188,
+  AlDensity2 = 189,
+  SiDensity2 = 190,
+  PDensity2 = 191,
+  SDensity2 = 192,
+  ClDensity2 = 193,
+  ArDensity2 = 194,
+  KDensity2 = 195,
+  CaDensity2 = 196,
+  ScDensity2 = 197,
+  TiDensity2 = 198,
+  VDensity2 = 199,
+  CrDensity2 = 200,
+  MnDensity2 = 201,
+  FeDensity2 = 202,
+  CoDensity2 = 203,
+  NiDensity2 = 204,
+  CuDensity2 = 205,
+  ZnDensity2 = 206,
+  GaDensity2 = 207,
+  GeDensity2 = 208,
+  AsDensity2 = 209,
+  SeDensity2 = 210,
+  BrDensity2 = 211,
+  KrDensity2 = 212,
+  RbDensity2 = 213,
+  SrDensity2 = 214,
+  YDensity2 = 215,
+  ZrDensity2 = 216,
+  NbDensity2 = 217,
+  MoDensity2 = 218,
+  TcDensity2 = 219,
+  RuDensity2 = 220,
+  RhDensity2 = 221,
+  PdDensity2 = 222,
+  AgDensity2 = 223,
+  CdDensity2 = 224,
+  InDensity2 = 225,
+  SnDensity2 = 226,
+  SbDensity2 = 227,
+  TeDensity2 = 228,
+  IDensity2 = 229,
+  XeDensity2 = 230,
+  CsDensity2 = 231,
+  BaDensity2 = 232,
+  LaDensity2 = 233,
+  CeDensity2 = 234,
+  PrDensity2 = 235,
+  NdDensity2 = 236,
+  PmDensity2 = 237,
+  SmDensity2 = 238,
+  EuDensity2 = 239,
+  GdDensity2 = 240,
+  TbDensity2 = 241,
+  DyDensity2 = 242,
+  HoDensity2 = 243,
+  ErDensity2 = 244,
+  TmDensity2 = 245,
+  YbDensity2 = 246,
+  LuDensity2 = 247,
+  HfDensity2 = 248,
+  TaDensity2 = 249,
+  WDensity2 = 250,
+  ReDensity2 = 251,
+  OsDensity2 = 252,
+  IrDensity2 = 253,
+  PtDensity2 = 254,
+  AuDensity2 = 255,
+  HgDensity2 = 256,
+  TlDensity2 = 257,
+  PbDensity2 = 258,
+  BiDensity2 = 259,
+
+  PeHeatingRate = 260,
+
   /* IR photodetachment fields */
-  kdissH2II = 98,
-  kphHM     = 99,
+  kdissH2II = 261,
+  kphHM     = 262,
+  FUVRate   = 263, /* FUV energy flux density */
 
   /* Real and Imag of Wave Function */
-  RePsi = 101,
-  ImPsi = 102,
-  FDMDensity = 103,
+  RePsi = 264,
+  ImPsi = 265,
+  FDMDensity = 266,
 
-  FieldUndefined  = 104;
+  /* Below currently used in Individual Star Model */
+  MetalRProcessDensity = 267,
+  MetalPISNeDensity    = 268,
+  MetalWindDensity     = 269,
+  MetalWindDensity2    = 270,
+  ExtraMetalField0 = 271,
+  ExtraMetalField1 = 272,
+  ExtraMetalField2 = 273,
+
+  FieldUndefined  = 274;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
-		 Velocity1, Velocity2, Velocity3, 
-		 ElectronDensity, HIDensity, HIIDensity,  HeIDensity, 
-		 HeIIDensity, HeIIIDensity, HMDensity, H2IDensity, 
+		 Velocity1, Velocity2, Velocity3,
+		 ElectronDensity, HIDensity, HIIDensity,  HeIDensity,
+		 HeIIDensity, HeIIIDensity, HMDensity, H2IDensity,
 		 H2IIDensity, DIDensity, DIIDensity, HDIDensity,
                  Metallicity, ExtraType0, ExtraType1, GravPotential,
 		 Acceleration0, Acceleration1,Acceleration2,
                  FieldUndefined};
 */
 
-#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) == kdissH2II) || ((A) == kphHM) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3)) ? FALSE : TRUE)
-#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) == kdissH2II) || ((A) == kphHM) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
-#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments)) ? TRUE : FALSE)
+#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= PeHeatingRate && (A) <= FUVRate) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3) ) ? FALSE : TRUE)
+#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9) || ((A)==kdissH2II) || ((A)==kphHM) || ((A)==FUVRate) || ((A) == PeHeatingRate)) ? TRUE : FALSE)
+#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments) || ((A) == PeHeatingRate)) ? TRUE : FALSE)
+#define FieldTypeIsSpeciesDensity(A) (( (((A) >= ElectronDensity) && ((A) <= ExtraType1)) || ( ((A) >= LiDensity) && ((A) <= BiDensity2)) || ((A) == MetalSNIaDensity ) || ( (A) == MetalSNIIDensity) || ( ((A) >= MetalRProcessDensity) && ( (A) <= ExtraMetalField2))) ? TRUE : FALSE)
+
+/* Is field a species density which is stored as a mass density but represents an advected colour / fraction field */
+
 
 /* Different stochastic forcing types */
 const forcing_type
@@ -239,7 +421,7 @@ const gravity_boundary_type
   SubGridIsolated  = 2,
   GravityUndefined = 3;
 
-// enum gravity_boundary_type {TopGridPeriodic, TopGridIsolated, 
+// enum gravity_boundary_type {TopGridPeriodic, TopGridIsolated,
 // 				    SubGridIsolated, GravityUndefined};
 
 /* Interpolation types. */
@@ -264,14 +446,14 @@ const hydro_method
   Zeus_Hydro           = 2,
   HD_RK                = 3,
   MHD_RK               = 4,
-  NoHydro              = 5, 
+  NoHydro              = 5,
   MHD_Li             = 6,
   HydroMethodUndefined = 7;
 
 // enum hydro_method {PPM_DirectEuler, PPM_LagrangeRemap, Zeus_Hydro};
 
-const enum_type iHI = 0, iHeI = 1, iHeII = 2, LW = 3, IR = 4, XRAYS = 5, 
-TRACINGSPECTRUM = 6, H2II = 7;
+const enum_type iHI = 0, iHeI = 1, iHeII = 2, LW = 3, IR = 4, XRAYS = 5,
+TRACINGSPECTRUM = 6, H2II = 7, FUVPEHEATING = 8;
 const enum_type Cartesian = 0, Spherical = 1, Cylindrical = 2;
 const enum_type PLM = 0, PPM = 1, CENO = 2, WENO3 = 3, WENO5 = 4, ZERO = 5;
 const enum_type FluxReconstruction = 0, HLL = 1, Marquina = 2,
@@ -279,7 +461,7 @@ const enum_type FluxReconstruction = 0, HLL = 1, Marquina = 2,
 const enum_type Neumann = 0, Dirichlet = 1;
 const enum_type Isotropic = 1, Beamed = -2, Episodic = -3;
 
-/* Stanford RK MUSCL solvers support */ 
+/* Stanford RK MUSCL solvers support */
 //enum {Cartesian, Spherical, Cylindrical};
 //enum {PLM, PPM, CENO, WENO3, WENO5};
 //enum {FluxReconstruction, HLL, Marquina, LLF, HLLC};
@@ -287,7 +469,7 @@ const enum_type Isotropic = 1, Beamed = -2, Episodic = -3;
 /* These are the different types of poisson cleaining boundary conditions. */
 //enum{Neumann, Dirichlet};
 
-const mhd_ct_method 
+const mhd_ct_method
   CT_None = 0,
   CT_BalsaraSpicer = 1,
   CT_Athena_LF = 2,
@@ -307,6 +489,11 @@ const star_type
   NormalStar = PARTICLE_TYPE_STAR,
   SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
+  IndividualStar = PARTICLE_TYPE_INDIVIDUAL_STAR,
+  IndividualStarWD = PARTICLE_TYPE_INDIVIDUAL_STAR_WD,
+  IndividualStarRemnant = PARTICLE_TYPE_INDIVIDUAL_STAR_REMNANT,
+  IndividualStarUnresolved = PARTICLE_TYPE_INDIVIDUAL_STAR_UNRESOLVED,
+  IndividualStarPopIII     = PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII,
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
   MBH = PARTICLE_TYPE_MBH,
   RadSource = PARTICLE_TYPE_RAD,

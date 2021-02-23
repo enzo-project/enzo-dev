@@ -50,6 +50,11 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
   float XRayLuminosityFraction = 0.43;
   Star *cstar;
 
+  for (i = 0; i < MAX_ENERGY_BINS; i++){
+    Q[i] = 0.0;
+    energies[i] = 0.0;
+  }
+
   /* If sources exist, delete them */
 
   DeleteGlobalRadiationSources();
@@ -75,6 +80,11 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
   // Convert to years
   float TimeInYears = yr_s / TimeUnits;
 
+  // bins for computing the luminosity properties (IR, FUV, LW)
+  // for rad sources. this is used in OT methods.
+  //  making as named variables here for clarity
+  const int IRbin=4, FUVbin=7, LWbin=3;
+
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
     // Check the rules if this star particle is radiative
@@ -84,7 +94,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       if (cstar->ComputePhotonRates(TimeUnits, nbins, energies, Q) == FAIL) {
 	ENZO_FAIL("Error in ComputePhotonRates.\n");
       }
-      
+
       QTotal = 0;
       for (j = 0; j < nbins; j++) QTotal += Q[j];
       for (j = 0; j < nbins; j++) Q[j] /= QTotal;
@@ -126,11 +136,35 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       RadSource->EnergyBins     = nbins;
       RadSource->Energy         = new float[nbins];
       RadSource->SED            = new float[nbins];
-      if (RadiativeTransferOpticallyThinH2)
-	RadSource->LWLuminosity = Q[3] * LConv;
-      else
+
+      RadSource->LifeTime     = cstar->ReturnLifetime();  // in code (should be?)
+      RadSource->CreationTime = cstar->ReturnBirthTime(); // in code
+
+      // NOTE: RadSource->LWLuminosity and RadSource->FUVLuminosity
+      //       are currently only used when applying optically thin
+      //       (1/r^2) radiation profiles in Grid_AddH2Dissociation
+      //       and Grid_AddPeHeating, AND only when running with
+      //       RadiativeTransferOpticallyThinSourceClustering ON.
+      //       (see CreateSourceClusteringTree). Otherwise,
+      //       energy / photon bins are used for RT methods to create
+      //       photon packages, and star particle lists are used
+      //       (instead of RadSource) to compute luminosities in
+      //       optically thin case without source clustering:
+
+      if (RadiativeTransferOpticallyThinH2){
+	RadSource->LWLuminosity = Q[LWbin] * LConv;
+        RadSource->IRLuminosity = Q[IRbin] * LConv;
+      } else{
 	RadSource->LWLuminosity = 0.0;
-      
+        RadSource->IRLuminosity = 0.0;
+      }
+
+      if (RadiativeTransferOpticallyThinFUV){
+        RadSource->FUVLuminosity = Q[FUVbin] * LConv;
+      } else{
+        RadSource->FUVLuminosity = 0.0;
+      }
+
       for (j = 0; j < nbins; j++) {
 	RadSource->Energy[j] = energies[j];
 	RadSource->SED[j]    = Q[j];
@@ -142,7 +176,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       if (GlobalRadiationSources->NextSource != NULL)
 	GlobalRadiationSources->NextSource->PreviousSource = RadSource;
       GlobalRadiationSources->NextSource = RadSource;
-      
+
     } // ENDIF is a radiation source?
 
   } // ENDFOR stars

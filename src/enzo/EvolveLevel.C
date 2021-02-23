@@ -118,8 +118,12 @@ int ExtraOutput(int output_flag, LevelHierarchyEntry *LevelArray[],TopGridData *
 
 int ComputeDednerWaveSpeeds(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[], 
 			    int level, FLOAT dt0);
+
 int  RebuildHierarchy(TopGridData *MetaData,
-		      LevelHierarchyEntry *LevelArray[], int level);
+		      LevelHierarchyEntry *LevelArray[], int level, Star *&AllStars);
+int  RebuildHierarchy(TopGridData *MetaData,
+                      LevelHierarchyEntry *LevelArray[], int level);
+
 int  ReportMemoryUsage(char *header = NULL);
 int  UpdateParticlePositions(grid *Grid);
 int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
@@ -224,7 +228,9 @@ int ActiveParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
-			   int TotalStarParticleCountPrevious[]);
+			   int TotalStarParticleCountPrevious[],
+                           int SkipFeedbackFlag = 0);
+
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars,
@@ -272,6 +278,8 @@ static int StaticLevelZero = 0;
 
 extern int RK2SecondStepBaryonDeposit;
 
+
+void DeleteStarList(Star * &Node);
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior
@@ -388,6 +396,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   EXTRA_OUTPUT_MACRO(1, "Before Time Loop")
 
+  Star *AllStars = NULL;
+
   while ((CheckpointRestart == TRUE)
         || (dtThisLevelSoFar[level] < dtLevelAbove)) {
     if(CheckpointRestart == FALSE) {
@@ -395,6 +405,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     TIMER_START(level_name);
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
+
+    if (TemperatureLimit > 0){
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+          Grids[grid1]->GridData->ApplyTemperatureLimit();
+      }
+    }
 
     TimeSinceRebuildHierarchy[level] += dtThisLevel[level];
 
@@ -436,10 +452,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Initialize the star particles */
 
+    if (AllStars != NULL)
+      DeleteStarList(AllStars);
+
+
     ActiveParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
                              level);
-    
-    Star *AllStars = NULL;
+
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
 
@@ -490,7 +509,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
-
 
     /* Compute stochastic force field via FFT from the spectrum. */
     if (DrivenFlowProfile) {
@@ -549,8 +567,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 #endif //SAB.
-        /* Copy current fields (with their boundaries) to the old fields
-           in preparation for the new step. */
+
+      /* Copy current fields (with their boundaries) to the old fields
+	  in preparation for the new step. */
 
         Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
@@ -569,8 +588,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
          * and additional boundary condition calls.
          * All others (PPM, Zeus, MHD_Li/CT) are called from SolveHydroEquations
          */
-           
-
         if( HydroMethod != HD_RK && HydroMethod != MHD_RK ){
             Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
                     NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
@@ -607,6 +624,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
             for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+
+      /* Call hydro solver and save fluxes around subgrids. */
+	Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
+	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
 
                 /* Gravity: compute acceleration field for grid and particles. */
                 if (RK2SecondStepBaryonDeposit && SelfGravity) {
@@ -661,7 +683,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
             } // ENDIF UseHydro
         }//grid
     }//RK hydro
-    
+
       /* Solve the cooling and species rate equations. */
  
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
@@ -694,6 +716,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->StarParticleHandler
 	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove, TopGridTimeStep);
 
+//      if (Grids[grid1]->GridData->CheckDensity() == FAIL){
+  //       printf("Negative densities reached after star particle handler\n");
+    ///  }
       Grids[grid1]->GridData->ActiveParticleHandler
         (Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove,
          NumberOfNewActiveParticles[grid1]);
@@ -701,6 +726,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include shock-finding */
 
       Grids[grid1]->GridData->ShocksHandler();
+
+//      if (Grids[grid1]->GridData->CheckDensity() == FAIL){
+  //       printf("Negative densities reached after shock handler\n");
+    //  }
+
 
       /* Compute and apply thermal conduction. */
       if(IsotropicConduction || AnisotropicConduction){
@@ -747,6 +777,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Finalize (accretion, feedback etc) for Active particles. */
     ActiveParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
                            level, NumberOfNewActiveParticles);
+
     /* Finalize (accretion, feedback, etc.) star particles */
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious, OutputNow);
@@ -784,8 +815,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
+    }
+    if (TemperatureLimit > 0){
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
+        Grids[grid1]->GridData->ApplyTemperatureLimit();
+      }
+    }
 
     TIMER_STOP(level_name);
     /* ----------------------------------------- */
@@ -797,9 +834,16 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         // dtThisLevelSoFar set during restart
         // dtThisLevel set during restart
         // Set dtFixed on each grid to dtThisLevel
-        for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+        for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
           Grids[grid1]->GridData->SetTimeStep(dtThisLevel[level]);
+        }
+       if (TemperatureLimit > 0){
+         for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
+           Grids[grid1]->GridData->ApplyTemperatureLimit();
+         }
+       }
     }
+
 
     if (LevelArray[level+1] != NULL) {
       if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel[level], Exterior
@@ -812,6 +856,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
 
+
 #ifdef USE_LCAPERF
     // Update lcaperf "level" attribute
 
@@ -823,6 +868,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  , ImplicitSolver
 #endif
 			  );
+
 #ifdef USE_PYTHON
     LCAPERF_START("CallPython");
     CallPython(LevelArray, MetaData, level, 0);
@@ -852,7 +898,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      * (b) correct for the difference between this grid's fluxes and the
      *     subgrid's fluxes. (step #19)
      */
- 
+
     SUBlingList = new LevelHierarchyEntry*[NumberOfGrids];
 #ifdef FAST_SIB
     CreateSUBlingList(MetaData, LevelArray, level, SiblingList,
@@ -867,10 +913,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
 			     SubgridFluxesEstimate,SUBlingList,MetaData);
 
+
+
     DeleteSUBlingList( NumberOfGrids, SUBlingList );
 
     EXTRA_OUTPUT_MACRO(4,"After UFG")
-
 
     if(UseMHDCT == TRUE && MHD_ProjectE == TRUE){
       for(grid1=0;grid1<NumberOfGrids; grid1++){
@@ -879,7 +926,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }//MHD True
 
     EXTRA_OUTPUT_MACRO(5,"After UMF")
-
   /* ------------------------------------------------------- */
   /* Add the saved fluxes (in the last subsubgrid entry) to the exterior
      fluxes for this subgrid .
@@ -895,17 +941,20 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
     }
 
+
     EXTRA_OUTPUT_MACRO(51, "After SBC")
 
     FinalizeFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
 
+
     /* Check for mass flux across outer boundaries of domain */
     ComputeDomainBoundaryMassFlux(Grids, level, NumberOfGrids, MetaData);
 
-
     /* Recompute radiation field, if requested. */
     RadiationFieldUpdate(LevelArray, level, MetaData);
+
  
+
 //     //dcc cut second potential cut: Duplicate?
  
 //     if (SelfGravity && WritePotential) {
@@ -949,9 +998,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
- 
+
     if (dtThisLevelSoFar[level] < dtLevelAbove)
-      RebuildHierarchy(MetaData, LevelArray, level);
+      RebuildHierarchy(MetaData, LevelArray, level, AllStars);
+
+    DeleteStarList(AllStars);
 
     cycle++;
     LevelCycleCount[level]++;

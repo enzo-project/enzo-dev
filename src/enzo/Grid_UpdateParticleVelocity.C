@@ -39,7 +39,7 @@ int grid::UpdateParticleVelocity(float TimeStep)
  
   if ((NumberOfParticles == 0 && NumberOfActiveParticles == 0) || ParticleAcceleration[0] == NULL)
     return SUCCESS;
- 
+
   FLOAT a = 1.0, dadt;
 #if defined(VELOCITY_METHOD1) || defined(VELOCITY_METHOD2)
   float VelocityMidStep;

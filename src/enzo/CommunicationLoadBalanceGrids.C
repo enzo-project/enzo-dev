@@ -75,7 +75,7 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
     ProcessorComputeTime[i] = 0;
  
   /* Compute work for each grid. */
- 
+
   for (i = 0; i < NumberOfGrids; i++) {
     proc = GridHierarchyPointer[i]->GridData->ReturnProcessorNumber();
     GridHierarchyPointer[i]->GridData->CollectGridInformation

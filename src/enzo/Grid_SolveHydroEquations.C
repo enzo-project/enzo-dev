@@ -44,7 +44,7 @@ extern "C" void FORTRAN_NAME(ppm_lr)(
 			  int *rank, int *in, int *jn, int *kn,
                             int is[], int ie[],
 			  float gridvel[], int *flatten, int *ipresfree,
-			  int *diff, int *steepen, int *idual, 
+			  int *diff, int *steepen, int *idual,
                             float *eta1, float *eta2,
 			  int *num_subgrids, int leftface[], int rightface[],
 			  int istart[], int iend[], int jstart[], int jend[],
@@ -55,12 +55,12 @@ extern "C" void FORTRAN_NAME(ppm_lr)(
                             int colindex[], int *ifloat_size);
 #endif /* PPM_LR */
 
-int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids, 
+int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 			      fluxes *SubgridFluxes[], int level)
 {
 
   /* Return if this doesn't concern us. */
- 
+
   if (ProcessorNumber != MyProcessorNumber || !UseHydro)
     return SUCCESS;
 
@@ -106,65 +106,65 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
         colnum[i] = ColourNum+i;
 
     }
-    // second, the color field advection if using RadiativeTransferFLD for 
+    // second, the color field advection if using RadiativeTransferFLD for
     // a radiation propagation problem (i.e. not using ray-tracing)
     if (RadiativeTransferFLD == 2) {
       if (ImplicitProblem < 4)  {  // grey radiation problem
-	
+
 	// set the grey radiation field (required)
 	if ((ColourNum =
-	     FindField(RadiationFreq0, FieldType, NumberOfBaryonFields)) < 0) 
+	     FindField(RadiationFreq0, FieldType, NumberOfBaryonFields)) < 0)
 	  ENZO_FAIL("Could not find RadiationFreq0.");
 	colnum[0] = ColourNum;
 
 	// check for other chemistry fields; add if they're present
 	//   ElectronDensity
 	if ((ColourNum =
-	     FindField(ElectronDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(ElectronDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   HIDensity
 	if ((ColourNum =
-	     FindField(HIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(HIDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   HIIDensity
 	if ((ColourNum =
-	     FindField(HIIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(HIIDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   HeIDensity
 	if ((ColourNum =
-	     FindField(HeIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(HeIDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   HeIIDensity
 	if ((ColourNum =
-	     FindField(HeIIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(HeIIDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   HeIIIDensity
 	if ((ColourNum =
-	     FindField(HeIIIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(HeIIIDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   HMDensity
 	if ((ColourNum =
-	     FindField(HMDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(HMDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   H2IDensity
 	if ((ColourNum =
-	     FindField(H2IDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(H2IDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   H2IIDensity
 	if ((ColourNum =
-	     FindField(H2IIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(H2IIDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   DIDensity
 	if ((ColourNum =
-	     FindField(DIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(DIDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   DIIDensity
 	if ((ColourNum =
-	     FindField(DIIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(DIIDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
 	//   HDIDensity
 	if ((ColourNum =
-	     FindField(HDIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	     FindField(HDIDensity, FieldType, NumberOfBaryonFields)) >= 0)
 	  colnum[++NumberOfColours] = ColourNum;
       }
     }
@@ -172,7 +172,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* Add "real" colour fields (metallicity, etc.) as colour variables. */
 
     int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-      MetalIaNum, MetalIINum; 
+      MetalIaNum, MetalIINum;
 
     if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum,
                 MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
@@ -180,7 +180,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     if (MetalNum != -1) {
       colnum[NumberOfColours++] = MetalNum;
-      if (MultiMetals || TestProblemData.MultiMetals) {
+      if ((MultiMetals || TestProblemData.MultiMetals == 1 ) && ( (TestProblemData.MultiMetals < 2) && (MultiMetals < 2))) {
 	colnum[NumberOfColours++] = MetalNum+1; //ExtraType0
 	colnum[NumberOfColours++] = MetalNum+2; //ExtraType1
       }
@@ -193,9 +193,86 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
     if (Galaxy2ColourNum != -1) colnum[NumberOfColours++] = Galaxy2ColourNum;
 
+    /* Add Chemical tracer species as color fields */
+    if(MultiMetals == 2){
+      for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+        if(StellarYieldsAtomicNumbers[yield_i] > 2){
+
+          int field_num = 0;
+
+          this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+          colnum[NumberOfColours++] = field_num;
+
+
+        }
+      }
+
+      int PopIIIMetalNum, PopIIIPISNeMetalNum, AGBMetalNum, RProcMetalNum; //, SNIaMetalNum, SNIIMetalNum;
+      int ExtraMetalNum0, ExtraMetalNum1, ExtraMetalNum2, WindMetalNum, WindMetalNum2;
+
+      AGBMetalNum    = FindField(ExtraType0, FieldType, NumberOfBaryonFields);
+      PopIIIMetalNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields);
+      PopIIIPISNeMetalNum = FindField(MetalPISNeDensity, FieldType, NumberOfBaryonFields);
+      WindMetalNum   = FindField(MetalWindDensity, FieldType, NumberOfBaryonFields);
+      WindMetalNum2  = FindField(MetalWindDensity2, FieldType, NumberOfBaryonFields);
+      RProcMetalNum  = FindField(MetalRProcessDensity, FieldType, NumberOfBaryonFields);
+//      SNIaMetalNum   = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
+//      SNIIMetalNum   = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
+
+      ExtraMetalNum0 = FindField(ExtraMetalField0, FieldType, NumberOfBaryonFields);
+      ExtraMetalNum1 = FindField(ExtraMetalField1, FieldType, NumberOfBaryonFields);
+      ExtraMetalNum2 = FindField(ExtraMetalField2, FieldType, NumberOfBaryonFields);
+
+
+      if (IndividualStarTrackAGBMetalDensity){
+        colnum[NumberOfColours++] = AGBMetalNum;
+      }
+
+      if (IndividualStarPopIIIFormation){
+        colnum[NumberOfColours++] = PopIIIMetalNum;
+        colnum[NumberOfColours++] = PopIIIPISNeMetalNum;
+
+        if (IndividualStarPopIIISeparateYields){
+          for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+            if(StellarYieldsAtomicNumbers[yield_i] > 2){
+
+              int field_num = 0;
+
+              this->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i],
+                                                                0, 2 // flag to get second set of field numbers
+                                                                );
+              colnum[NumberOfColours++] = field_num;
+
+
+            }
+          }
+        } // separate yields
+      }
+
+      if (IndividualStarTrackWindDensity){
+        colnum[NumberOfColours++] = WindMetalNum;
+        colnum[NumberOfColours++] = WindMetalNum2;
+      }
+
+      if (IndividualStarSNIaModel == 2){
+        colnum[NumberOfColours++] = ExtraMetalNum0;
+        colnum[NumberOfColours++] = ExtraMetalNum1;
+        colnum[NumberOfColours++] = ExtraMetalNum2;
+      }
+
+      if (IndividualStarRProcessModel){
+        colnum[NumberOfColours++] = RProcMetalNum;
+      }
+
+//      if (IndividualStarTrackSNMetalDensity){  This is already done above!!!!! with MetalIaNum and MetalIINum!!!!
+//        colnum[NumberOfColours++] = SNIaMetalNum;
+//        colnum[NumberOfColours++] = SNIIMetalNum;
+//      }
+
+    } // if mm == 2
+
 
     /* Add Simon Glover's chemistry species as color fields */
-
     if(TestProblemData.GloverChemistryModel){
 
       // Declarations for Simon Glover's cooling.
@@ -255,7 +332,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 	colnum[NumberOfColours++] = H2OINum;
 	colnum[NumberOfColours++] = O2INum;
       }
-      
+
     } // if(TestProblemData.GloverChemistryModel)
 
 
@@ -272,11 +349,11 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     if(ShockMethod){
       int MachNum, PSTempNum,PSDenNum;
-      
+
       if (IdentifyShockSpeciesFields(MachNum,PSTempNum,PSDenNum) == FAIL) {
 	ENZO_FAIL("Error in IdentifyShockSpeciesFields.")
       }
-      
+
       colnum[NumberOfColours++] = MachNum;
       if(StorePreShockFields){
 	colnum[NumberOfColours++] = PSTempNum;
@@ -284,7 +361,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       }
     }
     /* Determine if Gamma should be a scalar or a field. */
-    
+
     int UseGammaField = FALSE;
     float *GammaField = NULL;
     if (HydroMethod == Zeus_Hydro && MultiSpecies > 1) {
@@ -298,7 +375,11 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       GammaField[0] = Gamma;
 
     }
-    
+
+    if (NumberOfColours > MAX_COLOR){
+      ENZO_VFAIL("Too many color fields. Need to raise MAX_COLOR in fortran.def to at least %"ISYM"\n",NumberOfColours);
+    }
+
     /* Set lowest level flag (used on Zeus hydro). */
 
     int LowestLevel = (level > MaximumRefinementLevel-1) ? TRUE : FALSE;
@@ -368,7 +449,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     } // end of loop over subgrids
 
-    /* compute global start index for left edge of entire grid 
+    /* compute global start index for left edge of entire grid
        (including boundary zones) */
 
     for (dim = 0; dim < GridRank; dim++)
@@ -391,7 +472,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
        care of elsewhere). */
 
     if (ComovingCoordinates)
-      if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
+      if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt)
 	  == FAIL) {
 	ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
       }
@@ -416,7 +497,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 #ifdef TRANSFER
     if (RadiationPressure)
       GravityOn = 1;
-#endif    
+#endif
 
     //Some setup for MHDCT
 
@@ -424,7 +505,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if ( UseMHDCT ) {
         MHDCT_ConvertEnergyToConservedS();  //Energy toggle.  Probably will be removed soon.
         for(field=0;field<3;field++){
-            if(ElectricField[field] == NULL ) 
+            if(ElectricField[field] == NULL )
                 ElectricField[field] = new float[ElectricSize[field]];
             for(i=0;i<ElectricSize[field]; i++) ElectricField[field][i] = 0.0;
         }
@@ -435,12 +516,12 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
         }
         CenterMagneticField();
 #ifdef BIERMANN
-        
+
         /* Compute Units. */
-        
+
         float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1, TimeUnits = 1,
           VelocityUnits = 1, BFieldUnits = 1;
-        
+
         if(ComovingCoordinates){
           if (MHDCosmologyGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
           		     &TimeUnits, &VelocityUnits, Time,&BFieldUnits) == FAIL) {
@@ -461,12 +542,12 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
 
     float* Fluxes[3] = {MagneticFlux[0][0],MagneticFlux[1][0],MagneticFlux[2][0]};
-    int CurlStart[3] = {0,0,0}, 
+    int CurlStart[3] = {0,0,0},
     CurlEnd[3] = {GridDimension[0]-1,GridDimension[1]-1,GridDimension[2]-1};
     if ( UseMHDCT ){
         if (HydroMethod == MHD_Li){
-          this->SolveMHD_Li(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
-                CellWidthTemp, GridGlobalStart, GravityOn, 
+          this->SolveMHD_Li(CycleNumber, NumberOfSubgrids, SubgridFluxes,
+                CellWidthTemp, GridGlobalStart, GravityOn,
                 NumberOfColours, colnum, Fluxes);
         }
 
@@ -509,7 +590,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
        Notice that it is hard-wired for three dimensions, but it does
        the right thing for < 3 dimensions. */
     /* note: Start/EndIndex are zero based */
-        
+
     if (HydroMethod == PPM_DirectEuler)
       this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes,
                         CellWidthTemp, GridGlobalStart, GravityOn,
@@ -546,19 +627,19 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     }
 
     if (HydroMethod == Zeus_Hydro)
-      if (this->ZeusSolver(GammaField, UseGammaField, CycleNumber, 
+      if (this->ZeusSolver(GammaField, UseGammaField, CycleNumber,
                CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2],
                GravityOn, NumberOfSubgrids, GridGlobalStart,
                SubgridFluxes,
                NumberOfColours, colnum, LowestLevel,
                MinimumSupportEnergyCoefficient) == FAIL)
 	ENZO_FAIL("ZeusSolver() failed!\n");
-	
+
 
 
     /* Clean up allocated fields. */
 
-    delete [] GammaField;   
+    delete [] GammaField;
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delete [] CellWidthTemp[dim];
@@ -566,8 +647,8 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
   /* If we're supposed to be outputting on Density, we need to update
      the current maximum value of that Density. */
 
-    if (OutputOnDensity == 1 || 
-        StopFirstTimeAtDensity > 0. || 
+    if (OutputOnDensity == 1 ||
+        StopFirstTimeAtDensity > 0. ||
         StopFirstTimeAtMetalEnrichedDensity > 0.) {
       int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
 
@@ -604,7 +685,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
           else if (SNColourNum != -1)
             MetalPointer = BaryonField[SNColourNum];
         } // ENDELSE both metal types
- 
+
       }
 
       for (i = 0; i < size; i++) {
@@ -614,7 +695,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
         if (StopFirstTimeAtMetalEnrichedDensity > 0. &&
             (MetalPointer[i] / BaryonField[DensNum][i]) > EnrichedMetalFraction) {
-          CurrentMaximumMetalEnrichedDensity = 
+          CurrentMaximumMetalEnrichedDensity =
             max(BaryonField[DensNum][i], CurrentMaximumMetalEnrichedDensity);
         }
 

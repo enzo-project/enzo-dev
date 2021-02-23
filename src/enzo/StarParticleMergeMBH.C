@@ -43,6 +43,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return SUCCESS;
+  }
+
   Star *ThisStar, *OtherStar, *MoveStar, *LastStar;
   LevelHierarchyEntry *Temp;
   float rmerge2;

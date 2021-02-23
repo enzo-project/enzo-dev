@@ -351,6 +351,7 @@ int grid::ComputeAccelerationFieldExternal()
 
   if (DiskGravity > 0) {
 
+
     double accel, radius, rsquared, xpos, ypos = 0, zpos = 0, rcore,rcyl;
     FLOAT dadt, a = 1;
     float AngularMomentumx, AngularMomentumy, AngularMomentumz;
@@ -525,15 +526,16 @@ int grid::ComputeAccelerationFieldExternal()
         ParticleAcceleration[0][i] -= (   accelsph*xpos
                                         + accelcylR*xpos1
                                         + accelcylz*AngularMomentumx);
+
         ParticleAcceleration[1][i] -= (   accelsph*ypos
                                         + accelcylR*ypos1
                                         + accelcylz*AngularMomentumy);
+
         ParticleAcceleration[2][i] -= (   accelsph*zpos
                                         + accelcylR*zpos1
                                         + accelcylz*AngularMomentumz);
 
-
-      } // end: loop over particles
+      }
     } // end: check if particles + NULL
 
   } // end: if (DiskGravity)
@@ -555,9 +557,9 @@ int grid::ComputeAccelerationFieldExternal()
     /* Specify NFW parameters by hand here 
        Should move to parameter file in the future */
     
-    double rhoc = HaloCentralDensity,
-      c = HaloConcentration, 
-      rvir = HaloVirialRadius;
+    double rhoc = ExternalGravityHaloCentralDensity,
+      c = ExternalGravityHaloConcentration, 
+      rvir = ExternalGravityHaloVirialRadius;
     FLOAT xc = 0.5, yc = 0.5, zc = 0.5;
 
     double rs = rvir / c;
@@ -569,7 +571,7 @@ int grid::ComputeAccelerationFieldExternal()
 	     &TimeUnits, &VelocityUnits, &MassUnits, Time);
     double AccelerationUnits = LengthUnits / POW(TimeUnits,2);
 
-    printf("rhoc=%g, rvir=%g, Mvir=%g\n", rhoc, rvir, Mvir/SolarMass);
+    //printf("rhoc=%g, rvir=%g, Mvir=%g\n", rhoc, rvir, Mvir/SolarMass);
     
     FLOAT x, y, z, xpos, ypos, zpos, r;
     int n = 0;
@@ -649,7 +651,6 @@ int grid::ComputeAccelerationFieldExternal()
     }
     
   } // end if (ExternalGravity == 1)
-
   /* -----------------------------------------------------------------
      ExternalGravity > 9 : Acceleration from specified potential field.
 

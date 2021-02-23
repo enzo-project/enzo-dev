@@ -134,6 +134,9 @@ grid::~grid()
   for (i = 0; i < MAX_NUMBER_OF_PARTICLE_ATTRIBUTES; i++)
     delete [] ParticleAttribute[i];
 
+  for (i = 0; i < MAX_STELLAR_YIELDS; i++)
+    delete [] StellarAbundances[i];
+
 
   DeleteStarList(Stars);
 

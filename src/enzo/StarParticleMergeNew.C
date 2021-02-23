@@ -43,11 +43,16 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
+
   Star *ThisStar, *OtherStar, *LastStar, *MoveStar;
   LevelHierarchyEntry *Temp;
   float rmerge2, rmerge2o, dx, dx2;
   FLOAT TimeNow;
   int dim, level;
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return SUCCESS; // no merging!!!
+  }
 
   /* Get the time at the finest level */
   

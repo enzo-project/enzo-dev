@@ -69,7 +69,7 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   FLOAT *Position[MAX_DIMENSION];
   float *Velocity[MAX_DIMENSION], *Mass,
         *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
- 
+
   Mass = new float[TotalNumberOfParticles];
   Number = new PINT[TotalNumberOfParticles];
   Type = new int[TotalNumberOfParticles];
@@ -109,7 +109,7 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   for (j = 0; j < NumberOfParticleAttributes; j++)
     for (i = 0; i < NumberOfParticles; i++)
       Attribute[j][i] = ParticleAttribute[j][i];
- 
+
   /* Delete this grid's particles (now copied). */
  
   this->DeleteParticles();
@@ -118,10 +118,11 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
  
   this->SetParticlePointers(Mass, Number, Type, Position, Velocity,
 			    Attribute);
- 
+
   /* Copy FromGrids' particles to new space on local "fake" grid. */
- 
+
   int Index = NumberOfParticles;
+
   for (grid = 0; grid < NumberOfGrids; grid++) {
 
     for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {
@@ -129,7 +130,7 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
       Number[Index+i] = FromGrid[grid]->ParticleNumber[i];
       Type[Index+i] = FromGrid[grid]->ParticleType[i];
     }
-    
+
     for (dim = 0; dim < GridRank; dim++)
       for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {
 	Position[dim][Index+i] = FromGrid[grid]->ParticlePosition[dim][i];
@@ -139,7 +140,8 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
     for (j = 0; j < NumberOfParticleAttributes; j++)
       for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++)
 	Attribute[j][Index+i] = FromGrid[grid]->ParticleAttribute[j][i];
-    
+
+
     Index += FromGrid[grid]->NumberOfParticles;
 
   } // ENDFOR grids 

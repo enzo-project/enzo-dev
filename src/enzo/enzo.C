@@ -166,7 +166,10 @@ int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
 int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
 
 int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level);
+		     LevelHierarchyEntry *LevelArray[], int level, Star *&AllStars);
+
+int RebuildHierarchy(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], int level);
+
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 			 LevelHierarchyEntry *LevelArray[], int level);
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
@@ -245,6 +248,11 @@ int RadiativeTransferInitialize(char *ParameterFile,
 				LevelHierarchyEntry *LevelArray[]);
 #endif
 
+int InitializeStellarYieldFields(HierarchyEntry &TopGrid,
+                                 TopGridData &MetaData,
+                                 ExternalBoundary &Exterior,
+                                 LevelHierarchyEntry *LevelArray[]);
+
 #ifdef USE_LCAPERF
 void lcaperfInitialize (int max_level);
 #endif
@@ -305,6 +313,13 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   TIMER_REGISTER("RebuildHierarchy");
   TIMER_REGISTER("SetBoundaryConditions");
   TIMER_REGISTER("SolveHydroEquations");
+  TIMER_REGISTER("StarParticlePhotoelectricHeating");
+  TIMER_REGISTER("CreateSourceClusteringTree");
+  TIMER_REGISTER("InitializeOTFields");
+  TIMER_REGISTER("IndividualStarAddFeedback");
+  TIMER_REGISTER("GrackleWrapper");
+  TIMER_REGISTER("StarParticleInitialize");
+  TIMER_REGISTER("RadiativeTrasnferFUVandLW");
   TIMER_REGISTER("Total");
 
 #ifdef USE_LCAPERF
@@ -776,6 +791,12 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
     my_exit(EXIT_FAILURE);
   }
 #endif
+
+  if (InitializeStellarYieldFields(TopGrid, MetaData, Exterior,
+                                   LevelArray) == FAIL){
+    fprintf(stderr, "Error in StellarYieldsInitialize.\n");
+    my_exit(EXIT_FAILURE);
+  }
 
   PrintMemoryUsage("Call evolve hierarchy");
 

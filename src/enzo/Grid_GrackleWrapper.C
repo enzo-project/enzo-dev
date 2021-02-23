@@ -15,6 +15,7 @@
 
 #include "preincludes.h"
 #include "performance.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -44,17 +45,13 @@ int grid::GrackleWrapper()
     return SUCCESS;
 
   LCAPERF_START("grid_GrackleWrapper");
+  TIMER_START("GrackleWrapper");
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
 
-  double dt_cool = dtFixed;
-#ifdef TRANSFER
-  dt_cool = (grackle_data->radiative_transfer_intermediate_step == TRUE) ? dtPhoton : dtFixed;
-#endif
-  
   /* Compute the size of the fields. */
- 
+
   int i;
   int size = 1;
   for (int dim = 0; dim < GridRank; dim++)
@@ -69,27 +66,27 @@ int grid::GrackleWrapper()
     g_grid_start[i] = (Eint32) GridStartIndex[i];
     g_grid_end[i] = (Eint32) GridEndIndex[i];
   }
- 
+
   /* Find fields: density, total energy, velocity1-3. */
- 
+
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
- 
+
   /* Find Multi-species fields. */
 
-  DeNum = HINum = HIINum = HeINum = HeIINum = HeIIINum = HMNum = H2INum = 
+  DeNum = HINum = HIINum = HeINum = HeIINum = HeIIINum = HMNum = H2INum =
     H2IINum = DINum = DIINum = HDINum = 0;
- 
+
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
- 
+
   /* Get easy to handle pointers for each variable. */
- 
+
   float *density     = BaryonField[DensNum];
   float *totalenergy = BaryonField[TENum];
   float *gasenergy   = BaryonField[GENum];
@@ -109,14 +106,31 @@ int grid::GrackleWrapper()
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
   if (ComovingCoordinates) {
-    CosmologyComputeExpansionFactor(Time+0.5*dt_cool, &a, &dadt);
- 
+    CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt);
+
     aUnits = 1.0/(1.0 + InitialRedshift);
   } else if (RadiationFieldRedshift > -1){
     a        = 1.0 / (1.0 + RadiationFieldRedshift);
     aUnits   = 1.0;
   }
+
   float afloat = float(a);
+
+  /* assign heating rates - set to Null pointers if not used */
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+    float EnergyUnits = DensityUnits * VelocityUnits * VelocityUnits;
+
+    int PeNum = FindField( PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+
+    /* send to Grackle in CGS */
+    volumetric_heating_rate = new float[size];
+    specific_heating_rate   = NULL;
+
+    // convert to cgs
+    for( i = 0; i < size; i ++){
+      volumetric_heating_rate[i] = BaryonField[PeNum][i] * (EnergyUnits/TimeUnits); // convert to CGS
+    }
+  }
 
   /* Update units. */
 
@@ -130,7 +144,7 @@ int grid::GrackleWrapper()
   grackle_units.a_value              = (double) a;
 
   /* Metal cooling codes. */
- 
+
   int MetalNum = 0, SNColourNum = 0;
   int MetalFieldPresent = FALSE;
 
@@ -166,7 +180,7 @@ int grid::GrackleWrapper()
     else if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
- 
+
   int temp_thermal = FALSE;
   float *thermal_energy;
   if ( UseMHD ){
@@ -185,7 +199,7 @@ int grid::GrackleWrapper()
     temp_thermal = TRUE;
     thermal_energy = new float[size];
     for (i = 0; i < size; i++) {
-      thermal_energy[i] = BaryonField[TENum][i] - 
+      thermal_energy[i] = BaryonField[TENum][i] -
         0.5 * POW(BaryonField[Vel1Num][i], 2.0);
       if(GridRank > 1)
         thermal_energy[i] -= 0.5 * POW(BaryonField[Vel2Num][i], 2.0);
@@ -193,9 +207,9 @@ int grid::GrackleWrapper()
         thermal_energy[i] -= 0.5 * POW(BaryonField[Vel3Num][i], 2.0);
 
       if( UseMHD ) {
-        thermal_energy[i] -= 0.5 * (POW(BaryonField[iBx][i], 2.0) + 
-                                    POW(BaryonField[iBy][i], 2.0) + 
-                                    POW(BaryonField[iBz][i], 2.0)) / 
+        thermal_energy[i] -= 0.5 * (POW(BaryonField[iBx][i], 2.0) +
+                                    POW(BaryonField[iBy][i], 2.0) +
+                                    POW(BaryonField[iBz][i], 2.0)) /
           BaryonField[DensNum][i];
       }
     } // for (int i = 0; i < size; i++)
@@ -214,10 +228,12 @@ int grid::GrackleWrapper()
   my_fields.grid_start     = g_grid_start;
   my_fields.grid_end       = g_grid_end;
   my_fields.grid_dx        = this->CellWidth[0][0];
+  //my_fields.time           = this->Time * TimeUnits; // in seconds
 
   /* now add in the baryon fields */
   my_fields.density         = density;
   my_fields.internal_energy = thermal_energy;
+
   my_fields.x_velocity      = velocity1;
   my_fields.y_velocity      = velocity2;
   my_fields.z_velocity      = velocity3;
@@ -253,6 +269,7 @@ int grid::GrackleWrapper()
   float rtunits = erg_eV / TimeUnits;
 
   if( RadiativeTransfer ){
+
     my_fields.RT_HI_ionization_rate   = BaryonField[kphHINum];
 
     if (RadiativeTransferHydrogenOnly == FALSE){
@@ -267,21 +284,20 @@ int grid::GrackleWrapper()
     for( i = 0; i < size; i++) BaryonField[gammaNum][i] *= rtunits;
 
     my_fields.RT_heating_rate = BaryonField[gammaNum];
-    
 
   }
 #endif // TRANSFER
 
   /* Call the chemistry solver. */
 
-  if (solve_chemistry(&grackle_units, &my_fields, (double) dt_cool) == FAIL){
+  if (solve_chemistry(&grackle_units, &my_fields, (double) dtFixed) == FAIL){
     fprintf(stderr, "Error in Grackle solve_chemistry.\n");
     return FAIL;
   }
 
   if (HydroMethod != Zeus_Hydro) {
     for (i = 0; i < size; i++) {
-      BaryonField[TENum][i] = thermal_energy[i] +
+      BaryonField[TENum][i] = my_fields.internal_energy[i] +
         0.5 * POW(BaryonField[Vel1Num][i], 2.0);
       if(GridRank > 1)
         BaryonField[TENum][i] += 0.5 * POW(BaryonField[Vel2Num][i], 2.0);
@@ -306,10 +322,12 @@ int grid::GrackleWrapper()
   if (RadiativeTransfer){
     /* convert the RT units back to Enzo */
     for(i = 0; i < size; i ++) BaryonField[gammaNum][i] /= rtunits;
-
   }
 #endif TRANSFER
 
+  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+      delete [] volumetric_heating_rate;
+  }
 
   delete [] TotalMetals;
   delete [] g_grid_dimension;
@@ -317,7 +335,9 @@ int grid::GrackleWrapper()
   delete [] g_grid_end;
 
   LCAPERF_STOP("grid_GrackleWrapper");
+  TIMER_STOP("GrackleWrapper");
 
 #endif
+
   return SUCCESS;
 }

@@ -46,6 +46,7 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
   /* get units */
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
   double MassUnits;
+
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
                &TimeUnits, &VelocityUnits, this->Time) == FAIL){
       ENZO_FAIL("Error in GetUnits");
@@ -120,8 +121,6 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
         allgrid_BoundaryMassFluxContainer[i] += grid_BoundaryMassFluxContainer[i];
       }
     } // if right
-
-//      if (grid_BoundaryMassFluxContainer[i] > 0) printf("field_num = %"ISYM" mass = %"ESYM"\n", field_num, grid_BoundaryMassFluxContainer[i]);
 
   } // end loop over dim
 

@@ -16,7 +16,7 @@
 /         the grid in solar masses. However, this could (in principle)
 /         be generalized to compute flux of any quantity in any units
 /
-/*********************************************************************/
+/ *********************************************************************/
 
 #ifdef USE_MPI
 #include "mpi.h"
@@ -66,6 +66,7 @@ int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level,
   CommunicationSumValues(allgrid_BoundaryMassFluxContainer, MAX_NUMBER_OF_BARYON_FIELDS);
 
   /* now store total in root grid for output */
+
   if (MyProcessorNumber == ROOT_PROCESSOR){
 
     FILE *fptr;

@@ -28,6 +28,9 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 
+
+void GetParticleAttributeLabels(std::vector<std::string> ParticleAttributeLabels);
+
 void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, int level, FLOAT WriteTime)
 {
 
@@ -35,14 +38,9 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
        {"particle_position_x", "particle_position_y", "particle_position_z"};
     char *ParticleVelocityLabel[] =
        {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-#ifdef WINDS
-    char *ParticleAttributeLabel[] = 
-      {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
-       "particle_jet_y", "particle_jet_z", "typeia_fraction"};
-#else
-    char *ParticleAttributeLabel[] = 
-      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
-#endif
+
+    std::vector<std::string> ParticleAttributeLabel(NumberOfParticleAttributes);
+    GetParticleAttributeLabels(ParticleAttributeLabel);
 
     this->DebugCheck("Converting to NumPy arrays");
 
@@ -180,7 +178,37 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 	       (PyObject*) dataset);
 	    Py_DECREF(dataset);
 
-	  }
+            /* chemical tracers */
+            if( ((TestProblemData.MultiMetals == 2) || (MultiMetals == 2)) && !IndividualStarOutputChemicalTags){
+                dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                           1, dims, ENPY_BFLOAT, ParticleAttribute[3]);
+                PyDict_SetItemString(grid_data, ParticleAttributeLabels[3].c_str(), (PyObject*) da$
+                PyDECREF(dataset);
+
+              for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i++){
+                if(StellarYieldsAtomicNumbers[yield_i] > 2){
+
+
+                  dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                             1, dims, ENPY_BFLOAT, ParticleAttribute[4 + yield_i]);
+                  PyDict_SetItemString(grid_data, ParticleAttributeLabels[4 + yield_i].c_str(), (PyObject*) dataset);
+                  PyDECREF(dataset);
+                }
+              }
+            } // mm == 2 check
+            if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+              if (IndividualStarSaveTablePositions)
+                for(int ii = ParticleAttributeTableStartIndex; ii < NumberOfParticleAttributes; ii++){
+                  dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                                1, dims, ENPY_BFLOAT, ParticleAttribute[ii]);
+                  PyDict_SetItemString(grid_data, ParticleAttributeLabels[ii].c_str(), (PyObject*) dataset);
+                  PyDECREF(dataset);
+                }
+              }
+            }
+
+
+	  } // end check star particle
 
         }
 

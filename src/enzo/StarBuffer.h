@@ -14,6 +14,8 @@
 
 #define MAX_ACCR 100
 
+const int MAX_STAR_ABUNDANCES = MAX_STELLAR_YIELDS*2 + 11;
+
 struct StarBuffer {
   FLOAT	pos[MAX_DIMENSION];
   float		vel[MAX_DIMENSION];
@@ -23,6 +25,7 @@ struct StarBuffer {
   float         last_accretion_rate;
   FLOAT	accretion_time[MAX_ACCR];
   double       	Mass;
+  double        BirthMass;
   double       	FinalMass;
   float		DeltaMass;
   float		BirthTime;
@@ -33,10 +36,24 @@ struct StarBuffer {
   int		Identifier;
   int		level;
   int		GridID;
+  int           SNIaType;
+  int           PopIIIStar;
   bool          AddedEmissivity;
   star_type	type;
-  float         accreted_angmom[MAX_DIMENSION];  
+  float         accreted_angmom[MAX_DIMENSION];
   double        NotEjectedMass;
+  double Radius;
+  double SurfaceGravity;
+  double Teff;
+
+  /* for individual stars - yield table numbers */
+  int se_table_position[2];
+  int rad_table_position[3];
+  int yield_table_position[2];
+  double abundances[MAX_STAR_ABUNDANCES];
+
+  double wind_mass_ejected;
+  double sn_mass_ejected;
 };
 
 #endif

@@ -29,24 +29,24 @@ bool Star::IsARadiationSource(FLOAT Time)
 
   /* To add rules, you must also modify NumberOfRules. */
 
-  const int NumberOfRules = 4;
+  const int NumberOfRules = 5;
   rules = new bool[NumberOfRules];
 
-  for (i = 0; i < NumberOfRules; i++) 
-    rules[i] = false; 
+  for (i = 0; i < NumberOfRules; i++)
+    rules[i] = false;
 
   /*******************************************************************
      Below are the multiple definitions for a radiation source.  If
      all of the rules are met, the star particle is a radiation
-     source. 
+     source.
   ********************************************************************/
 
   // Particles only marked for nothing or continuous supernova
-  rules[0] = (FeedbackFlag == NO_FEEDBACK || 
+  rules[0] = (FeedbackFlag == NO_FEEDBACK    ||
 	      FeedbackFlag == CONT_SUPERNOVA ||
-	      FeedbackFlag == MBH_THERMAL ||
-	      FeedbackFlag == MBH_JETS);
-  
+	      FeedbackFlag == MBH_THERMAL    ||
+	      FeedbackFlag == MBH_JETS );
+
   // Living
   rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime && type > 0);
 
@@ -58,6 +58,27 @@ bool Star::IsARadiationSource(FLOAT Time)
 
   // Non-zero mass
   rules[3] = (Mass > tiny_number);
+
+  // Mass threshold for individual stars to save on computation
+  if ((type == IndividualStar) || (type == IndividualStarPopIII)){
+    rules[0] = true;           // feedback flag only for winds + SN here
+
+    if( this->BirthMass >= IndividualStarRadiationMinimumMass){
+      rules[4] = true;
+    }
+    // else leave as false
+
+//  } else if (type == IndividualStarPopIII){
+//    rulse[0] = true;
+//    rulse[4] = true;
+
+  } else if ((type == IndividualStarWD) ||
+             (type == IndividualStarRemnant) ||
+             (type == IndividualStarUnresolved) ){
+    rules[4] = false;
+  } else{
+    rules[4] = true;
+  }
 
   /******************** END RULES ********************/
 

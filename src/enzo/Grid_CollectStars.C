@@ -25,7 +25,7 @@
 void DeleteStarList(Star * &Node);
 Star* StarBufferToList(StarBuffer buffer);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
- 
+
 int grid::CollectStars(int GridNum, int* &NumberToMove, 
 		       int &StartIndex, int &EndIndex, 
 		       star_data* &List, int CopyDirection)
@@ -64,7 +64,7 @@ int grid::CollectStars(int GridNum, int* &NumberToMove,
 		"and star pointer are mismatched.");
 
     for (i = 0, n1 = StartIndex, MoveStar = Stars; i < NumberOfStars;
-         i++, n1++, MoveStar = MoveStar->NextStar) {
+	 i++, n1++, MoveStar = MoveStar->NextStar) {
       MoveStar->StarToBuffer(&List[n1].data);
       List[n1].grid = GridNum;
       List[n1].proc = ProcessorNumber;

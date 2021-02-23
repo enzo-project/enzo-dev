@@ -110,6 +110,10 @@ int RadiativeTransferComptonHeating(PhotonPackageEntry **PP, FLOAT *dPi, int cel
 				    int TemperatureField, FLOAT ddr, double dN, 
 				    float geo_correction, int gammaNum);
 
+int RadiativeTransferFUVPEHeating(PhotonPackageEntry **PP, FLOAT &dp_FUV,
+                                  const int cellindex, const float tau, const FLOAT photonrate,
+                                  float geo_correction, int FUVRateNum);
+
 /* Functions to calculate the H2II cross section */
 float LookUpCrossSectionH2II(float hnu, float T);
 
@@ -270,9 +274,9 @@ int ErrorCheckPhotonNumber(int level) {
   for (PP = FinishedPhotonPackages->NextPackage; PP; PP = PP->NextPackage)
     fcount++;
   if (count+fcount != NumberOfPhotonPackages) {
-    printf("level %"ISYM", grid %"ISYM" (%x)\n", level, this->ID, this);
-    printf("-> Mismatch between photon count (%"ISYM", %"ISYM") and "
-	   "NumberOfPhotonPackages (%"ISYM")\n", 
+    printf("level %" ISYM ", grid %" ISYM " (%x)\n", level, this->ID, this);
+    printf("-> Mismatch between photon count (%" ISYM ", %" ISYM ") and "
+	   "NumberOfPhotonPackages (%" ISYM ")\n", 
 	   count, fcount, NumberOfPhotonPackages);
     return FAIL;
   }
@@ -462,6 +466,10 @@ int FindPhotonNewGrid(int cindex, FLOAT *r, double *u, int *g,
 int PhotonPeriodicBoundary(int &cindex, FLOAT *r, int *g, FLOAT *s,
 			   PhotonPackageEntry* &PP, grid* &MoveToGrid, 
 			   const float *DomainWidth, int &DeleteMe);
+
+int PhotonDeleteByPosition(int &cindex, FLOAT *r,
+                           PhotonPackageEntry* &PP, grid* &MoveToGrid,
+                           int &DeleteMe);
 
 /* Create PhotonPackages for a given radiation sources   */
 

@@ -231,9 +231,9 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
     printf("halodensity=%"GSYM"\n", HaloDensity[0]);
   }
 
-  HaloVirialRadius  = HaloRadius[0]*LengthUnits;
-  HaloConcentration = HaloVirialRadius/HaloCoreRadius[0]/LengthUnits;
-  HaloCentralDensity = HaloDensity[0]*DensityUnits;
+  ExternalGravityHaloVirialRadius  = HaloRadius[0]*LengthUnits;
+  ExternalGravityHaloConcentration = ExternalGravityHaloVirialRadius/HaloCoreRadius[0]/LengthUnits;
+  ExternalGravityHaloCentralDensity = HaloDensity[0]*DensityUnits;
 
   if (DiskTemperature[0] > 0 && EOSSoundSpeed <= 0) {
     double tgamma = Gamma;

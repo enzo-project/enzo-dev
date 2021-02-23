@@ -129,7 +129,7 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
     }
 
     SharedList = new particle_data[NumberOfReceives];
- 
+
     /******************************
           Share the particles
     ******************************/

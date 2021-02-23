@@ -48,6 +48,10 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 				     Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
+
+int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[], TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+                                      int level, Star* &AllStars, bool* &AddedFeedback);
+
 int CommunicationMergeStarParticle(HierarchyEntry *Grids[], int NumberOfGrids);
 void DeleteStarList(Star * &Node);
 
@@ -89,18 +93,32 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
     ThisStar->UpdatePositionVelocity();
 
+  // Apply individual star feedback if it exists
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR) && STARFEED_METHOD(INDIVIDUAL_STAR)){
+    for(ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar){
+      if(ThisStar->ReturnType() == -PARTICLE_TYPE_INDIVIDUAL_STAR_WD){
 
-  /* Apply any stellar feedback onto the grids and add any gas to the
-     accretion rates of the star particles */
+        ThisStar->UpdateWhiteDwarfProperties();
 
-  StarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
+      }
+    }
 
-  /* Update star particles for any accretion */
+    IndividualStarParticleAddFeedback(Grids, MetaData, LevelArray, level, AllStars, AddedFeedback);
+  } else{
 
-  StarParticleAccretion(MetaData, LevelArray, level, AllStars);
+    /* Apply any stellar feedback onto the grids and add any gas to the
+       accretion rates of the star particles */
+
+    StarParticleAddFeedback(MetaData, LevelArray, level, AllStars, AddedFeedback);
+
+
+    /* Update star particles for any accretion */
+
+    StarParticleAccretion(MetaData, LevelArray, level, AllStars);
+  }
 
   /* Collect all sink particles and report the total mass to STDOUT */
-  
+
   if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
     TotalMass = 0.0;
     for (l = 0; l <= MaximumRefinementLevel; l++)
@@ -122,13 +140,13 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   StarParticleDeath(LevelArray, level, AllStars);
 
-  /* 
+  /*
      If the new particles are above a specified mass threshold,
      "activate" them.  Then check for any stellar deaths.
 
      Sync all star and normal particles that are stored in the grids
      to the global list (AllStars) so these changes are reflected
-     there. 
+     there.
   */
 
   int count = 0;
@@ -139,11 +157,20 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //    if (debug) {
 //      printf("AddedFeedback[%d] = %d\n", count, AddedFeedback[count]);
 //     ThisStar->PrintInfo();
-//    } 
+//    }
+
     if (AddedFeedback[count]) {
       ThisStar->ActivateNewStar(TimeNow, Timestep);
       if (ThisStar->ReturnType() == PopIII && PopIIIOutputOnFeedback == TRUE)
 	OutputNow = TRUE;
+      if (ThisStar->ReturnType() == IndividualStarRemnant && PopIIIOutputOnFeedback == 2)
+        OutputNow = TRUE;
+    }
+    if (ThisStar->ReturnType() == -IndividualStar ||
+        ThisStar->ReturnType() == -IndividualStarRemnant ||
+        ThisStar->ReturnType() == -IndividualStarPopIII  ||
+        ThisStar->ReturnType() == -IndividualStarUnresolved ){
+      ThisStar->SetType( ABS(ThisStar->ReturnType()) );
     }
     ThisStar->ResetAccretion();
     ThisStar->CopyToGrid();
@@ -168,7 +195,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   if (PopIIIOutputOnFeedback)
     OutputNow = CommunicationMaxValue(OutputNow);
-  
+
   /* Merge star particles */
 
   if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {  
@@ -182,12 +209,15 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   StarParticleSetRefinementLevel(AllStars);
 
-  /* Delete the global star particle list, AllStars */
+  /* Delete the global star particle list, AllStars
+     but only if not using individual star routines */
 
-  DeleteStarList(AllStars);
+  if (! STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    DeleteStarList(AllStars);
+  }
+
   delete [] AddedFeedback;
 
   LCAPERF_STOP("StarParticleFinalize");
   return SUCCESS;
-
 }

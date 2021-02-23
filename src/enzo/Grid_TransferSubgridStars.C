@@ -35,7 +35,7 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
 			       int EndIndex, star_data* &List, 
 			       bool KeepLocal, bool ParticlesAreLocal,
 			       int CopyDirection, int IncludeGhostZones,
-                               int CountOnly)
+			       int CountOnly)
 {
  
   /* Declarations. */

@@ -35,6 +35,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, double *u, int *g,
   int Refinement;
   int dim, RayInsideGrid;
   bool InsideDomain;
+  float radius;
 
   /* First determine whether the ray has left the grid, store the
      destination grid, and "nudge" the photon package to avoid
@@ -51,9 +52,36 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, double *u, int *g,
   RayInsideGrid = this->PointInGridNB(r);
   MoveToGrid = SubgridMarker[cindex];
 
+  if (RadiativeTransferDeletePhotonByPosition){
+    // check if we've left the photon sphere
+    for (dim = 0, radius = 0.0; dim <MAX_DIMENSION; dim++)
+      radius += (r[dim] - 0.5*(DomainRightEdge[dim] - DomainLeftEdge[dim]) )*
+                (r[dim] - 0.5*(DomainRightEdge[dim] - DomainLeftEdge[dim]) );
+    radius = sqrt(radius);
+
+    if (radius > RadiativeTransferDeletePhotonRadius){
+      DeltaLevel = 0;
+      MoveToGrid = NULL;
+      DeleteMe   = TRUE;
+    } else{
+      // check if we've left the source sphere
+      for (dim = 0, radius = 0.0; dim < MAX_DIMENSION; dim++)
+        radius += (r[dim] - PP->SourcePosition[dim])*
+                  (r[dim] - PP->SourcePosition[dim]);
+      radius = sqrt(radius);
+
+      if (radius > RadiativeTransferDeletePhotonSourceRadius){
+        DeltaLevel = 0;
+        MoveToGrid = NULL;
+        DeleteMe   = TRUE;
+      }
+
+    }
+  }
+
   /***** Root grids *****/
 
-  if (ParentGrid == NULL) {
+  if (ParentGrid == NULL && (!DeleteMe)) {
 
     if (RayInsideGrid) {
       // Inside root grid -> Child grid
@@ -85,11 +113,12 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, double *u, int *g,
 
   /***** Subgrids *****/
 
-  else {
-      
+  else if (!DeleteMe){
+
     if (RayInsideGrid) {
       DeltaLevel = +1;
     } else {
+
       // Outside the grid, we have to determine whether it's a parent
       // or some other grid
       if (MoveToGrid == ParentGrid)

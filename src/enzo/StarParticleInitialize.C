@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include "performance.h"
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -33,10 +34,20 @@ int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
 void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
 				  int TotalStarParticleCountPrevious[]);
 
+
+int StarParticleIndividual_IMFInitialize(void);
+int IndividualStarProperties_Initialize(TopGridData &MetaData);
+int IndividualStarRadiationProperties_Initialize(void);
+int InitializeStellarYields(const float & time);
+
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
-			   int TotalStarParticleCountPrevious[])
+			   int TotalStarParticleCountPrevious[],
+                           int SkipFeedbackFlag = 0
+                           )
+
+
 {
 
   /* Return if this does not concern us */
@@ -44,6 +55,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     return SUCCESS;
 
   LCAPERF_START("StarParticleInitialize");
+  TIMER_START("StarParticleInitialize");
 
   /* Set MetaData->NumberOfParticles and prepare TotalStarParticleCountPrevious
      these are to be used in CommunicationUpdateStarParticleCount 
@@ -56,8 +68,25 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   /* Initialize the IMF lookup table if requested and not defined */
 
-  if (PopIIIInitialMassFunction)
+  if (PopIIIInitialMassFunction && STARMAKE_METHOD(INDIVIDUAL_STAR) == FALSE)
     StarParticlePopIII_IMFInitialize();
+
+  /* Initialize IMF lookup table if needed and radiation table if needed */
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    StarParticleIndividual_IMFInitialize();
+
+    /* Initialize individual star properties (L, T, R) */
+    IndividualStarProperties_Initialize(*MetaData);
+
+    /* Initialize radiation data table */
+    if((RadiativeTransfer && IndividualStarBlackBodyOnly == FALSE) || IndividualStarFUVHeating){
+      IndividualStarRadiationProperties_Initialize();
+    }
+
+    /* StellarYields */
+    InitializeStellarYields(MetaData->Time);
+
+  }
 
   int level, grids;
   Star *cstar;
@@ -84,6 +113,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
     /* Merge any newly created, clustered particles */
 
+    /* If individual stars, no merging */
     if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
         ENZO_FAIL("Error in StarParticleMergeNew.");
     }
@@ -110,10 +140,18 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //      cstar->PrintInfo();
 //  }
 
-  for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
-    cstar->SetFeedbackFlag(TimeNow);
-    cstar->CopyToGrid();
-    cstar->MirrorToParticle();
+  if (SkipFeedbackFlag){
+    for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
+      float dtForThisStar   = LevelArray[ThisLevel]->GridData->ReturnTimeStep();
+
+      cstar->SetFeedbackFlag(TimeNow, dtForThisStar);
+      cstar->CopyToGrid();
+      cstar->MirrorToParticle();
+
+      if(STARMAKE_METHOD(INDIVIDUAL_STAR))
+        cstar->AssertInterpolationPositions(); // should be set at init, but double check
+
+    }
   }
 
 //  fprintf(stdout, "\nin StarParticleInitialize.C \n", MetaData->NumberOfParticles); 
@@ -123,6 +161,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
 
   LCAPERF_STOP("StarParticleInitialize");
+  TIMER_STOP("StarParticleInitialize");
   return SUCCESS;
 
 }

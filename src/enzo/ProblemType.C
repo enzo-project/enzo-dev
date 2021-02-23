@@ -31,6 +31,8 @@
 
 #include "ProblemType.h"
 
+int ChemicalSpeciesBaryonFieldNumber(const int &atomic_number);
+
 EnzoProblemMap& get_problem_types()
 {
     static EnzoProblemMap problem_type_map;
@@ -174,15 +176,26 @@ int EnzoProblemType::InitializeUniformGrid(
 
   //  Metal fields, including the standard 'metallicity' as well 
   // as two extra fields
-  if (TestProblemData.UseMetallicityField) {
+  if (TestProblemData.UseMetallicityField || MultiMetals) {
     tg->FieldType[MetalNum = tg->NumberOfBaryonFields++] = Metallicity;
 
-    if(TestProblemData.MultiMetals){
+    if(TestProblemData.MultiMetals == 1 || MultiMetals == 1){
       tg->FieldType[ExtraField[0] = tg->NumberOfBaryonFields++] = ExtraType0;
       tg->FieldType[ExtraField[1] = tg->NumberOfBaryonFields++] = ExtraType1;
     }
+
+    if(TestProblemData.MultiMetals == 2 || MultiMetals == 2){
+
+      for(int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
+        if(StellarYieldsAtomicNumbers[yield_i] > 2){
+          tg->FieldType[ tg->NumberOfBaryonFields++] =
+                     ChemicalSpeciesBaryonFieldNumber(StellarYieldsAtomicNumbers[yield_i]);
+        }
+      } // loop
+
+    } /* multi metals == 2 */
   }
- 
+
   // Simon glover's chemistry models (there are several)
   //
   // model #1:  primordial (H, D, He)
@@ -352,14 +365,28 @@ int EnzoProblemType::InitializeUniformGrid(
     } // if(TestProblemData.MultiSpecies)
 
     // metallicity fields (including 'extra' metal fields)
-    if(TestProblemData.UseMetallicityField){
+    if(TestProblemData.UseMetallicityField || MultiMetals){
       tg->BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction* UniformDensity;
 
-      if(TestProblemData.MultiMetals){
-      tg->BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
-      tg->BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
-
+      if(TestProblemData.MultiMetals == 1 || MultiMetals == 1){
+        tg->BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
+        tg->BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
       }
+
+      if(TestProblemData.MultiMetals == 2 || MultiMetals == 2){
+        for (int yield_i = 0; yield_i < StellarYieldsNumberOfSpecies; yield_i ++){
+          if(StellarYieldsAtomicNumbers[yield_i] > 2){
+            float fraction = 0.0; int field_num = 0;
+
+//            ENZO_FAIL("This functionaly does not work yet");
+            tg->IdentifyChemicalTracerSpeciesFieldsByNumber(field_num, StellarYieldsAtomicNumbers[yield_i]);
+            fraction = TestProblemData.ChemicalTracerSpecies_Fractions[yield_i];
+
+            tg->BaryonField[field_num][i] = fraction * UniformDensity;
+          }
+        }
+      } // if MM = 2
+
     } // if(TestProblemData.UseMetallicityField)
 
         // simon glover chemistry stuff

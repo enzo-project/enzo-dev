@@ -11,11 +11,12 @@
 /
 /  RETURNS: FAIL or SUCCESS
 /
-************************************************************************/
+w************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -36,8 +37,13 @@ int grid::InitializeRadiativeTransferFields()
 //    return SUCCESS;
 
   int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kdissH2IINum, kphHMNum;
-  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
-				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
+                                  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+
+  int PeNum, FUVRateNum;
+
+  PeNum = FindField(PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
+  FUVRateNum = FindField(FUVRate, this->FieldType, this->NumberOfBaryonFields);
 
   int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
 
@@ -88,7 +94,7 @@ int grid::InitializeRadiativeTransferFields()
 	    BaryonField[RPresNum3][index] = 0.0;
 	}
       }  // loop over grid
-    
+
   }  /* ENDIF RadiationPressure */
 
   if (RadiativeTransferLoadBalance)
@@ -98,6 +104,20 @@ int grid::InitializeRadiativeTransferFields()
 	for (i = 0; i < GridDimension[0]; i++, index++)
 	  BaryonField[RaySegNum][index] = 0.0;
       }  // loop over grid
+
+  TIMER_START("InitializeOTFields");
+  if (RadiativeTransferOpticallyThinFUV    &&
+      IndividualStarFUVHeating){
+      if (PeNum < 0) ENZO_FAIL("Failure to identify PeHeatingRate in InitializeRadiativeTransferFields\n");
+      this->ZeroPhotoelectricHeatingField();
+  }
+
+  if (!RadiativeTransferOpticallyThinFUV   &&
+      IndividualStarFUVHeating){
+      this->ZeroPhotoelectricHeatingField();
+  }
+
+  TIMER_STOP("InitializeOTFields");
 
   HasRadiation = FALSE;
   MaximumkphIfront = 0;
