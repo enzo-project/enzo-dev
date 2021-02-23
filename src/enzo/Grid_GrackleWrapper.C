@@ -145,7 +145,7 @@ int grid::GrackleWrapper()
     if (debug)
       fprintf(stderr, "Warning: No metal field found.  Turning OFF MetalCooling.\n");
     MetalCooling = FALSE;
-    MetalNum = 0;
+    MetalNum = 0; // telling 
   }
 
   /* If both metal fields (Pop I/II and III) exist, create a field
