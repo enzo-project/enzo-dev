@@ -332,6 +332,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
      // There's probably a better way to do this.
   fprintf(fptr, "ActiveParticleDensityThreshold = %"GSYM"\n",
 	  ActiveParticleDensityThreshold);
+  fprintf(fptr, "SmartStarAccretion             = %"ISYM"\n", SmartStarAccretion);
   fprintf(fptr, "SmartStarFeedback              = %"ISYM"\n", SmartStarFeedback);
   fprintf(fptr, "SmartStarEddingtonCap          = %"ISYM"\n", SmartStarEddingtonCap);
   fprintf(fptr, "SmartStarBHFeedback              = %"ISYM"\n", SmartStarBHFeedback);
