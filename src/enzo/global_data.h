@@ -1174,7 +1174,6 @@ EXTERN float SmartStarFeedbackJetsThresholdMass;
 EXTERN float SmartStarJetVelocity;
 EXTERN float SmartStarSpin; 
 EXTERN int SmartStarSuperEddingtonAdjustment;
-EXTERN float SmartStarSMSLifetime;
 
 /* For EnzoTiming Behavior */
 EXTERN int TimingCycleSkip; // Frequency of timing data dumps.

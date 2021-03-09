@@ -183,6 +183,11 @@ public:
 				      FLOAT dx, 
 				      LevelHierarchyEntry *LevelArray[], int ThisLevel);
 
+  static int UpdateRadiationLifetimes(int nParticles,
+				      ActiveParticleList<ActiveParticleType>& ParticleList,
+				      FLOAT dx,
+				      LevelHierarchyEntry *LevelArray[], int ThisLevel);
+
   static int  RemoveMassFromGridAfterFormation(int nParticles, 
 					       ActiveParticleList<ActiveParticleType>& ParticleList,
 					       LevelHierarchyEntry *LevelArray[], int ThisLevel);
@@ -241,7 +246,7 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
   /* Particles merge once they come within 1 accretion radii of one another */
 
   FLOAT MergingRadius = LevelArray[ThisLevel]->GridData->GetCellWidth(0,0)*ACCRETIONRADIUS; 
-  //MergingRadius = MergingRadius*3.0;
+
   for (i=0; i<(*nParticles); i++) {
     tempPos = ParticleList[i]->ReturnPosition();
     for (dim=0; dim<3; dim++)
@@ -368,7 +373,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
 				       LevelArray, ThisLevel);
-
+ 
       /* Clean any particles marked for deletion */
       for (i = 0; i<nParticles; i++) {
 	if(ParticleList[i]->ShouldDelete() == true) {
@@ -376,6 +381,8 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 		 static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
 	  fflush(stdout);
 	  ParticleList.erase(i);
+	  i = -1;
+	  nParticles--;
 	}
       }
       /* TEST THIS IS CORRECT*/
@@ -384,7 +391,8 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       //if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
       //				       LevelArray) == FAIL)
       // return FAIL;
-
+      if (debug)
+	printf("Number of particles before merging: %"ISYM"\n",nParticles);
       /* Do Merging   */
       ActiveParticleList<active_particle_class> MergedParticles;
       
@@ -450,16 +458,29 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       if(UpdateAccretionRateStats(nParticles, ParticleList, dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("Failed to update accretion rate stats. \n");
 
+      if(UpdateRadiationLifetimes(nParticles, ParticleList, dx, LevelArray, ThisLevel) == FAIL)
+	ENZO_FAIL("Failed to update radiation lifetimes. \n");
+
       /* Apply feedback */
       if (SmartStarParticleFeedback(nParticles, ParticleList,
         dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("SmartStar Particle Feedback failed. \n");
-      //ParticleList.clear();
-      /* Regenerate the global active particle list */
-
+      
+      /* Clean any particles marked for deletion. 
+       * After each deletion I need to reloop and check it again. 
+       */
+      for (i = 0; i<nParticles; i++) {
+	if(ParticleList[i]->ShouldDelete() == true) { 
+	  printf("%s: Delete SS %d following Feedback\n", __FUNCTION__,
+		 static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
+	  fflush(stdout);
+	  ParticleList.erase(i);
+	  i = -1; //reset counter
+	  nParticles--;
+	}
+      }
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
-        ParticleList);
-
+       ParticleList);
       /* This applies all of the updates made above */
       if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
               LevelArray) == FAIL)

@@ -1037,8 +1037,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmartStarFeedbackJetsThresholdMass = 1.0;
   SmartStarJetVelocity = 1e-1; //as a fraction of clight
   SmartStarSuperEddingtonAdjustment = TRUE;
-  SmartStarSpin = 0.7;
-  SmartStarSMSLifetime = 2e6; //2 Myr
+  SmartStarSpin = 0.674351; //This gives eta_disk = 0.1
   /* Gas drag parameters */
   UseGasDrag = 0;
   GasDragCoefficient = 0.;

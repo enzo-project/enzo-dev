@@ -69,7 +69,7 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
   ActiveParticleType_SmartStar* SS;
   SS = static_cast<ActiveParticleType_SmartStar*>(ThisParticle);
   SS->mass_in_accretion_sphere = 0.0;
-  float eta_disk = SS->eta_disk;
+
   float WeightedSum = 0, AverageDensity = 0, RhoInfinity = 0.0;
   float AverageT=0, TotalGasMass = 0;
   float lambda_c = 0.25*exp(1.5);

@@ -1355,7 +1355,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "SmartStarFeedbackEnergyCoupling       = %"FSYM, &SmartStarFeedbackEnergyCoupling);
     ret += sscanf(line, "SmartStarFeedbackJetsThresholdMass    = %"FSYM, &SmartStarFeedbackJetsThresholdMass);
-    ret += sscanf(line, "SmartStarSMSLifetime                  = %"FSYM, &SmartStarSMSLifetime);
     ret += sscanf(line, "SmartStarSuperEddingtonAdjustment  = %"ISYM, &SmartStarSuperEddingtonAdjustment);
     ret += sscanf(line, "SmartStarJetVelocity                  = %"FSYM, &SmartStarJetVelocity);
     ret += sscanf(line, "UseGasDrag = %"ISYM, &UseGasDrag);

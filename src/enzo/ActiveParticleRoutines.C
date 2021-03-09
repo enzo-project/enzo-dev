@@ -266,14 +266,29 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
     RadiationLifetime = a->RadiationLifetime;
     StellarAge = a->StellarAge;
   }
-  Mass += a->Mass;
   NotEjectedMass += a->NotEjectedMass;
-  ParticleClass = max(ParticleClass, a->ParticleClass);
+
+  /*
+   * SMS + PopIII -> SMS
+   * BH + SMS -> BH
+   * BH + PopIII -> BH
+   * POPII + POPII -> POPII
+   * POPII + SMS -> POPII (assume SMS becomes part of cluster)
+   * POPII + POPIII -> POPII (assume POPIII becomes part of cluster)
+   * a) POPII + BH -> POPII (if POPII mass > BH mass)
+   * b) POPII + BH -> BH (if BH mass > POPII mass)
+   */
+  if(ParticleClass < 3 && a->ParticleClass < 3)
+    ParticleClass = max(ParticleClass, a->ParticleClass);
+  else if (ParticleClass == 4 || a->ParticleClass == 4)
+    {
+      if(Mass > a->Mass)
+	ParticleClass = a->ParticleClass;
+      else
+	a->ParticleClass = ParticleClass;
+    } 
   WillDelete = min(WillDelete, a->WillDelete);
-  /* We should update the Lifetime after a merger I think....*/ //TODO
-  //float logm = log10((float)(this->Mass);
-  //RadiationLifetime = POW(10.0, (9.785 - 3.759*logm + 1.413*logm*logm - 
-  //			      0.186*logm*logm*logm)) / (TimeUnits/yr_s);
+  Mass += a->Mass;
   return;
 }
 
