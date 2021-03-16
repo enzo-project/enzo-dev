@@ -158,8 +158,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   float *PotentialField  = NULL;
   if(data.GravPotentialNum >= 0)
     PotentialField = thisGrid->BaryonField[data.GravPotentialNum];
-  FLOAT dx_pc = dx*data.LengthUnits/pc_cm;   //in pc 
-  //printf("PotentialField = %p\n", PotentialField);
+  FLOAT dx_pc = dx*data.LengthUnits/pc_cm;   //in pc
   
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
@@ -195,7 +194,15 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #if JEANSREFINEMENT
 	if (JeansRefinement) {
 	  CellTemperature = (JeansRefinementColdTemperature > 0) ? JeansRefinementColdTemperature : data.Temperature[index];
-	  int JeansFactor = 1; //RefineByJeansLengthSafetyFactor
+	  /*
+	   * The Jeans length, at the maximum refinement level is
+	   * resolved by this many cells. On exceeding this at the maximum 
+	   * refinement level we are no longer tracking the collapse. 
+	   * SS allows refinement once this exceeds 4 (Truelove condition)
+	   * or have the safety factor (so as to reduce the occurance of 
+	   * particles due to minor fluctuations.
+	   */
+	  int JeansFactor = max(4, RefineByJeansLengthSafetyFactor/2); 
 	  JeansDensity = JeansDensityUnitConversion * 1.01 * CellTemperature /
 	    POW(data.LengthUnits*dx*JeansFactor,2);
 
@@ -298,8 +305,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	   */
 	  double JLength = JeansLength(CellTemperature, density[index],
 				       data.DensityUnits)/data.LengthUnits;
+	  FLOAT search_radius = max(JLength, 4*dx);
 	  GravitationalMinimum  = thisGrid->FindMinimumPotential(centralpos,
-				  JLength*RefineByJeansLengthSafetyFactor*4.0,
+				  search_radius,
 				  PotentialField);
 	  if(PotentialField[index] > GravitationalMinimum) {
 #if SSDEBUG
@@ -309,7 +317,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	    continue;
 	  }
 #if SSDEBUG
-	 fprintf(stdout, "%s: Gravitational Potential Passed!\n", __FUNCTION__);
+	  printf("%s: search_radius = %f\n", __FUNCTION__, search_radius/dx);
+	  fprintf(stdout, "%s: Gravitational Potential Passed!\n", __FUNCTION__);
 #endif
 	}
 	
@@ -339,6 +348,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 
 
 	printf("%s: Forming SS particle out of cellindex %d\n", __FUNCTION__, index); fflush(stdout);
+
 	/* 
 	 * Now we need to check the H2 fraction and the accretion rate now. 
 	 * If the H2fraction > PopIIIH2CriticalFraction then we are ok to form a PopIII star
@@ -358,6 +368,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  * 2. If the metallicity is low but the H2 fraction is high then a PopIII star forms
 	  * 3. If the metallicty is low and the H2 fraction is low but the accretion rate is high
 	  *    then a SMS can form
+	  * 4. Otherwise star formation is suppressed
 	  * We want to avoid spurious SF in a minihalo that is being heated (e.g. by LW or dynamical 
 	  * heating). Therefore we insist on the mass accretion criteria. If the mass accretion rate 
 	  * is low we don't allow the SMS pathway to trigger spurious SF. 
@@ -372,7 +383,12 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	else if(data.H2Fraction[index] >  PopIIIH2CriticalFraction) {
 	  stellar_type = POPIII;
 	}
-	else if(accrate*3.154e7*ConverttoSolar/data.TimeUnits > 1e-2) {
+	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*10.0)
+		&& (dx_pc < SMS_RESOLUTION)) {
+	  /* 
+	   * The threshold for initially forming the SMS is set at 10 times the critical rates. This 
+	   * ensures we get regions of truly high accretion
+	   */
 	  stellar_type = SMS;
 	  printf("!!!!!!!!SMS Formed\t accrate = %e Msolar/yr",
 		 accrate*3.154e7*ConverttoSolar/data.TimeUnits);
@@ -903,7 +919,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	float *Temperature = new float[size]();
 	APGrid->ComputeTemperatureField(Temperature);
 	float CellTemperature = (JeansRefinementColdTemperature > 0) ? JeansRefinementColdTemperature : Temperature[cellindex];
-	int JeansFactor = 1; //RefineByJeansLengthSafetyFactor
+	int JeansFactor = max(4, RefineByJeansLengthSafetyFactor/2); 
 	float JeansDensityUnitConversion = (Gamma*pi*kboltz) / (Mu*mh*GravConst);
 	float JeansDensity = JeansDensityUnitConversion * 1.01 * CellTemperature /
 	  POW(LengthUnits*dx*JeansFactor,2);
@@ -1613,11 +1629,16 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	else {
 	  if(dx_pc < SMS_RESOLUTION) {
 	      /*
-	       * Using the time-averaged accretion rates determine if the SMS is accreting fast enough or
+	       * Using the time-averaged accretion rates determine if the 
+	       * SMS is accreting fast enough or
 	       * if it is falling onto the main sequence.
+	       * This can also allow a POPIII star to change into a SMS
 	       */
 	      if((SS->AccretionRate[SS->TimeIndex]*MassUnits/TimeUnits)*yr_s/SolarMass
 		 > CRITICAL_ACCRETION_RATE) {
+		if(SS->ParticleClass == POPIII) {
+		  printf("%s: UPDATE: ParticleClass switching from POPIII to SMS\n", __FUNCTION__);
+		}
 		SS->ParticleClass = SMS;
 	      }
 	      else {
