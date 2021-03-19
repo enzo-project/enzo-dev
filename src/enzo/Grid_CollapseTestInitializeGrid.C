@@ -159,8 +159,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
   /* Set various units. */
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
-
+    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = Mu;
   FLOAT a, dadt, ExpansionFactor = 1;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
 	   &VelocityUnits, Time);
@@ -327,7 +326,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
       case 2:
 	SphereMass = 4*pi*pow((SphereRadius[sphere]*LengthUnits), 3) *
 	  (SphereDensity[sphere]*DensityUnits);
-	mu = Mu;
 	printf("mass = %"GSYM", lunit = %"GSYM", dunit = %"GSYM", rho = %"GSYM", r = %"GSYM"\n",
 	       SphereMass, LengthUnits, DensityUnits, SphereDensity[sphere],
 	       SphereRadius[sphere]);

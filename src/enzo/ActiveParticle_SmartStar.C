@@ -127,6 +127,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   SmartStarGrid *thisGrid =
     static_cast<SmartStarGrid *>(thisgrid_orig);
 
+  static int shu_collapse = 0;
   int i,j,k,index,method,MassRefinementMethod;
  
   float *density = thisGrid->BaryonField[data.DensNum];
@@ -347,7 +348,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #endif
 
 
-	printf("%s: Forming SS particle out of cellindex %d\n", __FUNCTION__, index); fflush(stdout);
+	//printf("%s: Forming SS particle out of cellindex %d\n", __FUNCTION__, index); fflush(stdout);
 
 	/* 
 	 * Now we need to check the H2 fraction and the accretion rate now. 
@@ -374,11 +375,14 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  * is low we don't allow the SMS pathway to trigger spurious SF. 
 	  */
 	int stellar_type = -99999;
-	if(HasMetalField &&    data.TotalMetals[index] > PopIIIMetalCriticalFraction) {
+	if(shu_collapse == 1)
+	  continue;
+	if(MultiSpecies == 0) { //no chemistry, testing use only
+	  stellar_type = POPIII;
+	  shu_collapse = 1; //prevents further formation
+	}
+	else if(HasMetalField &&    data.TotalMetals[index] > PopIIIMetalCriticalFraction) {
 	  stellar_type = POPII;
-	  //	  float PopIIMass = StarClusterFormEfficiency*ExtraDensity*dx*dx*dx*ConverttoSolar;
-	  // if(PopIIMass < StarClusterMinimumMass)
-	  //  continue;
 	}
 	else if(data.H2Fraction[index] >  PopIIIH2CriticalFraction) {
 	  stellar_type = POPIII;
@@ -425,8 +429,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	np->vel[0] = apvel[0];
 	np->vel[1] = apvel[1];
 	np->vel[2] = apvel[2];
-	
-	
+
 	if (HasMetalField)
 	  np->Metallicity = data.TotalMetals[index];
 	else
@@ -930,6 +933,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
       float ParticleDensity = density[cellindex] - DensityThreshold;
       float newcelldensity = density[cellindex] - ParticleDensity;
+
       if(SMS == SS->ParticleClass) {
 
 	 if(dx_pc <= SMS_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
@@ -944,7 +948,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
 	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
 	   }
-	   printf("SMS: cellindex %d updated - next.\n\n", cellindex);
 	   continue;
 	 }
        }
@@ -962,7 +965,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
 	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
 	   }
-	   printf("POPIII: cellindex %d updated - next.\n\n", cellindex);
 	   continue;
 	 }
        }

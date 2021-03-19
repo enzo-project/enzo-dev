@@ -243,9 +243,9 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
   FLOAT ParticleCoordinates[3*(*nParticles)];
 
   fflush(stdout);
-  /* Particles merge once they come within 1 accretion radii of one another */
+  /* Particles merge once they come within 2 accretion radii of one another */
 
-  FLOAT MergingRadius = LevelArray[ThisLevel]->GridData->GetCellWidth(0,0)*ACCRETIONRADIUS; 
+  FLOAT MergingRadius = 2.0*LevelArray[ThisLevel]->GridData->GetCellWidth(0,0)*ACCRETIONRADIUS; 
 
   for (i=0; i<(*nParticles); i++) {
     tempPos = ParticleList[i]->ReturnPosition();
@@ -293,11 +293,10 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
      it to the new grid*/
 
   int NewGrid = -1;
-
   for (i = 0; i < *ngroups; i++) {
     if (MergedParticles[i]->ReturnCurrentGrid()->PointInGrid(
             MergedParticles[i]->ReturnPosition()) == false) {
-      // Find the grid to transfer to 
+      // Find the grid to transfer to
       for (j = 0; j < NumberOfGrids; j++) {
         if (LevelGrids[j]->GridData->PointInGrid(
                 MergedParticles[i]->ReturnPosition())) {
@@ -390,7 +389,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       			    ParticleList);
       //if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
       //				       LevelArray) == FAIL)
-      // return FAIL;
+      //return FAIL;
       if (debug)
 	printf("Number of particles before merging: %"ISYM"\n",nParticles);
       /* Do Merging   */

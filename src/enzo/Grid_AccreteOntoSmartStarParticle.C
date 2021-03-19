@@ -125,12 +125,17 @@ int grid::AccreteOntoSmartStarParticle(
   printf("%s: AccretedMass = %e\n", __FUNCTION__, AccretedMass);
 #endif
   float *Vel = SS->vel;
- 
+
+  /* Smooth velocities over the cells in the accretion zone
+   * otherwise we treat the particle as a point mass which 
+   * is undesirable
+   */
+  float smoothingzone = pow(ACCRETIONRADIUS + 1, 3.0);
   float NewVelocity[3] =
     {
-    (Vel[0]+delta_vpart[0]),
-    (Vel[1]+delta_vpart[1]),
-    (Vel[2]+delta_vpart[2])
+    (Vel[0]+delta_vpart[0]/smoothingzone),
+    (Vel[1]+delta_vpart[1]/smoothingzone),
+    (Vel[2]+delta_vpart[2]/smoothingzone)
     };
 
   ThisParticle->SetVelocity(NewVelocity);

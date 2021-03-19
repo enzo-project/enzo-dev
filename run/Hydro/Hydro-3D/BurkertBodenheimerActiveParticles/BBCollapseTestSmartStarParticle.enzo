@@ -26,6 +26,7 @@ CollapseTestSphereRadius[0]     = 0.15625
 CollapseTestSphereCoreRadius[0] = 0.05  // only used with sphere type 5
 CollapseTestSphereDensity[0]    = 1e2   //100   // sphere density, the background density is 1
 CollapseTestSphereTemperature[0] = 10    // put sphere in pressure equilibrium (rho * T is constant)
+CollapseTestSphereRotationPeriod[0] = 8.72734
 CollapseTestFracKeplerianRot[0] = 0.7
 CollapseTestSphereType[0]       = 11     // constant density
                                         // 1: uniform
@@ -92,8 +93,8 @@ RefineByJeansLengthSafetyFactor = 16    // resolve Jeans length by 4 cells (used
 #
 GreensFunctionMaxNumber   = 10         // # of greens function at any one time
 PotentialIterations	  = 100
-ComputePotential          = 0
-WritePotential            = 0
+ComputePotential          = 1
+##WritePotential            = 1
 #
 #  active particle parameters
 #

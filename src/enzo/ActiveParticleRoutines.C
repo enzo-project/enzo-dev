@@ -242,15 +242,15 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
 {
   int dim;
   double ratio1, ratio2;
-  ratio1 = Mass / (Mass + a->Mass);
+  ratio1 =  (max(Mass, 1e-10)) / (max(1e-10,Mass) + max(1e-10, a->Mass));
   ratio2 = 1.0 - ratio1;
+
   Metallicity = ratio1 * Metallicity + ratio2 * a->Metallicity;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     pos[dim] = ratio1 * pos[dim] + ratio2 * a->pos[dim];
     vel[dim] = ratio1 * vel[dim] + ratio2 * a->vel[dim];
  
   }
-
   if(Mass > a->Mass) {
     ;
   }

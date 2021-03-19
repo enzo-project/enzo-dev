@@ -6,7 +6,7 @@
 #
 ProblemType                = 27           // Collapse test
 TopGridRank                = 3
-TopGridDimensions          = 128 128 128
+TopGridDimensions          = 64 64 64
 SelfGravity                = 1            // gravity on
 TopGridGravityBoundary     = 0            // periodic
 LeftFaceBoundaryCondition  = 3 3 3        // periodic
@@ -20,7 +20,7 @@ CollapseTestRefineAtStart   = 1         // check refinement before running
 CollapseTestNumberOfSpheres = 1
 CollapseTestUseParticles    = 0
 CollapseTestInitialTemperature = 5e3    // temperature of the background gas
-CollapseTestSpherePosition[0]   = 0.5 0.5 0.5
+CollapseTestSpherePosition[0]   = 0.50 0.50 0.50
 CollapseTestSphereVelocity[0]   = 0.0 0.0 0.0
 CollapseTestSphereRadius[0]     = 0.016203778
 CollapseTestSphereCoreRadius[0] = 0.05  // only used with sphere type 5
@@ -47,8 +47,8 @@ GravitationalConstant = 1.39698e-3     // 4*pi*G_{cgs}*DensityUnits*TimeUnits^2
 #
 #  set I/O and stop/start parameters
 #
-StopTime          = 1.8
-dtDataDump        = 0.5
+StopTime          = 2.2
+dtDataDump        = 0.1
 #CycleSkipDataDump = 1
 DataDumpDir       = DD
 DataDumpName      = DD
@@ -76,10 +76,10 @@ Mu  			    = 3.0
 #
 #  set grid refinement parameters
 #
-StaticHierarchy           = 1          // dynamic hierarchy
-MaximumRefinementLevel    = 0         // use up to 10 levels
+StaticHierarchy           = 0          // dynamic hierarchy
+MaximumRefinementLevel    = 7         // 7 levels of AMR
 RefineBy                  = 2          // refinement factor
-CellFlaggingMethod        = 2 4       // use baryon mass and Truelove criterion for refinement 
+CellFlaggingMethod        = 2 4      // use baryon mass and Truelove criterion for refinement 
 MinimumEfficiency         = 0.3
 #OutputFirstTimeAtLevel    = 4         // output when level 4, 5, 6, etc reached (commented out for now)
 #StopFirstTimeAtLevel      = 10         // stop if/when level 10 reached
@@ -100,12 +100,7 @@ WritePotential            = 0
 #
 AppendActiveParticleType = SmartStar
 RadiativeTransfer = 0
-ActiveParticleDensityThreshold = 1.33e7
-MBHAccretion = 1
-SmartStarSMSLifetime = 1e100
-SmartStarFeedback   = 0    //Sets feedback of any kind
-SmartStarBHRadiativeFeedback = 0    //We don't want RT for a Black Hole
-SmartStarRadiativeFeedback = 0  //Always required since we start life as an SMS?
-SmartStarJetFeedback = 0
-SmartStarThermalFeedback = 0
-SmartStarJetVelocity = 1e-3
+ActiveParticleDensityThreshold = 1e11
+MBHAccretion = 8
+SmartStarFeedback   = 0    //Sets feedback of any kind off
+
