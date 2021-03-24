@@ -22,6 +22,7 @@
 #define MASSTHRESHOLD      0.1                       //Msolar in grid
 #define COOLING_TIME       0
 #define NUMSSPARTICLETYPES 4
+#define JEANS_FACTOR       2
 int DetermineSEDParameters(ActiveParticleType_SmartStar *SS,FLOAT Time, FLOAT dx);
 
 /* We need to make sure that we can operate on the grid, so this dance is
@@ -127,7 +128,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   SmartStarGrid *thisGrid =
     static_cast<SmartStarGrid *>(thisgrid_orig);
 
-  static int shu_collapse = 0;
+  //static int shu_collapse = 0;
   int i,j,k,index,method,MassRefinementMethod;
  
   float *density = thisGrid->BaryonField[data.DensNum];
@@ -196,14 +197,13 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	if (JeansRefinement) {
 	  CellTemperature = (JeansRefinementColdTemperature > 0) ? JeansRefinementColdTemperature : data.Temperature[index];
 	  /*
-	   * The Jeans length, at the maximum refinement level is
-	   * resolved by this many cells. On exceeding this at the maximum 
-	   * refinement level we are no longer tracking the collapse. 
-	   * SS allows refinement once this exceeds 4 (Truelove condition)
-	   * or have the safety factor (so as to reduce the occurance of 
-	   * particles due to minor fluctuations.
+	   * The density threshold is exceeded here once the Jeans
+	   * Density in one cell is exceeded - see Krumholz et al. (2004)
+	   * Krumholz et al. use a Jeans factor of 4, I found that
+	   * pushing this to 2 (i.e. making the threshold higher) is
+	   * more accurate. 
 	   */
-	  int JeansFactor = max(4, RefineByJeansLengthSafetyFactor/2); 
+	  int JeansFactor = JEANS_FACTOR;
 	  JeansDensity = JeansDensityUnitConversion * 1.01 * CellTemperature /
 	    POW(data.LengthUnits*dx*JeansFactor,2);
 
@@ -306,7 +306,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	   */
 	  double JLength = JeansLength(CellTemperature, density[index],
 				       data.DensityUnits)/data.LengthUnits;
-	  FLOAT search_radius = max(JLength, 4*dx);
+	  FLOAT search_radius = JLength;
 	  GravitationalMinimum  = thisGrid->FindMinimumPotential(centralpos,
 				  search_radius,
 				  PotentialField);
@@ -314,11 +314,14 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #if SSDEBUG
 	    printf("FAILURE: GravitationalMinimum = %g\t "		\
 		   "PotentialField[index] = %g\n\n", GravitationalMinimum, PotentialField[index]);
+	    printf("%s: Cellwidth = %f\t JLength = %f\n", __FUNCTION__, dx, JLength);
+	    printf("%s: search_radius (in cellwidths) = %f\n", __FUNCTION__, search_radius/dx);
 #endif
 	    continue;
 	  }
 #if SSDEBUG
-	  printf("%s: search_radius = %f\n", __FUNCTION__, search_radius/dx);
+	  printf("%s: Cellwidth = %f\t JLength = %f\n", __FUNCTION__, dx, JLength);
+	  printf("%s: search_radius (in cellwidths) = %f\n", __FUNCTION__, search_radius/dx);
 	  fprintf(stdout, "%s: Gravitational Potential Passed!\n", __FUNCTION__);
 #endif
 	}
@@ -375,11 +378,10 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  * is low we don't allow the SMS pathway to trigger spurious SF. 
 	  */
 	int stellar_type = -99999;
-	if(shu_collapse == 1)
-	  continue;
-	if(MultiSpecies == 0) { //no chemistry, testing use only
+	//if(shu_collapse == 1)
+	//  continue;
+	if(ProblemType == 27) { //collapse test 
 	  stellar_type = POPIII;
-	  shu_collapse = 1; //prevents further formation
 	}
 	else if(HasMetalField &&    data.TotalMetals[index] > PopIIIMetalCriticalFraction) {
 	  stellar_type = POPII;
@@ -429,7 +431,12 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	np->vel[0] = apvel[0];
 	np->vel[1] = apvel[1];
 	np->vel[2] = apvel[2];
-
+	if(ProblemType == 27) { //special case of pure spherical collapse
+	  np->vel[0] = cellvel[0]; /* alternatively this could be set to zero */
+	  np->vel[1] = cellvel[1]; /* but the velocity of the cell is more consistent */
+	  np->vel[2] = cellvel[2];
+	}
+	
 	if (HasMetalField)
 	  np->Metallicity = data.TotalMetals[index];
 	else
@@ -880,15 +887,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
        continue;
 
       FLOAT dx = APGrid->CellWidth[0][0];
-      float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
-	TimeUnits = 1, VelocityUnits = 1,
-	PressureUnits = 0, GEUnits = 0, VelUnits = 0;
-      double MassUnits = 1, CellVolume = dx*dx*dx;
-      if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-		   &TimeUnits, &VelocityUnits, Time) == FAIL) {
-        ENZO_FAIL("Error in GetUnits.");
-      }
-      MassUnits = DensityUnits * POW(LengthUnits,3);
+      FLOAT CellVolume = dx*dx*dx;
       int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
       if (APGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL)
@@ -922,7 +921,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	float *Temperature = new float[size]();
 	APGrid->ComputeTemperatureField(Temperature);
 	float CellTemperature = (JeansRefinementColdTemperature > 0) ? JeansRefinementColdTemperature : Temperature[cellindex];
-	int JeansFactor = max(4, RefineByJeansLengthSafetyFactor/2); 
+	int JeansFactor = JEANS_FACTOR; 
 	float JeansDensityUnitConversion = (Gamma*pi*kboltz) / (Mu*mh*GravConst);
 	float JeansDensity = JeansDensityUnitConversion * 1.01 * CellTemperature /
 	  POW(LengthUnits*dx*JeansFactor,2);
@@ -965,6 +964,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
 	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
 	   }
+#if SSDEBUG
+	   printf("%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
+		  SS->Mass*dx*dx*dx*MassUnits/SolarMass, SS->Mass);
+#endif
 	   continue;
 	 }
        }
@@ -1618,7 +1621,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	SS->TimeIndex = timeindex;
 	fprintf(stdout, "old_mass = %e Msolar\t cmass = (%e code) %e Msolar\n", omass*MassConversion,
 		cmass, cmass*MassConversion);
-	fprintf(stdout, "accrate = %e Msolar/yr\t deltatime = %3.3f Myrs\t index = %d\t Particle Mass = %1.1f Msolar\t Age = %1.3f Myr\t Lifetime = %1.2f Myr\t Class = %d\n",
+	fprintf(stdout, "accrate = %1.2e Msolar/yr\t deltatime = %3.3f Myrs\t index = %d\t Particle Mass = %1.2e Msolar\t Age = %1.3f Myr\t Lifetime = %1.2f Myr\t Class = %d\n",
 		(SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass,
 		deltatime*TimeUnits/Myr_s,
 		SS->TimeIndex,

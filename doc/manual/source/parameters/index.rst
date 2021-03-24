@@ -2495,12 +2495,12 @@ SmartStar Feedback
     Default: 0
 
 ``SmartStarStellarRadiativeFeedback`` (external)
-    This parameter controls whether stellar feedback is activated or not. For feedback from PopIII or SMSs then this needs to be on.
-    The stellar radiative feedback is divided up into 5 energy bins. The energy bins have energies of 2.0 eV, 12.8 eV, 14.0 eV, 25.0 eV
-    and 200 eV. The fraction of energy assigned to each bin is determined using the PopIII tables from Schaerer et. al 2002 Table 4.
-    The spectrum for a PopIII star and SMS are different. For a PopIII star a spectrum for a 40 Msolar star is assumed and
-    weighted accordingly. For a SMS a 1000 Msolar star is assumed and weighted accordingly.
-    Future improvements to the SEDs employed here are under active investigation. 
+    This parameter controls whether stellar feedback is activated or not.
+    For feedback from PopII, PopIII or SMSs then this needs to be on.
+    The stellar radiative feedback is divided up into 5 energy bins. See `DetermineSEDParameters.C` for details. 
+    For PopII stars the energy bins are: 2.0 eV, 12.8 eV, 21.62 eV, 30.0 eV and 60 eV.
+    For PopIII stars the energy bins are: 2.0 eV, 12.8 eV, 28.0 eV, 30.0 eV and 58 eV. 
+    For SMS stars the energy bins are: 2.0 eV and 12.8 eV
     Default: 0
 
 ``SmartStarBHFeedback`` (external)
@@ -2534,13 +2534,9 @@ SmartStar Feedback
 
 ``SmartStarSpin`` (external)
     The dimensionless spin of the SmartStar particle. This is a very unconstrained parameter and cannot be readily computed on the fly. This parameter
-    should be set if you want to have jet feedback. Setting this is zero and turning on jet feedback wouldn't make sense. The default is set to be 0.7 and
-    this is probably reasonable. 
-    Default: 0.7
-
-``SmartStarSMSLifetime`` (external)
-    This is the lifetime for a supermassive star in years. After this time has elapsed a SmartStar particle which is behaving like a SMS will collapse
-    directly into a black hole with no supernova event. Default: 1e6
+    should be set if you want to have jet feedback. Setting this is zero and turning on jet feedback wouldn't make sense. The default is set to be 0.674351 and
+    this leads to a radiative efficiency of 1.
+    Default: 0.674351
 
 ``SmartStarJetVelocity`` (external)
     The velocity that the jets are ejected at. Typically jets are observed to travel at a substantial fraction of the speed of light -

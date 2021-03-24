@@ -21,7 +21,7 @@ yt.add_field(("gas", "shell_accretion_rate"), units="Msun/yr",
 
 BASE = "./"
 Mu = 3.0
-CENTRE = [0.5, 0.5, 0.5]
+CENTRE = [0.50, 0.50, 0.50]
 
 
 Files = glob.glob(BASE + "DD00??/DD00??")
@@ -150,7 +150,7 @@ for f in Files:
 
 
     #ProjectionPlots
-    prj = yt.ProjectionPlot(ds, "x", "number_density", weight_field="density", width=(0.025, 'pc'),
+    prj = yt.ProjectionPlot(ds, "x", "number_density", weight_field="density", width=(0.025, 'pc'), center=centre,
                             axes_unit="cm")
     prj.set_zlim("number_density", 1e4, 1e8)
     prj.annotate_sphere(centre, radius=(0.0001, 'pc'),
