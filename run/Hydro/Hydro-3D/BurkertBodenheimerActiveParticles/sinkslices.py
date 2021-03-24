@@ -13,7 +13,7 @@ CENTRE = [0.5, 0.5, 0.5]
 #CENTRE = [0.50231934,  0.49035645,  0.49865723]
 AccretionRadius = 4
 BASE = "./GravPotential/"
-fns = glob.glob(BASE + "DD013?/DD????.hierarchy")
+fns = glob.glob(BASE + "DD014?/DD????.hierarchy")
 fns.sort()
 #print fns
 WIDTH = 8000
