@@ -37,7 +37,7 @@ commands:
             if [ ! -f $HOME/local/lib/libHYPRE.a ]; then
               cd $HOME
               wget https://github.com/hypre-space/hypre/archive/refs/tags/v${HYPRE}.tar.gz
-              tar xvfz v{$HYPRE}.tar.gz
+              tar xvfz v${HYPRE}.tar.gz
               cd hypre-${HYPRE}/src
               ./configure --with-MPI --with-MPI-include=/usr/include/mpi --with-MPI-libs=mpi --with-MPI-lib-dirs=/usr/lib --prefix=$HOME/local
               make install
