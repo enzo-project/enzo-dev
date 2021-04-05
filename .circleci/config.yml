@@ -10,7 +10,7 @@ commands:
             echo 'export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH' >> $BASH_ENV
             echo 'export ENZOTEST_DIR=$HOME/enzo_test' >> $BASH_ENV
             echo 'export ANSWER_NAME="push_suite"' >> $BASH_ENV
-            echo 'export HYPRE=hypre-2.20.0' >> $BASH_ENV
+            echo 'export HYPRE=2.20.0' >> $BASH_ENV
             # get tags from the main repository (for the current gold standard)
             git fetch --tags https://github.com/enzo-project/enzo-dev
             # tag the tip so we can go back to it
@@ -36,9 +36,9 @@ commands:
             mkdir -p $HOME/local
             if [ ! -f $HOME/local/lib/libHYPRE.a ]; then
               cd $HOME
-              wget https://github.com/hypre-space/hypre/archive/refs/tags/v2.20.0.tar.gz
-              tar xvfz $HYPRE.tar.gz
-              cd $HYPRE/src
+              wget https://github.com/hypre-space/hypre/archive/refs/tags/v${HYPRE}.tar.gz
+              tar xvfz v{$HYPRE}.tar.gz
+              cd hypre-${HYPRE}/src
               ./configure --with-MPI --with-MPI-include=/usr/include/mpi --with-MPI-libs=mpi --with-MPI-lib-dirs=/usr/lib --prefix=$HOME/local
               make install
             fi
