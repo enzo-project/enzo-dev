@@ -327,6 +327,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "huge_number            = %"FSYM, &huge_number);
     ret += sscanf(line, "tiny_number            = %"FSYM, &tiny_number);
     ret += sscanf(line, "Gamma                  = %"FSYM, &Gamma);
+    ret += sscanf(line, "VariableGamma          = %"ISYM, &VariableGamma);
     ret += sscanf(line, "PressureFree           = %"ISYM, &PressureFree);
 
 /* FDM: read FDM parameters */

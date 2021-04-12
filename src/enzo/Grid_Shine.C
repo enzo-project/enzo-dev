@@ -228,6 +228,10 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	NewPack->EmissionTime = PhotonTime;
 	NewPack->CurrentTime  = PhotonTime;
 	NewPack->ColumnDensity = 0;
+	NewPack->ColumnDensityHDI = 0;
+	NewPack->ColumnDensityCO  = 0;
+	NewPack->ColumnDensityOH  = 0;
+	NewPack->ColumnDensityH2O = 0;
 	NewPack->Radius = 0.;
 	NewPack->ipix = ray;
 	NewPack->level = min_level;

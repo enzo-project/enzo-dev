@@ -89,6 +89,12 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferUseH2Shielding);
   fprintf(fptr, "RadiativeTransferH2IIDiss                 = %"ISYM"\n", 
 	  RadiativeTransferH2IIDiss);
+  fprintf(fptr, "RadiativeTransferHDIDiss                  = %"ISYM"\n", 
+	  RadiativeTransferHDIDiss);
+  fprintf(fptr, "RadiativeTransferMetalIon                 = %"ISYM"\n", 
+	  RadiativeTransferMetalIon);
+  fprintf(fptr, "RadiativeTransferMetalDiss                = %"ISYM"\n", 
+	  RadiativeTransferMetalDiss);
   fprintf(fptr, "RadiativeTransferTraceSpectrumTable       = %s\n\n", 
 	  RadiativeTransferTraceSpectrumTable);
 

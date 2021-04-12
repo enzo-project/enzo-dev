@@ -223,6 +223,14 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 	Mover->PhotonPackage->CurrentTime;
       SendList[ToProc][ToCount].buffer.ColumnDensity        = 
 	Mover->PhotonPackage->ColumnDensity;
+      SendList[ToProc][ToCount].buffer.ColumnDensityHDI     = 
+	Mover->PhotonPackage->ColumnDensityHDI;
+      SendList[ToProc][ToCount].buffer.ColumnDensityCO      = 
+	Mover->PhotonPackage->ColumnDensityCO;
+      SendList[ToProc][ToCount].buffer.ColumnDensityOH      = 
+	Mover->PhotonPackage->ColumnDensityOH;
+      SendList[ToProc][ToCount].buffer.ColumnDensityH2O     = 
+	Mover->PhotonPackage->ColumnDensityH2O;
       SendList[ToProc][ToCount].buffer.CrossSection         = 
 	Mover->PhotonPackage->CrossSection;
 

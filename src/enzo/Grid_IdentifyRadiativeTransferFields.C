@@ -61,3 +61,38 @@ int grid::IdentifyRadiativeTransferFields(int &kphHINum, int &gammaNum,
 
   return SUCCESS;
 }
+
+int grid::IdentifyRadiativeTransferFieldsMD(int &kdissHDINum,
+					    int &kphCINum,
+					    int &kphOINum,
+					    int &kdissCONum,
+					    int &kdissOHNum,
+					    int &kdissH2ONum) 
+{
+  
+  kdissHDINum = kphCINum = kphOINum = kdissCONum = kdissOHNum = kdissH2ONum = 0;
+
+  if ((RadiativeTransfer) || (RadiativeTransferFLD)) {
+
+    if (MultiSpecies > 2 && RadiativeTransferHDIDiss) {
+      kdissHDINum = FindField(kdissHDI, FieldType, NumberOfBaryonFields);     
+    }
+    if (MetalChemistry && RadiativeTransferMetalIon) {
+      kphCINum  = FindField(kphCI , FieldType, NumberOfBaryonFields);     
+      kphOINum  = FindField(kphOI , FieldType, NumberOfBaryonFields);     
+    }
+    if (MetalChemistry && RadiativeTransferMetalDiss) {
+      kdissCONum  = FindField(kdissCO , FieldType, NumberOfBaryonFields);     
+      kdissOHNum  = FindField(kdissOH , FieldType, NumberOfBaryonFields);     
+      kdissH2ONum = FindField(kdissH2O, FieldType, NumberOfBaryonFields);     
+    }
+    if (kdissHDINum<0 || kphCINum<0 || kphOINum<0 || kdissCONum<0 || kdissOHNum<0 || kdissH2ONum<0) {
+      ENZO_VFAIL("Could not identify a RadiativeTransferFieldMD!  kdissHDI=%"ISYM", "
+		 "kphCI=%"ISYM", kphOI=%"ISYM", " 
+		 "kdissCO=%"ISYM", kdissOH=%"ISYM", kdissH2O=%"ISYM"\n", 
+                 kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum);
+    }
+  }
+
+  return SUCCESS;
+}

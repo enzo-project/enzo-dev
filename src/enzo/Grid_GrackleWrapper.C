@@ -47,6 +47,14 @@ int grid::GrackleWrapper()
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+  int HeHIINum, DMNum   , HDIINum
+    , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+    , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+    , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
+    , MgNum   , AlNum   , SNum      , FeNum
+    , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+    , DustNum ;
 
   double dt_cool = dtFixed;
 #ifdef TRANSFER
@@ -81,11 +89,29 @@ int grid::GrackleWrapper()
 
   DeNum = HINum = HIINum = HeINum = HeIINum = HeIIINum = HMNum = H2INum = 
     H2IINum = DINum = DIINum = HDINum = 0;
+    HeHIINum = DMNum     = HDIINum
+  = CINum    =  CIINum   = CONum      = CO2Num    = OINum    = OHNum
+  = H2ONum   =  O2Num    = SiINum     = SiOINum   = SiO2INum
+  = CHNum    =  CH2Num   = COIINum    = OIINum    = OHIINum  = H2OIINum = H3OIINum = O2IINum
+  = MgNum    =  AlNum    = SNum       = FeNum
+  = SiMNum   = FeMNum    = Mg2SiO4Num = MgSiO3Num = Fe3O4Num
+  = ACNum    =  SiO2DNum = MgONum     = FeSNum    = Al2O3Num
+  = DustNum  = 0;
  
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+    }
+    if (IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
+                               , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+                               , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+                               , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum,  H3OIINum,  O2IINum
+                               , MgNum   , AlNum   , SNum      , FeNum
+                               , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+                               , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+                               , DustNum ) == FAIL) {
+      ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
     }
  
   /* Get easy to handle pointers for each variable. */
@@ -151,6 +177,11 @@ int grid::GrackleWrapper()
   float *MetalPointer = NULL;
   float *TotalMetals = NULL;
 
+  if (MultiMetals) {
+    /* For MetalNum, future implementation */
+    if (SNColourNum != -1)
+      MetalPointer = BaryonField[SNColourNum];
+  } else {
   if (MetalNum != -1 && SNColourNum != -1) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
@@ -163,6 +194,16 @@ int grid::GrackleWrapper()
     else if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
+  } // MultiMetals
+
+  int ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num
+    , ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num;
+  if (MetalFieldPresent && MultiMetals)
+    if (this->IdentifyExtraTypeFields(
+      ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num,
+      ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num
+               ) == FAIL)
+      ENZO_FAIL("Error in grid->IdentifyExtraTypeFields.\n");
  
   int temp_thermal = FALSE;
   float *thermal_energy;
@@ -218,22 +259,101 @@ int grid::GrackleWrapper()
   my_fields.x_velocity      = velocity1;
   my_fields.y_velocity      = velocity2;
   my_fields.z_velocity      = velocity3;
-  my_fields.HI_density      = BaryonField[HINum];
-  my_fields.HII_density     = BaryonField[HIINum];
-  my_fields.HeI_density     = BaryonField[HeINum];
-  my_fields.HeII_density    = BaryonField[HeIINum];
-  my_fields.HeIII_density   = BaryonField[HeIIINum];
-  my_fields.e_density       = BaryonField[DeNum];
 
-  my_fields.HM_density      = BaryonField[HMNum];
-  my_fields.H2I_density     = BaryonField[H2INum];
-  my_fields.H2II_density    = BaryonField[H2IINum];
+  if(MultiSpecies > 0) {
+    my_fields.e_density       = BaryonField[DeNum];
+    my_fields.HI_density      = BaryonField[HINum];
+    my_fields.HII_density     = BaryonField[HIINum];
+    my_fields.HeI_density     = BaryonField[HeINum];
+    my_fields.HeII_density    = BaryonField[HeIINum];
+    my_fields.HeIII_density   = BaryonField[HeIIINum];
+  }
 
-  my_fields.DI_density      = BaryonField[DINum];
-  my_fields.DII_density     = BaryonField[DIINum];
-  my_fields.HDI_density     = BaryonField[HDINum];
+  if(MultiSpecies > 1) {
+    my_fields.HM_density      = BaryonField[HMNum];
+    my_fields.H2I_density     = BaryonField[H2INum];
+    my_fields.H2II_density    = BaryonField[H2IINum];
+  }
+
+  if(MultiSpecies > 2) {
+    my_fields.DI_density      = BaryonField[DINum];
+    my_fields.DII_density     = BaryonField[DIINum];
+    my_fields.HDI_density     = BaryonField[HDINum];
+  }
 
   my_fields.metal_density   = MetalPointer;
+  if(MultiMetals) {
+    my_fields.metal_loc = BaryonField[ExtraType0Num];
+    my_fields.metal_C13 = BaryonField[ExtraType1Num];
+    my_fields.metal_C20 = BaryonField[ExtraType2Num];
+    my_fields.metal_C25 = BaryonField[ExtraType3Num];
+    my_fields.metal_C30 = BaryonField[ExtraType4Num];
+    my_fields.metal_F13 = BaryonField[ExtraType5Num];
+    my_fields.metal_F15 = BaryonField[ExtraType6Num];
+    my_fields.metal_F50 = BaryonField[ExtraType7Num];
+    my_fields.metal_F80 = BaryonField[ExtraType8Num];
+    my_fields.metal_P170= BaryonField[ExtraType9Num];
+    my_fields.metal_P200= BaryonField[ExtraType10Num];
+    my_fields.metal_Y19 = BaryonField[ExtraType11Num];
+  }
+
+  if(UseDustDensityField)
+    my_fields.dust_density = BaryonField[DustNum];
+
+  if(MultiSpecies > 3) {
+    my_fields.     DM_density = BaryonField[     DMNum];
+    my_fields.   HDII_density = BaryonField[   HDIINum];
+    my_fields.  HeHII_density = BaryonField[  HeHIINum];
+  }
+
+  if(MetalChemistry > 0) {
+    my_fields.     CI_density = BaryonField[     CINum];
+    my_fields.    CII_density = BaryonField[    CIINum];
+    my_fields.     CO_density = BaryonField[     CONum];
+    my_fields.    CO2_density = BaryonField[    CO2Num];
+    my_fields.     OI_density = BaryonField[     OINum];
+    my_fields.     OH_density = BaryonField[     OHNum];
+    my_fields.    H2O_density = BaryonField[    H2ONum];
+    my_fields.     O2_density = BaryonField[     O2Num];
+    my_fields.    SiI_density = BaryonField[    SiINum];
+    my_fields.   SiOI_density = BaryonField[   SiOINum];
+    my_fields.  SiO2I_density = BaryonField[  SiO2INum];
+    my_fields.     CH_density = BaryonField[     CHNum];
+    my_fields.    CH2_density = BaryonField[    CH2Num];
+    my_fields.   COII_density = BaryonField[   COIINum];
+    my_fields.    OII_density = BaryonField[    OIINum];
+    my_fields.   OHII_density = BaryonField[   OHIINum];
+    my_fields.  H2OII_density = BaryonField[  H2OIINum];
+    my_fields.  H3OII_density = BaryonField[  H3OIINum];
+    my_fields.   O2II_density = BaryonField[   O2IINum];
+    if (GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        my_fields.   Mg_density = BaryonField[     MgNum];
+      }
+      if (DustSpecies > 1) {
+        my_fields.   Al_density = BaryonField[     AlNum];
+        my_fields.    S_density = BaryonField[      SNum];
+        my_fields.   Fe_density = BaryonField[     FeNum];
+      }
+    }
+  }
+
+  if (GrainGrowth || DustSublimation) {
+    if (DustSpecies > 0) {
+      my_fields. MgSiO3_density = BaryonField[ MgSiO3Num];
+      my_fields.     AC_density = BaryonField[     ACNum];
+    }
+    if (DustSpecies > 1) {
+      my_fields.    SiM_density = BaryonField[    SiMNum];
+      my_fields.    FeM_density = BaryonField[    FeMNum];
+      my_fields.Mg2SiO4_density = BaryonField[Mg2SiO4Num];
+      my_fields.  Fe3O4_density = BaryonField[  Fe3O4Num];
+      my_fields.  SiO2D_density = BaryonField[  SiO2DNum];
+      my_fields.    MgO_density = BaryonField[    MgONum];
+      my_fields.    FeS_density = BaryonField[    FeSNum];
+      my_fields.  Al2O3_density = BaryonField[  Al2O3Num];
+    }
+  }
 
   my_fields.volumetric_heating_rate = volumetric_heating_rate;
   my_fields.specific_heating_rate   = specific_heating_rate;
@@ -245,6 +365,9 @@ int grid::GrackleWrapper()
 
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
                                   kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
+
+  int kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum;
+  IdentifyRadiativeTransferFieldsMD(kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum);
 
   /* unit conversion from Enzo RT units to CGS */
   float rtunits = erg_eV / TimeUnits;
@@ -260,14 +383,62 @@ int grid::GrackleWrapper()
     if (MultiSpecies > 1)
       my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
 
+    if (MultiSpecies > 2)
+      my_fields.RT_HDI_dissociation_rate = BaryonField[kdissHDINum];
+
+    if (MetalChemistry) {
+      my_fields.RT_CI_ionization_rate = BaryonField[kphCINum];
+      my_fields.RT_OI_ionization_rate = BaryonField[kphOINum];
+      my_fields.RT_CO_dissociation_rate  = BaryonField[kdissCONum];
+      my_fields.RT_OH_dissociation_rate  = BaryonField[kdissOHNum];
+      my_fields.RT_H2O_dissociation_rate = BaryonField[kdissH2ONum];
+    }
+
+//  my_fields.RT_HDI_dissociation_rate = new float[size];
+//  my_fields.RT_CI_ionization_rate    = new float[size];
+//  my_fields.RT_OI_ionization_rate    = new float[size];
+//  my_fields.RT_CO_dissociation_rate  = new float[size];
+//  my_fields.RT_OH_dissociation_rate  = new float[size];
+//  my_fields.RT_H2O_dissociation_rate = new float[size];
+//  for( i = 0; i < size; i++) my_fields.RT_HDI_dissociation_rate[i] = 0;
+//  for( i = 0; i < size; i++) my_fields.RT_CI_ionization_rate   [i] = 0;
+//  for( i = 0; i < size; i++) my_fields.RT_OI_ionization_rate   [i] = 0;
+//  for( i = 0; i < size; i++) my_fields.RT_CO_dissociation_rate [i] = 0;
+//  for( i = 0; i < size; i++) my_fields.RT_OH_dissociation_rate [i] = 0;
+//  for( i = 0; i < size; i++) my_fields.RT_H2O_dissociation_rate[i] = 0;
+
     /* need to convert to CGS units */
     for( i = 0; i < size; i++) BaryonField[gammaNum][i] *= rtunits;
 
     my_fields.RT_heating_rate = BaryonField[gammaNum];
     
+//  printf("%13.5e \n", BaryonField[kdissH2INum][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kdissHDINum][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kphCINum   ][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kphOINum   ][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kdissCONum ][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kdissOHNum ][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
+//  printf("%13.5e \n", BaryonField[kdissH2ONum][(3*GridDimension[1] + 3)*GridDimension[0] + 3] );
 
   }
 #endif // TRANSFER
+
+  int ISRFNum;
+
+  if (grackle_data->use_isrf_field) {
+    
+    ISRFNum = FindField(ISRFHabing, FieldType, NumberOfBaryonFields);
+
+    for( i = 0; i < size; i++) {
+      BaryonField[ISRFNum][i] = BaryonField[kphHINum][i]
+          / grackle_units.time_units            /* convert to CGS [1/s] */
+          * (1.60217653e-12 * 13.6) / 6.30e-18  /* estimate flux */
+          / 5.3e-3;                             /* convert to Habing units */
+    }
+
+    my_fields.isrf_habing = BaryonField[ISRFNum];
+
+  }
 
   /* Call the chemistry solver. */
 
@@ -305,13 +476,21 @@ int grid::GrackleWrapper()
     for(i = 0; i < size; i ++) BaryonField[gammaNum][i] /= rtunits;
 
   }
-#endif TRANSFER
+#endif /* TRANSFER */
 
 
   delete [] TotalMetals;
   delete [] g_grid_dimension;
   delete [] g_grid_start;
   delete [] g_grid_end;
+//if( RadiativeTransfer ){
+//  delete [] my_fields.RT_HDI_dissociation_rate ;
+//  delete [] my_fields.RT_CI_ionization_rate    ;
+//  delete [] my_fields.RT_OI_ionization_rate    ;
+//  delete [] my_fields.RT_CO_dissociation_rate  ;
+//  delete []  my_fields.RT_OH_dissociation_rate ;
+//  delete []  my_fields.RT_H2O_dissociation_rate;
+//}
 
   LCAPERF_STOP("grid_GrackleWrapper");
 

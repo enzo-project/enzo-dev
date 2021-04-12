@@ -123,14 +123,53 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *DIName    = "DI_Density";
   char *DIIName   = "DII_Density";
   char *HDIName   = "HDI_Density";
+  char *   HeHIIName =   "HeHII_Density";
+  char *      DMName =      "DM_Density";
+  char *    HDIIName =    "HDII_Density";
+  char *      CIName =      "CI_Density";
+  char *     CIIName =     "CII_Density";
+  char *      COName =      "CO_Density";
+  char *     CO2Name =     "CO2_Density";
+  char *      OIName =      "OI_Density";
+  char *      OHName =      "OH_Density";
+  char *     H2OName =     "H2O_Density";
+  char *      O2Name =      "O2_Density";
+  char *     SiIName =     "SiI_Density";
+  char *    SiOIName =    "SiOI_Density";
+  char *   SiO2IName =   "SiO2I_Density";
+  char *      CHName =      "CH_Density";
+  char *     CH2Name =     "CH2_Density";
+  char *    COIIName =    "COII_Density";
+  char *     OIIName =     "OII_Density";
+  char *    OHIIName =    "OHII_Density";
+  char *   H2OIIName =   "H2OII_Density";
+  char *   H3OIIName =   "H3OII_Density";
+  char *    O2IIName =    "O2II_Density";
+  char *      MgName =      "Mg_Density";
+  char *      AlName =      "Al_Density";
+  char *       SName =       "S_Density";
+  char *      FeName =      "Fe_Density";
+  char *     SiMName =     "SiM_Density";
+  char *     FeMName =     "FeM_Density";
+  char * Mg2SiO4Name = "Mg2SiO4_Density";
+  char *  MgSiO3Name =  "MgSiO3_Density";
+  char *   Fe3O4Name =   "Fe3O4_Density";
+  char *      ACName =      "AC_Density";
+  char *   SiO2DName =   "SiO2D_Density";
+  char *     MgOName =     "MgO_Density";
+  char *     FeSName =     "FeS_Density";
+  char *   Al2O3Name =   "Al2O3_Density";
   char *MetalName = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
+  char *DustName = "Dust_Density";
   char *GPotName  = "Grav_Potential";
   char *ForbidName  = "ForbiddenRefinement";
   char *MachName   = "Mach";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
-  char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
+  char *ExtraNames[12] = {"Z_Field0", "Z_Field1", "Z_Field2", "Z_Field3"
+                        , "Z_Field4", "Z_Field5", "Z_Field6", "Z_Field7"
+                        , "Z_Field8", "Z_Field9", "Z_Field10","Z_Field11"};
   char *BxName = "Bx";
   char *ByName = "By";
   char *BzName = "Bz";
@@ -786,6 +825,58 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = DIIName;
       DataLabel[i++] = HDIName;
     }
+    if (MultiSpecies > 3) {
+      DataLabel[i++] = HeHIIName;
+      DataLabel[i++] = DMName;
+      DataLabel[i++] = HDIIName;
+    }
+    if (MetalChemistry > 0) {
+      DataLabel[i++] = CIName;
+      DataLabel[i++] = CIIName;
+      DataLabel[i++] = COName;
+      DataLabel[i++] = CO2Name;
+      DataLabel[i++] = OIName;
+      DataLabel[i++] = OHName;
+      DataLabel[i++] = H2OName;
+      DataLabel[i++] = O2Name;
+      DataLabel[i++] = SiIName;
+      DataLabel[i++] = SiOIName;
+      DataLabel[i++] = SiO2IName;
+      DataLabel[i++] = CHName;
+      DataLabel[i++] = CH2Name;
+      DataLabel[i++] = COIIName;
+      DataLabel[i++] = OIIName;
+      DataLabel[i++] = OHIIName;
+      DataLabel[i++] = H2OIIName;
+      DataLabel[i++] = H3OIIName;
+      DataLabel[i++] = O2IIName;
+      if (GrainGrowth || DustSublimation) {
+        if (DustSpecies > 0) {
+          DataLabel[i++] = MgName;
+        }
+        if (DustSpecies > 1) {
+          DataLabel[i++] = AlName;
+          DataLabel[i++] = SName;
+          DataLabel[i++] = FeName;
+        }
+      }
+    }
+    if (GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        DataLabel[i++] = MgSiO3Name;
+        DataLabel[i++] = ACName;
+      }
+      if (DustSpecies > 1) {
+        DataLabel[i++] = SiMName;
+        DataLabel[i++] = FeMName;
+        DataLabel[i++] = Mg2SiO4Name;
+        DataLabel[i++] = Fe3O4Name;
+        DataLabel[i++] = SiO2DName;
+        DataLabel[i++] = MgOName;
+        DataLabel[i++] = FeSName;
+        DataLabel[i++] = Al2O3Name;
+      }
+    }
   }
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;
@@ -794,8 +885,23 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     if(MultiMetals){
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];
+      DataLabel[i++] = ExtraNames[2];
+      DataLabel[i++] = ExtraNames[3];
+      DataLabel[i++] = ExtraNames[4];
+      DataLabel[i++] = ExtraNames[5];
+      DataLabel[i++] = ExtraNames[6];
+      DataLabel[i++] = ExtraNames[7];
+      DataLabel[i++] = ExtraNames[8];
+      DataLabel[i++] = ExtraNames[9];
+      DataLabel[i++] = ExtraNames[10];
+      DataLabel[i++] = ExtraNames[11];
     }
   }
+
+  if (UseDustDensityField) {
+    DataLabel[i++] = DustName;
+  }
+
   if(STARMAKE_METHOD(COLORED_POP3_STAR)){
     DataLabel[i++] = ForbidName;
   }

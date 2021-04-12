@@ -75,11 +75,12 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
   int AllocateInterpolatedRadiation(void);
 
 /* Function that handle the dissociation/ionization effects of photons */
-int RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
-				 FLOAT thisDensity, FLOAT ddr, 
-				 int cellindex,  float LengthUnits,
-				 int kdissH2INum, int TemperatureField,
-				 float geo_correction);
+int RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP, 
+				 FLOAT thisDensity, FLOAT thisDensityHDI, 
+				 FLOAT thisDensityCO, FLOAT thisDensityOH, FLOAT thisDensityH2O, FLOAT ddr,
+				 int cellindex, float LengthUnits, int kdissH2INum, int kdissHDINum,
+				 int kdissCONum, int kdissOHNum, int kdissH2ONum,
+				 int TemperatureField, float geo_correction);
 
 int RadiativeTransferLW(PhotonPackageEntry **PP, FLOAT &dP,
 			int cellindex, float tau, FLOAT photonrate, 
@@ -94,6 +95,7 @@ int RadiativeTransferIR(PhotonPackageEntry **PP, FLOAT &dP,
 			int cellindex, float tau, FLOAT photonrate, 
 			FLOAT *excessrate, float geo_correction, 
 			int kphHMNum, int gammaNum);
+
 
 int RadiativeTransferIonization(PhotonPackageEntry **PP, FLOAT *dPi, int cellindex, 
 				int species, float tau, FLOAT photonrate, 
@@ -494,6 +496,7 @@ int PhotonTestInitializeGrid(int NumberOfSpheres,
 			     int   SphereUseParticles,
 			     float UniformVelocity[MAX_DIMENSION],
 			     int   SphereUseColour,
+			     float InitialMetallicity,
 			     float InitialTemperature, int level, 
 			     float PhotonTestInitialFractionHII, 
 			     float PhotonTestInitialFractionHeII,

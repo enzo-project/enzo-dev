@@ -39,6 +39,9 @@ int grid::InitializeRadiativeTransferFields()
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
 				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
+  int kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum;
+  IdentifyRadiativeTransferFieldsMD(kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum);
+
   int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
 
   int i,j,k, index;
@@ -70,6 +73,24 @@ int grid::InitializeRadiativeTransferFields()
 	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
 	  BaryonField[kdissH2INum][index] = BaryonField[kphHMNum][index] = 0.0;
 	  BaryonField[kdissH2IINum][index] = 0.0;
+	}
+      }  // loop over grid
+  if (MultiSpecies > 2)
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	  BaryonField[kdissHDINum][index] = 0.0;
+	}
+      }  // loop over grid
+  if (MetalChemistry)
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	  BaryonField[kphCINum][index] = BaryonField[kphOINum][index] =
+	  BaryonField[kdissCONum][index] = BaryonField[kdissOHNum][index] =
+          BaryonField[kdissH2ONum][index] = 0.0;
 	}
       }  // loop over grid
 

@@ -53,6 +53,7 @@ OBJS_CONFIG_LIB = \
         BlockSolve.o \
         bondi_alpha.o \
         calcdiss.o \
+        calcdiss_vg.o \
         calc_dt.o \
         calc_dt_c.o \
 	calc_eigen.o \
@@ -179,6 +180,7 @@ OBJS_CONFIG_LIB = \
 	EnzoVector_ExchangeEnd.o \
 	EnzoVector_test.o \
         euler.o \
+        euler_vg.o \
         EvolveHierarchy.o \
 	EventHooks.o \
         expand_terms.o \
@@ -224,7 +226,10 @@ OBJS_CONFIG_LIB = \
         flow.o \
 	flux_hll.o \
 	flux_hllc.o \
+	flux_hll_vg.o \
+	flux_hllc_vg.o \
 	flux_twoshock.o \
+	flux_twoshock_vg.o \
     FofLib.o \
         FOF.o \
         FOF_allocate.o \
@@ -631,6 +636,7 @@ OBJS_CONFIG_LIB = \
 	Grid_SolveOneZoneFreefall.o \
   Grid_SolveMHD_Li.o \
 	Grid_SolvePPM_DE.o \
+	Grid_SolvePPM_DE_vg.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
         Grid_SolveRateEquations.o \
@@ -677,6 +683,9 @@ OBJS_CONFIG_LIB = \
 	Grid_xEulerSweep.o \
 	Grid_yEulerSweep.o \
 	Grid_zEulerSweep.o \
+	Grid_xEulerSweep_vg.o \
+	Grid_yEulerSweep_vg.o \
+	Grid_zEulerSweep_vg.o \
         Group_ReadAllData.o \
         Group_ReadDataHierarchy.o \
         Group_WriteAllData.o \
@@ -716,12 +725,15 @@ OBJS_CONFIG_LIB = \
 	interpolate.o \
 	InterpretCommandLine.o \
         inteuler.o \
+        inteuler_vg.o \
         intlgrg.o \
         int_lin3d.o \
         intrmp.o \
         int_spline.o \
 	intpos.o \
 	intprim.o \
+	intpos_vg.o \
+	intprim_vg.o \
         intvar.o \
         Isdigit.o \
         KHInitialize.o \
@@ -772,6 +784,8 @@ OBJS_CONFIG_LIB = \
 	performance.o \
         pgas2d_dual.o \
         pgas2d.o \
+        pgas2d_dual_vg.o \
+        pgas2d_vg.o \
         PoissonSolverTestInitialize.o \
         pop3_color_maker.o \
         pop3_color_maker_c.o \
@@ -946,6 +960,7 @@ OBJS_CONFIG_LIB = \
         TurbulenceSimulationInitialize.o \
 	turboinit.o\
         twoshock.o \
+        twoshock_vg.o \
 	UpdateFromFinerGrids.o \
 	UpdateLocalDatabase.o \
         UpdateParticlePositions.o \

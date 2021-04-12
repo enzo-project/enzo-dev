@@ -68,6 +68,14 @@ int GrackleSetDefaultParameters(FILE *fptr){
     MultiSpecies                          = (int) grackle_data->primordial_chemistry;
     MetalCooling                          = (int) grackle_data->metal_cooling;
     H2FormationOnDust                     = (int) grackle_data->h2_on_dust;
+    MetalChemistry                        = (int) grackle_data->metal_chemistry;
+    MultiMetals                           = (int) grackle_data->multi_metals;
+    UseDustDensityField                   = (int) grackle_data->use_dust_density_field;
+    GrainGrowth                           = (int) grackle_data->grain_growth;
+    MetalAbundances                       = (int) grackle_data->metal_abundances;
+    DustSpecies                           = (int) grackle_data->dust_species;
+    DustTemperatureMulti                  = (int) grackle_data->dust_temperature_multi;
+    DustSublimation                       = (int) grackle_data->dust_sublimation;
     CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data->cmb_temperature_floor;
     ThreeBodyRate                         = (int) grackle_data->three_body_rate;
     CIECooling                            = (int) grackle_data->cie_cooling;
@@ -137,6 +145,13 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     ret += sscanf(line, "LWbackground_sawtooth_suppression = %d",
                   &grackle_data->LWbackground_sawtooth_suppression);
 
+    ret += sscanf(line, "MetalChemistry = %d", &MetalChemistry);
+    ret += sscanf(line, "UseDustDensityField = %d", &UseDustDensityField);
+    ret += sscanf(line, "GrainGrowth = %d", &GrainGrowth);
+    ret += sscanf(line, "MetalAbundances = %d", &MetalAbundances);
+    ret += sscanf(line, "DustSpecies = %d", &DustSpecies);
+    ret += sscanf(line, "DustTemperatureMulti = %d", &DustTemperatureMulti);
+    ret += sscanf(line, "DustSublimation = %d", &DustSublimation);
     ret += sscanf(line, "local_dust_to_gas_ratio = %f",
                   &grackle_data->local_dust_to_gas_ratio);
 
@@ -177,6 +192,14 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
   grackle_data->primordial_chemistry           = (Eint32) MultiSpecies;
   grackle_data->metal_cooling                  = (Eint32) MetalCooling;
   grackle_data->h2_on_dust                     = (Eint32) H2FormationOnDust;
+  grackle_data->metal_chemistry                = (Eint32) MetalChemistry;
+  grackle_data->multi_metals                   = (Eint32) MultiMetals;
+  grackle_data->use_dust_density_field         = (Eint32) UseDustDensityField;
+  grackle_data->grain_growth                   = (Eint32) GrainGrowth;
+  grackle_data->metal_abundances               = (Eint32) MetalAbundances;
+  grackle_data->dust_species                   = (Eint32) DustSpecies;
+  grackle_data->dust_temperature_multi         = (Eint32) DustTemperatureMulti;
+  grackle_data->dust_sublimation               = (Eint32) DustSublimation;
   grackle_data->cmb_temperature_floor          = (Eint32) CloudyCoolingData.CMBTemperatureFloor;
   grackle_data->three_body_rate                = (Eint32) ThreeBodyRate;
   grackle_data->cie_cooling                    = (Eint32) CIECooling;
@@ -203,14 +226,14 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
 
 
   // Error checking for behavior not implemented
-  if ( (grackle_data->photoelectric_heating == 2) ||
-       (grackle_data->use_isrf_field)){
-    ENZO_FAIL("Photoelectric heating model 2, and ISRF field, in Grackle is not yet implemented.\n");
-  }
+//if ( (grackle_data->photoelectric_heating == 2) ||
+//     (grackle_data->use_isrf_field)){
+//  ENZO_FAIL("Photoelectric heating model 2, and ISRF field, in Grackle is not yet implemented.\n");
+//}
 
-  if ( grackle_data->use_dust_density_field ){
-    ENZO_FAIL("Supplying dust density (use_dust_density_field) to Grackle is not yet implemented.\n");
-  }
+//if ( grackle_data->use_dust_density_field ){
+//  ENZO_FAIL("Supplying dust density (use_dust_density_field) to Grackle is not yet implemented.\n");
+//}
 
   // Initialize Grackle units structure.
   FLOAT a_value, dadt;

@@ -1,0 +1,127 @@
+#=======================================================================
+#
+# FILE:        Make.mach.force
+#
+# DESCRIPTION: Makefile settings for the FoRCE cluster
+#
+# AUTHOR:      John Wise (jwise@gatech.edu)
+#
+# DATE:        2019-10-18
+#
+#=======================================================================
+
+MACH_TEXT  = Georgia Tech HIVE (GNU)
+MACH_VALID = 1
+MACH_FILE  = Make.mach.hive-gcc
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+#LOCAL_HDF5_INSTALL = /usr/local/pace-apps/spack/packages/0.12/linux-rhel7-x86_64/intel-19.0.3/hdf5-1.10.5-lentthbuxn5rq5lrbmdgz6sdno2yfwk3
+#LOCAL_HDF5_INSTALL = ${HDF5_ROOT}
+#LOCAL_HDF5_INSTALL = /storage/home/hhive1/jw254
+LOCAL_HDF5_INSTALL = $(HOME)/usr/local/
+LOCAL_GRACKLE_INSTALL = $(HOME)/usr/local
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = cpp # C preprocessor command
+
+# With MPI
+
+MACH_CC_MPI    = mpicc # C compiler when using MPI
+MACH_CXX_MPI   = mpicxx # C++ compiler when using MPI
+MACH_FC_MPI    = mpif90 # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = mpif90 # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = mpicxx # Linker when using MPI
+
+# Without MPI
+
+MACH_CC_NOMPI  = gcc # C compiler when not using MPI
+MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
+MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = g++ # Linker when not using MPI
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+
+MACH_CPPFLAGS = -P -traditional 
+MACH_CFLAGS   = 
+MACH_CXXFLAGS = -DMPICH_IGNORE_CXX_SEEK
+MACH_FFLAGS   = -ffixed-line-length-132
+MACH_F90FLAGS = 
+MACH_LDFLAGS  = 
+MACH_OPENMP   = -fopenmp
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = 
+MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8
+MACH_FFLAGS_REAL_32    = 
+MACH_FFLAGS_REAL_64    = -fdefault-real-8
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g
+MACH_OPT_DEBUG       = -g
+MACH_OPT_HIGH        = -O2 -g
+#MACH_OPT_HIGH        = -O2 -g -march=bdver1 -mtune=bdver1 -mprefer-avx128 -ftree-vectorize -finline-functions -fwhole-program -flto
+#MACH_OPT_HIGH        = -O2 -g -march=core-avx-i -mtune=core-avx-i -mprefer-avx128 -ftree-vectorize -finline-functions -fwhole-program -flto
+#MACH_OPT_HIGH        = -O2 -march=bdver1 -mtune=bdver1 -fprofile-generate
+#MACH_OPT_HIGH        = -O2 -march=bdver1 -mtune=bdver1
+#MACH_OPT_AGGRESSIVE  = -O3 -fstack-arrays -funroll-loops
+MACH_OPT_AGGRESSIVE  = -O3 -march=bdver1 -mtune=bdver1 -mprefer-avx128 -fstack-arrays -funroll-loops
+# -fno-protect-parens -fstack-arrays
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = # MPI includes
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HYPRE  = # hypre includes
+LOCAL_INCLUDES_PAPI   = # PAPI includes
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
+MACH_INCLUDES_GRACKLE  = $(LOCAL_INCLUDES_GRACKLE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+
+LOCAL_LIBS_MPI    = # MPI libraries
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz -ldl
+LOCAL_LIBS_HYPRE  = # hypre libraries
+LOCAL_LIBS_PAPI   = # PAPI libraries
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+
+# Machine-dependent libraries
+#LOCAL_LIBS_LIBM   = -L$(LOCAL_LIBM_INSTALL)/lib -lamdlibm
+LOCAL_LIBS_MACH   = -lgfortran
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_LIBM)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)

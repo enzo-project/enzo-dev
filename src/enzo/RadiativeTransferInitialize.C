@@ -55,6 +55,12 @@ int RadiativeTransferInitialize(char *ParameterFile,
   const char	*kdissH2IName  = "H2I_kdiss";
   const char	*kphHMName     = "HM_kph";
   const char	*kdissH2IIName = "H2II_kdiss";
+  const char    *kdissHDIName  = "HDI_kdiss"; 
+  const char	*kphCIName     = "CI_kph";
+  const char	*kphOIName     = "OI_kph";
+  const char    *kdissCOName   = "CO_kdiss"; 
+  const char    *kdissOHName   = "OH_kdiss"; 
+  const char    *kdissH2OName  = "H2O_kdiss"; 
   const char	*RadAccel1Name = "RadAccel1";
   const char	*RadAccel2Name = "RadAccel2";
   const char	*RadAccel3Name = "RadAccel3";
@@ -78,7 +84,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
     /* Check for radiation fields and delete them */
 
-    NumberOfObsoleteFields = 13;
+    NumberOfObsoleteFields = 19;
     ObsoleteFields[0] = kphHI;
     ObsoleteFields[1] = PhotoGamma;
     ObsoleteFields[2] = kphHeI;
@@ -88,10 +94,16 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ObsoleteFields[6] = kdissH2I;
     ObsoleteFields[7] = kphHM;
     ObsoleteFields[8] = kdissH2II;
-    ObsoleteFields[9] = RaySegments;
-    ObsoleteFields[10] = RadPressure0;
-    ObsoleteFields[11] = RadPressure1;
-    ObsoleteFields[12] = RadPressure2;
+    ObsoleteFields[9] = kdissHDI;
+    ObsoleteFields[10] = kphCI;
+    ObsoleteFields[11] = kphOI;
+    ObsoleteFields[12] = kdissCO;
+    ObsoleteFields[13] = kdissOH;
+    ObsoleteFields[14] = kdissH2O;
+    ObsoleteFields[15] = RaySegments;
+    ObsoleteFields[16] = RadPressure0;
+    ObsoleteFields[17] = RadPressure1;
+    ObsoleteFields[18] = RadPressure2;
 
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
@@ -195,6 +207,16 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	TypesToAdd[FieldsToAdd++] = kphHM;
 	TypesToAdd[FieldsToAdd++] = kdissH2II;
       }
+      if (MultiSpecies > 2) {
+	TypesToAdd[FieldsToAdd++] = kdissHDI;
+      }
+      if (MetalChemistry) {
+	TypesToAdd[FieldsToAdd++] = kphCI;
+	TypesToAdd[FieldsToAdd++] = kphOI;
+	TypesToAdd[FieldsToAdd++] = kdissCO;
+	TypesToAdd[FieldsToAdd++] = kdissOH;
+	TypesToAdd[FieldsToAdd++] = kdissH2O;
+      }
       if (RadiationPressure)
 	for (i = RadPressure0; i <= RadPressure2; i++)
 	  TypesToAdd[FieldsToAdd++] = i;
@@ -252,6 +274,16 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	TypesToAdd[FieldsToAdd++] = kdissH2I;
 	TypesToAdd[FieldsToAdd++] = kphHM;
 	TypesToAdd[FieldsToAdd++] = kdissH2II;
+      }
+      if (MultiSpecies > 2) {
+	TypesToAdd[FieldsToAdd++] = kdissHDI;
+      }
+      if (MetalChemistry) {
+	TypesToAdd[FieldsToAdd++] = kphCI;
+	TypesToAdd[FieldsToAdd++] = kphOI;
+	TypesToAdd[FieldsToAdd++] = kdissCO;
+	TypesToAdd[FieldsToAdd++] = kdissOH;
+	TypesToAdd[FieldsToAdd++] = kdissH2O;
       }
     }
 
@@ -322,6 +354,24 @@ int RadiativeTransferInitialize(char *ParameterFile,
       break;
     case kdissH2II:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) kdissH2IIName;
+      break;
+    case kdissHDI:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) kdissHDIName;
+      break;
+    case kphCI:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) kphCIName;
+      break;
+    case kphOI:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) kphOIName;
+      break;
+    case kdissCO:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) kdissCOName;
+      break;
+    case kdissOH:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) kdissOHName;
+      break;
+    case kdissH2O:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) kdissH2OName;
       break;
     case RadPressure0:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) RadAccel1Name;

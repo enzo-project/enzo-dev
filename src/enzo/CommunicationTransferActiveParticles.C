@@ -92,7 +92,7 @@ int CommunicationTransferActiveParticles
 
     for (i = 0; i < Layout[dim]; i++) {
       ExactCount += ExactDims;
-      if (dim == 0)
+      if (i < Layout[dim]-1)
 	ThisCount = nint(0.5*ExactCount)*2 - DisplacementCount;
       else
 	ThisCount = nint(ExactCount) - DisplacementCount;

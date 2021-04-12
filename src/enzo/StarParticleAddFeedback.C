@@ -224,7 +224,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) 
 	  Temp->GridData->AddFeedbackSphere
 	    (cstar, l, influenceRadius, DensityUnits, LengthUnits, 
-	     VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
+	     VelocityUnits, TemperatureUnits, Time, TimeUnits, EjectaDensity, 
 	     EjectaMetalDensity, EjectaThermalEnergy, Q_HI, sigma, deltaE, 
 	     CellsModified);
     } // ENDIF
