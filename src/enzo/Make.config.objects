@@ -951,16 +951,6 @@ OBJS_CONFIG_LIB = \
         UpdateParticlePositions.o \
         utilities.o \
         uuid.o \
-        uuid/clear.o \
-        uuid/compare.o \
-        uuid/copy.o \
-        uuid/gen_uuid.o \
-        uuid/isnull.o \
-        uuid/pack.o \
-        uuid/parse.o \
-        uuid/unpack.o \
-        uuid/unparse.o \
-        uuid/uuid_time.o \
         wall_clock.o \
         WavePoolInitialize.o \
         wrapper1d.o \
@@ -1240,4 +1230,15 @@ OBJS_ECUDA_ALL = \
 	CUDAUtil.o \
 	SaveSubgridFluxCUDA.o 
 
-
+# Objects to support get_uuid
+POBJS_UUID = \
+        uuid/clear.o \
+        uuid/compare.o \
+        uuid/copy.o \
+        uuid/gen_uuid.o \
+        uuid/isnull.o \
+        uuid/pack.o \
+        uuid/parse.o \
+        uuid/unpack.o \
+        uuid/unparse.o \
+        uuid/uuid_time.o
