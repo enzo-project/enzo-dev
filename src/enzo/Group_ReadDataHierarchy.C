@@ -225,6 +225,14 @@ int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid,
                                      MetaData.PPMFlatteningParameter,
                                      MetaData.PPMDiffusionParameter,
                                      MetaData.PPMSteepeningParameter);
+  if (SelfGravity) {
+    if (Grid->GridData->ReturnGravityBoundaryType() == GravityUndefined) {
+      if (Grid->ParentGrid == NULL) // Top grid
+        Grid->GridData->SetGravityParameters(MetaData.GravityBoundary);
+      else
+        Grid->GridData->SetGravityParameters(SubGridIsolated);
+    }
+  }
 
   /* Read RandomForcingFields for the grid(s) on level 0. //AK */
  

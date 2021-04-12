@@ -557,7 +557,25 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       ElectricField[field] = new float[ElectricSize[field]];
 
     }//processor
+  }
+
+  /* Check if potential field needs to be added because ComputePotential was
+     turned on in after restart */
+
+  if (WritePotential || ComputePotential) {
+    int GravNum = FindField(GravPotential, FieldType, NumberOfBaryonFields);
+    if (GravNum < 0) {
+      char *GPotName = "Grav_Potential";
+      int GravToAdd = GravPotential;
+      GravNum = NumberOfBaryonFields;
+      this->AddFields(&GravToAdd, 1);
+      if (DataLabel[GravNum] == NULL) {
+        if (debug)
+          fprintf(stdout, "Adding Grav_Potential field.\n");
+        DataLabel[GravNum] = GPotName;
+      }
     }
+  }
 
     delete [] temp;
  

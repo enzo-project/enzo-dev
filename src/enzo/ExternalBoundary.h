@@ -13,6 +13,7 @@
 #ifndef EXTERNAL_BOUNDARY_DEFINED__
 #define EXTERNAL_BOUNDARY_DEFINED__
 
+int FindField(int f, int farray[], int n);
 
 class ExternalBoundary
 {
@@ -112,6 +113,11 @@ class ExternalBoundary
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
                                  int &Vel2Num, int &Vel3Num, int &TENum,
 				 int &B1Num, int&B2Num, int &B3Num, int &PhiNum);
+
+  int ReturnFieldNum(int field_type) {
+    int FieldNum = FindField(field_type, BoundaryFieldType, NumberOfBaryonFields);
+    return FieldNum;
+  }
 
 //
 /************************************************************************/

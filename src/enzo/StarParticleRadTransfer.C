@@ -41,7 +41,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 {
 
   /* If photon test simulation, don't change the radiation sources. */
-  if (ProblemType == 50 || ProblemType == 27)
+  if (ProblemType == 50)
     return SUCCESS;
 
   int i, j, nShine, nbins;

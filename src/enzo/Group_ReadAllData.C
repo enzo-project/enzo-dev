@@ -463,6 +463,14 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     TopGrid->GridData->SetExternalBoundaryValues(Exterior);
   }
 
+  /* If gravitational potential field is being kept and doesn't exist, add it */
+
+  if (WritePotential || ComputePotential) {
+    if (Exterior->ReturnFieldNum(GravPotential) < 0) {
+      Exterior->AddField(GravPotential);
+    }
+  }
+
   /* Read StarParticle data. */
  
   if (ReadStarParticleData(fptr, Hfile_id, log_fptr) == FAIL) {
@@ -513,8 +521,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   delete [] RootGridProcessors;
 
   if (HierarchyFileInputFormat % 2 == 0 && io_log) 
-      fclose(log_fptr);
-  
+    fclose(log_fptr);
 
   return SUCCESS;
 }
