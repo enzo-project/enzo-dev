@@ -178,10 +178,10 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    * with a density given by the average density within the 
    * accretion radius.
    */
-  if(MBHAccretion == SPHERICAL_BONDI_HOYLE_FORMALISM ||
-     MBHAccretion == SPHERICAL_BONDI_HOYLE_FORMALISM_WITH_VORTICITY) {
+  if(SmartStarAccretion == SPHERICAL_BONDI_HOYLE_FORMALISM ||
+     SmartStarAccretion == SPHERICAL_BONDI_HOYLE_FORMALISM_WITH_VORTICITY) {
 #ifdef DEBUG_AP
-    printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM, MBHAccretion = %d\n", MBHAccretion);
+    printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM, SmartStarAccretion = %d\n", SmartStarAccretion);
 #endif
     RhoInfinity = AverageDensity /
       bondi_alpha(1.2*CellWidth[0][0] / BondiHoyleRadius);
@@ -190,10 +190,10 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
     AccretionRate = (4*pi*RhoInfinity*POW(BondiHoyleRadius,2)*
 			 sqrt(POW(lambda_c*cInfinity,2) + POW(vInfinity,2)));
     /* Include Vorticity component if specified */
-    if(SPHERICAL_BONDI_HOYLE_FORMALISM_WITH_VORTICITY == MBHAccretion) {
+    if(SPHERICAL_BONDI_HOYLE_FORMALISM_WITH_VORTICITY == SmartStarAccretion) {
 #ifdef DEBUG_AP
-      printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM_WIDTH_VORTICITY, MBHAccretion = %d\n",
-	     MBHAccretion);
+      printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM_WIDTH_VORTICITY, SmartStarAccretion = %d\n",
+	     SmartStarAccretion);
 #endif
       /* Include Vorticity Component */
       FLOAT vorticity[3] = {0.0, 0.0, 0.0};
@@ -215,9 +215,9 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    * The accretion rate onto the Black Hole is calculated by taking into 
    * account the angular momentum transport of gas on scales below the grid scale. 
    */
-  if(MBHAccretion == VISCOUS_ANGULAR_MOMENTUM_TRANSPORT) {
+  if(SmartStarAccretion == VISCOUS_ANGULAR_MOMENTUM_TRANSPORT) {
 #ifdef DEBUG_AP
-    printf("Doing VISCOUS_ANGULAR_MOMENTUM_TRANSPORT, MBHAccretion = %d\n", MBHAccretion);
+    printf("Doing VISCOUS_ANGULAR_MOMENTUM_TRANSPORT, SmartStarAccretion = %d\n", SmartStarAccretion);
 #endif
   float alpha = 0.1;
   float c_s = sqrt(Gamma * kboltz * AverageT / (Mu * mh)) /
@@ -234,9 +234,9 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    * This model is designed to give reduced, physically motivated, accretion rates
    * explaining why BH feedback can not overwhelm a galaxy. 
    */
-  if(MBHAccretion == ALPHA_DISK_CEN_2012) {
+  if(SmartStarAccretion == ALPHA_DISK_CEN_2012) {
 #ifdef DEBUG_AP
-     printf("Doing ALPHA_DISK_CEN_2012, MBHAccretion = %d\n", MBHAccretion);
+     printf("Doing ALPHA_DISK_CEN_2012, SmartStarAccretion = %d\n", SmartStarAccretion);
 #endif
     AccretionRate = CenAccretionRate(AverageDensity, AccretionRadius,
 				     xparticle, vparticle, mparticle);
@@ -247,9 +247,9 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    * The accretion rate is reduced when high angular momentum gas is located around the 
    * bondi-hoyle radius. 
    */
-  if(MBHAccretion == ANGULAR_MOMENTUM_LIMITED_ACCRETION) {
+  if(SmartStarAccretion == ANGULAR_MOMENTUM_LIMITED_ACCRETION) {
 #ifdef DEBUG_AP
-    printf("Doing ANGULAR_MOMENTUM_LIMITED_ACCRETION, MBHAccretion = %d\n", MBHAccretion);
+    printf("Doing ANGULAR_MOMENTUM_LIMITED_ACCRETION, SmartStarAccretion = %d\n", SmartStarAccretion);
 #endif
     float c_s = sqrt(Gamma * kboltz * AverageT / (Mu * mh))*TimeUnits/LengthUnits;
     float V_phi = CalculateCirculisationSpeed(Vel1Num, AccretionRadius, xparticle, vparticle);
@@ -274,9 +274,9 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    * calculate the mass inflow rate. 
    *
    */
-  if(MBHAccretion ==  CONVERGING_MASS_FLOW) {
+  if(SmartStarAccretion ==  CONVERGING_MASS_FLOW) {
 #ifdef DEBUG_AP
-    printf("Doing CONVERGING_MASS_FLOW, MBHAccretion = %d\n", MBHAccretion);
+    printf("Doing CONVERGING_MASS_FLOW, SmartStarAccretion = %d\n", SmartStarAccretion);
 #endif
     AccretionRate = ConvergentMassFlow(DensNum, Vel1Num, AccretionRadius, xparticle, vparticle, 
 				       mparticle, Gcode, GENum);
