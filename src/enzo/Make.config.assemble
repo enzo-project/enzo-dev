@@ -974,6 +974,37 @@
     endif
 
 
+#-----------------------------------------------------------------------
+# DETERMINE UUID SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_UUID = 1
+
+    # Settings to turn on uuid functionality
+
+    ifeq ($(CONFIG_UUID),yes)
+        ERROR_UUID = 0
+        ASSEMBLE_UUID_DEFINES = -DUSE_UUID
+        OBJS_UUID = $(POBJS_UUID)
+    endif
+
+    # Settings to turn off uuid functionality
+
+    ifeq ($(CONFIG_UUID),no)
+        ERROR_UUID = 0
+        ASSEMBLE_UUID_DEFINES =
+        OBJS_UUID =
+    endif
+
+    # error if CONFIG_UUID is incorrect
+
+    ifeq ($(ERROR_UUID),1)
+       .PHONY: error_uuid
+       error_uuid:
+	$(error Illegal value '$(CONFIG_UUID)' for $$(CONFIG_UUID))
+    endif
+
+
 #=======================================================================
 # ASSIGN ALL OUTPUT VARIABLES
 #=======================================================================
@@ -1031,6 +1062,7 @@
               $(ASSEMBLE_ENZO_PERFORMANCE_DEFINES) \
               $(ASSEMBLE_GRACKLE_DEFINES) \
               $(ASSEMBLE_LOG2ALLOC_DEFINES) \
+              $(ASSEMBLE_UUID_DEFINES) \
               $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES)
 
 
@@ -1049,7 +1081,8 @@
     	       $(OBJS_LCAPERF_LIB) \
 	       $(OBJS_HYDRO_RK) \
 	       $(OBJS_ECUDA_LIB) \
-	       $(OBJS_PYTHON) 
+	       $(OBJS_PYTHON) \
+               $(OBJS_UUID)
 
     LIBS = $(MACH_LIBS) \
            $(ASSEMBLE_MPI_LIBS) \
