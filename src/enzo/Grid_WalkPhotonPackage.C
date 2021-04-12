@@ -108,6 +108,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT ddr, dP, dP1, dp2,EndTime;
   FLOAT dPi[H_SPECIES + 1], dPXray[H_SPECIES + 1];  //+ 1 is to account for Compton
   FLOAT dPiZ[Z_SPECIES];
+  FLOAT dPHDI, dPCO, dPOH, dPH2O;
   FLOAT thisDensity, min_dr;
   FLOAT thisDensityHDI, thisDensityCO, thisDensityOH, thisDensityH2O;
   FLOAT ce[3], nce[3];
@@ -709,6 +710,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       }
       //Use either shielding due to Draine & Bertoldi (1996) or Wolcott-Green et al. (2011)
       if(RadiativeTransferUseH2Shielding) { 
+//      printf("RT H2 THICK\n");
         if (DEBUG && MyProcessorNumber == ROOT_PROCESSOR)
           printf("%13.5e "
             , sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2])*LengthUnits);
@@ -729,6 +731,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
             , BaryonField[kdissH2INum][index], 0.0);
       }
       else { //Calculate the dissociation rate based on the cross section
+//      printf("RT H2 THIN\n");
 	dN = thisDensity * ddr;
 	tau = dN*sigma[LW];  //[dimensionless]
 
@@ -740,6 +743,60 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	
 	(*PP)->ColumnDensity += dN * LengthUnits; //update Column Density
 
+        if(MultiSpecies > 2) {
+          /* HDI */
+	  dN = thisDensityHDI * ddr;
+	  tau = dN*sigma[HDIdiss];  //[dimensionless]
+          
+	  if(FAIL == RadiativeTransferLW(PP, dPHDI, index, tau, factor1, 
+	  			       slice_factor2, kdissHDINum)) {
+	    fprintf(stderr, "Failed to calculate the LW radiation (HDI)");
+	    return FAIL;
+	  }
+	 
+	  (*PP)->ColumnDensityHDI += dN * LengthUnits; //update Column Density
+          dP += dPHDI;
+        }
+        if(MetalChemistry) {
+          /* CO */
+	  dN = thisDensityCO * ddr;
+	  tau = dN*sigmaM[COdiss];  //[dimensionless]
+          
+	  if(FAIL == RadiativeTransferLW(PP, dPCO, index, tau, factor1, 
+	  			       slice_factor2, kdissCONum)) {
+	    fprintf(stderr, "Failed to calculate the LW radiation (CO)");
+	    return FAIL;
+	  }
+	 
+	  (*PP)->ColumnDensityCO += dN * LengthUnits; //update Column Density
+          dP += dPCO;
+
+          /* OH */
+	  dN = thisDensityOH * ddr;
+	  tau = dN*sigmaM[OHdiss];  //[dimensionless]
+          
+	  if(FAIL == RadiativeTransferLW(PP, dPOH, index, tau, factor1, 
+	  			       slice_factor2, kdissOHNum)) {
+	    fprintf(stderr, "Failed to calculate the LW radiation (OH)");
+	    return FAIL;
+	  }
+	 
+	  (*PP)->ColumnDensityOH += dN * LengthUnits; //update Column Density
+          dP += dPOH;
+
+          /* H2O */
+	  dN = thisDensityH2O * ddr;
+	  tau = dN*sigmaM[H2Odiss];  //[dimensionless]
+          
+	  if(FAIL == RadiativeTransferLW(PP, dPH2O, index, tau, factor1, 
+	  			       slice_factor2, kdissH2ONum)) {
+	    fprintf(stderr, "Failed to calculate the LW radiation (H2O)");
+	    return FAIL;
+	  }
+	 
+	  (*PP)->ColumnDensityH2O += dN * LengthUnits; //update Column Density
+          dP += dPH2O;
+        }
       }
 
 

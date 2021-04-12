@@ -264,6 +264,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
     grackle_data->radiative_transfer_HDI_diss            = (Eint32) RadiativeTransferHDIDiss;
     grackle_data->radiative_transfer_metal_ion           = (Eint32) RadiativeTransferMetalIon;
     grackle_data->radiative_transfer_metal_diss          = (Eint32) RadiativeTransferMetalDiss;
+    grackle_data->radiative_transfer_use_H2_shielding    = (Eint32) RadiativeTransferUseH2Shielding;
   }
 #endif // USE_GRACKLE
 

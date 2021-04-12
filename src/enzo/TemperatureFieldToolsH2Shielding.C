@@ -30,7 +30,7 @@ int grid::InitializeTemperatureFieldForH2Shield()
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  if (RadiativeTransferH2ShieldType != 1)
+  if(RadiativeTransferH2ShieldType != 1 && !(ProblemType == 50 && RadiativeTransferUseH2Shielding))
     return SUCCESS;
 
   int TemperatureField, size = 1;
@@ -62,7 +62,7 @@ int grid::FinalizeTemperatureFieldForH2Shield()
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  if (RadiativeTransferH2ShieldType != 1)
+  if(RadiativeTransferH2ShieldType != 1 && !(ProblemType == 50 && RadiativeTransferUseH2Shielding))
     return SUCCESS;
 
   int TemperatureField;

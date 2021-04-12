@@ -30,6 +30,11 @@
 #rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/RadiationTransport/PhotonTest_S06_H2sf1/
 #rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/RadiationTransport/PhotonTest_n6/
 
+#rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/RadiationTransport/PhotonTest_S06_Z-4_RT0_SS1/
+#rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/RadiationTransport/PhotonTest_S06_Z-4_RT1_SS1/
+#rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/RadiationTransport/PhotonTest_S06_Z-4_RT1_SS1_periodic/
+#rsync -truv enzo.exe /home/genchiaki/scratch/enzo-dev/run/RadiationTransport/PhotonTest_S06_Z-4_RT1_SS3/
+
 #rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/Hydro/Hydro-3D/CollapseTest_sf/
 #rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/Hydro/Hydro-3D/CollapseTest_sf_metal/
 
@@ -37,4 +42,7 @@
 
 #rsync -truv enzo.exe /storage/home/hhive1/gchiaki3/scratch/enzo-dev/run/Hydro/Hydro-3D/CollapseTest_sf/
 
- rsync -truv enzo.exe /home/gen/scratch/enzo-dev/run/RadiationTransport/PhotonTest_S06_Z-4/
+ rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/CosmologySimulation/test512/test512-L2/
+#rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/CosmologySimulation/test512/test512-L2_RT1_SS1/
+#rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/CosmologySimulation/test512/test512-L2_1stP3_TestB/
+#rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/CosmologySimulation/test512/test512-L2_1stP3_TestC/
