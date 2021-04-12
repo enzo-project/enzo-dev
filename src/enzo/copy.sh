@@ -42,7 +42,9 @@
 
 #rsync -truv enzo.exe /storage/home/hhive1/gchiaki3/scratch/enzo-dev/run/Hydro/Hydro-3D/CollapseTest_sf/
 
- rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/CosmologySimulation/test512/test512-L2/
+#rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/CosmologySimulation/test512/test512-L2/
 #rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/CosmologySimulation/test512/test512-L2_RT1_SS1/
 #rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/CosmologySimulation/test512/test512-L2_1stP3_TestB/
 #rsync -truv enzo.exe /scratch1/05562/tg848620/enzo-dev/run/CosmologySimulation/test512/test512-L2_1stP3_TestC/
+
+ rsync -truv enzo.exe /home/gen/scratch/enzo-dev/run/RadiationTransport/PhotonTestAMR_SMBH/

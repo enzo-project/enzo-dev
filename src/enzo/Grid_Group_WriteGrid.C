@@ -116,6 +116,20 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
   float *temperature, *dust_temperature,
     *cooling_time;
+  float *SiM_temperature    ;
+  float *FeM_temperature    ;
+  float *Mg2SiO4_temperature;
+  float *MgSiO3_temperature ;
+  float *Fe3O4_temperature  ;
+  float *AC_temperature     ;
+  float *SiO2D_temperature  ;
+  float *MgO_temperature    ;
+  float *FeS_temperature    ;
+  float *Al2O3_temperature  ;
+  float *reforg_temperature ;
+  float *volorg_temperature ;
+  float *H2Oice_temperature ;
+ 
 
 #ifdef IO_64
 #define io_type float64
@@ -599,9 +613,36 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       /* Allocate field and compute dust temperature. */
  
       dust_temperature = new float[size];
+      SiM_temperature     = new float[size];
+      FeM_temperature     = new float[size];
+      Mg2SiO4_temperature = new float[size];
+      MgSiO3_temperature  = new float[size];
+      Fe3O4_temperature   = new float[size];
+      AC_temperature      = new float[size];
+      SiO2D_temperature   = new float[size];
+      MgO_temperature     = new float[size];
+      FeS_temperature     = new float[size];
+      Al2O3_temperature   = new float[size];
+      reforg_temperature  = new float[size];
+      volorg_temperature  = new float[size];
+      H2Oice_temperature  = new float[size];
  
       if (this->ComputeDustTemperatureField(temperature, 
-					    dust_temperature) == FAIL) {
+					    dust_temperature
+                                          , SiM_temperature    
+                                          , FeM_temperature    
+                                          , Mg2SiO4_temperature
+                                          , MgSiO3_temperature 
+                                          , Fe3O4_temperature  
+                                          , AC_temperature     
+                                          , SiO2D_temperature  
+                                          , MgO_temperature    
+                                          , FeS_temperature    
+                                          , Al2O3_temperature  
+                                          , reforg_temperature 
+                                          , volorg_temperature 
+                                          , H2Oice_temperature 
+                                           ) == FAIL) {
 	ENZO_FAIL("Error in grid->ComputeDustTemperatureField.\n");
       }
  
@@ -650,10 +691,113 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
+      /* MgSiO3 */
+ 
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
+	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
+	    temp[(i-GridStartIndex[0])                           +
+	         (j-GridStartIndex[1])*ActiveDim[0]              +
+	         (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+		     io_type(
+		   MgSiO3_temperature[(k*GridDimension[1] + j)*GridDimension[0] + i]
+			     );
+ 
+ 
+      file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+        if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+        if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = MgSiO3_Temperature\n");
+ 
+      dset_id = H5Dcreate(group_id, "MgSiO3_Temperature", file_type_id, file_dsp_id, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if ( DataUnits[field] == NULL )
+      {
+        DataUnits[field] = "none";
+      }
+ 
+      WriteStringAttr(dset_id, "Label", "MgSiO3_Temperature", log_fptr);
+      WriteStringAttr(dset_id, "Units", "K", log_fptr);
+      WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+      WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+ 
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+        if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Sclose(file_dsp_id);
+        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Dclose(dset_id);
+        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      /* AC */
+ 
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
+	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
+	    temp[(i-GridStartIndex[0])                           +
+	         (j-GridStartIndex[1])*ActiveDim[0]              +
+	         (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+		     io_type(
+		   AC_temperature[(k*GridDimension[1] + j)*GridDimension[0] + i]
+			     );
+ 
+ 
+      file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+        if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+        if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = AC_Temperature\n");
+ 
+      dset_id = H5Dcreate(group_id, "AC_Temperature", file_type_id, file_dsp_id, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if ( DataUnits[field] == NULL )
+      {
+        DataUnits[field] = "none";
+      }
+ 
+      WriteStringAttr(dset_id, "Label", "AC_Temperature", log_fptr);
+      WriteStringAttr(dset_id, "Units", "K", log_fptr);
+      WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+      WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+ 
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+        if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Sclose(file_dsp_id);
+        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Dclose(dset_id);
+        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
       if (!OutputTemperature) {
 	delete [] temperature;
       }
       delete [] dust_temperature;
+      delete [] SiM_temperature    ;
+      delete [] FeM_temperature    ;
+      delete [] Mg2SiO4_temperature;
+      delete [] MgSiO3_temperature ;
+      delete [] Fe3O4_temperature  ;
+      delete [] AC_temperature     ;
+      delete [] SiO2D_temperature  ;
+      delete [] MgO_temperature    ;
+      delete [] FeS_temperature    ;
+      delete [] Al2O3_temperature  ;
+      delete [] reforg_temperature ;
+      delete [] volorg_temperature ;
+      delete [] H2Oice_temperature ;
     
     } // end: if (OutputDustTemperature)
 

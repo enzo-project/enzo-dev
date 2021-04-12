@@ -595,7 +595,20 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the dust temperature. */
 
-   int ComputeDustTemperatureField(float *temperature, float *dust_temperature);
+   int ComputeDustTemperatureField(float *temperature, float *dust_temperature
+                            , float *SiM_temperature    
+                            , float *FeM_temperature    
+                            , float *Mg2SiO4_temperature
+                            , float *MgSiO3_temperature 
+                            , float *Fe3O4_temperature  
+                            , float *AC_temperature     
+                            , float *SiO2D_temperature  
+                            , float *MgO_temperature    
+                            , float *FeS_temperature    
+                            , float *Al2O3_temperature  
+                            , float *reforg_temperature 
+                            , float *volorg_temperature 
+                            , float *H2Oice_temperature );
 
 /* Baryons: compute X-ray emissivity in specified band. */
 
