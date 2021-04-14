@@ -124,8 +124,6 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     //    FieldType[NumberOfBaryonFields++] = AccelerationField3;
   }
 
-  FieldType[NumberOfBaryonFields++] = DebugField;
-
   /* Return if this doesn't concern us. */
 
   if (ProcessorNumber != MyProcessorNumber) {
