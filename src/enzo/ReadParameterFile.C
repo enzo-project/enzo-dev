@@ -1345,6 +1345,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
     ret += sscanf(line, "ActiveParticleDensityThreshold = %"FSYM,
 		  &ActiveParticleDensityThreshold);
+    ret += sscanf(line, "SmartStarAccretion    = %"ISYM, &SmartStarAccretion);
     ret += sscanf(line, "SmartStarFeedback     = %"ISYM, &SmartStarFeedback);
     ret += sscanf(line, "SmartStarEddingtonCap = %"ISYM, &SmartStarEddingtonCap);
     ret += sscanf(line, "SmartStarBHFeedback = %"ISYM, &SmartStarBHFeedback);
@@ -2053,11 +2054,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);
   }
 
+#ifdef USE_UUID
   /* Generate unique identifier if one wasn't found. */
   if(MetaData.SimulationUUID == NULL){
     MetaData.SimulationUUID = new char[MAX_LINE_LENGTH];
     get_uuid(MetaData.SimulationUUID);
   }
+#endif
 
    for (int i=0; i<MetaData.TopGridRank;i++)
     TopGridDx[i]=(DomainRightEdge[i]-DomainLeftEdge[i])/MetaData.TopGridDims[i];
