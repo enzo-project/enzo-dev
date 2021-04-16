@@ -242,6 +242,8 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
 {
   int dim;
   double ratio1, ratio2;
+  if((Mass == 0.0) || (a->Mass == 0.0))
+    return;  
   ratio1 =  (max(Mass, 1e-10)) / (max(1e-10,Mass) + max(1e-10, a->Mass));
   ratio2 = 1.0 - ratio1;
 

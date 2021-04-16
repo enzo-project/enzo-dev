@@ -241,11 +241,9 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
 	   &TimeUnits, &VelocityUnits, Time);
   /* Construct list of sink particle positions to pass to Foflist */
   FLOAT ParticleCoordinates[3*(*nParticles)];
+  /* Particles merge once they come within 1 accretion radii of one another */
 
-  fflush(stdout);
-  /* Particles merge once they come within 2 accretion radii of one another */
-
-  FLOAT MergingRadius = 2.0*LevelArray[ThisLevel]->GridData->GetCellWidth(0,0)*ACCRETIONRADIUS; 
+  FLOAT MergingRadius = 1.5*(LevelArray[ThisLevel]->GridData->GetCellWidth(0,0))*ACCRETIONRADIUS; 
 
   for (i=0; i<(*nParticles); i++) {
     tempPos = ParticleList[i]->ReturnPosition();
@@ -365,7 +363,6 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 
       /* Calculate CellWidth on maximum refinement level */
 
-      // This assumes a cubic box and may not work for simulations with MinimumMassForRefinementLevelExponent
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(MaximumRefinementLevel)));
 
@@ -384,12 +381,11 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 	  nParticles--;
 	}
       }
-      /* TEST THIS IS CORRECT*/
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
       			    ParticleList);
-      //if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
-      //				       LevelArray) == FAIL)
-      //return FAIL;
+      if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
+      				       LevelArray) == FAIL)
+	return FAIL;
       if (debug)
 	printf("Number of particles before merging: %"ISYM"\n",nParticles);
       /* Do Merging   */

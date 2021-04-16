@@ -12,9 +12,8 @@ Mu = 3.0
 CENTRE = [0.5, 0.5, 0.5]
 #CENTRE = [0.50231934,  0.49035645,  0.49865723]
 AccretionRadius = 4
-BASE = "/home/regan/data/SourceCodes/Enzo-RT/enzo-3.0-rt/run/Hydro/Hydro-3D/BurkertBodenheimerActiveParticles/GravPotential/"
 BASE = "./GravPotential/"
-fns = glob.glob(BASE + "DD002?/DD????.hierarchy")
+fns = glob.glob(BASE + "DD014?/DD????.hierarchy")
 fns.sort()
 #print fns
 WIDTH = 8000
