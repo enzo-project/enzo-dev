@@ -248,7 +248,7 @@ typedef long long int   HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_BFLOAT_8
-#define BFLOAT_EPSILON 1e-12f
+#define BFLOAT_EPSILON 1e-12
 #define Eflt double
 #define FSYM "lf"
 #define ESYM "le"
@@ -282,7 +282,7 @@ typedef long long int   HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_8
-#define PFLOAT_EPSILON 1e-12f
+#define PFLOAT_EPSILON 1e-12
 #define FLOAT double
 #define PEXP exp
 #define PSYM "lf"
@@ -299,7 +299,7 @@ typedef long long int   HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_16
-#define PFLOAT_EPSILON 1e-16f
+#define PFLOAT_EPSILON 1e-16L
 #define FLOAT long_double
 #define PEXP expl
 #define PSYM "Lf"
