@@ -23,7 +23,10 @@
 #define COOLING_TIME       0
 #define NUMSSPARTICLETYPES 4
 #define JEANS_FACTOR       2
+#define STELLAR_ACCRETION_OFF 1  // SG. Turns off accretion for SMS and POPIII if =1.
+#define HW_BH_MASS 1   // SG. BH forms with mass according to Heger-Woosley 2002 relation.
 int DetermineSEDParameters(ActiveParticleType_SmartStar *SS,FLOAT Time, FLOAT dx);
+float CalculatePopIIILifetime(float Mass);
 
 /* We need to make sure that we can operate on the grid, so this dance is
  * necessary to make sure that grid is 'friend' to this particle type. */
@@ -492,8 +495,8 @@ int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
 						   ActiveParticleFormationData &data)
 {
 
-  /* Feedback not handled here */
-  return SUCCESS; 
+  /* Feedback not handled here - see Grid_ApplySmartStarParticleFeedback.C */ 
+  return SUCCESS; // function not enabled.
   
   SmartStarGrid *thisGrid =
     static_cast<SmartStarGrid *>(thisgrid_orig);
@@ -587,6 +590,22 @@ int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
 	  fflush(stdout);
 	  //code energy (specific units)
 	  //sn_nrg_thistimestep /= (TimeUnits*LumConvert*ThisParticle->Mass; //specific energy
+	  sn_nrg_thistimestep /= (TimeUnits*LumConvert*StarMass*SolarMass);
+	}
+#endif
+#if HW_BH_MASS
+	/* Based on the stellar mass, calculate the BH remnant mass.
+       Fitted from Heger & Woosley (2002) */
+	if(POPIII == ThisParticle->ParticleClass) {
+	  // Make mass of SS = He core mass. Will switch to BH particle type after this #if.
+	  float he_core = (13.0/24.0) * (StarMass - 20.0); //msun
+	  StarMass = he_core; //msun
+	  ThisParticle->Mass = StarMass*SolarMass/MassConversion; //code density
+	  // Energy of SN
+	  sn_nrg_thistimestep = (5.0 + 1.304 * (he_core - 64.0)) * 1e51; //ergs
+	  printf("%s: Supernova Energy = %e [ergs]\n", __FUNCTION__, sn_nrg_thistimestep);
+	  fflush(stdout);
+	  //code energy (specific units) - to add to energy field.
 	  sn_nrg_thistimestep /= (TimeUnits*LumConvert*StarMass*SolarMass);
 	}
 #endif
@@ -1108,7 +1127,14 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	 */
 	
 	if(POPIII == SS->ParticleClass) {
-	  SS->AssignMassFromIMF();
+		if (PopIIIInitialMassFunction){
+			SS->AssignMassFromIMF();
+		}else{
+			SS->Mass = PopIIIStarMass;
+		}
+	  // SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
+	  // SS->RadiationLifetime*= yr_s/TimeUnits;
+	  SS->RadiationLifetime =  1e5*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 	  SS->StellarAge = SS->RadiationLifetime;
 	  SphereTooSmall = MassEnclosed < (2*SS->Mass);
 	  // to make the total mass PopIIIStarMass
@@ -1285,6 +1311,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 
   if (ThisLevel < MaximumRefinementLevel)
     return SUCCESS;
+
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -1336,6 +1363,12 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
     FLOAT dx_pc = dx*LengthUnits/pc_cm;   //in pc
     float Stellar_Age = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->StellarAge;
     float p_age = ctime - static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->BirthTime;
+
+#if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
+	  if ((pclass == POPIII) || (pclass == SMS )) 
+	continue;
+#endif
+
     if(pclass == POPIII) {
       /* 
        * We only accrete onto POPIII stars if our maximum 
@@ -1675,6 +1708,7 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
 							   LevelHierarchyEntry *LevelArray[],
 							   int ThisLevel)
 {
+
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -1690,6 +1724,9 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
       if(POPIII == SS->ParticleClass) {
+	#if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
+		return SUCCESS;
+    #endif   
 	double StellarMass = SS->Mass*MassConversion; //Msolar
 	float logm = log10((float)StellarMass);
 	// First in years, then convert to code units

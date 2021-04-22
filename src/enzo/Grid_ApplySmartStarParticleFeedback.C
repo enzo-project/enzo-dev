@@ -40,6 +40,7 @@
 #define IMPOSETHRESHOLD 1
 #define THRESHOLDFRACTION 1   //Solarmasses ejected per jet event
 #define OPENING_ANGLE pi/360.0  //pi/3.9
+#define HW_BH_MASS 1   // SG. Heger-Woosley mass used for BH remanant for POPIII particles.
 
 int search_lower_bound(float *arr, float value, int low, int high, 
 		       int total);
@@ -124,6 +125,9 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
   float ionizedFraction = 0.999;  // Assume supernova is ionized
   FLOAT Time = this->ReturnTime();
   float Age = Time - SS->BirthTime;
+
+
+
   /* 
    * SMS don't go supernova they just directly collapse into BHs (of the same mass)
    */
@@ -178,11 +182,12 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 					   EjectaMetalDensity);
 	printf("%s: PISN Feedback completed. Delete particle\n", __FUNCTION__);
       } 
-      else if (StellarMass >= TypeIILowerMass && StellarMass <= TypeIIUpperMass) { 
+      else if (StellarMass >= TypeIILowerMass && StellarMass <= TypeIIUpperMass) {  // 11 <= M <= 40.1
 	  if (StellarMass < 20.0) { // Normal Type II
 	    SNEnergy = 1e51;
 	    MetalMass = 0.1077 + 0.3383 * (StellarMass - 11.0);  // Fit to Nomoto+06
-	  } else { // Hypernova (should we add the "failed" SNe?)
+	  } else { // Hypernova or Core-Collapse depending on flag (should we add the "failed" SNe?)
+		// SN explosion
 	    int bin = search_lower_bound((float*)SNExplosionMass, StellarMass, 0, 5, 5);
 	    float frac = (SNExplosionMass[bin+1] - StellarMass) / 
 	      (SNExplosionMass[bin+1] - SNExplosionMass[bin]);
@@ -190,7 +195,10 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 			       frac * (SNExplosionEnergy[bin+1] - SNExplosionEnergy[bin]));
 	    MetalMass = (SNExplosionMetals[bin] + 
 			 frac * (SNExplosionMetals[bin+1] - SNExplosionMetals[bin]));
-	  
+		// Heger-Woosley (2002) relation for BHMass
+	    HeliumCoreMass = (13./24.) * (StellarMass - 20);
+		StellarMass = HeliumCoreMass; //msun
+	    SS->Mass = StellarMass*SolarMass/MassConversion; //code density
 	  }
 	  SS->ParticleClass = BH;
 	  SS->StellarAge = SS->RadiationLifetime; //Record last stellar age
@@ -205,14 +213,17 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 					   EjectaMetalDensity);
 	}
 	else {//DCBH
-	  SS->ParticleClass = BH;
+	  // Heger-Woosley (2002) relation for BHMass
+	  HeliumCoreMass = (13./24.) * (StellarMass - 20);
+	  StellarMass = HeliumCoreMass; //msun
+	  SS->Mass = StellarMass*SolarMass/MassConversion; //code density
+	  SS->ParticleClass = BH; // Particle class change
 	  SS->StellarAge = SS->RadiationLifetime; //Record last stellar age
 	  SS->RadiationLifetime = 1e20;
 	  printf("%s: DCBH Created: ParticleClass now %d\t Stellar Age = %f Myr\t "\
 		 "Lifetime = %f Myr\n", __FUNCTION__,
 		 SS->ParticleClass, SS->StellarAge*TimeUnits/Myr_s,
 		 SS->RadiationLifetime*TimeUnits/Myr_s);
-	  
 	}
       }
       return SUCCESS;
