@@ -128,6 +128,10 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   if (data.level != MaximumRefinementLevel)
     return SUCCESS;
 
+	// // 1. Finest level of refinement - see a few lines down 
+	// if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+	//   continue;
+
   SmartStarGrid *thisGrid =
     static_cast<SmartStarGrid *>(thisgrid_orig);
 
@@ -166,6 +170,17 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   FLOAT dx_pc = dx*data.LengthUnits/pc_cm;   //in pc
   
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
+
+// SG. Check we're on the maximum LOCAL refinement level from the get-go. 
+  for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+    for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+      for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
+	index = GRIDINDEX_NOGHOST(i, j, k);
+	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+	  continue;
+	  }
+	}
+  }
 
   // determine refinement criteria
   for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
@@ -836,8 +851,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
      only in pathological cases where sink creation is happening at
      the edges of two regions at the maximum refinement level */
 
-  if (ThisLevel < MaximumRefinementLevel)
-    return SUCCESS;
+//   if (ThisLevel < MaximumRefinementLevel)
+//     return SUCCESS;
+
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -848,6 +864,24 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
   float tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
 
+  // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+  int i,j,index;
+  for (int i = 0; i < nParticles; i++) {
+	int k;
+    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+	int GridDimension[3] = {thisGrid->GridDimension[0],
+                          thisGrid->GridDimension[1],
+                          thisGrid->GridDimension[2]};
+  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
+		index = GRIDINDEX_NOGHOST(i, j, k);
+		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+		  continue;
+	  	}
+	}
+  }
+  }
   /*
    * Order particles in order of SMS, PopIII, PopII
    * SMS first since they have the highest accretion rates and hence 
@@ -1309,8 +1343,27 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
      only in pathological cases where sink creation is happening at
      the edges of two regions at the maximum refinement level */
 
-  if (ThisLevel < MaximumRefinementLevel)
-    return SUCCESS;
+//   if (ThisLevel < MaximumRefinementLevel)
+//     return SUCCESS;
+
+  // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+  int i,j,index;
+  for (int i = 0; i < nParticles; i++) {
+	int k;
+    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+	int GridDimension[3] = {thisGrid->GridDimension[0],
+                          thisGrid->GridDimension[1],
+                          thisGrid->GridDimension[2]};
+  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
+		index = GRIDINDEX_NOGHOST(i, j, k);
+		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+		  continue;
+	  	}
+	}
+  }
+  }
 
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
@@ -1324,7 +1377,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
      if the grid overlaps with the accretion zone     
   */
   
-  int i, NumberOfGrids;
+  int NumberOfGrids;
   int *FeedbackRadius = NULL;
   HierarchyEntry **Grids = NULL;
   grid *sinkGrid = NULL;
@@ -1486,20 +1539,38 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
      only in pathological cases where creation is happening at 
      the edges of two regions at the maximum refinement level */
 
-  if (ThisLevel < MaximumRefinementLevel || SmartStarFeedback == FALSE)
-    return SUCCESS;
+//   if (ThisLevel < MaximumRefinementLevel || SmartStarFeedback == FALSE)
+//     return SUCCESS;
+// SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+  int i,j,index;
+  for (int i = 0; i < nParticles; i++) {
+	int k;
+    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+	int GridDimension[3] = {thisGrid->GridDimension[0],
+                          thisGrid->GridDimension[1],
+                          thisGrid->GridDimension[2]};
+  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
+		index = GRIDINDEX_NOGHOST(i, j, k);
+		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+		  continue;
+	  	}
+	}
+  }
+  }
 
   /* For each particle, loop over all of the grids and do feedback 
      if the grid overlaps with the feedback zone                   */
   
-  int i, NumberOfGrids;
+  int NumberOfGrids;
   HierarchyEntry **Grids = NULL;
   
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
   
  
   
-  for (i = 0; i < nParticles; i++) {
+  for (int i = 0; i < nParticles; i++) {
     FLOAT AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
