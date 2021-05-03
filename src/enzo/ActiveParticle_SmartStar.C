@@ -125,8 +125,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 (grid *thisgrid_orig, ActiveParticleFormationData &data)
 {
    // No need to do the rest if we're not on the maximum refinement level.
-  if (data.level != MaximumRefinementLevel)
-    return SUCCESS;
+//   if (data.level != MaximumRefinementLevel)
+//     return SUCCESS;
 
 	// // 1. Finest level of refinement - see a few lines down 
 	// if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
@@ -171,14 +171,14 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
-// // SG. Check we're on the maximum LOCAL refinement level from the get-go. 
-//   for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-//     for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-// 	  index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
-//       for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
-// 	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0)
+// SG. Check we're on the maximum LOCAL refinement level from the get-go. 
+  for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+    for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+	  index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
+      for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
+	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0)
 	
-// 	  continue;
+	  continue;
 	
 
   // determine refinement criteria
@@ -207,8 +207,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	if (data.NumberOfNewParticles >= data.MaxNumberOfNewParticles)
 	  return FAIL;
 	// 1. Check we're on the maximum refinement level - already done at start of function
-	// // SG. Check we're on the maximum LOCAL refinement level from the get-go. 
-	// if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+	// SG. Check we're on the maximum LOCAL refinement level from the get-go. 
+	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
 	  continue;
 	  
 	// 2. Does this cell violate the Jeans condition or overdensity threshold
@@ -492,7 +492,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
       } // i
     } // j
   } // k
-   
+    } // ENDFOR i
+	} // ENDFOR j
+  } // ENDFOR k
   if(data.NumberOfNewParticles > 0) {
     printf("Particles (%d) Created and done in %s\n", data.NumberOfNewParticles, __FUNCTION__);
   }
@@ -854,8 +856,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
      only in pathological cases where sink creation is happening at
      the edges of two regions at the maximum refinement level */
 
-  if (ThisLevel < MaximumRefinementLevel)
-    return SUCCESS;
+//   if (ThisLevel < MaximumRefinementLevel)
+//     return SUCCESS;
 
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
@@ -867,24 +869,24 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
   float tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
 
-//   // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-//   int i,j,index;
-//   for (int i = 0; i < nParticles; i++) {
-// 	int k;
-//     grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-// 	int GridDimension[3] = {thisGrid->GridDimension[0],
-//                           thisGrid->GridDimension[1],
-//                           thisGrid->GridDimension[2]};
-//   	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-//     	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-//       		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
-// 		index = GRIDINDEX_NOGHOST(i, j, k);
-// 		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
-// 		  continue;
-// 	  	}
-// 	}
-//   }
-//   }
+  // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+  int i,j,index;
+  for (int i = 0; i < nParticles; i++) {
+	int k;
+    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+	int GridDimension[3] = {thisGrid->GridDimension[0],
+                          thisGrid->GridDimension[1],
+                          thisGrid->GridDimension[2]};
+  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
+		index = GRIDINDEX_NOGHOST(i, j, k);
+		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+		  continue;
+	  	}
+	}
+  }
+  }
   /*
    * Order particles in order of SMS, PopIII, PopII
    * SMS first since they have the highest accretion rates and hence 
@@ -1169,9 +1171,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 		}else{
 			SS->Mass = PopIIIStarMass;
 		}
-	  SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
-	  SS->RadiationLifetime*= yr_s/TimeUnits;
-	  // SS->RadiationLifetime =  1e5*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
+	  // SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
+	  // SS->RadiationLifetime*= yr_s/TimeUnits;
+	  SS->RadiationLifetime =  1e5*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 	  SS->StellarAge = SS->RadiationLifetime;
 	  SphereTooSmall = MassEnclosed < (2*SS->Mass);
 	  // to make the total mass PopIIIStarMass
@@ -1346,27 +1348,27 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
      only in pathological cases where sink creation is happening at
      the edges of two regions at the maximum refinement level */
 
-  if (ThisLevel < MaximumRefinementLevel)
-    return SUCCESS;
+//   if (ThisLevel < MaximumRefinementLevel)
+//     return SUCCESS;
 
-//   // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-//   int i,j,index;
-//   for (int i = 0; i < nParticles; i++) {
-// 	int k;
-//     grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-// 	int GridDimension[3] = {thisGrid->GridDimension[0],
-//                           thisGrid->GridDimension[1],
-//                           thisGrid->GridDimension[2]};
-//   	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-//     	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-//       		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
-// 		index = GRIDINDEX_NOGHOST(i, j, k);
-// 		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
-// 		  continue;
-// 	  	}
-// 	}
-//   }
-//   }
+  // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+  int i,j,index;
+  for (int i = 0; i < nParticles; i++) {
+	int k;
+    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+	int GridDimension[3] = {thisGrid->GridDimension[0],
+                          thisGrid->GridDimension[1],
+                          thisGrid->GridDimension[2]};
+  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
+		index = GRIDINDEX_NOGHOST(i, j, k);
+		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+		  continue;
+	  	}
+	}
+  }
+  }
 
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
@@ -1401,7 +1403,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
    * period
    */
   float TimeDelay = 1e5*yr_s/TimeUnits; //set to 100 kyr
-  for (int i = 0; i < nParticles; i++) {
+  for (i = 0; i < nParticles; i++) {
    
 
     /* 
@@ -1542,26 +1544,26 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
      only in pathological cases where creation is happening at 
      the edges of two regions at the maximum refinement level */
 
-  if (ThisLevel < MaximumRefinementLevel || SmartStarFeedback == FALSE)
-    return SUCCESS;
+//   if (ThisLevel < MaximumRefinementLevel || SmartStarFeedback == FALSE)
+//     return SUCCESS;
 // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-//   int i,j,index;
-//   for (int i = 0; i < nParticles; i++) {
-// 	int k;
-//     grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-// 	int GridDimension[3] = {thisGrid->GridDimension[0],
-//                           thisGrid->GridDimension[1],
-//                           thisGrid->GridDimension[2]};
-//   	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-//     	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-//       		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
-// 		index = GRIDINDEX_NOGHOST(i, j, k);
-// 		if ((thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) || SmartStarFeedback == FALSE)
-// 		  continue;
-// 	  	}
-// 	}
-//   }
-//   }
+  int i,j,index;
+  for (int i = 0; i < nParticles; i++) {
+	int k;
+    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+	int GridDimension[3] = {thisGrid->GridDimension[0],
+                          thisGrid->GridDimension[1],
+                          thisGrid->GridDimension[2]};
+  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
+		index = GRIDINDEX_NOGHOST(i, j, k);
+		if ((thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) || SmartStarFeedback == FALSE)
+		  continue;
+	  	}
+	}
+  }
+  }
 
   /* For each particle, loop over all of the grids and do feedback 
      if the grid overlaps with the feedback zone                   */
