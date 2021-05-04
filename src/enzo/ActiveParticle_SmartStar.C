@@ -463,7 +463,12 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  np->Metallicity = 0.0;
 
 	np->TimeIndex = 0; //Start at 0 - we'll increment at the start of the update function.
-	np->AccretionRadius = dx*ACCRETIONRADIUS;
+	
+	if (np->ParticleClass == POPIII){
+		np->AccretionRadius = 0;
+	}else{
+		np->AccretionRadius = dx*ACCRETIONRADIUS;
+	}
 	for(int acc = 1; acc < NTIMES; acc++) {
 	  np->AccretionRate[acc] = -11111.0;
 	  np->AccretionRateTime[acc] = -11111.0;
@@ -869,24 +874,26 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
   float tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
 
-  // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-  int i,j,index;
-  for (int i = 0; i < nParticles; i++) {
-	int k;
-    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-	int GridDimension[3] = {thisGrid->GridDimension[0],
-                          thisGrid->GridDimension[1],
-                          thisGrid->GridDimension[2]};
-  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
-		index = GRIDINDEX_NOGHOST(i, j, k);
-		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
-		  continue;
-	  	}
-	}
-  }
-  }
+//   // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+//   int i,j,index;
+//   for (int i = 0; i < nParticles; i++) {
+// 	int k;
+//     grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+// 	int GridDimension[3] = {thisGrid->GridDimension[0],
+//                           thisGrid->GridDimension[1],
+//                           thisGrid->GridDimension[2]};
+// 	// SG. Check we're on the maximum LOCAL refinement level from the get-go. 
+//   	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+//     	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+// 	  	index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
+//       	for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
+// 	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0)
+	
+// 	  continue;
+// 	  	}
+// 	}
+//   }
+//   }
   /*
    * Order particles in order of SMS, PopIII, PopII
    * SMS first since they have the highest accretion rates and hence 
@@ -1520,6 +1527,10 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
       SmartStarList);
 
   for (i=0 ; i<nParticles; i++){
+	int pclass = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->ParticleClass;
+	 if (pclass == POPIII) {
+      continue;
+    }
     pos = SmartStarList[i]->ReturnPosition();
     FLOAT accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
