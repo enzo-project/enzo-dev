@@ -40,9 +40,14 @@ int ActiveParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int level, int NumberOfNewActiveParticles[])
 {
+  printf("ActiveParticleFinalize\n"); fflush(stdout); // SG. This function is called in EvolveLevel. 
   int i;
 
-  if (EnabledActiveParticlesCount == 0) return SUCCESS;
+
+  if (EnabledActiveParticlesCount == 0) { // SG. Print more here.
+    printf("ActiveParticleFinalize- no active particles detected, quit function.\n"); fflush(stdout);
+    return SUCCESS;
+  }
   FLOAT TimeNow = LevelArray[level]->GridData->ReturnTime();
   float Timestep = LevelArray[level]->GridData->ReturnTimeStep();
 
@@ -80,10 +85,11 @@ int ActiveParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     
     ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
     ActiveParticleID = ActiveParticleTypeToEvaluate->GetEnabledParticleID();
-    
+
+    printf("ActiveParticleFinalize- active particles detected, call to AfterEvolveLevel.\n"); fflush(stdout);
 
     ActiveParticleTypeToEvaluate->
-      AfterEvolveLevel(Grids,MetaData,NumberOfGrids,LevelArray, 
+      AfterEvolveLevel(Grids,MetaData,NumberOfGrids,LevelArray, // SG. AfterEvolveLevel called here.
 		       level, NumberOfNewActiveParticles, ActiveParticleID);
 
   }

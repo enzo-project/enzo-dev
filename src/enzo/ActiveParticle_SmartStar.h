@@ -359,13 +359,16 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 
       /* Return if there are no smartstar particles */
       
-      if (nParticles == 0)
+      if (nParticles == 0){
+        printf("%s: No SS particles detected. Quit function.", __FUNCTION__);fflush(stdout);
         return SUCCESS;
-
+      }
       /* Calculate CellWidth on maximum refinement level */
 
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
-        (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(MaximumRefinementLevel)));
+        (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(ThisLevel))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
+
+        printf("CellWidth dx = %e. Call RemoveMassFromGridAfterFormation here.\n", dx); fflush(stdout);
 
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
