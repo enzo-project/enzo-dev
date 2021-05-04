@@ -349,34 +349,32 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
   //if (ThisLevel == MaximumRefinementLevel)
     //{
       
-      /* Generate a list of all sink particles in the simulation box */
-      int i = 0, nParticles = 0, NumberOfMergedParticles = 0;
-      ActiveParticleList<ActiveParticleType> ParticleList;
-      FLOAT accradius = -10.0; //dummy
+  /* Generate a list of all sink particles in the simulation box */
+  int i = 0, nParticles = 0, NumberOfMergedParticles = 0;
+  ActiveParticleList<ActiveParticleType> ParticleList;
+  FLOAT accradius = -10.0; //dummy
       
-      ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
-        ParticleList);
+  ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);
 
-      /* Return if there are no smartstar particles */
+  /* Return if there are no smartstar particles */
       
-      if (nParticles == 0){
-        printf("%s: No SS particles detected. Quit function.", __FUNCTION__);fflush(stdout);
-        return SUCCESS;
-      }
-      /* Calculate CellWidth on maximum refinement level */
+  if (nParticles == 0){
+    printf("%s: No SS particles detected. Quit function.", __FUNCTION__);fflush(stdout);
+    return SUCCESS;
+    }
+  /* Calculate CellWidth on maximum refinement level */
 
-      FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
-        (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(ThisLevel))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
+  FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) / (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(ThisLevel))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
 
-        printf("CellWidth dx = %e. Call RemoveMassFromGridAfterFormation here.\n", dx); fflush(stdout);
+  printf("CellWidth dx = %e. Call RemoveMassFromGridAfterFormation here.\n", dx); fflush(stdout);
 
-      /* Remove mass from grid from newly formed particles */
-      RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
+  /* Remove mass from grid from newly formed particles */
+  RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
 				       LevelArray, ThisLevel);
  
-      /* Clean any particles marked for deletion */
-      for (i = 0; i<nParticles; i++) {
-	if(ParticleList[i]->ShouldDelete() == true) {
+  /* Clean any particles marked for deletion */
+  for (i = 0; i<nParticles; i++) {
+    if(ParticleList[i]->ShouldDelete() == true) {
 	  printf("%s: Delete SS %d following RemoveMassFromGridAfterFormation\n", __FUNCTION__,
 		 static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
 	  fflush(stdout);
