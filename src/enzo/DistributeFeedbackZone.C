@@ -37,6 +37,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 int DistributeFeedbackZone(grid* FeedbackZone, HierarchyEntry** Grids, 
 			   int NumberOfGrids, int SendField)
 {
+  printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
   int i,j;
 
   FLOAT ZeroVector[] = {0, 0, 0};
