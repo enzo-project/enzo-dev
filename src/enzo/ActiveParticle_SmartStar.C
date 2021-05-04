@@ -17,7 +17,7 @@
 #define MINIMUMPOTENTIAL 1
 #define CALCDIRECTPOTENTIAL 0
 #define JEANSREFINEMENT  1
-#define MASSTHRESHOLDCHECK 0
+#define MASSTHRESHOLDCHECK 1   //SG. Turned on for testing.
 #define JEANSLENGTHCALC    1
 #define MASSTHRESHOLD      0.1                       //Msolar in grid
 #define COOLING_TIME       0
@@ -416,7 +416,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	}
 	else if(data.H2Fraction[index] >  PopIIIH2CriticalFraction) {
 	  stellar_type = POPIII;
-	  printf("POPIII particles(%d) created and done in %s\n", data.NumberOfNewParticles, __FUNCTION__);
+	  printf("POPIII particles(%d) created and done in %s\n", data.NumberOfNewParticles + 1, __FUNCTION__);
 	}
 	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*10.0)
 		&& (dx_pc < SMS_RESOLUTION)) {
@@ -474,7 +474,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	np->TimeIndex = 0; //Start at 0 - we'll increment at the start of the update function.
 	
 	if (np->ParticleClass == POPIII){
-		np->AccretionRadius = 0;
+		np->AccretionRadius = dx*ACCRETIONRADIUS; // SG. Turning off and on accretion radius for testing purposes.
 	}else{
 		np->AccretionRadius = dx*ACCRETIONRADIUS;
 	}
@@ -720,6 +720,7 @@ int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
 
 void ActiveParticleType_SmartStar::DescribeSupplementalData(ActiveParticleFormationDataFlags &flags)
 {
+	printf("%s: Got here.\n", __FUNCTION__);
   flags.DarkMatterDensity = true;
   flags.Temperature = true;
   flags.MetalField = true;
@@ -744,6 +745,7 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
  int TotalStarParticleCountPrevious[],
  int SmartStarID)
 {
+	printf("%s: Doing Feedback before evolving level forward.\n", __FUNCTION__);
 
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
@@ -862,7 +864,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-
+	printf("%s: Reached this point.Will it go any further?.\n", __FUNCTION__);
   int SSparticles[nParticles] = {-1};
   float StellarMasstoRemove = 0.0, CellDensityAfterFormation = 0.0;
   /* Skip accretion if we're not on the maximum refinement level.
@@ -1536,6 +1538,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
     LevelHierarchyEntry *LevelArray[], int level,
     int TopGridDims[], int SmartStarID)
 {
+	printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
   /* Generate a list of all sink particles in the simulation box */
   int i, nParticles;
   FLOAT *pos = NULL;
@@ -1544,17 +1547,17 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 
   ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
       SmartStarList);
-
   for (i=0 ; i<nParticles; i++){
-	int pclass = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->ParticleClass;
-	 if (pclass == POPIII) {
-      continue;
-    }
-    pos = SmartStarList[i]->ReturnPosition();
-    FLOAT accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
-    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
-      if (Temp->GridData->DepositRefinementZone(level,pos,accrad) == FAIL) {
-	ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
+	  int pclass = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->ParticleClass;
+	  if (pclass == POPIII) {
+		  continue;
+		  } else{
+			pos = SmartStarList[i]->ReturnPosition();
+    		FLOAT accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
+    		for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+      		if (Temp->GridData->DepositRefinementZone(level,pos,accrad) == FAIL) {
+			ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
+		}
 	  }
   }
 
@@ -1568,6 +1571,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     ActiveParticleList<ActiveParticleType>& ParticleList, FLOAT dx, 
 	LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
+	// printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
   
   /* Skip if we're not on the maximum refinement level. 
      This should only ever happen right after creation and then

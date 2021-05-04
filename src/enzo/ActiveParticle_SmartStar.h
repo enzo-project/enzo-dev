@@ -344,9 +344,10 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 {
 
   /* SmartStar particles live on the maximum refinement level.  If we are on a lower level, this does not concern us */
+  printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
   
-  if (ThisLevel == MaximumRefinementLevel)
-    {
+  //if (ThisLevel == MaximumRefinementLevel)
+    //{
       
       /* Generate a list of all sink particles in the simulation box */
       int i = 0, nParticles = 0, NumberOfMergedParticles = 0;
@@ -482,7 +483,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         return FAIL;      
       ParticleList.clear();
 
-    }
+    // }
 
   return SUCCESS;
 }

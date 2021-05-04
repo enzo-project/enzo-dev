@@ -31,6 +31,7 @@ int grid::DepositRefinementZone(int level, FLOAT* ParticlePosition,
     FLOAT RefinementRadius)
 {
   /* Return if this grid is not on this processor. */
+printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
 
   int dim, method = 0, ParticleMassMethod, i, j, k, NumberOfFlaggedCells = 0, size=1;
   int a;
