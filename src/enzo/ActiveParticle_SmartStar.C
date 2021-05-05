@@ -474,7 +474,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	np->TimeIndex = 0; //Start at 0 - we'll increment at the start of the update function.
 	
 	if (np->ParticleClass == POPIII){
-		np->AccretionRadius = dx*ACCRETIONRADIUS; // SG. Turning off and on accretion radius for testing purposes.
+		np->AccretionRadius = 0; // SG. Turning off and on accretion radius for testing purposes.
 	}else{
 		np->AccretionRadius = dx*ACCRETIONRADIUS;
 	}
