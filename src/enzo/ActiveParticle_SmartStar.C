@@ -1550,8 +1550,10 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
   for (i=0 ; i<nParticles; i++){
 	  int pclass = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->ParticleClass;
 	  if (pclass == POPIII) {
+		  printf("%s: POPIII particle detected. Quit function.\n", __FUNCTION__);
 		  continue;
 		  } else{
+			printf("%s: No POPIII was particle detected. Continue to flag fields.\n", __FUNCTION__);  
 			pos = SmartStarList[i]->ReturnPosition();
     		FLOAT accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
     		for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
@@ -1819,6 +1821,7 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
 							   LevelHierarchyEntry *LevelArray[],
 							   int ThisLevel)
 {
+  printf("%s: Starting to read this. End of AP_SS.C.\n", __FUNCTION__);
 
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
