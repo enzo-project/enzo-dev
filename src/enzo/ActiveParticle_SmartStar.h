@@ -343,32 +343,52 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
     int SmartStarID)
 {
 
-  /* SmartStar particles live on the maximum refinement level.  If we are on a lower level, this does not concern us */
-  printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
-  
-  //if (ThisLevel == MaximumRefinementLevel)
-    //{
-      
+      /* SmartStar particles live on the maximum refinement level.  If we are on a lower level, this does not concern us */
+      printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
+
       /* Generate a list of all sink particles in the simulation box */
       int i = 0, nParticles = 0, NumberOfMergedParticles = 0;
       ActiveParticleList<ActiveParticleType> ParticleList;
       FLOAT accradius = -10.0; //dummy
-      
+
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
         ParticleList);
 
       /* Return if there are no smartstar particles */
-      
+
       if (nParticles == 0){
         printf("%s: No SS particles detected. Quit function.", __FUNCTION__);fflush(stdout);
         return SUCCESS;
-      }
-      /* Calculate CellWidth on maximum refinement level */
+      } // end if
 
+      // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+      int j,index;
+      for (int i = 0; i < nParticles; i++) {
+        int k;
+        grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+        int GridDimension[3] = {thisGrid->GridDimension[0],
+                                thisGrid->GridDimension[1],
+                                thisGrid->GridDimension[2]};
+        for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+          for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+            index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
+            for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
+      if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
+        printf("%s: We're NOT ON the maximum LOCAL level of refinement. So we skip going through this function here.", __FUNCTION__);
+        fflush(stdout);
+        continue;
+      } 
+      } // End i
+      } // End j
+      } // End k
+      } // End FOR particles loop - Maximum LOCAL refinement level
+
+
+      /* Calculate CellWidth on maximum refinement level */
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(ThisLevel))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
 
-        printf("CellWidth dx = %e. Call RemoveMassFromGridAfterFormation here.\n", dx); fflush(stdout);
+      printf("CellWidth dx = %e and ThisLevel = %e. Call RemoveMassFromGridAfterFormation here.\n", dx, ThisLevel); fflush(stdout);
 
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
@@ -486,10 +506,10 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         return FAIL;      
       ParticleList.clear();
 
-    // }
-
+    
+  
   return SUCCESS;
-}
+} // End AfterEvolveLevel function
 
 static FLOAT Dist(FLOAT *tempPos, FLOAT *tempPos1)
 {

@@ -1571,7 +1571,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     ActiveParticleList<ActiveParticleType>& ParticleList, FLOAT dx, 
 	LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-	// printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
+	printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
   
   /* Skip if we're not on the maximum refinement level. 
      This should only ever happen right after creation and then
@@ -1594,10 +1594,11 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 		index = GRIDINDEX_NOGHOST(i, j, k);
 		if ((thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) || SmartStarFeedback == FALSE)
 		  continue;
-	  	}
-	}
-  }
-  }
+	  	  } // End i
+  } // End j
+  } // End k
+ } // End FOR loop over particles
+
 
   /* For each particle, loop over all of the grids and do feedback 
      if the grid overlaps with the feedback zone                   */
@@ -1608,9 +1609,9 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
   
  
-  
   for (int i = 0; i < nParticles; i++) {
     FLOAT AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
+	printf("%s: AccretionRadius = %e.\n", __FUNCTION__, AccretionRadius);
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
