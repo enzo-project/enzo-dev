@@ -97,6 +97,7 @@ int MustCollectParticlesToLevelZero = FALSE;  // Set only in NestedCosmologySimu
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level)
 {
+  printf("%s: Starting to read this function. FindSubgrids should be triggered after this.\n", __FUNCTION__);
 
   if (LevelSubCycleCount[level] % RebuildHierarchyCycleSkip[level]) {
     return SUCCESS;

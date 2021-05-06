@@ -35,7 +35,8 @@ static ProtoSubgrid *SubgridList[MAX_NUMBER_OF_SUBGRIDS];
 int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
 		 int &FlaggedGrids)
 {
- 
+ printf("%s: Starting to read this. Maybe try to detect if POPIII particle on grid here?.\n", __FUNCTION__);
+
   /* declarations */
 #ifdef MPI_INSTRUMENTATION
   int GridMemory,NumberOfCells,CellsTotal,Particles;
