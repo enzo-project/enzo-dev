@@ -1611,6 +1611,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
   
   for (int i = 0; i < nParticles; i++) {
+	int pclass = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ParticleClass;
     FLOAT AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
 	printf("%s: AccretionRadius = %e.\n", __FUNCTION__, AccretionRadius);
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
@@ -1632,9 +1633,16 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 	fflush(stdout);
       }
     }
-    DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-
-    delete FeedbackZone;
+// SG. Don't distribute the feedback zone in a POPIII particle is on the grid.
+	  if (pclass == POPIII){
+		  delete FeedbackZone;
+	  } else{
+		  DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+		  delete FeedbackZone;
+	  }
+  
+    // DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+    // delete FeedbackZone;
 
   }
   

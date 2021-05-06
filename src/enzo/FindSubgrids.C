@@ -52,12 +52,6 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
  
   if (level >= MaximumRefinementLevel)
     return SUCCESS;
-
-  // SG. Want to add an IF POPIII particle on the grid, return SUCCESS.
-  /* In a first pass, find the number of active particles on each grid */
-  int LocalNumberOfActiveParticlesOnThisLevel = 0;
-  int NumberOfActiveParticlesInGrid = CurrentGrid->ReturnNumberOfActiveParticlesOfThisType(ActiveParticleIDToFind);
-  LocalNumberOfActiveParticlesOnThisLevel += NumberOfActiveParticlesInGrid;
  
   /* If this grid is not on this processor, then return. */
  
