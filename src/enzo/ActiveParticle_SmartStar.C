@@ -1610,7 +1610,6 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
   
- 
   for (int i = 0; i < nParticles; i++) {
     FLOAT AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
 	printf("%s: AccretionRadius = %e.\n", __FUNCTION__, AccretionRadius);
