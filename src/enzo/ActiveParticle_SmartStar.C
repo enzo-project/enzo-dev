@@ -16,8 +16,8 @@
 #define BONDIHOYLERADIUS 0
 #define MINIMUMPOTENTIAL 1
 #define CALCDIRECTPOTENTIAL 0
-#define JEANSREFINEMENT  1
-#define MASSTHRESHOLDCHECK 1   //SG. Turned on for testing.
+#define JEANSREFINEMENT  0 // SG. turning off for testing
+#define MASSTHRESHOLDCHECK 0  //SG. Turned on for testing. Turning off again.
 #define JEANSLENGTHCALC    1
 #define MASSTHRESHOLD      0.1                       //Msolar in grid
 #define COOLING_TIME       0
@@ -933,7 +933,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
       if(SS->ParticleClass == POPIII && SS->TimeIndex == 0) {
 	SSparticles[k++] = i;
 	num_new_popiii_stars++;
-	printf("Number of new POPIII star particles is %e\n", num_new_popiii_stars); fflush(stdout);
+	fprintf(stderr,"Number of new POPIII star particles is %ISYM\n", num_new_popiii_stars); 
       }
     }
   }
