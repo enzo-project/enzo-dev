@@ -412,7 +412,7 @@ int RebuildHierarchy(TopGridData *MetaData,
        */
       
       tt0 = ReturnWallTime();
-      DepositActiveParticleMassFlaggingField(LevelArray,i,MetaData->TopGridDims);
+      // DepositActiveParticleMassFlaggingField(LevelArray,i,MetaData->TopGridDims); // SG. For debugging. 
       tt1 = ReturnWallTime();
       RHperf[3] += tt1-tt0;
 

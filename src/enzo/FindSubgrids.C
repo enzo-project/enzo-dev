@@ -51,10 +51,8 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
  
   /* If this is the lowest allowed level, then return. */
  
-  if (level >= 14) // SG. Temporarily changed to 14 for testing.
+  if (level >= MaximumRefinementLevel) // SG. Temporarily changed to 14 for testing.
     return SUCCESS;
-  // if (level >= MaximumRefinementLevel)
-  //  return SUCCESS;
  
   /* If this grid is not on this processor, then return. */
  
