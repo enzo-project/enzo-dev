@@ -1272,7 +1272,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	* loop to find sufficient enclosed mass. 
 	*/
        SS->InfluenceRadius = Radius;
-       printf("%s: Particle Mass = %1.1f Msolar\n", __FUNCTION__, SS->Mass);
+       printf("%s: Particle Mass = %1.1f Msolar\n", __FUNCTION__, StellarMasstoRemove);
        printf("%s: Particle Class = %d\n", __FUNCTION__, SS->ParticleClass);
        printf("%s: Remove mass from sphere of radius %lf pc\n", __FUNCTION__, Radius*LengthUnits/pc_cm);
        /* Update cell information */
