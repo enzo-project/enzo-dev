@@ -314,13 +314,13 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #if SSDEBUG
 	    printf("FAILURE: GravitationalMinimum = %g\t "		\
 		   "PotentialField[index] = %g\n\n", GravitationalMinimum, PotentialField[index]);
-	    printf("%s: Cellwidth = %f\t JLength = %f\n", __FUNCTION__, dx, JLength);
+	    printf("%s: Cellwidth = %e\t JLength = %e\n", __FUNCTION__, dx, JLength);
 	    printf("%s: search_radius (in cellwidths) = %f\n", __FUNCTION__, search_radius/dx);
 #endif
 	    continue;
 	  }
 #if SSDEBUG
-	  printf("%s: Cellwidth = %f\t JLength = %f\n", __FUNCTION__, dx, JLength);
+	  printf("%s: Cellwidth = %e\t JLength = %e\n", __FUNCTION__, dx, JLength);
 	  printf("%s: search_radius (in cellwidths) = %f\n", __FUNCTION__, search_radius/dx);
 	  fprintf(stdout, "%s: Gravitational Potential Passed!\n", __FUNCTION__);
 #endif
@@ -758,7 +758,7 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 	  
 	}
 
-#if SSDEBUG
+#if SSDEBUG_RT
 	printf("%s: SS (%d) Energy Bins = %1.1f (%1.1f) %1.1f (%1.1f) %1.1f (%1.1f) " \
 	       "%1.1f (%1.1f) %1.1f (%1.1f)\n", __FUNCTION__,
 	       ThisParticle->ParticleClass, ThisParticle->RadiationEnergyBins[0],
@@ -1639,7 +1639,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	       * if it is falling onto the main sequence.
 	       * This can also allow a POPIII star to change into a SMS
 	       */
-	      if((SS->AccretionRate[SS->TimeIndex]*MassUnits/TimeUnits)*yr_s/SolarMass
+	      if((SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass
 		 > CRITICAL_ACCRETION_RATE) {
 		if(SS->ParticleClass == POPIII) {
 		  printf("%s: UPDATE: ParticleClass switching from POPIII to SMS\n", __FUNCTION__);
@@ -1662,9 +1662,6 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
       }
      }
   }
-#if SSDEBUG
-  printf("Done in %s\n", __FUNCTION__);
-#endif
 
   return SUCCESS;
 }

@@ -208,7 +208,8 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
     
     double QTotal = 0;
     for (int bin = 0; bin < NUMRADIATIONBINS; bin++) QTotal += Q[bin];
-    for (int bin = 0; bin < NUMRADIATIONBINS; bin++) Q[bin] /= QTotal;
+    if(QTotal > 0.0)
+      for (int bin = 0; bin < NUMRADIATIONBINS; bin++) Q[bin] /= QTotal;
     for (int bin = 0; bin < NUMRADIATIONBINS; bin++) {
       this->RadiationSED[bin] = float(Q[bin]);
     }
