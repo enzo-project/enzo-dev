@@ -681,8 +681,12 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  }
 
       if (GridHierarchyPointer[j]->GridData->MoveSubgridActiveParticles(
-                 subgrids, ToGrids, FALSE) == FAIL)
-        ENZO_FAIL("Error in grid->MoveSubgridActiveParticles.");
+                 subgrids, ToGrids, FALSE) == FAIL){
+                   ENZO_FAIL("Error in grid->MoveSubgridActiveParticles.");
+                 } else{
+                   printf("%s: MoveSubgridActiveParticles.\n", __FUNCTION__); // SG. For testing.
+                 }
+        
       
 	  if (GridHierarchyPointer[j]->GridData->MoveSubgridStars(
 				 subgrids, ToGrids, FALSE) == FAIL)

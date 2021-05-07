@@ -30,8 +30,8 @@ FLOAT calc_dist2(FLOAT x1, FLOAT y1, FLOAT z1,
 int grid::DepositRefinementZone(int level, FLOAT* ParticlePosition,
     FLOAT RefinementRadius)
 {
-  /* Return if this grid is not on this processor. */
-printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
+  
+  printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
 
   int dim, method = 0, ParticleMassMethod, i, j, k, NumberOfFlaggedCells = 0, size=1;
   int a;
@@ -40,6 +40,7 @@ printf("%s: We're beginning to read through this function now.\n", __FUNCTION__)
   FLOAT CellSize, LeftCorner[MAX_DIMENSION], RightCorner[MAX_DIMENSION];
   FLOAT period[MAX_DIMENSION], left, right, pleft, pright, dist2, rad2;
   
+  /* Return if this grid is not on this processor. */
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
