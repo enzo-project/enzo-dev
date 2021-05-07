@@ -1633,17 +1633,9 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 	fflush(stdout);
       }
     }
-// SG. Don't distribute the feedback zone in a POPIII particle is on the grid.
-	  if (pclass == POPIII){
-		  delete FeedbackZone;
-		  printf("%s: POPIII particle detected in grid. Don't distribute the feedback zone. \n", __FUNCTION__); fflush(stdout);
-	  } else{
-		  DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-		  delete FeedbackZone;
-	  }
-  
-    // DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-    // delete FeedbackZone;
+
+    DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+    delete FeedbackZone;
 
   }
   
