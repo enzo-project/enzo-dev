@@ -9,7 +9,7 @@
 
 #include "ActiveParticle_SmartStar.h"
 #include "phys_constants.h"
-#define SSDEBUG 0
+#define SSDEBUG 1
 #define SSDEBUG_TOTALMASS 0
 
 #define DYNAMIC_ACCRETION_RADIUS 0
@@ -809,8 +809,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-
-  int SSparticles[nParticles] = {-1};
+  int *SSparticles = new int(nParticles);
   float StellarMasstoRemove = 0.0, CellDensityAfterFormation = 0.0;
   /* Skip accretion if we're not on the maximum refinement level.
      This should only ever happen right after creation and then
@@ -828,7 +827,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   MassUnits = DensityUnits * POW(LengthUnits,3);
 
   float tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
-
+  for (int i = 0; i < nParticles; i++)
+    SSparticles[i] = -1;
   /*
    * Order particles in order of SMS, PopIII, PopII
    * SMS first since they have the highest accretion rates and hence 
