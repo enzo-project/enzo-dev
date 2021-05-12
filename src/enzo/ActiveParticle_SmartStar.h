@@ -344,7 +344,6 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 {
 
       /* SmartStar particles live on the maximum refinement level.  If we are on a lower level, this does not concern us */
-      printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
 
       /* Generate a list of all sink particles in the simulation box */
       int i = 0, nParticles = 0, NumberOfMergedParticles = 0;
@@ -357,7 +356,6 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       /* Return if there are no smartstar particles */
 
       if (nParticles == 0){
-        printf("%s: No SS particles detected. Quit function.", __FUNCTION__);fflush(stdout);
         return SUCCESS;
       } // end if
 
@@ -373,11 +371,8 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
           for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
             index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
             for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
-      if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
-        printf("%s: We're NOT ON the maximum LOCAL level of refinement. So we skip going through this function here.", __FUNCTION__);
-        fflush(stdout);
+      if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0)
         continue;
-      } 
       } // End i
       } // End j
       } // End k
@@ -388,7 +383,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(ThisLevel))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
 
-      printf("CellWidth dx = %e and ThisLevel = %e. Call RemoveMassFromGridAfterFormation here.\n", dx, ThisLevel); fflush(stdout);
+      printf("CellWidth dx = %"ISYM" and ThisLevel = %d.\n", dx, ThisLevel); fflush(stdout);
 
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 

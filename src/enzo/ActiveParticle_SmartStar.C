@@ -16,8 +16,8 @@
 #define BONDIHOYLERADIUS 0
 #define MINIMUMPOTENTIAL 1
 #define CALCDIRECTPOTENTIAL 0
-#define JEANSREFINEMENT  0 // SG. turning off for testing
-#define MASSTHRESHOLDCHECK 0  //SG. Turned on for testing. Turning off again.
+#define JEANSREFINEMENT  1 // SG. turning off for testing
+#define MASSTHRESHOLDCHECK 1  //SG. Turned on for testing. Turning off again.
 #define JEANSLENGTHCALC    1
 #define MASSTHRESHOLD      0.1                       //Msolar in grid
 #define COOLING_TIME       0
@@ -864,7 +864,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-	printf("%s: Reached this point.Will it go any further?.\n", __FUNCTION__);
+	 fprintf(stderr,"%s: Reached this point.Will it go any further?.\n", __FUNCTION__);
   int SSparticles[nParticles] = {-1};
   float StellarMasstoRemove = 0.0, CellDensityAfterFormation = 0.0;
   /* Skip accretion if we're not on the maximum refinement level.
@@ -884,30 +884,30 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   MassUnits = DensityUnits * POW(LengthUnits,3);
 
   float tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
+		fprintf(stderr,"%s: Reached just before FOR loop to be on local max grid.\n", __FUNCTION__);
 
-  // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-  int i,j,index;
-  for (int i = 0; i < nParticles; i++) {
-	int k;
-    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-	int GridDimension[3] = {thisGrid->GridDimension[0],
-                          thisGrid->GridDimension[1],
-                          thisGrid->GridDimension[2]};
-	// SG. Check we're on the maximum LOCAL refinement level from the get-go. 
-  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-	  	index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
-      	for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
-	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
-		printf("%s: We're NOT ON the maximum LOCAL level of refinement. So we skip going through this function here.", __FUNCTION__);
-		fflush(stdout);
-		continue;
-	}
-	
-	  	}
-	}
-  }
-  }
+// SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+		int j,index;
+		for (int i = 0; i < nParticles; i++) {
+				int k;
+				grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+				int GridDimension[3] = {thisGrid->GridDimension[0],
+																												thisGrid->GridDimension[1],
+																												thisGrid->GridDimension[2]};
+				for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+						for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+								index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
+								for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
+		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
+				printf("%s: We're NOT ON the maximum LOCAL level of refinement. So we skip going through this function here.", __FUNCTION__);
+				fflush(stdout);
+				continue;
+		} 
+		} // End i
+		} // End j
+		} // End k
+		} // End FOR particles loop - Maximum LOCAL refinement level
+		fprintf(stderr,"%s: Reached just after FOR loop to be on local max grid.\n", __FUNCTION__);
   /*
    * Order particles in order of SMS, PopIII, PopII
    * SMS first since they have the highest accretion rates and hence 
@@ -933,7 +933,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
       if(SS->ParticleClass == POPIII && SS->TimeIndex == 0) {
 	SSparticles[k++] = i;
 	num_new_popiii_stars++;
-	fprintf(stderr,"Number of new POPIII star particles is %ISYM\n", num_new_popiii_stars); 
+	// fprintf(stderr,"Number of new POPIII star particles is %ISYM\n", num_new_popiii_stars); 
       }
     }
   }
@@ -1012,7 +1012,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	  POW(LengthUnits*dx*JeansFactor,2);
 	JeansDensity /= DensityUnits;
 	DensityThreshold = min(DensityThreshold,JeansDensity);
-	printf("%s: Density Threshold = %e\t Jeans Density = %e\n", __FUNCTION__, DensityThreshold, JeansDensity);
+	fprintf(stderr,"%s: Density Threshold = %e\t Jeans Density = %e\n", __FUNCTION__, DensityThreshold, JeansDensity);
       }
 #endif
 
@@ -1117,12 +1117,14 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
       bool SphereTooSmall = true;
       float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
 	ShellVelocity[MAX_DIMENSION];
-      while (SphereTooSmall) { 
+      while (SphereTooSmall) { // SG. Start while SphereTooSmall here.
 	Radius += APGrid->CellWidth[0][0];
 	bool IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
 
-	if (IsSphereContained == false)
-	  break;
+	// if (IsSphereContained == false){
+	// 	fprintf(stderr,"SphereContained = false. Break.\n"); fflush(stdout); // SG. Add this print.
+	// 	break;
+	// }
 	ShellMass = 0;
 	ShellMetallicity2 = 0;
 	ShellMetallicity3 = 0;
@@ -1159,6 +1161,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 						   -1);
 	    
 	    Temp = Temp->NextGridThisLevel;
+					fprintf(stderr,"ShellMass = %e Msun\n", ShellMass); fflush(stdout);
 	    
 	  } // END: Grids
 	  
@@ -1175,7 +1178,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	for (int dim = 0; dim < MAX_DIMENSION; dim++)
 	  AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
 	    ShellVelocity[dim];
-	printf("MassEnclosed = %e Msolar\n", MassEnclosed); fflush(stdout);
+	fprintf(stderr,"MassEnclosed = %e Msolar\n", MassEnclosed); fflush(stdout);
 	if (MassEnclosed == 0) {
 	  IsSphereContained = false;
 	  return SUCCESS;
@@ -1203,10 +1206,12 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	  // SS->RadiationLifetime*= yr_s/TimeUnits;
 	  SS->RadiationLifetime =  1e5*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 	  SS->StellarAge = SS->RadiationLifetime;
-	  SphereTooSmall = MassEnclosed < (2*SS->Mass);
+	  SphereTooSmall = MassEnclosed < (2*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
+			fprintf(stderr, "%s: Is SphereTooSmall? %d (1 = yes, 0 = no). MassEnclosed: %e.\n", __FUNCTION__,
+		 SphereTooSmall, MassEnclosed);  // SG. NEW print statement.
 	  // to make the total mass PopIIIStarMass
 	  StellarMasstoRemove = SS->Mass;  // [Msolar]
-	  printf("%s: Mass = %e Msolar\t StellarAge = %e Myr\n", __FUNCTION__,
+	  fprintf(stderr,"%s: Mass = %e Msolar\t StellarAge = %e Myr\n", __FUNCTION__,
 		 SS->Mass, SS->StellarAge*TimeUnits/Myr_s);
 	  SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
 	  SS->oldmass = 0.0;
@@ -1247,8 +1252,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	  (double(SolarMass * (MassEnclosed - StellarMasstoRemove)) / 
 	   double(4.0*pi/3.0 * POW(Radius*LengthUnits, 3)) /
 	   DensityUnits); /* converted to code density */
+				fprintf(stderr,"%s: CellDensityAfterFormation = %e g/cm^3.\n", __FUNCTION__, 
+				CellDensityAfterFormation*DensityUnits); // SG. New print.
 	
-      }  /* end while(SphereTooSmall) */
+      }  /* end while(SphereTooSmall) */ // SG. End testing here.
 #ifdef NOT_NECESSARY
        /* Don't allow the sphere to be too large (2x leeway) */
        const float epsMass = 9.0;
@@ -1267,14 +1274,14 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	 }
        }
 #endif
-       printf("%s: Update Grid Densities (i.e. remove mass)\n", __FUNCTION__);
+       fprintf(stderr,"%s: Update Grid Densities (i.e. remove mass)\n", __FUNCTION__);
        /* The Radius of influence is set by the sphere over which we had to 
 	* loop to find sufficient enclosed mass. 
 	*/
        SS->InfluenceRadius = Radius;
-       printf("%s: Particle Mass = %1.1f Msolar\n", __FUNCTION__, StellarMasstoRemove);
-       printf("%s: Particle Class = %d\n", __FUNCTION__, SS->ParticleClass);
-       printf("%s: Remove mass from sphere of radius %lf pc\n", __FUNCTION__, Radius*LengthUnits/pc_cm);
+       fprintf(stderr,"%s: Particle Mass = %1.1f Msolar\n", __FUNCTION__, StellarMasstoRemove);
+       fprintf(stderr,"%s: Particle Class = %d\n", __FUNCTION__, SS->ParticleClass);
+       fprintf(stderr,"%s: Remove mass from sphere of radius %lf pc\n", __FUNCTION__, Radius*LengthUnits/pc_cm);
        /* Update cell information */
        int index = 0;
        FLOAT delx = 0.0, dely = 0.0, delz = 0.0, radius2 = 0.0, DomainWidth[MAX_DIMENSION];
