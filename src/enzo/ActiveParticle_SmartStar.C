@@ -474,7 +474,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	np->TimeIndex = 0; //Start at 0 - we'll increment at the start of the update function.
 	
 	if (np->ParticleClass == POPIII){
-		np->AccretionRadius = 0; // SG. Turning off and on accretion radius for testing purposes.
+		// np->AccretionRadius = 0; // SG. Turning off and on accretion radius for testing purposes.
+		np->AccretionRadius = dx*ACCRETIONRADIUS;
 	}else{
 		np->AccretionRadius = dx*ACCRETIONRADIUS;
 	}
@@ -886,27 +887,27 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   float tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
 		fprintf(stderr,"%s: Reached just before FOR loop to be on local max grid.\n", __FUNCTION__);
 
-// SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-		int j,index;
-		for (int i = 0; i < nParticles; i++) {
-				int k;
-				grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-				int GridDimension[3] = {thisGrid->GridDimension[0],
-																												thisGrid->GridDimension[1],
-																												thisGrid->GridDimension[2]};
-				for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-						for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-								index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
-								for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
-		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
-				printf("%s: We're NOT ON the maximum LOCAL level of refinement. So we skip going through this function here.", __FUNCTION__);
-				fflush(stdout);
-				continue;
-		} 
-		} // End i
-		} // End j
-		} // End k
-		} // End FOR particles loop - Maximum LOCAL refinement level
+// // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+// 		int j,index;
+// 		for (int i = 0; i < nParticles; i++) {
+// 				int k;
+// 				grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+// 				int GridDimension[3] = {thisGrid->GridDimension[0],
+// 																												thisGrid->GridDimension[1],
+// 																												thisGrid->GridDimension[2]};
+// 				for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+// 						for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+// 								index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
+// 								for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
+// 		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
+// 				printf("%s: We're NOT ON the maximum LOCAL level of refinement. So we skip going through this function here.", __FUNCTION__);
+// 				fflush(stdout);
+// 				continue;
+// 		} 
+// 		} // End i
+// 		} // End j
+// 		} // End k
+// 		} // End FOR particles loop - Maximum LOCAL refinement level
 		fprintf(stderr,"%s: Reached just after FOR loop to be on local max grid.\n", __FUNCTION__);
   /*
    * Order particles in order of SMS, PopIII, PopII
@@ -1146,7 +1147,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	      Temp->GridData->
 		ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
 	      Temp2 = Temp->GridHierarchyEntry->NextGridNextLevel;
-	      while (Temp2 != NULL) {
+	      while (Temp2 != NULL) { // SG. this is doing the check 1 or 0 in baryon refinement field
 		Temp->GridData->ZeroSolutionUnderSubgrid(Temp2->GridData, 
 							 ZERO_UNDER_SUBGRID_FIELD);
 		Temp2 = Temp2->NextGridThisLevel;
@@ -1206,7 +1207,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	  // SS->RadiationLifetime*= yr_s/TimeUnits;
 	  SS->RadiationLifetime =  1e5*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 	  SS->StellarAge = SS->RadiationLifetime;
-	  SphereTooSmall = MassEnclosed < (2*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
+	  SphereTooSmall = MassEnclosed < (1.5*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
 			fprintf(stderr, "%s: Is SphereTooSmall? %d (1 = yes, 0 = no). MassEnclosed: %e.\n", __FUNCTION__,
 		 SphereTooSmall, MassEnclosed);  // SG. NEW print statement.
 	  // to make the total mass PopIIIStarMass
@@ -1386,24 +1387,24 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 //   if (ThisLevel < MaximumRefinementLevel)
 //     return SUCCESS;
 
-  // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-  int i,j,index;
-  for (int i = 0; i < nParticles; i++) {
-	int k;
-    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-	int GridDimension[3] = {thisGrid->GridDimension[0],
-                          thisGrid->GridDimension[1],
-                          thisGrid->GridDimension[2]};
-  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
-		index = GRIDINDEX_NOGHOST(i, j, k);
-		if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
-		  continue;
-	  	}
-	}
-  }
-  }
+ //  // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+ //  int i,j,index;
+ //  for (int i = 0; i < nParticles; i++) {
+	// int k;
+ //    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+	// int GridDimension[3] = {thisGrid->GridDimension[0],
+ //                          thisGrid->GridDimension[1],
+ //                          thisGrid->GridDimension[2]};
+ //  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+ //    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+ //      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
+	// 	index = GRIDINDEX_NOGHOST(i, j, k);
+	// 	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+	// 	  continue;
+	//   	}
+	// }
+ //  }
+ //  }
 
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
@@ -1438,7 +1439,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
    * period
    */
   float TimeDelay = 1e5*yr_s/TimeUnits; //set to 100 kyr
-  for (i = 0; i < nParticles; i++) {
+  for (int i = 0; i < nParticles; i++) {
    
 
     /* 
@@ -1580,8 +1581,6 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     ActiveParticleList<ActiveParticleType>& ParticleList, FLOAT dx, 
 	LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-	printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
-  
   /* Skip if we're not on the maximum refinement level. 
      This should only ever happen right after creation and then
      only in pathological cases where creation is happening at 
@@ -1590,24 +1589,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 //   if (ThisLevel < MaximumRefinementLevel || SmartStarFeedback == FALSE)
 //     return SUCCESS;
 // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-  int i,j,index;
-  for (int i = 0; i < nParticles; i++) {
-	int k;
-    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-	int GridDimension[3] = {thisGrid->GridDimension[0],
-                          thisGrid->GridDimension[1],
-                          thisGrid->GridDimension[2]};
-  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
-		index = GRIDINDEX_NOGHOST(i, j, k);
-		if ((thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) || SmartStarFeedback == FALSE)
-		  continue;
-	  	  } // End i
-  } // End j
-  } // End k
- } // End FOR loop over particles
-
+	 
 
   /* For each particle, loop over all of the grids and do feedback 
      if the grid overlaps with the feedback zone                   */
@@ -1618,6 +1600,18 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
   
   for (int i = 0; i < nParticles; i++) {
+			 int l,j,k,index;
+    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+	   int GridDimension[3] = {thisGrid->GridDimension[0],
+                          thisGrid->GridDimension[1],
+                          thisGrid->GridDimension[2]};
+  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+      		for (l = thisGrid->GridStartIndex[0]; l <= thisGrid->GridEndIndex[0]; l++) {
+		index = GRIDINDEX_NOGHOST(l, j, k);
+		if ((thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) || SmartStarFeedback == FALSE)
+		  continue;
+
 	int pclass = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ParticleClass;
     FLOAT AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
 	printf("%s: AccretionRadius = %e.\n", __FUNCTION__, AccretionRadius);
@@ -1626,7 +1620,6 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
       if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
 	return FAIL;
-    
 
       /* If a PISN just went off then we can safely delete the particle. */
       if(ParticleList[i]->ShouldDelete() == true) {
@@ -1644,7 +1637,11 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
     delete FeedbackZone;
 
-  }
+		} // End i
+  } // End j
+  } // End k
+ } // End FOR loop over particles
+
   
   delete [] Grids;
 

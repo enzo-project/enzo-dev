@@ -359,31 +359,34 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         return SUCCESS;
       } // end if
 
-      // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-      int j,index;
-      for (int i = 0; i < nParticles; i++) {
-        int k;
-        grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-        int GridDimension[3] = {thisGrid->GridDimension[0],
-                                thisGrid->GridDimension[1],
-                                thisGrid->GridDimension[2]};
-        for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-          for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-            index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
-            for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
-      if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0)
-        continue;
-      } // End i
-      } // End j
-      } // End k
-      } // End FOR particles loop - Maximum LOCAL refinement level
+      // // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+      // int j,index;
+      // for (int i = 0; i < nParticles; i++) {
+      //   int k;
+      //   grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
+      //   int GridDimension[3] = {thisGrid->GridDimension[0],
+      //                           thisGrid->GridDimension[1],
+      //                           thisGrid->GridDimension[2]};
+      //   for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+      //     for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+      //       index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
+      //       for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
+      //         fprintf(stderr,"Number of Baryon Fields [index] = %d [%d].\n", thisGrid->NumberOfBaryonFields, index); fflush(stdout);
+      //         float field = thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index];
+      //         fprintf(stderr,"field value (1 or 0) = %d and index = %d.\n", field, index); fflush(stdout);
+      //         if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0)
+      //         continue;
+      // } // End i
+      // } // End j
+      // } // End k
+      // } // End FOR particles loop - Maximum LOCAL refinement level
 
 
       /* Calculate CellWidth on maximum refinement level */
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(ThisLevel))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
 
-      printf("CellWidth dx = %"ISYM" and ThisLevel = %d.\n", dx, ThisLevel); fflush(stdout);
+      fprintf(stderr,"CellWidth dx = %"ISYM" and ThisLevel = %d.\n", dx, ThisLevel); fflush(stdout);
 
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
