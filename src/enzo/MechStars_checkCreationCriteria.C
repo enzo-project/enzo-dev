@@ -35,7 +35,7 @@ int checkCreationCriteria(float* Density, float* Metals,
 {  
     float Zsolar = 0.02;
     float maxZ = 0.0;
-    bool debug = true;
+    bool debug = false;
     bool status = PASS;
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
                 TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
@@ -72,7 +72,9 @@ int checkCreationCriteria(float* Density, float* Metals,
     /* in addition to the converging flow check, we check
         the virial parameter of the gas to see if it is 
         locally gravitationally bound*/
-
+    // check that metals exist in enough quantity
+    if (Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity)
+        return FAIL;
     
     float div = 0.0; //divergence
     float alpha = 0.0; //virial parameter
@@ -155,17 +157,17 @@ int checkCreationCriteria(float* Density, float* Metals,
     float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/Zsolar)/
                 log(1+0.6*Phi+0.01*Phi*Phi);
     *shieldedFraction = 1.0 - 3.0/(1.0+4.0*Psi);
-    if (debug)
-        fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
-        Tau, Phi, Psi, *shieldedFraction);
+    // if (debug)
+    //     fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
+    //     Tau, Phi, Psi, *shieldedFraction);
 
     if (*shieldedFraction < 0) status = FAIL;
 
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
     if (status && debug)
     {
-        fprintf(stdout, "Check Creation positive! n_b = %"GSYM" M_b = %"GSYM" gradRho = %"GSYM" Fs = %"FSYM" M_j = %"GSYM" VirialPar = %"FSYM" divergence = %"FSYM" Temperature = %"GSYM" cSnd = %"GSYM" AltJeans = %"GSYM" AltAlpha = %"GSYM"\n",
-        dmean, baryonMass, gradRho, *shieldedFraction, jeansMass, alpha, div, Temperature[index], cSound*VelocityUnits/1e5, altJeans);
+        fprintf(stdout, "Check Creation positive! n_b = %"GSYM" M_b = %"GSYM" gradRho = %"GSYM" Fs = %"FSYM" M_j = %"GSYM" VirialPar = %"FSYM" divergence = %"FSYM" Temperature = %"GSYM" cSnd = %"GSYM" AltJeans = %"GSYM" AltAlpha = %"GSYM" Z = %"GSYM"\n",
+        dmean, baryonMass, gradRho, *shieldedFraction, jeansMass, alpha, div, Temperature[index], cSound*VelocityUnits/1e5, altJeans, Metals[index]/Density[index]/0.02);
     }
     //if (status && debug) fprintf(stdout, "passed creation criteria\n");
     if (MechStarsSeedField && Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity && !continuingFormation)
