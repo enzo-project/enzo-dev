@@ -386,7 +386,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(ThisLevel))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
 
-      fprintf(stderr,"CellWidth dx = %"ISYM" and ThisLevel = %d.\n", dx, ThisLevel); fflush(stdout);
+      fprintf(stderr,"%s: CellWidth dx = %e and ThisLevel = %"ISYM".\n", __FUNCTION__, dx, ThisLevel); fflush(stdout);
 
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
@@ -409,7 +409,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       				       LevelArray) == FAIL)
 	return FAIL;
       if (debug)
-	printf("Number of particles before merging: %"ISYM"\n",nParticles);
+	fprintf(stderr,"%s: Number of particles before merging: %"ISYM"\n",__FUNCTION__, nParticles);fflush(stdout);
       /* Do Merging   */
       ActiveParticleList<active_particle_class> MergedParticles;
       
@@ -439,7 +439,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       ParticleList.clear();
       
       if (debug)
-        printf("Number of particles after merging: %"ISYM"\n",NumberOfMergedParticles);
+        fprintf(stderr,"%s: Number of particles after merging: %"ISYM"\n",__FUNCTION__, NumberOfMergedParticles);fflush(stdout);
       
       /* Assign local particles to grids */
       /* Do Merging   */

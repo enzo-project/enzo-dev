@@ -34,7 +34,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
-  printf("%s: We're beginning to read through this function now. Not in AP_SS.C.\n", __FUNCTION__);
+  //printf("%s: We're beginning to read through this function now. Not in AP_SS.C.\n", __FUNCTION__);
  
   /* declarations */
  

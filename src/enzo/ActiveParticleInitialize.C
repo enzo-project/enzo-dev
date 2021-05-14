@@ -26,7 +26,7 @@
 #include "LevelHierarchy.h"
 #include "ActiveParticle.h"
 
-#define NO_DEBUG
+#define NO_DEBUG // SG. Switch from 'NO_DEBUG'. For testing purposes. Throws error.
 
 int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
 
@@ -44,12 +44,16 @@ int ActiveParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Return if this does not concern us */
   if (EnabledActiveParticlesCount == 0) return SUCCESS;
 
+  //SG print for testing.
+  fprintf(stderr, "%s: Should count APs here.", __FUNCTION__);
+
   LCAPERF_START("ActiveParticleInitialize");
 
   int *TotalActiveParticleCount = new int[NumberOfGrids]();
 
   MetaData->NumberOfParticles = FindTotalNumberOfParticles(LevelArray);
   NumberOfOtherParticles = MetaData->NumberOfParticles;// - NumberOfActiveParticles;
+  fprintf(stderr, "%s: Number of active particles = %"ISYM".", __FUNCTION__, NumberOfOtherParticles);
 
   if (NextActiveParticleID == INT_UNDEFINED)
     NextActiveParticleID = NumberOfOtherParticles + NumberOfActiveParticles;
