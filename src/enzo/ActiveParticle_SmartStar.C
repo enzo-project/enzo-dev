@@ -16,7 +16,7 @@
 #define BONDIHOYLERADIUS 0
 #define MINIMUMPOTENTIAL 1
 #define CALCDIRECTPOTENTIAL 0
-#define JEANSREFINEMENT  1 // SG. turning off for testing
+#define JEANSREFINEMENT  0 // SG. turning off for testing
 #define MASSTHRESHOLDCHECK 1  //SG. Turned on for testing. Turning off again.
 #define JEANSLENGTHCALC    1
 #define MASSTHRESHOLD      0.1                       //Msolar in grid
@@ -179,8 +179,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
 		 continue;
 	} else{
-		// printf("%s: We're on the maximum LOCAL level of refinement.", __FUNCTION__);
-		// fflush(stdout);
+		printf("%s: We're on the maximum LOCAL level of refinement.", __FUNCTION__);
+		fflush(stdout);
 
   // determine refinement criteria
   for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
@@ -193,7 +193,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   }
 
 #if SSDEBUG
-  fprintf(stdout, "%s: Right half thinking of creating a SmartSink particle\n", __FUNCTION__); fflush(stdout);
+  //fprintf(stdout, "%s: Right half thinking of creating a SmartSink particle\n", __FUNCTION__); fflush(stdout);
 #endif
 #if MASSTHRESHOLDCHECK
   JeansMass = thisGrid->CalculateJeansMass(data.DensNum, data.Temperature, data.DensityUnits);  //In Msolar
@@ -209,8 +209,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  return FAIL;
 	// 1. Check we're on the maximum refinement level - already done at start of function
 	// SG. Check we're on the maximum LOCAL refinement level from the get-go. 
-	//if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
-	//  continue;
+	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+	 continue;
 	  
 	// 2. Does this cell violate the Jeans condition or overdensity threshold
 	// Fedderath condition #1
@@ -896,35 +896,15 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   MassUnits = DensityUnits * POW(LengthUnits,3);
 
   float tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
-		fprintf(stderr,"%s: Reached just before FOR loop to be on local max grid.\n", __FUNCTION__);
 
-// // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-// 		int j,index;
-  int i,i2,j,k2,index1;
-		for (int i = 0; i < nParticles; i++) {
-		grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-		int GridDimension[3] = {APGrid->GridDimension[0],
-																										APGrid->GridDimension[1],
-																										APGrid->GridDimension[2]};
-				for (k2 = APGrid->GridStartIndex[2]; k2 <= APGrid->GridEndIndex[2]; k2++) {
-						for (j = APGrid->GridStartIndex[1]; j <= APGrid->GridEndIndex[1]; j++) {
-								index1 = GRIDINDEX_NOGHOST(APGrid->GridStartIndex[0], j, k2);
-								for (i2 = APGrid->GridStartIndex[0]; i2 <= APGrid->GridEndIndex[0]; i2++, index1++) {
-			if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][index1] != 0.0){
-				fprintf(stderr,"%s: We're NOT ON the maximum LOCAL level of refinement. So we skip going through this function here.", __FUNCTION__);
-				fflush(stdout);
-				continue;
-			} 
-
-// 		fprintf(stderr,"%s: Reached just after FOR loop to be on local max grid.\n", __FUNCTION__);
   /*
    * Order particles in order of SMS, PopIII, PopII
    * SMS first since they have the highest accretion rates and hence 
    * should be forming first
    */
   int k = 0, num_new_sms_stars = 0, num_new_popiii_stars = 0, num_new_popii_stars = 0;
-  // for (int i = 0; i < nParticles; i++) {
-		// 	 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+  for (int i = 0; i < nParticles; i++) {
+			 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
     if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
@@ -932,56 +912,42 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	SSparticles[k++] = i;
 	num_new_sms_stars++;
       } 
-    } 
-  // // } 
-  // for (int i = 0; i < nParticles; i++) {
-  //   grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-				// int GridDimension[3] = {APGrid->GridDimension[0],
-				// 																								APGrid->GridDimension[1],
-				// 																								APGrid->GridDimension[2]};
-				// for (k2 = APGrid->GridStartIndex[2]; k2 <= APGrid->GridEndIndex[2]; k2++) {
-				// 		for (j = APGrid->GridStartIndex[1]; j <= APGrid->GridEndIndex[1]; j++) {
-				// 				index = GRIDINDEX_NOGHOST(APGrid->GridStartIndex[0], j, k2);
-				// 				for (i2 = APGrid->GridStartIndex[0]; i2 <= APGrid->GridEndIndex[0]; i2++, index++) {
-				// 						if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][index] != 0.0){
-				// 								fprintf(stderr,"%s: We're NOT ON the maximum LOCAL level of refinement. Continue to next iteration.", __FUNCTION__);
-				// 								fflush(stdout);
-				// 								continue;
-				// 						} else{
+   } 
+  } 
+  for (int i = 0; i < nParticles; i++) {
+    grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
 					if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
 							ActiveParticleType_SmartStar* SS;
 							SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-							if(SS->ParticleClass == POPIII && SS->TimeIndex == 0) {
+							if(SS->ParticleClass == POPIII && SS->TimeIndex == 0 && SS->Mass == 0) {
 									SSparticles[k++] = i;
 									num_new_popiii_stars++;
 									} // End IF particle class POPIII
 									} // End IF processor
-						// 				} // End ELSE
-						// 		} // End i2
-						// 		} // End j
-						// } // End k2
- // } // End FOR over particles
-  // for (int i = 0; i < nParticles; i++) {
-  //   grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-    if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
-      ActiveParticleType_SmartStar* SS;
-      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+										} // End ELSE
+						
+  for (int i = 0; i < nParticles; i++) {
+    grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+   if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+     ActiveParticleType_SmartStar* SS;
+     SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
       if(SS->ParticleClass == POPII && SS->TimeIndex == 0) {
 	SSparticles[k++] = i;
 	num_new_popii_stars++;
       }
     }
-  // }
+  }
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0){
-	   fprintf(stderr, "%s: 1) No new particles. Exiting RemoveMassFromGridAfterFormation.");fflush(stdout);
+	   fprintf(stderr, "%s: 1) No new particles. Exiting RemoveMassFromGridAfterFormation.",__FUNCTION__);
 	    return SUCCESS;
   }
    
 
-  for (int k = 0; k < num_new_stars; k++) {
+  for (int k = 0; k < num_new_stars; k++) { // SG. MAIN LOOP.
     int pindex = SSparticles[k];
     grid* APGrid = ParticleList[pindex]->ReturnCurrentGrid();
+				fprintf(stderr,"%s: Reached just after iteration over new stars. num_new_stars = %"ISYM".\n", __FUNCTION__, num_new_stars);
    
    if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
      ActiveParticleType_SmartStar* SS;
@@ -1018,6 +984,11 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/dx;
 
       int cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
+						if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][cellindex] != 0.0){
+				fprintf(stderr,"%s: We're NOT ON the maximum LOCAL level of refinement. Go to next iteration.", __FUNCTION__);
+				continue;
+						}
+						fprintf(stderr,"%s: We're ARE ON the maximum LOCAL level of refinement. Let's make the star.", __FUNCTION__);
       float DensityThreshold = ActiveParticleDensityThreshold*mh/DensityUnits; 
 
 #if JEANSREFINEMENT
@@ -1092,10 +1063,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	   SS->Mass = StarClusterFormEfficiency*density[cellindex];
 	   SS->oldmass = 0.0;
 	   if(ParticleDensity < 0.0) {
-	     printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
-	     printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
-	     printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
-	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+	     fprintf(stderr,"%s: cellindex = %d\n", __FUNCTION__, cellindex);
+	     fprintf(stderr,"density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+	     fprintf(stderr,"DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+	     fprintf(stderr,"SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
 	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
 	   }
 	   printf("POPII: cellindex %d updated - next.\n\n", cellindex);
@@ -1117,15 +1088,15 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
        ***********************************************************************/
       printf("%s: Low resolution run.....\n", __FUNCTION__);
-      if(ParticleDensity < 0.0) {
-	printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
-	printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
-	printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
-	printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+      if(ParticleDensity < 0.0) { // SG. This gets triggered.
+	fprintf(stderr,"%s: cellindex = %d\n", __FUNCTION__, cellindex);
+	fprintf(stderr,"density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+	fprintf(stderr,"DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+	fprintf(stderr,"SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
 	/* Mark particle for deletion */
 	SS->WillDelete = true;
 	ParticleList[pindex]->DisableParticle(LevelArray, MyProcessorNumber);
-	printf("Too late. Star is destroyed by surrounding SF. Particle %d deleted.\n", pindex);
+	fprintf(stderr,"Too late. Star is destroyed by surrounding SF. Particle %d deleted.\n", pindex);
 	
 	continue;
       }
@@ -1394,11 +1365,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   
   } /* End loop over APs */
 
-				} // End i
-		} // End j
-		} // End k
- 		} // End FOR particles loop - Maximum LOCAL refinement level
- 
   return SUCCESS;
 }
 int ActiveParticleType_SmartStar::Accrete(int nParticles, 
@@ -1755,7 +1721,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				FLOAT dx,
 				LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-
+	 fprintf(stderr,"%s: got here.\n", __FUNCTION__); // SG. Debug comment.
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -1772,6 +1738,13 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
      if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+						// SG. Check on local max refinement level.
+      int cellindex_x = (SS->pos[0] - APGrid->CellLeftEdge[0][0])/dx; 
+						int cellindex_y = (SS->pos[1] - APGrid->CellLeftEdge[1][0])/dx;
+						int cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/dx;
+      int cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
+						if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][cellindex] != 0.0) 
+	 continue;
  #if SSDEBUG
       printf("%s: deltatime = %f years\t TIMEGAP = %0.2f years\n",
 	     __FUNCTION__, (ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/yr_s, 

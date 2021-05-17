@@ -349,6 +349,11 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       int i = 0, nParticles = 0, NumberOfMergedParticles = 0;
       ActiveParticleList<ActiveParticleType> ParticleList;
       FLOAT accradius = -10.0; //dummy
+      // SG. Units for dx to pc conversion.
+      float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
+      FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
+      double MassUnits;
+      GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, Time);
 
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
         ParticleList);
@@ -359,34 +364,28 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         return SUCCESS;
       } // end if
 
-      // // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-      // int j,index;
-      // for (int i = 0; i < nParticles; i++) {
-      //   int k;
-      //   grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-      //   int GridDimension[3] = {thisGrid->GridDimension[0],
-      //                           thisGrid->GridDimension[1],
-      //                           thisGrid->GridDimension[2]};
-      //   for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-      //     for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-      //       index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
-      //       for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
-      //         fprintf(stderr,"Number of Baryon Fields [index] = %d [%d].\n", thisGrid->NumberOfBaryonFields, index); fflush(stdout);
-      //         float field = thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index];
-      //         fprintf(stderr,"field value (1 or 0) = %d and index = %d.\n", field, index); fflush(stdout);
-      //         if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0)
-      //         continue;
-      // } // End i
-      // } // End j
-      // } // End k
-      // } // End FOR particles loop - Maximum LOCAL refinement level
-
-
       /* Calculate CellWidth on maximum refinement level */
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(ThisLevel))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
 
-      fprintf(stderr,"%s: CellWidth dx = %e and ThisLevel = %"ISYM".\n", __FUNCTION__, dx, ThisLevel); fflush(stdout);
+      // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
+      int cellindex;
+      for (int i = 0; i < nParticles; i++) {
+        grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+        if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+          ActiveParticleType_SmartStar* SS;
+          SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+          // SG. Check on local max refinement level.
+          int cellindex_x = (SS->pos[0] - APGrid->CellLeftEdge[0][0])/dx; 
+          int cellindex_y = (SS->pos[1] - APGrid->CellLeftEdge[1][0])/dx;
+          int cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/dx;
+          cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
+					if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][cellindex] != 0.0)
+          continue;
+          fprintf(stderr, "%s: we are on max local level of refinement.\n",__FUNCTION__);
+
+
+      fprintf(stderr,"%s: CellWidth dx = %e and ThisLevel = %"ISYM" (but dx calculated for level 14).\n", __FUNCTION__, dx*LengthUnits/pc_cm, ThisLevel); fflush(stdout);
 
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
@@ -504,7 +503,9 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         return FAIL;      
       ParticleList.clear();
 
-    
+    } // End if processor in max local check
+      } // End for particles in max local check
+
   
   return SUCCESS;
 } // End AfterEvolveLevel function
