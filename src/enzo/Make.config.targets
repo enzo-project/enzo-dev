@@ -212,6 +212,11 @@ help-config:
 	@echo
 	@echo "      gmake log2alloc-yes"
 	@echo "      gmake log2alloc-no"
+	@echo
+	@echo "   Set whether to compile with uuid to generate unique ids for data dumps"
+	@echo
+	@echo "      gmake uuid-yes"
+	@echo "      gmake uuid-no"
 
 #-----------------------------------------------------------------------
 
@@ -266,7 +271,7 @@ show-config:
 	@echo "   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : $(CONFIG_NEW_PROBLEM_TYPES)"
 	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
-	@echo "   CONFIG_ACCELERATION_BOUNDARY  [acceleration-boundary-{yes,no}]              : $(CONFIG_ACCELERATION_BOUNDARY)"
+	@echo "   CONFIG_ACCELERATION_BOUNDARY  [acceleration-boundary-{yes,no}] : $(CONFIG_ACCELERATION_BOUNDARY)"
 	@echo "   CONFIG_OPT  [opt-{warn,debug,cudadebug,high,aggressive}]  : $(CONFIG_OPT)"
 	@echo "   CONFIG_TESTING  [testing-{yes,no}]                        : $(CONFIG_TESTING)"
 	@echo "   CONFIG_PHOTON  [photon-{yes,no}]                          : $(CONFIG_PHOTON)"
@@ -280,6 +285,7 @@ show-config:
 	@echo "   CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : $(CONFIG_ENZO_PERFORMANCE)"
 	@echo "   CONFIG_GRACKLE  [grackle-{yes,no}]                        : $(CONFIG_GRACKLE)"
 	@echo "   CONFIG_LOG2ALLOC  [log2alloc-{yes,no}]                    : $(CONFIG_LOG2ALLOC)"
+	@echo "   CONFIG_UUID  [uuid-{yes,no}]                              : $(CONFIG_UUID)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -919,6 +925,7 @@ CONFIG_GRACKLE-%: suggest-clean
 	$(MAKE)  show-config | grep CONFIG_GRACKLE; \
 	echo
 
+
 #-----------------------------------------------------------------------
 
 VALID_LOG2ALLOC = log2alloc-yes log2alloc-no
@@ -934,6 +941,24 @@ CONFIG_LOG2ALLOC-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_LOG2ALLOC = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_LOG2ALLOC; \
+	echo
+
+
+#-----------------------------------------------------------------------
+
+VALID_UUID = uuid-yes uuid-no
+.PHONY: $(VALID_UUID)
+
+uuid-yes: CONFIG_UUID-yes
+uuid-no: CONFIG_UUID-no
+uuid-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_UUID)]\n\n"
+CONFIG_UUID-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_UUID $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_UUID = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_UUID; \
 	echo
 
 
