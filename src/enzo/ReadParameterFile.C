@@ -1035,7 +1035,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIISupernovaMustRefine);
     ret += sscanf(line, "PopIIISupernovaMustRefineResolution = %"ISYM,
 		  &PopIIISupernovaMustRefineResolution);
-    ret += sscanf(line, "PopIIIHeliumIonization = %"ISYM,
+    ret += sscanf(line, "PopIIIMustRefineRegionLifetime = %"FSYM, 
+      &PopIIIMustRefineRegionLifetime);
+    ret += sscanf(line, "PopIIIHeliumIonization = %"ISYM, 
 		  &PopIIIHeliumIonization);
 
     ret += sscanf(line, "PopIIIColorDensityThreshold = %"FSYM,
@@ -1107,7 +1109,24 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarMakerMinimumMassRampEndTime);
     ret += sscanf(line, "StarMakerMinimumMassRampEndMass = %"FSYM,
 		  &StarMakerMinimumMassRampEndMass);
-
+    /* mechanical feedback parameters */
+    ret += sscanf(line, "StellarWinds = %"ISYM, &StellarWinds);
+    ret += sscanf(line, "SingleSN = %"ISYM, &SingleSN);
+    ret += sscanf(line, "StarMakerMaximumFormationMass = %"FSYM, 
+      &StarMakerMaximumFormationMass);
+    ret += sscanf(line, "StarMakerMaximumMass = %"FSYM, &StarMakerMaximumMass);
+    ret += sscanf(line, "DepositUnresolvedEnergyAsThermal = %"ISYM,
+       &DepositUnresolvedEnergyAsThermal);
+    ret += sscanf(line, "StarMakerMinimumRefinementLevel = %"ISYM, 
+      &StarMakeLevel);
+    ret += sscanf(line, "NEvents = %"ISYM, &NEvents);
+    ret += sscanf(line, "AnalyticSNRShellMass = %"ISYM, 
+      &AnalyticSNRShellMass);
+    ret += sscanf(line, "UnrestrictedSN = %"ISYM, &UnrestrictedSN);
+    ret += sscanf(line, "MechStarsCriticalMetallicity = %"FSYM, &MechStarsCriticalMetallicity);
+    ret += sscanf(line, "MechStarsSeedField = %"ISYM, &MechStarsSeedField);
+    ret += sscanf(line, "MechStarsRadiationSpectrum = %"ISYM, &MechStarsRadiationSpectrum);
+    
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);

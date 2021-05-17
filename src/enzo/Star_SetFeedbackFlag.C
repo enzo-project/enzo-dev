@@ -128,6 +128,11 @@ int Star::SetFeedbackFlag(FLOAT Time)
 #endif
     break;
 
+  case NormalStar:
+      //printf("setting feedback flag to %d", MECHANICAL);
+      this->FeedbackFlag = MECHANICAL;
+    break;
+
   default:
     this->FeedbackFlag = NO_FEEDBACK;
     break;

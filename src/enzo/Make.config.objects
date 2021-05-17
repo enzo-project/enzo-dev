@@ -76,6 +76,7 @@ OBJS_CONFIG_LIB = \
         CheckShearingBoundaryConsistency.o \
 	chtable.o \
         cic_deposit.o \
+        cic_deposit_mech_stars.o \
         cic_deposit_c.o \
         cic_flag.o \
         cic_flag_c.o \
@@ -344,6 +345,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AddExternalAcceleration.o \
 	Grid_AddExternalPotentialField.o \
 	Grid_AddFeedbackSphere.o \
+        Grid_StarParticleCalculateFeedbackVolume.o \
 	Grid_AddFieldMassToMassFlaggingField.o \
 	Grid_AddFields.o \
 	Grid_AddMagneticSupernovaeToList.o \
@@ -499,6 +501,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByShockwaves.o \
 	Grid_FlagCellsToBeRefinedBySlope.o \
 	Grid_FlagCellsToBeRefinedBySecondDerivative.o \
+        Grid_FlagCellsToBeRefinedByPopIII.o \
 	Grid_FlagRefinedCells.o \
 	Grid_FlagGridArray.o \
 	Grid_FreeExpansionInitializeGrid.o \
@@ -548,6 +551,10 @@ OBJS_CONFIG_LIB = \
 	Grid_KHInitializeGrid.o \
 	Grid_KHInitializeGridRamp.o \
         Grid_MagneticFieldResetter.o \
+        Grid_MechStarsCreation.o\
+        Grid_MechStarsDepositFeedback.o\
+        Grid_MechStarsFeedbackRoutine.o\
+        Grid_MechStarsSeedSupernova.o\
 	Grid_MirrorStarParticles.o \
 	Grid_MoveAllParticles.o \
 	Grid_MoveAllStars.o \
@@ -736,6 +743,12 @@ OBJS_CONFIG_LIB = \
         mbh_maker.o \
         mcooling.o \
         MakeFieldConservative.o\
+        MechStars_checkCreationCriteria.o\
+        MechStars_determineSN.o\
+        MechStars_determineWinds.o\
+        MechStars_transformComovingWithStar.o\
+        MechStars_depositEmissivity.o\
+        MechStars_calcPhotonRates.o\
         MemoryAllocationRoutines.o \
 	MemoryPoolRoutines.o \
 	MersenneTwister.o \

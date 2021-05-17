@@ -284,7 +284,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Declarations */
 
   int dbx = 0;
-
+  float startEL = MPI_Wtime();
+  float preCallEL;
   FLOAT When, GridTime;
   //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
   //float dtThisLevelSoFar = 0.0, dtThisLevel;
@@ -347,7 +348,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       ENZO_FAIL("Error in SetBoundaryConditions (SlowSib)");
 #endif
   }
- 
   Grids[0]->GridData->SetNumberOfColours();
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
@@ -801,7 +801,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
           Grids[grid1]->GridData->SetTimeStep(dtThisLevel[level]);
     }
-
+    preCallEL = MPI_Wtime()-startEL;
     if (LevelArray[level+1] != NULL) {
       if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel[level], Exterior
 #ifdef TRANSFER
@@ -812,7 +812,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	ENZO_VFAIL("Error in EvolveLevel (%"ISYM").\n", level)
       }
     }
-
+    startEL = MPI_Wtime();
 #ifdef USE_LCAPERF
     // Update lcaperf "level" attribute
 
@@ -962,6 +962,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
  
   } // end of loop over subcycles
+  
  
     EXTRA_OUTPUT_MACRO(6, "After Subcycle Loop")
   if (debug)
@@ -1003,7 +1004,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     delete [] SiblingList;
     SiblingGridListStorage[level] = NULL;
   }
-
+  int32_t mpi_rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+  if (mpi_rank == 0)
+      fprintf(stdout, "[ %d ] TIMING %"ISYM" grids %"GSYM" s post EL\n",
+      level, NumberOfGrids, MPI_Wtime()-startEL + preCallEL);
   return SUCCESS;
  
 }

@@ -262,7 +262,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
       
       /* Determine H2 emission rate */
 
-      if (cstar->ComputePhotonRates(TimeUnits, nbins, energies, Luminosity) == FAIL) {
+      if (cstar->ComputePhotonRates(TimeUnits, Time, nbins, energies, Luminosity,0.0) == FAIL) {
 	ENZO_FAIL("Error in ComputePhotonRates.\n");
       }
       LWLuminosity = Luminosity[3];

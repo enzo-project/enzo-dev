@@ -647,7 +647,19 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StellarWindDensity               = 1.0; // in code unit
   StellarWindRadius                = 0.01;  // in code unit
   StellarWindTemperature           = 100.0;  // in K
-
+/* mechanical feedback parameters */
+  StellarWinds                     = 1;
+  SingleSN                         = 1;
+  StarMakerMaximumFormationMass    = 1e4;
+  StarMakerMaximumMass             = 1e5;
+  DepositUnresolvedEnergyAsThermal = 0;
+  StarMakeLevel                    = MaximumRefinementLevel;
+  NEvents                          = 0;
+  AnalyticSNRShellMass             = 0;
+  UnrestrictedSN                     = 0; // false by default
+  MechStarsCriticalMetallicity      = 1e-12; // dont check for metals in formation
+  MechStarsSeedField                = 0; // dont seed metals from pop3 imf
+  MechStarsRadiationSpectrum        = 0; // no field by default!
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
   PythonReloadScript               = FALSE;
@@ -704,6 +716,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIUseHypernova               = TRUE;         // TRUE for HN yields, FALSE for CCSN
   PopIIISupernovaExplosions        = TRUE;         // TRUE for supernova energy injection
   PopIIIOutputOnFeedback           = FALSE;        // TRUE to output at creation and supernova
+  PopIIIMustRefineRegionLifetime   = 3.0;           // if using refinement criteria 20, set time to refine after supernova
   IMFData                          = NULL;
 
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate, 4: Bondi with v_rel=0, 5: Bondi with v_rel=0 and vorticity

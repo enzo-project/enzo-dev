@@ -30,10 +30,11 @@
 #include "LevelHierarchy.h"
 
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
+int MechStars_calcPhotonRates(Star* star, const float Time);
 
-int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[])
+int Star::ComputePhotonRates(const float TimeUnits, const float Time, 
+                              int &nbins, float E[], double Q[], float dtForThisStar)
 {
-
 
   int i;
   double L_UV, cgs_convert, _mass;
@@ -188,11 +189,36 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[0] = 21.0;  // Good for [Z/H] > -1.3  (Schaerer 2003)
     // Calculate Delta(M_SF) for Cen & Ostriker star particles
 #ifdef TRANSFER
+    if (FeedbackFlag == MECHANICAL){
+        // L_ionization taken from Hopkins 2018,
+        // energy fractions and bins after that are 
+        // taken from the P2 star cluster method
+        EnergyFractionLW   = 1.288;
+        EnergyFractionHeI  = 0.2951;
+        EnergyFractionHeII = 2.818e-4;
+        E[0] = 21.62; // eV (good for a standard, low-Z IMF)
+        E[1] = 30.0;
+        E[2] = 60.0;
+        E[3] = 12.8;
+        L_UV = MechStars_calcPhotonRates(this, Time);// returns [L_UV] = L_sun/M_sun for HI ionizing radiation
+        Q[0] = L_UV * this->Mass * SolarLuminosity * eV_erg / E[0];
+        if (StarClusterHeliumIonization) {
+          Q[1] = EnergyFractionHeI * Q[0];
+          Q[2] = EnergyFractionHeII * Q[0];
+          Q[0] *= 1.0 - EnergyFractionHeI - EnergyFractionHeII;
+        } else {
+          Q[1] = 0.0;
+          Q[2] = 0.0;
+        }
+        Q[3] = EnergyFractionLW * Q[0];
+    }
+    else{
     Mform = this->CalculateMassLoss(dtPhoton) / StarMassEjectionFraction;
     // units of Msun/(time in code units)
     L_UV = 4 * pi * StarEnergyToStellarUV * Mform * clight * clight / dtPhoton;
     cgs_convert = SolarMass / TimeUnits;
     Q[0] = cgs_convert * L_UV * eV_erg / E[0]; // ph/s
+    }
 #else
     Q[0] = 0.0;
 #endif

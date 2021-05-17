@@ -90,6 +90,7 @@ SPEXTERN float PopIIIColorMass;
 SPEXTERN int   PopIIIUseHypernova;
 SPEXTERN int   PopIIISupernovaExplosions;
 SPEXTERN int   PopIIIOutputOnFeedback;
+SPEXTERN float   PopIIIMustRefineRegionLifetime;
 
 SPEXTERN int    StarClusterUseMetalField;
 SPEXTERN int    StarClusterHeliumIonization;
@@ -150,5 +151,19 @@ SPEXTERN float StarMakerMinimumMassRampStartTime;
 SPEXTERN float StarMakerMinimumMassRampStartMass;
 SPEXTERN float StarMakerMinimumMassRampEndTime;
 SPEXTERN float StarMakerMinimumMassRampEndMass;
+
+/* mechanical feedback */
+SPEXTERN int StellarWinds;
+SPEXTERN int SingleSN;
+SPEXTERN float StarMakerMaximumFormationMass;
+SPEXTERN float StarMakerMaximumMass;
+SPEXTERN int DepositUnresolvedEnergyAsThermal;
+SPEXTERN int StarMakeLevel;
+SPEXTERN int NEvents;
+SPEXTERN int AnalyticSNRShellMass;
+SPEXTERN int UnrestrictedSN;
+SPEXTERN int MechStarsSeedField;
+SPEXTERN float MechStarsCriticalMetallicity;
+SPEXTERN int MechStarsRadiationSpectrum;
 
 #endif

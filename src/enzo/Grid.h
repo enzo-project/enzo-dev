@@ -404,6 +404,8 @@ public:
    FLOAT ReturnTime() {return Time;};
    FLOAT ReturnOldTime() {return OldTime;};
    float ReturnTimeStep() {return dtFixed;};
+   // Get the volume of one cell on this grid
+   float GetVCell() {return CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0];};
 
   /* Return, set grid ID */
 
@@ -972,6 +974,10 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Flag all cells which have more than a specified metal mass */
 
    int FlagCellsToBeRefinedByMetalMass(int level);
+
+/* Flag cells surrounding PopIII stars */
+
+   int FlagCellsToBeRefinedByPopIII(int level);
 
 /* Flagging all cell adjacent to a previous flagged cell.  Also, remove all
    Flagged cells in the boundary zones and within one zone of the boundary. */
@@ -2070,7 +2076,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int TestStarParticleInitializeGrid(float TestStarParticleStarMass, 
 				     float *Initialdt,
 				     FLOAT TestStarParticleStarVelocity[],
-				     FLOAT TestStarParticleStarPosition[]);
+				    
+				     int numberOfTestStars,
+				     float clusterRadius);
 
 /* Gravity Test: initialize grid. */
 
@@ -2218,6 +2226,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  float CosmologySimulationInitialFractionH2II,
 			  float CosmologySimulationInitialFractionMetal,
 			  float CosmologySimulationInitialFractionMetalIa,
+        float CosmologySimulationInitialFractionMetalII,
 #ifdef TRANSFER
 			  float RadHydroInitialRadiationEnergy,
 #endif
@@ -2274,6 +2283,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  float CosmologySimulationInitialFractionH2II,
 			  float CosmologySimulationInitialFractionMetal,
 			  float CosmologySimulationInitialFractionMetalIa,
+        float CosmologySimulationInitialFractionMetalII,
 			  int   CosmologySimulationUseMetallicityField,
 			  PINT &CurrentNumberOfParticles,
 			  int CosmologySimulationManuallySetParticleMassRatio,
@@ -2811,12 +2821,17 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int RemoveParticle(int ID, bool disable=false);
 
   int RemoveActiveParticle(PINT ID, int NewProcessorNumber);
+
+  int StarParticleCalculateFeedbackVolume(Star *cstar, int level, float radius, float DensityUnits,
+							float LengthUnits, float VelocityUnits,
+							float TemperatureUnits, float TimeUnits, int &nCells, float &depositedMass,
+							float &depositedMetal, float &depositedMetal2, FLOAT &depositedVolume);
   
   int AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits,
 			float LengthUnits, float VelocityUnits, 
 			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
-			double Q_HI, double sigma_HI, float deltaE, int &CellsModified);
+			double Q_HI, double sigma_HI, float deltaE, int &CellsModified, float MetalFraction);
 
   int SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits,
 				     float LengthUnits, float VelocityUnits, 
@@ -2891,10 +2906,28 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ApplyGalaxyParticleGravity(ActiveParticleType** ThisParticle);
 
   int ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle);
+  
   int ApplySphericalFeedbackToGrid(ActiveParticleType** ThisParticle,
 				   float EjectaDenity, 
 				   float EjectaThermalEnergy,
 				   float EjectaMetalDensity);
+
+
+  int MechStars_Creation(grid* ParticleArray, float* Temperature, 
+			 float *DMField, float* totalMetal, int level, float* CoolingTime, 
+			 int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar);
+  int MechStars_FeedbackRoutine(int level, float* mu_field, float* temperature, 
+				float* totalMetal, float* coolingtime, float* dmfield);
+  int MechStars_DepositFeedback(float supernovaEnergy, 
+				float ejectaMass, float ejectaMetal,
+				float* totalMetal, float* temperature,
+				float* up, float* vp, float* wp,
+				float* xp, float* yp, float* zp,
+				int ip, int jp, int kp,
+				int size, float* mu_field, int winds,
+				int nSNII, int nSNIA, float starMetals, int isP3);
+  int MechStars_SeedSupernova(float* totalMetal, float* temperature, int* seedIndex);
+
 //------------------------------------------------------------------------
 // Radiative transfer methods that don't fit in the TRANSFER define
 //------------------------------------------------------------------------

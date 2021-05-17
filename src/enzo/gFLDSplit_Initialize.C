@@ -98,7 +98,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 //   printf("FLD Initialize: MPI task %"ISYM" has %"ISYM" available OpenMP threads\n",
 //	  MyProcessorNumber,nthreads);
 // #endif
-
+if (debug) printf(" Initializing MPI data\n");
 
 #ifndef MPI_INT
   // in case MPI is not included
@@ -122,7 +122,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     for (face=0; face<2; face++) 
       NBors[dim][face] = ThisGrid->GridData->GetProcessorNeighbors(dim,face);
 
-//   if (debug)  printf("  Initialize: setting default parameters\n");
+if (debug)  printf("  Initialize: setting default parameters\n");
 
   // set default module parameters
   Nchem  = 1;           // hydrogen only
@@ -171,7 +171,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   hnu0_HeI  = 24.6;      // ionization energy of HeI  [eV]
   hnu0_HeII = 54.4;      // ionization energy of HeII [eV]
 
-//   if (debug)  printf("  Initialize: checking input file\n");
+if (debug)  printf("  Initialize: checking input file\n");
 
   ////////////////////////////////
   // if input file present, over-write defaults with module inputs
@@ -237,14 +237,14 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	
       }  // end loop over file lines
     }  // end successful file open
-  }  // end if file name exists
- 
-  // clean up
-  delete[] dummy;
   rewind(fptr);
   fclose(fptr);
+  }  // end if file name exists
+  if (debug) printf("  Initialize: Read in file\n");
+  // clean up
+  delete[] dummy;
 
-//   if (debug)  printf("  Initialize: verifying inputs\n");
+if (debug)  printf("  Initialize: verifying inputs\n");
 
   ////////////////////////////////
 
@@ -646,7 +646,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   if (this->ComputeRadiationIntegrals() == FAIL) 
     ENZO_FAIL("gFLDSplit::Initialize Error in computing radiation spectrum integrals");
 
-//   if (debug)  printf("  Initialize: initializing HYPRE data structures\n");
+if (debug)  printf("  Initialize: initializing HYPRE data structures\n");
 
 #ifdef USE_HYPRE
 

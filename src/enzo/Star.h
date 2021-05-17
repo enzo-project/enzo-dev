@@ -70,6 +70,8 @@ public:
 
   // Routines
   star_type ReturnType(void) { return type; };
+  void SetMetallicity(float metals) {Metallicity = metals;};
+  float ReturnMetallicity(void) {return Metallicity;};
   int   ReturnID(void) { return Identifier; };
   double ReturnMass(void) { return Mass; };
   float ReturnBirthTime(void) { return BirthTime; };
@@ -82,6 +84,7 @@ public:
   void  IncreaseLevel(void) { level++; };
   void  SetLevel(int i) { level = i; };
   void  SetGridID(int i) { GridID = i; };
+  int   ReturnGridID() {return GridID;};
   int   ReturnFeedbackFlag(void) { return FeedbackFlag; };
   grid *ReturnCurrentGrid(void) { return CurrentGrid; };
   void  AssignCurrentGrid(grid *a) { this->CurrentGrid = a; };
@@ -108,7 +111,7 @@ public:
   void	ConvertMassToSolar(void);
   int   CalculateMassAccretion(float &BondiRadius, float &density);
   float CalculateMassLoss(const float dt);
-  int   ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[]);
+  int   ComputePhotonRates(const float TimeUnits, const float Time, int &nbins, float E[], double Q[], float dtForThisStar);
   int	SetFeedbackFlag(FLOAT Time);
   void  SetFeedbackFlag(int flag);
 #ifdef LARGE_INTS
