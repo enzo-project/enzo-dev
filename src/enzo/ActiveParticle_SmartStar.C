@@ -1733,9 +1733,13 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
   float ctime = LevelArray[ThisLevel]->GridData->ReturnTime();
 		for (int i = 0; i < nParticles; i++) {
 				grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-				int MyLevel = APGrid->GridLevel;
+				ActiveParticleType_SmartStar* SS;
+    SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+				int MyLevel = SS->ReturnLevel();
+				fprintf(stderr,"%s: level = %"ISYM" and MyLevel = %"ISYM" and NoParticles = %"ISYM".\n", __FUNCTION__, 
+				ThisLevel, MyLevel, nParticles);
 				if (ThisLevel < MyLevel)
-				continue;
+				return SUCCESS;
 				double my_dx = APGrid->CellWidth[0][0];
 				double dx_pc = my_dx*LengthUnits/pc_cm;   //in pc
 				double MassConversion = (double) (my_dx*my_dx*my_dx * double(MassUnits));  //convert to g
@@ -1744,13 +1748,6 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-		// 				// SG. Check on local max refinement level.
-  //     int cellindex_x = (SS->pos[0] - APGrid->CellLeftEdge[0][0])/dx; 
-		// 				int cellindex_y = (SS->pos[1] - APGrid->CellLeftEdge[1][0])/dx;
-		// 				int cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/dx;
-  //     int cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
-		// 				if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][cellindex] != 0.0) 
-	 // continue;
  #if SSDEBUG
       printf("%s: deltatime = %f years\t TIMEGAP = %0.2f years\n",
 	     __FUNCTION__, (ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/yr_s, 
@@ -1760,70 +1757,6 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
       //We should update when the time between stored rates exceeds TIMEGAP
       if( (ctime - SS->AccretionRateTime[SS->TimeIndex] > (TIMEGAP*APGrid->ReturnTimeStep()))
 	  || (SS->TimeIndex == 0)) {
-	if ((SS->ParticleClass == POPIII) && (SS->TimeIndex != 0)){
-		// SG. After star is formed, we want the old mass to be set to the mass of the POPIII particle.
-		// 'Accretion' is never logged and no particle type change is induced.
-		float cmass = ParticleList[i]->ReturnMass();
-		float omass = cmass;
-		SS->TimeIndex++;
-		int timeindex = (SS->TimeIndex)%NTIMES;
-		int otimeindex = timeindex - 1;
-		if(otimeindex == -1) //loop back
-				otimeindex = NTIMES -1;
-		float otime = SS->AccretionRateTime[otimeindex];
-		if(otime == -1.0) {
-				otimeindex = 0;
-				otime = SS->AccretionRateTime[otimeindex]; 
-		}
-
-		float deltatime = ctime - otime;
-		float accrate = (cmass - omass)/deltatime;
-		float Age = ctime - SS->BirthTime;
-		SS->AccretionRate[timeindex] = accrate*my_dx*my_dx*my_dx;
-		SS->AccretionRateTime[timeindex] = ctime;
-		SS->oldmass = cmass;
-		SS->TimeIndex = timeindex;	
-		fprintf(stdout, "old_mass = %e Msolar\t cmass = (%e code) %e Msolar\n", omass*MassConversion,
-			cmass, cmass*MassConversion);
-		fprintf(stdout, "accrate = %1.2e Msolar/yr\t deltatime = %3.3f Myrs\t TimeIndex = %d\t Particle Mass = %1.2e Msolar\t Age = %1.3f Myr\t Lifetime = %1.2f Myr\t Class = %d\n",
-			(SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass,
-			deltatime*TimeUnits/Myr_s,
-			SS->TimeIndex,
-			SS->ReturnMass()*MassConversion,
-			Age*TimeUnits/Myr_s,
-			SS->RadiationLifetime*TimeUnits/Myr_s,
-			SS->ParticleClass);
-			if(SS->ParticleClass > SMS)
-	  continue;
-	else {
-	  if(dx_pc < SMS_RESOLUTION) {
-	      /*
-	       * Using the time-averaged accretion rates determine if the 
-	       * SMS is accreting fast enough or
-	       * if it is falling onto the main sequence.
-	       * This can also allow a POPIII star to change into a SMS
-	       */
-	      if((SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass
-		 > CRITICAL_ACCRETION_RATE) {
-		if(SS->ParticleClass == POPIII) {
-		  printf("%s: UPDATE: ParticleClass switching from POPIII to SMS\n", __FUNCTION__);
-		}
-		SS->ParticleClass = SMS;
-	      }
-	      else {
-		float Age = Time - SS->BirthTime;
-		if(Age*TimeUnits/yr_s > 1e4 && SMS == SS->ParticleClass) { /* Don't do this at very start */
-		  printf("%s: WARNING: ParticleClass switching from SMS to POPIII (deltatime = %f kyrs)\n", __FUNCTION__,
-			 deltatime*TimeUnits/(yr_s*1e3));
-		  printf("%s: WARNING: Accretion Rate = %f Msolar/yr. Critical rate = %f Msolar/yr\n", __FUNCTION__,
-			 (SS->AccretionRate[SS->TimeIndex]*MassUnits/TimeUnits)*yr_s/SolarMass,
-			 CRITICAL_ACCRETION_RATE);
-		  SS->ParticleClass = POPIII;
-		}
-	      }
-	  }
-	}
-	}else{ // SG. For every other particle type and when TimeIndex for POPIII > 0.
 		float omass = SS->oldmass;
 		float cmass = ParticleList[i]->ReturnMass();
 		if(cmass - omass < -1e-10) { //Can happen after a restart due to rounding
@@ -1865,6 +1798,10 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	  continue;
 	else {
 	  if(dx_pc < SMS_RESOLUTION) {
+				// SG. Avoid artificial change to SMS in the case of no accretion. Issue with oldmass parameter.
+				#if STELLAR_ACCRETION_OFF
+				continue;
+				#endif
 	      /*
 	       * Using the time-averaged accretion rates determine if the 
 	       * SMS is accreting fast enough or
@@ -1872,7 +1809,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	       * This can also allow a POPIII star to change into a SMS
 	       */
 	      if((SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass
-		 > CRITICAL_ACCRETION_RATE) {
+		 > CRITICAL_ACCRETION_RATE) { 
 		if(SS->ParticleClass == POPIII) {
 		  printf("%s: UPDATE: ParticleClass switching from POPIII to SMS\n", __FUNCTION__);
 		}
@@ -1891,7 +1828,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	      }
 	  }
 	}
-	}// End ELSE
+	// }// End ELSE
 	
       } // End IF timegap exceeded
      } // End IF processor
