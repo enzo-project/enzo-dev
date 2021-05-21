@@ -20,17 +20,19 @@
 //#include "gFLDProblem.h"
 
 
-int MechStars_calcPhotonRates(Star* star, const float Time)
+float MechStars_calcPhotonRates(Star* star, const float Time, float TimeUnits)
 {
     // Modeling after fFLDSplit_RadiationSource.F90 to fill in Emissivity0 field.
         //    etaconst = h_nu0*NGammaDot*specconst/dV
         // specconst ~ scaling factor for spectrum -> varies depeding on user choice of tracked radiation
         // dV ~ proper volume of cell
         // NGammaDot ~ photons per second. -> this will vary depending on age of particle!
-        const float LsunToErg = 3.85e33; // erg/s
-        const float evPerErg = 6.2415e11;
-        const float h_nu0 = 13.6/evPerErg; // erg
-        float age = Time - star->ReturnBirthTime();
+        //const float LsunToErg = 3.85e33; // erg/s
+        //const float evPerErg = 6.2415e11;
+        //const float h_nu0 = 13.6/evPerErg; // erg
+        float age = (Time - star->ReturnBirthTime())*TimeUnits/Myr_s; // age in Myr
+
+
         /*
             Calculate rates of photons given the age-based luminosity in Hopkins 2017.  Units are
             L_sun/M_sun.  While they are given, we dont bother with IR/optical bands here.
@@ -44,14 +46,16 @@ int MechStars_calcPhotonRates(Star* star, const float Time)
         if (age < 3.5){
             Psi_ion = 500;
         }
-        if (age > 3.5 && age < 25){
-            Psi_ion = 60.*pow(age/3.5, -3.6)+470*pow(age/3.5, 0.045-1.82*log(age));
+        if (age >= 3.5 && age <= 25){
+            Psi_ion = 60. * pow(age/3.5, -3.6) + 470 * pow(age/3.5, 0.045-1.82*log(age));
         }     
         if (age > 3.4){
             Psi_fuv = 572.*pow(age/3.4, -1.5);
         }
         // convert to better units
         //Psi_ion *= star->ReturnMass(); // L_sun
+	printf("calcPhotonRates: t = %f, birth = %f, age = %f, psi_ion = %f\n", 
+	       Time*TimeUnits/Myr_s, star->ReturnBirthTime()*TimeUnits/Myr_s, age, Psi_ion);
         return Psi_ion;
 
         return SUCCESS;
