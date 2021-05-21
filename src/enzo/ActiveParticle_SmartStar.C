@@ -50,8 +50,8 @@ int ActiveParticleType_SmartStar::FeedbackDistTotalCells = INT_UNDEFINED;
 int ActiveParticleType_SmartStar::FeedbackDistCellStep = INT_UNDEFINED;
 static double JeansLength(float T, float dens, float density_units);
 static void UpdateAccretionRadius(ActiveParticleType*  ThisParticle, float newmass,
-				  FLOAT AccretionRadius, FLOAT dx, float avgtemp,
-				  float mass_units, float length_units);
+				  FLOAT AccretionRadius, float avgtemp,
+				  float mass_units, float length_units); // SG. Took out dx argument.
 static float GetStellarRadius(float cmass, float accrate);
 int SmartStarPopIII_IMFInitialize(void);
 int ActiveParticleType_SmartStar::InitializeParticleType()
@@ -1376,7 +1376,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 }
 int ActiveParticleType_SmartStar::Accrete(int nParticles, 
     ActiveParticleList<ActiveParticleType>& ParticleList,
-    FLOAT AccretionRadius, FLOAT dx,
+    FLOAT AccretionRadius,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
 
@@ -1425,9 +1425,9 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
   for (int i = 0; i < nParticles; i++) {
 			  grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
 					int MyLevel = APGrid->GridLevel;
-					double my_dx = APGrid->CellWidth[0][0];
-					double dx_pc = my_dx*LengthUnits/pc_cm;   //in pc
-					double MassConversion = (double) (my_dx*my_dx*my_dx * double(MassUnits));  //convert to g
+					double dx = APGrid->CellWidth[0][0];
+					double dx_pc = dx*LengthUnits/pc_cm;   //in pc
+					double MassConversion = (double) (dx*dx*dx * double(MassUnits));  //convert to g
 					MassConversion = MassConversion/SolarMass; // convert to Msun
 					float MassInSolar = ParticleList[i]->ReturnMass()*MassConversion/SolarMass;
 					fprintf(stderr,"%s: cell width = %e on level = %"ISYM" with MassInSolar = %e.\n", __FUNCTION__, dx_pc, ThisLevel, MassInSolar);
@@ -1700,15 +1700,21 @@ static double JeansLength(float T, float dens, float density_units)
  * The accretion radius is to the gravitational radius of the star.
  */
 static void UpdateAccretionRadius(ActiveParticleType*  ThisParticle, float newmass,
-				  FLOAT OldAccretionRadius, FLOAT dx, float avgtemp,
+				  FLOAT OldAccretionRadius, float avgtemp,
 				  float mass_units, float length_units)
 {
   ActiveParticleType_SmartStar* SS;
   SS = static_cast<ActiveParticleType_SmartStar*>(ThisParticle);
 
+		// SG. Finding dx and MassConversion.
+		grid* APGrid = ThisParticle->ReturnCurrentGrid();
+		double dx = APGrid->CellWidth[0][0];
+		double dx_pc = dx*length_units/pc_cm;   //in pc
+		float MassConversion = (float) (dx*dx*dx * double(mass_units));  //convert to g
+		MassConversion = MassConversion/SolarMass; // convert to Msun
+
   float Temperature = avgtemp;
   FLOAT soundspeed2 = kboltz*Temperature*Gamma/(Mu*mh); 
-  float MassConversion = (float) (dx*dx*dx * double(mass_units));  //convert to g
   FLOAT NewAccretionRadius = (2 * GravConst * newmass * MassConversion / soundspeed2) / length_units; //in code_length
   if(NewAccretionRadius > OldAccretionRadius)
     SS->AccretionRadius = NewAccretionRadius;
@@ -1718,7 +1724,6 @@ static void UpdateAccretionRadius(ActiveParticleType*  ThisParticle, float newma
 // SG.JR. Take dx out of argument of function. Calculate within function.
 int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				ActiveParticleList<ActiveParticleType>& ParticleList,
-				FLOAT dx,
 				LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
 	 fprintf(stderr,"%s: got here.\n", __FUNCTION__); // SG. Debug comment.
@@ -1740,9 +1745,9 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				ThisLevel, MyLevel, nParticles);
 				if (ThisLevel < MyLevel)
 				return SUCCESS;
-				double my_dx = APGrid->CellWidth[0][0];
-				double dx_pc = my_dx*LengthUnits/pc_cm;   //in pc
-				double MassConversion = (double) (my_dx*my_dx*my_dx * double(MassUnits));  //convert to g
+				double dx = APGrid->CellWidth[0][0];
+				double dx_pc = dx*LengthUnits/pc_cm;   //in pc
+				double MassConversion = (double) (dx*dx*dx * double(MassUnits));  //convert to g
 				MassConversion = MassConversion/SolarMass; // convert to Msun
 				fprintf(stderr,"%s: cell width = %e on level = %"ISYM".\n", __FUNCTION__, dx_pc, ThisLevel);
 				if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
@@ -1780,7 +1785,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	float deltatime = ctime - otime;
 	float accrate = (cmass - omass)/deltatime;
 	float Age = ctime - SS->BirthTime;
-	SS->AccretionRate[timeindex] = accrate*my_dx*my_dx*my_dx;
+	SS->AccretionRate[timeindex] = accrate*dx*dx*dx;
 	SS->AccretionRateTime[timeindex] = ctime;
 	SS->oldmass = cmass;
 	SS->TimeIndex = timeindex;	
@@ -1842,7 +1847,6 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
  */
 int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
 				  ActiveParticleList<ActiveParticleType>& ParticleList,
-							   FLOAT dx,
 							   LevelHierarchyEntry *LevelArray[],
 							   int ThisLevel)
 {
@@ -1855,10 +1859,13 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
   MassUnits = DensityUnits * POW(LengthUnits,3);
-  double MassConversion = (double) (dx*dx*dx * double(MassUnits));  //convert to g
-  MassConversion = MassConversion/SolarMass;
   for (int i = 0; i < nParticles; i++) {
     grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+				// SG. Finding dx and MassConversion.
+				double dx = APGrid->CellWidth[0][0];
+				double dx_pc = dx*LengthUnits/pc_cm;   //in pc
+				double MassConversion = (double) (dx*dx*dx * double(MassUnits));  //convert to g
+				MassConversion = MassConversion/SolarMass; // convert to Msun
     if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);

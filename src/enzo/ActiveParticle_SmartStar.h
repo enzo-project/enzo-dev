@@ -172,20 +172,19 @@ public:
       int *ngroups, 
       LevelHierarchyEntry *LevelArray[], int ThisLevel, 
       ActiveParticleList<active_particle_class>& MergedParticles);
-
+      
+// SG. Took dx out of argument declaration in the following 3 functions.
   static int Accrete(int nParticles, 
       ActiveParticleList<ActiveParticleType>& ParticleList,
-      FLOAT AccretionRadius, FLOAT dx, 
+      FLOAT AccretionRadius,
       LevelHierarchyEntry *LevelArray[], int ThisLevel);
 
   static int UpdateAccretionRateStats(int nParticles,
 				      ActiveParticleList<ActiveParticleType>& ParticleList,
-				      FLOAT dx, 
 				      LevelHierarchyEntry *LevelArray[], int ThisLevel);
 
   static int UpdateRadiationLifetimes(int nParticles,
 				      ActiveParticleList<ActiveParticleType>& ParticleList,
-				      FLOAT dx,
 				      LevelHierarchyEntry *LevelArray[], int ThisLevel);
 
   static int  RemoveMassFromGridAfterFormation(int nParticles, 
@@ -485,14 +484,14 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 
       /* Do accretion */
       
-      if (Accrete(nParticles, ParticleList, accradius, dx, LevelArray, 
+      if (Accrete(nParticles, ParticleList, accradius, LevelArray, 
               ThisLevel) == FAIL)
         ENZO_FAIL("SmartStar Particle accretion failed. \n");
 
-      if(UpdateAccretionRateStats(nParticles, ParticleList, dx, LevelArray, ThisLevel) == FAIL)
+      if(UpdateAccretionRateStats(nParticles, ParticleList, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("Failed to update accretion rate stats. \n");
 
-      if(UpdateRadiationLifetimes(nParticles, ParticleList, dx, LevelArray, ThisLevel) == FAIL)
+      if(UpdateRadiationLifetimes(nParticles, ParticleList, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("Failed to update radiation lifetimes. \n");
 
       /* Apply feedback */
