@@ -352,7 +352,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
             }
         }
     } // end iteration over particles
-    if (c > 0)
+    if (numSN > 0)
     {
         fprintf(stdout, "Ptcl Number = %d Events = %d FeedbackTime = %e Size = %d\n",
                 c, numSN, MPI_Wtime() - startFB, GridDimension[0] * GridDimension[1] * GridDimension[2]);
