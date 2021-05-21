@@ -54,8 +54,8 @@ float MechStars_calcPhotonRates(Star* star, const float Time, float TimeUnits)
         }
         // convert to better units
         //Psi_ion *= star->ReturnMass(); // L_sun
-	printf("calcPhotonRates: t = %f, birth = %f, age = %f, psi_ion = %f\n", 
-	       Time*TimeUnits/Myr_s, star->ReturnBirthTime()*TimeUnits/Myr_s, age, Psi_ion);
+	// printf("calcPhotonRates: t = %f, birth = %f, age = %f, psi_ion = %f\n", 
+	       //	       Time*TimeUnits/Myr_s, star->ReturnBirthTime()*TimeUnits/Myr_s, age, Psi_ion);
         return Psi_ion;
 
         return SUCCESS;
