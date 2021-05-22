@@ -117,15 +117,21 @@ int checkCreationCriteria(float* Density, float* Metals,
     
     if (alpha > 1.0) return FAIL;
     /* Is cooling time < dynamical time or temperature < 1e4 */
-
+    float totalDensity = (Density[index]
+			  +DMField[index])*DensityUnits;
+    *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5);
     if (Temperature[index] > 1e4)
     {
-        if (MultiSpecies > 0) return FAIL; //no hot gas forming stars!
-        float totalDensity = (Density[index]
-                +DMField[index])*DensityUnits;
-        *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5);
-        if (*dynamicalTime/TimeUnits < CoolingTime[index]) 
-            return FAIL;   
+      if (MultiSpecies > 0) return FAIL; //no hot gas forming stars!
+
+
+
+      if (*dynamicalTime/TimeUnits < CoolingTime[index]) 
+	return FAIL;   
+    }
+    // printf("checkCreationCriteria: T_dyn=%e, min = %e\n", *dynamicalTime / yr_s, StarMakerMinimumDynamicalTime);
+    if (*dynamicalTime / yr_s < StarMakerMinimumDynamicalTime){
+      return FAIL;
     }
     /* is gas mass > critical jeans mass? */
 
@@ -164,11 +170,11 @@ int checkCreationCriteria(float* Density, float* Metals,
     if (*shieldedFraction < 0) status = FAIL;
 
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
-    if (status && debug)
-    {
-        fprintf(stdout, "Check Creation positive! n_b = %"GSYM" M_b = %"GSYM" gradRho = %"GSYM" Fs = %"FSYM" M_j = %"GSYM" VirialPar = %"FSYM" divergence = %"FSYM" Temperature = %"GSYM" cSnd = %"GSYM" AltJeans = %"GSYM" AltAlpha = %"GSYM" Z = %"GSYM"\n",
-        dmean, baryonMass, gradRho, *shieldedFraction, jeansMass, alpha, div, Temperature[index], cSound*VelocityUnits/1e5, altJeans, Metals[index]/Density[index]/0.02);
-    }
+    //if (status && debug)
+    //{
+    //    fprintf(stdout, "Check Creation positive! n_b = %"GSYM" M_b = %"GSYM" gradRho = %"GSYM" Fs = %"FSYM" M_j = %"GSYM" VirialPar = %"FSYM" divergence = %"FSYM" Temperature = %"GSYM" cSnd = %"GSYM" AltJeans = %"GSYM" AltAlpha = %"GSYM" Z = %"GSYM"\n",
+    //    dmean, baryonMass, gradRho, *shieldedFraction, jeansMass, alpha, div, Temperature[index], cSound*VelocityUnits/1e5, altJeans, Metals[index]/Density[index]/0.02);
+    //}
     //if (status && debug) fprintf(stdout, "passed creation criteria\n");
     if (MechStarsSeedField && Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity && !continuingFormation)
         *notEnoughMetals = false;
