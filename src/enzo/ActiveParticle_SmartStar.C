@@ -1053,6 +1053,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	  while (Temp != NULL) {
 	    
 	    /* Zero under subgrid field */
+	    /* JR: IS this necessary here? */
 	    
 	    if (!MarkedSubgrids) {
 	      Temp->GridData->

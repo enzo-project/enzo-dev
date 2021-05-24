@@ -551,10 +551,6 @@ OBJS_CONFIG_LIB = \
 	Grid_KHInitializeGrid.o \
 	Grid_KHInitializeGridRamp.o \
         Grid_MagneticFieldResetter.o \
-        Grid_MechStarsCreation.o\
-        Grid_MechStarsDepositFeedback.o\
-        Grid_MechStarsFeedbackRoutine.o\
-        Grid_MechStarsSeedSupernova.o\
 	Grid_MirrorStarParticles.o \
 	Grid_MoveAllParticles.o \
 	Grid_MoveAllStars.o \
@@ -743,7 +739,6 @@ OBJS_CONFIG_LIB = \
         mbh_maker.o \
         mcooling.o \
         MakeFieldConservative.o\
-        MechStars_checkCreationCriteria.o\
         MechStars_determineSN.o\
         MechStars_determineWinds.o\
         MechStars_transformComovingWithStar.o\

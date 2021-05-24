@@ -15,11 +15,11 @@
 #include "StarParticleData.h"
 #include "phys_constants.h"
 
-extern "C" void FORTRAN_NAME(cic_deposit)(float *xPosition, float *yPosition,
-                                          float *zPosition, int *gridRank, int *nParticles,
-                                          float *DepositQuantity, float *FieldToDepositTo,
-                                          float *leftEdge, int *xGridDim, int *yGridDim,
-                                          int *zGridDim, float *gridDx, float *cloudsize);
+extern "C" void FORTRAN_NAME(cic_deposit)(FLOAT *xPosition, FLOAT *yPosition,
+                                          FLOAT *zPosition, int *gridRank, int *nParticles,
+                                          FLOAT *DepositQuantity, float *FieldToDepositTo,
+                                          FLOAT *leftEdge, int *xGridDim, int *yGridDim,
+                                          int *zGridDim, FLOAT *gridDx, FLOAT *cloudsize);
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, float *MassUnits, float Time);
@@ -470,7 +470,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     FLOAT LeftEdge[3] = {CellLeftEdge[0][0], CellLeftEdge[1][0], CellLeftEdge[2][0]};
     FLOAT pX, pY, pZ;
-    float eCouple, geCouple, mCouple, zCouple, zIICouple, zIACouple, p3Couple;
+    FLOAT eCouple, geCouple, mCouple, zCouple, zIICouple, zIACouple, p3Couple;
     /*
     As a computational compromize, supernova are deposited CIC, but winds are 
     deposited NGP.  At VERY high resolution, well still do CIC for winds
@@ -562,11 +562,11 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     int np = 1;
     shellMass *= -1 / MassUnits;
     FORTRAN_NAME(cic_deposit)
-        (xp, yp, zp, &GridRank, &np, &shellMass, density, LeftEdge,
+      ((FLOAT *)xp, (FLOAT *)yp, (FLOAT *)zp, &GridRank, &np, (FLOAT *)&shellMass, density, LeftEdge,
         &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
     shellMetals *= -1 / MassUnits;
     FORTRAN_NAME(cic_deposit)
-        (xp, yp, zp, &GridRank, &np, &shellMetals, metals, LeftEdge,
+      ((FLOAT *)xp, (FLOAT *)yp, (FLOAT *)zp, &GridRank, &np, (FLOAT *)&shellMetals, metals, LeftEdge,
         &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
 
     /* 

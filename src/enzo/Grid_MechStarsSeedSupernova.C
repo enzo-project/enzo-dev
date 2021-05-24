@@ -30,7 +30,7 @@ extern "C"  void FORTRAN_NAME(cic_deposit)(float* xPosition, float* yPosition,
         float* zPosition, int* gridRank, int* nParticles, 
         float* DepositQuantity, float* FieldToDepositTo,
         float* leftEdge, int* xGridDim, int* yGridDim, 
-        int* zGridDim, float* gridDx, float* cloudsize);
+        int* zGridDim, FLOAT* gridDx, float* cloudsize);
 int search_lower_bound(float *arr, float value, int low, int high, 
 		       int total);
 unsigned_long_int mt_random(void);

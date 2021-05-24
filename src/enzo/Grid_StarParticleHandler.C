@@ -831,7 +831,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
-    } 
+    }
+#ifdef DONOTCOMPILE
     if (STARMAKE_METHOD(MECHANICAL) && level >= StarMakeLevel){
        NumberOfNewParticlesSoFar = NumberOfParticles;
          int nRetStars = 0;
@@ -846,6 +847,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
          }
     }
+#endif
     if (STARMAKE_METHOD(MOM_STAR)) {
 
       //---- UNIGRID ALGORITHM (NO JEANS MASS)
@@ -1602,7 +1604,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     float *cooling_time = new float[size];
     this->ComputeCoolingTime(cooling_time);
       //fprintf(stdout, "CALLING MECH FEEDBACK\n");
+#ifdef DONOTCOMPILE
       MechStars_FeedbackRoutine(level, &mu_field[0], temperature, MetalPointer, cooling_time, dmfield);
+#endif
       delete [] cooling_time;
   }
   if (STARFEED_METHOD(MOM_STAR)) {

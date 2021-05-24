@@ -300,10 +300,15 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                     SNMassEjected = nSNII*10.5 + nSNIA * 1.5;
                     float starMetal = (ParticleAttribute[2][pIndex] / Zsolar); //determines metal content of SNeII
 
-                    MechStars_DepositFeedback(energySN, SNMassEjected, SNMetalEjected, totalMetal, Temperature,
-                                              &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
-                                              &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
-                                              ip, jp, kp, size, mu_field, 0, nSNII, nSNIA, starMetal, 0);
+                    MechStars_DepositFeedback(energySN, SNMassEjected, SNMetalEjected, totalMetal,
+					      Temperature, &ParticleVelocity[0][pIndex],
+					      &ParticleVelocity[1][pIndex],
+					      &ParticleVelocity[2][pIndex],
+                                              (float *)&ParticlePosition[0][pIndex],
+					      (float *)&ParticlePosition[1][pIndex],
+					      (float *)&ParticlePosition[2][pIndex],
+                                              ip, jp, kp, size, mu_field, 0, nSNII, nSNIA,
+					      starMetal, 0);
 
                     // can only track number of events in dynamical time if not using it to determine lifetime
 
@@ -332,9 +337,14 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                 if (windEnergy > 1e5)
                 {
                     //printf("Winds: M = %e E=%e\n", windMass, windEnergy);
-                    MechStars_DepositFeedback(windEnergy, windMass, windMetals, totalMetal, Temperature,
-                                              &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
-                                              &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
+                    MechStars_DepositFeedback(windEnergy, windMass, windMetals, totalMetal,
+					      Temperature,
+                                              &ParticleVelocity[0][pIndex],
+					      &ParticleVelocity[1][pIndex],
+					      &ParticleVelocity[2][pIndex],
+                                              (float *) &ParticlePosition[0][pIndex],
+					      (float *) &ParticlePosition[1][pIndex],
+					      (float *) &ParticlePosition[2][pIndex],
                                               ip, jp, kp, size, mu_field, 1, 0, 0, 0.0, 0);
                 }
             }
