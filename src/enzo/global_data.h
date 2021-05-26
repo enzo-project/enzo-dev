@@ -1163,6 +1163,7 @@ EXTERN ActiveParticleType_info *EnabledActiveParticles[MAX_ACTIVE_PARTICLE_TYPES
 EXTERN int EnabledActiveParticlesCount;
 EXTERN float ActiveParticleDensityThreshold;
 EXTERN int SmartStarAccretion;
+EXTERN int SmartStarBondiRadiusRefinementFactor; // SG. New parameter for adjusting refinement around BH.
 EXTERN int SmartStarFeedback;
 EXTERN int SmartStarEddingtonCap;
 EXTERN int SmartStarBHFeedback;

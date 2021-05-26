@@ -330,16 +330,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   }  // This needs to be after CellFlaggingMethod to make sure must
      // refine active particles are configured correctly on restart.
      // There's probably a better way to do this.
-  fprintf(fptr, "ActiveParticleDensityThreshold = %"GSYM"\n",
-	  ActiveParticleDensityThreshold);
-  fprintf(fptr, "SmartStarAccretion             = %"ISYM"\n", SmartStarAccretion);
-  fprintf(fptr, "SmartStarFeedback              = %"ISYM"\n", SmartStarFeedback);
-  fprintf(fptr, "SmartStarEddingtonCap          = %"ISYM"\n", SmartStarEddingtonCap);
-  fprintf(fptr, "SmartStarBHFeedback              = %"ISYM"\n", SmartStarBHFeedback);
-  fprintf(fptr, "SmartStarBHRadiativeFeedback        = %"ISYM"\n", SmartStarBHRadiativeFeedback);
-  fprintf(fptr, "SmartStarBHJetFeedback              = %"ISYM"\n", SmartStarBHJetFeedback);
-  fprintf(fptr, "SmartStarBHThermalFeedback              = %"ISYM"\n", SmartStarBHThermalFeedback);
-  fprintf(fptr, "SmartStarStellarRadiativeFeedback        = %"ISYM"\n", SmartStarStellarRadiativeFeedback);
+  fprintf(fptr, "ActiveParticleDensityThreshold        = %"GSYM"\n", ActiveParticleDensityThreshold);
+  fprintf(fptr, "SmartStarAccretion                    = %"ISYM"\n", SmartStarAccretion);
+  fprintf(fptr, "SmartStarBondiRadiusRefinementFactor  = %"ISYM"\n", SmartStarBondiRadiusRefinementFactor);
+  fprintf(fptr, "SmartStarFeedback                     = %"ISYM"\n", SmartStarFeedback);
+  fprintf(fptr, "SmartStarEddingtonCap                 = %"ISYM"\n", SmartStarEddingtonCap);
+  fprintf(fptr, "SmartStarBHFeedback                   = %"ISYM"\n", SmartStarBHFeedback);
+  fprintf(fptr, "SmartStarBHRadiativeFeedback          = %"ISYM"\n", SmartStarBHRadiativeFeedback);
+  fprintf(fptr, "SmartStarBHJetFeedback                = %"ISYM"\n", SmartStarBHJetFeedback);
+  fprintf(fptr, "SmartStarBHThermalFeedback            = %"ISYM"\n", SmartStarBHThermalFeedback);
+  fprintf(fptr, "SmartStarStellarRadiativeFeedback     = %"ISYM"\n", SmartStarStellarRadiativeFeedback);
   fprintf(fptr, "SmartStarFeedbackEnergyCoupling       = %"GSYM"\n", SmartStarFeedbackEnergyCoupling);
   fprintf(fptr, "SmartStarFeedbackJetsThresholdMass    = %"GSYM"\n", SmartStarFeedbackJetsThresholdMass);
   fprintf(fptr, "SmartStarJetVelocity                  = %"GSYM"\n", SmartStarJetVelocity);

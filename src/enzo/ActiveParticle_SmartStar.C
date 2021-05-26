@@ -1578,7 +1578,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			printf("%s: No POPIII was particle detected. Continue to flag fields.\n", __FUNCTION__);  
 			pos = SmartStarList[i]->ReturnPosition();
 			FLOAT accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
-			double dx_bondi = (double) accrad/ BondiRadiusRefinementFactor;
+			double dx_bondi = (double) accrad/ SmartStarBondiRadiusRefinementFactor;
 			double dx_pc = dx*LengthUnits/pc_cm;   //in pc
 			double dx_bondi_pc = dx_bondi*LengthUnits/pc_cm; //in pc
 			if (dx_bondi > dx){
