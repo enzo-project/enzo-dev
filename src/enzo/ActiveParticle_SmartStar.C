@@ -1543,30 +1543,58 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
     LevelHierarchyEntry *LevelArray[], int level,
     int TopGridDims[], int SmartStarID)
 {
+
+/* 			SG. Get dx of grid cell here. This function is calling all grids on level.
+						1) accrad, 2) cell width, 3) parameter for no cells to refine the accretion 
+						radius by.
+						Only if dx > dx_bondi is DepositRefinementZone triggered.
+	*/
+
 	printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
   /* Generate a list of all sink particles in the simulation box */
   int i, nParticles;
   FLOAT *pos = NULL;
   ActiveParticleList<ActiveParticleType> SmartStarList;
   LevelHierarchyEntry *Temp = NULL;
+		double dx = LevelArray[level]->GridData->CellWidth[0][0]; // SG. Grid cell width.
+
+		// SG. Get units for conversion to pc for dx in print statement.
+		FLOAT Time = LevelArray[level]->GridData->ReturnTime();
+		float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
+    VelocityUnits;
+  double MassUnits;
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	   &TimeUnits, &VelocityUnits, Time);
 
   ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
       SmartStarList);
+
   for (i=0 ; i<nParticles; i++){
 	  int pclass = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->ParticleClass;
 	  if (pclass == POPIII) {
-		  printf("%s: POPIII particle detected. Quit function.\n", __FUNCTION__);
+		  printf("%s: POPIII particle detected. No further refinement.\n", __FUNCTION__);
 		  continue;
 		  } else{
 			printf("%s: No POPIII was particle detected. Continue to flag fields.\n", __FUNCTION__);  
 			pos = SmartStarList[i]->ReturnPosition();
-    		FLOAT accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
-    		for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
-      		if (Temp->GridData->DepositRefinementZone(level,pos,accrad) == FAIL) {
+			FLOAT accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
+			double dx_bondi = (double) accrad/ BondiRadiusRefinementFactor;
+			double dx_pc = dx*LengthUnits/pc_cm;   //in pc
+			double dx_bondi_pc = dx_bondi*LengthUnits/pc_cm; //in pc
+			if (dx_bondi > dx){
+				fprintf(stderr,"%s: Bondi radius = %e pc is greater than cell width = %e pc. Don't deposit refinement zone.\n", 
+				__FUNCTION__, dx_bondi_pc, dx_pc);
+		  continue;
+			}
+			for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
+					fprintf(stderr,"%s: Bondi radius = %e pc is less than cell width = %e pc. Deposit refinement zone.\n", 
+						__FUNCTION__, dx_bondi_pc, dx_pc);
+					if (Temp->GridData->DepositRefinementZone(level,pos,accrad) == FAIL) {
 			ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
-		}
-	  }
-  }
+			} // end IF
+			} // end FOR
+	  } // end ELSE
+  } // end FOR over particles
 
   return SUCCESS;
 }
@@ -1708,7 +1736,7 @@ static void UpdateAccretionRadius(ActiveParticleType*  ThisParticle, float newma
 
 		// SG. Finding dx and MassConversion.
 		grid* APGrid = ThisParticle->ReturnCurrentGrid();
-		double dx = APGrid->CellWidth[0][0];
+		double dx = APGrid->GetCellWidth(0,0);
 		double dx_pc = dx*length_units/pc_cm;   //in pc
 		float MassConversion = (float) (dx*dx*dx * double(mass_units));  //convert to g
 		MassConversion = MassConversion/SolarMass; // convert to Msun
@@ -1728,12 +1756,20 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 {
 	 fprintf(stderr,"%s: got here.\n", __FUNCTION__); // SG. Debug comment.
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
+		// SG. Test cell width received from GridData vs APGrid.
+		double dx_grid = LevelArray[ThisLevel]->GridData->CellWidth[0][0];
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
   double MassUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
   MassUnits = DensityUnits * POW(LengthUnits,3);
+		// SG. For testing cell width value.
+		double dx_pc = dx_grid*LengthUnits/pc_cm;   //in pc
+		double MassConversion = (double) (dx_grid*dx_grid*dx_grid * double(MassUnits));  //convert to g
+		MassConversion = MassConversion/SolarMass; // convert to Msun
+		fprintf(stderr,"%s: cell width = %e on level = %"ISYM".\n", __FUNCTION__, dx_pc, ThisLevel);
+
   // SG. Moved mass conversion to within loop over particles.
   float ctime = LevelArray[ThisLevel]->GridData->ReturnTime();
 		for (int i = 0; i < nParticles; i++) {
@@ -1763,7 +1799,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
       if( (ctime - SS->AccretionRateTime[SS->TimeIndex] > (TIMEGAP*APGrid->ReturnTimeStep()))
 	  || (SS->TimeIndex == 0)) {
 		float omass = SS->oldmass;
-		float cmass = ParticleList[i]->ReturnMass();
+		float cmass = SS->ReturnMass(); // SG. Change from ParticleList[i]
 		if(cmass - omass < -1e-10) { //Can happen after a restart due to rounding
 				printf("Updating masses....\n");
 				printf("cmass = %e\t omass = %e\n", cmass, omass);

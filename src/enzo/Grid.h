@@ -104,7 +104,7 @@ class grid
   float *RandomForcingField[MAX_DIMENSION];           // pointers to arrays //AK
   int    FieldType[MAX_NUMBER_OF_BARYON_FIELDS];
   FLOAT *CellLeftEdge[MAX_DIMENSION];
-  // FLOAT *CellWidth[MAX_DIMENSION]; declared as public variable instead. SG.
+  FLOAT *CellWidth[MAX_DIMENSION]; 
   float  grid_BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS]; // locally stores mass flux across domain boundary
   fluxes *BoundaryFluxes;
 
@@ -499,8 +499,7 @@ public:
 
 /* Return the refinement factors as compared to the grid in the argument
    (integer version) (for step #19) */
-   // SG. Declare CellWidth as public variable for use in UpdateAccretionRadius
-   FLOAT *CellWidth[MAX_DIMENSION];
+  
    void ComputeRefinementFactors(grid *SubGrid, int RefinementFactors[]) {
      int dim;
      for (dim = 0; dim < GridRank; dim++) RefinementFactors[dim] = 
