@@ -1014,9 +1014,11 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
 	/* Mark particle for deletion */
 	SS->WillDelete = true;
-	ParticleList[pindex]->DisableParticle(LevelArray, MyProcessorNumber);
-	printf("Too late. Star is destroyed by surrounding SF. Particle %d deleted.\n", pindex);
-	
+	//ParticleList[pindex]->DisableParticle(LevelArray, MyProcessorNumber);
+	//ParticleList.erase(pindex);
+
+	printf("P%d: Too late. Star is destroyed by surrounding SF. Particle %d deleted\n",
+	       MyProcessorNumber, pindex);
 	continue;
       }
       FLOAT Radius = 0.0;
@@ -1044,41 +1046,18 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	for (int dim = 0; dim < MAX_DIMENSION; dim++)
 	  ShellVelocity[dim] = 0.0;
 
-	bool MarkedSubgrids = false;
 	LevelHierarchyEntry *Temp = NULL;
-	HierarchyEntry *Temp2 = NULL;
-
-	for (int l = ThisLevel; l < MAX_DEPTH_OF_HIERARCHY; l++) {
-	  Temp = LevelArray[l];
-	  while (Temp != NULL) {
-	    
-	    /* Zero under subgrid field */
-	    /* JR: IS this necessary here? */
-	    
-	    if (!MarkedSubgrids) {
-	      Temp->GridData->
-		ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
-	      Temp2 = Temp->GridHierarchyEntry->NextGridNextLevel;
-	      while (Temp2 != NULL) {
-		Temp->GridData->ZeroSolutionUnderSubgrid(Temp2->GridData, 
-							 ZERO_UNDER_SUBGRID_FIELD);
-		Temp2 = Temp2->NextGridThisLevel;
-	      }
-	    } // ENDIF !MarkedSubgrids
-	    /* Sum enclosed mass in this grid. Mass is in Msolar*/
-	    
-	    Temp->GridData->GetEnclosedMassInShell(SS->pos, Radius-APGrid->CellWidth[0][0], Radius, 
-						   ShellMass, ShellMetallicity2, 
-						   ShellMetallicity3,
-						   ShellColdGasMass, ShellVelocity,
-						   -1);
-	    
-	    Temp = Temp->NextGridThisLevel;
-	    
-	  } // END: Grids
+	Temp = LevelArray[ThisLevel];
+	while (Temp != NULL) {	    
+	  Temp->GridData->GetEnclosedMassInShell(SS->pos, Radius-APGrid->CellWidth[0][0], Radius, 
+						 ShellMass, ShellMetallicity2, 
+						 ShellMetallicity3,
+						 ShellColdGasMass, ShellVelocity,
+						 -1);
 	  
-	} // END: level
-	MarkedSubgrids = true;
+	  Temp = Temp->NextGridThisLevel;
+	} // END: Grids
+    	
 	MassEnclosed += ShellMass;
 	ColdGasMass += ShellColdGasMass;
 	// Must first make mass-weighted, then add shell mass-weighted

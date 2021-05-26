@@ -360,32 +360,23 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       
       if (nParticles == 0)
         return SUCCESS;
-
+      
       /* Calculate CellWidth on maximum refinement level */
-
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(MaximumRefinementLevel)));
 
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
 				       LevelArray, ThisLevel);
- 
-      /* Clean any particles marked for deletion */
-      for (i = 0; i<nParticles; i++) {
-	if(ParticleList[i]->ShouldDelete() == true) {
-	  printf("%s: Delete SS %d following RemoveMassFromGridAfterFormation\n", __FUNCTION__,
-		 static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
-	  fflush(stdout);
-	  ParticleList.erase(i);
-	  i = -1;
-	  nParticles--;
-	}
-      }
-      ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
-      			    ParticleList);
+      //ParticleList.delete_marked_particles();
+
+       /* Regenerate the global list following deletions. */
+      //ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
+      //			    ParticleList);
       if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
       				       LevelArray) == FAIL)
 	return FAIL;
+
       if (debug)
 	printf("Number of particles before merging: %"ISYM"\n",nParticles);
       /* Do Merging   */
@@ -466,7 +457,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
        */
       for (i = 0; i<nParticles; i++) {
 	if(ParticleList[i]->ShouldDelete() == true) { 
-	  printf("%s: Delete SS %d following Feedback\n", __FUNCTION__,
+	  printf("%s: Delete SS %d\n", __FUNCTION__,
 		 static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
 	  fflush(stdout);
 	  ParticleList.erase(i);
