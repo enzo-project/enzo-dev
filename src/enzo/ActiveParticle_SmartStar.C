@@ -1206,7 +1206,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 		}
 	  // SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
 	  // SS->RadiationLifetime*= yr_s/TimeUnits;
-	  SS->RadiationLifetime =  1e5*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
+	  SS->RadiationLifetime =  55000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 	  SS->StellarAge = SS->RadiationLifetime;
 	  SphereTooSmall = MassEnclosed < (1.5*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
 			fprintf(stderr, "%s: Is SphereTooSmall? %d (1 = yes, 0 = no). MassEnclosed: %e.\n", __FUNCTION__,
@@ -1613,8 +1613,6 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 
 //   if (ThisLevel < MaximumRefinementLevel || SmartStarFeedback == FALSE)
 //     return SUCCESS;
-// SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-	 
 
   /* For each particle, loop over all of the grids and do feedback 
      if the grid overlaps with the feedback zone                   */
@@ -1625,17 +1623,6 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
   
   for (int i = 0; i < nParticles; i++) {
-		// 	 int l,j,k,index;
-  //   grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-	 //   int GridDimension[3] = {thisGrid->GridDimension[0],
-  //                         thisGrid->GridDimension[1],
-  //                         thisGrid->GridDimension[2]};
-  // 	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-  //   	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-  //     		for (l = thisGrid->GridStartIndex[0]; l <= thisGrid->GridEndIndex[0]; l++) {
-		// index = GRIDINDEX_NOGHOST(l, j, k);
-		// if ((thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) || SmartStarFeedback == FALSE)
-		//   continue;
  			if (SmartStarFeedback == FALSE)
 				continue;
 	   int pclass = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ParticleClass;
@@ -1659,19 +1646,16 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 	fflush(stdout);
       }
     }
-				if (pclass == 0){ // SG. Add POPIII class condition
-					delete FeedbackZone;
-				}else{
-					DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-     delete FeedbackZone;
-				}
+				// if (pclass == 0){ // SG. Add POPIII class condition
+				// 	delete FeedbackZone;
+				// }else{
+				// 	DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+    //  delete FeedbackZone;
+				// }
 
-    // DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-    // delete FeedbackZone;
+    DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+    delete FeedbackZone;
 
-		// } // End i
-  // } // End j
-  // } // End k
  } // End FOR loop over particles
 
   
@@ -1742,7 +1726,8 @@ static void UpdateAccretionRadius(ActiveParticleType*  ThisParticle, float newma
 		MassConversion = MassConversion/SolarMass; // convert to Msun
 
   float Temperature = avgtemp;
-  FLOAT soundspeed2 = kboltz*Temperature*Gamma/(Mu*mh); 
+  FLOAT soundspeed2 = kboltz*Temperature*Gamma/(Mu*mh);
+		// SG. NewAccretionRadius = Bondi Radius. Is OldAccretionRadius = 4 cell widths?
   FLOAT NewAccretionRadius = (2 * GravConst * newmass * MassConversion / soundspeed2) / length_units; //in code_length
   if(NewAccretionRadius > OldAccretionRadius)
     SS->AccretionRadius = NewAccretionRadius;
