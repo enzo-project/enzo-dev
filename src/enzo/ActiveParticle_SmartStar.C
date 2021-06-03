@@ -1064,7 +1064,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	   SS->BirthTime = APGrid->ReturnTime();
 	   SS->Mass = ParticleDensity;
 	   SS->oldmass = 0.0;
-				SS->shadowmass = 0.0
+				SS->shadowmass = 0.0;
 	   if(ParticleDensity < 0.0) {
 	     printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
 	     printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);

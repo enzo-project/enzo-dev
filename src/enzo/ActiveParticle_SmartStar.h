@@ -252,7 +252,7 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
     for (dim=0; dim<3; dim++)
       ParticleCoordinates[3*i+dim] = tempPos[dim];
   }
-my
+
   /* Find mergeable groups using an FOF search */
   *ngroups = FofList((*nParticles), ParticleCoordinates, MergingRadius, 
       GroupNumberAssignment, &groupsize, &grouplist);
