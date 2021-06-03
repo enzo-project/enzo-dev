@@ -251,6 +251,7 @@ int RebuildHierarchy(TopGridData *MetaData,
      this. */
 
   tt0 = ReturnWallTime();
+  fprintf(stderr,"%s: MaximumStaticSubgridLevel = %"ISYM".\n", __FUNCTION__, MaximumStaticSubgridLevel); // SG.
   if (level > MaximumStaticSubgridLevel) {
     ParticlesAreLocal = false;
     SyncNumberOfParticles = false;
@@ -309,6 +310,7 @@ int RebuildHierarchy(TopGridData *MetaData,
      for level 0 and does not make sure that all particles have been
      transfered).  This must be done after CommunicationCollectParticles.
   */
+  fprintf(stderr, "%s: Before TransferSubgridParticles.\n", __FUNCTION__);
 
   if (MoveParticlesBetweenSiblings && 
       level > max(MaximumStaticSubgridLevel,0))
@@ -374,7 +376,7 @@ int RebuildHierarchy(TopGridData *MetaData,
         ncells = NumberOfCells[i];
       else
         ncells = NumberOfCells[i+1];
-
+      fprintf(stderr, "%s: Before Determine SG size.\n", __FUNCTION__);
       DetermineSubgridSizeExtrema(ncells, i+1, MaximumStaticSubgridLevel+1);
 
       /* 3a) Generate an array of grids on this level. */
@@ -411,14 +413,14 @@ int RebuildHierarchy(TopGridData *MetaData,
            refinement on large numbers of particles
        */
       
-      tt0 = ReturnWallTime();
-      // DepositActiveParticleMassFlaggingField(LevelArray,i,MetaData->TopGridDims); // SG. For debugging. 
+      tt0 = ReturnWallTime(); 
+      DepositActiveParticleMassFlaggingField(LevelArray,i,MetaData->TopGridDims); // SG. 
       tt1 = ReturnWallTime();
       RHperf[3] += tt1-tt0;
 
       /* 3b.2) Loop over grids creating new (but empty!) subgrids
 	 (This also properly fills out the GridHierarchy tree). */
-
+      fprintf(stderr, "%s: Before FindSubgrids.\n", __FUNCTION__);
       tt0 = ReturnWallTime();
       TotalFlaggedCells = FlaggedGrids = 0;
       for (j = 0; j < grids; j++)

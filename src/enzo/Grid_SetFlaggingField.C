@@ -28,7 +28,7 @@ extern float DepositParticleMaximumParticleMass;
  
 int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 {
- 
+  fprintf(stderr,"%s: We're beginning to read through this function now.\n", __FUNCTION__);
   /* Return if this doesn't concern us. */
  
   if (ProcessorNumber != MyProcessorNumber)

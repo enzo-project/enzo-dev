@@ -34,7 +34,7 @@ int DepositActiveParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 
   /* Check if there are any grids on this level, and if we're already
      at the maximum refinement level */
-  printf("%s: Reached here.\n", __FUNCTION__); fflush(stdout);
+  fprintf(stderr,"%s: SetFlaggingField from AP_SS.C triggered here.\n", __FUNCTION__); 
   
   if (LevelArray[level] == NULL)
     return SUCCESS;

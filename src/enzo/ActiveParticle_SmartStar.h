@@ -82,6 +82,7 @@ public:
       }
     TimeIndex = -1;
     oldmass = -1;
+    shadowmass = -1;
     for(int i = 0; i < NTIMES; i++)
       {
 	AccretionRateTime[i] = -222222;
@@ -100,6 +101,7 @@ public:
     TimeIndex = part->TimeIndex;
     
     oldmass = part->oldmass;
+    shadowmass = part->shadowmass;
     for(int i = 0; i < NTIMES; i++) {
       AccretionRateTime[i] = part->AccretionRateTime[i];
       AccretionRate[i] = part->AccretionRate[i];
@@ -205,6 +207,7 @@ public:
   float AccretionRateTime[NTIMES];
   int TimeIndex;
   float oldmass; //To calculate accmass do accmass = mass - oldmass; oldmass = mass;
+  float shadowmass;
   static int FeedbackDistTotalCells, FeedbackDistRadius, FeedbackDistCellStep;
   float NotEjectedMass, eta_disk, mass_in_accretion_sphere, MassToBeEjected;
   float beta_jet, epsilon_deltat;
@@ -249,7 +252,7 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
     for (dim=0; dim<3; dim++)
       ParticleCoordinates[3*i+dim] = tempPos[dim];
   }
-
+my
   /* Find mergeable groups using an FOF search */
   *ngroups = FofList((*nParticles), ParticleCoordinates, MergingRadius, 
       GroupNumberAssignment, &groupsize, &grouplist);
