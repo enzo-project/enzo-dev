@@ -61,6 +61,7 @@ ActiveParticleType::ActiveParticleType(void)
   Mass = BirthTime = DynamicalTime = 0.0;
   level = GridID = type = 0;
   WillDelete = false;
+  oldmass = -1; // SG. Will delete.
 
   /* The correct indices are assigned in CommunicationUpdateActiveParticleCount 
      in ActiveParticleFinalize.*/
@@ -84,6 +85,7 @@ ActiveParticleType::ActiveParticleType(ActiveParticleType* part)
   type = part->type;
   CurrentGrid = part->CurrentGrid;
   WillDelete = part->WillDelete;
+  oldmass = part->oldmass; // SG. Will delete.
 }
 
 ActiveParticleType::ActiveParticleType(grid *_grid, ActiveParticleFormationData &data)

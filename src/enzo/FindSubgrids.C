@@ -63,7 +63,7 @@ fprintf(stderr,"%s: Starting to read this. Maybe try to detect if SS particle on
   CurrentGrid->ClearFlaggingField();
  
   /* Set the flagging field. */
-  fprintf(stderr,"%s: Just before SetFlaggingField ThisLevel = %"ISYM".\n", __FUNCTION__, level); // SG.
+  fprintf(stderr,"%s: Just before SetFlaggingField in FindSubgrids.C. ThisLevel = %"ISYM".\n", __FUNCTION__, level); // SG.
   if (CurrentGrid->SetFlaggingField(NumberOfFlaggedCells, level) == FAIL) {
     ENZO_FAIL("Error in grid->SetFlaggingField.");
   }

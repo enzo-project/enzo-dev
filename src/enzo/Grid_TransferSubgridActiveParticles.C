@@ -157,7 +157,9 @@ int grid::TransferSubgridActiveParticles
           // Increase the level if moving to a subgrid
           if (IncludeGhostZones == FALSE) {
             List[n1]->IncreaseLevel();
+            fprintf(stderr, "%s: increase level.\n", __FUNCTION__);
             List[n1]->AdjustMassByFactor(MassIncrease);
+            List[n1]->AdjustOldmassMassByFactor(MassIncrease);
           }
           n1++;
         } // ENDIF subgrid

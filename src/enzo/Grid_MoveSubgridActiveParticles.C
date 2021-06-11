@@ -32,11 +32,13 @@
 int grid::MoveSubgridActiveParticles(int NumberOfSubgrids, grid* ToGrids[],
 				     int AllLocal)
 {
+  fprintf(stderr, "%s: start.\n", __FUNCTION__);
 
   /* If there are no stars to move, we're done. */
 
   if (NumberOfActiveParticles == 0 || NumberOfSubgrids == 0)
     return SUCCESS;
+  fprintf(stderr, "%s: APs present.\n", __FUNCTION__);
 
   int i, j, dim, index, index1, index2, n;
 
@@ -105,10 +107,11 @@ int grid::MoveSubgridActiveParticles(int NumberOfSubgrids, grid* ToGrids[],
       if (subgrid[i] >= 0) {
         np = this->ActiveParticles[i]->clone();
         this->ActiveParticles.erase(i);
-
+        fprintf(stderr, "%s: before IncreaseLevel.\n", __FUNCTION__);
         np->CurrentGrid = ToGrids[subgrid[i]];
         np->IncreaseLevel();
         np->AdjustMassByFactor(MassIncrease);
+        np->AdjustOldmassMassByFactor(MassIncrease);
         np->GridID = ToGrids[subgrid[i]]->ID;
         
         ToGrids[subgrid[i]]->AddActiveParticle(np);

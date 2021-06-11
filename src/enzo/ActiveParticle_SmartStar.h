@@ -81,8 +81,7 @@ public:
 	Accreted_angmom[i] = 0.0;
       }
     TimeIndex = -1;
-    oldmass = -1;
-    shadowmass = -1;
+    //oldmass = -1;
     for(int i = 0; i < NTIMES; i++)
       {
 	AccretionRateTime[i] = -222222;
@@ -100,8 +99,7 @@ public:
     }
     TimeIndex = part->TimeIndex;
     
-    oldmass = part->oldmass;
-    shadowmass = part->shadowmass;
+    //oldmass = part->oldmass;
     for(int i = 0; i < NTIMES; i++) {
       AccretionRateTime[i] = part->AccretionRateTime[i];
       AccretionRate[i] = part->AccretionRate[i];
@@ -144,6 +142,11 @@ public:
       int level, 
       int TopGridDims[], 
       int ActiveParticleID);
+  // template <class active_particle_class> active_particle_class *copy(void);
+  //   void  IncreaseLevel() { level++; oldmass *= 8; fprintf(stderr, "%s: (void) oldmass increased.\n", __FUNCTION__);}; // SG. Update oldmass with each increase in level.
+  //   void  ReduceLevel() { level--; oldmass /= 8; fprintf(stderr, "%s: (void) oldmass reduced.\n"), __FUNCTION__;}; // SG. Update oldmass with each increase in level.
+  //   void  ReduceLevel(int x) { level -= x; oldmass /= 8; fprintf(stderr, "%s: (int x) oldmass reduced.\n", __FUNCTION__);};
+  //   void  IncreaseLevel(int x) { level += x; oldmass *= 8; fprintf(stderr, "%s: (int x) oldmass increased.\n", __FUNCTION__);};
 
   
   
@@ -202,12 +205,11 @@ public:
   double RadiationLifetime, StellarAge;
   //float acc[3];
   int ParticleClass;
-  
+  //float oldmass; //To calculate accmass do accmass = mass - oldmass; oldmass = mass;
+  //int level; // SG.
   float AccretionRate[NTIMES];
   float AccretionRateTime[NTIMES];
   int TimeIndex;
-  float oldmass; //To calculate accmass do accmass = mass - oldmass; oldmass = mass;
-  float shadowmass;
   static int FeedbackDistTotalCells, FeedbackDistRadius, FeedbackDistCellStep;
   float NotEjectedMass, eta_disk, mass_in_accretion_sphere, MassToBeEjected;
   float beta_jet, epsilon_deltat;

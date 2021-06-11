@@ -52,6 +52,7 @@ public:
   ActiveParticleType(void);
   ActiveParticleType(grid *_grid, ActiveParticleFormationData &data);
   ActiveParticleType(ActiveParticleType* part);
+
   virtual ~ActiveParticleType(void);
 
   void operator=(ActiveParticleType *a);
@@ -67,16 +68,24 @@ public:
   int   ReturnLevel(void) { return level; };
   int   ReturnGridID(void) { return GridID; };
   grid *ReturnCurrentGrid(void) { return CurrentGrid; };
+  float oldmass; // SG. Will delete.
 
-  void  ReduceLevel(void) { level--; };
-  void  ReduceLevel(int x) { level -= x; };
-  void  IncreaseLevel(void) { level++; };
-  void  IncreaseLevel(int x) { level += x; };
+  // void  IncreaseLevel() { level++; oldmass *= 8; fprintf(stderr, "%s: (void) oldmass increased.\n", __FUNCTION__);}; // SG. Update oldmass with each increase in level.
+  // void  ReduceLevel() { level--; oldmass /= 8; fprintf(stderr, "%s: (void) oldmass reduced.\n"), __FUNCTION__;}; // SG. Update oldmass with each increase in level.
+  // void  ReduceLevel(int x) { level -= x; oldmass /= 8; fprintf(stderr, "%s: (int x) oldmass reduced.\n", __FUNCTION__);};
+  // void  IncreaseLevel(int x) { level += x; oldmass *= 8; fprintf(stderr, "%s: (int x) oldmass increased.\n", __FUNCTION__);};
+
+
+  void  ReduceLevel(void) { level--; fprintf(stderr, "%s: (void).\n", __FUNCTION__);};
+  void  ReduceLevel(int x) { level -= x; fprintf(stderr, "%s: (int).\n", __FUNCTION__);};
+  void  IncreaseLevel(void) { level++; fprintf(stderr, "%s: (void).\n", __FUNCTION__);};
+  void  IncreaseLevel(int x) { level += x; fprintf(stderr, "%s: (int).\n", __FUNCTION__);};
   void  SetLevel(int i) { level = i; };
   void  SetGridID(int i) { GridID = i; };
   void  AssignCurrentGrid(grid *a) { this->CurrentGrid = a; };
   void  AddMass(double dM) { Mass += dM; };
   void  AdjustMassByFactor(double factor) { Mass *= factor; };
+  void  AdjustOldmassMassByFactor(double factor) { oldmass *= factor; }; // SG.
   void  AdjustVelocity(float VelocityIncrement[]);
   void  SetVelocity(float NewVelocity[]);
   void  SetPosition(FLOAT NewPosition[]);
@@ -108,7 +117,7 @@ public:
   virtual bool Mergable(ActiveParticleType *a);
   virtual ActiveParticleType* clone(void) = 0;
   virtual int GetEnabledParticleID(int id = -1) {ENZO_FAIL("Not implemented.");};
-
+ 
 #ifdef TRANSFER
   RadiationSourceEntry* RadiationSourceInitialize(void);
 #endif

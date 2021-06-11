@@ -31,6 +31,7 @@
 
 int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
 {
+  fprintf(stderr, "%s: start.\n", __FUNCTION__);
 
   if (NumberOfGrids < 1) {
     ENZO_VFAIL("NumberOfGrids(%"ISYM") must be > 0.\n", NumberOfGrids)
@@ -165,6 +166,7 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   for (grid = 0; grid < NumberOfGrids; grid++) {
     for (i = 0; i < FromGrid[grid]->NumberOfActiveParticles; i++) {
       FromGrid[grid]->ActiveParticles[i]->AdjustMassByFactor(MassDecrease);
+      FromGrid[grid]->ActiveParticles[i]->AdjustOldmassMassByFactor(MassDecrease);
       FromGrid[grid]->ActiveParticles[i]->ReduceLevel(dlevel);
       FromGrid[grid]->ActiveParticles[i]->AssignCurrentGrid(this);
       FromGrid[grid]->ActiveParticles[i]->SetGridID(this->ID);

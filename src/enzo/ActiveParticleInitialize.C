@@ -44,9 +44,6 @@ int ActiveParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Return if this does not concern us */
   if (EnabledActiveParticlesCount == 0) return SUCCESS;
 
-  //SG print for testing.
-  fprintf(stderr, "%s: Should count APs here.", __FUNCTION__);
-
   LCAPERF_START("ActiveParticleInitialize");
 
   int *TotalActiveParticleCount = new int[NumberOfGrids]();
