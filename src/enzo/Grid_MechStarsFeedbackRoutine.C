@@ -225,7 +225,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                                                        &freeFallTime, &dynamicalTime, ip, jp, kp, Time,
                                                        BaryonField[NumberOfBaryonFields], CellWidth[0][0],
                                                        &gridShouldFormStars, &notEnoughMetals, 1, NULL);
-                if (createStar)
+                if (false) // AIW: disabled for testing.  Adding mass here without the probabilistic factor in creation is leading to too many stars. i think. -_-
                 {
                     float MassShouldForm = min((shieldedFraction * BaryonField[DensNum][index] * MassUnits / (freeFallTime * TimeUnits) * this->dtFixed * Myr_s),
                                                0.5 * BaryonField[DensNum][index] * MassUnits);
@@ -352,7 +352,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
             }
         }
     } // end iteration over particles
-    if (c > 0)
+    if (numSN > 0)
     {
         fprintf(stdout, "Ptcl Number = %d Events = %d FeedbackTime = %e Size = %d\n",
                 c, numSN, MPI_Wtime() - startFB, GridDimension[0] * GridDimension[1] * GridDimension[2]);

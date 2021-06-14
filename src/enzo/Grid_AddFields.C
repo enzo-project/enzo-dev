@@ -47,7 +47,7 @@ int grid::AddFields(int TypesToAdd[], int NumberOfFields)
 
       // added conditional for using a metallicity floor with rad-hydro
       if (TypesToAdd[i] == Metallicity ){
-        value = 6.475e-6;
+        value = 1e-20;
           for (j = 0; j < size; j++)  
             BaryonField[n][j] = value * BaryonField[0][j];        
       }

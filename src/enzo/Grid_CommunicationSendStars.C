@@ -72,7 +72,7 @@ int grid::CommunicationSendStars(grid *ToGrid, int ToProcessor)
   /* If this is the from processor, pack fields and delete stars. */
 
   if (MyProcessorNumber == ProcessorNumber) {
-    buffer = this->Stars->StarListToBuffer(this->NumberOfStars);
+    this->Stars->StarListToBuffer(buffer, this->NumberOfStars);
     DeleteStarList(this->Stars);
   }
     

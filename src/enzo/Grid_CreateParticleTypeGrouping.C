@@ -33,7 +33,7 @@ int grid::CreateParticleTypeGrouping(hid_t ptype_dset,
     int i;
     hsize_t start[1], count[1];
     hid_t new_dset, new_dspace;
-    hdset_reg_ref_t reference;
+    hdset_reg_ref_t reference[1];
     hsize_t TempOne[1] = {1};
     
     herr_t err = 0;
@@ -54,7 +54,7 @@ int grid::CreateParticleTypeGrouping(hid_t ptype_dset,
             err = H5Sselect_hyperslab(
                 ptype_dspace, H5S_SELECT_SET, start, NULL, count, NULL);
             if(err<0) ENZO_FAIL("Couldn't select hyperslab.");
-            err = H5Rcreate(&reference, file_id, ptype_dset_fullname, H5R_DATASET_REGION, 
+            err = H5Rcreate(reference, file_id, ptype_dset_fullname, H5R_DATASET_REGION,
                             ptype_dspace);
             if(err<0){fprintf(stderr, "dsetname: %s\n", ptype_dset_fullname);
 ENZO_FAIL("Couldn't create reference.");}
