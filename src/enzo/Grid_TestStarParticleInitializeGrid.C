@@ -74,7 +74,10 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 
   for (i = 0; i < NumberOfParticles; i++) {
     ParticleNumber[i] = i;
-    ParticleType[i] = PARTICLE_TYPE_STAR;
+    if (STARFEED_METHOD(POP3_STAR))
+      ParticleType[i] = -1*PARTICLE_TYPE_SINGLE_STAR;
+    else
+      ParticleType[i] = PARTICLE_TYPE_STAR;
   }
   float p1;
 
@@ -82,7 +85,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
   for (i = 0; i <= NumberOfParticles; i++){
     for (dim = 0; dim < GridRank; dim++) {
       if (NumberOfParticles == 1){
-        p1 = 0.5;
+        p1 = 0.55;
       }else{
         int rng = clusterRadius*200;
         p1 = float(rand() % rng)/100.0+(0.5-clusterRadius);
@@ -104,7 +107,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
         ParticleAttribute[1][i] = 25 * Myr_s/TimeUnits; // radiate for 25 Myr
       }
       else{
-      ParticleAttribute[1][i] = 0.0;
+       ParticleAttribute[1][i] = 3.953;
       }
     }
   ParticleAttribute[2][i] = 0.0;  // Metal fraction
