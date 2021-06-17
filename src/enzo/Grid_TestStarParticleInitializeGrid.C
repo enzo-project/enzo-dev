@@ -76,7 +76,9 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
       active_size *= ActiveDims[dim];
     }
 
-
+    int size = 1;
+    for (dim = 0; dim < GridRank; dim++)
+      size *= GridDimension[dim];    
 
   /* create fields */
     NumberOfBaryonFields = 0;
@@ -138,7 +140,27 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     char *velocity2 = "y-velocity";
     char *velocity3 = "z-velocity";
   
-
+    float *field = new float [size];
+    float *efield = new float  [size];
+    float *gefield = new float  [size];
+    float *hifield = new float  [size];
+    float *hiifield = new float  [size];
+    float *heifield = new float  [size];
+    float *heiifield = new float  [size];
+    float *heiiifield = new float  [size];
+    float *hmfield = new float  [size];
+    float *h2ifield = new float  [size];
+    float *h2iifield = new float  [size];
+    float *zfield = new float  [size];
+    float *v1field = new float  [size];
+    float *v2field = new float  [size];
+    float *v3field = new float  [size];
+  /////////////////////////////////////////////////////////////////
+  printf("TestStarParticleInitialize\n");
+  printf("Active size = %d, OutDim = %d, gz = %d, Grid dim = %ld\n", ActiveDims[0], OutDims[0], gz, 
+                (GridDimension[0]));
+  fflush(stdout);
+  ////////////////////////////////////////////////////////////////
     filename = strtok(TestStarInitializationFilename, delim);
     file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
     for (dim = 0; dim < MAX_DIMENSION; dim++)
@@ -146,98 +168,87 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 
     if (file_id == -1) ENZO_FAIL("Error opening field file.");
     
-    density_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, density, file_id,
-		       HDF5_REAL, BaryonField[DensNum], FALSE, NULL, NULL);
+		       HDF5_REAL, field, FALSE, NULL, NULL);
 
-    electron_density_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, edensity, file_id,
-                      HDF5_REAL, BaryonField[DeNum], FALSE, NULL, NULL);
+                      HDF5_REAL, efield, FALSE, NULL, NULL);
 
-    ge_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, ge, file_id,
-                      HDF5_REAL, BaryonField[GENum], FALSE, NULL, NULL);
+                      HDF5_REAL, gefield, FALSE, NULL, NULL);
 
-    hi_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, hI_density, file_id,
-                      HDF5_REAL, BaryonField[HINum], FALSE, NULL, NULL);
+                      HDF5_REAL, hifield, FALSE, NULL, NULL);
 
-    hii_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, hII_density, file_id,
-                      HDF5_REAL, BaryonField[HIINum], FALSE, NULL, NULL);
+                      HDF5_REAL, hiifield, FALSE, NULL, NULL);
 
-    hei_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, heI_density, file_id,
-                      HDF5_REAL, BaryonField[HeINum], FALSE, NULL, NULL);
+                      HDF5_REAL, heifield, FALSE, NULL, NULL);
 
-    heii_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, heII_density, file_id,
-                      HDF5_REAL, BaryonField[HeIINum], FALSE, NULL, NULL);
+                      HDF5_REAL, heiifield, FALSE, NULL, NULL);
     
-    heiii_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, heIII_density, file_id,
-                      HDF5_REAL, BaryonField[HeIIINum], FALSE, NULL, NULL);
+                      HDF5_REAL, heiiifield, FALSE, NULL, NULL);
 
-    h2i_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, h2I_density, file_id,
-                      HDF5_REAL, BaryonField[H2INum], FALSE, NULL, NULL);
+                      HDF5_REAL, h2ifield, FALSE, NULL, NULL);
 
-    h2ii_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, h2II_density, file_id,
-                      HDF5_REAL, BaryonField[H2IINum], FALSE, NULL, NULL);
+                      HDF5_REAL, h2iifield, FALSE, NULL, NULL);
 
-    hm_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, hm_density, file_id,
-                      HDF5_REAL, BaryonField[HMNum], FALSE, NULL, NULL);
+                      HDF5_REAL, hmfield, FALSE, NULL, NULL);
 
-    z_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, metal_density, file_id,
-                      HDF5_REAL, BaryonField[MetalNum], FALSE, NULL, NULL);
+                      HDF5_REAL, zfield, FALSE, NULL, NULL);
 
-    v1_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, velocity1, file_id,
-                      HDF5_REAL, BaryonField[Vel1Num], FALSE, NULL, NULL);
+                      HDF5_REAL, v1field, FALSE, NULL, NULL);
 
-    v2_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, velocity2, file_id,
-                      HDF5_REAL, BaryonField[Vel2Num], FALSE, NULL, NULL);
+                      HDF5_REAL, v2field, FALSE, NULL, NULL);
 
-    v3_field = new float[active_size];
     this->read_dataset(GridRank, OutDims, velocity3, file_id,
-                      HDF5_REAL, BaryonField[Vel3Num], FALSE, NULL, NULL);
+                      HDF5_REAL, v3field, FALSE, NULL, NULL);
 
     h5error = H5Fclose(file_id);
     if (h5error == -1) ENZO_FAIL("Error closing initial conditions file.");
-  printf("TestStarParticleInitialize\n");
-  printf("Active size = %d, OutDim = %d, gz = %d, Grid dim = %ld\n", ActiveDims[0], OutDims[0], gz, 
-                (GridDimension[0]));
-  fflush(stdout);
-  for (k = 0; k < GridDimension[2]; k++)
-    for (j = 0; j < GridDimension[1]; j++)
-      for (i = 0; i < GridDimension[0]; i++, n++) {
-        float hfrac = 0.75;
-        float hefrac = 0.24;
-        float h2frac = 0.01;
-      	if (i >= GridStartIndex[0] && i <= GridEndIndex[0] &&
-	                j >= GridStartIndex[1] && j <= GridEndIndex[1] &&
-	                k >= GridStartIndex[2] && k <= GridEndIndex[2]) {
-	        cindex = (i-GridLeftEdge[0]) + ActiveDims[0] *
-	                  ((j-GridLeftEdge[1]) + (k-GridLeftEdge[2])*ActiveDims[1]);
-          
-          BaryonField[TENum][cindex] = BaryonField[GENum][cindex]; //0.5 * density_field[cindex] 
-              // * (
-              //   v1_field[cindex] * v1_field[cindex] 
-              // + v2_field[cindex] * v2_field[cindex] 
-              // + v3_field[cindex] * v3_field[cindex]
-              //   ) 
-              // + ge_field[cindex];
-      //     BaryonField[DeNum][i] = BaryonField[HIINum][i] +
-      //       0.25*BaryonField[HeIINum][i] + 0.5*BaryonField[HeIIINum][i];
-      //           if (MultiSpecies > 1)
-      //       BaryonField[DeNum][i] += 0.5*BaryonField[H2IINum][i] -
-      //         BaryonField[HMNum][i];
+
+  for (n=0; n < size; n++){
+          BaryonField[DensNum][n] = field[n];
+          BaryonField[DeNum][n] = efield[n];
+          BaryonField[HINum][n] = hifield[n];
+          BaryonField[HIINum][n] = hiifield[n];
+          BaryonField[HeINum][n] = heifield[n];
+          BaryonField[HeIINum][n] = heiifield[n];
+          BaryonField[HeIIINum][n] = heiiifield[n];
+          BaryonField[H2INum][n] = h2ifield[n];
+          BaryonField[H2IINum][n] = h2iifield[n];
+          BaryonField[HMNum][n] = hmfield[n];
+          BaryonField[Vel1Num][n] = v1field[n];
+          BaryonField[Vel2Num][n] = v2field[n];
+          BaryonField[Vel3Num][n] = v3field[n];
+          BaryonField[GENum][n] = gefield[n];
+          BaryonField[TENum][n] = BaryonField[GENum][n]; //0.5 * density_field[cindex] 
+        BaryonField[HMNum][i];
       }
-      }
+    delete [] field;
+    delete [] efield;
+    delete [] gefield;
+    delete [] hifield;
+    delete [] hiifield;
+    delete [] heifield;
+    delete [] heiifield;
+    delete [] heiiifield;
+    delete [] hmfield;
+    delete [] h2ifield;
+    delete [] h2iifield;
+    delete [] zfield;
+    delete [] v1field;
+    delete [] v2field;
+    delete [] v3field;
   }
   printf("Central Mass: %f \n",CentralMass);
 
