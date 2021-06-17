@@ -279,6 +279,15 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 	}
 	break;
 	
+	case 20:
+		// fprintf(stdout, "Calling FlagCellsToBeRefinedByPopIII\n");
+		NumberOfFlaggedCells = this->FlagCellsToBeRefinedByPopIII(level);
+		if (NumberOfFlaggedCells < 0){
+			fprintf(stderr, "Error in FlagCellsToBeRefinedByPopIII: NCells < 0.\n");
+			return FAIL;
+		}
+		// fprintf(stdout, "Called FlagCellsToBeRefinedByPopIII\n");
+		break;
 	/* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
 	
 	/* Must be done last ... */

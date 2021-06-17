@@ -46,29 +46,32 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   char *HeIName   = "HeI_Density";
   char *HeIIName  = "HeII_Density";
   char *HeIIIName = "HeIII_Density";
+  char *H2IName   = "H2I_Density";
+  char *H2IIName  = "H2II_Density";
+  char *HMName    = "HM_Density";
 
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
   int   dim, ret;
-
+  char *dummy = new char[MAX_LINE_LENGTH];
   /* Error check. */
 
 
   /* set default parameters */
-
+  char *TestStarInitializationFilename = NULL;
   float TestStarParticleDensity     = 1.0;
   float TestStarParticleEnergy      = 1.0;
   float TestStarParticleVelocity[3] = {0.0, 0.0, 0.0};
   FLOAT TestStarParticleStarVelocity[3] = {0.0, 0.0, 0.0};
   FLOAT TestStarParticleStarPosition[3] = {0.5, 0.5, 0.5};
   float TestStarParticleBField[3]   = {0.0, 0.0, 0.0};
-  float TestStarParticleStarMass    = 100.0;
+  float TestStarParticleStarMass    = 1000.0;
   int TestProblemUseMetallicityField = 1;
   float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
-  
-
+  int NumberOfTestStars = 1;
+  float clusterRadius = 0.0;
 
 
 
@@ -91,18 +94,19 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 		  &TestStarParticleEnergy);
     ret += sscanf(line, "TestStarParticleStarMass = %"FSYM,
 		  &TestStarParticleStarMass);
-    ret += sscanf(line,"TestStarParticleStarVelocity = %"PSYM" %"PSYM" %"PSYM, 
+    ret += sscanf(line,"TestStarParticleStarVelocity = %"PSYM" %"PSYM" %"PSYM,
 		  &TestStarParticleStarVelocity[0],
 		  &TestStarParticleStarVelocity[1],
 		  &TestStarParticleStarVelocity[2]);
-    ret += sscanf(line,"TestStarParticleStarPosition = %"PSYM" %"PSYM" %"PSYM, 
+    ret += sscanf(line,"TestStarParticleStarPosition = %"PSYM" %"PSYM" %"PSYM,
 		  &TestStarParticleStarPosition[0],
 		  &TestStarParticleStarPosition[1],
 		  &TestStarParticleStarPosition[2]);
-    
+    ret += sscanf(line,"TestStarClusterRadius = %"FSYM, &clusterRadius);
+    ret += sscanf(line, "TestStarNumberOfTestStars = %"ISYM, &NumberOfTestStars);
 
     ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction); 
+    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
 
     ret += sscanf(line, "TestProblemInitialHIFraction  = %"FSYM, &TestProblemData.HI_Fraction);
     ret += sscanf(line, "TestProblemInitialHIIFraction  = %"FSYM, &TestProblemData.HII_Fraction);
@@ -110,11 +114,17 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     ret += sscanf(line, "TestProblemInitialHeIIFraction  = %"FSYM, &TestProblemData.HeII_Fraction);
     ret += sscanf(line, "TestProblemInitialHeIIIIFraction  = %"FSYM, &TestProblemData.HeIII_Fraction);
     ret += sscanf(line, "TestProblemHydrogenFractionByMass = %"FSYM, &TestProblemData.HydrogenFractionByMass);
+    if (sscanf(line, "TestStarInitializationFilename = %s", dummy) == 1) {
+      ret++;
+      TestStarInitializationFilename = new char[MAX_LINE_LENGTH];
+      strcpy(TestStarInitializationFilename, dummy);
+    }
+
 
 
     /* if the line is suspicious, issue a warning */
 
-    if (ret == 0 && strstr(line, "=") && strstr(line, "TestStarParticle") 
+    if (ret == 0 && strstr(line, "=") && strstr(line, "TestStarParticle")
 	&& line[0] != '#')
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
 
@@ -122,24 +132,24 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
   /* set up uniform grid as of before explosion */
 
-  
-  
-  if (TopGrid.GridData->InitializeUniformGrid(TestStarParticleDensity, 
+
+  if (!TestStarInitializationFilename) 
+    if (TopGrid.GridData->InitializeUniformGrid(TestStarParticleDensity,
 					      TestStarParticleEnergy,
 					      TestStarParticleEnergy,
 					      TestStarParticleVelocity,
 					      TestStarParticleBField) == FAIL)
     ENZO_FAIL("Error in InitializeUniformGrid.");
- 
+
   if (TopGrid.GridData->
       TestStarParticleInitializeGrid(TestStarParticleStarMass,
-				     Initialdt, 
+				     Initialdt,
 				     TestStarParticleStarVelocity,
-				     TestStarParticleStarPosition) == FAIL)
+				     NumberOfTestStars, clusterRadius, 
+             TestStarInitializationFilename) == FAIL)
     ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
 
   /* set up field names and units */
-  
   int count = 0;
   DataLabel[count++] = DensName;
   DataLabel[count++] = TEName;
@@ -156,17 +166,20 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     DataLabel[count++] = HeIIName;
     DataLabel[count++] = HeIIIName;
   }
+  if (TestStarInitializationFilename){
+    DataLabel[count++] = H2IName;
+    DataLabel[count++] = H2IIName;
+    DataLabel[count++] = HMName;
+  }
   if (TestProblemData.UseMetallicityField)
     DataLabel[count++] = MetalName;
-
 
   int j;
   for(j=0; j < count; j++)
     DataUnits[j] = NULL;
 
-   
+
   /* Write parameters to parameter output file */
-  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
     fprintf(Outfptr, "TestStarParticleDensity = %"FSYM"\n",
@@ -176,14 +189,12 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     fprintf(Outfptr, "MetallicityField_Fraction = %"FSYM"\n",
             TestProblemData.MetallicityField_Fraction);
   }
-
   fprintf(stderr, "TestStarParticleDensity = %"FSYM"\n",
 	  TestStarParticleDensity);
   fprintf(stderr, "TestStarParticleEnergy = %"FSYM"\n",
 	  TestStarParticleEnergy);
   fprintf(stderr, "MetallicityField_Fraction = %"FSYM"\n",
 	  TestProblemData.MetallicityField_Fraction);
-
 
 
   return SUCCESS;

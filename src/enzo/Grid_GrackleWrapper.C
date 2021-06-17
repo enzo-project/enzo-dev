@@ -138,6 +138,7 @@ int grid::GrackleWrapper()
   // the solver)
   MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields);
   SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
+
   MetalFieldPresent = (MetalNum != -1 || SNColourNum != -1);
 
   // Double check if there's a metal field when we have metal cooling
@@ -154,7 +155,8 @@ int grid::GrackleWrapper()
   if (MetalNum != -1 && SNColourNum != -1) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
-      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
+      TotalMetals[i] = BaryonField[MetalNum][i]+BaryonField[SNColourNum][i];
+
     MetalPointer = TotalMetals;
   } // ENDIF both metal types
   else {

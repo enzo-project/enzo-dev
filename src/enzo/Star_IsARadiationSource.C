@@ -13,6 +13,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "phys_constants.h"
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
@@ -21,8 +22,20 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+int GetUnits(float *DensityUnits, float* LengthUnits,
+	     float* TemperatureUnits, float* TimeUnits,
+	     float* VelocityUnits, float* MassUnits, FLOAT Time);
+
 bool Star::IsARadiationSource(FLOAT Time)
 {
+  
+  float DensityUnits = 1, LengthUnits=1, TemperatureUnits=1, 
+    TimeUnits=1, VelocityUnits=1, MassUnits=1;
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL){
+    fprintf(stderr, "Error in GetUnits.\n");
+    return FAIL;
+  }
 
   int i;
   bool *rules, result = true;
@@ -44,11 +57,17 @@ bool Star::IsARadiationSource(FLOAT Time)
   // Particles only marked for nothing or continuous supernova
   rules[0] = (FeedbackFlag == NO_FEEDBACK || 
 	      FeedbackFlag == CONT_SUPERNOVA ||
+        FeedbackFlag == MECHANICAL ||
 	      FeedbackFlag == MBH_THERMAL ||
 	      FeedbackFlag == MBH_JETS);
   
   // Living
-  rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime && type > 0);
+  if (FeedbackFlag == MECHANICAL) {// MechStars radiate ionizing radiation for 25 Myr
+    rules[1] = (Time >= BirthTime) && ((Time - BirthTime)*TimeUnits/Myr_s <= 25.0) && (type > 0);
+    // printf("IsARadiationSource: T = %f, Birth = %f, Lifetime = %f\n", Time*TimeUnits/Myr_s, BirthTime*TimeUnits/Myr_s, LifeTime/Myr_s);
+  }
+  else // other stars radiate for all time
+    rules[1] = (Time >= BirthTime) &&  (type > 0); 
 
   // Non-zero BH accretion (usually accretion_rate[] here is NULL - Ji-hoon Kim Sep.2009)
   if ((type == BlackHole || type == MBH) && naccretions > 0)

@@ -40,7 +40,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		  Star *&AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
 int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
-			    Star *AllStars);
+			    Star *AllStars, float Time);
 
 int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		   int level, Star *AllStars)
@@ -62,7 +62,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, MetaData->Time);
 
-  StarParticleRadTransfer(LevelArray, level, AllStars);
+  StarParticleRadTransfer(LevelArray, level, AllStars, MetaData->Time);
 
   /* Light crossing time */
 

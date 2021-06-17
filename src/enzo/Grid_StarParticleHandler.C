@@ -663,10 +663,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Convert the species densities into fractional densities (i.e. divide
      by total baryonic density).  At the end we will multiply by the new
      density so that species fractions are maintained. */
- 
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
-	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity)
+   if (!STARFEED_METHOD(MECHANICAL)){
+      for (field = 0; field < NumberOfBaryonFields; field++)
+         if (((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
+	         FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity))
+            {    //fractional density doesnt play nice with CIC used in MechStars
 #ifdef EMISSIVITY
       /* 
          it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
@@ -674,14 +675,15 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
          so the values will scale inside StarParticleHandler 
       */
 #endif
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	  index = (k*GridDimension[1] + j)*GridDimension[0] +
-	    GridStartIndex[0];
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
-	    BaryonField[field][index] /= BaryonField[DensNum][index];
-	}
-
+            for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+	            for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	               index = (k*GridDimension[1] + j)*GridDimension[0] +
+	                        GridStartIndex[0];
+	               for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+	                  BaryonField[field][index] /= BaryonField[DensNum][index];
+	            }
+            }
+   }
   /* If creating primordial stars, make a total H2 density field */
 
   float *h2field = NULL;
@@ -718,7 +720,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   else {
     if (MetalNum != -1)
       MetalPointer = BaryonField[MetalNum];
-    else if (SNColourNum != -1)
+    if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
 
@@ -830,7 +832,20 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
     } 
+    if (STARMAKE_METHOD(MECHANICAL) && level >= StarMakeLevel){
+       NumberOfNewParticlesSoFar = NumberOfParticles;
+         int nRetStars = 0;
+         nRetStars = MechStars_Creation(tg, temperature,
+            dmfield, MetalPointer, level, cooling_time, MaximumNumberOfNewParticles,
+            &NumberOfNewParticles);
+         //fprintf(stdout, "Created %d new stars!", NumberOfNewParticles);
+         if (nRetStars != NumberOfNewParticles) fprintf(stdout, "star count return and pointer mismatch!\n");
+         for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++){
+            tg->ParticleType[i] = NormalStarType;
+            //fprintf(stdout, "Set star %d type %d", i, NormalStarType);
 
+         }
+    }
     if (STARMAKE_METHOD(MOM_STAR)) {
 
       //---- UNIGRID ALGORITHM (NO JEANS MASS)
@@ -1430,18 +1445,29 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
 
     /* Move any new particles into their new homes. */
- 
     if (NumberOfNewParticles > 0) {
  
-      if (debug)
-	printf("Grid_StarParticleHandler: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
+
  
       /* Set the particle numbers.  The correct indices will be assigned in 
 	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
  
-      for (i = 0; i < NumberOfNewParticles; i++)
- 	tg->ParticleNumber[i] = INT_UNDEFINED;
- 
+      for (i = 0; i < NumberOfNewParticles; i++){
+ 	      tg->ParticleNumber[i] = INT_UNDEFINED;
+         // fprintf(stdout,"Created star: %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f\n",
+         //                i, 
+         //                tg->ParticleType[i], 
+         //                tg->ParticleMass[i]*DensityUnits*pow(LengthUnits*CellWidth[0][0], 3)/2e33, 
+         //                tg->ParticleAttribute[0][i], 
+         //                tg->ParticleAttribute[1][i],
+         //                tg->ParticleAttribute[2][i],
+         //                tg->ParticlePosition[0][i],
+         //                tg->ParticlePosition[1][i],
+         //                tg->ParticlePosition[2][i],
+         //                tg->ParticleVelocity[0][i],
+         //                tg->ParticleVelocity[1][i],
+         //                tg->ParticleVelocity[2][i]);
+      }
       /* Move Particles into this grid (set cell size) using the fake grid. */
  
       tg->NumberOfParticles = NumberOfNewParticles;
@@ -1544,7 +1570,41 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
  
   } // end: if NORMAL_STAR
+  if (STARFEED_METHOD(MECHANICAL)){
+   float mu_field [size];
+   for (index = 0; index < size; ++index) {
+	  
+	         mu_field[index] = 0.0;
+	         // calculate mu
+
+	         if (MultiSpecies == 0) {
+	            mu_field[index] = Mu;
+	         } else {
+
+	            if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+				         HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+	               ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+	            }
+            float mult = 1.0/BaryonField[DensNum][index];
+	         mu_field[index] = BaryonField[DeNum][index]*mult + BaryonField[HINum][index]*mult + BaryonField[HIINum][index]*mult +
+	               (BaryonField[HeINum][index]*mult + BaryonField[HeIINum][index]*mult + BaryonField[HeIIINum][index]*mult)/4.0;
+	         if (MultiSpecies > 1) {
+	            mu_field[index] += BaryonField[HMNum][index]*mult + (BaryonField[H2INum][index]*mult + BaryonField[H2IINum][index]*mult)/2.0;
+	         }
+	         if (MultiSpecies > 2) {
+	            mu_field[index] += (BaryonField[DINum][index]*mult + BaryonField[DIINum][index]*mult)/2.0 + (BaryonField[HDINum][index]*mult/3.0);
+	    
+	   }
+   }
+   }
+       /* Compute the cooling time. */
  
+    float *cooling_time = new float[size];
+    this->ComputeCoolingTime(cooling_time);
+      //fprintf(stdout, "CALLING MECH FEEDBACK\n");
+      MechStars_FeedbackRoutine(level, &mu_field[0], temperature, MetalPointer, cooling_time, dmfield);
+      delete [] cooling_time;
+  }
   if (STARFEED_METHOD(MOM_STAR)) {
 
     //---- UNIGRID (NON-JEANS MASS) VERSION WITH MOMENTUM
@@ -2005,10 +2065,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   }
 
   /* Convert the species back from fractional densities to real densities. */
- 
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
-	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity) {
+   if (!STARFEED_METHOD(MECHANICAL))
+      for (field = 0; field < NumberOfBaryonFields; field++) {
+         if (((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
+         	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity) ) // fractional things do not play nice with CIC
+            {
 #ifdef EMISSIVITY
       /* 
          it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
@@ -2016,17 +2077,17 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
          so the values will scale inside StarParticleHandler 
       */
 #endif
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	  index = (k*GridDimension[1] + j)*GridDimension[0] +
-	    GridStartIndex[0];
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
-	    BaryonField[field][index] *= BaryonField[DensNum][index];
-	  }
-	}
+            for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	            for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	               index = (k*GridDimension[1] + j)*GridDimension[0] +
+	                  GridStartIndex[0];
+	               for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	                  BaryonField[field][index] *= BaryonField[DensNum][index];
+	               }
+	            }
+            }
+            }
       }
-    }
-  }
  
   /* Clean up. */
  
