@@ -92,10 +92,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   rules = new bool[NumberOfRules];
 
   // Rules to prevent refinement, cancelling out the above rules.
-  bool *antirules;
+  bool *antirules = NULL;
   int *AntiFlaggingField;
   int NumberOfAntiRules = 0;
-  antirules = new bool[NumberOfAntiRules];
 
   // Add an antirule to unflag over-refined dark matter particles.
   if (MustRefineParticlesCreateParticles == 4) {

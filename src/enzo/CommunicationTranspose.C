@@ -1020,6 +1020,7 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
        processing receives this cycle. */
  
     MPI_Arg TotalCompletedRequests, CompletedRequests;
+    bool ProcessRequest;
     if (ReceiveMode) {
 
       TotalCompletedRequests = 0;
@@ -1048,11 +1049,16 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 	  /* First cycle only has one call.  Break if we've already
 	     processed the first call, otherwise always process it. */
 
-	  if (n == 0 && request > 0) break;
-	  if ((RequestHandle[request] == MPI_REQUEST_NULL &&
-	      ReceiveBuffer[request] != NULL) || 
-	      (n == 0 && request == 0)) {
-
+	  if (n == 0) {
+	    if (request == 0)
+	      ProcessRequest = true;
+	    else
+	      break;
+	  } else {
+	    ProcessRequest = (RequestHandle[request] == MPI_REQUEST_NULL) &&
+	      (ReceiveBuffer[request] != NULL);
+	  }
+	  if (ProcessRequest) {
 #ifdef DEBUG_NONBLOCKCT
 	    fprintf(stderr, "CT(%"ISYM"): request = %d, receives = %"ISYM"\n", 
 		    MyProcessorNumber, request, receives);

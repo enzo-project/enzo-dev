@@ -48,6 +48,22 @@ class ExternalBoundary
 // Constructor (set rank and dims from TopGrid)
 //
   ExternalBoundary();
+
+  //
+  // Destructor
+  //
+  void CleanUp (void) {
+    for (int field = 0; field < MAX_NUMBER_OF_BARYON_FIELDS; field++) {
+      for (int dim = 0; dim < MAX_DIMENSION; dim++) {
+	for (int i = 0; i < 2; i++) {
+	  if (BoundaryType[field][dim][i] != NULL)
+	    delete [] BoundaryType[field][dim][i];
+	  if (BoundaryValue[field][dim][i] != NULL)
+	    delete [] BoundaryValue[field][dim][i];
+	}
+      }
+    }
+  }
 //
 // Prepare External Boundary (set dims, etc.) based on TopGrid in argument.
 //

@@ -807,7 +807,26 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
     my_exit(EXIT_FAILURE);
   }
   else
-  {
+    {
+     // Delete all data to cleanup for memory checkers (e.g. valgrind)
+    LevelHierarchyEntry *Previous, *Temp;
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Cleanup: deleting all grid data\n");
+    for (i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
+      Temp = LevelArray[i];
+      while (Temp != NULL) {
+	delete Temp->GridData;
+	if (Temp->GridHierarchyEntry != &TopGrid)
+	  delete Temp->GridHierarchyEntry;
+	Previous = Temp;
+	Temp = Temp->NextGridThisLevel;
+	// Delete previous level hierarchy entry
+	delete Previous;
+      }
+    }
+    Exterior.CleanUp();
+    delete enzo_timer;
+    
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "Successful run, exiting.\n");
     }
