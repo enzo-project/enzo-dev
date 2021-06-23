@@ -132,6 +132,10 @@ EXTERN int QuantumPressure;
 
 EXTERN float FDMMass;
 
+/* FDM: Whether Adding Absorbing Boundary in FDMCollapse */
+
+EXTERN int FDMCollapseAbsorbingBoundary;
+
 /* Factor to refine by */
 
 EXTERN int RefineBy;
