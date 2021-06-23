@@ -1166,6 +1166,7 @@ class ActiveParticleType_info;
 EXTERN ActiveParticleType_info *EnabledActiveParticles[MAX_ACTIVE_PARTICLE_TYPES];
 EXTERN int EnabledActiveParticlesCount;
 EXTERN float ActiveParticleDensityThreshold;
+EXTERN int SmartStarAccretion;
 EXTERN int SmartStarFeedback;
 EXTERN int SmartStarEddingtonCap;
 EXTERN int SmartStarBHFeedback;
