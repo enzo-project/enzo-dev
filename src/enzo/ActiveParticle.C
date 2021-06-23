@@ -389,6 +389,7 @@ void ActiveParticleType::SetupBaseParticleAttributes(
     handlers.push_back(new Handler<ap, int, &ap::level>("level"));
     handlers.push_back(new Handler<ap, int, &ap::GridID>("GridID"));
     handlers.push_back(new Handler<ap, int, &ap::WillDelete>("WillDelete"));
+    handlers.push_back(new Handler<ap, double, &ap::oldmass>("oldmass"));
 }
 
 void ActiveParticleType::OutputPositionInformation()

@@ -94,7 +94,7 @@ ActiveParticleType::ActiveParticleType(grid *_grid, ActiveParticleFormationData 
   CurrentGrid = _grid;
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     pos[dim] = vel[dim] = 0.0;
-  Mass = BirthTime = DynamicalTime = 0.0;
+  Mass = BirthTime = DynamicalTime = oldmass = 0.0; // SG.
   type = 0;
   level = data.level;
   GridID = data.GridID;
@@ -127,6 +127,7 @@ void ActiveParticleType::operator=(ActiveParticleType *a)
   }
   Mass = a->Mass;
   BirthTime = a->BirthTime;
+  oldmass = a->oldmass;
   DynamicalTime = a->DynamicalTime;
   Metallicity = a->Metallicity;
   Identifier = a->Identifier;
@@ -154,6 +155,7 @@ active_particle_class *ActiveParticleType::copy(void)
   }
   a->Mass = Mass;
   a->BirthTime = BirthTime;
+  a->oldmass = oldmass;
   a->DynamicalTime = DynamicalTime;
   a->Metallicity = Metallicity;
   a->Identifier = Identifier;

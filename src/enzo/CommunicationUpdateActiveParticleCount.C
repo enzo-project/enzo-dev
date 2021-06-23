@@ -57,7 +57,6 @@ int CommunicationUpdateActiveParticleCount(HierarchyEntry *Grids[],
  
   /* Set ParticleCount to zero and record number of particles for grids
      on this processor. */
-  printf("%s: Starting to read this.\n", __FUNCTION__);
  
   for (grid = 0; grid < NumberOfGrids; grid++) {
     TotalNewActiveParticleCount[grid] = 0;

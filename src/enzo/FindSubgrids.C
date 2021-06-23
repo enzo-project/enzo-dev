@@ -35,7 +35,7 @@ static ProtoSubgrid *SubgridList[MAX_NUMBER_OF_SUBGRIDS];
 int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
 		 int &FlaggedGrids)
 {
-fprintf(stderr,"%s: Starting to read this. Maybe try to detect if SS particle on grid here?.\n", __FUNCTION__);
+
   /* declarations */
 #ifdef MPI_INSTRUMENTATION
   int GridMemory,NumberOfCells,CellsTotal,Particles;
@@ -63,7 +63,6 @@ fprintf(stderr,"%s: Starting to read this. Maybe try to detect if SS particle on
   CurrentGrid->ClearFlaggingField();
  
   /* Set the flagging field. */
-  fprintf(stderr,"%s: Just before SetFlaggingField in FindSubgrids.C. ThisLevel = %"ISYM".\n", __FUNCTION__, level); // SG.
   if (CurrentGrid->SetFlaggingField(NumberOfFlaggedCells, level) == FAIL) {
     ENZO_FAIL("Error in grid->SetFlaggingField.");
   }

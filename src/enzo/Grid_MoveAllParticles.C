@@ -31,7 +31,6 @@
 
 int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
 {
-  fprintf(stderr, "%s: start.\n", __FUNCTION__);
 
   if (NumberOfGrids < 1) {
     ENZO_VFAIL("NumberOfGrids(%"ISYM") must be > 0.\n", NumberOfGrids)

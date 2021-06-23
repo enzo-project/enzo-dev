@@ -206,7 +206,6 @@ public:
   //float acc[3];
   int ParticleClass;
   //float oldmass; //To calculate accmass do accmass = mass - oldmass; oldmass = mass;
-  //int level; // SG.
   float AccretionRate[NTIMES];
   float AccretionRateTime[NTIMES];
   int TimeIndex;
@@ -388,26 +387,11 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 
       } // END: Grids
     
-      // // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-      // int cellindex;
-      // for (int i = 0; i < nParticles; i++) {
-      //   grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-      //   if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
-      //     ActiveParticleType_SmartStar* SS;
-      //     SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-      //     // SG. Check on local max refinement level.
-      //     int cellindex_x = (SS->pos[0] - APGrid->CellLeftEdge[0][0])/dx; 
-      //     int cellindex_y = (SS->pos[1] - APGrid->CellLeftEdge[1][0])/dx;
-      //     int cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/dx;
-      //     cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
-			// 		if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][cellindex] != 0.0)
-      //     continue;
-      //     fprintf(stderr, "%s: we are on max local level of refinement.\n",__FUNCTION__);
 
       /* Calculate CellWidth on maximum refinement level */
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(14))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
-      fprintf(stderr,"%s: CellWidth dx = %e and ThisLevel = %"ISYM" (but dx calculated for level 14).\n", __FUNCTION__, dx*LengthUnits/pc_cm, ThisLevel); fflush(stdout);
+      //fprintf(stderr,"%s: CellWidth dx = %e and ThisLevel = %"ISYM" (but dx calculated for level 14).\n", __FUNCTION__, dx*LengthUnits/pc_cm, ThisLevel); fflush(stdout);
 
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 

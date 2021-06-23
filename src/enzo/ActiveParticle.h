@@ -68,12 +68,8 @@ public:
   int   ReturnLevel(void) { return level; };
   int   ReturnGridID(void) { return GridID; };
   grid *ReturnCurrentGrid(void) { return CurrentGrid; };
-  float oldmass; // SG. Will delete.
-
-  // void  IncreaseLevel() { level++; oldmass *= 8; fprintf(stderr, "%s: (void) oldmass increased.\n", __FUNCTION__);}; // SG. Update oldmass with each increase in level.
-  // void  ReduceLevel() { level--; oldmass /= 8; fprintf(stderr, "%s: (void) oldmass reduced.\n"), __FUNCTION__;}; // SG. Update oldmass with each increase in level.
-  // void  ReduceLevel(int x) { level -= x; oldmass /= 8; fprintf(stderr, "%s: (int x) oldmass reduced.\n", __FUNCTION__);};
-  // void  IncreaseLevel(int x) { level += x; oldmass *= 8; fprintf(stderr, "%s: (int x) oldmass increased.\n", __FUNCTION__);};
+  //float oldmass; // SG. Will delete.
+  double ReturnOldMass(void) { return oldmass; };
 
 
   void  ReduceLevel(void) { level--; fprintf(stderr, "%s: (void).\n", __FUNCTION__);};
@@ -85,7 +81,13 @@ public:
   void  AssignCurrentGrid(grid *a) { this->CurrentGrid = a; };
   void  AddMass(double dM) { Mass += dM; };
   void  AdjustMassByFactor(double factor) { Mass *= factor; };
-  void  AdjustOldmassMassByFactor(double factor) { oldmass *= factor; }; // SG.
+  void  AdjustOldmassMassByFactor(double factor) { 
+    oldmass *= factor;
+    if (oldmass < 0.0){
+      oldmass *= -1;
+    }
+    fprintf(stderr, "%s: oldmass = %e.\n", __FUNCTION__, oldmass); 
+    }; // SG. Correct for negative values.
   void  AdjustVelocity(float VelocityIncrement[]);
   void  SetVelocity(float NewVelocity[]);
   void  SetPosition(FLOAT NewPosition[]);
@@ -94,8 +96,8 @@ public:
   FLOAT *ReturnPosition(void) { return pos; };
   float *ReturnVelocity(void) { return vel; };
   float ReturnMomentum(int dim) { return Mass*vel[dim]; };
-  void   ConvertMassToSolar(void);
-  void   Merge(ActiveParticleType *a);
+  void  ConvertMassToSolar(void);
+  void  Merge(ActiveParticleType *a);
   float Separation(ActiveParticleType *a);
   float Separation2(ActiveParticleType *a);
   float RelativeVelocity2(ActiveParticleType *a);
@@ -122,11 +124,18 @@ public:
   RadiationSourceEntry* RadiationSourceInitialize(void);
 #endif
 
-protected:
+/* 
+  A protected member variable or function is very similar to a private member 
+  but it provides one additional benefit: they can be accessed in child classes which 
+  are called derived classes. 
+*/
+
+protected: 
   grid *CurrentGrid;
   FLOAT	pos[MAX_DIMENSION];
   float vel[MAX_DIMENSION];
   double Mass;
+  double oldmass; // SG. 
   float BirthTime;
   float DynamicalTime;
   float Metallicity;

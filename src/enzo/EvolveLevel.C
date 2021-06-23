@@ -282,7 +282,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		)
 {
   /* Declarations */
-  printf("%s: Got here.\n", __FUNCTION__); fflush(stdout);
 
   int dbx = 0;
 

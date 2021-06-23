@@ -40,7 +40,6 @@ int ActiveParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int level, int NumberOfNewActiveParticles[])
 {
-  printf("ActiveParticleFinalize\n"); fflush(stdout); // SG. This function is called in EvolveLevel. 
   int i;
 
 
@@ -83,8 +82,6 @@ int ActiveParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     
     ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
     ActiveParticleID = ActiveParticleTypeToEvaluate->GetEnabledParticleID();
-
-    fprintf(stderr,"ActiveParticleFinalize- call to AfterEvolveLevel.\n"); fflush(stdout);
 
     ActiveParticleTypeToEvaluate->
       AfterEvolveLevel(Grids,MetaData,NumberOfGrids,LevelArray, // SG. AfterEvolveLevel called here.
