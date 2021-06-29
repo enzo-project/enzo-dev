@@ -117,7 +117,7 @@ int grid::CommunicationSendActiveParticles(
     Count = EnabledActiveParticlesCount;
     Source = ProcessorNumber;
     Dest = ToProcessor;
-
+    
     // send 
     if ((MyProcessorNumber == ProcessorNumber) && 
        ((CommunicationDirection == COMMUNICATION_SEND_RECEIVE) || 

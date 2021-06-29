@@ -337,26 +337,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 
   }//WriteOutput == TRUE
 
-  
-  if (ExitEnzo == TRUE) {
-    int i;
-    LevelHierarchyEntry *Previous, *Temp;
-    // Delete all data to cleanup for memory checkers (e.g. valgrind)
-    if (debug)
-      fprintf(stdout, "Cleanup: deleting all grid data");
-    for (i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
-      Temp = LevelArray[i];
-      while (Temp != NULL) {
-	delete Temp->GridData;
-	delete Temp->GridHierarchyEntry;
-	Previous = Temp;
-	Temp = Temp->NextGridThisLevel;
-	// Delete previous level hierarchy entry
-	delete Previous;
-      }
-    }
-
-    
+  if( ExitEnzo == TRUE ){
     if (MovieSkipTimestep != INT_UNDEFINED) {
       fprintf(stderr, "Closing movie file.\n");
       MetaData->AmiraGrid.AMRHDF5Close();

@@ -62,16 +62,16 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
 
     /* Set boundaries (with and without ghost zones) */
 
-    int _StartIndex[] = {1,1,1}, _EndIndex[] = {1,1,1};
+    int StartIndex[] = {1,1,1}, EndIndex[] = {1,1,1};
     if (IncludeGhostZones)
       for (dim = 0; dim < GridRank; dim++) {
-	_StartIndex[dim] = 0;
-	_EndIndex[dim] = GridDimension[dim]-1;
+	StartIndex[dim] = 0;
+	EndIndex[dim] = GridDimension[dim]-1;
       }
     else
       for (dim = 0; dim < GridRank; dim++) {
-	_StartIndex[dim] = GridStartIndex[dim];
-	_EndIndex[dim] = GridEndIndex[dim];
+	StartIndex[dim] = GridStartIndex[dim];
+	EndIndex[dim] = GridEndIndex[dim];
       }
  
     /* Count the number of stars already moved */
@@ -96,9 +96,9 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
       if (GridRank > 1)
        k0 = int((cstar->pos[2] - CellLeftEdge[2][0])/CellWidth[2][0]);
  
-      i0 = max(min(_EndIndex[0], i0), _StartIndex[0]);
-      j0 = max(min(_EndIndex[1], j0), _StartIndex[1]);
-      k0 = max(min(_EndIndex[2], k0), _StartIndex[2]);
+      i0 = max(min(EndIndex[0], i0), StartIndex[0]);
+      j0 = max(min(EndIndex[1], j0), StartIndex[1]);
+      k0 = max(min(EndIndex[2], k0), StartIndex[2]);
  
       index = (k0*GridDimension[1] + j0)*GridDimension[0] + i0;
  

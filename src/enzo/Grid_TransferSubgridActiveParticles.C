@@ -40,11 +40,11 @@ int grid::TransferSubgridActiveParticles
   int i0, j0, k0;
 
   /* ----------------------------------------------------------------- */
-  /* Copy active particles out of grid. */
+  /* Copy stars out of grid. */
 
   if (CopyDirection == COPY_OUT) {
 
-    /* If aps aren't distributed over several processors, exit
+    /* If stars aren't distributed over several processors, exit
        if this isn't the host processor. */
 
     if (ParticlesAreLocal && MyProcessorNumber != ProcessorNumber)
@@ -57,25 +57,25 @@ int grid::TransferSubgridActiveParticles
 
     /* Set boundaries (with and without ghost zones) */
 
-    int _StartIndex[] = {1,1,1}, _EndIndex[] = {1,1,1};
+    int StartIndex[] = {1,1,1}, EndIndex[] = {1,1,1};
     if (IncludeGhostZones)
       for (dim = 0; dim < GridRank; dim++) {
-        _StartIndex[dim] = 0;
-        _EndIndex[dim] = GridDimension[dim]-1;
+        StartIndex[dim] = 0;
+        EndIndex[dim] = GridDimension[dim]-1;
       }
     else
       for (dim = 0; dim < GridRank; dim++) {
-        _StartIndex[dim] = GridStartIndex[dim];
-        _EndIndex[dim] = GridEndIndex[dim];
+        StartIndex[dim] = GridStartIndex[dim];
+        EndIndex[dim] = GridEndIndex[dim];
       }
  
-    /* Count the number of aps already moved */
+    /* Count the number of stars already moved */
 
     int PreviousTotalToMove = 0;
     for (i = 0; i < NumberOfProcessors; i++)
       PreviousTotalToMove += NumberToMove[i];
  
-    /* Count aps to move */
+    /* Count stars to move */
 
     int *subgrid = NULL;
     subgrid = new int[NumberOfActiveParticles];
@@ -93,9 +93,9 @@ int grid::TransferSubgridActiveParticles
         k0 = int((this->ActiveParticles[i]->pos[2] - CellLeftEdge[2][0]) / 
             CellWidth[2][0]);
  
-      i0 = max(min(_EndIndex[0], i0), _StartIndex[0]);
-      j0 = max(min(_EndIndex[1], j0), _StartIndex[1]);
-      k0 = max(min(_EndIndex[2], k0), _StartIndex[2]);
+      i0 = max(min(EndIndex[0], i0), StartIndex[0]);
+      j0 = max(min(EndIndex[1], j0), StartIndex[1]);
+      k0 = max(min(EndIndex[2], k0), StartIndex[2]);
  
       index = (k0*GridDimension[1] + j0)*GridDimension[0] + i0;
  
@@ -167,14 +167,14 @@ int grid::TransferSubgridActiveParticles
 
       NumberOfActiveParticles = ParticlesLeft;
 
-    } // ENDIF aps to move
+    } // ENDIF stars to move
 
     delete [] subgrid;
  
   } // end: if (COPY_OUT)
  
   /* ----------------------------------------------------------------- */
-  /* Copy aps back into grid. */
+  /* Copy stars back into grid. */
  
   else {
 
@@ -182,10 +182,15 @@ int grid::TransferSubgridActiveParticles
  
     int NumberOfNewActiveParticles = EndIndex - StartIndex;
 
-    /* Copy active particles from buffer into linked list */
+    /* Copy stars from buffer into linked list */
     
     if (NumberOfNewActiveParticles > 0) {
 
+      // Increase the level if moving to a subgrid
+//      if (IncludeGhostZones == FALSE)
+//	for (i = StartIndex; i < EndIndex; i++) {
+//	}
+      
       this->AddActiveParticles(List, StartIndex, EndIndex);
 
     } // ENDIF new particles

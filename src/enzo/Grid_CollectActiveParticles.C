@@ -34,11 +34,11 @@ int grid::CollectActiveParticles(int GridNum, int* &NumberToMove,
   int i, j, dim, n1, grid, proc;
 
   /* ----------------------------------------------------------------- */
-  /* Copy active particle out of grid. */
+  /* Copy star out of grid. */
 
   if (CopyDirection == COPY_OUT) {
 
-    /* If there are no active particles to move, we're done. */
+    /* If there are no stars to move, we're done. */
 
     if (NumberOfActiveParticles == 0)
       return SUCCESS;
@@ -48,18 +48,18 @@ int grid::CollectActiveParticles(int GridNum, int* &NumberToMove,
     if (MyProcessorNumber == ProcessorNumber)
       return SUCCESS;
 
-    /* Add to the active particle count to move */
+    /* Add to the star count to move */
 
-    // NumberOfActiveParticles is still the number of local aps, not the
+    // NumberOfActiveParticles is still the number of local stars, not the
     // actual total!
     NumberToMove[ProcessorNumber] += NumberOfActiveParticles;
  
-    /* Move and delete active particles */
+    /* Move and delete stars */
 
     for (i = 0, n1 = StartIndex; i < NumberOfActiveParticles; i++, n1++) {
       List.copy_and_insert(*ActiveParticles[i]);
       List[n1]->SetGridID(GridNum);
-    } // ENDFOR active particles
+    } // ENDFOR stars
 
     StartIndex = n1;
     this->DeleteActiveParticles();
@@ -67,7 +67,7 @@ int grid::CollectActiveParticles(int GridNum, int* &NumberToMove,
   } // end: if (COPY_OUT)
  
   /* ----------------------------------------------------------------- */
-  /* Copy active particles back into grid. */
+  /* Copy stars back into grid. */
  
   else {
 

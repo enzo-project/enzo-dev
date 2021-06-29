@@ -158,7 +158,7 @@ namespace enzo_timing{
     // Destructor, erases each timer.
     ~enzo_timer(void){
       for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
-        delete iter->second;
+        delete [] iter->second;
         timers.erase(iter);
       }
       timers.clear();

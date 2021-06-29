@@ -57,7 +57,7 @@ extern char current_error[255];
              fprintf(stderr, "BT symbol: %s\n", symbols[i]);
          }
 
-         delete symbols;
+         delete [] symbols;
      }
     void WriteDebuggingOutput()
     {

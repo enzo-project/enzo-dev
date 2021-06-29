@@ -49,7 +49,7 @@ int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
           buffer[idx+3+j] = GridHierarchyPointer[i]->GridData->
             ReturnNumberOfActiveParticlesOfThisType(j);
         } else {
-          buffer[idx+3+j] = 0;
+          buffer[idx+3+j] = 0.;
         }
       }
     } else {

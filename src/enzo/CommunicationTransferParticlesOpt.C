@@ -96,7 +96,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
 
     for (i = 0; i < Layout[dim]; i++) {
       ExactCount += ExactDims;
-      if (i < Layout[dim]-1)
+      if (dim == 0)
 	ThisCount = nint(0.5*ExactCount)*2 - DisplacementCount;
       else
 	ThisCount = nint(ExactCount) - DisplacementCount;

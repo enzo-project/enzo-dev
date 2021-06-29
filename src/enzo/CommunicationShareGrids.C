@@ -53,7 +53,6 @@ int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[],
     FLOAT RightEdge[MAX_DIMENSION];
     int NumberOfParticles;
     int NumberOfStars;
-    int NumberOfActiveParticles;
     int ParentNumber;
   };
   int i;
@@ -91,12 +90,9 @@ int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[],
 	    Temp->GridData->ReturnNumberOfParticles();
 	  SendList[Counter].NumberOfStars = 
 	    Temp->GridData->ReturnNumberOfStars();
-	  SendList[Counter].NumberOfActiveParticles = 
-	    Temp->GridData->ReturnNumberOfActiveParticles();
 	} else {
 	  SendList[Counter].NumberOfParticles = 0;
 	  SendList[Counter].NumberOfStars = 0;
-	  SendList[Counter].NumberOfActiveParticles = 0;
 	}
 	SendList[Counter++].ParentNumber = i;
 	Temp = Temp->NextGridThisLevel;
@@ -225,7 +221,6 @@ int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[],
       if (ShareParticles == TRUE) {
 	ThisGrid->GridData->SetNumberOfParticles(SharedList[i].NumberOfParticles);
 	ThisGrid->GridData->SetNumberOfStars(SharedList[i].NumberOfStars);
-	ThisGrid->GridData->SetNumberOfActiveParticles(SharedList[i].NumberOfActiveParticles);
       }
 
       if (SubgridParent != NULL && ShareParticles == TRUE) {
@@ -236,9 +231,6 @@ int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[],
 	  SubgridParent->GridData->SetNumberOfStars
 	    (SubgridParent->GridData->ReturnNumberOfStars() - 
 	     SharedList[i].NumberOfStars);
-	  SubgridParent->GridData->SetNumberOfActiveParticles
-	    (SubgridParent->GridData->ReturnNumberOfActiveParticles() - 
-	     SharedList[i].NumberOfActiveParticles);
 
       } // ENDIF parent exists and sharing particles/stars
  

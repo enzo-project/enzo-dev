@@ -13,8 +13,6 @@
 /
 ************************************************************************/
 
-#define NO_DEBUG_MPI
-
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
@@ -34,7 +32,6 @@
 #ifdef USE_MPI
 static MPI_Arg ListOfIndices[MAX_RECEIVE_BUFFERS];
 static MPI_Status ListOfStatuses[MAX_RECEIVE_BUFFERS];
-void CommunicationErrorHandlerFn(MPI_Comm *comm, MPI_Arg *err, ...);
 #endif /* USE_MPI */
 
 double ReturnWallTime(void);
@@ -94,59 +91,26 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
       ENZO_FAIL("Error in MPI_Waitsome\n");
     }
 #endif
-    MPI_Arg bsize;
+
     /* Should loop over newly received completions and check error msgs now. */
+    for (index = 0; index < NumberOfCompleteRequests; index++)
+      if (ListOfStatuses[index].MPI_ERROR != 0) {
+	if (NoErrorSoFar) {
+	  fprintf(stderr, "MPI Error on processor %"ISYM". "
+		  "Error number %"ISYM" on request %"ISYM"\n",
+		  MyProcessorNumber, ListOfStatuses[index].MPI_ERROR, index);
+	  NoErrorSoFar = FALSE;
+	}
+	fprintf(stdout, "P(%"ISYM") index %"ISYM" -- mpi error %"ISYM"\n", 
+		MyProcessorNumber, index, ListOfStatuses[index].MPI_ERROR);
+	fprintf(stdout, "%"ISYM": Type = %"ISYM", Grid1 = %x, Request = %"ISYM", "
+		"DependsOn = %"ISYM"\n", index, 
+		CommunicationReceiveCallType[index],
+		CommunicationReceiveGridOne[index],
+		CommunicationReceiveMPI_Request[index],
+		CommunicationReceiveDependsOn[index]);
+      }
 
-    for (index = 0; index < NumberOfCompleteRequests; index++) {
-#ifdef DEBUG_MPI
-		MPI_Get_count(ListOfStatuses+index, MPI_CHAR, &bsize);
-		fprintf(stderr, "P%"ISYM": MPI_Irecv[%d/%d] -- "
-				"Error number %d from processor %d with tag %d"
-				" on request %d (MPI_REQUEST_NULL = %d) with %d bytes\n",
-				MyProcessorNumber, index, NumberOfCompleteRequests,
-				ListOfStatuses[index].MPI_ERROR, 
-				ListOfStatuses[index].MPI_SOURCE, 
-				ListOfStatuses[index].MPI_TAG, 
-				ListOfIndices[index], 
-				(CommunicationReceiveMPI_Request[index] == MPI_REQUEST_NULL),
-				bsize);
-#endif /* DEBUG_MPI */
-
-		if (ListOfStatuses[index].MPI_ERROR != 0) {
-			if (NoErrorSoFar) {
-				MPI_Get_count(ListOfStatuses+index, MPI_CHAR, &bsize);
-				fprintf(stderr, "MPI Error on processor %"ISYM". "
-					"Error number %d from processor %d with tag %d"
-					" on request %"ISYM" (MPI_REQUEST_NULL = %d) with %d bytes\n",
-					MyProcessorNumber, ListOfStatuses[index].MPI_ERROR, 
-					ListOfStatuses[index].MPI_SOURCE, ListOfStatuses[index].MPI_TAG, 
-					index, 
-					(CommunicationReceiveMPI_Request[index] == MPI_REQUEST_NULL),
-					bsize);
-				NoErrorSoFar = FALSE;
-			}
-			int _id = -1;
-			if (CommunicationReceiveGridOne[index] != NULL)
-			_id = CommunicationReceiveGridOne[index]->GetGridID();
-			fprintf(stderr, "P(%"ISYM") index %"ISYM" -- mpi error %"ISYM"\n", 
-				MyProcessorNumber, index, ListOfStatuses[index].MPI_ERROR);
-			fprintf(stderr, "%"ISYM": Type = %"ISYM", Grid1 = %x (G%"ISYM"), "
-				"Request = %x (%"ISYM"), "
-				"Arg0/Arg1/Arg2 = %"ISYM"/%"ISYM"/%"ISYM", DependsOn = %"ISYM"\n",
-				index, 
-				CommunicationReceiveCallType[index],
-				CommunicationReceiveGridOne[index], _id,
-				CommunicationReceiveMPI_Request[index],
-				MPI_REQUEST_NULL,
-				CommunicationReceiveArgumentInt[0][index],
-				CommunicationReceiveArgumentInt[1][index],
-				CommunicationReceiveArgumentInt[2][index],
-				CommunicationReceiveDependsOn[index]);
-			MPI_Comm comm = MPI_COMM_WORLD;
-			MPI_Arg errcode = ListOfStatuses[index].MPI_ERROR;
-			CommunicationErrorHandlerFn(&comm, &errcode);
-		} // ENDIF error
-    } // ENDFOR requests
     /* Here we loop over the handles looking only for the ones for
        grid::CommunicationSendActiveParticles, and count how many there are,
        and how many are finished receiving. If all are, we can go ahead
