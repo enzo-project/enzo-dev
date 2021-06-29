@@ -40,7 +40,7 @@ grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle,int FeedbackRadius,
 			    FLOAT dx, HierarchyEntry** Grids, int NumberOfGrids,
 			    int SendField)
 {
-  printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
+  //printf("%s: We're beginning to read through this function now.\n", __FUNCTION__);
 
   int i,j,dim,size;
   int FeedbackZoneRank;

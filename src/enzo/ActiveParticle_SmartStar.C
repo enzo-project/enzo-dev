@@ -16,11 +16,11 @@
 #define BONDIHOYLERADIUS 1 // SG. Turning on accretion out to BH radius in Accrete.
 #define MINIMUMPOTENTIAL 1
 #define CALCDIRECTPOTENTIAL 0
-#define JEANSREFINEMENT  0 // SG. turning off for testing
+#define JEANSREFINEMENT  1 // SG. turning off for testing
 #define MASSTHRESHOLDCHECK 1  //SG. Turned on for testing. Turning off again.
 #define JEANSLENGTHCALC    1
 #define MASSTHRESHOLD      0.1                       //Msolar in grid
-#define COOLING_TIME       0
+#define COOLING_TIME       1 // SG. Turn on to prevent spurious SF.
 #define NUMSSPARTICLETYPES 4
 #define JEANS_FACTOR       2
 #define STELLAR_ACCRETION_OFF 1  // SG. Turns off accretion for SMS and POPIII if =1.
@@ -275,7 +275,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	/* All three components must be negative to pass the test */
 	if (divx > 0.0 || divy > 0.0 || divz > 0.0) continue;
 #if SSDEBUG
-        fprintf(stdout, "%s: Negative Divergence passed\n", __FUNCTION__);
+        fprintf(stderr, "%s: Negative Divergence passed\n", __FUNCTION__);
 #endif
 	
 	/* We now need to define a control volume - this is the region within 
@@ -293,6 +293,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	dtot = ( density[index] + data.DarkMatterDensity[index] ) * 
 	  data.DensityUnits;
 	tdyn = sqrt(3.0 * M_PI / 32.0 / GravConst / dtot) / data.TimeUnits;
+	fprintf(stderr, "%s: Calculate cooling time: %e, and temp = %e.\n", __FUNCTION__, data.CoolingTime[index], data.Temperature[index]);
 	if (tdyn < data.CoolingTime[index] && 
 	    data.Temperature[index] > 1.1e4)
 	  continue;
@@ -422,14 +423,14 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 			fprintf(stderr, "%s: accrate = %e (POPIII particle detected).", __FUNCTION__, accrate);
 #endif
 	}
-	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*10.0)
-		&& (dx_pc < SMS_RESOLUTION)) {
+	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*1000.0)
+		&& (dx_pc < SMS_RESOLUTION)) { // SG. Increasing x10 to x1000 to suppress SMS formation.
 	  /* 
 	   * The threshold for initially forming the SMS is set at 10 times the critical rates. This 
 	   * ensures we get regions of truly high accretion
 	   */
 	  stellar_type = SMS;
-	  printf("!!!!!!!!SMS Formed\t accrate = %e Msolar/yr",
+	  fprintf(stderr, "!!!!!!!!SMS Formed\t accrate = %e Msolar/yr",
 		 accrate*3.154e7*ConverttoSolar/data.TimeUnits);
 	}
 	
@@ -539,7 +540,7 @@ if (stellar_type == POPIII){
 int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
 						   ActiveParticleFormationData &data)
 {
-	printf("%s: Feedback not handled here. Going to Grid_ApplySmartStarParticleFeedback.\n", __FUNCTION__);
+	//printf("%s: Feedback not handled here. Going to Grid_ApplySmartStarParticleFeedback.\n", __FUNCTION__);
   /* Feedback not handled here - see Grid_ApplySmartStarParticleFeedback.C */ 
   return SUCCESS; // function not enabled.
   
@@ -795,12 +796,12 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 	  continue; //No stellar radiative feedback
 
 	dx = LevelArray[ThisParticle->level]->GridData->GetCellWidth(0,0);
-	fprintf(stderr, "%s: cell width on particle grid (level = %"ISYM") is %e pc.\n", __FUNCTION__, ThisParticle->level, dx*LengthUnits/pc_cm);
+	//fprintf(stderr, "%s: cell width on particle grid (level = %"ISYM") is %e pc.\n", __FUNCTION__, ThisParticle->level, dx*LengthUnits/pc_cm);
 	MassConversion = (double) (dx*dx*dx * mfactor); //Converts to Solar Masses
 	source = ThisParticle->RadiationSourceInitialize();
 	double PMass = ThisParticle->Mass*MassConversion;
 	float ramptime = 0.0;
-	fprintf(stderr, "%s: PMass = %e and Particle Class = %"ISYM" and OldMass = %e.\n", __FUNCTION__, PMass, ThisParticle->ParticleClass, ThisParticle->oldmass);
+	//fprintf(stderr, "%s: PMass = %e and Particle Class = %"ISYM" and OldMass = %e.\n", __FUNCTION__, PMass, ThisParticle->ParticleClass, ThisParticle->oldmass);
 	if(POPIII == ThisParticle->ParticleClass ||
 	   SMS == ThisParticle->ParticleClass) {
 	  ramptime = yr_s * 1e4 / TimeUnits;
@@ -959,7 +960,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   }
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0){
-	   fprintf(stderr, "%s: 1) No new particles. Exiting RemoveMassFromGridAfterFormation.",__FUNCTION__);
+	   //fprintf(stderr, "%s: 1) No new particles. Exiting RemoveMassFromGridAfterFormation.",__FUNCTION__);
 	    return SUCCESS;
   }
    
@@ -1215,11 +1216,11 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 		}else{
 			SS->Mass = PopIIIStarMass;
 		}
-	  // SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
-	  // SS->RadiationLifetime*= yr_s/TimeUnits;
-	  SS->RadiationLifetime =  55000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
+	  SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
+	  SS->RadiationLifetime*= yr_s/TimeUnits;
+	  // SS->RadiationLifetime =  55000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 	  SS->StellarAge = SS->RadiationLifetime;
-	  SphereTooSmall = MassEnclosed < (1.5*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
+	  SphereTooSmall = MassEnclosed < (1.2*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
 			fprintf(stderr, "%s: Is SphereTooSmall? %d (1 = yes, 0 = no). MassEnclosed: %e.\n", __FUNCTION__,
 		 SphereTooSmall, MassEnclosed);  // SG. NEW print statement.
 	  // to make the total mass PopIIIStarMass
@@ -1228,7 +1229,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 		 SS->Mass, SS->StellarAge*TimeUnits/Myr_s);
 	  SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
 	  SS->oldmass = 0.0;
-			fprintf(stderr,"%s: oldmass = %e Msun.\n", __FUNCTION__, SS->ReturnOldMass());
+			//fprintf(stderr,"%s: oldmass = %e Msun.\n", __FUNCTION__, SS->ReturnOldMass());
 	}
 	else if(SMS == SS->ParticleClass) {
 	  /* 
@@ -1400,7 +1401,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 //   if (ThisLevel < MaximumRefinementLevel)
 //     return SUCCESS;
 
-  fprintf(stderr,"%s: Starting to read this.\n", __FUNCTION__); fflush(stdout);
+  
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -1451,7 +1452,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 					float MassInSolar = ParticleList[i]->ReturnMass()*MassConversion;
 					fprintf(stderr,"%s: cell width (APGrid) = %e pc and cell width (GridData) = %e pc on level = %"ISYM" (SS->ReturnLevel) with MassInSolar = %f (calculated with GridData dx). MyLevel = %"ISYM".\n", __FUNCTION__, dx_pc, dx_grid_pc, ThisLevel, MassInSolar, MyLevel);
 				 if (ThisLevel < MyLevel){
-						fprintf(stderr,"%s: ThisLevel = %"ISYM" (APGrid) < MyLevel = %"ISYM". Continue.\n", __FUNCTION__, ThisLevel, MyLevel);
+						//fprintf(stderr,"%s: ThisLevel = %"ISYM" (APGrid) < MyLevel = %"ISYM". Continue.\n", __FUNCTION__, ThisLevel, MyLevel);
 					continue;
 					}
 					
@@ -1598,11 +1599,11 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 
   for (i=0 ; i<nParticles; i++){
 	  int pclass = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->ParticleClass;
-	  if (pclass == POPIII) {
-		  fprintf(stderr,"%s: POPIII particle detected. No further refinement.\n", __FUNCTION__);
+	  if (pclass == POPIII || pclass == SMS) {
+		  fprintf(stderr,"%s: POPIII/SMS particle detected. No further refinement.\n", __FUNCTION__);
 		  continue;
 		  } else{
-			fprintf(stderr,"%s: No POPIII was particle detected. Continue to flag fields.\n", __FUNCTION__);  
+			fprintf(stderr,"%s: No POPIII/SMS was particle detected. Continue to flag fields.\n", __FUNCTION__);  
 			pos = SmartStarList[i]->ReturnPosition();
 			FLOAT accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
 			// SG. Check for when accrad = 0 in the first 100 kyr of BH's life.
@@ -1664,7 +1665,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 	   int pclass = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ParticleClass;
 				float OldMassCheck = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->oldmass; // SG. Checking.
     FLOAT AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
-	   fprintf(stderr, "%s: AccretionRadius = %e and pclass = %"ISYM" and oldmass (check) = %e.\n", __FUNCTION__, AccretionRadius*LengthUnits/pc_cm, pclass), OldMassCheck;
+	   //fprintf(stderr, "%s: AccretionRadius = %e and pclass = %"ISYM" and oldmass (check) = %e.\n", __FUNCTION__, AccretionRadius*LengthUnits/pc_cm, pclass), OldMassCheck;
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
@@ -1752,7 +1753,7 @@ static void UpdateAccretionRadius(ActiveParticleType*  ThisParticle, float newma
 				  FLOAT OldAccretionRadius, float avgtemp,
 				  float mass_units, float length_units)
 {
-	 fprintf(stderr,"%s: got here.\n", __FUNCTION__); // SG. Debug comment.
+	 //fprintf(stderr,"%s: got here.\n", __FUNCTION__); // SG. Debug comment.
   ActiveParticleType_SmartStar* SS;
   SS = static_cast<ActiveParticleType_SmartStar*>(ThisParticle);
 
@@ -1778,7 +1779,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				ActiveParticleList<ActiveParticleType>& ParticleList,
 				LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-	 fprintf(stderr,"%s: got here.\n", __FUNCTION__); // SG. Debug comment.
+	 //fprintf(stderr,"%s: got here.\n", __FUNCTION__); // SG. Debug comment.
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
 		// SG. Test cell width received from GridData vs APGrid.
 		double dx_grid = LevelArray[ThisLevel]->GridData->CellWidth[0][0]; 
@@ -1792,7 +1793,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 		double dx_pc1 = dx_grid*LengthUnits/pc_cm;   //in pc
 		double MassConversion = (double) (dx_grid*dx_grid*dx_grid * double(MassUnits));  //convert to g
 		MassConversion = MassConversion/SolarMass; // convert to Msun
-		fprintf(stderr,"%s: cell width = %e pc (GridData) on level = %"ISYM".\n", __FUNCTION__, dx_pc1, ThisLevel);
+		//fprintf(stderr,"%s: cell width = %e pc (GridData) on level = %"ISYM".\n", __FUNCTION__, dx_pc1, ThisLevel);
 
   // SG. Moved mass conversion to within loop over particles.
   float ctime = LevelArray[ThisLevel]->GridData->ReturnTime();
@@ -1801,8 +1802,8 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				ActiveParticleType_SmartStar* SS;
     SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
 				int MyLevel = SS->ReturnLevel(); // SG. Check
-				fprintf(stderr,"%s: level = %"ISYM" and MyLevel = %"ISYM" and NoParticles = %"ISYM".\n", __FUNCTION__, 
-				ThisLevel, MyLevel, nParticles);
+				//fprintf(stderr,"%s: level = %"ISYM" and MyLevel = %"ISYM" and NoParticles = %"ISYM".\n", __FUNCTION__, 
+				//ThisLevel, MyLevel, nParticles);
 				if (ThisLevel < MyLevel)
 				return SUCCESS;
 				double dx = APGrid->CellWidth[0][0];
@@ -1811,7 +1812,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				double MassConversion1 = (double) (dx*dx*dx * double(MassUnits));  //SG. For testing. convert to g
 				MassConversion = MassConversion/SolarMass; // convert to Msun
 				MassConversion1 = MassConversion1/SolarMass; // convert to Msun. SG. For testing
-				fprintf(stderr,"%s: cell width = %e pc (APGrid) on level = %"ISYM".\n", __FUNCTION__, dx_pc, ThisLevel);
+				//fprintf(stderr,"%s: cell width = %e pc (APGrid) on level = %"ISYM".\n", __FUNCTION__, dx_pc, ThisLevel);
 				if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
@@ -1826,10 +1827,14 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	  // || (SS->TimeIndex == 0)) {
 						if( ((ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/yr_s > (float)TIMEGAP) // SG. Changing TIMEGAP to 100 years as in the print statement just above.
 					|| (SS->TimeIndex == 0)) {
+						// SG. Move print statements here to prevent so much printing out.
+		fprintf(stderr,"%s: level = %"ISYM" and MyLevel = %"ISYM" and NoParticles = %"ISYM".\n", __FUNCTION__,	ThisLevel, MyLevel, nParticles);
+		fprintf(stderr,"%s: cell width = %e pc (APGrid) on level = %"ISYM".\n", __FUNCTION__, dx_pc, ThisLevel);
+		
 		float omass = SS->ReturnOldMass();
 		float cmass = SS->ReturnMass(); // SG. Change from ParticleList[i]
-		fprintf(stderr,"%s: MassConversion with dx from GridData: omass = %e Msun (in code omass = %e) and cmass = %e Msun.\n", __FUNCTION__, omass*MassConversion, omass, cmass*MassConversion); // SG. Debug comment.
-		fprintf(stderr,"%s: MassConversion1 with dx from APGrid: omass = %e Msun and cmass = %e Msun.\n", __FUNCTION__, omass*MassConversion1, cmass*MassConversion1);
+		//fprintf(stderr,"%s: MassConversion with dx from GridData: omass = %e Msun (in code omass = %e) and cmass = %e Msun.\n", __FUNCTION__, omass*MassConversion, omass, cmass*MassConversion); // SG. Debug comment.
+		//fprintf(stderr,"%s: MassConversion1 with dx from APGrid: omass = %e Msun and cmass = %e Msun.\n", __FUNCTION__, omass*MassConversion1, cmass*MassConversion1);
 		if(cmass - omass < -1e-10) { //Can happen after a restart due to rounding
 		#if STELLAR_ACCRETION_OFF // SG. Skip to see if it fixes omass/cmass issues
 				continue;
@@ -1933,7 +1938,7 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
 							   LevelHierarchyEntry *LevelArray[],
 							   int ThisLevel)
 {
-  printf("%s: Starting to read this. End of AP_SS.C.\n", __FUNCTION__);
+  //printf("%s: Starting to read this. End of AP_SS.C.\n", __FUNCTION__);
 
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
