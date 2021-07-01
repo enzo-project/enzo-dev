@@ -30,13 +30,13 @@
 #define DEBUG 0
 /* Every how many times will the accretion rate be updated */
 //#define FREQUENCY 100
-#define MAXACCRETIONRADIUS  128 /* Times the minimum cell width */
+#define MAXACCRETIONRADIUS  128 /* Times the minimum cell width (currently not used) */
 #define ACCRETIONRADIUS  4
 #define NUMRADIATIONBINS 5
 #define CRITICAL_ACCRETION_RATE 0.001 //Msolar/yr (Haemerlee et al (2018))
 #define TIMEGAP            100   // * timestep
 #define POPIII_RESOLUTION  0.001 //pc
-#define SMS_RESOLUTION     0.1   //pc
+#define SMS_RESOLUTION     1.0   //pc
 /* Prototypes */
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -368,11 +368,21 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
 				       LevelArray, ThisLevel);
-      //ParticleList.delete_marked_particles();
+      /* Clean any particles marked for deletion */
+      for (i = 0; i<nParticles; i++) {
+	if(ParticleList[i]->ShouldDelete() == true) {
+	  printf("%s: Delete SS %d following RemoveMassFromGridAfterFormation\n", __FUNCTION__,
+		 static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
+	  fflush(stdout);
+	  ParticleList.erase(i);
+	  i = -1;
+	  nParticles--;
+	}
+      }
 
        /* Regenerate the global list following deletions. */
-      //ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
-      //			    ParticleList);
+      ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
+      			    ParticleList);
       if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
       				       LevelArray) == FAIL)
 	return FAIL;

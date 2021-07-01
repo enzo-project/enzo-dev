@@ -811,13 +811,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 {
   int *SSparticles = new int(nParticles);
   float StellarMasstoRemove = 0.0, CellDensityAfterFormation = 0.0;
-  /* Skip accretion if we're not on the maximum refinement level.
-     This should only ever happen right after creation and then
-     only in pathological cases where sink creation is happening at
-     the edges of two regions at the maximum refinement level */
-
-  if (ThisLevel < MaximumRefinementLevel)
-    return SUCCESS;
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -827,8 +820,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   MassUnits = DensityUnits * POW(LengthUnits,3);
 
   float tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
+  //printf("%s: nParticles = %d\n", __FUNCTION__, nParticles);
   for (int i = 0; i < nParticles; i++)
     SSparticles[i] = -1;
+  //return  SUCCESS; //works
   /*
    * Order particles in order of SMS, PopIII, PopII
    * SMS first since they have the highest accretion rates and hence 
@@ -850,9 +845,11 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
     if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
+      printf("%s: P%d: ParticleList[i] = %p\t SS->TimeIndex = %d\n", __FUNCTION__, MyProcessorNumber, ParticleList[i], SS->TimeIndex);
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
       if(SS->ParticleClass == POPIII && SS->TimeIndex == 0) {
-	SSparticles[k++] = i;
+	printf("POPIII: Setting SSparticles[%d] = %d\n", k, i); fflush(stdout);
+	SSparticles[k++] = 6; //i;
 	num_new_popiii_stars++;
       }
     }
@@ -868,15 +865,19 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
       }
     }
   }
+  //return SUCCESS; /*breaks*/
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0)
     return SUCCESS;
-
+  printf("%s: JR: num_new_stars = %d\n", __FUNCTION__, num_new_stars);
+  printf("num_new_sms_stars = %d\t num_new_popiii_stars = %d\t num_new_popii_stars = %d\n", num_new_sms_stars , num_new_popiii_stars , num_new_popii_stars);
+  fflush(stdout);
   for (int k = 0; k < num_new_stars; k++) {
     int pindex = SSparticles[k];
     grid* APGrid = ParticleList[pindex]->ReturnCurrentGrid();
    
    if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+     printf("P%d\t num_new_stars = %d\n", MyProcessorNumber, num_new_stars); fflush(stdout);
      ActiveParticleType_SmartStar* SS;
      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[pindex]); 
 
@@ -1086,7 +1087,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	 * mass of the particle in solar masses it is reset 
 	 * below in code density units. 
 	 */
-	
+	printf("ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
 	if(POPIII == SS->ParticleClass) {
 	  SS->AssignMassFromIMF();
 	  SS->StellarAge = SS->RadiationLifetime;
@@ -1162,6 +1163,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
        printf("%s: Particle Mass = %1.1f Msolar\n", __FUNCTION__, SS->Mass);
        printf("%s: Particle Class = %d\n", __FUNCTION__, SS->ParticleClass);
        printf("%s: Remove mass from sphere of radius %lf pc\n", __FUNCTION__, Radius*LengthUnits/pc_cm);
+       fflush(stdout);
+
        /* Update cell information */
        int index = 0;
        FLOAT delx = 0.0, dely = 0.0, delz = 0.0, radius2 = 0.0, DomainWidth[MAX_DIMENSION];
@@ -1173,7 +1176,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 				      MetalIINum, MBHColourNum, Galaxy1ColourNum, 
 				      Galaxy2ColourNum) == FAIL)
 	 ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-
+       printf("%s: Colour Fields Identified\n", __FUNCTION__); fflush(stdout);
+       
        MetalNum = max(Metal2Num, SNColourNum);
        MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
        float metallicity = 0.0;
