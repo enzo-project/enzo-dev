@@ -50,8 +50,7 @@ int ActiveParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   MetaData->NumberOfParticles = FindTotalNumberOfParticles(LevelArray);
   NumberOfOtherParticles = MetaData->NumberOfParticles;// - NumberOfActiveParticles;
-  //fprintf(stderr, "%s: Number of active particles = %"ISYM".", __FUNCTION__, NumberOfOtherParticles);
-
+  
   if (NextActiveParticleID == INT_UNDEFINED)
     NextActiveParticleID = NumberOfOtherParticles + NumberOfActiveParticles;
 

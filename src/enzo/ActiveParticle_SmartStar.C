@@ -198,10 +198,10 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   JeansMass = thisGrid->CalculateJeansMass(data.DensNum, data.Temperature, data.DensityUnits);  //In Msolar
 #endif
 
-  for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-    for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-      for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
-	index = GRIDINDEX_NOGHOST(i, j, k);
+ //  for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+ //    for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+ //      for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
+	// index = GRIDINDEX_NOGHOST(i, j, k);
 	DensityThreshold = ActiveParticleDensityThreshold*mh/data.DensityUnits; 
 	// If no more room for particles, throw an ENZO_FAIL
 	if (data.NumberOfNewParticles >= data.MaxNumberOfNewParticles)
@@ -423,8 +423,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 			fprintf(stderr, "%s: accrate = %e (POPIII particle detected).", __FUNCTION__, accrate);
 #endif
 	}
-	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*1000.0)
-		&& (dx_pc < SMS_RESOLUTION)) { // SG. Increasing x10 to x1000 to suppress SMS formation.
+	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*10000.0)
+		&& (dx_pc < SMS_RESOLUTION)) { // SG. Increasing x10 to x10000 to suppress SMS formation.
 	  /* 
 	   * The threshold for initially forming the SMS is set at 10 times the critical rates. This 
 	   * ensures we get regions of truly high accretion
@@ -518,9 +518,9 @@ if (stellar_type == POPIII){
       } // i
     } // j
   } // k
-    } // ENDFOR i
-	} // ENDFOR j
-  } // ENDFOR k
+ //    } // ENDFOR i
+	// } // ENDFOR j
+ //  } // ENDFOR k
   if(data.NumberOfNewParticles > 0) {
     printf("Particles (%d) Created and done in %s\n", data.NumberOfNewParticles, __FUNCTION__);
   }
@@ -1600,10 +1600,10 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
   for (i=0 ; i<nParticles; i++){
 	  int pclass = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->ParticleClass;
 	  if (pclass == POPIII || pclass == SMS) {
-		  fprintf(stderr,"%s: POPIII/SMS particle detected. No further refinement.\n", __FUNCTION__);
+		  //fprintf(stderr,"%s: POPIII/SMS particle detected. No further refinement.\n", __FUNCTION__);
 		  continue;
 		  } else{
-			fprintf(stderr,"%s: No POPIII/SMS was particle detected. Continue to flag fields.\n", __FUNCTION__);  
+			//fprintf(stderr,"%s: No POPIII/SMS was particle detected. Continue to flag fields.\n", __FUNCTION__);  
 			pos = SmartStarList[i]->ReturnPosition();
 			FLOAT accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
 			// SG. Check for when accrad = 0 in the first 100 kyr of BH's life.
