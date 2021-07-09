@@ -86,12 +86,16 @@ c
 c     Now do total energy; the term is 3*p/d + v^2
 c       (for zeus method (imethod=2), only use 3*p/d term)
 c
+      if (icr .gt. 0) then
+            do i = 1, isize
+               ecr(i) = ecr(i) * (2.0 - coef)/(2.0 + coef)
+            enddo
+      endif
       if (imethod .eq. 2) then
          if (icr .gt. 0) then
 c           For CR, use implicit on both
             do i = 1, isize
                e(i) = e(i) * (1.0 - coef)/(1.0 + coef)
-               ecr(i) = ecr(i) * (2.0 - coef)/(2.0 + coef)
             enddo
          else
             do i = 1, isize

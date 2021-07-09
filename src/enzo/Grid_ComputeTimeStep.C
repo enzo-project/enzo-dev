@@ -275,18 +275,23 @@ float grid::ComputeTimeStep()
   if (NumberOfBaryonFields > 0 && HydroMethod == MHD_RK) {
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-      B1Num, B2Num, B3Num, PhiNum;
+      B1Num, B2Num, B3Num, PhiNum, CRNum;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL)
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
-
+    if (CRModel){
+      if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+					   Vel3Num, TENum, CRNum) == FAIL) {
+	ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+      }
+    }
     FLOAT dxinv = 1.0 / CellWidth[0][0]/a;
     FLOAT dyinv = (GridRank > 1) ? 1.0 / CellWidth[1][0]/a : 0.0;
     FLOAT dzinv = (GridRank > 2) ? 1.0 / CellWidth[2][0]/a : 0.0;
     float vxm, vym, vzm, Bm, rhom;
     float dt_temp = 1.e-20, dt_ltemp, dt_x, dt_y, dt_z;
     float rho, p, vx, vy, vz, v2, eint, etot, h, cs, cs2, dpdrho, dpde,
-      v_signal_x, v_signal_y, v_signal_z, cf, cf2, temp1, Bx, By, Bz, B2, ca2;
+      v_signal_x, v_signal_y, v_signal_z, cf, cf2, temp1, Bx, By, Bz, B2, ca2, Pcr;
     int n = 0;
     float rho_dt, B_dt, v_dt;
     for (k = 0; k < GridDimension[2]; k++) {
@@ -299,6 +304,8 @@ float grid::ComputeTimeStep()
 	  Bx  = BaryonField[B1Num][n];
 	  By  = BaryonField[B2Num][n];
 	  Bz  = BaryonField[B3Num][n];
+          if (CRModel)
+            Pcr = (CRgamma - 1.0) * BaryonField[CRNum][n];
 
           B2 = Bx*Bx + By*By + Bz*Bz;
 	  if (DualEnergyFormalism) {
@@ -314,6 +321,10 @@ float grid::ComputeTimeStep()
 
 	  EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);
 	  cs2 = cs*cs;
+          if (CRModel){
+            cs2 += CRgamma*Pcr/rho;
+          }
+
 	  temp1 = cs2 + B2/rho;
 
 	  ca2 = Bx*Bx/rho;
@@ -421,13 +432,22 @@ float grid::ComputeTimeStep()
   
   /* 6) Calculate minimum dt due to CR diffusion */
 
-  if(CRModel && CRDiffusion ){
-    if( this->ComputeCRDiffusionTimeStep(dtCR) == FAIL) {
-      fprintf(stderr, "Error in ComputeCRDiffusionTimeStep.\n");
-      return FAIL;
+  if(CRModel){
+    if(CRDiffusion){
+      if( this->ComputeCRDiffusionTimeStep(dtCR) == FAIL) {
+	fprintf(stderr, "Error in ComputeCRDiffusionTimeStep.\n");
+        return FAIL;
+      }
+    }
+    if(CRStreaming){
+      if( this->ComputeCRStreamingTimeStep(dtCR) == FAIL) {
+        fprintf(stderr, "Error in ComputeCRStreamingTimeStep.\n");
+        return FAIL;
+      }
     }
     dtCR *= CRCourantSafetyNumber;
-    dtCR *= float(NumberOfGhostZones);  // for subcycling
+    if (CRDiffusion == 1)
+      dtCR *= float(NumberOfGhostZones); // for subcycling
   }
 
   /* 7) GasDrag time step */
@@ -551,6 +571,8 @@ float grid::ComputeTimeStep()
       printf("Bar = %"ESYM" ", dtBaryons);
     if (HydroMethod == MHD_RK || HydroMethod == MHD_Li)
       printf("dtMHD = %"ESYM" ", dtMHD);
+    if (CRModel)
+      printf("dtCR = %"ESYM" ", dtCR);
     if (HydroMethod == Zeus_Hydro)
       printf("Vis = %"ESYM" ", dtViscous);
     if (ComovingCoordinates)

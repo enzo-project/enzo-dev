@@ -57,6 +57,8 @@ int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			   HierarchyEntry &TopGrid, TopGridData &MetaData);
+int CRTransportTestInitialize(FILE *fptr, FILE *Outfptr,
+			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData);
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -683,6 +685,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = CRShockTubesInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
+  // 251 ) Cosmic Ray Transport Test
+  if (ProblemType == 251){
+    ret = CRTransportTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
 
 
   /* ???? */
@@ -727,7 +733,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 414/415) Radiation-Hydrodynamics tests 14 & 15 -- Cosmological HI ioniz.
   if ((ProblemType == 414) || (ProblemType == 415))
     ret = CosmoIonizationInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
-
 
   // 450-452) Free-streaming radiation tests
   if ((ProblemType == 450) || (ProblemType == 451) || (ProblemType == 452))

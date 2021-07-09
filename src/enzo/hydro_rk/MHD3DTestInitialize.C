@@ -63,7 +63,7 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *ByName = "By";
   const char *BzName = "Bz";
   const char *PhiName = "Phi";
-
+  const char *CRName = "CREnergyDensity";
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
@@ -228,6 +228,8 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[count++] = (char*) PhiName;
   }
 
+  if (CRModel)
+    DataLabel[count++] = (char*) CRName; 
   if (MultiSpecies) {
     DataLabel[count++] = (char*) ElectronName;
     DataLabel[count++] = (char*) HIName;
