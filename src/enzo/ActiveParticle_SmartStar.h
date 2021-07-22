@@ -33,7 +33,7 @@
 #define MAXACCRETIONRADIUS  128 /* Times the minimum cell width (currently not used) */
 #define ACCRETIONRADIUS  4
 #define NUMRADIATIONBINS 5
-#define CRITICAL_ACCRETION_RATE 0.001 //Msolar/yr (Haemerlee et al (2018))
+#define CRITICAL_ACCRETION_RATE 0.005 //Msolar/yr (Haemerlee et al (2018))
 #define TIMEGAP            100   // * timestep
 #define POPIII_RESOLUTION  0.001 //pc
 #define SMS_RESOLUTION     1.0   //pc
