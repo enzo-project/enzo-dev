@@ -129,42 +129,10 @@ directory. They are kept in input:
 ::
 
     > ls input/
-    ATOMIC.DAT  cool_rates.in  lookup_metal0.3.data
+    ATOMIC.DAT           cosmic_ray.dat                 LW_J21.in              metal_cooling.pro       resubmit.sh
+    cooling.pro          enzo_parameter_conflicts.txt   make_Zcool_table.pro   metal_cool_pop3.dat     TREECOOL
+    cool_rates.in        hm12_photorates.dat            metal_cool.dat         metal_cool_ratios.dat   zcool_sd93.dat
+    cool_rates.in_300K   lookup_metal0.3.data          'metal_cool.dat_z=15'   restart.sh
 
 You can either copy the files into your run directory as a matter
 of habit, or copy them only if they're needed.
-
-Outputs
--------
-
-
--  ` AMRCollapseTest.tar.gz <http://lca.ucsd.edu/software/enzo/data/AMRCollapseTest.tar.gz>`_
-   - 24 MB
--  ` AMRShockPool2D.tar.gz <http://lca.ucsd.edu/software/enzo/data/AMRShockPool2D.tar.gz>`_
-   - 35 KB
--  ` AMRShockTube.tar.gz <http://lca.ucsd.edu/software/enzo/data/AMRShockTube.tar.gz>`_
-   - 23 KB
--  ` AMRZeldovichPancake.tar.gz <http://lca.ucsd.edu/software/enzo/data/AMRZeldovichPancake.tar.gz>`_
-   - 72 KB
--  ` AdiabaticExpansion.tar.gz <http://lca.ucsd.edu/software/enzo/data/AdiabaticExpansion.tar.gz>`_
-   - 31 KB
--  ` CollapseTest.tar.gz <http://lca.ucsd.edu/software/enzo/data/CollapseTest.tar.gz>`_
-   - 5.4 MB
--  ` CollideTest.tar.gz <http://lca.ucsd.edu/software/enzo/data/CollideTest.tar.gz>`_
-   - 7.6 MB
--  ` DoubleMachReflection.tar.gz <http://lca.ucsd.edu/software/enzo/data/DoubleMachReflection.tar.gz>`_
-   - 2.1 MB
--  ` ExtremeAdvectionTest.tar.gz <http://lca.ucsd.edu/software/enzo/data/ExtremeAdvectionTest.tar.gz>`_
-   - 430 KB
--  ` GravityStripTest.tar.gz <http://lca.ucsd.edu/software/enzo/data/GravityStripTest.tar.gz>`_
-   - 12 MB
--  ` GravityTest.tar.gz <http://lca.ucsd.edu/software/enzo/data/GravityTest.tar.gz>`_
-   - 99 KB
--  ` GravityTestSphere.tar.gz <http://lca.ucsd.edu/software/enzo/data/GravityTestSphere.tar.gz>`_
-   - 4.6 MB
--  ` Implosion.tar.gz <http://lca.ucsd.edu/software/enzo/data/Implosion.tar.gz>`_
-   - 5.6 MB
--  ` ImplosionAMR.tar.gz <http://lca.ucsd.edu/software/enzo/data/ImplosionAMR.tar.gz>`_
-   - 3.5 MB
-
-

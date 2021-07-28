@@ -1037,6 +1037,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfActiveParticles = 0;
   ActiveParticleDensityThreshold = 1e8; //in cm^-3
   //SmartStar Feedback modes
+  SmartStarAccretion = 8;
   SmartStarFeedback = FALSE;
   SmartStarEddingtonCap = FALSE;
   SmartStarBHFeedback = FALSE;
