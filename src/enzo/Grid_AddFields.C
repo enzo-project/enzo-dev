@@ -18,6 +18,7 @@
 #include "global_data.h"
 #include "Fluxes.h"
 #include "GridList.h"
+#include "StarParticleData.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "Hierarchy.h"
@@ -47,7 +48,7 @@ int grid::AddFields(int TypesToAdd[], int NumberOfFields)
 
       // added conditional for using a metallicity floor with rad-hydro
       if (TypesToAdd[i] == Metallicity ){
-        value = 1e-20;
+        value = MechStarsMetallicityFloor*0.02; // parameter is in zsun
           for (j = 0; j < size; j++)  
             BaryonField[n][j] = value * BaryonField[0][j];        
       }
