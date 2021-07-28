@@ -327,7 +327,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
                             // WHY IS THIS NOT THE HIGHEST VOLUME??
                     if (AVL0 == 0)
                         AVL0 = AllVol;
-                    FLOAT vCell = LevelArray[l]->GridData->GetVCell();
+                    // FLOAT vCell = LevelArray[l]->GridData->GetVCell();
 
                     // if forming mass, need to check that mass accreting from grid is consistent
                     // MPI_Allreduce(&vol_modified, &AllVol,1,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
