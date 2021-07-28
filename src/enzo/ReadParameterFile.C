@@ -1126,7 +1126,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MechStarsCriticalMetallicity = %"FSYM, &MechStarsCriticalMetallicity);
     ret += sscanf(line, "MechStarsSeedField = %"ISYM, &MechStarsSeedField);
     ret += sscanf(line, "MechStarsRadiationSpectrum = %"ISYM, &MechStarsRadiationSpectrum);
-    
+    ret += sscanf(line, "MechStarsMetallicityFloor = %"FSYM, &MechStarsMetallicityFloor);
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);

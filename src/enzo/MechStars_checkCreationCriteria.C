@@ -23,6 +23,7 @@
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, float *MassUnits, float Time);
 #define PASS 1;
+
 int checkCreationCriteria(float* Density, float* Metals,
                         float* Temperature,float* DMField,
                         float* Vel1, float* Vel2, float* Vel3, float* TotE,
@@ -119,20 +120,18 @@ int checkCreationCriteria(float* Density, float* Metals,
     /* Is cooling time < dynamical time or temperature < 1e4 */
     float totalDensity = (Density[index]
 			  +DMField[index])*DensityUnits;
-    *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5);
-    if (Temperature[index] > 1e4)
+    *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5); //seconds
+    if (Temperature[index] > 1.1e4)
     {
-      if (MultiSpecies > 0) return FAIL; //no hot gas forming stars!
-
-
-
-      if (*dynamicalTime/TimeUnits < CoolingTime[index]) 
+      if (MultiSpecies > 0) 
+	return FAIL; //no hot gas forming stars!
+      else if (*dynamicalTime/TimeUnits < CoolingTime[index]) 
 	return FAIL;   
     }
     // printf("checkCreationCriteria: T_dyn=%e, min = %e\n", *dynamicalTime / yr_s, StarMakerMinimumDynamicalTime);
-    if (*dynamicalTime / yr_s < StarMakerMinimumDynamicalTime){
-      return FAIL;
-    }
+    // if (*dynamicalTime / yr_s < StarMakerMinimumDynamicalTime){
+    // return FAIL;
+    //}
     /* is gas mass > critical jeans mass? */
 
     float baryonMass = Density[index]*DensityUnits

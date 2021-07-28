@@ -658,6 +658,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   AnalyticSNRShellMass             = 0;
   UnrestrictedSN                     = 0; // false by default
   MechStarsCriticalMetallicity      = 1e-12; // dont check for metals in formation
+  MechStarsMetallicityFloor         = 1e-20; // set initial simulation metallicity to this (Zsun)
   MechStarsSeedField                = 0; // dont seed metals from pop3 imf
   MechStarsRadiationSpectrum        = 0; // no field by default!
   PythonTopGridSkip                = 0;

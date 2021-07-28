@@ -5,6 +5,7 @@
         07/2019: Azton Wells
  */
 #include <stdio.h>
+#include <time.h>
 #include <math.h>
 #include <mpi.h>
 #include "macros_and_parameters.h"
@@ -40,6 +41,10 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
         float *DMField, float* totalMetal, int level, float* CoolingTime,
         int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar)
 {
+    float conversion_fraction = 0.1; // fraction of baryon mass that gets converted to stars
+                                   // on successful formation check
+    if (MyProcessorNumber != ProcessorNumber)
+        return 0;
     /* If limiting timesteps for SNe, return if not the right level */
     if (level < StarMakeLevel) return 0;
     /* 
@@ -143,37 +148,50 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 
                     if (createStar){
 
-                        /* Determine Mass of new particle */
-
+                        /* Determine Mass of new particle 
+                            WARNING: this removes the mass of the formed particle from the 
+                            host cell.  If your simulation has very small (>15 Msun) baryon mass
+                            per cell, it will break your sims! - AIW
+                        */
+                        // srand(clock());
                         float MassShouldForm = (shieldedFraction * BaryonField[DensNum][index]
                                         * MassUnits / (freeFallTime * TimeUnits) * Myr_s);
-                        // Probability has the last word here
+                        // Probability has the last word
                         // FIRE-2 uses p = 1 - exp (-MassShouldForm*dt / M_gas_particle) to convert a whole particle to star particle
-                        float p_form = 1.0 - exp(-1*MassShouldForm * this->dtFixed / (StarMakerMaximumFormationMass)); 
+                        //  We convert a fixed portion of the baryon mass (or the calculated amount)
+                        float p_form = 1.0 - exp(-1*MassShouldForm * this->dtFixed 
+						 / (BaryonField[DensNum][index]
+						    * MassUnits)); 
                         float random = (float) rand() / (float)(RAND_MAX);
-
-                        printf("Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", 
-                            MassShouldForm, BaryonField[DensNum][index] * MassUnits, shieldedFraction, freeFallTime*TimeUnits, 1.0/(freeFallTime*TimeUnits) * Myr_s,
-                            BaryonField[DensNum][index]*DensityUnits/(mh/0.6), p_form, random, RAND_MAX);
+                        if (debug)
+			  printf("[t=%f] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", Time*TimeUnits/Myr_s, 
+                             MassShouldForm, BaryonField[DensNum][index] * MassUnits, 
+			     shieldedFraction, freeFallTime*TimeUnits / Myr_s, 1.0/(freeFallTime*TimeUnits) * Myr_s,
+			     BaryonField[DensNum][index]*DensityUnits/(mh/0.6), dynamicalTime / Myr_s, 
+			     CoolingTime[index]*TimeUnits/Myr_s, p_form, random, RAND_MAX);
                         if (MassShouldForm < 0){
-                            printf("Negative formation mass: %f %f",shieldedFraction, freeFallTime);
-                            continue;
+                             printf("Negative formation mass: %f %f",shieldedFraction, freeFallTime);
+                             continue;
                         }
 
-                        /* limit new mass to 1/2 gas in cell, or StarMakerMaximumFormationMass */
-                        float newMass = min(min(MassShouldForm/MassUnits, 0.5*BaryonField[DensNum][index]), StarMakerMaximumFormationMass/MassUnits);
-                        
-                        // only if mass is large enough
+                        /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
+                        float newMass = max(15.0 / MassUnits, min(MassShouldForm/MassUnits, conversion_fraction*BaryonField[DensNum][index])); 
+			     //min(min(MassShouldForm/MassUnits, 0.5*BaryonField[DensNum][index]), StarMakerMaximumFormationMass/MassUnits);
+                        // tdyn was calculated in checkCreationCriteria.C
+			//float totalDensity = (BaryonField[DensNum][index]+DMField[index])*DensityUnits;
+			//dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5);
+			
+			//dynamicalTime /= Myr_s; // tdyn in Myr
 
-                        if ((newMass*MassUnits < StarMakerMinimumMass) || (random > p_form)){ // too small mass or probability is not in your favor, young one.
+                        if ((newMass*MassUnits < 15) || (random > p_form)){ // too small mass or probability is not in your favor, young one. 
                                 continue;
                         }
-                        float totalDensity = (BaryonField[DensNum][index]+DMField[index])*DensityUnits;
-                        dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5);
+ 
+
                         // fprintf(stdout, "DynamicalTime = %e\n", dynamicalTime);
                         ParticleArray->ParticleMass[nCreated] = newMass;
                         if (StarParticleRadiativeFeedback)
-                            ParticleArray->ParticleAttribute[1][nCreated] = 25.0 * Myr_s * TimeUnits; // need 25 Myr lifetime for ray tracing feedback
+                            ParticleArray->ParticleAttribute[1][nCreated] = 25.0 * Myr_s / TimeUnits; // need 25 Myr lifetime for ray tracing feedback
                         else
                             ParticleArray->ParticleAttribute[1][nCreated] = 0.0; // Tracking SNE in TDP field dynamicalTime/TimeUnits;
                         ParticleArray->ParticleAttribute[0][nCreated] = Time;
@@ -225,14 +243,14 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         ParticleArray->ParticlePosition[2][nCreated] = CellLeftEdge[2][0]
                                                 +(dx*(FLOAT(k)-0.5));
                         if (nCreated >= MaximumNumberOfNewParticles) return nCreated;
-                        if (debug)
-                            fprintf(stdout,"Created star: [%f] %e %e ::: %d %d %d ::: %e %f %e %e::: %f %f %f ::: %f %f %f \t::: %d %d ::: %d %d %d\n",
+                        // if (debug)
+                            fprintf(stdout, "\t\tCreated star: [%f Myr] M_cell = %e\n\t\t\tL = %d  N = %d Type = %d\n\t\t\tM_* = %e Tdyn = %e Attr1 = %f Attr2 = %e Attr3 = %e\n\t\t\tPosition = [%f %f %f]\n\t\t\tvelocity = [%f %f %f]\n\t\t\tgrid_index = %d cell_index = %d\n\t\t\ti = %d j = %d k = %d\n",
                                 Time*TimeUnits/3.1557e13,
-                                BaryonField[DensNum][index],
                                 BaryonField[DensNum][index]*MassUnits, 
                                 level, nCreated+1,
                                 ParticleArray->ParticleType[nCreated],
                                 ParticleArray->ParticleMass[nCreated]*MassUnits,
+				dynamicalTime / yr_s,
                                 ParticleArray->ParticleAttribute[0][nCreated],
                                 ParticleArray->ParticleAttribute[1][nCreated],
                                 ParticleArray->ParticleAttribute[2][nCreated],
