@@ -1052,7 +1052,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 			/* if the metal removed from the grid doesn't jive with the star metal, reset it */
 		if (EjectaMetalDensity > 0 && CellsModified > 0)
 		{
-			printf("[ %d -- %d ] Removed %g Msun metal with mass change %g Msunn\n",
+			printf("[ %d -- %d ] Removed %g Msun metal with mass change %g Msun\n",
 				level, cstar->ReturnType(), 
 				(z0*DensityUnits*pow(LengthUnits,3)*CellsModified*GetVCell()/SolarMass-zNew*DensityUnits*pow(LengthUnits,3)*CellsModified*GetVCell()/SolarMass),
 				(m0-mNew)*DensityUnits*pow(LengthUnits,3)*GetVCell()/SolarMass);
