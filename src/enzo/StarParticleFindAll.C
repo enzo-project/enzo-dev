@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: August 2021 by Ka Hou Leong 
+              (fixed MPI issue and lack of memory)
 /
 /  PURPOSE: First synchronizes particle information in the normal and 
 /           star particles.  Then we make a global particle list, which
@@ -142,22 +143,52 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     /* If any, gather all shining particles */
 
     if (TotalNumberOfStars > 0) {
-
-      if (TotalNumberOfStars > recvBufferSize) {
-        recvBufferSize = ceil_log2(TotalNumberOfStars);
+      if (recvBufferSize > 2 * ceil_log2(TotalNumberOfStars))
+      {
+       // Avoiding recvBuffer occurs memoeries which exceed 2 times of the powers of buffer space which has minimum space to contain TotalNumberOfStars.
         delete [] recvBuffer;
+        recvBufferSize = 0;
+      }
+      if (TotalNumberOfStars > recvBufferSize) {
+        if (recvBufferSize > 0)
+        {
+            recvBufferSize = ceil_log2(TotalNumberOfStars);
+            delete [] recvBuffer;
+        }
+        else recvBufferSize = ceil_log2(TotalNumberOfStars);
         recvBuffer = new StarBuffer[recvBufferSize];
       }
-      if (LocalNumberOfStars > sendBufferSize) {
-        sendBufferSize = ceil_log2(LocalNumberOfStars);
+      if ((LocalNumberOfStars > 0) && (sendBufferSize > 2 * ceil_log2(LocalNumberOfStars)))
+      {
+       // Avoiding sendBuffer occurs memoeries which exceed 2 times of the powers of buffer space which has minimum space to contain LocalNumberOfStars.
         delete [] sendBuffer;
+        sendBufferSize = 0;
+      }
+      if (LocalNumberOfStars > sendBufferSize) 
+      { 
+        if(sendBufferSize > 0)
+        {
+            sendBufferSize = ceil_log2(LocalNumberOfStars);
+            delete [] sendBuffer;
+        }
+        else sendBufferSize = ceil_log2(LocalNumberOfStars); 
         sendBuffer = new StarBuffer[sendBufferSize];
       }
-
       if (LocalNumberOfStars > 0)
-        LocalStars->StarListToBuffer(sendBuffer, LocalNumberOfStars);
+      {
+          LocalStars->StarListToBuffer(sendBuffer, LocalNumberOfStars);
+      }
       else
+      { 
+        // Due to No local star, reinitialise sendbuffer.
+        // release memories and reset sendBufferSize.
+        if(sendBufferSize > 0)
+        {
+            delete [] sendBuffer;
+            sendBufferSize = 0;
+        }
         sendBuffer = NULL;
+      }
 
       /* Share all data with all processors */
 
