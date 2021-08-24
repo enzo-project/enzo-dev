@@ -804,12 +804,12 @@ grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle, int FeedbackRadius
 int DistributeFeedbackZone(grid* FeedbackZone, HierarchyEntry** Grids,
 			   int NumberOfGrids, int SendField);
 
-
+#define MAX_NUMBER_NEW_APS 100
 int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticles, 
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-  int *SSparticles = new int(nParticles);
+  int SSparticles[MAX_NUMBER_NEW_APS];  /* Assuming no more than 100 new particles per cycle */
   float StellarMasstoRemove = 0.0, CellDensityAfterFormation = 0.0;
   /* Skip accretion if we're not on the maximum refinement level.
      This should only ever happen right after creation and then
@@ -827,7 +827,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   MassUnits = DensityUnits * POW(LengthUnits,3);
 
   float tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
-  for (int i = 0; i < nParticles; i++)
+  for (int i = 0; i < MAX_NUMBER_NEW_APS; i++)
     SSparticles[i] = -1;
   /*
    * Order particles in order of SMS, PopIII, PopII
