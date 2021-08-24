@@ -9,7 +9,7 @@
 
 #include "ActiveParticle_SmartStar.h"
 #include "phys_constants.h"
-#define SSDEBUG 1
+#define SSDEBUG 0
 #define SSDEBUG_TOTALMASS 0
 
 #define DYNAMIC_ACCRETION_RADIUS 0
@@ -811,13 +811,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 {
   int SSparticles[MAX_NUMBER_NEW_APS];  /* Assuming no more than 100 new particles per cycle */
   float StellarMasstoRemove = 0.0, CellDensityAfterFormation = 0.0;
-  /* Skip accretion if we're not on the maximum refinement level.
-     This should only ever happen right after creation and then
-     only in pathological cases where sink creation is happening at
-     the edges of two regions at the maximum refinement level */
-
-  if (ThisLevel < MaximumRefinementLevel)
-    return SUCCESS;
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -835,6 +828,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
    * should be forming first
    */
   int k = 0, num_new_sms_stars = 0, num_new_popiii_stars = 0, num_new_popii_stars = 0;
+
   for (int i = 0; i < nParticles; i++) {
     grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
     if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
@@ -868,6 +862,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
       }
     }
   }
+
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0)
     return SUCCESS;
@@ -879,226 +874,225 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
    if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
      ActiveParticleType_SmartStar* SS;
      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[pindex]); 
-
      /*
       * Only interested in newly formed particles
       */
      if(SS->TimeIndex != 0)
        continue;
 
-      FLOAT dx = APGrid->CellWidth[0][0];
-      FLOAT CellVolume = dx*dx*dx;
-      int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-      if (APGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-				       Vel3Num, TENum) == FAIL)
-	{
-	  ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
-	}
-      int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-	DINum, DIINum, HDINum;
-      if (MultiSpecies) 
-	if (APGrid->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
-					HeIIINum, HMNum, H2INum, H2IINum, DINum, 
-					DIINum, HDINum) == FAIL) {
-	  ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
-	}
-      FLOAT dx_pc = dx*LengthUnits/pc_cm;   //in pc
-      float *density = APGrid->BaryonField[DensNum];
-      int cellindex_x = (SS->pos[0] - APGrid->CellLeftEdge[0][0])/dx,
-	cellindex_y = (SS->pos[1] - APGrid->CellLeftEdge[1][0])/dx,
-	cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/dx;
-
-      int cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
-      float DensityThreshold = ActiveParticleDensityThreshold*mh/DensityUnits; 
-
+     FLOAT dx = APGrid->CellWidth[0][0];
+     FLOAT CellVolume = dx*dx*dx;
+     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+     if (APGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+					    Vel3Num, TENum) == FAIL)
+       {
+	 ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+       }
+     int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+       DINum, DIINum, HDINum;
+     if (MultiSpecies) 
+       if (APGrid->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
+					 HeIIINum, HMNum, H2INum, H2IINum, DINum, 
+					 DIINum, HDINum) == FAIL) {
+	 ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
+       }
+     FLOAT dx_pc = dx*LengthUnits/pc_cm;   //in pc
+     float *density = APGrid->BaryonField[DensNum];
+     int cellindex_x = (SS->pos[0] - APGrid->CellLeftEdge[0][0])/dx,
+       cellindex_y = (SS->pos[1] - APGrid->CellLeftEdge[1][0])/dx,
+       cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/dx;
+     
+     int cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
+     float DensityThreshold = ActiveParticleDensityThreshold*mh/DensityUnits; 
+     
 #if JEANSREFINEMENT
-      bool JeansRefinement = false;
-      for (int method = 0; method < MAX_FLAGGING_METHODS; method++) 
-	if (CellFlaggingMethod[method] == 6)
-	  JeansRefinement = true;
-      if (JeansRefinement) {
-	int size = APGrid->GetGridSize();
-	float *Temperature = new float[size]();
-	APGrid->ComputeTemperatureField(Temperature);
-	float CellTemperature = (JeansRefinementColdTemperature > 0) ? JeansRefinementColdTemperature : Temperature[cellindex];
-	int JeansFactor = JEANS_FACTOR; 
-	float JeansDensityUnitConversion = (Gamma*pi*kboltz) / (Mu*mh*GravConst);
-	float JeansDensity = JeansDensityUnitConversion * 1.01 * CellTemperature /
-	  POW(LengthUnits*dx*JeansFactor,2);
-	JeansDensity /= DensityUnits;
-	DensityThreshold = min(DensityThreshold,JeansDensity);
-      }
+     bool JeansRefinement = false;
+     for (int method = 0; method < MAX_FLAGGING_METHODS; method++) 
+       if (CellFlaggingMethod[method] == 6)
+	 JeansRefinement = true;
+     if (JeansRefinement) {
+       int size = APGrid->GetGridSize();
+       float *Temperature = new float[size]();
+       APGrid->ComputeTemperatureField(Temperature);
+       float CellTemperature = (JeansRefinementColdTemperature > 0) ? JeansRefinementColdTemperature : Temperature[cellindex];
+       int JeansFactor = JEANS_FACTOR; 
+       float JeansDensityUnitConversion = (Gamma*pi*kboltz) / (Mu*mh*GravConst);
+       float JeansDensity = JeansDensityUnitConversion * 1.01 * CellTemperature /
+	 POW(LengthUnits*dx*JeansFactor,2);
+       JeansDensity /= DensityUnits;
+       DensityThreshold = min(DensityThreshold,JeansDensity);
+     }
 #endif
 
-      float ParticleDensity = density[cellindex] - DensityThreshold;
-      float newcelldensity = density[cellindex] - ParticleDensity;
-
-      if(SMS == SS->ParticleClass) {
-
-	 if(dx_pc <= SMS_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
-	   density[cellindex] = newcelldensity;
-	   SS->BirthTime = APGrid->ReturnTime();
-	   SS->Mass = ParticleDensity;
-	   SS->oldmass = 0.0;
-	   if(ParticleDensity < 0.0) {
-	     printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
-	     printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
-	     printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
-	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
-	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
-	   }
-	   continue;
-	 }
-       }
+     float ParticleDensity = density[cellindex] - DensityThreshold;
+     float newcelldensity = density[cellindex] - ParticleDensity;
+     
+     if(SMS == SS->ParticleClass) {
        
-       else if(POPIII == SS->ParticleClass) {
-	 if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
-	   density[cellindex] = newcelldensity;
-	   SS->BirthTime = APGrid->ReturnTime();
-	   SS->Mass = ParticleDensity;
-	   SS->oldmass = 0.0;
-	   if(ParticleDensity < 0.0) {
-	     printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
-	     printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
-	     printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
-	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
-	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
-	   }
+       if(dx_pc <= SMS_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
+	 density[cellindex] = newcelldensity;
+	 SS->BirthTime = APGrid->ReturnTime();
+	 SS->Mass = ParticleDensity;
+	 SS->oldmass = 0.0;
+	 if(ParticleDensity < 0.0) {
+	   printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
+	   printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+	   printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+	   printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+	   ENZO_FAIL("Particle Density is negative. Oh dear.\n");
+	 }
+	 continue;
+       }
+     }
+     
+     else if(POPIII == SS->ParticleClass) {
+       if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
+	 density[cellindex] = newcelldensity;
+	 SS->BirthTime = APGrid->ReturnTime();
+	 SS->Mass = ParticleDensity;
+	 SS->oldmass = 0.0;
+	 if(ParticleDensity < 0.0) {
+	   printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
+	   printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+	   printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+	   printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+	   ENZO_FAIL("Particle Density is negative. Oh dear.\n");
+	 }
 #if SSDEBUG
-	   printf("%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
-		  SS->Mass*dx*dx*dx*MassUnits/SolarMass, SS->Mass);
+	 printf("%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
+		SS->Mass*dx*dx*dx*MassUnits/SolarMass, SS->Mass);
 #endif
-	   continue;
-	 }
+	 continue;
        }
-       else if(POPII == SS->ParticleClass) {
-	 /* 
-	  * For PopII stars we do this if the mass exceeds the minimum mass
-	  */
-	 float PopIIMass = SS->Mass*dx*dx*dx*MassUnits/SolarMass;
-	 if(PopIIMass > StarClusterMinimumMass) {
-	   density[cellindex] = (1 - StarClusterFormEfficiency)*density[cellindex];
-	   SS->BirthTime = APGrid->ReturnTime();
-	   SS->Mass = StarClusterFormEfficiency*density[cellindex];
-	   SS->oldmass = 0.0;
-	   if(ParticleDensity < 0.0) {
-	     printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
-	     printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
-	     printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
-	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
-	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
-	   }
-	   printf("POPII: cellindex %d updated - next.\n\n", cellindex);
-	   continue;
+     }
+     else if(POPII == SS->ParticleClass) {
+       /* 
+	* For PopII stars we do this if the mass exceeds the minimum mass
+	*/
+       float PopIIMass = SS->Mass*dx*dx*dx*MassUnits/SolarMass;
+       if(PopIIMass > StarClusterMinimumMass) {
+	 density[cellindex] = (1 - StarClusterFormEfficiency)*density[cellindex];
+	 SS->BirthTime = APGrid->ReturnTime();
+	 SS->Mass = StarClusterFormEfficiency*density[cellindex];
+	 SS->oldmass = 0.0;
+	 if(ParticleDensity < 0.0) {
+	   printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
+	   printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+	   printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+	   printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+	   ENZO_FAIL("Particle Density is negative. Oh dear.\n");
 	 }
-       }   
-
-        /* 
-	 * If the formation mass is below a resolution based threshold
-	 * Remove mass from grid and replace by a uniform density sphere which accounts for the 
-	 * subgrid ionisation that has taken place and accounts for the mass that should have been 
-	 * accreted.
-	 */
-       
-       /***********************************************************************
+	 printf("POPII: cellindex %d updated - next.\n\n", cellindex);
+	 continue;
+       }
+     }   
+     
+     /* 
+      * If the formation mass is below a resolution based threshold
+      * Remove mass from grid and replace by a uniform density sphere which accounts for the 
+      * subgrid ionisation that has taken place and accounts for the mass that should have been 
+      * accreted.
+      */
+     
+     /***********************************************************************
 
             For star formation, we need to find a sphere with enough mass to
             accrete.  We step out by a cell width when searching.
 
-       ***********************************************************************/
-      printf("%s: Low resolution run.....\n", __FUNCTION__);
-      if(ParticleDensity < 0.0) {
-	printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
-	printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
-	printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
-	printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
-	/* Mark particle for deletion */
-	SS->WillDelete = true;
-	//ParticleList[pindex]->DisableParticle(LevelArray, MyProcessorNumber);
-	//ParticleList.erase(pindex);
+     ***********************************************************************/
+     printf("%s: Low resolution run.....\n", __FUNCTION__);
+     if(ParticleDensity < 0.0) {
+       printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
+       printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+       printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+       printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+       /* Mark particle for deletion */
+       SS->WillDelete = true;
+       //ParticleList[pindex]->DisableParticle(LevelArray, MyProcessorNumber);
+       //ParticleList.erase(pindex);
+       
+       printf("P%d: Too late. Star is destroyed by surrounding SF. Particle %d deleted\n",
+	      MyProcessorNumber, pindex);
+       continue;
+     }
+     FLOAT Radius = 0.0;
+     int feedback_flag = -99999;
+     float MassEnclosed = 0;
+     float Metallicity2 = 0;
+     float Metallicity3 = 0;
+     float ColdGasMass = 0;
+     float AvgVelocity[MAX_DIMENSION];
+     for (int dim = 0; dim < MAX_DIMENSION; dim++)
+       AvgVelocity[dim] = 0.0;
+     bool SphereTooSmall = true;
+     float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
+       ShellVelocity[MAX_DIMENSION];
+     while (SphereTooSmall) { 
+       Radius += APGrid->CellWidth[0][0];
+       bool IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
+       
+       if (IsSphereContained == false)
+	 break;
+       ShellMass = 0;
+       ShellMetallicity2 = 0;
+       ShellMetallicity3 = 0;
+       ShellColdGasMass = 0;
+       for (int dim = 0; dim < MAX_DIMENSION; dim++)
+	 ShellVelocity[dim] = 0.0;
+       
+       LevelHierarchyEntry *Temp = NULL;
+       Temp = LevelArray[ThisLevel];
+       while (Temp != NULL) {	    
+	 Temp->GridData->GetEnclosedMassInShell(SS->pos, Radius-APGrid->CellWidth[0][0], Radius, 
+						ShellMass, ShellMetallicity2, 
+						ShellMetallicity3,
+						ShellColdGasMass, ShellVelocity,
+						-1);
+	 
+	 Temp = Temp->NextGridThisLevel;
+       } // END: Grids
+       
+       MassEnclosed += ShellMass;
+       ColdGasMass += ShellColdGasMass;
+       // Must first make mass-weighted, then add shell mass-weighted
+       // (already done in GetEnclosedMassInShell) velocity and
+       // metallicity.  We divide out the mass after checking if mass is
+       // non-zero.
+       Metallicity2 = Metallicity2 * (MassEnclosed - ShellMass) + ShellMetallicity2;
+       Metallicity3 = Metallicity3 * (MassEnclosed - ShellMass) + ShellMetallicity3;
+       for (int dim = 0; dim < MAX_DIMENSION; dim++)
+	 AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
+	   ShellVelocity[dim];
+       printf("MassEnclosed = %e Msolar\n", MassEnclosed); fflush(stdout);
+       if (MassEnclosed == 0) {
+	 IsSphereContained = false;
+	 return SUCCESS;
+       }
+       
+       Metallicity2 /= MassEnclosed;
+       Metallicity3 /= MassEnclosed;
+       for (int dim = 0; dim < MAX_DIMENSION; dim++)
+	 AvgVelocity[dim] /= MassEnclosed;
+       
+       
+       /* Now remove mass based on star particle type 
+	* Note that while SS->Mass gets set here with the 
+	* mass of the particle in solar masses it is reset 
+	* below in code density units. 
+	*/
 
-	printf("P%d: Too late. Star is destroyed by surrounding SF. Particle %d deleted\n",
-	       MyProcessorNumber, pindex);
-	continue;
-      }
-      FLOAT Radius = 0.0;
-      int feedback_flag = -99999;
-      float MassEnclosed = 0;
-      float Metallicity2 = 0;
-      float Metallicity3 = 0;
-      float ColdGasMass = 0;
-      float AvgVelocity[MAX_DIMENSION];
-      for (int dim = 0; dim < MAX_DIMENSION; dim++)
-	AvgVelocity[dim] = 0.0;
-      bool SphereTooSmall = true;
-      float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
-	ShellVelocity[MAX_DIMENSION];
-      while (SphereTooSmall) { 
-	Radius += APGrid->CellWidth[0][0];
-	bool IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
-
-	if (IsSphereContained == false)
-	  break;
-	ShellMass = 0;
-	ShellMetallicity2 = 0;
-	ShellMetallicity3 = 0;
-	ShellColdGasMass = 0;
-	for (int dim = 0; dim < MAX_DIMENSION; dim++)
-	  ShellVelocity[dim] = 0.0;
-
-	LevelHierarchyEntry *Temp = NULL;
-	Temp = LevelArray[ThisLevel];
-	while (Temp != NULL) {	    
-	  Temp->GridData->GetEnclosedMassInShell(SS->pos, Radius-APGrid->CellWidth[0][0], Radius, 
-						 ShellMass, ShellMetallicity2, 
-						 ShellMetallicity3,
-						 ShellColdGasMass, ShellVelocity,
-						 -1);
-	  
-	  Temp = Temp->NextGridThisLevel;
-	} // END: Grids
-    	
-	MassEnclosed += ShellMass;
-	ColdGasMass += ShellColdGasMass;
-	// Must first make mass-weighted, then add shell mass-weighted
-	// (already done in GetEnclosedMassInShell) velocity and
-	// metallicity.  We divide out the mass after checking if mass is
-	// non-zero.
-	Metallicity2 = Metallicity2 * (MassEnclosed - ShellMass) + ShellMetallicity2;
-	Metallicity3 = Metallicity3 * (MassEnclosed - ShellMass) + ShellMetallicity3;
-	for (int dim = 0; dim < MAX_DIMENSION; dim++)
-	  AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
-	    ShellVelocity[dim];
-	printf("MassEnclosed = %e Msolar\n", MassEnclosed); fflush(stdout);
-	if (MassEnclosed == 0) {
-	  IsSphereContained = false;
-	  return SUCCESS;
-	}
-	
-	Metallicity2 /= MassEnclosed;
-	Metallicity3 /= MassEnclosed;
-	for (int dim = 0; dim < MAX_DIMENSION; dim++)
-	  AvgVelocity[dim] /= MassEnclosed;
-	
-	
-	/* Now remove mass based on star particle type 
-	 * Note that while SS->Mass gets set here with the 
-	 * mass of the particle in solar masses it is reset 
-	 * below in code density units. 
-	 */
-	
-	if(POPIII == SS->ParticleClass) {
-	  SS->AssignMassFromIMF();
-	  SS->StellarAge = SS->RadiationLifetime;
-	  SphereTooSmall = MassEnclosed < (2*SS->Mass);
-	  // to make the total mass PopIIIStarMass
-	  StellarMasstoRemove = SS->Mass;  // [Msolar]
-	  printf("%s: Mass = %e Msolar\t StellarAge = %e Myr\n", __FUNCTION__,
-		 SS->Mass, SS->StellarAge*TimeUnits/Myr_s);
-	  SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
-	  SS->oldmass = 0.0;
-	}
-	else if(SMS == SS->ParticleClass) {
+       if(POPIII == SS->ParticleClass) {
+	 SS->AssignMassFromIMF();
+	 SS->StellarAge = SS->RadiationLifetime;
+	 SphereTooSmall = MassEnclosed < (2*SS->Mass);
+	 // to make the total mass PopIIIStarMass
+	 StellarMasstoRemove = SS->Mass;  // [Msolar]
+	 printf("%s: Mass = %e Msolar\t StellarAge = %e Myr\n", __FUNCTION__,
+		SS->Mass, SS->StellarAge*TimeUnits/Myr_s);
+	 SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
+	 SS->oldmass = 0.0;
+       }
+       else if(SMS == SS->ParticleClass) {
 	  /* 
 	   * We take here a fiducial SMS mass of 10,000 Msolar
 	   * since in this low resolution case accretion is 
@@ -1113,28 +1107,28 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	  SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
 	  SS->oldmass = 0.0;
 	}
-	else if(POPII == SS->ParticleClass) {
-	  float AvgDensity = (float) 
-	    (double(SolarMass * MassEnclosed) / 
-	     double(4*pi/3.0 * pow(Radius*LengthUnits, 3))); /* cgs density */
-	  float DynamicalTime = sqrt((3.0 * pi) / (32.0 * GravConst * AvgDensity)) /
-	    TimeUnits;
-	  float ColdGasFraction = ColdGasMass / MassEnclosed;
-	  StellarMasstoRemove = ColdGasFraction * StarClusterFormEfficiency * MassEnclosed; //[Msolar]
-	  SphereTooSmall = DynamicalTime < tdyn_code;
-	  SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
-	  SS->oldmass = 0.0;
-	  SS->RadiationLifetime = 2e7*yr_s/TimeUnits; /* 20 Myr lifetime */
-	}
-	// Remove the stellar mass from the sphere and distribute the
-	// gas evenly in the sphere since this is what will happen once
-	// the I-front passes through it.
-	
-	CellDensityAfterFormation = (float) 
-	  (double(SolarMass * (MassEnclosed - StellarMasstoRemove)) / 
-	   double(4.0*pi/3.0 * POW(Radius*LengthUnits, 3)) /
-	   DensityUnits); /* converted to code density */
-	
+       else if(POPII == SS->ParticleClass) {
+	 float AvgDensity = (float) 
+	   (double(SolarMass * MassEnclosed) / 
+	    double(4*pi/3.0 * pow(Radius*LengthUnits, 3))); /* cgs density */
+	 float DynamicalTime = sqrt((3.0 * pi) / (32.0 * GravConst * AvgDensity)) /
+	   TimeUnits;
+	 float ColdGasFraction = ColdGasMass / MassEnclosed;
+	 StellarMasstoRemove = ColdGasFraction * StarClusterFormEfficiency * MassEnclosed; //[Msolar]
+	 SphereTooSmall = DynamicalTime < tdyn_code;
+	 SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
+	 SS->oldmass = 0.0;
+	 SS->RadiationLifetime = 2e7*yr_s/TimeUnits; /* 20 Myr lifetime */
+       }
+       // Remove the stellar mass from the sphere and distribute the
+       // gas evenly in the sphere since this is what will happen once
+       // the I-front passes through it.
+       
+       CellDensityAfterFormation = (float) 
+	 (double(SolarMass * (MassEnclosed - StellarMasstoRemove)) / 
+	  double(4.0*pi/3.0 * POW(Radius*LengthUnits, 3)) /
+	  DensityUnits); /* converted to code density */
+       
       }  /* end while(SphereTooSmall) */
 #ifdef NOT_NECESSARY
        /* Don't allow the sphere to be too large (2x leeway) */
@@ -1159,9 +1153,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	* loop to find sufficient enclosed mass. 
 	*/
        SS->InfluenceRadius = Radius;
-       printf("%s: Particle Mass = %1.1f Msolar\n", __FUNCTION__, SS->Mass);
-       printf("%s: Particle Class = %d\n", __FUNCTION__, SS->ParticleClass);
-       printf("%s: Remove mass from sphere of radius %lf pc\n", __FUNCTION__, Radius*LengthUnits/pc_cm);
+ 
        /* Update cell information */
        int index = 0;
        FLOAT delx = 0.0, dely = 0.0, delz = 0.0, radius2 = 0.0, DomainWidth[MAX_DIMENSION];
@@ -1565,9 +1557,9 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
  #if SSDEBUG
-      printf("%s: deltatime = %f years\t TIMEGAP = %0.2f years\n",
+      printf("%s: deltatime = %f years\t TIMEGAP = %d timesteps\n",
 	     __FUNCTION__, (ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/yr_s, 
-	     (float)TIMEGAP);
+	     (int)TIMEGAP);
 #endif
      
       //We should update when the time between stored rates exceeds TIMEGAP

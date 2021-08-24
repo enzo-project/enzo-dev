@@ -59,7 +59,6 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
        CommunicationDirection == COMMUNICATION_POST_RECEIVE))
     return SUCCESS;
 
-
 #ifdef USE_MPI
   //MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
   MPI_Datatype DataType = FloatDataType;
