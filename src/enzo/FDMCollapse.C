@@ -101,11 +101,10 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = (char*) Vel2Name;
   DataLabel[count++] = (char*) Vel3Name;
 
-  //if (QuantumPressure) {
-    DataLabel[count++] = (char*) RePsiName;
-    DataLabel[count++] = (char*) ImPsiName;
-    DataLabel[count++] = (char*) FDMDensName;
-  //}
+  DataLabel[count++] = (char*) RePsiName;
+  DataLabel[count++] = (char*) ImPsiName;
+  DataLabel[count++] = (char*) FDMDensName;
+  
   if(WritePotential)
 	DataLabel[count++] = (char*) GravPotName;
 

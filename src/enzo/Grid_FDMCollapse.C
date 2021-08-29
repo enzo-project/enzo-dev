@@ -69,11 +69,10 @@ int grid::FDMCollapseInitializeGrid(int UseParticles, float ParticleMeanDensity)
   if (GridRank > 2)
     FieldType[NumberOfBaryonFields++] = Velocity3;
 
-  //if (QuantumPressure){
-    FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
-    FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
-    FieldType[FDMDensNum = NumberOfBaryonFields++] = FDMDensity;
-  //}
+  FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
+  FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
+  FieldType[FDMDensNum = NumberOfBaryonFields++] = FDMDensity;
+  
   //printf("%d \n", NumberOfBaryonFields);
   if( WritePotential  )
     FieldType[NumberOfBaryonFields++] = GravPotential;
@@ -170,30 +169,6 @@ if(FDMCollapseAbsorbingBoundary){
 	// set some test particles
 	ParticleCount = 1000;
 
-	// set a binary bh
-	/*npart = 1;
-    if (SetupLoopCount > 0) {
-	double vrot = sqrt(6.67e-6*1e6*2e33/3.1e21)/2./(LengthUnits/TimeUnits);
-    ParticleMass[0] = ParticleMeanDensity;
-	ParticleNumber[0] = CollapseTestParticleCount++;
-    ParticleType[0] = PARTICLE_TYPE_DARK_MATTER;
-    ParticlePosition[0][0] = 0.525 ;
-	ParticlePosition[1][0] = 0.5 ;
-	ParticlePosition[2][0] = 0.5 ;
-	ParticleVelocity[0][0] = 0.0;
-    ParticleVelocity[1][0] = 1.0e5 /(LengthUnits/TimeUnits);
-    ParticleVelocity[2][0] = 0.0;
-
-    ParticleMass[1] = ParticleMeanDensity;
-    ParticleNumber[1] = CollapseTestParticleCount++;
-	ParticleType[1] = PARTICLE_TYPE_DARK_MATTER;
-    ParticlePosition[0][1] = 0.6 ;
-	ParticlePosition[1][1] = 0.5 - 3.1e21/LengthUnits;
-	ParticlePosition[2][1] = 0.5 ;
-	ParticleVelocity[0][1] = vrot;
-	ParticleVelocity[1][1] = 2.0e6 /(LengthUnits/TimeUnits);
-    ParticleVelocity[2][1] = 0.0;
-	}*/
 	// set many particles
 	while (ParticleCount > 0) {
         if (SetupLoopCount > 0) {
