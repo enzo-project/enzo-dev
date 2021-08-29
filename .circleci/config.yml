@@ -177,7 +177,7 @@ commands:
 jobs:
   test-suite:
     docker:
-      - image: circleci/python:3.8.5
+      - image: cimg/python:3.8.5
 
     working_directory: ~/enzo-dev
 
@@ -224,7 +224,7 @@ jobs:
 
   test-compile-options:
     docker:
-      - image: circleci/python:3.8.5
+      - image: cimg/python:3.8.5
 
     working_directory: ~/enzo-dev
 
@@ -251,7 +251,7 @@ jobs:
 
   docs-build:
     docker:
-      - image: circleci/python:3.8.5
+      - image: cimg/python:3.8.5
 
     working_directory: ~/enzo-dev
 
