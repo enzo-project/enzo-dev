@@ -216,39 +216,53 @@ int grid::SchrodingerSolver( int nhy )
 
   if (PointSourceGravity > 0) {
 
-    FLOAT a = 1.0, potential, auxre, auxim, radius, rcubed, rsquared, xpos, ypos = 0.0, zpos = 0.0, rcore,x ;
+    FLOAT a = 1.0, potential, auxre, auxim, radius, rcubed, rsquared, xpos, ypos = 0.0, zpos = 0.0, rcore,x;
+	FLOAT r0squared, r0, xh, yh, rproj, worb2;
 
     int n = 0;
-      
+
+	r0squared = (PointSourceGravityPosition[0] - 0.5)*(PointSourceGravityPosition[0] - 0.5) + (PointSourceGravityPosition[1] - 0.5)*(PointSourceGravityPosition[1] - 0.5) + (PointSourceGravityPosition[2] - 0.5)*(PointSourceGravityPosition[2] - 0.5);
+	r0 = sqrt(r0squared);
+	
+	worb2 = PointSourceGravityConstant/POW(r0,3);
+	
+	xh = r0*cos(sqrt(worb2)*Time);
+	yh = r0*sin(sqrt(worb2)*Time);
+	if (MyProcessorNumber == ROOT_PROCESSOR) {
+    fprintf(stderr, "orbital freq w, host position x,y =%"GSYM", %"GSYM",%"GSYM"\n", worb2, xh, yh);
+	}
+
     for (k = 0; k < GridDimension[2]; k++) {
       if (GridRank > 2)
-	zpos = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] -
-	  PointSourceGravityPosition[2];
+	//zpos = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - PointSourceGravityPosition[2];
+	zpos = CellLeftEdge[2][k] - 0.5;
     
       for (j = 0; j < GridDimension[1]; j++) {
 	if (GridRank > 1)
-	  ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] -
-	    PointSourceGravityPosition[1];
+	  //ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - PointSourceGravityPosition[1];
+	  ypos = CellLeftEdge[1][j] - 0.5;
       
 	for (i = 0; i < GridDimension[0]; i++, n++) {
-	  xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] -
-	    PointSourceGravityPosition[0];
+	  //xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - PointSourceGravityPosition[0];
+	  xpos = CellLeftEdge[0][i] - 0.5;
 
 	  /* Compute distance from center. */
  
 	  rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
 	  radius = sqrt(rsquared);
 	  rcore = PointSourceGravityCoreRadius;
+	  rproj = (xpos*xh + ypos*yh)/sqrt(xh*xh + yh*yh);
 
 	  /* Compute potential from point source */
 
-	  potential = -min(PointSourceGravityConstant/radius, PointSourceGravityConstant/rcore);
+	  //potential = -min(PointSourceGravityConstant/radius, PointSourceGravityConstant/rcore);
+	  potential = worb2/2.*(radius*radius - 3*rproj*rproj);
         
 	  auxre = cos(potential / hmcoef * dtFixed ) * repsi[n] 
 	        + sin(potential / hmcoef * dtFixed ) * impsi[n];
 
 	  auxim = cos(potential / hmcoef * dtFixed ) * impsi[n] 
-                - sin(potential / hmcoef * dtFixed ) * repsi[n];
+            - sin(potential / hmcoef * dtFixed ) * repsi[n];
 
 	  repsi[n] = auxre;
 	  impsi[n] = auxim;
