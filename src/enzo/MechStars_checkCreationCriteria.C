@@ -60,14 +60,23 @@ int checkCreationCriteria(float* Density, float* Metals,
     //if (RefinementField[index] != 0) return FAIL;
     /* Baryon overdensity. Take a local mean, but 
         weight the central cell more*/
-    float dmean = (Density[index]*10.0+Density[iminus]
-                + Density[iplus]+Density[jplus]
-                + Density[jminus]+Density[kminus]
-                + Density[kplus])/17.0 * DensityUnits / (mh/0.6);
-    if (dmean < StarMakerOverDensityThreshold) 
-    {
-        return FAIL;
+    if (StarMakerOverDensityThreshold > 0){
+        float dmean = (Density[index]*10.0+Density[iminus]
+                    + Density[iplus]+Density[jplus]
+                    + Density[jminus]+Density[kminus]
+                    + Density[kplus])/17.0;
+        if (dmean < StarMakerOverDensityThreshold) 
+        {
+            return FAIL;
+        }
     }
+    else { // checking number density
+        float nb = Density[index]*DensityUnits/mh/0.6; //Approx using hydrogen only
+        if (nb < -1*StarMakerOverDensityThreshold)
+            return FAIL;
+            
+    }
+
     // if (debug && status) fprintf(stdout, "Passed Density: %e: %e\n", 
     //           dmean,StarMakerOverDensityThreshold);
     /* in addition to the converging flow check, we check
