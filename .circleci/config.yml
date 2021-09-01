@@ -31,7 +31,7 @@ commands:
             pip install --upgrade wheel
             pip install --upgrade setuptools
             pip install 'matplotlib<3.3.0'
-            pip install Cython numpy h5py fastcache flake8 nose yt girder-client
+            pip install Cython numpy h5py fastcache flake8 nose yt==3.6.1 girder-client
             # Install hypre
             mkdir -p $HOME/local
             if [ ! -f $HOME/local/lib/libHYPRE.a ]; then
