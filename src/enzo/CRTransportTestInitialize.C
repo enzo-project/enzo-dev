@@ -107,7 +107,7 @@ int CRTransportTestInitialize(FILE *fptr, FILE *Outfptr,
 
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
-  printf("CRTransportTestInitiazle\n");
+  printf("CRTransportTestInitialize\n");
   if (MinimumMassForRefinement[0] == FLOAT_UNDEFINED) {
     MinimumMassForRefinement[0] = MinimumOverDensityForRefinement[0];
     for (int dim = 0; dim < MetaData.TopGridRank; dim++)

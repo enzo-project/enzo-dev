@@ -121,7 +121,7 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
                   &LeftBy);
     ret += sscanf(line, "HydroShockTubesRightBy = %"FSYM,
                   &RightBy);
-    ret += sscanf(line, "HydroShockTubesCentertBy = %"FSYM,
+    ret += sscanf(line, "HydroShockTubesCenterBy = %"FSYM,
                   &CenterBy);
     ret += sscanf(line, "HydroShockTubesLeftBz = %"FSYM,
                   &LeftBz);

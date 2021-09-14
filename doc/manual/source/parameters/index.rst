@@ -3399,8 +3399,8 @@ For details on the cosmic ray solver in Enzo see :ref:`cosmic_rays`.
    0. Off
    1. On; Anisotropic streaming around magnetic field lines. Compatible with HydroMethod = 4. 
 
-``CRHeatng`` (external)
-    Models momentum transfer from streaming cosmic rays to the thermal gas. Physically, this should
+``CRHeating`` (external)
+    This parameter adds heating of gas from streaming of cosmic rays. Physically, this should
     only be turned on for runs with cosmic ray streaming. However, this will work for any combination of CR
     parameters. Only compatible with HydroMethod = 4. Default: 0. 
 
