@@ -1205,4 +1205,7 @@ EXTERN float MagneticSupernovaRadius;
 EXTERN float MagneticSupernovaDuration;
 EXTERN float MagneticSupernovaEnergy;
 
+/* Rotating Pop III Stars Model */
+EXTERN int PopIII_Rotating;
+
 #endif

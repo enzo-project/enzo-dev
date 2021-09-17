@@ -1050,5 +1050,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MagneticSupernovaDuration = 5e4  ;    // Total duration of magnetic feedback in years
   MagneticSupernovaEnergy = 1.0e51;    // Total energy (ergs) injected per star particle (supernova)
 
+  /* Rotating Pop III Stars Model */
+  PopIII_Rotating = 0; // 0 = off
+
   return SUCCESS;
 }
