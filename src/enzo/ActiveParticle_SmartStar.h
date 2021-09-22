@@ -27,14 +27,14 @@
 #include "communication.h"
 #include "phys_constants.h"
 #include "FofLib.h"
-#define DEBUG 0
+#define DEBUG 1
 /* Every how many times will the accretion rate be updated */
 //#define FREQUENCY 100
 #define MAXACCRETIONRADIUS  128 /* Times the minimum cell width */
 #define ACCRETIONRADIUS  4
 #define NUMRADIATIONBINS 5
 #define CRITICAL_ACCRETION_RATE 0.001 //Msolar/yr (Haemerlee et al (2018))
-#define TIMEGAP            100   // * timestep
+#define TIMEGAP            1   // * timestep SG CHANGED FROM 100 TO 1 for testing
 #define POPIII_RESOLUTION  0.001 //pc
 #define SMS_RESOLUTION     0.1   //pc
 /* Prototypes */
@@ -236,6 +236,13 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
 
   HierarchyEntry** LevelGrids = NULL;
 
+  // SG. Trying to get rid of merging error for POPIII particles.
+  for (i=0; i<(*nParticles); i++) {
+    if(ParticleList[i]->ReturnType() == POPIII){
+      continue;
+    }
+  }
+
   int NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &LevelGrids);
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -245,8 +252,9 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
   /* Construct list of sink particle positions to pass to Foflist */
   FLOAT ParticleCoordinates[3*(*nParticles)];
   /* Particles merge once they come within 1 accretion radii of one another */
-
-  FLOAT MergingRadius = 1.5*(LevelArray[ThisLevel]->GridData->GetCellWidth(0,0))*ACCRETIONRADIUS; 
+  fprintf(stderr, "%s: no. particles = %"ISYM"\n.", __FUNCTION__, *nParticles);
+  FLOAT MergingRadius = 1.5*(LevelArray[ThisLevel]->GridData->GetCellWidth(0,0))*ACCRETIONRADIUS*0; // SG. Making merging radius = 0.
+  fprintf(stderr, "%s: merging radius = %e\n.", __FUNCTION__, MergingRadius);
 
   for (i=0; i<(*nParticles); i++) {
     tempPos = ParticleList[i]->ReturnPosition();
@@ -295,13 +303,19 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
 
   int NewGrid = -1;
   for (i = 0; i < *ngroups; i++) {
+    fprintf(stderr,"%s: got here.\n", __FUNCTION__);
     if (MergedParticles[i]->ReturnCurrentGrid()->PointInGrid(
             MergedParticles[i]->ReturnPosition()) == false) {
+              // SG. Debugging.
+              //if(ParticleList[i]->ReturnType() == POPIII){
+                //continue;
+               // }
       // Find the grid to transfer to
       for (j = 0; j < NumberOfGrids; j++) {
         if (LevelGrids[j]->GridData->PointInGrid(
                 MergedParticles[i]->ReturnPosition())) {
           NewGrid = j;
+          fprintf(stderr,"%s: new grid = %"ISYM".\n", __FUNCTION__, NewGrid);
           break;
         }
       }
@@ -471,22 +485,38 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
         ParticleList);
 
+        // SG. Particles loop.
+      for (i = 0; i<NumberOfMergedParticles; i++){
+
+      grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+
       /* Do accretion */
-      
+
       if (Accrete(nParticles, ParticleList, accradius, LevelArray, 
               ThisLevel) == FAIL)
         ENZO_FAIL("SmartStar Particle accretion failed. \n");
 
       if(UpdateAccretionRateStats(nParticles, ParticleList, LevelArray, ThisLevel) == FAIL)
-	ENZO_FAIL("Failed to update accretion rate stats. \n");
+	      ENZO_FAIL("Failed to update accretion rate stats. \n");
 
+    //  // SG. For debugging.
+    //   fprintf(stderr, "%s: edge 0 = %e, edge 1 = %e and edge 3 = %e.\n", __FUNCTION__, APGrid->GetGridLeftEdge(0), APGrid->GetGridLeftEdge(1), APGrid->GetGridLeftEdge(2));
+		// 	fprintf(stderr, "%s: edge 0 = %e, edge 1 = %e and edge 3 = %e.\n", __FUNCTION__, APGrid->GetGridRightEdge(0), APGrid->GetGridRightEdge(1), APGrid->GetGridRightEdge(2));
+      fprintf(stderr,"%s: UpdateRadiationLifetimes called here.\n", __FUNCTION__);
       if(UpdateRadiationLifetimes(nParticles, ParticleList, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("Failed to update radiation lifetimes. \n");
 
+    //  // SG. For debugging.
+    //   fprintf(stderr, "%s: edge 0 = %e, edge 1 = %e and edge 3 = %e.\n", __FUNCTION__, APGrid->GetGridLeftEdge(0), APGrid->GetGridLeftEdge(1), APGrid->GetGridLeftEdge(2));
+		// 	fprintf(stderr, "%s: edge 0 = %e, edge 1 = %e and edge 3 = %e.\n", __FUNCTION__, APGrid->GetGridRightEdge(0), APGrid->GetGridRightEdge(1), APGrid->GetGridRightEdge(2));
+
       /* Apply feedback */
+      fprintf(stderr,"%s: SmartStarParticleFeedback called here.\n", __FUNCTION__);
       if (SmartStarParticleFeedback(nParticles, ParticleList,
         dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("SmartStar Particle Feedback failed. \n");
+
+      } // SG. Particles loop.
       
       /* Clean any particles marked for deletion. 
        * After each deletion I need to reloop and check it again. 

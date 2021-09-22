@@ -66,7 +66,8 @@ int AssignActiveParticlesToGrids(
         pos1[dim] += period[dim];
       }
     }
-    // Find the grid and processor this particle lives on
+    // Find the grid and processor this particle lives on 
+    // SG. Important bit.
     GlobalLevelMax = LevelMax = SavedGrid = SavedGridOffProc = -1;
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
       NumberOfLevelGrids = GenerateGridArray(LevelArray, level, &LevelGrids);     
@@ -77,6 +78,7 @@ int AssignActiveParticlesToGrids(
 	        if (LevelGrids[gridnum]->GridData->isLocal() == true) { 
 	          SavedGrid = gridnum;
 	          LevelMax = level;
+            fprintf(stderr, "%s: SavedGrid = %"ISYM" and LevelMax = %"ISYM".\n", __FUNCTION__, SavedGrid, LevelMax);
 	        }
 	      }
           GlobalLevelMax = level;
@@ -84,7 +86,7 @@ int AssignActiveParticlesToGrids(
 	  } // for gridnum
       delete [] LevelGrids;
       LevelGrids = NULL;
-    }
+    } // SG. End for loop over levels.
     
     /* Assign the merged particles to grids. */
     
@@ -127,7 +129,7 @@ int AssignActiveParticlesToGrids(
 #endif // endif parallel
     } // end else
     
-    /* Sync the updated particle counts accross all proccessors */
+    /* Sync the updated particle counts accross all processors */
     
     CommunicationSyncNumberOfParticles(LevelGrids, NumberOfGrids);
     

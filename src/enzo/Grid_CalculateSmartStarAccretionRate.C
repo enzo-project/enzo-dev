@@ -615,7 +615,7 @@ float grid::CalculateCirculisationSpeed(int Vel1Num, FLOAT AccretionRadius,
 
 FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *Temperature)
 {
-
+  fprintf(stderr,"%s: Start of function.\n", __FUNCTION__);
   int cindex = (GridEndIndex[0] - GridStartIndex[0])/2 + GridStartIndex[0];
   int cgindex = GRIDINDEX_NOGHOST(cindex,cindex,cindex);
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
@@ -638,13 +638,13 @@ FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *
   {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
-
- 
-  /* Estimate the relative velocity */
-  float vInfinity = sqrt(pow(vparticle[0] - BaryonField[Vel1Num][cgindex],2) +
-			 pow(vparticle[1] - BaryonField[Vel2Num][cgindex],2) +
-			 pow(vparticle[2] - BaryonField[Vel3Num][cgindex],2));
-
+  // for (int i = 0; i < nParticles; i++) {
+  //   grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+  //   if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) { // SG. Avoid segfault.
+        /* Estimate the relative velocity */
+  fprintf(stderr,"%s: vparticle[0] = %e", __FUNCTION__, vparticle[0]);
+  fprintf(stderr,"%s: BaryonField[Vel1Num][cgindex] = %e", __FUNCTION__, BaryonField[Vel1Num][cgindex]);
+  float vInfinity = sqrt(pow(vparticle[0] - BaryonField[Vel1Num][cgindex],2) + pow(vparticle[1] - BaryonField[Vel2Num][cgindex],2) + pow(vparticle[2] - BaryonField[Vel3Num][cgindex],2));
   float CellTemperature = Temperature[cgindex];
   if (JeansRefinementColdTemperature > 0)
     CellTemperature = JeansRefinementColdTemperature;
@@ -660,4 +660,6 @@ FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *
 #endif
   return Gcode*mparticle/
     (pow(vInfinity,2) + pow(cInfinity,2));
-}
+    // } // SG. My processor.
+    // }
+} // SG. End of function.

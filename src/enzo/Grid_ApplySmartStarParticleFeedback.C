@@ -46,7 +46,8 @@ int search_lower_bound(float *arr, float value, int low, int high,
 		       int total);
 
 int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
-
+	
+	fprintf(stderr, "%s: got here.\n", __FUNCTION__);
   /* Return if this doesn't involve us */
   if (MyProcessorNumber != ProcessorNumber) 
     return SUCCESS;
@@ -186,6 +187,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
   else if(SS->ParticleClass == POPIII) {
   
     if(Age > SS->RadiationLifetime) {/* Star needs to go supernovae and change type */
+				fprintf(stderr, "%s: Age exceeds stellar lifetime. Transition to BH.\n", __FUNCTION__);
       
       /* We now need to convert this particle into a Black Hole if appropriate 
        * 20 Msolar - 40.1 Msolar -> Type II supernova with BH remnant 
