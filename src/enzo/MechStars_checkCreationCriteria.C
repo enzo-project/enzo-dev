@@ -34,7 +34,7 @@ int checkCreationCriteria(float* Density, float* Metals,
                         bool* gridShouldFormStars, bool* notEnoughMetals, 
                         int continuingFormation, int* seedIndex)
 {  
-    float Zsolar = 0.02;
+    float Zsolar = CoolData.SolarMetalFractionByMass;
     float maxZ = 0.0;
     bool debug = false;
     bool status = PASS;
