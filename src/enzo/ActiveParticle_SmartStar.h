@@ -27,14 +27,14 @@
 #include "communication.h"
 #include "phys_constants.h"
 #include "FofLib.h"
-#define DEBUG 1
+#define DEBUG 0 // SG. Changing back to debug 0.
 /* Every how many times will the accretion rate be updated */
 //#define FREQUENCY 100
 #define MAXACCRETIONRADIUS  128 /* Times the minimum cell width */
 #define ACCRETIONRADIUS  4
 #define NUMRADIATIONBINS 5
 #define CRITICAL_ACCRETION_RATE 0.001 //Msolar/yr (Haemerlee et al (2018))
-#define TIMEGAP            1   // * timestep SG CHANGED FROM 100 TO 1 for testing
+#define TIMEGAP            100   // * timestep SG CHANGED FROM 100 TO 1 for testing
 #define POPIII_RESOLUTION  0.001 //pc
 #define SMS_RESOLUTION     0.1   //pc
 /* Prototypes */
@@ -237,11 +237,11 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
   HierarchyEntry** LevelGrids = NULL;
 
   // SG. Trying to get rid of merging error for POPIII particles.
-  for (i=0; i<(*nParticles); i++) {
-    if(ParticleList[i]->ReturnType() == POPIII){
-      continue;
-    }
-  }
+  // for (i=0; i<(*nParticles); i++) {
+  //   if(ParticleList[i]->ReturnType() == POPIII){
+  //     continue;
+  //   }
+  // }
 
   int NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &LevelGrids);
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
@@ -303,7 +303,6 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
 
   int NewGrid = -1;
   for (i = 0; i < *ngroups; i++) {
-    fprintf(stderr,"%s: got here.\n", __FUNCTION__);
     if (MergedParticles[i]->ReturnCurrentGrid()->PointInGrid(
             MergedParticles[i]->ReturnPosition()) == false) {
               // SG. Debugging.
