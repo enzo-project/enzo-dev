@@ -253,7 +253,7 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
   FLOAT ParticleCoordinates[3*(*nParticles)];
   /* Particles merge once they come within 1 accretion radii of one another */
   fprintf(stderr, "%s: no. particles = %"ISYM"\n.", __FUNCTION__, *nParticles);
-  FLOAT MergingRadius = 1.5*(LevelArray[ThisLevel]->GridData->GetCellWidth(0,0))*ACCRETIONRADIUS*0; // SG. Making merging radius = 0.
+  FLOAT MergingRadius = 1.5*(LevelArray[ThisLevel]->GridData->GetCellWidth(0,0))*ACCRETIONRADIUS; // SG. Making merging radius = 0. Unmaking it 0. How does merging radius relate to feedback radius?
   fprintf(stderr, "%s: merging radius = %e\n.", __FUNCTION__, MergingRadius);
 
   for (i=0; i<(*nParticles); i++) {
