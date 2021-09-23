@@ -485,9 +485,9 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         ParticleList);
 
         // SG. Particles loop.
-      for (i = 0; i<NumberOfMergedParticles; i++){
+      // for (i = 0; i<NumberOfMergedParticles; i++){
 
-      grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+      // grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
 
       /* Do accretion */
 
@@ -515,7 +515,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("SmartStar Particle Feedback failed. \n");
 
-      } // SG. Particles loop.
+     // } // SG. Particles loop.
       
       /* Clean any particles marked for deletion. 
        * After each deletion I need to reloop and check it again. 
