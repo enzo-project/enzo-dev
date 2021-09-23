@@ -1,6 +1,9 @@
 /*
     Determines wind feedback parameters according to fits in Hopkins 2017:
-    These fits are known to be erroneous, need to re-run and fit using SB99 sims.
+    These fits are known to be erroneous, from personal communication with
+    members of the FIRE collaboration.  need to re-run and fit using SB99 sims.
+    The energies from winds are so small O(10^13 erg) that it may not matter for
+    typical cosmology runs.
 
     07/2019: Azton Wells
  */
@@ -16,7 +19,7 @@
 
 int determineWinds(float age, float* eWinds, float* mWinds, float* zWinds,
                         float massMsun, float zZsun, float TimeUnits, float dtFixed){
-    float Zsolar = 0.02;
+    float Zsolar = CoolData.SolarMetalFractionByMass;
     bool oldEnough = (age < 0.0001)?(false):(true);
     float windE = 0,  windM = 0, windZ = 0.0;
     float wind_factor = 0.0;
