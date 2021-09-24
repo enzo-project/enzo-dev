@@ -252,9 +252,9 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
   /* Construct list of sink particle positions to pass to Foflist */
   FLOAT ParticleCoordinates[3*(*nParticles)];
   /* Particles merge once they come within 1 accretion radii of one another */
-  fprintf(stderr, "%s: no. particles = %"ISYM"\n.", __FUNCTION__, *nParticles);
+  //fprintf(stderr, "%s: no. particles = %"ISYM"\n.", __FUNCTION__, *nParticles);
   FLOAT MergingRadius = 1.5*(LevelArray[ThisLevel]->GridData->GetCellWidth(0,0))*ACCRETIONRADIUS; // SG. Making merging radius = 0. Unmaking it 0. How does merging radius relate to feedback radius?
-  fprintf(stderr, "%s: merging radius = %e\n.", __FUNCTION__, MergingRadius);
+  //fprintf(stderr, "%s: merging radius = %e\n.", __FUNCTION__, MergingRadius);
 
   for (i=0; i<(*nParticles); i++) {
     tempPos = ParticleList[i]->ReturnPosition();
@@ -501,7 +501,6 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
     //  // SG. For debugging.
     //   fprintf(stderr, "%s: edge 0 = %e, edge 1 = %e and edge 3 = %e.\n", __FUNCTION__, APGrid->GetGridLeftEdge(0), APGrid->GetGridLeftEdge(1), APGrid->GetGridLeftEdge(2));
 		// 	fprintf(stderr, "%s: edge 0 = %e, edge 1 = %e and edge 3 = %e.\n", __FUNCTION__, APGrid->GetGridRightEdge(0), APGrid->GetGridRightEdge(1), APGrid->GetGridRightEdge(2));
-      fprintf(stderr,"%s: UpdateRadiationLifetimes called here.\n", __FUNCTION__);
       if(UpdateRadiationLifetimes(nParticles, ParticleList, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("Failed to update radiation lifetimes. \n");
 
@@ -510,7 +509,6 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 		// 	fprintf(stderr, "%s: edge 0 = %e, edge 1 = %e and edge 3 = %e.\n", __FUNCTION__, APGrid->GetGridRightEdge(0), APGrid->GetGridRightEdge(1), APGrid->GetGridRightEdge(2));
 
       /* Apply feedback */
-      fprintf(stderr,"%s: SmartStarParticleFeedback called here.\n", __FUNCTION__);
       if (SmartStarParticleFeedback(nParticles, ParticleList,
         dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("SmartStar Particle Feedback failed. \n");

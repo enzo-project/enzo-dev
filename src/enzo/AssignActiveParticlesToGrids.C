@@ -78,7 +78,7 @@ int AssignActiveParticlesToGrids(
 	        if (LevelGrids[gridnum]->GridData->isLocal() == true) { 
 	          SavedGrid = gridnum;
 	          LevelMax = level;
-            fprintf(stderr, "%s: SavedGrid = %"ISYM" and LevelMax = %"ISYM".\n", __FUNCTION__, SavedGrid, LevelMax);
+            //fprintf(stderr, "%s: SavedGrid = %"ISYM" and LevelMax = %"ISYM".\n", __FUNCTION__, SavedGrid, LevelMax);
 	        }
 	      }
           GlobalLevelMax = level;
