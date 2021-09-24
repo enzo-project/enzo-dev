@@ -91,6 +91,8 @@ float grid::AGNParticleGetColdMassRate(ActiveParticleType* ThisParticle) {
 
    // Calculate and sum Mdot over all cells
    mdot = 0.0;
+   float acc_frac = 1.0; //acc_frac accounts for gas fraction within the accretion zone 
+                          // to accrete on SMBH. Added by Deovrat Prasad.
 
    for (int k = GridStartIndex[2]; k < GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j < GridEndIndex[1]; j++) {
@@ -108,11 +110,11 @@ float grid::AGNParticleGetColdMassRate(ActiveParticleType* ThisParticle) {
                cell_mass = BaryonField[DensNum][index] * cell_volume; //code
 
                if (temperature[index] < AGNParticleColdMassTemp) {
-                  mdot += BaryonField[DensNum][index] * cell_volume
+                  mdot += acc_frac*BaryonField[DensNum][index] * cell_volume
                           * (dtFixed / cold_delay);
 
                   // Condensed mass drops out
-                  BaryonField[DensNum][index] -= BaryonField[DensNum][index]
+                  BaryonField[DensNum][index] -= acc_frac*BaryonField[DensNum][index]
                                                  * (dtFixed / cold_delay);
                }
             } // End mdot calculation
@@ -123,21 +125,6 @@ float grid::AGNParticleGetColdMassRate(ActiveParticleType* ThisParticle) {
    // Make mdot be condensation rate per time unit
    mdot /= dtFixed;
 
-/*
-   //Angular momentum calculation of gas crossing the accretion radius
-   //to feed the information to the AGN jets. To be done withing the i,j,k loop
-   // Not tested, Deovrat Prasad
-   if( radius < tp->CoolingRadius ){
-     cell_mass = BaryonField[DensNum][index] * cell_volume;
-     Lx += cell_mass*BaryonField[Vel1Num][index]*radius;
-     Ly += cell_mass*BaryonField[Vel2Num][index]*radius;
-     Lz += cell_mass*BaryonField[Vel3Num][index]*radius; 
-   }
-   l_tot = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
-   n[0] = Lx/l_tot;
-   n[1] = Ly/l_tot;
-   n[2] = Lz/l_tot;
-*/
    delete[] temperature;
    return mdot;
 }

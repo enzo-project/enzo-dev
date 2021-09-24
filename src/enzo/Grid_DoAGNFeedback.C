@@ -121,9 +121,9 @@ int grid::DoAGNFeedback( ActiveParticleType* ThisParticle) {
    /*if (AGNParticleFeedbackType == 0){
       mdot = AGNParticleGetPrecipitationMass(ThisParticle);
    }else */
-   if (AGNParticleFeedbackType == 1){
-      //mdot = AGNParticleGetColdMassRate(ThisParticle);
-      mdot = 1.0*2.0e33*TimeUnits/(3.15e7*MassUnits);
+   if ( AGNParticleFeedbackType == 1 ){
+      mdot = AGNParticleGetColdMassRate(ThisParticle);
+      //mdot = 10.0*2.0e33*TimeUnits/(3.15e7*MassUnits);
 /*
    else if (AGNParticleFeedbackType == 2)
       mdot = AGNParticleGetFixedPowerMass(ThisParticle);

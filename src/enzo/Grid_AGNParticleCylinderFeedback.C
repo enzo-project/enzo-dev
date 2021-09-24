@@ -70,8 +70,10 @@ int grid::AGNParticleCylinderFeedback(ActiveParticleType* ThisParticle, float md
 
    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
             &TimeUnits, &VelocityUnits, Time);
+
    MassUnits = DensityUnits * pow(LengthUnits, 3.0);
    EnergyUnits = MassUnits * pow(LengthUnits / TimeUnits, 2.0);
+   printf("Time in code units (Get units test): %"GSYM"\n", Time);
 
    // Get the volume of a cell
    float cell_volume;
@@ -105,41 +107,51 @@ int grid::AGNParticleCylinderFeedback(ActiveParticleType* ThisParticle, float md
       This needs to be modified in case the jet is to be injected along some 
       arbitrary axis.. 
       */
-      n[0] = cos(tp -> JetTheta) * sin(tp -> JetPhi);
-      n[1] = sin(tp -> JetTheta) * sin(tp -> JetPhi);
-      n[2] = cos(tp -> JetPhi);
+      //n[0] = cos(tp -> JetTheta) * sin(tp -> JetPhi);
+      //n[1] = sin(tp -> JetTheta) * sin(tp -> JetPhi);
+      //n[2] = cos(tp -> JetPhi);
 
 /*    Calculating the unit vector of the jet alignment  based on the net 
  *    angular momenutum of the cold gas within the cooling radius.
  *    Added by Deovrat Prasad.
  */ 
-/*      float radius, l_tot, Lx, Ly, Lz, c_mass, c_volume;
-      int tot_ind; 
+      float xx,yy,zz, radius;
+      float l_tot, Lx, Ly, Lz, c_mass, c_volume;
+      int tot_ind;
       for (int k = 0; k < GridDimension[2]; k++) {
          for (int j = 0; j < GridDimension[1]; j++) {
             for (int i = 0; i < GridDimension[0]; i++) {
                tot_ind = k * GridDimension[1] * GridDimension[0] + j *
-                  GridDimension[1] + i;
-               radius = pow(CellLeftEdge[0][i] + CellWidth[0][i] * 0.5 - xsink, 2.0)
-                   + pow(CellLeftEdge[1][j] + CellWidth[1][j] * 0.5 - ysink, 2.0)
-                   + pow(CellLeftEdge[2][k] + CellWidth[2][k] * 0.5 - zsink, 2.0);
+                   GridDimension[1] + i;
+
+               xx = ( CellLeftEdge[0][i] + CellWidth[0][i] * 0.5 ) - xsink;
+               yy = ( CellLeftEdge[1][j] + CellWidth[1][j] * 0.5 ) - ysink;
+               zz = ( CellLeftEdge[2][k] + CellWidth[2][k] * 0.5 ) - zsink;
+
+               radius = pow(xx, 2.0) + pow(yy, 2.0) + pow(zz, 2.0);
                radius = sqrt(radius);
 
-               //if( radius < tp->CoolingRadius ){
-               //   c_volume = CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
-               //  c_mass = BaryonField[DensNum][tot_ind]*c_volume;
-               //  Lx += c_mass*BaryonField[Vel1Num][tot_ind]*radius;
-     	       //  Ly += c_mass*BaryonField[Vel2Num][tot_ind]*radius;
-     	       // Lz += c_mass*BaryonField[Vel3Num][tot_ind]*radius; 
-   	       //} //if loop
-               //added by Deovrat Prasad
+               if( radius < tp->CoolingRadius ){
+                  c_volume = CellWidth[0][i]*CellWidth[1][j]*CellWidth[2][k];
+                  c_mass = BaryonField[DensNum][tot_ind]*c_volume;
+                  Lx += c_mass*(BaryonField[Vel3Num][tot_ind]*yy - BaryonField[Vel2Num][tot_ind]*zz);
+                  Ly += c_mass*(BaryonField[Vel1Num][tot_ind]*zz - BaryonField[Vel3Num][tot_ind]*xx);
+                  Lz += c_mass*(BaryonField[Vel2Num][tot_ind]*xx - BaryonField[Vel1Num][tot_ind]*yy);
+               }  //if loop
+
                //l_tot = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
-   	       //n[0] = Lx/l_tot;
-   	       //n[1] = Ly/l_tot;
-   	       //n[2] = Lz/l_tot;               
-	    } //i loop
-	 } //j loop
-      } //k loop */
+               //n[0] = Lx/l_tot;
+               //n[1] = Ly/l_tot;
+               //n[2] = Lz/l_tot;
+            } //i loop
+         } //j loop
+      } //k loop
+
+      l_tot = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
+
+      n[0] = Lx/l_tot;
+      n[1] = Ly/l_tot;
+      n[2] = Lz/l_tot;
       if (facing == 0) {
          n[0] *=-1.0;
          n[1] *=-1.0;

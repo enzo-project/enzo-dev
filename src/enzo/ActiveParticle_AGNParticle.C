@@ -144,10 +144,11 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
   float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits; //added by DP
   float insert_point_x, insert_point_y, insert_point_z, insert_time; // added by DP for introducing AP
-  insert_point_x = 0.5109844207763672;
-  insert_point_y = 0.5147457122802735;
-  insert_point_z = 0.4841022491455079;
-  insert_time = 275.39365045624;
+  insert_point_x = 0.5076198577880859;
+  insert_point_y = 0.5082187652587891;
+  insert_point_z = 0.4896526336669922;
+  insert_time = 123.51316179333;  //for z=2.5
+
   //printf("Initial Time = [%"GSYM"]\n", MetaData->Time);
  
   // Search for the cell nearest the origin
@@ -198,7 +199,7 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
       if (create_particle) {
           // Get the units
           float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits, Time;
-          GetUnits(&DensUnits, &LengthUnits, &TempUnits, &TimeUnits, &VelUnits, Time);
+          GetUnits(&DensUnits, &LengthUnits, &TempUnits, &TimeUnits, &VelUnits, insert_time);
 
           ActiveParticleType_AGNParticle *np = new ActiveParticleType_AGNParticle();
           data.NumberOfNewParticles++;
