@@ -1657,17 +1657,14 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     ActiveParticleList<ActiveParticleType>& ParticleList, FLOAT dx, 
 	LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-	 fprintf(stderr,"%s: ApplySmartStarParticleFeedback called here.\n", __FUNCTION__);
+	  fprintf(stderr,"%s: ApplySmartStarParticleFeedback called here.\n", __FUNCTION__);
   /* Skip if we're not on the maximum refinement level. 
      This should only ever happen right after creation and then
      only in pathological cases where creation is happening at 
      the edges of two regions at the maximum refinement level */
 
-//   if (ThisLevel < MaximumRefinementLevel || SmartStarFeedback == FALSE)
-//     return SUCCESS;
-
   /* For each particle, loop over all of the grids and do feedback 
-     if the grid overlaps with the feedback zone                   */
+     if the grid overlaps with the feedback zone */
 		FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -1681,19 +1678,24 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
   
   for (int i = 0; i < nParticles; i++) {
- 			if (SmartStarFeedback == FALSE)
-				fprintf(stderr, "%:s: SS feedback turned off.\n", __FUNCTION__);
-				continue;
+			 fprintf(stderr, "%s: Starting particle loop.\n", __FUNCTION__);
+ 			
+				if (SmartStarFeedback == FALSE){
+					fprintf(stderr, "%s: SS feedback turned off.\n", __FUNCTION__);
+				 continue;
+				}
+
 	   int pclass = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ParticleClass;
 				float OldMassCheck = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->oldmass; // SG. Checking.
     FLOAT AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
-	   //fprintf(stderr, "%s: AccretionRadius = %e and pclass = %"ISYM" and oldmass (check) = %e.\n", __FUNCTION__, AccretionRadius*LengthUnits/pc_cm, pclass), OldMassCheck;
-    // SG. Only BHs need feedback zone.
+	   fprintf(stderr, "%s: AccretionRadius = %e and pclass = %"ISYM" and oldmass (check) = %e.\n", __FUNCTION__, AccretionRadius*LengthUnits/pc_cm, pclass, OldMassCheck);
+    
+				// SG. BH class.
 				if(pclass == BH){
 				grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
-					 fprintf(stderr, "%:s: not on the SS processor.\n", __FUNCTION__);
+					 fprintf(stderr, "%s: not on the SS processor.\n", __FUNCTION__);
       if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
 	return FAIL;
 				}
@@ -1713,13 +1715,12 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 	delete FeedbackZone;
     
  } // SG. End BH class condition. 
-
-	if (pclass == POPIII){ // SG. Add POPIII class condition
-				 fprintf(stderr, "%:s: POPIII particle detected.\n", __FUNCTION__);
+	else if (pclass == POPIII){ // SG. Add POPIII class condition
+				 fprintf(stderr, "%s: POPIII particle detected.\n", __FUNCTION__);
 					grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
-					 fprintf(stderr, "%:s: not on the SS processor.\n", __FUNCTION__);
+					 fprintf(stderr, "%s: not on the SS processor.\n", __FUNCTION__);
       if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
 						return FAIL;
 				}
@@ -1733,7 +1734,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   delete [] Grids;
 
   return SUCCESS;
-}
+} // SG. End SmartStarParticleFeedback function.
 
 /* 
  * This function can be used to reset the particle acceleration if required.
