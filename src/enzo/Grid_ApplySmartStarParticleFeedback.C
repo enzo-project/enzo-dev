@@ -49,10 +49,15 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	
 	fprintf(stderr, "%s: got here.\n", __FUNCTION__);
   /* Return if this doesn't involve us */
-  if (MyProcessorNumber != ProcessorNumber) 
+  if (MyProcessorNumber != ProcessorNumber){
+			fprintf(stderr, "%:s: not on the SS processor.");
+			return SUCCESS;
+		} 
+    
+  if(SmartStarFeedback == FALSE){
+			 fprintf(stderr, "%:s: not on the SS processor.");
     return SUCCESS;
-  if(SmartStarFeedback == FALSE)
-    return SUCCESS;
+		}
 
 
   ActiveParticleType_SmartStar *SS = static_cast<ActiveParticleType_SmartStar*>(* ThisParticle);

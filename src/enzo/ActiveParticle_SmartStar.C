@@ -1657,7 +1657,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     ActiveParticleList<ActiveParticleType>& ParticleList, FLOAT dx, 
 	LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-	fprintf(stderr,"%s: ApplySmartStarParticleFeedback called here.\n", __FUNCTION__);
+	 fprintf(stderr,"%s: ApplySmartStarParticleFeedback called here.\n", __FUNCTION__);
   /* Skip if we're not on the maximum refinement level. 
      This should only ever happen right after creation and then
      only in pathological cases where creation is happening at 
@@ -1682,6 +1682,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   
   for (int i = 0; i < nParticles; i++) {
  			if (SmartStarFeedback == FALSE)
+				fprintf(stderr, "%:s: SS feedback turned off.\n", __FUNCTION__);
 				continue;
 	   int pclass = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ParticleClass;
 				float OldMassCheck = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->oldmass; // SG. Checking.
@@ -1692,6 +1693,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 				grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
+					 fprintf(stderr, "%:s: not on the SS processor.\n", __FUNCTION__);
       if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
 	return FAIL;
 				}
@@ -1707,19 +1709,26 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 	       static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
 	fflush(stdout);
       }
+	DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+	delete FeedbackZone;
     
-				// if (pclass == 0){ // SG. Add POPIII class condition
-				// 	delete FeedbackZone;
-				// }else{
-				// 	DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-    //  delete FeedbackZone;
-				// }
+ } // SG. End BH class condition. 
 
-    DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-    delete FeedbackZone;
+	if (pclass == POPIII){ // SG. Add POPIII class condition
+				 fprintf(stderr, "%:s: POPIII particle detected.\n", __FUNCTION__);
+					grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
+					       Grids, NumberOfGrids, ALL_FIELDS);
+    if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
+					 fprintf(stderr, "%:s: not on the SS processor.\n", __FUNCTION__);
+      if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
+						return FAIL;
+				}
+				DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+				delete FeedbackZone;
+				
+		} // SG. End POPIII class condition.
 
- } // End FOR loop over particles
-} // SG. End if BH.
+} // SG. End FOR loop over particles
   
   delete [] Grids;
 
