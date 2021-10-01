@@ -1035,7 +1035,8 @@ OBJS_CONFIG_LIB = \
    rk4.o \
    SchrodingerAddPotential.o \
    FDMCollapse.o \
-   Grid_FDMCollapse.o
+   Grid_FDMCollapse.o \
+   PopIIIRotationModel.o
 
 
 #-----------------------------------------------------------------------

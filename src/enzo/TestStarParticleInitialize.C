@@ -30,28 +30,53 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 
+static float PhotonTestInitialFractionHII   = 1.2e-5;
+static float PhotonTestInitialFractionHeII  = 1.0e-14;
+static float PhotonTestInitialFractionHeIII = 1.0e-17;
+static float PhotonTestInitialFractionHM    = 2.0e-9;
+static float PhotonTestInitialFractionH2I   = 2.0e-20;
+static float PhotonTestInitialFractionH2II  = 3.0e-14;
+
 int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData,float *Initialdt)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *MetalName = "Metal_Density";
-  char *ElectronName = "Electron_Density";
-  char *HIName    = "HI_Density";
-  char *HIIName   = "HII_Density";
-  char *HeIName   = "HeI_Density";
-  char *HeIIName  = "HeII_Density";
-  char *HeIIIName = "HeIII_Density";
+  const char *DensName = "Density";  /* make const */ 
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *MetalName = "Metal_Density";
+  const char *ElectronName = "Electron_Density";
+  const char *HIName    = "HI_Density";
+  const char *HIIName   = "HII_Density";
+  const char *HeIName   = "HeI_Density";
+  const char *HeIIName  = "HeII_Density";
+  const char *HeIIIName = "HeIII_Density";
+  const char *HMName    = "HM_Density";
+  const char *H2IName   = "H2I_Density";
+  const char *H2IIName  = "H2II_Density";
+  const char *DIName    = "DI_Density";
+  const char *DIIName   = "DII_Density";
+  const char *HDIName   = "HDI_Density";
+  const char *kphHIName    = "HI_kph";
+  const char *gammaName  = "PhotoGamma";
+  const char *kphHeIName   = "HeI_kph";   
+  const char *kphHeIIName  = "HeII_kph";
+  const char *kphHMName   = "HM_kph";   
+  const char *kdissH2IIName  = "H2II_kdiss";
+  const char *kdissH2IName = "H2I_kdiss"; 
+  const char *RadAccel1Name = "x-RadPressure";
+  const char *RadAccel2Name = "y-RadPressure";
+  const char *RadAccel3Name = "z-RadPressure";
 
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret;
+  char *dummy = new char[MAX_LINE_LENGTH];
+  int   dim, ret, i, source;
+  dummy[0] = 0;
 
   /* Error check. */
 
@@ -67,7 +92,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float TestStarParticleStarMass    = 100.0;
   int TestProblemUseMetallicityField = 1;
   float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
-  
+  float PhotonTestInitialTemperature = 1000;  
 
 
 
@@ -122,42 +147,70 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
   /* set up uniform grid as of before explosion */
 
-  
-  
-  if (TopGrid.GridData->InitializeUniformGrid(TestStarParticleDensity, 
-					      TestStarParticleEnergy,
-					      TestStarParticleEnergy,
-					      TestStarParticleVelocity,
-					      TestStarParticleBField) == FAIL)
-    ENZO_FAIL("Error in InitializeUniformGrid.");
- 
   if (TopGrid.GridData->
       TestStarParticleInitializeGrid(TestStarParticleStarMass,
 				     Initialdt, 
 				     TestStarParticleStarVelocity,
-				     TestStarParticleStarPosition) == FAIL)
-    ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
+				     TestStarParticleStarPosition,
+             TestStarParticleDensity,
+             TestStarParticleEnergy, 
+             TestStarParticleVelocity,
+             TestStarParticleBField,
+             PhotonTestInitialTemperature,
+             PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
+	          PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
+	          PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II) == FAIL)
+  ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
 
   /* set up field names and units */
   
   int count = 0;
-  DataLabel[count++] = DensName;
-  DataLabel[count++] = TEName;
+  DataLabel[count++] = (char*) DensName;
+  DataLabel[count++] = (char*) TEName;
   if (DualEnergyFormalism)
-    DataLabel[count++] = GEName;
-  DataLabel[count++] = Vel1Name;
-  DataLabel[count++] = Vel2Name;
-  DataLabel[count++] = Vel3Name;
+    DataLabel[count++] = (char*) GEName;
+  DataLabel[count++] = (char*) Vel1Name;
+  DataLabel[count++] = (char*) Vel2Name;
+  DataLabel[count++] = (char*) Vel3Name;
   if (TestProblemData.MultiSpecies){
-    DataLabel[count++] = ElectronName;
-    DataLabel[count++] = HIName;
-    DataLabel[count++] = HIIName;
-    DataLabel[count++] = HeIName;
-    DataLabel[count++] = HeIIName;
-    DataLabel[count++] = HeIIIName;
-  }
+    DataLabel[count++] = (char*) ElectronName;
+    DataLabel[count++] = (char*) HIName;
+    DataLabel[count++] = (char*) HIIName;
+    DataLabel[count++] = (char*) HeIName;
+    DataLabel[count++] = (char*) HeIIName;
+    DataLabel[count++] = (char*) HeIIIName;
+    if (MultiSpecies > 1) {
+      DataLabel[count++] = (char*) HMName;
+      DataLabel[count++] = (char*) H2IName;
+      DataLabel[count++] = (char*) H2IIName;
+    }
+    if (MultiSpecies > 2) {
+      DataLabel[count++] = (char*) DIName;
+      DataLabel[count++] = (char*) DIIName;
+      DataLabel[count++] = (char*) HDIName;
+    }
+  } // if Multispecies
   if (TestProblemData.UseMetallicityField)
-    DataLabel[count++] = MetalName;
+    DataLabel[count++] = (char*) MetalName;
+
+  if (RadiativeTransfer)
+    if (MultiSpecies) {
+      DataLabel[count++]  = (char*) kphHIName;
+      DataLabel[count++]  = (char*) gammaName;
+      DataLabel[count++]  = (char*) kphHeIName;
+      DataLabel[count++]  = (char*) kphHeIIName;
+      if (MultiSpecies > 1) {
+	DataLabel[count++]= (char*) kdissH2IName;
+	DataLabel[count++]= (char*) kdissH2IIName;
+	DataLabel[count++]= (char*) kphHMName;
+      }
+    } // if RadiativeTransfer
+
+  if (RadiationPressure) {
+    DataLabel[count++]  = (char*) RadAccel1Name;
+    DataLabel[count++]  = (char*) RadAccel2Name;
+    DataLabel[count++]  = (char*) RadAccel3Name;
+  }
 
 
   int j;

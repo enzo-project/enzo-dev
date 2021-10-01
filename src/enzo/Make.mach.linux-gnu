@@ -36,8 +36,8 @@ MACH_FILE  = Make.mach.linux-gnu
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL    = /PATH/TO/SERIAL-HDF5/INSTALL # mandatory
-LOCAL_GRACKLE_INSTALL = /PATH/TO/GRACKLE/INSTALL # optional
+LOCAL_HDF5_INSTALL    = /home/dskinner6/software/yt-conda/pkgs/hdf5-1.10.2-hc401514_3# mandatory
+LOCAL_GRACKLE_INSTALL = /home/dskinner6/software/grackle       # optional	
 LOCAL_HYPRE_INSTALL   = /PATH/TO/HYPRE/INSTALL   # optional
 
 #-----------------------------------------------------------------------
@@ -49,10 +49,10 @@ MACH_CPP       = cpp # C preprocessor command
 # With MPI
 
 MACH_CC_MPI    = mpicc # C compiler when using MPI
-MACH_CXX_MPI   = mpic++ # C++ compiler when using MPI
+MACH_CXX_MPI   = mpicxx # C++ compiler when using MPI
 MACH_FC_MPI    = gfortran # Fortran 77 compiler when using MPI
 MACH_F90_MPI   = gfortran # Fortran 90 compiler when using MPI
-MACH_LD_MPI    = mpic++ # Linker when using MPI
+MACH_LD_MPI    = mpicxx # Linker when using MPI
 
 # Without MPI
 
@@ -66,14 +66,15 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API 
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API -fPIC
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
 #-----------------------------------------------------------------------
 
 
-MACH_CPPFLAGS = -P -traditional 
+MACH_OMPFLAGS = -fopenmp
+MACH_CPPFLAGS = -P -traditional
 MACH_CFLAGS   = 
 MACH_CXXFLAGS =
 MACH_FFLAGS   = -fno-second-underscore -ffixed-line-length-132
@@ -86,7 +87,7 @@ MACH_LDFLAGS  =
 
 MACH_OPT_WARN        = -Wall -g
 MACH_OPT_DEBUG       = -g
-MACH_OPT_HIGH        = -O2
+MACH_OPT_HIGH        = -O2 -g
 MACH_OPT_AGGRESSIVE  = -O3 -g
 
 #-----------------------------------------------------------------------
@@ -94,10 +95,10 @@ MACH_OPT_AGGRESSIVE  = -O3 -g
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = # MPI includes
-LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL) # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
 LOCAL_INCLUDES_PAPI   = # PAPI includes
-LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
+LOCAL_INCLUDES_GRACKLE = -I/home/dskinner6/software/grackle/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
@@ -114,7 +115,7 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz
 LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
 LOCAL_LIBS_PAPI   = # PAPI libraries
 LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
-LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+LOCAL_LIBS_GRACKLE = -L/home/dskinner6/software/grackle/lib -lgrackle
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
