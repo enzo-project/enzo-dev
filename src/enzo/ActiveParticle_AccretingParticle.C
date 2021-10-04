@@ -304,7 +304,7 @@ int ActiveParticleType_AccretingParticle::BeforeEvolveLevel
 }
 
 
-grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle, int FeedbackRadius,
+grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle, FLOAT FeedbackRadius,
 			     FLOAT dx, HierarchyEntry** Grids, int NumberOfGrids,
 			     int SendField);
 

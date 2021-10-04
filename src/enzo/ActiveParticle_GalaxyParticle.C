@@ -233,7 +233,7 @@ int ActiveParticleType_GalaxyParticle::SetFlaggingField
   return SUCCESS;
 }
 
-grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle, int FeedbackRadius, 
+grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle, FLOAT FeedbackRadius, 
 			    FLOAT dx, HierarchyEntry** Grids, int NumberOfGrids,
 			    int SendField);
 
@@ -327,12 +327,12 @@ int ActiveParticleType_GalaxyParticle::GalaxyParticleFeedback(int nParticles,
      if the grid overlaps with the feedback zone                   */
   
   int i, NumberOfGrids;
-  int *FeedbackRadius = NULL;
+  FLOAT *FeedbackRadius = NULL;
   HierarchyEntry **Grids = NULL;
   
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
   
-  FeedbackRadius = new int[nParticles];
+  FeedbackRadius = new FLOAT[nParticles];
   for (i = 0; i < nParticles; i++) {
     FeedbackRadius[i] = nint(static_cast<ActiveParticleType_GalaxyParticle*>(
             ParticleList[i])->Radius / dx);

@@ -876,7 +876,7 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 }
 
 
-grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle, int FeedbackRadius,
+grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle, FLOAT FeedbackRadius,
 			     FLOAT dx, HierarchyEntry** Grids, int NumberOfGrids,
 			     int SendField);
 
@@ -1549,7 +1549,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 				// SG. For debugging.
     fprintf(stderr, "%s: edge 0 = %e, edge 1 = %e and edge 3 = %e.\n", __FUNCTION__, APGrid->GetGridLeftEdge(0), APGrid->GetGridLeftEdge(1), APGrid->GetGridLeftEdge(2));
 				fprintf(stderr, "%s: edge 0 = %e, edge 1 = %e and edge 3 = %e.\n", __FUNCTION__, APGrid->GetGridRightEdge(0), APGrid->GetGridRightEdge(1), APGrid->GetGridRightEdge(2));
-    grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx),
+    grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx),
 					       dx, Grids, NumberOfGrids, ALL_FIELDS);
     //grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
@@ -1687,7 +1687,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     
 				// SG. BH class.
 				if(pclass == BH){
-				grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
+				grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx), dx, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
       if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
@@ -1710,7 +1710,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     
  } // SG. End BH class condition. 
 	else if (pclass == POPIII){ // SG. Add POPIII class condition
-					grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
+					grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx), dx, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
       if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
