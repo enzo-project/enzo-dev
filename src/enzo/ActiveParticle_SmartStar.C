@@ -1357,8 +1357,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 #if BONDIHOYLERADIUS
       /* Check what the Bondi-Hoyle radius - we should accrete out to that if required */
       float mparticle = ParticleList[i]->ReturnMass()*dx*dx*dx;
-      float *vparticle = new float[3];
-      vparticle = ParticleList[i]->ReturnVelocity();
+      float *vparticle = ParticleList[i]->ReturnVelocity();
       int size = APGrid->GetGridSize();
       float *Temperature = new float[size]();
  
@@ -1370,6 +1369,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 	       static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius*LengthUnits/pc,
 	       static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius/dx);
       }
+      delete [] Temperature;
 #endif
 	// No need to communicate the accretion rate to the other CPUs since this particle is already local.
 	/* Need to decide how often I update the accretion history */
