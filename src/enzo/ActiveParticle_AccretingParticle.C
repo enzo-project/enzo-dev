@@ -353,10 +353,7 @@ int ActiveParticleType_AccretingParticle::Accrete(int nParticles,
             index = GRIDINDEX_NOGHOST(i, j, k);
             if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
             continue;
-          }
-        }
-     }
-  }
+         
 
   for (i = 0; i < nParticles; i++) {
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], AccretionRadius,
@@ -384,7 +381,11 @@ int ActiveParticleType_AccretingParticle::Accrete(int nParticles,
 
   delete [] Grids;
   return SUCCESS;
-}
+      } // SG. End i.
+    } // SG. End j.
+   } // SG. End  k.
+  } // SG. End particle loop.
+} // End function.
 
 int ActiveParticleType_AccretingParticle::SetFlaggingField(
     LevelHierarchyEntry *LevelArray[], int level,
