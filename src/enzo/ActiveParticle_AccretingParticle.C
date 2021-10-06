@@ -322,8 +322,8 @@ int ActiveParticleType_AccretingParticle::Accrete(int nParticles,
      only in pathological cases where sink creation is happening at
      the edges of two regions at the maximum refinement level */
 
-  // if (ThisLevel < MaximumRefinementLevel)
-  //   return SUCCESS;
+  if (ThisLevel < MaximumRefinementLevel)
+    return SUCCESS;
 
   /* For each particle, loop over all of the grids and do accretion
      if the grid overlaps with the accretion zone                   */
@@ -338,23 +338,7 @@ int ActiveParticleType_AccretingParticle::Accrete(int nParticles,
   float SubtractedMass, SubtractedMomentum[3] = {};
 
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
-
-  // SG. Check we're on the maximum LOCAL refinement level instead of the global max level.
-  int j,index;
-  for (int i = 0; i < nParticles; i++) {
-    int k;
-    grid* thisGrid = ParticleList[i]->ReturnCurrentGrid();
-    int GridDimension[3] = {thisGrid->GridDimension[0],
-                          thisGrid->GridDimension[1],
-                          thisGrid->GridDimension[2]};
-  	for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-    	for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-      		for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++) {
-            index = GRIDINDEX_NOGHOST(i, j, k);
-            if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
-            continue;
-         
-
+  
   for (i = 0; i < nParticles; i++) {
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], AccretionRadius,
 					       dx, Grids, NumberOfGrids, ALL_FIELDS);
@@ -381,10 +365,6 @@ int ActiveParticleType_AccretingParticle::Accrete(int nParticles,
 
   delete [] Grids;
   return SUCCESS;
-      } // SG. End i.
-    } // SG. End j.
-   } // SG. End  k.
-  } // SG. End particle loop.
 } // End function.
 
 int ActiveParticleType_AccretingParticle::SetFlaggingField(
@@ -402,6 +382,7 @@ int ActiveParticleType_AccretingParticle::SetFlaggingField(
 
   /* Calculate CellWidth on maximum refinement level */
 
+  // SG. Do I need to change the MaximumRefinementLevel here?
   dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
     (TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(MaximumRefinementLevel)));
 
