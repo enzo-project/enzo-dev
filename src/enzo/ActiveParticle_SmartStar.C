@@ -23,7 +23,7 @@
 #define COOLING_TIME       1 // SG. Turn on to prevent spurious SF.
 #define NUMSSPARTICLETYPES 4
 #define JEANS_FACTOR       2
-#define STELLAR_ACCRETION_OFF 1  // SG. Turns off accretion for SMS and POPIII if =1.
+#define STELLAR_ACCRETION_OFF 1 // SG. Turns off accretion for SMS and POPIII if =1.
 #define HW_BH_MASS 1   // SG. BH forms with mass according to Heger-Woosley 2002 relation.
 #define SNEFEEDBACK 1
 int DetermineSEDParameters(ActiveParticleType_SmartStar *SS,FLOAT Time, FLOAT dx);
@@ -415,10 +415,10 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	else if(data.H2Fraction[index] >  PopIIIH2CriticalFraction) {
 	  stellar_type = POPIII;
 	  printf("POPIII particles(%d) created and done in %s\n", data.NumberOfNewParticles + 1, __FUNCTION__);
-#if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
-	  accrate	= 0;
-			fprintf(stderr, "%s: accrate = %e (POPIII particle detected).", __FUNCTION__, accrate);
-#endif
+// #if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
+// 	  accrate	= 0;
+// 			fprintf(stderr, "%s: accrate = %e (POPIII particle detected).", __FUNCTION__, accrate);
+// #endif
 	}
 	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*10000.0)
 		&& (dx_pc < SMS_RESOLUTION)) { // SG. Increasing x10 to x10000 to suppress SMS formation.
@@ -475,7 +475,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	np->TimeIndex = 0; //Start at 0 - we'll increment at the start of the update function.
 	
 	if (np->ParticleClass == POPIII){
-		np->AccretionRadius = 0; // SG. Turning off and on accretion radius for testing purposes.
+		np->AccretionRadius = dx*ACCRETIONRADIUS; // SG. Turning off and on accretion radius for testing purposes.
 		// np->AccretionRadius = dx*ACCRETIONRADIUS;
 	}else{
 		np->AccretionRadius = dx*ACCRETIONRADIUS;
@@ -1705,6 +1705,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 	       static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
 	fflush(stdout);
       }
+						
 	DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
 	delete FeedbackZone;
     
