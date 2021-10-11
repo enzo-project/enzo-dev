@@ -1473,13 +1473,13 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
     float p_age = ctime - static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->BirthTime;
 				fprintf(stderr,"%s: ThisLevel = %"ISYM" (APGrid) = MyLevel = %"ISYM". AccretionRadius = %e.\n", __FUNCTION__, ThisLevel, MyLevel, AccretionRadius);
 
-#if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
-	  if (pclass == POPIII || pclass == SMS ){
-				fprintf(stderr, "%s: POPIII OR SMS particle detected. No accretion onto star. AccretionRadius = %e. MassInSolar = %e\n",
-				 __FUNCTION__, AccretionRadius, MassInSolar);
-					continue;
-			}		 
-#endif
+// #if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
+// 	  if (pclass == POPIII || pclass == SMS ){
+// 				fprintf(stderr, "%s: POPIII OR SMS particle detected. No accretion onto star. AccretionRadius = %e. MassInSolar = %e\n",
+// 				 __FUNCTION__, AccretionRadius, MassInSolar);
+// 					continue;
+// 			}		 
+// #endif
 
     if(pclass == POPIII) {
       /* 
