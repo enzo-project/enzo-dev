@@ -97,6 +97,7 @@ commands:
     steps:
       - run:
           name: "Compile enzo and run tests."
+          no_output_timeout: 20m
           command: |
             source $BASH_ENV
             source $HOME/venv/bin/activate
