@@ -50,7 +50,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
     //fprintf(stdout,"IN FEEDBACK ROUTINE\n  %d   %d   %d\n",
     //SingleSN, StellarWinds, UnrestrictedSN);
     float Zsolar = 0.02;
-    float stretchFactor = 1.0; // radius from star particle to feedback cloud particle (in units of dx)
+    float stretchFactor = 2.0; // distance in cells required from grid edge for FB to function.
     bool debug = false;
     float startFB = MPI_Wtime();
     int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
@@ -123,9 +123,6 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
             FLOAT yp = ParticlePosition[1][pIndex];
             FLOAT zp = ParticlePosition[2][pIndex];
 
-            int ip = (xp - CellLeftEdge[0][0] - 0.5 * dx) / dx;
-            int jp = (yp - CellLeftEdge[1][0] - 0.5 * dx) / dx;
-            int kp = (zp - CellLeftEdge[2][0] - 0.5 * dx) / dx;
 
             /* error check particle position; Cant be on the border or outside grid
                 If on border, reposition to within grid for CIC deposit */
@@ -168,108 +165,47 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
             if (xp < CellLeftEdge[0][0] + borderDx)
             {
-                xp = CellLeftEdge[0][0] + borderDx + 0.5 * dx;
+                xp +=  borderDx + 0.5 * dx;
                 shifted++;
             }
             if (xp > CellLeftEdge[0][0] + gridDx - borderDx)
             {
-                xp = CellLeftEdge[0][0] + gridDx - borderDx - 0.5 * dx;
+                xp -= borderDx + 0.5 * dx;
                 shifted = 1;
             }
             if (yp < CellLeftEdge[1][0] + borderDx)
             {
-                yp = CellLeftEdge[1][0] + borderDx + 0.5 * dx;
+                yp += borderDx + 0.5 * dx;
                 shifted = 1;
             }
             if (yp > CellLeftEdge[1][0] + gridDx - borderDx)
             {
-                yp = CellLeftEdge[1][0] + gridDx - borderDx - 0.5 * dx;
+                yp -= borderDx + 0.5 * dx;
                 shifted = 1;
             }
             if (zp < CellLeftEdge[2][0] + borderDx)
             {
-                zp = CellLeftEdge[2][0] + borderDx + 0.5 * dx;
+                zp += borderDx + 0.5 * dx;
                 shifted = 1;
             }
             if (zp > CellLeftEdge[2][0] + gridDx - borderDx)
             {
-                zp = CellLeftEdge[2][0] + gridDx - borderDx - 0.5 * dx;
+                zp -= borderDx + 0.5 * dx;
                 shifted = 1;
             }
 
+            int ip = (xp - CellLeftEdge[0][0] - 0.5 * dx) / dx;
+            int jp = (yp - CellLeftEdge[1][0] - 0.5 * dx) / dx;
+            int kp = (zp - CellLeftEdge[2][0] - 0.5 * dx) / dx;
+
             index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
+
 
             float shieldedFraction = 0, dynamicalTime = 0, freeFallTime = 0;
             bool gridShouldFormStars = true, notEnoughMetals = false;
             float zFraction = totalMetal[index];
             float pmassMsun = ParticleMass[pIndex] * MassUnits;
-            if (ParticleMass[pIndex] * MassUnits < StarMakerMaximumMass && ProblemType != 90)
-            /* 
-                Check for continual formation.  Continually forming new mass allows the 
-                star particle count to stay lower, ultimately reducing runtime by having 
-                fewer particles to iterate. 
-            */
-            {
-                int createStar = 0;
-                /*
-                    if the age is relatively low, calculate continuing formation. 
-                    if the age is old, we'd rather form a new particle to get some more
-                    supernova and high-power winds popping off.
-                 */
-                if (age < 5)
-                    createStar = checkCreationCriteria(BaryonField[DensNum],
-                                                       &zFraction, Temperature, DMField,
-                                                       BaryonField[Vel1Num], BaryonField[Vel2Num],
-                                                       BaryonField[Vel3Num], BaryonField[TENum],
-                                                       CoolingTime, GridDimension, &shieldedFraction,
-                                                       &freeFallTime, &dynamicalTime, ip, jp, kp, Time,
-                                                       BaryonField[NumberOfBaryonFields], CellWidth[0][0],
-                                                       &gridShouldFormStars, &notEnoughMetals, 1, NULL);
-                if (false) // AIW: disabled for testing.  Adding mass here without the probabilistic factor in creation is leading to too many stars. i think. -_-
-                {
-                    float MassShouldForm = min((shieldedFraction * BaryonField[DensNum][index] * MassUnits / (freeFallTime * TimeUnits) * this->dtFixed * Myr_s),
-                                               0.5 * BaryonField[DensNum][index] * MassUnits);
-                    MassShouldForm = min(MassShouldForm, StarMakerMaximumMass-pmassMsun); // dont form if the star is already at the top of the mass allowed
-                    //printf("Adding new mass %e\n",MassShouldForm);
-                    /* Dont allow negative mass, or taking all gas in cell */
-                    if (MassShouldForm < 0)
-                        MassShouldForm = 0;
-                    // if (MassShouldForm > 0.5 * BaryonField[DensNum][index] * MassUnits)
-                    //     MassShouldForm = 0.5 * BaryonField[DensNum][index] * MassUnits;
-
-                    // Set units and modify particle
-                    MassShouldForm /= MassUnits;
-                    if (MassShouldForm > 0)
-                    {
-                        float delta = MassShouldForm / (ParticleMass[pIndex] + MassShouldForm);
-
-                        /* fractional metallicity */
-                        zFraction /= BaryonField[DensNum][index];
-                        // update mass-weighted metallicity fraction of star particle
-                        ParticleAttribute[2][pIndex] = (ParticleAttribute[2][pIndex] * ParticleMass[pIndex] + zFraction * MassShouldForm) /
-                                                       (ParticleMass[pIndex] + MassShouldForm);
-                        /* Add new formation mass to particle */
-                        if (MassShouldForm < 0.5 * BaryonField[DensNum][index])
-                        {
-                            ParticleMass[pIndex] += MassShouldForm;
-                            printf("[%f] added new mass %e + %e = %e newZ = %f newAge = %f\n",
-                                   Time * TimeUnits / 3.1557e13, (ParticleMass[pIndex] - MassShouldForm) * MassUnits,
-                                   MassShouldForm * MassUnits, ParticleMass[pIndex] * MassUnits,
-                                   ParticleAttribute[2][pIndex], (Time - ParticleAttribute[0][pIndex]) * TimeUnits / 3.1557e13);
-
-                            /* Take formed mass out of grid cell */
-
-                            BaryonField[DensNum][index] -= MassShouldForm;
-
-                            /* Take metals out of host cell too! */
-
-                            BaryonField[MetalNum][index] -= BaryonField[MetalNum][index] / BaryonField[DensNum][index] * MassShouldForm;
-                            if (MechStarsSeedField)
-                                BaryonField[SNColourNum][index] -= BaryonField[SNColourNum][index] / BaryonField[DensNum][index] * MassShouldForm;
-                        }
-                    }
-                }
-            }
+            
 
             /* Start actual feedback: Supernova calculations */
 

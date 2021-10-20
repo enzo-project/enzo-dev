@@ -48,8 +48,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         Each vertex particle will then be CIC deposited to the grid!
     */
     //printf("In Feedback deposition\n");
-    bool debug = false;
-    bool criticalDebug = false;
+    bool debug = true;
+    bool criticalDebug = true;
     float min_winds = 1.0;
     bool printout = debug && !winds;
     int index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
@@ -113,8 +113,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         ENZO_FAIL("Cant use Seed Field without SNColour field");
     /* set other units that we need */
     MassUnits = DensityUnits * pow(LengthUnits * dx, 3) / SolarMass;                                 //Msun!
-    float EnergyUnits = DensityUnits * pow(LengthUnits * dx, 3) * pow(LengthUnits / TimeUnits, 2.0); //[g cm^2/s^2] -> code_energy
-    float MomentaUnits = MassUnits * VelocityUnits;
+    float EnergyUnits = DensityUnits * pow(LengthUnits * dx, 3) * pow(VelocityUnits, 2.0); //[g cm^2/s^2] -> code_energy
+    float MomentaUnits = MassUnits * VelocityUnits / 1e5;
 
     /* Make copys of pointers fields to work with (theyre just easier to type!). */
     float *density = BaryonField[DensNum];
@@ -157,7 +157,10 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     // {1,1,-1,-1, 1, 1, -1, -1, iphi, iphi, -iphi, -iphi,
     // phi, -phi, phi,-phi, 0, 0, 0, 0,1, 1, -1, -1,
     // phi, -phi, -phi, phi, 0, 0, 0, 0};
-    FLOAT CloudParticleVectorZ[] = {1, 0, -1, 1, -1, 1, 0, -1, 0, 1, 0, -1, 1, -1, 1, 0, -1, 1, 0, -1, 1, -1, 1, 0, -1, 0};
+    FLOAT CloudParticleVectorZ[] = { 1, 0, -1, 1, -1, 1,
+                                     0, -1, 0, 1, 0, -1, 
+                                     1, -1, 1, 0, -1, 1, 
+                                     0, -1, 1, -1, 1, 0, -1, 0};
     // {1,-1, 1,-1, 1,-1, 1,-1, phi,-phi, phi,-phi,
     // 0, 0, 0, 0, iphi, -iphi, iphi, -iphi,
     // phi, -phi, -phi, phi, 0, 0, 0, 0, 1, 1, -1, -1};
@@ -175,36 +178,36 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         float norm = sqrt(CloudParticleVectorX[cpInd] * CloudParticleVectorX[cpInd] + CloudParticleVectorY[cpInd] * CloudParticleVectorY[cpInd] + CloudParticleVectorZ[cpInd] * CloudParticleVectorZ[cpInd]);
         float xbaMag = A * A * norm * norm;
         /* in this cloud, take the coupling particle position as 0.5, 0.5, 0.5 */
-        CloudParticlePositionX[cpInd] = *xp - CloudParticleVectorX[cpInd] / norm *
+        CloudParticlePositionX[cpInd] = *xp + CloudParticleVectorX[cpInd] / norm *
                                                   A;
-        CloudParticlePositionY[cpInd] = *yp - CloudParticleVectorY[cpInd] / norm *
+        CloudParticlePositionY[cpInd] = *yp + CloudParticleVectorY[cpInd] / norm *
                                                   A;
-        CloudParticlePositionZ[cpInd] = *zp - CloudParticleVectorZ[cpInd] / norm *
+        CloudParticlePositionZ[cpInd] = *zp + CloudParticleVectorZ[cpInd] / norm *
                                                   A;
-        weightsVector[cpInd] = 0.5 * (1. - 1. / (1. + 1. / 4. / M_PI / 26. / xbaMag / M_PI));
+        weightsVector[cpInd] = 1.0 / (float) nCouple; //0.5 * (1. - 1. / (1. + 1. / 4. / M_PI / 26. / xbaMag / M_PI));
         /* turn the vectors back into unit-vectors */
         CloudParticleVectorZ[cpInd] /= norm;
         CloudParticleVectorY[cpInd] /= norm;
         CloudParticleVectorX[cpInd] /= norm;
     }
-    float weightsSum = 0.0;
-    for (int wind = 0; wind < nCouple; wind++)
-    {
-        weightsSum += weightsVector[wind];
-    }
-    for (int wind = 0; wind < nCouple; wind++)
-    {
-        weightsVector[wind] /= weightsSum;
-        if (weightsVector[wind] == 0 || isnan(weightsVector[wind]))
-        {
-            ENZO_FAIL("NaN weight Vector!")
-        }
-    }
+    // float weightsSum = 0.0;
+    // for (int wind = 0; wind < nCouple; wind++)
+    // {
+    //     weightsSum += weightsVector[wind];
+    // }
+    // for (int wind = 0; wind < nCouple; wind++)
+    // {
+    //     weightsVector[wind] /= weightsSum;
+    //     if (weightsVector[wind] == 0 || isnan(weightsVector[wind]))
+    //     {
+    //         ENZO_FAIL("NaN weight Vector!")
+    //     }
+    // }
 
     /* transform to comoving with the star and take velocities to momenta.
         Take Energy densities to energy.  winds are ngp unless VERY high resolution
      */
-    if (!winds || dx * LengthUnits / pc_cm < min_winds)
+    // if (!winds || dx * LengthUnits / pc_cm < min_winds)
         transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum],
                                   BaryonField[MetalIINum], BaryonField[MetalIaNum],
                                   BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
@@ -285,10 +288,10 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     float p_free = sqrt(ejectaMass*SolarMass*ejectaEnergy)/SolarMass/1e5;//1.73e4*sqrt(ejectaMass*ejectaEnergy/1e51/3.); // free exp. momentum eq 15
     float r_free = 2.75 * pow(ejectaMass / 3 / nmean, 1. / 3.); // free exp radius eq 2
-
+    bool use_free = false; // could just deposit free expansion into host cell, really...
     // assuming r_sedov == dx, solve for t3
 
-    float t3_sedov = pow(cellwidth * pc_cm / (5.0 * pc_cm * pow(ejectaEnergy / 1e51 / nmean, 1.0 / 5.0)), 5. / 2.);
+    float t3_sedov = pow(max(r_free, cellwidth) * pc_cm / (5.0 * pc_cm * pow(ejectaEnergy / 1e51 / nmean, 1.0 / 5.0)), 5. / 2.);
     float p_sedov = 2.21e4 * pow(ejectaEnergy / 1e51, 4. / 5.) * pow(nmean, 1. / 5.) * pow(t3_sedov, 3. / 5.); // eq 16
 
     // shell formation radius eq 8
@@ -302,39 +305,49 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float coupledMomenta = 0.0;
     float eKinetic = 0.0;
     if (printout)
-        fprintf(stdout, "RADII: %e %e %e t_3=%e\n", r_free, r_shellform, CoolingRadius, t3_sedov);
+        fprintf(stdout, "RADII: free = %e, shellform = %e, cooling = %e t_3=%e\n", r_free, r_shellform, CoolingRadius, t3_sedov);
 
     /* Select the mode of coupling */
 
     // if (cellwidth < r_free)
     // {
-    //     coupledMomenta = p_free;
+    //     coupledMomenta = p_free * sqrt(1+dmean/(ejectaMass/MassUnits));
+    //     use_free = true;
+    //     if (coupledMomenta < p_sedov)
+    //         coupledMomenta += cellwidth / r_free * (p_sedov - p_free);
     //     if (printout)
-    //         fprintf(stdout, "Coupling free expansion\n");
+    //         fprintf(stdout, "Coupling free expansion p_f = %e (p_s = %e)\n", p_free, p_sedov);
     // }
-    // if (cellwidth > r_free && cellwidth < CoolingRadius)
+    // else if (cellwidth > r_free && cellwidth < CoolingRadius)
     // {
-    //     coupledMomenta = min(p_sedov, pTerminal);
+    //     coupledMomenta = min(p_sedov, pTerminal); 
+    //     if (coupledMomenta < pTerminal)
+    //         coupledMomenta += dxRatio * (pTerminal - p_sedov);
     //     if (printout)
-    //         fprintf(stdout, "Coupling S-T phase\n");
+    //         fprintf(stdout, "Coupling S-T phase p_s = %e, p_t = %e\n", p_sedov, pTerminal);
     // }
     // // if (cellwidth > r_shellform && cellwidth < CoolingRadius){
-    //    coupledMomenta = min(p_shellform+(cellwidth-r_shellform)*(pTerminal-p_shellform)/(CoolingRadius-r_shellform), pTerminal);
+    // //    coupledMomenta = min(p_shellform+(cellwidth-r_shellform)*(pTerminal-p_shellform)/(CoolingRadius-r_shellform), pTerminal);
     // //     if(printout)fprintf(stdout, "Coupling shell-forming stage\n");}
-    // if (cellwidth > CoolingRadius)
+    // else if (cellwidth > CoolingRadius)
     // {
     //     coupledMomenta = pTerminal;
     //     if (printout)
-    //         fprintf(stdout, "Coupling terminal momenta\n");
+    //         fprintf(stdout, "Coupling terminal momenta with p_t = %e\n", pTerminal);
     // }
 
-    float ejectaMomenta = sqrt(2.0*ejectaMass*ejectaEnergy);
-    /* 
-        Select momenta to use (eqn 32).  M_ej/26 is estimate to coupled mass to neighbor
-     */
-    coupledMomenta = ejectaMomenta*min(sqrt(1+dmean/(ejectaMass/MassUnits/26.0)), pTerminal/ejectaMomenta);
+    // float ejectaMomenta = sqrt(2.0*ejectaMass*ejectaEnergy / SolarMass / 1e10);
+    // /* 
+    //     Select momenta to use (eqn 32).  M_ej/26 is estimate to coupled mass to neighbor
+    //  */
+    coupledMomenta = p_free;
+    if (cellwidth < CoolingRadius && cellwidth > r_free)
+        coupledMomenta += sqrt(dxRatio)*(pTerminal-p_free);
+    else if (cellwidth > CoolingRadius)
+        coupledMomenta = pTerminal;
+    
     if (printout)
-        fprintf(stdout, "Calculated p = %e\n", coupledMomenta);
+        fprintf(stdout, "Calculated p = %e (p_f = %e; p_t = %e)\n", coupledMomenta, p_free, pTerminal);
 
     /* fading radius of a SNR.  For real scale invariance, the momentum deposited should go to zero for large dx!*/
     // float *temperature = new float[size];
@@ -381,10 +394,10 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     {
         fprintf(stdout, "Shell mass = %e Velocity= %e P = %e",
                 shellMass, shellVelocity, coupledMomenta);
-        ENZO_FAIL("SM_deposit: 252");
+        ENZO_FAIL("SM_deposit: 391");
     }
     float coupledMass = shellMass + ejectaMass;
-    eKinetic = coupledMomenta * coupledMomenta / (2.0 * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass) * SolarMass * 1e10;
+    eKinetic = coupledMomenta * coupledMomenta / (ejectaMass + 2.0 * 27.0 * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass) * SolarMass * 1e10;
     if (printout)
         fprintf(stdout, "Ekinetic = %e Mass = %e\n",
                 eKinetic, dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass);
@@ -462,12 +475,20 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (!winds)
         coupledEnergy = min((nSNII + nSNIA) * 1e51, eKinetic);
-
+    fprintf(stdout, "Pre: Coupling TE = %e, GE = %e\n", coupledEnergy, coupledGasEnergy);
+    
     coupledEnergy = coupledEnergy / EnergyUnits;
     coupledGasEnergy = coupledGasEnergy / EnergyUnits;
+    fprintf(stdout, "Post: Coupling TE = %e, GE = %e\n", coupledEnergy, coupledGasEnergy);
+    fprintf(stdout, "Coupled mass: %e Msun", coupledMass);
     coupledMass /= MassUnits;
+    fprintf(stdout, "Coupled Mass: %e code_mass", coupledMass);
     coupledMetals /= MassUnits;
-    coupledMomenta /= MomentaUnits;
+
+    // conversion includes km -> cm
+    fprintf(stdout, "475: Coupling %e Msun km/s\n", coupledMomenta);
+    coupledMomenta = coupledMomenta / MomentaUnits;
+    fprintf(stdout, "477: %e mass * len / time (%e = %e * %e / %e) (vu = %e)\n", coupledMomenta, MomentaUnits, MassUnits, LengthUnits, TimeUnits, VelocityUnits);
     SNIAmetals /= MassUnits;
     SNIImetals /= MassUnits;
     P3metals /= MassUnits;
@@ -482,97 +503,197 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
      */
     // if (!(DepositUnresolvedEnergyAsThermal && winds)
     // {
-        for (int n = 0; n < nCouple; ++n)
-        {
-            pX = coupledMomenta * CloudParticleVectorX[n] * weightsVector[n];
-            pY = coupledMomenta * CloudParticleVectorY[n] * weightsVector[n];
-            pZ = coupledMomenta * CloudParticleVectorZ[n] * weightsVector[n];
-            eCouple = coupledEnergy * weightsVector[n];
-            geCouple = coupledGasEnergy * weightsVector[n];
-            mCouple = coupledMass * weightsVector[n];
-            zCouple = coupledMetals * weightsVector[n];
-            if (isnan(zCouple))
-                fprintf(stderr, "Nan metals! %e %e", coupledMetals, weightsVector[n]);
-            if (StarMakerTypeIISNeMetalField)
-                zIICouple = SNIImetals * weightsVector[n];
-            if (StarMakerTypeIaSNe)
-                zIACouple = SNIAmetals * weightsVector[n];
-            if (MechStarsSeedField)
-                p3Couple = P3metals * weightsVector[n];
-            int np = 1;
+        // for (int n = 0; n < nCouple; ++n)
+    float expect_momenta = 0;
+    float expect_error []= {0,0,0};
+    float expect_z = 0;
+    int n_pos[] = {0,0,0};
+    // if (use_free){ // in free expansion. Couple thermally to host cell, let the hydro deal with it.
+    //     int depInd = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
 
-            FORTRAN_NAME(cic_deposit)
-            (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-             &CloudParticlePositionZ[n], &GridRank, &np, &mCouple, &density[0], LeftEdge,
-             &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+    //     BaryonField[DensNum][depInd] = BaryonField[DensNum][depInd] + coupledMass;
+    //     BaryonField[MetalNum][depInd] = BaryonField[MetalNum][depInd] + coupledMetals;
+    //     BaryonField[GENum][depInd] = BaryonField[GENum][depInd] + coupledGasEnergy/coupledMass;
+    //     BaryonField[TENum][depInd] = BaryonField[TENum][depInd] + coupledGasEnergy/coupledMass;
+    // }
+    // else {
+        for (int a = 0; a < 3; a+=1)
+            for (int b = 0; b < 3; b+=1)
+                for (int c = 0; c < 3; c+=1)
+                    {
+                        if (a == 1 && b == 1 && c == 1) continue; // dont deposit on host cell...
+                        
+                        // deposition index...
+                        float modi, modj, modk;
+                        modi = (float)a - 1;
+                        modj = (float)b - 1;
+                        modk = (float)c - 1;
+                        
+                        int ic, jc, kc;
+                        ic = ip + modi;
+                        jc = jp + modj;
+                        kc = kp + modk;
+                        
+                        //flat index...
+                        int depInd = ic + jc * GridDimension[0] + kc * GridDimension[0] * GridDimension[1];
+                        if (depInd >= size)
+                            fprintf(stdout, "ERROR: Depositing at index %d (size %d)\n", depInd, size);
+                        
+                        // unit-vector from host to coupling particle
+                        float modx, mody, modz;
+                        modx = modi / sqrt(modi*modi + modj*modj + modk*modk);
+                        mody = modj / sqrt(modi*modi + modj*modj + modk*modk);
+                        modz = modk / sqrt(modi*modi + modj*modj + modk*modk);
 
-            FORTRAN_NAME(cic_deposit)
-            (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-             &CloudParticlePositionZ[n], &GridRank, &np, &zCouple, &metals[0], LeftEdge,
-             &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
-            if (pX != 0.0)
-            {
-                FORTRAN_NAME(cic_deposit)
-                (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                 &CloudParticlePositionZ[n], &GridRank, &np, &pX, &u[0], LeftEdge,
-                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+                        // position of coupling particle
+                        float xc, yc, zc;
+                        xc = *xp + dx * modi;
+                        yc = *yp + dx * modj;
+                        zc = *zp + dx * modk;
+                        
+                        float sq3 = sqrt(3.0);
+
+                        pX = coupledMomenta * (float) modi / 9.0 * sq3; //* weightsVector[n];
+                        pY = coupledMomenta * (float) modj / 9.0 * sq3; //* weightsVector[n];
+                        pZ = coupledMomenta * (float) modk / 9.0 * sq3; //* weightsVector[n];
+
+                        eCouple = coupledEnergy / (float) nCouple; //* weightsVector[n];
+                        geCouple = coupledGasEnergy / (float) nCouple; //* weightsVector[n];
+                        mCouple = coupledMass / (float) nCouple; //* weightsVector[n];
+                        zCouple = coupledMetals / (float) nCouple; //* weightsVector[n];
+                        // if (isnan(zCouple))
+                        //     fprintf(stderr, "Nan metals! %e %e", coupledMetals, weightsVector[n]);
+                        if (StarMakerTypeIISNeMetalField)
+                            zIICouple = SNIImetals / (float) nCouple; //* weightsVector[n];
+                        if (StarMakerTypeIaSNe)
+                            zIACouple = SNIAmetals / (float) nCouple; //* weightsVector[n];
+                        if (MechStarsSeedField)
+                            p3Couple = P3metals / (float) nCouple; //* weightsVector[n];
+                        int np = 1;
+
+
+                        // expect 9 positive x entries?
+                        if (modx < 0)
+                            n_pos[0]++;
+                        if (mody < 0)
+                            n_pos[1]++;
+                        if (modz < 0)
+                            n_pos[2]++;
+                        expect_error[0] += pX;
+                        expect_error[1] += pY;
+                        expect_error[2] += pZ;
+                        expect_momenta += sqrt(pX*pX + pY*pY + pZ*pZ);
+                        expect_z += zCouple;
+                        fprintf(stdout, "CldPtclVec: %e %e %e @ %d %d %d\n", modx, mody, modz, ic, jc, kc);
+                        fprintf(stdout, "Coupling %d %d %d: \n\tMomenta: %e %e %e\n", a,b,c, pX, pY, pZ);
+                        fprintf(stdout, "\tMetal: %e, Mass: %e\n\n", zCouple, mCouple);
+                    
+                        /* NGP style ; easy testing of deposited qtys*/
+                        // float x, y, z;
+                        // x = CloudParticlePositionX[n];
+                        // y = CloudParticlePositionY[n];
+                        // z = CloudParticlePositionZ[n];
+                        
+                        // // index to deposit in NGP fashion
+                        // int ix = (x - CellLeftEdge[0][0]+0.5*dx) / dx;
+                        // int iy = (y - CellLeftEdge[1][0]+0.5*dx) / dx;
+                        // int iz = (z - CellLeftEdge[2][0]+0.5*dx) / dx;
+
+                        // deposit quantities to that cell only
+                        BaryonField[DensNum][depInd] = BaryonField[DensNum][depInd] + mCouple;
+                        float mcell = BaryonField[DensNum][depInd]; 
+                        BaryonField[MetalNum][depInd] = BaryonField[MetalNum][depInd] + zCouple;
+                        if (pX)
+                            BaryonField[Vel1Num][depInd] = BaryonField[Vel1Num][depInd] + pX;
+                        
+                        if (pY)
+                            BaryonField[Vel2Num][depInd] = BaryonField[Vel2Num][depInd] + pY;
+                        
+                        if (pZ)
+                            BaryonField[Vel3Num][depInd] = BaryonField[Vel3Num][depInd] + pZ;
+                        
+                        if (geCouple) // add coupled thermal energy
+                            {
+                                BaryonField[GENum][depInd] = (BaryonField[GENum][depInd]*mcell + geCouple)/mcell;
+                                BaryonField[TENum][depInd] = (BaryonField[TENum][depInd]*mcell + geCouple)/mcell;
+                            }
+                        // add KE to total energy
+                        BaryonField[TENum][depInd] = (BaryonField[TENum][depInd]*mcell + eCouple)/mcell;
+
+
+                        // FORTRAN_NAME(cic_deposit)
+                        // (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
+                        //  &CloudParticlePositionZ[n], &GridRank, &np, &mCouple, &density[0], LeftEdge,
+                        //  &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+
+                        // FORTRAN_NAME(cic_deposit)
+                        // (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
+                        //  &CloudParticlePositionZ[n], &GridRank, &np, &zCouple, &metals[0], LeftEdge,
+                        //  &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+                        // if (pX != 0.0)
+                        // {
+                        //     FORTRAN_NAME(cic_deposit)
+                        //     (&xc, &yc, &zc, &GridRank, &np, &pX, &u[0], LeftEdge,
+                        //      &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+                        // }
+                        // if (pY != 0.0)
+                        //     FORTRAN_NAME(cic_deposit)
+                        //     (&xc, &yc, &zc, &GridRank, &np, &pY, &v[0], LeftEdge,
+                        //      &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+                        // if (pZ != 0.0)
+                        //     FORTRAN_NAME(cic_deposit)
+                        //     (&xc, &yc, &zc, &GridRank, &np, &pZ, &w[0], LeftEdge,
+                        //      &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+                        // if (eCouple > 0 && DualEnergyFormalism)
+                        // {
+                        //     if (geCouple > 0)
+                        //         eCouple += geCouple;
+                        //     FORTRAN_NAME(cic_deposit)
+                        //     (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
+                        //      &CloudParticlePositionZ[n], &GridRank, &np, &eCouple, BaryonField[TENum], LeftEdge,
+                        //      &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+                        // }
+                        // if (geCouple > 0)
+                        //     FORTRAN_NAME(cic_deposit)
+                        //     (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
+                        //      &CloudParticlePositionZ[n], &GridRank, &np, &geCouple, BaryonField[GENum], LeftEdge,
+                        //      &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+                        // if (StarMakerTypeIISNeMetalField && zIICouple > 0.0)
+                        //     FORTRAN_NAME(cic_deposit)
+                        //     (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
+                        //      &CloudParticlePositionZ[n], &GridRank, &np, &zIICouple, metalsII, LeftEdge,
+                        //      &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+                        // if (StarMakerTypeIaSNe && zIACouple > 0.0)
+                        //     FORTRAN_NAME(cic_deposit)
+                        //     (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
+                        //      &CloudParticlePositionZ[n], &GridRank, &np, &zIACouple, metalsIA, LeftEdge,
+                        //      &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+                        // if (MechStarsSeedField && p3Couple > 0.0)
+                        // {
+                        //     //if (printout)printf("Coupling %f to pIII metals %d\n",p3Couple*MassUnits, n);
+                        //     FORTRAN_NAME(cic_deposit)
+                        //     (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
+                        //      &CloudParticlePositionZ[n], &GridRank, &np, &p3Couple, metalsIII, LeftEdge,
+                        //      &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+                        // }
             }
-            if (pY != 0.0)
-                FORTRAN_NAME(cic_deposit)
-                (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                 &CloudParticlePositionZ[n], &GridRank, &np, &pY, &v[0], LeftEdge,
-                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
-            if (pZ != 0.0)
-                FORTRAN_NAME(cic_deposit)
-                (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                 &CloudParticlePositionZ[n], &GridRank, &np, &pZ, &w[0], LeftEdge,
-                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
-            if (eCouple > 0 && DualEnergyFormalism)
-            {
-                if (geCouple > 0)
-                    eCouple += geCouple;
-                FORTRAN_NAME(cic_deposit)
-                (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                 &CloudParticlePositionZ[n], &GridRank, &np, &eCouple, BaryonField[TENum], LeftEdge,
-                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
-            }
-            if (geCouple > 0)
-                FORTRAN_NAME(cic_deposit)
-                (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                 &CloudParticlePositionZ[n], &GridRank, &np, &geCouple, BaryonField[GENum], LeftEdge,
-                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
-            if (StarMakerTypeIISNeMetalField && zIICouple > 0.0)
-                FORTRAN_NAME(cic_deposit)
-                (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                 &CloudParticlePositionZ[n], &GridRank, &np, &zIICouple, metalsII, LeftEdge,
-                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
-            if (StarMakerTypeIaSNe && zIACouple > 0.0)
-                FORTRAN_NAME(cic_deposit)
-                (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                 &CloudParticlePositionZ[n], &GridRank, &np, &zIACouple, metalsIA, LeftEdge,
-                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
-            if (MechStarsSeedField && p3Couple > 0.0)
-            {
-                //if (printout)printf("Coupling %f to pIII metals %d\n",p3Couple*MassUnits, n);
-                FORTRAN_NAME(cic_deposit)
-                (&CloudParticlePositionX[n], &CloudParticlePositionY[n],
-                 &CloudParticlePositionZ[n], &GridRank, &np, &p3Couple, metalsIII, LeftEdge,
-                 &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
-            }
-        }
+    // } // else if not use_free
+    fprintf(stdout, "After deposition, counted %e Msun km/s momenta deposited...\n", expect_momenta * MomentaUnits);
+    fprintf(stdout, "\t%d %d %d positive x-values. With measured errors %e %e %e\n", n_pos[0], n_pos[1], n_pos[2], expect_error[0]*MomentaUnits, expect_error[1]*MomentaUnits, expect_error[2]*MomentaUnits);
+    fprintf(stdout, "\tTabulated %e Msun deposited metals\n", expect_z * MassUnits);
     // }
     // printf("\n");
     /* Deposit one negative mass particle centered on star to account for 
         shell mass leaving host cells .  Same for metals that were evacuated*/
-    int np = 1;
-    shellMass *= -1 / MassUnits;
-    FORTRAN_NAME(cic_deposit)
-        (xp, yp, zp, &GridRank, &np, &shellMass, density, LeftEdge,
-        &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
-    shellMetals *= -1 / MassUnits;
-    FORTRAN_NAME(cic_deposit)
-        (xp, yp, zp, &GridRank, &np, &shellMetals, metals, LeftEdge,
-        &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+    // int np = 1;
+    // shellMass *= -1 / MassUnits;
+    // FORTRAN_NAME(cic_deposit)
+    //     (xp, yp, zp, &GridRank, &np, &shellMass, density, LeftEdge,
+    //     &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
+    // shellMetals *= -1 / MassUnits;
+    // FORTRAN_NAME(cic_deposit)
+    //     (xp, yp, zp, &GridRank, &np, &shellMetals, metals, LeftEdge,
+    //     &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
 
     /* 
         Lots of wind calculations make CIC take too much time, so direct deposit
@@ -631,7 +752,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     }
 
     /* Transform the grid back. Skip for winds, unless VERY high resolution*/
-    if (!winds || dx * LengthUnits / pc_cm < min_winds)
+    // if (!winds || dx * LengthUnits / pc_cm < min_winds)
         transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum],
                                   BaryonField[MetalIINum], BaryonField[MetalIaNum],
                                   BaryonField[Vel1Num], BaryonField[Vel2Num],
