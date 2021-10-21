@@ -475,20 +475,20 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (!winds)
         coupledEnergy = min((nSNII + nSNIA) * 1e51, eKinetic);
-    fprintf(stdout, "Pre: Coupling TE = %e, GE = %e\n", coupledEnergy, coupledGasEnergy);
+    if (printout) fprintf(stdout, "Pre: Coupling TE = %e, GE = %e\n", coupledEnergy, coupledGasEnergy);
     
     coupledEnergy = coupledEnergy / EnergyUnits;
     coupledGasEnergy = coupledGasEnergy / EnergyUnits;
-    fprintf(stdout, "Post: Coupling TE = %e, GE = %e\n", coupledEnergy, coupledGasEnergy);
-    fprintf(stdout, "Coupled mass: %e Msun", coupledMass);
+    if (printout) fprintf(stdout, "Post: Coupling TE = %e, GE = %e\n", coupledEnergy, coupledGasEnergy);
+    if (printout) fprintf(stdout, "Coupled mass: %e Msun", coupledMass);
     coupledMass /= MassUnits;
-    fprintf(stdout, "Coupled Mass: %e code_mass", coupledMass);
+    if (printout) fprintf(stdout, "Coupled Mass: %e code_mass", coupledMass);
     coupledMetals /= MassUnits;
 
     // conversion includes km -> cm
-    fprintf(stdout, "475: Coupling %e Msun km/s\n", coupledMomenta);
+    if (printout) fprintf(stdout, "475: Coupling %e Msun km/s\n", coupledMomenta);
     coupledMomenta = coupledMomenta / MomentaUnits;
-    fprintf(stdout, "477: %e mass * len / time (%e = %e * %e / %e) (vu = %e)\n", coupledMomenta, MomentaUnits, MassUnits, LengthUnits, TimeUnits, VelocityUnits);
+    if (printout) fprintf(stdout, "477: %e mass * len / time (%e = %e * %e / %e) (vu = %e)\n", coupledMomenta, MomentaUnits, MassUnits, LengthUnits, TimeUnits, VelocityUnits);
     SNIAmetals /= MassUnits;
     SNIImetals /= MassUnits;
     P3metals /= MassUnits;
@@ -584,9 +584,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                         expect_error[2] += pZ;
                         expect_momenta += sqrt(pX*pX + pY*pY + pZ*pZ);
                         expect_z += zCouple;
-                        fprintf(stdout, "CldPtclVec: %e %e %e @ %d %d %d\n", modx, mody, modz, ic, jc, kc);
-                        fprintf(stdout, "Coupling %d %d %d: \n\tMomenta: %e %e %e\n", a,b,c, pX, pY, pZ);
-                        fprintf(stdout, "\tMetal: %e, Mass: %e\n\n", zCouple, mCouple);
+                        // fprintf(stdout, "CldPtclVec: %e %e %e @ %d %d %d\n", modx, mody, modz, ic, jc, kc);
+                        // fprintf(stdout, "Coupling %d %d %d: \n\tMomenta: %e %e %e\n", a,b,c, pX, pY, pZ);
+                        // fprintf(stdout, "\tMetal: %e, Mass: %e\n\n", zCouple, mCouple);
                     
                         /* NGP style ; easy testing of deposited qtys*/
                         // float x, y, z;
@@ -678,10 +678,11 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                         // }
             }
     // } // else if not use_free
-    fprintf(stdout, "After deposition, counted %e Msun km/s momenta deposited...\n", expect_momenta * MomentaUnits);
-    fprintf(stdout, "\t%d %d %d positive x-values. With measured errors %e %e %e\n", n_pos[0], n_pos[1], n_pos[2], expect_error[0]*MomentaUnits, expect_error[1]*MomentaUnits, expect_error[2]*MomentaUnits);
-    fprintf(stdout, "\tTabulated %e Msun deposited metals\n", expect_z * MassUnits);
-    // }
+    if (printout){
+        fprintf(stdout, "After deposition, counted %e Msun km/s momenta deposited...\n", expect_momenta * MomentaUnits);
+        fprintf(stdout, "\t%d %d %d positive x-values. With measured errors %e %e %e\n", n_pos[0], n_pos[1], n_pos[2], expect_error[0]*MomentaUnits, expect_error[1]*MomentaUnits, expect_error[2]*MomentaUnits);
+        fprintf(stdout, "\tTabulated %e Msun deposited metals\n", expect_z * MassUnits);
+    }
     // printf("\n");
     /* Deposit one negative mass particle centered on star to account for 
         shell mass leaving host cells .  Same for metals that were evacuated*/
