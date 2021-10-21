@@ -42,7 +42,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
         float *DMField, float* totalMetal, int level, float* CoolingTime,
         int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar)
 {
-    float conversion_fraction = 0.1; // fraction of baryon mass that gets converted to stars
+    float conversion_fraction = 0.1; // max fraction of baryon mass that gets converted to stars
                                    // on successful formation check
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
@@ -56,6 +56,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     bool gridShouldFormStars=false, notEnoughMetals = true;
 
     bool debug = false; // local debug flag; theres a lot of printing in here 
+    srand(clock());
 
 
     //get field numbers
@@ -175,7 +176,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             host cell.  If your simulation has very small (>15 Msun) baryon mass
                             per cell, it will break your sims! - AIW
                         */
-                        // srand(clock());
                         float MassShouldForm = (shieldedFraction * BaryonField[DensNum][index]
                                         * MassUnits / (freeFallTime * TimeUnits) * Myr_s);
                         // Probability has the last word
@@ -197,7 +197,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         }
 
                         /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
-                        float newMass = max(15.0 / MassUnits, min(MassShouldForm/MassUnits, conversion_fraction*BaryonField[DensNum][index])); 
+                        float newMass = max(StarMakerMinimumMass / MassUnits, min(MassShouldForm/MassUnits, min(StarMakerMaximumFormationMass/MassUnits, conversion_fraction*BaryonField[DensNum][index]))); 
 			     //min(min(MassShouldForm/MassUnits, 0.5*BaryonField[DensNum][index]), StarMakerMaximumFormationMass/MassUnits);
                         // tdyn was calculated in checkCreationCriteria.C
 			//float totalDensity = (BaryonField[DensNum][index]+DMField[index])*DensityUnits;
