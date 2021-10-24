@@ -651,6 +651,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "HydrogenFractionByMass = %"FSYM, &CoolData.HydrogenFractionByMass);
     ret += sscanf(line, "DeuteriumToHydrogenRatio = %"FSYM, &CoolData.DeuteriumToHydrogenRatio);
     ret += sscanf(line, "SolarMetalFractionByMass = %"FSYM, &CoolData.SolarMetalFractionByMass);
+        SolarMetalFractionByMass = CoolData.SolarMetalFractionByMass;
     ret += sscanf(line, "NumberOfTemperatureBins = %"ISYM, &CoolData.NumberOfTemperatureBins);
     ret += sscanf(line, "CoolDataIh2co = %"ISYM, &CoolData.ih2co);
     ret += sscanf(line, "CoolDataIpiht = %"ISYM, &CoolData.ipiht);
