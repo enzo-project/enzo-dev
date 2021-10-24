@@ -832,7 +832,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
     } 
-    if (STARMAKE_METHOD(MECHANICAL) && level >= StarMakeLevel){
+    if (STARMAKE_METHOD(MECHANICAL)){
        NumberOfNewParticlesSoFar = NumberOfParticles;
          int nRetStars = 0;
          nRetStars = MechStars_Creation(tg, temperature,
