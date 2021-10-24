@@ -50,7 +50,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
     //fprintf(stdout,"IN FEEDBACK ROUTINE\n  %d   %d   %d\n",
     //SingleSN, StellarWinds, UnrestrictedSN);
     float Zsolar = 0.02;
-    float stretchFactor = 2.0; // distance in cells required from grid edge for FB to function.
+    float stretchFactor = 4.0; // distance in cells required from grid edge for FB to function.
     bool debug = false;
     float startFB = MPI_Wtime();
     int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
@@ -238,7 +238,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
                     MechStars_DepositFeedback(energySN, SNMassEjected, SNMetalEjected, totalMetal, Temperature,
                                               &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
-                                              &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
+                                              &xp, &yp, &zp,
                                               ip, jp, kp, size, mu_field, 0, nSNII, nSNIA, starMetal, 0);
 
                     // can only track number of events in dynamical time if not using it to determine lifetime
@@ -270,7 +270,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                     //printf("Winds: M = %e E=%e\n", windMass, windEnergy);
                     MechStars_DepositFeedback(windEnergy, windMass, windMetals, totalMetal, Temperature,
                                               &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
-                                              &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
+                                              &xp, &yp, &zp,
                                               ip, jp, kp, size, mu_field, 1, 0, 0, 0.0, 0);
                 }
             }
