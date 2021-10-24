@@ -34,9 +34,9 @@ int checkCreationCriteria(float* Density, float* Metals,
                         bool* gridShouldFormStars, bool* notEnoughMetals, 
                         int continuingFormation, int* seedIndex)
 {  
-    float Zsolar = 0.02;
+    float Zsolar = SolarMetalFractionByMass;
     float maxZ = 0.0;
-    bool debug = false;
+    bool debug = true;
     bool status = PASS;
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
                 TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
@@ -60,8 +60,9 @@ int checkCreationCriteria(float* Density, float* Metals,
     //if (RefinementField[index] != 0) return FAIL;
     /* Baryon overdensity. Take a local mean, but 
         weight the central cell more*/
+    float dmean = 0;
     if (StarMakerOverDensityThreshold > 0){
-        float dmean = (Density[index]*10.0+Density[iminus]
+        dmean = (Density[index]*10.0+Density[iminus]
                     + Density[iplus]+Density[jplus]
                     + Density[jminus]+Density[kminus]
                     + Density[kplus])/17.0;
@@ -77,13 +78,13 @@ int checkCreationCriteria(float* Density, float* Metals,
             
     }
 
-    // if (debug && status) fprintf(stdout, "Passed Density: %e: %e\n", 
-    //           dmean,StarMakerOverDensityThreshold);
+    // if (debug && status) fprintf(stdout, "Passed Density: %e: %e; found metallicity = %e\n", 
+    //           dmean,StarMakerOverDensityThreshold, Metals[index]/Density[index]/Zsolar);
     /* in addition to the converging flow check, we check
         the virial parameter of the gas to see if it is 
         locally gravitationally bound*/
     // check that metals exist in enough quantity
-    if (Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity)
+    if (Metals[index]/Density[index]/Zsolar < MechStarsCriticalMetallicity)
         return FAIL;
     
     float div = 0.0; //divergence
@@ -181,16 +182,16 @@ int checkCreationCriteria(float* Density, float* Metals,
     //if (status && debug)
     //{
     //    fprintf(stdout, "Check Creation positive! n_b = %"GSYM" M_b = %"GSYM" gradRho = %"GSYM" Fs = %"FSYM" M_j = %"GSYM" VirialPar = %"FSYM" divergence = %"FSYM" Temperature = %"GSYM" cSnd = %"GSYM" AltJeans = %"GSYM" AltAlpha = %"GSYM" Z = %"GSYM"\n",
-    //    dmean, baryonMass, gradRho, *shieldedFraction, jeansMass, alpha, div, Temperature[index], cSound*VelocityUnits/1e5, altJeans, Metals[index]/Density[index]/0.02);
+    //    dmean, baryonMass, gradRho, *shieldedFraction, jeansMass, alpha, div, Temperature[index], cSound*VelocityUnits/1e5, altJeans, Metals[index]/Density[index]/Zsolar);
     //}
     //if (status && debug) fprintf(stdout, "passed creation criteria\n");
-    if (MechStarsSeedField && Metals[index]/Density[index]/0.02 > MechStarsCriticalMetallicity && !continuingFormation)
+    if (MechStarsSeedField && Metals[index]/Density[index]/Zsolar > MechStarsCriticalMetallicity && !continuingFormation)
         *notEnoughMetals = false;
-    if (status && (Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity)){
+    if (status && (Metals[index]/Density[index]/Zsolar < MechStarsCriticalMetallicity)){
             status = FAIL;
     }
 
-    else if (status && Metals[index]/Density[index]/0.02 < MechStarsCriticalMetallicity && MechStarsSeedField
+    else if (status && Metals[index]/Density[index]/Zsolar < MechStarsCriticalMetallicity && MechStarsSeedField
         && !continuingFormation)
     {
       //  if (debug) fprintf(stdout,"No metals, criteria passed, but not forming\n");
@@ -198,7 +199,7 @@ int checkCreationCriteria(float* Density, float* Metals,
         /* May want to qualify this with H2 fraction/H2 self-shield approximations, but
         This is really just to give a non-uniform seed-field in Pop3 metals*/
         *gridShouldFormStars = true;
-        if (Metals[index]/Density[index]/0.02 > maxZ) maxZ = Metals[index]/Density[index]/0.02;
+        if (Metals[index]/Density[index]/Zsolar > maxZ) maxZ = Metals[index]/Density[index]/Zsolar;
         /* Store index of this grid to potentially be center of P3 seed later */
         seedIndex[0] = i; 
         seedIndex[1] = j;
