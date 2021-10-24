@@ -186,8 +186,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 						    * MassUnits)); 
                         float random = (float) rand() / (float)(RAND_MAX);
                         if (debug)
-			  printf("[t=%f] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", Time*TimeUnits/Myr_s, 
-                             MassShouldForm, BaryonField[DensNum][index] * MassUnits, 
+			                printf("[t=%f] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", Time*TimeUnits/Myr_s, 
+                            MassShouldForm, BaryonField[DensNum][index] * MassUnits, 
 			     shieldedFraction, freeFallTime*TimeUnits / Myr_s, 1.0/(freeFallTime*TimeUnits) * Myr_s,
 			     BaryonField[DensNum][index]*DensityUnits/(mh/0.6), dynamicalTime / Myr_s, 
 			     CoolingTime[index]*TimeUnits/Myr_s, p_form, random, RAND_MAX);
@@ -197,7 +197,11 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         }
 
                         /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
-                        float newMass = max(StarMakerMinimumMass / MassUnits, min(MassShouldForm/MassUnits, min(StarMakerMaximumFormationMass/MassUnits, conversion_fraction*BaryonField[DensNum][index]))); 
+                        float newMass = max(15.0 / MassUnits, min(MassShouldForm/MassUnits, conversion_fraction*BaryonField[DensNum][index])); 
+                        if (newMass * MassUnits < StarMakerMinimumMass) // too small gets set to minima? or should we just continue on small masses?
+                            newMass = StarMakerMinimumMass / MassUnits;
+                        if (newMass * MassUnits > StarMakerMaximumFormationMass) // too big gets set to max
+                            newMass = StarMakerMaximumFormationMass / MassUnits;
 			     //min(min(MassShouldForm/MassUnits, 0.5*BaryonField[DensNum][index]), StarMakerMaximumFormationMass/MassUnits);
                         // tdyn was calculated in checkCreationCriteria.C
 			//float totalDensity = (BaryonField[DensNum][index]+DMField[index])*DensityUnits;
