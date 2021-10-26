@@ -32,6 +32,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 					 float *Initialdt,
 					 FLOAT TestStarParticleStarVelocity[],
+           FLOAT TestStarParticleStarPosition[],
 					 int NumberOfTestStars, float clusterRadius, 
 			     char *TestStarInitializationFilename)
 {
@@ -283,12 +284,12 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
   for (i = 0; i <= NumberOfParticles; i++){
     for (dim = 0; dim < GridRank; dim++) {
       if (NumberOfParticles == 1){
-        p1 = 0.5;
+        p1 = TestStarParticleStarPosition[dim];
       }else{
         int rng = clusterRadius*200;
         p1 = float(rand() % rng)/100.0+(0.5-clusterRadius);
       }
-        ParticlePosition[dim][i] = p1*
+        ParticlePosition[dim][i] = p1 *
         (DomainLeftEdge[dim]+DomainRightEdge[dim]) + 0.5*CellWidth[0][0];
       ParticleVelocity[dim][i] = TestStarParticleStarVelocity[dim]*1e5*TimeUnits/LengthUnits;
     }
