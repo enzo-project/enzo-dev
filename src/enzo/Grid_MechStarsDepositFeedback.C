@@ -305,8 +305,10 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             coupledMomenta += (pTerminal-p_free) * exp(-sqrt(1.0-dxRatio));// momenta increases exponentially until snowplough. approximately.
         if (dxRatio > 1)
             coupledMomenta = pTerminal;
-        if (fadeRatio > 1.0)
-            coupledMomenta = pTerminal / pow(fadeRatio, 1./3.);
+        if (fadeRatio > 1)
+            coupledMomenta = pTerminal / fadeRatio;
+        if (fadeRatio > 2)
+            coupledMomenta = pTerminal / sqrt(fadeRatio);
     }
 
     if (winds)
@@ -359,11 +361,12 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         ENZO_FAIL("SM_deposit: 391");
     }
     float coupledMass = shellMass + ejectaMass;
-    eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + 27.0 * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
+    // kinetic energy from the momenta, taking mass as ejecta + mass of effected cells (4^3 because of CIC in coupling cloud)
+    eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + 64.0 * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
     if (eKinetic > 1e51){
         fprintf(stdout, "Rescaling high kinetic energy %e -> ", eKinetic);
-        coupledMomenta = sqrt((2.0 * (ejectaMass*SolarMass + 27.0 * dmean * pow(LengthUnits*dx, 3) ) * ejectaEnergy))/SolarMass/1e5;
-        eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + 27.0 * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
+        coupledMomenta = sqrt((2.0 * (ejectaMass*SolarMass + 64.0 * dmean * pow(LengthUnits*dx, 3) ) * ejectaEnergy))/SolarMass/1e5;
+        eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + 64.0 * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
         
         fprintf(stdout, " %e; new p = %e\n", eKinetic, coupledMomenta);
     }
