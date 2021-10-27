@@ -420,9 +420,10 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (criticalDebug)
     {
         // for (int i = 0; i < size; ++i)
-        for (int k = kp-5; k <=kp+5; ++k)
-            for (int j = jp-5; j <=jp+5; ++j)
-                for (int i = ip-5; i <=ip+5; ++i)
+        for (int k = max(0,kp-5); k <= min(kp+5, GridDimension[2]); ++k)
+            for (int j = max(0,jp-5); j <= max(jp+5, GridDimension[1]); ++j)
+                for (int i = max(0,ip-5); i <= max(ip+5, GridDimension[0]); ++i)
+
                 {
                     int idx = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];
                     preMass += BaryonField[DensNum][idx];
@@ -630,9 +631,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (criticalDebug)
     {
-        for (int k = kp-5; k <=kp+5; ++k)
-            for (int j = jp-5; j <=jp+5; ++j)
-                for (int i = ip-5; i <=ip+5; ++i)
+        for (int k = max(0,kp-5); k <= min(kp+5, GridDimension[2]); ++k)
+            for (int j = max(0,jp-5); j <= max(jp+5, GridDimension[1]); ++j)
+                for (int i = max(0,ip-5); i <= max(ip+5, GridDimension[0]); ++i)
                 {
                     int idx = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];            
                     postMass += BaryonField[DensNum][idx];
