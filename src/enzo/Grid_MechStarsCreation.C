@@ -243,10 +243,12 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         if (HydroMethod != 0)
                             fprintf(stderr,"Mechanical star maker not tested for anything except HydroMethod = 0\n");
                         /* average particle velocity over 125 cells to prevent runaway */
-                        for (int kp = k-2; kp <= k+2; kp++)
-                            for (int jp = j-2; jp <= j+2 ; jp++)
-                                for (int ip = i-2; ip <= i + 2 ; ip++)
+                        float cnter = 0;
+                        for (int kp = max(0,k-5); kp <= min(k+5, GridDimension[2]); kp++)
+                            for (int jp = max(0,j-5); jp <= min(j+5, GridDimension[1]) ; jp++)
+                                for (int ip = max(0,i-5); ip <= min(i + 5, GridDimension[0]) ; ip++)
                                 {
+                                    cnter ++;
                                     int ind = ip + jp*GridDimension[0]+kp*GridDimension[0]+GridDimension[1];
                                     vX += BaryonField[Vel1Num][ind];
                                     vY += BaryonField[Vel2Num][ind];
@@ -254,11 +256,11 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                                 }
                         float MaxVelocity = 250.*1.0e5/VelocityUnits;
                         ParticleArray->ParticleVelocity[0][nCreated] = 
-                            (abs(vX/125.) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX/125.);
+                            (abs(vX/cnter) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX/cnter);
                         ParticleArray->ParticleVelocity[1][nCreated] = 
-                            (abs(vY/125.) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY/125.);
+                            (abs(vY/cnter) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY/cnter);
                         ParticleArray->ParticleVelocity[2][nCreated] = 
-                            (abs(vZ/125.) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ/125.);
+                            (abs(vZ/cnter) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ/cnter);
 
                         /* give it position at center of host cell */
 
