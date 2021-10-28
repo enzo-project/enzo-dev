@@ -306,9 +306,9 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
     if (MergedParticles[i]->ReturnCurrentGrid()->PointInGrid(
             MergedParticles[i]->ReturnPosition()) == false) {
               // SG. Debugging.
-              //if(ParticleList[i]->ReturnType() == POPIII){
-                //continue;
-               // }
+              if(ParticleList[i]->ReturnType() == POPIII){
+                continue;
+               }
       // Find the grid to transfer to
       for (j = 0; j < NumberOfGrids; j++) {
         if (LevelGrids[j]->GridData->PointInGrid(
