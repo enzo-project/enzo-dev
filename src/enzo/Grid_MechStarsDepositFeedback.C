@@ -30,7 +30,7 @@ int transformComovingWithStar(float *Density, float *Metals,
                               float up, float vp, float wp,
                               int sizeX, int sizeY, int sizeZ, int direction);
 int FindField(int field, int farray[], int numfields);
-float Window(float xd, float yd, float zd, float width);
+float Window(float xd, float yd, float zd, float width, bool NGP);
 int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                     float ejectaMass, float ejectaMetal,
                                     float *totalMetals, float *temperature,
@@ -58,7 +58,18 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (printout)
         printf("Host index = %d\n", index);
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-
+    /*
+        *
+        *  flag for NGP deposition
+        * 
+    */
+    bool NGP = false; // true to use NGP deposition instead of CIC
+    /*
+        *
+        *
+        * 
+    */
+    float ntouched = NGP ? (27) : (64); // how many cells get touched by deposition? 
     /* Compute size (in floats) of the current grid. */
     float stretchFactor = 1.0; //1.5/sin(M_PI/10.0);  // How far should cloud particles be from their host
                                // in units of dx. Since the cloud forms a sphere shell, stretchFactor > 1 is not recommended
@@ -238,7 +249,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     mu_mean /= 27.0;
     dmean = dmean * DensityUnits / (27.);
     // zmean = zmean * DensityUnits / dmean;
-    nmean = max(0.01, dmean / (mh/mu_mean));
+    nmean = max(0.001, dmean / (mh/mu_mean));
     //nmean = max(nmean, 1e-1);
     if (printout) printf ("Zmean = %e Dmean = %e (%e) mu_mean = %e ", zmean, dmean, dmean / DensityUnits, mu_mean);
     if (printout) printf ("Nmean = %f vmean = %f\n", nmean, vmean/1e5);
@@ -259,10 +270,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         fprintf(stdout, "Dx [pc] = %f\n", dx * LengthUnits / pc_cm);
     // although the cell width is 'dx', we actually couple to larger radii than that
     // because of CIC, roughly 2.5-3 *dx
-    float cellwidth = 2.5 * dx * LengthUnits / pc_cm;
+    float cellwidth = dx * LengthUnits / pc_cm;
 
     float dxRatio = cellwidth / CoolingRadius;
-
     /* We want to couple one of four phases: free expansion, Sedov-taylor, shell formation, or terminal 
     The first three phases are take forms from Kim & Ostriker 2015, the last from Cioffi 1988*/
 
@@ -301,14 +311,21 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (!winds)
     {  // this calculation for SNe only
         coupledMomenta = p_free;//  * min(sqrt(1.0 + (dmean / DensityUnits * MassUnits)/(ejectaMass/(float)nCouple)), pTerminal/p_free);
-        if (dxRatio < 1 && cellwidth > r_free)
-            coupledMomenta += (pTerminal-p_free) * exp(-sqrt(1.0-dxRatio));// momenta increases exponentially until snowplough. approximately.
+        if (cellwidth <= r_free){
+            coupledMomenta *= min(pow(1.0 + cellwidth/r_free, 4.0),sqrt((1.0 + (dmean / DensityUnits * MassUnits) / ejectaMass * ntouched))/dxRatio);
+        }
+        if (dxRatio <= 1 and cellwidth > r_free)
+            coupledMomenta *= min(sqrt((1.0 + (dmean / DensityUnits * MassUnits) / ejectaMass * ntouched))*sqrt(1+dxRatio), pTerminal/p_free);// momenta increases exponentially until snowplough. approximately.
+
+        // some tuning based on observations in ideal tests.  P_t is actually too large by some if Rcool < dx
         if (dxRatio > 1)
-            coupledMomenta = pTerminal;
-        if (fadeRatio > 1)
-            coupledMomenta = pTerminal / fadeRatio;
-        if (fadeRatio > 2)
-            coupledMomenta = pTerminal / sqrt(fadeRatio);
+            coupledMomenta = pTerminal / sqrt(3.0);
+        if (dxRatio > 4)
+            coupledMomenta = pTerminal / 2.0;
+        // if (fadeRatio > 1)
+        //     coupledMomenta = pTerminal / fadeRatio;
+        // if (fadeRatio > 2)
+        //     coupledMomenta = pTerminal / sqrt(fadeRatio);
     }
 
     if (winds)
@@ -320,7 +337,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
 
     if (printout)
-        fprintf(stdout, "Calculated p = %e (FR^0.33 = %e; p_f = %e; p_t = %e; mcell = %e; mcpl = %e)\n", coupledMomenta, pow(fadeRatio, 1./3.), p_free, pTerminal, dmean / DensityUnits * MassUnits, ejectaMass);
+        fprintf(stdout, "Calculated p = %e (sq_fact = %e; p_f = %e; p_t = %e; mcell = %e; mcpl = %e)\n", 
+                                coupledMomenta, (dmean / DensityUnits * MassUnits) / ejectaMass * ntouched, p_free, pTerminal, dmean / DensityUnits * MassUnits, ejectaMass/27.0);
 
 
     //    coupledMomenta = (cellwidth > r_fade)?(coupledMomenta*pow(r_fade/cellwidth,3/2)):(coupledMomenta);
@@ -362,11 +380,11 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     }
     float coupledMass = shellMass + ejectaMass;
     // kinetic energy from the momenta, taking mass as ejecta + mass of effected cells (4^3 because of CIC in coupling cloud)
-    eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + 64.0 * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
-    if (eKinetic > 1e51){
+    eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + ntouched * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
+    if (eKinetic > 1e53){
         fprintf(stdout, "Rescaling high kinetic energy %e -> ", eKinetic);
-        coupledMomenta = sqrt((2.0 * (ejectaMass*SolarMass + 64.0 * dmean * pow(LengthUnits*dx, 3) ) * ejectaEnergy))/SolarMass/1e5;
-        eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + 64.0 * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
+        coupledMomenta = sqrt((2.0 * (ejectaMass*SolarMass + ntouched * dmean * pow(LengthUnits*dx, 3) ) * ejectaEnergy))/SolarMass/1e5;
+        eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + ntouched * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
         
         fprintf(stdout, " %e; new p = %e\n", eKinetic, coupledMomenta);
     }
@@ -549,6 +567,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
 /* Hand rolled CIC for some stupid reason... */
                     float dep_vol_frac = 0;
+
+                    
                     for (int kk = -1; kk <= 1; kk ++)
                         for (int jj = -1; jj <= 1; jj++)
                             for (int ii = -1; ii <= 1; ii++)
@@ -575,7 +595,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                 
 
                                 /* fraction of quantities that go into this cloud cell... */
-                                float window = Window(xc - xcell, yc - ycell, zc - zcell, dx);
+                                float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
                                 dep_vol_frac += window;
                                 // printf("\t\t\tCloud %e %e %e Coupling at %d %d %d with window %e.  \n\t\t\t\twfactors: %e %e %e (%f %f %f)\n", 
                                 //                                             xcell, ycell, zcell, 
@@ -686,18 +706,27 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     return SUCCESS;
 }
-float Window(float xd, float yd, float zd, float width){
+float Window(float xd, float yd, float zd, float width, bool NGP){
+
 
     float wx = 0, wy = 0, wz = 0;
-
-    if (fabs(xd) <= width)
-        wx = 1.0 - fabs(xd)/width;
-
-    if (fabs(yd) <= width)
-        wy = 1.0 - fabs(yd)/width;
-    
-    if (fabs(zd) <= width)
-        wz = 1.0 - fabs(zd)/width;
-
+    if (!NGP)
+    {
+        if (fabs(xd) <= width)
+                wx = 1.0 - fabs(xd)/width;
+        if (fabs(yd) <= width)
+                wy = 1.0 - fabs(yd)/width;
+        if (fabs(zd) <= width)
+                wz = 1.0 - fabs(zd)/width;
+    }
+    if (NGP) 
+    {
+        if (fabs(xd) < width/2.0)
+            wx = 1.0;
+        if (fabs(yd) < width/2.0)
+            wy = 1.0;
+        if (fabs(zd) < width/2.0)
+            wz = 1.0;
+    }
     return wx * wy * wz;
 }
