@@ -299,6 +299,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float T = BaryonField[GENum][index] / BaryonField[DensNum][index] * TemperatureUnits;
     float cSound = sqrt(kboltz * T / mh) / 1e5; // [km/s] 
     float r_fade = max(66.0*pow(ejectaEnergy/1e51, 0.32)*pow(nmean, -0.37)*pow(cSound/10, -2.0/5.0), dxRatio);
+    if (r_fade < CoolingRadius)
+        r_fade = CoolingRadius * 1.1;
     float fadeRatio = cellwidth/r_fade;
     if (printout) fprintf(stdout, "Fading: T = %e; Cs = %e; R_f = %e; fadeR = %f\n", T, cSound, r_fade, fadeRatio);
 
@@ -310,18 +312,29 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (!winds)
     {  // this calculation for SNe only
-        coupledMomenta = p_free;//  * min(sqrt(1.0 + (dmean / DensityUnits * MassUnits)/(ejectaMass/(float)nCouple)), pTerminal/p_free);
-        if (cellwidth <= r_free){
-            coupledMomenta *= min(pow(1.0 + cellwidth/r_free, 4.0),sqrt((1.0 + (dmean / DensityUnits * MassUnits) / ejectaMass * ntouched))/dxRatio);
+        float cw_eff = sqrt(2) * cellwidth; // effective cell width couples to farther than just dx
+        float dxeff = cw_eff / CoolingRadius;
+        float fader = cw_eff / r_fade;
+        if (cw_eff < r_free){
+            printf("Coupling free phase\n");
+            coupledMomenta = p_free * (1 + pow(cellwidth/r_free, 3));
         }
-        if (dxRatio <= 1 and cellwidth > r_free)
-            coupledMomenta *= min(sqrt((1.0 + (dmean / DensityUnits * MassUnits) / ejectaMass * ntouched))*sqrt(1+dxRatio), pTerminal/p_free);// momenta increases exponentially until snowplough. approximately.
+        if (r_free < cw_eff && fader < 1)
+            if (p_sedov < pTerminal && dxeff < 1){
+                coupledMomenta = p_sedov + pow(dxeff,1)*(pTerminal-p_sedov);
+                printf("Coupling Sedov-Terminal phase\n");
+            } else {   
+                coupledMomenta = pTerminal / sqrt(1+dxeff);
+                printf("Coupling Terminal phase\n");
+            }
+        if (fader > 1){
+            printf("Coupling Fading phase\n");
+            float red_fact = max(sqrt(3), sqrt(fader));
+            if (fader > 4)
+                red_fact = 2.0;
+            coupledMomenta = pTerminal / red_fact;
+        }
 
-        // some tuning based on observations in ideal tests.  P_t is actually too large by some if Rcool < dx
-        if (dxRatio > 1)
-            coupledMomenta = pTerminal / sqrt(3.0);
-        if (dxRatio > 4)
-            coupledMomenta = pTerminal / 2.0;
         // if (fadeRatio > 1)
         //     coupledMomenta = pTerminal / fadeRatio;
         // if (fadeRatio > 2)
