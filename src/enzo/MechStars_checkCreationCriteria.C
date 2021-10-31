@@ -34,6 +34,7 @@ int checkCreationCriteria(float* Density, float* Metals,
                         bool* gridShouldFormStars, bool* notEnoughMetals, 
                         int continuingFormation, int* seedIndex)
 {  
+    bool COmodel = true; // ignore FIRE-2 methods of self-shielded fractionn and virial parameter
     float Zsolar = SolarMetalFractionByMass;
     float maxZ = 0.0;
     bool debug = true;
@@ -128,8 +129,8 @@ int checkCreationCriteria(float* Density, float* Metals,
 
     float AltAlpha = TotE[index]*MassUnits / (8.0 * M_PI * GravConst/MassUnits);
 
-    
-    if (alpha > 1.0) return FAIL;
+    if (!COmodel)
+        if (alpha > 1.0) return FAIL;
     /* Is cooling time < dynamical time or temperature < 1e4 */
     float totalDensity = (Density[index]
 			  +DMField[index])*DensityUnits;
@@ -179,7 +180,8 @@ int checkCreationCriteria(float* Density, float* Metals,
     //     fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
     //     Tau, Phi, Psi, *shieldedFraction);
 
-    if (*shieldedFraction < 0) status = FAIL;
+    if (!COmodel)
+        if (*shieldedFraction < 0) status = FAIL;
 
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
     //if (status && debug)
