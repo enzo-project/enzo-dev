@@ -57,7 +57,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     Checking creation criteria!
     */
     // if this isnt finest grid in this space, continue
-    //if (RefinementField[index] != 0) return FAIL;
+    if (RefinementField[index] != 0) return FAIL;
     /* Baryon overdensity. Take a local mean, but 
         weight the central cell more*/
     float dmean = 0;
@@ -71,8 +71,9 @@ int checkCreationCriteria(float* Density, float* Metals,
             return FAIL;
         }
     }
-    else { // checking number density
-        float nb = Density[index]*DensityUnits/mh/0.6; //Approx using hydrogen only
+    else if (StarMakerOverdensityThreshold < 0) 
+    { // checking number density
+        float nb = Density[index]*DensityUnits/mh/0.81;
         if (nb < -1*StarMakerOverDensityThreshold)
             return FAIL;
             
@@ -91,7 +92,9 @@ int checkCreationCriteria(float* Density, float* Metals,
     float alpha = 0.0; //virial parameter
     float vfactor= 0.0; //norm of velocity gradient tensor
     float cSound = 0.0; //sound speed
+
     float dxvx, dxvy, dxvz, dyvx, dyvy, dyvz, dzvx, dzvy, dzvz;
+    
     dxvx = (Vel1[iplus] - Vel1[iminus])/2.0;
     dxvy = (Vel2[iplus] - Vel2[iminus])/2.0;
     dxvz = (Vel3[iplus] - Vel3[iminus])/2.0;
