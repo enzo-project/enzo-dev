@@ -53,7 +53,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     bool debug = true;
     bool criticalDebug = true;
     float min_winds = 1.0;
-    bool printout = debug;
+    bool printout = debug & !winds;
     int index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
     if (printout)
         printf("Host index = %d\n", index);

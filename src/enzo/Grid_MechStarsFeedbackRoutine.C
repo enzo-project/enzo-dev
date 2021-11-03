@@ -118,7 +118,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
         if (ParticleType[pIndex] == PARTICLE_TYPE_STAR && ParticleMass[pIndex] > 00.0 && ParticleAttribute[0][pIndex] > 0.0)
         {
-            float age = (Time - ParticleAttribute[0][pIndex]) * TimeUnits / 3.1557e13; // Myr
+            float age = (Time - ParticleAttribute[0][pIndex]) * TimeUnits / Myr_s; // Myr
             c++;
 
             /* get index of cell hosting particle */
@@ -230,7 +230,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                     Determine SN events from rates (currently taken from
                     Hopkins, 2018)
                  */
-                determineSN(age, &nSNII, &nSNIA, ParticleMass[pIndex] * MassUnits,
+                determineSN(age, &nSNII, &nSNIA, pmassMsun,
                             TimeUnits, dtFixed);
                 numSN += nSNII + nSNIA;
                 if ((nSNII > 0 || nSNIA > 0) && debug)
@@ -254,6 +254,10 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
                     if (!StarParticleRadiativeFeedback)
                         ParticleAttribute[1][pIndex] += nSNII + nSNIA;
+                    // else we can log to file for tracking...
+                    else 
+                        fprintf(stdout, "***%d -- %f -- SN %d -- SNIa %d\n", ParticleNumber[pIndex], Time * TimeUnits/Myr_s, nSNII, nSNIA);
+                    ParticleMass[pIndex] = ParticleMass[pIndex] - SNMassEjected/MassUnits;
                 }
             }
 
@@ -281,12 +285,11 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                                               &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
                                               &xp, &yp, &zp,
                                               ip, jp, kp, size, mu_field, 1, 0, 0, 0.0, 0);
+                    ParticleMass[pIndex] = ParticleMass[pIndex] - windMass/MassUnits;
+                
                 }
             }
-            if (windMass > 0.0 || SNMassEjected > 0)
-            {
-                ParticleMass[pIndex] -= (windMass + SNMassEjected) / MassUnits;
-            }
+            
             /* 
             if these stars are used in conjunction with FLDImplicit or FLDSplit.  This functionality has not been verified
             */

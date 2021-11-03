@@ -12,6 +12,7 @@ int transformComovingWithStar(float* Density, float* Metals,
         float up, float vp, float wp,
         int sizeX, int sizeY, int sizeZ, int direction){
     /* 
+
         transform velocities to momenta or back and make them comoving with the star particle 
         Metals are still densities here for CIC deposition.  NB Metal transform to
         fractions in Grid_StarParticleHandler is skipped for this method.  Energy fields
@@ -19,7 +20,8 @@ int transformComovingWithStar(float* Density, float* Metals,
 
     */
     int size = sizeX*sizeY*sizeZ;
-    if (direction > 0){
+    if (direction > 0)
+    {
 
         /* 
             To comoving with star 
@@ -28,17 +30,15 @@ int transformComovingWithStar(float* Density, float* Metals,
             float mult = Density[ind];
                     TE[ind] *= mult;
                     GE[ind] *= mult;
-                    float preV = Vel1[ind];
-                    Vel1[ind] = (preV-up)*mult;
-                    preV = Vel2[ind];
-                    Vel2[ind] = (preV-vp)*mult;
-                    preV = Vel3[ind];
-                    Vel3[ind] = (preV-wp)*mult;
+                    Vel1[ind] = (Vel1[ind]-up)*mult;
+                    Vel2[ind] = (Vel2[ind]-vp)*mult;
+                    Vel3[ind] = (Vel3[ind]-wp)*mult;
 
 
         }
     }
-    if (direction < 0){
+    if (direction < 0)
+    {
 
         /* 
             back to "lab" frame
