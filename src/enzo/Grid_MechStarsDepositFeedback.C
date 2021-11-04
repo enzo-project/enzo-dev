@@ -249,7 +249,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     mu_mean /= 27.0;
     dmean = dmean * DensityUnits / (27.);
     // zmean = zmean * DensityUnits / dmean;
-    nmean = max(0.001, dmean / (mh/mu_mean));
+    nmean = dmean / (mh/mu_mean);
     //nmean = max(nmean, 1e-1);
     if (printout) printf ("Zmean = %e Dmean = %e (%e) mu_mean = %e ", zmean, dmean, dmean / DensityUnits, mu_mean);
     if (printout) printf ("Nmean = %f vmean = %f\n", nmean, vmean/1e5);
@@ -334,11 +334,13 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 red_fact = 2.0;
             coupledMomenta = pTerminal / red_fact;
         }
-
-        // if (fadeRatio > 1)
-        //     coupledMomenta = pTerminal / fadeRatio;
-        // if (fadeRatio > 2)
-        //     coupledMomenta = pTerminal / sqrt(fadeRatio);
+        if (T > 1e6 && nmean <= 0.01){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
+                                        // I cannot find a good analytic expression to use, but since there is no snowplough, swept up
+                                        // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
+                                        // for now, couple the free expansion, until a better expression can be found.
+            printf("Coupling high-pressure low-n phase (free expansion)\n");
+            coupledMomenta = p_free;
+        }
     }
 
     if (winds)
