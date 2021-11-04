@@ -118,24 +118,14 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     // first, loop over particles to find the stars on this grid;
     // if a cell qualifies for star formation, we want to add to 
     // existing stars before forming new ones!
-    std::vector<std::vector<int> > ptcl_inds; // vector or xyz indices of particle positions
+    std::vector<int> ptcl_inds; // vector or xyz indices of particle positions
     for (int pIndex = 0; pIndex < NumberOfParticles; pIndex++){
-        if (ParticleAttribute[0][pIndex] > 0.0){
-            std::vector<int> inds;
-            FLOAT xp = ParticlePosition[0][pIndex];
-            FLOAT yp = ParticlePosition[1][pIndex];
-            FLOAT zp = ParticlePosition[2][pIndex];
-
-            int ip = (xp - CellLeftEdge[0][0] - 0.5 * dx) / dx;
-            int jp = (yp - CellLeftEdge[1][0] - 0.5 * dx) / dx;
-            int kp = (zp - CellLeftEdge[2][0] - 0.5 * dx) / dx;
-
-            inds.push_back(ip); inds.push_back(jp); inds.push_back(kp);
-            inds.push_back(pIndex); //save the index
-            ptcl_inds.push_back(inds);
+        if (ParticleType[pIndex] ==2){
+           ptcl_inds.push_back(ParticleNumber[pIndex]) ;
         
         }
     }
+    int nPriorStars = ptcl_inds.size();
     //fprintf(stdout, "Starting creation with %d prior particles\n",nCreated);
     for (int k = GZ; k< GridDimension[2]-GZ; k++){
         for(int j = GZ; j < GridDimension[1]-GZ; j++){
@@ -192,10 +182,15 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         //  We convert a fixed portion of the baryon mass (or the calculated amount)
                         float p_form = 1.0 - exp(-1*MassShouldForm * this->dtFixed 
 						                / (conversion_fraction * BaryonField[DensNum][index] * MassUnits)); 
+                        if (nPriorStars == 0){ // if this is the first star on this grid, let formation proceed regardless of probability.
+                                                // this keeps the deterministic onset of star formation, but keeps the stochastic formulation
+                                                // for continuing star formation. This might be weird if your grids are huge (e.g., non-amr simulations)
+                            p_form = 1.0;
+                        }
                         float random = (float) rand() / (float)(RAND_MAX);
                         
                         if (debug && MassShouldForm > 0)
-			                printf("[t=%f] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", Time*TimeUnits/Myr_s, 
+			                printf("[t=%f, np = %d] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", Time*TimeUnits/Myr_s, nPriorStars,
                             MassShouldForm, BaryonField[DensNum][index] * MassUnits, 
                             shieldedFraction, freeFallTime*TimeUnits / Myr_s, 1.0/(freeFallTime*TimeUnits) * Myr_s,
                             BaryonField[DensNum][index]*DensityUnits/(mh/0.6), dynamicalTime / Myr_s, 
