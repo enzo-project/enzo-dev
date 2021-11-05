@@ -334,7 +334,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 red_fact = 2.0;
             coupledMomenta = pTerminal / red_fact;
         }
-        if (T > 1e6 && nmean <= 0.01){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
+        if ((nmean * T > 1e6 && nmean <= 1) || (nmean <=0.01 && T > 1e5)){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // I cannot find a good analytic expression to use, but since there is no snowplough, swept up
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
                                         // for now, couple the free expansion, until a better expression can be found.
