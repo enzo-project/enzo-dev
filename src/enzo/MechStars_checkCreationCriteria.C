@@ -34,12 +34,8 @@ int checkCreationCriteria(float* Density, float* Metals,
                         bool* gridShouldFormStars, bool* notEnoughMetals, 
                         int continuingFormation, int* seedIndex)
 {  
-<<<<<<< HEAD
-    float Zsolar = CoolData.SolarMetalFractionByMass;
-=======
     bool use_F2 = true; // use FIRE-2 methods of self-shielded fractionn and virial parameter
     float Zsolar = SolarMetalFractionByMass;
->>>>>>> 0f71a1bf81acc58089876ab3307e1157f1ce3e05
     float maxZ = 0.0;
     bool debug = true;
     int status = PASS;
