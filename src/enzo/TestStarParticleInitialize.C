@@ -145,6 +145,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
       TestStarParticleInitializeGrid(TestStarParticleStarMass,
 				     Initialdt,
 				     TestStarParticleStarVelocity,
+             TestStarParticleStarPosition,
 				     NumberOfTestStars, clusterRadius, 
              TestStarInitializationFilename) == FAIL)
     ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");

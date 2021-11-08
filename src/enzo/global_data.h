@@ -1205,4 +1205,5 @@ EXTERN float MagneticSupernovaRadius;
 EXTERN float MagneticSupernovaDuration;
 EXTERN float MagneticSupernovaEnergy;
 
+EXTERN float SolarMetalFractionByMass;
 #endif

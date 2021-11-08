@@ -49,8 +49,11 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
     //fprintf(stdout,"IN FEEDBACK ROUTINE\n  %d   %d   %d\n",
     //SingleSN, StellarWinds, UnrestrictedSN);
+    if (MyProcessorNumber != ProcessorNumber)
+        return 0;
+
     float Zsolar = 0.02;
-    float stretchFactor = 2.0; // distance in cells required from grid edge for FB to function.
+    float stretchFactor = 6.0; // distance in cells required from grid edge for FB to function.
     bool debug = false;
     float startFB = MPI_Wtime();
     int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
@@ -115,7 +118,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
         if (ParticleType[pIndex] == PARTICLE_TYPE_STAR && ParticleMass[pIndex] > 00.0 && ParticleAttribute[0][pIndex] > 0.0)
         {
-            float age = (Time - ParticleAttribute[0][pIndex]) * TimeUnits / 3.1557e13; // Myr
+            float age = (Time - ParticleAttribute[0][pIndex]) * TimeUnits / Myr_s; // Myr
             c++;
 
             /* get index of cell hosting particle */
@@ -165,32 +168,38 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
             if (xp < CellLeftEdge[0][0] + borderDx)
             {
-                xp +=  borderDx + 0.5 * dx;
+                printf("Shifting particle X %e -> %e\n", xp, xp + borderDx+0.5*dx);
+                xp = CellLeftEdge[0][0] + borderDx + 0.5 * dx;
                 shifted++;
             }
             if (xp > CellLeftEdge[0][0] + gridDx - borderDx)
             {
-                xp -= borderDx + 0.5 * dx;
+                printf("Shifting particle X %e -> %e\n", xp, xp - borderDx - 0.5*dx);
+                xp = CellLeftEdge[0][0] + gridDx - borderDx - 0.5*dx;
                 shifted = 1;
             }
             if (yp < CellLeftEdge[1][0] + borderDx)
             {
-                yp += borderDx + 0.5 * dx;
+                printf("Shifting particle Y %e -> %e\n", yp, yp + borderDx+0.5*dx);
+                yp = CellLeftEdge[1][0] + borderDx + 0.5 * dx;
                 shifted = 1;
             }
-            if (yp > CellLeftEdge[1][0] + gridDx - borderDx)
+            if (yp > CellLeftEdge[1][0] + gridDy - borderDx)
             {
-                yp -= borderDx + 0.5 * dx;
+                printf("Shifting particleY %e -> %e\n", yp, yp - borderDx - 0.5*dx);
+                yp = CellLeftEdge[1][0] + gridDy - borderDx - 0.5 * dx;
                 shifted = 1;
             }
             if (zp < CellLeftEdge[2][0] + borderDx)
             {
-                zp += borderDx + 0.5 * dx;
+                printf("Shifting particle Z %e -> %e\n", zp, zp + borderDx+0.5*dx);
+                zp = CellLeftEdge[2][0] + borderDx + 0.5 * dx;
                 shifted = 1;
             }
-            if (zp > CellLeftEdge[2][0] + gridDx - borderDx)
+            if (zp > CellLeftEdge[2][0] + gridDz - borderDx)
             {
-                zp -= borderDx + 0.5 * dx;
+                printf("Shifting particle Z %e -> %e\n", zp, zp - borderDx-0.5*dx);
+                zp = CellLeftEdge[2][0] + gridDz - borderDx - 0.5 * dx;
                 shifted = 1;
             }
 
@@ -221,7 +230,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                     Determine SN events from rates (currently taken from
                     Hopkins, 2018)
                  */
-                determineSN(age, &nSNII, &nSNIA, ParticleMass[pIndex] * MassUnits,
+                determineSN(age, &nSNII, &nSNIA, pmassMsun,
                             TimeUnits, dtFixed);
                 numSN += nSNII + nSNIA;
                 if ((nSNII > 0 || nSNIA > 0) && debug)
@@ -238,13 +247,17 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
                     MechStars_DepositFeedback(energySN, SNMassEjected, SNMetalEjected, totalMetal, Temperature,
                                               &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
-                                              &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
+                                              &xp, &yp, &zp,
                                               ip, jp, kp, size, mu_field, 0, nSNII, nSNIA, starMetal, 0);
 
                     // can only track number of events in dynamical time if not using it to determine lifetime
 
                     if (!StarParticleRadiativeFeedback)
                         ParticleAttribute[1][pIndex] += nSNII + nSNIA;
+                    // else we can log to file for tracking...
+                    else 
+                        fprintf(stdout, "***%d -- %f -- SN %d -- SNIa %d\n", ParticleNumber[pIndex], Time * TimeUnits/Myr_s, nSNII, nSNIA);
+                    ParticleMass[pIndex] = ParticleMass[pIndex] - SNMassEjected/MassUnits;
                 }
             }
 
@@ -270,14 +283,13 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                     //printf("Winds: M = %e E=%e\n", windMass, windEnergy);
                     MechStars_DepositFeedback(windEnergy, windMass, windMetals, totalMetal, Temperature,
                                               &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
-                                              &ParticlePosition[0][pIndex], &ParticlePosition[1][pIndex], &ParticlePosition[2][pIndex],
+                                              &xp, &yp, &zp,
                                               ip, jp, kp, size, mu_field, 1, 0, 0, 0.0, 0);
+                    ParticleMass[pIndex] = ParticleMass[pIndex] - windMass/MassUnits;
+                
                 }
             }
-            if (windMass > 0.0 || SNMassEjected > 0)
-            {
-                ParticleMass[pIndex] -= (windMass + SNMassEjected) / MassUnits;
-            }
+            
             /* 
             if these stars are used in conjunction with FLDImplicit or FLDSplit.  This functionality has not been verified
             */

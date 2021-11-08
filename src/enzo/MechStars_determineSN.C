@@ -38,17 +38,17 @@ int determineSN(float age, int* nSNII, int* nSNIA,
             RII = 0.0;
             RIA = 0.0;
         }
-        if (3.401 <= age && age< 10.37)
+        else if (3.401 <= age && age< 10.37)
         {
                 RII = 5.408e-4;
                 RIA = 0.0;
         }
-        if (10.37 <= age && age < 37.53)
+        else if (10.37 <= age && age < 37.53)
         {
                 RII = 2.516e-4;
                 RIA = 0.0;
         }
-        if (37.53 <= age)
+        else if (37.53 <= age)
         {
                 RII = 0.0;
                 RIA = 5.2e-8+1.6e-5*exp(-1.0*pow((age-50.0)/10.0, 2)/2.0);
@@ -74,6 +74,9 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 *nSNII = psn+1;
             }
         }
+        if (*nSNII > 0)
+            printf("Positive SN predicted: RII = %e; PII = %e; dt = %e (%e Myr); M* = %e; A* = %f; Rand = %f\n", \
+                            RII, PII, dt, dt * TimeUnits / Myr_s, massMsun, age, random);
         // printf("RANDOM = %f\n", random);            
         // printf("N SNII=%d\n",*nSNII);
         
