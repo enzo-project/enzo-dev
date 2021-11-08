@@ -253,8 +253,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     //nmean = max(nmean, 1e-1);
     if (printout) printf ("Zmean = %e Dmean = %e (%e) mu_mean = %e ", zmean, dmean, dmean / DensityUnits, mu_mean);
     if (printout) printf ("Nmean = %f vmean = %f\n", nmean, vmean/1e5);
-    float zZsun = max(zmean, 1e-8);
-    float fz = (zZsun < 0.01) ? (2.0) : (pow(zZsun, -0.14));
+    float zZsun = zmean;
+    float fz = min(3.0, pow(zZsun, -0.14));
 
     /* Cooling radius as in Hopkins, but as an average over cells */
 
@@ -293,7 +293,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float p_shellform = 3.1e5 * pow(ejectaEnergy / 1e51, 0.94) * pow(nmean, -0.13); // p_sf = m_sf*v_sf eq 9,11
 
     /* termninal momentum */
-    float pTerminal = 4.8e5 * pow(nmean, -1.0 / 7.0) * pow(ejectaEnergy / 1e51, 13.0 / 14.0) * fz; // cioffi 1988, as written in Hopkins 2018
+    float pTerminal = 4.8e5 * pow(nmean, -1.0 / 7.0) * pow(ejectaEnergy / 1e51, 13.0 / 14.0) * pow(fz, 3.0/2.0); // cioffi 1988, as written in Hopkins 2018
 
     /* fading radius of a supernova, using gas energy of the host cell and ideal gas approximations */
     float T = BaryonField[GENum][index] / BaryonField[DensNum][index] * TemperatureUnits;
@@ -334,12 +334,20 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 red_fact = 2.0;
             coupledMomenta = pTerminal / red_fact;
         }
-        if ((nmean * T > 1e6 && nmean <= 1) || (nmean <=0.01 && T > 1e5)){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
-                                        // I cannot find a good analytic expression to use, but since there is no snowplough, swept up
+        // critical density to skip snowplough (remnant combines with ISM before radiative phase); eq 4.9 cioffi 1988
+        float beta = 1.0; // we assume beta = v_shell / c_s = 1 for this calculation
+        float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(fz, 1.0/3.0));
+        printf("Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e)\n", 
+                                        nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0));
+        if (nmean <= nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
-                                        // for now, couple the free expansion, until a better expression can be found.
-            printf("Coupling high-pressure low-n phase (free expansion)\n");
-            coupledMomenta = p_free;
+                                        // We inject 100 % thermal energy to simulate this recombining with the ISM
+                                        // and rely on the hydro and the thermal radiation to arrive at the right solution
+            printf("Coupling high-pressure low-n phase (thermal coupling: Nc = %e)\n", nCritical);
+            coupledMomenta = 0.0;
+        }
+        if (T > 1e6 && coupledMomenta > 1e5){
+            printf("Coupling high momenta to very hot gas!! (p= %e->%e, T= %e, n_c = %e)\n", coupledMomenta, T, nCritical);
         }
     }
 
@@ -622,7 +630,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
                                 BaryonField[DensNum][flat] = BaryonField[DensNum][flat] + mCouple * window;
                                 BaryonField[MetalNum][flat] = BaryonField[MetalNum][flat] + zCouple * window;
-                                if (eCouple > 0 && DualEnergyFormalism)
+                                if (DualEnergyFormalism)
                                     {    
                                         BaryonField[TENum][flat] = BaryonField[TENum][flat] + eCouple * window;
                                         BaryonField[TENum][flat] = BaryonField[TENum][flat] + geCouple * window;
