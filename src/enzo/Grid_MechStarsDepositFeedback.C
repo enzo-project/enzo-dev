@@ -249,7 +249,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     // zmean = zmean * DensityUnits / dmean;
     nmean = dmean / (mh/mu_mean);
     //nmean = max(nmean, 1e-1);
-    if (printout) printf ("Zmean = %e Dmean = %e (%e) mu_mean = %e ", zmean, dmean, dmean / DensityUnits, mu_mean);
+    if (printout) printf ("STARSS_FB: Zmean = %e Dmean = %e (%e) mu_mean = %e ", zmean, dmean, dmean / DensityUnits, mu_mean);
     if (printout) printf ("Nmean = %f vmean = %f\n", nmean, vmean/1e5);
     float zZsun = zmean;
     float fz = min(3.0, pow(zZsun, -0.14));
@@ -328,17 +328,18 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         // critical density to skip snowplough (remnant combines with ISM before radiative phase); eq 4.9 cioffi 1988
         float beta = 1.0; // we assume beta = v_shell / c_s = 1 for this calculation
         float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(fz, 1.0/3.0));
-        printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e)\n", 
-                                        nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0));
-        if (nmean <= 2.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
+        printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e %e)\n", 
+                                        nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0), 
+                                        (1.0-tanh(pow(2.0*nCritical/nmean, 2.0))));
+        if (nmean <= 1.85 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
                                         // We inject 100 % thermal energy to simulate this recombining with the ISM
                                         // and rely on the hydro and the thermal radiation to arrive at the right solution
             printf("STARSS_FB: Coupling high-pressure low-n phase (thermal coupling: Nc = %e)\n", nCritical);
-            coupledMomenta = coupledMomenta * (1.0-tanh(pow(2.0*nCritical/nmean, 2.0)));
+            coupledMomenta = coupledMomenta * (1.0-tanh(pow(1.85*nCritical/nmean, 3.65)));
         }
         if (T > 1e6 && coupledMomenta > 1e5){
-            printf("STARSS_FB: Coupling high momenta to very hot gas!! (p= %e->%e, T= %e, n_c = %e)\n", coupledMomenta, T, nCritical);
+            printf("STARSS_FB: Coupling high momenta to very hot gas!! (p= %e, T= %e, n_c = %e)\n", coupledMomenta, T, nCritical);
         }
     }
 
@@ -420,11 +421,11 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float coupledGasEnergy = max(ejectaEnergy - eKinetic, 0);
     if (printout)
         fprintf(stdout, "STARSS_FB: Coupled Gas Energy = %e\n", coupledGasEnergy);
-    if (dxRatio > 1.0 && !winds) // if we apply this reduction to winds, then there is literally *no* effect, even at Renaissance resolution.
-        coupledGasEnergy = (DepositUnresolvedEnergyAsThermal)
-                               ? (coupledGasEnergy)
-                               : (coupledGasEnergy * pow(dxRatio, -6.5));
-
+    if (dxRatio > 1.0 && !winds){ // if we apply this reduction to winds, then there is literally *no* effect, even at Renaissance resolution.
+        coupledGasEnergy = (coupledGasEnergy * pow(dxRatio, -6.5));
+        if (printout)
+            fprintf(stdout, "STARSS_FB: Reducing gas energy... GE = %e\n", coupledGasEnergy);
+    }
     float shellMetals = zZsun * 0.02 * shellMass;
     float coupledMetals = 0.0, SNIAmetals = 0.0, SNIImetals = 0.0, P3metals = 0.0;
     if (winds)
@@ -680,7 +681,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 }
 
         if (printout)
-            fprintf(stderr, "Difference quantities: dxRatio = %f dMass = %e dZ = %e dzII = %e dxIa = %e  P = %e |P| = %e (%e) TE = %e GE = %e coupledGE = %e Ej = %e Mej = %e Zej = %e\n",
+            fprintf(stderr, "STARSS_FB: Difference quantities: dxRatio = %f dMass = %e dZ = %e dzII = %e dxIa = %e  P = %e |P| = %e (%e) TE = %e GE = %e coupledGE = %e Ej = %e Mej = %e Zej = %e\n",
                     dxRatio, (postMass - preMass) * MassUnits, (postZ - preZ) * MassUnits,
                     (postZII - preZII) * MassUnits, (postZIa - preZIa) * MassUnits,
                     (postP - preP) * MomentaUnits,
@@ -709,7 +710,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                             *up, *vp, *wp,
                             GridDimension[0], GridDimension[1],
                             GridDimension[2], -1);
-
+    if (printout) printf("STARSS_FB\nSTARSS_FB\nSTARSS_FB\n");
     return SUCCESS;
 }
 float Window(float xd, float yd, float zd, float width, bool NGP){
