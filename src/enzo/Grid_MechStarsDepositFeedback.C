@@ -47,7 +47,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         and all have radius dx from the source particle. 
         Each vertex particle will then be CIC deposited to the grid!
     */
-    //printf("In Feedback deposition\n");
+    //printf("STARSS_FB: In Feedback deposition\n");
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
     bool debug = true;
@@ -55,8 +55,6 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float min_winds = 1.0;
     bool printout = debug & !winds;
     int index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
-    if (printout)
-        printf("Host index = %d\n", index);
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     /*
         *
@@ -99,7 +97,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     FLOAT dx = CellWidth[0][0];
 
     if (printout)
-        fprintf(stdout, "depositing quantities: Energy %e, Mass %e, Metals %e\n",
+        fprintf(stdout, "STARSS_FB: depositing quantities: Energy %e, Mass %e, Metals %e\n",
                ejectaEnergy, ejectaMass, ejectaMetal);
 
     /* 
@@ -111,7 +109,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         MetallicityField = TRUE;
     else
     {
-        fprintf(stdout, "MechStars only functions with metallicity field enabled!");
+        fprintf(stdout, "STARSS_FB: MechStars only functions with metallicity field enabled!");
         ENZO_FAIL("Grid_MechStarsDepositFeedback: 91");
         MetalNum = 0;
     }
@@ -260,16 +258,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     float CoolingRadius = 28.4 *
                           pow(max(0.1, nmean), -3.0 / 7.0) * pow(ejectaEnergy / 1.0e51, 2.0 / 7.0) * fz;
-    if (printout)
-        fprintf(stdout, "cooling radius [pc] = %e\n %f %e %f %e %e \n",
-                CoolingRadius, nmean, ejectaEnergy / 1e51, fz, zmean, dmean);
 
     float coupledEnergy = ejectaEnergy;
 
-    if (printout)
-        fprintf(stdout, "Dx [pc] = %f\n", dx * LengthUnits / pc_cm);
-    // although the cell width is 'dx', we actually couple to larger radii than that
-    // because of CIC, roughly 2.5-3 *dx
     float cellwidth = dx * LengthUnits / pc_cm;
 
     float dxRatio = cellwidth / CoolingRadius;
@@ -302,12 +293,12 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (r_fade < CoolingRadius)
         r_fade = CoolingRadius * 1.1;
     float fadeRatio = cellwidth/r_fade;
-    if (printout) fprintf(stdout, "Fading: T = %e; Cs = %e; R_f = %e; fadeR = %f\n", T, cSound, r_fade, fadeRatio);
+    if (printout) fprintf(stdout, "STARSS_FB: Fading: T = %e; Cs = %e; R_f = %e; fadeR = %f\n", T, cSound, r_fade, fadeRatio);
 
     float coupledMomenta = 0.0;
     float eKinetic = 0.0;
     if (printout)
-        fprintf(stdout, "RADII: cell = %e, free = %e, shellform = %e, cooling = %e, fade = %e t_3=%e\n", 
+        fprintf(stdout, "STARSS_FB: RADII: cell = %e, free = %e, shellform = %e, cooling = %e, fade = %e t_3=%e\n", 
                                         cellwidth, r_free, r_shellform, CoolingRadius, r_fade, t3_sedov);
 
     if (!winds)
@@ -316,19 +307,19 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         float dxeff = cw_eff / CoolingRadius;
         float fader = cw_eff / r_fade;
         if (cw_eff < r_free){
-            printf("Coupling free phase\n");
+            printf("STARSS_FB: Coupling free phase\n");
             coupledMomenta = p_free * (1 + pow(cellwidth/r_free, 3));
         }
         if (r_free < cw_eff && fader < 1)
             if (p_sedov < pTerminal && dxeff < 1){
                 coupledMomenta = p_sedov + pow(dxeff,1)*(pTerminal-p_sedov);
-                printf("Coupling Sedov-Terminal phase\n");
+                printf("STARSS_FB: Coupling Sedov-Terminal phase\n");
             } else {   
                 coupledMomenta = pTerminal / sqrt(1+dxeff);
-                printf("Coupling Terminal phase\n");
+                printf("STARSS_FB: Coupling Terminal phase\n");
             }
         if (fader > 1){
-            printf("Coupling Fading phase\n");
+            printf("STARSS_FB: Coupling Fading phase\n");
             float red_fact = max(sqrt(3), sqrt(fader));
             if (fader > 4)
                 red_fact = 2.0;
@@ -337,17 +328,17 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         // critical density to skip snowplough (remnant combines with ISM before radiative phase); eq 4.9 cioffi 1988
         float beta = 1.0; // we assume beta = v_shell / c_s = 1 for this calculation
         float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(fz, 1.0/3.0));
-        printf("Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e)\n", 
+        printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e)\n", 
                                         nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0));
-        if (nmean <= nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
+        if (nmean <= 2.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
                                         // We inject 100 % thermal energy to simulate this recombining with the ISM
                                         // and rely on the hydro and the thermal radiation to arrive at the right solution
-            printf("Coupling high-pressure low-n phase (thermal coupling: Nc = %e)\n", nCritical);
-            coupledMomenta = 0.0;
+            printf("STARSS_FB: Coupling high-pressure low-n phase (thermal coupling: Nc = %e)\n", nCritical);
+            coupledMomenta = coupledMomenta * (1.0-tanh(pow(2.0*nCritical/nmean, 2.0)));
         }
         if (T > 1e6 && coupledMomenta > 1e5){
-            printf("Coupling high momenta to very hot gas!! (p= %e->%e, T= %e, n_c = %e)\n", coupledMomenta, T, nCritical);
+            printf("STARSS_FB: Coupling high momenta to very hot gas!! (p= %e->%e, T= %e, n_c = %e)\n", coupledMomenta, T, nCritical);
         }
     }
 
@@ -360,14 +351,12 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
 
     if (printout)
-        fprintf(stdout, "Calculated p = %e (sq_fact = %e; p_f = %e; p_t = %e; mcell = %e; mcpl = %e)\n", 
+        fprintf(stdout, "STARSS_FB: Calculated p = %e (sq_fact = %e; p_f = %e; p_t = %e; mcell = %e; mcpl = %e)\n", 
                                 coupledMomenta, (dmean / DensityUnits * MassUnits) / ejectaMass * ntouched, p_free, pTerminal, dmean / DensityUnits * MassUnits, ejectaMass/27.0);
 
 
     //    coupledMomenta = (cellwidth > r_fade)?(coupledMomenta*pow(r_fade/cellwidth,3/2)):(coupledMomenta);
     float shellMass = 0.0, shellVelocity = 0.0;
-    if (printout)
-        fprintf(stdout, "Coupled momentum: %e\n", coupledMomenta);
     /* 
         If resolution is in a range comparable to Rcool and
         Analytic SNR shell mass is on, adjust the shell mass 
@@ -397,7 +386,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (shellMass < 0.0)
     {
-        fprintf(stdout, "Shell mass = %e Velocity= %e P = %e",
+        fprintf(stdout, "STARSS_FB: Shell mass = %e Velocity= %e P = %e",
                 shellMass, shellVelocity, coupledMomenta);
         ENZO_FAIL("SM_deposit: 391");
     }
@@ -405,32 +394,32 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     // kinetic energy from the momenta, taking mass as ejecta + mass of effected cells (4^3 because of CIC in coupling cloud)
     eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + ntouched * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
     if (eKinetic > 1e53){
-        fprintf(stdout, "Rescaling high kinetic energy %e -> ", eKinetic);
+        fprintf(stdout, "STARSS_FB: Rescaling high kinetic energy %e -> ", eKinetic);
         coupledMomenta = sqrt((2.0 * (ejectaMass*SolarMass + ntouched * dmean * pow(LengthUnits*dx, 3) ) * ejectaEnergy))/SolarMass/1e5;
         eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + ntouched * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
         
-        fprintf(stdout, " %e; new p = %e\n", eKinetic, coupledMomenta);
+        fprintf(stdout, "STARSS_FB:  %e; new p = %e\n", eKinetic, coupledMomenta);
     }
     
     if (printout)
-        fprintf(stdout, "Ekinetic = %e Mass = %e\n",
+        fprintf(stdout, "STARSS_FB: Ekinetic = %e Mass = %e\n",
                 eKinetic, dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass);
     if (eKinetic > 1e60 && winds)
     {
-        fprintf(stdout, "winds Ekinetic = %e Mass = %e\n",
+        fprintf(stdout, "STARSS_FB: winds Ekinetic = %e Mass = %e\n",
                 eKinetic, dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass);
         ENZO_FAIL("winds Ekinetic > reasonability!\n");
     }
     if (eKinetic > 1e60 && !winds)
     {
-        fprintf(stdout, "Ekinetic = %e Mass = %e\n",
+        fprintf(stdout, "STARSS_FB: Ekinetic = %e Mass = %e\n",
                 eKinetic, dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass);
         ENZO_FAIL("SNE Ekinetic > reasonability!\n");
     }
 
     float coupledGasEnergy = max(ejectaEnergy - eKinetic, 0);
     if (printout)
-        fprintf(stdout, "Coupled Gas Energy = %e\n", coupledGasEnergy);
+        fprintf(stdout, "STARSS_FB: Coupled Gas Energy = %e\n", coupledGasEnergy);
     if (dxRatio > 1.0 && !winds) // if we apply this reduction to winds, then there is literally *no* effect, even at Renaissance resolution.
         coupledGasEnergy = (DepositUnresolvedEnergyAsThermal)
                                ? (coupledGasEnergy)
@@ -452,7 +441,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         P3metals = ejectaMetal;
 
     if (printout)
-        fprintf(stdout, "Coupled Metals: %e %e %e %e %e %e\n", ejectaMetal, SNIAmetals, SNIImetals, shellMetals, P3metals, coupledMetals);
+        fprintf(stdout, "STARSS_FB: Coupled Metals: %e %e %e %e %e %e\n", ejectaMetal, SNIAmetals, SNIImetals, shellMetals, P3metals, coupledMetals);
 
     /* 
         Critical debug compares the pre-feedback and post-feedback field sums.  Note that this doesn't 
@@ -493,20 +482,13 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (!winds)
         coupledEnergy = min((nSNII + nSNIA) * 1e51, eKinetic);
-    if (printout) fprintf(stdout, "Pre: Coupling TE = %e, GE = %e\n", coupledEnergy, coupledGasEnergy);
-    
     coupledEnergy = coupledEnergy / EnergyUnits;
     coupledGasEnergy = coupledGasEnergy / EnergyUnits;
-    if (printout) fprintf(stdout, "Post: Coupling TE = %e, GE = %e\n", coupledEnergy, coupledGasEnergy);
-    if (printout) fprintf(stdout, "Coupled mass: %e Msun", coupledMass);
     coupledMass /= MassUnits;
-    if (printout) fprintf(stdout, "Coupled Mass: %e code_mass", coupledMass);
     coupledMetals /= MassUnits;
 
     // conversion includes km -> cm
-    if (printout) fprintf(stdout, "475: Coupling %e Msun km/s\n", coupledMomenta);
     coupledMomenta = coupledMomenta / MomentaUnits;
-    if (printout) fprintf(stdout, "477: %e mass * len / time (%e = %e * %e / %e) (vu = %e)\n", coupledMomenta, MomentaUnits, MassUnits, LengthUnits, TimeUnits, VelocityUnits);
     SNIAmetals /= MassUnits;
     SNIImetals /= MassUnits;
     P3metals /= MassUnits;
@@ -520,7 +502,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float expect_error []= {0,0,0};
     float expect_z = 0;
     int n_pos[] = {0,0,0};
-// printf("Coupling for star particle at %e %e \n", *xp, *yp, *zp);
+// printf("STARSS_FB: Coupling for star particle at %e %e \n", *xp, *yp, *zp);
 /* LOOP+SETUP FOR CIC DEPOSIT */
         for (int i = -1; i <= 1; i++)
             for (int j = -1; j <= 1; j++)
@@ -538,7 +520,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                         jc = (yc - CellLeftEdge[1][0] - 0.5 * dx) / dx;
                         kc = (zc - CellLeftEdge[2][0] - 0.5 * dx) / dx;
 
-                        // printf("Coupling particle near %e %e %e => %d %d %d \n\t\t(%e %e %e), dx = %e\n", xc, yc, zc, 
+                        // printf("STARSS_FB: Coupling particle near %e %e %e => %d %d %d \n\t\t(%e %e %e), dx = %e\n", xc, yc, zc, 
                         //                                                                 ic, jc, kc,
                         //                                                                 (*xp - CellLeftEdge[0][0] - 0.5 * dx) / dx,
                         //                                                                 (*yp - CellLeftEdge[1][0] - 0.5 * dx) / dx,
@@ -621,7 +603,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                 /* fraction of quantities that go into this cloud cell... */
                                 float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
                                 dep_vol_frac += window;
-                                // printf("\t\t\tCloud %e %e %e Coupling at %d %d %d with window %e.  \n\t\t\t\twfactors: %e %e %e (%f %f %f)\n", 
+                                // printf("STARSS_FB: \t\t\tCloud %e %e %e Coupling at %d %d %d with window %e.  \n\t\t\t\twfactors: %e %e %e (%f %f %f)\n", 
                                 //                                             xcell, ycell, zcell, 
                                 //                                             icell, jcell, kcell, window,
                                 //                                             xc-xcell, yc-ycell, zc-zcell,
@@ -651,17 +633,17 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                 // TODO: add other metal fields for consistency.
 
                             }
-                        // printf("CIC deposited in sum window %e\n", dep_vol_frac);
+                        // printf("STARSS_FB: CIC deposited in sum window %e\n", dep_vol_frac);
                     }
 
 
             
     if (printout){
-        fprintf(stdout, "After deposition, counted %e Msun km/s momenta deposited.  Error = %e..\n", sqrt(expect_momenta) * MomentaUnits, 
+        fprintf(stdout, "STARSS_FB: After deposition, counted %e Msun km/s momenta deposited.  Error = %e..\n", sqrt(expect_momenta) * MomentaUnits, 
                                                                                         (expect_error[0]+expect_error[1]+expect_error[2]) * MomentaUnits);
-        fprintf(stdout, "\tTabulated %e Msun deposited metals\n", expect_z * MassUnits);
+        fprintf(stdout, "STARSS_FB: \tTabulated %e Msun deposited metals\n", expect_z * MassUnits);
     }
-    // printf("\n");
+    // printf("STARSS_FB: \n");
     /* Deposit one negative mass particle centered on star to account for 
         shell mass leaving host cells .  Same for metals that were evacuated*/
     // int np = 1;
