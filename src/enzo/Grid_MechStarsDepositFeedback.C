@@ -330,12 +330,12 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(fz, 1.0/3.0));
         printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e)\n", 
                                         nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0));
-        if (nmean <= 2.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
+        if (nmean <= 10.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
                                         // We inject 100 % thermal energy to simulate this recombining with the ISM
                                         // and rely on the hydro and the thermal radiation to arrive at the right solution
             printf("STARSS_FB: Coupling high-pressure low-n phase (thermal coupling: Nc = %e)\n", nCritical);
-            coupledMomenta = coupledMomenta * (1.0-tanh(pow(2.0*nCritical/nmean, 2.0)));
+            coupledMomenta = coupledMomenta * (1.0-tanh(pow(1.85*nCritical/nmean, 3.65)));
         }
         if (T > 1e6 && coupledMomenta > 1e5){
             printf("STARSS_FB: Coupling high momenta to very hot gas!! (p= %e->%e, T= %e, n_c = %e)\n", coupledMomenta, T, nCritical);
