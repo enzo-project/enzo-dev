@@ -328,8 +328,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         // critical density to skip snowplough (remnant combines with ISM before radiative phase); eq 4.9 cioffi 1988
         float beta = 1.0; // we assume beta = v_shell / c_s = 1 for this calculation
         float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(fz, 1.0/3.0));
-        printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e)\n", 
-                                        nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0));
+        float shellVelocity = 413.0 * pow(nmean, 1.0 / 7.0) * pow(zZsun, 3.0 / 14.0) * pow(coupledEnergy / EnergyUnits / 1e51, 1.0 / 14.0) * pow(dxRatio, -7.0 / 3.0); //km/s
+        printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e; beta = %e/%e == %e)\n", 
+                                        nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0), shellVelocity, cSound, shellVelocity/cSound);
         if (nmean <= 10.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
                                         // We inject 100 % thermal energy to simulate this recombining with the ISM
