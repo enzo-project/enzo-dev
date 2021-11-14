@@ -326,17 +326,21 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             coupledMomenta = pTerminal / red_fact;
         }
         // critical density to skip snowplough (remnant combines with ISM before radiative phase); eq 4.9 cioffi 1988
-        float beta = 1.0; // we assume beta = v_shell / c_s = 1 for this calculation
-        float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(fz, 1.0/3.0));
-        float shellVelocity = 413.0 * pow(nmean, 1.0 / 7.0) * pow(zZsun, 3.0 / 14.0) * pow(coupledEnergy / EnergyUnits / 1e51, 1.0 / 14.0) * pow(dxRatio, -7.0 / 3.0); //km/s
-        printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e; beta = %e/%e == %e)\n", 
-                                        nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0), shellVelocity, cSound, shellVelocity/cSound);
-        if (nmean <= 10.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
+        float beta = p_free / (dmean / DensityUnits * MassUnits * 27.0) / cSound; // Estimating v_shell (such as it is) as  p_free / M_shell
+        float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(fz, 1.0/3.0)); // n/cc
+        float shellVelocity = 413.0 * pow(nmean, 1.0 / 7.0) * pow(zZsun, 3.0 / 14.0) * pow(coupledEnergy / EnergyUnits / 1e51, 1.0 / 14.0) * pow(dxRatio, -7.0 / 3.0); // km/s
+        float rmerge = 151.0 * pow((ejectaEnergy/1e51)/ beta / beta / nmean / T * 1e4, 1./3.); // pc
+        printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e; beta = %e/%e == %e; rmerge = %e)\n", 
+                                        nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0), p_free / (dmean / DensityUnits * MassUnits * 27.0) , cSound, beta, rmerge);
+        if (nmean <= 100.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
                                         // We inject 100 % thermal energy to simulate this recombining with the ISM
                                         // and rely on the hydro and the thermal radiation to arrive at the right solution
             printf("STARSS_FB: Coupling high-pressure low-n phase (thermal coupling: Nc = %e)\n", nCritical);
-            coupledMomenta = coupledMomenta * (1.0-tanh(pow(1.85*nCritical/nmean, 3.65)));
+            coupledMomenta = coupledMomenta * (1.0-tanh(pow(4.5*nCritical/nmean, 1.5)));
+        }
+        if (cellwidth * 1.5 >= rmerge){
+            coupledMomenta = coupledMomenta * pow(cellwidth * 1.5 / rmerge, -6.5);
         }
         if (T > 1e6 && coupledMomenta > 1e5){
             printf("STARSS_FB: Coupling high momenta to very hot gas!! (p= %e, T= %e, n_c = %e)\n", coupledMomenta, T, nCritical);
