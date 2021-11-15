@@ -167,15 +167,16 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             host cell.  If your simulation has very small (>15 Msun) baryon mass
                             per cell, it will break your sims! - AIW
                         */
+                        float divisor = max( 1.0, freeFallTime * TimeUnits / Myr_s);
                         float MaximumStarMass = StarMakerMaximumFormationMass;
                         if (MaximumStarMass < 0)
                             MaximumStarMass = conversion_fraction * BaryonField[DensNum][index] * MassUnits;
                         float MassShouldForm = 0.0;
                         if (use_F2)
-                            MassShouldForm = (shieldedFraction * BaryonField[DensNum][index]
-                                        * MassUnits / (freeFallTime * TimeUnits) * Myr_s);
+                            MassShouldForm = shieldedFraction * conversion_fraction * BaryonField[DensNum][index]
+                                        * MassUnits / divisor;
                         else
-                            MassShouldForm = (MaximumStarMass/(freeFallTime * TimeUnits) * Myr_s);
+                            MassShouldForm = (MaximumStarMass/divisor);
                         
                         // Probability has the last word
                         // FIRE-2 uses p = 1 - exp (-MassShouldForm*dt / M_gas_particle) to convert a whole particle to star particle
