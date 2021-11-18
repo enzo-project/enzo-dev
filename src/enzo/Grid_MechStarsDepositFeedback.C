@@ -252,7 +252,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (printout) printf ("STARSS_FB: Zmean = %e Dmean = %e (%e) mu_mean = %e ", zmean, dmean, dmean / DensityUnits, mu_mean);
     if (printout) printf ("Nmean = %f vmean = %f\n", nmean, vmean/1e5);
     float zZsun = zmean;
-    float fz = min(3.0, pow(zZsun, -0.14));
+    float fz = min(2.0, pow(zZsun, -0.14));
 
     /* Cooling radius as in Hopkins, but as an average over cells */
 
@@ -284,64 +284,61 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float p_shellform = 3.1e5 * pow(ejectaEnergy / 1e51, 0.94) * pow(nmean, -0.13); // p_sf = m_sf*v_sf eq 9,11
 
     /* termninal momentum */
-    float pTerminal = 4.8e5 * pow(nmean, -1.0 / 7.0) * pow(ejectaEnergy / 1e51, 13.0 / 14.0) * pow(fz, 3.0/2.0); // cioffi 1988, as written in Hopkins 2018
+    float pTerminal = 4.8e5 * pow(nmean, -1.0 / 7.0) * pow(ejectaEnergy / 1e51, 13.0 / 14.0) * pow(max(0.1, zZsun), -3.0/14.0); // cioffi 1988, as written in Hopkins 2018
 
     /* fading radius of a supernova, using gas energy of the host cell and ideal gas approximations */
     float T = BaryonField[GENum][index] / BaryonField[DensNum][index] * TemperatureUnits;
     float cSound = sqrt(kboltz * T / mh) / 1e5; // [km/s] 
-    float r_fade = max(66.0*pow(ejectaEnergy/1e51, 0.32)*pow(nmean, -0.37)*pow(cSound/10, -2.0/5.0), dxRatio);
-    if (r_fade < CoolingRadius)
-        r_fade = CoolingRadius * 1.1;
+    float r_fade = max(66.0*pow(ejectaEnergy/1e51, 0.32)*pow(nmean, -0.37)*pow(cSound/10, -2.0/5.0), CoolingRadius * 1.5);
     float fadeRatio = cellwidth/r_fade;
     if (printout) fprintf(stdout, "STARSS_FB: Fading: T = %e; Cs = %e; R_f = %e; fadeR = %f\n", T, cSound, r_fade, fadeRatio);
 
     float coupledMomenta = 0.0;
     float eKinetic = 0.0;
+    float beta = max( 1.0, p_free / (0.33 * dmean / DensityUnits * MassUnits * 27.0) / cSound); // Estimating v_shell (such as it is) as  p_free / M_shell (with M_shell = 1/3 M_contained)
+    float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(fz, 1.0/3.0)); // n/cc
+    float shellVelocity = 413.0 * pow(nmean, 1.0 / 7.0) * pow(zZsun, 3.0 / 14.0) * pow(coupledEnergy / EnergyUnits / 1e51, 1.0 / 14.0) * pow(dxRatio, -7.0 / 3.0); // km/s
+    float rmerge = max(151.0 * pow((ejectaEnergy/1e51)/ beta / beta / nmean / T * 1e4, 1./3.), 1.5 * r_fade); // pc
     if (printout)
-        fprintf(stdout, "STARSS_FB: RADII: cell = %e, free = %e, shellform = %e, cooling = %e, fade = %e t_3=%e\n", 
-                                        cellwidth, r_free, r_shellform, CoolingRadius, r_fade, t3_sedov);
+        fprintf(stdout, "STARSS_FB: RADII: cell = %e, free = %e, shellform = %e, cooling = %e, fade = %e t_3=%e, R_m=%e\n", 
+                                        cellwidth, r_free, r_shellform, CoolingRadius, r_fade, t3_sedov, rmerge);
 
     if (!winds)
     {  // this calculation for SNe only
-        float cw_eff = sqrt(2) * cellwidth; // effective cell width couples to farther than just dx
+        float cw_eff = sqrt(2) * cellwidth; // effective cell width couples to farther than just dx.  
+                                            // theres a lot of numerical fudge factors here because of that.
+
         float dxeff = cw_eff / CoolingRadius;
         float fader = cw_eff / r_fade;
+        float merger = cw_eff / rmerge;
         if (cw_eff < r_free){
-            printf("STARSS_FB: Coupling free phase\n");
             coupledMomenta = p_free * (1 + pow(cellwidth/r_free, 3));
+            printf("STARSS_FB: Coupling free phase: p = %e\n", coupledMomenta);
         }
         if (r_free < cw_eff && fader < 1)
             if (p_sedov < pTerminal && dxeff < 1){
                 coupledMomenta = p_sedov + pow(dxeff,1)*(pTerminal-p_sedov);
-                printf("STARSS_FB: Coupling Sedov-Terminal phase\n");
+                printf("STARSS_FB: Coupling Sedov-Terminal phase: p = %e\n", coupledMomenta);
             } else {   
                 coupledMomenta = pTerminal / sqrt(1+dxeff);
-                printf("STARSS_FB: Coupling Terminal phase\n");
+                printf("STARSS_FB: Coupling Terminal phase: p = %e\n", coupledMomenta);
             }
-        if (fader > 1){
-            printf("STARSS_FB: Coupling Fading phase\n");
-            float red_fact = max(sqrt(3), sqrt(fader));
-            if (fader > 4)
-                red_fact = 2.0;
-            coupledMomenta = pTerminal / red_fact;
+        if (fader > 1){ // high coupling during the fading regime leads to SNRs on the root-grid in 6-level AMR simulations!
+            coupledMomenta = pTerminal * (1.0 - tanh(pow(fader * merger, 2.5)));
+            printf("STARSS_FB: Coupling Fading phase: p = %e\n", coupledMomenta);
         }
         // critical density to skip snowplough (remnant combines with ISM before radiative phase); eq 4.9 cioffi 1988
-        float beta = p_free / (dmean / DensityUnits * MassUnits * 27.0) / cSound; // Estimating v_shell (such as it is) as  p_free / M_shell
-        float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(fz, 1.0/3.0)); // n/cc
-        float shellVelocity = 413.0 * pow(nmean, 1.0 / 7.0) * pow(zZsun, 3.0 / 14.0) * pow(coupledEnergy / EnergyUnits / 1e51, 1.0 / 14.0) * pow(dxRatio, -7.0 / 3.0); // km/s
-        float rmerge = 151.0 * pow((ejectaEnergy/1e51)/ beta / beta / nmean / T * 1e4, 1./3.); // pc
         printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e; beta = %e/%e == %e; rmerge = %e)\n", 
                                         nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0), p_free / (dmean / DensityUnits * MassUnits * 27.0) , cSound, beta, rmerge);
         if (nmean <= 100.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
                                         // We inject 100 % thermal energy to simulate this recombining with the ISM
                                         // and rely on the hydro and the thermal radiation to arrive at the right solution
-            printf("STARSS_FB: Coupling high-pressure low-n phase (thermal coupling: Nc = %e)\n", nCritical);
             coupledMomenta = coupledMomenta * (1.0-tanh(pow(4.5*nCritical/nmean, 1.5)));
+            coupledEnergy = coupledEnergy * (1.0-tanh(pow(4.5*nCritical/nmean, 1.5))); // this is just making a lot of hot gas slowing the sim down... =/
+            printf("STARSS_FB: Adjusting for high-pressure low-n phase (thermal coupling: Nc = %e): p = %e\n", nCritical, coupledMomenta);
         }
-        if (cellwidth * 1.5 >= rmerge){
-            coupledMomenta = coupledMomenta * pow(cellwidth * 1.5 / rmerge, -6.5);
-        }
+            
         if (T > 1e6 && coupledMomenta > 1e5){
             printf("STARSS_FB: Coupling high momenta to very hot gas!! (p= %e, T= %e, n_c = %e)\n", coupledMomenta, T, nCritical);
         }
@@ -361,7 +358,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
 
     //    coupledMomenta = (cellwidth > r_fade)?(coupledMomenta*pow(r_fade/cellwidth,3/2)):(coupledMomenta);
-    float shellMass = 0.0, shellVelocity = 0.0;
+    float shellMass = 0.0;
     /* 
         If resolution is in a range comparable to Rcool and
         Analytic SNR shell mass is on, adjust the shell mass 
