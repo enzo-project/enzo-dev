@@ -183,11 +183,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         //  We convert a fixed portion of the baryon mass (or the calculated amount)
                         float p_form = 1.0 - exp(-1*MassShouldForm * this->dtFixed 
 						                / (conversion_fraction * BaryonField[DensNum][index] * MassUnits)); 
-                        if (nPriorStars == 0){ // if this is the first star on this grid, let formation proceed regardless of probability.
-                                                // this keeps the deterministic onset of star formation, but keeps the stochastic formulation
-                                                // for continuing star formation. This might be weird if your grids are huge (e.g., non-amr simulations)
-                            p_form = 1.0;
-                        }
+                        
                         float random = (float) rand() / (float)(RAND_MAX);
                         
                         if (debug && MassShouldForm > 0)
