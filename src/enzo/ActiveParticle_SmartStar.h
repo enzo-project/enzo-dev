@@ -142,11 +142,11 @@ public:
       int level, 
       int TopGridDims[], 
       int ActiveParticleID);
-  // template <class active_particle_class> active_particle_class *copy(void);
-  //   void  IncreaseLevel() { level++; oldmass *= 8; fprintf(stderr, "%s: (void) oldmass increased.\n", __FUNCTION__);}; // SG. Update oldmass with each increase in level.
-  //   void  ReduceLevel() { level--; oldmass /= 8; fprintf(stderr, "%s: (void) oldmass reduced.\n"), __FUNCTION__;}; // SG. Update oldmass with each increase in level.
-  //   void  ReduceLevel(int x) { level -= x; oldmass /= 8; fprintf(stderr, "%s: (int x) oldmass reduced.\n", __FUNCTION__);};
-  //   void  IncreaseLevel(int x) { level += x; oldmass *= 8; fprintf(stderr, "%s: (int x) oldmass increased.\n", __FUNCTION__);};
+  template <class active_particle_class> active_particle_class *copy(void);
+    void  IncreaseLevel() { level++; AccretionRadius *= 2; fprintf(stderr, "%s: (void) AccretionRadius increased.\n", __FUNCTION__);}; // SG. Update AccretionRadius with each increase in level.
+    void  ReduceLevel() { level--; AccretionRadius /= 2; fprintf(stderr, "%s: (void) AccretionRadius reduced.\n"), __FUNCTION__;}; // SG. Update AccretionRadius with each increase in level.
+    void  ReduceLevel(int x) { level -= x; AccretionRadius /= 2; fprintf(stderr, "%s: (int x) AccretionRadius reduced.\n", __FUNCTION__);};
+    void  IncreaseLevel(int x) { level += x; AccretionRadius *= 2; fprintf(stderr, "%s: (int x) AccretionRadius increased.\n", __FUNCTION__);};
 
   
   
@@ -305,10 +305,10 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
   for (i = 0; i < *ngroups; i++) {
     if (MergedParticles[i]->ReturnCurrentGrid()->PointInGrid(
             MergedParticles[i]->ReturnPosition()) == false) {
-              // SG. Debugging.
-              //if(ParticleList[i]->ReturnType() == POPIII){
-                //continue;
-               // }
+              // // SG. Debugging.
+              // if(ParticleList[i]->ReturnType() == POPIII){
+              //   continue;
+              //  }
       // Find the grid to transfer to
       for (j = 0; j < NumberOfGrids; j++) {
         if (LevelGrids[j]->GridData->PointInGrid(
