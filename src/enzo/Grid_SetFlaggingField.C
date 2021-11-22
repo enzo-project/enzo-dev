@@ -325,7 +325,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
      must-refine particles. */
   
   if (RestrictFlaggingToMustRefineParticles && pmethod != INT_UNDEFINED) {
-    NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMass(level, pmethod, TRUE);
+    NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMass(level, pmethod, FALSE);
     if (NumberOfFlaggedCells < 0) {
       ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMass (4).");
     }

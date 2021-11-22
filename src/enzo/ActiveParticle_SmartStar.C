@@ -502,6 +502,7 @@ if (stellar_type == POPIII){
 	 * in a call to `RemoveMassFromGridAfterFormation` which is called from 
 	 * `AfterEvolveLevel`. np->Mass is initally set here but can get overwritten 
 	 *  RemoveMassFromGridAfterFormation. The cell values are not updated here but 
+		*
 	 * instead are updated in `RemoveMassFromGridAfterFormation`.
 	 * We set the initial mass to zero so that merging works ok i.e. nothing spurious 
 	 * happens in this case. 
@@ -1396,8 +1397,8 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
      only in pathological cases where sink creation is happening at
      the edges of two regions at the maximum refinement level */
 
-//   if (ThisLevel < MaximumRefinementLevel)
-//     return SUCCESS;
+  // if (ThisLevel < MaximumRefinementLevel)
+  //   return SUCCESS;
 
   
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
@@ -1449,7 +1450,8 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 					double MassConversion = (double) (dx_grid*dx_grid*dx_grid * double(MassUnits));  //convert to g
 					MassConversion = MassConversion/SolarMass; // convert to Msun
 					float MassInSolar = ParticleList[i]->ReturnMass()*MassConversion;
-					fprintf(stderr,"%s: cell width (APGrid) = %e pc and cell width (GridData) = %e pc on level = %"ISYM" (SS->ReturnLevel) with MassInSolar = %f (calculated with GridData dx). MyLevel = %"ISYM".\n", __FUNCTION__, dx_pc, dx_grid_pc, ThisLevel, MassInSolar, MyLevel);
+					// SG. This will print out the particle mass calculated with the current grid. So only correct mass given for level=my_level.
+					// fprintf(stderr,"%s: cell width (APGrid) = %e pc and cell width (GridData) = %e pc on level = %"ISYM" (SS->ReturnLevel) with MassInSolar = %f (calculated with GridData dx). MyLevel = %"ISYM".\n", __FUNCTION__, dx_pc, dx_grid_pc, ThisLevel, MassInSolar, MyLevel);
 				 if (ThisLevel != MyLevel){
 						//fprintf(stderr,"%s: ThisLevel = %"ISYM" (APGrid) < MyLevel = %"ISYM". Continue.\n", __FUNCTION__, ThisLevel, MyLevel);
 					continue;
@@ -1619,7 +1621,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			//fprintf(stderr,"%s: No POPIII/SMS was particle detected. Continue to flag fields.\n", __FUNCTION__);  
 			pos = SmartStarList[i]->ReturnPosition();
 			double accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
-			fprintf(stderr, "%s: accrad = %e and bondi factor = %e.\n", __FUNCTION__, accrad, SmartStarBondiRadiusRefinementFactor);
+			fprintf(stderr, "%s: accrad = %e (bondi radius) and bondi factor = %e.\n", __FUNCTION__, accrad, SmartStarBondiRadiusRefinementFactor);
 			// SG. Check for when accrad = 0 in the first 100 kyr of BH's life.
 			if (accrad < 1e-30)
 			continue;
@@ -1633,13 +1635,13 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 				if (dx_bondi > DBL_MAX || dx_bondi < -DBL_MAX ){
 					fprintf(stderr, "%s: Bondi radius is bigger than can be stored in a double.\n", __FUNCTION__);
 				}
-				fprintf(stderr,"%s: Bondi radius = %"GSYM" pc is greater than cell width = %e pc. Don't deposit refinement zone.\n", 
+				fprintf(stderr,"%s: dx_bondi = %"GSYM" pc is greater than cell width = %e pc. Don't deposit refinement zone.\n", 
 				__FUNCTION__, dx_bondi_pc, dx_pc);
 		  continue;
 			}
 			for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
-					fprintf(stderr,"%s: Bondi radius = %e pc is less than cell width = %e pc. Deposit refinement zone.\n", 
-						__FUNCTION__, dx_bondi_pc, dx_pc);
+					//fprintf(stderr,"%s: Bondi radius = %e pc is less than cell width = %e pc. Deposit refinement zone.\n", 
+						//__FUNCTION__, dx_bondi_pc, dx_pc);
 					if (Temp->GridData->DepositRefinementZone(level,pos,accrad) == FAIL) {
 			ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
 			} // end IF
