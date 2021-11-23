@@ -16,14 +16,14 @@
 #define BONDIHOYLERADIUS 1 // SG. Turning on accretion out to BH radius in Accrete.
 #define MINIMUMPOTENTIAL 1
 #define CALCDIRECTPOTENTIAL 0
-#define JEANSREFINEMENT  1 // SG. turning off for testing
+#define JEANSREFINEMENT  1 // SG. turning on for testing
 #define MASSTHRESHOLDCHECK 1  //SG. Turned on for testing. Turning off again.
 #define JEANSLENGTHCALC    1
 #define MASSTHRESHOLD      0.1                       //Msolar in grid
 #define COOLING_TIME       1 // SG. Turn on to prevent spurious SF.
 #define NUMSSPARTICLETYPES 4
 #define JEANS_FACTOR       2
-#define STELLAR_ACCRETION_OFF 1 // SG. Turns off accretion for SMS and POPIII if =1.
+#define STELLAR_ACCRETION_OFF 0 // SG. Turns off accretion for SMS and POPIII if =1.
 #define HW_BH_MASS 1   // SG. BH forms with mass according to Heger-Woosley 2002 relation.
 #define SNEFEEDBACK 1
 int DetermineSEDParameters(ActiveParticleType_SmartStar *SS,FLOAT Time, FLOAT dx);
@@ -173,16 +173,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
-// SG. Check we're on the maximum LOCAL refinement level from the get-go. 
-  for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-    for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-	  index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
-      for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
-	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
-		 continue;
-	} else{
-
-  // determine refinement criteria
+		// determine refinement criteria
   for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
     if (CellFlaggingMethod[method] == 2) {
       MassRefinement = true;
@@ -198,6 +189,16 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #if MASSTHRESHOLDCHECK
   JeansMass = thisGrid->CalculateJeansMass(data.DensNum, data.Temperature, data.DensityUnits);  //In Msolar
 #endif
+
+// SG. Check we're on the maximum LOCAL refinement level from the get-go. 
+  for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+    for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+	  index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
+      for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
+	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
+		 continue;
+	} else{
+
 
 	DensityThreshold = ActiveParticleDensityThreshold*mh/data.DensityUnits; 
 	// If no more room for particles, throw an ENZO_FAIL
@@ -1194,7 +1195,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	fprintf(stderr,"MassEnclosed = %e Msolar\n", MassEnclosed); 
 	if (MassEnclosed == 0) {
 	  IsSphereContained = false;
-	  return SUCCESS; // SG. Should be a break.
+	  return SUCCESS; // SG. Should be a break?
 	}
 	
 	Metallicity2 /= MassEnclosed;
@@ -1214,9 +1215,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 			SS->AssignMassFromIMF();
 		}else{
 			SS->Mass = PopIIIStarMass;
-		}
-	  SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
+			SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
 	  SS->RadiationLifetime*= yr_s/TimeUnits;
+		}
 	  // SS->RadiationLifetime =  55000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 	  SS->StellarAge = SS->RadiationLifetime;
 	  SphereTooSmall = MassEnclosed < (1.2*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
@@ -1925,9 +1926,9 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 		else {
 				if(dx_pc < SMS_RESOLUTION) {
 					// SG. Avoid artificial change to SMS in the case of no accretion. Issue with oldmass parameter.
-					#if STELLAR_ACCRETION_OFF
-					continue;
-					#endif
+					// #if STELLAR_ACCRETION_OFF
+					// continue;
+					// #endif
 								/*
 									* Using the time-averaged accretion rates determine if the 
 									* SMS is accreting fast enough or
@@ -1936,10 +1937,10 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 									*/
 								if((SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass
 				> CRITICAL_ACCRETION_RATE) { 
-			if(SS->ParticleClass == POPIII) {
-					printf("%s: UPDATE: ParticleClass switching from POPIII to SMS\n", __FUNCTION__);
+			if(SS->ParticleClass == POPIII) { // SG. Changed from Particle Class switching from POPIII TO SMS.
+					printf("%s: UPDATE: NO CHANGE TO ParticleClass.\n", __FUNCTION__);
 			}
-			SS->ParticleClass = SMS;
+			// SS->ParticleClass = SMS; SG.
 								}
 								else {
 			float Age = Time - SS->BirthTime;
