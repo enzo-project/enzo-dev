@@ -198,7 +198,7 @@
 !  Parameters
 
       INTG_PREC itmax, ijk
-      parameter (itmax = 10000, ijk = MAX_ANY_SINGLE_DIRECTION)
+      parameter (itmax = 100000, ijk = MAX_ANY_SINGLE_DIRECTION)
 
 #ifdef CONFIG_BFLOAT_4
       R_PREC tolerance
