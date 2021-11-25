@@ -16,11 +16,11 @@
 #define BONDIHOYLERADIUS 1 // SG. Turning on accretion out to BH radius in Accrete.
 #define MINIMUMPOTENTIAL 1
 #define CALCDIRECTPOTENTIAL 0
-#define JEANSREFINEMENT  1 // SG. turning on for testing
+#define JEANSREFINEMENT  0 // SG. turning off to check potential fix.
 #define MASSTHRESHOLDCHECK 1  //SG. Turned on for testing. Turning off again.
 #define JEANSLENGTHCALC    1
 #define MASSTHRESHOLD      0.1                       //Msolar in grid
-#define COOLING_TIME       1 // SG. Turn on to prevent spurious SF.
+#define COOLING_TIME       0 // SG. Turn on to prevent spurious SF.Turning off again.
 #define NUMSSPARTICLETYPES 4
 #define JEANS_FACTOR       2
 #define STELLAR_ACCRETION_OFF 0 // SG. Turns off accretion for SMS and POPIII if =1.
