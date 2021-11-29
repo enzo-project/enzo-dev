@@ -12,13 +12,13 @@
 
 MACH_TEXT  = Unknown machine
 MACH_VALID = 0
-MACH_FILE  = Make.mach.unknown
+MACH_FILE  = Make.mach.cirrus
 
 #-----------------------------------------------------------------------
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_GRACKLE_INSTALL = /usr/local
+LOCAL_GRACKLE_INSTALL = /lustre/home/sc070/stg/grackle/local
 
 #-----------------------------------------------------------------------
 # Compiler settings
