@@ -185,7 +185,7 @@ int checkCreationCriteria(float* Density, float* Metals,
             if (*shieldedFraction < 0) status = FAIL;
         }
     else
-        *shieldedFraction = 0.5; // kinda arbitrary, but just for testing.
+        *shieldedFraction = 1.0; // kinda arbitrary, but just for testing.
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
     //if (status && debug)
     //{

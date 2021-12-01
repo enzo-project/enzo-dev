@@ -165,4 +165,5 @@ SPEXTERN int MechStarsSeedField;
 SPEXTERN float MechStarsCriticalMetallicity;
 SPEXTERN int MechStarsRadiationSpectrum;
 SPEXTERN float MechStarsMetallicityFloor;
+SPEXTERN int MechStarsUseAnalyticFS;
 #endif
