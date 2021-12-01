@@ -137,6 +137,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                     2. is flow converging by finite differences
                     3. is cooling time < dynamical time
                     4. is gas mass > jean critical mass
+                        Fire-2 motivated checks:
                     5. is gas self shielded by Krumholz & Gnedin 2007 criteria
                     6. is virial parameter < 1
 

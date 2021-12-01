@@ -151,7 +151,7 @@ SPEXTERN float StarMakerMinimumMassRampStartMass;
 SPEXTERN float StarMakerMinimumMassRampEndTime;
 SPEXTERN float StarMakerMinimumMassRampEndMass;
 
-/* mechanical feedback */
+/* STARSS feedback */
 SPEXTERN int StellarWinds;
 SPEXTERN int SingleSN;
 SPEXTERN float StarMakerMaximumFormationMass;
