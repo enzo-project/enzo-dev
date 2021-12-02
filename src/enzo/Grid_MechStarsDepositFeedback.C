@@ -50,8 +50,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     //printf("STARSS_FB: In Feedback deposition\n");
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
-    bool debug = true;
-    bool criticalDebug = true;
+    bool debug = false;
+    bool criticalDebug = false;
     float min_winds = 1.0;
     bool printout = debug & !winds;
     int index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
@@ -328,7 +328,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             printf("STARSS_FB: Coupling Fading phase: p = %e\n", coupledMomenta);
         }
         // critical density to skip snowplough (remnant combines with ISM before radiative phase); eq 4.9 cioffi 1988
-        printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e; beta = %e/%e == %e; rmerge = %e)\n", 
+        if (printout)
+            printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e; beta = %e/%e == %e; rmerge = %e)\n", 
                                         nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0), p_free / (dmean / DensityUnits * MassUnits * 27.0) , cSound, beta, rmerge);
         if (nmean <= 100.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
@@ -352,7 +353,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     }
 
 
-    if (printout)
+    // if (printout)
         fprintf(stdout, "STARSS_FB: Calculated p = %e (sq_fact = %e; p_f = %e; p_t = %e; mcell = %e; mcpl = %e)\n", 
                                 coupledMomenta, (dmean / DensityUnits * MassUnits) / ejectaMass * ntouched, p_free, pTerminal, dmean / DensityUnits * MassUnits, ejectaMass/27.0);
 
@@ -403,7 +404,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         fprintf(stdout, "STARSS_FB:  %e; new p = %e\n", eKinetic, coupledMomenta);
     }
     
-    if (printout)
+    // if (printout)
         fprintf(stdout, "STARSS_FB: Ekinetic = %e Mass = %e\n",
                 eKinetic, dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass);
     if (eKinetic > 1e60 && winds)
@@ -420,7 +421,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     }
 
     float coupledGasEnergy = max(ejectaEnergy - eKinetic, 0);
-    if (printout)
+    // if (printout)
         fprintf(stdout, "STARSS_FB: Coupled Gas Energy = %e\n", coupledGasEnergy);
     if (dxRatio > 1.0 && !winds){ // if we apply this reduction to winds, then there is literally *no* effect, even at Renaissance resolution.
         coupledGasEnergy = (coupledGasEnergy * pow(dxRatio, -6.5));

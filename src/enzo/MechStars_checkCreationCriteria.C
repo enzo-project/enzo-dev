@@ -37,7 +37,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     bool use_F2 = true; // use FIRE-2 methods of self-shielded fractionn and virial parameter
     float Zsolar = SolarMetalFractionByMass;
     float maxZ = 0.0;
-    bool debug = true;
+    bool debug = false;
     int status = PASS;
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
                 TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;

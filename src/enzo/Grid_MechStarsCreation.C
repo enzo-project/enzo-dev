@@ -56,7 +56,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     */
     bool gridShouldFormStars=false, notEnoughMetals = true;
 
-    bool debug = true; // local debug flag; theres a lot of printing in here 
+    bool debug = false; // local debug flag; theres a lot of printing in here 
     srand(clock());
 
 
@@ -118,14 +118,14 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     // first, loop over particles to find the stars on this grid;
     // if a cell qualifies for star formation, we want to add to 
     // existing stars before forming new ones!
-    std::vector<int> ptcl_inds; // vector or xyz indices of particle positions
-    for (int pIndex = 0; pIndex < NumberOfParticles; pIndex++){
-        if (ParticleType[pIndex] ==2){
-           ptcl_inds.push_back(ParticleNumber[pIndex]) ;
+    // std::vector<int> ptcl_inds; // vector or xyz indices of particle positions
+    // for (int pIndex = 0; pIndex < NumberOfParticles; pIndex++){
+    //     if (ParticleType[pIndex] ==2){
+    //        ptcl_inds.push_back(ParticleNumber[pIndex]) ;
         
-        }
-    }
-    int nPriorStars = ptcl_inds.size();
+    //     }
+    // }
+    // int nPriorStars = ptcl_inds.size();
     //fprintf(stdout, "Starting creation with %d prior particles\n",nCreated);
     for (int k = GZ; k< GridDimension[2]-GZ; k++){
         for(int j = GZ; j < GridDimension[1]-GZ; j++){
@@ -187,7 +187,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         float random = (float) rand() / (float)(RAND_MAX);
                         
                         if (debug && MassShouldForm > 0)
-			                printf("[t=%f, np = %d] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", Time*TimeUnits/Myr_s, nPriorStars,
+			                printf("[t=%f, np = %d] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", Time*TimeUnits/Myr_s, 0,
                             MassShouldForm, BaryonField[DensNum][index] * MassUnits, 
                             shieldedFraction, freeFallTime*TimeUnits / Myr_s, 1.0/(freeFallTime*TimeUnits) * Myr_s,
                             BaryonField[DensNum][index]*DensityUnits/(mh/0.6), dynamicalTime / Myr_s, 
@@ -295,7 +295,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
         we set off a P3 SN event at the last grid cell that could have hosted star formation. Can and will set
         off multiple events per grid cell if the same cell meets criteria on the next iteration!
      */
-    if (gridShouldFormStars && MechStarsSeedField && (nCreated == 0) && ptcl_inds.size() == 0){
+    if (gridShouldFormStars && MechStarsSeedField && (nCreated == 0)){
         // set off a p3 supernova at at the last cell that could 
         // host star formation in the grid if the
         // grid can host star formation but has no appreciable metals
