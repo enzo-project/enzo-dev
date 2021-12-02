@@ -129,7 +129,7 @@ int checkCreationCriteria(float* Density, float* Metals,
 
     float AltAlpha = TotE[index]*MassUnits / (8.0 * M_PI * GravConst/MassUnits);
 
-    if (use_F2)
+    if (MechStarsUseAnalyticFS)
         if (alpha > 1.0) status = FAIL;
     /* Is cooling time < dynamical time or temperature < 1e4 */
     float totalDensity = (Density[index]
@@ -180,12 +180,12 @@ int checkCreationCriteria(float* Density, float* Metals,
     //     fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
     //     Tau, Phi, Psi, *shieldedFraction);
 
-    if (use_F2)
+    if (MechStarsUseAnalyticFS==1)
         {
             if (*shieldedFraction < 0) status = FAIL;
         }
     else
-        *shieldedFraction = 0.5; // kinda arbitrary, but just for testing.
+        *shieldedFraction = 1.0; // kinda arbitrary, but just for testing.
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
     //if (status && debug)
     //{

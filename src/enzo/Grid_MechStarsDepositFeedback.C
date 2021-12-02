@@ -312,7 +312,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         float fader = cw_eff / r_fade;
         float merger = cw_eff / rmerge;
         if (cw_eff < r_free){
-            coupledMomenta = p_free * (1 + pow(cellwidth/r_free, 3));
+            coupledMomenta = p_free * (pow(cellwidth/r_free, 3));
             printf("STARSS_FB: Coupling free phase: p = %e\n", coupledMomenta);
         }
         if (r_free < cw_eff && fader < 1)

@@ -661,6 +661,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MechStarsMetallicityFloor         = 1e-20; // set initial simulation metallicity to this (Zsun)
   MechStarsSeedField                = 0; // dont seed metals from pop3 imf
   MechStarsRadiationSpectrum        = 0; // no field by default!
+  MechStarsUseAnalyticFS            = 1; // use analytic shielded fraction to determine star formation.
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
   PythonReloadScript               = FALSE;
