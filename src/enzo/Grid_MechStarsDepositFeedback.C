@@ -295,7 +295,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     float coupledMomenta = 0.0;
     float eKinetic = 0.0;
-    float beta = max( 1.0, p_free / (0.33 * dmean / DensityUnits * MassUnits * 27.0) / cSound); // Estimating v_shell (such as it is) as  p_free / M_shell (with M_shell = 1/3 M_contained)
+    float beta = max( 1.0, p_free / (ejectaMass + 0.90 * dmean / DensityUnits * MassUnits *125.0) / cSound); // Estimating v_shell (such as it is) as  p_free / M_shell (with M_shell = 0.9 M_contained)
     float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(max(0.0001, zZsun), 1.0/3.0)); // n/cc
     float shellVelocity = 413.0 * pow(nmean, 1.0 / 7.0) * pow(zZsun, 3.0 / 14.0) * pow(coupledEnergy / EnergyUnits / 1e51, 1.0 / 14.0) * pow(dxRatio, -7.0 / 3.0); // km/s
     float rmerge = max(151.0 * pow((ejectaEnergy/1e51)/ beta / beta / nmean / T * 1e4, 1./3.), 1.5 * r_fade); // pc
@@ -305,20 +305,20 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (!winds)
     {  // this calculation for SNe only
-        float cw_eff = sqrt(2) * cellwidth; // effective cell width couples to farther than just dx.  
+        float cw_eff = sqrt(3) * cellwidth; // effective cell width couples to farther than just dx.  
                                             // theres a lot of numerical fudge factors here because of that.
 
         float dxeff = cw_eff / CoolingRadius;
         float fader = cw_eff / r_fade;
         float merger = cw_eff / rmerge;
         if (cw_eff < r_free){
-            coupledMomenta = p_free * (pow(cellwidth/r_free, 3));
-           if (printout) printf("STARSS_FB: Coupling free phase: p = %e\n", coupledMomenta);
+            coupledMomenta = p_free * (pow(cw_eff/r_free, 3));
+            printf("STARSS_FB: Coupling free phase: p = %e\n", coupledMomenta);
         }
         if (r_free < cw_eff && fader < 1)
             if (p_sedov < pTerminal && dxeff < 1){
-                coupledMomenta = p_sedov + pow(dxeff,1)*(pTerminal-p_sedov);
-               if (printout) printf("STARSS_FB: Coupling Sedov-Terminal phase: p = %e\n", coupledMomenta);
+                coupledMomenta = p_sedov + pow(dxeff,0.5)*(pTerminal-p_sedov);
+                printf("STARSS_FB: Coupling Sedov-Terminal phase: p = %e\n", coupledMomenta);
             } else {   
                 coupledMomenta = pTerminal / sqrt(1+dxeff);
                if (printout) printf("STARSS_FB: Coupling Terminal phase: p = %e\n", coupledMomenta);
