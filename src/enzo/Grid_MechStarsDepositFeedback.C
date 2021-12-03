@@ -313,23 +313,23 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         float merger = cw_eff / rmerge;
         if (cw_eff < r_free){
             coupledMomenta = p_free * (pow(cellwidth/r_free, 3));
-            printf("STARSS_FB: Coupling free phase: p = %e\n", coupledMomenta);
+           if (printout) printf("STARSS_FB: Coupling free phase: p = %e\n", coupledMomenta);
         }
         if (r_free < cw_eff && fader < 1)
             if (p_sedov < pTerminal && dxeff < 1){
                 coupledMomenta = p_sedov + pow(dxeff,1)*(pTerminal-p_sedov);
-                printf("STARSS_FB: Coupling Sedov-Terminal phase: p = %e\n", coupledMomenta);
+               if (printout) printf("STARSS_FB: Coupling Sedov-Terminal phase: p = %e\n", coupledMomenta);
             } else {   
                 coupledMomenta = pTerminal / sqrt(1+dxeff);
-                printf("STARSS_FB: Coupling Terminal phase: p = %e\n", coupledMomenta);
+               if (printout) printf("STARSS_FB: Coupling Terminal phase: p = %e\n", coupledMomenta);
             }
         if (fader > 1){ // high coupling during the fading regime leads to SNRs on the root-grid in 6-level AMR simulations!
             coupledMomenta = pTerminal * (1.0 - tanh(pow(fader * merger, 2.5)));
-            printf("STARSS_FB: Coupling Fading phase: p = %e\n", coupledMomenta);
+           if (printout) printf("STARSS_FB: Coupling Fading phase: p = %e\n", coupledMomenta);
         }
         // critical density to skip snowplough (remnant combines with ISM before radiative phase); eq 4.9 cioffi 1988
         if (printout)
-            printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e; beta = %e/%e == %e; rmerge = %e)\n", 
+           printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e; beta = %e/%e == %e; rmerge = %e)\n", 
                                         nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0), p_free / (dmean / DensityUnits * MassUnits * 27.0) , cSound, beta, rmerge);
         if (nmean <= 100.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
@@ -337,7 +337,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                         // and rely on the hydro and the thermal radiation to arrive at the right solution
             coupledMomenta = coupledMomenta * (1.0-tanh(pow(4.5*nCritical/nmean, 1.5)));
             coupledEnergy = coupledEnergy * (1.0-tanh(pow(4.5*nCritical/nmean, 1.5))); // this is just making a lot of hot gas slowing the sim down... =/
-            printf("STARSS_FB: Adjusting for high-pressure low-n phase (thermal coupling: Nc = %e): p = %e\n", nCritical, coupledMomenta);
+           if (printout) printf("STARSS_FB: Adjusting for high-pressure low-n phase (thermal coupling: Nc = %e): p = %e\n", nCritical, coupledMomenta);
         }
             
         if (T > 1e6 && coupledMomenta > 1e5){
