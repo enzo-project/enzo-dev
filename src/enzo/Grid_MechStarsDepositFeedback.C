@@ -354,7 +354,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
 
     // if (printout)
-        fprintf(stdout, "STARSS_FB: Calculated p = %e (sq_fact = %e; p_f = %e; p_t = %e; mcell = %e; mcpl = %e)\n", 
+        if (printout) fprintf(stdout, "STARSS_FB: Calculated p = %e (sq_fact = %e; p_f = %e; p_t = %e; mcell = %e; mcpl = %e)\n", 
                                 coupledMomenta, (dmean / DensityUnits * MassUnits) / ejectaMass * ntouched, p_free, pTerminal, dmean / DensityUnits * MassUnits, ejectaMass/27.0);
 
 
@@ -405,7 +405,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     }
     
     // if (printout)
-        fprintf(stdout, "STARSS_FB: Ekinetic = %e Mass = %e\n",
+        if (printout) fprintf(stdout, "STARSS_FB: Ekinetic = %e Mass = %e\n",
                 eKinetic, dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass);
     if (eKinetic > 1e60 && winds)
     {
@@ -422,7 +422,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     float coupledGasEnergy = max(ejectaEnergy - eKinetic, 0);
     // if (printout)
-        fprintf(stdout, "STARSS_FB: Coupled Gas Energy = %e\n", coupledGasEnergy);
+        if (printout) fprintf(stdout, "STARSS_FB: Coupled Gas Energy = %e\n", coupledGasEnergy);
     if (dxRatio > 1.0 && !winds){ // if we apply this reduction to winds, then there is literally *no* effect, even at Renaissance resolution.
         coupledGasEnergy = (coupledGasEnergy * pow(dxRatio, -6.5));
         if (printout)
