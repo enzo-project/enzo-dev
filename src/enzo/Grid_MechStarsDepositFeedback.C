@@ -50,8 +50,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     //printf("STARSS_FB: In Feedback deposition\n");
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
-    bool debug = false;
-    bool criticalDebug = false;
+    bool debug = true;
+    bool criticalDebug = true;
     float min_winds = 1.0;
     bool printout = debug & !winds;
     int index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
@@ -67,7 +67,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         *
         * 
     */
-    float ntouched = NGP ? (27) : (64); // how many cells get touched by deposition? 
+    float ntouched = NGP ? (27) : (26); // how many cells get touched by deposition? 
     /* Compute size (in floats) of the current grid. */
     float stretchFactor = 1.0; //1.5/sin(M_PI/10.0);  // How far should cloud particles be from their host
                                // in units of dx. Since the cloud forms a sphere shell, stretchFactor > 1 is not recommended
@@ -231,10 +231,11 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 {
                     int ind = idi + idj * GridDimension[0] + idk * GridDimension[0] * GridDimension[1];
 
-                    
-                    zmean += metals[ind];
+                    float tz = 0;
+                    tz  = metals[ind]/BaryonField[DensNum][ind];
                     if (SNColourNum > 0)
-                        zmean += BaryonField[SNColour][ind];
+                        tz += BaryonField[SNColour][ind];
+                    zmean += tz/BaryonField[DensNum][ind];
                     mu_mean += muField[ind];
                     dmean += BaryonField[DensNum][ind];
                     // velocities are currently momenta
@@ -297,20 +298,20 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float eKinetic = 0.0;
     float beta = max( 1.0, p_free / (ejectaMass + 0.90 * dmean / DensityUnits * MassUnits *125.0) / cSound); // Estimating v_shell (such as it is) as  p_free / M_shell (with M_shell = 0.9 M_contained)
     float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(max(0.0001, zZsun), 1.0/3.0)); // n/cc
-    float shellVelocity = 413.0 * pow(nmean, 1.0 / 7.0) * pow(zZsun, 3.0 / 14.0) * pow(coupledEnergy / EnergyUnits / 1e51, 1.0 / 14.0) * pow(dxRatio, -7.0 / 3.0); // km/s
     float rmerge = max(151.0 * pow((ejectaEnergy/1e51)/ beta / beta / nmean / T * 1e4, 1./3.), 1.5 * r_fade); // pc
     if (printout)
         fprintf(stdout, "STARSS_FB: RADII: cell = %e, free = %e, shellform = %e, cooling = %e, fade = %e t_3=%e, R_m=%e\n", 
                                         cellwidth, r_free, r_shellform, CoolingRadius, r_fade, t3_sedov, rmerge);
 
+    float cw_eff = 2.5 * cellwidth; // effective cell width couples to farther than just dx.  
+                                        // theres a lot of numerical fudge factors here because of that.
+                                        // the actual coupling is between 2-3 dx, depending on position within the cell 
+
+    float dxeff = cw_eff / CoolingRadius;
+    float fader = cw_eff / r_fade;
+    float merger = cw_eff / rmerge;
     if (!winds)
     {  // this calculation for SNe only
-        float cw_eff = sqrt(3) * cellwidth; // effective cell width couples to farther than just dx.  
-                                            // theres a lot of numerical fudge factors here because of that.
-
-        float dxeff = cw_eff / CoolingRadius;
-        float fader = cw_eff / r_fade;
-        float merger = cw_eff / rmerge;
         if (cw_eff < r_free){
             coupledMomenta = p_free * (pow(cw_eff/r_free, 3));
             printf("STARSS_FB: Coupling free phase: p = %e\n", coupledMomenta);
@@ -364,42 +365,63 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         If resolution is in a range comparable to Rcool and
         Analytic SNR shell mass is on, adjust the shell mass 
         upper range of applicability for shell mass is determined by
-        local average gas velocity (v_shell ~ v_gas = no shell)
+        local average gas velocity (v_shell ~ c_s = no shell)
     */
-    if (cellwidth > r_shellform && coupledEnergy > 0 && AnalyticSNRShellMass)
+    float shellVelocity = 413.0 * pow(nmean, 1.0 / 7.0) * pow(zZsun, 3.0 / 14.0) * pow(coupledEnergy / 1e51, 1.0 / 14.0) * pow(dxeff, -7.0 / 3.0); //km/s
+    float centralMass = 0;
+    float centralMetals = 0;
+    float maxEvacFraction = 0.85;
+    if (coupledEnergy > 0 && AnalyticSNRShellMass && !winds && coupledMomenta > 1)
     {
-        shellVelocity = 413.0 * pow(nmean, 1.0 / 7.0) * pow(zZsun, 3.0 / 14.0) * pow(coupledEnergy / EnergyUnits / 1e51, 1.0 / 14.0) * pow(dxRatio, -7.0 / 3.0); //km/s
 
-        if (shellVelocity > vmean / 1e5)
-        {
-            shellMass = max(8e3, coupledMomenta / shellVelocity); //Msun
+            shellMass = min(1e8, coupledMomenta / shellVelocity - ejectaMass); //Msun
 
             /* cant let host cells evacuate completely!  
-                   7.974045e+017.974045e+017.974045e+017.974045e+017.974045e+01 Shell mass will be evacuated from central cells by CIC a negative mass,
+                   Shell mass will be evacuated from central cells by CIC a negative mass,
                     so have to check that the neighbors can handle it too*/
-            for (int ind = -1; ind <= 1; ind++)
-            {
-                float minD = min(BaryonField[DensNum][index + ind], BaryonField[DensNum][index + GridDimension[0] * ind]);
-                minD = min(minD, BaryonField[DensNum][index + GridDimension[0] * GridDimension[1] * ind]);
-                if (shellMass >= 0.25 * minD * MassUnits)
-                    shellMass = 0.25 * minD * MassUnits;
+        if (shellMass > 0)
+            for (int i = ip-2; i <= ip+2; i++)
+                for (int j = jp-2; j <= jp+2; j++)
+                   for (int k = kp-2; k <= kp+2; k++)
+                        {
+                        int flat = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];
+                        // only record if this cell would've been touched by CIC on star particle (estimated as the "blast interior")
+                        float xcell, ycell, zcell;
+                        /* position of cell to couple to, center value */
+                        xcell = CellLeftEdge[0][0] + (0.5 + (float) i) * dx;
+                        ycell = CellLeftEdge[1][0] + (0.5 + (float) j) * dx;
+                        zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
+                        float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, NGP);
+                        // if (window > 0){
+                            centralMass +=  BaryonField[DensNum][flat];
+                            centralMetals +=  BaryonField[MetalNum][flat];
+                            // if (SNColourNum != -1 && !MechStarsMetallicityFloor)
+                            //     centralMetals += window * BaryonField[SNColourNum][flat];
+                        // }
+                    }
+        centralMass *= MassUnits;
+        if (shellMass > maxEvacFraction * centralMass){
+            if (printout) 
+                fprintf(stdout, "STARSS: Shell mass too high for host cells: Rescaling %e -> %e\n", shellMass, maxEvacFraction * centralMass);
+            shellMass = maxEvacFraction * centralMass; 
             }
         }
-    }
+    // }
 
-    if (shellMass < 0.0)
+    float shellMetals = min(maxEvacFraction*centralMetals * MassUnits, zZsun * SolarMetalFractionByMass * shellMass);
+    if (AnalyticSNRShellMass && printout)
     {
-        fprintf(stdout, "STARSS_FB: Shell mass = %e Velocity= %e P = %e",
-                shellMass, shellVelocity, coupledMomenta);
-        ENZO_FAIL("SM_deposit: 391");
+        fprintf(stdout, "STARSS_FB: Shell_m = %e Shell_z = %e shell_V= %e P = %e M_C = %e\n",
+                shellMass, shellMetals, shellVelocity, coupledMomenta, centralMass);
+        // ENZO_FAIL("SM_deposit: 391");
     }
     float coupledMass = shellMass + ejectaMass;
     // kinetic energy from the momenta, taking mass as ejecta + mass of effected cells (4^3 because of CIC in coupling cloud)
-    eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + ntouched * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
-    if (eKinetic > 1e53){
+    eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + sqrt(ntouched) * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
+    if (eKinetic > (nSNII+nSNIA) * 1e51 && !winds){
         fprintf(stdout, "STARSS_FB: Rescaling high kinetic energy %e -> ", eKinetic);
-        coupledMomenta = sqrt((2.0 * (ejectaMass*SolarMass + ntouched * dmean * pow(LengthUnits*dx, 3) ) * ejectaEnergy))/SolarMass/1e5;
-        eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + ntouched * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
+        coupledMomenta = sqrt((2.0 * (ejectaMass*SolarMass + sqrt(ntouched) * dmean * pow(LengthUnits*dx, 3) ) * ejectaEnergy))/SolarMass/1e5;
+        eKinetic = coupledMomenta * coupledMomenta / (2.0 *(ejectaMass + sqrt(ntouched) * dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass)) * SolarMass * 1e10;
         
         fprintf(stdout, "STARSS_FB:  %e; new p = %e\n", eKinetic, coupledMomenta);
     }
@@ -428,21 +450,20 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         if (printout)
             fprintf(stdout, "STARSS_FB: Reducing gas energy... GE = %e\n", coupledGasEnergy);
     }
-    float shellMetals = zZsun * 0.02 * shellMass;
     float coupledMetals = 0.0, SNIAmetals = 0.0, SNIImetals = 0.0, P3metals = 0.0;
     if (winds)
         coupledMetals = ejectaMetal; //+ shellMetals; // winds only couple to metallicity
-    if (AnalyticSNRShellMass)
+    if (AnalyticSNRShellMass && !winds)
         coupledMetals += shellMetals;
     SNIAmetals = (StarMakerTypeIaSNe) ? nSNIA * 1.4 : 0.0;
     if (!StarMakerTypeIaSNe)
-        coupledMetals += nSNIA * 1.4;
+        ejectaMetal += nSNIA * 1.4;
     SNIImetals = (StarMakerTypeIISNeMetalField) ? nSNII * (1.91 + 0.0479 * max(starMetal, 1.65)) : 0.0;
     if (!StarMakerTypeIISNeMetalField)
-        coupledMetals += nSNII * (1.91 + 0.0479 * max(starMetal, 1.65));
+        ejectaMetal += nSNII * (1.91 + 0.0479 * max(starMetal, 1.65));
     if (isP3 && MechStarsSeedField)
         P3metals = ejectaMetal;
-
+    coupledMetals += ejectaMetal;
     if (printout)
         fprintf(stdout, "STARSS_FB: Coupled Metals: %e %e %e %e %e %e\n", ejectaMetal, SNIAmetals, SNIImetals, shellMetals, P3metals, coupledMetals);
 
@@ -491,7 +512,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     coupledMetals /= MassUnits;
 
     // conversion includes km -> cm
-    coupledMomenta = coupledMomenta / MomentaUnits;
+    coupledMomenta = coupledMomenta / MomentaUnits / sqrt(float(nCouple));
     SNIAmetals /= MassUnits;
     SNIImetals /= MassUnits;
     P3metals /= MassUnits;
@@ -501,83 +522,69 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     FLOAT LeftEdge[3] = {CellLeftEdge[0][0], CellLeftEdge[1][0], CellLeftEdge[2][0]};
     FLOAT pX, pY, pZ;
     float eCouple, geCouple, mCouple, zCouple, zIICouple, zIACouple, p3Couple;
+    float sum_cell_mass = 0;
     float expect_momenta = 0;
     float expect_error []= {0,0,0};
     float expect_z = 0;
     int n_pos[] = {0,0,0};
-// printf("STARSS_FB: Coupling for star particle at %e %e \n", *xp, *yp, *zp);
-/* LOOP+SETUP FOR CIC DEPOSIT */
-        for (int i = -1; i <= 1; i++)
-            for (int j = -1; j <= 1; j++)
-                for (int k = -1; k <= 1; k++)
+    
+    /* Subtract shell mass from the central cells */
+    float minusRho = 0; 
+    float minusZ = 0;
+    if (shellMass > 0)
+        for (int i = ip-2; i <= ip+2; i++)
+            for (int j = jp-2; j <= jp+2; j++)
+               for (int k = kp-2; k <= kp+2; k++)
                     {
-                        
-                        // nearest index of coupling particle...
-                        
-                        float xc, yc, zc;
-                        xc = *xp + i * dx;
-                        yc = *yp + j * dx;
-                        zc = *zp + k * dx;
-                        int ic, jc, kc;
-                        ic = (xc - CellLeftEdge[0][0] - 0.5 * dx) / dx;
-                        jc = (yc - CellLeftEdge[1][0] - 0.5 * dx) / dx;
-                        kc = (zc - CellLeftEdge[2][0] - 0.5 * dx) / dx;
-
-                        // printf("STARSS_FB: Coupling particle near %e %e %e => %d %d %d \n\t\t(%e %e %e), dx = %e\n", xc, yc, zc, 
-                        //                                                                 ic, jc, kc,
-                        //                                                                 (*xp - CellLeftEdge[0][0] - 0.5 * dx) / dx,
-                        //                                                                 (*yp - CellLeftEdge[1][0] - 0.5 * dx) / dx,
-                        //                                                                 (*zp - CellLeftEdge[2][0] - 0.5 * dx) / dx,
-                        //                                                                 dx);
-                        if  ( i == 0 && j == 0 && k == 0) continue;
-
-                        float modi, modj, modk;
-                        modi = (float) i;
-                        modj = (float) j;
-                        modk = (float) k;
-                        float uniti, unitj, unitk, normfact;
-                        normfact = sqrt(modi*modi + modj*modj + modk*modk);
-                        uniti = modi / normfact;
-                        unitj = modj / normfact;
-                        unitk = modk / normfact;
-
-                        /************************/
-
-                   
-                        
-                        float sq3 = sqrt((float) nCouple);
-
-                        pX = coupledMomenta * (float) uniti / sq3; //* weightsVector[n];
-                        pY = coupledMomenta * (float) unitj / sq3; //* weightsVector[n];
-                        pZ = coupledMomenta * (float) unitk / sq3; //* weightsVector[n];
-
-                        eCouple = coupledEnergy / (float) nCouple; //* weightsVector[n];
-                        geCouple = coupledGasEnergy / (float) nCouple; //* weightsVector[n];
-                        mCouple = coupledMass / (float) nCouple; //* weightsVector[n];
-                        zCouple = coupledMetals / (float) nCouple; //* weightsVector[n];
-                        if (StarMakerTypeIISNeMetalField)
-                            zIICouple = SNIImetals / (float) nCouple; //* weightsVector[n];
-                        if (StarMakerTypeIaSNe)
-                            zIACouple = SNIAmetals / (float) nCouple; //* weightsVector[n];
-                        if (MechStarsSeedField)
-                            p3Couple = P3metals / (float) nCouple; //* weightsVector[n];
-                        int np = 1;
-
-
-                        expect_error[0] += pX;
-                        expect_error[1] += pY;
-                        expect_error[2] += pZ;
-
-             
-/*
-    THIS SECTION DOES A CIC-DEPOSIT USING THE BUILT IN ROUTINES--IT
-    CIC DEPOSITS EACH COUPLING PARTICLE
-*/
-
-/* Hand rolled CIC for some stupid reason... */
-                    float dep_vol_frac = 0;
-
+                    int flat = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];
+                    float xcell, ycell, zcell;
+                    /* position of cell to couple to, center value */
+                    xcell = CellLeftEdge[0][0] + (0.5 + (float) i) * dx;
+                    ycell = CellLeftEdge[1][0] + (0.5 + (float) j) * dx;
+                    zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
+                    float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, NGP);
+                    if (window > 0)
+                    {
+                        float dpre = BaryonField[DensNum][flat] ;
+                        float zpre = BaryonField[MetalNum][flat];
+                        float pre_z_frac = zpre / dpre;
+                        printf("STARSS: Baryon Prior: %e, window = %f; mc = %e, ms = %e\n", BaryonField[DensNum][flat] * MassUnits, window, centralMass, shellMass);
+                        BaryonField[DensNum][flat] = max(dpre * 0.05, dpre - window * shellMass/MassUnits);
+                        minusRho += dpre - BaryonField[DensNum][flat];
+                        printf("STARSS: Baryon Post: %e\n", BaryonField[DensNum][flat] * MassUnits);
+                        BaryonField[MetalNum][flat] =  max(dpre * 0.05 * pre_z_frac, zpre - window * shellMetals/MassUnits);
+                        minusZ += zpre - BaryonField[MetalNum][flat];
+                    }
+                }
+    // if there wasnt enough mass to evacuate in host cells, need 
+    // to rescale the shell+ejecta that will be deposited below
+    // it also means that we couldnt build a shell to host the 
+    // real amount of momenta.  Not sure what to do on that one...
+    if (minusRho < coupledMass - ejectaMass/MassUnits)
+    {
+        coupledMass = minusRho + ejectaMass/MassUnits;
+        coupledMetals = minusZ + ejectaMetal/MassUnits;
+    }
+    // with shell mass in hand, check for cells that get touched by
+    // the momentum deposition. Ensure that P^2 / 2m is consistent 
+    // with KE < 1e51
+    float mtouched = 0;
+    for (int i = -1; i <= 1; i++)
+        for (int j = -1; j <= 1; j++)
+            for (int k = -1; k <= 1; k++)
+                {
                     
+                    // nearest index of coupling particle...
+                    if (i==0 && j == 0 && k==0) continue;
+                    float xc, yc, zc;
+                    xc = *xp + i * dx;
+                    yc = *yp + j * dx;
+                    zc = *zp + k * dx;
+                    int ic, jc, kc;
+                    ic = (xc - CellLeftEdge[0][0] - 0.5 * dx) / dx;
+                    jc = (yc - CellLeftEdge[1][0] - 0.5 * dx) / dx;
+                    kc = (zc - CellLeftEdge[2][0] - 0.5 * dx) / dx;
+
                     for (int kk = -1; kk <= 1; kk ++)
                         for (int jj = -1; jj <= 1; jj++)
                             for (int ii = -1; ii <= 1; ii++)
@@ -600,67 +607,225 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                 zcell = CellLeftEdge[2][0] + (0.5 + (float) kcell) * dx;
                                 /* flat index ... */
                                 int flat = icell + jcell * GridDimension[0] + kcell * GridDimension[0] * GridDimension[1];
+                                mtouched += BaryonField[DensNum][flat];
+                            }
+            }
 
+    // rescale momenta if necessary, according to the actual mass involved here.
+    float ekTrue = coupledMomenta*coupledMomenta / (2. * (mtouched + coupledMass) ) * EnergyUnits;
+    if (ekTrue > eKinetic){
+        fprintf(stdout, "STARSS_FB: Rescaling high momentum-energy to < 1e51!! (Ek_T = %e , Ek_prior = %e)", ekTrue, eKinetic);
+        // eKinetic = (coupledEnergy - coupledGasEnergy) * EnergyUnits;
+        coupledMomenta = sqrt(2.0 * eKinetic * (mtouched + coupledMass) * SolarMass * MassUnits) / SolarMass / 1e5;
+        fprintf(stdout, " -> (%e); scaled momenta = %e\n", eKinetic, coupledMomenta);
+        coupledMomenta = coupledMomenta/MomentaUnits/sqrt(float(nCouple));
+
+    }
+    /* Couple the main qtys from cloud particles to grid */
+    for (int i = -1; i <= 1; i++)
+        for (int j = -1; j <= 1; j++)
+            for (int k = -1; k <= 1; k++)
+                {
+                    
+                    // nearest index of coupling particle...
+                    
+                    float xc, yc, zc;
+                    xc = *xp + i * dx;
+                    yc = *yp + j * dx;
+                    zc = *zp + k * dx;
+                    int ic, jc, kc;
+                    ic = (xc - CellLeftEdge[0][0] - 0.5 * dx) / dx;
+                    jc = (yc - CellLeftEdge[1][0] - 0.5 * dx) / dx;
+                    kc = (zc - CellLeftEdge[2][0] - 0.5 * dx) / dx;
+
+                    // printf("STARSS_FB: Coupling particle near %e %e %e => %d %d %d \n\t\t(%e %e %e), dx = %e\n", xc, yc, zc, 
+                    //                                                                 ic, jc, kc,
+                    //                                                                 (*xp - CellLeftEdge[0][0] - 0.5 * dx) / dx,
+                    //                                                                 (*yp - CellLeftEdge[1][0] - 0.5 * dx) / dx,
+                    //                                                                 (*zp - CellLeftEdge[2][0] - 0.5 * dx) / dx,
+                    //                                                                 dx);
+                    if  ( i == 0 && j == 0 && k == 0) continue;
+
+                    float modi, modj, modk;
+                    modi = (float) i;
+                    modj = (float) j;
+                    modk = (float) k;
+                    float uniti, unitj, unitk, normfact;
+                    normfact = sqrt(modi*modi + modj*modj + modk*modk);
+                    uniti = modi / normfact;
+                    unitj = modj / normfact;
+                    unitk = modk / normfact;
+
+                    /************************/
+
+                
+                    
+                    // float sq3 = sqrt((float) nCouple);
+                    pX = coupledMomenta * (float) uniti; //* weightsVector[n];
+                    pY = coupledMomenta * (float) unitj; //* weightsVector[n];
+                    pZ = coupledMomenta * (float) unitk; //* weightsVector[n];
+
+                    eCouple = coupledEnergy / (float) nCouple; //* weightsVector[n];
+                    geCouple = coupledGasEnergy / (float) nCouple; //* weightsVector[n];
+                    mCouple = coupledMass / (float) nCouple; //* weightsVector[n];
+                    zCouple = coupledMetals / (float) nCouple; //* weightsVector[n];
+                    if (StarMakerTypeIISNeMetalField)
+                        zIICouple = SNIImetals / (float) nCouple; //* weightsVector[n];
+                    if (StarMakerTypeIaSNe)
+                        zIACouple = SNIAmetals / (float) nCouple; //* weightsVector[n];
+                    if (MechStarsSeedField)
+                        p3Couple = P3metals / (float) nCouple; //* weightsVector[n];
+                    int np = 1;
+
+
+                    expect_error[0] += pX;
+                    expect_error[1] += pY;
+                    expect_error[2] += pZ;
+
+
+/* Hand rolled CIC for some stupid reason... */
+                float dep_vol_frac = 0;
+
+                
+                for (int kk = -1; kk <= 1; kk ++)
+                    for (int jj = -1; jj <= 1; jj++)
+                        for (int ii = -1; ii <= 1; ii++)
+                        {
+                            /* position of cloud cell */
+                            float xcell, ycell, zcell;
+                            xcell = xc + dx * ii;
+                            ycell = yc + dx * jj;
+                            zcell = zc + dx * kk;
+
+                            /* index of cloud cell */
+                            int icell, jcell, kcell;
+                            icell = (xcell - CellLeftEdge[0][0] - 0.5 * dx) / dx;
+                            jcell = (ycell - CellLeftEdge[1][0] - 0.5 * dx) / dx;
+                            kcell = (zcell - CellLeftEdge[2][0] - 0.5 * dx) / dx;
+
+                            /* position of cell to couple to, center value */
+                            xcell = CellLeftEdge[0][0] + (0.5 + (float) icell) * dx;
+                            ycell = CellLeftEdge[1][0] + (0.5 + (float) jcell) * dx;
+                            zcell = CellLeftEdge[2][0] + (0.5 + (float) kcell) * dx;
+                            /* flat index ... */
+                            int flat = icell + jcell * GridDimension[0] + kcell * GridDimension[0] * GridDimension[1];
+
+                            
+
+                            /* fraction of quantities that go into this cloud cell... */
+                            float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
+                            dep_vol_frac += window;
+                            // printf("STARSS_FB: \t\t\tCloud %e %e %e Coupling at %d %d %d with window %e.  \n\t\t\t\twfactors: %e %e %e (%f %f %f)\n", 
+                            //                                             xcell, ycell, zcell, 
+                            //                                             icell, jcell, kcell, window,
+                            //                                             xc-xcell, yc-ycell, zc-zcell,
+                            //                                             (xc-xcell)/dx, (yc-ycell)/dx, (zc-zcell)/dx);
+                            /* add quantities to this cell accordingly */
+
+                            BaryonField[DensNum][flat] = BaryonField[DensNum][flat] + mCouple * window;
+                            sum_cell_mass += window * BaryonField[DensNum][flat];
+                            BaryonField[MetalNum][flat] = BaryonField[MetalNum][flat] + zCouple * window;
+                            if (DualEnergyFormalism)
+                                {    
+                                    // add kinetic energy on a second pass to ensure that all masses have been previously adjusted.
+                                    // BaryonField[TENum][flat] = BaryonField[TENum][flat] + (pX*pX + pY*pY + pZ*pZ)/(2.0 * BaryonField[DensNum][flat]) * window;
+                                    BaryonField[TENum][flat] = BaryonField[TENum][flat] + geCouple * window;
+                                }
+                            if (geCouple > 0)
+                                BaryonField[GENum][flat] = BaryonField[GENum][flat] + geCouple * window;
+                            float prep = BaryonField[Vel1Num][flat]*BaryonField[Vel1Num][flat]
+                                                + BaryonField[Vel2Num][flat]*BaryonField[Vel2Num][flat] 
+                                                + BaryonField[Vel3Num][flat]*BaryonField[Vel1Num][flat];
+                            BaryonField[Vel1Num][flat] = BaryonField[Vel1Num][flat] + pX * window;
+                            BaryonField[Vel2Num][flat] = BaryonField[Vel2Num][flat] + pY * window;
+                            BaryonField[Vel3Num][flat] = BaryonField[Vel3Num][flat] + pZ * window;
+                            expect_momenta += BaryonField[Vel1Num][flat]*BaryonField[Vel1Num][flat]
+                                                + BaryonField[Vel2Num][flat]*BaryonField[Vel2Num][flat] 
+                                                + BaryonField[Vel3Num][flat]*BaryonField[Vel1Num][flat]
+                                                - prep;
+
+                            // TODO: add other metal fields for consistency.
+
+                        }
+                    // printf("STARSS_FB: CIC deposited in sum window %e\n", dep_vol_frac);
+                } // end coupling main qtys
+                // subtract out shell mass before adding in KE
+  
+        for (int i = -1; i <= 1; i++)
+            for (int j = -1; j <= 1; j++)
+                for (int k = -1; k <= 1; k++)
+                    {
+                        float xc, yc, zc;
+                        xc = *xp + i * dx;
+                        yc = *yp + j * dx;
+                        zc = *zp + k * dx;
+                        int ic, jc, kc;
+                        ic = (xc - CellLeftEdge[0][0] - 0.5 * dx) / dx;
+                        jc = (yc - CellLeftEdge[1][0] - 0.5 * dx) / dx;
+                        kc = (zc - CellLeftEdge[2][0] - 0.5 * dx) / dx;
+
+                        if  ( i == 0 && j == 0 && k == 0) continue;
+
+                        float modi, modj, modk;
+                        modi = (float) i;
+                        modj = (float) j;
+                        modk = (float) k;
+                        float uniti, unitj, unitk, normfact;
+                        normfact = sqrt(modi*modi + modj*modj + modk*modk);
+                        uniti = modi / normfact;
+                        unitj = modj / normfact;
+                        unitk = modk / normfact;
+                        eCouple = coupledEnergy / (float) nCouple; //* weightsVector[n];
+
+                        for (int kk = -1; kk <= 1; kk ++)
+                            for (int jj = -1; jj <= 1; jj++)
+                                for (int ii = -1; ii <= 1; ii++)
+                                {
+                                    /* position of cloud cell */
+                                    float xcell, ycell, zcell;
+                                    xcell = xc + dx * ii;
+                                    ycell = yc + dx * jj;
+                                    zcell = zc + dx * kk;
+
+                                    /* index of cloud cell */
+                                    int icell, jcell, kcell;
+                                    icell = (xcell - CellLeftEdge[0][0] - 0.5 * dx) / dx;
+                                    jcell = (ycell - CellLeftEdge[1][0] - 0.5 * dx) / dx;
+                                    kcell = (zcell - CellLeftEdge[2][0] - 0.5 * dx) / dx;
+
+                                    /* position of cell to couple to, center value */
+                                    xcell = CellLeftEdge[0][0] + (0.5 + (float) icell) * dx;
+                                    ycell = CellLeftEdge[1][0] + (0.5 + (float) jcell) * dx;
+                                    zcell = CellLeftEdge[2][0] + (0.5 + (float) kcell) * dx;
+                                    /* flat index ... */
+                                    int flat = icell + jcell * GridDimension[0] + kcell * GridDimension[0] * GridDimension[1];
+                                    /* fraction of quantities that go into this cloud cell... */
+                                    float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
+                                    // float sq3 = sqrt((float) nCouple);
+                                    pX = coupledMomenta * (float) uniti; //* weightsVector[n];
+                                    pY = coupledMomenta * (float) unitj; //* weightsVector[n];
+                                    pZ = coupledMomenta * (float) unitk; //* weightsVector[n];
+
+                                    if (DualEnergyFormalism)
+                                        {    
+                                            // add kinetic energy on a second pass to ensure that all masses have been previously adjusted.
+                                            BaryonField[TENum][flat] = BaryonField[TENum][flat] 
+                                                                    + (pX*pX + pY*pY + pZ*pZ) * window * window / (2.0 * BaryonField[DensNum][flat]);
+                                        }
                                 
 
-                                /* fraction of quantities that go into this cloud cell... */
-                                float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
-                                dep_vol_frac += window;
-                                // printf("STARSS_FB: \t\t\tCloud %e %e %e Coupling at %d %d %d with window %e.  \n\t\t\t\twfactors: %e %e %e (%f %f %f)\n", 
-                                //                                             xcell, ycell, zcell, 
-                                //                                             icell, jcell, kcell, window,
-                                //                                             xc-xcell, yc-ycell, zc-zcell,
-                                //                                             (xc-xcell)/dx, (yc-ycell)/dx, (zc-zcell)/dx);
-                                /* add quantities to this cell accordingly */
 
-                                BaryonField[DensNum][flat] = BaryonField[DensNum][flat] + mCouple * window;
-                                BaryonField[MetalNum][flat] = BaryonField[MetalNum][flat] + zCouple * window;
-                                if (DualEnergyFormalism)
-                                    {    
-                                        BaryonField[TENum][flat] = BaryonField[TENum][flat] + eCouple * window;
-                                        BaryonField[TENum][flat] = BaryonField[TENum][flat] + geCouple * window;
-                                    }
-                                if (geCouple > 0)
-                                    BaryonField[GENum][flat] = BaryonField[GENum][flat] + geCouple * window;
-                                float prep = BaryonField[Vel1Num][flat]*BaryonField[Vel1Num][flat]
-                                                 + BaryonField[Vel2Num][flat]*BaryonField[Vel2Num][flat] 
-                                                 + BaryonField[Vel3Num][flat]*BaryonField[Vel1Num][flat];
-                                BaryonField[Vel1Num][flat] = BaryonField[Vel1Num][flat] + pX * window;
-                                BaryonField[Vel2Num][flat] = BaryonField[Vel2Num][flat] + pY * window;
-                                BaryonField[Vel3Num][flat] = BaryonField[Vel3Num][flat] + pZ * window;
-                                expect_momenta += BaryonField[Vel1Num][flat]*BaryonField[Vel1Num][flat]
-                                                 + BaryonField[Vel2Num][flat]*BaryonField[Vel2Num][flat] 
-                                                 + BaryonField[Vel3Num][flat]*BaryonField[Vel1Num][flat]
-                                                 - prep;
-
-                                // TODO: add other metal fields for consistency.
-
-                            }
-                        // printf("STARSS_FB: CIC deposited in sum window %e\n", dep_vol_frac);
-                    }
-
-
+                            } // end cloud-particle cic
+                    } // end main particle cic
             
     if (printout){
         fprintf(stdout, "STARSS_FB: After deposition, counted %e Msun km/s momenta deposited.  Error = %e..\n", sqrt(expect_momenta) * MomentaUnits, 
                                                                                         (expect_error[0]+expect_error[1]+expect_error[2]) * MomentaUnits);
         fprintf(stdout, "STARSS_FB: \tTabulated %e Msun deposited metals\n", expect_z * MassUnits);
     }
-    // printf("STARSS_FB: \n");
-    /* Deposit one negative mass particle centered on star to account for 
-        shell mass leaving host cells .  Same for metals that were evacuated*/
-    // int np = 1;
-    // shellMass *= -1 / MassUnits;
-    // FORTRAN_NAME(cic_deposit)
-    //     (xp, yp, zp, &GridRank, &np, &shellMass, density, LeftEdge,
-    //     &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
-    // shellMetals *= -1 / MassUnits;
-    // FORTRAN_NAME(cic_deposit)
-    //     (xp, yp, zp, &GridRank, &np, &shellMetals, metals, LeftEdge,
-    //     &GridDimension[0], &GridDimension[1], &GridDimension[2], &dx, &cloudSize);
 
 
-    if (criticalDebug)
+    if (criticalDebug && !winds)
     {
         for (int k = max(0,kp-5); k <= min(kp+5, GridDimension[2]); ++k)
             for (int j = max(0,jp-5); j <= max(jp+5, GridDimension[1]); ++j)
