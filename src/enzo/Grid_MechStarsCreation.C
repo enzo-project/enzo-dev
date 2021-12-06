@@ -56,7 +56,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     */
     bool gridShouldFormStars=false, notEnoughMetals = true;
 
-    bool debug = false; // local debug flag; theres a lot of printing in here 
+    bool debug = true; // local debug flag; theres a lot of printing in here 
     srand(clock());
 
 
