@@ -28,8 +28,8 @@ int transformComovingWithStar(float* Density, float* Metals,
         */
         for (int ind = 0; ind < size; ++ind){
             float mult = Density[ind];
-                    TE[ind] *= mult;
-                    GE[ind] *= mult;
+                    // TE[ind] *= mult;
+                    // GE[ind] *= mult;
                     Vel1[ind] = (Vel1[ind]-up)*mult;
                     Vel2[ind] = (Vel2[ind]-vp)*mult;
                     Vel3[ind] = (Vel3[ind]-wp)*mult;
@@ -45,8 +45,8 @@ int transformComovingWithStar(float* Density, float* Metals,
         */
         for (int ind = 0; ind < size; ++ind){
             float mult = 1./Density[ind];
-                    TE[ind] *= mult;
-                    GE[ind] *= mult;
+                    // TE[ind] *= mult;
+                    // GE[ind] *= mult;
                     Vel1[ind] = Vel1[ind]*mult+up;
                     Vel2[ind] = Vel2[ind]*mult+vp;
                     Vel3[ind] = Vel3[ind]*mult+wp;
