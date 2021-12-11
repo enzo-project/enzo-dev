@@ -43,7 +43,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
         int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar)
 {
     bool use_F2 = true; // use FIRE-2 methods of self-shielded fractionn and virial parameter
-    float conversion_fraction = 0.1; // max fraction of baryon mass that gets converted to stars
+    float conversion_fraction = StarMakerMassEfficiency; // max fraction of baryon mass that gets converted to stars
                                    // on successful formation check
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
