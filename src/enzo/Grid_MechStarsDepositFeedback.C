@@ -392,7 +392,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     float centralMass = 0;
     float centralMetals = 0;
-    float maxEvacFraction = 0.95;
+    float maxEvacFraction = 0.5;
     if (coupledEnergy > 0 && AnalyticSNRShellMass && !winds && !faded)
     {
             // if (dxeff > 0.5)
@@ -441,13 +441,13 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float coupledMass = shellMass + ejectaMass;
     // kinetic energy from the momenta, taking mass as ejecta + mass of effected cells (4^3 because of CIC in coupling cloud)
     eKinetic = coupledMomenta * coupledMomenta / (2.0 *(coupledMass)) * SolarMass * 1e10;
-    // if (eKinetic > (nSNII+nSNIA) * 1e53 && !winds){
-    //     fprintf(stdout, "STARSS_FB: Rescaling high kinetic energy %e -> ", eKinetic);
-    //     coupledMomenta = sqrt(2.0 * (coupledMass*SolarMass) * ejectaEnergy)/SolarMass/1e5;
-    //     eKinetic = coupledMomenta * coupledMomenta / (2.0 *(coupledMass) * SolarMass) * SolarMass * 1e10;
+    if (eKinetic > (nSNII+nSNIA) * 1e51 && !winds){
+        fprintf(stdout, "STARSS_FB: Rescaling high kinetic energy %e -> ", eKinetic);
+        coupledMomenta = sqrt(2.0 * (coupledMass*SolarMass) * ejectaEnergy)/SolarMass/1e5;
+        eKinetic = coupledMomenta * coupledMomenta / (2.0 *(coupledMass) * SolarMass) * SolarMass * 1e10;
         
-    //     fprintf(stdout, "STARSS_FB:  %e; new p = %e\n", eKinetic, coupledMomenta);
-    // }
+        fprintf(stdout, "STARSS_FB:  %e; new p = %e\n", eKinetic, coupledMomenta);
+    }
     
     // if (printout)
         if (printout) fprintf(stdout, "STARSS_FB: Ekinetic = %e Mass = %e\n",
@@ -537,9 +537,11 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     bool massiveCell;
     float remainMass = shellMass/MassUnits;
     float msubtracted = 0;
+    float remainZ = shellMetals/MassUnits;
     if (shellMass > 0 && AnalyticSNRShellMass && !faded)
-        do
+        // do
         {
+            float zsubtracted = 0;
             massiveCell=false;
             msubtracted = 0;
                 for (int i = ip-2; i <= ip+2; i++)
@@ -558,19 +560,23 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                 float dpre = BaryonField[DensNum][flat] ;
                                 float zpre = BaryonField[MetalNum][flat];
                                 float pre_z_frac = zpre / dpre;
-                                // fprintf(stdout, "STARSS: Baryon Prior: %e, window = %f; mc = %e, ms = %e; taking off %e\n", BaryonField[DensNum][flat] * MassUnits, window, centralMass, shellMass, shellMass/27.);
-                                BaryonField[DensNum][flat] = max(dpre - window*remainMass/MassUnits/27., (1.0-maxEvacFraction)* dpre);
+                                if (printout)
+                                fprintf(stdout, "STARSS: Baryon Prior: %e, window = %f; mc = %e, ms = %e; m_z = %e , z = %e\n", BaryonField[DensNum][flat] * MassUnits, window, centralMass, shellMass, shellMetals, pre_z_frac);
+                                BaryonField[DensNum][flat] = max(dpre - window*remainMass/27., (1.0-maxEvacFraction)* dpre);
                                 minusRho += dpre - BaryonField[DensNum][flat];
                                 msubtracted += dpre - BaryonField[DensNum][flat];
                                 // fprintf(stdout, "STARSS: Baryon Post: %e\n", BaryonField[DensNum][flat] * MassUnits);
-                                BaryonField[MetalNum][flat] =  max(dpre * (1-maxEvacFraction) * pre_z_frac, zpre - window*shellMetals/MassUnits/27.0);
+                                BaryonField[MetalNum][flat] =   max(tiny_number, zpre - window*remainZ/27.0);
                                 minusZ += zpre - BaryonField[MetalNum][flat];
+                                zsubtracted += zpre - BaryonField[MetalNum][flat];
                             }
                             if (BaryonField[DensNum][flat] >= 1.25*remainMass/MassUnits/27.)
                                 massiveCell=true;
                         }
                     remainMass -= msubtracted;
-        } while (remainMass > 0 && msubtracted > 0);
+                    remainZ -= zsubtracted;
+        } 
+        // while (remainMass > 0 && msubtracted > 0);
     // if there wasnt enough mass to evacuate in host cells, need 
     // to rescale the shell+ejecta that will be deposited below
     // it also means that we couldnt build a shell to host the 
@@ -579,15 +585,15 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     minusZ *= MassUnits;
     if (minusRho != coupledMass - ejectaMass && shellMass > 0 && AnalyticSNRShellMass && !faded)
     {
-        fprintf(stdout, "STARSS_FB: Of %e, only subtracted %e; rescaling the coupling mass\n", shellMass, minusRho);
+        if (printout) fprintf(stdout, "STARSS_FB: Of %e, only subtracted %e; rescaling the coupling mass\n", shellMass, minusRho);
         float oldcouple = coupledMass;
         coupledMass = minusRho + ejectaMass;
         coupledMetals = minusZ + ejectaMetal;
         // if were in here, we found an inconsistent place where the mass within cannot support the expected shell.  
         // the only real choice, to keep things from exploding in a bad way, is to rescale the momentum accordingly. 
         // If this is triggered, dont expect the terminal momenta relations to hold up.
-        // coupledMomenta = min(coupledMomenta, sqrt(2.0 * (coupledMass*SolarMass) * ejectaEnergy)/SolarMass/1e5);
-        fprintf(stdout, "STARSS_FB: rescaled momentum to %e (est KE = %e)\n", coupledMomenta, coupledMomenta*coupledMomenta / (2*coupledMass) * SolarMass * 1e10);
+        coupledMomenta = min(coupledMomenta, sqrt(2.0 * (coupledMass*SolarMass) * ejectaEnergy)/SolarMass/1e5);
+        if (printout) fprintf(stdout, "STARSS_FB: rescaled momentum to %e (est KE = %e)\n", coupledMomenta, coupledMomenta*coupledMomenta / (2*coupledMass) * SolarMass * 1e10);
 
     }
     coupledEnergy = coupledEnergy / EnergyUnits;
@@ -759,7 +765,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 // subtract out shell mass before adding in KE
 
 
-    fprintf(stdout, "STARSS_FB: Coupled %e gas energy\n", ge_deposit * EnergyUnits);       
+    if (printout) fprintf(stdout, "STARSS_FB: Coupled %e gas energy\n", ge_deposit * EnergyUnits);       
     if (printout){
         fprintf(stdout, "STARSS_FB: After deposition, counted %e Msun km/s momenta deposited.  Error = %e..\n", sqrt(expect_momenta) * MomentaUnits, 
                                                                                         (expect_error[0]+expect_error[1]+expect_error[2]) * MomentaUnits);
@@ -836,22 +842,22 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                 float dke = post_ke - prior_ke[buffind];
                                 // add kinetic energy on a second pass to ensure that all masses have been previously adjusted.
                                 BaryonField[TENum][flat] = BaryonField[TENum][flat] 
-                                                        +  te_buffer[buffind]/ (2.0 * coupledMass * BaryonField[DensNum][flat]);
-                                ke_deposit += te_buffer[buffind]/ (2.0 * BaryonField[DensNum][flat] * BaryonField[DensNum][flat]);
+                                                        +  (te_buffer[buffind] / (2 * coupledMass))/BaryonField[DensNum][flat];
+                                ke_deposit += (te_buffer[buffind] / (2 * coupledMass));
                                 // BaryonField[TENum][flat] += ge_buffer[buffind];
                             }
                         // BaryonField[GENum][flat] += ge_buffer[buffind];
                             
 
                             } // end cloud-particle cic
-    fprintf(stdout, "STARSS_FB: Counted %e Kenergy deposited\n", ke_deposit*EnergyUnits);
+    if (printout) fprintf(stdout, "STARSS_FB: Counted %e Kenergy deposited\n", ke_deposit*EnergyUnits);
     // fill in the remaining energy with thermal deposition
     float remain = 1e51/EnergyUnits - ke_deposit;
 
     if (dxeff > 1)
         remain = remain * pow(dxeff, -6.5);
 
-    fprintf(stdout, "STARSS_FB: Coupling missing energy... remaining = %e\n", remain *EnergyUnits);
+    if (printout) fprintf(stdout, "STARSS_FB: Coupling missing energy... remaining = %e\n", remain *EnergyUnits);
     if (remain > 0)
         for (int i = -1; i <= 1; i++)
             for (int j = -1; j <= 1; j++)
