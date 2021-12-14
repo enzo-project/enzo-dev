@@ -67,6 +67,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         *
         * 
     */
+    bool useFading = MechStarsFadeSNR; // true to fade the SN--it only couples heat after a certain radii that exceeds the expected merging radius of the SN
     float ntouched = NGP ? (26) : (63); // how many cells get touched by deposition? 
     /* Compute size (in floats) of the current grid. */
     float stretchFactor = 1.0; //1.5/sin(M_PI/10.0);  // How far should cloud particles be from their host
@@ -268,7 +269,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (printout) printf ("STARSS_FB: Zmean = %e Dmean = %e (%e) mu_mean = %e ", zmean, dmean, dmean / DensityUnits, mu_mean);
     if (printout) printf ("Nmean = %f vmean = %f\n", nmean, vmean/1e5);
     float zZsun = zmean;
-    float fz = min(2.0, pow(zZsun, -0.14));
+    float fz = min(2.0, pow(max(zZsun, 0.01), -0.14));
 
     /* Cooling radius as in Hopkins, but as an average over cells */
 
@@ -291,7 +292,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     bool use_free = false; // could just deposit free expansion into host cell, really...
     // assuming r_sedov == dx, solve for t3
 
-    float t3_sedov = pow(max(r_free, cellwidth) * pc_cm / (5.0 * pc_cm * pow(ejectaEnergy / 1e51 / nmean, 1.0 / 5.0)), 5. / 2.);
+    float t3_sedov = pow(max(r_free, max(cellwidth, r_free)) * pc_cm / (5.0 * pc_cm * pow(ejectaEnergy / 1e51 / nmean, 1.0 / 5.0)), 5. / 2.);
     float p_sedov = 2.21e4 * pow(ejectaEnergy / 1e51, 4. / 5.) * pow(nmean, 1. / 5.) * pow(t3_sedov, 3. / 5.); // eq 16
 
     // shell formation radius eq 8
@@ -300,8 +301,16 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float p_shellform = 3.1e5 * pow(ejectaEnergy / 1e51, 0.94) * pow(nmean, -0.13); // p_sf = m_sf*v_sf eq 9,11
 
     /* termninal momentum */
-    float pTerminal = 4.8e5 * pow(nmean, -1.0 / 7.0) * pow(ejectaEnergy / 1e51, 13.0 / 14.0) * pow(max(0.1, zZsun), -3.0/14.0); // cioffi 1988, as written in Hopkins 2018
-
+    float pTerminal;
+    if (zZsun > 0.01)
+    // Cioffi:
+        // pTerminal = 4.8e5 * pow(nmean, -1.0 / 7.0) * pow(ejectaEnergy / 1e51, 13.0 / 14.0) * pow(zZsun, -3.0/14.0); // cioffi 1988, as written in Hopkins 2018
+    // Thornton, 1998, M_s * V_s, eqs 22, 23, 33, 34
+        pTerminal = 1.6272e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25) * pow(zZsun, -0.36);
+    // kimm & ostriker 2015 
+        // pTerminal = 2.8e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.17) * pow(zZsun, -0.36);
+    else
+        pTerminal = 8.3619e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25);
     /* fading radius of a supernova, using gas energy of the host cell and ideal gas approximations */
     float T = BaryonField[GENum][index] / BaryonField[DensNum][index] * TemperatureUnits;
     float cSound = sqrt(kboltz * T / mh) / 1e5; // [km/s] 
@@ -335,19 +344,19 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     {  // this calculation for SNe only
         // coupledMomenta = p_free * min(sqrt(1+ (nCouple * dmean * pow(cellwidth * pc_cm, 3) / SolarMass)/(ejectaMass)), pTerminal/p_free/pow(1+dxeff));
         if (cw_eff < r_free){
-            coupledMomenta = p_free * pow(cw_eff/r_free, 3.0);
+            coupledMomenta = min(p_free * pow(cw_eff/r_free, 1./3.0), p_sedov);
             printf("STARSS_FB: modifying free phase: p = %e\n", coupledMomenta);
         }
         if (r_free < cw_eff && dxeff <= 1){
-                coupledMomenta = min(p_sedov, pTerminal);
+                coupledMomenta = min(p_sedov, pTerminal*dxeff);
                 printf("STARSS_FB: Coupling Sedov-Terminal phase: p = %e (ps = %e, pt = %e, dxe = %e)\n", coupledMomenta, p_sedov, pTerminal, dxeff);
         }
-        if (dxeff > 1 && fader <= 1){   
-                coupledMomenta = pTerminal / pow(dxeff, 3);
+        if (dxeff > 1){   
+                coupledMomenta = pTerminal/ sqrt(min(1.5, dxeff));
                if (printout) printf("STARSS_FB: Coupling Terminal phase: p = %e; dxeff = %e\n", coupledMomenta, dxeff);
             }
-        if (fader > 1){ // high coupling during the fading regime leads to SNRs on the root-grid in 6-level AMR simulations!
-            coupledMomenta = pTerminal  * (1.0 - tanh(pow(fader * merger, 2.5)));
+        if (fader > 1 && useFading){ // high coupling during the fading regime leads to SNRs on the root-grid in 6-level AMR simulations!
+            coupledMomenta = pTerminal * (1.0 - tanh(pow(fader * merger, 2.5)));
            if (printout) printf("STARSS_FB: Coupling Fading phase: p = %e\n", coupledMomenta);
         }
         // critical density to skip snowplough (remnant combines with ISM before radiative phase); eq 4.9 cioffi 1988
@@ -392,20 +401,29 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     float centralMass = 0;
     float centralMetals = 0;
-    float maxEvacFraction = 0.5;
-    if (coupledEnergy > 0 && AnalyticSNRShellMass && !winds && !faded)
+    float maxEvacFraction = 0.75;
+    if (coupledEnergy > 0 && AnalyticSNRShellMass && !winds)
     {
-            // if (dxeff > 0.5)
+            if (dxeff < 1)
                 shellMass = min(1e8, coupledMomenta / shellVelocity); //Msun
+            //only have that expression of velocity for pds stage.  after, we take the M_s from 
+            // thornton 1998, eq 22, 33
+            if (dxeff > 1){ 
+                if (zZsun > 0.01)
+                    shellMass = 1.41e4 *pow(ejectaEnergy/1e51, 6./7.) * pow(dmean, -0.24) * pow(zZsun, -0.27);
+                else{
+                    shellMass = 4.89e4* pow(ejectaEnergy/1e51, 6./7.) * pow(dmean, -0.24);
+                }
+            }
             // else
                 // shellMass = ejectaMass; // shell mass increases until comparable to ejecta mass, then we enter snowplough phases
             /* cant let host cells evacuate completely!  
                    Shell mass will be evacuated from central cells by CIC a negative mass,
                     so have to check that the neighbors can handle it too*/
         if (shellMass > 0)
-            for (int i = ip-2; i <= ip+2; i++)
-                for (int j = jp-2; j <= jp+2; j++)
-                   for (int k = kp-2; k <= kp+2; k++)
+            for (int i = ip-21; i <= ip+1; i++)
+                for (int j = jp-1; j <= jp+1; j++)
+                   for (int k = kp-1; k <= kp+1; k++)
                         {
                         int flat = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];
                         // only record if this cell would've been touched by CIC on star particle (estimated as the "blast interior")
@@ -414,13 +432,13 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                         xcell = CellLeftEdge[0][0] + (0.5 + (float) i) * dx;
                         ycell = CellLeftEdge[1][0] + (0.5 + (float) j) * dx;
                         zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
-                        float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, false); // always use cic to remove the mass
-                        if (window > 0){
+                        float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, true); // always use cic to remove the mass
+                        // if (window > 0){
                             centralMass +=  BaryonField[DensNum][flat];
                             centralMetals +=  BaryonField[MetalNum][flat];
                             // if (SNColourNum != -1 && !MechStarsMetallicityFloor)
                             //     centralMetals += window * BaryonField[SNColourNum][flat];
-                        }
+                        // }
                     }
         centralMass *= MassUnits;
         if (shellMass > maxEvacFraction * centralMass){
@@ -538,15 +556,15 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float remainMass = shellMass/MassUnits;
     float msubtracted = 0;
     float remainZ = shellMetals/MassUnits;
-    if (shellMass > 0 && AnalyticSNRShellMass && !faded)
+    if (shellMass > 0 && AnalyticSNRShellMass)
         // do
         {
             float zsubtracted = 0;
             massiveCell=false;
             msubtracted = 0;
-                for (int i = ip-2; i <= ip+2; i++)
-                    for (int j = jp-2; j <= jp+2; j++)
-                    for (int k = kp-2; k <= kp+2; k++)
+                for (int i = ip-1; i <= ip+1; i++)
+                    for (int j = jp-1; j <= jp+1; j++)
+                        for (int k = kp-1; k <= kp+1; k++)
                             {
                             int flat = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];
                             float xcell, ycell, zcell;
@@ -554,24 +572,24 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                             xcell = CellLeftEdge[0][0] + (0.5 + (float) i) * dx;
                             ycell = CellLeftEdge[1][0] + (0.5 + (float) j) * dx;
                             zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
-                            float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, false); // always use cic to remove the mass
-                            if (window > 0)
-                            {
+                            float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, true); // always use cic to remove the mass
+                            // if (window > 0)
+                            // {
                                 float dpre = BaryonField[DensNum][flat] ;
                                 float zpre = BaryonField[MetalNum][flat];
                                 float pre_z_frac = zpre / dpre;
                                 if (printout)
                                 fprintf(stdout, "STARSS: Baryon Prior: %e, window = %f; mc = %e, ms = %e; m_z = %e , z = %e\n", BaryonField[DensNum][flat] * MassUnits, window, centralMass, shellMass, shellMetals, pre_z_frac);
-                                BaryonField[DensNum][flat] = max(dpre - window*remainMass/27., (1.0-maxEvacFraction)* dpre);
+                                BaryonField[DensNum][flat] = max(dpre - remainMass/27., (1.0-maxEvacFraction)* dpre);
                                 minusRho += dpre - BaryonField[DensNum][flat];
                                 msubtracted += dpre - BaryonField[DensNum][flat];
                                 // fprintf(stdout, "STARSS: Baryon Post: %e\n", BaryonField[DensNum][flat] * MassUnits);
-                                BaryonField[MetalNum][flat] =   max(tiny_number, zpre - window*remainZ/27.0);
+                                BaryonField[MetalNum][flat] =   max(tiny_number, zpre - remainZ/27.);
                                 minusZ += zpre - BaryonField[MetalNum][flat];
                                 zsubtracted += zpre - BaryonField[MetalNum][flat];
-                            }
-                            if (BaryonField[DensNum][flat] >= 1.25*remainMass/MassUnits/27.)
-                                massiveCell=true;
+                            // }
+                            // if (BaryonField[DensNum][flat] >= 1.25*remainMass)
+                            //     massiveCell=true;
                         }
                     remainMass -= msubtracted;
                     remainZ -= zsubtracted;
@@ -583,7 +601,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     // real amount of momenta.  Not sure what to do on that one...
     minusRho *= MassUnits; // Msun
     minusZ *= MassUnits;
-    if (minusRho != coupledMass - ejectaMass && shellMass > 0 && AnalyticSNRShellMass && !faded)
+    if (minusRho != coupledMass - ejectaMass && shellMass > 0 && AnalyticSNRShellMass)
     {
         if (printout) fprintf(stdout, "STARSS_FB: Of %e, only subtracted %e; rescaling the coupling mass\n", shellMass, minusRho);
         float oldcouple = coupledMass;
@@ -592,9 +610,10 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         // if were in here, we found an inconsistent place where the mass within cannot support the expected shell.  
         // the only real choice, to keep things from exploding in a bad way, is to rescale the momentum accordingly. 
         // If this is triggered, dont expect the terminal momenta relations to hold up.
-        coupledMomenta = min(coupledMomenta, sqrt(2.0 * (coupledMass*SolarMass) * ejectaEnergy)/SolarMass/1e5);
+        if (coupledMomenta * coupledMomenta / (2.0 * coupledMass * SolarMass) * SolarMass * 1e10 > 1e51){
+            coupledMomenta = min(coupledMomenta, sqrt(2.0 * (coupledMass*SolarMass) * ejectaEnergy)/SolarMass/1e5);
         if (printout) fprintf(stdout, "STARSS_FB: rescaled momentum to %e (est KE = %e)\n", coupledMomenta, coupledMomenta*coupledMomenta / (2*coupledMass) * SolarMass * 1e10);
-
+        }
     }
     coupledEnergy = coupledEnergy / EnergyUnits;
     coupledGasEnergy = coupledGasEnergy / EnergyUnits;
