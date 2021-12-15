@@ -1622,7 +1622,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			//fprintf(stderr,"%s: No POPIII/SMS was particle detected. Continue to flag fields.\n", __FUNCTION__);  
 			pos = SmartStarList[i]->ReturnPosition();
 			double accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
-			fprintf(stderr, "%s: accrad = %e (bondi radius) and bondi factor = %e.\n", __FUNCTION__, accrad, SmartStarBondiRadiusRefinementFactor);
+			fprintf(stderr, "%s: accrad = %e (bondi radius) and bondi factor = %e and cell_width = %e.\n", __FUNCTION__, accrad, SmartStarBondiRadiusRefinementFactor, dx);
 			// SG. Check for when accrad = 0 in the first 100 kyr of BH's life.
 			if (accrad < 1e-30)
 			continue;
@@ -1799,8 +1799,7 @@ static void UpdateAccretionRadius(ActiveParticleType*  ThisParticle, float newma
 		// SG. NewAccretionRadius = Bondi Radius. Is OldAccretionRadius = 4 cell widths?
   FLOAT NewAccretionRadius = (2 * GravConst * newmass * MassConversion / soundspeed2) / length_units; //in code_length
 		fprintf(stderr,"%s: NewAccretionRadius = %e and OldAccretionRadius = %e.\n", __FUNCTION__, NewAccretionRadius, OldAccretionRadius); // SG. Debug comment.
-  if(NewAccretionRadius > OldAccretionRadius)
-    SS->AccretionRadius = NewAccretionRadius;
+  SS->AccretionRadius = NewAccretionRadius;
   return;
 }
 
