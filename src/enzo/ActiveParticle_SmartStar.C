@@ -1434,7 +1434,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
    * of 100,000 years which accounts for end of snowplough 
    * period
    */
-  float TimeDelay = 1e2*yr_s/TimeUnits; ; //SG. Used to be set to 100 kyr =  1e5*yr_s/TimeUnits; 
+  float TimeDelay = 0.1*yr_s/TimeUnits; ; //SG. Used to be set to 100 kyr =  1e5*yr_s/TimeUnits; 
   for (int i = 0; i < nParticles; i++) {
 			  grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
 					if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
@@ -1532,7 +1532,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 			fprintf(stderr,"%s: Updating accretion radius to Bondi-Hoyle radius = %e pc (%f cells)\n", __FUNCTION__,
 										static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius*LengthUnits/pc_cm,
 										static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius/dx_grid);
-										// SG. Deallocating memory in dynamic array pointer Temperature (and vparticle?) to solve memory leak.
+										// SG. Deallocating memory in dynamic array pointer Temperature to solve memory leak.
 								}
 								//#endif
 								delete [] Temperature;
