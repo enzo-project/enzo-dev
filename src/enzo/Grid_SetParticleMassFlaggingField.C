@@ -30,8 +30,8 @@
 #ifdef USE_MPI
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Target,
 			      int Tag, MPI_Comm CommWorld, int BufferSize);
+MPI_Arg Return_MPI_Tag(int grid_num, int proc);
 #endif /* USE_MPI */
-int Return_MPI_Tag(int grid_num, int proc);
 
 /* The following is defined in Grid_DepositParticlePositions.C. */
  
@@ -156,8 +156,12 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 
 #ifdef USE_MPI
     if (MyProcessorNumber != ProcessorNumber) {
-      //MPI_Arg Mtag = Return_MPI_Tag(this->ID, ProcessorNumber);
-      MPI_Arg Mtag = 2001;
+      MPI_Arg Mtag = Return_MPI_Tag(this->ID, ProcessorNumber);
+      if(Mtag < 0) {
+	fprintf(stderr, "MPI_TAG = %d, level = %d, Grid ID = %d, proc = %d\n",
+		Mtag, level, this->ID, ProcessorNumber);
+	ENZO_FAIL("");
+      }
       CommunicationBufferedSend(ParticleMassFlaggingField, size, DataType,
 				ProcessorNumber, Mtag, 
 				MPI_COMM_WORLD, size*sizeof(float));
@@ -192,8 +196,12 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 
       if (Source >= StartProc && Source < EndProc) {
 	buffer = new float[size];
-	//MPI_Arg Mtag = Return_MPI_Tag(this->ID, ProcessorNumber);
-	MPI_Arg Mtag = 2001;
+	MPI_Arg Mtag = Return_MPI_Tag(this->ID, ProcessorNumber);
+	if (Mtag < 0) {
+	  fprintf(stderr, "MPI_TAG = %d, level = %d, Grid ID = %d, proc = %d\n",
+		  Mtag, level, this->ID, ProcessorNumber);
+	  ENZO_FAIL("");
+	}
 	MPI_Irecv(buffer, Count, DataType, Source, Mtag, MPI_COMM_WORLD, 
 		  CommunicationReceiveMPI_Request+CommunicationReceiveIndex);
 
@@ -220,9 +228,9 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 
 int Return_MPI_Tag(int grid_num, int proc)
 {
-  // Return a somewhat-unique MPI tag for communication.  The factors
-  // are prime.
-  return 6373*MPI_SENDPMFLAG_TAG + 4041*grid_num + 1973*proc;
+  // Return a somewhat-unique 16-bit MPI tag for communication.  The factors
+  // are prime. 
+  return (6373*MPI_SENDPMFLAG_TAG + 4041*grid_num + 1973*proc) % (1 << 16);
 }
 
 #ifdef UNUSED

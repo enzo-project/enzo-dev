@@ -94,9 +94,11 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
      * of the Draine & Bertoldi fitting formaula for H2 self shielding may be 
      * more appropriate 
      */
-   
-    
-    b = sqrt(2.0*kboltz*BaryonField[TemperatureField][cellindex]/H2mass); // cm s^-1
+    float T = 10000;
+    if(BaryonField[TemperatureField])
+      T = BaryonField[TemperatureField][cellindex];
+
+    b = sqrt(2.0*kboltz*T/H2mass); // cm s^-1
     b5 = b/1e5;                                    // cm s^-1
     if ((*PP)->ColumnDensity < THRESHOLD_DENSITY_DB37) {
       shield1 = 1;

@@ -9,7 +9,7 @@
 
 #include "ActiveParticle_SmartStar.h"
 #include "phys_constants.h"
-#define SSDEBUG 0
+#define SSDEBUG 1
 #define SSDEBUG_TOTALMASS 0
 
 #define DYNAMIC_ACCRETION_RADIUS 0
@@ -22,7 +22,7 @@
 #define MASSTHRESHOLD      0.1                       //Msolar in grid
 #define COOLING_TIME       0
 #define NUMSSPARTICLETYPES 4
-#define JEANS_FACTOR       2
+#define JEANS_FACTOR       4
 int DetermineSEDParameters(ActiveParticleType_SmartStar *SS,FLOAT Time, FLOAT dx);
 
 /* We need to make sure that we can operate on the grid, so this dance is
@@ -742,6 +742,7 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 	if(POPII == ThisParticle->ParticleClass) {
 	  ramptime = yr_s * StarClusterMinDynamicalTime / TimeUnits;
 	}
+
 	/* Call Function to return SED parameters */
 	if(ThisParticle->DetermineSEDParameters(Time, dx) == FAIL)
 	  return FAIL;
