@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <limits.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -16,19 +17,22 @@
 #include "StarParticleData.h"
 #include "phys_constants.h"
 
+void mt_init(unsigned_int seed);
+unsigned_long_int mt_random();
 int determineSN(float age, int* nSNII, int* nSNIA, 
                 float massMsun, float TimeUnits, float dt){
-
+    // const int max_random = (1<<16);
     if (NEvents > 0){
         *nSNII = 1;
         NEvents -= 1;
         return SUCCESS;
     }
     /* else, calculate SN rate, probability and determine number of events */
-    int seed = clock();
+    mt_init(clock());
     *nSNII = 0;
     *nSNIA = 0;
-    float RII=0, RIA=0, PII=0, PIA=0, random = 0;
+    float RII=0, RIA=0, PII=0, PIA=0;
+    float random;
     if (SingleSN == 1 && NEvents < 0)
     {   
         // printf("Calculating rates\n");
@@ -53,14 +57,13 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 RII = 0.0;
                 RIA = 5.2e-8+1.6e-5*exp(-1.0*pow((age-50.0)/10.0, 2)/2.0);
         }
-	    //    fprintf(stdout, "Rates: For age %f Myr, RII = %f; RIA = %f\n", age, RII, RIA);
+	       fprintf(stdout, "Rates: For age %f Myr, RII = %f; RIA = %f ", age, RII, RIA);
         /* rates -> probabilities */
         if (RII > 0){
-            srand(seed);
         // printf("Zcpl = %e", zCouple);
             PII = RII * massMsun / Myr_s *TimeUnits*dt;
-            random = float(rand())/float(RAND_MAX);
-            // printf("PII =%f\n %f %e %f rnd = %e\n", PII, RII, massMsun, age, random);
+            random = float(mt_random())/float(UINT_MAX);
+            fprintf(stdout, "PII =%f -- %f %e %f rnd = %e\n", PII, RII, massMsun, age, random);
             if (PII > 1.0 && UnrestrictedSN == TRUE){
                 int round = (int)PII;
                 *nSNII = round;
@@ -75,15 +78,14 @@ int determineSN(float age, int* nSNII, int* nSNIA,
             }
         }
         if (*nSNII > 0)
-            printf("Positive SN predicted: RII = %e; PII = %e; dt = %e (%e Myr); M* = %e; A* = %f; Rand = %f\n", \
+            fprintf(stdout, "Positive SN predicted: RII = %e; PII = %e; dt = %e (%e Myr); M* = %e; A* = %f; Rand = %e\n", \
                             RII, PII, dt, dt * TimeUnits / Myr_s, massMsun, age, random);
         // printf("RANDOM = %f\n", random);            
         // printf("N SNII=%d\n",*nSNII);
         
         if (RIA > 0){
-            srand(seed);
             PIA = RIA*massMsun / Myr_s * TimeUnits * dt;
-            float random = float(rand())/float(RAND_MAX);
+            random = float(mt_random())/float(UINT_MAX);
             
             if (PIA > 1.0 && UnrestrictedSN == TRUE)
             {
