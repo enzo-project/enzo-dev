@@ -63,7 +63,7 @@ bool Star::IsARadiationSource(FLOAT Time)
   
   // Living
   if (FeedbackFlag == MECHANICAL) {// MechStars radiate ionizing radiation for 25 Myr
-    rules[1] = (Time >= BirthTime) && ((Time - BirthTime)*TimeUnits/Myr_s <= 25.0) && (type > 0);
+    rules[1] = (Time >= BirthTime) && ((Time - BirthTime)*TimeUnits/Myr_s <= 25.0) && (type == 2);
     // printf("IsARadiationSource: T = %f, Birth = %f, Lifetime = %f\n", Time*TimeUnits/Myr_s, BirthTime*TimeUnits/Myr_s, LifeTime/Myr_s);
   }
   else // other stars radiate for all time

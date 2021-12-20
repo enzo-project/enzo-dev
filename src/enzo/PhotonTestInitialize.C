@@ -101,6 +101,12 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   int PhotonTestUseParticles    = FALSE;
   int PhotonTestUseColour       = FALSE;
   float PhotonTestInitialTemperature = 1000;
+  // adding functionality for a single star source instead 
+  // of a ghost source
+  int PhotonTestUseMechStarSource = 0;
+  float PhotonTestMechStarParticleMass = 1e3;
+  float PhotonTestMechStarPosition[MAX_DIMENSION];
+
   int   PhotonTestSphereType[MAX_SPHERES],
     PhotonTestSphereConstantPressure[MAX_SPHERES],
     PhotonTestSphereSmoothSurface[MAX_SPHERES];
@@ -208,6 +214,13 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       PhotonTestTemperatureFilename = new char[MAX_LINE_LENGTH];
       strcpy(PhotonTestTemperatureFilename, dummy);
     }
+    // parameters to use stellar source
+    ret += sscanf(line, "PhotonTestUseMechStarSource = %"ISYM, &PhotonTestUseMechStarSource);
+    ret += sscanf(line, "PhotonTestMechStarParticleMass = %"FSYM, &PhotonTestMechStarParticleMass);
+    ret += sscanf(line, "PhotonTestMechStarPosition = %"FSYM" %"FSYM" %"FSYM,  
+		  PhotonTestMechStarPosition, PhotonTestMechStarPosition+1,
+		  PhotonTestMechStarPosition+2); 
+
     ret += sscanf(line, "PhotonTestUniformVelocity = %"FSYM" %"FSYM" %"FSYM, 
 		  PhotonTestUniformVelocity, PhotonTestUniformVelocity+1,
 		  PhotonTestUniformVelocity+2);
@@ -342,6 +355,9 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestSphereHeIIIFraction, PhotonTestSphereH2IFraction,
 	     PhotonTestUseParticles,
              PhotonTestUniformVelocity, PhotonTestUseColour,
+             PhotonTestUseMechStarSource,
+             PhotonTestMechStarParticleMass,
+             PhotonTestMechStarPosition,
              PhotonTestInitialTemperature, 0, 
 	     PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
@@ -412,6 +428,9 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestSphereHeIIIFraction, PhotonTestSphereH2IFraction,
 	     PhotonTestUseParticles,
 	     PhotonTestUniformVelocity, PhotonTestUseColour,
+             PhotonTestUseMechStarSource,
+             PhotonTestMechStarParticleMass,
+             PhotonTestMechStarPosition,
 	     PhotonTestInitialTemperature, level+1, 
 	     PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
@@ -467,7 +486,10 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    PhotonTestSphereHeIIIFraction, PhotonTestSphereH2IFraction,
 		    PhotonTestUseParticles,
 		    PhotonTestUniformVelocity, PhotonTestUseColour,
-		    PhotonTestInitialTemperature, level2+1, 
+             PhotonTestUseMechStarSource,
+             PhotonTestMechStarParticleMass,
+             PhotonTestMechStarPosition,
+    		    PhotonTestInitialTemperature, level2+1, 
 		    PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 		    PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 		    PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
@@ -570,6 +592,11 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	    PhotonTestUseColour);
     fprintf(Outfptr, "PhotonTestInitialTemperature = %"FSYM"\n",
 	    PhotonTestInitialTemperature);
+    fprintf(Outfptr, "PhotonTestUseMechStarSource = %"ISYM"\n", PhotonTestUseMechStarSource);
+    fprintf(Outfptr, "PhotonTestMechStarParticleMass = %"ISYM"\n", PhotonTestMechStarParticleMass);
+    fprintf(Outfptr, "PhotonTestMechStarPosition    = %"FSYM" %"FSYM" %"FSYM"\n",
+	    PhotonTestMechStarPosition[0], PhotonTestMechStarPosition[1],
+	    PhotonTestMechStarPosition[2]);    
     fprintf(Outfptr, "PhotonTestUniformVelocity    = %"FSYM" %"FSYM" %"FSYM"\n",
 	    PhotonTestUniformVelocity[0], PhotonTestUniformVelocity[1],
 	    PhotonTestUniformVelocity[2]);

@@ -1204,6 +1204,6 @@ EXTERN int UseMagneticSupernovaFeedback;
 EXTERN float MagneticSupernovaRadius;
 EXTERN float MagneticSupernovaDuration;
 EXTERN float MagneticSupernovaEnergy;
-
+EXTERN int PhotonTestMechStarDeposited;
 EXTERN float SolarMetalFractionByMass;
 #endif

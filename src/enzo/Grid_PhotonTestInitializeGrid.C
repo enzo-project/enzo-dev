@@ -71,6 +71,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 			     int   SphereUseParticles,
 			     float UniformVelocity[MAX_DIMENSION],
 			     int   SphereUseColour,
+				 int   UseMechStarParticle,
+				 float MechStarParticleMass,
+				 float MechStarPosition[MAX_DIMENSION], 
 			     float InitialTemperature, int level, 
 			     float PhotonTestInitialFractionHII, 
 			     float PhotonTestInitialFractionHeII,
@@ -167,6 +170,10 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     NumberOfParticles = (SphereUseParticles > 0) ? 1 : 0;
     for (dim = 0; dim < GridRank; dim++)
       NumberOfParticles *= (GridEndIndex[dim] - GridStartIndex[dim] + 1);
+	if (UseMechStarParticle){
+		NumberOfParticles += 1;
+		NumberOfParticleAttributes=4;
+	}
     return SUCCESS;
   }
 
@@ -245,12 +252,16 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   /* Set particles. */
 
-  if (SphereUseParticles > 0 && SetupLoopCount > 0) {
+  if (SphereUseParticles > 0 && SetupLoopCount > 0 || UseMechStarParticle) {
     /* If particles already exist (coarse particles), then delete. */
     if (NumberOfParticles > 0)
       this->DeleteParticles();
     /* Use count from previous loop to set particle number. */
     NumberOfParticles = npart;
+	if (UseMechStarParticle){
+		NumberOfParticleAttributes = 4;
+		NumberOfParticles += 1;
+	}
     npart = 0;
     /* Allocate space. */
     this->AllocateNewParticles(NumberOfParticles);
@@ -273,6 +284,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     }
 
   /* Initialize radiation fields */
+	// Add a star if requested
 
   if (this->InitializeRadiativeTransferFields() == FAIL) {
     ENZO_FAIL("\nError in InitializeRadiativeTransferFields.\n");
@@ -912,10 +924,43 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    }
 	  } // end: if statement
 
-	} // end loop over grid
-	
-  } // end loop SetupLoopCount
 
+	} // end loop over grid
+	if (UseMechStarParticle 
+		&& MechStarPosition[0] > GridLeftEdge[0]
+		&& MechStarPosition[1] > GridLeftEdge[1]
+		&& MechStarPosition[2] > GridLeftEdge[2]){
+	int ix, iy, iz;
+	ix = (MechStarPosition[0] + GridLeftEdge[0] + 0.5*CellWidth[0][0]) / CellWidth[0][0];
+	iy = (MechStarPosition[1] + GridLeftEdge[1] + 0.5*CellWidth[0][0]) / CellWidth[0][0];
+	iz = (MechStarPosition[2] + GridLeftEdge[2] + 0.5*CellWidth[0][0]) / CellWidth[0][0];
+	int flat = ix + iy * GridDimension[0] + iz * GridDimension[0] * GridDimension[1];
+	// if (this->GridLevel == 0){
+		i = NumberOfParticles-1;
+		for (dim = 0; dim < GridRank; dim++) {
+			int idx = (MechStarPosition[dim] - GridLeftEdge[dim] +0.5 * CellWidth[0][0])/CellWidth[0][0];
+			fprintf(stdout, "Setting up a star: M = %e; R = %f %f %f, idx = %d\n",
+								MechStarParticleMass, MechStarPosition[0],MechStarPosition[1],MechStarPosition[2], idx );
+			float p1 = MechStarPosition[dim];
+			ParticlePosition[dim][i] = p1;
+			ParticleVelocity[dim][i] = BaryonField[ivel+dim][flat];
+		}
+		ParticleMass[i] = MechStarParticleMass*1.99e33* pow(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
+		ParticleAttribute[0][i] = 1e-7; //creation time:make sure it is non-zero
+
+		if (StarParticleRadiativeFeedback){
+			ParticleAttribute[1][i] = 25 * Myr_s/TimeUnits; // radiate for 25 Myr
+		}
+		else{
+		ParticleAttribute[1][i] = 3.953;
+		}
+	ParticleType[i] = PARTICLE_TYPE_STAR; 
+	ParticleAttribute[2][i] = 0.0;  // Metal fraction
+	ParticleAttribute[3][i] = 0.0;  // metalfSNIa
+	PhotonTestMechStarDeposited ++;
+		// }
+		}
+  } // end loop SetupLoopCount
   /* If needed, set a radiation field in the cell where the
      sources resides to flag the cells by optical depth */
 
