@@ -363,7 +363,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         if (printout)
            printf("STARSS_FB: Checking critical density metric... (nmean = %e; N_Crit = %e; factors: %e %e %e; beta = %e/%e == %e; rmerge = %e)\n", 
                                         nmean, nCritical, pow(nmean * T / 1e4, 7.0/9.0), pow(ejectaEnergy/1e51, 1.0/9.0), pow(fz, 1.0/3.0), shellVelocity , cSound, beta, rmerge);
-        if (nmean <= 10.0 * nCritical && cellwidth > 30){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
+        if (nmean <= 10.0 * nCritical){ // in high-pressure, low nb, p_t doesnt hold since there is essentailly no radiative phase.
                                         // thermal energy dominates the evolution (Tang, 2005, doi 10.1086/430875 )
                                         // We inject 100 % thermal energy to simulate this recombining with the ISM
                                         // and rely on the hydro and the thermal radiation to arrive at the right solution
