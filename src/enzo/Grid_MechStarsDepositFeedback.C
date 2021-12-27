@@ -567,27 +567,28 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                         for (int k = kp-1; k <= kp+1; k++)
                             {
                             int flat = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];
-                            float xcell, ycell, zcell;
-                            /* position of cell to couple to, center value */
-                            xcell = CellLeftEdge[0][0] + (0.5 + (float) i) * dx;
-                            ycell = CellLeftEdge[1][0] + (0.5 + (float) j) * dx;
-                            zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
-                            float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, true); // always use cic to remove the mass
-                            // if (window > 0)
-                            // {
-                                float dpre = BaryonField[DensNum][flat] ;
-                                float zpre = BaryonField[MetalNum][flat];
-                                float pre_z_frac = zpre / dpre;
-                                if (printout)
-                                fprintf(stdout, "STARSS: Baryon Prior: %e, window = %f; mc = %e, ms = %e; m_z = %e , z = %e\n", BaryonField[DensNum][flat] * MassUnits, window, centralMass, shellMass, shellMetals, pre_z_frac);
-                                BaryonField[DensNum][flat] = max(dpre - remainMass/27., (1.0-maxEvacFraction)* dpre);
-                                minusRho += dpre - BaryonField[DensNum][flat];
-                                msubtracted += dpre - BaryonField[DensNum][flat];
-                                // fprintf(stdout, "STARSS: Baryon Post: %e\n", BaryonField[DensNum][flat] * MassUnits);
-                                BaryonField[MetalNum][flat] =   max(tiny_number, zpre - remainZ/27.);
-                                minusZ += zpre - BaryonField[MetalNum][flat];
-                                zsubtracted += zpre - BaryonField[MetalNum][flat];
-                            // }
+                            if (flat > 0 && flat < size){
+                                float xcell, ycell, zcell;
+                                /* position of cell to couple to, center value */
+                                xcell = CellLeftEdge[0][0] + (0.5 + (float) i) * dx;
+                                ycell = CellLeftEdge[1][0] + (0.5 + (float) j) * dx;
+                                zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
+                                float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, true); // always use cic to remove the mass
+                                // if (window > 0)
+                                // {
+                                    float dpre = BaryonField[DensNum][flat] ;
+                                    float zpre = BaryonField[MetalNum][flat];
+                                    float pre_z_frac = zpre / dpre;
+                                    if (printout)
+                                    fprintf(stdout, "STARSS: Baryon Prior: %e, window = %f; mc = %e, ms = %e; m_z = %e , z = %e\n", BaryonField[DensNum][flat] * MassUnits, window, centralMass, shellMass, shellMetals, pre_z_frac);
+                                    BaryonField[DensNum][flat] = max(dpre - remainMass/27., (1.0-maxEvacFraction)* dpre);
+                                    minusRho += dpre - BaryonField[DensNum][flat];
+                                    msubtracted += dpre - BaryonField[DensNum][flat];
+                                    // fprintf(stdout, "STARSS: Baryon Post: %e\n", BaryonField[DensNum][flat] * MassUnits);
+                                    BaryonField[MetalNum][flat] =   max(tiny_number, zpre - remainZ/27.);
+                                    minusZ += zpre - BaryonField[MetalNum][flat];
+                                    zsubtracted += zpre - BaryonField[MetalNum][flat];
+                            }
                             // if (BaryonField[DensNum][flat] >= 1.25*remainMass)
                             //     massiveCell=true;
                         }
@@ -725,57 +726,58 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                             zcell = CellLeftEdge[2][0] + (0.5 + (float) kcell) * dx;
                             /* flat index ... */
                             int flat = icell + jcell * GridDimension[0] + kcell * GridDimension[0] * GridDimension[1];
-                            int buffind = (ii+i +2) + (jj+j+2) * 5 + (kk+k+2)*25;
-                                                        float modi, modj, modk;
-                            modi = (float) i;
-                            modj = (float) j;
-                            modk = (float) k;
-                            float uniti, unitj, unitk, normfact;
-                            float pX=0, pY=0, pZ = 0;
-                            // if (!(modi==0 && modj == 0 && modk==0)){
-                                normfact = sqrt(modi*modi + modj*modj + modk*modk);
-                                uniti = modi / normfact;
-                                unitj = modj / normfact;
-                                unitk = modk / normfact;
-                            
-                                pX = coupledMomenta * (float) uniti; //* weightsVector[n];
-                                pY = coupledMomenta * (float) unitj; //* weightsVector[n];
-                                pZ = coupledMomenta * (float) unitk; //* weightsVector[n];
-                            // }
-                            /* fraction of quantities that go into this cloud cell... */
-                            float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
-                            dep_vol_frac += window;
-                            // printf("STARSS_FB: \t\t\tCloud %e %e %e Coupling at %d %d %d with window %e.  \n\t\t\t\twfactors: %e %e %e (%f %f %f)\n", 
-                            //                                             xcell, ycell, zcell, 
-                            //                                             icell, jcell, kcell, window,
-                            //                                             xc-xcell, yc-ycell, zc-zcell,
-                            //                                             (xc-xcell)/dx, (yc-ycell)/dx, (zc-zcell)/dx);
-                            /* add quantities to this cell accordingly */
+                            if (flat > 0 && flat < size){
+                                int buffind = (ii+i +2) + (jj+j+2) * 5 + (kk+k+2)*25;
+                                                            float modi, modj, modk;
+                                modi = (float) i;
+                                modj = (float) j;
+                                modk = (float) k;
+                                float uniti, unitj, unitk, normfact;
+                                float pX=0, pY=0, pZ = 0;
+                                // if (!(modi==0 && modj == 0 && modk==0)){
+                                    normfact = sqrt(modi*modi + modj*modj + modk*modk);
+                                    uniti = modi / normfact;
+                                    unitj = modj / normfact;
+                                    unitk = modk / normfact;
+                                
+                                    pX = coupledMomenta * (float) uniti; //* weightsVector[n];
+                                    pY = coupledMomenta * (float) unitj; //* weightsVector[n];
+                                    pZ = coupledMomenta * (float) unitk; //* weightsVector[n];
+                                // }
+                                /* fraction of quantities that go into this cloud cell... */
+                                float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
+                                dep_vol_frac += window;
+                                // printf("STARSS_FB: \t\t\tCloud %e %e %e Coupling at %d %d %d with window %e.  \n\t\t\t\twfactors: %e %e %e (%f %f %f)\n", 
+                                //                                             xcell, ycell, zcell, 
+                                //                                             icell, jcell, kcell, window,
+                                //                                             xc-xcell, yc-ycell, zc-zcell,
+                                //                                             (xc-xcell)/dx, (yc-ycell)/dx, (zc-zcell)/dx);
+                                /* add quantities to this cell accordingly */
 
-                            BaryonField[DensNum][flat] = BaryonField[DensNum][flat] + mCouple * window;
-                            sum_cell_mass += window * BaryonField[DensNum][flat];
-                            BaryonField[MetalNum][flat] = BaryonField[MetalNum][flat] + zCouple * window;
-                            if (DualEnergyFormalism)
-                                {    
-                                    // add kinetic energy on a second pass to ensure that all masses have been previously adjusted.
-                                    // printf("STARSS_FB: ADDING %e to TE buffer %d (%e %e %e %e)\n",(pX*pX + pY*pY + pZ*pZ) * window * window * MomentaUnits, buffind, pX*MomentaUnits, pY*MomentaUnits, pZ*MomentaUnits, window );
-                                    te_buffer[buffind] += (pX*pX + pY*pY + pZ*pZ) * window * window ;
-                                    // printf("STARSS_FB: added %e ke\n",(pX*pX + pY*pY + pZ*pZ)/ (2.*coupledMass) * window  * EnergyUnits );
-                                    // ke_deposit += (pX*pX + pY*pY + pZ*pZ)/ (2.*coupledMass) * window ;
-                                    // BaryonField[TENum][flat] = BaryonField[TENum][flat] + geCouple * window;
-                                }
-                            ge_buffer[buffind] += geCouple * window;
-                            float prep = BaryonField[Vel1Num][flat]*BaryonField[Vel1Num][flat]
-                                                + BaryonField[Vel2Num][flat]*BaryonField[Vel2Num][flat] 
-                                                + BaryonField[Vel3Num][flat]*BaryonField[Vel1Num][flat];
-                            BaryonField[Vel1Num][flat] = BaryonField[Vel1Num][flat] + pX * window;
-                            BaryonField[Vel2Num][flat] = BaryonField[Vel2Num][flat] + pY * window;
-                            BaryonField[Vel3Num][flat] = BaryonField[Vel3Num][flat] + pZ * window;
-                            expect_momenta += BaryonField[Vel1Num][flat]*BaryonField[Vel1Num][flat]
-                                                + BaryonField[Vel2Num][flat]*BaryonField[Vel2Num][flat] 
-                                                + BaryonField[Vel3Num][flat]*BaryonField[Vel1Num][flat]
-                                                - prep;
-
+                                BaryonField[DensNum][flat] = BaryonField[DensNum][flat] + mCouple * window;
+                                sum_cell_mass += window * BaryonField[DensNum][flat];
+                                BaryonField[MetalNum][flat] = BaryonField[MetalNum][flat] + zCouple * window;
+                                if (DualEnergyFormalism)
+                                    {    
+                                        // add kinetic energy on a second pass to ensure that all masses have been previously adjusted.
+                                        // printf("STARSS_FB: ADDING %e to TE buffer %d (%e %e %e %e)\n",(pX*pX + pY*pY + pZ*pZ) * window * window * MomentaUnits, buffind, pX*MomentaUnits, pY*MomentaUnits, pZ*MomentaUnits, window );
+                                        te_buffer[buffind] += (pX*pX + pY*pY + pZ*pZ) * window * window ;
+                                        // printf("STARSS_FB: added %e ke\n",(pX*pX + pY*pY + pZ*pZ)/ (2.*coupledMass) * window  * EnergyUnits );
+                                        // ke_deposit += (pX*pX + pY*pY + pZ*pZ)/ (2.*coupledMass) * window ;
+                                        // BaryonField[TENum][flat] = BaryonField[TENum][flat] + geCouple * window;
+                                    }
+                                ge_buffer[buffind] += geCouple * window;
+                                float prep = BaryonField[Vel1Num][flat]*BaryonField[Vel1Num][flat]
+                                                    + BaryonField[Vel2Num][flat]*BaryonField[Vel2Num][flat] 
+                                                    + BaryonField[Vel3Num][flat]*BaryonField[Vel1Num][flat];
+                                BaryonField[Vel1Num][flat] = BaryonField[Vel1Num][flat] + pX * window;
+                                BaryonField[Vel2Num][flat] = BaryonField[Vel2Num][flat] + pY * window;
+                                BaryonField[Vel3Num][flat] = BaryonField[Vel3Num][flat] + pZ * window;
+                                expect_momenta += BaryonField[Vel1Num][flat]*BaryonField[Vel1Num][flat]
+                                                    + BaryonField[Vel2Num][flat]*BaryonField[Vel2Num][flat] 
+                                                    + BaryonField[Vel3Num][flat]*BaryonField[Vel1Num][flat]
+                                                    - prep;
+                            }
                             // TODO: add other metal fields for consistency.
 
                         }
@@ -915,16 +917,18 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                 zcell = CellLeftEdge[2][0] + (0.5 + (float) kcell) * dx;
                                 /* flat index ... */
                                 int flat = icell + jcell * GridDimension[0] + kcell * GridDimension[0] * GridDimension[1];
-                                
-                                /* fraction of quantities that go into this cloud cell... */
-                                float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
-                                if (DualEnergyFormalism)
-                                    {    
-                                        BaryonField[TENum][flat] = BaryonField[TENum][flat] + cGE * window / BaryonField[DensNum][flat];
-                                    }
-                                if (remain > 0)
-                                    BaryonField[GENum][flat] = BaryonField[GENum][flat] + cGE * window / BaryonField[DensNum][flat];
-                                ge_deposit += cGE * window;
+                                if (flat > 0 && flat < size){
+                                    
+                                    /* fraction of quantities that go into this cloud cell... */
+                                    float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
+                                    if (DualEnergyFormalism)
+                                        {    
+                                            BaryonField[TENum][flat] = BaryonField[TENum][flat] + cGE * window / BaryonField[DensNum][flat];
+                                        }
+                                    if (remain > 0)
+                                        BaryonField[GENum][flat] = BaryonField[GENum][flat] + cGE * window / BaryonField[DensNum][flat];
+                                    ge_deposit += cGE * window;
+                                }
                             }
                         // printf("STARSS_FB: CIC deposited in sum window %e\n", dep_vol_frac);
                     } // end coupling main qtys   
