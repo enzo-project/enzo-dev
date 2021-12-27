@@ -524,6 +524,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
                 {
                     int idx = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];
+                    if (idx > 0 && idx < size){
                     preMass += BaryonField[DensNum][idx];
                     preZ += BaryonField[MetalNum][idx];
                     if (StarMakerTypeIISNeMetalField)
@@ -537,7 +538,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                             pow(BaryonField[Vel2Num][idx], 2) + pow(BaryonField[Vel3Num][idx], 2);
                     preTE += BaryonField[TENum][idx];
                     preGE += BaryonField[GENum][idx];
-                }
+                }}
     }
     /* Reduce coupled quantities to per-particle quantity and converMetalNumt to 
         code units.
@@ -800,7 +801,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             for (int j = max(0,jp-5); j <= max(jp+5, GridDimension[1]); ++j)
                 for (int i = max(0,ip-5); i <= max(ip+5, GridDimension[0]); ++i)
                 {
-                    int idx = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];            
+                    int idx = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];  
+                    if (idx > 0 && idx < size){          
                     postMass += BaryonField[DensNum][idx];
                     postZ += BaryonField[MetalNum][idx];
                     if (StarMakerTypeIISNeMetalField)
@@ -814,7 +816,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                 pow(BaryonField[Vel2Num][idx], 2) + pow(BaryonField[Vel3Num][idx], 2);
                     postTE += BaryonField[TENum][idx];
                     postGE += BaryonField[GENum][idx];
-                }
+                }}
 
         if (printout)
             fprintf(stdout, "STARSS_FB: Difference quantities: dxRatio = %f dMass = %e dZ = %e dzII = %e dxIa = %e  P = %e |P| = %e (%e) TE = %e GE = %e coupledGE = %e Ej = %e Mej = %e Zej = %e\n",
