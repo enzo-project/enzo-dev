@@ -53,7 +53,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
         return 0;
 
     float Zsolar = 0.02;
-    float stretchFactor = 6.0; // distance in cells required from grid edge for FB to function.
+    float stretchFactor = 2.0; // distance in cells required from grid edge for FB to function.
     bool debug = false;
     float startFB = MPI_Wtime();
     int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
