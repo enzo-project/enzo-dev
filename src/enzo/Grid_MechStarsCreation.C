@@ -240,23 +240,28 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             fprintf(stderr,"Mechanical star maker not tested for anything except HydroMethod = 0\n");
                         /* average particle velocity over many cells to prevent runaway */
                         float cnter = 0;
-                        for (int kp = max(0,k-5); kp <= min(k+5, GridDimension[2]); kp++)
-                            for (int jp = max(0,j-5); jp <= min(j+5, GridDimension[1]) ; jp++)
-                                for (int ip = max(0,i-5); ip <= min(i + 5, GridDimension[0]) ; ip++)
+                        float msum = 0;
+                        for (int kp = max(0,k-3); kp <= min(k+3, GridDimension[2]); kp++)
+                            for (int jp = max(0,j-3); jp <= min(j+3, GridDimension[1]) ; jp++)
+                                for (int ip = max(0,i-3); ip <= min(i + 3, GridDimension[0]) ; ip++)
                                 {
                                     cnter ++;
                                     int ind = ip + jp*GridDimension[0]+kp*GridDimension[0]+GridDimension[1];
-                                    vX += BaryonField[Vel1Num][ind];
-                                    vY += BaryonField[Vel2Num][ind];
-                                    vZ += BaryonField[Vel3Num][ind];
+                                    vX += BaryonField[Vel1Num][ind]*BaryonField[DensNum][ind];
+                                    vY += BaryonField[Vel2Num][ind]*BaryonField[DensNum][ind];
+                                    vZ += BaryonField[Vel3Num][ind]*BaryonField[DensNum][ind];
+                                    msum += BaryonField[DensNum][ind];
                                 }
-                        float MaxVelocity = 250.*1.0e5/VelocityUnits;
+                        vX = vX / msum;
+                        vY = vY / msum;
+                        vZ = vZ / msum;
+                        float MaxVelocity = 150.*1.0e5/VelocityUnits;
                         ParticleArray->ParticleVelocity[0][nCreated] = 
-                            (abs(vX/cnter) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX/cnter);
+                            (abs(vX) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX);
                         ParticleArray->ParticleVelocity[1][nCreated] = 
-                            (abs(vY/cnter) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY/cnter);
+                            (abs(vY) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY);
                         ParticleArray->ParticleVelocity[2][nCreated] = 
-                            (abs(vZ/cnter) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ/cnter);
+                            (abs(vZ) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ);
 
                         /* give it position at center of host cell */
 
