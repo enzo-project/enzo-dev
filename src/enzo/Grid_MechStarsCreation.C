@@ -9,6 +9,7 @@
 #include <math.h>
 #include <mpi.h>
 #include <vector>
+#include <limits.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -36,6 +37,9 @@
 	     float *VelocityUnits, float *MassUnits, float Time);
     int FindField(int field, int farray[], int numfields);
 
+    void mt_init(unsigned_int seed);
+    unsigned_long_int mt_random();
+
 
 /* Creation Routine */
 int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
@@ -57,7 +61,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     bool gridShouldFormStars=false, notEnoughMetals = true;
 
     bool debug = true; // local debug flag; theres a lot of printing in here 
-    srand(clock());
+    mt_init(clock());
 
 
     //get field numbers
@@ -174,8 +178,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             MaximumStarMass = conversion_fraction * BaryonField[DensNum][index] * MassUnits;
                         float MassShouldForm = 0.0;
                         // if (use_F2)
-                            MassShouldForm = shieldedFraction * conversion_fraction * BaryonField[DensNum][index]
-                                        * MassUnits / divisor;
+                            MassShouldForm = min(shieldedFraction * BaryonField[DensNum][index]
+                                        * MassUnits / divisor, conversion_fraction * BaryonField[DensNum][index] * MassUnits / divisor);
                         // else
                         //     MassShouldForm = (MaximumStarMass/divisor);
                         
@@ -185,7 +189,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         float p_form = 1.0 - exp(-1*MassShouldForm * this->dtFixed 
 						                / (MaximumStarMass)); 
                         
-                        float random = (float) rand() / (float)(RAND_MAX);
+                        float random = float(mt_random())/float(UINT_MAX);
                         
                         if (debug && MassShouldForm > 0)
 			                printf("[t=%f, np = %d] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", Time*TimeUnits/Myr_s, 0,
