@@ -300,7 +300,10 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     // p_sf = m_sf*v_sf eq 9,11
     float p_shellform = 3.1e5 * pow(ejectaEnergy / 1e51, 0.94) * pow(nmean, -0.13); // p_sf = m_sf*v_sf eq 9,11
 
-    /* termninal momentum */
+    /* 
+        termninal momentum 
+            We picked the analytic form from Thornton as it matched high-resolution SN we ran the best.
+    */
     float pTerminal;
     if (zZsun > 0.01)
     // Cioffi:
@@ -311,6 +314,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         // pTerminal = 2.8e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.17) * pow(zZsun, -0.36);
     else
         pTerminal = 8.3619e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25);
+
     /* fading radius of a supernova, using gas energy of the host cell and ideal gas approximations */
     float T = BaryonField[GENum][index] / BaryonField[DensNum][index] * TemperatureUnits;
     float cSound = sqrt(kboltz * T / mh) / 1e5; // [km/s] 
@@ -385,8 +389,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     }
 
 
-    // if (printout)
-        if (printout) fprintf(stdout, "STARSS_FB: Calculated p = %e (sq_fact = %e; p_f = %e; p_t = %e; mcell = %e; mcpl = %e)\n", 
+    if (printout) 
+        fprintf(stdout, "STARSS_FB: Calculated p = %e (sq_fact = %e; p_f = %e; p_t = %e; mcell = %e; mcpl = %e)\n", 
                                 coupledMomenta, (dmean / DensityUnits * MassUnits) / ejectaMass * ntouched, p_free, pTerminal, dmean / DensityUnits * MassUnits, ejectaMass/27.0);
 
 
@@ -407,7 +411,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
             if (dxeff < 1)
                 shellMass = min(1e8, coupledMomenta / shellVelocity); //Msun
             //only have that expression of velocity for pds stage.  after, we take the M_s from 
-            // thornton 1998, eq 22, 33
+            // thornton 1998, eq 22, 33.
             if (dxeff > 1){ 
                 if (zZsun > 0.01)
                     shellMass = 1.41e4 *pow(ejectaEnergy/1e51, 6./7.) * pow(dmean, -0.24) * pow(zZsun, -0.27);
@@ -421,25 +425,28 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                    Shell mass will be evacuated from central cells by CIC a negative mass,
                     so have to check that the neighbors can handle it too*/
         if (shellMass > 0)
-            for (int i = ip-21; i <= ip+1; i++)
+            for (int i = ip-1; i <= ip+1; i++)
                 for (int j = jp-1; j <= jp+1; j++)
                    for (int k = kp-1; k <= kp+1; k++)
                         {
                         int flat = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];
-                        // only record if this cell would've been touched by CIC on star particle (estimated as the "blast interior")
-                        float xcell, ycell, zcell;
-                        /* position of cell to couple to, center value */
-                        xcell = CellLeftEdge[0][0] + (0.5 + (float) i) * dx;
-                        ycell = CellLeftEdge[1][0] + (0.5 + (float) j) * dx;
-                        zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
-                        float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, true); // always use cic to remove the mass
-                        // if (window > 0){
-                            centralMass +=  BaryonField[DensNum][flat];
-                            centralMetals +=  BaryonField[MetalNum][flat];
-                            // if (SNColourNum != -1 && !MechStarsMetallicityFloor)
-                            //     centralMetals += window * BaryonField[SNColourNum][flat];
-                        // }
+                        if (flat < size){
+                            // only record if this cell would've been touched by CIC on star particle (estimated as the "blast interior")
+                            float xcell, ycell, zcell;
+                            /* position of cell to couple to, center value */
+                            xcell = CellLeftEdge[0][0] + (0.5 + (float) i) * dx;
+                            ycell = CellLeftEdge[1][0] + (0.5 + (float) j) * dx;
+                            zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
+                            float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, true); // always use cic to remove the mass
+                            // if (window > 0){
+                                centralMass +=  BaryonField[DensNum][flat];
+                                centralMetals +=  BaryonField[MetalNum][flat];
+                                // if (SNColourNum != -1 && !MechStarsMetallicityFloor)
+                                //     centralMetals += window * BaryonField[SNColourNum][flat];
+                            // }
+                        }
                     }
+
         centralMass *= MassUnits;
         if (shellMass > maxEvacFraction * centralMass){
             if (printout) 
@@ -518,26 +525,26 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (criticalDebug)
     {
         // for (int i = 0; i < size; ++i)
-        for (int k = max(0,kp-5); k <= min(kp+5, GridDimension[2]); ++k)
-            for (int j = max(0,jp-5); j <= max(jp+5, GridDimension[1]); ++j)
-                for (int i = max(0,ip-5); i <= max(ip+5, GridDimension[0]); ++i)
+        for (int k = max(0,kp-3); k <= min(kp+3, GridDimension[2]); ++k)
+            for (int j = max(0,jp-3); j <= max(jp+3, GridDimension[1]); ++j)
+                for (int i = max(0,ip-3); i <= max(ip+3, GridDimension[0]); ++i)
 
                 {
                     int idx = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];
                     if (idx > 0 && idx < size){
-                    preMass += BaryonField[DensNum][idx];
-                    preZ += BaryonField[MetalNum][idx];
-                    if (StarMakerTypeIISNeMetalField)
-                        preZII += BaryonField[MetalIINum][idx];
-                    if (StarMakerTypeIaSNe)
-                        preZIa += BaryonField[MetalIaNum][idx];
-                    if (MechStarsSeedField)
-                        preZ += BaryonField[SNColourNum][idx];
-                    preP += BaryonField[Vel1Num][idx] + BaryonField[Vel2Num][idx] + BaryonField[Vel3Num][idx];
-                    prePmag += pow(BaryonField[Vel1Num][idx], 2) +
-                            pow(BaryonField[Vel2Num][idx], 2) + pow(BaryonField[Vel3Num][idx], 2);
-                    preTE += BaryonField[TENum][idx];
-                    preGE += BaryonField[GENum][idx];
+                        preMass += BaryonField[DensNum][idx];
+                        preZ += BaryonField[MetalNum][idx];
+                        if (StarMakerTypeIISNeMetalField)
+                            preZII += BaryonField[MetalIINum][idx];
+                        if (StarMakerTypeIaSNe)
+                            preZIa += BaryonField[MetalIaNum][idx];
+                        if (MechStarsSeedField)
+                            preZ += BaryonField[SNColourNum][idx];
+                        preP += BaryonField[Vel1Num][idx] + BaryonField[Vel2Num][idx] + BaryonField[Vel3Num][idx];
+                        prePmag += pow(BaryonField[Vel1Num][idx], 2) +
+                                pow(BaryonField[Vel2Num][idx], 2) + pow(BaryonField[Vel3Num][idx], 2);
+                        preTE += BaryonField[TENum][idx];
+                        preGE += BaryonField[GENum][idx];
                 }}
     }
     /* Reduce coupled quantities to per-particle quantity and converMetalNumt to 
@@ -797,26 +804,27 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
 
     if (criticalDebug && !winds)
     {
-        for (int k = max(0,kp-5); k <= min(kp+5, GridDimension[2]); ++k)
-            for (int j = max(0,jp-5); j <= max(jp+5, GridDimension[1]); ++j)
-                for (int i = max(0,ip-5); i <= max(ip+5, GridDimension[0]); ++i)
+        for (int k = max(0,kp-3); k <= min(kp+3, GridDimension[2]); ++k)
+            for (int j = max(0,jp-3); j <= max(jp+3, GridDimension[1]); ++j)
+                for (int i = max(0,ip-3); i <= max(ip+3, GridDimension[0]); ++i)
                 {
                     int idx = i + j * GridDimension[0] + k * GridDimension[0] * GridDimension[1];  
                     if (idx > 0 && idx < size){          
-                    postMass += BaryonField[DensNum][idx];
-                    postZ += BaryonField[MetalNum][idx];
-                    if (StarMakerTypeIISNeMetalField)
-                        postZII += BaryonField[MetalIINum][idx];
-                    if (StarMakerTypeIaSNe)
-                        postZIa += BaryonField[MetalIaNum][idx];
-                    if (SNColourNum > 0)
-                        postZ += BaryonField[SNColourNum][idx];
-                    postP += BaryonField[Vel1Num][idx] + BaryonField[Vel2Num][idx] + BaryonField[Vel3Num][idx];
-                    postPmag += pow(BaryonField[Vel1Num][idx], 2) +
-                                pow(BaryonField[Vel2Num][idx], 2) + pow(BaryonField[Vel3Num][idx], 2);
-                    postTE += BaryonField[TENum][idx];
-                    postGE += BaryonField[GENum][idx];
-                }}
+                        postMass += BaryonField[DensNum][idx];
+                        postZ += BaryonField[MetalNum][idx];
+                        if (StarMakerTypeIISNeMetalField)
+                            postZII += BaryonField[MetalIINum][idx];
+                        if (StarMakerTypeIaSNe)
+                            postZIa += BaryonField[MetalIaNum][idx];
+                        if (SNColourNum > 0)
+                            postZ += BaryonField[SNColourNum][idx];
+                        postP += BaryonField[Vel1Num][idx] + BaryonField[Vel2Num][idx] + BaryonField[Vel3Num][idx];
+                        postPmag += pow(BaryonField[Vel1Num][idx], 2) +
+                                    pow(BaryonField[Vel2Num][idx], 2) + pow(BaryonField[Vel3Num][idx], 2);
+                        postTE += BaryonField[TENum][idx];
+                        postGE += BaryonField[GENum][idx];
+                    }
+                }
 
         if (printout)
             fprintf(stdout, "STARSS_FB: Difference quantities: dxRatio = %f dMass = %e dZ = %e dzII = %e dxIa = %e  P = %e |P| = %e (%e) TE = %e GE = %e coupledGE = %e Ej = %e Mej = %e Zej = %e\n",
@@ -827,17 +835,6 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                     (postTE - preTE) * EnergyUnits, (postGE - preGE) * EnergyUnits,
                     coupledGasEnergy * EnergyUnits, ejectaEnergy,
                     ejectaMass, ejectaMetal);
-        if (isnan(postMass) || isnan(postTE) || isnan(postPmag) || isnan(postZ))
-        {
-            fprintf(stderr, "NAN IN GRID:  %f %e %e %e-%e %e\n", postMass, postTE, postZ, preZ, postP);
-            for (float w : weightsVector)
-            {
-                fprintf(stderr, "%e\t", w);
-            }
-            fprintf(stderr, "\n");
-            exit(3);
-            ENZO_FAIL("MechStars_depositFeedback.C: 530\n")
-        }
     }
 
     transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum],
@@ -935,6 +932,17 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                         // printf("STARSS_FB: CIC deposited in sum window %e\n", dep_vol_frac);
                     } // end coupling main qtys   
 
+        if (isnan(postMass) || isnan(postTE) || isnan(postPmag) || isnan(postZ))
+        {
+            fprintf(stderr, "NAN IN GRID:  %f %e %e %e-%e %e\n", postMass, postTE, postZ, preZ, postP);
+            for (float w : weightsVector)
+            {
+                fprintf(stderr, "%e\t", w);
+            }
+            fprintf(stderr, "\n");
+            exit(3);
+            ENZO_FAIL("MechStars_depositFeedback.C: 530\n")
+        }
 
 
     if (printout) printf("STARSS_FB\nSTARSS_FB\nSTARSS_FB\n");
