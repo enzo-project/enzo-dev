@@ -144,10 +144,17 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
   float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits; //added by DP
   float insert_point_x, insert_point_y, insert_point_z, insert_time; // added by DP for introducing AP
+  //for restart at RD0018
   insert_point_x = 0.5076198577880859;
   insert_point_y = 0.5082187652587891;
   insert_point_z = 0.4896526336669922;
   insert_time = 123.51316179333;  //for z=2.5
+  //
+  //for restart at DD0123
+  //insert_point_x = 0.5077762603759766;
+  //insert_point_y = 0.5060787200927734;
+  //insert_point_z = 0.4914379119873047;
+  //insert_time = 123.81653315489; //for z= 2.4941
 
   //printf("Initial Time = [%"GSYM"]\n", MetaData->Time);
  
@@ -211,6 +218,7 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
 
           cell_mass = density[index] * pow(thisGrid->CellWidth[0][0], 3.0);
           np->Mass = cell_mass;
+	  //np->Mass = 1.0e6*SolarMass/(DensUnits*LengthUnits*LengthUnits*LengthUnits); // Introduced by DP
           np->type = np->GetEnabledParticleID();
           np->BirthTime = thisGrid->ReturnTime();
 

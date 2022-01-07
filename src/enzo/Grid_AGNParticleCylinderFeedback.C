@@ -91,6 +91,27 @@ int grid::AGNParticleCylinderFeedback(ActiveParticleType* ThisParticle, float md
    jet_heating_rate = heating_rate * (1.0 - AGNParticleShockFraction);
    shock_heating_rate = heating_rate * AGNParticleShockFraction;
 
+   //Deals with the Radio/Quasar mode of the jet depending on trhe accretion rate. 
+   //Added by Deovrat Prasad, Nov 2021.
+   //ledd if the Eddington luminosity for the given Mbh.
+   float kin_frac;
+   float L_edd;
+   float heating_rate_cgs;
+   float M_bh;
+
+   M_bh = tp->Mass*(DensityUnits*LengthUnits*LengthUnits*LengthUnits);
+   heating_rate_cgs = tp -> FeedbackEfficiency * (mdot * (MassUnits / TimeUnits)) * pow(clight, 2.0); 
+   L_edd = (4.0*3.14159265*GravConst*M_bh*mh*clight/sigma_thompson); 
+
+   kin_frac = tp->KineticFraction;
+   if (heating_rate_cgs/L_edd < 0.01){
+   	kin_frac  = tp->KineticFraction;
+   } else if (heating_rate_cgs/L_edd > 0.01 && heating_rate_cgs/L_edd < 0.1){
+   	kin_frac = 0.5;
+   } else {
+   	kin_frac  = (1.0-tp->KineticFraction); 
+   }
+
    // Need to do feedback for two cylinders- one in each direction.
    for (int facing = 0; facing < 2; facing++) {
       // Create the AGN Cylinder
@@ -255,8 +276,10 @@ int grid::AGNParticleCylinderFeedback(ActiveParticleType* ThisParticle, float md
                delta_cell_ge *= vol[k][j][i] / g_vol;
                delta_cell_ke = delta_cell_ge;
 
-               delta_cell_ge *= (1.0 - tp -> KineticFraction);
-               delta_cell_ke *= tp -> KineticFraction;
+               //delta_cell_ge *= (1.0 - tp -> KineticFraction);
+               //delta_cell_ke *= tp -> KineticFraction;
+	       delta_cell_ge *= (1.0 - kin_frac); //changes made by DP, Nov 2021
+               delta_cell_ke *= kin_frac;
 
                cell_vel = sqrt(2.0 * delta_cell_ke / delta_cell_mass);
                delta_cell_px = delta_cell_mass * cell_vel * n[0];

@@ -80,7 +80,7 @@ MACH_FFLAGS_REAL_64    = -r8
 MACH_OPT_WARN        = -Wall -g # Flags for verbose compiler warnings
 MACH_OPT_DEBUG       = -O0 -g # Flags for debugging
 # Flags for high conservative optimization
-MACH_OPT_HIGH        = -O2 #-g -march=native
+MACH_OPT_HIGH        = -O1 -g #-march=native
 # Note that this breaks determinism, which is why it's commented out!
 #
 MACH_OPT_AGGRESSIVE  = -O3 #-march=native # Flags for aggressive optimization

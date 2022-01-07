@@ -154,6 +154,11 @@ int grid::DoAGNFeedback( ActiveParticleType* ThisParticle) {
    float cell_volume = pow(CellWidth[0][0], 3.0); //Code
    float speed_of_light_code = c_cgs / (LengthUnits / TimeUnits);
 
+   
+   //Evolving AGNParticle mass. Introduced by Deovrat Prasad, Nov 2021.
+   tp->Mass += tp -> FeedbackEfficiency*mdot*dtFixed;
+   mbh = tp->Mass*DensityUnits*LengthUnits*LengthUnits*LengthUnits;
+
    // Total heating rate in code units (energy/time)
   
    heating_rate = tp -> FeedbackEfficiency * mdot * pow(speed_of_light_code, 2.0);
@@ -164,11 +169,11 @@ int grid::DoAGNFeedback( ActiveParticleType* ThisParticle) {
    
    ledd = (4.0 * M_PI * g_cgs * mbh * mp * c_cgs) / sigma_t;
    
-   printf("Heating rate: %"GSYM" (%"GSYM" erg/s) (%"GSYM" L_edd) (dt=%"GSYM")\n",
-   heating_rate, heating_rate_cgs, heating_rate_cgs / ledd, dtFixed);
+   printf("M_BH: %"GSYM" (%"GSYM" erg/s) (%"GSYM" L_edd) (dt=%"GSYM")\n",
+   mbh, heating_rate_cgs, heating_rate_cgs / ledd, dtFixed);
    
    // Write edot to a file
-   fprintf(AGNEdotFile, "%4.4"ISYM" %8.10"GSYM" %8.10"GSYM"\n", tp -> ReturnID(), Time, heating_rate);
+   fprintf(AGNEdotFile, "%8.10"GSYM" %8.10"GSYM" %8.10"GSYM"\n", Time*TimeUnits, heating_rate_cgs, mbh);
 
    // Store the heating rate (in code). This is not used anywhere in the code-
    //    // it just allows it to be written out with each datadump.
