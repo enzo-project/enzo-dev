@@ -348,7 +348,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     {  // this calculation for SNe only
         // coupledMomenta = p_free * min(sqrt(1+ (nCouple * dmean * pow(cellwidth * pc_cm, 3) / SolarMass)/(ejectaMass)), pTerminal/p_free/pow(1+dxeff));
         if (cw_eff < r_free){
-            coupledMomenta = 0.0;// Thermal coupling only at free expansion limit. min(p_free * pow(cw_eff/r_free, 3.0), p_sedov);
+            coupledMomenta = min(p_free * pow(cw_eff/r_free, 3.0), p_sedov);
             printf("STARSS_FB: modifying free phase: p = %e\n", coupledMomenta);
         }
         if (r_free < cw_eff && dxeff <= 1){
@@ -408,8 +408,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float maxEvacFraction = 0.75;
     if (coupledEnergy > 0 && AnalyticSNRShellMass && !winds)
     {
-            if (dxeff < 1)
-                shellMass = min(1e8, coupledMomenta / shellVelocity); //Msun
+            if (dxeff < 1) // goes like a sphere sweeping up density
+                shellMass = 4 * M_PI / 3 * dmean * pow((cw_eff*pc_cm),3) / SolarMass; // min(1e8, coupledMomenta / shellVelocity); //Msun
             //only have that expression of velocity for pds stage.  after, we take the M_s from 
             // thornton 1998, eq 22, 33.
             if (dxeff > 1){ 

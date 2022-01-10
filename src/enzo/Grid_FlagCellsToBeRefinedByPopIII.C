@@ -96,18 +96,18 @@ int grid::FlagCellsToBeRefinedByPopIII(int level)
     {   
             // added similar forced refinement on Pop2 particles
         int type = ParticleType[istar];
-        if (ParticleAttribute[0][istar] > 0.0 && (type == 5 || type == 7)) // if its a star
+        if (ParticleAttribute[0][istar] > 0.0 && (type == 5)) // if its a star
         {
             /* factor = birthtime + lifetime + refineTime */
             float factor;
-            if (type == 5) 
+            // if (type == 5) 
                 factor = (ParticleAttribute[0][istar] + ParticleAttribute[1][istar]) * TimeUnits + PopIIIMustRefineRegionLifetime * 3.1557e13;
-            else if (type == 7)
-                factor = ParticleAttribute[0][istar]*TimeUnits + 25.0 * Myr_s;
+            // else if (type == 7)
+            //     factor = ParticleAttribute[0][istar]*TimeUnits + 25.0 * Myr_s;
             float m = ParticleMass[istar]*(DensityUnits*pow(LengthUnits*CellWidth[0][0], 3))/SolarMass;
             if (
                     ((((11 < m && m < 40) || (140 < m && m < 260)) || (m < 1e-10)) && (Time * TimeUnits < factor))
-                    || (type==7 && Time * TimeUnits < factor)
+                    // || (type==7 && Time * TimeUnits < factor)
                     )
             {
                 // fprintf(stdout, "Flagging cells for particle m=%"FSYM" fact=%"FSYM" Time=%"FSYM"\n", m, factor/3.1557e13, Time*TimeUnits/3.1557e13);

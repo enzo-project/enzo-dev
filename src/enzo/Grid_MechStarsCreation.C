@@ -179,7 +179,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         float MassShouldForm = 0.0;
                         // if (use_F2)
                             MassShouldForm = min(shieldedFraction * BaryonField[DensNum][index]
-                                        * MassUnits / divisor, conversion_fraction * BaryonField[DensNum][index] * MassUnits / divisor);
+                                        * MassUnits / divisor, MaximumStarMass);
                         // else
                         //     MassShouldForm = (MaximumStarMass/divisor);
                         
@@ -192,7 +192,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         float random = float(mt_random())/float(UINT_MAX);
                         
                         if (debug && MassShouldForm > 0)
-			                printf("[t=%f, np = %d] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", Time*TimeUnits/Myr_s, 0,
+			                printf("[t=%f, np = %d] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", 
+                            Time*TimeUnits/Myr_s, 0,
                             MassShouldForm, BaryonField[DensNum][index] * MassUnits, 
                             shieldedFraction, freeFallTime*TimeUnits / Myr_s, 1.0/(freeFallTime*TimeUnits) * Myr_s,
                             BaryonField[DensNum][index]*DensityUnits/(mh/0.6), dynamicalTime / Myr_s, 
@@ -204,7 +205,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         }
 
                         /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
-                        float newMass = min(MassShouldForm/MassUnits, MaximumStarMass/MassUnits); 
+                        float newMass = MassShouldForm / MassUnits; 
 
                         if ((newMass*MassUnits < StarMakerMinimumMass) /* too small */
                                 || (random > p_form) /* too unlikely */
@@ -228,10 +229,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             ParticleArray->ParticleAttribute[3][nCreated] = BaryonField[MetalIaNum][index];
 
                         ParticleArray->ParticleType[nCreated] = PARTICLE_TYPE_STAR;
-                        BaryonField[DensNum][index] -= newMass;
-                        BaryonField[MetalNum][index] -= newMass*totalMetal[index]/BaryonField[DensNum][index];
-                        if (SNColourNum > 0)
-                            BaryonField[SNColourNum][index] -= newMass/BaryonField[DensNum][index]*BaryonField[SNColourNum][index]/BaryonField[DensNum][index];
 
 
         // type IA metal field isnt here right now
@@ -259,7 +256,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         vX = vX / msum;
                         vY = vY / msum;
                         vZ = vZ / msum;
-                        float MaxVelocity = 150.*1.0e5/VelocityUnits;
+                        float MaxVelocity = 35.*1.0e5/VelocityUnits;
                         ParticleArray->ParticleVelocity[0][nCreated] = 
                             (abs(vX) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX);
                         ParticleArray->ParticleVelocity[1][nCreated] = 
@@ -275,9 +272,16 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                                                 +(dx*(FLOAT(j)-0.5));
                         ParticleArray->ParticlePosition[2][nCreated] = CellLeftEdge[2][0]
                                                 +(dx*(FLOAT(k)-0.5));
+
+
+                        BaryonField[DensNum][index] -= newMass;
+                        BaryonField[MetalNum][index] -= newMass*totalMetal[index]/BaryonField[DensNum][index];
+                        if (SNColourNum > 0)
+                            BaryonField[SNColourNum][index] -= newMass/BaryonField[DensNum][index]*BaryonField[SNColourNum][index]/BaryonField[DensNum][index];
+
                         if (nCreated >= MaximumNumberOfNewParticles) return nCreated;
                         // if (debug)
-                            fprintf(stdout, "\t\tCreated star: [%f Myr] M_cell = %e T_cell = %e\n\t\t\tL = %d  N = %d Type = %d\n\t\t\tM_* = %e Tdyn = %e Attr1 = %f Attr2 = %e Attr3 = %e\n\t\t\tPosition = [%f %f %f]\n\t\t\tvelocity = [%f %f %f]\n\t\t\tgrid_index = %d cell_index = %d\n\t\t\ti = %d j = %d k = %d\n",
+                            fprintf(stdout, "STARSS_CR:\t\tCreated star: [%f Myr] M_cell = %e T_cell = %e\nSTARSS_CR:\t\t\tL = %d  N = %d Type = %d\nSTARSS_CR:\t\t\tM_* = %e Tdyn = %e Attr1 = %f Attr2 = %e Attr3 = %e\nSTARSS_CR:\t\t\tPosition = [%f %f %f]\nSTARSS_CR:\t\t\tvelocity = [%f %f %f]\nSTARSS_CR:\t\t\tgrid_index = %d cell_index = %d\nSTARSS_CR:\t\t\ti = %d j = %d k = %d\n",
                                 Time*TimeUnits/3.1557e13,
                                 BaryonField[DensNum][index]*MassUnits, 
                                 Temperature[index],
