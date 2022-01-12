@@ -1528,11 +1528,12 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 								BondiHoyleRadius*LengthUnits/pc_cm,
 								static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius*LengthUnits/pc_cm, mparticle);
 								// SG. Changing from < BHLrad to > BHLrad for underresolved cases.
-								if(static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius > BondiHoyleRadius) {
+								FLOAT accrad_wanted = BondiHoyleRadius/ (FLOAT) SmartStarBondiRadiusRefinementFactor;
+								if(static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius > accrad_wanted) {
 			static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius = BondiHoyleRadius;
-			fprintf(stderr,"%s: Updating accretion radius to Bondi-Hoyle radius = %e pc (%f cells)\n", __FUNCTION__,
+			fprintf(stderr,"%s: Updating accretion radius to Bondi-Hoyle radius = %e pc (%e code units)\n", __FUNCTION__,
 										static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius*LengthUnits/pc_cm,
-										static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius/dx_grid);
+										static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius);
 								}
 								//#endif
 								// SG. Deallocating memory in dynamic array pointer Temperature to solve memory leak.
@@ -1637,8 +1638,8 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 				if (dx_bondi > DBL_MAX || dx_bondi < -DBL_MAX ){
 					fprintf(stderr, "%s: Bondi radius is bigger than can be stored in a double.\n", __FUNCTION__);
 				}
-				fprintf(stderr,"%s: dx_bondi = %"GSYM" pc is greater than cell width = %e pc. Don't deposit refinement zone.\n", 
-				__FUNCTION__, dx_bondi_pc, dx_pc);
+				fprintf(stderr,"%s: dx_bondi = %"GSYM" pc (%"GSYM" in code units) is greater than cell width = %e pc. Don't deposit refinement zone.\n", 
+				__FUNCTION__, dx_bondi_pc, dx_bondi, dx_pc);
 		  continue;
 			}
 			for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
