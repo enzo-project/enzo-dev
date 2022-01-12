@@ -1458,7 +1458,6 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 					continue;
 					}
 					
-
     /* 
      * Accretion is only allowed if it makes sense:
      * 1. Black Holes in general are always allowed to accrete.
@@ -1519,22 +1518,24 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 								float *vparticle = ParticleList[i]->ReturnVelocity(); // SG. 3x4bytes = 12 bytes -edited 
 								int size = APGrid->GetGridSize();
 								float *Temperature = new float[size]; // SG. Got rid of () at end. Maybe I need to delete Temperature at the end of the function?
-								fprintf(stderr,"%s: BH radii should be printed soon. If AccretionRadius < Bondi-Hoyle, let rad_bh = accrad.\n", __FUNCTION__);
+								// Changing from accrad < to accrad >.
+								fprintf(stderr,"%s: BH radii should be printed soon. If AccretionRadius > Bondi-Hoyle, let rad_bh = BHLradius.\n", __FUNCTION__);
 								APGrid->ComputeTemperatureField(Temperature);
 								fprintf(stderr, "mparticle = %e.\n", mparticle);
-								// SG. Segfault on this function.
+								// SG. Segfault on this function (memory leak- fixed).
 								FLOAT BondiHoyleRadius = APGrid->CalculateBondiHoyleRadius(mparticle, vparticle, Temperature);
 								fprintf(stderr,"%s: BondiHoyleRadius = %e pc and AccretionRadius = %e pc and mparticle = %e.\n", __FUNCTION__,
 								BondiHoyleRadius*LengthUnits/pc_cm,
 								static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius*LengthUnits/pc_cm, mparticle);
-								if(static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius < BondiHoyleRadius) {
+								// SG. Changing from < BHLrad to > BHLrad for underresolved cases.
+								if(static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius > BondiHoyleRadius) {
 			static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius = BondiHoyleRadius;
 			fprintf(stderr,"%s: Updating accretion radius to Bondi-Hoyle radius = %e pc (%f cells)\n", __FUNCTION__,
 										static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius*LengthUnits/pc_cm,
 										static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius/dx_grid);
-										// SG. Deallocating memory in dynamic array pointer Temperature to solve memory leak.
 								}
 								//#endif
+								// SG. Deallocating memory in dynamic array pointer Temperature to solve memory leak.
 								delete [] Temperature;
 							} 
 								} // end else.
