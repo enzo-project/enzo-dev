@@ -1119,6 +1119,11 @@ EXTERN float ClusterSMBHBCG; // 1.0 is including BCG gravity; 0.0 makes it 0
 EXTERN float ClusterSMBHMass; // The mass of the SMBH in SolarMass
 
 /* AGN active particle data */
+EXTERN float AGNParticleInsert_x;
+EXTERN float AGNParticleInsert_y;
+EXTERN float AGNParticleInsert_z;
+EXTERN float AGNParticleInsert_Time;
+
 EXTERN int ActiveParticleCounter;
 EXTERN int TotalAGNParticlesCreated;
 EXTERN int TotalAccretingParticlesCreated;

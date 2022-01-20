@@ -1381,6 +1381,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
 
     // AGN particle parameters
+    ret += sscanf(line, "AGNParticleInsert_x = %"FSYM, &AGNParticleInsert_x);
+    ret += sscanf(line, "AGNParticleInsert_y = %"FSYM, &AGNParticleInsert_y);
+    ret += sscanf(line, "AGNParticleInsert_z = %"FSYM, &AGNParticleInsert_z);
+    ret += sscanf(line, "AGNParticleInsert_Time = %"FSYM, &AGNParticleInsert_Time);
     ret += sscanf(line, "AGNParticleFeedbackEfficiency = %"FSYM, &AGNParticleFeedbackEfficiency);
     ret += sscanf(line, "AGNParticleKineticFraction = %"FSYM, &AGNParticleKineticFraction);
     ret += sscanf(line, "AGNParticleAccretionRadiusKpc = %"FSYM, &AGNParticleAccretionRadiusKpc);

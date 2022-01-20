@@ -345,6 +345,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "SmartStarSuperEddingtonAdjustment     = %"ISYM"\n", SmartStarSuperEddingtonAdjustment);
   fprintf(fptr, "SmartStarSMSLifetime                  = %"GSYM"\n", SmartStarSMSLifetime);
 
+  fprintf(fptr, "AGNParticleInsert_x                = %"GSYM"\n", AGNParticleInsert_x);
+  fprintf(fptr, "AGNParticleInsert_y                = %"GSYM"\n", AGNParticleInsert_y);
+  fprintf(fptr, "AGNParticleInsert_z                = %"GSYM"\n", AGNParticleInsert_z);
+  fprintf(fptr, "AGNParticleInsert_Time                = %"GSYM"\n", AGNParticleInsert_Time);
   fprintf(fptr, "AGNParticleFeedbackEfficiency         = %"GSYM"\n", AGNParticleFeedbackEfficiency);
   fprintf(fptr, "AGNParticleKineticFraction            = %"FSYM"\n", AGNParticleKineticFraction);
   fprintf(fptr, "AGNParticleAccretionRadiusKpc         = %"GSYM"\n", AGNParticleAccretionRadiusKpc);

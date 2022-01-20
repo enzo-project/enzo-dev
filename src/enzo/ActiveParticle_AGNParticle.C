@@ -143,18 +143,17 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
   float dx = thisGrid->CellWidth[0][0];
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
   float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits; //added by DP
-  float insert_point_x, insert_point_y, insert_point_z, insert_time; // added by DP for introducing AP
   //for restart at RD0018
-  insert_point_x = 0.5076198577880859;
-  insert_point_y = 0.5082187652587891;
-  insert_point_z = 0.4896526336669922;
-  insert_time = 123.51316179333;  //for z=2.5
+  AGNParticleInsert_x = 0.5076198577880859;
+  AGNParticleInsert_y = 0.5082187652587891;
+  AGNParticleInsert_z = 0.4896526336669922;
+  AGNParticleInsert_Time = 123.51316179333;  //for z=2.5
   //
   //for restart at DD0123
-  //insert_point_x = 0.5077762603759766;
-  //insert_point_y = 0.5060787200927734;
-  //insert_point_z = 0.4914379119873047;
-  //insert_time = 123.81653315489; //for z= 2.4941
+  //AGNParticleInsert_x = 0.5077762603759766;
+  //AGNParticleInsert_y = 0.5060787200927734;
+  //AGNParticleInsert_z = 0.4914379119873047;
+  //AGNParticleInsert_Time = 123.81653315489; //for z= 2.4941
 
   //printf("Initial Time = [%"GSYM"]\n", MetaData->Time);
  
@@ -179,22 +178,22 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
                   create_particle = false;
 
               ////// Added by Deovrat Prasad ///////
-               if (thisGrid->ReturnTime() != insert_time)
+               if (thisGrid->ReturnTime() != AGNParticleInsert_Time)
                   create_particle = false;
                
               //////////////////////////////////////////////   
                bool center = true;
 
-               if (!(thisGrid->CellLeftEdge[0][i] <= insert_point_x
-                  && thisGrid->CellLeftEdge[0][i] + thisGrid->CellWidth[0][i] > insert_point_x))
+               if (!(thisGrid->CellLeftEdge[0][i] <= AGNParticleInsert_x
+                  && thisGrid->CellLeftEdge[0][i] + thisGrid->CellWidth[0][i] > AGNParticleInsert_x))
                   center = false;
 
-               if (!(thisGrid->CellLeftEdge[1][j] <= insert_point_y
-                  && thisGrid->CellLeftEdge[1][j] + thisGrid->CellWidth[1][j] > insert_point_y ))
+               if (!(thisGrid->CellLeftEdge[1][j] <= AGNParticleInsert_y
+                  && thisGrid->CellLeftEdge[1][j] + thisGrid->CellWidth[1][j] > AGNParticleInsert_y ))
                   center = false;
 
-               if (!(thisGrid->CellLeftEdge[2][k] <= insert_point_z 
-                  && thisGrid->CellLeftEdge[2][k] + thisGrid->CellWidth[2][k] > insert_point_z))
+               if (!(thisGrid->CellLeftEdge[2][k] <= AGNParticleInsert_z 
+                  && thisGrid->CellLeftEdge[2][k] + thisGrid->CellWidth[2][k] > AGNParticleInsert_z))
                   center = false;
 
                if (center == false)
@@ -206,7 +205,7 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
       if (create_particle) {
           // Get the units
           float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits, Time;
-          GetUnits(&DensUnits, &LengthUnits, &TempUnits, &TimeUnits, &VelUnits, insert_time);
+          GetUnits(&DensUnits, &LengthUnits, &TempUnits, &TimeUnits, &VelUnits, AGNParticleInsert_Time);
 
           ActiveParticleType_AGNParticle *np = new ActiveParticleType_AGNParticle();
           data.NumberOfNewParticles++;
