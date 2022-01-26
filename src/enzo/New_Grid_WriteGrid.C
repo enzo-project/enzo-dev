@@ -783,7 +783,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     }
 
     /* Copy mass to temp and write it. */
-
     this->write_dataset(1, TempIntArray, "particle_mass",
         group_id, HDF5_REAL, (VOIDP) ParticleMass, FALSE);
 

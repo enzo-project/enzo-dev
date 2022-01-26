@@ -260,7 +260,7 @@ int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[],
       cstar->SetNewMass(0.0); // now a massless tracer
     }
 
-    if(cstar->ReturnMass() < 0.0){
+    if(cstar->ReturnMass() < -1e5){ // not zero to account for numerical precision issues
 
         if (IndividualStarIgnoreNegativeMass && cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SN_COMPLETE){
             /* This is experimental and obviously not physically valid. For use when using IMF averaged yields
@@ -531,7 +531,7 @@ int grid::IndividualStarAddFeedbackSphere(HierarchyEntry* SubgridPointer,
     metal_mass[0]     += dm_total ; // (cstar->ReturnMetallicity() - z_solar*z_ratio)*m_eject;
     m_eject           += dm_total;
 
-    if ((metal_mass[0] < 0) || (m_eject < 0)){
+    if ((metal_mass[0] < -1.0E-4) || (m_eject < -1.0E-4)){
       ENZO_VFAIL("Failure in surface abundances. Total metal mass (%" FSYM ") / total ejected mass (%" FSYM ")are negative\n",metal_mass[0], m_eject);
     }
 

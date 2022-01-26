@@ -855,12 +855,12 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 #endif
   }
 
+  if (WritePotential)
+    DataLabel[i++] = GPotName;
+
   if(STARMAKE_METHOD(COLORED_POP3_STAR)){
     DataLabel[i++] = ForbidName;
   }
-
-  if (WritePotential)
-    DataLabel[i++] = GPotName;
 
   if (ShockMethod) {
     DataLabel[i++] = MachName;

@@ -1419,6 +1419,7 @@ void IndividualStarSetStellarWindProperties(Star *cstar, const float &Time,
     // 1 = wind, -1 = return total mass
     m_eject = StellarYieldsInterpolateYield(1, yield_table_position[0], yield_table_position[1],
                                             mproj, metallicity, -1); // total ejecta mass in SolarMass
+    m_eject = m_eject*0.9999; // to avoid rounding errors that lead to negative particle mass
     m_eject_total = m_eject;
 
     wind_lifetime = lifetime;   // CGS units

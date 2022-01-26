@@ -1,0 +1,138 @@
+#=======================================================================
+#
+# FILE:        Make.mach.frontera
+#
+# DESCRIPTION: Makefile settings for the Frontera cluster
+#
+# AUTHOR:      John Wise (jwise@gatech.edu)
+#              Corey Brummel-Smith (cdbs3@gatech.edu)
+#
+# DATE:        2011-10-20
+#
+#  The following modules are need to build Enzo. intel impi and hdf5
+#  They can be loaded with the commands below.
+#  $ module purge
+#  $ module load intel impi hdf5
+#
+#  The user also has to set the LOCAL_GRACKLE_INSTALL path to build
+#  Enzo with Grackle
+#=======================================================================
+
+MACH_TEXT  = Frontera (Intel)
+MACH_VALID = 1
+MACH_FILE  = Make.mach.frontera_intel
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_HDF5_INSTALL = $(TACC_HDF5_DIR)
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = cpp # C preprocessor command
+
+# With MPI
+
+MACH_CC_MPI    = mpicc # C compiler when using MPI
+MACH_CXX_MPI   = mpicxx # C++ compiler when using MPI
+MACH_FC_MPI    = mpif90 # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = mpif90 # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = mpicxx # Linker when using MPI
+
+# Without MPI
+
+MACH_CC_NOMPI  = icc # C compiler when not using MPI
+MACH_CXX_NOMPI = icpc # C++ compiler when not using MPI
+MACH_FC_NOMPI  = ifort # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = ifort # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = icpc # Linker when not using MPI
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API -DMEM_TRACE
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+
+MACH_CPPFLAGS = -P -traditional 
+MACH_CFLAGS   = 
+MACH_CXXFLAGS = -DMPICH_IGNORE_CXX_SEEK
+MACH_FFLAGS   = -132
+MACH_F90FLAGS = 
+MACH_LDFLAGS  = 
+MACH_OPENMP   = -openmp
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = -i4
+MACH_FFLAGS_INTEGER_64 = -i8
+MACH_FFLAGS_REAL_32    = -r4
+MACH_FFLAGS_REAL_64    = -r8
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g
+MACH_OPT_DEBUG       = -O0 -g -m64 -heap-arrays
+#MACH_OPT_HIGH        = -O2 -march=core-avx -g -m64 -heap-arrays #-prof-use
+#MACH_OPT_HIGH        = -O2 -march=core-avx -ipo -g -m64 -heap-arrays #-prof-use
+MACH_OPT_HIGH        = -O2 -m64 -heap-arrays -g #-prof-use
+#MACH_OPT_HIGH        = -O2 -msse4.2 -ipo -g -m64 -heap-arrays #-prof-use
+MACH_OPT_AGGRESSIVE  = -O3 -march=core-avx2 -vec -ipo -g -heap-arrays
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = # MPI includes
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
+LOCAL_INCLUDES_HYPRE  = # hypre includes
+LOCAL_INCLUDES_PAPI   = # PAPI includes
+
+MACH_INCLUDES         = -I/usr/include $(LOCAL_INCLUDES_HDF5)
+
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+
+LOCAL_LIBS_MPI    = # MPI libraries
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz # HDF5 libraries
+LOCAL_LIBS_HYPRE  = # hypre libraries
+LOCAL_LIBS_PAPI   = # PAPI libraries
+
+# Machine-dependent libraries
+LOCAL_LIBS_MACH   = -lifcore -limf -lifport
+#LOCAL_LIBS_MACH   = -lgfortran
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
+
+
+# Grackle install
+# LOCAL_GRACKLE_INSTALL is the path to your own Grackle installation
+LOCAL_GRACKLE_INSTALL = $(HOME)/libs/grackle
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
+MACH_INCLUDES_GRACKLE = $(LOCAL_INCLUDES_GRACKLE)
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)
+
+
+
+
+

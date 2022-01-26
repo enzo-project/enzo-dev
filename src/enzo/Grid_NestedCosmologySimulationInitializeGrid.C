@@ -459,12 +459,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
 #endif
    }
 
-#ifdef INDIVIDUALSTAR
-    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
-      FieldType[PeHeatingNum = NumberOfBaryonFields++] = PeHeatingRate;
-    }
-#endif
-
     if (WritePotential)
       FieldType[NumberOfBaryonFields++] = GravPotential;
     if(STARMAKE_METHOD(COLORED_POP3_STAR)){
@@ -479,7 +473,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
       }
     }
   }
-
   if(QuantumPressure == 1){
     FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
     FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;

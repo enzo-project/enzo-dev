@@ -308,7 +308,6 @@ int RadiativeTransferInitialize(char *ParameterFile,
     Exterior.AddField(TypesToAdd[i]);
   } // ENDFOR fields
 
-
   // Assign the radiation field DataLabels
   for (i = 0; i < FieldsToAdd; i++) {
     switch (TypesToAdd[i]) {
