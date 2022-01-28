@@ -63,11 +63,8 @@ int checkCreationCriteria(float* Density, float* Metals,
         weight the central cell more*/
     float dmean = 0;
     if (StarMakerOverDensityThreshold > 0){
-        dmean = (Density[index]*10.0+Density[iminus]
-                    + Density[iplus]+Density[jplus]
-                    + Density[jminus]+Density[kminus]
-                    + Density[kplus])/17.0;
-        if (dmean < StarMakerOverDensityThreshold) 
+        
+        if (Density[index] < StarMakerOverDensityThreshold) 
         {
             status = FAIL;
         }
