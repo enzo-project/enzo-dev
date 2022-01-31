@@ -191,13 +191,13 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         
                         float random = float(mt_random())/float(UINT_MAX);
                         
-                        if (debug && MassShouldForm > 0)
-			                printf("[t=%f, np = %d] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", 
-                            Time*TimeUnits/Myr_s, 0,
-                            MassShouldForm, BaryonField[DensNum][index] * MassUnits, 
-                            shieldedFraction, freeFallTime*TimeUnits / Myr_s, 1.0/(freeFallTime*TimeUnits) * Myr_s,
-                            BaryonField[DensNum][index]*DensityUnits/(mh/0.6), dynamicalTime / Myr_s, 
-                            CoolingTime[index]*TimeUnits/Myr_s, p_form, random, RAND_MAX);
+                        // if (debug && MassShouldForm > 0)
+			            //     printf("[t=%f, np = %d] Expected Mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", 
+                        //     Time*TimeUnits/Myr_s, 0,
+                        //     MassShouldForm, BaryonField[DensNum][index] * MassUnits, 
+                        //     shieldedFraction, freeFallTime*TimeUnits / Myr_s, 1.0/(freeFallTime*TimeUnits) * Myr_s,
+                        //     BaryonField[DensNum][index]*DensityUnits/(mh/0.6), dynamicalTime / Myr_s, 
+                        //     CoolingTime[index]*TimeUnits/Myr_s, p_form, random, RAND_MAX);
                         
                         if (MassShouldForm < 0 && !use_F2){
                              printf("Negative formation mass: %f %f\n",shieldedFraction, freeFallTime);

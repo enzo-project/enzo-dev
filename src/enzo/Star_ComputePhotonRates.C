@@ -202,8 +202,8 @@ int Star::ComputePhotonRates(const float TimeUnits, const float Time,
         E[3] = 12.8;
         L_UV = MechStars_calcPhotonRates(this, Time, TimeUnits);// returns [L_UV] = L_sun/M_sun for HI ionizing radiation
         Q[0] = L_UV * this->Mass * SolarLuminosity * eV_erg / E[0];
-	       printf("PHOTON: found for m = %"FSYM", age = %"FSYM", L_ion= %"GSYM", q[0] = %"GSYM", g/s/msun = %"GSYM"\n", 
-                this->Mass, (Time-this->ReturnBirthTime())*TimeUnits/Myr_s, L_UV, Q[0], Q[0]/this->Mass);
+	      //  printf("PHOTON: found for m = %"FSYM", age = %"FSYM", L_ion= %"GSYM", q[0] = %"GSYM", g/s/msun = %"GSYM"\n", 
+        //         this->Mass, (Time-this->ReturnBirthTime())*TimeUnits/Myr_s, L_UV, Q[0], Q[0]/this->Mass);
         if (StarClusterHeliumIonization) {
           Q[1] = EnergyFractionHeI * Q[0];
           Q[2] = EnergyFractionHeII * Q[0];
