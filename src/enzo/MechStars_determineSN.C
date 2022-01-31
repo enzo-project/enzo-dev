@@ -57,13 +57,13 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 RII = 0.0;
                 RIA = 5.2e-8+1.6e-5*exp(-1.0*pow((age-50.0)/10.0, 2)/2.0);
         }
-	       fprintf(stdout, "Rates: For age %f Myr, RII = %f; RIA = %f ", age, RII, RIA);
+	    //    fprintf(stdout, "Rates: For age %f Myr, RII = %f; RIA = %f ", age, RII, RIA);
         /* rates -> probabilities */
         if (RII > 0){
         // printf("Zcpl = %e", zCouple);
             PII = RII * massMsun / Myr_s *TimeUnits*dt;
             random = float(mt_random())/float(UINT_MAX);
-            fprintf(stdout, "PII =%f -- %f %e %f rnd = %e\n", PII, RII, massMsun, age, random);
+            // fprintf(stdout, "PII =%f -- %f %e %f rnd = %e\n", PII, RII, massMsun, age, random);
             if (PII > 1.0 && UnrestrictedSN == TRUE){
                 int round = (int)PII;
                 *nSNII = round;
@@ -77,9 +77,9 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 *nSNII = psn+1;
             }
         }
-        if (*nSNII > 0)
-            fprintf(stdout, "Positive SN predicted: RII = %e; PII = %e; dt = %e (%e Myr); M* = %e; A* = %f; Rand = %e\n", \
-                            RII, PII, dt, dt * TimeUnits / Myr_s, massMsun, age, random);
+        // if (*nSNII > 0)
+            // fprintf(stdout, "Positive SN predicted: RII = %e; PII = %e; dt = %e (%e Myr); M* = %e; A* = %f; Rand = %e\n", \
+            //                 RII, PII, dt, dt * TimeUnits / Myr_s, massMsun, age, random);
         // printf("RANDOM = %f\n", random);            
         // printf("N SNII=%d\n",*nSNII);
         
