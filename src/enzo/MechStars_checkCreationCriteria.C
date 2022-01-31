@@ -59,9 +59,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     */
     // if this isnt finest grid in this space, continue
     if (RefinementField[index] != 0) status = FAIL;
-    /* Baryon overdensity. Take a local mean, but 
-        weight the central cell more*/
-    float dmean = 0;
+    /* Baryon overdensity. */
     if (StarMakerOverDensityThreshold > 0){
         
         if (Density[index] < StarMakerOverDensityThreshold) 
@@ -77,8 +75,6 @@ int checkCreationCriteria(float* Density, float* Metals,
             
     }
 
-    // if (debug && status) fprintf(stdout, "Passed Density: %e: %e; found metallicity = %e\n", 
-    //           dmean,StarMakerOverDensityThreshold, Metals[index]/Density[index]/Zsolar);
     /* in addition to the converging flow check, we check
         the virial parameter of the gas to see if it is 
         locally gravitationally bound*/
