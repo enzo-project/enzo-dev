@@ -100,7 +100,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
       MassLoss = cstar->CalculateMassLoss(SNe_dt);
       cstar->SetAccretionMass(-MassLoss);
     }
-
+// SG: what is this routine doing? Seems to exclude == FORMATION feedback? 
     if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) &&
 	(cstar->ReturnFeedbackFlag() != MBH_JETS) &&
 	!cstar->ApplyFeedbackTrue(SNe_dt))
@@ -128,6 +128,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
        for SNe) is enclosed within grids on this level */
 
     LCAPERF_START("star_FindFeedbackSphere");
+    fprintf(stderr, "%s: Just before FindFeedbackSphere is called.\n", __FUNCTION__);
     cstar->FindFeedbackSphere
       (LevelArray, level, influenceRadius, EjectaDensity, EjectaThermalEnergy, 
        SphereContained, SkipMassRemoval, DensityUnits, LengthUnits, 
