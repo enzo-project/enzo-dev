@@ -358,6 +358,8 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
     int ThisLevel, int TotalStarParticleCountPrevious[],
     int SmartStarID)
 {
+// SG. Working with all grids on ThisLevel. Maybe try to grab level the SS is on?
+
 
       /* SmartStar particles live on the maximum refinement level.  If we are on a lower level, this does not concern us */
 
@@ -373,6 +375,14 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
         ParticleList);
+
+        // SG. Return if ThisLevel != APGrid level. 
+      for (int i = 0; i < nParticles; i++) {
+			 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+				int MyLevel = APGrid->GridLevel;
+				if (ThisLevel != MyLevel)
+				return SUCCESS;
+      }
 
       /* Return if there are no smartstar particles */
 
@@ -402,6 +412,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
     
 
       /* Calculate CellWidth on maximum refinement level */
+      // SG. May need to fix this.
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(14))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
       //fprintf(stderr,"%s: CellWidth dx = %e and ThisLevel = %"ISYM" (but dx calculated for level 14).\n", __FUNCTION__, dx*LengthUnits/pc_cm, ThisLevel); fflush(stdout);

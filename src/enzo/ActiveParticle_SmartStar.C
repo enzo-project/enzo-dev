@@ -913,6 +913,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 		for (int i = 0; i < nParticles; i++) {
 			 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
 				int MyLevel = APGrid->GridLevel;
+				fprintf(stderr, "%s: MyLevel (APGrid) = %"ISYM" and ThisLevel = %"ISYM".\n", __FUNCTION__, MyLevel, ThisLevel);
 				if (ThisLevel < MyLevel)
 				continue;
 		}
