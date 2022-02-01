@@ -909,14 +909,14 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   MassUnits = DensityUnits * POW(LengthUnits,3);
 
   float tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr_s);
-
-		for (int i = 0; i < nParticles; i++) {
-			 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-				int MyLevel = APGrid->GridLevel;
-				fprintf(stderr, "%s: MyLevel (APGrid) = %"ISYM" and ThisLevel = %"ISYM".\n", __FUNCTION__, MyLevel, ThisLevel);
-				if (ThisLevel < MyLevel)
-				continue;
-		}
+// SG. Get rid of highest level check.
+		// for (int i = 0; i < nParticles; i++) {
+		// 	 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+		// 		int MyLevel = APGrid->GridLevel;
+		// 		fprintf(stderr, "%s: MyLevel (APGrid) = %"ISYM" and ThisLevel = %"ISYM".\n", __FUNCTION__, MyLevel, ThisLevel);
+		// 		if (ThisLevel < MyLevel)
+		// 		continue;
+		// }
 
   /*
    * Order particles in order of SMS, PopIII, PopII
@@ -1002,6 +1002,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	cellindex_y = (SS->pos[1] - APGrid->CellLeftEdge[1][0])/dx,
 	cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/dx;
 
+// SG. Added this?
       int cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
 						if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][cellindex] != 0.0){
 				fprintf(stderr,"%s: We're NOT ON the maximum LOCAL level of refinement. Go to next iteration.", __FUNCTION__);
@@ -1168,6 +1169,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	      } // End while(Temp2)
 	    } // ENDIF !MarkedSubgrids
 
+fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Radius-APGrid->CellWidth[0][0], Radius);
 	    /* Sum enclosed mass in this grid. Mass is in Msolar*/
 	    Temp->GridData->GetEnclosedMassInShell(SS->pos, Radius-APGrid->CellWidth[0][0], Radius, 
 						   ShellMass, ShellMetallicity2, 
@@ -1200,7 +1202,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	}
 	
 	Metallicity2 /= MassEnclosed;
-	Metallicity3 /= MassEnclosed;
+	Metallicity3 /= MassEnclosed;gg
 	for (int dim = 0; dim < MAX_DIMENSION; dim++)
 	  AvgVelocity[dim] /= MassEnclosed;
 	
