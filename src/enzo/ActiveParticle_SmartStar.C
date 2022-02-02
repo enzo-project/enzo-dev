@@ -16,10 +16,10 @@
 #define BONDIHOYLERADIUS 1 // SG. Turning on accretion out to BH radius in Accrete.
 #define MINIMUMPOTENTIAL 1
 #define CALCDIRECTPOTENTIAL 0
-#define JEANSREFINEMENT  0 // SG. turning off to check potential fix.
+#define JEANSREFINEMENT  0 // SG. turning off to check potential fix.s
 #define MASSTHRESHOLDCHECK 1  //SG. Turned on for testing. Turning off again.
 #define JEANSLENGTHCALC    1
-#define MASSTHRESHOLD      0.1                       //Msolar in grid
+#define MASSTHRESHOLD      20 //Msolar in grid. SG. changed to 20 to prevent runaway SF in EvaluateFormation.
 #define COOLING_TIME       0 // SG. Turn on to prevent spurious SF.Turning off again.
 #define NUMSSPARTICLETYPES 4
 #define JEANS_FACTOR       2
@@ -1002,13 +1002,13 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	cellindex_y = (SS->pos[1] - APGrid->CellLeftEdge[1][0])/dx,
 	cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/dx;
 
-// SG. Added this?
+// SG. Added this previously and now getting rid.
       int cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
-						if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][cellindex] != 0.0){
-				fprintf(stderr,"%s: We're NOT ON the maximum LOCAL level of refinement. Go to next iteration.", __FUNCTION__);
-				continue;
-						}
-						fprintf(stderr,"%s: We ARE ON the maximum LOCAL level of refinement. Let's make the star.", __FUNCTION__);
+				// 		if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][cellindex] != 0.0){
+				// fprintf(stderr,"%s: We're NOT ON the maximum LOCAL level of refinement. Go to next iteration.", __FUNCTION__);
+				// continue;
+				// 		}
+				// 		fprintf(stderr,"%s: We ARE ON the maximum LOCAL level of refinement. Let's make the star.", __FUNCTION__);
       float DensityThreshold = ActiveParticleDensityThreshold*mh/DensityUnits; 
 
 #if JEANSREFINEMENT
@@ -1202,7 +1202,7 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 	}
 	
 	Metallicity2 /= MassEnclosed;
-	Metallicity3 /= MassEnclosed;gg
+	Metallicity3 /= MassEnclosed;
 	for (int dim = 0; dim < MAX_DIMENSION; dim++)
 	  AvgVelocity[dim] /= MassEnclosed;
 	
