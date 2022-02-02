@@ -376,13 +376,14 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
         ParticleList);
 
-        // SG. Return if ThisLevel != APGrid level. 
-      for (int i = 0; i < nParticles; i++) {
-			 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-				int MyLevel = APGrid->GridLevel;
-				if (ThisLevel != MyLevel)
-				return SUCCESS;
-      }
+      //   // SG. Return if ThisLevel != APGrid level. 
+      // for (int i = 0; i < nParticles; i++) {
+      //   grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+			// 	int MyLevel = APGrid->GridLevel;
+			// 	if (ThisLevel != MyLevel){
+      //     return SUCCESS;
+      //   }
+      // }
 
       /* Return if there are no smartstar particles */
 
