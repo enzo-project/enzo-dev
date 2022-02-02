@@ -306,8 +306,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	/* Mass Threshold check */
 	/* The control region should contain a mass greater than the mass threshold */
 	if(TotalMass*ConverttoSolar < (double)MASSTHRESHOLD) {	
-		printf("%s: Total Mass in Accretion Region (grids of SS particle) = %g Msolar (Threshold = %g)\n", __FUNCTION__,
-	       TotalMass*ConverttoSolar, (double)MASSTHRESHOLD);
+		// printf("%s: Total Mass in Accretion Region (grids of SS particle) = %g Msolar (Threshold = %g)\n", __FUNCTION__,
+	 //       TotalMass*ConverttoSolar, (double)MASSTHRESHOLD);
 	  continue;
 	}
 #if SSDEBUG
