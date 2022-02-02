@@ -31,7 +31,7 @@
 /* Every how many times will the accretion rate be updated */
 //#define FREQUENCY 100
 #define MAXACCRETIONRADIUS  128 /* Times the minimum cell width */
-#define ACCRETIONRADIUS  0.0000000001 // SG. Change to something arbitrarily small for testing.
+#define ACCRETIONRADIUS  4 // SG. Change to something arbitrarily small for testing. Changing it back to 4 for formation purposes.
 #define NUMRADIATIONBINS 5
 #define CRITICAL_ACCRETION_RATE 0.001 //Msolar/yr (Haemerlee et al (2018))
 #define TIMEGAP            100   // * timestep SG CHANGED FROM 100 TO 1 for testing
