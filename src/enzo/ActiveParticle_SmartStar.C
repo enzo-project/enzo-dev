@@ -196,7 +196,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
       for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
 	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
-		 continue;
+		 return SUCCESS;
 	} else{
 
 
