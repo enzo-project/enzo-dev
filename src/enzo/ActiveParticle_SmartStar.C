@@ -241,7 +241,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	} else {
 		printf("Time = %e yr\n", thisGrid->ReturnTime()*data.TimeUnits/yr_s);
 		printf("Density = %g\t DensityThreshold = %g\n", density[index]*data.DensityUnits/mh, DensityThreshold*data.DensityUnits/mh);
-		printf("JeansDensity = %G"GOUTSYM", APThreshold = %g\n", JeansDensity*data.DensityUnits/mh, ActiveParticleDensityThreshold);
+		printf("JeansDensity = %"GOUTSYM", APThreshold = %g\n", JeansDensity*data.DensityUnits/mh, ActiveParticleDensityThreshold);
 	}
 	  
 // SG. comment out
