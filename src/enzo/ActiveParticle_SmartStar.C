@@ -241,15 +241,15 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	} else {
 		printf("Time = %e yr\n", thisGrid->ReturnTime()*data.TimeUnits/yr_s);
 		printf("Density = %g\t DensityThreshold = %g\n", density[index]*data.DensityUnits/mh, DensityThreshold*data.DensityUnits/mh);
-		printf("JeansDensity = %g\t APThreshold = %g\n", JeansDensity*data.DensityUnits/mh, ActiveParticleDensityThreshold);
+		printf("JeansDensity = %G"GOUTSYM", APThreshold = %g\n", JeansDensity*data.DensityUnits/mh, ActiveParticleDensityThreshold);
 	}
 	  
-
-#if SSDEBUG
-	printf("Time = %e yr\n", thisGrid->ReturnTime()*data.TimeUnits/yr_s);
-	printf("Density = %g\t DensityThreshold = %g\n", density[index]*data.DensityUnits/mh, DensityThreshold*data.DensityUnits/mh);
-	printf("JeansDensity = %g\t APThreshold = %g\n", JeansDensity*data.DensityUnits/mh, ActiveParticleDensityThreshold);
-#endif
+// SG. comment out
+// #if SSDEBUG
+// 	printf("Time = %e yr\n", thisGrid->ReturnTime()*data.TimeUnits/yr_s);
+// 	printf("Density = %g\t DensityThreshold = %g\n", density[index]*data.DensityUnits/mh, DensityThreshold*data.DensityUnits/mh);
+// 	printf("JeansDensity = %g\t APThreshold = %g\n", JeansDensity*data.DensityUnits/mh, ActiveParticleDensityThreshold);
+// #endif
 	mass = density[index]*dx*dx*dx;
 #if SSDEBUG
 	fprintf(stdout, "%s: Excellent! Density threshold exceeeded - density = %g cm^-3\n",
