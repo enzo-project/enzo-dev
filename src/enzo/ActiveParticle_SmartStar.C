@@ -196,7 +196,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
       for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
 	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
-		 return SUCCESS;
+		 continue;
 	} else{
 
 
@@ -238,11 +238,11 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 
 	if (density[index] <= DensityThreshold){
 		continue;
-	} else {
-		printf("Time = %e yr\n", thisGrid->ReturnTime()*data.TimeUnits/yr_s);
-		printf("Density = %g\t DensityThreshold = %g\n", density[index]*data.DensityUnits/mh, DensityThreshold*data.DensityUnits/mh);
-		printf("JeansDensity = %"GOUTSYM", APThreshold = %g\n", JeansDensity*data.DensityUnits/mh, ActiveParticleDensityThreshold);
-	}
+	} 
+		// printf("Time = %e yr\n", thisGrid->ReturnTime()*data.TimeUnits/yr_s);
+		// printf("Density = %g\t DensityThreshold = %g\n", density[index]*data.DensityUnits/mh, DensityThreshold*data.DensityUnits/mh);
+		// printf("JeansDensity = %"GOUTSYM", APThreshold = %g\n", JeansDensity*data.DensityUnits/mh, ActiveParticleDensityThreshold);
+	
 	  
 // SG. comment out
 // #if SSDEBUG
@@ -305,7 +305,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	TotalMass = thisGrid->FindMassinGrid(data.DensNum);
 	/* Mass Threshold check */
 	/* The control region should contain a mass greater than the mass threshold */
-	if(TotalMass*ConverttoSolar < (double)MASSTHRESHOLD) {	  
+	if(TotalMass*ConverttoSolar < (double)MASSTHRESHOLD) {	
+		printf("%s: Total Mass in Accretion Region (grids of SS particle) = %g Msolar (Threshold = %g)\n", __FUNCTION__,
+	       TotalMass*ConverttoSolar, (double)MASSTHRESHOLD);
 	  continue;
 	}
 #if SSDEBUG
