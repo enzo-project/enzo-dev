@@ -260,8 +260,8 @@ int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[],
       cstar->SetNewMass(0.0); // now a massless tracer
     }
 
-    if(cstar->ReturnMass() < -1e5){ // not zero to account for numerical precision issues
-
+    if(cstar->ReturnMass() < 0.0){
+      if(cstar->ReturnMass() < -1e-6){ // to account for numerical precision issues
         if (IndividualStarIgnoreNegativeMass && cstar->ReturnFeedbackFlag() == INDIVIDUAL_STAR_SN_COMPLETE){
             /* This is experimental and obviously not physically valid. For use when using IMF averaged yields
                with individual particles which just scale mass ejection based on particle mass fraction which
@@ -274,6 +274,9 @@ int IndividualStarParticleAddFeedback(HierarchyEntry *Grids[],
             cstar->PrintInfo();
             ENZO_FAIL("Particle Mass going negative in IndividualStarParticleAddFeedback");
         }
+      } else {
+          cstar->SetNewMass(0.0); // so there is not a tiny negative mass
+      }
     }
 
     if (AddedFeedback[count]) any_feedback_added = true;

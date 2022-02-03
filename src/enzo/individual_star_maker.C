@@ -434,16 +434,16 @@ int grid::individual_star_maker(float *dm, float *temp, int *nmax, float *mu, in
                     if ( (H2mass/bmass) > PopIIIH2CriticalFraction){ // must check this separately
                       float mass_counter    = IndividualStarSFGasMassThreshold;
 
-                      while( mass_counter > 0.0){
-                        float temp_mass = SamplePopIII_IMF();
+                      //while( mass_counter > 0.0){  // commenting this out to test less Pop III formation, following what was done in BoG
+                      float temp_mass = SamplePopIII_IMF();
 
-                        ParticleMass[ii] = temp_mass;
-                        ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII;
-                        ii++;
-                        popiii_counter++;
-                        sum_mass += temp_mass;
-                        mass_counter -= temp_mass;
-                      }
+                      ParticleMass[ii] = temp_mass;
+                      ParticleType[ii] = -PARTICLE_TYPE_INDIVIDUAL_STAR_POPIII;
+                      ii++;
+                      popiii_counter++;
+                      sum_mass += temp_mass;
+                      mass_counter -= temp_mass;
+                      //}
                     } // else, do not form any stars!!
 
                   } else {
