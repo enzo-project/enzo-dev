@@ -1654,7 +1654,9 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			ActiveParticleType_SmartStar* SS;
 			SS = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i]);
 			int pclass = SS->ParticleClass;
-
+			/* If pop3 and if mass > target mass, else set to 0.1 pc. Need to be careful checking for dx's etc.
+				Want to refine everything to the level the star is at.
+				*/
 			if (pclass == POPIII){
 
 				  // SG. Skip if current grid level less than SS grid level.
@@ -1688,12 +1690,13 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 						ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
 			} // end IF
 			} // end FOR Temp
+			continue;
 		} // SG. END POPIII
 
 	  if (pclass == SMS) {
 		  //fprintf(stderr,"%s: POPIII/SMS particle detected. No further refinement.\n", __FUNCTION__);
-		  continue; // If pop3 and if mass > target mass, else set to 0.1 pc. Need to be careful checking for dx's etc.
-				// Want to refine everything to the level the star is at
+		  continue; 
+
 		  } else{
 			//fprintf(stderr,"%s: No POPIII/SMS was particle detected. Continue to flag fields.\n", __FUNCTION__);  
 			pos = SmartStarList[i]->ReturnPosition();
@@ -1725,7 +1728,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
 			} // end IF
 			} // end FOR
-	  } // end ELSE
+	  } // end ELSE (BH)
   } // end FOR over particles
 
   return SUCCESS;
