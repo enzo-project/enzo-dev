@@ -19,7 +19,7 @@
 #define JEANSREFINEMENT  0 // SG. turning off to check potential fix.s
 #define MASSTHRESHOLDCHECK 1  //SG. Turned on for testing. Turning off again.
 #define JEANSLENGTHCALC    1
-#define MASSTHRESHOLD      40 //Msolar in grid. SG. changed to 20 to prevent runaway SF in EvaluateFormation.
+#define MASSTHRESHOLD      0.1 //Msolar in grid. SG. changed to 20 to prevent runaway SF in EvaluateFormation.
 #define COOLING_TIME       0 // SG. Turn on to prevent spurious SF.Turning off again.
 #define NUMSSPARTICLETYPES 4
 #define JEANS_FACTOR       2
@@ -978,6 +978,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
      /*
       * Only interested in newly formed particles
       */
+					// SG. TimeIndex check already exists here.
      if(SS->TimeIndex != 0){
 		 continue;
 	 }
@@ -1055,7 +1056,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
        }
        
        else if(POPIII == SS->ParticleClass) {
-	 if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
+								// SG. Remove resolution check. Want particle to accrete as normal now.
+								// Continue moves onto next iteration
+	 // if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
 	   density[cellindex] = newcelldensity;
 	   SS->BirthTime = APGrid->ReturnTime();
 	   SS->Mass = ParticleDensity;
@@ -1067,13 +1070,13 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
 	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
 	   }
-#if SSDEBUG
+//#if SSDEBUG
 	   printf("%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
 		  SS->Mass*dx*dx*dx*MassUnits/SolarMass, SS->Mass);
-#endif
+//#endif
 	   continue;
-	 }
-       }
+	 // }
+       } // END POPIII
        else if(POPII == SS->ParticleClass) {
 	 /* 
 	  * For PopII stars we do this if the mass exceeds the minimum mass
@@ -1094,7 +1097,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	   printf("POPII: cellindex %d updated - next.\n\n", cellindex);
 	   continue;
 	 }
-       }   
+       }   // END POPII star
 
         /* 
 	 * If the formation mass is below a resolution based threshold
@@ -1216,16 +1219,16 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 	 */
 	
 	if(POPIII == SS->ParticleClass) {
-		if (PopIIIInitialMassFunction){
+		// if (PopIIIInitialMassFunction){
 			SS->AssignMassFromIMF();
-		}else{
-			SS->Mass = PopIIIStarMass;
-			SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
-	  SS->RadiationLifetime*= yr_s/TimeUnits;
-		}
+		// }else{
+		// 	SS->Mass = PopIIIStarMass;
+		// 	SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
+	 //  SS->RadiationLifetime*= yr_s/TimeUnits;
+		// }
 	  // SS->RadiationLifetime =  55000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 	  SS->StellarAge = SS->RadiationLifetime;
-	  SphereTooSmall = MassEnclosed < (1.2*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
+	  SphereTooSmall = MassEnclosed < (2*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
 			fprintf(stderr, "%s: Is SphereTooSmall? %d (1 = yes, 0 = no). MassEnclosed: %e.\n", __FUNCTION__,
 		 SphereTooSmall, MassEnclosed);  // SG. NEW print statement.
 	  // to make the total mass PopIIIStarMass
@@ -1492,10 +1495,34 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
       /* 
        * We only accrete onto POPIII stars if our maximum 
        * spatial resolution is better than 1e-3 pc
+							* AND if target mass not reach yet (SG)
        */
       if(dx_pc > POPIII_RESOLUTION) //we don't have sufficient resolution
-	continue;
-    }
+						fprintf(stderr,"%s: insufficient resolution for POPIII accretion. dx_pc = %e \n", __FUNCTION__, dx_pc);
+						continue;
+
+						if (MassInSolar >= PopIIIStarMass)
+						fprintf(stderr,"%s: Mass target reached Mass POPIII = %e pc. Accrete is skipped.\n", __FUNCTION__, MassInSolar);
+						continue;
+  
+    grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx),
+					       dx, Grids, NumberOfGrids, ALL_FIELDS);
+    grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+    if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
+
+      float AccretionRate = 0;
+      
+      if (FeedbackZone->AccreteOntoSmartStarParticle(ParticleList[i],
+			      AccretionRadius, &AccretionRate) == FAIL)
+	return FAIL;
+
+      FLOAT *pos = ParticleList[i]->ReturnPosition();
+						} // SG. End processor number
+
+    DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+    delete FeedbackZone;
+
+    } // SG. END POPIII.
     else if(pclass == SMS) {
        /* 
        * We only accrete onto SMSs if our maximum 
@@ -1602,6 +1629,9 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 						Only if dx > dx_bondi is DepositRefinementZone triggered.
 	*/
 
+// if level < ap grid level, go through this function. if not, continue.
+// Order: Evaluate, remove, set flagging field. Need to skip mass remove the first time. Do time index = 0.
+
   /* Generate a list of all sink particles in the simulation box */
   int i, nParticles;
   FLOAT *pos = NULL;
@@ -1621,10 +1651,49 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
       SmartStarList);
 
   for (i=0 ; i<nParticles; i++){
-	  int pclass = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->ParticleClass;
-	  if (pclass == POPIII || pclass == SMS) {
+			ActiveParticleType_SmartStar* SS;
+			SS = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i]);
+			int pclass = SS->ParticleClass;
+
+			if (pclass == POPIII){
+
+				  // SG. Skip if current grid level less than SS grid level.
+						int SSLevel = SS->ReturnLevel();
+						if (level < SSLevel)
+						return SUCCESS;
+
+						// SG. Skip if PopIIIStarMass target has been reached.
+						float cmass = SS->ReturnMass(); // SG. current SS mass
+						double MassConversion = (double) (dx*dx*dx * double(MassUnits));  //convert to g
+						MassConversion = MassConversion/SolarMass; // convert to Msun
+						double cmass_msun = cmass*MassConversion; // SG. cmass in msun.
+						if (cmass_msun >= PopIIIStarMass)
+						return SUCCESS;
+
+						// SG. Set accrad to 0.1pc if not already set.
+						double accrad = SS->AccretionRadius;
+						FLOAT accrad_pc = accrad*LengthUnits/pc_cm; // in pc
+						if (accrad_pc < 0.1){
+							SS->AccretionRadius = 0.1/(LengthUnits/pc_cm); // SG. in code units
+							accrad = SS->AccretionRadius;
+							accrad_pc = accrad*LengthUnits/pc_cm; // in pc
+						}
+
+					// SG. Deposit refinement zone if both conditions are met.
+					pos = SmartStarList[i]->ReturnPosition();
+					for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
+					fprintf(stderr,"%s: PopIII star with cmass (Msun) = %e on level = %"ISYM" with accrad (pc) = %e. Deposit refinement zone.\n", 
+						__FUNCTION__, cmass_msun, level, accrad_pc);
+					if (Temp->GridData->DepositRefinementZone(level,pos,accrad) == FAIL) {
+						ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
+			} // end IF
+			} // end FOR Temp
+		} // SG. END POPIII
+
+	  if (pclass == SMS) {
 		  //fprintf(stderr,"%s: POPIII/SMS particle detected. No further refinement.\n", __FUNCTION__);
-		  continue;
+		  continue; // If pop3 and if mass > target mass, else set to 0.1 pc. Need to be careful checking for dx's etc.
+				// Want to refine everything to the level the star is at
 		  } else{
 			//fprintf(stderr,"%s: No POPIII/SMS was particle detected. Continue to flag fields.\n", __FUNCTION__);  
 			pos = SmartStarList[i]->ReturnPosition();
@@ -1650,6 +1719,8 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
 					//fprintf(stderr,"%s: Bondi radius = %e pc is less than cell width = %e pc. Deposit refinement zone.\n", 
 						//__FUNCTION__, dx_bondi_pc, dx_pc);
+
+		// SG NEED TO CHANGE INPUT FROM ACCRAD TO DX_BONDI??????
 					if (Temp->GridData->DepositRefinementZone(level,pos,accrad) == FAIL) {
 			ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
 			} // end IF
@@ -1899,7 +1970,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 		SS->TimeIndex++;
 		int timeindex = (SS->TimeIndex)%NTIMES;
 		int otimeindex = timeindex - 1;
-		if(otimeindex == -1) //loop backsg
+		if(otimeindex == -1) //loop back
 				otimeindex = NTIMES -1;
 		float otime = SS->AccretionRateTime[otimeindex];
 		if(otime == -1.0) {
