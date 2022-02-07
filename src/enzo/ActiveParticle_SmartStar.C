@@ -1662,7 +1662,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 				  // SG. Skip if current grid level less than SS grid level.
 						int SSLevel = SS->ReturnLevel();
 						fprintf(stderr,"%s: PopIII star is on level = %"ISYM". ThisLevel = %"ISYM" \n.", SSLevel, level);
-						if (level != SSLevel) // SG. Setting to != instead of < as there was runaway refinement to level 19 before exiting.
+						if (level >= SSLevel) // SG. Setting to != instead of < as there was runaway refinement to level 19 before exiting.
 						return SUCCESS;
 
 						// SG. Skip if PopIIIStarMass target has been reached.
