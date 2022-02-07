@@ -1655,13 +1655,14 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			SS = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i]);
 			int pclass = SS->ParticleClass;
 			/* If pop3 and if mass > target mass, else set to 0.1 pc. Need to be careful checking for dx's etc.
-				Want to refine everything to the level the star is at.
+				Want to refine everything to the level the star is at
 				*/
 			if (pclass == POPIII){
 
 				  // SG. Skip if current grid level less than SS grid level.
 						int SSLevel = SS->ReturnLevel();
-						if (level < SSLevel)
+						fprintf(stderr,"%s: PopIII star is on level = %"ISYM". ThisLevel = %"ISYM" \n.", SSLevel, level);
+						if (level != SSLevel) // SG. Setting to != instead of < as there was runaway refinement to level 19 before exiting.
 						return SUCCESS;
 
 						// SG. Skip if PopIIIStarMass target has been reached.
@@ -1675,10 +1676,12 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 						// SG. Set accrad to 0.1pc if not already set.
 						double accrad = SS->AccretionRadius;
 						FLOAT accrad_pc = accrad*LengthUnits/pc_cm; // in pc
+						fprintf(stderr,"%s: PopIII star with accrad = %e pc (%e code units) \n.", accrad_pc, accrad);
 						if (accrad_pc < 0.1){
 							SS->AccretionRadius = 0.1/(LengthUnits/pc_cm); // SG. in code units
 							accrad = SS->AccretionRadius;
 							accrad_pc = accrad*LengthUnits/pc_cm; // in pc
+							fprintf(stderr,"%s: PopIII star with accrad = %e pc (%e code units) \n.", accrad_pc, accrad);
 						}
 
 					// SG. Deposit refinement zone if both conditions are met.
