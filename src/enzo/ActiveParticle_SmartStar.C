@@ -979,7 +979,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
       * Only interested in newly formed particles
       */
 					// SG. TimeIndex check already exists here.
-     if(SS->TimeIndex != 0){
+     if(SS->TimeIndex != 1){
 		 continue;
 	 }
 
