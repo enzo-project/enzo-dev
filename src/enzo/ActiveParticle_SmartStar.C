@@ -1661,7 +1661,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 
 				  // SG. Skip if current grid level less than SS grid level.
 						int SSLevel = SS->ReturnLevel();
-						fprintf(stderr,"%s: PopIII star is on level = %"ISYM". ThisLevel = %"ISYM" \n.", SSLevel, level);
+						fprintf(stderr,"%s: PopIII star is on level = %"ISYM". ThisLevel = %"ISYM". \n", __FUNCTION__, SSLevel, level);
 						if (level >= SSLevel) // SG. Setting to != instead of < as there was runaway refinement to level 19 before exiting.
 						return SUCCESS;
 
@@ -1684,7 +1684,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 							fprintf(stderr,"%s: PopIII star with accrad = %e pc (%e code units) \n.", accrad_pc, accrad);
 						}
 
-					// SG. Deposit refinement zone if both conditions are met.
+					// SG. Deposit refinement zone around star if both conditions are met.
 					pos = SmartStarList[i]->ReturnPosition();
 					for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
 					fprintf(stderr,"%s: PopIII star with cmass (Msun) = %e on level = %"ISYM" with accrad (pc) = %e. Deposit refinement zone.\n", 
