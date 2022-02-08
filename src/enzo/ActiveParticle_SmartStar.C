@@ -1497,9 +1497,10 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
        * spatial resolution is better than 1e-3 pc
 							* AND if target mass not reach yet (SG)
        */
-      if(dx_pc > POPIII_RESOLUTION) //we don't have sufficient resolution
-						fprintf(stderr,"%s: insufficient resolution for POPIII accretion. dx_pc = %e \n", __FUNCTION__, dx_pc);
-						continue;
+      if(dx_pc > POPIII_RESOLUTION){ //we don't have sufficient resolution
+						fprintf(stderr,"%s: insufficient resolution for POPIII accretion. dx_pc = %e But will allow accretion.\n", __FUNCTION__, dx_pc);
+						//continue;
+						}
 
 						if (MassInSolar >= PopIIIStarMass)
 						fprintf(stderr,"%s: Mass target reached Mass POPIII = %e pc. Accrete is skipped.\n", __FUNCTION__, MassInSolar);
