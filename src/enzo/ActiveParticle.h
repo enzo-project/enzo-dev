@@ -700,7 +700,7 @@ public:
    int (*deposit_mass)(HierarchyEntry *Grids[], TopGridData *MetaData,
 				int NumberOfGrids, LevelHierarchyEntry *LevelArray[],
 				int ThisLevel, int GalaxyParticleID),
-   int (*flagfield)(LevelHierarchyEntry *LevelArray[], int level, int TopGridDims[], int ActiveParticleID), // SG. 
+   int (*flagfield)(LevelHierarchyEntry *LevelArray[], int level, int TopGridDims[], int ActiveParticleID),
    void (*allocate_buffer)(int Count, char **buffer),
    int (*fill_buffer)(ActiveParticleList<ActiveParticleType> &InList_, int InCount, char *buffer),
    void (*unpack_buffer)(char *buffer, int offset, ActiveParticleList<ActiveParticleType> &Outlist,
@@ -766,7 +766,7 @@ public:
   int (*ResetAcceleration)(float *ActiveParticleAcceleration);
   int (*CreateParticle)(grid *thisgrid_orig, ActiveParticleFormationData &supp_data,
 			int particle_index);
-  int (*SetFlaggingField)(LevelHierarchyEntry *LevelArray[], int level, int TopGridDims[], int ActiveParticleID); //SG.
+  int (*SetFlaggingField)(LevelHierarchyEntry *LevelArray[], int level, int TopGridDims[], int ActiveParticleID);
   void (*DescribeSupplementalData)(ActiveParticleFormationDataFlags &flags);
   void (*AllocateBuffer)(int Count, char **buffer);
   void (*UnpackBuffer)(char *buffer, int offset, ActiveParticleList<ActiveParticleType> &Outlist,
