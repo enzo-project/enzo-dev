@@ -1219,13 +1219,13 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 	 */
 	
 	if(POPIII == SS->ParticleClass) {
-		// if (PopIIIInitialMassFunction){
-			SS->AssignMassFromIMF();
-		// }else{
-		// 	SS->Mass = PopIIIStarMass;
-		// 	SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
-	 //  SS->RadiationLifetime*= yr_s/TimeUnits;
-		// }
+		if (PopIIIInitialMassFunction){
+		SS->AssignMassFromIMF();
+		}else{
+			SS->Mass = PopIIIStarMass;
+			SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
+	  SS->RadiationLifetime*= yr_s/TimeUnits;
+		}
 	  // SS->RadiationLifetime =  55000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 	  SS->StellarAge = SS->RadiationLifetime;
 	  SphereTooSmall = MassEnclosed < (2*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
@@ -1660,7 +1660,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 				*/
 			if (pclass == POPIII){
 
-				  // SG. Skip if current grid level less than SS grid level.
+				  // SG. Skip if current grid level is great than or equal to SS grid level.
 						// grid* SSGrid = SS->ReturnCurrentGrid();
 						// int SSLevel = SSGrid->GridLevel;
 						int SSLevel = SS->ReturnLevel();
