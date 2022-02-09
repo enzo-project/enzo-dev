@@ -1637,6 +1637,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
   int i, nParticles;
   FLOAT *pos = NULL;
   ActiveParticleList<ActiveParticleType> SmartStarList;
+		ActiveParticleList<ActiveParticleType> ParticleList; // SG.
   LevelHierarchyEntry *Temp = NULL;
 		double dx = LevelArray[level]->GridData->CellWidth[0][0]; // SG. Grid cell width.
 
@@ -1653,20 +1654,20 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 
   for (i=0 ; i<nParticles; i++){
 			ActiveParticleType_SmartStar* SS;
-			SS = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i]);
+			SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
 			int pclass = SS->ParticleClass;
 			/* If pop3 and if mass > target mass, else set to 0.1 pc. Need to be careful checking for dx's etc.
 				Want to refine everything to the level the star is at
 				*/
 			if (pclass == POPIII){
 
-				  // SG. Skip if current grid level less than SS grid level.
+				  // SG. Skip if current grid level is greater than or equal to SS grid level.
 						// grid* SSGrid = SS->ReturnCurrentGrid();
 						// int SSLevel = SSGrid->GridLevel;
 						int SSLevel = SS->ReturnLevel();
 						fprintf(stderr,"%s: PopIII star is on level = %"ISYM". ThisLevel = %"ISYM". \n", __FUNCTION__, SSLevel, level);
 						if (level >= SSLevel) // SG. 
-						return SUCCESS;
+						continue;
 
 						// SG. Skip if PopIIIStarMass target has been reached.
 						float cmass = SS->ReturnMass(); // SG. current SS mass
@@ -1674,7 +1675,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 						MassConversion = MassConversion/SolarMass; // convert to Msun
 						double cmass_msun = cmass*MassConversion; // SG. cmass in msun.
 						if (cmass_msun >= PopIIIStarMass)
-						return SUCCESS;
+						continue;
 
 						// SG. Set accrad to 0.1pc if not already set.
 						double accrad = SS->AccretionRadius;

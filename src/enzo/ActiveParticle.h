@@ -590,7 +590,6 @@ namespace ActiveParticleHelpers {
           for (i = 0; i < Count; i++) {
             (*it)->SetAttribute(&_buffer, OutList[i+offset]);
           }
-          delete [] buffer;
       }
 
       H5Gclose(node);
@@ -699,7 +698,7 @@ public:
    int (*deposit_mass)(HierarchyEntry *Grids[], TopGridData *MetaData,
 				int NumberOfGrids, LevelHierarchyEntry *LevelArray[],
 				int ThisLevel, int GalaxyParticleID),
-   int (*flagfield)(LevelHierarchyEntry *LevelArray[], int level, int TopGridDims[], int ActiveParticleID),
+   int (*flagfield)(LevelHierarchyEntry *LevelArray[], int level, int TopGridDims[], int ActiveParticleID), // SG. 
    void (*allocate_buffer)(int Count, char **buffer),
    int (*fill_buffer)(ActiveParticleList<ActiveParticleType> &InList_, int InCount, char *buffer),
    void (*unpack_buffer)(char *buffer, int offset, ActiveParticleList<ActiveParticleType> &Outlist,
@@ -765,7 +764,7 @@ public:
   int (*ResetAcceleration)(float *ActiveParticleAcceleration);
   int (*CreateParticle)(grid *thisgrid_orig, ActiveParticleFormationData &supp_data,
 			int particle_index);
-  int (*SetFlaggingField)(LevelHierarchyEntry *LevelArray[], int level, int TopGridDims[], int ActiveParticleID);
+  int (*SetFlaggingField)(LevelHierarchyEntry *LevelArray[], int level, int TopGridDims[], int ActiveParticleID); //SG.
   void (*DescribeSupplementalData)(ActiveParticleFormationDataFlags &flags);
   void (*AllocateBuffer)(int Count, char **buffer);
   void (*UnpackBuffer)(char *buffer, int offset, ActiveParticleList<ActiveParticleType> &Outlist,
