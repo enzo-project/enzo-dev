@@ -1281,6 +1281,9 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 				CellDensityAfterFormation*DensityUnits); // SG. New print.
 	
       }  /* end while(SphereTooSmall) */ // SG. End testing here.
+
+						// SG/BS - insert: if spherecontained = false, continue particle loop (end up here after break)
+						// Don't want to read in code below if spherecontained = false.
 #ifdef NOT_NECESSARY
        /* Don't allow the sphere to be too large (2x leeway) */
        const float epsMass = 9.0;
@@ -1669,7 +1672,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 						int SSLevel = SS->ReturnLevel();
 						fprintf(stderr,"%s: PopIII star is on level = %"ISYM". ThisLevel = %"ISYM". \n", __FUNCTION__, SSLevel, level);
 						if (level >= SSLevel) // SG. 
-						return SUCCESS;
+						continue;
 
 						// SG. Skip if PopIIIStarMass target has been reached.
 						float cmass = SS->ReturnMass(); // SG. current SS mass
@@ -1677,7 +1680,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 						MassConversion = MassConversion/SolarMass; // convert to Msun
 						double cmass_msun = cmass*MassConversion; // SG. cmass in msun.
 						if (cmass_msun >= PopIIIStarMass)
-						return SUCCESS;
+						continue;
 
 						// SG. Set accrad to 0.1pc if not already set.
 						double accrad = SS->AccretionRadius;
