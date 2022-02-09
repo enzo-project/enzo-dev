@@ -942,6 +942,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 					if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
 							ActiveParticleType_SmartStar* SS;
 							SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+							// SG. For low resolution particles that never get accreted, the time index is never incremented
+							// Hence Mass = 0 check is included.
 							if(SS->ParticleClass == POPIII && SS->TimeIndex == 0 && SS->Mass == 0) {
 									SSparticles[k++] = i;
 									num_new_popiii_stars++;
@@ -978,10 +980,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
      /*
       * Only interested in newly formed particles
       */
-					// SG. TimeIndex check already exists here.
-     if(SS->TimeIndex != 1){
-		 continue;
-	 }
+					// SG. TimeIndex check already exists here. Get rid of it
+  //    if(SS->TimeIndex != 1){
+		//  continue;
+	 // }
 
       FLOAT dx = APGrid->CellWidth[0][0];
       FLOAT CellVolume = dx*dx*dx;
@@ -1279,6 +1281,10 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 				CellDensityAfterFormation*DensityUnits); // SG. New print.
 	
       }  /* end while(SphereTooSmall) */ // SG. End testing here.
+
+						// SG/BS - insert: if spherecontained = false, continue particle loop (end up here after break)
+						// Don't want to read in code below if spherecontained = false.
+						
 #ifdef NOT_NECESSARY
        /* Don't allow the sphere to be too large (2x leeway) */
        const float epsMass = 9.0;
