@@ -240,7 +240,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     /* Use averaged quantities across multiple cells so that deposition is stable.
         vmean is used to determine whether the supernova shell calculation should proceed:
             M_shell > 0 iff v_shell > v_gas */
-    float zmean = 0, dmean = 0, nmean = 0, vmean = 0, mu_mean = 0;
+    float zmean = 0, dmean = 0, nmean = 0, mu_mean = 0;
     for (int idi = ip-1; idi < ip+2; idi++)
         for (int idj = jp-1;idj < jp+2; idj++)
             for (int idk = kp-1; idk < kp+2; idk++)
@@ -248,18 +248,13 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                     int ind = idi + idj * GridDimension[0] + idk * GridDimension[0] * GridDimension[1];
 
                     float tz = 0;
-                    tz  = metals[ind]/BaryonField[DensNum][ind];
+                    tz  = metals[ind];
                     if (SNColourNum > 0)
                         tz += BaryonField[SNColour][ind];
                     zmean += tz/BaryonField[DensNum][ind];
                     mu_mean += muField[ind];
                     dmean += BaryonField[DensNum][ind];
-                    // velocities are currently momenta
-                    vmean += BaryonField[Vel1Num][ind]/BaryonField[DensNum][ind];
-                    vmean += BaryonField[Vel2Num][ind]/BaryonField[DensNum][ind];
-                    vmean += BaryonField[Vel3Num][ind]/BaryonField[DensNum][ind];
                 }
-    vmean = vmean / 27.0 * VelocityUnits; // cm/s!
     zmean = zmean / SolarMetalFractionByMass / (27.0);
     mu_mean /= 27.0;
     dmean = dmean * DensityUnits / (27.);
