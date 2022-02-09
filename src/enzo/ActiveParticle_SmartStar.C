@@ -1056,9 +1056,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
        }
        
        else if(POPIII == SS->ParticleClass) {
-								// SG. Remove resolution check. Want particle to accrete as normal now.
-								// Continue moves onto next iteration
-	 // if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
+								// SG. put back in resoultion check
+	 if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
 	   density[cellindex] = newcelldensity;
 	   SS->BirthTime = APGrid->ReturnTime();
 	   SS->Mass = ParticleDensity;
@@ -1075,7 +1074,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 		  SS->Mass*dx*dx*dx*MassUnits/SolarMass, SS->Mass);
 //#endif
 	   continue;
-	 // }
+	  } // END RES CHECK
        } // END POPIII
        else if(POPII == SS->ParticleClass) {
 	 /* 
