@@ -942,7 +942,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 					if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
 							ActiveParticleType_SmartStar* SS;
 							SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-							if(SS->ParticleClass == POPIII && SS->TimeIndex == 0 && SS->Mass == 0) {
+							if(SS->ParticleClass == POPIII && SS->TimeIndex == 1 && SS->Mass == 0) {
 									SSparticles[k++] = i;
 									num_new_popiii_stars++;
 									} // End IF particle class POPIII
@@ -1056,6 +1056,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
        }
        
        else if(POPIII == SS->ParticleClass) {
+								// SG/BS. Never want this to be triggered. Always use sphere method.
+								continue;
 								// SG. put back in resoultion check
 	 if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
 	   density[cellindex] = newcelldensity;
@@ -1218,13 +1220,13 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 	 */
 	
 	if(POPIII == SS->ParticleClass) {
-		// if (PopIIIInitialMassFunction){
-			SS->AssignMassFromIMF();
-		// }else{
-		// 	SS->Mass = PopIIIStarMass;
-		// 	SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
-	 //  SS->RadiationLifetime*= yr_s/TimeUnits;
-		// }
+		if (PopIIIInitialMassFunction){
+		SS->AssignMassFromIMF();
+		}else{
+			SS->Mass = PopIIIStarMass;
+			SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
+	  SS->RadiationLifetime*= yr_s/TimeUnits;
+		}
 	  // SS->RadiationLifetime =  55000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 	  SS->StellarAge = SS->RadiationLifetime;
 	  SphereTooSmall = MassEnclosed < (2*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
@@ -1666,7 +1668,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 						int SSLevel = SS->ReturnLevel();
 						fprintf(stderr,"%s: PopIII star is on level = %"ISYM". ThisLevel = %"ISYM". \n", __FUNCTION__, SSLevel, level);
 						if (level >= SSLevel) // SG. 
-						continue;
+						return SUCCESS;
 
 						// SG. Skip if PopIIIStarMass target has been reached.
 						float cmass = SS->ReturnMass(); // SG. current SS mass
@@ -1674,7 +1676,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 						MassConversion = MassConversion/SolarMass; // convert to Msun
 						double cmass_msun = cmass*MassConversion; // SG. cmass in msun.
 						if (cmass_msun >= PopIIIStarMass)
-						continue;
+						return SUCCESS;
 
 						// SG. Set accrad to 0.1pc if not already set.
 						double accrad = SS->AccretionRadius;
