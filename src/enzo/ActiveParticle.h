@@ -590,7 +590,9 @@ namespace ActiveParticleHelpers {
           for (i = 0; i < Count; i++) {
             (*it)->SetAttribute(&_buffer, OutList[i+offset]);
           }
+          delete [] buffer;
       }
+      
 
       H5Gclose(node);
       offset += Count;

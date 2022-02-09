@@ -942,7 +942,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 					if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
 							ActiveParticleType_SmartStar* SS;
 							SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-							if(SS->ParticleClass == POPIII && SS->TimeIndex == 1 && SS->Mass == 0) {
+							// For low resolution particles that never get accreted, the time index is never incremented
+							if(SS->ParticleClass == POPIII && SS->TimeIndex == 0 && SS->Mass == 0) {
 									SSparticles[k++] = i;
 									num_new_popiii_stars++;
 									} // End IF particle class POPIII
