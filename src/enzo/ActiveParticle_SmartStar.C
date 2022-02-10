@@ -897,26 +897,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-	 // // SG. Using new MassRemovalIndex particle attribute to exit this function on first iteration.
-		// // MassRemovalIndex is incremented here, just once.
-	 // for (int i = 0; i < nParticles; i++) {
-		// 	 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-  //   if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
-  //     ActiveParticleType_SmartStar* SS;
-  //     SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-  //     if(SS->ParticleClass == POPIII && SS->MassRemovalIndex == 0) {
-		// 					fprintf(stderr,"%s: Start of function. MassRemovalIndex = 0.\n", __FUNCTION__);
-		// 					SS->MassRemovalIndex++;
-		// 					fprintf(stderr,"%s: MassRemovalIndex = %"ISYM".\n", __FUNCTION__, SS->MassRemovalIndex);
-		// 					continue;
-
-		// 											} // END Class POPIII + MassRemovalIndex == 0 
-		// 		} // END Processor
-		// } // END Particles loop
-
-
-
-							
+					
   int SSparticles[nParticles] = {-1};
   float StellarMasstoRemove = 0.0, CellDensityAfterFormation = 0.0;
   /* Skip accretion if we're not on the maximum refinement level.
@@ -989,12 +970,12 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   }
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0){
-	   fprintf(stderr, "%s: 1) No new particles. SG: disabling exiting RemoveMassFromGridAfterFormation.",__FUNCTION__);
-	    // return SUCCESS;
+	   fprintf(stderr, "%s: 1) No new particles. RemoveMassFromGridAfterFormation.",__FUNCTION__);
+				return SUCCESS;
   }
    
-
-  for (int k = 0; k < nParticles; k++) { // SG. MAIN LOOP.
+  
+  for (int k = 0; k < num_new_stars; k++) { // SG. MAIN LOOP.
     int pindex = SSparticles[k];
     grid* APGrid = ParticleList[pindex]->ReturnCurrentGrid();
 			
@@ -1178,15 +1159,15 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
       bool SphereTooSmall = true;
       float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
 	ShellVelocity[MAX_DIMENSION];
+						bool IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
       while (SphereTooSmall) { // SG. Start while SphereTooSmall here.
 	Radius += APGrid->CellWidth[0][0]; // increasing radius by one cell width each iteration.
-	bool IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
 
 // SG. Testing putting this back in.
-	// if (IsSphereContained == false){
-	// 	fprintf(stderr,"SphereContained = false. Break.\n"); // SG. Add this print.
-	// 	break;
-	// }
+	if (IsSphereContained == false){
+		fprintf(stderr,"SphereContained = false. Break.\n"); // SG. Add this print.
+		break;
+	}
 	ShellMass = 0;
 	ShellMetallicity2 = 0;
 	ShellMetallicity3 = 0;
@@ -1326,6 +1307,9 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 
 						// SG/BS - insert: if spherecontained = false, continue particle loop (end up here after break)
 						// Don't want to read in code below if spherecontained = false.
+						if (IsSphereContained == false)
+						fprintf(stderr,"%s: Sphere not contained. Next particle.\n", __FUNCTION__);
+						continue;
 						
 #ifdef NOT_NECESSARY
        /* Don't allow the sphere to be too large (2x leeway) */
