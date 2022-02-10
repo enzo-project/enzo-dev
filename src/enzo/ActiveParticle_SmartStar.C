@@ -983,17 +983,17 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
      ActiveParticleType_SmartStar* SS;
      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[pindex]); 
 
-				 /*
-					SG. Using new MassRemovalIndex particle attribute to exit this function on first iteration.
-					MassRemovalIndex is incremented here, just once.
-					On next iteration, MassRemovalIndex will be 1 and 'continue' will not be invoked.
-					*/
-     if(SS->ParticleClass == POPIII && SS->MassRemovalIndex == 0) {
-						fprintf(stderr,"%s: Start of main loop over new stars. MassRemovalIndex = 0.\n", __FUNCTION__);
-						SS->MassRemovalIndex++;
-						fprintf(stderr,"%s: MassRemovalIndex = %"ISYM" now. No mass removal should happen.\n", __FUNCTION__, SS->MassRemovalIndex);
-						continue;
-					}
+				 // /*
+					// SG. Using new MassRemovalIndex particle attribute to exit this function on first iteration.
+					// MassRemovalIndex is incremented here, just once.
+					// On next iteration, MassRemovalIndex will be 1 and 'continue' will not be invoked.
+					// */
+     // if(SS->ParticleClass == POPIII && SS->MassRemovalIndex == 0) {
+					// 	fprintf(stderr,"%s: Start of main loop over new stars. MassRemovalIndex = 0.\n", __FUNCTION__);
+					// 	SS->MassRemovalIndex++;
+					// 	fprintf(stderr,"%s: MassRemovalIndex = %"ISYM" now. No mass removal should happen.\n", __FUNCTION__, SS->MassRemovalIndex);
+					// 	continue;
+					// }
 
      /*
       * Only interested in newly formed particles
