@@ -1080,28 +1080,27 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	 }
        }
        
-       else if(POPIII == SS->ParticleClass) {
-								// SG/BS. Never want this to be triggered. Always use sphere method.
-								continue;
-	 // if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
-	   density[cellindex] = newcelldensity;
-	   SS->BirthTime = APGrid->ReturnTime();
-	   SS->Mass = ParticleDensity;
-	   SS->oldmass = 0.0;
-	   if(ParticleDensity < 0.0) {
-	     printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
-	     printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
-	     printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
-	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
-	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
-	   }
-//#if SSDEBUG
-	   fprintf(stderr, "%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
-		  SS->Mass*dx*dx*dx*MassUnits/SolarMass, SS->Mass);
-//#endif
-	   continue;
-	 // }
-       } // END POPIII
+//        else if(POPIII == SS->ParticleClass) {
+// 								// SG/BS. Never want this to be triggered. Always use sphere method.
+// 								if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
+// 	   density[cellindex] = newcelldensity;
+// 	   SS->BirthTime = APGrid->ReturnTime();
+// 	   SS->Mass = ParticleDensity;
+// 	   SS->oldmass = 0.0;
+// 	   if(ParticleDensity < 0.0) {
+// 	     printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
+// 	     printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+// 	     printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+// 	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+// 	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
+// 	   }
+// //#if SSDEBUG
+// 	   fprintf(stderr, "%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
+// 		  SS->Mass*dx*dx*dx*MassUnits/SolarMass, SS->Mass);
+// //#endif
+// 	   continue;
+// 	 }
+//        } // END POPIII
        else if(POPII == SS->ParticleClass) {
 	 /* 
 	  * For PopII stars we do this if the mass exceeds the minimum mass

@@ -81,6 +81,7 @@ public:
 	Accreted_angmom[i] = 0.0;
       }
     TimeIndex = -1;
+    MassRemovalIndex = -1; // SG. Removing POPIII mass after refinement.
     //oldmass = -1;
     for(int i = 0; i < NTIMES; i++)
       {
@@ -98,6 +99,8 @@ public:
       Accreted_angmom[i] = 0.0;
     }
     TimeIndex = part->TimeIndex;
+    // SG. Removing POPIII mass after refinement.
+    MassRemovalIndex = part->MassRemovalIndex;
     
     //oldmass = part->oldmass;
     for(int i = 0; i < NTIMES; i++) {
@@ -209,6 +212,7 @@ public:
   float AccretionRate[NTIMES];
   float AccretionRateTime[NTIMES];
   int TimeIndex;
+  int MassRemovalIndex; // SG. Removing POPIII mass after refinement.
   static int FeedbackDistTotalCells, FeedbackDistRadius, FeedbackDistCellStep;
   float NotEjectedMass, eta_disk, mass_in_accretion_sphere, MassToBeEjected;
   float beta_jet, epsilon_deltat;
