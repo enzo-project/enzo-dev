@@ -989,8 +989,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   }
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0){
-	   //fprintf(stderr, "%s: 1) No new particles. Exiting RemoveMassFromGridAfterFormation.",__FUNCTION__);
-	    return SUCCESS;
+	   fprintf(stderr, "%s: 1) No new particles. SG: disabling exiting RemoveMassFromGridAfterFormation.",__FUNCTION__);
+	    // return SUCCESS;
   }
    
 
