@@ -1181,6 +1181,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	HierarchyEntry *Temp2 = NULL;
 
 	for (int l = ThisLevel; l < MAX_DEPTH_OF_HIERARCHY; l++) { // START: loop through levels
+	/* SG. Only searching the current level and levels above it */
 	  Temp = LevelArray[l];
 	  while (Temp != NULL) { // START: grids while loop (i.e. while there are grids on this level)
 	    
@@ -1197,7 +1198,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	      } // End while(Temp2)
 	    } // ENDIF !MarkedSubgrids
 
-fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Radius-APGrid->CellWidth[0][0], Radius);
+// fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Radius-APGrid->CellWidth[0][0], Radius);
 	    /* Sum enclosed mass in this grid. Mass is in Msolar*/
 	    Temp->GridData->GetEnclosedMassInShell(SS->pos, Radius-APGrid->CellWidth[0][0], Radius, 
 						   ShellMass, ShellMetallicity2, 
@@ -1206,7 +1207,7 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 						   -1);
 	    
 	    Temp = Temp->NextGridThisLevel; // how we loop over all grids on the level.
-					fprintf(stderr,"%s: ShellMass = %e Msun on grid level %"ISYM".\n", __FUNCTION__, ShellMass, ThisLevel);
+	//	fprintf(stderr,"%s: ShellMass = %e Msun on grid level %"ISYM".\n", __FUNCTION__, ShellMass, ThisLevel);
 	    
 	  } // END: Grids
 	  
