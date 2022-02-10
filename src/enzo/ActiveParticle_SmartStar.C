@@ -1160,6 +1160,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
       float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
 	ShellVelocity[MAX_DIMENSION];
 						bool IsSphereContained;
+
       while (SphereTooSmall) { // SG. Start while SphereTooSmall here.
 	Radius += APGrid->CellWidth[0][0]; // increasing radius by one cell width each iteration.
 	IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
@@ -1225,7 +1226,7 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 	fprintf(stderr,"ShellMass = %e Msolar\n", ShellMass); 
 	// SG. Breaking out of SphereTooSmall loop if ShellMass is == 0.
 	// Need to change ShellMass to some threshold value
-	if (ShellMass < 1e-03) {
+	if (ShellMass < 1e-05) { // in Msun
 		 fprintf(stderr, "%s: Shell Mass too small. Break.\n", __FUNCTION__);
 	  IsSphereContained = false;
 	  break; // SG. Should be a break
@@ -1237,71 +1238,7 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 	  AvgVelocity[dim] /= MassEnclosed;
 	
 	
-	/* Now remove mass based on star particle type 
-	 * Note that while SS->Mass gets set here with the 
-	 * mass of the particle in solar masses it is reset 
-	 * below in code density units. 
-	 */
 	
-	if(POPIII == SS->ParticleClass) {
-		if (PopIIIInitialMassFunction){
-		SS->AssignMassFromIMF();
-		}else{
-			SS->Mass = PopIIIStarMass;
-			SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
-	  SS->RadiationLifetime*= yr_s/TimeUnits;
-		}
-	  // SS->RadiationLifetime =  55000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
-	  SS->StellarAge = SS->RadiationLifetime;
-	  SphereTooSmall = MassEnclosed < (2*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
-			fprintf(stderr, "%s: Is SphereTooSmall? %d (1 = yes, 0 = no). MassEnclosed: %e.\n", __FUNCTION__,
-		 SphereTooSmall, MassEnclosed);  // SG. NEW print statement.
-	  // to make the total mass PopIIIStarMass
-	  StellarMasstoRemove = SS->Mass;  // [Msolar]
-	  fprintf(stderr,"%s: Mass = %e Msolar\t StellarAge = %e Myr\n", __FUNCTION__,
-		 SS->Mass, SS->StellarAge*TimeUnits/Myr_s);
-	  SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
-	  SS->oldmass = 0.0;
-			//fprintf(stderr,"%s: oldmass = %e Msun.\n", __FUNCTION__, SS->ReturnOldMass());
-	}
-	else if(SMS == SS->ParticleClass) {
-	  /* 
-	   * We take here a fiducial SMS mass of 10,000 Msolar
-	   * since in this low resolution case accretion is 
-	   * not permitted. 
-	   * The lifetime is set to be 1.5 Myr (see Woods et al. 2020)
-	   */
-	  SS->Mass = 10000.0; //hardcoding to 10000 Msolar 
-	  SS->RadiationLifetime =  1.5e6*yr_s/TimeUnits; //Woods et al. 2020
-	  SS->StellarAge =  SS->RadiationLifetime;
-	  SphereTooSmall = MassEnclosed < (2*SS->Mass);
-	  StellarMasstoRemove = SS->Mass; //[Msolar]
-	  SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
-	  SS->oldmass = 0.0;
-	}
-	else if(POPII == SS->ParticleClass) {
-	  float AvgDensity = (float) 
-	    (double(SolarMass * MassEnclosed) / 
-	     double(4*pi/3.0 * pow(Radius*LengthUnits, 3))); /* cgs density */
-	  float DynamicalTime = sqrt((3.0 * pi) / (32.0 * GravConst * AvgDensity)) /
-	    TimeUnits;
-	  float ColdGasFraction = ColdGasMass / MassEnclosed;
-	  StellarMasstoRemove = ColdGasFraction * StarClusterFormEfficiency * MassEnclosed; //[Msolar]
-	  SphereTooSmall = DynamicalTime < tdyn_code;
-	  SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
-	  SS->oldmass = 0.0;
-	  SS->RadiationLifetime = 2e7*yr_s/TimeUnits; /* 20 Myr lifetime */
-	}
-	// Remove the stellar mass from the sphere and distribute the
-	// gas evenly in the sphere since this is what will happen once
-	// the I-front passes through it.
-	
-	CellDensityAfterFormation = (float) 
-	  (double(SolarMass * (MassEnclosed - StellarMasstoRemove)) / 
-	   double(4.0*pi/3.0 * POW(Radius*LengthUnits, 3)) /
-	   DensityUnits); /* converted to code density */
-				fprintf(stderr,"%s: CellDensityAfterFormation = %e g/cm^3.\n", __FUNCTION__, 
-				CellDensityAfterFormation*DensityUnits); // SG. New print.
 	
       }  /* end while(SphereTooSmall) */ // SG. End testing here.
 
@@ -1310,6 +1247,75 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 						if (IsSphereContained == false)
 						fprintf(stderr,"%s: Sphere not contained. Next particle.\n", __FUNCTION__);
 						continue;
+
+						/* Now remove mass based on star particle type 
+						* Note that while SS->Mass gets set here with the 
+						* mass of the particle in solar masses it is reset 
+						* below in code density units. 
+						*/
+					
+					if(POPIII == SS->ParticleClass) {
+						if (PopIIIInitialMassFunction){
+						SS->AssignMassFromIMF();
+						}else{
+							SS->Mass = PopIIIStarMass;
+							SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass);
+							SS->RadiationLifetime*= yr_s/TimeUnits;
+						}
+							// SS->RadiationLifetime =  55000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
+							SS->StellarAge = SS->RadiationLifetime;
+							SphereTooSmall = MassEnclosed < (2*SS->Mass); // SG. This is the only line that needs to be in the WHILE loop.
+							fprintf(stderr, "%s: Is SphereTooSmall? %d (1 = yes, 0 = no). MassEnclosed: %e.\n", __FUNCTION__,
+							SphereTooSmall, MassEnclosed);  // SG. NEW print statement.
+							// to make the total mass PopIIIStarMass
+							StellarMasstoRemove = SS->Mass;  // [Msolar]
+							fprintf(stderr,"%s: Mass = %e Msolar\t StellarAge = %e Myr\n", __FUNCTION__,
+							SS->Mass, SS->StellarAge*TimeUnits/Myr_s);
+							SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
+							SS->oldmass = 0.0;
+							//fprintf(stderr,"%s: oldmass = %e Msun.\n", __FUNCTION__, SS->ReturnOldMass());
+					}
+					else if(SMS == SS->ParticleClass) {
+							/* 
+								* We take here a fiducial SMS mass of 10,000 Msolar
+								* since in this low resolution case accretion is 
+								* not permitted. 
+								* The lifetime is set to be 1.5 Myr (see Woods et al. 2020)
+								*/
+							SS->Mass = 10000.0; //hardcoding to 10000 Msolar 
+							SS->RadiationLifetime =  1.5e6*yr_s/TimeUnits; //Woods et al. 2020
+							SS->StellarAge =  SS->RadiationLifetime;
+							SphereTooSmall = MassEnclosed < (2*SS->Mass);
+							StellarMasstoRemove = SS->Mass; //[Msolar]
+							SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
+							SS->oldmass = 0.0;
+					}
+					else if(POPII == SS->ParticleClass) {
+							float AvgDensity = (float) 
+									(double(SolarMass * MassEnclosed) / 
+										double(4*pi/3.0 * pow(Radius*LengthUnits, 3))); /* cgs density */
+							float DynamicalTime = sqrt((3.0 * pi) / (32.0 * GravConst * AvgDensity)) /
+									TimeUnits;
+							float ColdGasFraction = ColdGasMass / MassEnclosed;
+							StellarMasstoRemove = ColdGasFraction * StarClusterFormEfficiency * MassEnclosed; //[Msolar]
+							SphereTooSmall = DynamicalTime < tdyn_code;
+							SS->Mass = (StellarMasstoRemove*SolarMass/MassUnits)/CellVolume; //code density
+							SS->oldmass = 0.0;
+							SS->RadiationLifetime = 2e7*yr_s/TimeUnits; /* 20 Myr lifetime */
+					}
+					// Remove the stellar mass from the sphere and distribute the
+					// gas evenly in the sphere since this is what will happen once
+					// the I-front passes through it.
+					
+					CellDensityAfterFormation = (float) 
+							(double(SolarMass * (MassEnclosed - StellarMasstoRemove)) / 
+								double(4.0*pi/3.0 * POW(Radius*LengthUnits, 3)) /
+								DensityUnits); /* converted to code density */
+								fprintf(stderr,"%s: CellDensityAfterFormation = %e g/cm^3.\n", __FUNCTION__, 
+								CellDensityAfterFormation*DensityUnits); // SG. New print.
+
+
+						
 						
 #ifdef NOT_NECESSARY
        /* Don't allow the sphere to be too large (2x leeway) */
