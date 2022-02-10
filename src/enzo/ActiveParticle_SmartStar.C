@@ -1210,7 +1210,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	//	fprintf(stderr,"%s: ShellMass = %e Msun on grid level %"ISYM".\n", __FUNCTION__, ShellMass, ThisLevel);
 	    
 	  } // END: Grids
-	  
+	  continue;
 	} // END: level
 	MarkedSubgrids = true;
 	MassEnclosed += ShellMass; // add the shell mass to MassEnclosed sum
