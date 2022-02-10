@@ -1159,10 +1159,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
       bool SphereTooSmall = true;
       float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
 	ShellVelocity[MAX_DIMENSION];
-						bool IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
+						bool IsSphereContained;
       while (SphereTooSmall) { // SG. Start while SphereTooSmall here.
 	Radius += APGrid->CellWidth[0][0]; // increasing radius by one cell width each iteration.
-
+	IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
 // SG. Testing putting this back in.
 	if (IsSphereContained == false){
 		fprintf(stderr,"SphereContained = false. Break.\n"); // SG. Add this print.
