@@ -994,7 +994,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   }
    
 
-  for (int k = 0; k < num_new_stars; k++) { // SG. MAIN LOOP.
+  for (int k = 0; k < nParticles; k++) { // SG. MAIN LOOP.
     int pindex = SSparticles[k];
     grid* APGrid = ParticleList[pindex]->ReturnCurrentGrid();
 			
