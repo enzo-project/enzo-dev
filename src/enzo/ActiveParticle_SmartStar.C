@@ -897,22 +897,22 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-	 // SG. Using new MassRemovalIndex particle attribute to exit this function on first iteration.
-		// MassRemovalIndex is incremented here, just once.
-	 for (int i = 0; i < nParticles; i++) {
-			 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-    if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
-      ActiveParticleType_SmartStar* SS;
-      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-      if(SS->ParticleClass == POPIII && SS->MassRemovalIndex == 0) {
-							fprintf(stderr,"%s: Start of function. MassRemovalIndex = 0.\n", __FUNCTION__);
-							SS->MassRemovalIndex++;
-							fprintf(stderr,"%s: MassRemovalIndex = %"ISYM".\n", __FUNCTION__, SS->MassRemovalIndex);
-							continue;
+	 // // SG. Using new MassRemovalIndex particle attribute to exit this function on first iteration.
+		// // MassRemovalIndex is incremented here, just once.
+	 // for (int i = 0; i < nParticles; i++) {
+		// 	 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+  //   if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+  //     ActiveParticleType_SmartStar* SS;
+  //     SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+  //     if(SS->ParticleClass == POPIII && SS->MassRemovalIndex == 0) {
+		// 					fprintf(stderr,"%s: Start of function. MassRemovalIndex = 0.\n", __FUNCTION__);
+		// 					SS->MassRemovalIndex++;
+		// 					fprintf(stderr,"%s: MassRemovalIndex = %"ISYM".\n", __FUNCTION__, SS->MassRemovalIndex);
+		// 					continue;
 
-													} // END Class POPIII + MassRemovalIndex == 0 
-				} // END Processor
-		} // END Particles loop
+		// 											} // END Class POPIII + MassRemovalIndex == 0 
+		// 		} // END Processor
+		// } // END Particles loop
 
 
 
