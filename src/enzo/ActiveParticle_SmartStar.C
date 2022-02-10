@@ -392,7 +392,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	float accrate	= thisGrid->ConvergentMassFlow(data.DensNum, data.Vel1Num,
 					     dx*ACCRETIONRADIUS, centralpos,
 					     cellvel, -1, -1, -1);
-	fprintf(stderr, "%s: accrate = %e", __FUNCTION__, accrate);
+	fprintf(stderr, "%s: accrate onto cell = %e.\n", __FUNCTION__, accrate);
 
 	ExtraDensity = density[index] - DensityThreshold;
 	 /* We have the main conditions for SF now but we need to decide on the type of star 
@@ -420,7 +420,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	}
 	else if(data.H2Fraction[index] >  PopIIIH2CriticalFraction) {
 	  stellar_type = POPIII;
-	  printf("POPIII particles(%d) created and done in %s on level %"ISYM".\n", data.NumberOfNewParticles + 1, __FUNCTION__, ThisLevel);
+	  fprintf(stderr, "POPIII particles(%d) created and done in %s on level %"ISYM".\n", data.NumberOfNewParticles + 1, __FUNCTION__, ThisLevel);
 
 // #if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
 // 	  accrate	= 0;
@@ -528,7 +528,7 @@ if (stellar_type == POPIII){
 	// } // ENDFOR j
  //  } // ENDFOR k
   if(data.NumberOfNewParticles > 0) {
-    printf("Particles (%d) Created and done in %s\n", data.NumberOfNewParticles, __FUNCTION__);
+    fprintf(stderr, "Particles (%d) Created and done in %s\n", data.NumberOfNewParticles, __FUNCTION__);
   }
 #if CALCDIRECTPOTENTIAL
   delete [] PotentialField;
@@ -970,7 +970,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   }
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0){
-	   fprintf(stderr, "%s: 1) No new particles. RemoveMassFromGridAfterFormation.",__FUNCTION__);
+	   //fprintf(stderr, "%s: 1) No new particles. RemoveMassFromGridAfterFormation.",__FUNCTION__);
 				return SUCCESS;
   }
    
@@ -1166,7 +1166,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
 // SG. Testing putting this back in.
 	if (IsSphereContained == false){
-		fprintf(stderr,"SphereContained = false. Break.\n"); // SG. Add this print.
+		fprintf(stderr,"%s, SphereContained = false. Break.\n", __FUNCTION__); // SG. Add this print.
 		break;
 	}
 	ShellMass = 0;
