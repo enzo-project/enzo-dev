@@ -264,6 +264,7 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
     BirthTime = a->BirthTime;
     oldmass = a->oldmass;
     TimeIndex = a->TimeIndex;
+    MassRemovalIndex = a->MassRemovalIndex; // SG. For POPIII mass removal after SetFlaggingField.
     for(int i = 0; i < NTIMES; i++)
       {
 	AccretionRateTime[i] = a->AccretionRateTime[i];

@@ -107,7 +107,7 @@ int ActiveParticleType_SmartStar::InitializeParticleType()
   ah.push_back(new ArrayHandler<ap, float, NTIMES, &ap::AccretionRate>("AccretionRate", 0));
   ah.push_back(new ArrayHandler<ap, float, NTIMES, &ap::AccretionRateTime>("AccretionRateTime", 0));
   ah.push_back(new Handler<ap, int, &ap::TimeIndex>("TimeIndex"));
-  //ah.push_back(new Handler<ap, float, &ap::oldmass>("oldmass"));
+  ah.push_back(new Handler<ap, int, &ap::MassRemovalIndex>("MassRemovalIndex")); // SG. For POPIII mass removal after refinement.
 
   //ah.push_back(new ArrayHandler<ap, float, 3, &ap::acc>("particle_acceleration_x", 0));
   //ah.push_back(new ArrayHandler<ap, float, 3, &ap::acc>("particle_acceleration_y", 1));
@@ -407,6 +407,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  * is low we don't allow the SMS pathway to trigger spurious SF. 
 	  */
 	int stellar_type = -99999;
+	// SG. Want to print out level POPIII particle forms on.
+	int ThisLevel = thisGrid->GridLevel;
+
 	//if(shu_collapse == 1)
 	//  continue;
 	if(ProblemType == 27) { //collapse test 
@@ -417,7 +420,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	}
 	else if(data.H2Fraction[index] >  PopIIIH2CriticalFraction) {
 	  stellar_type = POPIII;
-	  printf("POPIII particles(%d) created and done in %s\n", data.NumberOfNewParticles + 1, __FUNCTION__);
+	  printf("POPIII particles(%d) created and done in %s on level %"ISYM".\n", data.NumberOfNewParticles + 1, __FUNCTION__, ThisLevel);
+
 // #if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
 // 	  accrate	= 0;
 // 			fprintf(stderr, "%s: accrate = %e (POPIII particle detected).", __FUNCTION__, accrate);
@@ -476,6 +480,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  np->Metallicity = 0.0;
 
 	np->TimeIndex = 0; //Start at 0 - we'll increment at the start of the update function.
+	np->MassRemovalIndex = 0; // SG. Start at 0, increment in RemoveMassFromGridAfterFormation.
 	
 	if (np->ParticleClass == POPIII){
 		np->AccretionRadius = dx*ACCRETIONRADIUS; // SG. Turning off and on accretion radius for testing purposes.
@@ -892,6 +897,24 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
+	 // SG. Using new MassRemovalIndex particle attribute to exit this function on first iteration.
+		// MassRemovalIndex is incremented here, just once.
+	 for (int i = 0; i < nParticles; i++) {
+			 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+    if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+      ActiveParticleType_SmartStar* SS;
+      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+      if(SS->ParticleClass == POPIII && SS->MassRemovalIndex == 0) {
+							fprintf(stderr,"%s: Start of function. MassRemovalIndex = 0.\n", __FUNCTION__);
+							SS->MassRemovalIndex++;
+							fprintf(stderr,"%s: MassRemovalIndex = %"ISYM".\n", __FUNCTION__, SS->MassRemovalIndex);
+							continue;
+						} // END Class POPIII + MassRemovalIndex == 0 
+				} // END Processor
+		} // END Particles loop
+
+
+							
   int SSparticles[nParticles] = {-1};
   float StellarMasstoRemove = 0.0, CellDensityAfterFormation = 0.0;
   /* Skip accretion if we're not on the maximum refinement level.
@@ -942,7 +965,12 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 					if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
 							ActiveParticleType_SmartStar* SS;
 							SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+<<<<<<< HEAD
 							// For low resolution particles that never get accreted, the time index is never incremented
+=======
+							// SG. For low resolution particles that never get accreted, the time index is never incremented
+							// Hence Mass = 0 check is included.
+>>>>>>> temp-branch
 							if(SS->ParticleClass == POPIII && SS->TimeIndex == 0 && SS->Mass == 0) {
 									SSparticles[k++] = i;
 									num_new_popiii_stars++;
@@ -979,10 +1007,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
      /*
       * Only interested in newly formed particles
       */
-					// SG. TimeIndex check already exists here.
-     if(SS->TimeIndex != 1){
-		 continue;
-	 }
+					// SG. TimeIndex check already exists here. Get rid of it
+  //    if(SS->TimeIndex != 1){
+		//  continue;
+	 // }
 
       FLOAT dx = APGrid->CellWidth[0][0];
       FLOAT CellVolume = dx*dx*dx;
@@ -1056,6 +1084,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	 }
        }
        
+<<<<<<< HEAD
        else if(POPIII == SS->ParticleClass) {
 								// SG/BS. Never want this to be triggered. Always use sphere method.
 								continue;
@@ -1079,6 +1108,29 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	   continue;
 	  } // END RES CHECK
        } // END POPIII
+=======
+//        else if(POPIII == SS->ParticleClass) {
+// 								// SG/BS. Never want this to be triggered. Always use sphere method.
+// 								if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
+// 	   density[cellindex] = newcelldensity;
+// 	   SS->BirthTime = APGrid->ReturnTime();
+// 	   SS->Mass = ParticleDensity;
+// 	   SS->oldmass = 0.0;
+// 	   if(ParticleDensity < 0.0) {
+// 	     printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
+// 	     printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+// 	     printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+// 	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+// 	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
+// 	   }
+// //#if SSDEBUG
+// 	   fprintf(stderr, "%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
+// 		  SS->Mass*dx*dx*dx*MassUnits/SolarMass, SS->Mass);
+// //#endif
+// 	   continue;
+// 	 }
+//        } // END POPIII
+>>>>>>> temp-branch
        else if(POPII == SS->ParticleClass) {
 	 /* 
 	  * For PopII stars we do this if the mass exceeds the minimum mass
@@ -1202,10 +1254,12 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 	for (int dim = 0; dim < MAX_DIMENSION; dim++)
 	  AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
 	    ShellVelocity[dim];
-	fprintf(stderr,"MassEnclosed = %e Msolar\n", MassEnclosed); 
-	if (MassEnclosed == 0) {
+	fprintf(stderr,"ShellMass = %e Msolar\n", ShellMass); 
+	// SG. Breaking out of SphereTooSmall loop if ShellMass is == 0.
+	// Need to change ShellMass to some threshold value
+	if (ShellMass == 0) {
 	  IsSphereContained = false;
-	  return SUCCESS; // SG. Should be a break?
+	  break; // SG. Should be a break
 	}
 	
 	Metallicity2 /= MassEnclosed;
@@ -1284,6 +1338,10 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 
 						// SG/BS - insert: if spherecontained = false, continue particle loop (end up here after break)
 						// Don't want to read in code below if spherecontained = false.
+<<<<<<< HEAD
+=======
+						
+>>>>>>> temp-branch
 #ifdef NOT_NECESSARY
        /* Don't allow the sphere to be too large (2x leeway) */
        const float epsMass = 9.0;
@@ -1497,6 +1555,8 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 // #endif
 
     if(pclass == POPIII) {
+					// SG. Never want to accrete onto POPIII stars, regardless of conditions being met.
+					continue;
       /* 
        * We only accrete onto POPIII stars if our maximum 
        * spatial resolution is better than 1e-3 pc
@@ -1666,7 +1726,11 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 				*/
 			if (pclass == POPIII){
 
+<<<<<<< HEAD
 				  // SG. Skip if current grid level is greater than or equal to SS grid level.
+=======
+				  // SG. Skip if current grid level is great than or equal to SS grid level.
+>>>>>>> temp-branch
 						// grid* SSGrid = SS->ReturnCurrentGrid();
 						// int SSLevel = SSGrid->GridLevel;
 						int SSLevel = SS->ReturnLevel();
