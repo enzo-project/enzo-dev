@@ -1202,10 +1202,12 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 	for (int dim = 0; dim < MAX_DIMENSION; dim++)
 	  AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
 	    ShellVelocity[dim];
-	fprintf(stderr,"MassEnclosed = %e Msolar\n", MassEnclosed); 
-	if (MassEnclosed == 0) {
+	fprintf(stderr,"ShellMass = %e Msolar\n", ShellMass); 
+	// SG. Breaking out of SphereTooSmall loop if ShellMass is == 0.
+	// Need to change ShellMass to some threshold value
+	if (ShellMass == 0) {
 	  IsSphereContained = false;
-	  return SUCCESS; // SG. Should be a break?
+	  break; // SG. Should be a break
 	}
 	
 	Metallicity2 /= MassEnclosed;
@@ -1498,6 +1500,8 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 // #endif
 
     if(pclass == POPIII) {
+					// SG. Never want to accrete onto POPIII stars, regardless of conditions being met.
+					continue;
       /* 
        * We only accrete onto POPIII stars if our maximum 
        * spatial resolution is better than 1e-3 pc
