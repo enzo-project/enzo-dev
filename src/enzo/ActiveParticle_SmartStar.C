@@ -107,7 +107,7 @@ int ActiveParticleType_SmartStar::InitializeParticleType()
   ah.push_back(new ArrayHandler<ap, float, NTIMES, &ap::AccretionRate>("AccretionRate", 0));
   ah.push_back(new ArrayHandler<ap, float, NTIMES, &ap::AccretionRateTime>("AccretionRateTime", 0));
   ah.push_back(new Handler<ap, int, &ap::TimeIndex>("TimeIndex"));
-  //ah.push_back(new Handler<ap, float, &ap::oldmass>("oldmass"));
+  ah.push_back(new Handler<ap, int, &ap::MassRemovalIndex>("MassRemovalIndex")); // SG. For POPIII mass removal after refinement.
 
   //ah.push_back(new ArrayHandler<ap, float, 3, &ap::acc>("particle_acceleration_x", 0));
   //ah.push_back(new ArrayHandler<ap, float, 3, &ap::acc>("particle_acceleration_y", 1));
@@ -409,7 +409,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	int stellar_type = -99999;
 	// SG. Want to print out level POPIII particle forms on.
 	int ThisLevel = thisGrid->GridLevel;
-	
+
 	//if(shu_collapse == 1)
 	//  continue;
 	if(ProblemType == 27) { //collapse test 
@@ -480,6 +480,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  np->Metallicity = 0.0;
 
 	np->TimeIndex = 0; //Start at 0 - we'll increment at the start of the update function.
+	np->MassRemovalIndex = 0; // SG. Start at 0, increment in RemoveMassFromGridAfterFormation.
 	
 	if (np->ParticleClass == POPIII){
 		np->AccretionRadius = dx*ACCRETIONRADIUS; // SG. Turning off and on accretion radius for testing purposes.
@@ -896,6 +897,24 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
+	 // SG. Using new MassRemovalIndex particle attribute to exit this function on first iteration.
+		// MassRemovalIndex is incremented here, just once.
+	 for (int i = 0; i < nParticles; i++) {
+			 grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+    if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+      ActiveParticleType_SmartStar* SS;
+      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+      if(SS->ParticleClass == POPIII && SS->MassRemovalIndex == 0) {
+							fprintf(stderr,"%s: Start of function. MassRemovalIndex = 0.\n", __FUNCTION__);
+							SS->MassRemovalIndex++;
+							fprintf(stderr,"%s: MassRemovalIndex = %"ISYM".\n", __FUNCTION__, SS->MassRemovalIndex);
+							continue;
+						} // END Class POPIII + MassRemovalIndex == 0 
+				} // END Processor
+		} // END Particles loop
+
+
+							
   int SSparticles[nParticles] = {-1};
   float StellarMasstoRemove = 0.0, CellDensityAfterFormation = 0.0;
   /* Skip accretion if we're not on the maximum refinement level.
