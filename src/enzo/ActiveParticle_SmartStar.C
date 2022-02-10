@@ -407,6 +407,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  * is low we don't allow the SMS pathway to trigger spurious SF. 
 	  */
 	int stellar_type = -99999;
+	// SG. Want to print out level POPIII particle forms on.
+	int ThisLevel = thisGrid->GridLevel;
+	
 	//if(shu_collapse == 1)
 	//  continue;
 	if(ProblemType == 27) { //collapse test 
@@ -417,7 +420,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	}
 	else if(data.H2Fraction[index] >  PopIIIH2CriticalFraction) {
 	  stellar_type = POPIII;
-	  printf("POPIII particles(%d) created and done in %s\n", data.NumberOfNewParticles + 1, __FUNCTION__);
+	  printf("POPIII particles(%d) created and done in %s on level %"ISYM".\n", data.NumberOfNewParticles + 1, __FUNCTION__, ThisLevel);
+
 // #if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
 // 	  accrate	= 0;
 // 			fprintf(stderr, "%s: accrate = %e (POPIII particle detected).", __FUNCTION__, accrate);
@@ -1073,7 +1077,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
 	   }
 //#if SSDEBUG
-	   printf("%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
+	   fprintf(stderr, "%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
 		  SS->Mass*dx*dx*dx*MassUnits/SolarMass, SS->Mass);
 //#endif
 	   continue;
