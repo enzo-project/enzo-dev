@@ -408,7 +408,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  */
 	int stellar_type = -99999;
 	// SG. Want to print out level POPIII particle forms on.
-	int ThisLevel = thisGrid->GridLevel;
+	int *ThisLevel = thisGrid->GridLevel;
 
 	//if(shu_collapse == 1)
 	//  continue;
