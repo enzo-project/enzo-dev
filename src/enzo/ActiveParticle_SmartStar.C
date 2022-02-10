@@ -909,9 +909,11 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 							SS->MassRemovalIndex++;
 							fprintf(stderr,"%s: MassRemovalIndex = %"ISYM".\n", __FUNCTION__, SS->MassRemovalIndex);
 							continue;
-						} // END Class POPIII + MassRemovalIndex == 0 
+
+													} // END Class POPIII + MassRemovalIndex == 0 
 				} // END Processor
 		} // END Particles loop
+
 
 
 							
@@ -965,12 +967,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 					if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
 							ActiveParticleType_SmartStar* SS;
 							SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-<<<<<<< HEAD
-							// For low resolution particles that never get accreted, the time index is never incremented
-=======
 							// SG. For low resolution particles that never get accreted, the time index is never incremented
 							// Hence Mass = 0 check is included.
->>>>>>> temp-branch
 							if(SS->ParticleClass == POPIII && SS->TimeIndex == 0 && SS->Mass == 0) {
 									SSparticles[k++] = i;
 									num_new_popiii_stars++;
@@ -1003,6 +1001,18 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
    if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
      ActiveParticleType_SmartStar* SS;
      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[pindex]); 
+
+				 /*
+					SG. Using new MassRemovalIndex particle attribute to exit this function on first iteration.
+					MassRemovalIndex is incremented here, just once.
+					On next iteration, MassRemovalIndex will be 1 and 'continue' will not be invoked.
+					*/
+     if(SS->ParticleClass == POPIII && SS->MassRemovalIndex == 0) {
+						fprintf(stderr,"%s: Start of main loop over new stars. MassRemovalIndex = 0.\n", __FUNCTION__);
+						SS->MassRemovalIndex++;
+						fprintf(stderr,"%s: MassRemovalIndex = %"ISYM" now. No mass removal should happen.\n", __FUNCTION__, SS->MassRemovalIndex);
+						continue;
+					}
 
      /*
       * Only interested in newly formed particles
@@ -1083,34 +1093,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	   continue;
 	 }
        }
-       
-<<<<<<< HEAD
-       else if(POPIII == SS->ParticleClass) {
-								// SG/BS. Never want this to be triggered. Always use sphere method.
-								continue;
-								// SG. put back in resoultion check
-	 if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
-	   density[cellindex] = newcelldensity;
-	   SS->BirthTime = APGrid->ReturnTime();
-	   SS->Mass = ParticleDensity;
-	   SS->oldmass = 0.0;
-	   if(ParticleDensity < 0.0) {
-	     printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
-	     printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
-	     printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
-	     printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
-	     ENZO_FAIL("Particle Density is negative. Oh dear.\n");
-	   }
-//#if SSDEBUG
-	   printf("%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
-		  SS->Mass*dx*dx*dx*MassUnits/SolarMass, SS->Mass);
-//#endif
-	   continue;
-	  } // END RES CHECK
-       } // END POPIII
-=======
+// SG/BS. Never want this to be triggered. Always use sphere method.
 //        else if(POPIII == SS->ParticleClass) {
-// 								// SG/BS. Never want this to be triggered. Always use sphere method.
+// 	
 // 								if(dx_pc <= POPIII_RESOLUTION) { /* Accrete as normal - just remove mass from the cell */
 // 	   density[cellindex] = newcelldensity;
 // 	   SS->BirthTime = APGrid->ReturnTime();
@@ -1130,7 +1115,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 // 	   continue;
 // 	 }
 //        } // END POPIII
->>>>>>> temp-branch
        else if(POPII == SS->ParticleClass) {
 	 /* 
 	  * For PopII stars we do this if the mass exceeds the minimum mass
@@ -1166,8 +1150,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
             accrete.  We step out by a cell width when searching.
 
        ***********************************************************************/
-      printf("%s: Low resolution run.....\n", __FUNCTION__);
-      if(ParticleDensity < 0.0) { // SG. This gets triggered.
+      fprintf(stderr, "%s: Low resolution run invoked. Mass removed from sphere.\n", __FUNCTION__);
+
+      // SG. Erroneous case in which ParticleDensity is negative
+      if(ParticleDensity < 0.0) {
 	fprintf(stderr,"%s: cellindex = %d\n", __FUNCTION__, cellindex);
 	fprintf(stderr,"density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
 	fprintf(stderr,"DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
@@ -1178,7 +1164,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	fprintf(stderr,"Too late. Star is destroyed by surrounding SF. Particle %d deleted.\n", pindex);
 	
 	continue;
-      }
+      } // SG. End erroneous case.
+
       FLOAT Radius = 0.0;
       int feedback_flag = -99999;
       float MassEnclosed = 0;
@@ -1237,7 +1224,7 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 						   -1);
 	    
 	    Temp = Temp->NextGridThisLevel; // how we loop over all grids on the level.
-					fprintf(stderr,"ShellMass = %e Msun on grid level %"ISYM".\n", ShellMass, ThisLevel);
+					fprintf(stderr,"%s: ShellMass = %e Msun on grid level %"ISYM".\n", __FUNCTION__, ShellMass, ThisLevel);
 	    
 	  } // END: Grids
 	  
@@ -1257,7 +1244,8 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 	fprintf(stderr,"ShellMass = %e Msolar\n", ShellMass); 
 	// SG. Breaking out of SphereTooSmall loop if ShellMass is == 0.
 	// Need to change ShellMass to some threshold value
-	if (ShellMass == 0) {
+	if (ShellMass < 1e-03) {
+		 fprintf(stderr, "%s: Shell Mass too small. Break.\n", __FUNCTION__);
 	  IsSphereContained = false;
 	  break; // SG. Should be a break
 	}
@@ -1338,10 +1326,7 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
 
 						// SG/BS - insert: if spherecontained = false, continue particle loop (end up here after break)
 						// Don't want to read in code below if spherecontained = false.
-<<<<<<< HEAD
-=======
 						
->>>>>>> temp-branch
 #ifdef NOT_NECESSARY
        /* Don't allow the sphere to be too large (2x leeway) */
        const float epsMass = 9.0;
@@ -1454,7 +1439,7 @@ fprintf(stderr, "%s: Radius-APCellWidth = %e, Radius = %e.\n", __FUNCTION__, Rad
        
    } /*This Processor */
   
-  } /* End loop over APs */
+  } /* End loop over APs */ // SG. Main loop.
 
   return SUCCESS;
 }
@@ -1726,11 +1711,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 				*/
 			if (pclass == POPIII){
 
-<<<<<<< HEAD
-				  // SG. Skip if current grid level is greater than or equal to SS grid level.
-=======
 				  // SG. Skip if current grid level is great than or equal to SS grid level.
->>>>>>> temp-branch
 						// grid* SSGrid = SS->ReturnCurrentGrid();
 						// int SSLevel = SSGrid->GridLevel;
 						int SSLevel = SS->ReturnLevel();
