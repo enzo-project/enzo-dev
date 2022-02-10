@@ -1162,7 +1162,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 						bool IsSphereContained;
 
       while (SphereTooSmall) { // SG. Start while SphereTooSmall here.
+						
 	Radius += APGrid->CellWidth[0][0]; // increasing radius by one cell width each iteration.
+	fprintf(stderr, "%s: Radius = %e.\n", __FUNCTION__, Radius); // SG
 	IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
 // SG. Testing putting this back in.
 	if (IsSphereContained == false){
@@ -1207,7 +1209,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 						   -1);
 	    
 	    Temp = Temp->NextGridThisLevel; // how we loop over all grids on the level.
-	//	fprintf(stderr,"%s: ShellMass = %e Msun on grid level %"ISYM".\n", __FUNCTION__, ShellMass, ThisLevel);
+					fprintf(stderr,"%s: ShellMass = %e Msun on grid level %"ISYM".\n", __FUNCTION__, ShellMass, ThisLevel);
 	    
 	  } // END: Grids
 	  continue;
@@ -1224,7 +1226,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	for (int dim = 0; dim < MAX_DIMENSION; dim++)
 	  AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
 	    ShellVelocity[dim];
-	fprintf(stderr,"ShellMass = %e Msolar\n", ShellMass); 
+	fprintf(stderr,"MassEnclosed = %e Msolar\n", MassEnclosed); 
+	// SG. Put Sphere too small check here.
+	SphereTooSmall = MassEnclosed < (2*PopIIIStarMass);
 	// SG. Breaking out of SphereTooSmall loop if ShellMass is == 0.
 	// Need to change ShellMass to some threshold value
 	if (ShellMass < 1e-05) { // in Msun
