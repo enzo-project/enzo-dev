@@ -1162,14 +1162,14 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 						bool IsSphereContained;
 
       while (SphereTooSmall) { // SG. Start while SphereTooSmall here.
-						
+	fprintf(stderr,"%s, Beginning of WHILE (SphereTooSmall).\n", __FUNCTION__); // SG. Debugging.					
 	Radius += APGrid->CellWidth[0][0]; // increasing radius by one cell width each iteration.
 	fprintf(stderr, "%s: Radius = %e.\n", __FUNCTION__, Radius); // SG
 	IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
 // SG. Testing putting this back in.
 	if (IsSphereContained == false){
-		fprintf(stderr,"%s, SphereContained = false. Break.\n", __FUNCTION__); // SG. Add this print.
-		break;
+		fprintf(stderr,"%s, SphereContained = false. Should Break, but preventing it for debugging purposes.\n", __FUNCTION__); // SG. Add this print.
+		//break;
 	}
 	ShellMass = 0;
 	ShellMetallicity2 = 0;
@@ -1184,16 +1184,20 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 	for (int l = ThisLevel; l < MAX_DEPTH_OF_HIERARCHY; l++) { // START: loop through levels
 	/* SG. Only searching the current level and levels above it */
+			fprintf(stderr,"%s, Beginning of loop over levels within WHILE (SphereTooSmall). ThisLevel = %"ISYM".\n", __FUNCTION__, ThisLevel); // SG. Debugging.	
 	  Temp = LevelArray[l];
 	  while (Temp != NULL) { // START: grids while loop (i.e. while there are grids on this level)
+					fprintf(stderr,"%s, Beginning of WHILE (Temp != Null) within loop over levels. ThisLevel = %"ISYM".\n", __FUNCTION__, ThisLevel); // SG. Debugging.	
 	    
 	    /* Zero under subgrid field */
 	    
 	    if (!MarkedSubgrids) {
+						 fprintf(stderr,"%s, Beginning of IF (!MarkedSubgrid) within WHILE Temp != Null loop. ThisLevel = %"ISYM".\n", __FUNCTION__, ThisLevel); // SG. Debugging.	
 	      Temp->GridData->
 		ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
 	      Temp2 = Temp->GridHierarchyEntry->NextGridNextLevel;
 	      while (Temp2 != NULL) { // SG. this is doing the check 1 or 0 in baryon refinement field
+							fprintf(stderr,"%s, Beginning of WHILE (Temp2 != NULL) within WHILE !MarkedSubgrids loop. ThisLevel = %"ISYM".\n", __FUNCTION__, ThisLevel); // SG. Debugging.	
 		Temp->GridData->ZeroSolutionUnderSubgrid(Temp2->GridData, 
 							 ZERO_UNDER_SUBGRID_FIELD);
 		Temp2 = Temp2->NextGridThisLevel;
@@ -1241,9 +1245,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	Metallicity3 /= MassEnclosed;
 	for (int dim = 0; dim < MAX_DIMENSION; dim++)
 	  AvgVelocity[dim] /= MassEnclosed;
-	
-	
-	
 	
       }  /* end while(SphereTooSmall) */ // SG. End testing here.
 
