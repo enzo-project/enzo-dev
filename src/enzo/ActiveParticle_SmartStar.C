@@ -970,7 +970,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   }
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0){
-	   //fprintf(stderr, "%s: 1) No new particles. RemoveMassFromGridAfterFormation.",__FUNCTION__);
+	   fprintf(stderr, "%s: 1) No new particles. RemoveMassFromGridAfterFormation.",__FUNCTION__);
 				return SUCCESS;
   }
    
@@ -1975,6 +1975,11 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				MassConversion = MassConversion/SolarMass; // convert to Msun
 				MassConversion1 = MassConversion1/SolarMass; // convert to Msun. SG. For testing
 				//fprintf(stderr,"%s: cell width = %e pc (APGrid) on level = %"ISYM".\n", __FUNCTION__, dx_pc, ThisLevel);
+				// SG. Check if SS->Mass < TargetMass, if not, continue.
+				if (SS->Mass == 0)
+				fprintf(stderr,"%s: SS Mass is zero. TimeIndex not incrememted. Continue.\n", __FUNCTION__);
+				continue;
+
 				if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
