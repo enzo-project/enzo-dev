@@ -1168,8 +1168,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
 // SG. Testing putting this back in.
 	if (IsSphereContained == false){
-		fprintf(stderr,"%s, SphereContained = false. Should Break, but preventing it for debugging purposes.\n", __FUNCTION__); // SG. Add this print.
-		//break;
+		fprintf(stderr,"%s, SphereContained = false. Break.\n", __FUNCTION__); // SG. Add this print.
+		break;
 	}
 	ShellMass = 0;
 	ShellMetallicity2 = 0;
