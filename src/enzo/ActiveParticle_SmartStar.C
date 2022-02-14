@@ -1984,9 +1984,10 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				MassConversion1 = MassConversion1/SolarMass; // convert to Msun. SG. For testing
 				//fprintf(stderr,"%s: cell width = %e pc (APGrid) on level = %"ISYM".\n", __FUNCTION__, dx_pc, ThisLevel);
 				// SG. Check if SS->Mass < TargetMass, if not, continue.
-				if (SS->Mass == 0)
-				fprintf(stderr,"%s: SS Mass is zero. TimeIndex not incrememted. Continue.\n", __FUNCTION__);
-				continue;
+				if (SS->Mass == 0){
+					fprintf(stderr,"%s: SS Mass is zero. TimeIndex not incrememted. Continue.\n", __FUNCTION__);
+					continue;
+				}
 				fprintf(stderr, "%s: Just about to check processor number.\n", __FUNCTION__);
 				if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
