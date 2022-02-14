@@ -1231,14 +1231,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	  AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
 	    ShellVelocity[dim];
 	fprintf(stderr,"MassEnclosed = %e Msolar\n", MassEnclosed); 
-	/* 
-	SG. Put Sphere too small check here and BREAK out of WHILE SphereTooSmall loop if sphere is also contained. 
-	The BREAK should mean that the next statement to be print is "Sphere IS contained. Remove mass."
-	*/
+	// SG. Put Sphere too small check here.
 	SphereTooSmall = MassEnclosed < (2*PopIIIStarMass);
 	if (SphereTooSmall == false && IsSphereContained == true){
-		fprintf(stderr, "%s: Sphere has enough mass. Exit WHILE SphereTooSmall loop and check if SphereContained.\n", __FUNCTION__);
-		break;
+		fprintf(stderr, "%s: Sphere has enough mass and IsContained. Exit WHILE SphereTooSmall loop and check if SphereContained again.\n", __FUNCTION__);
 	}
 	// SG. Breaking out of SphereTooSmall loop if ShellMass is == 0.
 	// Need to change ShellMass to some threshold value
@@ -1976,8 +1972,10 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				int MyLevel = SS->ReturnLevel(); // SG. Check
 				//fprintf(stderr,"%s: level = %"ISYM" and MyLevel = %"ISYM" and NoParticles = %"ISYM".\n", __FUNCTION__, 
 				//ThisLevel, MyLevel, nParticles);
-				if (ThisLevel != MyLevel)
+				if (ThisLevel != MyLevel){
+					fprintf(stderr, "%s: MyLevel = %"ISYM", ThisLevel = %"ISYM". Return SUCCESS.\n", __FUNCTION__, MyLevel, ThisLevel);
 				return SUCCESS;
+				}
 				double dx = APGrid->CellWidth[0][0];
 				double dx_pc = dx*LengthUnits/pc_cm;   //in pc
 				double MassConversion = (double) (dx_grid*dx_grid*dx_grid * double(MassUnits));  //SG. Changed to dx_grid. convert to g
@@ -1989,7 +1987,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				if (SS->Mass == 0)
 				fprintf(stderr,"%s: SS Mass is zero. TimeIndex not incrememted. Continue.\n", __FUNCTION__);
 				continue;
-
+				fprintf(stderr, "%s: Just about to check processor number.\n", __FUNCTION__);
 				if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
