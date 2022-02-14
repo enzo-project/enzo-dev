@@ -1233,6 +1233,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	fprintf(stderr,"MassEnclosed = %e Msolar\n", MassEnclosed); 
 	// SG. Put Sphere too small check here.
 	SphereTooSmall = MassEnclosed < (2*PopIIIStarMass);
+	if (SphereTooSmall == false){
+		fprintf(stderr, "%s: Sphere has enough mass. Exit WHILE SphereTooSmall loop and check if SphereContained.\n", __FUNCTION__);
+	}
 	// SG. Breaking out of SphereTooSmall loop if ShellMass is == 0.
 	// Need to change ShellMass to some threshold value
 	if (ShellMass < 1e-05) { // in Msun
@@ -1250,9 +1253,12 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 						// SG/BS - insert: if spherecontained = false, continue particle loop (end up here after break)
 						// Don't want to read in code below if spherecontained = false.
-						if (IsSphereContained == false)
+						if (IsSphereContained == false){
 						fprintf(stderr,"%s: Sphere not contained. Next particle.\n", __FUNCTION__);
 						continue;
+						} else {
+							fprintf(stderr,"%s: Sphere IS contained. Remove mass.\n", __FUNCTION__);
+						}
 
 						/* Now remove mass based on star particle type 
 						* Note that while SS->Mass gets set here with the 
