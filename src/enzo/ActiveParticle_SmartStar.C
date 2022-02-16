@@ -306,8 +306,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	/* Mass Threshold check */
 	/* The control region should contain a mass greater than the mass threshold */
 	if(TotalMass*ConverttoSolar < (double)MASSTHRESHOLD) {	
-		printf("%s: Total Mass in Accretion Region (grids of SS particle) = %g Msolar (Threshold = %g)\n", __FUNCTION__,
-	       TotalMass*ConverttoSolar, (double)MASSTHRESHOLD);
+		// fprintf(stderr, "%s: Total Mass in Accretion Region (grids of SS particle) = %g Msolar (Threshold = %g)\n", __FUNCTION__,
+	 //      TotalMass*ConverttoSolar, (double)MASSTHRESHOLD);
 	  continue;
 	}
 #if SSDEBUG
@@ -976,24 +976,13 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
    
   
   for (int k = 0; k < num_new_stars; k++) { // SG. MAIN LOOP.
+				float values[7]; // SG. For processor communication in SphereTooSmall loop.
     int pindex = SSparticles[k];
     grid* APGrid = ParticleList[pindex]->ReturnCurrentGrid();
 			
    if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
      ActiveParticleType_SmartStar* SS;
      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[pindex]); 
-
-				 // /*
-					// SG. Using new MassRemovalIndex particle attribute to exit this function on first iteration.
-					// MassRemovalIndex is incremented here, just once.
-					// On next iteration, MassRemovalIndex will be 1 and 'continue' will not be invoked.
-					// */
-     // if(SS->ParticleClass == POPIII && SS->MassRemovalIndex == 0) {
-					// 	fprintf(stderr,"%s: Start of main loop over new stars. MassRemovalIndex = 0.\n", __FUNCTION__);
-					// 	SS->MassRemovalIndex++;
-					// 	fprintf(stderr,"%s: MassRemovalIndex = %"ISYM" now. No mass removal should happen.\n", __FUNCTION__, SS->MassRemovalIndex);
-					// 	continue;
-					// }
 
      /*
       * Only interested in newly formed particles
@@ -1025,14 +1014,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	cellindex_y = (SS->pos[1] - APGrid->CellLeftEdge[1][0])/dx,
 	cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/dx;
 
-// SG. Added this previously and now getting rid.
       int cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
-				// 		if (APGrid->BaryonField[APGrid->NumberOfBaryonFields][cellindex] != 0.0){
-				// fprintf(stderr,"%s: We're NOT ON the maximum LOCAL level of refinement. Go to next iteration.", __FUNCTION__);
-				// continue;
-				// 		}
-				// 		fprintf(stderr,"%s: We ARE ON the maximum LOCAL level of refinement. Let's make the star.", __FUNCTION__);
-      float DensityThreshold = ActiveParticleDensityThreshold*mh/DensityUnits; 
+		    float DensityThreshold = ActiveParticleDensityThreshold*mh/DensityUnits; 
 
 #if JEANSREFINEMENT
       bool JeansRefinement = false;
@@ -1218,7 +1201,32 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	  } // END: Grids
 	  continue;
 	} // END: level
+
+	 // SG. Start new.
 	MarkedSubgrids = true;
+	LCAPERF_STOP("star_FindFeedbackSphere_Zero");
+
+	values[0] = ShellMetallicity2;
+	values[1] = ShellMetallicity3;
+	values[2] = ShellMass;
+	values[3] = ShellColdGasMass;
+	for (int dim = 0; dim < MAX_DIMENSION; dim++)
+			values[4+dim] = ShellVelocity[dim];
+
+// SG. Communicate with other processors.
+	LCAPERF_START("star_FindFeedbackSphere_Sum");
+	CommunicationAllSumValues(values, 7);
+	LCAPERF_STOP("star_FindFeedbackSphere_Sum");
+
+	ShellMetallicity2 = values[0];
+	ShellMetallicity3 = values[1];
+	ShellMass = values[2];
+	ShellColdGasMass = values[3];
+	for (int dim = 0; dim < MAX_DIMENSION; dim++)
+			ShellVelocity[dim] = values[4+dim];
+
+			// SG. End new.
+
 	MassEnclosed += ShellMass; // add the shell mass to MassEnclosed sum
 	ColdGasMass += ShellColdGasMass;
 	// Must first make mass-weighted, then add shell mass-weighted
@@ -1249,7 +1257,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	for (int dim = 0; dim < MAX_DIMENSION; dim++)
 	  AvgVelocity[dim] /= MassEnclosed;
 	
-      }  /* end while(SphereTooSmall) */ // SG. End testing here.
+}  /* end while(SphereTooSmall) */ // SG. End testing here.
 
 						// SG/BS - insert: if spherecontained = false, continue particle loop (end up here after break)
 						// Don't want to read in code below if spherecontained = false.
@@ -1440,7 +1448,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
        
        
    } /*This Processor */
-  
+
+  	// SG.
+			delete [] values;
   } /* End loop over APs */ // SG. Main loop.
 
   return SUCCESS;
@@ -1712,42 +1722,42 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 				*/
 			if (pclass == POPIII){
 
-				  // SG. Skip if current grid level is great than or equal to SS grid level.
-						// grid* SSGrid = SS->ReturnCurrentGrid();
-						// int SSLevel = SSGrid->GridLevel;
-						int SSLevel = SS->ReturnLevel();
-						fprintf(stderr,"%s: PopIII star is on level = %"ISYM". ThisLevel = %"ISYM". \n", __FUNCTION__, SSLevel, level);
-						if (level >= SSLevel) // SG. 
-						return SUCCESS;
+			// 	  // SG. Skip if current grid level is great than or equal to SS grid level.
+			// 			// grid* SSGrid = SS->ReturnCurrentGrid();
+			// 			// int SSLevel = SSGrid->GridLevel;
+			// 			int SSLevel = SS->ReturnLevel();
+			// 			fprintf(stderr,"%s: PopIII star is on level = %"ISYM". ThisLevel = %"ISYM". \n", __FUNCTION__, SSLevel, level);
+			// 			if (level >= SSLevel) // SG. 
+			// 			return SUCCESS;
 
-						// SG. Skip if PopIIIStarMass target has been reached.
-						float cmass = SS->ReturnMass(); // SG. current SS mass
-						double MassConversion = (double) (dx*dx*dx * double(MassUnits));  //convert to g
-						MassConversion = MassConversion/SolarMass; // convert to Msun
-						double cmass_msun = cmass*MassConversion; // SG. cmass in msun.
-						if (cmass_msun >= PopIIIStarMass)
-						return SUCCESS;
+			// 			// SG. Skip if PopIIIStarMass target has been reached.
+			// 			float cmass = SS->ReturnMass(); // SG. current SS mass
+			// 			double MassConversion = (double) (dx*dx*dx * double(MassUnits));  //convert to g
+			// 			MassConversion = MassConversion/SolarMass; // convert to Msun
+			// 			double cmass_msun = cmass*MassConversion; // SG. cmass in msun.
+			// 			if (cmass_msun >= PopIIIStarMass)
+			// 			return SUCCESS;
 
-						// SG. Set accrad to 0.1pc if not already set.
-						double accrad = SS->AccretionRadius;
-						FLOAT accrad_pc = accrad*LengthUnits/pc_cm; // in pc
-						fprintf(stderr,"%s: PopIII star with accrad = %e pc (%e code units) \n.", accrad_pc, accrad);
-						if (accrad_pc < 0.1){
-							SS->AccretionRadius = 0.1/(LengthUnits/pc_cm); // SG. in code units
-							accrad = SS->AccretionRadius;
-							accrad_pc = accrad*LengthUnits/pc_cm; // in pc
-							fprintf(stderr,"%s: PopIII star with accrad = %e pc (%e code units) \n.", accrad_pc, accrad);
-						}
+			// 			// SG. Set accrad to 0.1pc if not already set.
+			// 			double accrad = SS->AccretionRadius;
+			// 			FLOAT accrad_pc = accrad*LengthUnits/pc_cm; // in pc
+			// 			fprintf(stderr,"%s: PopIII star with accrad = %e pc (%e code units) \n.", accrad_pc, accrad);
+			// 			if (accrad_pc < 0.1){
+			// 				SS->AccretionRadius = 0.1/(LengthUnits/pc_cm); // SG. in code units
+			// 				accrad = SS->AccretionRadius;
+			// 				accrad_pc = accrad*LengthUnits/pc_cm; // in pc
+			// 				fprintf(stderr,"%s: PopIII star with accrad = %e pc (%e code units) \n.", accrad_pc, accrad);
+			// 			}
 
-					// SG. Deposit refinement zone around star if both conditions are met.
-					pos = SmartStarList[i]->ReturnPosition();
-					for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
-					fprintf(stderr,"%s: PopIII star with cmass (Msun) = %e on level = %"ISYM" with accrad (pc) = %e. Deposit refinement zone.\n", 
-						__FUNCTION__, cmass_msun, level, accrad_pc);
-					if (Temp->GridData->DepositRefinementZone(level,pos,accrad) == FAIL) {
-						ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
-			} // end IF
-			} // end FOR Temp
+			// 		// SG. Deposit refinement zone around star if both conditions are met.
+			// 		pos = SmartStarList[i]->ReturnPosition();
+			// 		for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
+			// 		fprintf(stderr,"%s: PopIII star with cmass (Msun) = %e on level = %"ISYM" with accrad (pc) = %e. Deposit refinement zone.\n", 
+			// 			__FUNCTION__, cmass_msun, level, accrad_pc);
+			// 		if (Temp->GridData->DepositRefinementZone(level,pos,accrad) == FAIL) {
+			// 			ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
+			// } // end IF
+			// } // end FOR Temp
 			continue;
 		} // SG. END POPIII
 
