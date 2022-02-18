@@ -979,6 +979,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 				float values[7]; // SG. For processor communication in SphereTooSmall loop.
     int pindex = SSparticles[k];
     grid* APGrid = ParticleList[pindex]->ReturnCurrentGrid();
+				int ThisProcessorNum = APGrid->ReturnProcessorNumber();
+				fprintf(stderr, "%s: Start of new stars loop. MyProcessorNumber = %"ISYM". The SS processor = %"ISYM" \n", __FUNCTION__, MyProcessorNumber, ThisProcessorNum);
 			
    //if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
      ActiveParticleType_SmartStar* SS;
@@ -1204,7 +1206,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	fprintf(stderr,"%s: End of loop over levels on grid level %"ISYM".\n", __FUNCTION__, ThisLevel);
 	 // SG. Start new.
 	MarkedSubgrids = true;
-	LCAPERF_STOP("star_FindFeedbackSphere_Zero");
+	//LCAPERF_STOP("star_FindFeedbackSphere_Zero");
 
 	values[0] = ShellMetallicity2;
 	values[1] = ShellMetallicity3;
@@ -1214,9 +1216,11 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 			values[4+dim] = ShellVelocity[dim];
 
 // SG. Communicate with other processors.
-	LCAPERF_START("star_FindFeedbackSphere_Sum");
+	//LCAPERF_START("star_FindFeedbackSphere_Sum");
+	fprintf(stderr,"%s: Just before proc comm. MyProcessorNum = %"ISYM".\n", __FUNCTION__, MyProcessorNumber);
 	CommunicationAllSumValues(values, 7);
-	LCAPERF_STOP("star_FindFeedbackSphere_Sum");
+	fprintf(stderr,"%s: Just after proc comm. MyProcessorNum = %"ISYM".\n", __FUNCTION__, MyProcessorNumber);
+	//LCAPERF_STOP("star_FindFeedbackSphere_Sum");
 
 	ShellMetallicity2 = values[0];
 	ShellMetallicity3 = values[1];
