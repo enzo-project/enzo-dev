@@ -1151,8 +1151,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
 // SG. Testing putting this back in.
 	if (IsSphereContained == false){
-		fprintf(stderr,"%s, SphereContained = false. Break.\n", __FUNCTION__); // SG. Add this print.
-		break;
+		fprintf(stderr,"%s, SphereContained = false. Should Break but doesn't.\n", __FUNCTION__); // SG. Add this print.
+		//break;
 	}
 	ShellMass = 0;
 	ShellMetallicity2 = 0;
@@ -1199,7 +1199,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 					fprintf(stderr,"%s: ShellMass = %e Msun on grid level %"ISYM".\n", __FUNCTION__, ShellMass, ThisLevel);
 	    
 	  } // END: Grids
-	  continue;
+	  //continue;
 	} // END: level
 
 	 // SG. Start new.
@@ -1249,7 +1249,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	if (ShellMass < 1e-05) { // in Msun
 		 fprintf(stderr, "%s: Shell Mass too small. Break.\n", __FUNCTION__);
 	  IsSphereContained = false;
-	  break; // SG. Should be a break
+	  //break; // SG. Should be a break
 	}
 	
 	Metallicity2 /= MassEnclosed;
@@ -1450,7 +1450,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
    } /*This Processor */
 
   	// SG.
-			delete [] values;
+			// delete [] values;
   } /* End loop over APs */ // SG. Main loop.
 
   return SUCCESS;
