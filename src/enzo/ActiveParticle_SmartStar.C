@@ -980,7 +980,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     int pindex = SSparticles[k];
     grid* APGrid = ParticleList[pindex]->ReturnCurrentGrid();
 			
-   if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+   //if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
      ActiveParticleType_SmartStar* SS;
      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[pindex]); 
 
@@ -1201,7 +1201,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	  } // END: Grids
 	  //continue;
 	} // END: level
-
+	fprintf(stderr,"%s: End of loop over levels on grid level %"ISYM".\n", __FUNCTION__, ThisLevel);
 	 // SG. Start new.
 	MarkedSubgrids = true;
 	LCAPERF_STOP("star_FindFeedbackSphere_Zero");
@@ -1447,7 +1447,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
        
        
        
-   } /*This Processor */
+  // } /*This Processor */
 
   	// SG.
 			// delete [] values;
