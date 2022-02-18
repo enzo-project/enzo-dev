@@ -1151,8 +1151,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
 // SG. Testing putting this back in.
 	if (IsSphereContained == false){
-		fprintf(stderr,"%s, SphereContained = false. Should Break but doesn't.\n", __FUNCTION__); // SG. Add this print.
-		//break;
+		fprintf(stderr,"%s, SphereContained = false. Break.\n", __FUNCTION__); // SG. Add this print.
+		break;
 	}
 	ShellMass = 0;
 	ShellMetallicity2 = 0;
@@ -1226,7 +1226,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 			ShellVelocity[dim] = values[4+dim];
 
 			// SG. End new.
-
+	fprintf(stderr,"%s: ShellMass post comm = %e Msun on grid level %"ISYM".\n", __FUNCTION__, ShellMass, ThisLevel);
 	MassEnclosed += ShellMass; // add the shell mass to MassEnclosed sum
 	ColdGasMass += ShellColdGasMass;
 	// Must first make mass-weighted, then add shell mass-weighted
