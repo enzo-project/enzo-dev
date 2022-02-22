@@ -171,6 +171,14 @@ public:
   int DetermineSEDParameters(FLOAT Time, FLOAT dx);
   ENABLED_PARTICLE_ID_ACCESSOR
   bool IsARadiationSource(FLOAT Time);
+  // SG. New Function.
+  int FindAccretionSphere(LevelHierarchyEntry *LevelArray[], int level,
+			     float &Radius, 
+			     int &SphereContained,
+			     float DensityUnits, float LengthUnits, 
+			     float TemperatureUnits, float TimeUnits,
+			     float VelocityUnits, FLOAT Time,
+			     bool &MarkedSubgrids);
   
   // sink helper routines
 
@@ -198,6 +206,7 @@ public:
   static int  RemoveMassFromGridAfterFormation(int nParticles, 
 					       ActiveParticleList<ActiveParticleType>& ParticleList,
 					       LevelHierarchyEntry *LevelArray[], int ThisLevel);
+
   static float EjectedMassThreshold;
   FLOAT AccretionRadius;   // in units of CellWidth on the maximum refinement level
  
