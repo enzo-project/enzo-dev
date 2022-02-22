@@ -943,9 +943,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
       } 
    } 
   } 
+		// SG. PopIII Case.
   for (int i = 0; i < nParticles; i++) {
     grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-					if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+					//if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
 							ActiveParticleType_SmartStar* SS;
 							SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
 							// SG. For low resolution particles that never get accreted, the time index is never incremented
@@ -954,8 +955,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 									SSparticles[k++] = i;
 									num_new_popiii_stars++;
 									} // End IF particle class POPIII
-									} // End IF processor
-										} // End ELSE
+									//} // End IF processor
+										} // End FOR
 						
   for (int i = 0; i < nParticles; i++) {
     grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
@@ -970,7 +971,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   }
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0){
-	   fprintf(stderr, "%s: 1) No new particles. RemoveMassFromGridAfterFormation.",__FUNCTION__);
+	   fprintf(stderr, "%s: 1) No new particles. MyProcessorNumber = %"ISYM".\n",__FUNCTION__, MyProcessorNumber);
 				return SUCCESS;
   }
    
@@ -982,7 +983,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 				int ThisProcessorNum = APGrid->ReturnProcessorNumber();
 				fprintf(stderr, "%s: Start of new stars loop. MyProcessorNumber = %"ISYM". The SS processor = %"ISYM" \n", __FUNCTION__, MyProcessorNumber, ThisProcessorNum);
 			
-   //if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+   if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
      ActiveParticleType_SmartStar* SS;
      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[pindex]); 
 
@@ -1038,7 +1039,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	fprintf(stderr,"%s: Density Threshold = %e\t Jeans Density = %e\n", __FUNCTION__, DensityThreshold, JeansDensity);
       }
 #endif
-
+// SG. Array of densities only exists on the processor.
       float ParticleDensity = density[cellindex] - DensityThreshold;
       float newcelldensity = density[cellindex] - ParticleDensity;
 
@@ -1131,6 +1132,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	
 	continue;
       } // SG. End erroneous case.
+						
 
       FLOAT Radius = 0.0;
       int feedback_flag = -99999;
@@ -1384,20 +1386,24 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
        float metallicity = 0.0;
        for (int dim = 0; dim < APGrid->GridRank; dim++)
 	  DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
-       for (int k = 0; k < APGrid->GridDimension[2]; k++) {
 
+       // SG. Loop over third AP Grid dimension.
+							for (int k = 0; k < APGrid->GridDimension[2]; k++) {
 	 delz = APGrid->CellLeftEdge[2][k] + 0.5*APGrid->CellWidth[2][k] - SS->pos[2];
 	 int sz = sign(delz);
 	 delz = fabs(delz);
 	 delz = min(delz, DomainWidth[2]-delz);
 	 
+		// SG. Loop over second AP grid dimension
 	 for (int j = 0; j < APGrid->GridDimension[1]; j++) {
 
 	   dely = APGrid->CellLeftEdge[1][j] + 0.5*APGrid->CellWidth[1][j] - SS->pos[1];
 	   int sy = sign(dely);
 	   dely = fabs(dely);
 	   dely = min(dely, DomainWidth[1]-dely);
-	   
+
+
+	   // SG. Loop over first AP grid dimension
 	   for (int i = 0; i < APGrid->GridDimension[0]; i++, index++) {
 	     float ionizedFraction = 0.999;  // Assume an initial HII region
 	     delx = APGrid->CellLeftEdge[0][i] + 0.5*APGrid->CellWidth[0][i] - SS->pos[0];
@@ -1410,6 +1416,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 	       radius2 = max(radius2, 0.0625*APGrid->CellWidth[0][i]*APGrid->CellWidth[0][i]); // (0.25*dx)^2
 	       
+								// SG. Metallicity readjusted
 	       if (MetallicityField == TRUE)
 		 metallicity = APGrid->BaryonField[MetalNum][index] / APGrid->BaryonField[DensNum][index];
 	       else
@@ -1421,7 +1428,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	       double cellvolume = APGrid->CellWidth[0][i]*APGrid->CellWidth[1][j]*
 		 APGrid->CellWidth[2][k];
 	      
+							// SG. APGrid cells set to CellDensityAfterFormation
 	       APGrid->BaryonField[DensNum][index] = CellDensityAfterFormation;
+
+								// SG. New gas densities set fractions set.
 	       if (MultiSpecies) {
 		 APGrid->BaryonField[DeNum][index] = APGrid->BaryonField[DensNum][index] * ionizedFraction;
 		 APGrid->BaryonField[HINum][index] = APGrid->BaryonField[DensNum][index] * (1-ionizedFraction) * fhz;
@@ -1451,10 +1461,11 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
        
        
        
-  // } /*This Processor */
+
 
   	// SG.
 			// delete [] values;
+	} // SG. End if PROCESSOR check.
   } /* End loop over APs */ // SG. Main loop.
 
   return SUCCESS;
