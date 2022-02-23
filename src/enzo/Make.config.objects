@@ -338,6 +338,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AccessBaryonFields.o \
     	Grid_AccreteOntoAccretingParticle.o \
     	Grid_AccreteOntoSmartStarParticle.o \
+        Grid_ActiveParticle_RemoveMassFromSphere.o \
     	Grid_ActiveParticleHandler.o \
     	Grid_AddActiveParticle.o \
     	Grid_AddActiveParticles.o \

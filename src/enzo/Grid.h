@@ -2822,6 +2822,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float LengthUnits, float VelocityUnits, 
 				     float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 				     int &CellsModified);
+   // SG. New Function.
+   int RemoveMassFromSphere(ActiveParticleType* ThisParticle, 
+                int level, float radius, float DensityUnits, 
+					 float LengthUnits, float VelocityUnits, 
+					 float TemperatureUnits, float TimeUnits, float Subtraction, 
+					 int &CellsModified);
 
   int MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
 
