@@ -284,12 +284,19 @@ Initialization Parameters
     (and hence the entire hierarchy). The first integer corresponds to
     the x-direction, the second to the y-direction and the third, the
     z-direction. The possible values are: 0 - reflecting, 1 - outflow,
-    2 - inflow, 3 - periodic, 4 - shearing. For inflow, the inflow
+    2 - inflow, 3 - periodic, 4 - shearing, 5 - hydrostatic, 6 - undefined. 
+    For inflow, the inflow
     values can be set through the next parameter, or more commonly are
     controlled by problem-specific code triggered by the ``ProblemType``.
     For shearing boundaries, the boundary pair in another direction
     must be periodic. Note that self gravity will not be consistent
-    with shearing boundary conditions. Default: 0 0 0
+    with shearing boundary conditions. The hydrostatic boundaries are 
+    meant to help a simulation stay in hydrostatic equilibrium. For most 
+    baryon fields, this method predicts the values in the boundary with 
+    a quadratic interpolation from the 3 nearest active cells. The density 
+    field is fit with a power law using the nearest 2 active cells. All 
+    velocities are set to zero in the boundary when using hydrostatic 
+    boundary counditions. Default: 0 0 0
 ``BoundaryConditionName`` (external)
     While the above parameters provide an easy way to set an entire
     side of grid to a given boundary value, the possibility exists to
