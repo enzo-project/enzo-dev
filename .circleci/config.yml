@@ -101,7 +101,7 @@ commands:
           command: |
             source $BASH_ENV
             source $HOME/venv/bin/activate
-            if [ ! -f << parameters.skipfile >> ]; then
+            if [ ! -e << parameters.skipfile >> ]; then
               git checkout << parameters.tag >>
               ./configure
               cd src/enzo
@@ -209,7 +209,7 @@ jobs:
 
       - build-and-test:
           tag: gold-standard-v14
-          skipfile: ~/enzo_test/push_suite/push_suite
+          skipfile: ~/enzo_test/push_suite
           flags: --answer-store
 
       - save_cache:
