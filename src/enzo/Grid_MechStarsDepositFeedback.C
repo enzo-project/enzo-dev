@@ -262,7 +262,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     nmean = dmean / (mh/mu_mean);
     //nmean = max(nmean, 1e-1);
     if (printout) printf ("STARSS_FB: Zmean = %e Dmean = %e (%e) mu_mean = %e ", zmean, dmean, dmean / DensityUnits, mu_mean);
-    if (printout) printf ("Nmean = %f vmean = %f\n", nmean, vmean/1e5);
+    if (printout) printf ("Nmean = %f\n", nmean);
     float zZsun = zmean;
     float fz = min(2.0, pow(max(zZsun, 0.01), -0.14));
 
