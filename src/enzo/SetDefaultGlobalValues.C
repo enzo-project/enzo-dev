@@ -665,7 +665,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MechStarsFadeSNR                  = 1; // Fade the SNR if radius doesnt resolve r_merge (Cioffi)
   PhotonTestMechStarDeposited       = 0;
   PythonTopGridSkip                = 0;
-  PythonSubcycleSkip               = 1;
+  PythonSubcycleSkip               = 0;
   PythonReloadScript               = FALSE;
   
   // EnzoTiming Dump Frequency
