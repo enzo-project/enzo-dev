@@ -173,12 +173,9 @@ public:
   bool IsARadiationSource(FLOAT Time);
   // SG. New Function.
   int FindAccretionSphere(LevelHierarchyEntry *LevelArray[], int level,
-			     float &Radius, 
-			     int &SphereContained,
-			     float DensityUnits, float LengthUnits, 
-			     float TemperatureUnits, float TimeUnits,
-			     float VelocityUnits, FLOAT Time,
-			     bool &MarkedSubgrids);
+			     float &Radius, float TargetSphereMass, float &MassEnclosed, 
+           float &Metallicity2, float &Metallicity3, float &ColdGasMass, float &ColdGasFraction,
+			     int &SphereContained, bool &MarkedSubgrids);
   
   // sink helper routines
 

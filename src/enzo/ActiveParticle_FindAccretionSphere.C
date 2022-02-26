@@ -22,32 +22,32 @@
 #include "ActiveParticle_SmartStar.h"
 
 int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *LevelArray[], int level,
-			     float &Radius, 
-			     int &SphereContained,
-			     float DensityUnits, float LengthUnits, 
-			     float TemperatureUnits, float TimeUnits,
-			     float VelocityUnits, FLOAT Time,
-			     bool &MarkedSubgrids)
+			     float &Radius, float TargetSphereMass, float &MassEnclosed, 
+           float &Metallicity2, float &Metallicity3, float &ColdGasMass, float &ColdGasFraction,
+			     int &SphereContained, bool &MarkedSubgrids)
 {
 
   float values[7];
   float AccretedMass, AvgDensity, AvgVelocity[MAX_DIMENSION];
-  int i, l, dim, FirstLoop = TRUE, SphereTooSmall;
-  float MassEnclosed, Metallicity2, Metallicity3, ColdGasMass, 
-    ColdGasFraction;
+  int i, l, dim, SphereTooSmall;
   float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
     ShellVelocity[MAX_DIMENSION];
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
+  VelocityUnits;
+  FLOAT Time = LevelArray[level]->GridData->ReturnTime();
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+    &TimeUnits, &VelocityUnits, Time);
   LevelHierarchyEntry *Temp;
   HierarchyEntry *Temp2;
 
   /* Find cell width on current level */
 
   int Rank, Dims[MAX_DIMENSION];
-  float CellWidth;
+  double CellWidth;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   LevelArray[level]->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
-  CellWidth = (RightEdge[0] - LeftEdge[0]) / (Dims[0] - 2*NumberOfGhostZones);
-
+  // CellWidth = (RightEdge[0] - LeftEdge[0]) / (Dims[0] - 2*NumberOfGhostZones);
+  CellWidth = LevelArray[level]->GridData->CellWidth[0][0];
 
   /***********************************************************************
 
@@ -66,10 +66,10 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
     AvgVelocity[dim] = 0.0;
 
   /* Instantiate values important for growing the sphere */
-  //bool SphereContained;
   SphereTooSmall = TRUE;
   MassEnclosed = 0;
   int FeedbackFlag = -1; // SG. As John R did in RemoveMassFromGridAfterFormation
+  Radius = 0;
 
   while (SphereTooSmall) { 
     Radius += CellWidth;
@@ -171,7 +171,8 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
        to check if SphereTooSmall. */
 
     if (this->ParticleClass == POPIII){
-      SphereTooSmall = MassEnclosed < 2*PopIIIStarMass;
+      TargetSphereMass = 2*PopIIIStarMass;
+      SphereTooSmall = MassEnclosed < TargetSphereMass;
       if (SphereTooSmall == false && SphereContained == true){
       fprintf(stderr, "\t %s: Sphere has enough mass and IsContained. \n"
                       "\t MassEnclosed = %e Msun. \n"
@@ -179,21 +180,7 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
                       __FUNCTION__, MassEnclosed);
     }
     } // END POPIII
-
-
-    /* SG. All that was done for MBH after breaking out of switch was
-       defining EjectaThermalEnergy. */
-
   }  // ENDWHILE (SphereTooSmall)
-
-
-  /* SG. All that was done for MBH after WHILE SphereTooSmall was:
-     - Defining deltaZ
-     - Assigning accretion_rate. */
-
-  if (SphereContained) {
-   SphereContained = this->SphereContained(LevelArray, level, Radius);
-   } 
 
   return SUCCESS;
 }
