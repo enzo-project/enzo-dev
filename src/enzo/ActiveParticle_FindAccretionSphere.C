@@ -22,6 +22,7 @@
 #include "ActiveParticle_SmartStar.h"
 
 int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *LevelArray[], int level, 
+           float StarLevelCellWidth,
 			     float &Radius, float TargetSphereMass, float &MassEnclosed, 
            float &Metallicity2, float &Metallicity3, float &ColdGasMass, float &ColdGasFraction,
 			     int &SphereContained, bool &MarkedSubgrids)
@@ -47,8 +48,7 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
   double CellWidth;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   LevelArray[level]->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
-  // CellWidth = (RightEdge[0] - LeftEdge[0]) / (Dims[0] - 2*NumberOfGhostZones);
-  CellWidth = LevelArray[level]->GridData->CellWidth[0][0];
+  CellWidth = StarLevelCellWidth;
 
   /***********************************************************************
 

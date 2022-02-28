@@ -1022,8 +1022,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 					/* Find radius of sphere to be accreted from */
 
-				SS->FindAccretionSphere(LevelArray, ThisLevel, Radius, TargetSphereMass, MassEnclosed, 
-								Metallicity2, Metallicity3, ColdGasMass, ColdGasFraction,
+				SS->FindAccretionSphere(LevelArray, ThisLevel, StarLevelCellWidth, Radius, TargetSphereMass,
+							 MassEnclosed, Metallicity2, Metallicity3, ColdGasMass, ColdGasFraction,
 			     SphereContained, MarkedSubgrids);
 
 				 /* Determine if a sphere is enclosed within the grids on next level

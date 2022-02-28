@@ -172,8 +172,8 @@ public:
   ENABLED_PARTICLE_ID_ACCESSOR
   bool IsARadiationSource(FLOAT Time);
   // SG. New Function.
-  int FindAccretionSphere(LevelHierarchyEntry *LevelArray[], int level,
-			     float &Radius, float TargetSphereMass, float &MassEnclosed, 
+  int FindAccretionSphere(LevelHierarchyEntry *LevelArray[], int level, 
+           float StarLevelCellWidth, float &Radius, float TargetSphereMass, float &MassEnclosed, 
            float &Metallicity2, float &Metallicity3, float &ColdGasMass, float &ColdGasFraction,
 			     int &SphereContained, bool &MarkedSubgrids);
   
