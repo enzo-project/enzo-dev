@@ -1709,7 +1709,6 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
   grid *sinkGrid = NULL;
 
   bool SinkIsOnThisProc, SinkIsOnThisGrid;
-
   float SubtractedMass, SubtractedMomentum[3] = {};
 
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
@@ -1727,11 +1726,13 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
   for (int i = 0; i < nParticles; i++) {
 			  grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
 					if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+						
 					// int MyLevel = APGrid->GridLevel;
 					// SG. MyLevel calculated differently- from SS particle. Replacing above with following 3 lines.
 					ActiveParticleType_SmartStar* SS;
      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
 				 int MyLevel = SS->ReturnLevel(); // SG. Check
+
 					// SG. Compare dx calculated on APGrid and from GridData. APGrid cell width seems to lower to level 11 while the GridData and MyLevel stay at 12.
 					double dx = APGrid->CellWidth[0][0];
 					double dx_grid = LevelArray[ThisLevel]->GridData->CellWidth[0][0]; 
@@ -1742,10 +1743,6 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 					float MassInSolar = ParticleList[i]->ReturnMass()*MassConversion;
 					// SG. This will print out the particle mass calculated with the current grid. So only correct mass given for level=my_level.
 					// fprintf(stderr,"%s: cell width (APGrid) = %e pc and cell width (GridData) = %e pc on level = %"ISYM" (SS->ReturnLevel) with MassInSolar = %f (calculated with GridData dx). MyLevel = %"ISYM".\n", __FUNCTION__, dx_pc, dx_grid_pc, ThisLevel, MassInSolar, MyLevel);
-				 if (ThisLevel != MyLevel){
-						fprintf(stderr,"%s: ThisLevel = %"ISYM" (APGrid) < MyLevel = %"ISYM". Continue.\n", __FUNCTION__, ThisLevel, MyLevel);
-					continue;
-					}
 					
     /* 
      * Accretion is only allowed if it makes sense:
@@ -1762,7 +1759,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
     //FLOAT dx_pc = dx*LengthUnits/pc_cm;   //in pc
     float Stellar_Age = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->StellarAge;
     float p_age = ctime - static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->BirthTime;
-				fprintf(stderr,"%s: ThisLevel = %"ISYM" (APGrid) = MyLevel = %"ISYM". AccretionRadius = %e.\n", __FUNCTION__, ThisLevel, MyLevel, AccretionRadius);
+				//fprintf(stderr,"%s: ThisLevel = %"ISYM" (APGrid) = MyLevel = %"ISYM". AccretionRadius = %e.\n", __FUNCTION__, ThisLevel, MyLevel, AccretionRadius);
 
 // #if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
 // 	  if (pclass == POPIII || pclass == SMS ){
@@ -1773,20 +1770,18 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 // #endif
 
     if(pclass == POPIII) {
-					// SG. Never want to accrete onto POPIII stars, regardless of conditions being met.
-					continue;
       /* 
        * We only accrete onto POPIII stars if our maximum 
-       * spatial resolution is better than 1e-3 pc
-							* AND if target mass not reach yet (SG)
+       * spatial resolution is better than 1e-3 pc.
+							* If target mass is already met or is zero, we skip accretion.
        */
-      if(dx_pc > POPIII_RESOLUTION){ //we don't have sufficient resolution
-						fprintf(stderr,"%s: insufficient resolution for POPIII accretion. dx_pc = %e But will allow accretion.\n", __FUNCTION__, dx_pc);
-						//continue;
+      if(dx_pc > POPIII_RESOLUTION){ 
+						fprintf(stderr,"%s: insufficient resolution for POPIII accretion. dx_pc = %e.\n", __FUNCTION__, dx_pc);
+						continue;
 						}
 
-						if (MassInSolar >= PopIIIStarMass)
-						fprintf(stderr,"%s: Mass target reached Mass POPIII = %e pc. Accrete is skipped.\n", __FUNCTION__, MassInSolar);
+						if (MassInSolar >= PopIIIStarMass || MassInSolar == 0)
+						fprintf(stderr,"%s: Accrete is skipped.\n", __FUNCTION__);
 						continue;
   
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx),
@@ -1817,6 +1812,11 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
       
     }
     else if(pclass == BH) {
+
+					if (ThisLevel != MyLevel){
+						fprintf(stderr,"%s: ThisLevel = %"ISYM" (APGrid) < MyLevel = %"ISYM". Continue.\n", __FUNCTION__, ThisLevel, MyLevel);
+					continue;
+					}
       /* We always accrete onto BHs. The only restriction is that 
        * we can optionally employ a time delay following a SNe explosion to 
        * avoid spurious accretion. 
@@ -2178,165 +2178,154 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 				ActiveParticleList<ActiveParticleType>& ParticleList,
 				LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-	 //fprintf(stderr,"%s: got here.\n", __FUNCTION__); // SG. Debug comment.
-  FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
-		// SG. Test cell width received from GridData vs APGrid.
-		double dx_grid = LevelArray[ThisLevel]->GridData->CellWidth[0][0]; 
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits;
+	 /* Get units, define current time */
+		FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
+		float ctime = LevelArray[ThisLevel]->GridData->ReturnTime();
+		float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
   double MassUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, Time);
+	  &TimeUnits, &VelocityUnits, Time);
   MassUnits = DensityUnits * POW(LengthUnits,3);
-		// SG. For testing cell width value.
+		
+
+		/* SG. Test cell width received from GridData vs APGrid. */
+		double dx_grid = LevelArray[ThisLevel]->GridData->CellWidth[0][0]; 
 		double dx_pc1 = dx_grid*LengthUnits/pc_cm;   //in pc
 		double MassConversion = (double) (dx_grid*dx_grid*dx_grid * double(MassUnits));  //convert to g
 		MassConversion = MassConversion/SolarMass; // convert to Msun
-		//fprintf(stderr,"%s: cell width = %e pc (GridData) on level = %"ISYM".\n", __FUNCTION__, dx_pc1, ThisLevel);
 
-  // SG. Moved mass conversion to within loop over particles.
-  float ctime = LevelArray[ThisLevel]->GridData->ReturnTime();
+  /* SG. Moved mass conversion to within loop over particles. */
+
 		for (int i = 0; i < nParticles; i++) {
-				grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-				ActiveParticleType_SmartStar* SS;
-    SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-				int MyLevel = SS->ReturnLevel(); // SG. Check
-				//fprintf(stderr,"%s: level = %"ISYM" and MyLevel = %"ISYM" and NoParticles = %"ISYM".\n", __FUNCTION__, 
-				//ThisLevel, MyLevel, nParticles);
-				if (ThisLevel != MyLevel){
-					fprintf(stderr, "%s: MyLevel = %"ISYM", ThisLevel = %"ISYM". Return SUCCESS.\n", __FUNCTION__, MyLevel, ThisLevel);
-				return SUCCESS;
-				}
-				double dx = APGrid->CellWidth[0][0];
-				double dx_pc = dx*LengthUnits/pc_cm;   //in pc
-				double MassConversion = (double) (dx_grid*dx_grid*dx_grid * double(MassUnits));  //SG. Changed to dx_grid. convert to g
-				double MassConversion1 = (double) (dx*dx*dx * double(MassUnits));  //SG. For testing. convert to g
-				MassConversion = MassConversion/SolarMass; // convert to Msun
-				MassConversion1 = MassConversion1/SolarMass; // convert to Msun. SG. For testing
-				//fprintf(stderr,"%s: cell width = %e pc (APGrid) on level = %"ISYM".\n", __FUNCTION__, dx_pc, ThisLevel);
-				// SG. Check if SS->Mass < TargetMass, if not, continue.
-				if (SS->Mass == 0){
-					fprintf(stderr,"%s: SS Mass is zero. TimeIndex not incrememted. Continue.\n", __FUNCTION__);
-					continue;
-				}
-				fprintf(stderr, "%s: Just about to check processor number.\n", __FUNCTION__);
-				if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
-      ActiveParticleType_SmartStar* SS;
-      SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-						// SG. For debugging issue.
-						fprintf(stderr,"%s: deltatime = %f years\t TIMEGAP = %0.2f years\n",
-	     __FUNCTION__, (ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/yr_s, 
-	     (float)TIMEGAP);
- #if SSDEBUG
-      fprintf(stderr,"%s: deltatime = %f years\t TIMEGAP = %0.2f years\n",
-	     __FUNCTION__, (ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/yr_s, 
-	     (float)TIMEGAP);
-#endif
-     
-      //We should update when the time between stored rates exceeds TIMEGAP
-   //    if( (ctime - SS->AccretionRateTime[SS->TimeIndex] > (TIMEGAP*APGridMMy->ReturnTimeStep()))
-	  // || (SS->TimeIndex == 0)) {
-						if( ((ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/yr_s > (float)TIMEGAP) // SG. Changing TIMEGAP to 100 years as in the print statement just above.
-					|| (SS->TimeIndex == 0)) {
-						// SG. Move print statements here to prevent so much printing out.
-		fprintf(stderr,"%s: level = %"ISYM" and MyLevel = %"ISYM" and NoParticles = %"ISYM".\n", __FUNCTION__,	ThisLevel, MyLevel, nParticles);
-		fprintf(stderr,"%s: cell width = %e pc (APGrid) on level = %"ISYM".\n", __FUNCTION__, dx_pc, ThisLevel);
-		
-		float omass = SS->ReturnOldMass();
-		float cmass = SS->ReturnMass(); // SG. Change from ParticleList[i]
-		//fprintf(stderr,"%s: MassConversion with dx from GridData: omass = %e Msun (in code omass = %e) and cmass = %e Msun.\n", __FUNCTION__, omass*MassConversion, omass, cmass*MassConversion); // SG. Debug comment.
-		//fprintf(stderr,"%s: MassConversion1 with dx from APGrid: omass = %e Msun and cmass = %e Msun.\n", __FUNCTION__, omass*MassConversion1, cmass*MassConversion1);
-	// 	if(cmass - omass < -1e-10) { //Can happen after a restart due to rounding
-	// 	#if STELLAR_ACCRETION_OFF // SG. Skip to see if it fixes omass/cmass issues
-	// 			continue;
-	// 	#endif
-	// 			printf("Updating masses....\n");
-	// 			printf("cmass = %e\t omass = %e\n", cmass, omass);
-	// 			cmass = omass;
-	// }
 
-	if(omass < -1e-10) {
-		omass = 0.0;
-		fprintf(stderr, "%s: omass less than zero. Updating to omass = %e Msun.\n", __FUNCTION__, omass*MassConversion);
-	} 
-	// // SG. To prevent bad omass value when SS goes to a new level of refinement (up or down). 
-	//  if (omass*MassConversion > 8*cmass*MassConversion || omass*MassConversion < cmass*MassConversion/8){
-	// 		omass = cmass;
-	// 		fprintf(stderr,"%s: Bad omass value upon moving to a new level of refinement. omass = %e Msun.\n", __FUNCTION__, omass*MassConversion); 
-	// 	} else{
-	// 		fprintf(stderr,"%s: omass is OK.\n", __FUNCTION__);
-	// 	}
+			grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+			ActiveParticleType_SmartStar* SS;
+			SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+			int MyLevel = SS->ReturnLevel();
 
-		SS->TimeIndex++;
-		int timeindex = (SS->TimeIndex)%NTIMES;
-		int otimeindex = timeindex - 1;
-		if(otimeindex == -1) //loop back
-				otimeindex = NTIMES -1;
-		float otime = SS->AccretionRateTime[otimeindex];
-		if(otime == -1.0) {
-				otimeindex = 0;
-				otime = SS->AccretionRateTime[otimeindex]; 
-		}
+			/* If not on APGrid level or mass is 0, continue */
+			
+			if (ThisLevel != MyLevel){
+				//fprintf(stderr, "%s: MyLevel = %"ISYM", ThisLevel = %"ISYM". Return SUCCESS.\n", __FUNCTION__, MyLevel, ThisLevel);
+			return SUCCESS;
+			}
 
-		float deltatime = ctime - otime;
-		float accrate = (cmass - omass)/deltatime;
-		float Age = ctime - SS->BirthTime;
-		SS->AccretionRate[timeindex] = accrate*dx*dx*dx;
-		SS->AccretionRateTime[timeindex] = ctime;
-		//SS->ReturnOldMass() = cmass;
-		//omass = SS->ReturnOldMass(); // SG.
-		SS->TimeIndex = timeindex;	
-		fprintf(stderr, "old_mass = %e Msolar\t cmass = (%e code) %e Msolar\n", omass*MassConversion,
-			cmass, cmass*MassConversion);
-		fprintf(stderr, "accrate = %1.2e Msolar/yr\t deltatime = %3.3f Myrs\t TimeIndex = %d\t Particle Mass = %1.2e Msolar\t Age = %1.3f Myr\t Lifetime = %1.2f Myr\t Class = %d\n",
-			(SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass,
-			deltatime*TimeUnits/Myr_s,
-			SS->TimeIndex,
-			SS->ReturnMass()*MassConversion,
-			Age*TimeUnits/Myr_s,
-			SS->RadiationLifetime*TimeUnits/Myr_s,
-			SS->ParticleClass);
-			omass = cmass; // SG.
-			SS->oldmass = cmass;
-			if(SS->ParticleClass > SMS)
+			if (SS->Mass == 0){
+				fprintf(stderr,"%s: SS Mass is zero. TimeIndex not incrememted. Continue.\n", __FUNCTION__);
 				continue;
-		else {
-				if(dx_pc < SMS_RESOLUTION) {
-					// SG. Avoid artificial change to SMS in the case of no accretion. Issue with oldmass parameter.
-					// #if STELLAR_ACCRETION_OFF
-					// continue;
-					// #endif
-								/*
-									* Using the time-averaged accretion rates determine if the 
-									* SMS is accreting fast enough or
-									* if it is falling onto the main sequence.
-									* This can also allow a POPIII star to change into a SMS
-									*/
-								if((SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass
-				> CRITICAL_ACCRETION_RATE) { 
-			if(SS->ParticleClass == POPIII) { // SG. Changed from Particle Class switching from POPIII TO SMS.
-					printf("%s: UPDATE: NO CHANGE TO ParticleClass.\n", __FUNCTION__);
 			}
-			// SS->ParticleClass = SMS; SG.
-								}
-								else {
-			float Age = Time - SS->BirthTime;
-			if(Age*TimeUnits/yr_s > 1e4 && SMS == SS->ParticleClass) { /* Don't do this at very start */
-					printf("%s: WARNING: ParticleClass switching from SMS to POPIII (deltatime = %f kyrs)\n", __FUNCTION__,
-					deltatime*TimeUnits/(yr_s*1e3));
-					printf("%s: WARNING: Accretion Rate = %f Msolar/yr. Critical rate = %f Msolar/yr\n", __FUNCTION__,
-					(SS->AccretionRate[SS->TimeIndex]*MassUnits/TimeUnits)*yr_s/SolarMass,
-					CRITICAL_ACCRETION_RATE);
-					SS->ParticleClass = POPIII;
-			}
-								}
-				}
-		}
-		// }// End ELSE
-		
-							} // End IF timegap exceeded
-						} // End IF processor
-			} // End FOR loop over particles
+
+			/* Define cell width and mass conversion based on it */
+			
+			double dx = APGrid->CellWidth[0][0];
+			double dx_pc = dx*LengthUnits/pc_cm;   //in pc
+			double MassConversion = (double) (dx_grid*dx_grid*dx_grid * double(MassUnits));  //SG. Changed to dx_grid. convert to g
+			MassConversion = MassConversion/SolarMass; // convert to Msun
+
+			/* Only update stats if on correct processor */
+
+			if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
+
+				ActiveParticleType_SmartStar* SS;
+				SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+				
+				#if SSDEBUG
+				fprintf(stderr,"%s: deltatime = %f years\t TIMEGAP = %0.2f years\n",
+				__FUNCTION__, (ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/yr_s, 
+				(float)TIMEGAP);
+				#endif
+			
+				/* SG. Changing TIMEGAP to 100 years as in the print statement just above. */
+
+				if( ((ctime - SS->AccretionRateTime[SS->TimeIndex])*TimeUnits/yr_s > (float)TIMEGAP) || (SS->TimeIndex == 0)) {
+
+					fprintf(stderr,"%s: level = %"ISYM" and MyLevel = %"ISYM" and NoParticles = %"ISYM".\n", __FUNCTION__,	ThisLevel, MyLevel, nParticles);
+					fprintf(stderr,"%s: cell width = %e pc (APGrid) on level = %"ISYM".\n", __FUNCTION__, dx_pc, ThisLevel);
+					
+					float omass = SS->ReturnOldMass();
+					float cmass = SS->ReturnMass();
+
+					if(omass < -1e-10) {
+						omass = 0.0;
+						fprintf(stderr, "%s: omass less than zero. Updating to omass = %e Msun.\n", __FUNCTION__, omass*MassConversion);
+					} 
+
+					/* Increment time index */
+					SS->TimeIndex++;
+
+					/* timeindex and original timeindex */
+					int timeindex = (SS->TimeIndex)%NTIMES;
+					int otimeindex = timeindex - 1;
+					if(otimeindex == -1) //loop back
+							otimeindex = NTIMES -1;
+					float otime = SS->AccretionRateTime[otimeindex];
+					if(otime == -1.0) {
+							otimeindex = 0;
+							otime = SS->AccretionRateTime[otimeindex]; 
+					}
+
+					/* Update SS accrate and timeindex */
+					float deltatime = ctime - otime;
+					float accrate = (cmass - omass)/deltatime;
+					float Age = ctime - SS->BirthTime;
+					SS->AccretionRate[timeindex] = accrate*dx*dx*dx;
+					SS->AccretionRateTime[timeindex] = ctime;
+					SS->TimeIndex = timeindex;
+
+					/* Prints */
+					fprintf(stderr, "old_mass = %e Msolar\t cmass = (%e code) %e Msolar\n", omass*MassConversion,
+						cmass, cmass*MassConversion);
+					fprintf(stderr, "accrate = %1.2e Msolar/yr\t deltatime = %3.3f Myrs\t TimeIndex = %d\t Particle Mass = %1.2e Msolar\t Age = %1.3f Myr\t Lifetime = %1.2f Myr\t Class = %d\n",
+						(SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass,
+						deltatime*TimeUnits/Myr_s,
+						SS->TimeIndex,
+						SS->ReturnMass()*MassConversion,
+						Age*TimeUnits/Myr_s,
+						SS->RadiationLifetime*TimeUnits/Myr_s,
+						SS->ParticleClass);
+						/* End Prints */
+
+					/* Set omass to cmass */
+					omass = cmass;
+					SS->oldmass = cmass;
+
+					/* Change of particle class to SMS if PopIII and accretion rate is high.
+							Disabled by SG/BS for mass removal from sphere method */
+
+					if(SS->ParticleClass > SMS){
+						continue;
+						} else {
+						if(dx_pc < SMS_RESOLUTION) {
+							/*
+								* Using the time-averaged accretion rates determine if the 
+								* SMS is accreting fast enough or
+								* if it is falling onto the main sequence.
+								* This can also allow a POPIII star to change into a SMS
+								*/
+							if((SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass > CRITICAL_ACCRETION_RATE) {
+								if(SS->ParticleClass == POPIII) { 
+									// SG. Disabled Particle Class switching from POPIII TO SMS.
+									printf("%s: UPDATE SG: NO CHANGE of ParticleClass.\n", __FUNCTION__);
+									}
+									// SS->ParticleClass = SMS; SG.
+									}
+									else {
+										float Age = Time - SS->BirthTime;
+										if(Age*TimeUnits/yr_s > 1e4 && SMS == SS->ParticleClass) { 
+											/* Don't do this at very start */
+											printf("%s: WARNING: ParticleClass switching from SMS to POPIII (deltatime = %f kyrs)\n", __FUNCTION__,
+											deltatime*TimeUnits/(yr_s*1e3));
+											printf("%s: WARNING: Accretion Rate = %f Msolar/yr. Critical rate = %f Msolar/yr\n", __FUNCTION__,
+											(SS->AccretionRate[SS->TimeIndex]*MassUnits/TimeUnits)*yr_s/SolarMass,
+											CRITICAL_ACCRETION_RATE);
+											SS->ParticleClass = POPIII;
+											} // END if age & SMS
+									} // End else
+							} // End SMS_RES
+						} // END else
+					} // End IF timegap exceeded
+			} // End IF processor
+		} // End FOR loop over particles
 
   return SUCCESS;
 }
