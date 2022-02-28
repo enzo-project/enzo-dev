@@ -21,11 +21,12 @@
 #include <math.h>
 #include "ActiveParticle_SmartStar.h"
 
-int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *LevelArray[], int level,
+int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *LevelArray[], int level, 
 			     float &Radius, float TargetSphereMass, float &MassEnclosed, 
            float &Metallicity2, float &Metallicity3, float &ColdGasMass, float &ColdGasFraction,
 			     int &SphereContained, bool &MarkedSubgrids)
 {
+  fprintf(stderr, "%s: Start of func.\n", __FUNCTION__);	
 
   float values[7];
   float AccretedMass, AvgDensity, AvgVelocity[MAX_DIMENSION];
@@ -73,13 +74,17 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
 
   while (SphereTooSmall) { 
     Radius += CellWidth;
+    fprintf(stderr, "%s: Beginning of SphereTooSmall. Radius = %e.\n", __FUNCTION__, Radius);	
+
 
     /* Before we sum the enclosed mass, check if the sphere with
        r=Radius is completely contained in grids on this level */
 
     SphereContained = this->SphereContained(LevelArray, level, Radius);
-    if (SphereContained == FALSE)
+    if (SphereContained == FALSE){
+      fprintf(stderr, "%s: Sphere not contained. Break.\n", __FUNCTION__);	
       break;
+    }
 
     ShellMass = 0;
     ShellMetallicity2 = 0;
@@ -106,6 +111,7 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
         } // ENDIF !MarkedSubgrids
 
          /* Sum enclosed mass in this grid */
+         fprintf(stderr, "%s: Before GetEnclosedMassInShell. \n", __FUNCTION__);
 
          Temp->GridData->GetEnclosedMassInShell(this->pos, Radius-CellWidth, Radius, 
                     ShellMass, ShellMetallicity2, 
@@ -171,7 +177,6 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
        to check if SphereTooSmall. */
 
     if (this->ParticleClass == POPIII){
-      TargetSphereMass = 2*PopIIIStarMass;
       SphereTooSmall = MassEnclosed < TargetSphereMass;
       if (SphereTooSmall == false && SphereContained == true){
       fprintf(stderr, "\t %s: Sphere has enough mass and IsContained. \n"
