@@ -48,8 +48,6 @@ int ActiveParticleType::SphereContained(LevelHierarchyEntry *LevelArray[], int l
 
    **************************************************************/
 
-  LCAPERF_START("star_SphereContained");
-
   for (i = 0; i < 8; i++) {
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
 
@@ -65,7 +63,8 @@ int ActiveParticleType::SphereContained(LevelHierarchyEntry *LevelArray[], int l
 
   Temp = LevelArray[level];
   for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
-    if (Temp->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
+    // SG. This does almost nothing.
+    // if (Temp->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
       Temp->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
 
       for (i = 0; i < 8; i++) {
@@ -78,15 +77,14 @@ int ActiveParticleType::SphereContained(LevelHierarchyEntry *LevelArray[], int l
 	  cornerDone[i] = 1;
       } // ENDFOR corners
 
-    } // ENDIF MyProcessorNumber == ProcessorNumber
+    //} // ENDIF MyProcessorNumber == ProcessorNumber
   } // ENDFOR grids
 
   cornersContained = 0;
   for (i = 0; i < 8; i++)
     cornersContained += cornerDone[i];
-  //fprintf(stderr, "cornersContained = %d\n", __FUNCTION__, cornersContained);
+    fprintf(stderr, "cornersContained = %d\n", __FUNCTION__, cornersContained);
   result = (cornersContained == 8);
-  LCAPERF_STOP("star_SphereContained");
   return result;
 
 }

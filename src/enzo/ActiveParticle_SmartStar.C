@@ -957,7 +957,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 			 }
 			}
 
-		fprintf(stderr, "%s: Before stats = 0 check.\n", __FUNCTION__);	
+		fprintf(stderr, "%s: Before stars = 0 check.\n", __FUNCTION__);	
 
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0){
@@ -1020,22 +1020,23 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 				float TargetSphereMass = 2*PopIIIStarMass;
 
-					/* Find radius of sphere to be accreted from */
+				/* Find radius of sphere to be accreted from */
 
 				SS->FindAccretionSphere(LevelArray, ThisLevel, StarLevelCellWidth, Radius, TargetSphereMass,
 							 MassEnclosed, Metallicity2, Metallicity3, ColdGasMass, ColdGasFraction,
 			     SphereContained, MarkedSubgrids);
 
-				 /* Determine if a sphere is enclosed within the grids on next level
-	 					If that is the case, we perform SubtractAccretedMass not here, 
-	 					but in the EvolveLevel of the next level. */
+				/* Determine if a sphere is enclosed within the grids on next level
+						If that is the case, we perform SubtractAccretedMass not here, 
+						but in the EvolveLevel of the next level. */
 
 				SphereContainedNextLevel = FALSE;
 				
 				if (LevelArray[ThisLevel+1] != NULL) {
-					SS->FindAccretionSphere(LevelArray, ThisLevel+1, Radius, TargetSphereMass, MassEnclosed, 
-								Metallicity2, Metallicity3, ColdGasMass, ColdGasFraction,
-			     SphereContained, MarkedSubgrids);
+					fprintf(stderr, "%s: Checking if sphere can be found on next highest level.\n", __FUNCTION__);		
+					SS->FindAccretionSphere(LevelArray, ThisLevel+1, StarLevelCellWidth, Radius, TargetSphereMass, 
+								MassEnclosed, Metallicity2, Metallicity3, ColdGasMass, ColdGasFraction,
+			     SphereContainedNextLevel, MarkedSubgrids);
 				}
 
 				/* Quit this routine when 

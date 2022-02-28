@@ -45,10 +45,9 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
   /* Find cell width on current level */
 
   int Rank, Dims[MAX_DIMENSION];
-  double CellWidth;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   LevelArray[level]->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
-  CellWidth = StarLevelCellWidth;
+  float CellWidth = StarLevelCellWidth;
 
   /***********************************************************************
 
