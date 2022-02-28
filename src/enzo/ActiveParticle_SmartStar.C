@@ -897,9 +897,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
-	
-
-	fprintf(stderr, "%s: ThisLevel = %"ISYM"\n", __FUNCTION__, ThisLevel);		
 
 	/* Set the units. */
 
@@ -937,9 +934,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 							SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
 							// SG. For low resolution particles that never get accreted, the time index is never incremented
 							// Hence Mass = 0 check is included.
-							fprintf(stderr, "%s: in popIII \n", __FUNCTION__);		
 							if(SS->ParticleClass == POPIII && SS->TimeIndex == 0 && SS->Mass == 0) {
-								 fprintf(stderr, "%s: Increment num new stars \n", __FUNCTION__);		
 									SSparticles[k++] = i;
 									num_new_popiii_stars++;
 							 } // End IF particle class POPIII
@@ -957,11 +952,8 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 			 }
 			}
 
-		fprintf(stderr, "%s: Before stars = 0 check.\n", __FUNCTION__);	
-
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0){
-	   fprintf(stderr, "%s: 1) No new particles. MyProcessorNumber = %"ISYM".\n",__FUNCTION__, MyProcessorNumber);
 				return SUCCESS;
   }
 
@@ -978,21 +970,18 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 		for (int k = 0; k < num_new_stars; k++){
 
-			fprintf(stderr, "%s: Start of num_new_stars loop.\n", __FUNCTION__);	
-
 			/* Define APGrid and SS particle */
 
 			pindex = SSparticles[k];
-			APGrid = ParticleList[k]->ReturnCurrentGrid();
+			APGrid = ParticleList[pindex]->ReturnCurrentGrid();
 
-			fprintf(stderr, "%s: APGrid level = %"ISYM".\n", __FUNCTION__, APGrid->GridLevel);	
+			fprintf(stderr, "%s: Beginning of PopIII creation on level = %"ISYM".\n", 
+										 __FUNCTION__, ThisLevel);	
 
 			ThisProcessorNum = APGrid->ReturnProcessorNumber();
 			SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[pindex]);
 
-			fprintf(stderr, "%s: Particle class = %"ISYM".\n", __FUNCTION__, SS->ParticleClass);	
-    
-			/* Define cell width and volume on star grid */
+				/* Define cell width and volume on star grid */
 
 			StarLevelCellWidth = APGrid->CellWidth[0][0];
  		CellVolumeStarLevel = StarLevelCellWidth*StarLevelCellWidth*StarLevelCellWidth;
@@ -1005,12 +994,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 			if (SS->ParticleClass == POPIII){
 
-				fprintf(stderr, "%s: Beginning POPIII case.\n", __FUNCTION__);		
-
 				/* Initialise attributes of PopIII class
 							+ intstantiate sphere variables */
 
-				float Radius = 0.0;
+				float Radius = 0.0, SphereRadius, SphereMass;
 				float MassEnclosed = 0, ColdGasMass = 0, ColdGasFraction = 0;
 				float Metallicity2 = 0, Metallicity3 = 0, Subtraction;
 				int SphereContained, SphereContainedNextLevel, CellsModified = 0;
@@ -1029,7 +1016,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 				/* Determine if a sphere is enclosed within the grids on next level
 						If that is the case, we perform SubtractAccretedMass not here, 
 						but in the EvolveLevel of the next level. */
-
+				
+				SphereMass = MassEnclosed; // for mass removal
+				SphereRadius = Radius; // For subtraction variable
 				SphereContainedNextLevel = FALSE;
 				
 				if (LevelArray[ThisLevel+1] != NULL) {
@@ -1044,49 +1033,64 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 						(2) sphere is contained, but the next level can contain the sphere too. */ 
 
     if ((SphereContained == FALSE) || 
-				(SphereContained == TRUE && SphereContainedNextLevel == TRUE))
+				(SphereContained == TRUE && SphereContainedNextLevel == TRUE)){
+					fprintf(stderr, "%s: Sphere not contained or sphere contained on next level.\n", 
+													__FUNCTION__, SphereContained);	
 					break;
+				}
 
-				/* Set fraction of MassEnclosed that will be removed */
+				/* Set fraction of SphereMass that will be removed */
 
-				Subtraction = PopIIIStarMass/MassEnclosed;
+				Subtraction = PopIIIStarMass/SphereMass;
+				fprintf(stderr, "%s: PopIIIStarMass = %e, SphereMass = %e, Subtraction = %e.\n", 
+					       __FUNCTION__, PopIIIStarMass, SphereMass, Subtraction);	
 
 			 /* Now set cells within the radius to their values after mass subtraction. */
 
 				for (int l = ThisLevel; l < MAX_DEPTH_OF_HIERARCHY; l++){
 					for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel){
-						
-						Temp->GridData->RemoveMassFromSphere(SS, l, Radius, DensityUnits, 
+
+						Temp->GridData->RemoveMassFromSphere(SS, l, SphereRadius, DensityUnits, 
 										LengthUnits, VelocityUnits, TemperatureUnits, 
 										TimeUnits, Subtraction, CellsModified);
 
 					} // END Grids
 				} // END Levels
 
+				/* Exit if no mass is enclosed */
+
+				if (SphereMass == 0){
+					fprintf(stderr,"%s: No mass enclosed. No particle created.\n", __FUNCTION__);
+					return SUCCESS;
+				}
+
 				fprintf(stderr,"%s: PopIII Particle created!\n", __FUNCTION__);
 
 				/* Assign mass, radius and lifetime to particle */
 			 
 				SS->Mass = PopIIIStarMass; // msun
-				SS->InfluenceRadius = Radius; // code units
+				SS->InfluenceRadius = SphereRadius; // code units
 				SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass); // code time
 				SS->RadiationLifetime*= yr_s/TimeUnits;
-				SS->StellarAge = SS->RadiationLifetime; // years
+				SS->BirthTime = APGrid->ReturnTime();
+				float Age = Time - SS->BirthTime;
 
 				/* Print out particle attributes */
 
 				fprintf(stderr,"%s: Particle Mass = %1.1f Msolar\n", __FUNCTION__, SS->Mass);
-				fprintf(stderr,"%s: Particle Lifetime = %1.1f years\n", __FUNCTION__, SS->StellarAge);
+				fprintf(stderr,"%s: Particle Lifetime = %1.2f Myr\n", __FUNCTION__, SS->RadiationLifetime*TimeUnits/Myr_s);
+				fprintf(stderr,"%s: Particle Age = %1.1f Myr\n", __FUNCTION__, Age*TimeUnits/Myr_s);
     fprintf(stderr,"%s: Particle Class = %d\n", __FUNCTION__, SS->ParticleClass);
-    fprintf(stderr,"%s: Removed mass from sphere of radius %lf pc\n", __FUNCTION__, SS->InfluenceRadius*LengthUnits/pc_cm);
+    fprintf(stderr,"%s: Removed mass from sphere of radius %e pc\n", __FUNCTION__, SS->InfluenceRadius*LengthUnits/pc_cm);
 
 				/* Assign code density mass to SS and oldmass */
 
 				SS->Mass = (PopIIIStarMass*SolarMass/MassUnits)/CellVolumeStarLevel; //code density
 				SS->oldmass = 0.0;
 
+				break;
 			} // END PopIII
-
+ 
 		} // END num_new_stars loop
 
 	return SUCCESS;

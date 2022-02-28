@@ -27,7 +27,6 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
            float &Metallicity2, float &Metallicity3, float &ColdGasMass, float &ColdGasFraction,
 			     int &SphereContained, bool &MarkedSubgrids)
 {
-  fprintf(stderr, "%s: Start of func.\n", __FUNCTION__);	
 
   float values[7];
   float AccretedMass, AvgDensity, AvgVelocity[MAX_DIMENSION];
@@ -73,8 +72,6 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
 
   while (SphereTooSmall) { 
     Radius += CellWidth;
-    fprintf(stderr, "%s: Beginning of SphereTooSmall. Radius = %e.\n", __FUNCTION__, Radius);	
-
 
     /* Before we sum the enclosed mass, check if the sphere with
        r=Radius is completely contained in grids on this level */
@@ -110,7 +107,6 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
         } // ENDIF !MarkedSubgrids
 
          /* Sum enclosed mass in this grid */
-         fprintf(stderr, "%s: Before GetEnclosedMassInShell. \n", __FUNCTION__);
 
          Temp->GridData->GetEnclosedMassInShell(this->pos, Radius-CellWidth, Radius, 
                     ShellMass, ShellMetallicity2, 
@@ -150,6 +146,7 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
 
     MassEnclosed += ShellMass;
     ColdGasMass += ShellColdGasMass;
+    fprintf(stderr, "%s: MassEnclosed = %e Msun.\n", __FUNCTION__, MassEnclosed);
 
     /* Must first make velocity and metallicity mass-weighted, 
       then add shell mass-weighted (already done in GetEnclosedMassInShell) 
@@ -177,11 +174,12 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
 
     if (this->ParticleClass == POPIII){
       SphereTooSmall = MassEnclosed < TargetSphereMass;
-      if (SphereTooSmall == false && SphereContained == true){
-      fprintf(stderr, "\t %s: Sphere has enough mass and IsContained. \n"
+      if (SphereTooSmall == false && SphereContained == TRUE){
+      fprintf(stderr, "\t Sphere has enough mass and is contained. \n"
+                      "\t Radius = %e pc.\n"
                       "\t MassEnclosed = %e Msun. \n"
-                      "\t Exit WHILE SphereTooSmall loop and check if SphereContained again.\n", 
-                      __FUNCTION__, MassEnclosed);
+                      "\t Exit WHILE SphereTooSmall loop.\n", 
+                      __FUNCTION__, Radius* LengthUnits / pc_cm, MassEnclosed);
     }
     } // END POPIII
   }  // ENDWHILE (SphereTooSmall)

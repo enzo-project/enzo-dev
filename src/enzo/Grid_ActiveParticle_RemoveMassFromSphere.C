@@ -41,6 +41,7 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
   FLOAT delx, dely, delz, radius2, DomainWidth[MAX_DIMENSION];
   double increase;
 
+   // MY PROC = MPI PROCESS, Processor that owns this grid
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
@@ -102,6 +103,12 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
     Subtraction *= BubbleVolume/BoxVolume;
   }
 
+  /* Calculate how much the cell quantities are to be reduced by */
+  increase = max(1-Subtraction, 0.9);
+
+  fprintf(stderr, "%s: Subtraction = %e. Increase = %e. Level = %"ISYM".\n",
+                         __FUNCTION__, Subtraction, increase, level);
+
   for (k = 0; k < GridDimension[2]; k++) {
     
     delz = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - SS->pos[2];
@@ -123,8 +130,6 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
         
         radius2 = delx*delx + dely*dely + delz*delz;
         if (radius2 <= radius*radius) {
-
-          increase = max(1-Subtraction, 0.9); 
 
           /* Update density */
 
@@ -185,11 +190,12 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
   }  // END k-direction
 
 
-  fprintf(stderr, "%s: Mass removed from radius = %e pc, Mass Removed = %e Msun, Fractional Decrease = %lf.\n", 
+  fprintf(stderr, "%s: Mass removed from radius = %e pc, cells modified = %"ISYM", fractional decrease = %e.\n", 
           __FUNCTION__,
           radius * LengthUnits / pc_cm,
-          Subtraction * (4*pi/3.0 * pow(radius*LengthUnits, 3)) * DensityUnits / SolarMass),
-          increase;
+          //Subtraction * (4*pi/3.0 * pow(radius*LengthUnits, 3)) * DensityUnits / SolarMass, 
+          CellsModified,
+          increase);
   
   return SUCCESS;
 

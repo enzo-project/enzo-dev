@@ -83,7 +83,7 @@ int ActiveParticleType::SphereContained(LevelHierarchyEntry *LevelArray[], int l
   cornersContained = 0;
   for (i = 0; i < 8; i++)
     cornersContained += cornerDone[i];
-    fprintf(stderr, "cornersContained = %d\n", __FUNCTION__, cornersContained);
+    //fprintf(stderr, "cornersContained = %d\n", __FUNCTION__, cornersContained);
   result = (cornersContained == 8);
   return result;
 
