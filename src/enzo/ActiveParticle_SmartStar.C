@@ -897,6 +897,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
 {
+	
+
+	fprintf(stderr, "%s: ThisLevel = %"ISYM"\n", __FUNCTION__, ThisLevel);		
 
 	/* Set the units. */
 
@@ -934,7 +937,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 							SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
 							// SG. For low resolution particles that never get accreted, the time index is never incremented
 							// Hence Mass = 0 check is included.
+							fprintf(stderr, "%s: in popIII \n", __FUNCTION__);		
 							if(SS->ParticleClass == POPIII && SS->TimeIndex == 0 && SS->Mass == 0) {
+								 fprintf(stderr, "%s: Increment num new stars \n", __FUNCTION__);		
 									SSparticles[k++] = i;
 									num_new_popiii_stars++;
 							 } // End IF particle class POPIII
@@ -951,7 +956,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 			 	}
 			 }
 			}
-			
+
+		fprintf(stderr, "%s: Before stats = 0 check.\n", __FUNCTION__);	
+
   int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
   if(num_new_stars == 0){
 	   fprintf(stderr, "%s: 1) No new particles. MyProcessorNumber = %"ISYM".\n",__FUNCTION__, MyProcessorNumber);
@@ -971,17 +978,24 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 		for (int k = 0; k < num_new_stars; k++){
 
+			fprintf(stderr, "%s: Start of num_new_stars loop.\n", __FUNCTION__);	
+
 			/* Define APGrid and SS particle */
 
 			pindex = SSparticles[k];
-			APGrid = ParticleList[pindex]->ReturnCurrentGrid();
+			APGrid = ParticleList[k]->ReturnCurrentGrid();
+
+			fprintf(stderr, "%s: APGrid level = %"ISYM".\n", __FUNCTION__, APGrid->GridLevel);	
+
 			ThisProcessorNum = APGrid->ReturnProcessorNumber();
 			SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[pindex]);
+
+			fprintf(stderr, "%s: Particle class = %"ISYM".\n", __FUNCTION__, SS->ParticleClass);	
     
 			/* Define cell width and volume on star grid */
 
 			StarLevelCellWidth = APGrid->CellWidth[0][0];
- 		CellVolumeStarLevel = pow(StarLevelCellWidth,3);
+ 		CellVolumeStarLevel = StarLevelCellWidth*StarLevelCellWidth*StarLevelCellWidth;
 
 
 			/**********************************************************************
@@ -989,7 +1003,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 			 **********************************************************************/
 
 
-			if (SS->ParticleClass == PopIII){
+			if (SS->ParticleClass == POPIII){
+
+				fprintf(stderr, "%s: Beginning POPIII case.\n", __FUNCTION__);		
 
 				/* Initialise attributes of PopIII class
 							+ intstantiate sphere variables */
@@ -1067,8 +1083,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 				SS->Mass = (PopIIIStarMass*SolarMass/MassUnits)/CellVolumeStarLevel; //code density
 				SS->oldmass = 0.0;
-				
-				break;
 
 			} // END PopIII
 
