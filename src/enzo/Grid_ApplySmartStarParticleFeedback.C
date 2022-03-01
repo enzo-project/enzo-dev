@@ -49,11 +49,11 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	
   /* Return if this doesn't involve us */
   if (MyProcessorNumber != ProcessorNumber){
-			return SUCCESS;
+		 return SUCCESS;
 		} 
     
   if(SmartStarFeedback == FALSE){
-    return SUCCESS;
+   return SUCCESS;
 		}
 
 
