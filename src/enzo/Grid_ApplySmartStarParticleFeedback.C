@@ -54,7 +54,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
     
   if(SmartStarFeedback == FALSE){
    return SUCCESS;
-		}
+	 }
 
 
   ActiveParticleType_SmartStar *SS = static_cast<ActiveParticleType_SmartStar*>(* ThisParticle);
