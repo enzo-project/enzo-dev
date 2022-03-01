@@ -47,15 +47,12 @@ int search_lower_bound(float *arr, float value, int low, int high,
 
 int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	
-	fprintf(stderr, "%s: got here.\n", __FUNCTION__);
   /* Return if this doesn't involve us */
   if (MyProcessorNumber != ProcessorNumber){
-			fprintf(stderr, "%:s: not on the SS processor.");
 			return SUCCESS;
 		} 
     
   if(SmartStarFeedback == FALSE){
-			 fprintf(stderr, "%:s: not on the SS processor.");
     return SUCCESS;
 		}
 
