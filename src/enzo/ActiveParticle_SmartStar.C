@@ -1004,7 +1004,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 			/* Set target sphere mass to be twice the target PopIII mass */
 
-			float TargetSphereMass = 2*PopIIIStarMass;
+			float TargetSphereMass = 1.1*PopIIIStarMass;
 
 			/* Find radius of sphere to be accreted from */
 
