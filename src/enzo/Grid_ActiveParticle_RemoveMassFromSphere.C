@@ -104,7 +104,7 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
   }
 
   /* Calculate how much the cell quantities are to be reduced by */
-  increase = max(1-Subtraction, 0.9);
+  increase = max(1-Subtraction, 0.7);
 
   fprintf(stderr, "%s: Subtraction = %e. Increase = %e. Level = %"ISYM".\n",
                          __FUNCTION__, Subtraction, increase, level);
