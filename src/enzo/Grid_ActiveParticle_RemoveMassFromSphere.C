@@ -39,7 +39,7 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
 
   int dim, i, j, k, index;
   FLOAT delx, dely, delz, radius2, DomainWidth[MAX_DIMENSION];
-  double increase;
+  double decrease;
 
    // MY PROC = MPI PROCESS, Processor that owns this grid
   if (MyProcessorNumber != ProcessorNumber)
@@ -104,10 +104,10 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
   }
 
   /* Calculate how much the cell quantities are to be reduced by */
-  increase = max(1-Subtraction, 0.7);
+  decrease = max(1-Subtraction, 0.5);
 
-  fprintf(stderr, "%s: Subtraction = %e. Increase = %e. Level = %"ISYM".\n",
-                         __FUNCTION__, Subtraction, increase, level);
+  fprintf(stderr, "%s: Subtraction = %e. decrease = %e. Level = %"ISYM".\n",
+                         __FUNCTION__, Subtraction, decrease, level);
 
   for (k = 0; k < GridDimension[2]; k++) {
     
@@ -133,7 +133,7 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
 
           /* Update density */
 
-          BaryonField[DensNum][index] *= increase;
+          BaryonField[DensNum][index] *= decrease;
 
           /* Update velocities and TE. The grid lost some mass, so velocity is increased.
              For DualEnergyFormalism = 0, you don't have to update any energy field */
@@ -144,9 +144,9 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
               0.5 * BaryonField[Vel1Num+dim][index] * 
               BaryonField[Vel1Num+dim][index];
           
-              BaryonField[Vel1Num][index] /= increase;
-              BaryonField[Vel2Num][index] /= increase;
-              BaryonField[Vel3Num][index] /= increase;
+              BaryonField[Vel1Num][index] /= decrease;
+              BaryonField[Vel2Num][index] /= decrease;
+              BaryonField[Vel3Num][index] /= decrease;
           
           if (GENum >= 0 && DualEnergyFormalism) 
             for (dim = 0; dim < GridRank; dim++)
@@ -157,29 +157,29 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
           /* Update species and colour fields */
           
           if (MultiSpecies) {
-            BaryonField[DeNum][index] *= increase;
-            BaryonField[HINum][index] *= increase;
-            BaryonField[HIINum][index] *= increase;
-            BaryonField[HeINum][index] *= increase;
-            BaryonField[HeIINum][index] *= increase;
-            BaryonField[HeIIINum][index] *= increase;
+            BaryonField[DeNum][index] *= decrease;
+            BaryonField[HINum][index] *= decrease;
+            BaryonField[HIINum][index] *= decrease;
+            BaryonField[HeINum][index] *= decrease;
+            BaryonField[HeIINum][index] *= decrease;
+            BaryonField[HeIIINum][index] *= decrease;
           }
           if (MultiSpecies > 1) {
-            BaryonField[HMNum][index] *= increase;
-            BaryonField[H2INum][index] *= increase;
-            BaryonField[H2IINum][index] *= increase;
+            BaryonField[HMNum][index] *= decrease;
+            BaryonField[H2INum][index] *= decrease;
+            BaryonField[H2IINum][index] *= decrease;
           }
           if (MultiSpecies > 2) {
-            BaryonField[DINum][index] *= increase;
-            BaryonField[DIINum][index] *= increase;
-            BaryonField[HDINum][index] *= increase;
+            BaryonField[DINum][index] *= decrease;
+            BaryonField[DIINum][index] *= decrease;
+            BaryonField[HDINum][index] *= decrease;
           }
           
           if (MetallicityField == TRUE)
-            BaryonField[MetalNum][index] *= increase;
+            BaryonField[MetalNum][index] *= decrease;
           
           if (MBHColourNum > 0)
-            BaryonField[MBHColourNum][index] *= increase;    
+            BaryonField[MBHColourNum][index] *= decrease;    
           
           /* Increment number of cells modified */
           CellsModified++;
@@ -195,7 +195,7 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
           radius * LengthUnits / pc_cm,
           //Subtraction * (4*pi/3.0 * pow(radius*LengthUnits, 3)) * DensityUnits / SolarMass, 
           CellsModified,
-          increase);
+          decrease);
   
   return SUCCESS;
 
