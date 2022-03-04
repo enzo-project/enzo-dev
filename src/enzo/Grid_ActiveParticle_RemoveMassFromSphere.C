@@ -133,7 +133,15 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
 
           /* Update density */
 
+          float density1 = BaryonField[DensNum][index];
+          fprintf(stderr, "%s: Old density = %e cm^-3, %e g cm^3.\n", 
+          __FUNCTION__, density1*DensityUnits/mh, density1*DensityUnits);
+
           BaryonField[DensNum][index] *= decrease;
+
+          float density2 = BaryonField[DensNum][index];
+          fprintf(stderr, "%s: New density = %e cm^-3, %e g cm^3.\n", 
+          __FUNCTION__, density2*DensityUnits/mh, density2*DensityUnits);
 
           /* Update velocities and TE. The grid lost some mass, so velocity is increased.
              For DualEnergyFormalism = 0, you don't have to update any energy field */
