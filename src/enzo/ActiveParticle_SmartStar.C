@@ -23,7 +23,7 @@
 #define COOLING_TIME       0 // SG. Turn on to prevent spurious SF.Turning off again.
 #define NUMSSPARTICLETYPES 4
 #define JEANS_FACTOR       2
-#define STELLAR_ACCRETION_OFF 0 // SG. Turns off accretion for SMS and POPIII if =1.
+#define STELLAR_ACCRETION_OFF 1 // SG. Turns off accretion for POPIII if =1.
 #define HW_BH_MASS 1   // SG. BH forms with mass according to Heger-Woosley 2002 relation.
 #define SNEFEEDBACK 1
 int DetermineSEDParameters(ActiveParticleType_SmartStar *SS,FLOAT Time, FLOAT dx);
@@ -421,10 +421,6 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  stellar_type = POPIII;
 	  fprintf(stderr, "POPIII particles(%d) created and done in %s on level %"ISYM".\n", data.NumberOfNewParticles + 1, __FUNCTION__, ThisLevel);
 
-// #if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
-// 	  accrate	= 0;
-// 			fprintf(stderr, "%s: accrate = %e (POPIII particle detected).", __FUNCTION__, accrate);
-// #endif
 	}
 	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*10000.0)
 		&& (dx_pc < SMS_RESOLUTION)) { // SG. Increasing x10 to x10000 to suppress SMS formation.
@@ -494,12 +490,6 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	
 	/* Calculate initial accretion rate onto cell */
 	np->AccretionRate[0] = accrate;
-#if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
-if (stellar_type == POPIII){
-	accrate	= 0;
-	fprintf(stderr, "%s: accrate = %e (POPIII particle detected).", __FUNCTION__, accrate);
-}
-#endif
 	np->AccretionRateTime[0] = np->BirthTime;
 	np->RadiationLifetime= 0.0; 
 	np->StellarAge = 0.0;
@@ -1760,14 +1750,6 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
     float p_age = ctime - static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->BirthTime;
 				//fprintf(stderr,"%s: ThisLevel = %"ISYM" (APGrid) = MyLevel = %"ISYM". AccretionRadius = %e.\n", __FUNCTION__, ThisLevel, MyLevel, AccretionRadius);
 
-// #if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
-// 	  if (pclass == POPIII || pclass == SMS ){
-// 				fprintf(stderr, "%s: POPIII OR SMS particle detected. No accretion onto star. AccretionRadius = %e. MassInSolar = %e\n",
-// 				 __FUNCTION__, AccretionRadius, MassInSolar);
-// 					continue;
-// 			}		 
-// #endif
-
     if(pclass == POPIII) {
       /* 
        * We only accrete onto POPIII stars if our maximum 
@@ -2339,6 +2321,10 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
 {
   //printf("%s: Starting to read this. End of AP_SS.C.\n", __FUNCTION__);
 
+	#if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
+		return SUCCESS;
+ #endif
+
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -2357,15 +2343,12 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
       if(POPIII == SS->ParticleClass) {
-	#if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
-		return SUCCESS;
-    #endif
 	double StellarMass = SS->Mass*MassConversion; //Msolar
-	// float logm = log10((float)StellarMass);
-	// // First in years, then convert to code units
-	// SS->RadiationLifetime = POW(10.0, (9.785 - 3.759*logm + 1.413*logm*logm - 
-	// 				   0.186*logm*logm*logm)) / (TimeUnits/yr_s);
-	//SS->StellarAge = SS->RadiationLifetime; //update stellar age too
+	float logm = log10((float)StellarMass);
+	// First in years, then convert to code units
+	SS->RadiationLifetime = POW(10.0, (9.785 - 3.759*logm + 1.413*logm*logm - 
+					   0.186*logm*logm*logm)) / (TimeUnits/yr_s);
+	SS->StellarAge = SS->RadiationLifetime; //update stellar age too
       }
     }
   }
