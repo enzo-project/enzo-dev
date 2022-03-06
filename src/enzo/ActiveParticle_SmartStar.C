@@ -2210,7 +2210,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 			}
 
 			if (SS->Mass == 0){
-				fprintf(stderr,"%s: SS Mass is zero. TimeIndex not incrememted. Continue.\n", __FUNCTION__);
+				fprintf(stderr,"%s: SS Mass is zero. TimeIndex not incremented. Continue.\n", __FUNCTION__);
 				continue;
 			}
 
@@ -2359,13 +2359,13 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
       if(POPIII == SS->ParticleClass) {
 	#if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
 		return SUCCESS;
-    #endif   
+    #endif
 	double StellarMass = SS->Mass*MassConversion; //Msolar
-	float logm = log10((float)StellarMass);
-	// First in years, then convert to code units
-	SS->RadiationLifetime = POW(10.0, (9.785 - 3.759*logm + 1.413*logm*logm - 
-					   0.186*logm*logm*logm)) / (TimeUnits/yr_s);
-	SS->StellarAge = SS->RadiationLifetime; //update stellar age too
+	// float logm = log10((float)StellarMass);
+	// // First in years, then convert to code units
+	// SS->RadiationLifetime = POW(10.0, (9.785 - 3.759*logm + 1.413*logm*logm - 
+	// 				   0.186*logm*logm*logm)) / (TimeUnits/yr_s);
+	//SS->StellarAge = SS->RadiationLifetime; //update stellar age too
       }
     }
   }
