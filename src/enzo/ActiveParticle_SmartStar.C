@@ -1894,9 +1894,6 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 						Only if dx > dx_bondi is DepositRefinementZone triggered.
 	*/
 
-// if level < ap grid level, go through this function. if not, continue.
-// Order: Evaluate, remove, set flagging field. Need to skip mass remove the first time. Do time index = 0.
-
   /* Generate a list of all sink particles in the simulation box */
   int i, nParticles;
   FLOAT *pos = NULL;
@@ -1919,72 +1916,36 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			ActiveParticleType_SmartStar* SS;
 			SS = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i]);
 			int pclass = SS->ParticleClass;
-			/* If pop3 and if mass > target mass, else set to 0.1 pc. Need to be careful checking for dx's etc.
-				Want to refine everything to the level the star is at
-				*/
+
+			/* POPIII case*/
 			if (pclass == POPIII){
-
-			// 	  // SG. Skip if current grid level is great than or equal to SS grid level.
-			// 			// grid* SSGrid = SS->ReturnCurrentGrid();
-			// 			// int SSLevel = SSGrid->GridLevel;
-			// 			int SSLevel = SS->ReturnLevel();
-			// 			fprintf(stderr,"%s: PopIII star is on level = %"ISYM". ThisLevel = %"ISYM". \n", __FUNCTION__, SSLevel, level);
-			// 			if (level >= SSLevel) // SG. 
-			// 			return SUCCESS;
-
-			// 			// SG. Skip if PopIIIStarMass target has been reached.
-			// 			float cmass = SS->ReturnMass(); // SG. current SS mass
-			// 			double MassConversion = (double) (dx*dx*dx * double(MassUnits));  //convert to g
-			// 			MassConversion = MassConversion/SolarMass; // convert to Msun
-			// 			double cmass_msun = cmass*MassConversion; // SG. cmass in msun.
-			// 			if (cmass_msun >= PopIIIStarMass)
-			// 			return SUCCESS;
-
-			// 			// SG. Set accrad to 0.1pc if not already set.
-			// 			double accrad = SS->AccretionRadius;
-			// 			FLOAT accrad_pc = accrad*LengthUnits/pc_cm; // in pc
-			// 			fprintf(stderr,"%s: PopIII star with accrad = %e pc (%e code units) \n.", accrad_pc, accrad);
-			// 			if (accrad_pc < 0.1){
-			// 				SS->AccretionRadius = 0.1/(LengthUnits/pc_cm); // SG. in code units
-			// 				accrad = SS->AccretionRadius;
-			// 				accrad_pc = accrad*LengthUnits/pc_cm; // in pc
-			// 				fprintf(stderr,"%s: PopIII star with accrad = %e pc (%e code units) \n.", accrad_pc, accrad);
-			// 			}
-
-			// 		// SG. Deposit refinement zone around star if both conditions are met.
-			// 		pos = SmartStarList[i]->ReturnPosition();
-			// 		for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
-			// 		fprintf(stderr,"%s: PopIII star with cmass (Msun) = %e on level = %"ISYM" with accrad (pc) = %e. Deposit refinement zone.\n", 
-			// 			__FUNCTION__, cmass_msun, level, accrad_pc);
-			// 		if (Temp->GridData->DepositRefinementZone(level,pos,accrad) == FAIL) {
-			// 			ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
-			// } // end IF
-			// } // end FOR Temp
 			continue;
-		} // SG. END POPIII
-
+		}
+		 /* SMS case*/
 	  if (pclass == SMS) {
-		  //fprintf(stderr,"%s: POPIII/SMS particle detected. No further refinement.\n", __FUNCTION__);
 		  continue; 
 
+			/* BH case*/
 		  } else{
-			//fprintf(stderr,"%s: No POPIII/SMS was particle detected. Continue to flag fields.\n", __FUNCTION__);  
+			
+			/* Define position and accrad of BH */
 			pos = SmartStarList[i]->ReturnPosition();
 			double accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
 			fprintf(stderr, "%s: accrad = %e (bondi radius) and bondi factor = %e and cell_width = %e.\n", __FUNCTION__, accrad, SmartStarBondiRadiusRefinementFactor, dx);
-			// SG. Check for when accrad = 0 in the first 100 kyr of BH's life.
+			
+			/* SG. Check for when accrad = 0 in the first 100 kyr of BH's life. */
 			if (accrad < 1e-30)
 			continue;
+
+			/* SG. Calculate user-set dx_bondi and dx_bondi in pc*/
 			FLOAT dx_bondi = (double) accrad/ (FLOAT) SmartStarBondiRadiusRefinementFactor;
 			//fprintf(stderr, "%s: dx_bondi = %f.\n", __FUNCTION__, dx_bondi);
 			FLOAT dx_pc = dx*LengthUnits/pc_cm;   //in pc
 			FLOAT dx_bondi_pc = dx_bondi*LengthUnits/pc_cm; //in pc
 			//fprintf(stderr, "%s: dx_bondi_pc = %f.\n", __FUNCTION__, dx_bondi_pc);
+
+			/* if dx_bondi > dx, don't deposit refinement zone */
 			if (dx_bondi > dx){
-				double DBL_MAX = 1.797693134862315e308;
-				if (dx_bondi > DBL_MAX || dx_bondi < -DBL_MAX ){
-					fprintf(stderr, "%s: Bondi radius is bigger than can be stored in a double.\n", __FUNCTION__);
-				}
 				fprintf(stderr,"%s: dx_bondi = %"GSYM" pc (%"GSYM" in code units) is greater than cell width = %e pc. Don't deposit refinement zone.\n", 
 				__FUNCTION__, dx_bondi_pc, dx_bondi, dx_pc);
 		  continue;
