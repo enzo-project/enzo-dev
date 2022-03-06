@@ -187,6 +187,11 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
     return SUCCESS;
   } /* POPIII Supernova */
   else if(SS->ParticleClass == POPIII) {
+			
+			if (SS->Mass = 0){
+				fprintf(stderr, "%s: Mass is zero, no radiation lifetime check.\n", __FUNCTION__);
+				return SUCCESS;
+			}
   
     if(Age > SS->RadiationLifetime) {/* Star needs to go supernovae and change type */
 				fprintf(stderr, "%s: Age exceeds stellar lifetime. Transition to BH.\n", __FUNCTION__);
