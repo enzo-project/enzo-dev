@@ -994,7 +994,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 			/* Set target sphere mass to be twice the target PopIII mass */
 
-			float TargetSphereMass = 3*PopIIIStarMass;
+			float TargetSphereMass = 2*PopIIIStarMass;
 
 			/* Find radius of sphere to be accreted from */
 
@@ -2065,14 +2065,14 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     
  } // SG. End BH class condition. 
 	else if (pclass == POPIII){ // SG. Add POPIII class condition
-					grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx), dx, 
-					       Grids, NumberOfGrids, ALL_FIELDS);
-    if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
-      if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
-						return FAIL;
-				}
-				DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-				delete FeedbackZone;
+			grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx), dx, 
+										Grids, NumberOfGrids, ALL_FIELDS);
+		if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
+			if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
+			return FAIL;
+		}
+		DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+		delete FeedbackZone;
 				
 		} // SG. End POPIII class condition.
 
@@ -2176,7 +2176,6 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 		MassConversion = MassConversion/SolarMass; // convert to Msun
 
   /* SG. Moved mass conversion to within loop over particles. */
-
 		for (int i = 0; i < nParticles; i++) {
 
 			grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
@@ -2185,9 +2184,7 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 			int MyLevel = SS->ReturnLevel();
 
 			/* If not on APGrid level or mass is 0, continue */
-			
 			if (ThisLevel != MyLevel){
-				//fprintf(stderr, "%s: MyLevel = %"ISYM", ThisLevel = %"ISYM". Return SUCCESS.\n", __FUNCTION__, MyLevel, ThisLevel);
 			return SUCCESS;
 			}
 
@@ -2197,7 +2194,6 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 			}
 
 			/* Define cell width and mass conversion based on it */
-			
 			double dx = APGrid->CellWidth[0][0];
 			double dx_pc = dx*LengthUnits/pc_cm;   //in pc
 			double MassConversion = (double) (dx_grid*dx_grid*dx_grid * double(MassUnits));  //SG. Changed to dx_grid. convert to g
@@ -2206,7 +2202,6 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 			/* Only update stats if on correct processor */
 
 			if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
-
 				ActiveParticleType_SmartStar* SS;
 				SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
 				
@@ -2316,12 +2311,12 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
  */
 int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
 				  ActiveParticleList<ActiveParticleType>& ParticleList,
-							   LevelHierarchyEntry *LevelArray[],
-							   int ThisLevel)
+						LevelHierarchyEntry *LevelArray[],
+						int ThisLevel)
 {
-  //printf("%s: Starting to read this. End of AP_SS.C.\n", __FUNCTION__);
 
-	#if STELLAR_ACCRETION_OFF // SG. Skip stellar accretion even in high-res cases.
+	/* SG. Skip stellar accretion even in high-res cases. */
+	#if STELLAR_ACCRETION_OFF 
 		return SUCCESS;
  #endif
 
