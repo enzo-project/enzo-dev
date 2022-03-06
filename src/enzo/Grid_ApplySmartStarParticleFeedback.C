@@ -188,7 +188,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
   } /* POPIII Supernova */
   else if(SS->ParticleClass == POPIII) {
 			
-			if (SS->Mass = 0){
+			if (SS->Mass == 0){
 				fprintf(stderr, "%s: Mass is zero, no radiation lifetime check.\n", __FUNCTION__);
 				return SUCCESS;
 			}
