@@ -877,7 +877,6 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 	{
 
 		/* Set the units. */
-
 		float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
 		double MassUnits;
 		GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -889,7 +888,6 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		
 		/* Initialise attributes of PopIII class
 		+ intstantiate sphere variables */
-		
 		float Radius = 0.0, SphereRadius, SphereMass;
 		float MassEnclosed = 0, ColdGasMass = 0, ColdGasFraction = 0;
 		float Metallicity2 = 0, Metallicity3 = 0, Subtraction;
@@ -897,11 +895,9 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		bool MarkedSubgrids = false;
 
 		/* Set target sphere mass to be twice the target PopIII mass */
-
 		float TargetSphereMass = 2*PopIIIStarMass;
 
 		/* Find radius of sphere to be accreted from */
-
 		SS->FindAccretionSphere(LevelArray, ThisLevel, StarLevelCellWidth, Radius, TargetSphereMass,
 						MassEnclosed, Metallicity2, Metallicity3, ColdGasMass, ColdGasFraction,
 						SphereContained, MarkedSubgrids);
@@ -909,7 +905,6 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		/* Determine if a sphere is enclosed within the grids on next level
 		If that is the case, we perform SubtractAccretedMass not here, 
 		but in the EvolveLevel of the next level. */
-		
 		SphereMass = MassEnclosed; // for mass removal
 		SphereRadius = Radius; // For subtraction variable
 		SphereContainedNextLevel = FALSE;
@@ -933,13 +928,11 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		}
 
 		/* Set fraction of SphereMass that will be removed */
-
 		Subtraction = PopIIIStarMass/SphereMass;
 		fprintf(stderr, "%s: PopIIIStarMass = %e, SphereMass = %e, Subtraction = %e.\n", 
 										__FUNCTION__, PopIIIStarMass, SphereMass, Subtraction);	
 
 		/* Now set cells within the radius to their values after mass subtraction. */
-
 		for (int l = ThisLevel; l < MAX_DEPTH_OF_HIERARCHY; l++){
 			for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel){
 
@@ -951,7 +944,6 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		} // END Levels
 
 		/* Exit if no mass is enclosed */
-
 		if (SphereMass == 0){
 			fprintf(stderr,"%s: No mass enclosed. No particle created.\n", __FUNCTION__);
 			return SUCCESS;
@@ -960,7 +952,6 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		fprintf(stderr,"%s: PopIII Particle created!\n", __FUNCTION__);
 
 		/* Assign mass, radius and lifetime to particle */
-		
 		SS->Mass = PopIIIStarMass; // msun
 		SS->InfluenceRadius = SphereRadius; // code units
 		SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass); // code time
@@ -969,7 +960,6 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		float Age = Time - SS->BirthTime;
 
 		/* Print out particle attributes */
-
 		fprintf(stderr,"%s: Particle Mass = %1.1f Msolar\n", __FUNCTION__, SS->Mass);
 		fprintf(stderr,"%s: Particle Lifetime = %1.2f Myr\n", __FUNCTION__, SS->RadiationLifetime*TimeUnits/Myr_s);
 		fprintf(stderr,"%s: Particle Age = %1.1f Myr\n", __FUNCTION__, Age*TimeUnits/Myr_s);
@@ -977,7 +967,6 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		fprintf(stderr,"%s: Removed mass from sphere of radius %e pc\n", __FUNCTION__, SS->InfluenceRadius*LengthUnits/pc_cm);
 
 		/* Assign code density mass to SS and oldmass */
-
 		SS->Mass = (PopIIIStarMass*SolarMass/MassUnits)/CellVolumeStarLevel; //code density
 		SS->oldmass = 0.0;
 
@@ -999,7 +988,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 {
 
 	/* Set the units. */
-
 	FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
  double MassUnits;
@@ -1013,7 +1001,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 		* SMS first since they have the highest accretion rates and hence 
 		* should be forming first
 		*/
-
 	int k = 0, num_new_sms_stars = 0, num_new_popiii_stars = 0, num_new_popii_stars = 0;
 	for (int i = 0; i < nParticles; i++) {
 		grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
@@ -1058,44 +1045,215 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 
  /* Instantiate common attributes of all SS particle types */
-
 	ActiveParticleType_SmartStar* SS;
 	LevelHierarchyEntry *Temp;
 	grid* APGrid;
 	int pindex, ThisProcessorNum;
-	float StarLevelCellWidth, CellVolumeStarLevel;
+	int cellindex_x, cellindex_y, cellindex_z, cellindex;
+	float CellVolumeStarLevel, DensityThreshold,
+	ParticleDensity, newcelldensity;
+	FLOAT StarLevelCellWidth, dx_pc;
+	float *density;
+
+#if JEANSREFINEMENT
+	bool JeansRefinement = false;
+	for (int method = 0; method < MAX_FLAGGING_METHODS; method++) 
+		if (CellFlaggingMethod[method] == 6)
+			JeansRefinement = true;
+			if (JeansRefinement) {
+				int size = APGrid->GetGridSize();
+				float *Temperature = new float[size]();
+				APGrid->ComputeTemperatureField(Temperature);
+				float CellTemperature = (JeansRefinementColdTemperature > 0) ? JeansRefinementColdTemperature : Temperature[cellindex];
+				int JeansFactor = JEANS_FACTOR; 
+				float JeansDensityUnitConversion = (Gamma*pi*kboltz) / (Mu*mh*GravConst);
+				float JeansDensity = JeansDensityUnitConversion * 1.01 * CellTemperature /
+					POW(LengthUnits*dx*JeansFactor,2);
+				JeansDensity /= DensityUnits;
+				DensityThreshold = min(DensityThreshold,JeansDensity);
+				fprintf(stderr,"%s: Density Threshold = %e\t Jeans Density = %e\n", __FUNCTION__, DensityThreshold, JeansDensity);
+				}
+#endif
 
 	
 /* Main loop over new particles */
-
 	for (int k = 0; k < num_new_stars; k++){
 
 		/* Define APGrid and SS particle */
-
 		pindex = SSparticles[k];
 		APGrid = ParticleList[pindex]->ReturnCurrentGrid();
 		ThisProcessorNum = APGrid->ReturnProcessorNumber();
 		SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[pindex]);
 
 		/* Define cell width and volume on star grid */
-
 		StarLevelCellWidth = APGrid->CellWidth[0][0];
 		CellVolumeStarLevel = StarLevelCellWidth*StarLevelCellWidth*StarLevelCellWidth;
+		dx_pc = StarLevelCellWidth*LengthUnits/pc_cm; // in pc
+
+		/* Define cellindex on APGrid */
+		cellindex_x = (SS->pos[0] - APGrid->CellLeftEdge[0][0])/StarLevelCellWidth,
+		cellindex_y = (SS->pos[1] - APGrid->CellLeftEdge[1][0])/StarLevelCellWidth,
+		cellindex_z = (SS->pos[2] - APGrid->CellLeftEdge[2][0])/StarLevelCellWidth;
+		cellindex = APGrid->GetIndex(cellindex_x, cellindex_y, cellindex_z);
 
 
-		/**********************************************************************
+	 /*********************************************************************
+		                              	SMS CASE
+		**********************************************************************/
+
+		if(SMS == SS->ParticleClass) {
+			/* 
+			If resolution is sufficent, accrete as normal - 
+			just remove mass from the cell 
+			*/
+
+		 /* Find DensNum */
+			int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+			if (APGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+				Vel3Num, TENum) == FAIL){
+					ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+					}
+
+		 /* Define ParticleDensity and newcelldensity (only known to owning processor) */
+			density = APGrid->BaryonField[DensNum];
+			DensityThreshold = ActiveParticleDensityThreshold*mh/DensityUnits;
+			ParticleDensity = density[cellindex] - DensityThreshold;
+			newcelldensity = density[cellindex] - ParticleDensity;
+			
+			if(dx_pc <= SMS_RESOLUTION) {
+
+				/* Update density, set SS attributes */
+				density[cellindex] = newcelldensity;
+				SS->BirthTime = APGrid->ReturnTime();
+				SS->Mass = ParticleDensity;
+				SS->oldmass = 0.0;
+
+				/* Pathological case */
+				if(ParticleDensity < 0.0) {
+					printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
+					printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+					printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+					printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+					ENZO_FAIL("Particle Density is negative. Oh dear.\n");
+				}
+
+			continue;
+			} // END resolution check
+		} // END SMS
+
+
+		/*********************************************************************
 		                            	POP III CASE
-			**********************************************************************/
+		**********************************************************************/
 
-
-		if (SS->ParticleClass == POPIII){
+		else if (SS->ParticleClass == POPIII){
+			/* 
+				SG. If stellar accretion is off, pop3 star forms with final mass taken
+				from sphere. The target pop3 stellar mass is set with the parameter
+				'PopIIIStarMass' which is set my the user in the parameter file.
+				A sphere will step out by one cell width until it reaches a radius which
+				contains twice the PopIIIStarMass value. 
+			*/
+		#if STELLAR_ACCRETION_OFF
 			PopIIIFormationFromSphere(SS, APGrid, ThisProcessorNum, StarLevelCellWidth,
 			CellVolumeStarLevel, Time, LevelArray, Temp, ThisLevel);
+			continue;
+		#endif
+
+		 /* 
+			 If stellar accretion not off and resolution is sufficent, 
+			 accrete as normal - just remove mass from the cell 
+			*/
+		 if (MyProcessorNumber != APGrid->ReturnProcessorNumber()){
+				continue;}
+
+			/* Find DensNum */
+			int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+			if (APGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+				Vel3Num, TENum) == FAIL){
+					ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+					}
+
+			/* Define ParticleDensity and newcelldensity (only known to owning processor) */
+			density = APGrid->BaryonField[DensNum];
+			DensityThreshold = ActiveParticleDensityThreshold*mh/DensityUnits;
+			ParticleDensity = density[cellindex] - DensityThreshold;
+			newcelldensity = density[cellindex] - ParticleDensity;
+
+			if(dx_pc <= POPIII_RESOLUTION) { 
+
+				/* Update density, set SS attributes */
+	   density[cellindex] = newcelldensity;
+	   SS->BirthTime = APGrid->ReturnTime();
+	   SS->Mass = ParticleDensity;
+	   SS->oldmass = 0.0;
+
+				/* Pathological case */
+	   if(ParticleDensity < 0.0) {
+					printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
+					printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+					printf("DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+					printf("SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+					ENZO_FAIL("Particle Density is negative. Oh dear.\n");
+	   }
+
+		 #if SSDEBUG
+	   fprintf(stderr, "%s: Particle with initial mass %e (%e) Msolar created\n", __FUNCTION__,
+		  SS->Mass*pow(StarLevelCellWidth,3)*MassUnits/SolarMass, SS->Mass);
+		 #endif
+
+	   continue;
+			} // END resolution check
 		} // END PopIII
 
-	 } // END num_new_stars loop
 
-		return SUCCESS;
+		/*********************************************************************
+		                            	POP II CASE
+		**********************************************************************/
+
+		else if (POPII == SS->ParticleClass) {
+			/* 
+			 Accrete if the mass exceeds the star cluster minimum mass.
+			*/
+
+		 /* Find DensNum */
+			int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+			if (APGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+				Vel3Num, TENum) == FAIL){
+					ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+					}
+
+			/* Define ParticleDensity and newcelldensity (only known to owning processor) */
+			density = APGrid->BaryonField[DensNum];
+			DensityThreshold = ActiveParticleDensityThreshold*mh/DensityUnits;
+			ParticleDensity = density[cellindex] - DensityThreshold;
+			newcelldensity = density[cellindex] - ParticleDensity;
+
+			float PopIIMass = SS->Mass*pow(StarLevelCellWidth,3)*MassUnits/SolarMass;
+			if (PopIIMass > StarClusterMinimumMass){
+
+				/* Update densities and set SS attributes */
+				density[cellindex] = (1 - StarClusterFormEfficiency)*density[cellindex];
+				SS->BirthTime = APGrid->ReturnTime();
+				SS->Mass = StarClusterFormEfficiency*density[cellindex];
+				SS->oldmass = 0.0;
+
+				/* Pathological case */
+				if(ParticleDensity < 0.0) {
+					fprintf(stderr,"%s: cellindex = %d\n", __FUNCTION__, cellindex);
+					fprintf(stderr,"density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
+					fprintf(stderr,"DensityThreshold = %e cm^-3\n", DensityThreshold*DensityUnits/mh);
+					fprintf(stderr,"SS->ParticleClass = %d\n", SS->ParticleClass); fflush(stdout);
+					ENZO_FAIL("Particle Density is negative. Oh dear.\n");
+				}
+				printf("POPII: cellindex %d updated - next.\n\n", cellindex);
+
+				continue;
+			} // END mass check
+  } // END POPII
+	} // END num_new_stars loop
+
+	return SUCCESS;
 
 } // END RemoveMassFromGridAfterFormation
 
