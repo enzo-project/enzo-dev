@@ -203,8 +203,8 @@ public:
 
   // SG. New Func within RemoveMassFromGridAfterFormation.
   static int  PopIIIFormationFromSphere(ActiveParticleType_SmartStar* SS, 
-                  grid* APGrid, int ThisProcessorNum, float StarLevelCellWidth, 
-                  float CellVolumeStarLevel,FLOAT Time, LevelHierarchyEntry *LevelArray[], 
+                  grid* APGrid, int ThisProcessorNum, FLOAT StarLevelCellWidth, 
+                  FLOAT CellVolumeStarLevel,FLOAT Time, LevelHierarchyEntry *LevelArray[], 
                   LevelHierarchyEntry *Temp, int ThisLevel);
 
   static float EjectedMassThreshold;

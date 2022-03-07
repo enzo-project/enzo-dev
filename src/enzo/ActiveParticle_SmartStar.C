@@ -872,7 +872,7 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 }
 
 int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_SmartStar* SS, 
-	grid* APGrid, int ThisProcessorNum, float StarLevelCellWidth, float CellVolumeStarLevel,
+	grid* APGrid, int ThisProcessorNum, FLOAT StarLevelCellWidth, FLOAT CellVolumeStarLevel,
 	FLOAT Time, LevelHierarchyEntry *LevelArray[], LevelHierarchyEntry *Temp, int ThisLevel)
 	{
 
@@ -888,7 +888,7 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		
 		/* Initialise attributes of PopIII class
 		+ intstantiate sphere variables */
-		float Radius = 0.0, SphereRadius, SphereMass;
+		float Radius = 0.0, SphereRadius, SphereMass, Age;
 		float MassEnclosed = 0, ColdGasMass = 0, ColdGasFraction = 0;
 		float Metallicity2 = 0, Metallicity3 = 0, Subtraction;
 		int SphereContained, SphereContainedNextLevel, CellsModified = 0;
@@ -930,7 +930,7 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		/* Set fraction of SphereMass that will be removed */
 		Subtraction = PopIIIStarMass/SphereMass;
 		fprintf(stderr, "%s: PopIIIStarMass = %e, SphereMass = %e, Subtraction = %e.\n", 
-										__FUNCTION__, PopIIIStarMass, SphereMass, Subtraction);	
+				__FUNCTION__, PopIIIStarMass, SphereMass, Subtraction);	
 
 		/* Now set cells within the radius to their values after mass subtraction. */
 		for (int l = ThisLevel; l < MAX_DEPTH_OF_HIERARCHY; l++){
@@ -957,7 +957,7 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass); // code time
 		SS->RadiationLifetime*= yr_s/TimeUnits;
 		SS->BirthTime = APGrid->ReturnTime();
-		float Age = Time - SS->BirthTime;
+		Age = Time - SS->BirthTime;
 
 		/* Print out particle attributes */
 		fprintf(stderr,"%s: Particle Mass = %1.1f Msolar\n", __FUNCTION__, SS->Mass);
@@ -1050,9 +1050,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	grid* APGrid;
 	int pindex, ThisProcessorNum;
 	int cellindex_x, cellindex_y, cellindex_z, cellindex;
-	float CellVolumeStarLevel, DensityThreshold,
+	float DensityThreshold,
 	ParticleDensity, newcelldensity;
-	FLOAT StarLevelCellWidth, dx_pc;
+	FLOAT StarLevelCellWidth, CellVolumeStarLevel, dx_pc;
 	float *density;
 
 #if JEANSREFINEMENT
@@ -1137,8 +1137,9 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 					ENZO_FAIL("Particle Density is negative. Oh dear.\n");
 				}
 
-			continue;
+			 continue;
 			} // END resolution check
+			continue; // SG. No low-res SMS case implemented yet.
 		} // END SMS
 
 
@@ -1204,6 +1205,11 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 	   continue;
 			} // END resolution check
+			else {
+				PopIIIFormationFromSphere(SS, APGrid, ThisProcessorNum, StarLevelCellWidth,
+			  CellVolumeStarLevel, Time, LevelArray, Temp, ThisLevel);
+				continue;
+			}
 		} // END PopIII
 
 
@@ -1250,6 +1256,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 				continue;
 			} // END mass check
+		 continue; // No low-res POPII case implemented yet.
   } // END POPII
 	} // END num_new_stars loop
 
