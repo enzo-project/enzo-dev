@@ -638,15 +638,11 @@ FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *
   {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
-  // for (int i = 0; i < nParticles; i++) {
-    // grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-    // if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) { // SG. Avoid segfault.
-        /* Estimate the relative velocity */
+  
+  /* Estimate the relative velocity */
   float vInfinity = sqrt(pow(vparticle[0] - BaryonField[Vel1Num][cgindex],2) +
 			 pow(vparticle[1] - BaryonField[Vel2Num][cgindex],2) +
 			 pow(vparticle[2] - BaryonField[Vel3Num][cgindex],2));
-  fprintf(stderr,"%s: vparticle[0] = %e", __FUNCTION__, vparticle[0]);
-  fprintf(stderr,"%s: BaryonField[Vel1Num][cgindex] = %e", __FUNCTION__, BaryonField[Vel1Num][cgindex]);
   float CellTemperature = Temperature[cgindex];
   if (JeansRefinementColdTemperature > 0)
     CellTemperature = JeansRefinementColdTemperature;
@@ -654,14 +650,11 @@ FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *
   float cInfinity = sqrt(Gamma * kboltz * CellTemperature / (Mu * mh)) /
     LengthUnits*TimeUnits;
   float Gcode = GravConst*DensityUnits*TimeUnits*TimeUnits;
-#ifdef DEBUG_AP
   printf("%s: vInfinity = %f km/s\n", __FUNCTION__,  (vInfinity*LengthUnits/TimeUnits)/1e5);
   printf("%s: cInfinity = %f km/s\n", __FUNCTION__,  (cInfinity*LengthUnits/TimeUnits)/1e5);
   printf("%s: CellTemperature = %f K\n", __FUNCTION__, CellTemperature);
   printf("%s: Celllength = %e pc\n", __FUNCTION__, CellWidth[0][0]*LengthUnits/pc_cm);
-#endif
   return Gcode*mparticle/
     (pow(vInfinity,2) + pow(cInfinity,2));
-    // } // SG. My processor.
-    // }
+
 } // SG. End of function.
