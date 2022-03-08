@@ -56,6 +56,8 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
    return SUCCESS;
 	 }
 
+		fprintf(stderr, "%s: beginning of func.\n", __FUNCTION__);
+
 
   ActiveParticleType_SmartStar *SS = static_cast<ActiveParticleType_SmartStar*>(* ThisParticle);
   const float PISNLowerMass = 140, PISNUpperMass = 260;
@@ -188,6 +190,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
   } /* POPIII Supernova */
   else if(SS->ParticleClass == POPIII) {
 			
+			fprintf(stderr, "%s: age = %e Myr.\n", __FUNCTION__, Age);
 			if (SS->Mass == 0){
 				fprintf(stderr, "%s: Mass is zero, no radiation lifetime check.\n", __FUNCTION__);
 				return SUCCESS;
@@ -251,6 +254,19 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	  SS->ParticleClass = BH;
 	  SS->StellarAge = SS->RadiationLifetime; //Record last stellar age
 	  SS->RadiationLifetime = 1e20;
+
+			/* SG. Set initial accretion radius of BH to bondi hoyle radius. */
+			float mparticle = SS->Mass*dx*dx*dx;
+			float *vparticle = SS->ReturnVelocity();
+			grid* APGrid = SS->ReturnCurrentGrid();
+			int size = APGrid->GetGridSize();
+			float *Temperature = new float[size]();
+			APGrid->ComputeTemperatureField(Temperature);
+			FLOAT BondiHoyleRadius = APGrid->CalculateBondiHoyleRadius(mparticle, vparticle, Temperature);
+			SS->AccretionRadius = BondiHoyleRadius/SmartStarBondiRadiusRefinementFactor;
+			fprintf(stderr, "%s: Initial accretion radius of BH (code units)= %e.\n", __FUNCTION__, SS->AccretionRadius);
+			/* SG. End set accretion radius to BHL radius */
+			
 	  printf("%s: Post-SNe: ParticleClass now %d\t Lifetime = %f Myr\n", __FUNCTION__,
 		 SS->ParticleClass, SS->RadiationLifetime*TimeUnits/Myr_s);
 	  EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
@@ -259,7 +275,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 
 	  this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
 					   EjectaMetalDensity);
-	}
+	} // SG. End 11 <= M <= 40.1.
 	else {//DCBH
 	  // Heger-Woosley (2002) relation for BHMass
 	  HeliumCoreMass = (13./24.) * (StellarMass - 20);
