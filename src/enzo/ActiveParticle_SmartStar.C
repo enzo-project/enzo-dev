@@ -421,8 +421,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  fprintf(stderr, "POPIII particles(%d) created and done in %s on level %"ISYM".\n", data.NumberOfNewParticles + 1, __FUNCTION__, ThisLevel);
 
 	}
-	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*10000.0)
-		&& (dx_pc < SMS_RESOLUTION)) { // SG. Increasing x10 to x10000 to suppress SMS formation.
+	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*10000000.0)
+		&& (dx_pc < SMS_RESOLUTION)) { // SG. Increasing x10 to x10000000 to suppress SMS formation.
 	  /* 
 	   * The threshold for initially forming the SMS is set at 10 times the critical rates. This 
 	   * ensures we get regions of truly high accretion
@@ -1917,7 +1917,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 
 				//SG.
 				if (ThisLevel != MyLevel){
-					fprintf(stderr,"%s: ThisLevel = %"ISYM" (GridData) != MyLevel = %"ISYM" (SS). Continue.\n", __FUNCTION__, ThisLevel, MyLevel);
+					//fprintf(stderr,"%s: ThisLevel = %"ISYM" (GridData) != MyLevel = %"ISYM" (SS). Continue.\n", __FUNCTION__, ThisLevel, MyLevel);
 					continue;
 					}
 
@@ -2392,7 +2392,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     
  } // SG. End BH class condition. 
 	else if (pclass == POPIII){ // SG. Add POPIII class condition
-  fprintf(stderr, "%s: about to call ApplySmartStarParticleFeedback.\n", __FUNCTION__);
+
 		grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx), dx, 
 									Grids, NumberOfGrids, ALL_FIELDS);
 		if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {

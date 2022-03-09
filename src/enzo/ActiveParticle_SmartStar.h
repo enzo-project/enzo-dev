@@ -508,11 +508,6 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
         ParticleList);
 
-        // SG. Particles loop.
-      // for (i = 0; i<NumberOfMergedParticles; i++){
-
-      // grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-
       /* Do accretion */
 
       if (Accrete(nParticles, ParticleList, accradius, LevelArray, 
@@ -537,7 +532,6 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("SmartStar Particle Feedback failed. \n");
 
-     // } // SG. Particles loop.
       
       /* Clean any particles marked for deletion. 
        * After each deletion I need to reloop and check it again. 
@@ -559,9 +553,6 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
               LevelArray) == FAIL)
         return FAIL;      
       ParticleList.clear();
-
-    // } // End if processor in max local check
-    //   } // End for particles in max local check
 
   
   return SUCCESS;

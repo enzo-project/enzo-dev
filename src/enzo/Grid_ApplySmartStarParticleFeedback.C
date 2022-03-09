@@ -56,9 +56,6 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
    return SUCCESS;
 	 }
 
-		fprintf(stderr, "%s: beginning of func.\n", __FUNCTION__);
-
-
   ActiveParticleType_SmartStar *SS = static_cast<ActiveParticleType_SmartStar*>(* ThisParticle);
   const float PISNLowerMass = 140, PISNUpperMass = 260;
   const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
