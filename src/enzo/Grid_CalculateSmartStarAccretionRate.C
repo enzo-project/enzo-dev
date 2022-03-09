@@ -276,15 +276,15 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    *
    */
   if(SmartStarAccretion ==  CONVERGING_MASS_FLOW) {
-#ifdef DEBUG_AP
+
     printf("Doing CONVERGING_MASS_FLOW, SmartStarAccretion = %d\n", SmartStarAccretion);
-#endif
+
     AccretionRate = ConvergentMassFlow(DensNum, Vel1Num, AccretionRadius, xparticle, vparticle, 
 				       mparticle, Gcode, GENum);
-#ifdef DEBUG_AP
+
     printf("%s: Calculated (mass flux) accretion rate is %e Msolar/yr\n", __FUNCTION__, 
 	   AccretionRate*3.154e7*MassUnits/(SolarMass*TimeUnits));
-#endif
+
   }
   
   return AccretionRate;
@@ -638,7 +638,6 @@ FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *
   {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
-  
   /* Estimate the relative velocity */
   float vInfinity = sqrt(pow(vparticle[0] - BaryonField[Vel1Num][cgindex],2) +
 			 pow(vparticle[1] - BaryonField[Vel2Num][cgindex],2) +
