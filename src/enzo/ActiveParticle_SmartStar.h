@@ -198,14 +198,14 @@ public:
 				      LevelHierarchyEntry *LevelArray[], int ThisLevel);
 
   static int  RemoveMassFromGridAfterFormation(int nParticles, 
-					       ActiveParticleList<ActiveParticleType>& ParticleList,
-					       LevelHierarchyEntry *LevelArray[], int ThisLevel);
+              ActiveParticleList<ActiveParticleType>& ParticleList,
+              LevelHierarchyEntry *LevelArray[], int ThisLevel);
 
   // SG. New Func within RemoveMassFromGridAfterFormation.
   static int  PopIIIFormationFromSphere(ActiveParticleType_SmartStar* SS, 
-                  grid* APGrid, int ThisProcessorNum, FLOAT StarLevelCellWidth, 
-                  FLOAT CellVolumeStarLevel,FLOAT Time, LevelHierarchyEntry *LevelArray[], 
-                  LevelHierarchyEntry *Temp, int ThisLevel);
+              grid* APGrid, int ThisProcessorNum, FLOAT StarLevelCellWidth, 
+              FLOAT CellVolumeStarLevel,FLOAT Time, LevelHierarchyEntry *LevelArray[], 
+              LevelHierarchyEntry *Temp, int ThisLevel);
 
   static float EjectedMassThreshold;
   FLOAT AccretionRadius;   // in units of CellWidth on the maximum refinement level

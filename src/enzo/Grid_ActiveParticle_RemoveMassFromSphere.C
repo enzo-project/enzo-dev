@@ -186,8 +186,6 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
           if (MetallicityField == TRUE)
             BaryonField[MetalNum][index] *= decrease;
           
-          if (MBHColourNum > 0)
-            BaryonField[MBHColourNum][index] *= decrease;    
           
           /* Increment number of cells modified */
           CellsModified++;

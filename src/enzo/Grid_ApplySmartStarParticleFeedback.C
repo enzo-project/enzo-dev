@@ -255,7 +255,10 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	  SS->StellarAge = SS->RadiationLifetime; //Record last stellar age
 	  SS->RadiationLifetime = 1e20;
 
-			/* SG. Set initial accretion radius of BH to bondi hoyle radius. */
+			/* SG. Set initial accretion radius of BH to something larger than cell width. 
+			We only want the Bondi radius to be set after 1000 years or so.
+			High temperature after SNe result in tiny bondi radius, but no accretion can occur.
+			*/
 			float mparticle = SS->Mass*dx*dx*dx;
 			float *vparticle = SS->ReturnVelocity();
 			grid* APGrid = SS->ReturnCurrentGrid();
@@ -263,7 +266,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 			float *Temperature = new float[size]();
 			APGrid->ComputeTemperatureField(Temperature);
 			FLOAT BondiHoyleRadius = APGrid->CalculateBondiHoyleRadius(mparticle, vparticle, Temperature);
-			SS->AccretionRadius = BondiHoyleRadius/SmartStarBondiRadiusRefinementFactor;
+			SS->AccretionRadius = 100*BondiHoyleRadius/SmartStarBondiRadiusRefinementFactor;
 			fprintf(stderr, "%s: Initial accretion radius of BH (code units)= %e.\n", __FUNCTION__, SS->AccretionRadius);
 			/* SG. End set accretion radius to BHL radius */
 			
