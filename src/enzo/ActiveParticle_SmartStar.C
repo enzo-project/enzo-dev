@@ -2306,7 +2306,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			continue;
 
 			/* SG. Calculate user-set dx_bondi and dx_bondi in pc*/
-			double dx_bondi = (double) accrad;
+			double dx_bondi = (double) accrad/SmartStarBondiRadiusRefinementFactor;
 			double dx_pc = dx*LengthUnits/pc_cm;   //in pc
 			double dx_bondi_pc = dx_bondi*LengthUnits/pc_cm; //in pc
 	
