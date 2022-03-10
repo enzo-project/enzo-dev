@@ -653,7 +653,6 @@ FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *
   printf("%s: cInfinity = %f km/s\n", __FUNCTION__,  (cInfinity*LengthUnits/TimeUnits)/1e5);
   printf("%s: CellTemperature = %f K\n", __FUNCTION__, CellTemperature);
   printf("%s: Celllength = %e pc\n", __FUNCTION__, CellWidth[0][0]*LengthUnits/pc_cm);
-  return Gcode*mparticle/
-    (pow(vInfinity,2) + pow(cInfinity,2));
-
+  FLOAT ret = FLOAT(2*Gcode*mparticle/(POW(cInfinity,2)));
+  return ret;
 } // SG. End of function.
