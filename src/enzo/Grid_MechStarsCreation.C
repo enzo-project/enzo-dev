@@ -178,8 +178,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             MaximumStarMass = conversion_fraction * BaryonField[DensNum][index] * MassUnits;
                         float MassShouldForm = 0.0;
                         // if (use_F2)
-                            MassShouldForm = min(shieldedFraction * BaryonField[DensNum][index]
-                                        * MassUnits / divisor, MaximumStarMass);
+                            MassShouldForm = shieldedFraction * BaryonField[DensNum][index]
+                                        * MassUnits / divisor;
                         // else
                         //     MassShouldForm = (MaximumStarMass/divisor);
                         
@@ -205,7 +205,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         }
 
                         /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
-                        float newMass = MassShouldForm / MassUnits; 
+                        float newMass = min(shieldedFraction * BaryonField[DensNum][index], MaximumStarMass / MassUnits); 
 
                         if ((newMass*MassUnits < StarMakerMinimumMass) /* too small */
                                 || (random > p_form) /* too unlikely */
@@ -281,9 +281,10 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 
                         if (nCreated >= MaximumNumberOfNewParticles) return nCreated;
                         // if (debug)
-                            fprintf(stdout, "STARSS_CR:\t\tCreated star: [%f Myr] M_cell = %e T_cell = %e\nSTARSS_CR:\t\t\tL = %d  N = %d Type = %d\nSTARSS_CR:\t\t\tM_* = %e Tdyn = %e Attr1 = %f Attr2 = %e Attr3 = %e\nSTARSS_CR:\t\t\tPosition = [%f %f %f]\nSTARSS_CR:\t\t\tvelocity = [%f %f %f]\nSTARSS_CR:\t\t\tgrid_index = %d cell_index = %d\nSTARSS_CR:\t\t\ti = %d j = %d k = %d\n",
+                            fprintf(stdout, "STARSS_CR:\t\tCreated star: [%f Myr] M_cell = %e (nb=%f) T_cell = %e\nSTARSS_CR:\t\t\tL = %d  N = %d Type = %d\nSTARSS_CR:\t\t\tM_* = %e Tdyn = %e Attr1 = %f Attr2 = %e Attr3 = %e\nSTARSS_CR:\t\t\tPosition = [%f %f %f]\nSTARSS_CR:\t\t\tvelocity = [%f %f %f]\nSTARSS_CR:\t\t\tgrid_index = %d cell_index = %d\nSTARSS_CR:\t\t\ti = %d j = %d k = %d\n",
                                 Time*TimeUnits/3.1557e13,
                                 BaryonField[DensNum][index]*MassUnits, 
+                                BaryonField[DensNum][index] * DensityUnits / 1.2 / 1.6e-24, 
                                 Temperature[index],
                                 level, nCreated+1,
                                 ParticleArray->ParticleType[nCreated],
