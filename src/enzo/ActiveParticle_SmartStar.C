@@ -2001,8 +2001,8 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 						and density and mass should increase over time. Hence, maybe on 10th iteration radius < BHL radius again, 
 						and then the radius will get updated to the larger BHL radius.
 						*/
-					
-      if(BondiHoyleRadius + dx < SS->AccretionRadius || SS->AccretionRadius < BondiHoyleRadius - dx) {
+					 FLOAT tol = BondiHoyleRadius*0.2;
+      if(BondiHoyleRadius + tol < SS->AccretionRadius || SS->AccretionRadius < BondiHoyleRadius - tol) {
 							SS->AccretionRadius = BondiHoyleRadius;
 							fprintf(stderr, "%s: Updating accretion radius to Bondi radius = %e pc (%f cells)\n", __FUNCTION__,
 	       SS->AccretionRadius*LengthUnits/pc_cm,
