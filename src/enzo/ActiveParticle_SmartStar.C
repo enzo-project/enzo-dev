@@ -2004,7 +2004,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 					
       if(BondiHoyleRadius + dx < SS->AccretionRadius || SS->AccretionRadius < BondiHoyleRadius - dx) {
 							SS->AccretionRadius = BondiHoyleRadius;
-							printf("%s: Updating accretion radius to Bondi radius = %e pc (%f cells)\n", __FUNCTION__,
+							fprintf(stderr, "%s: Updating accretion radius to Bondi radius = %e pc (%f cells)\n", __FUNCTION__,
 	       SS->AccretionRadius*LengthUnits/pc_cm,
 	       SS->AccretionRadius/dx);
       } else{
@@ -2298,7 +2298,8 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			/* Define position and accrad of BH */
 			pos = SmartStarList[i]->ReturnPosition();
 			double accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
-			fprintf(stderr, "%s: Accretion radius = %e (bondi radius/factor) and bondi factor = %e and cell_width = %e.\n", __FUNCTION__, accrad, SmartStarBondiRadiusRefinementFactor, dx);
+			fprintf(stderr, "%s: Accretion radius = %e (Bondi radius) and bondi factor = %e and cell_width = %e.\n",
+			 __FUNCTION__, accrad, SmartStarBondiRadiusRefinementFactor, dx);
 			
 			/* SG. Check for when accrad = 0 in the first 100 kyr of BH's life. */
 			if (accrad < 1e-30)
@@ -2311,8 +2312,8 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 	
 			/* if dx_bondi > dx, don't deposit refinement zone */
 			if (dx_bondi > dx){
-				fprintf(stderr,"%s: dx_bondi = %"GSYM" pc (%"GSYM" in code units) is greater than cell width = %e pc. Don't deposit refinement zone.\n", 
-				__FUNCTION__, dx_bondi_pc, dx_bondi, dx_pc);
+				//fprintf(stderr,"%s: dx_bondi = %"GSYM" pc (%"GSYM" in code units) is greater than cell width = %e pc. Don't deposit refinement zone.\n", 
+				//__FUNCTION__, dx_bondi_pc, dx_bondi, dx_pc);
 		  continue;
 			}
 			for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
