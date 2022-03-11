@@ -263,8 +263,9 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 			float *Temperature = new float[size]();
 			APGrid->ComputeTemperatureField(Temperature);
 			FLOAT BondiHoyleRadius = APGrid->CalculateBondiHoyleRadius(mparticle, vparticle, Temperature);
-			SS->AccretionRadius = 100*BondiHoyleRadius/SmartStarBondiRadiusRefinementFactor;
-			fprintf(stderr, "%s: Initial accretion radius of BH (code units)= %e.\n", __FUNCTION__, SS->AccretionRadius);
+			SS->AccretionRadius = 10000*BondiHoyleRadius;
+			fprintf(stderr, "%s: Initial accretion radius of BH (x1e4 Bondi rad)= %e.\n", __FUNCTION__, 
+			SS->AccretionRadius*LengthUnits/pc_cm);
 			/* SG. End set accretion radius to BHL radius */
 			
 	  printf("%s: Post-SNe: ParticleClass now %d\t Lifetime = %f Myr\n", __FUNCTION__,
