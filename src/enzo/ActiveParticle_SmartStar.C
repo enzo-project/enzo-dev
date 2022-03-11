@@ -1894,7 +1894,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
    * of 100,000 years which accounts for end of snowplough 
    * period
    */
-  float TimeDelay = 1e5*yr_s/TimeUnits; //set to 100 kyr - SG change to 1,000 yr (too short)
+  float TimeDelay = 1e3*yr_s/TimeUnits; //set to 100 kyr - SG change to 1,000 yr (too short)
   for (i = 0; i < nParticles; i++) {
    
 
@@ -2002,10 +2002,9 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 						and then the radius will get updated to the larger BHL radius.
 						*/
 					
-      if(BondiHoyleRadius/SmartStarBondiRadiusRefinementFactor + dx < SS->AccretionRadius ||
-						 SS->AccretionRadius < BondiHoyleRadius/SmartStarBondiRadiusRefinementFactor - dx) {
-							SS->AccretionRadius = BondiHoyleRadius/SmartStarBondiRadiusRefinementFactor;
-							printf("%s: Updating accretion radius to BHLradius/factor = %e pc (%f cells)\n", __FUNCTION__,
+      if(BondiHoyleRadius + dx < SS->AccretionRadius || SS->AccretionRadius < BondiHoyleRadius - dx) {
+							SS->AccretionRadius = BondiHoyleRadius;
+							printf("%s: Updating accretion radius to Bondi radius = %e pc (%f cells)\n", __FUNCTION__,
 	       SS->AccretionRadius*LengthUnits/pc_cm,
 	       SS->AccretionRadius/dx);
       } else{
