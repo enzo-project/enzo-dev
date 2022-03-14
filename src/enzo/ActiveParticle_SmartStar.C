@@ -1996,10 +1996,8 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 						fprintf(stderr, "%s: BondiHoyleRadius = %e pc.\n", __FUNCTION__, BondiHoyleRadius*LengthUnits/pc_cm);
 						fprintf(stderr, "%s: AccretionRadius = %e pc.\n", __FUNCTION__, SS->AccretionRadius*LengthUnits/pc_cm);
 						/* 
-						SG Comment: the BHL radius will get bigger as mass and density increase. Hence, we want to start with
-						a tiny radius, radius < BHL radius = TRUE on 1st iteration. The BHL radius will be dynamically calculated,
-						and density and mass should increase over time. Hence, maybe on 10th iteration radius < BHL radius again, 
-						and then the radius will get updated to the larger BHL radius.
+						SG Comment: the accretion radius will be reassigned to the Bondi radius when the accretion radius
+						falls outside of the tolerance (20% +- Bondi Radius).
 						*/
 					 FLOAT tol = BondiHoyleRadius*0.2;
       if(BondiHoyleRadius + tol < SS->AccretionRadius || SS->AccretionRadius < BondiHoyleRadius - tol) {
