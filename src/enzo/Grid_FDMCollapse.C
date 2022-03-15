@@ -167,7 +167,7 @@ if(FDMCollapseAbsorbingBoundary){
       /* Particle values will be set below. */
       }
 	// set some test particles
-	ParticleCount = 10000;
+	ParticleCount = 1000;
 
 	// set many particles
 	while (ParticleCount > 0) {
@@ -177,9 +177,9 @@ if(FDMCollapseAbsorbingBoundary){
             ParticleType[npart] = PARTICLE_TYPE_DARK_MATTER;
          // Set random position within cell.
 		    double theta = 3.1415927/6./1000*npart;
-		    ParticlePosition[0][npart] = 0.5 + 6.4e-2*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
-		    ParticlePosition[1][npart] = 0.5 + 6.4e-2*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
-		    ParticlePosition[2][npart] = 0.5 + 6.4e-2*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+		    ParticlePosition[0][npart] = 0.5 + 2.5e-4*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+		    ParticlePosition[1][npart] = 0.5 + 2.5e-4*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+		    ParticlePosition[2][npart] = 0.5 + 2.5e-4*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
 			ParticleVelocity[0][npart] = 0.0;//-2.5e6/(LengthUnits/TimeUnits)*sin(theta);
 			ParticleVelocity[1][npart] = 0.0;// hmcoef*8*3.1415927;//2.0e6 /(LengthUnits/TimeUnits);//*cos(theta);
 			ParticleVelocity[2][npart] = 0.0;
