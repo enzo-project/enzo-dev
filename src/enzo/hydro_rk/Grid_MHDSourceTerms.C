@@ -146,6 +146,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 	    // Calculating the heating rate of cosmic rays on the thermal gas:                                                       
 	    dHeatCR = (CRgamma - 1.0)*(va_x*dtdEcrdx + va_y*dtdEcrdy +va_z*dtdEcrdz);
 
+	    // Streaming faster than the Alfven velocity doesn't heat.
 	    if (CRStreamVelocityFactor < 1)
 	      dHeatCR *= CRStreamVelocityFactor;
 
