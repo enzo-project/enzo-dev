@@ -78,7 +78,7 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
 
     SphereContained = this->SphereContained(LevelArray, level, Radius);
     if (SphereContained == FALSE){
-      fprintf(stderr, "%s: Sphere not contained. Break.\n", __FUNCTION__);	
+      //fprintf(stderr, "%s: Sphere not contained. Break.\n", __FUNCTION__);	
       break;
     }
 
@@ -146,7 +146,7 @@ int ActiveParticleType_SmartStar::FindAccretionSphere(LevelHierarchyEntry *Level
 
     MassEnclosed += ShellMass;
     ColdGasMass += ShellColdGasMass;
-    fprintf(stderr, "%s: MassEnclosed = %e Msun.\n", __FUNCTION__, MassEnclosed);
+    //fprintf(stderr, "%s: MassEnclosed = %e Msun.\n", __FUNCTION__, MassEnclosed);
 
     /* Must first make velocity and metallicity mass-weighted, 
       then add shell mass-weighted (already done in GetEnclosedMassInShell) 

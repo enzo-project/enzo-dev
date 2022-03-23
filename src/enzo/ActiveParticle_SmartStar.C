@@ -882,9 +882,6 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 			&TimeUnits, &VelocityUnits, Time);
 		MassUnits = DensityUnits * POW(LengthUnits,3);
-
-		fprintf(stderr, "%s: Beginning of PopIII creation on level = %"ISYM".\n", 
-		__FUNCTION__, ThisLevel);	
 		
 		/* Initialise attributes of PopIII class
 		+ intstantiate sphere variables */
@@ -929,8 +926,8 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 
 		/* Set fraction of SphereMass that will be removed */
 		Subtraction = PopIIIStarMass/SphereMass;
-		fprintf(stderr, "%s: PopIIIStarMass = %e, SphereMass = %e, Subtraction = %e.\n", 
-				__FUNCTION__, PopIIIStarMass, SphereMass, Subtraction);	
+		//fprintf(stderr, "%s: PopIIIStarMass = %e, SphereMass = %e, Subtraction = %e.\n", 
+		//	__FUNCTION__, PopIIIStarMass, SphereMass, Subtraction);	
 
 		/* Now set cells within the radius to their values after mass subtraction. */
 		for (int l = ThisLevel; l < MAX_DEPTH_OF_HIERARCHY; l++){
@@ -954,9 +951,9 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		/* Assign mass, radius and lifetime to particle */
 		SS->Mass = PopIIIStarMass; // msun
 		SS->InfluenceRadius = SphereRadius; // code units
-		//SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass); // code time
-		// SS->RadiationLifetime*= yr_s/TimeUnits;
-		SS->RadiationLifetime = 10000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above to lines
+		SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass); // code time
+		SS->RadiationLifetime*= yr_s/TimeUnits;
+		//SS->RadiationLifetime = 10000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above to lines
 		SS->BirthTime = APGrid->ReturnTime();
 		Age = Time - SS->BirthTime;
 
@@ -1894,7 +1891,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
    * of 100,000 years which accounts for end of snowplough 
    * period
    */
-  float TimeDelay = 1e3*yr_s/TimeUnits; //set to 100 kyr - SG change to 1,000 yr (too short)
+  float TimeDelay = 1e5*yr_s/TimeUnits; //set to 100 kyr - SG change to 1,000 yr (too short)
   for (i = 0; i < nParticles; i++) {
    
 
@@ -1921,7 +1918,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 					continue;
 					}
 
-				fprintf(stderr,"%s: ThisLevel = %"ISYM" (GridData) = MyLevel = %"ISYM" (SS). AccretionRadius = %e.\n", __FUNCTION__, ThisLevel, MyLevel, AccretionRadius);
+				//fprintf(stderr,"%s: ThisLevel = %"ISYM" (GridData) = MyLevel = %"ISYM" (SS). AccretionRadius = %e.\n", __FUNCTION__, ThisLevel, MyLevel, AccretionRadius);
 
     if(pclass == POPIII) {
       /* 
@@ -1965,10 +1962,11 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
       continue;
 
     }
-    
+    // SG/BS Put feedback zone inside processor num
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx),
 					       dx, Grids, NumberOfGrids, ALL_FIELDS);
     grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+				// SG/BS change to continue and !=.
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
 
       float AccretionRate = 0;
@@ -2020,7 +2018,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
     DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
 
     delete FeedbackZone;
-  }
+  } // END particles
 
   if (AssignActiveParticlesToGrids(ParticleList, nParticles, LevelArray) == FAIL)
     return FAIL;
@@ -2526,7 +2524,6 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 			MassConversion = MassConversion/SolarMass; // convert to Msun
 
 			/* Only update stats if on correct processor */
-			fprintf(stderr,"%s: Before proc check.\n", __FUNCTION__);
 			if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
 				ActiveParticleType_SmartStar* SS;
 				SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);

@@ -106,8 +106,8 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
   /* Calculate how much the cell quantities are to be reduced by */
   decrease = max(1-Subtraction, 0.5);
 
-  fprintf(stderr, "%s: Subtraction = %e. decrease = %e. Level = %"ISYM".\n",
-                         __FUNCTION__, Subtraction, decrease, level);
+  //fprintf(stderr, "%s: Subtraction = %e. decrease = %e. Level = %"ISYM".\n",
+  //                      __FUNCTION__, Subtraction, decrease, level);
 
   for (k = 0; k < GridDimension[2]; k++) {
     
@@ -134,14 +134,14 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
           /* Update density */
 
           float density1 = BaryonField[DensNum][index];
-          fprintf(stderr, "%s: Old density = %e cm^-3, %e g cm^3.\n", 
-          __FUNCTION__, density1*DensityUnits/mh, density1*DensityUnits);
+          //fprintf(stderr, "%s: Old density = %e cm^-3, %e g cm^3.\n", 
+          // __FUNCTION__, density1*DensityUnits/mh, density1*DensityUnits);
 
           BaryonField[DensNum][index] *= decrease;
 
           float density2 = BaryonField[DensNum][index];
-          fprintf(stderr, "%s: New density = %e cm^-3, %e g cm^3.\n", 
-          __FUNCTION__, density2*DensityUnits/mh, density2*DensityUnits);
+          //fprintf(stderr, "%s: New density = %e cm^-3, %e g cm^3.\n", 
+          //__FUNCTION__, density2*DensityUnits/mh, density2*DensityUnits);
 
           /* Update velocities and TE. The grid lost some mass, so velocity is increased.
              For DualEnergyFormalism = 0, you don't have to update any energy field */
