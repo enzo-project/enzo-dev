@@ -1113,9 +1113,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* mechanical feedback parameters */
     ret += sscanf(line, "StellarWinds = %"ISYM, &StellarWinds);
     ret += sscanf(line, "SingleSN = %"ISYM, &SingleSN);
-    ret += sscanf(line, "StarMakerMaximumFormationMass = %"FSYM, 
+    ret += sscanf(line, "StarMakerMaximumFormationMass = %"GSYM, 
       &StarMakerMaximumFormationMass);
-    ret += sscanf(line, "StarMakerMaximumMass = %"FSYM, &StarMakerMaximumMass);
+    ret += sscanf(line, "StarMakerMaximumMass = %"GSYM, &StarMakerMaximumMass);
     ret += sscanf(line, "DepositUnresolvedEnergyAsThermal = %"ISYM,
        &DepositUnresolvedEnergyAsThermal);
     ret += sscanf(line, "StarMakerMinimumRefinementLevel = %"ISYM, 

@@ -238,7 +238,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         float vZ = 0.0;
                         if (HydroMethod != 0)
                             fprintf(stderr,"Mechanical star maker not tested for anything except HydroMethod = 0\n");
-                        /* average particle velocity over many cells to prevent runaway */
+                        /* average particle velocity over many cells to prevent runaway; 
+                            weight by mass so less dense, fast cells have less impact*/
                         float cnter = 0;
                         float msum = 0;
                         for (int kp = max(0,k-3); kp <= min(k+3, GridDimension[2]); kp++)
@@ -273,10 +274,10 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                                                 +(dx*(FLOAT(k)-0.5));
 
 
-                        BaryonField[DensNum][index] -= newMass;
-                        BaryonField[MetalNum][index] -= newMass*totalMetal[index]/BaryonField[DensNum][index];
+                        BaryonField[DensNum][index] = BaryonField[DensNum][index] - newMass;
+                        BaryonField[MetalNum][index] = BaryonField[MetalNum][index] - newMass*totalMetal[index]/BaryonField[DensNum][index];
                         if (SNColourNum > 0)
-                            BaryonField[SNColourNum][index] -= newMass/BaryonField[DensNum][index]*BaryonField[SNColourNum][index]/BaryonField[DensNum][index];
+                            BaryonField[SNColourNum][index] = BaryonField[SNColourNum][index] -newMass/BaryonField[DensNum][index]*BaryonField[SNColourNum][index]/BaryonField[DensNum][index];
 
                         if (nCreated >= MaximumNumberOfNewParticles) return nCreated;
                         // if (debug)

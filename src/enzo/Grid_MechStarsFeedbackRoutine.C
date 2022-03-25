@@ -257,7 +257,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                     // else we can log to file for tracking...
                     else 
                         fprintf(stdout, "***%d -- %f -- SN %d -- SNIa %d\n", ParticleNumber[pIndex], Time * TimeUnits/Myr_s, nSNII, nSNIA);
-                    ParticleMass[pIndex] = ParticleMass[pIndex] - SNMassEjected/MassUnits;
+                    ParticleMass[pIndex] = (ParticleMass[pIndex]*MassUnits - SNMassEjected)/MassUnits;
                 }
             }
 
@@ -285,7 +285,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                                               &ParticleVelocity[0][pIndex], &ParticleVelocity[1][pIndex], &ParticleVelocity[2][pIndex],
                                               &xp, &yp, &zp,
                                               ip, jp, kp, size, mu_field, 1, 0, 0, 0.0, 0);
-                    ParticleMass[pIndex] = ParticleMass[pIndex] - windMass/MassUnits;
+                    ParticleMass[pIndex] = (ParticleMass[pIndex]*MassUnits - windMass)/MassUnits;
                 
                 }
             }
