@@ -178,14 +178,14 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             MaximumStarMass = conversion_fraction * BaryonField[DensNum][index] * MassUnits;
                         float BulkSFR = 0.0;
                         // if (use_F2)
-                            BulkSFR = shieldedFraction * BaryonField[DensNum][index] * MassUnits / divisor;
+                            BulkSFR = shieldedFraction * conversion_fraction * BaryonField[DensNum][index] * MassUnits / divisor;
                         // else
                         //     BulkSFR = StarMakerMassEfficiency * BaryonField[DensNum][index] * MassUnits / divisor;
                         
                         // Probability has the last word
                         // FIRE-2 uses p = 1 - exp (-MassShouldForm*dt / M_gas_particle) to convert a whole particle to star particle
                         //  We convert a fixed portion of the baryon mass (or the calculated amount)
-                        float p_form = 1.0 - exp(-1*BulkSFR * this->dtFixed 
+                        float p_form = 1.0 - exp(-1*BulkSFR * (this->dtFixed * TimeUnits / Myr_s)
 						                / (conversion_fraction * BaryonField[DensNum][index] * MassUnits)); 
                         
                         float random = float(mt_random())/float(UINT_MAX);
