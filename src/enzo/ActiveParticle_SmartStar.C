@@ -1931,7 +1931,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 	     // SG.
 	     if (MassInSolar >= PopIIIStarMass || MassInSolar == 0){
 							fprintf(stderr,"%s: Accrete is skipped.\n", __FUNCTION__);
-							continue;
+							continue; // SG. Change to return SUCCESS? In order to skip particle assignment
 						}
     }
     else if(pclass == SMS) {
@@ -2016,7 +2016,6 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
     } // SG. End processor.
 
     DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-
     delete FeedbackZone;
   } // END particles
 
@@ -2352,6 +2351,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   HierarchyEntry **Grids = NULL;
   
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
+		FLOAT dx = LevelArray[ThisLevel]->GridData->CellWidth[0][0]; // SG. Grid cell width.
   
   for (int i = 0; i < nParticles; i++) {			
 				if (SmartStarFeedback == FALSE){
