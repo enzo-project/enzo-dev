@@ -2351,7 +2351,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   HierarchyEntry **Grids = NULL;
   
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
-		FLOAT dx = LevelArray[ThisLevel]->GridData->CellWidth[0][0]; // SG. Grid cell width.
+		FLOAT dx_sg = LevelArray[ThisLevel]->GridData->CellWidth[0][0]; // SG. Grid cell width.
   
   for (int i = 0; i < nParticles; i++) {			
 				if (SmartStarFeedback == FALSE){
@@ -2364,7 +2364,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     
 				// SG. BH class.
 				if(pclass == BH){
-				grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx), dx, 
+				grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx_sg), dx_sg, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
       if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
@@ -2389,7 +2389,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
  } // SG. End BH class condition. 
 	else if (pclass == POPIII){ // SG. Add POPIII class condition
 
-		grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx), dx, 
+		grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx_sg), dx_sg, 
 									Grids, NumberOfGrids, ALL_FIELDS);
 		if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
 			if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
