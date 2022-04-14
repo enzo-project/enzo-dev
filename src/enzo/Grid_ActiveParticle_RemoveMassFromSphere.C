@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  GRID: SUBTRACT ACCRETED MASS FROM NEARBY CELLS
+/  GRID: REMOVE ACCRETED MASS FROM NEARBY CELLS
 /
 /  written by: Simone Gordon
 /  date:       February, 2022
@@ -8,8 +8,8 @@
 /              Grid_AddFeedbackSphere.C
 /  modified1: 
 /
-/  PURPOSE: Subtract mass from gas grids after forming ActiveParticle.
-/ 
+/  PURPOSE: Subtract mass from gas grids within a pre-defined radius 
+/           after forming ActiveParticle.
 /
 ************************************************************************/
 
@@ -41,7 +41,7 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
   FLOAT delx, dely, delz, radius2, DomainWidth[MAX_DIMENSION];
   double decrease;
 
-   // MY PROC = MPI PROCESS, Processor that owns this grid
+  /* MY PROC = MPI PROCESS, Processor that owns this grid */
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
@@ -106,9 +106,6 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
   /* Calculate how much the cell quantities are to be reduced by */
   decrease = max(1-Subtraction, 0.5);
 
-  //fprintf(stderr, "%s: Subtraction = %e. decrease = %e. Level = %"ISYM".\n",
-  //                      __FUNCTION__, Subtraction, decrease, level);
-
   for (k = 0; k < GridDimension[2]; k++) {
     
     delz = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - SS->pos[2];
@@ -134,14 +131,10 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
           /* Update density */
 
           float density1 = BaryonField[DensNum][index];
-          //fprintf(stderr, "%s: Old density = %e cm^-3, %e g cm^3.\n", 
-          // __FUNCTION__, density1*DensityUnits/mh, density1*DensityUnits);
 
           BaryonField[DensNum][index] *= decrease;
 
           float density2 = BaryonField[DensNum][index];
-          //fprintf(stderr, "%s: New density = %e cm^-3, %e g cm^3.\n", 
-          //__FUNCTION__, density2*DensityUnits/mh, density2*DensityUnits);
 
           /* Update velocities and TE. The grid lost some mass, so velocity is increased.
              For DualEnergyFormalism = 0, you don't have to update any energy field */
@@ -199,7 +192,6 @@ int grid::RemoveMassFromSphere(ActiveParticleType* SS,
   fprintf(stderr, "%s: Mass removed from radius = %e pc, cells modified = %"ISYM", fractional decrease = %e.\n", 
           __FUNCTION__,
           radius * LengthUnits / pc_cm,
-          //Subtraction * (4*pi/3.0 * pow(radius*LengthUnits, 3)) * DensityUnits / SolarMass, 
           CellsModified,
           decrease);
   
