@@ -184,12 +184,21 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
 #ifdef DEBUG_AP
     printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM, SmartStarAccretion = %d\n", SmartStarAccretion);
 #endif
-    RhoInfinity = AverageDensity /
-      bondi_alpha(1.2*CellWidth[0][0] / BondiHoyleRadius);
+    // RhoInfinity = AverageDensity /
+    //   bondi_alpha(1.2*CellWidth[0][0] / BondiHoyleRadius);
+
+    // SG. Replaces above two lines. We want rho_inf = avg dens in accretion sphere.
+    // This alpha factor has the effect of reducing rho_inf when dx <~ bondi_radius.
+    RhoInfinity = AverageDensity;
 
     /* Bondi Hoyle */
+    // AccretionRate = (4*pi*RhoInfinity*POW(BondiHoyleRadius,2)*
+		// 	 sqrt(POW(lambda_c*cInfinity,2) + POW(vInfinity,2)));
+
+    // SG. Replaces above two lines. We want denom^2/3, not ^1/2. In line with derivation and Beckmann (2018).
     AccretionRate = (4*pi*RhoInfinity*POW(BondiHoyleRadius,2)*
-			 sqrt(POW(lambda_c*cInfinity,2) + POW(vInfinity,2)));
+			 POW(POW(lambda_c*cInfinity,2) + POW(vInfinity,2), 1.5));
+
     /* Include Vorticity component if specified */
     if(SPHERICAL_BONDI_HOYLE_FORMALISM_WITH_VORTICITY == SmartStarAccretion) {
 #ifdef DEBUG_AP
