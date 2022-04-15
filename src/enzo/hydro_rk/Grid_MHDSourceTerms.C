@@ -151,7 +151,8 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 	      dHeatCR *= CRStreamVelocityFactor;
 
 	    dU[iCR][n]   -= fabs(dHeatCR);
-	    dU[iEint][n] += fabs(dHeatCR);
+	    if (DualEnergyFormalism)
+	        dU[iEint][n] += fabs(dHeatCR);
 	    dU[iEtot][n] += fabs(dHeatCR);
 	  }
 	}
