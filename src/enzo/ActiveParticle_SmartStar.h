@@ -510,7 +510,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 
       /* Do accretion */
 
-      if (Accrete(nParticles, ParticleList, accradius, LevelArray, 
+      if (Accrete(nParticles, ParticleList, accradius, LevelArray, // SG. Error is being thrown here. AFTER AssignActiveParticlesToGrid was called before it.
               ThisLevel) == FAIL)
         ENZO_FAIL("SmartStar Particle accretion failed. \n");
 

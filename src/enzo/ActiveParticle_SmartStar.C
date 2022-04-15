@@ -926,8 +926,6 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 
 		/* Set fraction of SphereMass that will be removed */
 		Subtraction = PopIIIStarMass/SphereMass;
-		//fprintf(stderr, "%s: PopIIIStarMass = %e, SphereMass = %e, Subtraction = %e.\n", 
-		//	__FUNCTION__, PopIIIStarMass, SphereMass, Subtraction);	
 
 		/* Now set cells within the radius to their values after mass subtraction. */
 		for (int l = ThisLevel; l < MAX_DEPTH_OF_HIERARCHY; l++){
@@ -953,7 +951,7 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		SS->InfluenceRadius = SphereRadius; // code units
 		SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass); // code time
 		SS->RadiationLifetime*= yr_s/TimeUnits;
-		//SS->RadiationLifetime = 10000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above to lines
+		//SS->RadiationLifetime = 10000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
 		SS->BirthTime = APGrid->ReturnTime();
 		Age = Time - SS->BirthTime;
 
