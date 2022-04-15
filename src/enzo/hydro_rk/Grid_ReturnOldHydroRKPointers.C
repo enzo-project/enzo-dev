@@ -44,6 +44,7 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
   if (HydroMethod == HD_RK) {
     this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				     Vel3Num, TENum);
+    nfield = n0 = NEQ_HYDRO;
   }
 
   else if (HydroMethod == MHD_RK) {
