@@ -949,9 +949,9 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		/* Assign mass, radius and lifetime to particle */
 		SS->Mass = PopIIIStarMass; // msun
 		SS->InfluenceRadius = SphereRadius; // code units
-		SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass); // code time
-		SS->RadiationLifetime*= yr_s/TimeUnits;
-		//SS->RadiationLifetime = 10000*yr_s/TimeUnits; // SG. Hardcoding lifetime for testing purposes. Replaces above two lines.
+		//SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass); // code time
+		//SS->RadiationLifetime*= yr_s/TimeUnits;
+		SS->RadiationLifetime = 0; // SG. Hardcoding lifetime to zero for BH-phase only runs. Replaces above two lines.
 		SS->BirthTime = APGrid->ReturnTime();
 		Age = Time - SS->BirthTime;
 
