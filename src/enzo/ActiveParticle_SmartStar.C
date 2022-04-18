@@ -1889,7 +1889,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
    * of 100,000 years which accounts for end of snowplough 
    * period
    */
-  float TimeDelay = 1e5*yr_s/TimeUnits; //set to 100 kyr - SG change to 1,000 yr (too short)
+  float TimeDelay = 1e3*yr_s/TimeUnits; //set to 100 kyr - SG change to 1,000 yr for BH only
   for (i = 0; i < nParticles; i++) {
    
 
