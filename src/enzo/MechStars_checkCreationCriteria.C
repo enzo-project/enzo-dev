@@ -27,9 +27,10 @@
 int checkCreationCriteria(float* Density, float* Metals,
                         float* Temperature,float* DMField,
                         float* Vel1, float* Vel2, float* Vel3, float* TotE,
+                        float* H2II, float* H2,
                         float* CoolingTime, int* GridDim,
                         float* shieldedFraction, float* freeFallTime, 
-                        float* dynamicalTime, int i, int j, int k, 
+                        float* dynamicalTime, int i, int j, int k,  
                         float Time, float* RefinementField, float CellWidth,
                         bool* gridShouldFormStars, bool* notEnoughMetals, 
                         int continuingFormation, int* seedIndex)
@@ -46,6 +47,7 @@ int checkCreationCriteria(float* Density, float* Metals,
         fprintf(stderr, "Error in GetUnits.\n");
     return FAIL;    
     } 
+    float EnergyUnits = DensityUnits * pow(LengthUnits * CellWidth, 3) * pow(VelocityUnits, 2.0); //[g cm^2/s^2] -> code_energy    
     MassUnits = DensityUnits*pow(LengthUnits*CellWidth, 3);
     int index = i+j*GridDim[0]+k*GridDim[0]*GridDim[1];
     int iminus = index-1;
@@ -120,10 +122,14 @@ int checkCreationCriteria(float* Density, float* Metals,
     alpha = ((vfactor) + pow(cSound/(CellWidth), 2.0))
             / (8.0 * M_PI* Gcode * Density[index]);
 
-    float AltAlpha = TotE[index]*MassUnits / (8.0 * M_PI * GravConst/MassUnits);
+    float AltAlpha = TotE[index]
+                            / (4.0/3.0 * M_PI * Gcode * Density[index]);
 
-    if (MechStarsUseAnalyticFS)
+    if (MechStarsUseVirialParameter){
+        // if (alpha < 25.0) fprintf(stdout, "STARSS_CR: Compare alphas: F3 = %f; Energy method = %f (G, Gcode, rho = %e %e %f\n", 
+        //                         alpha, AltAlpha, GravConst, Gcode, Density[index]);
         if (alpha > 1.0) status = FAIL;
+    }
     /* Is cooling time < dynamical time or temperature < 1e4 */
     float totalDensity = (Density[index]
 			  +DMField[index])*DensityUnits;
@@ -173,12 +179,21 @@ int checkCreationCriteria(float* Density, float* Metals,
     //     fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
     //     Tau, Phi, Psi, *shieldedFraction);
 
-    if (MechStarsUseAnalyticFS==1)
+    if (MechStarsUseAnalyticShieldedFraction==1)
         {
             if (*shieldedFraction < 0) status = FAIL;
         }
     else
         *shieldedFraction = 1.0; // kinda arbitrary, but just for testing.
+    if (MechStarsUseMeasuredShieldedFraction)
+    {
+        if (MultiSpecies < 2){
+            fprintf(stdout, "MechStarsUseMeasuredShieldedFraction = 1 can only function with MultiSpecies > 1\n");
+            ENZO_VFAIL("MechStars_checkCreationCriteria\n");
+        }
+
+        *shieldedFraction = H2II[index] / (H2II[index] + H2[index]);
+    }
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
     //if (status && debug)
     //{

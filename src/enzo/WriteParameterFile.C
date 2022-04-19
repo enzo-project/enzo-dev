@@ -1118,7 +1118,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "MechStarsSeedField                    = %"ISYM"\n", MechStarsSeedField);
   fprintf(fptr, "MechStarsRadiationSpectrum            = %"ISYM"\n", MechStarsRadiationSpectrum);
   fprintf(fptr, "MechStarsMetallicityFloor             = %"GSYM"\n", MechStarsMetallicityFloor);
-  fprintf(fptr, "MechStarsUseAnalyticFS                = %"ISYM"\n", MechStarsUseAnalyticFS);
+  fprintf(fptr, "MechStarsUseAnalyticShieldedFraction  = %"ISYM"\n", MechStarsUseAnalyticShieldedFraction);
+  fprintf(fptr, "MechStarsUseVirialParameter           = %"ISYM"\n", MechStarsUseVirialParameter);
+  fprintf(fptr, "MechStarsUseMeasuredShieldedFraction  = %"ISYM"\n", MechStarsUseMeasuredShieldedFraction);
+
   fprintf(fptr, "MechStarsFadeSNR                      = %"ISYM"\n", MechStarsFadeSNR);
 
 /* Most Stanford additions: */

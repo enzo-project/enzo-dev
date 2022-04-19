@@ -26,6 +26,7 @@
                         float* Metals,
                         float* Temperature,float* DMField,
                         float* Vel1, float* Vel2, float* Vel3, float* TotE,
+                        float* H2II, float* H2,
                         float* CoolingTime, int* GridDim,
                         float* shieldedFraction, float* freeFallTime,
                         float* dynamicalTime, int i, int j, int k,
@@ -70,6 +71,13 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 				       Vel3Num, TENum) == FAIL) {
         fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
         return FAIL;
+    }
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+    DINum, DIINum, HDINum; 
+  if (STARMAKE_METHOD(H2REG_STAR))
+    if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
 
     int MetallicityField = FALSE, MetalNum, MetalIaNum, MetalIINum, SNColourNum;
@@ -159,6 +167,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         totalMetal, Temperature, DMField,
                         BaryonField[Vel1Num], BaryonField[Vel2Num],
                         BaryonField[Vel3Num], BaryonField[TENum],
+                        BaryonField[H2IINum], BaryonField[H2INum],
                         CoolingTime, GridDimension, &shieldedFraction,
                         &freeFallTime, &dynamicalTime, i,j,k,Time,
                         BaryonField[NumberOfBaryonFields], CellWidth[0][0],
@@ -173,7 +182,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             per cell, it will break your sims! - AIW
                         */
                         float divisor = freeFallTime * TimeUnits / Myr_s;
-                        float MaximumStarMass = StarMakerMaximumFormationMass;
+                        float MaximumStarMass = StarMakerMaximumMass;
                         if (MaximumStarMass < 0)
                             MaximumStarMass = conversion_fraction * BaryonField[DensNum][index] * MassUnits;
                         float BulkSFR = 0.0;
@@ -188,7 +197,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         float p_form = 1.0 - exp(-1*BulkSFR * (this->dtFixed * TimeUnits / Myr_s)
 						                / (conversion_fraction * BaryonField[DensNum][index] * MassUnits)); 
                         
-                        float random = float(mt_random())/float(UINT_MAX);
+                        float random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX);
                         
                         if (debug && BulkSFR > 0)
 			                printf("[t=%f, np = %d] BulkSFR = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", 
@@ -205,7 +214,9 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 
                         /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
                         float newMass = min(shieldedFraction * conversion_fraction * BaryonField[DensNum][index], MaximumStarMass / MassUnits); 
-
+                        if (p_form < 1e-9){
+                            fprintf(stdout, "WARNING: p_form < minimum random: edit modulo factors of random!\n");
+                        }
                         if ((newMass*MassUnits < StarMakerMinimumMass) /* too small */
                                 || (random > p_form) /* too unlikely */
                                 || (newMass > BaryonField[DensNum][index])) /* too big compared to cell 

@@ -21,14 +21,15 @@ void mt_init(unsigned_int seed);
 unsigned_long_int mt_random();
 int determineSN(float age, int* nSNII, int* nSNIA, 
                 float massMsun, float TimeUnits, float dt){
-    // const int max_random = (1<<16);
     if (NEvents > 0){
         *nSNII = 1;
         NEvents -= 1;
         return SUCCESS;
     }
+    unsigned_long_int max_random = UINT_MAX;
     /* else, calculate SN rate, probability and determine number of events */
     mt_init(clock());
+        
     *nSNII = 0;
     *nSNIA = 0;
     float RII=0, RIA=0, PII=0, PIA=0;
@@ -62,8 +63,9 @@ int determineSN(float age, int* nSNII, int* nSNIA,
         if (RII > 0){
         // printf("Zcpl = %e", zCouple);
             PII = RII * massMsun / Myr_s *TimeUnits*dt;
-            random = float(mt_random())/float(UINT_MAX);
-            // fprintf(stdout, "PII =%f -- %f %e %f rnd = %e\n", PII, RII, massMsun, age, random);
+            random = float(mt_random()%max_random)/float(max_random);
+            fprintf(stdout, "PII =%f -- %f %e %f dt = %f rnd = %e; UINT = %u; EG: %u (%e)\n", 
+                                PII, RII, massMsun, age, dt * TimeUnits/Myr_s, random, max_random, mt_random(), float(UINT_MAX) / float(ULONG_MAX));
             if (PII > 1.0 && UnrestrictedSN == TRUE){
                 int round = (int)PII;
                 *nSNII = round;
@@ -77,15 +79,18 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 *nSNII = psn+1;
             }
         }
-        // if (*nSNII > 0)
-            // fprintf(stdout, "Positive SN predicted: RII = %e; PII = %e; dt = %e (%e Myr); M* = %e; A* = %f; Rand = %e\n", \
-            //                 RII, PII, dt, dt * TimeUnits / Myr_s, massMsun, age, random);
+        if (PII < 1.0/float(max_random)){
+            fprintf(stdout, "WARNING: SN probability < minimum random!  Edit modulo factors of random!\n");
+        }
+        if (*nSNII > 0)
+            fprintf(stdout, "Positive SN predicted: RII = %e; PII = %e; dt = %e (%e Myr); M* = %e; A* = %f; Rand = %e\n", \
+                            RII, PII, dt, dt * TimeUnits / Myr_s, massMsun, age, random);
         // printf("RANDOM = %f\n", random);            
         // printf("N SNII=%d\n",*nSNII);
         
         if (RIA > 0){
             PIA = RIA*massMsun / Myr_s * TimeUnits * dt;
-            random = float(mt_random())/float(UINT_MAX);
+            random = float(mt_random()%max_random)/float(max_random);
             
             if (PIA > 1.0 && UnrestrictedSN == TRUE)
             {
@@ -94,7 +99,9 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 PIA -= round;
             }
             int psn = *nSNIA;
-            
+            if (PIA < 1.0 / float(max_random)){
+                fprintf(stdout, "WARNING: SN probability < minimum random!  Edit modulo factors of random!\n");
+            }            
             if (random < PIA)
                 *nSNIA = psn+1;
             // if (*nSNIA > 0)

@@ -1113,9 +1113,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* mechanical feedback parameters */
     ret += sscanf(line, "StellarWinds = %"ISYM, &StellarWinds);
     ret += sscanf(line, "SingleSN = %"ISYM, &SingleSN);
-    ret += sscanf(line, "StarMakerMaximumFormationMass = %"GSYM, 
+    ret += sscanf(line, "StarMakerMaximumFormationMass = %"FSYM, 
       &StarMakerMaximumFormationMass);
-    ret += sscanf(line, "StarMakerMaximumMass = %"GSYM, &StarMakerMaximumMass);
+    ret += sscanf(line, "StarMakerMaximumMass = %"FSYM, &StarMakerMaximumMass);
     ret += sscanf(line, "DepositUnresolvedEnergyAsThermal = %"ISYM,
        &DepositUnresolvedEnergyAsThermal);
     ret += sscanf(line, "StarMakerMinimumRefinementLevel = %"ISYM, 
@@ -1128,8 +1128,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MechStarsSeedField = %"ISYM, &MechStarsSeedField);
     ret += sscanf(line, "MechStarsRadiationSpectrum = %"ISYM, &MechStarsRadiationSpectrum);
     ret += sscanf(line, "MechStarsMetallicityFloor = %"FSYM, &MechStarsMetallicityFloor);
-    ret += sscanf(line, "MechStarsUseAnalyticFS = %"ISYM, &MechStarsUseAnalyticFS);
+    ret += sscanf(line, "MechStarsUseAnalyticShieldedFraction = %"ISYM, &MechStarsUseAnalyticShieldedFraction);
     ret += sscanf(line, "MechStarsFadeSNR = %"ISYM, &MechStarsFadeSNR);
+    ret += sscanf(line, "MechStarsUseMeasuredShieldedFraction = %"ISYM, &MechStarsUseMeasuredShieldedFraction);
+    ret += sscanf(line, "MechStarsUseVirialParameter = %"ISYM, &MechStarsUseVirialParameter);
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
