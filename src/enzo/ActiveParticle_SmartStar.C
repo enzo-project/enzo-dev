@@ -1147,7 +1147,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 			/* 
 			SG. If stellar accretion is off, pop3 star forms with final mass taken
 			from sphere. The target pop3 stellar mass is set with the parameter
-			'PopIIIStarMass' which is set my the user in the parameter file.
+			'PopIIIStarMass' which is set by the user in the parameter file.
 			A sphere will step out by one cell width until it reaches a radius which
 			contains twice the PopIIIStarMass value. 
 			*/
@@ -2291,9 +2291,14 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			/* Define position and accrad of BH */
 			pos = SmartStarList[i]->ReturnPosition();
 			double accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
+
+			/* SG. Only print out accretion radius if we're on the SS grid */
+			grid* APGrid = SS->ReturnCurrentGrid();
+			if (MyProcessorNumber == APGrid->ReturnProcessorNumber()){
 			fprintf(stderr, "%s: Accretion radius = %e (Bondi radius) and bondi factor = %e and cell_width = %e.\n",
 			 __FUNCTION__, accrad, SmartStarBondiRadiusRefinementFactor, dx);
-			
+			}
+
 			/* SG. Check for when accrad = 0 in the first 100 kyr of BH's life. */
 			if (accrad < 1e-30)
 			continue;
@@ -2310,8 +2315,8 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 		  continue;
 			}
 			for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
-					fprintf(stderr,"%s: BondiRadius/factor = %e pc is less than cell width = %e pc. Deposit refinement zone.\n", 
-						__FUNCTION__, dx_bondi_pc, dx_pc);
+					// fprintf(stderr,"%s: BondiRadius/factor = %e pc is less than cell width = %e pc. Deposit refinement zone.\n", 
+					// 	__FUNCTION__, dx_bondi_pc, dx_pc);
 
 		// SG Deposit refinement zone with dx_bondi
 					if (Temp->GridData->DepositRefinementZone(level,pos,dx_bondi) == FAIL) {
