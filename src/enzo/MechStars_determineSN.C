@@ -10,6 +10,7 @@
 #include <time.h>
 #include <math.h>
 #include <limits.h>
+#include <random>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -26,16 +27,26 @@ int determineSN(float age, int* nSNII, int* nSNIA,
         NEvents -= 1;
         return SUCCESS;
     }
-    unsigned_long_int max_random = UINT_MAX;
+
+    unsigned_long_int max_random = 2e9; // 1'000'000;
     /* else, calculate SN rate, probability and determine number of events */
     mt_init(clock());
-        
+    
+    std::random_device rd;
+    std::mt19937 e2(rd());
+    std::uniform_real_distribution<> dist(0,1);
+    // if (age < 2 * dt * TimeUnits / Myr_s)
+    //     for (int i = 0; i < 1e6; i++){
+    //         float r = float((int)mt_random % max_random) / float(max_random);
+    //         fprintf(stdout, "RVALS = %lf\n", r);
+    //     }
     *nSNII = 0;
     *nSNIA = 0;
     float RII=0, RIA=0, PII=0, PIA=0;
     float random;
     if (SingleSN == 1 && NEvents < 0)
     {   
+    
         // printf("Calculating rates\n");
         /* age-dependent rates */
         if (age < 3.401)
@@ -62,48 +73,61 @@ int determineSN(float age, int* nSNII, int* nSNIA,
         /* rates -> probabilities */
         if (RII > 0){
         // printf("Zcpl = %e", zCouple);
-            PII = RII * massMsun / Myr_s *TimeUnits*dt;
-            random = float(mt_random()%max_random)/float(max_random);
-            fprintf(stdout, "PII =%f -- %f %e %f dt = %f rnd = %e; UINT = %u; EG: %u (%e)\n", 
-                                PII, RII, massMsun, age, dt * TimeUnits/Myr_s, random, max_random, mt_random(), float(UINT_MAX) / float(ULONG_MAX));
-            if (PII > 1.0 && UnrestrictedSN == TRUE){
-                int round = (int)PII;
-                *nSNII = round;
-                PII -= round;
+            PII = RII * massMsun * (TimeUnits*dt) / Myr_s ;
+            // std::binomial_distribution<> dist(1, PII);
+            // random = dist(e2); //float(mt_random()%max_random)/float(max_random);
+            // fprintf(stdout, "PII =%f -- %f %e %f dt = %f rnd = %e; URS = %lld\n", 
+            //                     PII, RII, massMsun, age, dt * TimeUnits/Myr_s, random, UnrestrictedSN);
+            if (PII > 1 && UnrestrictedSN)
+                while (PII > 1){
+                    *nSNII += 1;
+                    PII -= 1;
+
             }
+            std::binomial_distribution<> dist(1, PII);
+            random = dist(e2); //float(mt_random()%max_random)/float(max_random);
+            fprintf(stdout, "PII =%f -- %f %e %f dt = %f rnd = %e; URS = %lld\n", 
+                                PII, RII, massMsun, age, dt * TimeUnits/Myr_s, random, UnrestrictedSN);
+
             if (PII > 1.0 && !UnrestrictedSN){
                 ENZO_FAIL("PII too large!");
             }
-            int psn = *nSNII;
-            if (random < PII){
-                *nSNII = psn+1;
+            // int psn = *nSNII;
+            if (random){
+                *nSNII = 1;
             }
         }
         if (PII < 1.0/float(max_random)){
             fprintf(stdout, "WARNING: SN probability < minimum random!  Edit modulo factors of random!\n");
         }
         if (*nSNII > 0)
-            fprintf(stdout, "Positive SN predicted: RII = %e; PII = %e; dt = %e (%e Myr); M* = %e; A* = %f; Rand = %e\n", \
-                            RII, PII, dt, dt * TimeUnits / Myr_s, massMsun, age, random);
+            fprintf(stdout, "Positive SN predicted: RII = %e; PII = %e; nSN = %d; dt = %e (%e Myr); M* = %e; A* = %f; Rand = %e\n", \
+                            RII, PII, *nSNII, dt, dt * TimeUnits / Myr_s, massMsun, age, random);
         // printf("RANDOM = %f\n", random);            
         // printf("N SNII=%d\n",*nSNII);
         
         if (RIA > 0){
             PIA = RIA*massMsun / Myr_s * TimeUnits * dt;
-            random = float(mt_random()%max_random)/float(max_random);
+            if (PIA > 1.0 && UnrestrictedSN)
+                while (PIA > 1.0){
+                    *nSNIA += 1;
+                    PIA -= 1;
+                }            
+            std::binomial_distribution<> dist(1, PIA);
+            random = dist(e2); //float(mt_random()%max_random)/float(max_random);
             
-            if (PIA > 1.0 && UnrestrictedSN == TRUE)
-            {
-                int round = int(PIA);
-                *nSNIA = round;
-                PIA -= round;
-            }
-            int psn = *nSNIA;
+            // if (PIA > 1.0 && UnrestrictedSN == TRUE)
+            // {
+            //     int round = int(PIA);
+            //     *nSNIA = round;
+            //     PIA -= round;
+            // }
+            // int psn = *nSNIA;
             if (PIA < 1.0 / float(max_random)){
                 fprintf(stdout, "WARNING: SN probability < minimum random!  Edit modulo factors of random!\n");
             }            
-            if (random < PIA)
-                *nSNIA = psn+1;
+            if (random)
+                *nSNIA = 1;
             // if (*nSNIA > 0)
             //     fprintf(stdout, "PIA = %f\n", PIA);
         }
