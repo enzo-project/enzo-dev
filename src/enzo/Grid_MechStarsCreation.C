@@ -214,9 +214,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 
                         /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
                         float newMass = min(shieldedFraction * conversion_fraction * BaryonField[DensNum][index], MaximumStarMass / MassUnits); 
-                        if (p_form < 1e-9){
-                            fprintf(stdout, "WARNING: p_form < minimum random: edit modulo factors of random!\n");
-                        }
                         if ((newMass*MassUnits < StarMakerMinimumMass) /* too small */
                                 || (random > p_form) /* too unlikely */
                                 || (newMass > BaryonField[DensNum][index])) /* too big compared to cell 
