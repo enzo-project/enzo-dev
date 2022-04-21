@@ -79,7 +79,7 @@ int determineSN(float age, int* nSNII, int* nSNIA,
             }
             // int psn = *nSNII;
             if (random){
-                *nSNII = 1;
+                *nSNII += 1;
             }
         }
         if (*nSNII > 0)
@@ -99,7 +99,7 @@ int determineSN(float age, int* nSNII, int* nSNIA,
                 fprintf(stdout, "WARNING: SN probability < minimum random!  Edit modulo factors of random!\n");
             }            
             if (random)
-                *nSNIA = 1;
+                *nSNIA += 1;
         }
     }
         return SUCCESS;
