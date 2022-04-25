@@ -23,6 +23,7 @@
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, float *MassUnits, float Time);
 #define PASS 1;
+int FindField(int field, int farray[], int numfields);
 
 int checkCreationCriteria(float* Density, float* Metals,
                         float* Temperature,float* DMField,
@@ -47,6 +48,7 @@ int checkCreationCriteria(float* Density, float* Metals,
         fprintf(stderr, "Error in GetUnits.\n");
     return FAIL;    
     } 
+
     float EnergyUnits = DensityUnits * pow(LengthUnits * CellWidth, 3) * pow(VelocityUnits, 2.0); //[g cm^2/s^2] -> code_energy    
     MassUnits = DensityUnits*pow(LengthUnits*CellWidth, 3);
     int index = i+j*GridDim[0]+k*GridDim[0]*GridDim[1];
@@ -112,7 +114,7 @@ int checkCreationCriteria(float* Density, float* Metals,
 
     vfactor = (dxvx*dxvx+dxvy*dxvy+dxvz*dxvz 
                     +dyvx*dyvx+dyvy*dyvy+dyvz*dyvz
-                    +dzvx*dzvx+dzvy*dzvy+dzvz*dzvz);
+                    +dzvx*dzvx+dzvy*dzvy+dzvz*dzvz) / CellWidth / CellWidth;
     
     /* approximate taking gas as monatomic and mu = 0.6*/
     /* Gravitational constant [cm3g-1s-2]*/
@@ -122,13 +124,13 @@ int checkCreationCriteria(float* Density, float* Metals,
     alpha = ((vfactor) + pow(cSound/(CellWidth), 2.0))
             / (8.0 * M_PI* Gcode * Density[index]);
 
-    float AltAlpha = TotE[index]
-                            / (4.0/3.0 * M_PI * Gcode * Density[index]);
+
+    float AltAlpha = TotE[index]/(4./3. * M_PI * Gcode);
 
     if (MechStarsUseVirialParameter){
-        // if (alpha < 25.0) fprintf(stdout, "STARSS_CR: Compare alphas: F3 = %f; Energy method = %f (G, Gcode, rho = %e %e %f\n", 
-        //                         alpha, AltAlpha, GravConst, Gcode, Density[index]);
-        if (alpha > 1.0) status = FAIL;
+        if (alpha < 25.0) fprintf(stdout, "STARSS_CR: Compare alphas: F3 = %f; Energy method = %f (G, Gcode, rho, mcell = %e %e %f %e\n", 
+                                alpha, AltAlpha, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass);
+        if (AltAlpha > 1.0) status = FAIL;
     }
     /* Is cooling time < dynamical time or temperature < 1e4 */
     float totalDensity = (Density[index]
