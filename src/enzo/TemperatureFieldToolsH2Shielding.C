@@ -30,15 +30,17 @@ int grid::InitializeTemperatureFieldForH2Shield()
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  //if (RadiativeTransferH2ShieldType != 1)
-  // return SUCCESS;
+  int TemperatureField = this->GetTemperatureFieldNumberForH2Shield(), size = 1;
+  float *temperature = NULL;
 
-  int TemperatureField, size = 1;
-  float *temperature;
+  if(BaryonField[TemperatureField] != NULL) { //already allocated 
+    this->FinalizeTemperatureFieldForH2Shield();
+  } //carry on
+    
 
   for (int dim=0; dim<GridRank; dim++) size *= GridDimension[dim];
   temperature = new float[size];
-  
+
   if (this->ComputeTemperatureField(temperature) == FAIL) {
     fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
     return FAIL;
@@ -48,11 +50,13 @@ int grid::InitializeTemperatureFieldForH2Shield()
   
   BaryonField[TemperatureField] = new float[size];
   
-  for (int i = 0; i < size; i++)
+  for (int i = 0; i < size; i++) {
     BaryonField[TemperatureField][i] = temperature[i];
-   delete [] temperature;
+  }
+  delete [] temperature;
 
   return SUCCESS;
+
 }
 
 
@@ -61,11 +65,7 @@ int grid::FinalizeTemperatureFieldForH2Shield()
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  //if (RadiativeTransferH2ShieldType != 1)
-  // return SUCCESS;
-
-  int TemperatureField;
-  TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
+  int TemperatureField = this->GetTemperatureFieldNumberForH2Shield();
 
   if (BaryonField[TemperatureField] != NULL) {
     delete [] BaryonField[TemperatureField];

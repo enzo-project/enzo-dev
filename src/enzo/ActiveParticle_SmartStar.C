@@ -174,9 +174,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
       JeansRefinement = true;
   }
 
-#if SSDEBUG
-  fprintf(stdout, "%s: Right half thinking of creating a SmartSink particle\n", __FUNCTION__); fflush(stdout);
-#endif
+  //#if SSDEBUG
+  //fprintf(stdout, "%s: Right half thinking of creating a SmartSink particle\n", __FUNCTION__); fflush(stdout);
+  //#endif
 #if MASSTHRESHOLDCHECK
   JeansMass = thisGrid->CalculateJeansMass(data.DensNum, data.Temperature, data.DensityUnits);  //In Msolar
 #endif
@@ -452,8 +452,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	/* Calculate initial accretion rate onto cell */
 	np->AccretionRate[0] = accrate;
 	np->AccretionRateTime[0] = np->BirthTime;
-	
-	np->RadiationLifetime= 0.0; 
+	//default to 20 Myrs (gets updated later in evolution)  
+	np->RadiationLifetime= 2e7*yr_s/data.TimeUnits;
 	np->StellarAge = 0.0;
 	np->NotEjectedMass = 0.0;
        
@@ -734,6 +734,10 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 	MassConversion = (double) (dx*dx*dx * mfactor); //Converts to Solar Masses
 	source = ThisParticle->RadiationSourceInitialize();
 	double PMass = ThisParticle->Mass*MassConversion;
+
+	if(ThisParticle->ParticleClass == POPIII && PMass > 500.0)
+	  continue; //No stellar radiative feedback in this case (thermal mode only)
+
 	float ramptime = 0.0;
 	if(POPIII == ThisParticle->ParticleClass ||
 	   SMS == ThisParticle->ParticleClass) {
@@ -748,7 +752,7 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 	  return FAIL;
 
 	source->LifeTime       = ThisParticle->RadiationLifetime; 
-	source->Luminosity = (ThisParticle->LuminosityPerSolarMass * LConv) * PMass;
+	source->Luminosity = (ThisParticle->LuminosityPerSolarMass * LConv) * min(PMass, 100000.0);
 	source->RampTime  =  ramptime;
 	source->EnergyBins = RadiationSEDNumberOfBins;
 	source->Energy = new float[RadiationSEDNumberOfBins];
@@ -935,6 +939,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	 SS->BirthTime = APGrid->ReturnTime();
 	 SS->Mass = ParticleDensity;
 	 SS->oldmass = 0.0;
+	 SS->RadiationLifetime =  1.5e6*yr_s/TimeUnits; //Woods et al. 2020
 	 if(ParticleDensity < 0.0) {
 	   printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
 	   printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
@@ -1440,6 +1445,11 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
  
   
   for (i = 0; i < nParticles; i++) {
+
+    /* No feedback on very first cycle */
+    //if(static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->TimeIndex < 2)
+    // break;
+
     FLOAT AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
@@ -1594,11 +1604,12 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	SS->TimeIndex = timeindex;
 	fprintf(stdout, "old_mass = %e Msolar\t cmass = (%e code) %e Msolar\n", omass*MassConversion,
 		cmass, cmass*MassConversion);
-	fprintf(stdout, "accrate = %1.2e Msolar/yr\t deltatime = %3.3f Myrs\t index = %d\t Particle Mass = %1.2e Msolar\t Age = %1.3f Myr\t Lifetime = %1.2f Myr\t Class = %d\n",
+	fprintf(stdout, "accrate = %1.2e Msolar/yr\t deltatime = %3.3f kyrs\t index = %d\t Particle Mass = %1.2e Msolar\t (code mass: %e) Age = %1.3f Myr\t Lifetime = %1.2f Myr\t Class = %d\n",
 		(SS->AccretionRate[timeindex]*MassUnits/TimeUnits)*yr_s/SolarMass,
-		deltatime*TimeUnits/Myr_s,
+		deltatime*TimeUnits*1000.0/Myr_s,
 		SS->TimeIndex,
 		SS->ReturnMass()*MassConversion,
+		SS->ReturnMass(),
 		Age*TimeUnits/Myr_s,
 		SS->RadiationLifetime*TimeUnits/Myr_s,
 		SS->ParticleClass);

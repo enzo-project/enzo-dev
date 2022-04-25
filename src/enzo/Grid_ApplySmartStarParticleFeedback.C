@@ -113,7 +113,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
     }
 
   /***********************************************************************
-                                SUPERNOVAE
+              STELLAR THERMAL FEEDBACK & SUPERNOVAE
   ************************************************************************/
 
   // Assume that the remnant is still in the free expansion stage and
@@ -129,7 +129,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
    */
   if(SS->ParticleClass == SMS) {
    
-    if(Age > SS->RadiationLifetime) {/* SMS converts directly into DCBH */
+    if(Age > SS->RadiationLifetime && Age*TimeUnits/Myr_s > 1e-3) {/* SMS converts directly into DCBH */
       SS->ParticleClass = BH;
       SS->StellarAge = SS->RadiationLifetime; //Record last stellar age
       SS->RadiationLifetime = 1e20;
@@ -141,8 +141,8 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
     return SUCCESS;
   } /* POPIII Supernova */
   else if(SS->ParticleClass == POPIII) {
-  
-    if(Age > SS->RadiationLifetime) {/* Star needs to go supernovae and change type */
+    double StellarMass = SS->Mass*MassConversion/SolarMass; /* In Msolar */
+    if(Age > SS->RadiationLifetime && Age*TimeUnits/Myr_s > 1e-3) {/* Star needs to go supernovae and change type */
       
       /* We now need to convert this particle into a Black Hole if appropriate 
        * 20 Msolar - 40.1 Msolar -> Type II supernova with BH remnant 
@@ -154,7 +154,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
       printf("%s:Star going Supernova!\n", __FUNCTION__);
       printf("%s: Age = %1.2f Myr\t RadiationLifetime = %1.2f Myr\n", __FUNCTION__,
 	     Age*TimeUnits/Myr_s, SS->RadiationLifetime*TimeUnits/Myr_s);
-      double StellarMass = SS->Mass*MassConversion/SolarMass; /* In Msolar */
+  
       printf("%s: StellarMass = %lf\n", __FUNCTION__, StellarMass);
       double SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
       FLOAT Radius = PopIIISupernovaRadius * pc_cm / LengthUnits;
@@ -214,9 +214,22 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 		 SS->RadiationLifetime*TimeUnits/Myr_s);
 	  
 	}
+    }
+    else if(StellarMass > 500.0) //PopIII star that is very massive (> 500 Msolar)
+      {
+	FLOAT EjectaMetalDensity = 0.0, EjectaThermalEnergy = 0.0, EjectaDensity = 0.0;
+	printf("%s:!!!!!!!Using Stellar Thermal Feedback Mode\n", __FUNCTION__); fflush(stdout);
+	
+	printf("%s: StellarMass = %lf\n", __FUNCTION__, StellarMass);
+	/* For this case we simply assume a Stroemgren sphere that ionised the nearby gas */
+	float StellarTemperature = 1e5;
+
+	EjectaThermalEnergy = StellarTemperature / (TemperatureUnits * (Gamma-1.0) * 0.6);
+	this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
+					   EjectaMetalDensity);
       }
       return SUCCESS;
-    }
+  }
   else if(SS->ParticleClass == POPII)
     {
 

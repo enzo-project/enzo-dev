@@ -293,13 +293,13 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
 	this->LuminosityPerSolarMass = LSuperEdd/BHMass;
       }
     }
- 
+   
     /* Employ some ramping to stop numerical meltdown */
     float Age = (Time - this->ReturnBirthTime())*TimeUnits/yr_s;
-    //printf("%s: BH Age = %e yrs\n", __FUNCTION__, Age);
+    //printf("%s: BH Age = %e yrs\n", __FUNCTION__, Age); fflush(stdout);
     if(Age < RAMPAGE) {
       float ramp = (Age/RAMPAGE);
-      //printf("%s: ramp = %g\n", __FUNCTION__, ramp);
+      //printf("%s: ramp = %g\n", __FUNCTION__, ramp); fflush(stdout);
       this->LuminosityPerSolarMass = this->LuminosityPerSolarMass*ramp;
     }
     /* Use values from the BHArray to set the SED Fractions */

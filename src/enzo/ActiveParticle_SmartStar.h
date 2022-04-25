@@ -461,7 +461,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       if (SmartStarParticleFeedback(nParticles, ParticleList,
         dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("SmartStar Particle Feedback failed. \n");
-      
+
       /* Clean any particles marked for deletion. 
        * After each deletion I need to reloop and check it again. 
        */
@@ -477,12 +477,12 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       }
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
        ParticleList);
+
       /* This applies all of the updates made above */
       if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
               LevelArray) == FAIL)
         return FAIL;      
       ParticleList.clear();
-
     }
 
   return SUCCESS;

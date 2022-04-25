@@ -242,7 +242,9 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
 {
   int dim;
   double ratio1, ratio2;
-  if((Mass == 0.0) || (a->Mass == 0.0))
+  printf("%s: Merging particles with masses of (Code: %e) and (Code: %e)\n",
+	 __FUNCTION__, Mass, a->Mass);
+  if((Mass <= 1e-6) || (a->Mass <= 1e-6))
     return;  
   ratio1 =  (max(Mass, 1e-10)) / (max(1e-10,Mass) + max(1e-10, a->Mass));
   ratio2 = 1.0 - ratio1;
@@ -265,7 +267,7 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
 	AccretionRateTime[i] = a->AccretionRateTime[i];
 	AccretionRate[i] = a->AccretionRate[i];	
       }
-    RadiationLifetime = a->RadiationLifetime;
+    RadiationLifetime = max(RadiationLifetime, a->RadiationLifetime);
     StellarAge = a->StellarAge;
   }
   NotEjectedMass += a->NotEjectedMass;
