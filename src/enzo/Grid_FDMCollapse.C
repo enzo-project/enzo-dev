@@ -144,7 +144,7 @@ if(FDMCollapseAbsorbingBoundary){
   int ind, indxp, indxn, indyp, indyn, indzp, indzn;
   int ip,in,jp,jn,kp,kn;
   double x,y,z,vx,vy,vz;
-  double cluster_size = 50*3e18/LengthUnits;
+  double cluster_size = 1e3*3e18/LengthUnits;
 
   if (UseParticles > 0){
     if (ProcessorNumber != MyProcessorNumber) {
@@ -168,7 +168,7 @@ if(FDMCollapseAbsorbingBoundary){
       /* Particle values will be set below. */
       }
 	// set some test particles
-	ParticleCount = 1000;
+	ParticleCount = 10000;
 
 	// set many particles
 	while (ParticleCount > 0) {

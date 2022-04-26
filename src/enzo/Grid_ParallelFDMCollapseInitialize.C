@@ -43,9 +43,6 @@ void my_exit(int status);
 #undef PROTO
 #endif
 
-#define NTHETA 1000
-#define NR 1000
-
 /********************* PROTOTYPES *********************/
 int ReadFile(char *name, int Rank, int Dims[], int StartIndex[],
        int EndIndex[], int BufferOffset[], float *buffer,
@@ -235,7 +232,6 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
 
   double afloat = double(a);
   double hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits/afloat,2)/FDMMass;
- // }
 
   // If use particle, initial particles according to the FDM values and turn off QuantumPressure
   int CollapseTestParticleCount = 0;
@@ -244,6 +240,8 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
   int ind, indxp, indxn, indyp, indyn, indzp, indzn;
   int ip,in,jp,jn,kp,kn;
   double x,y,z,vx,vy,vz;
+  double r,theta,phi;
+  double cluster_radius = 1e3*3e18/LengthUnits;
 
   if (FDMUseParticles > 0){
     if (ProcessorNumber != MyProcessorNumber) {
@@ -253,8 +251,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
     return SUCCESS;
     }
 
-
-    fprintf(stderr, "initialize particles \n" );
+    fprintf(stderr, "initialize particles at processor %d \n", MyProcessorNumber);
     for (SetupLoopCount = 0; SetupLoopCount < 1+min(FDMUseParticles, 1); SetupLoopCount++) {
      if (SetupLoopCount > 0) {
       /* If particles already exist (coarse particles), then delete. */
@@ -276,12 +273,14 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
 	        ParticleNumber[npart] = CollapseTestParticleCount++;
             ParticleType[npart] = PARTICLE_TYPE_DARK_MATTER;
          // Set random position within cell.
-		    double theta = 3.1415927/6./1000*npart;
-		    ParticlePosition[0][npart] = 0.5 + 1e-1*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
-		    ParticlePosition[1][npart] = 0.5 + 1e-1*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
-		    ParticlePosition[2][npart] = 0.5 + 1e-1*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+		    theta = acos(2*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5));
+			phi = 2*3.1415927*(FLOAT(rand())/FLOAT(RAND_MAX));
+		    r = cluster_radius*2*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+		    ParticlePosition[0][npart] = 0.5 + r*sin(theta)*cos(phi);
+		    ParticlePosition[1][npart] = 0.5 + r*sin(theta)*sin(phi);
+		    ParticlePosition[2][npart] = 0.5 + r*cos(theta);
 			ParticleVelocity[0][npart] = 0.0;//-2.5e6/(LengthUnits/TimeUnits)*sin(theta);
-			ParticleVelocity[1][npart] =  hmcoef*8*3.1415927;//2.0e6 /(LengthUnits/TimeUnits);//*cos(theta);
+			ParticleVelocity[1][npart] = 0.0;//2.0e6 /(LengthUnits/TimeUnits);//*cos(theta);
 			ParticleVelocity[2][npart] = 0.0;
 		}
 		ParticleCount--;

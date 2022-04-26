@@ -883,7 +883,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Make changes required for Zeus solver, and turn the TotalEnergy
   // variable (should be renamed just Energy) into GasEnergy
   
-  if (HydroMethod == Zeus_Hydro &&
+  if (UseHydro && HydroMethod == Zeus_Hydro &&
       ProblemType != 10 &&  // BWO (Rotating cylinder)
       ProblemType != 11 &&  // BWO (radiating shock)
       ProblemType != 13 &&  // BWO (Rotating Sphere)
@@ -1016,11 +1016,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   }
 
   if (ParallelRootGridIO == TRUE && ProblemType == 192){
-    printf("Entering ReInitialize\n");
     if (ParallelFDMCollapseReInitialize(&TopGrid, MetaData) == FAIL)
       ENZO_FAIL("Error in ParallelFDMCollapseReInitialize.");
-          printf("Leaving ReInitialize\n");
-
   }
 
   if (ProblemType == 201)
