@@ -1996,17 +1996,18 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 						falls outside of the tolerance (20% +- Bondi Radius).
 						*/
 					 FLOAT tol = 0;
-      if(BondiHoyleRadius + tol < SS->AccretionRadius || SS->AccretionRadius < BondiHoyleRadius - tol) {
-							SS->AccretionRadius = BondiHoyleRadius;
-							fprintf(stderr, "%s: Updating accretion radius to Bondi radius = %e pc (%f cells)\n", __FUNCTION__,
-	       SS->AccretionRadius*LengthUnits/pc_cm,
-	       SS->AccretionRadius/dx);
-      } else{
-							fprintf(stderr, "%s: Accretion Radius = %e pc (%f cells). No update needed.\n", __FUNCTION__,
+      // if(BondiHoyleRadius + tol < SS->AccretionRadius || SS->AccretionRadius < BondiHoyleRadius - tol) {
+						SS->AccretionRadius = BondiHoyleRadius;
+						fprintf(stderr, "%s: Updating accretion radius to Bondi radius = %e pc (%f cells)\n", __FUNCTION__,
 							SS->AccretionRadius*LengthUnits/pc_cm,
-	      SS->AccretionRadius/dx);
-						}
+							SS->AccretionRadius/dx);
+      // } else{
+						// 	fprintf(stderr, "%s: Accretion Radius = %e pc (%f cells). No update needed.\n", __FUNCTION__,
+						// 	SS->AccretionRadius*LengthUnits/pc_cm,
+	     //  SS->AccretionRadius/dx);
+						// }
       delete [] Temperature;
+						Temperature = NULL;
 #endif
 	// No need to communicate the accretion rate to the other CPUs since this particle is already local.
 	/* Need to decide how often I update the accretion history */
