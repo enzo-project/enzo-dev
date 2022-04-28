@@ -125,7 +125,7 @@ int checkCreationCriteria(float* Density, float* Metals,
             / (8.0 * M_PI* Gcode * Density[index]);
 
     float TE = TotE[index] * Density[index] * EnergyUnits; // total energy of cell
-    float PE =  GravConst * pow(Density[index]*DensityUnits,2) * pow(CellWidth*LengthUnits, 5); // Approx grav PE of cell
+    float PE =  GravConst * pow(Density[index]*DensityUnits,2) * pow(CellWidth*LengthUnits, 5); // Approx grav PE of cell, taking r = dx
     float AltAlpha = TE / PE; // canonically, 2 KE / PE, but we explicitly include thermal+internal energy in TE
 
     if (MechStarsUseVirialParameter){
