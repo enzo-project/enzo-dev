@@ -242,11 +242,11 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             ParticleArray->ParticleMass[nCreated] = massPerStar;
                             float ctime = Time;
                             if (n > 0){
-                                float mod = max(n * 1.705 * Myr_s / TimeUnits, n * dynamicalTime/TimeUnits);
+                                float mod = n * 3.0*dynamicalTime/TimeUnits / float (n_newStars); // spread formation out over 3 dynamical times
                                 ctime = Time + mod;
                             }
                             ParticleArray->ParticleAttribute[0][nCreated] = ctime;
-                            ParticleArray->ParticleAttribute[1][nCreated] = dynamicalTime;
+                            ParticleArray->ParticleAttribute[1][nCreated] = dynamicalTime/TimeUnits;
                             ParticleArray->ParticleAttribute[2][nCreated] = totalMetal[index]
                                         /BaryonField[DensNum][index];
                             if (StarMakerTypeIaSNe)
