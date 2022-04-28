@@ -496,9 +496,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	/* The mass of the particles formed depends on the resolution and is handled 
 	 * in a call to `RemoveMassFromGridAfterFormation` which is called from 
 	 * `AfterEvolveLevel`. np->Mass is initally set here but can get overwritten 
-	 *  RemoveMassFromGridAfterFormation. The cell values are not updated here but 
+	 *  AfterFormation. The cell values are not updated here but 
 		*
-	 * instead are updated in `RemoveMassFromGridAfterFormation`.
+	 * instead are updated in `AfterFormation`.
 	 * We set the initial mass to zero so that merging works ok i.e. nothing spurious 
 	 * happens in this case. 
 	 */
@@ -949,9 +949,9 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		/* Assign mass, radius and lifetime to particle */
 		SS->Mass = PopIIIStarMass; // msun
 		SS->InfluenceRadius = SphereRadius; // code units
-		//SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass); // code time
-		//SS->RadiationLifetime*= yr_s/TimeUnits;
-		SS->RadiationLifetime = 0; // SG. Hardcoding lifetime to zero for BH-phase only runs. Replaces above two lines.
+		SS->RadiationLifetime = CalculatePopIIILifetime(SS->Mass); // code time
+		SS->RadiationLifetime*= yr_s/TimeUnits;
+		//SS->RadiationLifetime = 0; // SG. Hardcoding lifetime to zero for BH-phase only runs. Replaces above two lines.
 		SS->BirthTime = APGrid->ReturnTime();
 		Age = Time - SS->BirthTime;
 
@@ -977,7 +977,7 @@ grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle, FLOAT FeedbackRadi
 int DistributeFeedbackZone(grid* FeedbackZone, HierarchyEntry** Grids,
 			   int NumberOfGrids, int SendField);
 
-// SG. Altered RemoveMassFromGrid.
+// SG. Altered .
 int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticles, 
     ActiveParticleList<ActiveParticleType>& ParticleList,
     LevelHierarchyEntry *LevelArray[], int ThisLevel)
