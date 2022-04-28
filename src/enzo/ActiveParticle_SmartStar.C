@@ -1995,7 +1995,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 						SG Comment: the accretion radius will be reassigned to the Bondi radius when the accretion radius
 						falls outside of the tolerance (20% +- Bondi Radius).
 						*/
-					 FLOAT tol = 0.000001;
+					 FLOAT tol = 0.000001*BondiHoyleRadius;
       if(BondiHoyleRadius + tol < SS->AccretionRadius || SS->AccretionRadius < BondiHoyleRadius - tol) {
       SS->AccretionRadius = BondiHoyleRadius;
       fprintf(stderr, "%s: Updating accretion radius to Bondi radius = %e pc (%f cells)\n", __FUNCTION__,SS->AccretionRadius*LengthUnits/pc_cm,SS->AccretionRadius/dx);
