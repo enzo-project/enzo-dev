@@ -292,7 +292,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
       } // SG. End 11 <= M <= 40.1.
 
       /* DCBH: 40.1 msun <  Mstar < 140 msun - BH has mass set by HW relation */
-	else if (40.1 < StellarMass <= 140 ){
+	else if (TypeIIUpperMass < StellarMass && StellarMass <= PISNLowerMass){
 	  // Heger-Woosley (2002) relation for BHMass
 	  HeliumCoreMass = (13./24.) * (StellarMass - 20);
 	  StellarMass = HeliumCoreMass; //msun
@@ -307,7 +307,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	}
 	
 	/* SG. DCBH > 260msun - BH has same mass as original star */
-	else if (StellarMass > 260 ){
+	else {
 	  SS->ParticleClass = BH;
 	  SS->StellarAge = SS->RadiationLifetime; //Record last stellar age
 	  SS->RadiationLifetime = 1e20;
