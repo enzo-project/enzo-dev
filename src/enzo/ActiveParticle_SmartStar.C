@@ -797,7 +797,7 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 	//fprintf(stderr, "%s: PMass = %e and Particle Class = %"ISYM" and OldMass = %e.\n", __FUNCTION__, PMass, ThisParticle->ParticleClass, ThisParticle->oldmass);
 	if(POPIII == ThisParticle->ParticleClass ||
 	   SMS == ThisParticle->ParticleClass) {
-	  ramptime = yr_s * 5e4 / TimeUnits; // SG. Change to 5e4?
+	  ramptime = yr_s * 1e5 / TimeUnits; // SG. Change to 5e4?
 	}
 	if(POPII == ThisParticle->ParticleClass) {
 	  ramptime = yr_s * StarClusterMinDynamicalTime / TimeUnits;
