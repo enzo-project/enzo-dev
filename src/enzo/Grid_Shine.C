@@ -301,8 +301,6 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
   if (DEBUG) fprintf(stdout, "Shine: PhotonPackages : %p   NextPackage  %p\n", 
 		     PhotonPackages, PhotonPackages->NextPackage);
-
-  this->FixNaNs("Shine");
-
+  
   return SUCCESS;
 };

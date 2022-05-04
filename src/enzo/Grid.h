@@ -637,10 +637,6 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int DebugCheck(const char *message = "Debug");
 
-/* NaN fixing. */
-
-  int FixNaNs(const char *message = "FixNaNs");
-
 #ifdef EMISSIVITY
    /* define function prototype as a grid member function */
    int ClearEmissivity();

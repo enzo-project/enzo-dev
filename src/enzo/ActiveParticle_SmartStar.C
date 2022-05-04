@@ -987,11 +987,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
  double MassUnits;
-        int *SSparticles = new int[nParticles];
-        for (int i = 0; i < nParticles; i++) {
-          SSparticles[i] = -1;
-        }
-
+	int SSparticles[nParticles] = {-1};
  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	 &TimeUnits, &VelocityUnits, Time);
  MassUnits = DensityUnits * POW(LengthUnits,3);
@@ -1040,7 +1036,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 	int num_new_stars = num_new_sms_stars + num_new_popiii_stars + num_new_popii_stars;
 	if(num_new_stars == 0){
-          delete [] SSparticles;
 		return SUCCESS;
 	}
 
@@ -1261,7 +1256,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
   } // END POPII
 	} // END num_new_stars loop
 
-        delete [] SSparticles;
 	return SUCCESS;
 
 } // END RemoveMassFromGridAfterFormation
