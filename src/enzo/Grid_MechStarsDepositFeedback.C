@@ -576,21 +576,22 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                 xcell = CellLeftEdge[0][0] + (0.5 + (float) i) * dx;
                                 ycell = CellLeftEdge[1][0] + (0.5 + (float) j) * dx;
                                 zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
-                                float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, 1.5*dx, true); // always use cic to remove the mass
-                                // if (window > 0)
-                                // {
+                                float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, dx, false); // always use cic to remove the mass
+                                if (window > 0)
+                                {
                                     float dpre = BaryonField[DensNum][flat] ;
                                     float zpre = BaryonField[MetalNum][flat];
                                     float pre_z_frac = zpre / dpre;
                                     if (printout)
                                     fprintf(stdout, "STARSS: Baryon Prior: %e, window = %f; mc = %e, ms = %e; m_z = %e , z = %e\n", BaryonField[DensNum][flat] * MassUnits, window, centralMass, shellMass, shellMetals, pre_z_frac);
-                                    BaryonField[DensNum][flat] = max(dpre - remainMass/27., (1.0-maxEvacFraction)* dpre);
+                                    BaryonField[DensNum][flat] = max(dpre - remainMass * window, (1.0-maxEvacFraction)* dpre);
                                     minusRho += dpre - BaryonField[DensNum][flat];
                                     msubtracted += dpre - BaryonField[DensNum][flat];
                                     // fprintf(stdout, "STARSS: Baryon Post: %e\n", BaryonField[DensNum][flat] * MassUnits);
-                                    BaryonField[MetalNum][flat] =   max(tiny_number, zpre - remainZ/27.);
+                                    BaryonField[MetalNum][flat] =   max(tiny_number, zpre - remainZ*window);
                                     minusZ += zpre - BaryonField[MetalNum][flat];
                                     zsubtracted += zpre - BaryonField[MetalNum][flat];
+                                }
                             }
                             // if (BaryonField[DensNum][flat] >= 1.25*remainMass)
                             //     massiveCell=true;
