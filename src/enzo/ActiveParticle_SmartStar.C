@@ -1881,6 +1881,8 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
   float ctime = LevelArray[ThisLevel]->GridData->ReturnTime();
 
+		ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
+		int SmartStarID = ActiveParticleTypeToEvaluate->GetEnabledParticleID();
   /*
    * TimeDelay if we want to delay the time between 
    * turning on accretion following a supernova. 
@@ -2011,6 +2013,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 	/* Need to decide how often I update the accretion history */
     
     } // SG. End processor.
+				ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);
 
     DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
     delete FeedbackZone;
