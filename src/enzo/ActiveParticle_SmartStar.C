@@ -2013,13 +2013,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
     } // SG. End processor.
 
 				// SG. Communicate with all procs updated accretion radius.
-				// for (i = 0 ; i < EnabledActiveParticlesCount; i++) {
-
-				// 		ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
-				// 		int SmartStarID = ActiveParticleTypeToEvaluate->GetEnabledParticleID();
-				// 		ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);
-
-				// } // END count
+				ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);
 
     DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
     delete FeedbackZone;
