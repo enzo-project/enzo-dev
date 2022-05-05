@@ -183,11 +183,11 @@ public:
       LevelHierarchyEntry *LevelArray[], int ThisLevel, 
       ActiveParticleList<active_particle_class>& MergedParticles);
       
-// SG. Took dx out of argument declaration in the following 3 functions.
+// SG. Took dx out of argument declaration in the following 3 functions + added SmartStarID to accrete.
   static int Accrete(int nParticles, 
       ActiveParticleList<ActiveParticleType>& ParticleList,
       FLOAT AccretionRadius,
-      LevelHierarchyEntry *LevelArray[], int ThisLevel);
+      LevelHierarchyEntry *LevelArray[], int ThisLevel, int SmartStarID);
 
   static int UpdateAccretionRateStats(int nParticles,
 				      ActiveParticleList<ActiveParticleType>& ParticleList,
@@ -511,7 +511,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       /* Do accretion */
 
       if (Accrete(nParticles, ParticleList, accradius, LevelArray, // SG. Error is being thrown here. AFTER AssignActiveParticlesToGrid was called before it.
-              ThisLevel) == FAIL)
+              ThisLevel, SmartStarID) == FAIL)
         ENZO_FAIL("SmartStar Particle accretion failed. \n");
 
       if(UpdateAccretionRateStats(nParticles, ParticleList, LevelArray, ThisLevel) == FAIL)

@@ -1842,7 +1842,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 int ActiveParticleType_SmartStar::Accrete(int nParticles, 
     ActiveParticleList<ActiveParticleType>& ParticleList,
     FLOAT AccretionRadius,
-    LevelHierarchyEntry *LevelArray[], int ThisLevel)
+    LevelHierarchyEntry *LevelArray[], int ThisLevel, int SmartStarID)
 {
 
   /* Skip accretion if we're not on the maximum refinement level.
@@ -1881,8 +1881,6 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
   float ctime = LevelArray[ThisLevel]->GridData->ReturnTime();
 
-		ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
-		int SmartStarID = ActiveParticleTypeToEvaluate->GetEnabledParticleID();
   /*
    * TimeDelay if we want to delay the time between 
    * turning on accretion following a supernova. 
@@ -2013,7 +2011,15 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 	/* Need to decide how often I update the accretion history */
     
     } // SG. End processor.
-				ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);
+
+				// SG. Communicate with all procs updated accretion radius.
+				// for (i = 0 ; i < EnabledActiveParticlesCount; i++) {
+
+				// 		ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
+				// 		int SmartStarID = ActiveParticleTypeToEvaluate->GetEnabledParticleID();
+				// 		ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);
+
+				// } // END count
 
     DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
     delete FeedbackZone;
