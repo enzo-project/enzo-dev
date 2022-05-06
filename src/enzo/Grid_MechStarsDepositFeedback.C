@@ -434,13 +434,13 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                             xcell = CellLeftEdge[0][0] + (0.5 + (float) i) * dx;
                             ycell = CellLeftEdge[1][0] + (0.5 + (float) j) * dx;
                             zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
-                            float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, dx, true); // always use cic to remove the mass
-                            // if (window > 0){
-                                centralMass +=  min(window, (1.0-maxEvacFraction))*BaryonField[DensNum][flat] ;
-                                centralMetals +=  min(window, (1.0-maxEvacFraction))*BaryonField[MetalNum][flat];
-                                // if (SNColourNum != -1 && !MechStarsMetallicityFloor)
-                                //     centralMetals += window * BaryonField[SNColourNum][flat];
-                            // }
+                            float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, dx, false); // always use cic to remove the mass
+                            if (window > 0){
+                                centralMass +=  min(window * BaryonField[DensNum][flat];
+                                centralMetals +=  window * BaryonField[MetalNum][flat];
+                                if (SNColourNum != -1 && !MechStarsMetallicityFloor)
+                                    centralMetals += window * BaryonField[SNColourNum][flat];
+                            }
                         }
                     }
 
@@ -498,7 +498,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float coupledMetals = 0.0, SNIAmetals = 0.0, SNIImetals = 0.0, P3metals = 0.0;
     if (winds)
         coupledMetals = ejectaMetal; //+ shellMetals; // winds only couple to metallicity
-    if (AnalyticSNRShellMass && !winds)
+    if (AnalyticSNRShellMass && !winds) 
         coupledMetals += shellMetals;
     SNIAmetals = (StarMakerTypeIaSNe) ? nSNIA * 1.4 : 0.0;
     if (!StarMakerTypeIaSNe)
