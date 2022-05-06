@@ -2336,7 +2336,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 
 int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     ActiveParticleList<ActiveParticleType>& ParticleList, FLOAT dx, 
-	LevelHierarchyEntry *LevelArray[], int ThisLevel)
+	LevelHierarchyEntry *LevelArray[], int ThisLevel, int SmartStarID)
 {
   /* Skip if we're not on the maximum refinement level. 
      This should only ever happen right after creation and then

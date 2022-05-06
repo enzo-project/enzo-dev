@@ -624,7 +624,7 @@ float grid::CalculateCirculisationSpeed(int Vel1Num, FLOAT AccretionRadius,
 
 FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *Temperature)
 {
-  fprintf(stderr,"%s: Start of function.\n", __FUNCTION__);
+  fprintf(stderr,"%s: Start of function. On proc %"ISYM"\n", __FUNCTION__, MyProcessorNumber);
   // SG/BS get location of particle and cell index from that.
   int cindex = (GridEndIndex[0] - GridStartIndex[0])/2 + GridStartIndex[0];
   int cgindex = GRIDINDEX_NOGHOST(cindex,cindex,cindex);
@@ -660,10 +660,10 @@ FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *
     LengthUnits*TimeUnits;
     // SG. GravConst = 6.67e-8 cgs units cm^3 kg^-1 s^-2
   float Gcode = GravConst*DensityUnits*TimeUnits*TimeUnits;
-  printf("%s: vInfinity = %f km/s\n", __FUNCTION__,  (vInfinity*VelocityUnits)/1e5);
-  printf("%s: cInfinity = %f km/s\n", __FUNCTION__,  (cInfinity*VelocityUnits)/1e5);
-  printf("%s: CellTemperature = %f K\n", __FUNCTION__, CellTemperature);
-  printf("%s: Celllength = %e pc\n", __FUNCTION__, CellWidth[0][0]*LengthUnits/pc_cm);
+  fprintf(stderr,"%s: vInfinity = %f km/s\n", __FUNCTION__,  (vInfinity*VelocityUnits)/1e5);
+  fprintf(stderr,"%s: cInfinity = %f km/s\n", __FUNCTION__,  (cInfinity*VelocityUnits)/1e5);
+  fprintf(stderr,"%s: CellTemperature = %f K\n", __FUNCTION__, CellTemperature);
+  fprintf(stderr,"%s: Celllength = %e pc\n", __FUNCTION__, CellWidth[0][0]*LengthUnits/pc_cm);
   FLOAT ret = FLOAT(2*Gcode*mparticle/(1 + POW(cInfinity,2)));
   return ret;
 } // SG. End of function.

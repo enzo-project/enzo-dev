@@ -153,7 +153,7 @@ public:
   static int SmartStarParticleFeedback(
              int nParticles, 
              ActiveParticleList<ActiveParticleType>& ParticleList,
-		     FLOAT dx, LevelHierarchyEntry *LevelArray[], int ThisLevel);
+		     FLOAT dx, LevelHierarchyEntry *LevelArray[], int ThisLevel, int SmartStarID);
   
 
   static int ResetAcceleration(float *ActiveParticleAcceleration);
@@ -529,7 +529,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 
       /* Apply feedback */
       if (SmartStarParticleFeedback(nParticles, ParticleList,
-        dx, LevelArray, ThisLevel) == FAIL)
+        dx, LevelArray, ThisLevel, SmartStarID) == FAIL)
 	ENZO_FAIL("SmartStar Particle Feedback failed. \n");
 
       
