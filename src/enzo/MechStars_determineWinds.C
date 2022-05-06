@@ -40,7 +40,7 @@ int determineWinds(float age, float* eWinds, float* mWinds, float* zWinds,
         
         }
         if (age < 100){
-            float d = powl(1+age/2.5, 1.4);
+            float d = 1.0 + powl(age/2.5, 1.4);
             float a50 = powl(double(age)/10.0, 5.0);
             e_factor = 5.94e4 / d + a50 +4.83;
             
