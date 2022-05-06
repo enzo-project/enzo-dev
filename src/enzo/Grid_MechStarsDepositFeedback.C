@@ -269,7 +269,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     /* Cooling radius as in Hopkins, but as an average over cells */
 
     float CoolingRadius = 28.4 *
-                          pow(max(0.1, nmean), -3.0 / 7.0) * pow(ejectaEnergy / 1.0e51, 2.0 / 7.0) * fz;
+                          pow(max(0.01, nmean), -3.0 / 7.0) * pow(ejectaEnergy / 1.0e51, 2.0 / 7.0) * fz;
 
     float coupledEnergy = ejectaEnergy;
 
@@ -328,6 +328,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float dxeff = cw_eff / CoolingRadius;
     float fader = cw_eff / r_fade;
 
+    // velocity of shell ala Thornton 1998
     float shellVelocity = 413.0 * pow(nmean, 1.0 / 7.0) * pow(zZsun, 3.0 / 14.0) * pow(coupledEnergy / 1e51, 1.0 / 14.0);
     float ratio_pds = cw_eff/r_shellform;
     shellVelocity *=  ratio_pds > 1 ? pow(dxeff, -7.0 / 3.0) : 1; //km/s
@@ -392,10 +393,11 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     //    coupledMomenta = (cellwidth > r_fade)?(coupledMomenta*pow(r_fade/cellwidth,3/2)):(coupledMomenta);
     float shellMass = 0.0;
     /* 
-        If resolution is in a range comparable to Rcool and
-        Analytic SNR shell mass is on, adjust the shell mass 
-        upper range of applicability for shell mass is determined by
-        local average gas velocity (v_shell ~ c_s = no shell)
+        For various stages, we update the shell mass, ie, the mass that 
+        would be swept up by the remnant.  We us the shell-mass expected from 
+        Thronton 1998 along with approximations for momenta to derive a shell velocity
+        as well. 
+
     */
 
     float centralMass = 0;
