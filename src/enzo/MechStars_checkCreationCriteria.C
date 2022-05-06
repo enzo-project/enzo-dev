@@ -196,7 +196,7 @@ int checkCreationCriteria(float* Density, float* Metals,
             ENZO_VFAIL("MechStars_checkCreationCriteria\n");
         }
 
-        *shieldedFraction = H2II[index] / (H2II[index] + H2[index]);
+        *shieldedFraction = H2[index] / (H2II[index] + H2[index]);
     }
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
     //if (status && debug)
