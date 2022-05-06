@@ -2387,7 +2387,7 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 	       static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
 	fflush(stdout);
       }
-						
+	ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);					
 	DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
 	delete FeedbackZone;
     
