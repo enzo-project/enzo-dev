@@ -27,38 +27,30 @@
 #include "fortran.def"
 #include "phys_constants.h"
 #include "CosmologyParameters.h"
+#include "hydro_rk/EOS.h"
 
 
-// Function prototypes
-int GetUnits (float *DensityUnits, float *LengthUnits,
-	      float *TemperatureUnits, float *TimeUnits,
-	      float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 // Member functions
-int grid::ComputeCRDiffusionTimeStep (float &dt) {
+int grid::ComputeCRStreamingTimeStep (float &dt) {
   if (ProcessorNumber != MyProcessorNumber) {return SUCCESS;}
   if (NumberOfBaryonFields == 0) {return SUCCESS;}
   this->DebugCheck("ComputeCRDiffusionTimeStep");
 
   // Some locals
-  float kappa, dt_est;
-  float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
-  float VelocityUnits = 1.0, TimeUnits = 1.0;
-  double MassUnits = 1.0;
+  float rho, v_stream,B2,dt_est;
 
-  // Get system of units
-  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-               &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
-    ENZO_FAIL("Error in GetUnits.");
-  }
-
-  double units = ((double)LengthUnits)*LengthUnits/TimeUnits;
-
-  int size = 1; 
+  int size = 1, idx; 
   for (int dim = 0; dim < GridRank; dim++) {size *= GridDimension[dim];};
 
   FLOAT dx = CellWidth[0][0];
 
+  // We obtain the current cr field ...                                                                                                
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRNum, B1Num, B2Num, B3Num, PhiNum;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,Vel3Num, TENum,
+				       B1Num, B2Num,B3Num, PhiNum, CRNum) == FAIL) {
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+  }
 
   // Find shortest time scale on the grid patch
   int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
@@ -68,17 +60,19 @@ int grid::ComputeCRDiffusionTimeStep (float &dt) {
 
   dt = huge_number;
 
-
-  /* timestep is calculated as dt < 0.5 * dx^2 / kappa, where
-     kappa is the cosmic ray diffusion constant.  */ 
-  kappa = CRkappa / units;
- 
   for (int k = GridStart[2]; k <= GridEnd[2]; k++)
     for (int j = GridStart[1]; j <= GridEnd[1]; j++)
       for (int i = GridStart[0]; i <= GridEnd[0]; i++){
-	  
-	dt_est = .5 * dx*dx / kappa;
+       
+	idx = ELT(i,j,k);
+	rho = BaryonField[DensNum][idx];
+	
+	B2 = BaryonField[B1Num][idx]*BaryonField[B1Num][idx] 
+	    + BaryonField[B2Num][idx]*BaryonField[B2Num][idx]
+	    + BaryonField[B3Num][idx]*BaryonField[B3Num][idx];
+	v_stream = CRStreamVelocityFactor*sqrt(B2/rho);
 
+	dt_est = dx / (2.0 * CRStreamStabilityFactor * v_stream);
 	dt = min(dt, dt_est);
 
       } // end triple for loop
