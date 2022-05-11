@@ -81,6 +81,13 @@ int DetermineNumberOfParticleAttributes(void){
 
   } else {
     n = 0;
+
+    if(MultiMetals == 2){
+      n += DetermineNumberOfAbundanceAttributes();
+    } //IS THIS RELEVANT for no indiv stars?
+
+    if (StarMakerTypeIaSNe) n++; //IS THIS RELEVANT FOR no indiv stars?
+
   }
 
   return n;

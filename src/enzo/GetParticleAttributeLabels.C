@@ -49,6 +49,7 @@ void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabe
   ParticleAttributeLabel[1] = "dynamical_time";
   ParticleAttributeLabel[2] = "metallicity_fraction";
 
+
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
     ParticleAttributeLabel[3] = "birth_mass";
 
@@ -101,7 +102,10 @@ void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabe
 
   } else { // not using individual star model
 
-    ParticleAttributeLabel[3] = "typeia_fraction";
+    if (StarMakerTypeIaSNe){
+      ParticleAttributeLabel[3 + ii++] = "typeia_fraction";
+    }
+
   }
 
 #endif

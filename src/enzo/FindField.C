@@ -23,10 +23,9 @@
 int FindField(int field, int farray[], int numfields)
 {
   for (int i = 0; i < numfields; i++)
-    if (field == farray[i])
+    if (field == farray[i]) {
       return i;
- 
+}
   /* not found */
- 
   return -1;
 }
