@@ -315,6 +315,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 		 "Lifetime = %f Myr\n", __FUNCTION__,
 		 SS->ParticleClass, SS->StellarAge*TimeUnits/Myr_s,
 		 SS->RadiationLifetime*TimeUnits/Myr_s);
+	}
 
       }
       return SUCCESS;
