@@ -129,9 +129,9 @@ int checkCreationCriteria(float* Density, float* Metals,
     float AltAlpha = TE / PE; // canonically, 2 KE / PE, but we explicitly include thermal+internal energy in TE
 
     if (MechStarsUseVirialParameter){
-        if (alpha < 20) 
-            fprintf(stdout, "STARSS_CR: Compare alphas: F3 = %f; Energy method = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
-                                alpha, AltAlpha, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
+        if (status && AltAlpha < 20) 
+            fprintf(stdout, "STARSS_CR: Compare alphas: F3 = %f; Energy method = %f div = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
+                                alpha, AltAlpha, div, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
         if (AltAlpha > 1.0) status = FAIL;
     }
     /* Is cooling time < dynamical time or temperature < 1e4 */
