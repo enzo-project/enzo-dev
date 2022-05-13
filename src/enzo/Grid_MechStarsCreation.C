@@ -61,7 +61,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     */
     bool gridShouldFormStars=false, notEnoughMetals = true;
 
-    bool debug = true; // local debug flag; theres a lot of printing in here 
+    bool debug = false; // local debug flag; theres a lot of printing in here 
     mt_init(clock());
 
 
@@ -217,17 +217,14 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                              continue;
                         }
 
-                        /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
                         float newMass = min(shieldedFraction * conversion_fraction * BaryonField[DensNum][index], MaximumStarMass / MassUnits); 
                         if ((newMass*MassUnits < StarMakerMinimumMass) /* too small */
                                 || (random > p_form) /* too unlikely */
-                                || (newMass > BaryonField[DensNum][index])) /* too big compared to cell 
-                                                                            (make sure min/max mass is within reasonable range for gas mass)*/
+                                || (newMass > BaryonField[DensNum][index])) /* too big compared to cell */
                                 { 
                                     continue;
                                 }
                         int n_newStars = 1; // track how many stars to form
-                        float mFormed = 0; // track total mass formed thus far
                         float massPerStar = newMass;
                         if (newMass * MassUnits > 5e3){
                             // for large particles, split them into several that have slightly different birth times,
@@ -238,26 +235,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                                     newMass * MassUnits, n_newStars, massPerStar * MassUnits);
                         }
                         for (int n = 0; n < n_newStars; n++){
-                            
-                            ParticleArray->ParticleMass[nCreated] = massPerStar;
-                            float ctime = Time;
-                            if (n > 0){
-                                float mod = n * 3.0*dynamicalTime/TimeUnits / float (n_newStars); // spread formation out over 3 dynamical times
-                                ctime = Time + mod;
-                            }
-                            ParticleArray->ParticleAttribute[0][nCreated] = ctime;
-                            ParticleArray->ParticleAttribute[1][nCreated] = dynamicalTime/TimeUnits;
-                            ParticleArray->ParticleAttribute[2][nCreated] = totalMetal[index]
-                                        /BaryonField[DensNum][index];
-                            if (StarMakerTypeIaSNe)
-                                ParticleArray->ParticleAttribute[3][nCreated] = BaryonField[MetalIaNum][index];
-
-                            ParticleArray->ParticleType[nCreated] = PARTICLE_TYPE_STAR;
-
-
-            // type IA metal field isnt here right now
-                            // if (StarMakerTypeIASNe)
-                            //     ParticleArray->ParticleAttribute[3][nCreated] = BaryonField[MetalIANum];
                             float vX = 0.0;
                             float vY = 0.0;
                             float vZ = 0.0;
@@ -281,7 +258,32 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             vX = vX / msum;
                             vY = vY / msum;
                             vZ = vZ / msum;
+
                             float MaxVelocity = 150.*1.0e5/VelocityUnits;
+                            if (vX > MaxVelocity || vY > MaxVelocity || vZ > MaxVelocity){
+                                // then we're getting unrealistically large velocity for a cluster of stars.  
+                                // break and reanalyze on later timesteps, waiting for gas to calm down or something.
+                                break;
+                            }
+                            
+                            ParticleArray->ParticleMass[nCreated] = massPerStar;
+                            float ctime = Time;
+                            if (n > 0){
+                                float mod = n * 3.0*dynamicalTime/TimeUnits / float (n_newStars); // spread formation out over 3 dynamical times
+                                ctime = Time + mod;
+                            }
+                            ParticleArray->ParticleAttribute[0][nCreated] = ctime;
+                            ParticleArray->ParticleAttribute[1][nCreated] = dynamicalTime/TimeUnits;
+                            ParticleArray->ParticleAttribute[2][nCreated] = totalMetal[index]
+                                        /BaryonField[DensNum][index];
+                            if (StarMakerTypeIaSNe)
+                                ParticleArray->ParticleAttribute[3][nCreated] = BaryonField[MetalIaNum][index];
+
+                            ParticleArray->ParticleType[nCreated] = PARTICLE_TYPE_STAR;
+
+
+
+
                             ParticleArray->ParticleVelocity[0][nCreated] = 
                                 (abs(vX) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX);
                             ParticleArray->ParticleVelocity[1][nCreated] = 
