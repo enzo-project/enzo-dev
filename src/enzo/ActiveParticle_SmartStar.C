@@ -1841,7 +1841,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 int ActiveParticleType_SmartStar::Accrete(int nParticles, 
     ActiveParticleList<ActiveParticleType>& ParticleList,
-    FLOAT AccretionRadius,
+    FLOAT &AccretionRadius,
     LevelHierarchyEntry *LevelArray[], int ThisLevel, int SmartStarID)
 {
 
@@ -2004,6 +2004,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 							SS->AccretionRadius*LengthUnits/pc_cm,
 	      SS->AccretionRadius/dx);
 						}
+						AccretionRadius = SS->AccretionRadius;
       delete [] Temperature;
 						Temperature = NULL;
 #endif
@@ -2011,6 +2012,9 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 	/* Need to decide how often I update the accretion history */
     
     } // SG. End processor.
+
+				// SG. Communicate with all procs updated accretion radius.
+				CommunicationAllSumValues(&AccretionRadius, 1);
 
 				// SG. Communicate with all procs updated accretion radius.
 				ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);

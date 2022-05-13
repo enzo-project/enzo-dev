@@ -186,7 +186,7 @@ public:
 // SG. Took dx out of argument declaration in the following 3 functions + added SmartStarID to accrete.
   static int Accrete(int nParticles, 
       ActiveParticleList<ActiveParticleType>& ParticleList,
-      FLOAT AccretionRadius,
+      FLOAT &AccretionRadius,
       LevelHierarchyEntry *LevelArray[], int ThisLevel, int SmartStarID);
 
   static int UpdateAccretionRateStats(int nParticles,
