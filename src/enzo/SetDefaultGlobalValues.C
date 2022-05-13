@@ -653,7 +653,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerMaximumFormationMass    = 1e4;
   StarMakerMaximumMass             = 1e5;
   DepositUnresolvedEnergyAsThermal = 0;
-  StarMakeLevel                    = MaximumRefinementLevel;
+  StarMakeLevel                    = 0;
   NEvents                          = 0;
   AnalyticSNRShellMass             = 0;
   UnrestrictedSN                     = 0; // false by default
