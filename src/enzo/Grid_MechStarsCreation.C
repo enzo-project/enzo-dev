@@ -10,6 +10,7 @@
 #include <mpi.h>
 #include <vector>
 #include <limits.h>
+#include <random>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -40,7 +41,6 @@
 
     void mt_init(unsigned_int seed);
     unsigned_long_int mt_random();
-
 
 /* Creation Routine */
 int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
@@ -144,6 +144,9 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     // }
     // int nPriorStars = ptcl_inds.size();
     //fprintf(stdout, "Starting creation with %d prior particles\n",nCreated);
+    // std::random_device rd;
+    // std::mt19937 gen(rd());     
+
     for (int k = GZ; k< GridDimension[2]-GZ; k++){
         for(int j = GZ; j < GridDimension[1]-GZ; j++){
             for (int i = GZ; i < GridDimension[0]-GZ; i++){
@@ -181,6 +184,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 
                     if (createStar!=FAIL){
 
+                        // set up some RNG
                         /* Determine Mass of new particle 
                             WARNING: this removes the mass of the formed particle from the 
                             host cell.  If your simulation has very small (>15 Msun) baryon mass
@@ -203,7 +207,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 						                / (conversion_fraction * BaryonField[DensNum][index] * MassUnits)); 
                         
                         float random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX);
-                        
                         if (debug && BulkSFR > 0)
 			                printf("[t=%f, np = %d] BulkSFR = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", 
                             Time*TimeUnits/Myr_s, 0,
@@ -217,7 +220,12 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                              continue;
                         }
 
-                        float newMass = min(shieldedFraction * conversion_fraction * BaryonField[DensNum][index], MaximumStarMass / MassUnits); 
+                        // Generator to determine success of star formation                        
+                        // int success = dist(e2);          
+                        // std::uniform_real_distribution<> dist(0,1);
+                        // random = dist(gen);         
+                        float newMass = min(shieldedFraction * conversion_fraction * BaryonField[DensNum][index], 
+                                            MaximumStarMass / MassUnits); 
                         if ((newMass*MassUnits < StarMakerMinimumMass) /* too small */
                                 || (random > p_form) /* too unlikely */
                                 || (newMass > BaryonField[DensNum][index])) /* too big compared to cell */
@@ -235,6 +243,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                                     newMass * MassUnits, n_newStars, massPerStar * MassUnits);
                         }
                         for (int n = 0; n < n_newStars; n++){
+                            // std::normal_distribution<> vdist(1.0, 0.1);
+                            // std::uniform_real_distribution<> pdist(-0.5, 0.5);
                             float vX = 0.0;
                             float vY = 0.0;
                             float vZ = 0.0;
@@ -283,22 +293,26 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 
 
 
-
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 + 0.75;
                             ParticleArray->ParticleVelocity[0][nCreated] = 
-                                (abs(vX) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX);
+                                (abs(vX) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX*random);
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 + 0.75;
                             ParticleArray->ParticleVelocity[1][nCreated] = 
-                                (abs(vY) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY);
+                                (abs(vY) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY*random);
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 + 0.75;
                             ParticleArray->ParticleVelocity[2][nCreated] = 
-                                (abs(vZ) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ);
+                                (abs(vZ) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ*random);
 
                             /* give it position at center of host cell */
-
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.5;
                             ParticleArray->ParticlePosition[0][nCreated] = CellLeftEdge[0][0]
-                                                    +(dx*(FLOAT(i)-0.5));
+                                                    +(dx*(FLOAT(i)-0.5)) + dx*random;
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.5;
                             ParticleArray->ParticlePosition[1][nCreated] = CellLeftEdge[1][0]
-                                                    +(dx*(FLOAT(j)-0.5));
+                                                    +(dx*(FLOAT(j)-0.5)) + dx*random;
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.5;
                             ParticleArray->ParticlePosition[2][nCreated] = CellLeftEdge[2][0]
-                                                    +(dx*(FLOAT(k)-0.5));
+                                                    +(dx*(FLOAT(k)-0.5)) + dx*random;
 
 
                             BaryonField[DensNum][index] = BaryonField[DensNum][index] - massPerStar;
