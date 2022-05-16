@@ -663,11 +663,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Convert the species densities into fractional densities (i.e. divide
      by total baryonic density).  At the end we will multiply by the new
      density so that species fractions are maintained. */
-   if (!STARFEED_METHOD(MECHANICAL)){
+
       for (field = 0; field < NumberOfBaryonFields; field++)
          if (((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
 	         FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity))
-            {    //fractional density doesnt play nice with CIC used in MechStars
+            {    
 #ifdef EMISSIVITY
       /* 
          it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
@@ -675,6 +675,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
          so the values will scale inside StarParticleHandler 
       */
 #endif
+         // skip the metal transform for STARSS
+         if (!STARFEED_METHOD(MECHANICAL) && (FieldType[field] != Metallicity || FieldType[field] != SNColour)){
             for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
 	            for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	               index = (k*GridDimension[1] + j)*GridDimension[0] +
@@ -683,7 +685,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	                  BaryonField[field][index] /= BaryonField[DensNum][index];
 	            }
             }
-   }
+            }
+
+   // }
   /* If creating primordial stars, make a total H2 density field */
 
   float *h2field = NULL;
@@ -2065,7 +2069,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   }
 
   /* Convert the species back from fractional densities to real densities. */
-   if (!STARFEED_METHOD(MECHANICAL))
+   // if (!STARFEED_METHOD(MECHANICAL))
       for (field = 0; field < NumberOfBaryonFields; field++) {
          if (((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
          	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity) ) // fractional things do not play nice with CIC
@@ -2077,6 +2081,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
          so the values will scale inside StarParticleHandler 
       */
 #endif
+         // skip the metal transform for STARSS
+         if (!STARFEED_METHOD(MECHANICAL) && (FieldType[field] != Metallicity || FieldType[field] != SNColour)){
+
             for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	            for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	               index = (k*GridDimension[1] + j)*GridDimension[0] +
@@ -2087,7 +2094,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	            }
             }
             }
-      }
+      }}
  
   /* Clean up. */
  
