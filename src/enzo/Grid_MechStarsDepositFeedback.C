@@ -51,8 +51,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
     bool debug = true;
-    bool criticalDebug = true;
-    float min_winds = 1.0;
+    bool criticalDebug = false;
     bool printout = debug & !winds;
     int index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -215,7 +214,6 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     /* transform to comoving with the star and take velocities to momenta.
         Take Energy densities to energy.  winds are ngp unless VERY high resolution
      */
-    // if (!winds || dx * LengthUnits / pc_cm < min_winds)
     std::vector <float> prior_ke (125, 0.0);
 
             for (int i = -2; i <= 2; i++)
@@ -260,6 +258,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     dmean = dmean * DensityUnits / (27.);
     // zmean = zmean * DensityUnits / dmean;
     nmean = dmean / (mh/mu_mean);
+    // nmean = BaryonField[DensNum][index]*DensityUnits / (mh/muField[index]);
     //nmean = max(nmean, 1e-1);
     if (printout) printf ("STARSS_FB: Zmean = %e Dmean = %e (%e) mu_mean = %e ", zmean, dmean, dmean / DensityUnits, mu_mean);
     if (printout) printf ("Nmean = %f\n", nmean);
@@ -311,8 +310,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         pTerminal = 8.3619e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25);
 
     /* fading radius of a supernova, using gas energy of the host cell and ideal gas approximations */
-    float T = BaryonField[GENum][index] / BaryonField[DensNum][index] * TemperatureUnits;
-    float cSound = sqrt(kboltz * T / mh) / 1e5; // [km/s] 
+    float T = BaryonField[GENum][index] * (Gamma-1) * muField[index] * TemperatureUnits;
+    float cSound = sqrt(Gamma * kboltz * T / (mh*mu_mean)) / 1e5; // [km/s] 
     float r_fade = max(66.0*pow(ejectaEnergy/1e51, 0.32)*pow(nmean, -0.37)*pow(cSound/10, -2.0/5.0), CoolingRadius * 1.5);
     float fadeRatio = cellwidth/r_fade;
     if (printout) fprintf(stdout, "STARSS_FB: Fading: T = %e; Cs = %e; R_f = %e; fadeR = %f\n", T, cSound, r_fade, fadeRatio);
@@ -334,7 +333,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     shellVelocity *=  ratio_pds > 1 ? pow(dxeff, -7.0 / 3.0) : 1; //km/s
     float beta =  max( 1.0, shellVelocity / max(1, cSound)); 
     float nCritical = 0.0038* (pow(nmean * T / 1e4, 7.0/9.0) * pow(beta, 14.0/9.0))/(pow(ejectaEnergy/1e51, 1.0/9.0) * pow(max(0.0001, zZsun), 1.0/3.0)); // n/cc
-    float rmerge = max(151.0 * pow((ejectaEnergy/1e51)/ beta / beta / nmean / T * 1e4, 1./3.), 1.5 * r_fade); // pc
+    float rmerge = max(151.0 * pow((ejectaEnergy/1e51)/ beta / beta / nmean / T * 1e4, 1./3.), 1.25 * r_fade); // pc
     float merger = cw_eff / rmerge;
     bool faded = fader > 1;
     if (printout)
@@ -436,7 +435,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                             zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
                             float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, dx, false); // always use cic to remove the mass
                             if (window > 0){
-                                centralMass +=  min(window * BaryonField[DensNum][flat];
+                                centralMass +=  min(StarMakerMassEfficiency,  window) * BaryonField[DensNum][flat];
                                 centralMetals +=  window * BaryonField[MetalNum][flat];
                                 if (SNColourNum != -1 && !MechStarsMetallicityFloor)
                                     centralMetals += window * BaryonField[SNColourNum][flat];
@@ -461,7 +460,6 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         // ENZO_FAIL("SM_deposit: 391");
     }
     float coupledMass = shellMass + ejectaMass;
-    // kinetic energy from the momenta, taking mass as ejecta + mass of effected cells (4^3 because of CIC in coupling cloud)
     eKinetic = coupledMomenta * coupledMomenta / (2.0 *(coupledMass)) * SolarMass * 1e10;
     if (eKinetic > (nSNII+nSNIA) * 1e51 && !winds){
         fprintf(stdout, "STARSS_FB: Rescaling high kinetic energy %e -> ", eKinetic);
@@ -646,7 +644,16 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float ke_deposit = 0;
 
     std::vector<double> te_buffer(125, 0.0);
+    std::vector<double> rho_buffer(125,0.0);
     std::vector<double> ge_buffer(125, 0.0);
+    /* get prior mass of cell */
+    for (int k=-2; k<3; k++)
+        for(int j=-2; j<3; j++)
+            for (int i=-2; i<3; i++){
+                int flat = ip+i + (jp+j) * GridDimension[0] + (kp+k) * GridDimension[0] * GridDimension[1];
+                int buffind = i+2 + (j+2) * 5 + (k+2) * 25;
+                rho_buffer[buffind] = BaryonField[DensNum][flat];
+            }
     /* Couple the main qtys from cloud particles to grid */
     for (int i = -1; i <= 1; i++)
         for (int j = -1; j <= 1; j++)
@@ -701,7 +708,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                         zIACouple = SNIAmetals / (float) nCouple; //* weightsVector[n];
                     if (MechStarsSeedField)
                         p3Couple = P3metals / (float) nCouple; //* weightsVector[n];
-                    int np = 1;
+                    // int np = 1;
 
 
 
@@ -753,6 +760,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                 /* fraction of quantities that go into this cloud cell... */
                                 float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
                                 dep_vol_frac += window;
+                                
                                 // printf("STARSS_FB: \t\t\tCloud %e %e %e Coupling at %d %d %d with window %e.  \n\t\t\t\twfactors: %e %e %e (%f %f %f)\n", 
                                 //                                             xcell, ycell, zcell, 
                                 //                                             icell, jcell, kcell, window,
@@ -843,31 +851,42 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                             *up, *vp, *wp,
                             GridDimension[0], GridDimension[1],
                             GridDimension[2], -1);
-        for (int i = -2; i <= 2; i++)
-            for (int j = -2; j <= 2; j++)
-                for (int k = -2; k <= 2; k++)
-                    {
-                        int flat = ip+i + (jp+j) * GridDimension[0] + (kp+k) * GridDimension[0] * GridDimension[1];
-                        int buffind = i+2 + (j+2) * 5 + (k+2) * 25;
+        float affected_mass = 0.0;
+        float sum_te = 0.0;
+        for (float e: te_buffer)
+            sum_te += e;
+        if (sum_te > 0){
+            for (int i = -2; i <= 2; i++)
+                for (int j = -2; j <= 2; j++)
+                    for (int k = -2; k <= 2; k++)
+                        {
+                            int flat = ip+i + (jp+j) * GridDimension[0] + (kp+k) * GridDimension[0] * GridDimension[1];
+                            int buffind = i+2 + (j+2) * 5 + (k+2) * 25;
+                            if (te_buffer[buffind] > 0)
+                                affected_mass += BaryonField[DensNum][index];
+                        }
+            for (int i = -2; i <= 2; i++)
+                for (int j = -2; j <= 2; j++)
+                    for (int k = -2; k <= 2; k++)
+                        {
+                            int flat = ip+i + (jp+j) * GridDimension[0] + (kp+k) * GridDimension[0] * GridDimension[1];
+                            int buffind = i+2 + (j+2) * 5 + (k+2) * 25;
 
-                        // printf("STARSS_FB: adding %e from buffer %d to TE\n", te_buffer[buffind] / (2.0 * BaryonField[DensNum][flat]/EnergyUnits), buffind);
-                        if (DualEnergyFormalism)
-                            {    
-                                float post_ke = 0.5 * BaryonField[DensNum][flat] * 
-                                        (BaryonField[Vel1Num][flat]*BaryonField[Vel1Num][flat]
-                                        +BaryonField[Vel2Num][flat]*BaryonField[Vel2Num][flat]
-                                        +BaryonField[Vel3Num][flat]*BaryonField[Vel3Num][flat]);
-                                float dke = post_ke - prior_ke[buffind];
-                                // add kinetic energy on a second pass to ensure that all masses have been previously adjusted.
-                                BaryonField[TENum][flat] = BaryonField[TENum][flat] 
-                                                        +  (te_buffer[buffind] / (2 * coupledMass))/BaryonField[DensNum][flat];
-                                ke_deposit += (te_buffer[buffind] / (2 * coupledMass));
-                                // BaryonField[TENum][flat] += ge_buffer[buffind];
-                            }
-                        // BaryonField[GENum][flat] += ge_buffer[buffind];
-                            
+                            // printf("STARSS_FB: adding %e from buffer %d to TE\n", te_buffer[buffind] / (2.0 * BaryonField[DensNum][flat]/EnergyUnits), buffind);
+                            if (DualEnergyFormalism)
+                                {    
+                                    // add kinetic energy on a second pass to ensure that all masses have been previously adjusted. TE / old + TEN / (old+new) = TE * (old+new)/old + TEN/ (old+new)
+                                    BaryonField[TENum][flat] = BaryonField[TENum][flat] *BaryonField[DensNum][flat] /rho_buffer[buffind]
+                                                            +  (te_buffer[buffind] 
+                                                            / (2 * coupledMass)) / BaryonField[DensNum][flat];
+                                    ke_deposit += (te_buffer[buffind] / (2 * coupledMass));
+                                    // BaryonField[TENum][flat] += ge_buffer[buffind];
+                                }
+                            // BaryonField[GENum][flat] += ge_buffer[buffind];
+                                
 
-                            } // end cloud-particle cic
+                                } // end cloud-particle cic
+        }
     if (printout) fprintf(stdout, "STARSS_FB: Counted %e Kenergy deposited\n", ke_deposit*EnergyUnits);
     // fill in the remaining energy with thermal deposition
     float remain = 1e51/EnergyUnits - ke_deposit;
@@ -896,6 +915,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                         for (int jj = -1; jj <= 1; jj++)
                             for (int ii = -1; ii <= 1; ii++)
                             {
+                                int buffind = (i+ii)+2 + ((j+jj)+2) * 5 + ((k+kk)+2) * 25;
+
                                 /* position of cloud cell */
                                 float xcell, ycell, zcell;
                                 xcell = xc + dx * ii;
@@ -918,17 +939,18 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                     
                                     /* fraction of quantities that go into this cloud cell... */
                                     float window = Window(xc - xcell, yc - ycell, zc - zcell, dx, NGP);
-                                    if (DualEnergyFormalism)
+                                    if (DualEnergyFormalism && remain > 0)
                                         {    
-                                            BaryonField[TENum][flat] = BaryonField[TENum][flat] + cGE * window / BaryonField[DensNum][flat];
+                                            BaryonField[TENum][flat] = (BaryonField[TENum][flat]*rho_buffer[buffind] + cGE * window) /BaryonField[DensNum][flat];
                                         }
                                     if (remain > 0)
-                                        BaryonField[GENum][flat] = BaryonField[GENum][flat] + cGE * window / BaryonField[DensNum][flat];
+                                        BaryonField[GENum][flat] = (BaryonField[GENum][flat]*rho_buffer[buffind] + cGE * window) / BaryonField[DensNum][flat];
                                     ge_deposit += cGE * window;
                                 }
                             }
                         // printf("STARSS_FB: CIC deposited in sum window %e\n", dep_vol_frac);
                     } // end coupling main qtys   
+    if (printout) fprintf(stdout, "STARSS_FB: Counted %e GE deposited\n", ge_deposit*EnergyUnits);
 
         if (isnan(postMass) || isnan(postTE) || isnan(postPmag) || isnan(postZ))
         {
