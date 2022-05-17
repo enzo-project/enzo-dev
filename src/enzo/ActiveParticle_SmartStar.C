@@ -1964,6 +1964,11 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx),
 					       dx, Grids, NumberOfGrids, ALL_FIELDS);
     grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+
+				// SG. Set to 0 before it's calculated by owning proc and then communicated with other procs in CommunicateAllSumValues().
+				FLOAT NewAccretionRadius = 0;
+				FLOAT *pos = 0;
+
 				// SG/BS change to continue and !=.
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
 
@@ -1973,7 +1978,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 			      AccretionRadius, &AccretionRate) == FAIL)
 	return FAIL;
 
-      FLOAT *pos = ParticleList[i]->ReturnPosition();
+      pos = ParticleList[i]->ReturnPosition();
 
 
 #if BONDIHOYLERADIUS
@@ -2005,6 +2010,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 	      SS->AccretionRadius/dx);
 						}
 						AccretionRadius = SS->AccretionRadius;
+						NewAccretionRadius = AccretionRadius;
       delete [] Temperature;
 						Temperature = NULL;
 #endif
@@ -2013,11 +2019,12 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
     
     } // SG. End processor.
 
-				// SG. Communicate with all procs updated accretion radius.
-				CommunicationAllSumValues(&AccretionRadius, 1);
+				// SG. Communicate with all procs the updated accretion radius.
+				CommunicationAllSumValues(&NewAccretionRadius, 1);
+				CommunicationAllSumValues(pos, 1);
 
-				// SG. Communicate with all procs updated accretion radius.
-				ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);
+				SS->AccretionRadius = NewAccretionRadius;
+				AccretionRadius = SS->AccretionRadius;
 
     DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
     delete FeedbackZone;

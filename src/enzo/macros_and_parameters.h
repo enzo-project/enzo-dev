@@ -605,6 +605,7 @@ typedef long long int   HDF5_hid_t;
 #define IMF_TABLE_ENTRIES 1000
 
 #ifdef USE_MPI
+#define USE_MPI 1 // SG. For debugging.
 #else /* USE_MPI */
 //#undef MEM_TRACE
 #undef MPI_TRACE
