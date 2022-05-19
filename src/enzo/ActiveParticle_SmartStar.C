@@ -1966,8 +1966,9 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
     grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
 
 				// SG. Set to 0 before it's calculated by owning proc and then communicated with other procs in CommunicateAllSumValues().
+				FLOAT positions[3] = {0,0,0}; // SG. All elements initialised to zero.
 				FLOAT NewAccretionRadius = 0;
-				FLOAT *pos = 0;
+				FLOAT* pos;
 
 				// SG/BS change to continue and !=.
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
@@ -1978,7 +1979,10 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 			      AccretionRadius, &AccretionRate) == FAIL)
 	return FAIL;
 
-      pos = ParticleList[i]->ReturnPosition();
+					// SG. positions is the array of dereferenced particle positions in each dim.
+					positions[0] = ParticleList[i]->ReturnPosition()[0];
+					positions[1] = ParticleList[i]->ReturnPosition()[1];
+					positions[2] = ParticleList[i]->ReturnPosition()[2];
 
 
 #if BONDIHOYLERADIUS
@@ -1998,7 +2002,7 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 						fprintf(stderr, "%s: AccretionRadius = %e pc.\n", __FUNCTION__, SS->AccretionRadius*LengthUnits/pc_cm);
 						/* 
 						SG Comment: the accretion radius will be reassigned to the Bondi radius when the accretion radius
-						falls outside of the tolerance (20% +- Bondi Radius).
+						falls outside of the tolerance.
 						*/
 					 FLOAT tol = 0.000001*BondiHoyleRadius;
       if(BondiHoyleRadius + tol < SS->AccretionRadius || SS->AccretionRadius < BondiHoyleRadius - tol) {
@@ -2021,10 +2025,14 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
 
 				// SG. Communicate with all procs the updated accretion radius.
 				CommunicationAllSumValues(&NewAccretionRadius, 1);
-				CommunicationAllSumValues(pos, 1);
+				CommunicationAllSumValues(positions, 3);
 
 				SS->AccretionRadius = NewAccretionRadius;
 				AccretionRadius = SS->AccretionRadius;
+
+				SS->pos[0] = positions[0];
+				SS->pos[1] = positions[1];
+				SS->pos[2] = positions[2];
 
     DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
     delete FeedbackZone;
