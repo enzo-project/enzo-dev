@@ -205,7 +205,7 @@ int grid::CopyActiveZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSIO
          the grid. */
      
       if (TRUE){
-        fprintf(tracePtr, "CopyZones SendRegion from %"ISYM" to %"ISYM"\n", 
+        fprintf(stderr, "CopyZones SendRegion from %"ISYM" to %"ISYM"\n", 
             ProcessorNumber, OtherGrid->ProcessorNumber);
       };
       if (ProcessorNumber != OtherGrid->ProcessorNumber) {
