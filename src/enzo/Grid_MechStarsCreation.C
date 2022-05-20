@@ -293,26 +293,26 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
 
 
 
-                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 + 0.75;
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.1 + 0.95;
                             ParticleArray->ParticleVelocity[0][nCreated] = 
                                 (abs(vX) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX*random);
-                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 + 0.75;
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.1 + 0.95;
                             ParticleArray->ParticleVelocity[1][nCreated] = 
                                 (abs(vY) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY*random);
-                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 + 0.75;
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.1 + 0.95;
                             ParticleArray->ParticleVelocity[2][nCreated] = 
                                 (abs(vZ) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ*random);
 
                             /* give it position at center of host cell */
-                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.5;
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX)*0.1 + 0.4;
                             ParticleArray->ParticlePosition[0][nCreated] = CellLeftEdge[0][0]
-                                                    +(dx*(FLOAT(i)-0.5)) + dx*random;
-                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.5;
+                                                    +(dx*(FLOAT(i))) + dx*random;
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX)*0.1 + 0.4;
                             ParticleArray->ParticlePosition[1][nCreated] = CellLeftEdge[1][0]
-                                                    +(dx*(FLOAT(j)-0.5)) + dx*random;
-                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.5;
+                                                    +(dx*(FLOAT(j))) + dx*random;
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX)*0.1 + 0.4;
                             ParticleArray->ParticlePosition[2][nCreated] = CellLeftEdge[2][0]
-                                                    +(dx*(FLOAT(k)-0.5)) + dx*random;
+                                                    +(dx*(FLOAT(k))) + dx*random;
 
 
                             BaryonField[DensNum][index] = BaryonField[DensNum][index] - massPerStar;
@@ -324,11 +324,17 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             if (nCreated >= MaximumNumberOfNewParticles) return nCreated;
 
                         // if (debug)
-                            fprintf(stdout, "STARSS_CR:\t\tCreated star: [%f Myr] M_cell = %e (nb=%f) T_cell = %e\nSTARSS_CR:\t\t\tL = %d  N = %d Type = %d\nSTARSS_CR:\t\t\tM_* = %e Tdyn = %e Attr1 = %f Attr2 = %e Attr3 = %e\nSTARSS_CR:\t\t\tPosition = [%f %f %f]\nSTARSS_CR:\t\t\tvelocity = [%f %f %f]\nSTARSS_CR:\t\t\tgrid_index = %d cell_index = %d\nSTARSS_CR:\t\t\ti = %d j = %d k = %d\n",
+                            fprintf(stdout, "STARSS_CR:\t\tCreated star: [%f Myr] M_cell = %e (nb=%f) T_cell = %e F_s = %e\n"
+                                            "STARSS_CR:\t\t\tL = %d  N = %d Type = %d\n"
+                                            "STARSS_CR:\t\t\tM_* = %e Tdyn = %e Attr1 = %f Attr2 = %e Attr3 = %e\n"
+                                            "STARSS_CR:\t\t\tPosition = [%f %f %f]\nSTARSS_CR:\t\t\tvelocity = [%f %f %f]\n"
+                                            "STARSS_CR:\t\t\tgrid_index = %d cell_index = %d\n"
+                                            "STARSS_CR:\t\t\ti = %d j = %d k = %d\n",
                                 Time*TimeUnits/3.1557e13,
                                 BaryonField[DensNum][index]*MassUnits, 
                                 BaryonField[DensNum][index] * DensityUnits / 1.2 / 1.6e-24, 
                                 Temperature[index],
+                                shieldedFraction,
                                 level, nCreated+1,
                                 ParticleArray->ParticleType[nCreated],
                                 ParticleArray->ParticleMass[nCreated]*MassUnits,
