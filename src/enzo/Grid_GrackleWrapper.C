@@ -23,6 +23,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 /* function prototypes */
 
@@ -141,10 +142,7 @@ int grid::GrackleWrapper()
 
   // Double check if there's a metal field when we have metal cooling
   if (MetalCooling && MetalFieldPresent == FALSE) {
-    if (debug)
-      fprintf(stderr, "Warning: No metal field found.  Turning OFF MetalCooling.\n");
-    MetalCooling = FALSE;
-    MetalNum = 0;
+    ENZO_FAIL("Metal cooling is on, but no metal field present.");
   }
 
   /* If both metal fields (Pop I/II and III) exist, create a field
@@ -243,14 +241,13 @@ int grid::GrackleWrapper()
 #ifdef TRANSFER
   /* Find RT fields */
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum,
-        gammaNum;
+        gammaNum, kphHMNum, kdissH2IINum;
 
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum,
-                                  kphHeIINum, kdissH2INum);
+                                  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
   /* unit conversion from Enzo RT units to CGS */
-  const float ev2erg = 1.60217653E-12;
-  float rtunits = ev2erg / TimeUnits;
+  float rtunits = erg_eV / TimeUnits;
 
   if( RadiativeTransfer ){
     my_fields.RT_HI_ionization_rate   = BaryonField[kphHINum];
@@ -273,6 +270,7 @@ int grid::GrackleWrapper()
 #endif // TRANSFER
 
   /* Call the chemistry solver. */
+
   if (solve_chemistry(&grackle_units, &my_fields, (double) dt_cool) == FAIL){
     fprintf(stderr, "Error in Grackle solve_chemistry.\n");
     return FAIL;

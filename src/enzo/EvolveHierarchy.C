@@ -67,15 +67,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
-    ,SiblingGridList *SiblingGridListStorage[]
+    ,FLOAT dt0, SiblingGridList *SiblingGridListStorage[]
 		);
-
-int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-                    int level, float dtLevelAbove, ExternalBoundary *Exterior, 
-#ifdef TRANSFER
-		    ImplicitProblemABC *ImplicitSolver, 
-#endif
-		    FLOAT dt0 ,SiblingGridList *SiblingGridListStorage[]);
 
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
@@ -135,6 +128,7 @@ int MagneticFieldResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 void PrintMemoryUsage(char *str);
 int SetEvolveRefineRegion(FLOAT time);
 
+int SetStellarMassThreshold(FLOAT time);
 int SetStellarFeedbackEfficiency(FLOAT time);
 
 #ifdef MEM_TRACE
@@ -278,21 +272,26 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   }
 */
 
+  /* Particle Splitter. Split particles into 13 (=1+12) child
+     particles. The hierarchy is rebuilt inside this routine. */
+
+  if (MetaData.FirstTimestepAfterRestart == TRUE &&
+      ParticleSplitterIterations > 0) {
+
+    ParticleSplitter(LevelArray, 0, &MetaData);
+
+  } else {
 
   /* Do the first grid regeneration. */
- 
-  if(CheckpointRestart == FALSE) {
-    RebuildHierarchy(&MetaData, LevelArray, 0);
-  }
+
+    if(CheckpointRestart == FALSE) {
+      RebuildHierarchy(&MetaData, LevelArray, 0);
+    }
+
+  } // ENDELSE particle splitting
 
   PrintMemoryUsage("1st rebuild");
  
-  /* Particle Splitter. Split particles into 13 (=1+12) child particles */
-  
-  if (MetaData.FirstTimestepAfterRestart == TRUE &&
-      ParticleSplitterIterations > 0)
-    ParticleSplitter(LevelArray, 0, &MetaData);
-
   /* Reset magnetic fields if requested. */
   
   if (MetaData.FirstTimestepAfterRestart == TRUE &&
@@ -460,10 +459,20 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     FOF(&MetaData, LevelArray, MetaData.WroteData);
 
-    /* If provided, set RefineRegion from evolving RefineRegion */
-    if ((RefineRegionTimeType == 1) || (RefineRegionTimeType == 0)) {
+    /* If provided, set RefineRegion from evolving RefineRegion 
+       OR set MustRefineRegion from evolving MustRefineRegion 
+       OR set CoolingRefineRegion from evolving CoolingRefineRegion */
+    if ((RefineRegionTimeType == 1) || (RefineRegionTimeType == 0)
+        || (MustRefineRegionTimeType == 1) || (MustRefineRegionTimeType == 0)
+        || (CoolingRefineRegionTimeType == 1) || (CoolingRefineRegionTimeType == 0)) {
         if (SetEvolveRefineRegion(MetaData.Time) == FAIL) 
 	  ENZO_FAIL("Error in SetEvolveRefineRegion.");
+    }
+
+    /* Set evolving stellar mass threshold */
+    if (StarMakerMinimumMassRamp > 0) {
+        if (SetStellarMassThreshold(MetaData.Time) == FAIL) 
+	  ENZO_FAIL("Error in SetStellarMassThreshold.");
     }
 
     /* Set evolving feedback efficiency */
@@ -499,50 +508,25 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 */
 #endif
- 
-    if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
-	HydroMethod == PPM_LagrangeRemap || HydroMethod == HydroMethodUndefined ||
-	HydroMethod == MHD_Li || HydroMethod == NoHydro ||
-	HydroMethod < 0) {
-      if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
+
+    if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
 #ifdef TRANSFER
-		      , ImplicitSolver
+                , ImplicitSolver
 #endif
-          ,SiblingGridListStorage
-		      ) == FAIL) {
+                ,dt, SiblingGridListStorage
+                ) == FAIL) {
         if (NumberOfProcessors == 1) {
-          fprintf(stderr, "Error in EvolveLevel.\n");
-          fprintf(stderr, "--> Dumping data (output number %d).\n",
-                  MetaData.DataDumpNumber);
-	Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-		     &TopGrid, MetaData, Exterior
+            fprintf(stderr, "Error in EvolveLevel.\n");
+            fprintf(stderr, "--> Dumping data (output number %d).\n",
+                    MetaData.DataDumpNumber);
+            Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
+                    &TopGrid, MetaData, Exterior
 #ifdef TRANSFER
-		     , ImplicitSolver
-#endif		 
-		     );
+                    , ImplicitSolver
+#endif 
+                    );
         }
         return FAIL;
-      }
-    } else {
-      if (HydroMethod == HD_RK || HydroMethod == MHD_RK)
-	if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, 
-#ifdef TRANSFER
-			    ImplicitSolver, 
-#endif
-			    dt, SiblingGridListStorage) == FAIL) {
-	  if (NumberOfProcessors == 1) {
-	    fprintf(stderr, "Error in EvolveLevel_RK2.\n");
-	    fprintf(stderr, "--> Dumping data (output number %d).\n",
-		    MetaData.DataDumpNumber);
-	    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-			       &TopGrid, MetaData, Exterior
-#ifdef TRANSFER
-			       , ImplicitSolver
-#endif		 
-			       );
-	  }
-        return FAIL;
-      }
     }
 
 

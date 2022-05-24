@@ -124,6 +124,14 @@ EXTERN float Gamma;
 
 EXTERN int PressureFree;
 
+/* FDM: Flag indicating if fuzzy dark matter is turned on, using quantum pressure */
+
+EXTERN int QuantumPressure;
+
+/* FDM: Parameter for FDM Mass, in unit of 1e-22 eV */
+
+EXTERN float FDMMass;
+
 /* Factor to refine by */
 
 EXTERN int RefineBy;
@@ -349,6 +357,7 @@ EXTERN float RootGridCourantSafetyNumber;
 EXTERN int RadiativeCooling;
 EXTERN CoolDataType CoolData;
 EXTERN int RadiativeCoolingModel;
+EXTERN int use_grackle;
 
 /* Cloudy cooling parameters and data. */
 
@@ -380,6 +389,24 @@ EXTERN float DrivenFlowAutoCorrl[MAX_DIMENSION];
 EXTERN float DrivenFlowVelocity[MAX_DIMENSION];
 EXTERN float DrivenFlowDomainLength[MAX_DIMENSION];
 
+/* Subgrid-scale model variables */
+EXTERN int UseSGSModel;
+EXTERN int SGSFilterStencil;
+EXTERN int SGSNeedJacobians;
+EXTERN int SGSNeedMixedFilteredQuantities;
+EXTERN float SGSFilterWidth;
+EXTERN float SGSFilterWeights[4];
+EXTERN float SGScoeffERS2M2Star;
+EXTERN float SGScoeffEVStarEnS2Star;
+EXTERN float SGScoeffEnS2StarTrace;
+EXTERN float SGScoeffNLemfCompr;
+EXTERN float SGScoeffNLu;
+EXTERN float SGScoeffNLuNormedEnS2Star;
+EXTERN float SGScoeffNLb;
+EXTERN float SGScoeffSSu;
+EXTERN float SGScoeffSSb;
+EXTERN float SGScoeffSSemf;
+
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;
@@ -401,16 +428,24 @@ EXTERN int MultiMetals;
  * 1: On, (two fluid model)
  */
 EXTERN int CRModel;
+
 /* Cosmic Ray Diffusion
  * 0: Off - default
  * 1: On, CRkappa is constant across grid
+ * 2: On, anisotropic diffusion with constant CRkappa
  */
 EXTERN int CRDiffusion;
+
 /* Cosmic Ray Feedback
  *    0.0 -- No CR feedback
  *    1.0 -- All feedback into CR field
  */
 EXTERN float CRFeedback;
+
+EXTERN int CRHeating; // 0 is off, 1 is on
+EXTERN int CRStreaming; // 0 is off, 1 is on 
+EXTERN float CRStreamVelocityFactor;
+EXTERN float CRStreamStabilityFactor;
 EXTERN float CRkappa;
 EXTERN float CRCourantSafetyNumber;
 EXTERN float CRdensFloor;
@@ -496,6 +531,32 @@ EXTERN int EvolveRefineRegionNtimes;
 EXTERN FLOAT EvolveRefineRegionTime[MAX_REFINE_REGIONS]; // time bins
 EXTERN FLOAT EvolveRefineRegionLeftEdge[MAX_REFINE_REGIONS][3]; // left corners
 EXTERN FLOAT EvolveRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right corners
+
+/* Evolving MustRefine region. */
+EXTERN char *MustRefineRegionFile;
+EXTERN int MustRefineRegionTimeType; // 0=time 1=redshift
+EXTERN int EvolveMustRefineRegionNtimes;
+EXTERN FLOAT EvolveMustRefineRegionTime[MAX_REFINE_REGIONS]; // time bins
+EXTERN FLOAT EvolveMustRefineRegionLeftEdge[MAX_REFINE_REGIONS][3]; // left corners
+EXTERN FLOAT EvolveMustRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right corners
+EXTERN int EvolveMustRefineRegionMinLevel[MAX_REFINE_REGIONS]; // minimum allowable level
+
+/* Cooling refinement region. */
+
+// user parameters for cooling refinement region
+EXTERN int UseCoolingRefineRegion;
+EXTERN int EvolveCoolingRefineRegion;
+EXTERN FLOAT CoolingRefineRegionLeftEdge[MAX_DIMENSION];  // left edge
+EXTERN FLOAT CoolingRefineRegionRightEdge[MAX_DIMENSION];  // right edge
+EXTERN char *CoolingRefineRegionFile;
+EXTERN int CoolingRefineRegionTimeType; // 0=time 1=redshift
+
+// internal parameters for cooling refinement region
+EXTERN int EvolveCoolingRefineRegionNtimes;
+EXTERN FLOAT EvolveCoolingRefineRegionTime[MAX_REFINE_REGIONS]; // time bins
+EXTERN FLOAT EvolveCoolingRefineRegionLeftEdge[MAX_REFINE_REGIONS][3]; // left corners
+EXTERN FLOAT EvolveCoolingRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right corners
+
 
 /* Processor identifier for this thread/processor */
 
@@ -699,6 +760,11 @@ EXTERN int   ExternalBoundaryValueIO;
 EXTERN int   ExternalBoundaryField;
 EXTERN int   SimpleConstantBoundary;
 
+EXTERN int   StoreDomainBoundaryMassFlux;
+EXTERN int   BoundaryMassFluxFieldNumbers[MAX_NUMBER_OF_BARYON_FIELDS];
+EXTERN float BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS];
+EXTERN char *BoundaryMassFluxFilename;
+
 EXTERN Eint64 TaskMemory[MAX_NUMBER_OF_TASKS];
 EXTERN int    TaskMap[MAX_NUMBER_OF_TASKS];
 
@@ -781,6 +847,7 @@ EXTERN int iS1;
 EXTERN int iS2;
 EXTERN int iS3;
 EXTERN int iEint;
+EXTERN int iCR;
 EXTERN float SmallRho;
 EXTERN float SmallP;
 EXTERN float SmallEint;
@@ -827,9 +894,9 @@ EXTERN FLOAT ExternalGravityOrientation[MAX_DIMENSION];
 
 /* Poisson Clean */
 
-EXTERN int UseDivergenceCleaning;
-EXTERN int DivergenceCleaningBoundaryBuffer;
-EXTERN float DivergenceCleaningThreshold;
+EXTERN int UsePoissonDivergenceCleaning;
+EXTERN int PoissonDivergenceCleaningBoundaryBuffer;
+EXTERN float PoissonDivergenceCleaningThreshold;
 EXTERN float PoissonApproximationThreshold;
 EXTERN int PoissonBoundaryType;
 
@@ -988,6 +1055,11 @@ EXTERN int MoveParticlesBetweenSiblings;
 EXTERN int ParticleSplitterIterations;
 EXTERN float ParticleSplitterChildrenParticleSeparation;
 EXTERN int ParticleSplitterRandomSeed;
+EXTERN int ParticleSplitterMustRefine;
+EXTERN char *ParticleSplitterMustRefineIDFile;
+EXTERN float ParticleSplitterFraction[MAX_SPLIT_ITERATIONS];
+EXTERN FLOAT ParticleSplitterCenter[MAX_DIMENSION];
+EXTERN float ParticleSplitterCenterRegion[MAX_SPLIT_ITERATIONS];
 
 /* Magnetic Field Resetter */
 
@@ -1001,6 +1073,14 @@ EXTERN char *MBHParticleIOFilename;
 EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
 EXTERN char *MBHInsertLocationFilename;
 EXTERN int OutputWhenJetsHaveNotEjected;
+
+/* Star Class Radiation Particle IO (PARTICLE_TYPE_RAD) */
+EXTERN char *RadiationSourcesFileName;
+EXTERN int   NumberOfRadiationParticles;
+EXTERN double PhotonsPerSecond;
+EXTERN int   NumberOfEnergyBins;
+EXTERN float RadiationEnergyInBin[255];
+EXTERN float RadiationBinSED[255];
 
 /* Vorticity Calculations */
 
@@ -1090,6 +1170,26 @@ EXTERN char *DatabaseLocation;
 EXTERN int ExtraOutputs[MAX_EXTRA_OUTPUTS];
 EXTERN int CorrectParentBoundaryFlux;
 
+/* Active particles */
+class ActiveParticleType_info;
+EXTERN ActiveParticleType_info *EnabledActiveParticles[MAX_ACTIVE_PARTICLE_TYPES];
+EXTERN int EnabledActiveParticlesCount;
+EXTERN float ActiveParticleDensityThreshold;
+EXTERN int SmartStarAccretion;
+EXTERN int SmartStarFeedback;
+EXTERN int SmartStarEddingtonCap;
+EXTERN int SmartStarBHFeedback;
+EXTERN int SmartStarBHJetFeedback;
+EXTERN int SmartStarBHThermalFeedback;
+EXTERN int SmartStarBHRadiativeFeedback;
+EXTERN int SmartStarStellarRadiativeFeedback;
+EXTERN float SmartStarFeedbackEnergyCoupling;
+EXTERN float SmartStarFeedbackJetsThresholdMass;
+EXTERN float SmartStarJetVelocity;
+EXTERN float SmartStarSpin; 
+EXTERN int SmartStarSuperEddingtonAdjustment;
+EXTERN float SmartStarSMSLifetime;
+
 /* For EnzoTiming Behavior */
 EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
 
@@ -1113,9 +1213,9 @@ EXTERN float GalaxySimulationPreWindTotalEnergy;
 EXTERN float GalaxySimulationPreWindVelocity[MAX_DIMENSION];
 
 /* Supernova magnetic seed field */
-EXTERN int UseSupernovaSeedFieldSourceTerms;
-EXTERN float SupernovaSeedFieldRadius;
-EXTERN float SupernovaSeedFieldDuration;
-EXTERN float SupernovaSeedFieldEnergy;
+EXTERN int UseMagneticSupernovaFeedback;
+EXTERN float MagneticSupernovaRadius;
+EXTERN float MagneticSupernovaDuration;
+EXTERN float MagneticSupernovaEnergy;
 
 #endif

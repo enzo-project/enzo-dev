@@ -11,7 +11,8 @@ c
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, tindsf, mintdyn,
-     &                      odthresh, masseff, smthresh, level, np, 
+     &                      odthresh, masseff, smthresh, usejeans,
+     &                      level, np, 
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
      &                      imetalSNIa, metalSNIa, metalfSNIa)
@@ -58,6 +59,7 @@ c    masseff - gas-to-mass conversion efficiency ( 0<=masseff<=1 )
 c    smthresh - star mass threshold (only creates stars with mass >
 c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
+c    usejeans - use jeans mass check 
 c    level - current level of refinement
 c    procnum - processor number (for output)
 c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
@@ -84,7 +86,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC imetalSNIa, procnum, tindsf
+      INTG_PREC imetalSNIa, procnum, tindsf, usejeans
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
@@ -106,12 +108,9 @@ c  Locals:
 c
       INTG_PREC  i, j, k, ii
       R_PREC   div, tdyn, dtot
-      R_PREC   pi, G, sndspdC
+      R_PREC   sndspdC
       R_PREC   isosndsp2, starmass, starfraction, bmass, jeanmass
-      real*8 msolar
-      parameter (pi=pi_val, G=GravConst, 
-     &           sndspdC=1.3095e8_RKIND,
-     &           msolar=SolarMass)
+      parameter (sndspdC=1.3095e8_RKIND)
 c
       ii = np
 c
@@ -154,7 +153,8 @@ c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
+               tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/
+     &                      GravConst/dtot)/t1
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
      &             temp(i,j,k) .gt. 1.1e4_RKIND) goto 10
@@ -165,12 +165,16 @@ c                 implies that the dark matter velocity dispersion is >>
 c                 the sound speed.  This will be true for small perturbations
 c                 within large halos).
 c
-c               bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / msolar
-c               isosndsp2 = sndspdC * temp(i,j,k)
-c               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
-c     &                    dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
-c
-c               if (bmass .lt. jeanmass) goto 10
+               bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / SolarMass
+               isosndsp2 = sndspdC * temp(i,j,k)
+               if (usejeans .eq. 1) then
+                  jeanmass = pi_val/(6._RKIND*
+     &                 sqrt(d(i,j,k)*dble(d1)))*
+     &                 dble(pi_val * isosndsp2 /
+     &                 GravConst)**1.5_RKIND / SolarMass
+
+                  if (bmass .lt. jeanmass) goto 10
+               endif
 c
 c              6) Check to see if star is above threshold (given
 c                 in units of M_solar)
@@ -288,7 +292,8 @@ c
      &                      distrad, diststep, distcells,
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, type, justburn)
+     &                      mp, tdp, tcp, metalf, type, justburn, 
+     &                      crmodel, crfeedback, cr)
 
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
@@ -338,6 +343,9 @@ c    yield    - fraction of stellar mass that is converted to metals
 c    distrad  - feedback distribution radius in cells
 c    diststep - distance in walking steps to deposit feedback
 c    distcells - total number of cells over which to distribute feedback
+c    crmodel   - boolean: 1 = include cosmic ray physics, 0 = no cosmic ray physics                                                
+c    crfeedback - fraction of thermal supernova energy to return as cosmic rays                                                    
+c    cr         - Cosmic ray BaryonField  
 c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
@@ -363,15 +371,18 @@ c
       R_PREC    up(npart), vp(npart), wp(npart)
       R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
       INTG_PREC type(npart)
+      INTG_PREC crmodel
+      R_PREC cr(nx,ny,nz)
+      R_PREC crfeedback
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
       INTG_PREC i, j, k, n, ic, jc, kc, stepk, stepj, cellstep
-      R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
+      R_PREC mform, tfactor, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio,
      &     distmass
-      parameter (clight = c_light, msolar_e51 = 1800._RKIND)
+      parameter (msolar_e51 = 1800._RKIND)
 c
 c-----------------------------------------------------------------------
 c
@@ -460,7 +471,7 @@ c
 c           Calculate how much of the star formation in this
 c           timestep would have gone into supernova energy.
 c
-            energy = sn_param * mform * (clight/v1)**2 / distcells
+            energy = sn_param * mform * (c_light/v1)**2/distcells
 c
 c             (aug 7/00 addition: share ejected energy between gas
 c              being ejected and that remaining in star particle)
@@ -481,12 +492,22 @@ c
                      cellstep = stepj + abs(ic-i)
                      if (cellstep .le. diststep) then
                         dratio = 1._RKIND/(d(ic,jc,kc) + distmass)
-                        te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
-     &                       energy) * dratio
-                        if (idual .eq. 1)
-     &                       ge(ic,jc,kc) = 
-     &                       ((ge(ic,jc,kc)*d(ic,jc,kc)) +
-     &                       energy) * dratio
+                        if( crmodel .gt. 0 ) then
+                          te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
+     &                          energy*(1._RKIND-crfeedback)) * dratio
+                          if (idual .eq. 1)
+     &                      ge(ic,jc,kc) =
+     &                         ((ge(ic,jc,kc)*d(ic,jc,kc)) +
+     &                         energy*(1._RKIND-crfeedback)) * dratio
+                          cr(ic,jc,kc) = cr(ic,jc,kc)+energy*crfeedback
+                        else
+                           te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
+     &                          energy) * dratio
+                           if (idual .eq. 1)
+     &                          ge(ic,jc,kc) =
+     &                          ((ge(ic,jc,kc)*d(ic,jc,kc)) +
+     &                          energy) * dratio
+                        endif
 c
 c           Metal feedback (note that in this function gas metal is
 c             a fraction (rho_metal/rho_gas) rather than a density.
