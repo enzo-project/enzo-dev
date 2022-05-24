@@ -13,6 +13,7 @@
 ************************************************************************/
 
 #include "CloudyCoolingData.h"
+#include "EquilibriumTable.h"
 #include "CoolData.h"
 #include "RateData.h"
 #include "RadiationFieldData.h"
@@ -169,17 +170,8 @@ const field_type
 
   /* Cosmic Ray Energy Density */
   CRDensity = 97,
- 
-  /* IR photodetachment fields */
-  kdissH2II = 98,
-  kphHM     = 99,
 
-  /* Real and Imag of Wave Function */
-  RePsi = 101,
-  ImPsi = 102,
-  FDMDensity = 103,
-
-  FieldUndefined  = 104;
+  FieldUndefined  = 98;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -192,8 +184,8 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
                  FieldUndefined};
 */
 
-#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) == kdissH2II) || ((A) == kphHM) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3)) ? FALSE : TRUE)
-#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) == kdissH2II) || ((A) == kphHM) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
+#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3)) ? FALSE : TRUE)
+#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
 #define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential) || ((A) == RaySegments)) ? TRUE : FALSE)
 
 /* Different stochastic forcing types */
@@ -203,22 +195,6 @@ const forcing_type
   Parabolic  = 2,
   Band       = 3;
 
-const enum_type
-/* indices used for vectors/Jacobians in SGS model */
-  SGSX   = 0,
-  SGSY   = 1,
-  SGSZ   = 2,
-/* indices used for symmetric tensors */
-  SGSXX  = 0,
-  SGSYY  = 1,
-  SGSZZ  = 2,
-  SGSXY  = 3,
-  SGSYZ  = 4,
-  SGSXZ  = 5,
-  SGSYX  = 3,
-  SGSZY  = 4,
-  SGSZX  = 5;
-
 /* These are the different types of fluid boundary conditions. */
 
 const boundary_type
@@ -227,8 +203,7 @@ const boundary_type
   inflow            = 2,
   periodic          = 3,
   shearing          = 4,
-  hydrostatic       = 5,
-  BoundaryUndefined = 6;
+  BoundaryUndefined = 5;
 
 // enum boundary_type {reflecting, outflow, inflow, periodic, BoundaryUndefined};
 
@@ -271,8 +246,7 @@ const hydro_method
 
 // enum hydro_method {PPM_DirectEuler, PPM_LagrangeRemap, Zeus_Hydro};
 
-const enum_type iHI = 0, iHeI = 1, iHeII = 2, LW = 3, IR = 4, XRAYS = 5, 
-TRACINGSPECTRUM = 6, H2II = 7;
+const enum_type iHI = 0, iHeI = 1, iHeII = 2, iH2I = 3, iHII = 4;
 const enum_type Cartesian = 0, Spherical = 1, Cylindrical = 2;
 const enum_type PLM = 0, PPM = 1, CENO = 2, WENO3 = 3, WENO5 = 4, ZERO = 5;
 const enum_type FluxReconstruction = 0, HLL = 1, Marquina = 2,
@@ -309,11 +283,7 @@ const star_type
   SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
-  MBH = PARTICLE_TYPE_MBH,
-  RadSource = PARTICLE_TYPE_RAD,
-  Kravtsov = PARTICLE_TYPE_STAR,
-  CenOstriker = PARTICLE_TYPE_STAR,
-  AccretingParticle = PARTICLE_TYPE_MUST_REFINE;
+  MBH = PARTICLE_TYPE_MBH;
 
 /* Define a float/int union. */
 

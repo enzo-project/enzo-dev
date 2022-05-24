@@ -29,8 +29,6 @@
 #include "global_data.h"
 #include "CosmologyParameters.h"
 
-#include "phys_constants.h"
-
 #define SMALL_LOG_VALUE -99.0
 
 /**************************** Functions Prototypes ******************************/
@@ -53,11 +51,11 @@ int InitializeCloudyCooling(FLOAT Time)
 
   // Initialize things needed even if cloudy cooling is not used.
 
-    CloudyCoolingData.CloudyCoolingGridParameters = new float*[CLOUDY_COOLING_MAX_DIMENSION];
-    CloudyCoolingData.CloudyCoolingGridDimension = new int[CLOUDY_COOLING_MAX_DIMENSION];
-    for (q = 0;q < CLOUDY_COOLING_MAX_DIMENSION;q++) {
-      CloudyCoolingData.CloudyCoolingGridDimension[q] = 0; 
-    }
+  CloudyCoolingData.CloudyCoolingGridParameters = new float*[CLOUDY_COOLING_MAX_DIMENSION];
+  CloudyCoolingData.CloudyCoolingGridDimension = new int[CLOUDY_COOLING_MAX_DIMENSION];
+  for (q = 0;q < CLOUDY_COOLING_MAX_DIMENSION;q++) {
+    CloudyCoolingData.CloudyCoolingGridDimension[q] = 0; 
+  }
 
   // Zero arrays if cloudy cooling not used.
 
@@ -100,6 +98,7 @@ int InitializeCloudyCooling(FLOAT Time)
   double tbase1 = TimeUnits;
   double xbase1 = LengthUnits/(a*aUnits);
   double dbase1 = DensityUnits * POW(a*aUnits, 3);
+  double mh = 1.67e-24;
   double CoolUnit = (POW(aUnits,5) * POW(xbase1,2) * POW(mh,2)) /
                     (POW(tbase1,3) * dbase1);
 

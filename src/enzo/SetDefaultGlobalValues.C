@@ -22,7 +22,6 @@
 #include "global_data.h"
 #include "TopGridData.h"
 #include "StarParticleData.h"
-#include "phys_constants.h"
  
 /* character strings */
  
@@ -51,6 +50,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
  
   /* declarations */
  
+  const float Pi = 3.14159;
   int dim, i, j;
  
   huge_number               = 1.0e+20;
@@ -193,9 +193,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HydroMethod               = PPM_DirectEuler;   //
   Gamma                     = 5.0/3.0;           // 5/3
   PressureFree              = FALSE;             // use pressure (duh)
-  QuantumPressure           = FALSE;             // FDM: no fuzzy dark matter
-  FDMMass           = 1.0;             // FDM: FDM mass 1e-22 eV
-
   RefineBy                  = 2;                 // Refinement factor
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
@@ -248,8 +245,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MustRefineRegionRightEdge[dim]  = 1.0;
     MustRefineParticlesLeftEdge[dim] = 0.0;
     MustRefineParticlesRightEdge[dim] = 0.0;
-    CoolingRefineRegionLeftEdge[dim]   = 0.0;
-    CoolingRefineRegionRightEdge[dim]  = 1.0;
     DiskGravityPosition[dim]        = 0.0;
     DiskGravityAngularMomentum[dim] = 0.0;
     GalaxySimulationRPSWindVelocity[dim] = 0.0;
@@ -295,44 +290,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     }
   }
 
-  /* for cooling refinement regions. */
-
-  UseCoolingRefineRegion = FALSE;
-  EvolveCoolingRefineRegion = FALSE;
-  CoolingRefineRegionFile = NULL;
-  CoolingRefineRegionTimeType = -1; /* 0=time bins 1=redshift bins*/
-
-  for (i = 0; i < MAX_REFINE_REGIONS; i++) {
-    EvolveCoolingRefineRegionTime[i] = FLOAT_UNDEFINED;
-    for (j = 0; j < MAX_DIMENSION; j++) {
-      EvolveCoolingRefineRegionLeftEdge[i][j]  = FLOAT_UNDEFINED;
-      EvolveCoolingRefineRegionRightEdge[i][j] = FLOAT_UNDEFINED;
-    }
-  }
-
-
-  /* For evolving MustRefine regions. */
-  MustRefineRegionFile = NULL;
-  MustRefineRegionTimeType = -1; /* 0=time bins 1=redshift bins*/
-  for (i = 0; i < MAX_REFINE_REGIONS; i++) {
-    EvolveMustRefineRegionTime[i] = FLOAT_UNDEFINED;
-    EvolveMustRefineRegionMinLevel[i] = INT_UNDEFINED;
-    for (j = 0; j < MAX_DIMENSION; j++) {
-      EvolveMustRefineRegionLeftEdge[i][j]  = FLOAT_UNDEFINED;
-      EvolveMustRefineRegionRightEdge[i][j] = FLOAT_UNDEFINED;
-    }
-  }
-
-  /* For storing mass of density fields living domain */
-  StoreDomainBoundaryMassFlux = 0;
-  BoundaryMassFluxFilename    = "boundary_mass_flux.dat";
-  for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
-    BoundaryMassFluxFieldNumbers[i] = -1;
-    BoundaryMassFluxContainer[i] = 0.0;
-  }
-
   DatabaseLocation = NULL;
 
+ 
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;
   Unigrid                     = FALSE;
@@ -393,15 +353,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityStellarDiskScaleHeightz = 2.5E-4;      // Mpc
   DiskGravityStellarBulgeMass        = 1.0E10;      // Solar Masses
   DiskGravityStellarBulgeR           = 4.0E-4;      // Mpc
-  DiskGravityDarkMatterR             = 2.3E-2;      // Mpc
-  DiskGravityDarkMatterDensity       = 3.81323E-25; // CGS
+  DiskGravityDarkMatterMass          = 1e12;        // Solar Masses
+  DiskGravityDarkMatterConcentration = 10.0;
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
   AccretionKernal             = FALSE;             // off
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
-  GravitationalConstant       = 4*pi;              // G = 1
+  GravitationalConstant       = 4*Pi;              // G = 1
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
@@ -437,22 +397,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     DrivenFlowDomainLength[dim] = 0.0;
   }
 
-  UseSGSModel = 0; // off
-  SGSFilterStencil = 0; // the one-dimensional stencil of the complete filter 
-  SGSNeedJacobians = 0; // set automatically in ReadParameter file 
-  SGSNeedMixedFilteredQuantities = 0; // set automatically in ReadParameter file
-  SGSFilterWidth = 0.; // off, i.e. use grid-scale quantities
-  for (i = 0; i < 4; i++)
-    // discrete filter weights of explicit filter
-    SGSFilterWeights[i] = 0.;
-  SGScoeffERS2M2Star = 0.0; // off
-  SGScoeffEVStarEnS2Star = 0.0; // off
-  SGScoeffEnS2StarTrace = 0.0; // off
-  SGScoeffNLemfCompr = 0.0; // off
-  SGScoeffNLu = 0.0; // off
-  SGScoeffNLuNormedEnS2Star = 0.0; // off
-  SGScoeffNLb = 0.0; // off
-
   RadiativeCooling            = FALSE;             // off
   RadiativeCoolingModel       = 1;                 //1=cool_rates.in table lookup
                                                    //3=Koyama&Inutsuka 2002
@@ -470,19 +414,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2OpticalDepthApproximation = 1;
   H2FormationOnDust           = FALSE;
   GloverChemistryModel        = 0;                 // 0ff
-  CRModel                     = 0;                 // off                                                                          
-  CRDiffusion                 = 0;                 // off                                                                          
-  CRHeating                   = 0;                 // off                                                                          
-  CRStreaming                 = 0;                 // off                                                                          
-  CRStreamVelocityFactor      = 1.0;                // Alfven velocity (only relevant when CRStreaming == 1)                        
-  CRStreamStabilityFactor     = 1000.0;             // This should be large and calibrated for each simulation
+  CRModel                     = 0;                 // off
+  CRDiffusion                 = 0;                 // off
   CRkappa                     = 0.0;
   CRCourantSafetyNumber       = 0.5;
-  CRFeedback                  = 0.0;               // no stellar feedback into CRs                                                 
-  CRdensFloor                 = tiny_number;       // off                                                                          
-  CRmaxSoundSpeed             = 0.0;               // off                                                                          
-  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas                                                  
-  CosmologySimulationUniformCR= 1e-20;             // FIXME   
+  CRFeedback                  = 0.0;               // no stellar feedback into CRs
+  CRdensFloor                 = 0.0;               // off
+  CRmaxSoundSpeed             = 0.0;               // off 
+  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
+  CosmologySimulationUniformCR= 1e-20;             // FIXME
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
@@ -541,7 +481,36 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
-  use_grackle = FALSE;
+#ifdef USE_GRACKLE
+    // Grackle chemistry data structure.
+  chemistry_data *my_chemistry;
+  my_chemistry = new chemistry_data;
+  if (set_default_chemistry_parameters(my_chemistry) == FAIL) {
+    ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
+  }
+
+  // Map Grackle defaults to corresponding Enzo parameters
+  Gamma                                 = (float) grackle_data->Gamma;
+  MultiSpecies                          = (int) grackle_data->primordial_chemistry;
+  MetalCooling                          = (int) grackle_data->metal_cooling;
+  H2FormationOnDust                     = (int) grackle_data->h2_on_dust;
+  CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data->cmb_temperature_floor;
+  ThreeBodyRate                         = (int) grackle_data->three_body_rate;
+  CIECooling                            = (int) grackle_data->cie_cooling;
+  H2OpticalDepthApproximation           = (int) grackle_data->h2_optical_depth_approximation;
+  PhotoelectricHeating                  = (int) grackle_data->photoelectric_heating;
+  PhotoelectricHeatingRate              = (float) grackle_data->photoelectric_heating_rate;
+  CoolData.NumberOfTemperatureBins      = (int) grackle_data->NumberOfTemperatureBins;
+  RateData.CaseBRecombination           = (int) grackle_data->CaseBRecombination;
+  CoolData.TemperatureStart             = (float) grackle_data->TemperatureStart;
+  CoolData.TemperatureEnd               = (float) grackle_data->TemperatureEnd;
+  RateData.NumberOfDustTemperatureBins  = (int) grackle_data->NumberOfDustTemperatureBins;
+  RateData.DustTemperatureStart         = (float) grackle_data->DustTemperatureStart;
+  RateData.DustTemperatureEnd           = (float) grackle_data->DustTemperatureEnd;
+  CoolData.HydrogenFractionByMass       = (float) grackle_data->HydrogenFractionByMass;
+  CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data->DeuteriumToHydrogenRatio;
+  CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
+#endif
 
   OutputCoolingTime = FALSE;
   OutputTemperature = FALSE;
@@ -593,6 +562,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerMassEfficiency          = 1;
   StarMakerMinimumMass             = 1.0e9;        // in solar masses
   StarMakerMinimumDynamicalTime    = 1.0e6;        // in years
+  StarMakerVelDivCrit              = TRUE;
+  StarMakerSelfBoundCrit           = FALSE;
+  StarMakerThermalCrit             = TRUE;
+  StarMakerJeansMassCrit           = TRUE;
+  StarMakerH2Crit                  = FALSE;
+  StarMakerStochasticStarFormation = FALSE;
+  StarMakerTemperatureThreshold    = 100;          // in K
   StarMassEjectionFraction         = 0.25;
   StarMetalYield                   = 0.02;
   StarEnergyToThermalFeedback      = 1.0e-5;
@@ -603,7 +579,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarFeedbackDistRadius           = 0;
   StarFeedbackDistCellStep         = 0;
   StarFeedbackDistTotalCells       = 1;
-  StarMakerUseJeansMass            = TRUE;
+  StarMakerDensityThreshold        = 1e-25; // proper g/cm^3
+  StarFeedbackDelayTime            = 3.e7; // yr
+  StarFeedbackDeltaT               = 1.e7; // K
+  StarFeedbackUVLuminosity         = 1.6e36; // erg/s/Msun (Stinson et al. 2013)
+  StarMakerJeansMassCriterion      = TRUE;
+  StarMakerEarlyStellarFeedback    = FALSE;
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
@@ -746,12 +727,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerH2FloorInColdGas = 0.0;
   H2StarMakerColdGasTemperature = 1e4;
 
-  StarMakerMinimumMassRamp = 0;
-  StarMakerMinimumMassRampStartTime = FLOAT_UNDEFINED;
-  StarMakerMinimumMassRampStartMass = FLOAT_UNDEFINED;
-  StarMakerMinimumMassRampEndTime   = FLOAT_UNDEFINED;
-  StarMakerMinimumMassRampEndMass   = FLOAT_UNDEFINED;
-      
+  StarFeedbackThermalEfficiencyRamp = 0;
+  StarFeedbackThermalEfficiencyRampStartTime  = FLOAT_UNDEFINED;
+  StarFeedbackThermalEfficiencyRampStartValue = FLOAT_UNDEFINED;
+  StarFeedbackThermalEfficiencyRampEndTime    = FLOAT_UNDEFINED;
+  StarFeedbackThermalEfficiencyRampEndValue   = FLOAT_UNDEFINED;
+
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
   LastSupernovaTime                = FLOAT_UNDEFINED;
@@ -827,9 +808,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   iEtot = 4;
   iEint = 0;
 
-  UsePoissonDivergenceCleaning		   = 0;
-  PoissonDivergenceCleaningBoundaryBuffer = 0;
-  PoissonDivergenceCleaningThreshold	   = 0.001;
+  UseDivergenceCleaning		   = 0;
+  DivergenceCleaningBoundaryBuffer = 0;
+  DivergenceCleaningThreshold	   = 0.001;
   PoissonApproximationThreshold	   = 0.001;
   PoissonBoundaryType	   = 0;
 
@@ -999,14 +980,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParticleSplitterIterations = FALSE;
   ParticleSplitterChildrenParticleSeparation = 1.0;
   ParticleSplitterRandomSeed = 131180;
-  ParticleSplitterMustRefine = FALSE;
-  ParticleSplitterMustRefineIDFile = NULL;
-  for(int i = 0; i < MAX_SPLIT_ITERATIONS; i++)
-    ParticleSplitterFraction[i] = 1.0;
-  for(int i = 0; i < MAX_DIMENSION; i++)
-    ParticleSplitterCenter[i] = -1.0;
-  for(int i = 0; i < MAX_SPLIT_ITERATIONS; i++)
-    ParticleSplitterCenterRegion[i] = -1.0;
 
   /* Magnetic Field Resetter */
 
@@ -1019,40 +992,16 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   BAnyl                       = 0;
   WriteExternalAccel          = 0;
 
-  for (i = 0; i < MAX_ACTIVE_PARTICLE_TYPES; i++)
-    EnabledActiveParticles[i] = NULL;
-  EnabledActiveParticlesCount = 0;
-  UnfulfilledStarFormationMass = 0;
-  NextActiveParticleID = INT_UNDEFINED;
-  NumberOfActiveParticles = 0;
-  ActiveParticleDensityThreshold = 1e8; //in cm^-3
-  //SmartStar Feedback modes
-  SmartStarAccretion = 8;
-  SmartStarFeedback = FALSE;
-  SmartStarEddingtonCap = FALSE;
-  SmartStarBHFeedback = FALSE;
-  SmartStarBHRadiativeFeedback = FALSE;
-  SmartStarBHJetFeedback = FALSE;
-  SmartStarBHThermalFeedback = FALSE;
-  SmartStarStellarRadiativeFeedback = FALSE;
-  
-  //SmartStar Feedback parameters - should be as minimal as possible
-  SmartStarFeedbackEnergyCoupling = 0.016666;
-  SmartStarFeedbackJetsThresholdMass = 1.0;
-  SmartStarJetVelocity = 1e-1; //as a fraction of clight
-  SmartStarSuperEddingtonAdjustment = TRUE;
-  SmartStarSpin = 0.7;
-  SmartStarSMSLifetime = 1e6; //1 Myr
   /* Gas drag parameters */
   UseGasDrag = 0;
   GasDragCoefficient = 0.;
 
-  /* Supernova magnetic feedback */
+  /* Supernova magnetic seed field */
   /* Default == 0 -> no magnetic field contribution */
-  UseMagneticSupernovaFeedback = 0;   // 0 = off; 1+ = on;  2 = Radius and duration calculated during runtime
-  MagneticSupernovaRadius = 300.0;      // Total injection radius of magnetic field in parsecs
-  MagneticSupernovaDuration = 5e4  ;    // Total duration of magnetic feedback in years
-  MagneticSupernovaEnergy = 1.0e51;    // Total energy (ergs) injected per star particle (supernova)
+  UseSupernovaSeedFieldSourceTerms = 0;
+  SupernovaSeedFieldRadius = 0.0;
+  SupernovaSeedFieldDuration = 0.0;
+  SupernovaSeedFieldEnergy = 0.0;
 
   return SUCCESS;
 }
