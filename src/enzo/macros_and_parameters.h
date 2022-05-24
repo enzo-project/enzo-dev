@@ -538,6 +538,7 @@ typedef long long int   HDF5_hid_t;
 #define POP3_STAR	3
 #define SINK_PARTICLE	4
 #define STAR_CLUSTER    5
+#define HOPKINS_STAR    6
 #define INSTANT_STAR    7
 #define SPRINGEL_HERNQUIST_STAR 8
 #define MBH_PARTICLE    9

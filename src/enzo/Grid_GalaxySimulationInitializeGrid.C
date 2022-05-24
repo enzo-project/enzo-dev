@@ -1,6 +1,4 @@
-
 /***********************************************************************
-[6~/
 /  GRID CLASS (INITIALIZE THE GRID FOR A GALAXY SIMULATION)
 /
 /  written by: Greg Bryan
@@ -181,8 +179,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
            FLOAT GalaxySimulationInflowTime,
            FLOAT GalaxySimulationInflowDensity,
            int level,
-           FLOAT GalaxySimulationInitialBfield[MAX_DIMENSION],
-           int GalaxySimulationInitialBfieldTopology,
            FLOAT GalaxySimulationCR
           )
 {
@@ -246,7 +242,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   if(HydroMethod == MHD_RK ){
     FieldType[PhiNum = NumberOfBaryonFields++] = PhiField;
   }
-  if (UseDivergenceCleaning) {
+  if (UsePoissonDivergenceCleaning) {
     FieldType[NumberOfBaryonFields++] = Phi_pField;
   }
 
@@ -627,26 +623,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	  printf("G_GSIC: negative or zero energy  n = %"ISYM"  temp = %"FSYM"   e = %"FSYM"\n",
 		 n, temperature, BaryonField[1][n]);
 
-	if ( UseMHD ){
-	  switch ( GalaxySimulationInitialBfieldTopology ){
-	  case 0: //uniform
-	    for (dim = 0; dim < GridRank; dim++) {
-	      if( UseMHDCT ){
-		MagneticField[dim][n] = GalaxySimulationInitialBfield[dim];
-	      }
-	      BaryonField[B1Num+dim][n] = GalaxySimulationInitialBfield[dim];
-	    }
-	    break;
-          default:
-	    ENZO_FAIL("undefined value of GalaxySimulationInitialBfieldTopology");
-	  }
-	  BaryonField[1][n] += 0.5*(BaryonField[B1Num][n]*BaryonField[B1Num][n]
-				    +BaryonField[B2Num][n]*BaryonField[B2Num][n]
-				    +BaryonField[B3Num][n]*BaryonField[B3Num][n])/
-	    BaryonField[0][n];
-	}//UseMHD
-	if( CRModel )
-	  BaryonField[CRNum][n] = BaryonField[DensNum][n] * GalaxySimulationCR;
 
 	// Set multispecies fields!
 	// this attempts to set them such that species conservation is maintained,

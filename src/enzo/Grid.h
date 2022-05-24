@@ -2321,7 +2321,6 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int _GalaxySimulationInitialization = 0;
   int GalaxySimulationInitializeGrid(
 				     FLOAT DiskRadius,
-				     float GalaxyMass,
 				     FLOAT GalaxyMass,
 				     FLOAT GasMass,
 				     FLOAT DiskPosition[MAX_DIMENSION], 
@@ -2356,8 +2355,6 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     FLOAT GalaxySimulationInflowTime,
 				     FLOAT GalaxySimulationInflowDensity,
 				     int level,
-				     FLOAT GalaxySimulationInitialBfield[MAX_DIMENSION],
-				     int GalaxySimulationInitialBfieldTopology,
 				     FLOAT GalaxySimulationCR = 0.0
                  );
 

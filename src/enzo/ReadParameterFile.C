@@ -20,7 +20,6 @@
 // This routine reads the parameter file in the argument and sets parameters
 //   based on it.
 
-#include "StarParticleData.h"
 #include "preincludes.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -977,7 +976,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StarMakerSelfBoundCrit = %"ISYM,
       &StarMakerSelfBoundCrit);
     ret += sscanf(line, "StarMakerThermalCrit = %"ISYM,
-      &StarMakerThermalCrit)''
+      &StarMakerThermalCrit);
     ret += sscanf(line, "StarMakerUseJeansMass = %"ISYM,
 		  &StarMakerUseJeansMass);
     ret += sscanf(line, "StarMakerUseJeansCrit = %"ISYM,
