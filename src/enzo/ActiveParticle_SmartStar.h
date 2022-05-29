@@ -385,17 +385,14 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       double MassUnits;
       GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, Time);
 
-      ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
-        ParticleList);
-
-        // SG. Return if ThisLevel != APGrid level. 
-      for (int i = 0; i < nParticles; i++) {
-        grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
-				int MyLevel = APGrid->GridLevel;
-				if (ThisLevel != MyLevel){
-          return SUCCESS;
-        }
-      }
+      //   // SG. Return if ThisLevel != APGrid level -> doesn't work as particle traverses levels.
+      // for (int i = 0; i < nParticles; i++) {
+      //   grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+			// 	int MyLevel = APGrid->GridLevel;
+			// 	if (ThisLevel != MyLevel){
+      //     return SUCCESS;
+      //   }
+      // }
 
       /* Return if there are no smartstar particles */
 
@@ -406,7 +403,17 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       LevelHierarchyEntry *Temp = NULL;
 	    HierarchyEntry *Temp2 = NULL;
       Temp = LevelArray[ThisLevel];
+
       while (Temp != NULL) {
+
+        // // SG. Check we're on the maximum LOCAL refinement level from the get-go. 
+        // for (k = Temp->GridStartIndex[2]; k <= Temp->GridEndIndex[2]; k++) {
+        //   for (j = Temp->GridStartIndex[1]; j <= Temp->GridEndIndex[1]; j++) {
+        //   index = GRIDINDEX_NOGHOST(Temp->GridStartIndex[0], j, k);
+        //     for (i = Temp->GridStartIndex[0]; i <= Temp->GridEndIndex[0]; i++, index++) {
+        // if (Temp->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
+        //   continue;
+        // } else{
         
         /* Zero under subgrid field */
       
@@ -422,13 +429,17 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         Temp = Temp->NextGridThisLevel; // how we loop over all grids on the level.
 
       } // END: Grids
+
+
+      ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
+        ParticleList);
     
 
       /* Calculate CellWidth on maximum refinement level */
       // SG. May need to fix this.
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(14))); // SG. Replaced MaximumRefinementLevel with ThisLevel.
-      //fprintf(stderr,"%s: CellWidth dx = %e and ThisLevel = %"ISYM" (but dx calculated for level 14).\n", __FUNCTION__, dx*LengthUnits/pc_cm, ThisLevel); fflush(stdout);
+      // //fprintf(stderr,"%s: CellWidth dx = %e and ThisLevel = %"ISYM" (but dx calculated for level 14).\n", __FUNCTION__, dx*LengthUnits/pc_cm, ThisLevel); fflush(stdout);
 
       /* Remove mass from grid from newly formed particles */
       RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
