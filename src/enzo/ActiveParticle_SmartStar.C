@@ -2415,10 +2415,33 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 
 		grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx_sg), dx_sg, 
 									Grids, NumberOfGrids, ALL_FIELDS);
+
+		// SG. Set to 0 before it's calculated by owning proc and then communicated with other procs in CommunicateAllSumValues().
+		FLOAT positions[3] = {0,0,0}; // SG. All elements initialised to zero.
+		FLOAT NewAccretionRadius = 0;
+		FLOAT* pos;
+
 		if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
 			if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
 			return FAIL;
-		}
+
+			// SG. positions is the array of dereferenced particle positions in each dim.
+			positions[0] = ParticleList[i]->ReturnPosition()[0];
+			positions[1] = ParticleList[i]->ReturnPosition()[1];
+			positions[2] = ParticleList[i]->ReturnPosition()[2];
+		} // END my processor
+
+		// SG. Communicate with all procs the updated accretion radius and particle position.
+		CommunicationAllSumValues(&NewAccretionRadius, 1);
+		CommunicationAllSumValues(positions, 3);
+
+		ParticleList[i]->AccretionRadius = NewAccretionRadius;
+		AccretionRadius = ParticleList[i]->AccretionRadius;
+
+		ParticleList[i]->pos[0] = positions[0];
+		ParticleList[i]->pos[1] = positions[1];
+		ParticleList[i]->pos[2] = positions[2];
+
 		DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
 		delete FeedbackZone;
 				
@@ -2426,6 +2449,9 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 
 } // SG. End FOR loop over particles
   
+		if (AssignActiveParticlesToGrids(ParticleList, nParticles, LevelArray) == FAIL)
+		return FAIL;
+
   delete [] Grids;
 
   return SUCCESS;
