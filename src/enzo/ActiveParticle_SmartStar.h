@@ -394,6 +394,9 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       //   }
       // }
 
+      ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
+        ParticleList);
+
       /* Return if there are no smartstar particles */
 
       if (nParticles == 0){
