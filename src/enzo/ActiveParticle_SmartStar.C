@@ -2270,7 +2270,7 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 {
 
 /* 			SG. Get dx of grid cell here. This function is calling all grids on level.
-						1) accrad, 2) cell width, 3) parameter for no cells to refine the accretion 
+						1) accrad, 2) cell width, 3) parameter for number cells to refine the accretion 
 						radius by.
 						Only if dx > dx_bondi is DepositRefinementZone triggered.
 	*/
@@ -2376,14 +2376,29 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
   
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
 		FLOAT dx_sg = LevelArray[ThisLevel]->GridData->CellWidth[0][0]; // SG. Grid cell width.
+
+	// 	// SG. Check we're on the maximum LOCAL refinement level from the get-go. 
+ //  for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+ //    for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+	//   index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
+ //      for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
+	// if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
+	// 	 continue;
+	// }
+	// 					}
+	// 			}
+	// 	}
   
   for (int i = 0; i < nParticles; i++) {			
 				if (SmartStarFeedback == FALSE){
 				 continue;
 				}
-	   int pclass = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ParticleClass;
-				float OldMassCheck = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->oldmass; // SG. Checking.
-    FLOAT AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
+
+				ActiveParticleType_SmartStar* SS;
+				SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+	   int pclass = SS->ParticleClass;
+				float OldMassCheck = SS->oldmass; // SG. Checking.
+    FLOAT AccretionRadius = SS->AccretionRadius;
 	   //fprintf(stderr, "%s: AccretionRadius = %e and pclass = %"ISYM" and oldmass (check) = %e.\n", __FUNCTION__, AccretionRadius*LengthUnits/pc_cm, pclass, OldMassCheck);
     
 				// SG. BH class.
@@ -2416,31 +2431,31 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
 		grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx_sg), dx_sg, 
 									Grids, NumberOfGrids, ALL_FIELDS);
 
-		// SG. Set to 0 before it's calculated by owning proc and then communicated with other procs in CommunicateAllSumValues().
-		FLOAT positions[3] = {0,0,0}; // SG. All elements initialised to zero.
-		FLOAT NewAccretionRadius = 0;
-		FLOAT* pos;
+		// // SG. Set to 0 before it's calculated by owning proc and then communicated with other procs in CommunicateAllSumValues().
+		// FLOAT positions[3] = {0,0,0}; // SG. All elements initialised to zero.
+		// FLOAT NewAccretionRadius = 0;
+		// FLOAT* pos;
 
 		if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
 			if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
 			return FAIL;
 
-			// SG. positions is the array of dereferenced particle positions in each dim.
-			positions[0] = ParticleList[i]->ReturnPosition()[0];
-			positions[1] = ParticleList[i]->ReturnPosition()[1];
-			positions[2] = ParticleList[i]->ReturnPosition()[2];
+			// // SG. positions is the array of dereferenced particle positions in each dim.
+			// positions[0] = ParticleList[i]->ReturnPosition()[0];
+			// positions[1] = ParticleList[i]->ReturnPosition()[1];
+			// positions[2] = ParticleList[i]->ReturnPosition()[2];
 		} // END my processor
 
 		// SG. Communicate with all procs the updated accretion radius and particle position.
-		CommunicationAllSumValues(&NewAccretionRadius, 1);
-		CommunicationAllSumValues(positions, 3);
+		// CommunicationAllSumValues(&NewAccretionRadius, 1);
+		// CommunicationAllSumValues(positions, 3);
 
-		ParticleList[i]->AccretionRadius = NewAccretionRadius;
-		AccretionRadius = ParticleList[i]->AccretionRadius;
+		// ParticleList[i]->AccretionRadius = NewAccretionRadius;
+		// AccretionRadius = ParticleList[i]->AccretionRadius;
 
-		ParticleList[i]->pos[0] = positions[0];
-		ParticleList[i]->pos[1] = positions[1];
-		ParticleList[i]->pos[2] = positions[2];
+		// ParticleList[i]->pos[0] = positions[0];
+		// ParticleList[i]->pos[1] = positions[1];
+		// ParticleList[i]->pos[2] = positions[2];
 
 		DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
 		delete FeedbackZone;
