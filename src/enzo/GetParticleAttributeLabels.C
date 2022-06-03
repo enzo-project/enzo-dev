@@ -103,7 +103,7 @@ void GetParticleAttributeLabels(std::vector<std::string> & ParticleAttributeLabe
   } else { // not using individual star model
 
     if (StarMakerTypeIaSNe){
-      ParticleAttributeLabel[3 + ii++] = "typeia_fraction";
+      ParticleAttributeLabel[3] = "typeia_fraction";
     }
 
   }

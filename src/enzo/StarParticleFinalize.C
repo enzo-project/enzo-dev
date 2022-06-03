@@ -85,6 +85,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     BigStarFormationDone = CommunicationMaxValue(BigStarFormationDone);
 
   LCAPERF_START("StarParticleFinalize");
+  TIMER_START("StarParticleFinalize");
 
   /* Update the star particle counters. */
 
@@ -178,7 +179,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       ThisStar->SetType( ABS(ThisStar->ReturnType()) );
     }
     ThisStar->ResetAccretion();
+    TIMER_START("StarParticleFinalize:CopyToGrid");
     ThisStar->CopyToGrid();
+    TIMER_STOP("StarParticleFinalize:CopyToGrid");
     ThisStar->MirrorToParticle();
 
     // The pointers have been copied to the grid copy above, so we can
@@ -223,5 +226,6 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   delete [] AddedFeedback;
 
   LCAPERF_STOP("StarParticleFinalize");
+  TIMER_STOP("StarParticleFinalize");
   return SUCCESS;
 }
