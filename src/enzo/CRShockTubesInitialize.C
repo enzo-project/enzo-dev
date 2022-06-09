@@ -35,6 +35,10 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
+  char *BxName = "Bx";
+  char *ByName = "By";
+  char *BzName = "Bz";
+  char *PhiName = "Phi";
   char *CRName = "CREnergyDensity";
   char *ColourName = "colour";
 
@@ -52,7 +56,10 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
     LeftVelocityY = 0.0, RightVelocityY = 0.0, CenterVelocityY = 0.0,
     LeftVelocityZ = 0.0, RightVelocityZ = 0.0, CenterVelocityZ = 0.0,
     LeftPressure = 1.0, RightPressure = 1.0, CenterPressure = 1.0,
-    LeftCRDensity = 1.0, RightCRDensity = 1.0, CenterCRDensity = 1.0;
+    LeftCRDensity = 1.0, RightCRDensity = 1.0, CenterCRDensity = 1.0, 
+    LeftBx = 0.0, RightBx = 0.0, CenterBx = 0.0, 
+    LeftBy = 0.0, RightBy = 0.0, CenterBy = 0.0, 
+    LeftBz = 0.0, RightBz = 0.0, CenterBz = 0.0;
   
   /* read input from file */
 
@@ -104,6 +111,24 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
       &CenterDensity);
     ret += sscanf(line, "HydroShockTubesCenterCREnDensity = %"FSYM,
       &CenterCRDensity);
+    ret += sscanf(line, "HydroShockTubesLeftBx = %"FSYM,
+                  &LeftBx);
+    ret += sscanf(line, "HydroShockTubesRightBx = %"FSYM,
+                  &RightBx);
+    ret += sscanf(line, "HydroShockTubesCenterBx = %"FSYM,
+                  &CenterBx);
+    ret += sscanf(line, "HydroShockTubesLeftBy = %"FSYM,
+                  &LeftBy);
+    ret += sscanf(line, "HydroShockTubesRightBy = %"FSYM,
+                  &RightBy);
+    ret += sscanf(line, "HydroShockTubesCenterBy = %"FSYM,
+                  &CenterBy);
+    ret += sscanf(line, "HydroShockTubesLeftBz = %"FSYM,
+                  &LeftBz);
+    ret += sscanf(line, "HydroShockTubesRightBz = %"FSYM,
+                  &RightBz);
+    ret += sscanf(line, "HydroShockTubesCenterBz = %"FSYM,
+                  &CenterBz);
 
     /* if the line is suspicious, issue a warning */
 
@@ -131,7 +156,10 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 				  LeftVelocityY,  RightVelocityY, CenterVelocityY,
 				  LeftVelocityZ,  RightVelocityZ, CenterVelocityZ,
 				  LeftPressure,   RightPressure,  CenterPressure,
-				  LeftCRDensity,  RightCRDensity, CenterCRDensity);
+			       LeftCRDensity,  RightCRDensity, CenterCRDensity, 
+			       LeftBx, RightBx, CenterBx, 
+			       LeftBy, RightBy, CenterBy, 
+			       LeftBz, RightBz, CenterBz);
 
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
@@ -175,7 +203,10 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 	   LeftVelocityY,  RightVelocityY, CenterVelocityY,
 	   LeftVelocityZ,  RightVelocityZ, CenterVelocityZ,
 	   LeftPressure,   RightPressure,  CenterPressure,
-	   LeftCRDensity,  RightCRDensity, CenterCRDensity);
+	   LeftCRDensity,  RightCRDensity, CenterCRDensity, 
+	   LeftBx, RightBx, CenterBx, 
+	   LeftBy, RightBy, CenterBy, 
+	   LeftBz, RightBz, CenterBz);
 	Temp = Temp->NextGridThisLevel;
       }
     } // end: loop over levels
@@ -209,11 +240,16 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = Vel2Name;
   DataLabel[count++] = Vel3Name;
   DataLabel[count++] = TEName;
-  DataLabel[count++] = CRName;
   if (DualEnergyFormalism) {
     DataLabel[count++] = GEName;
   }
-
+  if (HydroMethod == MHD_RK) {
+    DataLabel[count++] =  BxName;
+    DataLabel[count++] =  ByName;
+    DataLabel[count++] =  BzName;
+    DataLabel[count++] =  PhiName;
+  }
+  DataLabel[count++] = CRName;
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;
 
@@ -263,7 +299,24 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 	    CenterPressure);
     fprintf(Outfptr, "HydroShockTubesCenterCREnDensity     = %"FSYM"\n",
       CenterCRDensity);
-
+    fprintf(Outfptr, "HydroShockTubesLeftBx     = %"FSYM"\n",
+	    LeftBx);
+    fprintf(Outfptr, "HydroShockTubesRightBx     = %"FSYM"\n",
+            RightBx);
+    fprintf(Outfptr, "HydroShockTubesCenterBx     = %"FSYM"\n",
+            CenterBx);
+    fprintf(Outfptr, "HydroShockTubesLeftBy     = %"FSYM"\n",
+            LeftBy);
+    fprintf(Outfptr, "HydroShockTubesRightBy     = %"FSYM"\n",
+            RightBy);
+    fprintf(Outfptr, "HydroShockTubesCenterBy     = %"FSYM"\n",
+            CenterBy);
+    fprintf(Outfptr, "HydroShockTubesLeftBz     = %"FSYM"\n",
+            LeftBz);
+    fprintf(Outfptr, "HydroShockTubesRightBz     = %"FSYM"\n",
+            RightBz);
+    fprintf(Outfptr, "HydroShockTubesCenterBz     = %"FSYM"\n",
+            CenterBz);
   }
 
   return SUCCESS;
