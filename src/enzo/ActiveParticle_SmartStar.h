@@ -374,9 +374,10 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 
 
       /* SmartStar particles live on the maximum refinement level.  If we are on a lower level, this does not concern us */
+      int i,j,k,index;
 
       /* Generate a list of all sink particles in the simulation box */
-      int i = 0, nParticles = 0, NumberOfMergedParticles = 0;
+      int nParticles = 0, NumberOfMergedParticles = 0;
       ActiveParticleList<ActiveParticleType> ParticleList;
       FLOAT accradius = -10.0; //dummy
       // SG. Units for dx to pc conversion.
@@ -414,8 +415,8 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         //   for (j = Temp->GridStartIndex[1]; j <= Temp->GridEndIndex[1]; j++) {
         //   index = GRIDINDEX_NOGHOST(Temp->GridStartIndex[0], j, k);
         //     for (i = Temp->GridStartIndex[0]; i <= Temp->GridEndIndex[0]; i++, index++) {
-        // if (Temp->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
-        //   continue;
+        // if (Temp->BaryonField[Temp->NumberOfBaryonFields][index] != 0.0){
+        //   return SUCCESS;
         // } else{
         
         /* Zero under subgrid field */
@@ -568,7 +569,10 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         return FAIL;      
       ParticleList.clear();
 
-  
+      //       }
+      //     }
+      //   }
+      // }
   return SUCCESS;
 } // End AfterEvolveLevel function
 
