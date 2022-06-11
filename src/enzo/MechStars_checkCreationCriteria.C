@@ -120,7 +120,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     /* Gravitational constant [cm3g-1s-2]*/
     float Gcode = GravConst*DensityUnits*pow(TimeUnits,2);
     float KBcode = kboltz*MassUnits/(LengthUnits*CellWidth)/pow(TimeUnits,2);
-    cSound = sqrt(5/3*kboltz*Temperature[index]/mh/0.6)/VelocityUnits;
+    cSound = sqrt((Gamma-1)*kboltz*Temperature[index]/mh/1.4)/VelocityUnits;
     alpha = ((vfactor) + pow(cSound/(CellWidth), 2.0))
             / (8.0 * M_PI* Gcode * Density[index]);
 
@@ -131,8 +131,8 @@ int checkCreationCriteria(float* Density, float* Metals,
     float AltAlpha = TE / PE; // canonically, 2 KE / PE, but we explicitly include thermal+internal energy in TE
 
     if (MechStarsUseVirialParameter){
-        if (status && AltAlpha < 20) 
-            fprintf(stdout, "STARSS_CHCR: Compare alphas: F3 = %f; Energy method = %f div = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
+        if (debug && status && AltAlpha < 20) 
+            fprintf(stdout, "STARSS_CR: Compare alphas: F3 = %f; Energy method = %f div = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
                                 alpha, AltAlpha, div, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
         if (AltAlpha > 1.0) status = FAIL;
     }
@@ -163,34 +163,30 @@ int checkCreationCriteria(float* Density, float* Metals,
     if (jeansMass > max(baryonMass, 1e3)) status = FAIL;
     
     /* Is self Shielded fraction > 0.0 by Krumholz & Gnedin */
+    if (MechStarsUseAnalyticShieldedFraction){
+        float gradRho = (Density[index+1]-Density[index-1])
+                        *(Density[index+1]-Density[index-1]);
+        gradRho += (Density[jplus]-Density[jminus])
+                    *(Density[jplus]-Density[jminus]);
+        gradRho +=  (Density[kplus]-Density[kminus])
+                    *(Density[kplus]-Density[kminus]);
+        gradRho = pow(gradRho, 0.5);
+        // factors were given in physical units
+        float TauFactor = 434.8/*cm**2/g*/ * MassUnits/pow(LengthUnits*CellWidth, 2); // cm**2/g
+        float Tau = TauFactor * Density[index] *(CellWidth+Density[index]/gradRho);
 
-    float gradRho = (Density[index+1]-Density[index-1])
-                    *(Density[index+1]-Density[index-1]);
-    gradRho += (Density[jplus]-Density[jminus])
-                *(Density[jplus]-Density[jminus]);
-    gradRho +=  (Density[kplus]-Density[kminus])
-                *(Density[kplus]-Density[kminus]);
-    gradRho = pow(gradRho, 0.5);
-    // factors were given in physical units
-    float TauFactor = 434.8/*cm**2/g*/ * MassUnits/pow(LengthUnits*CellWidth, 2); // cm**2/g
-    float Tau = TauFactor * Density[index] *(CellWidth+Density[index]/gradRho);
+        float Phi = 0.756*pow(1+3.1*Metals[index]/Density[index]/Zsolar, 0.365);
 
-    float Phi = 0.756*pow(1+3.1*Metals[index]/Density[index]/Zsolar, 0.365);
+        float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/Zsolar)/
+                    log(1+0.6*Phi+0.01*Phi*Phi);
+        *shieldedFraction = 1.0 - 3.0/(1.0+4.0*Psi);
+        // if (debug)
+        //     fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
+        //     Tau, Phi, Psi, *shieldedFraction);
 
-    float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/Zsolar)/
-                log(1+0.6*Phi+0.01*Phi*Phi);
-    *shieldedFraction = 1.0 - 3.0/(1.0+4.0*Psi);
-    // if (debug)
-    //     fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
-    //     Tau, Phi, Psi, *shieldedFraction);
-
-    if (MechStarsUseAnalyticShieldedFraction==1)
-        {
-            if (*shieldedFraction < 0) status = FAIL;
+        if (*shieldedFraction < 0) status = FAIL;
         }
-    else
-        *shieldedFraction = 1.0; // kinda arbitrary, but just for testing.
-    if (MechStarsUseMeasuredShieldedFraction)
+    else if (MechStarsUseMeasuredShieldedFraction)
     {
         if (MultiSpecies < 2){
             fprintf(stdout, "MechStarsUseMeasuredShieldedFraction = 1 can only function with MultiSpecies > 1\n");
@@ -199,6 +195,8 @@ int checkCreationCriteria(float* Density, float* Metals,
 
         *shieldedFraction = H2[index] / (H2II[index] + H2[index]);
     }
+    else
+        *shieldedFraction = 1.0; // kinda arbitrary, but just for testing.
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
     //if (status && debug)
     //{
