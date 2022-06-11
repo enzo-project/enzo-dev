@@ -124,19 +124,20 @@ int checkCreationCriteria(float* Density, float* Metals,
     alpha = ((vfactor) + pow(cSound/(CellWidth), 2.0))
             / (8.0 * M_PI* Gcode * Density[index]);
 
+    float totalDensity = (Density[index]
+			  +DMField[index])*DensityUnits;
     float TE = TotE[index] * Density[index] * EnergyUnits; // total energy of cell
-    float PE =  GravConst * pow(Density[index]*DensityUnits,2) * pow(CellWidth*LengthUnits, 5); // Approx grav PE of cell, taking r = dx
+    float PE =  GravConst * pow(totalDensity,2) * pow(CellWidth*LengthUnits, 5); // Approx grav PE of cell, taking r = dx
     float AltAlpha = TE / PE; // canonically, 2 KE / PE, but we explicitly include thermal+internal energy in TE
 
     if (MechStarsUseVirialParameter){
         if (status && AltAlpha < 20) 
-            fprintf(stdout, "STARSS_CR: Compare alphas: F3 = %f; Energy method = %f div = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
+            fprintf(stdout, "STARSS_CHCR: Compare alphas: F3 = %f; Energy method = %f div = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
                                 alpha, AltAlpha, div, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
         if (AltAlpha > 1.0) status = FAIL;
     }
     /* Is cooling time < dynamical time or temperature < 1e4 */
-    float totalDensity = (Density[index]
-			  +DMField[index])*DensityUnits;
+
     *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5); //seconds
     if (Temperature[index] > 1.1e4)
     {
