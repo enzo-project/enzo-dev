@@ -12,6 +12,7 @@
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
 #include <vector>
+#include <map>
 #include "ProtoSubgrid.h"
 #include "ListOfParticles.h"
 #include "region.h"
@@ -142,8 +143,7 @@ class grid
 //
   int NumberOfStars;
   Star *Stars;
-  typedef struct StarLookupMap;
-  StarLookupMap *StarLookupMap;
+  std::map<int, Star> *StarLookupMap; // to speed up CopyToGrid
 
   int Grid_ChemicalEvolutionTestStarFormed;
   //

@@ -17,6 +17,7 @@
 #include <math.h>
 #include <search.h>
 #include <string.h>
+#include <map>
 #include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -43,20 +44,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-// defining relevant structure for lookup map
-
-typedef struct
-{
-      int key;
-      Star* value;
-} StarLookupMap;
-
-int compar(const void *l, const void *r)
-{
-    const StarLookupMap *lm = l;
-    const StarLookupMap *lr = r;
-    return lm->key - lr->key;
-}
 
 // IndividualStars
 int CheckPopIIIMetallicityThreshold(const double & C_fraction,
@@ -574,29 +561,28 @@ float Star::RelativeVelocity2(Star a)
 }
 float Star::RelativeVelocity2(Star *a) { return this->RelativeVelocity2(*a); };
 
-void Star::MakeStarsMap() // makes lookup table to quickly find stars in grid
+void Star::MakeStarsMap() // makes lookup table to quickly find stars in grid during CopyToGrid
 {
-  StarLookupMap *StarsMap = malloc(sizeof(StarLookupMap));
+  std::map<int, Star> StarsMap;
   Star *cstar;
-  void *root = 0;
   if (CurrentGrid != NULL)
+    printf("starting starsmap\n");
     for (cstar = CurrentGrid->Stars; cstar; cstar = cstar->NextStar) {
-      StarsMap->key = cstar->Identifier;
-      StarsMap->value = *cstar; // adding Identifiers as keys, stars as values
-      tsearch(StarsMap, &root, compar); /* insert */
+      StarsMap[cstar->Identifier] = *cstar; // adding Identifiers as keys, stars as values
     }
+  printf("finished starsmap\n");
   CurrentGrid->StarLookupMap = StarsMap; // saving it as attribute to the grid
+  return;
 }
 
 void Star::CopyToGrid()
 {
-  StarLookupMap *StarsMap;
+  std::map<int, Star> StarsMap;
   Star *cstar;
   void *root = 0;
   if (CurrentGrid != NULL) { // NULL => On another processor
     StarsMap = CurrentGrid->StarLookupMap;
-    void *r = tfind(StarsMap, &root, compar); /* read */
-    *cstar = (*(StarLookupMap**)r)->value;
+    *cstar = StarsMap[Identifier]; // *cstar or cstar?
     *cstar = *this;
   }  
   return;
