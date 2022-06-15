@@ -193,6 +193,7 @@ public:
   void	AssignAccretedAngularMomentum(void);
   void	DeleteCopyInGrid(void);
   int   DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[]);
+  void  MakeStarsMap(void);
   void	CopyToGrid(void);
   void  MirrorToParticle(void);
   bool  IsARadiationSource(FLOAT Time);

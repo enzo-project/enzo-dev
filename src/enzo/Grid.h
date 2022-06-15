@@ -142,6 +142,8 @@ class grid
 //
   int NumberOfStars;
   Star *Stars;
+  typedef struct StarLookupMap;
+  StarLookupMap *StarLookupMap;
 
   int Grid_ChemicalEvolutionTestStarFormed;
   //

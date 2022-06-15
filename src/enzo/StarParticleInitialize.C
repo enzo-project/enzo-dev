@@ -145,6 +145,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 #ifdef INDIVIDUALSTAR
   if (SkipFeedbackFlag){
 #endif
+  AllStars->MakeStarsMap();
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
     float dtForThisStar   = LevelArray[ThisLevel]->GridData->ReturnTimeStep();
 

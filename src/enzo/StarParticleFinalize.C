@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -158,6 +159,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   int count = 0;
   int mbh_particle_io_count = 0;
   OutputNow = FALSE;
+  TIMER_START("StarParticleFinalize:MakeStarsMap");
+  AllStars->MakeStarsMap();
+  TIMER_STOP("StarParticleFinalize:MakeStarsMap");
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
 //    if (debug) {

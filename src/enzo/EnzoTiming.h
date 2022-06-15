@@ -30,12 +30,12 @@
 #include <map>
 
 template <typename T>
-bool min(const T& A, const T& B) {
+T min(const T& A, const T& B) {
   return A < B ? A : B;
 }
 
 template <typename T>
-bool max(const T& A, const T& B) {
+T max(const T& A, const T& B) {
   return A > B ? A : B;
 }
 
