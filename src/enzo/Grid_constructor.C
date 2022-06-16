@@ -191,6 +191,7 @@ grid::grid()
   
   NumberOfStars = 0;
   Stars = NULL;
+  StarLookupMap;
 
   NumberOfActiveParticles = 0;
   for (i=0; i<MAX_ACTIVE_PARTICLE_TYPES; i++) {

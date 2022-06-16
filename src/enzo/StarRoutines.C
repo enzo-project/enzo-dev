@@ -564,12 +564,15 @@ float Star::RelativeVelocity2(Star *a) { return this->RelativeVelocity2(*a); };
 void Star::MakeStarsMap() // makes lookup table to quickly find stars in grid during CopyToGrid
 {
   std::map<int, Star> StarsMap;
+  printf("initialized StarsMap\n");
   Star *cstar;
-  if (CurrentGrid != NULL)
+  printf("initialized cstar\n");
+  if (CurrentGrid != NULL) {
     printf("starting starsmap\n");
     for (cstar = CurrentGrid->Stars; cstar; cstar = cstar->NextStar) {
       StarsMap[cstar->Identifier] = *cstar; // adding Identifiers as keys, stars as values
     }
+  }
   printf("finished starsmap\n");
   CurrentGrid->StarLookupMap = StarsMap; // saving it as attribute to the grid
   return;
