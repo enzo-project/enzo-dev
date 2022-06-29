@@ -110,7 +110,7 @@ MACH_LDFLAGS  =
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g -O0
-# Best for pleiades ivy bridge, haswell, and broadwell nodes.
+# Best for pleiades ivy bridge, haswell, broadwell, skylake and cascade lake nodes.
 # Does NOT work for the Aitken Rome nodes; use separate machine file for those
 # See: goo.gl/A0IFMV
 MACH_OPT_HIGH        = -g -O2 -axCORE-AVX512,CORE-AVX2 -xAVX -ip -ipo
