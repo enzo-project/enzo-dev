@@ -42,7 +42,7 @@ ytcfg["yt","suppressStreamLogging"] = "True"
 ytcfg["yt","__command_line"] = "True" 
 from yt.mods import *
 
-from yt.utilities.command_line import get_yt_version
+from yt.funcs import get_yt_version
 from yt.utilities.logger import ytLogger as mylog
 from yt.utilities.logger import \
     disable_stream_logging, ufstring

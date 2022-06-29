@@ -41,8 +41,6 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-  if (DualEnergyFormalism > 0) NEQ_MHD = 10;
-
   TIMER_START("MHDRK2");
 #ifdef ECUDA
   if (UseCUDA) {
