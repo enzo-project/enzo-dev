@@ -108,8 +108,6 @@ MACH_OPT_AGGRESSIVE  = -O3  -ip -ipo -march=core-avx2
 
 LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
-LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7/ \
-                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.7/site-packages/numpy/core/include
 LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_GRACKLE)
