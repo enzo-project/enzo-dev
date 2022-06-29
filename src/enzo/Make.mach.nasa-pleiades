@@ -113,8 +113,8 @@ MACH_OPT_DEBUG       = -g -O0
 # Best for pleiades ivy bridge, haswell, and broadwell nodes.
 # Does NOT work for the Aitken Rome nodes; use separate machine file for those
 # See: goo.gl/A0IFMV
-MACH_OPT_HIGH        = -g -O2 -xAVX -ip -ipo
-MACH_OPT_AGGRESSIVE  = -O3 -xAVX -ip -ipo
+MACH_OPT_HIGH        = -g -O2 -axCORE-AVX512,CORE-AVX2 -xAVX -ip -ipo
+MACH_OPT_AGGRESSIVE  = -O3 -axCORE-AVX512,CORE-AVX2 -xAVX -ip -ipo
 
 #-----------------------------------------------------------------------
 # Includes
