@@ -97,10 +97,10 @@ MACH_LDFLAGS  =
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g -O0
-# Best for pleiades ivy bridge nodes.
-# See: goo.gl/A0IFMV
-MACH_OPT_HIGH        = -g -O2  -ip -ipo
-MACH_OPT_AGGRESSIVE  = -O3  -ip -ipo
+# Best for Aitken Rome nodes
+# See: https://www.nas.nasa.gov/hecc/support/kb/preparing-to-run-on-aitken-rome-nodes_657.html
+MACH_OPT_HIGH        = -g -O2  -ip -ipo -march=core-avx2
+MACH_OPT_AGGRESSIVE  = -O3  -ip -ipo -march=core-avx2
 
 #-----------------------------------------------------------------------
 # Includes
