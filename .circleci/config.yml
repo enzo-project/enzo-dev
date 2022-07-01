@@ -205,16 +205,16 @@ jobs:
 
       - restore_cache:
           name: "Restore test answers."
-          key: test-answers-v14
+          key: test-answers-v15
 
       - build-and-test:
-          tag: gold-standard-v14
+          tag: gold-standard-v15
           skipfile: ~/enzo_test/push_suite
           flags: --answer-store
 
       - save_cache:
           name: "Save test answers cache."
-          key: test-answers-v14
+          key: test-answers-v15
           paths:
             - ~/enzo_test/push_suite
 
