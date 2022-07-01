@@ -31,7 +31,7 @@ commands:
             pip install --upgrade wheel
             pip install --upgrade setuptools
             pip install 'matplotlib<3.3.0'
-            pip install Cython numpy h5py fastcache flake8 nose yt girder-client
+            pip install Cython numpy h5py fastcache flake8 nose yt==3.6.1 girder-client
             # Install hypre
             mkdir -p $HOME/local
             if [ ! -f $HOME/local/lib/libHYPRE.a ]; then
@@ -97,10 +97,11 @@ commands:
     steps:
       - run:
           name: "Compile enzo and run tests."
+          no_output_timeout: 20m
           command: |
             source $BASH_ENV
             source $HOME/venv/bin/activate
-            if [ ! -f << parameters.skipfile >> ]; then
+            if [ ! -e << parameters.skipfile >> ]; then
               git checkout << parameters.tag >>
               ./configure
               cd src/enzo
@@ -125,7 +126,7 @@ commands:
             make machine-ubuntu
             # test various baryon/particle precisions
             for prec in 32 64
-            do for part in 32 64 128
+            do for part in 32 128
             do
             # skip the test-suite configuration
             if [[ $prec == 64 && $part == 64 ]]; then
@@ -140,8 +141,8 @@ commands:
             make precision-64
             make particles-64
             # test various integer/particle-id precisions
-            for inte in 32 64
-            do for pids in 32 64
+            for inte in 64
+            do for pids in 64
             do
             # skip the test-suite configuration
             if [[ $inte == 32 && $pids == 32 ]]; then
@@ -177,7 +178,7 @@ commands:
 jobs:
   test-suite:
     docker:
-      - image: circleci/python:3.8.5
+      - image: cimg/python:3.8.5
 
     working_directory: ~/enzo-dev
 
@@ -208,7 +209,7 @@ jobs:
 
       - build-and-test:
           tag: gold-standard-v14
-          skipfile: ~/enzo_test/push_suite/push_suite
+          skipfile: ~/enzo_test/push_suite
           flags: --answer-store
 
       - save_cache:
@@ -224,7 +225,7 @@ jobs:
 
   test-compile-options:
     docker:
-      - image: circleci/python:3.8.5
+      - image: cimg/python:3.8.5
 
     working_directory: ~/enzo-dev
 
@@ -251,7 +252,7 @@ jobs:
 
   docs-build:
     docker:
-      - image: circleci/python:3.8.5
+      - image: cimg/python:3.8.5
 
     working_directory: ~/enzo-dev
 

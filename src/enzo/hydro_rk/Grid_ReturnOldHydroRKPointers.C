@@ -35,7 +35,7 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
 
   int i, n, dim, size, nfield, n0;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int B1Num, B2Num, B3Num, PhiNum;
+  int B1Num, B2Num, B3Num, PhiNum, CRNum;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
@@ -48,9 +48,13 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
   }
 
   else if (HydroMethod == MHD_RK) {
-    this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				     Vel3Num, TENum, B1Num, B2Num, B3Num, 
-				     PhiNum);
+    if (CRModel)
+      this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                       Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRNum);
+    else
+      this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+				       Vel3Num, TENum, B1Num, B2Num, B3Num,
+				       PhiNum);
     nfield = n0 = NEQ_MHD;
   }
   
@@ -70,7 +74,10 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[iBz] = OldBaryonField[B3Num];
     Prim[iPhi] = OldBaryonField[PhiNum];
   }
-
+ 
+  if (CRModel){
+    Prim[iCR] = OldBaryonField[CRNum];
+  }
   /* Add the species */
 
   if (MultiSpecies) {
