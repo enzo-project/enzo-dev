@@ -25,7 +25,7 @@ class TestPhotonTest(AnswerTestingTest):
         return np.array([dd.mean(), dd.std(), dd.min(), dd.max()])
 
     def compare(self, new_result, old_result):
-        tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+        tolerance = ytcfg.get("yt", "answer_testing_tolerance")
         assert_allclose(new_result, old_result, rtol=10**-tolerance, atol=0)
 
 @requires_outputlog(_dir_name, _pf_name)

@@ -25,7 +25,7 @@ class TestShockImage(AnswerTestingTest):
         return np.array([dens.mean(), dens.std(), dens.min(), dens.max()])
 
     def compare(self, new_result, old_result):
-        tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+        tolerance = ytcfg.get("yt", "answer_testing_tolerance")
         assert_allclose(new_result, old_result, rtol=10**-tolerance, atol=0)
 
 class TestRadialDensity(AnswerTestingTest):
@@ -51,7 +51,7 @@ class TestRadialDensity(AnswerTestingTest):
         return na.array(diag_den)
 
     def compare(self, new_result, old_result):
-        tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+        tolerance = ytcfg.get("yt", "answer_testing_tolerance")
         assert_allclose(new_result, old_result, rtol=10**-tolerance, atol=0)
 
     def plot(self):

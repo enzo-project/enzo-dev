@@ -15,7 +15,7 @@ def test_briowu():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()
-    tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+    tolerance = ytcfg.get("yt", "answer_testing_tolerance")
     pf = sim[-1]
     for field in _fields:
         yield AllFieldValuesTest(pf, field, decimals=tolerance)

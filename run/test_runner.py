@@ -716,8 +716,8 @@ if __name__ == "__main__":
             options.bitwise = False
     options.tolerance = int(options.tolerance)
 
-    ytcfg["yt","answer_testing_tolerance"] = str(options.tolerance)
-    ytcfg["yt","answer_testing_bitwise"] = str(options.bitwise)
+    ytcfg["yt","answer_testing_tolerance"] = options.tolerance
+    ytcfg["yt","answer_testing_bitwise"] = options.bitwise
     reporting_plugin.tolerance = options.tolerance
     reporting_plugin.bitwise = options.bitwise
 

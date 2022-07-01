@@ -30,8 +30,7 @@ commands:
             pip install --upgrade pip
             pip install --upgrade wheel
             pip install --upgrade setuptools
-            pip install 'matplotlib<3.3.0'
-            pip install Cython numpy h5py fastcache flake8 nose yt==3.6.1 girder-client
+            pip install Cython numpy h5py fastcache flake8 nose yt==4.0.4 girder-client matplotlib
             # Install hypre
             mkdir -p $HOME/local
             if [ ! -f $HOME/local/lib/libHYPRE.a ]; then
@@ -108,7 +107,7 @@ commands:
               make machine-ubuntu
               make load-config-test-suite
               make clean
-              make -j 4
+              make -j 6
               cd ../../run
               python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=$ANSWER_NAME --local --strict=high --verbose << parameters.flags >>
             fi
@@ -135,7 +134,7 @@ commands:
             make precision-$prec
             make particles-$part
             make clean
-            make -j 4 || (make show-config ; exit 1)
+            make -j 6 || (make show-config ; exit 1)
             done ; done
             # return this to default
             make precision-64
@@ -151,19 +150,19 @@ commands:
             make integers-$inte
             make particle-id-$pids
             make clean
-            make -j 4 || (make show-config ; exit 1)
+            make -j 6 || (make show-config ; exit 1)
             done ; done
             make integers-64
             make particle-id-64
             # test without mpi
             make use-mpi-no
             make clean
-            make -j 4 || (make show-config ; exit 1)
+            make -j 6 || (make show-config ; exit 1)
             make use-mpi-yes
             # test ray-tracing
             make photon-no
             make clean
-            make -j 4 || (make show-config ; exit 1)
+            make -j 6 || (make show-config ; exit 1)
 
   build-docs:
     description: "Test the docs build."
@@ -180,6 +179,7 @@ jobs:
     docker:
       - image: cimg/python:3.8.5
 
+    resource_class: large
     working_directory: ~/enzo-dev
 
     steps:
@@ -227,6 +227,7 @@ jobs:
     docker:
       - image: cimg/python:3.8.5
 
+    resource_class: large
     working_directory: ~/enzo-dev
 
     steps:
