@@ -2058,7 +2058,7 @@ General Star Formation
 ::
 
       0  - Cen & Ostriker (1992)
-      1  - Cen & Ostriker (1992) with stocastic star formation
+      1  - Cen & Ostriker (1992) with stocastic star formation & no Jeans mass check
       2  - Global Schmidt Law / Kravstov et al. (2003)
       3  - Population III stars / Abel, Wise & Bryan (2007)
       4  - Sink particles: Pure sink particle or star particle with wind feedback depending on 
@@ -2103,8 +2103,32 @@ General Star Formation
     star formation. When spatial resolution gets high enough to
     resolve the Jeans length, the Jeans Mass check restricts star
     formation that should occur. Only implemented for
-    ``StarParticleCreation`` method = 1 (e.g. ``star_marker_2``).
+    ``StarParticleCreation`` method = 0.
     Default: 1.
+
+``StarMakerVelDivCrit`` (external)
+    Check that the gas flow is converging; 
+    i.e., that the velocity divergence is negative.
+    Only implemented for ``StarParticleCreation`` method = 0.
+    Default: 1.
+
+``StarMakerSelfBoundCrit`` (external)
+    Check that the gas is gravitationally self-bound following Equation 3
+    in Hopkins et al. 2013. Only implemented for ``StarParticleCreation`` method = 0.
+    Default: 0.
+
+``StarMakerThermalCrit`` (external)
+    Check that the gas is either cool enough or cooling fast enough to form a star.
+    The former compares the gas cooling time to the dynamical time. The latter
+    checks the gas temperature against ``StarMakerTemperatureThreshold``.
+    Only implemented for ``StarParticleCreation`` method = 0.
+    Default: 1.
+
+``StarMakerH2Crit`` (external)
+    Form stars based on the H2 mass (rather than total mass).
+    Based on Hopkins et al. 2013. This option is only implemented for 
+    ``StarParticleCreation`` method = 0 and is different from method 11.
+    Default: 0   
 
 ``StarMakerTypeIaSNe`` (external)
     This parameter turns on thermal and chemical feedback from Type Ia
@@ -2154,7 +2178,8 @@ The parameters below are considered in ``StarParticleCreation`` method
 ``StarMakerSHDensityThreshold`` (external)
     The critical density of gas used in Springel & Hernquist star
     formation ( \\rho_{th} in the paper) used to determine the star
-    formation timescale in units of g cm\ :sup:`-3`\ . Only valid for ``StarParticleCreation`` method = 8. Default: 7e-26.
+    formation timescale in units of g cm\ :sup:`-3`\ . Only valid for 
+    ``StarParticleCreation`` method = 8. Default: 7e-26.
 ``StarMakerMassEfficiency`` (external)
     The fraction of identified baryonic mass in a cell
     (Mass\*dt/t_dyn) that is converted into a star particle. Default:
@@ -2176,14 +2201,23 @@ The parameters below are considered in ``StarParticleCreation`` method
     When used, the factor of dt / t_dyn is removed from the calculation of 
     the star particle mass above.  Instead of the local dynamical time, the 
     timescale over which feedback occurs is a constant set by the parameter 
+``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
     ``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
+``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
     conduction as the timesteps can be very short, which causes the calculated 
     star particle mass to never exceed reasonable values for 
+``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
     ``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
+``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
     actually forming stars, and when combined with conduction, results in too 
     much heat being transferred out of hot gas.  When running a cosmological 
     simulation with conduction and star formation, one must use this otherwise 
     bad things will happen.  (1 - ON; 0 - OFF)  Default: 0.
+``StarMakerTemperatureThreshold``
+    Vary the temperature threshold in Kelvin for star formation (method 2). 
+    Below this temperature, the comparison between the cooling and dynamical
+    times is ignored when testing for star formation.
+    Default: 1.1e4
 ``StarMassEjectionFraction`` (external)
     The mass fraction of created stars which is returned to the gas
     phase. Default: 0.25

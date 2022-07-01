@@ -90,26 +90,29 @@ extern "C" void FORTRAN_NAME(star_maker1)(int *nx, int *ny, int *nz,
              float *d1, float *x1, float *v1, float *t1,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
      		 int *ibuff, hydro_method *imethod,
-             float *odthresh, float *massff, float *smthrest, int *level,
+             float *odthresh, float *massff, float *smthresh, int *level,
 		 int *np,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp);
 #endif /* STAR1 */
  
 extern "C" void FORTRAN_NAME(star_maker2)(int *nx, int *ny, int *nz,
-             float *d, float *dm, float *temp, float *u, float *v, float *w,
-                float *cooltime,
-             float *dt, float *r, float *metal, float *dx, FLOAT *t, float *z,
-             int *procnum,
-             float *d1, float *x1, float *v1, float *t1,
-             int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
-     		 int *ibuff,
-             int *imetal, hydro_method *imethod, int *tindsf, float *mintdyn,
-	     float *odthresh, float *massff, float *smthrest, int *usejeans, int *level,
-		 int *np, 
-             FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-		float *mp, float *tdp, float *tcp, float *metalf,
-	     int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
+               float *d, float *dm, float *temp, float *u, float *v, float *w,
+               float *h2, float *cooltime,
+               float *dt, float *r, float *metal, float *dx, FLOAT *t, float *z,
+               int *procnum,
+               float *d1, float *x1, float *v1, float *t1,
+               int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
+     		      int *ibuff,
+               int *imetal, hydro_method *imethod, int *tindsf, float *mintdyn,
+	            int *veldivcrit, int *selfboundcrit,
+               int *thermalcrit, int* usejeans, int *h2crit, 
+               float *odthresh, float *masseff, float *smthresh, float *tempthresh, 
+               int *level,
+		         int *np, 
+               FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
+		         float *mp, float *tdp, float *tcp, float *metalf,
+	            int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
  
 extern "C" void FORTRAN_NAME(star_maker3mom)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
@@ -121,7 +124,7 @@ extern "C" void FORTRAN_NAME(star_maker3mom)(int *nx, int *ny, int *nz,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
      		 int *ibuff,
              int *imetal, hydro_method *imethod, float *mintdyn,
-             float *odthresh, float *massff, float *smthrest, int *level,
+             float *odthresh, float *massff, float *smthresh, int *level,
 		 int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf,
@@ -137,7 +140,7 @@ extern "C" void FORTRAN_NAME(star_maker3)(int *nx, int *ny, int *nz,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
      		 int *ibuff,
              int *imetal, hydro_method *imethod, float *mintdyn,
-             float *odthresh, float *massff, float *smthrest, int *level,
+             float *odthresh, float *massff, float *smthresh, int *level,
 		 int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 		 float *mp, float *tdp, float *tcp, float *metalf,
@@ -150,31 +153,11 @@ extern "C" void FORTRAN_NAME(star_maker4)(int *nx, int *ny, int *nz,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, 
      		 int *ibuff, 
              int *imetal, hydro_method *imethod, float *mintdyn,
-             float *odthresh, float *smthrest, int *level,
+             float *odthresh, float *smthresh, int *level,
 	         int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf,
  	     int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
-
-extern "C" void FORTRAN_NAME(star_maker6)(
-            int *nx, int *ny, int *nz,
-            float *d, float *dm, float *temp, 
-            float *u, float *v, float *w, float *h2,
-            float *cooltime, 
-            float *dt, float *r, float *metal, 
-            float *dx, FLOAT *t, float *z, int *procnum,
-            float *d1, float *x1, float *v1, float *t1,
-            int *nmax, 
-            FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, int *ibuff, 
-            int *imetal, hydro_method *imethod, int *stochasticformation,
-            float *mintdyn, int *tindsf, int *veldivcrit, int *selfboundcrit,
-            int *thermalcrit, int* jeansmasscrit, int *h2crit, 
-            float *odthresh, float *masseff, float *smthresh, float *tempthresh, 
-            int *level,
-            int *np, 
-            FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-            float *mp, float *tdp, float *tcp, float *metalf,
-            int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
 
  extern "C" void FORTRAN_NAME(star_maker7)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
@@ -185,7 +168,7 @@ extern "C" void FORTRAN_NAME(star_maker6)(
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
      		 int *ibuff,
              int *imetal, hydro_method *imethod, float *mintdyn,
-             float *odthresh, float *massff, float *smthrest, int *level,
+             float *odthresh, float *massff, float *smthresh, int *level,
 		 int *np, int *npart,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf, 
@@ -203,7 +186,7 @@ extern "C" void FORTRAN_NAME(star_maker5)
    int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, int *ibuff, 
    int *imetal, hydro_method *imethod, float *mintdyn,
    float *odthresh, float *shdens, 
-   float *smthrest, int *level, int *np,
+   float *smthresh, int *level, int *np,
    FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
    float *mp, float *tdp, float *tcp, float *metalf,
    FLOAT *rr_left0, FLOAT *rr_left1, FLOAT *rr_left2, 
@@ -257,7 +240,7 @@ extern "C" void FORTRAN_NAME(star_maker_ssn)(int *nx, int *ny, int *nz,
     int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
     int *ibuff,
     int *imetal, hydro_method *imethod, int *tindsf,
-    float *odthresh, int *useodthresh, float *massff, float *smthrest, int *level,
+    float *odthresh, int *useodthresh, float *massff, float *smthresh, int *level,
     int *np,
     FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
     float *mp, float *tdp, float *tcp, float *metalf,
@@ -302,7 +285,7 @@ extern "C" void FORTRAN_NAME(star_maker10)(int *nx, int *ny, int *nz,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
      		 int *ibuff,
              int *imetal, hydro_method *imethod, float *mintdyn,
-             float *odthresh, float *massff, float *smthrest, int *level,
+             float *odthresh, float *massff, float *smthresh, int *level,
 		 int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf);
@@ -564,7 +547,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Find Multi-species fields. */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum; 
-  if (STARMAKE_METHOD(H2REG_STAR))
+  if (STARMAKE_METHOD(H2REG_STAR) || StarMakerH2Crit)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
@@ -821,23 +804,27 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
     if (STARMAKE_METHOD(NORMAL_STAR)) {
 
-      //---- MODIFIED SF ALGORITHM ("STANDARD VERSION")
+      //---- MODIFIED CEN OSTRIKER FOLLOWING HOPKINS ET AL 2013 ("STANDARD VERSION")
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
       FORTRAN_NAME(star_maker2)(
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
+       BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[H2INum],
+       cooling_time,
        &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer,
-          &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+       &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
-          CellLeftEdge[2], &GhostZones,
+       CellLeftEdge[2], &GhostZones,
        &MetallicityField, &HydroMethod, &StarMakerTimeIndependentFormation,
        &StarMakerMinimumDynamicalTime,
+       &StarMakerVelDivCrit, &StarMakerSelfBoundCrit, 
+       &StarMakerThermalCrit, &StarMakerUseJeansMass, &StarMakerH2Crit, 
        &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
-       &StarMakerMinimumMass, &StarMakerUseJeansMass, &level, &NumberOfNewParticles, 
+       &StarMakerMinimumMass, &StarMakerTemperatureThreshold,
+       &level, &NumberOfNewParticles, 
        tg->ParticlePosition[0], tg->ParticlePosition[1],
           tg->ParticlePosition[2],
        tg->ParticleVelocity[0], tg->ParticleVelocity[1],
@@ -848,44 +835,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
-    }
-
-    if (STARMAKE_METHOD(HOPKINS_STAR)) {
-      //---- MODIFIED CEN OSTRIKER ALGORITHM FOLLOWING HOPKINS ET AL 2013
-
-      NumberOfNewParticlesSoFar = NumberOfNewParticles;
-
-      FORTRAN_NAME(star_maker6)(
-        GridDimension, GridDimension+1, GridDimension+2,
-        BaryonField[DensNum], dmfield, temperature, 
-        BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], // 9
-        BaryonField[H2INum],
-        cooling_time,
-        &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer,        // 14
-        &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
-        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,          // 22
-        &MaximumNumberOfNewParticles,
-        CellLeftEdge[0], CellLeftEdge[1],CellLeftEdge[2], &GhostZones,
-        &MetallicityField, &HydroMethod, &StarMakerStochasticStarFormation, // 30
-        &StarMakerMinimumDynamicalTime, &StarMakerTimeIndependentFormation,
-        &StarMakerVelDivCrit, &StarMakerSelfBoundCrit, 
-        &StarMakerThermalCrit, &StarMakerUseJeansMass, &StarMakerH2Crit, 
-        &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
-        &StarMakerMinimumMass, &StarMakerTemperatureThreshold,            // 41
-        &level,
-        &NumberOfNewParticles, 
-        tg->ParticlePosition[0], 
-        tg->ParticlePosition[1], 
-        tg->ParticlePosition[2],
-        tg->ParticleVelocity[0], 
-        tg->ParticleVelocity[1],
-        tg->ParticleVelocity[2],
-        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-        tg->ParticleAttribute[2],
-        &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
-
-      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
-          tg->ParticleType[i] = NormalStarType;   
     }
 
     if (STARMAKE_METHOD(MOM_STAR)) {

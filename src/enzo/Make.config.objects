@@ -930,7 +930,6 @@ OBJS_CONFIG_LIB = \
         star_maker3.o \
         star_maker4.o \
 	star_maker5.o \
-        star_maker6.o \
         star_maker7.o \
 	star_maker8.o \
 	star_maker9.o \

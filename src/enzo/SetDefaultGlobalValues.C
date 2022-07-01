@@ -598,8 +598,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerThermalCrit             = TRUE;
   StarMakerUseJeansMass            = TRUE;
   StarMakerH2Crit                  = FALSE;
-  StarMakerStochasticStarFormation = FALSE;
-  StarMakerTemperatureThreshold    = 100;          // in K
+  StarMakerTemperatureThreshold    = 1.1e4;        // in K
   StarMassEjectionFraction         = 0.25;
   StarMetalYield                   = 0.02;
   StarEnergyToThermalFeedback      = 1.0e-5;
