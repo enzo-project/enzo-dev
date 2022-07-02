@@ -227,14 +227,14 @@ def test_phase():
                            ("gas", "cooling_time")],
                           weight_field=('gas', 'cell_mass'))
     density = profile.x
-    temperature = profile['gas', 'temperature']
-    cooling_time = profile1['gas', 'cooling_time']
-    cell_mass = profile['gas', 'cell_mass']
+    temperature = profile[('gas', 'temperature')]
+    cooling_time = profile1[('gas', 'cooling_time')]
+    cell_mass = profile[('gas', 'cell_mass')]
 
     filename = 'phase_data.h5'
     save_filename = os.path.join(_dir_name, filename)
-    data = {'density': density, 'temperature': temperature,
-            'cooling_time': cooling_time, 'cell_mass': cell_mass}
+    data = {('data', 'density'): density, ('data', 'temperature'): temperature,
+            ('data', 'cooling_time'): cooling_time, ('data', 'cell_mass'): cell_mass}
     yt.save_as_dataset(ds, save_filename, data)
 
     pp = yt.PhasePlot(ad, ('gas', 'density'), ('gas', 'temperature'), ('gas', 'cell_mass'))
@@ -253,7 +253,7 @@ def test_phase():
     ds_comp = yt.load(compare_filename)
 
     # assert quality to 8 decimals
-    assert_rel_equal(data['density'], ds_comp.data['density'], 8)
-    assert_rel_equal(data['temperature'], ds_comp.data['temperature'], 8)
-    assert_rel_equal(data['cooling_time'], ds_comp.data['cooling_time'], 8)
-    assert_rel_equal(data['cell_mass'], ds_comp.data['cell_mass'], 8)
+    assert_rel_equal(data[('data', 'density')], ds_comp.data[('data', 'density')], 8)
+    assert_rel_equal(data[('data', 'temperature')], ds_comp.data[('data', 'temperature')], 8)
+    assert_rel_equal(data[('data', 'cooling_time')], ds_comp.data[('data', 'cooling_time')], 8)
+    assert_rel_equal(data[('data', 'cell_mass')], ds_comp.data[('data', 'cell_mass')], 8)
