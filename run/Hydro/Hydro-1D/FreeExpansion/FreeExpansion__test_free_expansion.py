@@ -1,12 +1,11 @@
-from yt.mods import *
+import os
+import numpy as np
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
      AnswerTestingTest, \
      sim_dir_load
 from yt.frontends.enzo.answer_testing_support import \
      requires_outputlog
-
-import numpy as na
 
 _pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
 _dir_name = os.path.dirname(__file__)
@@ -21,7 +20,7 @@ class TestFreeExpansionDistance(AnswerTestingTest):
     def run(self):
         ray = self.ds.ray([0.0,0.5,0.5], [1.0,0.5,0.5])
         ray_length = np.sqrt(((ray.end_point - ray.start_point)**2).sum())
-        ipos = na.argwhere(ray[('gas', 'velocity_magnitude')] == 0.0)
+        ipos = np.argwhere(ray[('gas', 'velocity_magnitude')] == 0.0)
         if len(ipos) > 0:
             ipos = ipos.min()
         else:

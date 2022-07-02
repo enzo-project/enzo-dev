@@ -3,7 +3,6 @@
 ###
 
 import os
-from yt.mods import *
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
     VerifySimulationSameTest, \

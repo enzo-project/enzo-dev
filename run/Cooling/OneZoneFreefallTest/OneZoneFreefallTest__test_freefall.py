@@ -1,4 +1,4 @@
-from yt.mods import *
+import os
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
      FieldValuesTest, \

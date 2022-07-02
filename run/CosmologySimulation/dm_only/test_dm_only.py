@@ -74,7 +74,7 @@ def test_dark_matter_mass():
     # sum masses
     MDM   = np.sum(data[('all', 'particle_mass')][ data[('all', 'particle_type')] == 1 ].to('Msun'))
 
-    output_data    = {'mass' : MDM}
+    output_data    = {('data', 'mass') : MDM}
 
     # save
     filename = "DM_mass_results.h5"
@@ -87,7 +87,7 @@ def test_dark_matter_mass():
         return
 
     ds_comp          = yt.load(compare_filename)
-    assert_rel_equal(output_data['mass'], ds_comp.data['mass'], tolerance)
+    assert_rel_equal(output_data[('data', 'mass')], ds_comp.data[('data', 'mass')], tolerance)
 
 def test_output_number():
     ds = yt.load(os.path.join(_dir_name, 'DD0000/DD0000'))

@@ -1,4 +1,5 @@
-from yt.mods import *
+import os
+import numpy as np
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
      AllFieldValuesTest, \

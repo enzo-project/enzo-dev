@@ -1,4 +1,3 @@
-from yt.mods import *
 from yt.funcs import *
 from yt.testing import *
 from yt.frontends.enzo.answer_testing_support import \

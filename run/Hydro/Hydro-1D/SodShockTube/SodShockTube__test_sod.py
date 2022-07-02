@@ -1,10 +1,9 @@
-from yt.mods import *
+import os
 from yt.funcs import *
 from yt.testing import *
 from yt.frontends.enzo.answer_testing_support import \
     requires_outputlog, \
     ShockTubeTest
-import os
 
 _data_file = 'DD0001/data0001'
 _solution_file = 'SodShockTube_t=0.25_exact.txt'

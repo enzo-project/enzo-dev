@@ -116,7 +116,7 @@ def test_dark_matter_mass():
     # sum masses
     MDM   = np.sum(data[('all', 'particle_mass')][ data[('all', 'particle_type')] == 1 ].to('Msun'))
 
-    output_data    = {'mass' : MDM}
+    output_data    = {('data', 'mass') : MDM}
 
     # save
     filename = "DM_mass_results.h5"
@@ -129,7 +129,7 @@ def test_dark_matter_mass():
         return
 
     ds_comp          = yt.load(compare_filename)
-    assert_rel_equal(output_data['mass'], ds_comp.data['mass'], tolerance)
+    assert_rel_equal(output_data[('data', 'mass')], ds_comp.data[('data', 'mass')], tolerance)
 
 def test_individual_baryon_mass():
     # gather most recent data set
@@ -253,7 +253,7 @@ def test_phase():
     ds_comp = yt.load(compare_filename)
 
     # assert quality to 8 decimals
-    assert_rel_equal(data[('gas', 'density')], ds_comp.data[('gas', 'density')], 8)
-    assert_rel_equal(data[('gas', 'temperature')], ds_comp.data[('gas', 'temperature')], 8)
-    assert_rel_equal(data[('gas', 'cooling_time')], ds_comp.data[('gas', 'cooling_time')], 8)
-    assert_rel_equal(data[('gas', 'cell_mass')], ds_comp.data[('gas', 'cell_mass')], 8)
+    assert_rel_equal(data['density'], ds_comp.data['density'], 8)
+    assert_rel_equal(data['temperature'], ds_comp.data['temperature'], 8)
+    assert_rel_equal(data['cooling_time'], ds_comp.data['cooling_time'], 8)
+    assert_rel_equal(data['cell_mass'], ds_comp.data['cell_mass'], 8)

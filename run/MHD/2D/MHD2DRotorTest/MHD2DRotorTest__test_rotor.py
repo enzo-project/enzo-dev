@@ -1,4 +1,6 @@
-from yt.mods import *
+import os
+import numpy as np
+import yt
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
      AnswerTestingTest, \
@@ -20,7 +22,7 @@ class TestRotorImage(AnswerTestingTest):
 
     def run(self):
         sl = self.ds.slice(2, 0.5)
-        frb = FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0), (200,200))
+        frb = yt.FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0), (200,200))
         dd = frb[self.field]
         return np.array([dd.mean(), dd.std(), dd.min(), dd.max()])
 

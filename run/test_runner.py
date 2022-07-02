@@ -40,7 +40,6 @@ from nose.plugins.xunit import Xunit
 from yt.config import ytcfg
 ytcfg["yt","suppressStreamLogging"] = "True"
 ytcfg["yt","__command_line"] = "True" 
-from yt.mods import *
 
 from yt.funcs import get_yt_version
 from yt.utilities.logger import ytLogger as mylog
