@@ -3,8 +3,7 @@ import yt
 import matplotlib.pyplot as plt 
 import numpy as np
 import os
-from yt.analysis_modules.halo_mass_function.api import *
-from yt.analysis_modules.halo_analysis.api import HaloCatalog
+from yt_astro_analysis import HaloCatalog
 from yt.testing import assert_rel_equal
 from numpy.testing import assert_equal
 

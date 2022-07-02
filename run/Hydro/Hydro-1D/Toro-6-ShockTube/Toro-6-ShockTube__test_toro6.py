@@ -12,7 +12,12 @@ from yt.frontends.enzo.answer_testing_support import \
 
 _data_file = 'DD0001/data0001'
 _solution_file = 'Toro-6-ShockTube_t=2.0_exact.txt'
-_fields = ['Density','x-velocity','Pressure','ThermalEnergy']
+_fields = [
+    ('enzo', 'Density'),
+    ('enzo', 'x-velocity'),
+    ('enzo', 'Pressure'),
+    ('enzo', 'ThermalEnergy')
+    ]
 _les = [0.0]
 _res = [1.0]
 _rtol = 1.0e-6
@@ -30,7 +35,7 @@ def test_almost_standard():
     sim.get_time_series()
     yield VerifySimulationSameTest(sim)
     base_pf = sim[0]
-    fields = [f for f in _base_fields if f in base_pf.h.field_list]
+    fields = [f for f in _base_fields if ("enzo", f) in base_pf.field_list]
     # Only test the last output.
     pf = sim[-1]
     for test in standard_small_simulation(pf, fields): yield test
