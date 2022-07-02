@@ -30,7 +30,15 @@ commands:
             pip install --upgrade pip
             pip install --upgrade wheel
             pip install --upgrade setuptools
-            pip install Cython numpy h5py fastcache flake8 nose yt==4.0.4 girder-client matplotlib
+            pip install Cython numpy h5py fastcache flake8 nose girder-client matplotlib pytest gitpython # yt
+            # Temporary workaround to use updated answer testing from jwise's repository
+            # until next yt point release
+            git clone https://github.com/jwise77/yt
+            cd yt
+            git checkout enzo-answer-testing-update
+            pip install -e .
+            cd ..
+            pip install yt_astro_analysis
             # Install hypre
             mkdir -p $HOME/local
             if [ ! -f $HOME/local/lib/libHYPRE.a ]; then
@@ -188,13 +196,13 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v2
+          key: dependencies-v3
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v2
+          key: dependencies-v3
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -205,7 +213,7 @@ jobs:
 
       - restore_cache:
           name: "Restore test answers."
-          key: test-answers-v15
+          key: test-answers-v15a
 
       - build-and-test:
           tag: gold-standard-v15
@@ -214,7 +222,7 @@ jobs:
 
       - save_cache:
           name: "Save test answers cache."
-          key: test-answers-v15
+          key: test-answers-v15a
           paths:
             - ~/enzo_test/push_suite
 
@@ -236,13 +244,13 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v1
+          key: dependencies-v3
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v1
+          key: dependencies-v3
           paths:
             - ~/.cache/pip
             - ~/venv
