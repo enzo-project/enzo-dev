@@ -13,10 +13,10 @@ from yt.frontends.enzo.answer_testing_support import \
 _data_file = 'DD0001/data0001'
 _solution_file = 'Toro-6-ShockTube_t=2.0_exact.txt'
 _fields = [
-    ('enzo', 'Density'),
-    ('enzo', 'x-velocity'),
-    ('enzo', 'Pressure'),
-    ('enzo', 'ThermalEnergy')
+    ('gas', 'density'),
+    ('gas', 'velocity_x'),
+    ('gas', 'pressure'),
+    ('gas', 'specific_thermal_energy')
     ]
 _les = [0.0]
 _res = [1.0]

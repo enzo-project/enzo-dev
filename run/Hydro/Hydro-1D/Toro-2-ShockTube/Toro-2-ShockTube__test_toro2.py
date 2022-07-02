@@ -8,7 +8,10 @@ import os
 
 _data_file = 'DD0001/data0001'
 _solution_file = 'Toro-2-ShockTube_t=0.15_exact.txt'
-_fields = ['Density','Pressure']
+_fields = [
+    ('gas', 'density'),
+    ('gas', 'pressure')
+    ]
 _les = [0.2, 0.7]
 _res = [0.3, 0.8]
 _rtol = 1.0e-1
