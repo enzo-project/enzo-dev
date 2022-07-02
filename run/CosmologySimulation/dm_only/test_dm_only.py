@@ -29,7 +29,7 @@ def test_hmf():
         data_ds=ds, finder_method='fof',
         output_dir=os.path.join(_dir_name, "halo_catalogs/catalog"))
     hc.create()
-    masses = hc.data_source['particle_mass'].in_units('Msun')  
+    masses = hc.data_ds.r[('all', 'particle_mass')].in_units('Msun')  
     h = ds.hubble_constant
     mtot = np.log10(masses*1.2) - np.log10(h)
     masses_sim = np.sort(mtot)
@@ -72,7 +72,7 @@ def test_dark_matter_mass():
     data  = ds.all_data()
 
     # sum masses
-    MDM   = np.sum(data['particle_mass'][ data['particle_type'] == 1 ].to('Msun'))
+    MDM   = np.sum(data[('all', 'particle_mass')][ data[('all', 'particle_type')] == 1 ].to('Msun'))
 
     output_data    = {'mass' : MDM}
 

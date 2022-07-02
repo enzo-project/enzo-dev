@@ -47,6 +47,6 @@ def test_DivB_CT():
     yield VerifySimulationSameTest(sim)
     # Only test the last output.
     pf = sim[-1]
-    max_value = pf.h.find_max(('enzo', 'DivB'))
+    max_value = pf.find_max(('enzo', 'DivB'))
     max_value = float(max_value[0])
     assert (max_value < 1e-10)
