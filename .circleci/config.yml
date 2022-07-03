@@ -24,7 +24,7 @@ commands:
           command: |
             source $BASH_ENV
             sudo apt-get update
-            sudo apt-get install -y csh libhdf5-serial-dev libopenmpi-dev openmpi-bin gfortran libtool-bin
+            sudo apt-get install -y csh libhdf5-serial-dev libopenmpi-dev openmpi-bin gfortran libtool-bin xutils-dev
             python3 -m venv $HOME/venv
             source $HOME/venv/bin/activate
             pip install --upgrade pip
@@ -117,7 +117,7 @@ commands:
               make clean
               make -j 6
               cd ../../run
-              python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=$ANSWER_NAME --local --strict=high --verbose << parameters.flags >>
+              python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=$ANSWER_NAME --local --machine=local_nompi --strict=high --verbose --jrun=4 << parameters.flags >>
             fi
 
   compile-test:
