@@ -1306,7 +1306,11 @@ added to the acceleration field for the baryons and particles.
     Default: 1
 ``DiskGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a
-    disk-like gravity field (Berkert 1995; Mori & Burkert 2000).  Default: 0
+    disk-like gravity field. The stellar disk potential follows 
+    Miyamoto & Nagai 1975. A spherical stellar bulge component
+    and an NFW dark matter potential can also be specified.
+    Designed to work with the GalaxySimulation problem type.
+    Default: 0
 ``DiskGravityPosition`` (external)
     This indicates the position of the center of the disk gravity.
     Default: 0 0 0
@@ -4694,7 +4698,7 @@ Test Orbit (29)
      Central mass. Default: 1.0
 ``TestOrbitTestMass`` (external)
      Mass of the test particle. Default: 1.0e-6
-``TestOrbitUseBaryons`` (external
+``TestOrbitUseBaryons`` (external)
      Boolean flag. (not implemented) Default: FALSE
 
 .. _cosmologysimulation_param:
@@ -4847,8 +4851,13 @@ Cosmology Simulation (30)
 Isolated Galaxy Evolution (31)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Initializes an isolated galaxy, as per the Tasker & Bryan series of
-    papers.
+    Initializes an isolated disk galaxy. The disk is isothermal and uses the 
+    smoothed double hyperbolic secant density profile from Tonnesen & Bryan 2009.
+    The circumgalactic medium is controlled with the ``GalaxySimulationGasHalo``
+    parameter subset.
+
+    This problem type can use either the PointSourceGravity or DiskGravity
+    parameters.
 
 
 ``GalaxySimulationRefineAtStart`` (external)
@@ -4862,41 +4871,159 @@ Isolated Galaxy Evolution (31)
     at start. No default value.
 ``GalaxySimulationUseMetallicityField`` (external)
     Turns on (1) or off (0) the metallicity field. Default: 0
-``GalaxySimulationInitialTemperature`` (external)
-    Initial temperature that the gas in the simulation is set to.
-    Default: 1000.0
-``GalaxySimulationUniformVelocity`` (external)
-    Vector that gives the galaxy a uniform velocity in the ambient
-    medium. Default: (0.0, 0.0, 0.0)
-``GalaxySimulationDiskRadius`` (external)
-    Radius (in Mpc) of the galax disk. Default: 0.2
 ``GalaxySimulationGalaxyMass`` (external)
     Dark matter mass of the galaxy, in Msun. Needed to initialize the
-    NFW gravitational potential. Default: 1.0e+12
+    NFW gravitational potential. If ``DiskGravity`` = 1, this parameter
+    will automatically be set to the value of ``DiskGravityDarkMatterMass``
+    to ensure consistency.
+    Default: 1.0e+12
+``GalaxySimulationDarkMatterConcentrationParameter`` (external)
+    NFW dark matter concentration parameter. If ``DiskGravity`` = 1, this parameter
+    will automatically be set to the value of ``DiskGravityDarkMatterConcentration``
+    to ensure consistency. Default: 12.0
 ``GalaxySimulationGasMass`` (external)
     Amount of gas in the galaxy, in Msun. Used to initialize the
     density field in the galactic disk. Default: 4.0e+10
 ``GalaxySimulationDiskPosition`` (external)
     Vector of floats defining the center of the galaxy, in units of the
     box size. Default: (0.5, 0.5, 0.5)
+``GalaxySimulationAngularMomentum`` (external)
+    Unit vector that defines the angular momentum vector of the galaxy
+    (in other words, this and the center position define the plane of
+    the galaxy). This _MUST_ be set! Default: (0.0, 0.0, 0.0)
 ``GalaxySimulationDiskScaleHeightz`` (external)
     Disk scale height, in Mpc. Default: 325e-6
 ``GalaxySimulationDiskScaleHeightR`` (external)
     Disk scale radius, in Mpc. Default: 3500e-6
-``GalaxySimulationDarkMatterConcentrationParameter`` (external)
-    NFW dark matter concentration parameter. Default: 12.0
+``GalaxySimulationDiskRadius`` (external)
+    Maximum radius (in Mpc) of the galaxy disk. No disk density profile
+    will be applied outside this radius, though the bulk of the disk
+    may be much smaller, depending on scale parameters. Default: 0.2
+``GalaxySimulationTruncationRadius`` (external)
+    Radius (in Mpc) at which to cut off the double hyperbolic secant 
+    density profile. The edges of this profile will be smoothed and rounded
+    just before the truncation radius. Default: 0.026 
+``GalaxySimulationDiskDensityCap`` (external)
+    Maximum density for the galaxy disk. Off if 0.
+    Default: 0.0
 ``GalaxySimulationDiskTemperature`` (external)
     Temperature of the gas in the galactic disk. Default: 1.0e+4
+``GalaxySimulationDiskMetallicityEnhancementFactor`` (external)
+    Set the disk metallicity, expressed as a multiple of ``GalaxySimulationGasHaloMetallicity``.
+    Default: 3.0
+``GalaxySimulationGasHalo`` (external)
+    Specify the structure of the ambient gas medium (circumgalactic medium).
+    Any two radial profiles of density,
+    temperature, entropy, and pressure (often via hydrostatic equilibrium) may be
+    used to specify the CGM's density and temperature structure.
+    Default: 0
+
+    ===== =============================
+    Value Profile & Relevant Parameters
+    ===== =============================
+    0     No CGM. Ambient medium is defined via ``GalaxySimulationUniformDensity`` & ``GalaxySimulationInitialTemperature``
+    1     Temperature is a function of radius derived from the virial theorem assuming an NFW profile. Assume hydrostatic equilibrium. Scaled to ``GalaxySimulationGasHaloScaleRadius``.
+    2     Isothermal with temperature ``GalaxySimulationGasHaloTemperature`` and a power-law entropy profile specified with ``GalaxySimulationGasHaloScaleRadius`` and ``GalaxySimulationGasHaloAlpha``. The density is anchored with ``GalaxySimulationGasHaloDensity``.
+    3     As with 2, but the entropy profile has a floor, ``GalaxySimulationGasHaloCoreEntropy``.
+    4     As with 2, but instead of being isothermal, the halo is assumed to be in hydrostatic equilibrium.
+    5     As with 4, but the entropy profile has a floor, ``GalaxySimulationGasHaloCoreEntropy``.
+    6     As with 4, but the entropy profile assumes precipitation-regulation (Voit 2019). This profile _requires_ Grackle. Use ``GalaxySimulationGasHaloRatio``.
+    7     Unused
+    8     Density and entropy following the fits in the Appendix of Voit 2019. For the density, use ``GalaxySimulationGasHaloZeta``, ``GalaxySimulationGasHaloZeta2``, ``GalaxySimulationGasHaloDensity``, and ``GalaxySimulationGasHaloDensity2``. For entropy, use ``GalaxySimulationGasHaloCoreEntropy`` for K:sub:`1` and ``GalaxySimulationGasHaloAlpha``.
+    ===== =============================
+
+``GalaxySimulationUniformDensity`` (external)
+    Gas density of the ambient medium if no halo profile is specified 
+    (``GalaxySimulationGasHalo`` = 0).
+    Default: 1.0e-28
+``GalaxySimulationInitialTemperature`` (external)
+    Initial temperature of the ambient medium if no halo profile is specified 
+    (``GalaxySimulationGasHalo`` = 0).
+    Default: 1000.0
+``GalaxySimulationGasHaloDensity`` (external)
+    For ``GalaxySimulationGasHalo`` 1 through 5, this sets the 
+    CGM density (in g/cm:sup:`3`) at the ``GalaxySimulationGasHaloScaleRadius``.
+    For ``GalaxySimulationGasHalo`` = 8, this will specify n:sub:`1` 
+    from Equation 24 in Voit 2019.
+    Default: 1.8e-27
+``GalaxySimulationGasHaloDensity2`` (external)
+    Used with ``GalaxySimulationGasHalo`` = 8 to specify n:sub:`2` 
+    from Equation 24 in Voit 2019.
+    Default: 0.0
+``GalaxySimulationGasHaloTemperature`` (external)
+    For ``GalaxySimulationGasHalo`` 2 and 3, this sets the CGM
+    temperature in Kelvin. A reasonable choice is the virial temperature.
+    For ``GalaxySimulationGasHalo`` 4 and 5, this sets the CGM temperature
+    at ``GalaxySimulationGasHaloScaleRadius``.
+    Default: 1.0e+6
+``GalaxySimulationGasHaloScaleRadius`` (external)
+    The scale radius in Mpc for the CGM entropy profile. Used with
+    ``GalaxySimulationGasHalo`` 1 through 5.
+    Default: 0.001
+``GalaxySimulationGasHaloAlpha`` (external)
+    Power-law index of the CGM entropy profile. Used with
+    ``GalaxySimulationGasHalo`` 2 through 5 and 8.
+    Default: 2.0/3.0
+``GalaxySimulationGasHaloCoreEntropy`` (external)
+    Entropy floor for ``GalaxySimulationGasHalo`` 3 and 5 in keV cm:sup:`2`.
+    For ``GalaxySimulationGasHalo`` 8, it specifies the scale entropy K:sub:`1` in 
+    Equation 23 of Voit 2019.
+    Default: 5.0
+``GalaxySimulationGasHaloRatio`` (external)
+    Used with ``GalaxySimulationGasHalo`` = 6 to specify the target ratio of cooling time 
+    to free-fall in the CGM. The actual ratio will deviate slightly.
+    Default: 10.0
+``GalaxySimulationGasHaloZeta`` (external)
+    Used with ``GalaxySimulationGasHalo`` = 8 to specify zeta:sub:`1` from Equation 24
+    in Voit 2019.
+    Default: 0
+``GalaxySimulationGasHaloZeta2`` (external)
+    Used with ``GalaxySimulationGasHalo`` = 8 to specify zeta:sub:`2` from Equation 24
+    in Voit 2019.
+    Default: 0
+``GalaxySimulationGasHaloMetallicity`` (external)
+    Set the uniform CGM metallicity in units of solar.
+    Default: 0.1
+``GalaxySimulationGasHaloRotation`` (external)
+    Set to 1 (on) to give the CGM an initial azimuthal velocity. 
+    This velocity follows a power law with radius, multiplied by an additional
+    factor sin:sup:`2`(theta) to prevent shear directly above and below the disk.
+    See Kopenhafer, O'Shea, and Voit 2022.
+    Default: 0 (off)
+``GalaxySimulationGasHaloRotationScaleRadius`` (external)
+    Scale radius in kpc for the CGM velocity profile.
+    Default: 10.0
+``GalaxySimulationGasHaloRotationScaleVelocity`` (external)
+    Scale velocity in km/s for the CGM velocity profile.
+    Default: 180.0
+``GalaxySimulationGasHaloRotationIndex`` (external)
+    Power-law index for the CGM's azimuthal velocity profile.
+    Default: 0.0
+``GalaxySimulationUniformVelocity`` (external)
+    Vector that gives the galaxy a uniform velocity in the ambient
+    medium. Default: (0.0, 0.0, 0.0)
+``GalaxySimulationEquilibrateChem`` (external)
+    When disabled (0), the initial chemistry values will set so that all
+    tracked species are neutral. During runtime, the species should adjust to
+    their equilibrium values; however, for simulations with ``GalaxySimulationGasHalo`` > 0,
+    this process may cause crashes as neutral gas is far from equilibrium.
+    When enabled (1), this option allows the chemical species to be initialized 
+    closer to equilibrium by using a pre-computed table. 
+    An example script for creating this table, which uses
+    Grackle, is ``input/gen_equilibrium_table.py``.
+    Default: 0
+``GalaxySimulationEquilibriumFile`` (external)
+    Path to the pre-computed table of equilibrium chemical species.
+    Default: none
+``GalaxySimulationCR`` (external)
+    Fraction of gas density present in cosmic rays.
+    Default: 0.01
 ``GalaxySimulationInflowTime`` (external)
     Controls inflow of gas into the box. It is strongly suggested that
     you leave this off. Default: -1 (off)
 ``GalaxySimulationInflowDensity`` (external)
     Controls inflow of gas into the box. It is strongly suggested that
     you leave this off. Default: 0.0
-``GalaxySimulationAngularMomentum`` (external)
-    Unit vector that defines the angular momentum vector of the galaxy
-    (in other words, this and the center position define the plane of
-    the galaxy). This _MUST_ be set! Default: (0.0, 0.0, 0.0)
 ``GalaxySimulationRPSWind`` (external)
     This flag turns on the ram pressure stripped (RPS) wind in the
     GalaxySimulation problem and sets the mode.  0 = off, 1 = on with
@@ -4940,6 +5067,7 @@ Isolated Galaxy Evolution (31)
     This is the velocity vector applied to the boundary before the
     wind arrives.
     Default:
+
 
 .. _shearingbox_param:
 

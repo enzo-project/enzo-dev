@@ -26,7 +26,7 @@ parameter link above for more information.
 * `Method 3: Population III Stars`_
 * `Method 4: Sink Particles`_
 * `Method 5: Radiative Stellar Clusters`_
-* `Method 6: Hopkins et al 2013`_
+* `Method 6: Reserved for future use`_
 * `Method 7: Cen & Ostriker with no delay in formation`_
 * `Method 8: Springel & Hernquist`_
 * `Method 9: Massive Black Holes`_

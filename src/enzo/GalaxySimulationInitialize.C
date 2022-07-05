@@ -98,8 +98,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationAngularMomentum[MAX_DIMENSION],
     GalaxySimulationUniformVelocity[MAX_DIMENSION],
     GalaxySimulationUniformDensity,
-    GalaxySimulationUniformCR,
-    GalaxySimulationUniformEnergy,
     GalaxySimulationEquilibrateChem;
 
   FLOAT GalaxySimulationDiskRadius,
@@ -182,9 +180,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationUniformVelocity[dim] = 0.0;
   }
   GalaxySimulationUniformDensity   = 1.0E-28;
-  GalaxySimulationUniformEnergy = 1.0;
   GalaxySimulationCR = .01;
-  GalaxySimulationUniformCR = .01;
 
   /* read input from file */
   char *filename_holder = new char[MAX_LINE_LENGTH];
@@ -213,8 +209,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationGasMass);
     ret += sscanf(line, "GalaxySimulationCR = %"FSYM,
 		  &GalaxySimulationCR);
-    ret += sscanf(line, "GalaxySimulationUniformCR = %"FSYM,
-		  &GalaxySimulationUniformCR);
     ret += sscanf(line, "GalaxySimulationDiskPosition = %"PSYM" %"PSYM" %"PSYM, 
 		  &GalaxySimulationDiskPosition[0],
 		  &GalaxySimulationDiskPosition[1],
@@ -594,8 +588,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	   GalaxySimulationGalaxyMass);
    fprintf(Outfptr, "GalaxySimulationGasMass = %"GOUTSYM"\n",
 	   GalaxySimulationGasMass);
-   fprintf(Outfptr, "GalaxySimulationUniformCR = %"GOUTSYM"\n",
-     GalaxySimulationUniformCR);
    fprintf(Outfptr, "GalaxySimulationCR = %"GOUTSYM"\n",
      GalaxySimulationCR);
    fprintf(Outfptr, "GalaxySimulationDiskScaleHeightz = %"GOUTSYM"\n",

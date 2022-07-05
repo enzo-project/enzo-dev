@@ -389,11 +389,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	if (GridRank > 2)
 	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
 
-  if ( (abs(x - 0.500030517578125) < 1e-14) &
-      (abs(y - 0.506134033203125) < 1e-14) &
-      (abs(z - 0.500030517578125) < 1e-14) )
-    printf("FOUND THE DESIRED CELL; BREAK HERE\n");
-
 	for (dim = 0; dim < MAX_DIMENSION; dim++){
 	  Velocity[dim] = 0;
 	  disk_vel[dim] = 0;
@@ -653,6 +648,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	} // if(MultiSpecies)
 	
       } // end loop over grids
+    
+  if( CRModel )
+    BaryonField[CRNum][n] = BaryonField[DensNum][n] * GalaxySimulationCR;
 
   return SUCCESS;
 
@@ -1219,6 +1217,7 @@ float HaloGasDensity(FLOAT R, struct CGMdata& CGM_data){
     // get radii in common set of units
     scale_radius_cgs = GalaxySimulationGasHaloScaleRadius*Mpc;
     this_radius_cgs = R*LengthUnits;
+    power_law_exponent = -1.0*GalaxySimulationGasHaloAlpha/(Gamma-1.0);
 
     // now get number density using expression above
 
