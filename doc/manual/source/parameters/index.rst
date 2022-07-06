@@ -5011,7 +5011,7 @@ Isolated Galaxy Evolution (31)
 ``GalaxySimulationGasHaloRotation`` (external)
     Set to 1 (on) to give the CGM an initial azimuthal velocity. 
     This velocity follows a power law with radius, multiplied by an additional
-    factor sin:sup:`2`(theta) to prevent shear directly above and below the disk.
+    factor sin:sup:`2` (theta) to prevent shear directly above and below the disk.
     See Kopenhafer, O'Shea, and Voit 2022.
     Default: 0 (off)
 ``GalaxySimulationGasHaloRotationScaleRadius`` (external)
@@ -5034,7 +5034,10 @@ Isolated Galaxy Evolution (31)
     When enabled (1), this option allows the chemical species to be initialized 
     closer to equilibrium by using a pre-computed table. 
     An example script for creating this table, which uses
-    Grackle, is ``input/gen_equilibrium_table.py``.
+    Grackle, is ``input/gen_equilibrium_table.py``. 
+    _WARNING_ if you wish to use similar machinery for a different problem type,
+    a manual correction to the mean molecular mass may be needed within ``ComputeTemperatureField``
+    or the initial temperature may not write to disk correctly.
     Default: 0
 ``GalaxySimulationEquilibriumFile`` (external)
     Path to the pre-computed table of equilibrium chemical species.
