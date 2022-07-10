@@ -214,6 +214,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                        MAIN RADIATION TRANSPORT LOOP
    **********************************************************************/
 
+  int NumberOfSources = 0;
+  bool DeleteSources = FALSE;
+
   while (GridTime > PhotonTime) {
 
     /* Recalculate timestep if this isn't the first loop.  We already
@@ -236,8 +239,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     RS = GlobalRadiationSources->NextSource;
     LastNode = RS_GridList;
     TempGridList = RS_GridList->NextGrid;
-    int NumberOfSources = 0;
-    bool DeleteSources = (FirstTime ||
+    NumberOfSources = 0;
+    DeleteSources = (FirstTime ||
 			  !(RadiativeTransferAdaptiveTimestep == FALSE &&
 			    RadiativeTransferSourceClustering == TRUE));
 			  
@@ -716,6 +719,32 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
   }
 #endif
+
+  /* Double check and clean up photon sources that have expired */
+
+  if (NumberOfSources > 0){
+    RS = GlobalRadiationSources->NextSource;
+
+    /* Clean up photon sources if time is up */
+    while (RS != NULL){
+      if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime) && LoopTime == TRUE &&
+             DeleteSources) {
+
+        if (debug) {
+          fprintf(stdout, "\nEvolvePhotons: Deleted Source on lifetime limit \n");
+          fprintf(stdout, "EvolvePhotons:  %"GSYM" %"GSYM" %"GSYM" \n",
+                                             RS->CreationTime, RS->LifeTime, PhotonTime);
+        }
+
+        RS = DeleteRadiationSource(RS);
+        NumberOfSources--;
+
+      }  else {
+        RS = RS->NextSource;
+      }
+
+    } // end while RS loop
+  } // end source clean up
 
   /* Delete GridList and Reset Grid IDs in static sources */
 

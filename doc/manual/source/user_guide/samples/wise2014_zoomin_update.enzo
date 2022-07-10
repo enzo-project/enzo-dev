@@ -1,0 +1,181 @@
+# AMR PROBLEM DEFINITION FILE: Cosmology Simulation (amr version)
+#
+#  define problem
+#
+ProblemType                = 30      // cosmology simulation
+TopGridRank                = 3
+TopGridDimensions          = 64 64 64
+PotentialIterations        = 10
+SelfGravity                = 1       // gravity on
+TopGridGravityBoundary     = 0       // Periodic BC for gravity
+LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+#
+#  problem parameters
+#
+CosmologySimulationOmegaBaryonNow       = 0.0489747
+CosmologySimulationOmegaCDMNow          = 0.262125
+#CosmologySimulationInitialTemperature   = 300
+CosmologySimulationDensityName          = GridDensity
+CosmologySimulationVelocity1Name        = GridVelocities_x
+CosmologySimulationVelocity2Name        = GridVelocities_y
+CosmologySimulationVelocity3Name        = GridVelocities_z
+CosmologySimulationParticleVelocity1Name = ParticleVelocities_x
+CosmologySimulationParticleVelocity2Name = ParticleVelocities_y
+CosmologySimulationParticleVelocity3Name = ParticleVelocities_z
+CosmologySimulationParticleDisplacement1Name = ParticleDisplacements_x
+CosmologySimulationParticleDisplacement2Name = ParticleDisplacements_y
+CosmologySimulationParticleDisplacement3Name = ParticleDisplacements_z
+CosmologySimulationCalculatePositions   = 1
+CosmologySimulationNumberOfInitialGrids  = 3
+CosmologySimulationGridDimension[1]      =               42               50               42
+CosmologySimulationGridLeftEdge[1]       =         0.359375         0.328125         0.328125
+CosmologySimulationGridRightEdge[1]      =           0.6875          0.71875          0.65625
+CosmologySimulationGridLevel[1]          = 1
+CosmologySimulationGridDimension[2]      =               72               88               72
+CosmologySimulationGridLeftEdge[2]       =            0.375          0.34375          0.34375
+CosmologySimulationGridRightEdge[2]      =          0.65625           0.6875            0.625
+CosmologySimulationGridLevel[2]          = 2
+
+#
+# must-refine particle parameters
+#
+CosmologySimulationParticleTypeName     = RefinementMask
+MustRefineParticlesCreateParticles = 3
+MustRefineParticlesRefineToLevel   = 2
+
+#
+#  define cosmology parameters
+#
+ComovingCoordinates        = 1       // Expansion ON
+CosmologyOmegaMatterNow    = 0.3111
+CosmologyOmegaDarkMatterNow= 0.262125
+CosmologyOmegaLambdaNow    = 0.6889
+CosmologyHubbleConstantNow = 0.6766    // in km/s/Mpc
+CosmologyComovingBoxSize   = 0.6766     // in Mpc/h = 100 Mpc comoving
+CosmologyMaxExpansionRate  = 0.015   // maximum allowed delta(a)/a
+CosmologyInitialRedshift   = 249.000000
+CosmologyFinalRedshift 	   = 10.000000
+GravitationalConstant      = 1       // this must be true for cosmology
+#
+#  set I/O and stop/start parameters
+#
+StopCycle			= 100000          // stop after this many cycles
+#CycleSkipDataDump		= 10          // output every N cycles
+DataDumpName			= output_
+dtDataDump			= 0.877142
+StopCPUTime			= 420000  // seconds
+HierarchyFileOutputFormat	= 1
+ParallelRootGridIO		= 1
+
+#
+#  set hydro parameters
+#
+Gamma				= 1.6667
+PPMDiffusionParameter		= 0       // diffusion off
+DualEnergyFormalism		= 1       // use total & internal energy
+InterpolationMethod		= 1       // SecondOrderA
+FluxCorrection			= 2       // includes species correction
+RiemannSolver			= 4       // HLLC
+RiemannSolverFallback		= 1       // use HLL after failure
+ConservativeInterpolation	= 0
+CourantSafetyNumber		= 0.3
+ParticleCourantSafetyNumber	= 0.8
+CorrectParentBoundaryFlux       = 1
+
+#
+#  set cooling/heating parameters
+#
+use_grackle                 = 1
+with_radiative_cooling      = 1
+MultiSpecies                = 3  // 12-species
+MetalCooling                = 1  // used by grackle only (ignore as an Enzo parameter)
+
+// includes Lyman-Werner BG from Qin+2020
+grackle_data_file           = cloudy_metals_2008_3D-lwb.h5
+UVbackground                = 1
+H2_self_shielding           = 1  // Wolcott-Green+2011
+ThreeBodyRate               = 5  // Forrey 2013
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy			= 0	       // dynamic hierarchy
+MaximumRefinementLevel		= 14
+MaximumGravityRefinementLevel 	= 14
+MaximumParticleRefinementLevel 	= 11           // 0.7 pc at z=10
+RefineBy			= 2	       // refinement factor
+CellFlaggingMethod		= 2 4 6 8      // use gas/DM mass, Jeans, MRP for refinement 
+UseMinimumPressureSupport	= 0
+RefineByJeansLengthSafetyFactor = 8.0
+UnigridTranspose		= 2
+PartitionNestedGrids		= 1
+MinimumEfficiency		= 0.3  // fraction efficiency (flagged/total cells in a grid)
+
+// 2.5 times the initial density refers to level-0: divide by 8 for each additional level
+MinimumOverDensityForRefinement		= 0.0390625 0.0390625
+MinimumMassForRefinementLevelExponent	= -0.2 0.0
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 30   // # of greens function at any one time
+
+#
+# Star formation and feedback
+#
+StarParticleCreation   = 40   // star particle creation turned on, using model #5 and #3
+StarParticleFeedback   = 40   // stellar feedback turned on, using model #5 #3 ray tracing
+ 
+RadiativeTransfer			= 1
+RadiativeTransferRaysPerCell            = 5.1
+RadiativeTransferInitialHEALPixLevel    = 1
+RadiativeTransferHydrogenOnly           = 0
+RadiativeTransferOpticallyThinH2        = 1
+RadiativeTransferPeriodicBoundary       = 0
+RadiativeTransferAdaptiveTimestep       = 1
+RadiativeTransferRadiationPressure      = 1
+RadiativeTransferHubbleTimeFraction     = 10
+RadiativeTransferPhotonMergeRadius      = 3.0
+RadiativeTransferSourceClustering       = 1
+
+#
+#  set radiation background (unused)
+#  (because they're set in Grackle)
+#
+
+#RadiationFieldType   = 14  # Wise+ (2012) LWB
+#RadiationFieldType    = 9  # LWB (either constant or tabulated)
+#TabulatedLWBackground = 0  # Uses LW_J21.in (z & JLW in each line)
+
+# in flux (=4*pi*J_LW) used if TabulatedLWBackground == 0
+#RadiationSpectrumNormalization = 12.566e-21
+#RadiationShield                = 2  # H2 shielding only
+
+#
+#  Pop III/II parameters
+#
+ 
+PopIIIOverDensityThreshold            = -1e6  # negative means units in cm^-3
+PopIIIMetalCriticalFraction           = 1.295e-6 # 1e-4 Zsun
+PopIIIH2CriticalFraction              = 1e-3
+PopIIISupernovaRadius                 = 10    # pc
+PopIIISupernovaUseColour              = 1
+PopIIIHeliumIonization                = 1
+PopIIIUseHypernova                    = 0     # 1e51 erg CCSNe only
+
+PopIIIStarMass                        = 20
+PopIIIInitialMassFunction             = 1
+PopIIIInitialMassFunctionSeed         = 2020
+PopIIIMassRange                       = 1.000000 300.000000 
+
+StarClusterUseMetalField              = 1
+StarClusterMinDynamicalTime           = 3e+06  # years
+
+# (Rosdahl+ 2018; avg over 20 Myr; Z-poor binary model)
+StarClusterIonizingLuminosity         = 1.9e+46  # ph/s/Msun
+
+StarClusterSNEnergy                   = 1e49  # erg/Msun (1 CCSN per 100 Msun)
+StarClusterSNRadius                   = 10    # pc
+StarClusterFormEfficiency             = 0.07  # from Krumholz & McKee (2005) and Wise+ (2012)
+StarClusterMinimumMass                = 1000  # Msun
+StarClusterHeliumIonization           = 1

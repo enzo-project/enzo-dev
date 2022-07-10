@@ -332,6 +332,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
      // There's probably a better way to do this.
   fprintf(fptr, "ActiveParticleDensityThreshold = %"GSYM"\n",
 	  ActiveParticleDensityThreshold);
+  fprintf(fptr, "SmartStarAccretion             = %"ISYM"\n", SmartStarAccretion);
   fprintf(fptr, "SmartStarFeedback              = %"ISYM"\n", SmartStarFeedback);
   fprintf(fptr, "SmartStarEddingtonCap          = %"ISYM"\n", SmartStarEddingtonCap);
   fprintf(fptr, "SmartStarBHFeedback              = %"ISYM"\n", SmartStarBHFeedback);
@@ -554,13 +555,17 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RadiationXRayComptonHeating    = %"ISYM"\n", RadiationXRayComptonHeating);
   fprintf(fptr, "CRModel                        = %"ISYM"\n", CRModel);
   fprintf(fptr, "CRDiffusion                    = %"ISYM"\n", CRDiffusion);
+  fprintf(fptr, "CRHeating                      = %"ISYM"\n", CRHeating);
+  fprintf(fptr, "CRStreaming                    = %"ISYM"\n", CRStreaming);
+  fprintf(fptr, "CRStreamVelocityFactor         = %"FSYM"\n", CRStreamVelocityFactor);
+  fprintf(fptr, "CRStreamStabilityFactor        = %"FSYM"\n", CRStreamStabilityFactor);
   fprintf(fptr, "CRkappa                        = %"FSYM"\n", CRkappa);
   fprintf(fptr, "CRCourantSafetyNumber          = %"FSYM"\n", CRCourantSafetyNumber);
   fprintf(fptr, "CRFeedback                     = %"FSYM"\n", CRFeedback);
   fprintf(fptr, "CRdensFloor                    = %"FSYM"\n", CRdensFloor);
   fprintf(fptr, "CRmaxSoundSpeed                = %"FSYM"\n", CRmaxSoundSpeed);
   fprintf(fptr, "CRgamma                        = %"FSYM"\n", CRgamma);
-  fprintf(fptr, "CosmologySimulationUniformCR   = %"FSYM"\n", CosmologySimulationUniformCR); // FIXME
+  fprintf(fptr, "CosmologySimulationUniformCR   = %"FSYM"\n", CosmologySimulationUniformCR); // FIXME    
   fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);
   fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
   fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
@@ -1285,10 +1290,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   }
   /* Write unique simulation identifier. */
   fprintf(fptr, "MetaDataSimulationUUID          = %s\n", MetaData.SimulationUUID);
+#ifdef USE_UUID
   /* Give this dataset a unique identifier. */
   char dset_uuid[MAX_LINE_LENGTH];
   get_uuid(dset_uuid);
   fprintf(fptr, "MetaDataDatasetUUID             = %s\n", dset_uuid);
+#endif
   /* If the restart data had a UUID, write that. */
   if(MetaData.RestartDatasetUUID != NULL){
     fprintf(fptr, "MetaDataRestartDatasetUUID      = %s\n",
@@ -1304,8 +1311,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
  
   fprintf(fptr, "VersionNumber              = %"FSYM"\n\n", VERSION);
 
+#ifdef USE_UUID
   if (name != NULL)
     UpdateLocalDatabase(MetaData, ID, dset_uuid, name);
+#endif
  
   return SUCCESS;
 }

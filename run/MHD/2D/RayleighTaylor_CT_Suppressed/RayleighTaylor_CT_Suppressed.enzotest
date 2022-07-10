@@ -7,5 +7,5 @@ gravity = False
 dimensionality = 2
 max_time_minutes = 10
 fullsuite = True
-pushsuite = True
+pushsuite = False
 quicksuite = False

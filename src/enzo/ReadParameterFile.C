@@ -619,13 +619,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "CRModel = %"ISYM, &CRModel);
     ret += sscanf(line, "CRDiffusion = %"ISYM, &CRDiffusion);
+    ret += sscanf(line, "CRHeating = %"ISYM, &CRHeating);
+    ret += sscanf(line, "CRStreaming = %"ISYM, &CRStreaming);
+    ret += sscanf(line, "CRStreamVelocityFactor = %"FSYM, &CRStreamVelocityFactor);
+    ret += sscanf(line, "CRStreamStabilityFactor = %"FSYM, &CRStreamStabilityFactor);
     ret += sscanf(line, "CRkappa = %"FSYM, &CRkappa);
     ret += sscanf(line, "CRCourantSafetyNumber = %"FSYM, &CRCourantSafetyNumber);
     ret += sscanf(line, "CRFeedback = %"FSYM, &CRFeedback);
     ret += sscanf(line, "CRdensFloor = %"FSYM, &CRdensFloor);
     ret += sscanf(line, "CRmaxSoundSpeed = %"FSYM, &CRmaxSoundSpeed);
     ret += sscanf(line, "CRgamma = %"FSYM, &CRgamma);
-    ret += sscanf(line, "CosmologySimulationUniformCR = %"FSYM, &CosmologySimulationUniformCR); // FIXME
+    ret += sscanf(line, "CosmologySimulationUniformCR = %"FSYM, &CosmologySimulationUniformCR); // FIXME  
 
     ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
     ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
@@ -1345,6 +1349,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
     ret += sscanf(line, "ActiveParticleDensityThreshold = %"FSYM,
 		  &ActiveParticleDensityThreshold);
+    ret += sscanf(line, "SmartStarAccretion    = %"ISYM, &SmartStarAccretion);
     ret += sscanf(line, "SmartStarFeedback     = %"ISYM, &SmartStarFeedback);
     ret += sscanf(line, "SmartStarEddingtonCap = %"ISYM, &SmartStarEddingtonCap);
     ret += sscanf(line, "SmartStarBHFeedback = %"ISYM, &SmartStarBHFeedback);
@@ -1805,7 +1810,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* Set some star feedback parameters. */
 
-  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR)) &&
+  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR)) || 
+      (STARFEED_METHOD(SINGLE_SUPERNOVA) ) &&
       (StarFeedbackDistRadius > 0)) {
 
     // Calculate number of cells in the shape over which to distribute feedback.
@@ -1841,6 +1847,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     iBz = 8;
     iPhi = 9;
     iEint = 5;
+  }
+  if (( CRModel ) && ( HydroMethod == 4 )){
+    // Along with the variables above, iCR is a hard-coded index used in arrays generated
+    // in the hydro_rk riemann solvers
+    NEQ_MHD += 1;
+    if (DualEnergyFormalism)
+      iCR = 10;
+    else iCR = 9;
   }
 
   // Determine color fields (NColor) later inside a grid object.
@@ -2053,11 +2067,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);
   }
 
+#ifdef USE_UUID
   /* Generate unique identifier if one wasn't found. */
   if(MetaData.SimulationUUID == NULL){
     MetaData.SimulationUUID = new char[MAX_LINE_LENGTH];
     get_uuid(MetaData.SimulationUUID);
   }
+#endif
 
    for (int i=0; i<MetaData.TopGridRank;i++)
     TopGridDx[i]=(DomainRightEdge[i]-DomainLeftEdge[i])/MetaData.TopGridDims[i];
@@ -2081,6 +2097,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   /* Cosmic ray diffusion should be off if Cosmic rays are off */
   if(CRDiffusion > 0 && CRModel == 0){
     ENZO_FAIL("CRDiffusion can only be used if CRModel is turned on!!\n");
+  }
+
+  if (CRModel == 1  &&  HydroMethod == 4 && DualEnergyFormalism == 0){
+    ENZO_FAIL("CR physics can only be used with HydroMethod = 4 if DualEnergyFormalism is turned on!\n");
   }
 
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
