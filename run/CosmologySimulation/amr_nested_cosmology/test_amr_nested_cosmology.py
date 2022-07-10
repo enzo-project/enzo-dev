@@ -3,8 +3,7 @@ import yt
 import matplotlib.pyplot as plt 
 import numpy as np
 import os
-from yt.analysis_modules.halo_mass_function.api import *
-from yt.analysis_modules.halo_analysis.api import HaloCatalog
+from yt_astro_analysis.halo_analysis import HaloCatalog
 from yt.testing import assert_rel_equal
 from numpy.testing import assert_equal
 
@@ -30,7 +29,7 @@ def test_hmf():
         data_ds=ds, finder_method='fof',
         output_dir=os.path.join(_dir_name, "halo_catalogs/catalog"))
     hc.create()
-    masses = hc.data_source['particle_mass'].in_units('Msun')  
+    masses = hc.data_ds.r[('all', 'particle_mass')].in_units('Msun')  
     h = ds.hubble_constant
     mtot = np.log10(masses*1.2) - np.log10(h)
     masses_sim = np.sort(mtot)
@@ -69,12 +68,12 @@ def test_max_density_halo_quantities():
 
     # Find the point of maximum density, center a sphere of radius
     # 1 Mpc around it, and sum the masses inside
-    val,pos = ds.find_max('Density')
+    val,pos = ds.find_max(('enzo', 'Density'))
     sp = ds.sphere(pos,(1000.,'kpc'))
-    ct = sp['creation_time']
+    ct = sp[('nbody', 'creation_time')]
     dm = (ct < 0)
-    dm_mass = np.sum(sp['particle_mass'][dm]).in_units('Msun')
-    gas_mass = np.sum(sp['cell_mass'].in_units('Msun'))
+    dm_mass = np.sum(sp[('all', 'particle_mass')][dm]).in_units('Msun')
+    gas_mass = np.sum(sp[('gas', 'cell_mass')].in_units('Msun'))
 
     # Also look at the radial profiles of density and temperature
     # within these spheres. The bin size is chosen to make the profiles
@@ -115,9 +114,9 @@ def test_dark_matter_mass():
     data  = ds.all_data()
 
     # sum masses
-    MDM   = np.sum(data['particle_mass'][ data['particle_type'] == 1 ].to('Msun'))
+    MDM   = np.sum(data[('all', 'particle_mass')][ data[('all', 'particle_type')] == 1 ].to('Msun'))
 
-    output_data    = {'mass' : MDM}
+    output_data    = {('data', 'mass') : MDM}
 
     # save
     filename = "DM_mass_results.h5"
@@ -130,7 +129,7 @@ def test_dark_matter_mass():
         return
 
     ds_comp          = yt.load(compare_filename)
-    assert_rel_equal(output_data['mass'], ds_comp.data['mass'], tolerance)
+    assert_rel_equal(output_data[('data', 'mass')], ds_comp.data[('data', 'mass')], tolerance)
 
 def test_individual_baryon_mass():
     # gather most recent data set
@@ -145,8 +144,8 @@ def test_individual_baryon_mass():
     data  = ds.all_data()
 
     # sum masses
-    Mstar = np.sum(data['particle_mass'][ data['particle_type'] == 2 ].to('Msun'))
-    Mgas  = np.sum(data['cell_mass'].to('Msun'))
+    Mstar = np.sum(data[('all', 'particle_mass')][ data[('all', 'particle_type')] == 2 ].to('Msun'))
+    Mgas  = np.sum(data[('gas', 'cell_mass')].to('Msun'))
 
     output_data    = {'masses' : np.array([Mstar, Mgas])}
 
@@ -176,8 +175,8 @@ def test_total_baryon_mass():
     data  = ds.all_data()
 
     # sum masses
-    Mstar = np.sum(data['particle_mass'][ data['particle_type'] == 2 ].to('Msun'))
-    Mgas  = np.sum(data['cell_mass'].to('Msun'))
+    Mstar = np.sum(data[('all', 'particle_mass')][ data[('all', 'particle_type')] == 2 ].to('Msun'))
+    Mgas  = np.sum(data[('gas', 'cell_mass')].to('Msun'))
 
     output_data    = {'masses' : Mstar + Mgas}
 
@@ -228,21 +227,21 @@ def test_phase():
                            ("gas", "cooling_time")],
                           weight_field=('gas', 'cell_mass'))
     density = profile.x
-    temperature = profile['gas', 'temperature']
-    cooling_time = profile1['gas', 'cooling_time']
-    cell_mass = profile['gas', 'cell_mass']
+    temperature = profile[('gas', 'temperature')]
+    cooling_time = profile1[('gas', 'cooling_time')]
+    cell_mass = profile[('gas', 'cell_mass')]
 
     filename = 'phase_data.h5'
     save_filename = os.path.join(_dir_name, filename)
-    data = {'density': density, 'temperature': temperature,
-            'cooling_time': cooling_time, 'cell_mass': cell_mass}
+    data = {('data', 'density'): density, ('data', 'temperature'): temperature,
+            ('data', 'cooling_time'): cooling_time, ('data', 'cell_mass'): cell_mass}
     yt.save_as_dataset(ds, save_filename, data)
 
-    pp = yt.PhasePlot(ad, 'density', 'temperature', 'cell_mass')
-    pp.set_unit('cell_mass', 'Msun')
+    pp = yt.PhasePlot(ad, ('gas', 'density'), ('gas', 'temperature'), ('gas', 'cell_mass'))
+    pp.set_unit(('gas', 'cell_mass'), 'Msun')
     pp.save(_dir_name)
-    pp1 = yt.PhasePlot(ad, 'density', 'temperature', 'cooling_time',
-                       weight_field='cell_mass')
+    pp1 = yt.PhasePlot(ad, ('gas', 'density'), ('gas', 'temperature'), ('gas', 'cooling_time'),
+                       weight_field=('gas', 'cell_mass'))
     pp1.save(_dir_name)
 
     compare_filename = os.path.join(test_data_dir, filename)
@@ -254,7 +253,7 @@ def test_phase():
     ds_comp = yt.load(compare_filename)
 
     # assert quality to 8 decimals
-    assert_rel_equal(data['density'], ds_comp.data['density'], 8)
-    assert_rel_equal(data['temperature'], ds_comp.data['temperature'], 8)
-    assert_rel_equal(data['cooling_time'], ds_comp.data['cooling_time'], 8)
-    assert_rel_equal(data['cell_mass'], ds_comp.data['cell_mass'], 8)
+    assert_rel_equal(data[('data', 'density')], ds_comp.data[('data', 'density')], 8)
+    assert_rel_equal(data[('data', 'temperature')], ds_comp.data[('data', 'temperature')], 8)
+    assert_rel_equal(data[('data', 'cooling_time')], ds_comp.data[('data', 'cooling_time')], 8)
+    assert_rel_equal(data[('data', 'cell_mass')], ds_comp.data[('data', 'cell_mass')], 8)
