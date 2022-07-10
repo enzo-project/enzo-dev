@@ -1,4 +1,4 @@
-from yt.mods import *
+
 from yt.funcs import *
 from yt.testing import *
 from yt.frontends.enzo.answer_testing_support import \
@@ -8,7 +8,12 @@ import os
 
 _data_file = 'DD0001/data0001'
 _solution_file = 'Toro-4-ShockTube_t=0.035_exact.txt'
-_fields = ['Density','x-velocity','Pressure','ThermalEnergy']
+_fields = [
+    ('gas', 'density'),
+    ('gas', 'velocity_x'),
+    ('gas', 'pressure'),
+    ('gas', 'specific_thermal_energy')
+    ]
 _les = [0.5, 0.78]
 _res = [0.65, 0.8]
 _rtol = 3.0e-2
