@@ -3,8 +3,7 @@ import yt
 import matplotlib.pyplot as plt 
 import numpy as np
 import os
-from yt.analysis_modules.halo_mass_function.api import *
-from yt.analysis_modules.halo_analysis.api import HaloCatalog
+from yt_astro_analysis.halo_analysis import HaloCatalog
 from yt.testing import assert_rel_equal
 from numpy.testing import assert_equal
 
@@ -30,7 +29,7 @@ def test_hmf():
         data_ds=ds, finder_method='fof',
         output_dir=os.path.join(_dir_name, "halo_catalogs/catalog"))
     hc.create()
-    masses = hc.data_source['particle_mass'].in_units('Msun')  
+    masses = hc.data_ds.r[('all', 'particle_mass')].in_units('Msun')  
     h = ds.hubble_constant
     mtot = np.log10(masses*1.2) - np.log10(h)
     masses_sim = np.sort(mtot)
@@ -73,9 +72,9 @@ def test_dark_matter_mass():
     data  = ds.all_data()
 
     # sum masses
-    MDM   = np.sum(data['particle_mass'][ data['particle_type'] == 1 ].to('Msun'))
+    MDM   = np.sum(data[('all', 'particle_mass')][ data[('all', 'particle_type')] == 1 ].to('Msun'))
 
-    output_data    = {'mass' : MDM}
+    output_data    = {('data', 'mass') : MDM}
 
     # save
     filename = "DM_mass_results.h5"
@@ -88,7 +87,7 @@ def test_dark_matter_mass():
         return
 
     ds_comp          = yt.load(compare_filename)
-    assert_rel_equal(output_data['mass'], ds_comp.data['mass'], tolerance)
+    assert_rel_equal(output_data[('data', 'mass')], ds_comp.data[('data', 'mass')], tolerance)
 
 def test_output_number():
     ds = yt.load(os.path.join(_dir_name, 'DD0000/DD0000'))
