@@ -563,29 +563,35 @@ float Star::RelativeVelocity2(Star *a) { return this->RelativeVelocity2(*a); };
 
 void Star::MakeStarsMap() // makes lookup table to quickly find stars in grid during CopyToGrid
 {
-  std::map<int, Star> StarsMap;
-  printf("initialized StarsMap\n");
+  printf("AllStars identifier: %d \n",Identifier);
+  //std::map<int, Star *> StarsMap;
+  //printf("initialized StarsMap\n");
+ // std::pair<int, Star*> IdentPair;
   Star *cstar;
   printf("initialized cstar\n");
   if (CurrentGrid != NULL) {
+    //std:map<int, Star*> StarsMap = CurrentGrid->StarLookupMap;
+    CurrentGrid->StarLookupMap.clear();
     printf("starting starsmap\n");
     for (cstar = CurrentGrid->Stars; cstar; cstar = cstar->NextStar) {
-      StarsMap[cstar->Identifier] = *cstar; // adding Identifiers as keys, stars as values
+      CurrentGrid->StarLookupMap.insert(std::make_pair(cstar->Identifier, cstar));
+      //StarsMap[cstar->Identifier] = cstar; // adding Identifiers as keys, stars as values
     }
   }
   printf("finished starsmap\n");
-  CurrentGrid->StarLookupMap = StarsMap; // saving it as attribute to the grid
+  //CurrentGrid->StarLookupMap = StarsMap; // saving it as attribute to the grid
   return;
 }
 
 void Star::CopyToGrid()
 {
-  std::map<int, Star> StarsMap;
+  //std::map<int, Star> StarsMap;
   Star *cstar;
-  void *root = 0;
+  //Star* cstarpointer;
   if (CurrentGrid != NULL) { // NULL => On another processor
-    StarsMap = CurrentGrid->StarLookupMap;
-    *cstar = StarsMap[Identifier]; // *cstar or cstar?
+    //StarsMap = CurrentGrid->StarLookupMap;
+    cstar = CurrentGrid->StarLookupMap[Identifier]; 
+    //cstar = cstarpointer
     *cstar = *this;
   }  
   return;

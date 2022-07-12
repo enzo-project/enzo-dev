@@ -159,9 +159,13 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   int count = 0;
   int mbh_particle_io_count = 0;
   OutputNow = FALSE;
-  TIMER_START("StarParticleFinalize:MakeStarsMap");
-  AllStars->MakeStarsMap();
-  TIMER_STOP("StarParticleFinalize:MakeStarsMap");
+  printf("about to initialize map\n");
+  if (AllStars) {
+    TIMER_START("StarParticleFinalize:MakeStarsMap");
+    AllStars->MakeStarsMap();
+    printf("initialized map\n");
+    TIMER_STOP("StarParticleFinalize:MakeStarsMap");
+  }
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
 //    if (debug) {
