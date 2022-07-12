@@ -20,6 +20,7 @@
 #include "EnzoTiming.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
+#include "phys_constants.h"
 #include "typedefs.h"
 #include "global_data.h"
 #include "Fluxes.h"
@@ -27,6 +28,12 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+
+#define kboltzKeV (8.617e-8)    // keV per K
+#define mu (0.6)
+#define CM_PER_KM (1.0e5)
+#define CM_PER_KPC (3.0856e21)
+#define KEV_PER_ERG (6.242e8)
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
@@ -464,7 +471,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	  if (r_sph < DiskRadius) {
 
 	    /* Beyond truncation radius */
-	    if( fabs(rcyl*LengthUnits/Mpc) > TruncRadius ){
+	    if( fabs(rcyl*LengthUnits/Mpc_cm) > TruncRadius ){
 	      disk_dens = 0.0;
 	      break;
 	    }
@@ -501,14 +508,14 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	      }
 
 	    DiskDensity = (GasMass * SolarMass
-			   / (8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))
+			   / (8.0*pi*ScaleHeightz*Mpc_cm*POW(ScaleHeightR*Mpc_cm,2.0)))
 	      / DensityUnits;   //Code units (rho_0) 
 
 	    CellMass = gauss_mass(rcyl*LengthUnits, zheight*LengthUnits,
 				  xpos*LengthUnits, ypos*LengthUnits,
 				  zpos*LengthUnits, inv, 
 				  DiskDensity*DensityUnits,
-				  ScaleHeightR*Mpc, ScaleHeightz*Mpc, 
+				  ScaleHeightR*Mpc_cm, ScaleHeightz*Mpc_cm, 
 				  CellWidth[0][0]*LengthUnits);
 
 	    disk_dens = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
@@ -556,7 +563,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	   * 'Velocity' (which are currently set to CGM values) with their
 	   * appropriate disk values */
        
-	  if (disk_dens > density && fabs(rcyl*LengthUnits/Mpc) <= TruncRadius){
+	  if (disk_dens > density && fabs(rcyl*LengthUnits/Mpc_cm) <= TruncRadius){
         
 	    density = disk_dens;
 	    temperature = DiskTemperature;
@@ -712,11 +719,11 @@ float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv
                 if( PointSourceGravity > 0 )
                     yResult[j] += cellwidth/2.0*Weights[k]*PEXP(-rrot/ScaleHeightR)/POW(cosh(zrot/(2.0*ScaleHeightz)),2);
                 else if( DiskGravity > 0 ){
-                    if( rrot/Mpc < SmoothRadius )
+                    if( rrot/Mpc_cm < SmoothRadius )
                         yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz);
-                    else if( rrot/Mpc < TruncRadius )
+                    else if( rrot/Mpc_cm < TruncRadius )
                         yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz)
-                                        *0.5*(1.0+cos(pi*(rrot-SmoothRadius*Mpc)/(SmoothLength*Mpc)));
+                                        *0.5*(1.0+cos(pi*(rrot-SmoothRadius*Mpc_cm)/(SmoothLength*Mpc_cm)));
                 } // end disk gravity if
 
             }
@@ -752,7 +759,7 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
 
  double H = sqrt(HubbleConstantNow*100*HubbleConstantNow*100*(OmegaLambdaNow+OmegaMatterNow*POW(ExpansionFactor,-3)-(OMEGA-1.)*POW(ExpansionFactor,-2)));                                
 
- double r_200 = (1.63e-2*POW(GalaxyMass,1.0/3.0)*POW((OmegaLambdaNow+OmegaMatterNow*POW(ExpansionFactor, -3)-(OMEGA-1.0)*POW(ExpansionFactor,-2)),-1.0/3.0)*ExpansionFactor*POW(H,-2.0/3.0)*POW(100,2.0/3.0))*Mpc/1.0e5;
+ double r_200 = (1.63e-2*POW(GalaxyMass,1.0/3.0)*POW((OmegaLambdaNow+OmegaMatterNow*POW(ExpansionFactor, -3)-(OMEGA-1.0)*POW(ExpansionFactor,-2)),-1.0/3.0)*ExpansionFactor*POW(H,-2.0/3.0)*POW(100,2.0/3.0))*Mpc_cm/1.0e5;
  //virial radius [m]: M_200/M_Solar = GalaxyMass
 
  double M_gas, M_DM, M_Tot, Acc, V_Circ;
@@ -761,7 +768,7 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
 
  // Mass of gas disk and DM at given radius
 
-  M_gas=8.0*M_PI*ScaleHeightz*Mpc/100*ScaleHeightR*Mpc/100*ScaleHeightR*Mpc/100*DiskDensity*DensityUnits*1000*PEXP(-r/(ScaleHeightR*Mpc/100))*(PEXP(r/(ScaleHeightR*Mpc/100))-r/(ScaleHeightR*Mpc/100)-1.0);
+  M_gas=8.0*M_PI*ScaleHeightz*Mpc_cm/100*ScaleHeightR*Mpc_cm/100*ScaleHeightR*Mpc_cm/100*DiskDensity*DensityUnits*1000*PEXP(-r/(ScaleHeightR*Mpc_cm/100))*(PEXP(r/(ScaleHeightR*Mpc_cm/100))-r/(ScaleHeightR*Mpc_cm/100)-1.0);
 
      M_DM=(M_200/f_C)*(log(1.0+r/r_s)-(r/r_s)/(1.0+r/r_s));
 
@@ -821,9 +828,9 @@ double DiskGravityStellarAccel(double rcyl, double z){
     accelcylR = GravConst * DiskGravityStellarDiskMass*SolarMass * rcyl
               / sqrt(POW(
                     POW(rcyl,2)
-                  + POW(DiskGravityStellarDiskScaleHeightR*Mpc
+                  + POW(DiskGravityStellarDiskScaleHeightR*Mpc_cm
                         + sqrt(POW(z,2)
-                             + POW(DiskGravityStellarDiskScaleHeightz*Mpc,2)),
+                             + POW(DiskGravityStellarDiskScaleHeightz*Mpc_cm,2)),
                         2),
                      3));
 
@@ -834,7 +841,7 @@ double DiskGravityBulgeAccel(double rsph) { // cgs arguments
     double accelsph;
 
     accelsph = GravConst * DiskGravityStellarBulgeMass*SolarMass
-             / POW(rsph + DiskGravityStellarBulgeR*Mpc,2);
+             / POW(rsph + DiskGravityStellarBulgeR*Mpc_cm,2);
 
     return accelsph;
 }
@@ -1166,10 +1173,10 @@ float HaloGasDensity(FLOAT R, struct CGMdata& CGM_data){
        as a function of radius given by virial theorem */
     
     double T0,haloDensity;
-    T0 = HaloGasTemperature(GalaxySimulationGasHaloScaleRadius*Mpc/LengthUnits,
+    T0 = HaloGasTemperature(GalaxySimulationGasHaloScaleRadius*Mpc_cm/LengthUnits,
 			    CGM_data);
     haloDensity = GalaxySimulationGasHaloDensity*(T0/HaloGasTemperature(R, CGM_data));
-    haloDensity /= POW((R*LengthUnits/GalaxySimulationGasHaloScaleRadius/Mpc),3);
+    haloDensity /= POW((R*LengthUnits/GalaxySimulationGasHaloScaleRadius/Mpc_cm),3);
     return min(haloDensity,GalaxySimulationGasHaloDensity);
     
   } else if(GalaxySimulationGasHalo == 2){
@@ -1181,7 +1188,7 @@ float HaloGasDensity(FLOAT R, struct CGMdata& CGM_data){
     */
     double scale_radius_cgs, this_radius_cgs, power_law_exponent;
     
-    scale_radius_cgs = GalaxySimulationGasHaloScaleRadius*Mpc;
+    scale_radius_cgs = GalaxySimulationGasHaloScaleRadius*Mpc_cm;
     this_radius_cgs = R*LengthUnits;
     power_law_exponent = -1.0*GalaxySimulationGasHaloAlpha/(Gamma-1.0);
     
@@ -1203,7 +1210,7 @@ float HaloGasDensity(FLOAT R, struct CGMdata& CGM_data){
     double scale_radius_cgs, this_radius_cgs, power_law_exponent, S_0, T_kev, n_0, this_number_density;
 
     // get radii in common set of units
-    scale_radius_cgs = GalaxySimulationGasHaloScaleRadius*Mpc;
+    scale_radius_cgs = GalaxySimulationGasHaloScaleRadius*Mpc_cm;
     this_radius_cgs = R*LengthUnits;
     power_law_exponent = -1.0*GalaxySimulationGasHaloAlpha/(Gamma-1.0);
 
@@ -1355,7 +1362,7 @@ float HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
     // set some quantities based on user inputs; this defines our integration
     T0 = GalaxySimulationGasHaloTemperature;
     n0 = GalaxySimulationGasHaloDensity / (mu*mh);
-    r0 = GalaxySimulationGasHaloScaleRadius*Mpc;
+    r0 = GalaxySimulationGasHaloScaleRadius*Mpc_cm;
   
     // used for our numerical integration
     dr = CGM_data.dr;
@@ -1552,7 +1559,7 @@ double halo_S_of_r(double r){
   // calculate a bunch of things based on user inputs
   Tvir = GalaxySimulationGasHaloTemperature;  // in Kelvin
   n0 = GalaxySimulationGasHaloDensity / (mu*mh);  // convert from density to electron number density (cm^-3)
-  r0 = GalaxySimulationGasHaloScaleRadius*Mpc;  // scale radius in CGS
+  r0 = GalaxySimulationGasHaloScaleRadius*Mpc_cm;  // scale radius in CGS
   Smin = GalaxySimulationGasHaloCoreEntropy/8.621738e-8;  // given in keV cm^2, converted to Kelvin cm^2
   S0 = Tvir / POW(n0,Gamma-1);  // entropy at scale radius, in units of Kelvin cm^2
 
@@ -1644,7 +1651,7 @@ double halo_dSdr(double r, double n){
   // calculate a bunch of things based on user inputs
   Tvir = GalaxySimulationGasHaloTemperature;  // in Kelvin
   n0 = GalaxySimulationGasHaloDensity / (mu*mh);  // convert from density to electron number density (cm^-3)
-  r0 = GalaxySimulationGasHaloScaleRadius*Mpc;  // scale radius in CGS
+  r0 = GalaxySimulationGasHaloScaleRadius*Mpc_cm;  // scale radius in CGS
   Smin = GalaxySimulationGasHaloCoreEntropy/8.621738e-8;  // given in keV cm^2, converted to Kelvin cm^2
   S0 = Tvir / POW(n0,Gamma-1);  // entropy at scale radius, in units of Kelvin cm^2
 
