@@ -28,18 +28,6 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 
-#define Mpc (3.0856e24)         //Mpc [cm] 
-#define SolarMass (1.989e33)    //Solar Mass [g]
-#define GravConst (6.67e-8)     //Gravitational Constant [cm3g-1s-2]
-#define pi (3.14159)
-#define mh (1.67e-24)           //Mass of Hydrogen [g]
-#define kboltz (1.381e-16)      //Boltzmann's Constant [ergK-1]
-#define kboltzKeV (8.617e-8)    // keV per K
-#define mu (0.6)
-#define CM_PER_KM (1.0e5)
-#define CM_PER_KPC (3.0856e21)
-#define KEV_PER_ERG (6.242e8)
-
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
