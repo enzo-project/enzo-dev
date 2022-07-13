@@ -11,9 +11,10 @@ commands:
             echo 'export ENZOTEST_DIR=$HOME/enzo_test' >> $BASH_ENV
             echo 'export ANSWER_NAME="push_suite"' >> $BASH_ENV
             echo 'export HYPRE=2.20.0' >> $BASH_ENV
+            source $BASH_ENV
             # get tags from the main and PR repository (for the current gold standard)
             git fetch --tags https://github.com/enzo-project/enzo-dev
-            git fetch --tags origin
+            git fetch --tags $CIRCLE_REPOSITORY_URL
             # tag the tip so we can go back to it
             git tag tip
 
