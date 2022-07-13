@@ -14,7 +14,9 @@ commands:
             source $BASH_ENV
             # get tags from the main and PR repository (for the current gold standard)
             git fetch --tags https://github.com/enzo-project/enzo-dev
-            git fetch --tags $CIRCLE_REPOSITORY_URL
+            if [ -n "$CIRCLE_PR_REPONAME" ]; then
+              git fetch --tags https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME
+            fi
             # tag the tip so we can go back to it
             git tag tip
 
