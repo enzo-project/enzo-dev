@@ -241,7 +241,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
   int ip,in,jp,jn,kp,kn;
   double x,y,z,vx,vy,vz;
   double r,theta,phi;
-  double cluster_radius = 1e3*3e18/LengthUnits;
+  double cluster_radius = 200*3e18/LengthUnits;
 
   if (FDMUseParticles > 0){
     if (ProcessorNumber != MyProcessorNumber) {
@@ -275,7 +275,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
          // Set random position within cell.
 		    theta = acos(2*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5));
 			phi = 2*3.1415927*(FLOAT(rand())/FLOAT(RAND_MAX));
-		    r = cluster_radius*2*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+		    r = cluster_radius*POW(FLOAT(rand())/FLOAT(RAND_MAX),1./3.);
 		    ParticlePosition[0][npart] = 0.5 + r*sin(theta)*cos(phi);
 		    ParticlePosition[1][npart] = 0.5 + r*sin(theta)*sin(phi);
 		    ParticlePosition[2][npart] = 0.5 + r*cos(theta);
