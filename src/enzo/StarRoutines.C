@@ -561,37 +561,38 @@ float Star::RelativeVelocity2(Star a)
 }
 float Star::RelativeVelocity2(Star *a) { return this->RelativeVelocity2(*a); };
 
+void Star::ClearStarsMap() // clears map before repopulating right before CopyToGrid loop (not as efficient as this could be)
+{
+  if (CurrentGrid != NULL) {
+    CurrentGrid->StarLookupMap.clear();
+  }
+  return;
+}
+
 void Star::MakeStarsMap() // makes lookup table to quickly find stars in grid during CopyToGrid
 {
   printf("AllStars identifier: %d \n",Identifier);
-  //std::map<int, Star *> StarsMap;
-  //printf("initialized StarsMap\n");
- // std::pair<int, Star*> IdentPair;
+  int starcount = 0;
   Star *cstar;
-  printf("initialized cstar\n");
   if (CurrentGrid != NULL) {
-    //std:map<int, Star*> StarsMap = CurrentGrid->StarLookupMap;
-    CurrentGrid->StarLookupMap.clear();
     printf("starting starsmap\n");
     for (cstar = CurrentGrid->Stars; cstar; cstar = cstar->NextStar) {
-      CurrentGrid->StarLookupMap.insert(std::make_pair(cstar->Identifier, cstar));
-      //StarsMap[cstar->Identifier] = cstar; // adding Identifiers as keys, stars as values
+      CurrentGrid->StarLookupMap.insert(std::make_pair(cstar->Identifier, cstar)); // adding Identifiers as keys, stars as values
+      printf("StarMap: added star %d\n",cstar->Identifier);
+      starcount++;
     }
   }
-  printf("finished starsmap\n");
-  //CurrentGrid->StarLookupMap = StarsMap; // saving it as attribute to the grid
+  printf("finished starsmap, %d stars\n",starcount);
   return;
 }
 
 void Star::CopyToGrid()
 {
-  //std::map<int, Star> StarsMap;
   Star *cstar;
-  //Star* cstarpointer;
   if (CurrentGrid != NULL) { // NULL => On another processor
-    //StarsMap = CurrentGrid->StarLookupMap;
-    cstar = CurrentGrid->StarLookupMap[Identifier]; 
-    //cstar = cstarpointer
+    printf("CopyToGrid: finding star %d \n",Identifier);
+    cstar = CurrentGrid->StarLookupMap[Identifier];
+    printf("CopyToGrid: pointer to this star: %p\n",CurrentGrid->StarLookupMap[Identifier]); 
     *cstar = *this;
   }  
   return;

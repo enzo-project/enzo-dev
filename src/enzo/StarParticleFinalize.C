@@ -161,11 +161,14 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   OutputNow = FALSE;
   printf("about to initialize map\n");
   if (AllStars) {
+    AllStars->ClearStarsMap();
     TIMER_START("StarParticleFinalize:MakeStarsMap");
     AllStars->MakeStarsMap();
     printf("initialized map\n");
     TIMER_STOP("StarParticleFinalize:MakeStarsMap");
   }
+  printf("number of stars = %d\n",NumberOfStars);
+
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
 //    if (debug) {
