@@ -101,7 +101,7 @@ commands:
           command: |
             source $BASH_ENV
             source $HOME/venv/bin/activate
-            if [ ! -f << parameters.skipfile >> ]; then
+            if [ ! -e << parameters.skipfile >> ]; then
               git checkout << parameters.tag >>
               ./configure
               cd src/enzo
@@ -126,7 +126,7 @@ commands:
             make machine-ubuntu
             # test various baryon/particle precisions
             for prec in 32 64
-            do for part in 32 64 128
+            do for part in 32 128
             do
             # skip the test-suite configuration
             if [[ $prec == 64 && $part == 64 ]]; then
@@ -141,8 +141,8 @@ commands:
             make precision-64
             make particles-64
             # test various integer/particle-id precisions
-            for inte in 32 64
-            do for pids in 32 64
+            for inte in 64
+            do for pids in 64
             do
             # skip the test-suite configuration
             if [[ $inte == 32 && $pids == 32 ]]; then
@@ -209,7 +209,7 @@ jobs:
 
       - build-and-test:
           tag: gold-standard-v14
-          skipfile: ~/enzo_test/push_suite/push_suite
+          skipfile: ~/enzo_test/push_suite
           flags: --answer-store
 
       - save_cache:

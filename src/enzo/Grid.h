@@ -447,8 +447,11 @@ public:
 
 /* Member functions for dealing with Cosmic Ray Diffusion */
 
-   int ComputeCRDiffusion(); // CR Diffusion Method 
-   int ComputeCRDiffusionTimeStep(float &dt);
+  int ComputeAnisotropicCRDiffusion(); // Anisotropic CR Diffusion Method
+  int ComputeCRDiffusion();            // Isotropic CR Diffusion Method 
+  int ComputeCRDiffusionTimeStep(float &dt);
+  int ComputeCRStreaming();            // Anisotropic CR Streaming Method
+  int ComputeCRStreamingTimeStep(float &dt);
 
 /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */
@@ -1919,26 +1922,42 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Cosmic Ray Shock Tube Problems: Initialize grid (returns SUCCESS or FAIL) */
 
   int CRShockTubesInitializeGrid(float InitialDiscontinuity,
-				 float LeftDensity, float RightDensity,
-				 float LeftVelocityX, float RightVelocityX,
-				 float LeftVelocityY, float RightVelocityY,
-				 float LeftVelocityZ, float RightVelocityZ,
-				 float LeftPressure, float RightPressure,
-				 float LeftCRDensity, float RightCRDensity);
+                                 float LeftDensity, float RightDensity,
+                                 float LeftVelocityX, float RightVelocityX,
+                                 float LeftVelocityY, float RightVelocityY,
+                                 float LeftVelocityZ, float RightVelocityZ,
+                                 float LeftPressure, float RightPressure,
+                                 float LeftCRDensity, float RightCRDensity,
+                                 float LeftBx, float RightBx,
+                                 float LeftBy, float RightBy,
+                                 float LeftBz, float RightBz);
   int CRShockTubesInitializeGrid(float InitialDiscontinuity,
-				 float SecondDiscontinuity,
-				 float LeftDensity, float RightDensity,
-				 float CenterDensity,
-				 float LeftVelocityX, float RightVelocityX,
-				 float CenterVelocityX,
-				 float LeftVelocityY, float RightVelocityY,
-				 float CenterVelocityY,
-				 float LeftVelocityZ, float RightVelocityZ,
-				 float CenterVelocityZ,
-				 float LeftPressure, float RightPressure,
-				 float CenterPressure,
-				 float LeftCRDensity, float RightCRDensity,
-				 float CenterCRDensity);
+                                 float SecondDiscontinuity,
+                                 float LeftDensity, float RightDensity,
+                                 float CenterDensity,
+                                 float LeftVelocityX, float RightVelocityX,
+                                 float CenterVelocityX,
+                                 float LeftVelocityY, float RightVelocityY,
+                                 float CenterVelocityY,
+                                 float LeftVelocityZ, float RightVelocityZ,
+                                 float CenterVelocityZ,
+                                 float LeftPressure, float RightPressure,
+                                 float CenterPressure,
+                                 float LeftCRDensity, float RightCRDensity,
+                                 float CenterCRDensity,
+                                 float LeftBx, float RightBx,
+                                 float CenterBx,
+                                 float LeftBy, float RightBy,
+                                 float CenterBy,
+                                 float LeftBz, float RightBz,
+                                 float CenterBz);
+
+  int  CRTransportTestInitializeGrid(int test_type, float center,
+                                     float rho, float vx,
+                                     float vy,  float vz,
+                                     float pg,  float ecr,
+                                     float bx,  float by,
+                                     float bz);
 
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
