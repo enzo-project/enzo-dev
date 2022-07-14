@@ -93,17 +93,9 @@ and ``ParticleVelocities files``. ``CosmologySimulationParticleMassName``
 must therefore also be specified as an input in the Enzo parameter
 file.
 
-`Linked here <http://barn.enzotools.org/inits_sort/>`_
-is a simple `Python <http://python.org/>`_ script
-that will fix the initial condition files. After running the
-script, run ring on the new initial condition files. The script
-requires a Python installation that has both
-`Numpy <http://numpy.scipy.org/>`_ and
-`h5py <http://code.google.com/p/h5py/>`_. A simple way to gain an
-installation of Python with these modules is to install
-`yt <http://yt.enzotools.org/>`_, which is one of the
-:doc:`data analysis tools </user_guide/AnalyzingWithYT>`
-available for Enzo.
+.. note:: A long time ago, there was a script available for fixing this at
+   http://barn.enzotools.org/inits_sort. Unfortunately, that has been
+   lost to time.
 
 Procedure
 ---------

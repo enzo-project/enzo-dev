@@ -57,8 +57,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level)
 {
 
-  int proc, i, j, k, apstart, apend, TotalNumber, APTotalNumber;
-
+  int proc, i, j, k, apstart, apend, TotalNumber, TotalStars, APTotalNumber;
   int particle_data_size, star_data_size;
   int Zero = 0;
 
@@ -170,7 +169,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 
     Grids[grid1]->GridData->TransferSubgridStars
       (GridPointers, NumberOfGrids, StarsToMove, Zero, Zero, 
-       StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE);
+       StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, TRUE);
 
     Grids[grid1]->GridData->TransferSubgridActiveParticles
       (GridPointers, NumberOfGrids, APNumberToMove, Zero, Zero,
@@ -189,18 +188,26 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 #pragma omp single
 {
   TotalNumber = 0;
+  TotalStars  = 0;
   APTotalNumber = 0;
   for (j = 0; j < NumberOfProcessors; j++) {
     TotalNumber += NumberToMove[j];
+    TotalStars  += StarsToMove[j];
     APTotalNumber += APNumberToMove[j];
     NumberToMove[j] = 0;  // Zero-out to use in the next step
+    StarsToMove[j]  = 0;
     APNumberToMove[j] = 0;
   }
   SendList = new particle_data[TotalNumber];
+  StarSendList = new star_data[TotalStars];
 } // end omp single
 
 #pragma omp for reduction(+:NumberToMove[:NumberOfProcessors])
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+    Grids[grid1]->GridData->TransferSubgridStars
+      (GridPointers, NumberOfGrids, StarsToMove, Zero, Zero,
+       StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, FALSE);
 
     Grids[grid1]->GridData->TransferSubgridActiveParticles
       (GridPointers, NumberOfGrids, APNumberToMove, Zero, Zero,

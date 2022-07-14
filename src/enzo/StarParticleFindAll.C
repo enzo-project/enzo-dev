@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: August 2021 by Ka Hou Leong 
+              (fixed MPI issue and lack of memory)
 /
 /  PURPOSE: First synchronizes particle information in the normal and 
 /           star particles.  Then we make a global particle list, which
@@ -17,6 +18,7 @@
 #endif /* USE_MPI */
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -34,6 +36,12 @@
 static int FirstTimeCalled = TRUE;
 static MPI_Datatype MPI_STAR;
 #endif
+
+/* Global communication buffers to avoid reallocations and 
+   this memory fragmentation */
+
+StarBuffer *recvBuffer = NULL, *sendBuffer = NULL;
+int recvBufferSize = 0, sendBufferSize = 0;
 
 void InsertStarAfter(Star * &Node, Star * &NewNode);
 void DeleteStarList(Star * &Node);
@@ -121,7 +129,6 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
     Eint32 *nCount = new Eint32[NumberOfProcessors];
     Eint32 *displace = new Eint32[NumberOfProcessors];
-    StarBuffer *recvBuffer, *sendBuffer;
 
     MPI_Allgather(&LocalNumberOfStars, 1, MPI_INT, nCount, 1, MPI_INT, 
 		  MPI_COMM_WORLD);
@@ -136,9 +143,52 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     /* If any, gather all shining particles */
 
     if (TotalNumberOfStars > 0) {
-
-      recvBuffer = new StarBuffer[TotalNumberOfStars];
-      sendBuffer = LocalStars->StarListToBuffer(LocalNumberOfStars);
+      if (recvBufferSize > 2 * ceil_log2(TotalNumberOfStars))
+      {
+       // Avoiding recvBuffer occurs memoeries which exceed 2 times of the powers of buffer space which has minimum space to contain TotalNumberOfStars.
+        delete [] recvBuffer;
+        recvBufferSize = 0;
+      }
+      if (TotalNumberOfStars > recvBufferSize) {
+        if (recvBufferSize > 0)
+        {
+            recvBufferSize = ceil_log2(TotalNumberOfStars);
+            delete [] recvBuffer;
+        }
+        else recvBufferSize = ceil_log2(TotalNumberOfStars);
+        recvBuffer = new StarBuffer[recvBufferSize];
+      }
+      if ((LocalNumberOfStars > 0) && (sendBufferSize > 2 * ceil_log2(LocalNumberOfStars)))
+      {
+       // Avoiding sendBuffer occurs memoeries which exceed 2 times of the powers of buffer space which has minimum space to contain LocalNumberOfStars.
+        delete [] sendBuffer;
+        sendBufferSize = 0;
+      }
+      if (LocalNumberOfStars > sendBufferSize) 
+      { 
+        if(sendBufferSize > 0)
+        {
+            sendBufferSize = ceil_log2(LocalNumberOfStars);
+            delete [] sendBuffer;
+        }
+        else sendBufferSize = ceil_log2(LocalNumberOfStars); 
+        sendBuffer = new StarBuffer[sendBufferSize];
+      }
+      if (LocalNumberOfStars > 0)
+      {
+          LocalStars->StarListToBuffer(sendBuffer, LocalNumberOfStars);
+      }
+      else
+      { 
+        // Due to No local star, reinitialise sendbuffer.
+        // release memories and reset sendBufferSize.
+        if(sendBufferSize > 0)
+        {
+            delete [] sendBuffer;
+            sendBufferSize = 0;
+        }
+        sendBuffer = NULL;
+      }
 
       /* Share all data with all processors */
 
@@ -170,8 +220,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
       } // ENDFOR stars
 
-      delete [] recvBuffer;
-      delete [] sendBuffer;
+      DeleteStarList(LocalStars);
 
     } /* ENDIF TotalNumberOfStars > 0 */
 

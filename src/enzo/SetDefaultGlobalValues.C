@@ -471,15 +471,19 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2OpticalDepthApproximation = 1;
   H2FormationOnDust           = FALSE;
   GloverChemistryModel        = 0;                 // 0ff
-  CRModel                     = 0;                 // off
-  CRDiffusion                 = 0;                 // off
+  CRModel                     = 0;                 // off                                                                          
+  CRDiffusion                 = 0;                 // off                                                                          
+  CRHeating                   = 0;                 // off                                                                          
+  CRStreaming                 = 0;                 // off                                                                          
+  CRStreamVelocityFactor      = 1.0;                // Alfven velocity (only relevant when CRStreaming == 1)                        
+  CRStreamStabilityFactor     = 1000.0;             // This should be large and calibrated for each simulation
   CRkappa                     = 0.0;
   CRCourantSafetyNumber       = 0.5;
-  CRFeedback                  = 0.0;               // no stellar feedback into CRs
-  CRdensFloor                 = 0.0;               // off
-  CRmaxSoundSpeed             = 0.0;               // off 
-  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
-  CosmologySimulationUniformCR= 1e-20;             // FIXME
+  CRFeedback                  = 0.0;               // no stellar feedback into CRs                                                 
+  CRdensFloor                 = tiny_number;       // off                                                                          
+  CRmaxSoundSpeed             = 0.0;               // off                                                                          
+  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas                                                  
+  CosmologySimulationUniformCR= 1e-20;             // FIXME   
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
@@ -539,36 +543,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
   use_grackle = FALSE;
-#ifdef USE_GRACKLE
-    // Grackle chemistry data structure.
-  chemistry_data *my_chemistry;
-  my_chemistry = new chemistry_data;
-  if (set_default_chemistry_parameters(my_chemistry) == FAIL) {
-    ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
-  }
-
-  // Map Grackle defaults to corresponding Enzo parameters
-  Gamma                                 = (float) grackle_data->Gamma;
-  MultiSpecies                          = (int) grackle_data->primordial_chemistry;
-  MetalCooling                          = (int) grackle_data->metal_cooling;
-  H2FormationOnDust                     = (int) grackle_data->h2_on_dust;
-  CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data->cmb_temperature_floor;
-  ThreeBodyRate                         = (int) grackle_data->three_body_rate;
-  CIECooling                            = (int) grackle_data->cie_cooling;
-  H2OpticalDepthApproximation           = (int) grackle_data->h2_optical_depth_approximation;
-  PhotoelectricHeating                  = (int) grackle_data->photoelectric_heating;
-  PhotoelectricHeatingRate              = (float) grackle_data->photoelectric_heating_rate;
-  CoolData.NumberOfTemperatureBins      = (int) grackle_data->NumberOfTemperatureBins;
-  RateData.CaseBRecombination           = (int) grackle_data->CaseBRecombination;
-  CoolData.TemperatureStart             = (float) grackle_data->TemperatureStart;
-  CoolData.TemperatureEnd               = (float) grackle_data->TemperatureEnd;
-  RateData.NumberOfDustTemperatureBins  = (int) grackle_data->NumberOfDustTemperatureBins;
-  RateData.DustTemperatureStart         = (float) grackle_data->DustTemperatureStart;
-  RateData.DustTemperatureEnd           = (float) grackle_data->DustTemperatureEnd;
-  CoolData.HydrogenFractionByMass       = (float) grackle_data->HydrogenFractionByMass;
-  CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data->DeuteriumToHydrogenRatio;
-  CoolData.SolarMetalFractionByMass     = (float) grackle_data->SolarMetalFractionByMass;
-#endif
 
   OutputCoolingTime = FALSE;
   OutputTemperature = FALSE;
@@ -1054,6 +1028,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfActiveParticles = 0;
   ActiveParticleDensityThreshold = 1e8; //in cm^-3
   //SmartStar Feedback modes
+  SmartStarAccretion = 8;
   SmartStarFeedback = FALSE;
   SmartStarEddingtonCap = FALSE;
   SmartStarBHFeedback = FALSE;

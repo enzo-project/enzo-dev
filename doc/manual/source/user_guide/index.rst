@@ -58,4 +58,4 @@ inquiries and comments should be directed to the `Enzo Users' List
    CosmologicalInitialConditions.rst
    RunningLargeSimulations.rst
    EnzoOutputFormat.rst
-
+   SampleParameterFiles.rst

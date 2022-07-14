@@ -111,10 +111,10 @@ int grid::FDMCollapseInitializeGrid()
 
 if(QuantumPressure){
 // Read Density
-  if (READFILE("GridDensity.new", GridRank, GridDimension,
+/*  if (READFILE("GridDensity.new", GridRank, GridDimension,
          GridStartIndex, GridEndIndex, Offset, BaryonField[0],
          &tempbuffer, 0, 1) == FAIL) {
-    ENZO_FAIL("Error reading density.\n");}
+    ENZO_FAIL("Error reading density.\n");}*/
 // Read wavefunction
 
   if (READFILE("GridRePsi", GridRank, GridDimension,
