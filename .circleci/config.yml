@@ -35,11 +35,11 @@ commands:
             pip install --upgrade wheel
             pip install --upgrade setuptools
             pip install Cython numpy h5py fastcache flake8 nose girder-client matplotlib pytest gitpython # yt
-            # Temporary workaround to use updated answer testing from jwise's repository
-            # until next yt point release
-            git clone https://github.com/jwise77/yt
+            # Temporary workaround to use updated answer testing from the yt dev repository
+            # instead of pip until next yt point release
+            git clone https://github.com/yt-project/yt
             cd yt
-            git checkout enzo-answer-testing-update
+            git checkout main
             pip install -e .
             cd ..
             pip install yt_astro_analysis
