@@ -34,6 +34,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
+void DeleteGlobalRadiationSources(void);
+
 int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 			    Star *AllStars)
 {
@@ -50,12 +52,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 
   /* If sources exist, delete them */
 
-  RadiationSourceEntry *dummy;
-  while (GlobalRadiationSources != NULL) {
-    dummy = GlobalRadiationSources;
-    GlobalRadiationSources = GlobalRadiationSources->NextSource;
-    delete dummy;
-  }
+  DeleteGlobalRadiationSources();
 
   GlobalRadiationSources = new RadiationSourceEntry;
   GlobalRadiationSources->NextSource = NULL;

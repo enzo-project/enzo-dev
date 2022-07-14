@@ -1,4 +1,5 @@
-from yt.mods import *
+import os
+import numpy as np
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
      AnswerTestingTest, \
@@ -23,7 +24,7 @@ class TestLVariation(AnswerTestingTest):
                                                         "AngularMomentumZ"]))
 
     def compare(self, new_result, old_result):
-        tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+        tolerance = ytcfg.get("yt", "answer_testing_tolerance")
         assert_allclose(new_result, old_result, rtol=10**-tolerance, atol=0)
 
 @requires_outputlog(_dir_name, _pf_name)
