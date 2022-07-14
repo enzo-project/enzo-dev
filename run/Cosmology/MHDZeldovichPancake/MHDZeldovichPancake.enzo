@@ -6,7 +6,7 @@
 #
 ProblemType                = 20      // Zeldovich pancake
 TopGridRank                = 1
-TopGridDimensions          = 500 64 2
+TopGridDimensions          = 500
 SelfGravity                = 1       // gravity on
 TopGridGravityBoundary     = 0       // Periodic BC for gravity
 LeftFaceBoundaryCondition  = 3       // same for fluid
