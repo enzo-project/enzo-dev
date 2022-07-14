@@ -528,10 +528,9 @@ RadiationSourceEntry* Star::RadiationSourceInitialize(void)
      CONVERSION ROUTINES FROM/TO ARRAY BUFFERS
 **************************************************/
 
-StarBuffer* Star::StarListToBuffer(int n)
+void Star::StarListToBuffer(StarBuffer *&result, int n)
 {
   int i, count = 0;
-  StarBuffer *result = new StarBuffer[n];
   Star *tmp = this;
   while (tmp != NULL) {
     for (i = 0; i < MAX_DIMENSION; i++) {
@@ -567,5 +566,43 @@ StarBuffer* Star::StarListToBuffer(int n)
     count++;
     tmp = tmp->NextStar;
   }
-  return result;
+  return;
 }
+
+void Star::StarToBuffer(StarBuffer *result)
+{
+  int i, count = 0;
+  Star *tmp = this;
+  for (i = 0; i < MAX_DIMENSION; i++) {
+    result->pos[i] = tmp->pos[i];
+    result->vel[i] = tmp->vel[i];
+    result->delta_vel[i] = tmp->delta_vel[i];
+    result->accreted_angmom[i] = tmp->accreted_angmom[i];
+  }
+  result->naccretions = tmp->naccretions;
+  for (i = 0; i < tmp->naccretions; i++) {
+    result->accretion_rate[i] = tmp->accretion_rate[i];
+    result->accretion_time[i] = tmp->accretion_time[i];
+  }
+  for (i = tmp->naccretions; i < MAX_ACCR; i++) {
+    result->accretion_rate[i] = 0.0;
+    result->accretion_time[i] = 0.0;
+  }
+  result->Mass = tmp->Mass;
+  result->FinalMass = tmp->FinalMass;
+  result->DeltaMass = tmp->DeltaMass;
+  result->BirthTime = tmp->BirthTime;
+  result->LifeTime = tmp->LifeTime;
+  result->Metallicity = tmp->Metallicity;
+  result->deltaZ = tmp->deltaZ;
+  result->last_accretion_rate = tmp->last_accretion_rate;    
+  result->NotEjectedMass = tmp->NotEjectedMass;    
+  result->FeedbackFlag = tmp->FeedbackFlag;
+  result->Identifier = tmp->Identifier;
+  result->level = tmp->level;
+  result->GridID = tmp->GridID;
+  result->type = tmp->type;
+  result->AddedEmissivity = tmp->AddedEmissivity;
+  return;
+}
+

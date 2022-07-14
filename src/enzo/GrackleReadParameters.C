@@ -8,7 +8,7 @@
 /
 /  PURPOSE:
 /
-/  NOTE: Handles reading of Grackle-specific parametrs and mapping
+/  NOTE: Handles reading of Grackle-specific parameters and mapping
 /        shared parameters between Enzo and Grackle. Any new Grackle parameters
 /        should be read in here.
 /
@@ -137,6 +137,20 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     ret += sscanf(line, "LWbackground_sawtooth_suppression = %d",
                   &grackle_data->LWbackground_sawtooth_suppression);
 
+    ret += sscanf(line, "local_dust_to_gas_ratio = %f",
+                  &grackle_data->local_dust_to_gas_ratio);
+
+    ret += sscanf(line, "dust_chemistry = %d",
+                  &grackle_data->dust_chemistry);
+
+    /* functionality for below two are not yet implemented but are
+       involved in options for other Grackle settings. Read in
+       here to do error checking to make sure these are not used */
+    ret += sscanf(line, "use_isrf_field = %d",
+                  &grackle_data->use_isrf_field);
+    ret += sscanf(line, "use_dust_density_field = %d",
+                  &grackle_data->use_dust_density_field);
+
     /* If the dummy char space was used, then make another. */
     if (*dummy != 0) {
       dummy = new char[MAX_LINE_LENGTH];
@@ -187,13 +201,25 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
   // grackle_data->radiative_transfer_coupled_rate_solver set in RadiativeTransferReadParameters
   // grackle_data->radiative_transfer_hydrogen_only set in RadiativeTransferReadParameters
 
+
+  // Error checking for behavior not implemented
+  if ( (grackle_data->photoelectric_heating == 2) ||
+       (grackle_data->use_isrf_field)){
+    ENZO_FAIL("Photoelectric heating model 2, and ISRF field, in Grackle is not yet implemented.\n");
+  }
+
+  if ( grackle_data->use_dust_density_field ){
+    ENZO_FAIL("Supplying dust density (use_dust_density_field) to Grackle is not yet implemented.\n");
+  }
+
   // Initialize Grackle units structure.
   FLOAT a_value, dadt;
   a_value = 1.0;
   code_units grackle_units;
   grackle_units.a_units = 1.0;
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0,
-    TimeUnits = 1.0, VelocityUnits = 1.0, MassUnits = 1.0;
+    TimeUnits = 1.0, VelocityUnits = 1.0;
+  double MassUnits = 1.0;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
                &TimeUnits, &VelocityUnits, &MassUnits, InitTime) == FAIL) {
     ENZO_FAIL("Error in GetUnits.\n");

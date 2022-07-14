@@ -85,7 +85,7 @@ list of the people who have recently contributed, in alphabetical order:
    * James Larrue           james.larrue@diopolis.com
    * Eve Lee                elee@cita.utoronto.ca
    * Miao Li                ml3322@columbia.edu
-   * Xinyu Li		    suniverse@gmail.com
+   * Xinyu Li		    xl2359@columbia.edu
    * Yuan Li                yuan@astro.columbia.edu
    * Greg Meece             meecegre@msu.edu
    * Yuu Niino              yuuniino@ioa.s.u-tokyo.ac.jp

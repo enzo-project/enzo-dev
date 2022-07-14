@@ -43,6 +43,7 @@ void get_uuid(char *buffer);
 int RadiativeTransferWriteParameters(FILE *fptr);
 int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
 #endif /* TRANSFER */
+int GrackleWriteParameters(FILE *fptr);
 int UpdateLocalDatabase(TopGridData &MetaData, int CurrentTimeID,
                         char *dset_uuid, char *Filename);
 
@@ -331,6 +332,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
      // There's probably a better way to do this.
   fprintf(fptr, "ActiveParticleDensityThreshold = %"GSYM"\n",
 	  ActiveParticleDensityThreshold);
+  fprintf(fptr, "SmartStarAccretion             = %"ISYM"\n", SmartStarAccretion);
   fprintf(fptr, "SmartStarFeedback              = %"ISYM"\n", SmartStarFeedback);
   fprintf(fptr, "SmartStarEddingtonCap          = %"ISYM"\n", SmartStarEddingtonCap);
   fprintf(fptr, "SmartStarBHFeedback              = %"ISYM"\n", SmartStarBHFeedback);
@@ -546,23 +548,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "SGScoeffNLuNormedEnS2Star      = %"FSYM"\n", SGScoeffNLuNormedEnS2Star);
   fprintf(fptr, "SGScoeffNLb                    = %"FSYM"\n", SGScoeffNLb);
   fprintf(fptr, "use_grackle                 = %"ISYM"\n", use_grackle);
-#ifdef USE_GRACKLE
-
-  if (grackle_data->use_grackle){
-    /* Grackle chemistry parameters */
-    fprintf(fptr, "with_radiative_cooling      = %d\n", grackle_data->with_radiative_cooling);
-    fprintf(fptr, "use_volumetric_heating_rate = %d\n", grackle_data->use_volumetric_heating_rate);
-    fprintf(fptr, "use_specific_heating_rate   = %d\n", grackle_data->use_specific_heating_rate);
-    fprintf(fptr, "self_shielding_method       = %d\n", grackle_data->self_shielding_method);
-    fprintf(fptr, "H2_self_shielding           = %d\n", grackle_data->H2_self_shielding);
-    fprintf(fptr, "grackle_data_file           = %s\n", grackle_data->grackle_data_file);
-    fprintf(fptr, "UVbackground                = %d\n", grackle_data->UVbackground);
-    fprintf(fptr, "Compton_xray_heating        = %d\n", grackle_data->Compton_xray_heating);
-    fprintf(fptr, "LWbackground_intensity      = %lf\n", grackle_data->LWbackground_intensity);
-    fprintf(fptr, "LWbackground_sawtooth_suppression = %d\n", grackle_data->LWbackground_sawtooth_suppression);
-    /********************************/
-  }
-#endif
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
   fprintf(fptr, "RadiativeCoolingModel          = %"ISYM"\n", RadiativeCoolingModel);
   fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
@@ -582,13 +567,17 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RadiationXRayComptonHeating    = %"ISYM"\n", RadiationXRayComptonHeating);
   fprintf(fptr, "CRModel                        = %"ISYM"\n", CRModel);
   fprintf(fptr, "CRDiffusion                    = %"ISYM"\n", CRDiffusion);
+  fprintf(fptr, "CRHeating                      = %"ISYM"\n", CRHeating);
+  fprintf(fptr, "CRStreaming                    = %"ISYM"\n", CRStreaming);
+  fprintf(fptr, "CRStreamVelocityFactor         = %"FSYM"\n", CRStreamVelocityFactor);
+  fprintf(fptr, "CRStreamStabilityFactor        = %"FSYM"\n", CRStreamStabilityFactor);
   fprintf(fptr, "CRkappa                        = %"FSYM"\n", CRkappa);
   fprintf(fptr, "CRCourantSafetyNumber          = %"FSYM"\n", CRCourantSafetyNumber);
   fprintf(fptr, "CRFeedback                     = %"FSYM"\n", CRFeedback);
   fprintf(fptr, "CRdensFloor                    = %"FSYM"\n", CRdensFloor);
   fprintf(fptr, "CRmaxSoundSpeed                = %"FSYM"\n", CRmaxSoundSpeed);
   fprintf(fptr, "CRgamma                        = %"FSYM"\n", CRgamma);
-  fprintf(fptr, "CosmologySimulationUniformCR   = %"FSYM"\n", CosmologySimulationUniformCR); // FIXME
+  fprintf(fptr, "CosmologySimulationUniformCR   = %"FSYM"\n", CosmologySimulationUniformCR); // FIXME    
   fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);
   fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
   fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
@@ -1229,6 +1218,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
     }
 #endif
 
+  /* Write out Grackle specific parameters */
+
+  if (GrackleWriteParameters(fptr) == FAIL) {
+    ENZO_FAIL("Error in GrackleWriteParameters.\n");
+  }
+
   if (UsePhysicalUnit) {
     /* Change input physical parameters into code units */
 
@@ -1307,10 +1302,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   }
   /* Write unique simulation identifier. */
   fprintf(fptr, "MetaDataSimulationUUID          = %s\n", MetaData.SimulationUUID);
+#ifdef USE_UUID
   /* Give this dataset a unique identifier. */
   char dset_uuid[MAX_LINE_LENGTH];
   get_uuid(dset_uuid);
   fprintf(fptr, "MetaDataDatasetUUID             = %s\n", dset_uuid);
+#endif
   /* If the restart data had a UUID, write that. */
   if(MetaData.RestartDatasetUUID != NULL){
     fprintf(fptr, "MetaDataRestartDatasetUUID      = %s\n",
@@ -1326,8 +1323,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "VersionNumber              = %"FSYM"\n\n", VERSION);
 
+#ifdef USE_UUID
   if (name != NULL)
     UpdateLocalDatabase(MetaData, ID, dset_uuid, name);
-
+#endif
+ 
   return SUCCESS;
 }

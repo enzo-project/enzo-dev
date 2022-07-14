@@ -741,13 +741,27 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	}
       }
 
-      /* Compute and Apply Cosmic Ray Diffusion */
-      if(CRModel && CRDiffusion){
-        if(Grids[grid1]->GridData->ComputeCRDiffusion() == FAIL){
-          fprintf(stderr, "Error in grid->ComputeCRDiffusion.\n");
-          return FAIL;
-        } // end ComputeCRDiffusion if
-      }// end CRDiffusion if
+      /* Compute and Apply Cosmic Ray Diffusion and Streaming*/
+      if(CRModel){
+        if(CRDiffusion == 1){ // isotropic diffusion                                                                               
+          if(Grids[grid1]->GridData->ComputeCRDiffusion() == FAIL){
+            fprintf(stderr, "Error in grid->ComputeExplicitIsotropicCRDiffusion.\n");
+            return FAIL;
+          }
+        }
+        else if(CRDiffusion == 2){ // anisotripic diffusion                                                                        
+          if(Grids[grid1]->GridData->ComputeAnisotropicCRDiffusion() == FAIL){
+            fprintf(stderr, "Error in grid->ComputeAnisotropicCRDiffusion .\n");
+            return FAIL;
+          }
+        }
+        if(CRStreaming){ // cosmic ray streaming                                                                                   
+          if(Grids[grid1]->GridData->ComputeCRStreaming() == FAIL){
+            fprintf(stderr, "Error in grid->ComputeCRStreaming .\n");
+            return FAIL;
+          }
+        }
+      }// end CRModel if 
 
       /* Gravity: clean up AccelerationField. */
 
@@ -773,13 +787,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Grids[grid1]->GridData->ComovingExpansionTerms();
 
       if (UseMagneticSupernovaFeedback)
-	Grids[grid1]->GridData->MagneticSupernovaList.clear();
+	Grids[grid1]->GridData->MagneticSupernovaList.clear(); 
+    } //end loop over grids
 
+    /* Finalize (accretion, feedback etc) for Active particles. */
     ActiveParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
                            level, NumberOfNewActiveParticles);
-    } //end loop over grids
     /* Finalize (accretion, feedback, etc.) star particles */
-
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious, OutputNow);
 

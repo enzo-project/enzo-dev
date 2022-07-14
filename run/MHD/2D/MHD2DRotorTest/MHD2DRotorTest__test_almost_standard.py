@@ -3,7 +3,7 @@
 ###
 
 import os
-from yt.mods import *
+import numpy as np
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
     VerifySimulationSameTest, \
@@ -28,7 +28,7 @@ def test_standard():
     sim.get_time_series()
     yield VerifySimulationSameTest(sim)
     base_pf = sim[0]
-    fields = [f for f in _base_fields if f in base_pf.h.field_list]
+    fields = [f for f in _base_fields if ("enzo", f) in base_pf.field_list]
     # Only test the last output.
     pf = sim[-1]
     for test in standard_small_simulation(pf, fields): yield test

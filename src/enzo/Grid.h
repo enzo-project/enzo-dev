@@ -452,8 +452,11 @@ public:
 
   /* Member functions for dealing with Cosmic Ray Diffusion */
 
-  int ComputeCRDiffusion(); // CR Diffusion Method
+  int ComputeAnisotropicCRDiffusion(); // Anisotropic CR Diffusion Method
+  int ComputeCRDiffusion();            // Isotropic CR Diffusion Method 
   int ComputeCRDiffusionTimeStep(float &dt);
+  int ComputeCRStreaming();            // Anisotropic CR Streaming Method
+  int ComputeCRStreamingTimeStep(float &dt);
 
   /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */
@@ -1782,35 +1785,36 @@ iveParticles; };
                    star_data *&List, int CopyDirection);
 
   // Only used for static hierarchies
-  int MoveSubgridStars(int NumberOfSubgrids, grid *ToGrids[],
-                       int AllLocal);
-  int MoveSubgridActiveParticles(int NumberOfSubgrids, grid *ToGrids[],
-                                 int AllLocal);
-  int TransferSubgridParticles(grid *Subgrids[], int NumberOfSubgrids,
-                               int *&NumberToMove, int StartIndex,
-                               int EndIndex, particle_data *&List,
-                               bool KeepLocal, bool ParticlesAreLocal,
-                               int CopyDirection,
-                               int IncludeGhostZones = FALSE,
-                               int CountOnly = FALSE);
+  int MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[],
+		       int AllLocal);
+  int MoveSubgridActiveParticles(int NumberOfSubgrids, grid* ToGrids[],
+                 int AllLocal);
+  int TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids, 
+			       int* &NumberToMove, int StartIndex, 
+			       int EndIndex, particle_data* &List, 
+			       bool KeepLocal, bool ParticlesAreLocal,
+			       int CopyDirection,
+			       int IncludeGhostZones = FALSE,
+			       int CountOnly = FALSE);
 
-  int TransferSubgridStars(grid *Subgrids[], int NumberOfSubgrids,
-                           int *&NumberToMove, int StartIndex,
-                           int EndIndex, star_data *&List,
-                           bool KeepLocal, bool ParticlesAreLocal,
-                           int CopyDirection,
-                           int IncludeGhostZones = FALSE);
+  int TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids, 
+			   int* &NumberToMove, int StartIndex, 
+			   int EndIndex, star_data* &List, 
+			   bool KeepLocal, bool ParticlesAreLocal,
+			   int CopyDirection,
+			   int IncludeGhostZones = FALSE,
+                           int CountOnly = FALSE);
 
-  int TransferSubgridActiveParticles(grid *Subgrids[], int NumberOfSubgrids,
-                                     int *&NumberToMove, int StartIndex,
-                                     int EndIndex, ActiveParticleList<ActiveParticleType> &List,
-                                     bool KeepLocal, bool ParticlesAreLocal,
-                                     int CopyDirection,
-                                     int IncludeGhostZones = FALSE,
-                                     int CountOnly = FALSE);
-  // -------------------------------------------------------------------------
-  // Helper functions (should be made private)
-  //
+int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
+                     int* &NumberToMove, int StartIndex,
+                     int EndIndex, ActiveParticleList<ActiveParticleType> &List,
+                     bool KeepLocal, bool ParticlesAreLocal,
+                     int CopyDirection,
+                     int IncludeGhostZones = FALSE,
+                     int CountOnly = FALSE);
+// -------------------------------------------------------------------------
+// Helper functions (should be made private)
+//
 
   /* This is a simple helper function which determines if the method
      should return immediately because of communication-mode reasons.
@@ -1996,7 +2000,10 @@ iveParticles; };
                                  float LeftVelocityY, float RightVelocityY,
                                  float LeftVelocityZ, float RightVelocityZ,
                                  float LeftPressure, float RightPressure,
-                                 float LeftCRDensity, float RightCRDensity);
+                                 float LeftCRDensity, float RightCRDensity,
+                                 float LeftBx, float RightBx,
+                                 float LeftBy, float RightBy,
+                                 float LeftBz, float RightBz);
   int CRShockTubesInitializeGrid(float InitialDiscontinuity,
                                  float SecondDiscontinuity,
                                  float LeftDensity, float RightDensity,
@@ -2010,7 +2017,13 @@ iveParticles; };
                                  float LeftPressure, float RightPressure,
                                  float CenterPressure,
                                  float LeftCRDensity, float RightCRDensity,
-                                 float CenterCRDensity);
+                                 float CenterCRDensity,
+                                 float LeftBx, float RightBx,
+                                 float CenterBx,
+                                 float LeftBy, float RightBy,
+                                 float CenterBy,
+                                 float LeftBz, float RightBz,
+                                 float CenterBz);
 
   /* Self Force gravity test */
 
@@ -2020,6 +2033,15 @@ iveParticles; };
                                   float vx, float vy, float vz);
 
   /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
+
+  int  CRTransportTestInitializeGrid(int test_type, float center,
+                                     float rho, float vx,
+                                     float vy,  float vz,
+                                     float pg,  float ecr,
+                                     float bx,  float by,
+                                     float bz);
+
+/* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
   int InitializeUniformGrid(float UniformDensity, float UniformTotalEnergy,
                             float UniformGasEnergy, float UniformVelocity[],

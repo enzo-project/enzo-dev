@@ -55,7 +55,7 @@ How to Run
 ----------
 
 By constructing a script inside ``user_script.py``, the Enzo hierarchy can be
-accessed and modified. The analysis toolkit `yt <http://yt.enzotools.org/>`_
+accessed and modified. The analysis toolkit `yt <https://yt-project.org/>`__
 has functionality that can abstract much of the data-access and handling.
 Currently several different plotting methods -- profiles, phase plots, slices
 and cutting planes -- along with all derived quantities can be accessed and
