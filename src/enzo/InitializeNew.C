@@ -694,6 +694,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 260 ) Chemical evolution test problem
   if (ProblemType == 260){
     ret = ChemicalEvolutionTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
 
   /* ???? */
   if (ProblemType ==300) {

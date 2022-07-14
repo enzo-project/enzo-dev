@@ -132,14 +132,10 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     ret += sscanf(line, "UVbackground = %d", &grackle_data->UVbackground);
     ret += sscanf(line, "Compton_xray_heating = %d",
                     &grackle_data->Compton_xray_heating);
-    ret += sscanf(line, "LWbackground_model = %d",
-                    &grackle_data->LWbackground_model);
     ret += sscanf(line, "LWbackground_intensity = %lf",
                   &grackle_data->LWbackground_intensity);
     ret += sscanf(line, "LWbackground_sawtooth_suppression = %d",
                   &grackle_data->LWbackground_sawtooth_suppression);
-    ret += sscanf(line, "LWbackground_model = %d",
-                  &grackle_data->LWbackground_model);
 
     ret += sscanf(line, "local_dust_to_gas_ratio = %f",
                   &grackle_data->local_dust_to_gas_ratio);
