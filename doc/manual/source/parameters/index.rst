@@ -287,12 +287,19 @@ Initialization Parameters
     (and hence the entire hierarchy). The first integer corresponds to
     the x-direction, the second to the y-direction and the third, the
     z-direction. The possible values are: 0 - reflecting, 1 - outflow,
-    2 - inflow, 3 - periodic, 4 - shearing. For inflow, the inflow
+    2 - inflow, 3 - periodic, 4 - shearing, 5 - hydrostatic, 6 - undefined. 
+    For inflow, the inflow
     values can be set through the next parameter, or more commonly are
     controlled by problem-specific code triggered by the ``ProblemType``.
     For shearing boundaries, the boundary pair in another direction
     must be periodic. Note that self gravity will not be consistent
-    with shearing boundary conditions. Default: 0 0 0
+    with shearing boundary conditions. The hydrostatic boundaries are 
+    meant to help a simulation stay in hydrostatic equilibrium. For most 
+    baryon fields, this method predicts the values in the boundary with 
+    a quadratic interpolation from the 3 nearest active cells. The density 
+    field is fit with a power law using the nearest 2 active cells. All 
+    velocities are set to zero in the boundary when using hydrostatic 
+    boundary counditions. Default: 0 0 0
 ``BoundaryConditionName`` (external)
     While the above parameters provide an easy way to set an entire
     side of grid to a given boundary value, the possibility exists to
@@ -3926,18 +3933,39 @@ For details on the cosmic ray solver in Enzo see :ref:`cosmic_rays`.
     Switches on diffusion of the cosmic ray energy density. Default: 0
 
     0. Off
-    1. On with constant coefficient (``CRkappa``)
+    1. On; Isotropic diffusion with constant coefficient (``CRkappa``). Compatible with HydroMethod = 2 or 4.
+    2. On; Anisotropic diffusion around magnetic field lines with constant coefficient (``CRkappa``). Compatible with HydroMethod = 4. 
 
 
 ``CRkappa`` (external)
-    Cosmic ray diffusion coefficient in CGS units (cm^2/s), Default: 0.0. For MW-like galaxies: 1E28.
+    Cosmic ray diffusion coefficient in CGS units (cm^2/s), Default: 0.0. For MW-like galaxies: 1E28-3E29.
+
+``CRStreaming`` (external)
+    Switches on streaming of the cosmic ray energy density. Default: 0
+   
+   0. Off
+   1. On; Anisotropic streaming around magnetic field lines. Compatible with HydroMethod = 4. 
+
+``CRHeating`` (external)
+    This parameter adds heating of gas from streaming of cosmic rays. Physically, this should
+    only be turned on for runs with cosmic ray streaming. However, this will work for any combination of CR
+    parameters. Only compatible with HydroMethod = 4. Default: 0. 
+
+``CRStreamingStabilityFactor`` (external)
+    This is used to preserve stability in cosmic ray streaming according to the regularization scheme
+    described in Sharma et al. 2009. This number should be greater than 1 and calibrated for each simulation. 
+    Default: 1e2
+
+``CRStreamingVelocityFactor`` (external)
+    This sets the CR streaming velocity in units of the alfven velocity. Default: 1.0; 
 
 ``CRCourantSafetyNumber`` (external)
     Multiplies CR diffusion timestep, for stability should be <= 0.5. Default: 0.5
 
 ``CRFeedback`` (external)
     Specify fraction of star formation feedback energy should be diverted into the cosmic
-    ray energy density. implemented ONLY for star_maker3 (feedback method 2). Default: 0.0
+    ray energy density. Implemented ONLY for star_maker3 (feedback method 2) and star_maker2 
+    (feedback method 1). Default: 0.0
 
 ``CRdensFloor`` (external)
     Floor in gas density, can be imposed, for speed purposes (default 0.0 = off). Any value

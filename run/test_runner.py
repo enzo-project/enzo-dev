@@ -13,6 +13,7 @@ import sys
 import time
 import tarfile
 import logging
+import multiprocessing
 
 known_categories = [
     "Cooling",
@@ -40,9 +41,8 @@ from nose.plugins.xunit import Xunit
 from yt.config import ytcfg
 ytcfg["yt","suppressStreamLogging"] = "True"
 ytcfg["yt","__command_line"] = "True" 
-from yt.mods import *
 
-from yt.utilities.command_line import get_yt_version
+from yt.funcs import get_yt_version
 from yt.utilities.logger import ytLogger as mylog
 from yt.utilities.logger import \
     disable_stream_logging, ufstring
@@ -268,11 +268,13 @@ class EnzoTestCollection(object):
         self.sims_not_finished = []
 
     def go(self, output_dir, interleaved, machine, exe_path, sim_only=False,
-           test_only=False):
+           test_only=False, ntasks=1):
         self.sim_only = sim_only
         go_start_time = time.time()
         self.output_dir = output_dir
         total_tests = len(self.tests)
+        if ntasks > 1 and interleaved:
+            print("Parallelism not implemented for interleaved runs and testing.")
 
         # copy executable to top of testing directory
         shutil.copy(exe_path, output_dir)
@@ -295,8 +297,8 @@ class EnzoTestCollection(object):
                     self.test_container[i].run_test()
         else:
             self.prepare_all_tests(output_dir, machine, exe_path)
-            if not test_only: self.run_all_sims()
-            if not sim_only: self.run_all_tests()
+            if not test_only: self.run_all_sims(ntasks)
+            if not sim_only: self.run_all_tests(ntasks)
         self.save_test_summary()
         go_stop_time = time.time()
         print("\n\nComplete!")
@@ -306,28 +308,37 @@ class EnzoTestCollection(object):
 
     def prepare_all_tests(self, output_dir, machine, exe_path):
         print("Preparing all tests.")
-        for my_test in self.tests:
+        for i, my_test in enumerate(self.tests):
             print("Preparing test: %s." % my_test['name'])
             self.test_container.append(EnzoTestRun(output_dir, my_test, 
                                                    machine, exe_path,
                                                    args = self.args,
-                                                   plugins = self.plugins))
+                                                   plugins = self.plugins,
+                                                   num = i))
 
-    def run_all_sims(self):
-        total_tests = len(self.test_container)
-        print("Running all simulations.")
-        for i, my_test in enumerate(self.test_container):
-            print("Running simulation: %d of %d." % (i+1, total_tests))
-            # Did the simulation finish?
-            if not my_test.run_sim():
-                self.sims_not_finished.append(my_test.test_data['name'])
+    def run_single_sim(self, my_test):
+        print(f"Running simulation #{my_test.test_num}")
+        return my_test.run_sim()
 
-    def run_all_tests(self):
-        total_tests = len(self.test_container)
-        print("Running all tests.")
-        for i, my_test in enumerate(self.test_container):
-            print("Running test: %d of %d." % (i+1, total_tests))
-            my_test.run_test()
+    def run_single_test(self, my_test):
+        print(f"Testing simulation #{my_test.test_num}")
+        my_test.run_test()
+
+    def run_all_sims(self, ntasks):
+        print(f"Running all {len(self.test_container)} simulations.")
+        with multiprocessing.Pool(ntasks) as pool:
+            all_codes = pool.map(self.run_single_sim, self.test_container)
+        for finished, test in zip(all_codes, self.test_container):
+            if not finished:
+                self.sims_not_finished.append(test.test_data['name'])
+
+    def run_all_tests(self, ntasks):
+        print(f"Running all {len(self.test_container)} tests.")
+        for test in self.test_container:
+            self.run_single_test(test)
+        # Conflicts with concurrent tests (file locks on stored answer; avoid for now)
+        # with multiprocessing.Pool(ntasks) as pool:
+        #     pool.map(self.run_single_test, self.test_container)
 
     def add_test(self, fn):
         # We now do something dangerous: we exec the file directly and grab
@@ -409,7 +420,7 @@ class EnzoTestCollection(object):
 
 class EnzoTestRun(object):
     def __init__(self, test_dir, test_data, machine, exe_path,
-                 args = None, plugins = None):
+                 args = None, plugins = None, num = 0):
         if args is None: args = sys.args[:1]
         self.args = args
         if plugins is None: plugins = []
@@ -417,6 +428,7 @@ class EnzoTestRun(object):
         self.machine = machine
         self.test_dir = test_dir
         self.test_data = test_data
+        self.test_num = num
         self.exe_path = exe_path
         self.finished = False
         self.results = {}
@@ -494,7 +506,6 @@ class EnzoTestRun(object):
         # Run the command.
         proc = subprocess.Popen(command, shell=True, close_fds=True, 
                                 preexec_fn=os.setsid)
-
         print("Simulation started on %s with maximum run time of %d seconds." % \
             (time.ctime(), (self.test_data['max_time_minutes'] * 60 *
                             options.time_multiplier)) )
@@ -514,8 +525,8 @@ class EnzoTestRun(object):
             f = open(os.path.join(self.run_dir, 'run_time'), 'w')
             f.write("%f seconds.\n" % (sim_stop_time - sim_start_time))
             f.close()
-            print("Simulation completed in %f seconds." % \
-                (sim_stop_time - sim_start_time))
+            print("Simulation #%d completed in %f seconds." % \
+                  (self.test_num, (sim_stop_time - sim_start_time)))
             self.finished = True
         os.chdir(cur_dir)
         return self.finished
@@ -565,6 +576,8 @@ if __name__ == "__main__":
                       default=False, help="Drop into debugger on errors")
     parser.add_option("--jcompile", dest="jcompile", default=1, metavar='int', type=int,
                       help="Number of cores to use when recompiling")
+    parser.add_option("--jrun", dest="jrun", default=1, metavar='int', type=int,
+                      help="Number of cores to use when running tests and simulations")
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
                       help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
     parser.add_option("", "--bitwise",
@@ -716,8 +729,8 @@ if __name__ == "__main__":
             options.bitwise = False
     options.tolerance = int(options.tolerance)
 
-    ytcfg["yt","answer_testing_tolerance"] = str(options.tolerance)
-    ytcfg["yt","answer_testing_bitwise"] = str(options.bitwise)
+    ytcfg["yt","answer_testing_tolerance"] = options.tolerance
+    ytcfg["yt","answer_testing_bitwise"] = options.bitwise
     reporting_plugin.tolerance = options.tolerance
     reporting_plugin.bitwise = options.bitwise
 
@@ -769,7 +782,8 @@ if __name__ == "__main__":
     # Run the simulations and the tests
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
             sim_only=options.sim_only, 
-            test_only=options.test_only)
+            test_only=options.test_only,
+            ntasks=options.jrun)
 
     # Now that the work has been done, get rid of all those pesky
     # *__test_standard.py files from the enzo run/ directory

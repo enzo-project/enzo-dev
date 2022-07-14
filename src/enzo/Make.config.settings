@@ -43,6 +43,8 @@
 #    CONFIG_ENZO_PERFORMANCE
 #    CONFIG_GRACKLE
 #    CONFIG_MEMORYPOOL
+#    CONFIG_LOG2ALLOC
+#    CONFIG_UUID
 #
 #=======================================================================
 
@@ -335,3 +337,10 @@
 
      CONFIG_MEMORYPOOL = no
 
+# CONFIG_UUID
+#=======================================================================
+#    yes           Compile with uuid
+#    no            Compile without uuid
+#-----------------------------------------------------------------------
+
+     CONFIG_UUID = yes

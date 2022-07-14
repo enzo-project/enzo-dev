@@ -1,4 +1,4 @@
-from yt.mods import *
+import os
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
      FieldValuesTest, \
@@ -16,7 +16,7 @@ def test_freefall():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()
-    tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+    tolerance = ytcfg.get("yt", "answer_testing_tolerance")
     pf = sim[-1]
     for field in _fields:
         yield FieldValuesTest(pf, field, decimals=tolerance)
