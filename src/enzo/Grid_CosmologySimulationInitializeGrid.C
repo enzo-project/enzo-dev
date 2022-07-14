@@ -131,7 +131,7 @@ int grid::CosmologySimulationInitializeGrid(
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, PhotoGammaNum;
  
   int ExtraField[2];
-  int ForbidNum, iTE, iCR;
+  int ForbidNum, iTE, iCRD;
  
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
@@ -236,7 +236,7 @@ int grid::CosmologySimulationInitializeGrid(
     iTE = NumberOfBaryonFields;
     FieldType[NumberOfBaryonFields++] = TotalEnergy;
     if(CRModel){
-        iCR = NumberOfBaryonFields;
+        iCRD = NumberOfBaryonFields;
         FieldType[NumberOfBaryonFields++] = CRDensity;
     }
     if (DualEnergyFormalism)
@@ -391,7 +391,7 @@ int grid::CosmologySimulationInitializeGrid(
   // set the CR energy density field to small fraction of density
   if(CRModel){
     for (i = 0; i < size; i++)
-      BaryonField[iCR][i] = CosmologySimulationUniformCR;
+      BaryonField[iCRD][i] = CosmologySimulationUniformCR;
 	} // end CR if
  
   // Read the gas energy field
