@@ -11,8 +11,12 @@ commands:
             echo 'export ENZOTEST_DIR=$HOME/enzo_test' >> $BASH_ENV
             echo 'export ANSWER_NAME="push_suite"' >> $BASH_ENV
             echo 'export HYPRE=2.20.0' >> $BASH_ENV
-            # get tags from the main repository (for the current gold standard)
+            source $BASH_ENV
+            # get tags from the main and PR repository (for the current gold standard)
             git fetch --tags https://github.com/enzo-project/enzo-dev
+            if [ -n "$CIRCLE_PR_REPONAME" ]; then
+              git fetch --tags https://github.com/$CIRCLE_PR_USERNAME/$CIRCLE_PR_REPONAME
+            fi
             # tag the tip so we can go back to it
             git tag tip
 
@@ -31,11 +35,11 @@ commands:
             pip install --upgrade wheel
             pip install --upgrade setuptools
             pip install Cython numpy h5py fastcache flake8 nose girder-client matplotlib pytest gitpython # yt
-            # Temporary workaround to use updated answer testing from jwise's repository
-            # until next yt point release
-            git clone https://github.com/jwise77/yt
+            # Temporary workaround to use updated answer testing from the yt dev repository
+            # instead of pip until next yt point release
+            git clone https://github.com/yt-project/yt
             cd yt
-            git checkout enzo-answer-testing-update
+            git checkout main
             pip install -e .
             cd ..
             pip install yt_astro_analysis
