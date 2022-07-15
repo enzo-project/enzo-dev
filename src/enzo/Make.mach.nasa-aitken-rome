@@ -1,42 +1,29 @@
 #=======================================================================
 #
-# FILE:        Make.mach.nasa-pleiades
+# FILE:        Make.mach.nasa-aitken-rome
 #
 # DESCRIPTION: Makefile settings for NASA's pleiades
 #
-#    modules: comp-intel/2020.4.304
-#     	      mpi-hpe/mpt.2.23
-#	      hdf5/1.8.18_serial
+#    modules: module use -a /nasa/modulefiles/testing
+#             comp-intel/2020.4.304
+#             mpi-hpe/mpt.2.23, and
+#             hdf5/1.8.18_serial
 #
-# AUTHOR:      John Wise
-# DATE:        2010-01-22
-#
-# MODIFIED1:   Devin Silvia
-# DATE:        2010-07-02
-#
-# MODIFIED2:   Nathan Goldbaum
-# DATE:        2012-04-18
-#
-# MODIFIED3:   Nathan Goldbaum
-# DATE:        2014-04-24
-#
-# MODIFIED3:   Molly Peeples
-# DATE:        2019-10-19
-#
-# MODIFIED4:   Molly Peeples
-# DATE:        2021-06-03
-#
+# AUTHOR:      Molly Peeples
+# DATE:        2021-06-02
 #=======================================================================
 
-MACH_TEXT  = NASA Pleiades
+MACH_TEXT  = NASA Aitken Rome
 MACH_VALID = 1
-MACH_FILE  = Make.mach.nasa-pleiades
+MACH_FILE  = Make.mach.nasa-aitken-rome
 
-MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
-	The following modules are needed to compile: \
-	    comp-intel/2020.4.304, \
-	    mpi-hpe/mpt.2.23, and \
-	    hdf5/1.8.18_serial "
+MACHINE_NOTES = "MACHINE_NOTES for Aitken Rome nodes at NASA: \
+        The following modules are needed to compile: \
+            module use -a /nasa/modulefiles/testing \
+            comp-intel/2020.4.304, \
+            mpi-hpe/mpt.2.23, and \
+            hdf5/1.8.18_serial "
+
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -47,10 +34,10 @@ MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL    = /nasa/hpe/mpt/2.23/
-LOCAL_HDF5_INSTALL   = $(YT_DEST)
+LOCAL_MPI_INSTALL    = /nasa/modulefiles/sles15/mpi-hpe/mpt.2.23
+LOCAL_HDF5_INSTALL   = /nasa/modulefiles/sles15/hdf5/1.8.18_serial
 LOCAL_PYTHON_INSTALL = $(YT_DEST)
-LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2020.4.304/
+LOCAL_COMPILER_DIR    = /nasa/modulefiles/testing/comp-intel/2020.4.304
 LOCAL_GRACKLE_INSTALL = $(HOME)/local
 
 #-----------------------------------------------------------------------
@@ -110,11 +97,10 @@ MACH_LDFLAGS  =
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g -O0
-# Best for pleiades ivy bridge, haswell, broadwell, skylake and cascade lake nodes.
-# Does NOT work for the Aitken Rome nodes; use separate machine file for those
-# See: goo.gl/A0IFMV
-MACH_OPT_HIGH        = -g -O2 -axCORE-AVX512,CORE-AVX2 -xAVX -ip -ipo
-MACH_OPT_AGGRESSIVE  = -O3 -axCORE-AVX512,CORE-AVX2 -xAVX -ip -ipo
+# Best for Aitken Rome nodes
+# See: https://www.nas.nasa.gov/hecc/support/kb/preparing-to-run-on-aitken-rome-nodes_657.html
+MACH_OPT_HIGH        = -g -O2  -ip -ipo -march=core-avx2
+MACH_OPT_AGGRESSIVE  = -O3  -ip -ipo -march=core-avx2
 
 #-----------------------------------------------------------------------
 # Includes
@@ -122,8 +108,6 @@ MACH_OPT_AGGRESSIVE  = -O3 -axCORE-AVX512,CORE-AVX2 -xAVX -ip -ipo
 
 LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
-LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7/ \
-                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.7/site-packages/numpy/core/include
 LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_GRACKLE)
@@ -137,11 +121,11 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 
 LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib -lmpi -lmpi++
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz
+LOCAL_LIBS_LZ     = -L/u/mpeeples/miniconda3/lib -lz
 LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
 #LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg     
-#LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a -lpthread -lutil
 
 LOCAL_LIBS_MACH = -lifcore -lifport
 
-MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_GRACKLE) #$(LOCAL_LIBS_PYTHON)
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_GRACKLE)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
