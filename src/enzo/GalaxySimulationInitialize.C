@@ -38,6 +38,7 @@
 #include "TopGridData.h"
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
+void WriteListOfFloats(FILE *fptr, int N, double floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int RebuildHierarchy(TopGridData *MetaData,
