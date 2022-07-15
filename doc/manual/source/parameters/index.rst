@@ -2205,14 +2205,10 @@ The parameters below are considered in ``StarParticleCreation`` method
     When used, the factor of dt / t_dyn is removed from the calculation of 
     the star particle mass above.  Instead of the local dynamical time, the 
     timescale over which feedback occurs is a constant set by the parameter 
-``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
     ``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
-``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
     conduction as the timesteps can be very short, which causes the calculated 
     star particle mass to never exceed reasonable values for 
-``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
     ``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
-``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
     actually forming stars, and when combined with conduction, results in too 
     much heat being transferred out of hot gas.  When running a cosmological 
     simulation with conduction and star formation, one must use this otherwise 
@@ -2262,20 +2258,25 @@ The parameters below are considered in ``StarParticleCreation`` method
      (2) linear evolution of mass in redshift
      (3) exponential evolution of mass in time
      (4) exponential evolution of mass in redshift
+     Default: 0 (off)
 ``StarMakerMinimumMassRampStartTime`` (external) 
      The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
      Before this time the minimum mass will have a constant value given 
      by ``StarMakerMinimumMassRampStartMass``
+     Default: None
 ``StarMakerMinimumMassRampEndTime`` (external) 
      The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
      After this time the minimum mass will have a constant value given 
      by ``StarMakerMinimumMassRampEndMass``
+     Default: None
 ``StarMakerMinimumMassRampStartMass`` (external) 
      The mass at which to start the ramp in the minimum stellar mass. This mass 
-     will be used at all times before ``StarMakerMinimumMassRampStartTime`` as well. 
+     will be used at all times before ``StarMakerMinimumMassRampStartTime`` as well.
+     Default: None
 ``StarMakerMinimumMassRampEndMass`` (external) 
      The mass at which to end the ramp in the minimum stellar mass. This mass 
      will be used at all times after ``StarMakerMinimumMassRampEndTime`` as well.
+     Default: None
 ``StarMakerThermalEfficiencyRamp`` (external)
      Sets the feedback thermal efficiency (otherwise given by ``StarMakerThermalEfficiency`` to 
      ramp up over time, so that a small efficiency can be used early in the calculation
@@ -2286,20 +2287,25 @@ The parameters below are considered in ``StarParticleCreation`` method
      (2) linear evolution of mass in redshift
      (3) exponential evolution of mass in time
      (4) exponential evolution of mass in redshift
+     Default: 0 (off)
 ``StarMakerThermalEfficiencyRampStartTime`` (external) 
      The efficiency to start the ramp of the ``StarMakerThermalEfficiency``
      Before this time the efficiency will have a constant value given 
      by ``StarMakerThermalEfficiencyRampStartValue``
+     Default: None
 ``StarMakerThermalEfficiencyRampEndTime`` (external) 
      The efficiency to end the ramp of the ``StarMakerThermalEfficiency``
      After this time the efficiency will have a constant value given 
      by ``StarMakerThermalEfficiencyRampEndValue``
+     Default: None
 ``StarMakerThermalEfficiencyRampStartValue`` (external) 
      The efficiency at which to start the ramp in the thermal feedback efficiency. This efficiency 
      will be used at all times before ``StarMakerThermalEfficiencyRampStartTime`` as well. 
+     Default: None
 ``StarMakerThermalEfficiencyRampEndValue`` (external) 
      The efficiency at which to start the ramp in the thermal feedback efficiency. This efficiency 
      will be used at all times after ``StarMakerThermalEfficiencyRampEndTime`` as well. 
+     Default: None
 
 .. _molecular_hydrogen_regulated_star_formation_parameters:
 
@@ -4957,7 +4963,7 @@ Isolated Galaxy Evolution (31)
     ===== =============================
 
 ``GalaxySimulationUniformDensity`` (external)
-    Gas density of the ambient medium if no halo profile is specified 
+    Gas density (in g/cm:sup:`3`) of the ambient medium if no halo profile is specified 
     (``GalaxySimulationGasHalo`` = 0).
     Default: 1.0e-28
 ``GalaxySimulationInitialTemperature`` (external)
@@ -5041,7 +5047,8 @@ Isolated Galaxy Evolution (31)
     Default: 0
 ``GalaxySimulationEquilibriumFile`` (external)
     Path to the pre-computed table of equilibrium chemical species.
-    Default: none
+    Default filename matches the default output of ``input/gen_equilibrium_table.py``.
+    Default: equilibrium_table_50_027-Zsun.h5
 ``GalaxySimulationCR`` (external)
     Fraction of gas density present in cosmic rays.
     Default: 0.01

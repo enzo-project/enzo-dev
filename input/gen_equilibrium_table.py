@@ -1,3 +1,17 @@
+###############################################################################
+#
+# Use Grackle's python wrapper to make a table of equilibrium densities for 
+# 9 chemical species on a square grid of density & temperature (with constant
+# metallicity). This grid can be used to initialize the isolated galaxy
+# problem type so that chemical species are closer to their equilibrium values.
+#
+# As is, this script makes a table spanning 1e-29 to 1e-23 g/cm^3
+# and 1e4 to 1e6 K using 50 cells on a side. The constant metallicity is 
+# 0.27 Zsun and the HM2012 UV background is used. The table is calculated for
+# redshift 0. The table size and are included in the resulting HDF5 filename.
+#
+###############################################################################
+
 import numpy as np
 import yt
 
@@ -5,19 +19,13 @@ from pygrackle import \
     chemistry_data, \
     setup_fluid_container
 from pygrackle.utilities.physical_constants import \
-	cm_per_mpc as Mpc, \
-	amu_cgs as m_u, \
-	mass_sun_cgs as Msun, \
-	keV_per_K as kboltz, \
 	sec_per_Myr, \
 	cm_per_kpc
-
-# 1e-29 to 1e-23 g/cm**3
-# 6.5e4 to 1.5e6 K
 
 size_1d = 50 # square table; length of each side
 z = 0.27 # solar units
 
+# Table's density & temperature grid is in log space
 dens = np.logspace(-29, -23, size_1d) # cgs
 temp = np.logspace(4, 6, size_1d) # K
 d, t = np.meshgrid(dens, temp)
@@ -33,7 +41,7 @@ chem.metal_cooling = 1
 chem.UVbackground = 1
 chem.cmb_temperature_floor = 1
 chem.h2_on_dust = 1
-chem.grackle_data_file = "/home/claire/grackle-git/input/CloudyData_UVB=HM2012.h5"
+chem.grackle_data_file = "/PATH/TO/GRACKLE/input/CloudyData_UVB=HM2012.h5"
 
 chem.use_specific_heating_rate = 0
 chem.use_volumetric_heating_rate = 0

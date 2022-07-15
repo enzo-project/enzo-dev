@@ -125,7 +125,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
         GalaxySimulationGasHaloRatio,
         GalaxySimulationGasHaloMetallicity,
         GalaxySimulationDiskMetallicityEnhancementFactor;
-  char GalaxySimulationEquilibriumFile[MAX_LINE_LENGTH] = "equilibrium_table_50.h5"; 
+  char GalaxySimulationEquilibriumFile[MAX_LINE_LENGTH] = "equilibrium_table_50_027-Zsun.h5"; 
 
   
   int GalaxySimulationGasHaloRotation;
