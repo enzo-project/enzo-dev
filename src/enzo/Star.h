@@ -195,6 +195,7 @@ public:
   int   DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[]);
   void  ClearStarsMap(void);
   void  MakeStarsMap(void);
+  void  CopyToGridMap(std::map<int, Star*> StarLookupMap);
   void	CopyToGrid(void);
   void  MirrorToParticle(void);
   bool  IsARadiationSource(FLOAT Time);
@@ -248,6 +249,7 @@ public:
   void StarListToBuffer(StarBuffer *&result, int n);
   void StarToBuffer(StarBuffer *result);
 
+  std::map<int, Star*> StarLookupMap; // to speed up CopyToGrid
 };
 
 #endif

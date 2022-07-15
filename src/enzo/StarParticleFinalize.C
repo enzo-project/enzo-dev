@@ -159,15 +159,12 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   int count = 0;
   int mbh_particle_io_count = 0;
   OutputNow = FALSE;
-  printf("about to initialize map\n");
   if (AllStars) {
-    AllStars->ClearStarsMap();
-    TIMER_START("StarParticleFinalize:MakeStarsMap");
+    TIMER_START("MakeStarsMap");
     AllStars->MakeStarsMap();
-    printf("initialized map\n");
-    TIMER_STOP("StarParticleFinalize:MakeStarsMap");
+    TIMER_STOP("MakeStarsMap");
   }
-  printf("number of stars = %d\n",NumberOfStars);
+  printf("number of stars in AllStars = %d\n",NumberOfStars);
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
@@ -190,9 +187,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       ThisStar->SetType( ABS(ThisStar->ReturnType()) );
     }
     ThisStar->ResetAccretion();
-    TIMER_START("StarParticleFinalize:CopyToGrid");
-    ThisStar->CopyToGrid();
-    TIMER_STOP("StarParticleFinalize:CopyToGrid");
+    TIMER_START("CopyToGridMap");
+    ThisStar->CopyToGridMap(AllStars->StarLookupMap);
+    TIMER_STOP("CopyToGridMap");
     ThisStar->MirrorToParticle();
 
     // The pointers have been copied to the grid copy above, so we can
@@ -211,6 +208,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     }
 
   } // ENDFOR stars
+  AllStars->ClearStarsMap(); // no longer needed after CopyToGrid
 
   if (PopIIIOutputOnFeedback)
     OutputNow = CommunicationMaxValue(OutputNow);

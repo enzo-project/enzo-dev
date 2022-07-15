@@ -143,7 +143,6 @@ class grid
 //
   int NumberOfStars;
   Star *Stars;
-  std::map<int, Star*> StarLookupMap; // to speed up CopyToGrid
 
   int Grid_ChemicalEvolutionTestStarFormed;
   //

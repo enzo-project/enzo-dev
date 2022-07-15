@@ -84,6 +84,7 @@ Star::Star(void)
     abundances[i] = 0.0;
 
   wind_mass_ejected = sn_mass_ejected = 0.0;
+  StarLookupMap;
 }
 
 Star::Star(grid *_grid, int _id, int _level)
@@ -166,6 +167,7 @@ Star::Star(grid *_grid, int _id, int _level)
   else
     LifeTime = _grid->ParticleAttribute[1][_id];
   this->ConvertAllMassesToSolar();
+  StarLookupMap;
 }
 
 Star::Star(StarBuffer *buffer, int n)
@@ -230,6 +232,7 @@ Star::Star(StarBuffer *buffer, int n)
 
   wind_mass_ejected = buffer[n].wind_mass_ejected;
   sn_mass_ejected   = buffer[n].sn_mass_ejected;
+  StarLookupMap;
 }
 
 Star::Star(StarBuffer buffer)
@@ -294,6 +297,7 @@ Star::Star(StarBuffer buffer)
   wind_mass_ejected = buffer.wind_mass_ejected;
   sn_mass_ejected   = buffer.sn_mass_ejected;
 
+  StarLookupMap;
 }
 
 /* No need to delete the accretion arrays because the pointers are
@@ -563,38 +567,44 @@ float Star::RelativeVelocity2(Star *a) { return this->RelativeVelocity2(*a); };
 
 void Star::ClearStarsMap() // clears map before repopulating right before CopyToGrid loop (not as efficient as this could be)
 {
-  if (CurrentGrid != NULL) {
-    CurrentGrid->StarLookupMap.clear();
-  }
+  StarLookupMap.clear();
   return;
 }
 
 void Star::MakeStarsMap() // makes lookup table to quickly find stars in grid during CopyToGrid
 {
-  printf("AllStars identifier: %d \n",Identifier);
   int starcount = 0;
   Star *cstar;
-  if (CurrentGrid != NULL) {
-    printf("starting starsmap\n");
-    for (cstar = CurrentGrid->Stars; cstar; cstar = cstar->NextStar) {
-      CurrentGrid->StarLookupMap.insert(std::make_pair(cstar->Identifier, cstar)); // adding Identifiers as keys, stars as values
-      printf("StarMap: added star %d\n",cstar->Identifier);
-      starcount++;
+  Star *ThisStar;
+  for (ThisStar = this; ThisStar; ThisStar = ThisStar->NextStar) {
+    if ((ThisStar->CurrentGrid != NULL) && (StarLookupMap[ThisStar->Identifier] == NULL)) {
+      for (cstar = ThisStar->CurrentGrid->Stars; cstar; cstar = cstar->NextStar) {
+        StarLookupMap[cstar->Identifier] = cstar;  // adding Identifiers as keys, stars as values
+        starcount++;
+      }
     }
   }
-  printf("finished starsmap, %d stars\n",starcount);
+  printf("finished StarLookupMap, added %d stars\n",starcount);
+  return;
+}
+
+void Star::CopyToGridMap(std::map<int, Star*> FullStarLookupMap)
+{
+  Star *cstar;
+  cstar = FullStarLookupMap[Identifier];
+  *cstar = *this;
   return;
 }
 
 void Star::CopyToGrid()
 {
   Star *cstar;
-  if (CurrentGrid != NULL) { // NULL => On another processor
-    printf("CopyToGrid: finding star %d \n",Identifier);
-    cstar = CurrentGrid->StarLookupMap[Identifier];
-    printf("CopyToGrid: pointer to this star: %p\n",CurrentGrid->StarLookupMap[Identifier]); 
-    *cstar = *this;
-  }  
+  if (CurrentGrid != NULL)   // NULL => On another processor
+    for (cstar = CurrentGrid->Stars; cstar; cstar = cstar->NextStar)
+      if (Identifier == cstar->Identifier) {
+	*cstar = *this;
+	break;
+      } // ENDIF match
   return;
 }
 
