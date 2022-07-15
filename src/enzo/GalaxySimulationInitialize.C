@@ -91,7 +91,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   /* set default parameters */
 
-  FLOAT GalaxySimulationGasMass,
+  double GalaxySimulationGasMass,
     GalaxySimulationGalaxyMass,
     GalaxySimulationCR,
     GalaxySimulationDiskTemperature,
@@ -100,21 +100,23 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationUniformDensity,
     GalaxySimulationEquilibrateChem;
 
-  FLOAT GalaxySimulationDiskRadius,
-    GalaxySimulationDiskPosition[MAX_DIMENSION],
+  FLOAT GalaxySimulationDiskPosition[MAX_DIMENSION];
+
+  double GalaxySimulationDiskRadius,
     GalaxySimulationDiskScaleHeightz,
     GalaxySimulationDiskScaleHeightR,
     GalaxySimulationTruncationRadius,
     GalaxySimulationDiskDensityCap;
 
 
-  FLOAT GalaxySimulationInitialTemperature,
+  double GalaxySimulationInitialTemperature,
         GalaxySimulationDarkMatterConcentrationParameter,
-        GalaxySimulationInflowTime,
         GalaxySimulationInflowDensity;
 
+  FLOAT GalaxySimulationInflowTime;
+
   int GalaxySimulationGasHalo;
-  FLOAT GalaxySimulationGasHaloScaleRadius,
+  double GalaxySimulationGasHaloScaleRadius,
         GalaxySimulationGasHaloDensity,
         GalaxySimulationGasHaloDensity2,
         GalaxySimulationGasHaloTemperature,
@@ -129,9 +131,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   
   int GalaxySimulationGasHaloRotation;
-  FLOAT GalaxySimulationGasHaloRotationScaleVelocity,
-        GalaxySimulationGasHaloRotationScaleRadius,
-    GalaxySimulationGasHaloRotationIndex;
+  double GalaxySimulationGasHaloRotationScaleVelocity,
+         GalaxySimulationGasHaloRotationScaleRadius,
+         GalaxySimulationGasHaloRotationIndex;
 
 
   int   GalaxySimulationRefineAtStart,

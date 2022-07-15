@@ -353,8 +353,8 @@ int grid::ComputeAccelerationFieldExternal()
 
     double accel, radius, rsquared, xpos, ypos = 0, zpos = 0, rcore,rcyl;
     FLOAT dadt, a = 1;
-    float AngularMomentumx, AngularMomentumy, AngularMomentumz;
-    float MSDisk, SDiskScaleHeightR, SDiskScaleHeightz, MBulge, rBulge,
+    double AngularMomentumx, AngularMomentumy, AngularMomentumz;
+    double MSDisk, SDiskScaleHeightR, SDiskScaleHeightz, MBulge, rBulge,
       DMMass, DMCon;
 
     AngularMomentumx = DiskGravityAngularMomentum[0];

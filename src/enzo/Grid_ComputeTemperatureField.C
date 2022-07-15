@@ -128,7 +128,7 @@ int grid::ComputeTemperatureField(float *temperature,int IncludeCRs)
       temperature[i] = max((TemperatureUnits*temperature[i]*0.6
 		         /max(BaryonField[DensNum][i], tiny_number)),
 			 min_temperature);
-    printf("overriding mu\n");
+    if (debug) printf("GalaxySimulation: Overriding mean molecular weight to be 0.6\n");
     return SUCCESS;
   }
   
