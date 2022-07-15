@@ -1,0 +1,1 @@
+These directories contain a set of problems to test the performance of the APM and Fast (multigrid) gravity solvers with particles at either the center or corner of a grid.

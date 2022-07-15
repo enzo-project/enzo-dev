@@ -15,7 +15,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
- 
+
 #include "ErrorExceptions.h"
 #include "list.h"
 #include "macros_and_parameters.h"
@@ -26,12 +26,12 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "hydro_rk/SuperNova.h"
- 
+
 grid::grid()
 {
- 
+
   /* clear scalars */
- 
+
   GridRank                              = 0;
   Time                                  = 0.0;
   OldTime                               = 0.0;
@@ -45,9 +45,9 @@ grid::grid()
 
   SubgridFluxStorage = NULL;
   NumberOfSubgrids = 1;
- 
+
   /* clear MAX_DIMENSION vectors */
- 
+
   int i, j;
   for (i = 0; i < MAX_DIMENSION; i++) {
     GridDimension[i]                 = 1;
@@ -66,12 +66,15 @@ grid::grid()
     RandomForcingField[i]            = NULL;
     PhaseFctMultEven[i]              = NULL; // WS
     PhaseFctMultOdd[i]               = NULL; // WS
+
+    if (GravitySolverType == GRAVITY_SOLVER_APM)
+      AccelerationFieldExternalAPM[i]  = NULL; // APM solver
   }
   PhaseFctInitEven = NULL; // WS
   PhaseFctInitOdd  = NULL; // WS
 
   if (UseSGSModel == 1) {
-    for (i = 0; i < MAX_DIMENSION; i++) 
+    for (i = 0; i < MAX_DIMENSION; i++)
       for (j = 0; j < MAX_DIMENSION; j++) {
         JacVel[i][j] = NULL;
         JacB[i][j] = NULL;
@@ -84,15 +87,15 @@ grid::grid()
       FltrhoUU[i] = NULL;
       FltBB[i] = NULL;
     }
-    for (i = 0; i < 3; i++) 
+    for (i = 0; i < 3; i++)
       FltUB[i] = NULL;
   }
 
   ParticleAcceleration[MAX_DIMENSION]      = NULL;
-  ActiveParticleAcceleration[MAX_DIMENSION] = NULL;	
- 
+  ActiveParticleAcceleration[MAX_DIMENSION] = NULL;
+
   /* clear MAX_NUMBER_OF_BARYON_FIELDS vectors & [][MAX_DIMENSION] matricies */
- 
+
   for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++) {
     BaryonField[i]          = NULL;
     OldBaryonField[i]       = NULL;
@@ -118,7 +121,7 @@ grid::grid()
   AccelerationHack = FALSE;
 
   /* Clear miscelaneous pointers */
- 
+
   ParticleMass                  = NULL;
   ParticleNumber                = NULL;
   ParticleType                  = NULL;
@@ -130,9 +133,9 @@ grid::grid()
     ParticleAttribute[i] = NULL;
 
   BoundaryFluxes                = NULL;
- 
+
   /* Clear flagging field pointers */
- 
+
   ParticleMassFlaggingField     = NULL;
   MassFlaggingField             = NULL;
   FlaggingField                 = NULL;
@@ -150,16 +153,16 @@ grid::grid()
   PausedPhotonPackages = new PhotonPackageEntry;
   PausedPhotonPackages->NextPackage = NULL;
   PausedPhotonPackages->PreviousPackage = NULL;
- 
+
   PhotonPackages->Photons         = 1.;
-  PhotonPackages->Type            = 0;          
-  PhotonPackages->Energy          = 0.;        
-  PhotonPackages->EmissionTimeInterval= 0.;      
-  PhotonPackages->EmissionTime    = 0.;  
-  PhotonPackages->CurrentTime     = 0.;   
-  PhotonPackages->Radius          = 0.;        
-  PhotonPackages->ipix            = 0;         
-  PhotonPackages->level           = 0;        
+  PhotonPackages->Type            = 0;
+  PhotonPackages->Energy          = 0.;
+  PhotonPackages->EmissionTimeInterval= 0.;
+  PhotonPackages->EmissionTime    = 0.;
+  PhotonPackages->CurrentTime     = 0.;
+  PhotonPackages->Radius          = 0.;
+  PhotonPackages->ipix            = 0;
+  PhotonPackages->level           = 0;
 
   sfSeed                          = 0;
   ID                              = 0;
@@ -183,7 +186,7 @@ grid::grid()
 #endif
 
   /* Star particles */
-  
+
   NumberOfStars = 0;
   Stars = NULL;
 
@@ -191,7 +194,7 @@ grid::grid()
   for (i=0; i<MAX_ACTIVE_PARTICLE_TYPES; i++) {
     ActiveParticleTypeCount[i] = 0;
   }
-  
+
   for(i=0;i<3;i++){
     MagneticField[i] = NULL;
     ElectricField[i] = NULL;

@@ -12,14 +12,14 @@
 #endif
 
 /***********************************************************************
-/  
+/
 / MACRO DEFINITIONS AND PARAMETERS
 /
 ************************************************************************/
 #ifdef USE_PYTHON
 #ifndef ENZO_PYTHON_IMPORTED
 #define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
-#define NO_IMPORT_ARRAY 
+#define NO_IMPORT_ARRAY
 #include <Python.h>
 #include "numpy/arrayobject.h"
 #endif
@@ -80,7 +80,7 @@
 
 #define MAX_REFINE_REGIONS               8000
 
-#ifdef WINDS 
+#ifdef WINDS
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
 #else
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
@@ -107,6 +107,12 @@
 #define VERSION                             2.6  /* current version number */
 
 #define NUMBER_ENZO_PARTICLE_TYPES           3  /* Dark Matter, Stars, Active Particles */
+
+#define FFT_SAFETY_FACTOR                   2 /* at least 2 */
+
+#define NUMBER_IN_ALIAS_SUM                 1
+
+#define MAX_NUMBER_OF_GREENS_FUNCTIONS   1000
 
 /* Unmodifiable Parameters */
 
@@ -405,10 +411,10 @@ typedef long long int   HDF5_hid_t;
 #define ZERO_ALL_FIELDS          0
 #define ZERO_UNDER_SUBGRID_FIELD 1
 
-/* Definitions for grid::CommunicationSend/ReceiveRegion and 
+/* Definitions for grid::CommunicationSend/ReceiveRegion and
    grid::DepositPositions */
 //If MAX_EXTRA_OUTPUTS neesd to be changed, change statements in ReadParameterFile and WriteParameterFile.
-#define MAX_EXTRA_OUTPUTS                10 
+#define MAX_EXTRA_OUTPUTS                10
 
 #define BARYONS_ELECTRIC                 -13
 #define BARYONS_MAGNETIC                 -12
@@ -529,6 +535,11 @@ typedef long long int   HDF5_hid_t;
 #define CIC_DEPOSIT        0
 #define CIC_DEPOSIT_SMALL  1
 #define NGP_DEPOSIT        2
+
+/* Gravity solver types */
+
+#define GRAVITY_SOLVER_FAST 0
+#define GRAVITY_SOLVER_APM  1
 
 /* Star particle handling */
 

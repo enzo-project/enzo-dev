@@ -1,0 +1,1 @@
+A single particle going throught the grids with the APM solver and subcycling.

@@ -21,9 +21,9 @@ class TestGravityTest(AnswerTestingTest):
 
     def run(self):
         Data = np.loadtxt("TestGravityCheckResults.out")
-        radius = Data[:,0]
-        ForceRadialComputed = Data[:,2]
-        ForceRadialTrue = Data[:,3]
+        radius = Data[:,4]
+        ForceRadialComputed = Data[:,6]
+        ForceRadialTrue = Data[:,7]
 
         Error = (ForceRadialComputed-ForceRadialTrue)/ForceRadialTrue
         indices = np.where((radius > 1.0) & (radius < 8.0))

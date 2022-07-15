@@ -47,6 +47,8 @@
 /* function prototypes */
  
 int DepositParticleMassField(HierarchyEntry *Grid, FLOAT Time = -1.0);
+int DepositParticleMassFieldWithParent(HierarchyEntry *Grid, TopGridData *MetaData,
+                                       ChainingMeshStructure *ChainingMesh, FLOAT Time = -1.0);
 
 int CommunicationBufferPurge(void);
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
@@ -84,7 +86,9 @@ int ComputePotentialFieldLevelZero(TopGridData *MetaData,
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
  
- 
+int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
+                                 int TopGridDims[]);
+int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
  
 extern int CopyPotentialFieldAverage;
  
@@ -126,6 +130,19 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
   SiblingGridList *SiblingList = SiblingGridListStorage[level];
 
+  /* Create ChainingMesh for the whole level above */
+  ChainingMeshStructure ChainingMesh;
+  HierarchyEntry **GridsUpperLevel;
+  int NumberOfGridsUpperLevel;
+
+  if (level>0) {
+    FastSiblingLocatorInitialize(&ChainingMesh, MetaData->TopGridRank,
+                                 MetaData->TopGridDims);
+    NumberOfGridsUpperLevel = GenerateGridArray(LevelArray, level-1, &GridsUpperLevel);
+    for (grid1 = 0; grid1 < NumberOfGridsUpperLevel; grid1++)
+      GridsUpperLevel[grid1]->GridData->FastSiblingLocatorAddGrid(&ChainingMesh);
+  }
+
   /************************************************************************/
   /* Grids: Deposit particles in their GravitatingMassFieldParticles.
      (Do a batch of grids at a time; this is a loop over the batches)
@@ -140,38 +157,67 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 
   TIME_MSG("Depositing particle mass field");
   LCAPERF_START("DepositParticleMassField");
-  for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
-    EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
+  if (ProblemType != 41 && ProblemType != 46) {
+    for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
+      EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 
-    /* First, generate the receive calls. */
+      /* First, generate the receive calls. */
 
-    CommunicationReceiveIndex = 0;
-    CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
-    CommunicationDirection = COMMUNICATION_POST_RECEIVE;
-    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      DepositParticleMassField(Grids[grid1], EvaluateTime);
+      CommunicationReceiveIndex = 0;
+      CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
+      CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+      for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+
+        // New deposition: Only with the APM solver - CIC deposition will mess things up */
+        if (DepositAlsoParentGridAndSiblingsParticles)
+          DepositParticleMassFieldWithParent(Grids[grid1], MetaData, &ChainingMesh, EvaluateTime);
+        else // normal deposition
+          DepositParticleMassField(Grids[grid1], EvaluateTime);
 
 #ifdef FORCE_MSG_PROGRESS 
-    CommunicationBarrier();
+      CommunicationBarrier();
 #endif
 
-    if (traceMPI) 
-      fprintf(tracePtr, "PrepareDensityField: Enter DepositParticleMassField"
-	      " (Receive)\n");
+      if (traceMPI)
+        fprintf(tracePtr, "PrepareDensityField: Enter DepositParticleMassField"
+                " (Receive)\n");
  
-    /* Next, send data and process grids on the same processor. */
+      /* Next, send data and process grids on the same processor. */
 
-    CommunicationDirection = COMMUNICATION_SEND;
-    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      DepositParticleMassField(Grids[grid1], EvaluateTime);
+      CommunicationDirection = COMMUNICATION_SEND;
+      for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
 
-    /* Finally, receive the data and process it. */
+        // New deposition: Only with the APM solver - CIC deposition will mess things up */
+        if (DepositAlsoParentGridAndSiblingsParticles)
+          DepositParticleMassFieldWithParent(Grids[grid1], MetaData, &ChainingMesh, EvaluateTime);
+        else // normal deposition
+          DepositParticleMassField(Grids[grid1], EvaluateTime);
+
+      /* Finally, receive the data and process it. */
     
-    CommunicationReceiveHandler();
+      CommunicationReceiveHandler();
+      } // ENDFOR grid batches
+    LCAPERF_STOP("DepositParticleMassField");
+  } else { // Passy Binary (variables names changed)
+    for ( grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      if (Grids[grid1]->GridData->
+          InitializeGravitatingMassFieldParticles(RefineBy) == FAIL) {
+        ENZO_FAIL("Error in grid->InitializeGravitatingMassFieldParticles.\n");
+      }
 
-  } // ENDFOR grid batches
-  LCAPERF_STOP("DepositParticleMassField");
-    
+      if (Grids[grid1]->GridData->
+          ClearGravitatingMassFieldParticles() == FAIL) {
+        ENZO_FAIL("Error in grid->ClearGravitatingMassFieldParticles.\n");
+      }
+    }
+  } // end if (ProblemType != 41)
+
+  if (level > 0) {
+    // Finalize
+    FastSiblingLocatorFinalize(&ChainingMesh);
+    // Cleanup
+    delete [] GridsUpperLevel;
+  }
 
 #ifdef FORCE_BUFFER_PURGE
   CommunicationBufferPurge();
@@ -404,6 +450,10 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     TIMER_STOP("ComputePotentialFieldLevelZero");
     LCAPERF_STOP("ComputePotentialFieldLevelZero");
   }
+
+  /* Return if not using FAST gravity solver. */
+  if (GravitySolverType == GRAVITY_SOLVER_APM)
+    return SUCCESS;
        
   /************************************************************************/
   /* Compute a first iteration of the potential and share BV's. */

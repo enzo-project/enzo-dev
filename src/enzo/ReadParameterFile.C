@@ -545,6 +545,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "SelfGravity           = %"ISYM, &SelfGravity);
     ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
+
+    ret += sscanf(line, "GravitySolverType     = %"ISYM, &GravitySolverType);
+    ret += sscanf(line, "APMAddParentContribution = %"ISYM, &APMAddParentContribution);
+    ret += sscanf(line, "TimeSteppingRefinementCondition = %"ISYM,
+                  &TimeSteppingRefinementCondition);
+    ret += sscanf(line, "DepositAlsoParentGridAndSiblingsParticles = %"ISYM,
+                  &DepositAlsoParentGridAndSiblingsParticles);
+    ret += sscanf(line, "S2ParticleSize        = %"FSYM, &S2ParticleSize);
+    ret += sscanf(line, "GravityResolution     = %"FSYM, &GravityResolution);
+    ret += sscanf(line, "GreensFunctionMaxNumber   = %"ISYM, &GreensFunctionMaxNumber);
+    ret += sscanf(line, "GreensFunctionMaxSize     = %"ISYM, &GreensFunctionMaxSize);
+
     ret += sscanf(line, "AccretionKernal       = %"ISYM, &AccretionKernal);
     ret += sscanf(line, "GravitationalConstant = %"FSYM, &GravitationalConstant);
     ret += sscanf(line, "ComputePotential      = %"ISYM, &ComputePotential);
@@ -1406,6 +1418,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TestGravity"        ) ) ret++;
     if (strstr(line, "SphericalInfall"    ) ) ret++;
     if (strstr(line, "TestGravitySphere"  ) ) ret++;
+    if (strstr(line, "TestGravitySineWave") ) ret++;
+    if (strstr(line, "TestSelfForce")) ret++;
     if (strstr(line, "Cluster"            ) ) ret++;
     if (strstr(line, "CollapseTest"       ) ) ret++;
     if (strstr(line, "Cosmology"          ) ) ret++;

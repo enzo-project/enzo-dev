@@ -62,26 +62,83 @@ int grid::InitializeGravitatingMassField(int RefinementFactor)
      2) For the top grid, this is just twice the active grid size (isolated)
      3) For the subgrid we will use the boundary zones as well as the
         active region and then add some padding. */
- 
-  for (dim = 0; dim < GridRank; dim++) {
- 
-    /* Make the GravitatingMassField the size of the active region
-       plus the GravityBufferSize (in Parent cell units) on either size. */
- 
-    DimTemp = GridEndIndex[dim] - GridStartIndex[dim] + 1;
-    //      BufferSize = min(RefinementFactor*GravityBufferSize, DimTemp);
-    BufferSize = RefinementFactor*GravityBufferSize;
-    //      if (int(DimTemp/4)*4 != DimTemp && RefinementFactor == 2)
 
-    BufferSize = ( (BufferSize <= NumberOfGhostZones ) ? NumberOfGhostZones + 1 : BufferSize ) ;
- 
-    GravitatingMassFieldDimension[dim] = DimTemp +
-      2*max(BufferSize, NumberOfGhostZones);
-    GravitatingMassFieldCellSize = CellWidth[dim][0];
-    GravitatingMassFieldLeftEdge[dim] = GridLeftEdge[dim] -
-      max(BufferSize, NumberOfGhostZones)*
-      GravitatingMassFieldCellSize;
-  }
+  if (GravitySolverType == GRAVITY_SOLVER_FAST) {
+    for (dim = 0; dim < GridRank; dim++) {
+
+      /* Make the GravitatingMassField the size of the active region
+         plus the GravityBufferSize (in Parent cell units) on either size. */
+
+      DimTemp = GridEndIndex[dim] - GridStartIndex[dim] + 1;
+      //      BufferSize = min(RefinementFactor*GravityBufferSize, DimTemp);
+      BufferSize = RefinementFactor*GravityBufferSize;
+      //      if (int(DimTemp/4)*4 != DimTemp && RefinementFactor == 2)
+
+      BufferSize = ( (BufferSize <= NumberOfGhostZones ) ? NumberOfGhostZones + 1 : BufferSize ) ;
+
+      GravitatingMassFieldDimension[dim] = DimTemp +
+        2*max(BufferSize, NumberOfGhostZones);
+      GravitatingMassFieldCellSize = CellWidth[dim][0];
+      GravitatingMassFieldLeftEdge[dim] = GridLeftEdge[dim] -
+        max(BufferSize, NumberOfGhostZones)*
+        GravitatingMassFieldCellSize;
+    }
+  } else if (GravitySolverType == GRAVITY_SOLVER_APM) {
+
+    /* Determine the size of the mass grid we'll need.
+       - For the top grid, this is just the active grid size plus a buffer
+       - For the subgrid we will use the boundary zones as well as the
+       active region and then add some padding. */
+
+    for (dim = 0; dim < GridRank; dim++) {
+      switch (GravityBoundaryType) {
+
+      /* 1) TopGrid Periodic or Isolated */
+      case TopGridPeriodic:
+      case TopGridIsolated:
+        DimTemp = GridEndIndex[dim] - GridStartIndex[dim] + 1;
+        BufferSize = RefinementFactor*GravityBufferSize;
+        BufferSize = ( (BufferSize <= NumberOfGhostZones ) ? NumberOfGhostZones + 1 : BufferSize ) ;
+
+        GravitatingMassFieldDimension[dim] = DimTemp +
+          2*max(BufferSize, NumberOfGhostZones);
+        GravitatingMassFieldCellSize = CellWidth[dim][0];
+        GravitatingMassFieldLeftEdge[dim] = GridLeftEdge[dim] -
+          max(BufferSize, NumberOfGhostZones)*
+          GravitatingMassFieldCellSize;
+        break;
+
+      /* 3) Subgrid */
+      case SubGridIsolated:{
+
+        /* Compute the extra padding required to include all the mass
+           within one convolution kernal radius of the cells on the edge.
+           This is some fraction of parent grid's particle smoothing size
+           minues whatever buffer is already there. */
+
+        int SubGridExtra = max(nint(float(RefinementFactor)*S2ParticleSize*0.65 -
+                                    float(GravityResolution)*
+                                    float(GridStartIndex[dim]) ), 0);
+        GravitatingMassFieldDimension[dim] =
+          nint(float(GridDimension[dim])*GravityResolution)  +
+          //              nint(float(RefinementFactor)*S2ParticleSize)       +
+          //              FFT_SAFETY_FACTOR                                  +
+          2*SubGridExtra;
+        GravitatingMassFieldCellSize = CellWidth[dim][0]/GravityResolution;
+        GravitatingMassFieldLeftEdge[dim] = CellLeftEdge[dim][0] -
+          float(SubGridExtra)*GravitatingMassFieldCellSize;
+        break;
+      }
+
+      /* 4) undefined or unknown is an error */
+      case GravityUndefined:
+      default:
+        fprintf(stderr, "GravityBoundaryType undefined.\n");
+        return FAIL;
+
+      } // end switch
+    } // end loop over dims
+  } // end: if (GravitySolverType == GRAVITY_SOLVER_FAST)
  
   /* Set unused dims. */
 

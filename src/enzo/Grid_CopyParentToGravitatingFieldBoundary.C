@@ -55,6 +55,11 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
  
   if (GravityBoundaryType != SubGridIsolated)
     return SUCCESS;
+
+  /* Return SUCCESS if we are depositing only baryons and there is not baryonfield */
+
+  if (DepositAlsoParentGridAndSiblingsParticles && NumberOfBaryonFields == 0)
+    return SUCCESS;
  
   /* Declarations. */
  
@@ -76,27 +81,43 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
  
   /* Compute the ParentOffset (in grid units) and ParentStartIndex and
      the region dim (in parent units). */
+
+  // Get the parent density if required
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+  if (DepositAlsoParentGridAndSiblingsParticles) { // we only need the baryons
+    if (ParentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                               Vel3Num, TENum) == FAIL)
+      ENZO_FAIL("Grid_CopyParentToGravitatingFieldBoundary.C: Error in IdentifyPhysicalQuantities.\n");
+    if (ParentGrid->BaryonField[DensNum] == NULL)
+      ENZO_FAIL("NO Density field in ParentGrid");
+  }
+
  
   for (dim = 0; dim < GridRank; dim++) {
     SubGridExtra[dim] = nint((GridLeftEdge[dim] -
 			      GravitatingMassFieldLeftEdge[dim])
-    			     /GravitatingMassFieldCellSize);
-    // SubGridExtra[dim] = nint((CellLeftEdge[dim][0] -
-    //  			      GravitatingMassFieldLeftEdge[dim])
-    //  			     /GravitatingMassFieldCellSize);
-    ParentOffset[dim] = nint((GravitatingMassFieldLeftEdge[dim] -
-		  ParentGrid->GravitatingMassFieldLeftEdge[dim])/
-			     GravitatingMassFieldCellSize);
-    ParentStartIndex[dim] = ParentOffset[dim]/Refinement[dim] - 1;
-    ParentTempDim[dim] = (ParentOffset[dim] +
-		       GravitatingMassFieldDimension[dim]-1)/Refinement[dim] -
-			 ParentStartIndex[dim] + 3;
-    ParentDim[dim] = ParentGrid->GravitatingMassFieldDimension[dim];
-    size *= GravitatingMassFieldDimension[dim];
+                     /GravitatingMassFieldCellSize);
+
+    if (DepositAlsoParentGridAndSiblingsParticles) { // Density
+      ParentOffset[dim] = nint((GravitatingMassFieldLeftEdge[dim] - ParentGrid->CellLeftEdge[dim][0]) / GravitatingMassFieldCellSize);
+      ParentStartIndex[dim] = ParentOffset[dim]/Refinement[dim];
+      ParentTempDim[dim] = (ParentOffset[dim] + GravitatingMassFieldDimension[dim])/Refinement[dim] - ParentStartIndex[dim];
+      ParentDim[dim] = ParentGrid->GridDimension[dim];
+      size *= GravitatingMassFieldDimension[dim];
+    }
+
+    else { // GravitatingMassField
+      ParentOffset[dim] = nint((GravitatingMassFieldLeftEdge[dim] - ParentGrid->GravitatingMassFieldLeftEdge[dim]) / GravitatingMassFieldCellSize);
+      ParentStartIndex[dim] = ParentOffset[dim]/Refinement[dim] - 1;
+      ParentTempDim[dim] = (ParentOffset[dim] + GravitatingMassFieldDimension[dim]-1)/Refinement[dim] - ParentStartIndex[dim] + 3;
+      ParentDim[dim] = ParentGrid->GravitatingMassFieldDimension[dim];
+      size *= GravitatingMassFieldDimension[dim];
+    } /* end if DepositAlsoParentGridAndSiblingsParticles */
+
     if (ParentStartIndex[dim] < 0 ||
-	ParentStartIndex[dim]+ParentTempDim[dim] > ParentDim[dim]) {
-      ENZO_VFAIL("ParentStartIndex[%"ISYM"] = %"ISYM" ParentTempDim = %"ISYM"(%"ISYM").\n",
-	      dim, ParentStartIndex[dim], ParentTempDim[dim], ParentDim[dim])
+    ParentStartIndex[dim]+ParentTempDim[dim] > ParentDim[dim]) {
+    ENZO_VFAIL("ParentStartIndex[%"ISYM"] = %"ISYM" ParentTempDim = %"ISYM"(%"ISYM").\n",
+        dim, ParentStartIndex[dim], ParentTempDim[dim], ParentDim[dim])
     }
   }
  
@@ -115,8 +136,18 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
      the grid. */
  
   if (ProcessorNumber != ParentGrid->ProcessorNumber) {
-    ParentGrid->CommunicationSendRegion(ParentGrid, ProcessorNumber,
-	    GRAVITATING_MASS_FIELD, NEW_ONLY, ParentStartIndex, ParentTempDim);
+
+    if (DepositAlsoParentGridAndSiblingsParticles) { // Density
+      ParentGrid->CommunicationSendRegion(ParentGrid, ProcessorNumber,
+                                          DensNum, NEW_ONLY,
+                                          ParentStartIndex, ParentTempDim);
+    }
+    else {// GravitationalMassField
+      ParentGrid->CommunicationSendRegion(ParentGrid, ProcessorNumber,
+                                          GRAVITATING_MASS_FIELD, NEW_ONLY,
+                                          ParentStartIndex, ParentTempDim);
+    } /* end if DepositAlsoParentGridAndSiblingsParticles*/
+
     if (CommunicationDirection == COMMUNICATION_POST_RECEIVE ||
 	CommunicationDirection == COMMUNICATION_SEND)
       return SUCCESS;
@@ -136,6 +167,10 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
 #define NO_INTERPOLATE_LINEAR
  
 #ifdef INTERPOLATE_LINEAR
+
+  // If depositing baryons, don't use linear interpolation - there might not be enough cells
+  if (DepositAlsoParentGridAndSiblingsParticles)
+    ENZO_FAIL("Error in grid->CopyParentToGravitatingFieldBoundary: cannot use linear interpolation with baryons deposition\n");
  
   FORTRAN_NAME(prolong)(ParentGrid->GravitatingMassField,
 			GravitatingMassField, &GridRank,
@@ -153,18 +188,21 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
   if(ParentGrid->GravitatingMassField == NULL) ENZO_FAIL("NO GMF in PARENT");
   int iparent, jparent, kparent, parentindex;
   for (k = 0; k < GravitatingMassFieldDimension[2]; k++) {
+
     kparent = nint((k + ParentOffset[2])/Refinement[2]);
     for (j = 0; j < GravitatingMassFieldDimension[1]; j++) {
+
       jparent = nint((j + ParentOffset[1])/Refinement[1]);
       parentindex = (kparent*ParentDim[1] + jparent)*ParentDim[0];
-      gravityindex = (k*GravitatingMassFieldDimension[1] + j)*
-	GravitatingMassFieldDimension[0];
+      gravityindex = (k*GravitatingMassFieldDimension[1] + j) * GravitatingMassFieldDimension[0];
       for (i = 0; i < GravitatingMassFieldDimension[0]; i++, gravityindex++) {
-	iparent = nint((i+ParentOffset[0])/Refinement[0]);
-	
-	GravitatingMassField[gravityindex] =
-	  ParentGrid->GravitatingMassField[parentindex+iparent];
-	
+        iparent = nint((i+ParentOffset[0])/Refinement[0]);
+
+        if (DepositAlsoParentGridAndSiblingsParticles) // Density
+          GravitatingMassField[gravityindex] = ParentGrid->BaryonField[DensNum][parentindex+iparent];
+
+        else // GravitationalMassField
+          GravitatingMassField[gravityindex] = ParentGrid->GravitatingMassField[parentindex+iparent];
       }
     }
   }
@@ -174,8 +212,14 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
   /* Clean up parent. */
  
   if (MyProcessorNumber != ParentGrid->ProcessorNumber) {
-    delete [] ParentGrid->GravitatingMassField;
-    ParentGrid->GravitatingMassField = NULL;
+    if (DepositAlsoParentGridAndSiblingsParticles) {
+      delete [] ParentGrid->BaryonField[DensNum];
+      ParentGrid->BaryonField[DensNum] = NULL;
+    }
+    else {
+      delete [] ParentGrid->GravitatingMassField;
+      ParentGrid->GravitatingMassField = NULL;
+    } /* end if DepositAlsoParentGridAndSiblingsParticles */
   }
  
   /* Add one to field to account for one subtracted in ComovingSourceTerm. */
@@ -183,6 +227,9 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
   if (ComovingCoordinates)
     for (i = 0; i < size; i++)
       GravitatingMassField[i] += 1.0;
+  if (ProblemType == 44 && GravitySolverType == GRAVITY_SOLVER_FAST) // TestGravitySineWave
+    for (i = 0; i < size; i++)
+      GravitatingMassField[i] += 2.0;
  
   /* Clear the region of GMF that will overlap with real grid points
      (i.e. clear the region that we shouldn't have set in the above loop). */

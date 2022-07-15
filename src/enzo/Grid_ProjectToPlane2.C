@@ -28,12 +28,12 @@
 #include "phys_constants.h"
 
 extern "C" void FORTRAN_NAME(projplane)(
-          float *grid1, float *grid2, float *flaggrid, int *iflag, 
+          float *grid1, float *grid2, float *flaggrid, int *iflag,
               int *ismooth,
           int *gdim1, int *gdim2, int *gdim3, FLOAT *gcellsize,
           float *plane, int *pdim1, int *pdim2, FLOAT *pcellsize,
           int *projdim, int *ifield, float *weight,
-          FLOAT *gleft, FLOAT *gfarleft, FLOAT *gright, FLOAT *pleft, 
+          FLOAT *gleft, FLOAT *gfarleft, FLOAT *gright, FLOAT *pleft,
               FLOAT *pright,
           int *npstart, int *npend, float *fracleft, float *fracright);
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -43,9 +43,9 @@ int FindField(int field, int farray[], int numfields);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 
-int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[], 
+int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 			  FLOAT ProjectedFieldRightEdge[],
-			  int ProjectedFieldDims[], float *ProjectedField[], 
+			  int ProjectedFieldDims[], float *ProjectedField[],
 			  int ProjectionDimension, int ProjectionSmooth,
 			  int NumberOfProjectedFields, int level,
 			  int MetalLinesUseLookupTable, char *MetalLinesFilename)
@@ -57,9 +57,9 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
   /* Projection only allowed for 3D simulations */
 
-  if (GridRank != 3) 
+  if (GridRank != 3)
     return SUCCESS;
-  
+
   if (BaryonField[NumberOfBaryonFields] == NULL && level >= 0)
     ENZO_FAIL("UNDER_SUBGRID_FLAG field not set.");
 
@@ -74,7 +74,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   float *spin_temp = NULL, *bright_temp = NULL, *all_luminosities = NULL;
   float *first_field, *second_field;
   float kappa, gamma_p, gamma_e, C_e, C_H, C_p, y21, v_i, ri;
-  
+
 
   /* Check To see if grid overlaps the projected field. */
 
@@ -90,7 +90,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (NumberOfBaryonFields > 0)
-    IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+    IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 			       Vel3Num, TENum);
 
   /* Find Multi-species fields. */
@@ -98,13 +98,13 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum;
   if (NumberOfBaryonFields > 0 && MultiSpecies)
-    IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
+    IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 			  HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
 
   /* Find metallicity field and set flag. */
 
   int MetallicityField = FALSE, MetalNum;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
+  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
       != -1)
     MetallicityField = TRUE;
   else
@@ -113,7 +113,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   /* Find SN Colour field and set flag */
 
   int SNColourField = FALSE, SNColourNum;
-  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
+  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields))
       != -1)
     SNColourField = TRUE;
   else
@@ -125,25 +125,25 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   /* Find the start and stop indicies in the ProjectionDimension of this
      grid for the projected region. */
 
-  start = max(int((ProjectedFieldLeftEdge[ProjectionDimension] - 
+  start = max(int((ProjectedFieldLeftEdge[ProjectionDimension] -
 	 	   GridLeftEdge[ProjectionDimension]) /
 	          CellWidth[ProjectionDimension][0]), 0);
-  stop  = min(int((ProjectedFieldRightEdge[ProjectionDimension] - 
+  stop  = min(int((ProjectedFieldRightEdge[ProjectionDimension] -
 	           GridLeftEdge[ProjectionDimension]) /
 	          CellWidth[ProjectionDimension][0]),
-	      GridEndIndex[ProjectionDimension] - 
+	      GridEndIndex[ProjectionDimension] -
 	      GridStartIndex[ProjectionDimension]);
 
-  LeftCellFraction = min(1.0 - ((ProjectedFieldLeftEdge[ProjectionDimension] - 
+  LeftCellFraction = min(1.0 - ((ProjectedFieldLeftEdge[ProjectionDimension] -
 				 GridLeftEdge[ProjectionDimension]) /
 				CellWidth[ProjectionDimension][0] - start), 1);
-  RightCellFraction = min((ProjectedFieldRightEdge[ProjectionDimension] - 
+  RightCellFraction = min((ProjectedFieldRightEdge[ProjectionDimension] -
 			   GridLeftEdge[ProjectionDimension]) /
 			  CellWidth[ProjectionDimension][0] - stop, 1);
 
   start += GridStartIndex[ProjectionDimension];
   stop += GridStartIndex[ProjectionDimension];
-  if (debug) 
+  if (debug)
     printf("ProjectToGrid: start = %d/%d (%5.3f)  stop = %d/%d (%5.3f)  "
 	   "GridLeft/Right = %5.3"FSYM"/%5.3"FSYM"\n",
 	   start, GridStartIndex[ProjectionDimension], LeftCellFraction,
@@ -159,17 +159,17 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   double CellVolume;
 
   /* Set the Conversion factors for Density and X-rays.  If using comoving
-     coordinates use solar masses and Mpc as the intrinsic units. 
+     coordinates use solar masses and Mpc as the intrinsic units.
      Note: The X-ray units have been multiplied by 1.0e-20 to stop overflow.
      Note: The temperature field already has units of K. */
 
-  float DensityConversion, XrayConversion, TempXrayConversion, 
+  float DensityConversion, XrayConversion, TempXrayConversion,
     LuminosityConversion, dom;
-  DensityConversion = XrayConversion = TempXrayConversion = 
+  DensityConversion = XrayConversion = TempXrayConversion =
     LuminosityConversion = CellLength;
-  float TemperatureUnits, DensityUnits, LengthUnits, 
+  float TemperatureUnits, DensityUnits, LengthUnits,
         VelocityUnits, TimeUnits;
-  
+
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
 
@@ -204,8 +204,8 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
   /* Compute the projected field cell size. */
 
-  FLOAT ProjectedFieldCellSize = (ProjectedFieldRightEdge[0] - 
-                                  ProjectedFieldLeftEdge[0])/ 
+  FLOAT ProjectedFieldCellSize = (ProjectedFieldRightEdge[0] -
+                                  ProjectedFieldLeftEdge[0])/
                                   FLOAT(ProjectedFieldDims[0]);
 
   /* If level < 0, then just do the star particle stuff. */
@@ -236,12 +236,12 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   /* 1) baryon density. */
 
   if (NumberOfBaryonFields > 0)
-  FORTRAN_NAME(projplane)(BaryonField[0], NULL, 
+  FORTRAN_NAME(projplane)(BaryonField[0], NULL,
                              BaryonField[NumberOfBaryonFields], &One,
                              &ProjectionSmooth,
 			  GridDimension, GridDimension+1,
                               GridDimension+2, CellWidth[0],
-                          ProjectedField[0], ProjectedFieldDims+adim, 
+                          ProjectedField[0], ProjectedFieldDims+adim,
                               ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
                           &ProjectionDimension, &One, &DensityConversion,
                           GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -263,7 +263,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 			       &ProjectionSmooth,
 			  GridDimension, GridDimension+1,
                               GridDimension+2, CellWidth[0],
-                          ProjectedField[1], ProjectedFieldDims+adim, 
+                          ProjectedField[1], ProjectedFieldDims+adim,
                               ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
                           &ProjectionDimension, &ProjType, &ConversionFactor,
                           GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -286,7 +286,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
                              &ProjectionSmooth,
 			  GridDimension, GridDimension+1,
                               GridDimension+2, CellWidth[0],
-                          ProjectedField[2], ProjectedFieldDims+adim, 
+                          ProjectedField[2], ProjectedFieldDims+adim,
                               ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
                           &ProjectionDimension, &ProjType, &ConversionFactor,
                           GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -297,7 +297,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   /* 4) SN Colour weighted by density */
 
   if (SNColourField == TRUE) {
-    
+
     for (i = 0; i < size; i++)
       temp_field[i] = BaryonField[SNColourNum][i] / BaryonField[DensNum][i];
 
@@ -313,7 +313,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
                              &ProjectionSmooth,
 			  GridDimension, GridDimension+1,
                               GridDimension+2, CellWidth[0],
-                          ProjectedField[3], ProjectedFieldDims+adim, 
+                          ProjectedField[3], ProjectedFieldDims+adim,
                               ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
                           &ProjectionDimension, &ProjType, &ConversionFactor,
                           GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -335,7 +335,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 //			       &ProjectionSmooth,
 //			  GridDimension, GridDimension+1,
 //                              GridDimension+2, CellWidth[0],
-//                          ProjectedField[4], ProjectedFieldDims+adim, 
+//                          ProjectedField[4], ProjectedFieldDims+adim,
 //                              ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
 //                          &ProjectionDimension, &ProjType, &ConversionFactor,
 //                          GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -350,7 +350,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
     for (i = 0; i < size; i++)
       temp_field[i] = BaryonField[DeNum][i] / BaryonField[DensNum][i];
-    
+
     first_field = temp_field;
     second_field = BaryonField[0];
     ProjType = 4;
@@ -361,7 +361,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
                              &ProjectionSmooth,
 			  GridDimension, GridDimension+1,
                               GridDimension+2, CellWidth[0],
-                          ProjectedField[5], ProjectedFieldDims+adim, 
+                          ProjectedField[5], ProjectedFieldDims+adim,
                               ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
                           &ProjectionDimension, &ProjType, &ConversionFactor,
                           GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -373,7 +373,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
   if (MultiSpecies > 1) {
 
     for (i = 0; i < size; i++)
-      temp_field[i] = (BaryonField[H2INum][i] + BaryonField[H2IINum][i]) / 
+      temp_field[i] = (BaryonField[H2INum][i] + BaryonField[H2IINum][i]) /
 	BaryonField[DensNum][i];
 
     first_field = temp_field;
@@ -386,7 +386,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
                              &ProjectionSmooth,
 			  GridDimension, GridDimension+1,
                               GridDimension+2, CellWidth[0],
-                          ProjectedField[6], ProjectedFieldDims+adim, 
+                          ProjectedField[6], ProjectedFieldDims+adim,
                               ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
                           &ProjectionDimension, &ProjType, &ConversionFactor,
                           GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -405,7 +405,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
     // 21 cm redshifted to box redshift [Hz]
     nu0 = 1.4204e9 / (1 + CurrentRedshift);
-    hz = 3.24044e-18 * HubbleConstantNow * 
+    hz = 3.24044e-18 * HubbleConstantNow *
       sqrt(OmegaMatterNow * pow(1+CurrentRedshift, 3) + OmegaLambdaNow);
     Tcmb = 2.723*(1+CurrentRedshift);
     high_dt = 1.14e5 /
@@ -424,7 +424,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
       }
 
       kappa = 3.1e-11 * pow(temperature[i], 0.357) * exp(-32.0 / temperature[i]);
-      gamma_e = -9.607 + 0.5 * log(temperature[i]) * 
+      gamma_e = -9.607 + 0.5 * log(temperature[i]) *
 	exp(-pow(log(temperature[i]), 4.5) / 1800.0);
       gamma_e = pow(10.0, gamma_e);
       gamma_p = 3.2 * kappa;
@@ -432,25 +432,25 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
       C_H = BaryonField[HINum][i] * dom * kappa;
       C_e = BaryonField[DeNum][i] * dom * gamma_e;
       C_p = BaryonField[DeNum][i] * dom * gamma_p;
-	
+
       y21 = (t_star / (A_em*temperature[i])) * (C_H + C_e + C_p);
-      spin_temp[i] = (t_star + Tcmb + 
+      spin_temp[i] = (t_star + Tcmb +
 		      y21*temperature[i]) / (1+y21);
-	
+
       /* Discretization as outlined in Kuhlen et al. (2005) */
 
 //      ri = 0.0;  // 0 for now.  Should be proper distance from midplane.
 //      v_i = VelocityUnits * BaryonField[Vel1Num+ProjectionDimension][i] + hz*ri;
 //      Delta_nu = nu0 * v_i / clight;
 //      Delta_nuD = nu0 * sqrt(2*kboltz*temperature[i]/(mh*clight*clight));
-//      phi = exp(-( (Delta_nu*Delta_nu) / (Delta_nuD*Delta_nuD) )) / 
+//      phi = exp(-( (Delta_nu*Delta_nu) / (Delta_nuD*Delta_nuD) )) /
 //	(1.77245*Delta_nuD); // line profile
 //      Delta_tau[i] = prefactor * BaryonField[HINum][i] * phi / spin_temp[i];
 
       /* Instead, let's use an approximation for differential
 	 brightness temperature */
 
-      bright_temp[i] = high_dt * BaryonField[HINum][i] * 
+      bright_temp[i] = high_dt * BaryonField[HINum][i] *
 	(1.0 - Tcmb / spin_temp[i]);
 
     } // ENDFOR size
@@ -465,7 +465,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
                              &ProjectionSmooth,
 			  GridDimension, GridDimension+1,
                               GridDimension+2, CellWidth[0],
-                          ProjectedField[7], ProjectedFieldDims+adim, 
+                          ProjectedField[7], ProjectedFieldDims+adim,
                               ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
                           &ProjectionDimension, &ProjType, &ConversionFactor,
                           GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -485,7 +485,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
                              &ProjectionSmooth,
 			  GridDimension, GridDimension+1,
                               GridDimension+2, CellWidth[0],
-                          ProjectedField[8], ProjectedFieldDims+adim, 
+                          ProjectedField[8], ProjectedFieldDims+adim,
                               ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
                           &ProjectionDimension, &ProjType, &ConversionFactor,
                           GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -517,7 +517,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 			      &ProjectionSmooth,
 			      GridDimension, GridDimension+1,
                               GridDimension+2, CellWidth[0],
-			      ProjectedField[9+n], ProjectedFieldDims+adim, 
+			      ProjectedField[9+n], ProjectedFieldDims+adim,
                               ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
 			      &ProjectionDimension, &ProjType, &ConversionFactor,
 			      GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -531,7 +531,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
   if (MultiSpecies) {
 
-    // Based on JHW fit to Clegg et al. (1999).  
+    // Based on JHW fit to Clegg et al. (1999).
     // Good between n_elec = [1e2,1e9]
     // Returns H-alpha line emissivity in erg cm^3 s^-1
 
@@ -555,7 +555,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
       temp_field[i] = powf(10.0f, a0 + a1*log_temp + a2*log_temp2) * nelec*nelec;
       if (isnan(temp_field[i]))
-	printf("NaN: %d %g %g %g %g %g %g %g\n", 
+	printf("NaN: %d %g %g %g %g %g %g %g\n",
 	       i, a0, a1, a2, temperature[i], nelec,
 	       log_temp, log_nelec);
     }
@@ -571,7 +571,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 			    &ProjectionSmooth,
 			    GridDimension, GridDimension+1,
 			    GridDimension+2, CellWidth[0],
-			    ProjectedField[27], ProjectedFieldDims+adim, 
+			    ProjectedField[27], ProjectedFieldDims+adim,
 			    ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
 			    &ProjectionDimension, &ProjType, &ConversionFactor,
 			    GridLeftEdge, GridFarLeftEdge, GridRightEdge,
@@ -622,7 +622,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 				GridDimension, GridDimension+1,
 				GridDimension+2, CellWidth[0],
 				ProjectedField[28+n],
-				ProjectedFieldDims+adim, 
+				ProjectedFieldDims+adim,
 				ProjectedFieldDims+bdim, &ProjectedFieldCellSize,
 				&ProjectionDimension, &ProjType, &ConversionFactor,
 				GridLeftEdge, GridFarLeftEdge, GridRightEdge,

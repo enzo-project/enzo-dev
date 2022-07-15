@@ -3,12 +3,12 @@
 Enzo Test Problems
 ===================
 
-The following is a list of the test problems that are available in the 
+The following is a list of the test problems that are available in the
 ``run`` subdirectory found in the Enzo repository. These problems are also the
 same set of problems used in the test suite. They are listed in broad
 categories following the directory structure.
 
-This list however is not a complete list of all the ProblemTypes that 
+This list however is not a complete list of all the ProblemTypes that
 are available in Enzo.
 
 The test problem specific  parameters can be found in the :ref:`parameters`.
@@ -17,13 +17,26 @@ The test problem specific  parameters can be found in the :ref:`parameters`.
    :maxdepth: 2
 
 
-* `Cooling`_ 
+* `APM Gravity Solver`_
+
+   * `GravityTest <APMGravityTest_>`_
+
+   * `GravityTestSphere <APMGravityTestSphere_>`_
+
+   * `TestOrbit <APMTestOrbit_>`_
+
+   * `TestSelfForce <APMTestSelfForce_>`_
+
+   * `TestSineWave <APMTestSineWave_>`_
+
+
+* `Cooling`_
 
    * `CoolingTest_Cloudy`_
 
-   * `CoolingTest_Grackle`_ 
+   * `CoolingTest_Grackle`_
 
-   * `CoolingTest_JHW`_  
+   * `CoolingTest_JHW`_
 
    * `OneZoneFreefallTest`_
 
@@ -32,17 +45,17 @@ The test problem specific  parameters can be found in the :ref:`parameters`.
 
    * `AdiabaticExpansion`_
 
-   * `AMRZeldovichPancake`_  
-   
+   * `AMRZeldovichPancake`_
+
    * `AMRZeldovichPancake_Streaming`_
 
-   * `MHDAdiabaticExpansion_CT`_       
-   
-   * `MHDAdiabaticExpansion_Dedner`_  
-   
-   * `MHDZeldovichPancake`_           
+   * `MHDAdiabaticExpansion_CT`_
 
-   * `MHDZeldovichPancake_2_CT`_      
+   * `MHDAdiabaticExpansion_Dedner`_
+
+   * `MHDZeldovichPancake`_
+
+   * `MHDZeldovichPancake_2_CT`_
 
    * `MHDZeldovichPancake_2_Dedner`_
 
@@ -72,19 +85,19 @@ The test problem specific  parameters can be found in the :ref:`parameters`.
 
 * `Gravity Solver`_
 
-   * `BinaryCollapse`_  
+   * `BinaryCollapse`_
 
-   * `BinaryCollapseMHDCT`_  
+   * `BinaryCollapseMHDCT`_
 
-   * `GravityStripTest`_  
+   * `GravityStripTest`_
 
-   * `GravityTest`_  
+   * `GravityTest <FastGravityTest_>`_
 
-   * `GravityTestSphere`_  
+   * `GravityTestSphere <FastGravityTestSphere_>`_
 
-   * `MaximumGravityRefinementTest`_  
+   * `MaximumGravityRefinementTest`_
 
-   * `TestOrbit`_  
+   * `TestOrbit  <FastTestOrbit_>`_
 
    * `TestOrbitMRP`_
 
@@ -237,9 +250,9 @@ The test problem specific  parameters can be found in the :ref:`parameters`.
    * `PhotonShadowing`_
 
    * `PhotonTest`_
-   
-   
-   * `PhotonTestAMR`_  
+
+
+   * `PhotonTestAMR`_
 
    * `PhotonTestMultiFrequency`_
 
@@ -248,7 +261,7 @@ The test problem specific  parameters can be found in the :ref:`parameters`.
    * `CosmoIonization_q05z10`_
 
    * `CosmoIonization_q05z10_sp`_
-   
+
    * `CosmoIonization_q05z4`_
 
    * `CosmoIonization_q05z4_sp`_
@@ -286,9 +299,9 @@ The test problem specific  parameters can be found in the :ref:`parameters`.
    * `RadiationStreamY1`_
 
    * `RadiationStreamY1_sp`_
- 
+
    * `RadiationStreamZ0`_
-   
+
    * `RadiationStreamZ0_sp`_
 
    * `RadiationStreamZ1`_
@@ -308,6 +321,83 @@ The test problem specific  parameters can be found in the :ref:`parameters`.
 * `StarParticle`_
 
 
+.. _APM Gravity Solver:
+
+APM Gravity Solver
+~~~~~~~~~~~~~~~~~~
+
+.. _APMGravityTest:
+
+GravityTest
+^^^^^^^^^^^
+(Jean-Claude Passy and Greg Bryan, 2014)
+
+We compute the acceleration of nearly massless particles in a gravitational field created by a heavy central particle.
+The dimensions of the root grid are 32x32x32, and we add one static refined grid.
+We set up at the center a particle of density ρ = 1.0, and n = 5000 test particles distributed randomly in logr,
+where r is the distance from the central particle.
+We study two cases:
+
+* the refined grid covers the region [0.4375; 0.5625] such that the particle is at the center of the subgrid;
+* the refined region is [0.5; 0.5625] such that the particle is deposited on the corner of the subgrid.
+
+.. _APMGravityTestSphere:
+
+GravityTestSphere
+^^^^^^^^^^^^^^^^^
+(Jean-Claude Passy and Greg Bryan, 2014)
+
+We compute the acceleration field of three specific spherical distributions
+which have an analytical solution:
+
+* constant density profile
+* isothermal profile
+* Plummer profile
+
+In each case, the dimensions of the root grid are 32x32x32 and the sphere radius is 0.3.
+We allow up to two levels of refinement.
+
+.. _APMTestOrbit:
+
+TestOrbit
+^^^^^^^^^
+(Jean-Claude Passy and Greg Bryan, 2014)
+
+The two-body problem with the particles initially in a circular orbit in the x–y plane.
+
+The central particle has a mass M1 = 1.0 and is located initially at the center of the domain.
+The test particle has a mass M2 = 0.1 and is placed at a distance a = 0.3 from the central particle.
+
+We study four different cases:
+
+* particles in different levels with subcycling;
+* particles in different levels without subcycling;
+* particles in same level with subcycling;
+* particles in same level without subcycling;
+
+.. _APMTestSelfForce:
+
+TestSelfForce
+^^^^^^^^^^^^^
+(Jean-Claude Passy and Greg Bryan, 2014)
+
+We compute the trajectory of an isolated particle that is given an initial velocity.
+If the particle does not experience any self force, its velocity should remain constant.
+The root grid resolution is 16x16x16 zones and there are three static levels of refinement with coordinates [0.1875; 0.8125], [0.3125; 0.6875], and [0.40625; 0.59375].
+The particle of mass is initially located on level 0 at coordinates (0.15, 0.15, 0.15), and is given a velocity (1.0, 1.0, 1.0).
+The system is evolved until t = 0.4, and we investigate two cases (with and without subcycling).
+
+.. _APMTestSineWave:
+
+TestSineWave
+^^^^^^^^^^^^
+(Jean-Claude Passy and Greg Bryan, 2014)
+
+The only test with periodic boundary conditions.
+We compute the acceleration field created by a sinusoidal baryonic density field, for a long and a short period.
+
+The root grid resolution is 64x64x64 zones and ee use two static levels of refinement with coordinates [0.34375; 0.65625] and [0.421875; 0.578125].
+
 .. _CoolingProblems:
 
 Cooling
@@ -317,25 +407,25 @@ Cooling
 
 CoolingTest_Cloudy
 ^^^^^^^^^^^^^^^^^^
-This test problem will set up a single grid that varies smoothly in density, 
-metallicity, and temperature, then iterate the rate equations in the chemisty 
-module for 50,000 years with hydro deactivated.  The code will make an 
-output at the end of the run that includes the cooling time.  This problem 
+This test problem will set up a single grid that varies smoothly in density,
+metallicity, and temperature, then iterate the rate equations in the chemisty
+module for 50,000 years with hydro deactivated.  The code will make an
+output at the end of the run that includes the cooling time.  This problem
 type did not exist in Enzo 1.5, so there is no comparison.
 
 The cooling tests will run in a few minutes on a single processor.
 
 The three parameter files are:
-CoolingTest_Cloudy.enzo - uses Cloudy cooling along with the MultiSpecies = 1 chemistry.  
-The input data provided is a three dimensional table that varies in density, metallicity, 
+CoolingTest_Cloudy.enzo - uses Cloudy cooling along with the MultiSpecies = 1 chemistry.
+The input data provided is a three dimensional table that varies in density, metallicity,
 and temperature.
 
 Cooling data files:
 primordial_cie.dat - CIE cooling rates for atomic H and He taken from Black (1981).
 solar_2008_3D_metals.h5 - input data for Cloudy cooling.
 
-The script plot.py will plot cooling rates from the cooling test 
-along with the H/He cooling rate from Black (1981) and the Z = Zsun 
+The script plot.py will plot cooling rates from the cooling test
+along with the H/He cooling rate from Black (1981) and the Z = Zsun
 rate from Sarazin & White (1987)
 
 
@@ -343,24 +433,24 @@ rate from Sarazin & White (1987)
 
 CoolingTest_Grackle
 ^^^^^^^^^^^^^^^^^^^
-This test problem will set up a single grid that varies smoothly in density, 
-metallicity, and temperature, then iterate the rate equations in the chemisty 
-module for 50,000 years with hydro deactivated.  The code will make an 
+This test problem will set up a single grid that varies smoothly in density,
+metallicity, and temperature, then iterate the rate equations in the chemisty
+module for 50,000 years with hydro deactivated.  The code will make an
 output at the end of the run that includes the cooling time.
 
 The cooling tests will run in a few minutes on a single processor.
 
 The three parameter files are:
-CoolingTest_Grackle.enzo - uses Grackle cooling along with the 
+CoolingTest_Grackle.enzo - uses Grackle cooling along with the
 non-equilibrium atomic H/He chemistry.
 
 Cooling data files:
-primordial_cie.dat - CIE cooling rates for atomic H and He taken from 
+primordial_cie.dat - CIE cooling rates for atomic H and He taken from
 Black (1981).
 CloudyData_UVB=HM2012.h5 - input data for Grackle cooling.
 
-The script plot.py will plot cooling rates from the cooling test 
-along with the H/He cooling rate from Black (1981) and the Z = Zsun 
+The script plot.py will plot cooling rates from the cooling test
+along with the H/He cooling rate from Black (1981) and the Z = Zsun
 rate from Sarazin & White (1987)
 
 
@@ -368,41 +458,41 @@ rate from Sarazin & White (1987)
 
 CoolingTest_JHW
 ^^^^^^^^^^^^^^^
-This test problem will set up a single grid that varies smoothly in density, 
-metallicity, and temperature, then iterate the rate equations in the chemisty 
-module for 50,000 years with hydro deactivated.  The code will make an 
-output at the end of the run that includes the cooling time.  This problem 
+This test problem will set up a single grid that varies smoothly in density,
+metallicity, and temperature, then iterate the rate equations in the chemisty
+module for 50,000 years with hydro deactivated.  The code will make an
+output at the end of the run that includes the cooling time.  This problem
 type did not exist in Enzo 1.5, so there is no comparison.
 
 The cooling tests will run in a few minutes on a single processor.
 
 The three parameter files are:
-CoolingTest_JHW.enzo - uses John Wise's metal cooling along with 
+CoolingTest_JHW.enzo - uses John Wise's metal cooling along with
 the MultiSpecies = 1 chemitry.
 
 Cooling data files:
-primordial_cie.dat - CIE cooling rates for atomic H and He taken from 
+primordial_cie.dat - CIE cooling rates for atomic H and He taken from
 Black (1981).
-cool_rates.in - analytic cooling rates for Z = 0.5 and 1 Zsun from 
+cool_rates.in - analytic cooling rates for Z = 0.5 and 1 Zsun from
 Sarazin & White (1987).
 metal_cool.dat - input data for John Wise's metal cooling.
 
 The script plot.py will plot cooling rates from the cooling test
-along with the H/He cooling rate from Black (1981) and the Z = Zsun 
+along with the H/He cooling rate from Black (1981) and the Z = Zsun
 rate from Sarazin & White (1987)
 .. _OneZoneFreefallTest:
 
 OneZoneFreefallTest
 ^^^^^^^^^^^^^^^^^^^
-This test problem will set up a 2D grid varying in energy and metallicity.  
-All points have the same density, which evolves according to the analytical 
-solution for free-fall collapse.  The timestep is calculated as a fraction of 
-the free-fall time.  Since the timestep continually decreases, outputs are 
-done on cycles.  This test problem can be used to test chemistry and 
+This test problem will set up a 2D grid varying in energy and metallicity.
+All points have the same density, which evolves according to the analytical
+solution for free-fall collapse.  The timestep is calculated as a fraction of
+the free-fall time.  Since the timestep continually decreases, outputs are
+done on cycles.  This test problem can be used to test chemistry and
 cooling routines.
 
 The script, plot.py, will create plots of n vs. T (and Tdust), n
-vs. f_H2, and n vs. t_cool/t_dyn.  If using H2 formation on 
+vs. f_H2, and n vs. t_cool/t_dyn.  If using H2 formation on
 dust grains, set dust=True on line 10.  Run this script like this:
 
 python plot.py OneZoneFreefallTest.enzo
@@ -419,9 +509,9 @@ AdiabaticExpansion
 
 A test for time-integration accuracy of the expansion terms (Bryan thesis 1996, Sect. 3.3.3).
 
-.. _AMRZeldovichPancake:  
+.. _AMRZeldovichPancake:
 
-AMRZeldovichPancake  
+AMRZeldovichPancake
 ^^^^^^^^^^^^^^^^^^^
 
 This test simulates a collapsing sinusoidal cosmological pertubation
@@ -474,9 +564,9 @@ Adiabatic expansion test for MHD, using Athena CT.
 This test differs from the PPM Adiabatic Expansion by the increased initial
 temperature.  The extremely low floor on the PPM version makes it a poor test,
 since the thermal expansion is dominated by the temperature floor, rather than
-physical integration. 
+physical integration.
 
-This test is not entirely uniform for two reasons.  
+This test is not entirely uniform for two reasons.
 First is self gravity (actually off in this version) which causes issues at the
 corners of the domain as well as subgrid boundary.
 The second is the time-interpolation in the boundary for the subgrid, which
@@ -492,9 +582,9 @@ Adiabatic expansion test for MHD, using Dedner.
 This test differs from the PPM Adiabatic Expansion by the increased initial
 temperature.  The extremely low floor on the PPM version makes it a poor test,
 since the thermal expansion is dominated by the temperature floor, rather than
-physical integration. 
+physical integration.
 
-This test is not entirely uniform for two reasons.  
+This test is not entirely uniform for two reasons.
 First is self gravity (actually off in this version) which causes issues at the
 corners of the domain as well as subgrid boundary.
 The second is the time-interpolation in the boundary for the subgrid, which
@@ -507,16 +597,16 @@ MHDZeldovichPancake
 ^^^^^^^^^^^^^^^^^^^
 
 
-.. _MHDZeldovichPancake_2_CT:   
+.. _MHDZeldovichPancake_2_CT:
 
 MHDZeldovichPancake_2_CT
 ^^^^^^^^^^^^^^^^^^^^^^^^
-This is another iteration of Zel'Dovich pancake.  This is tuned to almost 
-reproduce the result from Collins et al 2010, as well as the Dedner run in 
+This is another iteration of Zel'Dovich pancake.  This is tuned to almost
+reproduce the result from Collins et al 2010, as well as the Dedner run in
 run/Cosmology/MHDZeldovichPancake_2_Dedner
 
 Slight differences with the method paper exist due to the uniform initial
-distribution in the method paper.  
+distribution in the method paper.
 
 Neither this nor the Dedner version use Dual Energy Formalism, in order to match
 the temperature field as well as possible.
@@ -524,12 +614,12 @@ the temperature field as well as possible.
 
 MHDZeldovichPancake_2_Dedner
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This is another iteration of Zel'Dovich pancake.  This is tuned to almost 
-reproduce the result from Collins et al 2010, as well as the Dedner run in 
+This is another iteration of Zel'Dovich pancake.  This is tuned to almost
+reproduce the result from Collins et al 2010, as well as the Dedner run in
 run/Cosmology/MHDZeldovichPancake_2_Dedner
 
 Slight differences with the method paper exist due to the uniform initial
-distribution in the method paper.  
+distribution in the method paper.
 
 Neither this nor the Dedner version use Dual Energy Formalism, in order to match
 the temperature field as well as possible.
@@ -636,7 +726,7 @@ To run the simulation:
 
 ReionizationHydro
 ^^^^^^^^^^^^^^^^^
-This is a cosmology simulation that simulates reionization using the 
+This is a cosmology simulation that simulates reionization using the
 convention, non-radiative star formation and feedback and a Haardt &
 Madau background.  It will run on 2 processors in about 20 minutes.
 
@@ -649,7 +739,7 @@ mpirun -np 2 ./enzo.exe -d ReionizationHydro.enzo
 
 ReionizationRadHydro
 ^^^^^^^^^^^^^^^^^^^^
-This is a cosmology simulation that simulates reionization using the 
+This is a cosmology simulation that simulates reionization using the
 ray tracing radiation transfer method with radiating star particles
 and a Haardt & Madau background.  It will run on 2 processors in about
 40 minutes.
@@ -664,7 +754,7 @@ mpirun -np 2 ./enzo.exe -d ReionizationRadHydro.enzo
 DrivenTurbulence3D
 ~~~~~~~~~~~~~~~~~~
 
-Unless hydromethod == 4  this will do hydrodynamic turbulence. 
+Unless hydromethod == 4  this will do hydrodynamic turbulence.
  Tom Abel 2009
 
 This can do fixed force pattern driving as well as decaying turbulence set ups.
@@ -724,7 +814,7 @@ MHDCT.  A shorter test to ensure MHDCT runs.  This runs in less than 5 minutes.
 GravityStripTest
 ^^^^^^^^^^^^^^^^
 
-.. _GravityTest:
+.. _FastGravityTest:
 
 GravityTest
 ^^^^^^^^^^^
@@ -736,7 +826,7 @@ of the box, randomly spaced in log radius from the center, and
 randomly placed in angle.  A single small step is taken, and the
 velocity is then divided by the timestep to measure the acceleration.
 A single subgrid is placed in the center from 0.4375 to 0.5625
-(in units where the box size is 1.0). 
+(in units where the box size is 1.0).
 
 This tests the acceleration of the particles from a single point
 mass and so can be directed compared to the r^-2 expected
@@ -744,9 +834,9 @@ result.  An output file is generated, called TestGravityCheckResults.out,
 which contains four columns with one entry for each of the
 5000 particles.  The columns are the radius (in units of the
 cell length of the most refined grid), the tangential component
-of the measured force, as computed by the code, 
+of the measured force, as computed by the code,
 the radial component of the computed force, and finally
-the "true" (unsoftened) force.  
+the "true" (unsoftened) force.
 
 The tangential component of the force should be zero; the
 radial component should follow the r^-2 law, but is softened
@@ -767,7 +857,7 @@ with force errors at small and large radii); however, the problem
 with a bitwise comparison is that the positions of
 the 5000 particles are random (with no setable seed).
 
-.. _GravityTestSphere:
+.. _FastGravityTestSphere:
 
 GravityTestSphere
 ^^^^^^^^^^^^^^^^^
@@ -791,13 +881,13 @@ This test must be run on 2 cores, otherwise the problem isn't triggered.
 
 This test is to ensure that MaximumGravityRefinement is functional.  As of this
 writing (2014-07-12) when MaximumGravityRefinement < MaximumRefinementLevel, the
-wrong SiblingList is used in PrepareDensityField.  
+wrong SiblingList is used in PrepareDensityField.
 
 The current test creates 2 grids on Level 1, and one grid on Level 2, in which
 case the code tries to iterate over the SiblingList for level=1 when on level=2.
 This causes a seg fault.
 
-.. _TestOrbit:
+.. _FastTestOrbit:
 
 TestOrbit
 ^^^^^^^^^
@@ -823,8 +913,8 @@ Orbit Test Problem with MRPs (MustRefineParticles)
 
 NOTE: This version of the parameter file writes
 out the gravitational potential, and is intended
-to be used with run/TestOrbit/make_TE_plot.py 
-to make a graph of total particle energy as a 
+to be used with run/TestOrbit/make_TE_plot.py
+to make a graph of total particle energy as a
 function of orbit!
 
 
@@ -843,7 +933,7 @@ This test simulates a blastwave in the free expansion phase.  In the
 initial setup, the interior region has a uniform density and a
 linearly increasing radial velocity.  The blastwave should advect
 outwards, and create a high entropy shell and have little oscillations
-in the shock.  
+in the shock.
 
 This test runs to completion and creates 41 outputs.  This test
 problem is new for version 2.0.  It uses the new hydro_rk solver.
@@ -857,10 +947,10 @@ InteractingBlastWaves
 ^^^^^^^^^^^^^^^^^^^^^
 Two interacting blast waves
 
-This is the first test problem in Woodward & Colella (1984), 
-JCP, 54, 115.  With the outer tenths of the domain 
+This is the first test problem in Woodward & Colella (1984),
+JCP, 54, 115.  With the outer tenths of the domain
 overpressurized, two blast waves move in toward the center.  The
-boundaries are reflecting.  One can see the solution by ATHENA in 
+boundaries are reflecting.  One can see the solution by ATHENA in
 Stone et al. (2008), ApJS, 178, 137.
 
 .. _PressurelessCollapse:
@@ -1023,11 +1113,11 @@ AMRShockPool2D
 
 Athena-RayleighTaylor
 ^^^^^^^^^^^^^^^^^^^^^
- 
-classic Raleigh Taylor setup with sharp contact 
+
+classic Raleigh Taylor setup with sharp contact
 this file should work with all hydro methods
 
-compare to 
+compare to
 http://www.astro.princeton.edu/~jstone/tests/rt/rt.html
 
 .. _DoubleMachReflection:
@@ -1073,8 +1163,8 @@ The initial setup is taken from Truelove & McKee, 1999, ApJS, 120,
 
 HDMHD2DCheckOddEvenCouplingOfRiemannSolver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Standing shock with slight density perturbation. 
-Look at the y-velocity to check for the effect. 
+Standing shock with slight density perturbation.
+Look at the y-velocity to check for the effect.
 It is subtle because we use a small perturbation.
 define problem
 
@@ -1107,7 +1197,7 @@ KelvinHelmholtz
 The KH Test problem creates two fluids moving antiparallel to each other
 in a periodic 2D grid (inner fluid and outer fluid).  The inside fluid
 has a higher density than the outside fluid.  There is a slight ramp region
-in density and x-velocity connecting the two regions so there are no 
+in density and x-velocity connecting the two regions so there are no
 discontinuities in the flow.  The y-velocity is perturbed with small sinusoidal
 perturbation.  As the flows shear past each other, the KH instability
 is excited, which develops over time.  This test watches the evolution of
@@ -1188,7 +1278,7 @@ A 2d explosion test problem
 
 SedovBlastAMR
 ^^^^^^^^^^^^^
-AMR version of SedovBlast 
+AMR version of SedovBlast
 .. _ShockPool2D:
 
 ShockPool2D
@@ -1200,22 +1290,22 @@ ShockPool2D
 
 ValidatedNonlinearKelvinHelmholtz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Implements initial condition generator for 
+Implements initial condition generator for
 http://arxiv.org/abs/1509.03630
 A Validated Nonlinear Kelvin-Helmholtz Benchmark for Numerical Hydrodynamics
-Daniel Lecoanet, Michael McCourt, Eliot Quataert, Keaton J. Burns, 
+Daniel Lecoanet, Michael McCourt, Eliot Quataert, Keaton J. Burns,
 Geoffrey M. Vasil, Jeffrey S. Oishi, Benjamin P. Brown, James M. Stone, Ryan M. O'Leary (2015)
 
-Note, this has not been tested much. 
-It uses the machinery for the MHD2D tests in hydro_rk. 
-It should also work with PPM (i.e. HydroMethod = 0) but is not setup to do Zeus (HydroMethod=1 tests). 
-However, HydroMethod=3 offers many options for Riemann Solvers and Slope limiting which may be interesting to test. 
+Note, this has not been tested much.
+It uses the machinery for the MHD2D tests in hydro_rk.
+It should also work with PPM (i.e. HydroMethod = 0) but is not setup to do Zeus (HydroMethod=1 tests).
+However, HydroMethod=3 offers many options for Riemann Solvers and Slope limiting which may be interesting to test.
 
 To run in parallel keep the ParallelRootgridIO = 1 on.
 
 This is a code test for a limit high resolution shock captruing codes are not often optimized for.
 It is useful to see whether your choice of hydro method has sufficient diffusivity to give behave sensibly in
-a convergence study. 
+a convergence study.
 
 
 .. _Hydro/Hydro-3D:
@@ -1254,10 +1344,10 @@ may vary for the amount of wallclock time necessary.
 
 Athena-RayleighTaylor3D
 ^^^^^^^^^^^^^^^^^^^^^^^
-classic Raleigh Taylor setup with sharp contact 
+classic Raleigh Taylor setup with sharp contact
 this file should work with all hydro methods
 
-compare to 
+compare to
 http://www.astro.princeton.edu/~jstone/tests/rt/rt.html
 
 .. _CollapseTestNonCosmological:
@@ -1265,20 +1355,20 @@ http://www.astro.princeton.edu/~jstone/tests/rt/rt.html
 CollapseTestNonCosmological
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This test problem initializes a constant density sphere at the center of the box 
-with radius of 0.15 of the box width.  The sphere is in pressure equilibrium with 
-its surroundings.  The sphere will collapse dynamically and reach its peak density 
-at t ~ 5.2 in code units.  Radiative cooling is turned off, so the sphere will bounce 
+This test problem initializes a constant density sphere at the center of the box
+with radius of 0.15 of the box width.  The sphere is in pressure equilibrium with
+its surroundings.  The sphere will collapse dynamically and reach its peak density
+at t ~ 5.2 in code units.  Radiative cooling is turned off, so the sphere will bounce
 and reach an equilibrium state.
 
-This test runs to completion (t = 7) and produces 71 outputs in roughly an hour 
-on a single processor.  In plot.py, we plot the evolution of the peak density versus 
+This test runs to completion (t = 7) and produces 71 outputs in roughly an hour
+on a single processor.  In plot.py, we plot the evolution of the peak density versus
 time create density projections for each output.
 
-Note for comparing with Enzo 1.5 - By default, Enzo 2.0 performs 4 iterations of 
-the multigrid gravity solver (configurable with the PotentialIterations parameter).  
-However, the default number of potential iteration in Enzo 1.5 is 0 and there is 
-no parameter to change this.  For a direct comparison, Enzo 1.5 must be compiled 
+Note for comparing with Enzo 1.5 - By default, Enzo 2.0 performs 4 iterations of
+the multigrid gravity solver (configurable with the PotentialIterations parameter).
+However, the default number of potential iteration in Enzo 1.5 is 0 and there is
+no parameter to change this.  For a direct comparison, Enzo 1.5 must be compiled
 with MAX_POTENTIAL_ITERATIONS (in macros_and_parameters.h) set to 4.
 .. _CollideTest:
 
@@ -1318,23 +1408,23 @@ NFWCoolCoreCluster
 ^^^^^^^^^^^^^^^^^^
 The NFW Cool-Core Cluster is a simulation of the cooling flow in an idealized
 cool-core cluster that resembles Perseus cluster. It can be a test for cooling, and
-maybe gravity too. 
+maybe gravity too.
 
 The default set up is with a root grid of 64^3, a maximum refinement level of 12,
 and MinimumMassForRefinementLevelExponent of -0.2 (for better resolution, use -1.2)
 which can be changed based on the resolution one needs.
 
 The default set up has a static gravity and no self-gravity of the gas since the latter
-is much smaller than the gravity of the dark matter and does not change much during the 
+is much smaller than the gravity of the dark matter and does not change much during the
 early stage of the cooling flow evolution.
 
-As the cooling catastrophe happens, the temperature drops to the bottom of the cooling 
-function ~ 10^4 K in the center within ~1kpc with the default resolution. The size of 
+As the cooling catastrophe happens, the temperature drops to the bottom of the cooling
+function ~ 10^4 K in the center within ~1kpc with the default resolution. The size of
 the region becomes smaller with higher resolution.
 
 The projected gas density shows a disk of size ~ 1kpc (inside the cooling catastrophe
-region) at late times along z axis which is the direction of 
-the initial angular momentum of the gas.  
+region) at late times along z axis which is the direction of
+the initial angular momentum of the gas.
 
 .. _NohProblem3D:
 
@@ -1386,18 +1476,18 @@ angular momentum in Enzo.
 
 The test sets up a rotating gas cyclinder in the center of the box at 0.5 0.5
 0.5 with an overdensity of 200. The default set up is with a root grid
-of 32^3 and a single level of refinement. 
+of 32^3 and a single level of refinement.
 
 The cyclinder collapses towards its center and oscillates before
-settling. 
+settling.
 
 The results signify correctness if the net change in the total angular
 momentum of the system is low (< 5%). The percentage change per output
 should be less than 1% and should decrease over time as the collapse
-reaches equilibrium. 
+reaches equilibrium.
 
 In plots.py, we image slices in the x-direction and plot the angular
-momentum evolution of the system. 
+momentum evolution of the system.
 
 .. _RotatingSphere:
 
@@ -1431,24 +1521,24 @@ From
 
 Run: Ji-hoon Kim, July 2010
 
-This test sets up an one-dimensional Riemann problem for MHD, and has become a useful 
-standard test for any MHD solver.  Detailed description of the initial set up can be 
-found in the papers above.  This test problem is new for enzo2.0.  It uses the new 
+This test sets up an one-dimensional Riemann problem for MHD, and has become a useful
+standard test for any MHD solver.  Detailed description of the initial set up can be
+found in the papers above.  This test problem is new for enzo2.0.  It uses the new
 Stanford hydro_rk solver.
 
-This test runs to completion while generating 12 outputs, and scripts.py will 
-produce the plots for Density, x-velocity, By, Internal Energy for the last snapshot 
-(t=0.1).  This last snapshot should be compared to figure 18 from Figure 2 of Brio & 
+This test runs to completion while generating 12 outputs, and scripts.py will
+produce the plots for Density, x-velocity, By, Internal Energy for the last snapshot
+(t=0.1).  This last snapshot should be compared to figure 18 from Figure 2 of Brio &
 Wu (1988) or Figure 15 of Wang & Abel (2009)
 
-Success in test_briowu.py is determined by nearly exact match (5e-3) in Density and By. 
+Success in test_briowu.py is determined by nearly exact match (5e-3) in Density and By.
 
 .. _BrioWu-MHD-1D-MHDCT:
 
 BrioWu-MHD-1D-MHDCT
 ^^^^^^^^^^^^^^^^^^^
 
-This also serves as an Example of how to do 1D HD/MHD tests with the myriad 
+This also serves as an Example of how to do 1D HD/MHD tests with the myriad
 of shock tube problems defined in the literature
 
 .. _CR-ShockTube:
@@ -1466,8 +1556,8 @@ See Pfrommer et al 2006 for information on the analytic sol'tn
 MHD_Metal_Advection_CT
 ^^^^^^^^^^^^^^^^^^^^^^
 Square wave advection with a single species field.
-The metals are offset by 0.25 from the density. 
-python plot.py will make a plot.  
+The metals are offset by 0.25 from the density.
+python plot.py will make a plot.
 
 .. _MHD_Metal_Advection_Dedner:
 
@@ -1489,7 +1579,7 @@ LoopAdvection_CT
 Advection of a magnetic field loop.
 Originally described by Gardiner & Stone 2005 (Journal of Computational Physics,
 205,509).  The multidimensional MHD analogue of a square wave advection test,
-the field loop severely deforms for many CT schemes.  
+the field loop severely deforms for many CT schemes.
 
 .. _LoopAdvection_Dedner:
 
@@ -1498,7 +1588,7 @@ LoopAdvection_Dedner
 Advection of a magnetic field loop.
 Originally described by Gardiner & Stone 2005 (Journal of Computational Physics,
 205,509).  The multidimensional MHD analogue of a square wave advection test,
-the field loop severely deforms for many CT schemes. 
+the field loop severely deforms for many CT schemes.
 
 .. _MHD2DRotorTest:
 
@@ -1507,8 +1597,8 @@ MHD2DRotorTest
 From
  G. Toth, J. Comput. Phys. 161 (2000) 605
 
-Initially discussed in 
- D. Balsara & D. Spicer, J. Comput. Phys. 149, 270292 (1999) 
+Initially discussed in
+ D. Balsara & D. Spicer, J. Comput. Phys. 149, 270292 (1999)
 
 Run: dcollins, July 2010
 
@@ -1524,10 +1614,10 @@ useful comparison.
 Visual comparison to the plots in Toth (2000) shows that the general morphology
 and extent of the Alfven wave is similar.  Round contours in the mach number
 field indicate solid body rotation, without the artifacts seen in some other
-solvers.  
+solvers.
 
 Success in test_rotor.py is determined by nearly exact match (1e-12) in L1 norm between
-Density, Bx, P, and Mach number. 
+Density, Bx, P, and Mach number.
 
 This test generates 11 outputs, and snapshots for the 4 above fields for each
 snapshot.  The 11th snapshot should be compared to figure 18 from Toth (2000)
@@ -1557,7 +1647,7 @@ for complete suppression, but one does see a severe reduction in growth rate and
 secondary instability.
 
 Fun things to try include reducing the field strength and changing the
-direction!  
+direction!
 
 .. _SedovBlast-MHD-2D-Fryxell:
 
@@ -1569,30 +1659,30 @@ From
 Run: Ji-hoon Kim, July 2010
 
 
-This test sets up a two-dimensional blast wave problem for MHD.  While the initial 
-condition  essentially describes a circular overpressurized region in a low-pressure 
-magnetized medium, more detailed description of the initial set up can be found in 
-the papers above.  This test problem is new for enzo2.0.  It uses the new Stanford 
-hydro_rk solver.  
+This test sets up a two-dimensional blast wave problem for MHD.  While the initial
+condition  essentially describes a circular overpressurized region in a low-pressure
+magnetized medium, more detailed description of the initial set up can be found in
+the papers above.  This test problem is new for enzo2.0.  It uses the new Stanford
+hydro_rk solver.
 
-Unfortunately for some users, some of the key parameters are hard-coded in 
-Grid_MHD2DTestInitializeGrid.C.  Depending on B-field values, this test can be a 
-pure Sedov blast wave problem, or a Gardiner blast wave problem.  The current 
-parameter will give Sedov blast wave solution. 
+Unfortunately for some users, some of the key parameters are hard-coded in
+Grid_MHD2DTestInitializeGrid.C.  Depending on B-field values, this test can be a
+pure Sedov blast wave problem, or a Gardiner blast wave problem.  The current
+parameter will give Sedov blast wave solution.
 
-(1) Setting LowerBx=LowerBy=0 will give the traditional Sedov test 
-    with no B-field, essentially very similar to SedovBlast-AMR.enzo; 
+(1) Setting LowerBx=LowerBy=0 will give the traditional Sedov test
+    with no B-field, essentially very similar to SedovBlast-AMR.enzo;
     but with different hydro solver (Stanford HD/MHD)
-(2) Setting LowerBx=LowerBy=5 will give the Sedov blast with the 
+(2) Setting LowerBx=LowerBy=5 will give the Sedov blast with the
     presence of B-field, very similar to SedovBlast-MHD-2D-Gardiner.enzo;
     but the exact setup is somewhat different (see the code)
 
-This test runs to completion while generating 12 outputs, and scripts.py will 
-produce the plots and slices for Density and Pressure of the last snapshot (t=0.05).  
+This test runs to completion while generating 12 outputs, and scripts.py will
+produce the plots and slices for Density and Pressure of the last snapshot (t=0.05).
 This last snapshot should be compared to Figure 29 and 30 of Fryxell (2000).
 
-Success in test_fryxell.py is determined by nearly exact match (3e-5) in Density and 
-Pressure. 
+Success in test_fryxell.py is determined by nearly exact match (3e-5) in Density and
+Pressure.
 
 .. _SedovBlast-MHD-2D-Gardiner:
 
@@ -1604,23 +1694,23 @@ From
 
 Run: Ji-hoon Kim, July 2010
 
-This test sets up a two-dimensional blast wave problem for MHD, and has become a useful 
-standard test for any MHD solver.  While the initial condition  essentially describes 
-a circular overpressurized region in a low-pressure magnetized medium, more detailed 
-description of the initial set up can be found in the papers above.  This test problem 
-is new for enzo2.0.  It uses the new Stanford hydro_rk solver.  
+This test sets up a two-dimensional blast wave problem for MHD, and has become a useful
+standard test for any MHD solver.  While the initial condition  essentially describes
+a circular overpressurized region in a low-pressure magnetized medium, more detailed
+description of the initial set up can be found in the papers above.  This test problem
+is new for enzo2.0.  It uses the new Stanford hydro_rk solver.
 
-Unfortunately for some users, most of the key parameters are hard-coded in 
-Grid_MHD2DTestInitializeGrid.C.  With zero B-field, this test should be a pure Sedov 
-blast wave problem.    
+Unfortunately for some users, most of the key parameters are hard-coded in
+Grid_MHD2DTestInitializeGrid.C.  With zero B-field, this test should be a pure Sedov
+blast wave problem.
 
-This test runs to completion while generating 12 outputs, and scripts.py will 
-produce the plots for Density, x-velocity, By, Internal Energy for the last snapshot 
+This test runs to completion while generating 12 outputs, and scripts.py will
+produce the plots for Density, x-velocity, By, Internal Energy for the last snapshot
 (t=0.02).  This last snapshot should be compared to Figure 13 of Gardiner & Stone (2005)
 or Figure 16 of Wang & Abel (2009)
 
-Success in test_gardiner.py is determined by nearly exact match (3e-5) in Density, 
-Pressure, Bx, and By. 
+Success in test_gardiner.py is determined by nearly exact match (3e-5) in Density,
+Pressure, Bx, and By.
 
 .. _Wengen2-CollidingFlow:
 
@@ -1630,7 +1720,7 @@ Wengen 2 colliding flow
 Reference: http://www-theorie.physik.unizh.ch/~agertz/Wengen_2/Code_tests.html
 Tom Abel September 2010
 
-Also works with magnetic fields. 
+Also works with magnetic fields.
 
 .. _MHD/3D:
 
@@ -1650,7 +1740,7 @@ MHD/HD turbulence problem with stochastic forcing with subgrid-scale (SGS) turbu
 Philipp Grete 2014
 
 Typical "turbulence-in-a-box" problem with non-static driving field.
-For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
+For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145
 http://dx.doi.org/10.1051/0004-6361:200809967
 For details on the SGS model, see Grete et al. (2017) Phys. Rev. E. 95 033206
 https://dx.doi.org/10.1103/PhysRevE.95.033206
@@ -1722,13 +1812,13 @@ PhotonTestMultiFrequency
 ^^^^^^^^^^^^^^^^^^^^^^^^
 This test is derived from the PhotonTest problem which is itself
 based on the classical HII region expansion in a uniform
-static medium similar to Test 1 in Iliev et al. (2006). Rather than 
-a mono-chromatic source this source contains 7 frequency bins from 0.5 eV 
+static medium similar to Test 1 in Iliev et al. (2006). Rather than
+a mono-chromatic source this source contains 7 frequency bins from 0.5 eV
 up to 100 eV. It can be used to test the multi-frequency photon solver. In a separate
 subdirectory is the optically thin version (OT) which runs with H2 and HM dissociation
 run in optically thin mode.
 
-This test runs with Grackle. 
+This test runs with Grackle.
 
 .. _RadiationTransportFLD:
 
@@ -1875,16 +1965,14 @@ StarParticle
 ~~~~~~~~~~~~
 
 This test places a single star particle in the center of a box with uniform
-gas density and thermal energy.  The gas is initially at rest.  The particle 
-will then produce feedback according to the method set for 
-StarParticleFeedback.  
+gas density and thermal energy.  The gas is initially at rest.  The particle
+will then produce feedback according to the method set for
+StarParticleFeedback.
 
-By default, the star particle produces feedback with method 14, kinetic 
-feedback.  An inital timestep is set to account for the large bulk velocities 
-created by the feedback event in the first timestep.  
+By default, the star particle produces feedback with method 14, kinetic
+feedback.  An inital timestep is set to account for the large bulk velocities
+created by the feedback event in the first timestep.
 
 The particle is also set to be at rest by default, but it can be given a motion
-relative to the gas with the parameter TestStarParticleStarVelocity = vx vy vz, 
+relative to the gas with the parameter TestStarParticleStarVelocity = vx vy vz,
 where vx, vy and vz have units of km/s.
-
-
