@@ -1585,6 +1585,7 @@ double halo_S_of_r(FLOAT r){
 double halo_S_of_r(FLOAT r, grid* Grid){
   if (GalaxySimulationGasHalo == 6){
 
+#ifdef USE_GRACKLE
     double M, C, r_vir, r_max, rho_crit = 1.8788e-29*0.49;
     double vcirc2, vcirc2_max;
     float Tgrav, Tgrav_therm;
@@ -1636,7 +1637,11 @@ double halo_S_of_r(FLOAT r, grid* Grid){
     // TODO blend with an entropy cap
     
     return (S_nfw + S_precip);
-    
+#else
+
+    ENZO_FAIL("Grid_GalaxySimulationInitializeGrid: GasHalo 6 requires Grackle.");
+
+#endif
   } else {
     ENZO_FAIL("halo_S_of_r: GalaxySimulationGasHalo set incorrectly.");
   }  
