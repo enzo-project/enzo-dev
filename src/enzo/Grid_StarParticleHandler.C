@@ -547,7 +547,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Find Multi-species fields. */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum; 
-  if (STARMAKE_METHOD(H2REG_STAR) || StarMakerH2Crit)
+  if (STARMAKE_METHOD(H2REG_STAR))
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
@@ -602,6 +602,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   if (MultiSpecies > 1) {
       H2INum   = FindField(H2IDensity, FieldType, NumberOfBaryonFields);
       H2IINum  = FindField(H2IIDensity, FieldType, NumberOfBaryonFields);
+  } else { 
+      // set to total density so passing BaryonField[H2INum] to maker 2 is ok
+      H2INum   = DensNum;
+      H2IINum  = DensNum;
   }
 
   /* Find metallicity field and set flag. */
