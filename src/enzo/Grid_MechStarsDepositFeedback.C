@@ -439,7 +439,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                             zcell = CellLeftEdge[2][0] + (0.5 + (float) k) * dx;
                             float window = Window(*xp - xcell, *yp - ycell, *zp - zcell, dx, false); // always use cic to remove the mass
                             if (window > 0){
-                                centralMass +=  min(StarMakerMassEfficiency,  window) * BaryonField[DensNum][flat];
+                                centralMass +=  min(maxEvacFraction,  window) * BaryonField[DensNum][flat];
                                 centralMetals +=  window * BaryonField[MetalNum][flat];
                                 if (SNColourNum != -1 && !MechStarsMetallicityFloor)
                                     centralMetals += window * BaryonField[SNColourNum][flat];
