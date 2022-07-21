@@ -83,6 +83,8 @@ int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
 			     TopGridData &MetaData);
 int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData, float *Initialdt);
+int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			       TopGridData &MetaData, float *Initialdt);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -748,7 +750,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 #endif
 
   // Insert new problem intializer here...
-
+  
+  // 251) Test a star particle explosion
+  if (ProblemType == 251)
+    ret = TestRadiatingStarParticleInitialize(fptr, Outfptr, TopGrid, MetaData, 
+				     Initialdt);
   
   if (ret == INT_UNDEFINED) {
     ENZO_VFAIL("Problem Type %"ISYM" undefined.\n", ProblemType)

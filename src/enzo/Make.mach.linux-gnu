@@ -114,7 +114,7 @@ LOCAL_LIBS_MPI    = # MPI libraries
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz
 LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
 LOCAL_LIBS_PAPI   = # PAPI libraries
-LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
+LOCAL_LIBS_MACH   = -lgfortran -lquadmath # Machine-dependent libraries
 LOCAL_LIBS_GRACKLE = -L/home/dskinner6/software/grackle/lib -lgrackle
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)

@@ -2070,6 +2070,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int TestStarParticleInitializeGrid(float TestStarParticleStarMass, 
 				     float *Initialdt,
 				     FLOAT TestStarParticleStarVelocity[],
+				     FLOAT TestStarParticleStarPosition[]);
+
+/* Radiating Star Particle test: initialize particle */
+  int TestRadiatingStarParticleInitializeGrid(float TestStarParticleStarMass, 
+				     float *Initialdt,
+				     FLOAT TestStarParticleStarVelocity[],
 				     FLOAT TestStarParticleStarPosition[],
                  float UniformDensity,
                float UniformTotalEnergy,
