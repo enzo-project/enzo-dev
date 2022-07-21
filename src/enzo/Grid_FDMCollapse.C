@@ -23,6 +23,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 #include "CosmologyParameters.h"
 
 #define NTHETA 1000
