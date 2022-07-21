@@ -1039,9 +1039,10 @@ OBJS_CONFIG_LIB = \
    Grid_SchrodingerSolver.o \
    rk4.o \
    SchrodingerAddPotential.o \
+   ParallelFDMCollapseInitialize.o \
+   Grid_ParallelFDMCollapseInitialize.o \
    FDMCollapse.o \
    Grid_FDMCollapse.o
-
 
 #-----------------------------------------------------------------------
 # Objects for radiative transfer module

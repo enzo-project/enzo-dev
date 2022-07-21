@@ -53,6 +53,10 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
         TopGridData &MetaData);//FDM
 int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
         TopGridData &MetaData);//FDM collapse
+int ParallelFDMCollapseInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+        TopGridData &MetaData);//FDM collapse, ParallelIO
+int ParallelFDMCollapseReInitialize(HierarchyEntry *TopGrid,
+            TopGridData &MetaData);//FDM collapse, ParallelIo
 int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
@@ -635,6 +639,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = FDMCollapseInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
+  // 192) FDM collapse
+  if ( ProblemType == 192 ){
+    ret = ParallelFDMCollapseInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
   /* 200) 1D MHD Test */
   if (ProblemType == 200) {
     ret = MHD1DTestInitialize(fptr, Outfptr, TopGrid, MetaData);
@@ -879,7 +888,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Make changes required for Zeus solver, and turn the TotalEnergy
   // variable (should be renamed just Energy) into GasEnergy
   
-  if (HydroMethod == Zeus_Hydro &&
+  if (UseHydro && HydroMethod == Zeus_Hydro &&
       ProblemType != 10 &&  // BWO (Rotating cylinder)
       ProblemType != 11 &&  // BWO (radiating shock)
       ProblemType != 13 &&  // BWO (Rotating Sphere)
@@ -1009,6 +1018,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ENZO_FAIL("Error in TurbulenceReInitialize.\n");
     }
     //  if (HydroMethod == Zeus_Hydro) ConvertTotalEnergyToGasEnergy(&TopGrid);
+  }
+
+  if (ParallelRootGridIO == TRUE && ProblemType == 192){
+    if (ParallelFDMCollapseReInitialize(&TopGrid, MetaData) == FAIL)
+      ENZO_FAIL("Error in ParallelFDMCollapseReInitialize.");
   }
 
   if (ProblemType == 201)
