@@ -251,7 +251,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
     return SUCCESS;
     }
 
-    fprintf(stderr, "initialize particles at processor %d \n", MyProcessorNumber);
+    fprintf(stdout, "FDMCollapse: initialize particles on processor %d \n", MyProcessorNumber);
     for (SetupLoopCount = 0; SetupLoopCount < 1+min(FDMUseParticles, 1); SetupLoopCount++) {
      if (SetupLoopCount > 0) {
       /* If particles already exist (coarse particles), then delete. */
