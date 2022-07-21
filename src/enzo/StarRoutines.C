@@ -84,7 +84,6 @@ Star::Star(void)
     abundances[i] = 0.0;
 
   wind_mass_ejected = sn_mass_ejected = 0.0;
-  StarLookupMap;
 }
 
 Star::Star(grid *_grid, int _id, int _level)
@@ -167,7 +166,6 @@ Star::Star(grid *_grid, int _id, int _level)
   else
     LifeTime = _grid->ParticleAttribute[1][_id];
   this->ConvertAllMassesToSolar();
-  StarLookupMap;
 }
 
 Star::Star(StarBuffer *buffer, int n)
@@ -232,7 +230,6 @@ Star::Star(StarBuffer *buffer, int n)
 
   wind_mass_ejected = buffer[n].wind_mass_ejected;
   sn_mass_ejected   = buffer[n].sn_mass_ejected;
-  StarLookupMap;
 }
 
 Star::Star(StarBuffer buffer)
@@ -297,7 +294,6 @@ Star::Star(StarBuffer buffer)
   wind_mass_ejected = buffer.wind_mass_ejected;
   sn_mass_ejected   = buffer.sn_mass_ejected;
 
-  StarLookupMap;
 }
 
 /* No need to delete the accretion arrays because the pointers are
@@ -565,34 +561,28 @@ float Star::RelativeVelocity2(Star a)
 }
 float Star::RelativeVelocity2(Star *a) { return this->RelativeVelocity2(*a); };
 
-void Star::ClearStarsMap() // clears map before repopulating right before CopyToGrid loop (not as efficient as this could be)
+std::map<int, Star*> Star::MakeStarsMap() // makes lookup table to quickly find stars in grid during CopyToGrid
 {
-  StarLookupMap.clear();
-  return;
-}
-
-void Star::MakeStarsMap() // makes lookup table to quickly find stars in grid during CopyToGrid
-{
-  int starcount = 0;
+  std::map<int, Star*> StarLookupMap;
   Star *cstar;
   Star *ThisStar;
   for (ThisStar = this; ThisStar; ThisStar = ThisStar->NextStar) {
     if ((ThisStar->CurrentGrid != NULL) && (StarLookupMap[ThisStar->Identifier] == NULL)) {
       for (cstar = ThisStar->CurrentGrid->Stars; cstar; cstar = cstar->NextStar) {
         StarLookupMap[cstar->Identifier] = cstar;  // adding Identifiers as keys, stars as values
-        starcount++;
       }
     }
   }
-  printf("finished StarLookupMap, added %d stars\n",starcount);
-  return;
+  return StarLookupMap;
 }
 
-void Star::CopyToGridMap(std::map<int, Star*> FullStarLookupMap)
+void Star::CopyToGridMap(std::map<int, Star*> StarLookupMap)
 {
   Star *cstar;
-  cstar = FullStarLookupMap[Identifier];
-  *cstar = *this;
+  if (CurrentGrid != NULL) {
+    cstar = StarLookupMap[Identifier];
+    *cstar = *this;
+  }
   return;
 }
 

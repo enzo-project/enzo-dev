@@ -145,9 +145,10 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 #ifdef INDIVIDUALSTAR
   if (SkipFeedbackFlag){
 #endif
+  std::map<int, Star*> StarLookupMap;
   if (AllStars) {
     TIMER_START("MakeStarsMap");
-    AllStars->MakeStarsMap();
+    StarLookupMap = AllStars->MakeStarsMap();
     TIMER_STOP("MakeStarsMap");
   }
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
@@ -155,7 +156,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
     cstar->SetFeedbackFlag(TimeNow, dtForThisStar);
     TIMER_START("CopyToGridMap");
-    cstar->CopyToGridMap(AllStars->StarLookupMap);
+    cstar->CopyToGridMap(StarLookupMap);
     TIMER_STOP("CopyToGridMap");
     cstar->MirrorToParticle();
 
@@ -165,7 +166,6 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
 
   }
-  AllStars->ClearStarsMap(); // no longer needed after CopyToGrid
 #ifdef INDIVIDUALSTAR
   }
 #endif

@@ -158,13 +158,13 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   int count = 0;
   int mbh_particle_io_count = 0;
+  std::map<int, Star*> StarLookupMap;
   OutputNow = FALSE;
   if (AllStars) {
     TIMER_START("MakeStarsMap");
-    AllStars->MakeStarsMap();
+    StarLookupMap = AllStars->MakeStarsMap();
     TIMER_STOP("MakeStarsMap");
   }
-  printf("number of stars in AllStars = %d\n",NumberOfStars);
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
@@ -188,7 +188,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     }
     ThisStar->ResetAccretion();
     TIMER_START("CopyToGridMap");
-    ThisStar->CopyToGridMap(AllStars->StarLookupMap);
+    ThisStar->CopyToGridMap(StarLookupMap);
     TIMER_STOP("CopyToGridMap");
     ThisStar->MirrorToParticle();
 
@@ -208,7 +208,6 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     }
 
   } // ENDFOR stars
-  AllStars->ClearStarsMap(); // no longer needed after CopyToGrid
 
   if (PopIIIOutputOnFeedback)
     OutputNow = CommunicationMaxValue(OutputNow);
