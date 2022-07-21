@@ -362,7 +362,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
       }// end for loop over grid */ 
    } // end loop SetupLoopCount
    NumberOfParticles = npart;
-   printf("Number of Particles %d \n", NumberOfParticles);
+   printf("FDMCollapseInitialize: Number of Particles = %d on Processor %d\n", NumberOfParticles, MyProcessorNumber);
 
 
   // turn off quantum pressure, do a pure CDM sim
