@@ -274,7 +274,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
             ParticleType[npart] = PARTICLE_TYPE_DARK_MATTER;
          // Set random position within cell.
 		    theta = acos(2*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5));
-			phi = 2*3.1415927*(FLOAT(rand())/FLOAT(RAND_MAX));
+			phi = 2*M_PI*(FLOAT(rand())/FLOAT(RAND_MAX));
 		    r = cluster_radius*POW(FLOAT(rand())/FLOAT(RAND_MAX),1./3.);
 		    ParticlePosition[0][npart] = 0.5 + r*sin(theta)*cos(phi);
 		    ParticlePosition[1][npart] = 0.5 + r*sin(theta)*sin(phi);
