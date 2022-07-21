@@ -12,7 +12,7 @@
 
 MACH_TEXT  = Niagara
 MACH_VALID = 1
-MACH_FILE  = Make.mach.niagara
+MACH_FILE  = Make.mach.scinet-niagara
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
