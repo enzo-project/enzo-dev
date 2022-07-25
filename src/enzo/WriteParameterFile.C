@@ -314,6 +314,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "PressureFree                   = %"ISYM"\n", PressureFree);
   /* FDM: write FDM parameters */  
   fprintf(fptr, "QuantumPressure                = %"ISYM"\n", QuantumPressure);
+  fprintf(fptr, "FDMCollapseAbsorbingBoundary   = %"ISYM"\n", FDMCollapseAbsorbingBoundary);
   fprintf(fptr, "FDMMass                        = %"FSYM"\n", FDMMass);
 
   fprintf(fptr, "RefineBy                       = %"ISYM"\n", RefineBy);
@@ -555,13 +556,17 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RadiationXRayComptonHeating    = %"ISYM"\n", RadiationXRayComptonHeating);
   fprintf(fptr, "CRModel                        = %"ISYM"\n", CRModel);
   fprintf(fptr, "CRDiffusion                    = %"ISYM"\n", CRDiffusion);
+  fprintf(fptr, "CRHeating                      = %"ISYM"\n", CRHeating);
+  fprintf(fptr, "CRStreaming                    = %"ISYM"\n", CRStreaming);
+  fprintf(fptr, "CRStreamVelocityFactor         = %"FSYM"\n", CRStreamVelocityFactor);
+  fprintf(fptr, "CRStreamStabilityFactor        = %"FSYM"\n", CRStreamStabilityFactor);
   fprintf(fptr, "CRkappa                        = %"FSYM"\n", CRkappa);
   fprintf(fptr, "CRCourantSafetyNumber          = %"FSYM"\n", CRCourantSafetyNumber);
   fprintf(fptr, "CRFeedback                     = %"FSYM"\n", CRFeedback);
   fprintf(fptr, "CRdensFloor                    = %"FSYM"\n", CRdensFloor);
   fprintf(fptr, "CRmaxSoundSpeed                = %"FSYM"\n", CRmaxSoundSpeed);
   fprintf(fptr, "CRgamma                        = %"FSYM"\n", CRgamma);
-  fprintf(fptr, "CosmologySimulationUniformCR   = %"FSYM"\n", CosmologySimulationUniformCR); // FIXME
+  fprintf(fptr, "CosmologySimulationUniformCR   = %"FSYM"\n", CosmologySimulationUniformCR); // FIXME    
   fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);
   fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
   fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);

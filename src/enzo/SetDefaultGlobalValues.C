@@ -470,15 +470,19 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2OpticalDepthApproximation = 1;
   H2FormationOnDust           = FALSE;
   GloverChemistryModel        = 0;                 // 0ff
-  CRModel                     = 0;                 // off
-  CRDiffusion                 = 0;                 // off
+  CRModel                     = 0;                 // off                                                                          
+  CRDiffusion                 = 0;                 // off                                                                          
+  CRHeating                   = 0;                 // off                                                                          
+  CRStreaming                 = 0;                 // off                                                                          
+  CRStreamVelocityFactor      = 1.0;                // Alfven velocity (only relevant when CRStreaming == 1)                        
+  CRStreamStabilityFactor     = 1000.0;             // This should be large and calibrated for each simulation
   CRkappa                     = 0.0;
   CRCourantSafetyNumber       = 0.5;
-  CRFeedback                  = 0.0;               // no stellar feedback into CRs
-  CRdensFloor                 = 0.0;               // off
-  CRmaxSoundSpeed             = 0.0;               // off 
-  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
-  CosmologySimulationUniformCR= 1e-20;             // FIXME
+  CRFeedback                  = 0.0;               // no stellar feedback into CRs                                                 
+  CRdensFloor                 = tiny_number;       // off                                                                          
+  CRmaxSoundSpeed             = 0.0;               // off                                                                          
+  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas                                                  
+  CosmologySimulationUniformCR= 1e-20;             // FIXME   
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;

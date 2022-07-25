@@ -37,7 +37,9 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
 int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
                                     TopGridData &MetaData);
- 
+                                    
+int ParallelFDMCollapseReInitialize(HierarchyEntry *TopGrid,
+                                    TopGridData &MetaData);//FDM collapse, ParallelIo
  
  
 
@@ -81,6 +83,13 @@ int InitializeLocal(int restart, HierarchyEntry &TopGrid, TopGridData &MetaData)
     if (ParallelRootGridIO == TRUE && ProblemType == 60)
       if (TurbulenceSimulationReInitialize(&TopGrid, MetaData) == FAIL) {
 	ENZO_FAIL("Error in TurbulenceSimulationReInitialize.\n");
+      }
+  }
+
+  if (!restart) {
+    if (ParallelRootGridIO == TRUE && ProblemType == 192)
+      if (ParallelFDMCollapseReInitialize(&TopGrid, MetaData) == FAIL) {
+	ENZO_FAIL("Error in ParallelFDMCollapseReInitialize.\n");
       }
   }
 

@@ -11,10 +11,19 @@
 /  RETURNS: FAIL or SUCCESS
 /
 ************************************************************************/
+#ifdef USE_MPI
+#include "mpi.h"
+#ifdef USE_MPE
+#include "mpe.h"
+#endif /* USE_MPE */
+#endif /* USE_MPI */
 
+#include <hdf5.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
+
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -23,11 +32,16 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "phys_constants.h"
+#include "fortran.def"
+#include "flowdefs.h"
+#include "error.h"
 #include "CosmologyParameters.h"
 
-#define NTHETA 1000
-#define NR 1000
+void my_exit(int status);
+ 
+#ifdef PROTO /* Remove troublesome HDF PROTO declaration. */
+#undef PROTO
+#endif
 
 /********************* PROTOTYPES *********************/
 int ReadFile(char *name, int Rank, int Dims[], int StartIndex[],
@@ -49,12 +63,64 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 /*******************************************************/
 #define READFILE ReadFile
 
-int grid::FDMCollapseInitializeGrid(int UseParticles, float ParticleMeanDensity)
+int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName, 
+                                    char *FDMCollapseImPsiName,
+                                    char *FDMCollapseAbsBdName,
+                                    int FDMUseParticles,
+                                    float FDMParticleMeanDensity,
+                                    int FDMCollapseSubgridsAreStatic,
+                                    int TotalRefinement)
 {
   /* declarations */
+  int idim, dim, vel, ibx;
+  int DeNum;
+ 
+  int ExtraField[2];
+ 
+  inits_type *tempbuffer = NULL;
+ 
+  FILE *log_fptr;
+ 
+#ifdef IO_LOG
+  int         io_log = 1;
+#else
+  int         io_log = 0;
+#endif
 
-  int dim, i, j, k, m, field, sphere, size, iden;
-  int RePsiNum, ImPsiNum, FDMDensNum;
+  char pid[MAX_TASK_TAG_SIZE];
+  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
+ 
+  char *logname = new char[MAX_NAME_LENGTH];
+  strcpy(logname, "TSlog.");
+  strcat(logname,pid);
+ 
+  if (io_log) {
+    log_fptr = fopen(logname, "a");
+    fprintf(log_fptr, "\n");
+    fprintf(log_fptr, "TSIG ParallelRootGridIO = %"ISYM"\n", ParallelRootGridIO);
+    fprintf(log_fptr, "Processor %"ISYM", Target processor %"ISYM"\n",
+        MyProcessorNumber, ProcessorNumber);
+    fprintf(log_fptr, "TotalRefinement = %"ISYM"\n", TotalRefinement);
+  }
+
+  /* Determine if the data should be loaded in or not. */
+ 
+  int ReadData = TRUE, Offset[] = {0,0,0};
+ 
+  if (ParallelRootGridIO == TRUE && TotalRefinement == 1)
+    ReadData = FALSE;
+ 
+  if (io_log) fprintf(log_fptr, "ReadData = %"ISYM"\n", ReadData);
+
+    /* Calculate buffer Offset (same as Grid unless doing ParallelRootGridIO
+     (TotalRefinement = -1 if used as a signal that we should really load
+     in the data regardless of the value of ParallelRootGridIO). */
+ 
+  if (ParallelRootGridIO == TRUE && TotalRefinement == -1)
+    for (dim = 0; dim < GridRank; dim++)
+      Offset[dim] = nint((GridLeftEdge[dim] - DomainLeftEdge[dim])/CellWidth[dim][0]);
+
+  int i, j, k, m, field, sphere, size, iden;
   float xdist,ydist,zdist;
 
   /* create fields */
@@ -70,13 +136,79 @@ int grid::FDMCollapseInitializeGrid(int UseParticles, float ParticleMeanDensity)
   if (GridRank > 2)
     FieldType[NumberOfBaryonFields++] = Velocity3;
 
-  FieldType[RePsiNum = NumberOfBaryonFields++] = RePsi;
-  FieldType[ImPsiNum = NumberOfBaryonFields++] = ImPsi;
-  FieldType[FDMDensNum = NumberOfBaryonFields++] = FDMDensity;
+  FieldType[NumberOfBaryonFields++] = RePsi;
+  FieldType[NumberOfBaryonFields++] = ImPsi;
+  FieldType[NumberOfBaryonFields++] = FDMDensity;
   
   //printf("%d \n", NumberOfBaryonFields);
-  if( WritePotential  )
+  if(WritePotential)
     FieldType[NumberOfBaryonFields++] = GravPotential;
+
+  /* Set the subgrid static flag. */
+ 
+  SubgridsAreStatic = FDMCollapseSubgridsAreStatic;
+
+  if (ProcessorNumber == MyProcessorNumber) {
+ 
+  /* Skip following if NumberOfBaryonFields == 0. */
+ 
+  if (NumberOfBaryonFields > 0) {
+
+      int DensNum = -1, GENum = -1, Vel1Num = -1, 
+                         Vel2Num=-1, Vel3Num=-1, TENum=-1,
+                         B1Num=-1, B2Num=-1, B3Num=-1, PhiNum=-1;
+      IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, 
+                           Vel2Num, Vel3Num, TENum,
+                           B1Num, B2Num, B3Num, PhiNum);
+      
+      int RePsiNum = -1, ImPsiNum=-1, FDMDensNum=-1;
+      
+      RePsiNum = FindField(RePsi, FieldType, NumberOfBaryonFields);
+      ImPsiNum = FindField(ImPsi, FieldType, NumberOfBaryonFields);
+      FDMDensNum = FindField(FDMDensity, FieldType, NumberOfBaryonFields);
+
+    /* Determine the size of the fields. */
+ 
+    int size = 1;
+ 
+    for (dim = 0; dim < GridRank; dim++)
+      size *= GridDimension[dim];
+ 
+    /* Allocate space for the fields. */
+ 
+    if (ReadData == TRUE) {
+      this->AllocateGrids();
+    }
+    
+    if (FDMCollapseAbsBdName !=NULL && ReadData){
+      if (ReadFile(FDMCollapseAbsBdName, GridRank, GridDimension,
+              GridStartIndex, GridEndIndex, Offset, BaryonField[0],
+              &tempbuffer, 0, 1) == FAIL) {
+        ENZO_FAIL("Error reading density field.\n");
+      }
+    }
+
+    if (FDMCollapseRePsiName != NULL && ReadData){
+      if (ReadFile(FDMCollapseRePsiName, GridRank, GridDimension,
+              GridStartIndex, GridEndIndex, Offset, BaryonField[RePsiNum],
+              &tempbuffer, 0, 1) == FAIL) {
+        ENZO_FAIL("Error reading real part of wave function.\n");
+      }
+    }
+  
+    if (FDMCollapseImPsiName != NULL && ReadData){
+      if (ReadFile(FDMCollapseImPsiName, GridRank, GridDimension,
+              GridStartIndex, GridEndIndex, Offset, BaryonField[ImPsiNum],
+              &tempbuffer, 0, 1) == FAIL) {
+        ENZO_FAIL("Error reading imaginary part of wave function.\n");
+      }
+    }
+
+  } // end: if (NumberOfBaryonFields > 0)
+  } // end: if (ProcessorNumber == MyProcessorNumber)
+  OldTime = Time;
+ 
+  if (io_log) fclose(log_fptr);
 
   /* Set various units. */
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
@@ -98,45 +230,8 @@ int grid::FDMCollapseInitializeGrid(int UseParticles, float ParticleMeanDensity)
 	a = 1.0;
   }
 
-// Determine the size of the fields
- 
-  size = 1;
- 
-  for (dim = 0; dim < GridRank; dim++)
-        size *= GridDimension[dim];
-  int ReadData = TRUE, Offset[] = {0,0,0};
-  inits_type *tempbuffer = NULL;
-  
-// Allocate Fields
-  for (int field = 0; field < NumberOfBaryonFields; field++)
-    BaryonField[field] = new float[size];
-
- double afloat = double(a);
- double hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits/afloat,2)/FDMMass;
-
-if(FDMCollapseAbsorbingBoundary){
-// Read Density, use it as the absorption coefficient on the boundary
-  if (READFILE("GridDensity", GridRank, GridDimension,
-         GridStartIndex, GridEndIndex, Offset, BaryonField[0],
-         &tempbuffer, 0, 1) == FAIL) {
-    ENZO_FAIL("Error reading density.\n");}
-}
-
-// Read wavefunction
-  if (READFILE("GridRePsi", GridRank, GridDimension,
-         GridStartIndex, GridEndIndex, Offset, BaryonField[RePsiNum],
-         &tempbuffer, 0, 1) == FAIL) {
-    ENZO_FAIL("Error reading real part of wave function.\n");}
-  
-  if (READFILE("GridImPsi", GridRank, GridDimension,
-         GridStartIndex, GridEndIndex, Offset, BaryonField[ImPsiNum],
-         &tempbuffer, 0, 1) == FAIL) {
-    ENZO_FAIL("Error reading imaginary part of wave function.\n");
-    }    
-  for (i=0; i<size; i++){
-    BaryonField[FDMDensNum][i] = BaryonField[RePsiNum][i] * BaryonField[RePsiNum][i] + BaryonField[ImPsiNum][i] * BaryonField[ImPsiNum][i];
-  }
- // }
+  double afloat = double(a);
+  double hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits/afloat,2)/FDMMass;
 
   // If use particle, initial particles according to the FDM values and turn off QuantumPressure
   int CollapseTestParticleCount = 0;
@@ -145,19 +240,19 @@ if(FDMCollapseAbsorbingBoundary){
   int ind, indxp, indxn, indyp, indyn, indzp, indzn;
   int ip,in,jp,jn,kp,kn;
   double x,y,z,vx,vy,vz;
-  double cluster_size = kpc_cm/LengthUnits;
+  double r,theta,phi;
+  double cluster_radius = 200*3e18/LengthUnits;
 
-  if (UseParticles > 0){
+  if (FDMUseParticles > 0){
     if (ProcessorNumber != MyProcessorNumber) {
-      NumberOfParticles = (UseParticles > 0) ? 1 : 0;
+      NumberOfParticles = (FDMUseParticles > 0) ? 1 : 0;
     for (dim = 0; dim < GridRank; dim++)
       NumberOfParticles *= (GridEndIndex[dim] - GridStartIndex[dim] + 1);
     return SUCCESS;
     }
 
-
-      fprintf(stderr, "initialize particles \n" );
-    for (SetupLoopCount = 0; SetupLoopCount < 1+min(UseParticles, 1); SetupLoopCount++) {
+    fprintf(stdout, "FDMCollapse: initialize particles on processor %d \n", MyProcessorNumber);
+    for (SetupLoopCount = 0; SetupLoopCount < 1+min(FDMUseParticles, 1); SetupLoopCount++) {
      if (SetupLoopCount > 0) {
       /* If particles already exist (coarse particles), then delete. */
         if (NumberOfParticles > 0) this->DeleteParticles();
@@ -169,21 +264,23 @@ if(FDMCollapseAbsorbingBoundary){
       /* Particle values will be set below. */
       }
 	// set some test particles
-	ParticleCount = 10000;
+	ParticleCount = 1000;
 
 	// set many particles
 	while (ParticleCount > 0) {
         if (SetupLoopCount > 0) {
-		    ParticleMass[npart] = ParticleMeanDensity;
+		    ParticleMass[npart] = FDMParticleMeanDensity;
 	        ParticleNumber[npart] = CollapseTestParticleCount++;
             ParticleType[npart] = PARTICLE_TYPE_DARK_MATTER;
          // Set random position within cell.
-		    double theta = 3.1415927/6./1000*npart;
-		    ParticlePosition[0][npart] = 0.5 + cluster_size*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
-		    ParticlePosition[1][npart] = 0.5 + cluster_size*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
-		    ParticlePosition[2][npart] = 0.5 + cluster_size*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
+		    theta = acos(2*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5));
+			phi = 2*M_PI*(FLOAT(rand())/FLOAT(RAND_MAX));
+		    r = cluster_radius*POW(FLOAT(rand())/FLOAT(RAND_MAX),1./3.);
+		    ParticlePosition[0][npart] = 0.5 + r*sin(theta)*cos(phi);
+		    ParticlePosition[1][npart] = 0.5 + r*sin(theta)*sin(phi);
+		    ParticlePosition[2][npart] = 0.5 + r*cos(theta);
 			ParticleVelocity[0][npart] = 0.0;//-2.5e6/(LengthUnits/TimeUnits)*sin(theta);
-			ParticleVelocity[1][npart] = 0.0;// hmcoef*8*3.1415927;//2.0e6 /(LengthUnits/TimeUnits);//*cos(theta);
+			ParticleVelocity[1][npart] = 0.0;//2.0e6 /(LengthUnits/TimeUnits);//*cos(theta);
 			ParticleVelocity[2][npart] = 0.0;
 		}
 		ParticleCount--;
@@ -265,7 +362,8 @@ if(FDMCollapseAbsorbingBoundary){
       }// end for loop over grid */ 
    } // end loop SetupLoopCount
    NumberOfParticles = npart;
-   printf("Number of Particles %d \n", NumberOfParticles);
+   printf("FDMCollapseInitialize: Number of Particles = %d on Processor %d\n", NumberOfParticles, MyProcessorNumber);
+
 
   // turn off quantum pressure, do a pure CDM sim
   // QuantumPressure = 0;

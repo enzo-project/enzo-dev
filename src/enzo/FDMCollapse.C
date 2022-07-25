@@ -59,6 +59,9 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
   const char *RePsiName = "Re_Psi"; 
   const char *ImPsiName = "Im_Psi"; 
   const char *FDMDensName = "FDMDensity"; 
+  const char *GravPotName = "GravPotential";
+  int CollapseTestUseParticles    = FALSE;
+  float CollapseTestParticleMeanDensity = FLOAT_UNDEFINED;
 
   /* declarations */
 
@@ -67,10 +70,27 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
 
   /* set up grid */
 
-  if (TopGrid.GridData->FDMCollapseInitializeGrid() == FAIL) {
+  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
+    ret = 0;
+
+    /* read parameters */
+
+    ret += sscanf(line, "CollapseTestUseParticles = %"ISYM, 
+		  &CollapseTestUseParticles);
+    ret += sscanf(line, "CollapseTestParticleMeanDensity = %"FSYM,
+		  &CollapseTestParticleMeanDensity);
+      
+    /* if the line is suspicious, issue a warning */
+
+    if (ret == 0 && strstr(line, "=") && strstr(line, "CollapseTest") 
+	&& line[0] != '#')
+      fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
+
+  } 
+
+  if (TopGrid.GridData->FDMCollapseInitializeGrid(CollapseTestUseParticles, CollapseTestParticleMeanDensity) == FAIL) {
     ENZO_FAIL("Error in FDMCollapseInitializeGrid.");
   }
-
 
   /* set up field names and units */
 
@@ -81,11 +101,12 @@ int FDMCollapseInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = (char*) Vel2Name;
   DataLabel[count++] = (char*) Vel3Name;
 
-  if (QuantumPressure) {
-    DataLabel[count++] = (char*) RePsiName;
-    DataLabel[count++] = (char*) ImPsiName;
-    DataLabel[count++] = (char*) FDMDensName;
-  }
+  DataLabel[count++] = (char*) RePsiName;
+  DataLabel[count++] = (char*) ImPsiName;
+  DataLabel[count++] = (char*) FDMDensName;
+  
+  if(WritePotential)
+	DataLabel[count++] = (char*) GravPotName;
 
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;
