@@ -79,7 +79,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
       } // ENDELSE
     }
 
-    else {
+    else if (PopIIIRotating == 1 || PopIIIRotating == 2) {
       if (_mass > 5 && _mass < 9) {
         Q[0] = pow(10.0, 39.29 + 8.55*x);
         Q[1] = pow(10.0, 29.24 + 18.49*x);
