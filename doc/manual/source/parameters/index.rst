@@ -2338,6 +2338,12 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
     Above this density, a Pop III "color" particle forms, and it will populate the surrounding region with a color field.  Units: mean density. Default: 1e6
 ``PopIIIColorMass`` (external)
     A Pop III "color" particle will populate the surrounding region with a mass of PopIIIColorMass.  Units: solar masses.  Default: 1e6
+``PopIIIRotating`` (external)
+    Updates ionizing photon rates to the rotational and non-rotational rates given by Murphy et al. (2021). Default: 0
+
+    0 - Model is off, Schaerer (2002) photon rates are used.
+    1 - Rotating model is on
+    2 - Non-rotating model is on
 
 .. _radiative_star_cluster_formation_parameters:
 

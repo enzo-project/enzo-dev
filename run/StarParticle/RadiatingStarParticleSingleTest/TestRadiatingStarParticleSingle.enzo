@@ -6,7 +6,7 @@
 ProblemType            = 251        // TestRadiatingStarParaticle
 TopGridRank            = 3
 TopGridDimensions      = 50 50 50
-StarParticleFeedback   = 16384 // Population III Stars
+StarParticleFeedback   = 8 // Population III Stars
 TestStarParticleDensity = 1.0
 TestStarParticleEnergy  = 6.55410093179e-06
 TestProblemInitialMetallicityFraction  =  2e-3

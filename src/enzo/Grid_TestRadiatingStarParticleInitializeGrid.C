@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  GRID CLASS (INITIALIZE THE GRID FOR A RADIATING STAR PARTICLE TEST)
+/  GRID CLASS (INITIALIZE THE GRID FOR A RADIATING POP III STAR PARTICLE TEST)
 /
 /  written by: Greg Bryan
 /  date:       June, 2012
@@ -39,7 +39,7 @@ double ph_Ang(double a1, double a2, double R, double r);
 // Returns random velocity from Maxwellian distribution
 double ph_Maxwellian(double c_tilda, double vel_unit, double mu, double gamma);
 
-static int PhotonTestParticleCount = 0;
+static int TestStarParticleParticleCount = 0;
 
 int grid::TestRadiatingStarParticleInitializeGrid(float TestStarParticleStarMass, 
 					 float *Initialdt,
@@ -50,12 +50,12 @@ int grid::TestRadiatingStarParticleInitializeGrid(float TestStarParticleStarMass
            float TestStarParticleVelocity[],
            float TestStarParticleBField[],
            float InitialTemperature,
-           float PhotonTestInitialFractionHII, 
-			     float PhotonTestInitialFractionHeII,
-			     float PhotonTestInitialFractionHeIII, 
-			     float PhotonTestInitialFractionHM,
-			     float PhotonTestInitialFractionH2I, 
-			     float PhotonTestInitialFractionH2II)
+           float TestStarParticleInitialFractionHII, 
+			     float TestStarParticleInitialFractionHeII,
+			     float TestStarParticleInitialFractionHeIII, 
+			     float TestStarParticleInitialFractionHM,
+			     float TestStarParticleInitialFractionH2I, 
+			     float TestStarParticleInitialFractionH2II)
 {
   /* declarations */
 
@@ -277,15 +277,15 @@ int grid::TestRadiatingStarParticleInitializeGrid(float TestStarParticleStarMass
 	  if (HII_field != NULL)
 	    HII_Fraction = HII_field[cindex];
 	  else
-	    HII_Fraction = PhotonTestInitialFractionHII;
+	    HII_Fraction = TestStarParticleInitialFractionHII;
 	  if (HeII_field != NULL)
 	    HeII_Fraction = HeII_field[cindex];
 	  else
-	    HeII_Fraction = PhotonTestInitialFractionHeII;
+	    HeII_Fraction = TestStarParticleInitialFractionHeII;
 	  if (HeIII_field != NULL)
 	    HeIII_Fraction = HeIII_field[cindex];
 	  else
-	    HeIII_Fraction = PhotonTestInitialFractionHeIII;
+	    HeIII_Fraction = TestStarParticleInitialFractionHeIII;
 	  if (Temperature_field != NULL)
 	    temperature = temp1 = Temperature_field[cindex];
 	  else

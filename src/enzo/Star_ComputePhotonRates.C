@@ -64,44 +64,55 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     E[2] = 58.0;
     E[3] = 12.8;
     _mass = max(min((float)(_mass), 500), 5);
-    if (_mass > 5 && _mass < 9) {
-      Q[0] = pow(10.0, 39.29 + 8.55*x);
-      Q[1] = pow(10.0, 29.24 + 18.49*x);
-      Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
-      Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
+
+    if (PopIIIRotating = 0) {
+      if (_mass > 9 && _mass <= 500) {
+        Q[0] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);
+        Q[1] = pow(10.0, 42.51 + 5.69*x  - 1.01*x2);
+        Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
+        Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
+      } else if (_mass > 5 && _mass <= 9) {
+        Q[0] = pow(10.0, 39.29 + 8.55*x);
+        Q[1] = pow(10.0, 29.24 + 18.49*x);
+        Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
+        Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
+      } // ENDELSE
     }
-    else if (_mass >= 9 && _mass <= 120) {
-      if (PopIII_Rotating == 1) {
-        if (_age <= 0.8){
-          Q[0] = pow(10.0, CalculateRotationalPhotonRates(_mass, _age, 0));
-          Q[1] = pow(10.0, CalculateRotationalPhotonRates(_mass, _age, 1));
-          Q[2] = pow(10.0, CalculateRotationalPhotonRates(_mass, _age, 2));
-        }
-        else {
-          Q[0] = pow(10.0, CalculateRotationalPhotonRates(_mass, 0.8, 0));
-          Q[1] = pow(10.0, CalculateRotationalPhotonRates(_mass, 0.8, 1));
-          Q[2] = pow(10.0, CalculateRotationalPhotonRates(_mass, 0.8, 2));
-        }
+
+    else {
+      if (_mass > 5 && _mass < 9) {
+        Q[0] = pow(10.0, 39.29 + 8.55*x);
+        Q[1] = pow(10.0, 29.24 + 18.49*x);
+        Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
+        Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
       }
-      else {
-        if (_age <= 0.8){
-          Q[0] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, _age, 0));
-          Q[1] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, _age, 1));
-          Q[2] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, _age, 2));
+      else if (_mass >= 9 && _mass <= 120) {
+        if (PopIIIRotating == 1) {
+          if (_age <= 0.8){
+            Q[0] = pow(10.0, CalculateRotationalPhotonRates(_mass, _age, 0));
+            Q[1] = pow(10.0, CalculateRotationalPhotonRates(_mass, _age, 1));
+            Q[2] = pow(10.0, CalculateRotationalPhotonRates(_mass, _age, 2));
+          }
+          else {
+            Q[0] = pow(10.0, CalculateRotationalPhotonRates(_mass, 0.8, 0));
+            Q[1] = pow(10.0, CalculateRotationalPhotonRates(_mass, 0.8, 1));
+            Q[2] = pow(10.0, CalculateRotationalPhotonRates(_mass, 0.8, 2));
+          }
         }
-        else {
-          Q[0] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, 0.8, 0));
-          Q[1] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, 0.8, 1));
-          Q[2] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, 0.8, 2));
+        else if (PopIIIRotating == 2) {
+          if (_age <= 0.8){
+            Q[0] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, _age, 0));
+            Q[1] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, _age, 1));
+            Q[2] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, _age, 2));
+          }
+          else {
+            Q[0] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, 0.8, 0));
+            Q[1] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, 0.8, 1));
+            Q[2] = pow(10.0, CalculateNonRotationalPhotonRates(_mass, 0.8, 2));
+          }
         }
+        Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
       }
-      Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
-    }
-    else if (_mass > 120 && _mass < 500) {
-      Q[0] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);
-      Q[1] = pow(10.0, 42.51 + 5.69*x  - 1.01*x2);
-      Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
-      Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
     }
     else {
       for (i = 0; i < nbins; i++) Q[i] = 0.0;

@@ -1280,7 +1280,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr,"MagneticSupernovaDuration = %"GSYM"\n",MagneticSupernovaDuration);
 
   /* Rotating PopIII Stars Model */
-  fprintf(fptr, "PopIII_Rotating = %"ISYM"\n", PopIII_Rotating);
+  fprintf(fptr, "PopIIIRotating = %"ISYM"\n", PopIIIRotating);
 
   /* Output current time */
   time_t ID;

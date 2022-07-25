@@ -8,7 +8,7 @@
 /  date:      July, 2022
 /
 /  PURPOSE:
-/    Initialize a radiating star particle test in a uniform medium. 
+/    Initialize a radiating Pop III star particle test in a uniform medium. 
 /    Based on the Single Star Particle Test and Photon Test.
 /
 /  RETURNS: SUCCESS or FAIL
@@ -32,12 +32,12 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 
-static float PhotonTestInitialFractionHII   = 1.2e-5;
-static float PhotonTestInitialFractionHeII  = 1.0e-14;
-static float PhotonTestInitialFractionHeIII = 1.0e-17;
-static float PhotonTestInitialFractionHM    = 2.0e-9;
-static float PhotonTestInitialFractionH2I   = 2.0e-20;
-static float PhotonTestInitialFractionH2II  = 3.0e-14;
+static float TestStarParticleInitialFractionHII   = 1.2e-5;
+static float TestStarParticleInitialFractionHeII  = 1.0e-14;
+static float TestStarParticleInitialFractionHeIII = 1.0e-17;
+static float TestStarParticleInitialFractionHM    = 2.0e-9;
+static float TestStarParticleInitialFractionH2I   = 2.0e-20;
+static float TestStarParticleInitialFractionH2II  = 3.0e-14;
 
 int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData,float *Initialdt)
@@ -94,7 +94,7 @@ int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
   float TestStarParticleStarMass    = 100.0;
   int TestProblemUseMetallicityField = 1;
   float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
-  float PhotonTestInitialTemperature = 1000;  
+  float TestStarParticleInitialTemperature = 1000;  
 
 
 
@@ -158,10 +158,10 @@ int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
              TestStarParticleEnergy, 
              TestStarParticleVelocity,
              TestStarParticleBField,
-             PhotonTestInitialTemperature,
-             PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
-	          PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
-	          PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II) == FAIL)
+             TestStarParticleInitialTemperature,
+             TestStarParticleInitialFractionHII, TestStarParticleInitialFractionHeII,
+	          TestStarParticleInitialFractionHeIII, TestStarParticleInitialFractionHM,
+	          TestStarParticleInitialFractionH2I, TestStarParticleInitialFractionH2II) == FAIL)
   ENZO_FAIL("Error in TestRadiatingStarParticleInitializeGrid.\n");
 
   /* set up field names and units */

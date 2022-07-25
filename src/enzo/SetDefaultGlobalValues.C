@@ -1055,7 +1055,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MagneticSupernovaEnergy = 1.0e51;    // Total energy (ergs) injected per star particle (supernova)
 
   /* Rotating Pop III Stars Model */
-  PopIII_Rotating = 0; // 0 = off
+  PopIIIRotating = 0; // 0 = off; 1 = rotating; 2 = non-rotating
 
   return SUCCESS;
 }

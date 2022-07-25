@@ -2101,12 +2101,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                float UniformVelocity[],
                float UniformBField[],
                float InitialTemperature,
-               float PhotonTestInitialFractionHII, 
-			     float PhotonTestInitialFractionHeII,
-			     float PhotonTestInitialFractionHeIII, 
-			     float PhotonTestInitialFractionHM,
-			     float PhotonTestInitialFractionH2I, 
-			     float PhotonTestInitialFractionH2II);
+               float TestStarParticleInitialFractionHII, 
+			     float TestStarParticleInitialFractionHeII,
+			     float TestStarParticleInitialFractionHeIII, 
+			     float TestStarParticleInitialFractionHM,
+			     float TestStarParticleInitialFractionH2I, 
+			     float TestStarParticleInitialFractionH2II);
 
 /* Gravity Test: initialize grid. */
 

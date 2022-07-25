@@ -1374,7 +1374,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line,"MagneticSupernovaDuration = %"FSYM, &MagneticSupernovaDuration);
 
     // Rotating Pop III Models
-    ret += sscanf(line, "PopIII_Rotating  = %"ISYM, &PopIII_Rotating);
+    ret += sscanf(line, "PopIIIRotating  = %"ISYM, &PopIIIRotating);
 
     /* If the dummy char space was used, then make another. */
 
