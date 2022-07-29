@@ -89,8 +89,6 @@ int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
 			     TopGridData &MetaData);
 int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData, float *Initialdt);
-int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
-			       TopGridData &MetaData, float *Initialdt);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -201,6 +199,8 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
 int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid,
 			      TopGridData &MetaData, int local);
+int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			       TopGridData &MetaData, float *Initialdt);
 #endif /* TRANSFER */
 
 
@@ -765,10 +765,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   // Insert new problem intializer here...
   
-  // 251) Test a star particle explosion
-  if (ProblemType == 251)
+  // 252) Test a star particle explosion
+  #ifdef TRANSFER
+  if (ProblemType == 252)
     ret = TestRadiatingStarParticleInitialize(fptr, Outfptr, TopGrid, MetaData, 
 				     Initialdt);
+  #endif /* TRANSFER */
   
   if (ret == INT_UNDEFINED) {
     ENZO_VFAIL("Problem Type %"ISYM" undefined.\n", ProblemType)

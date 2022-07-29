@@ -42,7 +42,7 @@ static float TestStarParticleInitialFractionH2II  = 3.0e-14;
 int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData,float *Initialdt)
 {
-  const char *DensName = "Density";  /* make const */ 
+  const char *DensName = "Density";   
   const char *TEName   = "TotalEnergy";
   const char *GEName   = "GasEnergy";
   const char *Vel1Name = "x-velocity";
@@ -90,11 +90,10 @@ int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
   float TestStarParticleVelocity[3] = {0.0, 0.0, 0.0};
   FLOAT TestStarParticleStarVelocity[3] = {0.0, 0.0, 0.0};
   FLOAT TestStarParticleStarPosition[3] = {0.5, 0.5, 0.5};
-  float TestStarParticleBField[3]   = {0.0, 0.0, 0.0};
+   float TestStarParticleBField[3]   = {0.0, 0.0, 0.0};
   float TestStarParticleStarMass    = 100.0;
   int TestProblemUseMetallicityField = 1;
   float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
-  float TestStarParticleInitialTemperature = 1000;  
 
 
 
@@ -105,7 +104,7 @@ int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
 
   /* read input from file */
 
-
+  rewind(fptr);
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
     ret = 0;
@@ -131,12 +130,12 @@ int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
     ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
     ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction); 
 
-    ret += sscanf(line, "TestProblemInitialHIFraction  = %"FSYM, &TestProblemData.HI_Fraction);
-    ret += sscanf(line, "TestProblemInitialHIIFraction  = %"FSYM, &TestProblemData.HII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIFraction  = %"FSYM, &TestProblemData.HeI_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIIFraction  = %"FSYM, &TestProblemData.HeII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIIIIFraction  = %"FSYM, &TestProblemData.HeIII_Fraction);
-    ret += sscanf(line, "TestProblemHydrogenFractionByMass = %"FSYM, &TestProblemData.HydrogenFractionByMass);
+    //ret += sscanf(line, "TestProblemInitialHIFraction  = %"FSYM, &TestProblemData.HI_Fraction);
+    //ret += sscanf(line, "TestProblemInitialHIIFraction  = %"FSYM, &TestProblemData.HII_Fraction);
+    //ret += sscanf(line, "TestProblemInitialHeIFraction  = %"FSYM, &TestProblemData.HeI_Fraction);
+    ////ret += sscanf(line, "TestProblemInitialHeIIFraction  = %"FSYM, &TestProblemData.HeII_Fraction);
+    //ret += sscanf(line, "TestProblemInitialHeIIIIFraction  = %"FSYM, &TestProblemData.HeIII_Fraction);
+    //ret += sscanf(line, "TestProblemHydrogenFractionByMass = %"FSYM, &TestProblemData.HydrogenFractionByMass);
 
 
     /* if the line is suspicious, issue a warning */
@@ -156,12 +155,7 @@ int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
 				     TestStarParticleStarPosition,
              TestStarParticleDensity,
              TestStarParticleEnergy, 
-             TestStarParticleVelocity,
-             TestStarParticleBField,
-             TestStarParticleInitialTemperature,
-             TestStarParticleInitialFractionHII, TestStarParticleInitialFractionHeII,
-	          TestStarParticleInitialFractionHeIII, TestStarParticleInitialFractionHM,
-	          TestStarParticleInitialFractionH2I, TestStarParticleInitialFractionH2II) == FAIL)
+             TestStarParticleVelocity) == FAIL)
   ENZO_FAIL("Error in TestRadiatingStarParticleInitializeGrid.\n");
 
   /* set up field names and units */
@@ -174,7 +168,7 @@ int TestRadiatingStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
   DataLabel[count++] = (char*) Vel1Name;
   DataLabel[count++] = (char*) Vel2Name;
   DataLabel[count++] = (char*) Vel3Name;
-  if (TestProblemData.MultiSpecies){
+  if (MultiSpecies){
     DataLabel[count++] = (char*) ElectronName;
     DataLabel[count++] = (char*) HIName;
     DataLabel[count++] = (char*) HIIName;

@@ -3,18 +3,20 @@
 #
 #  define problem
 #
-ProblemType            = 251        // TestRadiatingStarParaticle
+ProblemType            = 252        // TestRadiatingStarParaticle
 TopGridRank            = 3
 TopGridDimensions      = 50 50 50
 StarParticleFeedback   = 8 // Population III Stars
 TestStarParticleDensity = 1.0
-TestStarParticleEnergy  = 6.55410093179e-06
-TestProblemInitialMetallicityFraction  =  2e-3
-TestStarParticleStarMass = 20.0
+TestStarParticleEnergy  = 6e-10
+TestStarParticleStarPosition = .5 .5 .5
+TestStarParticleStarVelocity = 0 0 0
+#TestProblemInitialMetallicityFraction  =  2e-3
+TestStarParticleStarMass = 20.0 // Doesn't immediately work since this is a PopIII star
 StarEnergyToThermalFeedback = 5.59e-6
 StarMassEjectionFraction = 0.25
 StarFeedbackKineticFraction = 0.3
-StarMakerExplosionDelayTime = 0.0
+StarMakerExplosionDelayTime = 0.5 // Lifetime of star
 OutputTemperature = 1
 OutputCoolingTime = 1
 Initialdt = 0.0010017410642
@@ -44,8 +46,12 @@ Gamma = 1.6666667
 #
 StaticHierarchy           = 1    // static hierarchy
 RefineBy                  = 2    // refinement factor
+MaximumRefinementLevel    = 0
+CellFlaggingMethod        = 2
+
 #
 # Radiation
+RadiativeTransfer = 1
 RadiativeTransferRaysPerCell              = 5.100000
 RadiativeTransferInitialHEALPixLevel    = 1
 RadiativeTransferHydrogenOnly           = 0
@@ -55,16 +61,14 @@ RadiativeTransferAdaptiveTimestep       = 1
 RadiativeTransferRadiationPressure      = 1
 RadiativeTransferPhotonMergeRadius      = 3.0
 RadiativeTransferSourceClustering       = 1
-
+RadiativeCooling 			= 1
 #
-RadiativeTransfer = 1
-
 MaximumRefinementLevel    = 0
 CellFlaggingMethod        = 0
 #
 # Cooling
 MultiSpecies = 1
-RadiativeCooling  =  0
+#RadiativeCooling  =  0
 #MultiSpecies  =  1
 #MetalCooling  =  3
 #CloudyCoolingGridFile  =  solar_2008_3D_metals.h5
@@ -74,6 +78,7 @@ RadiativeCooling  =  0
 #TestProblemHydrogenFractionByMass  =  0.75
 #TestProblemInitialMetallicityFraction  =  2e-3
 #TestProblemInitialHIFraction  =  0.998
+#TestProblemInitialHIIFraction
 #TestProblemInitialHeIFraction  =  1.0
 #TestProblemInitialHeIIFraction  =  1.0e-20
 #TestProblemInitialHeIIIIFraction  =  1.0e-20
@@ -81,12 +86,13 @@ RadiativeCooling  =  0
 #  set some misc global parameters
 #
 
-MixSpeciesAndColors = 1
-PopIIISupernovaUseColour = 1
+#MixSpeciesAndColors = 1
+#PopIIISupernovaUseColour = 1
+#PopIIIHeliumIonization                = 1
 
 
 #
 #  Rotating Pop III Stars 
 #
 
-PopIII_Rotating = 1
+PopIIIRotating = 0

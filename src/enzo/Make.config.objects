@@ -655,7 +655,6 @@ OBJS_CONFIG_LIB = \
         Grid_TestGravitySphereInitializeGrid.o \
         Grid_TestOrbitInitializeGrid.o \
 	Grid_TestStarParticleInitializeGrid.o \
-        Grid_TestRadiatingStarParticleInitializeGrid.o \
         Grid_TracerParticleCreateParticles.o \
         Grid_TracerParticleOutputData.o \
         Grid_TracerParticleSetVelocity.o \
@@ -944,7 +943,6 @@ OBJS_CONFIG_LIB = \
         TestGravitySphereInitialize.o \
         TestOrbitInitialize.o \
 	TestStarParticleInitialize.o \
-        TestRadiatingStarParticleInitialize.o \
         TracerParticleCreation.o \
 	TransposeRegionOverlap.o \
         tscint1d.o \
@@ -1107,6 +1105,7 @@ POBJS_CONFIG_LIB = \
         Grid_SetSubgridMarkerFromSubgrid.o \
         Grid_SubgridMarkerPostParallel.o \
         Grid_Shine.o \
+        Grid_TestRadiatingStarParticleInitializeGrid.o \
         Grid_TransportPhotonPackages.o \
         Grid_WalkPhotonPackage.o \
         LinkedListRoutines.o \
@@ -1138,6 +1137,7 @@ POBJS_CONFIG_LIB = \
         StarParticleRadTransfer.o \
         TemperatureFieldToolsForComptonHeating.o \
 	TemperatureFieldToolsH2Shielding.o \
+        TestRadiatingStarParticleInitialize.o \
 	WritePhotonSources.o
 
 OBJS_HYDRO_RK = \

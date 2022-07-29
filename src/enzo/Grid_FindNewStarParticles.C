@@ -65,8 +65,10 @@ int grid::FindNewStarParticles(int level)
 	   calls to the IMF. */
 
 	if (ParticleType[i] == -PARTICLE_TYPE_SINGLE_STAR)
-	  if (PopIIIInitialMassFunction == FALSE)
+	  if (PopIIIInitialMassFunction == FALSE){
+		  if (ProblemType != 252)
 	    NewStar->AssignFinalMass(PopIIIStarMass);
+	  }
 	if (ParticleType[i] == -PARTICLE_TYPE_SIMPLE_SOURCE) 
 	  NewStar->AssignFinalMass(PopIIIStarMass);
 	InsertStarAfter(Stars, NewStar);
