@@ -187,9 +187,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       ThisStar->SetType( ABS(ThisStar->ReturnType()) );
     }
     ThisStar->ResetAccretion();
-    TIMER_START("CopyToGridMap");
-    ThisStar->CopyToGridMap(StarLookupMap);
-    TIMER_STOP("CopyToGridMap");
+    TIMER_START("StarParticleFinalize:CopyToGridMap");
+    ThisStar->CopyToGridMap(&StarLookupMap);
+    TIMER_STOP("StarParticleFinalize:CopyToGridMap");
     ThisStar->MirrorToParticle();
 
     // The pointers have been copied to the grid copy above, so we can

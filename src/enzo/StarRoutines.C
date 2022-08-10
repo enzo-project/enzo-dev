@@ -576,11 +576,11 @@ std::map<int, Star*> Star::MakeStarsMap() // makes lookup table to quickly find 
   return StarLookupMap;
 }
 
-void Star::CopyToGridMap(std::map<int, Star*> StarLookupMap)
+void Star::CopyToGridMap(std::map<int, Star*>* const &StarLookupMap)
 {
   Star *cstar;
   if (CurrentGrid != NULL) {
-    cstar = StarLookupMap[Identifier];
+    cstar = (*StarLookupMap)[Identifier];
     *cstar = *this;
   }
   return;

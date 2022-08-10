@@ -155,9 +155,9 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     float dtForThisStar   = LevelArray[ThisLevel]->GridData->ReturnTimeStep();
 
     cstar->SetFeedbackFlag(TimeNow, dtForThisStar);
-    TIMER_START("CopyToGridMap");
-    cstar->CopyToGridMap(StarLookupMap);
-    TIMER_STOP("CopyToGridMap");
+    TIMER_START("StarParticleInitialize:CopyToGridMap");
+    cstar->CopyToGridMap(&StarLookupMap);
+    TIMER_STOP("StarParticleInitialize:CopyToGridMap");
     cstar->MirrorToParticle();
 
     if(STARMAKE_METHOD(INDIVIDUAL_STAR))

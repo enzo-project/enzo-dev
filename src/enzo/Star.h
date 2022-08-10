@@ -194,7 +194,7 @@ public:
   void	DeleteCopyInGrid(void);
   int   DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[]);
   std::map<int, Star*> MakeStarsMap(void);
-  void  CopyToGridMap(std::map<int, Star*> FullStarLookupMap);
+  void  CopyToGridMap(std::map<int, Star*>* const &StarLookupMap);
   void	CopyToGrid(void);
   void  MirrorToParticle(void);
   bool  IsARadiationSource(FLOAT Time);
