@@ -429,9 +429,8 @@ int grid::ComputeAccelerationFieldExternal()
             ydisk=ypos-zheight*AngularMomentumy;
             zdisk=zpos-zheight*AngularMomentumz;
 
-            // Put zheight into cgs for easier calculation of acceleration
+            // Put distances into cgs for easier calculation of acceleration
             zheight *= LengthUnits;
-
             radius = sqrt(rsquared) * LengthUnits;
             rcyl = sqrt(xdisk*xdisk + ydisk*ydisk + zdisk*zdisk) * LengthUnits;
             
@@ -439,8 +438,8 @@ int grid::ComputeAccelerationFieldExternal()
                         *(log((Rs+radius)/Rs) - radius/(Rs+radius));
             accelsph += (GravConst)*MBulge/POW(radius+rBulge,2);
 
-            accelcylR = GravConst*MSDisk*rcyl/sqrt(POW(POW(rcyl,2) // was rcyl converted to cgs? Yes; line 433
-                      + POW(SDiskScaleHeightR+sqrt(POW(zheight,2) // are xpos etc already converted?
+            accelcylR = GravConst*MSDisk*rcyl/sqrt(POW(POW(rcyl,2)
+                      + POW(SDiskScaleHeightR+sqrt(POW(zheight,2)
                       + POW(SDiskScaleHeightz,2)),2),3));
 
             accelcylz = GravConst*MSDisk/sqrt(POW(zheight,2)

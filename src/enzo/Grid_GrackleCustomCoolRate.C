@@ -105,12 +105,14 @@ int grid::GrackleCustomCoolRate(int rank, int *dim, float *cool_rate,
   g_grid_start = new Eint32[3];
   g_grid_end = new Eint32[3];
 
-  // Fortran code will act as if there are 3 dimensions regardless
+  // Fortran code will act as if there are 3 dimensions regardless...
   for (i = 0; i < rank; i++) {
     g_grid_dimension[i] = (Eint32) dim[i];
     g_grid_start[i] = (Eint32) 0;
     g_grid_end[i] = (Eint32) dim[i]-1;
   }
+  // ...so for any unused dimensions, set quantities to 0.
+  // will do nothing if rank == 2 (3-dimensional problem)
   for (i = rank; i < 3; i++){
     g_grid_dimension[i] = (Eint32) 0;
     g_grid_start[i] = (Eint32) 0;
