@@ -6,12 +6,14 @@ c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine star_maker2(nx, ny, nz,
-     &                      d, dm, temp, u, v, w, cooltime,
+     &                      d, dm, temp, u, v, w, h2, cooltime,
      &                      dt, r, metal, dx, t, z, procnum, 
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, tindsf, mintdyn,
-     &                      odthresh, masseff, smthresh, usejeans,
+     &                      veldivcrit, selfboundcrit, thermalcrit, 
+     &                      usejeans, h2crit,
+     &                      odthresh, masseff, smthresh, tempthresh,
      &                      level, np, 
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
@@ -54,12 +56,19 @@ c    nx,ny,nz - dimensions of field arrays
 c    ibuff    - number of buffer zones at each end of grid
 c    imethod  - Hydro method (0/1 -- PPM DE/LR, 2 - ZEUS)
 c    tindsf   - if true, remove dt/t_dyn term in starfraction
+c    veldivcrit - if true, require converging gas velocity
+c    selfboundcrit - if true, require gas in a cell to be gravitationally bound
+c    thermalcrit - if true, require the gas to be rapidly cooling or have a
+c                  temperature lower than tempthresh
+C    usejeans - use jeans mass check
+c    h2crit - if true, require the H2 fraction to be sufficiently high
+c    tempthresh - maximum gas temperature for star formation if thermalcrit is
+c                 true
 c    odthresh - overdensity threshold (some number * avg. density)
 c    masseff - gas-to-mass conversion efficiency ( 0<=masseff<=1 )
 c    smthresh - star mass threshold (only creates stars with mass >
 c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
-c    usejeans - use jeans mass check 
 c    level - current level of refinement
 c    procnum - processor number (for output)
 c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
@@ -86,9 +95,10 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC imetalSNIa, procnum, tindsf, usejeans
+      INTG_PREC imetalSNIa, procnum, tindsf
+      INTG_PREC usejeans, veldivcrit, selfboundcrit, thermalcrit, h2crit
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
-      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz), h2(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
       R_PREC    metalSNIa(nx,ny,nz)
       R_PREC    dt, dx, z
@@ -98,7 +108,7 @@ c
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax),
      &     metalfSNIa(nmax)
-      R_PREC    odthresh, masseff, smthresh, mintdyn
+      R_PREC    odthresh, masseff, smthresh, mintdyn, tempthresh
 c
       R_PREC   sformsum
       save   sformsum
@@ -108,6 +118,10 @@ c  Locals:
 c
       INTG_PREC  i, j, k, ii
       R_PREC   div, tdyn, dtot
+      R_PREC   dvx, dvy, dvz
+      R_PREC   divvel2, curlvel2
+      R_PREC   alpha, betaprime
+      R_PREC   thish2frac, h2mass
       R_PREC   sndspdC
       R_PREC   isosndsp2, starmass, starfraction, bmass, jeanmass
       parameter (sndspdC=1.3095e8_RKIND)
@@ -126,6 +140,7 @@ c
       do k=1+ibuff,nz-ibuff
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
+               thish2frac = 1
 c
 c              1) is this finest level of refinement?
 c
@@ -139,25 +154,30 @@ c              3) is divergence negative?
 c                 (the first calculation is face centered for ZEUS, 
 c                  the second is cell-centered for PPM)
 c
-               if (imethod .eq. 2) then
-                  div = u(i+1,j  ,k  ) - u(i,j,k)
-     &                + v(i  ,j+1,k  ) - v(i,j,k)
-     &                + w(i  ,j  ,k+1) - w(i,j,k)
-               else
-                  div = u(i+1,j  ,k  ) - u(i-1,j  ,k  )
-     &                + v(i  ,j+1,k  ) - v(i  ,j-1,k  )
-     &                + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
+               if (veldivcrit .eq. 1) then
+                  if (imethod .eq. 2) then
+                     div = u(i+1,j  ,k  ) - u(i,j,k)
+     &                   + v(i  ,j+1,k  ) - v(i,j,k)
+     &                   + w(i  ,j  ,k+1) - w(i,j,k)
+                  else
+                     div = u(i+1,j  ,k  ) - u(i-1,j  ,k  )
+     &                   + v(i  ,j+1,k  ) - v(i  ,j-1,k  )
+     &                   + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
+                  endif
+
+                  if (div .ge. 0._RKIND) goto 10
                endif
-               if (div .ge. 0._RKIND) goto 10
 c
-c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
+c              4) t_cool < t_free-fall (if T < TempThresh skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
                tdyn  = sqrt(3._RKIND*pi_val/32._RKIND/
      &                      GravConst/dtot)/t1
 
-               if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1e4_RKIND) goto 10
+               if (thermalcrit .eq. 1) then
+                  if (tdyn .lt. cooltime(i,j,k) .and. 
+     &                temp(i,j,k) .gt. tempthresh) goto 10
+               endif
 c
 c              5) is M > M_Jeans? (this definition involves only baryons under
 c                 the assumption that the dark matter is stable, which
@@ -176,7 +196,25 @@ c
                   if (bmass .lt. jeanmass) goto 10
                endif
 c
-c              6) Check to see if star is above threshold (given
+c              6) gravitationally self-bound? (from Hopkins et al 2013 eq 3)
+c
+               if (selfboundcrit .eq. 1) then
+                  divvel2 = div * div / (dx * dx)
+                  curlvel2 = 2 / (dx*dx) * (dvx*dvx + dvy*dvy + dvz*dvz
+     &                                    - dvy*dvz - dvx*dvz - dvy*dvx)
+                  alpha = betaprime * (divvel2+curlvel2) / (GravConst*d(i,j,k))
+                  if (alpha .ge. 1) goto 10
+               endif
+c
+c              7) have enough H2?
+c
+               if (h2crit .eq. 1) then
+                  h2mass = h2(i,j,k) * d(i,j,k) * d1 * dx**3 / SolarMass
+                  if (h2mass .lt. smthresh) goto 10
+                  thish2frac = h2(i,j,k)
+               endif
+c
+c              8) Check to see if star is above threshold (given
 c                 in units of M_solar)
 c
 
@@ -219,7 +257,7 @@ c
 c              Create a star particle
 c
                ii = ii + 1
-               mp(ii)  = starfraction * d(i,j,k)
+               mp(ii)  = starfraction * thish2frac * d(i,j,k)
                tcp(ii) = t
                tdp(ii) = tdyn
                xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx

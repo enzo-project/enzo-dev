@@ -13,6 +13,7 @@
 ************************************************************************/
 
 #include "CloudyCoolingData.h"
+#include "EquilibriumTable.h"
 #include "CoolData.h"
 #include "RateData.h"
 #include "RadiationFieldData.h"

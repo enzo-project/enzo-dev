@@ -346,27 +346,27 @@ int grid::ComputeAccelerationFieldExternal()
 
 /*-----------------------------------------------------------------------
  *     DiskGravity
- *     Reference: Burkert 1995, Mori & Burkert 2000
+ *     Dark Matter: NFW
  *------------------------------------------------------------------------*/
 
   if (DiskGravity > 0) {
 
     double accel, radius, rsquared, xpos, ypos = 0, zpos = 0, rcore,rcyl;
     FLOAT dadt, a = 1;
-    float AngularMomentumx, AngularMomentumy, AngularMomentumz;
-    float MSDisk, SDiskScaleHeightR, SDiskScaleHeightz, MBulge, rBulge,
-      rDMConst, densDMConst;
+    double AngularMomentumx, AngularMomentumy, AngularMomentumz;
+    double MSDisk, SDiskScaleHeightR, SDiskScaleHeightz, MBulge, rBulge,
+      DMMass, DMCon;
 
     AngularMomentumx = DiskGravityAngularMomentum[0];
     AngularMomentumy = DiskGravityAngularMomentum[1];
     AngularMomentumz = DiskGravityAngularMomentum[2];
-    MSDisk = DiskGravityStellarDiskMass;
-    SDiskScaleHeightR = DiskGravityStellarDiskScaleHeightR;
-    SDiskScaleHeightz = DiskGravityStellarDiskScaleHeightz;
-    MBulge = DiskGravityStellarBulgeMass;
-    rBulge = DiskGravityStellarBulgeR;
-    rDMConst = DiskGravityDarkMatterR;
-    densDMConst = DiskGravityDarkMatterDensity;
+    MSDisk = DiskGravityStellarDiskMass * SolarMass;
+    SDiskScaleHeightR = DiskGravityStellarDiskScaleHeightR * Mpc_cm;
+    SDiskScaleHeightz = DiskGravityStellarDiskScaleHeightz * Mpc_cm;
+    MBulge = DiskGravityStellarBulgeMass * SolarMass;
+    rBulge = DiskGravityStellarBulgeR * Mpc_cm;
+    DMMass = DiskGravityDarkMatterMass * SolarMass;
+    DMCon = DiskGravityDarkMatterConcentration;
 
     /* Compute adot/a at time = t+1/2dt (time-centered). */
     float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
@@ -382,6 +382,12 @@ int grid::ComputeAccelerationFieldExternal()
 
     GetUnits(&DensityUnits,&LengthUnits,&TemperatureUnits,&TimeUnits, &VelocityUnits,&MassUnits,Time);
     AccelUnits = LengthUnits/TimeUnits/TimeUnits;
+
+    double Rvir, rho_0, Rs;
+    double rho_crit = 1.8788e-29*0.49;
+    Rvir = POW(3.0/(4.0*pi)*200/(DMMass*rho_crit),1./3.);  // virial radius in CGS
+    Rs = Rvir/DMCon;  // scale radius of NFW halo in CGS
+    rho_0 = 200.0*POW(DMCon,3)/3.0/(log(1.0+DMCon) - DMCon/(1.0+DMCon))*rho_crit;  // rho_0 for NFW halo in CGS
 
     /* Loop over grid, adding acceleration to field. */
     for (dim = 0; dim < GridRank; dim++) {
@@ -408,57 +414,57 @@ int grid::ComputeAccelerationFieldExternal()
 
             rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
 
-            double accelsph, accelcylR, accelcylz, zheight, xpos1, ypos1, zpos1;
+            double accelsph, accelcylR, accelcylz, zheight, xdisk, ydisk, zdisk;
 
             /* Compute z and r_perp (AngularMomentum is angular momentum 
              * and must have unit length). */
 
             /* magnitude of z = r.L in L direction */
 
-            zheight=AngularMomentumx*xpos + AngularMomentumy*ypos + AngularMomentumz*zpos;
+            zheight = AngularMomentumx*xpos + AngularMomentumy*ypos + AngularMomentumz*zpos;
 
-            /* position in plane of disk */
+            /* position in plane of disk in code units */
 
-            xpos1=xpos-zheight*AngularMomentumx;
-            ypos1=ypos-zheight*AngularMomentumy;
-            zpos1=zpos-zheight*AngularMomentumz;
+            xdisk=xpos-zheight*AngularMomentumx;
+            ydisk=ypos-zheight*AngularMomentumy;
+            zdisk=zpos-zheight*AngularMomentumz;
 
-            radius = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1 + zheight*zheight);
-            rcyl = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1);
-            radius = radius*LengthUnits;
-            rcyl = rcyl*LengthUnits;
-            accelsph = (GravConst)*MBulge*SolarMass/POW(radius+rBulge*Mpc_cm,2)
-                     + pi*GravConst*densDMConst*POW(rDMConst*Mpc_cm,3)/POW(radius,2)
-                       *(-2.0*atan(radius/rDMConst/Mpc_cm)
-                         +2.0*log(1.0+radius/rDMConst/Mpc_cm)
-                         +log(1.0+POW(radius/rDMConst/Mpc_cm,2))
-                        );
-            accelcylR = GravConst*MSDisk*SolarMass*rcyl/sqrt(POW(POW(rcyl,2)
-                      + POW(SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
-                      + POW(SDiskScaleHeightz*Mpc_cm,2)),2),3));
-            accelcylz = GravConst*MSDisk*SolarMass/sqrt(POW(zheight*LengthUnits,2)
-                      + POW(SDiskScaleHeightz*Mpc_cm,2))*zheight*LengthUnits/sqrt(POW(POW(rcyl,2)
-                      + POW(SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
-                      + POW(SDiskScaleHeightz*Mpc_cm,2)),2),3))
-                        *(  SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
-                          + POW(SDiskScaleHeightz*Mpc_cm,2))
-                         )/AccelUnits;
+            // Put distances into cgs for easier calculation of acceleration
+            zheight *= LengthUnits;
+            radius = sqrt(rsquared) * LengthUnits;
+            rcyl = sqrt(xdisk*xdisk + ydisk*ydisk + zdisk*zdisk) * LengthUnits;
+            
+            accelsph = GravConst * 4.0*pi*rho_0*POW(Rs,3.0)
+                        *(log((Rs+radius)/Rs) - radius/(Rs+radius));
+            accelsph += (GravConst)*MBulge/POW(radius+rBulge,2);
+
+            accelcylR = GravConst*MSDisk*rcyl/sqrt(POW(POW(rcyl,2)
+                      + POW(SDiskScaleHeightR+sqrt(POW(zheight,2)
+                      + POW(SDiskScaleHeightz,2)),2),3));
+
+            accelcylz = GravConst*MSDisk/sqrt(POW(zheight,2)
+                      + POW(SDiskScaleHeightz,2))*zheight/sqrt(POW(POW(rcyl,2)
+                      + POW(SDiskScaleHeightR+sqrt(POW(zheight,2)
+                      + POW(SDiskScaleHeightz,2)),2),3))
+                        *(  SDiskScaleHeightR+sqrt(POW(zheight,2)
+                          + POW(SDiskScaleHeightz,2))
+                         );
 
              accelsph  = (radius ==0.0?0.0:fabs(accelsph )/(radius/LengthUnits)/AccelUnits);
              accelcylR = (rcyl   ==0.0?0.0:fabs(accelcylR)/(rcyl/LengthUnits)/AccelUnits);
-             accelcylz = (zheight==0.0?0.0:fabs(accelcylz)*zheight/fabs(zheight));
+             accelcylz = (zheight==0.0?0.0:fabs(accelcylz)*zheight/fabs(zheight)/AccelUnits);
 
              if (dim == 0)
                AccelerationField[0][n] -= (   accelsph*xpos
-                                            + accelcylR*xpos1
+                                            + accelcylR*xdisk
                                             + accelcylz*AngularMomentumx);
              if (dim == 1)
                AccelerationField[1][n] -= (  accelsph*ypos
-                                            + accelcylR*ypos1
+                                            + accelcylR*ydisk
                                             + accelcylz*AngularMomentumy);
              if (dim == 2)
                AccelerationField[2][n] -= (   accelsph*zpos
-                                            + accelcylR*zpos1
+                                            + accelcylR*zdisk
                                             + accelcylz*AngularMomentumz);
 
           }
@@ -483,53 +489,53 @@ int grid::ComputeAccelerationFieldExternal()
         // model after grid loops
         rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
 
-        double accelsph, accelcylR, accelcylz, zheight, xpos1, ypos1, zpos1;
+        double accelsph, accelcylR, accelcylz, zheight, xdisk, ydisk, zdisk;
 
         // compute z and r_perp
 
         zheight = AngularMomentumx*xpos + AngularMomentumy*ypos + AngularMomentumz*zpos;
 
-        // position in plane of disk
-        xpos1 = xpos - zheight*AngularMomentumx;
-        ypos1 = ypos - zheight*AngularMomentumy;
-        zpos1 = zpos - zheight*AngularMomentumz;
+        // position in plane of disk in code units
+        xdisk = xpos - zheight*AngularMomentumx;
+        ydisk = ypos - zheight*AngularMomentumy;
+        zdisk = zpos - zheight*AngularMomentumz;
+
+        // Put zheight into cgs for easier calculation of acceleration
+        zheight *= LengthUnits;
 
         // again, copied from grid loops above
-        radius = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1 + zheight*zheight);
-        rcyl   = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1);
-        radius = radius*LengthUnits;
-        rcyl   = rcyl*LengthUnits;
+        radius = sqrt(rsquared) * LengthUnits;
+        rcyl = sqrt(xdisk*xdisk + ydisk*ydisk + zdisk*zdisk) * LengthUnits;
+        
+        accelsph = GravConst * 4.0*pi*rho_0*POW(Rs,3.0)
+                        *(log((Rs+radius)/Rs) - radius/(Rs+radius));
+        accelsph += (GravConst)*MBulge/POW(radius+rBulge,2);
 
-        accelsph = (GravConst)*MBulge*SolarMass/POW(radius+rBulge*Mpc_cm,2)
-                 + pi*GravConst*densDMConst*POW(rDMConst*Mpc_cm,3)/POW(radius,2)
-                 * (-2.0*atan(radius/rDMConst/Mpc_cm)
-                    +2.0*log(1.0+radius/rDMConst/Mpc_cm)
-                    +log(1.0+POW(radius/rDMConst/Mpc_cm,2))
-                   );
-        accelcylR = GravConst*MSDisk*SolarMass*rcyl/sqrt(POW(POW(rcyl,2)
-                  + POW(SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
-                  + POW(SDiskScaleHeightz*Mpc_cm,2)),2),3));
-        accelcylz = GravConst*MSDisk*SolarMass/sqrt(POW(zheight*LengthUnits,2)
-                  + POW(SDiskScaleHeightz*Mpc_cm,2))*zheight*LengthUnits/sqrt(POW(POW(rcyl,2)
-                  + POW(SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
-                  + POW(SDiskScaleHeightz*Mpc_cm,2)),2),3))
-                    *(  SDiskScaleHeightR*Mpc_cm+sqrt(POW(zheight*LengthUnits,2)
-                      + POW(SDiskScaleHeightz*Mpc_cm,2))
-                     )/AccelUnits;
+        accelcylR = GravConst*MSDisk*rcyl/sqrt(POW(POW(rcyl,2)
+                  + POW(SDiskScaleHeightR+sqrt(POW(zheight,2)
+                  + POW(SDiskScaleHeightz,2)),2),3));
 
-        accelsph  = (radius ==0.0?0.0:fabs(accelsph )/(radius/LengthUnits)/AccelUnits);
-        accelcylR = (rcyl   ==0.0?0.0:fabs(accelcylR)/(rcyl/LengthUnits)/AccelUnits);
-        accelcylz = (zheight==0.0?0.0:fabs(accelcylz)*zheight/fabs(zheight));
+        accelcylz = GravConst*MSDisk/sqrt(POW(zheight,2)
+                  + POW(SDiskScaleHeightz,2))*zheight/sqrt(POW(POW(rcyl,2)
+                  + POW(SDiskScaleHeightR+sqrt(POW(zheight,2)
+                  + POW(SDiskScaleHeightz,2)),2),3))
+                    *(  SDiskScaleHeightR+sqrt(POW(zheight,2)
+                      + POW(SDiskScaleHeightz,2))
+                     );
+
+         accelsph  = (radius ==0.0?0.0:fabs(accelsph )/(radius/LengthUnits)/AccelUnits);
+         accelcylR = (rcyl   ==0.0?0.0:fabs(accelcylR)/(rcyl/LengthUnits)/AccelUnits);
+         accelcylz = (zheight==0.0?0.0:fabs(accelcylz)*zheight/fabs(zheight)/AccelUnits);
 
 
         ParticleAcceleration[0][i] -= (   accelsph*xpos
-                                        + accelcylR*xpos1
+                                        + accelcylR*xdisk
                                         + accelcylz*AngularMomentumx);
         ParticleAcceleration[1][i] -= (   accelsph*ypos
-                                        + accelcylR*ypos1
+                                        + accelcylR*ydisk
                                         + accelcylz*AngularMomentumy);
         ParticleAcceleration[2][i] -= (   accelsph*zpos
-                                        + accelcylR*zpos1
+                                        + accelcylR*zdisk
                                         + accelcylz*AngularMomentumz);
 
 

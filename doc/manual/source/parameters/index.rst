@@ -1306,7 +1306,11 @@ added to the acceleration field for the baryons and particles.
     Default: 1
 ``DiskGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a
-    disk-like gravity field (Berkert 1995; Mori & Burkert 2000).  Default: 0
+    disk-like gravity field. The stellar disk potential follows 
+    Miyamoto & Nagai 1975. A spherical stellar bulge component
+    and an NFW dark matter potential can also be specified.
+    Designed to work with the GalaxySimulation problem type.
+    Default: 0
 ``DiskGravityPosition`` (external)
     This indicates the position of the center of the disk gravity.
     Default: 0 0 0
@@ -2058,7 +2062,7 @@ General Star Formation
 ::
 
       0  - Cen & Ostriker (1992)
-      1  - Cen & Ostriker (1992) with stocastic star formation
+      1  - Cen & Ostriker (1992) with stocastic star formation & no Jeans mass check
       2  - Global Schmidt Law / Kravstov et al. (2003)
       3  - Population III stars / Abel, Wise & Bryan (2007)
       4  - Sink particles: Pure sink particle or star particle with wind feedback depending on 
@@ -2103,8 +2107,32 @@ General Star Formation
     star formation. When spatial resolution gets high enough to
     resolve the Jeans length, the Jeans Mass check restricts star
     formation that should occur. Only implemented for
-    ``StarParticleCreation`` method = 1 (e.g. ``star_marker_2``).
+    ``StarParticleCreation`` method = 0.
     Default: 1.
+
+``StarMakerVelDivCrit`` (external)
+    Check that the gas flow is converging; 
+    i.e., that the velocity divergence is negative.
+    Only implemented for ``StarParticleCreation`` method = 0.
+    Default: 1.
+
+``StarMakerSelfBoundCrit`` (external)
+    Check that the gas is gravitationally self-bound following Equation 3
+    in Hopkins et al. 2013. Only implemented for ``StarParticleCreation`` method = 0.
+    Default: 0.
+
+``StarMakerThermalCrit`` (external)
+    Check that the gas is either cool enough or cooling fast enough to form a star.
+    The former compares the gas cooling time to the dynamical time. The latter
+    checks the gas temperature against ``StarMakerTemperatureThreshold``.
+    Only implemented for ``StarParticleCreation`` method = 0.
+    Default: 1.
+
+``StarMakerH2Crit`` (external)
+    Form stars based on the H2 mass (rather than total mass).
+    Based on Hopkins et al. 2013. This option is only implemented for 
+    ``StarParticleCreation`` method = 0 and is different from method 11.
+    Default: 0   
 
 ``StarMakerTypeIaSNe`` (external)
     This parameter turns on thermal and chemical feedback from Type Ia
@@ -2154,7 +2182,8 @@ The parameters below are considered in ``StarParticleCreation`` method
 ``StarMakerSHDensityThreshold`` (external)
     The critical density of gas used in Springel & Hernquist star
     formation ( \\rho_{th} in the paper) used to determine the star
-    formation timescale in units of g cm\ :sup:`-3`\ . Only valid for ``StarParticleCreation`` method = 8. Default: 7e-26.
+    formation timescale in units of g cm\ :sup:`-3`\ . Only valid for 
+    ``StarParticleCreation`` method = 8. Default: 7e-26.
 ``StarMakerMassEfficiency`` (external)
     The fraction of identified baryonic mass in a cell
     (Mass\*dt/t_dyn) that is converted into a star particle. Default:
@@ -2184,6 +2213,11 @@ The parameters below are considered in ``StarParticleCreation`` method
     much heat being transferred out of hot gas.  When running a cosmological 
     simulation with conduction and star formation, one must use this otherwise 
     bad things will happen.  (1 - ON; 0 - OFF)  Default: 0.
+``StarMakerTemperatureThreshold``
+    Vary the temperature threshold in Kelvin for star formation (method 2). 
+    Below this temperature, the comparison between the cooling and dynamical
+    times is ignored when testing for star formation.
+    Default: 1.1e4
 ``StarMassEjectionFraction`` (external)
     The mass fraction of created stars which is returned to the gas
     phase. Default: 0.25
@@ -2215,29 +2249,63 @@ The parameters below are considered in ``StarParticleCreation`` method
     to a negative value, energy, mass and metals are injected gradually in the same way as is
     done for ``StarParticleFeedback`` method = 1.  Default -1.
 ``StarMakerMinimumMassRamp`` (external)
-     Sets the Minimum Stellar Mass (otherwise given by StarMakerMinimumMass to 
+     Sets the Minimum Stellar Mass (otherwise given by ``StarMakerMinimumMass`` to 
      ramp up over time, so that a small mass can be used early in the calculation
      and a higher mass later on, or vice versa. The minimum mass is "ramped" 
-     up or down starting at StarMakerMinimumMassRampStartTime and ending 
-     at StarMakerMinimumMassRampEndTime. The acceptable values are: 
+     up or down starting at ``StarMakerMinimumMassRampStartTime`` and ending 
+     at ``StarMakerMinimumMassRampEndTime``. The acceptable values are: 
      (1) linear evolution of mass in time
      (2) linear evolution of mass in redshift
      (3) exponential evolution of mass in time
      (4) exponential evolution of mass in redshift
+     Default: 0 (off)
 ``StarMakerMinimumMassRampStartTime`` (external) 
      The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
      Before this time the minimum mass will have a constant value given 
-     by StarMakerMinimumMassRampStartMass
+     by ``StarMakerMinimumMassRampStartMass``
+     Default: None
 ``StarMakerMinimumMassRampEndTime`` (external) 
      The code unit time, or redshift, to start the ramp of the StarMakerMinimumMass
      After this time the minimum mass will have a constant value given 
-     by StarMakerMinimumMassRampEndMass
+     by ``StarMakerMinimumMassRampEndMass``
+     Default: None
 ``StarMakerMinimumMassRampStartMass`` (external) 
      The mass at which to start the ramp in the minimum stellar mass. This mass 
-     will be used at all times before StarMakerMinimumMassRampStartTime as well. 
+     will be used at all times before ``StarMakerMinimumMassRampStartTime`` as well.
+     Default: None
 ``StarMakerMinimumMassRampEndMass`` (external) 
      The mass at which to end the ramp in the minimum stellar mass. This mass 
-     will be used at all times after StarMakerMinimumMassRampEndTime as well. 
+     will be used at all times after ``StarMakerMinimumMassRampEndTime`` as well.
+     Default: None
+``StarMakerThermalEfficiencyRamp`` (external)
+     Sets the feedback thermal efficiency (otherwise given by ``StarMakerThermalEfficiency`` to 
+     ramp up over time, so that a small efficiency can be used early in the calculation
+     and a higher efficiency later on, or vice versa. The efficiency is "ramped" 
+     up or down starting at ``StarMakerThermalEfficiencyRampStartTime`` and ending 
+     at ``StarMakerThermalEfficiencyRampEndTime``. The acceptable values are: 
+     (1) linear evolution of mass in time
+     (2) linear evolution of mass in redshift
+     (3) exponential evolution of mass in time
+     (4) exponential evolution of mass in redshift
+     Default: 0 (off)
+``StarMakerThermalEfficiencyRampStartTime`` (external) 
+     The efficiency to start the ramp of the ``StarMakerThermalEfficiency``
+     Before this time the efficiency will have a constant value given 
+     by ``StarMakerThermalEfficiencyRampStartValue``
+     Default: None
+``StarMakerThermalEfficiencyRampEndTime`` (external) 
+     The efficiency to end the ramp of the ``StarMakerThermalEfficiency``
+     After this time the efficiency will have a constant value given 
+     by ``StarMakerThermalEfficiencyRampEndValue``
+     Default: None
+``StarMakerThermalEfficiencyRampStartValue`` (external) 
+     The efficiency at which to start the ramp in the thermal feedback efficiency. This efficiency 
+     will be used at all times before ``StarMakerThermalEfficiencyRampStartTime`` as well. 
+     Default: None
+``StarMakerThermalEfficiencyRampEndValue`` (external) 
+     The efficiency at which to start the ramp in the thermal feedback efficiency. This efficiency 
+     will be used at all times after ``StarMakerThermalEfficiencyRampEndTime`` as well. 
+     Default: None
 
 .. _molecular_hydrogen_regulated_star_formation_parameters:
 
@@ -4660,7 +4728,7 @@ Test Orbit (29)
      Central mass. Default: 1.0
 ``TestOrbitTestMass`` (external)
      Mass of the test particle. Default: 1.0e-6
-``TestOrbitUseBaryons`` (external
+``TestOrbitUseBaryons`` (external)
      Boolean flag. (not implemented) Default: FALSE
 
 .. _cosmologysimulation_param:
@@ -4813,8 +4881,13 @@ Cosmology Simulation (30)
 Isolated Galaxy Evolution (31)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Initializes an isolated galaxy, as per the Tasker & Bryan series of
-    papers.
+    Initializes an isolated disk galaxy. The disk is isothermal and uses the 
+    smoothed double hyperbolic secant density profile from Tonnesen & Bryan 2009.
+    The circumgalactic medium is controlled with the ``GalaxySimulationGasHalo``
+    parameter subset.
+
+    This problem type can use either the PointSourceGravity or DiskGravity
+    parameters.
 
 
 ``GalaxySimulationRefineAtStart`` (external)
@@ -4828,41 +4901,163 @@ Isolated Galaxy Evolution (31)
     at start. No default value.
 ``GalaxySimulationUseMetallicityField`` (external)
     Turns on (1) or off (0) the metallicity field. Default: 0
-``GalaxySimulationInitialTemperature`` (external)
-    Initial temperature that the gas in the simulation is set to.
-    Default: 1000.0
-``GalaxySimulationUniformVelocity`` (external)
-    Vector that gives the galaxy a uniform velocity in the ambient
-    medium. Default: (0.0, 0.0, 0.0)
-``GalaxySimulationDiskRadius`` (external)
-    Radius (in Mpc) of the galax disk. Default: 0.2
 ``GalaxySimulationGalaxyMass`` (external)
     Dark matter mass of the galaxy, in Msun. Needed to initialize the
-    NFW gravitational potential. Default: 1.0e+12
+    NFW gravitational potential. If ``DiskGravity`` = 1, this parameter
+    will automatically be set to the value of ``DiskGravityDarkMatterMass``
+    to ensure consistency.
+    Default: 1.0e+12
+``GalaxySimulationDarkMatterConcentrationParameter`` (external)
+    NFW dark matter concentration parameter. If ``DiskGravity`` = 1, this parameter
+    will automatically be set to the value of ``DiskGravityDarkMatterConcentration``
+    to ensure consistency. Default: 12.0
 ``GalaxySimulationGasMass`` (external)
     Amount of gas in the galaxy, in Msun. Used to initialize the
     density field in the galactic disk. Default: 4.0e+10
 ``GalaxySimulationDiskPosition`` (external)
     Vector of floats defining the center of the galaxy, in units of the
     box size. Default: (0.5, 0.5, 0.5)
+``GalaxySimulationAngularMomentum`` (external)
+    Unit vector that defines the angular momentum vector of the galaxy
+    (in other words, this and the center position define the plane of
+    the galaxy). This _MUST_ be set! Default: (0.0, 0.0, 0.0)
 ``GalaxySimulationDiskScaleHeightz`` (external)
     Disk scale height, in Mpc. Default: 325e-6
 ``GalaxySimulationDiskScaleHeightR`` (external)
     Disk scale radius, in Mpc. Default: 3500e-6
-``GalaxySimulationDarkMatterConcentrationParameter`` (external)
-    NFW dark matter concentration parameter. Default: 12.0
+``GalaxySimulationDiskRadius`` (external)
+    Maximum radius (in Mpc) of the galaxy disk. No disk density profile
+    will be applied outside this radius, though the bulk of the disk
+    may be much smaller, depending on scale parameters. Default: 0.2
+``GalaxySimulationTruncationRadius`` (external)
+    Radius (in Mpc) at which to cut off the double hyperbolic secant 
+    density profile. The edges of this profile will be smoothed and rounded
+    just before the truncation radius. Default: 0.026 
+``GalaxySimulationDiskDensityCap`` (external)
+    Maximum density for the galaxy disk. Off if 0.
+    Default: 0.0
 ``GalaxySimulationDiskTemperature`` (external)
     Temperature of the gas in the galactic disk. Default: 1.0e+4
+``GalaxySimulationDiskMetallicityEnhancementFactor`` (external)
+    Set the disk metallicity, expressed as a multiple of ``GalaxySimulationGasHaloMetallicity``.
+    Default: 3.0
+``GalaxySimulationGasHalo`` (external)
+    Specify the structure of the ambient gas medium (circumgalactic medium).
+    Any two radial profiles of density,
+    temperature, entropy, and pressure (often via hydrostatic equilibrium) may be
+    used to specify the CGM's density and temperature structure.
+    Default: 0
+
+    ===== =============================
+    Value Profile & Relevant Parameters
+    ===== =============================
+    0     No CGM. Ambient medium is defined via ``GalaxySimulationUniformDensity`` & ``GalaxySimulationInitialTemperature``
+    1     Temperature is a function of radius derived from the virial theorem assuming an NFW profile. Assume hydrostatic equilibrium. Scaled to ``GalaxySimulationGasHaloScaleRadius``.
+    2     Isothermal with temperature ``GalaxySimulationGasHaloTemperature`` and a power-law entropy profile specified with ``GalaxySimulationGasHaloScaleRadius`` and ``GalaxySimulationGasHaloAlpha``. The density is anchored with ``GalaxySimulationGasHaloDensity``.
+    3     As with 2, but the entropy profile has a floor, ``GalaxySimulationGasHaloCoreEntropy``.
+    4     As with 2, but instead of being isothermal, the halo is assumed to be in hydrostatic equilibrium.
+    5     As with 4, but the entropy profile has a floor, ``GalaxySimulationGasHaloCoreEntropy``.
+    6     As with 4, but the entropy profile assumes precipitation-regulation (Voit 2019). This profile _requires_ Grackle. Use ``GalaxySimulationGasHaloRatio``.
+    7     Unused
+    8     Density and entropy following the fits in the Appendix of Voit 2019. For the density, use ``GalaxySimulationGasHaloZeta``, ``GalaxySimulationGasHaloZeta2``, ``GalaxySimulationGasHaloDensity``, and ``GalaxySimulationGasHaloDensity2``. For entropy, use ``GalaxySimulationGasHaloCoreEntropy`` for K:sub:`1` and ``GalaxySimulationGasHaloAlpha``.
+    ===== =============================
+
+``GalaxySimulationUniformDensity`` (external)
+    Gas density (in g/cm:sup:`3`) of the ambient medium if no halo profile is specified 
+    (``GalaxySimulationGasHalo`` = 0).
+    Default: 1.0e-28
+``GalaxySimulationInitialTemperature`` (external)
+    Initial temperature of the ambient medium if no halo profile is specified 
+    (``GalaxySimulationGasHalo`` = 0).
+    Default: 1000.0
+``GalaxySimulationGasHaloDensity`` (external)
+    For ``GalaxySimulationGasHalo`` 1 through 5, this sets the 
+    CGM density (in g/cm:sup:`3`) at the ``GalaxySimulationGasHaloScaleRadius``.
+    For ``GalaxySimulationGasHalo`` = 8, this will specify n:sub:`1` 
+    from Equation 24 in Voit 2019.
+    Default: 1.8e-27
+``GalaxySimulationGasHaloDensity2`` (external)
+    Used with ``GalaxySimulationGasHalo`` = 8 to specify n:sub:`2` 
+    from Equation 24 in Voit 2019.
+    Default: 0.0
+``GalaxySimulationGasHaloTemperature`` (external)
+    For ``GalaxySimulationGasHalo`` 2 and 3, this sets the CGM
+    temperature in Kelvin. A reasonable choice is the virial temperature.
+    For ``GalaxySimulationGasHalo`` 4 and 5, this sets the CGM temperature
+    at ``GalaxySimulationGasHaloScaleRadius``.
+    Default: 1.0e+6
+``GalaxySimulationGasHaloScaleRadius`` (external)
+    The scale radius in Mpc for the CGM entropy profile. Used with
+    ``GalaxySimulationGasHalo`` 1 through 5.
+    Default: 0.001
+``GalaxySimulationGasHaloAlpha`` (external)
+    Power-law index of the CGM entropy profile. Used with
+    ``GalaxySimulationGasHalo`` 2 through 5 and 8.
+    Default: 2.0/3.0
+``GalaxySimulationGasHaloCoreEntropy`` (external)
+    Entropy floor for ``GalaxySimulationGasHalo`` 3 and 5 in keV cm:sup:`2`.
+    For ``GalaxySimulationGasHalo`` 8, it specifies the scale entropy K:sub:`1` in 
+    Equation 23 of Voit 2019.
+    Default: 5.0
+``GalaxySimulationGasHaloRatio`` (external)
+    Used with ``GalaxySimulationGasHalo`` = 6 to specify the target ratio of cooling time 
+    to free-fall in the CGM. The actual ratio will deviate slightly.
+    Default: 10.0
+``GalaxySimulationGasHaloZeta`` (external)
+    Used with ``GalaxySimulationGasHalo`` = 8 to specify zeta:sub:`1` from Equation 24
+    in Voit 2019.
+    Default: 0
+``GalaxySimulationGasHaloZeta2`` (external)
+    Used with ``GalaxySimulationGasHalo`` = 8 to specify zeta:sub:`2` from Equation 24
+    in Voit 2019.
+    Default: 0
+``GalaxySimulationGasHaloMetallicity`` (external)
+    Set the uniform CGM metallicity in units of solar.
+    Default: 0.1
+``GalaxySimulationGasHaloRotation`` (external)
+    Set to 1 (on) to give the CGM an initial azimuthal velocity. 
+    This velocity follows a power law with radius, multiplied by an additional
+    factor sin:sup:`2` (theta) to prevent shear directly above and below the disk.
+    See Kopenhafer, O'Shea, and Voit 2022.
+    Default: 0 (off)
+``GalaxySimulationGasHaloRotationScaleRadius`` (external)
+    Scale radius in kpc for the CGM velocity profile.
+    Default: 10.0
+``GalaxySimulationGasHaloRotationScaleVelocity`` (external)
+    Scale velocity in km/s for the CGM velocity profile.
+    Default: 180.0
+``GalaxySimulationGasHaloRotationIndex`` (external)
+    Power-law index for the CGM's azimuthal velocity profile.
+    Default: 0.0
+``GalaxySimulationUniformVelocity`` (external)
+    Vector that gives the galaxy a uniform velocity in the ambient
+    medium. Default: (0.0, 0.0, 0.0)
+``GalaxySimulationEquilibrateChem`` (external)
+    When disabled (0), the initial chemistry values will set so that all
+    tracked species are neutral. During runtime, the species should adjust to
+    their equilibrium values; however, for simulations with ``GalaxySimulationGasHalo`` > 0,
+    this process may cause crashes as neutral gas is far from equilibrium.
+    When enabled (1), this option allows the chemical species to be initialized 
+    closer to equilibrium by using a pre-computed table. 
+    An example script for creating this table, which uses
+    Grackle, is ``input/gen_equilibrium_table.py``. 
+    _WARNING_ if you wish to use similar machinery for a different problem type,
+    a manual correction to the mean molecular mass may be needed within ``ComputeTemperatureField``
+    or the initial temperature may not write to disk correctly.
+    Default: 0
+``GalaxySimulationEquilibriumFile`` (external)
+    Path to the pre-computed table of equilibrium chemical species.
+    Default filename matches the default output of ``input/gen_equilibrium_table.py``.
+    Default: equilibrium_table_50_027-Zsun.h5
+``GalaxySimulationCR`` (external)
+    Fraction of gas density present in cosmic rays.
+    Default: 0.01
 ``GalaxySimulationInflowTime`` (external)
     Controls inflow of gas into the box. It is strongly suggested that
     you leave this off. Default: -1 (off)
 ``GalaxySimulationInflowDensity`` (external)
     Controls inflow of gas into the box. It is strongly suggested that
     you leave this off. Default: 0.0
-``GalaxySimulationAngularMomentum`` (external)
-    Unit vector that defines the angular momentum vector of the galaxy
-    (in other words, this and the center position define the plane of
-    the galaxy). This _MUST_ be set! Default: (0.0, 0.0, 0.0)
 ``GalaxySimulationRPSWind`` (external)
     This flag turns on the ram pressure stripped (RPS) wind in the
     GalaxySimulation problem and sets the mode.  0 = off, 1 = on with
@@ -4906,6 +5101,7 @@ Isolated Galaxy Evolution (31)
     This is the velocity vector applied to the boundary before the
     wind arrives.
     Default:
+
 
 .. _shearingbox_param:
 

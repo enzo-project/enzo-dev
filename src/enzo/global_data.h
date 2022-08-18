@@ -292,8 +292,8 @@ EXTERN float DiskGravityStellarDiskScaleHeightR;
 EXTERN float DiskGravityStellarDiskScaleHeightz;
 EXTERN float DiskGravityStellarBulgeMass;
 EXTERN float DiskGravityStellarBulgeR;
-EXTERN float DiskGravityDarkMatterR;
-EXTERN float DiskGravityDarkMatterDensity;
+EXTERN float DiskGravityDarkMatterMass;
+EXTERN float DiskGravityDarkMatterConcentration;
 
 /* SelfGravity (TRUE or FALSE) */
 
@@ -366,6 +366,10 @@ EXTERN int use_grackle;
 /* Cloudy cooling parameters and data. */
 
 EXTERN CloudyCoolingDataType CloudyCoolingData;
+
+/* Table of equilibrium chem values for initialization */
+
+EXTERN EquilibriumTableType EquilibriumTable;
 
 /* Gadget Equilibrium cooling on/off flag */
 
