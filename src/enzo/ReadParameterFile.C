@@ -2142,7 +2142,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
   } // if(StarMakerMinimumMassRamp > 0)
 
-
+  /* Ditto for thermal feedback efficiency ramp */
+  if(StarFeedbackThermalEfficiencyRamp > 0){
+    if(StarFeedbackThermalEfficiencyRampStartTime == FLOAT_UNDEFINED ||
+       StarFeedbackThermalEfficiencyRampStartValue == FLOAT_UNDEFINED ||
+       StarFeedbackThermalEfficiencyRampEndTime   == FLOAT_UNDEFINED ||
+       StarFeedbackThermalEfficiencyRampEndValue   == FLOAT_UNDEFINED){
+      fprintf(stderr,"You're using StarFeedbackThermalEfficiencyRamp but need to set ALL of your start and end times and values!\n");
+      my_exit(EXIT_FAILURE);
+    }
+  } // if(StarFeedbackThermalEfficiencyRamp > 0)
 
   return SUCCESS;
 
