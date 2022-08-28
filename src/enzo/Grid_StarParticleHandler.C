@@ -545,7 +545,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Find Multi-species fields. */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum; 
-  if (STARMAKE_METHOD(H2REG_STAR))
+  if (STARMAKE_METHOD(H2REG_STAR) || STARMAKE_METHOD(MECHANICAL))
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");

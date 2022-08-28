@@ -39,7 +39,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     bool use_F2 = true; // use FIRE-2 methods of self-shielded fractionn and virial parameter
     float Zsolar = SolarMetalFractionByMass;
     float maxZ = 0.0;
-    bool debug = false;
+    bool debug = true;
     int status = PASS;
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
                 TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
@@ -62,20 +62,20 @@ int checkCreationCriteria(float* Density, float* Metals,
     Checking creation criteria!
     */
     // if this isnt finest grid in this space, continue
-    if (RefinementField[index] != 0) status = FAIL;
+    if (RefinementField[index] != 0) return FAIL;
     /* Baryon overdensity. */
     if (StarMakerOverDensityThreshold > 0){
         
         if (Density[index] < StarMakerOverDensityThreshold) 
         {
-            status = FAIL;
+            return FAIL;
         }
     }
     else if (StarMakerOverDensityThreshold < 0) 
     { // checking number density
         float nb = Density[index]*DensityUnits/mh/0.81;
         if (nb < -1*StarMakerOverDensityThreshold)
-            status = FAIL;
+            return FAIL;
             
     }
 
@@ -84,7 +84,7 @@ int checkCreationCriteria(float* Density, float* Metals,
         locally gravitationally bound*/
     // check that metals exist in enough quantity
     if (Metals[index]/Density[index] < MechStarsCriticalMetallicity) // metallicity in absolute
-        status = FAIL;
+        return FAIL;
     
     float div = 0.0; //divergence
     float alpha = 0.0; //virial parameter
@@ -108,7 +108,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     /* Chck for converging flow */
 
     div = dxvx+dyvy+dzvz;
-    if (div > 0.0) status = FAIL;
+    if (div > 0.0) return FAIL;
 
     /* check for virial parameter */
 
@@ -131,10 +131,10 @@ int checkCreationCriteria(float* Density, float* Metals,
     float AltAlpha = TE / PE; // canonically, 2 KE / PE, but we explicitly include thermal+internal energy in TE
 
     if (MechStarsUseVirialParameter){
-        if (debug && status && AltAlpha < 20) 
-            fprintf(stdout, "STARSS_CR: Compare alphas: F3 = %f; Energy method = %f div = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
-                                alpha, AltAlpha, div, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
-        if (AltAlpha > 1.0) status = FAIL;
+        // if (debug && status && AltAlpha < 20) 
+        //     fprintf(stdout, "STARSS_CR: Compare alphas: F3 = %f; Energy method = %f div = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
+        //                         alpha, AltAlpha, div, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
+        if (AltAlpha > 1.0) return FAIL;
     }
     /* Is cooling time < dynamical time or temperature < 1e4 */
 
@@ -160,7 +160,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     float jeansMass = pi/(6.0*pow(Density[index]*DensityUnits, 0.5))
             *pow(pi*IsoSndSpeed/GravConst, 1.5)/SolarMass;
     float altJeans = 2 * pow(cSound*VelocityUnits/1e5/0.2, 3) * pow((Density[index]*DensityUnits/(mh/0.6)/1e3), -0.5);
-    if (jeansMass > max(baryonMass, 1e3)) status = FAIL;
+    if (jeansMass > max(baryonMass, 1e3)) return FAIL;
     
     /* Is self Shielded fraction > 0.0 by Krumholz & Gnedin */
     if (MechStarsUseAnalyticShieldedFraction){
@@ -184,7 +184,7 @@ int checkCreationCriteria(float* Density, float* Metals,
         //     fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
         //     Tau, Phi, Psi, *shieldedFraction);
 
-        if (*shieldedFraction < 0) status = FAIL;
+        if (*shieldedFraction < 0) return FAIL;
         }
     else if (MechStarsUseMeasuredShieldedFraction)
     {
@@ -224,6 +224,10 @@ int checkCreationCriteria(float* Density, float* Metals,
     //     seedIndex[1] = j;
     //     seedIndex[2] = k;
     // }
+    if (debug){
+        fprintf(stdout, "STARSS_CHCR: Found positive star forming cell: OD = %f  Z = %f  alpha = %f  F_s = %f  M_j = %e (Mc = %e) Div(v) = %f\n", 
+        Density[index], Metals[index]/Density[index], AltAlpha, *shieldedFraction, jeansMass, baryonMass, div);
+    }
 
     return status;
 

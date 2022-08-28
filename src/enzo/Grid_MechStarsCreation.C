@@ -73,8 +73,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
         return FAIL;
     }
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum; 
-  if (STARMAKE_METHOD(H2REG_STAR))
+    DINum, DIINum, HDINum = -1; 
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
@@ -182,7 +181,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         &gridShouldFormStars, &notEnoughMetals, 0, seedIndex);
 
 
-                    if (createStar!=FAIL){
+                    if (createStar){
 
                         // set up some RNG
                         /* Determine Mass of new particle 
@@ -324,7 +323,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                             if (nCreated >= MaximumNumberOfNewParticles) return nCreated;
 
                         // if (debug)
-                            fprintf(stdout, "STARSS_CR:\t\tCreated star: [%f Myr] M_cell = %e (nb=%f) T_cell = %e F_s = %e\n"
+                            fprintf(stdout, "STARSS_CR:\t\tCreated star: [%f Myr] M_cell = %e (nb=%f, od=%f) T_cell = %e F_s = %e\n"
                                             "STARSS_CR:\t\t\tL = %d  N = %d Type = %d\n"
                                             "STARSS_CR:\t\t\tM_* = %e Tdyn = %e Attr1 = %f Attr2 = %e Attr3 = %e\n"
                                             "STARSS_CR:\t\t\tPosition = [%f %f %f]\nSTARSS_CR:\t\t\tvelocity = [%f %f %f]\n"
@@ -332,7 +331,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                                             "STARSS_CR:\t\t\ti = %d j = %d k = %d\n",
                                 Time*TimeUnits/3.1557e13,
                                 BaryonField[DensNum][index]*MassUnits, 
-                                BaryonField[DensNum][index] * DensityUnits / 1.2 / 1.6e-24, 
+                                BaryonField[DensNum][index] * DensityUnits / 1.2 / 1.6e-24,
+                                BaryonField[DensNum][index], 
                                 Temperature[index],
                                 shieldedFraction,
                                 level, nCreated+1,
