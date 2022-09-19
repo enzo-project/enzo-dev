@@ -781,13 +781,10 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	  }
    } // ENDIF UseMetallicityField
 
-#ifdef INDIVIDUALSTAR
-   if(STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating && ReadData){
+   if(IndividualStarFUVHeating && ReadData){
      for (i = 0; i < size; i++){
        BaryonField[PeHeatingNum][i] = 0.0;
      }
-   }
-#endif
 
       // If they were not read in above, set the total & gas energy fields now
 

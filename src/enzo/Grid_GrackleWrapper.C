@@ -117,7 +117,8 @@ int grid::GrackleWrapper()
   float afloat = float(a);
 
   /* assign heating rates - set to Null pointers if not used */
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+  // removing the requirement for indiv star; confirm that is fine
+  if (IndividualStarFUVHeating){
     float EnergyUnits = DensityUnits * VelocityUnits * VelocityUnits;
 
     int PeNum = FindField( PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
@@ -325,7 +326,7 @@ int grid::GrackleWrapper()
   }
 #endif TRANSFER
 
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+  if (IndividualStarFUVHeating){
       delete [] volumetric_heating_rate;
   }
 

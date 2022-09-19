@@ -172,7 +172,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly, int Retur
   float afloat = float(a);
 
   /* assign heating rates - set to Null pointers if not used */
-  if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+  if (IndividualStarFUVHeating){
     float EnergyUnits = DensityUnits * VelocityUnits * VelocityUnits;
 
     int PeNum = FindField( PeHeatingRate, this->FieldType, this->NumberOfBaryonFields);
@@ -372,7 +372,7 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly, int Retur
     }
 #endif // TRANSFER
 
-    if (STARMAKE_METHOD(INDIVIDUAL_STAR) && IndividualStarFUVHeating){
+    if (IndividualStarFUVHeating){
       delete [] volumetric_heating_rate;
     }
 
