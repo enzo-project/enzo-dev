@@ -84,6 +84,7 @@ float grid::AGNParticleGetColdMassRate(ActiveParticleType* ThisParticle) {
 
    // Calculate the delay time in code units
    float cold_delay;
+   // this parameter value must be in years
    cold_delay = AGNParticleColdMassDelay * seconds_per_year / TimeUnits;
 
    float* temperature = new float[GridDimension[0] * GridDimension[1] * GridDimension[2]];

@@ -120,7 +120,7 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
 (grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data)
 {
    //if (debug)
-   //   printf("Entering EvaluateFormation [%"ISYM"]\n", MyProcessorNumber);
+   //printf("Entering EvaluateFormation [%"ISYM"]\n", MyProcessorNumber);
 
    // No need to do the rest if we're not on the maximum refinement level.
    if (data.level != MaximumRefinementLevel)
@@ -140,22 +140,20 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
                           thisGrid->GridDimension[1],
                           thisGrid->GridDimension[2]};
 
-  float dx = thisGrid->CellWidth[0][0];
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
   float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits; //added by DP
-  //for restart at RD0018
-  AGNParticleInsert_x = 0.5076198577880859;
-  AGNParticleInsert_y = 0.5082187652587891;
-  AGNParticleInsert_z = 0.4896526336669922;
-  AGNParticleInsert_Time = 123.51316179333;  //for z=2.5
-  //
-  //for restart at DD0123
-  //AGNParticleInsert_x = 0.5077762603759766;
-  //AGNParticleInsert_y = 0.5060787200927734;
-  //AGNParticleInsert_z = 0.4914379119873047;
-  //AGNParticleInsert_Time = 123.81653315489; //for z= 2.4941
 
-  //printf("Initial Time = [%"GSYM"]\n", MetaData->Time);
+  // added by CJL
+  bool create_particle = false;
+  float cell_x, cell_y, cell_z;
+  float dx, dy, dz;
+  bool in_x, in_y, in_z;
+  float current_time = thisGrid->ReturnTime();
+  float dt = thisGrid->ReturnTimeStep();
+
+  // If the insert time is outside of the acceptable formation time range, exit
+  if (AGNParticleInsert_Time < current_time || current_time+dt < AGNParticleInsert_Time)
+    return SUCCESS;
  
   // Search for the cell nearest the origin
   for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++)
@@ -165,44 +163,32 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
       for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++)
       {
 
-       // index = GRIDINDEX_NOGHOST(i, j, k);
-       index = i + j * GridDimension[0] + k * GridDimension[1] * GridDimension[0];
+        // index = GRIDINDEX_NOGHOST(i, j, k);
+        index = i + j * GridDimension[0] + k * GridDimension[1] * GridDimension[0];
 
-       if (data.NumberOfNewParticles >= data.MaxNumberOfNewParticles)
+        if (data.NumberOfNewParticles >= data.MaxNumberOfNewParticles)
           return FAIL;
-       bool create_particle = true;
 
+        // only create one AGN Particle per grid 
+        if (thisGrid->NumberOfActiveParticles + data.NumberOfNewParticles > 0) 
+          return SUCCESS;
+          
+        cell_x = thisGrid->CellLeftEdge[0][i];
+        cell_y = thisGrid->CellLeftEdge[1][j];
+        cell_z = thisGrid->CellLeftEdge[2][k];
 
-       if (ProblemType == 30) {
-               if (thisGrid->NumberOfActiveParticles + data.NumberOfNewParticles > 0)
-                  create_particle = false;
+        dx = thisGrid->CellWidth[0][i];
+        dy = thisGrid->CellWidth[1][j];
+        dz = thisGrid->CellWidth[2][k];
 
-              ////// Added by Deovrat Prasad ///////
-               if (thisGrid->ReturnTime() != AGNParticleInsert_Time)
-                  create_particle = false;
-               
-              //////////////////////////////////////////////   
-               bool center = true;
+        in_x = cell_x <= AGNParticleInsert_x && AGNParticleInsert_x < cell_x + dx;
+        in_y = cell_y <= AGNParticleInsert_y && AGNParticleInsert_y < cell_y + dy;
+        in_z = cell_z <= AGNParticleInsert_z && AGNParticleInsert_z < cell_z + dz;
 
-               if (!(thisGrid->CellLeftEdge[0][i] <= AGNParticleInsert_x
-                  && thisGrid->CellLeftEdge[0][i] + thisGrid->CellWidth[0][i] > AGNParticleInsert_x))
-                  center = false;
+        create_particle = in_x && in_y && in_z;
 
-               if (!(thisGrid->CellLeftEdge[1][j] <= AGNParticleInsert_y
-                  && thisGrid->CellLeftEdge[1][j] + thisGrid->CellWidth[1][j] > AGNParticleInsert_y ))
-                  center = false;
-
-               if (!(thisGrid->CellLeftEdge[2][k] <= AGNParticleInsert_z 
-                  && thisGrid->CellLeftEdge[2][k] + thisGrid->CellWidth[2][k] > AGNParticleInsert_z))
-                  center = false;
-
-               if (center == false)
-                  create_particle = false;
-               
-       }       
-
-      //Passed creation tests, create AGN particle
-      if (create_particle) {
+        //Passed creation tests, create AGN particle
+        if (create_particle) {
           // Get the units
           float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits, Time;
           GetUnits(&DensUnits, &LengthUnits, &TempUnits, &TimeUnits, &VelUnits, AGNParticleInsert_Time);
@@ -264,6 +250,7 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
             ENZO_FAIL("AGNParticle does not support RK Hydro or RK MHD");
           }
           np->Metallicity = 1.0;
+          return SUCCESS;
         }
       } //i
     } //j
