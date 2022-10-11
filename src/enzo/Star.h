@@ -70,8 +70,6 @@ public:
 
   // Routines
   star_type ReturnType(void) { return type; };
-  void SetMetallicity(float metals) {Metallicity = metals;};
-  float ReturnMetallicity(void) {return Metallicity;};
   int   ReturnID(void) { return Identifier; };
   double ReturnMass(void) { return Mass; };
   float ReturnBirthTime(void) { return BirthTime; };
@@ -111,7 +109,7 @@ public:
   void	ConvertMassToSolar(void);
   int   CalculateMassAccretion(float &BondiRadius, float &density);
   float CalculateMassLoss(const float dt);
-  int   ComputePhotonRates(const float TimeUnits, const float Time, int &nbins, float E[], double Q[], float dtForThisStar);
+  int   ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[]);
   int	SetFeedbackFlag(FLOAT Time);
   void  SetFeedbackFlag(int flag);
 #ifdef LARGE_INTS

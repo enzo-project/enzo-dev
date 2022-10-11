@@ -4,8 +4,8 @@
 #
 # DESCRIPTION: Makefile settings for NASA's pleiades
 #
-#    modules: comp-intel/2018.3.222
-#     	      mpi-hpe/mpt.2.17r13
+#    modules: comp-intel/2020.4.304
+#     	      mpi-hpe/mpt.2.23
 #	      hdf5/1.8.18_serial
 #
 # AUTHOR:      John Wise
@@ -21,7 +21,10 @@
 # DATE:        2014-04-24
 #
 # MODIFIED3:   Molly Peeples
-# DATE:        2019-10-16
+# DATE:        2019-10-19
+#
+# MODIFIED4:   Molly Peeples
+# DATE:        2021-06-03
 #
 #=======================================================================
 
@@ -31,8 +34,8 @@ MACH_FILE  = Make.mach.nasa-pleiades
 
 MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 	The following modules are needed to compile: \
-	    comp-intel/2018.3.222, \
-	    mpi-hpe/mpt.2.17r13, and \
+	    comp-intel/2020.4.304, \
+	    mpi-hpe/mpt.2.23, and \
 	    hdf5/1.8.18_serial "
 
 #-----------------------------------------------------------------------
@@ -44,10 +47,10 @@ MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL    = /nasa/hpe/mpt/2.17r13/
+LOCAL_MPI_INSTALL    = /nasa/hpe/mpt/2.23/
 LOCAL_HDF5_INSTALL   = $(YT_DEST)
 LOCAL_PYTHON_INSTALL = $(YT_DEST)
-LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2018.3.222/
+LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2020.4.304/
 LOCAL_GRACKLE_INSTALL = $(HOME)/local
 
 #-----------------------------------------------------------------------
@@ -107,10 +110,11 @@ MACH_LDFLAGS  =
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g -O0
-# Best for pleiades ivy bridge nodes.
+# Best for pleiades ivy bridge, haswell, broadwell, skylake and cascade lake nodes.
+# Does NOT work for the Aitken Rome nodes; use separate machine file for those
 # See: goo.gl/A0IFMV
-MACH_OPT_HIGH        = -g -O2 -xAVX -ip -ipo
-MACH_OPT_AGGRESSIVE  = -O3 -xAVX -ip -ipo
+MACH_OPT_HIGH        = -g -O2 -axCORE-AVX512,CORE-AVX2 -xAVX -ip -ipo
+MACH_OPT_AGGRESSIVE  = -O3 -axCORE-AVX512,CORE-AVX2 -xAVX -ip -ipo
 
 #-----------------------------------------------------------------------
 # Includes

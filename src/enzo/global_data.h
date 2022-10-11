@@ -132,6 +132,10 @@ EXTERN int QuantumPressure;
 
 EXTERN float FDMMass;
 
+/* FDM: Whether Adding Absorbing Boundary in FDMCollapse */
+
+EXTERN int FDMCollapseAbsorbingBoundary;
+
 /* Factor to refine by */
 
 EXTERN int RefineBy;
@@ -288,8 +292,8 @@ EXTERN float DiskGravityStellarDiskScaleHeightR;
 EXTERN float DiskGravityStellarDiskScaleHeightz;
 EXTERN float DiskGravityStellarBulgeMass;
 EXTERN float DiskGravityStellarBulgeR;
-EXTERN float DiskGravityDarkMatterR;
-EXTERN float DiskGravityDarkMatterDensity;
+EXTERN float DiskGravityDarkMatterMass;
+EXTERN float DiskGravityDarkMatterConcentration;
 
 /* SelfGravity (TRUE or FALSE) */
 
@@ -363,6 +367,10 @@ EXTERN int use_grackle;
 
 EXTERN CloudyCoolingDataType CloudyCoolingData;
 
+/* Table of equilibrium chem values for initialization */
+
+EXTERN EquilibriumTableType EquilibriumTable;
+
 /* Gadget Equilibrium cooling on/off flag */
 
 EXTERN int GadgetEquilibriumCooling;
@@ -424,16 +432,24 @@ EXTERN int MultiMetals;
  * 1: On, (two fluid model)
  */
 EXTERN int CRModel;
+
 /* Cosmic Ray Diffusion
  * 0: Off - default
  * 1: On, CRkappa is constant across grid
+ * 2: On, anisotropic diffusion with constant CRkappa
  */
 EXTERN int CRDiffusion;
+
 /* Cosmic Ray Feedback
  *    0.0 -- No CR feedback
  *    1.0 -- All feedback into CR field
  */
 EXTERN float CRFeedback;
+
+EXTERN int CRHeating; // 0 is off, 1 is on
+EXTERN int CRStreaming; // 0 is off, 1 is on 
+EXTERN float CRStreamVelocityFactor;
+EXTERN float CRStreamStabilityFactor;
 EXTERN float CRkappa;
 EXTERN float CRCourantSafetyNumber;
 EXTERN float CRdensFloor;
@@ -835,6 +851,7 @@ EXTERN int iS1;
 EXTERN int iS2;
 EXTERN int iS3;
 EXTERN int iEint;
+EXTERN int iCR;
 EXTERN float SmallRho;
 EXTERN float SmallP;
 EXTERN float SmallEint;

@@ -106,7 +106,6 @@ int grid::CosmologySimulationInitializeGrid(
 			  float CosmologySimulationInitialFractionH2II,
 			  float CosmologySimulationInitialFractionMetal,
 			  float CosmologySimulationInitialFractionMetalIa,
-        float CosmologySimulationInitialFractionMetalII,
 #ifdef TRANSFER
 			  float RadHydroRadiation,
 #endif
@@ -120,7 +119,7 @@ int grid::CosmologySimulationInitializeGrid(
  
   int idim, dim, i, j, vel, OneComponentPerFile, ndim, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum, MetalIINum, SNColourNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum;
 #ifdef TRANSFER
   int EgNum;
 #endif
@@ -131,7 +130,7 @@ int grid::CosmologySimulationInitializeGrid(
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, PhotoGammaNum;
  
   int ExtraField[2];
-  int ForbidNum, iTE, iCR;
+  int ForbidNum, iTE, iCRD;
  
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
@@ -236,7 +235,7 @@ int grid::CosmologySimulationInitializeGrid(
     iTE = NumberOfBaryonFields;
     FieldType[NumberOfBaryonFields++] = TotalEnergy;
     if(CRModel){
-        iCR = NumberOfBaryonFields;
+        iCRD = NumberOfBaryonFields;
         FieldType[NumberOfBaryonFields++] = CRDensity;
     }
     if (DualEnergyFormalism)
@@ -291,13 +290,10 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
       if (StarMakerTypeIaSNe)
 	FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
-  FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
       if(MultiMetals){
 	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
       }
-      if (MechStarsSeedField)
-        FieldType[SNColourNum = NumberOfBaryonFields++] = SNColour;
     }
     if(STARMAKE_METHOD(COLORED_POP3_STAR)){
       fprintf(stderr, "Initializing Forbidden Refinement color field\n");
@@ -391,7 +387,7 @@ int grid::CosmologySimulationInitializeGrid(
   // set the CR energy density field to small fraction of density
   if(CRModel){
     for (i = 0; i < size; i++)
-      BaryonField[iCR][i] = CosmologySimulationUniformCR;
+      BaryonField[iCRD][i] = CosmologySimulationUniformCR;
 	} // end CR if
  
   // Read the gas energy field
@@ -512,8 +508,6 @@ int grid::CosmologySimulationInitializeGrid(
  
   if (UseMetallicityField && ReadData) {
     for (i = 0; i < size; i++)
-      if (i==0)
-        fprintf(stdout, "Setting initial metals: %12.5e * %12.5e = %12.5e", CosmologySimulationInitialFractionMetal, BaryonField[0][i],CosmologySimulationInitialFractionMetal * BaryonField[0][i] );
       BaryonField[MetalNum][i] = CosmologySimulationInitialFractionMetal
 	* BaryonField[0][i];
 
@@ -521,8 +515,7 @@ int grid::CosmologySimulationInitializeGrid(
       for (i = 0; i < size; i++)
 	BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
 	  * BaryonField[0][i];
-  BaryonField[MetalIINum][i] = CosmologySimulationInitialFractionMetalII
-    * BaryonField[0][i];
+
     if (MultiMetals) {
       for (i = 0; i < size; i++) {
 	BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
@@ -530,10 +523,6 @@ int grid::CosmologySimulationInitializeGrid(
 	BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
 	  * BaryonField[0][i];
       }
-      if (MechStarsSeedField)
-        for (i=0; i< size; i++)
-          BaryonField[SNColourNum][i] = CosmologySimulationInitialFractionMetal
-	* BaryonField[0][i];
     }
 
     if (STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData) {

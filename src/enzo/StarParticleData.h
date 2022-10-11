@@ -66,7 +66,13 @@ SPEXTERN int StarFeedbackDistCellStep;
 SPEXTERN int StarFeedbackDistTotalCells;
 SPEXTERN float StarFeedbackKineticFraction;
 SPEXTERN float StarMakerExplosionDelayTime;
-SPEXTERN int StarMakerUseJeansMass;
+SPEXTERN int   StarMakerUseJeansMass;
+SPEXTERN int   StarMakerVelDivCrit;
+SPEXTERN int   StarMakerSelfBoundCrit;
+SPEXTERN int   StarMakerThermalCrit;
+SPEXTERN int   StarMakerH2Crit;
+SPEXTERN int   StarMakerStochasticStarFormation;
+SPEXTERN float StarMakerTemperatureThreshold;
 
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIInitialMassFunction;
@@ -152,18 +158,11 @@ SPEXTERN float StarMakerMinimumMassRampStartMass;
 SPEXTERN float StarMakerMinimumMassRampEndTime;
 SPEXTERN float StarMakerMinimumMassRampEndMass;
 
-/* mechanical feedback */
-SPEXTERN int StellarWinds;
-SPEXTERN int SingleSN;
-SPEXTERN float StarMakerMaximumFormationMass;
-SPEXTERN float StarMakerMaximumMass;
-SPEXTERN int DepositUnresolvedEnergyAsThermal;
-SPEXTERN int StarMakeLevel;
-SPEXTERN int NEvents;
-SPEXTERN int AnalyticSNRShellMass;
-SPEXTERN int UnrestrictedSN;
-SPEXTERN int MechStarsSeedField;
-SPEXTERN float MechStarsCriticalMetallicity;
-SPEXTERN int MechStarsRadiationSpectrum;
+SPEXTERN int StarFeedbackThermalEfficiencyRamp;
+SPEXTERN float StarFeedbackThermalEfficiencyRampStartTime;
+SPEXTERN float StarFeedbackThermalEfficiencyRampStartValue;
+SPEXTERN float StarFeedbackThermalEfficiencyRampEndTime;
+SPEXTERN float StarFeedbackThermalEfficiencyRampEndValue;
+
 
 #endif

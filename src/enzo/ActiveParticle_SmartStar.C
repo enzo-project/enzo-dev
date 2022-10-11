@@ -940,6 +940,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	 SS->Mass = ParticleDensity;
 	 SS->oldmass = 0.0;
 	 SS->RadiationLifetime =  1.5e6*yr_s/TimeUnits; //Woods et al. 2020
+	 SS->InfluenceRadius = dx*ACCRETIONRADIUS;
 	 if(ParticleDensity < 0.0) {
 	   printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
 	   printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
@@ -957,6 +958,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	 SS->BirthTime = APGrid->ReturnTime();
 	 SS->Mass = ParticleDensity;
 	 SS->oldmass = 0.0;
+	 SS->InfluenceRadius = dx*ACCRETIONRADIUS;
 	 if(ParticleDensity < 0.0) {
 	   printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
 	   printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
@@ -981,6 +983,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	 SS->BirthTime = APGrid->ReturnTime();
 	 SS->Mass = StarClusterFormEfficiency*density[cellindex];
 	 SS->oldmass = 0.0;
+	 SS->InfluenceRadius = dx*ACCRETIONRADIUS;
 	 if(ParticleDensity < 0.0) {
 	   printf("%s: cellindex = %d\n", __FUNCTION__, cellindex);
 	   printf("density[cellindex] = %e cm^-3\n", density[cellindex]*DensityUnits/mh);
@@ -1033,7 +1036,10 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
      bool SphereTooSmall = true;
      float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
        ShellVelocity[MAX_DIMENSION];
-     while (SphereTooSmall) { 
+
+
+     FLOAT GridWidth = DomainRightEdge[0] - DomainLeftEdge[0];
+     while ((SphereTooSmall) && (Radius < GridWidth)) { 
        Radius += APGrid->CellWidth[0][0];
        bool IsSphereContained = SS->SphereContained(LevelArray, ThisLevel, Radius);
        
@@ -1241,8 +1247,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	   }  // END i-direction
 	 }  // END j-direction
        }  // END k-direction
-       
-       
        
    } /*This Processor */
   

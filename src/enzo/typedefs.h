@@ -13,6 +13,7 @@
 ************************************************************************/
 
 #include "CloudyCoolingData.h"
+#include "EquilibriumTable.h"
 #include "CoolData.h"
 #include "RateData.h"
 #include "RadiationFieldData.h"
@@ -227,7 +228,8 @@ const boundary_type
   inflow            = 2,
   periodic          = 3,
   shearing          = 4,
-  BoundaryUndefined = 5;
+  hydrostatic       = 5,
+  BoundaryUndefined = 6;
 
 // enum boundary_type {reflecting, outflow, inflow, periodic, BoundaryUndefined};
 

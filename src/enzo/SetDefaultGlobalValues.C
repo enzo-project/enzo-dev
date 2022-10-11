@@ -393,8 +393,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityStellarDiskScaleHeightz = 2.5E-4;      // Mpc
   DiskGravityStellarBulgeMass        = 1.0E10;      // Solar Masses
   DiskGravityStellarBulgeR           = 4.0E-4;      // Mpc
-  DiskGravityDarkMatterR             = 2.3E-2;      // Mpc
-  DiskGravityDarkMatterDensity       = 3.81323E-25; // CGS
+  DiskGravityDarkMatterMass          = 1.0e12;        // Solar Masses
+  DiskGravityDarkMatterConcentration = 10.0;
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
@@ -470,15 +470,19 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2OpticalDepthApproximation = 1;
   H2FormationOnDust           = FALSE;
   GloverChemistryModel        = 0;                 // 0ff
-  CRModel                     = 0;                 // off
-  CRDiffusion                 = 0;                 // off
+  CRModel                     = 0;                 // off                                                                          
+  CRDiffusion                 = 0;                 // off                                                                          
+  CRHeating                   = 0;                 // off                                                                          
+  CRStreaming                 = 0;                 // off                                                                          
+  CRStreamVelocityFactor      = 1.0;                // Alfven velocity (only relevant when CRStreaming == 1)                        
+  CRStreamStabilityFactor     = 1000.0;             // This should be large and calibrated for each simulation
   CRkappa                     = 0.0;
   CRCourantSafetyNumber       = 0.5;
-  CRFeedback                  = 0.0;               // no stellar feedback into CRs
-  CRdensFloor                 = 0.0;               // off
-  CRmaxSoundSpeed             = 0.0;               // off 
-  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
-  CosmologySimulationUniformCR= 1e-20;             // FIXME
+  CRFeedback                  = 0.0;               // no stellar feedback into CRs                                                 
+  CRdensFloor                 = tiny_number;       // off                                                                          
+  CRmaxSoundSpeed             = 0.0;               // off                                                                          
+  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas                                                  
+  CosmologySimulationUniformCR= 1e-20;             // FIXME   
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
@@ -589,6 +593,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerMassEfficiency          = 1;
   StarMakerMinimumMass             = 1.0e9;        // in solar masses
   StarMakerMinimumDynamicalTime    = 1.0e6;        // in years
+  StarMakerVelDivCrit              = TRUE;
+  StarMakerSelfBoundCrit           = FALSE;
+  StarMakerThermalCrit             = TRUE;
+  StarMakerUseJeansMass            = TRUE;
+  StarMakerH2Crit                  = FALSE;
+  StarMakerTemperatureThreshold    = 1.1e4;        // in K
   StarMassEjectionFraction         = 0.25;
   StarMetalYield                   = 0.02;
   StarEnergyToThermalFeedback      = 1.0e-5;
@@ -647,19 +657,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StellarWindDensity               = 1.0; // in code unit
   StellarWindRadius                = 0.01;  // in code unit
   StellarWindTemperature           = 100.0;  // in K
-/* mechanical feedback parameters */
-  StellarWinds                     = 1;
-  SingleSN                         = 1;
-  StarMakerMaximumFormationMass    = 1e4;
-  StarMakerMaximumMass             = 1e5;
-  DepositUnresolvedEnergyAsThermal = 0;
-  StarMakeLevel                    = MaximumRefinementLevel;
-  NEvents                          = 0;
-  AnalyticSNRShellMass             = 0;
-  UnrestrictedSN                     = 0; // false by default
-  MechStarsCriticalMetallicity      = 1e-12; // dont check for metals in formation
-  MechStarsSeedField                = 0; // dont seed metals from pop3 imf
-  MechStarsRadiationSpectrum        = 0; // no field by default!
+
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
   PythonReloadScript               = FALSE;
@@ -716,7 +714,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIUseHypernova               = TRUE;         // TRUE for HN yields, FALSE for CCSN
   PopIIISupernovaExplosions        = TRUE;         // TRUE for supernova energy injection
   PopIIIOutputOnFeedback           = FALSE;        // TRUE to output at creation and supernova
-  PopIIIMustRefineRegionLifetime   = 3.0;           // if using refinement criteria 20, set time to refine after supernova
   IMFData                          = NULL;
 
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate, 4: Bondi with v_rel=0, 5: Bondi with v_rel=0 and vorticity
@@ -760,6 +757,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerMinimumMassRampStartMass = FLOAT_UNDEFINED;
   StarMakerMinimumMassRampEndTime   = FLOAT_UNDEFINED;
   StarMakerMinimumMassRampEndMass   = FLOAT_UNDEFINED;
+
+  StarFeedbackThermalEfficiencyRamp = 0;
+  StarFeedbackThermalEfficiencyRampStartTime  = FLOAT_UNDEFINED;
+  StarFeedbackThermalEfficiencyRampStartValue = FLOAT_UNDEFINED;
+  StarFeedbackThermalEfficiencyRampEndTime    = FLOAT_UNDEFINED;
+  StarFeedbackThermalEfficiencyRampEndValue   = FLOAT_UNDEFINED;
       
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;

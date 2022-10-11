@@ -157,6 +157,7 @@ OBJS_CONFIG_LIB = \
         CreateSUBlingList.o \
         CreateFluxes.o \
         CRShockTubesInitialize.o \
+        CRTransportTestInitialize.o \
         InitializeFluxes.o \
         DeleteFluxes.o \
         DeleteSUBlingList.o \
@@ -345,7 +346,6 @@ OBJS_CONFIG_LIB = \
 	Grid_AddExternalAcceleration.o \
 	Grid_AddExternalPotentialField.o \
 	Grid_AddFeedbackSphere.o \
-        Grid_StarParticleCalculateFeedbackVolume.o \
 	Grid_AddFieldMassToMassFlaggingField.o \
 	Grid_AddFields.o \
 	Grid_AddMagneticSupernovaeToList.o \
@@ -408,11 +408,14 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeAccelerationField.o \
 	Grid_ComputeAccelerations.o \
 	Grid_ComputeAccelerationsFromExternalPotential.o \
+        Grid_ComputeAnisotropicCRDiffusion.o \
 	Grid_ComputeCellCenteredField.o \
 	Grid_ComputeConductionTimeStep.o \
 	Grid_ComputeCoolingTime.o \
         Grid_ComputeCRDiffusion.o \
         Grid_ComputeCRDiffusionTimeStep.o \
+        Grid_ComputeCRStreaming.o \
+        Grid_ComputeCRStreamingTimeStep.o \
         Grid_ComputeDomainBoundaryMassFlux.o \
 	Grid_ComputeDustTemperatureField.o \
 	Grid_ComputeElementalDensity.o \
@@ -456,6 +459,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CreateFieldArray.o \
 	Grid_CreateParticleTypeGrouping.o \
 	Grid_CRShockTubesInitializeGrid.o \
+        Grid_CRTransportTestInitialize.o \
     	Grid_DebugActiveParticles.o \
 	Grid_DebugCheck.o \
 	Grid_DeleteAllButParticles.o \
@@ -521,6 +525,7 @@ OBJS_CONFIG_LIB = \
         Grid_GetEnclosedMassInShell.o \
         Grid_GetProjectedBoundaryFluxes.o \
         Grid_GrackleWrapper.o \
+        Grid_GrackleCustomCoolRate.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
         Grid_Group_WriteGridInterpolate.o \
         Grid_Group_WriteGrid.o \
@@ -739,11 +744,6 @@ OBJS_CONFIG_LIB = \
         mbh_maker.o \
         mcooling.o \
         MakeFieldConservative.o\
-        MechStars_determineSN.o\
-        MechStars_determineWinds.o\
-        MechStars_transformComovingWithStar.o\
-        MechStars_depositEmissivity.o\
-        MechStars_calcPhotonRates.o\
         MemoryAllocationRoutines.o \
 	MemoryPoolRoutines.o \
 	MersenneTwister.o \
@@ -836,6 +836,7 @@ OBJS_CONFIG_LIB = \
         read_bt.o \
         read_bv.o \
         ReadDataHierarchy.o \
+        ReadEquilibriumTable.o \
         ReadFile.o \
         ReadGridFile.o \
         ReadIntFile.o \
@@ -871,6 +872,7 @@ OBJS_CONFIG_LIB = \
         SetDefaultGlobalValues.o \
         SetLevelTimeStep.o \
         SetEvolveRefineRegion.o \
+        SetStellarFeedbackEfficiency.o \
         SetStellarMassThreshold.o \
         sgi_st1_fft64.o \
         ShearingBoxInitialize.o \
@@ -1043,9 +1045,10 @@ OBJS_CONFIG_LIB = \
    Grid_SchrodingerSolver.o \
    rk4.o \
    SchrodingerAddPotential.o \
+   ParallelFDMCollapseInitialize.o \
+   Grid_ParallelFDMCollapseInitialize.o \
    FDMCollapse.o \
    Grid_FDMCollapse.o
-
 
 #-----------------------------------------------------------------------
 # Objects for radiative transfer module

@@ -571,11 +571,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
          */
            
 
+     if( UseHydro) {
         if( HydroMethod != HD_RK && HydroMethod != MHD_RK ){
             Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
                     NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
         }else{
-            if( UseHydro ) {
                 if (HydroMethod == HD_RK)
                     Grids[grid1]->GridData->RungeKutta2_1stStep
                         (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
@@ -583,8 +583,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                     Grids[grid1]->GridData->MHDRK2_1stStep
                         (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
                 }
-            }//use hydro
-        }//hydro method
+            }//hydro method
+        }//usehydro
     }//grids
 
     if( HydroMethod == HD_RK || HydroMethod == MHD_RK ){
@@ -709,13 +709,27 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	}
       }
 
-      /* Compute and Apply Cosmic Ray Diffusion */
-      if(CRModel && CRDiffusion){
-        if(Grids[grid1]->GridData->ComputeCRDiffusion() == FAIL){
-          fprintf(stderr, "Error in grid->ComputeCRDiffusion.\n");
-          return FAIL;
-        } // end ComputeCRDiffusion if
-      }// end CRDiffusion if
+      /* Compute and Apply Cosmic Ray Diffusion and Streaming*/
+      if(CRModel){
+        if(CRDiffusion == 1){ // isotropic diffusion                                                                               
+          if(Grids[grid1]->GridData->ComputeCRDiffusion() == FAIL){
+            fprintf(stderr, "Error in grid->ComputeExplicitIsotropicCRDiffusion.\n");
+            return FAIL;
+          }
+        }
+        else if(CRDiffusion == 2){ // anisotripic diffusion                                                                        
+          if(Grids[grid1]->GridData->ComputeAnisotropicCRDiffusion() == FAIL){
+            fprintf(stderr, "Error in grid->ComputeAnisotropicCRDiffusion .\n");
+            return FAIL;
+          }
+        }
+        if(CRStreaming){ // cosmic ray streaming                                                                                   
+          if(Grids[grid1]->GridData->ComputeCRStreaming() == FAIL){
+            fprintf(stderr, "Error in grid->ComputeCRStreaming .\n");
+            return FAIL;
+          }
+        }
+      }// end CRModel if 
 
       /* Gravity: clean up AccelerationField. */
 

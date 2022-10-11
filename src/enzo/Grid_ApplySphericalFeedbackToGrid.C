@@ -62,7 +62,12 @@ int grid::ApplySphericalFeedbackToGrid(ActiveParticleType** ThisParticle,
   MetalNum = max(Metal2Num, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
   ActiveParticleType_SmartStar *SS = static_cast<ActiveParticleType_SmartStar*>(* ThisParticle);
-  FLOAT radius = max(64*this->CellWidth[0][0], SS->InfluenceRadius);
+
+
+  /* Do I need to worry here about exceeding the grid boundary? */
+  FLOAT GridWidth = DomainRightEdge[0] - DomainLeftEdge[0];
+  /* Limits the initial feedback to within this grid */
+  FLOAT radius = max(GridWidth/2.0, SS->InfluenceRadius);
   //printf("%s: radius (in cellwidths) = %f\n", __FUNCTION__, radius/this->CellWidth[0][0]);
   float MetalRadius = 1.0;
   FLOAT MetalRadius2 = radius * radius * MetalRadius * MetalRadius;

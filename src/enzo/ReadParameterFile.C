@@ -331,6 +331,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 /* FDM: read FDM parameters */
     ret += sscanf(line, "QuantumPressure          = %"ISYM, &QuantumPressure);
+    ret += sscanf(line, "FDMCollapseAbsorbingBoundary          = %"ISYM, &FDMCollapseAbsorbingBoundary);
     ret += sscanf(line, "FDMMass          = %"FSYM, &FDMMass);
 
     ret += sscanf(line, "RefineBy               = %"ISYM, &RefineBy);
@@ -529,8 +530,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "DiskGravityStellarDiskScaleHeightz = %"FSYM,&DiskGravityStellarDiskScaleHeightz);
     ret += sscanf(line, "DiskGravityStellarBulgeMass        = %"FSYM,&DiskGravityStellarBulgeMass);
     ret += sscanf(line, "DiskGravityStellarBulgeR           = %"FSYM,&DiskGravityStellarBulgeR);
-    ret += sscanf(line, "DiskGravityDarkMatterR             = %"FSYM,&DiskGravityDarkMatterR);
-    ret += sscanf(line, "DiskGravityDarkMatterDensity       = %"FSYM,&DiskGravityDarkMatterDensity);
+    ret += sscanf(line, "DiskGravityDarkMatterMass          = %"FSYM,&DiskGravityDarkMatterMass);
+    ret += sscanf(line, "DiskGravityDarkMatterConcentration = %"FSYM,&DiskGravityDarkMatterConcentration);
 
     ret += sscanf(line, "ExternalGravity         = %"ISYM,&ExternalGravity);
     ret += sscanf(line, "ExternalGravityConstant = %"FSYM, &ExternalGravityConstant);
@@ -619,13 +620,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "CRModel = %"ISYM, &CRModel);
     ret += sscanf(line, "CRDiffusion = %"ISYM, &CRDiffusion);
+    ret += sscanf(line, "CRHeating = %"ISYM, &CRHeating);
+    ret += sscanf(line, "CRStreaming = %"ISYM, &CRStreaming);
+    ret += sscanf(line, "CRStreamVelocityFactor = %"FSYM, &CRStreamVelocityFactor);
+    ret += sscanf(line, "CRStreamStabilityFactor = %"FSYM, &CRStreamStabilityFactor);
     ret += sscanf(line, "CRkappa = %"FSYM, &CRkappa);
     ret += sscanf(line, "CRCourantSafetyNumber = %"FSYM, &CRCourantSafetyNumber);
     ret += sscanf(line, "CRFeedback = %"FSYM, &CRFeedback);
     ret += sscanf(line, "CRdensFloor = %"FSYM, &CRdensFloor);
     ret += sscanf(line, "CRmaxSoundSpeed = %"FSYM, &CRmaxSoundSpeed);
     ret += sscanf(line, "CRgamma = %"FSYM, &CRgamma);
-    ret += sscanf(line, "CosmologySimulationUniformCR = %"FSYM, &CosmologySimulationUniformCR); // FIXME
+    ret += sscanf(line, "CosmologySimulationUniformCR = %"FSYM, &CosmologySimulationUniformCR); // FIXME  
 
     ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
     ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
@@ -966,7 +971,19 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarMakerMassEfficiency);
     ret += sscanf(line, "StarMakerMinimumMass = %"FSYM, &StarMakerMinimumMass);
     ret += sscanf(line, "StarMakerMinimumDynamicalTime = %"FSYM,
-                  &StarMakerMinimumDynamicalTime);
+      &StarMakerMinimumDynamicalTime);
+    ret += sscanf(line, "StarMakerVelDivCrit = %"ISYM,
+      &StarMakerVelDivCrit);
+    ret += sscanf(line, "StarMakerSelfBoundCrit = %"ISYM,
+      &StarMakerSelfBoundCrit);
+    ret += sscanf(line, "StarMakerThermalCrit = %"ISYM,
+      &StarMakerThermalCrit);
+    ret += sscanf(line, "StarMakerUseJeansMass = %"ISYM,
+		  &StarMakerUseJeansMass);
+    ret += sscanf(line, "StarMakerH2Crit = %"ISYM,
+      &StarMakerH2Crit);
+    ret += sscanf(line, "StarMakerTemperatureThreshold = %"FSYM,
+      &StarMakerTemperatureThreshold);
     ret += sscanf(line, "StarMassEjectionFraction = %"FSYM,
 		  &StarMassEjectionFraction);
     ret += sscanf(line, "StarMetalYield = %"FSYM, &StarMetalYield);
@@ -980,8 +997,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     	&StarMakerExplosionDelayTime);
     ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
     ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
-    ret += sscanf(line, "StarMakerUseJeansMass = %"ISYM,
-		  &StarMakerUseJeansMass);
 
     ret += sscanf(line, "StarClusterUseMetalField = %"ISYM,
 		  &StarClusterUseMetalField);
@@ -1109,24 +1124,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarMakerMinimumMassRampEndTime);
     ret += sscanf(line, "StarMakerMinimumMassRampEndMass = %"FSYM,
 		  &StarMakerMinimumMassRampEndMass);
-    /* mechanical feedback parameters */
-    ret += sscanf(line, "StellarWinds = %"ISYM, &StellarWinds);
-    ret += sscanf(line, "SingleSN = %"ISYM, &SingleSN);
-    ret += sscanf(line, "StarMakerMaximumFormationMass = %"FSYM, 
-      &StarMakerMaximumFormationMass);
-    ret += sscanf(line, "StarMakerMaximumMass = %"FSYM, &StarMakerMaximumMass);
-    ret += sscanf(line, "DepositUnresolvedEnergyAsThermal = %"ISYM,
-       &DepositUnresolvedEnergyAsThermal);
-    ret += sscanf(line, "StarMakerMinimumRefinementLevel = %"ISYM, 
-      &StarMakeLevel);
-    ret += sscanf(line, "NEvents = %"ISYM, &NEvents);
-    ret += sscanf(line, "AnalyticSNRShellMass = %"ISYM, 
-      &AnalyticSNRShellMass);
-    ret += sscanf(line, "UnrestrictedSN = %"ISYM, &UnrestrictedSN);
-    ret += sscanf(line, "MechStarsCriticalMetallicity = %"FSYM, &MechStarsCriticalMetallicity);
-    ret += sscanf(line, "MechStarsSeedField = %"ISYM, &MechStarsSeedField);
-    ret += sscanf(line, "MechStarsRadiationSpectrum = %"ISYM, &MechStarsRadiationSpectrum);
-    
+    ret += sscanf(line, "StarFeedbackThermalEfficiencyRamp = %"ISYM,
+		  &StarFeedbackThermalEfficiencyRamp);
+    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampStartTime = %"FSYM,
+		  &StarFeedbackThermalEfficiencyRampStartTime);
+    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampStartValue = %"FSYM,
+		  &StarFeedbackThermalEfficiencyRampStartValue);
+    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampEndTime = %"FSYM,
+		  &StarFeedbackThermalEfficiencyRampEndTime);
+    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampEndValue = %"FSYM,
+		  &StarFeedbackThermalEfficiencyRampEndValue);
+
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
@@ -1823,7 +1831,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* Set some star feedback parameters. */
 
-  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR)) &&
+  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR)) || 
+      (STARFEED_METHOD(SINGLE_SUPERNOVA) ) &&
       (StarFeedbackDistRadius > 0)) {
 
     // Calculate number of cells in the shape over which to distribute feedback.
@@ -1859,6 +1868,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     iBz = 8;
     iPhi = 9;
     iEint = 5;
+  }
+  if (( CRModel ) && ( HydroMethod == 4 )){
+    // Along with the variables above, iCR is a hard-coded index used in arrays generated
+    // in the hydro_rk riemann solvers
+    NEQ_MHD += 1;
+    if (DualEnergyFormalism)
+      iCR = 10;
+    else iCR = 9;
   }
 
   // Determine color fields (NColor) later inside a grid object.
@@ -2103,6 +2120,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ENZO_FAIL("CRDiffusion can only be used if CRModel is turned on!!\n");
   }
 
+  if (CRModel == 1  &&  HydroMethod == 4 && DualEnergyFormalism == 0){
+    ENZO_FAIL("CR physics can only be used with HydroMethod = 4 if DualEnergyFormalism is turned on!\n");
+  }
+
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
 
   //
@@ -2121,7 +2142,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
   } // if(StarMakerMinimumMassRamp > 0)
 
-
+  /* Ditto for thermal feedback efficiency ramp */
+  if(StarFeedbackThermalEfficiencyRamp > 0){
+    if(StarFeedbackThermalEfficiencyRampStartTime == FLOAT_UNDEFINED ||
+       StarFeedbackThermalEfficiencyRampStartValue == FLOAT_UNDEFINED ||
+       StarFeedbackThermalEfficiencyRampEndTime   == FLOAT_UNDEFINED ||
+       StarFeedbackThermalEfficiencyRampEndValue   == FLOAT_UNDEFINED){
+      fprintf(stderr,"You're using StarFeedbackThermalEfficiencyRamp but need to set ALL of your start and end times and values!\n");
+      my_exit(EXIT_FAILURE);
+    }
+  } // if(StarFeedbackThermalEfficiencyRamp > 0)
 
   return SUCCESS;
 
