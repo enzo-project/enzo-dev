@@ -419,6 +419,35 @@
     endif
 
 #-----------------------------------------------------------------------
+# DETERMINE LIBYT SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_LIBYT = 1
+
+    # Settings to turn Python ON
+
+    ifeq ($(CONFIG_LIBYT),yes)
+        ERROR_LIBYT = 0
+        ASSEMBLE_LIBYT_DEFINES = -DUSE_LIBYT
+        ASSEMBLE_LIBYT_INCLUDES = $(MACH_INCLUDES_LIBYT)
+        ASSEMBLE_LIBYT_LIBS     = $(MACH_LIBS_LIBYT)
+    endif
+
+    # Settings to turn LIBYT OFF
+
+    ifeq ($(CONFIG_LIBYT),no)
+        ERROR_LIBYT = 0
+    endif
+
+    # error if CONFIG_LIBYT is incorrect
+
+    ifeq ($(ERROR_LIBYT),1)
+       .PHONY: error_LIBYT
+       error_LIBYT:
+	$(error Illegal value '$(CONFIG_LIBYT)' for $$(CONFIG_LIBYT))
+    endif
+
+#-----------------------------------------------------------------------
 # DETERMINE NEW_PROBLEM_TYPES SETTINGS
 #-----------------------------------------------------------------------
 

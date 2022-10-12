@@ -24,6 +24,7 @@
 #    CONFIG_PACKED_MEM
 #    CONFIG_LCAPERF
 #    CONFIG_PYTHON
+#    CONFIG_LIBYT
 #    CONFIG_NEW_PROBLEM_TYPES
 #    CONFIG_PAPI
 #    CONFIG_OOC_BOUNDARY
@@ -168,6 +169,15 @@
 #-----------------------------------------------------------------------
 
      CONFIG_PYTHON = no
+
+#=======================================================================
+# CONFIG_LIBYT
+#=======================================================================
+#    yes           link against libyt for in situ analysis
+#    no            don't use libyt
+#-----------------------------------------------------------------------
+
+     CONFIG_LIBYT = no
 
 #=======================================================================
 # CONFIG_NEW_PROBLEM_TYPES

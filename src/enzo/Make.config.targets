@@ -268,6 +268,7 @@ show-config:
 	@echo "   CONFIG_LCAPERF  [lcaperf-{yes,no}]                        : $(CONFIG_LCAPERF)"
 	@echo "   CONFIG_PAPI  [papi-{yes,no}]                              : $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON  [python-{yes,no}]                          : $(CONFIG_PYTHON)"
+	@echo "   CONFIG_LIBYT  [libyt-{yes,no}]                            : $(CONFIG_LIBYT)"
 	@echo "   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : $(CONFIG_NEW_PROBLEM_TYPES)"
 	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
@@ -636,6 +637,23 @@ CONFIG_PYTHON-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PYTHON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_PYTHON; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_LIBYT = libyt-yes libyt-no
+.PHONY: $(VALID_LIBYT)
+
+libyt-yes: CONFIG_LIBYT-yes
+libyt-no: CONFIG_LIBYT-no
+libyt-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LIBYT)]\n\n"
+CONFIG_LIBYT-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_LIBYT $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_LIBYT = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LIBYT; \
 	echo
 
 #-----------------------------------------------------------------------
