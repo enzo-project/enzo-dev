@@ -1114,8 +1114,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "StarMakerMinimumMassRampStartMass  = %"GSYM"\n", StarMakerMinimumMassRampStartMass);
   fprintf(fptr, "StarMakerMinimumMassRampEndTime    = %"GSYM"\n", StarMakerMinimumMassRampEndTime);
   fprintf(fptr, "StarMakerMinimumMassRampEndMass    = %"GSYM"\n", StarMakerMinimumMassRampEndMass);
-  
-/* Most Stanford additions: */
 
   fprintf(fptr, "StarFeedbackThermalEfficiencyRamp           = %"ISYM"\n", StarFeedbackThermalEfficiencyRamp);
   fprintf(fptr, "StarFeedbackThermalEfficiencyRampStartTime  = %"GSYM"\n", StarFeedbackThermalEfficiencyRampStartTime);
