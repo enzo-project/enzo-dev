@@ -505,7 +505,6 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByShockwaves.o \
 	Grid_FlagCellsToBeRefinedBySlope.o \
 	Grid_FlagCellsToBeRefinedBySecondDerivative.o \
-        Grid_FlagCellsToBeRefinedByPopIII.o \
 	Grid_FlagRefinedCells.o \
 	Grid_FlagGridArray.o \
 	Grid_FreeExpansionInitializeGrid.o \
