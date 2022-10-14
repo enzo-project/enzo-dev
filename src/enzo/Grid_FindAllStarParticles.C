@@ -62,9 +62,6 @@ int grid::FindAllStarParticles(int level)
 	LifetimeFactor = 12.0;
       else
 	LifetimeFactor = 1.0;
-	  if (StarParticleFeedback == MECHANICAL){
-		  LifetimeFactor = huge_number; // mech stars dont die!
-	  }
       if (this->Time >= ParticleAttribute[0][i] &&
 	  this->Time <= ParticleAttribute[0][i] + 
 	  LifetimeFactor * ParticleAttribute[1][i]) {
@@ -91,10 +88,6 @@ int grid::FindAllStarParticles(int level)
 	NewStar = new Star(this, i, level);
 	InsertStarAfter(Stars, NewStar);
 	NumberOfStars++;
-	if (StarParticleFeedback == MECHANICAL){
-		NewStar->SetFeedbackFlag(MECHANICAL);
-		NewStar->LifeTime = huge_number; // Mechanical stars never "die", they can reaccrete or just deposit wind
-	}
 	/* For MBHFeedback = 2 to 5 (FeedbackFlag=MBH_JETS), you need
 	   the angular momentum; if no file to read in, assume zero
 	   angular momentum accreted so far.  -Ji-hoon Kim, Nov.2009 */
