@@ -226,7 +226,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 
 /************************************************************************/
 
-int Return_MPI_Tag(int grid_num, int proc)
+MPI_Arg Return_MPI_Tag(int grid_num, int proc)
 {
   // Return a somewhat-unique 16-bit MPI tag for communication.  The factors
   // are prime. 
