@@ -44,15 +44,11 @@ bool Star::IsARadiationSource(FLOAT Time)
   // Particles only marked for nothing or continuous supernova
   rules[0] = (FeedbackFlag == NO_FEEDBACK || 
 	      FeedbackFlag == CONT_SUPERNOVA ||
-        FeedbackFlag == MECHANICAL ||
 	      FeedbackFlag == MBH_THERMAL ||
 	      FeedbackFlag == MBH_JETS);
   
   // Living
-  if (FeedbackFlag == MECHANICAL) // MechStars radiate ionizing radiation for 25 Myr
-    rules[1] = (Time >= BirthTime) && (Time <= BirthTime+LifeTime) && (type > 0);
-  else // other stars radiate for all time
-    rules[1] = (Time >= BirthTime) &&  (type > 0); 
+  rules[1] = (Time >= BirthTime) && (Time <= BirthTime+LifeTime) && (type > 0);
 
   // Non-zero BH accretion (usually accretion_rate[] here is NULL - Ji-hoon Kim Sep.2009)
   if ((type == BlackHole || type == MBH) && naccretions > 0)

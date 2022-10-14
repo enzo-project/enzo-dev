@@ -96,7 +96,6 @@ SPEXTERN float PopIIIColorMass;
 SPEXTERN int   PopIIIUseHypernova;
 SPEXTERN int   PopIIISupernovaExplosions;
 SPEXTERN int   PopIIIOutputOnFeedback;
-SPEXTERN float   PopIIIMustRefineRegionLifetime;
 
 SPEXTERN int    StarClusterUseMetalField;
 SPEXTERN int    StarClusterHeliumIonization;

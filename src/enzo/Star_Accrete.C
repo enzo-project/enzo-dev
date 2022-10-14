@@ -31,8 +31,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::Accrete(void)
 {
    if (this->CurrentGrid == NULL || 
-      (this->naccretions == 0 && fabs(this->DeltaMass) < tiny_number)
-      || FeedbackFlag == MECHANICAL) // mechanical accretion and feedback handled in mechstars routines
+       (this->naccretions == 0 && fabs(this->DeltaMass) < tiny_number))
     return SUCCESS;
   
 

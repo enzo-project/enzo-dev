@@ -315,7 +315,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     if (StarParticleCreation || StarParticleFeedback) {
       NumberOfParticleAttributes = 3;
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
-      // if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
+      if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
     } else {
       NumberOfParticleAttributes = 0;
     }

@@ -70,8 +70,7 @@ int Star::AssignFinalMassFromIMF(float TimeUnits)
 //	 x, this->FinalMass, this->LifeTime * TimeUnits / Myr_s);
 
   PopIIIInitialMassFunctionCalls++;
-  printf("%s: PopIIIInitialMassFunctionCalls(%p) = %d\n", __FUNCTION__,
-	 &PopIIIInitialMassFunctionCalls, PopIIIInitialMassFunctionCalls); 
+
   return SUCCESS;
 
 }
