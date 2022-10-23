@@ -961,6 +961,11 @@ EXTERN PyObject *yt_parameter_file;
 EXTERN PyObject *conversion_factors;
 EXTERN PyObject *my_processor;
 #endif
+
+#ifdef USE_LIBYT
+EXTERN yt_param_libyt *param_libyt;
+#endif
+
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MetalCooling;

@@ -77,7 +77,7 @@ MACH_OPT_AGGRESSIVE  = -O3 -g
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = # MPI includes
-LOCAL_INCLUDES_HDF5   = -I${CONDA_BASE}/include/ # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I${CONDA_PREFIX}/include/ # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include # hypre includes
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
@@ -93,14 +93,17 @@ MACH_INCLUDES_GRACKLE = $(LOCAL_INCLUDES_GRACKLE)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MPI    = # MPI libraries
-LOCAL_LIBS_HDF5   = -L${CONDA_BASE}/lib/ -lhdf5 -lz # HDF5 libraries
+LOCAL_LIBS_HDF5   = -L${CONDA_PREFIX}/lib/ -lhdf5 -lz # HDF5 libraries
 LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
 LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
 LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+LOCAL_LIBS_PYTHON = -L${CONDA_PREFIX}/lib/ -lpython3
+LOCAL_LIBS_LIBYT  = $(LOCAL_LIBS_PYTHON) -L${CONDA_PREFIX}/lib/ -lyt
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
 MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
 MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)
+MACH_LIBS_LIBYT   = $(LOCAL_LIBS_LIBYT)
