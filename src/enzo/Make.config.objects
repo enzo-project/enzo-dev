@@ -68,6 +68,7 @@ OBJS_CONFIG_LIB = \
         CalculateSubtractionParameters.o \
         CallProblemSpecificRoutines.o \
         CallPython.o \
+        CallInSitulibyt.o \
         CheckEnergyConservation.o \
         CheckForOutput.o \
         CheckForResubmit.o \

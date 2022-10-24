@@ -910,6 +910,10 @@ void my_exit(int status)
   FinalizePythonInterface();
 #endif
 
+#ifdef USE_LIBYT
+  yt_finalize();
+#endif
+
   if (status == EXIT_SUCCESS) {
 
     if (MyProcessorNumber==0) {
