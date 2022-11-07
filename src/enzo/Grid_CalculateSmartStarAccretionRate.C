@@ -80,7 +80,6 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
   /* Find the Bondi-Hoyle radius */
   int size = this->GetGridSize();
   float *Temperature = new float[size]();
- 
   this->ComputeTemperatureField(Temperature);
   /* Get indices in BaryonField for density, internal energy, thermal energy,
    * velocity */
@@ -116,17 +115,20 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
 			 pow(vparticle[1] - BaryonField[Vel2Num][cgindex],2) +
 			 pow(vparticle[2] - BaryonField[Vel3Num][cgindex],2));
 
-  //float CellTemperature = Temperature[cgindex];
-  float CellTemperature = FindAverageTemperatureinRegion(Temperature, xparticle, 2.0*AccretionRadius);
+  float CellTemperature = Temperature[cgindex];
+  // float CellTemperature = FindAverageTemperatureinRegion(Temperature, xparticle, 2.0*AccretionRadius);
   if (JeansRefinementColdTemperature > 0)
     CellTemperature = JeansRefinementColdTemperature;
+
   float Gcode = GravConst*DensityUnits*TimeUnits*TimeUnits;
+  // SG. Change CellTemperature -> Temperature[cgindex]
   float cInfinity = sqrt(Gamma * kboltz * CellTemperature / (Mu * mh)) /
     LengthUnits*TimeUnits;
+  // SG. Temperature is computed on line 83
   FLOAT BondiHoyleRadius = CalculateBondiHoyleRadius(mparticle, vparticle, Temperature); 
- 
-  //printf("%s:  BondiHoyleRadius = %e pc\n", __FUNCTION__,  BondiHoyleRadius*LengthUnits/pc_cm);
-  //printf("%s:  AccretionRadius = %e pc\n", __FUNCTION__,  AccretionRadius*LengthUnits/pc_cm);
+  fprintf(stderr, "%s:  BondiHoyleRadius = %e pc\n", __FUNCTION__,  BondiHoyleRadius*LengthUnits/pc_cm);
+  fprintf(stderr, "%s:  AccretionRadius = %e pc\n", __FUNCTION__,  AccretionRadius*LengthUnits/pc_cm);
+  
   /* Impose a kernel radius that regulates the weighting cells get as a function of radius */
   if (BondiHoyleRadius < CellWidth[0][0]/4.0) {  /* For BHs whose Bondi radius is not resolved */
     //printf("%s: Setting kernel radius to CellWidth, BH not resolved\n", __FUNCTION__);
