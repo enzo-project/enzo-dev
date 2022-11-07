@@ -655,6 +655,7 @@ FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *
 			 pow(vparticle[1] - BaryonField[Vel2Num][cgindex],2) +
 			 pow(vparticle[2] - BaryonField[Vel3Num][cgindex],2));
   float CellTemperature = Temperature[cgindex];
+  fprintf(stderr, "%s: cgindex = %"ISYM" \n", __FUNCTION__, cgindex)
   if (JeansRefinementColdTemperature > 0)
     CellTemperature = JeansRefinementColdTemperature;
 
