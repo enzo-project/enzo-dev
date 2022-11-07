@@ -80,6 +80,7 @@ int grid::AccreteOntoSmartStarParticle(
     CellVolume*=CellWidth[dim][0];
   }
   MassUnits = DensityUnits * POW(LengthUnits,3);
+  fprintf(stderr,"%s: Celllength = %e pc\n", __FUNCTION__, CellWidth[0][0]*LengthUnits/pc_cm);
   float mparticle = SS->ReturnMass()*CellVolume; //code mass
   float MassConversion = (float) (dx*dx*dx * double(MassUnits));  //convert to g
   FLOAT KernelRadius = 0.0, SumOfWeights = 0.0; /*Required for weighting cells for accretion */
