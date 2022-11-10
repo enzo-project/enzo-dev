@@ -625,11 +625,11 @@ int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
 	if(POPIII == ThisParticle->ParticleClass) {
 	  float he_core = (13.0/24.0) * (StarMass - 20.0);
 	  sn_nrg_thistimestep = (5.0 + 1.304 * (he_core - 64.0)) * 1e51; //ergs
-	  printf("%s: Supernova Energy = %e [ergs]\n", __FUNCTION__, sn_nrg_thistimestep);
-	  fflush(stdout);
+	  //printf("%s: Supernova Energy = %e [ergs]\n", __FUNCTION__, sn_nrg_thistimestep);
+	  //fflush(stdout);
 	  //code energy (specific units)
 	  //sn_nrg_thistimestep /= (TimeUnits*LumConvert*ThisParticle->Mass; //specific energy
-	  sn_nrg_thistimestep /= (TimeUnits*LumConvert*StarMass*SolarMass);
+	  //sn_nrg_thistimestep /= (TimeUnits*LumConvert*StarMass*SolarMass);
 	}
 #endif
 #if HW_BH_MASS
@@ -641,11 +641,11 @@ int ActiveParticleType_SmartStar::EvaluateFeedback(grid *thisgrid_orig,
 	  StarMass = he_core; //msun
 	  ThisParticle->Mass = StarMass*SolarMass/MassConversion; //code density
 	  // Energy of SN
-	  sn_nrg_thistimestep = (5.0 + 1.304 * (he_core - 64.0)) * 1e51; //ergs
-	  printf("%s: Supernova Energy = %e [ergs]\n", __FUNCTION__, sn_nrg_thistimestep);
-	  fflush(stdout);
+	  // sn_nrg_thistimestep = (5.0 + 1.304 * (he_core - 64.0)) * 1e51; //ergs
+	  // printf("%s: Supernova Energy = %e [ergs]\n", __FUNCTION__, sn_nrg_thistimestep);
+	  // fflush(stdout);
 	  //code energy (specific units) - to add to energy field.
-	  sn_nrg_thistimestep /= (TimeUnits*LumConvert*StarMass*SolarMass);
+	  // sn_nrg_thistimestep /= (TimeUnits*LumConvert*StarMass*SolarMass);
 	}
 #endif
 	printf("%s: !!!!!!!!!!!!!!!Transition from %d particle to BH (Particle Type = %d)\n", 
