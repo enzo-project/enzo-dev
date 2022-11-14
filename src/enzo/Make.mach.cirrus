@@ -21,8 +21,8 @@ MACH_FILE  = Make.mach.cirrus
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_GRACKLE_INSTALL = /lustre/home/sc070/stg/software/grackle/local
-LOCAL_HDF5_INSTALL = /lustre/sw/hdf5parallel/1.10.6-gcc6-mpt222
+LOCAL_GRACKLE_INSTALL = /work/sc070/sc070/stg/software/grackle/local
+LOCAL_HDF5_INSTALL = /scratch/sw/hdf5parallel/1.10.6-gcc6-mpt225
 
 #-----------------------------------------------------------------------
 # Compiler settings

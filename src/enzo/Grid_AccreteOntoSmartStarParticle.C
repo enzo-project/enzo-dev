@@ -49,7 +49,6 @@ int grid::AccreteOntoSmartStarParticle(
   FLOAT ysink = ThisParticle->ReturnPosition()[1];
   FLOAT zsink = ThisParticle->ReturnPosition()[2];
   FLOAT dx = CellWidth[0][0];
-  fprintf(stderr,"%s: Celllength = %e pc\n", __FUNCTION__, CellWidth[0][0]*LengthUnits/pc_cm);
   if ((GridLeftEdge[0] > xsink+AccretionRadius) ||
       (GridLeftEdge[1] > ysink+AccretionRadius) ||
       (GridLeftEdge[2] > zsink+AccretionRadius) ||

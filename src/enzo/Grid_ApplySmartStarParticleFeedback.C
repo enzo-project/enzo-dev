@@ -212,7 +212,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
        * 260+ Msolar - DCBH of same mass as parent star
        */
       
-      printf("%s: Star going Supernova!\n", __FUNCTION__);
+      printf("%s: End of star's life\n", __FUNCTION__);
       printf("%s: Age = %1.2f Myr\t RadiationLifetime = %1.2f Myr\n", __FUNCTION__,
 	     Age*TimeUnits/Myr_s, SS->RadiationLifetime*TimeUnits/Myr_s);
       double StellarMass = SS->Mass*MassConversion/SolarMass; /* In Msolar */
