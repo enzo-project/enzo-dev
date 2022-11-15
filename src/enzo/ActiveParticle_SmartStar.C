@@ -1309,107 +1309,102 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
     ActiveParticleList<ActiveParticleType>& ParticleList, FLOAT dx, 
 	LevelHierarchyEntry *LevelArray[], int ThisLevel, int SmartStarID)
 {
-  /* Skip if we're not on the maximum refinement level. 
+    FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
+    /* Skip if we're not on the maximum refinement level.
      This should only ever happen right after creation and then
      only in pathological cases where creation is happening at 
      the edges of two regions at the maximum refinement level- not doing this for SG. */
 
-  /* For each particle, loop over all of the grids and do feedback 
+    /* For each particle, loop over all the grids and do feedback
      if the grid overlaps with the feedback zone */
-		FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits;
-  double MassUnits;
-  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, Time);
-  MassUnits = DensityUnits * POW(LengthUnits,3);
-  int NumberOfGrids;
-  HierarchyEntry **Grids = NULL;
+    FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
+    float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
+    double MassUnits;
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+             &TimeUnits, &VelocityUnits, Time);
+    MassUnits = DensityUnits * POW(LengthUnits,3);
+    int NumberOfGrids;
+    HierarchyEntry **Grids = NULL;
+    NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
+    FLOAT dx_sg = LevelArray[ThisLevel]->GridData->CellWidth[0][0]; // SG. Grid cell width.
+
+    for (int i = 0; i < nParticles; i++) {
+        if (SmartStarFeedback == FALSE){
+            continue;
+        }
+
+        ActiveParticleType_SmartStar* SS;
+        SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+	    int pclass = SS->ParticleClass;
+        float OldMassCheck = SS->oldmass; // SG. Checking.
+        FLOAT AccretionRadius = SS->AccretionRadius;
+
+        // SG. BH class.
+        if(pclass == BH){
+            grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx_sg), dx_sg,
+                                                       Grids, NumberOfGrids, ALL_FIELDS);
+            if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
+                if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
+                    return FAIL;
+            }
+
+            /* If a PISN just went off then we can safely delete the particle. */
+            if(ParticleList[i]->ShouldDelete() == true) {
+                printf("%s: Delete SS %d following PISN\n", __FUNCTION__,
+                       static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
+                fflush(stdout);
+                ParticleList[i]->DisableParticle(LevelArray,FeedbackZone->ReturnProcessorNumber());
+                printf("%s: SS %d deleted\n", __FUNCTION__,
+                       static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
+                fflush(stdout);
+            }
+	        ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);
+	        DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+	        delete FeedbackZone;
+        } // SG. End BH class condition.
+	    else if (pclass == POPIII){ // SG. Add POPIII class condition
+            grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx_sg), dx_sg,
+                                                       Grids, NumberOfGrids, ALL_FIELDS);
+
+		    // SG. Set to 0 before it's calculated by owning proc and then communicated with other procs in CommunicateAllSumValues().
+		    FLOAT positions[3] = {0,0,0}; // SG. All elements initialised to zero.
+		    FLOAT NewAccretionRadius = 0;
+		    FLOAT* pos;
+
+		    if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
+                if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
+                    return FAIL;
+
+                // SG. positions is the array of dereferenced particle positions in each dim.
+                positions[0] = SS->ReturnPosition()[0];
+                positions[1] = SS->ReturnPosition()[1];
+                positions[2] = SS->ReturnPosition()[2];
+            } // END my processor
+
+            // SG. Communicate with all procs the updated accretion radius and particle position.
+            CommunicationAllSumValues(&NewAccretionRadius, 1);
+            CommunicationAllSumValues(positions, 3);
+
+            SS->AccretionRadius = NewAccretionRadius;
+            AccretionRadius = SS->AccretionRadius;
+
+            SS->pos[0] = positions[0];
+            SS->pos[1] = positions[1];
+            SS->pos[2] = positions[2];
+
+            DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
+            delete FeedbackZone;
+
+        } // SG. End POPIII class condition.
+    } // SG. End FOR loop over particles
   
-  NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
-		FLOAT dx_sg = LevelArray[ThisLevel]->GridData->CellWidth[0][0]; // SG. Grid cell width.
-  
-  for (int i = 0; i < nParticles; i++) {			
-				if (SmartStarFeedback == FALSE){
-				 continue;
-				}
+    if (AssignActiveParticlesToGrids(ParticleList, nParticles, LevelArray) == FAIL)
+        return FAIL;
 
-				ActiveParticleType_SmartStar* SS;
-				SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
-	   int pclass = SS->ParticleClass;
-				float OldMassCheck = SS->oldmass; // SG. Checking.
-    FLOAT AccretionRadius = SS->AccretionRadius;
-
-				// SG. BH class.
-				if(pclass == BH){
-				grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx_sg), dx_sg, 
-					       Grids, NumberOfGrids, ALL_FIELDS);
-    if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
-      if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
-	return FAIL;
-				}
-
-      /* If a PISN just went off then we can safely delete the particle. */
-      if(ParticleList[i]->ShouldDelete() == true) {
-	printf("%s: Delete SS %d following PISN\n", __FUNCTION__,
-	       static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
-	fflush(stdout);
-	ParticleList[i]->DisableParticle(LevelArray, 
-					 FeedbackZone->ReturnProcessorNumber());
-	printf("%s: SS %d deleted\n", __FUNCTION__,
-	       static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
-	fflush(stdout);
-      }
-	ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, ParticleList);					
-	DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-	delete FeedbackZone;
-    
- } // SG. End BH class condition. 
-	else if (pclass == POPIII){ // SG. Add POPIII class condition
-
-		grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], FLOAT(AccretionRadius/dx_sg), dx_sg, 
-									Grids, NumberOfGrids, ALL_FIELDS);
-
-		// // SG. Set to 0 before it's calculated by owning proc and then communicated with other procs in CommunicateAllSumValues().
-		FLOAT positions[3] = {0,0,0}; // SG. All elements initialised to zero.
-		FLOAT NewAccretionRadius = 0;
-		FLOAT* pos;
-
-		if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
-			if (FeedbackZone->ApplySmartStarParticleFeedback(&ParticleList[i]) == FAIL)
-			return FAIL;
-
-			// // SG. positions is the array of dereferenced particle positions in each dim.
-			positions[0] = SS->ReturnPosition()[0];
-			positions[1] = SS->ReturnPosition()[1];
-			positions[2] = SS->ReturnPosition()[2];
-		} // END my processor
-
-		// SG. Communicate with all procs the updated accretion radius and particle position.
-		CommunicationAllSumValues(&NewAccretionRadius, 1);
-		CommunicationAllSumValues(positions, 3);
-
-		SS->AccretionRadius = NewAccretionRadius;
-		AccretionRadius = SS->AccretionRadius;
-
-		SS->pos[0] = positions[0];
-		SS->pos[1] = positions[1];
-		SS->pos[2] = positions[2];
-
-		DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);
-		delete FeedbackZone;
-				
-		} // SG. End POPIII class condition.
-
-} // SG. End FOR loop over particles
-  
-		if (AssignActiveParticlesToGrids(ParticleList, nParticles, LevelArray) == FAIL)
-		return FAIL;
-
-  delete [] Grids;
-
-  return SUCCESS;
+    delete [] Grids;
+    return SUCCESS;
 } // SG. End SmartStarParticleFeedback function.
+
 
 /* 
  * This function can be used to reset the particle acceleration if required.
