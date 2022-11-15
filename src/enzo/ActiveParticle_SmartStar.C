@@ -665,9 +665,9 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		float TargetSphereMass = 2*PopIIIStarMass;
 
 		/* Find radius of sphere to be accreted from */
-		SS->FindAccretionSphere(LevelArray, ThisLevel, StarLevelCellWidth, Radius, TargetSphereMass,
-						MassEnclosed, Metallicity2, Metallicity3, ColdGasMass, ColdGasFraction,
-						SphereContained, MarkedSubgrids);
+		SS->FindAccretionSphere(LevelArray, ThisLevel, StarLevelCellWidth, Radius,
+                                TargetSphereMass, MassEnclosed, Metallicity2, Metallicity3, ColdGasMass,
+                                ColdGasFraction, SphereContained, MarkedSubgrids);
 
 		/* Determine if a sphere is enclosed within the grids on next level
 		If that is the case, we perform SubtractAccretedMass not here, 
@@ -678,9 +678,9 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 		
 		if (LevelArray[ThisLevel+1] != NULL) {
 			fprintf(stderr, "%s: Checking if sphere can be found on next highest level.\n", __FUNCTION__);		
-			SS->FindAccretionSphere(LevelArray, ThisLevel+1, StarLevelCellWidth, Radius, TargetSphereMass, 
-				MassEnclosed, Metallicity2, Metallicity3, ColdGasMass, ColdGasFraction,
-				SphereContainedNextLevel, MarkedSubgrids);
+			SS->FindAccretionSphere(LevelArray, ThisLevel+1, StarLevelCellWidth, Radius,
+                                    TargetSphereMass,MassEnclosed, Metallicity2, Metallicity3, ColdGasMass,
+                                    ColdGasFraction,SphereContainedNextLevel, MarkedSubgrids);
 		}
 
 		/* Quit this routine when 
@@ -727,10 +727,12 @@ int ActiveParticleType_SmartStar::PopIIIFormationFromSphere(ActiveParticleType_S
 
 		/* Print out particle attributes */
 		fprintf(stderr,"%s: Particle Mass = %1.1f Msolar\n", __FUNCTION__, SS->Mass);
-		fprintf(stderr,"%s: Particle Lifetime = %1.2f Myr\n", __FUNCTION__, SS->RadiationLifetime*TimeUnits/Myr_s);
+		fprintf(stderr,"%s: Particle Lifetime = %1.2f Myr\n", __FUNCTION__,
+                SS->RadiationLifetime*TimeUnits/Myr_s);
 		fprintf(stderr,"%s: Particle Age = %1.1f Myr\n", __FUNCTION__, Age*TimeUnits/Myr_s);
 		fprintf(stderr,"%s: Particle Class = %d\n", __FUNCTION__, SS->ParticleClass);
-		fprintf(stderr,"%s: Removed mass from sphere of radius %e pc\n", __FUNCTION__, SS->InfluenceRadius*LengthUnits/pc_cm);
+		fprintf(stderr,"%s: Removed mass from sphere of radius %e pc\n", __FUNCTION__,
+                SS->InfluenceRadius*LengthUnits/pc_cm);
 
 		/* Assign code density mass to SS and oldmass */
 		SS->Mass = (PopIIIStarMass*SolarMass/MassUnits)/CellVolumeStarLevel; //code density
@@ -761,12 +763,12 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 
 	/* Set the units. */
 	FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
- float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
- double MassUnits;
+    float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
+    double MassUnits;
 	int SSparticles[nParticles] = {-1};
- GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	 &TimeUnits, &VelocityUnits, Time);
- MassUnits = DensityUnits * POW(LengthUnits,3);
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+             &TimeUnits, &VelocityUnits, Time);
+    MassUnits = DensityUnits * POW(LengthUnits,3);
 
 	/*
 		* Order particles in order of SMS, PopIII, PopII
@@ -775,7 +777,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	*/
 	int k = 0, num_new_sms_stars = 0, num_new_popiii_stars = 0, num_new_popii_stars = 0;
 	for (int i = 0; i < nParticles; i++) {
-		grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
+        grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
 		if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
 			ActiveParticleType_SmartStar* SS;
 			SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
@@ -816,7 +818,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 	}
 
 
- /* Instantiate common attributes of all SS particle types */
+    /* Instantiate common attributes of all SS particle types */
 	ActiveParticleType_SmartStar* SS;
 	LevelHierarchyEntry *Temp;
 	grid* APGrid;
@@ -847,8 +849,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 				}
 #endif
 
-	
-/* Main loop over new particles */
+    /* Main loop over new particles */
 	for (int k = 0; k < num_new_stars; k++){
 
 		/* Define APGrid and SS particle */
@@ -879,14 +880,14 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 			just remove mass from the cell 
 			*/
 
-		 /* Find DensNum */
+		    /* Find DensNum */
 			int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
 			if (APGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				Vel3Num, TENum) == FAIL){
 					ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
 					}
 
-		 /* Define ParticleDensity and newcelldensity (only known to owning processor) */
+		    /* Define ParticleDensity and newcelldensity (only known to owning processor) */
 			density = APGrid->BaryonField[DensNum];
 			DensityThreshold = ActiveParticleDensityThreshold*mh/DensityUnits;
 			ParticleDensity = density[cellindex] - DensityThreshold;
@@ -989,7 +990,7 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
 			 Accrete if the mass exceeds the star cluster minimum mass.
 			*/
 
-		 /* Find DensNum */
+		    /* Find DensNum */
 			int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
 			if (APGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				Vel3Num, TENum) == FAIL){
@@ -1027,7 +1028,6 @@ int ActiveParticleType_SmartStar::RemoveMassFromGridAfterFormation(int nParticle
          } // END POPII
          } // END num_new_stars loop
 	return SUCCESS;
-
 } // END RemoveMassFromGridAfterFormation
 
 
