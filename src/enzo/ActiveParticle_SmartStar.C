@@ -1227,47 +1227,44 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
     LevelHierarchyEntry *LevelArray[], int level,
     int TopGridDims[], int SmartStarID)
 {
+    /* 	SG. Get dx of grid cell here. This function is calling all grids on level.
+     * 1) accrad, 2) cell width, 3) parameter for number cells to refine the accretion radius by.
+     * Only if dx > dx_bondi is DepositRefinementZone triggered.
+     * */
 
-/* 			SG. Get dx of grid cell here. This function is calling all grids on level.
-						1) accrad, 2) cell width, 3) parameter for number cells to refine the accretion 
-						radius by.
-						Only if dx > dx_bondi is DepositRefinementZone triggered.
-	*/
+    /* Generate a list of all sink particles in the simulation box */
+    int i, nParticles;
+    FLOAT *pos = NULL;
+    ActiveParticleList<ActiveParticleType> SmartStarList;
+    LevelHierarchyEntry *Temp = NULL;
+    double dx = LevelArray[level]->GridData->CellWidth[0][0]; // SG. Grid cell width.
 
-  /* Generate a list of all sink particles in the simulation box */
-  int i, nParticles;
-  FLOAT *pos = NULL;
-  ActiveParticleList<ActiveParticleType> SmartStarList;
-  LevelHierarchyEntry *Temp = NULL;
-		double dx = LevelArray[level]->GridData->CellWidth[0][0]; // SG. Grid cell width.
+    // SG. Get units for conversion to pc for dx in print statement.
+    FLOAT Time = LevelArray[level]->GridData->ReturnTime();
+    float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
+    double MassUnits;
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+             &TimeUnits, &VelocityUnits, Time);
 
-		// SG. Get units for conversion to pc for dx in print statement.
-		FLOAT Time = LevelArray[level]->GridData->ReturnTime();
-		float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits;
-  double MassUnits;
-  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, Time);
+    // Find all smartstar particles
+    ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
+                          SmartStarList);
 
-  ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
-      SmartStarList);
+    for (i=0 ; i<nParticles; i++){
+        ActiveParticleType_SmartStar* SS;
+        SS = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i]);
+        int pclass = SS->ParticleClass;
 
-  for (i=0 ; i<nParticles; i++){
-			ActiveParticleType_SmartStar* SS;
-			SS = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i]);
-			int pclass = SS->ParticleClass;
-
-			/* POPIII case*/
-			if (pclass == POPIII){
-			continue;
+        /* POPIII case*/
+        if (pclass == POPIII){
+            continue;
 		}
 		 /* SMS case*/
-	  if (pclass == SMS) {
-		  continue; 
-
-			/* BH case*/
-		  } else{
-			
+	    if (pclass == SMS) {
+            continue;
+		  }
+        /* BH case*/
+        else{
 			/* Define position and accrad of BH */
 			pos = SmartStarList[i]->ReturnPosition();
 			double accrad = static_cast<ActiveParticleType_SmartStar*>(SmartStarList[i])->AccretionRadius;
@@ -1276,8 +1273,8 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			grid* APGrid = SS->ReturnCurrentGrid();
 			if (MyProcessorNumber == APGrid->ReturnProcessorNumber()){
 			fprintf(stderr, "%s: Accretion radius = %e (Bondi radius) and bondi factor = %e and cell_width = %e.\n",
-			 __FUNCTION__, accrad, SmartStarBondiRadiusRefinementFactor, dx);
-			}
+                    __FUNCTION__, accrad, SmartStarBondiRadiusRefinementFactor, dx);
+            }
 
 			/* SG. Check for when accrad = 0 in the first 100 kyr of BH's life. */
 			if (accrad < 1e-30)
@@ -1292,24 +1289,20 @@ int ActiveParticleType_SmartStar::SetFlaggingField(
 			if (dx_bondi > dx){
 				//fprintf(stderr,"%s: dx_bondi = %"GSYM" pc (%"GSYM" in code units) is greater than cell width = %e pc. Don't deposit refinement zone.\n", 
 				//__FUNCTION__, dx_bondi_pc, dx_bondi, dx_pc);
-		  continue;
+                continue;
 			}
 			for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel){
-					// fprintf(stderr,"%s: BondiRadius/factor = %e pc is less than cell width = %e pc. Deposit refinement zone.\n", 
-					// 	__FUNCTION__, dx_bondi_pc, dx_pc);
-
-		// SG Deposit refinement zone with dx_bondi
-					if (Temp->GridData->DepositRefinementZone(level,pos,dx_bondi) == FAIL) {
-			ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
-			} // end IF
-			} // end FOR
-	  } // end ELSE (BH)
-  } // end FOR over particles
-
-  return SUCCESS;
-}
-
-
+                // fprintf(stderr,"%s: BondiRadius/factor = %e pc is less than cell width = %e pc. Deposit refinement zone.\n",
+                // 	__FUNCTION__, dx_bondi_pc, dx_pc);
+                // SG Deposit refinement zone with dx_bondi
+                if (Temp->GridData->DepositRefinementZone(level,pos,dx_bondi) == FAIL) {
+                    ENZO_FAIL("Error in grid->DepositRefinementZone.\n")
+                } // end IF
+            } // end FOR
+        } // end ELSE (BH)
+    } // end FOR over particles
+    return SUCCESS;
+} // END SetFlaggingField
 
 
 int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
@@ -1648,9 +1641,9 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
 {
 
 	/* SG. Skip stellar accretion even in high-res cases. */
-	#if STELLAR_ACCRETION_OFF 
-		return SUCCESS;
- #endif
+#if STELLAR_ACCRETION_OFF
+    return SUCCESS;
+#endif
 
   FLOAT Time = LevelArray[ThisLevel]->GridData->ReturnTime();
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
@@ -1686,24 +1679,22 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
 /* Find the stellar radius of the sink particle using the SAM from Smith et al. (2011) */
 static float GetStellarRadius(float cmass, float accrate)
 {
-  float p1 = 0, p2 = 0;
-  float A1 = 1.0, A2 = 1.0;
-  float stellar_radius = 0.0;
-  float R_ms = 0.28*POW(cmass, 0.61);
-  p1 = 5.0*POW(accrate, 0.27);   //in mass units
-  p2 = 7.0*POW(accrate, 0.27);   //in mass units
+    float p1 = 0, p2 = 0;
+    float A1 = 1.0, A2 = 1.0;
+    float stellar_radius = 0.0;
+    float R_ms = 0.28*POW(cmass, 0.61);
+    p1 = 5.0*POW(accrate, 0.27);   //in mass units
+    p2 = 7.0*POW(accrate, 0.27);   //in mass units
 
-  if(cmass <= p1) {
-    stellar_radius = 26.0*POW(cmass, 0.27)*POW(accrate/1e-3, 0.41);
-  }
-  else if(cmass > p1 && cmass < p2) {
-    stellar_radius = A1*POW(cmass, 3.0);
-  }
-  else
-    stellar_radius = max(A2*POW(cmass, -2.0), R_ms);
-
-
-  return stellar_radius; //in solar radii
+    if(cmass <= p1) {
+        stellar_radius = 26.0*POW(cmass, 0.27)*POW(accrate/1e-3, 0.41);
+    }
+    else if(cmass > p1 && cmass < p2) {
+        stellar_radius = A1*POW(cmass, 3.0);
+    }
+    else
+        stellar_radius = max(A2*POW(cmass, -2.0), R_ms);
+    return stellar_radius; //in solar radii
 }
 
 namespace {
