@@ -410,7 +410,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 
       while (Temp != NULL) {
 
-        // // SG. Check we're on the maximum LOCAL refinement level from the get-go. 
+        // // SG. Check we're on the maximum LOCAL refinement level from the get-go.
         // for (k = Temp->GridStartIndex[2]; k <= Temp->GridEndIndex[2]; k++) {
         //   for (j = Temp->GridStartIndex[1]; j <= Temp->GridEndIndex[1]; j++) {
         //   index = GRIDINDEX_NOGHOST(Temp->GridStartIndex[0], j, k);
