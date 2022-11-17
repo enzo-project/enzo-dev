@@ -27,6 +27,7 @@
 #define STELLAR_ACCRETION_OFF 1 // SG. Turns off accretion for POPIII if =1.
 #define HW_BH_MASS 1   // SG. BH forms with mass according to Heger-Woosley 2002 relation.
 #define SNEFEEDBACK 1
+#define ONE_PARTICLE_ONLY 1 // SG. Disabling further particle formation. Must be turned to 0 to form 1 particle.
 int DetermineSEDParameters(ActiveParticleType_SmartStar *SS,FLOAT Time, FLOAT dx);
 float CalculatePopIIILifetime(float Mass);
 
@@ -122,79 +123,85 @@ int ActiveParticleType_SmartStar::InitializeParticleType()
 int ActiveParticleType_SmartStar::EvaluateFormation
 (grid *thisgrid_orig, ActiveParticleFormationData &data)
 {
-   // No need to do the rest if we're not on the maximum refinement level/ local max level of refinement
-  SmartStarGrid *thisGrid =
+    // SG. If we just want one SmartStar in simulation.
+    // SG. Temporarily disable star formation other than the current particle.
+    if (ONE_PARTICLE_ONLY) {
+        fprintf(stderr, "Total number of SmartStar particles is 1. Disabling further formation %s\n",
+                __FUNCTION__);
+        return SUCCESS;
+    }
+    // No need to do the rest if we're not on the maximum refinement level/ local max level of refinement
+    SmartStarGrid *thisGrid =
     static_cast<SmartStarGrid *>(thisgrid_orig);
 
-  //static int shu_collapse = 0;
-  int i,j,k,index,method,MassRefinementMethod;
- 
-  float *density = thisGrid->BaryonField[data.DensNum];
+    //static int shu_collapse = 0;
+    int i,j,k,index,method,MassRefinementMethod;
 
-  float* velx = thisGrid->BaryonField[data.Vel1Num];
-  float* vely = thisGrid->BaryonField[data.Vel2Num];
-  float* velz = thisGrid->BaryonField[data.Vel3Num];
-  float div = 0.0, divx = 0.0, divy = 0.0, divz = 0.0, dtot = 0.0, tdyn = 0.0;
-  float mass = 0.0;
-  float JeansDensityUnitConversion = (Gamma*pi*kboltz) / (Mu*mh*GravConst);
-  float CellTemperature = 0;
-  float JeansDensity = 0, JeansMass = 0;
-  float MassRefinementDensity = 0;
-  float DensityThreshold = ActiveParticleDensityThreshold*mh/data.DensityUnits;   //in code density
-  float ExtraDensity = 0;
-  float GravitationalMinimum = 0.0;
-  float ThermalEnergy = 0.0, GravitationalEnergy = 0.0, KineticEnergy = 0.0, CalcTotalEnergy = 0.0,
+    float *density = thisGrid->BaryonField[data.DensNum];
+
+    float* velx = thisGrid->BaryonField[data.Vel1Num];
+    float* vely = thisGrid->BaryonField[data.Vel2Num];
+    float* velz = thisGrid->BaryonField[data.Vel3Num];
+    float div = 0.0, divx = 0.0, divy = 0.0, divz = 0.0, dtot = 0.0, tdyn = 0.0;
+    float mass = 0.0;
+    float JeansDensityUnitConversion = (Gamma*pi*kboltz) / (Mu*mh*GravConst);
+    float CellTemperature = 0;
+    float JeansDensity = 0, JeansMass = 0;
+    float MassRefinementDensity = 0;
+    float DensityThreshold = ActiveParticleDensityThreshold*mh/data.DensityUnits;   //in code density
+    float ExtraDensity = 0;
+    float GravitationalMinimum = 0.0;
+    float ThermalEnergy = 0.0, GravitationalEnergy = 0.0, KineticEnergy = 0.0, CalcTotalEnergy = 0.0,
     TotalMass = 0.0;
-  int GridDimension[3] = {thisGrid->GridDimension[0],
+    int GridDimension[3] = {thisGrid->GridDimension[0],
                           thisGrid->GridDimension[1],
                           thisGrid->GridDimension[2]};
-  int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
-  float ConverttoSolar = data.DensityUnits*POW(data.LengthUnits, 3.0)/SolarMass;
-  FLOAT dx = thisGrid->CellWidth[0][0], centralpos[3];
+    int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
+    float ConverttoSolar = data.DensityUnits*POW(data.LengthUnits, 3.0)/SolarMass;
+    FLOAT dx = thisGrid->CellWidth[0][0], centralpos[3];
 
-  bool HasMetalField = (data.MetalNum != -1 || data.ColourNum != -1);
-  bool JeansRefinement = false;
-  bool MassRefinement = false;
-  float *PotentialField  = NULL;
-  if(data.GravPotentialNum >= 0)
+    bool HasMetalField = (data.MetalNum != -1 || data.ColourNum != -1);
+    bool JeansRefinement = false;
+    bool MassRefinement = false;
+    float *PotentialField  = NULL;
+    if(data.GravPotentialNum >= 0)
     PotentialField = thisGrid->BaryonField[data.GravPotentialNum];
-  FLOAT dx_pc = dx*data.LengthUnits/pc_cm;   //in pc
-  
-  const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
+    FLOAT dx_pc = dx*data.LengthUnits/pc_cm;   //in pc
 
-		// determine refinement criteria
-  for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
+    const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
+
+    // determine refinement criteria
+    for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
     if (CellFlaggingMethod[method] == 2) {
       MassRefinement = true;
       MassRefinementMethod = method;
     }
     if (CellFlaggingMethod[method] == 6)
       JeansRefinement = true;
-  }
+    }
 
 #if MASSTHRESHOLDCHECK
-  JeansMass = thisGrid->CalculateJeansMass(data.DensNum, data.Temperature, data.DensityUnits);  //In Msolar
+    JeansMass = thisGrid->CalculateJeansMass(data.DensNum, data.Temperature, data.DensityUnits);  //In Msolar
 #endif
 
 // SG. Check we're on the maximum LOCAL refinement level from the get-go. 
-  for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
-    for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
-	  index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
-      for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
-	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
-		 continue;
-	} else{
+    for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++) {
+        for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++) {
+            index = GRIDINDEX_NOGHOST(thisGrid->GridStartIndex[0], j, k);
+            for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++, index++) {
+                if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0){
+                    continue;
+                } else{
 
-
-	DensityThreshold = ActiveParticleDensityThreshold*mh/data.DensityUnits; 
+	DensityThreshold = ActiveParticleDensityThreshold*mh/data.DensityUnits;
 	// If no more room for particles, throw an ENZO_FAIL
 	if (data.NumberOfNewParticles >= data.MaxNumberOfNewParticles)
 	  return FAIL;
 	// 1. Check we're on the maximum refinement level - already done at start of function
-	// SG. Check we're on the maximum LOCAL refinement level from the get-go. 
-	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0) 
+	// SG. Check we're on the maximum LOCAL refinement level from the get-go.
+	if (thisGrid->BaryonField[thisGrid->NumberOfBaryonFields][index] != 0.0)
 	 continue;
-	  
+
 	// 2. Does this cell violate the Jeans condition or overdensity threshold
 	// Fedderath condition #1
 #if JEANSREFINEMENT
@@ -205,7 +212,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	   * Density in one cell is exceeded - see Krumholz et al. (2004)
 	   * Krumholz et al. use a Jeans factor of 4, I found that
 	   * pushing this to 2 (i.e. making the threshold higher) is
-	   * more accurate. 
+	   * more accurate.
 	   */
 	  int JeansFactor = JEANS_FACTOR;
 	  JeansDensity = JeansDensityUnitConversion * 1.01 * CellTemperature /
@@ -224,7 +231,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 
 	if (density[index] <= DensityThreshold){
 		continue;
-	} 
+	}
 	mass = density[index]*dx*dx*dx;
 #if SSDEBUG
 	fprintf(stdout, "%s: Excellent! Density threshold exceeeded - density = %g cm^-3\n",
@@ -251,7 +258,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
         fprintf(stderr, "%s: Negative Divergence passed\n", __FUNCTION__);
 #endif
 	
-	/* We now need to define a control volume - this is the region within 
+	/* We now need to define a control volume - this is the region within
 	   an accretion radius of the cell identified */
 	centralpos[0] = thisGrid->CellLeftEdge[0][i] + 0.5*thisGrid->CellWidth[0][i];
 	centralpos[1] = thisGrid->CellLeftEdge[1][j] + 0.5*thisGrid->CellWidth[1][j];
@@ -263,16 +270,16 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 #endif
 
 	// 4. t_cool < t_freefall (skip if T > 11000 K)
-	dtot = ( density[index] + data.DarkMatterDensity[index] ) * 
+	dtot = ( density[index] + data.DarkMatterDensity[index] ) *
 	  data.DensityUnits;
 	tdyn = sqrt(3.0 * M_PI / 32.0 / GravConst / dtot) / data.TimeUnits;
 	fprintf(stderr, "%s: Calculate cooling time: %e, and temp = %e.\n", __FUNCTION__, data.CoolingTime[index], data.Temperature[index]);
-	if (tdyn < data.CoolingTime[index] && 
+	if (tdyn < data.CoolingTime[index] &&
 	    data.Temperature[index] > 1.1e4)
 	  continue;
 #endif
 
-#if MASSTHRESHOLDCHECK	
+#if MASSTHRESHOLDCHECK
 #if SSDEBUG
         fprintf(stdout, "%s: Calculate Mass Threshold Check\n", __FUNCTION__);
 #endif
@@ -280,10 +287,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	TotalMass = thisGrid->FindMassinGrid(data.DensNum);
 	/* Mass Threshold check */
 	/* The control region should contain a mass greater than the mass threshold */
-	if(TotalMass*ConverttoSolar < (double)MASSTHRESHOLD) {	
-		// fprintf(stderr, "%s: Total Mass in Accretion Region (grids of SS particle) = %g Msolar (Threshold = %g)\n", __FUNCTION__,
-	 //      TotalMass*ConverttoSolar, (double)MASSTHRESHOLD);
-	  continue;
+	if(TotalMass*ConverttoSolar < (double)MASSTHRESHOLD) {
+        continue;
 	}
 #if SSDEBUG
 	printf("%s: Total Mass in Accretion Region = %g Msolar (Threshold = %g)\n", __FUNCTION__,
@@ -303,8 +308,8 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  fprintf(stdout, "%s: Calculate Gravitational Potential\n", __FUNCTION__);
 #endif
 	  /* 4. Gravitational Minimum Check */
-	  /* 
-	   * Find the minimum of the potential over a Jeans Length. 
+	  /*
+	   * Find the minimum of the potential over a Jeans Length.
 	   */
 	  double JLength = JeansLength(CellTemperature, density[index],
 				       data.DensityUnits)/data.LengthUnits;
@@ -327,7 +332,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  fprintf(stdout, "%s: Gravitational Potential Passed!\n", __FUNCTION__);
 #endif
 	}
-	
+
 #endif
 #ifdef GRAVENERGY
 	static int mincount = 0;
@@ -339,9 +344,9 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	/* This is the internal energy plus the kinetic energy */
 	CalcTotalEnergy = thisGrid->FindTotalEnergy(centralpos, LinkingLength*dx,
 						data.TENum);
-	
+
 	GravitationalEnergy += gpot[index];
-	
+
 	if(fabs(GravitationalEnergy) <= 2*ThermalEnergy) continue;
 
 	/* 6. Bound state check */
@@ -349,15 +354,15 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 							 data.DensNum, data.Vel1Num, data.Vel2Num,
 							 data.Vel3Num);
 	if(KineticEnergy + ThermalEnergy + GravitationalEnergy >= 0.0) continue;
-	
+
 #endif
 
-	/* 
-	 * Now we need to check the H2 fraction and the accretion rate now. 
+	/*
+	 * Now we need to check the H2 fraction and the accretion rate now.
 	 * If the H2fraction > PopIIIH2CriticalFraction then we are ok to form a PopIII star
-	 * If H2fraction < PopIIIH2CriticalFraction then we should form a SMS only if the 
+	 * If H2fraction < PopIIIH2CriticalFraction then we should form a SMS only if the
 	 * accretion rate onto the protostar (cell) is above a critical value
-	 * 
+	 *
 	 */
 	float *cellvel = new float[MAX_DIMENSION];
 	cellvel[0] = velx[index]; cellvel[1] = vely[index]; cellvel[2] = velz[index];
@@ -488,6 +493,7 @@ int ActiveParticleType_SmartStar::EvaluateFormation
   if(data.NumberOfNewParticles > 0) {
     fprintf(stderr, "Particles (%d) Created and done in %s\n", data.NumberOfNewParticles, __FUNCTION__);
   }
+
 #if CALCDIRECTPOTENTIAL
   delete [] PotentialField;
 #endif
