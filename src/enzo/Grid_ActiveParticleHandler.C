@@ -93,10 +93,11 @@ int grid::ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Now we copy the particles from NewParticles into a statically allocated
    * array */
 
+
   if (NumberOfNewParticles > 0) {
     this->AddActiveParticles(supplemental_data.NewParticles, 0, NumberOfNewParticles);
-    if (debug2)
-      printf("Creating %d new active particles\n", NumberOfNewParticles);
+    fprintf(stderr,"Creating %d new active particles on grid %d\n", NumberOfNewParticles, this->ID);
+      
   }
 
   /******************** FEEDBACK ********************/
@@ -107,7 +108,11 @@ int grid::ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
       {
 	ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
 	ActiveParticleTypeToEvaluate->EvaluateFeedback(this, supplemental_data);
+
+  fprintf(stderr,"[%"ISYM"]Made it past EvaluateFeedback (Grid_ActiveParticleHandler.C:112)\n", MyProcessorNumber);
       }
+
+      
   
   ActiveParticleType::DestroyData(this, supplemental_data);
 

@@ -442,6 +442,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 #endif
 
+    fprintf(stderr,"[%"ISYM"]Made it here(EvolveHierarchy.C:445)\n", MyProcessorNumber);
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "TopGrid dt = %"ESYM"     time = %"GOUTSYM"    cycle = %"ISYM,
 	     dt, MetaData.Time, MetaData.CycleNumber);
@@ -459,6 +460,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     FOF(&MetaData, LevelArray, MetaData.WroteData);
 
+    fprintf(stderr,"[%"ISYM"]Made it here(EvolveHierarchy.C:463)\n", MyProcessorNumber);
+
     /* If provided, set RefineRegion from evolving RefineRegion 
        OR set MustRefineRegion from evolving MustRefineRegion 
        OR set CoolingRefineRegion from evolving CoolingRefineRegion */
@@ -469,11 +472,15 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 	  ENZO_FAIL("Error in SetEvolveRefineRegion.");
     }
 
+    fprintf(stderr,"[%"ISYM"]Made it here(EvolveHierarchy.C:475)\n", MyProcessorNumber);
+
     /* Set evolving stellar mass threshold */
     if (StarMakerMinimumMassRamp > 0) {
         if (SetStellarMassThreshold(MetaData.Time) == FAIL) 
 	  ENZO_FAIL("Error in SetStellarMassThreshold.");
     }
+
+    fprintf(stderr,"[%"ISYM"]Made it here(EvolveHierarchy.C:483)\n", MyProcessorNumber);
 
     /* Evolve the stochastic forcing spectrum and add
      *  the force to the acceleration fields */
@@ -481,11 +488,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
         Forcing.Evolve(dt); 
 
     /* Evolve the top grid (and hence the entire hierarchy). */
-
+    fprintf(stderr,"[%"ISYM"]Made it to MPI Barrier (EvolveHierarchy.C:491)\n", MyProcessorNumber);
 #ifdef USE_MPI 
     CommunicationBarrier();
     tlev0 = MPI_Wtime();
 #endif
+fprintf(stderr,"[%"ISYM"]Made it past MPI Barrier (EvolveHierarchy.C:496)\n", MyProcessorNumber);
 
     /* Zeroing out the rootgrid Emissivity before EvolveLevel is called 
        so when rootgrid emissivity values are calculated they are put in 
@@ -506,6 +514,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 // Added by Deovrat Prasad
     if (AGNEdotFile == NULL)
        AGNEdotFile = fopen("edot_log.dat","a");
+    fprintf(stderr,"[%"ISYM"]Made it past AGNEdotFile (EvolveHierarchy.C:509)\n", MyProcessorNumber);
     
  
     if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
@@ -528,12 +537,16 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
         return FAIL;
     }
 
+    printf("[%"ISYM"]Made it past EvolveLevel (EvolveHierarchy.C:532)\n", MyProcessorNumber);
+
 
 
 #ifdef USE_MPI 
     CommunicationBarrier();
     tlev1 = MPI_Wtime();
 #endif
+
+printf("[%"ISYM"]Made it past MPI Barrier (EvolveHierarchy.C:541)\n", MyProcessorNumber);
   
     /* Add time and check stopping criteria (steps #21 & #22)
        (note the topgrid is also keeping its own time but this statement will

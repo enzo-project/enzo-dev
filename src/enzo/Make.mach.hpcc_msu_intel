@@ -1,6 +1,6 @@
 #=======================================================================
 #
-# FILE:        Make.mach.hpcc_msu
+# FILE:        Make.mach.ubuntu-hpcc_msu
 #
 # DESCRIPTION: Makefile settings for a machine running Ubuntu 8.04
 #
@@ -23,30 +23,30 @@ MACH_FILE  = Make.mach.hpcc_msu
 #-----------------------------------------------------------------------
 #LOCAL_LIBS_MACH   = -L$(LOCAL_COMPILER)/intel64 -lcilkrts -lifport -lifcore
 #LOCAL_COMPILER = /opt/software/ifort/2019.3.199-GCC-8.3.0-2.32/compilers_and_libraries_2019.3.199/linux/bin
-LOCAL_HDF5_INSTALL = /opt/software/HDF5/1.8.20-foss-2018a
+LOCAL_HDF5_INSTALL = /usr/lib64
 LOCAL_GRACKLE_INSTALL = /mnt/home/llorente/grackle/local
 
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
-MACH_CPP       = /usr/bin/cpp
+MACH_CPP       = icpc # C preprocessor command
 
 # With MPI
 
-MACH_CC_MPI    = mpicc
-MACH_CXX_MPI   = mpiCC
-MACH_FC_MPI    = mpif90
-MACH_F90_MPI   = mpif90
-MACH_LD_MPI    = mpiCC
+MACH_CC_MPI    = mpicc # C compiler when using MPI
+MACH_CXX_MPI   = mpicxx # C++ compiler when using MPI
+MACH_FC_MPI    = mpif90 # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = mpif90 # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = mpicxx # Linker when using MPI
 
 # Without MPI
 
-MACH_CC_NOMPI  = gcc
-MACH_CXX_NOMPI = g++
-MACH_FC_NOMPI  = gfortran
-MACH_F90_NOMPI = gfortran
-MACH_LD_NOMPI  = g++
+MACH_CC_NOMPI  = icc # C compiler when not using MPI
+MACH_CXX_NOMPI = icpc # C++ compiler when not using MPI
+MACH_FC_NOMPI  = ifort # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = ifort # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = icpc # Linker when not using MPI
 
 #-----------------------------------------------------------------------
 # Machine-dependent defines
@@ -58,29 +58,20 @@ MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 # Compiler flag settings
 #-----------------------------------------------------------------------
 
-MACH_CPPFLAGS = -P -traditional -H
-MACH_CFLAGS   = -H
-MACH_CXXFLAGS = -H
-MACH_FFLAGS   = -extend-source
-MACH_F90FLAGS = -extend-source
-#MACH_LDFLAGS  = -Wl,-noinhibit-exec -lifcore -lifport -lpthread -ldl
-MACH_LDFLAGS = -lgfortran
 
-#-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = -i4
-MACH_FFLAGS_INTEGER_64 = -i8
-MACH_FFLAGS_REAL_32    = -r4
-MACH_FFLAGS_REAL_64    = -r8
+MACH_CPPFLAGS = -P -traditional 
+MACH_CFLAGS   = 
+MACH_CXXFLAGS =
+MACH_FFLAGS   = -fno-second-underscore -ffixed-line-length-132
+MACH_F90FLAGS = -fno-second-underscore
+MACH_LDFLAGS  = 
 
 #-----------------------------------------------------------------------
 # Optimization flags
 #-----------------------------------------------------------------------
 
-MACH_OPT_WARN        = -w2 -g
-MACH_OPT_DEBUG       = -O0 -g
+MACH_OPT_WARN        = -Wall -g
+MACH_OPT_DEBUG       = -O0 -ggdb
 MACH_OPT_HIGH        = -O2
 MACH_OPT_AGGRESSIVE  = -O3 
 
@@ -108,8 +99,7 @@ LOCAL_LIBS_MPI    = # MPI libraries
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
-#LOCAL_LIBS_MACH   = -lcilkrts -lifcore -lifport -lgfortran
-LOCAL_LIBS_MACH   = -lgfortran
+LOCAL_LIBS_MACH   = -lcilkrts -lifcore -lifport -lgfortran
 LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)

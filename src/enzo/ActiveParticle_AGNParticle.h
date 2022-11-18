@@ -65,6 +65,18 @@ public:
       StoredMass           = part -> StoredMass;
       FixedJetIsOn         = part -> FixedJetIsOn;
       TimeOfLastShock      = part -> TimeOfLastShock;
+
+      pos[0] = part->pos[0];
+      pos[1] = part->pos[1];
+      pos[2] = part->pos[2];
+
+      vel[0] = part->vel[0];
+      vel[1] = part->vel[1];
+      vel[2] = part->vel[2];
+
+      Mass = part->Mass;
+      BirthTime = part->BirthTime;
+      level = part->level;
     };
   
   // Needed to Create a copy of a particle when only a pointer to the base

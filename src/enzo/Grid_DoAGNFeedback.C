@@ -169,11 +169,11 @@ int grid::DoAGNFeedback( ActiveParticleType* ThisParticle) {
    
    ledd = (4.0 * M_PI * g_cgs * mbh * mp * c_cgs) / sigma_t;
    
-   printf("M_BH: %"GSYM" (%"GSYM" erg/s) (%"GSYM" L_edd) (dt=%"GSYM")\n",
-   mbh, heating_rate_cgs, heating_rate_cgs / ledd, dtFixed);
+   //printf("M_BH: %"GSYM" (%"GSYM" erg/s) (%"GSYM" L_edd) (dt=%"GSYM")\n",
+   //mbh, heating_rate_cgs, heating_rate_cgs / ledd, dtFixed);
    
    // Write edot to a file
-   fprintf(AGNEdotFile, "%8.10"GSYM" %8.10"GSYM" %8.10"GSYM"\n", Time*TimeUnits, heating_rate_cgs, mbh);
+   //fprintf(AGNEdotFile, "%8.10"GSYM" %8.10"GSYM" %8.10"GSYM"\n", Time*TimeUnits, heating_rate_cgs, mbh);
 
    // Store the heating rate (in code). This is not used anywhere in the code-
    //    // it just allows it to be written out with each datadump.

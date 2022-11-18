@@ -73,7 +73,7 @@ int grid::AGNParticleCylinderFeedback(ActiveParticleType* ThisParticle, float md
 
    MassUnits = DensityUnits * pow(LengthUnits, 3.0);
    EnergyUnits = MassUnits * pow(LengthUnits / TimeUnits, 2.0);
-   printf("Time in code units (Get units test): %"GSYM"\n", Time);
+   //printf("Time in code units (Get units test): %"GSYM"\n", Time);
 
    // Get the volume of a cell
    float cell_volume;
@@ -81,7 +81,7 @@ int grid::AGNParticleCylinderFeedback(ActiveParticleType* ThisParticle, float md
 
    // Do the feedback here...
    //
-   printf("Doing AGN Cylindrical feedback!\n");
+   //printf("Doing AGN Cylindrical feedback!\n");
 
    // Check if the jet is on
    if (heating_rate <= tiny_number)

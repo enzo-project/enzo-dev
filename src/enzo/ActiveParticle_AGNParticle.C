@@ -59,8 +59,10 @@ int ActiveParticleType_AGNParticle::InitializeParticleType() {
    if (TurnOnParticleMassRefinement) {
       method = 0;
 
-      while(CellFlaggingMethod[method] != INT_UNDEFINED)
-         method++;
+      while(CellFlaggingMethod[method] != INT_UNDEFINED){
+        method++;
+      }
+         
 
       CellFlaggingMethod[method] = 4; 
       } 
@@ -112,19 +114,21 @@ int ActiveParticleType_AGNParticle::InitializeParticleType() {
 
 
   if (debug)
-      printf("Leaving InitializeParticleType [%"ISYM"]\n", MyProcessorNumber);
+      fprintf(stderr,"Leaving InitializeParticleType [%"ISYM"]\n", MyProcessorNumber);
   return SUCCESS;
 }
 
 int ActiveParticleType_AGNParticle::EvaluateFormation
 (grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data)
 {
-   //if (debug)
-   //printf("Entering EvaluateFormation [%"ISYM"]\n", MyProcessorNumber);
+   
 
    // No need to do the rest if we're not on the maximum refinement level.
    if (data.level != MaximumRefinementLevel)
          return SUCCESS;
+
+  if (debug)
+   fprintf(stderr,"Entering EvaluateFormation [%"ISYM"]\n", MyProcessorNumber);
 
   // Create a 'friend' grid alias that we can use to access private grid data.
   AGNParticleGrid *thisGrid =
@@ -232,7 +236,7 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
           static_cooling_radius = np -> CoolingRadius;
           static_feedback_radius = np -> FeedbackRadius;
 
-          printf("Creating new AGN Particle at [%"GSYM" %"GSYM" %"GSYM"] [%"ISYM"]\n", np->ReturnPosition()[0], 
+          fprintf(stderr,"Creating new AGN Particle at [%"GSYM" %"GSYM" %"GSYM"] [%"ISYM"]\n", np->ReturnPosition()[0], 
                  np->ReturnPosition()[1], np->ReturnPosition()[2], MyProcessorNumber);
           // modified by Deovrat Prasad, AGNParticle given initial velocity.
           if (HydroMethod == PPM_DirectEuler)
@@ -250,6 +254,10 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
             ENZO_FAIL("AGNParticle does not support RK Hydro or RK MHD");
           }
           np->Metallicity = 1.0;
+
+          fprintf(stderr,"Made it to AddActiveParticle (ActiveParticle_AGNParticle.C:254)\n");
+          thisGrid->AddActiveParticle(np);
+          fprintf(stderr,"Made it past AddActiveParticle (ActiveParticle_AGNParticle.C:261)\n");
           return SUCCESS;
         }
       } //i
@@ -257,7 +265,7 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
   } // k
 
   if (debug)
-    fprintf(stdout, "Leaving EvaluateFormation [%"ISYM"]\n",
+    fprintf(stderr, "Leaving EvaluateFormation [%"ISYM"]\n",
   	    MyProcessorNumber);
 
   return SUCCESS;
@@ -381,6 +389,10 @@ int ActiveParticleType_AGNParticle::Handle_AGN_Feedback(int nParticles, ActivePa
       
       grid* tg = ParticleList[i] -> ReturnCurrentGrid();
       Time = tg -> ReturnTime();
+
+      if (MyProcessorNumber != tg->ReturnProcessorNumber()) {
+        continue;
+      }
       
       GetUnits(&DensUnits, &LengthUnits, &TempUnits, &TimeUnits, &VelUnits, Time);
 
@@ -395,7 +407,7 @@ int ActiveParticleType_AGNParticle::Handle_AGN_Feedback(int nParticles, ActivePa
       n_cells_feedback = floor(code_rfeed/ dx) + 1;
       n_disk_cells = floor((code_diskr + code_diskd) / dx) + 1;
       
-      n_cells = 2 * max(n_cells_cooling, n_cells_feedback);
+      n_cells = max(n_cells_cooling, n_cells_feedback);
 
       // Contructing feedback zone
       grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i],
@@ -403,10 +415,10 @@ int ActiveParticleType_AGNParticle::Handle_AGN_Feedback(int nParticles, ActivePa
 
       // Calling DoAGNFeedback function which takes care of feedback physics
        
-      if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
+      // if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
          if( FeedbackZone -> DoAGNFeedback(ParticleList[i]) == FAIL)
            return FAIL;
-      } 
+      //} 
  
       // Copy the feedback grid to the real grids
       DistributeFeedbackZone(FeedbackZone, Grids, NumberOfGrids, ALL_FIELDS);

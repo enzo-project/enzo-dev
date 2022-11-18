@@ -1,0 +1,74 @@
+========================================================================
+make show-version
+========================================================================
+
+Git Branch   master
+Git Revision b5d1332a571d4165c8815df3e2a8792d7fb57b88
+
+========================================================================
+gmake show-config
+========================================================================
+
+   MACHINE: MSU_HPCC
+   MACHINE-NAME: hpcc_msu
+
+   PARAMETER_MAX_SUBGRIDS  [max-subgrids-###]                : 100000
+   PARAMETER_MAX_BARYONS  [max-baryons-###]                  : 30
+   PARAMETER_MAX_TASKS_PER_NODE  [max-tasks-per-node-###]    : 8
+   PARAMETER_MEMORY_POOL_SIZE  [memory-pool-###]             : 100000
+
+   CONFIG_PRECISION  [precision-{32,64}]                     : 64
+   CONFIG_PARTICLES  [particles-{32,64,128}]                 : 64
+   CONFIG_INTEGERS  [integers-{32,64}]                       : 32
+   CONFIG_PARTICLE_IDS  [particle-id-{32,64}]                : 32
+   CONFIG_INITS  [inits-{32,64}]                             : 64
+   CONFIG_IO  [io-{32,64}]                                   : 32
+   CONFIG_USE_MPI  [use-mpi-{yes,no}]                        : yes
+   CONFIG_TASKMAP  [taskmap-{yes,no}]                        : no
+   CONFIG_PACKED_AMR  [packed-amr-{yes,no}]                  : yes
+   CONFIG_PACKED_MEM  [packed-mem-{yes,no}]                  : no
+   CONFIG_LCAPERF  [lcaperf-{yes,no}]                        : no
+   CONFIG_PAPI  [papi-{yes,no}]                              : no
+   CONFIG_PYTHON  [python-{yes,no}]                          : no
+   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : no
+   CONFIG_ECUDA  [cuda-{yes,no}]                             : no
+   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : no
+   CONFIG_ACCELERATION_BOUNDARY  [acceleration-boundary-{yes,no}]              : yes
+   CONFIG_OPT  [opt-{warn,debug,cudadebug,high,aggressive}]  : high
+   CONFIG_TESTING  [testing-{yes,no}]                        : no
+   CONFIG_PHOTON  [photon-{yes,no}]                          : yes
+   CONFIG_HYPRE  [hypre-{yes,no}]                            : no
+   CONFIG_EMISSIVITY  [emissivity-{yes,no}]                  : no
+   CONFIG_USE_HDF4  [use-hdf4-{yes,no}]                      : no
+   CONFIG_NEW_GRID_IO  [newgridio-{yes,no}]                  : yes
+   CONFIG_BITWISE_IDENTICALITY  [bitwise-{yes,no}]           : no
+   CONFIG_FAST_SIB  [fastsib-{yes,no}]                       : yes
+   CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : no
+   CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : yes
+   CONFIG_GRACKLE  [grackle-{yes,no}]                        : yes
+   CONFIG_LOG2ALLOC  [log2alloc-{yes,no}]                    : no
+
+========================================================================
+gmake show-flags
+========================================================================
+
+CPP = /usr/bin/cpp
+CC  = /opt/software/OpenMPI/2.1.2-GCC-6.4.0-2.28/bin/mpicc
+CXX = /opt/software/OpenMPI/2.1.2-GCC-6.4.0-2.28/bin/mpiCC
+FC  = /opt/software/OpenMPI/2.1.2-GCC-6.4.0-2.28/bin/mpif90
+F90 = /opt/software/OpenMPI/2.1.2-GCC-6.4.0-2.28/bin/mpif90
+LD  = /opt/software/OpenMPI/2.1.2-GCC-6.4.0-2.28/bin/mpiCC
+
+DEFINES = -DLINUX -DH5_USE_16_API   -D__max_subgrids=100000 -D__max_baryons=30 -D__max_cpu_per_node=8 -D__memory_pool_size=100000 -DINITS64 -DSMALL_INTS -DCONFIG_PINT_4 -DIO_32    -DUSE_MPI   -DCONFIG_PFLOAT_8 -DCONFIG_BFLOAT_8  -DUSE_HDF5_GROUPS   -DTRANSFER   -DNEW_GRID_IO -DFAST_SIB      -DENZO_PERFORMANCE  -DUSE_GRACKLE  -DSAB
+
+INCLUDES = -I/opt/software/HDF5/1.8.20-foss-2018a/include        -I/mnt/home/llorente/grackle/local/include    -I.
+
+CPPFLAGS = -P -traditional -H
+CFLAGS   = -H -O2
+CXXFLAGS = -H -O2
+FFLAGS   = -extend-source -O2
+F90FLAGS = -extend-source -O2
+LDFLAGS  = -lgfortran -O2
+
+LIBS     = -L/opt/software/HDF5/1.8.20-foss-2018a/lib -lhdf5 -lz  -lgfortran        -L/mnt/home/llorente/grackle/local/lib -lgrackle
+
