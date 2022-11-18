@@ -410,7 +410,8 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 	*/
 
 	density = HaloGasDensity(r_sph, CGM_data)/DensityUnits;
-	temperature = disk_temp = init_temp = HaloGasTemperature(r_sph, CGM_data);
+	temperature = init_temp = HaloGasTemperature(r_sph, CGM_data);
+  disk_temp = DiskTemperature;
 	
 	FLOAT xpos, ypos, zpos, rsph, zheight, theta; 
 	double CellMass;
@@ -544,11 +545,16 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 				       GalaxyMass, ScaleHeightR,
 				       ScaleHeightz, DMConcentration, Time);
 
-	    else if( DiskGravity > 0 )
-	      DiskVelocityMag = DiskGravityCircularVelocity(r_sph*LengthUnits,
-							    rcyl*LengthUnits,
-							    zheight*LengthUnits)
-		    /VelocityUnits;
+	    else if( DiskGravity > 0 ) {
+        if (!DiskGravityDarkMatterUseB95)
+          // This function will check whether or not to add NFW to stellar component
+          DiskVelocityMag = DiskGravityCircularVelocity(r_sph*LengthUnits,
+                                                        rcyl*LengthUnits,
+                                                        zheight*LengthUnits)
+                            /VelocityUnits;
+        else // will also set disk_temp to be not isothermal
+          BurkertForceBalance(CellWidth[0][0], zheight*LengthUnits, disk_dens, CGM_data, disk_temp, DiskVelocityMag);
+      }
         
 	    if (PointSourceGravity*DiskGravity != FALSE ) 
 	      ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
@@ -574,7 +580,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 	  if (disk_dens > density && fabs(rcyl*LengthUnits/Mpc_cm) <= TruncRadius){
         
 	    density = disk_dens;
-	    temperature = DiskTemperature;
+	    temperature = disk_temp;
         
 	    /* Here we're setting the disk to be X times more enriched -- DWS */
 	    if( UseMetallicityField )
@@ -858,11 +864,13 @@ double DiskGravityBulgeAccel(FLOAT rsph) { // cgs arguments
 }
 
 double DiskGravityCircularVelocity(FLOAT rsph, FLOAT rcyl, FLOAT z) {
-    double acc, velmag;
+    double acc=0, velmag;
     
-    acc = GravConst*NFWDarkMatterMassEnclosed(rsph)/POW(rsph,2)
-        + DiskGravityStellarAccel(rcyl, z)
-        + DiskGravityBulgeAccel(rsph);
+    if (DiskGravityDarkMatterUseNFW)
+      acc = GravConst*NFWDarkMatterMassEnclosed(rsph)/POW(rsph,2);
+
+    acc += DiskGravityStellarAccel(rcyl, z)
+         + DiskGravityBulgeAccel(rsph);
 
     velmag = sqrt(acc*rcyl); // cgs
     return velmag;
@@ -1748,12 +1756,9 @@ double halo_mod_DMmass_at_r(FLOAT r){
 /* -------------------- END OF Routines used for initializing the circumgalactic medium -------------------- */
 
 
-/* ----------------- Routines I had deleted that were used in Tonnesen & Bryan 09 oops ----------------------*/
-
-// Temporarily hard code as fit to NFW profile with M_DM = 1e12 Msun and C=10
-double DiskGravityDarkMatterDensity = 9.43e-25; // g/cm^3
-double DiskGravityDarkMatterR = 24.67 * kpc_cm;
-
+/* -------------------- BEGINNING of Functions for thermal pressure balance in the disk --------------------
+  Assumes Burkert 95 DM potential. Originally designed for galaxies in an ICM wind. See Tonnesen & Bryan 09.
+*/
 
 float DiskPotentialGasDensity(FLOAT r,FLOAT z){
 /*
@@ -1827,8 +1832,8 @@ void BurkertForceBalance(FLOAT cellwidth, FLOAT z, FLOAT density, struct CGMdata
   /* 
    *  DISK POTENTIAL CIRCULAR VELOCITY
    *
-   *      Returns disk circular velocity (in code units) given height z
-   *      and rcyl (radius in plane) in disk.  This includes the effect of
+   *      Sets disk temperature & circular velocity (in code units) given height z
+   *      and rcyl (radius in plane) in disk. Velocity includes the effect of
    *      thermal pressure and so is not just the sqrt(G M/rcyl).
    *      Note that for historical reasons rcyl is an external. *
    */
@@ -2168,3 +2173,5 @@ double qromb(double (*func)(double), double a, double b)
   ENZO_FAIL("FAILED IN QROMB IN GRID_GALAXYSIMULATIONINIALIZE\n");
   return -1.0;
 }
+
+/* -------------------- END of Functions for thermal pressure balance in the disk -------------------- */

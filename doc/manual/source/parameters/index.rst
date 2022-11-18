@@ -1308,7 +1308,9 @@ added to the acceleration field for the baryons and particles.
     This flag (1 - on, 0 - off) indicates if there is to be a
     disk-like gravity field. The stellar disk potential follows 
     Miyamoto & Nagai 1975. A spherical stellar bulge component
-    and an NFW dark matter potential can also be specified.
+    can also be specified. Set ``DiskGravityDarkMatterUseNFW = 1``
+    or ``DiskGravityDarkMatterUseB95 = 1`` to impose an external
+    dark matter potential.
     Designed to work with the GalaxySimulation problem type.
     Default: 0
 ``DiskGravityPosition`` (external)
@@ -1332,11 +1334,27 @@ added to the acceleration field for the baryons and particles.
 ``DiskGravityStellarBulgeR`` (external)
     Disk stellar bulge scalue radius (in Mpc)
     Default: 1.0e-4
+``DiskGravityDarkMatterUseNFW`` (external)
+    Enable an NFW dark matter profile.
+    Uses ``DiskGravityDarkMatterMass`` and ``DiskGravityDarkMatterConcentration``
+    as parameters. Mutually exclusive with ``DiskGravityDarkMatterUseB95``.
+    Default: 0 
+``DiskGravityDarkMatterMass`` (external)
+    Dark matter halo mass (in Msun) used with ``DiskGravityDarkMatterUseNFW``.
+    Default: 1.0e12
+``DiskGravityDarkMatterConcentration`` (external)
+    Dark matter halo concentration used with ``DiskGravityDarkMatterUseNFW``.
+    Default: 10
+``DiskGravityDarkMatterUseB95`` (external)
+    Enable the dark matter profile from Burkert 1995.
+    Uses ``DiskGravityDarkMatterR`` and ``DiskGravityDarkMatterDensity``
+    as parameters. Mutually exclusive with ``DiskGravityDarkMatterUseNFW``.
+    Default: 0
 ``DiskGravityDarkMatterR`` (external)
-    Dark matter halo scale radius (in Mpc)
+    Dark matter halo scale radius (in Mpc) used with ``DiskGravityDarkMatterUseB95``.
     Default: 2.3e-2
 ``DiskGravityDarkMatterDensity`` (external)
-    Dark matter effective density (in cgs)
+    Dark matter effective density (in cgs) used with ``DiskGravityDarkMatterUseB95``.
     Default: 3.81323e-25
 
 .. _hydrodynamics_parameters:
@@ -4902,15 +4920,18 @@ Isolated Galaxy Evolution (31)
 ``GalaxySimulationUseMetallicityField`` (external)
     Turns on (1) or off (0) the metallicity field. Default: 0
 ``GalaxySimulationGalaxyMass`` (external)
-    Dark matter mass of the galaxy, in Msun. Needed to initialize the
-    NFW gravitational potential. If ``DiskGravity`` = 1, this parameter
-    will automatically be set to the value of ``DiskGravityDarkMatterMass``
-    to ensure consistency.
+    Dark matter mass of the galaxy, in Msun. 
+    Needed to initialize the NFW gravitational potential. 
+    If ``DiskGravity = 1`` and ``DiskGravityDarkMatterUseNFW = 1``,
+    this parameter will automatically be set to the value 
+    of ``DiskGravityDarkMatterMass`` to ensure consistency.
     Default: 1.0e+12
 ``GalaxySimulationDarkMatterConcentrationParameter`` (external)
-    NFW dark matter concentration parameter. If ``DiskGravity`` = 1, this parameter
-    will automatically be set to the value of ``DiskGravityDarkMatterConcentration``
-    to ensure consistency. Default: 12.0
+    NFW dark matter concentration parameter. 
+    If ``DiskGravity = 1`` and ``DiskGravityDarkMatterUseNFW = 1``,
+    this parameter will automatically be set to the value 
+    of ``DiskGravityDarkMatterConcentration`` to ensure consistency.
+    Default: 12.0
 ``GalaxySimulationGasMass`` (external)
     Amount of gas in the galaxy, in Msun. Used to initialize the
     density field in the galactic disk. Default: 4.0e+10

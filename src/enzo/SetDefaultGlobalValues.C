@@ -393,8 +393,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityStellarDiskScaleHeightz = 2.5E-4;      // Mpc
   DiskGravityStellarBulgeMass        = 1.0E10;      // Solar Masses
   DiskGravityStellarBulgeR           = 4.0E-4;      // Mpc
-  DiskGravityDarkMatterMass          = 1.0e12;        // Solar Masses
+  DiskGravityDarkMatterUseNFW        = FALSE;
+  DiskGravityDarkMatterMass          = 1.0e12;      // Solar Masses
   DiskGravityDarkMatterConcentration = 10.0;
+  DiskGravityDarkMatterUseB95        = FALSE;
+  DiskGravityDarkMatterR             = 2.3e-2;      // Mpc
+  DiskGravityDarkMatterDensity       = 3.81323e-25; // cgs
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off

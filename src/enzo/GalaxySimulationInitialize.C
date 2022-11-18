@@ -285,7 +285,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   } // end input from parameter file
 
   // If using DiskGravity, make two GalaxySimulation parameters consistent
-  if (DiskGravity > 0) {
+  if (DiskGravity > 0 && DiskGravityDarkMatterUseNFW) {
     GalaxySimulationGalaxyMass = DiskGravityDarkMatterMass;
     GalaxySimulationDarkMatterConcentrationParameter = DiskGravityDarkMatterConcentration;
   }
