@@ -103,7 +103,8 @@ double DiskGravityStellarAccel(FLOAT rcyl, FLOAT z);
 double DiskGravityBulgeAccel(FLOAT rsph);
 
 /* Stuff for the Tonnesen & Bryan 09 ressurection */
-float DiskPotentialCircularVelocity(FLOAT cellwidth,FLOAT z,FLOAT density,FLOAT &temperature, struct CGMdata&);
+void BurkertForceBalance(FLOAT cellwidth, FLOAT z, FLOAT density, struct CGMdata& CGM_data,
+                          FLOAT &temperature, double &rotvel);
 double trapzd(double (func)(), double a, double b, int n);
 double qromb(double (*func)(double), double a, double b);
 void polint(double xa[],double ya[],int n,double x,double *y,double *dy);
@@ -1821,8 +1822,7 @@ double findZicm(FLOAT r, struct CGMdata& CGM_data){
   return -1.0;
 }
 
-
-float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLOAT &temperature, struct CGMdata& CGM_data)
+void BurkertForceBalance(FLOAT cellwidth, FLOAT z, FLOAT density, struct CGMdata& CGM_data, FLOAT &temperature, double &rotvel)
 {
   /* 
    *  DISK POTENTIAL CIRCULAR VELOCITY
@@ -1966,9 +1966,9 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 
   if (denuse == densicm) vrot = 0.0;
 
-  return (vrot/VelocityUnits); //code units
+  rotvel = vrot/VelocityUnits; //code units
 
-} // end DiskPotentialCircularVelocity
+} // end BurkertForceBalance
 
 // *************************************************************
 // The functions integrated by qromb (parameter must be external)
@@ -2141,7 +2141,7 @@ void polint(double xa[],double ya[],int n,double x,double *y,double *dy)
 #define JMAX 20
 #define JMAXP JMAX+1
 
-/* Main integration routine called by DiskPotentialCircularVelocity to find Pressure */
+/* Main integration routine called by BurkertForceBalance to find Pressure */
 double qromb(double (*func)(double), double a, double b)
 {
   if( a == b ) return 0.0;
