@@ -109,6 +109,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationTruncationRadius,
     GalaxySimulationDiskDensityCap;
 
+  int GalaxySimulationDiskThermalPressure;
 
   double GalaxySimulationInitialTemperature,
         GalaxySimulationDarkMatterConcentrationParameter,
@@ -149,6 +150,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationInitialTemperature = 1000.0;
   GalaxySimulationDiskRadius         = 0.2;      // CODE UNITS
   GalaxySimulationDiskTemperature    = 1.e4;     // [K]
+  GalaxySimulationDiskThermalPressure = 0; // off
   GalaxySimulationDiskScaleHeightz   = 325e-6;   // Mpc
   GalaxySimulationDiskScaleHeightR   = 3500e-6;  // Mpc
   GalaxySimulationTruncationRadius   = .026; // [ Mpc ]
@@ -228,6 +230,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationDarkMatterConcentrationParameter);
     ret += sscanf(line, "GalaxySimulationDiskTemperature = %"FSYM,
 		  &GalaxySimulationDiskTemperature);
+    ret += sscanf(line, "GalaxySimulationDiskThermalPressure = %"ISYM,
+      &GalaxySimulationDiskThermalPressure);
     ret += sscanf(line, "GalaxySimulationEquilibrateChem = %"FSYM,
 		  &GalaxySimulationEquilibrateChem);
     if (sscanf(line, "GalaxySimulationEquilibriumFile = %s", filename_holder) == 1) {
@@ -330,7 +334,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationTruncationRadius, 
     GalaxySimulationDiskDensityCap,
     GalaxySimulationDarkMatterConcentrationParameter,
-    GalaxySimulationDiskTemperature, 
+    GalaxySimulationDiskTemperature,
+    GalaxySimulationDiskThermalPressure, 
     GalaxySimulationInitialTemperature,
     GalaxySimulationUniformDensity,
     GalaxySimulationEquilibrateChem,
@@ -409,6 +414,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
           GalaxySimulationDiskDensityCap,
           GalaxySimulationDarkMatterConcentrationParameter,
           GalaxySimulationDiskTemperature, 
+          GalaxySimulationDiskThermalPressure,
           GalaxySimulationInitialTemperature,
           GalaxySimulationUniformDensity,
           GalaxySimulationEquilibrateChem,

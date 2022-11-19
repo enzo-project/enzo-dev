@@ -438,14 +438,15 @@ int grid::ComputeAccelerationFieldExternal()
             
             if (DiskGravityDarkMatterUseNFW)
               accelsph = GravConst * 4.0*pi*rho_0*POW(Rs,3.0)
-                          *(log((Rs+radius)/Rs) - radius/(Rs+radius));
+                          *(log((Rs+radius)/Rs) - radius/(Rs+radius))
+                          / POW(radius,2);
 
             else if (DiskGravityDarkMatterUseB95)
-              accelsph = pi*GravConst*DMDens*POW(DMRad*Mpc_cm,3)/POW(radius,2)
+              accelsph = pi*GravConst*DMDens*POW(DMRad*Mpc_cm,3)
                           *(-2.0*atan(radius/DMRad/Mpc_cm)
                             +2.0*log(1.0+radius/DMRad/Mpc_cm)
                             +log(1.0+POW(radius/DMRad/Mpc_cm,2))
-                            );
+                            )/POW(radius,2);
                             
             if (DiskGravityDarkMatterUseB95*DiskGravityDarkMatterUseNFW != FALSE)
               ENZO_FAIL("Cannot specify both NFW and Burkert 95 dark matter profiles")

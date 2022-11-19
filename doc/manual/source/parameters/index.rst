@@ -4967,18 +4967,20 @@ Isolated Galaxy Evolution (31)
     Any two radial profiles of density,
     temperature, entropy, and pressure (often via hydrostatic equilibrium) may be
     used to specify the CGM's density and temperature structure.
+    Methods 1 through 5 depend on a dark matter profile specified with either
+    ``DiskGravityDarkMatterUseNFW`` or ``DiskGravityDarkMatterUseB95``.
     Default: 0
 
     ===== =============================
     Value Profile & Relevant Parameters
     ===== =============================
     0     No CGM. Ambient medium is defined via ``GalaxySimulationUniformDensity`` & ``GalaxySimulationInitialTemperature``
-    1     Temperature is a function of radius derived from the virial theorem assuming an NFW profile. Assume hydrostatic equilibrium. Scaled to ``GalaxySimulationGasHaloScaleRadius``.
+    1     Temperature is a function of radius derived from the virial theorem. Assume hydrostatic equilibrium with a chosen dark matter profile. Scaled to ``GalaxySimulationGasHaloScaleRadius``.
     2     Isothermal with temperature ``GalaxySimulationGasHaloTemperature`` and a power-law entropy profile specified with ``GalaxySimulationGasHaloScaleRadius`` and ``GalaxySimulationGasHaloAlpha``. The density is anchored with ``GalaxySimulationGasHaloDensity``.
     3     As with 2, but the entropy profile has a floor, ``GalaxySimulationGasHaloCoreEntropy``.
     4     As with 2, but instead of being isothermal, the halo is assumed to be in hydrostatic equilibrium.
     5     As with 4, but the entropy profile has a floor, ``GalaxySimulationGasHaloCoreEntropy``.
-    6     As with 4, but the entropy profile assumes precipitation-regulation (Voit 2019). This profile _requires_ Grackle. Use ``GalaxySimulationGasHaloRatio``.
+    6     As with 4, but the entropy profile assumes precipitation-regulation (Voit 2019). This profile _requires_ Grackle and is _only_ consistent with an NFW dark matter profile. Use ``GalaxySimulationGasHaloRatio``.
     7     Unused
     8     Density and entropy following the fits in the Appendix of Voit 2019. For the density, use ``GalaxySimulationGasHaloZeta``, ``GalaxySimulationGasHaloZeta2``, ``GalaxySimulationGasHaloDensity``, and ``GalaxySimulationGasHaloDensity2``. For entropy, use ``GalaxySimulationGasHaloCoreEntropy`` for K:sub:`1` and ``GalaxySimulationGasHaloAlpha``.
     ===== =============================
