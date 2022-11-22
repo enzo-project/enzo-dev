@@ -973,7 +973,7 @@ void DiskForceBalance(FLOAT cellwidth, FLOAT z, FLOAT density, struct CGMdata& C
    *      Note that for historical reasons rcyl is an external. *
    */
 
-  extern double rcyl;
+  extern double rcyl;                    // will be in code units
   double PbulgeComp1(double zint);       // (density times Stellar bulge force)
   double PbulgeComp2(double zint);       // same but for r2 (3D distance)
   double PstellarComp1(double zint);     // (density times stellar disk force)
@@ -984,6 +984,7 @@ void DiskForceBalance(FLOAT cellwidth, FLOAT z, FLOAT density, struct CGMdata& C
   double Pressure,Pressure2,zicm,zicm2,zicmf=0.0,zsmall=0.0,
     zicm2f=0.0,zint,FdPdR,FtotR,denuse,rsph,vrot,bulgeComp,rsph_icm;
 
+  /* Distances in cgs */
   r2 = (rcyl+0.01*cellwidth)*LengthUnits;  // in plane radius
   rsph = sqrt(POW(rcyl*LengthUnits,2)+POW(z,2)); // 3D radius
 
@@ -1047,22 +1048,23 @@ void DiskForceBalance(FLOAT cellwidth, FLOAT z, FLOAT density, struct CGMdata& C
   if (fabs(rcyl)*LengthUnits/Mpc_cm >= TruncRadius || fabs(zicm) <= fabs(z)){
     Pressure = 0.0;
     Pressure2 = 0.0;
-    denuse = HaloGasDensity(rsph, CGM_data);
+    denuse = HaloGasDensity(rsph/LengthUnits, CGM_data);
   }
   if (Pressure2 <= 0.0 && Pressure <= 0.0){
     Pressure = 0.0;
     Pressure2 = 0.0;
-    denuse = HaloGasDensity(rsph, CGM_data);
+    denuse = HaloGasDensity(rsph/LengthUnits, CGM_data);
   }
   if (Pressure <= 0.0) {
     Pressure = 0.0;
     Pressure2 = 0.0;
-    denuse = HaloGasDensity(rsph, CGM_data);
+    denuse = HaloGasDensity(rsph/LengthUnits, CGM_data);
   }
-  if (denuse < HaloGasDensity(rsph, CGM_data)) {
+  if (denuse < HaloGasDensity(rsph/LengthUnits, CGM_data)) {
     fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
   }
-  rsph_icm = sqrt(rcyl*rcyl+POW(zicm/LengthUnits,2));
+  
+  rsph_icm = sqrt(rcyl*rcyl+POW(zicm/LengthUnits,2));  // code units
   Picm = HaloGasDensity(rsph_icm, CGM_data)*kboltz*HaloGasTemperature(rsph_icm, CGM_data)/(mu*mh);
   temperature=mu*mh*(Picm+Pressure)/(kboltz*denuse);
 
