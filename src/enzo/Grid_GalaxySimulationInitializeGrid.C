@@ -157,7 +157,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
            double DiskDensityCap, 
            double DMConcentration,
            double DiskTemperature,
-           int    UseDiskThermalPressure,
+           int    DiskPressureBalance,
            double InitialTemperature,
            double UniformDensity,
            int   EquilChem,
@@ -548,7 +548,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 
 	    else if( DiskGravity > 0 ) {
 
-        if (!UseDiskThermalPressure)
+        if (!DiskPressureBalance)
           DiskVelocityMag = DiskGravityCircularVelocity(r_sph*LengthUnits,
                                                         rcyl*LengthUnits,
                                                         zheight*LengthUnits)
