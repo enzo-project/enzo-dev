@@ -27,7 +27,7 @@
 #define STELLAR_ACCRETION_OFF 1 // SG. Turns off accretion for POPIII if =1.
 #define HW_BH_MASS 1   // SG. BH forms with mass according to Heger-Woosley 2002 relation.
 #define SNEFEEDBACK 1
-#define ONE_PARTICLE_ONLY 1 // SG. Disabling further particle formation. Must be turned to 0 to form 1 particle.
+#define ONE_PARTICLE_ONLY 0 // SG. Disabling further particle formation. Must be set to 1 after forming 1 particle.
 int DetermineSEDParameters(ActiveParticleType_SmartStar *SS,FLOAT Time, FLOAT dx);
 float CalculatePopIIILifetime(float Mass);
 
