@@ -4905,7 +4905,8 @@ Isolated Galaxy Evolution (31)
     parameter subset.
 
     This problem type can use either the PointSourceGravity or DiskGravity
-    parameters.
+    parameters, including either ``DiskGravityDarkMatterUseB95`` or
+    ``DiskGravityDarkMatterUseNFW``.
 
 
 ``GalaxySimulationRefineAtStart`` (external)
@@ -4959,6 +4960,11 @@ Isolated Galaxy Evolution (31)
     Default: 0.0
 ``GalaxySimulationDiskTemperature`` (external)
     Temperature of the gas in the galactic disk. Default: 1.0e+4
+``GalaxySimulationDiskPressureBalance`` (external)
+    Set disk temperature so that the gas is in pressure balance with the CGM/ICM.
+    The circular velocity will also be modified to account for pressure support.
+    Ignores ``GalaxySimulationDiskTemperature``.
+    Default: 0
 ``GalaxySimulationDiskMetallicityEnhancementFactor`` (external)
     Set the disk metallicity, expressed as a multiple of ``GalaxySimulationGasHaloMetallicity``.
     Default: 3.0
