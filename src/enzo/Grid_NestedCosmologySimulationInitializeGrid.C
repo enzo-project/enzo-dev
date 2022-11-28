@@ -785,6 +785,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
      for (i = 0; i < size; i++){
        BaryonField[PeHeatingNum][i] = 0.0;
      }
+   }
 
       // If they were not read in above, set the total & gas energy fields now
 

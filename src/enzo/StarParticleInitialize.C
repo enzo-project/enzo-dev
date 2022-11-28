@@ -63,13 +63,16 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
      these are to be used in CommunicationUpdateStarParticleCount 
      in StarParticleFinalize */  
 
+  TIMER_START("StarParticleInitialize:SetMetaData");
   MetaData->NumberOfParticles = FindTotalNumberOfParticles(LevelArray);
   NumberOfOtherParticles = MetaData->NumberOfParticles - NumberOfStarParticles;
   RecordTotalStarParticleCount(Grids, NumberOfGrids, 
 			       TotalStarParticleCountPrevious);
+  TIMER_STOP("StarParticleInitialize:SetMetaData");
 
   /* Initialize the IMF lookup table if requested and not defined */
 
+  TIMER_START("StarParticleInitialize:InitializeTables");
   if (PopIIIInitialMassFunction && STARMAKE_METHOD(INDIVIDUAL_STAR) == FALSE)
     StarParticlePopIII_IMFInitialize();
 
@@ -89,7 +92,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     InitializeStellarYields(MetaData->Time);
 
   }
-
+  TIMER_STOP("StarParticleInitialize:InitializeTables");
   int level, grids;
   Star *cstar;
   LevelHierarchyEntry *Temp;
@@ -98,23 +101,28 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   /* Initialize all star particles if this is a restart */
 
+  TIMER_START("StarParticleInitialize:InitializeStarsRestart");
   if (MetaData->FirstTimestepAfterRestart)
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->FindAllStarParticles(level) == FAIL) {
 	  	  ENZO_FAIL("Error in grid::FindAllStarParticles.");
 	}
+  TIMER_STOP("StarParticleInitialize:InitializeStarsRestart");
 
   /* Create a master list of all star particles */
 
+  TIMER_START("StarParticleInitialize:MasterList");
   if (StarParticleFindAll(LevelArray, AllStars) == FAIL) {
         ENZO_FAIL("Error in StarParticleFindAll.");
   }
+  TIMER_STOP("StarParticleInitialize:MasterList");
 
   if (MetaData->FirstTimestepAfterRestart == FALSE) {
 
     /* Merge any newly created, clustered particles */
 
+    TIMER_START("StarParticleInitialize:MergeParticles");
     /* If individual stars, no merging */
     if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
         ENZO_FAIL("Error in StarParticleMergeNew.");
@@ -125,6 +133,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     if (StarParticleMergeMBH(LevelArray, AllStars) == FAIL) {
       ENZO_FAIL("Error in StarParticleMergeMBH.\n");
     }
+  TIMER_STOP("StarParticleInitialize:MergeParticles");
 
   } // ENDIF !restart
 
@@ -160,9 +169,11 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
     TIMER_STOP("StarParticleInitialize:CopyToGridMap");
     cstar->MirrorToParticle();
 
+    TIMER_START("StarParticleInitialize:AssertPositions");
     if(STARMAKE_METHOD(INDIVIDUAL_STAR))
       cstar->AssertInterpolationPositions(); // should be set at init, but double check
 //      cstar->AssignInterpolationTablePositions();
+    TIMER_STOP("StarParticleInitialize:AssertPositions");
 
 
   }

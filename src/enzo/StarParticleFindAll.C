@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -66,22 +67,29 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
 
+    TIMER_START("StarParticleFindAll:GenerateGridArray");
     NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
     NumberOfStarsInGrids = new int[NumberOfGrids];
+    TIMER_STOP("StarParticleFindAll:GenerateGridArray");
 
     for (GridNum = 0; GridNum < NumberOfGrids; GridNum++) {
 
+      TIMER_START("StarParticleFindAll:UpdateStarParticles");
       // First update any existing star particles (e.g. position,
       // velocity)
       if (Grids[GridNum]->GridData->UpdateStarParticles(level) == FAIL) {
 		ENZO_FAIL("Error in grid::UpdateStarParticles.");
       }
+      TIMER_STOP("StarParticleFindAll:UpdateStarParticles");
 
+      TIMER_START("StarParticleFindAll:FindNewStarParticles");
       // Then find any newly created star particles
       if (Grids[GridNum]->GridData->FindNewStarParticles(level) == FAIL) {
 		ENZO_FAIL("Error in grid::FindNewStarParticles.");
       }
+      TIMER_STOP("StarParticleFindAll:FindNewStarParticles");
 
+      TIMER_START("StarParticleFindAll:CopyIntoLinkedList");
       // Now copy any stars into the local linked list
       NumberOfStarsInGrids[GridNum] = 0;
       GridStars = Grids[GridNum]->GridData->ReturnStarPointer();
@@ -91,6 +99,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	GridStars = GridStars->NextStar;
 	NumberOfStarsInGrids[GridNum]++;
       } // ENDWHILE stars
+      TIMER_STOP("StarParticleFindAll:CopyIntoLinkedList");
 
       LocalNumberOfStars += NumberOfStarsInGrids[GridNum];
 
@@ -132,13 +141,16 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     MPI_Allgather(&LocalNumberOfStars, 1, MPI_INT, nCount, 1, MPI_INT, 
 		  MPI_COMM_WORLD);
 
+    TIMER_START("StarParticleFindAll:DisplacementList");
     /* Generate displacement list. */
 
     for (i = 0; i < NumberOfProcessors; i++) {
       displace[i] = TotalNumberOfStars;
       TotalNumberOfStars += nCount[i];
     }
+    TIMER_STOP("StarParticleFindAll:DisplacementList");
 
+    TIMER_START("StarParticleFindAll:GatherShiningParticles");
     /* If any, gather all shining particles */
 
     if (TotalNumberOfStars > 0) {
@@ -155,7 +167,9 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
       }
       if (LocalNumberOfStars > 0)
         LocalStars->StarListToBuffer(sendBuffer, LocalNumberOfStars);
+      TIMER_STOP("StarParticleFindAll:GatherShiningParticles");
 
+      TIMER_START("StarParticleFindAll:ShareData");
       /* Share all data with all processors */
 
       MPI_Allgatherv(sendBuffer, LocalNumberOfStars, MPI_STAR,
@@ -163,8 +177,10 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 		     MPI_COMM_WORLD);
 
       AllStars = StarBufferToList(recvBuffer, TotalNumberOfStars);
+      TIMER_STOP("StarParticleFindAll:ShareData");
 
       /* Re-assign CurrentGrid pointers to local particles */
+      TIMER_START("StarParticleFindAll:ReassignGridPointers");
 
       int i0, i1;
       cstar = AllStars;
@@ -185,6 +201,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	cstar = cstar->NextStar;
 
       } // ENDFOR stars
+      TIMER_STOP("StarParticleFindAll:ReassignGridPointers");
 
       DeleteStarList(LocalStars);
 
@@ -200,11 +217,13 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   }
 
   /* Find minimum stellar lifetime */
+  TIMER_START("StarParticleFindAll:MiniStellarLife");
   
   for (cstar = AllStars; cstar; cstar = cstar->NextStar)
     if (cstar->ReturnMass() > 1e-9)
       minStarLifetime = min(minStarLifetime, cstar->ReturnLifetime());
 
+  TIMER_STOP("StarParticleFindAll:MiniStellarLife");
   /* Store in global variable */
   
   G_TotalNumberOfStars = TotalNumberOfStars;

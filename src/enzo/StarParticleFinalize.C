@@ -161,9 +161,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   std::map<int, Star*> StarLookupMap;
   OutputNow = FALSE;
   if (AllStars) {
-    TIMER_START("MakeStarsMap");
     StarLookupMap = AllStars->MakeStarsMap();
-    TIMER_STOP("MakeStarsMap");
   }
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
@@ -187,9 +185,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       ThisStar->SetType( ABS(ThisStar->ReturnType()) );
     }
     ThisStar->ResetAccretion();
-    TIMER_START("StarParticleFinalize:CopyToGridMap");
     ThisStar->CopyToGridMap(&StarLookupMap);
-    TIMER_STOP("StarParticleFinalize:CopyToGridMap");
     ThisStar->MirrorToParticle();
 
     // The pointers have been copied to the grid copy above, so we can
