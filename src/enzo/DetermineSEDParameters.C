@@ -269,6 +269,7 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
    */
   else if(this->ParticleClass == BH && SmartStarBHRadiativeFeedback == TRUE) {
     double accrate = (this->AccretionRate[this->TimeIndex]*(MassUnits/SolarMass)/TimeUnits)*yr_s; //Msolar/yr
+    double prev_accrate = (this->AccretionRate[this->TimeIndex-1]*(MassUnits/SolarMass)/TimeUnits)*yr_s; //Msolar/yr  
     double BHMass = _mass;
     float epsilon = this->eta_disk;
     double eddrate = 4*M_PI*GravConst*BHMass*SolarMass*mh/(epsilon*clight*sigma_thompson); // g/s
@@ -293,13 +294,27 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
 	this->LuminosityPerSolarMass = LSuperEdd/BHMass;
       }
     }
-   
+    /* Calculate previous accretion history */
+    double total_accrate = 0.0;
+    int zero_accrates = 0;
+    for(int i=this->TimeIndex-1; i>this->TimeIndex-11 && i > 0; i--) { 
+      prev_accrate = (this->AccretionRate[i]*(MassUnits/SolarMass)/TimeUnits)*yr_s; //Msolar/yr 
+      total_accrate += prev_accrate;
+      if(prev_accrate < 1e-6) 
+	zero_accrates++;
+    }
     /* Employ some ramping to stop numerical meltdown */
     float Age = (Time - this->ReturnBirthTime())*TimeUnits/yr_s;
-    //printf("%s: BH Age = %e yrs\n", __FUNCTION__, Age); fflush(stdout);
+    printf("%s: BH Age = %e yrs\n", __FUNCTION__, Age); fflush(stdout);
     if(Age < RAMPAGE) {
       float ramp = (Age/RAMPAGE);
       //printf("%s: ramp = %g\n", __FUNCTION__, ramp); fflush(stdout);
+      this->LuminosityPerSolarMass = this->LuminosityPerSolarMass*ramp;
+    }
+    /* If a BH has been inactive for sometime then we also need to ramp */
+    else if(zero_accrates > 0) {
+      float ramp = 1.0/(zero_accrates*zero_accrates);  /*varies between 0.25 and 0.01 */
+      printf("%s: (Inactive BH) ramp = %g\n", __FUNCTION__, ramp); fflush(stdout);                                                                                                                                          
       this->LuminosityPerSolarMass = this->LuminosityPerSolarMass*ramp;
     }
     /* Use values from the BHArray to set the SED Fractions */

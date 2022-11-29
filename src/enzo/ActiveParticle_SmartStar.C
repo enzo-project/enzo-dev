@@ -22,7 +22,7 @@
 #define MASSTHRESHOLD      0.1                       //Msolar in grid
 #define COOLING_TIME       0
 #define NUMSSPARTICLETYPES 4
-#define JEANS_FACTOR       4
+#define JEANS_FACTOR       2
 int DetermineSEDParameters(ActiveParticleType_SmartStar *SS,FLOAT Time, FLOAT dx);
 
 /* We need to make sure that we can operate on the grid, so this dance is
@@ -386,9 +386,6 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	else if(HasMetalField &&    data.TotalMetals[index] > PopIIIMetalCriticalFraction) {
 	  stellar_type = POPII;
 	}
-	else if(data.H2Fraction[index] >  PopIIIH2CriticalFraction) {
-	  stellar_type = POPIII;
-	}
 	else if((accrate*3.154e7*ConverttoSolar/data.TimeUnits > CRITICAL_ACCRETION_RATE*10.0)
 		&& (dx_pc < SMS_RESOLUTION)) {
 	  /* 
@@ -399,7 +396,10 @@ int ActiveParticleType_SmartStar::EvaluateFormation
 	  printf("!!!!!!!!SMS Formed\t accrate = %e Msolar/yr",
 		 accrate*3.154e7*ConverttoSolar/data.TimeUnits);
 	}
-	
+	else if(data.H2Fraction[index] >  PopIIIH2CriticalFraction) {
+          stellar_type = POPIII;
+        }
+
 	if(stellar_type < 0)
 	 continue;
 	
@@ -737,6 +737,9 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 
 	if(ThisParticle->ParticleClass == POPIII && PMass > 500.0)
 	  continue; //No stellar radiative feedback in this case (thermal mode only)
+
+	if((ThisParticle->ParticleClass == BH) && (ThisParticle->AccretionRate[ThisParticle->TimeIndex] == 0.0))
+	  continue;
 
 	float ramptime = 0.0;
 	if(POPIII == ThisParticle->ParticleClass ||
@@ -1349,14 +1352,14 @@ int ActiveParticleType_SmartStar::Accrete(int nParticles,
       continue;
 
     }
-    
+
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx),
 					       dx, Grids, NumberOfGrids, ALL_FIELDS);
     grid* APGrid = ParticleList[i]->ReturnCurrentGrid();
     if (MyProcessorNumber == FeedbackZone->ReturnProcessorNumber()) {
 
       float AccretionRate = 0;
-      
+      printf("%s: pclass = %d\t. Calculate accretion rate\n", __FUNCTION__, pclass);
       if (FeedbackZone->AccreteOntoSmartStarParticle(ParticleList[i],
 			      AccretionRadius, &AccretionRate) == FAIL)
 	return FAIL;
@@ -1449,11 +1452,17 @@ int ActiveParticleType_SmartStar::SmartStarParticleFeedback(int nParticles,
  
   
   for (i = 0; i < nParticles; i++) {
+    float cmass = ParticleList[i]->ReturnMass();             
+    if(cmass < 1e-10) {
+      static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->WillDelete = true; //delete on the next pass 
+      continue;
+    }
+    
 
     /* No feedback on very first cycle */
     //if(static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->TimeIndex < 2)
     // break;
-
+    
     FLOAT AccretionRadius =  static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->AccretionRadius;
     grid* FeedbackZone = ConstructFeedbackZone(ParticleList[i], int(AccretionRadius/dx), dx, 
 					       Grids, NumberOfGrids, ALL_FIELDS);
@@ -1582,6 +1591,13 @@ int ActiveParticleType_SmartStar::UpdateAccretionRateStats(int nParticles,
 	  || (SS->TimeIndex == 0)) {
 	float omass = SS->oldmass;
 	float cmass = ParticleList[i]->ReturnMass();
+	if(cmass < 1e-10) { //massless particles need to be deleted
+	  printf("%s: cmass = %e\n", __FUNCTION__, cmass);
+	  printf("%s: ParticleList[i]->ShouldDelete() = %d\n", __FUNCTION__, SS->ShouldDelete());
+	  SS->WillDelete = true; //delete on the next pass
+	  printf("%s: (working?)ParticleList[i]->ShouldDelete() = %d\n", __FUNCTION__, SS->ShouldDelete());
+	  continue;
+	}
 	if(cmass - omass < -1e-10) { //Can happen after a restart due to rounding
 	  printf("Updating masses....\n");
 	  printf("cmass = %e\t omass = %e\n", cmass, omass);
@@ -1677,6 +1693,11 @@ int ActiveParticleType_SmartStar::UpdateRadiationLifetimes(int nParticles,
     if (MyProcessorNumber == APGrid->ReturnProcessorNumber()) {
       ActiveParticleType_SmartStar* SS;
       SS = static_cast<ActiveParticleType_SmartStar*>(ParticleList[i]);
+      float cmass = SS->ReturnMass(); 
+      if(cmass < 1e-10) { //massless particles need to be deleted on the next pass
+	SS->WillDelete = true; //delete on the next pass            
+	continue;
+      }
       if(POPIII == SS->ParticleClass) {
 	double StellarMass = SS->Mass*MassConversion; //Msolar
 	float logm = log10((float)StellarMass);

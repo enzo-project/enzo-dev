@@ -242,10 +242,10 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
 {
   int dim;
   double ratio1, ratio2;
-  printf("%s: Merging particles with masses of (Code: %e) and (Code: %e)\n",
-	 __FUNCTION__, Mass, a->Mass);
-  if((Mass <= 1e-6) || (a->Mass <= 1e-6))
-    return;  
+  //printf("%s: Merging particles with masses of (Code: %e) and (Code: %e)\n",
+  //	 __FUNCTION__, Mass, a->Mass);
+  //if((Mass <= 1e-6) || (a->Mass <= 1e-6))
+  //  return;  
   ratio1 =  (max(Mass, 1e-10)) / (max(1e-10,Mass) + max(1e-10, a->Mass));
   ratio2 = 1.0 - ratio1;
 
@@ -293,6 +293,8 @@ void ActiveParticleType_SmartStar::SmartMerge(ActiveParticleType_SmartStar *a)
     } 
   WillDelete = min(WillDelete, a->WillDelete);
   Mass += a->Mass;
+  //printf("%s: New Mass = %e\n", __FUNCTION__, Mass);
+	 
   return;
 }
 

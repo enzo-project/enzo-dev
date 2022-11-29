@@ -171,6 +171,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	  DensityUnits;
 	SS->WillDelete = true;
 	printf("%s: PISN detected. Particle set for deletion.\n", __FUNCTION__);
+	/* EjectaThermalEnergy is the specific energy in code units */
 	EjectaThermalEnergy = SNEnergy / (StellarMass * SolarMass) / VelocityUnits /
 	  VelocityUnits;
 	
@@ -219,12 +220,17 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
       {
 	FLOAT EjectaMetalDensity = 0.0, EjectaThermalEnergy = 0.0, EjectaDensity = 0.0;
 	printf("%s:!!!!!!!Using Stellar Thermal Feedback Mode\n", __FUNCTION__); fflush(stdout);
-	
 	printf("%s: StellarMass = %lf\n", __FUNCTION__, StellarMass);
-	/* For this case we simply assume a Stroemgren sphere that ionised the nearby gas */
+	/* For this case we simply assume a Stroemgren sphere that ionises the nearby gas */
 	float StellarTemperature = 1e5;
-
-	EjectaThermalEnergy = StellarTemperature / (TemperatureUnits * (Gamma-1.0) * 0.6);
+	
+	/* Convert StellarTemperature to total gas energy energy in cgs*/
+	EjectaThermalEnergy = kboltz * StellarTemperature / ((Gamma-1.0) * 0.6 * mh);
+	printf("%s: Energy Release as specific thermal feedback = %e ergs\n", __FUNCTION__, 
+	       EjectaThermalEnergy);
+	/* Convert to code units */
+	EjectaThermalEnergy /=  (VelocityUnits*VelocityUnits); 
+	/* Pass EjectaThermalEnergy in as specific energy. */
 	this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
 					   EjectaMetalDensity);
       }
@@ -249,11 +255,12 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 
 	printf("%s: POPII Continuous Supernova\n", __FUNCTION__);
 	FLOAT StarLevelCellWidth = this->CellWidth[0][0];
-	FLOAT Radius = StarClusterSNRadius * pc_cm / LengthUnits;
-	if (Radius < 2*StarLevelCellWidth) {
-	  Radius = 2*StarLevelCellWidth;
+	//FLOAT Radius = StarClusterSNRadius * pc_cm / LengthUnits;
+	FLOAT PopIIRadius = SS->InfluenceRadius;
+	if (PopIIRadius < 2*StarLevelCellWidth) {
+	  PopIIRadius = 2*StarLevelCellWidth;
 	}
-	FLOAT BubbleVolume = (4.0 * pi / 3.0) * Radius * Radius * Radius; /* code volume */
+	FLOAT BubbleVolume = (4.0 * pi / 3.0) * PopIIRadius * PopIIRadius * PopIIRadius; /* code volume */
 	float dtForThisStar = this->ReturnTimeStep();
 	double StellarMass = SS->Mass*MassConversion/SolarMass; /* In Msolar */
 	double Delta_SF = StarMassEjectionFraction * StellarMass * dtForThisStar * 
@@ -261,7 +268,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	printf("%s: dtForThisStar = %e Myr\n", __FUNCTION__, dtForThisStar * TimeUnits/Myr_s);
 	printf("%s: OK I'm going to eject %e Msolar as Energy\n", __FUNCTION__, Delta_SF);
 	
-	FLOAT EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);   /* cm^3 */
+	FLOAT EjectaVolume = 4.0/3.0 * pi * pow(PopIIRadius*LengthUnits, 3);   /* cm^3 */
 	FLOAT EjectaDensity = Delta_SF * SolarMass / EjectaVolume / DensityUnits;   /* code density */
 	FLOAT EjectaMetalDensity = EjectaDensity * StarMetalYield; /* code density */
 	FLOAT EjectaThermalEnergy = StarClusterSNEnergy / SolarMass /   
@@ -293,9 +300,10 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
       if(SmartStarBHFeedback == FALSE)
 	return SUCCESS;
       // Similar to Supernova, but here we assume the followings:
-      // EjectaDensity = 0.0
+      // EjectaDensity = -1.0
       // EjectaMetalDensity = 0.0
-      float  EjectaDensity = 0.0, EjectaMetalDensity = 0.0;
+      float  EjectaDensity = -1.0, EjectaMetalDensity = 0.0;
+      FLOAT MBHRadius = SS->InfluenceRadius*1.2; //set to 4 * AccretionRadius
       // The unit of EjectaThermalEnergy = ergs/cm^3, not ergs/g
       if (SmartStarBHThermalFeedback == TRUE) {
 	printf("%s: eta_disk = %f\n", __FUNCTION__, SS->eta_disk);
@@ -310,8 +318,8 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	       accrate, SS->AccretionRate[SS->TimeIndex], SS->TimeIndex);
 	
 	
-	float EjectaVolumeCGS = 4.0/3.0 * PI * pow(SS->AccretionRadius*LengthUnits, 3);
-	float EjectaVolume = 4.0/3.0 * PI * pow(SS->AccretionRadius, 3);
+	FLOAT EjectaVolumeCGS = 4.0/3.0 * PI * pow(MBHRadius*LengthUnits, 3);
+	FLOAT EjectaVolume = 4.0/3.0 * PI * pow(MBHRadius, 3);
 	
 	float BHMass =  SS->ReturnMass()*MassConversion/SolarMass; //In solar masses
 	float eddrate = 4*M_PI*GravConst*BHMass*mh/(SS->eta_disk*clight*sigma_thompson); // Msolar/s
@@ -338,9 +346,22 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	 * must fix v_wind. For v_wind we choose 0.1 c (C.-A. Faucher-Giguere, E. Quataert Arxiv:1204.2547)
 	 */
 	float SmartStarDiskEnergyCoupling = 0.05;
+
+	/* 
+	   This is the total energy created by the accretion process and dumped into an 
+	   area surrounding the black hole. This is NOT the specific energy. This is simply the
+	   energy deposited homogeneously into each surrounding cell. 
+	   I then (in Grid_ApplySpehericalFeedbackToGrid) deposit this energy 
+	   into each cell and divide by the mass. This
+	   gives the specific energy at that point. 
+	*/
+	float NumCells = EjectaVolume/(dx*dx*dx);
+	/* EjectaThermalEnergy in code energy units*/
 	float EjectaThermalEnergy = SmartStarDiskEnergyCoupling * epsilon * dt * 
-	  mdot*clight*clight/(VelocityUnits*VelocityUnits*EjectaVolume); 
-	
+	  mdot*clight*clight/(VelocityUnits*VelocityUnits*NumCells); 
+	printf("%s: Total Thermal Energy deposited (into %1.1f cells) by the black hole is %e ergs\n", 
+	      __FUNCTION__, NumCells, SmartStarDiskEnergyCoupling*epsilon*dt*
+	      TimeUnits*mdot_cgs*clight*clight);
 	/* Ramp up over RAMPTIME yrs */
 	float Age = Time - SS->BirthTime;
 	float BH_Age = (Age - SS->StellarAge)*TimeUnits/yr_s;
@@ -349,7 +370,7 @@ int grid::ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle){
 	    printf("BH Age = %e yrs, ramp = %e\n", BH_Age, BH_Age/(float)RAMPTIME);
 	    EjectaThermalEnergy *= BH_Age/(float)RAMPTIME;
 	  }
-	EjectaDensity = 0.0;
+	EjectaDensity = -1.0;
 	EjectaMetalDensity = 0.0;
 	this->ApplySphericalFeedbackToGrid(ThisParticle, EjectaDensity, EjectaThermalEnergy,
 					   EjectaMetalDensity);

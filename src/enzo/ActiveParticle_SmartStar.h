@@ -34,7 +34,7 @@
 #define ACCRETIONRADIUS  4
 #define NUMRADIATIONBINS 5
 #define CRITICAL_ACCRETION_RATE 0.005 //Msolar/yr (Haemerlee et al (2018))
-#define TIMEGAP            100   // * timestep
+#define TIMEGAP            1000   // * timestep
 #define POPIII_RESOLUTION  0.001 //pc
 #define SMS_RESOLUTION     1.0   //pc
 /* Prototypes */
@@ -218,6 +218,9 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 
 int CalculateAccretedAngularMomentum();
+
+
+
 template <class active_particle_class>
 void ActiveParticleType_SmartStar::MergeSmartStars(
     int *nParticles, ActiveParticleList<ActiveParticleType>& ParticleList, 
