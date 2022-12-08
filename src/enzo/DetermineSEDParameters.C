@@ -173,7 +173,7 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
   float x2 = x*x;
 
   if(this->ParticleClass == POPIII) {
-
+    
     float E[NUMRADIATIONBINS] = {2.0, 12.8, 28.0, 30.0, 58.0};
     double Q[NUMRADIATIONBINS] = {0.0, 0.0, 0.0, 0.0, 0.0};
     
@@ -182,7 +182,13 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
     }
     
     _mass = max(min((float)(_mass), 500), 5);
-    if (_mass > 9 && _mass <= 500) {
+    if(_mass > 500.0) { //only non-ionising
+      Q[0] = 0.0;                                       //IR
+      Q[1] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);      //LW
+      Q[2] = 0.0;
+      Q[3] = 0.0;
+      Q[4] = 0.0;
+    } else if (_mass > 9 && _mass <= 500) {
       Q[0] = 0.0;                                       //IR
       Q[1] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);      //LW
       Q[2] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);      //HI
@@ -191,7 +197,7 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
 	Q[4] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);      //HeII
       else
 	Q[4] = 0.0;
-     } else if (_mass > 5 && _mass <= 9) {
+    } else if (_mass > 5 && _mass <= 9) {
       Q[0] = 0.0;                                       //IR
       Q[1] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);      //LW
       Q[2] = pow(10.0, 39.29 + 8.55*x);                 //HI

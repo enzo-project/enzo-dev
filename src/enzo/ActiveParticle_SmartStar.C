@@ -735,8 +735,9 @@ int ActiveParticleType_SmartStar::BeforeEvolveLevel
 	source = ThisParticle->RadiationSourceInitialize();
 	double PMass = ThisParticle->Mass*MassConversion;
 
-	if(ThisParticle->ParticleClass == POPIII && PMass > 500.0)
-	  continue; //No stellar radiative feedback in this case (thermal mode only)
+	/* JR: I got rid of this restriction and instead restrict feedback to below 13.6 eV */
+	//if(ThisParticle->ParticleClass == POPIII && PMass > 500.0)
+	// continue; //No stellar radiative feedback in this case (thermal mode only)
 
 	if((ThisParticle->ParticleClass == BH) && (ThisParticle->AccretionRate[ThisParticle->TimeIndex] == 0.0))
 	  continue;
