@@ -13,11 +13,10 @@
 MACH_TEXT  = Expanse
 MACH_VALID = 1
 MACH_FILE  = Make.mach.sdsc-expanse
-MACHINE_NOTES = "Do not use GCC v10! \
-	         Remember that 'module spider <module>/<version>' will tell you compatible modules. \
+MACHINE_NOTES = "Remember that 'module spider <module>/<version>' will tell you compatible modules. \
 	      	 The following modules (if available) are suggested: \
-		 gcc/9.2.0 \
-		 openmpi/3.1.6-cxx \
+		 gcc/10.2.0 \
+		 mvapich2/2.3.6 \
 		 hdf5/1.10.7 \
 "
 
@@ -63,8 +62,8 @@ MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 MACH_CPPFLAGS = -P -traditional 
 MACH_CFLAGS   = 
 MACH_CXXFLAGS = 
-MACH_FFLAGS   = -fno-second-underscore -extend_source
-MACH_F90FLAGS = -fno-second-underscore -extend_source
+MACH_FFLAGS   = -fallow-argument-mismatch -fno-second-underscore -extend_source
+MACH_F90FLAGS = -fallow-argument-mismatch -fno-second-underscore -extend_source
 MACH_LDFLAGS  = -lgfortran
 #MACH_OPENMP   = -openmp
 
