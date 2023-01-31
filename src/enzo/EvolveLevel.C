@@ -754,8 +754,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ActiveParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
                            level, NumberOfNewActiveParticles);
 
-    fprintf(stderr, "[%"ISYM"]Made it past ActiveParticleFinalize (EvolveLevel.C:761)\n", MyProcessorNumber);
-
     /* Finalize (accretion, feedback, etc.) star particles */
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious, OutputNow);

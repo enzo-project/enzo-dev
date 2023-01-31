@@ -114,6 +114,16 @@ public:
    static float static_cooling_radius;
    static float static_feedback_radius;
 
+
+  static bool AGNInsideGrid(grid*);
+  /*
+   * Force an AGN particle to spawn in the highest refined grid at the location
+   * and time specified in the parameter file.
+   * This is called inside the grid::ActiveParticleHandler function, which is in
+   *   turn called just after the grids take a hydro timestep in EvolveLevel.
+   */
+  static int InsertAGN(grid *thisgrid_orig, HierarchyEntry* SubgridPointer, ActiveParticleFormationData &data);
+
   /*
    * Run an algorithm to determine whether a particle forms in a grid.
    *

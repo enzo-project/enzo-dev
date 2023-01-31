@@ -60,25 +60,25 @@ grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle,int FeedbackRadius,
     ENZO_FAIL("Particle CurrentGrid is invalid!\n");
 
 
-  std::FILE * particle_position_file = std::fopen("ActiveParticlePosition.out", "a");
-  std::fprintf(particle_position_file, "%.7e, %.7e, %.7e, %.7e, %.7e, %.7e\n", 
-    ParticlePosition[0]-FBRdx, 
-    ParticlePosition[1]-FBRdx, 
-    ParticlePosition[2]-FBRdx,
-    ParticlePosition[0]+FBRdx, 
-    ParticlePosition[1]+FBRdx, 
-    ParticlePosition[2]+FBRdx);
-  std::fclose(particle_position_file);
+  // std::FILE * particle_position_file = std::fopen("ActiveParticlePosition.out", "a");
+  // std::fprintf(particle_position_file, "%.7e, %.7e, %.7e, %.7e, %.7e, %.7e\n", 
+  //   ParticlePosition[0]-FBRdx, 
+  //   ParticlePosition[1]-FBRdx, 
+  //   ParticlePosition[2]-FBRdx,
+  //   ParticlePosition[0]+FBRdx, 
+  //   ParticlePosition[1]+FBRdx, 
+  //   ParticlePosition[2]+FBRdx);
+  // std::fclose(particle_position_file);
 
-  std::FILE * grid_position_file = std::fopen("GridPosition.out", "a");
-  std::fprintf(grid_position_file, "%.7e, %.7e, %.7e, %.7e, %.7e, %.7e\n", 
-    APGrid->GetGridLeftEdge(0), 
-    APGrid->GetGridLeftEdge(1), 
-    APGrid->GetGridLeftEdge(2),
-    APGrid->GetGridRightEdge(0), 
-    APGrid->GetGridRightEdge(1), 
-    APGrid->GetGridRightEdge(2));
-  std::fclose(grid_position_file);
+  // std::FILE * grid_position_file = std::fopen("GridPosition.out", "a");
+  // std::fprintf(grid_position_file, "%.7e, %.7e, %.7e, %.7e, %.7e, %.7e\n", 
+  //   APGrid->GetGridLeftEdge(0), 
+  //   APGrid->GetGridLeftEdge(1), 
+  //   APGrid->GetGridLeftEdge(2),
+  //   APGrid->GetGridRightEdge(0), 
+  //   APGrid->GetGridRightEdge(1), 
+  //   APGrid->GetGridRightEdge(2));
+  // std::fclose(grid_position_file);
 
 
   // This should only happen if the grid pointer is invalid

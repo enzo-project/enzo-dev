@@ -9,6 +9,8 @@
 #include "ActiveParticle.h"
 #include "communication.h"
 #include "TopGridData.h"
+
+#include <stdio.h>
 /*
  * A 'friend' class can can be used to access private and protected member
  * variables of an object.  Here, we declare AGNParticleGrid, which is a trivial
@@ -118,158 +120,281 @@ int ActiveParticleType_AGNParticle::InitializeParticleType() {
   return SUCCESS;
 }
 
-int ActiveParticleType_AGNParticle::EvaluateFormation
-(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data)
-{
-   
+bool ActiveParticleType_AGNParticle::AGNInsideGrid(grid* grid){
+  float gridLeftX = grid->GridLeftEdge[0];
+  float gridLeftY = grid->GridLeftEdge[1];
+  float gridLeftZ = grid->GridLeftEdge[2];
 
-   // No need to do the rest if we're not on the maximum refinement level.
-   if (data.level != MaximumRefinementLevel)
-         return SUCCESS;
+  float gridRightX = grid->GridRightEdge[0];
+  float gridRightY = grid->GridRightEdge[1];
+  float gridRightZ = grid->GridRightEdge[2];
 
-  if (debug)
-   fprintf(stderr,"Entering EvaluateFormation [%"ISYM"]\n", MyProcessorNumber);
+  bool in_grid_x = (gridLeftX <= AGNParticleInsert_x) && (AGNParticleInsert_x < gridRightX);
+  bool in_grid_y = (gridLeftY <= AGNParticleInsert_y) && (AGNParticleInsert_y < gridRightY);
+  bool in_grid_z = (gridLeftZ <= AGNParticleInsert_z) && (AGNParticleInsert_z < gridRightZ);
 
-  // Create a 'friend' grid alias that we can use to access private grid data.
-  AGNParticleGrid *thisGrid =
-    static_cast<AGNParticleGrid *>(thisgrid_orig);
+  bool inside_grid = in_grid_x && in_grid_y && in_grid_z;
+  return inside_grid;
+}
 
-  int i, j, k, index, method, MassRefinementMethod;
-  float *density = thisGrid->BaryonField[data.DensNum];
-  float *velx = thisGrid->BaryonField[data.Vel1Num];
-  float *vely = thisGrid->BaryonField[data.Vel2Num];
-  float *velz = thisGrid->BaryonField[data.Vel3Num];
-  float cell_mass;
-  int GridDimension[3] = {thisGrid->GridDimension[0],
-                          thisGrid->GridDimension[1],
-                          thisGrid->GridDimension[2]};
+// Added by CJL
+// For directly inserting the particle in the most highly refined subgrid
+// that matches the desired position and time coordinates of the AGN
+int ActiveParticleType_AGNParticle::InsertAGN
+(grid *thisGrid, HierarchyEntry* SubgridPointer, ActiveParticleFormationData &data){
 
-  const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
-  float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits; //added by DP
+  /****************************************************************************/
+  /*         Don't create more than 1 particle on a grid
+  /****************************************************************************/
+  // TODO: Move this into step right before particle creation
+  if (thisGrid->NumberOfActiveParticles >= 1)
+  {
+    return SUCCESS;
+  }
 
-  // added by CJL
   bool create_particle = false;
   float cell_x, cell_y, cell_z;
   float dx, dy, dz;
   bool in_x, in_y, in_z;
   float current_time = thisGrid->ReturnTime();
   float dt = thisGrid->ReturnTimeStep();
+  
 
+  // don't use this, it will give you the wrong value sometimes for some reason
+  //int grid_level = thisGrid->GetLevel();
+  //int grid_id = thisGrid->GetGridID();
+
+  // use this instead
+  int grid_level = data.level;
+  int grid_id = data.GridID;
+  
+
+  /****************************************************************************/
+  //                      Checking timestep   
   // If the insert time is outside of the acceptable formation time range, exit
-  if (AGNParticleInsert_Time < current_time || current_time+dt < AGNParticleInsert_Time)
+  /****************************************************************************/
+
+  bool past_time = (current_time > AGNParticleInsert_Time) ;
+  if (past_time){
+    
+    exit(0);
+  }
+  
+  bool in_timestep = (current_time <= AGNParticleInsert_Time) && 
+                     (AGNParticleInsert_Time < (current_time+dt));
+
+  if (!in_timestep){
     return SUCCESS;
- 
-  // Search for the cell nearest the origin
-  for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++)
-  {
-    for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++)
-    {
-      for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++)
-      {
+  }
+  
 
-        // index = GRIDINDEX_NOGHOST(i, j, k);
-        index = i + j * GridDimension[0] + k * GridDimension[1] * GridDimension[0];
+  /****************************************************************************/
+  /*                      Checking grid boundary                    
+  // If we're not inside the right grid, exit
+  /****************************************************************************/
+  // If the particle will not appear in this grid, exit
+  
+  
+  if (!AGNInsideGrid(thisGrid)){
+    return SUCCESS;
+  }
 
-        if (data.NumberOfNewParticles >= data.MaxNumberOfNewParticles)
-          return FAIL;
+  /****************************************************************************/
+  /*                      Checking grid boundary                    
+  // If we're in the right place, try to figure out if the particle
+  // should be placed on a subgrid instead
+  /****************************************************************************/
+  HierarchyEntry *Subgrid;
+  for (Subgrid = SubgridPointer; Subgrid; Subgrid = Subgrid->NextGridThisLevel){
 
-        // only create one AGN Particle per grid 
-        if (thisGrid->NumberOfActiveParticles + data.NumberOfNewParticles > 0) 
-          return SUCCESS;
-          
-        cell_x = thisGrid->CellLeftEdge[0][i];
-        cell_y = thisGrid->CellLeftEdge[1][j];
-        cell_z = thisGrid->CellLeftEdge[2][k];
+    if(AGNInsideGrid(Subgrid->GridData)){
+      return SUCCESS;
+    }
+  }
+    
+  /****************************************************************************/
+  /* At this point we have confirmed that the Insertion Time is now
+  // The particle belongs on this grid and not on any of its subgrids
+  // Now all we have left is to create the particle
+  /****************************************************************************/
+  float gridLeftX = thisGrid->GridLeftEdge[0];
+  float gridLeftY = thisGrid->GridLeftEdge[1];
+  float gridLeftZ = thisGrid->GridLeftEdge[2];
 
-        dx = thisGrid->CellWidth[0][i];
-        dy = thisGrid->CellWidth[1][j];
-        dz = thisGrid->CellWidth[2][k];
-
-        in_x = cell_x <= AGNParticleInsert_x && AGNParticleInsert_x < cell_x + dx;
-        in_y = cell_y <= AGNParticleInsert_y && AGNParticleInsert_y < cell_y + dy;
-        in_z = cell_z <= AGNParticleInsert_z && AGNParticleInsert_z < cell_z + dz;
-
-        create_particle = in_x && in_y && in_z;
-
-        //Passed creation tests, create AGN particle
-        if (create_particle) {
-          // Get the units
-          float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits, Time;
-          GetUnits(&DensUnits, &LengthUnits, &TempUnits, &TimeUnits, &VelUnits, AGNParticleInsert_Time);
-
-          ActiveParticleType_AGNParticle *np = new ActiveParticleType_AGNParticle();
-          data.NumberOfNewParticles++;
-          data.NewParticles.insert(*np);
-
-          np->level = data.level;
-          np->GridID = data.GridID;
-          np->CurrentGrid = thisGrid;
-
-          cell_mass = density[index] * pow(thisGrid->CellWidth[0][0], 3.0);
-          np->Mass = cell_mass;
-	  //np->Mass = 1.0e6*SolarMass/(DensUnits*LengthUnits*LengthUnits*LengthUnits); // Introduced by DP
-          np->type = np->GetEnabledParticleID();
-          np->BirthTime = thisGrid->ReturnTime();
-
-          np->pos[0] = thisGrid->CellLeftEdge[0][i] + 0.5*thisGrid->CellWidth[0][i];
-          np->pos[1] = thisGrid->CellLeftEdge[1][j] + 0.5*thisGrid->CellWidth[1][j];
-          np->pos[2] = thisGrid->CellLeftEdge[2][k] + 0.5*thisGrid->CellWidth[2][k];
-
-          np->CoolingRadius = AGNParticleAccretionRadiusKpc * 1.0e-3*Mpc_cm / LengthUnits;
-          np->FeedbackRadius = AGNParticleFeedbackRadiusKpc * 1.0e-3*Mpc_cm / LengthUnits;
-          np->CondensationFraction = AGNParticleCondensationFraction;
-          np->FeedbackEfficiency = AGNParticleFeedbackEfficiency;
-          np->TimescaleThreshold = 10.0;
-          np->KineticFraction = AGNParticleKineticFraction;
-          np->JetAngle = (20.0/360.0) * 2.0 * M_PI;
-          np->JetPhi = 0.0*(15.0/360.0) * 2.0 * M_PI;
-          np->JetTheta = (20.0/360.0)*2.0 * M_PI;
-          np->FixedJetIsOn = 1; // 0 = Off, 1 = On
-          np->TimeOfLastShock = 0.0;
-          // AccretionHistory Bins
-          for (int i = 0; i < 256; i++) {
-                  np -> AccretionHistoryTime[i] = np -> BirthTime - 
-                        (float)(255 - i) * 2.0 * AGNParticleAccretionDelayTime / 255.0;
-                  np -> AccretionHistoryRate[i] = 0.0;
-                  }
-
-          static_cooling_radius = np -> CoolingRadius;
-          static_feedback_radius = np -> FeedbackRadius;
-
-          fprintf(stderr,"Creating new AGN Particle at [%"GSYM" %"GSYM" %"GSYM"] [%"ISYM"]\n", np->ReturnPosition()[0], 
-                 np->ReturnPosition()[1], np->ReturnPosition()[2], MyProcessorNumber);
-          // modified by Deovrat Prasad, AGNParticle given initial velocity.
-          if (HydroMethod == PPM_DirectEuler)
-          {
-            np->vel[0] = velx[index];
-            np->vel[1] = vely[index];
-            np->vel[2] = velz[index];
-          }
-          else if (HydroMethod == Zeus_Hydro)
-          {
-            np->vel[0] = 0.5 * (velx[index] + velx[index+offset[0]]);
-            np->vel[1] = 0.5 * (vely[index] + vely[index+offset[1]]);
-            np->vel[2] = 0.5 * (velz[index] + velz[index+offset[2]]);
-          } else {
-            ENZO_FAIL("AGNParticle does not support RK Hydro or RK MHD");
-          }
-          np->Metallicity = 1.0;
-
-          fprintf(stderr,"Made it to AddActiveParticle (ActiveParticle_AGNParticle.C:254)\n");
-          thisGrid->AddActiveParticle(np);
-          fprintf(stderr,"Made it past AddActiveParticle (ActiveParticle_AGNParticle.C:261)\n");
-          return SUCCESS;
-        }
-      } //i
-    } //j
-  } // k
-
-  if (debug)
-    fprintf(stderr, "Leaving EvaluateFormation [%"ISYM"]\n",
-  	    MyProcessorNumber);
+  float gridRightX = thisGrid->GridRightEdge[0];
+  float gridRightY = thisGrid->GridRightEdge[1];
+  float gridRightZ = thisGrid->GridRightEdge[2];
+  fprintf(stderr,"[Rank %"ISYM"] AGN will be placed on Grid %"ISYM" at level %"ISYM"\n%"GSYM"<=%"GSYM"<%"GSYM"\n%"GSYM"<=%"GSYM"<%"GSYM"\n%"GSYM"<=%"GSYM"<%"GSYM"\n", 
+    MyProcessorNumber, grid_id, grid_level,
+    gridLeftX, AGNParticleInsert_x, gridRightX,
+    gridLeftY, AGNParticleInsert_y, gridRightY,
+    gridLeftZ, AGNParticleInsert_z, gridRightZ
+  );
 
   return SUCCESS;
 }
+
+int ActiveParticleType_AGNParticle::EvaluateFormation
+(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data)
+{       
+
+  if(debug){
+    fprintf(stderr,"Entering EvaluateFormation [%"ISYM"]\n", MyProcessorNumber);
+  }
+
+   // No need to do the rest if we're not on the maximum refinement level.
+  if (data.level != MaximumRefinementLevel){
+    return SUCCESS;
+  }
+
+  
+
+  // This function assumes an algorithm exists that considers the local physics
+  // of the grid before applying that algorithm to create an AGN particle
+  // No such algorithm currently exists.
+  // Instead consider using the InsertAGN function to directly place an AGN particle
+  // where and when you want it to be. 
+  //
+  // In the future, when an algorithm exists to physically determine when/where an AGN
+  // will spawn, consider implementing that algorithm within this function
+  // Until then, this function should do nothing. 
+  // -- CJL 2023
+  bool in_development = true;
+  if(in_development){
+    return SUCCESS;
+  }
+  
+  // Create a 'friend' grid alias that we can use to access private grid data.
+  // AGNParticleGrid *thisGrid =
+  //   static_cast<AGNParticleGrid *>(thisgrid_orig);
+
+  // int i, j, k, index, method, MassRefinementMethod;
+  // float *density = thisGrid->BaryonField[data.DensNum];
+  // float *velx = thisGrid->BaryonField[data.Vel1Num];
+  // float *vely = thisGrid->BaryonField[data.Vel2Num];
+  // float *velz = thisGrid->BaryonField[data.Vel3Num];
+  // float cell_mass;
+  // int GridDimension[3] = {thisGrid->GridDimension[0],
+  //                         thisGrid->GridDimension[1],
+  //                         thisGrid->GridDimension[2]};
+
+  // const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
+  // float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits; //added by DP
+
+  // /****************************************************************************/
+  // /*                      Writing AGN data out to file                        */
+  // /****************************************************************************/
+
+  // FILE * AGN_data_file = fopen("AGN_data.out", "a");
+  
+ 
+  // // Search for the cell nearest the origin
+  // for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++)
+  // {
+  //   for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++)
+  //   {
+  //     for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++)
+  //     {
+
+  //       // index = GRIDINDEX_NOGHOST(i, j, k);
+  //       index = i + j * GridDimension[0] + k * GridDimension[1] * GridDimension[0];
+
+        
+          
+  //       cell_x = thisGrid->CellLeftEdge[0][i];
+  //       cell_y = thisGrid->CellLeftEdge[1][j];
+  //       cell_z = thisGrid->CellLeftEdge[2][k];
+
+  //       dx = thisGrid->CellWidth[0][i];
+  //       dy = thisGrid->CellWidth[1][j];
+  //       dz = thisGrid->CellWidth[2][k];
+
+  //       in_x = cell_x <= AGNParticleInsert_x && AGNParticleInsert_x < cell_x + dx;
+  //       in_y = cell_y <= AGNParticleInsert_y && AGNParticleInsert_y < cell_y + dy;
+  //       in_z = cell_z <= AGNParticleInsert_z && AGNParticleInsert_z < cell_z + dz;
+
+  //       create_particle = in_x && in_y && in_z;
+
+  //       //Passed creation tests, create AGN particle
+  //       if (create_particle) {
+  //         // Get the units
+  //         float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits, Time;
+  //         GetUnits(&DensUnits, &LengthUnits, &TempUnits, &TimeUnits, &VelUnits, AGNParticleInsert_Time);
+
+  //         ActiveParticleType_AGNParticle *np = new ActiveParticleType_AGNParticle();
+  //         data.NumberOfNewParticles++;
+  //         data.NewParticles.insert(*np);
+
+  //         np->level = data.level;
+  //         np->GridID = data.GridID;
+  //         np->CurrentGrid = thisGrid;
+
+  //         cell_mass = density[index] * pow(thisGrid->CellWidth[0][0], 3.0);
+  //         np->Mass = cell_mass;
+	//   //np->Mass = 1.0e6*SolarMass/(DensUnits*LengthUnits*LengthUnits*LengthUnits); // Introduced by DP
+  //         np->type = np->GetEnabledParticleID();
+  //         np->BirthTime = thisGrid->ReturnTime();
+
+  //         np->pos[0] = thisGrid->CellLeftEdge[0][i] + 0.5*thisGrid->CellWidth[0][i];
+  //         np->pos[1] = thisGrid->CellLeftEdge[1][j] + 0.5*thisGrid->CellWidth[1][j];
+  //         np->pos[2] = thisGrid->CellLeftEdge[2][k] + 0.5*thisGrid->CellWidth[2][k];
+
+  //         np->CoolingRadius = AGNParticleAccretionRadiusKpc * 1.0e-3*Mpc_cm / LengthUnits;
+  //         np->FeedbackRadius = AGNParticleFeedbackRadiusKpc * 1.0e-3*Mpc_cm / LengthUnits;
+  //         np->CondensationFraction = AGNParticleCondensationFraction;
+  //         np->FeedbackEfficiency = AGNParticleFeedbackEfficiency;
+  //         np->TimescaleThreshold = 10.0;
+  //         np->KineticFraction = AGNParticleKineticFraction;
+  //         np->JetAngle = (20.0/360.0) * 2.0 * M_PI;
+  //         np->JetPhi = 0.0*(15.0/360.0) * 2.0 * M_PI;
+  //         np->JetTheta = (20.0/360.0)*2.0 * M_PI;
+  //         np->FixedJetIsOn = 1; // 0 = Off, 1 = On
+  //         np->TimeOfLastShock = 0.0;
+  //         // AccretionHistory Bins
+  //         for (int i = 0; i < 256; i++) {
+  //                 np -> AccretionHistoryTime[i] = np -> BirthTime - 
+  //                       (float)(255 - i) * 2.0 * AGNParticleAccretionDelayTime / 255.0;
+  //                 np -> AccretionHistoryRate[i] = 0.0;
+  //                 }
+
+  //         static_cooling_radius = np -> CoolingRadius;
+  //         static_feedback_radius = np -> FeedbackRadius;
+
+  //         fprintf(AGN_data_file,"Creating new AGN Particle at [%"GSYM" %"GSYM" %"GSYM"] [%"ISYM"]\n", np->ReturnPosition()[0], 
+  //                np->ReturnPosition()[1], np->ReturnPosition()[2], MyProcessorNumber);
+  //         // modified by Deovrat Prasad, AGNParticle given initial velocity.
+  //         if (HydroMethod == PPM_DirectEuler)
+  //         {
+  //           np->vel[0] = velx[index];
+  //           np->vel[1] = vely[index];
+  //           np->vel[2] = velz[index];
+  //         }
+  //         else if (HydroMethod == Zeus_Hydro)
+  //         {
+  //           np->vel[0] = 0.5 * (velx[index] + velx[index+offset[0]]);
+  //           np->vel[1] = 0.5 * (vely[index] + vely[index+offset[1]]);
+  //           np->vel[2] = 0.5 * (velz[index] + velz[index+offset[2]]);
+  //         } else {
+  //           ENZO_FAIL("AGNParticle does not support RK Hydro or RK MHD");
+  //         }
+  //         np->Metallicity = 1.0;
+
+  //         thisGrid->AddActiveParticle(np);
+  //         return SUCCESS;
+  //       }
+  //     } //i
+  //   } //j
+  // } // k
+
+  // if (debug)
+  //   fprintf(stderr, "Leaving EvaluateFormation [%"ISYM"]\n",
+  // 	    MyProcessorNumber);
+
+  // fclose(AGN_data_file);
+  return SUCCESS;
+}
+
+
 /* Currently all feedback is done using HandleAGNFeedback which is 
  * called in BeforeEvolveLevel routine. 
  * This function does nothing.*/
@@ -390,9 +515,9 @@ int ActiveParticleType_AGNParticle::Handle_AGN_Feedback(int nParticles, ActivePa
       grid* tg = ParticleList[i] -> ReturnCurrentGrid();
       Time = tg -> ReturnTime();
 
-      if (MyProcessorNumber != tg->ReturnProcessorNumber()) {
-        continue;
-      }
+      // if (MyProcessorNumber != tg->ReturnProcessorNumber()) {
+      //   continue;
+      // }
       
       GetUnits(&DensUnits, &LengthUnits, &TempUnits, &TimeUnits, &VelUnits, Time);
 

@@ -2,8 +2,8 @@
 make show-version
 ========================================================================
 
-Git Branch   master
-Git Revision b5d1332a571d4165c8815df3e2a8792d7fb57b88
+Git Branch   cosmo_fix
+Git Revision d9987ecec1378abda196517bfda10aab58244d84
 
 ========================================================================
 gmake show-config

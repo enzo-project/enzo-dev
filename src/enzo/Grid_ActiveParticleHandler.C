@@ -28,6 +28,7 @@
 #include "fortran.def"
 #include "CosmologyParameters.h"
 #include "ActiveParticle.h"
+#include "ActiveParticle_AGNParticle.h"
 #define H_DEBUG 0
 /* function prototypes */
  
@@ -86,9 +87,13 @@ int grid::ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
     ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
     ActiveParticleTypeToEvaluate->EvaluateFormation(
                                 this, MetaData, supplemental_data); //MetaData added by DP
+    
+    ActiveParticleType_AGNParticle::InsertAGN(this, SubgridPointer, supplemental_data);
     NumberOfNewParticles += supplemental_data.NumberOfNewParticles;
     
   }
+
+  
 
   /* Now we copy the particles from NewParticles into a statically allocated
    * array */
@@ -109,7 +114,6 @@ int grid::ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
 	ActiveParticleTypeToEvaluate->EvaluateFeedback(this, supplemental_data);
 
-  fprintf(stderr,"[%"ISYM"]Made it past EvaluateFeedback (Grid_ActiveParticleHandler.C:112)\n", MyProcessorNumber);
       }
 
       
