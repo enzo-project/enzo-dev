@@ -29,7 +29,8 @@ int grid::MoveSubgridParticles(grid* FromGrid,
                                float *X_Mass,
                                FLOAT *X_Position[],
                                float *X_Velocity[],
-                               float *X_Attribute[])
+                               float *X_Attribute[],
+                               float *X_InitialMass)
 {
  
 int start;
@@ -174,6 +175,8 @@ int start;
       X_Number[start] = FromGrid->ParticleNumber[i];
       X_Type[start] = FromGrid->ParticleType[i];
       X_Mass[start] = (FromGrid->ParticleMass[i]) * MassIncrease;
+      if (StarMakerStoreInitialMass)
+        X_InitialMass[start] = (FromGrid->ParticleInitialMass[i]) * MassIncrease; // does this make sense?
       for (dim = 0; dim < GridRank; dim++) {
         X_Position[dim][start] = FromGrid->ParticlePosition[dim][i];
         X_Velocity[dim][start] = FromGrid->ParticleVelocity[dim][i];

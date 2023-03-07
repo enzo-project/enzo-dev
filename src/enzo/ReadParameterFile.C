@@ -21,6 +21,7 @@
 //   based on it.
 
 #include "preincludes.h"
+#include <cstdio>
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
@@ -957,6 +958,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarMakerTypeIISNeMetalField);
     ret += sscanf(line, "StarMakerPlanetaryNebulae = %"ISYM,
 		  &StarMakerPlanetaryNebulae);
+    ret += sscanf(line, "StarMakerStoreInitialMass = %"ISYM,
+		  &StarMakerStoreInitialMass);
     ret += sscanf(line, "StarMakerOverDensityThreshold = %"FSYM,
 		  &StarMakerOverDensityThreshold);
     ret += sscanf(line, "StarMakerUseOverDensityThreshold = %"ISYM,
@@ -997,6 +1000,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     	&StarMakerExplosionDelayTime);
     ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
     ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
+    ret += sscanf(line, "StarFeedbackPreSNe = %"ISYM, &StarFeedbackPreSNe);
+    ret += sscanf(line, "StarFeedbackPreSNeMomentum = %"FSYM, &StarFeedbackPreSNeMomentum);
+    ret += sscanf(line, "StarFeedbackPreSNeTimescale = %"FSYM, &StarFeedbackPreSNeTimescale);
+    ret += sscanf(line, "StarFeedbackPreSNeAlpha = %"FSYM, &StarFeedbackPreSNeAlpha);
 
     ret += sscanf(line, "StarClusterUseMetalField = %"ISYM,
 		  &StarClusterUseMetalField);

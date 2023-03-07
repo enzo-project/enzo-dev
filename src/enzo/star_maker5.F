@@ -17,7 +17,8 @@ c
      &                      mp, tdp, tcp, metalf,
      &                      rr_left0, rr_left1, rr_left2,
      &                      rr_right0, rr_right1, rr_right2,
-     &                      imetalSNIa, metalSNIa, metalfSNIa)
+     &                      imetalSNIa, metalSNIa, metalfSNIa,
+     &                      iminit, minit)
 
 c
 c  CREATES STAR PARTICLES
@@ -61,6 +62,7 @@ c    level - current level of refinement
 c    procnum - processor number (for output)
 c    rr_left, rr_right - refinement region left and right edges
 c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
+c    iminit - whether to store initial mass separately
 c
 c  OUTPUTS:
 c
@@ -74,6 +76,7 @@ c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
 c    metalfSNIa - metallicity fraction of particle (from SN Ia) ! MKRJ
+c    minit    - initial mass of new particles
 c
 c
 c-----------------------------------------------------------------------
@@ -84,7 +87,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC procnum, imetalSNIa
+      INTG_PREC procnum, imetalSNIa, iminit
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz)
       R_PREC    temp(nx,ny,nz), coolrate(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
@@ -96,7 +99,7 @@ c
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      R_PREC    odthresh, shdens, smthresh, mintdyn
+      R_PREC    odthresh, shdens, smthresh, mintdyn, minit(nmax)
       P_PREC rr_left0, rr_left1, rr_left2
       P_PREC rr_right0, rr_right1, rr_right2
 c
@@ -201,7 +204,10 @@ c ----------If a random number < pstar, create a star!----------------
                starfraction = min(smthresh/bmass, 0.5_RKIND)
 
                ii = ii + 1
-	       mp(ii)  = starfraction * d(i,j,k) 
+	            mp(ii)  = starfraction * d(i,j,k) 
+               if (iminit .eq. 1) then
+                  minit(ii) = mp(ii)
+               endif
                tcp(ii) = t
                tdp(ii) = tdyn
                xp(ii) = tempx

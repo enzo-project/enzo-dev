@@ -163,6 +163,7 @@ int grid::MoveSubgridParticlesFast(int NumberOfSubgrids, grid* ToGrids[],
       if (subgrid >= 0) {
 	n = ToGrids[subgrid]->NumberOfParticles;
 	ToGrids[subgrid]->ParticleMass[n] = ParticleMass[i] * MassIncrease;
+  if (StarMakerStoreInitialMass) ToGrids[subgrid]->ParticleInitialMass[n] = ParticleInitialMass[i] * MassIncrease;
 	ToGrids[subgrid]->ParticleNumber[n] = ParticleNumber[i];
 	ToGrids[subgrid]->ParticleType[n] = ParticleType[i];
 	for (dim = 0; dim < GridRank; dim++) {

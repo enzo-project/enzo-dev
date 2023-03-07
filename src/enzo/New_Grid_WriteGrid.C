@@ -787,6 +787,11 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     this->write_dataset(1, TempIntArray, "particle_mass",
         group_id, HDF5_REAL, (VOIDP) ParticleMass, FALSE);
 
+    if (StarMakerStoreInitialMass) {
+      this->write_dataset(1, TempIntArray, "particle_initial_mass",
+        group_id, HDF5_REAL, (VOIDP) ParticleInitialMass, FALSE);
+    }
+
     this->write_dataset(1, TempIntArray, "particle_index",
         group_id, HDF5_PINT, (VOIDP) ParticleNumber, FALSE);
 
