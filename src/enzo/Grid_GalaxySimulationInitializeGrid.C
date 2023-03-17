@@ -103,8 +103,8 @@ double DiskGravityStellarAccel(FLOAT rcyl, FLOAT z);
 double DiskGravityBulgeAccel(FLOAT rsph);
 
 /* Stuff for the Tonnesen & Bryan 09 ressurection */
-void DiskForceBalance(FLOAT cellwidth, FLOAT z, FLOAT density, struct CGMdata& CGM_data,
-                          FLOAT &temperature, double &rotvel);
+void DiskForceBalance(FLOAT cellwidth, FLOAT z, double density, struct CGMdata& CGM_data,
+                          double &temperature, double &rotvel);
 double trapzd(double (func)(), double a, double b, int n);
 double qromb(double (*func)(double), double a, double b);
 void polint(double xa[],double ya[],int n,double x,double *y,double *dy);
@@ -962,7 +962,7 @@ double findZicm(FLOAT r, struct CGMdata& CGM_data){
   return -1.0;
 }
 
-void DiskForceBalance(FLOAT cellwidth, FLOAT z, FLOAT density, struct CGMdata& CGM_data, FLOAT &temperature, double &rotvel)
+void DiskForceBalance(FLOAT cellwidth, FLOAT z, double density, struct CGMdata& CGM_data, double &temperature, double &rotvel)
 {
   /* 
    *  DISK POTENTIAL CIRCULAR VELOCITY
