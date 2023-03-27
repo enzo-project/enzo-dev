@@ -58,3 +58,5 @@ doc/manual/source/_build
 run/results.js
 
 Make.mach.claire-linux
+*__test_standard.py
+run/test_output/
