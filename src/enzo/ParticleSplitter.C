@@ -89,7 +89,6 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
   
   if (ParticleSplitterMustRefine &&
       ParticleSplitterMustRefineIDFile != NULL) {
-
     int NumberOfMustRefineIDs;
     hid_t file_id, dataset_id, dataspace_id;
     herr_t status;
@@ -111,9 +110,7 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
   }
   
   /* Initialize all star particles if this is a restart */
-
   for (i = 0; i < ParticleSplitterIterations; i++) {
-
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) {
 
 #ifdef DEBUG_PS

@@ -1061,6 +1061,7 @@ EXTERN float ParticleSplitterChildrenParticleSeparation;
 EXTERN int ParticleSplitterRandomSeed;
 EXTERN int ParticleSplitterMustRefine;
 EXTERN char *ParticleSplitterMustRefineIDFile;
+EXTERN int ParticleSplitterMustRefineOnly;
 EXTERN float ParticleSplitterFraction[MAX_SPLIT_ITERATIONS];
 EXTERN FLOAT ParticleSplitterCenter[MAX_DIMENSION];
 EXTERN float ParticleSplitterCenterRegion[MAX_SPLIT_ITERATIONS];

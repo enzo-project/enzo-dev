@@ -676,6 +676,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  ParticleSplitterMustRefine);
   fprintf(fptr, "ParticleSplitterMustRefineIDFile = %s\n",
 	  ParticleSplitterMustRefineIDFile);
+  fprintf(fptr, "ParticleSplitterMustRefineOnly   = %"ISYM"\n",
+	  ParticleSplitterMustRefineOnly);
   fprintf(fptr, "ResetMagneticField               = %"ISYM"\n",
 	  ResetMagneticField);
   fprintf(fptr, "ResetMagneticFieldAmplitude      = %"GSYM" %"GSYM" %"GSYM"\n", 

@@ -1348,6 +1348,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &ParticleSplitterMustRefine);
     if (sscanf(line, "ParticleSplitterMustRefineIDFile = %s", dummy) == 1)
       ParticleSplitterMustRefineIDFile = dummy;
+    ret += sscanf(line, "ParticleSplitterMustRefineOnly = %"ISYM,
+		  &ParticleSplitterMustRefineOnly);
     ret += sscanf(line, "ParticleSplitterFraction    = %"FSYM" %"FSYM" %"FSYM" %"FSYM"",
                   ParticleSplitterFraction+0, ParticleSplitterFraction+1, ParticleSplitterFraction+2,
                   ParticleSplitterFraction+3);

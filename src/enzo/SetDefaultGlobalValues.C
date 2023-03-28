@@ -1013,6 +1013,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParticleSplitterRandomSeed = 131180;
   ParticleSplitterMustRefine = FALSE;
   ParticleSplitterMustRefineIDFile = NULL;
+  ParticleSplitterMustRefineOnly = FALSE;
   for(int i = 0; i < MAX_SPLIT_ITERATIONS; i++)
     ParticleSplitterFraction[i] = 1.0;
   for(int i = 0; i < MAX_DIMENSION; i++)
