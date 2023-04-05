@@ -108,7 +108,7 @@ void DiskForceBalance(FLOAT cellwidth, FLOAT z, double density, struct CGMdata& 
 double trapzd(double (func)(), double a, double b, int n);
 double qromb(double (*func)(double), double a, double b);
 void polint(double xa[],double ya[],int n,double x,double *y,double *dy);
-static double r2;
+static FLOAT r2;
 
 static float DensityUnits, LengthUnits, TemperatureUnits = 1,
              TimeUnits, VelocityUnits, MassUnits;
@@ -1134,13 +1134,13 @@ double PbulgeComp_general(double rvalue, double zint)
 
 double PbulgeComp1(double zint)
 {
-  extern double rcyl;
+  extern FLOAT rcyl;
   return PbulgeComp_general(rcyl*LengthUnits, zint);
 }
 
 double PbulgeComp2(double zint)
 {
-  extern double r2;
+  extern FLOAT r2;
   return PbulgeComp_general(r2, zint);
 }
 
@@ -1169,13 +1169,13 @@ double PstellarComp_general(double rvalue, double zint)
 
 double PstellarComp1(double zint)
 {
-  extern double rcyl;
+  extern FLOAT rcyl;
   return PstellarComp_general(rcyl*LengthUnits, zint);
 }
 
 double PstellarComp2(double zint)
 {
-  extern double r2;
+  extern FLOAT r2;
   return PstellarComp_general(r2, zint);
 }
 
@@ -1208,12 +1208,12 @@ double PDMComp_general(double rvalue, double zint){
 
 /* DM pressure integration */
 double PDMComp1(double zint){
-  extern double rcyl;
+  extern FLOAT rcyl;
   return PDMComp_general(rcyl*LengthUnits, zint);
 }
 
 double PDMComp2(double zint){
-  extern double r2;
+  extern FLOAT r2;
   return PDMComp_general(r2, zint);
 }
 
