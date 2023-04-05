@@ -973,7 +973,7 @@ void DiskForceBalance(FLOAT cellwidth, FLOAT z, double density, struct CGMdata& 
    *      Note that for historical reasons rcyl is an external. *
    */
 
-  extern double rcyl;                    // will be in code units
+  extern FLOAT rcyl;                    // will be in code units
   double PbulgeComp1(double zint);       // (density times Stellar bulge force)
   double PbulgeComp2(double zint);       // same but for r2 (3D distance)
   double PstellarComp1(double zint);     // (density times stellar disk force)
