@@ -69,6 +69,7 @@ OBJS_CONFIG_LIB = \
         CallProblemSpecificRoutines.o \
         CallPython.o \
         CallInSitulibyt.o \
+        CallEmptyInteractivePython.o \
         CheckEnergyConservation.o \
         CheckForOutput.o \
         CheckForResubmit.o \

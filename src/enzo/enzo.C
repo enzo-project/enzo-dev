@@ -790,7 +790,10 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   if(debug)fprintf(stdout, "Initializing libyt interface\n");
   // Allocate our global config object here instead.
   param_libyt = (yt_param_libyt*) malloc(sizeof(param_libyt));
-  yt_init(argc, argv, param_libyt);
+  param_libyt->verbose = YT_VERBOSE_INFO;
+  param_libyt->script = "inline";
+  param_libyt->check_data = false;
+  yt_initialize(argc, argv, param_libyt);
 #endif
 
   MHDCT_EnergyToggle(TopGrid, MetaData, &Exterior, LevelArray);

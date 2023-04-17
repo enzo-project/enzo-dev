@@ -99,7 +99,7 @@ LOCAL_LIBS_PAPI   = # PAPI libraries
 LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
 LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
 LOCAL_LIBS_PYTHON = -L${CONDA_PREFIX}/lib/ -lpython3
-LOCAL_LIBS_LIBYT  = $(LOCAL_LIBS_PYTHON) -L${CONDA_PREFIX}/lib/ -lyt
+LOCAL_LIBS_LIBYT  = $(LOCAL_LIBS_PYTHON) -L${CONDA_PREFIX}/lib/ -lyt -lreadline
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
