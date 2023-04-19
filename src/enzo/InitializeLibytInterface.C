@@ -13,8 +13,8 @@
 /
 ************************************************************************/
 
-#include "libyt/libyt.h"
-#include "libyt/libyt_interactive_mode.h"
+#include "libyt.h"
+#include "libyt_interactive_mode.h"
 
 #include <stdlib.h>
 #include <stdio.h>

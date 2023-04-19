@@ -12,6 +12,7 @@
 /
 ************************************************************************/
 
+#include "libyt.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include "ErrorExceptions.h"
