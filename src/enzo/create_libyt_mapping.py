@@ -6,7 +6,7 @@ import CppHeaderParser
 
 libyt_functions = {
     #"int" : "yt_set_UserParameterInt",
-    "int" : "yt_set_UserParameterLong",
+    "int" : "yt_set_UserParameterLongLong",
     "long" : "yt_set_UserParameterLong",
     "uint" : "yt_set_UserParameterUint",
     "Ulong" : "yt_set_UserParameterUlong",
@@ -16,6 +16,31 @@ libyt_functions = {
     "FLOAT" : "yt_set_UserParameterDouble",
     "char" : "yt_set_UserParameterString", # This will need special case
 }
+
+skip_variables = [
+    "LevelLookupTable",
+    "ProblemTypeName",
+    "GlobalCommunication",
+    "RecvComm",
+    "WaitComm",
+    "timer",
+    "counter",
+    "starttime",
+    "endtime",
+    "Start_Wall_Time",
+    "End_Wall_Time",
+    "WallTime",
+    "flagging_count",
+    "in_count",
+    "out_count",
+    "moving_count",
+    "flagging_pct",
+    "moving_pct",
+    "traceMEM",
+    "StarParticlesOnProcOnLvl_Mass",
+    "StarParticlesOnProcOnLvl_Type",
+    "StageInput",
+]
 
 def preprocess_header_file(fn = "global_data.h"):
     # This removes enzo-isms, specifically EXTERN.
@@ -49,6 +74,7 @@ def handle_char(var):
     return lines
 
 def handle_variable(var):
+    if var['name'] in skip_variables: return []
     if var.get('multi_dimensional_array'):
         # At present, multi_dimensional_arrays are not supported in this
         # library.  This touches a number of reasonably useful pieces of
