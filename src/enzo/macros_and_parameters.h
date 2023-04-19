@@ -26,7 +26,7 @@
 #endif
 
 #ifdef USE_LIBYT
-#include "libyt/libyt.h"
+#include "libyt.h"
 #endif
 
 #ifdef USE_MPI

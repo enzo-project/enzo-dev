@@ -25,8 +25,8 @@
 #include "CosmologyParameters.h"
 #include "TopGridData.h"
 #ifdef USE_LIBYT
-#include "libyt/libyt.h"
-#include "libyt/libyt_interactive_mode.h"
+#include "libyt.h"
+#include "libyt_interactive_mode.h"
 #endif
 
 
