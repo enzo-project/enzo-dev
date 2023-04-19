@@ -25,10 +25,6 @@
 #endif
 #endif
 
-#ifdef USE_LIBYT
-#include "libyt.h"
-#endif
-
 #ifdef USE_MPI
 #include "mpi.h"
 #endif

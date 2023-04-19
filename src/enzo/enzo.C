@@ -793,12 +793,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   // libyt handles the python initialization for us
   if(debug)fprintf(stdout, "Initializing libyt interface\n");
   // Allocate our global config object here instead.
-  param_libyt = (yt_param_libyt*) malloc(sizeof(param_libyt));
-  param_libyt->verbose = YT_VERBOSE_INFO;
-  param_libyt->script = "inline";
-  param_libyt->check_data = false;
-  if (yt_initialize(argc, argv, param_libyt) != YT_SUCCESS) fprintf(stderr, "Failed to initialize libyt interface.\n");
-  else                                                      fprintf(stdout, "libyt initialized\n");
+  InitializeLibytInterface(argc, argv);
 #endif
 
   MHDCT_EnergyToggle(TopGrid, MetaData, &Exterior, LevelArray);
@@ -950,4 +945,3 @@ void my_exit(int status)
 
   }
 }
-

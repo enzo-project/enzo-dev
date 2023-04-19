@@ -41,10 +41,13 @@ void ExposeGridHierarchy(int NumberOfGrids);
 int InitializeLibytInterface(int argc, char *argv[])
 {
 
-    param_libyt->verbose = YT_VERBOSE_INFO;
-    param_libyt->script = "user_script";
-    param_libyt->check_data = false;
-    yt_initialize(argc, argv, param_libyt);
+#undef int
+    param_libyt = (void*) malloc(sizeof(param_libyt));
+    yt_param_libyt *params = (yt_param_libyt*) param_libyt;
+    params->verbose = YT_VERBOSE_INFO;
+    params->script = "inline";
+    params->check_data = false;
+    yt_initialize(argc, argv, params);
 
     char tempname[256];
     int i;
@@ -65,6 +68,7 @@ int FinalizeLibytInterface()
 {
   yt_finalize();
   if(debug)fprintf(stdout, "Completed Python interpreter finalization.\n");
+  free(param_libyt);
   return SUCCESS;
 }
 
