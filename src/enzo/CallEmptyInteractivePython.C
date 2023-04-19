@@ -12,6 +12,11 @@
 /
 ************************************************************************/
 
+#ifdef USE_LIBYT
+#include "libyt/libyt.h"
+#include "libyt/libyt_interactive_mode.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "ErrorExceptions.h"
@@ -24,11 +29,6 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "TopGridData.h"
-#ifdef USE_LIBYT
-#include "libyt/libyt.h"
-#include "libyt/libyt_interactive_mode.h"
-#endif
-
 
 void CommunicationBarrier();
 

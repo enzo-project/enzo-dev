@@ -13,6 +13,8 @@
 /
 ************************************************************************/
 
+#include "libyt/libyt.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "ErrorExceptions.h"
@@ -25,7 +27,6 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "TopGridData.h"
-#include "libyt/libyt.h"
 
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 		       float *TemperatureUnits, float *TimeUnits,
