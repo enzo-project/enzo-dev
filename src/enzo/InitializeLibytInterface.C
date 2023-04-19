@@ -14,6 +14,7 @@
 ************************************************************************/
 
 #include "libyt/libyt.h"
+#include "libyt/libyt_interactive_mode.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -53,6 +54,11 @@ int InitializeLibytInterface(int argc, char *argv[])
  * stage. */
 
 #include "InitializeLibytInterface_finderfunctions.inc"
+
+  if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
+      return 1;
+  }
+
 }
 
 int FinalizeLibytInterface()
