@@ -950,10 +950,10 @@ EXTERN char LocalPath[MAX_LINE_LENGTH];
 EXTERN char GlobalPath[MAX_LINE_LENGTH];
 #endif
 
-#ifdef USE_PYTHON
 EXTERN int NumberOfPythonCalls;
 EXTERN int NumberOfPythonTopGridCalls;
 EXTERN int NumberOfPythonSubcycleCalls;
+#ifdef USE_PYTHON
 EXTERN PyObject *grid_dictionary;
 EXTERN PyObject *old_grid_dictionary;
 EXTERN PyObject *hierarchy_information;
@@ -965,6 +965,9 @@ EXTERN PyObject *my_processor;
 #ifdef USE_LIBYT
 EXTERN yt_param_libyt *param_libyt;
 #endif
+EXTERN int NumberOfLibytCalls;
+EXTERN int NumberOfLibytTopGridCalls;
+EXTERN int NumberOfLibytSubcycleCalls;
 
 /* Multi-species rate equation flag and associated data. */
 

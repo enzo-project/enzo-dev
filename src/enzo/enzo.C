@@ -59,6 +59,10 @@
 int InitializePythonInterface(int argc, char **argv);
 int FinalizePythonInterface();
 #endif
+#ifdef USE_LIBYT
+int InitializeLibytInterface(int argc, char **argv);
+int FinalizeLibytInterface();
+#endif
 
 // Function prototypes
  
@@ -914,7 +918,7 @@ void my_exit(int status)
 #endif
 
 #ifdef USE_LIBYT
-  yt_finalize();
+  FinalizeLibytInterface();
 #endif
 
   if (status == EXIT_SUCCESS) {

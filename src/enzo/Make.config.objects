@@ -713,6 +713,7 @@ OBJS_CONFIG_LIB = \
         InitializeMovieFile.o \
         InitializeNew.o \
         InitializePythonInterface.o \
+        InitializeLibytInterface.o \
         InitializeRadiationFieldData.o \
         InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
