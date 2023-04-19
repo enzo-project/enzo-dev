@@ -13,6 +13,9 @@
 /
 ************************************************************************/
 
+#include "libyt/libyt.h"
+#include "libyt/libyt_interactive_mode.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "ErrorExceptions.h"
@@ -25,7 +28,6 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "TopGridData.h"
-#include "libyt/libyt.h"
 
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 		       float *TemperatureUnits, float *TimeUnits,
@@ -52,6 +54,11 @@ int InitializeLibytInterface(int argc, char *argv[])
  * stage. */
 
 #include "InitializeLibytInterface_finderfunctions.inc"
+
+  if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
+      return 1;
+  }
+
 }
 
 int FinalizeLibytInterface()

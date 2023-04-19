@@ -1183,6 +1183,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "NumberOfPythonSubcycleCalls = %"ISYM, &NumberOfPythonSubcycleCalls);
 #endif
 
+#ifdef USE_LIBYT
+    ret += sscanf(line, "NumberOfLibytCalls = %"ISYM, &NumberOfLibytCalls);
+    ret += sscanf(line, "NumberOfLibytTopGridCalls = %"ISYM, &NumberOfLibytTopGridCalls);
+    ret += sscanf(line, "NumberOfLibytSubcycleCalls = %"ISYM, &NumberOfLibytSubcycleCalls);
+#endif
+
     /* EnzoTiming Parameters */
     ret += sscanf(line, "TimingCycleSkip = %"ISYM, &TimingCycleSkip);
 

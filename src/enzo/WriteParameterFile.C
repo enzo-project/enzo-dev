@@ -177,6 +177,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "NumberOfPythonTopGridCalls  = %"ISYM"\n", NumberOfPythonTopGridCalls);
   fprintf(fptr, "NumberOfPythonSubcycleCalls = %"ISYM"\n", NumberOfPythonSubcycleCalls);
 #endif
+#ifdef USE_LIBYT
+  fprintf(fptr, "NumberOfLibytCalls         = %"ISYM"\n", NumberOfLibytCalls);
+  fprintf(fptr, "NumberOfLibytTopGridCalls  = %"ISYM"\n", NumberOfLibytTopGridCalls);
+  fprintf(fptr, "NumberOfLibytSubcycleCalls = %"ISYM"\n", NumberOfLibytSubcycleCalls);
+#endif
 
   fprintf(fptr, "TimingCycleSkip             = %"ISYM"\n", TimingCycleSkip);
 
