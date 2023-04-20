@@ -13,6 +13,7 @@
 ************************************************************************/
 
 #include "libyt.h"
+#include "libyt_interactive_mode.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include "ErrorExceptions.h"
@@ -45,7 +46,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     return SUCCESS;
 #else
 
-  yt_param_yt param_yt;
+  yt_param_yt *params = (yt_param_yt*) param_yt;
 
 
 /*
@@ -101,15 +102,15 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
 
     /* ExportParameterFile(MetaData, CurrentTime, OldTime, dtFixed); */
-    param_yt.frontend = "enzo";
-    param_yt.domain_left_edge[0] = (double) DomainLeftEdge[0];
-    param_yt.domain_left_edge[1] = (double) DomainLeftEdge[1];
-    param_yt.domain_left_edge[2] = (double) DomainLeftEdge[2];
-    param_yt.domain_right_edge[0] = (double) DomainRightEdge[0];
-    param_yt.domain_right_edge[1] = (double) DomainRightEdge[1];
-    param_yt.domain_right_edge[2] = (double) DomainRightEdge[2];
+    params->frontend = "enzo";
+    params->domain_left_edge[0] = (double) DomainLeftEdge[0];
+    params->domain_left_edge[1] = (double) DomainLeftEdge[1];
+    params->domain_left_edge[2] = (double) DomainLeftEdge[2];
+    params->domain_right_edge[0] = (double) DomainRightEdge[0];
+    params->domain_right_edge[1] = (double) DomainRightEdge[1];
+    params->domain_right_edge[2] = (double) DomainRightEdge[2];
 
-    param_yt.current_time = CurrentTime;
+    params->current_time = CurrentTime;
 
     if (ComovingCoordinates) {
       FLOAT a, dadt, FinalRedshift, CurrentRedshift;
@@ -122,33 +123,33 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
       CosmologyComputeExpansionFactor(CurrentTime, &a, &dadt);
       CurrentRedshift = (1 + InitialRedshift)/a - 1;
 
-      param_yt.cosmological_simulation = 1;
-      param_yt.current_redshift = CurrentRedshift;
-      param_yt.omega_lambda = OmegaLambdaNow;
-      param_yt.omega_matter = OmegaMatterNow;
-      param_yt.hubble_constant = HubbleConstantNow;
+      params->cosmological_simulation = 1;
+      params->current_redshift = CurrentRedshift;
+      params->omega_lambda = OmegaLambdaNow;
+      params->omega_matter = OmegaMatterNow;
+      params->hubble_constant = HubbleConstantNow;
 
       /* We will need to add a bunch of additional parameters later. */
 
     } else {
-      param_yt.cosmological_simulation = 0;
+      params->cosmological_simulation = 0;
     }
 
-    param_yt.length_unit = LengthUnits;
-    param_yt.mass_unit = DensityUnits * LengthUnits * LengthUnits * LengthUnits; /* this right? */
-    param_yt.time_unit = TimeUnits;
-    param_yt.magnetic_unit = 0.0; /* Not right */
-    param_yt.periodicity[0] = 1; /* also not right */
-    param_yt.periodicity[1] = 1;
-    param_yt.periodicity[2] = 1;
-    param_yt.dimensionality = MetaData->TopGridRank;
-    param_yt.domain_dimensions[0] = MetaData->TopGridDims[0];
-    param_yt.domain_dimensions[1] = MetaData->TopGridDims[1];
-    param_yt.domain_dimensions[2] = MetaData->TopGridDims[2];
-    param_yt.refine_by = RefineBy;
-    /*param_yt.num_grids;
-    param_yt.num_fields;
-    param_yt.num_species;*/
+    params->length_unit = LengthUnits;
+    params->mass_unit = DensityUnits * LengthUnits * LengthUnits * LengthUnits; /* this right? */
+    params->time_unit = TimeUnits;
+    params->magnetic_unit = 0.0; /* Not right */
+    params->periodicity[0] = 1; /* also not right */
+    params->periodicity[1] = 1;
+    params->periodicity[2] = 1;
+    params->dimensionality = MetaData->TopGridRank;
+    params->domain_dimensions[0] = MetaData->TopGridDims[0];
+    params->domain_dimensions[1] = MetaData->TopGridDims[1];
+    params->domain_dimensions[2] = MetaData->TopGridDims[2];
+    params->refine_by = RefineBy;
+    /*params->num_grids;
+    params->num_fields;
+    params->num_species;*/
 
 
     CommunicationBarrier();

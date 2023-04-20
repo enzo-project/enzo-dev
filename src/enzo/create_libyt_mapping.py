@@ -54,7 +54,7 @@ def preprocess_header_file(fn = "global_data.h"):
 def handle_loop(param_name, loop_length):
     prefix = []
     prefix.append(f"for (i = 0; i < {loop_length}; i++)" "{")
-    prefix.append(f"    snprintf(tempname, 255, \"f{param_name}_%d\", i);")
+    prefix.append(f"    snprintf(tempname, 255, \"{param_name}_%d\", i);")
     suffix = ["}"]
     return prefix, suffix
 
