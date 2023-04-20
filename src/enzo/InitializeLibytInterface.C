@@ -43,6 +43,7 @@ int InitializeLibytInterface(int argc, char *argv[])
 
 #undef int
     param_libyt = (void*) malloc(sizeof(param_libyt));
+    param_yt = (void*) malloc(sizeof(param_yt));
     yt_param_libyt *params = (yt_param_libyt*) param_libyt;
     params->verbose = YT_VERBOSE_INFO;
     params->script = "inline";

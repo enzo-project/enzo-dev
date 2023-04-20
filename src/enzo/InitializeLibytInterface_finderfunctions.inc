@@ -54,19 +54,19 @@ yt_set_UserParameterDouble("DomainLeftEdge", MAX_DIMENSION, DomainLeftEdge);
 yt_set_UserParameterDouble("DomainRightEdge", MAX_DIMENSION, DomainRightEdge);
 yt_set_UserParameterDouble("GridVelocity", MAX_DIMENSION, GridVelocity);
 for (i = 0; i < MAX_DIMENSION; i++){
-    snprintf(tempname, 255, "fDimUnits_%d", i);
+    snprintf(tempname, 255, "DimUnits_%d", i);
     yt_set_UserParameterString(tempname, DimUnits[i]);
 }
 for (i = 0; i < MAX_DIMENSION; i++){
-    snprintf(tempname, 255, "fDimLabels_%d", i);
+    snprintf(tempname, 255, "DimLabels_%d", i);
     yt_set_UserParameterString(tempname, DimLabels[i]);
 }
 for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
-    snprintf(tempname, 255, "fDataLabel_%d", i);
+    snprintf(tempname, 255, "DataLabel_%d", i);
     yt_set_UserParameterString(tempname, DataLabel[i]);
 }
 for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
-    snprintf(tempname, 255, "fDataUnits_%d", i);
+    snprintf(tempname, 255, "DataUnits_%d", i);
     yt_set_UserParameterString(tempname, DataUnits[i]);
 }
 yt_set_UserParameterDouble("RefineRegionLeftEdge", MAX_DIMENSION, RefineRegionLeftEdge);
@@ -286,7 +286,7 @@ yt_set_UserParameterDouble("TimeActionTime", MAX_TIME_ACTIONS, TimeActionTime);
 yt_set_UserParameterDouble("TimeActionRedshift", MAX_TIME_ACTIONS, TimeActionRedshift);
 yt_set_UserParameterDouble("TimeActionParameter", MAX_TIME_ACTIONS, TimeActionParameter);
 for (i = 0; i < MAX_CUBE_DUMPS; i++){
-    snprintf(tempname, 255, "fCubeDumps_%d", i);
+    snprintf(tempname, 255, "CubeDumps_%d", i);
     yt_set_UserParameterString(tempname, CubeDumps[i]);
 }
 yt_set_UserParameterLongLong("TracerParticleOn", 1, &TracerParticleOn);
@@ -519,19 +519,19 @@ yt_set_UserParameterLongLong("MHD_ProjectE", 1, &MHD_ProjectE);
 yt_set_UserParameterLongLong("UseMHDCT", 1, &UseMHDCT);
 yt_set_UserParameterLongLong("EquationOfState", 1, &EquationOfState);
 for (i = 0; i < 3; i++){
-    snprintf(tempname, 255, "fMHDLabel_%d", i);
+    snprintf(tempname, 255, "MHDLabel_%d", i);
     yt_set_UserParameterString(tempname, MHDLabel[i]);
 }
 for (i = 0; i < 3; i++){
-    snprintf(tempname, 255, "fMHDUnits_%d", i);
+    snprintf(tempname, 255, "MHDUnits_%d", i);
     yt_set_UserParameterString(tempname, MHDUnits[i]);
 }
 for (i = 0; i < 3; i++){
-    snprintf(tempname, 255, "fMHDeLabel_%d", i);
+    snprintf(tempname, 255, "MHDeLabel_%d", i);
     yt_set_UserParameterString(tempname, MHDeLabel[i]);
 }
 for (i = 0; i < 3; i++){
-    snprintf(tempname, 255, "fMHDeUnits_%d", i);
+    snprintf(tempname, 255, "MHDeUnits_%d", i);
     yt_set_UserParameterString(tempname, MHDeUnits[i]);
 }
 yt_set_UserParameterString("DatabaseLocation", DatabaseLocation);
