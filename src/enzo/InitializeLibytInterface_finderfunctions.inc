@@ -55,18 +55,22 @@ yt_set_UserParameterDouble("DomainRightEdge", MAX_DIMENSION, DomainRightEdge);
 yt_set_UserParameterDouble("GridVelocity", MAX_DIMENSION, GridVelocity);
 for (i = 0; i < MAX_DIMENSION; i++){
     snprintf(tempname, 255, "DimUnits_%d", i);
+    if (!DimUnits[i]) continue;
     yt_set_UserParameterString(tempname, DimUnits[i]);
 }
 for (i = 0; i < MAX_DIMENSION; i++){
     snprintf(tempname, 255, "DimLabels_%d", i);
+    if (!DimLabels[i]) continue;
     yt_set_UserParameterString(tempname, DimLabels[i]);
 }
 for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
     snprintf(tempname, 255, "DataLabel_%d", i);
+    if (!DataLabel[i]) continue;
     yt_set_UserParameterString(tempname, DataLabel[i]);
 }
 for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
     snprintf(tempname, 255, "DataUnits_%d", i);
+    if (!DataUnits[i]) continue;
     yt_set_UserParameterString(tempname, DataUnits[i]);
 }
 yt_set_UserParameterDouble("RefineRegionLeftEdge", MAX_DIMENSION, RefineRegionLeftEdge);
@@ -190,11 +194,13 @@ yt_set_UserParameterDouble("ZEUSQuadraticArtificialViscosity", 1, &ZEUSQuadratic
 yt_set_UserParameterLongLong("UseMinimumPressureSupport", 1, &UseMinimumPressureSupport);
 yt_set_UserParameterDouble("MinimumPressureSupportParameter", 1, &MinimumPressureSupportParameter);
 yt_set_UserParameterLongLong("StaticRefineRegionLevel", MAX_STATIC_REGIONS, StaticRefineRegionLevel);
-yt_set_UserParameterString("RefineRegionFile", RefineRegionFile);
+if (RefineRegionFile)
+    yt_set_UserParameterString("RefineRegionFile", RefineRegionFile);
 yt_set_UserParameterLongLong("RefineRegionTimeType", 1, &RefineRegionTimeType);
 yt_set_UserParameterLongLong("EvolveRefineRegionNtimes", 1, &EvolveRefineRegionNtimes);
 yt_set_UserParameterDouble("EvolveRefineRegionTime", MAX_REFINE_REGIONS, EvolveRefineRegionTime);
-yt_set_UserParameterString("MustRefineRegionFile", MustRefineRegionFile);
+if (MustRefineRegionFile)
+    yt_set_UserParameterString("MustRefineRegionFile", MustRefineRegionFile);
 yt_set_UserParameterLongLong("MustRefineRegionTimeType", 1, &MustRefineRegionTimeType);
 yt_set_UserParameterLongLong("EvolveMustRefineRegionNtimes", 1, &EvolveMustRefineRegionNtimes);
 yt_set_UserParameterDouble("EvolveMustRefineRegionTime", MAX_REFINE_REGIONS, EvolveMustRefineRegionTime);
@@ -203,7 +209,8 @@ yt_set_UserParameterLongLong("UseCoolingRefineRegion", 1, &UseCoolingRefineRegio
 yt_set_UserParameterLongLong("EvolveCoolingRefineRegion", 1, &EvolveCoolingRefineRegion);
 yt_set_UserParameterDouble("CoolingRefineRegionLeftEdge", MAX_DIMENSION, CoolingRefineRegionLeftEdge);
 yt_set_UserParameterDouble("CoolingRefineRegionRightEdge", MAX_DIMENSION, CoolingRefineRegionRightEdge);
-yt_set_UserParameterString("CoolingRefineRegionFile", CoolingRefineRegionFile);
+if (CoolingRefineRegionFile)
+    yt_set_UserParameterString("CoolingRefineRegionFile", CoolingRefineRegionFile);
 yt_set_UserParameterLongLong("CoolingRefineRegionTimeType", 1, &CoolingRefineRegionTimeType);
 yt_set_UserParameterLongLong("EvolveCoolingRefineRegionNtimes", 1, &EvolveCoolingRefineRegionNtimes);
 yt_set_UserParameterDouble("EvolveCoolingRefineRegionTime", MAX_REFINE_REGIONS, EvolveCoolingRefineRegionTime);
@@ -287,6 +294,7 @@ yt_set_UserParameterDouble("TimeActionRedshift", MAX_TIME_ACTIONS, TimeActionRed
 yt_set_UserParameterDouble("TimeActionParameter", MAX_TIME_ACTIONS, TimeActionParameter);
 for (i = 0; i < MAX_CUBE_DUMPS; i++){
     snprintf(tempname, 255, "CubeDumps_%d", i);
+    if (!CubeDumps[i]) continue;
     yt_set_UserParameterString(tempname, CubeDumps[i]);
 }
 yt_set_UserParameterLongLong("TracerParticleOn", 1, &TracerParticleOn);
@@ -304,18 +312,21 @@ yt_set_UserParameterLongLong("SimpleConstantBoundary", 1, &SimpleConstantBoundar
 yt_set_UserParameterLongLong("StoreDomainBoundaryMassFlux", 1, &StoreDomainBoundaryMassFlux);
 yt_set_UserParameterLongLong("BoundaryMassFluxFieldNumbers", MAX_NUMBER_OF_BARYON_FIELDS, BoundaryMassFluxFieldNumbers);
 yt_set_UserParameterDouble("BoundaryMassFluxContainer", MAX_NUMBER_OF_BARYON_FIELDS, BoundaryMassFluxContainer);
-yt_set_UserParameterString("BoundaryMassFluxFilename", BoundaryMassFluxFilename);
+if (BoundaryMassFluxFilename)
+    yt_set_UserParameterString("BoundaryMassFluxFilename", BoundaryMassFluxFilename);
 yt_set_UserParameterLongLong("TaskMap", MAX_NUMBER_OF_TASKS, TaskMap);
 yt_set_UserParameterDouble("NodeMem", MAX_NUMBER_OF_NODES, NodeMem);
 yt_set_UserParameterLongLong("NodeMap", MAX_NUMBER_OF_NODES, NodeMap);
 yt_set_UserParameterLongLong("LoadGridDataAtStart", 1, &LoadGridDataAtStart);
-yt_set_UserParameterString("MetaDataIdentifier", MetaDataIdentifier);
+if (MetaDataIdentifier)
+    yt_set_UserParameterString("MetaDataIdentifier", MetaDataIdentifier);
 yt_set_UserParameterLongLong("traceMPI", 1, &traceMPI);
 yt_set_UserParameterLongLong("MovieDataField", MAX_MOVIE_FIELDS, MovieDataField);
 yt_set_UserParameterLongLong("MovieSkipTimestep", 1, &MovieSkipTimestep);
 yt_set_UserParameterLongLong("Movie3DVolumes", 1, &Movie3DVolumes);
 yt_set_UserParameterLongLong("MovieVertexCentered", 1, &MovieVertexCentered);
-yt_set_UserParameterString("NewMovieName", NewMovieName);
+if (NewMovieName)
+    yt_set_UserParameterString("NewMovieName", NewMovieName);
 yt_set_UserParameterLongLong("NewMovieDumpNumber", 1, &NewMovieDumpNumber);
 yt_set_UserParameterLongLong("NewMovieParticleOn", 1, &NewMovieParticleOn);
 yt_set_UserParameterLongLong("UseHydro", 1, &UseHydro);
@@ -402,8 +413,12 @@ yt_set_UserParameterLongLong("rand_init", 1, &rand_init);
 yt_set_UserParameterLongLong("NumberOfPythonCalls", 1, &NumberOfPythonCalls);
 yt_set_UserParameterLongLong("NumberOfPythonTopGridCalls", 1, &NumberOfPythonTopGridCalls);
 yt_set_UserParameterLongLong("NumberOfPythonSubcycleCalls", 1, &NumberOfPythonSubcycleCalls);
+yt_set_UserParameterLongLong("NumberOfLibytCalls", 1, &NumberOfLibytCalls);
+yt_set_UserParameterLongLong("NumberOfLibytTopGridCalls", 1, &NumberOfLibytTopGridCalls);
+yt_set_UserParameterLongLong("NumberOfLibytSubcycleCalls", 1, &NumberOfLibytSubcycleCalls);
 yt_set_UserParameterLongLong("MetalCooling", 1, &MetalCooling);
-yt_set_UserParameterString("MetalCoolingTable", MetalCoolingTable);
+if (MetalCoolingTable)
+    yt_set_UserParameterString("MetalCoolingTable", MetalCoolingTable);
 yt_set_UserParameterLongLong("CIECooling", 1, &CIECooling);
 yt_set_UserParameterLongLong("H2OpticalDepthApproximation", 1, &H2OpticalDepthApproximation);
 yt_set_UserParameterLongLong("RadiativeTransfer", 1, &RadiativeTransfer);
@@ -412,7 +427,8 @@ yt_set_UserParameterDouble("PhotonTime", 1, &PhotonTime);
 yt_set_UserParameterDouble("dtPhoton", 1, &dtPhoton);
 yt_set_UserParameterDouble("EscapedPhotonCount", 4, EscapedPhotonCount);
 yt_set_UserParameterDouble("TotalEscapedPhotonCount", 4, TotalEscapedPhotonCount);
-yt_set_UserParameterString("PhotonEscapeFilename", PhotonEscapeFilename);
+if (PhotonEscapeFilename)
+    yt_set_UserParameterString("PhotonEscapeFilename", PhotonEscapeFilename);
 yt_set_UserParameterLongLong("FieldsToInterpolate", MAX_NUMBER_OF_BARYON_FIELDS, FieldsToInterpolate);
 yt_set_UserParameterLongLong("LevelCycleCount", MAX_DEPTH_OF_HIERARCHY, LevelCycleCount);
 yt_set_UserParameterLongLong("LevelSubCycleCount", MAX_DEPTH_OF_HIERARCHY, LevelSubCycleCount);
@@ -443,17 +459,21 @@ yt_set_UserParameterLongLong("ParticleSplitterIterations", 1, &ParticleSplitterI
 yt_set_UserParameterDouble("ParticleSplitterChildrenParticleSeparation", 1, &ParticleSplitterChildrenParticleSeparation);
 yt_set_UserParameterLongLong("ParticleSplitterRandomSeed", 1, &ParticleSplitterRandomSeed);
 yt_set_UserParameterLongLong("ParticleSplitterMustRefine", 1, &ParticleSplitterMustRefine);
-yt_set_UserParameterString("ParticleSplitterMustRefineIDFile", ParticleSplitterMustRefineIDFile);
+if (ParticleSplitterMustRefineIDFile)
+    yt_set_UserParameterString("ParticleSplitterMustRefineIDFile", ParticleSplitterMustRefineIDFile);
 yt_set_UserParameterDouble("ParticleSplitterFraction", MAX_SPLIT_ITERATIONS, ParticleSplitterFraction);
 yt_set_UserParameterDouble("ParticleSplitterCenter", MAX_DIMENSION, ParticleSplitterCenter);
 yt_set_UserParameterDouble("ParticleSplitterCenterRegion", MAX_SPLIT_ITERATIONS, ParticleSplitterCenterRegion);
 yt_set_UserParameterLongLong("ResetMagneticField", 1, &ResetMagneticField);
 yt_set_UserParameterDouble("ResetMagneticFieldAmplitude", MAX_DIMENSION, ResetMagneticFieldAmplitude);
 yt_set_UserParameterLongLong("MBHParticleIO", 1, &MBHParticleIO);
-yt_set_UserParameterString("MBHParticleIOFilename", MBHParticleIOFilename);
-yt_set_UserParameterString("MBHInsertLocationFilename", MBHInsertLocationFilename);
+if (MBHParticleIOFilename)
+    yt_set_UserParameterString("MBHParticleIOFilename", MBHParticleIOFilename);
+if (MBHInsertLocationFilename)
+    yt_set_UserParameterString("MBHInsertLocationFilename", MBHInsertLocationFilename);
 yt_set_UserParameterLongLong("OutputWhenJetsHaveNotEjected", 1, &OutputWhenJetsHaveNotEjected);
-yt_set_UserParameterString("RadiationSourcesFileName", RadiationSourcesFileName);
+if (RadiationSourcesFileName)
+    yt_set_UserParameterString("RadiationSourcesFileName", RadiationSourcesFileName);
 yt_set_UserParameterLongLong("NumberOfRadiationParticles", 1, &NumberOfRadiationParticles);
 yt_set_UserParameterDouble("PhotonsPerSecond", 1, &PhotonsPerSecond);
 yt_set_UserParameterLongLong("NumberOfEnergyBins", 1, &NumberOfEnergyBins);
@@ -520,21 +540,26 @@ yt_set_UserParameterLongLong("UseMHDCT", 1, &UseMHDCT);
 yt_set_UserParameterLongLong("EquationOfState", 1, &EquationOfState);
 for (i = 0; i < 3; i++){
     snprintf(tempname, 255, "MHDLabel_%d", i);
+    if (!MHDLabel[i]) continue;
     yt_set_UserParameterString(tempname, MHDLabel[i]);
 }
 for (i = 0; i < 3; i++){
     snprintf(tempname, 255, "MHDUnits_%d", i);
+    if (!MHDUnits[i]) continue;
     yt_set_UserParameterString(tempname, MHDUnits[i]);
 }
 for (i = 0; i < 3; i++){
     snprintf(tempname, 255, "MHDeLabel_%d", i);
+    if (!MHDeLabel[i]) continue;
     yt_set_UserParameterString(tempname, MHDeLabel[i]);
 }
 for (i = 0; i < 3; i++){
     snprintf(tempname, 255, "MHDeUnits_%d", i);
+    if (!MHDeUnits[i]) continue;
     yt_set_UserParameterString(tempname, MHDeUnits[i]);
 }
-yt_set_UserParameterString("DatabaseLocation", DatabaseLocation);
+if (DatabaseLocation)
+    yt_set_UserParameterString("DatabaseLocation", DatabaseLocation);
 yt_set_UserParameterLongLong("ExtraOutputs", MAX_EXTRA_OUTPUTS, ExtraOutputs);
 yt_set_UserParameterLongLong("CorrectParentBoundaryFlux", 1, &CorrectParentBoundaryFlux);
 yt_set_UserParameterLongLong("EnabledActiveParticlesCount", 1, &EnabledActiveParticlesCount);
