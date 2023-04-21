@@ -62,15 +62,17 @@ def handle_char(var):
     # We need to special case this because we sometimes will have a string and
     # sometimes an array of strings.
     f = libyt_functions[var['raw_type']]
-    lines = []
+    lines = []#f"fprintf(stderr, \"Handling variable {var['name']}\\n\");"]
     if var['array']:
         if not var['pointer']: return []
         prefix, suffix = handle_loop(var['name'], var['array_size'])
         lines.extend(prefix)
+        lines.append(f"    if (!{var['name']}[i]) continue;")
         lines.append(f"    {f}(tempname, {var['name']}[i]);")
         lines.extend(suffix)
     else:
-        lines.append(f"{f}(\"{var['name']}\", {var['name']});")
+        lines.append(f"if ({var['name']})")
+        lines.append(f"    {f}(\"{var['name']}\", {var['name']});")
     return lines
 
 def handle_variable(var):
@@ -97,7 +99,7 @@ def handle_variable(var):
 
 
 if __name__ == "__main__":
-    text = preprocess_header_file('gg.h')
+    text = preprocess_header_file('global_data.h')
     gd = CppHeaderParser.CppHeader(text, argType="string")
     lines = []
     for var in gd.variables:
