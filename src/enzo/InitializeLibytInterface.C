@@ -16,8 +16,28 @@
 #include "libyt.h"
 #include "libyt_interactive_mode.h"
 
+// We do this before any Enzo includes
+
 #include <stdlib.h>
 #include <stdio.h>
+
+extern void* param_yt;
+extern void* param_libyt;
+
+int InitializeLibytByItself(long long argc, char *argv[])
+{
+
+    param_libyt = (void*) malloc(sizeof(yt_param_libyt));
+    param_yt = (void*) malloc(sizeof(yt_param_yt));
+    yt_param_libyt *params = (yt_param_libyt*) param_libyt;
+    params->verbose = YT_VERBOSE_INFO;
+    params->script = "inline";
+    params->check_data = false;
+    yt_initialize(argc, argv, params);
+    fprintf(stderr, "Finished calling initialize!\n");
+    return 0;
+}
+
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -38,17 +58,8 @@ int ExposeDataHierarchy(TopGridData *MetaData, HierarchyEntry *Grid,
 		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level);
 void ExposeGridHierarchy(int NumberOfGrids);
 
-int InitializeLibytInterface(int argc, char *argv[])
+int InitializeLibytInterface()
 {
-
-#undef int
-    param_libyt = (void*) malloc(sizeof(param_libyt));
-    param_yt = (void*) malloc(sizeof(param_yt));
-    yt_param_libyt *params = (yt_param_libyt*) param_libyt;
-    params->verbose = YT_VERBOSE_INFO;
-    params->script = "inline";
-    params->check_data = false;
-    yt_initialize(argc, argv, params);
 
     char tempname[256];
     int i;
@@ -57,12 +68,12 @@ int InitializeLibytInterface(int argc, char *argv[])
  * time, so that any updated parameters are caught. This is just to set the
  * stage. */
 
-#include "InitializeLibytInterface_finderfunctions.inc"
+//#include "InitializeLibytInterface_finderfunctions.inc"
 
   if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
       return 1;
   }
-
+  return 0;
 }
 
 int FinalizeLibytInterface()
