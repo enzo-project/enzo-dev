@@ -58,9 +58,10 @@ int ExposeDataHierarchy(TopGridData *MetaData, HierarchyEntry *Grid,
 		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level);
 void ExposeGridHierarchy(int NumberOfGrids);
 
-int InitializeLibytInterface()
+int InitializeLibytInterface(int argc, char *argv[])
 {
 
+    InitializeLibytByItself(argc, argv);
     char tempname[256];
     int i;
 

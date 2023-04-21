@@ -60,8 +60,7 @@ int InitializePythonInterface(int argc, char **argv);
 int FinalizePythonInterface();
 #endif
 #ifdef USE_LIBYT
-int InitializeLibytInterface();
-int InitializeLibytByItself(long long argc, char **argv);
+int InitializeLibytInterface(long long argc, char **argv);
 int FinalizeLibytInterface();
 #endif
 
@@ -793,8 +792,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 #ifdef USE_LIBYT
   // libyt handles the python initialization for us
   if(debug)fprintf(stdout, "Initializing libyt interface\n");
-  InitializeLibytByItself(argc, argv);
-  InitializeLibytInterface();
+  InitializeLibytInterface(argc, argv);
 #endif
 
   MHDCT_EnergyToggle(TopGrid, MetaData, &Exterior, LevelArray);
