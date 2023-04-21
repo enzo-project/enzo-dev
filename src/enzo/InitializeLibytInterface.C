@@ -68,7 +68,7 @@ int InitializeLibytInterface()
  * time, so that any updated parameters are caught. This is just to set the
  * stage. */
 
-//#include "InitializeLibytInterface_finderfunctions.inc"
+#include "InitializeLibytInterface_finderfunctions.inc"
 
   if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
       return 1;
