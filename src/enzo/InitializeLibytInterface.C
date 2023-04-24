@@ -63,7 +63,68 @@ int InitializeLibytInterface(int argc, char *argv[])
 
     InitializeLibytByItself(argc, argv);
     char tempname[256];
-    int i;
+    int i, j;
+
+    /* Here, we have a delicate operation to conduct.  We are setting up the fields
+     * supplied to libyt.  The issue we need to be wary of is that we are setting them
+     * up in the order they are in DataLabel, which *may* not be the same as in
+     * the grids.  (We can't know for sure!)
+     * */
+
+    yt_field *field_list;
+    yt_get_FieldsPtr( &field_list );
+
+    int libyt_field_i = 0;
+    for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++) {
+        /* This will be out of date when/if a new field is added to DataLables.
+         *
+         * We could potentially be much more careful about this, but looking at
+         * the logic in grid::WriteGrid it is clear that the assumption, for IO
+         * purposes, that DataLabel[f] maps to BaryonField[f], is implicit
+         * throughout many relevant places.
+         *
+         * Note that this does not account for some other potential fields,
+         * such as Temperature, that are not stored in DataLabel, which we will
+         * address by hand.
+         *
+         * */
+        if (!DataLabel[i]) continue;
+        /* This tells us that BaryonFields[i] maps to
+         * libyt_field[libyt_field_lookup[i]]
+         *
+         * */
+
+        field_list[libyt_field_i].field_name = DataLabel[i];
+        field_list[libyt_field_i].field_type = "cell-centered";
+        field_list[libyt_field_i].field_dtype = ( sizeof(float) == 32 ) ? YT_FLOAT : YT_DOUBLE;
+        for (j = 0; j < 6; j++) {
+            /* This next bit is tricky.  The issue we have is that fields, in general,
+             * will likely have the same number of ghost cells, regardless of
+             * which grid they are on.  *But*, the way Enzo always does this is
+             * to use the start and end index values of the grids to compute
+             * the active dimensions.
+             *
+             * However, we don't have that information here -- we don't have
+             * any grids, and we're just setting up the field info.
+             *
+             * */
+            field_list[libyt_field_i].field_ghost_cell[j] = 3;
+        }
+        libyt_field_lookup[i] = libyt_field_i++;
+    }
+
+    /* Now we add on the following fields, as per grid::WriteGrid:
+     *
+     *  - Temperature
+     *  - Dust_Temperature
+     *  - Cooling_Time
+     *
+     *  Each of these is predicated on the global parameter associated with
+     *  them.
+     *
+     * */
+
+    
 
 /* We call this parameter setting function here, but we *also* call it every
  * time, so that any updated parameters are caught. This is just to set the

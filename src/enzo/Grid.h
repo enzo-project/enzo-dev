@@ -49,6 +49,10 @@ struct HierarchyEntry;
 #include "ProblemType.h"
 #endif
 
+#ifdef USE_LIBYT
+struct yt_grid;
+#endif
+
 //extern int CommunicationDirection;
 
 //struct ParticleEntry {
@@ -2837,6 +2841,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     void ConvertToNumpy(int GridID, PyArrayObject *container[],
                         int ParentID, int level, FLOAT WriteTime);
 #endif
+#ifdef USE_LIBYT
+    void ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int level, yt_grid *GridInfoArray);
+#endif 
 //------------------------------------------------------------------------
 // Methods for star formation
 //------------------------------------------------------------------------

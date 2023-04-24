@@ -440,6 +440,7 @@ OBJS_CONFIG_LIB = \
 	Grid_constructor.o \
     	Grid_ConvertColorFieldsToFractions.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
+	Grid_ConvertToLibyt.o \
 	Grid_ConvertToNumpy.o \
 	Grid_CoolingTestResetEnergies.o \
 	Grid_CoolingTestInitializeGrid.o \
