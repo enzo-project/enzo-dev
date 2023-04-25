@@ -69,8 +69,8 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
     FLOAT CurrentTime, OldTime;
     float dtFixed;
-    int num_grids, start_index;
-    num_grids = 0; start_index = 1;
+    int num_grids, num_local_grids, start_index;
+    num_grids = num_local_grids = 0; start_index = 1;
 
     LevelHierarchyEntry *Temp2 = LevelArray[0];
     /* Count the grids */
@@ -79,10 +79,16 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     for (int lc = 0; LevelArray[lc] != NULL; lc++){
         Temp2 = LevelArray[lc];
         while (Temp2 != NULL) {
-            num_grids++; Temp2 = Temp2->NextGridThisLevel;
+            num_grids++;
+            if (Temp2.ProcessorNumber == MyProcessorNumber)
+                num_local_grids++;
+            Temp2 = Temp2->NextGridThisLevel;
         }
     }
-    ExposeGridHierarchy(num_grids);
+
+    params.num_grids = num_grids;
+    params.num_local_grids = num_local_grids;
+
     Temp2 = LevelArray[0];
     while (Temp2->NextGridThisLevel != NULL)
         Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
@@ -150,8 +156,10 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     params->domain_dimensions[1] = MetaData->TopGridDims[1];
     params->domain_dimensions[2] = MetaData->TopGridDims[2];
     params->refine_by = RefineBy;
-    /*params->num_grids;
-    params->num_fields;
+    params->num_grids = num_grids;
+    params->num_local_grids = num_local_grids;
+    /* We do things by DataLabel */
+    params->num_fields = 0;
     params->num_species;*/
 
 
