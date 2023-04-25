@@ -42,7 +42,7 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
      * the hierarchy (that don't involve fields) are often replicated on all
      * processes. */
   
-    if (ProcessorNumber == MyProcessorNumber) return;
+    if (ProcessorNumber != MyProcessorNumber) return;
 
     for (int i = 0; i < MAX_DIMENSION; i++) {
         GridInfoArray[LocalGridID].grid_dimensions[i] = this->GridDimension[i];
