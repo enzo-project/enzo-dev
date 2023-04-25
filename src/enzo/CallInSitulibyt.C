@@ -227,31 +227,29 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
      *
      * */
 
-    /* Note!  This is important!  Grid IDs will not be the same *on-disk* as
-     * they are *in-libyt* because we're using a linear ordering, not a
-     * recursive descent.
+    /* As I'm writing this in 2023, I cannot recall specifically why we need to
+     * find the last entry in the linked list.  But, it shows up a number of
+     * places, including in CallPython.C and OutputFromEvolveLevel.C.  I
+     * suspect it's because the grids are added in the reverse order to the
+     * LevelArray.
      *
-     * The biggest issue with that is that we lose information about our parent
-     * IDs, so they have to be reconstructed.
+     * I have left the original 'ugh:' so that it can be found by anyone
+     * grepping for that.  I don't actually feel 'ugh' about it.  In fact,
+     * in revisiting Enzo, I have found a number of places where in yt we
+     * took 'the easy way' and the Enzo way is so much more elegant, even if
+     * the impedance mismatch means I have to jump through a few more hoops.
+     *
      * */
-
-    int GlobalGridID, LocalGridID;
-    GlobalGridID = LocalGridID = 0;
-
-    yt_grid **GridInfoArray;
-
-    yt_get_GridsPtr(GridInfoArray);
-    for (int lc = 0; LevelArray[lc] != NULL; lc++){
-        Temp2 = LevelArray[lc];
-        while (Temp2 != NULL) {
-            Temp2->GridData->ConvertToLibyt(LocalGridID, GlobalGridID, -1, lc, *GridInfoArray);
-            if (Temp2->GridData->ReturnProcessorNumber() == MyProcessorNumber)
-                LocalGridID++;
-            GlobalGridID ++;
-            Temp2 = Temp2->NextGridThisLevel;
-        }
+    int GlobalGridID = 0;
+    int LocalGridID = 0;
+    Temp2 = LevelArray[0];
+    while (Temp2->NextGridThisLevel != NULL)
+        Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
+    if(ExposeHierarchyToLibyt(MetaData, Temp2->GridHierarchyEntry, 
+                CurrentTime, 0, 0) == FAIL) {
+        fprintf(stderr, "Error in ExposeHierarchyToLibyt\n");
+        return FAIL;
     }
-
 
     CommunicationBarrier();
     return SUCCESS;
