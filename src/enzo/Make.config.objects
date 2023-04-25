@@ -189,6 +189,7 @@ OBJS_CONFIG_LIB = \
         ExternalBoundary_AddField.o \
         ExposeDataHierarchy.o \
         ExposeGridHierarchy.o \
+        ExposeHierarchyToLibyt.o \
         ExternalBoundary_AppendForcingToBaryonFields.o \
         ExternalBoundary_constructor.o \
         ExternalBoundary_DetachForcingFromBaryonFields.o \
