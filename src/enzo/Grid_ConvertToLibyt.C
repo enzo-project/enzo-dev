@@ -30,7 +30,7 @@
 #include "CosmologyParameters.h"
 
 /* Note that previously we allowed WriteTime to be supplied and we do not now */
-void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int level, yt_grid *GridInfoArray)
+void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int level, yt_grid *GridInfo)
 {
 
     this->DebugCheck("Converting to libyt arrays");
@@ -40,20 +40,26 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     /* libyt only wants us to set any array values if the grid is local.  Note
      * that this is opposite what we do in other places, where operations on
      * the hierarchy (that don't involve fields) are often replicated on all
-     * processes. */
+     * processes. 
+     *
+     * *But* there may be times when we actually do want to do this.  So,
+     * we don't do the check in here -- instead, we rely on it being checked
+     * externally.
+     *
+     * In here, we'll happily do whatever we're told.
+     *
+     * */
   
-    if (ProcessorNumber != MyProcessorNumber) return;
-
     for (int i = 0; i < MAX_DIMENSION; i++) {
-        GridInfoArray[LocalGridID].grid_dimensions[i] = this->GridDimension[i];
-        GridInfoArray[LocalGridID].left_edge[i] = this->GridLeftEdge[i];
-        GridInfoArray[LocalGridID].right_edge[i] = this->GridRightEdge[i];
+        GridInfo->grid_dimensions[i] = this->GridDimension[i];
+        GridInfo->left_edge[i] = this->GridLeftEdge[i];
+        GridInfo->right_edge[i] = this->GridRightEdge[i];
     }
-    GridInfoArray[LocalGridID].id = GlobalGridID;
-    GridInfoArray[LocalGridID].parent_id = ParentID;
-    GridInfoArray[LocalGridID].level = level;
+    GridInfo->id = GlobalGridID;
+    GridInfo->parent_id = ParentID;
+    GridInfo->level = level;
     /* par_count_list can take multiple particle types */
-    GridInfoArray[LocalGridID].par_count_list[0] = this->ReturnNumberOfParticles();
+    GridInfo->par_count_list[0] = this->ReturnNumberOfParticles();
 
     for (int field = 0; field < NumberOfBaryonFields; field++) {
         /* These are pointers, and *not* copies. Ownership is retained here. *
@@ -75,7 +81,7 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
          * */
         int libyt_field = libyt_field_lookup[field];
         if (libyt_field == -1) continue;
-        GridInfoArray[LocalGridID].field_data[libyt_field].data_ptr = BaryonField[field];
+        GridInfo->field_data[libyt_field].data_ptr = BaryonField[field];
     }
 
 }
