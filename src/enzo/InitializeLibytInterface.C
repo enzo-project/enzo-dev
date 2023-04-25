@@ -98,17 +98,13 @@ int InitializeLibytInterface(int argc, char *argv[])
         field_list[libyt_field_i].field_type = "cell-centered";
         field_list[libyt_field_i].field_dtype = ( sizeof(float) == 32 ) ? YT_FLOAT : YT_DOUBLE;
         for (j = 0; j < 6; j++) {
-            /* This next bit is tricky.  The issue we have is that fields, in general,
-             * will likely have the same number of ghost cells, regardless of
-             * which grid they are on.  *But*, the way Enzo always does this is
-             * to use the start and end index values of the grids to compute
-             * the active dimensions.
-             *
-             * However, we don't have that information here -- we don't have
-             * any grids, and we're just setting up the field info.
+            /*
+             * It may be possible that in some cases, this global value is not
+             * correct; however, it's pretty unlikely, and non-cell-centered
+             * fields will be stored in different member fields anyway.
              *
              * */
-            field_list[libyt_field_i].field_ghost_cell[j] = 3;
+            field_list[libyt_field_i].field_ghost_cell[j] = NumberOfGhostZones;
         }
         libyt_field_lookup[i] = libyt_field_i++;
     }
