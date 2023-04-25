@@ -96,7 +96,7 @@ int InitializeLibytInterface(int argc, char *argv[])
 
         field_list[libyt_field_i].field_name = DataLabel[i];
         field_list[libyt_field_i].field_type = "cell-centered";
-        field_list[libyt_field_i].field_dtype = ( sizeof(float) == 32 ) ? YT_FLOAT : YT_DOUBLE;
+        field_list[libyt_field_i].field_dtype = EYT_FLOAT;
         for (j = 0; j < 6; j++) {
             /*
              * It may be possible that in some cases, this global value is not
