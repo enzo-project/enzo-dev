@@ -47,7 +47,7 @@ int ExposeHierarchyToLibyt(TopGridData *MetaData, HierarchyEntry *Grid,
   if (Grid->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
       /* We do a similar */
     Grid->GridData->ConvertToLibyt(LocalGridID, GridID, ParentID, level, WriteTime,
-            GridInfoArray[LocalGridID]);
+            GridInfoArray[LocalGridID-1]);
     LocalGridID++;
   }
 

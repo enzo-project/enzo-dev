@@ -36,8 +36,9 @@ int  GetUnits(float *DensityUnits, float *LengthUnits,
 		       float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-int ExposeDataHierarchy(TopGridData *MetaData, HierarchyEntry *Grid, 
-		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level);
+int ExposeHierarchyToLibyt(TopGridData *MetaData, HierarchyEntry *Grid, int
+        &GridID, int &LocalGridID, FLOAT WriteTime, int ParentID, int level,
+        yt_grid *GridInfoArray);
 void ExposeGridHierarchy(int NumberOfGrids);
 void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime, float dtFixed);
 void CommunicationBarrier();
@@ -240,13 +241,18 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
      * the impedance mismatch means I have to jump through a few more hoops.
      *
      * */
-    int GlobalGridID = 0;
-    int LocalGridID = 0;
+
+    yt_grid* GridInfoArray;
+    yt_get_GridsPtr(&GridInfoArray);
+
+    /* These are 1-indexed, so when we access elements we -1 them */
+    int GlobalGridID = 1;
+    int LocalGridID = 1;
     Temp2 = LevelArray[0];
     while (Temp2->NextGridThisLevel != NULL)
         Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
     if(ExposeHierarchyToLibyt(MetaData, Temp2->GridHierarchyEntry, 
-                CurrentTime, 0, 0) == FAIL) {
+                GlobalGridID, LocalGridID, CurrentTime, 0, 0, GridInfoArray) == FAIL) {
         fprintf(stderr, "Error in ExposeHierarchyToLibyt\n");
         return FAIL;
     }
