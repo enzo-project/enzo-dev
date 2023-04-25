@@ -245,6 +245,9 @@ typedef long long int   HDF5_hid_t;
 #define ENPY_BFLOAT NPY_FLOAT
 #define enpy_bfloat npy_float
 #endif
+#ifdef USE_LIBYT
+#define EYT_FLOAT YT_FLOAT
+#endif
 #endif
 
 #ifdef CONFIG_BFLOAT_8
@@ -261,6 +264,9 @@ typedef long long int   HDF5_hid_t;
 #ifdef USE_PYTHON
 #define ENPY_BFLOAT NPY_DOUBLE
 #define enpy_bfloat npy_double
+#endif
+#ifdef USE_LIBYT
+#define EYT_FLOAT YT_DOUBLE
 #endif
 #endif
 
@@ -279,6 +285,9 @@ typedef long long int   HDF5_hid_t;
 #define ENPY_PFLOAT NPY_FLOAT
 #define enpy_pfloat npy_float
 #endif
+#ifdef USE_LIBYT
+#define EPYT_FLOAT YT_FLOAT
+#endif
 #endif
 
 #ifdef CONFIG_PFLOAT_8
@@ -296,6 +305,9 @@ typedef long long int   HDF5_hid_t;
 #define ENPY_PFLOAT NPY_DOUBLE
 #define enpy_pfloat npy_double
 #endif
+#ifdef USE_LIBYT
+#define EPYT_FLOAT YT_DOUBLE
+#endif
 #endif
 
 #ifdef CONFIG_PFLOAT_16
@@ -312,6 +324,9 @@ typedef long long int   HDF5_hid_t;
 #ifdef USE_PYTHON
 #define ENPY_PFLOAT NPY_LONGDOUBLE
 #define enpy_pfloat npy_longdouble
+#endif
+#ifdef USE_LIBYT
+#define EPYT_FLOAT YT_LONGDOUBLE
 #endif
 #endif
 

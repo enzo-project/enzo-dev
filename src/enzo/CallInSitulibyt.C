@@ -50,6 +50,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 #else
 
   yt_param_yt *params = (yt_param_yt*) param_yt;
+  int i, j;
 
 
 /*
@@ -69,8 +70,8 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
     FLOAT CurrentTime, OldTime;
     float dtFixed;
-    int num_grids, start_index;
-    num_grids = 0; start_index = 1;
+    int num_grids, num_local_grids, start_index;
+    num_grids = num_local_grids = 0; start_index = 1;
 
     LevelHierarchyEntry *Temp2 = LevelArray[0];
     /* Count the grids */
@@ -79,10 +80,13 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     for (int lc = 0; LevelArray[lc] != NULL; lc++){
         Temp2 = LevelArray[lc];
         while (Temp2 != NULL) {
-            num_grids++; Temp2 = Temp2->NextGridThisLevel;
+            num_grids++;
+            if (Temp2->GridData->ReturnProcessorNumber() == MyProcessorNumber)
+                num_local_grids++;
+            Temp2 = Temp2->NextGridThisLevel;
         }
     }
-    ExposeGridHierarchy(num_grids);
+
     Temp2 = LevelArray[0];
     while (Temp2->NextGridThisLevel != NULL)
         Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
@@ -150,9 +154,103 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     params->domain_dimensions[1] = MetaData->TopGridDims[1];
     params->domain_dimensions[2] = MetaData->TopGridDims[2];
     params->refine_by = RefineBy;
-    /*params->num_grids;
-    params->num_fields;
-    params->num_species;*/
+    params->num_grids = num_grids;
+    params->num_grids_local = num_local_grids;
+    /* We do things by DataLabel */
+
+    for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++) {
+        if (!DataLabel[i]) {
+            params->num_fields = i;
+            break;
+        }
+    }
+
+    /* Here, we have a delicate operation to conduct.  We are setting up the fields
+     * supplied to libyt.  The issue we need to be wary of is that we are setting them
+     * up in the order they are in DataLabel, which *may* not be the same as in
+     * the grids.  (We can't know for sure!)
+     * */
+
+    yt_field *field_list;
+    yt_get_FieldsPtr( &field_list );
+
+    int libyt_field_i = 0;
+    for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++) {
+        /* This will be out of date when/if a new field is added to DataLables.
+         *
+         * We could potentially be much more careful about this, but looking at
+         * the logic in grid::WriteGrid it is clear that the assumption, for IO
+         * purposes, that DataLabel[f] maps to BaryonField[f], is implicit
+         * throughout many relevant places.
+         *
+         * Note that this does not account for some other potential fields,
+         * such as Temperature, that are not stored in DataLabel, which we will
+         * address by hand.
+         *
+         * */
+        if (!DataLabel[i]) break;
+        /* This tells us that BaryonFields[i] maps to
+         * libyt_field[libyt_field_lookup[i]]
+         *
+         * */
+
+        field_list[libyt_field_i].field_name = DataLabel[i];
+        field_list[libyt_field_i].field_type = "cell-centered";
+        field_list[libyt_field_i].field_dtype = EYT_FLOAT;
+        for (j = 0; j < 6; j++) {
+            /*
+             * It may be possible that in some cases, this global value is not
+             * correct; however, it's pretty unlikely, and non-cell-centered
+             * fields will be stored in different member fields anyway.
+             *
+             * */
+            field_list[libyt_field_i].field_ghost_cell[j] = NumberOfGhostZones;
+        }
+        libyt_field_lookup[i] = libyt_field_i++;
+    }
+
+    /* Now we add on the following fields, as per grid::WriteGrid:
+     *
+     *  - Temperature
+     *  - Dust_Temperature
+     *  - Cooling_Time
+     *
+     *  Each of these is predicated on the global parameter associated with
+     *  them.
+     *
+     * */
+
+    /* We now have to do everything we do in CallPython.C, which amounts to
+     *
+     *  - ExposeGridHierarchy (not necessary anymore)
+     *  - ExposeDataHierarchy (a recursive call)
+     *
+     * */
+
+    /* Note!  This is important!  Grid IDs will not be the same *on-disk* as
+     * they are *in-libyt* because we're using a linear ordering, not a
+     * recursive descent.
+     *
+     * The biggest issue with that is that we lose information about our parent
+     * IDs, so they have to be reconstructed.
+     * */
+
+    int GlobalGridID, LocalGridID;
+    GlobalGridID = LocalGridID = 0;
+
+    yt_grid **GridInfoArray;
+
+    yt_get_GridsPtr(GridInfoArray);
+    for (int lc = 0; LevelArray[lc] != NULL; lc++){
+        Temp2 = LevelArray[lc];
+        while (Temp2 != NULL) {
+            Temp2->GridData->ConvertToLibyt(LocalGridID, GlobalGridID, -1, lc, *GridInfoArray);
+            if (Temp2->GridData->ReturnProcessorNumber() == MyProcessorNumber)
+                LocalGridID++;
+            GlobalGridID ++;
+            Temp2 = Temp2->NextGridThisLevel;
+        }
+    }
 
 
     CommunicationBarrier();

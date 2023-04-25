@@ -42,7 +42,7 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
      * the hierarchy (that don't involve fields) are often replicated on all
      * processes. */
   
-    if (ProcessorNumber == MyProcessorNumber) return;
+    if (ProcessorNumber != MyProcessorNumber) return;
 
     for (int i = 0; i < MAX_DIMENSION; i++) {
         GridInfoArray[LocalGridID].grid_dimensions[i] = this->GridDimension[i];
@@ -66,6 +66,12 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
          * libyt field entry.
          * 
          * This means we do not need to do any species field identification.
+         *
+         * (This may be far too cautious in almost all cases.  I mean,
+         * grid::WriteGrid assumes that DataLabel corresponds to the field
+         * index, and that is also what we assume internally for libyt
+         * initialization.)
+         *
          * */
         int libyt_field = libyt_field_lookup[field];
         if (libyt_field == -1) continue;
