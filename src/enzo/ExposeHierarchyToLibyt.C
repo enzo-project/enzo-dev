@@ -57,7 +57,7 @@ int ExposeHierarchyToLibyt(TopGridData *MetaData, HierarchyEntry *Grid,
   if (Grid->NextGridThisLevel != NULL) {
     GridID++;
     if (ExposeHierarchyToLibyt(MetaData, Grid->NextGridThisLevel, GridID, LocalGridID,
-			   WriteTime, 0, ParentID, level, GridInfoArray) == FAIL) {
+			   WriteTime, ParentID, level, GridInfoArray) == FAIL) {
       fprintf(stderr, "Error in ExposeHierarchyToLibyt(1).\n");
       return FAIL;
     }
@@ -66,7 +66,7 @@ int ExposeHierarchyToLibyt(TopGridData *MetaData, HierarchyEntry *Grid,
   if (Grid->NextGridNextLevel != NULL) {
     GridID++;
     if (ExposeHierarchyToLibyt(MetaData, Grid->NextGridNextLevel, GridID, LocalGridID,
-			   WriteTime, 0, OriginalID, level+1, GridInfoArray) == FAIL) {
+			   WriteTime, OriginalID, level+1, GridInfoArray) == FAIL) {
       fprintf(stderr, "Error in ExposeDataHierarchy(2).\n");
       return FAIL;
     }
