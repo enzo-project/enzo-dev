@@ -111,6 +111,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
     /* ExportParameterFile(MetaData, CurrentTime, OldTime, dtFixed); */
     params->frontend = "enzo";
+    params->fig_basename = "Fig";
     params->domain_left_edge[0] = (double) DomainLeftEdge[0];
     params->domain_left_edge[1] = (double) DomainLeftEdge[1];
     params->domain_left_edge[2] = (double) DomainLeftEdge[2];
