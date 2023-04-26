@@ -177,9 +177,10 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     }
 
     /* Set code-specific parameter
-     * TODO: including this reach seg fault, but success to compile it. */
-//    char tempname[256];
-//    #include "InitializeLibytInterface_finderfunctions.inc"
+     * TODO: including this reach seg fault, but success to compile it.
+     *       I think the seg fault comes from libyt and from yt_set_Parameters */
+    char tempname[256];
+    #include "InitializeLibytInterface_finderfunctions.inc"
 
     /* Here, we have a delicate operation to conduct.  We are setting up the fields
      * supplied to libyt.  The issue we need to be wary of is that we are setting them
