@@ -12,7 +12,7 @@
 
 // This function writes out the data hierarchy (TopGrid)
 #ifdef USE_LIBYT
-#include "libyt.h"
+#include "libyt/libyt.h"
 #endif
 
 #include <stdlib.h>
