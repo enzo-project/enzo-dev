@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "libyt/libyt.h"
+#include "libyt.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
