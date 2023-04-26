@@ -30,7 +30,7 @@
 #include "CosmologyParameters.h"
 
 /* Note that previously we allowed WriteTime to be supplied and we do not now */
-void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int level, yt_grid *GridInfo)
+void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int level, yt_grid &GridInfo)
 {
 
     this->DebugCheck("Converting to libyt arrays");
@@ -51,15 +51,15 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
      * */
   
     for (int i = 0; i < MAX_DIMENSION; i++) {
-        GridInfo->grid_dimensions[i] = this->GridDimension[i];
-        GridInfo->left_edge[i] = this->GridLeftEdge[i];
-        GridInfo->right_edge[i] = this->GridRightEdge[i];
+        GridInfo.grid_dimensions[i] = this->GridDimension[i];
+        GridInfo.left_edge[i] = this->GridLeftEdge[i];
+        GridInfo.right_edge[i] = this->GridRightEdge[i];
     }
-    GridInfo->id = GlobalGridID;
-    GridInfo->parent_id = ParentID;
-    GridInfo->level = level;
+    GridInfo.id = GlobalGridID;
+    GridInfo.parent_id = ParentID;
+    GridInfo.level = level;
     /* par_count_list can take multiple particle types */
-    GridInfo->par_count_list[0] = this->ReturnNumberOfParticles();
+    GridInfo.par_count_list[0] = this->ReturnNumberOfParticles();
 
     for (int field = 0; field < NumberOfBaryonFields; field++) {
         /* These are pointers, and *not* copies. Ownership is retained here. *
@@ -81,7 +81,7 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
          * */
         int libyt_field = libyt_field_lookup[field];
         if (libyt_field == -1) continue;
-        GridInfo->field_data[libyt_field].data_ptr = BaryonField[field];
+        GridInfo.field_data[libyt_field].data_ptr = BaryonField[field];
     }
 
 }

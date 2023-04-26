@@ -2842,7 +2842,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                         int ParentID, int level, FLOAT WriteTime);
 #endif
 #ifdef USE_LIBYT
-    void ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int level, yt_grid *GridInfo);
+    void ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int level, yt_grid &GridInfo);
 #endif 
 //------------------------------------------------------------------------
 // Methods for star formation
