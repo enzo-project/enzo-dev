@@ -11,6 +11,9 @@
 ************************************************************************/
 
 // This function writes out the data hierarchy (TopGrid)
+#ifdef USE_LIBYT
+#include "libyt/libyt.h"
+#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -46,8 +49,8 @@ int ExposeHierarchyToLibyt(TopGridData *MetaData, HierarchyEntry *Grid,
 
   if (Grid->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
       /* We do a similar */
-    Grid->GridData->ConvertToLibyt(LocalGridID, GridID, ParentID, level, WriteTime,
-            GridInfoArray[LocalGridID-1]);
+    Grid->GridData->ConvertToLibyt(LocalGridID, GridID, ParentID, level,
+            &GridInfoArray[LocalGridID-1]);
     LocalGridID++;
   }
 
