@@ -166,6 +166,11 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         }
     }
 
+    if (yt_set_Parameters(params) != YT_SUCCESS){
+        fprintf(stderr, "Error in libyt API yt_set_Parameters\n");
+        return FAIL;
+    }
+
     /* Here, we have a delicate operation to conduct.  We are setting up the fields
      * supplied to libyt.  The issue we need to be wary of is that we are setting them
      * up in the order they are in DataLabel, which *may* not be the same as in
