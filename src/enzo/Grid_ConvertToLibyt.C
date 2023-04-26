@@ -59,7 +59,9 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     GridInfo->parent_id = ParentID;
     GridInfo->level = level;
     /* par_count_list can take multiple particle types */
-    GridInfo->par_count_list[0] = this->ReturnNumberOfParticles();
+    /* TODO: since we haven't set num_par_types, libyt doesn't initialize this.*/
+    // GridInfo->par_count_list[0] = this->ReturnNumberOfParticles();
+
 
     for (int field = 0; field < NumberOfBaryonFields; field++) {
         /* These are pointers, and *not* copies. Ownership is retained here. *

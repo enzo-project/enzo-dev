@@ -167,10 +167,19 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         }
     }
 
+    /* TODO: set num_par_types and par_type_list, so that libyt can properly initialize
+     *       particle related stuff, etc yt_get_ParticlesPtr gets the pointer,
+     *       and Grid_ConvertToLibyt.C have par_count_list initialized. */
+
     if (yt_set_Parameters(params) != YT_SUCCESS){
         fprintf(stderr, "Error in libyt API yt_set_Parameters\n");
         return FAIL;
     }
+
+    /* Set code-specific parameter
+     * TODO: including this reach seg fault, but success to compile it. */
+//    char tempname[256];
+//    #include "InitializeLibytInterface_finderfunctions.inc"
 
     /* Here, we have a delicate operation to conduct.  We are setting up the fields
      * supplied to libyt.  The issue we need to be wary of is that we are setting them
@@ -234,6 +243,10 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
      *
      * */
 
+    /*
+     * TODO: call yt_get_ParticlesPtr for num_par_types > 0
+     */
+
     /* As I'm writing this in 2023, I cannot recall specifically why we need to
      * find the last entry in the linked list.  But, it shows up a number of
      * places, including in CallPython.C and OutputFromEvolveLevel.C.  I
@@ -260,6 +273,27 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     if(ExposeHierarchyToLibyt(MetaData, Temp2->GridHierarchyEntry, 
                 GlobalGridID, LocalGridID, CurrentTime, 0, 0, GridInfoArray) == FAIL) {
         fprintf(stderr, "Error in ExposeHierarchyToLibyt\n");
+        return FAIL;
+    }
+
+    /* Commit all settings to libyt. */
+    if (yt_commit() != YT_SUCCESS){
+        fprintf(stderr, "Error in libyt API yt_commit\n");
+        return FAIL;
+    }
+
+    /* TODO: Call another other inline Python Function using
+     *       yt_run_Function and yt_run_FunctionArguments... */
+
+    /* Call interactive mode. */
+    if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
+        fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
+        return FAIL;
+    }
+
+    /* Free resources allocated for libyt. */
+    if (yt_free() != YT_SUCCESS) {
+        fprintf(stderr, "Error in libyt API yt_free\n");
         return FAIL;
     }
 
