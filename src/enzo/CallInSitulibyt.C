@@ -170,6 +170,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     /* TODO: set num_par_types and par_type_list, so that libyt can properly initialize
      *       particle related stuff, etc yt_get_ParticlesPtr gets the pointer,
      *       and Grid_ConvertToLibyt.C have par_count_list initialized. */
+    params->num_par_types = 0;
 
     if (yt_set_Parameters(params) != YT_SUCCESS){
         fprintf(stderr, "Error in libyt API yt_set_Parameters\n");
