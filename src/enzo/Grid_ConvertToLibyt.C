@@ -62,17 +62,6 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     /* TODO: since we haven't set num_par_types, libyt doesn't initialize this.*/
     // GridInfo->par_count_list[0] = this->ReturnNumberOfParticles();
 
-    /* DEBUG: */
-    printf("#FLAG, Grid ID = %d\n", GlobalGridID);
-    printf("#FLAG, Parent ID = %d\n", ParentID);
-    printf("#FLAG, Level = %d\n", level);
-    printf("#FLAG, Grid Dimensions = (%d, %d, %d)\n",
-           GridInfo->grid_dimensions[0], GridInfo->grid_dimensions[1], GridInfo->grid_dimensions[2]);
-    printf("#FLAG, Grid Left Edge  = (%.3f, %.3f, %.3f)\n",
-           GridInfo->left_edge[0], GridInfo->left_edge[1], GridInfo->left_edge[2]);
-    printf("#FLAG, Grid Right Edge = (%.3f, %.3f, %.3f)\n",
-           GridInfo->right_edge[0], GridInfo->right_edge[1], GridInfo->right_edge[2]);
-
 
     for (int field = 0; field < NumberOfBaryonFields; field++) {
         /* These are pointers, and *not* copies. Ownership is retained here. *
