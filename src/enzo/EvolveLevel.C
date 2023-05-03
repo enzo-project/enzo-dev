@@ -257,8 +257,10 @@ void my_exit(int status);
  
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
                int level, int from_topgrid);
-int CallEmptyInteractivePython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-               int level, int from_topgrid);
+//int CallEmptyInteractivePython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
+//               int level, int from_topgrid);
+int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
+                    int level, int from_topgrid);
 int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
 double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
@@ -847,7 +849,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef USE_LIBYT
     LCAPERF_START("CallEmptyInteractivePython");
-    CallEmptyInteractivePython(LevelArray, MetaData, level, 0);
+    //CallEmptyInteractivePython(LevelArray, MetaData, level, 0);
+    CallInSitulibyt(LevelArray, MetaData, level, 0);
     LCAPERF_STOP("CallEmptyInteractivePython");
 #endif
 
