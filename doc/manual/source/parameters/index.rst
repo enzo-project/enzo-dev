@@ -2704,7 +2704,8 @@ Background Radiation Parameters
     set to 1, it calculates shielding for H/He. See
     ``calc_photo_rates.src`` for more details.  When set to 2, it
     shields only H2 with the Sobolev-like approximation from
-    Wolcott-Green et al. (2011).  Default: 0
+    Wolcott-Green et al. (2011). When set to 3, it shields H2 with updated
+    fit from Wolcott-Green & Haiman (2019). Default: 0
 ``RadiationFieldRedshift`` (external)
     This parameter specifies the redshift at which the radiation field
     is calculated.  If a UV radiation background is used in a
