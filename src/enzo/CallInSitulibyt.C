@@ -13,8 +13,8 @@
 ************************************************************************/
 
 #ifdef USE_LIBYT
-#include "libyt.h"
-#include "libyt_interactive_mode.h"
+#include "libyt/libyt.h"
+#include "libyt/libyt_interactive_mode.h"
 #endif
 
 #include <stdlib.h>
@@ -177,9 +177,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         return FAIL;
     }
 
-    /* Set code-specific parameter
-     * TODO: including this reach seg fault, but success to compile it.
-     *       I think the seg fault comes from libyt and from yt_set_Parameters */
+    /* Set code-specific parameter */
     char tempname[256];
     #include "InitializeLibytInterface_finderfunctions.inc"
 
