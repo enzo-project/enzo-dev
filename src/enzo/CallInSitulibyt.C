@@ -156,6 +156,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     params->domain_dimensions[1] = MetaData->TopGridDims[1];
     params->domain_dimensions[2] = MetaData->TopGridDims[2];
     params->refine_by = RefineBy;
+    params->index_offset = 1;
     params->num_grids = num_grids;
     params->num_grids_local = num_local_grids;
     /* We do things by DataLabel */
