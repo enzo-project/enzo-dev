@@ -31,8 +31,9 @@ int InitializeLibytByItself(long long argc, char *argv[])
     param_yt = (void*) malloc(sizeof(yt_param_yt));
     yt_param_libyt *params = (yt_param_libyt*) param_libyt;
     params->verbose = YT_VERBOSE_INFO;
-    params->script = "inline";
-    params->check_data = false;
+    params->script = "inline";     // inline.py will be loaded
+    params->counter = 0;           // Fig basename will start from count 0
+    params->check_data = false;    // do not check hierarchy
     yt_initialize(argc, argv, params);
     fprintf(stderr, "Finished calling initialize!\n");
     return 0;
