@@ -13,8 +13,8 @@
 /
 ************************************************************************/
 
-#include "libyt/libyt.h"
-#include "libyt/libyt_interactive_mode.h"
+#include "libyt.h"
+#include "libyt_interactive_mode.h"
 
 // We do this before any Enzo includes
 
@@ -30,7 +30,7 @@ int InitializeLibytByItself(long long argc, char *argv[])
     param_libyt = (void*) malloc(sizeof(yt_param_libyt));
     param_yt = (void*) malloc(sizeof(yt_param_yt));
     yt_param_libyt *params = (yt_param_libyt*) param_libyt;
-    params->verbose = YT_VERBOSE_INFO;
+    params->verbose = YT_VERBOSE_DEBUG;
     params->script = "inline";
     params->check_data = false;
     yt_initialize(argc, argv, params);
@@ -64,17 +64,7 @@ int InitializeLibytInterface(int argc, char *argv[])
     InitializeLibytByItself(argc, argv);
     char tempname[256];
     int i, j;
-
-
-/* We call this parameter setting function here, but we *also* call it every
- * time, so that any updated parameters are caught. This is just to set the
- * stage. */
-
-#include "InitializeLibytInterface_finderfunctions.inc"
-
-  if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
-      return 1;
-  }
+    
   return 0;
 }
 

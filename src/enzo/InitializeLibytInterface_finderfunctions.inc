@@ -18,7 +18,7 @@ yt_set_UserParameterLongLong("CheckpointRestart", 1, &CheckpointRestart);
 yt_set_UserParameterLongLong("WriteGhostZones", 1, &WriteGhostZones);
 yt_set_UserParameterLongLong("ReadGhostZones", 1, &ReadGhostZones);
 yt_set_UserParameterLongLong("ProblemType", 1, &ProblemType);
-yt_set_UserParameterLong("HydroMethod", 1, &HydroMethod);
+yt_set_UserParameterLongLong("HydroMethod", 1, &HydroMethod);
 yt_set_UserParameterDouble("huge_number", 1, &huge_number);
 yt_set_UserParameterDouble("tiny_number", 1, &tiny_number);
 yt_set_UserParameterDouble("Gamma", 1, &Gamma);
