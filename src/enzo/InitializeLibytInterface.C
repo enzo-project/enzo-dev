@@ -30,7 +30,7 @@ int InitializeLibytByItself(long long argc, char *argv[])
     param_libyt = (void*) malloc(sizeof(yt_param_libyt));
     param_yt = (void*) malloc(sizeof(yt_param_yt));
     yt_param_libyt *params = (yt_param_libyt*) param_libyt;
-    params->verbose = YT_VERBOSE_DEBUG;
+    params->verbose = YT_VERBOSE_INFO;
     params->script = "inline";
     params->check_data = false;
     yt_initialize(argc, argv, params);
