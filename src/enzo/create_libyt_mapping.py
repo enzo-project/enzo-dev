@@ -15,6 +15,7 @@ libyt_functions = {
     "double" : "yt_set_UserParameterDouble",
     "FLOAT" : "yt_set_UserParameterDouble",
     "char" : "yt_set_UserParameterString", # This will need special case
+    "hydro_method" : "yt_set_UserParameterLong"
 }
 
 skip_variables = [
