@@ -31,8 +31,9 @@ int InitializeLibytByItself(long long argc, char *argv[])
     param_yt = (void*) malloc(sizeof(yt_param_yt));
     yt_param_libyt *params = (yt_param_libyt*) param_libyt;
     params->verbose = YT_VERBOSE_INFO;
-    params->script = "inline";
-    params->check_data = false;
+    params->script = "inline";     // inline.py will be loaded
+    params->counter = 0;           // Fig basename will start from count 0
+    params->check_data = false;    // do not check hierarchy
     yt_initialize(argc, argv, params);
     fprintf(stderr, "Finished calling initialize!\n");
     return 0;
@@ -64,17 +65,7 @@ int InitializeLibytInterface(int argc, char *argv[])
     InitializeLibytByItself(argc, argv);
     char tempname[256];
     int i, j;
-
-
-/* We call this parameter setting function here, but we *also* call it every
- * time, so that any updated parameters are caught. This is just to set the
- * stage. */
-
-#include "InitializeLibytInterface_finderfunctions.inc"
-
-  if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
-      return 1;
-  }
+    
   return 0;
 }
 

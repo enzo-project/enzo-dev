@@ -848,10 +848,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 
 #ifdef USE_LIBYT
-    LCAPERF_START("CallEmptyInteractivePython");
+    LCAPERF_START("CallInSitulibyt");
     //CallEmptyInteractivePython(LevelArray, MetaData, level, 0);
     CallInSitulibyt(LevelArray, MetaData, level, 0);
-    LCAPERF_STOP("CallEmptyInteractivePython");
+    LCAPERF_STOP("CallInSitulibyt");
 #endif
 
     /* Update SubcycleNumber and the timestep counter for the
