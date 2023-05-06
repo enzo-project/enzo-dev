@@ -51,7 +51,7 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
      * */
   
     for (int i = 0; i < MAX_DIMENSION; i++) {
-        GridInfo.grid_dimensions[i] = this->GridDimension[i];
+        GridInfo.grid_dimensions[i] = (this->GridEndIndex[i]) - (this->GridStartIndex[i]) + 1; // this is active dimension
         GridInfo.left_edge[i] = this->GridLeftEdge[i];
         GridInfo.right_edge[i] = this->GridRightEdge[i];
     }
