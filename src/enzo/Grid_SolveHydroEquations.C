@@ -89,22 +89,117 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     int NumberOfColours = 0, ColourNum;
 
+    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+      DINum, DIINum, HDINum;
+    int HeHIINum, DMNum, HDIINum
+      , CINum,  CIINum,   CONum,      CO2Num,    OINum,   OHNum
+      , H2ONum, O2Num,    SiINum,     SiOINum,   SiO2INum
+      , CHNum,  CH2Num,   COIINum,    OIINum,    OHIINum, H2OIINum, H3OIINum, O2IINum
+      , MgNum,  AlNum,    SNum,       FeNum
+      , SiMNum, FeMNum,   Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+      , ACNum,  SiO2DNum, MgONum,     FeSNum,    Al2O3Num
+      , DustNum;
+
     // use different color fields for RadiativeTransferFLD problems
     //   first, the standard Enzo color field advection
     if (MultiSpecies > 0 && RadiativeTransferFLD != 2) {
-      NumberOfColours = 6 + 3*(MultiSpecies-1);
+//    NumberOfColours = 6 + 3*(MultiSpecies-1);
 
-      if ((ColourNum =
-           FindField(ElectronDensity, FieldType, NumberOfBaryonFields)) < 0) {
-        ENZO_FAIL("Could not find ElectronDensity.");
+//    if ((ColourNum =
+//         FindField(ElectronDensity, FieldType, NumberOfBaryonFields)) < 0) {
+//      ENZO_FAIL("Could not find ElectronDensity.");
+//    }
+
+//    /* Generate an array of field numbers corresponding to the colour fields
+//       (here assumed to start with ElectronDensity and continue in order). */
+
+//    for (i = 0; i < NumberOfColours; i++)
+//      colnum[i] = ColourNum+i;
+
+      if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+                                HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+        ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
       }
 
-      /* Generate an array of field numbers corresponding to the colour fields
-	 (here assumed to start with ElectronDensity and continue in order). */
+      if (IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
+                                 , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+                                 , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+                                 , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum,  H3OIINum,  O2IINum
+                                 , MgNum   , AlNum   , SNum      , FeNum
+                                 , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+                                 , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+                                 , DustNum ) == FAIL) {
+        ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
+      }
 
-      for (i = 0; i < NumberOfColours; i++)
-        colnum[i] = ColourNum+i;
-
+        if(      DeNum != -1) colnum[NumberOfColours++] =      DeNum;
+        if(      HINum != -1) colnum[NumberOfColours++] =      HINum;
+        if(     HIINum != -1) colnum[NumberOfColours++] =     HIINum;
+        if(     HeINum != -1) colnum[NumberOfColours++] =     HeINum;
+        if(    HeIINum != -1) colnum[NumberOfColours++] =    HeIINum;
+        if(   HeIIINum != -1) colnum[NumberOfColours++] =   HeIIINum;
+      if (MultiSpecies > 1) {
+        if(      HMNum != -1) colnum[NumberOfColours++] =      HMNum;
+        if(     H2INum != -1) colnum[NumberOfColours++] =     H2INum;
+        if(    H2IINum != -1) colnum[NumberOfColours++] =    H2IINum;
+      }
+      if (MultiSpecies > 2) {
+        if(      DINum != -1) colnum[NumberOfColours++] =      DINum;
+        if(     DIINum != -1) colnum[NumberOfColours++] =     DIINum;
+        if(     HDINum != -1) colnum[NumberOfColours++] =     HDINum;
+      }
+      if (MultiSpecies > 3) {
+        if(   HeHIINum != -1) colnum[NumberOfColours++] =   HeHIINum;
+        if(      DMNum != -1) colnum[NumberOfColours++] =      DMNum;
+        if(    HDIINum != -1) colnum[NumberOfColours++] =    HDIINum;
+      }
+      if (MetalChemistry > 0) {
+        if(      CINum != -1) colnum[NumberOfColours++] =      CINum;
+        if(     CIINum != -1) colnum[NumberOfColours++] =     CIINum;
+        if(      CONum != -1) colnum[NumberOfColours++] =      CONum;
+        if(     CO2Num != -1) colnum[NumberOfColours++] =     CO2Num;
+        if(      OINum != -1) colnum[NumberOfColours++] =      OINum;
+        if(      OHNum != -1) colnum[NumberOfColours++] =      OHNum;
+        if(     H2ONum != -1) colnum[NumberOfColours++] =     H2ONum;
+        if(      O2Num != -1) colnum[NumberOfColours++] =      O2Num;
+        if(     SiINum != -1) colnum[NumberOfColours++] =     SiINum;
+        if(    SiOINum != -1) colnum[NumberOfColours++] =    SiOINum;
+        if(   SiO2INum != -1) colnum[NumberOfColours++] =   SiO2INum;
+        if(      CHNum != -1) colnum[NumberOfColours++] =      CHNum;
+        if(     CH2Num != -1) colnum[NumberOfColours++] =     CH2Num;
+        if(    COIINum != -1) colnum[NumberOfColours++] =    COIINum;
+        if(     OIINum != -1) colnum[NumberOfColours++] =     OIINum;
+        if(    OHIINum != -1) colnum[NumberOfColours++] =    OHIINum;
+        if(   H2OIINum != -1) colnum[NumberOfColours++] =   H2OIINum;
+        if(   H3OIINum != -1) colnum[NumberOfColours++] =   H3OIINum;
+        if(    O2IINum != -1) colnum[NumberOfColours++] =    O2IINum;
+        if (GrainGrowth || DustSublimation) {
+          if (DustSpecies > 0) {
+            if(  MgNum != -1) colnum[NumberOfColours++] =      MgNum;
+          }
+          if (DustSpecies > 1) {
+            if(  AlNum != -1) colnum[NumberOfColours++] =      AlNum;
+            if(   SNum != -1) colnum[NumberOfColours++] =       SNum;
+            if(  FeNum != -1) colnum[NumberOfColours++] =      FeNum;
+          }
+        }
+      }
+      if (GrainGrowth || DustSublimation) {
+        if (DustSpecies > 0) {
+          if(  MgSiO3Num != -1) colnum[NumberOfColours++] =  MgSiO3Num;
+          if(      ACNum != -1) colnum[NumberOfColours++] =      ACNum;
+        }
+        if (DustSpecies > 1) {
+          if(     SiMNum != -1) colnum[NumberOfColours++] =     SiMNum;
+          if(     FeMNum != -1) colnum[NumberOfColours++] =     FeMNum;
+          if( Mg2SiO4Num != -1) colnum[NumberOfColours++] = Mg2SiO4Num;
+          if(   Fe3O4Num != -1) colnum[NumberOfColours++] =   Fe3O4Num;
+          if(   SiO2DNum != -1) colnum[NumberOfColours++] =   SiO2DNum;
+          if(     MgONum != -1) colnum[NumberOfColours++] =     MgONum;
+          if(     FeSNum != -1) colnum[NumberOfColours++] =     FeSNum;
+          if(   Al2O3Num != -1) colnum[NumberOfColours++] =   Al2O3Num;
+        }
+      }
     }
     // second, the color field advection if using RadiativeTransferFLD for 
     // a radiation propagation problem (i.e. not using ray-tracing)
@@ -178,11 +273,31 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
                 MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
       ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
+    int ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num
+      , ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num;
+    if (this->IdentifyExtraTypeFields(
+        ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num,
+        ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num
+               ) == FAIL)
+      ENZO_FAIL("Error in grid->IdentifyExtraTypeFields.\n");
+
     if (MetalNum != -1) {
       colnum[NumberOfColours++] = MetalNum;
       if (MultiMetals || TestProblemData.MultiMetals) {
-	colnum[NumberOfColours++] = MetalNum+1; //ExtraType0
-	colnum[NumberOfColours++] = MetalNum+2; //ExtraType1
+//      colnum[NumberOfColours++] = MetalNum+1; //ExtraType0
+//      colnum[NumberOfColours++] = MetalNum+2; //ExtraType1
+	colnum[NumberOfColours++] = ExtraType0Num;
+	colnum[NumberOfColours++] = ExtraType1Num;
+	colnum[NumberOfColours++] = ExtraType2Num;
+	colnum[NumberOfColours++] = ExtraType3Num;
+	colnum[NumberOfColours++] = ExtraType4Num;
+	colnum[NumberOfColours++] = ExtraType5Num;
+	colnum[NumberOfColours++] = ExtraType6Num;
+	colnum[NumberOfColours++] = ExtraType7Num;
+	colnum[NumberOfColours++] = ExtraType8Num;
+	colnum[NumberOfColours++] = ExtraType9Num;
+	colnum[NumberOfColours++] = ExtraType10Num;
+	colnum[NumberOfColours++] = ExtraType11Num;
       }
     }
 
@@ -193,6 +308,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
     if (Galaxy2ColourNum != -1) colnum[NumberOfColours++] = Galaxy2ColourNum;
 
+    if (DustNum          != -1) colnum[NumberOfColours++] = DustNum;
 
     /* Add Simon Glover's chemistry species as color fields */
 
@@ -287,7 +403,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     
     int UseGammaField = FALSE;
     float *GammaField = NULL;
-    if (HydroMethod == Zeus_Hydro && MultiSpecies > 1) {
+    if ((HydroMethod == Zeus_Hydro || (VariableGamma && HydroMethod == PPM_DirectEuler)) && MultiSpecies > 1) {
       UseGammaField = TRUE;
       GammaField = new float[size];
       if (this->ComputeGammaField(GammaField) == FAIL) {
@@ -511,10 +627,16 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* note: Start/EndIndex are zero based */
         
     if (HydroMethod == PPM_DirectEuler)
-      this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes,
-                        CellWidthTemp, GridGlobalStart, GravityOn,
-                        NumberOfColours, colnum,
-                        MinimumSupportEnergyCoefficient);
+      if (VariableGamma)
+        this->SolvePPM_DE_vg(GammaField, CycleNumber, NumberOfSubgrids, SubgridFluxes,
+                          CellWidthTemp, GridGlobalStart, GravityOn,
+                          NumberOfColours, colnum,
+                          MinimumSupportEnergyCoefficient);
+      else
+        this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes,
+                          CellWidthTemp, GridGlobalStart, GravityOn,
+                          NumberOfColours, colnum,
+                          MinimumSupportEnergyCoefficient);
 
     /* PPM LR has been withdrawn. */
 

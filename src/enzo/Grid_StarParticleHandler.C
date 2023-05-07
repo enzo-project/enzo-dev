@@ -666,27 +666,29 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     for (i = 0; i < size; i++)
       dmfield[i] = 0;
  
-  /* Convert the species densities into fractional densities (i.e. divide
-     by total baryonic density).  At the end we will multiply by the new
-     density so that species fractions are maintained. */
- 
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
-	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity)
-#ifdef EMISSIVITY
-      /* 
-         it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
-         baryons field is used, but no longer needed since it is set to <=ExtraType1
-         so the values will scale inside StarParticleHandler 
-      */
-#endif
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	  index = (k*GridDimension[1] + j)*GridDimension[0] +
-	    GridStartIndex[0];
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
-	    BaryonField[field][index] /= BaryonField[DensNum][index];
-	}
+//  /* Convert the species densities into fractional densities (i.e. divide
+//     by total baryonic density).  At the end we will multiply by the new
+//     density so that species fractions are maintained. */
+// 
+//  for (field = 0; field < NumberOfBaryonFields; field++)
+//    if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
+//        (FieldType[field] >= CIDensity       && FieldType[field] <= O2IDensity) ||
+//        (FieldType[field] >= HeHIIDensity    && FieldType[field] <= DustDensity) ||
+//	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity)
+//#ifdef EMISSIVITY
+//      /* 
+//         it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
+//         baryons field is used, but no longer needed since it is set to <=ExtraType1
+//         so the values will scale inside StarParticleHandler 
+//      */
+//#endif
+//      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+//	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+//	  index = (k*GridDimension[1] + j)*GridDimension[0] +
+//	    GridStartIndex[0];
+//	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+//	    BaryonField[field][index] /= BaryonField[DensNum][index];
+//	}
 
   /* If creating primordial stars, make a total H2 density field */
 
@@ -699,7 +701,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	index = (k*GridDimension[1] + j)*GridDimension[0] + 
 	  GridStartIndex[0];
 	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) 
-	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
+//	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
+	  h2field[index] = (BaryonField[H2INum][index] + BaryonField[H2IINum][index])
+                         / BaryonField[DensNum][index];
       }
 
     // get H2 photo-dissociation and HI-ionizing fields
@@ -715,18 +719,61 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   MetallicityField = (MetalNum != -1 || SNColourNum != -1);
 
-  if (MetalNum != -1 && SNColourNum != -1) {
-    TotalMetals = new float[size];
+//  if (MetalNum != -1 && SNColourNum != -1) {
+//    TotalMetals = new float[size];
+//    for (i = 0; i < size; i++)
+//      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
+//    MetalPointer = TotalMetals;
+//  } // ENDIF both metal types
+//  else {
+//    if (MetalNum != -1)
+//      MetalPointer = BaryonField[MetalNum];
+//    else if (SNColourNum != -1)
+//      MetalPointer = BaryonField[SNColourNum];
+//  } // ENDELSE both metal types
+  TotalMetals = new float[size];
+  for (i = 0; i < size; i++) {
+    if (MetalNum != -1 && SNColourNum != -1) {
+      TotalMetals[i] = (BaryonField[MetalNum][i] + BaryonField[SNColourNum][i]) / BaryonField[DensNum][i];
+    } else {
+      if (MetalNum != -1) {
+        TotalMetals[i] = BaryonField[MetalNum][i] / BaryonField[DensNum][i];
+      } else if (SNColourNum != -1) {
+        TotalMetals[i] = BaryonField[SNColourNum][i] / BaryonField[DensNum][i];
+      }
+    }
+  }
+  MetalPointer = TotalMetals;
+
+  float *MetallicityIa = NULL;
+  MetallicityIa = new float[size];
+  if(StarMakerTypeIaSNe && MetalIaNum != -1)
     for (i = 0; i < size; i++)
-      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
-    MetalPointer = TotalMetals;
-  } // ENDIF both metal types
-  else {
-    if (MetalNum != -1)
-      MetalPointer = BaryonField[MetalNum];
-    else if (SNColourNum != -1)
-      MetalPointer = BaryonField[SNColourNum];
-  } // ENDELSE both metal types
+      MetallicityIa[i] = BaryonField[MetalIaNum][i] / BaryonField[DensNum][i];
+
+  float *MetallicityII = NULL;
+  MetallicityII = new float[size];
+  if(StarMakerTypeIISNeMetalField && MetalIINum != -1)
+    for (i = 0; i < size; i++)
+      MetallicityII[i] = BaryonField[MetalIINum][i] / BaryonField[DensNum][i];
+
+  float *Metallicity0  = NULL;
+  Metallicity0  = new float[size];
+  if(MetalNum != -1)
+    for (i = 0; i < size; i++)
+      Metallicity0 [i] = BaryonField[MetalNum  ][i] / BaryonField[DensNum][i];
+
+  float *Metallicity1  = NULL;
+  Metallicity1  = new float[size];
+  if(MultiMetals)
+    for (i = 0; i < size; i++)
+      Metallicity1 [i] = BaryonField[MetalNum+1][i] / BaryonField[DensNum][i];
+
+  float *Metallicity2  = NULL;
+  Metallicity2  = new float[size];
+  if(MultiMetals)
+    for (i = 0; i < size; i++)
+      Metallicity2 [i] = BaryonField[MetalNum+2][i] / BaryonField[DensNum][i];
 
   //printf("Star type \n");
   /* Set the units. */
@@ -835,7 +882,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleVelocity[2],
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
        tg->ParticleAttribute[2],
-       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
+       &StarMakerTypeIaSNe, MetallicityIa, tg->ParticleAttribute[3]);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
@@ -851,8 +898,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
-       BaryonField[MetalNum+1], BaryonField[MetalNum+2],
+       &dtFixed, BaryonField[NumberOfBaryonFields], Metallicity0,
+       Metallicity1, Metallicity2,
           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
@@ -866,7 +913,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleVelocity[2],
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
        tg->ParticleAttribute[2],
-       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3],
+       &StarMakerTypeIaSNe, MetallicityIa, tg->ParticleAttribute[3],
        &StarMakerExplosionDelayTime);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
@@ -883,8 +930,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
-       BaryonField[MetalNum+1], BaryonField[MetalNum+2],
+       &dtFixed, BaryonField[NumberOfBaryonFields], Metallicity0,
+       Metallicity1, Metallicity2,
           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
@@ -898,7 +945,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleVelocity[2],
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
        tg->ParticleAttribute[2],
-       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
+       &StarMakerTypeIaSNe, MetallicityIa, tg->ParticleAttribute[3]);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
@@ -928,7 +975,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleVelocity[2], 
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
        tg->ParticleAttribute[2],
-       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
+       &StarMakerTypeIaSNe, MetallicityIa, tg->ParticleAttribute[3]);
 
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
@@ -1018,7 +1065,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	 tg->ParticleAttribute[1], tg->ParticleAttribute[0], 
 	 tg->ParticleAttribute[2], tg->ParticleType, &StarClusterType, 
 	 &RadiationData.IntegratedStarFormation, &RadiativeTransfer,
-	 &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
+	 &StarMakerTypeIaSNe, MetallicityIa, tg->ParticleAttribute[3]);
 
 
     }
@@ -1089,8 +1136,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleVelocity[2],
           tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
           tg->ParticleAttribute[2],
-          &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3],
-          &StarMakerTypeIISNeMetalField, BaryonField[MetalIINum], tg->ParticleAttribute[metalII],
+          &StarMakerTypeIaSNe, MetallicityIa, tg->ParticleAttribute[3],
+          &StarMakerTypeIISNeMetalField, MetallicityII, tg->ParticleAttribute[metalII],
           &StarMakerMaximumFractionCell);
       }
 
@@ -1133,7 +1180,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticlePosition[0], ParticlePosition[1],
           ParticlePosition[2],
        ParticleType, &MBHParticleType, &MBHTurnOffStarFormation,
-       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
+       &StarMakerTypeIaSNe, MetallicityIa, tg->ParticleAttribute[3]);
 
       // make it back to original 
       if (ComovingCoordinates)
@@ -1180,7 +1227,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleAttribute[2],
        &RefineRegionLeftEdge[0], &RefineRegionLeftEdge[1], &RefineRegionLeftEdge[2],
        &RefineRegionRightEdge[0], &RefineRegionRightEdge[1], &RefineRegionRightEdge[2],
-       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
+       &StarMakerTypeIaSNe, MetallicityIa, tg->ParticleAttribute[3]);
 
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
@@ -1261,8 +1308,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
-       BaryonField[MetalNum+1], BaryonField[MetalNum+2],
+       &dtFixed, BaryonField[NumberOfBaryonFields], Metallicity0,
+       Metallicity1, Metallicity2,
           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
@@ -1480,7 +1527,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       CalcEmiss(GridDimension, GridDimension+1, GridDimension+2,
           BaryonField[DensNum], dmfield,
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], Metallicity0,
        &DualEnergyFormalism, &MetallicityField, &HydroMethod,
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
           &Time, &zred,
@@ -1587,6 +1634,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	    if (MultiSpecies > 2) {
 	      mu_field[index] += (BaryonField[DINum][index] + BaryonField[DIINum][index])/2.0 + (BaryonField[HDINum][index]/3.0);
 	    }
+            mu_field[index] /= BaryonField[DensNum][index];
 	    
 	  }
 	}
@@ -1597,8 +1645,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], mu_field, dmfield,
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
-          BaryonField[MetalNum+1], BaryonField[MetalNum+2],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], Metallicity0,
+          Metallicity1, Metallicity2,
        &DualEnergyFormalism, &MetallicityField, &MultiMetals, &HydroMethod,
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
           &Time, &zred,
@@ -1627,8 +1675,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        GridDimension, GridDimension+1, GridDimension+2,
           BaryonField[DensNum], dmfield,
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
-          BaryonField[MetalNum+1], BaryonField[MetalNum+2],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], Metallicity0,
+          Metallicity1, Metallicity2,
        &DualEnergyFormalism, &MetallicityField, &MultiMetals, &HydroMethod,
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
           &Time, &zred,
@@ -1873,7 +1921,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
           ParticleAttribute[2], ParticleType, 
           explosionFlag, &StarMakerMinimumMass, willExplode, soonestExplosion,
-          &Mu, &TemperatureUnits, BaryonField[MetalIINum],
+          &Mu, &TemperatureUnits, MetallicityII,
           ParticleAttribute[metalII], &StarMakerTypeIISNeMetalField, s49_tot,
           &MaximumRefinementLevel,
           &StarFeedbackDistRadius, &StarFeedbackDistCellStep, &StarFeedbackDistTotalCells);
@@ -1969,8 +2017,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        GridDimension, GridDimension+1, GridDimension+2,
           BaryonField[DensNum], dmfield,
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
-          BaryonField[MetalNum+1], BaryonField[MetalNum+2],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], Metallicity0,
+          Metallicity1, Metallicity2,
        &DualEnergyFormalism, &MetallicityField, &MultiMetals, &HydroMethod,
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
           &Time, &zred,
@@ -2011,38 +2059,45 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation,
-       &StarMakerPlanetaryNebulae, &StarMakerTypeIaSNe, BaryonField[MetalIaNum]);
+       &StarMakerPlanetaryNebulae, &StarMakerTypeIaSNe, MetallicityIa);
 
   }
 
-  /* Convert the species back from fractional densities to real densities. */
- 
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
-	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity) {
-#ifdef EMISSIVITY
-      /* 
-         it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
-         baryons field is used, but no longer needed since it is set to <=ExtraType1
-         so the values will scale inside StarParticleHandler 
-      */
-#endif
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	  index = (k*GridDimension[1] + j)*GridDimension[0] +
-	    GridStartIndex[0];
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
-	    BaryonField[field][index] *= BaryonField[DensNum][index];
-	  }
-	}
-      }
-    }
-  }
+//  /* Convert the species back from fractional densities to real densities. */
+// 
+//  for (field = 0; field < NumberOfBaryonFields; field++) {
+//    if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
+//        (FieldType[field] >= CIDensity       && FieldType[field] <= O2IDensity) ||
+//        (FieldType[field] >= HeHIIDensity    && FieldType[field] <= DustDensity) ||
+//	FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity) {
+//#ifdef EMISSIVITY
+//      /* 
+//         it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
+//         baryons field is used, but no longer needed since it is set to <=ExtraType1
+//         so the values will scale inside StarParticleHandler 
+//      */
+//#endif
+//      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+//	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+//	  index = (k*GridDimension[1] + j)*GridDimension[0] +
+//	    GridStartIndex[0];
+//	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+//	    BaryonField[field][index] *= BaryonField[DensNum][index];
+//	  }
+//	}
+//      }
+//    }
+//  }
  
   /* Clean up. */
  
   delete [] h2field;
   delete [] TotalMetals;
+  delete [] MetallicityIa;
+  delete [] MetallicityII;
+  delete [] Metallicity0 ;
+  delete [] Metallicity1 ;
+  delete [] Metallicity2 ;
   delete [] temperature;
   delete [] dmfield;
   delete [] BaryonField[NumberOfBaryonFields];   // refinement flag field

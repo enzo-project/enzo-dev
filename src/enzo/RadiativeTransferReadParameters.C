@@ -79,6 +79,9 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferUseH2Shielding             = TRUE;
   RadiativeTransferH2ShieldType               = 0;
   RadiativeTransferH2IIDiss                   = TRUE;
+  RadiativeTransferHDIDiss                    = TRUE;
+  RadiativeTransferMetalIon                   = TRUE;
+  RadiativeTransferMetalDiss                  = TRUE;
   RadiativeTransferHubbleTimeFraction         = 0.1;
   
   if (MultiSpecies == 0)
@@ -146,6 +149,12 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferH2ShieldType);
     ret += sscanf(line, "RadiativeTransferH2IIDiss = %"ISYM, 
 		  &RadiativeTransferH2IIDiss);
+    ret += sscanf(line, "RadiativeTransferHDIDiss = %"ISYM, 
+		  &RadiativeTransferHDIDiss);
+    ret += sscanf(line, "RadiativeTransferMetalIon = %"ISYM, 
+		  &RadiativeTransferMetalIon);
+    ret += sscanf(line, "RadiativeTransferMetalDiss = %"ISYM, 
+		  &RadiativeTransferMetalDiss);
     ret += sscanf(line, "RadiativeTransferUseH2Shielding = %"ISYM, 
 		  &RadiativeTransferUseH2Shielding);
     ret += sscanf(line, "RadiativeTransferTraceSpectrum = %"ISYM, 
@@ -251,6 +260,11 @@ int RadiativeTransferReadParameters(FILE *fptr)
   if (grackle_data->use_grackle == TRUE) {
     grackle_data->radiative_transfer_coupled_rate_solver = (Eint32) RadiativeTransferCoupledRateSolver;
     grackle_data->radiative_transfer_hydrogen_only       = (Eint32) RadiativeTransferHydrogenOnly;
+    grackle_data->radiative_transfer_H2II_diss           = (Eint32) RadiativeTransferH2IIDiss;
+    grackle_data->radiative_transfer_HDI_diss            = (Eint32) RadiativeTransferHDIDiss;
+    grackle_data->radiative_transfer_metal_ion           = (Eint32) RadiativeTransferMetalIon;
+    grackle_data->radiative_transfer_metal_diss          = (Eint32) RadiativeTransferMetalDiss;
+    grackle_data->radiative_transfer_use_H2_shielding    = (Eint32) RadiativeTransferUseH2Shielding;
   }
 #endif // USE_GRACKLE
 

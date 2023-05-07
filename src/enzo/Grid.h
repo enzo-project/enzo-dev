@@ -598,7 +598,20 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the dust temperature. */
 
-   int ComputeDustTemperatureField(float *temperature, float *dust_temperature);
+   int ComputeDustTemperatureField(float *temperature, float *dust_temperature
+                            , float *SiM_temperature    
+                            , float *FeM_temperature    
+                            , float *Mg2SiO4_temperature
+                            , float *MgSiO3_temperature 
+                            , float *Fe3O4_temperature  
+                            , float *AC_temperature     
+                            , float *SiO2D_temperature  
+                            , float *MgO_temperature    
+                            , float *FeS_temperature    
+                            , float *Al2O3_temperature  
+                            , float *reforg_temperature 
+                            , float *volorg_temperature 
+                            , float *H2Oice_temperature );
 
 /* Baryons: compute X-ray emissivity in specified band. */
 
@@ -1832,12 +1845,30 @@ int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
 			   int &MetalIaNum, int &MetalIINum, int &MBHColourNum,
 		           int &Galaxy1ColourNum, int &Galaxy2ColourNum);
 
+  int IdentifyExtraTypeFields(
+      int &ExtraType0Num, int &ExtraType1Num, int &ExtraType2Num, int &ExtraType3Num,
+      int &ExtraType4Num, int &ExtraType5Num, int &ExtraType6Num, int &ExtraType7Num,
+      int &ExtraType8Num, int &ExtraType9Num, int &ExtraType10Num,int &ExtraType11Num
+        );
+
   /* Identify Multi-species fields. */
 
   int IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum, 
 			    int &HeINum, int &HeIINum, int &HeIIINum,
 			    int &HMNum, int &H2INum, int &H2IINum,
                             int &DINum, int &DIINum, int &HDINum);
+
+  int IdentifySpeciesFieldsMD( int &HeHIINum , int &DMNum   , int &HDIINum
+                             , int &CINum    , int &CIINum  , int &CONum     , int &CO2Num
+                             , int &OINum    , int &OHNum   , int &H2ONum    , int &O2Num
+                             , int &SiINum   , int &SiOINum , int &SiO2INum
+                             , int &CHNum    , int &CH2Num  , int &COIINum   , int &OIINum
+                             , int &OHIINum  , int &H2OIINum, int &H3OIINum  , int &O2IINum
+                             , int &MgNum    , int &AlNum   , int &SNum      , int &FeNum
+                             , int &SiMNum   , int &FeMNum  , int &Mg2SiO4Num
+                             , int &MgSiO3Num, int &Fe3O4Num, int &ACNum
+                             , int &SiO2DNum , int &MgONum  , int &FeSNum    , int &Al2O3Num
+                             , int &DustNum );
 
   /* Identify shock fields. */
   int IdentifyShockSpeciesFields(int &MachNum,int &PSTempNum, int &PSDenNum);
@@ -1881,6 +1912,25 @@ int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
 		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
+
+/* VariableGamma */
+int SolvePPM_DE_vg(float *gamma, int CycleNumber, int NumberOfSubgrids, 
+                fluxes *SubgridFluxes[], float *CellWidthTemp[],
+                Elong_int GridGlobalStart[], int GravityOn,
+                int NumberOfColours, int colnum[],
+                float MinimumSupportEnergyCoefficient);
+
+int xEulerSweep_vg(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure, float *gamma);
+
+int yEulerSweep_vg(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure, float *gamma);
+
+int zEulerSweep_vg(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure, float *gamma);
 
 // AccelerationHack
 
@@ -2868,7 +2918,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   
   int AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits,
 			float LengthUnits, float VelocityUnits, 
-			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
+			float TemperatureUnits, FLOAT Time, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
 			double Q_HI, double sigma_HI, float deltaE, int &CellsModified);
 
@@ -2947,6 +2997,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				      int &kphHeINum, int &kphHeIINum, 
 				      int &kdissH2INum, int &kphHMNum,
 				      int &kdissH2IINum);
+  int IdentifyRadiativeTransferFieldsMD(int &kdissHDINum,
+					int &kphCINum,
+					int &kphOINum,
+					int &kdissCONum,
+					int &kdissOHNum,
+					int &kdissH2ONum);
 
 #ifdef TRANSFER
 #include "PhotonGrid_Methods.h"

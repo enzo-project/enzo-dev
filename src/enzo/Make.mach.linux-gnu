@@ -36,9 +36,9 @@ MACH_FILE  = Make.mach.linux-gnu
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL    = /PATH/TO/SERIAL-HDF5/INSTALL # mandatory
-LOCAL_GRACKLE_INSTALL = /PATH/TO/GRACKLE/INSTALL # optional
-LOCAL_HYPRE_INSTALL   = /PATH/TO/HYPRE/INSTALL   # optional
+LOCAL_HDF5_INSTALL    = /usr/local
+LOCAL_GRACKLE_INSTALL = $(HOME)/usr/local
+LOCAL_HYPRE_INSTALL   = /usr/local
 
 #-----------------------------------------------------------------------
 # Compiler settings

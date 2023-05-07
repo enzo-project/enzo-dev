@@ -388,6 +388,7 @@ c     &        write (6,*) grslice(i-1,j), grslice(i,j), grslice(i+1,j)
             endif
          endif
       enddo
+#ifdef TEMPORARY
 c
 c     Now check for negative colors (Warning only)
 c
@@ -415,7 +416,7 @@ c
             endif
          enddo
       enddo
-      
+#endif
       enddo                     ! j
 
       end

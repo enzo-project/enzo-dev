@@ -103,6 +103,14 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
  
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+  int HeHIINum, DMNum   , HDIINum
+    , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+    , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+    , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
+    , MgNum   , AlNum   , SNum      , FeNum
+    , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+    , DustNum ;
  
   /* Compute the size of the fields. */
  
@@ -127,6 +135,16 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+    }
+    if (IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
+                               , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+                               , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+                               , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum,  H3OIINum,  O2IINum
+                               , MgNum   , AlNum   , SNum      , FeNum
+                               , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+                               , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+                               , DustNum ) == FAIL) {
+      ENZO_FAIL("Error in grid->IdentifySpeciesFieldsMD.\n");
     }
  
   /* Find photo-ionization fields */
@@ -203,6 +221,15 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     else if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
+ 
+  int ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num
+    , ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num;
+  if (MetalFieldPresent && MultiMetals)
+    if (this->IdentifyExtraTypeFields(
+      ExtraType0Num, ExtraType1Num, ExtraType2Num, ExtraType3Num, ExtraType4Num, ExtraType5Num,
+      ExtraType6Num, ExtraType7Num, ExtraType8Num, ExtraType9Num, ExtraType10Num,ExtraType11Num
+               ) == FAIL)
+      ENZO_FAIL("Error in grid->IdentifyExtraTypeFields.\n");
  
 #ifdef USE_GRACKLE
   if (grackle_data->use_grackle == TRUE) {
@@ -293,7 +320,79 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     my_fields.DII_density     = BaryonField[DIINum];
     my_fields.HDI_density     = BaryonField[HDINum];
 
+    if(MultiSpecies > 3) {
+      my_fields.     DM_density = BaryonField[     DMNum];
+      my_fields.   HDII_density = BaryonField[   HDIINum];
+      my_fields.  HeHII_density = BaryonField[  HeHIINum];
+    }
+
+    if(MetalChemistry > 0) {
+      my_fields.     CI_density = BaryonField[     CINum];
+      my_fields.    CII_density = BaryonField[    CIINum];
+      my_fields.     CO_density = BaryonField[     CONum];
+      my_fields.    CO2_density = BaryonField[    CO2Num];
+      my_fields.     OI_density = BaryonField[     OINum];
+      my_fields.     OH_density = BaryonField[     OHNum];
+      my_fields.    H2O_density = BaryonField[    H2ONum];
+      my_fields.     O2_density = BaryonField[     O2Num];
+      my_fields.    SiI_density = BaryonField[    SiINum];
+      my_fields.   SiOI_density = BaryonField[   SiOINum];
+      my_fields.  SiO2I_density = BaryonField[  SiO2INum];
+      my_fields.     CH_density = BaryonField[     CHNum];
+      my_fields.    CH2_density = BaryonField[    CH2Num];
+      my_fields.   COII_density = BaryonField[   COIINum];
+      my_fields.    OII_density = BaryonField[    OIINum];
+      my_fields.   OHII_density = BaryonField[   OHIINum];
+      my_fields.  H2OII_density = BaryonField[  H2OIINum];
+      my_fields.  H3OII_density = BaryonField[  H3OIINum];
+      my_fields.   O2II_density = BaryonField[   O2IINum];
+      if(GrainGrowth || DustSublimation) {
+        if (DustSpecies > 0) {
+          my_fields.     Mg_density = BaryonField[     MgNum];
+        }
+        if (DustSpecies > 1) {
+          my_fields.     Al_density = BaryonField[     AlNum];
+          my_fields.      S_density = BaryonField[      SNum];
+          my_fields.     Fe_density = BaryonField[     FeNum];
+        }
+      }
+    }
+ 
+    if(GrainGrowth || DustSublimation) {
+      if (DustSpecies > 0) {
+        my_fields. MgSiO3_density = BaryonField[ MgSiO3Num];
+        my_fields.     AC_density = BaryonField[     ACNum];
+      }
+      if (DustSpecies > 1) {
+        my_fields.    SiM_density = BaryonField[    SiMNum];
+        my_fields.    FeM_density = BaryonField[    FeMNum];
+        my_fields.Mg2SiO4_density = BaryonField[Mg2SiO4Num];
+        my_fields.  Fe3O4_density = BaryonField[  Fe3O4Num];
+        my_fields.  SiO2D_density = BaryonField[  SiO2DNum];
+        my_fields.    MgO_density = BaryonField[    MgONum];
+        my_fields.    FeS_density = BaryonField[    FeSNum];
+        my_fields.  Al2O3_density = BaryonField[  Al2O3Num];
+      }
+    }
+
     my_fields.metal_density   = MetalPointer;
+    if(MultiMetals) {
+      my_fields.metal_loc = BaryonField[ExtraType0Num];
+      my_fields.metal_C13 = BaryonField[ExtraType1Num];
+      my_fields.metal_C20 = BaryonField[ExtraType2Num];
+      my_fields.metal_C25 = BaryonField[ExtraType3Num];
+      my_fields.metal_C30 = BaryonField[ExtraType4Num];
+      my_fields.metal_F13 = BaryonField[ExtraType5Num];
+      my_fields.metal_F15 = BaryonField[ExtraType6Num];
+      my_fields.metal_F50 = BaryonField[ExtraType7Num];
+      my_fields.metal_F80 = BaryonField[ExtraType8Num];
+      my_fields.metal_P170= BaryonField[ExtraType9Num];
+      my_fields.metal_P200= BaryonField[ExtraType10Num];
+      my_fields.metal_Y19 = BaryonField[ExtraType11Num];
+    }
+
+    if (UseDustDensityField)
+      my_fields.dust_density = BaryonField[DustNum];
 
     my_fields.volumetric_heating_rate  = volumetric_heating_rate;
     my_fields.specific_heating_rate    = specific_heating_rate;

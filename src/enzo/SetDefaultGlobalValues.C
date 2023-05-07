@@ -192,6 +192,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ProblemType               = 0;                 // None
   HydroMethod               = PPM_DirectEuler;   //
   Gamma                     = 5.0/3.0;           // 5/3
+  VariableGamma             = FALSE;             // Enable variable (non-uniform) gamma
   PressureFree              = FALSE;             // use pressure (duh)
   QuantumPressure           = FALSE;             // FDM: no fuzzy dark matter
   FDMMass           = 1.0;             // FDM: FDM mass 1e-22 eV

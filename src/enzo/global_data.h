@@ -121,6 +121,10 @@ EXTERN float tiny_number;
 
 EXTERN float Gamma;
 
+/* Flag to enable variable (non-uniform) gamma */
+
+EXTERN int VariableGamma;
+
 /* Flag indicating if the gas is pressureless. */
 
 EXTERN int PressureFree;
@@ -984,6 +988,13 @@ EXTERN int MetalCooling;
 EXTERN char *MetalCoolingTable;
 EXTERN int CIECooling;
 EXTERN int H2OpticalDepthApproximation;
+EXTERN int UseDustDensityField;
+EXTERN int MetalChemistry;
+EXTERN int GrainGrowth;
+EXTERN int MetalAbundances;
+EXTERN int DustSpecies;
+EXTERN int DustTemperatureMulti;
+EXTERN int DustSublimation;
 
 //   1 - Adaptive ray tracing transfer
 //   0 - none

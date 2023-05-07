@@ -3,6 +3,10 @@ struct PhotonBuffer {
   int		Type;
   float		Energy;                   
   float		ColumnDensity;
+  float		ColumnDensityHDI;
+  float		ColumnDensityCO;
+  float		ColumnDensityOH;
+  float		ColumnDensityH2O;
   double	CrossSection;
   FLOAT		EmissionTimeInterval;
   FLOAT		EmissionTime;

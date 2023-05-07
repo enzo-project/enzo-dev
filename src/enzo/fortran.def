@@ -1,5 +1,5 @@
 #define MAX_ANY_SINGLE_DIRECTION 1031
-#define MAX_COLOR 45
+#define MAX_COLOR 100
 #define RADIATION
 #define NO_CEN_METALS
 #define JHW_METALS_NORMZ 0.1

@@ -151,4 +151,8 @@ EXTERN int RadiativeTransferH2IIDiss;
    photo-ionization rate becomes as long as the Hubble time times this
    constant. */
 
+EXTERN int RadiativeTransferHDIDiss;
+EXTERN int RadiativeTransferMetalIon;
+EXTERN int RadiativeTransferMetalDiss;
+
 EXTERN float RadiativeTransferHubbleTimeFraction;

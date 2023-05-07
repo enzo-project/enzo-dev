@@ -30,6 +30,10 @@ PhotonPackageEntry::PhotonPackageEntry(void)
   CurrentTime = 0.0;
   Radius = 0.0;
   ColumnDensity = 0.0;
+  ColumnDensityHDI = 0.0;
+  ColumnDensityCO  = 0.0;
+  ColumnDensityOH  = 0.0;
+  ColumnDensityH2O = 0.0;
   ipix = 0;
   level = 0;
   SourcePosition[0] = 0.0;

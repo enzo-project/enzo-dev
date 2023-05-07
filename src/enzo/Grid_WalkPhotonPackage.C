@@ -45,6 +45,7 @@
 #define GEO_CORRECTION
 #define H_SPECIES           3         //Includes HI, HeI, HeII
 #define ALLSPECIES          6         //includes HI, HeI, HeII, H2I, H2II and HM
+#define Z_SPECIES           2         //Includes CI, OI
 #define HIField             0
 #define HeIField            1
 #define HeIIField           2
@@ -52,13 +53,22 @@
 #define HIIField            4
 #define HMField             5
 #define H2IIField           6
+#define HDIField            7
+#define CIField             0
+#define OIField             1
+#define COField             0
+#define OHField             1
+#define H2OField            2
 
 int SplitPhotonPackage(PhotonPackageEntry *PP);
 FLOAT FindCrossSection(int type, float energy);
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 static void CalculateCrossSection(PhotonPackageEntry **PP, FLOAT *sigma, float LengthUnits, 
 				  float &nSecondaryHII, float &nSecondaryHeII);
+static void CalculateCrossSectionZ(PhotonPackageEntry **PP, FLOAT *sigmaZ, float LengthUnits);
+static void CalculateCrossSectionM(PhotonPackageEntry **PP, FLOAT *sigmaM, float LengthUnits);
 static void ResetdPi(FLOAT *dPi);
+static void ResetdPiZ(FLOAT *dPiZ);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -71,7 +81,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    float LightSpeed, int level, float MinimumPhotonFlux) {
 
   const float EnergyThresholds[] = {13.6, 24.6, 54.4, 11.2, 0.755, 100.0};
-  const float PopulationFractions[] = {1.0, 0.25, 0.25, 1.0, 1.0, 1.0, 1.0}; //Matches Fields
+  const float PopulationFractions[] = {1.0, 0.25, 0.25, 1.0, 1.0, 1.0, 1.0, 1.0/3.0}; //Matches Fields
+  const float EnergyThresholdsZ[] = {11.2, 13.6};
+  const float PopulationFractionsZ[] = {1.0/12.0, 1.0/16.0};
+  const float PopulationFractionsM[] = {1.0/28.0, 1.0/17.0, 1.0/18.0};
   const float EscapeRadiusFractions[] = {0.5, 1.0, 2.0};
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
@@ -89,10 +102,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
-  FLOAT sigma[H2II + 1]; //Accounts for all of the cross sections needed
+  FLOAT sigma[HDIdiss + 1]; //Accounts for all of the cross sections needed
+  FLOAT sigmaZ[OIion + 1];
+  FLOAT sigmaM[H2Odiss + 1];
   FLOAT ddr, dP, dP1, dp2,EndTime;
   FLOAT dPi[H_SPECIES + 1], dPXray[H_SPECIES + 1];  //+ 1 is to account for Compton
+  FLOAT dPiZ[Z_SPECIES];
+  FLOAT dPHDI, dPCO, dPOH, dPH2O;
   FLOAT thisDensity, min_dr;
+  FLOAT thisDensityHDI, thisDensityCO, thisDensityOH, thisDensityH2O;
   FLOAT ce[3], nce[3];
   FLOAT s[3], f[3], u_inv[3], r[3], dri[3];
   double dir_vec[3], u[3];
@@ -239,6 +257,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float ion2_factor[] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
  
   CalculateCrossSection(PP, sigma, LengthUnits, nSecondaryHII, nSecondaryHeII);  //sigma in cm^2 * LengthUnits
+  CalculateCrossSectionZ(PP, sigmaZ, LengthUnits);
+  CalculateCrossSectionM(PP, sigmaM, LengthUnits);
   
   MinTauIfront = MIN_TAU_IFRONT / (sigma[type] / LengthUnits);  // absorb sigma
   tau_delete = TAU_DELETE_PHOTON / (sigma[type] / LengthUnits); // and make dimensions cm^-2
@@ -278,12 +298,31 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     DINum, DIINum, HDINum;
   IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 			HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
+  int HeHIINum, DMNum   , HDIINum
+    , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+    , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+    , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum, H3OIINum, O2IINum
+    , MgNum   , AlNum   , SNum      , FeNum
+    , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+    , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+    , DustNum ;
+  IdentifySpeciesFieldsMD( HeHIINum, DMNum   , HDIINum
+                         , CINum   , CIINum  , CONum     , CO2Num   , OINum   , OHNum
+                         , H2ONum  , O2Num   , SiINum    , SiOINum  , SiO2INum
+                         , CHNum   , CH2Num  , COIINum   , OIINum   , OHIINum , H2OIINum,  H3OIINum,  O2IINum
+                         , MgNum   , AlNum   , SNum      , FeNum
+                         , SiMNum  , FeMNum  , Mg2SiO4Num, MgSiO3Num, Fe3O4Num
+                         , ACNum   , SiO2DNum, MgONum    , FeSNum   , Al2O3Num
+                         , DustNum );
   
   /* Find radiative transfer fields. */
   int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
 				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
   const int kphNum[] = {kphHINum, kphHeINum, kphHeIINum};  //MultiSpecies = 1
+  int kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum;
+  IdentifyRadiativeTransferFieldsMD(kdissHDINum, kphCINum, kphOINum, kdissCONum, kdissOHNum, kdissH2ONum);
+  const int kphZNum[] = {kphCINum, kphOINum};
   /* Find the pressure fields */
   int RPresNum1, RPresNum2, RPresNum3;
   if (RadiationPressure)
@@ -292,13 +331,19 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   type = (*PP)->Type;
   float *density = BaryonField[DensNum];
-  float *fields[7] = { BaryonField[HINum],                                  //HI   = 0
+  float *fields[8] = { BaryonField[HINum],                                  //HI   = 0
 		       BaryonField[HeINum],                                 //HeI  = 1
 		       BaryonField[HeIINum],                                //HeII = 2
 		       (MultiSpecies > 1) ? BaryonField[H2INum]  : NULL,    //H2I  = 3
 		       BaryonField[HIINum],                                 //HII  = 4
 		       (MultiSpecies > 1) ? BaryonField[HMNum]   : NULL,    //HM   = 5
-		       (MultiSpecies > 1) ? BaryonField[H2IINum] : NULL};   //H2II = 6
+		       (MultiSpecies > 1) ? BaryonField[H2IINum] : NULL,    //H2II = 6
+		       (MultiSpecies > 2) ? BaryonField[HDINum]  : NULL};   //HDI  = 7
+  float *fieldsZ[2]= { (MetalChemistry)   ? BaryonField[CINum]   : NULL,    //CI   = 0
+		       (MetalChemistry)   ? BaryonField[OINum]   : NULL};   //OI   = 1
+  float *fieldsM[3]= { (MetalChemistry)   ? BaryonField[CONum]   : NULL,    //CO   = 0
+		       (MetalChemistry)   ? BaryonField[OHNum]   : NULL,    //OH   = 1
+		       (MetalChemistry)   ? BaryonField[H2ONum]  : NULL};   //H2O  = 2
 
   /* Pre-compute some quantities to speed things up */
 
@@ -318,7 +363,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT emission_dt_inv = 1.0 / (*PP)->EmissionTimeInterval;
   FLOAT factor1 = emission_dt_inv;
   FLOAT ExcessEnergyfactor[5]; //Includes iHI, iHeI, iHeII, LW & IR
-   
+  FLOAT ExcessEnergyfactorZ[2]; // Includes CI & OI
+
   /* For X-ray photons, we do heating and ionization for HI/HeI/HeII
      in one shot; see Table 2 of Shull & van Steenberg (1985) */
   if ((*PP)->Type == XRAYS) {
@@ -337,6 +383,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       else
 	ExcessEnergyfactor[i] = factor1 * ((*PP)->Energy - EnergyThresholds[i]);
     }
+  }
+  /* metal atoms */
+  for (i = 0; i < Z_SPECIES; i++) {
+    ExcessEnergyfactorZ[i] = factor1 * ((*PP)->Energy - EnergyThresholdsZ[i]);
+    if(ExcessEnergyfactorZ[i] < 0.0) ExcessEnergyfactorZ[i] = 0.0;
   }
 
   /* Calculate minimum photo-ionization rate (*dOmega) before ray
@@ -591,12 +642,48 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  fprintf(stderr, "Failed to calculate the ionizing radiation");
 	  return FAIL;
 	}
+        if (DEBUG && MyProcessorNumber == ROOT_PROCESSOR)
+          printf("0 %2d %2d %13.7f %13.7f  %13.5e %13.5e  %13.5e %13.5e  %13.5e %13.5e\n"
+            , (*PP)->Type, i, (*PP)->Energy, ExcessEnergyfactor[i]/factor1
+            , PopulationFractions[i]*fields[i][index]/(0.76*density[index])
+            , 0.76*density[index]*ConvertToProperNumberDensity
+            , ddr*LengthUnits, sigma[i]/ LengthUnits
+            , BaryonField[kphNum[i]][index], BaryonField[gammaNum][index]);
       // Exit the loop if everything's been absorbed
       if (taua > 20.0) break;
 	
     } 
 
     for (i = 0; i <= type; i++) dP += dPi[i];
+
+    if(MetalChemistry && RadiativeTransferMetalIon) {
+      ResetdPiZ(dPiZ);
+      /* Loop over absorbers - CI and OI */
+      for (i = 0; i < Z_SPECIES; i++) {
+        thisDensity = PopulationFractionsZ[i] * fieldsZ[i][index] *
+          ConvertToProperNumberDensity;
+        taua = thisDensity * ddr * sigmaZ[i];  //in cgs
+        if(FAIL == RadiativeTransferIonization(PP, dPiZ, index, i, taua, factor1,
+                                               ExcessEnergyfactorZ, slice_factor2, kphZNum,
+                                               gammaNum))
+        {
+          fprintf(stderr, "Failed to calculate the ionizing radiation");
+          return FAIL;
+        }
+        if (DEBUG && MyProcessorNumber == ROOT_PROCESSOR)
+          printf("1 %2d %2d %13.7f %13.7f  %13.5e %13.5e  %13.5e %13.5e %13.5e  %13.5e %13.5e\n"
+            , (*PP)->Type, i, (*PP)->Energy, ExcessEnergyfactorZ[i]/factor1
+            , PopulationFractionsZ[i]*fieldsZ[i][index]/(0.76*density[index])
+            , 0.76*density[index]*ConvertToProperNumberDensity
+            , ddr*LengthUnits, sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2])*LengthUnits, sigmaZ[i]/ LengthUnits
+            , BaryonField[kphZNum[i]][index], BaryonField[gammaNum][index]);
+        // Exit the loop if everything's been absorbed
+        if (taua > 20.0) break;
+      }
+
+      for (i = 0; i < Z_SPECIES; i++) dP += dPiZ[i];
+    }
+
     (*PP)->ColumnDensity += thisDensity * ddr * LengthUnits; //in cgs
     break;
 
@@ -610,16 +697,41 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       dP = 0;
       thisDensity = PopulationFractions[H2IField] * fields[H2IField][index] * 
 	  ConvertToProperNumberDensity;
+      if(MultiSpecies > 2 && RadiativeTransferHDIDiss == TRUE)
+	thisDensityHDI = PopulationFractions[HDIField] * fields[HDIField][index] * 
+	  ConvertToProperNumberDensity;
+      if(MetalChemistry && RadiativeTransferMetalDiss) {
+	thisDensityCO  = PopulationFractionsM[COField]  * fieldsM[COField][index] * 
+	  ConvertToProperNumberDensity;
+	thisDensityOH  = PopulationFractionsM[OHField]  * fieldsM[OHField][index] * 
+	  ConvertToProperNumberDensity;
+	thisDensityH2O = PopulationFractionsM[H2OField] * fieldsM[H2OField][index] * 
+	  ConvertToProperNumberDensity;
+      }
       //Use either shielding due to Draine & Bertoldi (1996) or Wolcott-Green et al. (2011)
       if(RadiativeTransferUseH2Shielding) { 
-	if(FAIL == RadiativeTransferLWShielding(PP, dP, thisDensity, ddr, index, 
-						LengthUnits, kdissH2INum, TemperatureField,
+//      printf("RT H2 THICK\n");
+        if (DEBUG && MyProcessorNumber == ROOT_PROCESSOR)
+          printf("%13.5e "
+            , sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2])*LengthUnits);
+	if(FAIL == RadiativeTransferLWShielding(PP, dP, thisDensity, thisDensityHDI,
+						thisDensityCO, thisDensityOH, thisDensityH2O, ddr, index,
+						LengthUnits, kdissH2INum, kdissHDINum,
+						kdissCONum, kdissOHNum, kdissH2ONum, TemperatureField, 
 						slice_factor2)) {
 	  fprintf(stderr, "Failed to calculate the LW radiation");
 	  return FAIL;
 	}
+        if (DEBUG && MyProcessorNumber == ROOT_PROCESSOR)
+          printf("2 %2d %2d %13.7f %13.7f  %13.5e %13.5e  %13.5e %13.5e %13.5e  %13.5e %13.5e\n"
+            , (*PP)->Type, H2IField, (*PP)->Energy, BaryonField[TemperatureField][index]
+            , PopulationFractions[H2IField]*fields[H2IField][index]/(0.76*density[index])
+            , 0.76*density[index]*ConvertToProperNumberDensity
+            , ddr*LengthUnits, sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2])*LengthUnits, (*PP)->ColumnDensity
+            , BaryonField[kdissH2INum][index], 0.0);
       }
       else { //Calculate the dissociation rate based on the cross section
+//      printf("RT H2 THIN\n");
 	dN = thisDensity * ddr;
 	tau = dN*sigma[LW];  //[dimensionless]
 
@@ -631,6 +743,60 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	
 	(*PP)->ColumnDensity += dN * LengthUnits; //update Column Density
 
+        if(MultiSpecies > 2) {
+          /* HDI */
+	  dN = thisDensityHDI * ddr;
+	  tau = dN*sigma[HDIdiss];  //[dimensionless]
+          
+	  if(FAIL == RadiativeTransferLW(PP, dPHDI, index, tau, factor1, 
+	  			       slice_factor2, kdissHDINum)) {
+	    fprintf(stderr, "Failed to calculate the LW radiation (HDI)");
+	    return FAIL;
+	  }
+	 
+	  (*PP)->ColumnDensityHDI += dN * LengthUnits; //update Column Density
+          dP += dPHDI;
+        }
+        if(MetalChemistry) {
+          /* CO */
+	  dN = thisDensityCO * ddr;
+	  tau = dN*sigmaM[COdiss];  //[dimensionless]
+          
+	  if(FAIL == RadiativeTransferLW(PP, dPCO, index, tau, factor1, 
+	  			       slice_factor2, kdissCONum)) {
+	    fprintf(stderr, "Failed to calculate the LW radiation (CO)");
+	    return FAIL;
+	  }
+	 
+	  (*PP)->ColumnDensityCO += dN * LengthUnits; //update Column Density
+          dP += dPCO;
+
+          /* OH */
+	  dN = thisDensityOH * ddr;
+	  tau = dN*sigmaM[OHdiss];  //[dimensionless]
+          
+	  if(FAIL == RadiativeTransferLW(PP, dPOH, index, tau, factor1, 
+	  			       slice_factor2, kdissOHNum)) {
+	    fprintf(stderr, "Failed to calculate the LW radiation (OH)");
+	    return FAIL;
+	  }
+	 
+	  (*PP)->ColumnDensityOH += dN * LengthUnits; //update Column Density
+          dP += dPOH;
+
+          /* H2O */
+	  dN = thisDensityH2O * ddr;
+	  tau = dN*sigmaM[H2Odiss];  //[dimensionless]
+          
+	  if(FAIL == RadiativeTransferLW(PP, dPH2O, index, tau, factor1, 
+	  			       slice_factor2, kdissH2ONum)) {
+	    fprintf(stderr, "Failed to calculate the LW radiation (H2O)");
+	    return FAIL;
+	  }
+	 
+	  (*PP)->ColumnDensityH2O += dN * LengthUnits; //update Column Density
+          dP += dPH2O;
+        }
       }
 
 
@@ -650,8 +816,39 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  fprintf(stderr, "Failed to calculate the LW radiation");
 	  return FAIL;
 	}
+        if (DEBUG && MyProcessorNumber == ROOT_PROCESSOR)
+          printf("PP+ Type %2d Ph %2d E %13.7f f %13.7f F %13.5e k %2d\n"
+            , (*PP)->Type, H2IIField, (*PP)->Energy, PopulationFractions[H2IIField]
+            , PopulationFractions[H2IIField]*fields[H2IIField][index]/(0.76*density[index]), kdissH2IINum);
       }
-   
+
+      if(MetalChemistry && RadiativeTransferMetalIon) {
+        ResetdPiZ(dPiZ);
+
+        /* Loop over absorbers - CI */
+        i = CIion;
+        thisDensity = PopulationFractionsZ[i] * fieldsZ[i][index] *
+          ConvertToProperNumberDensity;
+        taua = thisDensity * ddr * sigmaZ[i];  //in cgs
+        if(FAIL == RadiativeTransferIonization(PP, dPiZ, index, i, taua, factor1,
+                                               ExcessEnergyfactorZ, slice_factor2, kphZNum,
+                                               gammaNum))
+        {
+          fprintf(stderr, "Failed to calculate the ionizing radiation");
+          return FAIL;
+        }
+        if (DEBUG && MyProcessorNumber == ROOT_PROCESSOR)
+          printf("1 %2d %2d %13.7f %13.7f  %13.5e %13.5e  %13.5e %13.5e %13.5e  %13.5e %13.5e\n"
+            , (*PP)->Type, i, (*PP)->Energy, ExcessEnergyfactorZ[i]/factor1
+            , PopulationFractionsZ[i]*fieldsZ[i][index]/(0.76*density[index])
+            , 0.76*density[index]*ConvertToProperNumberDensity
+            , ddr*LengthUnits, sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2])*LengthUnits, sigmaZ[i]/ LengthUnits
+            , BaryonField[kphZNum[i]][index], BaryonField[gammaNum][index]);
+        // Exit the loop if everything's been absorbed
+        if (taua > 20.0) break;
+
+        dP += dPiZ[i];
+      }
       break;
       
       /************************************************************/
@@ -672,6 +869,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	fprintf(stderr, "Failed to calculate the IR radiation");
 	return FAIL;
       }
+      if (DEBUG && MyProcessorNumber == ROOT_PROCESSOR)
+        printf("PPI Type %2d Ph %2d E %13.7f Eth %13.7f f %13.7f F %13.5e k %2d\n"
+          , (*PP)->Type, HMField, (*PP)->Energy, EnergyThresholds[IR], PopulationFractions[HMField]
+          , PopulationFractions[HMField]*fields[HMField][index]/(0.76*density[index]), kphHMNum);
       
       if(RadiativeTransferH2IIDiss == TRUE) {
 	/* 
@@ -687,6 +888,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  fprintf(stderr, "Failed to calculate the IR radiation");
 	  return FAIL;
 	}
+        if (DEBUG && MyProcessorNumber == ROOT_PROCESSOR)
+          printf("PP+ Type %2d Ph %2d E %13.7f f %13.7f F %13.5e k %2d\n"
+            , (*PP)->Type, H2IIField, (*PP)->Energy, PopulationFractions[H2IIField]
+            , PopulationFractions[H2IIField]*fields[H2IIField][index]/(0.76*density[index]), kdissH2IINum);
       }
       break;
 	
@@ -843,14 +1048,18 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
       BaryonField[RaySegNum][index] += 1.0;
     }
+    if(DEBUG) 
+      printf("%13.5e %13.5e %13.5e %13.5e %13.5e\n"
+        , r[0], r[1], r[2], (*PP)->Photons, (*PP)->ColumnDensity);
 
     // return in case we're pausing to merge
     if (PauseMe)
       return SUCCESS;
 
     // return in case we're out of photons
-    if ((*PP)->Photons < MinimumPhotonFlux*(solid_angle*Area_inv) || 
-	(*PP)->ColumnDensity > tau_delete) {
+    // include tolerance 1.0e3 (2021 Jan Gen Chiaki)
+    if ((*PP)->Photons < 1.0e-3 * MinimumPhotonFlux*(solid_angle*Area_inv) || 
+	(*PP)->ColumnDensity > 1.0e3 * tau_delete) {
       if (DEBUG > 1) {
 	fprintf(stderr, "PP-Photons: %"GSYM" (%"GSYM"), PP->Radius: %"GSYM
 		"PP->CurrentTime: %"FSYM"\n",
@@ -932,6 +1141,7 @@ static void CalculateCrossSection(PhotonPackageEntry **PP,
     X = log((*PP)->Energy/8.0);
     sigma[H2II] = a*POW(10.0, -b*X*X)*exp(-c*X) * 1e-18 * LengthUnits;
     //sigma[H2II] = 1.495509e-18 * LengthUnits; // H2II average cross-section
+    sigma[HDIdiss] = 4.22276e-18 * LengthUnits; // HDI average cross-section
     } /* If Radiation is in XRays (type = 5) plus ionising radiation */
   else if ((*PP)->Type == XRAYS) {
     for (i = 0; i < 3; i++)
@@ -950,11 +1160,74 @@ static void CalculateCrossSection(PhotonPackageEntry **PP,
   return;
 }
 
+
+static void CalculateCrossSectionZ(PhotonPackageEntry **PP, 
+				  FLOAT *sigmaZ, float LengthUnits)
+{
+  double x = log10((*PP)->Energy);
+  double sig;
+  /* If Radiation is ionising radiation (type = 0 or 1 or 2)*/
+  if ((*PP)->Type == iHI || (*PP)->Type == iHeI || 
+      (*PP)->Type == iHeII) {
+
+    /* CI ionization cross-section fit from Heays et al. (2017) */
+    if(x < 1.05)       sig = - 20.0;
+    else if(x < 2.48 ) sig = - 16.332 + 0.320*x - 0.636*x*x;
+    else               sig = - 14.579 - 0.391*x - 0.403*x*x;
+    sigmaZ[CIion] = POW(10.0, sig) * LengthUnits;
+
+    /* OI ionization cross-section fit from Heays et al. (2017)  */
+    if(x < 1.13)        sig = -20.0;
+    else if( x < 1.22 ) sig = -17.400;
+    else if( x < 1.26 ) sig = -32.040 + 12.000*x;
+    else if( x < 1.43 ) sig = -16.968 +  0.038*x;
+    else if( x < 1.73 ) sig = -15.341 -  1.100*x;
+    else                sig = -12.054 -  3.000*x;
+    sigmaZ[OIion] = POW(10.0, sig) * LengthUnits;
+
+  } /* If Radiation is H2 dissociating radiation (type = 3)*/
+  else if ((*PP)->Type == LW) {
+
+    /* CI ionization cross-section fit from Heays et al. (2017)  */
+    if(x < 1.05)       sig = - 20.0;
+    else if(x < 2.48 ) sig = - 16.332 + 0.320*x - 0.636*x*x;
+    else               sig = - 14.579 - 0.391*x - 0.403*x*x;
+    sigmaZ[CIion] = POW(10.0, sig) * LengthUnits;
+
+  }
+  return;
+}
+
+
+static void CalculateCrossSectionM(PhotonPackageEntry **PP, 
+				  FLOAT *sigmaM, float LengthUnits)
+{
+  /* If Radiation is H2 dissociating radiation (type = 3)*/
+  if ((*PP)->Type == LW) {
+
+    /* average cross-section (Heays et al. 2017) */
+    sigmaM[COdiss]  = 1.74554e-17 * LengthUnits;
+    sigmaM[OHdiss]  = 3.56213e-18 * LengthUnits;
+    sigmaM[H2Odiss] = 1.01407e-17 * LengthUnits;
+
+  }
+  return;
+}
+
 static void ResetdPi(FLOAT *dPi)
 {
   int i = 0;
   for (i = 0; i < H_SPECIES + 1; i++) {
     dPi[i] = 0.0;
+  }
+  return;
+}
+
+static void ResetdPiZ(FLOAT *dPiZ)
+{
+  int i = 0;
+  for (i = 0; i < Z_SPECIES; i++) {
+    dPiZ[i] = 0.0;
   }
   return;
 }

@@ -67,6 +67,19 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   float *temp, *temp_VelAnyl;
   float *temperature, *dust_temperature,
     *cooling_time;
+  float *SiM_temperature    ;
+  float *FeM_temperature    ;
+  float *Mg2SiO4_temperature;
+  float *MgSiO3_temperature ;
+  float *Fe3O4_temperature  ;
+  float *AC_temperature     ;
+  float *SiO2D_temperature  ;
+  float *MgO_temperature    ;
+  float *FeS_temperature    ;
+  float *Al2O3_temperature  ;
+  float *reforg_temperature ;
+  float *volorg_temperature ;
+  float *H2Oice_temperature ;
  
   FILE *log_fptr;
   FILE *procmap_fptr;
@@ -565,9 +578,36 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       /* Allocate field and compute temperature. */
  
       dust_temperature = new float[size];
+      SiM_temperature     = new float[size];
+      FeM_temperature     = new float[size];
+      Mg2SiO4_temperature = new float[size];
+      MgSiO3_temperature  = new float[size];
+      Fe3O4_temperature   = new float[size];
+      AC_temperature      = new float[size];
+      SiO2D_temperature   = new float[size];
+      MgO_temperature     = new float[size];
+      FeS_temperature     = new float[size];
+      Al2O3_temperature   = new float[size];
+      reforg_temperature  = new float[size];
+      volorg_temperature  = new float[size];
+      H2Oice_temperature  = new float[size];
  
       if (this->ComputeDustTemperatureField(temperature,
-					    dust_temperature) == FAIL) {
+					    dust_temperature
+                                          , SiM_temperature    
+                                          , FeM_temperature    
+                                          , Mg2SiO4_temperature
+                                          , MgSiO3_temperature 
+                                          , Fe3O4_temperature  
+                                          , AC_temperature     
+                                          , SiO2D_temperature  
+                                          , MgO_temperature    
+                                          , FeS_temperature    
+                                          , Al2O3_temperature  
+                                          , reforg_temperature 
+                                          , volorg_temperature 
+                                          , H2Oice_temperature 
+                                           ) == FAIL) {
 		ENZO_FAIL("Error in grid->ComputeDustTemperatureField.");
       }
  
@@ -575,11 +615,55 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         this->write_dataset(GridRank, OutDims, "Dust_Temperature",
             group_id, file_type_id, (VOIDP) dust_temperature,
             TRUE, temp);
+        if (GrainGrowth || DustSublimation) {
+          if (DustSpecies > 0) {
+            this->write_dataset(GridRank, OutDims,  "MgSiO3_Temperature", group_id, file_type_id, (VOIDP)  MgSiO3_temperature, TRUE, temp);
+            this->write_dataset(GridRank, OutDims,      "AC_Temperature", group_id, file_type_id, (VOIDP)      AC_temperature, TRUE, temp);
+          }
+          if (DustSpecies > 1) {
+            this->write_dataset(GridRank, OutDims,     "SiM_Temperature", group_id, file_type_id, (VOIDP)     SiM_temperature, TRUE, temp);
+            this->write_dataset(GridRank, OutDims,     "FeM_Temperature", group_id, file_type_id, (VOIDP)     FeM_temperature, TRUE, temp);
+            this->write_dataset(GridRank, OutDims, "Mg2SiO4_Temperature", group_id, file_type_id, (VOIDP) Mg2SiO4_temperature, TRUE, temp);
+            this->write_dataset(GridRank, OutDims,   "Fe3O4_Temperature", group_id, file_type_id, (VOIDP)   Fe3O4_temperature, TRUE, temp);
+            this->write_dataset(GridRank, OutDims,   "SiO2D_Temperature", group_id, file_type_id, (VOIDP)   SiO2D_temperature, TRUE, temp);
+            this->write_dataset(GridRank, OutDims,     "MgO_Temperature", group_id, file_type_id, (VOIDP)     MgO_temperature, TRUE, temp);
+            this->write_dataset(GridRank, OutDims,     "FeS_Temperature", group_id, file_type_id, (VOIDP)     FeS_temperature, TRUE, temp);
+            this->write_dataset(GridRank, OutDims,   "Al2O3_Temperature", group_id, file_type_id, (VOIDP)   Al2O3_temperature, TRUE, temp);
+          }
+          if (DustSpecies > 1) {
+            this->write_dataset(GridRank, OutDims,  "reforg_Temperature", group_id, file_type_id, (VOIDP)  reforg_temperature, TRUE, temp);
+            this->write_dataset(GridRank, OutDims,  "volorg_Temperature", group_id, file_type_id, (VOIDP)  volorg_temperature, TRUE, temp);
+            this->write_dataset(GridRank, OutDims,  "H2Oice_Temperature", group_id, file_type_id, (VOIDP)  H2Oice_temperature, TRUE, temp);
+          }
+        }
+
       } else {
 
         this->write_dataset(GridRank, FullOutDims, "Dust_Temperature",
             group_id, file_type_id, (VOIDP) dust_temperature,
             FALSE);
+        if (GrainGrowth || DustSublimation) {
+          if (DustSpecies > 0) {
+            this->write_dataset(GridRank, FullOutDims,  "MgSiO3_Temperature", group_id, file_type_id, (VOIDP)  MgSiO3_temperature, FALSE);
+            this->write_dataset(GridRank, FullOutDims,      "AC_Temperature", group_id, file_type_id, (VOIDP)      AC_temperature, FALSE);
+          }
+          if (DustSpecies > 1) {
+            this->write_dataset(GridRank, FullOutDims,     "SiM_Temperature", group_id, file_type_id, (VOIDP)     SiM_temperature, FALSE);
+            this->write_dataset(GridRank, FullOutDims,     "FeM_Temperature", group_id, file_type_id, (VOIDP)     FeM_temperature, FALSE);
+            this->write_dataset(GridRank, FullOutDims, "Mg2SiO4_Temperature", group_id, file_type_id, (VOIDP) Mg2SiO4_temperature, FALSE);
+            this->write_dataset(GridRank, FullOutDims,   "Fe3O4_Temperature", group_id, file_type_id, (VOIDP)   Fe3O4_temperature, FALSE);
+            this->write_dataset(GridRank, FullOutDims,   "SiO2D_Temperature", group_id, file_type_id, (VOIDP)   SiO2D_temperature, FALSE);
+            this->write_dataset(GridRank, FullOutDims,     "MgO_Temperature", group_id, file_type_id, (VOIDP)     MgO_temperature, FALSE);
+            this->write_dataset(GridRank, FullOutDims,     "FeS_Temperature", group_id, file_type_id, (VOIDP)     FeS_temperature, FALSE);
+            this->write_dataset(GridRank, FullOutDims,   "Al2O3_Temperature", group_id, file_type_id, (VOIDP)   Al2O3_temperature, FALSE);
+          }
+          if (DustSpecies > 1) {
+            this->write_dataset(GridRank, FullOutDims,  "reforg_Temperature", group_id, file_type_id, (VOIDP)  reforg_temperature, FALSE);
+            this->write_dataset(GridRank, FullOutDims,  "volorg_Temperature", group_id, file_type_id, (VOIDP)  volorg_temperature, FALSE);
+            this->write_dataset(GridRank, FullOutDims,  "H2Oice_Temperature", group_id, file_type_id, (VOIDP)  H2Oice_temperature, FALSE);
+          }
+        }
+
       }
 
 
@@ -590,6 +674,19 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 	delete [] temperature;
       }
       delete [] dust_temperature;
+      delete [] SiM_temperature    ;
+      delete [] FeM_temperature    ;
+      delete [] Mg2SiO4_temperature;
+      delete [] MgSiO3_temperature ;
+      delete [] Fe3O4_temperature  ;
+      delete [] AC_temperature     ;
+      delete [] SiO2D_temperature  ;
+      delete [] MgO_temperature    ;
+      delete [] FeS_temperature    ;
+      delete [] Al2O3_temperature  ;
+      delete [] reforg_temperature ;
+      delete [] volorg_temperature ;
+      delete [] H2Oice_temperature ;
  
     } // end: if (OutputDustTemperature)
 

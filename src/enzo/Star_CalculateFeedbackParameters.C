@@ -46,7 +46,9 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
   const double h=0.70;
 
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
+//const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
+  const float TypeIILowerMass  = 8, TypeIIUpperMass  = 40.1;
+  const float FaintSNLowerMass = 8, FaintSNUpperMass = 140;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
 
   // From Nomoto et al. (2006)
@@ -63,6 +65,11 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
   float StarLevelCellWidth, tdyn, frac;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
+  const float tlife[] = 
+           {  2.54502e+07,  9.27383e+06,  6.69605e+06,  5.58739e+06
+           ,  4.21361e+06,  2.43907e+06,  2.28077e+06,  2.12901e+06  };
+             // lifetime of PopII stars [year]
+             // approximate Pop III stellar lifetime (Schaerer 2002)
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
@@ -85,6 +92,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
     Radius = max(Radius, 3.5*StarLevelCellWidth);
     EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);
     EjectaDensity = Mass * SolarMass / EjectaVolume / DensityUnits;
+
+    if(MetalChemistry == 0) {
 
     // pair-instability SNe
     if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) {
@@ -110,8 +119,52 @@ void Star::CalculateFeedbackParameters(float &Radius,
       }
       EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
     }
+
+    } else {
+
+      // PopIII stars explode as faint SNe (Marassi et al. 2014)
+      if(this->Mass >= FaintSNLowerMass && this->Mass <= FaintSNUpperMass) {
+        if(this->Mass < 14.0) {
+          SNEnergy = 0.5e51;
+          MetalMass = 0.097;
+        } else if(this->Mass < 32.5) {
+          SNEnergy = 0.7e51;
+          MetalMass = 0.182;
+        } else if(this->Mass < 65.0) {
+          SNEnergy = 2.6e51;
+          MetalMass = 3.540;
+        } else {
+          SNEnergy = 5.2e51;
+          MetalMass = 4.307;
+        }
+      }
+
+      // pair-instability SNe (Nozawa et al. 2007)
+      if(this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) {
+        if(this->Mass < 185.0) {
+          SNEnergy = 20e51;
+          MetalMass = 83.400;
+        } else {
+          SNEnergy = 28e51;
+          MetalMass = 113.990;
+        }
+      }
+
+      EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
+
+    }
+
     EjectaThermalEnergy = SNEnergy / (Mass * SolarMass) / VelocityUnits /
       VelocityUnits;
+
+      printf("PopIIISN Mpr = %10.3f Msun, Mmet = %10.3f Msun, Esn = %10.3f B\n"
+          , this->Mass, MetalMass, SNEnergy / 1e51);
+      printf("Radius %10.3f pc, Rmin %10.3f pc\n"
+           , PopIIISupernovaRadius, 3.5*StarLevelCellWidth * LengthUnits / pc_cm);
+      printf("Gas    Mgas = %10.3f Msun, Veje = %13.5e cc, Dgas = %13.5e g/cc, egas = %13.5e erg/cc\n"
+          ,      Mass, EjectaVolume, EjectaDensity      * DensityUnits, EjectaThermalEnergy * pow(VelocityUnits, 2) * EjectaDensity * DensityUnits);
+      printf("Metal  Mmet = %10.3f Msun, Veje = %13.5e cc, Dmet = %13.5e g/cc\n"
+          , MetalMass, EjectaVolume, EjectaMetalDensity * DensityUnits);
 
     // Exaggerate influence radius because the blastwave will enter
     // into some of the surrounding parent grids within the next
@@ -151,24 +204,73 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
     // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
     //Delta_SF = StarMassEjectionFraction * Mass * SNe_dt * TimeUnits / (16.0*Myr);
-    if (StarClusterUnresolvedModel) {
-      // lifetime = 5*tdyn
-      tdyn = 0.2 * LifeTime;
-      frac = (Time-BirthTime) / tdyn;
-      Delta_SF = dtForThisStar * StarMassEjectionFraction * (Mass/tdyn) *
-	frac * exp(-frac);
-//      if (debug)
-//	printf("Star %d: Delta_SF = %g, Mass = %g, frac = %g (%f %f)\n", 
-//	       Identifier, Delta_SF, Mass, frac, Time, BirthTime);
+    if (MetalChemistry == 0) {
+      if (StarClusterUnresolvedModel) {
+        // lifetime = 5*tdyn
+        tdyn = 0.2 * LifeTime;
+        frac = (Time-BirthTime) / tdyn;
+        Delta_SF = dtForThisStar * StarMassEjectionFraction * (Mass/tdyn) *
+          frac * exp(-frac);
+//        if (debug)
+//        printf("Star %d: Delta_SF = %g, Mass = %g, frac = %g (%f %f)\n", 
+//               Identifier, Delta_SF, Mass, frac, Time, BirthTime);
+      } else {
+        Delta_SF = StarMassEjectionFraction * Mass * dtForThisStar * 
+          TimeUnits / (16.0*Myr_s);
+      }
+      EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);   
+      EjectaDensity = Delta_SF * SolarMass / EjectaVolume / DensityUnits;   
+      EjectaMetalDensity = EjectaDensity * StarMetalYield;
+      EjectaThermalEnergy = StarClusterSNEnergy / SolarMass /   
+        (VelocityUnits * VelocityUnits);
     } else {
-      Delta_SF = StarMassEjectionFraction * Mass * dtForThisStar * 
-	TimeUnits / (16.0*Myr_s);
+
+      tdyn = (Time - BirthTime) * (TimeUnits/yr_s); // year
+      if( tdyn > tlife[7] && this->Mass > 260.0 ) {
+        SNEnergy = 0.0;
+        MetalMass = 0.0;
+        Delta_SF = (this->Mass > 301.0 ? 300.0 : this->Mass - 1.0);
+      } else if( tdyn > tlife[6] && this->Mass > 185.0 ) {
+        SNEnergy = 28e51;
+        MetalMass = 113.990;
+        Delta_SF = (this->Mass > 201.0 ? 200.0 : this->Mass - 1.0);
+      } else if( tdyn > tlife[5] && this->Mass > 140.0 ) {
+        SNEnergy = 20e51;
+        MetalMass = 83.400;
+        Delta_SF = (this->Mass > 171.0 ? 170.0 : this->Mass - 1.0);
+      } else if( tdyn > tlife[4] && this->Mass > 40.0 ) {
+        SNEnergy = 0.0;
+        MetalMass = 0.0;
+        Delta_SF = (this->Mass >  91.0 ?  90.0 : this->Mass - 1.0);
+      } else if( tdyn > tlife[3] && this->Mass > 27.5 ) {
+        SNEnergy = 1e51;
+        MetalMass = 7.175;
+        Delta_SF = (this->Mass >  31.0 ?  30.0 : this->Mass - 1.0);
+      } else if( tdyn > tlife[2] && this->Mass > 22.5 ) {
+        SNEnergy = 1e51;
+        MetalMass = 3.825;
+        Delta_SF = (this->Mass >  26.0 ?  25.0 : this->Mass - 1.0);
+      } else if( tdyn > tlife[1] && this->Mass > 16.5 ) {
+        SNEnergy = 1e51;
+        MetalMass = 2.564;
+        Delta_SF = (this->Mass >  21.0 ?  20.0 : this->Mass - 1.0);
+      } else if( tdyn > tlife[0] && this->Mass > 8.0 ) {
+        SNEnergy = 1e51;
+        MetalMass = 0.746;
+        Delta_SF = (this->Mass >  14.0 ?  13.0 : this->Mass - 1.0);
+      } else {
+        SNEnergy = 0.0;
+        MetalMass = 0.0;
+        Delta_SF = 0.0;
+      }
+
+      EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);   
+      EjectaDensity = Delta_SF * SolarMass / EjectaVolume / DensityUnits;   
+      EjectaMetalDensity = MetalMass * SolarMass / EjectaVolume / DensityUnits;
+      EjectaThermalEnergy = SNEnergy / (Mass * SolarMass) / VelocityUnits /
+        VelocityUnits;
     }
-    EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);   
-    EjectaDensity = Delta_SF * SolarMass / EjectaVolume / DensityUnits;   
-    EjectaMetalDensity = EjectaDensity * StarMetalYield;
-    EjectaThermalEnergy = StarClusterSNEnergy / SolarMass /   
-      (VelocityUnits * VelocityUnits);
+
     break;
 
   case MBH_THERMAL:

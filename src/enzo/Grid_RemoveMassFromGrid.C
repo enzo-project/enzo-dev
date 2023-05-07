@@ -62,6 +62,8 @@ int grid::RemoveMassFromGrid(ActiveParticleType* ThisParticle,
     {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
    /* Set the units. */
  
+  int field;
+  double OldDensity, factor;
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
     TimeUnits = 1, VelocityUnits = 1,
     PressureUnits = 0, GEUnits = 0, VelUnits = 0;
@@ -244,8 +246,66 @@ int grid::RemoveMassFromGrid(ActiveParticleType* ThisParticle,
 	  etotnew = eintnew + kenew;
 	  
 	  // Update the densities
+	  OldDensity = BaryonField[DensNum][index];
 	  BaryonField[DensNum][index] -= maccreted/CellVolume;
-	  
+          factor = BaryonField[DensNum][index] / OldDensity;
+
+          // Update species abundances [GC190515]
+          for (field = 0; field < NumberOfBaryonFields; field++) {
+            if (FieldType[field] == ElectronDensity
+             || FieldType[field] ==       HIDensity
+             || FieldType[field] ==      HIIDensity
+             || FieldType[field] ==      HeIDensity
+             || FieldType[field] ==     HeIIDensity
+             || FieldType[field] ==    HeIIIDensity
+             || FieldType[field] ==       HMDensity
+             || FieldType[field] ==      H2IDensity
+             || FieldType[field] ==     H2IIDensity
+             || FieldType[field] ==       DIDensity
+             || FieldType[field] ==      DIIDensity
+             || FieldType[field] ==      HDIDensity
+             || FieldType[field] ==    HeHIIDensity
+             || FieldType[field] ==       DMDensity
+             || FieldType[field] ==     HDIIDensity
+             || FieldType[field] ==       CIDensity
+             || FieldType[field] ==      CIIDensity
+             || FieldType[field] ==      COIDensity
+             || FieldType[field] ==     CO2IDensity
+             || FieldType[field] ==       OIDensity
+             || FieldType[field] ==      OHIDensity
+             || FieldType[field] ==     H2OIDensity
+             || FieldType[field] ==      O2IDensity
+             || FieldType[field] ==      SiIDensity
+             || FieldType[field] ==     SiOIDensity
+             || FieldType[field] ==    SiO2IDensity
+             || FieldType[field] ==      CHIDensity
+             || FieldType[field] ==     CH2IDensity
+             || FieldType[field] ==     COIIDensity
+             || FieldType[field] ==      OIIDensity
+             || FieldType[field] ==     OHIIDensity
+             || FieldType[field] ==    H2OIIDensity
+             || FieldType[field] ==    H3OIIDensity
+             || FieldType[field] ==     O2IIDensity
+             || FieldType[field] ==       MgDensity
+             || FieldType[field] ==       AlDensity
+             || FieldType[field] ==        SDensity
+             || FieldType[field] ==       FeDensity
+             || FieldType[field] ==      SiMDensity
+             || FieldType[field] ==      FeMDensity
+             || FieldType[field] ==  Mg2SiO4Density
+             || FieldType[field] ==   MgSiO3Density
+             || FieldType[field] ==    Fe3O4Density
+             || FieldType[field] ==       ACDensity
+             || FieldType[field] ==    SiO2DDensity
+             || FieldType[field] ==      MgODensity
+             || FieldType[field] ==      FeSDensity
+             || FieldType[field] ==    Al2O3Density
+             || FieldType[field] ==     Metallicity
+             || FieldType[field] ==        SNColour
+               ) {
+	      BaryonField[field][index] *= factor;
+            }
+          }
 					   
 	  // Update the energies
 	  if (HydroMethod == PPM_DirectEuler) {

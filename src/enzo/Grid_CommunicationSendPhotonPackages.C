@@ -88,6 +88,10 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       buffer[index].EmissionTime	 = PP->EmissionTime;
       buffer[index].CurrentTime          = PP->CurrentTime;
       buffer[index].ColumnDensity        = PP->ColumnDensity;
+      buffer[index].ColumnDensityHDI     = PP->ColumnDensityHDI;
+      buffer[index].ColumnDensityCO      = PP->ColumnDensityCO;
+      buffer[index].ColumnDensityOH      = PP->ColumnDensityOH;
+      buffer[index].ColumnDensityH2O     = PP->ColumnDensityH2O;
       buffer[index].CrossSection         = PP->CrossSection;
       buffer[index].Radius		 = PP->Radius;
       buffer[index].ipix		 = PP->ipix;
@@ -238,6 +242,10 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       NewPP->EmissionTime	  = buffer[index].EmissionTime;
       NewPP->CurrentTime	  = buffer[index].CurrentTime;
       NewPP->ColumnDensity	  = buffer[index].ColumnDensity;
+      NewPP->ColumnDensityHDI     = buffer[index].ColumnDensityHDI;
+      NewPP->ColumnDensityCO      = buffer[index].ColumnDensityCO;
+      NewPP->ColumnDensityOH      = buffer[index].ColumnDensityOH;
+      NewPP->ColumnDensityH2O     = buffer[index].ColumnDensityH2O;
       NewPP->CrossSection	  = buffer[index].CrossSection;
       NewPP->Radius		  = buffer[index].Radius;
       NewPP->ipix		  = buffer[index].ipix;
