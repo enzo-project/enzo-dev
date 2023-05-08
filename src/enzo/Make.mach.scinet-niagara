@@ -1,0 +1,127 @@
+#=======================================================================
+#
+# FILE:        Make.mach.niagara
+#
+# DESCRIPTION: Makefile settings for Niagara cluster
+#
+# AUTHOR:      Matt Dutcher
+#
+# DATE:        2019-05-07
+#
+#=======================================================================
+
+MACH_TEXT  = Niagara
+MACH_VALID = 1
+MACH_FILE  = Make.mach.scinet-niagara
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+LOCAL_COMPILER_DIR=/scinet/intel/2019u4/compilers_and_libraries_2019.4.243/linux/bin/intel64
+LOCAL_MPI_INSTALL    = /scinet/intel/2019u4/compilers_and_libraries_2019.4.243/linux/mpi/intel64
+LOCAL_HDF5_INSTALL   = /scinet/niagara/software/2019b/opt/intel-2019u4/hdf5/1.10.5
+LOCAL_PYTHON_INSTALL = /scinet/intel/2019u4/intelpython2
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = $(LOCAL_MPI_INSTALL)/bin/mpicc
+#MACH_CPP        = usr/bin/cpp
+
+# With MPI
+
+#MACH_CC_MPI    = mpicc
+#MACH_CXX_MPI   = mpicxx
+#MACH_FC_MPI    = mpif77
+#MACH_F90_MPI   = mpif90
+#MACH_LD_MPI    = mpiCC
+MACH_CC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicc
+MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpicxx
+MACH_FC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpif77
+MACH_F90_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpif90
+MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicxx
+
+
+# Without MPI
+
+MACH_CC_NOMPI  = icc
+MACH_CXX_NOMPI = icc
+MACH_FC_NOMPI  = ifort
+MACH_F90_NOMPI = ifort
+MACH_LD_NOMPI  = icc
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES = -DLINUX -DH5_USE_16_API -DWINDS -DIO_LOG -DOMPI_SKIP_MPICXX
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional
+MACH_CFLAGS   =
+MACH_CXXFLAGS =
+MACH_FFLAGS   = -fno-second-underscore
+MACH_F90FLAGS = -fno-second-underscore
+MACH_LDFLAGS  =
+#,-static
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+# *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
+#
+#  Use optimization -O2 or greater with PGI compilers at your own
+#  risk!  Older versions of Grid_PPMDirectEuler.C compiled with -O2
+#  led to incorrect results on many test problems, and CURRENT
+#  (-r1995) versions of ffte4X.src and ZeusSource.C lead to incorrect
+#  results for ZeldovichPancake and ExtremeAdvectionTest tests,
+#  respectively.  jobordner@ucsd.edu
+#
+# *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
+
+MACH_OPT_WARN        = -Wall # Flags for verbose compiler warnings
+MACH_OPT_DEBUG       = -O0 -g
+MACH_OPT_HIGH        = -O1 -ftz -mieee-fp -fp-speculation=off -prec-sqrt -prec-div
+MACH_OPT_AGGRESSIVE  = -O1 -ftz -mieee-fp -fp-speculation=off -prec-sqrt -prec-div
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7/ \
+                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.7/site-packages/numpy/core/include
+
+MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+#
+
+LOCAL_LIBS_MPI    =
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz 
+LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python3.6/config-3.6m-x86_64-linux-gnu/libpython3.6m.a
+
+LOCAL_LIBS_MACH   =  -L/scinet/intel/2019u4/compilers_and_libraries_2019.4.243/linux/compiler/lib/intel64_lin \
+                     -limf -lifcore -lifport \
+                     -L/usr/lib64/ -lgpfs
+#$(LOCAL_COMPILER_DIR)/compiler/lib/intel64_lin \
+                     #-lstdc++ -lgfortran \
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)

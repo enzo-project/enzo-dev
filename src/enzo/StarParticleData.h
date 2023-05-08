@@ -66,7 +66,13 @@ SPEXTERN int StarFeedbackDistCellStep;
 SPEXTERN int StarFeedbackDistTotalCells;
 SPEXTERN float StarFeedbackKineticFraction;
 SPEXTERN float StarMakerExplosionDelayTime;
-SPEXTERN int StarMakerUseJeansMass;
+SPEXTERN int   StarMakerUseJeansMass;
+SPEXTERN int   StarMakerVelDivCrit;
+SPEXTERN int   StarMakerSelfBoundCrit;
+SPEXTERN int   StarMakerThermalCrit;
+SPEXTERN int   StarMakerH2Crit;
+SPEXTERN int   StarMakerStochasticStarFormation;
+SPEXTERN float StarMakerTemperatureThreshold;
 
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIInitialMassFunction;
@@ -149,5 +155,11 @@ SPEXTERN float StarMakerMinimumMassRampStartTime;
 SPEXTERN float StarMakerMinimumMassRampStartMass;
 SPEXTERN float StarMakerMinimumMassRampEndTime;
 SPEXTERN float StarMakerMinimumMassRampEndMass;
+
+SPEXTERN int StarFeedbackThermalEfficiencyRamp;
+SPEXTERN float StarFeedbackThermalEfficiencyRampStartTime;
+SPEXTERN float StarFeedbackThermalEfficiencyRampStartValue;
+SPEXTERN float StarFeedbackThermalEfficiencyRampEndTime;
+SPEXTERN float StarFeedbackThermalEfficiencyRampEndValue;
 
 #endif

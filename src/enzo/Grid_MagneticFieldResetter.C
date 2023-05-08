@@ -94,27 +94,23 @@ int grid::MagneticFieldResetter(int level)
   /* Reset the magnetic field values, update the total energy */
 
   for (int i = 0; i < size; i++) {
-
+    BaryonField[TENum][i] -= 0.5*(BaryonField[B1Num][i]*BaryonField[B1Num][i] + 
+				  BaryonField[B2Num][i]*BaryonField[B2Num][i] + 
+				  BaryonField[B3Num][i]*BaryonField[B3Num][i])/BaryonField[DensNum][i];
     /* Set the magnetic field value when the density is bigger than the critical density */
 
     if (BaryonField[DensNum][i] > 1.0) {   
-
-      if(DualEnergyFormalism)
-	BaryonField[TENum][i] -= 0.5*(BaryonField[B1Num][i]*BaryonField[B1Num][i] + 
-				      BaryonField[B2Num][i]*BaryonField[B2Num][i] + 
-				      BaryonField[B3Num][i]*BaryonField[B3Num][i])/BaryonField[DensNum][i];
       
       BaryonField[B1Num][i]  = ResetMagneticFieldAmplitude[0];
       BaryonField[B2Num][i]  = ResetMagneticFieldAmplitude[1];
       BaryonField[B3Num][i]  = ResetMagneticFieldAmplitude[2];
       BaryonField[PhiNum][i] = 0.0;
       
-      if(DualEnergyFormalism)
-	BaryonField[TENum][i] += 0.5*(BaryonField[B1Num][i]*BaryonField[B1Num][i] + 
-				      BaryonField[B2Num][i]*BaryonField[B2Num][i] + 
-				      BaryonField[B3Num][i]*BaryonField[B3Num][i])/BaryonField[DensNum][i];
+      BaryonField[TENum][i] += 0.5*(BaryonField[B1Num][i]*BaryonField[B1Num][i] + 
+				    BaryonField[B2Num][i]*BaryonField[B2Num][i] + 
+				    BaryonField[B3Num][i]*BaryonField[B3Num][i])/BaryonField[DensNum][i];
     } else {
-
+	    
       BaryonField[B1Num][i]  = 0.0;
       BaryonField[B2Num][i]  = 0.0;
       BaryonField[B3Num][i]  = 0.0;

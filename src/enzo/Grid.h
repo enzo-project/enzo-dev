@@ -619,6 +619,20 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly=FALSE);
 
+/* Baryons: compute cooling rate for user supplied data */
+
+   int GrackleCustomCoolRate(int rank, int *dim, float *cool_rate,
+			     float *dens, float *thrmeng,
+			     float *velx, float *vely, float *velz,
+			     float *HIdens=NULL, float *HIIdens=NULL,
+			     float *HeIdens=NULL, float *HeIIdens=NULL, float *HeIIIdens=NULL,
+			     float *edens=NULL,
+			     float *HMdens=NULL, float *H2Idens=NULL, float *H2IIdens=NULL,
+			     float *DIdens=NULL, float *DIIdens=NULL, float *HDIdens=NULL,
+			     float *metaldens=NULL,
+			     float *kphHI=NULL, float *kphHeI=NULL, float *kphHeII=NULL,
+			     float *kdissH2I=NULL, float *gamma=NULL);
+
 /* Baryons & DualEnergyFormalism: Restore consistency between total and
                                   internal energy fields. */
 
@@ -1113,7 +1127,7 @@ gradient force to gravitational force for one-zone collapse test. */
    };
 
    void PrintBaryonFieldValues(int field, int index)
-     {fprintf(stdout, "Baryonfield[field = %"ISYM"][index = %"ISYM"] = %g\n", 
+     {fprintf(stdout, "Baryonfield[field = %" ISYM "][index = %" ISYM "] = %g\n", 
 	      field, index, BaryonField[field][index]);};
 
 // -------------------------------------------------------------------------
@@ -2304,28 +2318,46 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 
   /* Initialization for isolated galaxy sims */
+  int _GalaxySimulationInitialization = 0;
   int GalaxySimulationInitializeGrid(
-				     FLOAT DiskRadius,
-				     float GalaxyMass,
-				     float GasMass,
+				     double DiskRadius,
+				     double GalaxyMass,
+				     double GasMass,
 				     FLOAT DiskPosition[MAX_DIMENSION], 
-				     FLOAT ScaleHeightz,
-				     FLOAT ScaleHeightR, 
-				     FLOAT GalaxyTruncationRadius,
-				     float DMConcentration,
-				     float DiskTemperature,
-				     float InitialTemperature,
-				     float UniformDensity,
+				     double ScaleHeightz,
+				     double ScaleHeightR, 
+				     double GalaxyTruncationRadius,
+                 double DiskDensityCap,
+				     double DMConcentration,
+				     double DiskTemperature,
+                 int    DiskPressureBalance,
+				     double InitialTemperature,
+				     double UniformDensity,
+				     int   EquilibrateChem,
 				     int   GasHalo,
-				     float GasHaloScaleRadius,
-				     float GasHaloDensity,
-				     float AngularMomentum[MAX_DIMENSION],
-				     float UniformVelocity[MAX_DIMENSION], 
+				     double GasHaloScaleRadius,
+				     double GasHaloDensity,
+				     double GasHaloDensity2,
+				     double GasTemperature,
+				     double GasAlpha,
+				     double GasZeta,
+				     double GasZeta2,
+				     double GasCoreEntropy,
+				     double GasHaloRatio,
+				     double GasMetallicity,
+				     int   UseHaloRotation,
+				     double RotationScaleVelocity,
+				     double RotationScaleRadius,
+				     double RotationPowerLawIndex,
+				     double DiskMetallicityEnhancementFactor,
+				     double AngularMomentum[MAX_DIMENSION],
+				     double UniformVelocity[MAX_DIMENSION], 
 				     int UseMetallicityField, 
-				     float GalaxySimulationInflowTime,
-				     float GalaxySimulationInflowDensity,
+				     FLOAT GalaxySimulationInflowTime,
+				     double GalaxySimulationInflowDensity,
 				     int level,
-				     float GalaxySimulationCR = 0.0 );
+				     double GalaxySimulationCR = 0.0
+                 );
 
   /* Free expansion test */
   int FreeExpansionInitializeGrid(int FreeExpansionFullBox,
@@ -2693,7 +2725,15 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
   int LightBosonInitializeGrid(float CenterPosition, int LightBosonProblemType);
 /* FDM: Test Problem Initialize Grid for Fuzzy Dark Matter */
-  int FDMCollapseInitializeGrid();
+  int FDMCollapseInitializeGrid(int UseParticles, float ParticleMeanDensity);
+/* FDM: ParallelIO version of the problem */
+  int ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName, 
+                                    char *FDMCollapseImPsiName,
+                                    char *FDMCollapseAbsBdName,
+                                    int FDMUseParticles,
+                                    float FDMParticleMeanDensity,
+                                    int FDMCollapseSubgridsAreStatic,
+                                    int TotalRefinement);
 // -------------------------------------------------------------------------
 // Analysis functions for AnalysisBaseClass and it's derivatives.
 //

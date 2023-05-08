@@ -104,7 +104,7 @@ int grid::ComputeTemperatureField(float *temperature,int IncludeCRs)
     }
     return SUCCESS;
   }
- 
+
   float TemperatureUnits = 1, number_density;
   float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1;
  
@@ -123,6 +123,15 @@ int grid::ComputeTemperatureField(float *temperature,int IncludeCRs)
     min_temperature = tiny_number;
   }
 
+  if (ProblemType == 31 && this->_GalaxySimulationInitialization == 1) { // hardcode mu=0.6 for ICs only
+    for (i = 0; i < size; i++)
+      temperature[i] = max((TemperatureUnits*temperature[i]*0.6
+		         /max(BaryonField[DensNum][i], tiny_number)),
+			 min_temperature);
+    if (debug) printf("GalaxySimulation: Overriding mean molecular weight to be 0.6\n");
+    return SUCCESS;
+  }
+  
   if (MultiSpecies == FALSE)
  
     /* If the multi-species flag is not set,

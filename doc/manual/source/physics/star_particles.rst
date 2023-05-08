@@ -45,17 +45,18 @@ Select this method by setting ``StarParticleCreation = 1``.
 
 *Source: star_maker2.F*
 
-This routine uses the algorithm from `Cen & Ostriker (1992) <http://adsabs.harvard.edu/abs/1992ApJ...399L.113C>`_ that creates star particles when the following six criteria are
-met
+This routine uses the algorithm from `Cen & Ostriker (1992) <http://adsabs.harvard.edu/abs/1992ApJ...399L.113C>`_ 
+with additions from `Hopkins et al. (2013) <https://ui.adsabs.harvard.edu/abs/2013MNRAS.432.2647H/abstract>`_ 
+that creates star particles when the following six criteria are met
 
 #. The gas density is greater than the threshold set in the parameter
    ``StarMakerOverDensityThreshold``.  This parameter is in code units
    (i.e. overdensity with respect to the mean matter density)
 
-#. The divergence is negative
+#. The divergence is negative.
 
 #. The dynamical time is less than the cooling time or the temperature
-   is less than 11,000 K.  The minimum dynamical time considered is
+   is less than ``StarMakerTemperatureThreshold``.  The minimum dynamical time considered is
    given by the parameter ``StarMakerMinimumDynamicalTime`` in *units
    of years*.
 
@@ -66,6 +67,14 @@ met
    which is in units of solar masses.
 
 #. The cell does not have finer refinement underneath it.
+
+#. (Optional) The cell is gravitationally self-bound (Equation 3 
+   from `Hopkins et al. (2013) <https://ui.adsabs.harvard.edu/abs/2013MNRAS.432.2647H/abstract>`_)
+
+#. (Optional) The cell has H:sub:`2` mass greater than ``StarMakerMinimumMass``
+criteria 4, 7, & 8 are off,
+though the results of `Hopkins et al. (2013) <https://ui.adsabs.harvard.edu/abs/2013MNRAS.432.2647H/abstract>`_
+strongly suggest enabling the self-bound criterion.
 
 These particles add thermal and momentum feedback to the grid cell
 that contains it until 12 dynamical times after its creation.  In each

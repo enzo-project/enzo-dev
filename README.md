@@ -66,6 +66,7 @@ list of the people who have recently contributed, in alphabetical order:
    * Brian Crosby           crosby.bd@gmail.com
    * Philipp Edelmann	    pedelmann@mpa-garching.mpg.de
    * Andrew Emerick         aemerick11@gmail.com
+   * Ethan Fisk             emf@lanl.gov
    * Forrest Glines         forrestglines@gmail.com
    * Nathan Goldbaum        ngoldbau@ucsc.edu
    * Philipp Grete          grete@pa.msu.edu 
@@ -85,7 +86,7 @@ list of the people who have recently contributed, in alphabetical order:
    * James Larrue           james.larrue@diopolis.com
    * Eve Lee                elee@cita.utoronto.ca
    * Miao Li                ml3322@columbia.edu
-   * Xinyu Li		    xl2359@columbia.edu
+   * Xinyu Li		          xl2359@columbia.edu
    * Yuan Li                yuan@astro.columbia.edu
    * Greg Meece             meecegre@msu.edu
    * Yuu Niino              yuuniino@ioa.s.u-tokyo.ac.jp
