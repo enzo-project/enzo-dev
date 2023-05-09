@@ -219,11 +219,8 @@ man_pages = [
      [u'Enzo Developers'], 1)
 ]
 
-# Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'python':('http://docs.python.org/', None),
-                       'ipython':('http://ipython.org/ipython-doc/stable/', None),
-                       'numpy':('http://docs.scipy.org/doc/numpy/', None),
-                       'matplotlib':('http://matplotlib.sourceforge.net/', None),
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
+                       'ipython': ('https://ipython.org/ipython-doc/stable/', None),
+                       'scipy': ('https://numpy.org/doc/stable/', None), 
+                       'matplotlib': ('https://matplotlib.org/stable/', None)
                        }
-
-
