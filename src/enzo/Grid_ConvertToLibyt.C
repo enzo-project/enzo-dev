@@ -83,19 +83,22 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     }
 
     /* par_count_list can take multiple particle types */
-    GridInfo.par_count_list[0] = this->ReturnNumberOfParticles();
-
-    for (int field = 0; field < 3; field++) {
-        /* Set particle positions and velocities */
-        GridInfo.particle_data[0][field].data_ptr = this->ParticlePosition[field];
-        GridInfo.particle_data[0][field + 3].data_ptr = this->ParticleVelocity[field];
+    if (this->ReturnNumberOfParticles() > 0) {
+        GridInfo.par_count_list[0] = this->ReturnNumberOfParticles();
+        for (int field = 0; field < 3; field++) {
+            /* Set particle positions and velocities */
+            GridInfo.particle_data[0][field].data_ptr = this->ParticlePosition[field];
+            GridInfo.particle_data[0][field + 3].data_ptr = this->ParticleVelocity[field];
+        }
+        GridInfo.particle_data[0][6].data_ptr = this->ParticleMass;
+        GridInfo.particle_data[0][7].data_ptr = this->ParticleNumber;
+        GridInfo.particle_data[0][8].data_ptr = this->ParticleType;
+        for (int field = 0; field < NumberOfParticleAttributes; field++) {
+            GridInfo.particle_data[0][9 + field].data_ptr = this->ParticleAttribute[field];
+        }
     }
-    GridInfo.particle_data[0][6].data_ptr = this->ParticleMass;
-    GridInfo.particle_data[0][7].data_ptr = this->ParticleNumber;
-    GridInfo.particle_data[0][8].data_ptr = this->ParticleType;
-    for (int field = 0; field < NumberOfParticleAttributes; field++) {
-        GridInfo.particle_data[0][9 + field].data_ptr = this->ParticleAttribute[field];
+    else {
+        GridInfo.par_count_list[0] = 0;
     }
-
 }
 #endif

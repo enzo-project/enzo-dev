@@ -168,10 +168,17 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         }
     }
 
-    /* TODO: set num_par_types and par_type_list, so that libyt can properly initialize
-     *       particle related stuff, etc yt_get_ParticlesPtr gets the pointer,
-     *       and Grid_ConvertToLibyt.C have par_count_list initialized. */
     params->num_par_types = 1;
+    yt_par_type par_type_list[1];
+    par_type_list[0].par_type = "io";
+    par_type_list[0].num_attr = 3 + 3 + 1 + 1 + 1 + NumberOfParticleAttributes;
+    params->par_type_list = par_type_list;
+
+    if (yt_set_Parameters(params) != YT_SUCCESS){
+        fprintf(stderr, "Error in libyt API yt_set_Parameters\n");
+        return FAIL;
+    }
+
     yt_particle *particle_list;
     yt_get_ParticlesPtr(&particle_list);
 
@@ -216,11 +223,6 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     particle_list[0].coor_x = attr_name[0];
     particle_list[0].coor_y = attr_name[1];
     particle_list[0].coor_z = attr_name[2];
-
-    if (yt_set_Parameters(params) != YT_SUCCESS){
-        fprintf(stderr, "Error in libyt API yt_set_Parameters\n");
-        return FAIL;
-    }
 
     /* Set code-specific parameter */
     char tempname[256];
@@ -287,10 +289,6 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
      *  - ExposeDataHierarchy (a recursive call)
      *
      * */
-
-    /*
-     * TODO: call yt_get_ParticlesPtr for num_par_types > 0
-     */
 
     /* As I'm writing this in 2023, I cannot recall specifically why we need to
      * find the last entry in the linked list.  But, it shows up a number of
