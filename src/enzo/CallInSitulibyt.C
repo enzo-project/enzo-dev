@@ -171,7 +171,51 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     /* TODO: set num_par_types and par_type_list, so that libyt can properly initialize
      *       particle related stuff, etc yt_get_ParticlesPtr gets the pointer,
      *       and Grid_ConvertToLibyt.C have par_count_list initialized. */
-    params->num_par_types = 0;
+    params->num_par_types = 1;
+    yt_particle *particle_list;
+    yt_get_ParticlesPtr(&particle_list);
+
+    // Particle type "io", each particle has position in the center of the grid it belongs to with value grid level.
+    // par_type and num_attr will be assigned by libyt with the same value we passed in par_type_list at yt_set_Parameters.
+    particle_list[0].par_type = "io";
+
+    // We have the attributes: 3 positions, 3 velocities, "mass", ID and Type
+    // and extras.
+    particle_list[0].num_attr = 3 + 3 + 1 + 1 + 1 + NumberOfParticleAttributes;
+    const char *attr_name[] = {"particle_position_x",
+                               "particle_position_y",
+                               "particle_position_z",
+                               "particle_velocity_x",
+                               "particle_velocity_y",
+                               "particle_velocity_z",
+                               "particle_mass",
+                               "particle_index",
+                               "particle_type",
+#ifdef WINDS
+                               "creation_time",
+                               "dynamical_time",
+                               "metallicity_fraction",
+                               "particle_jet_x", 
+                               "particle_jet_y",
+                               "particle_jet_z",
+                               "typeia_fraction"
+#else
+                               "creation_time",
+                               "dynamical_time",
+                               "metallicity_fraction",
+                               "typeia_fraction"
+#endif
+                              };
+    for (int v = 0; v < particle_list[0].num_attr; v++) {
+        particle_list[0].attr_list[v].attr_name = attr_name[v];
+        particle_list[0].attr_list[v].attr_dtype = (v < 3) ? EYT_PFLOAT : EYT_BFLOAT;
+    }
+    // Now go back and reset it for index and type
+    particle_list[0].attr_list[7].attr_dtype = EYT_PINT;
+    particle_list[0].attr_list[8].attr_dtype = EYT_INT;
+    particle_list[0].coor_x = attr_name[0];
+    particle_list[0].coor_y = attr_name[1];
+    particle_list[0].coor_z = attr_name[2];
 
     if (yt_set_Parameters(params) != YT_SUCCESS){
         fprintf(stderr, "Error in libyt API yt_set_Parameters\n");
@@ -213,7 +257,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
         field_list[libyt_field_i].field_name = DataLabel[i];
         field_list[libyt_field_i].field_type = "cell-centered";
-        field_list[libyt_field_i].field_dtype = EYT_FLOAT;
+        field_list[libyt_field_i].field_dtype = EYT_BFLOAT;
         for (j = 0; j < 6; j++) {
             /*
              * It may be possible that in some cases, this global value is not
