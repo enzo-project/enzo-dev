@@ -13,8 +13,7 @@
 /
 ************************************************************************/
 
-#include "libyt/libyt.h"
-#include "libyt/libyt_interactive_mode.h"
+#include "libyt.h"
 
 // We do this before any Enzo includes
 

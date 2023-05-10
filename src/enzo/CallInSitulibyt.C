@@ -13,8 +13,7 @@
 ************************************************************************/
 
 #ifdef USE_LIBYT
-#include "libyt/libyt.h"
-#include "libyt/libyt_interactive_mode.h"
+#include "libyt.h"
 #endif
 
 #include <stdlib.h>
