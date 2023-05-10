@@ -14,7 +14,6 @@
 ************************************************************************/
 
 #include "libyt.h"
-#include "libyt_interactive_mode.h"
 
 // We do this before any Enzo includes
 

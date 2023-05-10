@@ -14,7 +14,6 @@
 
 #ifdef USE_LIBYT
 #include "libyt.h"
-#include "libyt_interactive_mode.h"
 #endif
 
 #include <stdlib.h>
