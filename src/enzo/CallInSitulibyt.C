@@ -330,7 +330,8 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     /* Call interactive mode. */
     if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
         fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
-        return FAIL;
+        fprintf(stderr, "One reason might be running libyt in normal mode, "
+                        "which does not support yt_run_InteractiveMode.\n");
     }
 
     /* Free resources allocated for libyt. */
