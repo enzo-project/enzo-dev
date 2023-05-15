@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#ifdef __aarch64__
+#include "sse2neon.h"
+#else
 #include <xmmintrin.h>
+#endif
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"

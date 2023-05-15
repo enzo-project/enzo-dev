@@ -522,6 +522,7 @@ OBJS_CONFIG_LIB = \
         Grid_GetEnclosedMassInShell.o \
         Grid_GetProjectedBoundaryFluxes.o \
         Grid_GrackleWrapper.o \
+        Grid_GrackleCustomCoolRate.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
         Grid_Group_WriteGridInterpolate.o \
         Grid_Group_WriteGrid.o \
@@ -832,6 +833,7 @@ OBJS_CONFIG_LIB = \
         read_bt.o \
         read_bv.o \
         ReadDataHierarchy.o \
+        ReadEquilibriumTable.o \
         ReadFile.o \
         ReadGridFile.o \
         ReadIntFile.o \
@@ -867,6 +869,7 @@ OBJS_CONFIG_LIB = \
         SetDefaultGlobalValues.o \
         SetLevelTimeStep.o \
         SetEvolveRefineRegion.o \
+        SetStellarFeedbackEfficiency.o \
         SetStellarMassThreshold.o \
         sgi_st1_fft64.o \
         ShearingBoxInitialize.o \

@@ -462,6 +462,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "DiskGravityStellarDiskScaleHeightz = %"GSYM"\n",DiskGravityStellarDiskScaleHeightz);
   fprintf(fptr, "DiskGravityStellarBulgeMass        = %"GSYM"\n",DiskGravityStellarBulgeMass);
   fprintf(fptr, "DiskGravityStellarBulgeR           = %"GSYM"\n",DiskGravityStellarBulgeR);
+  fprintf(fptr, "DiskGravityDarkMatterUseNFW        = %"ISYM"\n",DiskGravityDarkMatterUseNFW);
+  fprintf(fptr, "DiskGravityDarkMatterMass          = %"GSYM"\n",DiskGravityDarkMatterMass);
+  fprintf(fptr, "DiskGravityDarkMatterConcentration = %"GSYM"\n",DiskGravityDarkMatterConcentration);
+  fprintf(fptr, "DiskGravityDarkMatterUseB95        = %"ISYM"\n",DiskGravityDarkMatterUseB95);
   fprintf(fptr, "DiskGravityDarkMatterR             = %"GSYM"\n",DiskGravityDarkMatterR);
   fprintf(fptr, "DiskGravityDarkMatterDensity       = %"GSYM"\n",DiskGravityDarkMatterDensity);
 
@@ -566,7 +570,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "CRdensFloor                    = %"FSYM"\n", CRdensFloor);
   fprintf(fptr, "CRmaxSoundSpeed                = %"FSYM"\n", CRmaxSoundSpeed);
   fprintf(fptr, "CRgamma                        = %"FSYM"\n", CRgamma);
-  fprintf(fptr, "CosmologySimulationUniformCR   = %"FSYM"\n", CosmologySimulationUniformCR); // FIXME    
+  fprintf(fptr, "CosmologySimulationUniformCR   = %"FSYM"\n", CosmologySimulationUniformCR); // FIXME
   fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);
   fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
   fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
@@ -943,6 +947,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarFeedbackDistCellStep);
   fprintf(fptr, "StarMakerUseJeansMass                 = %"ISYM"\n",
 	  StarMakerUseJeansMass);
+  fprintf(fptr, "StarMakerVelDivCrit                   = %"ISYM"\n",
+    StarMakerVelDivCrit);
+  fprintf(fptr, "StarMakerSelfBoundCrit                = %"ISYM"\n",
+    StarMakerSelfBoundCrit);
+  fprintf(fptr, "StarMakerThermalCrit                  = %"ISYM"\n",
+    StarMakerThermalCrit);
+  fprintf(fptr, "StarMakerH2Crit                       = %"ISYM"\n",
+    StarMakerH2Crit);
+  fprintf(fptr, "StarMakerTemperatureThreshold         = %"GSYM"\n",
+    StarMakerTemperatureThreshold);
   fprintf(fptr, "StarMakerTypeIaSNe                    = %"ISYM"\n",
 	  StarMakerTypeIaSNe);
   fprintf(fptr, "StarMakerTypeIISNeMetalField          = %"ISYM"\n",
@@ -1106,6 +1120,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "StarMakerMinimumMassRampStartMass  = %"GSYM"\n", StarMakerMinimumMassRampStartMass);
   fprintf(fptr, "StarMakerMinimumMassRampEndTime    = %"GSYM"\n", StarMakerMinimumMassRampEndTime);
   fprintf(fptr, "StarMakerMinimumMassRampEndMass    = %"GSYM"\n", StarMakerMinimumMassRampEndMass);
+
+  fprintf(fptr, "StarFeedbackThermalEfficiencyRamp           = %"ISYM"\n", StarFeedbackThermalEfficiencyRamp);
+  fprintf(fptr, "StarFeedbackThermalEfficiencyRampStartTime  = %"GSYM"\n", StarFeedbackThermalEfficiencyRampStartTime);
+  fprintf(fptr, "StarFeedbackThermalEfficiencyRampStartValue  = %"GSYM"\n", StarFeedbackThermalEfficiencyRampStartValue);
+  fprintf(fptr, "StarFeedbackThermalEfficiencyRampEndTime    = %"GSYM"\n", StarFeedbackThermalEfficiencyRampEndTime);
+  fprintf(fptr, "StarFeedbackThermalEfficiencyRampEndValue   = %"GSYM"\n", StarFeedbackThermalEfficiencyRampEndValue);
 
   /* Most Stanford additions: */
 
