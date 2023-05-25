@@ -17,6 +17,9 @@ Please follow the links to install the requirements.
 
 How it Works
 ------------
+Enzo follows ``libyt``'s procedure and APIs to implement this in situ analysis feature.
+You can find how ``libyt`` works more in detail `here <https://calab-ntu.github.io/libyt/HowItWorks.html#how-it-works>`_ and what are ``libyt`` APIs `here <https://calab-ntu.github.io/libyt/libytAPI>`_.
+
 At initialization stage, ``libyt`` imports inline Python script ``inline.py`` and initializes Python interpreters in each MPI process. This happens in ``InitializeLibytInterface`` function in ``src/enzo/InitializeLibytInterface.C``.
 
 When finishes its computation in a cycle, the whole simulation pauses and starts the in situ analysis process.
@@ -27,9 +30,6 @@ This includes simulation information, like adaptive mesh grid hierarchy, paramet
 After in situ analysis is done, ``libyt`` frees resources allocated for itself, and the simulation will continue.
 
 At the end, when the simulation is shutting down, Enzo calls ``FinalizeLibytInterface`` in ``src/enzo/InitializeLibytInterface.C``, so that ``libyt`` finalizes the Python interpreters.
-
-You can find more about how ``libyt`` works `here <https://calab-ntu.github.io/libyt/HowItWorks.html#how-it-works>`_.
-
 
 How to Configure
 ----------------
