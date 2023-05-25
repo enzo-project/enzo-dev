@@ -17,12 +17,16 @@ Please follow the links to install the requirements.
 
 How it Works
 ------------
-At initialization, Enzo imports inline Python script ``inline.py``. (START HERE)
+At initialization stage, ``libyt`` imports inline Python script ``inline.py`` and initializes Python interpreters in each MPI process. This happens in ``InitializeLibytInterface`` function in ``src/enzo/InitializeLibytInterface.C``.
 
 When finishes its computation in a cycle, the whole simulation pauses and starts the in situ analysis process.
-Enzo passes in simulation information and actual field data pointers to ``libyt``.
-This includes adaptive mesh grid hierarchy, parameters, field labels, data pointers inside ``BaryonField`` array, etc.
-``libyt`` will construct data structure to store
+``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` goes through the whole process.
+It passes in simulation information and actual field data pointers to ``libyt``.
+This includes simulation information, like adaptive mesh grid hierarchy, parameters, field labels, etc, and actual simulation data pointers inside ``BaryonField`` array.
+``libyt`` will construct data structure to store simulation information and wrap these data pointers, so that they can be read and used in Python with minimum memory overhead.
+After in situ analysis is done, ``libyt`` frees resources allocated for itself, and the simulation will continue.
+
+At the end, when the simulation is shutting down, Enzo calls ``FinalizeLibytInterface`` in ``src/enzo/InitializeLibytInterface.C``, so that ``libyt`` finalizes the Python interpreters.
 
 You can find more about how ``libyt`` works `here <https://calab-ntu.github.io/libyt/HowItWorks.html#how-it-works>`_.
 
