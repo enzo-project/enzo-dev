@@ -86,8 +86,7 @@ or to turn it off,
     make libyt-no
 
 1. Must use ``use-mpi-yes`` when using ``libyt-yes``. (There will be a future update to use ``libyt`` in serial, but for now, we must use with MPI.)
-2. Do not use ``libyt-yes`` option and ``python-yes`` at the same time to avoid any conflicts.
-They are different settings.
+2. Do not use ``libyt-yes`` option and ``python-yes`` at the same time to avoid any conflicts. They are different settings.
 
 The option will look for the following variables in the machine-specific Makefile:
 
