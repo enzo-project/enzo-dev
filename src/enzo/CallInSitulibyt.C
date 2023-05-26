@@ -324,8 +324,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         return FAIL;
     }
 
-    /* TODO: Call another other inline Python Function using
-     *       yt_run_Function and yt_run_FunctionArguments... */
+    /* TODO: yt_run_Function and yt_run_FunctionArguments */
 
     /* Call interactive mode. */
     if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
