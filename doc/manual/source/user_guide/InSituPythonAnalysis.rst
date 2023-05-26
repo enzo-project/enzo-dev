@@ -9,7 +9,8 @@ Here, we use `yt <https://yt-project.org>`_ as an analysis platform.
 
 Requirements
 ------------
-Please follow the links to install the requirements.
+
+Below are links to the build and runtime requirements, which must be installed.
 
 * **`libyt <https://calab-ntu.github.io/libyt/HowToInstall.html#libyt>`_**: a C++ shared library for in situ analysis.
   * **Normal Modes**: Shut down and terminate all the processes including simulation, if there are errors during in situ analysis using Python. This includes calling not defined functions.
