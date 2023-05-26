@@ -30,7 +30,7 @@ When Enzo finishes its computation in a cycle, the whole simulation pauses and s
 The ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` conducts this process.
 Enzo then passes in simulation information and actual field data pointers to ``libyt``.
 This includes simulation information, like adaptive mesh grid hierarchy, parameters, field labels, etc, and actual simulation data pointers inside ``BaryonField`` array.  (Data fields are referenced, not copied, from ``libyt``'s perspective, although typically ``yt`` itself will make a copy as needed before any in-place changes occur.)
-``libyt`` will construct data structure to store simulation information and wrap these data pointers, so that they can be read and used in Python with minimum memory overhead.
+``libyt`` will construct data structures to store simulation information and wrap these data pointers, so that they can be read and used in Python with minimum memory overhead.
 After in situ analysis is done, ``libyt`` frees resources allocated for itself, and the simulation will continue.
 
 At the end, when the simulation is shutting down, Enzo calls ``FinalizeLibytInterface`` in ``src/enzo/InitializeLibytInterface.C``, so that ``libyt`` finalizes the Python interpreters.
