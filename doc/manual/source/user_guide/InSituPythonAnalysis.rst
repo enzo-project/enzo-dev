@@ -16,7 +16,7 @@ Below are links to the build and runtime requirements, which must be installed.
   * **Normal Modes**: Shut down and terminate all the processes including simulation, if there are errors during in situ analysis using Python. This includes calling not defined functions.
   * **Interactive Modes**: Fault-tolerant to Python and supports interactive Python prompt.
 * Python >= 3.6
-  * **`yt <http://yt-project.org>`_**: an open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
+  * **`yt <https://yt-project.org>`_**: an open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
   * **`yt_libyt <https://calab-ntu.github.io/libyt/HowToInstall.html#yt_libyt>`_**: libyt's yt frontend.
 
 How it Works
