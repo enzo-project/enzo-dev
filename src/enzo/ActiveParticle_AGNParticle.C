@@ -9,6 +9,7 @@
 #include "ActiveParticle.h"
 #include "communication.h"
 #include "TopGridData.h"
+#include "macros_and_parameters.h"
 
 #include <stdio.h>
 /*
@@ -146,7 +147,11 @@ int ActiveParticleType_AGNParticle::InsertAGN
   /****************************************************************************/
   /*         Don't create more than 1 particle on a grid
   /****************************************************************************/
-  // TODO: Move this into step right before particle creation
+  // This should never actually happen but better safe than sorry I guess
+  // This function should never be used for anything but the direct creation of 
+  // a single AGN particle at a particular place and time in the simulation
+  // For creating multiple AGN particles based on physical criteria, please
+  // use/modify EvaluateFormation instead
   if (thisGrid->NumberOfActiveParticles >= 1)
   {
     return SUCCESS;
@@ -173,12 +178,6 @@ int ActiveParticleType_AGNParticle::InsertAGN
   //                      Checking timestep   
   // If the insert time is outside of the acceptable formation time range, exit
   /****************************************************************************/
-
-  bool past_time = (current_time > AGNParticleInsert_Time) ;
-  if (past_time){
-    
-    exit(0);
-  }
   
   bool in_timestep = (current_time <= AGNParticleInsert_Time) && 
                      (AGNParticleInsert_Time < (current_time+dt));
@@ -200,7 +199,7 @@ int ActiveParticleType_AGNParticle::InsertAGN
   }
 
   /****************************************************************************/
-  /*                      Checking grid boundary                    
+  /*                      Checking subgrid boundaries                    
   // If we're in the right place, try to figure out if the particle
   // should be placed on a subgrid instead
   /****************************************************************************/
@@ -217,19 +216,139 @@ int ActiveParticleType_AGNParticle::InsertAGN
   // The particle belongs on this grid and not on any of its subgrids
   // Now all we have left is to create the particle
   /****************************************************************************/
-  float gridLeftX = thisGrid->GridLeftEdge[0];
-  float gridLeftY = thisGrid->GridLeftEdge[1];
-  float gridLeftZ = thisGrid->GridLeftEdge[2];
 
-  float gridRightX = thisGrid->GridRightEdge[0];
-  float gridRightY = thisGrid->GridRightEdge[1];
-  float gridRightZ = thisGrid->GridRightEdge[2];
-  fprintf(stderr,"[Rank %"ISYM"] AGN will be placed on Grid %"ISYM" at level %"ISYM"\n%"GSYM"<=%"GSYM"<%"GSYM"\n%"GSYM"<=%"GSYM"<%"GSYM"\n%"GSYM"<=%"GSYM"<%"GSYM"\n", 
-    MyProcessorNumber, grid_id, grid_level,
-    gridLeftX, AGNParticleInsert_x, gridRightX,
-    gridLeftY, AGNParticleInsert_y, gridRightY,
-    gridLeftZ, AGNParticleInsert_z, gridRightZ
-  );
+  CreateAGN(thisGrid, data);
+  
+
+  return SUCCESS;
+}
+
+int ActiveParticleType_AGNParticle::CreateAGN(grid *thisGrid, ActiveParticleFormationData &data){
+  
+  // we're gonna need these later
+  int i, j, k, cell_index, method, MassRefinementMethod;
+  float cell_x, cell_y, cell_z, dx, dy, dz;
+  bool in_x, in_y, in_z;
+  float *density = thisGrid->BaryonField[data.DensNum];
+  float *velx = thisGrid->BaryonField[data.Vel1Num];
+  float *vely = thisGrid->BaryonField[data.Vel2Num];
+  float *velz = thisGrid->BaryonField[data.Vel3Num];
+  float cell_mass;
+
+  int GridDimension[3] = {thisGrid->GridDimension[0],
+                          thisGrid->GridDimension[1],
+                          thisGrid->GridDimension[2]};
+                          
+  /****************************************************************************/
+  /*                      Find the right cell to place the particle in                    
+  /****************************************************************************/
+  bool create_particle_here = false;
+  for (k = thisGrid->GridStartIndex[2]; k <= thisGrid->GridEndIndex[2]; k++)
+  {
+    for (j = thisGrid->GridStartIndex[1]; j <= thisGrid->GridEndIndex[1]; j++)
+    {
+      for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++)
+      {
+
+        
+
+        cell_x = thisGrid->CellLeftEdge[0][i];
+        cell_y = thisGrid->CellLeftEdge[1][j];
+        cell_z = thisGrid->CellLeftEdge[2][k];
+
+        dx = thisGrid->CellWidth[0][i];
+        dy = thisGrid->CellWidth[1][j];
+        dz = thisGrid->CellWidth[2][k];
+
+        in_x = cell_x <= AGNParticleInsert_x && AGNParticleInsert_x < cell_x + dx;
+        in_y = cell_y <= AGNParticleInsert_y && AGNParticleInsert_y < cell_y + dy;
+        in_z = cell_z <= AGNParticleInsert_z && AGNParticleInsert_z < cell_z + dz;
+
+        create_particle_here = in_x && in_y && in_z;
+        if(create_particle_here){
+          cell_index = GRIDINDEX_NOGHOST(i, j, k);
+          break;
+        }
+      }
+      if(create_particle_here) break;
+    }
+    if(create_particle_here) break;
+  }
+
+  /****************************************************************************/
+  /*              We found the right cell, now create the particle                    
+  /****************************************************************************/
+
+  const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
+  float DensUnits, LengthUnits, TempUnits, TimeUnits, VelUnits, Time;
+  GetUnits(&DensUnits, &LengthUnits, &TempUnits, &TimeUnits, &VelUnits, AGNParticleInsert_Time);
+
+  ActiveParticleType_AGNParticle *np = new ActiveParticleType_AGNParticle();
+  data.NumberOfNewParticles++;
+
+  // ok for some weird reason, the code is set up to add new particles to this 
+  // data object, and then they get copied to the grid right after this function returns
+  // why on earth would somebody throw the particles into this data object when they're 
+  // just going to get added to the grid anyway is completely beyond me
+  // my best guess is that the data object gets destroyed at the end and therefore
+  // so does the original particle
+  // is this some kind of defensive programming to make sure memory gets freed? 
+  // why do particles need to be inserted as a copy?
+  data.NewParticles.insert(*np);
+
+  np->level = data.level;
+
+  cell_mass = density[cell_index] * pow(thisGrid->CellWidth[0][0], 3.0);
+  np->Mass = cell_mass; //TODO: Change this to use seed mass value from parameter file
+  np->type = np->GetEnabledParticleID();
+  np->BirthTime = thisGrid->ReturnTime();
+
+  np->pos[0] = thisGrid->CellLeftEdge[0][i] + 0.5*thisGrid->CellWidth[0][i];
+  np->pos[1] = thisGrid->CellLeftEdge[1][j] + 0.5*thisGrid->CellWidth[1][j];
+  np->pos[2] = thisGrid->CellLeftEdge[2][k] + 0.5*thisGrid->CellWidth[2][k];
+
+  np->CoolingRadius = AGNParticleAccretionRadiusKpc * 1.0e-3*Mpc_cm / LengthUnits;
+  np->FeedbackRadius = AGNParticleFeedbackRadiusKpc * 1.0e-3*Mpc_cm / LengthUnits;
+  np->CondensationFraction = AGNParticleCondensationFraction;
+  np->FeedbackEfficiency = AGNParticleFeedbackEfficiency;
+  np->TimescaleThreshold = 10.0;
+  np->KineticFraction = AGNParticleKineticFraction;
+
+  // These control jet precession, not the orientation of the jet
+  np->JetAngle = (20.0/360.0) * 2.0 * M_PI;
+  np->JetPhi = 0.0*(15.0/360.0) * 2.0 * M_PI;
+  np->JetTheta = (20.0/360.0)*2.0 * M_PI;
+
+  np->FixedJetIsOn = 1; // 0 = Off, 1 = On
+  np->TimeOfLastShock = 0.0;
+  // AccretionHistory Bins
+  for (int i = 0; i < 256; i++) {
+    np -> AccretionHistoryTime[i] = np -> BirthTime - 
+          (float)(255 - i) * 2.0 * AGNParticleAccretionDelayTime / 255.0;
+    np -> AccretionHistoryRate[i] = 0.0;
+  }
+
+  static_cooling_radius = np -> CoolingRadius;
+  static_feedback_radius = np -> FeedbackRadius;
+
+  fprintf(stderr,"Creating new AGN Particle at [%"GSYM" %"GSYM" %"GSYM"] [%"ISYM"]\n", np->ReturnPosition()[0], 
+          np->ReturnPosition()[1], np->ReturnPosition()[2], MyProcessorNumber);
+  // modified by Deovrat Prasad, AGNParticle given initial velocity.
+  if (HydroMethod == PPM_DirectEuler)
+  {
+    np->vel[0] = velx[cell_index];
+    np->vel[1] = vely[cell_index];
+    np->vel[2] = velz[cell_index];
+  }
+  else if (HydroMethod == Zeus_Hydro)
+  {
+    np->vel[0] = 0.5 * (velx[cell_index] + velx[cell_index+offset[0]]);
+    np->vel[1] = 0.5 * (vely[cell_index] + vely[cell_index+offset[1]]);
+    np->vel[2] = 0.5 * (velz[cell_index] + velz[cell_index+offset[2]]);
+  } else {
+    ENZO_FAIL("AGNParticle does not support RK Hydro or RK MHD");
+  }
+  np->Metallicity = 1.0;
 
   return SUCCESS;
 }
@@ -296,7 +415,7 @@ int ActiveParticleType_AGNParticle::EvaluateFormation
   //     for (i = thisGrid->GridStartIndex[0]; i <= thisGrid->GridEndIndex[0]; i++)
   //     {
 
-  //       // index = GRIDINDEX_NOGHOST(i, j, k);
+  //       index = GRIDINDEX_NOGHOST(i, j, k);
   //       index = i + j * GridDimension[0] + k * GridDimension[1] * GridDimension[0];
 
         

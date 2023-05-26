@@ -40,12 +40,16 @@ int grid::DoAGNFeedback( ActiveParticleType* ThisParticle) {
 
     if (MyProcessorNumber != ProcessorNumber)
        return SUCCESS;
+
+   fprintf(stderr, "Made it inside DoAGNFeedback \n");
      
     if (debug)
        printf("Entering DoAGNFeedback. \n");
     // Cast this particle to an AGN particle so that we can access AGN specific
     // properties.
     ActiveParticleType_AGNParticle* tp = static_cast <ActiveParticleType_AGNParticle*>(ThisParticle);
+
+    fprintf(stderr, "Particle is at (%"GSYM",%"GSYM",%"GSYM") \n", tp->pos[0], tp->pos[1], tp->pos[2]);
 
     // Get the units
     float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
@@ -156,7 +160,9 @@ int grid::DoAGNFeedback( ActiveParticleType* ThisParticle) {
 
    
    //Evolving AGNParticle mass. Introduced by Deovrat Prasad, Nov 2021.
-   tp->Mass += tp -> FeedbackEfficiency*mdot*dtFixed;
+   //tp->Mass += tp -> FeedbackEfficiency*mdot*dtFixed; //lol, lmao even 
+   tp->Mass += mdot*dtFixed; 
+
    mbh = tp->Mass*DensityUnits*LengthUnits*LengthUnits*LengthUnits;
 
    // Total heating rate in code units (energy/time)

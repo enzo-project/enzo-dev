@@ -116,6 +116,7 @@ public:
 
 
   static bool AGNInsideGrid(grid*);
+  static int CreateAGN(grid*, ActiveParticleFormationData&);
   /*
    * Force an AGN particle to spawn in the highest refined grid at the location
    * and time specified in the parameter file.
@@ -286,15 +287,17 @@ int ActiveParticleType_AGNParticle::BeforeEvolveLevel(HierarchyEntry *Grids[], T
    int i, nParticles, nMergedParticles;
    ActiveParticleList<ActiveParticleType> ParticleList;
 
+   ActiveParticleFindAll(LevelArray, &nParticles, AGNParticleID, ParticleList);
+    TotalAGNParticlesCreated = nParticles;
+    
+    if (nParticles == 0)
+        return SUCCESS;
+
    if (ThisLevel == MaximumRefinementLevel)
    {  
        //ActiveParticleList<ActiveParticleType> ParticleList; 
        // Get a list of AGN particles
-       ActiveParticleFindAll(LevelArray, &nParticles, AGNParticleID, ParticleList);
-       TotalAGNParticlesCreated = nParticles;
        
-       if (nParticles == 0)
-           return SUCCESS;
 
        // Calculate the cell size
        // This assumes a cubic box and may not work for simulations with MinimumMassForRefinementLevelExponent
