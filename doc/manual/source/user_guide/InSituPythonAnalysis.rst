@@ -40,7 +40,7 @@ Some settings are hard-coded inside Enzo, you can customize it to your own needs
 * **How to change import Python file name?**
 The default Python script will be imported is ``inline.py``.
 If you really want to change the name, you can go to
-``src/enzo/InitializeLibytInterface.C`` in function ``InitializeLibytByItself``, and change ``params->script`` to your Python file name without ``.py``. For example, I want to make it ``test.py``:
+``src/enzo/InitializeLibytInterface.C`` in function ``InitializeLibytByItself``, and change ``params->script`` to your Python file name without ``.py``. For example, I want to make it to ``test.py``:
 
 ::
 
@@ -59,6 +59,8 @@ You can call Python function using libyt API ``yt_run_Function`` and ``yt_run_Fu
 Just put them right after the comments ``TODO: yt_run_Function and yt_run_FunctionArguments`` inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` according to your needs.
 
 Please make sure the functions you called are defined inside the script. Otherwise, in ``libyt`` normal modes, the simulation will terminate simply because it cannot find the Python function, while in interactive mode, it will labeled as failed.
+
+See how to write an inline Python script in Doing In Situ Analysis section.
 
 * **How to activate interactive mode and Python prompt in Enzo?**
 You have to compile ``libyt`` in interactive mode.
@@ -105,15 +107,24 @@ This includes ``libyt`` header, links to the library, and adds library search pa
 
 How to Run Enzo
 ---------------
-Just run
+Put inline Python script (default file name is ``inline.py``) and Enzo executable in the same folder and run Enzo. Let's it!
+
+If you happen to have error messages related to MPI remote memory access operation, something look like:
+
+::
+
+    ompi_osc_ucx_win_attach: Assertion ......
+
+Please add ``OMPI_MCA_osc=sm,pt2pt`` before ``mpirun``, for example:
+
+::
+
+    OMPI_MCA_osc=sm,pt2pt mpirun -np 4 ./enzo.exe -d CollapseTestNonCosmological.enzo
+
+This is something ``libyt`` will update and improve in the future.
 
 
 Doing In Situ Analysis
 ----------------------
+See how to do in situ analysis `here <https://calab-ntu.github.io/libyt/InSituPythonAnalysis#in-situ-python-analysis>`_.
 
-
-Frequently Asked Questions
---------------------------
-* **Problems when RMA...?**
-
-* **What if I get segmentation fault?**
