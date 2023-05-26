@@ -10,10 +10,12 @@ Requirements
 ------------
 Please follow the links to install the requirements.
 
-* **`libyt <https://calab-ntu.github.io/libyt/HowToInstall.html#libyt>`_**: a C++ library for in situ analysis.
+* **`libyt <https://calab-ntu.github.io/libyt/HowToInstall.html#libyt>`_**: a C++ shared library for in situ analysis.
+  * **Normal Modes**: Shut down and terminate all the processes including simulation, if there are errors during in situ analysis using Python. This includes calling not defined functions.
+  * **Interactive Modes**: Fault-tolerant to Python and supports interactive Python prompt.
 * Python >= 3.6
   * **`yt <http://yt-project.org>`_**: an open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
-  * **`yt_libyt <https://calab-ntu.github.io/libyt/HowToInstall.html#yt_libyt>`_**: yt frontend for libyt.
+  * **`yt_libyt <https://calab-ntu.github.io/libyt/HowToInstall.html#yt_libyt>`_**: libyt's yt frontend.
 
 How it Works
 ------------
@@ -33,14 +35,77 @@ At the end, when the simulation is shutting down, Enzo calls ``FinalizeLibytInte
 
 How to Configure
 ----------------
+Some settings are hard-coded inside Enzo, you can customize it to your own needs.
+
+* **How to change import Python file name?**
+The default Python script will be imported is ``inline.py``.
+If you really want to change the name, you can go to
+``src/enzo/InitializeLibytInterface.C`` in function ``InitializeLibytByItself``, and change ``params->script`` to your Python file name without ``.py``. For example, I want to make it ``test.py``:
+
+::
+
+    params->script = "test";
+
+Please use ``const char*``, or else, you have to make sure the lifetime of this variable covers the whole in situ process.
+
+* **How to activate in situ Python analysis process?**
+The full process is encapsulated inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C``.
+You can put this function everywhere you want in Enzo to start in situ analysis.
+It will load and use Enzo's current state and data.
+
+* **How to call Python functions during simulation runtime? And what should I be aware of?**
+You can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://calab-ntu.github.io/libyt/libytAPI/PerformInlineAnalysis.html#calling-python-functions>`_.
+
+Just put them right after the comments ``TODO: yt_run_Function and yt_run_FunctionArguments`` inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` according to your needs.
+
+Please make sure the functions you called are defined inside the script. Otherwise, in ``libyt`` normal modes, the simulation will terminate simply because it cannot find the Python function, while in interactive mode, it will labeled as failed.
+
+* **How to activate interactive mode and Python prompt in Enzo?**
+You have to compile ``libyt`` in interactive mode.
+
+If error occurs while running Python functions or Enzo detects ``LIBYT_STOP`` file, then ``libyt``'s interactive Python prompt will activate.
+
+You can find more about libyt API ``yt_run_InteractiveMode`` `here <https://calab-ntu.github.io/libyt/libytAPI/ActivateInteractiveMode.html#activate-interactive-mode>`_.
 
 
 How to Compile
 --------------
+The configure option that controls whether or not to use ``libyt``
+can be toggled with
 
+::
+
+    make libyt-yes
+
+or to turn it off,
+
+::
+
+    make libyt-no
+
+1. Must use ``use-mpi-yes`` when using ``libyt-yes``. (There will be a future update to use ``libyt`` in serial, but for now, we must use with MPI.)
+2. Do not use ``libyt-yes`` option and ``python-yes`` at the same time to avoid any conflicts.
+They are different settings.
+
+The option will look for the following variables in the machine-specific Makefile:
+
+::
+
+    MACH_INCLUDES_LIBYT
+    MACH_LIBS_LIBYT
+
+If you installed ``libyt`` at ``$(LOCAL_LIBYT_INSTALL)``, which this folder include subfolders ``include`` and ``lib``, set the above variables to:
+
+::
+
+    MACH_INCLUDES_LIBYT = -I$(LOCAL_LIBYT_INSTALL)/include
+    MACH_LIBS_LIBYT = -L$(LOCAL_LIBYT_INSTALL)/lib -lyt -Wl,-rpath,$(LOCAL_LIBYT_INSTALL)/lib
+
+This includes ``libyt`` header, links to the library, and adds library search path for ``libyt`` library for Enzo executable.
 
 How to Run Enzo
 ---------------
+Just run
 
 
 Doing In Situ Analysis
