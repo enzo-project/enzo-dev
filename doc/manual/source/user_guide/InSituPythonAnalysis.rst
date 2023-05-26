@@ -2,7 +2,8 @@
 
 In Situ Python Analysis
 =======================
-This feature enables Enzo to do in situ analysis using Python, which is to call and use Python during simulation runtime.
+
+This feature enables Enzo to do in situ analysis using Python, by calling and using Python during simulation runtime.
 We no longer need to dump data on hard disk first, before we do any analysis.
 Here, we use `yt <http://yt-project.org>`_ as its core analytic method.
 
