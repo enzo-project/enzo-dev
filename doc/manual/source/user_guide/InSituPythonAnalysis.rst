@@ -12,17 +12,17 @@ Requirements
 
 Below are links to the build and runtime requirements, which must be installed.
 
-* **`libyt <https://calab-ntu.github.io/libyt/HowToInstall.html#libyt>`_**: a C++ shared library for in situ analysis.
+* **`libyt <https://yt-project.github.io/libyt/HowToInstall.html#libyt>`_**: a C++ shared library for in situ analysis.
   * **Normal Modes**: Shut down and terminate all the processes including simulation, if there are errors during in situ analysis using Python. This includes calling not defined functions.
   * **Interactive Modes**: Fault-tolerant to Python and supports interactive Python prompt.
 * Python >= 3.6
   * **`yt <https://yt-project.org>`_**: an open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
-  * **`yt_libyt <https://calab-ntu.github.io/libyt/HowToInstall.html#yt_libyt>`_**: libyt's yt frontend.
+  * **`yt_libyt <https://yt-project.github.io/libyt/HowToInstall.html#yt_libyt>`_**: libyt's yt frontend.
 
 How it Works
 ------------
 Enzo follows ``libyt``'s procedure and APIs to implement this in situ analysis feature.
-You can find how ``libyt`` works more in detail `here <https://calab-ntu.github.io/libyt/HowItWorks.html#how-it-works>`_ and what are ``libyt`` APIs `here <https://calab-ntu.github.io/libyt/libytAPI>`_.
+You can find how ``libyt`` works more in detail `here <https://yt-project.github.io/libyt/HowItWorks.html#how-it-works>`_ and what are ``libyt`` APIs `here <https://yt-project.github.io/libyt/libytAPI>`_.
 
 At initialization stage, ``libyt`` imports inline Python script ``inline.py`` and initializes Python interpreters in each MPI process. This happens in ``InitializeLibytInterface`` function in ``src/enzo/InitializeLibytInterface.C``.
 
@@ -53,10 +53,10 @@ Please use ``const char*``, or else, you have to make sure the lifetime of this 
 * **How to activate in situ Python analysis process?**
 The full process is encapsulated inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C``.
 You can put this function everywhere you want in Enzo to start in situ analysis.
-It will load and use Enzo's current state and data.
+It will load and use Enzo's current state and data. Currently, it is called inside ``EvolveLevel`` function.
 
 * **How to call Python functions during simulation runtime? And what should I be aware of?**
-You can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://calab-ntu.github.io/libyt/libytAPI/PerformInlineAnalysis.html#calling-python-functions>`_.
+You can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://yt-project.github.io/libyt/libytAPI/PerformInlineAnalysis.html#calling-python-functions>`_.
 
 Just put them right after the comments ``TODO: yt_run_Function and yt_run_FunctionArguments`` inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` according to your needs.
 
@@ -69,7 +69,7 @@ You have to compile ``libyt`` in interactive mode.
 
 If error occurs while running Python functions or Enzo detects ``LIBYT_STOP`` file, then ``libyt``'s interactive Python prompt will activate.
 
-You can find more about libyt API ``yt_run_InteractiveMode`` `here <https://calab-ntu.github.io/libyt/libytAPI/ActivateInteractiveMode.html#activate-interactive-mode>`_.
+You can find more about libyt API ``yt_run_InteractiveMode`` `here <https://yt-project.github.io/libyt/libytAPI/ActivateInteractiveMode.html#activate-interactive-mode>`_.
 
 
 How to Compile
@@ -127,5 +127,5 @@ This is something ``libyt`` will update and improve in the future.
 
 Doing In Situ Analysis
 ----------------------
-See how to do in situ analysis `here <https://calab-ntu.github.io/libyt/InSituPythonAnalysis#in-situ-python-analysis>`_.
+See how to do in situ analysis `here <https://yt-project.github.io/libyt/InSituPythonAnalysis#in-situ-python-analysis>`_.
 
