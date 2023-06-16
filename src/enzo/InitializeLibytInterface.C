@@ -20,6 +20,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifdef CONFIG_BFLOAT_4
+#define YT_SET_USERPARAM_NONINTEGER(X, Y, Z) yt_set_UserParameterFloat(X, Y, Z)
+#else
+#define YT_SET_USERPARAM_NONINTEGER(X, Y, Z) yt_set_UserParameterDouble(X, Y, Z)
+#endif
+
+#ifdef SMALL_INTS
+#define YT_SET_USERPARAM_INTEGER(X, Y, Z) yt_set_UserParameterInt(X, Y, Z)
+#else
+#define YT_SET_USERPARAM_INTEGER(X, Y, Z) yt_set_UserParameterLongLong(X, Y, Z)
+#endif
+
+
 extern void* param_yt;
 extern void* param_libyt;
 
@@ -76,7 +89,7 @@ int FinalizeLibytInterface()
   return SUCCESS;
 }
 
-void ExportParameterFileToLibyt(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime, 
+void ExportParameterFileToLibyt(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime,
 			 float dtFixed)
 {
   /* We need: */
@@ -98,25 +111,25 @@ void ExportParameterFileToLibyt(TopGridData *MetaData, FLOAT CurrentTime, FLOAT 
     CosmologyComputeExpansionFactor(CurrentTime, &a, &dadt);
     CurrentRedshift = (1 + InitialRedshift)/a - 1;
 
-    yt_set_UserParameterDouble("CosmologyCurrentRedshift", 1, &CurrentRedshift);
-    yt_set_UserParameterDouble("CosmologyComovingBoxSize", 1, &ComovingBoxSize);
-    yt_set_UserParameterDouble("CosmologyOmegaMatterNow", 1, &OmegaMatterNow);
-    yt_set_UserParameterDouble("CosmologyOmegaLambdaNow", 1, &OmegaLambdaNow);
-    yt_set_UserParameterDouble("CosmologyHubbleConstantNow", 1, &HubbleConstantNow);
-    yt_set_UserParameterDouble("CosmologyInitialRedshift", 1, &InitialRedshift);
+    YT_SET_USERPARAM_NONINTEGER("CosmologyCurrentRedshift", 1, &CurrentRedshift);
+    YT_SET_USERPARAM_NONINTEGER("CosmologyComovingBoxSize", 1, &ComovingBoxSize);
+    YT_SET_USERPARAM_NONINTEGER("CosmologyOmegaMatterNow", 1, &OmegaMatterNow);
+    YT_SET_USERPARAM_NONINTEGER("CosmologyOmegaLambdaNow", 1, &OmegaLambdaNow);
+    YT_SET_USERPARAM_NONINTEGER("CosmologyHubbleConstantNow", 1, &HubbleConstantNow);
+    YT_SET_USERPARAM_NONINTEGER("CosmologyInitialRedshift", 1, &InitialRedshift);
   }
 
-  yt_set_UserParameterDouble("DensityUnits", 1, &DensityUnits);
-  yt_set_UserParameterDouble("LengthUnits", 1, &LengthUnits);
-  yt_set_UserParameterDouble("TemperatureUnits", 1, &TemperatureUnits);
-  yt_set_UserParameterDouble("TimeUnits", 1, &TimeUnits);
-  yt_set_UserParameterLongLong("HydroMethod", 1, &HydroMethod);
-  yt_set_UserParameterLongLong("DualEnergyFormalism", 1, &DualEnergyFormalism);
-  yt_set_UserParameterDouble("InitialTime", 1, &CurrentTime);
-  yt_set_UserParameterDouble("StopTime", 1, &MetaData->StopTime);
-  yt_set_UserParameterDouble("OldTime", 1, &OldTime);
-  yt_set_UserParameterDouble("dtFixed", 1, &dtFixed);
-  yt_set_UserParameterLongLong("ComovingCoordinates", 1, &ComovingCoordinates);
+  YT_SET_USERPARAM_NONINTEGER("DensityUnits", 1, &DensityUnits);
+  YT_SET_USERPARAM_NONINTEGER("LengthUnits", 1, &LengthUnits);
+  YT_SET_USERPARAM_NONINTEGER("TemperatureUnits", 1, &TemperatureUnits);
+  YT_SET_USERPARAM_NONINTEGER("TimeUnits", 1, &TimeUnits);
+  YT_SET_USERPARAM_INTEGER("HydroMethod", 1, &HydroMethod);
+  YT_SET_USERPARAM_INTEGER("DualEnergyFormalism", 1, &DualEnergyFormalism);
+  YT_SET_USERPARAM_NONINTEGER("InitialTime", 1, &CurrentTime);
+  YT_SET_USERPARAM_NONINTEGER("StopTime", 1, &MetaData->StopTime);
+  YT_SET_USERPARAM_NONINTEGER("OldTime", 1, &OldTime);
+  YT_SET_USERPARAM_NONINTEGER("dtFixed", 1, &dtFixed);
+  YT_SET_USERPARAM_INTEGER("ComovingCoordinates", 1, &ComovingCoordinates);
 
   /* Some of the things we do in InitializePythonInterface we do in the finder functions here:
    *
@@ -130,22 +143,24 @@ void ExportParameterFileToLibyt(TopGridData *MetaData, FLOAT CurrentTime, FLOAT 
    * units.
    */
 
-  yt_set_UserParameterLongLong("TopGridRank", 1, &MetaData->TopGridRank);
-  yt_set_UserParameterLongLong("NumberOfLibytCalls", 1, &NumberOfLibytCalls);
-  yt_set_UserParameterLongLong("NumberOfLibytSubcycleCalls", 1, &NumberOfLibytSubcycleCalls);
-  yt_set_UserParameterLongLong("NumberOfLibytTopGridCalls", 1, &NumberOfLibytTopGridCalls);
-  yt_set_UserParameterDouble("CurrentMaximumDensity", 1, &CurrentMaximumDensity);
-  yt_set_UserParameterDouble("AngularVelocity", 1, &AngularVelocity);
-  yt_set_UserParameterDouble("VelocityGradient", 1, &VelocityGradient);
-  yt_set_UserParameterDouble("dtDataDump", 1, &MetaData->dtDataDump);
-  yt_set_UserParameterDouble("TimeLastDataDump", 1, &MetaData->TimeLastDataDump);
-  yt_set_UserParameterLongLong("WroteData", 1, &MetaData->WroteData);
+  YT_SET_USERPARAM_INTEGER("TopGridRank", 1, &MetaData->TopGridRank);
+  YT_SET_USERPARAM_INTEGER("NumberOfLibytCalls", 1, &NumberOfLibytCalls);
+  YT_SET_USERPARAM_INTEGER("NumberOfLibytSubcycleCalls", 1, &NumberOfLibytSubcycleCalls);
+  YT_SET_USERPARAM_INTEGER("NumberOfLibytTopGridCalls", 1, &NumberOfLibytTopGridCalls);
+  YT_SET_USERPARAM_NONINTEGER("CurrentMaximumDensity", 1, &CurrentMaximumDensity);
+  YT_SET_USERPARAM_NONINTEGER("AngularVelocity", 1, &AngularVelocity);
+  YT_SET_USERPARAM_NONINTEGER("VelocityGradient", 1, &VelocityGradient);
+  YT_SET_USERPARAM_NONINTEGER("dtDataDump", 1, &MetaData->dtDataDump);
+  YT_SET_USERPARAM_NONINTEGER("TimeLastDataDump", 1, &MetaData->TimeLastDataDump);
+  YT_SET_USERPARAM_INTEGER("WroteData", 1, &MetaData->WroteData);
 
-  yt_set_UserParameterLongLong("TopGridDimensions", MAX_DIMENSION, MetaData->TopGridDims);
-  yt_set_UserParameterLongLong("LeftFaceBoundaryCondition", MAX_DIMENSION, MetaData->LeftFaceBoundaryCondition);
+  YT_SET_USERPARAM_INTEGER("TopGridDimensions", MAX_DIMENSION, MetaData->TopGridDims);
+  YT_SET_USERPARAM_INTEGER("LeftFaceBoundaryCondition", MAX_DIMENSION, MetaData->LeftFaceBoundaryCondition);
 
   return;
 }
 
+#undef YT_SET_USERPARAM_NONINTEGER
+#undef YT_SET_USERPARAM_INTEGER
 
 #endif

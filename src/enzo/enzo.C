@@ -60,7 +60,11 @@ int InitializePythonInterface(int argc, char **argv);
 int FinalizePythonInterface();
 #endif
 #ifdef USE_LIBYT
+#ifdef SMALL_INTS
+int InitializeLibytInterface(int argc, char **argv);
+#else
 int InitializeLibytInterface(long long argc, char **argv);
+#endif
 int FinalizeLibytInterface();
 #endif
 
