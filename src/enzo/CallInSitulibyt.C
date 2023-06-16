@@ -29,6 +29,7 @@
 #include "CosmologyParameters.h"
 #include "TopGridData.h"
 
+#ifdef USE_LIBYT
 
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 		       float *TemperatureUnits, float *TimeUnits,
@@ -41,6 +42,8 @@ int ExposeHierarchyToLibyt(TopGridData *MetaData, HierarchyEntry *Grid, int
 void ExposeGridHierarchy(int NumberOfGrids);
 void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime, float dtFixed);
 void CommunicationBarrier();
+
+#endif
 
 int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
                int level, int from_topgrid)

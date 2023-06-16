@@ -15,7 +15,6 @@
 #include "libyt.h"
 #endif
 
-#include "libyt.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
