@@ -125,7 +125,7 @@ This includes ``libyt`` header, links to the library, and adds library search pa
 
 How to Run Enzo
 ---------------
-Put inline Python script (default file name is ``inline.py``) and Enzo executable in the same folder and run Enzo. Let's it!
+Put inline Python script (default file name is ``inline.py``) and Enzo executable in the same folder and run Enzo. That's it!
 
 If you happen to have error messages related to MPI remote memory access operation, something look like:
 
