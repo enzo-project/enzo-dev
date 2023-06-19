@@ -291,13 +291,17 @@ EXTERN float PointSourceGravityCoreRadius;
 EXTERN int DiskGravity;
 EXTERN FLOAT DiskGravityPosition[MAX_DIMENSION];
 EXTERN FLOAT DiskGravityAngularMomentum[MAX_DIMENSION];
-EXTERN float DiskGravityStellarDiskMass;
-EXTERN float DiskGravityStellarDiskScaleHeightR;
-EXTERN float DiskGravityStellarDiskScaleHeightz;
-EXTERN float DiskGravityStellarBulgeMass;
-EXTERN float DiskGravityStellarBulgeR;
-EXTERN float DiskGravityDarkMatterMass;
-EXTERN float DiskGravityDarkMatterConcentration;
+EXTERN double DiskGravityStellarDiskMass;
+EXTERN double DiskGravityStellarDiskScaleHeightR;
+EXTERN double DiskGravityStellarDiskScaleHeightz;
+EXTERN double DiskGravityStellarBulgeMass;
+EXTERN double DiskGravityStellarBulgeR;
+EXTERN int DiskGravityDarkMatterUseNFW;
+EXTERN double DiskGravityDarkMatterMass;
+EXTERN double DiskGravityDarkMatterConcentration;
+EXTERN int DiskGravityDarkMatterUseB95;
+EXTERN double DiskGravityDarkMatterR;
+EXTERN double DiskGravityDarkMatterDensity;
 
 /* SelfGravity (TRUE or FALSE) */
 
@@ -1244,5 +1248,8 @@ EXTERN int UseMagneticSupernovaFeedback;
 EXTERN float MagneticSupernovaRadius;
 EXTERN float MagneticSupernovaDuration;
 EXTERN float MagneticSupernovaEnergy;
+
+/* Rotating Pop III Stars Model */
+EXTERN int PopIIIRotating;
 
 #endif
