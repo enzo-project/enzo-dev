@@ -969,7 +969,7 @@ c -------------------------------------------------------------------
       INTG_PREC i, n1
       R_PREC factor, x, logtem0, logtem9, dlogtem, nh,
      &     d_logtem0, d_logtem9, d_dlogtem, divrho, N_H2, f_shield,
-     &     b_doppler, l_sobolev
+     &     b_doppler, l_sobolev, alpha, c1, c2, c3, c4, c5, a1, a2
 
 !     Set log values of start and end of lookup tables
 
@@ -1164,7 +1164,8 @@ c -------------------------------------------------------------------
          enddo
       endif
 !
-!     H2 self-shielding (Sobolev-like, spherically averaged, Wolcott-Green+ 2011)
+!     H2 self-shielding (Sobolev-like, spherically averaged,
+!     Wolcott-Green+ 2011,2019)
 !
       if (ispecies .gt. 1) then
       if (iradtrans == 0) then
@@ -1180,7 +1181,7 @@ c -------------------------------------------------------------------
             endif
          enddo
       endif
-      if (iradshield == 2) then
+      if (iradshield == 2 .or. iradshield == 3) then
          do i = is+1, ie+1
             if (itmask(i)) then
                divrhoa(1) = d(i+1, j  , k  ) - d(i,j,k)
@@ -1206,7 +1207,22 @@ c               endif
                b_doppler = 1e-5_RKIND * 
      &              sqrt(2.0_RKIND * kboltz * 
      &              tgas1d(i) / mass_h)
-               f_shield = 0.965_RKIND / (1 + x/b_doppler)**1.1 +
+               if (iradshield == 2) then
+                   alpha = 1.1
+               end if
+               if (iradshield == 3) then
+                   c1 = 0.2856
+                   c2 = 0.8711
+                   c3 = 1.928 
+                   c4 = 0.9639
+                   c5 = 3.892
+                   a1 = c2 * log10(tgas1d(i)) - c3
+                   a2 = -c4 * log10(tgas1d(i)) + c5
+                   alpha = a1*exp(-c1 * log10(d(i,j,k) * dom/1.22)) +a2
+               end if
+               
+
+               f_shield = 0.965_RKIND / (1 + x/b_doppler)**alpha +
      &              0.035_RKIND * exp(-8.5e-4_RKIND * sqrt(1+x)) /
      &              sqrt(1+x)
                k31shield(i) = f_shield * k31shield(i)
