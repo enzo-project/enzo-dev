@@ -509,6 +509,14 @@ int PhotonTestInitializeGrid(int NumberOfSpheres,
 			     char *HeIIIFractionFilename,
 			     char *TemperatureFilename);
 
+int TestRadiatingStarParticleInitializeGrid(float TestStarParticleStarMass, 
+					 float *Initialdt,
+					 FLOAT TestStarParticleStarVelocity[],
+					 FLOAT TestStarParticleStarPosition[],
+           float TestStarParticleDensity,
+           float TestStarParticleEnergy,
+           float TestStarParticleVelocity[]);
+
 /************************************************************************/
 
 int StarParticlesToRadSources(FLOAT Time, double ConversionFactor);

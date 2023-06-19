@@ -116,6 +116,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
     MetalNum = SNColourNum;
 
+  const int ncolor = 7;
+  int MetalNumArray[ncolor] = {SNColourNum, Metal2Num, MetalIaNum, MetalIINum, 
+  	MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum};
+
   float BubbleVolume = (4.0 * pi / 3.0) * radius * radius * radius;
 
   /***********************************************************************
@@ -838,7 +842,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
          -- Enforce a minimum temperature for cold gas accretion --
   ************************************************************************/
 
-  float MinimumTemperature = 1e4, AdditionalEnergy, GasEnergy;
+  int nc;
+  float MinimumTemperature = 1e4, AdditionalEnergy, GasEnergy, rho_change;
   ionizedFraction = 0.999;  // Assume an initial HII region
 
   if (cstar->FeedbackFlag == FORMATION) {
@@ -898,6 +903,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    fhz = fh * (1-metallicity);
 	    fhez = (1-fh) * (1-metallicity);
 
+		// Save ratio to adjust metal densities accordingly to keep the 
+		// metallicities unchanged
+		rho_change = EjectaDensity / BaryonField[DensNum][index];
 	    BaryonField[DensNum][index] = EjectaDensity;
 
 	    if (MultiSpecies) {
@@ -921,11 +929,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[HDINum][index] = tiny_number * BaryonField[DensNum][index];
 	    }
 
-	    if (SNColourNum > 0)
-	      BaryonField[SNColourNum][index] *= factor;
-	    if (Metal2Num > 0)
-	      BaryonField[Metal2Num][index] *= factor;
-
+		for (nc = 0; nc < ncolor; nc++) {
+			if (MetalNumArray[nc] > 0) {
+				BaryonField[MetalNumArray[nc]][index] *= rho_change;
+			}
+		}
+	    
 	    CellsModified++;
 
 	  }  // END if inside radius

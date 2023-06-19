@@ -2,11 +2,18 @@
 #
 # FILE:        Make.mach.conda
 #
-# DESCRIPTION: Using a conda environment for your enzo build
+# DESCRIPTION: Using a conda environment for your enzo build.
+#              This requires the conda packages:
+#                   - gxx_linux-64
+#                   - gcc_linux-64
+#                   - mpi4py
+#                   - hdf5
+#
+#              conda-forge seems the most reliable for these.
 #
 # AUTHOR:      Matthew Turk <matthewturk@gmail.com>
 #
-# DATE:        2007-02-21
+# DATE:        2022-10-12
 #
 #=======================================================================
 

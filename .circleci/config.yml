@@ -60,7 +60,7 @@ commands:
       - run:
           name: "Install grackle."
           command: |
-            git clone -b master https://github.com/grackle-project/grackle $HOME/grackle
+            git clone -b main https://github.com/grackle-project/grackle $HOME/grackle
             cd $HOME/grackle
             ./configure
             cd src/clib
@@ -262,6 +262,9 @@ jobs:
 
       - install-grackle
       - compile-test
+
+      - store_artifacts:
+          path: ~/enzo-dev/src/enzo/out.compile
 
   docs-build:
     docker:
