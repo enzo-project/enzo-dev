@@ -5,7 +5,7 @@ In Situ Python Analysis
 
 This feature enables Enzo to do in situ analysis using Python, by calling and using Python during simulation runtime.
 This avoids outputting data to disk before conducting analysis.
-Here, we use `yt <https://yt-project.org>`_ as an analysis platform.
+Here, we use `yt <https://yt-project.org>`__ as an analysis platform.
 
 Requirements
 ------------
@@ -13,16 +13,22 @@ Requirements
 Below are links to the build and runtime requirements, which must be installed.
 
 * **`libyt <https://yt-project.github.io/libyt/HowToInstall.html#libyt>`_**: a C++ shared library for in situ analysis.
+
   * **Normal Modes**: Shut down and terminate all the processes including simulation, if there are errors during in situ analysis using Python. This includes calling not defined functions.
+
   * **Interactive Modes**: Fault-tolerant to Python and supports interactive Python prompt.
+
 * Python >= 3.6
+
   * **`yt <https://yt-project.org>`_**: an open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
+
   * **`yt_libyt <https://yt-project.github.io/libyt/HowToInstall.html#yt_libyt>`_**: libyt's yt frontend.
+
 
 How it Works
 ------------
 Enzo follows ``libyt``'s procedure and APIs to implement this in situ analysis feature.
-You can find how ``libyt`` works more in detail `here <https://yt-project.github.io/libyt/HowItWorks.html#how-it-works>`_ and what are ``libyt`` APIs `here <https://yt-project.github.io/libyt/libytAPI>`_.
+You can find how ``libyt`` works more in detail `here <https://yt-project.github.io/libyt/HowItWorks.html#how-it-works>`__ and what are ``libyt`` APIs `here <https://yt-project.github.io/libyt/libytAPI>`__.
 
 At initialization stage, ``libyt`` imports inline Python script ``inline.py`` and initializes Python interpreters in each MPI process. This happens in ``InitializeLibytInterface`` function in ``src/enzo/InitializeLibytInterface.C``.
 
@@ -40,6 +46,7 @@ How to Configure
 Some settings are hard-coded inside Enzo, you can customize it to your own needs.
 
 * **How to change import Python file name?**
+
 The default Python script will be imported is ``inline.py``.
 If you really want to change the name, you can go to
 ``src/enzo/InitializeLibytInterface.C`` in function ``InitializeLibytByItself``, and change ``params->script`` to your Python file name without ``.py``. For example, I want to make it to ``test.py``:
@@ -51,12 +58,14 @@ If you really want to change the name, you can go to
 Please use ``const char*``, or else, you have to make sure the lifetime of this variable covers the whole in situ process.
 
 * **How to activate in situ Python analysis process?**
+
 The full process is encapsulated inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C``.
 You can put this function everywhere you want in Enzo to start in situ analysis.
 It will load and use Enzo's current state and data. Currently, it is called inside ``EvolveLevel`` function.
 
 * **How to call Python functions during simulation runtime? And what should I be aware of?**
-You can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://yt-project.github.io/libyt/libytAPI/PerformInlineAnalysis.html#calling-python-functions>`_.
+
+You can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://yt-project.github.io/libyt/libytAPI/PerformInlineAnalysis.html#calling-python-functions>`__.
 
 Just put them right after the comments ``TODO: yt_run_Function and yt_run_FunctionArguments`` inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` according to your needs.
 
@@ -65,11 +74,12 @@ Please make sure the functions you called are defined inside the script. Otherwi
 See how to write an inline Python script in Doing In Situ Analysis section.
 
 * **How to activate interactive mode and Python prompt in Enzo?**
+
 You have to compile ``libyt`` in interactive mode.
 
 If error occurs while running Python functions or Enzo detects ``LIBYT_STOP`` file, then ``libyt``'s interactive Python prompt will activate.
 
-You can find more about libyt API ``yt_run_InteractiveMode`` `here <https://yt-project.github.io/libyt/libytAPI/ActivateInteractiveMode.html#activate-interactive-mode>`_.
+You can find more about libyt API ``yt_run_InteractiveMode`` `here <https://yt-project.github.io/libyt/libytAPI/ActivateInteractiveMode.html#activate-interactive-mode>`__.
 
 
 How to Compile
@@ -127,5 +137,5 @@ This is something ``libyt`` will update and improve in the future.
 
 Doing In Situ Analysis
 ----------------------
-See how to do in situ analysis `here <https://yt-project.github.io/libyt/InSituPythonAnalysis#in-situ-python-analysis>`_.
+See how to do in situ analysis `here <https://yt-project.github.io/libyt/InSituPythonAnalysis#in-situ-python-analysis>`__.
 
