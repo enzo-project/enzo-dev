@@ -68,6 +68,8 @@ public:
   Star operator+=(Star a);
   Star* copy(void);
 
+  FLOAT Time; 
+  
   // Routines
   star_type ReturnType(void) { return type; };
   int   ReturnID(void) { return Identifier; };
@@ -75,6 +77,7 @@ public:
   float ReturnBirthTime(void) { return BirthTime; };
   double ReturnFinalMass(void) { return FinalMass; };
   void  AssignFinalMass(double value) { FinalMass = value; };
+  float ReturnAge(void) { return ( Time - BirthTime ); };
   float ReturnLifetime(void) { return LifeTime; };
   float ReturnBirthtime(void) { return BirthTime; };
   int   ReturnLevel(void) { return level; };

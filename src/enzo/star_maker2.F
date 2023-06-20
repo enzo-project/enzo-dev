@@ -202,7 +202,8 @@ c
                   divvel2 = div * div / (dx * dx)
                   curlvel2 = 2 / (dx*dx) * (dvx*dvx + dvy*dvy + dvz*dvz
      &                                    - dvy*dvz - dvx*dvz - dvy*dvx)
-                  alpha = betaprime * (divvel2+curlvel2) / (GravConst*d(i,j,k))
+                  alpha = betaprime * (divvel2+curlvel2)
+     &                  / (GravConst*d(i,j,k))
                   if (alpha .ge. 1) goto 10
                endif
 c

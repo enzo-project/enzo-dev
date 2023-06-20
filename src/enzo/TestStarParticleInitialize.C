@@ -51,7 +51,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret;
+  int dim, ret;
 
   /* Error check. */
 
@@ -67,7 +67,6 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float TestStarParticleStarMass    = 100.0;
   int TestProblemUseMetallicityField = 1;
   float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
-  
 
 
 
@@ -122,21 +121,19 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
   /* set up uniform grid as of before explosion */
 
-  
-  
   if (TopGrid.GridData->InitializeUniformGrid(TestStarParticleDensity, 
 					      TestStarParticleEnergy,
 					      TestStarParticleEnergy,
 					      TestStarParticleVelocity,
 					      TestStarParticleBField) == FAIL)
     ENZO_FAIL("Error in InitializeUniformGrid.");
- 
+
   if (TopGrid.GridData->
       TestStarParticleInitializeGrid(TestStarParticleStarMass,
 				     Initialdt, 
 				     TestStarParticleStarVelocity,
 				     TestStarParticleStarPosition) == FAIL)
-    ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
+  ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
 
   /* set up field names and units */
   

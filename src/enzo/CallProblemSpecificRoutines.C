@@ -42,7 +42,7 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
     ThisGrid->GridData->SphericalInfallGetProfile(level, 1);
   if (ProblemType == 30)
     ThisGrid->GridData->AnalyzeTrackPeaks(level, 0);
-  if (ProblemType == 27){
+  if (ProblemType == 27 && debug){
     if (ThisGrid->GridData->ReturnProcessorNumber()==MyProcessorNumber){
       float AM[3], MeanVelocity[3], DMVelocity[3];
       FLOAT Center[] = {0,0,0}, CenterOfMass[3], DMCofM[3];

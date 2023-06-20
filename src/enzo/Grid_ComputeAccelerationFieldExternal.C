@@ -355,7 +355,7 @@ int grid::ComputeAccelerationFieldExternal()
     FLOAT dadt, a = 1;
     double AngularMomentumx, AngularMomentumy, AngularMomentumz;
     double MSDisk, SDiskScaleHeightR, SDiskScaleHeightz, MBulge, rBulge,
-      DMMass, DMCon;
+      DMMass, DMCon, DMRad, DMDens;
 
     AngularMomentumx = DiskGravityAngularMomentum[0];
     AngularMomentumy = DiskGravityAngularMomentum[1];
@@ -367,6 +367,8 @@ int grid::ComputeAccelerationFieldExternal()
     rBulge = DiskGravityStellarBulgeR * Mpc_cm;
     DMMass = DiskGravityDarkMatterMass * SolarMass;
     DMCon = DiskGravityDarkMatterConcentration;
+    DMRad = DiskGravityDarkMatterR;
+    DMDens = DiskGravityDarkMatterDensity;
 
     /* Compute adot/a at time = t+1/2dt (time-centered). */
     float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
@@ -414,7 +416,7 @@ int grid::ComputeAccelerationFieldExternal()
 
             rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
 
-            double accelsph, accelcylR, accelcylz, zheight, xdisk, ydisk, zdisk;
+            double accelsph=0, accelcylR, accelcylz, zheight, xdisk, ydisk, zdisk;
 
             /* Compute z and r_perp (AngularMomentum is angular momentum 
              * and must have unit length). */
@@ -434,8 +436,21 @@ int grid::ComputeAccelerationFieldExternal()
             radius = sqrt(rsquared) * LengthUnits;
             rcyl = sqrt(xdisk*xdisk + ydisk*ydisk + zdisk*zdisk) * LengthUnits;
             
-            accelsph = GravConst * 4.0*pi*rho_0*POW(Rs,3.0)
-                        *(log((Rs+radius)/Rs) - radius/(Rs+radius));
+            if (DiskGravityDarkMatterUseNFW)
+              accelsph = GravConst * 4.0*pi*rho_0*POW(Rs,3.0)
+                          *(log((Rs+radius)/Rs) - radius/(Rs+radius))
+                          / POW(radius,2);
+
+            else if (DiskGravityDarkMatterUseB95)
+              accelsph = pi*GravConst*DMDens*POW(DMRad*Mpc_cm,3)
+                          *(-2.0*atan(radius/DMRad/Mpc_cm)
+                            +2.0*log(1.0+radius/DMRad/Mpc_cm)
+                            +log(1.0+POW(radius/DMRad/Mpc_cm,2))
+                            )/POW(radius,2);
+                            
+            if (DiskGravityDarkMatterUseB95*DiskGravityDarkMatterUseNFW != FALSE)
+              ENZO_FAIL("Cannot specify both NFW and Burkert 95 dark matter profiles")
+
             accelsph += (GravConst)*MBulge/POW(radius+rBulge,2);
 
             accelcylR = GravConst*MSDisk*rcyl/sqrt(POW(POW(rcyl,2)

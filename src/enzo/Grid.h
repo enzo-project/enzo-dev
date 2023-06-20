@@ -1130,7 +1130,7 @@ gradient force to gravitational force for one-zone collapse test. */
    };
 
    void PrintBaryonFieldValues(int field, int index)
-     {fprintf(stdout, "Baryonfield[field = %"ISYM"][index = %"ISYM"] = %g\n", 
+     {fprintf(stdout, "Baryonfield[field = %" ISYM "][index = %" ISYM "] = %g\n", 
 	      field, index, BaryonField[field][index]);};
 
 // -------------------------------------------------------------------------
@@ -2333,6 +2333,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                  double DiskDensityCap,
 				     double DMConcentration,
 				     double DiskTemperature,
+                 int    DiskPressureBalance,
 				     double InitialTemperature,
 				     double UniformDensity,
 				     int   EquilibrateChem,
