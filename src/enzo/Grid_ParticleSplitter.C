@@ -30,7 +30,7 @@
 #include "fortran.def"
 #include "CosmologyParameters.h"
 
-#define NO_DEBUG_PS 
+#define DEBUG_PS 0
 
 /* function prototypes */
  

@@ -39,7 +39,7 @@
 #include "CosmologyParameters.h"
 #include "CommunicationUtilities.h"
 
-#define NO_DEBUG_PS
+#define DEBUG_PS 0
 
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);

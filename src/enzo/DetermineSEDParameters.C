@@ -311,7 +311,7 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
     }
     /* Employ some ramping to stop numerical meltdown */
     float Age = (Time - this->ReturnBirthTime())*TimeUnits/yr_s;
-    printf("%s: BH Age = %e yrs\n", __FUNCTION__, Age); fflush(stdout);
+    //printf("%s: BH Age = %e yrs\n", __FUNCTION__, Age); fflush(stdout);
     if(Age < RAMPAGE) {
       float ramp = (Age/RAMPAGE);
       //printf("%s: ramp = %g\n", __FUNCTION__, ramp); fflush(stdout);
@@ -320,7 +320,7 @@ int ActiveParticleType_SmartStar::DetermineSEDParameters(FLOAT Time, FLOAT dx)
     /* If a BH has been inactive for sometime then we also need to ramp */
     else if(zero_accrates > 0) {
       float ramp = 1.0/(zero_accrates*zero_accrates);  /*varies between 0.25 and 0.01 */
-      printf("%s: (Inactive BH) ramp = %g\n", __FUNCTION__, ramp); fflush(stdout);                                                                                                                                          
+      //printf("%s: (Inactive BH) ramp = %g\n", __FUNCTION__, ramp); fflush(stdout);                                                                                                                                          
       this->LuminosityPerSolarMass = this->LuminosityPerSolarMass*ramp;
     }
     /* Use values from the BHArray to set the SED Fractions */
