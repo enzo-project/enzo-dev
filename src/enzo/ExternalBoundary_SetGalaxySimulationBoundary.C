@@ -72,7 +72,6 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
   int DINum = FindField(DIDensity,BoundaryFieldType,NumberOfBaryonFields);
   int DIINum = FindField(DIIDensity,BoundaryFieldType,NumberOfBaryonFields);
   int HDINum = FindField(HDIDensity,BoundaryFieldType,NumberOfBaryonFields);
-  int MultiSpecies = (HINum == -1) ? 0 : 1;
 
 	/* Determine if we're using metallicity (as a color field) */
 	int MetalNum = FindField(Metallicity,BoundaryFieldType,NumberOfBaryonFields);
@@ -321,7 +320,7 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: GalaxySimulationRPSWind choice invalid");
 		}
 
-		// update metallicity field
+		// update metallicity field (todo: we should eventually add parameters to allow these to be controlled directly, but for now just set to something vaguely sensible; in practice the ionization fractions in the wind should rapidly come into equilibrium)
                 if (MultiSpecies > 0)  {
                   BoundaryValue[HIINum][dim][0][index] = 0.5 * CoolData.HydrogenFractionByMass * BoundaryValue[DensNum][dim][0][index];
                   BoundaryValue[HeIINum][dim][0][index] = 0.2 * BoundaryValue[DensNum][dim][0][index] * (1.0 - CoolData.HydrogenFractionByMass); //get rid of factor of 4
