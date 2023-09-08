@@ -409,7 +409,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Currently (September 2023) this is only implemented for H2REG_STAR
     and NORMAL_STAR. MakeStars is completely ignored in all other star makers. */
 
-    if ( (STARMAKE_METHOD(H2REG_STAR)) && 
+    if ( (STARMAKE_METHOD(H2REG_STAR) || STARMAKE_METHOD(NORMAL_STAR)) && 
 	 (level==0) && 
 	 (StarFormationOncePerRootGridTimeStep) ) {
       /* At top level, set Grid::MakeStars to 1 for all highest
