@@ -412,18 +412,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if ( (STARMAKE_METHOD(H2REG_STAR) || STARMAKE_METHOD(NORMAL_STAR)) && 
 	 (level==0) && 
 	 (StarFormationOncePerRootGridTimeStep) ) {
-      /* At top level, set Grid::MakeStars to 1 for all highest
-        refinement level grids. */
+      /* At top level, set Grid::MakeStars to 1 for all grids.
+         Individual star maker routines will need to check
+         whether or not each cell is the highest refined. */
       LevelHierarchyEntry *Temp;
-      Temp = LevelArray[MaximumRefinementLevel];
-      int count=0;
-      while (Temp != NULL) {
-        Temp->GridData->SetMakeStars();
-        Temp = Temp->NextGridThisLevel;
-        count++;
+      for (int i = level; i < MAX_DEPTH_OF_HIERARCHY; i++){
+        Temp = LevelArray[i];
+        while (Temp != NULL) {
+          Temp->GridData->SetMakeStars();
+          Temp = Temp->NextGridThisLevel;
+        }
       }
-      // if(MyProcessorNumber == ROOT_PROCESSOR) 
-      // 	fprintf(stderr,"Set MakeStars=1 for %d MaximumRefinementLevel grids.\n",count);
 
       TopGridTimeStep = LevelArray[0]->GridData->ReturnTimeStep();
 
