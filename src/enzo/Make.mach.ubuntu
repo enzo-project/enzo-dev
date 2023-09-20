@@ -60,8 +60,8 @@ MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 MACH_CPPFLAGS = -P -traditional 
 MACH_CFLAGS   = 
 MACH_CXXFLAGS =
-MACH_FFLAGS   = -finteger-4-integer-8 -fno-second-underscore -ffixed-line-length-132
-MACH_F90FLAGS = -finteger-4-integer-8 -fno-second-underscore
+MACH_FFLAGS   = -fallow-argument-mismatch -finteger-4-integer-8 -fno-second-underscore -ffixed-line-length-132
+MACH_F90FLAGS = -fallow-argument-mismatch -finteger-4-integer-8 -fno-second-underscore
 MACH_LDFLAGS  = 
 
 #-----------------------------------------------------------------------
