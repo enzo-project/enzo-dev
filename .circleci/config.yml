@@ -235,6 +235,9 @@ jobs:
           skipfile: notafile
           flags: --clobber
 
+      - store_artifacts:
+          path: ~/enzo-dev/src/enzo/out.compile
+
   test-compile-options:
     docker:
       - image: cimg/python:3.11.5
