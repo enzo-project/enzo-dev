@@ -217,16 +217,16 @@ jobs:
 
       - restore_cache:
           name: "Restore test answers."
-          key: test-answers-v15a
+          key: test-answers-v16a
 
       - build-and-test:
-          tag: gold-standard-v15
+          tag: gold-standard-v16
           skipfile: ~/enzo_test/push_suite
           flags: --answer-store
 
       - save_cache:
           name: "Save test answers cache."
-          key: test-answers-v15a
+          key: test-answers-v16a
           paths:
             - ~/enzo_test/push_suite
 
