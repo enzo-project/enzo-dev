@@ -45,6 +45,8 @@ int grid::CollectGridInformation(int &GridMemory, float &GridVolume,
 
   Particles = NumberOfParticles;
  
+  // JT additions will be here. 
+
   GridMemory = GridMemory + NumberOfParticles*
                (sizeof(float)*(GridRank+2+NumberOfParticleAttributes) +
                 sizeof(FLOAT)*GridRank);
