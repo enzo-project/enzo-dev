@@ -4,7 +4,7 @@
 
 !     set this if you want to log star particle info in a file (one per
 !     processor)
-#define NO_STAR_LOG
+#define STAR_LOG
 
 c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
