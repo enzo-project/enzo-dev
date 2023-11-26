@@ -461,7 +461,7 @@ c     starmass_in_Msun/StarFormationMinimumMass.
 
 #ifdef STAR_LOG
                   write(4,*) 'Star particle does not meet minimum ',
-     $                 'mass threshold: ', starmass_in_Msun
+     $                 'mass threshold: ', starmass_in_Msun, 
      $                 dt, timeconstant, 
      $                 gasfrac, starmass, StarFormationMinimumMass
 #endif
