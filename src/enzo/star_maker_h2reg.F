@@ -4,7 +4,7 @@
 
 !     set this if you want to log star particle info in a file (one per
 !     processor)
-#define NO_STAR_LOG
+#define STAR_LOG
 
 c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
@@ -461,9 +461,9 @@ c     starmass_in_Msun/StarFormationMinimumMass.
 
 #ifdef STAR_LOG
                   write(4,*) 'Star particle does not meet minimum ',
-     $                 'mass threshold: ', starmass_in_Msun
-c     $                 dt, timeconstant, 
-c     $                 gasfrac, starmass, StarFormationMinimumMass
+     $                 'mass threshold: ', starmass_in_Msun, 
+     $                 dt, timeconstant, 
+     $                 gasfrac, starmass, StarFormationMinimumMass
 #endif
                      
                   if (StochasticStarFormation .eq. 1) then
@@ -486,6 +486,8 @@ c     $                 gasfrac, starmass, StarFormationMinimumMass
  200                 format(a,a,1pe10.3,a,2(1pe10.3))
 #endif
                   endif
+c                 JT added goto here 112623
+                  goto 10 
                endif
 
 
