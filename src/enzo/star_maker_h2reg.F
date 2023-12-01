@@ -464,11 +464,12 @@ c     starmass_in_Msun/StarFormationMinimumMass.
      $                 'mass threshold: ', starmass_in_Msun, 
      $                 dt, timeconstant, 
      $                 gasfrac, starmass, StarFormationMinimumMass
-                  write(4,*) '2 Star particle does not meet minimum ',
-     $                 'mass threshold: ', nH, Sigma, chi, s, tau_c, 
-     $                        H2_fraction
+                  write(4,100) '2 Star particle does not meet minimum ',
+     $                 nH, Sigma, chi, s, tau_c, H2_fraction
 #endif
-                     
+
+100               format(a,6(1pe10.3))  
+
                   if (StochasticStarFormation .eq. 1) then
                      call random_number(random)
                      critval = starmass_in_Msun / 
