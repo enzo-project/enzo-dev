@@ -464,7 +464,7 @@ c     starmass_in_Msun/StarFormationMinimumMass.
      $                 'mass threshold: ', starmass_in_Msun, 
      $                 dt, timeconstant, 
      $                 gasfrac, starmass, StarFormationMinimumMass
-     $            write(4,*) '2 Star particle does not meet minimum ',
+                  write(4,*) '2 Star particle does not meet minimum ',
      $                 'mass threshold: ', nH, Sigma, chi, s, tau_c, 
      $                        H2_fraction
 #endif
