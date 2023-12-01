@@ -465,7 +465,8 @@ c     starmass_in_Msun/StarFormationMinimumMass.
      $                 dt, timeconstant, 
      $                 gasfrac, starmass, StarFormationMinimumMass
                   write(4,*) '2 Star particle does not meet minimum ',
-     $                 'mass threshold: ', nH, Sigma, chi, s, tau_c, H2_fraction
+     $                 'mass threshold: ', nH, Sigma, chi, s, tau_c, 
+                              H2_fraction
 #endif
                      
                   if (StochasticStarFormation .eq. 1) then
@@ -497,6 +498,8 @@ c                 JT added goto here 112623
 #ifdef STAR_LOG
                write(4,*) 'Star particle formed with M/Msun = ',
      $              starmass_in_Msun, starmass
+               write(4,*) '2 Star particle formed with ',nH,Sigma,chi,
+                        s, tau_c, H2_fraction
 #endif
 
                ii = ii + 1
