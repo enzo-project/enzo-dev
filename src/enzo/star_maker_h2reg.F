@@ -499,7 +499,7 @@ c                 JT added goto here 112623
 #ifdef STAR_LOG
                write(4,*) 'Star particle formed with M/Msun = ',
      $              starmass_in_Msun, starmass
-               write(4,*) '2 Star particle formed with ',nH,Sigma,chi,
+               write(4,100) '2 Star particle formed with ',nH,Sigma,chi,
      $                  s, tau_c, H2_fraction
 #endif
 
