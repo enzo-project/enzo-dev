@@ -200,13 +200,13 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v3
+          key: dependencies-v4
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v3
+          key: dependencies-v4
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -251,13 +251,13 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v3
+          key: dependencies-v4
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v3
+          key: dependencies-v4
           paths:
             - ~/.cache/pip
             - ~/venv
