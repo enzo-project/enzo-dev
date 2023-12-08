@@ -506,7 +506,8 @@ c            fill in star particle attributes
                yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
                zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
 #ifdef STAR_LOG
-               write(4,250) 'SMOut', t, d*d1, H2_fraction, mp, tdp, tcp 
+               write(4,250) 'SMOut', d(i,j,k)*d1, temp(i,j,k), 
+     $                H2_fraction, mp, tdp, tcp 
 250            format(a,6(1pe10.3))
 
 #endif
