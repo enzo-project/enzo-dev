@@ -217,10 +217,6 @@ c
       R_PREC G0prime, t_avg, age
       R_PREC Sigma_cell
 
-      R_PREC U_MW, D_MW, Dstar, alpha, gg, Lambda, x
-
-      
-
 #ifdef STAR_LOG      
       character*32 starlog_filename
 
@@ -246,7 +242,6 @@ c
 #endif
 
       starlog_filename = 'starlog_' // post // '.txt'
-c      print *,'starlog_filename = ',starlog_filename
       open(unit=4,file=starlog_filename,status='unknown',
      $     position='append')
 #endif
@@ -277,10 +272,6 @@ c
       densthresh = StarFormationNumberDensityThreshold / 
      $     ( d1 / (MU * mass_h) )
       
-
-
-
-
 c     loop over all cells
       do k=1+ibuff,nz-ibuff
          do j=1+ibuff,ny-ibuff
@@ -299,7 +290,6 @@ c     Is this finest level of refinement?
 c     
                if (r(i,j,k) .ne. 0._RKIND) goto 10
 
-
 c     Some conditions for SF to occur.
 
 c     Is density greater than threshold?     
@@ -308,7 +298,6 @@ c     Is density greater than threshold?
 c               write(4,*) 'Found grid cell that is a star ', 
 c     $              'particle candidate: ', d(i,j,k), densthresh
                   
-
 c     Calculate the free fall time, which is the SF time scale
 
 c     t_ff = [ 3 * pi / (32 * G * rho) ]^(-1/2)
@@ -337,22 +326,17 @@ c     Hydrogen number density in proper cm^-3
                nH = d(i,j,k) * fHI(i,j,k) * d1 / mass_h
 
                if (AssumeColdWarmPressureBalance .eq. 1) then
-
 c     Eq.(7) Krumholz, McKee, & Tumlinson (2009)
                   phi_CNM = 3._RKIND
                   chi = 2.3_RKIND * SigmaOverR / phi_CNM * 
      $                 ( 1._RKIND + 3.1_RKIND * Z_MW**0.365_RKIND )
                else
-
-                  G0prime = H2DissociationFlux_MW
-                     
+                  G0prime = H2DissociationFlux_MW  
 c     Eq.(9) McKee & Krumholz (2010)
                   chi = 71._RKIND * SigmaOverR * G0prime / nH
-               
                endif
 
 c     Surface density of cell in Msun pc^-2 (1 g/cm^2 = 4788.03 Msun/pc^2)
-
                if (UseSobolevColumn .ne. 1) then
 c              *** Grid cell based ***
 c                  [ Sigma = rho * dx ]
@@ -456,19 +440,20 @@ c     starmass_in_Msun/StarFormationMinimumMass.
                
                starmass_in_Msun = starmass * m1
                
+               write(4,100) 'SMInputs', d, fHI, temp, t, dt, z, dx, metal
+80             format(a,8(1pe10.3))  
+
+#ifdef STAR_LOG
+               write(4,*) 'SMMath', nH, Sigma, phi_CNM, chi, tau_c, s, 
+     $                 H2_fraction, densthresh, timeconstant, tau_ff, 
+     $                 gasfrac, starmass, starmass_in_Msun
+#endif
+
+
                if(starmass_in_Msun .lt. 
      $              StarFormationMinimumMass) then
 
-#ifdef STAR_LOG
-                  write(4,*) '1 Star particle does not meet minimum ',
-     $                 'mass threshold: ', starmass_in_Msun, 
-     $                 dt, timeconstant, 
-     $                 gasfrac, starmass, StarFormationMinimumMass
-                  write(4,100) '2 Star particle not formed ',
-     $                 nH, Sigma, chi, s, tau_c, H2_fraction
-#endif
-
-100               format(a,6(1pe10.3))  
+100               format(a,13(1pe10.3))  
 
                   if (StochasticStarFormation .eq. 1) then
                      call random_number(random)
@@ -497,10 +482,10 @@ c                 JT added goto here 112623
 
 
 #ifdef STAR_LOG
-               write(4,*) 'Star particle formed with M/Msun = ',
-     $              starmass_in_Msun, starmass
-               write(4,100) '2 Star particle formed with ',nH,Sigma,chi,
-     $                  s, tau_c, H2_fraction
+c               write(4,*) 'Star particle formed with M/Msun = ',
+c     $              starmass_in_Msun, starmass
+c               write(4,100) 'Star formed ', t, nH, Sigma, chi,
+c     $                  s, tau_c, H2_fraction
 #endif
 
                ii = ii + 1
@@ -519,6 +504,11 @@ c            fill in star particle attributes
                xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
                yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
                zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
+#ifdef STAR_LOG
+               write(4,250) 'SMOut', t, d*d1, H2_fraction, mp, tdp, tcp 
+200            format(a,6(1pe10.3))
+
+#endif
 
 #define AVERAGE_PARTICLE_VELOCITY
 #ifdef AVERAGE_PARTICLE_VELOCITY
