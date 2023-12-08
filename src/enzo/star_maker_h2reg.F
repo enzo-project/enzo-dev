@@ -440,7 +440,7 @@ c     starmass_in_Msun/StarFormationMinimumMass.
                
                starmass_in_Msun = starmass * m1
                
-               write(4,100) 'SMInputs', d, fHI, temp, t, dt, z, dx, metal
+               write(4,100) 'SMInputs', d, fHI,temp,t,dt,z,dx,metal
 80             format(a,8(1pe10.3))  
 
 #ifdef STAR_LOG
@@ -466,13 +466,13 @@ c     starmass_in_Msun/StarFormationMinimumMass.
                      starmass_in_Msun = StarFormationMinimumMass
                      starmass = starmass_in_Msun / m1
 #ifdef STAR_LOG
-                     write(4,200) 'Star particle does not meet ',
+                     write(4,300) 'Star particle does not meet ',
      $                    'minimum mass threshold: M =', 
      $                    starmass_in_Msun,
      $                    ', but stochastic creation occurred.',
      $                    random, critval
                      
- 200                 format(a,a,1pe10.3,a,2(1pe10.3))
+ 300                 format(a,a,1pe10.3,a,2(1pe10.3))
 #endif
                   endif
 c                 JT added goto here 112623
