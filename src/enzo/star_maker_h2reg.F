@@ -445,7 +445,7 @@ c     starmass_in_Msun/StarFormationMinimumMass.
 80             format(a,8(1pe10.3))  
 
 #ifdef STAR_LOG
-               write(4,*) 'SMMath', nH, Sigma, phi_CNM, chi, tau_c, s, 
+               write(4,100) 'SMMath', nH, Sigma, phi_CNM, chi, tau_c, s, 
      $                 H2_fraction, densthresh, timeconstant, tau_ff, 
      $                 gasfrac, starmass, starmass_in_Msun
 #endif
