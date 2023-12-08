@@ -440,7 +440,8 @@ c     starmass_in_Msun/StarFormationMinimumMass.
                
                starmass_in_Msun = starmass * m1
                
-               write(4,100) 'SMInputs', d, fHI,temp,t,dt,z,dx,metal
+               write(4,100) 'SMInputs', d(i,j,k),fHI(i,j,k),temp(i,j,k),
+     $                   t,dt,z,dx,metal(i,j,k)
 80             format(a,8(1pe10.3))  
 
 #ifdef STAR_LOG
