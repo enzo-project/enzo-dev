@@ -447,14 +447,14 @@ c     starmass_in_Msun/StarFormationMinimumMass.
 #ifdef STAR_LOG
                write(4,100) 'SMMath', nH, Sigma, phi_CNM, chi, tau_c, s, 
      $                 H2_fraction, densthresh, timeconstant, tau_ff, 
-     $                 gasfrac, starmass, starmass_in_Msun
+     $                 gasfrac, starmass, starmass_in_Msun, maxflag 
 #endif
 
 
                if(starmass_in_Msun .lt. 
      $              StarFormationMinimumMass) then
 
-100               format(a,13(1pe10.3))  
+100               format(a,13(1pe10.3), i5)  
 
                   if (StochasticStarFormation .eq. 1) then
                      call random_number(random)
