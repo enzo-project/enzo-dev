@@ -205,7 +205,7 @@ c
 c
 c  Locals:
 c
-      INTG_PREC  i, j, k, n, ii
+      INTG_PREC  i, j, k, n, ii, maxflag
       R_PREC   m1
       R_PREC   starmass, starmass_in_Msun
       R_PREC   densthresh, timeconstant, gasfrac
@@ -352,7 +352,7 @@ c              *** Sobolev-like approximation ***
 c                  [ Sigma ~ rho * ( rho / grad(rho) ) ]
                   
                   Sigma = SobolevColumn(d, fHI, nx, ny, nz,
-     $                 i, j, k, dx, d1, x1)
+     $                 i, j, k, dx, d1, x1, maxflag)
                   
                   Sigma_cell = d(i,j,k) * fHI(i,j,k) * 
      $                 d1 * (x1*dx) * 4788.03_RKIND
@@ -635,7 +635,8 @@ c
       end
 
 
-      R_PREC function SobolevColumn(d,fHI,nx,ny,nz,i,j,k,dx,d1,x1)
+      R_PREC function SobolevColumn(d,fHI,nx,ny,nz,
+      &      i,j,k,dx,d1,x1,maxflag)
 c     
 c  CALCULATE SOBOLEV-LIKE APPROXIMATION OF THE HI SURFACE DENSITY
 c
@@ -680,7 +681,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 c  Arguments
 c
-      INTG_PREC nx, ny, nz, i, j, k
+      INTG_PREC nx, ny, nz, i, j, k, maxflag
       R_PREC d(nx,ny,nz), fHI(nx,ny,nz)
       R_PREC dx, d1, x1
 c
@@ -706,6 +707,7 @@ c
 
       R_PREC unit_factor
 
+      maxflag = 1
 
 c     HI density at grid cell of interest and six surrounding neighbor
 c     cells.
@@ -720,6 +722,12 @@ c     cells.
       dHI_zm1 = d(i,j,k-1) * fHI(i,j,k-1)
       dHI_zp1 = d(i,j,k+1) * fHI(i,j,k+1)
 
+      if( dHI_xm1 .ge. dHI ) maxflag = 0
+      if( dHI_xp1 .ge. dHI ) maxflag = 0
+      if( dHI_ym1 .ge. dHI ) maxflag = 0
+      if( dHI_yp1 .ge. dHI ) maxflag = 0
+      if( dHI_zm1 .ge. dHI ) maxflag = 0
+      if( dHI_zp1 .ge. dHI ) maxflag = 0
 
 c     Calculate "gradients"
       grad_xm = abs( dHI_xm1 - dHI ) / dx
