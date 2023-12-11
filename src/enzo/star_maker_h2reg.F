@@ -636,7 +636,7 @@ c
 
 
       R_PREC function SobolevColumn(d,fHI,nx,ny,nz,
-      &      i,j,k,dx,d1,x1,maxflag)
+     &      i,j,k,dx,d1,x1,maxflag)
 c     
 c  CALCULATE SOBOLEV-LIKE APPROXIMATION OF THE HI SURFACE DENSITY
 c
