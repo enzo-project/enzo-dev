@@ -353,6 +353,8 @@ c                  [ Sigma ~ rho * ( rho / grad(rho) ) ]
                   
                   Sigma = SobolevColumn(d, fHI, nx, ny, nz,
      $                 i, j, k, dx, d1, x1, maxflag)
+
+                  if (maxflag .lt. 1) goto 10
                   
                   Sigma_cell = d(i,j,k) * fHI(i,j,k) * 
      $                 d1 * (x1*dx) * 4788.03_RKIND
