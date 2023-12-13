@@ -54,12 +54,12 @@ int ReadEquilibriumTable(char* name, FLOAT Time)
     }
     status = H5Aread(attr_id, HDF5_I8, size);
     if (attr_id == h5_error) {
-      fprintf(stderr,"Failed to read Dimension attribute in Cooling dataset.\n");
+      fprintf(stderr,"Failed to read num_elements attribute in indexer group.\n");
       return FAIL;
     }
     status = H5Aclose(attr_id);
     if (attr_id == h5_error) {
-      fprintf(stderr,"Failed to close Dimension attribute in Cooling dataset.\n");
+      fprintf(stderr,"Failed to close num_elements attribute in indexer group.\n");
       return FAIL;
     }
     status = H5Gclose(grp_id);

@@ -14,6 +14,7 @@
 
 #include "CloudyCoolingData.h"
 #include "EquilibriumTable.h"
+#include "FeedbackTable.h"
 #include "CoolData.h"
 #include "RateData.h"
 #include "RadiationFieldData.h"
@@ -315,6 +316,13 @@ const star_type
   Kravtsov = PARTICLE_TYPE_STAR,
   CenOstriker = PARTICLE_TYPE_STAR,
   AccretingParticle = PARTICLE_TYPE_MUST_REFINE;
+
+/* Feedback table sources (3rd dim of tables) */
+const enum_type
+  TabSN2 = 0,
+  TabSN1a = 1,
+  TabAGB = 2,
+  TabMsv = 3;
 
 /* Define a float/int union. */
 

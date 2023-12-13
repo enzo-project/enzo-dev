@@ -834,6 +834,7 @@ OBJS_CONFIG_LIB = \
         read_bv.o \
         ReadDataHierarchy.o \
         ReadEquilibriumTable.o \
+        ReadFeedbackTable.o \
         ReadFile.o \
         ReadGridFile.o \
         ReadIntFile.o \
