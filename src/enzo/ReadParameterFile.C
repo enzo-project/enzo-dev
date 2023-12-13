@@ -64,6 +64,8 @@ int ReadEvolveRefineFile(void);
 int CheckShearingBoundaryConsistency(TopGridData &MetaData);
 void get_uuid(char *buffer);
 
+int ReadFeedbackTable(char *filename);
+
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {
 
@@ -1001,6 +1003,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     	&StarMakerExplosionDelayTime);
     ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
     ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
+    ret += sscanf(line, "StarFeedbackUseTabularYields = %"ISYM, &StarFeedbackUseTabularYields);
+    if (sscanf(line, "StarFeedbackTabularFilename = %s", dummy) == 1)
+      StarFeedbackTabularFilename = dummy;
 
     ret += sscanf(line, "StarClusterUseMetalField = %"ISYM,
 		  &StarClusterUseMetalField);
@@ -2160,6 +2165,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       my_exit(EXIT_FAILURE);
     }
   } // if(StarFeedbackThermalEfficiencyRamp > 0)
+
+  if (StarFeedbackUseTabularYields) {
+    ReadFeedbackTable(StarFeedbackTabularFilename);
+  }
 
   return SUCCESS;
 

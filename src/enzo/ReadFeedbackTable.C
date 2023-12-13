@@ -15,20 +15,8 @@
 
 /**************************** Functions Prototypes ******************************/
 
-// int GetUnits(float *DensityUnits, float *LengthUnits,
-// 	     float *TemperatureUnits, float *TimeUnits,
-// 	     float *VelocityUnits, FLOAT Time);
-
-int ReadFeedbackTable(char* name, FLOAT Time)
+int ReadFeedbackTable(char* name)
 {
-
-  // float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, 
-  //       VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
-  // if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	//             &TimeUnits, &VelocityUnits, Time) == FAIL) {
-  //   fprintf(stderr, "Error in GetUnits.\n");
-  //   return FAIL;
-  // }
 
   hid_t  file_id, grp_id, dset_id, dspace_id, attr_id; 
   herr_t status;

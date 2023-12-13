@@ -17,6 +17,7 @@
 //   based on it.
 
 #include "preincludes.h" 
+#include <cstdio>
 #include <time.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -945,6 +946,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarFeedbackDistRadius);
   fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n",
           StarFeedbackDistCellStep);
+  fprintf(fptr, "StarFeedbackUseTabularYields          = %"ISYM"\n",
+          StarFeedbackUseTabularYields);
+  fprintf(fptr, "StarFeedbackTabularFilename           = %s\n",
+          StarFeedbackTabularFilename);
+
   fprintf(fptr, "StarMakerUseJeansMass                 = %"ISYM"\n",
 	  StarMakerUseJeansMass);
   fprintf(fptr, "StarMakerVelDivCrit                   = %"ISYM"\n",

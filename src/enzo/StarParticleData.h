@@ -65,6 +65,8 @@ SPEXTERN int StarFeedbackDistRadius;
 SPEXTERN int StarFeedbackDistCellStep;
 SPEXTERN int StarFeedbackDistTotalCells;
 SPEXTERN float StarFeedbackKineticFraction;
+SPEXTERN int StarFeedbackUseTabularYields;
+SPEXTERN char* StarFeedbackTabularFilename;
 SPEXTERN float StarMakerExplosionDelayTime;
 SPEXTERN int   StarMakerUseJeansMass;
 SPEXTERN int   StarMakerVelDivCrit;
