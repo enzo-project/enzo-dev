@@ -699,8 +699,8 @@ c
 c
 c           Calculate the total kinetic energy in the affected region again.
 c
-            call sum_mass_kinetic_energy1(u, v, w, d, ge, te, nx, ny, nz,
-     &                          iface, jface, kface, ic, jc, kc,
+            call sum_mass_kinetic_energy1(u, v, w, d, ge, te, nx, ny,
+     &                          nz, iface, jface, kface, ic, jc, kc,
      &                          mass_end, kin_energy_end, idual,
      &                          imethod)
 c
