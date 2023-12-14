@@ -374,7 +374,6 @@ c
       R_PREC 	  kinf,kinf_in,exptime_in,exptime
 c
 c  Locals
-c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
       INTG_PREC n, ic, jc, kc, ip, jp, kp,
      &     iface, jface, kface, i, j, k
@@ -386,17 +385,15 @@ c
      &     xface, yface, zface, xpos, ypos, zpos,
      &     energy_before, energy_after, mass_before, mass_after,
      &     kin_energy_before, kin_energy_after,
-     &     asum, bsum, csum, delta_ke, ke_injected, ke_after
+     &     asum, bsum, csum, delta_ke, ke_injected, ke_after,
+     &     nsn, m_form, mass_end, kin_energy_end
       R_PREC dxf, dyf, dzf, dxc, dyc, dzc, xfc, yfc, zfc,
      &     xfcshift,yfcshift,zfcshift
       R_PREC u1(4,4,4), v1(4,4,4), w1(4,4,4), d1(4,4,4),
      &     te1(4,4,4), ge1(4,4,4), metal1(4,4,4),
      &     ke_before(4,4,4)
       R_PREC Zsol, d_ave, num_d, energy_51, eunits, R_PDS, t_PDS, 
-     &	   R_resolve, KE_rem, e_const, ergs_51, realmass, mu_cell, fbuff
-      parameter (msolar_e51 = 1800._RKIND, 
-     &	         e_const = 2.71828_RKIND,
-     &	         ergs_51 = 52.57_RKIND)
+     &	  R_resolve, KE_rem, ergs_51, realmass, mu_cell, fbuff
 c
 c-----------------------------------------------------------------------
 c
@@ -628,9 +625,11 @@ c
 c
 c     Compute the momentum that will be added to each cell.
 c
-            call get_mom_per_cell(d, metal, mass_per_cell, dist_mass_cells, mom_per_cell,
-     &                            nsn, m_form, m_eject, d(ic,jc,kc), dx, x1, dunits, vunits, mu,
-     &                            nx, ny, nz, ic, jc, kc)
+            call get_mom_per_cell(d, metal, mass_per_cell,
+     &                  dist_mass_cells, mom_per_cell,
+     &                  nsn, m_form, m_eject, d(ic,jc,kc), dx, x1,
+     &                  dunits, vunits, mu, t1,
+     &                  nx, ny, nz, ic, jc, kc)
 c
 c     Compute the kinetic energy in the affected region
 c     before momentum is added (except for ZEUS).  This
@@ -669,7 +668,8 @@ c            write(6,*) "m,e before:", mass_before, kinetic_energy_before
 c
 c           Now add mass and momentum to the dummy cells
 c
-            call add_feedback(u1, v1, w1, d1, ge1, te1, metal1, 4_IKIND, 
+            call add_feedback(u1, v1, w1, d1, ge1, te1, metal1,
+     &                        4_IKIND,
      &                        4_IKIND, 4_IKIND, 
      &                        2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND, 
      &                        2_IKIND, 2_IKIND,
@@ -681,10 +681,12 @@ c
 c           Sum the mass and energy in the dummy cells to find the kinetic energy
 c           added by the momentum deposition.
 c
-            call sum_mass_kinetic_energy(u1, v1, w1, d1, ge1, te1, 4_IKIND,
-     &                        4_IKIND, 4_IKIND, 2_IKIND, 2_IKIND,
+            call sum_mass_kinetic_energy(u1, v1, w1, d1, ge1, te1,
+     &                        4_IKIND, 4_IKIND, 4_IKIND, 2_IKIND,
      &                        2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND,
-     &                        mass_after, kin_energy_after, idual, imethod)
+     &                        2_IKIND,
+     &                        mass_after, kin_energy_after, idual, 
+     &                        imethod)
 c
 c           Now deposit the momentum back onto the grid using CIC deposit.
 c
@@ -699,7 +701,8 @@ c           Calculate the total kinetic energy in the affected region again.
 c
             call sum_mass_kinetic_energy(u, v, w, d, ge, te, nx, ny, nz,
      &                          iface, jface, kface, ic, jc, kc,
-     &                          mass_end, kin_energy_end, idual, imethod)
+     &                          mass_end, kin_energy_end, idual,
+     &                          imethod)
 c
 c           Check if the end kinetic energy after deposit is less than
 c           the kinetic energy injected by the particle, to account for
@@ -710,8 +713,8 @@ c
 c           If end energy is less than injected energy, add the residual
 c           as thermal energy.
 c
-                thermal_energy_per_cell = (kin_energy_after - kin_energy_end) / 
-     &                          (dist_mass_cells)
+                thermal_energy_per_cell = (kin_energy_after - 
+     &               kin_energy_end) / (dist_mass_cells)
                 if (imethod .ne. 2_IKIND) then
                     do k = -1_IKIND, +2_IKIND
                         do j = -1_IKIND, +2_IKIND
@@ -776,9 +779,11 @@ c ==========================================================
 c
 c     Calculate the amount of momentum to add to each neighboring cell
 c
-      subroutine get_mom_per_cell(d, metal, mass_per_cell, dist_mass_cells, mom_per_cell,
-     &                            nsn, m_form, m_eject, d_fbck_cell, dx, x1, dunits, vunits, mu,
-     &                            nx, ny, nz, ic, jc, kc)
+      subroutine get_mom_per_cell(d, metal, mass_per_cell, 
+     &               dist_mass_cells, mom_per_cell,
+     &               nsn, m_form, m_eject, d_fbck_cell, dx, x1,
+     &               dunits, vunits, mu, t1,
+     &               nx, ny, nz, ic, jc, kc)
 c
       implicit none
 #include "fortran_types.def"
@@ -786,7 +791,8 @@ c
 c     Arguments
 c
       INTG_PREC nx, ny, nz, ic, jc, kc
-      R_PREC    d(nx,ny,nz), metal(nx,ny,nz), dx(nx, ny, nz), mu(nx,ny,nz)
+      R_PREC    d(nx,ny,nz), metal(nx,ny,nz), dx(nx, ny, nz)
+      R_PREC    mu(nx,ny,nz), t1
       R_PREC    mom_per_cell(3_IKIND, 3_IKIND, 3_IKIND)
       R_PREC    mass_per_cell, dist_mass_cells, mu_cell
       R_PREC    nsn, m_form, m_eject, x1, dunits, d_fbck_cell, vunits
@@ -805,7 +811,8 @@ c
 c
 c       Compute the mass fraction of swept-up to ejected mass.
 c
-                    dMswept = d(ic+i,jc+j,kc+k)*(dx/2._RKIND)**(3._RKIND) + 
+                    dMswept = d(ic+i,jc+j,kc+k) * 
+     &                (dx/2._RKIND)**(3._RKIND) + 
      &                (d_fbck_cell*dx**(3._RKIND)) /
      &                dist_mass_cells + mass_per_cell
 c
@@ -814,16 +821,21 @@ c
 c       Compare chi to threshold and set momentum injection.
 c
                     chi_th = 69.58_RKIND*(nsn)**(-2._RKIND/17._RKIND) * 
-     &                (d(ic+i,jc+j,kc+k)*dunits)**(-4._RKIND/17._RKIND) * 
-     &                (metal(ic+i,jc+j,kc+k)/0.02_RKIND)**(-0.28_RKIND)
+     &               (d(ic+i,jc+j,kc+k)*dunits)**(-4._RKIND/17._RKIND) * 
+     &               (metal(ic+i,jc+j,kc+k)/0.02_RKIND)**(-0.28_RKIND)
                     if (chi .lt. chi_th) then
-                        fe = 1._RKIND - ((chi - 1._RKIND)/(3._RKIND*(chi_th - 1._RKIND)))
-                        pSN = (2._RKIND*chi*mform*m_eject*fe*nsn*ergs_51)**(1._RKIND/2._RKIND)
+                        fe = 1._RKIND - ((chi - 1._RKIND)/
+     &                     (3._RKIND*(chi_th - 1._RKIND)))
+                        pSN = (2._RKIND*chi * m_form * m_eject * fe *
+     &                     nsn * ergs_51)**(1._RKIND/2._RKIND)
                     else
                         mu_cell = mu(ic+i,jc+j,kc+k)
-                        pSN = 3.e5_RKIND*SolarMass*1.e5_RKIND*(nsn)**(16._RKIND/17._RKIND) * 
-     &                    (d(ic+i,jc+j,kc+k)*dunits/mu_cell/mass_h)**(-2._RKIND/17._RKIND) * 
-     &                    (metal(ic+i,jc+j,kc+k)/0.02_RKIND)**(-0.14_RKIND)
+                        pSN = 3.e5_RKIND*SolarMass*1.e5_RKIND * 
+     &                    (nsn)**(16._RKIND/17._RKIND) * 
+     &                    (d(ic+i,jc+j,kc+k) * dunits / mu_cell /
+     &                    mass_h)**(-2._RKIND/17._RKIND) * 
+     &                    (metal(ic+i,jc+j,kc+k)/ 
+     &                    0.02_RKIND)**(-0.14_RKIND)
                         pSN = pSN/(dunits*x1**3._RKIND)/vunits
                     endif
 c
@@ -1010,8 +1022,8 @@ c
       INTG_PREC iface, jface, kface, imethod, imetal, imulti_metals
       R_PREC    d(nx, ny, nz), metal(nx,ny,nz), ge(nx,ny,nz)
       R_PREC    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz), te(nx,ny,nz)
-      R_PREC    mass_per_cell, mom_per_cell(3_IKIND,3_IKIND,3_IKIND), therm_per_cell
-      R_PREC    m_eject, yield, metalf
+      R_PREC    mass_per_cell, mom_per_cell(3_IKIND,3_IKIND,3_IKIND)
+      R_PREC    m_eject, yield, metalf, therm_per_cell
       R_PREC    dxf, dyf, dzf, dxc, dyc, dzc,
      &        dxf1, dyf1, dzf1, dxc1, dyc1, dzc1
 c
@@ -1055,10 +1067,10 @@ c
                         if (k1 .eq. k+1_IKIND) dzf1 = 1._RKIND - dzf
                         if (k1 .eq. k+1_IKIND) dzc1 = 1._RKIND - dzc
 
-                        delta_mass =   mass_per_cell*dxc1*dyc1*dzc1
-                        delta_pu   =  i*mom_per_cell(i,j,k)*dxf1*dyc1*dzc1
-                        delta_pv   =  j*mom_per_cell(i,j,k)*dxc1*dyf1*dzc1
-                        delta_pw   =  k*mom_per_cell(i,j,k)*dxc1*dyc1*dzf1
+                        delta_mass = mass_per_cell*dxc1*dyc1*dzc1
+                        delta_pu = i*mom_per_cell(i,j,k)*dxf1*dyc1*dzc1
+                        delta_pv = j*mom_per_cell(i,j,k)*dxc1*dyf1*dzc1
+                        delta_pw = k*mom_per_cell(i,j,k)*dxc1*dyc1*dzf1
                         delta_therm = therm_per_cell*dxc1*dyc1*dzc1
 c
 c     Add mass, momentum
