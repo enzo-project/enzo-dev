@@ -814,8 +814,8 @@ c       Compute the mass fraction of swept-up to ejected mass.
 c
                   den_cell = d(ic+i,jc+j,kc+k)
                   metal_cell = metal(ic+i,jc+j,kc+k)
-                  metal_cell = max(metal_cell/0.02_RKIND, 0.01_RKIND)
-                  dMswept = den_cell * 
+c                  metal_cell = max(metal_cell/0.02_RKIND, 0.01_RKIND)
+                  dMswept = metal_cell * 
      &                (dx/2._RKIND)**(3._RKIND) + 
      &                (d_fbck_cell*dx**(3._RKIND)) /
      &                dist_mass_cells + mass_per_cell
@@ -836,7 +836,7 @@ c
                         mu_cell = mu(ic+i,jc+j,kc+k)
                         pSN = 3.e5_RKIND*SolarMass*1.e5_RKIND * 
      &                    (nsn)**(16._RKIND/17._RKIND) * 
-     &                    (dden_cell * dunits / mu_cell /
+     &                    (den_cell * dunits / mu_cell /
      &                    mass_h)**(-2._RKIND/17._RKIND) * 
      &                    (metal_cell/ 
      &                    0.02_RKIND)**(-0.14_RKIND)
