@@ -172,9 +172,6 @@ int ReadFeedbackTable(char* name)
       fprintf(stderr, "Failed to close indexer/initial_metallicity data set in %s.",name);
     }
 
-    printf("Num ini Z %d ", *num_met);
-    printf("Num ages %d\n", *num_age);
-
   } // end root
 
   /* Store array sizes for later */
@@ -187,7 +184,7 @@ int ReadFeedbackTable(char* name)
   FBTable.n_met = *num_met;
   FBTable.n_age = *num_age;
   if (debug) 
-    fprintf(stderr, "Feedback table has %d initial metal fractions & %d ages\n",
+    fprintf(stderr, "Feedback table has %d initial metal fractions & %d ages.\n",
             FBTable.n_met, FBTable.n_age);
   delete [] num_met;
   delete [] num_age;

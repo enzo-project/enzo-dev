@@ -78,8 +78,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 
   /* Set central particle. */ 
   for (dim = 0; dim < GridRank; dim++) {
-    ParticlePosition[dim][0] = TestStarParticleStarPosition[dim]*
-      (DomainLeftEdge[dim]+DomainRightEdge[dim]) + 0.5*CellWidth[0][0];
+    ParticlePosition[dim][0] = TestStarParticleStarPosition[dim];
     ParticleVelocity[dim][0] = TestStarParticleStarVelocity[dim]*1e5*TimeUnits/LengthUnits;
   }
   ParticleMass[0] = CentralMass;

@@ -2169,6 +2169,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (StarFeedbackUseTabularYields) {
     if (ReadFeedbackTable(StarFeedbackTabularFilename) == FAIL) {
       ENZO_FAIL("Error in ReadFeedbackTable.");
+    } else {
+      if (debug) fprintf(stderr, "Successfully read in feedback table %s.\n", StarFeedbackTabularFilename);
     }
   }
 
