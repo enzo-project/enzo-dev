@@ -794,13 +794,14 @@ c
       R_PREC    d(nx,ny,nz), metal(nx,ny,nz), dx(nx, ny, nz)
       R_PREC    mu(nx,ny,nz), t1
       R_PREC    mom_per_cell(3_IKIND, 3_IKIND, 3_IKIND)
-      R_PREC    mass_per_cell, dist_mass_cells, mu_cell
+      R_PREC    mass_per_cell, dist_mass_cells
       R_PREC    nsn, m_form, m_eject, x1, dunits, d_fbck_cell, vunits
 c
 c     Locals
 c
       INTG_PREC i, j, k
       R_PREC    dMswept, chi, chi_th, fe, pSN, ergs_51
+      R_PREC    den_cell, metal_cell, mu_cell
 
         ergs_51 = 1.e51_RKIND/(dunits*x1**5._RKIND/t1**2._RKIND)
 
@@ -811,7 +812,10 @@ c
 c
 c       Compute the mass fraction of swept-up to ejected mass.
 c
-                    dMswept = d(ic+i,jc+j,kc+k) * 
+                  den_cell = d(ic+i,jc+j,kc+k)
+                  metal_cell = metal(ic+i,jc+j,kc+k)
+                  metal_cell = max(metal_cell/0.02_RKIND, 0.01_RKIND)
+                  dMswept = den_cell * 
      &                (dx/2._RKIND)**(3._RKIND) + 
      &                (d_fbck_cell*dx**(3._RKIND)) /
      &                dist_mass_cells + mass_per_cell
@@ -821,8 +825,8 @@ c
 c       Compare chi to threshold and set momentum injection.
 c
                     chi_th = 69.58_RKIND*(nsn)**(-2._RKIND/17._RKIND) * 
-     &               (d(ic+i,jc+j,kc+k)*dunits)**(-4._RKIND/17._RKIND) * 
-     &               (metal(ic+i,jc+j,kc+k)/0.02_RKIND)**(-0.28_RKIND)
+     &               (den_cell*dunits)**(-4._RKIND/17._RKIND) * 
+     &               (metal_cell/0.02_RKIND)**(-0.28_RKIND)
                     if (chi .lt. chi_th) then
                         fe = 1._RKIND - ((chi - 1._RKIND)/
      &                     (3._RKIND*(chi_th - 1._RKIND)))
@@ -832,9 +836,9 @@ c
                         mu_cell = mu(ic+i,jc+j,kc+k)
                         pSN = 3.e5_RKIND*SolarMass*1.e5_RKIND * 
      &                    (nsn)**(16._RKIND/17._RKIND) * 
-     &                    (d(ic+i,jc+j,kc+k) * dunits / mu_cell /
+     &                    (dden_cell * dunits / mu_cell /
      &                    mass_h)**(-2._RKIND/17._RKIND) * 
-     &                    (metal(ic+i,jc+j,kc+k)/ 
+     &                    (metal_cell/ 
      &                    0.02_RKIND)**(-0.14_RKIND)
                         pSN = pSN/(dunits*x1**3._RKIND)/vunits
                     endif
