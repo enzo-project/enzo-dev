@@ -2167,7 +2167,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   } // if(StarFeedbackThermalEfficiencyRamp > 0)
 
   if (StarFeedbackUseTabularYields) {
-    ReadFeedbackTable(StarFeedbackTabularFilename);
+    if (ReadFeedbackTable(StarFeedbackTabularFilename) == FAIL) {
+      ENZO_FAIL("Error in ReadFeedbackTable.");
+    }
   }
 
   return SUCCESS;
