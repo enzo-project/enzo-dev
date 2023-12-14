@@ -791,7 +791,7 @@ c
 c     Arguments
 c
       INTG_PREC nx, ny, nz, ic, jc, kc
-      R_PREC    d(nx,ny,nz), metal(nx,ny,nz), dx(nx, ny, nz)
+      R_PREC    d(nx,ny,nz), metal(nx,ny,nz), dx
       R_PREC    mu(nx,ny,nz), t1
       R_PREC    mom_per_cell(3_IKIND, 3_IKIND, 3_IKIND)
       R_PREC    mass_per_cell, dist_mass_cells
@@ -814,8 +814,8 @@ c       Compute the mass fraction of swept-up to ejected mass.
 c
                   den_cell = d(ic+i,jc+j,kc+k)
                   metal_cell = metal(ic+i,jc+j,kc+k)
-c                  metal_cell = max(metal_cell/0.02_RKIND, 0.01_RKIND)
-                  dMswept = metal_cell * 
+                  metal_cell = max(metal_cell/0.02_RKIND, 0.01_RKIND)
+                  dMswept = den_cell * 
      &                (dx/2._RKIND)**(3._RKIND) + 
      &                (d_fbck_cell*dx**(3._RKIND)) /
      &                dist_mass_cells + mass_per_cell
