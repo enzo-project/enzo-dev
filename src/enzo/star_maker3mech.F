@@ -573,13 +573,16 @@ c
             dyc = real(jc) + 0.5_RKIND - ypos
             dzc = real(kc) + 0.5_RKIND - zpos
 c
+c           Determine which side of the host cell the star particle is in
+c
+c
 c           Calculate the number of SNe in this timestep from the stars formed
 c           in this timestep as 1 SN per 100 Msun formed.
 c           
             realmass = mform * dunits * dx * x1 *dx *x1 *dx *x1
             realmass = realmass /SolarMass
             nsn = realmass / 100._RKIND
-            
+c
             Zsol = 0._RKIND
             num_d = 0._RKIND
             d_ave = 0._RKIND
@@ -637,9 +640,9 @@ c     is needed at the end of the calculation to update the
 c     total energy (te) field.
 c
             if (imethod .ne. 2_IKIND) then
-               do k = -1_IKIND, +2_IKIND
-                  do j = -1_IKIND, +2_IKIND
-                     do i = -1_IKIND, +2_IKIND
+               do k = -2_IKIND, +1_IKIND
+                  do j = -2_IKIND, +1_IKIND
+                     do i = -2_IKIND, +1_IKIND
                         ke_before(i+2, j+2, k+2) = 
      &                       0.5_RKIND*d(ic+i, jc+j, kc+k)*
      &                                (u(ic+i ,jc+j ,kc+k)**2_IKIND + 
@@ -716,9 +719,9 @@ c
                 thermal_energy_per_cell = (kin_energy_after - 
      &               kin_energy_end) / (dist_mass_cells)
                 if (imethod .ne. 2_IKIND) then
-                    do k = -1_IKIND, +2_IKIND
-                        do j = -1_IKIND, +2_IKIND
-                            do i = -1_IKIND, +2_IKIND
+                    do k = -2_IKIND, +1_IKIND
+                        do j = -2_IKIND, +1_IKIND
+                            do i = -2_IKIND, +1_IKIND
                                 if (idual .eq. 1_IKIND)
      &                              ge(ic+i ,jc+j ,kc+k) = 
      &                                  ge(ic+i ,jc+j ,kc+k) + 
@@ -745,9 +748,9 @@ c             might want to enforce consistency.
 c     
             if (imethod .ne. 2_IKIND) then
                ke_injected = 0._RKIND
-               do k = -1_IKIND, +2_IKIND
-                  do j = -1_IKIND, +2_IKIND
-                     do i = -1_IKIND, +2_IKIND
+               do k = -2_IKIND, +1_IKIND
+                  do j = -2_IKIND, +1_IKIND
+                     do i = -2_IKIND, +1_IKIND
                         ke_after = 0.5_RKIND*
      &                        d(ic+i, jc+j, kc+k) *
      &                       (u(ic+i ,jc+j ,kc+k)**2_IKIND + 
@@ -885,9 +888,9 @@ c
 c     Loop over velocities, multiplying by densities (or dividing if
 c       converting back)
 c
-      do k = -1_IKIND, +2_IKIND
-         do j = -1_IKIND, +2_IKIND
-            do i = -1_IKIND, +2_IKIND
+      do k = -2_IKIND, +1_IKIND
+         do j = -2_IKIND, +1_IKIND
+            do i = -2_IKIND, +1_IKIND
 c
 c              idir = +1: convert vel -> mom
 c               
@@ -984,9 +987,9 @@ c
 c
 c     Sum mass and energy      
 c
-      do k = -1_IKIND, +2_IKIND
-         do j = -1_IKIND, +2_IKIND
-            do i = -1_IKIND, +2_IKIND
+      do k = -2_IKIND, +1_IKIND
+         do j = -2_IKIND, +1_IKIND
+            do i = -2_IKIND, +1_IKIND
                mass_term = d(ic   +i ,jc   +j ,kc   +k)
                mom_term = pu(iface+i ,jc   +j, kc   +k)**2_IKIND + 
      &                    pv(ic   +i ,jface+j, kc   +k)**2_IKIND + 
