@@ -86,7 +86,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
   ParticleAttribute[0][0] = Time+1e-7;
 
   if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
-  if (STARFEED_METHOD(MOM_STAR))
+  if (STARFEED_METHOD(MOM_STAR) || STARFEED_METHOD(MECH_STAR))
     if(StarMakerExplosionDelayTime >= 0.0)
       ParticleAttribute[1][0] = 1.0;
     else

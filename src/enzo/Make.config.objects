@@ -927,6 +927,7 @@ OBJS_CONFIG_LIB = \
         star_maker1.o \
         star_maker2.o \
 	star_maker3mom.o \
+        star_maker3mech.o \
         star_maker3.o \
         star_maker4.o \
 	star_maker5.o \
