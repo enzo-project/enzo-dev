@@ -653,7 +653,7 @@ c
 c     First convert velocities to momenta and transform
 c     into frame comoving with particle
 c
-            call momentum(u, v, w, d, metal, up(n), vp(n), wp(n),
+            call momentum1(u, v, w, d, metal, up(n), vp(n), wp(n),
      &                    nx, ny, nz, ic, jc, kc, 
      &                    iface, jface, kface, imethod, imetal, 
      &                    +1_IKIND)
@@ -661,14 +661,14 @@ c
 c           Now u,v,w are the particle-relative *momentum* directions
 c           Sum mass and energy before
 c
-            call sum_mass_kinetic_energy(u, v, w, d, ge, te, nx, ny, nz,
+            call sum_mass_kinetic_energy1(u, v, w, d, ge, te, nx, ny, nz,
      &           iface, jface, kface, ic, jc, kc,
      &           mass_before, kin_energy_before, idual, imethod)
 c            write(6,*) "m,e before:", mass_before, kinetic_energy_before
 c
 c           Now add mass and momentum to the dummy cells
 c
-            call add_feedback(u1, v1, w1, d1, ge1, te1, metal1,
+            call add_feedback1(u1, v1, w1, d1, ge1, te1, metal1,
      &                        4_IKIND,
      &                        4_IKIND, 4_IKIND, 
      &                        2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND, 
@@ -681,7 +681,7 @@ c
 c           Sum the mass and energy in the dummy cells to find the kinetic energy
 c           added by the momentum deposition.
 c
-            call sum_mass_kinetic_energy(u1, v1, w1, d1, ge1, te1,
+            call sum_mass_kinetic_energy1(u1, v1, w1, d1, ge1, te1,
      &                        4_IKIND, 4_IKIND, 4_IKIND, 2_IKIND,
      &                        2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND,
      &                        2_IKIND,
@@ -690,7 +690,7 @@ c
 c
 c           Now deposit the momentum back onto the grid using CIC deposit.
 c
-            call add_feedback(u, v, w, d, ge, te, metal, nx, ny, nz, 
+            call add_feedback1(u, v, w, d, ge, te, metal, nx, ny, nz, 
      &                        ic, jc, kc, iface, jface, kface, 
      &                        dxf, dyf, dzf, dxc, dyc, dzc,
      &                        imethod, imetal, imulti_metals, idual,
@@ -699,7 +699,7 @@ c
 c
 c           Calculate the total kinetic energy in the affected region again.
 c
-            call sum_mass_kinetic_energy(u, v, w, d, ge, te, nx, ny, nz,
+            call sum_mass_kinetic_energy1(u, v, w, d, ge, te, nx, ny, nz,
      &                          iface, jface, kface, ic, jc, kc,
      &                          mass_end, kin_energy_end, idual,
      &                          imethod)
@@ -734,7 +734,7 @@ c
 c
 c           Convert momenta back to velocities and transform back to lab frame
 c
-            call momentum(u, v, w, d, metal, up(n), vp(n), wp(n),
+            call momentum1(u, v, w, d, metal, up(n), vp(n), wp(n),
      &                    nx, ny, nz, ic, jc, kc, 
      &                    iface, jface, kface, imethod, imetal,
      &                    -1_IKIND)
@@ -856,7 +856,7 @@ c ==========================================================
 c
 c     Convert velocities to momentum and back
 c
-      subroutine momentum(u, v, w, d, metal, up, vp, wp, 
+      subroutine momentum1(u, v, w, d, metal, up, vp, wp, 
      &                    nx, ny, nz, ic, jc, kc, 
      &                    iface, jface, kface, imethod, imetal, idir)
 c
@@ -957,7 +957,7 @@ c
 c     Sum mass, momentum, and energy, and add mass and momentum, if requested
 c       Note that pu, pv, pw are momenta
 c
-      subroutine sum_mass_kinetic_energy(pu, pv, pw, d, ge, te, 
+      subroutine sum_mass_kinetic_energy1(pu, pv, pw, d, ge, te, 
      &                           nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
      &                           mass_sum, kin_energy_sum,
@@ -1009,7 +1009,7 @@ c
 c     Add mass, momentum, and energy to affected cells.
 c       Note that pu, pv, pw are momenta
 c
-      subroutine add_feedback(pu, pv, pw, d, ge, te, metal, nx, ny, nz, 
+      subroutine add_feedback1(pu, pv, pw, d, ge, te, metal, nx, ny, nz, 
      &                        ic, jc, kc, iface, jface, kface,
      &                        dxf, dyf, dzf, dxc, dyc, dzc,
      &                        imethod, imetal, imulti_metals, idual,
