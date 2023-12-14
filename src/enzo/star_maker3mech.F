@@ -661,8 +661,8 @@ c
 c           Now u,v,w are the particle-relative *momentum* directions
 c           Sum mass and energy before
 c
-            call sum_mass_kinetic_energy1(u, v, w, d, ge, te, nx, ny, nz,
-     &           iface, jface, kface, ic, jc, kc,
+            call sum_mass_kinetic_energy1(u, v, w, d, ge, te, nx, ny,
+     &           nz, iface, jface, kface, ic, jc, kc,
      &           mass_before, kin_energy_before, idual, imethod)
 c            write(6,*) "m,e before:", mass_before, kinetic_energy_before
 c
