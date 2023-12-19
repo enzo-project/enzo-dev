@@ -29,7 +29,7 @@ commands:
             source $BASH_ENV
             sudo apt-get update
             sudo apt-get install -y csh libhdf5-serial-dev libopenmpi-dev openmpi-bin gfortran libtool-bin xutils-dev
-            python -m venv $HOME/venv
+            python3 -m venv $HOME/venv
             source $HOME/venv/bin/activate
             pip install --upgrade pip
             pip install --upgrade wheel
@@ -189,7 +189,7 @@ commands:
 jobs:
   test-suite:
     docker:
-      - image: cimg/python:3.10.13
+      - image: cimg/python:3.11.5
 
     resource_class: large
     working_directory: ~/enzo-dev
@@ -240,7 +240,7 @@ jobs:
 
   test-compile-options:
     docker:
-      - image: cimg/python:3.10.13
+      - image: cimg/python:3.11.5
 
     resource_class: large
     working_directory: ~/enzo-dev
@@ -271,7 +271,7 @@ jobs:
 
   docs-build:
     docker:
-      - image: cimg/python:3.10.13
+      - image: cimg/python:3.11.5
 
     working_directory: ~/enzo-dev
 
