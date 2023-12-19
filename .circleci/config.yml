@@ -29,7 +29,7 @@ commands:
             source $BASH_ENV
             sudo apt-get update
             sudo apt-get install -y csh libhdf5-serial-dev libopenmpi-dev openmpi-bin gfortran libtool-bin xutils-dev
-            python -m venv $HOME/venv
+            python3 -m venv $HOME/venv
             source $HOME/venv/bin/activate
             pip install --upgrade pip
             pip install --upgrade wheel
@@ -76,7 +76,7 @@ commands:
           command: |
             sudo apt-get update
             sudo apt-get install -y dvipng texlive-latex-extra
-            python -m venv $HOME/venv
+            python3 venv $HOME/venv
             source $HOME/venv/bin/activate
             pip install --upgrade pip
             pip install --upgrade wheel
