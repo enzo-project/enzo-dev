@@ -332,9 +332,7 @@ c
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, type, justburn, 
-     &                      crmodel, crfeedback, cr,
-     &                      itracksrc, metalSNII, metalSNIa, 
-     &                      metalAGB, metalMsv)
+     &                      crmodel, crfeedback, cr)
 
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
@@ -415,9 +413,6 @@ c
       INTG_PREC crmodel
       R_PREC cr(nx,ny,nz)
       R_PREC crfeedback
-      INTG_PREC itracksrc
-      R_PREC metalSNII(nx,ny,nz), metalSNIa(nx,ny,nz)
-      R_PREC metalAGB(nx,ny,nz), metalMsv(nx,ny,nz)
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
