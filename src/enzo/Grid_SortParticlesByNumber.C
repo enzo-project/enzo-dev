@@ -40,11 +40,12 @@ void grid::SortParticlesByNumber()
     return;
  
   int dim, j;
+  int masses = (StarMakerStoreInitialMass) ? 2 : 1;
  
   /* Allocate arrays of pointer, one for float type and one for FLOAT type,
      and file them up with pointers to the particle data. */
  
-  float **DragList1 = new float*[GridRank+1+NumberOfParticleAttributes];
+  float **DragList1 = new float*[GridRank+masses+NumberOfParticleAttributes];
   FLOAT **DragList2 = new FLOAT*[GridRank];
   int   **DragList3 = new int*[1];
   for (dim = 0; dim < GridRank; dim++) {
@@ -52,14 +53,15 @@ void grid::SortParticlesByNumber()
     DragList1[dim] = ParticleVelocity[dim];
   }
   DragList1[GridRank] = ParticleMass;
+  if (StarMakerStoreInitialMass) DragList1[GridRank+1] = ParticleInitialMass;
   DragList3[0]        = ParticleType;
   for (j = 0; j < NumberOfParticleAttributes; j++)
-    DragList1[GridRank+1+j] = ParticleAttribute[j];
+    DragList1[GridRank+masses+j] = ParticleAttribute[j];
  
   /* Sort by particle index, dragging the data along. */
  
   QuickSortAndDrag(ParticleNumber, 0, NumberOfParticles-1,
-		   GridRank+1+NumberOfParticleAttributes, DragList1,
+		   GridRank+masses+NumberOfParticleAttributes, DragList1,
 		   GridRank, DragList2, 1, DragList3);
  
   /* Clean up. */

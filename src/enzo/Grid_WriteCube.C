@@ -117,6 +117,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
  
   char *ParticleMassLabel = "particle_mass";
+  char *ParticleInitialMassLabel = "particle_initial_mass";
   char *ParticleTypeLabel = "particle_type";
   char *ParticleIndexLabel = "particle_index";
 #ifdef WINDS
@@ -1101,7 +1102,98 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
     delete temp;
  
     } // if output cube active
+
+    // particle initial mass
+
+    if (StarMakerStoreInitialMass) {
  
+      output_cube = FindCube("particle_initial_mass");
+  
+      if ( output_cube > -1 ) {
+  
+      temp = new float32[NumberOfParticles];
+  
+      for (i = 0; i < NumberOfParticles; i++)
+        temp[i] = float32(ParticleInitialMass[i]);
+  
+      strcpy(PartName, "particle_initial_mass");
+      strcpy(GlueFile, base_name);
+      strcat(GlueFile, ".particle_initial_mass");
+  
+      if (io_log) fprintf(log_fptr, "Field name = %s\n", PartName);
+      if (io_log) fprintf(log_fptr, "GlueFile name = %s\n", GlueFile);
+  
+          file_access_template = H5Pcreate (H5P_FILE_ACCESS);
+            if( file_access_template == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Pset_fapl_mpio(file_access_template, MPI_COMM_WORLD, MPI_INFO_NULL);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          file_dsp_id = H5Screate_simple((Eint32) 1, &m_size, NULL);
+            if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          file_id = H5Fcreate(GlueFile, H5F_ACC_TRUNC, H5P_DEFAULT, file_access_template);
+            if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          dset_id = H5Dcreate(file_id, PartName, file_type_id, file_dsp_id, H5P_DEFAULT);
+            if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          xfer_prop_list = H5Pcreate (H5P_DATASET_XFER);
+            if( xfer_prop_list == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Pset_dxpl_mpio(xfer_prop_list, H5FD_MPIO_COLLECTIVE);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          l_size = nop[MyProcessorNumber];
+  
+          mem_dsp_id = H5Screate_simple((Eint32) 1, &l_size, NULL);
+            if( mem_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          m_file_offset = pof[MyProcessorNumber];
+          m_file_stride = 1;
+          m_file_count = nop[MyProcessorNumber];
+  
+          mem_offset = 0;
+          mem_stride = 1;
+          mem_count = nop[MyProcessorNumber];
+  
+          h5_status = H5Sselect_hyperslab(mem_dsp_id, H5S_SELECT_SET, &mem_offset, &mem_stride, &mem_count, NULL);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Sselect_hyperslab(file_dsp_id, H5S_SELECT_SET, &m_file_offset, &m_file_stride, &m_file_count, NULL);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Dwrite(dset_id, float_type_id, mem_dsp_id, file_dsp_id, xfer_prop_list, (VOIDP) temp);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Sclose(mem_dsp_id);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Sclose(file_dsp_id);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Dclose(dset_id);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Pclose(file_access_template);
+            fprintf(log_fptr, "H5Pclose: %"ISYM"\n", h5_status);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Pclose(xfer_prop_list);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Fflush(file_id, H5F_SCOPE_GLOBAL);
+            fprintf(log_fptr, "H5Fflush: %"ISYM"\n", h5_status);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+          h5_status = H5Fclose(file_id);
+            fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
+            if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+      delete temp;
+
+      }
+    }
     // particle_index and particle_type
  
     output_cube = FindCube("particle_index");

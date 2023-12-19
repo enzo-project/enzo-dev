@@ -34,7 +34,7 @@ int grid::CleanUpMovedParticles()
     *Type;
   PINT *Number;
   FLOAT *Position[MAX_DIMENSION];
-  float *Velocity[MAX_DIMENSION], *Mass,
+  float *Velocity[MAX_DIMENSION], *Mass, *InitialMass,
         *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
  
   /* Count the number of unmoved particles. */
@@ -59,6 +59,7 @@ int grid::CleanUpMovedParticles()
     /* Allocate space for the new set of particles. */
  
     Mass = new float[NumberOfParticlesRemaining];
+    InitialMass = (StarMakerStoreInitialMass) ? new float[NumberOfParticlesRemaining] : NULL;
     Number = new PINT[NumberOfParticlesRemaining];
     Type = new int[NumberOfParticlesRemaining];
     for (dim = 0; dim < GridRank; dim++) {
@@ -71,24 +72,44 @@ int grid::CleanUpMovedParticles()
     /* Copy unmoved particles to their new home. */
  
     j = 0;
-    for (i = 0; i < NumberOfParticles; i++)
- 
-      if (ParticleMass[i] != FLOAT_UNDEFINED) {
- 
-	Mass  [j] = ParticleMass  [i];
-	Number[j] = ParticleNumber[i];
-	Type  [j] = ParticleType  [i];
-	for (dim = 0; dim < GridRank; dim++) {
-	  Position[dim][j] = ParticlePosition[dim][i];
-	  Velocity[dim][j] = ParticleVelocity[dim][i];
-	}
-	for (n = 0; n < NumberOfParticleAttributes; n++)
-	  Attribute[n][j] = ParticleAttribute[n][i];
- 
-	j++;   // increment moved particle counter
- 
-      }
- 
+    if (StarMakerStoreInitialMass) {
+      for (i = 0; i < NumberOfParticles; i++)
+  
+        if (ParticleMass[i] != FLOAT_UNDEFINED) {
+  
+          Mass  [j] = ParticleMass  [i];
+          InitialMass[j] = ParticleInitialMass[i];
+          Number[j] = ParticleNumber[i];
+          Type  [j] = ParticleType  [i];
+          for (dim = 0; dim < GridRank; dim++) {
+            Position[dim][j] = ParticlePosition[dim][i];
+            Velocity[dim][j] = ParticleVelocity[dim][i];
+          }
+          for (n = 0; n < NumberOfParticleAttributes; n++)
+            Attribute[n][j] = ParticleAttribute[n][i];
+        
+          j++;   // increment moved particle counter
+  
+        }
+    } else {
+      for (i = 0; i < NumberOfParticles; i++)
+  
+        if (ParticleMass[i] != FLOAT_UNDEFINED) {
+  
+          Mass  [j] = ParticleMass  [i];
+          Number[j] = ParticleNumber[i];
+          Type  [j] = ParticleType  [i];
+          for (dim = 0; dim < GridRank; dim++) {
+            Position[dim][j] = ParticlePosition[dim][i];
+            Velocity[dim][j] = ParticleVelocity[dim][i];
+          }
+          for (n = 0; n < NumberOfParticleAttributes; n++)
+            Attribute[n][j] = ParticleAttribute[n][i];
+        
+          j++;   // increment moved particle counter
+  
+        }
+    }
     /* Delete FromGrid's particles (now copied). */
  
     this->DeleteParticles();
@@ -96,7 +117,7 @@ int grid::CleanUpMovedParticles()
     /* Copy new pointers into their correct position. */
  
     this->SetParticlePointers(Mass, Number, Type, Position, Velocity,
-			      Attribute);
+			      Attribute, InitialMass);
  
   }
  

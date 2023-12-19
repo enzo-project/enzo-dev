@@ -487,6 +487,11 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     this->read_dataset(1, TempIntArray, "particle_mass",
           group_id, HDF5_REAL, (VOIDP) ParticleMass, FALSE);
 
+    if (StarMakerStoreInitialMass) {
+      this->read_dataset(1, TempIntArray, "particle_initial_mass",
+          group_id, HDF5_REAL, (VOIDP) ParticleInitialMass, FALSE);
+    }
+
     /* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
  
     this->read_dataset(1, TempIntArray, "particle_index",

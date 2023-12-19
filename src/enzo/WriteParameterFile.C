@@ -971,6 +971,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  StarMakerTypeIISNeMetalField);
   fprintf(fptr, "StarMakerPlanetaryNebulae             = %"ISYM"\n",
 	  StarMakerPlanetaryNebulae);
+  fprintf(fptr, "StarMakerStoreInitialMass             = %"ISYM"\n",
+	  StarMakerStoreInitialMass);
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n\n",
           MultiMetals);
   fprintf(fptr, "IsotropicConduction                   = %"ISYM"\n", IsotropicConduction);

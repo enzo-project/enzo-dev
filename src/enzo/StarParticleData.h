@@ -12,6 +12,7 @@
 #ifndef STAR_PARTICLE_DATA_DEFINED__
 #define STAR_PARTICLE_DATA_DEFINED__
 
+#include "global_data.h"
 #ifdef DEFINE_STORAGE
 # define SPEXTERN
 #else /* DEFINE_STORAGE */
@@ -29,6 +30,7 @@ struct ParticleEntry {
   float Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
   PINT Number;
   int Type;
+  float InitialMass = 0;
 };
 
 
@@ -76,6 +78,7 @@ SPEXTERN int   StarMakerThermalCrit;
 SPEXTERN int   StarMakerH2Crit;
 SPEXTERN int   StarMakerStochasticStarFormation;
 SPEXTERN float StarMakerTemperatureThreshold;
+SPEXTERN int   StarMakerStoreInitialMass;
 
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIInitialMassFunction;

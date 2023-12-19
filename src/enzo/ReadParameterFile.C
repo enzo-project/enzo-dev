@@ -963,6 +963,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarMakerTypeIISNeMetalField);
     ret += sscanf(line, "StarMakerPlanetaryNebulae = %"ISYM,
 		  &StarMakerPlanetaryNebulae);
+    ret += sscanf(line, "StarMakerStoreInitialMass = %"ISYM,
+		  &StarMakerStoreInitialMass);
     ret += sscanf(line, "StarMakerOverDensityThreshold = %"FSYM,
 		  &StarMakerOverDensityThreshold);
     ret += sscanf(line, "StarMakerUseOverDensityThreshold = %"ISYM,

@@ -348,6 +348,7 @@ struct particle_data {
   FLOAT pos[MAX_DIMENSION];
   float vel[MAX_DIMENSION];
   float mass;
+  float initial_mass = 0;
   float attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
   PINT  id;
   int   type;

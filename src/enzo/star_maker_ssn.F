@@ -17,7 +17,7 @@ c
      &     mp, tdp, tcp, metalf,
      &     imetalSNIa, metalSNIa, metalfSNIa,
      &     imetalSNII, metalSNII, metalfSNII,
-     &     mfcell)
+     &     mfcell, iminit, minit)
 
 c
 c  CREATES STAR PARTICLES
@@ -48,6 +48,7 @@ c    level - current level of refinement
 c    procnum - processor number (for output)
 c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
 c    mfcell - the maximum baryonic mass of a cell we allow to become a star particle.
+c    iminit - whether to store initial mass separately
 c
 c  OUTPUTS:
 c
@@ -61,6 +62,7 @@ c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    metalfSNIa - metallicity fraction of particle (from SN Ia)
 c    nmax     - particle array size specified by calling routine
+c    minit    - initial mass of new particles
 c
 c
 c-----------------------------------------------------------------------
@@ -71,7 +73,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC imetalSNIa, procnum, tindsf, useodthresh
+      INTG_PREC imetalSNIa, procnum, tindsf, useodthresh, iminit
       INTG_PREC imetalSNII
       R_PREC    metalSNII(nx,ny,nz)
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
@@ -84,7 +86,7 @@ c
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax),
-     &     metalfSNIa(nmax), metalfSNII(nmax)
+     &     metalfSNIa(nmax), metalfSNII(nmax), minit(nmax)
       R_PREC    odthresh, masseff, smthresh, mfcell
 c
       R_PREC   sformsum
@@ -186,6 +188,9 @@ c              5) Create a star particle
 c
                ii = ii + 1
                mp(ii)  = starfraction*d(i,j,k)
+               if (iminit .eq. 1) then
+                  minit(ii) = mp(ii)
+               endif
                tcp(ii) = t
                tdp(ii) = tdyn
                xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx

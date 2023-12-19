@@ -39,12 +39,13 @@ int grid::AddOneParticleFromList(ParticleEntry *List, const int place)
   int *Type;
   FLOAT *Position[MAX_DIMENSION];
   float *Velocity[MAX_DIMENSION];
-  float *Mass;
+  float *Mass, *InitialMass;
   float *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 
   Number = new PINT[NumberOfParticles];
   Type = new int[NumberOfParticles];
   Mass = new float[NumberOfParticles];
+  InitialMass = (StarMakerStoreInitialMass) ? new float[NumberOfParticles] : NULL;
   for (dim = 0; dim < GridRank; dim++) {
     Position[dim] = new FLOAT[NumberOfParticles];
     Velocity[dim] = new float[NumberOfParticles];
@@ -53,25 +54,41 @@ int grid::AddOneParticleFromList(ParticleEntry *List, const int place)
     Attribute[i] = new float[NumberOfParticles];
 
   /* copy old particles to their new home. */
+  if (StarMakerStoreInitialMass) {
+    for (i = 0; i < NumberOfParticles - 1; i++) {
 
-  for (i = 0; i < NumberOfParticles - 1; i++) {
-
-    Mass[i]   = ParticleMass[i];
-    Number[i] = ParticleNumber[i];
-    Type[i]   = ParticleType[i];
-    for (dim = 0; dim < GridRank; dim++) {
-      Position[dim][i] = ParticlePosition[dim][i];
-      Velocity[dim][i] = ParticleVelocity[dim][i];
+        Mass[i]   = ParticleMass[i];
+        InitialMass[i] = ParticleInitialMass[i];
+        Number[i] = ParticleNumber[i];
+        Type[i]   = ParticleType[i];
+        for (dim = 0; dim < GridRank; dim++) {
+          Position[dim][i] = ParticlePosition[dim][i];
+          Velocity[dim][i] = ParticleVelocity[dim][i];
+        }
+        for (n = 0; n < NumberOfParticleAttributes; n++)
+          Attribute[n][i] = ParticleAttribute[n][i];
     }
-    for (n = 0; n < NumberOfParticleAttributes; n++)
-      Attribute[n][i] = ParticleAttribute[n][i];
-  
+  } else {
+    for (i = 0; i < NumberOfParticles - 1; i++) {
+
+      Mass[i]   = ParticleMass[i];
+      Number[i] = ParticleNumber[i];
+      Type[i]   = ParticleType[i];
+      for (dim = 0; dim < GridRank; dim++) {
+        Position[dim][i] = ParticlePosition[dim][i];
+        Velocity[dim][i] = ParticleVelocity[dim][i];
+      }
+      for (n = 0; n < NumberOfParticleAttributes; n++)
+        Attribute[n][i] = ParticleAttribute[n][i];
+    
+    }
   }
 
   /* append new particles */
 
   i = NumberOfParticles - 1;
   Mass[i]   = List[place].Mass/pow(CellWidth[0][0],3);
+  if (StarMakerStoreInitialMass) InitialMass[i] = List[place].InitialMass/pow(CellWidth[0][0],3);
   Number[i] = List[place].Number;
   Type[i]   = List[place].Type;
   for (dim = 0; dim < GridRank; dim++) {
@@ -88,7 +105,7 @@ int grid::AddOneParticleFromList(ParticleEntry *List, const int place)
   /* Copy new pointers into their correct position. */
   
   this->SetParticlePointers(Mass, Number, Type, Position, Velocity, 
-			    Attribute);
+			    Attribute, InitialMass);
 
   return SUCCESS;
 }

@@ -34,7 +34,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
  
 // Set the Left BoundaryValue of the chosen wave direction (set by
 //  GalaxySimulationRPSWindSpeed) to the appropriate inflow boundary condition.
- 
+
 int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 {
 	if( 0 == GalaxySimulationRPSWind ) return SUCCESS;

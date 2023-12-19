@@ -67,10 +67,11 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   /* Allocate space for the particles. */
  
   FLOAT *Position[MAX_DIMENSION];
-  float *Velocity[MAX_DIMENSION], *Mass,
+  float *Velocity[MAX_DIMENSION], *Mass, *InitialMass,
         *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
  
   Mass = new float[TotalNumberOfParticles];
+  InitialMass = (StarMakerStoreInitialMass) ? new float[TotalNumberOfParticles] : NULL;
   Number = new PINT[TotalNumberOfParticles];
   Type = new int[TotalNumberOfParticles];
   for (int dim = 0; dim < GridRank; dim++) {
@@ -95,11 +96,19 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   MassDecrease = 1.0/MassDecrease;
  
   /* Copy this grid's particles to the new space. */
- 
-  for (i = 0; i < NumberOfParticles; i++) {
-    Mass[i]   = ParticleMass[i];
-    Number[i] = ParticleNumber[i];
-    Type[i]   = ParticleType[i];
+  if (StarMakerStoreInitialMass) {
+    for (i = 0; i < NumberOfParticles; i++) {
+      Mass[i]   = ParticleMass[i];
+      InitialMass[i] = ParticleInitialMass[i];
+      Number[i] = ParticleNumber[i];
+      Type[i]   = ParticleType[i];
+    }
+  } else {
+    for (i = 0; i < NumberOfParticles; i++) {
+      Mass[i]   = ParticleMass[i];
+      Number[i] = ParticleNumber[i];
+      Type[i]   = ParticleType[i];
+    }
   }
   for (dim = 0; dim < GridRank; dim++)
     for (i = 0; i < NumberOfParticles; i++) {
@@ -117,7 +126,7 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   /* Copy new pointers into their correct position. */
  
   this->SetParticlePointers(Mass, Number, Type, Position, Velocity,
-			    Attribute);
+			    Attribute, InitialMass);
  
   /* Copy FromGrids' particles to new space on local "fake" grid. */
  
@@ -126,6 +135,8 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
 
     for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {
       Mass[Index+i] = FromGrid[grid]->ParticleMass[i] * MassDecrease;
+      if (StarMakerStoreInitialMass)
+        InitialMass[Index+i] = FromGrid[grid]->ParticleInitialMass[i] * MassDecrease; // does this make sense?
       Number[Index+i] = FromGrid[grid]->ParticleNumber[i];
       Type[Index+i] = FromGrid[grid]->ParticleType[i];
     }
@@ -218,11 +229,12 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
   /* Allocate space for the particles. */
 
   FLOAT *Position[MAX_DIMENSION];
-  float *Velocity[MAX_DIMENSION], *Mass,
+  float *Velocity[MAX_DIMENSION], *Mass, *InitialMass,
         *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 
   if (MyProcessorNumber == ProcessorNumber) {
      Mass = new float[TotalNumberOfParticles];
+     InitialMass = (StarMakerStoreInitialMass) ? new float[TotalNumberOfParticles] : NULL;
      Number = new PINT[TotalNumberOfParticles]; 
      Type = new int[TotalNumberOfParticles];
      for (int dim = 0; dim < GridRank; dim++) {
@@ -250,21 +262,36 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
 
   /* Copy this grid's particles to the new space. */
 
-   if (MyProcessorNumber == ProcessorNumber) {
-     for (i = 0; i < NumberOfParticles; i++) {
-       Mass[i]   = ParticleMass[i];
-       Number[i] = ParticleNumber[i];
-       Type[i]   = ParticleType[i];
-     }
-     for (dim = 0; dim < GridRank; dim++)
-       for (i = 0; i < NumberOfParticles; i++) {
-	 Position[dim][i] = ParticlePosition[dim][i];
-	 Velocity[dim][i] = ParticleVelocity[dim][i];
-       }
-     for (j = 0; j < NumberOfParticleAttributes; j++)
-       for (i = 0; i < NumberOfParticles; i++)
-	 Attribute[j][i] = ParticleAttribute[j][i];
-   }
+  if (MyProcessorNumber == ProcessorNumber && StarMakerStoreInitialMass) {
+    for (i = 0; i < NumberOfParticles; i++) {
+      Mass[i]   = ParticleMass[i];
+      InitialMass[i] = ParticleInitialMass[i];
+      Number[i] = ParticleNumber[i];
+      Type[i]   = ParticleType[i];
+    }
+    for (dim = 0; dim < GridRank; dim++)
+      for (i = 0; i < NumberOfParticles; i++) {
+        Position[dim][i] = ParticlePosition[dim][i];
+        Velocity[dim][i] = ParticleVelocity[dim][i];
+      }
+    for (j = 0; j < NumberOfParticleAttributes; j++)
+      for (i = 0; i < NumberOfParticles; i++)
+        Attribute[j][i] = ParticleAttribute[j][i];
+  } else if (MyProcessorNumber == ProcessorNumber) {
+    for (i = 0; i < NumberOfParticles; i++) {
+      Mass[i]   = ParticleMass[i];
+      Number[i] = ParticleNumber[i];
+      Type[i]   = ParticleType[i];
+    }
+    for (dim = 0; dim < GridRank; dim++)
+      for (i = 0; i < NumberOfParticles; i++) {
+        Position[dim][i] = ParticlePosition[dim][i];
+        Velocity[dim][i] = ParticleVelocity[dim][i];
+      }
+    for (j = 0; j < NumberOfParticleAttributes; j++)
+      for (i = 0; i < NumberOfParticles; i++)
+        Attribute[j][i] = ParticleAttribute[j][i];
+  }
 
   /* Delete this grid's particles (now copied). */  
 
@@ -274,7 +301,7 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
     /* Copy new pointers into their correct position. */
 
     this->SetParticlePointers(Mass, Number, Type, Position, Velocity,  
-			      Attribute);
+			      Attribute, InitialMass);
   }
 
   /* Copy FromGrids' particles to new space (starting at NumberOfParticles). */
@@ -290,10 +317,19 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
       //      fprintf(stderr, "P(%d) copying %d particles\n", MyProcessorNumber,
       //	     FromGrid[grid]->NumberOfParticles);
 
-      for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {
-	Mass[Index+i] = FromGrid[grid]->ParticleMass[i] * MassDecrease;
-	Number[Index+i] = FromGrid[grid]->ParticleNumber[i];
-	Type[Index+i] = FromGrid[grid]->ParticleType[i];
+      if (StarMakerStoreInitialMass){
+        for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {
+          Mass[Index+i] = FromGrid[grid]->ParticleMass[i] * MassDecrease;
+          InitialMass[Index+i] = FromGrid[grid]->ParticleInitialMass[i] * MassDecrease;
+          Number[Index+i] = FromGrid[grid]->ParticleNumber[i];
+          Type[Index+i] = FromGrid[grid]->ParticleType[i];
+        }
+      } else {
+        for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {
+          Mass[Index+i] = FromGrid[grid]->ParticleMass[i] * MassDecrease;
+          Number[Index+i] = FromGrid[grid]->ParticleNumber[i];
+          Type[Index+i] = FromGrid[grid]->ParticleType[i];
+        }
       }
 
       for (dim = 0; dim < GridRank; dim++)
@@ -320,9 +356,15 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
       /* Change mass, as required. */
 
       if (MyProcessorNumber == ProcessorNumber)
-	for (i = Index; i < Index+FromGrid[grid]->NumberOfParticles; i++)
-	  Mass[i] *= MassDecrease;
-
+        if (StarMakerStoreInitialMass) {
+          for (i = Index; i < Index+FromGrid[grid]->NumberOfParticles; i++){
+            Mass[i] *= MassDecrease;
+            InitialMass[i] *= MassDecrease;
+          }
+        } else {
+          for (i = Index; i < Index+FromGrid[grid]->NumberOfParticles; i++)
+            Mass[i] *= MassDecrease;
+        }
     }
 
     Index += FromGrid[grid]->NumberOfParticles;

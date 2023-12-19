@@ -589,6 +589,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerTypeIaSNe               = FALSE;
   StarMakerTypeIISNeMetalField     = FALSE;
   StarMakerPlanetaryNebulae        = FALSE;
+  StarMakerStoreInitialMass        = FALSE;
   StarMakerUseOverDensityThreshold = TRUE;
   StarMakerMaximumFractionCell     = 0.5;
   StarMakerOverDensityThreshold    = 100;          // times mean total density

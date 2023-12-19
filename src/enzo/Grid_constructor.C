@@ -120,6 +120,7 @@ grid::grid()
   /* Clear miscelaneous pointers */
  
   ParticleMass                  = NULL;
+  ParticleInitialMass           = NULL;
   ParticleNumber                = NULL;
   ParticleType                  = NULL;
   PotentialField                = NULL;

@@ -206,7 +206,7 @@ void MergeToNewList(ParticleEntry *List, const int &Size, int *Flag,
   //printf("\n Particle Merge to new list \n \n");
   for (int group = 0; group < NewSize; group++) {
 
-    float mass = 0.0, maxmass = -1.0;
+    float mass = 0.0, initial_mass = 0.0, maxmass = -1.0;
     FLOAT position[3] = {0.0, 0.0, 0.0};
     float velocity[3] = {0.0, 0.0, 0.0};
     float dm = 0.0;
@@ -224,6 +224,7 @@ void MergeToNewList(ParticleEntry *List, const int &Size, int *Flag,
 	    (mass + List[j].Mass); // momentum conservation
 	}
 	mass += List[j].Mass;
+  if (StarMakerStoreInitialMass) initial_mass += List[j].InitialMass;
 
 	if (List[j].Mass > maxmass) { // record the maximum mass one inside a group 
 	  maxmass = List[j].Mass;
@@ -235,6 +236,7 @@ void MergeToNewList(ParticleEntry *List, const int &Size, int *Flag,
     NewList[group].Number = List[index].Number; // ID & attribute is the one with maximum mass
     NewList[group].Type = List[index].Type;
     NewList[group].Mass = mass;
+    NewList[group].InitialMass = initial_mass;
     for (int dim = 0; dim < 3; dim++) {
       NewList[group].Position[dim] = position[dim];
       NewList[group].Velocity[dim] = velocity[dim];
