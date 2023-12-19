@@ -316,7 +316,9 @@ extern "C" void FORTRAN_NAME(star_feedback2)(int *nx, int *ny, int *nz,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type,
-	     float *justburn, int *crmodel, float *crfeedback, float *cr);
+	     float *justburn, int *crmodel, float *crfeedback, float *cr,
+        int *tracksources, float *metalSNII, float *metalSNIa,
+        float *metalAGB, float *metalMsv);
  
 extern "C" void FORTRAN_NAME(star_feedback3mom)(int *nx, int *ny, int *nz,
 						float *d, float *mu, float *dm, float *te, float *ge, float *u, float *v,
@@ -611,9 +613,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Find metallicity field and set flag. */
  
   int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-    MetalIaNum, MetalIINum;
+    MetalIaNum, MetalIINum, MetalAGBNum, MetalMsvNum;
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, 
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, 
+              MetalIaNum, MetalIINum, MetalAGBNum, MetalMsvNum,
               MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
@@ -1552,7 +1555,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation, 
-       &CRModel, &CRFeedback, (CRModel?BaryonField[CRNum]:NULL));
+       &CRModel, &CRFeedback, (CRModel?BaryonField[CRNum]:NULL),
+       &StarFeedbackTrackMetalSources, BaryonField[MetalIINum],
+       BaryonField[MetalIaNum], BaryonField[MetalAGBNum], BaryonField[MetalMsvNum]);
  
   } // end: if NORMAL_STAR
  

@@ -1006,6 +1006,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StarFeedbackUseTabularYields = %"ISYM, &StarFeedbackUseTabularYields);
     if (sscanf(line, "StarFeedbackTabularFilename = %s", dummy) == 1)
       StarFeedbackTabularFilename = dummy;
+    ret += sscanf(line, "StarFeedbackTrackMetalSources = %"ISYM, &StarFeedbackTrackMetalSources);
 
     ret += sscanf(line, "StarClusterUseMetalField = %"ISYM,
 		  &StarClusterUseMetalField);

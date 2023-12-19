@@ -596,6 +596,16 @@ Feedback regions cannot extend past the host grid boundaries. If the region spec
 
 Also see :ref:`StarParticleParameters`.
 
+.. _tabular_sources:
+
+Tabular Feedback Yields & Source Tracking
+-----------------------------------------
+
+You gotta modify problem type files and also your feedback routines.
+Tables are made with SYGMA and follow a certain structure.
+The values contained within are as follows.
+The most relevant SYGMA parameters should be described.
+
 Notes
 ------------------------
 

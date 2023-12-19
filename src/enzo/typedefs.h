@@ -181,7 +181,11 @@ const field_type
   ImPsi = 102,
   FDMDensity = 103,
 
-  FieldUndefined  = 104;
+  /* Metals from AGB & massive star winds */
+  MetalAGBDensity = 104,
+  MetalMassiveDensity = 105,
+
+  FieldUndefined  = 106;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

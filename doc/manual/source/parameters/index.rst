@@ -2179,6 +2179,23 @@ General Star Formation
     the UV luminosity being determined with the parameter
     ``StarEnergyToStellarUV``.  Default: OFF
 
+``StarFeedbackUseTabularYields`` (external)
+    Setting this parameter to 1 will enable a feedback routine to 
+    calculate mass, metal, and energy yields from a table.
+    Default: 0 (OFF)
+
+``StarFeedbackTabularFilename`` (external)
+    Filename of the HDF5 file that contains the feedback yields.
+    Used with ``StarFeedbackUseTabularYields``.
+
+``StarFeedbackTrackMetalSources`` (external)
+    This parameter must be used in conjunction with ``StarFeedbackUseTabularFields``.
+    Setting this parameter to 1 will allow metals injected from Type II SNe, Type Ia SNe,
+    AGB stars, and massive stars to be tracked by separate metal fields:
+    ``MetalSNII_Density``, ``MetalSNIa_Density``, ``MetalAGB_Density``, ``MetalMassive_Density``.
+    These metals will all contribute to the total metallicity (which is important for cooling.)
+    Default: 0 (OFF)
+
 .. _normal_star_formation_parameters:
 
 Normal Star Formation

@@ -950,6 +950,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarFeedbackUseTabularYields);
   fprintf(fptr, "StarFeedbackTabularFilename           = %s\n",
           StarFeedbackTabularFilename);
+  fprintf(fptr, "StarFeedbackTrackMetalSources         = %"ISYM"\n",
+          StarFeedbackTrackMetalSources);
 
   fprintf(fptr, "StarMakerUseJeansMass                 = %"ISYM"\n",
 	  StarMakerUseJeansMass);

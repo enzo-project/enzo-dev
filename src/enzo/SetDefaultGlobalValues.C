@@ -614,6 +614,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarFeedbackDistCellStep         = 0;
   StarFeedbackDistTotalCells       = 1;
   StarFeedbackUseTabularYields     = FALSE;
+  StarFeedbackTrackMetalSources    = FALSE;
   StarMakerUseJeansMass            = TRUE;
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;

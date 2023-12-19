@@ -35,7 +35,8 @@ int grid::InitializeUniformGrid(float UniformDensity,
   int dim, i, j, k, index, size, field, GCM;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum, CRNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum, CRNum,
+    MetalIINum, MetalAGBNum, MetalMsvNum;
 
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
@@ -104,9 +105,15 @@ int grid::InitializeUniformGrid(float UniformDensity,
   if (TestProblemData.UseMetallicityField) {
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
 
-    if (StarMakerTypeIaSNe)
+    if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
       FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
-
+    
+    if (StarFeedbackTrackMetalSources) {
+      FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
+      FieldType[MetalAGBNum = NumberOfBaryonFields++] = MetalAGBDensity;
+      FieldType[MetalMsvNum = NumberOfBaryonFields++] = MetalMassiveDensity;
+    }
+    
     if(TestProblemData.MultiMetals){
       FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
       FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
