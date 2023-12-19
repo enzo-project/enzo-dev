@@ -240,7 +240,7 @@ jobs:
 
   test-compile-options:
     docker:
-      - image: cimg/python:3.11.5
+      - image: cimg/python:3.10.13
 
     resource_class: large
     working_directory: ~/enzo-dev
@@ -271,7 +271,7 @@ jobs:
 
   docs-build:
     docker:
-      - image: cimg/python:3.11.5
+      - image: cimg/python:3.10.13
 
     working_directory: ~/enzo-dev
 
