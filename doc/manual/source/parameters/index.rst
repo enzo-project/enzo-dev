@@ -2096,6 +2096,11 @@ General Star Formation
       14 - Cen & Ostriker (1992) stochastic star formation with kinetic feedback 
              / Simpson et al. (2015)
 
+``StarMakerStoreInitialMass`` (external)
+    Optionally track a particle's initial mass. 
+    Implemented for all creation methods but 4.
+    Default: 0 (OFF)
+
 ``StarParticleFeedback`` (external)
     This parameter works the same way as ``StarParticleCreation`` but only
     is valid for ``StarParticleCreation`` method = 0, 1, 2, 7, 8 and 14 because methods 3, 5 and 9
@@ -2182,6 +2187,7 @@ General Star Formation
 ``StarFeedbackUseTabularYields`` (external)
     Setting this parameter to 1 will enable a feedback routine to 
     calculate mass, metal, and energy yields from a table.
+    Requires ``StarMakerStoreInitialMass`` to be enabled (i.e. set to 1).
     Default: 0 (OFF)
 
 ``StarFeedbackTabularFilename`` (external)
@@ -2827,7 +2833,7 @@ Radiative Transfer (Ray Tracing) Parameters
     summed into the global variable ``EscapedPhotonCount[]``. This variable
     also keeps track of the number of photons passing this radius
     multiplied by 0.5, 1, and 2. Units are in kpc. Not used if set to
-    0. Default: 0.
+    1. Default: 0.
 ``RadiativeTransferSourceClustering`` (external)
     Set to 1 to turn on ray merging from combined virtual sources on a
     binary tree. Default: 0.

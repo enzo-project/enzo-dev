@@ -2170,6 +2170,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   } // if(StarFeedbackThermalEfficiencyRamp > 0)
 
   if (StarFeedbackUseTabularYields) {
+
+    if (!StarMakerStoreInitialMass)
+      ENZO_FAIL("StarFeedbackUseTabularYields requires StarMakerStoreInitialMass to be enabled.");
+
     if (ReadFeedbackTable(StarFeedbackTabularFilename) == FAIL) {
       ENZO_FAIL("Error in ReadFeedbackTable.");
     } else {
