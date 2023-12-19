@@ -2022,22 +2022,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   }
 
-  if (StarFeedbackPreSNe) {
-      FORTRAN_NAME(star_feedback_emf)(GridDimension, GridDimension+1, GridDimension+2,
-        BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum], 
-        BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], 
-        &DualEnergyFormalism, &HydroMethod, &dtFixed, &CellWidthTemp, &Time,
-        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
-        &NumberOfParticles,
-        CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
-        ParticlePosition[0], ParticlePosition[1], ParticlePosition[2],
-        ParticleVelocity[0], ParticleVelocity[1], ParticleVelocity[2],
-        ParticleMass, &StarMakerStoreInitialMass, ParticleInitialMass, 
-        ParticleAttribute[0], ParticleType,
-        &StarFeedbackPreSNeAlpha, &StarFeedbackPreSNeTimescale, 
-        &StarFeedbackPreSNeMomentum);
-  }
-
   if (StarMakerTypeIaSNe == 1 || StarMakerPlanetaryNebulae == 1) {
 
       FORTRAN_NAME(star_feedback_pn_snia)(
