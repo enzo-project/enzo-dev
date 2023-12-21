@@ -6,15 +6,18 @@
 c=======================================================================
 c/////////////////////  SUBROUTINE STAR_FEEDBACK \\\\\\\\\\\\\\\\\\\\\\\
 c
-      subroutine star_feedback2(nx, ny, nz,
+      subroutine star_feedback2_tab(nx, ny, nz,
      &                      d, dm, te, ge, u, v, w, metal,
-     &                      idual, imetal, imethod, dt, r, dx, t, z,
-     &                      d1, x1, v1, t1, sn_param, m_eject, yield,
+     &                      idual, imetal, hmethod, dt, r, dx, t, z,
+     &                      d1, x1, v1, t1,
      &                      distrad, diststep, distcells,
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, type,
-     &                      itracksrc, metalSNII, metalSNIa)
+     &                      mp, tcp, metalf, minit, type,
+     &                      ergSNII, ergSNIa,
+     &                      itracksrc, metalSNII, metalSNIa,
+     &                      ntabZ, ntabAge,
+     &                      tabZ, tabAge, tabEvents)
 
 c
 c  modification of Cen & Ostriker feedback (method 1; star_maker2.F)
@@ -37,22 +40,31 @@ c    nx,ny,nz - dimensions of field arrays
 c    ibuff    - number of buffer zones at each end of grid
 c    idual    - dual energy flag
 c    imetal   - metallicity flag (0 - none, 1 - yes)
-c    imethod  - hydro method (0 - PPMDE, 1 - PPMLR, 2 - ZEUS)
+c    hmethod  - hydro method (0 - PPMDE, 1 - PPMLR, 2 - ZEUS)
 c
 c    x/y/z start - starting position of grid origin
 c    xp,yp,zp - positions of created particles
 c    up,vp,wp - velocities of created particles
-c    mp       - mass of new particles
-c    tdp      - dynamical time of zone in which particle created
+c    mp       - current particle mass
 c    tcp      - creation time of particle (-1 if not a star particle)
 c    metalf   - star particle metal fraction
+c    minit    - initial particle mass
+c    type     - particle type
 c    npart    - particle array size specified by calling routine
-c    sn_param - fraction of stellar rest mass that goes to feedback
-c    m_eject  - fraction of stellar mass ejected back to gas
-c    yield    - fraction of stellar mass that is converted to metals
 c    distrad  - feedback distribution radius in cells
 c    diststep - distance in walking steps to deposit feedback
 c    distcells - total number of cells over which to distribute feedback 
+c
+c    ergSNII   - energy in ergs per SNII event
+c    ergSNIa   - energy in ergs per SNIa event
+c    itracksrc - flag for whether or not SNII & SNIa metals tracked separately
+c    metalSNII - field for SNII metals
+c    metalSNIa - field for SNIa metals
+c    ntabZ     - number of initial metallicities
+c    ntabAge   - number of population ages
+c    tabZ      - metal indicies for FB yield table
+c    tabAge    - age indicies for FB yield table
+c    tabEvents - table of SNe event rates
 c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
@@ -65,27 +77,31 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, imethod,
+      INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, hmethod,
      &      distrad, diststep, distcells
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
       R_PREC    dt, dx, z
       R_PREC    d1, x1, v1, t1, justburn
-      P_PREC xstart, ystart, zstart, t
-      P_PREC xp(npart), yp(npart), zp(npart)
+      P_PREC    xstart, ystart, zstart, t
+      P_PREC    xp(npart), yp(npart), zp(npart)
       R_PREC    up(npart), vp(npart), wp(npart)
       R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
+      R_PREC    minit(npart)
       INTG_PREC type(npart)
-      INTG_PREC itracksrc
-      R_PREC metalSNII(nx,ny,nz), metalSNIa(nx,ny,nz)
+      R_PREC    ergSNII, ergSNIa
+      INTG_PREC itracksrc, ntabZ, ntabAge
+      R_PREC    metalSNII(nx,ny,nz), metalSNIa(nx,ny,nz)
+      R_PREC    tabZ(ntabZ), tabAge(ntabAge)
+      R_PREC    tabEvents(ntabZ, ntabAge, 2)
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
       INTG_PREC i, j, k, n, ic, jc, kc, stepk, stepj, cellstep
       R_PREC mform, tfactor, energy, sn_param, msolar_e51,
-     &     m_eject, yield, minitial, xv1, xv2, dratio,
+     &     m_eject, yield, xv1, xv2, dratio,
      &     distmass
       parameter (msolar_e51 = 1800._RKIND)
 c
@@ -96,37 +112,6 @@ c
 c      write(6,*) 'star_feedback2: start'
       do n=1, npart
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
-c
-
-
-c        The star particle creation algorithm partnered with this 
-c          feedback algorithm creates a star particle instantaneously.
-c          However, we do feedback as if the star particles are created 
-c          over a long period of time (in code units), so the particle
-c          actually loses mass over time in an exponentially decaying
-c          way.
-
-c        Determine how much of a given star particle would have been 
-c          turned into stars during this timestep.  Then calculate the mass
-c          which should have formed during this timestel dt using the integral
-c          form of the Cen & Ostriker formula.
-
-            xv1 = (t      - tcp(n))/tdp(n)
-            if (xv1 .gt. 12._RKIND) goto 10     ! t-tcp >> tdp so ignore
-            xv2 = (t + dt - tcp(n))/tdp(n)
-
-c        First calculate the initial mass of the star particle 
-c          in question.
-            minitial = mp(n) / 
-     &           (1._RKIND - m_eject*(1._RKIND - (1._RKIND + xv1)
-     &           *exp(-xv1)))
-c
-c       Then, calculate the amount of mass that would have formed in
-c         this timestep.
-c
-            mform = minitial * ((1._RKIND + xv1)*exp(-xv1) - 
-     &                          (1._RKIND + xv2)*exp(-xv2))
-            mform = max(min(mform, mp(n)), 0._RKIND)
 c
 c         Compute index of the cell that the star particle
 c           resides in.
@@ -143,10 +128,6 @@ c
                write(6,*) 'warning: star particle out of grid',i,j,k
                goto 100
             endif
-c
-c          skip if very little mass is formed.
-c
-            if (mform/d(i,j,k) .lt. 1.e-10_RKIND) goto 10
 c
 c          calculate mass added to each cell
 c
@@ -197,22 +178,13 @@ c
                      cellstep = stepj + abs(ic-i)
                      if (cellstep .le. diststep) then
                         dratio = 1._RKIND/(d(ic,jc,kc) + distmass)
-                        if( crmodel .gt. 0 ) then
-                          te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
-     &                          energy*(1._RKIND-crfeedback)) * dratio
-                          if (idual .eq. 1)
-     &                      ge(ic,jc,kc) =
-     &                         ((ge(ic,jc,kc)*d(ic,jc,kc)) +
-     &                         energy*(1._RKIND-crfeedback)) * dratio
-                          cr(ic,jc,kc) = cr(ic,jc,kc)+energy*crfeedback
-                        else
-                           te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
-     &                          energy) * dratio
-                           if (idual .eq. 1)
-     &                          ge(ic,jc,kc) =
-     &                          ((ge(ic,jc,kc)*d(ic,jc,kc)) +
-     &                          energy) * dratio
-                        endif
+                        te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
+     &                                  energy) * dratio
+                        if (idual .eq. 1)
+     &                   ge(ic,jc,kc) =
+     &                       ((ge(ic,jc,kc)*d(ic,jc,kc)) +
+     &                        energy) * dratio
+
 c
 c           Metal feedback (note that in this function gas metal is
 c             a fraction (rho_metal/rho_gas) rather than a density.
@@ -244,10 +216,10 @@ c
                         v(ic,jc,kc) = v(ic,jc,kc)/d(ic,jc,kc)
                         w(ic,jc,kc) = w(ic,jc,kc)/d(ic,jc,kc)
 c
-c           If te is really total energy (and it is unless imethod=2),
+c           If te is really total energy (and it is unless hmethod=2),
 c             then just set this value
 c
-                        if (imethod .ne. 2 .and. idual .eq. 1) then
+                        if (hmethod .ne. 2 .and. idual .eq. 1) then
                            te(ic,jc,kc) = 0.5_RKIND*(u(ic,jc,kc)**2 + 
      &                          v(ic,jc,kc)**2 + w(ic,jc,kc)**2) +
      &                          ge(ic,jc,kc)
@@ -265,5 +237,31 @@ c
       enddo
 c
 c      write(6,*) 'star_feedback2: end'
+      return
+      end
+c
+c ===============================================
+c 
+c     Perform bilinear interpolation
+c
+      subroutine bilinear_interp(x, y, x1, x2, y1, y2,
+     &                           fx1y1, fx1y2, fx2y1, fx2y2,
+     &                           interp)
+c
+      implicit none
+#include "fortran_types.def"
+c
+c     Arguments
+c
+      R_PREC x, y, x1, x2, y1, y2, fx1y1, fx1y2, fx2y1, fx2y2
+c
+c     Return
+c
+      R_PREC interp
+c
+      interp = fx1y1*(x2-x)*(y2-y) + fx2y1*(x-x1)*(y2-y) 
+     &       + fx1y2*(x2-x)*(y-y1) + fx2y2*(x-x1)*(y-y1)
+c
+      interp = interp / ( (x2-x1)*(y2-y1) )
       return
       end

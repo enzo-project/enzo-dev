@@ -327,6 +327,20 @@ extern "C" void FORTRAN_NAME(star_feedback2)(int *nx, int *ny, int *nz,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type,
 	     float *justburn, int *iminit, float *minit,
         int *crmodel, float *crfeedback, float *cr);
+
+extern "C" void FORTRAN_NAME(star_feedback2_tab)(
+         int *nx, int *ny, int *nz,
+         float *d, float *dm, float *te, float *ge,
+         float *u, float *v, float *w, float *metal,
+         int *idual, int *imetal, hydro_method *hmethod,
+         float *dt, float *r, float *dx, FLOAT *t, float *z,
+         float *d1, float *x1, float *v1, float *t1,
+         int *distrad, int *diststep, int *distcells,
+         int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, int *ibuff,
+         FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
+         float *mp, float *tcp, float *metalf, float *minit, int *type,
+         float *esnii, float *esnia, int *itracksrc, float *zsnii, float *zsnia,
+         int *ntabz, int *ntabage, float *tabz, float *tabage, float *tabevnt);
  
 extern "C" void FORTRAN_NAME(star_feedback3mom)(int *nx, int *ny, int *nz,
 						float *d, float *mu, float *dm, float *te, float *ge, float *u, float *v,
@@ -1559,6 +1573,30 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
   if (STARFEED_METHOD(NORMAL_STAR)) {
 
+   if (StarFeedbackUseTabularYields) {
+      /* StarMakerStoreInitialMass is required & checked at parameter read */
+      FORTRAN_NAME(star_feedback2_tab)(
+         GridDimension, GridDimension+1, GridDimension+2,
+         BaryonField[DensNum], dmfield,
+         BaryonField[TENum], BaryonField[GENum],
+         BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
+         MetalPointer, &DualEnergyFormalism, &MetallicityField, &HydroMethod,
+         &dtFixed, BaryonField[NumberOfBaryonFields], 
+         &CellWidthTemp, &Time, &zred,
+         &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+         &StarFeedbackDistRadius, &StarFeedbackDistCellStep, &StarFeedbackDistTotalCells,
+         &NumberOfParticles, CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
+         ParticlePosition[0], ParticlePosition[1], ParticleVelocity[2],
+         ParticleVelocity[0], ParticleVelocity[1], ParticleVelocity[2],
+         ParticleMass, ParticleAttribute[0], ParticleAttribute[2],
+         ParticleInitialMass, ParticleType,
+         &StarFeedbackTabularSNIIEnergy, &StarFeedbackTabularSNIaEnergy,
+         &StarFeedbackTrackMetalSources, BaryonField[MetalIINum], BaryonField[MetalIaNum],
+         &FBTable.n_met, &FBTable.n_age,
+         FBTable.ini_met, FBTable.pop_age, FBTable.event_rate
+      );
+   } else {
+
     //---- THIS IS THE MODIFIED STAR FORMATION ALGORITHM
  
       FORTRAN_NAME(star_feedback2)(
@@ -1583,7 +1621,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation, 
        &StarMakerStoreInitialMass, ParticleInitialMass,
        &CRModel, &CRFeedback, (CRModel?BaryonField[CRNum]:NULL));
- 
+   }
   } // end: if NORMAL_STAR
  
   if (STARFEED_METHOD(MOM_STAR)) {

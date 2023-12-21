@@ -33,8 +33,8 @@ int grid::IdentifyColourFields(int &SNColourNum, int &MetalNum,
 			       int &Galaxy1ColourNum, int &Galaxy2ColourNum)
 {
  
-  SNColourNum = MetalNum = MetalIaNum = MBHColourNum = Galaxy1ColourNum = 
-    MetalIINum = Galaxy2ColourNum = 0;
+  SNColourNum = MetalNum = MetalIaNum = MetalIINum = MetalAGBNum
+    = MetalMsvNum = MBHColourNum = Galaxy1ColourNum = Galaxy2ColourNum = 0;
  
   SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
   MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields);

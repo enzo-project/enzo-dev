@@ -950,6 +950,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarFeedbackUseTabularYields);
   fprintf(fptr, "StarFeedbackTabularFilename           = %s\n",
           StarFeedbackTabularFilename);
+  fprintf(fptr, "StarFeedbackTabularSNIIEnergy         = %"GSYM"\n",
+          StarFeedbackTabularSNIIEnergy);
+  fprintf(fptr, "StarFeedbackTabularSNIaEnergy         = %"GSYM"\n",
+          StarFeedbackTabularSNIaEnergy);
   fprintf(fptr, "StarFeedbackTrackMetalSources         = %"ISYM"\n",
           StarFeedbackTrackMetalSources);
 

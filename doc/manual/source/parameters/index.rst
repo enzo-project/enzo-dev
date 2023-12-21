@@ -2194,6 +2194,20 @@ General Star Formation
     Filename of the HDF5 file that contains the feedback yields.
     Used with ``StarFeedbackUseTabularYields``.
 
+``StarFeedbackTabularSNIIEnergy`` (external)
+    The energy in ergs of Type II supernovae. 
+    Used in conjunction with ``StarFeedbackUseTabularYields``
+    as the yield tables specify the rate of Type II SNe 
+    per year per solar mass of the initial stellar population mass.
+    Default: 1e+51
+
+``StarFeedbackTabularSNIaEnergy`` (external)
+    The energy in ergs of Type Ia supernovae.
+    Used in conjunction with ``StarFeedbackUseTabularYields``
+    as the yield tables specify the rate of Type Ia SNe 
+    per year per solar mass of the initial stellar population mass.
+    Default: 1e+51
+
 ``StarFeedbackTrackMetalSources`` (external)
     This parameter must be used in conjunction with ``StarFeedbackUseTabularFields``.
     Setting this parameter to 1 will allow metals injected from Type II SNe, Type Ia SNe,
