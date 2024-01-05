@@ -217,7 +217,7 @@ jobs:
 
       - restore_cache:
           name: "Restore test answers."
-          key: test-answers-16
+          key: test-answers-v16
 
       - build-and-test:
           tag: gold-standard-v16
