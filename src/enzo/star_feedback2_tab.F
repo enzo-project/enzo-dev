@@ -17,7 +17,7 @@ c
      &                      ergSNII, ergSNIa,
      &                      itracksrc, metalSNII, metalSNIa,
      &                      ntabZ, ntabAge,
-     &                      tabZ, tabAge, tabEvents)
+     &                      tabZ, tabAge, tabMass, tabMetal, tabEvents)
 
 c
 c  modification of Cen & Ostriker feedback (method 1; star_maker2.F)
@@ -57,13 +57,15 @@ c    distcells - total number of cells over which to distribute feedback
 c
 c    ergSNII   - energy in ergs per SNII event
 c    ergSNIa   - energy in ergs per SNIa event
-c    itracksrc - flag for whether or not SNII & SNIa metals tracked separately
+c    itracksrc - track SNII & SNIa metals separately?
 c    metalSNII - field for SNII metals
 c    metalSNIa - field for SNIa metals
 c    ntabZ     - number of initial metallicities
 c    ntabAge   - number of population ages
 c    tabZ      - metal indicies for FB yield table
 c    tabAge    - age indicies for FB yield table
+c    tabMass   - table of SNe mass rates
+c    tabMetal  - table of SNe metal rates
 c    tabEvents - table of SNe event rates
 c
 c  OUTPUTS:
@@ -94,16 +96,16 @@ c
       INTG_PREC itracksrc, ntabZ, ntabAge
       R_PREC    metalSNII(nx,ny,nz), metalSNIa(nx,ny,nz)
       R_PREC    tabZ(ntabZ), tabAge(ntabAge)
+      R_PREC    tabMass(ntabZ, ntabAge, 4), tabMetal(ntabZ, ntabAge, 4)
       R_PREC    tabEvents(ntabZ, ntabAge, 2)
 c
 c  Locals
-c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
-      INTG_PREC i, j, k, n, ic, jc, kc, stepk, stepj, cellstep
-      R_PREC mform, tfactor, energy, sn_param, msolar_e51,
-     &     m_eject, yield, xv1, xv2, dratio,
-     &     distmass
-      parameter (msolar_e51 = 1800._RKIND)
+      INTG_PREC i, j, k, n, ic, jc, kc, stepk, stepj, cellstep, 
+     &          iter, z_index, age_index
+      R_PREC energy, 
+     &     meject, meject_ii, meject_ia, dratio,
+     &     distmass, age
 c
 c-----------------------------------------------------------------------
 c
@@ -112,6 +114,43 @@ c
 c      write(6,*) 'star_feedback2: start'
       do n=1, npart
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
+c
+c         Determine metallicity and age bounds for the stellar population
+c
+            age = t-tcp(n)
+c
+            z_index = ntabZ
+            do iter = 1_IKIND, ntabZ
+               if (metalf(n) < ntabZ(iter)) then
+                  z_index = iter-1
+               endif
+            enddo
+c
+            age_index = ntabAge
+            do iter = 1_IKIND, ntabAge
+               if (age < ntabAge(iter)) then
+                  age_index = iter-1
+               endif
+            enddo
+c
+c         Interpolate yield tables to get mass, metal frac, & event rate
+c         If particle metal & age falls outside table, then what?
+c         gotta check for that or I'll segfault!
+c         Final index 3 & 4 are unused by this routines
+c
+            meject_ii = bilinear_interp(metalf(n), age,
+     &            z_index, z_index+1, age_index, age_index+1,
+     &            tabMass(z_index,   age_index,   1),
+     &            tabMass(z_index,   age_index+1, 1),
+     &            tabMass(z_index+1, age_index,   1),
+     &            tabMass(z_index+1, age_index+1, 1))
+c
+            meject_ia = bilinear_interp(metalf(n), age,
+     &            z_index, z_index+1, age_index, age_index+1,
+     &            tabMass(z_index,   age_index,   2),
+     &            tabMass(z_index,   age_index+1, 2),
+     &            tabMass(z_index+1, age_index,   2),
+     &            tabMass(z_index+1, age_index+1, 2))
 c
 c         Compute index of the cell that the star particle
 c           resides in.
@@ -131,7 +170,7 @@ c
 c
 c          calculate mass added to each cell
 c
-            distmass = (mform * m_eject) / distcells
+            distmass = meject / distcells
 c
 c          if using distributed feedback, check if particle is
 c          too close to the boundary
@@ -149,24 +188,6 @@ c           subtract ejected mass from particle (ejection due
 c           to winds, supernovae)
 c
             mp(n) = mp(n) - mform * m_eject
-c
-c           Record amount of star formation in this grid.
-c
-            justburn = justburn + mform * dt * dx**3
-c
-c           Calculate how much of the star formation in this
-c           timestep would have gone into supernova energy.
-c
-            energy = sn_param * mform * (c_light/v1)**2/distcells
-c
-c             (aug 7/00 addition: share ejected energy between gas
-c              being ejected and that remaining in star particle)
-c
-#define NO_SHARE_ENERGY
-#ifdef SHARE_ENERGY
-            energy = energy*mform*m_eject/
-     &           (mform*m_eject + minitial*exp(-xv2)*(1._RKIND + xv2))
-#endif /* SHARE_ENERGY */
 c
 c           Add energy to energy field
 c
@@ -263,5 +284,4 @@ c
      &       + fx1y2*(x2-x)*(y-y1) + fx2y2*(x-x1)*(y-y1)
 c
       interp = interp / ( (x2-x1)*(y2-y1) )
-      return
-      end
+      return,

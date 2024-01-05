@@ -340,7 +340,8 @@ extern "C" void FORTRAN_NAME(star_feedback2_tab)(
          FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
          float *mp, float *tcp, float *metalf, float *minit, int *type,
          float *esnii, float *esnia, int *itracksrc, float *zsnii, float *zsnia,
-         int *ntabz, int *ntabage, float *tabz, float *tabage, float *tabevnt);
+         int *ntabz, int *ntabage, float *tabz, float *tabage, 
+         float *tabmass, float *tabmetal, float *tabevent);
  
 extern "C" void FORTRAN_NAME(star_feedback3mom)(int *nx, int *ny, int *nz,
 						float *d, float *mu, float *dm, float *te, float *ge, float *u, float *v,
@@ -1593,7 +1594,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
          &StarFeedbackTabularSNIIEnergy, &StarFeedbackTabularSNIaEnergy,
          &StarFeedbackTrackMetalSources, BaryonField[MetalIINum], BaryonField[MetalIaNum],
          &FBTable.n_met, &FBTable.n_age,
-         FBTable.ini_met, FBTable.pop_age, FBTable.event_rate
+         FBTable.ini_met, FBTable.pop_age, 
+         FBTable.mass_yield, FBTable.metf_yield, FBTable.event_rate
       );
    } else {
 
