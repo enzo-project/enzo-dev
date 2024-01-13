@@ -173,7 +173,7 @@ int RebuildHierarchy(TopGridData *MetaData,
         Temp->GridData->SetNumberOfActiveParticles(0);
       }
 
-  /* The dynamic grids should be distributed enough to store the
+  /* The dynamic grids shoul d be distributed enough to store the
      particles on each grid, so we'll collect the particles at the
      finest static subgrid level, which we find here. */
 
