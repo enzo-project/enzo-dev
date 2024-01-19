@@ -102,7 +102,7 @@ c
 c  Locals
 c
       INTG_PREC i, j, k, n, ic, jc, kc, stepk, stepj, cellstep, 
-     &          iter, z_index, age_index
+     &          iter, z_upper, a_upper
       R_PREC energy, 
      &     meject, meject_ii, meject_ia, dratio,
      &     distmass, age
@@ -115,42 +115,39 @@ c      write(6,*) 'star_feedback2: start'
       do n=1, npart
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
 c
-c         Determine metallicity and age bounds for the stellar population
+c        Determine metallicity and age bounds for the stellar population
+c
+            z_upper = 1_IKIND
+            do while (tabZ(z_upper) .lt. metalf(n) 
+     &                .and. z_upper .lt. ntabZ)
+               z_upper = z_upper + 1_IKIND
+            enddo
+            write(6,*) 'n, metalf, lower Z, upper Z',n,metalf(n),
+     &                tabZ(z_upper-1),tabZ(z_upper)
 c
             age = t-tcp(n)
-c
-            z_index = ntabZ
-            do iter = 1_IKIND, ntabZ
-               if (metalf(n) < ntabZ(iter)) then
-                  z_index = iter-1
-               endif
+            a_upper = 1_IKIND
+            do while (tabAge(a_upper) .lt. age 
+     &                .and. a_upper .lt. ntabAge)
+               a_upper = a_upper + 1_IKIND
             enddo
-c
-            age_index = ntabAge
-            do iter = 1_IKIND, ntabAge
-               if (age < ntabAge(iter)) then
-                  age_index = iter-1
-               endif
-            enddo
+            write(6,*) 'n, age, lower age, upper age',n,age,
+     &                  tabAge(a_upper-1), tabAge(a_upper)
 c
 c         Interpolate yield tables to get mass, metal frac, & event rate
 c         If particle metal & age falls outside table, then what?
 c         gotta check for that or I'll segfault!
 c         Final index 3 & 4 are unused by this routines
 c
-            meject_ii = bilinear_interp(metalf(n), age,
-     &            z_index, z_index+1, age_index, age_index+1,
-     &            tabMass(z_index,   age_index,   1),
-     &            tabMass(z_index,   age_index+1, 1),
-     &            tabMass(z_index+1, age_index,   1),
-     &            tabMass(z_index+1, age_index+1, 1))
+            call bilinear_interp(meject_ii,
+     &            tabMass, ntabZ, ntabAge, 1,
+     &            metalf(n), age,
+     &            z_upper-1, z_upper, a_upper-1, a_upper)
 c
-            meject_ia = bilinear_interp(metalf(n), age,
-     &            z_index, z_index+1, age_index, age_index+1,
-     &            tabMass(z_index,   age_index,   2),
-     &            tabMass(z_index,   age_index+1, 2),
-     &            tabMass(z_index+1, age_index,   2),
-     &            tabMass(z_index+1, age_index+1, 2))
+            call bilinear_interp(meject_ia,
+     &            tabMass, ntabZ, ntabAge, 2,
+     &            metalf(n), age,
+     &            z_upper-1, z_upper, a_upper-1, a_upper)
 c
 c         Compute index of the cell that the star particle
 c           resides in.
@@ -170,6 +167,7 @@ c
 c
 c          calculate mass added to each cell
 c
+            meject = meject_ii + meject_ia
             distmass = meject / distcells
 c
 c          if using distributed feedback, check if particle is
@@ -187,7 +185,7 @@ c
 c           subtract ejected mass from particle (ejection due
 c           to winds, supernovae)
 c
-            mp(n) = mp(n) - mform * m_eject
+            mp(n) = mp(n) - meject
 c
 c           Add energy to energy field
 c
@@ -215,11 +213,11 @@ c
 c
 c           "Cen method".  This takes into account gas recycling.
 c
-                           metal(ic,jc,kc) = 
-     &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
-     &                          (mform / distcells) * 
-     &                          (yield * (1._RKIND-metalf(n)) + 
-     &                          m_eject * metalf(n))) * dratio
+   !                         metal(ic,jc,kc) = 
+   !   &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
+   !   &                          (mform / distcells) * 
+   !   &                          (yield * (1._RKIND-metalf(n)) + 
+   !   &                          meject * metalf(n))) * dratio
             !metal is a fraction
 c
                         endif
@@ -263,25 +261,48 @@ c      write(6,*) 'star_feedback2: end'
 c
 c ===============================================
 c 
-c     Perform bilinear interpolation
+c     Perform bilinear interpolation using a table
 c
-      subroutine bilinear_interp(x, y, x1, x2, y1, y2,
-     &                           fx1y1, fx1y2, fx2y1, fx2y2,
-     &                           interp)
+      subroutine bilinear_interp(interp, table, nx, ny, srcID,
+     &                           x, y, x1, x2, y1, y2)
 c
       implicit none
 #include "fortran_types.def"
 c
 c     Arguments
 c
-      R_PREC x, y, x1, x2, y1, y2, fx1y1, fx1y2, fx2y1, fx2y2
+      INTG_PREC nx, ny, srcID
+      R_PREC x, y, x1, x2, y1, y2
+      R_PREC table(nx,ny,4)
+c
+c     Locals
+c
+      R_PREC fx1y1, fx1y2, fx2y1, fx2y2
 c
 c     Return
 c
       R_PREC interp
 c
-      interp = fx1y1*(x2-x)*(y2-y) + fx2y1*(x-x1)*(y2-y) 
-     &       + fx1y2*(x2-x)*(y-y1) + fx2y2*(x-x1)*(y-y1)
+c     check that x & y are inside the table.
+      if (x1 .lt. 1 .or. x2 .gt. nx) then
+         if (y1 .lt. 1 .or. x2 .gt. ny) then
+c           both x & y are outside the table
+            interp = 
+         endif 
+c        only x is outside the table
+      elseif (y1 .lt. 1 .or. x2 .gt. ny)
+c        only y is outside the table
+      else
+c        everytjhing is inside the table
+         fx1y1 = table(x1,y1, srcID)
+         fx1y2 = table(x1,y2, srcID)
+         fx2y1 = table(x2,y1, srcID)
+         fx2y2 = table(x2,y2, srcID)
+c  
+         interp = fx1y1*(x2-x)*(y2-y) + fx2y1*(x-x1)*(y2-y) 
+     &          + fx1y2*(x2-x)*(y-y1) + fx2y2*(x-x1)*(y-y1)
 c
-      interp = interp / ( (x2-x1)*(y2-y1) )
-      return,
+         interp = interp / ( (x2-x1)*(y2-y1) )
+      endif
+      return
+      end
