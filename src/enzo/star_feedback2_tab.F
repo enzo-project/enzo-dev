@@ -103,9 +103,10 @@ c  Locals
 c
       INTG_PREC i, j, k, n, ic, jc, kc, stepk, stepj, cellstep, 
      &          iter, z_upper, a_upper
-      R_PREC energy, 
-     &     meject, meject_ii, meject_ia, dratio,
-     &     distmass, age
+      R_PREC energy, events_ii, events_ia, 
+     &     meject, meject_ii, meject_ia,
+     &     zeject, zeject_ii, zeject_ia,
+     &     dratio, distmass, age
 c
 c-----------------------------------------------------------------------
 c
@@ -115,6 +116,22 @@ c      write(6,*) 'star_feedback2: start'
       do n=1, npart
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
 c
+c         Compute index of the cell that the star particle
+c           resides in.
+c 
+         i = int((xp(n) - xstart)/dx,IKIND) + 1
+         j = int((yp(n) - ystart)/dx,IKIND) + 1
+         k = int((zp(n) - zstart)/dx,IKIND) + 1
+c
+c         check bounds - if star particle is outside of this grid
+c         then exit and give a warning.
+c
+         if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. j .gt. ny
+     &          .or. k .lt. 1 .or. k .gt. nz) then
+            write(6,*) 'warning: star particle out of grid',i,j,k
+            goto 100
+         endif
+c
 c        Determine metallicity and age bounds for the stellar population
 c
             z_upper = 1_IKIND
@@ -122,8 +139,6 @@ c
      &                .and. z_upper .lt. ntabZ)
                z_upper = z_upper + 1_IKIND
             enddo
-            write(6,*) 'n, metalf, lower Z, upper Z',n,metalf(n),
-     &                tabZ(z_upper-1),tabZ(z_upper)
 c
             age = t-tcp(n)
             a_upper = 1_IKIND
@@ -131,39 +146,29 @@ c
      &                .and. a_upper .lt. ntabAge)
                a_upper = a_upper + 1_IKIND
             enddo
-            write(6,*) 'n, age, lower age, upper age',n,age,
-     &                  tabAge(a_upper-1), tabAge(a_upper)
-c
 c         Interpolate yield tables to get mass, metal frac, & event rate
-c         If particle metal & age falls outside table, then what?
-c         gotta check for that or I'll segfault!
-c         Final index 3 & 4 are unused by this routines
+c         But if the particle age falls outside the table, skip
 c
-            call bilinear_interp(meject_ii,
-     &            tabMass, ntabZ, ntabAge, 1,
-     &            metalf(n), age,
-     &            z_upper-1, z_upper, a_upper-1, a_upper)
-c
-            call bilinear_interp(meject_ia,
-     &            tabMass, ntabZ, ntabAge, 2,
-     &            metalf(n), age,
-     &            z_upper-1, z_upper, a_upper-1, a_upper)
-c
-c         Compute index of the cell that the star particle
-c           resides in.
-c 
-            i = int((xp(n) - xstart)/dx,IKIND) + 1
-            j = int((yp(n) - ystart)/dx,IKIND) + 1
-            k = int((zp(n) - zstart)/dx,IKIND) + 1
-c
-c         check bounds - if star particle is outside of this grid
-c         then exit and give a warning.
-c
-            if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. j .gt. ny
-     &          .or. k .lt. 1 .or. k .gt. nz) then
-               write(6,*) 'warning: star particle out of grid',i,j,k
-               goto 100
+            if (a_upper .eq. 1 .or. a_upper .eq. ntabAge+1) then
+               write(6,*) 'age is out of table:',age
+               goto 10
             endif
+            call bilinear_interp(meject_ii, metalf(n), age,
+     &            tabMass, tabZ, tabAge, 
+     &            ntabZ, ntabAge, 1,
+     &            z_upper-1, z_upper, a_upper-1, a_upper)
+            call bilinear_interp(meject_ia, metalf(n), age,
+     &            tabMass, tabZ, tabAge,
+     &            ntabZ, ntabAge, 2,
+     &            z_upper-1, z_upper, a_upper-1, a_upper)
+            call bilinear_interp(events_ii, metalf(n), age,
+     &            tabEvents, tabZ, tabAge, 
+     &            ntabZ, ntabAge, 1,
+     &            z_upper-1, z_upper, a_upper-1, a_upper)
+            call bilinear_interp(events_ia, metalf(n), age,
+     &            tabEvents, tabZ, tabAge,
+     &            ntabZ, ntabAge, 2,
+     &            z_upper-1, z_upper, a_upper-1, a_upper)
 c
 c          calculate mass added to each cell
 c
@@ -189,6 +194,7 @@ c
 c
 c           Add energy to energy field
 c
+            energy = events_ii*ergSNII + events_ia*ergSNIa
             do kc = k-distrad,k+distrad
                stepk = abs(kc-k)
                do jc = j-distrad,j+distrad
@@ -210,16 +216,24 @@ c             a fraction (rho_metal/rho_gas) rather than a density.
 c             The conversion has been done in the handling routine)
 c
                         if (imetal .eq. 1) then
+                           call bilinear_interp(zeject_ii, 
+     &                           metalf(n), age,
+     &                           tabMetal, tabZ, tabAge, 
+     &                           ntabZ, ntabAge, 1,
+     &                           z_upper-1, z_upper, a_upper-1, a_upper)
+                           call bilinear_interp(zeject_ia,
+     &                           metalf(n), age,
+     &                           tabMetal, tabZ, tabAge,
+     &                           ntabZ, ntabAge, 2,
+     &                           z_upper-1, z_upper, a_upper-1, a_upper)
+                        zeject = zeject_ii + zeject_ia
 c
-c           "Cen method".  This takes into account gas recycling.
+c           Table contains metal fraction of the ejecta over time. 
+c           ?Is distmass the correct mass to convert table fraction to mass?
 c
-   !                         metal(ic,jc,kc) = 
-   !   &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
-   !   &                          (mform / distcells) * 
-   !   &                          (yield * (1._RKIND-metalf(n)) + 
-   !   &                          meject * metalf(n))) * dratio
-            !metal is a fraction
-c
+                        metal(ic,jc,kc) = 
+     &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
+     &                          zeject*distmass) * dratio
                         endif
 c
 c           Mass and momentum feedback
@@ -262,43 +276,69 @@ c
 c ===============================================
 c 
 c     Perform bilinear interpolation using a table
+c     Do not extrapolate
 c
-      subroutine bilinear_interp(interp, table, nx, ny, srcID,
-     &                           x, y, x1, x2, y1, y2)
+      subroutine bilinear_interp(interp, x, y,
+     &                           tabinterp, tabx, taby, 
+     &                           nx, ny, srcID,
+     &                           ix1, ix2, iy1, iy2)
 c
       implicit none
 #include "fortran_types.def"
 c
 c     Arguments
 c
-      INTG_PREC nx, ny, srcID
-      R_PREC x, y, x1, x2, y1, y2
-      R_PREC table(nx,ny,4)
+      INTG_PREC nx, ny, srcID, ix1, ix2, iy1, iy2
+      R_PREC x, y
+      R_PREC tabinterp(nx,ny,4), tabx(nx), taby(ny)
 c
 c     Locals
 c
+      R_PREC x1, x2, y1, y2
       R_PREC fx1y1, fx1y2, fx2y1, fx2y2
 c
 c     Return
 c
       R_PREC interp
 c
-c     check that x & y are inside the table.
-      if (x1 .lt. 1 .or. x2 .gt. nx) then
-         if (y1 .lt. 1 .or. x2 .gt. ny) then
-c           both x & y are outside the table
-            interp = 
-         endif 
-c        only x is outside the table
-      elseif (y1 .lt. 1 .or. x2 .gt. ny)
-c        only y is outside the table
+c     Reset indicies to be in bounds
+c
+      if (ix1 .lt. 1) ix1 = 1
+      if (iy1 .lt. 1) iy1 = 1
+      if (ix2 .gt. nx) ix2 = nx
+      if (iy2 .gt. ny) iy2 = ny
+c
+c     Find x & y associated with lower & upper bounds
+c
+      x1 = tabx(ix1)
+      x2 = tabx(ix2)
+      y1 = taby(iy1)
+      y2 = taby(iy2)
+      write(6,*) 'x, x1, x2',x,x1,x2
+      write(6,*) 'y, y1, y2',y,y1,y2
+c
+      if (ix1 .eq. ix2 .and. iy1 .eq. iy2) then
+c        both x & y fall outside the table
+         interp = tabinterp(ix1, iy1, srcID)
+      elseif (ix1 .eq. ix2) then
+c        only x falls outside the table; interpolate y
+         fx1y1 = tabinterp(ix1, iy1, srcID)
+         fx1y2 = tabinterp(ix1, iy2, srcID)
+         interp = fx1y1*(y2-y) + fx1y2*(y-y1)
+         interp = interp / (y2-y1)
+      elseif (iy1 .eq. iy2) then
+c        only y falls outside the table; interpolate x
+         fx1y1 = tabinterp(ix1, iy1, srcID)
+         fx2y1 = tabinterp(ix2, iy1, srcID)
+         interp = fx1y1*(x2-x) + fx2y1*(x-x1)
+         interp = interp / (x2-x1)
       else
-c        everytjhing is inside the table
-         fx1y1 = table(x1,y1, srcID)
-         fx1y2 = table(x1,y2, srcID)
-         fx2y1 = table(x2,y1, srcID)
-         fx2y2 = table(x2,y2, srcID)
-c  
+c        everything is inside the table; interpolate x & y
+         fx1y1 = tabinterp(ix1, iy1, srcID)
+         fx1y2 = tabinterp(ix1, iy2, srcID)
+         fx2y1 = tabinterp(ix2, iy1, srcID)
+         fx2y2 = tabinterp(ix2, iy2, srcID)
+c
          interp = fx1y1*(x2-x)*(y2-y) + fx2y1*(x-x1)*(y2-y) 
      &          + fx1y2*(x2-x)*(y-y1) + fx2y2*(x-x1)*(y-y1)
 c
