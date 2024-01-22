@@ -26,14 +26,34 @@ from pygrackle.utilities.physical_constants import \
 	sec_per_Myr, \
 	cm_per_kpc
 
-# 1e-29 to 1e-23 g/cm**3
-# 6.5e4 to 1.5e6 K
+import argparse
 
-size_1d = 60 # square table; length of each side
-Z = 0.3 # solar units
+parser = argparse.ArgumentParser(description="Generate a square table of ionization fractions at equilibrium "
+                                 "for a range of densities and temperatures. The assumed metallicity of the table is fixed. "
+                                 "Users must specify a UV background. Included species are HI-II, HeI-III, "
+                                 "HM (H minus), H2I-II, electrons, and metals to align with Grackle.",
+                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument(dest="uvb_file",
+                    help="Path to your desired Grackle UVB file")
+parser.add_argument("-s","--size", type=int, dest='size_1d', default=60,
+                    help="Length of the square table in both dimensions")
+parser.add_argument("-Z","--metallicity", type=float, dest='met', default=0.3,
+                    help="Constant metallicity assumed for the table")
+parser.add_argument("-d","--dens-bounds", nargs=2, type=float, dest='dens',
+                    default=[1e-31,1e-23], help="Density bounds for the table in g/cc")
+parser.add_argument("-t","--temp-bounds", nargs=2, type=float, dest='temp',
+                    default=[3e3,3e6], help="Temperature bounds for the table in K")
+parser.add_argument("--max-iter", type=int, dest="max_iter", default=1e10,
+                    help="Maximum number of iterations for the table to converge")
+parser.add_argument("--tol", type=float, default=1e-7,
+                    help="Acceptable relative error between iterations")
 
-dens = np.logspace(np.log10(1e-31), np.log10(1e-23), size_1d) # cgs
-temp = np.logspace(np.log10(3e3), np.log10(3e6), size_1d) # K
+args = parser.parse_args()
+size_1d = args.size_1d # square table; length of each side
+Z = args.met # solar units
+
+dens = np.logspace(np.log10(args.dens[0]), np.log10(args.dens[1]), size_1d) # cgs
+temp = np.logspace(np.log10(args.temp[0]), np.log10(args.temp[1]), size_1d) # K
 d, t = np.meshgrid(dens, temp)
 
 # Set solver parameters
@@ -44,7 +64,7 @@ chem.primordial_chemistry = 2
 chem.metal_cooling = 1
 chem.UVbackground = 1
 chem.cmb_temperature_floor = 1
-chem.grackle_data_file = b"/PATH/TO/GRACKLE/input/CloudyData_UVB=HM2012.h5"
+chem.grackle_data_file = args.uvb_file
 
 chem.use_specific_heating_rate = 0
 chem.use_volumetric_heating_rate = 0
@@ -67,8 +87,8 @@ fc = setup_fluid_container(chem,
                            temperature=t.ravel(),
                            metal_mass_fraction=0.01295*Z,
                            converge=True,
-                           tolerance=1e-7, # default: 0.01
-                           max_iterations=10000000000)
+                           tolerance=args.tol, # default: 0.01
+                           max_iterations=args.max_iter)
 
 # Save as fraction
 dataset = {'HI'   :fc['HI']   /fc['density'],
