@@ -314,7 +314,8 @@ int ActiveParticleType_AGNParticle::CreateAGN(grid *thisGrid, ActiveParticleForm
   np->TimescaleThreshold = 10.0;
   np->KineticFraction = AGNParticleKineticFraction;
 
-  // These control jet precession, not the orientation of the jet
+  // These are supposed to control jet precession, not the orientation of the jet
+  // Currently they don't actually do anything
   np->JetAngle = (20.0/360.0) * 2.0 * M_PI;
   np->JetPhi = 0.0*(15.0/360.0) * 2.0 * M_PI;
   np->JetTheta = (20.0/360.0)*2.0 * M_PI;

@@ -209,6 +209,11 @@ int grid::AGNParticleCylinderFeedback(ActiveParticleType* ThisParticle, float md
     
       if (fabs(a_vol-g_vol) / a_vol > 0.1)
          printf("Warning! AGN Cylinder volume is off by more than 10%. This is probably a bad thing...\n");
+         // Thank you Warning, this information is extremely helpful
+         // If this occurs its almost certainly because you are running a simulation at low resolution
+         // this calculates the Actual volume of the cylinder and compares it to its theoretical value
+         // set by your enzo parameter file
+         // Try running your sim at higher resolution, or check to see if your particle is in the right place
 
       // Add energy
       float old_cell_mass;

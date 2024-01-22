@@ -71,6 +71,9 @@ int grid::DoAGNFeedback( ActiveParticleType* ThisParticle) {
    FLOAT ysink = tp -> ReturnPosition()[1];
    FLOAT zsink = tp -> ReturnPosition()[2];
 
+   // if grid left is further right than the rightmost point
+   // or grid right is further left than the leftmost point
+   // return from this function
    if ((GridLeftEdge[0]    > xsink + max_radius) ||
          (GridLeftEdge[1]  > ysink + max_radius) ||
          (GridLeftEdge[2]  > zsink + max_radius) ||

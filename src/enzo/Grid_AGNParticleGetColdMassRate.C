@@ -41,19 +41,25 @@ float grid::AGNParticleGetColdMassRate(ActiveParticleType* ThisParticle) {
    // properties.
    ActiveParticleType_AGNParticle* tp = static_cast <ActiveParticleType_AGNParticle*>(ThisParticle);
 
+   // this is used only to check if the particle is on its own grid
+   // only the CoolingRadius value is used for accretion
    float max_radius = max(tp -> CoolingRadius, tp -> FeedbackRadius);
 
    float xsink = tp -> pos[0];
    float ysink = tp -> pos[1];
    float zsink = tp -> pos[2];
 
+   // If this grid contains a particle that is outside its boundaries, then 
+   // something has gone horribly wrong
    if ((GridLeftEdge[0]    > xsink + max_radius) ||
          (GridLeftEdge[1]  > ysink + max_radius) ||
          (GridLeftEdge[2]  > zsink + max_radius) ||
          (GridRightEdge[0] < xsink - max_radius) ||
          (GridRightEdge[1] < ysink - max_radius) ||
          (GridRightEdge[2] < zsink - max_radius))
-      return SUCCESS;
+      {
+         ENZO_FAIL("AGN Particle outside its own grid.");
+      }
 
    // Figure out how to access grid quantities
    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
