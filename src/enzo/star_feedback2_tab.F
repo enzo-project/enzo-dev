@@ -107,6 +107,10 @@ c
      &     meject, meject_ii, meject_ia,
      &     zeject, zeject_ii, zeject_ia,
      &     dratio, distmass, age
+      INTG_PREC isnii, isnia
+
+      isnii = 1_IKIND
+      isnia = 2_IKIND
 c
 c-----------------------------------------------------------------------
 c
@@ -139,13 +143,14 @@ c
      &                .and. z_upper .lt. ntabZ)
                z_upper = z_upper + 1_IKIND
             enddo
-c
+c           ?does age need a units adjustment?
             age = t-tcp(n)
             a_upper = 1_IKIND
             do while (tabAge(a_upper) .lt. age 
      &                .and. a_upper .lt. ntabAge)
                a_upper = a_upper + 1_IKIND
             enddo
+c
 c         Interpolate yield tables to get mass, metal frac, & event rate
 c         But if the particle age falls outside the table, skip
 c
@@ -155,19 +160,19 @@ c
             endif
             call bilinear_interp(meject_ii, metalf(n), age,
      &            tabMass, tabZ, tabAge, 
-     &            ntabZ, ntabAge, 1,
+     &            ntabZ, ntabAge, isnii,
      &            z_upper-1, z_upper, a_upper-1, a_upper)
             call bilinear_interp(meject_ia, metalf(n), age,
      &            tabMass, tabZ, tabAge,
-     &            ntabZ, ntabAge, 2,
+     &            ntabZ, ntabAge, isnia,
      &            z_upper-1, z_upper, a_upper-1, a_upper)
             call bilinear_interp(events_ii, metalf(n), age,
      &            tabEvents, tabZ, tabAge, 
-     &            ntabZ, ntabAge, 1,
+     &            ntabZ, ntabAge, isnii,
      &            z_upper-1, z_upper, a_upper-1, a_upper)
             call bilinear_interp(events_ia, metalf(n), age,
      &            tabEvents, tabZ, tabAge,
-     &            ntabZ, ntabAge, 2,
+     &            ntabZ, ntabAge, isnia,
      &            z_upper-1, z_upper, a_upper-1, a_upper)
 c
 c          calculate mass added to each cell
@@ -219,12 +224,12 @@ c
                            call bilinear_interp(zeject_ii, 
      &                           metalf(n), age,
      &                           tabMetal, tabZ, tabAge, 
-     &                           ntabZ, ntabAge, 1,
+     &                           ntabZ, ntabAge, isnii,
      &                           z_upper-1, z_upper, a_upper-1, a_upper)
                            call bilinear_interp(zeject_ia,
      &                           metalf(n), age,
      &                           tabMetal, tabZ, tabAge,
-     &                           ntabZ, ntabAge, 2,
+     &                           ntabZ, ntabAge, isnia,
      &                           z_upper-1, z_upper, a_upper-1, a_upper)
                         zeject = zeject_ii + zeject_ia
 c
@@ -234,6 +239,12 @@ c
                         metal(ic,jc,kc) = 
      &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
      &                          zeject*distmass) * dratio
+                        metalSNII(ic,jc,kc) =
+     &                          (metalSNII(ic,jc,kc)*d(ic,jc,kc) + 
+     &                          zeject_ii*distmass) * dratio
+                        metalSNIa(ic,jc,kc) =
+     &                          (metalSNIa(ic,jc,kc)*d(ic,jc,kc) + 
+     &                          zeject_ia*distmass) * dratio
                         endif
 c
 c           Mass and momentum feedback
@@ -280,7 +291,7 @@ c     Do not extrapolate
 c
       subroutine bilinear_interp(interp, x, y,
      &                           tabinterp, tabx, taby, 
-     &                           nx, ny, srcID,
+     &                           nx, ny, srcid,
      &                           ix1, ix2, iy1, iy2)
 c
       implicit none
@@ -288,7 +299,7 @@ c
 c
 c     Arguments
 c
-      INTG_PREC nx, ny, srcID, ix1, ix2, iy1, iy2
+      INTG_PREC nx, ny, srcid, ix1, ix2, iy1, iy2
       R_PREC x, y
       R_PREC tabinterp(nx,ny,4), tabx(nx), taby(ny)
 c
@@ -314,30 +325,34 @@ c
       x2 = tabx(ix2)
       y1 = taby(iy1)
       y2 = taby(iy2)
-      write(6,*) 'x, x1, x2',x,x1,x2
-      write(6,*) 'y, y1, y2',y,y1,y2
+      ! write(6,*) 'x, x1, x2',x,x1,x2
+      ! write(6,*) 'y, y1, y2',y,y1,y2
 c
       if (ix1 .eq. ix2 .and. iy1 .eq. iy2) then
 c        both x & y fall outside the table
-         interp = tabinterp(ix1, iy1, srcID)
+      !   write(6,*) 'case: no interpolation'
+         interp = tabinterp(ix1, iy1, srcid)
       elseif (ix1 .eq. ix2) then
 c        only x falls outside the table; interpolate y
-         fx1y1 = tabinterp(ix1, iy1, srcID)
-         fx1y2 = tabinterp(ix1, iy2, srcID)
+      !    write(6,*) 'case: interpolate y'
+         fx1y1 = tabinterp(ix1, iy1, srcid)
+         fx1y2 = tabinterp(ix1, iy2, srcid)
          interp = fx1y1*(y2-y) + fx1y2*(y-y1)
          interp = interp / (y2-y1)
       elseif (iy1 .eq. iy2) then
 c        only y falls outside the table; interpolate x
-         fx1y1 = tabinterp(ix1, iy1, srcID)
-         fx2y1 = tabinterp(ix2, iy1, srcID)
+      !   write(6,*) 'case: interpolate x'
+         fx1y1 = tabinterp(ix1, iy1, srcid)
+         fx2y1 = tabinterp(ix2, iy1, srcid)
          interp = fx1y1*(x2-x) + fx2y1*(x-x1)
          interp = interp / (x2-x1)
       else
 c        everything is inside the table; interpolate x & y
-         fx1y1 = tabinterp(ix1, iy1, srcID)
-         fx1y2 = tabinterp(ix1, iy2, srcID)
-         fx2y1 = tabinterp(ix2, iy1, srcID)
-         fx2y2 = tabinterp(ix2, iy2, srcID)
+      !   write(6,*) 'case: interpolate both'
+         fx1y1 = tabinterp(ix1, iy1, srcid)
+         fx1y2 = tabinterp(ix1, iy2, srcid)
+         fx2y1 = tabinterp(ix2, iy1, srcid)
+         fx2y2 = tabinterp(ix2, iy2, srcid)
 c
          interp = fx1y1*(x2-x)*(y2-y) + fx2y1*(x-x1)*(y2-y) 
      &          + fx1y2*(x2-x)*(y-y1) + fx2y2*(x-x1)*(y-y1)

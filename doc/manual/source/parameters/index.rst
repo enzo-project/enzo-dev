@@ -2847,7 +2847,7 @@ Radiative Transfer (Ray Tracing) Parameters
     summed into the global variable ``EscapedPhotonCount[]``. This variable
     also keeps track of the number of photons passing this radius
     multiplied by 0.5, 1, and 2. Units are in kpc. Not used if set to
-    1. Default: 0.
+    0. Default: 0.
 ``RadiativeTransferSourceClustering`` (external)
     Set to 1 to turn on ray merging from combined virtual sources on a
     binary tree. Default: 0.

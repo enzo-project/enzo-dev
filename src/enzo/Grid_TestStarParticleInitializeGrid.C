@@ -32,7 +32,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass, 
 					 float *Initialdt,
 					 FLOAT TestStarParticleStarVelocity[],
-					 FLOAT TestStarParticleStarPosition[])
+					 FLOAT TestStarParticleStarPosition[],
+           float TestStarParticleMetallicity)
 {
   /* declarations */
 
@@ -91,7 +92,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     else
       ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
   
-  ParticleAttribute[2][0] = 0.0;  // Metal fraction
+  ParticleAttribute[2][0] = TestStarParticleMetallicity;  // Metal fraction
   ParticleAttribute[3][0] = 0.0;  // metalfSNIa
 
   return SUCCESS;

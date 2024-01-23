@@ -40,6 +40,10 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
   char *MetalName = "Metal_Density";
+  char *MetalIIName = "MetalSNII_Density";
+  char *MetalIaName = "MetalSNIa_Density";
+  char *MetalAGBName = "MetalAGB_Density";
+  char *MetalMsvName = "MetalMassive_Density";
   char *ElectronName = "Electron_Density";
   char *HIName    = "HI_Density";
   char *HIIName   = "HII_Density";
@@ -67,9 +71,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float TestStarParticleStarMass    = 100.0;
   int TestProblemUseMetallicityField = 1;
   float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
-
-
-
+  float TestStarParticleStarMetallicity = 0.0;
 
   TestProblemData.MultiSpecies = MultiSpecies;
   TestProblemData.UseMetallicityField = TestProblemUseMetallicityField;
@@ -90,6 +92,8 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 		  &TestStarParticleEnergy);
     ret += sscanf(line, "TestStarParticleStarMass = %"FSYM,
 		  &TestStarParticleStarMass);
+    ret += sscanf(line, "TestStarParticleStarMetallicity = %"FSYM,
+      &TestStarParticleStarMetallicity);
     ret += sscanf(line,"TestStarParticleStarVelocity = %"PSYM" %"PSYM" %"PSYM, 
 		  &TestStarParticleStarVelocity[0],
 		  &TestStarParticleStarVelocity[1],
@@ -132,7 +136,8 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
       TestStarParticleInitializeGrid(TestStarParticleStarMass,
 				     Initialdt, 
 				     TestStarParticleStarVelocity,
-				     TestStarParticleStarPosition) == FAIL)
+				     TestStarParticleStarPosition,
+             TestStarParticleStarMetallicity) == FAIL)
   ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
 
   /* set up field names and units */
@@ -155,6 +160,13 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   }
   if (TestProblemData.UseMetallicityField)
     DataLabel[count++] = MetalName;
+    if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
+      DataLabel[count++] = MetalIaName;
+    if (StarFeedbackTrackMetalSources) {
+      DataLabel[count++] = MetalIIName;
+      DataLabel[count++] = MetalAGBName;
+      DataLabel[count++] = MetalMsvName;
+    }
 
 
   int j;
