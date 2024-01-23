@@ -152,7 +152,7 @@ c           ?does age need a units adjustment?
             enddo
 c
 c         Interpolate yield tables to get mass, metal frac, & event rate
-c         But if the particle age falls outside the table, skip
+c         If the particle age falls outside the table, skip
 c
             if (a_upper .eq. 1 .or. a_upper .eq. ntabAge+1) then
                write(6,*) 'age is out of table:',age
@@ -175,10 +175,12 @@ c
      &            ntabZ, ntabAge, isnia,
      &            z_upper-1, z_upper, a_upper-1, a_upper)
 c
-c          calculate mass added to each cell
+c          Calculate mass & energy added to each cell
+c          Yields of mass and energy are per initial solar mass
 c
-            meject = meject_ii + meject_ia
+            meject = (meject_ii + meject_ia) * minit(n)
             distmass = meject / distcells
+            energy = (events_ii*ergSNII + events_ia*ergSNIa) * minit(n)
 c
 c          if using distributed feedback, check if particle is
 c          too close to the boundary
@@ -199,7 +201,6 @@ c
 c
 c           Add energy to energy field
 c
-            energy = events_ii*ergSNII + events_ia*ergSNIa
             do kc = k-distrad,k+distrad
                stepk = abs(kc-k)
                do jc = j-distrad,j+distrad
@@ -233,8 +234,7 @@ c
      &                           z_upper-1, z_upper, a_upper-1, a_upper)
                         zeject = zeject_ii + zeject_ia
 c
-c           Table contains metal fraction of the ejecta over time. 
-c           ?Is distmass the correct mass to convert table fraction to mass?
+c           Table contains metal fraction of the ejecta over time.
 c
                         metal(ic,jc,kc) = 
      &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
