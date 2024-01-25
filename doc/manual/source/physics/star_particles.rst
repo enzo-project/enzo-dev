@@ -441,10 +441,11 @@ applied, below which no star formation occurs.
 
 Typically this method is used with
 ``StarFormationOncePerRootGridTimeStep``, in which case SF occurs only
-at the beginning of the root grid step and only for grids on
-MaximumRefinementLevel, but with a star particle mass that is
+at the beginning of the root grid step and with a star particle mass that is
 proportial to the root grid time step (as opposed to the much smaller
-time step of the maximally refined grid). This results in fewer and
+time step of the maximally refined grid). Star particles will still only
+form on the most refined grid in a given region.
+This results in fewer and
 more massive star particles, which improves computational
 efficiency. Even so, it may be desirable to enforce a lower limit to
 the star particle mass in some cases. This can be done with the
