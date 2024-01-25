@@ -143,8 +143,8 @@ c
      &                .and. z_upper .lt. ntabZ)
                z_upper = z_upper + 1_IKIND
             enddo
-c           ?does age need a units adjustment?
-            age = t-tcp(n)
+c           
+            age = (t-tcp(n)) * t1/yr_s
             a_upper = 1_IKIND
             do while (tabAge(a_upper) .lt. age 
      &                .and. a_upper .lt. ntabAge)

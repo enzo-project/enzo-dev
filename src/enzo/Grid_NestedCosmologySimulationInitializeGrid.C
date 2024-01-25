@@ -623,10 +623,17 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	  BaryonField[MetalNum][i] = CosmologySimulationInitialFractionMetal
 	    * BaryonField[0][i];
 
-	if (StarMakerTypeIaSNe)
+	if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
 	  for (i = 0; i < size; i++)
 	    BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
 	      * BaryonField[0][i];
+
+	if (StarFeedbackTrackMetalSources)
+		for (i=0; i<size; i++){
+			BaryonField[MetalIINum][i]  = tiny_number;
+			BaryonField[MetalAGBNum][i] = tiny_number;
+			BaryonField[MetalMsvNum][i] = tiny_number;
+	}
 	
 	if (MultiMetals) {
 	  for (i = 0; i < size; i++) {

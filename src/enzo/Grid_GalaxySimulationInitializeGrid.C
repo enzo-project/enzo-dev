@@ -613,8 +613,14 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 
 	/* This should probably be scaled with density in some way to be
 	   a proper metallicity -- DWS (loop redundancy addressed by CEK) */
-	if (StarMakerTypeIaSNe)
-	  BaryonField[MetalIaNum][n] = 1.0e-10;
+	if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
+	  BaryonField[MetalIaNum][n] = tiny_number;
+
+  if (StarFeedbackTrackMetalSources){
+    BaryonField[MetalIINum][n] = tiny_number;
+    BaryonField[MetalAGBNum][n] = tiny_number;
+    BaryonField[MetalMsvNum][n] = tiny_number;
+  }
    
 	for (dim = 0; dim < GridRank; dim++)
 	  BaryonField[vel+dim][n] = Velocity[dim] + UniformVelocity[dim];

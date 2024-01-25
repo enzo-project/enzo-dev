@@ -291,16 +291,20 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
     // metallicity fields (including 'extra' metal fields)
     if(TestProblemData.UseMetallicityField){
-      BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction* UniformDensity;
+      BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction*UniformDensity;
 
-      if (StarMakerTypeIaSNe)
-	BaryonField[MetalIaNum][i] = TestProblemData.MetallicitySNIaField_Fraction*
-	  UniformDensity;
+      if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
+        BaryonField[MetalIaNum][i] = TestProblemData.MetallicitySNIaField_Fraction*UniformDensity;
+
+      if (StarFeedbackTrackMetalSources){
+        BaryonField[MetalAGBNum][i] = tiny_number;
+        BaryonField[MetalMsvNum][i] = tiny_number;
+        BaryonField[MetalIINum][i]  = tiny_number;
+      }
 
       if(TestProblemData.MultiMetals){
-      BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
-      BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
-
+        BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction*UniformDensity;
+        BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction*UniformDensity;
       }
     } // if(TestProblemData.UseMetallicityField)
 
