@@ -183,6 +183,7 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
   /* Now we know where the grids are going, transfer them. */
 
   index2 = 0;
+  if (Nonzero > 1)
   for (lvl = MIN_LEVEL; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++) {
 
   GridsMoved = 0;

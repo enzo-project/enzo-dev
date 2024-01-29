@@ -35,16 +35,16 @@
  
 // Function prototypes
  
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
 int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids, 
 			    int* &NewProcessorNumber);
+int CommunicationSyncNumberOfParticles(grid *GridPointer[], int NumberOfGrids);
 
 #define USE_OLD_CPU_DISTRIBUTION
 
 /* This option code ensures that in nested grid sims, the children grids are not split between two grids at level-1.
    It is off by default. */
-#define CONTAINED_WITHIN_PARENT_OFF
+#define CONTAINED_WITHIN_PARENT
 
 #ifdef CONTAINED_WITHIN_PARENT
 int *AllStartIndex[MAX_STATIC_REGIONS][MAX_DIMENSION];
@@ -56,7 +56,7 @@ bool FirstTimeCalled = true;
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 {
  
-  if (NumberOfProcessors*NumberOfRootGridTilesPerDimensionPerProcessor == 1)
+  if (NumberOfCores*NumberOfRootGridTilesPerDimensionPerProcessor == 1)
     return SUCCESS;
  
   // Declarations
@@ -86,13 +86,11 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   for (dim = 0; dim < Rank; dim++)
     Dims[dim] -= 2*NumberOfGhostZones;
  
-  float Edge = POW(float(Dims[0]*Dims[1]*Dims[2])/float(NumberOfProcessors),
+  float Edge = POW(float(Dims[0]*Dims[1]*Dims[2])/float(NumberOfCores),
 		   1/float(Rank));
  
  
   /* If using MPI, use their routine to calculate layout. */
- 
-#ifdef USE_MPI
  
   int LayoutTemp[] = {0,0,0};
 
@@ -138,9 +136,6 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     fprintf(stderr, "ENZO_layout %"ISYM" x %"ISYM" x %"ISYM"\n", Layout[0], Layout[1], Layout[2]);
   }
-
-#endif /* USE_MPI */
- 
  
   /* Generate arrays of grid dimensions and start positions. */
  
@@ -484,12 +479,13 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   Unigrid = 0;
   if (debug) printf("Re-set Unigrid = 0\n");
  
-  /* Move Particles (while still on same processor). */
+  /* Move Particles (while still on same processor) and sync number of
+     particles. */
 
-  if (!ParallelRootGridIO)
-    if (OldGrid->MoveSubgridParticlesFast(gridcounter, SubGrids, TRUE) == FAIL) {
-      ENZO_FAIL("Error in grid->MoveSubgridParticlesFast.");
-    }
+  if (!ParallelRootGridIO) {
+    OldGrid->MoveSubgridParticlesFast(gridcounter, SubGrids, TRUE);
+    CommunicationSyncNumberOfParticles(SubGrids, gridcounter);
+  }
  
   int *PartitionProcessorNumbers = NULL;
   if (LoadBalancing == 4)
@@ -513,23 +509,6 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
       for (i = 0; i < Layout[0]; i++) {
  
 	grid *NewGrid = ThisGrid->GridData;
- 
-	/* Broadcast the number of particles to the other processors
-	   (OldGrid is assumed to be on the root processor). */
- 
-	if (NumberOfProcessors > 1) {
-
-	  int IntTemp = NewGrid->ReturnNumberOfParticles();
- 
-//          printf("NewGrid->ReturnNumberOfParticles: %"ISYM"\n", IntTemp);
- 
-	  CommunicationBroadcastValue(&IntTemp, ROOT_PROCESSOR);
-
-	  NewGrid->SetNumberOfParticles(IntTemp);
-
-//          printf("NG particle number set to %"ISYM"\n", IntTemp);
-
-	}
  
 	/* Transfer from Old to New (which is still also on root processor) */
  

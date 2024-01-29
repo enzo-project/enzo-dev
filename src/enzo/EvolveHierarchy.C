@@ -678,7 +678,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       evlog = fopen("Evtime", "a");
-      fprintf(evlog, "%8"ISYM"  %16.9e  %16.9e  %16.9e\n", MetaData.CycleNumber, tlev1-tlev0, treb1-treb0, tloop1-tloop0);
+      fprintf(evlog, "%8"ISYM"  %16.9e  %16.9e  %16.9e  %12d  %12d\n", MetaData.CycleNumber, tlev1-tlev0, treb1-treb0, tloop1-tloop0, NumberOfProcessors, NumberOfCores);
       fclose(evlog);
     }
 
@@ -697,7 +697,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     TIMER_STOP("Total");
     if ((MetaData.CycleNumber-1) % TimingCycleSkip == 0)
-		  TIMER_WRITE(MetaData.CycleNumber);
+      TIMER_WRITE(MetaData.CycleNumber);
 
     FirstLoop = false;
  

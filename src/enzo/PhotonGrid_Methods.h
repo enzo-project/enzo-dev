@@ -139,6 +139,12 @@ float LookUpCrossSectionH2II(float hnu, float T);
 
   int AddRadiationPressureAcceleration(void);
 
+/* Add optically thin X-ray field */
+
+  int AddXraysFromSources(Star *AllStars);
+  int AddXraysFromTree(void);
+  int AddOpticallyThinXrays(Star *AllStars, int NumberOfSources);
+
 /* Initialize ionized sphere around a source */
 
   int InitializeSource(RadiationSourceEntry *RS);

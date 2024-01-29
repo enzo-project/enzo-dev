@@ -90,7 +90,8 @@ int DetermineNumberOfNodes(void)
   CoresPerNode = NumberOfProcessors / NumberOfNodes;
 
   if (debug)
-    printf("DetermineNumberOfNodes: %"ISYM" nodes, %"ISYM" cores per node\n", 
+    printf("DetermineNumberOfNodes: %"ISYM" nodes, "
+	   "%"ISYM" MPI processes per node\n", 
 	   NumberOfNodes, CoresPerNode);
 
   return NumberOfNodes;

@@ -65,6 +65,14 @@ c      write(6,*) ddim1, ddim2, ddim3
 c      write(6,*) 'se',start1, start2, start3
 c      write(6,*) end1, end2, end3
 c
+
+!$omp parallel do
+!$omp-  private(k,j,i)
+!$omp-  collapse(1)
+!$omp-  shared(start3, end3, start2, end2, start1, end1)
+!$omp-  shared(dest, source, dstart3, dstart2, dstart1)
+!$omp-  shared(sstart1, sstart2, sstart3)
+!$omp-  default(none)
       do k = start3, end3
          do j = start2, end2
             do i = start1, end1, 2
@@ -75,6 +83,8 @@ c
             enddo
          enddo
       enddo
+!$omp end parallel do
+
 c
       return
       end
@@ -140,6 +150,14 @@ c
       end2 = min(sstart2+sdim2, dstart2+ddim2) - 1
       end3 = min(sstart3+sdim3, dstart3+ddim3) - 1
 c
+
+!$omp parallel do
+!$omp-  private(k,j,i)
+!$omp-  collapse(1)
+!$omp-  shared(start3, end3, start2, end2, start1, end1)
+!$omp-  shared(dest, source, dstart3, dstart2, dstart1)
+!$omp-  shared(sstart1, sstart2, sstart3)
+!$omp-  default(none)
       do k = start3, end3
          do j = start2, end2
             do i = start1, end1, 2
@@ -150,6 +168,8 @@ c
             enddo
          enddo
       enddo
+!$omp end parallel do
+
 c
       return
       end

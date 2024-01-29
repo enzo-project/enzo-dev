@@ -39,7 +39,7 @@ int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Tar
 #endif /* USE_MPI */
  
 extern "C" void FORTRAN_NAME(dep_grid_cic)(
-                               float *source, float *dest, float *temp,
+			       float *source, float *dest,
 			       float *velx, float *vely, float *velz,
 			       float *dt, float *rfield, int *ndim,
                                    hydro_method *ihydro,
@@ -205,10 +205,6 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     for (dim = 0; dim < GridRank; dim++)
       dxfloat[dim] = float(CellWidth[dim][0]);
  
-    /* Allocate a density and velocity mesh for this grid. */
- 
-    float *vel_field = new float[size*4];
- 
     /* Generate the density field advanced by dt using smoothed
        velocity field. */
  
@@ -290,7 +286,6 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
 				 RegionDim, RegionDim+1, RegionDim+2,
 				 Refinement, Refinement+1, Refinement+2);    
  
-    delete [] vel_field;
     if ( RK2SecondStepBaryonDeposit ) 
       if (OldBaryonField[DensNum] != NULL) 
 	delete [] av_dens;
@@ -375,7 +370,9 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
   /* Add dens_field to GravitatingMassField in target grid. */
  
   index = 0;
-  for (k = 0; k < RegionDim[2]; k++)
+//#pragma omp parallel for schedule(static) private(j,gmindex,i,index)
+  for (k = 0; k < RegionDim[2]; k++) {
+    index = k*RegionDim[1]*RegionDim[0];
     for (j = 0; j < RegionDim[1]; j++) {
       gmindex = (j+GridOffset[1] +
                (k+GridOffset[2])*TargetGrid->GravitatingMassFieldDimension[1])*
@@ -383,6 +380,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
       for (i = 0; i < RegionDim[0]; i++, gmindex++, index++)
 	TargetGrid->GravitatingMassField[gmindex] += dens_field[index];
     }
+  }
  
   /* Clean up */
  

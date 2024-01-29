@@ -55,9 +55,11 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
  
     /* Move and delete particles */
 
-    n1 = StartIndex;
+    //n1 = StartIndex;
 
+#pragma omp parallel for schedule(static) private(n1,dim,j)
     for (i = 0; i < NumberOfParticles; i++) {
+      n1 = StartIndex + i;
       for (dim = 0; dim < GridRank; dim++) {
 	List[n1].pos[dim] = ParticlePosition[dim][i];
 	List[n1].vel[dim] = ParticleVelocity[dim][i];
@@ -70,10 +72,10 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
       List[n1].grid = GridNum;
       List[n1].proc = ProcessorNumber;
       //ParticleMass[i] = FLOAT_UNDEFINED;
-      n1++;
+      //n1++;
     } // ENDFOR particles
 
-    StartIndex = n1;
+    StartIndex += NumberOfParticles;
     this->DeleteParticles();
 
   } // end: if (COPY_OUT)
@@ -124,6 +126,9 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
 
       int n;
 
+#pragma omp parallel private(dim,j)
+      {
+#pragma omp for nowait schedule(static)
       for (i = 0; i < NumberOfParticles; i++) {
 	Mass[i] = ParticleMass[i];
 	Number[i] = ParticleNumber[i];
@@ -131,41 +136,44 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
       }
 
       for (dim = 0; dim < GridRank; dim++)
+#pragma omp for nowait schedule(static)
 	for (i = 0; i < NumberOfParticles; i++) {
 	  Position[dim][i] = ParticlePosition[dim][i];
 	  Velocity[dim][i] = ParticleVelocity[dim][i];
 	}
 	
       for (j = 0; j < NumberOfParticleAttributes; j++)
+#pragma omp for nowait schedule(static)
 	for (i = 0; i < NumberOfParticles; i++)
 	  Attribute[j][i] = ParticleAttribute[j][i];
  
       /* Copy new particles */
 
-      n = NumberOfParticles;
+#pragma omp for nowait schedule(static) private(n)
       for (i = StartIndex; i < EndIndex; i++) {
+	n = NumberOfParticles + i - StartIndex;
 	Mass[n] = List[i].mass;
 	Number[n] = List[i].id;
 	Type[n] = List[i].type;
-	n++;
       }
 
       for (dim = 0; dim < GridRank; dim++) {
-	n = NumberOfParticles;
+#pragma omp for nowait schedule(static) private(n)
 	for (i = StartIndex; i < EndIndex; i++) {
+	  n = NumberOfParticles + i - StartIndex;
 	  Position[dim][n] = List[i].pos[dim];
 	  Velocity[dim][n] = List[i].vel[dim];
-	  n++;
 	}
       }
       
       for (j = 0; j < NumberOfParticleAttributes; j++) {
-	n = NumberOfParticles;
+#pragma omp for nowait schedule(static) private(n)
 	for (i = StartIndex; i < EndIndex; i++) {
+	  n = NumberOfParticles + i - StartIndex;
 	  Attribute[j][n] = List[i].attribute[j];
-	  n++;
 	}
       }
+      } // ENDIF pragma omp parallel
       
     } // ENDIF TotalNumberOfParticles > 0
  

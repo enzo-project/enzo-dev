@@ -56,7 +56,7 @@ extern "C" void FORTRAN_NAME(multi_cool)(
 	int *in, int *jn, int *kn, int *nratec, int *iexpand,
 	hydro_method *imethod, int *igammah,
         int *idual, int *ispecies, int *imetal, int *imcool, int *idust, int *idim,
-	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *ih2co,
+	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *imax, int *ih2co,
 	int *ipiht,
 	float *dt, float *aye, float *redshift, float *temstart, float *temend,
 	float *utem, float *uxyz, float *uaye, float *urho, float *utim,
@@ -118,9 +118,11 @@ int grid::SolveRadiativeCooling()
  
   /* Compute size (in floats) of the current grid. */
  
-  int i, dim, size = 1;
-  for (dim = 0; dim < GridRank; dim++)
+  int i, dim, MaxDimension = 0, size = 1;
+  for (dim = 0; dim < GridRank; dim++) {
+    MaxDimension = max(MaxDimension, GridDimension[dim]);
     size *= GridDimension[dim];
+  }
  
   /* Find fields: density, total energy, velocity1-3. */
  
@@ -269,7 +271,7 @@ int grid::SolveRadiativeCooling()
        &DualEnergyFormalism, &MultiSpecies, &MetalFieldPresent, &MetalCooling, 
        &H2FormationOnDust,
        &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2,
-       GridEndIndex, GridEndIndex+1, GridEndIndex+2,
+       GridEndIndex, GridEndIndex+1, GridEndIndex+2, &MaxDimension,
        &CoolData.ih2co, &CoolData.ipiht,
        &dtFixed, &afloat, &RadiationFieldRedshift,
        &CoolData.TemperatureStart, &CoolData.TemperatureEnd,

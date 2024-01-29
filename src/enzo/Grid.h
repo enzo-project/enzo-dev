@@ -1673,6 +1673,30 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
     return ProcessorNumber;
   }
 
+  /* Performance counter for load balancing */
+
+  void ResetCost(void) { 
+    for (int i = 0; i < MAX_COMPUTE_TIMERS; i++) ObservedCost[i] = 0.0; };
+  void ResetCost(int i) { ObservedCost[i] = 0.0; };
+  float ReturnCost(int i) { return ObservedCost[i]; };
+  float ReturnEstimatedCost(int i) { return EstimatedCost[i]; };
+  void SetEstimatedCost(float a, int i) { EstimatedCost[i] = a; };
+  void AddToCost(int i, double a) { 
+    if (MyProcessorNumber == ProcessorNumber)
+      ObservedCost[i] += a;
+  };
+  void SetParentCost(grid *Parent) {
+    if (MyProcessorNumber == ProcessorNumber) {
+      for (int i = 0; i < MAX_COMPUTE_TIMERS; i++) {
+	this->ParentCostPerCell[i] = Parent->ReturnCost(i) / Parent->GetGridSize();
+	this->ParentEstimatedCostPerCell[i] = Parent->ReturnEstimatedCost(i) / 
+	  Parent->GetGridSize();
+	this->ObservedCost[i] = this->ParentCostPerCell[i] * this->GetGridSize();
+	this->EstimatedCost[i] = this->ParentEstimatedCostPerCell[i] * this->GetGridSize();
+      }
+    }
+  };
+
 /* Send a region from a real grid to a 'fake' grid on another processor. */
 
   int CommunicationSendRegion(grid *ToGrid, int ToProcessor, int SendField, 
@@ -1690,6 +1714,14 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   int CommunicationMoveGrid(int ToProcessor, int MoveParticles = TRUE,
 			    int DeleteAllFields = TRUE, 
 			    int MoveSubgridMarker = FALSE);
+
+/* Move only the fields from the grids */
+
+  int CommunicationMoveGrid1(int ToProcessor);
+
+/* Move the stars, particles, and photons from the grids */
+
+  int CommunicationMoveGrid2(int ToProcessor, int MoveParticles = TRUE);
 
 /* Send particles from one grid to another. */
 
@@ -1732,6 +1764,14 @@ int CommunicationTransferActiveParticles(grid* Grids[], int NumberOfGrids,
 		       int AllLocal);
   int MoveSubgridActiveParticles(int NumberOfSubgrids, grid* ToGrids[],
                  int AllLocal);
+  int TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids, 
+			       int* &NumberToMove, int &ParticleCounter, int StartIndex, 
+			       int EndIndex, particle_data* &List, 
+			       bool KeepLocal, bool ParticlesAreLocal,
+			       int CopyDirection,
+			       int IncludeGhostZones = FALSE,
+			       int CountOnly = FALSE);
+
   int TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids, 
 			       int* &NumberToMove, int StartIndex, 
 			       int EndIndex, particle_data* &List, 
@@ -1882,6 +1922,15 @@ int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
 		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
+
+int inteuler(int idim,
+	     float *dslice, float *pslice, int gravity, float *grslice,
+	     float *geslice, float *uslice, float *vslice, float *wslice, 
+	     float *dxi, float *flatten, 
+	     float *dls, float *drs, float *pls, float *prs, float *gels,
+	     float *gers, float *uls, float *urs, float *vls, float *vrs,
+	     float *wls, float *wrs, int ncolors, float *colslice,
+	     float *colls, float *colrs);
 
 // AccelerationHack
 

@@ -204,6 +204,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetallicityRefinementMinLevel = -1;
   MetallicityRefinementMinMetallicity = 1.0e-5;
   MetallicityRefinementMinDensity = FLOAT_UNDEFINED;
+  MetallicityForRefinement  = 1.0;
   FluxCorrection            = TRUE;
 
   UseCoolingTimestep = FALSE;
@@ -338,6 +339,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   Unigrid                     = FALSE;
   UnigridTranspose            = 2;
   NumberOfRootGridTilesPerDimensionPerProcessor = 1;
+  HybridParallelRootGridSplit = TRUE;
   PartitionNestedGrids        = FALSE;
   ExtractFieldsOnly           = TRUE;
   for (i = 0; i < MAX_DIMENSION; i++) {

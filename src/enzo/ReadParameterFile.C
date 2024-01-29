@@ -368,6 +368,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MetallicityRefinementMinMetallicity);
     ret += sscanf(line, "MetallicityRefinementMinDensity = %"FSYM,
 		  &MetallicityRefinementMinDensity);
+    ret += sscanf(line, "MetallicityForRefinement = %"FSYM, 
+		  &MetallicityForRefinement);
 
     ret += sscanf(line, "DomainLeftEdge        = %"PSYM" %"PSYM" %"PSYM, DomainLeftEdge,
 		  DomainLeftEdge+1, DomainLeftEdge+2);
@@ -1001,6 +1003,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     	&StarMakerExplosionDelayTime);
     ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
     ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
+    ret += sscanf(line, "StarMakerUsePhysicalDensityThreshold = %"ISYM,
+		  &StarMakerUsePhysicalDensityThreshold);
 
     ret += sscanf(line, "StarClusterUseMetalField = %"ISYM,
 		  &StarClusterUseMetalField);
@@ -2196,7 +2200,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
 
-  //
+#ifdef _OPENMP
+  if (ConservativeReconstruction == TRUE)
+    ENZO_FAIL("ConservativeReconstruction not supported yet with openmp-yes.\n");
+  if (PositiveReconstruction == TRUE)
+    ENZO_FAIL("PositiveReconstruction not supported yet with openmp-yes.\n");
+#endif
+
+  /* Turn off reseting LB if we're running serially */
+
+  if (NumberOfProcessors == 1 && ResetLoadBalancing)
+    ResetLoadBalancing = FALSE;
+
+  if (HybridParallelRootGridSplit == FALSE)
+    NumberOfCores = NumberOfProcessors;
 
   CheckShearingBoundaryConsistency(MetaData);
 
