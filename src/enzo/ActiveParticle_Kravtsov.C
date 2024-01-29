@@ -47,7 +47,7 @@ int ActiveParticleType_Kravtsov::InitializeParticleType(void) {
 
 
 int ActiveParticleType_Kravtsov::EvaluateFormation
-(grid *thisgrid_orig, ActiveParticleFormationData &supp_data)
+(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &supp_data)
 {
   KravtsovGrid *tg =
     static_cast<KravtsovGrid *>(thisgrid_orig);
