@@ -72,7 +72,7 @@ int ActiveParticleType_GalaxyParticle::InitializeParticleType(void)
 }
 
 int ActiveParticleType_GalaxyParticle::EvaluateFormation
-(grid *thisgrid_orig, ActiveParticleFormationData &data)
+(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data)
 {
   // We actually allow insertion where there isn't maximum refinement,
   // although it's probably the case already, because we care about halos

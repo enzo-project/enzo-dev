@@ -26,6 +26,7 @@ OBJS_CONFIG_LIB = \
         ActiveParticleResetAccelerations.o \
         ActiveParticleRoutines.o \
         ActiveParticle_AccretingParticle.o \
+        ActiveParticle_AGNParticle.o \
         ActiveParticle_CenOstriker.o \
         ActiveParticle_DisableParticle.o \
         ActiveParticle_GalaxyParticle.o \
@@ -40,6 +41,8 @@ OBJS_CONFIG_LIB = \
         AdiabaticExpansionInitialize.o \
         AdjustRefineRegion.o \
         AdjustMustRefineParticlesRefineToLevel.o \
+        AGN_Volume_Grid.o \
+        AGN_Volume_Cylinder.o \
         AMRH5writer.o \
         AnalysisBaseClass.o \
         AnalysisBaseClass_HDF5Utils.o \
@@ -353,6 +356,9 @@ OBJS_CONFIG_LIB = \
 	Grid_AddParticlesFromList.o \
 	Grid_AddRandomForcing.o \
 	Grid_AddToBoundaryFluxes.o \
+        Grid_DoAGNFeedback.o \
+        Grid_AGNParticleGetColdMassRate.o \
+        Grid_AGNParticleCylinderFeedback.o \
 	Grid_AllocateGrids.o \
 	Grid_AnalyzeTrackPeaks.o \
     	Grid_AppendActiveParticlesToList.o \

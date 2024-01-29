@@ -36,6 +36,7 @@ int grid::CommunicationTransferActiveParticles(grid* Grids[], int NumberOfGrids,
 	       int *Layout, int *GStartIndex[], int *GridMap, int CopyDirection)
 {
  
+
   /* Declarations. */
  
   int i, j, k, dim, grid, proc, grid_num, width, bin, CenterIndex;
@@ -55,6 +56,7 @@ int grid::CommunicationTransferActiveParticles(grid* Grids[], int NumberOfGrids,
  
     if (this->NumberOfActiveParticles == 0)
       return SUCCESS;
+
 
 //    if (MyProcessorNumber != ProcessorNumber)
 //      return SUCCESS;
@@ -130,15 +132,21 @@ int grid::CommunicationTransferActiveParticles(grid* Grids[], int NumberOfGrids,
       TotalToMove += NumberToMove[proc];
     int NumberToMoveThisGrid = TotalToMove - PreviousTotalToMove;
     int NumberLeft = this->NumberOfActiveParticles - NumberToMoveThisGrid;
+    int current_grid_id = 0;
+    int new_grid_id = 0;
 
     if (NumberToMoveThisGrid > 0) {
  
       for (i = 0; i < this->NumberOfActiveParticles; i++) {
         grid = ToGrid[i];
         if (grid != ThisGridNum) {
+
           List.copy_and_insert(*ActiveParticles[i]);
           ActiveParticles.mark_for_deletion(i);
           List[n1++]->SetGridID(grid);
+
+          ActiveParticles[i]->PrintInfo();
+          current_grid_id = ActiveParticles[i]->ReturnCurrentGrid()->ID;
         }
       } // ENDFOR particles
 
