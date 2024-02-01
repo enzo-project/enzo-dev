@@ -497,16 +497,6 @@ extern "C" void FORTRAN_NAME(cluster_maker)
    int *type, int *ctype, float *justburn, int *iradtrans,
    int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
 
-extern "C" void FORTRAN_NAME(star_feedback_emf)
-   (int *nx, int *ny, int *nz, float *d, float *te, float *ge,
-    float *u, float *v, float *w, int *idual, hydro_method *imethod,
-    float *dt, float *dx, FLOAT *t, float *d1, float *x1, float *v1, float *t1,
-    int *npart, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, int *ibuff,
-    FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-    float *mp, int *iminit, float *minit, float *tcp, int *type,
-    float *alpha, float *tfb, float *p0);
-
-
 int sink_maker(int *nx, int *ny, int *nz, int *size,
              float *d, float *u, float *v, float *w,
              float *dt, float *r, float *dx, FLOAT *t, float *z, 

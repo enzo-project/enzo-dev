@@ -83,6 +83,8 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     ParticleVelocity[dim][0] = TestStarParticleStarVelocity[dim]*1e5*TimeUnits/LengthUnits;
   }
   ParticleMass[0] = CentralMass;
+  if (StarMakerStoreInitialMass)
+    ParticleInitialMass[0] = CentralMass;
   ParticleAttribute[0][0] = Time+1e-7;
 
   if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;

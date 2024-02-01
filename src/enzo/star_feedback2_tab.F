@@ -155,7 +155,6 @@ c         Interpolate yield tables to get mass, metal frac, & event rate
 c         If the particle age falls outside the table, skip
 c
             if (a_upper .eq. 1 .or. a_upper .eq. ntabAge+1) then
-               write(6,*) 'age is out of table:',age
                goto 10
             endif
             call bilinear_interp(meject_ii, metalf(n), age,
@@ -177,10 +176,16 @@ c
 c
 c          Calculate mass & energy added to each cell
 c          Yields of mass and energy are per initial solar mass
+c          minit is secretly a mass density
 c
             meject = (meject_ii + meject_ia) * minit(n)
             distmass = meject / distcells
             energy = (events_ii*ergSNII + events_ia*ergSNIa) * minit(n)
+     &                  / distcells / v1**2
+            write(6,*) 'event energies', ergSNII, ergSNIa
+            write(6,*) 'nevents SNII, SNIa', events_ii, events_ia
+            write(6,*) 'mass, energy per cell (code units)', 
+     &                 distmass, energy
 c
 c          if using distributed feedback, check if particle is
 c          too close to the boundary
@@ -199,7 +204,7 @@ c           to winds, supernovae)
 c
             mp(n) = mp(n) - meject
 c
-c           Add energy to energy field
+c           Deposit into neighboring cells
 c
             do kc = k-distrad,k+distrad
                stepk = abs(kc-k)
@@ -209,6 +214,9 @@ c
                      cellstep = stepj + abs(ic-i)
                      if (cellstep .le. diststep) then
                         dratio = 1._RKIND/(d(ic,jc,kc) + distmass)
+c
+c           Add energy to energy field
+c                        
                         te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
      &                                  energy) * dratio
                         if (idual .eq. 1)
@@ -232,19 +240,22 @@ c
      &                           tabMetal, tabZ, tabAge,
      &                           ntabZ, ntabAge, isnia,
      &                           z_upper-1, z_upper, a_upper-1, a_upper)
-                        zeject = zeject_ii + zeject_ia
+                           zeject = zeject_ii + zeject_ia
 c
 c           Table contains metal fraction of the ejecta over time.
 c
-                        metal(ic,jc,kc) = 
+                           metal(ic,jc,kc) = 
      &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
      &                          zeject*distmass) * dratio
-                        metalSNII(ic,jc,kc) =
+                           write(6,*) 'metal added', zeject*distmass
+                           if (itracksrc .eq. 1) then
+                              metalSNII(ic,jc,kc) =
      &                          (metalSNII(ic,jc,kc)*d(ic,jc,kc) + 
      &                          zeject_ii*distmass) * dratio
-                        metalSNIa(ic,jc,kc) =
+                              metalSNIa(ic,jc,kc) =
      &                          (metalSNIa(ic,jc,kc)*d(ic,jc,kc) + 
      &                          zeject_ia*distmass) * dratio
+                           endif
                         endif
 c
 c           Mass and momentum feedback

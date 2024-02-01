@@ -16,7 +16,7 @@ dtDataDump             = 1
 #
 #  Units
 #
-LengthUnits  =  1.2344e+21
+LengthUnits            = 1.2344e+21
 TimeUnits              = 3.154e16  // 1 Gyr
 DensityUnits           = 1.0e-24   // 1 part/cc
 #
@@ -38,6 +38,8 @@ StarFeedbackTabularFilename   = sygma_feedback_table.h5
 StarFeedbackTabularSNIIEnergy = 1e51
 StarFeedbackTabularSNIaEnergy = 1e51
 StarFeedbackTrackMetalSources = 1
+#StarFeedbackDistRadius        = 1      # At most, fb in a 3^3 cube around star
+#StarFeedbackDistCellStep      = 3      # include all cells in a 3^3 cube
 #
 #  set Hydro parameters
 #
