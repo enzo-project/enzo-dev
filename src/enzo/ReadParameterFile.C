@@ -1115,6 +1115,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerH2FloorInColdGas);
     ret += sscanf(line, "H2StarMakerColdGasTemperature = %"FSYM,
 		  &H2StarMakerColdGasTemperature);
+    ret += sscanf(line, "H2StarMakerUseLocalDensityMax = %"ISYM,
+		  &H2StarMakerUseLocalDensityMax);
 
     ret += sscanf(line, "StarMakerMinimumMassRamp = %"ISYM,
 		  &StarMakerMinimumMassRamp);

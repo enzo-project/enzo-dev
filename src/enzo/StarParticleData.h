@@ -141,6 +141,8 @@ SPEXTERN int    H2StarMakerAssumeColdWarmPressureBalance;
 SPEXTERN float  H2StarMakerH2DissociationFlux_MW;
 SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
+SPEXTERN float  H2StarMakerUseLocalDensityMax;
+
 
 SPEXTERN int AccretingParticleRadiation;
 SPEXTERN double AccretingParticleLuminosity;

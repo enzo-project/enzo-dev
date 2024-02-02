@@ -755,6 +755,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerH2DissociationFlux_MW = 1.0;
   H2StarMakerH2FloorInColdGas = 0.0;
   H2StarMakerColdGasTemperature = 1e4;
+  H2StarMakerUseLocalDensityMax = 0; 
 
   StarMakerMinimumMassRamp = 0;
   StarMakerMinimumMassRampStartTime = FLOAT_UNDEFINED;
