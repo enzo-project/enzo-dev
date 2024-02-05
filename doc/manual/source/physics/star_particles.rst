@@ -458,16 +458,16 @@ mass)/H2StarMakerMinimumMass.
 For some applications, it may be desireable to create stars only 
 at local density peaks. For this purpose, setting 
 ``H2StarMakerUseLocalDensityMax`` = 1 will check if the cell being 
-considered for star formation has the higest density of any cell 
+considered for star formation has the highest density of any cell 
 in the +/- one cell in the x, y, and z directions. If does not 
 have the highest density among these six neighbors, it will not form 
-stars. This scheme can only be used if ``H2StarMakerUseSobolev`` = 1, because 
+stars. This scheme can only be used if ``H2StarMakerUseSobolev =1 ``, because 
 that routine is needed to calculate the local density gradients.
 
 This star_maker routine can generate a large number of diagnostic 
 outputs in text files created at runtime. These files are not 
 created by default. 
-They can be turned on by setting ``H2StarMakerWriteLogFiles`` to 1. 
+They can be turned on by setting ``H2StarMakerWriteLogFiles = 1``. 
 
 **Important Note**: There is no feedback scheme corresponding to this
 star maker, so don't set StarParticleFeedback = 2048. Instead the user
