@@ -138,11 +138,11 @@ SPEXTERN int    H2StarMakerStochastic;
 SPEXTERN int    H2StarMakerUseSobolevColumn;
 SPEXTERN float  H2StarMakerSigmaOverR;
 SPEXTERN int    H2StarMakerAssumeColdWarmPressureBalance;
+SPEXTERN int    H2StarMakerUseLocalDensityMax;
 SPEXTERN float  H2StarMakerH2DissociationFlux_MW;
 SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
-SPEXTERN float  H2StarMakerUseLocalDensityMax;
-
+SPEXTERN int    H2StarMakerWriteStarLogFiles;
 
 SPEXTERN int AccretingParticleRadiation;
 SPEXTERN double AccretingParticleLuminosity;

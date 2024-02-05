@@ -2,9 +2,6 @@
 #include "error.def"
 #include "phys_const.def"
 
-!     set this if you want to log star particle info in a file (one per
-!     processor)
-#define STAR_LOG
 
 c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
@@ -23,6 +20,8 @@ c
      &     UseSobolevColumn,
      &     SigmaOverR,
      &     AssumeColdWarmPressureBalance,
+     &     UseLocalDensityMax, 
+     &     WriteStarLogFiles, 
      &     H2DissociationFlux_MW, 
      &     H2FloorInColdGas,
      &     ColdGasTemperature,
@@ -153,12 +152,7 @@ c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
-c
-c
-c     ******* More details on this star formation recipe. *******
-c     
-
-c
+ 
 c-----------------------------------------------------------------------
        implicit none
 #include "fortran_types.def"
@@ -188,6 +182,9 @@ c
       INTG_PREC StochasticStarFormation
       INTG_PREC UseSobolevColumn
       INTG_PREC AssumeColdWarmPressureBalance
+      INTG_PREC UseLocalDensityMax
+      INTG_PREC WriteStarLogFiles
+
       R_PREC StarFormationEfficiency
       R_PREC StarFormationNumberDensityThreshold
       R_PREC StarFormationMinimumMass
@@ -217,34 +214,22 @@ c
       R_PREC G0prime, t_avg, age
       R_PREC Sigma_cell
 
-#ifdef STAR_LOG      
+
       character*32 starlog_filename
-
-#ifdef LARGE_TASK_COUNT
       character*8   post
-#else
-      character*4   post
-#endif
 
-! taken from mpi_error_file.F
-#ifdef LARGE_TASK_COUNT
-      write(post,'(i8)') procnum
-      do i=1,8
-      if(post(i:i).eq.' ') post(i:i)='0'
-      end do
-!     write(*,'(i8,4x,a8)') id,post
-#else
-      write(post,'(i4)') procnum
-      do i=1,4
-      if(post(i:i).eq.' ') post(i:i)='0'
-      end do
-!     write(*,'(i4,4x,a4)') id,post
-#endif
+      if (WriteStarLogFiles .eq. 1) then
 
-      starlog_filename = 'starlog_' // post // '.txt'
-      open(unit=4,file=starlog_filename,status='unknown',
-     $     position='append')
-#endif
+          write(post,'(i8)') procnum
+          do i=1,8
+              if(post(i:i).eq.' ') post(i:i)='0'
+          end do
+
+          starlog_filename = 'starlog_' // post // '.txt'
+          open(unit=4,file=starlog_filename,status='unknown',
+     $        position='append')
+
+      endif
 
 
       if (StochasticStarFormation .eq. 1) then 
@@ -354,7 +339,9 @@ c                  [ Sigma ~ rho * ( rho / grad(rho) ) ]
                   Sigma = SobolevColumn(d, fHI, nx, ny, nz,
      $                 i, j, k, dx, d1, x1, maxflag)
 
-c                 if (maxflag .lt. 1) goto 10
+                 if (UseLocalDensityMax > 0) then 
+                     if (maxflag .lt. 1) goto 10
+                 endif 
                   
                   Sigma_cell = d(i,j,k) * fHI(i,j,k) * 
      $                 d1 * (x1*dx) * 4788.03_RKIND
@@ -374,36 +361,13 @@ c     Eq.(93) McKee & Krumholz (2010)
      $                 ( s / (1._RKIND + 0.25_RKIND*s) )
                endif
                
-c               if (H2_fraction .eq. 0._RKIND) then
-c                  write(4,*) 'f_H2=0: ',s,chi,tau_c,Z_MW,Sigma,
-c     $                 Sigma_cell,nH,d(i,j,k), fHI(i,j,k)
-c               endif
-c               if (H2_fraction .eq. 1._RKIND) then
-c                  print *, 'f_H2=1: ',s,chi,tau_c,Z_MW,Sigma
-c               endif
-
-
 c     If H2FloorInColdGas is non-zero, then enforce a floor in f_H2, but
 c     only for cold gas (ColdGasTemperature).
                if (H2FloorInColdGas .gt. 0._RKIND) then
                   
                   if(H2_fraction .lt. H2FloorInColdGas) then
                      
-c#ifdef STAR_LOG
-c                     write(4,*) 'Found cell with fH2 = ',
-c     $                    H2_fraction, ' < ',
-c     $                    H2FloorInColdGas, ' T = ',
-c     $                    temp(i,j,k)
-c#endif
-
-
                      if(temp(i,j,k) .lt. ColdGasTemperature) then
-c#ifdef STAR_LOG
-c                        write(4,*) 'Enforced fH2 = 0.01 for cell ',
-c     $                       'with T = ',temp(i,j,k),
-c     $                       'and n = ',
-c     $                       d(i,j,k)*( d1 / (MU * mass_h))
-c#endif
 
                         H2_fraction = H2FloorInColdGas
                      endif
@@ -442,15 +406,15 @@ c     starmass_in_Msun/StarFormationMinimumMass.
                
                starmass_in_Msun = starmass * m1
                
-               write(4,100) 'SMInputs', d(i,j,k),fHI(i,j,k),temp(i,j,k),
-     $                   t,dt,z,dx,metal(i,j,k)
-80             format(a,8(1pe10.3))  
+               if (WriteStarLogFiles .eq. 1) then 
+                   write(4,100) 'SMInputs', d(i,j,k),fHI(i,j,k),
+     $                 temp(i,j,k),t,dt,z,dx,metal(i,j,k)
+80                 format(a,8(1pe10.3))  
 
-#ifdef STAR_LOG
-               write(4,100) 'SMMath', nH, Sigma, phi_CNM, chi, tau_c, s, 
-     $                 H2_fraction, densthresh, timeconstant, tau_ff, 
-     $                 gasfrac, starmass, starmass_in_Msun, maxflag 
-#endif
+                   write(4,100) 'SMMath', nH, Sigma, phi_CNM, chi,tau_c,
+     $                     s,H2_fraction,densthresh,timeconstant,tau_ff,
+     $                     gasfrac, starmass, starmass_in_Msun, maxflag 
+               endif 
 
 
                if(starmass_in_Msun .lt. 
@@ -468,28 +432,19 @@ c     starmass_in_Msun/StarFormationMinimumMass.
                         
                      starmass_in_Msun = StarFormationMinimumMass
                      starmass = starmass_in_Msun / m1
-#ifdef STAR_LOG
-                     write(4,300) 'Star particle does not meet ',
-     $                    'minimum mass threshold: M =', 
-     $                    starmass_in_Msun,
-     $                    ', but stochastic creation occurred.',
-     $                    random, critval
+                     if (WriteStarLogFiles .eq. 1) then 
+                         write(4,300) 'Star particle does not meet ',
+     $                        'minimum mass threshold: M =', 
+     $                        starmass_in_Msun,
+     $                        ', but stochastic creation occurred.',
+     $                        random, critval
                      
- 300                 format(a,a,1pe10.3,a,2(1pe10.3))
-#endif
+ 300                     format(a,a,1pe10.3,a,2(1pe10.3))
+                     endif
                   endif
 c                 JT added goto here 112623
                   goto 10 
                endif
-
-
-
-#ifdef STAR_LOG
-c               write(4,*) 'Star particle formed with M/Msun = ',
-c     $              starmass_in_Msun, starmass
-c               write(4,100) 'Star formed ', t, nH, Sigma, chi,
-c     $                  s, tau_c, H2_fraction
-#endif
 
                ii = ii + 1
 
@@ -507,12 +462,11 @@ c            fill in star particle attributes
                xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
                yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
                zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
-#ifdef STAR_LOG
-               write(4,250) 'SMOut', d(i,j,k)*d1, temp(i,j,k), 
-     $                H2_fraction, mp(ii), tcp(ii), tdp(ii) 
-250            format(a,6(1pe10.3))
-
-#endif
+               if (WriteStarLogFiles .eq. 1) then 
+                   write(4,250) 'SMOut', d(i,j,k)*d1, temp(i,j,k), 
+     $                    H2_fraction, mp(ii), tcp(ii), tdp(ii) 
+250                format(a,6(1pe10.3))
+               endif 
 
 #define AVERAGE_PARTICLE_VELOCITY
 #ifdef AVERAGE_PARTICLE_VELOCITY
@@ -629,10 +583,8 @@ c
       endif
       np = ii
 
-#ifdef STAR_LOG
-      close(4)
-#endif
-
+      if (WriteStarLogFiles .eq. 1) close(4)
+      
       return
       end
 
@@ -709,7 +661,7 @@ c
 
       R_PREC unit_factor
 
-      maxflag = 1
+      maxflag = 1 
 
 c     HI density at grid cell of interest and six surrounding neighbor
 c     cells.
