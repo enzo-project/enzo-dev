@@ -1199,10 +1199,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     if ( STARMAKE_METHOD(H2REG_STAR) && 
 	 ( this->MakeStars || !StarFormationOncePerRootGridTimeStep ) ) {
 
-      // check that multispecies is set correctly; need at least HINum defined
-      // should also check H2Method against MultiSpecies
+      // check that MultiSpecies is set correctly
       if (!MultiSpecies)
          ENZO_FAIL("Error in Grid_StarParticleHandler: H2 Regulated Star Formation must have MultiSpecies >= 1.\n");
+      if (H2StarMakerH2FractionMethod==1 && MultiSpecies < 2)
+         ENZO_FAIL("Error in Grid_StarParticleHandler: H2 Fraction method 1 must have MultiSpecies >= 2.\n");
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
