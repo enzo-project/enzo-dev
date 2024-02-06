@@ -2352,6 +2352,10 @@ The parameters below are considered in ``StarParticleCreation`` method 11.
     See :ref:`molecular_hydrogen_regulated_star_formation`.
 ``H2StarMakerH2FloorInColdGas`` (external)
     See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerUseLocalDensityMax`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerWriteStarLogFiles`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
 ``H2StarMakerColdGasTemperature`` (external)
     See :ref:`molecular_hydrogen_regulated_star_formation`.
 ``StarFormationOncePerRootGridTimeStep`` (external)
