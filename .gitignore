@@ -9,6 +9,7 @@ syntax: glob
 *.bin
 *.ipch
 .vscode
+.DS_Store 
 
 bin/enzo
 bin/inits
