@@ -106,11 +106,14 @@ c
       R_PREC energy, events_ii, events_ia, 
      &     meject, meject_ii, meject_ia,
      &     zeject, zeject_ii, zeject_ia,
-     &     dratio, distmass, age
+     &     dratio, distmass, age, metalf_zsun, minit_msun,
+     &     m1, dt_yr
       INTG_PREC isnii, isnia
-
+c
       isnii = 1_IKIND
       isnia = 2_IKIND
+      m1 = d1 * dx**3
+      dt_yr = dt*t1/yr_s
 c
 c-----------------------------------------------------------------------
 c
@@ -137,9 +140,11 @@ c
          endif
 c
 c        Determine metallicity and age bounds for the stellar population
+c        Convert metal fraction using Zsun consistent w/ Cloudy/Grackle
 c
+            metalf_zsun = metalf(n) / 0.01295
             z_upper = 1_IKIND
-            do while (tabZ(z_upper) .lt. metalf(n) 
+            do while (tabZ(z_upper) .lt. metalf_zsun 
      &                .and. z_upper .lt. ntabZ)
                z_upper = z_upper + 1_IKIND
             enddo
@@ -157,33 +162,36 @@ c
             if (a_upper .eq. 1 .or. a_upper .eq. ntabAge+1) then
                goto 10
             endif
-            call bilinear_interp(meject_ii, metalf(n), age,
+            call bilinear_interp(meject_ii, metalf_zsun, age,
      &            tabMass, tabZ, tabAge, 
      &            ntabZ, ntabAge, isnii,
      &            z_upper-1, z_upper, a_upper-1, a_upper)
-            call bilinear_interp(meject_ia, metalf(n), age,
+            call bilinear_interp(meject_ia, metalf_zsun, age,
      &            tabMass, tabZ, tabAge,
      &            ntabZ, ntabAge, isnia,
      &            z_upper-1, z_upper, a_upper-1, a_upper)
-            call bilinear_interp(events_ii, metalf(n), age,
+            call bilinear_interp(events_ii, metalf_zsun, age,
      &            tabEvents, tabZ, tabAge, 
      &            ntabZ, ntabAge, isnii,
      &            z_upper-1, z_upper, a_upper-1, a_upper)
-            call bilinear_interp(events_ia, metalf(n), age,
+            call bilinear_interp(events_ia, metalf_zsun, age,
      &            tabEvents, tabZ, tabAge,
      &            ntabZ, ntabAge, isnia,
      &            z_upper-1, z_upper, a_upper-1, a_upper)
 c
 c          Calculate mass & energy added to each cell
-c          Yields of mass and energy are per initial solar mass
+c          Yields of mass and energy are rates per initial Msun
+c          That is, meject_ii & meject_ia are mass frac per year
 c          minit is secretly a mass density
 c
-            meject = (meject_ii + meject_ia) * minit(n)
+            meject = (meject_ii + meject_ia) * minit(n)*dt_yr
             distmass = meject / distcells
-            energy = (events_ii*ergSNII + events_ia*ergSNIa) * minit(n)
-     &                  / distcells / v1**2
-            write(6,*) 'event energies', ergSNII, ergSNIa
-            write(6,*) 'nevents SNII, SNIa', events_ii, events_ia
+            minit_msun = minit(n) * dx**3 * m1 / SolarMass
+            energy = (events_ii*ergSNII + events_ia*ergSNIa) 
+     &                  * minit_msun * dt_yr / dx**3 / distcells
+            write(6,*) 'age', age
+            write(6,*) 'nevents SNII, SNIa', events_ii*dt_yr, 
+     &                  events_ia*dt_yr
             write(6,*) 'mass, energy per cell (code units)', 
      &                 distmass, energy
 c
@@ -231,12 +239,12 @@ c             The conversion has been done in the handling routine)
 c
                         if (imetal .eq. 1) then
                            call bilinear_interp(zeject_ii, 
-     &                           metalf(n), age,
+     &                           metalf_zsun, age,
      &                           tabMetal, tabZ, tabAge, 
      &                           ntabZ, ntabAge, isnii,
      &                           z_upper-1, z_upper, a_upper-1, a_upper)
                            call bilinear_interp(zeject_ia,
-     &                           metalf(n), age,
+     &                           metalf_zsun, age,
      &                           tabMetal, tabZ, tabAge,
      &                           ntabZ, ntabAge, isnia,
      &                           z_upper-1, z_upper, a_upper-1, a_upper)
@@ -246,15 +254,15 @@ c           Table contains metal fraction of the ejecta over time.
 c
                            metal(ic,jc,kc) = 
      &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
-     &                          zeject*distmass) * dratio
-                           write(6,*) 'metal added', zeject*distmass
+     &                          zeject*dt_yr*distmass) * dratio
+                           write(6,*)'metal added',zeject*dt_yr*distmass
                            if (itracksrc .eq. 1) then
                               metalSNII(ic,jc,kc) =
      &                          (metalSNII(ic,jc,kc)*d(ic,jc,kc) + 
-     &                          zeject_ii*distmass) * dratio
+     &                          zeject_ii*dt_yr*distmass) * dratio
                               metalSNIa(ic,jc,kc) =
      &                          (metalSNIa(ic,jc,kc)*d(ic,jc,kc) + 
-     &                          zeject_ia*distmass) * dratio
+     &                          zeject_ia*dt_yr*distmass) * dratio
                            endif
                         endif
 c
@@ -336,8 +344,8 @@ c
       x2 = tabx(ix2)
       y1 = taby(iy1)
       y2 = taby(iy2)
-      ! write(6,*) 'x, x1, x2',x,x1,x2
-      ! write(6,*) 'y, y1, y2',y,y1,y2
+      write(6,*) 'x, x1, x2',x,x1,x2
+      write(6,*) 'y, y1, y2',y,y1,y2
 c
       if (ix1 .eq. ix2 .and. iy1 .eq. iy2) then
 c        both x & y fall outside the table

@@ -27,7 +27,7 @@ TestStarParticleEnergy  = 6.55410093179e-06
 TestProblemUseMetallicityField = 1
 TestProblemInitialMetallicityFraction = 2e-3
 TestStarParticleStarMass = 20.0
-TestStarParticleStarMetallicity = 0.006
+TestStarParticleStarMetallicityFraction = 6.475e-05 # ~0.005 Zsun
 #
 #  star particle parameters
 #
