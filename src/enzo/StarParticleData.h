@@ -130,6 +130,7 @@ SPEXTERN float  MBHFeedbackMetalYield;
 SPEXTERN float  MBHFeedbackThermalRadius;
 SPEXTERN float  MBHFeedbackJetsThresholdMass;
 
+SPEXTERN int    H2StarMakerH2FractionMethod;
 SPEXTERN float  H2StarMakerEfficiency;
 SPEXTERN float  H2StarMakerNumberDensityThreshold;
 SPEXTERN float  H2StarMakerMinimumMass;
