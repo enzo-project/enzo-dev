@@ -34,7 +34,7 @@ commands:
             pip install --upgrade pip
             pip install --upgrade wheel
             pip install --upgrade setuptools
-            pip install Cython numpy h5py fastcache flake8 nose girder-client matplotlib pytest gitpython # yt
+            pip install Cython numpy h5py fastcache flake8 nose3 girder-client matplotlib pytest gitpython # yt
             # Temporary workaround to use updated answer testing from the yt dev repository
             # instead of pip until next yt point release
             git clone https://github.com/yt-project/yt
@@ -189,7 +189,7 @@ commands:
 jobs:
   test-suite:
     docker:
-      - image: cimg/python:3.8.5
+      - image: cimg/python:3.10
 
     resource_class: large
     working_directory: ~/enzo-dev
@@ -200,13 +200,13 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v3
+          key: dependencies-v5
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v3
+          key: dependencies-v5
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -217,16 +217,16 @@ jobs:
 
       - restore_cache:
           name: "Restore test answers."
-          key: test-answers-v15a
+          key: test-answers-v16a
 
       - build-and-test:
-          tag: gold-standard-v15
+          tag: gold-standard-v16
           skipfile: ~/enzo_test/push_suite
           flags: --answer-store
 
       - save_cache:
           name: "Save test answers cache."
-          key: test-answers-v15a
+          key: test-answers-v16a
           paths:
             - ~/enzo_test/push_suite
 
@@ -235,9 +235,12 @@ jobs:
           skipfile: notafile
           flags: --clobber
 
+      - store_artifacts:
+          path: ~/enzo-dev/src/enzo/out.compile
+
   test-compile-options:
     docker:
-      - image: cimg/python:3.8.5
+      - image: cimg/python:3.10
 
     resource_class: large
     working_directory: ~/enzo-dev
@@ -248,13 +251,13 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v3
+          key: dependencies-v5
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v3
+          key: dependencies-v5
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -268,7 +271,7 @@ jobs:
 
   docs-build:
     docker:
-      - image: cimg/python:3.8.5
+      - image: cimg/python:3.10
 
     working_directory: ~/enzo-dev
 

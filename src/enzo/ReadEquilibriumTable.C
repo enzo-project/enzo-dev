@@ -422,26 +422,7 @@ int ReadEquilibriumTable(char* name, FLOAT Time)
     EquilibriumTable.density[i] /= DensityUnits;
     //EquilibriumTable.temperature[i] /= TemperatureUnits; // keep in K
   }
-  // for (int i=0; i<EquilibriumTable.dim_size*EquilibriumTable.dim_size; ++i){
-  //   if (MultiSpecies) {
-  //     EquilibriumTable.HI[i] /= DensityUnits;
-  //     EquilibriumTable.HII[i] /= DensityUnits;
-  //     EquilibriumTable.HeI[i] /= DensityUnits;
-  //     EquilibriumTable.HeII[i] /= DensityUnits;
-  //     EquilibriumTable.HeIII[i] /= DensityUnits;
-  //     EquilibriumTable.de[i] /= DensityUnits;
-  //     if (MultiSpecies > 1) {
-  //       EquilibriumTable.HM[i] /= DensityUnits;
-  //       EquilibriumTable.H2I[i] /= DensityUnits;
-  //       EquilibriumTable.H2II[i] /= DensityUnits;
-  //     }
-  //     if (MultiSpecies > 2) {
-  //       EquilibriumTable.DI[i] /= DensityUnits;
-  //       EquilibriumTable.DII[i] /= DensityUnits;
-  //       EquilibriumTable.HDI[i] /= DensityUnits;
-  //     }
-  //   }
-  // }
+
 
   return SUCCESS;
 }
