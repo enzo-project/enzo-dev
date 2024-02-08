@@ -2266,6 +2266,12 @@ The parameters below are considered in ``StarParticleCreation`` method
     the particle creation time by this amount.  This value is in units of Myrs.  If set
     to a negative value, energy, mass and metals are injected gradually in the same way as is
     done for ``StarParticleFeedback`` method = 1.  Default -1.
+``StarFormationOncePerRootGridTimeStep`` (external)
+    Only valid for ``StarParticleFeedback`` methods 1 and 11. Star formation will only
+    occur at the beginning of the root grid step and with a mass proportional to the root grid timestep.
+    Stars can still only form on the most refined grid in a given volume. This option
+    results in fewer, more massive star particles.
+    Default: 0 (off)
 ``StarMakerMinimumMassRamp`` (external)
      Sets the Minimum Stellar Mass (otherwise given by ``StarMakerMinimumMass`` to 
      ramp up over time, so that a small mass can be used early in the calculation
@@ -2353,8 +2359,6 @@ The parameters below are considered in ``StarParticleCreation`` method 11.
 ``H2StarMakerH2FloorInColdGas`` (external)
     See :ref:`molecular_hydrogen_regulated_star_formation`.
 ``H2StarMakerColdGasTemperature`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``StarFormationOncePerRootGridTimeStep`` (external)
     See :ref:`molecular_hydrogen_regulated_star_formation`.
 
 .. _popIII_star_formation_parameters:
