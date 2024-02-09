@@ -299,7 +299,7 @@ c          = 2.10e14 seconds * [ rho / 10^-22 g/cm^3 ]^(-1/2)
                timeconstant = 2.10e14_RKIND / t1 /
      $              sqrt( d(i,j,k)*dble(d1) / 1.0e-22_RKIND )
                if (H2Method .eq. 0) then
-c     Calculate molecular hydrogen frection (if H2StarFormation)
+c     Calculate molecular hydrogen fraction (if H2StarFormation)
                   H2_fraction = 1.0
 
 c     Metallicity normalized to Milky Way (solar neighborhood)
@@ -390,7 +390,7 @@ c     only for cold gas (ColdGasTemperature).
                else if (H2Method .eq. 1) then
                   H2_fraction = fH2(i,j,k) ! read fraction from chem field
                endif
-               
+
 c     No star formation if H2_fraction < MinimumH2FractionForStarFormation.
                if (H2_fraction .lt.
      $              MinimumH2FractionForStarFormation) then
@@ -421,7 +421,7 @@ c     starmass_in_Msun/StarFormationMinimumMass.
                starmass_in_Msun = starmass * m1
                
                if (WriteStarLogFiles .eq. 1) then 
-                   write(4,100) 'SMInputs', d(i,j,k),fHI(i,j,k),
+                   write(4,80) 'SMInputs', d(i,j,k),fHI(i,j,k),
      $                 temp(i,j,k),t,dt,z,dx,metal(i,j,k)
 80                 format(a,8(1pe10.3))  
 
@@ -434,7 +434,7 @@ c     starmass_in_Msun/StarFormationMinimumMass.
                if(starmass_in_Msun .lt. 
      $              StarFormationMinimumMass) then
 
-100               format(a,13(1pe10.3), i5)  
+100               format(a,13(1pe12.3), i12)  
 
                   if (StochasticStarFormation .eq. 1) then
                      call random_number(random)
