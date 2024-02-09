@@ -809,39 +809,55 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     }
 #endif /* STAR1 */
  
-    if (STARMAKE_METHOD(NORMAL_STAR)) {
+    if (STARMAKE_METHOD(NORMAL_STAR) &&
+       ( this->MakeStars || !StarFormationOncePerRootGridTimeStep )){
 
       //---- MODIFIED CEN OSTRIKER FOLLOWING HOPKINS ET AL 2013 ("STANDARD VERSION")
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
+      
+      /* If StarFormationOncePerRootGridTimeStep, use the root grid
+         timestep for the star particle creation. Stars are only
+         created once per root level time step. */
+      float TimeStep;
+      if(StarFormationOncePerRootGridTimeStep)
+         TimeStep = TopGridTimeStep;
+      else
+         TimeStep = dtFixed;
 
       FORTRAN_NAME(star_maker2)(
-       GridDimension, GridDimension+1, GridDimension+2,
-       BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
-       BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[H2INum],
-       cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer,
-       &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
-       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
-       &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
-       CellLeftEdge[2], &GhostZones,
-       &MetallicityField, &HydroMethod, &StarMakerTimeIndependentFormation,
-       &StarMakerMinimumDynamicalTime,
-       &StarMakerVelDivCrit, &StarMakerSelfBoundCrit, 
-       &StarMakerThermalCrit, &StarMakerUseJeansMass, &StarMakerH2Crit, 
-       &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
-       &StarMakerMinimumMass, &StarMakerTemperatureThreshold,
-       &level, &NumberOfNewParticles, 
-       tg->ParticlePosition[0], tg->ParticlePosition[1],
-          tg->ParticlePosition[2],
-       tg->ParticleVelocity[0], tg->ParticleVelocity[1],
-          tg->ParticleVelocity[2],
-       tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-       tg->ParticleAttribute[2],
-       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
+      GridDimension, GridDimension+1, GridDimension+2,
+      BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
+      BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[H2INum],
+      cooling_time,
+      &TimeStep, BaryonField[NumberOfBaryonFields], MetalPointer,
+      &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+      &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+      &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
+      CellLeftEdge[2], &GhostZones,
+      &MetallicityField, &HydroMethod, &StarMakerTimeIndependentFormation,
+      &StarMakerMinimumDynamicalTime,
+      &StarMakerVelDivCrit, &StarMakerSelfBoundCrit, 
+      &StarMakerThermalCrit, &StarMakerUseJeansMass, &StarMakerH2Crit, 
+      &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
+      &StarMakerMinimumMass, &StarMakerTemperatureThreshold,
+      &level, &NumberOfNewParticles, 
+      tg->ParticlePosition[0], tg->ParticlePosition[1],
+         tg->ParticlePosition[2],
+      tg->ParticleVelocity[0], tg->ParticleVelocity[1],
+         tg->ParticleVelocity[2],
+      tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
+      tg->ParticleAttribute[2],
+      &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
-          tg->ParticleType[i] = NormalStarType;
+         tg->ParticleType[i] = NormalStarType;
+
+         /* If StarFormationOncePerRootGridTimeStep, reset
+	      this::MakeStars to 0, to prevent further star formation until
+	      next top level time step has been taken. */
+      if(StarFormationOncePerRootGridTimeStep)
+         this->MakeStars = 0;
     }
 
     if (STARMAKE_METHOD(MOM_STAR)) {

@@ -494,6 +494,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     if (MetaData.TopGridRank > 2)
       Exterior.InitializeExternalBoundaryFace(2, inflow, outflow,
 					      InflowValue, Dummy);
+    Exterior.InitializeExternalBoundaryParticles(MetaData.ParticleBoundaryType);
 	
     /* Set Global Variables for RPS Wind (see ExternalBoundary_SetGalaxySimulationBoundary.C)*/
 
