@@ -3077,13 +3077,15 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int CommunicationSendActiveParticles(grid *ToGrid, int ToProcessor, bool DeleteParticles = true);
   int TransferSubgridStars(int NumberOfSubgrids, grid* ToGrids[], int AllLocal);
 
-  int FindNewStarParticles(int level);
+  int FindNewStarParticles(int level, std::map<int, Star*>* const &StarParticleLookupMap);
 
   int FindAllStarParticles(int level);
 
   int MirrorStarParticles(void);
 
-  int UpdateStarParticles(int level);
+  int UpdateStarParticles(int level, std::map<int, Star*>* const &StarParticleLookupMap);
+
+  std::map<int, Star*> MakeStarParticleMap();
 
   int AddH2Dissociation(Star *AllStars, int NumberOfSources);
 

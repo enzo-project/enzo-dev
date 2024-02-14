@@ -49,6 +49,19 @@ Star* StarBufferToList(StarBuffer *buffer, int n);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 
+std::map<int, Star*> grid::MakeStarParticleMap() // makes lookup table to quickly find stars from Identifier
+{
+
+  std::map<int, Star*> StarParticleLookupMap;
+  Star *cstar;
+
+  for (cstar = Stars; cstar; cstar = cstar->NextStar) {
+    StarParticleLookupMap[cstar->Identifier] = cstar;  // adding Identifiers as keys, stars as values
+  }
+
+  return StarParticleLookupMap;
+}
+
 int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
@@ -57,6 +70,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   Star *LocalStars = NULL, *GridStars = NULL, *cstar = NULL, *lstar = NULL;
   HierarchyEntry **Grids;
   int NumberOfGrids, *NumberOfStarsInGrids;
+  std::map<int, Star*> StarParticleLookupMap;
 
   minStarLifetime = 1e20;
   TotalNumberOfStars = 0;
@@ -74,17 +88,22 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
     for (GridNum = 0; GridNum < NumberOfGrids; GridNum++) {
 
+      // Make map to speed up UpdateStarParticles
+      TIMER_START("StarParticleFindAll:MakeStarParticleMap");
+      StarParticleLookupMap = Grids[GridNum]->GridData->MakeStarParticleMap();
+      TIMER_STOP("StarParticleFindAll:MakeStarParticleMap");
+
       TIMER_START("StarParticleFindAll:UpdateStarParticles");
       // First update any existing star particles (e.g. position,
       // velocity)
-      if (Grids[GridNum]->GridData->UpdateStarParticles(level) == FAIL) {
+      if (Grids[GridNum]->GridData->UpdateStarParticles(level, &StarParticleLookupMap) == FAIL) {
 		ENZO_FAIL("Error in grid::UpdateStarParticles.");
       }
       TIMER_STOP("StarParticleFindAll:UpdateStarParticles");
 
       TIMER_START("StarParticleFindAll:FindNewStarParticles");
       // Then find any newly created star particles
-      if (Grids[GridNum]->GridData->FindNewStarParticles(level) == FAIL) {
+      if (Grids[GridNum]->GridData->FindNewStarParticles(level, &StarParticleLookupMap) == FAIL) {
 		ENZO_FAIL("Error in grid::FindNewStarParticles.");
       }
       TIMER_STOP("StarParticleFindAll:FindNewStarParticles");
