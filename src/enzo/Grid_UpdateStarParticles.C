@@ -34,6 +34,8 @@ int grid::UpdateStarParticles(int level, std::map<int, Star*>* const &StarPartic
   int i;
   Star *cstar;
 
+// this bit of code uses a lookup map to find and copy star particles,
+// saving computation when there are many star particles
   for (i = 0; i < NumberOfParticles; i++) {
     auto search = (*StarParticleLookupMap).find(ParticleNumber[i]);
     if (search != (*StarParticleLookupMap).end()) {
@@ -42,15 +44,6 @@ int grid::UpdateStarParticles(int level, std::map<int, Star*>* const &StarPartic
           cstar->CopyFromParticle(this, i, level);
     }
   }
-
-// PREVIOUS CODE: slower, does not use a lookup map
-//  for (cstar = Stars; cstar; cstar = cstar->NextStar)
-//    if (cstar->type > 0)  // living stars only (<0 == waiting to be created)
-//      for (i = 0; i < NumberOfParticles; i++)
-//	if (cstar->Identifier == ParticleNumber[i]) {
-//	  cstar->CopyFromParticle(this, i, level);
-//	  break;
-//	} // ENDIF matched ID
 
   return SUCCESS;
 

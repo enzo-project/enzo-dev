@@ -54,18 +54,12 @@ int grid::FindNewStarParticles(int level, std::map<int, Star*>* const &StarParti
 
       // Check if it already exists (wasn't activated on the last
       // timestep, usually because of insufficient mass)
+      // this bit of code uses a lookup map to find the stars, saving computation when there are many stars
       exists = (*StarParticleLookupMap).count(ParticleNumber[i]);
       if (exists) {
         cstar = (*StarParticleLookupMap)[ParticleNumber[i]];
         cstar->SetLevel(level);
       }
-//      exists = false;
-//      for (cstar = Stars; cstar; cstar = cstar->NextStar)
-//	if (cstar->Identifier == ParticleNumber[i]) {
-//	  cstar->SetLevel(level);
-//	  exists = true;
-//	  break;
-//	}
 
       if (!exists) {
 	NewStar = new Star(this, i, level);
