@@ -740,7 +740,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   int MetallicityField;
 
   MetallicityField = (MetalNum != -1 || SNColourNum != -1);
-
+  // TODO: include my other metal types? though MetalNum should already reflect all contribs
   if (MetalNum != -1 && SNColourNum != -1) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
@@ -1585,7 +1585,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
          &StarFeedbackTrackMetalSources, BaryonField[MetalIINum], BaryonField[MetalIaNum],
          &FBTable.n_met, &FBTable.n_age,
          FBTable.ini_met, FBTable.pop_age, 
-         FBTable.mass_yield, FBTable.metf_yield, FBTable.event_rate
+         FBTable.mass_yield, FBTable.metm_yield, FBTable.event_rate
       );
    } else {
 

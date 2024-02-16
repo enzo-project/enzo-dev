@@ -910,7 +910,7 @@ void my_exit(int status)
     delete [] FBTable.ini_met;
     delete [] FBTable.pop_age;
     delete [] FBTable.mass_yield;
-    delete [] FBTable.metf_yield;
+    delete [] FBTable.metm_yield;
     delete [] FBTable.event_rate;
   }
 

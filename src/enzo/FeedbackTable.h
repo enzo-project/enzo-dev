@@ -25,7 +25,7 @@ double* pop_age;
     but 2 for SNe event rate table.
 */
 double* mass_yield;
-double* metf_yield;
+double* metm_yield;
 double* event_rate;
 
 };

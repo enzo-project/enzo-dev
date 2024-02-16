@@ -126,27 +126,27 @@ int ReadFeedbackTable(char* name)
     delete [] massive_index;
 
     /* Read indexer arrays (initial metal frac & population age) */
-    dset_id = H5Dopen(file_id, "/indexer/initial_metallicity");
+    dset_id = H5Dopen(file_id, "/indexer/initial_metal_fraction");
     if (dset_id == h5_error) {
-      fprintf(stderr,"Can't open /indexer/initial_metallicity in %s.\n", name);
+      fprintf(stderr,"Can't open /indexer/initial_metal_fraction in %s.\n", name);
       return FAIL;
     }
     dspace_id = H5Dget_space(dset_id);
     if (dspace_id == h5_error) {
-      fprintf(stderr, "Can't get data space for /indexer/initial_metallicity in %s.\n", name);
+      fprintf(stderr, "Can't get data space for /indexer/initial_metal_fraction in %s.\n", name);
       return FAIL;
     }
     *num_met = H5Sget_simple_extent_npoints(dspace_id);
     if (*num_met == h5_error) {
-      fprintf(stderr, "Unable to get size of /indexer/initial_metallicity in %s.",name);
+      fprintf(stderr, "Unable to get size of /indexer/initial_metal_fraction in %s.",name);
     }
     status = H5Sclose(dspace_id);
     if (status == h5_error) {
-      fprintf(stderr, "Failed to close indexer/initial_metallicity data space in %s.",name);
+      fprintf(stderr, "Failed to close indexer/initial_metal_fraction data space in %s.",name);
     }
     status = H5Dclose(dset_id);
     if (status == h5_error) {
-      fprintf(stderr, "Failed to close indexer/initial_metallicity data set in %s.",name);
+      fprintf(stderr, "Failed to close indexer/initial_metal_fraction data set in %s.",name);
     }
 
     dset_id = H5Dopen(file_id, "/indexer/population_age");
@@ -169,7 +169,7 @@ int ReadFeedbackTable(char* name)
     }
     status = H5Dclose(dset_id);
     if (status == h5_error) {
-      fprintf(stderr, "Failed to close indexer/initial_metallicity data set in %s.",name);
+      fprintf(stderr, "Failed to close /indexer/population_age data set in %s.",name);
     }
 
   } // end root
@@ -195,20 +195,20 @@ int ReadFeedbackTable(char* name)
 
     /* Read initial metal fractions */
     FBTable.ini_met = new double[FBTable.n_met];
-    dset_id = H5Dopen(file_id, "/indexer/initial_metallicity");
+    dset_id = H5Dopen(file_id, "/indexer/initial_metal_fraction");
     if (dset_id == h5_error) {
-      fprintf(stderr,"Can't open /indexer/initial_metallicity in %s.\n", name);
+      fprintf(stderr,"Can't open /indexer/initial_metal_fraction in %s.\n", name);
       return FAIL;
     }
     status = H5Dread(dset_id, HDF5_R8, H5S_ALL, 
                       H5S_ALL, H5P_DEFAULT, FBTable.ini_met);
     if (status == h5_error) {
-      fprintf(stderr, "Failed to read /indexer/initial_metallicity in %s.\n",name);
+      fprintf(stderr, "Failed to read /indexer/initial_metal_fraction in %s.\n",name);
       return FAIL;
     }
     status = H5Dclose(dset_id);
     if (status == h5_error) {
-      fprintf(stderr,"Failed to close /indexer/initial_metallicity in %s.\n",name);
+      fprintf(stderr,"Failed to close /indexer/initial_metal_fraction in %s.\n",name);
       return FAIL;
     }
 
@@ -250,22 +250,22 @@ int ReadFeedbackTable(char* name)
       return FAIL;
     }
 
-    /* Read metal fraction yields */
-    FBTable.metf_yield = new double[FBTable.n_met*FBTable.n_age*4];
-    dset_id = H5Dopen(file_id, "/sygma_models/ejecta_mass");
+    /* Read metal mass yields */
+    FBTable.metm_yield = new double[FBTable.n_met*FBTable.n_age*4];
+    dset_id = H5Dopen(file_id, "/sygma_models/ejecta_metal_mass");
     if (dset_id == h5_error) {
-      fprintf(stderr,"Can't open /sygma_models/ejecta_mass in %s.\n", name);
+      fprintf(stderr,"Can't open /sygma_models/ejecta_metal_mass in %s.\n", name);
       return FAIL;
     }
     status = H5Dread(dset_id, HDF5_R8, H5S_ALL, 
-                      H5S_ALL, H5P_DEFAULT, FBTable.metf_yield);
+                      H5S_ALL, H5P_DEFAULT, FBTable.metm_yield);
     if (status == h5_error) {
-      fprintf(stderr, "Failed to read /sygma_models/ejecta_mass in %s.\n",name);
+      fprintf(stderr, "Failed to read /sygma_models/ejecta_metal_mass in %s.\n",name);
       return FAIL;
     }
     status = H5Dclose(dset_id);
     if (status == h5_error) {
-      fprintf(stderr,"Failed to close /sygma_models/ejecta_mass in %s.\n",name);
+      fprintf(stderr,"Failed to close /sygma_models/ejecta_metal_mass in %s.\n",name);
       return FAIL;
     }
 
@@ -299,7 +299,7 @@ int ReadFeedbackTable(char* name)
     FBTable.ini_met = new double[FBTable.n_met];
     FBTable.pop_age = new double[FBTable.n_age];
     FBTable.mass_yield = new double[FBTable.n_met*FBTable.n_age*4];
-    FBTable.metf_yield = new double[FBTable.n_met*FBTable.n_age*4];
+    FBTable.metm_yield = new double[FBTable.n_met*FBTable.n_age*4];
     FBTable.event_rate = new double[FBTable.n_met*FBTable.n_age*2];
 
   } // end not root
@@ -309,7 +309,7 @@ int ReadFeedbackTable(char* name)
   MPI_Bcast(FBTable.ini_met, FBTable.n_met, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
   MPI_Bcast(FBTable.pop_age, FBTable.n_age, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
   MPI_Bcast(FBTable.mass_yield, FBTable.n_met*FBTable.n_age*4, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
-  MPI_Bcast(FBTable.metf_yield, FBTable.n_met*FBTable.n_age*4, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
+  MPI_Bcast(FBTable.metm_yield, FBTable.n_met*FBTable.n_age*4, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
   MPI_Bcast(FBTable.event_rate, FBTable.n_met*FBTable.n_age*2, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
 #endif
   

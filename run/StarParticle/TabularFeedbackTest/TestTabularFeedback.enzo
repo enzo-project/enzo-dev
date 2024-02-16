@@ -25,9 +25,9 @@ DensityUnits           = 1.0e-24   // 1 part/cc
 TestStarParticleDensity = 1.0
 TestStarParticleEnergy  = 6.55410093179e-06
 TestProblemUseMetallicityField = 1
-TestProblemInitialMetallicityFraction = 2e-3
+TestProblemInitialMetallicityFraction = 2e-3 # ~0.145 Zsun
 TestStarParticleStarMass = 20.0
-TestStarParticleStarMetallicityFraction = 6.475e-05 # ~0.005 Zsun
+TestStarParticleStarMetallicityFraction = 0.005
 #
 #  star particle parameters
 #
@@ -38,8 +38,8 @@ StarFeedbackTabularFilename   = sygma_feedback_table.h5
 StarFeedbackTabularSNIIEnergy = 1e51
 StarFeedbackTabularSNIaEnergy = 1e51
 StarFeedbackTrackMetalSources = 1
-#StarFeedbackDistRadius        = 1      # At most, fb in a 3^3 cube around star
-#StarFeedbackDistCellStep      = 3      # include all cells in a 3^3 cube
+#StarFeedbackDistRadius       = 1      # At most, fb in a 3^3 cube around star
+#StarFeedbackDistCellStep     = 3      # include all cells in a 3^3 cube
 #
 #  set Hydro parameters
 #
