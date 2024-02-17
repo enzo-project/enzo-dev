@@ -57,7 +57,7 @@ This includes simulation information, like adaptive mesh grid hierarchy, paramet
 ``libyt`` will construct data structures to store simulation information and wrap these data pointers, so that they can be read and used in Python with minimum memory overhead.
 
 ``libyt`` supports calling Python functions from simulation process,
-and it also supports user interface (**interactive mode** has interactive Python prompt and reloading script feature, and **jupyter kernel mode** has Jupyter Notebook/JupyterLab UI feature).
+and it also supports user interface (**interactive mode** has :ref:`Interactive Python Prompt` and :ref:`Reloading Script` feature, and **jupyter kernel mode** has :ref:`Jupyter Notebook / JupyterLab UI` feature).
 We can update Python functions and probe data interactively in the UI.
 After in situ analysis is done, ``libyt`` frees resources allocated for itself, and the simulation will continue.
 
@@ -94,23 +94,47 @@ General
 
   You can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://libyt.readthedocs.io/en/latest/libyt-api/run-python-function.html>`__.
 
-  Just put them right after the comments ``TODO: yt_run_Function and yt_run_FunctionArguments`` inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` according to your needs.
+  Put the API right after the comment
+
+  ::
+
+      // TODO: yt_run_Function and yt_run_FunctionArguments
+      // Put yt_run_Function and yt_run_FunctionArguments here
+
+  inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` according to your needs.
 
   Please make sure the functions you called are defined inside the script. Otherwise, in ``libyt`` normal modes, the simulation will terminate simply because it cannot find the Python function, while in the other modes, it will labeled as failed.
 
-  See how to write an inline Python script in :ref:`Doing In Situ Analysis`.
+  See how to use yt to do analysis `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/using-yt.html>`__.
 
+.. _Interactive Python Prompt:
 
 Interactive Python Prompt
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* **How to activate interactive mode and Python prompt in Enzo?**
+* **How to activate interactive Python prompt in Enzo?**
 
-  You have to compile ``libyt`` in interactive mode.
+  You have to compile ``libyt`` in **interactive mode** and then un-comment the code in ``src/enzo/CallInSitulibyt.C``:
 
-  If Enzo detects ``LIBYT_STOP`` file, then ``libyt``'s interactive Python prompt will activate.
+  ::
 
+    /* Call interactive Python prompt. */
+    if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
+        fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
+        fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
+                        "which does not support yt_run_InteractiveMode.\n");
+    }
+
+  If Enzo detects ``LIBYT_STOP`` file, then interactive Python prompt will activate.
   You can find more about libyt API ``yt_run_InteractiveMode`` `here <https://libyt.readthedocs.io/en/latest/libyt-api/yt_run_interactivemode.html>`__.
+
+* **How to use interactive Python prompt? How does it work?**
+
+  See `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/interactive-python-prompt.html>`__ for how to use interactive Python prompt.
+
+  Interactive Python prompt only works on local desktops or submit an interactive job to HPC cluster (ex: ``qsub -I`` in PBS scheduler),
+  because the prompt gets inputs from the terminal.
+  The root process gets the inputs and then broadcasts the inputs to every MPI process. They run the statements synchronously.
 
 
 How to Compile
@@ -148,7 +172,7 @@ This includes ``libyt`` header, links to the library, and adds library search pa
 
 How to Run Enzo
 ---------------
-Put inline Python script (default file name is ``inline.py``) and Enzo executable in the same folder and run Enzo. That's it!
+Put inline Python script (default file name is ``inline.py``) and Enzo executable in the same folder and run Enzo.
 
 If you happen to have error messages related to MPI remote memory access operation, something look like:
 
