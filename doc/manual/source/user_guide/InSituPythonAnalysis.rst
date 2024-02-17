@@ -12,28 +12,28 @@ Requirements
 
 Below are links to the build and runtime requirements, which must be installed.
 
-* `libyt`_: a C++ shared library for in situ analysis.
+* `libyt`_: a C shared library for in situ analysis.
 
   * **Normal Modes**: Shut down and terminate all the processes including simulation, if there are errors during in situ analysis using Python. This includes calling not defined functions.
 
   * **Interactive Modes**: Fault-tolerant to Python and supports interactive Python prompt.
 
-* **Python >= 3.6**
+* **Python >= 3.7**
 
   * `yt`_: an open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
 
-  * `yt_libyt`_: libyt's yt frontend.
+  * `yt_libyt`_: ``libyt``'s yt frontend.
 
-.. _libyt: https://yt-project.github.io/libyt/HowToInstall.html#libyt
+.. _libyt: https://libyt.readthedocs.io/
 
 .. _yt: https://yt-project.org
 
-.. _yt_libyt: https://yt-project.github.io/libyt/HowToInstall.html#yt_libyt
+.. _yt_libyt: https://libyt.readthedocs.io/en/latest/how-to-install.html#yt-libyt
 
 How it Works
 ------------
 Enzo follows ``libyt``'s procedure and APIs to implement this in situ analysis feature.
-You can find how ``libyt`` works more in detail `here <https://yt-project.github.io/libyt/HowItWorks.html#how-it-works>`__ and what are ``libyt`` APIs `here <https://yt-project.github.io/libyt/libytAPI>`__.
+You can find how ``libyt`` works more in detail `here <https://libyt.readthedocs.io/en/latest/how-it-works.html>`__ and what are ``libyt`` APIs `here <https://libyt.readthedocs.io/en/latest/libyt-api/index.html>`__.
 
 At initialization stage, ``libyt`` imports inline Python script ``inline.py`` and initializes Python interpreters in each MPI process. This happens in ``InitializeLibytInterface`` function in ``src/enzo/InitializeLibytInterface.C``.
 
@@ -72,27 +72,27 @@ Currently, it is called inside ``EvolveLevel`` function.
 
 * **How to call Python functions during simulation runtime? And what should I be aware of?**
 
-You can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://yt-project.github.io/libyt/libytAPI/PerformInlineAnalysis.html#calling-python-functions>`__.
+You can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://libyt.readthedocs.io/en/latest/libyt-api/run-python-function.html>`__.
 
 Just put them right after the comments ``TODO: yt_run_Function and yt_run_FunctionArguments`` inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` according to your needs.
 
-Please make sure the functions you called are defined inside the script. Otherwise, in ``libyt`` normal modes, the simulation will terminate simply because it cannot find the Python function, while in interactive mode, it will labeled as failed.
+Please make sure the functions you called are defined inside the script. Otherwise, in ``libyt`` normal modes, the simulation will terminate simply because it cannot find the Python function, while in the other modes, it will labeled as failed.
 
-See how to write an inline Python script in Doing In Situ Analysis section.
+See how to write an inline Python script in :ref:`Doing In Situ Analysis`.
 
 * **How to activate interactive mode and Python prompt in Enzo?**
 
 You have to compile ``libyt`` in interactive mode.
 
-If error occurs while running Python functions or Enzo detects ``LIBYT_STOP`` file, then ``libyt``'s interactive Python prompt will activate.
+If Enzo detects ``LIBYT_STOP`` file, then ``libyt``'s interactive Python prompt will activate.
 
-You can find more about libyt API ``yt_run_InteractiveMode`` `here <https://yt-project.github.io/libyt/libytAPI/ActivateInteractiveMode.html#activate-interactive-mode>`__.
+You can find more about libyt API ``yt_run_InteractiveMode`` `here <https://libyt.readthedocs.io/en/latest/libyt-api/yt_run_interactivemode.html>`__.
 
 
 How to Compile
 --------------
 The configure option that controls whether or not to use ``libyt``
-can be toggled with
+can be toggled with:
 
 ::
 
@@ -104,8 +104,7 @@ or to turn it off,
 
     make libyt-no
 
-1. Must use ``use-mpi-yes`` when using ``libyt-yes``. (There will be a future update to use ``libyt`` in serial, but for now, we must use with MPI.)
-2. *DO NOT* use ``libyt-yes`` option and ``python-yes`` at the same time to avoid any conflicts. They are different settings.
+*DO NOT* use ``libyt-yes`` option and ``python-yes`` at the same time to avoid any conflicts. They are different settings.
 
 The option will look for the following variables in the machine-specific Makefile:
 
@@ -114,7 +113,7 @@ The option will look for the following variables in the machine-specific Makefil
     MACH_INCLUDES_LIBYT
     MACH_LIBS_LIBYT
 
-If you installed ``libyt`` at ``$(LOCAL_LIBYT_INSTALL)``, which this folder include subfolders ``include`` and ``lib``, set the above variables to:
+If you installed ``libyt`` at ``$(LOCAL_LIBYT_INSTALL)``, which this folder includes subfolders ``include`` and ``lib``, set the above variables to:
 
 ::
 
@@ -141,6 +140,7 @@ Please add ``OMPI_MCA_osc=sm,pt2pt`` before ``mpirun``, for example:
 
 This is something ``libyt`` will update and improve in the future.
 
+.. _Doing In Situ Analysis:
 
 Doing In Situ Analysis
 ----------------------
