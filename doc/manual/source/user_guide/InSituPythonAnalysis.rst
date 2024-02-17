@@ -130,11 +130,39 @@ Interactive Python Prompt
 
 * **How to use interactive Python prompt? How does it work?**
 
-  See `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/interactive-python-prompt.html>`__ for how to use interactive Python prompt.
+  It is like a normal Python prompt but with access to simulation data,
+  see `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/interactive-python-prompt.html>`__ for how to use interactive Python prompt.
 
   Interactive Python prompt only works on local desktops or submit an interactive job to HPC cluster (ex: ``qsub -I`` in PBS scheduler),
   because the prompt gets inputs from the terminal.
   The root process gets the inputs and then broadcasts the inputs to every MPI process. They run the statements synchronously.
+
+.. _Reloading Script:
+
+Reloading Script
+^^^^^^^^^^^^^^^^
+
+* **How to activate reload Python script in Enzo?**
+
+  You have to compile ``libyt`` in **interactive mode** and then un-comment the code in ``src/enzo/CallInSitulibyt.C``:
+
+  ::
+
+    /* Reloading script */
+    // if (yt_run_ReloadScript("LIBYT_STOP", "RELOAD", "reload.py") != YT_SUCCESS) {
+    //     fprintf(stderr, "Error in libyt API yt_run_ReloadScript\n");
+    //     fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
+    //                     "which does not support yt_run_ReloadScript.\n");
+    // }
+
+  If an error occurred when running inline Python functions or Enzo detects ``LIBYT_STOP`` file, then it will enter reloading script phase.
+  Document about ``yt_run_ReloadScript`` is `here <https://libyt.readthedocs.io/en/latest/libyt-api/yt_run_reloadscript.html>`__.
+
+* **How to reload a script?**
+
+  Reloading script feature is a file-based interactive Python prompt, such that user creates specific files to send instructions to libyt and gets outputs from file.
+  The feature can be used in HPC cluster.
+  See `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/reloading-script.html>`__ for how to reload a script.
 
 
 How to Compile
