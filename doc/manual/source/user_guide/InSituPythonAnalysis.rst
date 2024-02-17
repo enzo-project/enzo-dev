@@ -11,24 +11,37 @@ Requirements
 ------------
 
 Below are links to the build and runtime requirements, which must be installed.
+You can compile ``libyt`` using different options based on your used cases.
+
+A brief description of each mode (option) is shown here. The options are mutually independent. Please follow the instructions in ``libyt`` documents:
 
 * `libyt`_: a C shared library for in situ analysis.
 
-  * **Normal Modes**: Shut down and terminate all the processes including simulation, if there are errors during in situ analysis using Python. This includes calling not defined functions.
+  * **Serial Mode** (``-DSERIAL_MODE=ON``): Compile ``libyt`` using GCC compiler.
 
-  * **Interactive Modes**: Fault-tolerant to Python and supports interactive Python prompt.
+  * **Parallel Mode** (``-DSERIAL_MODE=OFF``): Compile ``libyt`` using MPI compiler and use it in parallel computation.
+
+  * **Normal Mode** (``-DINTERACTIVE_MODE=OFF``): Shut down and terminate all the processes including simulation, if there are errors during in situ analysis using Python.
+
+  * **Interactive Mode** (``-DINTERACTIVE_MODE=ON``): Fault-tolerant to Python and support interactive Python prompt and reloading script feature.
+
+  * **Jupyter Kernel Mode** (``-DJUPYTER_KERNEL=ON``): Fault-tolerant to Python and support using Jupyter Notebook / JupyterLab UI to connect to simulation and do in situ analysis.
 
 * **Python >= 3.7**
 
-  * `yt`_: an open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
+  * `yt`_: An open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
 
   * `yt_libyt`_: ``libyt``'s yt frontend.
 
-.. _libyt: https://libyt.readthedocs.io/
+  * `jupyter_libyt`_: A Jupyter Client plugin for connecting to libyt Jupyter kernel. This is only required in **Jupyter Kernel Mode**.
+
+.. _libyt: https://libyt.readthedocs.io/en/latest/how-to-install.html#c-library-libyt
 
 .. _yt: https://yt-project.org
 
 .. _yt_libyt: https://libyt.readthedocs.io/en/latest/how-to-install.html#yt-libyt
+
+.. _jupyter_libyt: https://libyt.readthedocs.io/en/latest/how-to-install.html#jupyter-libyt
 
 How it Works
 ------------
