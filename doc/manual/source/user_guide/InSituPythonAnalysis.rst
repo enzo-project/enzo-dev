@@ -33,7 +33,7 @@ A brief description of each mode (option) is shown here. The options are mutuall
 
   * `yt_libyt`_: ``libyt``'s yt frontend.
 
-  * `jupyter_libyt`_: A Jupyter Client plugin for connecting to libyt Jupyter kernel. This is only required in **Jupyter Kernel Mode**.
+  * `jupyter_libyt`_: A Jupyter Client plugin for connecting to libyt Jupyter kernel. This is only required in **jupyter kernel mode**.
 
 .. _libyt: https://libyt.readthedocs.io/en/latest/how-to-install.html#c-library-libyt
 
@@ -55,6 +55,10 @@ The ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` conducts this
 Enzo then passes in simulation information and actual field data pointers to ``libyt``.
 This includes simulation information, like adaptive mesh grid hierarchy, parameters, field labels, etc, and actual simulation data pointers inside ``BaryonField`` array.  (Data fields are referenced, not copied, from ``libyt``'s perspective, although typically ``yt`` itself will make a copy as needed before any in-place changes occur.)
 ``libyt`` will construct data structures to store simulation information and wrap these data pointers, so that they can be read and used in Python with minimum memory overhead.
+
+``libyt`` supports calling Python functions from simulation process,
+and it also supports user interface (**interactive mode** has interactive Python prompt and reloading script feature, and **jupyter kernel mode** has Jupyter Notebook/JupyterLab UI feature).
+We can update Python functions and probe data interactively in the UI.
 After in situ analysis is done, ``libyt`` frees resources allocated for itself, and the simulation will continue.
 
 At the end, when the simulation is shutting down, Enzo calls ``FinalizeLibytInterface`` in ``src/enzo/InitializeLibytInterface.C``, so that ``libyt`` finalizes the Python interpreters.
