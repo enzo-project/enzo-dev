@@ -144,5 +144,5 @@ This is something ``libyt`` will update and improve in the future.
 
 Doing In Situ Analysis
 ----------------------
-See how to write inline Python script and do in situ analysis `here <https://yt-project.github.io/libyt/InSituPythonAnalysis#in-situ-python-analysis>`__.
+See how to write inline Python script and do in situ analysis `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/index.html>`__.
 
