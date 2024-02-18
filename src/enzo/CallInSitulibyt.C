@@ -329,12 +329,26 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
     /* TODO: yt_run_Function and yt_run_FunctionArguments */
 
-    /* Call interactive mode. */
-    if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
-        fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
-        fprintf(stderr, "One reason might be running libyt in normal mode, "
-                        "which does not support yt_run_InteractiveMode.\n");
-    }
+    /* Call interactive Python prompt. */
+    // if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
+    //     fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
+    //     fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
+    //                     "which does not support yt_run_InteractiveMode.\n");
+    // }
+
+    /* Reloading script */
+    // if (yt_run_ReloadScript("LIBYT_STOP", "RELOAD", "reload.py") != YT_SUCCESS) {
+    //     fprintf(stderr, "Error in libyt API yt_run_ReloadScript\n");
+    //     fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
+    //                     "which does not support yt_run_ReloadScript.\n");
+    // }
+
+    /* Launch libyt Jupyter kernel */
+    // if (yt_run_JupyterKernel("LIBYT_STOP", false) != YT_SUCCESS) {
+    //      fprintf(stderr, "Error in libyt API yt_run_JupyterKernel\n");
+    //      fprintf(stderr, "One reason might be compiling libyt without -DJUPYTER_KERNEL=ON, "
+    //                      "which does not support yt_run_JupyterKernel.\n");
+    // }
 
     /* Free resources allocated for libyt. */
     if (yt_free() != YT_SUCCESS) {
