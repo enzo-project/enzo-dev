@@ -11,7 +11,7 @@ Requirements
 ------------
 
 Below are links to the build and runtime requirements, which must be installed.
-You can compile ``libyt`` using different options based on your used cases, so that Enzo can have different in situ analysis feature when it links to ``libyt``.
+We can compile ``libyt`` using different options based on our used cases, so that Enzo can have different in situ analysis feature when it links to ``libyt``.
 
 A brief description of each mode (option) is shown here. The options are mutually independent. Please follow the instructions in ``libyt`` documents:
 
@@ -46,7 +46,7 @@ A brief description of each mode (option) is shown here. The options are mutuall
 How it Works
 ------------
 Enzo follows ``libyt``'s procedure and APIs to implement this in situ analysis feature.
-You can find how ``libyt`` works more in detail `here <https://libyt.readthedocs.io/en/latest/how-it-works.html>`__ and what are ``libyt`` APIs `here <https://libyt.readthedocs.io/en/latest/libyt-api/index.html>`__.
+We can find how ``libyt`` works more in detail `here <https://libyt.readthedocs.io/en/latest/how-it-works.html>`__ and what are ``libyt`` APIs `here <https://libyt.readthedocs.io/en/latest/libyt-api/index.html>`__.
 
 At initialization stage, ``libyt`` imports inline Python script ``inline.py`` and initializes Python interpreters in each MPI process. This happens in ``InitializeLibytInterface`` function in ``src/enzo/InitializeLibytInterface.C``.
 
@@ -65,7 +65,7 @@ At the end, when the simulation is shutting down, Enzo calls ``FinalizeLibytInte
 
 How to Configure
 ----------------
-**Some settings are hard-coded inside Enzo, you can customize it to your own needs.**
+**Some settings are hard-coded inside Enzo, we can customize it to our own needs.**
 
 General
 ^^^^^^^
@@ -73,26 +73,26 @@ General
 * **How to change import Python file name?**
 
   The default Python script will be imported is ``inline.py``.
-  If you really want to change the name, you can go to
-  ``src/enzo/InitializeLibytInterface.C`` in function ``InitializeLibytByItself``, and change ``params->script`` to your Python file name without ``.py``. For example, I want to make it to ``test.py``:
+  If we really want to change the name, we can go to
+  ``src/enzo/InitializeLibytInterface.C`` in function ``InitializeLibytByItself``, and change ``params->script`` to our Python file name without ``.py``. For example, I want to make it to ``test.py``:
 
   ::
 
       params->script = "test";
 
-  Please use ``const char*``, or else, you have to make sure the lifetime of this variable covers the whole in situ process.
+  Please use ``const char*``, or else, we have to make sure the lifetime of this variable covers the whole in situ process.
 
 * **How to activate in situ Python analysis process?**
 
   The full process is encapsulated inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C``.
-  You can put this function everywhere you want in Enzo to start in situ analysis.
+  We can put this function everywhere we want in Enzo to start in situ analysis.
   It will load and use Enzo's current state and data.
 
   Currently, it is called inside ``EvolveLevel`` function.
 
 * **How to call Python functions during simulation runtime? And what should I be aware of?**
 
-  You can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://libyt.readthedocs.io/en/latest/libyt-api/run-python-function.html>`__.
+  We can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://libyt.readthedocs.io/en/latest/libyt-api/run-python-function.html>`__.
 
   Put the API right after the comment
 
@@ -101,9 +101,9 @@ General
       // TODO: yt_run_Function and yt_run_FunctionArguments
       // Put yt_run_Function and yt_run_FunctionArguments here
 
-  inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` according to your needs.
+  inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` according to our needs.
 
-  Please make sure the functions you called are defined inside the script. Otherwise, in ``libyt`` normal modes, the simulation will terminate simply because it cannot find the Python function, while in the other modes, it will labeled as failed.
+  Please make sure the functions we called are defined inside the script. Otherwise, in ``libyt`` normal modes, the simulation will terminate simply because it cannot find the Python function, while in the other modes, it will labeled as failed.
 
   See how to use yt to do analysis `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/using-yt.html>`__.
 
@@ -114,7 +114,7 @@ Interactive Python Prompt
 
 * **How to activate interactive Python prompt in Enzo?**
 
-  You have to compile ``libyt`` in **interactive mode** and then un-comment the code in ``src/enzo/CallInSitulibyt.C``:
+  We have to compile ``libyt`` in **interactive mode** and then un-comment the code in ``src/enzo/CallInSitulibyt.C``:
 
   ::
 
@@ -126,7 +126,7 @@ Interactive Python Prompt
     }
 
   If Enzo detects ``LIBYT_STOP`` file, then interactive Python prompt will activate.
-  You can find more about libyt API ``yt_run_InteractiveMode`` `here <https://libyt.readthedocs.io/en/latest/libyt-api/yt_run_interactivemode.html>`__.
+  We can find more about libyt API ``yt_run_InteractiveMode`` `here <https://libyt.readthedocs.io/en/latest/libyt-api/yt_run_interactivemode.html>`__.
 
 * **How to use interactive Python prompt? How does it work?**
 
@@ -144,7 +144,7 @@ Reloading Script
 
 * **How to activate reload Python script in Enzo?**
 
-  You have to compile ``libyt`` in **interactive mode** and then un-comment the code in ``src/enzo/CallInSitulibyt.C``:
+  We have to compile ``libyt`` in **interactive mode** and then un-comment the code in ``src/enzo/CallInSitulibyt.C``:
 
   ::
 
@@ -164,6 +164,52 @@ Reloading Script
   The feature can be used in HPC cluster.
   See `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/reloading-script.html>`__ for how to reload a script.
 
+.. _Jupyter Notebook / JupyterLab UI:
+
+Jupyter Notebook / JupyterLab UI
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **How does this work?**
+
+  Traditionally, when we start a Jupyter Notebook, it summons a kernel and manages it itself.
+  A kernel is the actual core process that runs the commands and statements in a Jupyter Notebook (JupyterLab) cell.
+
+  Here, we do it in an opposite way.
+  We launch a kernel first, and then we make Jupyter Notebook connects to it. The kernel is no longer managed by Jupyter at all.
+
+  We run simulation and start Jupyter Notebook separately.
+  libyt API ``yt_run_JupyterKernel`` launches a libyt Jupyter kernel (libyt kernel), so that simulation data is within reach.
+  We then use Jupyter Notebook to connect to libyt kernel.
+  Thus we can do in situ analysis using Jupyter Notebook UI.
+
+* **How to launch libyt kernel in Enzo?**
+
+  We have to compile ``libyt`` in **jupyter kernel mode** and then un-comment the code in ``src/enzo/CallInSitulibyt.C``:
+
+  ::
+
+    /* Launch libyt Jupyter kernel */
+    // if (yt_run_JupyterKernel("LIBYT_STOP", false) != YT_SUCCESS) {
+    //      fprintf(stderr, "Error in libyt API yt_run_JupyterKernel\n");
+    //      fprintf(stderr, "One reason might be compiling libyt without -DJUPYTER_KERNEL=ON, "
+    //                      "which does not support yt_run_JupyterKernel.\n");
+    // }
+
+  If Enzo detects ``LIBYT_STOP`` file, it will launch a libyt kernel.
+  Since we set the second argument to ``false``, libyt kernel will bind to empty ports automatically.
+  If it is set to ``true``, libyt kernel will use the configuration based on user-provided connection file.
+  This is useful when running simulation in HPC clusters.
+  See `here <https://libyt.readthedocs.io/en/latest/libyt-api/yt_run_jupyterkernel.html>`__ for libyt API ``yt_run_JupyterKernel``.
+
+* **How to start Jupyter Notebook / JupyterLab and connect to libyt kernel? How to use it?**
+
+  This feature can be used in local desktop and HPC cluster.
+  See `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/jupyter-notebook/jupyter-notebook-access.html>`__ for a step by step guide and how to use it.
+
+  Notice that ``libyt`` hasn't done implementing Jupyter's full feature.
+  What it does is processing inputs and printing outputs faithfully.
+  Features like data streaming, debugging, and ipwidgets are not supported yet.
+  ``libyt`` will add these features in the future update.
 
 How to Compile
 --------------
@@ -189,7 +235,7 @@ The option will look for the following variables in the machine-specific Makefil
     MACH_INCLUDES_LIBYT
     MACH_LIBS_LIBYT
 
-If you installed ``libyt`` at ``$(LOCAL_LIBYT_INSTALL)``, which this folder includes subfolders ``include`` and ``lib``, set the above variables to:
+If we installed ``libyt`` at ``$(LOCAL_LIBYT_INSTALL)``, which this folder includes subfolders ``include`` and ``lib``, set the above variables to:
 
 ::
 
@@ -202,7 +248,7 @@ How to Run Enzo
 ---------------
 Put inline Python script (default file name is ``inline.py``) and Enzo executable in the same folder and run Enzo.
 
-If you happen to have error messages related to MPI remote memory access operation, something look like:
+If we happen to have error messages related to MPI remote memory access operation, something look like:
 
 ::
 
@@ -221,4 +267,3 @@ This is something ``libyt`` will update and improve in the future.
 Doing In Situ Analysis
 ----------------------
 See how to write inline Python script and do in situ analysis `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/index.html>`__.
-
